@@ -11,8 +11,7 @@
             "type": "string",
             "description": "The version of the schema this manifest is using.",
             "enum": [
-                "devPreview",
-                "m365DevPreview"
+                "devPreview"
             ]
         },
         "version": {
@@ -518,6 +517,11 @@
                           ]
                         }
                     },
+                    "supportsTargetedMessages": {
+                        "type": "boolean",
+                        "description": "When true, the bot is enabled to receive targeted messages and appears in the / slash commands list. Required for slash command support. Developers can optionally add triggers: [\"slash\"] on commandLists entries to surface specific commands.",
+                        "default": false
+                    },
                     "commandLists": {
                         "type": "array",
                         "maxItems": 3,
@@ -526,6 +530,16 @@
                             "type": "object",
                             "additionalProperties": false,
                             "properties": {
+                                "triggers": {
+                                    "type": "array",
+                                    "maxItems": 2,
+                                    "items": {
+                                        "type":  "string",
+                                        "enum": [ "mention", "slash" ]
+                                    },
+                                    "default": [ "mention" ],
+                                    "description": "Controls where the commands in this commandLists entry are surfaced. \"mention\" = @mention trigger (current behavior). \"slash\" = slash commands list (targeted messages)."
+                                },
                                 "scopes": {
                                     "type": "array",
                                     "description": "Specifies the scopes for which the command list is valid",
@@ -555,11 +569,21 @@
                                                 "type": "string",
                                                 "description": "A simple text description or an example of the command syntax and its arguments.",
                                                 "maxLength": 4000
+                                            },
+                                            "type": {
+                                                "type": "string",
+                                                "enum": [ "basic", "prompt" ],
+                                                "description": "Type of the command. Default is basic",
+                                                "default": "basic"
+                                            },
+                                            "prompt": {
+                                                "type": "string",
+                                                "maxLength": 4000,
+                                                "description": "The prompt text to be used by Teams when user initiates the command from one of the entry points"
                                             }
                                         },
                                         "required": [
-                                            "title",
-                                            "description"
+                                            "title"
                                         ]
                                     }
                                 }
@@ -768,6 +792,15 @@
                                     ],
                                     "description": "Type of the command",
                                     "default": "query"
+                                },
+                                "triggers": {
+                                    "type": "array",
+                                    "maxItems": 1,
+                                    "items": {
+                                        "type":  "string",
+                                        "enum": [ "slash" ]
+                                    },
+                                    "description": "Adding \"slash\" to the array makes the command appear in the / slash commands list in group chat or channel. Note: \"mention\" is not a valid value for composeExtension command triggers — it applies only to bots[].commandLists[]."
                                 },
                                 "samplePrompts": {
                                   "type": "array",
@@ -1051,7 +1084,7 @@
         "validDomains": {
             "type": "array",
             "description": "A list of valid domains from which the tabs expect to load any content. Domain listings can include wildcards, for example `*.example.com`. If your tab configuration or content UI needs to navigate to any other domain besides the one use for tab configuration, that domain must be specified here.",
-            "maxItems": 16,
+            "maxItems": 100,
             "items": {
                 "type": "string",
                 "maxLength": 2048
@@ -1438,9 +1471,6 @@
         "extensions": {
             "$ref": "#/definitions/elementExtensions"
         },
-        "actions": {
-            "$ref": "#/definitions/elementActions"
-        },
         "dashboardCards": {
             "type": "array",
             "description": "Defines the list of cards which could be pinned to dashboards that can provide summarized view of information relevant to user.",
@@ -1507,11 +1537,10 @@
                             "type": "string",
                             "enum": [
                             "agentOnly",
-                            "agenticUserOnly",
-                            "agentOrAgenticUser"
+                            "agenticUserOnly"
                             ],
                             "default": "agentOnly",
-                            "description": "Possible values: 'agenticUserOnly', 'agentOnly', or 'agentOrAgenticUser'. 'agenticUserOnly' means the customEngineAgent must be hired and cannot be installed as a regular agent. 'agentOrAgenticUser' means the customEngineAgent supports both being installed as a regular agent and being hired. 'agentOnly' means it supports being installed as a regular agent only (default)."
+                            "description": "Possible values: 'agenticUserOnly', 'agentOnly'. 'agenticUserOnly' means the customEngineAgent must be hired and cannot be installed as a regular agent. 'agentOnly' means it supports being installed as a regular agent only (default)."
                         },
                         "agenticUserTemplateId": {
                             "type": "string",
@@ -1638,26 +1667,24 @@
                     "properties": {
                     "plugin": {
                         "type": "object",
-                        "description": "Configuration details for connectors that leverage a Plugin Manifest. Either both id and file properties must be provided (for external plugin reference), or only the description property must be provided (for inline plugin manifest).",
+                        "description": "Configuration details for connectors that leverage a Plugin Manifest. Both the id and file properties must be provided.",
                         "properties": {
-                        "id": {
-                            "type": "string",
-                            "description": "The unique identifier of the plugin that provides the tools.",
-                            "maxLength": 64
+                            "id": {
+                                "type": "string",
+                                "description": "The unique identifier of the plugin that provides the tools.",
+                                "maxLength": 64
+                            },
+                            "file": {
+                                "$ref": "#/definitions/relativePath",
+                                "description": "The relative path to the plugin manifest file within the app package."
+                            }
                         },
-                        "file": {
-                            "$ref": "#/definitions/relativePath",
-                            "description": "The relative path to the plugin manifest file within the app package."
-                        },
-                        "description": {
-                            "type": "object",
-                            "description": "An inlined Plugin Manifest object for simple plugins that do not require a separate file. It should conform to the Plugin Manifest schema https://learn.microsoft.com/microsoft-365-copilot/extensibility/api-plugin-manifest-2.3."
-                        }
-                        },
+                        "required": [ "id", "file" ],
                         "additionalProperties": false
                     },
                     "remoteMcpServer": {
                         "type": "object",
+                        "description": "Adds support for connectors that leverage a Remote MCP Server as the source of data.",
                         "additionalProperties": false,
                         "properties": {
                         "mcpServerUrl": {
@@ -1666,40 +1693,36 @@
                         },
                         "mcpToolDescription": {
                             "type": "object",
-                            "description": "Configuration for MCP tool descriptions, either by file reference or inline content (but not both). When this property is present it indicates that dynamic discovery will not be used.",
+                            "description": "Configuration for MCP tool descriptions by file reference. When this property is present it indicates that dynamic discovery will not be used.",
                             "properties": {
-                            "file": {
-                                "$ref": "#/definitions/relativePath",
-                                "description": "The relative path to the MCP tool description file within the app package."
-                            },
-                            "description": {
-                                "type": "object",
-                                "description": "An inline JSON object containing the tool descriptions directly. The contents match the results of calling the 'tools/list' method on the MCP Server."
-                            }
+                                "file": {
+                                    "$ref": "#/definitions/relativePath",
+                                    "description": "The relative path to the MCP tool description file within the app package."
+                                }
                             },
                             "additionalProperties": false
                         },
                         "authorization": {
                             "type": "object",
-                            "description": "Authorization configuration for connecting to the local MCP server. The design mirrors that of Plugin Manifests https://learn.microsoft.com/microsoft-365-copilot/extensibility/api-plugin-manifest-2.3",
+                            "description": "Authorization configuration for connecting to the remote MCP server. The design mirrors that of Plugin Manifests https://learn.microsoft.com/microsoft-365-copilot/extensibility/api-plugin-manifest-2.3",
                             "additionalProperties": false,
                             "properties": {
                             "type": {
                                 "type": "string",
-                                "enum": [ "None", "OAuthPluginVault", "ApiKeyPluginVault", "DynamicClientRegistration" ],
-                                "description": "The type of authorization required to invoke the MCP server. Supported values are: 'None' (anonymous access), 'OAuthPluginVault' (OAuth flow with referenceId), 'ApiKeyPluginVault' (API Key with referenceId), 'DynamicClientRegistration' (dynamic client registration with referenceId)."
+                                "enum": [ "None", "OAuthPluginVault", "ApiKeyPluginVault", "DynamicClientRegistration", "AzureKeyVault" ],
+                                "description": "The type of authorization required to invoke the MCP server. Supported values are: 'None' (anonymous access), 'OAuthPluginVault' (OAuth flow with referenceId), 'ApiKeyPluginVault' (API Key with referenceId), 'DynamicClientRegistration' (dynamic client registration with referenceId), 'AzureKeyVault' (Azure Key Vault integration)."
                             },
                             "referenceId": {
                                 "type": "string",
                                 "maxLength": 128,
-                                "description": "A reference identifier used when type is OAuthPluginVault, ApiKeyPluginVault, or DynamicClientRegistration. The referenceId value is acquired independently when providing the necessary authorization configuration values. This mechanism exists to prevent the need for storing secret values in the plugin manifest."
+                                "description": "A reference identifier used when type is OAuthPluginVault, ApiKeyPluginVault, DynamicClientRegistration, or AzureKeyVault. The referenceId value is acquired independently when providing the necessary authorization configuration values. This mechanism exists to prevent the need for storing secret values in the plugin manifest."
                             }
                             },
                             "required": [ "type" ],
                             "if": {
                             "properties": {
                                 "type": {
-                                "enum": [ "OAuthPluginVault", "ApiKeyPluginVault", "DynamicClientRegistration" ]
+                                "enum": [ "OAuthPluginVault", "ApiKeyPluginVault", "DynamicClientRegistration", "AzureKeyVault" ]
                                 }
                             }
                             },
@@ -1712,6 +1735,7 @@
                     },
                     "localMcpServer": {
                         "type": "object",
+                        "description": "Adds support for connectors that leverage a local MCP Server as the source of data.",
                         "additionalProperties": false,
                         "properties": {
                         "mcpServerIdentifier": {
@@ -1722,16 +1746,12 @@
                         "mcpToolDescription": {
                             "type": "object",
                             "additionalProperties": false,
-                            "description": "Configuration for MCP tool descriptions, either by file reference or inline content (but not both). When this property is present it indicates that dynamic discovery will not be used.",
+                            "description": "Configuration for MCP tool descriptions by file reference. When this property is present it indicates that dynamic discovery will not be used.",
                             "properties": {
-                            "file": {
-                                "$ref": "#/definitions/relativePath",
-                                "description": "The relative path to the MCP tool description file within the app package."
-                            },
-                            "description": {
-                                "type": "object",
-                                "description": "An inline JSON object containing the tool descriptions directly. The contents match the results of calling the 'tools/list' method on the MCP Server."
-                            }
+                                "file": {
+                                    "$ref": "#/definitions/relativePath",
+                                    "description": "The relative path to the MCP tool description file within the app package."
+                                }
                             }
                         },
                         "authorization": {
@@ -1740,13 +1760,13 @@
                             "properties": {
                             "type": {
                                 "type": "string",
-                                "enum": [ "None", "OAuthPluginVault", "ApiKeyPluginVault", "DynamicClientRegistration" ],
-                                "description": "The type of authorization required to invoke the MCP server. Supported values are: 'None' (anonymous access), 'OAuthPluginVault' (OAuth flow with referenceId), 'ApiKeyPluginVault' (API Key with referenceId), 'DynamicClientRegistration' (dynamic client registration with referenceId)."
+                                "enum": [ "None", "OAuthPluginVault", "ApiKeyPluginVault", "DynamicClientRegistration", "AzureKeyVault" ],
+                                "description": "The type of authorization required to invoke the MCP server. Supported values are: 'None' (anonymous access), 'OAuthPluginVault' (OAuth flow with referenceId), 'ApiKeyPluginVault' (API Key with referenceId), 'DynamicClientRegistration' (dynamic client registration with referenceId), 'AzureKeyVault' (Azure Key Vault integration)."
                             },
                             "referenceId": {
                                 "type": "string",
                                 "maxLength": 128,
-                                "description": " (maxLength: 128)\tA reference identifier used when type is OAuthPluginVault, ApiKeyPluginVault, or DynamicClientRegistration. The referenceId value is acquired independently when providing the necessary authorization configuration values. This mechanism exists to prevent the need for storing secret values in the plugin manifest."
+                                "description": " (maxLength: 128)\tA reference identifier used when type is OAuthPluginVault, ApiKeyPluginVault, DynamicClientRegistration, or AzureKeyVault. The referenceId value is acquired independently when providing the necessary authorization configuration values. This mechanism exists to prevent the need for storing secret values in the plugin manifest."
                             }
                             },
                             "additionalProperties": false,
@@ -1754,7 +1774,7 @@
                             "if": {
                             "properties": {
                                 "type": {
-                                "enum": [ "OAuthPluginVault", "ApiKeyPluginVault", "DynamicClientRegistration" ]
+                                "enum": [ "OAuthPluginVault", "ApiKeyPluginVault", "DynamicClientRegistration", "AzureKeyVault" ]
                                 }
                             }
                             },
@@ -1770,6 +1790,24 @@
                 }
                 },
                 "required": [ "id", "displayName" ],
+                "additionalProperties": false
+            }
+        },
+        "agentSkills": {
+            "type": "array",
+            "description": "Agent skill declarations following the Agent Skills open standard (agentskills.io). Each entry references a SKILL.md folder.",
+            "maxItems": 20,
+            "items": {
+                "type": "object",
+                "description": "An agent skill declaration. References a folder containing a SKILL.md file.",
+                "properties": {
+                    "folder": {
+                        "type": "string",
+                        "description": "Path to the folder within the app package that contains the SKILL.md file.",
+                        "maxLength": 256
+                    }
+                },
+                "required": ["folder"],
                 "additionalProperties": false
             }
         }
@@ -2130,7 +2168,7 @@
               },
               "metadataUrl": {
                 "$ref": "#/definitions/secureHttpUrl",
-                "description": "The full URL of a metadata json file with default locale."
+                "description": "The full URL of a metadata json file. If `functions` is not empty, the Office client will install CustomFunctions based on `functions`. Any definitions in `metadataUrl` will be ignored."
               },
               "enums": {
                 "type": "array",
@@ -2240,7 +2278,7 @@
                 "type": "string",
                 "description": "The description of the function that end users see in Excel.",
                 "minLength": 1,
-                "maxLength": 128
+                "maxLength": 1024
               },
               "helpUrl": {
                 "description": "URL that provides information about the function. (It is displayed in a task pane.)",
@@ -2329,7 +2367,7 @@
                 "type": "string",
                 "description": "A description of the parameter. This is displayed in Excel's IntelliSense.",
                 "minLength": 1,
-                "maxLength": 128
+                "maxLength": 512
               },
               "type": {
                 "type": "string",
@@ -2567,6 +2605,11 @@
                         "$ref": "#/definitions/extensionRibbonsCustomMobileGroupItem"
                     }
                 },
+                "visible": {
+                    "type": "boolean",
+                    "description": "Controls whether the control is visible.",
+                    "default": true
+                },
                 "keytip": {
                     "type": "string",
                     "description": "KeyTip shortcut for keyboard navigation (1-3 uppercase alphanumeric characters)",
@@ -2626,8 +2669,8 @@
                 },
                 "icons": {
                     "type": "array",
-                    "minItems": 1,
-                    "maxItems": 3,
+                    "minItems": 3,
+                    "maxItems": 8,
                     "items": {
                         "$ref": "#/definitions/extensionCommonIcon"
                     }
@@ -2649,6 +2692,11 @@
                     "type": "boolean",
                     "description": "Specifies whether a group will be hidden on application and platform combinations that support the API (Office.ribbon.requestCreateControls) that installs custom contextual tabs on the ribbon. Default is false.",
                     "default": "false"
+                },
+                "visible": {
+                    "type": "boolean",
+                    "description": "Controls whether the control is visible.",
+                    "default": true
                 }
             },
             "additionalProperties": false
@@ -2669,8 +2717,8 @@
                 "icons": {
                     "type": "array",
                     "description": "Displayed icons for the group.",
-                    "minItems": 1,
-                    "maxItems": 3,
+                    "minItems": 3,
+                    "maxItems": 8,
                     "items": {
                         "$ref": "#/definitions/extensionCommonIcon"
                     }
@@ -2722,8 +2770,8 @@
                 "icons": {
                     "description": "Configures the icons for the custom control.",
                     "type": "array",
-                    "minItems": 1,
-                    "maxItems": 3,
+                    "minItems": 3,
+                    "maxItems": 8,
                     "items": {
                       "$ref": "#/definitions/extensionCommonIcon"
                     }
@@ -2744,6 +2792,11 @@
                 "enabled": {
                     "type": "boolean",
                     "description": "Whether the control is initially enabled.",
+                    "default": true
+                },
+                "visible":{
+                    "type": "boolean",
+                    "description": "Controls whether the control is visible.",
                     "default": true
                 },
                 "items": {
@@ -2821,8 +2874,8 @@
                 },
                 "icons": {
                     "type": "array",
-                    "minItems": 1,
-                    "maxItems": 3,
+                    "minItems": 3,
+                    "maxItems": 8,
                     "items": {
                         "$ref": "#/definitions/extensionCommonIcon"
                     }
@@ -3371,11 +3424,11 @@
             "type": "object",
             "properties": {
               "page": {
-                "$ref": "#/definitions/anyHttpUrl",
+                "$ref": "#/definitions/secureHttpUrl",
                 "description": "URL of the .html page to be loaded in browser-based runtimes."
               },
               "script": {
-                "$ref": "#/definitions/anyHttpUrl",
+                "$ref": "#/definitions/secureHttpUrl",
                 "description": "URL of the .js script file to be loaded in UI-less runtimes."
               }
             },
@@ -3568,230 +3621,6 @@
               "description"
             ]
           },
-        "elementActions": {
-            "type": "array",
-            "description": "Actions node contains an array of actions object.",
-            "minItems": 1,
-            "items": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                    "id",
-                    "intent",
-                    "displayName",
-                    "description",
-                    "handlers"
-                ],
-                "properties": {
-                    "id": {
-                        "type": "string",
-                        "minLength": 1,
-                        "description": "A unique identifier string in the default locale that is used to catalog actions."
-                    },
-                    "intent": {
-                        "description": "An enum string that describes the intent of the action.",
-                        "type": "string",
-                        "enum": [
-                            "create",
-                            "addTo",
-                            "open",
-                            "preview",
-                            "share",
-                            "sign",
-                            "custom"
-                        ]
-                    },
-                    "displayName": {
-                        "type": "string",
-                        "minLength": 1,
-                        "description": "A display name for the action."
-                    },
-                    "description": {
-                        "type": "string",
-                        "minLength": 1,
-                        "description": "A display string in the default locale to represent the action."
-                    },
-                    "icons": {
-                        "type": "array",
-                        "description": "Object containing URLs to icon images for this action intent.",
-                        "items": {
-                            "type": "object",
-                            "properties": {
-                                "size": {
-                                    "type": "number",
-                                    "description": "Icon size in pixels."
-                                },
-                                "url": {
-                                    "$ref": "#/definitions/anyHttpUrl",
-                                    "description": "URL for the icon."
-                                }
-                            },
-                            "additionalProperties": false,
-                            "required": [
-                                "size",
-                                "url"
-                            ]
-                        }
-                    },
-                    "handlers": {
-                        "type": "array",
-                        "minItems": 1,
-                        "description": "Defining how actions can be handled. If an app has more than 1 handler, only one experience will show up at one entry point. The hub will decide which action to show up based on which experience is supported.",
-                        "items": {
-                            "type": "object",
-                            "required": [
-                                "type"
-                            ],
-                            "properties": {
-                                "type": {
-                                    "type": "string",
-                                    "enum": [
-                                        "openURL",
-                                        "openPage",
-                                        "openDialog",
-                                        "openTaskpane",
-                                        "invokeAPI",
-                                        "invokeBot"
-                                    ],
-                                    "description": "Required both for File Handlers and Content Actions."
-                                },
-                                "supportedObjects": {
-                                    "type": "object",
-                                    "properties": {
-                                        "file": {
-                                            "type": "object",
-                                            "additionalProperties": false,
-                                            "properties": {
-                                                "extensions": {
-                                                    "type": "array",
-                                                    "items": {
-                                                        "type": "string",
-                                                        "description": "File extension, e.g. .pdf, .docx."
-                                                    }
-                                                }
-                                            }
-                                        },
-                                        "folder": {
-                                            "type": [
-                                                "object",
-                                                "null"
-                                            ],
-                                            "description": "A null value indicates that the file handler is not available when a folder is selected. An object with no parameters indicates that the file handler is available when a folder is selected or when no files are selected."
-                                        }
-                                    }
-                                },
-                                "supportsMultiSelect": {
-                                    "type": "boolean",
-                                    "description": "If true, multiple files can be selected and the action will still be displayed. If false or missing, the action is only displayed when a single item is selected. "
-                                },
-                                "pageInfo": {
-                                    "type": "object",
-                                    "required": [
-                                        "pageId"
-                                    ],
-                                    "properties": {
-                                        "pageId": {
-                                            "type": "string",
-                                            "description": "Used to navigate to the page in MetaOS app."
-                                        },
-                                        "subpageId": {
-                                            "type": "string",
-                                            "description": "Used to navigate to the subpage in MetaOS app."
-                                        }
-                                    }
-                                },
-                                "dialogInfo": {
-                                    "type": "object",
-                                    "required": [
-                                        "dialogType",
-                                        "width",
-                                        "height"
-                                    ],
-                                    "properties": {
-                                        "dialogType": {
-                                            "type": "string",
-                                            "description": "Dialog type, defines how the developer build the dialog.",
-                                            "enum": [
-                                                "url",
-                                                "adaptiveCard"
-                                            ]
-                                        },
-                                        "url": {
-                                            "type": "string",
-                                            "description": "Required for html based dialog."
-                                        },
-                                        "width": {
-                                            "description": "Dialog width - either a number in pixels or default layout such as 'large', 'medium', or 'small'.",
-                                            "$ref": "#/definitions/taskInfoDimension"
-                                        },
-                                        "height": {
-                                            "description": "Dialog height - either a number in pixels or default layout such as 'large', 'medium', or 'small'.",
-                                            "$ref": "#/definitions/taskInfoDimension"
-                                        },
-                                        "parameters": {
-                                            "type": "array",
-                                            "minItems": 1,
-                                            "description": "Array of parameter object, each contains: name, title, description, inputType.",
-                                            "items": {
-                                                "type": "object",
-                                                "required": [
-                                                    "name",
-                                                    "title",
-                                                    "description",
-                                                    "inputType"
-                                                ],
-                                                "properties": {
-                                                    "name": {
-                                                        "type": "string",
-                                                        "description": "Parameter name."
-                                                    },
-                                                    "title": {
-                                                        "type": "string",
-                                                        "description": "Parameter title."
-                                                    },
-                                                    "description": {
-                                                        "type": "string",
-                                                        "description": "Parameter description."
-                                                    },
-                                                    "inputType": {
-                                                        "type": "string",
-                                                        "description": "Parameter input type."
-                                                    }
-                                                }
-                                            }
-                                        },
-                                        "title": {
-                                            "type": "string",
-                                            "description": "Dialog title."
-                                        }
-                                    }
-                                },
-                                "url": {
-                                    "type": "string",
-                                    "description": "Url for handler type openURL, invokeAPI, openTaskpane, and others."
-                                },
-                                "botInfo": {
-                                    "type": "object",
-                                    "required": [
-                                        "botId"
-                                    ],
-                                    "properties": {
-                                        "botId": {
-                                            "type": "string",
-                                            "description": "Bot ID."
-                                        },
-                                        "fetchTask": {
-                                            "type": "boolean",
-                                            "description": "Fetch task from bot."
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
         "dashboardCard": {
             "type": "object",
             "description": "Cards wich could be pinned to dashboard providing summarized view of information relevant to user.",

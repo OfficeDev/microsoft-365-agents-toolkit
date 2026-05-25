@@ -14,6 +14,7 @@ import * as DeclarativeAgentManifestV1D3 from "./copilot/declarative-agent/Decla
 import * as DeclarativeAgentManifestV1D4 from "./copilot/declarative-agent/DeclarativeAgentManifestV1D4";
 import * as DeclarativeAgentManifestV1D5 from "./copilot/declarative-agent/DeclarativeAgentManifestV1D5";
 import * as DeclarativeAgentManifestV1D6 from "./copilot/declarative-agent/DeclarativeAgentManifestV1D6";
+import * as DeclarativeAgentManifestV1D7 from "./copilot/declarative-agent/DeclarativeAgentManifestV1D7";
 import * as APIPluginManifestV2D1 from "./copilot/plugin/ApiPluginManifestV2D1";
 import * as APIPluginManifestV2D2 from "./copilot/plugin/ApiPluginManifestV2D2";
 import * as APIPluginManifestV2D3 from "./copilot/plugin/ApiPluginManifestV2D3";
@@ -37,6 +38,8 @@ import * as TeamsManifestV1D23 from "./teams/TeamsManifestV1D23";
 import * as TeamsManifestV1D24 from "./teams/TeamsManifestV1D24";
 import * as TeamsManifestV1D25 from "./teams/TeamsManifestV1D25";
 import * as TeamsManifestV1D26 from "./teams/TeamsManifestV1D26";
+import * as TeamsManifestV1D27 from "./teams/TeamsManifestV1D27";
+import * as TeamsManifestV1D28 from "./teams/TeamsManifestV1D28";
 import * as TeamsManifestV1D3 from "./teams/TeamsManifestV1D3";
 import * as TeamsManifestV1D4 from "./teams/TeamsManifestV1D4";
 import * as TeamsManifestV1D5 from "./teams/TeamsManifestV1D5";
@@ -56,6 +59,7 @@ export {
   DeclarativeAgentManifestV1D4,
   DeclarativeAgentManifestV1D5,
   DeclarativeAgentManifestV1D6,
+  DeclarativeAgentManifestV1D7,
   TeamsManifestV1D0,
   TeamsManifestV1D1,
   TeamsManifestV1D10,
@@ -75,6 +79,8 @@ export {
   TeamsManifestV1D24,
   TeamsManifestV1D25,
   TeamsManifestV1D26,
+  TeamsManifestV1D27,
+  TeamsManifestV1D28,
   TeamsManifestV1D3,
   TeamsManifestV1D4,
   TeamsManifestV1D5,
@@ -113,9 +119,11 @@ export type TeamsManifest =
   | TeamsManifestV1D24.TeamsManifestV1D24
   | TeamsManifestV1D25.TeamsManifestV1D25
   | TeamsManifestV1D26.TeamsManifestV1D26
+  | TeamsManifestV1D27.TeamsManifestV1D27
+  | TeamsManifestV1D28.TeamsManifestV1D28
   | TeamsManifestVDevPreview.TeamsManifestVDevPreview;
 
-export type TeamsManifestLatest = TeamsManifestV1D26.TeamsManifestV1D26;
+export type TeamsManifestLatest = TeamsManifestV1D28.TeamsManifestV1D28;
 
 export { SensitivityLabel } from "./copilot/declarative-agent/DeclarativeAgentManifestV1D6";
 
@@ -125,10 +133,11 @@ export type DeclarativeAgentManifest =
   | DeclarativeAgentManifestV1D3.DeclarativeAgentManifestV1D3
   | DeclarativeAgentManifestV1D4.DeclarativeAgentManifestV1D4
   | DeclarativeAgentManifestV1D5.DeclarativeAgentManifestV1D5
-  | DeclarativeAgentManifestV1D6.DeclarativeAgentManifestV1D6;
+  | DeclarativeAgentManifestV1D6.DeclarativeAgentManifestV1D6
+  | DeclarativeAgentManifestV1D7.DeclarativeAgentManifestV1D7;
 
 export type DeclarativeAgentManifestLatest =
-  DeclarativeAgentManifestV1D6.DeclarativeAgentManifestV1D6;
+  DeclarativeAgentManifestV1D7.DeclarativeAgentManifestV1D7;
 
 export type APIPluginManifest =
   | APIPluginManifestV2D1.APIPluginManifestV2D1
@@ -243,6 +252,14 @@ const TeamsManifestConverterMap: Converters = {
     TeamsManifestV1D26.Convert.toTeamsManifestV1D26,
     TeamsManifestV1D26.Convert.teamsManifestV1D26ToJson,
   ],
+  "1.27": [
+    TeamsManifestV1D27.Convert.toTeamsManifestV1D27,
+    TeamsManifestV1D27.Convert.teamsManifestV1D27ToJson,
+  ],
+  "1.28": [
+    TeamsManifestV1D28.Convert.toTeamsManifestV1D28,
+    TeamsManifestV1D28.Convert.teamsManifestV1D28ToJson,
+  ],
   devPreview: [
     TeamsManifestVDevPreview.Convert.toTeamsManifestVDevPreview,
     TeamsManifestVDevPreview.Convert.teamsManifestVDevPreviewToJson,
@@ -272,6 +289,10 @@ const daConverterMap: Converters = {
   "v1.6": [
     DeclarativeAgentManifestV1D6.Convert.toDeclarativeAgentManifestV1D6,
     DeclarativeAgentManifestV1D6.Convert.declarativeAgentManifestV1D6ToJson,
+  ],
+  "v1.7": [
+    DeclarativeAgentManifestV1D7.Convert.toDeclarativeAgentManifestV1D7,
+    DeclarativeAgentManifestV1D7.Convert.declarativeAgentManifestV1D7ToJson,
   ],
 };
 const ApiPluginConverterMap: Converters = {
