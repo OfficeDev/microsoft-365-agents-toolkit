@@ -398,22 +398,23 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
         return;
       }
       if (rawResult && !rawResult.startsWith("ERROR:")) {
-        try {
-          const data = JSON.parse(rawResult);
-          const hasFeaturedAria = data.featuredPrefixed > 0;
+        let data002: any = null;
+        try { data002 = JSON.parse(rawResult); } catch {}
+        if (data002 !== null) {
+          const hasFeaturedAria = data002.featuredPrefixed > 0;
           step(
             "TC-002 Featured ARIA differentiation",
             hasFeaturedAria,
             hasFeaturedAria
-              ? `OK: ${data.featuredPrefixed}/${data.featuredTotal} featured cards have "Featured sample." prefix`
-              : `FAIL: ${data.featuredTotal} featured cards, 0 with "Featured sample." in aria-label. ` +
-                `Sample: "${data.sampleFeaturedLabel.slice(0, 80)}"`,
+              ? `OK: ${data002.featuredPrefixed}/${data002.featuredTotal} featured cards have "Featured sample." prefix`
+              : `FAIL: ${data002.featuredTotal} featured cards, 0 with "Featured sample." in aria-label. ` +
+                `Sample: "${(data002.sampleFeaturedLabel || "").slice(0, 80)}"`,
           );
-        } catch {
+        } else {
           step(
             "TC-002 Featured ARIA differentiation",
             false,
-            "parse error: " + rawResult,
+            "parse error: " + rawResult.slice(0, 100),
           );
         }
         takeScreenshot("04-tc002-featured-aria");
@@ -461,9 +462,10 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
       step("TC-003 Featured badge present with accessible contrast", false,
         "FAIL: .featured-sample-section not found (gallery may not have loaded featured samples).");
     } else {
-      try {
-        const data = JSON.parse(rawResult);
-        if (data.count === 0) {
+      let data003: any = null;
+      try { data003 = JSON.parse(rawResult); } catch {}
+      if (data003 !== null) {
+        if (data003.count === 0) {
           step(
             "TC-003 Featured badge present with accessible contrast",
             false,
@@ -473,11 +475,11 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
           step(
             "TC-003 Featured badge present with accessible contrast",
             true,
-            `${data.count} badge(s) found. bg=${data.bg}, color=${data.color}`,
+            `${data003.count} badge(s) found. bg=${data003.bg}, color=${data003.color}`,
           );
         }
-      } catch {
-        step("TC-003 Featured badge contrast ≥ 3:1", false, "parse error: " + rawResult);
+      } else {
+        step("TC-003 Featured badge contrast ≥ 3:1", false, "parse error: " + rawResult.slice(0, 100));
       }
     }
     takeScreenshot("05-tc003-badge-contrast");
@@ -520,18 +522,19 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
         return;
       }
       if (rawResult && !rawResult.startsWith("ERROR:")) {
-        try {
-          const data = JSON.parse(rawResult);
-          const hasTagsInLabel = data.withTags > 0;
+        let data004: any = null;
+        try { data004 = JSON.parse(rawResult); } catch {}
+        if (data004 !== null) {
+          const hasTagsInLabel = data004.withTags > 0;
           step(
             "TC-004 Tags in aria-label",
             hasTagsInLabel,
             hasTagsInLabel
-              ? `OK: ${data.withTags}/${data.total} cards have "Tags:" in aria-label. Sample: "${data.sample.slice(0, 80)}"`
-              : `FAIL: ${data.total} cards found, 0 have "Tags:" in aria-label. Sample: "${data.sample.slice(0, 80)}"`,
+              ? `OK: ${data004.withTags}/${data004.total} cards have "Tags:" in aria-label. Sample: "${(data004.sample || "").slice(0, 80)}"`
+              : `FAIL: ${data004.total} cards found, 0 have "Tags:" in aria-label. Sample: "${(data004.sample || "").slice(0, 80)}"`,
           );
-        } catch {
-          step("TC-004 Tags in aria-label", false, "parse error: " + rawResult);
+        } else {
+          step("TC-004 Tags in aria-label", false, "parse error: " + rawResult.slice(0, 100));
         }
         takeScreenshot("06-tc004-tags-aria");
         return;
@@ -575,25 +578,24 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
         return;
       }
       if (rawResult && !rawResult.startsWith("ERROR:")) {
-        try {
-          const data = JSON.parse(rawResult);
+        let data005: any = null;
+        try { data005 = JSON.parse(rawResult); } catch {}
+        if (data005 !== null) {
           const hasAriaPressed =
-            data.count > 0 &&
-            data.buttons?.some(
+            data005.count > 0 &&
+            data005.buttons?.some(
               (b: any) => b.pressed === "true" || b.pressed === "false",
             );
           step(
             "TC-005 Toggle buttons have aria-pressed",
             hasAriaPressed,
-            `${data.count} layout buttons found. States: ${JSON.stringify(
-              data.buttons,
-            )}`,
+            `${data005.count} layout buttons found. States: ${JSON.stringify(data005.buttons)}`,
           );
-        } catch {
+        } else {
           step(
             "TC-005 Toggle aria-pressed",
             false,
-            "parse error: " + rawResult,
+            "parse error: " + rawResult.slice(0, 100),
           );
         }
         takeScreenshot("07-tc005-toggle-aria-pressed");
