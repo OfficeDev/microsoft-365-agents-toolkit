@@ -8076,10 +8076,13 @@
       </Item>
       <Item ItemId=";driver.teamsApp.warning.createUnsupportedCloud" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Skipping %s as the required Developer Portal API is not yet available in GCC H and DoD. App ID will be generated locally later.]]></Val>
+          <Val><![CDATA[Skipping %s as the required Developer Portal API is not yet available in GCC H and DoD. App ID will be generated locally.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Gerekli Geliştirici Portalı API'si henüz GCC H ve DoD'de kullanılamadığından %s atlanıyor. Uygulama kimliği daha sonra yerel olarak oluşturulacak.]]></Val>
+            <Val><![CDATA[Gerekli Geliştirici Portalı API'si henüz GCC H ve DoD'de kullanılamadığından %s atlanıyor. Uygulama kimliği yerel olarak oluşturulacak.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Skipping %s as the required Developer Portal API is not yet available in GCC H and DoD. App ID will be generated locally later.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -8465,7 +8468,7 @@
         <Str Cat="Text">
           <Val><![CDATA[This account can't get a botframework token.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Bu hesap bir botframework belirteci alamiyor.]]></Val>
+            <Val><![CDATA[Bu hesap bir botframework belirteci alamıyor.]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[The current account is not allowed to acquire botframework token.]]></Val>
@@ -9578,7 +9581,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Unable to download sample due to rate limitation. Try again in an  hour after rate limit reset or you can manually clone the repo from %s.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Hız sınırlaması nedeniyle örnek indirilemiyor. Hız sınırı sıfırlandıktan sonra bir saat içinde yeniden deneyin veya depoya bu depodan el ile %s.]]></Val>
+            <Val><![CDATA[Kullanım sınırlaması nedeniyle örnek indirilemiyor. Kullanım sınırı sıfırlandıktan sonra bir saat içinde yeniden deneyin veya depoya bu depodan el ile %s.]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Unable to download sample due to throttling. Retry later after rate limit reset (This may take up to 1 hour). Alternatively, you can go to %s to git clone the repo manually]]></Val>
@@ -10008,6 +10011,15 @@
           <Val><![CDATA[File path: %s, title: %s]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[Dosya yolu: %s, başlık: %s]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";error.teamsGraph.apiFailed" ItemType="0" PsrId="306" InstFlg="true" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to make API call to Teams Graph. Check [Output panel]5D;(command:fx-extension.showOutputChannel) for details.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Teams Graph'e API çağrısı yapılamıyor. Ayrıntılar için [Çıkış paneline]5D;(command:fx-extension.showOutputChannel) bakın.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
