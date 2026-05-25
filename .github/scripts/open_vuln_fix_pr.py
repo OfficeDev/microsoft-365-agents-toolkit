@@ -32,13 +32,14 @@ def safe_print(message: str) -> None:
         print(message.encode("ascii", "replace").decode("ascii"), flush=True)
 
 
-def run(cmd, *, cwd=None, check=True, capture=False) -> subprocess.CompletedProcess:
+def run(cmd, *, cwd=None, check=True, capture=False, env=None) -> subprocess.CompletedProcess:
     safe_print(f"$ {' '.join(cmd)}")
     result = subprocess.run(
         cmd,
         cwd=cwd,
         text=True,
         capture_output=capture,
+        env=env,
     )
     if check and result.returncode != 0:
         if capture:
@@ -306,6 +307,14 @@ def main() -> int:
 
     title = commit_subject
     body = build_pr_body(scan, vuln, automatic_fix)
+    # Prefer a separate token for PR creation (e.g. secrets.GITHUB_TOKEN with
+    # pull-requests: write) so we don't depend on the App token having that scope.
+    pr_token = os.environ.get("GH_TOKEN_FOR_PR")
+    pr_env = None
+    if pr_token:
+        pr_env = os.environ.copy()
+        pr_env["GH_TOKEN"] = pr_token
+        safe_print("Using GH_TOKEN_FOR_PR for gh pr create")
     run(
         [
             "gh", "pr", "create",
@@ -316,6 +325,7 @@ def main() -> int:
             "--body", body,
         ],
         cwd=repo_root,
+        env=pr_env,
     )
 
     safe_print(f"Opened PR for {package} on branch {branch}")

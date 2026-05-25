@@ -51,6 +51,7 @@ on:
 permissions:
   actions: write
   contents: write
+  pull-requests: write
 
 jobs:
   cd:
@@ -242,6 +243,7 @@ jobs:
         continue-on-error: true
         env:
           GH_TOKEN: ${{ steps.generate-token.outputs.token }}
+          GH_TOKEN_FOR_PR: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
         run: |
           git config user.name 'github-actions[bot]'
