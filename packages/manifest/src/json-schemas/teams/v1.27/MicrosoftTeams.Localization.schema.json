@@ -49,10 +49,6 @@
       "type": "string",
       "maxLength": 4000
     },
-    "^bots\\[0\\]\\.commandLists\\[[0-2]\\]\\.commands\\[([0-9]|1[0-1])\\]\\.prompt$": {
-      "type": "string",
-      "maxLength": 4000
-    },
     "^composeExtensions\\[0\\]\\.commands\\[[0-9]\\]\\.title$": {
       "type": "string",
       "maxLength": 32
@@ -84,6 +80,10 @@
     "^composeExtensions\\[0\\]\\.commands\\[[0-9]\\]\\.taskInfo\\.title$": {
       "type": "string",
       "maxLength": 64
+    },
+    "^composeExtensions\\[0\\]\\.commands\\[[0-9]\\]\\.prompt$": {
+      "type": "string",
+      "maxLength": 4000
     },
     "^activities.activityTypes\\[\\b([0-9]|[1-8][0-9]|9[0-9]|1[01][0-9]|12[0-7])\\b]\\.description$": {
       "type": "string",

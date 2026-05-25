@@ -100,6 +100,12 @@ export enum TemplateProjectFolder {
   HelloWorldTabDocker = "hello-world-tab-docker",
   FoodCatalog = "nodejs-typescript-food-catalog",
   RedditLink = "nodejs",
+  IntelligentDataChart = "intelligent-data-chart-generator",
+  // new samples
+  CoffeeAgent = "coffee-agent",
+  DataAnalystAgentV2 = "data-analyst-agent-v2",
+  ProxyAgentNodeJS = "ProxyAgent-NodeJS",
+  HelloWorldOfficeAddin = "hello-world-office-addin",
   // v2 only
   Deeplinking = "deep-linking-hello-world-tab-without-sso-M365",
 }

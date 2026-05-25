@@ -171,6 +171,9 @@ export class AzureAccountManager extends login implements AzureAccountProvider {
           };
         },
       };
+      AzureAccountManager.currentStatus = loggedIn;
+      void this.notifyStatus();
+
       return credential;
     } catch (e) {
       ExtTelemetry.sendTelemetryErrorEvent(TelemetryEvent.Login, e, {

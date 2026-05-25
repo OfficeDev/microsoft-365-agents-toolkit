@@ -247,7 +247,9 @@ export interface RemoteMCPServer {
      */
     mcpServerUrl: string;
     /**
-     * Configuration for MCP tool descriptions by file reference.
+     * Configuration for MCP tool descriptions, either by file reference or inline content (but
+     * not both). When this property is present it indicates that dynamic discovery will not be
+     * used.
      */
     mcpToolDescription: MCPToolDescription;
     /**
@@ -289,7 +291,9 @@ export interface RemoteMCPServerAuthorization {
 export type AuthorizationType = "None" | "OAuthPluginVault" | "ApiKeyPluginVault" | "DynamicClientRegistration";
 
 /**
- * Configuration for MCP tool descriptions by file reference.
+ * Configuration for MCP tool descriptions, either by file reference or inline content (but
+ * not both). When this property is present it indicates that dynamic discovery will not be
+ * used.
  */
 export interface MCPToolDescription {
     /**

@@ -6,10 +6,10 @@
  */
 
 import { Page } from "playwright";
-import { TemplateProject, LocalDebugTaskLabel } from "../../utils/constants";
-import { validateBot } from "../../utils/playwrightOperation";
-import { CaseFactory } from "./sampleCaseFactory";
-import { Env } from "../../utils/env";
+import { TemplateProject, LocalDebugTaskLabel } from "../utils/constants";
+import { validateBot } from "../utils/playwrightOperation";
+import { CaseFactory } from "../ui-test/samples/sampleCaseFactory";
+import { Env } from "../utils/env";
 
 class BotSSODockerTestCase extends CaseFactory {
   override async onValidate(page: Page): Promise<void> {
@@ -36,5 +36,5 @@ new BotSSODockerTestCase(
     testPlanCaseId_local: 26577671,
     testPlanCaseId_dev: 27852471,
     container: true,
-  }
+  },
 ).test();

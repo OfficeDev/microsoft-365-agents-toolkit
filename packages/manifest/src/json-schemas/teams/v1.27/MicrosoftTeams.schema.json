@@ -1469,7 +1469,7 @@
                   },
                   "mcpToolDescription": {
                     "type": "object",
-                    "description": "Configuration for MCP tool descriptions by file reference.",
+                    "description": "Configuration for MCP tool descriptions, either by file reference or inline content (but not both). When this property is present it indicates that dynamic discovery will not be used.",
                     "properties": {
                       "file": {
                         "$ref": "#/definitions/relativePath",

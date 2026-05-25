@@ -10,14 +10,14 @@
       "step_retry_timeout": 0
     },
     "total_steps": 9,
-    "created_at": "2026-04-14T12:40:24.591195",
+    "created_at": "2026-05-20T10:54:04.238779",
     "name": "Simple bot py playground",
     "description": {
       "other": "",
       "owner": "v-liliu2@microsoft.com",
       "workitem": "36232730, 15988344"
     },
-    "generated_at": "2026-04-14T12:40:24.591195",
+    "generated_at": "2026-05-20T10:54:04.238779",
     "execution_order": [
       "plan_r_0928_012254",
       "step_6e8f0c3c",
@@ -35,7 +35,7 @@
       "plan_6174fb34"
     ],
     "tags": [],
-    "updated_at": "2026-04-14T12:46:11.271998"
+    "updated_at": "2026-05-20T11:07:09.125873"
   },
   "steps": [
     {
@@ -61,7 +61,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_6e8f0c3c",
-      "created_at": "2026-04-14T12:40:24.591195",
+      "created_at": "2026-05-20T10:54:04.245336",
       "plan_id": "plan_25edc1c7"
     },
     {
@@ -87,7 +87,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_09c93e92",
-      "created_at": "2026-04-14T12:40:24.591195",
+      "created_at": "2026-05-20T10:54:04.253345",
       "plan_id": "plan_25edc1c7"
     },
     {
@@ -113,7 +113,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_39de1e34",
-      "created_at": "2026-04-14T12:40:24.609622",
+      "created_at": "2026-05-20T10:54:04.261337",
       "plan_id": "plan_25edc1c7"
     },
     {
@@ -139,7 +139,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_d08ae1c8",
-      "created_at": "2026-04-14T12:40:24.615285",
+      "created_at": "2026-05-20T10:54:04.268334",
       "plan_id": "plan_25edc1c7"
     },
     {
@@ -165,7 +165,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_d5fba5f5",
-      "created_at": "2026-04-14T12:40:24.615285",
+      "created_at": "2026-05-20T10:54:04.275338",
       "plan_id": "plan_25edc1c7"
     },
     {
@@ -191,7 +191,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_1f7ec969",
-      "created_at": "2026-04-14T12:40:24.627692",
+      "created_at": "2026-05-20T10:54:04.281402",
       "plan_id": "plan_25edc1c7"
     },
     {
@@ -217,7 +217,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_71269dc6",
-      "created_at": "2026-04-14T12:40:24.634090",
+      "created_at": "2026-05-20T10:54:04.288530",
       "plan_id": "plan_25edc1c7"
     },
     {
@@ -225,7 +225,7 @@
       "agent": "assertion",
       "tool": "",
       "parameters": {},
-      "description": "@assertion there's \"APP_ID, APP_TYPE, APP_TENANTID, APP_PASSWORD\" key exist.",
+      "description": "@assertion  \"APP_ID, APP_PASSWORD, APP_TYPE, APP_TENANTID\" exist.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -235,7 +235,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": null,
-      "created_at": "2026-04-14T12:40:24.639539",
+      "created_at": "2026-05-20T10:54:04.295004",
       "plan_id": "plan_25edc1c7"
     },
     {
@@ -261,7 +261,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_40c5eace",
-      "created_at": "2026-04-14T12:40:24.643068",
+      "created_at": "2026-05-20T10:54:04.301214",
       "plan_id": "plan_25edc1c7"
     }
   ],

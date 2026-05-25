@@ -125,7 +125,7 @@ export type TeamsManifest =
 
 export type TeamsManifestLatest = TeamsManifestV1D28.TeamsManifestV1D28;
 
-export { SensitivityLabel } from "./copilot/declarative-agent/DeclarativeAgentManifestV1D6";
+export { SensitivityLabel } from "./copilot/declarative-agent/DeclarativeAgentManifestV1D7";
 
 export type DeclarativeAgentManifest =
   | DeclarativeAgentManifestV1D0.DeclarativeAgentManifestV1D0
