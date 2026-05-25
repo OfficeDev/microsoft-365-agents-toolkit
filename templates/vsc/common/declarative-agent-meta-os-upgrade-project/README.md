@@ -65,7 +65,7 @@ Install the Microsoft 365 Copilot Agent Evaluations CLI (`@microsoft/m365-copilo
     AZURE_AI_MODEL_NAME=
     ```
 
-3. Provision the project first (select **Provision** in the Microsoft 365 Agents Toolkit) so the agent is available in your tenant before evaluation. Skip this step if you have already provisioned the project.
+3. Provision the project first (select **Provision** in the Microsoft 365 Agents Toolkit) so the agent is available in your tenant before evaluation. Skip this step if you have already provisioned (or started a local debug session) for this project.
 4. Run `runevals` or `runevals --env dev`
 
 A sample dataset `evals/prompts.json` is created in this project to help you get started right away. [Read more](https://learn.microsoft.com/en-us/microsoft-365/copilot/extensibility/evaluations-cli-overview).
