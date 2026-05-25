@@ -112,7 +112,7 @@ async function evalInGalleryFrame(
       try {
         await galleryFrame.waitForSelector(
           ".sample-filter, .offlinePage, .sample-card, .ms-Link",
-          { timeout: 15000 },
+          { timeout: 5000 },
         );
       } catch {}
       const val = await galleryFrame.evaluate(evalScript);
@@ -311,10 +311,29 @@ async function startSignalWatcher(
           }
         } else if (content.startsWith("eval:")) {
           const rest = content.slice("eval:".length);
-          const colonIdx = rest.indexOf(":");
-          if (colonIdx !== -1) {
-            const resultFile = rest.slice(0, colonIdx);
-            const evalScript = rest.slice(colonIdx + 1);
+          // The signal format is "eval:${resultFile}:${evalScript}".
+          // On Windows, resultFile contains a drive colon (e.g., C:\...).
+          // Use ".result:" as the unambiguous boundary marker.
+          const resultSuffix = ".result:";
+          const resultEndIdx = rest.indexOf(resultSuffix);
+          let resultFile: string;
+          let evalScript: string;
+          if (resultEndIdx !== -1) {
+            resultFile = rest.slice(0, resultEndIdx + ".result".length);
+            evalScript = rest.slice(resultEndIdx + resultSuffix.length);
+          } else {
+            // Fallback: first colon (works on Linux/macOS paths without drive letters)
+            const colonIdx = rest.indexOf(":");
+            if (colonIdx === -1) {
+              console.warn("  Malformed eval signal:", content.slice(0, 80));
+              resultFile = "";
+              evalScript = "";
+            } else {
+              resultFile = rest.slice(0, colonIdx);
+              evalScript = rest.slice(colonIdx + 1);
+            }
+          }
+          if (resultFile && evalScript) {
             let result = "";
             if (page) {
               try {
