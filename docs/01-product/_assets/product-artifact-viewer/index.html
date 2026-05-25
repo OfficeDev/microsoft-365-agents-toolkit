@@ -220,7 +220,7 @@
 <body>
   <header>
     <div class="topline">
-      <a id="backLink" href="../../01-product/scenarios/index.html">Back to directory index</a>
+      <a id="backLink" href="../../scenarios/index.html">Back to directory index</a>
       <p id="status">Loading renderer...</p>
     </div>
     <p class="eyebrow">Human-facing renderer</p>
@@ -236,7 +236,7 @@
       <div class="viewer-head">
         <p class="filename" id="filename">README.md</p>
         <div class="actions">
-          <a id="sourceLink" href="../../01-product/README.md">Source</a>
+          <a id="sourceLink" href="../../README.md">Source</a>
           <button id="rawToggle" type="button">Show raw</button>
         </div>
       </div>
@@ -246,7 +246,7 @@
 
   <script type="module">
     const allowedExtensions = new Set([".md", ".mmd"]);
-    const productRoot = "../../01-product/";
+    const productRoot = "../../";
     const backLink = document.querySelector("#backLink");
     const content = document.querySelector("#content");
     const filename = document.querySelector("#filename");
@@ -311,8 +311,8 @@
       try {
         currentFile = normalizeSourcePath(getRequestedFile());
         filename.textContent = currentFile;
-        backLink.href = productRoot + "index.html";
-        backLink.textContent = "Back to product index";
+        backLink.href = productRoot + "scenarios/index.html";
+        backLink.textContent = "Back to scenarios index";
         sourceLink.href = productRoot + currentFile;
         status.textContent = "Loading source...";
 

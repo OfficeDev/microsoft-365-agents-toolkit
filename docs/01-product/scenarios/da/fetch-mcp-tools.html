@@ -112,7 +112,7 @@
       <div class="vscode-flow-grid">
         <article class="vscode-flow-card" data-kind="outcome" aria-labelledby="outputs-files-title">
           <h3 id="outputs-files-title">File changes</h3>
-          <ul class="vscode-flow-card__note" style="margin:0 0 0 1.25rem;padding:0;">
+          <ul class="vscode-flow-card__note">
             <li><code>appPackage/&lt;chosen action manifest&gt;.json</code> &mdash; created when step 3 picks <code>Create a new ai-plugin.json</code> (name from step 4), modified otherwise. Operations from step 5 are written under <code>functions</code> and referenced from the MCP server runtime's <code>run_for_functions</code>; the runtime's <code>auth</code> block is written when step 6 selects an authentication type.</li>
             <li><code>appPackage/declarativeAgent.json</code> &mdash; modified only when a new manifest was created in step 3. A new entry is appended to <code>actions</code> with a non-colliding <code>id</code> (<code>action</code>, <code>action_2</code>, ...) and <code>file</code> set to the new manifest's basename.</li>
             <li><code>m365agents.yml</code> &mdash; modified only when an authentication type is selected and the matching registration step is not already present. The injected step shape and ordering match <a href="create-da-with-mcp-server.html">SCN-DA-CREATE-WITH-MCP-SERVER</a> and <a href="add-mcp-action-to-da.html">SCN-DA-ADD-MCP-ACTION-TO-DA</a>.</li>

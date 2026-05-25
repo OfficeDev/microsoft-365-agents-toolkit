@@ -236,6 +236,7 @@
     const liveArtifacts = [
       "da/add-mcp-action-to-da.html",
       "da/create-da-with-mcp-server.html",
+      "da/create-da-with-oauth-action.html",
       "da/fetch-mcp-tools.html"
     ];
 
@@ -305,7 +306,13 @@
     applyHash();
 
     function applyHash() {
-      const path = decodeURIComponent(location.hash.replace(/^#/, ""));
+      let path = "";
+      try {
+        path = decodeURIComponent(location.hash.replace(/^#/, ""));
+      } catch (_) {
+        clearSelection();
+        return;
+      }
       if (path && knownPaths.has(path)) selectPath(path, { updateHash: false });
       else clearSelection();
     }

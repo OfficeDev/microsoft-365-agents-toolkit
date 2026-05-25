@@ -138,6 +138,14 @@
   color: var(--vscode-muted, #b8b8b8);
 }
 
+ul.vscode-flow-card__note {
+  margin: 0 0 0 1.25rem;
+  padding: 0;
+}
+ul.vscode-flow-card__note--inset {
+  margin-bottom: 0.75rem;
+}
+
 vscode-single-select,
 vscode-multi-select,
 vscode-input-box,

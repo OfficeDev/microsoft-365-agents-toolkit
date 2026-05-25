@@ -91,7 +91,7 @@ flowchart TD
   ToolsAvailable -- Yes --> AuthRequired{MCP server requires authentication?}
   AuthRequired -- Yes --> AuthReady{Auth type available?}
   AuthReady -- No --> MissingAuth[Return missing auth type error]
-  AuthFlag -- Yes --> WriteFiles[Generate ai-plugin.json, write the MCP tools JSON, update the declarative agent manifest, and inject OAuth wiring when needed]
+  AuthReady -- Yes --> WriteFiles[Generate ai-plugin.json, write the MCP tools JSON, update the declarative agent manifest, and inject OAuth wiring when needed]
   AuthRequired -- No --> WriteFiles
   WriteFiles --> Complete([Show CLI add action success message])
   WarnOnly --> CompleteNoChange([Command completes with warning and no action update])

@@ -420,10 +420,18 @@ function renderMarkdownBlocks(markdown) {
 
 function renderMarkdownInline(text) {
   let out = escapeHtml(text);
-  out = out.replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, (_m, label, href) => `<a href="${href}">${label}</a>`);
+  out = out.replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, (_m, label, href) => `<a href="${safeHref(href)}">${label}</a>`);
   out = out.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
   out = out.replace(/`([^`]+)`/g, "<code>$1</code>");
   return out;
+}
+
+function safeHref(href) {
+  const trimmed = (href || "").trim();
+  if (!trimmed) return "#";
+  if (/^(#|\/(?!\/)|\.{0,2}\/)/.test(trimmed)) return trimmed;
+  if (/^(https?:|mailto:)/i.test(trimmed)) return trimmed;
+  return "#";
 }
 
 function clampHeadingLevel(value, fallback) {
