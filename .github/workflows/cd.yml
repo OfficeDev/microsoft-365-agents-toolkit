@@ -149,7 +149,7 @@ jobs:
         id: security-check-vsc
         continue-on-error: true  # Allow pipeline to continue, notification will be sent on failure
         run: |
-          python -u .github/scripts/check_npm_vulnerabilities.py --scan-directory "templates/vsc"
+          python -u .github/scripts/check_npm_vulnerabilities.py --scan-directory "templates/vsc" --output-json "${{ runner.temp }}/vuln-vsc.json"
 
       - name: Setup .NET for NuGet security check
         if: ${{ github.event.inputs.skipmarkdownandvulnerabilitycheck == 'false' || github.event.inputs.skipmarkdownandvulnerabilitycheck == ''}}
@@ -162,14 +162,14 @@ jobs:
         id: security-check-vs
         continue-on-error: true  # Allow pipeline to continue, notification will be sent on failure
         run: |
-          python -u .github/scripts/check_nuget_vulnerabilities.py --scan-directory "templates/vs"
+          python -u .github/scripts/check_nuget_vulnerabilities.py --scan-directory "templates/vs" --output-json "${{ runner.temp }}/vuln-vs.json"
 
       - name: 🔍Check package.json files for security vulnerabilities(Samples)
         if: ${{ github.event.inputs.skipmarkdownandvulnerabilitycheck == 'false' || github.event.inputs.skipmarkdownandvulnerabilitycheck == ''}}
         id: security-check-samples
         continue-on-error: true  # Allow pipeline to continue, notification will be sent on failure
         run: |
-          python -u .github/scripts/check_npm_vulnerabilities.py --scan-directory "samples-repo"
+          python -u .github/scripts/check_npm_vulnerabilities.py --scan-directory "samples-repo" --output-json "${{ runner.temp }}/vuln-samples.json"
 
       - name: 📋 Check Results Summary
         if: ${{ always() && (github.event.inputs.skipmarkdownandvulnerabilitycheck == 'false' || github.event.inputs.skipmarkdownandvulnerabilitycheck == '') }}
@@ -236,6 +236,20 @@ jobs:
           if [ "${{ steps.security-check-samples.outcome }}" == "failure" ]; then
             echo "::error title=Security Check (Samples) Failed::npm vulnerabilities found in samples-repo"
           fi
+
+      - name: 🛠️ Open fix PR for first vulnerability
+        if: ${{ always() && (steps.security-check-vsc.outcome == 'failure' || steps.security-check-vs.outcome == 'failure' || steps.security-check-samples.outcome == 'failure') && (github.event.inputs.skipmarkdownandvulnerabilitycheck == 'false' || github.event.inputs.skipmarkdownandvulnerabilitycheck == '') }}
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ steps.generate-token.outputs.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: |
+          python -u .github/scripts/open_vuln_fix_pr.py \
+            --scan-json "${{ runner.temp }}/vuln-vsc.json" \
+            --scan-json "${{ runner.temp }}/vuln-vs.json" \
+            --scan-json "${{ runner.temp }}/vuln-samples.json" \
+            --base-branch dev \
+            --repo-root .
 
       - name: Install wine64
         run: |
