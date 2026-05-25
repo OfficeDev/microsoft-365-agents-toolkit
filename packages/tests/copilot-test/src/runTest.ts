@@ -573,16 +573,20 @@ async function main() {
     console.warn("CDP connect failed");
   }
 
+  let testFailed = false;
   try {
     await testRunPromise;
     console.log("Test run completed");
   } catch (e: any) {
+    // runTests() rejects when VS Code exits non-zero (i.e., Mocha reported failures).
     console.error("Test run failed:", e.message);
+    testFailed = true;
   } finally {
     stopFlag.stop = true;
     await sleep(300);
     if (browser) await browser.close().catch(() => {});
   }
+  if (testFailed) process.exit(1);
 }
 
 main().catch((e) => { console.error(e); process.exit(1); });
