@@ -381,8 +381,9 @@ scenario-markdown-section {
 }
 
 .vscode-option {
+  position: relative;
   display: grid;
-  grid-template-columns: 24px minmax(0, 1fr) auto;
+  grid-template-columns: 24px minmax(0, 1fr);
   gap: 8px;
   align-items: start;
   min-height: 42px;
@@ -391,7 +392,7 @@ scenario-markdown-section {
 }
 
 .vscode-option--no-marker {
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr);
 }
 
 .vscode-option--group-start {
@@ -480,10 +481,18 @@ scenario-markdown-section {
 }
 
 .vscode-option__meta {
+  position: absolute;
+  top: 7px;
+  right: 10px;
+  max-width: 45%;
+  overflow: hidden;
   color: #e9f5ff;
   font-size: 0.72rem;
   font-weight: 700;
+  text-align: right;
+  text-overflow: ellipsis;
   white-space: nowrap;
+  pointer-events: none;
 }
 
 .vscode-file-icon {
@@ -673,9 +682,6 @@ scenario-markdown-section {
 
 @media (max-width: 820px) {
   .vscode-flow-grid { grid-template-columns: 1fr; }
-  .vscode-option { grid-template-columns: 24px minmax(0, 1fr); }
-  .vscode-option--no-marker { grid-template-columns: minmax(0, 1fr); }
-  .vscode-option__meta { grid-column: 2; white-space: normal; }
 }
 /* Scenario TOC sidebar -- auto-injected by scenario-components.js */
 .scenario-toc {
