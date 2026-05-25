@@ -159,6 +159,9 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
     console.log(
       `${ok ? "PASS" : "FAIL"} ${name}${detail ? ": " + detail : ""}`,
     );
+    if (!ok) {
+      assert.fail(`${name}: ${detail || "failed"}`);
+    }
   };
 
   suiteSetup(() => {
