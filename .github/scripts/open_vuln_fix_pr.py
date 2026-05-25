@@ -252,8 +252,13 @@ def main() -> int:
         safe_print(f"Skipped: an open PR already exists for branch {branch}")
         return 0
     if branch_exists_remote(branch, repo):
-        safe_print(f"Skipped: remote branch already exists: {branch}")
-        return 0
+        # No open PR but branch exists — leftover from a previous failed run.
+        # Delete it so this run can recreate cleanly.
+        safe_print(f"Remote branch exists without an open PR; deleting stale branch: {branch}")
+        if args.dry_run:
+            safe_print("[dry-run] would: git push origin --delete " + branch)
+        else:
+            run(["git", "push", "origin", "--delete", branch], cwd=repo_root, check=False)
 
     samples_target = (scan.get("scan_target") or "").startswith("samples-repo")
     can_bump_in_this_repo = not samples_target
