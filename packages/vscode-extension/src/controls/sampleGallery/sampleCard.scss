@@ -162,6 +162,13 @@ body.vscode-light {
     box-shadow: 0px 2px 4px rgb(0 0 0 / 16%);
   }
 
+  /* TC-006: Focus indicator contrast ≥ 3:1 in Light 2026 theme.
+   * --vscode-focusBorder resolves to a low-contrast value in Light 2026 (~2.26:1 on #FFF).
+   * Override with #005FB8 which gives ≥10:1 on white (WCAG AA non-text requires ≥3:1). */
+  .sample-card:focus-visible {
+    outline-color: #005FB8;
+  }
+
   .sample-card:not(.unavailable):hover {
     background-color: #F0F0F0;
   }
