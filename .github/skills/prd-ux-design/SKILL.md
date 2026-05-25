@@ -235,6 +235,17 @@ Before handoff, summarize the product design delta:
 
 Ask for approval from the human owner. If approval is not available, stop with the open questions and do not hand off to implementation.
 
+#### Rendered review links in the PR body
+
+When opening (or updating) a PR that touches scenario HTML under `docs/01-product/scenarios/`, include side-by-side rendered diff links in the PR body so reviewers can read the design without cloning. Follow [`docs/01-product/_assets/scenario-diff-viewer/README.md`](../../../docs/01-product/_assets/scenario-diff-viewer/README.md) for the URL template — do not duplicate it here.
+
+- One link per scenario HTML changed in the PR (or per draft pair, when a draft is in flight).
+- Pick the case from the viewer README: `Evolving draft` (base ref vs PR HEAD) when the file already existed on the base branch; `Brand-new draft` (live sibling vs draft) when the draft file is new in this PR.
+- **Pin both sides to immutable refs.** Use the PR HEAD commit SHA for the new side, and either the base commit SHA or a tag for the baseline side. Never pin a review link to `dev`, `main`, or the PR branch name — those move and silently change the diff later.
+- Both the viewer page itself and any side that lives only on the PR branch must be served from the PR HEAD SHA (the viewer is committed under `_assets/`).
+- Note in the PR body that raw.githack shows an *External Content Notice* on first visit per browser, and the reviewer must click *Open the page* once.
+- If a scenario HTML is brand-new and has no live sibling and no draft pair to diff against, link the standalone raw.githack preview pinned to the PR HEAD SHA instead of forcing a diff link.
+
 ### Phase 6 — Handoff to engineering
 
 When approved, produce a short handoff packet:
@@ -294,6 +305,8 @@ Only after this handoff should the engineering workflow generate or update specs
 | Promoting a draft without archiving the previous live | Use `git mv` for both `.md` and `.html` so the previous live lands in `archive/<slug>-YYYY-MM-DD.{md,html}` with `Status: archived` and `Replaced by:` set. |
 | Moving only one of the `.md`/`.html` pair into draft or archive | Always move both, so the `<scenario-mermaid-flow src="<slug>.md">` reference stays resolvable next to its HTML. |
 | Listing archive HTML in `docs/01-product/scenarios/index.html` | Only live and draft entries belong in the index; archives are repo-navigation only. |
+| Opening a scenario-touching PR without rendered review links | Add side-by-side diff links to the PR body per [`docs/01-product/_assets/scenario-diff-viewer/README.md`](../../../docs/01-product/_assets/scenario-diff-viewer/README.md), one per changed scenario HTML or draft pair. |
+| Pinning the rendered review link to a branch name (`dev`, `main`, the PR branch) | Pin both sides to immutable refs — the PR HEAD commit SHA for the new side, and a commit SHA or tag for the baseline — so the diff stays stable as branches advance. |
 
 ## Last todo of every PRD/scenario turn
 
