@@ -2338,7 +2338,7 @@ describe("teamsApp/createAppPackage", async () => {
     // Defense-in-depth: even if `getManifest` returns a manifest with a non-array
     // `capabilities` (e.g. a future code path that bypasses the typed reader),
     // createAppPackage must not crash with `TypeError: capabilities.filter is not a function`.
-    it("does not crash when capabilities is not an array (defensive guard)", async () => {
+    it("does not crash when capabilities is not an array (rejects with descriptive error)", async () => {
       const args: CreateAppPackageArgs = {
         manifestPath:
           "./tests/plugins/resource/appstudio/resources-multi-env/templates/appPackage/v3.manifest.template.json",
@@ -2374,10 +2374,13 @@ describe("teamsApp/createAppPackage", async () => {
       sinon.stub(fs, "pathExists").resolves(true);
       sinon.stub(copilotGptManifestUtils, "getManifest").resolves(ok(malformedManifest));
 
-      // Must not throw a TypeError. The guard treats non-array as "no embedded
-      // knowledge capabilities" and the build proceeds normally.
+      // Must reject non-array capabilities with a descriptive error, not crash
+      // with a raw TypeError (#15837).
       const result = (await teamsAppDriver.execute(args, mockedDriverContext)).result;
-      chai.assert.isTrue(result.isOk(), "build should not crash on non-array capabilities");
+      chai.assert.isTrue(result.isErr(), "build should reject non-array capabilities");
+      if (result.isErr()) {
+        chai.assert.include(result.error.message, "capabilities");
+      }
 
       if (await fs.pathExists(args.outputZipPath)) {
         await fs.remove(args.outputZipPath);

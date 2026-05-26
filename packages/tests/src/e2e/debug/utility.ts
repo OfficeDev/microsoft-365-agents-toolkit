@@ -15,9 +15,8 @@ async function createRequester(): Promise<AxiosInstance> {
   const requester = axios.create({
     baseURL: "https://dev.teams.microsoft.com",
   });
-  requester.defaults.headers.common[
-    "Authorization"
-  ] = `Bearer ${appStudioToken}`;
+  requester.defaults.headers.common["Authorization"] =
+    `Bearer ${appStudioToken}`;
   return requester;
 }
 
@@ -31,9 +30,8 @@ async function createGraphRequester(): Promise<AxiosInstance> {
   const requester = axios.create({
     baseURL: "https://graph.microsoft.com/v1.0",
   });
-  requester.defaults.headers.common[
-    "Authorization"
-  ] = `Bearer ${appStudioToken}`;
+  requester.defaults.headers.common["Authorization"] =
+    `Bearer ${appStudioToken}`;
   return requester;
 }
 
@@ -57,16 +55,19 @@ export async function getAadAppByClientId(clientId: string): Promise<any> {
   for (let retries = 3; retries > 0; --retries) {
     try {
       const response = await requester.get(
-        `/applications(appId='${clientId}')`
+        `/applications(appId='${clientId}')`,
       );
       if (response.status >= 200 && response.status < 300) {
         console.log(
-          `Successfully got AAD app ${response.data.id} with client id ${clientId}`
+          `Successfully got AAD app ${response.data.id} with client id ${clientId}`,
         );
         return response.data;
       }
     } catch (e) {
       console.log(`Failed to get AAD app, error: ${e}`);
+      if (retries > 1) {
+        await new Promise((resolve) => setTimeout(resolve, 10000));
+      }
     }
   }
   return undefined;
@@ -115,7 +116,7 @@ export async function deleteTeamsApp(teamsAppId: string) {
   for (let retries = 3; retries > 0; --retries) {
     try {
       const response = await requester.delete(
-        `/api/appdefinitions/${teamsAppId}`
+        `/api/appdefinitions/${teamsAppId}`,
       );
       if (response.status >= 200 && response.status < 300) {
         console.log("Successfully deleted Teams app");
