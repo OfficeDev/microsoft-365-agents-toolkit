@@ -1,4 +1,4 @@
-name: ATK Copilot Test Runner
+﻿name: ATK Copilot Test Runner
 
 # Triggered by atk-copilot-test-label.yml (via workflow_call) or manually.
 #
@@ -436,14 +436,13 @@ jobs:
           GIF_URL="${{ steps.upload-gif.outputs.gif_url }}"
           RUN_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
           RUN_ID="${{ github.run_id }}"
-          # Search for this run's comment by run_id (most reliable), then fall back to marker
-          COMMENT_ID=$(gh api "/repos/${{ github.repository }}/issues/${ISSUE}/comments" \
-            --jq --arg rid "$RUN_ID" '.[] | select(.body | contains($rid)) | .id' \
-            | tail -1)
-          if [ -z "$COMMENT_ID" ]; then
-            COMMENT_ID=$(gh api "/repos/${{ github.repository }}/issues/${ISSUE}/comments" \
-              --jq '.[] | select(.body | contains("atk-copilot-test-results")) | .id' \
-              | tail -1)
+          # Find most recently created github-actions[bot] comment (the Copilot CLI results comment)
+          COMMENT_ID=$(gh api "/repos/${{ github.repository }}/issues/${ISSUE}/comments" 2>/dev/null \
+            | jq -r '[.[] | select(.user.login == "github-actions[bot]")] | last | .id // ""')
+          # Fallback: search body for run_id (in case a non-bot account posted results)
+          if [ -z "$COMMENT_ID" ] || [ "$COMMENT_ID" = "null" ]; then
+            COMMENT_ID=$(gh api "/repos/${{ github.repository }}/issues/${ISSUE}/comments" 2>/dev/null \
+              | jq -r --arg rid "$RUN_ID" '[.[] | select(.body | contains($rid))] | last | .id // ""')
           fi
           if [ -n "$COMMENT_ID" ]; then
             EXISTING=$(gh api "/repos/${{ github.repository }}/issues/comments/${COMMENT_ID}" --jq .body)

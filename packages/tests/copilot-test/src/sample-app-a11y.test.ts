@@ -441,15 +441,25 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
       return;
     }
 
-    // Switch to list view via the toggle button
+    // Switch to list view via the toggle button.
+    // Use a busy-wait loop inside the eval so headless CI (which renders slower)
+    // has time to render the layout toggle buttons before we give up.
     const switchToList = sendEvalSignal(
       "(function(){" +
-      "  var btn = document.querySelector('[aria-label=\"list view\"]');" +
-      "  if (!btn) btn = document.querySelector('.layout-button[title*=\"list\"]');" +
-      "  if (btn) { btn.click(); return 'clicked'; }" +
-      "  return 'no-list-toggle';" +
+      "  var end = Date.now() + 5000;" +
+      "  var btn = null;" +
+      "  while (!btn && Date.now() < end) {" +
+      "    btn = document.querySelector('[aria-label=\"list view\"]') ||" +
+      "          document.querySelector('.layout-button[title*=\"list\"]') ||" +
+      "          Array.from(document.querySelectorAll('.layout-button')).find(function(b){" +
+      "            return (b.getAttribute('aria-label') || '').toLowerCase().indexOf('list') !== -1;" +
+      "          });" +
+      "    if (!btn) { var t = Date.now() + 200; while (Date.now() < t) {} }" +
+      "  }" +
+      "  if (!btn) return 'no-list-toggle';" +
+      "  btn.click(); return 'clicked';" +
       "})()",
-      3000,
+      8000,
     );
     if (!switchToList || switchToList === "no-list-toggle") {
       console.log("  TC-001b: list-view toggle not found, skipping");
