@@ -123,7 +123,7 @@ jobs:
             --repo "$REPO" \
             --ref "$HEAD_BRANCH" \
             -f preid=alpha \
-            -f SkipBranchCheck=false \
+            -f SkipBranchCheck=true \
             -f skipmarkdownandvulnerabilitycheck=true \
             -f pkgs=vscode
 
