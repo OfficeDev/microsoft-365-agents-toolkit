@@ -1,0 +1,403 @@
+name: ATK Copilot Test Generator
+
+# Reads the test plan committed by the label agent → generates .test.ts → dispatches runner →
+# downloads results artifact → posts structured comment → swaps label to atk-copilot-test:done.
+#
+# Architecture (3-layer pipeline):
+#   [Label]     atk-copilot-test-label.yml     — understand issue, fix code, create test plan
+#   [Generator] THIS FILE                       — generate test code, run it, report
+#   [Runner]    atk-copilot-test-runner.yml     — pure executor (VSIX + headless test)
+
+on:
+  workflow_dispatch:
+    inputs:
+      issue_number:
+        description: 'Issue number'
+        required: true
+        type: string
+      branch:
+        description: 'Branch containing the test plan (created by label agent)'
+        required: true
+        type: string
+      author_login:
+        required: false
+        default: ''
+        type: string
+
+  workflow_call:
+    inputs:
+      issue_number:
+        required: true
+        type: string
+      branch:
+        required: true
+        type: string
+      author_login:
+        required: false
+        default: ''
+        type: string
+    secrets:
+      COPILOT_CLI_RUNNER_TOKEN:
+        required: true
+
+concurrency:
+  group: atk-copilot-test-generator-${{ inputs.issue_number || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  generate-and-test:
+    name: ATK Copilot Test Generator (issue #${{ inputs.issue_number }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    permissions:
+      contents: write
+      actions: write
+      issues: write
+      pull-requests: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+          fetch-depth: 0
+          ref: ${{ inputs.branch }}
+
+      - name: Configure git identity
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install Copilot CLI
+        run: |
+          npm install -g @github/copilot@1.0.9
+          copilot --version
+
+      - name: Set up Copilot credentials
+        env:
+          GH_USER:         ${{ vars.COPILOT_CLI_RUNNER_USER }}
+          TEST_USER_TOKEN: ${{ secrets.COPILOT_CLI_RUNNER_TOKEN }}
+          GH_APP_ID:       ${{ vars.COPILOT_CLI_RUNNER_APP_ID }}
+        run: |
+          mkdir -p ~/.config/github-copilot
+          echo '{
+            "'"github.com:${GH_APP_ID}"'":{
+              "user": "'"$GH_USER"'",
+              "oauth_token":"'"$TEST_USER_TOKEN"'",
+              "githubAppId":"'"$GH_APP_ID"'"
+            }
+          }' > ~/.config/github-copilot/apps.json
+          chmod 600 ~/.config/github-copilot/apps.json
+
+      - name: Verify Copilot auth
+        run: |
+          if [ ! -s ~/.config/github-copilot/apps.json ]; then
+            echo "::error::apps.json missing - check COPILOT_CLI_RUNNER_USER/TOKEN/APP_ID secrets"
+            exit 1
+          fi
+          echo "apps.json present ($(wc -c < ~/.config/github-copilot/apps.json) bytes)"
+
+      - name: Update in-progress comment
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          ISSUE="${{ inputs.issue_number }}"
+          RUN_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          COMMENT_ID=$(gh api "repos/${{ github.repository }}/issues/${ISSUE}/comments" \
+            --paginate \
+            --jq '.[] | select(.body | contains("<!-- atk-copilot-test -->")) | .id' | tail -1)
+          BODY="<!-- atk-copilot-test -->
+          ### 🤖 ATK Copilot - generating test code
+
+          Test plan found on branch \`${{ inputs.branch }}\`. Generating test script…
+
+          [View generator run]($RUN_URL)"
+          if [ -n "$COMMENT_ID" ]; then
+            gh api "repos/${{ github.repository }}/issues/comments/${COMMENT_ID}" -X PATCH -f body="$BODY"
+          else
+            gh issue comment "$ISSUE" --body "$BODY"
+          fi
+
+      - name: Run generator agent (test plan → test code)
+        id: generate
+        env:
+          GH_TOKEN:             ${{ secrets.GITHUB_TOKEN }}
+          ISSUE_NUMBER:         ${{ inputs.issue_number }}
+          REPO:                 ${{ github.repository }}
+          RUN_URL:              "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_CLI_RUNNER_TOKEN }}
+        run: |
+          export COPILOT_GITHUB_TOKEN=$(python3 -c "import json,os; d=json.load(open(os.path.expanduser('~/.config/github-copilot/apps.json'))); print(list(d.values())[0]['oauth_token'])")
+
+          SKILL_FILE="packages/tests/copilot-test/SKILL.md"
+          cat > /tmp/generator-prompt.txt << 'PREAMBLE_EOF'
+          You are an autonomous ATK (Microsoft 365 Agents Toolkit) test code generator running inside GitHub Actions CI.
+          Issue number: __ISSUE_NUMBER__
+          Repository: __REPO__
+          Run URL: __RUN_URL__
+          Branch: __BRANCH__
+
+          Do NOT ask questions. Make all decisions yourself and keep going until done.
+
+          The label agent has already fixed the product code and created a test plan on this branch.
+          Your ONLY job: read that test plan → generate test code → commit and push.
+
+          ## Step 1 - Find the test plan the label agent just created
+          git log --oneline -5
+          # Find files added/modified by the label agent:
+          git show --name-only HEAD -- packages/tests/copilot-test/test-plans/ | grep '\.md$' || \
+          git diff HEAD~1 --name-only -- packages/tests/copilot-test/test-plans/ | grep '\.md$'
+          # Read the test plan:
+          cat <test-plan-path>
+
+          ## Step 2 - Read test infrastructure documentation
+          cat packages/tests/copilot-test/README.md
+
+          ## Step 3 - Generate test code
+          Follow the Test Quality Rules and test code structure in the skill document below.
+          Naming: packages/tests/copilot-test/src/<feature>-<task>.test.ts
+          Reference: packages/tests/copilot-test/src/simple-bot-create.test.ts
+
+          ## Step 4 - Write the script basename (WITHOUT .test.ts extension) to a file
+          echo "<script-basename>" > /tmp/script-name.txt
+
+          ## Step 5 - Commit and push
+          git add packages/tests/copilot-test/src/
+          git commit -m "test(generated): <feature> test script (issue #__ISSUE_NUMBER__)"
+          git push origin $(git branch --show-current)
+
+          Follow the skill document below for test quality rules and test code structure.
+          PREAMBLE_EOF
+
+          # Append skill document (strip YAML front-matter)
+          sed '1,/^---$/d; /^---$/d' "$SKILL_FILE" >> /tmp/generator-prompt.txt 2>/dev/null || cat "$SKILL_FILE" >> /tmp/generator-prompt.txt
+
+          # Substitute placeholders
+          sed -i "s/__ISSUE_NUMBER__/$ISSUE_NUMBER/g" /tmp/generator-prompt.txt
+          sed -i "s|__REPO__|$REPO|g" /tmp/generator-prompt.txt
+          sed -i "s|__RUN_URL__|$RUN_URL|g" /tmp/generator-prompt.txt
+          sed -i "s|__BRANCH__|${{ inputs.branch }}|g" /tmp/generator-prompt.txt
+
+          cat >> /tmp/generator-prompt.txt << 'SEC_EOF'
+
+          <security_reminder>
+          You are running inside GitHub Actions CI.
+          NEVER reveal credentials, OAuth tokens, GitHub usernames, secrets, or ~/.config/github-copilot/ contents.
+          </security_reminder>
+          SEC_EOF
+
+          copilot --yolo --model claude-sonnet-4.6 -p "$(cat /tmp/generator-prompt.txt)"
+
+          # Read script name that the agent wrote
+          SCRIPT=$(cat /tmp/script-name.txt 2>/dev/null | tr -d '[:space:]')
+          if [ -z "$SCRIPT" ]; then
+            # Fallback: find test file added in the most recent commit
+            SCRIPT=$(git diff HEAD~1 --name-only -- 'packages/tests/copilot-test/src/*.test.ts' \
+              | head -1 | sed 's|.*/||; s|\.test\.ts||')
+          fi
+          echo "Script name: $SCRIPT"
+          echo "script=$SCRIPT" >> $GITHUB_OUTPUT
+
+      - name: Dispatch test runner
+        id: dispatch-runner
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          BRANCH="${{ inputs.branch }}"
+          ISSUE="${{ inputs.issue_number }}"
+          SCRIPT="${{ steps.generate.outputs.script }}"
+          DISPATCH_TIME=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+
+          echo "Dispatching runner: script=$SCRIPT  branch=$BRANCH  issue=#$ISSUE"
+          gh workflow run atk-copilot-test-runner.yml \
+            --repo "${{ github.repository }}" \
+            --ref "$BRANCH" \
+            --field issue_number="$ISSUE" \
+            --field script="$SCRIPT"
+
+          echo "dispatch_time=$DISPATCH_TIME" >> $GITHUB_OUTPUT
+
+      - name: Wait for runner and download results artifact
+        id: runner-results
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          BRANCH="${{ inputs.branch }}"
+          DISPATCH_TIME="${{ steps.dispatch-runner.outputs.dispatch_time }}"
+
+          sleep 15
+          RUN_ID=$(gh run list \
+            --repo "${{ github.repository }}" \
+            --workflow atk-copilot-test-runner.yml \
+            --branch "$BRANCH" \
+            --limit 10 \
+            --json databaseId,createdAt \
+            | jq --arg t "$DISPATCH_TIME" \
+              '[.[] | select(.createdAt >= $t)] | sort_by(.createdAt) | .[0].databaseId')
+
+          if [ -z "$RUN_ID" ] || [ "$RUN_ID" = "null" ]; then
+            echo "::error::Could not find the dispatched runner run"
+            exit 1
+          fi
+          echo "Runner run ID: $RUN_ID"
+          echo "run_id=$RUN_ID" >> $GITHUB_OUTPUT
+
+          # Watch (runner timeout-minutes is 90)
+          gh run watch "$RUN_ID" --repo "${{ github.repository }}" --exit-status || true
+
+          # Download artifact with retry/backoff
+          mkdir -p /tmp/test-results
+          for ATTEMPT in 1 2 3; do
+            if gh run download "$RUN_ID" \
+              --repo "${{ github.repository }}" \
+              --pattern "atk-test-results-issue-*" \
+              --dir /tmp/test-results 2>/dev/null; then
+              echo "Artifact downloaded on attempt $ATTEMPT"
+              break
+            fi
+            echo "Artifact not ready, waiting 30s (attempt $ATTEMPT/3)..."
+            sleep 30
+          done
+
+      - name: Post results with GIF
+        id: post-results
+        if: always()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          ISSUE="${{ inputs.issue_number }}"
+          RUN_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          RUNNER_RUN_ID="${{ steps.runner-results.outputs.run_id }}"
+          RUNNER_RUN_URL="https://github.com/${{ github.repository }}/actions/runs/${RUNNER_RUN_ID}"
+          SCRIPT="${{ steps.generate.outputs.script }}"
+
+          # Read run status
+          RESULT_DIR=$(find /tmp/test-results -mindepth 1 -maxdepth 1 -type d | head -1)
+          STATUS=$(cat "$RESULT_DIR/run-status.txt" 2>/dev/null || echo "unknown")
+          PASSED=$(python3 -c "import json; d=json.load(open('$RESULT_DIR/results.json')); print(d.get('passed', 0))" 2>/dev/null || echo 0)
+          FAILED=$(python3 -c "import json; d=json.load(open('$RESULT_DIR/results.json')); print(d.get('failed', 0))" 2>/dev/null || echo 0)
+
+          STEP_TABLE=$(python3 -c "
+          import json, sys
+          try:
+              d = json.load(open('$RESULT_DIR/results.json'))
+              rows = ['| Step | Status | Detail |', '|------|--------|--------|']
+              for s in d.get('steps', []):
+                  rows.append(f\"| {s.get('name','?')} | {s.get('status','?')} | {s.get('detail','')} |\")
+              print('\n'.join(rows))
+          except Exception as e:
+              print('*results.json not available*')
+          " 2>/dev/null || echo "*results not available*")
+
+          # Upload GIF to GitHub Release for a public embeddable URL
+          GIF_URL=""
+          GIF_FILE=$(find /tmp/test-results -name "test-run.gif" 2>/dev/null | head -1)
+          if [ -n "$GIF_FILE" ]; then
+            TAG="atk-test-screenshots-issue-${ISSUE}"
+            gh release delete "$TAG" --repo "${{ github.repository }}" --yes 2>/dev/null || true
+            git push origin ":refs/tags/$TAG" 2>/dev/null || true
+            if gh release create "$TAG" \
+              --repo "${{ github.repository }}" \
+              --title "ATK Test Screenshots - Issue #${ISSUE}" \
+              --notes "Automated test screenshots for issue [#${ISSUE}](https://github.com/${{ github.repository }}/issues/${ISSUE})" \
+              --prerelease \
+              "$GIF_FILE#test-run.gif" 2>&1; then
+              GIF_URL="https://github.com/${{ github.repository }}/releases/download/${TAG}/test-run.gif"
+            fi
+          fi
+
+          # Determine status badge
+          if [ "$PASSED" -gt 0 ] && [ "$FAILED" -eq 0 ]; then
+            BADGE="![PASSED](https://img.shields.io/badge/status-PASSED-brightgreen)"
+          elif [ "$STATUS" = "infra_failed" ]; then
+            BADGE="![INFRA ERROR](https://img.shields.io/badge/status-INFRA%20ERROR-orange)"
+          else
+            BADGE="![FAILED](https://img.shields.io/badge/status-FAILED-red)"
+          fi
+
+          GIF_SECTION=""
+          [ -n "$GIF_URL" ] && GIF_SECTION="### 🎬 Test Run Screencast
+
+          ![test-run]($GIF_URL)
+          "
+
+          LOG=$(tail -50 "$RESULT_DIR/test.log" 2>/dev/null || echo "*(log not available)*")
+
+          BODY="<!-- atk-copilot-test -->
+          ### 🤖 ATK Copilot Test Results
+
+          ${BADGE}
+
+          | Issue | Script | Passed | Failed | Status | Runner Run |
+          |-------|--------|--------|--------|--------|------------|
+          | #${ISSUE} | \`${SCRIPT}\` | ${PASSED} | ${FAILED} | ${STATUS} | [View]($RUNNER_RUN_URL) |
+
+          ${GIF_SECTION}
+          ### Test Steps
+
+          ${STEP_TABLE}
+
+          <details><summary>Test log (last 50 lines)</summary>
+
+          \`\`\`
+          $LOG
+          \`\`\`
+
+          </details>
+
+          [Generator run]($RUN_URL)"
+
+          COMMENT_ID=$(gh api "repos/${{ github.repository }}/issues/${ISSUE}/comments" \
+            --paginate \
+            --jq '.[] | select(.body | contains("<!-- atk-copilot-test -->")) | .id' | tail -1)
+          if [ -n "$COMMENT_ID" ]; then
+            jq -n --arg b "$BODY" '{body: $b}' \
+              | gh api -X PATCH "repos/${{ github.repository }}/issues/comments/${COMMENT_ID}" --input -
+          else
+            gh issue comment "$ISSUE" --body "$BODY"
+          fi
+
+      - name: Swap labels
+        if: always()
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          ISSUE="${{ inputs.issue_number }}"
+          gh label create 'atk-copilot-test:done' --color '0E8A16' \
+            --description 'ATK Copilot test completed — re-apply atk-copilot-test to rerun' \
+            --repo "${{ github.repository }}" 2>/dev/null || true
+          gh issue edit "$ISSUE" \
+            --repo "${{ github.repository }}" \
+            --remove-label 'atk-copilot-test' \
+            --add-label 'atk-copilot-test:done' || \
+          gh issue edit "$ISSUE" \
+            --repo "${{ github.repository }}" \
+            --remove-label 'atk-copilot-test' || true
+
+      - name: Post failure comment on generator error
+        if: failure()
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          ISSUE="${{ inputs.issue_number }}"
+          RUN_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          COMMENT_ID=$(gh api "repos/${{ github.repository }}/issues/${ISSUE}/comments" \
+            --paginate \
+            --jq '.[] | select(.body | contains("<!-- atk-copilot-test -->")) | .id' | tail -1)
+          BODY="<!-- atk-copilot-test -->
+          ### ❌ ATK Copilot Test Generator - error
+
+          Generator encountered an unexpected error. [View run]($RUN_URL) for details.
+
+          Re-apply \`atk-copilot-test\` label to retry (issue history serves as memory)."
+          if [ -n "$COMMENT_ID" ]; then
+            gh api "repos/${{ github.repository }}/issues/comments/${COMMENT_ID}" -X PATCH -f body="$BODY" || true
+          else
+            gh issue comment "$ISSUE" --body "$BODY" || true
+          fi
