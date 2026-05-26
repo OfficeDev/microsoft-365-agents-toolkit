@@ -44,6 +44,8 @@ on:
 
 permissions:
   actions: read
+  pull-requests: write
+  issues: write
 
 jobs:
   setup:
@@ -53,8 +55,9 @@ jobs:
     permissions:
       id-token: write
       contents: read
+      pull-requests: write
     outputs:
-      cases: ${{ steps.schedule-cases.outputs.cases || steps.pr-cases.outputs.cases || steps.dispatch-cases.outputs.cases }}
+      cases: ${{ steps.schedule-cases.outputs.cases || steps.ai-pr-cases.outputs.cases || steps.dispatch-cases.outputs.cases }}
     env:
       AZURE_ACCOUNT_NAME: ${{ secrets.TEST_USER_NAME }}
       AZURE_ACCOUNT_OBJECT_ID: ${{ secrets.TEST_USER_OBJECT_ID }}
@@ -89,13 +92,16 @@ jobs:
           cases=`find . -wholename "*.tests.ts" | grep -v "FoundryProxyAgent" | jq -Rsc '[split("\n") | .[]| select(.!="")]'`
           echo "cases=$cases" >> $GITHUB_OUTPUT
 
-      - name: List cases for pull request
-        id: pr-cases
-        if: ${{  github.event_name == 'pull_request' }}
-        working-directory: packages/tests/src/e2e
-        run: |
-          cases=`find . -wholename "*.tests.ts" | grep -v "/samples/" | grep -v "FoundryProxyAgent" | jq -Rsc '[split("\n") | .[]| select(.!="")]'`
-          echo "cases=$cases" >> $GITHUB_OUTPUT
+      - name: AI-select cases for pull request
+        id: ai-pr-cases
+        if: ${{ github.event_name == 'pull_request' }}
+        uses: ./.github/actions/ai-select-e2e-cases
+        with:
+          test-dir: packages/tests/src/e2e
+          exclude-pattern: "/samples/|FoundryProxyAgent"
+          pr-number: ${{ github.event.pull_request.number }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          copilot-token: ${{ secrets.COPILOT_CLI_RUNNER_TOKEN }}
 
       - name: List cases for dispatch
         id: dispatch-cases
