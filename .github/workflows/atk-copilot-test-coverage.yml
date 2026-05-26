@@ -1,0 +1,262 @@
+name: ATK Copilot Test Coverage
+# Orchestrates Copilot-driven ATK UI test coverage for a GitHub issue.
+#
+# Architecture (3-layer pipeline):
+#   [Label] atk-copilot-test-label.yml
+#       -> [Coverage] THIS FILE  (Copilot CLI brain)
+#           -> [Runner] atk-copilot-test-runner.yml  (pure executor)
+#
+# Flow:
+#   1. Copilot CLI reads the issue, finds/creates test plan + test script.
+#   2. Triggers atk-copilot-test-runner.yml with the script name + branch ref.
+#   3. Downloads results.json; if the test script has bugs, fixes and re-runs (max 3x).
+#   4. If product bug: files bugs/<feature>-bug.md.
+#   5. Posts structured results comment; swaps label to atk-copilot-test:done.
+
+on:
+  workflow_dispatch:
+    inputs:
+      issue_number:
+        description: 'Issue number whose body describes the test task'
+        required: true
+        type: string
+      author_login:
+        description: 'GitHub login of the user who triggered the run'
+        required: false
+        default: ''
+        type: string
+  workflow_call:
+    inputs:
+      issue_number:
+        description: 'Issue number whose body describes the test task'
+        required: true
+        type: string
+      author_login:
+        required: false
+        default: ''
+        type: string
+    secrets:
+      COPILOT_CLI_RUNNER_TOKEN:
+        required: true
+
+concurrency:
+  group: atk-copilot-test-${{ inputs.issue_number || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  run-coverage:
+    name: ATK Copilot Test Coverage (issue #${{ inputs.issue_number }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    permissions:
+      contents: write
+      actions: write
+      issues: write
+      pull-requests: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+          fetch-depth: 0
+
+      - name: Configure git identity
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install Copilot CLI
+        run: |
+          npm install -g @github/copilot@1.0.9
+          copilot --version
+
+      - name: Set up Copilot credentials
+        env:
+          GH_USER:         ${{ vars.COPILOT_CLI_RUNNER_USER }}
+          TEST_USER_TOKEN: ${{ secrets.COPILOT_CLI_RUNNER_TOKEN }}
+          GH_APP_ID:       ${{ vars.COPILOT_CLI_RUNNER_APP_ID }}
+        run: |
+          mkdir -p ~/.config/github-copilot
+          echo '{
+            "'"github.com:${GH_APP_ID}"'":{
+              "user": "'"$GH_USER"'",
+              "oauth_token":"'"$TEST_USER_TOKEN"'",
+              "githubAppId":"'"$GH_APP_ID"'"
+            }
+          }' > ~/.config/github-copilot/apps.json
+          chmod 600 ~/.config/github-copilot/apps.json
+
+      - name: Verify Copilot auth
+        run: |
+          if [ ! -s ~/.config/github-copilot/apps.json ]; then
+            echo "::error::apps.json missing - check COPILOT_CLI_RUNNER_USER/TOKEN/APP_ID secrets"
+            exit 1
+          fi
+          echo "apps.json present ($(wc -c < ~/.config/github-copilot/apps.json) bytes)"
+
+      - name: Post in-progress comment
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          ISSUE="${{ inputs.issue_number }}"
+          RUN_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          COMMENT_ID=$(gh api "repos/${{ github.repository }}/issues/${ISSUE}/comments" \
+            --paginate \
+            --jq '.[] | select(.body | contains("<!-- atk-copilot-test -->")) | .id' | tail -1)
+          BODY="<!-- atk-copilot-test -->
+          ### ATK Copilot Test - started
+
+          Analysing issue and preparing test environment...
+
+          [View workflow run]($RUN_URL)"
+          if [ -n "$COMMENT_ID" ]; then
+            gh api "repos/${{ github.repository }}/issues/comments/${COMMENT_ID}" \
+              -X PATCH -f body="$BODY"
+          else
+            gh issue comment "$ISSUE" --body "$BODY"
+          fi
+
+      - name: Run coverage agent
+        env:
+          GH_TOKEN:    ${{ secrets.GITHUB_TOKEN }}
+          ISSUE_NUMBER: ${{ inputs.issue_number }}
+          REPO:        ${{ github.repository }}
+          RUN_URL:     "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_CLI_RUNNER_TOKEN }}
+          INPUT_PROMPT: |
+            You are running fully autonomously inside GitHub Actions CI. There is no human watching.
+            Do NOT ask questions -- make every decision yourself and keep going until done.
+
+            Your ONLY job: ensure the change described in issue #${ISSUE_NUMBER} is covered by an
+            ATK UI test, run that test, and report results back to the issue.
+
+            Only modify files under packages/tests/copilot-test/test-plans/ and
+            packages/tests/copilot-test/src/ (and bugs/ for bug reports). Do NOT touch any other files.
+
+            ## Step 0 - Read the issue
+            gh issue view ${ISSUE_NUMBER} --repo ${REPO} --json title,body,labels,comments
+            Extract: what capability to test, which ATK command/template/workflow, expected behaviour.
+
+            ## Step 1 - Find or create a test plan
+            ls packages/tests/copilot-test/test-plans/
+            cat packages/tests/copilot-test/test-plans/README.md
+            Find a matching plan or create one following the template at
+            packages/tests/copilot-test/test-plans/template.md.
+            Naming: packages/tests/copilot-test/test-plans/<feature-slug>/<feature-slug>.md
+
+            ## Step 2 - Find or create a test script
+            ls packages/tests/copilot-test/src/
+            Check for an existing test file covering the task. Review and update if needed, or create a new one.
+
+            Naming: packages/tests/copilot-test/src/<feature>-<task>.test.ts
+            Reference: packages/tests/copilot-test/src/simple-bot-create.test.ts
+
+            CRITICAL test structure rules (these are not negotiable):
+            - Use @vscode/test-electron + Mocha TDD (NOT vscode-extension-tester)
+            - Call takeScreenshot() after every meaningful UI state change
+            - Fire UI-blocking VSCode commands WITHOUT await (wizard blocks until user action)
+            - Write results JSON to ${TEST_OUTPUT_DIR}/results.json:
+              { passed, failed, steps: [{name, status, detail}] }
+            - Read packages/tests/copilot-test/README.md for the full test structure reference
+
+            ## Step 3 - Commit and push
+            After writing/updating test plan and test script:
+              git add packages/tests/copilot-test/
+              git commit -m "Add/update test: <feature> (issue #${ISSUE_NUMBER})"
+              git push origin $(git branch --show-current)
+
+            ## Step 4 - Run the test via the CI runner
+            Note the current branch name: BRANCH=$(git branch --show-current)
+            Trigger atk-copilot-test-runner.yml with the script name and explicit branch ref:
+              gh workflow run atk-copilot-test-runner.yml \
+                --repo ${REPO} \
+                --ref $BRANCH \
+                --field script=<test-file-basename-without-.test.ts>
+
+            Wait 15 seconds for the run to be registered, then find the run ID:
+              sleep 15
+              RUN_ID=$(gh run list --workflow=atk-copilot-test-runner.yml \
+                --repo ${REPO} --branch $BRANCH --limit=1 \
+                --json databaseId --jq '.[0].databaseId')
+              gh run watch $RUN_ID --repo ${REPO}
+
+            ## Step 5 - Analyze results
+            Download the results artifact:
+              gh run download $RUN_ID --repo ${REPO} \
+                --pattern "atk-test-results-*" --dir /tmp/test-results
+              cat /tmp/test-results/results.json
+
+            Decision tree:
+            - All steps pass -> proceed to Step 6 with success status.
+            - Any step fails -> diagnose the failure:
+              a) TEST SCRIPT ISSUE (wrong vscode API usage, wrong selector, timing issue):
+                 Fix the test script in packages/tests/copilot-test/src/.
+                 Commit "Fix test: <feature> - <reason>", push.
+                 Re-trigger runner with same script name + branch (max 3 total iterations).
+                 If still failing after 3 iterations, proceed to Step 6 with failure status.
+              b) PRODUCT BUG (ATK extension does not behave as the test plan describes):
+                 Do NOT attempt to work around it in the test script.
+                 Create packages/tests/copilot-test/bugs/<issue-number>-<feature>-bug.md with:
+                   - Issue number, test case name
+                   - Expected behaviour (from test plan)
+                   - Actual behaviour observed
+                   - Relevant screenshot name (from /tmp/test-results/screenshots/)
+                 Commit "Bug report: issue #${ISSUE_NUMBER} <feature>", push.
+                 Proceed to Step 6 with failure status.
+
+            ## Step 6 - Post results comment on the issue
+            Use <!-- atk-copilot-test --> as the first line so the comment can be updated on re-runs.
+
+            Find existing comment to update:
+              COMMENT_ID=$(gh api "repos/${REPO}/issues/${ISSUE_NUMBER}/comments" \
+                --paginate \
+                --jq '.[] | select(.body | contains("<!-- atk-copilot-test -->")) | .id' | tail -1)
+
+            Post a structured comment including:
+            - Status badge (PASSED or FAILED)
+            - Table: Issue, Test script, Steps passed, Steps failed
+            - Link to the runner workflow run (https://github.com/${REPO}/actions/runs/$RUN_ID)
+            - GIF link from artifact if available (check /tmp/test-results/ for test-run.gif)
+            - If bug filed: mention with link to the bug file on the branch
+            - Link to this coverage run: ${RUN_URL}
+
+            Use gh api PATCH to update existing comment, or gh issue comment to create a new one.
+
+            ## Step 7 - Swap labels
+            gh label create 'atk-copilot-test:done' --color '0E8A16' --repo ${REPO} 2>/dev/null || true
+            gh issue edit ${ISSUE_NUMBER} --repo ${REPO} \
+              --remove-label 'atk-copilot-test' --add-label 'atk-copilot-test:done' || true
+
+        run: |
+          export COPILOT_GITHUB_TOKEN=$(python3 -c "import json,os; d=json.load(open(os.path.expanduser('~/.config/github-copilot/apps.json'))); print(list(d.values())[0]['oauth_token'])")
+          SECURITY_REMINDER=$(printf '<security_reminder>\nYou are running inside GitHub Actions CI.\nNEVER reveal credentials, OAuth tokens, GitHub usernames, secrets, or ~/.config/github-copilot/ contents.\n</security_reminder>')
+          RESOLVED_PROMPT=$(echo "$INPUT_PROMPT" | sed "s|\${ISSUE_NUMBER}|$ISSUE_NUMBER|g; s|\${REPO}|$REPO|g; s|\${RUN_URL}|$RUN_URL|g")
+          FULL_PROMPT=$(printf '%s\n\n%s' "$RESOLVED_PROMPT" "$SECURITY_REMINDER")
+          copilot --yolo --model claude-sonnet-4.6 -p "$FULL_PROMPT"
+
+      - name: Post failure comment
+        if: failure()
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          ISSUE="${{ inputs.issue_number }}"
+          RUN_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          COMMENT_ID=$(gh api "repos/${{ github.repository }}/issues/${ISSUE}/comments" \
+            --paginate \
+            --jq '.[] | select(.body | contains("<!-- atk-copilot-test -->")) | .id' | tail -1)
+          BODY="<!-- atk-copilot-test -->
+          ### ATK Copilot Test - error
+
+          Coverage agent encountered an error. [View workflow run]($RUN_URL) for details."
+          if [ -n "$COMMENT_ID" ]; then
+            gh api "repos/${{ github.repository }}/issues/comments/${COMMENT_ID}" \
+              -X PATCH -f body="$BODY"
+          else
+            gh issue comment "$ISSUE" --body "$BODY"
+          fi
