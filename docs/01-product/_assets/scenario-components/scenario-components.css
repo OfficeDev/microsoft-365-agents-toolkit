@@ -145,6 +145,15 @@ ul.vscode-flow-card__note {
 ul.vscode-flow-card__note--inset {
   margin-bottom: 0.75rem;
 }
+.vscode-flow-card__note--top-sm {
+  margin-top: 0.5rem;
+}
+.vscode-flow-card__note--top-md {
+  margin-top: 0.75rem;
+}
+.vscode-code-file--top-md {
+  margin-top: 0.75rem;
+}
 
 vscode-single-select,
 vscode-multi-select,

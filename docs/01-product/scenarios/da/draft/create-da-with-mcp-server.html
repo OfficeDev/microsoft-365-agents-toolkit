@@ -36,7 +36,7 @@
         <article class="vscode-flow-card" data-kind="note" data-severity="warning" aria-labelledby="feature-flag-card-title">
           <h3 id="feature-flag-card-title">TEAMSFX_MCP_FOR_DA_DT <span class="vscode-flow-card__hint">default: false</span></h3>
           <p class="vscode-flow-card__note">Gates the create-flow changes documented on this page: (1) the scaffold persists the OAuth client id / scope / secret answers under project-standard UPPER_SNAKE names in <code>env/.env.&lt;env&gt;</code> and <code>env/.env.&lt;env&gt;.user</code>; (2) the <code>oauth/register</code> step in <code>m365agents.yml</code> references those entries via <code>${{...}}</code>. When the flag is <strong>off</strong>, current shipping behavior is preserved: env files contain only the auth-id placeholder, the YAML omits the credential trio, and the provision step picks up credentials through the in-process bridge populated by the create flow.</p>
-          <p class="vscode-flow-card__note" style="margin-top:0.5rem;">MCP-backed DA itself is now unconditionally available in the create flow (the old umbrella flag has been removed). This new flag scopes only the credential-persistence subset described above and is intended to be temporary &mdash; removed once the rollout is complete.</p>
+          <p class="vscode-flow-card__note vscode-flow-card__note--top-sm">MCP-backed DA itself is now unconditionally available in the create flow (the old umbrella flag has been removed). This new flag scopes only the credential-persistence subset described above and is intended to be temporary &mdash; removed once the rollout is complete.</p>
         </article>
         <article class="vscode-flow-card" data-kind="note" data-severity="warning" aria-labelledby="feature-flag-dcr-card-title">
           <h3 id="feature-flag-dcr-card-title">TEAMSFX_MCP_FOR_DA_DCR <span class="vscode-flow-card__hint">default: false</span></h3>
@@ -110,7 +110,7 @@
             <vscode-option label="Entra SSO" description="Use a Microsoft Entra app for single sign-on. The toolkit will ask for the Entra app client id."></vscode-option>
             <vscode-option label="None" description="The MCP server does not require authentication."></vscode-option>
           </vscode-single-select>
-          <p class="vscode-flow-card__note" style="margin-top:0.5rem;"><strong>Note:</strong> the <em>OAuth (with dynamic registration)</em> option is only shown when both <code>TEAMSFX_MCP_FOR_DA_DT</code> and <code>TEAMSFX_MCP_FOR_DA_DCR</code> are <code>true</code> (see Feature flag section). With either flag off, the pick has three options.</p>
+          <p class="vscode-flow-card__note vscode-flow-card__note--top-sm"><strong>Note:</strong> the <em>OAuth (with dynamic registration)</em> option is only shown when both <code>TEAMSFX_MCP_FOR_DA_DT</code> and <code>TEAMSFX_MCP_FOR_DA_DCR</code> are <code>true</code> (see Feature flag section). With either flag off, the pick has three options.</p>
         </article>
 
         <article class="vscode-flow-card vscode-flow-card--accent" data-kind="action" aria-labelledby="static-fields-title">
@@ -154,7 +154,7 @@
             message="Declarative agent project successfully created with the MCP action already wired into the manifest. Tools are discovered from the MCP server at runtime (dynamic tool discovery) &mdash; provision and run the agent directly. If dynamic discovery doesn&rsquo;t work for your server, you can fall back to baking tool definitions into ai-plugin.json via the CodeLens in .vscode/mcp.json."
             source="Microsoft 365 Agents Toolkit"
             action="Provision"></vscode-notification>
-          <p class="vscode-flow-card__note" style="margin-top:0.5rem;"><strong>Note:</strong> the scaffold does <em>not</em> auto-open <code>.vscode/mcp.json</code> after creation. The notification surfaces only the primary <em>Provision</em> action; there is intentionally no &ldquo;Fetch action from MCP&rdquo; button, since that path is a fallback for when dynamic tool discovery fails rather than the recommended default.</p>
+          <p class="vscode-flow-card__note vscode-flow-card__note--top-sm"><strong>Note:</strong> the scaffold does <em>not</em> auto-open <code>.vscode/mcp.json</code> after creation. The notification surfaces only the primary <em>Provision</em> action; there is intentionally no &ldquo;Fetch action from MCP&rdquo; button, since that path is a fallback for when dynamic tool discovery fails rather than the recommended default.</p>
         </article>
 
         <article class="vscode-flow-card" data-kind="outcome" data-severity="warning" aria-labelledby="dcr-placeholder-warning-title">
@@ -254,7 +254,7 @@
               <div class="vscode-code-row vscode-code-row--active"><span class="vscode-code-line">17</span><span class="vscode-code-text"><span class="vscode-code-indent-3"><span class="vscode-code-token--key">configurationId</span><span class="vscode-code-token--punctuation">:</span> <span class="vscode-code-token--string">MCP_DA_AUTH_ID_APIGITHUBC</span></span></span></div>
             </div>
           </div>
-          <div class="vscode-code-file" role="img" aria-label="m365agents.yml after success - Entra SSO variant" style="margin-top:0.75rem;">
+          <div class="vscode-code-file vscode-code-file--top-md" role="img" aria-label="m365agents.yml after success - Entra SSO variant">
             <div class="vscode-code-file__bar">m365agents.yml &mdash; Entra SSO variant</div>
             <div class="vscode-code-file__body">
               <div class="vscode-code-row"><span class="vscode-code-line">1</span><span class="vscode-code-text"><span class="vscode-code-token--key">provision</span><span class="vscode-code-token--punctuation">:</span></span></div>
@@ -271,7 +271,7 @@
               <div class="vscode-code-row vscode-code-row--active"><span class="vscode-code-line">12</span><span class="vscode-code-text"><span class="vscode-code-indent-3"><span class="vscode-code-token--key">configurationId</span><span class="vscode-code-token--punctuation">:</span> <span class="vscode-code-token--string">MCP_DA_AUTH_ID_APIGITHUBC</span></span></span></div>
             </div>
           </div>
-          <div class="vscode-code-file" role="img" aria-label="m365agents.yml after success - OAuth dynamic variant" style="margin-top:0.75rem;">
+          <div class="vscode-code-file vscode-code-file--top-md" role="img" aria-label="m365agents.yml after success - OAuth dynamic variant">
             <div class="vscode-code-file__bar">m365agents.yml &mdash; OAuth (dynamic) variant <span class="vscode-flow-card__hint">schema bumped to v1.13</span></div>
             <div class="vscode-code-file__body">
               <div class="vscode-code-row"><span class="vscode-code-line">1</span><span class="vscode-code-text"><span class="vscode-code-token--key">version</span><span class="vscode-code-token--punctuation">:</span> <span class="vscode-code-token--string">v1.13</span></span></div>
@@ -307,13 +307,13 @@
               <div class="vscode-code-row vscode-code-row--active"><span class="vscode-code-line">7</span><span class="vscode-code-text"><span class="vscode-code-token--key">MCP_DA_OAUTH_SCOPE_APIGITHUBC</span>=<span class="vscode-code-token--string">&lt;value entered at create&gt;</span></span></div>
             </div>
           </div>
-          <div class="vscode-code-file" role="img" aria-label="env/.env.dev.user after success - OAuth static secret" style="margin-top:0.75rem;">
+          <div class="vscode-code-file vscode-code-file--top-md" role="img" aria-label="env/.env.dev.user after success - OAuth static secret">
             <div class="vscode-code-file__bar">env/.env.dev.user <span class="vscode-flow-card__hint">gitignored, auto-masked in logs</span></div>
             <div class="vscode-code-file__body">
               <div class="vscode-code-row vscode-code-row--active"><span class="vscode-code-line">1</span><span class="vscode-code-text"><span class="vscode-code-token--key">SECRET_MCP_DA_OAUTH_CLIENT_SECRET_APIGITHUBC</span>=<span class="vscode-code-token--string">&lt;value entered at create&gt;</span></span></div>
             </div>
           </div>
-          <p class="vscode-flow-card__note" style="margin-top:0.75rem;"><strong>Entra SSO</strong> writes only <code>MCP_DA_OAUTH_CLIENT_ID_APIGITHUBC</code> &mdash; the driver suppresses secret and scope when <code>identityProvider === MicrosoftEntra</code>. <strong>OAuth (dynamic)</strong> writes neither &mdash; <code>dcr/register</code> obtains the credentials from the authorization server at provision. <strong>None</strong> writes no auth entries at all.</p>
+          <p class="vscode-flow-card__note vscode-flow-card__note--top-md"><strong>Entra SSO</strong> writes only <code>MCP_DA_OAUTH_CLIENT_ID_APIGITHUBC</code> &mdash; the driver suppresses secret and scope when <code>identityProvider === MicrosoftEntra</code>. <strong>OAuth (dynamic)</strong> writes neither &mdash; <code>dcr/register</code> obtains the credentials from the authorization server at provision. <strong>None</strong> writes no auth entries at all.</p>
         </article>
 
         <article class="vscode-flow-card" data-kind="outcome" aria-labelledby="file-mcp-json-title">
