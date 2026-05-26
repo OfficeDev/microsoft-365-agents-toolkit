@@ -93,7 +93,7 @@ jobs:
         run: |
           export COPILOT_GITHUB_TOKEN=$(python3 -c "import json,os; d=json.load(open(os.path.expanduser('~/.config/github-copilot/apps.json'))); print(list(d.values())[0]['oauth_token'])")
 
-          SKILL_FILE="packages/tests/copilot-test/SKILL-label.md"
+          SKILL_FILE="packages/tests/copilot-test/skills/label-brain.md"
           cat > /tmp/label-prompt.txt << 'PREAMBLE_EOF'
           You are an autonomous ATK (Microsoft 365 Agents Toolkit) code analyst and test planner running inside GitHub Actions CI.
           Issue number: __ISSUE_NUMBER__
