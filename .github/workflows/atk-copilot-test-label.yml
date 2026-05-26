@@ -10,6 +10,12 @@ name: ATK Copilot Test - Label Handler
 on:
   issues:
     types: [labeled]
+  workflow_dispatch:
+    inputs:
+      issue_number:
+        description: 'Issue number to process'
+        required: true
+        type: string
 
 permissions:
   contents: write
@@ -19,8 +25,8 @@ permissions:
 
 jobs:
   analyze-and-plan:
-    if: github.event.label.name == 'atk-copilot-test'
-    name: Analyze issue, fix code, create test plan (issue #${{ github.event.issue.number }})
+    if: github.event_name == 'workflow_dispatch' || github.event.label.name == 'atk-copilot-test'
+    name: Analyze issue, fix code, create test plan (issue #${{ github.event.issue.number || inputs.issue_number }})
     runs-on: ubuntu-latest
     timeout-minutes: 60
 
@@ -73,7 +79,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          ISSUE="${{ github.event.issue.number }}"
+          ISSUE="${{ github.event.issue.number || inputs.issue_number }}"
           RUN_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
           gh issue comment "$ISSUE" \
             --body "<!-- atk-copilot-test -->
@@ -86,7 +92,7 @@ jobs:
       - name: Run label agent (understand issue → fix code → create test plan)
         env:
           GH_TOKEN:             ${{ secrets.GITHUB_TOKEN }}
-          ISSUE_NUMBER:         ${{ github.event.issue.number }}
+          ISSUE_NUMBER:         ${{ github.event.issue.number || inputs.issue_number }}
           REPO:                 ${{ github.repository }}
           RUN_URL:              "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
           COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_CLI_RUNNER_TOKEN }}
@@ -128,7 +134,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           BRANCH=$(git branch --show-current)
-          ISSUE="${{ github.event.issue.number }}"
+          ISSUE="${{ github.event.issue.number || inputs.issue_number }}"
           echo "Label agent finished on branch: $BRANCH"
           gh workflow run sync-knowledge.yml \
             --repo "${{ github.repository }}" \
@@ -143,7 +149,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          ISSUE="${{ github.event.issue.number }}"
+          ISSUE="${{ github.event.issue.number || inputs.issue_number }}"
           RUN_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
           gh label create 'atk-copilot-test:failed' --color 'B60205' \
             --repo "${{ github.repository }}" 2>/dev/null || true
