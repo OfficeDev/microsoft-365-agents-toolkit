@@ -180,22 +180,6 @@ jobs:
           npx playwright install chromium 2>&1 || \
           echo "::warning::Playwright browser install had warnings"
 
-      - name: Download redhat.vscode-yaml extension
-        run: |
-          # Verify Marketplace URL is reachable and downloads a valid VSIX.
-          # If it fails, runTest.ts will fall back to installing by extension ID directly.
-          VSIX_OUT=/tmp/redhat-vscode-yaml.vsix
-          if curl -fsSL --max-time 60 \
-            "https://marketplace.visualstudio.com/_apis/public/gallery/publishers/redhat/vsextensions/vscode-yaml/latest/vspackage" \
-            -o "$VSIX_OUT" \
-            && unzip -t "$VSIX_OUT" > /dev/null 2>&1; then
-            echo "YAML_STUB_VSIX=$VSIX_OUT" >> $GITHUB_ENV
-            echo "Downloaded valid VSIX: $(du -sh "$VSIX_OUT" | cut -f1)"
-          else
-            echo "::warning::Marketplace VSIX download failed or invalid — runTest.ts will install by extension ID"
-            rm -f "$VSIX_OUT"
-          fi
-
       - name: Wait for VSIX and download
         id: vsix-ready
         env:
@@ -257,7 +241,6 @@ jobs:
         env:
           TEST_OUTPUT_DIR: /tmp/atk-test-output
           DISPLAY: ":99.0"
-          YAML_STUB_VSIX: ${{ env.YAML_STUB_VSIX }}
           ATK_EXT_PATH: ${{ env.ATK_EXT_PATH }}
         run: |
           cd packages/tests/copilot-test
