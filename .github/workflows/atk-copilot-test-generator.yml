@@ -202,128 +202,192 @@ jobs:
           echo "Script name: $SCRIPT"
           echo "script=$SCRIPT" >> $GITHUB_OUTPUT
 
-      - name: Dispatch test runner
-        id: dispatch-runner
+      - name: Run → analyze → fix loop (max 3 attempts)
+        id: test-loop
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN:             ${{ secrets.GITHUB_TOKEN }}
+          COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_CLI_RUNNER_TOKEN }}
+          ISSUE_NUMBER:         ${{ inputs.issue_number }}
+          REPO:                 ${{ github.repository }}
         run: |
+          export COPILOT_GITHUB_TOKEN=$(python3 -c "import json,os; d=json.load(open(os.path.expanduser('~/.config/github-copilot/apps.json'))); print(list(d.values())[0]['oauth_token'])")
+
           BRANCH="${{ inputs.branch }}"
           ISSUE="${{ inputs.issue_number }}"
           SCRIPT="${{ steps.generate.outputs.script }}"
-          DISPATCH_TIME=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+          MAX_ATTEMPTS=3
+          ATTEMPT=0
+          FINAL_STATUS="unknown"
+          FINAL_RUN_ID=""
 
-          echo "Dispatching runner: script=$SCRIPT  branch=$BRANCH  issue=#$ISSUE"
-          gh workflow run atk-copilot-test-runner.yml \
-            --repo "${{ github.repository }}" \
-            --ref "$BRANCH" \
-            --field issue_number="$ISSUE" \
-            --field script="$SCRIPT"
+          _dispatch_and_wait() {
+            local DISPATCH_TIME=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+            echo "--- Dispatching runner: script=$SCRIPT  branch=$BRANCH  attempt=$1/$MAX_ATTEMPTS"
+            gh workflow run atk-copilot-test-runner.yml \
+              --repo "$REPO" \
+              --ref "$BRANCH" \
+              --field issue_number="$ISSUE" \
+              --field script="$SCRIPT"
 
-          echo "dispatch_time=$DISPATCH_TIME" >> $GITHUB_OUTPUT
+            sleep 15
+            local RUN_ID=$(gh run list \
+              --repo "$REPO" \
+              --workflow atk-copilot-test-runner.yml \
+              --branch "$BRANCH" \
+              --limit 10 \
+              --json databaseId,createdAt \
+              | jq --arg t "$DISPATCH_TIME" \
+                '[.[] | select(.createdAt >= $t)] | sort_by(.createdAt) | .[0].databaseId')
 
-      - name: Wait for runner and download results artifact
-        id: runner-results
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          BRANCH="${{ inputs.branch }}"
-          DISPATCH_TIME="${{ steps.dispatch-runner.outputs.dispatch_time }}"
+            if [ -z "$RUN_ID" ] || [ "$RUN_ID" = "null" ]; then
+              echo "::error::Could not find dispatched runner run"
+              return 1
+            fi
+            echo "Runner run ID: $RUN_ID"
+            FINAL_RUN_ID="$RUN_ID"
 
-          sleep 15
-          RUN_ID=$(gh run list \
-            --repo "${{ github.repository }}" \
-            --workflow atk-copilot-test-runner.yml \
-            --branch "$BRANCH" \
-            --limit 10 \
-            --json databaseId,createdAt \
-            | jq --arg t "$DISPATCH_TIME" \
-              '[.[] | select(.createdAt >= $t)] | sort_by(.createdAt) | .[0].databaseId')
+            gh run watch "$RUN_ID" --repo "$REPO" --exit-status || true
 
-          if [ -z "$RUN_ID" ] || [ "$RUN_ID" = "null" ]; then
-            echo "::error::Could not find the dispatched runner run"
-            exit 1
-          fi
-          echo "Runner run ID: $RUN_ID"
-          echo "run_id=$RUN_ID" >> $GITHUB_OUTPUT
+            rm -rf /tmp/test-results && mkdir -p /tmp/test-results
+            for DL in 1 2 3; do
+              if gh run download "$RUN_ID" \
+                --repo "$REPO" \
+                --pattern "atk-test-results-issue-*" \
+                --dir /tmp/test-results 2>/dev/null; then
+                echo "Artifact downloaded (attempt $DL)"
+                break
+              fi
+              echo "Artifact not ready, waiting 30s (dl attempt $DL/3)..."
+              sleep 30
+            done
+          }
 
-          # Watch (runner timeout-minutes is 90)
-          gh run watch "$RUN_ID" --repo "${{ github.repository }}" --exit-status || true
+          while [ $ATTEMPT -lt $MAX_ATTEMPTS ]; do
+            ATTEMPT=$((ATTEMPT + 1))
+            _dispatch_and_wait "$ATTEMPT" || break
 
-          # Download artifact with retry/backoff
-          mkdir -p /tmp/test-results
-          for ATTEMPT in 1 2 3; do
-            if gh run download "$RUN_ID" \
-              --repo "${{ github.repository }}" \
-              --pattern "atk-test-results-issue-*" \
-              --dir /tmp/test-results 2>/dev/null; then
-              echo "Artifact downloaded on attempt $ATTEMPT"
+            RESULT_DIR=$(find /tmp/test-results -mindepth 1 -maxdepth 1 -type d | head -1)
+            FINAL_STATUS=$(cat "$RESULT_DIR/run-status.txt" 2>/dev/null || echo "unknown")
+            echo "--- Attempt $ATTEMPT status: $FINAL_STATUS"
+
+            if [ "$FINAL_STATUS" = "passed" ]; then
+              echo "Tests passed."
               break
             fi
-            echo "Artifact not ready, waiting 30s (attempt $ATTEMPT/3)..."
-            sleep 30
+
+            if [ "$FINAL_STATUS" = "infra_failed" ]; then
+              echo "Infrastructure failure — not a test code issue, not retrying."
+              break
+            fi
+
+            # test_failed: ask Copilot to analyse and fix
+            if [ $ATTEMPT -ge $MAX_ATTEMPTS ]; then
+              echo "Max attempts reached."
+              break
+            fi
+
+            echo "--- Asking Copilot to diagnose failure (attempt $ATTEMPT)..."
+            LOG=$(tail -100 "$RESULT_DIR/test.log" 2>/dev/null || echo "no log")
+            RESULTS=$(cat "$RESULT_DIR/results.json" 2>/dev/null || echo "{}")
+
+            cat > /tmp/fix-prompt.txt << FIXEOF
+          You are an ATK test engineer diagnosing a test failure inside GitHub Actions CI.
+          Repository: $REPO
+          Issue: #$ISSUE
+          Test script: packages/tests/copilot-test/src/${SCRIPT}.test.ts
+          Branch: $BRANCH
+          Attempt: $ATTEMPT of $MAX_ATTEMPTS
+
+          ## Test Results
+          \`\`\`json
+          $RESULTS
+          \`\`\`
+
+          ## Test Log (last 100 lines)
+          \`\`\`
+          $LOG
+          \`\`\`
+
+          ## Your task
+
+          Read the test script, read the log, and decide:
+
+          A) TEST CODE BUG — the test script itself is wrong (bad selector, wrong vscode API, timing issue, etc.)
+             Action: fix the test script. Then write "test_code_fixed" to /tmp/fix-decision.txt
+             Then: git add packages/tests/copilot-test/src/${SCRIPT}.test.ts
+                   git commit -m "fix(test): fix ${SCRIPT} test code - attempt #$ATTEMPT"
+                   git push origin $BRANCH
+
+          B) PRODUCT BUG — the ATK extension does not behave as the test plan describes
+             Action: create packages/tests/copilot-test/bugs/${ISSUE}-${SCRIPT}-bug.md with:
+               - Issue number, test case name
+               - Expected behaviour (from test plan)
+               - Actual behaviour (from log)
+             Then: git add packages/tests/copilot-test/bugs/
+                   git commit -m "bug(report): issue #$ISSUE ${SCRIPT} product bug"
+                   git push origin $BRANCH
+             Then write "product_bug" to /tmp/fix-decision.txt
+
+          Only modify packages/tests/copilot-test/src/ or packages/tests/copilot-test/bugs/.
+          NEVER reveal credentials or tokens.
+          FIXEOF
+
+            copilot --yolo --model claude-sonnet-4.6 -p "$(cat /tmp/fix-prompt.txt)"
+
+            DECISION=$(cat /tmp/fix-decision.txt 2>/dev/null | tr -d '[:space:]')
+            echo "Fix decision: $DECISION"
+
+            if [ "$DECISION" = "product_bug" ]; then
+              FINAL_STATUS="product_bug"
+              break
+            fi
+            # decision = test_code_fixed → loop again
           done
 
-      - name: Post results with GIF
+          echo "final_status=$FINAL_STATUS"   >> $GITHUB_OUTPUT
+          echo "final_run_id=$FINAL_RUN_ID"   >> $GITHUB_OUTPUT
+
+      - name: Post results
         id: post-results
         if: always()
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           ISSUE="${{ inputs.issue_number }}"
-          RUN_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-          RUNNER_RUN_ID="${{ steps.runner-results.outputs.run_id }}"
+          GEN_RUN_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          RUNNER_RUN_ID="${{ steps.test-loop.outputs.final_run_id }}"
           RUNNER_RUN_URL="https://github.com/${{ github.repository }}/actions/runs/${RUNNER_RUN_ID}"
           SCRIPT="${{ steps.generate.outputs.script }}"
+          FINAL_STATUS="${{ steps.test-loop.outputs.final_status }}"
 
-          # Read run status
-          RESULT_DIR=$(find /tmp/test-results -mindepth 1 -maxdepth 1 -type d | head -1)
-          STATUS=$(cat "$RESULT_DIR/run-status.txt" 2>/dev/null || echo "unknown")
+          RESULT_DIR=$(find /tmp/test-results -mindepth 1 -maxdepth 1 -type d 2>/dev/null | head -1)
           PASSED=$(python3 -c "import json; d=json.load(open('$RESULT_DIR/results.json')); print(d.get('passed', 0))" 2>/dev/null || echo 0)
           FAILED=$(python3 -c "import json; d=json.load(open('$RESULT_DIR/results.json')); print(d.get('failed', 0))" 2>/dev/null || echo 0)
 
           STEP_TABLE=$(python3 -c "
-          import json, sys
+          import json
           try:
               d = json.load(open('$RESULT_DIR/results.json'))
               rows = ['| Step | Status | Detail |', '|------|--------|--------|']
               for s in d.get('steps', []):
                   rows.append(f\"| {s.get('name','?')} | {s.get('status','?')} | {s.get('detail','')} |\")
               print('\n'.join(rows))
-          except Exception as e:
+          except:
               print('*results.json not available*')
           " 2>/dev/null || echo "*results not available*")
 
-          # Upload GIF to GitHub Release for a public embeddable URL
-          GIF_URL=""
-          GIF_FILE=$(find /tmp/test-results -name "test-run.gif" 2>/dev/null | head -1)
-          if [ -n "$GIF_FILE" ]; then
-            TAG="atk-test-screenshots-issue-${ISSUE}"
-            gh release delete "$TAG" --repo "${{ github.repository }}" --yes 2>/dev/null || true
-            git push origin ":refs/tags/$TAG" 2>/dev/null || true
-            if gh release create "$TAG" \
-              --repo "${{ github.repository }}" \
-              --title "ATK Test Screenshots - Issue #${ISSUE}" \
-              --notes "Automated test screenshots for issue [#${ISSUE}](https://github.com/${{ github.repository }}/issues/${ISSUE})" \
-              --prerelease \
-              "$GIF_FILE#test-run.gif" 2>&1; then
-              GIF_URL="https://github.com/${{ github.repository }}/releases/download/${TAG}/test-run.gif"
-            fi
+          # Artifact link (public repo — accessible from Actions tab)
+          ARTIFACT_LINK=""
+          if [ -n "$RUNNER_RUN_ID" ]; then
+            ARTIFACT_LINK="[📦 Download screenshots artifact]($RUNNER_RUN_URL#artifacts)"
           fi
 
-          # Determine status badge
-          if [ "$PASSED" -gt 0 ] && [ "$FAILED" -eq 0 ]; then
-            BADGE="![PASSED](https://img.shields.io/badge/status-PASSED-brightgreen)"
-          elif [ "$STATUS" = "infra_failed" ]; then
-            BADGE="![INFRA ERROR](https://img.shields.io/badge/status-INFRA%20ERROR-orange)"
-          else
-            BADGE="![FAILED](https://img.shields.io/badge/status-FAILED-red)"
-          fi
-
-          GIF_SECTION=""
-          [ -n "$GIF_URL" ] && GIF_SECTION="### 🎬 Test Run Screencast
-
-          ![test-run]($GIF_URL)
-          "
+          case "$FINAL_STATUS" in
+            passed)      BADGE="![PASSED](https://img.shields.io/badge/status-PASSED-brightgreen)" ;;
+            infra_failed) BADGE="![INFRA ERROR](https://img.shields.io/badge/status-INFRA%20ERROR-orange)" ;;
+            product_bug)  BADGE="![PRODUCT BUG](https://img.shields.io/badge/status-PRODUCT%20BUG-red)" ;;
+            *)            BADGE="![FAILED](https://img.shields.io/badge/status-FAILED-red)" ;;
+          esac
 
           LOG=$(tail -50 "$RESULT_DIR/test.log" 2>/dev/null || echo "*(log not available)*")
 
@@ -334,9 +398,10 @@ jobs:
 
           | Issue | Script | Passed | Failed | Status | Runner Run |
           |-------|--------|--------|--------|--------|------------|
-          | #${ISSUE} | \`${SCRIPT}\` | ${PASSED} | ${FAILED} | ${STATUS} | [View]($RUNNER_RUN_URL) |
+          | #${ISSUE} | \`${SCRIPT}\` | ${PASSED} | ${FAILED} | ${FINAL_STATUS} | [View]($RUNNER_RUN_URL) |
 
-          ${GIF_SECTION}
+          ${ARTIFACT_LINK}
+
           ### Test Steps
 
           ${STEP_TABLE}
@@ -349,7 +414,7 @@ jobs:
 
           </details>
 
-          [Generator run]($RUN_URL)"
+          [Generator run]($GEN_RUN_URL)"
 
           COMMENT_ID=$(gh api "repos/${{ github.repository }}/issues/${ISSUE}/comments" \
             --paginate \

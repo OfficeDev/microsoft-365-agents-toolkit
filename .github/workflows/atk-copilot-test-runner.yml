@@ -255,19 +255,9 @@ jobs:
           export TEST_FILE="${{ inputs.script }}"
           echo "Running test: TEST_FILE=$TEST_FILE"
 
-          # Retry on infrastructure flakiness only (not on real test failures)
-          RETRY=0; EXIT_CODE=1
-          while [ $RETRY -le 2 ]; do
-            ./node_modules/.bin/ts-node --project tsconfig.json src/runTest.ts \
-              2>&1 | tee "$TEST_OUTPUT_DIR/test.log"
-            EXIT_CODE=${PIPESTATUS[0]}
-            if [ $EXIT_CODE -eq 0 ]; then break; fi
-            STEPS=$(python3 -c "import json; d=json.load(open('$TEST_OUTPUT_DIR/results.json')); print(d.get('passed',0)+d.get('failed',0))" 2>/dev/null || echo 0)
-            if [ "$STEPS" -gt 0 ]; then break; fi  # real test failure — stop retrying
-            RETRY=$((RETRY+1))
-            echo "Infrastructure failure (no results produced), retrying in 30s (attempt $RETRY/2)..."
-            sleep 30
-          done
+          ./node_modules/.bin/ts-node --project tsconfig.json src/runTest.ts \
+            2>&1 | tee "$TEST_OUTPUT_DIR/test.log"
+          EXIT_CODE=${PIPESTATUS[0]}
 
           # Write machine-readable status for generator to consume from artifact
           if [ $EXIT_CODE -eq 0 ]; then
