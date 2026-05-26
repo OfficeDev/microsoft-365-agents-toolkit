@@ -53,6 +53,8 @@ Both flags are intended to be temporary and removed once the rollout is complete
   - `OAuth (with dynamic registration)` &mdash; the MCP server registers a client at runtime; no follow-up fields.
   - `Entra SSO` &mdash; follow-up: required `Client ID` of an Entra application that will be used for provisioning. No tenant id or scopes are asked here.
   - `None` &mdash; no follow-up.
+
+  In **VS Code**, this pick (and all conditional follow-up fields) is gated on `TEAMSFX_MCP_FOR_DA_DT`: when the flag is **off**, the create flow skips the auth-type pick entirely and jumps straight to the project location step &mdash; matching shipped behavior, where auth-type is collected later by the fetch-mcp-tools CodeLens (`SCN-DA-FETCH-MCP-TOOLS`). In **CLI**, the pick is always reachable; non-interactive mode requires `--mcp-da-auth-type`.
 - App name and location: standard app-name input and project location picker.
 - Generated project (all auth types): the action manifest references the MCP server URL, the declarative agent manifest references the new action, `m365agents.yml` is generated with the standard DA provisioning steps, and `.vscode/mcp.json` contains an entry pointing at the MCP server URL so the developer can call the server from Copilot Chat in VS Code without further setup.
 - Generated project (`OAuth (with static registration)`): in addition, `m365agents.yml` includes an `oauth/register` step, and `env/.env.dev` plus `env/.env.dev.user` contain placeholders for the client id, client secret, and scopes the developer entered. The secret is written into `env/.env.dev.user` and is not committed.
@@ -66,84 +68,85 @@ Both flags are intended to be temporary and removed once the rollout is complete
 
 ### VS Code create flow
 
+Focus: the **auth-type pick and its DT / DCR gating** are what this scenario changes; the steps before “enter MCP server URL” are unchanged from the shipped flow and collapsed into a single shared-preamble node.
+
 ```mermaid
 flowchart TD
-  Start([Developer starts Create a New Agent/App]) --> ChooseDA[Choose Declarative Agent]
-  ChooseDA --> AddAction[Choose Add an Action]
-  AddAction --> McpAction[Choose Start with a MCP server]
-  McpAction --> OdrCheck{odr.exe installed?}
-  OdrCheck -- Yes --> ServerType{Choose MCP Server Type}
-  OdrCheck -- No --> EnterUrl[Enter MCP Server URL]
-  ServerType -- Local MCP server --> LocalMcp["Multi-select local MCP server(s) discovered via odr.exe"]
-  ServerType -- Remote MCP server --> EnterUrl
-  LocalMcp --> AfterAuth
-  EnterUrl --> SelectAuth["Select Authentication Type: OAuth (dynamic) / OAuth (static) / Entra SSO / None"]
-  SelectAuth -- "OAuth (dynamic)" --> AfterAuth
-  SelectAuth -- None --> AfterAuth
-  SelectAuth -- "OAuth (static)" --> StaticFields["Enter Client ID, Client Secret, optional Scopes"]
-  SelectAuth -- "Entra SSO" --> SsoFields[Enter Entra app Client ID]
-  StaticFields --> AfterAuth[Pick project location]
-  SsoFields --> AfterAuth
-  AfterAuth --> EnterAppName[Enter application name]
-  EnterAppName --> Validate{App name, location, and inputs valid?}
-  Validate -- No --> ShowInputRecovery[Show validation error and keep user in the prompt]
+  Preamble[("<b>Shared with shipped flow</b><br/>Choose DA &rarr; Add an Action &rarr; Start with a MCP server &rarr; odr.exe check &rarr; pick server type / enter MCP server URL")] --> DtGate{TEAMSFX_MCP_FOR_DA_DT on?}
+  DtGate -- No --> PickLocation[Pick project location]
+  DtGate -- Yes --> DcrGate{TEAMSFX_MCP_FOR_DA_DCR on?}
+  DcrGate -- No --> SelectAuth3["Select Authentication Type<br/>3 options: OAuth (static) / Entra SSO / None"]
+  DcrGate -- Yes --> SelectAuth4["Select Authentication Type<br/>4 options: + OAuth (dynamic)"]
+  SelectAuth3 -- None --> PickLocation
+  SelectAuth3 -- "OAuth (static)" --> StaticFields["Enter Client ID, Client Secret, optional Scopes"]
+  SelectAuth3 -- "Entra SSO" --> SsoFields[Enter Entra app Client ID]
+  SelectAuth4 -- "OAuth (dynamic)" --> PickLocation
+  SelectAuth4 -- None --> PickLocation
+  SelectAuth4 -- "OAuth (static)" --> StaticFields
+  SelectAuth4 -- "Entra SSO" --> SsoFields
+  StaticFields --> PickLocation
+  SsoFields --> PickLocation
+  PickLocation --> EnterAppName[Enter application name]
+  EnterAppName --> Validate{Inputs valid?}
+  Validate -- No --> ShowInputRecovery[Show validation error, keep user in the prompt]
   ShowInputRecovery --> EnterAppName
-  Validate -- Yes --> Generate[Generate DA project with MCP action wired into the manifest and yml]
+  Validate -- Yes --> Generate[Generate DA project with MCP action wired into manifest and yml]
   Generate --> ProjectReady([Project ready to provision and run])
-  ChooseDA --> Cancel([Cancel without creating project])
-  McpAction --> Cancel
-  EnterUrl --> Cancel
-  SelectAuth --> Cancel
-  StaticFields --> Cancel
-  SsoFields --> Cancel
-  EnterAppName --> Cancel
+
+  classDef shared fill:#f5f5f5,stroke:#999,color:#444
+  class Preamble shared
 ```
+
+> Any step before `Generate` may be cancelled; cancellation must not leave a partially scaffolded project on disk.
 
 ### CLI interactive create flow
 
+Focus: the auth-type pick is always reachable in CLI (no DT gate); only the **option set** is gated by DCR.
+
 ```mermaid
 flowchart TD
-  Start([Run atk new in interactive mode]) --> ChooseCapability[Choose capability: declarative-agent]
-  ChooseCapability --> AddAction[Choose Add an Action]
-  AddAction --> ChooseMcp[Choose action type: mcp]
-  ChooseMcp --> OdrCheck{odr.exe installed?}
-  OdrCheck -- Yes --> ServerType{Choose MCP Server Type}
-  OdrCheck -- No --> EnterUrl[Enter MCP Server URL]
-  ServerType -- Local MCP server --> LocalMcp["Multi-select local MCP server(s) discovered via odr.exe"]
-  ServerType -- Remote MCP server --> EnterUrl
-  LocalMcp --> EnterAppName
-  EnterUrl --> SelectAuth["Select Authentication Type: OAuth (dynamic) / OAuth (static) / Entra SSO / None"]
-  SelectAuth -- "OAuth (dynamic)" --> EnterAppName
-  SelectAuth -- None --> EnterAppName
-  SelectAuth -- "OAuth (static)" --> StaticFields["Enter Client ID, Client Secret, optional Scopes"]
-  SelectAuth -- "Entra SSO" --> SsoFields[Enter Entra app Client ID]
-  StaticFields --> EnterAppName[Enter Application Name]
+  Preamble[("<b>Shared with shipped flow</b><br/>atk new (interactive) &rarr; declarative-agent &rarr; Add an Action &rarr; mcp &rarr; odr.exe check &rarr; pick server type / enter MCP server URL")] --> DcrGate{TEAMSFX_MCP_FOR_DA_DCR on?}
+  DcrGate -- No --> SelectAuth3["Select Authentication Type<br/>3 options: OAuth (static) / Entra SSO / None"]
+  DcrGate -- Yes --> SelectAuth4["Select Authentication Type<br/>4 options: + OAuth (dynamic)"]
+  SelectAuth3 -- None --> EnterAppName
+  SelectAuth3 -- "OAuth (static)" --> StaticFields["Enter Client ID, Client Secret, optional Scopes"]
+  SelectAuth3 -- "Entra SSO" --> SsoFields[Enter Entra app Client ID]
+  SelectAuth4 -- "OAuth (dynamic)" --> EnterAppName
+  SelectAuth4 -- None --> EnterAppName
+  SelectAuth4 -- "OAuth (static)" --> StaticFields
+  SelectAuth4 -- "Entra SSO" --> SsoFields
+  StaticFields --> EnterAppName[Enter application name]
   SsoFields --> EnterAppName
-  EnterAppName --> SelectFolder[Choose Workspace Folder]
-  SelectFolder --> Generate[Generate DA project with MCP action wired into the manifest and yml]
+  EnterAppName --> SelectFolder[Choose workspace folder]
+  SelectFolder --> Generate[Generate DA project with MCP action wired into manifest and yml]
   Generate --> Complete([Project created with MCP action wiring])
-  ChooseCapability --> Cancel([Cancel without creating project])
-  EnterUrl --> Cancel
-  SelectAuth --> Cancel
-  StaticFields --> Cancel
-  SsoFields --> Cancel
-  SelectFolder --> Cancel
+
+  classDef shared fill:#f5f5f5,stroke:#999,color:#444
+  class Preamble shared
 ```
+
+> Any step before `Generate` may be cancelled.
 
 ### CLI non-interactive create flow
 
+Focus: how the DCR flag affects validation of `--mcp-da-auth-type oauth-dynamic`. Generic required-flag and follow-up-flag checks are collapsed.
+
 ```mermaid
 flowchart TD
-  Start([Run atk new --interactive false]) --> ValidateFlags{Required flags present?}
-  ValidateFlags -- No --> MissingOption[Return validation error for missing capability, app name, folder, MCP URL, or auth type]
-  ValidateFlags -- Yes --> AuthSwitch{mcp-da-auth-type}
+  Start([atk new --interactive false]) --> ValidateFlags{Required flags present?<br/>capability, app name, folder, MCP URL, auth type}
+  ValidateFlags -- No --> MissingOption[Return validation error]
+  ValidateFlags -- Yes --> DcrGate{TEAMSFX_MCP_FOR_DA_DCR on?}
+  DcrGate -- No --> RejectDynamic{auth-type == oauth-dynamic?}
+  RejectDynamic -- Yes --> UnknownValue["Return error: unknown value for --mcp-da-auth-type"]
+  RejectDynamic -- No --> AuthSwitch
+  DcrGate -- Yes --> AuthSwitch{mcp-da-auth-type}
   AuthSwitch -- "oauth-dynamic / none" --> Generate
   AuthSwitch -- "oauth (static)" --> StaticFlags{Static-OAuth follow-up flags present?}
   AuthSwitch -- entraSSO --> SsoFlags{Entra-SSO follow-up flags present?}
-  StaticFlags -- No --> MissingStatic[Return validation error for missing client id or client secret]
+  StaticFlags -- No --> MissingStatic[Return validation error: missing client id or client secret]
   StaticFlags -- Yes --> Generate
-  SsoFlags -- No --> MissingSso[Return validation error for missing Entra app client id]
-  SsoFlags -- Yes --> Generate[Generate DA project with MCP action wired into the manifest and yml]
+  SsoFlags -- No --> MissingSso[Return validation error: missing Entra app client id]
+  SsoFlags -- Yes --> Generate[Generate DA project with MCP action wired into manifest and yml]
   Generate --> Complete([Project created with MCP action wiring])
 ```
 

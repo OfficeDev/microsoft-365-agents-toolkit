@@ -27,6 +27,25 @@
   </header>
 
   <main>
+    <section class="scenario-flow" aria-labelledby="feature-flag-heading">
+      <div class="section-head">
+        <h2 id="feature-flag-heading">Feature flag</h2>
+        <p>This redesign is gated behind the same two flags that scope the companion create scenario &mdash; both default <strong>off</strong> so that current shipping behavior is unchanged.</p>
+      </div>
+      <div class="vscode-flow-grid">
+        <article class="vscode-flow-card" data-kind="note" data-severity="warning" aria-labelledby="feature-flag-card-title">
+          <h3 id="feature-flag-card-title">TEAMSFX_MCP_FOR_DA_DT <span class="vscode-flow-card__hint">default: false</span></h3>
+          <p class="vscode-flow-card__note">Gates the <strong>VS Code inline add-action flow</strong> documented on this page. When the flag is <strong>on</strong>, the <code>Add action</code> command runs the full URL &rarr; auth-type &rarr; follow-up &rarr; write-files flow inline. When the flag is <strong>off</strong>, VS Code falls back to shipped behavior: a <code>.vscode/mcp.json</code> entry is written and the developer collects auth later via the fetch-mcp-tools CodeLens (<code>SCN-DA-FETCH-MCP-TOOLS</code>).</p>
+          <p class="vscode-flow-card__note vscode-flow-card__note--top-sm">The same flag also gates the credential-persistence subset: UPPER_SNAKE env entries (<code>MCP_DA_OAUTH_CLIENT_ID_*</code> / <code>SECRET_MCP_DA_OAUTH_CLIENT_SECRET_*</code> / <code>MCP_DA_OAUTH_SCOPE_*</code>) and the matching <code>${{...}}</code> references in <code>m365agents.yml</code> are written only when this flag is on.</p>
+          <p class="vscode-flow-card__note vscode-flow-card__note--top-sm"><strong>CLI tools-file requirement:</strong> when DT is <strong>off</strong>, <code>--mcp-tools-file-path</code> is <em>required</em> (shipped behavior &mdash; static tools list). When DT is <strong>on</strong>, <code>--mcp-tools-file-path</code> is <em>optional</em>; omitting it routes to dynamic discovery and the generated <code>ai-plugin.json</code> runtime carries <code>enable_dynamic_discovery: true</code>.</p>
+        </article>
+        <article class="vscode-flow-card" data-kind="note" data-severity="warning" aria-labelledby="feature-flag-dcr-card-title">
+          <h3 id="feature-flag-dcr-card-title">TEAMSFX_MCP_FOR_DA_DCR <span class="vscode-flow-card__hint">default: false</span></h3>
+          <p class="vscode-flow-card__note">Gates only the <strong>OAuth (with dynamic client registration)</strong> auth-type option in step 3 and the matching <code>dcr/register</code> action in <code>m365agents.yml</code>. The option is shown &mdash; and the CLI value <code>oauth-dynamic</code> is accepted &mdash; only when <strong>both</strong> <code>TEAMSFX_MCP_FOR_DA_DT</code> <em>and</em> <code>TEAMSFX_MCP_FOR_DA_DCR</code> are <code>true</code>, because DCR scaffolding currently piggybacks on the DT-mode env-file plumbing. Default <strong>off</strong>; temporary &mdash; removed once DCR ships unconditionally.</p>
+        </article>
+      </div>
+    </section>
+
     <section class="scenario-flow" aria-labelledby="add-flow-heading">
       <div class="section-head">
         <h2 id="add-flow-heading">VS Code Add Action Flow</h2>
@@ -55,6 +74,8 @@
             <vscode-option label="Entra SSO" description="Use a Microsoft Entra app for single sign-on. The toolkit will ask for the Entra app client id."></vscode-option>
             <vscode-option label="None" description="The MCP server does not require authentication."></vscode-option>
           </vscode-single-select>
+          <p class="vscode-flow-card__note vscode-flow-card__note--top-sm"><strong>VS Code gate:</strong> this pick (and follow-up cards 3a/3b) is only shown when <code>TEAMSFX_MCP_FOR_DA_DT</code> is <code>true</code>. When the flag is <strong>off</strong>, the <code>Add action</code> command instead writes a <code>.vscode/mcp.json</code> entry and the developer collects auth later via the fetch-mcp-tools CodeLens (<code>SCN-DA-FETCH-MCP-TOOLS</code>) &mdash; matching shipped behavior. CLI is unaffected.</p>
+          <p class="vscode-flow-card__note vscode-flow-card__note--top-sm"><strong>Note:</strong> the <em>OAuth (with dynamic client registration)</em> option is only shown when both <code>TEAMSFX_MCP_FOR_DA_DT</code> and <code>TEAMSFX_MCP_FOR_DA_DCR</code> are <code>true</code> (see Feature flag section). With either flag off, the pick has three options.</p>
         </article>
 
         <article class="vscode-flow-card vscode-flow-card--accent" data-kind="action" aria-labelledby="static-fields-title">
@@ -122,8 +143,8 @@
             <div class="vscode-code-file__bar">appPackage/declarativeAgent.json</div>
             <div class="vscode-code-file__body">
               <div class="vscode-code-row"><span class="vscode-code-line">1</span><span class="vscode-code-text"><span class="vscode-code-token--punctuation">{</span></span></div>
-              <div class="vscode-code-row"><span class="vscode-code-line">2</span><span class="vscode-code-text"><span class="vscode-code-indent-1"><span class="vscode-code-token--string">&quot;$schema&quot;</span>: <span class="vscode-code-token--string">&quot;https://developer.microsoft.com/json-schemas/copilot/declarative-agent/v1.5/schema.json&quot;</span>,</span></span></div>
-              <div class="vscode-code-row"><span class="vscode-code-line">3</span><span class="vscode-code-text"><span class="vscode-code-indent-1"><span class="vscode-code-token--string">&quot;version&quot;</span>: <span class="vscode-code-token--string">&quot;v1.5&quot;</span>,</span></span></div>
+              <div class="vscode-code-row"><span class="vscode-code-line">2</span><span class="vscode-code-text"><span class="vscode-code-indent-1"><span class="vscode-code-token--string">&quot;$schema&quot;</span>: <span class="vscode-code-token--string">&quot;https://developer.microsoft.com/json-schemas/copilot/declarative-agent/v1.7/schema.json&quot;</span>,</span></span></div>
+              <div class="vscode-code-row"><span class="vscode-code-line">3</span><span class="vscode-code-text"><span class="vscode-code-indent-1"><span class="vscode-code-token--string">&quot;version&quot;</span>: <span class="vscode-code-token--string">&quot;v1.7&quot;</span>,</span></span></div>
               <div class="vscode-code-row"><span class="vscode-code-line">4</span><span class="vscode-code-text"><span class="vscode-code-indent-1"><span class="vscode-code-token--string">&quot;name&quot;</span>: <span class="vscode-code-token--string">&quot;github-da&quot;</span>,</span></span></div>
               <div class="vscode-code-row"><span class="vscode-code-line">5</span><span class="vscode-code-text"><span class="vscode-code-indent-1"><span class="vscode-code-token--string">&quot;actions&quot;</span>: <span class="vscode-code-token--punctuation">[</span></span></span></div>
               <div class="vscode-code-row"><span class="vscode-code-line">6</span><span class="vscode-code-text"><span class="vscode-code-indent-2"><span class="vscode-code-token--punctuation">{</span> <span class="vscode-code-token--string">&quot;id&quot;</span>: <span class="vscode-code-token--string">&quot;action&quot;</span>, <span class="vscode-code-token--string">&quot;file&quot;</span>: <span class="vscode-code-token--string">&quot;ai-plugin.json&quot;</span> <span class="vscode-code-token--punctuation">},</span></span></span></div>

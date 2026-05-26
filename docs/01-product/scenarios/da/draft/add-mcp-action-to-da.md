@@ -24,7 +24,16 @@ Success means that after the flow completes, the project's declarative agent man
 - VS Code precondition: the project is open, and the MCP-for-DA preview is enabled so `Start with a MCP server` shows up in the action-type picker.
 - CLI precondition: the DA project path is supplied with `-f` / `--folder` or is the current project folder, and the manifest path is supplied with `-t` / `--manifest-file` or defaults to `./appPackage/manifest.json`.
 - Produces: an updated declarative agent manifest, a new action manifest (`ai-plugin.json`), and an updated `m365agents.yml`. For `OAuth (with static registration)`, also updated env files with placeholders for the developer-provided credentials.
-- Does not produce: a static MCP tools JSON file. Tool discovery is deferred to the agent host at runtime.
+- Does not produce: a static MCP tools JSON file **when `TEAMSFX_MCP_FOR_DA_DT` is on and no `--mcp-tools-file-path` is supplied** &mdash; in that case the generated `ai-plugin.json` carries `enable_dynamic_discovery: true` and tool discovery is deferred to the agent host at runtime. When DT is off, or when DT is on and `--mcp-tools-file-path` is supplied, a static tools list is written into the action manifest using the shipped behavior.
+
+## Feature flags
+
+The same two temporary flags that gate the create scenario also scope this redesign; both default **off**.
+
+- `TEAMSFX_MCP_FOR_DA_DT` &mdash; gates the **VS Code inline add-action flow** described here. When the flag is on, the `Add action` command runs the full URL &rarr; auth-type &rarr; follow-up &rarr; write-files flow inline. When the flag is **off**, VS Code falls back to the shipped behavior: a `.vscode/mcp.json` entry is written and the developer uses the fetch-mcp-tools CodeLens (`SCN-DA-FETCH-MCP-TOOLS`) to fetch tools and collect auth later. The same flag also gates the credential-persistence subset (UPPER_SNAKE env entries + `${{...}}` references in `m365agents.yml` for static-OAuth and Entra SSO). CLI is unaffected by this flag.
+- `TEAMSFX_MCP_FOR_DA_DCR` &mdash; gates only the `OAuth (with dynamic registration)` auth-type option and the matching `dcr/register` action in `m365agents.yml`. The option is shown &mdash; and the CLI value `oauth-dynamic` is accepted &mdash; only when **both** `TEAMSFX_MCP_FOR_DA_DT` and `TEAMSFX_MCP_FOR_DA_DCR` are `true`, because DCR scaffolding currently piggybacks on the DT-mode env-file plumbing.
+
+Both flags are intended to be temporary and removed once the rollout is complete.
 
 ## Surfaces
 
@@ -38,11 +47,13 @@ Success means that after the flow completes, the project's declarative agent man
 - Entry: an existing DA project is available.
 - Action-type pick (VS Code and CLI interactive): single-select titled `Add an Action`. When the MCP-for-DA preview is enabled the list contains `Start with an OpenAPI Description Document` and `Start with a MCP server`. The user picks `Start with a MCP server`.
 - Server URL input: text input titled `MCP Server URL` with placeholder `Enter your MCP server URL(e.g. https://example-mcp.com)`. Required.
-- Authentication type pick: single-select titled `Select Authentication Type` with four options shown in this order:
+- Authentication type pick: single-select titled `Select Authentication Type` with options shown in this order (the `OAuth (with dynamic client registration)` option is only present when both `TEAMSFX_MCP_FOR_DA_DT` and `TEAMSFX_MCP_FOR_DA_DCR` are on):
   - `OAuth (with dynamic client registration)` &mdash; the MCP server registers a client at runtime; no follow-up fields.
   - `OAuth (with static registration)` &mdash; follow-up: required `Client ID`, required `Client Secret`, optional `Scopes` (space-separated).
   - `Entra SSO` &mdash; follow-up: required `Client ID` of an Entra application that will be used for provisioning. No tenant id or scopes are asked here.
   - `None` &mdash; no follow-up.
+
+  In **VS Code**, this pick (and all conditional follow-up fields) is gated on `TEAMSFX_MCP_FOR_DA_DT`: when the flag is **off**, the `Add action` command skips the inline auth-type pick entirely &mdash; it writes a `.vscode/mcp.json` entry and the developer collects auth later via the fetch-mcp-tools CodeLens (`SCN-DA-FETCH-MCP-TOOLS`). In **CLI**, the pick is always reachable; non-interactive mode requires `--mcp-da-auth-type`.
 - Manifest pick (CLI only when needed): select Teams `manifest.json` file. VS Code uses the project's `appPackage/manifest.json` without asking.
 - Write step (all auth types): the toolkit creates the action manifest (`ai-plugin.json`) with the MCP server URL, updates the declarative agent manifest to reference the new action, and updates `m365agents.yml` with the standard MCP action wiring.
 - Write step (`OAuth (with static registration)`): in addition, `m365agents.yml` includes an `oauth/register` step, and `env/.env.dev` plus `env/.env.dev.user` contain placeholders for the client id, client secret, and scopes the developer entered. The secret is written into `env/.env.dev.user` and is not committed.
@@ -55,69 +66,103 @@ Success means that after the flow completes, the project's declarative agent man
 
 ### VS Code add action flow
 
+Focus: the **auth-type pick and its DT / DCR gating** are what this scenario changes; entering the `Add action` command and picking action type are unchanged from the shipped flow and collapsed into a shared-preamble node. DT-off falls back to the shipped CodeLens flow.
+
 ```mermaid
 flowchart TD
-  ProjectReady([Existing DA project is open]) --> RunAdd[Run Add action command]
-  RunAdd --> PickType[Single-select 'Add an Action': pick 'Start with a MCP server']
-  PickType --> EnterUrl[Text input 'MCP Server URL']
-  EnterUrl --> UrlValid{URL provided?}
-  UrlValid -- No --> MissingUrl[Show 'MCP Server URL is required' error and stay on the input]
-  UrlValid -- Yes --> SelectAuth["Select Authentication Type: OAuth (dynamic) / OAuth (static) / Entra SSO / None"]
-  SelectAuth -- "OAuth (dynamic)" --> WriteFiles
-  SelectAuth -- None --> WriteFiles
-  SelectAuth -- "OAuth (static)" --> StaticFields["Enter Client ID, Client Secret, optional Scopes"]
-  SelectAuth -- "Entra SSO" --> SsoFields[Enter Entra app Client ID]
-  StaticFields --> WriteFiles[Write action manifest, update DA manifest, update m365agents.yml, and inject OAuth env placeholders when needed]
+  Preamble[("<b>Shared with shipped flow</b><br/>Run Add action command &rarr; pick action type 'Start with a MCP server' &rarr; enter MCP server URL")] --> DtGate{TEAMSFX_MCP_FOR_DA_DT on?}
+  DtGate -- No --> LegacyHandoff["Write .vscode/mcp.json entry, hand off to fetch-mcp-tools CodeLens (SCN-DA-FETCH-MCP-TOOLS)"]
+  DtGate -- Yes --> DcrGate{TEAMSFX_MCP_FOR_DA_DCR on?}
+  DcrGate -- No --> SelectAuth3["Select Authentication Type<br/>3 options: OAuth (static) / Entra SSO / None"]
+  DcrGate -- Yes --> SelectAuth4["Select Authentication Type<br/>4 options: + OAuth (dynamic)"]
+  SelectAuth3 -- None --> WriteFiles
+  SelectAuth3 -- "OAuth (static)" --> StaticFields["Enter Client ID, Client Secret, optional Scopes"]
+  SelectAuth3 -- "Entra SSO" --> SsoFields[Enter Entra app Client ID]
+  SelectAuth4 -- "OAuth (dynamic)" --> WriteFiles
+  SelectAuth4 -- None --> WriteFiles
+  SelectAuth4 -- "OAuth (static)" --> StaticFields
+  SelectAuth4 -- "Entra SSO" --> SsoFields
+  StaticFields --> WriteFiles[Write action manifest, update DA manifest and m365agents.yml, inject OAuth env placeholders when needed]
   SsoFields --> WriteFiles
   WriteFiles --> Success([Show 'Action added' notification])
-  PickType --> Cancel([Cancel without changing project])
-  EnterUrl --> Cancel
-  SelectAuth --> Cancel
-  StaticFields --> Cancel
-  SsoFields --> Cancel
+
+  classDef shared fill:#f5f5f5,stroke:#999,color:#444
+  class Preamble shared
 ```
+
+> Any step before `WriteFiles` (or `LegacyHandoff`) may be cancelled; cancellation must not leave any half-written file in the project.
 
 ### CLI interactive add-action flow
 
+Focus: the auth-type pick is always reachable in CLI (no DT gate); only the **option set** is gated by DCR. The static MCP tools file is **required when `TEAMSFX_MCP_FOR_DA_DT` is off** (shipped behavior) and **optional when DT is on** &mdash; skipping it under DT-on routes to dynamic discovery (`enable_dynamic_discovery: true`).
+
 ```mermaid
 flowchart TD
-  Start([Run atk add action in an existing DA project]) --> ChooseType[Choose Action type: mcp]
-  ChooseType --> EnterUrl[Enter MCP Server URL]
-  EnterUrl --> SelectAuth["Select Authentication Type: OAuth (dynamic) / OAuth (static) / Entra SSO / None"]
-  SelectAuth -- "OAuth (dynamic)" --> SelectManifest
-  SelectAuth -- None --> SelectManifest
-  SelectAuth -- "OAuth (static)" --> StaticFields["Enter Client ID, Client Secret, optional Scopes"]
-  SelectAuth -- "Entra SSO" --> SsoFields[Enter Entra app Client ID]
+  Preamble[("<b>Shared with shipped flow</b><br/>atk add action (interactive) &rarr; pick action type 'mcp' &rarr; enter MCP server URL")] --> DtGate{TEAMSFX_MCP_FOR_DA_DT on?}
+  DtGate -- No --> LegacyTools["Auto-fetch tools from MCP server; prompt for MCP tools file when auto-fetch is empty (required); pick tools"] --> DcrGate
+  DtGate -- Yes --> OptionalTools{Provide MCP tools file?}
+  OptionalTools -- Yes --> LoadStatic[Load static tools list from file] --> DcrGate
+  OptionalTools -- Skip --> DtPath["Mark ai-plugin runtime with enable_dynamic_discovery: true"] --> DcrGate
+  DcrGate{TEAMSFX_MCP_FOR_DA_DCR on?}
+  DcrGate -- No --> SelectAuth3["Select Authentication Type<br/>3 options: OAuth (static) / Entra SSO / None"]
+  DcrGate -- Yes --> SelectAuth4["Select Authentication Type<br/>4 options: + OAuth (dynamic)"]
+  SelectAuth3 -- None --> SelectManifest
+  SelectAuth3 -- "OAuth (static)" --> StaticFields["Enter Client ID, Client Secret, optional Scopes"]
+  SelectAuth3 -- "Entra SSO" --> SsoFields[Enter Entra app Client ID]
+  SelectAuth4 -- "OAuth (dynamic)" --> SelectManifest
+  SelectAuth4 -- None --> SelectManifest
+  SelectAuth4 -- "OAuth (static)" --> StaticFields
+  SelectAuth4 -- "Entra SSO" --> SsoFields
   StaticFields --> SelectManifest[Select Teams manifest.json file]
   SsoFields --> SelectManifest
-  SelectManifest --> WriteFiles[Write action manifest, update DA manifest, update m365agents.yml, and inject OAuth env placeholders when needed]
+  SelectManifest --> WriteFiles[Write action manifest, update DA manifest and m365agents.yml, inject OAuth env placeholders when needed]
   WriteFiles --> Complete([Show CLI add action success message])
-  ChooseType --> Cancel([Cancel without changing project])
-  EnterUrl --> Cancel
-  SelectAuth --> Cancel
-  StaticFields --> Cancel
-  SsoFields --> Cancel
-  SelectManifest --> Cancel
+
+  classDef shared fill:#f5f5f5,stroke:#999,color:#444
+  class Preamble shared
 ```
+
+> Any step before `WriteFiles` may be cancelled.
 
 ### CLI non-interactive add-action flow
 
+Focus: how the DT flag affects the **`--mcp-tools-file-path` requirement** (required when off, optional when on &mdash; absence under DT-on routes to dynamic discovery), and how the DCR flag affects validation of `--mcp-da-auth-type oauth-dynamic`. Generic follow-up-flag checks are collapsed.
+
 ```mermaid
 flowchart TD
-  Start([Run atk add action --interactive false]) --> ValidateFlags{Required flags present?}
-  ValidateFlags -- No --> MissingOption[Return validation error, including missing MCP server URL or auth type]
-  ValidateFlags -- Yes --> AuthSwitch{mcp-da-auth-type}
+  Start([atk add action --interactive false]) --> ValidateFlags{Required flags present?<br/>MCP URL, auth type, manifest path, project folder}
+  ValidateFlags -- No --> MissingOption[Return validation error]
+  ValidateFlags -- Yes --> DtGate{TEAMSFX_MCP_FOR_DA_DT on?}
+  DtGate -- No --> RequireTools{--mcp-tools-file-path provided?}
+  RequireTools -- No --> MissingTools["Return validation error: --mcp-tools-file-path required"]
+  RequireTools -- Yes --> LoadStaticOff[Load static tools list from file] --> DcrGate
+  DtGate -- Yes --> OptionalTools{--mcp-tools-file-path provided?}
+  OptionalTools -- Yes --> LoadStaticOn[Load static tools list from file] --> DcrGate
+  OptionalTools -- No --> DtPath["Mark ai-plugin runtime with enable_dynamic_discovery: true"] --> DcrGate
+  DcrGate{TEAMSFX_MCP_FOR_DA_DCR on?}
+  DcrGate -- No --> RejectDynamic{auth-type == oauth-dynamic?}
+  RejectDynamic -- Yes --> UnknownValue["Return error: unknown value for --mcp-da-auth-type"]
+  RejectDynamic -- No --> AuthSwitch
+  DcrGate -- Yes --> AuthSwitch{mcp-da-auth-type}
   AuthSwitch -- "oauth-dynamic / none" --> WriteFiles
   AuthSwitch -- "oauth (static)" --> StaticFlags{Static-OAuth follow-up flags present?}
   AuthSwitch -- entraSSO --> SsoFlags{Entra-SSO follow-up flags present?}
-  StaticFlags -- No --> MissingStatic[Return validation error for missing client id or client secret]
+  StaticFlags -- No --> MissingStatic[Return validation error: missing client id or client secret]
   StaticFlags -- Yes --> WriteFiles
-  SsoFlags -- No --> MissingSso[Return validation error for missing Entra app client id]
-  SsoFlags -- Yes --> WriteFiles[Write action manifest, update DA manifest, update m365agents.yml, and inject OAuth env placeholders when needed]
+  SsoFlags -- No --> MissingSso[Return validation error: missing Entra app client id]
+  SsoFlags -- Yes --> WriteFiles[Write action manifest, update DA manifest and m365agents.yml, inject OAuth env placeholders when needed]
   WriteFiles --> Complete([Command succeeds with action added])
 ```
 
-Example non-interactive command (no auth):
+Example non-interactive command (DT off &mdash; `--mcp-tools-file-path` is required):
+
+```bash
+atk add action --api-plugin-type mcp --mcp-da-server-url <server-url> \
+  --mcp-tools-file-path <path-to-tools-json> --mcp-da-auth-type none \
+  -t ./appPackage/manifest.json -f <project-path> --interactive false
+```
+
+Example non-interactive command (DT on, dynamic discovery &mdash; `--mcp-tools-file-path` omitted):
 
 ```bash
 atk add action --api-plugin-type mcp --mcp-da-server-url <server-url> --mcp-da-auth-type none \
@@ -152,5 +197,5 @@ atk add action --api-plugin-type mcp --mcp-da-server-url <server-url> --mcp-da-a
 - VS Code UI test intent should trace to `SCN-DA-ADD-MCP-ACTION-TO-DA` and cover the `Add action` command, the `Add an Action` action-type pick (with and without the MCP-for-DA preview enabled), the `MCP Server URL` input including empty-input recovery, the new `Select Authentication Type` pick for each of the four options, and each conditional follow-up path. The success state is the `Action added` notification and the matching writes to action manifest, DA manifest, and `m365agents.yml`; static-OAuth additionally verifies env file placeholders.
 - The legacy `.vscode/mcp.json`-then-CodeLens-fetch flow (live scenario `SCN-DA-FETCH-MCP-TOOLS`) is replaced by this end-to-end flow; UI tests for the old fetch CodeLens should retire when the redesign ships.
 - CLI E2E test intent should trace to `SCN-DA-ADD-MCP-ACTION-TO-DA` for interactive and non-interactive `atk add action --api-plugin-type mcp` paths and cover each auth-type value (`oauth-dynamic`, `oauth`, `entraSSO`, `none`).
-- CLI non-interactive validation should cover missing `--mcp-da-server-url`, missing `--mcp-da-auth-type`, missing static-OAuth follow-up flags (`--mcp-da-client-id`, `--mcp-da-client-secret`), missing Entra-SSO `--mcp-da-entra-client-id`, invalid manifest path, and invalid DA project path.
-- The static MCP tools file flag (`--mcp-tools-file-path`) and the static "Select Operation(s) Copilot can interact with" pick are explicitly out of scope for this scenario in the new flow; tool discovery is dynamic at runtime.
+- CLI non-interactive validation should cover missing `--mcp-da-server-url`, missing `--mcp-da-auth-type`, missing static-OAuth follow-up flags (`--mcp-da-client-id`, `--mcp-da-client-secret`), missing Entra-SSO `--mcp-da-entra-client-id`, invalid manifest path, and invalid DA project path. When `TEAMSFX_MCP_FOR_DA_DT` is **off**, also cover the missing `--mcp-tools-file-path` validation error.
+- The static MCP tools file flag (`--mcp-tools-file-path`) and the static "Select Operation(s) Copilot can interact with" pick are **required when `TEAMSFX_MCP_FOR_DA_DT` is off** (shipped behavior, static tools list) and **optional when DT is on**. When DT is on and no tools file is supplied, the generated `ai-plugin.json` runtime carries `enable_dynamic_discovery: true` and tool discovery is deferred to the agent host at runtime.

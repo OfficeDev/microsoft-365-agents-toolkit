@@ -111,6 +111,7 @@
             <vscode-option label="None" description="The MCP server does not require authentication."></vscode-option>
           </vscode-single-select>
           <p class="vscode-flow-card__note vscode-flow-card__note--top-sm"><strong>Note:</strong> the <em>OAuth (with dynamic registration)</em> option is only shown when both <code>TEAMSFX_MCP_FOR_DA_DT</code> and <code>TEAMSFX_MCP_FOR_DA_DCR</code> are <code>true</code> (see Feature flag section). With either flag off, the pick has three options.</p>
+          <p class="vscode-flow-card__note vscode-flow-card__note--top-sm"><strong>VS Code gate:</strong> the whole pick (and follow-up cards 6a/6b) is only shown when <code>TEAMSFX_MCP_FOR_DA_DT</code> is <code>true</code>. When the flag is <strong>off</strong>, the create flow skips straight from the MCP server URL to the project location step &mdash; matching shipped behavior; auth-type is collected later by the fetch-mcp-tools CodeLens (<code>SCN-DA-FETCH-MCP-TOOLS</code>). CLI is unaffected.</p>
         </article>
 
         <article class="vscode-flow-card vscode-flow-card--accent" data-kind="action" aria-labelledby="static-fields-title">
