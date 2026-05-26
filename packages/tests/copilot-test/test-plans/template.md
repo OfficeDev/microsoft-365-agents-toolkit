@@ -14,11 +14,11 @@
   ======================================================
   Every test case must describe what a real user does — not what the code does internally.
 
-  ✅ GOOD (user action):  "Click the List view button, observe layout changes to list style"
-  ❌ BAD  (code check):   "Assert CSS class 'list-view' is present on the container"
+  ✓ GOOD (user action):  "Click the List view button, observe layout changes to list style"
+  ✗ BAD  (code check):   "Assert CSS class 'list-view' is present on the container"
 
-  ✅ GOOD (user action):  "Tab to the first sample card, press Enter to open it"
-  ❌ BAD  (code check):   "Check that aria-label attribute contains the word 'Featured'"
+  ✓ GOOD (user action):  "Tab to the first sample card, press Enter to open it"
+  ✗ BAD  (code check):   "Check that aria-label attribute contains the word 'Featured'"
 
   Steps MUST be written from the user's perspective:
   - Use "click", "type", "press", "navigate", "observe", "verify visually"
@@ -88,7 +88,6 @@
   One row per named screenshot. The test calls `screenshot("id")` before each
   meaningful user action so the UI state is captured while still visible.
   IDs must be sequential two-digit strings (01, 02, …).
-
   Pass condition: what must be TRUE in this screenshot for the TC to pass.
   Why: why this screenshot proves the behavior (what regression would make it fail).
 -->
@@ -108,9 +107,6 @@
 1. …
 
 **Expected result:**
-- …
-
-**Pass criteria:**
 - …
 
 **Test script:**

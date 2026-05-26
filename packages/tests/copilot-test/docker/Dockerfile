@@ -46,10 +46,6 @@ RUN npx playwright install chromium --with-deps 2>&1 | tail -5 || \
 COPY packages/tests/copilot-test/src/ ./src/
 COPY packages/tests/copilot-test/test-plans/ ./test-plans/
 
-# Bundle redhat.vscode-yaml VSIX for offline installation at test launch time.
-# VS Code installs it via --install-extension so ATK extension dependency is satisfied.
-RUN mkdir -p /usr/local/lib/vscode-deps
-COPY packages/tests/copilot-test/docker/redhat.vscode-yaml.vsix /usr/local/lib/vscode-deps/redhat.vscode-yaml.vsix
 
 RUN node -e " \
   const { downloadAndUnzipVSCode } = require('@vscode/test-electron'); \
