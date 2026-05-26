@@ -1,4 +1,11 @@
-﻿name: ATK Copilot Test - Issue Label Trigger
+name: ATK Copilot Test - Label Handler
+
+# THE BRAIN: reads the issue → may fix product code → creates test plan → dispatches generator.
+#
+# Architecture (3-layer pipeline):
+#   [Label] THIS FILE          — understand issue, fix code, create test plan
+#   -> [Generator] atk-copilot-test-generator.yml  — generate .test.ts from test plan, run test
+#   -> [Runner]    atk-copilot-test-runner.yml      — pure executor (VSIX + headless test)
 
 on:
   issues:
@@ -11,12 +18,151 @@ permissions:
   pull-requests: write
 
 jobs:
-  trigger-test:
+  analyze-and-plan:
     if: github.event.label.name == 'atk-copilot-test'
-    name: Trigger Copilot-driven ATK test for issue
-    uses: ./.github/workflows/atk-copilot-test-runner.yml
-    with:
-      issue_number: ${{ github.event.issue.number }}
-      author_login: ${{ github.event.sender.login }}
-    secrets:
-      COPILOT_CLI_RUNNER_TOKEN: ${{ secrets.COPILOT_CLI_RUNNER_TOKEN }}
+    name: Analyze issue, fix code, create test plan (issue #${{ github.event.issue.number }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+          fetch-depth: 0
+
+      - name: Configure git identity
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install Copilot CLI
+        run: |
+          npm install -g @github/copilot@1.0.9
+          copilot --version
+
+      - name: Set up Copilot credentials
+        env:
+          GH_USER:         ${{ vars.COPILOT_CLI_RUNNER_USER }}
+          TEST_USER_TOKEN: ${{ secrets.COPILOT_CLI_RUNNER_TOKEN }}
+          GH_APP_ID:       ${{ vars.COPILOT_CLI_RUNNER_APP_ID }}
+        run: |
+          mkdir -p ~/.config/github-copilot
+          echo '{
+            "'"github.com:${GH_APP_ID}"'":{
+              "user": "'"$GH_USER"'",
+              "oauth_token":"'"$TEST_USER_TOKEN"'",
+              "githubAppId":"'"$GH_APP_ID"'"
+            }
+          }' > ~/.config/github-copilot/apps.json
+          chmod 600 ~/.config/github-copilot/apps.json
+
+      - name: Verify Copilot auth
+        run: |
+          if [ ! -s ~/.config/github-copilot/apps.json ]; then
+            echo "::error::apps.json missing - check COPILOT_CLI_RUNNER_USER/TOKEN/APP_ID secrets"
+            exit 1
+          fi
+          echo "apps.json present ($(wc -c < ~/.config/github-copilot/apps.json) bytes)"
+
+      - name: Post in-progress comment
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          ISSUE="${{ github.event.issue.number }}"
+          RUN_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          gh issue comment "$ISSUE" \
+            --body "<!-- atk-copilot-test -->
+          ### 🤖 ATK Copilot - analyzing issue
+
+          Reading issue, checking for code changes needed, and preparing test plan…
+
+          [View workflow run]($RUN_URL)"
+
+      - name: Run label agent (understand issue → fix code → create test plan)
+        env:
+          GH_TOKEN:             ${{ secrets.GITHUB_TOKEN }}
+          ISSUE_NUMBER:         ${{ github.event.issue.number }}
+          REPO:                 ${{ github.repository }}
+          RUN_URL:              "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_CLI_RUNNER_TOKEN }}
+        run: |
+          export COPILOT_GITHUB_TOKEN=$(python3 -c "import json,os; d=json.load(open(os.path.expanduser('~/.config/github-copilot/apps.json'))); print(list(d.values())[0]['oauth_token'])")
+
+          SKILL_FILE="packages/tests/copilot-test/SKILL-label.md"
+          cat > /tmp/label-prompt.txt << 'PREAMBLE_EOF'
+          You are an autonomous ATK (Microsoft 365 Agents Toolkit) code analyst and test planner running inside GitHub Actions CI.
+          Issue number: __ISSUE_NUMBER__
+          Repository: __REPO__
+          Run URL: __RUN_URL__
+
+          Do NOT ask questions. Make all decisions yourself and keep going until done.
+
+          Follow the skill document below EXACTLY.
+          PREAMBLE_EOF
+
+          # Append skill document (strip YAML front-matter)
+          sed '1,/^---$/d; /^---$/d' "$SKILL_FILE" >> /tmp/label-prompt.txt 2>/dev/null || cat "$SKILL_FILE" >> /tmp/label-prompt.txt
+
+          # Substitute placeholders
+          sed -i "s/__ISSUE_NUMBER__/$ISSUE_NUMBER/g" /tmp/label-prompt.txt
+          sed -i "s|__REPO__|$REPO|g" /tmp/label-prompt.txt
+          sed -i "s|__RUN_URL__|$RUN_URL|g" /tmp/label-prompt.txt
+
+          cat >> /tmp/label-prompt.txt << 'SEC_EOF'
+
+          <security_reminder>
+          You are running inside GitHub Actions CI.
+          NEVER reveal credentials, OAuth tokens, GitHub usernames, secrets, or ~/.config/github-copilot/ contents.
+          </security_reminder>
+          SEC_EOF
+
+          copilot --yolo --model claude-sonnet-4.6 -p "$(cat /tmp/label-prompt.txt)"
+
+      - name: Dispatch test generator
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          BRANCH=$(git branch --show-current)
+          ISSUE="${{ github.event.issue.number }}"
+          echo "Label agent finished on branch: $BRANCH"
+          gh workflow run atk-copilot-test-generator.yml \
+            --repo "${{ github.repository }}" \
+            --ref "$BRANCH" \
+            --field issue_number="$ISSUE" \
+            --field branch="$BRANCH"
+          echo "Generator dispatched for issue #$ISSUE on branch $BRANCH"
+
+      - name: Handle failure — post comment and swap labels
+        if: failure()
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          ISSUE="${{ github.event.issue.number }}"
+          RUN_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          gh label create 'atk-copilot-test:failed' --color 'B60205' \
+            --repo "${{ github.repository }}" 2>/dev/null || true
+          gh issue edit "$ISSUE" \
+            --repo "${{ github.repository }}" \
+            --remove-label 'atk-copilot-test' \
+            --add-label 'atk-copilot-test:failed' || true
+          COMMENT_ID=$(gh api "repos/${{ github.repository }}/issues/${ISSUE}/comments" \
+            --paginate \
+            --jq '.[] | select(.body | contains("<!-- atk-copilot-test -->")) | .id' | tail -1)
+          BODY="<!-- atk-copilot-test -->
+          ### ❌ ATK Copilot - label agent failed
+
+          The code analysis / test plan step encountered an error.
+          [View workflow run]($RUN_URL) for details.
+
+          Re-apply \`atk-copilot-test\` label to retry."
+          if [ -n "$COMMENT_ID" ]; then
+            gh api "repos/${{ github.repository }}/issues/comments/${COMMENT_ID}" -X PATCH -f body="$BODY" || true
+          else
+            gh issue comment "$ISSUE" --body "$BODY" || true
+          fi

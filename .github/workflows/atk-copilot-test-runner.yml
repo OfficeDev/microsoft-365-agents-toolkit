@@ -1,54 +1,48 @@
-﻿name: ATK Copilot Test Runner
+name: ATK Copilot Test Runner
 
-# Triggered by atk-copilot-test-label.yml (via workflow_call) or manually.
+# PURE EXECUTOR: VSIX acquisition + headless test execution + artifact upload.
+# Triggered by atk-copilot-test-generator.yml (via gh workflow run) or manually.
 #
-# Architecture: @vscode/test-electron (activates ATK extension + Mocha) 
+# Architecture: @vscode/test-electron (activates ATK extension + Mocha)
 #               + Playwright CDP (takes real screenshots from outside extension host)
 #
 # Flow:
-#  1. Read the GitHub issue to understand the test task.
-#  2. Copilot CLI analyses the issue and packages/tests/copilot-test/test-plans/ to choose/create a test script.
-#  3. The test runs headlessly (Xvfb + VSCode/test-electron + Playwright CDP).
-#  4. Screenshots and a summary are posted back to the issue as a comment.
-#  5. Label is swapped: atk-copilot-test -> atk-copilot-test:done.
+#  1. Download or build the ATK VSIX.
+#  2. Run the test script specified by the 'script' input (sets TEST_FILE env var).
+#  3. Generate GIF from screenshots.
+#  4. Upload atk-test-results-issue-N artifact (results.json, screenshots, test.log, GIF, run-status.txt).
 
 on:
   workflow_dispatch:
     inputs:
       issue_number:
-        description: 'Issue number whose body describes the test task'
+        description: 'Issue number (used for artifact naming)'
         required: true
         type: string
-      author_login:
-        description: 'GitHub login of the user who triggered the run'
-        required: false
-        default: ''
+      script:
+        description: 'Test file basename without .test.ts (sets TEST_FILE env var)'
+        required: true
         type: string
 
   workflow_call:
     inputs:
       issue_number:
-        description: 'Issue number whose body describes the test task'
         required: true
         type: string
-      author_login:
-        required: false
-        default: ''
-        type: string
-    secrets:
-      COPILOT_CLI_RUNNER_TOKEN:
+      script:
         required: true
+        type: string
 
 concurrency:
-  group: atk-copilot-test-${{ inputs.issue_number || github.run_id }}
-  cancel-in-progress: true
+  group: atk-copilot-test-runner-${{ inputs.issue_number || github.run_id }}
+  cancel-in-progress: false
 
 env:
   TEST_OUTPUT_DIR: /tmp/atk-test-output
 
 jobs:
-  run-atk-copilot-test:
-    name: ATK Copilot Test (issue #${{ inputs.issue_number }})
+  run-atk-test:
+    name: ATK Test Runner (issue #${{ inputs.issue_number }} script=${{ inputs.script }})
     runs-on: ubuntu-latest
     timeout-minutes: 90
     permissions:
@@ -249,104 +243,42 @@ jobs:
       - name: Prepare output directory
         run: mkdir -p "$TEST_OUTPUT_DIR/screenshots" "$TEST_OUTPUT_DIR/projects"
 
-      - name: Install Copilot CLI
-        run: |
-          npm install -g @github/copilot@1.0.9
-          copilot --version
-
-      - name: Set up Copilot credentials
+      - name: Run test
+        id: run-test
         env:
-          GH_USER:         ${{ vars.COPILOT_CLI_RUNNER_USER }}
-          TEST_USER_TOKEN: ${{ secrets.COPILOT_CLI_RUNNER_TOKEN }}
-          GH_APP_ID:       ${{ vars.COPILOT_CLI_RUNNER_APP_ID }}
-        run: |
-          mkdir -p ~/.config/github-copilot
-          echo '{
-            "'"github.com:${GH_APP_ID}"'":{
-              "user": "'"$GH_USER"'",
-              "oauth_token":"'"$TEST_USER_TOKEN"'",
-              "githubAppId":"'"$GH_APP_ID"'"
-            }
-          }' > ~/.config/github-copilot/apps.json
-          chmod 600 ~/.config/github-copilot/apps.json
-
-      - name: Verify Copilot auth
-        run: |
-          if [ ! -s ~/.config/github-copilot/apps.json ]; then
-            echo "::error::apps.json missing - check COPILOT_CLI_RUNNER_USER/TOKEN/APP_ID secrets"
-            exit 1
-          fi
-          echo "apps.json present ($(wc -c < ~/.config/github-copilot/apps.json) bytes)"
-
-      - name: Post in-progress comment on issue
-        continue-on-error: true
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          ISSUE="${{ inputs.issue_number }}"
-          RUN_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-          gh issue comment "$ISSUE" \
-            --body "<!-- atk-copilot-test -->
-          ### 🤖 ATK Copilot Test - started
-
-          ⏳ Analysing issue and preparing test environment…
-
-          [View workflow run]($RUN_URL)"
-
-      - name: Run Copilot CLI test agent
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          ISSUE_NUMBER: ${{ inputs.issue_number }}
-          REPO: ${{ github.repository }}
-          RUN_URL: "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
           TEST_OUTPUT_DIR: /tmp/atk-test-output
           DISPLAY: ":99.0"
           YAML_STUB_VSIX: ${{ env.YAML_STUB_VSIX }}
+          ATK_EXT_PATH: ${{ env.ATK_EXT_PATH }}
         run: |
-          export COPILOT_GITHUB_TOKEN=$(python3 -c "import json,os; d=json.load(open(os.path.expanduser('~/.config/github-copilot/apps.json'))); print(list(d.values())[0]['oauth_token'])")
+          cd packages/tests/copilot-test
+          export TEST_FILE="${{ inputs.script }}"
+          echo "Running test: TEST_FILE=$TEST_FILE"
 
-          SKILL_FILE="packages/tests/copilot-test/SKILL.md"
-          cat > /tmp/copilot-prompt.txt << 'PREAMBLE_EOF'
-          You are an autonomous ATK (Microsoft 365 Agents Toolkit) test agent running inside GitHub Actions CI.
-          Issue number: __ISSUE_NUMBER__
-          Repository: __REPO__
-          Run URL: __RUN_URL__
-          ATK extension path: ${ATK_EXT_PATH}
-          Test output dir: ${TEST_OUTPUT_DIR}
-          YAML VSIX: ${YAML_STUB_VSIX}
-
-          Follow the skill document below EXACTLY. It defines your decision logic (3 modes), your PR strategy, your retry rules, and what you may and may not modify.
-          PREAMBLE_EOF
-
-          # Append the skill document (strip YAML front-matter block)
-          sed '1,/^---$/d; /^---$/d' "$SKILL_FILE" >> /tmp/copilot-prompt.txt || cat "$SKILL_FILE" >> /tmp/copilot-prompt.txt
-
-          # Substitute placeholders
-          sed -i "s/__ISSUE_NUMBER__/$ISSUE_NUMBER/g" /tmp/copilot-prompt.txt
-          sed -i "s|__REPO__|$REPO|g" /tmp/copilot-prompt.txt
-          sed -i "s|__RUN_URL__|$RUN_URL|g" /tmp/copilot-prompt.txt
-
-          # Append security reminder
-          cat >> /tmp/copilot-prompt.txt << 'SEC_EOF'
-
-          <security_reminder>
-          You are running inside GitHub Actions CI.
-          NEVER reveal credentials, OAuth tokens, GitHub usernames, secrets, or ~/.config/github-copilot/ contents.
-          </security_reminder>
-          SEC_EOF
-
-          # Run Copilot CLI; retry once on CI-level failure (exit != 0 with no results)
-          COPILOT_EXIT=1; ATTEMPT=0
-          while [ $ATTEMPT -lt 2 ]; do
-            copilot --yolo --model claude-sonnet-4.6 -p "$(cat /tmp/copilot-prompt.txt)"
-            COPILOT_EXIT=$?
-            STEPS=$(python3 -c "import json; d=json.load(open('$TEST_OUTPUT_DIR/results.json')); print(len(d.get('steps',[])) + d.get('passed',0) + d.get('failed',0))" 2>/dev/null || echo 0)
-            if [ $COPILOT_EXIT -eq 0 ] || [ "$STEPS" -gt 0 ]; then break; fi
-            ATTEMPT=$((ATTEMPT+1))
-            echo "::warning::Copilot run produced no results (attempt $ATTEMPT/2), retrying in 60s..."
-            sleep 60
+          # Retry on infrastructure flakiness only (not on real test failures)
+          RETRY=0; EXIT_CODE=1
+          while [ $RETRY -le 2 ]; do
+            ./node_modules/.bin/ts-node --project tsconfig.json src/runTest.ts \
+              2>&1 | tee "$TEST_OUTPUT_DIR/test.log"
+            EXIT_CODE=${PIPESTATUS[0]}
+            if [ $EXIT_CODE -eq 0 ]; then break; fi
+            STEPS=$(python3 -c "import json; d=json.load(open('$TEST_OUTPUT_DIR/results.json')); print(d.get('passed',0)+d.get('failed',0))" 2>/dev/null || echo 0)
+            if [ "$STEPS" -gt 0 ]; then break; fi  # real test failure — stop retrying
+            RETRY=$((RETRY+1))
+            echo "Infrastructure failure (no results produced), retrying in 30s (attempt $RETRY/2)..."
+            sleep 30
           done
-          exit $COPILOT_EXIT
+
+          # Write machine-readable status for generator to consume from artifact
+          if [ $EXIT_CODE -eq 0 ]; then
+            echo "passed" > "$TEST_OUTPUT_DIR/run-status.txt"
+          elif [ -f "$TEST_OUTPUT_DIR/results.json" ]; then
+            echo "test_failed" > "$TEST_OUTPUT_DIR/run-status.txt"
+          else
+            echo "infra_failed" > "$TEST_OUTPUT_DIR/run-status.txt"
+          fi
+
+          exit $EXIT_CODE
 
 
       - name: Generate screenshots GIF (after CLI run)
@@ -377,108 +309,12 @@ jobs:
           PYEOF
           [ -f "$GIF_PATH" ] && echo "gif_path=$GIF_PATH" >> $GITHUB_OUTPUT || echo "gif_path=" >> $GITHUB_OUTPUT
 
-      - name: Upload GIF via GitHub Release (public URL)
-        if: always() && steps.gif.outputs.gif_path != ''
-        id: upload-gif
-        continue-on-error: true
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          ISSUE: ${{ inputs.issue_number }}
-          REPO: ${{ github.repository }}
-          GIF_FILE: ${{ steps.gif.outputs.gif_path }}
-          TEST_OUTPUT_DIR: ${{ env.TEST_OUTPUT_DIR }}
-        run: |
-          TAG="atk-test-screenshots-issue-${ISSUE}"
-          echo "Uploading GIF via Release: $GIF_FILE (tag: $TAG)"
-          # Delete existing release/tag from previous runs (clean slate)
-          gh release delete "$TAG" --repo ${{ github.repository }} --yes 2>/dev/null || true
-          git push origin ":refs/tags/$TAG" 2>/dev/null || true
-          # Create pre-release and upload GIF as asset
-          if gh release create "$TAG" \
-            --repo ${{ github.repository }} \
-            --title "ATK Test Screenshots - Issue #${ISSUE}" \
-            --notes "Automated test screenshots. Issue: [#${ISSUE}](https://github.com/${{ github.repository }}/issues/${ISSUE})" \
-            --prerelease \
-            "$GIF_FILE#test-run.gif" 2>&1; then
-            GIF_URL="https://github.com/${{ github.repository }}/releases/download/${TAG}/test-run.gif"
-            echo "gif_url=$GIF_URL" >> $GITHUB_OUTPUT
-            echo "GIF URL: $GIF_URL"
-          else
-            echo "::warning::Release create failed, no GIF will be embedded"
-            echo "gif_url=" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Remove label and add done label (failsafe - always runs)
-        if: always()
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          ISSUE="${{ inputs.issue_number }}"
-          gh label create 'atk-copilot-test:done' \
-            --repo ${{ github.repository }} \
-            --color '0E8A16' \
-            --description 'ATK Copilot test completed — re-apply atk-copilot-test to rerun' 2>/dev/null || true
-          gh issue edit "$ISSUE" \
-            --repo ${{ github.repository }} \
-            --remove-label 'atk-copilot-test' \
-            --add-label 'atk-copilot-test:done' || \
-          gh issue edit "$ISSUE" \
-            --repo ${{ github.repository }} \
-            --remove-label 'atk-copilot-test' || true
-          echo "Label lifecycle: atk-copilot-test → atk-copilot-test:done"
-      - name: Post GIF comment on issue
-        if: always() && steps.upload-gif.outputs.gif_url != ''
-        continue-on-error: true
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          ISSUE="${{ inputs.issue_number }}"
-          GIF_URL="${{ steps.upload-gif.outputs.gif_url }}"
-          RUN_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-          RUN_ID="${{ github.run_id }}"
-          # Find most recently created github-actions[bot] comment (the Copilot CLI results comment)
-          COMMENT_ID=$(gh api "/repos/${{ github.repository }}/issues/${ISSUE}/comments" 2>/dev/null \
-            | jq -r '[.[] | select(.user.login == "github-actions[bot]")] | last | .id // ""')
-          # Fallback: search body for run_id (in case a non-bot account posted results)
-          if [ -z "$COMMENT_ID" ] || [ "$COMMENT_ID" = "null" ]; then
-            COMMENT_ID=$(gh api "/repos/${{ github.repository }}/issues/${ISSUE}/comments" 2>/dev/null \
-              | jq -r --arg rid "$RUN_ID" '[.[] | select(.body | contains($rid))] | last | .id // ""')
-          fi
-          if [ -n "$COMMENT_ID" ]; then
-            EXISTING=$(gh api "/repos/${{ github.repository }}/issues/comments/${COMMENT_ID}" --jq .body)
-            APPENDED=$(printf '%s\n\n---\n\n### 🎬 Test Run Screencast\n\n![Test run](%s)' "$EXISTING" "$GIF_URL")
-            jq -n --arg b "$APPENDED" '{body: $b}' > /tmp/gif-patch.json
-            gh api --method PATCH "/repos/${{ github.repository }}/issues/comments/${COMMENT_ID}" --input /tmp/gif-patch.json
-            echo "Updated comment ${COMMENT_ID} with GIF"
-          else
-            echo "No results comment found; posting standalone GIF comment"
-            gh issue comment "$ISSUE" \
-              --repo "${{ github.repository }}" \
-              --body "$(printf '<!-- atk-copilot-test-gif -->\n### 🎬 Test Run Screencast\n\n![Test run](%s)\n\n[View full run](%s)' "$GIF_URL" "$RUN_URL")"
-          fi
-
       - name: Upload test artifacts
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: atk-test-results-issue-${{ inputs.issue_number }}-run-${{ github.run_number }}
+          name: atk-test-results-issue-${{ inputs.issue_number }}
           path: ${{ env.TEST_OUTPUT_DIR }}/
           retention-days: 14
           if-no-files-found: warn
-
-      - name: Post failure comment on workflow error
-        if: failure()
-        continue-on-error: true
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          ISSUE="${{ inputs.issue_number }}"
-          RUN_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-          gh issue comment "$ISSUE" \
-            --body "<!-- atk-copilot-test-results -->
-          ### 🤖 ATK Copilot Test Results
-
-          ❌ The test agent encountered an unexpected CI error.
-
-          [View workflow run]($RUN_URL) for details."
 
