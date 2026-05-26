@@ -75,22 +75,25 @@ jobs:
           REPO="${{ github.repository }}"
           echo "Branch: $HEAD_BRANCH  SHA: $CURRENT_SHA"
 
-          # gh api does not support jq --arg; pipe to jq instead
-          ARTIFACT_JSON=$(gh api \
-            "repos/$REPO/actions/artifacts?name=release&per_page=50" \
+          # Query CD workflow runs directly on this branch (avoids per_page limit on
+          # the global artifacts endpoint which has 700+ entries and buries ours)
+          CD_RUN_JSON=$(gh api \
+            "repos/$REPO/actions/workflows/cd.yml/runs?branch=${HEAD_BRANCH}&status=success&per_page=5" \
             2>/dev/null \
-            | jq --arg b "$HEAD_BRANCH" '
-              [.artifacts[] | select(
-                .expired == false
-                and .workflow_run.head_branch == $b
-                and .workflow_run.conclusion == "success"
-              )] | sort_by(.created_at) | reverse | .[0]
-            ') || ARTIFACT_JSON=""
+            | jq '.workflow_runs | sort_by(.created_at) | reverse | .[0]') || CD_RUN_JSON=""
+
+          ARTIFACT_JSON=""
+          if [ -n "$CD_RUN_JSON" ] && [ "$CD_RUN_JSON" != "null" ]; then
+            CD_RUN_ID=$(echo "$CD_RUN_JSON" | jq -r '.id')
+            ARTIFACT_JSON=$(gh api "repos/$REPO/actions/runs/$CD_RUN_ID/artifacts" \
+              2>/dev/null \
+              | jq '[.artifacts[] | select(.name == "release" and .expired == false)] | .[0]') || ARTIFACT_JSON=""
+          fi
 
           if [ -n "$ARTIFACT_JSON" ] && [ "$ARTIFACT_JSON" != "null" ]; then
-            ARTIFACT_SHA=$(echo "$ARTIFACT_JSON" | jq -r '.workflow_run.head_sha')
-            ARTIFACT_RUN_ID=$(echo "$ARTIFACT_JSON" | jq -r '.workflow_run.id')
-            echo "Found artifact from run $ARTIFACT_RUN_ID at commit $ARTIFACT_SHA"
+            ARTIFACT_SHA=$(echo "$CD_RUN_JSON" | jq -r '.head_sha')
+            ARTIFACT_RUN_ID=$CD_RUN_ID
+            echo "Found artifact from CD run $ARTIFACT_RUN_ID at commit $ARTIFACT_SHA"
 
             # Guard: artifact SHA must be reachable in local git history
             CHANGED=0
