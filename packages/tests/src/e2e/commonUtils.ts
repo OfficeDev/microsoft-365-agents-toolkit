@@ -392,6 +392,9 @@ export async function createResourceGroup(name: string, location: string) {
     location,
   );
   if (result) {
+    // Azure ARM can return success before the RG is fully propagated; wait
+    // to avoid ResourceGroupNotExistError on the immediate provision call.
+    await new Promise((resolve) => setTimeout(resolve, 10000));
     console.log(`[Successfully] create resource group ${name}.`);
   } else {
     console.error(`[Failed] failed to create resource group ${name}.`);
