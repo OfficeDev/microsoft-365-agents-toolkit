@@ -307,14 +307,21 @@ def main() -> int:
 
     title = commit_subject
     body = build_pr_body(scan, vuln, automatic_fix)
-    # Prefer a separate token for PR creation (e.g. secrets.GITHUB_TOKEN with
-    # pull-requests: write) so we don't depend on the App token having that scope.
-    pr_token = os.environ.get("GH_TOKEN_FOR_PR")
+    # Token selection for `gh pr create`, in priority order:
+    #   1. GH_TOKEN_PERSONAL — a user PAT for early validation when org/App
+    #      policy hasn't been opened up yet.
+    #   2. GH_TOKEN_FOR_PR — typically secrets.GITHUB_TOKEN with pull-requests:
+    #      write, so we don't depend on the App token having that scope.
+    #   3. Fall back to the existing GH_TOKEN (App token).
+    personal_pat = os.environ.get("GH_TOKEN_PERSONAL") or ""
+    fallback_pr_token = os.environ.get("GH_TOKEN_FOR_PR") or ""
+    pr_token = personal_pat.strip() or fallback_pr_token.strip()
     pr_env = None
     if pr_token:
         pr_env = os.environ.copy()
         pr_env["GH_TOKEN"] = pr_token
-        safe_print("Using GH_TOKEN_FOR_PR for gh pr create")
+        source = "GH_TOKEN_PERSONAL" if personal_pat.strip() else "GH_TOKEN_FOR_PR"
+        safe_print(f"Using {source} for gh pr create")
     run(
         [
             "gh", "pr", "create",

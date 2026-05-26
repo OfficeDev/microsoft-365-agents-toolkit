@@ -244,6 +244,7 @@ jobs:
         env:
           GH_TOKEN: ${{ steps.generate-token.outputs.token }}
           GH_TOKEN_FOR_PR: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN_PERSONAL: ${{ secrets.PERSONAL_PAT }}
           GITHUB_REPOSITORY: ${{ github.repository }}
         run: |
           git config user.name 'github-actions[bot]'
