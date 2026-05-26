@@ -1,4 +1,4 @@
-﻿name: ATK Copilot Test - Issue Label Trigger
+name: ATK Copilot Test - Issue Label Trigger
 
 on:
   issues:
@@ -14,7 +14,7 @@ jobs:
   trigger-test:
     if: github.event.label.name == 'atk-copilot-test'
     name: Trigger Copilot-driven ATK test for issue
-    uses: ./.github/workflows/atk-copilot-test-runner.yml
+    uses: ./.github/workflows/atk-copilot-test-coverage.yml
     with:
       issue_number: ${{ github.event.issue.number }}
       author_login: ${{ github.event.sender.login }}
