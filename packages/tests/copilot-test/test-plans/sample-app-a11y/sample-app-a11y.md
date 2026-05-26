@@ -5,101 +5,135 @@
 - **feature-slug**: `sample-app-a11y`
 - **owner**: atk-qa
 - **created**: 2026-05-15
-- **updated**: 2026-05-15
+- **updated**: 2026-05-26
 - **triggers**: issue-label `atk-copilot-test`, manual
 - **related-issue**: [#15916](https://github.com/OfficeDev/microsoft-365-agents-toolkit/issues/15916)
+
+## Core Principle
+
+Tests simulate **real user behavior**: every step describes what a user clicks, types, tabs to, or observes — not internal DOM attributes or CSS values. Screenshots capture what the user actually sees on screen.
+
+---
 
 ## Scope
 
 **Covers:**
-- TC-001: Link text color contrast ≥ 4.5:1 in Light theme (WCAG AA)
-- TC-002: Featured vs non-Featured Sample Apps ARIA differentiation
-- TC-003: Featured/non-Featured visual state badge contrast ≥ 3:1 (WCAG AA non-text)
-- TC-004: Tags included in accessible name / screen-reader announcement
-- TC-005: Gallery/List toggle buttons expose `aria-pressed` state
+- TC-001: User can read sample card links clearly in Light theme (WCAG AA contrast >= 4.5:1)
+- TC-001b: Same contrast check in List view layout
+- TC-002: User relying on a screen reader hears "Featured sample" prefix for featured cards
+- TC-003: User can distinguish the Featured badge visually in Light theme (non-text contrast >= 3:1)
+- TC-004: User tabbing through cards hears the sample''s tags announced
+- TC-005: User can tell which view toggle (Gallery/List) is currently active via aria-pressed
+- TC-006: User navigating by keyboard sees a clearly visible focus ring in Light theme
 
 **Does NOT cover:**
-- Full keyboard navigation flow
-- Screen reader live announcement testing (NVDA/JAWS)
-- Mobile accessibility
-- High Contrast theme accessibility
+- Full keyboard navigation flow (Tab order across entire panel)
+- Live screen reader announcement testing (NVDA/JAWS)
+- Mobile or touch accessibility
+- High Contrast theme
 
 ---
 
 ## Test Cases
 
-### TC-001 – Link text color contrast ≥ 4.5:1
+### TC-001 - Link text is readable in Light theme (Gallery view)
 
 **Preconditions:**
-- VSCode is open with ATK extension activated
-- Sample Gallery webview is open
+- VS Code is open, ATK extension v6.8.0+ activated
+- VS Code theme is set to a Light variant (e.g. Default Light Modern)
 
 **Steps:**
-1. User opens Sample Gallery: invoke `fx-extension.openSamples` command from Command Palette
-2. User observes sample cards rendered with blue link text
-3. User notices links are readable against the white background
+1. User opens Command Palette and runs `Microsoft 365 Agents Toolkit: View Samples`
+2. User observes the Sample Gallery panel opens with a grid of sample cards
+3. User reads the blue link text on sample cards and confirms it is clearly legible against the white background
+4. Take screenshot
 
 **Expected result:**
-- Link color `#005B9E` on white has contrast ≈ 7.6:1 ✓
-- WCAG AA threshold: 4.5:1
+- Sample card links appear in dark blue, readable on white
 
 **Pass criteria:**
-- `contrast_ratio(linkColor, backgroundColor) >= 4.5`
-- At least one `.ms-Link` element found in the webview
+- `contrast_ratio(computed link color, background color) >= 4.5`
+- At least one `.ms-Link` element present in the webview
 
 **Screenshots produced by test:**
 
-| ID  | Filename                        | What is visible                                     | Pass condition                              | Why                                                        |
-|-----|---------------------------------|-----------------------------------------------------|---------------------------------------------|------------------------------------------------------------|
-| 01  | `01-tc001-link-contrast.png`    | Gallery open, sample cards with blue link text      | Links are dark blue, clearly readable       | Proves light-theme link color fix is applied               |
-
-**Fix applied:** `SampleGallery.scss` – added `body.vscode-light .sample-gallery .ms-Link { color: #005B9E }`
+| ID  | Filename                     | What is visible                                 | Pass condition                               | Why                                                      |
+|-----|------------------------------|-------------------------------------------------|----------------------------------------------|----------------------------------------------------------|
+| 01  | `01-extension-active.png`    | VS Code with ATK extension activated            | ATK sidebar icon visible, extension loaded   | Baseline: proves extension is ready before gallery opens |
+| 02  | `02-gallery-open.png`        | Sample Gallery panel with grid of sample cards  | Gallery renders with blue link text on white | Proves gallery opens successfully after user command     |
+| 03  | `03-tc001-link-contrast.png` | Close-up of sample card link text in light theme | Link text is dark blue, clearly readable    | Proves light-theme link color fix is applied             |
 
 ---
 
-### TC-002 – Featured vs non-Featured ARIA differentiation
+### TC-001b - Link text is readable in Light theme (List view)
 
 **Preconditions:**
-- Sample Gallery is open in grid or list layout
-- At least one Featured and one non-Featured sample are visible
+- Same as TC-001; List view is active
 
 **Steps:**
-1. User opens Sample Gallery via Command Palette
-2. User observes the grid of sample cards — some cards show a "Featured" badge
-3. User hovers over a featured card and a non-featured card to compare their labels
+1. User opens Sample Gallery (Gallery view active by default)
+2. User clicks the **List** view toggle button at the top of the panel
+3. User observes the layout switches to a list of sample rows
+4. User reads the blue link text in the list and confirms legibility
+5. Take screenshot
 
 **Expected result:**
-- Featured cards: `aria-label="Featured sample. <Title>. Tags: <tag1>, <tag2>"`
-- Non-featured cards: `aria-label="<Title>. Tags: <tag1>, <tag2>"`
+- Sample card links in list view appear in dark blue, readable on white
 
 **Pass criteria:**
-- At least one featured card found with `aria-label` starting with `"Featured sample."`
-- At least one non-featured card found with `aria-label` NOT starting with `"Featured sample."`
+- `contrast_ratio(computed link color, background color) >= 4.5` in list layout
+- At least one `.ms-Link` element present in list view
 
 **Screenshots produced by test:**
 
-| ID  | Filename                     | What is visible                                     | Pass condition                                       | Why                                                         |
-|-----|------------------------------|-----------------------------------------------------|------------------------------------------------------|-------------------------------------------------------------|
-| 02  | `02-tc002-aria-labels.png`   | Gallery open showing featured and regular cards     | Featured badge visible on featured cards             | Proves ARIA differentiation is present for screen readers   |
-
-**Fix applied:** `sampleCard.tsx` + `sampleListItem.tsx` – aria-label includes "Featured sample." prefix when `featured={true}`
+| ID  | Filename                          | What is visible                               | Pass condition                               | Why                                                          |
+|-----|-----------------------------------|-----------------------------------------------|----------------------------------------------|--------------------------------------------------------------|
+| 04  | `04-tc001b-link-contrast-list.png`| Sample Gallery in List view, link text visible | Link text is dark blue in list layout       | Proves color fix applies to list view as well as gallery view |
 
 ---
 
-### TC-003 – Featured badge non-text contrast ≥ 3:1
+### TC-002 - Screen reader users hear "Featured sample" prefix on featured cards
 
 **Preconditions:**
-- Sample Gallery is open in light theme
+- Sample Gallery is open in either Grid or List view
+- At least one Featured and one non-Featured card are visible
 
 **Steps:**
-1. User opens Sample Gallery in light theme (VS Code default light)
-2. User visually notices the gold/brown "Featured" badge on featured cards
-3. User confirms the badge text and star icon are legible against the card background
+1. User opens Sample Gallery
+2. User (simulating a screen reader) inspects the accessible name of a card in the "Featured" section
+3. User confirms the name begins with "Featured sample." so they know it is featured
+4. User inspects a non-featured card and confirms no "Featured sample." prefix
+5. Take screenshot
 
 **Expected result:**
-- `#7A5C00` on `#FFFFFF`: contrast ≈ 4.9:1 ✓
-- `#7A5C00` on `#F8F8F8`: contrast ≈ 4.9:1 ✓
-- WCAG AA non-text threshold: 3:1
+- Featured card accessible name: `"Featured sample. <Title>. Tags: <tag1>, <tag2>"`
+- Non-featured card accessible name: `"<Title>. Tags: <tag1>, <tag2>"`
+
+**Pass criteria:**
+- >= 1 card with `aria-label` starting with `"Featured sample."`
+- >= 1 card with `aria-label` NOT starting with `"Featured sample."`
+
+**Screenshots produced by test:**
+
+| ID  | Filename                   | What is visible                                    | Pass condition                              | Why                                                        |
+|-----|----------------------------|----------------------------------------------------|---------------------------------------------|------------------------------------------------------------|
+| 05  | `05-tc002-aria-labels.png` | Gallery showing featured badge on featured cards   | "Featured" badge is visually present        | Proves ARIA differentiation matches visual differentiation |
+
+---
+
+### TC-003 - Featured badge is distinguishable in Light theme
+
+**Preconditions:**
+- Sample Gallery open in Light theme
+
+**Steps:**
+1. User opens Sample Gallery in Light theme
+2. User looks at the gold/brown "Featured" badge on a featured card
+3. User confirms the badge text and star icon are legible against the card''s white/light background
+4. Take screenshot
+
+**Expected result:**
+- Featured badge uses `#7A5C00` (dark gold) on white -- contrast ~4.9:1
 
 **Pass criteria:**
 - `contrast_ratio("#7A5C00", "#FFFFFF") >= 3.0`
@@ -107,101 +141,93 @@
 
 **Screenshots produced by test:**
 
-| ID  | Filename                       | What is visible                                     | Pass condition                                    | Why                                                        |
-|-----|--------------------------------|-----------------------------------------------------|---------------------------------------------------|------------------------------------------------------------|
-| 03  | `03-tc003-badge-contrast.png`  | Featured badge with gold/brown color in light theme | Badge text is dark and clearly visible on white   | Proves badge color meets WCAG non-text contrast threshold  |
-
-**Fix applied:** `SampleGallery.scss` + `sampleCard.scss` – featured badge/star use `#7A5C00` in light theme
+| ID  | Filename                       | What is visible                                     | Pass condition                                  | Why                                                           |
+|-----|--------------------------------|-----------------------------------------------------|-------------------------------------------------|---------------------------------------------------------------|
+| 06  | `06-tc003-badge-contrast.png`  | Featured card with gold/brown badge in light theme  | Badge text is visually distinct from background | Proves featured badge meets WCAG non-text contrast threshold  |
 
 ---
 
-### TC-004 – Tags included in accessible name on keyboard focus
+### TC-004 - Keyboard users hear sample tags when navigating cards
 
 **Preconditions:**
 - Sample Gallery is open
 
 **Steps:**
 1. User opens Sample Gallery
-2. User tabs through sample cards using keyboard
-3. User listens to (or reads) the accessible name announced for each card — expects to hear the sample title followed by its tags
+2. User presses **Tab** to move keyboard focus onto the first sample card
+3. User (or screen reader) reads the full accessible name of the focused card -- expects to hear the title followed by its tags
+4. Take screenshot of the focused card
 
 **Expected result:**
-- `aria-label="<Title>. Tags: <tag1>, <tag2>, <tag3>"`
-- Screen reader announces tags when card receives focus
+- Accessible name: `"<Title>. Tags: <tag1>, <tag2>, <tag3>"`
 
 **Pass criteria:**
-- Every sample card's `aria-label` contains `". Tags:"` followed by at least one tag name
+- Every sample card `aria-label` contains `". Tags:"` followed by at least one tag name
 
 **Screenshots produced by test:**
 
-| ID  | Filename                    | What is visible                                     | Pass condition                                      | Why                                                       |
-|-----|-----------------------------|-----------------------------------------------------|-----------------------------------------------------|-----------------------------------------------------------|
-| 04  | `04-tc004-tags-aria.png`    | Gallery with a card focused, tags visible in label  | Card is focused and tags text is part of the label  | Proves tags are announced to screen reader users on focus |
-
-**Fix applied:** `sampleCard.tsx` + `sampleListItem.tsx` – aria-label always includes `. Tags: <tags>`
+| ID  | Filename                  | What is visible                                         | Pass condition                                        | Why                                                            |
+|-----|---------------------------|---------------------------------------------------------|-------------------------------------------------------|----------------------------------------------------------------|
+| 07  | `07-tc004-tags-aria.png`  | Gallery with first card focused, tags visible in label  | Focused card has visible focus ring; tags in a11y name | Proves tags are included in accessible name for screen readers |
 
 ---
 
-### TC-005 – Gallery/List toggle buttons expose aria-pressed
+### TC-005 - Gallery/List toggle buttons communicate their active state
 
 **Preconditions:**
-- Sample Gallery is open
+- Sample Gallery is open (Gallery view active by default)
 
 **Steps:**
-1. User opens Sample Gallery (default grid/gallery layout)
-2. User observes the Gallery and List toggle buttons at the top of the panel
-3. User clicks the **List** view button
-4. User observes the layout switches to list style
-5. User clicks the **Gallery** view button to restore grid layout
-6. User observes the layout returns to grid style
+1. User opens Sample Gallery -- Gallery toggle button appears highlighted/active
+2. User clicks the **List** view button
+3. User observes layout switches to list style and List button appears highlighted/active
+4. User clicks the **Gallery** view button to switch back
+5. User observes Gallery button is highlighted/active again
+6. Take screenshots before and after click
 
 **Expected result:**
-- Active toggle: `aria-pressed="true"`
-- Inactive toggle: `aria-pressed="false"`
-- WCAG SC 4.1.2: Name, Role, Value
+- Active toggle: `aria-pressed="true"` (highlighted)
+- Inactive toggle: `aria-pressed="false"` (not highlighted)
 
 **Pass criteria:**
-- Gallery button initially has `aria-pressed="true"`, List button has `aria-pressed="false"`
-- After clicking List button: List button has `aria-pressed="true"`, Gallery button has `aria-pressed="false"`
+- Before click: Gallery button `aria-pressed="true"`, List button `aria-pressed="false"`
+- After clicking List: List button `aria-pressed="true"`, Gallery button `aria-pressed="false"`
 
 **Screenshots produced by test:**
 
-| ID  | Filename                         | What is visible                                        | Pass condition                                        | Why                                                               |
-|-----|----------------------------------|--------------------------------------------------------|-------------------------------------------------------|-------------------------------------------------------------------|
-| 05  | `05-tc005-toggle-before.png`     | Gallery layout active, Gallery button highlighted      | Gallery button visually active, List button inactive  | Proves initial aria-pressed state is correct                      |
-| 06  | `06-tc005-toggle-after.png`      | List layout active after user click, List highlighted  | List button visually active, Gallery button inactive  | Proves aria-pressed toggles correctly in response to user action  |
-
-**Fix applied:** `sampleFilter.tsx` – added `aria-pressed={this.props.layout === "grid/list"}` to VSCodeButton toggles, also fixed "gallary" typo in aria-label to "Gallery"
+| ID  | Filename                      | What is visible                                        | Pass condition                                  | Why                                                             |
+|-----|-------------------------------|--------------------------------------------------------|-------------------------------------------------|-----------------------------------------------------------------|
+| 08  | `08-tc005-toggle-before.png`  | Gallery layout active, Gallery button visually selected | Gallery button highlighted, List button not   | Proves initial aria-pressed state matches visual active state   |
+| 09  | `09-tc005-toggle-after.png`   | List layout active, List button visually selected      | List button highlighted, Gallery button not     | Proves aria-pressed toggles correctly in response to user click |
 
 ---
 
-### TC-006 – Focus indicator contrast ≥ 3:1 in Light theme (sample cards)
+### TC-006 - Keyboard focus ring is visible on sample cards in Light theme
 
 **Preconditions:**
 - Sample Gallery is open
+- VS Code theme is set to a Light variant
 
 **Steps:**
-1. User opens Sample Gallery
-2. User switches VS Code theme to "Default Light Modern" via Command Palette
-3. User tabs to the first sample card — observes a visible focus ring around it
-4. User confirms the focus ring is a clearly visible dark-blue outline
+1. User opens Sample Gallery in Light theme
+2. User presses **Tab** to move keyboard focus to the first sample card
+3. User observes a dark-blue focus ring appears around the focused card
+4. User confirms the focus ring is clearly visible against the white card background
+5. Take screenshot
 
 **Expected result:**
 - Focused card has a clearly visible dark-blue focus ring (`#005FB8`)
-- `#005FB8` on white background = contrast ratio ≈ 5.77:1 ✓ (WCAG AA threshold for non-text: 3:1)
-- Screenshot shows visible focus ring in light theme
+- Contrast of `#005FB8` on white ~5.77:1 (WCAG AA non-text threshold: 3:1)
 
 **Pass criteria:**
-- CSS rule `body.vscode-light .sample-card:focus-visible { outline-color: #005FB8 }` exists in computed styles
+- Computed `outline-color` of focused `.sample-card` is `#005FB8` in light theme
 - `contrast_ratio("#005FB8", "#FFFFFF") >= 3.0`
 
 **Screenshots produced by test:**
 
-| ID  | Filename                          | What is visible                                         | Pass condition                                           | Why                                                              |
-|-----|-----------------------------------|---------------------------------------------------------|----------------------------------------------------------|------------------------------------------------------------------|
-| 07  | `07-tc006-focus-ring.png`         | First sample card focused, dark-blue outline visible    | Focus ring is clearly visible (dark blue on white)       | Proves keyboard users can see which card is focused in light theme |
-
-**Fix applied:** `sampleCard.scss` – added `body.vscode-light .sample-card:focus-visible { outline-color: #005FB8 }`
+| ID  | Filename                   | What is visible                                        | Pass condition                                       | Why                                                                |
+|-----|----------------------------|--------------------------------------------------------|------------------------------------------------------|--------------------------------------------------------------------|
+| 10  | `10-tc006-focus-ring.png`  | First sample card focused, dark-blue outline shown     | Focus ring is dark blue and clearly distinguishable  | Proves keyboard users can identify focused card in light theme     |
 
 ---
 
@@ -211,6 +237,7 @@
 
 ## Notes
 
-- The Sample Gallery renders inside a sandboxed webview iframe. DOM evaluation is done via VSCode extension host message passing.
-- TC-001/TC-002/TC-003/TC-004/TC-005 are all DOM-attribute checks; no pixel-level contrast measuring is done in the automated test (contrast values are design-time verified).
-- `aria-pressed` on `<vscode-button>` web component is forwarded to the internal `<button>` element by FAST foundation.
+- The Sample Gallery renders inside a sandboxed VS Code webview iframe. DOM evaluation uses the Playwright CDP session.
+- Contrast ratios in pass criteria use the WCAG relative luminance formula.
+- `aria-pressed` on `<vscode-button>` is forwarded to the inner `<button>` by the FAST foundation runtime.
+- TC-006: VS Code applies `:focus-visible` styles; `element.focus()` from test code triggers the ring.
