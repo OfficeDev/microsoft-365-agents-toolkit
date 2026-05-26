@@ -703,6 +703,121 @@ scenario-markdown-section {
   white-space: nowrap;
 }
 
+/* Modal notification -- mimics VS Code's modal showMessage dialog
+   (window chrome, severity icon, action buttons). Light theme by default to
+   match the Windows screenshot the design references. */
+.vscode-modal-notification {
+  display: flex;
+  justify-content: center;
+  padding: 16px;
+  font-family: "Segoe UI", "Aptos", sans-serif;
+}
+
+.vscode-modal-notification__dialog {
+  width: min(520px, 100%);
+  background: #f6f6f6;
+  color: #1f1f1f;
+  border: 1px solid #c8c8c8;
+  border-radius: 4px;
+  box-shadow: 0 14px 32px rgba(0, 0, 0, 0.18);
+  overflow: hidden;
+}
+
+.vscode-modal-notification__titlebar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 28px;
+  padding: 0 4px 0 10px;
+  background: #f6f6f6;
+  border-bottom: 1px solid #e5e5e5;
+  color: #1f1f1f;
+  font-size: 0.78rem;
+}
+
+.vscode-modal-notification__window-title {
+  letter-spacing: 0;
+}
+
+.vscode-modal-notification__close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 24px;
+  color: #1f1f1f;
+  font-size: 1rem;
+  font-weight: 400;
+  border-radius: 2px;
+  user-select: none;
+}
+
+.vscode-modal-notification__body {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr);
+  gap: 14px;
+  padding: 18px 20px 14px;
+  background: #ffffff;
+}
+
+.vscode-modal-notification__icon {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  margin-top: 2px;
+  background: transparent;
+  border-radius: 0;
+}
+
+.vscode-modal-notification__content {
+  min-width: 0;
+}
+
+.vscode-modal-notification__message {
+  margin: 4px 0 0;
+  color: #1f1f1f;
+  font-size: 0.86rem;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.vscode-modal-notification__detail {
+  margin: 6px 0 0;
+  color: #555555;
+  font-size: 0.8rem;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.vscode-modal-notification__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 0 20px 16px;
+  background: #ffffff;
+}
+
+.vscode-modal-notification__button {
+  min-width: 78px;
+  padding: 4px 14px;
+  border: 1px solid #c8c8c8;
+  border-radius: 2px;
+  background: #f3f3f3;
+  color: #1f1f1f;
+  font-family: inherit;
+  font-size: 0.84rem;
+  font-weight: 400;
+  cursor: default;
+}
+
+.vscode-modal-notification__button--primary {
+  border: 1px solid #0078d4;
+  background: #f3f3f3;
+  color: #1f1f1f;
+  box-shadow: 0 0 0 1px #0078d4 inset;
+}
+
 @media (max-width: 820px) {
   .vscode-flow-grid { grid-template-columns: 1fr; }
 }

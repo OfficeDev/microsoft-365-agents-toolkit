@@ -9,7 +9,7 @@
 - [`product-review/`](./product-review/) — page-level layout stylesheet shared by [`docs/01-product/scenarios/index.html`](../scenarios/index.html) and the scenario review HTML pages under [`docs/01-product/scenarios/<group>/*.html`](../scenarios/README.md).
 - [`product-artifact-viewer/`](./product-artifact-viewer/README.md) — standalone HTML tool that renders any Markdown artifact (with Mermaid) for human review. Tooling-only.
 - [`scenario-diff-viewer/`](./scenario-diff-viewer/README.md) — standalone side-by-side viewer for two rendered scenario HTML pages (live vs draft, base vs HEAD). Tooling-only.
-- [`scenario-components/`](./scenario-components/README.md) — reusable VS Code-style flow components (`<vscode-single-select>`, `<vscode-multi-select>`, `<vscode-input-box>`, `<vscode-file-select>`, `<vscode-codelens-file>`, `<vscode-notification>`, `<scenario-mermaid-flow>`) plus their stylesheet, icons, and the auto-injected sidebar TOC.
+- [`scenario-components/`](./scenario-components/README.md) — reusable VS Code-style flow components (`<vscode-single-select>`, `<vscode-multi-select>`, `<vscode-input-box>`, `<vscode-file-select>`, `<vscode-codelens-file>`, `<vscode-notification>`, `<vscode-modal-notification>`, `<scenario-mermaid-flow>`) plus their stylesheet, icons, and the auto-injected sidebar TOC.
 
 ## Why the `_` prefix
 

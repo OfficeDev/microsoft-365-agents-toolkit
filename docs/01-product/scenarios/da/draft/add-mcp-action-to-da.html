@@ -90,6 +90,11 @@
           <vscode-input-box title="Client ID" placeholder="Enter the Entra app client id used for provisioning" value=""></vscode-input-box>
         </article>
 
+        <article class="vscode-flow-card" data-kind="info" aria-labelledby="no-confirm-title">
+          <h3 id="no-confirm-title">No manifest picker, no confirmation modal <span class="vscode-flow-card__hint">core.addPlugin VS Code + MCP + DT-on branch</span></h3>
+          <p class="vscode-flow-card__note">VS Code does <strong>not</strong> ask for a Teams <code>manifest.json</code> path &mdash; <code>core.addPlugin</code> infers it from <code>projectPath/appPackage/manifest.json</code> when the <code>selectTeamsAppManifestQuestion</code> is skipped for VS Code + MCP. It also does <strong>not</strong> show a <code>core.addApi.confirm.mcp</code> / <code>.mcp.teamsYaml</code> warning modal before writing &mdash; once the last required answer (auth follow-up field if any, otherwise the auth-type pick) is provided, the flow writes the action manifest, updates the DA manifest, and updates <code>m365agents.yml</code> immediately, then shows the <em>Action added</em> info notification (step 4) with a follow-up <em>Provision</em> button. The CLI interactive flow still goes through <code>core.addPlugin</code> and keeps the warning modal; CLI non-interactive suppresses it with <code>--interactive false</code>.</p>
+        </article>
+
         <article class="vscode-flow-card" data-kind="outcome" data-severity="success" aria-labelledby="success-title">
           <h3 id="success-title">4. Action added</h3>
           <vscode-notification
@@ -118,6 +123,7 @@
       <div class="vscode-flow-grid">
         <article class="vscode-flow-card" data-kind="outcome" aria-labelledby="file-action-manifest-title">
           <h3 id="file-action-manifest-title">appPackage/ai-plugin_2.json <span class="vscode-flow-card__hint">new</span></h3>
+          <p class="vscode-flow-card__note">The new <code>runtimes</code> entry carries an <code>auth</code> block: <code>OAuthPluginVault</code> with a <code>${{MCP_DA_AUTH_ID_*}}</code> <code>reference_id</code> for static OAuth / Entra SSO / OAuth dynamic, or <code>{ "type": "None" }</code> for the <em>None</em> auth choice. Matches <code>FxCore.declarativeAgent.updateActionWithMCP</code> (CodeLens path) and the inline branch of <code>core.addPlugin</code> (VS Code Add action) &mdash; both derive auth via <code>deriveMCPManifestOAuth(authType, registrationId) ?? { type: "None" }</code>.</p>
           <div class="vscode-code-file" role="img" aria-label="ai-plugin_2.json after success">
             <div class="vscode-code-file__bar">appPackage/ai-plugin_2.json</div>
             <div class="vscode-code-file__body">

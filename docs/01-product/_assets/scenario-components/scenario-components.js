@@ -149,6 +149,55 @@ class VsCodeNotification extends HTMLElement {
   }
 }
 
+class VsCodeModalNotification extends HTMLElement {
+  connectedCallback() {
+    const windowTitle = this.getAttribute("window-title") || "Visual Studio Code";
+    const message = this.getAttribute("message") || "";
+    const detail = this.getAttribute("detail") || "";
+    const rawSeverity = (this.getAttribute("severity") || "info").toLowerCase();
+    const severity = ["info", "warning", "error"].includes(rawSeverity) ? rawSeverity : "info";
+    const role = severity === "error" ? "alertdialog" : "dialog";
+    const buttonsAttr = this.getAttribute("buttons") || "OK";
+    const buttons = buttonsAttr
+      .split("|")
+      .map((label) => label.trim())
+      .filter(Boolean)
+      .map((label, index) => ({ label, primary: index === 0 }));
+    const ariaLabel = `${windowTitle}: ${message || detail || "Modal notification"}`;
+    const iconSvg =
+      severity === "warning"
+        ? `<svg viewBox="0 0 24 24" width="32" height="32" aria-hidden="true" focusable="false"><path d="M12 2.5 1.5 21.5h21L12 2.5z" fill="#f5c324" stroke="#a37a00" stroke-width="0.6" stroke-linejoin="round"/><rect x="11.05" y="9.5" width="1.9" height="6.6" rx="0.4" fill="#1a1a1a"/><rect x="11.05" y="17.2" width="1.9" height="1.9" rx="0.4" fill="#1a1a1a"/></svg>`
+        : severity === "error"
+        ? `<svg viewBox="0 0 24 24" width="32" height="32" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="10" fill="#e51400"/><path d="M8 8l8 8M16 8l-8 8" stroke="#ffffff" stroke-width="2" stroke-linecap="round"/></svg>`
+        : `<svg viewBox="0 0 24 24" width="32" height="32" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="10" fill="#0078d4"/><path d="M12 7.5v.1m0 3v6" stroke="#ffffff" stroke-width="2" stroke-linecap="round"/></svg>`;
+
+    this.innerHTML = `
+      <div class="vscode-modal-notification vscode-modal-notification--${severity}" role="${role}" aria-modal="true" aria-label="${escapeHtml(ariaLabel)}">
+        <div class="vscode-modal-notification__dialog">
+          <div class="vscode-modal-notification__titlebar" aria-hidden="true">
+            <span class="vscode-modal-notification__window-title">${escapeHtml(windowTitle)}</span>
+            <span class="vscode-modal-notification__close" title="Close">&times;</span>
+          </div>
+          <div class="vscode-modal-notification__body">
+            <div class="vscode-modal-notification__icon" aria-hidden="true">${iconSvg}</div>
+            <div class="vscode-modal-notification__content">
+              ${message ? `<p class="vscode-modal-notification__message">${escapeHtml(message)}</p>` : ""}
+              ${detail ? `<p class="vscode-modal-notification__detail">${escapeHtml(detail)}</p>` : ""}
+            </div>
+          </div>
+          <div class="vscode-modal-notification__actions">
+            ${buttons
+              .map(
+                (btn) =>
+                  `<button type="button" class="vscode-modal-notification__button${btn.primary ? " vscode-modal-notification__button--primary" : ""}" tabindex="-1">${escapeHtml(btn.label)}</button>`
+              )
+              .join("")}
+          </div>
+        </div>
+      </div>`;
+  }
+}
+
 class ScenarioMermaidFlow extends HTMLElement {
   connectedCallback() {
     const source = this.getAttribute("src") || "";
@@ -466,6 +515,7 @@ for (const tagName of pickerDefinitions.keys()) {
 customElements.define("vscode-input-box", VsCodeInputBox);
 customElements.define("vscode-codelens-file", VsCodeCodeLensFile);
 customElements.define("vscode-notification", VsCodeNotification);
+customElements.define("vscode-modal-notification", VsCodeModalNotification);
 customElements.define("scenario-mermaid-flow", ScenarioMermaidFlow);
 customElements.define("scenario-markdown-section", ScenarioMarkdownSection);
 

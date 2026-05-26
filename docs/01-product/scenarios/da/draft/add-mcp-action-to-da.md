@@ -14,7 +14,7 @@
 
 ## Scenario
 
-A developer has an existing Declarative Agent project and wants to wire a Microsoft 365 Copilot action that calls an MCP server. Both surfaces ask the same questions in the same order: MCP server URL, authentication type, and at most a couple of follow-up fields determined by the chosen authentication type. When the user confirms, the toolkit creates a new action manifest, updates the declarative agent manifest, and updates `m365agents.yml` to wire OAuth provisioning when the authentication type requires it. No static tool list is captured; the agent host discovers the MCP server's tools at runtime.
+A developer has an existing Declarative Agent project and wants to wire a Microsoft 365 Copilot action that calls an MCP server. Both surfaces ask the same questions in the same order: MCP server URL, authentication type, and at most a couple of follow-up fields determined by the chosen authentication type. As soon as the last required answer is provided, the toolkit creates a new action manifest, updates the declarative agent manifest, and updates `m365agents.yml` to wire OAuth provisioning when the authentication type requires it &mdash; **VS Code does not ask for a manifest path and does not show a confirmation modal**, matching the live `updateActionWithMCP` flow. No static tool list is captured; the agent host discovers the MCP server's tools at runtime.
 
 Success means that after the flow completes, the project's declarative agent manifest references a new MCP-backed action, the action manifest references the MCP server URL, and `m365agents.yml` has the OAuth provisioning step injected when the authentication type requires it. For `OAuth (with static registration)`, env files (`env/.env.dev` and `env/.env.dev.user`) are populated with placeholders for the developer-provided client id, client secret, and optional scopes.
 
@@ -37,9 +37,9 @@ Both flags are intended to be temporary and removed once the rollout is complete
 
 ## Surfaces
 
-- VS Code: the `Add action` command (tree view, Command Palette, or right-click on the DA project) runs the full add-action flow. The user picks `Start with a MCP server`, enters the server URL, picks an authentication type, fills any conditional follow-up fields, and the toolkit writes the action manifest, DA manifest update, and yml wiring in one shot. The legacy `.vscode/mcp.json`-then-CodeLens-fetch handoff is gone.
-- CLI interactive: prompt-driven `atk add action` behavior. Same questions in the same order: action type, MCP server URL, authentication type, conditional follow-up fields, Teams manifest path.
-- CLI non-interactive: flag-driven `atk add action` behavior. Requires `--api-plugin-type mcp`, `--mcp-da-server-url`, `--mcp-da-auth-type`, `--manifest-file`, `--folder`, and `--interactive false`. Conditional follow-up flags are required only when the chosen authentication type asks for them.
+- VS Code: the `Add action` command (tree view, Command Palette, or right-click on the DA project) runs the full add-action flow. The user picks `Start with a MCP server`, enters the server URL, picks an authentication type, fills any conditional follow-up fields, and the toolkit writes the action manifest, DA manifest update, and yml wiring in one shot. Backed by `core.addPlugin` (the VS Code + MCP + DT-on branch), which infers the Teams `manifest.json` path from `appPackage/` and skips the confirmation modal &mdash; **no manifest picker, no confirmation modal**. The legacy `.vscode/mcp.json`-then-CodeLens-fetch handoff is gone.
+- CLI interactive: prompt-driven `atk add action` behavior. Same questions in the same order: action type, MCP server URL, authentication type, conditional follow-up fields, Teams manifest path. Backed by `core.addPlugin`, which keeps the existing `core.addApi.confirm.mcp` / `.mcp.teamsYaml` confirmation modal before writing.
+- CLI non-interactive: flag-driven `atk add action` behavior. Requires `--api-plugin-type mcp`, `--mcp-da-server-url`, `--mcp-da-auth-type`, `--manifest-file`, `--folder`, and `--interactive false`. The interactive confirm is suppressed by `--interactive false`. Conditional follow-up flags are required only when the chosen authentication type asks for them.
 - Visual Studio and chat: not covered by this draft scenario.
 
 ## States
@@ -54,8 +54,9 @@ Both flags are intended to be temporary and removed once the rollout is complete
   - `None` &mdash; no follow-up.
 
   In **VS Code**, this pick (and all conditional follow-up fields) is gated on `TEAMSFX_MCP_FOR_DA_DT`: when the flag is **off**, the `Add action` command skips the inline auth-type pick entirely &mdash; it writes a `.vscode/mcp.json` entry and the developer collects auth later via the fetch-mcp-tools CodeLens (`SCN-DA-FETCH-MCP-TOOLS`). In **CLI**, the pick is always reachable; non-interactive mode requires `--mcp-da-auth-type`.
-- Manifest pick (CLI only when needed): select Teams `manifest.json` file. VS Code uses the project's `appPackage/manifest.json` without asking.
-- Write step (all auth types): the toolkit creates the action manifest (`ai-plugin.json`) with the MCP server URL, updates the declarative agent manifest to reference the new action, and updates `m365agents.yml` with the standard MCP action wiring.
+- Manifest pick (CLI interactive only): select Teams `manifest.json` file. **VS Code does not ask** &mdash; `core.addPlugin` infers the path from `projectPath/appPackage/manifest.json` when the `selectTeamsAppManifestQuestion` is skipped for VS Code + MCP. CLI non-interactive supplies it via `--manifest-file`.
+- Confirm modification (CLI interactive only; CLI non-interactive suppresses with `--interactive false`): a warning modal asks the developer to acknowledge that files in `appPackage` will be modified. When the chosen authentication type requires OAuth provisioning (static / Entra SSO / dynamic), the message also names `m365agents.yml`. Buttons are `Add` and `Cancel`. Localized strings: `core.addApi.confirm.mcp` (no OAuth wiring) and `core.addApi.confirm.mcp.teamsYaml` (with OAuth wiring). Cancel returns a `UserCancelError` and writes no files. **VS Code does not show this modal** &mdash; `core.addPlugin` short-circuits the confirm step for the VS Code + MCP + DT-on branch and writes immediately after the last required answer.
+- Write step (all auth types): the toolkit creates the action manifest (`ai-plugin.json`) with the MCP server URL and an `auth` field on the new `runtimes` entry (`OAuthPluginVault` with a `reference_id` placeholder when the chosen auth type requires provisioning, otherwise `{ "type": "None" }`), updates the declarative agent manifest to reference the new action, and updates `m365agents.yml` with the standard MCP action wiring.
 - Write step (`OAuth (with static registration)`): in addition, `m365agents.yml` includes an `oauth/register` step, and `env/.env.dev` plus `env/.env.dev.user` contain placeholders for the client id, client secret, and scopes the developer entered. The secret is written into `env/.env.dev.user` and is not committed.
 - Write step (`Entra SSO`): in addition, `m365agents.yml` references the developer-provided Entra application client id for the SSO action.
 - Success notification: VS Code shows an info notification (`Action added to your Declarative Agent`); CLI prints a success message that names the updated DA manifest and the new action manifest.
@@ -82,15 +83,16 @@ flowchart TD
   SelectAuth4 -- None --> WriteFiles
   SelectAuth4 -- "OAuth (static)" --> StaticFields
   SelectAuth4 -- "Entra SSO" --> SsoFields
-  StaticFields --> WriteFiles[Write action manifest, update DA manifest and m365agents.yml, inject OAuth env placeholders when needed]
+  StaticFields --> WriteFiles
   SsoFields --> WriteFiles
+  WriteFiles[Write action manifest with auth field, update DA manifest and m365agents.yml, inject OAuth env placeholders when needed]
   WriteFiles --> Success([Show 'Action added' notification])
 
   classDef shared fill:#f5f5f5,stroke:#999,color:#444
   class Preamble shared
 ```
 
-> Any step before `WriteFiles` (or `LegacyHandoff`) may be cancelled; cancellation must not leave any half-written file in the project.
+> Any step before `WriteFiles` (or `LegacyHandoff`) may be cancelled; cancellation must not leave any half-written file in the project. **VS Code does not show a manifest picker or a confirmation modal** &mdash; the Teams manifest path is inferred from `appPackage/`, and `WriteFiles` runs as soon as the last required answer is provided.
 
 ### CLI interactive add-action flow
 
@@ -115,7 +117,9 @@ flowchart TD
   SelectAuth4 -- "Entra SSO" --> SsoFields
   StaticFields --> SelectManifest[Select Teams manifest.json file]
   SsoFields --> SelectManifest
-  SelectManifest --> WriteFiles[Write action manifest, update DA manifest and m365agents.yml, inject OAuth env placeholders when needed]
+  SelectManifest --> Confirm{{"Confirm modification modal<br/>core.addApi.confirm.mcp / .mcp.teamsYaml"}}
+  Confirm -- Cancel --> Cancelled([UserCancelError, no files written])
+  Confirm -- Add --> WriteFiles[Write action manifest with auth field, update DA manifest and m365agents.yml, inject OAuth env placeholders when needed]
   WriteFiles --> Complete([Show CLI add action success message])
 
   classDef shared fill:#f5f5f5,stroke:#999,color:#444

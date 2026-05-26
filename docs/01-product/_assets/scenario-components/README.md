@@ -8,6 +8,7 @@ Shared static assets for human-readable product scenario HTML.
 - `scenario-components.css` contains the matching Quick Pick, input box, file picker, and flow-grid styling.
 - `icons/` contains source-aligned VS Code and Microsoft 365 Agents Toolkit SVG glyphs used by the components.
 - `<scenario-mermaid-flow>` loads the first Mermaid code block from a scenario Markdown file and renders it as the HTML flow reference.
+- `<vscode-modal-notification>` renders a VS Code modal `showMessage` dialog (titlebar, severity icon, message, optional detail, action buttons). Attributes: `severity` (`info` &mdash; default / `warning` / `error`), `window-title` (defaults to `Visual Studio Code`), `message`, optional `detail`, `buttons` (pipe-separated labels; first is the primary button, e.g. `Add | Cancel`). Use this for modal confirmations; use `<vscode-notification>` for toast-style notifications.
 - Every `<section class="scenario-flow">` whose `<div class="section-head">` contains an `<h2>` is auto-wired as collapsible on load (caret on the heading, click / Enter / Space toggles, hash navigation auto-expands the target). Author scenario regions with that exact structure; do not add per-page `<details>`/`<summary>` wrappers, inline styles, or scripts to re-implement collapsibility.
 - Every `<article class="vscode-flow-card">` must be tagged with `data-kind` so readers can distinguish steps from outcomes at a glance. Allowed values:
   - `data-kind="action"` &mdash; a user step (Quick Pick, input box, file picker, command). Renders a blue left rail and `ACTION` badge.
