@@ -26,37 +26,21 @@ async function evalInGalleryFrame(
   galleryPage: Page | null,
   evalScript: string,
 ): Promise<string> {
-  // S1: galleryPage = separate CDP target
-  if (galleryPage) {
-    try {
-      await galleryPage.waitForSelector(
-        ".sample-filter, .offlinePage, .sample-card, .ms-Link",
-        { timeout: 30000 },
-      );
-    } catch {}
-    const val = await galleryPage.evaluate(evalScript);
-    return typeof val === "string" ? val : JSON.stringify(val);
-  }
+  // Priority: S2 (gallery iframe in mainPage) > S1 (galleryPage CDP target) > S3 (ARIA)
+  //
+  // S2 is primary because the ATK gallery is a sidebar WebviewView whose iframes are
+  // embedded directly in the main VS Code window — reliably found via mainPage.frames().
+  // S1 (galleryPage) can be set to a wrong CDP target when other extensions (e.g.
+  // redhat.vscode-yaml) open their own WebviewPanels after the gallery opens.
+
+  const frames = mainPage.frames();
+  console.log(`  Frames (${frames.length}):`);
+  frames.forEach((f, i) => console.log(`    [${i}] ${f.url().slice(0, 100)}`));
 
   // S2: gallery iframe within mainPage
-  // VSCode webviews have TWO frames:
-  //   outer: vscode-webview://xxx/ (empty container, no React, no #root)
-  //   inner: vscode-webview://xxx/index.html (actual React gallery content)
-  // Always target the inner index.html frame.
-  const frames = mainPage.frames();
-  const allWebviewFrames = frames.filter((f) => f.url().startsWith("vscode-webview://"));
-  console.log(`  All frames (${frames.length}):`);
-  frames.forEach((f, i) => console.log(`    [${i}] ${f.url().slice(0, 120)}`));
-  console.log(`  Webview frames (${allWebviewFrames.length}):`);
-  allWebviewFrames.forEach((f, i) => {
-    console.log(`    [${i}] url=${f.url().slice(0, 100)} childFrames=${f.childFrames().length}`);
-    f.childFrames().forEach((cf, ci) => console.log(`      child[${ci}] ${cf.url().slice(0, 100)}`));
-  });
-  // In VSCode 1.90+, webview architecture:
-  //   outer container = index.html (CSP wrapper, has active-frame iframe)
-  //   active-frame loads = fake.html (actual gallery content — confusingly named)
-  //   fake.html = the frame that receives the extension webview.html content
-  // So we must target fake.html, NOT index.html
+  // VS Code 1.90+ webview architecture:
+  //   outer container = index.html (CSP wrapper)
+  //   inner content   = fake.html  (actual React gallery content)
   const galleryFrame =
     frames.find((f) => f.url().includes("/fake.html")) ||
     frames.find((f) => f.url().startsWith("vscode-webview://"));
@@ -64,27 +48,15 @@ async function evalInGalleryFrame(
   if (galleryFrame) {
     console.log(`  Gallery frame (selected): ${galleryFrame.url().slice(0, 100)}`);
 
-    // S2a: newCDPSession(frame) — uses Runtime.evaluate directly, may differ from frame.evaluate
+    // S2a: CDP session on galleryFrame
     try {
       const frameSession = await ctx.newCDPSession(galleryFrame);
-      await sleep(2000);
-      // Diagnostic: verify we are in the gallery JS context
       const diagEval = await frameSession.send("Runtime.evaluate", {
-        expression: "JSON.stringify({href: window.location.href.slice(0,70), elemCount: document.querySelectorAll(\"*\").length, readyState: document.readyState, hasRoot: !!document.getElementById(\"root\"), html: document.documentElement.outerHTML.slice(0,1000)})",
+        expression: "JSON.stringify({href: window.location.href.slice(0,70), elemCount: document.querySelectorAll(\"*\").length, hasRoot: !!document.getElementById(\"root\")})",
         returnByValue: true, awaitPromise: false,
       });
       if (diagEval.result?.value) {
-        const d = JSON.parse(diagEval.result.value);
-        console.log("  [CDP diag]", JSON.stringify({href: d.href, elemCount: d.elemCount, readyState: d.readyState, hasRoot: d.hasRoot}));
-        if (!d.hasRoot) {
-          console.log("  [CDP html]", (d.html || "").slice(0, 1200));
-          // Also check for iframe src in the container
-          const iframeEval = await frameSession.send("Runtime.evaluate", {
-            expression: "JSON.stringify({iframes: Array.from(document.querySelectorAll(\"iframe\")).map(f => ({id:f.id, src:f.src, name:f.name}))})",
-            returnByValue: true, awaitPromise: false,
-          });
-          if (iframeEval.result?.value) console.log("  [CDP iframes]", iframeEval.result.value);
-        }
+        console.log("  [CDP diag]", diagEval.result.value.slice(0, 200));
       }
       const evalResult = await frameSession.send("Runtime.evaluate", {
         expression: evalScript,
@@ -96,15 +68,12 @@ async function evalInGalleryFrame(
       if (evalResult.result?.value !== undefined)
         return JSON.stringify(evalResult.result.value);
       if (evalResult.exceptionDetails) {
-        console.warn(
-          "  CDP eval exception:",
-          evalResult.exceptionDetails.text,
-        );
+        console.warn("  CDP eval exception:", evalResult.exceptionDetails.text);
         return "";
       }
       return "";
     } catch (cdpErr: any) {
-      console.warn(`  CDP session eval failed: ${cdpErr.message}`);
+      console.warn(`  S2a CDP session eval failed: ${cdpErr.message}`);
     }
 
     // S2b: frame.evaluate fallback
@@ -116,16 +85,29 @@ async function evalInGalleryFrame(
         );
       } catch {}
       const val = await galleryFrame.evaluate(evalScript);
-      return typeof val === "string" ? val : JSON.stringify(val);
+      return typeof val === "string" ? val : (JSON.stringify(val) ?? "");
     } catch (evalErr: any) {
-      console.warn(`  frame.evaluate failed: ${evalErr.message}`);
+      console.warn(`  S2b frame.evaluate failed: ${evalErr.message}`);
+    }
+  }
+
+  // S1: galleryPage separate CDP target (fallback when gallery not found as iframe)
+  if (galleryPage) {
+    console.log(`  S1 fallback: galleryPage ${galleryPage.url().slice(0, 80)}`);
+    try {
+      await galleryPage.waitForSelector(
+        ".sample-filter, .offlinePage, .sample-card, .ms-Link",
+        { timeout: 5000 },
+      );
+    } catch {}
+    try {
+      const val = await galleryPage.evaluate(evalScript);
+      return typeof val === "string" ? val : (JSON.stringify(val) ?? "");
+    } catch (s1Err: any) {
+      console.warn(`  S1 galleryPage eval failed: ${s1Err.message}`);
     }
   } else {
-    console.log(
-      `  No gallery frame (${frames.length} frames total), using main page`,
-    );
-    const val = await mainPage.evaluate(evalScript);
-    return typeof val === "string" ? val : JSON.stringify(val);
+    console.log(`  No gallery frame found (${frames.length} frames), no galleryPage`);
   }
 
   // S3: ARIA snapshot fallback (Playwright 1.40+)
@@ -144,7 +126,6 @@ async function evalInGalleryFrame(
     return "";
   }
 }
-
 async function startSignalWatcher(
   signalDir: string,
   screenshotDir: string,
@@ -373,6 +354,10 @@ async function startSignalWatcher(
 }
 
 async function main() {
+  // First positional arg is the test file filter (e.g. `npm test -- sample-app-a11y`).
+  // Falls back to TEST_FILE env var (used by CI/Docker) then runs all tests if neither is set.
+  const testFile = process.argv[2] || process.env.TEST_FILE || undefined;
+
   const extPath = process.env.ATK_EXT_PATH ?? "";
   const outputDir =
     process.env.TEST_OUTPUT_DIR ||
@@ -503,7 +488,7 @@ async function main() {
       TEST_OUTPUT_DIR: outputDir,
       SCREENSHOT_SIGNAL_DIR: signalDir,
       SCREENSHOT_DIR: screenshotDir,
-      ...(process.env.TEST_FILE ? { TEST_FILE: process.env.TEST_FILE } : {}),
+      ...(testFile ? { TEST_FILE: testFile } : {}),
       // Force local bundled templates — prevents ATK from downloading metadata from GitHub
       // (which takes 4+ minutes in Docker/CI). Without this, useLocalTemplate() returns false.
       TEMPLATE_VERSION: process.env.TEMPLATE_VERSION ?? "local",
