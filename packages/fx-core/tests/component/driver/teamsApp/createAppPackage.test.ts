@@ -2335,6 +2335,51 @@ describe("teamsApp/createAppPackage", async () => {
       }
     });
 
+    it("rejects non-array actions with a descriptive error", async () => {
+      const args: CreateAppPackageArgs = {
+        manifestPath:
+          "./tests/plugins/resource/appstudio/resources-multi-env/templates/appPackage/v3.manifest.template.json",
+        outputZipPath:
+          "./tests/plugins/resource/appstudio/resources-multi-env/build/appPackage/appPackage.guard2.zip",
+        outputJsonPath:
+          "./tests/plugins/resource/appstudio/resources-multi-env/build/appPackage/manifest.guard2.json",
+      };
+
+      const manifest = {
+        manifestVersion: "1.19",
+      } as TeamsManifestV1D19.TeamsManifestV1D19;
+      manifest.copilotAgents = {
+        declarativeAgents: [{ file: "resources/declarativeAgent.json", id: "1" }],
+      };
+      manifest.icons = {
+        color: "resources/color.png",
+        outline: "resources/outline.png",
+      };
+
+      const malformedManifest = {
+        name: "TestDeclarativeCopilot",
+        description: "shape-bypass test",
+        actions: { id: "action1" } as any,
+        capabilities: [],
+      } as DeclarativeCopilotManifestSchema;
+
+      sinon.stub(manifestUtils, "getManifestV3").resolves(ok(manifest));
+      sinon.stub(fs, "chmod").callsFake(async () => {});
+      sinon.stub(fs, "writeFile").callsFake(async () => {});
+      sinon.stub(fs, "pathExists").resolves(true);
+      sinon.stub(copilotGptManifestUtils, "getManifest").resolves(ok(malformedManifest));
+
+      const result = (await teamsAppDriver.execute(args, mockedDriverContext)).result;
+      chai.assert.isTrue(result.isErr(), "build should reject non-array actions");
+      if (result.isErr()) {
+        chai.assert.include(result.error.message, "actions");
+      }
+
+      if (await fs.pathExists(args.outputZipPath)) {
+        await fs.remove(args.outputZipPath);
+      }
+    });
+
     // Defense-in-depth: even if `getManifest` returns a manifest with a non-array
     // `capabilities` (e.g. a future code path that bypasses the typed reader),
     // createAppPackage must not crash with `TypeError: capabilities.filter is not a function`.
