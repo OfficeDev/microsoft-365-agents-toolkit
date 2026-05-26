@@ -159,7 +159,7 @@ const WCAG_HELPER_JS =
   "  return (lighter+0.05)/(darker+0.05);" +
   "}" +
   "function parseRgb(str){" +
-  "  var m=str.match(/rgba?\\\\((\\\\d+),\\\\s*(\\\\d+),\\\\s*(\\\\d+)/);" +
+  "  var m=str.match(/rgba?\\((\\d+),\\s*(\\d+),\\s*(\\d+)/);" +
   "  return m?[parseInt(m[1]),parseInt(m[2]),parseInt(m[3])]:null;" +
   "}" +
   "function effectiveBg(el){" +
