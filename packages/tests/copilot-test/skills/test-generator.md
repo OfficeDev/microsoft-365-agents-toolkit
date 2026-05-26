@@ -37,6 +37,28 @@ Tests must reflect how a real user interacts with the extension. The following r
    - Use CSS-rule checks only as a *supplementary* signal alongside behavioral verification (e.g., focus the element, take screenshot, then also confirm the rule exists).
    - Never use a CSS-rule check as the sole pass/fail criterion unless the test plan explicitly calls for it.
 
+4. **Color contrast must be computed, never hardcoded or blacklisted.**
+   - When a test plan requires contrast ratio verification (e.g., "contrast >= 4.5:1"), use the **WCAG relative luminance formula** directly in the injected JS. Do NOT use a hardcoded blacklist of "bad" colors.
+   - Inject this helper into every contrast test via `sendEvalSignal`:
+     ```js
+     function relativeLuminance(r, g, b) {
+       var srgb = [r, g, b].map(function(c) {
+         c = c / 255;
+         return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+       });
+       return 0.2126 * srgb[0] + 0.7152 * srgb[1] + 0.0722 * srgb[2];
+     }
+     function contrastRatio(L1, L2) {
+       var lighter = Math.max(L1, L2);
+       var darker  = Math.min(L1, L2);
+       return (lighter + 0.05) / (darker + 0.05);
+     }
+     ```
+   - Parse `getComputedStyle(el).color` (format: `rgb(r, g, b)`) and `getComputedStyle(el.parentElement).backgroundColor` to get foreground and background.
+   - If the background is transparent or `rgba(..., 0)`, walk up the DOM tree until you find a non-transparent background, or assume white (`255, 255, 255`) for light theme.
+   - The pass criterion is `contrastRatio(...) >= threshold` where threshold is the value stated in the test plan (4.5 for normal text, 3.0 for large text / non-text UI).
+   - Return the computed ratio in the step `detail` field so it is visible in `results.json`.
+
 4. **State change must be verified after interaction.**
    - After clicking a toggle, re-query the DOM to confirm the `aria-pressed`, class, or visible state changed.
    - Include before-click and after-click screenshots.
