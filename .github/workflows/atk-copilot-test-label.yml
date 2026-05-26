@@ -123,14 +123,14 @@ jobs:
 
           copilot --yolo --model claude-sonnet-4.6 -p "$(cat /tmp/label-prompt.txt)"
 
-      - name: Dispatch test generator
+      - name: Dispatch test generator (via sync-knowledge.yml, temporary until generator merges)
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           BRANCH=$(git branch --show-current)
           ISSUE="${{ github.event.issue.number }}"
           echo "Label agent finished on branch: $BRANCH"
-          gh workflow run atk-copilot-test-generator.yml \
+          gh workflow run sync-knowledge.yml \
             --repo "${{ github.repository }}" \
             --ref "$BRANCH" \
             --field issue_number="$ISSUE" \
