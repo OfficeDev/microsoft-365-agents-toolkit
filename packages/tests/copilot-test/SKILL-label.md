@@ -82,7 +82,7 @@ fi
 
 Locate the relevant source code, understand the bug, and make the minimal targeted change.
 
-- Only modify files in `packages/` (never `packages/tests/copilot-test/`)
+- Only modify files in `packages/` excluding `packages/tests/copilot-test/` (that directory is only touched in Step 2 for test plans, not here)
 - Read the code before changing it
 - Make the smallest change that fixes the issue
 - If you cannot determine the exact fix, make your best judgment and document it
