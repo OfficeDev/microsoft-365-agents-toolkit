@@ -102,61 +102,110 @@ jobs:
           echo "YAML_STUB_VSIX=/tmp/redhat-vscode-yaml.vsix" >> $GITHUB_ENV
           echo "Downloaded: $(du -sh /tmp/redhat-vscode-yaml.vsix | cut -f1)"
 
-      # Find the most recent non-expired 'release' artifact produced by the CD pipeline.
-      # No run ID input required — resolved automatically by querying the artifacts API,
-      # branch-first then repo-wide fallback (same pattern as agent-probe-run.yml).
-      - name: Resolve VSIX artifact run-id
-        id: resolve-vsix
+      # ── VSIX acquisition ────────────────────────────────────────────────────
+      # Logic:
+      #   1. Find most recent successful 'release' artifact on this branch.
+      #   2. If found: compare artifact commit vs HEAD on VSIX-affecting paths.
+      #      If no diff → reuse. If diff → rebuild from source.
+      #   3. No artifact on this branch → rebuild from source directly.
+      #
+      # VSIX-affecting paths: packages/vscode-extension, packages/fx-core,
+      #   packages/vscode-ui, packages/api
+      # (Changes to packages/tests or .github/workflows do NOT affect the VSIX.)
+      - name: Check VSIX artifact reusability
+        id: vsix-check
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           HEAD_BRANCH="${{ github.head_ref || github.ref_name }}"
-          echo "Looking for 'release' artifact on branch: $HEAD_BRANCH"
+          CURRENT_SHA="${{ github.sha }}"
+          echo "Branch: $HEAD_BRANCH  SHA: $CURRENT_SHA"
 
-          RUN_ID=$(gh api "repos/${{ github.repository }}/actions/artifacts?name=release&per_page=50" \
+          # Find most recent successful release artifact on this branch
+          ARTIFACT_JSON=$(gh api \
+            "repos/${{ github.repository }}/actions/artifacts?name=release&per_page=50" \
             --jq --arg b "$HEAD_BRANCH" \
-            '[.artifacts[] | select(.expired == false and .workflow_run.head_branch == $b)] | sort_by(.created_at) | reverse | .[0].workflow_run.id // empty' \
-            2>/dev/null | tr -d '[:space:]')
+            '[.artifacts[] | select(.expired == false
+                                    and .workflow_run.head_branch == $b
+                                    and .workflow_run.conclusion == "success")]
+             | sort_by(.created_at) | reverse | .[0]' \
+            2>/dev/null)
 
-          if [ -z "$RUN_ID" ]; then
-            echo "No artifact on branch '$HEAD_BRANCH'; falling back to repo-wide most recent..."
-            RUN_ID=$(gh api "repos/${{ github.repository }}/actions/artifacts?name=release&per_page=50" \
-              --jq '[.artifacts[] | select(.expired == false)] | sort_by(.created_at) | reverse | .[0].workflow_run.id // empty' \
-              2>/dev/null | tr -d '[:space:]')
+          if [ -z "$ARTIFACT_JSON" ] || [ "$ARTIFACT_JSON" = "null" ]; then
+            echo "No successful artifact on branch '$HEAD_BRANCH' — will build from source."
+            echo "reuse=false" >> $GITHUB_OUTPUT
+            exit 0
           fi
 
-          if [ -z "$RUN_ID" ]; then
-            echo "::error::No non-expired 'release' artifact found. A CD build must have run for this branch."
-            exit 1
+          ARTIFACT_SHA=$(echo "$ARTIFACT_JSON" | jq -r '.workflow_run.head_sha')
+          ARTIFACT_RUN_ID=$(echo "$ARTIFACT_JSON" | jq -r '.workflow_run.id')
+          echo "Artifact from run $ARTIFACT_RUN_ID at commit $ARTIFACT_SHA"
+
+          # If same commit, always reuse
+          if [ "$ARTIFACT_SHA" = "$CURRENT_SHA" ]; then
+            echo "Same commit — reusing artifact."
+            echo "reuse=true"   >> $GITHUB_OUTPUT
+            echo "run_id=$ARTIFACT_RUN_ID" >> $GITHUB_OUTPUT
+            exit 0
           fi
 
-          echo "Resolved: run_id=$RUN_ID"
-          echo "run_id=$RUN_ID" >> $GITHUB_OUTPUT
+          # Different commit: check if any VSIX-affecting files changed
+          VSIX_PATHS="packages/vscode-extension packages/fx-core packages/vscode-ui packages/api"
+          CHANGED=$(git diff --name-only "$ARTIFACT_SHA" "$CURRENT_SHA" -- $VSIX_PATHS 2>/dev/null | wc -l)
+          echo "Files changed in VSIX paths since $ARTIFACT_SHA: $CHANGED"
+
+          if [ "$CHANGED" = "0" ]; then
+            echo "No VSIX-affecting changes — reusing artifact from run $ARTIFACT_RUN_ID."
+            echo "reuse=true"   >> $GITHUB_OUTPUT
+            echo "run_id=$ARTIFACT_RUN_ID" >> $GITHUB_OUTPUT
+          else
+            echo "VSIX-affecting changes detected — will rebuild from source."
+            git diff --name-only "$ARTIFACT_SHA" "$CURRENT_SHA" -- $VSIX_PATHS | head -20
+            echo "reuse=false"  >> $GITHUB_OUTPUT
+          fi
 
       - name: Download VSIX artifact
+        if: steps.vsix-check.outputs.reuse == 'true'
         uses: actions/download-artifact@v4
         with:
           name: release
-          run-id: ${{ steps.resolve-vsix.outputs.run_id }}
+          run-id: ${{ steps.vsix-check.outputs.run_id }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
           path: /tmp/vsix-download
 
-      - name: Extract VSIX
+      - name: Extract VSIX artifact
+        if: steps.vsix-check.outputs.reuse == 'true'
         run: |
           VSIX_FILE=$(find /tmp/vsix-download -name "*.vsix" | head -1)
           if [ -z "$VSIX_FILE" ]; then
-            echo "::error::No .vsix file found in downloaded artifact."
-            exit 1
+            echo "::warning::Downloaded artifact has no .vsix — falling back to source build."
+            echo "ATK_EXT_PATH=" >> $GITHUB_ENV
+          else
+            echo "Found VSIX: $VSIX_FILE ($(du -sh "$VSIX_FILE" | cut -f1))"
+            mkdir -p /tmp/atk-ext
+            unzip -q -o "$VSIX_FILE" 'extension/*' -d /tmp/atk-ext
+            EXT_DIR="/tmp/atk-ext/extension"
+            VER=$(python3 -c "import json; d=json.load(open('$EXT_DIR/package.json')); print(d.get('version','?'))" 2>/dev/null || echo '?')
+            echo "ATK_EXT_PATH=$EXT_DIR" >> $GITHUB_ENV
+            echo "TEMPLATE_VERSION=local" >> $GITHUB_ENV
+            echo "Reused artifact: ATK v$VER at $EXT_DIR"
           fi
-          echo "Found VSIX: $VSIX_FILE ($(du -sh "$VSIX_FILE" | cut -f1))"
+
+      - name: Build ATK extension from source
+        if: steps.vsix-check.outputs.reuse != 'true' || env.ATK_EXT_PATH == ''
+        run: |
+          echo "::notice::Building ATK extension from source."
+          pnpm install --filter @microsoft/teamsfx-vscode --filter @microsoft/teamsfx-core \
+            --filter @microsoft/vscode-ui --filter @microsoft/teamsfx-api 2>&1 | tail -5
+          cd packages/vscode-extension
+          npx vsce package --no-dependencies -o /tmp/atk-from-source.vsix 2>&1 | tail -10
           mkdir -p /tmp/atk-ext
-          unzip -q -o "$VSIX_FILE" 'extension/*' -d /tmp/atk-ext
+          unzip -q -o /tmp/atk-from-source.vsix 'extension/*' -d /tmp/atk-ext
           EXT_DIR="/tmp/atk-ext/extension"
           VER=$(python3 -c "import json; d=json.load(open('$EXT_DIR/package.json')); print(d.get('version','?'))" 2>/dev/null || echo '?')
           echo "ATK_EXT_PATH=$EXT_DIR" >> $GITHUB_ENV
           echo "TEMPLATE_VERSION=local" >> $GITHUB_ENV
-          echo "VSIX extracted: ATK v$VER at $EXT_DIR"
-
+          echo "Built from source: ATK v$VER at $EXT_DIR"
       - name: Start Xvfb
         run: |
           Xvfb :99 -ac -screen 0 1920x1080x24 &
