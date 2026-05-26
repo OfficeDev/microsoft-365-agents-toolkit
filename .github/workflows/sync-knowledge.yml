@@ -589,7 +589,7 @@ jobs:
               --field issue_number="$ISSUE" \
               --field script="$SCRIPT"
 
-            sleep 15
+            sleep 30
             local RUN_ID=$(gh run list \
               --repo "$REPO" \
               --workflow atk-copilot-test-runner.yml \
