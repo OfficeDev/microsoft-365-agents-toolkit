@@ -182,33 +182,19 @@ jobs:
 
       - name: Download redhat.vscode-yaml extension
         run: |
-          # Download redhat.vscode-yaml VSIX. Marketplace endpoint sometimes returns a truncated
-          # file — verify the zip is valid and retry with a pinned release URL if needed.
+          # Verify Marketplace URL is reachable and downloads a valid VSIX.
+          # If it fails, runTest.ts will fall back to installing by extension ID directly.
           VSIX_OUT=/tmp/redhat-vscode-yaml.vsix
-
-          download_and_verify() {
-            local url="$1"
-            echo "Trying: $url"
-            curl -fsSL --max-time 60 "$url" -o "$VSIX_OUT" || return 1
-            unzip -t "$VSIX_OUT" > /dev/null 2>&1 || { echo "Invalid zip from $url"; return 1; }
-            echo "OK: $(du -sh "$VSIX_OUT" | cut -f1)"
-            return 0
-          }
-
-          # 1st attempt: Marketplace latest
-          download_and_verify \
+          if curl -fsSL --max-time 60 \
             "https://marketplace.visualstudio.com/_apis/public/gallery/publishers/redhat/vsextensions/vscode-yaml/latest/vspackage" \
-          || \
-          # 2nd attempt: pinned version from Open VSX Registry (more reliable in CI)
-          download_and_verify \
-            "https://open-vsx.org/api/redhat/vscode-yaml/latest/file/redhat.vscode-yaml.vsix" \
-          || \
-          # 3rd attempt: specific known-good version from GitHub release
-          download_and_verify \
-            "https://github.com/redhat-developer/vscode-yaml/releases/download/1.15.0/redhat.vscode-yaml-1.15.0.vsix" \
-          || { echo "::error::All YAML VSIX download attempts failed"; exit 1; }
-
-          echo "YAML_STUB_VSIX=$VSIX_OUT" >> $GITHUB_ENV
+            -o "$VSIX_OUT" \
+            && unzip -t "$VSIX_OUT" > /dev/null 2>&1; then
+            echo "YAML_STUB_VSIX=$VSIX_OUT" >> $GITHUB_ENV
+            echo "Downloaded valid VSIX: $(du -sh "$VSIX_OUT" | cut -f1)"
+          else
+            echo "::warning::Marketplace VSIX download failed or invalid — runTest.ts will install by extension ID"
+            rm -f "$VSIX_OUT"
+          fi
 
       - name: Wait for VSIX and download
         id: vsix-ready

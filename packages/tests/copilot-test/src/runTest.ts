@@ -448,26 +448,23 @@ async function main() {
   const userExtDir = path.join(os.tmpdir(), "atk-test-vscode-ext");
   fs.mkdirSync(userExtDir, { recursive: true });
 
-  // Install redhat.vscode-yaml dependency via runVSCodeCommand.
-  // runVSCodeCommand supports local VSIX paths — it invokes the VS Code CLI to install
-  // into the shared extensions dir before launching the test session.
-  // Check env YAML_STUB_VSIX first (useful for local Windows runs), then the CI path.
-  const yamlVsixPath = process.env.YAML_STUB_VSIX
-    || "/usr/local/lib/vscode-deps/redhat.vscode-yaml.vsix";
+  // Install redhat.vscode-yaml dependency. If a local VSIX path is provided via
+  // YAML_STUB_VSIX env var, use it; otherwise install by extension ID directly from
+  // the Marketplace — VS Code CLI handles the download automatically.
+  const yamlVsixPath = process.env.YAML_STUB_VSIX;
   const yamlExtDir = path.join(userExtDir, "redhat.vscode-yaml");
   if (!fs.existsSync(path.join(yamlExtDir, "package.json"))) {
-    if (fs.existsSync(yamlVsixPath)) {
-      try {
-        await runVSCodeCommand([
-          "--install-extension", yamlVsixPath,
-          `--extensions-dir=${userExtDir}`,
-        ]);
-        console.log(`YAML ext installed: ${yamlExtDir}`);
-      } catch (e: any) {
-        console.warn("YAML extension install failed:", e.message);
-      }
-    } else {
-      console.warn("YAML vsix not found — ATK may fail to activate if redhat.vscode-yaml is missing");
+    const installArg = (yamlVsixPath && fs.existsSync(yamlVsixPath))
+      ? yamlVsixPath
+      : "redhat.vscode-yaml";
+    try {
+      await runVSCodeCommand([
+        "--install-extension", installArg,
+        `--extensions-dir=${userExtDir}`,
+      ]);
+      console.log(`YAML ext installed from: ${installArg}`);
+    } catch (e: any) {
+      console.warn("YAML extension install failed:", e.message);
     }
   } else {
     console.log(`YAML ext already present: ${yamlExtDir}`);
