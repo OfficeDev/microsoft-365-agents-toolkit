@@ -215,7 +215,7 @@ export class CreateAppPackageDriver implements StepDriver {
         if (relativePath.startsWith("..")) {
           return err(new InvalidFileOutsideOfTheDirectotryError(fileName));
         }
-        const resolvedLocFileRes = await manifestUtils.resolveLocFile(fileName);
+        const resolvedLocFileRes = await manifestUtils.resolveLocFile(fileName, context);
         if (resolvedLocFileRes.isErr()) {
           return err(resolvedLocFileRes.error);
         }
@@ -231,7 +231,7 @@ export class CreateAppPackageDriver implements StepDriver {
         return err(new InvalidFileOutsideOfTheDirectotryError(fileName));
       }
 
-      const resolvedLocFileRes = await manifestUtils.resolveLocFile(fileName);
+      const resolvedLocFileRes = await manifestUtils.resolveLocFile(fileName, context);
       if (resolvedLocFileRes.isErr()) {
         return err(resolvedLocFileRes.error);
       }

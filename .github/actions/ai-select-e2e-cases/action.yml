@@ -1,0 +1,362 @@
+name: "AI Select E2E Cases"
+description: "Uses Copilot CLI to select relevant e2e test cases based on PR changed files"
+
+inputs:
+  test-dir:
+    description: "Directory containing e2e test files"
+    required: true
+    default: "packages/tests/src/e2e"
+  exclude-pattern:
+    description: "Grep -v pattern to exclude test files"
+    required: false
+    default: ""
+  include-pattern:
+    description: "Grep -E pattern to include only matching test files (applied before exclude)"
+    required: false
+    default: ""
+  pr-number:
+    description: "PR number"
+    required: true
+  github-token:
+    description: "GitHub token for API calls"
+    required: true
+  copilot-token:
+    description: "Copilot CLI runner token"
+    required: true
+
+outputs:
+  cases:
+    description: "JSON array of selected test case paths"
+    value: ${{ steps.merge.outputs.cases }}
+  ai-reason:
+    description: "AI reasoning for case selection"
+    value: ${{ steps.merge.outputs.reason }}
+
+runs:
+  using: "composite"
+  steps:
+    # 1. List all available test cases
+    - name: List available test cases
+      id: list-cases
+      shell: bash
+      working-directory: ${{ inputs.test-dir }}
+      run: |
+        include_pattern='${{ inputs.include-pattern }}'
+        exclude_pattern='${{ inputs.exclude-pattern }}'
+
+        if [ -n "$include_pattern" ]; then
+          all_cases=$(find . -wholename "*.tests.ts" | grep -E "$include_pattern")
+        else
+          all_cases=$(find . -wholename "*.tests.ts")
+        fi
+
+        if [ -n "$exclude_pattern" ]; then
+          all_cases=$(echo "$all_cases" | grep -v "$exclude_pattern")
+        fi
+
+        echo "all_cases<<EOF" >> "$GITHUB_OUTPUT"
+        echo "$all_cases" >> "$GITHUB_OUTPUT"
+        echo "EOF" >> "$GITHUB_OUTPUT"
+
+        cases_json=$(echo "$all_cases" | jq -Rsc '[split("\n") | .[] | select(.!="")]')
+        echo "all_cases_json=$cases_json" >> "$GITHUB_OUTPUT"
+
+    # 2. Get PR changed files
+    - name: Get PR changed files
+      id: changed-files
+      uses: actions/github-script@v6
+      env:
+        PR_NUMBER: ${{ inputs.pr-number }}
+      with:
+        github-token: ${{ inputs.github-token }}
+        script: |
+          const prNumber = parseInt(process.env.PR_NUMBER);
+          const files = [];
+          let page = 1;
+          while (true) {
+            const { data } = await github.rest.pulls.listFiles({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: prNumber,
+              per_page: 100,
+              page,
+            });
+            if (data.length === 0) break;
+            files.push(...data);
+            page++;
+          }
+          const fileList = files.map(f => `${f.status.padEnd(9)} ${f.filename}`).join('\n');
+          core.setOutput('files', fileList);
+          console.log(`Changed files (${files.length}):\n${fileList}`);
+
+    # 3. Check PR comments for /e2e-run commands
+    - name: Check PR comments for override commands
+      id: comment-override
+      uses: actions/github-script@v6
+      env:
+        PR_NUMBER: ${{ inputs.pr-number }}
+      with:
+        github-token: ${{ inputs.github-token }}
+        script: |
+          const prNumber = parseInt(process.env.PR_NUMBER);
+          const { data: comments } = await github.rest.issues.listComments({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            issue_number: prNumber,
+            per_page: 50,
+            sort: 'created',
+            direction: 'desc',
+          });
+
+          let runAll = false;
+          const extraCases = [];
+
+          for (const comment of comments) {
+            const body = comment.body || '';
+            if (body.trim().startsWith('/e2e-run-all')) {
+              runAll = true;
+              break;
+            }
+            const match = body.match(/^\/e2e-run\s+(.+)/m);
+            if (match) {
+              const cases = match[1].trim().split(/\s+/).filter(Boolean);
+              extraCases.push(...cases);
+            }
+          }
+
+          core.setOutput('run_all', String(runAll));
+          const uniqueCases = [...new Set(extraCases)];
+          core.setOutput('extra_cases', JSON.stringify(uniqueCases));
+          console.log(`run_all=${runAll}, extra_cases=${JSON.stringify(uniqueCases)}`);
+
+    # 4. AI selection via Copilot CLI (skip if /e2e-run-all)
+    - name: Install Copilot CLI
+      if: steps.comment-override.outputs.run_all != 'true'
+      shell: bash
+      run: |
+        npm install -g @github/copilot@1.0.44
+        copilot --version
+
+    - name: Select cases via AI
+      id: ai-select
+      if: steps.comment-override.outputs.run_all != 'true'
+      shell: bash
+      env:
+        COPILOT_GITHUB_TOKEN: ${{ inputs.copilot-token }}
+        CHANGED_FILES: ${{ steps.changed-files.outputs.files }}
+        AVAILABLE_CASES: ${{ steps.list-cases.outputs.all_cases }}
+      run: |
+        set -euo pipefail
+
+        SYSTEM_PROMPT='You are a test case selector for the Microsoft 365 Agents Toolkit (ATK) repository. Given a list of changed files in a PR and all available e2e test cases, select the most relevant test cases to run.
+
+        FILE PATH MAPPING (apply in order, stop at first match):
+        1) packages/fx-core/** (core SDK) -> teamsApp/*, teamsAgent/*, declarativeAgent/*, feature/template*, feature/multienv*
+        2) packages/cli/** (CLI tool) -> feature/*, teamsApp/*
+        3) packages/vscode-extension/** (VS Code extension) -> feature/*, teamsApp/*
+        4) packages/manifest/** (manifest handling) -> declarativeAgent/*, teamsApp/*
+        5) packages/sdk/** or packages/api/** -> teamsApp/*
+        6) templates/** -> match by template name: bot->teamsApp/basicBot*, tab->teamsApp/basicTab*, message-extension->teamsApp/basicMessageExtension*, custom-copilot->teamsAgent/DebugCustomCopilot*, declarative->declarativeAgent/*
+        7) packages/tests/src/e2e/** -> return the changed test files themselves
+        8) .github/**, docs/**, *.md, package.json (root only), .eslintrc* -> return empty array (infra/docs only, no tests needed)
+        9) vs/** (Visual Studio .NET templates) -> vs/*
+        10) If changes span multiple areas, include tests for all affected areas.
+
+        IMPORTANT RULES:
+        - Only return test cases from the available list. Never invent test file names.
+        - Prefer fewer, more targeted tests over running everything.
+        - If truly uncertain which tests apply, return ALL available tests as a safety fallback.
+        - For broad changes touching core packages (fx-core, cli), include a wider set of tests.
+        - Test paths must start with "./" and end with ".tests.ts".
+
+        Output ONLY a JSON object: {"cases": ["./path/to/test.tests.ts", ...], "reason": "one sentence explaining selection"}'
+
+        USER_PROMPT=$(printf '%s\n\nChanged files:\n%s\n\nAvailable test cases:\n%s\n\nOutput JSON only.' \
+          "$SYSTEM_PROMPT" "$CHANGED_FILES" "$AVAILABLE_CASES")
+
+        echo "Running Copilot CLI for e2e test case selection..."
+        copilot --yolo --model claude-sonnet-4.6 --reasoning-effort high -p "$USER_PROMPT" > /tmp/copilot_e2e_output.txt 2>&1 || true
+        echo "--- Copilot output ---"
+        cat /tmp/copilot_e2e_output.txt || true
+
+        cat > /tmp/extract_e2e_json.py << 'PYEOF'
+        import sys, re, json
+        text = open('/tmp/copilot_e2e_output.txt').read()
+        for pat in [r'\{[^{}]*"cases"[^{}]*\}', r'\{.*?\}']:
+            for m in re.findall(pat, text, re.DOTALL):
+                try:
+                    obj = json.loads(m)
+                    if 'cases' in obj and isinstance(obj['cases'], list):
+                        print(json.dumps(obj))
+                        sys.exit(0)
+                except Exception:
+                    pass
+        print('')
+        PYEOF
+
+        AI_CONTENT=$(python3 /tmp/extract_e2e_json.py 2>/dev/null || true)
+        echo "Extracted AI content: $AI_CONTENT"
+
+        if [ -n "$AI_CONTENT" ]; then
+          AI_CASES=$(echo "$AI_CONTENT" | jq -c '.cases // []')
+          AI_REASON=$(echo "$AI_CONTENT" | jq -r '.reason // "AI selected"')
+          AI_SUCCESS="true"
+        else
+          AI_CASES='[]'
+          AI_REASON="AI selection failed — will fall back to all cases"
+          AI_SUCCESS="false"
+        fi
+
+        echo "ai_cases=$AI_CASES" >> "$GITHUB_OUTPUT"
+        echo "ai_reason=$AI_REASON" >> "$GITHUB_OUTPUT"
+        echo "ai_success=$AI_SUCCESS" >> "$GITHUB_OUTPUT"
+
+    # 5. Merge AI + manual cases, validate, and produce final output
+    - name: Merge and validate selected cases
+      id: merge
+      shell: bash
+      env:
+        ALL_CASES_JSON: ${{ steps.list-cases.outputs.all_cases_json }}
+        AI_CASES: ${{ steps.ai-select.outputs.ai_cases }}
+        AI_REASON: ${{ steps.ai-select.outputs.ai_reason }}
+        AI_SUCCESS: ${{ steps.ai-select.outputs.ai_success }}
+        EXTRA_CASES: ${{ steps.comment-override.outputs.extra_cases }}
+        RUN_ALL: ${{ steps.comment-override.outputs.run_all }}
+      run: |
+        set -euo pipefail
+
+        if [ "$RUN_ALL" == "true" ]; then
+          echo "cases=$ALL_CASES_JSON" >> "$GITHUB_OUTPUT"
+          echo "reason=/e2e-run-all requested — running all cases" >> "$GITHUB_OUTPUT"
+          echo "Selected all cases via /e2e-run-all"
+          exit 0
+        fi
+
+        ai_cases="${AI_CASES:-[]}"
+        ai_success="${AI_SUCCESS:-false}"
+        extra_cases="${EXTRA_CASES:-[]}"
+
+        # Merge AI + extra cases
+        merged=$(python3 -c "
+        import json, sys
+        ai = json.loads('$ai_cases') if '$ai_cases' else []
+        extra = json.loads('$extra_cases') if '$extra_cases' else []
+        all_available = json.loads('''$ALL_CASES_JSON''')
+        ai_success = '$ai_success' == 'true'
+
+        combined = list(dict.fromkeys(ai + extra))
+
+        # Validate: only keep cases that exist in available list
+        valid = [c for c in combined if c in all_available]
+        invalid = [c for c in combined if c not in all_available]
+        if invalid:
+            print(f'Warning: skipping invalid cases: {invalid}', file=sys.stderr)
+
+        # If AI succeeded but returned empty, that means no tests needed (e.g. docs-only PR)
+        # Only fall back to all cases if AI actually failed to produce output
+        if not valid and not ai_success:
+            print('Fallback: AI failed, running all cases as safety net', file=sys.stderr)
+            valid = all_available
+        elif not valid and ai_success:
+            print('AI determined no tests needed for this change', file=sys.stderr)
+
+        print(json.dumps(valid))
+        " 2>&1)
+
+        # Extract warnings (stderr lines) vs result (last line = json)
+        warnings=$(echo "$merged" | head -n -1 || true)
+        result=$(echo "$merged" | tail -1)
+
+        if [ -n "$warnings" ]; then
+          echo "$warnings"
+        fi
+
+        echo "cases=$result" >> "$GITHUB_OUTPUT"
+
+        reason="${AI_REASON:-AI selection}"
+        if [ "$extra_cases" != "[]" ] && [ -n "$extra_cases" ]; then
+          reason="$reason + manual overrides via /e2e-run"
+        fi
+        echo "reason=$reason" >> "$GITHUB_OUTPUT"
+        echo "Final selected cases: $result"
+
+    # 6. Post PR comment with selection summary
+    - name: Post selection summary to PR
+      uses: actions/github-script@v6
+      env:
+        PR_NUMBER: ${{ inputs.pr-number }}
+        CASES: ${{ steps.merge.outputs.cases }}
+        REASON: ${{ steps.merge.outputs.reason }}
+        RUN_ALL: ${{ steps.comment-override.outputs.run_all }}
+        EXTRA_CASES: ${{ steps.comment-override.outputs.extra_cases }}
+      with:
+        github-token: ${{ inputs.github-token }}
+        script: |
+          const prNumber = parseInt(process.env.PR_NUMBER);
+          const cases = JSON.parse(process.env.CASES || '[]');
+          const reason = process.env.REASON || '';
+          const runAll = process.env.RUN_ALL === 'true';
+          const extraCases = JSON.parse(process.env.EXTRA_CASES || '[]');
+
+          const caseList = cases.map(c => `- \`${c}\``).join('\n');
+          const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+
+          let header;
+          if (runAll) {
+            header = '## E2E Test Selection — Running All Cases (`/e2e-run-all`)';
+          } else if (extraCases.length > 0) {
+            header = '## E2E Test Selection — AI + Manual Override';
+          } else {
+            header = '## E2E Test Selection — AI Selected';
+          }
+
+          const body = [
+            header,
+            '',
+            `**Why these tests:** ${reason}`,
+            '',
+            `**Cases selected (${cases.length}):**`,
+            caseList,
+            '',
+            '---',
+            `> [View pipeline run](${runUrl})`,
+            '',
+            '<details>',
+            '<summary>Need to run more tests?</summary>',
+            '',
+            'Comment on this PR:',
+            '- `/e2e-run ./path/to/test.tests.ts` — add specific cases to AI selection',
+            '- `/e2e-run-all` — run all e2e cases',
+            '',
+            'Then re-run the workflow.',
+            '</details>',
+          ].join('\n');
+
+          // Check for existing bot comment and update it, or create new
+          const { data: comments } = await github.rest.issues.listComments({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            issue_number: prNumber,
+            per_page: 100,
+          });
+
+          const marker = '## E2E Test Selection';
+          const existing = comments.find(c =>
+            c.user.type === 'Bot' && c.body && c.body.startsWith(marker)
+          );
+
+          if (existing) {
+            await github.rest.issues.updateComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              comment_id: existing.id,
+              body,
+            });
+          } else {
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber,
+              body,
+            });
+          }

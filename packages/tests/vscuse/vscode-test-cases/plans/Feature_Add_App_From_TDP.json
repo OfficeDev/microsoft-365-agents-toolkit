@@ -10,14 +10,14 @@
       "step_retry_timeout": 0.0
     },
     "total_steps": 13,
-    "created_at": "2026-05-13T00:18:43.352992",
+    "created_at": "2026-05-18T02:19:09.515002",
     "name": "Feature Add App From TDP",
     "description": {
       "other": "",
       "owner": "v-liliu2@microsoft.com",
       "workitem": "16672825"
     },
-    "generated_at": "2026-05-13T00:18:43.352992",
+    "generated_at": "2026-05-18T02:19:09.514995",
     "execution_order": [
       "plan_59bf0f50",
       "plan_r_0113_093650",
@@ -40,7 +40,7 @@
       "plan_r_1023_094053"
     ],
     "tags": [],
-    "updated_at": "2026-05-13T00:23:49.296022"
+    "updated_at": "2026-05-18T02:48:48.001467"
   },
   "steps": [
     {
@@ -66,7 +66,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_f66090ed",
-      "created_at": "2026-05-13T00:18:43.358982",
+      "created_at": "2026-05-18T02:19:09.550006",
       "plan_id": "plan_06dbd424"
     },
     {
@@ -90,7 +90,7 @@
         "step_retry_timeout:20"
       ],
       "screenshot": "step_ba470b19",
-      "created_at": "2026-05-13T00:18:43.365888",
+      "created_at": "2026-05-18T02:19:09.556010",
       "plan_id": "plan_06dbd424"
     },
     {
@@ -112,7 +112,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_5e71293c",
-      "created_at": "2026-05-13T00:18:43.374609",
+      "created_at": "2026-05-18T02:19:09.562153",
       "plan_id": "plan_06dbd424"
     },
     {
@@ -140,7 +140,7 @@
         "step_retry_timeout:60"
       ],
       "screenshot": "step_7e6b08a7",
-      "created_at": "2026-05-13T00:18:43.382613",
+      "created_at": "2026-05-18T02:19:09.568280",
       "plan_id": "plan_06dbd424"
     },
     {
@@ -166,7 +166,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_22498d6e",
-      "created_at": "2026-05-13T00:18:43.389612",
+      "created_at": "2026-05-18T02:19:09.573886",
       "plan_id": "plan_06dbd424"
     },
     {
@@ -192,7 +192,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_b3327844",
-      "created_at": "2026-05-13T00:18:43.396129",
+      "created_at": "2026-05-18T02:19:09.579487",
       "plan_id": "plan_06dbd424"
     },
     {
@@ -218,7 +218,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_43412fab",
-      "created_at": "2026-05-13T00:18:43.402129",
+      "created_at": "2026-05-18T02:19:09.585163",
       "plan_id": "plan_06dbd424"
     },
     {
@@ -244,7 +244,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_e71580bd",
-      "created_at": "2026-05-13T00:18:43.411725",
+      "created_at": "2026-05-18T02:19:09.590901",
       "plan_id": "plan_06dbd424"
     },
     {
@@ -266,7 +266,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_cc23b555",
-      "created_at": "2026-05-13T00:18:43.418815",
+      "created_at": "2026-05-18T02:19:09.596258",
       "plan_id": "plan_06dbd424"
     },
     {
@@ -286,7 +286,7 @@
         "step_retry_timeout:60"
       ],
       "screenshot": null,
-      "created_at": "2026-05-13T00:18:43.425726",
+      "created_at": "2026-05-18T02:19:09.603514",
       "plan_id": "plan_06dbd424"
     },
     {
@@ -310,9 +310,11 @@
         "dhash:306:220:0:10:20b4b0e0f8f8e0f4"
       ],
       "postconditions": [],
-      "tags": [],
+      "tags": [
+        "delay:180"
+      ],
       "screenshot": "step_87ea497c",
-      "created_at": "2026-05-13T00:18:43.431726",
+      "created_at": "2026-05-18T02:19:09.608298",
       "plan_id": "plan_06dbd424"
     },
     {
@@ -338,7 +340,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_5594f205",
-      "created_at": "2026-05-13T00:18:43.438731",
+      "created_at": "2026-05-18T02:19:09.614668",
       "plan_id": "plan_06dbd424"
     },
     {
@@ -358,7 +360,7 @@
         "delay:3"
       ],
       "screenshot": null,
-      "created_at": "2026-05-13T00:18:43.445390",
+      "created_at": "2026-05-18T02:19:09.620794",
       "plan_id": "plan_06dbd424"
     }
   ],

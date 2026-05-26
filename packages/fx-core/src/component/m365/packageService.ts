@@ -72,7 +72,6 @@ export class PackageService {
 
   public constructor(endpoint: string, logger?: LogProvider) {
     this.axiosInstance = WrappedAxiosClient.create({
-      timeout: 30000,
       httpsAgent: new https.Agent({ keepAlive: true }),
     });
     this.initEndpoint = endpoint;
@@ -293,6 +292,29 @@ export class PackageService {
       }
       throw err;
     }
+  }
+
+  /**
+   * Publish agent using Builder API (sideLoadingV2) and get share link for shared scope.
+   * Returns [titleId, appId, shareLink]
+   */
+  @hooks([ErrorContextMW({ source: M365ErrorSource, component: M365ErrorComponent })])
+  public async publishAgent(
+    token: string,
+    packagePath: string,
+    appScope: AppScope = AppScope.Personal
+  ): Promise<[string, string, string]> {
+    const res = await this.sideLoadingV2(token, packagePath, appScope);
+    let shareLink = "";
+    if (appScope.toLowerCase() === AppScope.Shared.toLowerCase()) {
+      shareLink = await this.getShareLink(token, res[0]);
+    }
+    sendTelemetryEvent(Component.core, TelemetryEvent.MosSideloadEnd, {
+      [TelemetryProperty.MosTitleId]: res[0],
+      [TelemetryProperty.MosAppId]: res[1],
+      [TelemetryProperty.IsDeclarativeAgent]: "true",
+    });
+    return [res[0], res[1], shareLink];
   }
 
   @hooks([ErrorContextMW({ source: M365ErrorSource, component: M365ErrorComponent })])

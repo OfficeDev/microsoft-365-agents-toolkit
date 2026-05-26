@@ -294,6 +294,7 @@ export class Constants {
     "https://dev.teams.microsoft.com/apps/%s/app-package-editor?login_hint=%s";
   public static readonly PUBLISH_GUIDE = "https://aka.ms/teamsfx-publish";
   public static readonly TEAMS_ADMIN_PORTAL = "https://aka.ms/teamsfx-mtac";
+  public static readonly MICROSOFT_ADMIN_CENTER = "https://aka.ms/atk-mac";
   public static readonly TEAMS_MANAGE_APP_DOC = "https://aka.ms/teamsfx-mtac-doc";
   public static readonly TEAMS_APP_ID = "teamsAppId";
   public static readonly TEAMS_APP_UPDATED_AT = "teamsAppUpdatedAt";

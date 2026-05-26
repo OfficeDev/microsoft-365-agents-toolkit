@@ -426,7 +426,7 @@ describe("GraphAPIClient Test", () => {
           displayName: "General",
           name: "General Label",
           description: "General Label Description",
-        },
+        } as unknown as SensitivityLabel,
         {
           id: "confidential-id",
           displayName: "Confidential",

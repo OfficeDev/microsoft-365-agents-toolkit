@@ -10,3 +10,9 @@ TEAMS_APP_ID=
 {{#McpAuth}}
 MCP_DA_AUTH_ID=
 {{/McpAuth}}
+
+# Environment variables for Agent Evaluations
+AZURE_AI_OPENAI_ENDPOINT=
+AZURE_AI_API_KEY=
+AZURE_AI_API_VERSION=
+AZURE_AI_MODEL_NAME=

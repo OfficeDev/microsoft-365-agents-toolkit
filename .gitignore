@@ -398,3 +398,6 @@ test-output/
 
 test-ext-overlay/
 test-output-local/
+
+# add jetbrains related ignores
+.idea/

@@ -1,144 +1,21 @@
 # Test with Agents Playground
 
-Test your agent locally using the Microsoft 365 Agents Playground — a web-based sandbox that requires no M365 account, Azure tunnel, or app registration.
+Test your bot locally using the Microsoft 365 Agents Playground toolset. No M365 account, Azure tunnel, or app registration required.
 
-**Recommend Agents Playground first for testing**, unless user explicitly asks to run on Teams.
+**Default: use [playground.md](playground.md) (manual interactive testing)**, unless user explicitly asks for automated or CI testing.
 
-## Installation
+> **Applies to: code-based Teams bots/agents only.** Declarative agents and API plugins must be tested in M365 Copilot via [test-teams](../test-teams/test-teams.md).
 
-**Windows:**
-```powershell
-winget install agentsplayground
-```
+## Intent Router
 
-**Linux:**
-```bash
-curl -LO https://github.com/OfficeDev/microsoft-365-agents-toolkit/releases/download/microsoft-365-agents-playground%400.2.23/agentsplayground-linux-x64.zip
-unzip agentsplayground-linux-x64.zip agentsplayground
-chmod +x agentsplayground
-sudo mv agentsplayground /usr/local/bin/
-```
-
-**npm:**
-```bash
-npm install -g @microsoft/m365agentsplayground
-```
-
-## Quick Start
-
-```bash
-# 1. For ATK projects, deploy playground config first
-atk deploy --env playground -i false
-
-# 2. Start your bot service (this will HANG the terminal — expected!)
-# Run as a background process since the server keeps running
-cd my-bot
-npm run dev:teamsfx:playground  # For ATK projects
-# npm run dev                   # For customized projects
-
-# 3. Use a NEW/separate terminal to start Agents Playground
-agentsplayground -e http://localhost:3978/api/messages -c msteams
-```
-
-**Note:** The bot service start command keeps running and will not return to the prompt. This is expected — the server must stay running. Always start the service in a background terminal, then verify it started successfully by checking the output for messages like "listening on port" or "server started". If errors appear, read the logs, fix the issue, and restart. Use a **new terminal** for Agents Playground.
-
-## CLI Options
-
-| Option | Short | Required | Description |
-|--------|-------|----------|-------------|
-| `--app-endpoint` | `-e` | Recommended | Bot endpoint URL (e.g., http://localhost:3978/api/messages) |
-| `--channel-id` | `-c` | Optional | Channel to emulate: msteams, emulator, webchat, directline |
-| `--port` | `-p` | Optional | Server port (default: 56150, auto-fallback if occupied) |
-| `--client-id` | `--cid` | Optional | Azure app client ID (for authenticated agents) |
-| `--client-secret` | `--cs` | Optional | Azure app client secret (for authenticated agents) |
-| `--tenant-id` | `--tid` | Optional | Azure tenant ID (for authenticated agents) |
-| `--enable-events-recording` | `--er` | Optional | Enable events recording (default: false) |
-
-## Examples
-
-```bash
-# Basic start with Teams channel
-agentsplayground -e http://localhost:3978/api/messages -c msteams
-
-# With authentication
-agentsplayground -e http://localhost:3978/api/messages -c emulator \
-  --client-id <CLIENT_ID> \
-  --client-secret <CLIENT_SECRET> \
-  --tenant-id <TENANT_ID>
-
-# Test different channels
-agentsplayground -e http://localhost:3978/api/messages -c webchat
-agentsplayground -e http://localhost:3978/api/messages -c emulator
-```
-
-## Features
-
-- **No Setup Required**: Works with HTTP localhost endpoints
-- **Adaptive Card Preview**: See how cards render in Teams
-- **Chat Interface**: Simulate user messages and bot responses
-- **Context Mocking**: Mock Teams APIs (team members, channels, etc.)
-- **Message Inspection**: View request/response payloads in real-time
-
-## Limitations
-
-- Application manifest not processed (command menus unavailable)
-- Some Adaptive Card features unsupported (people picker, user mentions, stage view)
-- SSO not supported
-- Only Adaptive Cards supported (not Hero/Thumbnail cards)
-
-## Configuration File
-
-Create `.m365agentsplayground.yml` in project root to mock Teams context:
-
-```yaml
-version: "0.1.1"
-tenantId: 00000000-0000-0000-0000-0000000000001
-bot:
-  id: 00000000-0000-0000-0000-00000000000011
-  name: Test Bot
-currentUser:
-  id: user-id-0
-  name: Alex Wilber
-  email: alexw@example.com
-users:
-  - id: user-id-1
-    name: Megan Bowen
-    email: meganb@example.com
-personalChat:
-  id: personal-chat-id
-groupChat:
-  id: group-chat-id
-team:
-  id: team-id
-  name: My Team
-  channels:
-    - id: channel-announcements-id
-      name: Announcements
-```
-
-## Environment Variables
-
-You can use environment variables instead of CLI options:
-
-| Variable | Description |
-|----------|-------------|
-| `BOT_ENDPOINT` | Bot endpoint URL |
-| `DEFAULT_CHANNEL_ID` | Channel type (emulator, webchat, msteams) |
-| `AUTH_CLIENT_ID` | Azure app client ID for authentication |
-| `AUTH_CLIENT_SECRET` | Azure app client secret for authentication |
-| `AUTH_TENANT_ID` | Azure tenant ID for authentication |
+| User Intent | Read |
+|---|---|
+| "test my bot", "run locally", "chat with the bot", explore responses, manual testing | → [playground.md](playground.md) *(default)* |
+| "automated tests", "CI pipeline", "smoke tests", "programmatic testing", `TestClient`, `ConversationServer` | → [playground-cli.md](playground-cli.md) |
 
 ## References
 
-- For project file details → see [../toolkit/manifest-and-yaml.md](../toolkit/manifest-and-yaml.md)
-- If something goes wrong → see [../troubleshoot/troubleshoot.md](../troubleshoot/troubleshoot.md)
-- To test on real Teams instead → see [../test-teams/test-teams.md](../test-teams/test-teams.md)
+- For project file details → [../toolkit/manifest-and-yaml.md](../toolkit/manifest-and-yaml.md)
+- If something goes wrong → [../troubleshoot/troubleshoot.md](../troubleshoot/troubleshoot.md)
+- To test on real Teams instead → [../test-teams/test-teams.md](../test-teams/test-teams.md)
 
-## Expert Deep Dives
-
-> **Applies to: code-based Teams bots/agents only.** Declarative agents and API plugins do not run in Agents Playground — they must be tested in M365 Copilot via [test-teams](../test-teams/test-teams.md).
-
-| Topic | Expert |
-|---|---|
-| Playground rules, `.m365agentsplayground.yml`, channel emulation, activity simulation | [../toolkit/playground.md](../toolkit/playground.md) |
-| `DevtoolsPlugin`, ConsoleLogger, `skipAuth`, `tsx watch`, build verification | [../experts/teams/dev.debug-test-ts.md](../experts/teams/dev.debug-test-ts.md) |

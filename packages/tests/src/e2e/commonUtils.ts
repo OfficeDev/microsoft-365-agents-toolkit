@@ -55,8 +55,11 @@ export function getTestFolder(): string {
   return testFolder;
 }
 
+export const BASE_APP_NAME_PREFIX = "fxE2E";
+
 export function getAppNamePrefix(): string {
-  return "fxE2E";
+  const runId = process.env.E2E_RUN_ID;
+  return runId ? `${BASE_APP_NAME_PREFIX}${runId}` : BASE_APP_NAME_PREFIX;
 }
 
 export function getUniqueAppName(): string {
