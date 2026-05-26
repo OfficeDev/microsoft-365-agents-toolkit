@@ -328,7 +328,8 @@
         status.textContent = "Rendered from source.";
       } catch (error) {
         status.textContent = "Unable to render source.";
-        content.innerHTML = `<div class="warning"><strong>Preview unavailable.</strong><br>${escapeHtml(error.message)}<br><br>If you opened this file directly from disk, serve docs with a local HTTP server so browser fetch can read product files.</div>`;
+        const message = error instanceof Error ? error.message : String(error);
+        content.innerHTML = `<div class="warning"><strong>Preview unavailable.</strong><br>${escapeHtml(message)}<br><br>If you opened this file directly from disk, serve docs with a local HTTP server so browser fetch can read product files.</div>`;
       }
     }
 
@@ -559,7 +560,8 @@
         status.textContent = "Rendered source; Mermaid preview unavailable.";
         const warning = document.createElement("div");
         warning.className = "warning";
-        warning.textContent = `Mermaid could not load or render: ${error.message}`;
+        const message = error instanceof Error ? error.message : String(error);
+        warning.textContent = `Mermaid could not load or render: ${message}`;
         content.prepend(warning);
       }
     }

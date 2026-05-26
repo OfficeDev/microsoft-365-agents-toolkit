@@ -306,7 +306,8 @@ async function renderMarkdownMermaidFlow(root, source, flowIndex = 0) {
     mermaidApi.default.initialize({ startOnLoad: false, securityLevel: "strict", theme: "default" });
     await mermaidApi.default.run({ nodes: [body.querySelector(".mermaid")] });
   } catch (error) {
-    body.innerHTML = `<p class="scenario-mermaid__warning">Flow preview unavailable: ${escapeHtml(error.message)}</p>`;
+    const message = error instanceof Error ? error.message : String(error);
+    body.innerHTML = `<p class="scenario-mermaid__warning">Flow preview unavailable: ${escapeHtml(message)}</p>`;
   }
 }
 
@@ -332,7 +333,8 @@ async function renderMarkdownSection(root, source, heading, level) {
       await mermaidApi.default.run({ nodes: mermaidNodes });
     }
   } catch (error) {
-    body.innerHTML = `<p class="scenario-markdown__warning">Section preview unavailable: ${escapeHtml(error.message)}</p>`;
+    const message = error instanceof Error ? error.message : String(error);
+    body.innerHTML = `<p class="scenario-markdown__warning">Section preview unavailable: ${escapeHtml(message)}</p>`;
   }
 }
 
