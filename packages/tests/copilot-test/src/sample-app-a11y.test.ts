@@ -738,65 +738,120 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
    *       determine which layout (grid/list) is currently active.
    * Fix:  Gallery button has aria-pressed="true" when grid is active; List button "false".
    *
-   * SNAPSHOT: Dark theme, gallery in grid view. Two layout buttons (grid/list icons) visible
-   *   in gallery toolbar (top-right of Samples panel).
-   *   -> PASS: grid button appears visually highlighted/selected (pressed style, distinct
-   *      border or background). Log: "2 layout buttons. States: [{pressed:'true'},{pressed:'false'}]"
-   *   -> FAIL: both buttons look identical with no visual pressed state; log shows pressed:null.
-   *   Note: visual pressed styling depends on CSS — log is the primary pass/fail signal.
+   * Test plan steps implemented here:
+   *   1. Read initial state: Grid button aria-pressed="true", List button aria-pressed="false"
+   *   2. Click List view button (simulate user interaction)
+   *   3. Assert List button becomes aria-pressed="true", Grid button becomes aria-pressed="false"
+   *   4. Restore grid view
+   *
+   * SNAPSHOT 07-tc005-initial: gallery in grid view — grid button pressed, list button not.
+   * SNAPSHOT 07b-tc005-after-list-click: gallery switched to list view — list button pressed.
+   * SNAPSHOT 07c-tc005-restored: gallery restored to grid view.
+   * PASS: both state transitions confirmed via aria-pressed attribute changes.
+   * FAIL: buttons missing aria-pressed, or state does not toggle after click.
    */
   test("TC-005: Gallery/List toggle buttons have aria-pressed", async () => {
     if (galleryOpened) {
-      const evalScript =
-        "(() => { const btns = Array.from(document.querySelectorAll('.layout-button')); const results = btns.map(b => ({label: b.getAttribute('aria-label'), pressed: b.getAttribute('aria-pressed')})); return JSON.stringify({count: btns.length, buttons: results}); })()";
-      const rawResult = sendEvalSignal(evalScript, 5000);
+      const readButtonsScript =
+        "(() => { const btns = Array.from(document.querySelectorAll('.layout-button')); " +
+        "const results = btns.map(function(b){ return {label: b.getAttribute('aria-label'), pressed: b.getAttribute('aria-pressed')}; }); " +
+        "return JSON.stringify({count: btns.length, buttons: results}); })()";
 
-      if (rawResult && rawResult.startsWith("ACCESSIBILITY:")) {
-        const nodes = parseAriaSnapshot(rawResult.slice("ACCESSIBILITY:".length));
-        // Layout buttons have aria-pressed, appearing as role=button with pressed property
+      // Step 1: Read initial state (should be grid=true, list=false)
+      const initialResult = sendEvalSignal(readButtonsScript, 5000);
+      takeScreenshot("07-tc005-initial");
+
+      // ARIA snapshot fallback path (Playwright ariaSnapshot)
+      if (initialResult && initialResult.startsWith("ACCESSIBILITY:")) {
+        const nodes = parseAriaSnapshot(initialResult.slice("ACCESSIBILITY:".length));
         const pressedButtons = nodes.filter(n =>
-          n.role.toLowerCase() === "button" &&
-          n.pressed !== undefined
+          n.role.toLowerCase() === "button" && n.pressed !== undefined
         );
-        const hasAriaPressed = pressedButtons.length > 0;
-        takeScreenshot("07-tc005-toggle-aria-pressed");
         step(
           "TC-005 Toggle buttons have aria-pressed",
-          hasAriaPressed,
-          `[AX-TREE] ${pressedButtons.length} buttons with pressed state found. States: ${JSON.stringify(pressedButtons.map(b => ({name: b.name, pressed: b.pressed})).slice(0,3))}`,
+          pressedButtons.length > 0,
+          `[AX-TREE fallback] ${pressedButtons.length} buttons with pressed state. Note: click verification skipped in ARIA fallback mode.`,
         );
         return;
       }
-      if (rawResult && !rawResult.startsWith("ERROR:")) {
-        let data005: any = null;
-        try { data005 = JSON.parse(rawResult); } catch {}
-        if (data005 !== null) {
-          const hasAriaPressed =
-            data005.count > 0 &&
-            data005.buttons?.some(
-              (b: any) => b.pressed === "true" || b.pressed === "false",
-            );
-          takeScreenshot("07-tc005-toggle-aria-pressed");
-          step(
-            "TC-005 Toggle buttons have aria-pressed",
-            hasAriaPressed,
-            `${data005.count} layout buttons found. States: ${JSON.stringify(data005.buttons)}`,
-          );
-          return;
-        } else {
-          takeScreenshot("07-tc005-toggle-aria-pressed");
-          step(
-            "TC-005 Toggle aria-pressed",
-            false,
-            "parse error: " + rawResult.slice(0, 100),
-          );
-          return;
-        }
+
+      if (!initialResult || initialResult.startsWith("ERROR:")) {
+        takeScreenshot("07c-tc005-restored");
+        step("TC-005 Toggle buttons have aria-pressed", false,
+          "FAIL: DOM eval error reading initial button state.");
+        return;
       }
+
+      let initialData: any = null;
+      try { initialData = JSON.parse(initialResult); } catch {}
+      if (!initialData) {
+        takeScreenshot("07c-tc005-restored");
+        step("TC-005 Toggle buttons have aria-pressed", false,
+          "parse error on initial read: " + initialResult.slice(0, 100));
+        return;
+      }
+
+      const hasInitialAriaPressed = initialData.count > 0 &&
+        initialData.buttons?.some((b: any) => b.pressed === "true" || b.pressed === "false");
+
+      // Step 2: Click the List view button (simulate user toggling layout)
+      const clickResult = sendEvalSignal(
+        "(function(){" +
+        "  var btn = document.querySelector('[aria-label=\"list view\"]');" +
+        "  if (!btn) btn = Array.from(document.querySelectorAll('.layout-button')).find(function(b){" +
+        "    return (b.getAttribute('aria-label') || '').toLowerCase().includes('list');" +
+        "  });" +
+        "  if (btn) { btn.click(); return 'clicked'; }" +
+        "  return 'no-list-button';" +
+        "})()",
+        3000,
+      );
+      await wait(600);
+      takeScreenshot("07b-tc005-after-list-click");
+
+      // Step 3: Read state after click — List should now be pressed=true
+      const afterResult = sendEvalSignal(readButtonsScript, 5000);
+
+      // Step 4: Restore grid view
+      sendEvalSignal(
+        "(function(){" +
+        "  var btn = document.querySelector('[aria-label=\"grid view\"]');" +
+        "  if (!btn) btn = Array.from(document.querySelectorAll('.layout-button')).find(function(b){" +
+        "    return (b.getAttribute('aria-label') || '').toLowerCase().includes('grid') ||" +
+        "           (b.getAttribute('aria-label') || '').toLowerCase().includes('gallery');" +
+        "  });" +
+        "  if (btn) btn.click();" +
+        "})()",
+        2000,
+      );
+      await wait(300);
+      takeScreenshot("07c-tc005-restored");
+
+      let afterData: any = null;
+      try { afterData = JSON.parse(afterResult); } catch {}
+
+      const listBtnAfter = afterData?.buttons?.find((b: any) =>
+        (b.label || "").toLowerCase().includes("list")
+      );
+      const gridBtnAfter = afterData?.buttons?.find((b: any) =>
+        (b.label || "").toLowerCase().includes("grid") ||
+        (b.label || "").toLowerCase().includes("gallery")
+      );
+      const stateToggled = listBtnAfter?.pressed === "true" && gridBtnAfter?.pressed === "false";
+
+      const passes = hasInitialAriaPressed && stateToggled && clickResult === "clicked";
+      step(
+        "TC-005 Toggle buttons have aria-pressed",
+        passes,
+        passes
+          ? `OK: initial=${JSON.stringify(initialData.buttons)}, after-click=${JSON.stringify(afterData?.buttons)}`
+          : `FAIL: hasInitialAriaPressed=${hasInitialAriaPressed}, clickResult=${clickResult}, stateToggled=${stateToggled}. ` +
+            `Initial=${JSON.stringify(initialData.buttons)}, After=${JSON.stringify(afterData?.buttons)}`,
+      );
+      return;
     }
 
-    // Gallery not open — cannot verify TC without live DOM.
-    takeScreenshot("07-tc005-toggle-aria-pressed");
+    takeScreenshot("07-tc005-initial");
     step(
       "TC-005 Toggle buttons aria-pressed",
       false,

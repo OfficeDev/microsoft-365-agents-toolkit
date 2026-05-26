@@ -127,6 +127,29 @@
 
 ---
 
+### TC-006 – Focus indicator contrast ≥ 3:1 in Light theme (sample cards)
+
+**Preconditions:**
+- Sample Gallery is open
+
+**Steps:**
+1. Open Sample Gallery
+2. Switch VSCode theme to "Default Light Modern"
+3. Programmatically focus the first `.sample-card` element
+4. Take screenshot showing the focus ring on the card
+5. Check computed `outline-color` of the focused card
+6. Assert the light-theme fix CSS rule exists: `body.vscode-light .sample-card:focus-visible { outline-color: #005FB8 }`
+7. Restore original theme
+
+**Expected result:**
+- Focused card has a clearly visible dark-blue focus ring (`#005FB8`)
+- `#005FB8` on white background = contrast ratio ≈ 5.77:1 ✓ (WCAG AA threshold for non-text: 3:1)
+- Screenshot shows visible focus ring in light theme
+
+**Fix applied:** `sampleCard.scss` – added `body.vscode-light .sample-card:focus-visible { outline-color: #005FB8 }`
+
+---
+
 ## Test Script
 
 `packages/tests/copilot-test/src/sample-app-a11y.test.ts`
