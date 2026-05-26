@@ -60,6 +60,10 @@
 - <What the test asserts>
 - <File(s) or UI state(s) that must be present>
 
+**Pass criteria:**
+- <Measurable assertion 1, e.g. `contrast_ratio >= 4.5`>
+- <Measurable assertion 2, e.g. `aria-label contains "Featured sample"`>
+
 **Test script:**
 `packages/tests/src/<feature-slug>-<task>.test.ts`
 
@@ -86,6 +90,9 @@
 1. …
 
 **Expected result:**
+- …
+
+**Pass criteria:**
 - …
 
 **Test script:**

@@ -44,6 +44,10 @@
 - Link color `#005B9E` on white has contrast ≈ 7.6:1 ✓
 - WCAG AA threshold: 4.5:1
 
+**Pass criteria:**
+- `contrast_ratio(linkColor, backgroundColor) >= 4.5`
+- At least one `.ms-Link` element found in the webview
+
 **Fix applied:** `SampleGallery.scss` – added `body.vscode-light .sample-gallery .ms-Link { color: #005B9E }`
 
 ---
@@ -63,6 +67,10 @@
 **Expected result:**
 - Featured cards: `aria-label="Featured sample. <Title>. Tags: <tag1>, <tag2>"`
 - Non-featured cards: `aria-label="<Title>. Tags: <tag1>, <tag2>"`
+
+**Pass criteria:**
+- At least one featured card found with `aria-label` starting with `"Featured sample."`
+- At least one non-featured card found with `aria-label` NOT starting with `"Featured sample."`
 
 **Fix applied:** `sampleCard.tsx` + `sampleListItem.tsx` – aria-label includes "Featured sample." prefix when `featured={true}`
 
@@ -84,6 +92,10 @@
 - `#7A5C00` on `#F8F8F8`: contrast ≈ 4.9:1 ✓
 - WCAG AA non-text threshold: 3:1
 
+**Pass criteria:**
+- `contrast_ratio("#7A5C00", "#FFFFFF") >= 3.0`
+- At least one `.featured-badge` element found in the webview
+
 **Fix applied:** `SampleGallery.scss` + `sampleCard.scss` – featured badge/star use `#7A5C00` in light theme
 
 ---
@@ -101,6 +113,9 @@
 **Expected result:**
 - `aria-label="<Title>. Tags: <tag1>, <tag2>, <tag3>"`
 - Screen reader announces tags when card receives focus
+
+**Pass criteria:**
+- Every sample card's `aria-label` contains `". Tags:"` followed by at least one tag name
 
 **Fix applied:** `sampleCard.tsx` + `sampleListItem.tsx` – aria-label always includes `. Tags: <tags>`
 
@@ -122,6 +137,10 @@
 - Active toggle: `aria-pressed="true"`
 - Inactive toggle: `aria-pressed="false"`
 - WCAG SC 4.1.2: Name, Role, Value
+
+**Pass criteria:**
+- Gallery button initially has `aria-pressed="true"`, List button has `aria-pressed="false"`
+- After clicking List button: List button has `aria-pressed="true"`, Gallery button has `aria-pressed="false"`
 
 **Fix applied:** `sampleFilter.tsx` – added `aria-pressed={this.props.layout === "grid/list"}` to VSCodeButton toggles, also fixed "gallary" typo in aria-label to "Gallery"
 
@@ -145,6 +164,10 @@
 - Focused card has a clearly visible dark-blue focus ring (`#005FB8`)
 - `#005FB8` on white background = contrast ratio ≈ 5.77:1 ✓ (WCAG AA threshold for non-text: 3:1)
 - Screenshot shows visible focus ring in light theme
+
+**Pass criteria:**
+- CSS rule `body.vscode-light .sample-card:focus-visible { outline-color: #005FB8 }` exists in computed styles
+- `contrast_ratio("#005FB8", "#FFFFFF") >= 3.0`
 
 **Fix applied:** `sampleCard.scss` – added `body.vscode-light .sample-card:focus-visible { outline-color: #005FB8 }`
 
