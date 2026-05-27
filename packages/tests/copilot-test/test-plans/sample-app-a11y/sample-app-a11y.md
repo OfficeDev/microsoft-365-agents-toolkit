@@ -309,25 +309,26 @@ All contrast checks use the **WCAG relative luminance formula** (IEC 61966-2-1 s
 3. Open Command Palette (`Ctrl+Shift+P`) and run `Microsoft 365 Agents Toolkit: View Samples`. Observe the Sample Gallery opens in Gallery (Grid) view.
 4. Click the **List** view toggle button to switch to List layout. Observe the layout changes to a vertical list of items.
 5. Click inside the Sample Gallery webview area to give it keyboard focus.
-6. Press **Tab** to move keyboard focus to the first `.sample-list-item`. Observe the dark-blue focus ring appears around the list item.
+6. Press **Tab** to move keyboard focus to the first `.sample-list-item`. Observe the focus ring appears around the list item.
 7. Take screenshot **immediately after Tab** so the focus ring is clearly visible.
 8. Read `getComputedStyle(listItem).outlineColor` from the focused list item.
-9. Read the list item background color.
-10. Compute `contrast_ratio(outline_color, list_item_background)` using the WCAG relative luminance formula.
+9. Read the effective background color of the list item by walking up the DOM until a non-transparent `backgroundColor` is found. For items inside `.featured-sample-section` this will be `rgb(60, 139, 197)` (`#3C8BC5`); for items in the normal section it will be `rgb(255, 255, 255)` (`#FFFFFF`).
+10. Compute `contrast_ratio(outline_color, effective_background)` using the WCAG relative luminance formula.
 
 **Expected result:**
-- Focused list item has a dark-blue focus ring (`#005FB8`)
-- Computed contrast ratio ≥ 3.0
+- Items inside `.featured-sample-section`: white focus ring (`#FFFFFF`, ~3.7:1 against `#3C8BC5` blue background).
+- Items in the normal section: dark-blue focus ring (`#005FB8`, ~10:1 against white background).
+- Computed contrast ratio ≥ 3.0 in both cases.
 
 **Pass criteria:**
-- `contrast_ratio(outline_color, list_item_bg) >= 3.0`
-- `detail` field includes the computed ratio
+- `contrast_ratio(outline_color, effective_background) >= 3.0`
+- `detail` field includes the computed ratio, the outline color, and the resolved background color
 
 **Screenshots produced by test:**
 
-| ID  | Filename                        | What is visible                                          | Pass condition                                         | Why                                                                 |
-|-----|---------------------------------|----------------------------------------------------------|--------------------------------------------------------|---------------------------------------------------------------------|
-| 10  | `10-tc006b-list-focus.png`      | List view with first list item focused, focus ring shown | Dark-blue outline clearly surrounds the focused item   | Proves keyboard focus indicator in list view meets WCAG AA (≥3:1)  |
+| ID  | Filename                        | What is visible                                                         | Pass condition                                             | Why                                                                              |
+|-----|---------------------------------|-------------------------------------------------------------------------|------------------------------------------------------------|----------------------------------------------------------------------------------|
+| 10  | `10-tc006b-list-focus.png`      | List view with first list item (in featured section) focused            | White outline clearly surrounds the item on blue background | Proves focus ring is visible against featured section blue background (≥3:1)    |
 
 ---
 
@@ -342,7 +343,11 @@ All contrast checks use the **WCAG relative luminance formula** (IEC 61966-2-1 s
 - All contrast calculations use the WCAG relative luminance formula (IEC 61966-2-1 sRGB, not a simple color blacklist).
 - For TC-001a/b: the link must be **focused** (`element.focus()`) before reading computed color — the `:focus` CSS rule changes the link color to `#004480` in Light theme (≥7:1 contrast). Dark theme uses `--vscode-textLink-foreground` (typically `#4FC1FF`, ~8:1 on `#1E1E1E`).
 - For TC-004a/b: WCAG 1.4.11 (Non-text Contrast) applies to visual state differentiation. The fixed featured section background is `#3C8BC5` in Light (~3.7:1 vs white) and `#4A7AA0` in Dark (~3.6:1 vs `#1E1E1E`). TC-004 tests the **section container backgrounds** (`.featured-sample-section` vs `.sample-section`), NOT the badge element.
-- For TC-006a/b: `element.focus()` triggers `:focus-visible` styles in VSCode webview. The light-theme override sets `outline-color: #005FB8` (~10:1 against white) on both `.sample-card` and `.sample-list-item`. The screenshot step must immediately follow focus so the ring is still visible.
+- For TC-006a/b: `element.focus()` triggers `:focus-visible` styles in VSCode webview. In the light theme:
+  - `.sample-card:focus-visible` uses `outline-color: #005FB8` (~10:1 against white card background).
+  - `.sample-list-item:focus-visible` uses `outline: 2px solid #005FB8` (~10:1 against white, normal section).
+  - `.featured-sample-section .sample-list-item:focus-visible` uses `outline: 2px solid #ffffff` (~3.7:1 against `#3C8BC5` blue featured section background). This more-specific rule overrides the general list-item rule when the item is inside the featured section.
+  - The screenshot step must immediately follow focus so the ring is still visible.
 - `aria-pressed` on `<vscode-button>` is forwarded to the inner `<button>` element by the FAST foundation runtime.
 - TC-002, TC-003, TC-005: these attributes are set inline in the React render path and are accessible without CDP frame evaluation.
 - **Why extension activated steps were failing in previous runs**: The test harness was not installing the extension VSIX before running, so `Ctrl+Shift+P → View Samples` returned "command not found". The fix is to install the built VSIX at the start of each TC (Step 2 — click ATK Activity Bar icon validates activation).
