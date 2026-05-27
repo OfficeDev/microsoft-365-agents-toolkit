@@ -114,6 +114,8 @@ Follow the format in `packages/tests/copilot-test/test-plans/template.md`.
 - Steps must describe real user interactions: click, type, navigate, observe
 - Each step must have a clear expected outcome
 - Do NOT write "check that CSS rule exists" — write "click button, observe state change"
+- **VS Code state setup belongs in Steps, not just Preconditions.** The generator only implements Steps. If a test requires a specific VS Code theme (e.g., Light 2026 / Default Light Modern) or any other VS Code setting, add an explicit first Step such as: `Step 1: Set VS Code color theme to "Default Light Modern" via workspace settings.` Do NOT rely on Preconditions alone for state that must be programmatically set by the test.
+- **Focus state must be established via a Step.** If a test requires an element to be focused (e.g., to check focus indicator contrast), add an explicit Step such as: `Step N: Focus the target element using keyboard Tab navigation or programmatic focus.` The screenshot Step must immediately follow so focus is still active when captured.
 
 ---
 
