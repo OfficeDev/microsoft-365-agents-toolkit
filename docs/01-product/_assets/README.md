@@ -2,7 +2,7 @@
 
 > **AI agents: do not read this folder.** Everything under `docs/01-product/_assets/` is presentation-only static rendering for the human-facing product review and scenario review HTML pages — stylesheets, JavaScript custom elements, sidebar TOC, SVG icons, the Markdown/Mermaid preview tool. It contains no product behavior, no requirements, no acceptance criteria, and no design intent.
 >
-> Product behavior lives in the Markdown files under [`docs/01-product/`](../README.md) (PRDs, scenarios, capabilities) and the specs under [`docs/04-specs/`](../../04-specs/README.md). When scanning the product folder for behavior, contracts, flows, or test inputs, skip this folder entirely.
+> Product behavior lives in the Markdown files under [`docs/01-product/`](../README.md) (PRDs, scenarios, capabilities) and the specs under [`docs/03-specs/`](../../03-specs/README.md). When scanning the product folder for behavior, contracts, flows, or test inputs, skip this folder entirely.
 
 ## Folders
 

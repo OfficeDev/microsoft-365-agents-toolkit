@@ -9,8 +9,8 @@ written to make those tests green.
 ```
 PRD (docs/01-product/prd/)
   └─ Scenario (docs/01-product/scenarios/)
-      └─ Domain Spec (docs/04-specs/domains/<nn>-<domain>.md)
-          └─ Operation Spec (docs/04-specs/operations/<domain>/<operation>.md)
+      └─ Domain Spec (docs/03-specs/domains/<nn>-<domain>.md)
+          └─ Operation Spec (docs/03-specs/operations/<domain>/<operation>.md)
               └─ Acceptance Criteria table   ← tests are derived from this table
                   └─ Tests (1:1 with AC rows, name carries AC-ID)
                       └─ Code (implementation makes failing tests green)

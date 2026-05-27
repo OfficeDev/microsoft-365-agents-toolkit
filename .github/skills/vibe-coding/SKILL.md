@@ -24,12 +24,12 @@ This skill inherits the **Global behavioral principles** in [`.github/copilot-in
 
 ## What this skill enforces
 
-Structural rules live in [`docs/02-architecture/`](../../../docs/02-architecture/README.md) (and any ADRs there). Behavioral contracts live in [`docs/04-specs/`](../../../docs/04-specs/README.md). The workflow below ties them to per-PR discipline.
+Structural rules live in [`docs/02-architecture/`](../../../docs/02-architecture/README.md) (and any ADRs there). Behavioral contracts live in [`docs/03-specs/`](../../../docs/03-specs/README.md). The workflow below ties them to per-PR discipline.
 
 The non-negotiable gates per PR:
 
 1. **Requirements first** — start from a GitHub Issue, ADO Work Item, chat request, or [`prd-ux-design`](../prd-ux-design/SKILL.md) handoff; confirm approved PRD + scenario artifacts exist before specs. If PRD or scenario work is needed, complete `prd-ux-design` first.
-2. **Spec first after requirements are clear** — Operation Spec / Domain Spec / ADR / data-model entity in [`docs/04-specs/`](../../../docs/04-specs/README.md) written or located **before** any code is touched.
+2. **Spec first after requirements are clear** — Operation Spec / Domain Spec / ADR / data-model entity in [`docs/03-specs/`](../../../docs/03-specs/README.md) written or located **before** any code is touched.
 3. **Tests next** — every required test is derived 1:1 from the spec's `## Acceptance Criteria` table and includes the AC ID in its name (`it("AC-01: ...")`). Each AC row is tagged with its tier (L1 / L2 / L3); L2 CLI E2E and L3 VS Code UI tests are documented but not hard PR gates yet.
 4. **Architectural and per-package rules followed** — implementation respects the ADRs in [`docs/02-architecture/`](../../../docs/02-architecture/README.md) and the matching files under [`.github/instructions/`](../../instructions/) for every path touched. Specifics (composition pattern, error model, input validation, registries, context propagation) live in those documents, not in this skill.
 5. **New Template added to the template registry has a scaffold integration test**; CLI E2E coverage is documented as L2 but not a hard PR gate yet.
@@ -46,8 +46,8 @@ A PR that bypasses any of these is rejected — by CI or by review.
 Start from a GitHub Issue, ADO Work Item, or chat request.
 
 1. **Classify**: `feature` / `bug` / `chore`.
-2. **Identify owner and domain**: find the human owner and which capability domain this touches (see [`docs/04-specs/`](../../../docs/04-specs/README.md) for the domain layer).
-3. **Read product context**: PRD pages in `docs/01-product/prd/`, scenario flows in [`docs/01-product/scenarios/`](../../../docs/01-product/scenarios/README.md), and architecture / infrastructure constraints under [`docs/02-architecture/`](../../../docs/02-architecture/README.md) and [`docs/03-infrastructure/`](../../../docs/03-infrastructure/README.md).
+2. **Identify owner and domain**: find the human owner and which capability domain this touches (see [`docs/03-specs/`](../../../docs/03-specs/README.md) for the domain layer).
+3. **Read product context**: PRD pages in `docs/01-product/prd/`, scenario flows in [`docs/01-product/scenarios/`](../../../docs/01-product/scenarios/README.md), and architecture constraints under [`docs/02-architecture/`](../../../docs/02-architecture/README.md) (including external-dependency fact pages under [`docs/02-architecture/external-dependencies/`](../../../docs/02-architecture/external-dependencies/README.md)).
 4. **Check approval state**: if PRD or scenario artifacts are missing, ambiguous, or materially changing, stop and use [`prd-ux-design`](../prd-ux-design/SKILL.md). Continue here only with approved PRD + scenario artifacts or an explicit note that no PRD/scenario change is needed.
 5. **Summarize requirement input**: cite the approved PRD + scenario artifacts or the no-change decision before moving to specs.
 
@@ -71,20 +71,20 @@ If the PRD or scenario change is material and not already approved, stop and han
 
 For any non-trivial change, locate or write the spec **after requirements are clear and before writing tests or code**. Specs are the authoritative behavioral contracts that tests are derived from.
 
-**Start here:** [`docs/04-specs/README.md`](../../../docs/04-specs/README.md) — defines the layer hierarchy (PRD → Scenario → Domain Spec → Operation Spec → Tests → Code) and spec formats.
+**Start here:** [`docs/03-specs/README.md`](../../../docs/03-specs/README.md) — defines the layer hierarchy (PRD → Scenario → Domain Spec → Operation Spec → Tests → Code) and spec formats.
 
 #### Spec location
 
 | Change kind | Where the spec lives |
 |-------------|---------------------|
-| New / changed Operation, driver, or lifecycle stage | `docs/04-specs/operations/<domain>/<operation>.md` (see [`docs/04-specs/`](../../../docs/04-specs/README.md)) |
-| New Domain or domain boundary change | `docs/04-specs/domains/<nn>-<domain>.md` (see [`docs/04-specs/`](../../../docs/04-specs/README.md)) |
+| New / changed Operation, driver, or lifecycle stage | `docs/03-specs/operations/<domain>/<operation>.md` (see [`docs/03-specs/`](../../../docs/03-specs/README.md)) |
+| New Domain or domain boundary change | `docs/03-specs/domains/<nn>-<domain>.md` (see [`docs/03-specs/`](../../../docs/03-specs/README.md)) |
 | Architectural decision | New ADR under [`docs/02-architecture/`](../../../docs/02-architecture/README.md) (see that folder for the ADR convention) |
-| New / changed data contract or entity | `docs/04-specs/data-model/entities/` (see [`docs/04-specs/`](../../../docs/04-specs/README.md)) |
+| New / changed data contract or entity | `docs/03-specs/data-model/entities/` (see [`docs/03-specs/`](../../../docs/03-specs/README.md)) |
 | New CLI surface, command group, flow | Scenario under [`docs/01-product/scenarios/`](../../../docs/01-product/scenarios/README.md); confirm via [`prd-ux-design`](../prd-ux-design/SKILL.md) |
 | New Template (any kind) | `.dev/templates.json` (machine registry, when present) |
 
-> Terminology: **Capability** (PM word) and **Domain** (engineering word) refer to the same concept; **Operation** is an atomic engine action belonging to a Domain; **Template** composes Operations into a shippable starting point. See [`docs/04-specs/README.md`](../../../docs/04-specs/README.md) for the full glossary.
+> Terminology: **Capability** (PM word) and **Domain** (engineering word) refer to the same concept; **Operation** is an atomic engine action belonging to a Domain; **Template** composes Operations into a shippable starting point. See [`docs/03-specs/README.md`](../../../docs/03-specs/README.md) for the full glossary.
 
 #### What a spec must contain before any test or code is written
 
@@ -230,7 +230,7 @@ PR description must reference the design page or ADR.
 
 CODEOWNERS will auto-assign reviewers. Reviewers will check:
 
-- ✅ Spec exists in `docs/04-specs/` and is referenced in the PR.
+- ✅ Spec exists in `docs/03-specs/` and is referenced in the PR.
 - ✅ Tests carry AC IDs and trace 1:1 to AC rows.
 - ✅ Integration test exists for any new engine action with side effects (operation, driver, lifecycle stage).
 - ✅ Scaffold integration test for any new template registered in the template registry; L2 E2E scenario documented when applicable.
@@ -265,5 +265,4 @@ CODEOWNERS will auto-assign reviewers. Reviewers will check:
 
 - [`prd-ux-design` skill](../prd-ux-design/SKILL.md) — PRD and scenario design that precedes this workflow
 - [`docs/02-architecture/`](../../../docs/02-architecture/README.md) — architecture scope and ADRs
-- [`docs/03-infrastructure/`](../../../docs/03-infrastructure/README.md) — provisioning / deployment patterns
-- [`docs/04-specs/`](../../../docs/04-specs/README.md) — spec layer hierarchy, glossary, required sections
+- [`docs/03-specs/`](../../../docs/03-specs/README.md) — spec layer hierarchy, glossary, required sections

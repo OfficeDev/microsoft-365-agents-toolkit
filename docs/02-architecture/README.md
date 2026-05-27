@@ -7,11 +7,13 @@ folder answers a single question:
 > into, and what cross-cutting contracts does it have to honor?"*
 
 Architecture is engine-internal: it describes the toolkit's own codebase. The
-runtime substrate the toolkit deploys *to* lives in
-[`docs/03-infrastructure/`](../03-infrastructure/README.md). Business behavior —
-what a feature does from the user's point of view — lives in
-[`docs/01-product/`](../01-product/README.md) and is contracted in
-[`docs/04-specs/`](../04-specs/README.md).
+external substrate it binds to (identity, service endpoints, registered app
+metadata) is captured as fact pages under
+[`external-dependencies/`](external-dependencies/README.md) — those facts feed
+*into* architecture decisions but are not themselves architectural choices.
+Business behavior — what a feature does from the user's point of view — lives
+in [`docs/01-product/`](../01-product/README.md) and is contracted in
+[`docs/03-specs/`](../03-specs/README.md).
 
 ## What lives here
 
@@ -32,10 +34,17 @@ constraint in this folder should be traceable to an ADR that explains *why*.
 
 ## What does NOT live here
 
-- Per-feature behavior, AC tables, operation specs, data-model entities → [`docs/04-specs/`](../04-specs/README.md).
-- Provisioning / deployment / runtime topology → [`docs/03-infrastructure/`](../03-infrastructure/README.md).
-- Product intent, scenarios, surface UX → [`docs/01-product/`](../01-product/README.md).
-- Per-package coding conventions (file headers, lint rules, naming) → [`.github/instructions/`](../../.github/instructions/).
+- Per-feature behavior, AC tables, operation specs, data-model entities — [`docs/03-specs/`](../03-specs/README.md).
+- Product intent, scenarios, surface UX — [`docs/01-product/`](../01-product/README.md).
+- Per-package coding conventions (file headers, lint rules, naming) — [`.github/instructions/`](../../.github/instructions/).
+
+## Subfolders
+
+- [`adr/`](adr/README.md) — numbered, dated, immutable architectural decisions.
+- [`external-dependencies/`](external-dependencies/README.md) — fact pages for the
+  external substrate the toolkit binds to (first-party AAD app, broker,
+  sovereign clouds, service endpoints). Inputs to architecture decisions, not
+  decisions themselves.
 
 ## Conventions
 
@@ -49,6 +58,8 @@ constraint in this folder should be traceable to an ADR that explains *why*.
 
 ## Status
 
-This folder is being populated. Until subpages exist, individual ADRs are the
-authoritative source as they land; where no ADR exists yet, the corresponding
-decision is treated as open.
+ADRs live under [`adr/`](adr/README.md). Open backlog items (status
+`Proposed`) are seeded from open questions on
+[`external-dependencies/`](external-dependencies/README.md) fact pages.
+This folder is otherwise being populated; until topic subpages exist,
+individual ADRs are the authoritative source as they land.
