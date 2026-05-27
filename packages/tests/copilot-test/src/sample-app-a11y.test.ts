@@ -5,7 +5,7 @@
  * TC-001:  Link text color contrast >= 4.5:1 when focused (Light theme)
  * TC-002:  Gallery/List toggle buttons aria-pressed state before and after click
  * TC-003:  Sample card accessible names include tags on keyboard focus
- * TC-004:  Featured badge non-text contrast >= 3:1 (WCAG 1.4.11)
+ * TC-004:  Featured section background contrast >= 3:1 against non-featured section background (WCAG 1.4.11)
  * TC-005:  Screen reader differentiates Featured from non-Featured cards
  * TC-006a: Focus ring contrast >= 3:1 in Gallery view (Light theme)
  * TC-006b: Focus ring contrast >= 3:1 in List view (Light theme)
@@ -765,69 +765,83 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
   });
 
   // ─────────────────────────────────────────────────────────────────────────────
-  // TC-004 — Featured badge non-text contrast >= 3:1 (WCAG 1.4.11)
+  // TC-004 — Featured section background contrast >= 3:1 against non-featured section background
+  //          (WCAG 1.4.11 Non-text Contrast)
   //
   // Steps per test plan:
   //   1. Set VS Code color theme to "Default Light Modern"
   //   2. Click ATK Activity Bar icon
-  //   3. Open gallery — featured cards visible with gold "Featured" badge
-  //   4. Screenshot 07 (featured and non-featured cards side by side)
-  //   5. Read getComputedStyle(badge).backgroundColor from .featured-badge
-  //   6. Read card background from parent .sample-card
-  //   7. Compute contrast_ratio(badge_bg, card_bg) using WCAG relative luminance
+  //   3. Open gallery — gallery shows both featured and non-featured sections
+  //   4. Screenshot 07 (featured and non-featured sections side by side)
+  //   5. Read effective background color of .featured-sample-section container
+  //   6. Read effective background color of the non-featured section container
+  //   7. Compute contrast_ratio(featured_section_bg, non_featured_section_bg)
   // ─────────────────────────────────────────────────────────────────────────────
-  test("TC-004: Featured badge non-text contrast >= 3:1 (WCAG 1.4.11)", async () => {
+  test("TC-004: Featured section background contrast >= 3:1 (WCAG 1.4.11)", async () => {
     // Steps 1-3: set Light theme + click ATK Activity Bar + open gallery
     const galleryOpened = await setupTcGallery("TC-004");
 
     if (!galleryOpened) {
-      takeScreenshot("07-tc004-featured-badge");
+      takeScreenshot("07-tc004-section-contrast");
       step(
-        "TC-004 Featured badge contrast >= 3:1",
+        "TC-004 Featured section bg contrast >= 3:1",
         false,
         "FAIL: Gallery webview not open after setup.",
       );
       return;
     }
 
-    // Steps 5-7: Read badge bg and card bg, compute WCAG contrast ratio
+    // Step 4: Screenshot showing both featured and non-featured sections side by side
+    takeScreenshot("07-tc004-section-contrast");
+
+    // Steps 5-7: Read featured section bg and non-featured section bg, compute WCAG contrast ratio
     const evalScript =
       "(function(){" +
       WCAG_HELPER_JS +
-      "  var badge=document.querySelector('.featured-badge');" +
-      "  if(!badge){" +
-      "    var fSec=document.querySelector('.featured-sample-section');" +
-      "    return JSON.stringify({error:'no-badge',hasFeaturedSection:!!fSec});" +
+      // Find the featured section container
+      "  var featSec=document.querySelector('.featured-sample-section');" +
+      "  if(!featSec){" +
+      "    return JSON.stringify({error:'no-featured-section'});" +
       "  }" +
-      "  var badgeCs=getComputedStyle(badge);" +
-      "  var badgeBgRaw=badgeCs.backgroundColor;" +
-      "  var card=badge.closest('.sample-card')||badge.parentElement;" +
-      "  var cardBg=card?effectiveBg(card):[255,255,255];" +
-      "  var badgeBgRgb=parseRgb(badgeBgRaw);" +
-      "  if(!badgeBgRgb) return JSON.stringify({error:'parse-badge-bg',badgeBgRaw:badgeBgRaw});" +
-      "  var badgeL=relativeLuminance(badgeBgRgb[0],badgeBgRgb[1],badgeBgRgb[2]);" +
-      "  var cardL=relativeLuminance(cardBg[0],cardBg[1],cardBg[2]);" +
-      "  var ratio=contrastRatio(badgeL,cardL);" +
+      // Find the non-featured section: any section-level container that is NOT .featured-sample-section
+      // Try siblings first, then fall back to a generic section selector
+      "  var nonFeatSec=null;" +
+      "  var sibling=featSec.nextElementSibling||featSec.previousElementSibling;" +
+      "  if(sibling){nonFeatSec=sibling;}" +
+      "  if(!nonFeatSec){" +
+      "    var allSections=document.querySelectorAll('.sample-section,.samples-section,section,[class*=\"section\"]');" +
+      "    for(var i=0;i<allSections.length;i++){" +
+      "      if(allSections[i]!==featSec&&!featSec.contains(allSections[i])&&!allSections[i].contains(featSec)){" +
+      "        nonFeatSec=allSections[i];break;" +
+      "      }" +
+      "    }" +
+      "  }" +
+      "  if(!nonFeatSec){" +
+      "    return JSON.stringify({error:'no-non-featured-section'});" +
+      "  }" +
+      // Read effective background colors via DOM traversal
+      "  var featBgArr=effectiveBg(featSec);" +
+      "  var nonFeatBgArr=effectiveBg(nonFeatSec);" +
+      "  var featL=relativeLuminance(featBgArr[0],featBgArr[1],featBgArr[2]);" +
+      "  var nonFeatL=relativeLuminance(nonFeatBgArr[0],nonFeatBgArr[1],nonFeatBgArr[2]);" +
+      "  var ratio=contrastRatio(featL,nonFeatL);" +
       "  return JSON.stringify({" +
-      "    badgeBgRaw:badgeBgRaw," +
-      "    cardBgRgb:'rgb('+cardBg[0]+','+cardBg[1]+','+cardBg[2]+')'," +
+      "    featuredSectionBg:'rgb('+featBgArr[0]+','+featBgArr[1]+','+featBgArr[2]+')'," +
+      "    nonFeaturedSectionBg:'rgb('+nonFeatBgArr[0]+','+nonFeatBgArr[1]+','+nonFeatBgArr[2]+')'," +
       "    ratio:Math.round(ratio*100)/100," +
       "    passes:ratio>=3.0" +
       "  });" +
       "})()";
 
-    const rawResult = sendEvalSignal(evalScript, 8000);
+    const rawResult = sendEvalSignal(evalScript, 10000);
     console.log(
       "  TC-004 eval result:",
-      rawResult ? rawResult.slice(0, 200) : "(empty)",
+      rawResult ? rawResult.slice(0, 300) : "(empty)",
     );
-
-    // Step 4: Screenshot showing both featured and non-featured cards side by side
-    takeScreenshot("07-tc004-featured-badge");
 
     if (!rawResult || rawResult.startsWith("ERROR:")) {
       step(
-        "TC-004 Featured badge contrast >= 3:1",
+        "TC-004 Featured section bg contrast >= 3:1",
         false,
         "FAIL: DOM eval error.",
       );
@@ -840,32 +854,41 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
     } catch {}
     if (!data) {
       step(
-        "TC-004 Featured badge contrast >= 3:1",
+        "TC-004 Featured section bg contrast >= 3:1",
         false,
         `FAIL: Parse error: ${rawResult.slice(0, 100)}`,
       );
       return;
     }
-    if (data.error === "no-badge") {
+    if (data.error === "no-featured-section") {
       step(
-        "TC-004 Featured badge contrast >= 3:1",
+        "TC-004 Featured section bg contrast >= 3:1",
         false,
-        `FAIL: No .featured-badge element found. hasFeaturedSection=${data.hasFeaturedSection}`,
+        "FAIL: No .featured-sample-section element found in the gallery DOM.",
+      );
+      return;
+    }
+    if (data.error === "no-non-featured-section") {
+      step(
+        "TC-004 Featured section bg contrast >= 3:1",
+        false,
+        "FAIL: Could not find a non-featured section container to compare against.",
       );
       return;
     }
     if (data.error) {
       step(
-        "TC-004 Featured badge contrast >= 3:1",
+        "TC-004 Featured section bg contrast >= 3:1",
         false,
-        `FAIL: ${data.error} badgeBgRaw=${data.badgeBgRaw || "?"}`,
+        `FAIL: ${data.error}`,
       );
       return;
     }
 
     const detail =
-      `Computed ratio=${data.ratio}:1; badge bg=${data.badgeBgRaw}; card bg=${data.cardBgRgb}`;
-    step("TC-004 Featured badge contrast >= 3:1", !!data.passes, detail);
+      `Computed ratio=${data.ratio}:1; featured section bg=${data.featuredSectionBg}; ` +
+      `non-featured section bg=${data.nonFeaturedSectionBg}`;
+    step("TC-004 Featured section bg contrast >= 3:1", !!data.passes, detail);
   });
 
   // ─────────────────────────────────────────────────────────────────────────────
