@@ -17,7 +17,7 @@ records what the world outside the engine forces us to honor.
 | Client ID | `7ea7c24c-b1f6-4a20-9d11-9ae12e9e7ac0` | Used by **both** VS Code and CLI surfaces for M365 user login. Public client (no secret). |
 | Authority (public) | `https://login.microsoftonline.com/common` | |
 | Authority (GCC H / DoD) | `https://login.microsoftonline.us/common` | Applies in sovereign-high environments (see §1.5). |
-| Reply URLs registered on the app | `ms-appx-web://Microsoft.AAD.BrokerPlugin/7ea7c24c-b1f6-4a20-9d11-9ae12e9e7ac0`, `https://vscode.dev/redirect`, `http://localhost`, `http://localhost:8400` | Closed set on the AAD side. The toolkit picks one per flow (see §1.4). |
+| Reply URLs registered on the app | `ms-appx-web://Microsoft.AAD.BrokerPlugin/7ea7c24c-b1f6-4a20-9d11-9ae12e9e7ac0`, `https://vscode.dev/redirect`, `http://localhost`, `http://localhost:8400` | Closed set on the AAD side. The toolkit code today uses the first three (see §1.4); `http://localhost:8400` is registered for out-of-band use and is not referenced by this codebase. |
 
 ### 1.2 Auth libraries
 
@@ -42,12 +42,11 @@ records what the world outside the engine forces us to honor.
 
 ### 1.4 Redirect / reply URIs per flow
 
-| Flow | Redirect URI |
+| Flow | Redirect URI used at runtime |
 |---|---|
-| Native broker (WAM, Windows) | `ms-appx-web://Microsoft.AAD.BrokerPlugin/7ea7c24c-b1f6-4a20-9d11-9ae12e9e7ac0` |
-| VS Code web (vscode.dev) | `https://vscode.dev/redirect` |
-| Local browser code flow — loopback wildcard | `http://localhost` (AAD's loopback rule accepts any port for public clients) |
-| Local browser code flow — fixed port | `http://localhost:8400` |
+| Native broker (WAM, Windows) | `ms-appx-web://Microsoft.AAD.BrokerPlugin/7ea7c24c-b1f6-4a20-9d11-9ae12e9e7ac0` (constructed by MSAL's `NativeBrokerPlugin`) |
+| VS Code web (vscode.dev / Codespaces) | `https://vscode.dev/redirect` |
+| Local browser code flow (CLI + VS Code desktop) | `http://localhost:<port>` where `<port>` is chosen by the OS (the local Express server is started with `SERVER_PORT = 0`); matched on the AAD side by the loopback-wildcard registration `http://localhost` |
 
 ### 1.5 Sovereign-cloud endpoint binding
 
@@ -131,8 +130,9 @@ Rules a refactor must honor; each is a direct consequence of §1.
 
 1. **No new AAD client ID without coordination.** The `7ea7c24c-…` first-party
    app is the only client ID approved for M365 user login from this codebase.
-2. **No new reply URI without coordination.** The four reply-URI shapes in
-   §1.4 are the closed set. New flows must reuse one of them.
+2. **No new reply URI without coordination.** The closed set is what is
+   registered on the AAD app (§1.1). Any new flow must reuse one of those
+   registered URIs.
 3. **Sovereign-aware URL resolution is mandatory.** Any code that talks to
    AuthSvc, TDP, MOS3, Graph, Azure ARM, or TeamsGraph must resolve the host
    per the current sovereign environment (§1.5). Inline hosts are forbidden.
