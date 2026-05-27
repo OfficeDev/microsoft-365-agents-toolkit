@@ -95,8 +95,8 @@ jobs:
       - id: generate-token
         uses: actions/create-github-app-token@v2
         with:
-          app-id: ${{ vars.APP_GITHUB_APP_ID }}
-          private-key: ${{ secrets.APP_GITHUB_APP_PRIVATE_KEY }}
+          app-id: ${{ vars.ATK_GITHUB_APP_ID }}
+          private-key: ${{ secrets.ATK_GITHUB_APP_PRIVATE_KEY }}
 
       - name: Checkout branch
         uses: actions/checkout@v3
