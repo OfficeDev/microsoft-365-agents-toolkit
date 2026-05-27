@@ -166,7 +166,7 @@ const WCAG_HELPER_JS =
   "  var m=str.match(/rgba?\\((\\d+),\\s*(\\d+),\\s*(\\d+)/);" +
   "  return m?[parseInt(m[1]),parseInt(m[2]),parseInt(m[3])]:null;" +
   "}" +
-  "function effectiveBg(el){" +
+  "function effectiveBg(el,theme){" +
   "  var node=el;" +
   "  while(node){" +
   "    var cs=getComputedStyle(node);" +
@@ -177,7 +177,10 @@ const WCAG_HELPER_JS =
   "    }" +
   "    node=node.parentElement;" +
   "  }" +
-  "  return [255,255,255];" +
+  "  var bodyBg=getComputedStyle(document.body).backgroundColor;" +
+  "  var bm=bodyBg&&bodyBg.match(/rgba?\\((\\d+),\\s*(\\d+),\\s*(\\d+)/);" +
+  "  if(bm)return[parseInt(bm[1]),parseInt(bm[2]),parseInt(bm[3])];" +
+  "  return theme==='dark'?[30,30,30]:[255,255,255];" +
   "}";
 
 /**
@@ -422,7 +425,7 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
       "  var cs=getComputedStyle(link);" +
       "  var fgRaw=cs.color;" +
       "  var fg=parseRgb(fgRaw);" +
-      "  var bg=effectiveBg(link);" +
+      "  var bg=effectiveBg(link,'light');" +
       "  if(!fg) return JSON.stringify({error:'parse-fg',fgRaw:fgRaw});" +
       "  var fgL=relativeLuminance(fg[0],fg[1],fg[2]);" +
       "  var bgL=relativeLuminance(bg[0],bg[1],bg[2]);" +
@@ -533,7 +536,7 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
       "  var cs=getComputedStyle(link);" +
       "  var fgRaw=cs.color;" +
       "  var fg=parseRgb(fgRaw);" +
-      "  var bg=effectiveBg(link);" +
+      "  var bg=effectiveBg(link,'dark');" +
       "  if(!fg) return JSON.stringify({error:'parse-fg',fgRaw:fgRaw});" +
       "  var fgL=relativeLuminance(fg[0],fg[1],fg[2]);" +
       "  var bgL=relativeLuminance(bg[0],bg[1],bg[2]);" +
@@ -937,9 +940,9 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
       "  if(!nonFeatSec){" +
       "    return JSON.stringify({error:'no-non-featured-section'});" +
       "  }" +
-      // Read effective background colors via DOM traversal
-      "  var featBgArr=effectiveBg(featSec);" +
-      "  var nonFeatBgArr=effectiveBg(nonFeatSec);" +
+      // Read effective background colors via DOM traversal (TC-004a, Light theme)
+      "  var featBgArr=effectiveBg(featSec,'light');" +
+      "  var nonFeatBgArr=effectiveBg(nonFeatSec,'light');" +
       "  var featL=relativeLuminance(featBgArr[0],featBgArr[1],featBgArr[2]);" +
       "  var nonFeatL=relativeLuminance(nonFeatBgArr[0],nonFeatBgArr[1],nonFeatBgArr[2]);" +
       "  var ratio=contrastRatio(featL,nonFeatL);" +
@@ -1067,9 +1070,9 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
       "  if(!nonFeatSec){" +
       "    return JSON.stringify({error:'no-non-featured-section'});" +
       "  }" +
-      // Read effective background colors via DOM traversal
-      "  var featBgArr=effectiveBg(featSec);" +
-      "  var nonFeatBgArr=effectiveBg(nonFeatSec);" +
+      // Read effective background colors via DOM traversal (TC-004b, Dark theme)
+      "  var featBgArr=effectiveBg(featSec,'dark');" +
+      "  var nonFeatBgArr=effectiveBg(nonFeatSec,'dark');" +
       "  var featL=relativeLuminance(featBgArr[0],featBgArr[1],featBgArr[2]);" +
       "  var nonFeatL=relativeLuminance(nonFeatBgArr[0],nonFeatBgArr[1],nonFeatBgArr[2]);" +
       "  var ratio=contrastRatio(featL,nonFeatL);" +
@@ -1301,7 +1304,7 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
       "  var cs=getComputedStyle(card);" +
       "  var outlineRaw=cs.outlineColor;" +
       "  var outlineRgb=parseRgb(outlineRaw);" +
-      "  var bgRgb=effectiveBg(card);" +
+      "  var bgRgb=effectiveBg(card,'light');" +
       "  if(!outlineRgb) return JSON.stringify({error:'parse-outline',outlineRaw:outlineRaw});" +
       "  var outlineL=relativeLuminance(outlineRgb[0],outlineRgb[1],outlineRgb[2]);" +
       "  var bgL=relativeLuminance(bgRgb[0],bgRgb[1],bgRgb[2]);" +
@@ -1463,7 +1466,7 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
       "  var cs=getComputedStyle(item);" +
       "  var outlineRaw=cs.outlineColor;" +
       "  var outlineRgb=parseRgb(outlineRaw);" +
-      "  var bgRgb=effectiveBg(item);" +
+      "  var bgRgb=effectiveBg(item,'light');" +
       "  if(!outlineRgb) return JSON.stringify({error:'parse-outline',outlineRaw:outlineRaw});" +
       "  var outlineL=relativeLuminance(outlineRgb[0],outlineRgb[1],outlineRgb[2]);" +
       "  var bgL=relativeLuminance(bgRgb[0],bgRgb[1],bgRgb[2]);" +
