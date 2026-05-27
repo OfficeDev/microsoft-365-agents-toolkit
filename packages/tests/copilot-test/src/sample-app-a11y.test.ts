@@ -1379,8 +1379,15 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
   //   6. Press Tab to move keyboard focus to the first .sample-list-item
   //   7. Screenshot 10 — IMMEDIATELY after Tab so focus ring is clearly visible
   //   8. Read getComputedStyle(listItem).outlineColor from focused list item
-  //   9. Read list item background color
-  //  10. Compute contrast_ratio(outline_color, list_item_bg) using WCAG relative luminance
+  //   9. Read effective background color by walking up the DOM until a non-transparent
+  //      backgroundColor is found. For items in .featured-sample-section this will be
+  //      rgb(60, 139, 197) (#3C8BC5); for normal section items it will be #FFFFFF.
+  //  10. Compute contrast_ratio(outline_color, effective_background) using WCAG luminance
+  //
+  // Expected:
+  //   - Items inside .featured-sample-section: white focus ring (#FFFFFF, ~3.7:1 vs #3C8BC5)
+  //   - Items in normal section: dark-blue focus ring (#005FB8, ~10:1 vs white)
+  //   - contrast_ratio >= 3.0 in both cases
   // ─────────────────────────────────────────────────────────────────────────────
   test("TC-006b: Focus ring contrast >= 3:1 in List view (Light theme)", async () => {
     // Steps 1-3: set Light theme + click ATK Activity Bar + open gallery
