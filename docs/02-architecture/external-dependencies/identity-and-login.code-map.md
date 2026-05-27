@@ -19,6 +19,5 @@ location in source.
 | §1.5 / §1.6 Endpoint matrix + scope helpers | `packages/fx-core/src/common/constants.ts` |
 | §1.5 / §1.7 Internal-dogfood TDP selector (`APP_STUDIO_ENV=int`) | `packages/fx-core/src/common/constants.ts`, `packages/fx-core/src/types/env.d.ts` |
 | §1.7 TDP region discovery | `packages/fx-core/src/client/teamsDevPortalClient.ts` |
-| §1.8 Pre-authorized M365 host client IDs (`TeamsClientId`, `OfficeClientId`, `OutlookClientId`, `getAllowedAppMaps`) | `packages/fx-core/src/common/constants.ts` |
 | §1.3 Broker feature flag (`TEAMSFX_BROKER_AUTH`, `FeatureFlags.BrokerAuth`) | `packages/fx-core/src/common/featureFlags.ts` |
 | §1.1 / §1.4 Reply-URL identifiers | `packages/vscode-extension/src/commonlib/common/constant.ts` |

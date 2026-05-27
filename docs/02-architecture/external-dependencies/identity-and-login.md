@@ -17,7 +17,7 @@ records what the world outside the engine forces us to honor.
 | Client ID | `7ea7c24c-b1f6-4a20-9d11-9ae12e9e7ac0` | Used by **both** VS Code and CLI surfaces for M365 user login. Public client (no secret). |
 | Authority (public) | `https://login.microsoftonline.com/common` | |
 | Authority (GCC H / DoD) | `https://login.microsoftonline.us/common` | Applies in sovereign-high environments (see §1.5). |
-| Reply URLs registered on the app | `http://localhost:<dynamic>`, `https://vscode.dev/redirect`, `<vscode-uri-scheme>://TeamsDevApp.ms-teams-vscode-extension/auth-complete` | The toolkit picks one per flow; all three must remain registered on the AAD app side. |
+| Reply URLs registered on the app | `ms-appx-web://Microsoft.AAD.BrokerPlugin/7ea7c24c-b1f6-4a20-9d11-9ae12e9e7ac0`, `https://vscode.dev/redirect`, `http://localhost`, `http://localhost:8400` | Closed set on the AAD side. The toolkit picks one per flow (see §1.4). |
 
 ### 1.2 Auth libraries
 
@@ -42,11 +42,12 @@ records what the world outside the engine forces us to honor.
 
 ### 1.4 Redirect / reply URIs per flow
 
-| Flow | Redirect URI shape |
+| Flow | Redirect URI |
 |---|---|
-| Local browser code flow | `http://localhost:<ephemeralPort>` (port `0`, OS-assigned) |
+| Native broker (WAM, Windows) | `ms-appx-web://Microsoft.AAD.BrokerPlugin/7ea7c24c-b1f6-4a20-9d11-9ae12e9e7ac0` |
 | VS Code web (vscode.dev) | `https://vscode.dev/redirect` |
-| GitHub Codespaces / VS Code remote | `<vscode.env.uriScheme>://TeamsDevApp.ms-teams-vscode-extension/auth-complete` |
+| Local browser code flow — loopback wildcard | `http://localhost` (AAD's loopback rule accepts any port for public clients) |
+| Local browser code flow — fixed port | `http://localhost:8400` |
 
 ### 1.5 Sovereign-cloud endpoint binding
 
@@ -119,27 +120,6 @@ URL; when no per-region URL is known, the sovereign-default TDP endpoint from
 Region discovery does **not** apply to the internal-dogfood TDP (§1.5),
 which is a single-region service.
 
-### 1.8 Pre-authorized M365 host application client IDs
-
-First-party Microsoft client IDs the toolkit treats as legitimate M365
-host-app callers. They are written into the developer's AAD app under
-`api.preAuthorizedApplications` so Teams / Office / Outlook can call the
-developer's API without an extra consent prompt. The toolkit does **not** own
-these IDs — they are assigned by the respective Microsoft product teams —
-and must be kept in sync with the upstream list.
-
-| Host | Variant | Client ID |
-|---|---|---|
-| Teams | Mobile / Desktop | `1fec8e78-bce4-4aaf-ab1b-5451cc387264` |
-| Teams | Web | `5e3ce6c0-2b1f-4285-8d4b-75ee78787346` |
-| Office | Desktop | `0ec893e0-5785-4de6-99da-4ed124e5296c` |
-| Office | Web (1) | `4345a7b9-9a63-4910-a426-35363201d503` |
-| Office | Web (2) | `4765445b-32c6-49b0-83e6-1d93765276ca` |
-| Outlook | Desktop | `d3590ed6-52b3-4102-aeff-aad2292ab01c` |
-| Outlook | Web (1) | `00000002-0000-0ff1-ce00-000000000000` |
-| Outlook | Web (2) | `bc59ab01-8403-45c6-8796-ac3ef710b3e3` |
-| Outlook | Mobile | `27922004-5251-4030-b22d-91ecd9a37ea4` |
-
 > **Where these facts live in code today:** see
 > [`identity-and-login.code-map.md`](identity-and-login.code-map.md). The code
 > map is a navigation aid and is expected to churn with refactors; it is not
@@ -151,7 +131,7 @@ Rules a refactor must honor; each is a direct consequence of §1.
 
 1. **No new AAD client ID without coordination.** The `7ea7c24c-…` first-party
    app is the only client ID approved for M365 user login from this codebase.
-2. **No new reply URI without coordination.** The three reply-URI shapes in
+2. **No new reply URI without coordination.** The four reply-URI shapes in
    §1.4 are the closed set. New flows must reuse one of them.
 3. **Sovereign-aware URL resolution is mandatory.** Any code that talks to
    AuthSvc, TDP, MOS3, Graph, Azure ARM, or TeamsGraph must resolve the host
@@ -175,9 +155,6 @@ Rules a refactor must honor; each is a direct consequence of §1.
 9. **Sovereign-high (GCC H / DoD) has no AppStudio scope.** Code that picks
    scopes for the launch / provision path must request the Microsoft Graph
    baseline (§1.6) instead of the TDP-resource scope on these environments.
-10. **Extension ID `TeamsDevApp.ms-teams-vscode-extension` is part of the AAD
-    reply-URL contract.** Renaming the published extension is a breaking
-    change.
 
 ## 3. Open questions (candidates for ADRs)
 
