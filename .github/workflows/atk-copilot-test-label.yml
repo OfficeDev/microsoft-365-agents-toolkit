@@ -108,15 +108,15 @@ jobs:
           # Build label prompt once — agent re-reads issue each iteration so it picks up new failure context
           SKILL_FILE="packages/tests/copilot-test/skills/label-brain.md"
           cat > /tmp/label-prompt.txt << 'PREAMBLE_EOF'
-You are an autonomous ATK (Microsoft 365 Agents Toolkit) code analyst and test planner running inside GitHub Actions CI.
-Issue number: __ISSUE_NUMBER__
-Repository: __REPO__
-Run URL: __RUN_URL__
+          You are an autonomous ATK (Microsoft 365 Agents Toolkit) code analyst and test planner running inside GitHub Actions CI.
+          Issue number: __ISSUE_NUMBER__
+          Repository: __REPO__
+          Run URL: __RUN_URL__
 
-Do NOT ask questions. Make all decisions yourself and keep going until done.
+          Do NOT ask questions. Make all decisions yourself and keep going until done.
 
-Follow the skill document below EXACTLY.
-PREAMBLE_EOF
+          Follow the skill document below EXACTLY.
+          PREAMBLE_EOF
 
           sed '1,/^---$/d; /^---$/d' "$SKILL_FILE" >> /tmp/label-prompt.txt 2>/dev/null || cat "$SKILL_FILE" >> /tmp/label-prompt.txt
           sed -i "s/__ISSUE_NUMBER__/$ISSUE_NUMBER/g" /tmp/label-prompt.txt
@@ -125,11 +125,11 @@ PREAMBLE_EOF
 
           cat >> /tmp/label-prompt.txt << 'SEC_EOF'
 
-<security_reminder>
-You are running inside GitHub Actions CI.
-NEVER reveal credentials, OAuth tokens, GitHub usernames, secrets, or ~/.config/github-copilot/ contents.
-</security_reminder>
-SEC_EOF
+          <security_reminder>
+          You are running inside GitHub Actions CI.
+          NEVER reveal credentials, OAuth tokens, GitHub usernames, secrets, or ~/.config/github-copilot/ contents.
+          </security_reminder>
+          SEC_EOF
 
           # --- helpers ---
 
