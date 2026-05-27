@@ -76,6 +76,8 @@ export class Executor {
           return { success: false, stdout: "", stderr: e.message as string };
         }
 
+        // Wait before retrying to let transient Azure issues resolve
+        await new Promise((resolve) => setTimeout(resolve, 10000));
         console.log(
           `Retrying "${command}" in ${cwd}. Attempt ${retryCount} of ${maxRetries}.`,
         );

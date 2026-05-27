@@ -39,6 +39,7 @@ import * as TeamsManifestV1D24 from "./teams/TeamsManifestV1D24";
 import * as TeamsManifestV1D25 from "./teams/TeamsManifestV1D25";
 import * as TeamsManifestV1D26 from "./teams/TeamsManifestV1D26";
 import * as TeamsManifestV1D27 from "./teams/TeamsManifestV1D27";
+import * as TeamsManifestV1D28 from "./teams/TeamsManifestV1D28";
 import * as TeamsManifestV1D3 from "./teams/TeamsManifestV1D3";
 import * as TeamsManifestV1D4 from "./teams/TeamsManifestV1D4";
 import * as TeamsManifestV1D5 from "./teams/TeamsManifestV1D5";
@@ -79,6 +80,7 @@ export {
   TeamsManifestV1D25,
   TeamsManifestV1D26,
   TeamsManifestV1D27,
+  TeamsManifestV1D28,
   TeamsManifestV1D3,
   TeamsManifestV1D4,
   TeamsManifestV1D5,
@@ -118,9 +120,10 @@ export type TeamsManifest =
   | TeamsManifestV1D25.TeamsManifestV1D25
   | TeamsManifestV1D26.TeamsManifestV1D26
   | TeamsManifestV1D27.TeamsManifestV1D27
+  | TeamsManifestV1D28.TeamsManifestV1D28
   | TeamsManifestVDevPreview.TeamsManifestVDevPreview;
 
-export type TeamsManifestLatest = TeamsManifestV1D27.TeamsManifestV1D27;
+export type TeamsManifestLatest = TeamsManifestV1D28.TeamsManifestV1D28;
 
 export { SensitivityLabel } from "./copilot/declarative-agent/DeclarativeAgentManifestV1D7";
 
@@ -252,6 +255,10 @@ const TeamsManifestConverterMap: Converters = {
   "1.27": [
     TeamsManifestV1D27.Convert.toTeamsManifestV1D27,
     TeamsManifestV1D27.Convert.teamsManifestV1D27ToJson,
+  ],
+  "1.28": [
+    TeamsManifestV1D28.Convert.toTeamsManifestV1D28,
+    TeamsManifestV1D28.Convert.teamsManifestV1D28ToJson,
   ],
   devPreview: [
     TeamsManifestVDevPreview.Convert.toTeamsManifestVDevPreview,

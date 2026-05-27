@@ -400,7 +400,7 @@ export class ValidateManifestDriver implements StepDriver {
       );
       const localizationFilePath = getAbsolutePath(filePath, localizationFileDir);
 
-      const resolvedLocFileRes = await manifestUtils.resolveLocFile(localizationFilePath);
+      const resolvedLocFileRes = await manifestUtils.resolveLocFile(localizationFilePath, context);
       if (resolvedLocFileRes.isErr()) {
         return err(resolvedLocFileRes.error);
       }

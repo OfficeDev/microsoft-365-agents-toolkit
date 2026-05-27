@@ -216,7 +216,7 @@ export class CreateAppPackageDriver implements StepDriver {
         if (relativePath.startsWith("..")) {
           return err(new InvalidFileOutsideOfTheDirectotryError(fileName));
         }
-        const resolvedLocFileRes = await manifestUtils.resolveLocFile(fileName);
+        const resolvedLocFileRes = await manifestUtils.resolveLocFile(fileName, context);
         if (resolvedLocFileRes.isErr()) {
           return err(resolvedLocFileRes.error);
         }
@@ -232,7 +232,7 @@ export class CreateAppPackageDriver implements StepDriver {
         return err(new InvalidFileOutsideOfTheDirectotryError(fileName));
       }
 
-      const resolvedLocFileRes = await manifestUtils.resolveLocFile(fileName);
+      const resolvedLocFileRes = await manifestUtils.resolveLocFile(fileName, context);
       if (resolvedLocFileRes.isErr()) {
         return err(resolvedLocFileRes.error);
       }
@@ -316,9 +316,31 @@ export class CreateAppPackageDriver implements StepDriver {
         context
       );
       if (getCopilotGptRes.isOk()) {
+        const manifest = getCopilotGptRes.value;
+
+        if (manifest.actions !== undefined && !Array.isArray(manifest.actions)) {
+          return err(
+            new InvalidActionInputError(
+              actionName,
+              [`actions (in ${path.basename(declarativeAgentManifestFile)}) must be an array`],
+              "https://aka.ms/teamsfx-actions/teamsapp-zipAppPackage"
+            )
+          );
+        }
+
+        if (manifest.capabilities !== undefined && !Array.isArray(manifest.capabilities)) {
+          return err(
+            new InvalidActionInputError(
+              actionName,
+              [`capabilities (in ${path.basename(declarativeAgentManifestFile)}) must be an array`],
+              "https://aka.ms/teamsfx-actions/teamsapp-zipAppPackage"
+            )
+          );
+        }
+
         // Add action files
-        if (Array.isArray(getCopilotGptRes.value.actions)) {
-          const pluginFiles = getCopilotGptRes.value.actions.map((action) => action.file);
+        if (Array.isArray(manifest.actions)) {
+          const pluginFiles = manifest.actions.map((action) => action.file);
 
           for (const pluginFile of pluginFiles) {
             const pluginFileAbsolutePath = path.resolve(
@@ -347,8 +369,8 @@ export class CreateAppPackageDriver implements StepDriver {
           }
         }
         // Add embedded knowledge files
-        if (Array.isArray(getCopilotGptRes.value.capabilities)) {
-          const embeddedKnowledgeCapabilities = getCopilotGptRes.value.capabilities.filter(
+        if (Array.isArray(manifest.capabilities)) {
+          const embeddedKnowledgeCapabilities = manifest.capabilities.filter(
             (capability) => capability.name === DeclarativeCopilotCapabilityName.EmbeddedKnowledge
           );
           if (embeddedKnowledgeCapabilities.length > 0) {

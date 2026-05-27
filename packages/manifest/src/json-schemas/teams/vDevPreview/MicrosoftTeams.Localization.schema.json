@@ -109,7 +109,7 @@
         "type": "string",
         "maxLength": 2048
       },
-      "^extensions\\[[0]\\]\\.ribbons\\[[0-9]\\]\\.tabs\\[[1]?[0-9]\\]\\.groups\\[[0-9]\\]\\.icons\\[[0-2]\\]\\.url$": {
+      "^extensions\\[[0]\\]\\.ribbons\\[[0-9]\\]\\.tabs\\[[1]?[0-9]\\]\\.groups\\[[0-9]\\]\\.icons\\[[0-7]\\]\\.url$": {
         "type": "string",
         "maxLength": 2048
       },
@@ -117,7 +117,7 @@
         "type": "string",
         "maxLength": 64
       },
-      "^extensions\\[[0]\\]\\.ribbons\\[[0-9]\\]\\.tabs\\[[1]?[0-9]\\]\\.groups\\[[0-9]\\]\\.controls\\[[1]?[0-9]\\]\\.icons\\[[0-2]\\]\\.url$": {
+      "^extensions\\[[0]\\]\\.ribbons\\[[0-9]\\]\\.tabs\\[[1]?[0-9]\\]\\.groups\\[[0-9]\\]\\.controls\\[[1]?[0-9]\\]\\.icons\\[[0-7]\\]\\.url$": {
         "type": "string",
         "maxLength": 2048
       },
@@ -133,7 +133,7 @@
         "type": "string",
         "maxLength": 250
       },
-      "^extensions\\[[0]\\]\\.ribbons\\[[0-9]\\]\\.tabs\\[[1]?[0-9]\\]\\.groups\\[[0-9]\\]\\.controls\\[[1]?[0-9]\\]\\.items\\[[1]?[0-9]\\]\\.icons\\[[0-2]\\]\\.url$": {
+      "^extensions\\[[0]\\]\\.ribbons\\[[0-9]\\]\\.tabs\\[[1]?[0-9]\\]\\.groups\\[[0-9]\\]\\.controls\\[[1]?[0-9]\\]\\.items\\[[1]?[0-9]\\]\\.icons\\[[0-7]\\]\\.url$": {
         "type": "string",
         "maxLength": 2048
       },
@@ -191,7 +191,7 @@
       },
       "^extensions\\[[0]\\]\\.runtimes\\[[1]?[0-9]\\]\\.customFunctions\\.functions\\[[0-9]\\]\\.description$": {
         "type": "string",
-        "maxLength": 128
+        "maxLength": 1024
       },
       "^extensions\\[[0]\\]\\.runtimes\\[[1]?[0-9]\\]\\.customFunctions\\.functions\\[[0-9]\\]\\.parameters\\[[0-9]\\]\\.name$": {
         "type": "string",
@@ -199,7 +199,7 @@
       },
       "^extensions\\[[0]\\]\\.runtimes\\[[1]?[0-9]\\]\\.customFunctions\\.functions\\[[0-9]\\]\\.parameters\\[[0-9]\\]\\.description$": {
         "type": "string",
-        "maxLength": 128
+        "maxLength": 512
       },
       "^extensions\\[[0]\\]\\.runtimes\\[[1]?[0-9]\\]\\.customFunctions\\.namespace\\.name$": {
         "type": "string",
@@ -228,6 +228,38 @@
       "^extensions\\[[0]\\]\\.keyboardShortcuts\\[[0-9]\\]\\.shortcuts\\[[0-9]\\]\\.key\\.windows$": {
         "type": "string",
         "maxLength": 32
+      },
+      "^extensions\\[[0]\\]\\.contextMenus\\[[0-9]\\]\\.menus\\[[0-9]\\]\\.controls\\[[1]?[0-9]\\]\\.icons\\[[0-7]\\]\\.url$": {
+        "type": "string",
+        "maxLength": 2048
+      },
+      "^extensions\\[[0]\\]\\.contextMenus\\[[0-9]\\]\\.menus\\[[0-9]\\]\\.controls\\[[1]?[0-9]\\]\\.label": {
+        "type": "string",
+        "maxLength": 64
+      },
+      "^extensions\\[[0]\\]\\.contextMenus\\[[0-9]\\]\\.menus\\[[0-9]\\]\\.controls\\[[1]?[0-9]\\]\\.supertip\\.title": {
+        "type": "string",
+        "maxLength": 64
+      },
+      "^extensions\\[[0]\\]\\.contextMenus\\[[0-9]\\]\\.menus\\[[0-9]\\]\\.controls\\[[1]?[0-9]\\]\\.supertip\\.description": {
+        "type": "string",
+        "maxLength": 250
+      },
+      "^extensions\\[[0]\\]\\.contextMenus\\[[0-9]\\]\\.menus\\[[0-9]\\]\\.controls\\[[1]?[0-9]\\]\\.items\\[[1]?[0-9]\\]\\.icons\\[[0-7]\\]\\.url": {
+        "type": "string",
+        "maxLength": 2048
+      },
+      "^extensions\\[[0]\\]\\.contextMenus\\[[0-9]\\]\\.menus\\[[0-9]\\]\\.controls\\[[1]?[0-9]\\]\\.items\\[[1]?[0-9]\\]\\.label": {
+        "type": "string",
+        "maxLength": 64
+      },
+      "^extensions\\[[0]\\]\\.contextMenus\\[[0-9]\\]\\.menus\\[[0-9]\\]\\.controls\\[[1]?[0-9]\\]\\.items\\[[1]?[0-9]\\]\\.supertip\\.title": {
+        "type": "string",
+        "maxLength": 64
+      },
+      "^extensions\\[[0]\\]\\.contextMenus\\[[0-9]\\]\\.menus\\[[0-9]\\]\\.controls\\[[1]?[0-9]\\]\\.items\\[[1]?[0-9]\\]\\.supertip\\.description": {
+        "type": "string",
+        "maxLength": 250
       },
       "^copilotAgents\\.customEngineAgents\\[0\\]\\.disclaimer.text$": {
         "type": "string",

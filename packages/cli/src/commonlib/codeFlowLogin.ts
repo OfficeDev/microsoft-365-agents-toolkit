@@ -371,10 +371,22 @@ export class CodeFlowLogin {
   }
 
   async logout(): Promise<boolean> {
-    const accounts = await this.pca.getAllAccounts();
-    for (const account of accounts) {
-      await this.pca.signOut({ account: account });
+    if (this.isBrokerAvailable) {
+      const accountId = await loadAccountId(this.accountName);
+      if (accountId) {
+        const allAccounts = await this.pca.getAllAccounts();
+        const accountToSignOut = allAccounts.find((account) => account.homeAccountId === accountId);
+        if (accountToSignOut) {
+          await this.pca.signOut({ account: accountToSignOut });
+        }
+      }
+    } else {
+      const accounts = await this.pca.getAllAccounts();
+      for (const account of accounts) {
+        await this.pca.signOut({ account: account });
+      }
     }
+
     await clearCache(this.accountName);
     await saveAccountId(this.accountName, undefined);
     await saveTenantId(this.accountName, undefined);

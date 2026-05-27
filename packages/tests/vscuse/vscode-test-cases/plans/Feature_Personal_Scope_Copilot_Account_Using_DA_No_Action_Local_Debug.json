@@ -10,14 +10,14 @@
       "step_retry_timeout": 0
     },
     "total_steps": 15,
-    "created_at": "2026-03-13T02:10:10.048048",
+    "created_at": "2026-05-22T05:39:32.372647",
     "name": "Feature Personal Scope Copilot Account Using DA No Action Local Debug",
     "description": {
       "other": "",
       "owner": "v-helzha@microsoft.com",
       "workitem": "35636551"
     },
-    "generated_at": "2026-03-13T02:10:10.048048",
+    "generated_at": "2026-05-22T05:39:32.372647",
     "execution_order": [
       "plan_r_0928_012254",
       "step_7dccacc0",
@@ -25,7 +25,7 @@
       "step_ceb7cfb5",
       "plan_r_0928_014459",
       "plan_r_0929_040401",
-      "plan_946cd24b",
+      "plan_dc951b3b",
       "step_ba6d4aa6",
       "step_3d2556b4",
       "step_3b8732db",
@@ -40,7 +40,7 @@
       "step_17ef79d1"
     ],
     "tags": [],
-    "updated_at": "2026-03-13T05:46:36.343899"
+    "updated_at": "2026-05-22T05:41:53.421005"
   },
   "steps": [
     {
@@ -66,7 +66,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_7dccacc0",
-      "created_at": "2026-03-13T02:10:10.081654",
+      "created_at": "2026-05-22T05:41:37.731830",
       "plan_id": "plan_08081218"
     },
     {
@@ -92,7 +92,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_edb9c1e1",
-      "created_at": "2026-03-13T02:10:10.114131",
+      "created_at": "2026-05-22T05:41:37.754357",
       "plan_id": "plan_08081218"
     },
     {
@@ -118,7 +118,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_ceb7cfb5",
-      "created_at": "2026-03-13T02:10:10.138141",
+      "created_at": "2026-05-22T05:41:37.774013",
       "plan_id": "plan_08081218"
     },
     {
@@ -140,7 +140,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_ba6d4aa6",
-      "created_at": "2026-03-13T02:10:10.156511",
+      "created_at": "2026-05-22T05:41:37.794215",
       "plan_id": "plan_08081218"
     },
     {
@@ -162,7 +162,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_3d2556b4",
-      "created_at": "2026-03-13T02:10:10.171871",
+      "created_at": "2026-05-22T05:41:37.812359",
       "plan_id": "plan_08081218"
     },
     {
@@ -184,7 +184,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_3b8732db",
-      "created_at": "2026-03-13T02:10:10.187261",
+      "created_at": "2026-05-22T05:41:37.826808",
       "plan_id": "plan_08081218"
     },
     {
@@ -206,7 +206,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_47fa4490",
-      "created_at": "2026-03-13T02:10:10.199127",
+      "created_at": "2026-05-22T05:41:37.845987",
       "plan_id": "plan_08081218"
     },
     {
@@ -228,7 +228,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_043f27e9",
-      "created_at": "2026-03-13T02:10:10.212748",
+      "created_at": "2026-05-22T05:41:37.867105",
       "plan_id": "plan_08081218"
     },
     {
@@ -256,7 +256,7 @@
         "precondition_wait_timeout: 120"
       ],
       "screenshot": "step_5c9be83f",
-      "created_at": "2026-03-13T02:10:10.228316",
+      "created_at": "2026-05-22T05:41:37.892588",
       "plan_id": "plan_08081218"
     },
     {
@@ -282,7 +282,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_a3baa9fc",
-      "created_at": "2026-03-13T05:44:26.866386",
+      "created_at": "2026-05-22T05:41:37.913265",
       "plan_id": "plan_08081218"
     },
     {
@@ -308,7 +308,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_833850d7",
-      "created_at": "2026-03-13T05:44:26.892475",
+      "created_at": "2026-05-22T05:41:37.930168",
       "plan_id": "plan_08081218"
     },
     {
@@ -330,7 +330,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_ff7803bf",
-      "created_at": "2026-03-13T05:44:26.912774",
+      "created_at": "2026-05-22T05:41:37.947087",
       "plan_id": "plan_08081218"
     },
     {
@@ -352,7 +352,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_195ac8fe",
-      "created_at": "2026-03-13T05:44:26.945864",
+      "created_at": "2026-05-22T05:41:37.965513",
       "plan_id": "plan_08081218"
     },
     {
@@ -374,7 +374,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_2ab920ce",
-      "created_at": "2026-03-13T05:44:26.974615",
+      "created_at": "2026-05-22T05:41:37.984846",
       "plan_id": "plan_08081218"
     },
     {
@@ -390,9 +390,11 @@
       "depends_on": [],
       "preconditions": [],
       "postconditions": [],
-      "tags": [],
+      "tags": [
+        "step_retry_timeout: 180"
+      ],
       "screenshot": null,
-      "created_at": "2026-03-13T05:46:36.324922",
+      "created_at": "2026-05-22T05:41:38.001341",
       "plan_id": "plan_08081218"
     }
   ],

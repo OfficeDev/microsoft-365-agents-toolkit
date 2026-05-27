@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Add MCP Action To Declarative Agent Scenario</title>
+  <link rel="stylesheet" href="../../_assets/product-review/product-review.css">
+  <link rel="stylesheet" href="../../_assets/scenario-components/scenario-components.css">
+  <script type="module" src="../../_assets/scenario-components/scenario-components.js"></script>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">DA scenario visual/state reference</p>
+    <h1>Add MCP Action To Declarative Agent</h1>
+    <p class="intro">
+      This page visualizes the VS Code <em>Add action</em> flow from <a href="add-mcp-action-to-da.md">add-mcp-action-to-da.md</a>.
+      In VS Code, the add-action flow only collects the MCP server URL and writes it into <code>.vscode/mcp.json</code>; tool discovery, action manifest selection, operation pick and auth pick are owned by the separate <a href="fetch-mcp-tools.html">SCN-DA-FETCH-MCP-TOOLS</a> scenario, triggered later from the <code>⚡ ATK: Fetch action from MCP</code> CodeLens.
+    </p>
+    <div class="legend" aria-label="Review links">
+      <a class="link" href="../index.html">Back to product index</a>
+      <a class="link" href="create-da-with-mcp-server.html">Create scenario precondition</a>
+      <a class="link" href="fetch-mcp-tools.html">Next: fetch tools from MCP</a>
+    </div>
+  </header>
+
+  <main>
+    <section class="scenario-flow" aria-labelledby="fetch-flow-heading">
+      <div class="section-head">
+        <h2 id="fetch-flow-heading">VS Code Add Action Flow</h2>
+        <p>Runs the Add action command against an existing DA project. The toolkit only writes the server URL to <code>.vscode/mcp.json</code> and then opens that file. No tools are fetched and no action manifest is touched during this scenario.</p>
+      </div>
+
+      <div class="vscode-flow-grid">
+        <article class="vscode-flow-card" data-kind="action" aria-labelledby="action-type-title">
+          <h3 id="action-type-title">1. Add an Action: pick action type</h3>
+          <vscode-single-select title="Add an Action" placeholder="Select the type of action to add">
+            <vscode-option label="Start with an OpenAPI Description Document" description="Create an action from your existing API"></vscode-option>
+            <vscode-option label="Start with a MCP server" description="Create an action from your existing MCP server" selected></vscode-option>
+          </vscode-single-select>
+        </article>
+
+        <article class="vscode-flow-card" data-kind="action" aria-labelledby="server-url-title">
+          <h3 id="server-url-title">2. Enter MCP server URL</h3>
+          <vscode-input-box title="MCP Server URL" placeholder="Enter your MCP server URL(e.g. https://example-mcp.com)" value="https://api.githubcopilot.com/mcp/"></vscode-input-box>
+        </article>
+
+        <article class="vscode-flow-card" data-kind="outcome" aria-labelledby="mcp-json-opened-title">
+          <h3 id="mcp-json-opened-title">3. .vscode/mcp.json updated and opened</h3>
+          <vscode-codelens-file title=".vscode/mcp.json" lens="⚡ ATK: Fetch action from MCP | ▷Start | More..." server="apigithubc" type="http" url="https://api.githubcopilot.com/mcp/"></vscode-codelens-file>
+        </article>
+
+        <article class="vscode-flow-card" data-kind="outcome" data-severity="error" aria-labelledby="missing-url-error-title">
+          <h3 id="missing-url-error-title">Recoverable: missing MCP server URL <span class="vscode-flow-card__hint">blocks step 3</span></h3>
+          <vscode-input-box title="MCP Server URL" placeholder="Enter your MCP server URL(e.g. https://example-mcp.com)" value="" error="MCP server URL is required to add this action."></vscode-input-box>
+        </article>
+      </div>
+    </section>
+
+    <section class="scenario-flow" aria-labelledby="md-vscode-heading">
+      <div class="section-head">
+        <h2 id="md-vscode-heading">VS Code Add Action Flow (from Markdown)</h2>
+        <p>Rendered live from <code>add-mcp-action-to-da.md &sect; VS Code add action flow</code>.</p>
+      </div>
+      <scenario-markdown-section
+        src="add-mcp-action-to-da.md"
+        heading="VS Code add action flow"
+        title="SCN-DA-ADD-MCP-ACTION-TO-DA VS Code Flow"></scenario-markdown-section>
+    </section>
+
+    <section class="scenario-flow" aria-labelledby="md-cli-interactive-heading">
+      <div class="section-head">
+        <h2 id="md-cli-interactive-heading">CLI Interactive Add-Action Flow (from Markdown)</h2>
+        <p>Rendered live from <code>add-mcp-action-to-da.md &sect; CLI interactive add-action flow</code>.</p>
+      </div>
+      <scenario-markdown-section
+        src="add-mcp-action-to-da.md"
+        heading="CLI interactive add-action flow"
+        title="SCN-DA-ADD-MCP-ACTION-TO-DA CLI Interactive Flow"></scenario-markdown-section>
+    </section>
+
+    <section class="scenario-flow" aria-labelledby="md-cli-noninteractive-heading">
+      <div class="section-head">
+        <h2 id="md-cli-noninteractive-heading">CLI Non-Interactive Add-Action Flow (from Markdown)</h2>
+        <p>Rendered live from <code>add-mcp-action-to-da.md &sect; CLI non-interactive add-action flow</code>, including the trailing <code>atk add action</code> command examples.</p>
+      </div>
+      <scenario-markdown-section
+        src="add-mcp-action-to-da.md"
+        heading="CLI non-interactive add-action flow"
+        title="SCN-DA-ADD-MCP-ACTION-TO-DA CLI Non-Interactive Flow"></scenario-markdown-section>
+    </section>
+  </main>
+
+  <footer>
+    Scenario behavior belongs in <code>add-mcp-action-to-da.md</code>. This HTML visualizes VS Code states and renders the Markdown flow sections inline; it does not replace the Markdown contract.
+  </footer>
+</body>
+</html>
