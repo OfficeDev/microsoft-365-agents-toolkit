@@ -603,9 +603,10 @@ jobs:
 
           query_bugs_by_tag() {
             local tag="$1"
-            local encoded_tag=$(echo "$tag" | sed 's/ /%20/g')
+            # Escape single quotes for WIQL string literal.
+            local escaped_tag="${tag//\'/\'\'}"
 
-            local wiql_query="{\"query\": \"SELECT [System.Id], [System.Title], [System.State] FROM WorkItems WHERE [System.WorkItemType] = 'Bug' AND [System.State] IN ('Active','New','Committed') AND [System.Tags] CONTAINS '${tag}'\"}"
+            local wiql_query="{\"query\": \"SELECT [System.Id], [System.Title], [System.State] FROM WorkItems WHERE [System.WorkItemType] = 'Bug' AND [System.State] IN ('Active','New','Committed') AND [System.Tags] CONTAINS '${escaped_tag}'\"}"
 
             local http_code
             local response
@@ -765,34 +766,59 @@ jobs:
             linked_bugs=""
             if [ "$status" != "success" ]; then
               bug_response=""
+              bug_ids=""
               query_error=""
 
               if [ -z "$AZURE_DEVOPS_PAT" ]; then
                 query_error="⚠️No ADO PAT configured"
               else
-                bug_response=$(query_bugs_by_tag "$display_name" 2>/dev/null)
-                query_exit_code=$?
+                # Try multiple case-name variants to avoid missing matches due to
+                # underscore/space/case differences between pipeline case name and ADO tags.
+                case_name_space=$(echo "$case_id" | tr '_' ' ')
+                case_name_hyphen=$(echo "$case_id" | sed 's/_/-/g')
+                candidate_tags=$(printf '%s\n%s\n%s\n%s\n%s' "$display_name" "$case_id" "$title" "$case_name_space" "$case_name_hyphen" | awk 'NF && !seen[$0]++')
 
-                if [ $query_exit_code -ne 0 ]; then
-                  if echo "$bug_response" | grep -q "^HTTP_ERROR:"; then
-                    error_detail=$(echo "$bug_response" | sed 's/^HTTP_ERROR://')
-                    query_error="⚠️ADO API error (HTTP $error_detail)"
-                  else
-                    query_error="⚠️Network issue"
+                while IFS= read -r candidate_tag; do
+                  if [ -z "$candidate_tag" ]; then
+                    continue
                   fi
-                else
-                  api_error=$(echo "$bug_response" | jq -r '.message // empty' 2>/dev/null)
+
+                  current_response=$(query_bugs_by_tag "$candidate_tag" 2>/dev/null)
+                  query_exit_code=$?
+
+                  if [ $query_exit_code -ne 0 ]; then
+                    if [ -z "$query_error" ]; then
+                      if echo "$current_response" | grep -q "^HTTP_ERROR:"; then
+                        error_detail=$(echo "$current_response" | sed 's/^HTTP_ERROR://')
+                        query_error="⚠️ADO API error (HTTP $error_detail)"
+                      else
+                        query_error="⚠️Network issue"
+                      fi
+                    fi
+                    continue
+                  fi
+
+                  api_error=$(echo "$current_response" | jq -r '.message // empty' 2>/dev/null)
                   if [ -n "$api_error" ]; then
-                    query_error="⚠️ADO API error"
+                    if [ -z "$query_error" ]; then
+                      query_error="⚠️ADO API error"
+                    fi
+                    continue
                   fi
-                fi
+
+                  current_ids=$(echo "$current_response" | jq -r '.workItems[]?.id // empty' 2>/dev/null)
+                  if [ -n "$current_ids" ]; then
+                    bug_ids=$(printf '%s\n%s\n' "$bug_ids" "$current_ids")
+                    query_error=""
+                  fi
+                done <<< "$candidate_tags"
+
+                bug_ids=$(echo "$bug_ids" | awk 'NF && !seen[$0]++')
               fi
 
               if [ -n "$query_error" ]; then
                 linked_bugs="$query_error"
               else
-                bug_ids=$(echo "$bug_response" | jq -r '.workItems[]?.id // empty' 2>/dev/null)
-
                 if [ -n "$bug_ids" ]; then
                   bug_links=""
                   for bug_id in $bug_ids; do
