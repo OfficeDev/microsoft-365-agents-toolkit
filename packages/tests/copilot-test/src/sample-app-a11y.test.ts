@@ -1173,18 +1173,24 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
       return;
     }
 
-    // Steps 5-7: Find all cards and verify featured vs non-featured aria-labels
+    // Steps 5-8: Find all cards, verify featured vs non-featured aria-labels,
+    //            and verify .featured-badge elements have been removed (badge-free DOM).
     const evalScript =
       "(function(){" +
       "  var allCards=Array.from(document.querySelectorAll('.sample-card,.sample-list-item'));" +
       "  var labels=allCards.map(function(c){return c.getAttribute('aria-label')||'';});" +
-      "  var featured=labels.filter(function(l){return l.startsWith('Featured sample');});" +
+      // Step 6: at least one card with aria-label starting with "Featured sample." (WITH period)
+      "  var featured=labels.filter(function(l){return l.startsWith('Featured sample.');});" +
+      // Step 7: at least one card without the "Featured sample." prefix
       "  var nonFeatured=labels.filter(function(l){" +
-      "    return !l.startsWith('Featured sample')&&l.length>0;});" +
+      "    return !l.startsWith('Featured sample.')&&l.length>0;});" +
+      // Step 8: featured badge elements must have been removed (count === 0)
+      "  var badgeCount=document.querySelectorAll('.featured-badge').length;" +
       "  return JSON.stringify({" +
       "    total:allCards.length," +
       "    featuredCount:featured.length," +
       "    nonFeaturedCount:nonFeatured.length," +
+      "    badgeCount:badgeCount," +
       "    sampleFeaturedLabel:(featured[0]||'none').slice(0,100)," +
       "    sampleNonFeaturedLabel:(nonFeatured[0]||'none').slice(0,100)" +
       "  });" +
@@ -1196,7 +1202,7 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
       rawResult ? rawResult.slice(0, 300) : "(empty)",
     );
 
-    // Step 4: Screenshot showing both featured (gold badge) and non-featured cards
+    // Step 4: Screenshot showing both featured and non-featured cards (no badge, ARIA only)
     injectAriaOverlay(".sample-card,.sample-list-item");
     await wait(300);
     takeScreenshot("08-tc005-aria-labels");
@@ -1226,9 +1232,12 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
 
     const hasFeatured = data.featuredCount > 0;
     const hasNonFeatured = data.nonFeaturedCount > 0;
-    const passes = hasFeatured && hasNonFeatured;
+    // Step 8: badge must be gone — badgeCount === 0
+    const noBadge = data.badgeCount === 0;
+    const passes = hasFeatured && hasNonFeatured && noBadge;
     const detail =
       `${data.featuredCount} featured / ${data.nonFeaturedCount} non-featured of ${data.total} total. ` +
+      `badge count=${data.badgeCount} (expect 0). ` +
       `Featured: "${data.sampleFeaturedLabel}". Non-featured: "${data.sampleNonFeaturedLabel}"`;
     step("TC-005 Featured ARIA differentiation", passes, detail);
   });
