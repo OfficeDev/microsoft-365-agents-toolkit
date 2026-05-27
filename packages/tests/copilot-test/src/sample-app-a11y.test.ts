@@ -174,14 +174,12 @@ const WCAG_HELPER_JS =
   "    if(bg&&bg!=='transparent'&&bg!=='rgba(0, 0, 0, 0)'&&" +
   "       !(bg==='rgb(0, 0, 0)'&&node===document.body&&theme==='light')){" +
   "      var rgb=parseRgb(bg);" +
-  "      if(rgb) return rgb;" +
+  "      if(rgb){" +
+  "        var isBlack=rgb[0]+rgb[1]+rgb[2]<10;" +
+  "        if(!(theme==='light'&&isBlack))return rgb;" +
+  "      }" +
   "    }" +
   "    node=node.parentElement;" +
-  "  }" +
-  "  var bodyBg=getComputedStyle(document.body).backgroundColor;" +
-  "  var bm=bodyBg&&bodyBg.match(/rgba?\\((\\d+),\\s*(\\d+),\\s*(\\d+)/);" +
-  "  if(bm){var br=[parseInt(bm[1]),parseInt(bm[2]),parseInt(bm[3])];" +
-  "    if(!(br[0]===0&&br[1]===0&&br[2]===0&&theme==='light'))return br;" +
   "  }" +
   "  return theme==='dark'?[30,30,30]:[255,255,255];" +
   "}";
