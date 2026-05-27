@@ -5,7 +5,7 @@
 - **feature-slug**: `sample-app-a11y`
 - **owner**: atk-qa
 - **created**: 2026-05-15
-- **updated**: 2026-05-26
+- **updated**: 2026-05-27
 - **triggers**: issue-label `atk-copilot-test`, manual
 - **related-issue**: [#15916](https://github.com/OfficeDev/microsoft-365-agents-toolkit/issues/15916)
 
@@ -43,49 +43,54 @@ All contrast checks use the **WCAG relative luminance formula** (IEC 61966-2-1 s
 ### TC-001 – Link text color contrast ≥ 4.5:1 when focused (Light theme)
 
 **Preconditions:**
-- VS Code is open, ATK extension activated
-- VS Code theme is set to a Light variant (e.g. Default Light Modern)
+- VS Code is open with ATK extension installed from the `fix/issue-15916-copilot` branch build
 
 **Steps:**
-1. User opens Command Palette (`Ctrl+Shift+P`) and runs `Microsoft 365 Agents Toolkit: View Samples`
-2. User observes the Sample Gallery panel opens
-3. Test focuses a `.ms-Link` element via `element.focus()`
-4. Test reads `getComputedStyle(link).color` from the focused link
-5. Test computes `contrast_ratio(link_color, background_color)` using WCAG relative luminance
-6. Take screenshot showing the link in its **focused state** with a visible focus indicator
+1. Set VS Code color theme to "Default Light Modern" via Command Palette (`Ctrl+Shift+P` → `Preferences: Color Theme` → select "Default Light Modern").
+2. Click the ATK icon (M365 Agents Toolkit) in the VS Code Activity Bar to open the ATK extension panel. Observe the extension sidebar appears.
+3. Take screenshot showing the ATK extension panel open in Light theme.
+4. Open Command Palette (`Ctrl+Shift+P`) and run `Microsoft 365 Agents Toolkit: View Samples`. Observe the Sample Gallery panel opens showing sample cards with link text.
+5. Take screenshot showing the Sample Gallery open with visible link text on the light background.
+6. Focus a `.ms-Link` element inside the gallery using `element.focus()` programmatically. Observe the focus ring appears around the link.
+7. Read `getComputedStyle(link).color` from the focused link and compute `contrast_ratio(link_color, background_color)` using the WCAG relative luminance formula.
+8. Take screenshot showing the link in its **focused state** with the focus indicator visible.
 
 **Expected result:**
-- Link color in focused state is visibly dark on the white/light background
-- Computed contrast ratio ≥ 4.5
+- ATK extension panel opens in Light theme showing the M365 Agents Toolkit UI.
+- Sample Gallery panel renders with sample cards and visible link text.
+- Link color in focused state is visibly dark (≥ `#005B9E`) on the white/light background.
+- Computed contrast ratio ≥ 4.5:1.
 
 **Pass criteria:**
 - `contrast_ratio(getComputedStyle(link).color, background) >= 4.5`
-- The `detail` field in the result includes the actual computed ratio value
+- The `detail` field in the result includes the actual computed ratio value.
 
 **Screenshots produced by test:**
 
-| ID  | Filename                          | What is visible                                       | Pass condition                                        | Why                                                         |
-|-----|-----------------------------------|-------------------------------------------------------|-------------------------------------------------------|-------------------------------------------------------------|
-| 01  | `01-extension-active.png`         | VS Code with ATK extension activated                  | ATK sidebar icon visible                              | Baseline: extension loaded before gallery opens             |
-| 02  | `02-gallery-open.png`             | Sample Gallery panel with sample cards                | Gallery renders with link text on light background    | Proves gallery opens after user command                     |
-| 03  | `03-tc001-link-focused.png`       | Focused link element in gallery (focus ring visible)  | Link text is dark and clearly readable                | Proves light-theme focused link color meets WCAG 4.5:1      |
+| ID  | Filename                          | What is visible                                             | Pass condition                                          | Why                                                              |
+|-----|-----------------------------------|-------------------------------------------------------------|---------------------------------------------------------|------------------------------------------------------------------|
+| 01  | `01-extension-active.png`         | VS Code with ATK extension panel open in Light theme        | ATK sidebar panel visible in Default Light Modern theme | Baseline: extension loaded and light theme active before test   |
+| 02  | `02-gallery-open.png`             | Sample Gallery panel with sample cards and link text        | Gallery renders with dark link text on light background | Proves gallery opens correctly after user command                |
+| 03  | `03-tc001-link-focused.png`       | Focused `.ms-Link` element with focus ring visible          | Link text is dark and clearly readable with focus ring  | Proves fixed link color (#005B9E, ≥4.5:1) is applied in light theme |
 
 ---
 
 ### TC-002 – Gallery/List toggle buttons expose `aria-pressed` before and after click
 
 **Preconditions:**
-- Sample Gallery is open (default Gallery/Grid layout active)
+- VS Code is open with ATK extension installed from the `fix/issue-15916-copilot` branch build
 
 **Steps:**
-1. User opens Sample Gallery
-2. Test reads `aria-pressed` attribute on the **Gallery** button — expects `"true"`
-3. Test reads `aria-pressed` attribute on the **List** button — expects `"false"`
-4. Take screenshot showing Gallery layout is active
-5. User clicks the **List** view toggle button
-6. Test reads `aria-pressed` on **Gallery** button — expects `"false"`
-7. Test reads `aria-pressed` on **List** button — expects `"true"`
-8. Take screenshot showing List layout is active
+1. Set VS Code color theme to "Default Light Modern" via Command Palette (`Ctrl+Shift+P` → `Preferences: Color Theme` → select "Default Light Modern").
+2. Click the ATK icon in the VS Code Activity Bar to activate the extension panel. Observe the ATK sidebar opens.
+3. Open Command Palette (`Ctrl+Shift+P`) and run `Microsoft 365 Agents Toolkit: View Samples`. Observe the Sample Gallery opens in Gallery (Grid) layout by default.
+4. Read `aria-pressed` attribute on the **Gallery** view toggle button — expects `"true"`.
+5. Read `aria-pressed` attribute on the **List** view toggle button — expects `"false"`.
+6. Take screenshot showing Gallery layout is active with Gallery toggle visually selected.
+7. Click the **List** view toggle button. Observe the layout switches to a vertical list.
+8. Read `aria-pressed` on **Gallery** button — expects `"false"`.
+9. Read `aria-pressed` on **List** button — expects `"true"`.
+10. Take screenshot showing List layout is active with List toggle visually selected.
 
 **Expected result:**
 - Before click: Gallery `aria-pressed="true"`, List `aria-pressed="false"`
@@ -100,22 +105,25 @@ All contrast checks use the **WCAG relative luminance formula** (IEC 61966-2-1 s
 
 | ID  | Filename                        | What is visible                                         | Pass condition                                 | Why                                                              |
 |-----|---------------------------------|---------------------------------------------------------|------------------------------------------------|------------------------------------------------------------------|
-| 04  | `04-tc002-gallery-active.png`   | Gallery layout, Gallery toggle button visually selected | Gallery button highlighted                     | Proves initial aria-pressed state matches visual selected state  |
-| 05  | `05-tc002-list-active.png`      | List layout, List toggle button visually selected       | List button highlighted, Gallery button not    | Proves aria-pressed toggles correctly in response to click       |
+| 04  | `04-tc002-gallery-active.png`   | Gallery layout, Gallery toggle button visually selected | Gallery button highlighted, list layout absent | Proves initial aria-pressed state matches visual selected state  |
+| 05  | `05-tc002-list-active.png`      | List layout, List toggle button visually selected       | List button highlighted, Gallery button not    | Proves aria-pressed toggles correctly in response to user click  |
 
 ---
 
 ### TC-003 – Sample card accessible names include tags on keyboard focus
 
 **Preconditions:**
-- Sample Gallery is open
+- VS Code is open with ATK extension installed from the `fix/issue-15916-copilot` branch build
 
 **Steps:**
-1. User opens Sample Gallery
-2. User presses **Tab** to move keyboard focus onto the first sample card
-3. Test reads `aria-label` attribute from the focused card element
-4. Test verifies the `aria-label` contains `". Tags:"` followed by at least one tag name
-5. Take screenshot showing the **focused card** with focus ring visible
+1. Set VS Code color theme to "Default Light Modern" via Command Palette (`Ctrl+Shift+P` → `Preferences: Color Theme` → select "Default Light Modern").
+2. Click the ATK icon in the VS Code Activity Bar to activate the extension panel.
+3. Open Command Palette (`Ctrl+Shift+P`) and run `Microsoft 365 Agents Toolkit: View Samples`. Observe the Sample Gallery panel opens.
+4. Click inside the Sample Gallery webview area to give it focus.
+5. Press **Tab** to move keyboard focus onto the first sample card. Observe the focus ring appears around a card.
+6. Read the `aria-label` attribute from the focused card element.
+7. Verify the `aria-label` contains `". Tags:"` followed by at least one tag name.
+8. Take screenshot showing the **focused card** with the focus ring clearly visible.
 
 **Expected result:**
 - Accessible name: `"<Title>. Tags: <tag1>, <tag2>, <tag3>"`
@@ -136,19 +144,19 @@ All contrast checks use the **WCAG relative luminance formula** (IEC 61966-2-1 s
 ### TC-004 – Featured state visual indicator contrast ≥ 3:1 against card background (WCAG 1.4.11)
 
 **Preconditions:**
-- Sample Gallery is open in Light theme
-- At least one featured card is visible with a `.featured-badge` element
+- VS Code is open with ATK extension installed from the `fix/issue-15916-copilot` branch build
 
 **Steps:**
-1. User opens Sample Gallery in Light theme
-2. User observes the featured badge (dark gold label) on featured cards
-3. Test reads `getComputedStyle(badge).backgroundColor` from a `.featured-badge` element
-4. Test reads the card background color from the parent `.sample-card`
-5. Test computes `contrast_ratio(badge_background, card_background)` using WCAG relative luminance
-6. Take screenshot showing **both featured and non-featured cards** together
+1. Set VS Code color theme to "Default Light Modern" via Command Palette (`Ctrl+Shift+P` → `Preferences: Color Theme` → select "Default Light Modern").
+2. Click the ATK icon in the VS Code Activity Bar to activate the extension panel.
+3. Open Command Palette (`Ctrl+Shift+P`) and run `Microsoft 365 Agents Toolkit: View Samples`. Observe the Sample Gallery opens and featured cards are visible with a gold "Featured" badge.
+4. Take screenshot showing **both featured and non-featured cards** side by side.
+5. Read `getComputedStyle(badge).backgroundColor` from a `.featured-badge` element on a featured card.
+6. Read the card background color from the parent `.sample-card` element.
+7. Compute `contrast_ratio(badge_background, card_background)` using the WCAG relative luminance formula.
 
 **Expected result:**
-- Featured badge background color (dark gold `#7A5C00`) contrasts strongly with card background (white)
+- Featured badge background color (dark gold `#7A5C00`) contrasts strongly with card background (white `#FFFFFF`)
 - Computed contrast ratio ≥ 3.0 (WCAG 1.4.11 non-text contrast)
 
 **Pass criteria:**
@@ -159,22 +167,23 @@ All contrast checks use the **WCAG relative luminance formula** (IEC 61966-2-1 s
 
 | ID  | Filename                        | What is visible                                          | Pass condition                                            | Why                                                                    |
 |-----|---------------------------------|----------------------------------------------------------|-----------------------------------------------------------|------------------------------------------------------------------------|
-| 07  | `07-tc004-featured-badge.png`   | Featured and non-featured cards side by side in gallery  | Featured badge (gold) visually distinct from card bg      | Proves non-text contrast of featured indicator meets WCAG AA (≥3:1)   |
+| 07  | `07-tc004-featured-badge.png`   | Featured and non-featured cards side by side in gallery  | Featured badge (dark gold) visually distinct from card bg | Proves non-text contrast of featured indicator meets WCAG AA (≥3:1)   |
 
 ---
 
 ### TC-005 – Screen reader differentiates Featured from non-Featured cards
 
 **Preconditions:**
-- Sample Gallery is open in either Grid or List view
-- At least one Featured and one non-Featured card are visible
+- VS Code is open with ATK extension installed from the `fix/issue-15916-copilot` branch build
 
 **Steps:**
-1. User opens Sample Gallery
-2. Test finds all card elements and reads their `aria-label` attributes
-3. Test verifies at least one card has `aria-label` starting with `"Featured sample."`
-4. Test verifies at least one card does NOT have `aria-label` starting with `"Featured sample."`
-5. Take screenshot
+1. Set VS Code color theme to "Default Light Modern" via Command Palette (`Ctrl+Shift+P` → `Preferences: Color Theme` → select "Default Light Modern").
+2. Click the ATK icon in the VS Code Activity Bar to activate the extension panel.
+3. Open Command Palette (`Ctrl+Shift+P`) and run `Microsoft 365 Agents Toolkit: View Samples`. Observe the Sample Gallery opens showing a mix of featured and non-featured cards.
+4. Take screenshot showing the gallery with both featured (gold badge) and non-featured cards visible.
+5. Find all card elements (`.sample-card`) and read their `aria-label` attributes.
+6. Verify at least one card has `aria-label` starting with `"Featured sample."`.
+7. Verify at least one card does NOT have `aria-label` starting with `"Featured sample."`.
 
 **Expected result:**
 - Featured card: `aria-label="Featured sample. <Title>. Tags: <tags>"`
@@ -186,25 +195,27 @@ All contrast checks use the **WCAG relative luminance formula** (IEC 61966-2-1 s
 
 **Screenshots produced by test:**
 
-| ID  | Filename                      | What is visible                                           | Pass condition                               | Why                                                          |
-|-----|-------------------------------|-----------------------------------------------------------|----------------------------------------------|--------------------------------------------------------------|
-| 08  | `08-tc005-aria-labels.png`    | Gallery showing featured and non-featured cards           | Featured badge visible on featured cards     | Proves ARIA differentiation matches visual differentiation   |
+| ID  | Filename                      | What is visible                                              | Pass condition                                  | Why                                                              |
+|-----|-------------------------------|--------------------------------------------------------------|-------------------------------------------------|------------------------------------------------------------------|
+| 08  | `08-tc005-aria-labels.png`    | Gallery showing both featured (gold badge) and non-featured  | Featured badge visible on featured cards only   | Proves ARIA "Featured sample." prefix matches visual badge       |
 
 ---
 
 ### TC-006a – Focus ring contrast ≥ 3:1 in Gallery view (Light theme)
 
 **Preconditions:**
-- Sample Gallery is open in **Gallery (Grid) view**
-- VS Code theme is set to a Light variant
+- VS Code is open with ATK extension installed from the `fix/issue-15916-copilot` branch build
 
 **Steps:**
-1. User opens Sample Gallery in Gallery view
-2. User presses **Tab** to move keyboard focus to the first `.sample-card`
-3. Test reads `getComputedStyle(card).outlineColor` from the focused card
-4. Test reads the card background color
-5. Test computes `contrast_ratio(outline_color, card_background)` using WCAG relative luminance
-6. Take screenshot **after Tab** so the focus ring is clearly visible
+1. Set VS Code color theme to "Default Light Modern" via Command Palette (`Ctrl+Shift+P` → `Preferences: Color Theme` → select "Default Light Modern").
+2. Click the ATK icon in the VS Code Activity Bar to activate the extension panel.
+3. Open Command Palette (`Ctrl+Shift+P`) and run `Microsoft 365 Agents Toolkit: View Samples`. Observe the Sample Gallery opens in Gallery (Grid) view.
+4. Click inside the Sample Gallery webview area to give it keyboard focus.
+5. Press **Tab** to move keyboard focus to the first `.sample-card`. Observe the dark-blue focus ring appears around the card.
+6. Take screenshot **immediately after Tab** so the focus ring is clearly visible.
+7. Read `getComputedStyle(card).outlineColor` from the focused card.
+8. Read the card background color from the focused card element.
+9. Compute `contrast_ratio(outline_color, card_background)` using the WCAG relative luminance formula.
 
 **Expected result:**
 - Focused card has a dark-blue focus ring (`#005FB8`)
@@ -216,26 +227,28 @@ All contrast checks use the **WCAG relative luminance formula** (IEC 61966-2-1 s
 
 **Screenshots produced by test:**
 
-| ID  | Filename                          | What is visible                                        | Pass condition                                       | Why                                                                    |
-|-----|-----------------------------------|--------------------------------------------------------|------------------------------------------------------|------------------------------------------------------------------------|
-| 09  | `09-tc006a-gallery-focus.png`     | Gallery view with first card focused, focus ring shown | Dark-blue outline clearly surrounds the focused card | Proves keyboard users can identify focused card in gallery Light theme |
+| ID  | Filename                          | What is visible                                          | Pass condition                                        | Why                                                                    |
+|-----|-----------------------------------|----------------------------------------------------------|-------------------------------------------------------|------------------------------------------------------------------------|
+| 09  | `09-tc006a-gallery-focus.png`     | Gallery view with first card focused, focus ring visible | Dark-blue outline clearly surrounds the focused card  | Proves keyboard focus indicator meets WCAG non-text contrast (≥3:1)   |
 
 ---
 
 ### TC-006b – Focus ring contrast ≥ 3:1 in List view (Light theme)
 
 **Preconditions:**
-- Sample Gallery is open and user has switched to **List view**
-- VS Code theme is set to a Light variant
+- VS Code is open with ATK extension installed from the `fix/issue-15916-copilot` branch build
 
 **Steps:**
-1. User opens Sample Gallery (default Gallery view)
-2. User clicks the **List** view toggle button to switch to List layout
-3. User presses **Tab** to move keyboard focus to the first `.sample-list-item`
-4. Test reads `getComputedStyle(listItem).outlineColor` from the focused list item
-5. Test reads the list item background color
-6. Test computes `contrast_ratio(outline_color, list_item_background)` using WCAG relative luminance
-7. Take screenshot **after Tab** so the focus ring is clearly visible
+1. Set VS Code color theme to "Default Light Modern" via Command Palette (`Ctrl+Shift+P` → `Preferences: Color Theme` → select "Default Light Modern").
+2. Click the ATK icon in the VS Code Activity Bar to activate the extension panel.
+3. Open Command Palette (`Ctrl+Shift+P`) and run `Microsoft 365 Agents Toolkit: View Samples`. Observe the Sample Gallery opens in Gallery (Grid) view.
+4. Click the **List** view toggle button to switch to List layout. Observe the layout changes to a vertical list of items.
+5. Click inside the Sample Gallery webview area to give it keyboard focus.
+6. Press **Tab** to move keyboard focus to the first `.sample-list-item`. Observe the dark-blue focus ring appears around the list item.
+7. Take screenshot **immediately after Tab** so the focus ring is clearly visible.
+8. Read `getComputedStyle(listItem).outlineColor` from the focused list item.
+9. Read the list item background color.
+10. Compute `contrast_ratio(outline_color, list_item_background)` using the WCAG relative luminance formula.
 
 **Expected result:**
 - Focused list item has a dark-blue focus ring (`#005FB8`)
@@ -249,7 +262,7 @@ All contrast checks use the **WCAG relative luminance formula** (IEC 61966-2-1 s
 
 | ID  | Filename                        | What is visible                                          | Pass condition                                         | Why                                                                 |
 |-----|---------------------------------|----------------------------------------------------------|--------------------------------------------------------|---------------------------------------------------------------------|
-| 10  | `10-tc006b-list-focus.png`      | List view with first list item focused, focus ring shown | Dark-blue outline clearly surrounds the focused item   | Proves keyboard users can identify focused item in list Light theme |
+| 10  | `10-tc006b-list-focus.png`      | List view with first list item focused, focus ring shown | Dark-blue outline clearly surrounds the focused item   | Proves keyboard focus indicator in list view meets WCAG AA (≥3:1)  |
 
 ---
 
@@ -259,10 +272,12 @@ All contrast checks use the **WCAG relative luminance formula** (IEC 61966-2-1 s
 
 ## Notes
 
+- **Extension activation**: Each TC begins with clicking the ATK Activity Bar icon to guarantee the extension is activated before any command is run. The test harness should install the extension VSIX built from the `fix/issue-15916-copilot` branch before running.
 - The Sample Gallery renders inside a VS Code webview. DOM evaluation is performed via the Playwright CDP session targeting the webview frame.
 - All contrast calculations use the WCAG relative luminance formula (IEC 61966-2-1 sRGB, not a simple color blacklist).
-- For TC-001: the link must be **focused** (`element.focus()`) before reading computed color — the `:focus` CSS rule changes the link color from `#005B9E` to `#004480`.
-- For TC-004: WCAG 1.4.11 (Non-text Contrast) applies to UI components; the featured badge background is the visual indicator that differentiates featured items. The badge uses `background-color: #7A5C00` which contrasts ~5:1 against the white card background.
-- For TC-006: `element.focus()` triggers `:focus-visible` styles in VSCode webview. The light-theme override sets `outline-color: #005FB8` (~10:1 against white) on both `.sample-card` and `.sample-list-item`.
+- For TC-001: the link must be **focused** (`element.focus()`) before reading computed color — the `:focus` CSS rule changes the link color to `#004480` (≥7:1 contrast).
+- For TC-004: WCAG 1.4.11 (Non-text Contrast) applies to UI components; the featured badge uses `background-color: #7A5C00` (~5:1 against white card background).
+- For TC-006a/b: `element.focus()` triggers `:focus-visible` styles in VSCode webview. The light-theme override sets `outline-color: #005FB8` (~10:1 against white) on both `.sample-card` and `.sample-list-item`. The screenshot step must immediately follow focus so the ring is still visible.
 - `aria-pressed` on `<vscode-button>` is forwarded to the inner `<button>` element by the FAST foundation runtime.
 - TC-002, TC-003, TC-005: these attributes are set inline in the React render path and are accessible without CDP frame evaluation.
+- **Why extension activated steps were failing in previous runs**: The test harness was not installing the extension VSIX before running, so `Ctrl+Shift+P → View Samples` returned "command not found". The fix is to install the built VSIX at the start of each TC (Step 2 — click ATK Activity Bar icon validates activation).
