@@ -2,10 +2,12 @@
 // Licensed under the MIT license.
 /**
  * sample-app-a11y.test.ts
- * TC-001:  Link text color contrast >= 4.5:1 when focused (Light theme)
+ * TC-001a: Link text color contrast >= 4.5:1 when focused (Light theme)
+ * TC-001b: Link text color contrast >= 4.5:1 when focused (Dark theme)
  * TC-002:  Gallery/List toggle buttons aria-pressed state before and after click
  * TC-003:  Sample card accessible names include tags on keyboard focus
- * TC-004:  Featured section background contrast >= 3:1 against non-featured section background (WCAG 1.4.11)
+ * TC-004a: Featured section background contrast >= 3:1 against non-featured section background (Light theme, WCAG 1.4.11)
+ * TC-004b: Featured section background contrast >= 3:1 against non-featured section background (Dark theme, WCAG 1.4.11)
  * TC-005:  Screen reader differentiates Featured from non-Featured cards
  * TC-006a: Focus ring contrast >= 3:1 in Gallery view (Light theme)
  * TC-006b: Focus ring contrast >= 3:1 in List view (Light theme)
@@ -224,29 +226,34 @@ function removeAriaOverlay(): void {
  *
  * Returns true if the gallery was successfully opened.
  */
-async function setupTcGallery(tcLabel: string): Promise<boolean> {
-  console.log(`\n  [setup] ${tcLabel}: setting Light theme...`);
+async function setupTcGallery(
+  tcLabel: string,
+  theme: "light" | "dark" = "light",
+): Promise<boolean> {
+  const themeName = theme === "dark" ? "Default Dark Modern" : "Default Light Modern";
+  const themeFallback = theme === "dark" ? "Default Dark+" : "Default Light+";
+  console.log(`\n  [setup] ${tcLabel}: setting ${themeName}...`);
 
-  // Step 1: Set VS Code color theme to "Default Light Modern" via Command Palette.
-  // In a test, we use the VS Code settings API (equivalent to Ctrl+Shift+P → Color Theme).
+  // Step 1: Set VS Code color theme via VS Code settings API
+  // (equivalent to Ctrl+Shift+P → Preferences: Color Theme → select theme)
   const wbConfig = vscode.workspace.getConfiguration("workbench");
   try {
     await wbConfig.update(
       "colorTheme",
-      "Default Light Modern",
+      themeName,
       vscode.ConfigurationTarget.Global,
     );
-    console.log(`  [setup] ${tcLabel}: theme set to Default Light Modern`);
+    console.log(`  [setup] ${tcLabel}: theme set to ${themeName}`);
   } catch {
     try {
       await wbConfig.update(
         "colorTheme",
-        "Default Light+",
+        themeFallback,
         vscode.ConfigurationTarget.Global,
       );
-      console.log(`  [setup] ${tcLabel}: theme set to Default Light+ (fallback)`);
+      console.log(`  [setup] ${tcLabel}: theme set to ${themeFallback} (fallback)`);
     } catch (e) {
-      console.warn(`  [setup] ${tcLabel}: could not set light theme:`, e);
+      console.warn(`  [setup] ${tcLabel}: could not set theme ${themeName}:`, e);
     }
   }
   await wait(2000);
@@ -372,32 +379,32 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
   });
 
   // ─────────────────────────────────────────────────────────────────────────────
-  // TC-001 — Link text color contrast >= 4.5:1 when focused (Light theme)
+  // TC-001a — Link text color contrast >= 4.5:1 when focused (Light theme)
   //
   // Steps per test plan:
   //   1. Set VS Code color theme to "Default Light Modern"
   //   2. Click ATK Activity Bar icon to open extension panel
-  //   3. Screenshot 01 (baseline — extension panel open in Light theme)
+  //   3. Screenshot 01 (ATK extension panel open in Light theme)
   //   4. Open gallery via Command Palette → View Samples
-  //   5. Screenshot 02 (gallery open with visible link text)
+  //   5. Screenshot 02 (gallery open with visible link text on light background)
   //   6. Focus a .ms-Link via element.focus()
   //   7. Read getComputedStyle(link).color and compute WCAG contrast ratio
   //   8. Screenshot 03 (focused link with focus ring visible)
   // ─────────────────────────────────────────────────────────────────────────────
-  test("TC-001: Link text color contrast >= 4.5:1 (focused, Light theme)", async () => {
+  test("TC-001a: Link text color contrast >= 4.5:1 (focused, Light theme)", async () => {
     // Steps 1-2: set Light theme + click ATK Activity Bar icon
-    const galleryOpened = await setupTcGallery("TC-001");
+    const galleryOpened = await setupTcGallery("TC-001a", "light");
 
     // Step 3: screenshot showing ATK panel open in Light theme
-    takeScreenshot("01-extension-active");
+    takeScreenshot("01-tc001a-extension-active");
 
     // Step 5: screenshot showing gallery with visible link text
-    takeScreenshot("02-gallery-open");
+    takeScreenshot("02-tc001a-gallery-open");
 
     if (!galleryOpened) {
-      takeScreenshot("03-tc001-link-focused");
+      takeScreenshot("03-tc001a-link-focused");
       step(
-        "TC-001 Link text contrast >= 4.5:1",
+        "TC-001a Link text contrast >= 4.5:1 (Light)",
         false,
         "FAIL: Gallery webview not open after setup.",
       );
@@ -431,16 +438,16 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
 
     const rawResult = sendEvalSignal(evalScript, 8000);
     console.log(
-      "  TC-001 eval result:",
+      "  TC-001a eval result:",
       rawResult ? rawResult.slice(0, 200) : "(empty)",
     );
 
     // Step 8: screenshot showing the link in focused state with focus ring
-    takeScreenshot("03-tc001-link-focused");
+    takeScreenshot("03-tc001a-link-focused");
 
     if (!rawResult || rawResult.startsWith("ERROR:")) {
       step(
-        "TC-001 Link text contrast >= 4.5:1",
+        "TC-001a Link text contrast >= 4.5:1 (Light)",
         false,
         "FAIL: DOM eval error — gallery may not be accessible via Playwright CDP.",
       );
@@ -453,7 +460,7 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
     } catch {}
     if (!data) {
       step(
-        "TC-001 Link text contrast >= 4.5:1",
+        "TC-001a Link text contrast >= 4.5:1 (Light)",
         false,
         `FAIL: Could not parse eval result: ${rawResult.slice(0, 100)}`,
       );
@@ -461,7 +468,7 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
     }
     if (data.error === "no-ms-link") {
       step(
-        "TC-001 Link text contrast >= 4.5:1",
+        "TC-001a Link text contrast >= 4.5:1 (Light)",
         false,
         "FAIL: No .ms-Link elements found in gallery webview.",
       );
@@ -469,7 +476,7 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
     }
     if (data.error) {
       step(
-        "TC-001 Link text contrast >= 4.5:1",
+        "TC-001a Link text contrast >= 4.5:1 (Light)",
         false,
         `FAIL: ${data.error} fg=${data.fgRaw || "?"}`,
       );
@@ -479,7 +486,118 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
     const detail =
       `Computed ratio=${data.ratio}:1; fg=${data.fgRaw}; bg=${data.bgRgb}; ` +
       `${data.count} .ms-Link elements`;
-    step("TC-001 Link text contrast >= 4.5:1", !!data.passes, detail);
+    step("TC-001a Link text contrast >= 4.5:1 (Light)", !!data.passes, detail);
+  });
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // TC-001b — Link text color contrast >= 4.5:1 when focused (Dark theme)
+  //
+  // Steps per test plan:
+  //   1. Set VS Code color theme to "Default Dark Modern"
+  //   2. Click ATK Activity Bar icon to open extension panel
+  //   3. Screenshot 04 (ATK extension panel open in Dark theme)
+  //   4. Open gallery via Command Palette → View Samples
+  //   5. Screenshot 05 (gallery open with visible link text on dark background)
+  //   6. Focus a .ms-Link via element.focus()
+  //   7. Read getComputedStyle(link).color and background, compute WCAG contrast ratio
+  //   8. Screenshot 06 (focused link with focus ring visible in dark theme)
+  // ─────────────────────────────────────────────────────────────────────────────
+  test("TC-001b: Link text color contrast >= 4.5:1 (focused, Dark theme)", async () => {
+    // Steps 1-2: set Dark theme + click ATK Activity Bar icon
+    const galleryOpened = await setupTcGallery("TC-001b", "dark");
+
+    // Step 3: screenshot showing ATK panel open in Dark theme
+    takeScreenshot("04-tc001b-extension-active");
+
+    // Step 5: screenshot showing gallery with visible link text on dark background
+    takeScreenshot("05-tc001b-gallery-open");
+
+    if (!galleryOpened) {
+      takeScreenshot("06-tc001b-link-focused");
+      step(
+        "TC-001b Link text contrast >= 4.5:1 (Dark)",
+        false,
+        "FAIL: Gallery webview not open after setup.",
+      );
+      return;
+    }
+
+    // Steps 6-7: Focus a .ms-Link element and compute WCAG contrast ratio
+    const evalScript =
+      "(function(){" +
+      WCAG_HELPER_JS +
+      "  var links=Array.from(document.querySelectorAll('.ms-Link'));" +
+      "  if(links.length===0) return JSON.stringify({error:'no-ms-link',count:0});" +
+      "  var link=links[0];" +
+      "  link.focus();" +
+      "  var cs=getComputedStyle(link);" +
+      "  var fgRaw=cs.color;" +
+      "  var fg=parseRgb(fgRaw);" +
+      "  var bg=effectiveBg(link);" +
+      "  if(!fg) return JSON.stringify({error:'parse-fg',fgRaw:fgRaw});" +
+      "  var fgL=relativeLuminance(fg[0],fg[1],fg[2]);" +
+      "  var bgL=relativeLuminance(bg[0],bg[1],bg[2]);" +
+      "  var ratio=contrastRatio(fgL,bgL);" +
+      "  return JSON.stringify({" +
+      "    count:links.length," +
+      "    fgRaw:fgRaw," +
+      "    bgRgb:'rgb('+bg[0]+','+bg[1]+','+bg[2]+')'," +
+      "    ratio:Math.round(ratio*100)/100," +
+      "    passes:ratio>=4.5" +
+      "  });" +
+      "})()";
+
+    const rawResult = sendEvalSignal(evalScript, 8000);
+    console.log(
+      "  TC-001b eval result:",
+      rawResult ? rawResult.slice(0, 200) : "(empty)",
+    );
+
+    // Step 8: screenshot showing the link in focused state with focus ring (dark theme)
+    takeScreenshot("06-tc001b-link-focused");
+
+    if (!rawResult || rawResult.startsWith("ERROR:")) {
+      step(
+        "TC-001b Link text contrast >= 4.5:1 (Dark)",
+        false,
+        "FAIL: DOM eval error — gallery may not be accessible via Playwright CDP.",
+      );
+      return;
+    }
+
+    let data: any = null;
+    try {
+      data = JSON.parse(rawResult);
+    } catch {}
+    if (!data) {
+      step(
+        "TC-001b Link text contrast >= 4.5:1 (Dark)",
+        false,
+        `FAIL: Could not parse eval result: ${rawResult.slice(0, 100)}`,
+      );
+      return;
+    }
+    if (data.error === "no-ms-link") {
+      step(
+        "TC-001b Link text contrast >= 4.5:1 (Dark)",
+        false,
+        "FAIL: No .ms-Link elements found in gallery webview.",
+      );
+      return;
+    }
+    if (data.error) {
+      step(
+        "TC-001b Link text contrast >= 4.5:1 (Dark)",
+        false,
+        `FAIL: ${data.error} fg=${data.fgRaw || "?"}`,
+      );
+      return;
+    }
+
+    const detail =
+      `Computed ratio=${data.ratio}:1; fg=${data.fgRaw}; bg=${data.bgRgb}; ` +
+      `${data.count} .ms-Link elements`;
+    step("TC-001b Link text contrast >= 4.5:1 (Dark)", !!data.passes, detail);
   });
 
   // ─────────────────────────────────────────────────────────────────────────────
@@ -765,26 +883,26 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
   });
 
   // ─────────────────────────────────────────────────────────────────────────────
-  // TC-004 — Featured section background contrast >= 3:1 against non-featured section background
-  //          (WCAG 1.4.11 Non-text Contrast)
+  // TC-004a — Featured section background contrast >= 3:1 against non-featured section background
+  //           (Light theme, WCAG 1.4.11 Non-text Contrast)
   //
   // Steps per test plan:
   //   1. Set VS Code color theme to "Default Light Modern"
   //   2. Click ATK Activity Bar icon
-  //   3. Open gallery — gallery shows both featured and non-featured sections
-  //   4. Screenshot 07 (featured and non-featured sections side by side)
+  //   3. Open gallery — gallery shows both featured (blue bg) and non-featured sections
+  //   4. Screenshot 13 (featured and non-featured sections side by side, light theme)
   //   5. Read effective background color of .featured-sample-section container
   //   6. Read effective background color of the non-featured section container
   //   7. Compute contrast_ratio(featured_section_bg, non_featured_section_bg)
   // ─────────────────────────────────────────────────────────────────────────────
-  test("TC-004: Featured section background contrast >= 3:1 (WCAG 1.4.11)", async () => {
+  test("TC-004a: Featured section background contrast >= 3:1 (Light theme, WCAG 1.4.11)", async () => {
     // Steps 1-3: set Light theme + click ATK Activity Bar + open gallery
-    const galleryOpened = await setupTcGallery("TC-004");
+    const galleryOpened = await setupTcGallery("TC-004a", "light");
 
     if (!galleryOpened) {
-      takeScreenshot("07-tc004-section-contrast");
+      takeScreenshot("13-tc004a-sections-light");
       step(
-        "TC-004 Featured section bg contrast >= 3:1",
+        "TC-004a Featured section bg contrast >= 3:1 (Light)",
         false,
         "FAIL: Gallery webview not open after setup.",
       );
@@ -792,7 +910,7 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
     }
 
     // Step 4: Screenshot showing both featured and non-featured sections side by side
-    takeScreenshot("07-tc004-section-contrast");
+    takeScreenshot("13-tc004a-sections-light");
 
     // Steps 5-7: Read featured section bg and non-featured section bg, compute WCAG contrast ratio
     const evalScript =
@@ -835,13 +953,13 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
 
     const rawResult = sendEvalSignal(evalScript, 10000);
     console.log(
-      "  TC-004 eval result:",
+      "  TC-004a eval result:",
       rawResult ? rawResult.slice(0, 300) : "(empty)",
     );
 
     if (!rawResult || rawResult.startsWith("ERROR:")) {
       step(
-        "TC-004 Featured section bg contrast >= 3:1",
+        "TC-004a Featured section bg contrast >= 3:1 (Light)",
         false,
         "FAIL: DOM eval error.",
       );
@@ -854,7 +972,7 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
     } catch {}
     if (!data) {
       step(
-        "TC-004 Featured section bg contrast >= 3:1",
+        "TC-004a Featured section bg contrast >= 3:1 (Light)",
         false,
         `FAIL: Parse error: ${rawResult.slice(0, 100)}`,
       );
@@ -862,7 +980,7 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
     }
     if (data.error === "no-featured-section") {
       step(
-        "TC-004 Featured section bg contrast >= 3:1",
+        "TC-004a Featured section bg contrast >= 3:1 (Light)",
         false,
         "FAIL: No .featured-sample-section element found in the gallery DOM.",
       );
@@ -870,7 +988,7 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
     }
     if (data.error === "no-non-featured-section") {
       step(
-        "TC-004 Featured section bg contrast >= 3:1",
+        "TC-004a Featured section bg contrast >= 3:1 (Light)",
         false,
         "FAIL: Could not find a non-featured section container to compare against.",
       );
@@ -878,7 +996,7 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
     }
     if (data.error) {
       step(
-        "TC-004 Featured section bg contrast >= 3:1",
+        "TC-004a Featured section bg contrast >= 3:1 (Light)",
         false,
         `FAIL: ${data.error}`,
       );
@@ -888,7 +1006,141 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
     const detail =
       `Computed ratio=${data.ratio}:1; featured section bg=${data.featuredSectionBg}; ` +
       `non-featured section bg=${data.nonFeaturedSectionBg}`;
-    step("TC-004 Featured section bg contrast >= 3:1", !!data.passes, detail);
+    step(
+      "TC-004a Featured section bg contrast >= 3:1 (Light)",
+      !!data.passes,
+      detail,
+    );
+  });
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // TC-004b — Featured section background contrast >= 3:1 against non-featured section background
+  //           (Dark theme, WCAG 1.4.11 Non-text Contrast)
+  //
+  // Steps per test plan:
+  //   1. Set VS Code color theme to "Default Dark Modern"
+  //   2. Click ATK Activity Bar icon
+  //   3. Open gallery — gallery shows both featured (steel-blue bg) and non-featured (dark) sections
+  //   4. Screenshot 14 (featured and non-featured sections side by side, dark theme)
+  //   5. Read effective background color of .featured-sample-section container
+  //   6. Read effective background color of the non-featured section container
+  //   7. Compute contrast_ratio(featured_section_bg, non_featured_section_bg)
+  // ─────────────────────────────────────────────────────────────────────────────
+  test("TC-004b: Featured section background contrast >= 3:1 (Dark theme, WCAG 1.4.11)", async () => {
+    // Steps 1-3: set Dark theme + click ATK Activity Bar + open gallery
+    const galleryOpened = await setupTcGallery("TC-004b", "dark");
+
+    if (!galleryOpened) {
+      takeScreenshot("14-tc004b-sections-dark");
+      step(
+        "TC-004b Featured section bg contrast >= 3:1 (Dark)",
+        false,
+        "FAIL: Gallery webview not open after setup.",
+      );
+      return;
+    }
+
+    // Step 4: Screenshot showing both featured and non-featured sections side by side (dark theme)
+    takeScreenshot("14-tc004b-sections-dark");
+
+    // Steps 5-7: Read featured section bg and non-featured section bg, compute WCAG contrast ratio
+    const evalScriptDark =
+      "(function(){" +
+      WCAG_HELPER_JS +
+      // Find the featured section container
+      "  var featSec=document.querySelector('.featured-sample-section');" +
+      "  if(!featSec){" +
+      "    return JSON.stringify({error:'no-featured-section'});" +
+      "  }" +
+      // Find the non-featured section: sibling first, then generic selector
+      "  var nonFeatSec=null;" +
+      "  var sibling=featSec.nextElementSibling||featSec.previousElementSibling;" +
+      "  if(sibling){nonFeatSec=sibling;}" +
+      "  if(!nonFeatSec){" +
+      "    var allSections=document.querySelectorAll('.sample-section,.samples-section,section,[class*=\"section\"]');" +
+      "    for(var i=0;i<allSections.length;i++){" +
+      "      if(allSections[i]!==featSec&&!featSec.contains(allSections[i])&&!allSections[i].contains(featSec)){" +
+      "        nonFeatSec=allSections[i];break;" +
+      "      }" +
+      "    }" +
+      "  }" +
+      "  if(!nonFeatSec){" +
+      "    return JSON.stringify({error:'no-non-featured-section'});" +
+      "  }" +
+      // Read effective background colors via DOM traversal
+      "  var featBgArr=effectiveBg(featSec);" +
+      "  var nonFeatBgArr=effectiveBg(nonFeatSec);" +
+      "  var featL=relativeLuminance(featBgArr[0],featBgArr[1],featBgArr[2]);" +
+      "  var nonFeatL=relativeLuminance(nonFeatBgArr[0],nonFeatBgArr[1],nonFeatBgArr[2]);" +
+      "  var ratio=contrastRatio(featL,nonFeatL);" +
+      "  return JSON.stringify({" +
+      "    featuredSectionBg:'rgb('+featBgArr[0]+','+featBgArr[1]+','+featBgArr[2]+')'," +
+      "    nonFeaturedSectionBg:'rgb('+nonFeatBgArr[0]+','+nonFeatBgArr[1]+','+nonFeatBgArr[2]+')'," +
+      "    ratio:Math.round(ratio*100)/100," +
+      "    passes:ratio>=3.0" +
+      "  });" +
+      "})()";
+
+    const rawResult = sendEvalSignal(evalScriptDark, 10000);
+    console.log(
+      "  TC-004b eval result:",
+      rawResult ? rawResult.slice(0, 300) : "(empty)",
+    );
+
+    if (!rawResult || rawResult.startsWith("ERROR:")) {
+      step(
+        "TC-004b Featured section bg contrast >= 3:1 (Dark)",
+        false,
+        "FAIL: DOM eval error.",
+      );
+      return;
+    }
+
+    let data: any = null;
+    try {
+      data = JSON.parse(rawResult);
+    } catch {}
+    if (!data) {
+      step(
+        "TC-004b Featured section bg contrast >= 3:1 (Dark)",
+        false,
+        `FAIL: Parse error: ${rawResult.slice(0, 100)}`,
+      );
+      return;
+    }
+    if (data.error === "no-featured-section") {
+      step(
+        "TC-004b Featured section bg contrast >= 3:1 (Dark)",
+        false,
+        "FAIL: No .featured-sample-section element found in the gallery DOM.",
+      );
+      return;
+    }
+    if (data.error === "no-non-featured-section") {
+      step(
+        "TC-004b Featured section bg contrast >= 3:1 (Dark)",
+        false,
+        "FAIL: Could not find a non-featured section container to compare against.",
+      );
+      return;
+    }
+    if (data.error) {
+      step(
+        "TC-004b Featured section bg contrast >= 3:1 (Dark)",
+        false,
+        `FAIL: ${data.error}`,
+      );
+      return;
+    }
+
+    const detail =
+      `Computed ratio=${data.ratio}:1; featured section bg=${data.featuredSectionBg}; ` +
+      `non-featured section bg=${data.nonFeaturedSectionBg}`;
+    step(
+      "TC-004b Featured section bg contrast >= 3:1 (Dark)",
+      !!data.passes,
+      detail,
+    );
   });
 
   // ─────────────────────────────────────────────────────────────────────────────
