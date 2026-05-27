@@ -24,7 +24,7 @@ All contrast checks use the **WCAG relative luminance formula** (IEC 61966-2-1 s
 - TC-001: Link text color contrast ≥ 4.5:1 when the link is **focused** in Light theme
 - TC-002: Gallery/List toggle buttons expose correct `aria-pressed` state before and after click
 - TC-003: Sample card accessible names include `. Tags: <tag1>, <tag2>` on keyboard focus
-- TC-004: Featured state visual indicator (badge) has non-text contrast ≥ 3:1 against card background (WCAG 1.4.11)
+- TC-004: Featured **section** background contrast ≥ 3:1 against non-featured section background (WCAG 1.4.11)
 - TC-005: Featured cards have aria-label starting with `"Featured sample."`, non-featured cards do not
 - TC-006a: Focus ring contrast ≥ 3:1 in **Gallery view** (Light theme)
 - TC-006b: Focus ring contrast ≥ 3:1 in **List view** (Light theme)
@@ -141,7 +141,7 @@ All contrast checks use the **WCAG relative luminance formula** (IEC 61966-2-1 s
 
 ---
 
-### TC-004 – Featured state visual indicator contrast ≥ 3:1 against card background (WCAG 1.4.11)
+### TC-004 – Featured section background contrast ≥ 3:1 against non-featured section background (WCAG 1.4.11)
 
 **Preconditions:**
 - VS Code is open with ATK extension installed from the `fix/issue-15916-copilot` branch build
@@ -149,25 +149,25 @@ All contrast checks use the **WCAG relative luminance formula** (IEC 61966-2-1 s
 **Steps:**
 1. Set VS Code color theme to "Default Light Modern" via Command Palette (`Ctrl+Shift+P` → `Preferences: Color Theme` → select "Default Light Modern").
 2. Click the ATK icon in the VS Code Activity Bar to activate the extension panel.
-3. Open Command Palette (`Ctrl+Shift+P`) and run `Microsoft 365 Agents Toolkit: View Samples`. Observe the Sample Gallery opens and featured cards are visible with a gold "Featured" badge.
-4. Take screenshot showing **both featured and non-featured cards** side by side.
-5. Read `getComputedStyle(badge).backgroundColor` from a `.featured-badge` element on a featured card.
-6. Read the card background color from the parent `.sample-card` element.
-7. Compute `contrast_ratio(badge_background, card_background)` using the WCAG relative luminance formula.
+3. Open Command Palette (`Ctrl+Shift+P`) and run `Microsoft 365 Agents Toolkit: View Samples`. Observe the Sample Gallery opens showing both a featured section and a non-featured section.
+4. Take screenshot showing **both the featured section and non-featured section** side by side in the same viewport.
+5. Read the effective background color of the **featured section container** (e.g. `.featured-sample-section`) using `effectiveBg()` DOM traversal.
+6. Read the effective background color of the **non-featured section container** (the section that does NOT have the featured class) using `effectiveBg()` DOM traversal.
+7. Compute `contrast_ratio(featured_section_bg, non_featured_section_bg)` using the WCAG relative luminance formula.
 
 **Expected result:**
-- Featured badge background color (dark gold `#7A5C00`) contrasts strongly with card background (white `#FFFFFF`)
-- Computed contrast ratio ≥ 3.0 (WCAG 1.4.11 non-text contrast)
+- The featured section has a visually distinct background color from the non-featured section
+- Computed contrast ratio ≥ 3.0 (WCAG 1.4.11 non-text contrast for visual state differentiation)
 
 **Pass criteria:**
-- `contrast_ratio(badge_bg_color, card_bg_color) >= 3.0`
-- `detail` field includes computed ratio plus both color values
+- `contrast_ratio(featured_section_bg, non_featured_section_bg) >= 3.0`
+- `detail` field includes computed ratio plus both color values (rgb strings)
 
 **Screenshots produced by test:**
 
-| ID  | Filename                        | What is visible                                          | Pass condition                                            | Why                                                                    |
-|-----|---------------------------------|----------------------------------------------------------|-----------------------------------------------------------|------------------------------------------------------------------------|
-| 07  | `07-tc004-featured-badge.png`   | Featured and non-featured cards side by side in gallery  | Featured badge (dark gold) visually distinct from card bg | Proves non-text contrast of featured indicator meets WCAG AA (≥3:1)   |
+| ID  | Filename                        | What is visible                                                          | Pass condition                                                     | Why                                                                                            |
+|-----|---------------------------------|--------------------------------------------------------------------------|--------------------------------------------------------------------|------------------------------------------------------------------------------------------------|
+| 07  | `07-tc004-section-contrast.png` | Featured section and non-featured section side by side in Light theme    | Two sections have visually distinct backgrounds (contrast ≥ 3:1)  | Proves visual state differentiation between featured/non-featured meets WCAG 1.4.11 (≥ 3:1)  |
 
 ---
 
@@ -276,7 +276,7 @@ All contrast checks use the **WCAG relative luminance formula** (IEC 61966-2-1 s
 - The Sample Gallery renders inside a VS Code webview. DOM evaluation is performed via the Playwright CDP session targeting the webview frame.
 - All contrast calculations use the WCAG relative luminance formula (IEC 61966-2-1 sRGB, not a simple color blacklist).
 - For TC-001: the link must be **focused** (`element.focus()`) before reading computed color — the `:focus` CSS rule changes the link color to `#004480` (≥7:1 contrast).
-- For TC-004: WCAG 1.4.11 (Non-text Contrast) applies to UI components; the featured badge uses `background-color: #7A5C00` (~5:1 against white card background).
+- For TC-004: WCAG 1.4.11 (Non-text Contrast) applies to UI components. The bug is that the featured section background and non-featured section background have only 1.157:1 contrast — far below the required 3:1. The fix must give the featured section a visually distinct background color.
 - For TC-006a/b: `element.focus()` triggers `:focus-visible` styles in VSCode webview. The light-theme override sets `outline-color: #005FB8` (~10:1 against white) on both `.sample-card` and `.sample-list-item`. The screenshot step must immediately follow focus so the ring is still visible.
 - `aria-pressed` on `<vscode-button>` is forwarded to the inner `<button>` element by the FAST foundation runtime.
 - TC-002, TC-003, TC-005: these attributes are set inline in the React render path and are accessible without CDP frame evaluation.
