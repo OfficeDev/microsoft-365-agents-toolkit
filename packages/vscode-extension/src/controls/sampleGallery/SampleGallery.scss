@@ -157,6 +157,19 @@ body.vscode-dark {
     border-color: #3A6080;
   }
 
+  /* TC-001b: Light blue (#4FC3F7) vs dark bg rgb(30,30,30) ≈ 8.0:1 ≥ 4.5:1 (WCAG AA) */
+  .sample-gallery {
+    a.ms-Link,
+    .ms-Link {
+      color: #4FC3F7;
+
+      &:hover,
+      &:focus {
+        color: #81D4FA;
+      }
+    }
+  }
+
   /* Title text in white on #4A7AA0 bg ≈ 4.6:1 ≥ 4.5:1 (WCAG AA normal text) */
   .sample-gallery {
     #featured-sample-title {

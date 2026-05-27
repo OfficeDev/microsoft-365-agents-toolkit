@@ -56,3 +56,21 @@ Apply a theme-aware link colour in the gallery webview. Options include:
   color: #4FC3F7;  /* contrast vs rgb(30,30,30) ≈ 8.0:1 */
 }
 ```
+
+## Applied Fix
+
+Added dark theme `.ms-Link` color override in `SampleGallery.scss`:
+
+```scss
+body.vscode-dark {
+  .sample-gallery {
+    a.ms-Link,
+    .ms-Link {
+      color: #4FC3F7;  /* contrast vs rgb(30,30,30) ≈ 8.0:1 */
+      &:hover, &:focus { color: #81D4FA; }
+    }
+  }
+}
+```
+
+This ensures TC-001b passes (≥ 4.5:1 in dark theme). Fix committed on `fix/issue-15916-copilot`.

@@ -5,7 +5,7 @@
 - **feature-slug**: `sample-app-a11y`
 - **owner**: atk-qa
 - **created**: 2026-05-15
-- **updated**: 2026-05-28
+- **updated**: 2026-05-27
 - **triggers**: issue-label `atk-copilot-test`, manual
 - **related-issue**: [#15916](https://github.com/OfficeDev/microsoft-365-agents-toolkit/issues/15916)
 
