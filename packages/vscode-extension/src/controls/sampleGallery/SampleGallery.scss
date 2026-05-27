@@ -117,12 +117,13 @@
 }
 
 body.vscode-light {
+  /* TC-004a: Featured section bg (#3C8BC5) vs page bg (#FFFFFF) = ~3.7:1 ≥ 3.0 (WCAG 1.4.11) */
   .featured-sample-section {
-    background-color: #F8F8F8;
-    border-color: #C6C6C6;
+    background-color: #3C8BC5;
+    border-color: #2A6A9A;
   }
 
-  /* TC-001: Ensure link text meets WCAG AA 4.5:1 contrast on light backgrounds */
+  /* TC-001a: Ensure link text meets WCAG AA 4.5:1 contrast on light backgrounds */
   .sample-gallery {
     a.ms-Link,
     .ms-Link {
@@ -135,22 +136,37 @@ body.vscode-light {
     }
   }
 
-  /* TC-003: Ensure featured section title/star meets 3:1 non-text contrast on light bg */
+  /* Title text in black (#000) on #3C8BC5 bg ≈ 5.7:1 — replaces gold which had <2:1 on blue */
   .sample-gallery {
     #featured-sample-title {
       span {
-        color: #7A5C00;
+        color: #000000;
       }
 
       h4 {
-        color: #7A5C00;
+        color: #000000;
       }
     }
   }
 }
 
 body.vscode-dark {
+  /* TC-004b: Featured section bg (#4A7AA0) vs dark page bg (#1E1E1E) = ~3.6:1 ≥ 3.0 (WCAG 1.4.11) */
   .featured-sample-section {
-    background-color: #252526;
+    background-color: #4A7AA0;
+    border-color: #3A6080;
+  }
+
+  /* Title text in white on #4A7AA0 bg ≈ 4.6:1 ≥ 4.5:1 (WCAG AA normal text) */
+  .sample-gallery {
+    #featured-sample-title {
+      span {
+        color: #FFFFFF;
+      }
+
+      h4 {
+        color: #FFFFFF;
+      }
+    }
   }
 }
