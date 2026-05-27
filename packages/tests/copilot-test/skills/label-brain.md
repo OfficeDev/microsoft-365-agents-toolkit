@@ -30,8 +30,7 @@ gh issue view $ISSUE --repo $REPO --json title,body,labels,comments \
 
 From the output extract:
 - **Issue body**: what is broken or what needs to be tested
-- **Non-bot comments** (skip `[bot]` / `github-actions` usernames): user instructions / clarifications
-- **Bot comments** with `<!-- atk-copilot-test -->`: previous run history (issue = memory)
+- **ALL comments** (read every comment regardless of author): user instructions, clarifications, and previous run history. Bot comments with `<!-- atk-copilot-test -->` are your own previous run reports — treat them as pipeline memory. All other comments (human or bot) may contain requirements, corrections, or additional context — read and apply them all.
 - **Existing branch**: check if a fix or test branch was already started
   ```bash
   gh pr list --repo $REPO --search "head:fix/issue-${ISSUE}" --json number,headRefName,url
