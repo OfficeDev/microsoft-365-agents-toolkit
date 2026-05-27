@@ -21,7 +21,7 @@ Do not use this skill for specs, tests, code, or implementation. Handoff to engi
 
 | Artifact | Location | Role |
 |---|---|---|
-| PRD pages and requirement deltas | [`docs/01-product/prd/`](../../../docs/01-product/prd/README.md) | Markdown-only product intent: problem, users, scope, success criteria, constraints |
+| PRD pages and requirement deltas | `docs/01-product/prd/` | Markdown-only product intent: problem, users, scope, success criteria, constraints |
 | Scenario directory guide | [`docs/01-product/scenarios/README.md`](../../../docs/01-product/scenarios/README.md) | Format rules for AI-readable scenario Markdown and human-readable scenario HTML |
 | Scenario HTML components | [`docs/01-product/_assets/scenario-components/`](../../../docs/01-product/_assets/scenario-components/README.md) | Reusable VS Code-style static flow components and icon assets for scenario HTML |
 | Scenario Markdown | `docs/01-product/scenarios/<group>/<scenario-slug>.md` | Concrete user flow: steps, states, edge cases, per-surface notes, inline Mermaid flow, and CLI E2E / VS Code UI test intent |
@@ -33,7 +33,7 @@ Do not use this skill for specs, tests, code, or implementation. Handoff to engi
 | Product review stylesheet | [`docs/01-product/_assets/product-review/product-review.css`](../../../docs/01-product/_assets/product-review/product-review.css) | Shared page-level styles for product index and scenario HTML; not a behavior source |
 | Product review index | [`docs/01-product/scenarios/index.html`](../../../docs/01-product/scenarios/index.html) | Human-facing locator for scenario HTML pages under `docs/01-product/scenarios/`; do not list README or Markdown source files |
 | Product artifact renderer | [`docs/01-product/_assets/product-artifact-viewer/index.html`](../../../docs/01-product/_assets/product-artifact-viewer/index.html) | Tooling-only renderer for Markdown artifacts; not a product artifact |
-| Backups | [`docs/01-product/_backups_/`](../../../docs/01-product/_backups_/README.md) | Pre-reorganization source material; not active PRD/scenario contract |
+| Backups | `docs/01-product/_backups_/` | Pre-reorganization source material; not active PRD/scenario contract |
 
 PRDs are high-level product documents. Scenarios split PRD intent into concrete flows such as creating, testing, or provisioning a DA. Scenario Markdown, including inline Mermaid, is the AI-primary source for experience behavior and later CLI E2E / VS Code UI test intent. HTML helps humans, AI agents, and engineering review layout, navigation, and visual states, but they must not derive specs, AC rows, tests, or behavior contracts from HTML alone.
 
@@ -59,7 +59,7 @@ Start from the concrete request: PM chat, GitHub Issue, ADO Work Item, or existi
 
 ### Phase 2 — Ask before guessing
 
-If the requirement, owner, success criteria, or user flow is unclear, stop and ask specific questions.
+This mirrors **Global behavioral principle #1** in [`.github/copilot-instructions.md`](../../copilot-instructions.md): if the requirement, owner, success criteria, or user flow is unclear, stop and ask specific questions.
 
 - GitHub Issue / ADO: comment with concrete questions and `@owner`.
 - Chat: ask the user directly.

@@ -552,7 +552,7 @@
     async function runMermaid() {
       try {
         if (!mermaidApi) {
-          mermaidApi = await import("https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs");
+          mermaidApi = await import("https://cdn.jsdelivr.net/npm/mermaid@10.9.6/dist/mermaid.esm.min.mjs");
           mermaidApi.default.initialize({ startOnLoad: false, securityLevel: "strict", theme: "default" });
         }
         await mermaidApi.default.run({ querySelector: ".mermaid" });

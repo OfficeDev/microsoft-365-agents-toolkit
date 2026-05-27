@@ -351,7 +351,7 @@ async function renderMarkdownMermaidFlow(root, source, flowIndex = 0) {
     if (!mermaid) throw new Error("No Mermaid code block found in Markdown source.");
 
     body.innerHTML = `<div class="mermaid">${escapeHtml(mermaid)}</div>`;
-    const mermaidApi = await import("https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs");
+    const mermaidApi = await import("https://cdn.jsdelivr.net/npm/mermaid@10.9.6/dist/mermaid.esm.min.mjs");
     mermaidApi.default.initialize({ startOnLoad: false, securityLevel: "strict", theme: "default" });
     await mermaidApi.default.run({ nodes: [body.querySelector(".mermaid")] });
   } catch (error) {
@@ -377,7 +377,7 @@ async function renderMarkdownSection(root, source, heading, level) {
 
     const mermaidNodes = Array.from(body.querySelectorAll(".mermaid"));
     if (mermaidNodes.length > 0) {
-      const mermaidApi = await import("https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs");
+      const mermaidApi = await import("https://cdn.jsdelivr.net/npm/mermaid@10.9.6/dist/mermaid.esm.min.mjs");
       mermaidApi.default.initialize({ startOnLoad: false, securityLevel: "strict", theme: "default" });
       await mermaidApi.default.run({ nodes: mermaidNodes });
     }
