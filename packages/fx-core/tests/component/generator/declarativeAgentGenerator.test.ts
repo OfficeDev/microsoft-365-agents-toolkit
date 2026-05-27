@@ -1875,8 +1875,7 @@ describe("helper", async () => {
   });
 
   describe("generator.post MCPForDA branch", () => {
-    it("post() calls generateForMCPForDA when flag and template match", async () => {
-      const { FeatureFlags } = await import("../../../src/common/featureFlags");
+    it("post() calls generateForMCPForDA when template matches", async () => {
       const generator = new DeclarativeAgentGenerator();
       const context = createContext();
       const destinationPath = "/test/destination";
@@ -1884,10 +1883,6 @@ describe("helper", async () => {
       sandbox
         .stub(copilotGptManifestUtils, "getManifestPath")
         .resolves(ok("/test/destination/appPackage/da.json"));
-      sandbox.stub(featureFlagManager, "getBooleanValue").callsFake((flag: any) => {
-        if (flag === FeatureFlags.MCPForDA) return true;
-        return false;
-      });
       const generateStub = sandbox
         .stub(generatorHelper, "generateForMCPForDA")
         .resolves(ok({ warnings: [] }));

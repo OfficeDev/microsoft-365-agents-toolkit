@@ -5,15 +5,15 @@
  * @author Ivan Chen <v-ivanchen@microsoft.com>
  */
 
-import { TemplateProject, LocalDebugTaskLabel } from "../../utils/constants";
-import { CaseFactory } from "./sampleCaseFactory";
+import { TemplateProject, LocalDebugTaskLabel } from "../utils/constants";
+import { CaseFactory } from "../ui-test/samples/sampleCaseFactory";
 import { Page } from "playwright";
 import {
   initTeamsPage,
   validateRetailDashboard,
-} from "../../utils/playwrightOperation";
-import { SampledebugContext } from "./sampledebugContext";
-import { Env } from "../../utils/env";
+} from "../utils/playwrightOperation";
+import { SampledebugContext } from "../ui-test/samples/sampledebugContext";
+import { Env } from "../utils/env";
 
 class RetailDashboardTestCase extends CaseFactory {
   public override async onInitPage(
@@ -23,7 +23,7 @@ class RetailDashboardTestCase extends CaseFactory {
       teamsAppName: string;
       type: string;
       env: "local" | "dev";
-    }
+    },
   ): Promise<Page> {
     return await initTeamsPage(
       sampledebugContext.context!,
@@ -35,13 +35,13 @@ class RetailDashboardTestCase extends CaseFactory {
         env: options?.env,
         teamsAppName: options?.teamsAppName,
         type: options?.type,
-      }
+      },
     );
   }
 
   override async onValidate(
     page: Page,
-    options?: { context: SampledebugContext }
+    options?: { context: SampledebugContext },
   ): Promise<void> {
     return await validateRetailDashboard(page);
   }
@@ -55,5 +55,5 @@ new RetailDashboardTestCase(
     teamsAppName: "react-retail-dashboard-",
     testPlanCaseId_local: 25051148,
     testPlanCaseId_dev: 25051150,
-  }
+  },
 ).test();

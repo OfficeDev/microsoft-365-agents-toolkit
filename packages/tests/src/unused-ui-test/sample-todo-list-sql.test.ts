@@ -6,26 +6,26 @@
  */
 
 import { Page } from "playwright";
-import { TemplateProject, LocalDebugTaskLabel } from "../../utils/constants";
+import { TemplateProject, LocalDebugTaskLabel } from "../utils/constants";
 import {
   initTeamsPage,
   validateTodoList,
   reopenTeamsPage,
-} from "../../utils/playwrightOperation";
-import { CaseFactory } from "./sampleCaseFactory";
-import { AzSqlHelper } from "../../utils/azureCliHelper";
-import { SampledebugContext } from "./sampledebugContext";
+} from "../utils/playwrightOperation";
+import { CaseFactory } from "../ui-test/samples/sampleCaseFactory";
+import { AzSqlHelper } from "../utils/azureCliHelper";
+import { SampledebugContext } from "../ui-test/samples/sampledebugContext";
 import { expect } from "chai";
 import * as path from "path";
-import { editDotEnvFile } from "../../utils/commonUtils";
-import { Env } from "../../utils/env";
+import { editDotEnvFile } from "../utils/commonUtils";
+import { Env } from "../utils/env";
 import * as os from "os";
 
 class TodoListBackendTestCase extends CaseFactory {
   public override async onBefore(
     sampledebugContext: SampledebugContext,
     env: "local" | "dev",
-    azSqlHelper?: AzSqlHelper | undefined
+    azSqlHelper?: AzSqlHelper | undefined,
   ): Promise<AzSqlHelper | undefined> {
     // create sql db server
     const rgName = `${sampledebugContext.appName}-dev-rg`;
@@ -43,21 +43,21 @@ class TodoListBackendTestCase extends CaseFactory {
     return azSqlHelper;
   }
   override async onAfter(
-    sampledebugContext: SampledebugContext
+    sampledebugContext: SampledebugContext,
   ): Promise<void> {
     await sampledebugContext.sampleAfter(
-      `${sampledebugContext.appName}-dev-rg}`
+      `${sampledebugContext.appName}-dev-rg}`,
     );
   }
   public override async onAfterCreate(
     sampledebugContext: SampledebugContext,
     env: "local" | "dev",
-    azSqlHelper?: AzSqlHelper | undefined
+    azSqlHelper?: AzSqlHelper | undefined,
   ): Promise<void> {
     const envFilePath = path.resolve(
       sampledebugContext.projectPath,
       "env",
-      `.env.${env}.user`
+      `.env.${env}.user`,
     );
     const res = await azSqlHelper?.createSql();
     expect(res).to.be.true;
@@ -67,7 +67,7 @@ class TodoListBackendTestCase extends CaseFactory {
     editDotEnvFile(
       envFilePath,
       "SQL_DATABASE_NAME",
-      azSqlHelper?.sqlDatabaseName ?? ""
+      azSqlHelper?.sqlDatabaseName ?? "",
     );
   }
   public override async onInitPage(
@@ -77,7 +77,7 @@ class TodoListBackendTestCase extends CaseFactory {
       teamsAppName: string;
       type: string;
       env: "local" | "dev";
-    }
+    },
   ): Promise<Page> {
     return await initTeamsPage(
       sampledebugContext.context!,
@@ -89,7 +89,7 @@ class TodoListBackendTestCase extends CaseFactory {
         env: options?.env,
         teamsAppName: options?.teamsAppName,
         type: options?.type,
-      }
+      },
     );
   }
   public override async onValidate(page: Page): Promise<void> {
@@ -106,7 +106,7 @@ class TodoListBackendTestCase extends CaseFactory {
           dashboardFlag: boolean;
           type: string;
         }
-      | undefined
+      | undefined,
   ): Promise<Page> {
     return await reopenTeamsPage(
       sampledebugContext.context!,
@@ -118,7 +118,7 @@ class TodoListBackendTestCase extends CaseFactory {
         env: "local",
         teamsAppName: options?.teamsAppName,
         type: options?.type,
-      }
+      },
     );
   }
 }
@@ -134,5 +134,5 @@ new TodoListBackendTestCase(
     type: "spfx",
     testPlanCaseId_local: 9958511,
     testPlanCaseId_dev: 14571882,
-  }
+  },
 ).test();

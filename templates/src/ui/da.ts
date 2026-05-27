@@ -88,7 +88,6 @@ export const daNode = {
                 label: "template.createProjectQuestion.mcpForDa.label",
                 detail: "template.createProjectQuestion.mcpForDa.detail",
                 data: "declarative-agent-with-action-from-mcp",
-                featureFlag: "TEAMSFX_MCP_FOR_DA",
               },
             ],
           },

@@ -276,6 +276,7 @@
   "core.generator.officeAddin.importProject.convertProject": "Converting project...",
   "core.generator.officeAddin.importProject.updateManifest": "Modifying manifest...",
   "core.generator.officeAddin.importOfficeProject.title": "Importing Existing Office Add-in Project",
+  "core.generator.officeAddin.importProject.manifestOnlyNotSupported": "The selected Office Add-in project at '%s' appears to be a manifest-only project (no 'package.json' was found). Manifest-only projects cannot be imported. Please select a complete Office Add-in project that includes 'package.json' and 'webpack.config.js'.",
   "core.TabOption.description": "UI-based app",
   "core.TabOption.detail": "Teams-aware webpages embedded in Microsoft Teams",
   "core.DashboardOption.label": "Dashboard",

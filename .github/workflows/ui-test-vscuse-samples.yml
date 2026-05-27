@@ -1,4 +1,4 @@
-name: uitest-vscuse-samples-new
+name: uitest-vscuse-samples
 #
 # Caller that runs Sample_* plans via the shared reusable workflow.
 on:
@@ -38,7 +38,7 @@ jobs:
     uses: ./.github/workflows/ui-test-vscuse-common.yml
     secrets: inherit
     permissions:
-      contents: read
+      contents: write
       packages: write
       id-token: write
       security-events: write

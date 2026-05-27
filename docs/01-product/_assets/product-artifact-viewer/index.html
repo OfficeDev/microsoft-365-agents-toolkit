@@ -1,0 +1,584 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Product Artifact Renderer</title>
+  <style>
+    :root {
+      --ink: #18212b;
+      --muted: #5f6d7a;
+      --paper: #fbfaf7;
+      --panel: #ffffff;
+      --line: #d8e0e7;
+      --accent: #0f6cbd;
+      --code: #f4f6f8;
+      --warn: #7a4f00;
+      --warn-bg: #fff4d6;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: linear-gradient(135deg, rgba(15, 108, 189, 0.09), transparent 26rem), var(--paper);
+      font-family: "Aptos", "Segoe UI", sans-serif;
+      line-height: 1.55;
+    }
+
+    header,
+    main {
+      width: min(1040px, calc(100% - 40px));
+      margin: 0 auto;
+    }
+
+    header {
+      padding: 34px 0 20px;
+    }
+
+    .topline {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 18px;
+    }
+
+    .topline a {
+      color: var(--accent);
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    .eyebrow {
+      margin: 0 0 10px;
+      color: var(--accent);
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(2.1rem, 4vw, 4rem);
+      line-height: 1;
+    }
+
+    .intro {
+      max-width: 760px;
+      margin: 16px 0 0;
+      color: var(--muted);
+    }
+
+    article {
+      min-height: 68vh;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.88);
+      box-shadow: 0 12px 34px rgba(24, 33, 43, 0.06);
+    }
+
+    .viewer-head {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 20px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.68);
+    }
+
+    .filename {
+      margin: 0;
+      font-size: 0.95rem;
+      font-weight: 700;
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .actions a,
+    .actions button {
+      padding: 7px 10px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: var(--panel);
+      color: var(--ink);
+      font: inherit;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    #status {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    #content {
+      padding: 20px;
+    }
+
+    #content h1,
+    #content h2,
+    #content h3 {
+      font-family: "Aptos", "Segoe UI", sans-serif;
+      line-height: 1.25;
+    }
+
+    #content h1 {
+      font-size: 2rem;
+    }
+
+    #content h2 {
+      margin-top: 2rem;
+      padding-bottom: 0.35rem;
+      border-bottom: 1px solid var(--line);
+    }
+
+    #content a {
+      color: var(--accent);
+    }
+
+    pre {
+      overflow: auto;
+      padding: 14px;
+      border-radius: 8px;
+      background: var(--code);
+    }
+
+    code {
+      padding: 0.12em 0.3em;
+      border-radius: 4px;
+      background: var(--code);
+      font-family: Consolas, "Liberation Mono", monospace;
+      font-size: 0.92em;
+    }
+
+    pre code {
+      padding: 0;
+      background: transparent;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1rem 0;
+    }
+
+    th,
+    td {
+      padding: 8px 10px;
+      border: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    blockquote {
+      margin: 1rem 0;
+      padding: 0.3rem 1rem;
+      border-left: 4px solid var(--accent);
+      color: var(--muted);
+      background: rgba(15, 108, 189, 0.06);
+    }
+
+    .warning {
+      padding: 12px 14px;
+      border: 1px solid #f1d38a;
+      border-radius: 8px;
+      background: var(--warn-bg);
+      color: var(--warn);
+    }
+
+    .mermaid {
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #ffffff;
+    }
+
+    @media (max-width: 720px) {
+      header,
+      main {
+        width: min(100% - 28px, 1040px);
+      }
+
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="topline">
+      <a id="backLink" href="../../scenarios/index.html">Back to directory index</a>
+      <p id="status">Loading renderer...</p>
+    </div>
+    <p class="eyebrow">Human-facing renderer</p>
+    <h1>Product artifact renderer</h1>
+    <p class="intro">
+      Preview Markdown and Mermaid/MMD sources for human review. This tool is not a source of truth;
+      PRD and scenario behavior remains in the original AI-facing Markdown files under <code>docs/01-product/</code>.
+    </p>
+  </header>
+
+  <main>
+    <article aria-live="polite">
+      <div class="viewer-head">
+        <p class="filename" id="filename">README.md</p>
+        <div class="actions">
+          <a id="sourceLink" href="../../README.md">Source</a>
+          <button id="rawToggle" type="button">Show raw</button>
+        </div>
+      </div>
+      <div id="content"></div>
+    </article>
+  </main>
+
+  <script type="module">
+    const allowedExtensions = new Set([".md", ".mmd"]);
+    const productRoot = "../../";
+    const backLink = document.querySelector("#backLink");
+    const content = document.querySelector("#content");
+    const filename = document.querySelector("#filename");
+    const sourceLink = document.querySelector("#sourceLink");
+    const status = document.querySelector("#status");
+    const rawToggle = document.querySelector("#rawToggle");
+
+    let currentFile = "README.md";
+    let currentSource = "";
+    let rawMode = false;
+    let mermaidApi;
+
+    rawToggle.addEventListener("click", () => {
+      rawMode = !rawMode;
+      rawToggle.textContent = rawMode ? "Show preview" : "Show raw";
+      renderCurrent();
+    });
+
+    function getRequestedFile() {
+      const params = new URLSearchParams(window.location.search);
+      return params.get("file") || "README.md";
+    }
+
+    function normalizeSourcePath(path) {
+      const normalized = path.replaceAll("\\", "/").trim();
+      if (!normalized || normalized.startsWith("/") || normalized.includes(":")) {
+        throw new Error("Use a product-root-relative path inside docs/01-product.");
+      }
+
+      const parts = normalizeSegments(normalized.split("/"));
+      if (!parts) {
+        throw new Error("Use a product-root-relative path inside docs/01-product without escaping the directory.");
+      }
+
+      const result = parts.join("/");
+      if (!/^[a-zA-Z0-9_./-]+$/.test(result)) {
+        throw new Error("Path may only contain alphanumerics, dot, dash, underscore, and forward slash.");
+      }
+      const extension = result.match(/\.[^.\/]+$/)?.[0]?.toLowerCase();
+      if (!extension || !allowedExtensions.has(extension)) {
+        throw new Error("Renderer supports .md and .mmd files.");
+      }
+
+      return result;
+    }
+
+    function normalizeSegments(segments) {
+      const output = [];
+      for (const segment of segments) {
+        if (!segment || segment === ".") continue;
+        if (segment === "..") {
+          if (!output.length) return null;
+          output.pop();
+          continue;
+        }
+        output.push(segment);
+      }
+      return output;
+    }
+
+    async function loadArtifact() {
+      try {
+        currentFile = normalizeSourcePath(getRequestedFile());
+        filename.textContent = currentFile;
+        backLink.href = productRoot + "scenarios/index.html";
+        backLink.textContent = "Back to scenarios index";
+        sourceLink.href = productRoot + currentFile;
+        status.textContent = "Loading source...";
+
+        const response = await fetch(productRoot + currentFile, { cache: "no-store" });
+        if (!response.ok) {
+          throw new Error(`Unable to load ${currentFile}: ${response.status} ${response.statusText}`);
+        }
+
+        currentSource = await response.text();
+        rawMode = false;
+        rawToggle.textContent = "Show raw";
+        await renderCurrent();
+        status.textContent = "Rendered from source.";
+      } catch (error) {
+        status.textContent = "Unable to render source.";
+        const message = error instanceof Error ? error.message : String(error);
+        content.innerHTML = `<div class="warning"><strong>Preview unavailable.</strong><br>${escapeHtml(message)}<br><br>If you opened this file directly from disk, serve docs with a local HTTP server so browser fetch can read product files.</div>`;
+      }
+    }
+
+    async function renderCurrent() {
+      if (rawMode) {
+        content.innerHTML = `<pre><code>${escapeHtml(currentSource)}</code></pre>`;
+        return;
+      }
+
+      if (currentFile.endsWith(".mmd")) {
+        await renderMermaid(currentSource);
+        return;
+      }
+
+      content.innerHTML = renderMarkdown(currentSource);
+      await renderMermaidBlocks();
+    }
+
+    function renderMarkdown(markdown) {
+      const lines = markdown.replace(/\r\n/g, "\n").split("\n");
+      const html = [];
+      let paragraph = [];
+      let listType = null;
+      let inFence = false;
+      let fenceLanguage = "";
+      let fence = [];
+      let table = [];
+
+      const flushParagraph = () => {
+        if (paragraph.length) {
+          html.push(`<p>${renderInline(paragraph.join(" "))}</p>`);
+          paragraph = [];
+        }
+      };
+      const flushList = () => {
+        if (listType) {
+          html.push(`</${listType}>`);
+          listType = null;
+        }
+      };
+      const flushTable = () => {
+        if (!table.length) return;
+        if (table.length >= 2 && /^\s*\|?\s*:?-{3,}:?\s*(\|\s*:?-{3,}:?\s*)+\|?\s*$/.test(table[1])) {
+          const headers = splitTableRow(table[0]);
+          const rows = table.slice(2).map(splitTableRow);
+          html.push("<table><thead><tr>" + headers.map((cell) => `<th>${renderInline(cell)}</th>`).join("") + "</tr></thead><tbody>");
+          for (const row of rows) {
+            html.push("<tr>" + row.map((cell) => `<td>${renderInline(cell)}</td>`).join("") + "</tr>");
+          }
+          html.push("</tbody></table>");
+        } else {
+          for (const row of table) paragraph.push(row);
+          flushParagraph();
+        }
+        table = [];
+      };
+
+      for (const line of lines) {
+        const fenceMatch = line.match(/^```\s*([^`]*)\s*$/);
+        if (fenceMatch) {
+          if (inFence) {
+            const source = fence.join("\n");
+            if (fenceLanguage.toLowerCase() === "mermaid") {
+              html.push(`<pre class="mermaid-source">${escapeHtml(source)}</pre>`);
+            } else {
+              html.push(`<pre><code>${escapeHtml(source)}</code></pre>`);
+            }
+            inFence = false;
+            fenceLanguage = "";
+            fence = [];
+          } else {
+            flushParagraph();
+            flushList();
+            flushTable();
+            inFence = true;
+            fenceLanguage = fenceMatch[1] || "";
+          }
+          continue;
+        }
+
+        if (inFence) {
+          fence.push(line);
+          continue;
+        }
+
+        if (!line.trim()) {
+          flushParagraph();
+          flushList();
+          flushTable();
+          continue;
+        }
+
+        if (line.includes("|") && /^\s*\|?.+\|.+\|?\s*$/.test(line)) {
+          flushParagraph();
+          flushList();
+          table.push(line);
+          continue;
+        }
+
+        flushTable();
+
+        const heading = line.match(/^(#{1,6})\s+(.+)$/);
+        if (heading) {
+          flushParagraph();
+          flushList();
+          const level = heading[1].length;
+          html.push(`<h${level}>${renderInline(heading[2])}</h${level}>`);
+          continue;
+        }
+
+        const quote = line.match(/^>\s?(.*)$/);
+        if (quote) {
+          flushParagraph();
+          flushList();
+          html.push(`<blockquote>${renderInline(quote[1])}</blockquote>`);
+          continue;
+        }
+
+        const unordered = line.match(/^[-*]\s+(.+)$/);
+        if (unordered) {
+          flushParagraph();
+          if (listType !== "ul") {
+            flushList();
+            listType = "ul";
+            html.push("<ul>");
+          }
+          html.push(`<li>${renderInline(unordered[1])}</li>`);
+          continue;
+        }
+
+        const ordered = line.match(/^\d+\.\s+(.+)$/);
+        if (ordered) {
+          flushParagraph();
+          if (listType !== "ol") {
+            flushList();
+            listType = "ol";
+            html.push("<ol>");
+          }
+          html.push(`<li>${renderInline(ordered[1])}</li>`);
+          continue;
+        }
+
+        paragraph.push(line.trim());
+      }
+
+      flushParagraph();
+      flushList();
+      flushTable();
+      return html.join("\n");
+    }
+
+    function splitTableRow(row) {
+      return row.trim().replace(/^\|/, "").replace(/\|$/, "").split("|").map((cell) => cell.trim());
+    }
+
+    function renderInline(text) {
+      return escapeHtml(text)
+        .replace(/`([^`]+)`/g, "<code>$1</code>")
+        .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
+        .replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_match, label, href) => {
+          const target = normalizeMarkdownHref(href);
+          return target ? `<a href="${escapeAttribute(target)}">${label}</a>` : label;
+        });
+    }
+
+    function normalizeMarkdownHref(href) {
+      const decoded = href.replaceAll("&amp;", "&").trim();
+      if (/^(https?:|mailto:|#)/i.test(decoded)) {
+        return decoded;
+      }
+
+      const [path, anchor = ""] = decoded.split("#");
+      const normalizedPath = resolveProductRelativePath(path);
+      if (!normalizedPath) {
+        return "";
+      }
+
+      if (/\.(md|mmd)$/i.test(normalizedPath)) {
+        const viewerHref = `index.html?file=${encodeURIComponent(normalizedPath)}`;
+        return anchor ? `${viewerHref}#${encodeURIComponent(anchor)}` : viewerHref;
+      }
+
+      if (/\.html$/i.test(normalizedPath)) {
+        const htmlHref = productRoot + normalizedPath;
+        return anchor ? `${htmlHref}#${encodeURIComponent(anchor)}` : htmlHref;
+      }
+
+      return "";
+    }
+
+    function resolveProductRelativePath(path) {
+      const normalized = path.replaceAll("\\", "/").trim();
+      if (!normalized || normalized.startsWith("/") || normalized.includes(":")) {
+        return "";
+      }
+
+      const base = currentFile.includes("/") ? currentFile.slice(0, currentFile.lastIndexOf("/") + 1) : "";
+      const parts = normalizeSegments((base + normalized).split("/"));
+      return parts ? parts.join("/") : "";
+    }
+
+    async function renderMermaidBlocks() {
+      const blocks = Array.from(content.querySelectorAll(".mermaid-source"));
+      for (const block of blocks) {
+        const wrapper = document.createElement("div");
+        wrapper.className = "mermaid";
+        wrapper.textContent = block.textContent;
+        block.replaceWith(wrapper);
+      }
+      if (blocks.length) {
+        await runMermaid();
+      }
+    }
+
+    async function renderMermaid(source) {
+      content.innerHTML = `<div class="mermaid">${escapeHtml(source)}</div>`;
+      await runMermaid();
+    }
+
+    async function runMermaid() {
+      try {
+        if (!mermaidApi) {
+          mermaidApi = await import("https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs");
+          mermaidApi.default.initialize({ startOnLoad: false, securityLevel: "strict", theme: "default" });
+        }
+        await mermaidApi.default.run({ querySelector: ".mermaid" });
+      } catch (error) {
+        status.textContent = "Rendered source; Mermaid preview unavailable.";
+        const warning = document.createElement("div");
+        warning.className = "warning";
+        const message = error instanceof Error ? error.message : String(error);
+        warning.textContent = `Mermaid could not load or render: ${message}`;
+        content.prepend(warning);
+      }
+    }
+
+    function escapeHtml(value) {
+      return value
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;");
+    }
+
+    function escapeAttribute(value) {
+      return escapeHtml(value).replaceAll("'", "&#39;");
+    }
+
+    loadArtifact();
+  </script>
+</body>
+</html>
