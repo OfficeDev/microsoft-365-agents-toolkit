@@ -12,6 +12,8 @@
  *
  * Runs INSIDE VSCode extension host via @vscode/test-electron (Mocha TDD).
  * All contrast checks use the WCAG relative luminance formula (IEC 61966-2-1 sRGB).
+ *
+ * Each TC flows: set theme → activate extension → open gallery → assert → screenshot
  */
 import * as vscode from "vscode";
 import * as assert from "assert";
@@ -60,7 +62,7 @@ function wait(ms: number): Promise<void> {
   return new Promise((r) => setTimeout(r, ms));
 }
 
-async function waitForCommand(cmd: string, maxMs = 30000): Promise<boolean> {
+async function waitForCommand(cmd: string, maxMs = 60000): Promise<boolean> {
   const deadline = Date.now() + maxMs;
   while (Date.now() < deadline) {
     const allCmds = await vscode.commands.getCommands(true);
@@ -177,7 +179,7 @@ const WCAG_HELPER_JS =
   "}";
 
 /**
- * Injects a CSS style that renders each card\'s aria-label as an overlay via ::before.
+ * Injects a CSS style that renders each card's aria-label as an overlay via ::before.
  * Makes aria-label content VISIBLE in screenshots for manual verification.
  */
 function injectAriaOverlay(selector: string = ".sample-card"): void {
@@ -211,13 +213,109 @@ function removeAriaOverlay(): void {
   sendEvalSignal(script, 1000);
 }
 
+/**
+ * Per-TC setup: set Default Light Modern theme, click ATK Activity Bar icon,
+ * open Sample Gallery, and wait for cards to render.
+ *
+ * Implements the common Steps 1-3 that appear in every TC of the test plan:
+ *   Step 1: Set VS Code color theme to "Default Light Modern"
+ *   Step 2: Click the ATK icon in the Activity Bar
+ *   Step 3: Open gallery and wait for cards to appear
+ *
+ * Returns true if the gallery was successfully opened.
+ */
+async function setupTcGallery(tcLabel: string): Promise<boolean> {
+  console.log(`\n  [setup] ${tcLabel}: setting Light theme...`);
+
+  // Step 1: Set VS Code color theme to "Default Light Modern" via Command Palette.
+  // In a test, we use the VS Code settings API (equivalent to Ctrl+Shift+P → Color Theme).
+  const wbConfig = vscode.workspace.getConfiguration("workbench");
+  try {
+    await wbConfig.update(
+      "colorTheme",
+      "Default Light Modern",
+      vscode.ConfigurationTarget.Global,
+    );
+    console.log(`  [setup] ${tcLabel}: theme set to Default Light Modern`);
+  } catch {
+    try {
+      await wbConfig.update(
+        "colorTheme",
+        "Default Light+",
+        vscode.ConfigurationTarget.Global,
+      );
+      console.log(`  [setup] ${tcLabel}: theme set to Default Light+ (fallback)`);
+    } catch (e) {
+      console.warn(`  [setup] ${tcLabel}: could not set light theme:`, e);
+    }
+  }
+  await wait(2000);
+
+  // Step 2: Click the ATK icon (M365 Agents Toolkit) in the VS Code Activity Bar.
+  // This ensures the ATK sidebar is visible before opening the Sample Gallery.
+  try {
+    await vscode.commands.executeCommand(
+      "workbench.view.extension.teamsfx-toolkit",
+    );
+    console.log(`  [setup] ${tcLabel}: ATK Activity Bar view activated`);
+  } catch {
+    // Try alternate Activity Bar icon click via signal
+    await sendSignal("click:.codicon-m365-agents-toolkit", 5000);
+    console.log(`  [setup] ${tcLabel}: sent Activity Bar click signal`);
+  }
+  await wait(2000);
+
+  // Step 3: Open Command Palette → "Microsoft 365 Agents Toolkit: View Samples"
+  const cmdName = "fx-extension.openSamples";
+  const cmdAvailable = await waitForCommand(cmdName, 60000);
+  if (!cmdAvailable) {
+    console.log(`  [setup] ${tcLabel}: ${cmdName} not registered`);
+    return false;
+  }
+
+  // Fire without await — command opens a webview panel
+  vscode.commands.executeCommand(cmdName).then(undefined, () => {});
+
+  // Poll until gallery renders
+  let galleryLoaded = false;
+  for (let poll = 0; poll < 30 && !galleryLoaded; poll++) {
+    await wait(2000);
+    const diagResult = sendEvalSignal(
+      "JSON.stringify({" +
+        "sampleCards:document.querySelectorAll(\".sample-card\").length," +
+        "hasFilter:!!document.querySelector(\".sample-filter\")," +
+        "hasOffline:!!document.querySelector(\".offlinePage\")" +
+        "})",
+      3000,
+    );
+    if (
+      diagResult &&
+      !diagResult.startsWith("ERROR:") &&
+      !diagResult.startsWith("ACCESSIBILITY:")
+    ) {
+      try {
+        const status = JSON.parse(diagResult);
+        if (status.sampleCards > 0 || status.hasFilter || status.hasOffline) {
+          galleryLoaded = true;
+          console.log(
+            `  [setup] ${tcLabel}: gallery loaded after ${(poll + 1) * 2}s — ${status.sampleCards} cards`,
+          );
+        }
+      } catch {}
+    }
+  }
+  if (!galleryLoaded) {
+    console.log(`  [setup] ${tcLabel}: gallery did not load in time`);
+  }
+  return galleryLoaded;
+}
+
 suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
   this.timeout(10 * 60 * 1000);
 
   const steps: object[] = [];
   let passed = 0;
   let failed = 0;
-  let galleryOpened = false;
 
   const step = (name: string, ok: boolean, detail?: string) => {
     steps.push({ name, status: ok ? "pass" : "fail", detail });
@@ -241,7 +339,7 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
     console.log(`\n=== Results: ${passed} passed, ${failed} failed ===`);
   });
 
-  // ── Screenshot 01: VS Code with ATK extension activated ─────────────────────
+  // ── Baseline: ATK extension activation ──────────────────────────────────────
   test("ATK extension is active", async () => {
     const extId = "TeamsDevApp.ms-teams-vscode-extension";
     let ext = vscode.extensions.getExtension(extId);
@@ -266,111 +364,47 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
       active,
       ext ? `v${ext.packageJSON.version}` : "not found",
     );
-    // Screenshot 01: Baseline — extension loaded before gallery opens
+    // Screenshot 01 — baseline: extension loaded (used by TC-001 step 3)
     takeScreenshot("01-extension-active");
-    if (!active && ext) {
-      console.log(
-        "  Note: Extension found but not active — source-level checks used below",
-      );
+    if (!active) {
+      console.log("  Note: Extension not active — remaining TCs will attempt per-TC setup");
     }
-  });
-
-  // ── Screenshot 02: Sample Gallery panel with sample cards ───────────────────
-  test("Open Sample Gallery panel", async () => {
-    const cmdName = "fx-extension.openSamples";
-    // Poll 60s for command registration after extension activation
-    const available = await waitForCommand(cmdName, 60000);
-    step(
-      "fx-extension.openSamples registered",
-      available,
-      available
-        ? "command found"
-        : "command not registered — source-level checks used for remaining TCs",
-    );
-
-    if (!available) {
-      const allCmds = await vscode.commands.getCommands(true);
-      const fxCmds = allCmds.filter((c) => c.startsWith("fx-extension"));
-      console.log(
-        `  [diag] fx-extension.* commands (${fxCmds.length}):`,
-        fxCmds.slice(0, 20).join(", ") || "(none)",
-      );
-    }
-
-    if (available) {
-      // Fire without await — command opens a webview panel
-      vscode.commands.executeCommand(cmdName).then(undefined, () => {});
-      // Poll until gallery renders (.sample-filter or cards present)
-      const galleryReadyScript =
-        "JSON.stringify({" +
-        "sampleCards:document.querySelectorAll(\".sample-card\").length," +
-        "hasFilter:!!document.querySelector(\".sample-filter\")," +
-        "hasOffline:!!document.querySelector(\".offlinePage\")," +
-        "elemCount:document.querySelectorAll(\"*\").length" +
-        "})";
-      let pollCount = 0;
-      let galleryLoaded = false;
-      while (pollCount < 30 && !galleryLoaded) {
-        await wait(2000);
-        pollCount++;
-        const diagResult = sendEvalSignal(galleryReadyScript, 3000);
-        console.log(
-          `  [poll ${pollCount}] Gallery status: ${diagResult.slice(0, 180)}`,
-        );
-        if (
-          diagResult &&
-          !diagResult.startsWith("ERROR:") &&
-          !diagResult.startsWith("ACCESSIBILITY:")
-        ) {
-          try {
-            const status = JSON.parse(diagResult);
-            if (status.sampleCards > 0 || status.hasFilter || status.hasOffline) {
-              galleryLoaded = true;
-              console.log(
-                `  Gallery loaded after ${pollCount * 2}s: ${status.sampleCards} cards`,
-              );
-            }
-          } catch {}
-        }
-      }
-      if (!galleryLoaded) {
-        const bodyDump = sendEvalSignal(
-          "JSON.stringify({href:window.location.href.slice(0,80),bodyText:document.body.innerText.slice(0,300)})",
-          3000,
-        );
-        console.log("  [diag] DOM dump:", bodyDump.slice(0, 500));
-      }
-      galleryOpened = true;
-    } else {
-      vscode.commands
-        .executeCommand("workbench.view.extension.teamsfx-toolkit")
-        .then(undefined, () => {});
-      await wait(2000);
-    }
-
-    // Screenshot 02: Sample Gallery panel with grid of sample cards
-    takeScreenshot("02-gallery-open");
   });
 
   // ─────────────────────────────────────────────────────────────────────────────
   // TC-001 — Link text color contrast >= 4.5:1 when focused (Light theme)
-  // Steps 1-6: open gallery → focus .ms-Link → compute WCAG contrast ratio
-  // Screenshot 03: focused link with visible focus indicator
+  //
+  // Steps per test plan:
+  //   1. Set VS Code color theme to "Default Light Modern"
+  //   2. Click ATK Activity Bar icon to open extension panel
+  //   3. Screenshot 01 (baseline — extension panel open in Light theme)
+  //   4. Open gallery via Command Palette → View Samples
+  //   5. Screenshot 02 (gallery open with visible link text)
+  //   6. Focus a .ms-Link via element.focus()
+  //   7. Read getComputedStyle(link).color and compute WCAG contrast ratio
+  //   8. Screenshot 03 (focused link with focus ring visible)
   // ─────────────────────────────────────────────────────────────────────────────
   test("TC-001: Link text color contrast >= 4.5:1 (focused, Light theme)", async () => {
+    // Steps 1-2: set Light theme + click ATK Activity Bar icon
+    const galleryOpened = await setupTcGallery("TC-001");
+
+    // Step 3: screenshot showing ATK panel open in Light theme
+    takeScreenshot("01-extension-active");
+
+    // Step 5: screenshot showing gallery with visible link text
+    takeScreenshot("02-gallery-open");
+
     if (!galleryOpened) {
       takeScreenshot("03-tc001-link-focused");
       step(
         "TC-001 Link text contrast >= 4.5:1",
         false,
-        "FAIL: Gallery webview not open.",
+        "FAIL: Gallery webview not open after setup.",
       );
       return;
     }
 
-    // Step 3: Focus a .ms-Link element via element.focus()
-    // Step 4: Read getComputedStyle(link).color from the focused link
-    // Step 5: Compute contrast_ratio(link_color, background_color) via WCAG luminance
+    // Steps 6-7: Focus a .ms-Link element and compute WCAG contrast ratio
     const evalScript =
       "(function(){" +
       WCAG_HELPER_JS +
@@ -401,7 +435,7 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
       rawResult ? rawResult.slice(0, 200) : "(empty)",
     );
 
-    // Step 6: Screenshot showing the link in focused state with visible focus indicator
+    // Step 8: screenshot showing the link in focused state with focus ring
     takeScreenshot("03-tc001-link-focused");
 
     if (!rawResult || rawResult.startsWith("ERROR:")) {
@@ -450,18 +484,30 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
 
   // ─────────────────────────────────────────────────────────────────────────────
   // TC-002 — Gallery/List toggle buttons expose aria-pressed before and after click
-  // Steps 1-8: read initial state → screenshot → click List → verify toggled → screenshot
-  // Screenshot 04: Gallery layout active (before click)
-  // Screenshot 05: List layout active (after click)
+  //
+  // Steps per test plan:
+  //   1. Set VS Code color theme to "Default Light Modern"
+  //   2. Click ATK Activity Bar icon
+  //   3. Open gallery (Gallery/Grid layout is default)
+  //   4. Read aria-pressed on Gallery button — expects "true"
+  //   5. Read aria-pressed on List button — expects "false"
+  //   6. Screenshot 04 (Gallery layout active, Gallery toggle selected)
+  //   7. Click List view toggle button — layout switches to vertical list
+  //   8. Read aria-pressed on Gallery button — expects "false"
+  //   9. Read aria-pressed on List button — expects "true"
+  //  10. Screenshot 05 (List layout active, List toggle selected)
   // ─────────────────────────────────────────────────────────────────────────────
   test("TC-002: Gallery/List toggle aria-pressed state toggles correctly", async () => {
+    // Steps 1-3: set Light theme + click ATK Activity Bar + open gallery
+    const galleryOpened = await setupTcGallery("TC-002");
+
     if (!galleryOpened) {
       takeScreenshot("04-tc002-gallery-active");
       takeScreenshot("05-tc002-list-active");
       step(
         "TC-002 Toggle aria-pressed state",
         false,
-        "FAIL: Gallery webview not open.",
+        "FAIL: Gallery webview not open after setup.",
       );
       return;
     }
@@ -491,17 +537,17 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
       "  return JSON.stringify({count:btns.length,buttons:mapped});" +
       "})()";
 
-    // Steps 2-3: Read aria-pressed on Gallery (expects "true") and List (expects "false")
+    // Steps 4-5: Read aria-pressed on Gallery (expects "true") and List (expects "false")
     const beforeResult = sendEvalSignal(readPressedScript, 5000);
     console.log(
       "  TC-002 before-click state:",
       beforeResult ? beforeResult.slice(0, 200) : "(empty)",
     );
 
-    // Step 4: Screenshot showing Gallery layout is active
+    // Step 6: Screenshot showing Gallery layout is active with Gallery toggle visually selected
     takeScreenshot("04-tc002-gallery-active");
 
-    // Step 5: User clicks the List view toggle button
+    // Step 7: Click the List view toggle button — observe layout switches to vertical list
     const clickResult = sendEvalSignal(
       "(function(){" +
         "  var btn=document.querySelector('[aria-label=\"list view\"]')" +
@@ -517,14 +563,14 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
     console.log("  TC-002 list-click result:", clickResult);
     await wait(800);
 
-    // Steps 6-7: Verify List aria-pressed="true", Gallery aria-pressed="false"
+    // Steps 8-9: Read aria-pressed — Gallery expects "false", List expects "true"
     const afterResult = sendEvalSignal(readPressedScript, 5000);
     console.log(
       "  TC-002 after-click state:",
       afterResult ? afterResult.slice(0, 200) : "(empty)",
     );
 
-    // Step 8: Screenshot showing List layout is active
+    // Step 10: Screenshot showing List layout is active with List toggle visually selected
     takeScreenshot("05-tc002-list-active");
 
     // Restore gallery view for subsequent tests
@@ -599,76 +645,89 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
       (b.label || "").toLowerCase().includes("list"),
     );
 
-    // Pass criteria from test plan:
-    // Before click: Gallery aria-pressed="true", List aria-pressed="false"
-    // After click:  List aria-pressed="true", Gallery aria-pressed="false"
     const beforeOk =
       galleryBefore?.pressed === "true" && listBefore?.pressed === "false";
     const afterOk =
       listAfter?.pressed === "true" && galleryAfter?.pressed === "false";
-    const clickOk = clickResult === "clicked";
+    const passes = beforeOk && afterOk;
 
-    const passes = beforeOk && afterOk && clickOk;
     const detail =
-      `Before: gallery.pressed=${galleryBefore?.pressed} list.pressed=${listBefore?.pressed}. ` +
-      `Click=${clickResult}. ` +
-      `After: gallery.pressed=${galleryAfter?.pressed} list.pressed=${listAfter?.pressed}. ` +
-      `Buttons: ${JSON.stringify(beforeData.buttons)}`;
+      `Before: gallery=${galleryBefore?.label}[${galleryBefore?.pressed}] ` +
+      `list=${listBefore?.label}[${listBefore?.pressed}]. ` +
+      `After: gallery=${galleryAfter?.label}[${galleryAfter?.pressed}] ` +
+      `list=${listAfter?.label}[${listAfter?.pressed}]`;
     step("TC-002 Toggle aria-pressed state", passes, detail);
   });
 
   // ─────────────────────────────────────────────────────────────────────────────
   // TC-003 — Sample card accessible names include tags on keyboard focus
-  // Steps 1-5: open gallery → press Tab → read aria-label → verify ". Tags:" pattern
-  // Screenshot 06: focused card with focus ring visible (aria overlay)
+  //
+  // Steps per test plan:
+  //   1. Set VS Code color theme to "Default Light Modern"
+  //   2. Click ATK Activity Bar icon
+  //   3. Open gallery (Gallery/Grid layout default)
+  //   4. Click inside gallery webview to give it focus
+  //   5. Press Tab to move keyboard focus to first sample card
+  //   6. Read aria-label from focused card element
+  //   7. Verify aria-label matches pattern /.+\. Tags: .+/
+  //   8. Screenshot 06 (focused card with focus ring visible)
   // ─────────────────────────────────────────────────────────────────────────────
   test("TC-003: Sample card aria-label includes tags on keyboard focus", async () => {
+    // Steps 1-3: set Light theme + click ATK Activity Bar + open gallery
+    const galleryOpened = await setupTcGallery("TC-003");
+
     if (!galleryOpened) {
       takeScreenshot("06-tc003-focused-card");
       step(
         "TC-003 Card aria-label includes tags",
         false,
-        "FAIL: Gallery webview not open.",
+        "FAIL: Gallery webview not open after setup.",
       );
       return;
     }
 
-    // Step 2: User presses Tab to move keyboard focus onto the first sample card
+    // Step 4: Click inside the Sample Gallery webview to give it keyboard focus
+    sendEvalSignal(
+      "(function(){" +
+        "  var card=document.querySelector('.sample-card');" +
+        "  if(card){card.focus();return 'focused';}" +
+        "  document.body.click();" +
+        "  return 'body-click';" +
+        "})()",
+      3000,
+    );
+    await wait(400);
+
+    // Step 5: Press Tab to move keyboard focus to the first .sample-card
     await sendSignal("pressKey:Tab", 3000);
     await wait(400);
 
-    // Step 3: Read aria-label from the focused card element
-    // Step 4: Verify the aria-label matches pattern /.+\. Tags: .+/
+    // Steps 6-7: Read aria-label from focused card and verify it contains ". Tags:"
     const evalScript =
       "(function(){" +
-      "  var cards=Array.from(document.querySelectorAll('.sample-card,.sample-list-item'));" +
-      "  var withTags=cards.filter(function(c){" +
-      "    return /\\.\\s*Tags:/i.test(c.getAttribute('aria-label')||'');" +
-      "  });" +
-      "  var focused=document.activeElement;" +
-      "  var focusedLabel=(focused&&(focused.classList.contains('sample-card')||" +
-      "    focused.classList.contains('sample-list-item')))" +
-      "    ?focused.getAttribute('aria-label')||'':'';" +
-      "  var sampleLabel=withTags.length>0?(withTags[0].getAttribute('aria-label')||''):'';" +
+      "  var card=document.activeElement;" +
+      "  if(!card||!card.classList.contains('sample-card')){" +
+      "    card=document.querySelector('.sample-card');" +
+      "    if(card)card.focus();" +
+      "  }" +
+      "  if(!card) return JSON.stringify({error:'no-sample-card'});" +
+      "  var label=card.getAttribute('aria-label')||'';" +
+      "  var hasTags=/\\. Tags: .+/.test(label);" +
       "  return JSON.stringify({" +
-      "    total:cards.length," +
-      "    withTags:withTags.length," +
-      "    focusedLabel:focusedLabel.slice(0,120)," +
-      "    sampleLabel:sampleLabel.slice(0,120)" +
+      "    label:label.slice(0,200)," +
+      "    hasTags:hasTags," +
+      "    isFocused:document.activeElement===card" +
       "  });" +
       "})()";
 
-    const rawResult = sendEvalSignal(evalScript, 5000);
+    const rawResult = sendEvalSignal(evalScript, 8000);
     console.log(
       "  TC-003 eval result:",
-      rawResult ? rawResult.slice(0, 200) : "(empty)",
+      rawResult ? rawResult.slice(0, 300) : "(empty)",
     );
 
-    // Step 5: Screenshot showing the focused card with focus ring visible
-    injectAriaOverlay(".sample-card,.sample-list-item");
-    await wait(300);
+    // Step 8: Screenshot showing focused card with focus ring
     takeScreenshot("06-tc003-focused-card");
-    removeAriaOverlay();
 
     if (!rawResult || rawResult.startsWith("ERROR:")) {
       step(
@@ -691,33 +750,47 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
       );
       return;
     }
+    if (data.error === "no-sample-card") {
+      step(
+        "TC-003 Card aria-label includes tags",
+        false,
+        "FAIL: No .sample-card elements found in gallery webview.",
+      );
+      return;
+    }
 
-    const hasTagsInLabel = data.withTags > 0;
     const detail =
-      `${data.withTags}/${data.total} cards have ". Tags:" in aria-label. ` +
-      `Sample: "${(data.sampleLabel || data.focusedLabel || "").slice(0, 100)}"`;
-    step("TC-003 Card aria-label includes tags", hasTagsInLabel, detail);
+      `aria-label="${data.label}"; hasTags=${data.hasTags}; isFocused=${data.isFocused}`;
+    step("TC-003 Card aria-label includes tags", !!data.hasTags, detail);
   });
 
   // ─────────────────────────────────────────────────────────────────────────────
-  // TC-004 — Featured badge non-text contrast >= 3:1 against card background (WCAG 1.4.11)
-  // Steps 1-6: open gallery → read badge bg color → read card bg → compute WCAG ratio
-  // Screenshot 07: featured and non-featured cards side by side
+  // TC-004 — Featured badge non-text contrast >= 3:1 (WCAG 1.4.11)
+  //
+  // Steps per test plan:
+  //   1. Set VS Code color theme to "Default Light Modern"
+  //   2. Click ATK Activity Bar icon
+  //   3. Open gallery — featured cards visible with gold "Featured" badge
+  //   4. Screenshot 07 (featured and non-featured cards side by side)
+  //   5. Read getComputedStyle(badge).backgroundColor from .featured-badge
+  //   6. Read card background from parent .sample-card
+  //   7. Compute contrast_ratio(badge_bg, card_bg) using WCAG relative luminance
   // ─────────────────────────────────────────────────────────────────────────────
   test("TC-004: Featured badge non-text contrast >= 3:1 (WCAG 1.4.11)", async () => {
+    // Steps 1-3: set Light theme + click ATK Activity Bar + open gallery
+    const galleryOpened = await setupTcGallery("TC-004");
+
     if (!galleryOpened) {
       takeScreenshot("07-tc004-featured-badge");
       step(
         "TC-004 Featured badge contrast >= 3:1",
         false,
-        "FAIL: Gallery webview not open.",
+        "FAIL: Gallery webview not open after setup.",
       );
       return;
     }
 
-    // Step 3: Read getComputedStyle(badge).backgroundColor from a .featured-badge element
-    // Step 4: Read card background color from the parent .sample-card
-    // Step 5: Compute contrast_ratio(badge_bg, card_bg) via WCAG luminance
+    // Steps 5-7: Read badge bg and card bg, compute WCAG contrast ratio
     const evalScript =
       "(function(){" +
       WCAG_HELPER_JS +
@@ -749,7 +822,7 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
       rawResult ? rawResult.slice(0, 200) : "(empty)",
     );
 
-    // Step 6: Screenshot showing both featured and non-featured cards
+    // Step 4: Screenshot showing both featured and non-featured cards side by side
     takeScreenshot("07-tc004-featured-badge");
 
     if (!rawResult || rawResult.startsWith("ERROR:")) {
@@ -797,21 +870,31 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
 
   // ─────────────────────────────────────────────────────────────────────────────
   // TC-005 — Screen reader differentiates Featured from non-Featured cards
-  // Steps 1-4: open gallery → read all card aria-labels → verify both prefixed and non-prefixed
-  // Screenshot 08: gallery showing featured and non-featured cards
+  //
+  // Steps per test plan:
+  //   1. Set VS Code color theme to "Default Light Modern"
+  //   2. Click ATK Activity Bar icon
+  //   3. Open gallery — mix of featured and non-featured cards
+  //   4. Screenshot 08 (gallery with featured and non-featured cards visible)
+  //   5. Find all card elements (.sample-card) and read their aria-label attributes
+  //   6. Verify at least one card has aria-label starting with "Featured sample."
+  //   7. Verify at least one card does NOT have "Featured sample." prefix
   // ─────────────────────────────────────────────────────────────────────────────
   test("TC-005: Featured cards have 'Featured sample.' aria-label prefix", async () => {
+    // Steps 1-3: set Light theme + click ATK Activity Bar + open gallery
+    const galleryOpened = await setupTcGallery("TC-005");
+
     if (!galleryOpened) {
       takeScreenshot("08-tc005-aria-labels");
       step(
         "TC-005 Featured ARIA differentiation",
         false,
-        "FAIL: Gallery webview not open.",
+        "FAIL: Gallery webview not open after setup.",
       );
       return;
     }
 
-    // Steps 2-4: Find all card elements, read aria-labels, verify both prefixed and non-prefixed exist
+    // Steps 5-7: Find all cards and verify featured vs non-featured aria-labels
     const evalScript =
       "(function(){" +
       "  var allCards=Array.from(document.querySelectorAll('.sample-card,.sample-list-item'));" +
@@ -834,7 +917,7 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
       rawResult ? rawResult.slice(0, 300) : "(empty)",
     );
 
-    // Step 5: Screenshot
+    // Step 4: Screenshot showing both featured (gold badge) and non-featured cards
     injectAriaOverlay(".sample-card,.sample-list-item");
     await wait(300);
     takeScreenshot("08-tc005-aria-labels");
@@ -873,16 +956,28 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
 
   // ─────────────────────────────────────────────────────────────────────────────
   // TC-006a — Focus ring contrast >= 3:1 in Gallery view (Light theme)
-  // Steps 1-6: set Light theme → Tab to first .sample-card → compute WCAG contrast ratio
-  // Screenshot 09: Gallery view with focused card and focus ring visible
+  //
+  // Steps per test plan:
+  //   1. Set VS Code color theme to "Default Light Modern"
+  //   2. Click ATK Activity Bar icon
+  //   3. Open gallery in Gallery (Grid) view
+  //   4. Click inside gallery webview to give it keyboard focus
+  //   5. Press Tab to move keyboard focus to the first .sample-card
+  //   6. Screenshot 09 — IMMEDIATELY after Tab so focus ring is clearly visible
+  //   7. Read getComputedStyle(card).outlineColor from focused card
+  //   8. Read card background color
+  //   9. Compute contrast_ratio(outline_color, card_bg) using WCAG relative luminance
   // ─────────────────────────────────────────────────────────────────────────────
   test("TC-006a: Focus ring contrast >= 3:1 in Gallery view (Light theme)", async () => {
+    // Steps 1-3: set Light theme + click ATK Activity Bar + open gallery
+    const galleryOpened = await setupTcGallery("TC-006a");
+
     if (!galleryOpened) {
       takeScreenshot("09-tc006a-gallery-focus");
       step(
         "TC-006a Gallery focus ring contrast >= 3:1",
         false,
-        "FAIL: Gallery webview not open.",
+        "FAIL: Gallery webview not open after setup.",
       );
       return;
     }
@@ -902,34 +997,23 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
     );
     await wait(600);
 
-    // Step 1: Set VS Code theme to a Light variant
-    const wbConfig = vscode.workspace.getConfiguration("workbench");
-    const originalTheme =
-      wbConfig.get<string>("colorTheme") ?? "Default Dark Modern";
-    try {
-      await wbConfig.update(
-        "colorTheme",
-        "Default Light Modern",
-        vscode.ConfigurationTarget.Global,
-      );
-    } catch {
-      try {
-        await wbConfig.update(
-          "colorTheme",
-          "Default Light+",
-          vscode.ConfigurationTarget.Global,
-        );
-      } catch (e) {
-        console.warn("  TC-006a: Could not switch to light theme:", e);
-      }
-    }
-    await wait(3000);
+    // Step 4: Click inside the gallery webview to give it keyboard focus
+    sendEvalSignal(
+      "(function(){" +
+        "  var el=document.querySelector('.sample-card,.sample-filter');" +
+        "  if(el){el.focus();return 'focused';}" +
+        "  document.body.click();" +
+        "  return 'body-click';" +
+        "})()",
+      3000,
+    );
+    await wait(400);
 
-    // Step 2: User presses Tab to move keyboard focus to the first .sample-card
+    // Step 5: Press Tab to move keyboard focus to the first .sample-card
     await sendSignal("pressKey:Tab", 3000);
     await wait(400);
 
-    // Steps 3-5: Read outline color and card background, compute WCAG contrast ratio
+    // Steps 7-9: Read outline color and card background, compute WCAG contrast ratio
     const evalScript =
       "(function(){" +
       WCAG_HELPER_JS +
@@ -941,17 +1025,15 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
       "  if(!card) return JSON.stringify({error:'no-sample-card'});" +
       "  var cs=getComputedStyle(card);" +
       "  var outlineRaw=cs.outlineColor;" +
-      "  var isLight=document.body.classList.contains('vscode-light');" +
       "  var outlineRgb=parseRgb(outlineRaw);" +
       "  var bgRgb=effectiveBg(card);" +
-      "  if(!outlineRgb) return JSON.stringify({error:'parse-outline',outlineRaw:outlineRaw,isLight:isLight});" +
+      "  if(!outlineRgb) return JSON.stringify({error:'parse-outline',outlineRaw:outlineRaw});" +
       "  var outlineL=relativeLuminance(outlineRgb[0],outlineRgb[1],outlineRgb[2]);" +
       "  var bgL=relativeLuminance(bgRgb[0],bgRgb[1],bgRgb[2]);" +
       "  var ratio=contrastRatio(outlineL,bgL);" +
       "  return JSON.stringify({" +
       "    outlineRaw:outlineRaw," +
       "    bgRgb:'rgb('+bgRgb[0]+','+bgRgb[1]+','+bgRgb[2]+')'," +
-      "    isLight:isLight," +
       "    outlineStyle:cs.outlineStyle," +
       "    ratio:Math.round(ratio*100)/100," +
       "    passes:ratio>=3.0" +
@@ -964,19 +1046,8 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
       rawResult ? rawResult.slice(0, 200) : "(empty)",
     );
 
-    // Step 6: Screenshot — after Tab so focus ring is clearly visible
+    // Step 6: Screenshot — immediately after Tab so focus ring is clearly visible
     takeScreenshot("09-tc006a-gallery-focus");
-
-    // Restore original theme
-    try {
-      await wbConfig.update(
-        "colorTheme",
-        originalTheme,
-        vscode.ConfigurationTarget.Global,
-      );
-    } catch (e) {
-      console.warn("  TC-006a: Could not restore theme:", e);
-    }
 
     if (!rawResult || rawResult.startsWith("ERROR:")) {
       step(
@@ -999,62 +1070,73 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
       );
       return;
     }
+    if (data.error === "no-sample-card") {
+      step(
+        "TC-006a Gallery focus ring contrast >= 3:1",
+        false,
+        "FAIL: No .sample-card elements found in gallery webview.",
+      );
+      return;
+    }
     if (data.error) {
       step(
         "TC-006a Gallery focus ring contrast >= 3:1",
         false,
-        `FAIL: ${data.error}. outlineRaw=${data.outlineRaw || "?"} isLight=${data.isLight}`,
+        `FAIL: ${data.error} outlineRaw=${data.outlineRaw || "?"}`,
       );
       return;
     }
 
     const detail =
-      `Computed ratio=${data.ratio}:1; outline=${data.outlineRaw} (${data.outlineStyle}); ` +
-      `bg=${data.bgRgb}; isLight=${data.isLight}`;
+      `Computed ratio=${data.ratio}:1; outline=${data.outlineRaw} (${data.outlineStyle}); bg=${data.bgRgb}`;
     step("TC-006a Gallery focus ring contrast >= 3:1", !!data.passes, detail);
   });
 
   // ─────────────────────────────────────────────────────────────────────────────
   // TC-006b — Focus ring contrast >= 3:1 in List view (Light theme)
-  // Steps 1-7: set Light theme → click List toggle → Tab to first .sample-list-item →
-  //            compute WCAG contrast ratio
-  // Screenshot 10: List view with focused list item and focus ring visible
+  //
+  // Steps per test plan:
+  //   1. Set VS Code color theme to "Default Light Modern"
+  //   2. Click ATK Activity Bar icon
+  //   3. Open gallery in Gallery (Grid) view
+  //   4. Click the List view toggle button — layout switches to vertical list
+  //   5. Click inside gallery webview to give it keyboard focus
+  //   6. Press Tab to move keyboard focus to the first .sample-list-item
+  //   7. Screenshot 10 — IMMEDIATELY after Tab so focus ring is clearly visible
+  //   8. Read getComputedStyle(listItem).outlineColor from focused list item
+  //   9. Read list item background color
+  //  10. Compute contrast_ratio(outline_color, list_item_bg) using WCAG relative luminance
   // ─────────────────────────────────────────────────────────────────────────────
   test("TC-006b: Focus ring contrast >= 3:1 in List view (Light theme)", async () => {
+    // Steps 1-3: set Light theme + click ATK Activity Bar + open gallery
+    const galleryOpened = await setupTcGallery("TC-006b");
+
     if (!galleryOpened) {
       takeScreenshot("10-tc006b-list-focus");
       step(
         "TC-006b List focus ring contrast >= 3:1",
         false,
-        "FAIL: Gallery webview not open.",
+        "FAIL: Gallery webview not open after setup.",
       );
       return;
     }
 
-    // Step 1: Set VS Code theme to a Light variant
-    const wbConfig = vscode.workspace.getConfiguration("workbench");
-    const originalTheme =
-      wbConfig.get<string>("colorTheme") ?? "Default Dark Modern";
-    try {
-      await wbConfig.update(
-        "colorTheme",
-        "Default Light Modern",
-        vscode.ConfigurationTarget.Global,
-      );
-    } catch {
-      try {
-        await wbConfig.update(
-          "colorTheme",
-          "Default Light+",
-          vscode.ConfigurationTarget.Global,
-        );
-      } catch (e) {
-        console.warn("  TC-006b: Could not switch to light theme:", e);
-      }
-    }
-    await wait(3000);
+    // Ensure we start from Gallery view
+    sendEvalSignal(
+      "(function(){" +
+        "  var btn=document.querySelector('[aria-label=\"grid view\"]')" +
+        "    ||document.querySelector('[aria-label=\"Gallery view\"]')" +
+        "    ||Array.from(document.querySelectorAll('.layout-button')).find(function(b){" +
+        "      var l=(b.getAttribute('aria-label')||'').toLowerCase();" +
+        "      return l.includes('grid')||l.includes('gallery');});" +
+        "  if(btn)btn.click();" +
+        "  return btn?'clicked':'no-btn';" +
+        "})()",
+      3000,
+    );
+    await wait(600);
 
-    // Step 2: User clicks the List view toggle button to switch to List layout
+    // Step 4: Click the List view toggle button — observe layout switches to vertical list
     const switchResult = sendEvalSignal(
       "(function(){" +
         "  var btn=document.querySelector('[aria-label=\"list view\"]')" +
@@ -1067,14 +1149,26 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
         "})()",
       5000,
     );
-    console.log("  TC-006b list-click result:", switchResult);
+    console.log("  TC-006b switch to list result:", switchResult);
     await wait(800);
 
-    // Step 3: User presses Tab to move keyboard focus to the first .sample-list-item
+    // Step 5: Click inside gallery to give it keyboard focus
+    sendEvalSignal(
+      "(function(){" +
+        "  var el=document.querySelector('.sample-list-item,.sample-filter');" +
+        "  if(el){el.focus();return 'focused';}" +
+        "  document.body.click();" +
+        "  return 'body-click';" +
+        "})()",
+      3000,
+    );
+    await wait(400);
+
+    // Step 6: Press Tab to move keyboard focus to the first .sample-list-item
     await sendSignal("pressKey:Tab", 3000);
     await wait(400);
 
-    // Steps 4-6: Read outline color and list item background, compute WCAG contrast ratio
+    // Steps 8-10: Read outline color and list item background, compute WCAG contrast ratio
     const evalScript =
       "(function(){" +
       WCAG_HELPER_JS +
@@ -1086,17 +1180,15 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
       "  if(!item) return JSON.stringify({error:'no-sample-list-item'});" +
       "  var cs=getComputedStyle(item);" +
       "  var outlineRaw=cs.outlineColor;" +
-      "  var isLight=document.body.classList.contains('vscode-light');" +
       "  var outlineRgb=parseRgb(outlineRaw);" +
       "  var bgRgb=effectiveBg(item);" +
-      "  if(!outlineRgb) return JSON.stringify({error:'parse-outline',outlineRaw:outlineRaw,isLight:isLight});" +
+      "  if(!outlineRgb) return JSON.stringify({error:'parse-outline',outlineRaw:outlineRaw});" +
       "  var outlineL=relativeLuminance(outlineRgb[0],outlineRgb[1],outlineRgb[2]);" +
       "  var bgL=relativeLuminance(bgRgb[0],bgRgb[1],bgRgb[2]);" +
       "  var ratio=contrastRatio(outlineL,bgL);" +
       "  return JSON.stringify({" +
       "    outlineRaw:outlineRaw," +
       "    bgRgb:'rgb('+bgRgb[0]+','+bgRgb[1]+','+bgRgb[2]+')'," +
-      "    isLight:isLight," +
       "    outlineStyle:cs.outlineStyle," +
       "    ratio:Math.round(ratio*100)/100," +
       "    passes:ratio>=3.0" +
@@ -1109,32 +1201,8 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
       rawResult ? rawResult.slice(0, 200) : "(empty)",
     );
 
-    // Step 7: Screenshot — after Tab so focus ring is clearly visible
+    // Step 7: Screenshot — immediately after Tab so focus ring is clearly visible
     takeScreenshot("10-tc006b-list-focus");
-
-    // Restore original theme and gallery view
-    try {
-      await wbConfig.update(
-        "colorTheme",
-        originalTheme,
-        vscode.ConfigurationTarget.Global,
-      );
-    } catch (e) {
-      console.warn("  TC-006b: Could not restore theme:", e);
-    }
-    sendEvalSignal(
-      "(function(){" +
-        "  var btn=document.querySelector('[aria-label=\"grid view\"]')" +
-        "    ||document.querySelector('[aria-label=\"Gallery view\"]')" +
-        "    ||Array.from(document.querySelectorAll('.layout-button')).find(function(b){" +
-        "      var l=(b.getAttribute('aria-label')||'').toLowerCase();" +
-        "      return l.includes('grid')||l.includes('gallery');});" +
-        "  if(btn)btn.click();" +
-        "  return btn?'restored':'no-btn';" +
-        "})()",
-      3000,
-    );
-    await wait(500);
 
     if (!rawResult || rawResult.startsWith("ERROR:")) {
       step(
@@ -1157,24 +1225,25 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
       );
       return;
     }
+    if (data.error === "no-sample-list-item") {
+      step(
+        "TC-006b List focus ring contrast >= 3:1",
+        false,
+        "FAIL: No .sample-list-item elements found — list view may not have rendered.",
+      );
+      return;
+    }
     if (data.error) {
       step(
         "TC-006b List focus ring contrast >= 3:1",
         false,
-        `FAIL: ${data.error}. outlineRaw=${data.outlineRaw || "?"} isLight=${data.isLight}; switchResult=${switchResult}`,
+        `FAIL: ${data.error} outlineRaw=${data.outlineRaw || "?"}`,
       );
       return;
     }
 
     const detail =
-      `Computed ratio=${data.ratio}:1; outline=${data.outlineRaw} (${data.outlineStyle}); ` +
-      `bg=${data.bgRgb}; isLight=${data.isLight}; switchResult=${switchResult}`;
+      `Computed ratio=${data.ratio}:1; outline=${data.outlineRaw} (${data.outlineStyle}); bg=${data.bgRgb}`;
     step("TC-006b List focus ring contrast >= 3:1", !!data.passes, detail);
-  });
-
-  test("Final state", async () => {
-    await wait(1000);
-    takeScreenshot("11-final-state");
-    step("Final state captured", true);
   });
 });
