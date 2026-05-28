@@ -4,7 +4,11 @@ import * as path from "path";
 import * as fs from "fs";
 import * as cp from "child_process";
 import * as os from "os";
-import { downloadAndUnzipVSCode, runTests, runVSCodeCommand } from "@vscode/test-electron";
+import {
+  downloadAndUnzipVSCode,
+  runTests,
+  runVSCodeCommand,
+} from "@vscode/test-electron";
 import { chromium } from "playwright";
 import type { Browser, BrowserContext, Page } from "playwright";
 
@@ -46,14 +50,18 @@ async function evalInGalleryFrame(
     frames.find((f) => f.url().startsWith("vscode-webview://"));
 
   if (galleryFrame) {
-    console.log(`  Gallery frame (selected): ${galleryFrame.url().slice(0, 100)}`);
+    console.log(
+      `  Gallery frame (selected): ${galleryFrame.url().slice(0, 100)}`,
+    );
 
     // S2a: CDP session on galleryFrame
     try {
       const frameSession = await ctx.newCDPSession(galleryFrame);
       const diagEval = await frameSession.send("Runtime.evaluate", {
-        expression: "JSON.stringify({href: window.location.href.slice(0,70), elemCount: document.querySelectorAll(\"*\").length, hasRoot: !!document.getElementById(\"root\")})",
-        returnByValue: true, awaitPromise: false,
+        expression:
+          'JSON.stringify({href: window.location.href.slice(0,70), elemCount: document.querySelectorAll("*").length, hasRoot: !!document.getElementById("root")})',
+        returnByValue: true,
+        awaitPromise: false,
       });
       if (diagEval.result?.value) {
         console.log("  [CDP diag]", diagEval.result.value.slice(0, 200));
@@ -85,7 +93,7 @@ async function evalInGalleryFrame(
         );
       } catch {}
       const val = await galleryFrame.evaluate(evalScript);
-      return typeof val === "string" ? val : (JSON.stringify(val) ?? "");
+      return typeof val === "string" ? val : JSON.stringify(val) ?? "";
     } catch (evalErr: any) {
       console.warn(`  S2b frame.evaluate failed: ${evalErr.message}`);
     }
@@ -102,12 +110,14 @@ async function evalInGalleryFrame(
     } catch {}
     try {
       const val = await galleryPage.evaluate(evalScript);
-      return typeof val === "string" ? val : (JSON.stringify(val) ?? "");
+      return typeof val === "string" ? val : JSON.stringify(val) ?? "";
     } catch (s1Err: any) {
       console.warn(`  S1 galleryPage eval failed: ${s1Err.message}`);
     }
   } else {
-    console.log(`  No gallery frame found (${frames.length} frames), no galleryPage`);
+    console.log(
+      `  No gallery frame found (${frames.length} frames), no galleryPage`,
+    );
   }
 
   // S3: ARIA snapshot fallback (Playwright 1.40+)
@@ -163,8 +173,9 @@ async function startSignalWatcher(
           const text = content.slice("clickText:".length);
           if (page) {
             // Strategy 1: getByText (robust Playwright text locator, substring match)
-            const byText = page.getByText(text, { exact: false })
-              .filter({ hasNot: page.locator('[class*="outline"], [class*="sidebar"]') });
+            const byText = page.getByText(text, { exact: false }).filter({
+              hasNot: page.locator('[class*="outline"], [class*="sidebar"]'),
+            });
             try {
               await byText.first().waitFor({ timeout: 8000 });
               await byText.first().click();
@@ -172,7 +183,9 @@ async function startSignalWatcher(
               await sleep(500);
             } catch {
               // Strategy 2: try monaco-list-row with hasText
-              const byRow = page.locator(".monaco-list-row").filter({ hasText: text });
+              const byRow = page
+                .locator(".monaco-list-row")
+                .filter({ hasText: text });
               try {
                 await byRow.first().waitFor({ timeout: 5000 });
                 await byRow.first().click();
@@ -181,7 +194,9 @@ async function startSignalWatcher(
               } catch {
                 // Strategy 3: type to filter QuickPick input, then Enter
                 try {
-                  const inputLoc = page.locator('.quick-input-filter .input, .quick-input-box .input');
+                  const inputLoc = page.locator(
+                    ".quick-input-filter .input, .quick-input-box .input",
+                  );
                   await inputLoc.first().waitFor({ timeout: 3000 });
                   await inputLoc.first().fill(text);
                   await sleep(500);
@@ -244,16 +259,25 @@ async function startSignalWatcher(
           if (page) {
             try {
               // Strategy 1: monaco-list-row (VSCode QuickPick items use virtualized list — getByText misses them)
-              const byRow = page.locator(".monaco-list-row").filter({ hasText: text });
+              const byRow = page
+                .locator(".monaco-list-row")
+                .filter({ hasText: text });
               let found = false;
               try {
                 // Use "attached" (not "visible") — QuickPick items may be in DOM but not "visible" per Playwright
-                await byRow.first().waitFor({ state: "attached", timeout: wftTimeout });
+                await byRow
+                  .first()
+                  .waitFor({ state: "attached", timeout: wftTimeout });
                 found = true;
-              } catch { /* fall through to strategy 2 */ }
+              } catch {
+                /* fall through to strategy 2 */
+              }
               if (!found) {
                 // Strategy 2: getByText fallback (InputBox labels, panel text, etc.)
-                await page.getByText(text, { exact: false }).first().waitFor({ timeout: 5000 });
+                await page
+                  .getByText(text, { exact: false })
+                  .first()
+                  .waitFor({ timeout: 5000 });
               }
               console.log(`  Found text: "${text}"`);
             } catch {
@@ -271,14 +295,23 @@ async function startSignalWatcher(
           const wftText = parts.slice(0, parts.length - 2).join(":");
           if (page) {
             try {
-              const byRow2 = page.locator(".monaco-list-row").filter({ hasText: wftText });
+              const byRow2 = page
+                .locator(".monaco-list-row")
+                .filter({ hasText: wftText });
               let found2 = false;
               try {
-                await byRow2.first().waitFor({ state: "attached", timeout: wftTimeout2 });
+                await byRow2
+                  .first()
+                  .waitFor({ state: "attached", timeout: wftTimeout2 });
                 found2 = true;
-              } catch { /* fall through */ }
+              } catch {
+                /* fall through */
+              }
               if (!found2) {
-                await page.getByText(wftText, { exact: false }).first().waitFor({ timeout: 5000 });
+                await page
+                  .getByText(wftText, { exact: false })
+                  .first()
+                  .waitFor({ timeout: 5000 });
                 found2 = true;
               }
               console.log(`  Found text: "${wftText}"`);
@@ -287,7 +320,9 @@ async function startSignalWatcher(
               await page.screenshot({ path: dest, fullPage: false });
               console.log(`  Screenshot (inline): ${screenshotName}.png`);
             } catch {
-              console.warn(`  waitForTextThenScreenshot: "${wftText}" not found`);
+              console.warn(
+                `  waitForTextThenScreenshot: "${wftText}" not found`,
+              );
             }
           }
         } else if (content.startsWith("eval:")) {
@@ -320,7 +355,12 @@ async function startSignalWatcher(
               try {
                 const ctx = getCtx();
                 if (ctx) {
-                  result = await evalInGalleryFrame(ctx, page, galleryPage, evalScript);
+                  result = await evalInGalleryFrame(
+                    ctx,
+                    page,
+                    galleryPage,
+                    evalScript,
+                  );
                   console.log(`  Eval result: ${result.slice(0, 120)}`);
                 }
               } catch (evalErr) {
@@ -368,7 +408,9 @@ async function main() {
 
   // Use a fresh user data dir each run to prevent VS Code extension auto-updates from
   // competing for network bandwidth during template loading.
-  try { fs.rmSync(userDataDir, { recursive: true, force: true }); } catch {}
+  try {
+    fs.rmSync(userDataDir, { recursive: true, force: true });
+  } catch {}
   for (const d of [screenshotDir, signalDir, userDataDir])
     fs.mkdirSync(d, { recursive: true });
   // Disable VS Code extension auto-updates to prevent github.copilot-chat from downloading
@@ -377,12 +419,16 @@ async function main() {
   fs.mkdirSync(vscodeUserSettings, { recursive: true });
   fs.writeFileSync(
     path.join(vscodeUserSettings, "settings.json"),
-    JSON.stringify({
-      "extensions.autoUpdate": false,
-      "extensions.autoCheckUpdates": false,
-      "update.mode": "none",
-      "telemetry.telemetryLevel": "off",
-    }, null, 2),
+    JSON.stringify(
+      {
+        "extensions.autoUpdate": false,
+        "extensions.autoCheckUpdates": false,
+        "update.mode": "none",
+        "telemetry.telemetryLevel": "off",
+      },
+      null,
+      2,
+    ),
     "utf8",
   );
 
@@ -404,9 +450,15 @@ async function main() {
   const tsconfigPath = path.join(HERE, "_tsconfig.build.json");
   const tsconfig = {
     compilerOptions: {
-      module: "commonjs", target: "ES2020", lib: ["ES2020"],
-      esModuleInterop: true, resolveJsonModule: true, strict: false,
-      skipLibCheck: true, outDir: tmpOut, rootDir: HERE,
+      module: "commonjs",
+      target: "ES2020",
+      lib: ["ES2020"],
+      esModuleInterop: true,
+      resolveJsonModule: true,
+      strict: false,
+      skipLibCheck: true,
+      outDir: tmpOut,
+      rootDir: HERE,
       types: ["node", "mocha"],
       typeRoots: [path.join(TESTS_ROOT, "node_modules", "@types")],
     },
@@ -415,11 +467,15 @@ async function main() {
   };
   fs.writeFileSync(tsconfigPath, JSON.stringify(tsconfig, null, 2), "utf8");
   const tscBin = path.join(
-    TESTS_ROOT, "node_modules", ".bin",
+    TESTS_ROOT,
+    "node_modules",
+    ".bin",
     process.platform === "win32" ? "tsc.CMD" : "tsc",
   );
   const compileResult = cp.spawnSync(tscBin, ["--project", tsconfigPath], {
-    cwd: HERE, stdio: "inherit", shell: process.platform === "win32",
+    cwd: HERE,
+    stdio: "inherit",
+    shell: process.platform === "win32",
   });
   fs.rmSync(tsconfigPath, { force: true });
   if (compileResult.status !== 0) console.warn("tsc warnings – continuing");
@@ -454,12 +510,14 @@ async function main() {
   const yamlVsixPath = process.env.YAML_STUB_VSIX;
   const yamlExtDir = path.join(userExtDir, "redhat.vscode-yaml");
   if (!fs.existsSync(path.join(yamlExtDir, "package.json"))) {
-    const installArg = (yamlVsixPath && fs.existsSync(yamlVsixPath))
-      ? yamlVsixPath
-      : "redhat.vscode-yaml";
+    const installArg =
+      yamlVsixPath && fs.existsSync(yamlVsixPath)
+        ? yamlVsixPath
+        : "redhat.vscode-yaml";
     try {
       await runVSCodeCommand([
-        "--install-extension", installArg,
+        "--install-extension",
+        installArg,
         `--extensions-dir=${userExtDir}`,
       ]);
       console.log(`YAML ext installed from: ${installArg}`);
@@ -474,8 +532,12 @@ async function main() {
   const vscodeTestOpts: any = {
     extensionTestsPath,
     launchArgs: [
-      "--disable-workspace-trust", "--skip-welcome", "--skip-release-notes",
-      `--user-data-dir=${userDataDir}`, "--no-sandbox", "--disable-gpu",
+      "--disable-workspace-trust",
+      "--skip-welcome",
+      "--skip-release-notes",
+      `--user-data-dir=${userDataDir}`,
+      "--no-sandbox",
+      "--disable-gpu",
       "--disable-dev-shm-usage",
       `--remote-debugging-port=${CDP_PORT}`,
       `--extensions-dir=${userExtDir}`,
@@ -501,7 +563,9 @@ async function main() {
   while (!cdpConnected && Date.now() - cdpStart < 90000) {
     await sleep(1000);
     try {
-      browser = await chromium.connectOverCDP(`http://localhost:${CDP_PORT}`, { timeout: 2000 });
+      browser = await chromium.connectOverCDP(`http://localhost:${CDP_PORT}`, {
+        timeout: 2000,
+      });
       cdpConnected = true;
     } catch (_) {}
   }
@@ -527,7 +591,9 @@ async function main() {
       const frameLogger = setInterval(() => {
         const frs = mainPage!.frames();
         console.log(`  Frames: ${frs.length}`);
-        frs.forEach((f, i) => console.log(`    [${i}] ${f.url().slice(0, 80)}`));
+        frs.forEach((f, i) =>
+          console.log(`    [${i}] ${f.url().slice(0, 80)}`),
+        );
       }, 10000);
       setTimeout(() => clearInterval(frameLogger), 120000);
 
@@ -535,18 +601,26 @@ async function main() {
         ctx.on("page", (newPage) => {
           const url = newPage.url();
           console.log("  New CDP page:", url.slice(0, 80));
-          if (url.startsWith("vscode-webview://") || url.includes("vscode-webview")) {
+          if (
+            url.startsWith("vscode-webview://") ||
+            url.includes("vscode-webview")
+          ) {
             galleryPage = newPage;
             console.log("  galleryPage set:", url.slice(0, 80));
           }
           newPage.on("domcontentloaded", () => {
             const u = newPage.url();
-            if (u.startsWith("vscode-webview://") || u.includes("vscode-webview")) {
+            if (
+              u.startsWith("vscode-webview://") ||
+              u.includes("vscode-webview")
+            ) {
               galleryPage = newPage;
             }
           });
           newPage.on("close", () => {
-            if (galleryPage === newPage) { galleryPage = null; }
+            if (galleryPage === newPage) {
+              galleryPage = null;
+            }
           });
         });
       });
@@ -571,13 +645,7 @@ async function main() {
   if (testFailed) process.exit(1);
 }
 
-main().catch((e) => { console.error(e); process.exit(1); });
-
-
-
-
-
-
-
-
-
+main().catch((e) => {
+  console.error(e);
+  process.exit(1);
+});
