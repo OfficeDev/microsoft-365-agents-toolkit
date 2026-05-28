@@ -1,12 +1,12 @@
 import { TeamsAppManifest, ok } from "@microsoft/teamsfx-api";
 import { featureFlagManager, manifestUtils } from "@microsoft/teamsfx-core";
+import * as featureFlags from "@microsoft/teamsfx-core/build/common/featureFlags";
 import * as chai from "chai";
 import * as sinon from "sinon";
 import * as vscode from "vscode";
 import * as globalVariables from "../../src/globalVariables";
 import { CommandsTreeViewProvider } from "../../src/treeview/commandsTreeViewProvider";
 import treeViewManager from "../../src/treeview/treeViewManager";
-import * as commonUtils from "../../src/utils/commonUtils";
 
 describe("TreeViewManager", () => {
   const sandbox = sinon.createSandbox();
@@ -40,7 +40,7 @@ describe("TreeViewManager", () => {
     chai.assert.equal((developmentTreeview as any).commands.length, 4);
   });
 
-  it("Development Treeview when HideGitHubCopilotPreviewTag is enabled", () => {
+  it("Development Treeview when ChatParticipant is enabled", () => {
     sandbox.stub(globalVariables, "context").value({ extensionPath: "" });
     sandbox.stub(globalVariables, "isSPFxProject").value(false);
     sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
@@ -51,20 +51,6 @@ describe("TreeViewManager", () => {
     const developmentTreeview = treeViewManager.getTreeView("teamsfx-development");
     chai.assert.isDefined(developmentTreeview);
     chai.assert.equal((developmentTreeview as any).commands.length, 5);
-  });
-
-  it("Development Treeview when enable extend MetaOS to DA", () => {
-    sandbox.stub(globalVariables, "isMetaOSAddinProject").value(true);
-    sandbox.stub(globalVariables, "isDeclarativeCopilotApp").value(false);
-    sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
-
-    treeViewManager.registerTreeViews({
-      subscriptions: [],
-    } as unknown as vscode.ExtensionContext);
-
-    const developmentTreeview = treeViewManager.getTreeView("teamsfx-development");
-    chai.assert.isDefined(developmentTreeview);
-    chai.assert.equal((developmentTreeview as any).commands.length, 6);
   });
 
   it("setRunningCommand", () => {
@@ -125,7 +111,7 @@ describe("TreeViewManager", () => {
     chai.assert.equal(utilityCommands.length, 3);
   });
 
-  it("updateTreeViewsByContent if remove project related commands when HideGitHubCopilotPreviewTag is enabled", async () => {
+  it("updateTreeViewsByContent if remove project related commands when ChatParticipant is enabled", async () => {
     sandbox.stub(globalVariables, "workspaceUri").value("");
     sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
     sandbox.stub(manifestUtils, "readAppManifest").resolves(ok({} as TeamsAppManifest));
@@ -149,35 +135,5 @@ describe("TreeViewManager", () => {
     await treeViewManager.updateTreeViewsByContent(true);
     chai.assert.equal(developmentCommands.length, 4);
     chai.assert.equal(utilityCommands.length, 3);
-  });
-
-  it("updateTreeViewsByContent when adaptiveCardInWorkspace is enabled", async () => {
-    treeViewManager.registerTreeViews({
-      subscriptions: [],
-    } as unknown as vscode.ExtensionContext);
-
-    const developmentTreeviewProvider = treeViewManager.getTreeView(
-      "teamsfx-development"
-    ) as CommandsTreeViewProvider;
-
-    const commands = developmentTreeviewProvider.getCommands();
-    chai.assert.equal(commands.length, 4);
-
-    sandbox.stub(commonUtils, "hasAdaptiveCardInWorkspace").returns(Promise.resolve(true));
-    await treeViewManager.updateTreeViewsByContent();
-
-    chai.assert.equal(commands.length, 5);
-  });
-
-  it("Development Treeview when Add knowledge is enabled", () => {
-    sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
-    sandbox.stub(globalVariables, "isDeclarativeCopilotApp").value(true);
-    treeViewManager.registerTreeViews({
-      subscriptions: [],
-    } as unknown as vscode.ExtensionContext);
-
-    const developmentTreeview = treeViewManager.getTreeView("teamsfx-development");
-    chai.assert.isDefined(developmentTreeview);
-    chai.assert.equal((developmentTreeview as any).commands.length, 8);
   });
 });

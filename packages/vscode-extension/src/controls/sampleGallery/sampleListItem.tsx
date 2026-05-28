@@ -26,15 +26,10 @@ export default class SampleListItem extends React.Component<SampleProps, unknown
       tooltipText = "Coming soon";
     }
 
-    const tagNames = sample.tags?.length ? sample.tags.join(", ") : "";
-    const featuredPrefix = this.props.featured ? "Featured sample. " : "";
-    const itemAriaLabel = `${featuredPrefix}${sample.title}${tagNames ? `. Tags: ${tagNames}` : ""}`;
-
     return (
       <div
         className={`sample-list-item`}
         tabIndex={0}
-        aria-label={itemAriaLabel}
         onKeyDown={(e) => {
           if (e.key === "Enter") {
             this.onSampleTitleClicked();
@@ -42,8 +37,14 @@ export default class SampleListItem extends React.Component<SampleProps, unknown
         }}
       >
         <div className="title-tag" onClick={this.onSampleTitleClicked}>
+          <label className="hidden-label" id="titleLabel">
+            sample app title:
+          </label>
           <h3>{sample.title}</h3>
-          <div className="tagSection" aria-hidden="true">
+          <label className="hidden-label" id="tagLabel">
+            sample app tags:
+          </label>
+          <div className="tagSection" aria-labelledby="tagLabel">
             {sample.tags &&
               sample.tags.map((value: string) => {
                 return (
@@ -76,7 +77,7 @@ export default class SampleListItem extends React.Component<SampleProps, unknown
                 this.props.upgradeToolkit(this.props.sample, TelemetryTriggerFrom.SampleGallery)
               }
             >
-              Upgrade Microsoft 365 Agents Toolkit
+              Upgrade Teams Toolkit
             </VSCodeButton>
           ) : (
             <VSCodeButton disabled>Create</VSCodeButton>

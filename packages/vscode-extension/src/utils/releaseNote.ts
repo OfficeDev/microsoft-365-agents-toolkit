@@ -1,14 +1,14 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import * as util from "util";
 import * as vscode from "vscode";
+import * as versionUtil from "./versionUtil";
 import { PrereleaseState, SyncedState, UserState } from "../constants";
-import * as folder from "../folder";
+import * as util from "util";
 import { ExtTelemetry } from "../telemetry/extTelemetry";
 import { TelemetryEvent } from "../telemetry/extTelemetryEvents";
+import * as folder from "../folder";
 import { localize } from "./localizeUtils";
-import * as versionUtil from "./versionUtil";
 
 export class ReleaseNote {
   private context: vscode.ExtensionContext;
@@ -40,18 +40,12 @@ export class ReleaseNote {
     } else {
       const currentStableVersion = this.context.globalState.get<string>(SyncedState.Version);
       await this.context.globalState.update(SyncedState.Version, teamsToolkitVersion);
-
-      let showChangeLog = false;
-      if (currentStableVersion === undefined) {
-        // it is new user
-        showChangeLog = true;
-      } else if (versionUtil.compare(teamsToolkitVersion, currentStableVersion) === 1) {
-        // user has upgraded from previous stable version
-        showChangeLog = true;
+      if (
+        currentStableVersion !== undefined &&
+        versionUtil.compare(teamsToolkitVersion, currentStableVersion) === 1
+      ) {
+        // it is existinig user
         await this.context.globalState.update(UserState.IsExisting, "yes");
-      }
-
-      if (showChangeLog) {
         ExtTelemetry.sendTelemetryEvent(TelemetryEvent.ShowWhatIsNewNotification);
 
         const changelog = {

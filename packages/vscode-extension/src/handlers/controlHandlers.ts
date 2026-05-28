@@ -2,12 +2,7 @@
 // Licensed under the MIT license.
 
 import { FxError, Result, ok } from "@microsoft/teamsfx-api";
-import {
-  featureFlagManager,
-  FeatureFlags,
-  isValidProject,
-  manifestUtils,
-} from "@microsoft/teamsfx-core";
+import { isValidProject, manifestUtils } from "@microsoft/teamsfx-core";
 import fs from "fs-extra";
 import path from "path";
 import * as vscode from "vscode";
@@ -22,9 +17,8 @@ import {
   TelemetryUpdateAppReason,
 } from "../telemetry/extTelemetryEvents";
 import { openFolderInExplorer } from "../utils/commonUtils";
+import { getWalkThroughId } from "../utils/projectStatusUtils";
 import { getTriggerFromProperty } from "../utils/telemetryUtils";
-import { getDefaultString } from "../utils/localizeUtils";
-import { getBuildIntelligentAppsWalkthroughID } from "./walkthrough";
 
 export async function openLifecycleTreeview(args?: any[]) {
   ExtTelemetry.sendTelemetryEvent(
@@ -38,39 +32,47 @@ export async function openLifecycleTreeview(args?: any[]) {
   }
 }
 
-// args[0] is telemetry trigger from
 export async function openWelcomeHandler(...args: unknown[]): Promise<Result<unknown, FxError>> {
   ExtTelemetry.sendTelemetryEvent(TelemetryEvent.GetStarted, getTriggerFromProperty(args));
-
-  const data = await vscode.commands.executeCommand(
-    "workbench.action.openWalkthrough",
-    getBuildIntelligentAppsWalkthroughID()
-  );
-  return Promise.resolve(ok(data));
-}
-
-export async function selectWalkthrough(...args: unknown[]): Promise<Result<unknown, FxError>> {
-  const BuildingIntelligentAppsLabel = getDefaultString(
-    "teamstoolkit.walkthroughs.buildIntelligentApps.title"
-  );
-  const walkthroughChoices: vscode.QuickPickItem[] = [
-    {
-      label: BuildingIntelligentAppsLabel,
-      detail: getDefaultString("teamstoolkit.walkthroughs.buildIntelligentApps.description"),
-    },
-  ];
-  const walkthroughChoice = await vscode.window.showQuickPick(walkthroughChoices, {
-    placeHolder: getDefaultString("teamstoolkit.walkthroughs.select.placeholder"),
-    title: getDefaultString("teamstoolkit.walkthroughs.select.title"),
-  });
-  let walkthroughId = "";
-  if (walkthroughChoice?.label === BuildingIntelligentAppsLabel) {
-    walkthroughId = getBuildIntelligentAppsWalkthroughID();
+  // Open different walkthrough depending on the project type
+  let isCopilotApp = false;
+  if (workspaceUri?.fsPath) {
+    const manifestRes = await manifestUtils.readAppManifest(workspaceUri?.fsPath);
+    if (manifestRes.isOk()) {
+      const capabilities = manifestUtils.getCapabilities(manifestRes.value);
+      // API plugin can be detected in manifest
+      isCopilotApp = capabilities.includes("extension") || capabilities.includes("plugin");
+    }
+    if (!isCopilotApp) {
+      // Use dependency to determine if it is a copilot app for now.
+      // TODO: use getCapabilities after manifest supports custom engine copilot.
+      const packageJsonPath = path.join(workspaceUri.fsPath, "package.json");
+      const requirementsPath = path.join(workspaceUri.fsPath, "src", "requirements.txt");
+      if (await fs.pathExists(packageJsonPath)) {
+        const packageJson = await fs.readFile(packageJsonPath);
+        if (packageJson.toString().includes('"@microsoft/teams-ai"')) {
+          isCopilotApp = true;
+        }
+      } else if (await fs.pathExists(requirementsPath)) {
+        const requirements = await fs.readFile(requirementsPath);
+        if (requirements.toString().includes("teams-ai")) {
+          isCopilotApp = true;
+        }
+      }
+    }
   }
-  const data = await vscode.commands.executeCommand(
-    "workbench.action.openWalkthrough",
-    walkthroughId
-  );
+  let data: unknown;
+  if (isCopilotApp) {
+    data = await vscode.commands.executeCommand(
+      "workbench.action.openWalkthrough",
+      "TeamsDevApp.ms-teams-vscode-extension#buildIntelligentApps"
+    );
+  } else {
+    data = await vscode.commands.executeCommand(
+      "workbench.action.openWalkthrough",
+      getWalkThroughId()
+    );
+  }
   return Promise.resolve(ok(data));
 }
 

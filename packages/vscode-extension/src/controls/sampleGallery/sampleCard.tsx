@@ -62,21 +62,16 @@ export default class SampleCard extends React.Component<SampleProps, { imageUrl:
     let upgrade = false;
     if (sample.versionComparisonResult < 0) {
       sampleImage = legacySampleImage;
-      tooltipText = `This sample is upgraded to only work with newer version of Microsoft 365 Agents Toolkit, please install v${sample.minimumToolkitVersion} to run it.`;
+      tooltipText = `This sample is upgraded to only work with newer version of Teams Toolkit, please install v${sample.minimumToolkitVersion} to run it.`;
       upgrade = true;
     } else if (sample.versionComparisonResult > 0) {
       sampleImage = upgradingSampleImage;
       tooltipText = "Coming soon";
     }
-    const tagNames = sample.tags?.length ? sample.tags.join(", ") : "";
-    const featuredPrefix = this.props.featured ? "Featured sample. " : "";
-    const cardAriaLabel = `${featuredPrefix}${sample.title}${tagNames ? `. Tags: ${tagNames}` : ""}`;
     return (
       <div
         className={`sample-card ${unavailable ? "unavailable" : ""}`}
         tabIndex={0}
-        role="button"
-        aria-label={cardAriaLabel}
         onClick={this.onSampleCardClicked}
         onKeyDown={(e) => {
           if (e.key === "Enter") {
@@ -84,6 +79,7 @@ export default class SampleCard extends React.Component<SampleProps, { imageUrl:
           }
         }}
       >
+        <label className="hidden-label">sample app card</label>
         {unavailable && (
           <span className={`tooltip ${upgrade ? "upgrade" : ""}`}>{tooltipText}</span>
         )}

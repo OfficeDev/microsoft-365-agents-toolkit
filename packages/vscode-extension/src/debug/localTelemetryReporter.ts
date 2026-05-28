@@ -156,7 +156,7 @@ export async function sendDebugAllEvent(
   };
 
   const closedPorts: number[] = [];
-  for (const port of globalVariables.LocalDebugPorts.conflictPorts) {
+  for (const port of globalVariables.LocalDebugPorts.checkPorts) {
     const port2 = await detectPort(port);
     if (port2 === port) {
       closedPorts.push(port);
@@ -265,8 +265,8 @@ export async function getTaskInfo(): Promise<TaskInfo | undefined> {
       const labelList: string[] = Array.isArray(overallTask.dependsOn)
         ? overallTask.dependsOn
         : typeof overallTask.dependsOn === "string"
-          ? [overallTask.dependsOn]
-          : [];
+        ? [overallTask.dependsOn]
+        : [];
 
       for (const label of labelList) {
         const task = findTask(taskJson, label);

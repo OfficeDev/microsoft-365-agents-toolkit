@@ -29,4 +29,3 @@ test/**
 tsconfig.eslint.json
 vite.config.ts
 webpack.config.js
-packageMocks/

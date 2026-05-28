@@ -7,7 +7,6 @@ export enum Checker {
   M365Account = "Microsoft 365 Account",
   CopilotAccess = "Copilot Access",
   Ports = "ports occupancy",
-  SandboxedEnabled = "Sandbox enabled",
 }
 
 export const DepsDisplayName = {
@@ -25,7 +24,8 @@ export const ProgressMessage = Object.freeze({
   [Checker.M365Account]: `Checking ${Checker.M365Account}`,
   [Checker.CopilotAccess]: `Checking ${Checker.CopilotAccess}`,
   [Checker.Ports]: `Checking ${Checker.Ports}`,
-  [Checker.SandboxedEnabled]: `Checking ${Checker.SandboxedEnabled}`,
   [DepsType.LtsNode]: `Checking ${DepsDisplayName[DepsType.LtsNode]}`,
   [DepsType.ProjectNode]: `Checking ${DepsDisplayName[DepsType.ProjectNode]}`,
 });
+
+export const copilotCheckServiceScope = process.env.SIDELOADING_SERVICE_SCOPE ?? MosServiceScope;

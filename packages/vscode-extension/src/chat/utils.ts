@@ -2,6 +2,8 @@
 // Licensed under the MIT license.
 
 import { CancellationToken, ChatResponseStream, LanguageModelChatMessage, lm } from "vscode";
+
+import { sampleProvider } from "@microsoft/teamsfx-core";
 import { BaseTokensPerCompletion, BaseTokensPerMessage, BaseTokensPerName } from "./consts";
 import { Tokenizer } from "./tokenizer";
 
@@ -40,6 +42,15 @@ export async function getCopilotResponseAsString(
     response += fragment;
   }
   return response;
+}
+
+export async function getSampleDownloadUrlInfo(sampleId: string) {
+  const sampleCollection = await sampleProvider.SampleCollection;
+  const sample = sampleCollection.samples.find((sample) => sample.id === sampleId);
+  if (!sample) {
+    throw new Error("Sample not found");
+  }
+  return sample.downloadUrlInfo;
 }
 
 // count message token for GPT3.5 and GPT4 message

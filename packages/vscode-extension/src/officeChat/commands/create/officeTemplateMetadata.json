@@ -1,0 +1,38 @@
+[
+  {
+    "id": "word-taskpane",
+    "addin-host": "word",
+    "capabilities": "taskpane",
+    "name": "Word Taskpane",
+    "project-type": "office-xml-addin-type",
+    "description": "This project is a Word Hello World add-in template. It is a very simple Word add-in that can only insert 'Hello, World!' into the first paragraph of the current document."
+  },
+  {
+    "id": "excel-taskpane",
+    "addin-host": "excel",
+    "name": "Excel Taskpane",
+    "project-type": "office-xml-addin-type",
+    "description": "This project is an Excel Hello World add-in template. It is a very simple Excel add-in that can only insert 'Hello, World!' into the first cell of the current worksheet."
+  },
+  {
+    "id": "excel-custom-functions-js",
+    "addin-host": "excel",
+    "name": "Excel Custom Functions",
+    "project-type": "office-xml-addin-type",
+    "description": "This project is an Excel add-in leveraging Custom Functions using a JavaScript-only Runtime."
+  },
+  {
+    "id": "excel-custom-functions-shared",
+    "addin-host": "excel",
+    "name": "Excel Custom Functions Shared Runtime",
+    "project-type": "office-xml-addin-type",
+    "description": "This project is an Excel add-in leveraging Custom Functions using a Shared Runtime."
+  },
+  {
+    "id": "powerpoint-taskpane",
+    "addin-host": "powerpoint",
+    "name": "Powerpoint Taskpane",
+    "project-type": "office-xml-addin-type",
+    "description": "This project is a Powerpoint Hello World add-in template. It is a very simple Powerpoint add-in that can only insert 'Hello, World!' into the first slide."
+  }
+]

@@ -11,12 +11,10 @@ import { CopilotNode } from "./copilotNode";
 import { SideloadingNode } from "./sideloadingNode";
 import { tools } from "../../globalVariables";
 import { listAllTenants } from "@microsoft/teamsfx-core/build/common/tools";
-import { SandboxNode } from "./sandBoxNode";
 
 export class M365AccountNode extends DynamicNode {
   public status: AccountItemStatus;
   private sideloadingNode: SideloadingNode;
-  private sandboxNode: SandboxNode;
   private copilotNode: CopilotNode | undefined;
   private tid: string | undefined;
 
@@ -26,7 +24,6 @@ export class M365AccountNode extends DynamicNode {
     this.contextValue = "signinM365";
     this.sideloadingNode = new SideloadingNode(this.eventEmitter, "");
     this.copilotNode = new CopilotNode(this.eventEmitter, "");
-    this.sandboxNode = new SandboxNode(this.eventEmitter, "");
   }
 
   public async setSignedIn(displayName: string, tid: string) {
@@ -36,15 +33,17 @@ export class M365AccountNode extends DynamicNode {
     this.status = AccountItemStatus.SignedIn;
 
     this.label = displayName;
-    const tokenRes = await tools.tokenProvider.m365TokenProvider.getAccessToken({
-      scopes: AzureScopes(),
-    });
-    if (tokenRes.isOk() && tokenRes.value) {
-      const tenants = await listAllTenants(tokenRes.value);
-      for (const tenant of tenants) {
-        if (tenant.tenantId === tid && tenant.displayName) {
-          this.label = `${displayName} (${tenant.displayName as string})`;
-          this.tid = tid;
+    if (featureFlagManager.getBooleanValue(FeatureFlags.MultiTenant)) {
+      const tokenRes = await tools.tokenProvider.m365TokenProvider.getAccessToken({
+        scopes: AzureScopes,
+      });
+      if (tokenRes.isOk() && tokenRes.value) {
+        const tenants = await listAllTenants(tokenRes.value);
+        for (const tenant of tenants) {
+          if (tenant.tenantId === tid && tenant.displayName) {
+            this.label = `${displayName} (${tenant.displayName as string})`;
+            this.tid = tid;
+          }
         }
       }
     }
@@ -106,14 +105,9 @@ export class M365AccountNode extends DynamicNode {
   }
 
   public override getChildren(): vscode.ProviderResult<DynamicNode[]> {
-    const children: DynamicNode[] = [this.sideloadingNode];
-    if (featureFlagManager.getBooleanValue(FeatureFlags.SandBoxedTeam)) {
-      children.push(this.sandboxNode);
-    }
-    if (this.copilotNode) {
-      children.push(this.copilotNode);
-    }
-    return children;
+    return this.copilotNode !== undefined
+      ? [this.sideloadingNode, this.copilotNode]
+      : [this.sideloadingNode];
   }
 
   public override getTreeItem(): vscode.TreeItem | Promise<vscode.TreeItem> {
@@ -143,12 +137,6 @@ export class M365AccountNode extends DynamicNode {
     } else {
       this.iconPath = m365Icon;
     }
-    this.accessibilityInformation = {
-      label:
-        (this.label ? (typeof this.label === "string" ? this.label : this.label.label) : "") +
-        ". " +
-        localize("teamstoolkit.accountTree.m365AccountTooltip"),
-    };
     return this;
   }
 }

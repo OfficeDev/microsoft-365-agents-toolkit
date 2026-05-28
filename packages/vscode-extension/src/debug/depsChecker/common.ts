@@ -7,13 +7,13 @@
 import {
   FxError,
   M365TokenProvider,
+  OptionItem,
   Result,
   SystemError,
   UserError,
   UserErrorOptions,
   err,
   ok,
-  signedOut,
 } from "@microsoft/teamsfx-api";
 import {
   AppStudioScopes,
@@ -23,23 +23,19 @@ import {
   DepsManager,
   DepsType,
   ErrorCategory,
-  GraphScopes,
-  HttpClientError,
   LocalEnvManager,
-  MosServiceScope,
   PackageService,
   PortsConflictError,
   SideloadingDisabledError,
   TelemetryContext,
+  UserCancelError,
   assembleError,
   getSideloadingStatus,
-  isSandboxedEnabled,
-  isSovereignHigh,
 } from "@microsoft/teamsfx-core";
 import * as os from "os";
 import * as util from "util";
 import * as vscode from "vscode";
-import axios from "axios";
+import { signedOut } from "../../commonlib/common/constant";
 import VsCodeLogInstance from "../../commonlib/log";
 import M365TokenInstance from "../../commonlib/m365Login";
 import { PanelType } from "../../controls/PanelType";
@@ -68,9 +64,12 @@ import {
   DepsDisplayName,
   ProgressMessage,
   ResultStatus,
+  copilotCheckServiceScope,
 } from "./prerequisitesCheckerConstants";
 import { vscodeLogger } from "./vscodeLogger";
 import { vscodeTelemetry } from "./vscodeTelemetry";
+import find from "find-process";
+import { processUtil } from "../../utils/processUtil";
 
 export async function _checkAndInstall(
   displayMessages: DisplayMessages,
@@ -120,6 +119,7 @@ export async function _checkAndInstall(
         localEnvManager,
         step,
         additionalTelemetryProperties
+        // eslint-disable-next-line @typescript-eslint/no-misused-promises
       ).finally(async () => await progressHelper?.end(orderedCheckerInfo.checker));
       checkResults.push(checkResult);
       if (orderedChecker.fastFail) {
@@ -150,6 +150,98 @@ async function runWithCheckResultTelemetryProperties(
   );
 }
 
+async function selectPortsToKill(
+  portsInUse: number[]
+): Promise<Result<undefined, UserCancelError>> {
+  const killRes = await VS_CODE_UI.showMessage(
+    "info",
+    portsInUse.length === 1
+      ? util.format(
+          localize("teamstoolkit.localDebug.terminateProcess.notification"),
+          portsInUse[0]
+        )
+      : util.format(
+          localize("teamstoolkit.localDebug.terminateProcess.notification.plural"),
+          portsInUse.join(",")
+        ),
+    true,
+    "Terminate Process",
+    "Learn More"
+  );
+
+  if (killRes.isErr()) {
+    LocalDebugPorts.terminateButton = "Cancel";
+    return err(new UserCancelError(ExtensionSource));
+  }
+
+  const selectButton = killRes.value;
+  LocalDebugPorts.terminateButton = selectButton!;
+
+  if (selectButton === "Terminate Process") {
+    const process2ports = new Map<number, number[]>();
+    for (const port of portsInUse) {
+      const processList = await find("port", port);
+      if (processList.length > 0) {
+        const process = processList[0];
+        const ports = process2ports.get(process.pid);
+        if (ports) {
+          ports.push(port);
+        } else {
+          process2ports.set(process.pid, [port]);
+        }
+      }
+    }
+    if (process2ports.size > 0) {
+      const options: OptionItem[] = [];
+      for (const processId of process2ports.keys()) {
+        const ports = process2ports.get(processId);
+        LocalDebugPorts.process2conflictPorts[processId] = ports!;
+        const findList = await find("pid", processId);
+        if (findList.length > 0) {
+          const processInfo = findList[0].cmd;
+          options.push({
+            id: `${processId}`,
+            label: `'${String(processInfo)}' (${processId}) occupies port(s): ${ports!.join(",")}`,
+            data: processInfo,
+          });
+        }
+      }
+      const res = await VS_CODE_UI.selectOptions({
+        title: "Select process(es) to terminate",
+        name: "select_processes",
+        options,
+        default: options.map((o) => o.id),
+      });
+      if (res.isOk() && res.value.type === "success") {
+        const processIds = res.value.result as string[];
+        LocalDebugPorts.terminateProcesses = processIds;
+        for (const processId of processIds) {
+          await processUtil.killProcess(parseInt(processId));
+        }
+        if (processIds.length > 0) {
+          const processInfo = options
+            .filter((o) => processIds.includes(o.id))
+            .map((o) => `'${o.data as string}' (${o.id})`)
+            .join(", ");
+          void VS_CODE_UI.showMessage(
+            "info",
+            `Process(es) ${processInfo} have been killed.`,
+            false
+          );
+          return ok(undefined);
+        }
+      } else {
+        LocalDebugPorts.terminateProcesses = [];
+      }
+    }
+  } else if (selectButton === "Learn More") {
+    void VS_CODE_UI.openUrl(
+      "https://github.com/OfficeDev/teams-toolkit/wiki/%7BDebug%7D-FAQ#what-to-do-if-some-port-is-already-in-use"
+    );
+  }
+  return err(new UserCancelError(ExtensionSource));
+}
+
 async function checkPort(
   localEnvManager: LocalEnvManager,
   ports: number[],
@@ -163,8 +255,23 @@ async function checkPort(
     additionalTelemetryProperties,
     async (ctx: TelemetryContext) => {
       VsCodeLogInstance.outputChannel.appendLine(displayMessage);
-      const portsInUse = await localEnvManager.getPortsInUse(ports);
+      let portsInUse = await localEnvManager.getPortsInUse(ports);
       LocalDebugPorts.conflictPorts = portsInUse;
+      if (portsInUse.length > 0) {
+        const killRes = await selectPortsToKill(portsInUse);
+        if (killRes.isErr()) {
+          return {
+            checker: Checker.Ports,
+            result: ResultStatus.failed,
+            failureMsg: doctorConstant.Port,
+            error: killRes.error,
+          };
+        }
+        // wait some time
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+        // recheck
+        portsInUse = await localEnvManager.getPortsInUse(ports);
+      }
       const formatPortStr = (ports: number[]) =>
         ports.length > 1 ? ports.join(", ") : `${ports[0]}`;
       if (portsInUse.length > 0) {
@@ -212,8 +319,6 @@ function getCheckPromise(
         `${step.getPrefix()} ${ProgressMessage[Checker.Ports]} ...`,
         additionalTelemetryProperties
       );
-    case Checker.SandboxedEnabled:
-      return checkSandboxedEnabled(step.getPrefix(), additionalTelemetryProperties);
   }
 }
 
@@ -235,9 +340,7 @@ function ensureM365Account(
       ctx: TelemetryContext
     ): Promise<Result<{ token: string; tenantId?: string; loginHint?: string }, FxError>> => {
       const m365Login: M365TokenProvider = M365TokenInstance;
-      let loginStatusRes = await m365Login.getStatus({
-        scopes: isSovereignHigh() ? GraphScopes : AppStudioScopes(),
-      });
+      let loginStatusRes = await m365Login.getStatus({ scopes: AppStudioScopes });
       if (loginStatusRes.isErr()) {
         ctx.properties[TelemetryProperty.DebugM365AccountStatus] = "error";
         return err(loginStatusRes.error);
@@ -249,15 +352,13 @@ function ensureM365Account(
       let tid = loginStatusRes.value.accountInfo?.tid;
       if (loginStatusRes.value.status === signedOut && showLoginPage) {
         const tokenRes = await tools.tokenProvider.m365TokenProvider.getAccessToken({
-          scopes: isSovereignHigh() ? GraphScopes : AppStudioScopes(),
+          scopes: AppStudioScopes,
           showDialog: true,
         });
         if (tokenRes.isErr()) {
           return err(tokenRes.error);
         }
-        loginStatusRes = await m365Login.getStatus({
-          scopes: isSovereignHigh() ? GraphScopes : AppStudioScopes(),
-        });
+        loginStatusRes = await m365Login.getStatus({ scopes: AppStudioScopes });
         if (loginStatusRes.isErr()) {
           return err(loginStatusRes.error);
         }
@@ -296,7 +397,7 @@ async function ensureCopilotAccess(
     async (ctx: TelemetryContext) => {
       const m365Login: M365TokenProvider = M365TokenInstance;
       const copilotTokenRes = await m365Login.getAccessToken({
-        scopes: MosServiceScope(),
+        scopes: [copilotCheckServiceScope],
         showDialog: false,
       });
       let hasCopilotAccess: boolean | undefined = undefined;
@@ -352,50 +453,6 @@ async function ensureSideloding(
   }
 
   return m365Result;
-}
-
-function checkSandboxedEnabled(
-  prefix: string,
-  additionalTelemetryProperties: { [key: string]: string }
-): Promise<CheckResult> {
-  return runWithCheckResultTelemetryProperties(
-    TelemetryEvent.DebugPrereqsCheckSandbox,
-    additionalTelemetryProperties,
-    async (): Promise<CheckResult> => {
-      let result;
-      let error = undefined;
-      const failureMsg = doctorConstant.SandboxDisabled;
-      const successMsg = doctorConstant.SandboxSuccess;
-      try {
-        VsCodeLogInstance.outputChannel.appendLine(
-          `${prefix} ${ProgressMessage[Checker.SandboxedEnabled]} ...`
-        );
-
-        const isSandboxedAllowed = await isSandboxedEnabled(M365TokenInstance);
-        if (isSandboxedAllowed) {
-          result = ResultStatus.success;
-        } else {
-          result = ResultStatus.failed;
-        }
-      } catch (err: any) {
-        result = ResultStatus.failed;
-        if (axios.isAxiosError(err)) {
-          error = new HttpClientError(err, ExtensionSource, JSON.stringify(err.response!.data));
-        }
-        if (!error) {
-          error = assembleError(err);
-        }
-      }
-
-      return {
-        checker: Checker.SandboxedEnabled,
-        result: result,
-        successMsg: successMsg,
-        failureMsg: failureMsg,
-        error: error,
-      };
-    }
-  );
 }
 
 function checkM365Account(

@@ -3,15 +3,13 @@
 
 "use strict";
 
-import { Colors, LogLevel, LogProvider } from "@microsoft/teamsfx-api";
-import { SummaryConstant } from "@microsoft/teamsfx-core";
-import fs from "fs-extra";
-import * as util from "util";
+import { LogLevel, LogProvider, Colors } from "@microsoft/teamsfx-api";
 import * as vscode from "vscode";
+import fs from "fs-extra";
 import { defaultExtensionLogPath } from "../globalVariables";
-import { localize } from "../utils/localizeUtils";
+import { SummaryConstant } from "@microsoft/teamsfx-core";
 
-const outputChannelDisplayName = "Microsoft 365 Agents Toolkit";
+const outputChannelDisplayName = "Teams Toolkit";
 
 export class VsCodeLogProvider implements LogProvider {
   logLevel: LogLevel = LogLevel.Info;
@@ -88,17 +86,6 @@ export class VsCodeLogProvider implements LogProvider {
       const dateString = new Date().toJSON();
       const formattedMessage = `[${dateString}] [${LogLevel[logLevel]}] - ${message}`;
       this.outputChannel.appendLine(formattedMessage);
-      if (logLevel >= LogLevel.Error) {
-        const hint = util.format(
-          localize("teamstoolkit.localDebug.copilotChatHint"),
-          this.getLogFilePath()
-        );
-        this.outputChannel.appendLine(hint);
-      }
-      // Also persist to the on-disk log file so it can be attached as a
-      // reference (e.g. by "Resolve with Copilot Chat") without having to
-      // open the Output channel in an editor.
-      void fs.appendFile(this.getLogFilePath(), formattedMessage + "\n").catch(() => {});
     } catch (e) {}
   }
 

@@ -1,19 +1,19 @@
-import { err, ok, SystemError, UserError } from "@microsoft/teamsfx-api";
-import { manifestUtils, pluginManifestUtils } from "@microsoft/teamsfx-core";
-import * as globalState from "@microsoft/teamsfx-core/build/common/globalState";
-import * as pluginGeneratorHelper from "@microsoft/teamsfx-core/build/component/generator/openApiSpec/helper";
-import * as chai from "chai";
-import path from "path";
 import * as sinon from "sinon";
+import * as chai from "chai";
 import * as vscode from "vscode";
-import VsCodeLogInstance from "../../src/commonlib/log";
-import { GlobalKey } from "../../src/constants";
+import path from "path";
 import * as globalVariables from "../../src/globalVariables";
-import { autoOpenProjectHandler } from "../../src/handlers/autoOpenProjectHandler";
 import * as vsc_ui from "../../src/qm/vsc_ui";
+import * as globalState from "@microsoft/teamsfx-core/build/common/globalState";
+import VsCodeLogInstance from "../../src/commonlib/log";
+import { ok, ManifestUtil, err, UserError, SystemError } from "@microsoft/teamsfx-api";
+import { manifestUtils, pluginManifestUtils } from "@microsoft/teamsfx-core";
+import { GlobalKey } from "../../src/constants";
 import { VsCodeUI } from "../../src/qm/vsc_ui";
 import { ExtTelemetry } from "../../src/telemetry/extTelemetry";
 import { TelemetryEvent } from "../../src/telemetry/extTelemetryEvents";
+import { autoOpenProjectHandler } from "../../src/handlers/autoOpenProjectHandler";
+import * as pluginGeneratorHelper from "@microsoft/teamsfx-core/build/component/generator/apiSpec/helper";
 
 describe("autoOpenProjectHandler", () => {
   const sandbox = sinon.createSandbox();
@@ -75,7 +75,7 @@ describe("autoOpenProjectHandler", () => {
       }
     });
     sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok({} as any));
-    sandbox.stub(manifestUtils, "parseCommonProperties").resolves({ isCopilotPlugin: false });
+    sandbox.stub(ManifestUtil, "parseCommonProperties").resolves({ isCopilotPlugin: false });
     sandbox.stub(globalState, "globalStateUpdate");
     sandbox.stub(ExtTelemetry, "sendTelemetryErrorEvent");
     const sendTelemetryStub = sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
@@ -139,9 +139,7 @@ describe("autoOpenProjectHandler", () => {
       isSPFx: false,
       isApiMeAAD: false,
     };
-    const parseManifestStub = sandbox
-      .stub(manifestUtils, "parseCommonProperties")
-      .returns(parseRes);
+    const parseManifestStub = sandbox.stub(ManifestUtil, "parseCommonProperties").returns(parseRes);
     VsCodeLogInstance.outputChannel = {
       show: () => {},
       info: () => {},
@@ -191,9 +189,7 @@ describe("autoOpenProjectHandler", () => {
       isSPFx: false,
       isApiMeAAD: false,
     };
-    const parseManifestStub = sandbox
-      .stub(manifestUtils, "parseCommonProperties")
-      .returns(parseRes);
+    const parseManifestStub = sandbox.stub(ManifestUtil, "parseCommonProperties").returns(parseRes);
     VsCodeLogInstance.outputChannel = {
       show: () => {},
       info: () => {},
@@ -242,9 +238,7 @@ describe("autoOpenProjectHandler", () => {
       isSPFx: false,
       isApiMeAAD: false,
     };
-    const parseManifestStub = sandbox
-      .stub(manifestUtils, "parseCommonProperties")
-      .returns(parseRes);
+    const parseManifestStub = sandbox.stub(ManifestUtil, "parseCommonProperties").returns(parseRes);
     const getApiSpecStub = sandbox
       .stub(pluginManifestUtils, "getApiSpecFilePathFromTeamsManifest")
       .resolves(ok(["test"]));
@@ -350,7 +344,7 @@ describe("autoOpenProjectHandler", () => {
       isApiBasedMe: true,
       isApiMeAAD: false,
     };
-    sandbox.stub(manifestUtils, "parseCommonProperties").returns(parseRes);
+    sandbox.stub(ManifestUtil, "parseCommonProperties").returns(parseRes);
     const getApiSpecStub = sandbox
       .stub(pluginManifestUtils, "getApiSpecFilePathFromTeamsManifest")
       .resolves(err(new SystemError("test", "test", "", "")));

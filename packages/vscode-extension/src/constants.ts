@@ -1,13 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
-export const CONFIGURATION_PREFIX = "M365AgentsToolkit";
+export const CONFIGURATION_PREFIX = "fx-extension";
 export enum ConfigurationKey {
   BicepEnvCheckerEnable = "prerequisiteCheck.bicep",
+  CopilotExtensionEnable = "developCopilotPlugin",
   LogLevel = "logLevel",
-  EnableCEA = "enableLaunchAgentForTeamsInCopilot",
-  EnableDAMetaOS = "enableDeclarativeAgentInOfficeAddIn",
-  EnableCFShortcutMetaOS = "enableCustomFunctionShortcutInOfficeAddIn",
-  SovereignCloudEnvironment = "sovereignCloudEnvironment",
+  EnableMicrosoftKiota = "enableMicrosoftKiota",
 }
 
 export const AzurePortalUrl = "https://portal.azure.com";
@@ -39,7 +37,6 @@ export enum GlobalKey {
   SampleGalleryInitialSample = "teamsToolkit:sampleGallery:initialSample",
   AutoInstallDependency = "teamsToolkit:autoInstallDependency",
   DoNotRemindInstallTeamsAgent = "teamsToolkit:doNotRemindInstallTeamsAgent",
-  TeamsAgentInstalled = "teamsToolkit:teamsAgentInstalled",
 }
 
 export enum CommandKey {
@@ -59,7 +56,6 @@ export enum CommandKey {
   Provision = "fx-extension.provision",
   Deploy = "fx-extension.deploy",
   Publish = "fx-extension.publish",
-  Share = "fx-extension.share",
   Preview = "fx-extension.preview",
   installDependency = "fx-extension.installDependency",
   publishToAppSource = "fx-extension.publishToAppSource",
@@ -69,12 +65,14 @@ export enum CommandKey {
 
 export const environmentVariableRegex = /\${{[a-zA-Z-_]+}}/g;
 
-export const PublishAppLearnMoreLink = "https://aka.ms/teamsfx-publish";
+export const PublishAppLearnMoreLink =
+  "https://learn.microsoft.com/en-us/microsoftteams/platform/concepts/deploy-and-publish/apps-publish-overview";
 
 export const DeveloperPortalHomeLink = "https://dev.teams.microsoft.com/home";
 
-export const TerminalName = "Microsoft 365 Agents Toolkit";
+export const TerminalName = "Teams Toolkit";
 
 export const InstallCopilotChatLink = "https://aka.ms/install-github-copilot-chat";
 
-export const MaximumNotificationOutputTroubleshootCount = 3;
+export const KiotaExtensionId = "ms-graph.kiota";
+export const KiotaMinVersion = "1.18.100000002";

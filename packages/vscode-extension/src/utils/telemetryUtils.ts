@@ -73,18 +73,6 @@ export function getTriggerFromProperty(args?: any[]) {
       return { [TelemetryProperty.TriggerFrom]: TelemetryTriggerFrom.Other };
     case TelemetryTriggerFrom.CreateAppQuestionFlow:
       return { [TelemetryProperty.TriggerFrom]: TelemetryTriggerFrom.CreateAppQuestionFlow };
-    case TelemetryTriggerFrom.EditorContextMenu:
-      return { [TelemetryProperty.TriggerFrom]: TelemetryTriggerFrom.EditorContextMenu };
-    case TelemetryTriggerFrom.TeamsAgentWalkthroughCreate:
-      return { [TelemetryProperty.TriggerFrom]: TelemetryTriggerFrom.TeamsAgentWalkthroughCreate };
-    case TelemetryTriggerFrom.TeamsAgentWalkthroughExplore:
-      return { [TelemetryProperty.TriggerFrom]: TelemetryTriggerFrom.TeamsAgentWalkthroughExplore };
-    case TelemetryTriggerFrom.TeamsAgentWalkthroughTroubleshoot:
-      return {
-        [TelemetryProperty.TriggerFrom]: TelemetryTriggerFrom.TeamsAgentWalkthroughTroubleshoot,
-      };
-    case TelemetryTriggerFrom.TeamsAgentWalkthrough:
-      return { [TelemetryProperty.TriggerFrom]: TelemetryTriggerFrom.TeamsAgentWalkthrough };
     default:
       return { [TelemetryProperty.TriggerFrom]: TelemetryTriggerFrom.Unknow };
   }

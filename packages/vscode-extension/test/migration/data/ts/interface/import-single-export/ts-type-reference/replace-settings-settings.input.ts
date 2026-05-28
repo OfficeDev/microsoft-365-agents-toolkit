@@ -1,4 +1,5 @@
-import { settings, settings as settingsAlias  } from "@microsoft/teams-js";
+import { settings } from "@microsoft/teams-js";
+import { settings as settingsAlias } from "@microsoft/teams-js";
 
 async function f1(x: settings.Settings): Promise<settings.Settings> {
   return x;

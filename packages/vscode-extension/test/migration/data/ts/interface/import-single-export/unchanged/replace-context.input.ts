@@ -1,4 +1,5 @@
-import { Context, Context as ContextAlias  } from "@microsoft/teams-js";
+import { Context } from "@microsoft/teams-js";
+import { Context as ContextAlias } from "@microsoft/teams-js";
 
 async function f1(x: Context): Promise<Context> {
   return x;

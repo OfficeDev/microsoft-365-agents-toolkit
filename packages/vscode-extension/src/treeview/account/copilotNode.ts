@@ -14,6 +14,8 @@ enum ContextValues {
   ShowInfo = "checkCopilot-info",
 }
 
+const copilotCheckServiceScope = process.env.SIDELOADING_SERVICE_SCOPE ?? MosServiceScope;
+
 export class CopilotNode extends DynamicNode {
   constructor(
     private eventEmitter: vscode.EventEmitter<DynamicNode | undefined | void>,
@@ -26,7 +28,7 @@ export class CopilotNode extends DynamicNode {
   private async checkCopilot(): Promise<boolean | undefined> {
     try {
       const m365TokenStatus = await M365TokenInstance.getAccessToken({
-        scopes: MosServiceScope(),
+        scopes: [copilotCheckServiceScope],
         showDialog: false,
       });
       if (m365TokenStatus.isOk()) {
@@ -70,9 +72,7 @@ export class CopilotNode extends DynamicNode {
     } else {
       this.label = localize("teamstoolkit.accountTree.copilotWarning");
       this.iconPath = warningIcon;
-      this.tooltip = new vscode.MarkdownString(
-        localize("teamstoolkit.accountTree.copilotWarningTooltip")
-      );
+      this.tooltip = localize("teamstoolkit.accountTree.copilotWarningTooltip");
       this.contextValue = ContextValues.ShowInfo;
       this.command = {
         title: this.label,

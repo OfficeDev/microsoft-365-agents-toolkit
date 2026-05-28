@@ -45,19 +45,16 @@ function shouldReloadLocale(): boolean {
 declare let navigator: { language: string } | undefined;
 
 export function parseLocale(): string {
-  const vscodeLocale = process.env.VSCODE_NLS_CONFIG
-    ? (JSON.parse(process.env.VSCODE_NLS_CONFIG) as Record<string, string>).locale
-    : undefined;
-  if (vscodeLocale) {
-    VsCodeLogInstance.info(`Current VS Code locale is: ${vscodeLocale}`);
-    return vscodeLocale;
-  }
   try {
     if (navigator?.language) {
       return navigator.language.toLowerCase();
     }
   } catch {}
-  return "en-us";
+  const vscodeLocale = process.env.VSCODE_NLS_CONFIG
+    ? (JSON.parse(process.env.VSCODE_NLS_CONFIG) as Record<string, string>).locale
+    : undefined;
+  VsCodeLogInstance.info(`Current VS Code locale is: ${vscodeLocale ?? ""}`);
+  return vscodeLocale ?? "en-us";
 }
 
 function getLocalizedString(key: string, isDefault: boolean, defValue?: string): string {

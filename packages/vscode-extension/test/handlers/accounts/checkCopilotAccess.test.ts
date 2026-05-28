@@ -1,17 +1,11 @@
 import { err, ok } from "@microsoft/teamsfx-api";
-import {
-  MosServiceScope,
-  AppStudioScopes,
-  FeatureFlags,
-  GraphScopes,
-  PackageService,
-  featureFlagManager,
-} from "@microsoft/teamsfx-core";
+import { MosServiceScope, AppStudioScopes, PackageService } from "@microsoft/teamsfx-core";
 import * as sinon from "sinon";
 import * as vscode from "vscode";
 import VsCodeLogInstance from "../../../src/commonlib/log";
 import M365TokenInstance from "../../../src/commonlib/m365Login";
 import { checkCopilotAccessHandler } from "../../../src/handlers/accounts/checkCopilotAccess";
+import { MockLogProvider } from "../../mocks/mockTools";
 
 describe("check copilot access", () => {
   const sandbox = sinon.createSandbox();
@@ -25,13 +19,14 @@ describe("check copilot access", () => {
   });
 
   it("check copilot access in walkthrough: not signed in && with access", async () => {
+    const copilotCheckServiceScope = process.env.SIDELOADING_SERVICE_SCOPE ?? MosServiceScope;
     const m365GetStatusStub = sandbox
       .stub(M365TokenInstance, "getStatus")
-      .withArgs({ scopes: AppStudioScopes() })
+      .withArgs({ scopes: AppStudioScopes })
       .resolves(err({ error: "unknown" } as any));
     const m365GetAccessTokenStub = sandbox
       .stub(M365TokenInstance, "getAccessToken")
-      .withArgs({ scopes: MosServiceScope() })
+      .withArgs({ scopes: [copilotCheckServiceScope] })
       .resolves(ok("stubedString"));
     const getCopilotStatusStub = sandbox
       .stub(PackageService.prototype, "getCopilotStatus")
@@ -53,13 +48,14 @@ describe("check copilot access", () => {
   });
 
   it("check copilot access in walkthrough: not signed in && no access", async () => {
+    const copilotCheckServiceScope = process.env.SIDELOADING_SERVICE_SCOPE ?? MosServiceScope;
     const m365GetStatusStub = sandbox
       .stub(M365TokenInstance, "getStatus")
-      .withArgs({ scopes: AppStudioScopes() })
+      .withArgs({ scopes: AppStudioScopes })
       .resolves(err({ error: "unknown" } as any));
     const m365GetAccessTokenStub = sandbox
       .stub(M365TokenInstance, "getAccessToken")
-      .withArgs({ scopes: MosServiceScope() })
+      .withArgs({ scopes: [copilotCheckServiceScope] })
       .resolves(ok("stubedString"));
 
     const getCopilotStatusStub = sandbox
@@ -85,13 +81,14 @@ describe("check copilot access", () => {
   });
 
   it("check copilot access in walkthrough: not signed in && throw error", async () => {
+    const copilotCheckServiceScope = process.env.SIDELOADING_SERVICE_SCOPE ?? MosServiceScope;
     const m365GetStatusStub = sandbox
       .stub(M365TokenInstance, "getStatus")
-      .withArgs({ scopes: AppStudioScopes() })
+      .withArgs({ scopes: AppStudioScopes })
       .resolves(err({ error: "unknown" } as any));
     sandbox
       .stub(M365TokenInstance, "getAccessToken")
-      .withArgs({ scopes: MosServiceScope() })
+      .withArgs({ scopes: [copilotCheckServiceScope] })
       .resolves(ok("stubedString"));
 
     sandbox.stub(PackageService.prototype, "getCopilotStatus").resolves(true);
@@ -111,13 +108,14 @@ describe("check copilot access", () => {
   });
 
   it("check copilot access in walkthrough: signed in && no access", async () => {
+    const copilotCheckServiceScope = process.env.SIDELOADING_SERVICE_SCOPE ?? MosServiceScope;
     const m365GetStatusStub = sandbox
       .stub(M365TokenInstance, "getStatus")
-      .withArgs({ scopes: AppStudioScopes() })
+      .withArgs({ scopes: AppStudioScopes })
       .resolves(ok({ status: "SignedIn", accountInfo: { upn: "test.email.com" } }));
     const m365GetAccessTokenStub = sandbox
       .stub(M365TokenInstance, "getAccessToken")
-      .withArgs({ scopes: MosServiceScope() })
+      .withArgs({ scopes: [copilotCheckServiceScope] })
       .resolves(ok("stubedString"));
 
     const getCopilotStatusStub = sandbox
@@ -143,13 +141,14 @@ describe("check copilot access", () => {
   });
 
   it("check copilot access in walkthrough: signed in && with access", async () => {
+    const copilotCheckServiceScope = process.env.SIDELOADING_SERVICE_SCOPE ?? MosServiceScope;
     const m365GetStatusStub = sandbox
       .stub(M365TokenInstance, "getStatus")
-      .withArgs({ scopes: AppStudioScopes() })
+      .withArgs({ scopes: AppStudioScopes })
       .resolves(ok({ status: "SignedIn", accountInfo: { upn: "test.email.com" } }));
     const m365GetAccessTokenStub = sandbox
       .stub(M365TokenInstance, "getAccessToken")
-      .withArgs({ scopes: MosServiceScope() })
+      .withArgs({ scopes: [copilotCheckServiceScope] })
       .resolves(ok("stubedString"));
 
     const getCopilotStatusStub = sandbox
@@ -175,13 +174,14 @@ describe("check copilot access", () => {
   });
 
   it("check copilot access in walkthrough: signed in && throw error", async () => {
+    const copilotCheckServiceScope = process.env.SIDELOADING_SERVICE_SCOPE ?? MosServiceScope;
     const m365GetStatusStub = sandbox
       .stub(M365TokenInstance, "getStatus")
-      .withArgs({ scopes: AppStudioScopes() })
+      .withArgs({ scopes: AppStudioScopes })
       .resolves(ok({ status: "SignedIn", accountInfo: { upn: "test.email.com" } }));
     const m365GetAccessTokenStub = sandbox
       .stub(M365TokenInstance, "getAccessToken")
-      .withArgs({ scopes: MosServiceScope() })
+      .withArgs({ scopes: [copilotCheckServiceScope] })
       .resolves(err({ error: "error" } as any));
 
     const result = await checkCopilotAccessHandler();
@@ -189,25 +189,5 @@ describe("check copilot access", () => {
     sandbox.assert.calledOnce(m365GetStatusStub);
     sandbox.assert.calledOnce(m365GetAccessTokenStub);
     sandbox.assert.match(result.isErr() ? result.error : {}, { error: "error" });
-  });
-
-  it("uses Graph scopes in sovereign high", async () => {
-    sandbox.stub(featureFlagManager, "getStringValue").returns("GCC H");
-    const m365GetStatusStub = sandbox
-      .stub(M365TokenInstance, "getStatus")
-      .resolves(ok({ status: "SignedIn", accountInfo: { upn: "test.email.com" } } as any));
-    const m365GetAccessTokenStub = sandbox
-      .stub(M365TokenInstance, "getAccessToken")
-      .withArgs({ scopes: MosServiceScope() })
-      .resolves(ok("stubedString"));
-    sandbox.stub(PackageService.prototype, "getCopilotStatus").resolves(true);
-    sandbox.stub(VsCodeLogInstance, "semLog").resolves();
-
-    const result = await checkCopilotAccessHandler();
-
-    sandbox.assert.calledOnce(m365GetStatusStub);
-    sandbox.assert.calledWith(m365GetStatusStub, { scopes: GraphScopes });
-    sandbox.assert.calledOnce(m365GetAccessTokenStub);
-    sandbox.assert.match(result.isOk(), true);
   });
 });

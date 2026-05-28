@@ -1,12 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { FxError, Result, err, ok } from "@microsoft/teamsfx-api";
-import { Hub, QuestionNames, assembleError } from "@microsoft/teamsfx-core";
 import * as vscode from "vscode";
-import { openHubWebClient } from "../debug/launch";
-import { selectAndDebug } from "../debug/runIconHandler";
-import { showError } from "../error/common";
+import { FxError, Result, err, ok } from "@microsoft/teamsfx-api";
 import { core } from "../globalVariables";
 import { ExtTelemetry } from "../telemetry/extTelemetry";
 import {
@@ -14,9 +10,13 @@ import {
   TelemetryProperty,
   TelemetrySuccess,
 } from "../telemetry/extTelemetryEvents";
-import { getSystemInputs } from "../utils/systemEnvUtils";
+import { selectAndDebug } from "../debug/runIconHandler";
 import { getTriggerFromProperty } from "../utils/telemetryUtils";
 import { processResult } from "./sharedOpts";
+import { QuestionNames, Hub, assembleError } from "@microsoft/teamsfx-core";
+import { openHubWebClient } from "../debug/launch";
+import { showError } from "../error/common";
+import { getSystemInputs } from "../utils/systemEnvUtils";
 
 export function debugInTestToolHandler(source: "treeview" | "message") {
   return async () => {
@@ -25,10 +25,7 @@ export function debugInTestToolHandler(source: "treeview" | "message") {
     } else {
       ExtTelemetry.sendTelemetryEvent(TelemetryEvent.MessageDebugInTestTool);
     }
-    await vscode.commands.executeCommand(
-      "workbench.action.quickOpen",
-      "debug Debug in Microsoft 365 Agents Playground"
-    );
+    await vscode.commands.executeCommand("workbench.action.quickOpen", "debug Debug in Test Tool");
     return ok<unknown, FxError>(null);
   };
 }

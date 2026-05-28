@@ -24,7 +24,6 @@ import SampleListItem from "./sampleListItem";
 
 interface SampleGalleryProps {
   shouldShowChat: string;
-  shouldHideTeamsAgentPreviewTag: string;
 }
 
 export default class SampleGallery extends React.Component<SampleGalleryProps, SampleGalleryState> {
@@ -66,10 +65,9 @@ export default class SampleGallery extends React.Component<SampleGalleryProps, S
         </div>
         <div className="title">
           <h1>Samples</h1>
-          {this.props.shouldShowChat === "true" &&
-          this.props.shouldHideTeamsAgentPreviewTag === "true" ? (
+          {this.props.shouldShowChat === "true" ? (
             <h3>
-              Explore our sample gallery filled with solutions that work seamlessly with Microsoft
+              Explore our sample gallery filled with solutions that work seamlessly with Teams
               Toolkit. Need help choosing? Let{" "}
               <Link
                 onClick={() => {
@@ -78,25 +76,12 @@ export default class SampleGallery extends React.Component<SampleGalleryProps, S
               >
                 Github Copilot
               </Link>{" "}
-              assists you in selecting the right sample to create your app.
-            </h3>
-          ) : this.props.shouldShowChat === "true" ? (
-            <h3>
-              Explore our sample gallery filled with solutions that work seamlessly with Microsoft
-              365 Agents Toolkit. Need help choosing? Let{" "}
-              <Link
-                onClick={() => {
-                  this.onInvokeTeamsAgent();
-                }}
-              >
-                Github Copilot
-              </Link>{" "}
-              assists you in selecting the right sample to create your app.
+              assists you in selecting the right sample to create your Teams app.
             </h3>
           ) : (
             <h3>
-              Explore our sample gallery filled with solutions that work seamlessly with Microsoft
-              365 Agents Toolkit.
+              Explore our sample gallery filled with solutions that work seamlessly with Teams
+              Toolkit.
             </h3>
           )}
         </div>
@@ -147,7 +132,6 @@ export default class SampleGallery extends React.Component<SampleGalleryProps, S
                           <SampleCard
                             key={sample.id}
                             sample={sample}
-                            featured={true}
                             selectSample={this.onSampleSelected}
                             createSample={this.onCreateSample}
                             viewGitHub={this.onViewGithub}
@@ -160,7 +144,6 @@ export default class SampleGallery extends React.Component<SampleGalleryProps, S
                           <SampleListItem
                             key={sample.id}
                             sample={sample}
-                            featured={true}
                             selectSample={this.onSampleSelected}
                             createSample={this.onCreateSample}
                             viewGitHub={this.onViewGithub}
@@ -310,7 +293,7 @@ export default class SampleGallery extends React.Component<SampleGalleryProps, S
     );
     let filteredSamples = this.samples.filter((sample: SampleInfo) => {
       return (
-        containsTag(capabilitiesFilter, sample.types) &&
+        containsTag(capabilitiesFilter, sample.tags) &&
         containsTag(languagesFilter, sample.tags) &&
         containsTag(technologiesFilter, sample.tags)
       );
@@ -387,11 +370,9 @@ export default class SampleGallery extends React.Component<SampleGalleryProps, S
     });
   };
 
-  private onInvokeTeamsAgent = (shouldHidePreviewTag: boolean) => {
+  private onInvokeTeamsAgent = () => {
     vscode.postMessage({
-      command: shouldHidePreviewTag
-        ? Commands.InvokeTeamsAgent
-        : Commands.InvokeTeamsAgentWIthPreviewTag,
+      command: Commands.InvokeTeamsAgent,
     });
   };
 }

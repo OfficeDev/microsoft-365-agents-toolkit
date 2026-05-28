@@ -9,7 +9,7 @@ export const killModule = {
 class ProcessUtil {
   // kill process and its child processes
   async killProcess(pid: number, timeout = 5000, silent = true): Promise<void> {
-    const tPromise = timeoutPromise(timeout);
+    const tPromise = timeoutPromise(timeout, silent);
     const killPromise = new Promise<void>((resolve, reject) => {
       killModule.killTree(pid, "SIGTERM", (err) => {
         if (err && !silent) {

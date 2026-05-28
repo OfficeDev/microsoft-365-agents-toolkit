@@ -1,9 +1,9 @@
 {
   "compilerOptions": {
     "module": "commonjs",
-    "target": "ES2022",
+    "target": "es6",
     "outDir": "build",
-    "lib": ["ES2022", "dom"],
+    "lib": ["es6", "dom", "esnext.asynciterable"],
     "sourceMap": true,
     "rootDir": ".",
     "resolveJsonModule": true,

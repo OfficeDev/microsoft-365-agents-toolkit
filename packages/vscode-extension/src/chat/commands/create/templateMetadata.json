@@ -1,0 +1,86 @@
+[
+  {
+    "id": "bot",
+    "name": "Basic Bot",
+    "project-type": "bot-type",
+    "description": "This project is a Basic Bot template designed for Microsoft Teams. The bot can be used in various scenarios such as notifying about build failures, providing information about the weather, bus schedules, or travel information. The bot interaction can range from a simple question and answer to a complex conversation. As a cloud application, the bot can provide valuable and secure access to cloud services and corporate resources."
+  },
+  {
+    "id": "custom-copilot-basic",
+    "name": "Basic AI Chatbot",
+    "project-type": "custom-copilot-type",
+    "description": "This template is a bot app that responds to user questions like ChatGPT. This enables your users to talk with the AI bot in Teams. The app template is built using the Teams AI library, which provides the capabilities to build AI-based Teams applications."
+  },
+  {
+    "id": "custom-copilot-agent",
+    "name": "AI Agent",
+    "project-type": "custom-copilot-type",
+    "description": "This template is a bot app built on top of Teams AI library. It showcases how to build an AI agent in Teams capable of chatting with users and helping users accomplish a specific task using natural language right in the Teams conversations, such as summarizing emails."
+  },
+  {
+    "id": "notification",
+    "name": "Chat Notification Message",
+    "project-type": "bot-type",
+    "description": "This application is a Notification bot template for Microsoft Teams. It is designed to send messages to Teams with Adaptive Cards, which can be triggered by an HTTP post request or a timer schedule. The bot can be extended to consume, transform, and post events to individuals, chat, or channels in Teams."
+  },
+  {
+    "id": "command-bot",
+    "name": "Chat Command",
+    "project-type": "bot-type",
+    "description": "This application is a Command bot template designed for Microsoft Teams. The bot responds to chat commands by displaying a user interface using an Adaptive Card. This functionality allows users to type simple messages in Teams, and the bot will provide an appropriate response based on the message content. The Command bot template is built using the TeamsFx SDK. This SDK provides a simplified set of functions over the Microsoft Bot Framework, making it easier to implement this scenario."
+  },
+  {
+    "id": "workflow-bot",
+    "name": "Sequential Workflow in Chat",
+    "project-type": "bot-type",
+    "description": "This application is a workflow bot template for Microsoft Teams. Users can interact with multi-step processes. The bot responds to chat commands by displaying a user interface using an Adaptive Card. The card includes a button that can receive user input, perform an action like calling an API, and update the card's UI. This functionality can be further customized to create a more complex sequence of steps, forming a complete workflow."
+  },
+  {
+    "id": "tab-non-sso",
+    "name": "Basic Tab",
+    "project-type": "tab-type",
+    "description": "A very simple and basic implementation of a Teams tab app. It is based on the Basic Tab template, which demonstrates the capability of Microsoft Teams to run web-based UI within \"custom tabs\". These tabs can be installed by users either for personal use or within a team or group chat context."
+  },
+  {
+    "id": "sso-launch-page",
+    "name": "React with Fluent UI",
+    "project-type": "tab-type",
+    "description": "This application is a template for creating a web application using React framework and Fluent UI. The application is designed to be visually appealing and can be embedded into various Microsoft platforms such as Microsoft Teams, Outlook, and the Microsoft 365 app. The template serves as a starting point for developers looking to create applications that integrate seamlessly with these Microsoft services."
+  },
+  {
+    "id": "dashboard-tab",
+    "name": "Dashboard",
+    "project-type": "tab-type",
+    "description": "This app is a template for creating a dashboard application that can be embedded within Microsoft Teams. The dashboard consists of multiple cards that provide an overview of content from various apps and services. The template allows for integration with the Graph API to visualize data and supports the creation of customizable dashboards to track information across multiple areas and departments."
+  },
+  {
+    "id": "tab-spfx",
+    "name": "SPFx",
+    "project-type": "tab-type",
+    "description": "This template is a SharePoint Framework (SPFx) application designed for Microsoft Teams. SPFx is a model that supports client-side SharePoint development, allowing for easy integration with SharePoint data. In this project, the capabilities of SPFx are leveraged to extend the functionality of Microsoft Teams, providing a more integrated and enhanced user experience."
+  },
+  {
+    "id": "search-app",
+    "name": "Custom Search Results",
+    "project-type": "me-type",
+    "description": "The application is a Custom Search Results app template designed for Microsoft Teams. It builds a message extension from a new API or existing OpenAPI description document or Bot Framework. This template enhances Teams' capabilities by enabling direct interaction with third-party data, apps, and services. Key features include: 1. Retrieving real-time information, such as the latest news coverage on a product launch. 2. Fetching knowledge-based information, like a team’s design files in Figma."
+  },
+  {
+    "id": "collect-form-message-extension",
+    "name": "Collect Form Input and Process Data",
+    "project-type": "me-type",
+    "description": "This project is a template for creating a Message Extension in Microsoft Teams. The extension allows users to interact with a web service while composing messages. Users can search or initiate actions in an external system from the text input box, the command box, or directly from a message. The template implements an action command that presents users with a modal pop-up, known as a task module, in Teams. This task module is used to collect or display information. After the user interaction, it processes the information and sends it back to Teams."
+  },
+  {
+    "id": "link-unfurling",
+    "name": "Link Unfurling",
+    "project-type": "me-type",
+    "description": "The project is a Link Unfurling app template. This application is designed to unfurl links into adaptive cards when URLs from a specific domain are pasted into the text input box in Microsoft Teams or the email body in Outlook. The functionality is showcased in the hero image provided in the README."
+  },
+  {
+    "id": "outlook-addin-type",
+    "name": "Outlook Add-in",
+    "project-type": "outlook-addin-type",
+    "description": "This template involves building Outlook add-ins using the Teams Toolkit. Outlook add-ins are integrations developed by third parties that are incorporated into Outlook using a web-based platform. This project provides the capability to create a single distribution unit for all Microsoft 365 extensions using the same manifest format and schema, which is based on the current JSON-formatted Teams manifest."
+  }
+]

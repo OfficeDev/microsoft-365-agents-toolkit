@@ -1,41 +1,37 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import {
-  AppPackageFolderName,
-  DefaultApiSpecFolderName,
-  DefaultApiSpecYamlFileName,
-  DefaultPluginManifestFileName,
-  ManifestTemplateFileName,
-  Warning,
-} from "@microsoft/teamsfx-api";
-import {
-  assembleError,
-  featureFlagManager,
-  FeatureFlags,
-  generateScaffoldingSummary,
-  globalStateGet,
-  globalStateUpdate,
-  JSONSyntaxError,
-  manifestUtils,
-  outputScaffoldingWarningMessage,
-  pluginManifestUtils,
-} from "@microsoft/teamsfx-core";
-import fs from "fs-extra";
 import path from "path";
 import * as util from "util";
 import * as vscode from "vscode";
-import VsCodeLogInstance from "../commonlib/log";
-import { CommandKey, GlobalKey } from "../constants";
-import { selectAndDebug } from "../debug/runIconHandler";
-import { isDeclarativeCopilotApp, isSensitivityLabelSet, workspaceUri } from "../globalVariables";
-import { openReadMeHandler } from "../handlers/readmeHandlers";
-import { VS_CODE_UI } from "../qm/vsc_ui";
+import fs from "fs-extra";
+import {
+  Warning,
+  AppPackageFolderName,
+  ManifestTemplateFileName,
+  ManifestUtil,
+} from "@microsoft/teamsfx-api";
+import {
+  assembleError,
+  JSONSyntaxError,
+  manifestUtils,
+  pluginManifestUtils,
+  generateScaffoldingSummary,
+  globalStateGet,
+  globalStateUpdate,
+  outputScaffoldingWarningMessage,
+} from "@microsoft/teamsfx-core";
 import { ExtTelemetry } from "../telemetry/extTelemetry";
 import { TelemetryEvent, TelemetryTriggerFrom } from "../telemetry/extTelemetryEvents";
+import VsCodeLogInstance from "../commonlib/log";
+import { GlobalKey, CommandKey } from "../constants";
+import { selectAndDebug } from "../debug/runIconHandler";
+import { workspaceUri } from "../globalVariables";
 import { getAppName } from "./appDefinitionUtils";
 import { getLocalDebugMessageTemplate } from "./commonUtils";
 import { localize } from "./localizeUtils";
+import { VS_CODE_UI } from "../qm/vsc_ui";
+import { openReadMeHandler } from "../handlers/readmeHandlers";
 
 export async function showLocalDebugMessage() {
   const shouldShowLocalDebugMessage = (await globalStateGet(
@@ -49,9 +45,7 @@ export async function showLocalDebugMessage() {
     await globalStateUpdate(GlobalKey.ShowLocalDebugMessage, false);
   }
 
-  const hasLocalEnv =
-    (await fs.pathExists(path.join(workspaceUri!.fsPath, "teamsapp.local.yml"))) ||
-    (await fs.pathExists(path.join(workspaceUri!.fsPath, "m365agents.local.yml")));
+  const hasLocalEnv = await fs.pathExists(path.join(workspaceUri!.fsPath, "teamsapp.local.yml"));
   const hasKeyGenJsFile = await fs.pathExists(path.join(workspaceUri!.fsPath, "/src/keyGen.js"));
   const hasKeyGenTsFile = await fs.pathExists(path.join(workspaceUri!.fsPath, "/src/keyGen.ts"));
 
@@ -59,14 +53,6 @@ export async function showLocalDebugMessage() {
   const isWindows = process.platform === "win32";
   const folderLink = encodeURI(workspaceUri!.toString());
   const openFolderCommand = `command:fx-extension.openFolder?%5B%22${folderLink}%22%5D`;
-
-  if (
-    featureFlagManager.getBooleanValue(FeatureFlags.SensitivityLabelEnabled) &&
-    isDeclarativeCopilotApp &&
-    !isSensitivityLabelSet
-  ) {
-    showSetSensitivityLabelMessage();
-  }
 
   if (hasKeyGenJsFile || hasKeyGenTsFile) {
     const openReadMe = {
@@ -94,29 +80,22 @@ export async function showLocalDebugMessage() {
       }
     });
   } else if (hasLocalEnv) {
-    let title = localize("teamstoolkit.handlers.localDebugTitle");
-    ExtTelemetry.sendTelemetryEvent(TelemetryEvent.ShowLocalDebugNotification);
-
-    let messageTemplate = getLocalDebugMessageTemplate(isWindows);
-    if (isDeclarativeCopilotApp) {
-      messageTemplate = isWindows
-        ? localize("teamstoolkit.handlers.localPreviewDescription")
-        : localize("teamstoolkit.handlers.localPreviewDescription.fallback");
-      title = localize("teamstoolkit.handlers.localPreviewTitle");
-    }
     const localDebug = {
-      title: title,
+      title: localize("teamstoolkit.handlers.localDebugTitle"),
       run: async (): Promise<void> => {
         await selectAndDebug();
       },
     };
+    ExtTelemetry.sendTelemetryEvent(TelemetryEvent.ShowLocalDebugNotification);
+
+    const messageTemplate = await getLocalDebugMessageTemplate(isWindows);
 
     let message = util.format(messageTemplate, appName, workspaceUri?.fsPath);
     if (isWindows) {
       message = util.format(messageTemplate, appName, openFolderCommand);
     }
     void vscode.window.showInformationMessage(message, localDebug).then((selection) => {
-      if (selection?.title === title) {
+      if (selection?.title === localize("teamstoolkit.handlers.localDebugTitle")) {
         ExtTelemetry.sendTelemetryEvent(TelemetryEvent.ClickLocalDebug);
         void selection.run();
       }
@@ -175,7 +154,7 @@ export async function ShowScaffoldingWarningSummary(
     let message;
     if (manifestRes.isOk()) {
       const teamsManifest = manifestRes.value;
-      const commonProperties = manifestUtils.parseCommonProperties(teamsManifest);
+      const commonProperties = ManifestUtil.parseCommonProperties(teamsManifest);
       if (commonProperties.capabilities.includes("plugin")) {
         const apiSpecFilePathRes = await pluginManifestUtils.getApiSpecFilePathFromTeamsManifest(
           teamsManifest,
@@ -211,14 +190,6 @@ export async function ShowScaffoldingWarningSummary(
           undefined,
           workspacePath
         );
-      } else if (commonProperties.capabilities.includes("copilotGpt")) {
-        message = await generateScaffoldingSummary(
-          createWarnings,
-          teamsManifest,
-          path.join(AppPackageFolderName, DefaultApiSpecFolderName, DefaultApiSpecYamlFileName),
-          path.join(AppPackageFolderName, DefaultPluginManifestFileName),
-          workspacePath
-        );
       } else {
         message = outputScaffoldingWarningMessage(createWarnings);
       }
@@ -247,9 +218,4 @@ export async function autoInstallDependencyHandler() {
     shellName: localize("teamstoolkit.handlers.autoInstallDependency"),
     iconPath: "cloud-download",
   });
-}
-
-export function showSetSensitivityLabelMessage() {
-  const message = localize("teamstoolkit.handlers.SetsensitivityLabel");
-  void vscode.window.showInformationMessage(message);
 }

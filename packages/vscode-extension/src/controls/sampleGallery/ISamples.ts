@@ -47,7 +47,6 @@ export interface SampleInfo {
 
 export type SampleProps = {
   sample: SampleInfo;
-  featured?: boolean;
   selectSample: (id: string, triggerFrom: TelemetryTriggerFrom) => void;
   createSample: (sample: SampleInfo, triggerFrom: TelemetryTriggerFrom) => void;
   viewGitHub: (sample: SampleInfo, triggerFrom: TelemetryTriggerFrom) => void;

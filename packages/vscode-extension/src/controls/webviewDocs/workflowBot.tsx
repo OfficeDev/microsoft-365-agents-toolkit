@@ -199,9 +199,7 @@ module.exports = {
         workflow features.
       </p>
       <ol>
-        <li>
-          First, select the Microsoft 365 Agents Toolkit icon on the left in the VS Code toolbar.
-        </li>
+        <li>First, select the Teams Toolkit icon on the left in the VS Code toolbar.</li>
         <li>
           In the Account section, sign in with your{" "}
           <ExternalLink
@@ -270,15 +268,15 @@ module.exports = {
             <td>
               <code className="code">bot</code>
             </td>
-            <td>The source code for the workflow bot application</td>
+            <td>The source code for the workflow bot Teams application</td>
           </tr>
           <tr>
             <td>
               <code className="code">templates</code>
             </td>
             <td>
-              Templates for the application manifest and for provisioning Azure resources (optional)
-              used by Microsoft 365 Agents Toolkit
+              Templates for the Teams application manifest and for provisioning Azure resources
+              (optional) used by Teams Toolkit
             </td>
           </tr>
         </tbody>
@@ -629,7 +627,7 @@ module.exports = {
         </li>
         <li>
           <ExternalLink
-            title="Microsoft 365 Agents Toolkit Documentations"
+            title="Teams Toolkit Documentations"
             link="https://docs.microsoft.com/microsoftteams/platform/toolkit/teams-toolkit-fundamentals"
             triggerFrom={TelemetryTriggerFrom.InProductDoc}
             docName={name}
@@ -637,7 +635,7 @@ module.exports = {
         </li>
         <li>
           <ExternalLink
-            title="Microsoft 365 Agents Toolkit CLI"
+            title="Teams Toolkit CLI"
             link="https://docs.microsoft.com/microsoftteams/platform/toolkit/teamsfx-cli"
             triggerFrom={TelemetryTriggerFrom.InProductDoc}
             docName={name}
@@ -653,7 +651,7 @@ module.exports = {
         </li>
         <li>
           <ExternalLink
-            title="Microsoft 365 Agents Toolkit Samples"
+            title="Teams Toolkit Samples"
             link="https://github.com/OfficeDev/TeamsFx-Samples"
             triggerFrom={TelemetryTriggerFrom.InProductDoc}
             docName={name}

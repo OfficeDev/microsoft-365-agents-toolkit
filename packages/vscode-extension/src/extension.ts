@@ -16,25 +16,35 @@ import {
   FeatureFlags as CoreFeatureFlags,
   Correlator,
   FeatureFlags,
-  isSovereignHigh,
   VersionState,
   featureFlagManager,
   teamsDevPortalClient,
 } from "@microsoft/teamsfx-core";
+import * as semver from "semver";
 import * as vscode from "vscode";
+import {
+  CHAT_EXECUTE_COMMAND_ID,
+  CHAT_OPENURL_COMMAND_ID,
+  IsChatParticipantEnabled,
+  chatParticipantId,
+} from "./chat/consts";
+import followupProvider from "./chat/followupProvider";
+import {
+  chatExecuteCommandHandler,
+  chatRequestHandler,
+  handleFeedback,
+  openUrlCommandHandler,
+} from "./chat/handlers";
 import {
   AadAppTemplateCodeLensProvider,
   ApiPluginCodeLensProvider,
   CopilotPluginCodeLensProvider,
   CryptoCodeLensProvider,
-  DeclarativeAgentSensitivityLabelCodeLensProvider,
   ManifestTemplateCodeLensProvider,
   OfficeDevManifestCodeLensProvider,
-  OneDriveSharePointCodeLensProvider,
   PermissionsJsonFileCodeLensProvider,
   ProjectSettingsCodeLensProvider,
   TeamsAppYamlCodeLensProvider,
-  WorkspaceMCPConfigCodeLensProvider,
 } from "./codeLensProvider";
 import commandController from "./commandController";
 import azureAccountManager from "./commonlib/azureLogin";
@@ -54,11 +64,9 @@ import { showError } from "./error/common";
 import * as exp from "./exp";
 import { TreatmentVariableValue, TreatmentVariables } from "./exp/treatmentVariables";
 import {
-  core,
   diagnosticCollection,
   initializeGlobalVariables,
-  isDeclarativeCopilotApp,
-  isMetaOSAddinProject,
+  isExistingUser,
   isOfficeAddInProject,
   isOfficeManifestOnlyProject,
   isSPFxProject,
@@ -67,7 +75,6 @@ import {
   workspaceUri,
 } from "./globalVariables";
 import {
-  convertAadToNewSchemaHandler,
   editAadManifestTemplateHandler,
   openPreviewAadFileHandler,
   updateAadAppManifestHandler,
@@ -77,19 +84,13 @@ import {
   cmpAccountsHandler,
   createAccountHandler,
 } from "./handlers/accounts/accountHandlers";
+import { activate as activateHandlers } from "./handlers/activate";
+import { autoOpenProjectHandler } from "./handlers/autoOpenProjectHandler";
 import {
   checkCopilotCallback,
   checkSideloadingCallback,
 } from "./handlers/accounts/checkAccessCallback";
 import { checkCopilotAccessHandler } from "./handlers/accounts/checkCopilotAccess";
-import {
-  refreshCopilotCallback,
-  refreshSideloadingCallback,
-} from "./handlers/accounts/refreshAccessHandlers";
-import { signinAzureCallback, signinM365Callback } from "./handlers/accounts/signinAccountHandlers";
-import { onSwitchAzureTenant, onSwitchM365Tenant } from "./handlers/accounts/switchTenantHandler";
-import { activate as activateHandlers } from "./handlers/activate";
-import { autoOpenProjectHandler } from "./handlers/autoOpenProjectHandler";
 import { manageCollaboratorHandler } from "./handlers/collaboratorHandlers";
 import {
   openFolderHandler,
@@ -99,7 +100,6 @@ import {
   saveTextDocumentHandler,
 } from "./handlers/controlHandlers";
 import * as copilotChatHandlers from "./handlers/copilotChatHandlers";
-import { createDeclarativeAgentWithApiSpec } from "./handlers/createDeclarativeAgentWithApiSpecHandler";
 import {
   debugInTestToolHandler,
   selectAndDebugHandler,
@@ -114,22 +114,14 @@ import {
   refreshEnvironment,
 } from "./handlers/envHandlers";
 import {
-  addAuthActionHandler,
-  addKnowledgeHandler,
   addPluginHandler,
   addWebpartHandler,
   copilotPluginAddAPIHandler,
   createNewProjectHandler,
   deployHandler,
-  m365PreAuthHandler,
-  metaOSExtendToDAHandler,
   provisionHandler,
   publishHandler,
-  regeneratePluginHandler,
   scaffoldFromDeveloperPortalHandler,
-  setSensitivityLabelHandler,
-  shareHandler,
-  shareRemoveHandler,
 } from "./handlers/lifecycleHandlers";
 import {
   buildPackageHandler,
@@ -138,10 +130,12 @@ import {
   updatePreviewManifest,
   validateManifestHandler,
 } from "./handlers/manifestHandlers";
-import { migrateTeamsTabAppHandler } from "./handlers/migrationHandler";
+import {
+  migrateTeamsManifestHandler,
+  migrateTeamsTabAppHandler,
+} from "./handlers/migrationHandler";
 import * as officeDevHandlers from "./handlers/officeDevHandlers";
 import {
-  findGitHubSimilarIssue,
   openAccountLinkHandler,
   openAppManagement,
   openAzureAccountHandler,
@@ -158,7 +152,6 @@ import {
   openResourceGroupInPortal,
   openSubscriptionInPortal,
 } from "./handlers/openLinkHandlers";
-import { openOneDriveSharePointUrlHandler } from "./handlers/openOneDriveSharePointUrlHandler";
 import {
   checkUpgrade,
   getDotnetPathHandler,
@@ -168,17 +161,28 @@ import {
   validateGetStartedPrerequisitesHandler,
 } from "./handlers/prerequisiteHandlers";
 import { openReadMeHandler } from "./handlers/readmeHandlers";
+import {
+  refreshCopilotCallback,
+  refreshSideloadingCallback,
+} from "./handlers/accounts/refreshAccessHandlers";
 import { showOutputChannelHandler } from "./handlers/showOutputChannel";
+import { signinAzureCallback, signinM365Callback } from "./handlers/accounts/signinAccountHandlers";
 import { openTutorialHandler, selectTutorialsHandler } from "./handlers/tutorialHandlers";
-import { updateActionWithMCP } from "./handlers/updateActionWithMCP";
 import {
   createProjectFromWalkthroughHandler,
   openBuildIntelligentAppsWalkthroughHandler,
 } from "./handlers/walkthrough";
 import { ManifestTemplateHoverProvider } from "./hoverProvider";
-import { manifestListener } from "./manifestListener";
+import {
+  CHAT_CREATE_OFFICE_PROJECT_COMMAND_ID,
+  officeChatParticipantId,
+} from "./officeChat/consts";
+import {
+  chatCreateOfficeProjectCommandHandler,
+  handleOfficeFeedback,
+  officeChatRequestHandler,
+} from "./officeChat/handlers";
 import { initVSCodeUI } from "./qm/vsc_ui";
-import { releaseControlledFeatureSettings } from "./releaseBasedFeatureSettings";
 import { ExtTelemetry } from "./telemetry/extTelemetry";
 import { TelemetryEvent, TelemetryTriggerFrom } from "./telemetry/extTelemetryEvents";
 import accountTreeViewProviderInstance from "./treeview/account/accountTreeViewProvider";
@@ -194,21 +198,14 @@ import { checkProjectTypeAndSendTelemetry, isM365Project } from "./utils/project
 import { ReleaseNote } from "./utils/releaseNote";
 import { ExtensionSurvey } from "./utils/survey";
 import { getSettingsVersion, projectVersionCheck } from "./utils/telemetryUtils";
+import { createPluginWithManifest } from "./handlers/createPluginWithManifestHandler";
+import { manifestListener } from "./manifestListener";
+import { onSwitchAzureTenant, onSwitchM365Tenant } from "./handlers/accounts/switchTenantHandler";
+import { kiotaRegenerate } from "./handlers/kiotaRegenerateHandler";
 
 export async function activate(context: vscode.ExtensionContext) {
-  // control whether to show chat participant ui entries
-  const shouldEnableChatParticipantUIEntries = true;
-  featureFlagManager.setBooleanValue(
-    CoreFeatureFlags.ChatParticipantUIEntries,
-    shouldEnableChatParticipantUIEntries
-  );
-
-  const shouldHideGitHubCopilotPreviewTag =
-    releaseControlledFeatureSettings.shouldHideTeamsAgentPreviewTag;
-  featureFlagManager.setBooleanValue(
-    CoreFeatureFlags.HideGitHubCopilotPreviewTag,
-    shouldHideGitHubCopilotPreviewTag
-  );
+  const value = IsChatParticipantEnabled && semver.gte(vscode.version, "1.90.0");
+  featureFlagManager.setBooleanValue(FeatureFlags.ChatParticipant, value);
 
   context.subscriptions.push(new ExtTelemetry.Reporter(context));
 
@@ -225,6 +222,10 @@ export async function activate(context: vscode.ExtensionContext) {
   registerActivateCommands(context);
 
   registerInternalCommands(context);
+
+  if (featureFlagManager.getBooleanValue(CoreFeatureFlags.ChatParticipant)) {
+    registerOfficeChatParticipant(context);
+  }
 
   if (isTeamsFxProject) {
     activateTeamsFxRegistration(context);
@@ -243,15 +244,19 @@ export async function activate(context: vscode.ExtensionContext) {
   // UI is ready to show & interact
   await vscode.commands.executeCommand("setContext", "fx-extension.isTeamsFx", isTeamsFxProject);
 
+  // control whether to show chat participant ui entries
   await vscode.commands.executeCommand(
     "setContext",
     "fx-extension.isChatParticipantUIEntriesEnabled",
-    shouldEnableChatParticipantUIEntries
+    featureFlagManager.getBooleanValue(CoreFeatureFlags.ChatParticipantUIEntries)
   );
+
+  // Flags for "Build Intelligent Apps" walkthrough.
+  // DEVEOP_COPILOT_PLUGIN: boolean in vscode settings
   await vscode.commands.executeCommand(
     "setContext",
-    "fx-extension.hideTeamsAgentPreviewTag",
-    shouldHideGitHubCopilotPreviewTag
+    "fx-extension.isApiCopilotPluginEnabled",
+    featureFlagManager.getBooleanValue(CoreFeatureFlags.CopilotExtension)
   );
 
   await vscode.commands.executeCommand(
@@ -271,35 +276,7 @@ export async function activate(context: vscode.ExtensionContext) {
     "fx-extension.isSyncManifestEnabled",
     featureFlagManager.getBooleanValue(CoreFeatureFlags.SyncManifest)
   );
-
-  await vscode.commands.executeCommand(
-    "setContext",
-    "fx-extension.isSensitivityLabelEnabled",
-    featureFlagManager.getBooleanValue(CoreFeatureFlags.SensitivityLabelEnabled)
-  );
-
-  await vscode.commands.executeCommand(
-    "setContext",
-    "fx-extension.isDeclarativeCopilotApp",
-    isDeclarativeCopilotApp
-  );
-
-  await vscode.commands.executeCommand(
-    "setContext",
-    "fx-extension.isMetaOSAddinProject",
-    featureFlagManager.getBooleanValue(FeatureFlags.DAMetaOS) ? isMetaOSAddinProject : false
-  );
-
-  const isKiotaNPMIntegrationEnabled = featureFlagManager.getBooleanValue(
-    FeatureFlags.KiotaNPMIntegration
-  );
-  await vscode.commands.executeCommand(
-    "setContext",
-    "fx-extension.isKiotaNPMIntegrationEnabled",
-    isKiotaNPMIntegrationEnabled
-  );
-
-  void VsCodeLogInstance.info("Microsoft 365 Agents Toolkit extension is now active!");
+  void VsCodeLogInstance.info("Teams Toolkit extension is now active!");
 
   // Don't wait this async method to let it run in background.
   void runBackgroundAsyncTasks(context, isTeamsFxProject);
@@ -327,22 +304,19 @@ function activateTeamsFxRegistration(context: vscode.ExtensionContext) {
     azureAccountProvider: azureAccountManager,
     m365TokenProvider: M365TokenInstance,
   });
-
-  if (!isSovereignHigh()) {
-    // Set region for M365 account every
-    void M365TokenInstance.setStatusChangeMap(
-      "set-region",
-      { scopes: AuthSvcScopes() },
-      async (status, token, accountInfo) => {
-        if (status === "SignedIn") {
-          const tokenRes = await M365TokenInstance.getAccessToken({ scopes: AuthSvcScopes() });
-          if (tokenRes.isOk()) {
-            await teamsDevPortalClient.setRegionEndpointByToken(tokenRes.value);
-          }
+  // Set region for M365 account every
+  void M365TokenInstance.setStatusChangeMap(
+    "set-region",
+    { scopes: AuthSvcScopes },
+    async (status, token, accountInfo) => {
+      if (status === "SignedIn") {
+        const tokenRes = await M365TokenInstance.getAccessToken({ scopes: AuthSvcScopes });
+        if (tokenRes.isOk()) {
+          await teamsDevPortalClient.setRegionEndpointByToken(tokenRes.value);
         }
       }
-    );
-  }
+    }
+  );
 
   if (vscode.workspace.isTrusted) {
     registerLanguageFeatures(context);
@@ -457,19 +431,19 @@ function registerActivateCommands(context: vscode.ExtensionContext) {
   // commmand: check copilot access
   registerInCommandController(context, CommandKeys.CheckCopilotAccess, checkCopilotAccessHandler);
 
+  // Upgrade command to update Teams manifest
+  const migrateTeamsManifestCmd = vscode.commands.registerCommand(
+    "fx-extension.migrateTeamsManifest",
+    () => Correlator.run(migrateTeamsManifestHandler)
+  );
+  context.subscriptions.push(migrateTeamsManifestCmd);
+
   // Upgrade command to update Teams Client SDK
   const migrateTeamsTabAppCmd = vscode.commands.registerCommand(
     "fx-extension.migrateTeamsTabApp",
     () => Correlator.run(migrateTeamsTabAppHandler)
   );
   context.subscriptions.push(migrateTeamsTabAppCmd);
-
-  // Similar issue
-  const findSimilarIssue = vscode.commands.registerCommand(
-    "fx-extension.findSimilarIssue",
-    (...args) => Correlator.run(findGitHubSimilarIssue, args)
-  );
-  context.subscriptions.push(findSimilarIssue);
 
   // Register local debug run icon
   const runIconCmd = vscode.commands.registerCommand("fx-extension.selectAndDebug", (...args) =>
@@ -482,60 +456,6 @@ function registerActivateCommands(context: vscode.ExtensionContext) {
     Correlator.run(copilotChatHandlers.invokeTeamsAgent, args)
   );
   context.subscriptions.push(invokeTeamsAgent);
-
-  const invokeTeamsAgentWithPreviewTag = vscode.commands.registerCommand(
-    "fx-extension.invokeChatWithPreviewTag",
-    (...args) => Correlator.run(copilotChatHandlers.invokeTeamsAgent, args)
-  );
-  context.subscriptions.push(invokeTeamsAgentWithPreviewTag);
-
-  const troubleshootSelectedText = vscode.commands.registerCommand(
-    "fx-extension.teamsAgentTroubleshootSelectedText",
-    (...args) => Correlator.run(copilotChatHandlers.troubleshootSelectedText, args)
-  );
-  context.subscriptions.push(troubleshootSelectedText);
-
-  const troubleshootSelectedTextWithPreviewTag = vscode.commands.registerCommand(
-    "fx-extension.teamsAgentTroubleshootSelectedTextWithPreviewTag",
-    (...args) => Correlator.run(copilotChatHandlers.troubleshootSelectedText, args)
-  );
-  context.subscriptions.push(troubleshootSelectedTextWithPreviewTag);
-
-  const troubleshootError = vscode.commands.registerCommand(
-    "fx-extension.teamsAgentTroubleshootError",
-    (...args) => Correlator.run(copilotChatHandlers.troubleshootError, args)
-  );
-  context.subscriptions.push(troubleshootError);
-
-  const installCopilotChat = vscode.commands.registerCommand(
-    "fx-extension.installCopilotChat",
-    (...args) => Correlator.run(copilotChatHandlers.installGithubCopilotChatExtension, args)
-  );
-  context.subscriptions.push(installCopilotChat);
-
-  const openInstallTeamsAgent = vscode.commands.registerCommand(
-    "fx-extension.openInstallTeamsAgent",
-    (...args) => Correlator.run(copilotChatHandlers.openInstallTeamsAgent, args)
-  );
-  context.subscriptions.push(openInstallTeamsAgent);
-
-  const markTeamsAgentInstallationDone = vscode.commands.registerCommand(
-    "fx-extension.markInstallTeamsAgentDone",
-    (...args) => Correlator.run(copilotChatHandlers.markTeamsAgentInstallationDone, args)
-  );
-  context.subscriptions.push(markTeamsAgentInstallationDone);
-
-  const openGitHubCopilotChat = vscode.commands.registerCommand(
-    "fx-extension.openGitHubCopilotChat",
-    (...args) => Correlator.run(copilotChatHandlers.openGithubCopilotChat, args)
-  );
-  context.subscriptions.push(openGitHubCopilotChat);
-
-  const openTeamsAgentWalkthrough = vscode.commands.registerCommand(
-    "fx-extension.openTeamsAgentWalkthrough",
-    (...args) => Correlator.run(copilotChatHandlers.openTeamsAgentWalkthrough, args)
-  );
-  context.subscriptions.push(openTeamsAgentWalkthrough);
 }
 
 /**
@@ -612,17 +532,67 @@ function registerInternalCommands(context: vscode.ExtensionContext) {
 
   registerInCommandController(context, CommandKeys.SigninAzure, signinAzureCallback);
 
-  const createDeclarativeAgentWithApiSpecCommand = vscode.commands.registerCommand(
-    "fx-extension.createDeclarativeAgentWithApiSpec",
-    (...args) => Correlator.run(createDeclarativeAgentWithApiSpec, args)
-  );
-  context.subscriptions.push(createDeclarativeAgentWithApiSpecCommand);
+  // Register createPluginWithManifest command
+  if (featureFlagManager.getBooleanValue(FeatureFlags.KiotaIntegration)) {
+    const createPluginWithManifestCommand = vscode.commands.registerCommand(
+      "fx-extension.createprojectfromkiota",
+      (args) => Correlator.run(createPluginWithManifest, args)
+    );
+    context.subscriptions.push(createPluginWithManifestCommand);
 
-  const updateActionWithMcpCommand = vscode.commands.registerCommand(
-    "fx-extension.updateActionWithMCP",
-    (...args) => Correlator.run(updateActionWithMCP, args)
+    const kiotaRegenerateCommand = vscode.commands.registerCommand(
+      "fx-extension.kiotaregenerate",
+      (args) => Correlator.run(kiotaRegenerate, args)
+    );
+    context.subscriptions.push(kiotaRegenerateCommand);
+  }
+}
+
+/**
+ * Copilot Chat Participant
+ */
+function registerChatParticipant(context: vscode.ExtensionContext) {
+  const participant = vscode.chat.createChatParticipant(chatParticipantId, (...args) =>
+    Correlator.run(chatRequestHandler, ...args)
   );
-  context.subscriptions.push(updateActionWithMcpCommand);
+  participant.iconPath = vscode.Uri.joinPath(context.extensionUri, "media", "teams.png");
+  participant.followupProvider = followupProvider;
+  participant.onDidReceiveFeedback((...args) => Correlator.run(handleFeedback, ...args));
+
+  context.subscriptions.push(
+    participant,
+    vscode.commands.registerCommand(CHAT_EXECUTE_COMMAND_ID, chatExecuteCommandHandler),
+    vscode.commands.registerCommand(CHAT_OPENURL_COMMAND_ID, openUrlCommandHandler)
+  );
+
+  const generateManifestGUID = vscode.commands.registerCommand(
+    "fx-extension.generateManifestGUID",
+    () => Correlator.run(officeDevHandlers.generateManifestGUID)
+  );
+  context.subscriptions.push(generateManifestGUID);
+}
+
+/**
+ * Copilot Chat Participant for Office Add-in
+ */
+function registerOfficeChatParticipant(context: vscode.ExtensionContext) {
+  const participant = vscode.chat.createChatParticipant(officeChatParticipantId, (...args) =>
+    Correlator.run(officeChatRequestHandler, ...args)
+  );
+  participant.iconPath = vscode.Uri.joinPath(context.extensionUri, "media", "office.png");
+  participant.followupProvider = followupProvider;
+  participant.onDidReceiveFeedback((...args) => Correlator.run(handleOfficeFeedback, ...args));
+
+  context.subscriptions.push(
+    participant,
+    vscode.commands.registerCommand("fx-extension.openOfficeDevDocument", (...args) =>
+      Correlator.run(officeDevHandlers.openDocumentHandler, args)
+    ),
+    vscode.commands.registerCommand(
+      CHAT_CREATE_OFFICE_PROJECT_COMMAND_ID,
+      chatCreateOfficeProjectCommandHandler
+    )
+  );
 }
 
 function registerTreeViewCommandsInDevelopment(context: vscode.ExtensionContext) {
@@ -632,27 +602,6 @@ function registerTreeViewCommandsInDevelopment(context: vscode.ExtensionContext)
   registerInCommandController(context, "fx-extension.addWebpart", addWebpartHandler, "addWebpart");
 
   registerInCommandController(context, "fx-extension.addPlugin", addPluginHandler, "addPlugin");
-
-  featureFlagManager.getBooleanValue(FeatureFlags.DAMetaOS) &&
-    registerInCommandController(
-      context,
-      "fx-extension.metaOSExtendToDA",
-      metaOSExtendToDAHandler,
-      "metaOSExtendToDA"
-    );
-
-  registerInCommandController(
-    context,
-    "fx-extension.regeneratePlugin",
-    regeneratePluginHandler,
-    "regeneratePlugin"
-  );
-  registerInCommandController(
-    context,
-    "fx-extension.addKnowledge",
-    addKnowledgeHandler,
-    "addKnowledge"
-  );
 }
 
 function registerTreeViewCommandsInLifecycle(context: vscode.ExtensionContext) {
@@ -667,9 +616,6 @@ function registerTreeViewCommandsInLifecycle(context: vscode.ExtensionContext) {
 
   // Publish to Teams
   registerInCommandController(context, CommandKeys.Publish, publishHandler, "publish");
-
-  // Share apps to others
-  registerInCommandController(context, CommandKeys.Share, shareHandler, "share");
 
   // Publish in Developer Portal
   registerInCommandController(
@@ -760,18 +706,6 @@ function registerTeamsFxCommands(context: vscode.ExtensionContext) {
   if (featureFlagManager.getBooleanValue(FeatureFlags.SyncManifest)) {
     registerInCommandController(context, "fx-extension.syncManifest", syncManifestHandler);
   }
-
-  const addAuthActionCmd = vscode.commands.registerCommand(
-    "fx-extension.addAuthAction",
-    (...args) => Correlator.run(addAuthActionHandler, args)
-  );
-  context.subscriptions.push(addAuthActionCmd);
-
-  const openOneDriveSharePointUrlCmd = vscode.commands.registerCommand(
-    "fx-extension.openOneDriveSharePointUrl",
-    (...args) => Correlator.run(openOneDriveSharePointUrlHandler, args)
-  );
-  context.subscriptions.push(openOneDriveSharePointUrlCmd);
 }
 
 /**
@@ -881,12 +815,6 @@ function registerMenuCommands(context: vscode.ExtensionContext) {
   );
   context.subscriptions.push(aadManifestTemplateCodeLensCmd);
 
-  const aadConvertToNewSchemaCmd = vscode.commands.registerCommand(
-    "fx-extension.convertAadToNewSchema",
-    (...args) => Correlator.run(convertAadToNewSchemaHandler, args)
-  );
-  context.subscriptions.push(aadConvertToNewSchemaCmd);
-
   const openResourceGroupInPortalCmd = vscode.commands.registerCommand(
     "fx-extension.openResourceGroupInPortal",
     async (node: Record<string, string>) => {
@@ -939,30 +867,6 @@ function registerMenuCommands(context: vscode.ExtensionContext) {
     Correlator.run(refreshCopilotCallback, args)
   );
   context.subscriptions.push(refreshCopilot);
-
-  const setSensitivityLabelCmd = vscode.commands.registerCommand(
-    "fx-extension.setSensitivityLabel",
-    async (...args) => {
-      await Correlator.run(setSensitivityLabelHandler, args);
-    }
-  );
-  context.subscriptions.push(setSensitivityLabelCmd);
-
-  const removeSharedAccessCmd = vscode.commands.registerCommand(
-    "fx-extension.removeSharedAccess",
-    async (...args) => {
-      await Correlator.run(shareRemoveHandler, args);
-    }
-  );
-  context.subscriptions.push(removeSharedAccessCmd);
-
-  const m365PreAuthHandlerCmd = vscode.commands.registerCommand(
-    "fx-extension.m365PreAuth",
-    async (...args) => {
-      await Correlator.run(m365PreAuthHandler, args);
-    }
-  );
-  context.subscriptions.push(m365PreAuthHandlerCmd);
 }
 
 /**
@@ -1093,6 +997,12 @@ function registerAccountMenuCommands(context: vscode.ExtensionContext) {
 }
 
 async function initializeContextKey(context: vscode.ExtensionContext, isTeamsFxProject: boolean) {
+  await vscode.commands.executeCommand(
+    "setContext",
+    "fx-extension.isMultiTenantEnabled",
+    featureFlagManager.getBooleanValue(CoreFeatureFlags.MultiTenant)
+  );
+
   await vscode.commands.executeCommand("setContext", "fx-extension.isSPFx", isSPFxProject);
 
   await vscode.commands.executeCommand(
@@ -1110,7 +1020,7 @@ async function initializeContextKey(context: vscode.ExtensionContext, isTeamsFxP
   }
 
   const ymlFileWatcher = vscode.workspace.createFileSystemWatcher(
-    "**/{teamsapp,m365agents}.yml",
+    "**/teamsapp.yml",
     false,
     true,
     true
@@ -1182,12 +1092,6 @@ function registerLanguageFeatures(context: vscode.ExtensionContext) {
   const apiPluginOpenapiSpecSelector: vscode.DocumentSelector = {
     scheme: "file",
     pattern: `**/${AppPackageFolderName}/apiSpecificationFile/*.{yml,yaml,json}`,
-  };
-
-  const agentManifestSelector = {
-    language: "json",
-    scheme: "file",
-    pattern: `**/${AppPackageFolderName}/**/*.json`,
   };
 
   const aadAppTemplateCodeLensProvider = new AadAppTemplateCodeLensProvider();
@@ -1301,49 +1205,13 @@ function registerLanguageFeatures(context: vscode.ExtensionContext) {
   const yamlFileSelector = {
     language: "yaml",
     scheme: "file",
-    pattern: `**/{teamsapp,m365agents}.yml`,
+    pattern: `**/teamsapp.yml`,
   };
   context.subscriptions.push(
     vscode.languages.registerCodeLensProvider(yamlFileSelector, yamlCodelensProvider)
   );
 
   context.subscriptions.push(diagnosticCollection);
-
-  const oneDriveSharePointCodeLensProvider = new OneDriveSharePointCodeLensProvider();
-  context.subscriptions.push(
-    vscode.languages.registerCodeLensProvider(
-      agentManifestSelector,
-      oneDriveSharePointCodeLensProvider
-    )
-  );
-
-  if (featureFlagManager.getBooleanValue(FeatureFlags.SensitivityLabelEnabled)) {
-    const declarativeAgentManifestSelector: vscode.DocumentSelector = {
-      scheme: "file",
-      pattern: `**/${AppPackageFolderName}/*.{json}`,
-    };
-    const declarativeAgentSensitivityLabelCodeLensProvider =
-      new DeclarativeAgentSensitivityLabelCodeLensProvider();
-    context.subscriptions.push(
-      vscode.languages.registerCodeLensProvider(
-        declarativeAgentManifestSelector,
-        declarativeAgentSensitivityLabelCodeLensProvider
-      )
-    );
-  }
-
-  {
-    const workspaceMCPConfigSelector: vscode.DocumentSelector = {
-      pattern: `**/mcp.json`,
-    };
-    const workspaceMCPConfigCodeLensProvider = new WorkspaceMCPConfigCodeLensProvider();
-    context.subscriptions.push(
-      vscode.languages.registerCodeLensProvider(
-        workspaceMCPConfigSelector,
-        workspaceMCPConfigCodeLensProvider
-      )
-    );
-  }
 }
 
 function registerOfficeDevCodeLensProviders(context: vscode.ExtensionContext) {
@@ -1385,6 +1253,11 @@ async function runBackgroundAsyncTasks(
   isTeamsFxProject: boolean
 ) {
   await exp.initialize(context);
+  await vscode.commands.executeCommand(
+    "setContext",
+    "fx-extension.isNewUser",
+    isExistingUser === "no"
+  );
   TreatmentVariableValue.inProductDoc = await exp
     .getExpService()
     .getTreatmentVariableAsync(
@@ -1412,11 +1285,7 @@ async function runBackgroundAsyncTasks(
   const survey = ExtensionSurvey.getInstance();
   survey.activate();
 
-  await core.fetchOnlineTemplateMetadata();
-
   await recommendACPExtension();
-
-  // await Correlator.run(setupMCPServer);
 
   await checkProjectTypeAndSendTelemetry();
 }

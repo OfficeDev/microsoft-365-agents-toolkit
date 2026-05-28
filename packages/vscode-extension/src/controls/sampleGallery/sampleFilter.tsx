@@ -29,10 +29,7 @@ export default class SampleFilter extends React.Component<SampleFilterProps, unk
     const sampleTechniques = this.props.filterOptions.technologies;
     const typeOptions: IDropdownOption[] = sampleTypes.map((type) => {
       const selected = this.props.filterTags.indexOf(type) >= 0;
-      const count = this.props.samples.filter((sample) => {
-        return sample.types && sample.types.indexOf(type) >= 0;
-      }).length;
-      return { key: type, text: `${type} (${count})`, selected };
+      return { key: type, text: type, selected };
     });
     const languageOptions: IDropdownOption[] = sampleLanguages.map((type) => {
       const selected = this.props.filterTags.indexOf(type) >= 0;
@@ -94,8 +91,7 @@ export default class SampleFilter extends React.Component<SampleFilterProps, unk
           <VSCodeButton
             onClick={() => this.props.onLayoutChanged("grid")}
             appearance="icon"
-            aria-label="Gallery view"
-            aria-pressed={this.props.layout === "grid"}
+            aria-label="gallary view"
             className={`layout-button ${this.props.layout === "grid" ? "layout-selected" : ""}`}
           >
             <Grid />
@@ -103,8 +99,7 @@ export default class SampleFilter extends React.Component<SampleFilterProps, unk
           <VSCodeButton
             onClick={() => this.props.onLayoutChanged("list")}
             appearance="icon"
-            aria-label="List view"
-            aria-pressed={this.props.layout === "list"}
+            aria-label="list view"
             className={`layout-button ${this.props.layout === "list" ? "layout-selected" : ""}`}
           >
             <span className="codicon codicon-list-unordered"></span>
@@ -112,21 +107,9 @@ export default class SampleFilter extends React.Component<SampleFilterProps, unk
         </div>
         <div className="filter-tag-bar">
           {this.props.filterTags.map((tag) => (
-            <div className="filter-tag" key={tag}>
+            <div className="filter-tag">
               <span>{tag}</span>
-              <span
-                className="codicon codicon-close"
-                role="button"
-                tabIndex={0}
-                aria-label={`Remove ${tag} filter`}
-                onClick={() => this.onTagRemoved(tag)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === " ") {
-                    e.preventDefault();
-                    this.onTagRemoved(tag);
-                  }
-                }}
-              ></span>
+              <span className="codicon codicon-close" onClick={() => this.onTagRemoved(tag)}></span>
             </div>
           ))}
           {this.props.filterTags.length > 0 && (

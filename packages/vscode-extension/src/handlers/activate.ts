@@ -11,22 +11,19 @@ import {
   CoreCallbackEvent,
   err,
   ConfigFolderName,
-  signedIn,
-  signedOut,
 } from "@microsoft/teamsfx-api";
 import {
   isValidProject,
   getProjectMetadata,
   AppStudioScopes,
   FxCore,
-  GraphScopes,
-  isSovereignHigh,
 } from "@microsoft/teamsfx-core";
 import { workspace, window, Uri, FileRenameEvent } from "vscode";
 import azureAccountManager from "../commonlib/azureLogin";
 import VsCodeLogInstance from "../commonlib/log";
 import M365TokenInstance from "../commonlib/m365Login";
 import commandController from "../commandController";
+import { signedIn, signedOut } from "../commonlib/common/constant";
 import { showError } from "../error/common";
 import { ExtensionSource } from "../error/error";
 import {
@@ -86,7 +83,7 @@ export function activate(): Result<Void, FxError> {
 
     void M365TokenInstance.setStatusChangeMap(
       "successfully-sign-in-m365",
-      { scopes: isSovereignHigh() ? GraphScopes : AppStudioScopes() },
+      { scopes: AppStudioScopes },
       m365NotificationCallback,
       false
     );

@@ -12,7 +12,6 @@ import {
   isValidOfficeAddInProject,
   isManifestOnlyOfficeAddinProject,
   manifestUtils,
-  copilotGptManifestUtils,
 } from "@microsoft/teamsfx-core";
 import { TeamsAppManifest, Tools } from "@microsoft/teamsfx-api";
 
@@ -24,10 +23,8 @@ export let workspaceUri: vscode.Uri | undefined;
 export let isTeamsFxProject = false;
 export let isOfficeAddInProject = false;
 export let isOfficeManifestOnlyProject = false;
-export let isMetaOSAddinProject = false;
 export let isSPFxProject = false;
 export let isDeclarativeCopilotApp = false;
-export let isSensitivityLabelSet = false;
 export let isExistingUser = "no";
 export let defaultExtensionLogPath: string;
 export let commandIsRunning = false;
@@ -35,7 +32,6 @@ export let core: FxCore;
 export let tools: Tools;
 export let diagnosticCollection: vscode.DiagnosticCollection; // Collection of diagnositcs after running app validation.
 export let deleteAadInProgress = false;
-export let outputTroubleshootNotificationCount = 0;
 
 export interface ILocalDebugPorts {
   checkPorts: number[];
@@ -69,7 +65,6 @@ if (vscode.workspace && vscode.workspace.workspaceFolders) {
 
 export function initializeGlobalVariables(ctx: vscode.ExtensionContext): void {
   context = ctx;
-  outputTroubleshootNotificationCount = 0;
   isExistingUser = context.globalState.get<string>(UserState.IsExisting) || "no";
   isTeamsFxProject = isValidProject(workspaceUri?.fsPath);
   isOfficeAddInProject = isValidOfficeAddInProject(workspaceUri?.fsPath);
@@ -85,28 +80,9 @@ export function initializeGlobalVariables(ctx: vscode.ExtensionContext): void {
   }
   if (isTeamsFxProject && workspaceUri?.fsPath) {
     isSPFxProject = checkIsSPFx(workspaceUri?.fsPath);
-    isMetaOSAddinProject = checkIsMetaOSAddinProject(workspaceUri.fsPath);
     isDeclarativeCopilotApp = checkIsDeclarativeCopilotApp(workspaceUri.fsPath);
-    isSensitivityLabelSet = checkIsSensitivityLabelSet(workspaceUri.fsPath);
   } else {
     isSPFxProject = fs.existsSync(path.join(workspaceUri?.fsPath ?? "./", "SPFx"));
-  }
-}
-
-export function checkIsMetaOSAddinProject(directory: string): boolean {
-  if (!directory) {
-    return false;
-  }
-
-  const manifestResult = manifestUtils.readAppManifestSync(directory);
-  if (manifestResult.isOk()) {
-    if ((manifestResult.value as any)?.extensions) {
-      return true;
-    } else {
-      return false;
-    }
-  } else {
-    return false;
   }
 }
 
@@ -140,25 +116,6 @@ export function updateIsDeclarativeCopilotApp(manifest: TeamsAppManifest): boole
   return isDeclarativeCopilotApp;
 }
 
-export function checkIsSensitivityLabelSet(directory: string): boolean {
-  const manifestRes = manifestUtils.readAppManifestSync(directory);
-  if (!manifestRes.isOk()) {
-    return false;
-  }
-  const declarativeAgentPath = manifestRes.value.copilotAgents?.declarativeAgents?.[0]?.file;
-  if (!declarativeAgentPath) {
-    return false;
-  }
-  const appPackagePath = path.dirname(manifestUtils.getTeamsAppManifestPath(directory));
-  const declarativeAgentRes = copilotGptManifestUtils.readDeclarativeAgentManifestFileSync(
-    path.resolve(appPackagePath, declarativeAgentPath)
-  );
-  if (!declarativeAgentRes.isOk()) {
-    return false;
-  }
-  return !!declarativeAgentRes.value.sensitivity_label?.id;
-}
-
 export function setCommandIsRunning(isRunning: boolean) {
   commandIsRunning = isRunning;
 }
@@ -181,8 +138,4 @@ export function setDiagnosticCollection(collection: vscode.DiagnosticCollection)
 
 export function setDeleteAadInProgress(inProgress: boolean) {
   deleteAadInProgress = inProgress;
-}
-
-export function setOutputTroubleshootNotificationCount(value: number) {
-  outputTroubleshootNotificationCount = value;
 }

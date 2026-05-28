@@ -1,16 +1,15 @@
-import { OptionItem, err, ok } from "@microsoft/teamsfx-api";
-import * as templateMetadata from "@microsoft/teamsfx-core/build/component/generator/templates/metadata";
-import * as chai from "chai";
 import * as sinon from "sinon";
-import { PanelType } from "../../src/controls/PanelType";
-import { WebviewPanel } from "../../src/controls/webviewPanel";
-import { TreatmentVariableValue } from "../../src/exp/treatmentVariables";
+import * as chai from "chai";
 import * as globalVariables from "../../src/globalVariables";
-import { openTutorialHandler, selectTutorialsHandler } from "../../src/handlers/tutorialHandlers";
-import * as vsc_ui from "../../src/qm/vsc_ui";
-import { ExtTelemetry } from "../../src/telemetry/extTelemetry";
-import { TelemetryTriggerFrom } from "../../src/telemetry/extTelemetryEvents";
 import * as localizeUtils from "../../src/utils/localizeUtils";
+import * as vsc_ui from "../../src/qm/vsc_ui";
+import { OptionItem, err, ok } from "@microsoft/teamsfx-api";
+import { TreatmentVariableValue } from "../../src/exp/treatmentVariables";
+import { ExtTelemetry } from "../../src/telemetry/extTelemetry";
+import { openTutorialHandler, selectTutorialsHandler } from "../../src/handlers/tutorialHandlers";
+import { TelemetryTriggerFrom } from "../../src/telemetry/extTelemetryEvents";
+import { WebviewPanel } from "../../src/controls/webviewPanel";
+import { PanelType } from "../../src/controls/PanelType";
 
 describe("tutorialHandlers", () => {
   describe("selectTutorialsHandler()", () => {
@@ -99,6 +98,9 @@ describe("tutorialHandlers", () => {
       });
       sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
       sandbox.stub(TreatmentVariableValue, "inProductDoc").value(true);
+      sandbox.stub(vsc_ui, "VS_CODE_UI").value({
+        openUrl: (link: string) => Promise.resolve(ok(true)),
+      });
       const createOrShowStub = sandbox.stub(WebviewPanel, "createOrShow");
 
       const result = await openTutorialHandler([
@@ -109,35 +111,6 @@ describe("tutorialHandlers", () => {
       chai.assert.isTrue(result.isOk());
       chai.assert.equal(result.isOk() ? result.value : "Not Equal", undefined);
       chai.assert.isTrue(createOrShowStub.calledOnceWithExactly(PanelType.RespondToCardActions));
-    });
-
-    it("Template option", async () => {
-      let openLink = "";
-      sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
-      sandbox.stub(TreatmentVariableValue, "inProductDoc").value(false);
-      sandbox.stub(vsc_ui, "VS_CODE_UI").value({
-        openUrl: (link: string) => {
-          openLink = link;
-          return Promise.resolve(ok(true));
-        },
-      });
-      sandbox.stub(templateMetadata, "getDefaultTemplatesOnPlatform").returns([
-        {
-          id: "test",
-          description: "test",
-          language: "none",
-          name: "test",
-          link: "testLink",
-        },
-      ]);
-
-      const result = await openTutorialHandler([
-        TelemetryTriggerFrom.Auto,
-        { id: "test", data: "test" } as OptionItem,
-      ]);
-
-      chai.assert.isTrue(result.isOk());
-      chai.assert.equal(openLink, "testLink");
     });
 
     it("Args less than 2", async () => {

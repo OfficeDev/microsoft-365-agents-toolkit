@@ -22,7 +22,7 @@ export async function onSwitchM365Tenant(...args: unknown[]): Promise<void> {
 
   let error: FxError | undefined = undefined;
   const tokenRes = await M365TokenInstance.getAccessToken({
-    scopes: AzureScopes(),
+    scopes: AzureScopes,
   });
   if (tokenRes.isOk()) {
     const config: SingleSelectConfig = {
@@ -52,7 +52,6 @@ export async function onSwitchM365Tenant(...args: unknown[]): Promise<void> {
       if (switchRes.isOk()) {
         ExtTelemetry.sendTelemetryEvent(TelemetryEvent.SwitchTenant, {
           [TelemetryProperty.AccountType]: AccountType.M365,
-          [TelemetryProperty.TenantId]: result.value.result as string,
           ...getTriggerFromProperty(args),
         });
         return;
@@ -86,7 +85,7 @@ export async function onSwitchAzureTenant(...args: unknown[]): Promise<void> {
     title: localize("teamstoolkit.handlers.switchtenant.quickpick.title"),
     options: async () => {
       const tokenCredential = await azureAccountManager.getIdentityCredentialAsync(false);
-      const token = tokenCredential ? await tokenCredential.getToken(AzureScopes()) : undefined;
+      const token = tokenCredential ? await tokenCredential.getToken(AzureScopes) : undefined;
       if (token && token.token) {
         const tenants = await listAllTenants(token.token);
         return tenants.map((tenant: any) => {
@@ -119,7 +118,6 @@ export async function onSwitchAzureTenant(...args: unknown[]): Promise<void> {
     if (switchRes.isOk()) {
       ExtTelemetry.sendTelemetryEvent(TelemetryEvent.SwitchTenant, {
         [TelemetryProperty.AccountType]: AccountType.Azure,
-        [TelemetryProperty.TenantId]: result.value.result as string,
         ...getTriggerFromProperty(args),
       });
       return;
