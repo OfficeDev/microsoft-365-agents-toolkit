@@ -236,7 +236,9 @@ async function writeMcpJson(
     const id = connector.id;
     if (!id || !remote?.mcpServerUrl) {
       warnings.push(
-        `Skipping connector '${connector.id ?? "(unnamed)"}' during export: only remoteMcpServer connectors with a URL are supported.`
+        `Skipping connector '${
+          connector.id ?? "(unnamed)"
+        }' during export: only remoteMcpServer connectors with a URL are supported.`
       );
       continue;
     }
@@ -266,9 +268,7 @@ async function copySkills(
     const src = path.resolve(appPackageDir, rel);
     const relativeToPackage = path.relative(appPackageDir, src);
     if (relativeToPackage.startsWith("..") || path.isAbsolute(relativeToPackage)) {
-      warnings.push(
-        `Skill folder '${skill.folder}' resolves outside appPackage; skipped.`
-      );
+      warnings.push(`Skill folder '${skill.folder}' resolves outside appPackage; skipped.`);
       continue;
     }
     if (!(await fs.pathExists(src))) {
