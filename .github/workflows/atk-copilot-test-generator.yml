@@ -229,7 +229,8 @@ jobs:
               --field issue_number="$ISSUE" \
               --field script="$SCRIPT"
 
-            sleep 15
+            # Runner jobs stay queued/in-setup for ~2-3 min before appearing in the API
+            sleep 180
             local RUN_ID=$(gh run list \
               --repo "$REPO" \
               --workflow atk-copilot-test-runner.yml \

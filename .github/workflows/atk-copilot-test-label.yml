@@ -205,7 +205,7 @@ jobs:
             # Dispatch generator
             DISPATCH_TIME=$(date -u +%Y-%m-%dT%H:%M:%SZ)
             echo "--- Dispatching generator at $DISPATCH_TIME on branch $BRANCH"
-            gh workflow run sync-knowledge.yml \
+            gh workflow run atk-copilot-test-generator.yml \
               --repo "$REPO" \
               --ref "$BRANCH" \
               --field issue_number="$ISSUE" \
@@ -214,7 +214,7 @@ jobs:
             sleep 10   # let GitHub register the dispatch
 
             # Wait for generator run to appear
-            _find_run_after "sync-knowledge.yml" "$DISPATCH_TIME" || {
+            _find_run_after "atk-copilot-test-generator.yml" "$DISPATCH_TIME" || {
               echo "Could not find generator run. Stopping."
               FINAL_STATUS="error"
               break
