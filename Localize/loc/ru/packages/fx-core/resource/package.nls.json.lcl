@@ -6787,6 +6787,60 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";driver.dcr.description.create" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Create a Dynamic Client Registration (DCR) configuration on Developer Portal for MCP server authentication.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Создайте конфигурацию с поддержкой динамической регистрации клиентов (DCR) на Портале разработчика для проверки подлинности сервера MCP.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.dcr.error.nameTooLong" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The DCR configuration name is too long. The maximum character length is 128.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Слишком длинное имя конфигурации DCR. Максимальная длина — 128 символов.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.dcr.error.wellKnownInvalid" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The wellKnownAuthorizationServer URL is invalid. Please provide a valid HTTPS URL to the authorization server's RFC 8414 metadata document.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[URL-адрес wellKnownAuthorizationServer является недопустимым. Укажите допустимый URL-адрес HTTPS для документа метаданных RFC 8414 сервера авторизации.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.dcr.log.skipCreateDcr" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Environment variable %s exists. Skip creating DCR configuration.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Переменная среды %s существует. Пропустить создание конфигурации с поддержкой динамической регистрации клиентов (DCR).]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.dcr.log.successCreateDcr" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[DCR configuration created successfully with id %s!]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Конфигурация DCR успешно создана с идентификатором %s!]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.dcr.title.create" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Creating DCR configuration...]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Создание конфигурации DCR...]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";driver.deploy.azureAppServiceDeployDetailSummary" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[`%s` deployed to Azure App Service.]]></Val>

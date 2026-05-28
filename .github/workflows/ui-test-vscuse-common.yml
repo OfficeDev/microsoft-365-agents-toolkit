@@ -149,6 +149,7 @@ jobs:
       #AZURE_CLIENT_SECRET: ${{ secrets.AZURE_SERVICE_PRINCIPAL_SECRET }}
       AZURE_TENANT_ID: ${{ secrets.TEST_TENANT_TENANT_ID  }}
       AZURE_SUBSCRIPTION_ID: ${{ secrets.TEST_TENANT_SUBSCRIPTION_ID }}
+      RESOURCE_GROUP_REGION: ${{ vars.RESOURCE_GROUP_REGION }}
       AZURE_AUTH_ENABLED: ${{ secrets.AZURE_SERVICE_PRINCIPAL_ID != '' && secrets.AZURE_SERVICE_PRINCIPAL_SECRET != '' && secrets.TEST_TENANT_TENANT_ID != '' }}
       # M365 account for testing (comma-separated list from GitHub variable)
       M365_USERNAMES: ${{ vars.M365_USERNAMES }}
