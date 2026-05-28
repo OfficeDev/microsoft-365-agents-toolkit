@@ -481,6 +481,18 @@ export async function generateForMCPForDA(
   const serverName = inputs[QuestionNames.MCPForDAServerName];
   const warnings: Warning[] = [];
 
+  // Validate: --mcp-da-server-url is required for the create project MCP flow
+  if (!mcpServerUrl) {
+    return err(
+      new UserError(
+        "MCPForDA",
+        "MissingMCPServerUrl",
+        getDefaultString("core.MCPForDA.missingServerUrl"),
+        getLocalizedString("core.MCPForDA.missingServerUrl")
+      )
+    );
+  }
+
   // If a tools file is provided (CLI flow), load tools from it
   const toolsFilePath = inputs[QuestionNames.MCPToolsFilePath];
   const existingTools = inputs[QuestionNames.MCPForDAAvailableTools];
