@@ -234,7 +234,8 @@ async function setupTcGallery(
   tcLabel: string,
   theme: "light" | "dark" = "light",
 ): Promise<boolean> {
-  const themeName = theme === "dark" ? "Default Dark Modern" : "Default Light Modern";
+  const themeName =
+    theme === "dark" ? "Default Dark Modern" : "Default Light Modern";
   const themeFallback = theme === "dark" ? "Default Dark+" : "Default Light+";
   console.log(`\n  [setup] ${tcLabel}: setting ${themeName}...`);
 
@@ -255,9 +256,14 @@ async function setupTcGallery(
         themeFallback,
         vscode.ConfigurationTarget.Global,
       );
-      console.log(`  [setup] ${tcLabel}: theme set to ${themeFallback} (fallback)`);
+      console.log(
+        `  [setup] ${tcLabel}: theme set to ${themeFallback} (fallback)`,
+      );
     } catch (e) {
-      console.warn(`  [setup] ${tcLabel}: could not set theme ${themeName}:`, e);
+      console.warn(
+        `  [setup] ${tcLabel}: could not set theme ${themeName}:`,
+        e,
+      );
     }
   }
   await wait(2000);
@@ -293,9 +299,9 @@ async function setupTcGallery(
     await wait(2000);
     const diagResult = sendEvalSignal(
       "JSON.stringify({" +
-        "sampleCards:document.querySelectorAll(\".sample-card\").length," +
-        "hasFilter:!!document.querySelector(\".sample-filter\")," +
-        "hasOffline:!!document.querySelector(\".offlinePage\")" +
+        'sampleCards:document.querySelectorAll(".sample-card").length,' +
+        'hasFilter:!!document.querySelector(".sample-filter"),' +
+        'hasOffline:!!document.querySelector(".offlinePage")' +
         "})",
       3000,
     );
@@ -378,7 +384,9 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
     // Screenshot 01 — baseline: extension loaded (used by TC-001 step 3)
     takeScreenshot("01-extension-active");
     if (!active) {
-      console.log("  Note: Extension not active — remaining TCs will attempt per-TC setup");
+      console.log(
+        "  Note: Extension not active — remaining TCs will attempt per-TC setup",
+      );
     }
   });
 
@@ -881,8 +889,7 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
       return;
     }
 
-    const detail =
-      `aria-label="${data.label}"; hasTags=${data.hasTags}; isFocused=${data.isFocused}`;
+    const detail = `aria-label="${data.label}"; hasTags=${data.hasTags}; isFocused=${data.isFocused}`;
     step("TC-003 Card aria-label includes tags", !!data.hasTags, detail);
   });
 
@@ -1375,8 +1382,7 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
       return;
     }
 
-    const detail =
-      `Computed ratio=${data.ratio}:1; outline=${data.outlineRaw} (${data.outlineStyle}); bg=${data.bgRgb}`;
+    const detail = `Computed ratio=${data.ratio}:1; outline=${data.outlineRaw} (${data.outlineStyle}); bg=${data.bgRgb}`;
     step("TC-006a Gallery focus ring contrast >= 3:1", !!data.passes, detail);
   });
 
@@ -1537,8 +1543,7 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
       return;
     }
 
-    const detail =
-      `Computed ratio=${data.ratio}:1; outline=${data.outlineRaw} (${data.outlineStyle}); bg=${data.bgRgb}`;
+    const detail = `Computed ratio=${data.ratio}:1; outline=${data.outlineRaw} (${data.outlineStyle}); bg=${data.bgRgb}`;
     step("TC-006b List focus ring contrast >= 3:1", !!data.passes, detail);
   });
 });

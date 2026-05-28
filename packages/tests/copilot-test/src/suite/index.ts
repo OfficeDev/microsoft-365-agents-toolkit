@@ -26,13 +26,17 @@ export async function run(): Promise<void> {
   let files = glob.sync("**/*.test.js", { cwd: testsRoot });
 
   if (testFileFilter) {
-    const filterBase = testFileFilter.replace(/\.ts$/, ".js").replace(/\.js$/, "");
+    const filterBase = testFileFilter
+      .replace(/\.ts$/, ".js")
+      .replace(/\.js$/, "");
     files = files.filter((f) => {
       const base = path.basename(f, ".js");
       return base === filterBase || f.includes(filterBase);
     });
     if (files.length === 0) {
-      console.warn(`[suite/index] TEST_FILE="${testFileFilter}" matched no files — running all tests`);
+      console.warn(
+        `[suite/index] TEST_FILE="${testFileFilter}" matched no files — running all tests`,
+      );
       files = glob.sync("**/*.test.js", { cwd: testsRoot });
     }
   }

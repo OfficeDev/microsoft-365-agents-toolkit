@@ -37,7 +37,11 @@ async function takeScreenshot(name: string): Promise<void> {
       const iv = setInterval(() => {
         if (!fs.existsSync(signal) || Date.now() >= deadline) {
           clearInterval(iv);
-          if (fs.existsSync(signal)) { try { fs.unlinkSync(signal); } catch {} }
+          if (fs.existsSync(signal)) {
+            try {
+              fs.unlinkSync(signal);
+            } catch {}
+          }
           resolve();
         }
       }, 100);
@@ -69,7 +73,9 @@ async function sendSignal(content: string, timeoutMs = 15000): Promise<void> {
           clearInterval(iv);
           if (fs.existsSync(signal)) {
             console.log(`Signal timeout: ${content}`);
-            try { fs.unlinkSync(signal); } catch {}
+            try {
+              fs.unlinkSync(signal);
+            } catch {}
           }
           resolve();
         }
@@ -183,32 +189,50 @@ suite("ATK Teams Bot Template Creation (UI Wizard)", function () {
 
     // Step 1: With baked extension (native-FS), QuickPick appears in <60s.
     // sendSignal is now async — event loop stays free so the command can execute.
-    await sendSignal("waitForTextThenScreenshot:Teams Agents and Apps:60000:02-step1-project-type", 68000);
+    await sendSignal(
+      "waitForTextThenScreenshot:Teams Agents and Apps:60000:02-step1-project-type",
+      68000,
+    );
     await sendSignal("clickText:Teams Agents and Apps", 10000);
     await wait(1000);
 
     // Step 2: "Other Teams Capabilities"
-    await sendSignal("waitForTextThenScreenshot:Other Teams Capabilities:20000:03-step2-teams-app-type", 28000);
+    await sendSignal(
+      "waitForTextThenScreenshot:Other Teams Capabilities:20000:03-step2-teams-app-type",
+      28000,
+    );
     await sendSignal("clickText:Other Teams Capabilities", 10000);
     await wait(1000);
 
     // Step 3: "Simple Bot"
-    await sendSignal("waitForTextThenScreenshot:Simple Bot:15000:04-step3-simple-bot", 23000);
+    await sendSignal(
+      "waitForTextThenScreenshot:Simple Bot:15000:04-step3-simple-bot",
+      23000,
+    );
     await sendSignal("clickText:Simple Bot", 10000);
     await wait(1000);
 
     // Step 4: Programming Language — TypeScript / JavaScript / Python
-    await sendSignal("waitForTextThenScreenshot:TypeScript:15000:05-step4-language", 23000);
+    await sendSignal(
+      "waitForTextThenScreenshot:TypeScript:15000:05-step4-language",
+      23000,
+    );
     await sendSignal("clickText:TypeScript", 10000);
     await wait(1000);
 
     // Step 5: Workspace Folder
-    await sendSignal("waitForTextThenScreenshot:Default folder:15000:06-step5-workspace-folder", 23000);
+    await sendSignal(
+      "waitForTextThenScreenshot:Default folder:15000:06-step5-workspace-folder",
+      23000,
+    );
     await sendSignal("clickText:Default folder", 10000);
     await wait(1000);
 
     // Step 6: Application Name InputBox
-    await sendSignal("waitForTextThenScreenshot:Application Name:15000:07-step6-app-name", 23000);
+    await sendSignal(
+      "waitForTextThenScreenshot:Application Name:15000:07-step6-app-name",
+      23000,
+    );
     await sendSignal("type:test-teams-bot-001", 8000);
     await wait(500);
     await sendSignal("pressKey:Enter", 5000);
