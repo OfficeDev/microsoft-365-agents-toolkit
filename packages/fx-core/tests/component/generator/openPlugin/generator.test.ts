@@ -1,12 +1,18 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
+import { ok } from "@microsoft/teamsfx-api";
 import { expect } from "chai";
 import fs from "fs-extra";
 import "mocha";
 import * as os from "os";
 import * as path from "path";
+import sinon from "sinon";
+import { setTools } from "../../../../src/common/globalVars";
+import { Generator } from "../../../../src/component/generator/generator";
 import { convertOpenPlugin } from "../../../../src/component/generator/openPlugin/generator";
+import { MockTools } from "../../../core/utils";
+import { scaffoldOpenPluginTemplateFromSource } from "./testTemplateScaffold";
 
 async function tmp(prefix: string): Promise<string> {
   return await fs.mkdtemp(path.join(os.tmpdir(), prefix));
@@ -42,17 +48,25 @@ async function seedSamplePlugin(root: string, manifestRel = ".plugin/plugin.json
 }
 
 describe("openPlugin.convertOpenPlugin", () => {
+  setTools(new MockTools());
   let pluginDir: string;
   let outDir: string;
+  const sandbox = sinon.createSandbox();
 
   beforeEach(async () => {
     pluginDir = await tmp("op-conv-plugin-");
     outDir = await tmp("op-conv-out-");
     await fs.remove(outDir); // must be absent for the success path
     await seedSamplePlugin(pluginDir);
+    sandbox.stub(Generator, "generateTemplate").callsFake(async (ctx, dest) => {
+      const appName = ctx.templateVariables?.appName ?? "";
+      await scaffoldOpenPluginTemplateFromSource(dest, { appName });
+      return ok(undefined);
+    });
   });
 
   afterEach(async () => {
+    sandbox.restore();
     await fs.remove(pluginDir);
     await fs.remove(outDir);
   });

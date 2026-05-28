@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { Platform } from "@microsoft/teamsfx-api";
+import { ok, Platform } from "@microsoft/teamsfx-api";
 import AdmZip from "adm-zip";
 import { expect } from "chai";
 import fs from "fs-extra";
@@ -9,13 +9,17 @@ import "mocha";
 import mockedEnv, { RestoreFn } from "mocked-env";
 import * as os from "os";
 import * as path from "path";
+import sinon from "sinon";
 import { featureFlagManager, FeatureFlags } from "../../../../src/common/featureFlags";
+import { setTools } from "../../../../src/common/globalVars";
 import { CreateAppPackageDriver } from "../../../../src/component/driver/teamsApp/createAppPackage";
 import { CreateAppPackageArgs } from "../../../../src/component/driver/teamsApp/interfaces/CreateAppPackageArgs";
+import { Generator } from "../../../../src/component/generator/generator";
 import { deterministicAppId } from "../../../../src/component/generator/openPlugin/deterministicId";
 import { convertOpenPlugin } from "../../../../src/component/generator/openPlugin/generator";
-import { MockedM365Provider } from "../../../core/utils";
+import { MockedM365Provider, MockTools } from "../../../core/utils";
 import { MockedLogProvider, MockedUserInteraction } from "../../../plugins/solution/util";
+import { scaffoldOpenPluginTemplateFromSource } from "./testTemplateScaffold";
 
 const FIXTURE = path.join(__dirname, "fixtures", "contoso-helper");
 const FAKE_LOGO_BYTES = Buffer.from([
@@ -27,14 +31,22 @@ async function tmp(prefix: string): Promise<string> {
 }
 
 describe("openPlugin fixture conversion (Contoso Helper)", () => {
+  setTools(new MockTools());
   let outDir: string;
+  const sandbox = sinon.createSandbox();
 
   beforeEach(async () => {
     outDir = await tmp("op-fix-contoso-");
     await fs.remove(outDir); // converter requires the target to be empty
+    sandbox.stub(Generator, "generateTemplate").callsFake(async (ctx, dest) => {
+      const appName = ctx.templateVariables?.appName ?? "";
+      await scaffoldOpenPluginTemplateFromSource(dest, { appName });
+      return ok(undefined);
+    });
   });
 
   afterEach(async () => {
+    sandbox.restore();
     await fs.remove(outDir);
   });
 

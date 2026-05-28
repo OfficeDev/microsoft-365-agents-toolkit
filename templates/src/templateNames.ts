@@ -76,6 +76,9 @@ export enum TemplateNames {
 
   FoundryAgent = "foundry-agent-to-m365",
   FoundryProxyAgent = "foundry-proxy-agent",
+
+  // openplugin convert — baseline files scaffolded by 'atk convert openplugin'
+  OpenPluginConvert = "open-plugin-convert",
 }
 
 export enum TemplateAlias {

@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { Platform } from "@microsoft/teamsfx-api";
+import { ok, Platform } from "@microsoft/teamsfx-api";
 import AdmZip from "adm-zip";
 import { expect } from "chai";
 import fs from "fs-extra";
@@ -9,12 +9,16 @@ import "mocha";
 import mockedEnv, { RestoreFn } from "mocked-env";
 import * as os from "os";
 import * as path from "path";
+import sinon from "sinon";
 import { featureFlagManager, FeatureFlags } from "../../../../src/common/featureFlags";
+import { setTools } from "../../../../src/common/globalVars";
 import { CreateAppPackageDriver } from "../../../../src/component/driver/teamsApp/createAppPackage";
 import { CreateAppPackageArgs } from "../../../../src/component/driver/teamsApp/interfaces/CreateAppPackageArgs";
+import { Generator } from "../../../../src/component/generator/generator";
 import { convertOpenPlugin } from "../../../../src/component/generator/openPlugin/generator";
-import { MockedM365Provider } from "../../../core/utils";
+import { MockedM365Provider, MockTools } from "../../../core/utils";
 import { MockedLogProvider, MockedUserInteraction } from "../../../plugins/solution/util";
+import { scaffoldOpenPluginTemplateFromSource } from "./testTemplateScaffold";
 
 async function tmp(prefix: string): Promise<string> {
   return await fs.mkdtemp(path.join(os.tmpdir(), prefix));
@@ -39,10 +43,12 @@ async function seedSamplePlugin(root: string): Promise<void> {
 }
 
 describe("openPlugin → teamsApp/zipAppPackage end-to-end", () => {
+  setTools(new MockTools());
   const driver = new CreateAppPackageDriver();
   let pluginDir: string;
   let projectDir: string;
   let envRestore: RestoreFn | undefined;
+  const sandbox = sinon.createSandbox();
 
   beforeEach(async () => {
     pluginDir = await tmp("op-pkg-plugin-");
@@ -53,9 +59,15 @@ describe("openPlugin → teamsApp/zipAppPackage end-to-end", () => {
       TEAMSFX_ENV: "dev",
       TEAMS_APP_ID: "00000000-0000-0000-0000-000000000000",
     });
+    sandbox.stub(Generator, "generateTemplate").callsFake(async (ctx, dest) => {
+      const appName = ctx.templateVariables?.appName ?? "";
+      await scaffoldOpenPluginTemplateFromSource(dest, { appName });
+      return ok(undefined);
+    });
   });
 
   afterEach(async () => {
+    sandbox.restore();
     await fs.remove(pluginDir);
     await fs.remove(projectDir);
     if (envRestore) {

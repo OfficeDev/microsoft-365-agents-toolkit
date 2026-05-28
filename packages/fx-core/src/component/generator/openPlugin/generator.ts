@@ -4,15 +4,9 @@
 import { err, FxError, ok, Result, SystemError, UserError } from "@microsoft/teamsfx-api";
 import fs from "fs-extra";
 import * as path from "path";
-import {
-  ENV_DEV_CONTENT,
-  GITIGNORE_CONTENT,
-  renderM365AgentsYml,
-  renderReadme,
-  VSCODE_EXTENSIONS_JSON,
-  VSCODE_LAUNCH_JSON,
-  VSCODE_SETTINGS_JSON,
-} from "./assets";
+import { createContext } from "../../../common/globalVars";
+import { Generator } from "../generator";
+import { TemplateNames } from "../templates/templateNames";
 import { applyIcons } from "./iconStrategy";
 import { mapToTtkProject } from "./mapper";
 import { readOpenPluginDir } from "./parser";
@@ -29,6 +23,12 @@ export interface ConvertResult {
  * Convert an Open Plugin / Claude Code plugin / Cursor plugin directory into
  * a scaffolded Teams Toolkit project. The output is a usable TTK project; run
  * `atk teamsapp package` from inside it to produce the upload zip.
+ *
+ * Static baseline files (m365agents.yml, README, .gitignore, .vscode, env)
+ * come from the `open-plugin-convert` template, which ships in the standard
+ * template release pipeline and can be updated independently of fx-core.
+ * Variable-length outputs (manifest, skill folders, icons) are written as
+ * the post-scaffold step here.
  */
 export async function convertOpenPlugin(
   inputs: ConvertInputs
@@ -58,22 +58,31 @@ export async function convertOpenPlugin(
       }
     }
 
+    // 1. Scaffold the static baseline from the open-plugin-convert template.
+    const ctx = createContext();
+    ctx.templateVariables = { appName: parsed.manifest.name };
+    const scaffoldRes = await Generator.generateTemplate(
+      ctx,
+      projectPath,
+      TemplateNames.OpenPluginConvert,
+      "common"
+    );
+    if (scaffoldRes.isErr()) return err(scaffoldRes.error);
+
+    // 2. Post-scaffold: write the dynamic outputs.
     const appPackageDir = path.join(projectPath, "appPackage");
     await fs.ensureDir(appPackageDir);
 
-    // 1. Manifest (programmatic; vDevPreview agentSkills/agentConnectors are variable-length).
+    // Manifest (vDevPreview agentSkills/agentConnectors are variable-length).
     await fs.writeJSON(path.join(appPackageDir, "manifest.json"), manifest, { spaces: 4 });
 
-    // 2. Copy skill folders and (when present) the commands folder.
+    // Copy skill folders and (when present) the commands folder.
     for (const op of copyOps) {
       await fs.copy(op.src, path.join(projectPath, op.destRelative));
     }
 
-    // 3. Icons.
+    // Icons.
     await applyIcons(parsed, appPackageDir, warnings);
-
-    // 4. Static baseline files.
-    await writeStaticBaseline(projectPath, parsed.manifest.name);
 
     return ok({ projectPath, warnings });
   } catch (e) {
@@ -87,24 +96,4 @@ export async function convertOpenPlugin(
       })
     );
   }
-}
-
-async function writeStaticBaseline(projectPath: string, appName: string): Promise<void> {
-  await fs.writeFile(path.join(projectPath, ".gitignore"), GITIGNORE_CONTENT, "utf8");
-  await fs.writeFile(path.join(projectPath, "README.md"), renderReadme(appName), "utf8");
-  await fs.writeFile(
-    path.join(projectPath, "m365agents.yml"),
-    renderM365AgentsYml(appName),
-    "utf8"
-  );
-
-  const envDir = path.join(projectPath, "env");
-  await fs.ensureDir(envDir);
-  await fs.writeFile(path.join(envDir, ".env.dev"), ENV_DEV_CONTENT, "utf8");
-
-  const vscodeDir = path.join(projectPath, ".vscode");
-  await fs.ensureDir(vscodeDir);
-  await fs.writeFile(path.join(vscodeDir, "launch.json"), VSCODE_LAUNCH_JSON, "utf8");
-  await fs.writeFile(path.join(vscodeDir, "settings.json"), VSCODE_SETTINGS_JSON, "utf8");
-  await fs.writeFile(path.join(vscodeDir, "extensions.json"), VSCODE_EXTENSIONS_JSON, "utf8");
 }

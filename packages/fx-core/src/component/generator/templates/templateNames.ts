@@ -74,4 +74,7 @@ export enum TemplateNames {
   // VS only
   Empty = "empty",
   MessageExtensionSearch = "message-extension-search",
+
+  // openplugin convert — baseline files scaffolded by 'atk convert openplugin'
+  OpenPluginConvert = "open-plugin-convert",
 }
