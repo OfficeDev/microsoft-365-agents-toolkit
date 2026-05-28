@@ -65,8 +65,8 @@ describe("openPlugin fixture conversion (Contoso Helper)", () => {
     // 1. Full manifest deep-equal against the expected literal.
     expect(manifest).to.deep.equal({
       $schema:
-        "https://developer.microsoft.com/json-schemas/teams/v1.28/MicrosoftTeams.schema.json",
-      manifestVersion: "1.28",
+        "https://developer.microsoft.com/json-schemas/teams/vDevPreview/MicrosoftTeams.schema.json",
+      manifestVersion: "devPreview",
       version: "2.1.0",
       id: expectedId,
       developer: {

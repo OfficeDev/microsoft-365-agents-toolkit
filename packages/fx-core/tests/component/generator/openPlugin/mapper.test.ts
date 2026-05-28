@@ -46,7 +46,7 @@ function baseInputs(overrides: Partial<ConvertInputs> = {}): ConvertInputs {
 }
 
 describe("openPlugin.mapToTtkProject", () => {
-  it("emits the v1.28 manifest skeleton", () => {
+  it("emits the devPreview manifest skeleton", () => {
     const { manifest } = mapToTtkProject(baseParsed(), baseInputs());
     expect(manifest.$schema).to.equal(MANIFEST_SCHEMA_URL);
     expect(manifest.manifestVersion).to.equal(MANIFEST_VERSION);
@@ -60,7 +60,7 @@ describe("openPlugin.mapToTtkProject", () => {
     expect("packageName" in manifest).to.equal(false);
   });
 
-  it("warns when --package-name is provided (not in v1.28 schema)", () => {
+  it("warns when --package-name is provided (not in devPreview schema)", () => {
     const { manifest, warnings } = mapToTtkProject(
       baseParsed(),
       baseInputs({ packageName: "com.example.my-plugin" })
@@ -159,7 +159,7 @@ describe("openPlugin.mapToTtkProject", () => {
     );
   });
 
-  it("does not emit contactInfo (not in v1.28 schema)", () => {
+  it("does not emit contactInfo (not in devPreview schema)", () => {
     const { manifest } = mapToTtkProject(baseParsed(), baseInputs());
     expect((manifest.developer as any).contactInfo).to.equal(undefined);
   });

@@ -15,8 +15,8 @@ import {
 } from "./types";
 
 export const MANIFEST_SCHEMA_URL =
-  "https://developer.microsoft.com/json-schemas/teams/v1.28/MicrosoftTeams.schema.json";
-export const MANIFEST_VERSION = "1.28";
+  "https://developer.microsoft.com/json-schemas/teams/vDevPreview/MicrosoftTeams.schema.json";
+export const MANIFEST_VERSION = "devPreview";
 export const ACCENT_COLOR = "#4A90D9";
 
 const NAME_SHORT_MAX = 30;
@@ -32,7 +32,7 @@ export function mapToTtkProject(parsed: ParsedOpenPlugin, inputs: ConvertInputs)
 
   if (inputs.packageName !== undefined) {
     warnings.push(
-      "--package-name was provided but the v1.28 manifest schema does not include 'packageName'; ignored."
+      "--package-name was provided but the devPreview manifest schema does not include 'packageName'; ignored."
     );
   }
 

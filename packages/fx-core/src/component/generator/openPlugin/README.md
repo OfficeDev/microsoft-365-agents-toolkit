@@ -1,7 +1,7 @@
 # Open Plugin Converter (`atk convert openplugin`)
 
 Converts an [Open Plugin Spec v1.0](https://open-plugins.com/) plugin directory
-into a scaffolded Microsoft 365 Agents Toolkit project with a v1.28 manifest
+into a scaffolded Microsoft 365 Agents Toolkit project with a devPreview manifest
 containing `agentSkills` and `agentConnectors`.
 
 Accepts plugins using any of the three manifest locations:
@@ -80,11 +80,10 @@ openPlugin/
   authorParser.ts     # Parses author field (object or "Name <email> (url)" string)
   textUtils.ts        # Word-boundary truncation, kebab-to-title-case
   deterministicId.ts  # UUIDv5 (SHA-1) for stable manifest id generation
-  mapper.ts           # Pure transform: parsed plugin → v1.28 manifest + copy operations
+  mapper.ts           # Pure transform: parsed plugin → devPreview manifest + copy operations
   iconStrategy.ts     # Resolves color.png / outline.png from plugin icons or logo field
   placeholderPng.ts   # Generates solid-color RGB PNGs using Node zlib (no native deps)
-  assets.ts           # Static baseline project files (m365agents.yml, .vscode/, etc.)
-  generator.ts        # Orchestrator: parse → map → scaffold project tree
+  generator.ts        # Orchestrator: parse → map → scaffold project tree (baseline files come from the open-plugin-convert template)
 ```
 
 ## Feature flags
