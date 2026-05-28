@@ -10,7 +10,7 @@ import * as path from "path";
 import sinon from "sinon";
 import { setTools } from "../../../../src/common/globalVars";
 import { Generator } from "../../../../src/component/generator/generator";
-import { convertOpenPlugin } from "../../../../src/component/generator/openPlugin/generator";
+import { importOpenPlugin } from "../../../../src/component/generator/openPlugin/importer";
 import { MockTools } from "../../../core/utils";
 import { scaffoldOpenPluginTemplateFromSource } from "./testTemplateScaffold";
 
@@ -47,7 +47,7 @@ async function seedSamplePlugin(root: string, manifestRel = ".plugin/plugin.json
   await fs.writeFile(path.join(root, "commands", "deploy.md"), "# deploy");
 }
 
-describe("openPlugin.convertOpenPlugin", () => {
+describe("openPlugin.importOpenPlugin", () => {
   setTools(new MockTools());
   let pluginDir: string;
   let outDir: string;
@@ -72,14 +72,14 @@ describe("openPlugin.convertOpenPlugin", () => {
   });
 
   it("scaffolds the expected project tree", async () => {
-    const res = await convertOpenPlugin({
+    const res = await importOpenPlugin({
       path: pluginDir,
       output: outDir,
       privacyUrl: "https://example.com/privacy",
       termsUrl: "https://example.com/terms",
     });
     if (res.isErr()) {
-      throw new Error(`convertOpenPlugin failed: ${res.error.message}`);
+      throw new Error(`importOpenPlugin failed: ${res.error.message}`);
     }
     expect(res.value.projectPath).to.equal(path.resolve(outDir));
 
@@ -104,7 +104,7 @@ describe("openPlugin.convertOpenPlugin", () => {
   });
 
   it("emits the expected agentSkills and agentConnectors in manifest.json", async () => {
-    const res = await convertOpenPlugin({
+    const res = await importOpenPlugin({
       path: pluginDir,
       output: outDir,
       privacyUrl: "https://example.com/privacy",
@@ -134,7 +134,7 @@ describe("openPlugin.convertOpenPlugin", () => {
   });
 
   it("surfaces a warning for stdio MCP servers", async () => {
-    const res = await convertOpenPlugin({
+    const res = await importOpenPlugin({
       path: pluginDir,
       output: outDir,
       privacyUrl: "https://example.com/privacy",
@@ -146,7 +146,7 @@ describe("openPlugin.convertOpenPlugin", () => {
 
   it("produces byte-identical manifests across the three manifest path locations", async () => {
     // Run once with .plugin/, capture manifest.
-    const firstRes = await convertOpenPlugin({
+    const firstRes = await importOpenPlugin({
       path: pluginDir,
       output: outDir,
       privacyUrl: "https://example.com/privacy",
@@ -164,7 +164,7 @@ describe("openPlugin.convertOpenPlugin", () => {
     await fs.remove(claudeOut);
     await seedSamplePlugin(claudeDir, ".claude-plugin/plugin.json");
     try {
-      const secondRes = await convertOpenPlugin({
+      const secondRes = await importOpenPlugin({
         path: claudeDir,
         output: claudeOut,
         privacyUrl: "https://example.com/privacy",
@@ -185,7 +185,7 @@ describe("openPlugin.convertOpenPlugin", () => {
   it("refuses to write into a non-empty output directory", async () => {
     await fs.ensureDir(outDir);
     await fs.writeFile(path.join(outDir, "preexisting.txt"), "hi");
-    const res = await convertOpenPlugin({
+    const res = await importOpenPlugin({
       path: pluginDir,
       output: outDir,
       privacyUrl: "https://example.com/privacy",
@@ -198,7 +198,7 @@ describe("openPlugin.convertOpenPlugin", () => {
   });
 
   it("returns an error when --path does not exist", async () => {
-    const res = await convertOpenPlugin({
+    const res = await importOpenPlugin({
       path: path.join(pluginDir, "does-not-exist"),
       output: outDir,
       privacyUrl: "https://example.com/privacy",
@@ -208,7 +208,7 @@ describe("openPlugin.convertOpenPlugin", () => {
   });
 
   it("returns MissingPluginPath when path is empty", async () => {
-    const res = await convertOpenPlugin({
+    const res = await importOpenPlugin({
       path: "",
       output: outDir,
       privacyUrl: "https://example.com/privacy",
@@ -221,7 +221,7 @@ describe("openPlugin.convertOpenPlugin", () => {
   });
 
   it("generates valid PNG icons by default", async () => {
-    const res = await convertOpenPlugin({
+    const res = await importOpenPlugin({
       path: pluginDir,
       output: outDir,
       privacyUrl: "https://example.com/privacy",
@@ -245,7 +245,7 @@ describe("openPlugin.convertOpenPlugin", () => {
     const savedCwd = process.cwd();
     process.chdir(cwdDir);
     try {
-      const res = await convertOpenPlugin({
+      const res = await importOpenPlugin({
         path: pluginDir,
         privacyUrl: "https://example.com/privacy",
         termsUrl: "https://example.com/terms",

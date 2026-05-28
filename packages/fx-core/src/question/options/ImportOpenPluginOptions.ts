@@ -3,7 +3,7 @@
 
 import { CLICommandArgument, CLICommandOption } from "@microsoft/teamsfx-api";
 
-export const ConvertOpenPluginOptions: CLICommandOption[] = [
+export const ImportOpenPluginOptions: CLICommandOption[] = [
   {
     name: "path",
     type: "string",
@@ -22,15 +22,13 @@ export const ConvertOpenPluginOptions: CLICommandOption[] = [
     name: "privacy-url",
     type: "string",
     description:
-      "developer.privacyUrl for the generated manifest. The Open Plugin spec has no equivalent so this is required.",
-    required: true,
+      "developer.privacyUrl for the generated manifest. Required unless the source plugin.json carries an x-microsoft-365-agents-toolkit extension block from a previous 'atk export openplugin'.",
   },
   {
     name: "terms-url",
     type: "string",
     description:
-      "developer.termsOfUseUrl for the generated manifest. The Open Plugin spec has no equivalent so this is required.",
-    required: true,
+      "developer.termsOfUseUrl for the generated manifest. Required unless the source plugin.json carries an x-microsoft-365-agents-toolkit extension block from a previous 'atk export openplugin'.",
   },
   {
     name: "website-url",
@@ -59,4 +57,4 @@ export const ConvertOpenPluginOptions: CLICommandOption[] = [
   },
 ];
 
-export const ConvertOpenPluginArguments: CLICommandArgument[] = [];
+export const ImportOpenPluginArguments: CLICommandArgument[] = [];

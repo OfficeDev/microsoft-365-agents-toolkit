@@ -16,65 +16,112 @@ import {
 import { featureFlagManager, FeatureFlags } from "../common/featureFlags";
 import { ErrorContextMW } from "../common/globalVars";
 import {
-  convertOpenPlugin,
-  OPEN_PLUGIN_CONVERT_SOURCE,
-} from "../component/generator/openPlugin/generator";
-import { ConvertInputs, DefaultAuthOption } from "../component/generator/openPlugin/types";
+  exportOpenPlugin,
+  OPEN_PLUGIN_EXPORT_SOURCE,
+} from "../component/generator/openPlugin/exporter";
+import {
+  importOpenPlugin,
+  OPEN_PLUGIN_IMPORT_SOURCE,
+} from "../component/generator/openPlugin/importer";
+import {
+  DefaultAuthOption,
+  ExportInputs,
+  ImportInputs,
+} from "../component/generator/openPlugin/types";
 import { ErrorHandlerMW } from "./middleware/errorHandler";
 import { FxCoreDeclarativeAgentPart } from "./FxCore.declarativeAgent";
 
 const ALLOWED_AUTH: DefaultAuthOption[] = ["Auto", "None", "OAuthPluginVault", "ApiKeyPluginVault"];
+const ALLOWED_MANIFEST_KINDS: NonNullable<ExportInputs["manifestKind"]>[] = [
+  "open-plugin",
+  "claude-plugin",
+  "cursor-plugin",
+];
+
+export interface ExportOpenPluginCoreResult {
+  outputPath: string;
+  warnings: Warning[];
+}
 
 export class FxCoreOpenPluginPart extends FxCoreDeclarativeAgentPart {
   /**
-   * Convert an Open Plugin (Open Plugin Spec v1.0 / Claude Code plugin /
-   * Cursor plugin) directory into a scaffolded Teams Toolkit project.
+   * Import an Open Plugin (Open Plugin Spec v1.0 / Claude Code plugin /
+   * Cursor plugin) directory into a scaffolded Microsoft 365 Agents Toolkit
+   * project.
    */
   @hooks([
     ErrorContextMW({ component: "FxCore", stage: Stage.create, reset: true }),
     ErrorHandlerMW,
   ])
-  async convertOpenPlugin(inputs: Inputs): Promise<Result<CreateProjectResult, FxError>> {
-    if (!featureFlagManager.getBooleanValue(FeatureFlags.OpenPluginConvert)) {
+  async importOpenPlugin(inputs: Inputs): Promise<Result<CreateProjectResult, FxError>> {
+    if (!featureFlagManager.getBooleanValue(FeatureFlags.OpenPluginImportExport)) {
       return err(
         new UserError(
-          OPEN_PLUGIN_CONVERT_SOURCE,
+          OPEN_PLUGIN_IMPORT_SOURCE,
           "FeatureFlagDisabled",
-          `Set ${FeatureFlags.OpenPluginConvert.name}=true to enable 'atk convert openplugin'.`
+          `Set ${FeatureFlags.OpenPluginImportExport.name}=true to enable 'atk import openplugin'.`
         )
       );
     }
 
-    const validatedInputs = this.validateConvertInputs(inputs);
+    const validatedInputs = this.validateImportInputs(inputs);
     if (validatedInputs.isErr()) {
       return err(validatedInputs.error);
     }
-    const res = await convertOpenPlugin(validatedInputs.value);
+    const res = await importOpenPlugin(validatedInputs.value);
     if (res.isErr()) {
       return err(res.error);
     }
     const warnings: Warning[] = res.value.warnings.map((content) => ({
-      type: "openPluginConvert",
+      type: "openPluginImport",
       content,
     }));
     return ok({ projectPath: res.value.projectPath, warnings });
   }
 
-  private validateConvertInputs(inputs: Inputs): Result<ConvertInputs, FxError> {
-    const pluginPath = inputs["path"];
-    const privacyUrl = inputs["privacy-url"];
-    const termsUrl = inputs["terms-url"];
-
-    const missing: string[] = [];
-    if (!pluginPath) missing.push("path");
-    if (!privacyUrl) missing.push("privacy-url");
-    if (!termsUrl) missing.push("terms-url");
-    if (missing.length > 0) {
+  /**
+   * Export an ATK project into an Open Plugin Spec directory. Round-trips
+   * losslessly with `importOpenPlugin` via the `x-microsoft-365-agents-toolkit`
+   * extension block embedded in plugin.json.
+   */
+  @hooks([
+    ErrorContextMW({ component: "FxCore", stage: Stage.create, reset: true }),
+    ErrorHandlerMW,
+  ])
+  async exportOpenPlugin(inputs: Inputs): Promise<Result<ExportOpenPluginCoreResult, FxError>> {
+    if (!featureFlagManager.getBooleanValue(FeatureFlags.OpenPluginImportExport)) {
       return err(
         new UserError(
-          OPEN_PLUGIN_CONVERT_SOURCE,
+          OPEN_PLUGIN_EXPORT_SOURCE,
+          "FeatureFlagDisabled",
+          `Set ${FeatureFlags.OpenPluginImportExport.name}=true to enable 'atk export openplugin'.`
+        )
+      );
+    }
+
+    const validatedInputs = this.validateExportInputs(inputs);
+    if (validatedInputs.isErr()) {
+      return err(validatedInputs.error);
+    }
+    const res = await exportOpenPlugin(validatedInputs.value);
+    if (res.isErr()) {
+      return err(res.error);
+    }
+    const warnings: Warning[] = res.value.warnings.map((content) => ({
+      type: "openPluginExport",
+      content,
+    }));
+    return ok({ outputPath: res.value.outputPath, warnings });
+  }
+
+  private validateImportInputs(inputs: Inputs): Result<ImportInputs, FxError> {
+    const pluginPath = inputs["path"];
+    if (!pluginPath) {
+      return err(
+        new UserError(
+          OPEN_PLUGIN_IMPORT_SOURCE,
           "MissingRequiredInput",
-          `Missing required option(s): ${missing.join(", ")}.`
+          `Missing required option(s): path.`
         )
       );
     }
@@ -85,7 +132,7 @@ export class FxCoreOpenPluginPart extends FxCoreDeclarativeAgentPart {
       if (!ALLOWED_AUTH.includes(rawAuth as DefaultAuthOption)) {
         return err(
           new UserError(
-            OPEN_PLUGIN_CONVERT_SOURCE,
+            OPEN_PLUGIN_IMPORT_SOURCE,
             "InvalidDefaultAuthType",
             `--default-auth-type must be one of: ${ALLOWED_AUTH.join(", ")}.`
           )
@@ -97,12 +144,46 @@ export class FxCoreOpenPluginPart extends FxCoreDeclarativeAgentPart {
     return ok({
       path: pluginPath as string,
       output: inputs["output"] as string | undefined,
-      privacyUrl: privacyUrl as string,
-      termsUrl: termsUrl as string,
+      privacyUrl: inputs["privacy-url"] as string | undefined,
+      termsUrl: inputs["terms-url"] as string | undefined,
       websiteUrl: inputs["website-url"] as string | undefined,
       appId: inputs["app-id"] as string | undefined,
       defaultAuthType,
       packageName: inputs["package-name"] as string | undefined,
+    });
+  }
+
+  private validateExportInputs(inputs: Inputs): Result<ExportInputs, FxError> {
+    const projectPath = inputs["path"];
+    if (!projectPath) {
+      return err(
+        new UserError(
+          OPEN_PLUGIN_EXPORT_SOURCE,
+          "MissingRequiredInput",
+          `Missing required option(s): path.`
+        )
+      );
+    }
+
+    let manifestKind: ExportInputs["manifestKind"];
+    const rawKind = inputs["manifest-kind"];
+    if (rawKind) {
+      if (!ALLOWED_MANIFEST_KINDS.includes(rawKind as NonNullable<ExportInputs["manifestKind"]>)) {
+        return err(
+          new UserError(
+            OPEN_PLUGIN_EXPORT_SOURCE,
+            "InvalidManifestKind",
+            `--manifest-kind must be one of: ${ALLOWED_MANIFEST_KINDS.join(", ")}.`
+          )
+        );
+      }
+      manifestKind = rawKind as NonNullable<ExportInputs["manifestKind"]>;
+    }
+
+    return ok({
+      path: projectPath as string,
+      output: inputs["output"] as string | undefined,
+      manifestKind,
     });
   }
 }

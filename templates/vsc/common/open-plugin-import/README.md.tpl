@@ -1,8 +1,8 @@
 # {{appName}}
 
-This project was scaffolded by `atk convert openplugin`.
+This project was scaffolded by `atk import openplugin`.
 
-## What was converted
+## What was imported
 
 - `appPackage/manifest.json` is a Microsoft 365 Unified App Manifest (devPreview).
 - `appPackage/skills/` contains each `SKILL.md` copied verbatim from the source plugin and referenced by the manifest `agentSkills[]` array.

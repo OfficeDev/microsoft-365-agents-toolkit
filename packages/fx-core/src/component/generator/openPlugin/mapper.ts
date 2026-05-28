@@ -7,8 +7,10 @@ import { deterministicAppId } from "./deterministicId";
 import { toTitleCaseFromKebab, truncateAtWordBoundary } from "./textUtils";
 import {
   AuthorizationType,
-  ConvertInputs,
+  AtkAgentConnectorExt,
+  AtkExtensionBlock,
   CopyOp,
+  ImportInputs,
   MappedManifest,
   OpenPluginMcpServerEntry,
   ParsedOpenPlugin,
@@ -25,10 +27,11 @@ const DESC_SHORT_MAX = 80;
 const DESC_FULL_MAX = 4000;
 const MAX_AGENT_CONNECTORS = 10;
 
-export function mapToTtkProject(parsed: ParsedOpenPlugin, inputs: ConvertInputs): MappedManifest {
+export function mapToTtkProject(parsed: ParsedOpenPlugin, inputs: ImportInputs): MappedManifest {
   const warnings = [...parsed.warnings];
   const pj = parsed.manifest;
   const pluginName = pj.name;
+  const ext: AtkExtensionBlock = parsed.atkExtension ?? {};
 
   if (inputs.packageName !== undefined) {
     warnings.push(
@@ -37,32 +40,34 @@ export function mapToTtkProject(parsed: ParsedOpenPlugin, inputs: ConvertInputs)
   }
 
   const author = parseAuthor(pj.author);
-  const websiteUrl = inputs.websiteUrl ?? pj.homepage ?? author.url;
+  const websiteUrl = inputs.websiteUrl ?? ext.developer?.websiteUrl ?? pj.homepage ?? author.url;
   if (!websiteUrl) {
     throw new Error(
       "developer.websiteUrl could not be resolved. Set 'homepage' in plugin.json, 'author.url', or pass --website-url."
     );
   }
-  if (!inputs.privacyUrl) {
+  const privacyUrl = inputs.privacyUrl ?? ext.developer?.privacyUrl;
+  if (!privacyUrl) {
     throw new Error(
       "developer.privacyUrl is required. Pass --privacy-url (Open Plugin spec has no equivalent field)."
     );
   }
-  if (!inputs.termsUrl) {
+  const termsUrl = inputs.termsUrl ?? ext.developer?.termsOfUseUrl;
+  if (!termsUrl) {
     throw new Error(
       "developer.termsOfUseUrl is required. Pass --terms-url (Open Plugin spec has no equivalent field)."
     );
   }
 
-  const idSeed = inputs.packageName ?? `openplugin:${pluginName}`;
-  const appId = inputs.appId ?? deterministicAppId(idSeed);
+  const idSeed = inputs.packageName ?? ext.packageName ?? `openplugin:${pluginName}`;
+  const appId = inputs.appId ?? ext.id ?? deterministicAppId(idSeed);
 
   const displayName = toTitleCaseFromKebab(pluginName);
-  const shortName = truncateAtWordBoundary(displayName, NAME_SHORT_MAX);
-  const fullName = truncateAtWordBoundary(displayName, NAME_FULL_MAX);
+  const shortName = ext.name?.short ?? truncateAtWordBoundary(displayName, NAME_SHORT_MAX);
+  const fullName = ext.name?.full ?? truncateAtWordBoundary(displayName, NAME_FULL_MAX);
   const description = pj.description ?? pluginName;
-  const shortDesc = truncateAtWordBoundary(description, DESC_SHORT_MAX);
-  const fullDesc = truncateAtWordBoundary(description, DESC_FULL_MAX);
+  const shortDesc = ext.description?.short ?? truncateAtWordBoundary(description, DESC_SHORT_MAX);
+  const fullDesc = ext.description?.full ?? truncateAtWordBoundary(description, DESC_FULL_MAX);
 
   const agentSkills = parsed.skills.map((folder) => ({ folder: `./skills/${folder}` }));
 
@@ -70,6 +75,7 @@ export function mapToTtkProject(parsed: ParsedOpenPlugin, inputs: ConvertInputs)
     parsed.mcpServers,
     pluginName,
     inputs.defaultAuthType ?? "Auto",
+    ext.agentConnectors,
     warnings
   );
 
@@ -80,15 +86,17 @@ export function mapToTtkProject(parsed: ParsedOpenPlugin, inputs: ConvertInputs)
   }
 
   const developer: Record<string, unknown> = {
-    name: author.name ?? "Unknown",
+    name: ext.developer?.name ?? author.name ?? "Unknown",
     websiteUrl,
-    privacyUrl: inputs.privacyUrl,
-    termsOfUseUrl: inputs.termsUrl,
+    privacyUrl,
+    termsOfUseUrl: termsUrl,
   };
+
+  const accentColor = ext.accentColor ?? ACCENT_COLOR;
 
   const manifest: Record<string, unknown> = {
     $schema: MANIFEST_SCHEMA_URL,
-    manifestVersion: MANIFEST_VERSION,
+    manifestVersion: ext.manifestVersion ?? MANIFEST_VERSION,
     version: pj.version ?? "1.0.0",
     id: appId,
   };
@@ -96,7 +104,7 @@ export function mapToTtkProject(parsed: ParsedOpenPlugin, inputs: ConvertInputs)
   manifest.name = { short: shortName, full: fullName };
   manifest.description = { short: shortDesc, full: fullDesc };
   manifest.icons = { color: "color.png", outline: "outline.png" };
-  manifest.accentColor = ACCENT_COLOR;
+  manifest.accentColor = accentColor;
   if (agentSkills.length > 0) {
     manifest.agentSkills = agentSkills;
   }
@@ -127,6 +135,7 @@ function buildAgentConnectors(
   mcpServers: Record<string, OpenPluginMcpServerEntry>,
   pluginName: string,
   defaultAuth: "Auto" | AuthorizationType,
+  extOverrides: Record<string, AtkAgentConnectorExt> | undefined,
   warnings: string[]
 ): Record<string, unknown>[] {
   const out: Record<string, unknown>[] = [];
@@ -140,18 +149,22 @@ function buildAgentConnectors(
       );
       continue;
     }
-    const authType = resolveAuthType(url, defaultAuth);
+    const override = extOverrides?.[name];
+    const authType: AuthorizationType =
+      override?.authorization?.type ?? resolveAuthType(url, defaultAuth);
     const authorization: Record<string, unknown> = { type: authType };
     if (authType !== "None") {
-      authorization.referenceId = `${pluginName}-${name}-auth`;
+      authorization.referenceId =
+        override?.authorization?.referenceId ?? `${pluginName}-${name}-auth`;
     }
     const description =
-      typeof server.description === "string" && server.description
+      override?.description ??
+      (typeof server.description === "string" && server.description
         ? server.description
-        : `Remote MCP server providing tools for ${pluginName}`;
+        : `Remote MCP server providing tools for ${pluginName}`);
     out.push({
       id: name,
-      displayName: `${name} MCP Server`,
+      displayName: override?.displayName ?? `${name} MCP Server`,
       description,
       toolSource: {
         remoteMcpServer: {

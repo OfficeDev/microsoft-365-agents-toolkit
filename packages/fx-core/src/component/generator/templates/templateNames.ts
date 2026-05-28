@@ -75,6 +75,6 @@ export enum TemplateNames {
   Empty = "empty",
   MessageExtensionSearch = "message-extension-search",
 
-  // openplugin convert — baseline files scaffolded by 'atk convert openplugin'
-  OpenPluginConvert = "open-plugin-convert",
+  // openplugin import — baseline files scaffolded by 'atk import openplugin'
+  OpenPluginImport = "open-plugin-import",
 }

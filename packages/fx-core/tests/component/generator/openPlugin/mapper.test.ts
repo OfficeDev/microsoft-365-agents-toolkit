@@ -10,7 +10,7 @@ import {
   mapToTtkProject,
 } from "../../../../src/component/generator/openPlugin/mapper";
 import {
-  ConvertInputs,
+  ImportInputs,
   ParsedOpenPlugin,
 } from "../../../../src/component/generator/openPlugin/types";
 
@@ -36,7 +36,7 @@ function baseParsed(overrides: Partial<ParsedOpenPlugin> = {}): ParsedOpenPlugin
   };
 }
 
-function baseInputs(overrides: Partial<ConvertInputs> = {}): ConvertInputs {
+function baseInputs(overrides: Partial<ImportInputs> = {}): ImportInputs {
   return {
     path: "/tmp/plugin",
     privacyUrl: "https://example.com/privacy",

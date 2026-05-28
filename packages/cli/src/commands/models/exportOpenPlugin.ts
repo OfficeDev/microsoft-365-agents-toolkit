@@ -1,28 +1,28 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 import { CLICommand, err, ok } from "@microsoft/teamsfx-api";
-import { ConvertOpenPluginInputs, ConvertOpenPluginOptions } from "@microsoft/teamsfx-core";
+import { ExportOpenPluginInputs, ExportOpenPluginOptions } from "@microsoft/teamsfx-core";
 import { getFxCore } from "../../activate";
 import { logger } from "../../commonlib/logger";
 import { commands } from "../../resource";
 import { TelemetryEvent } from "../../telemetry/cliTelemetryEvents";
 
-export const convertOpenPluginCommand: CLICommand = {
+export const exportOpenPluginCommand: CLICommand = {
   name: "openplugin",
-  description: commands["convert.openplugin"].description,
-  options: [...ConvertOpenPluginOptions],
+  description: commands["export.openplugin"].description,
+  options: [...ExportOpenPluginOptions],
   telemetry: {
-    event: TelemetryEvent.ConvertOpenPlugin,
+    event: TelemetryEvent.ExportOpenPlugin,
   },
   defaultInteractiveOption: false,
   handler: async (ctx) => {
-    const inputs = ctx.optionValues as ConvertOpenPluginInputs;
+    const inputs = ctx.optionValues as ExportOpenPluginInputs;
     const core = getFxCore();
-    const res = await core.convertOpenPlugin(inputs);
+    const res = await core.exportOpenPlugin(inputs);
     if (res.isErr()) {
       return err(res.error);
     }
-    logger.info(`Project created at: ${res.value.projectPath}`);
+    logger.info(`Open Plugin written to: ${res.value.outputPath}`);
     for (const warning of res.value.warnings ?? []) {
       logger.warning(warning.content);
     }

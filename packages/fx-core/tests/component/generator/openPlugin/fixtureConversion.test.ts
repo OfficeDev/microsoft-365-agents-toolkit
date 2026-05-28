@@ -16,7 +16,7 @@ import { CreateAppPackageDriver } from "../../../../src/component/driver/teamsAp
 import { CreateAppPackageArgs } from "../../../../src/component/driver/teamsApp/interfaces/CreateAppPackageArgs";
 import { Generator } from "../../../../src/component/generator/generator";
 import { deterministicAppId } from "../../../../src/component/generator/openPlugin/deterministicId";
-import { convertOpenPlugin } from "../../../../src/component/generator/openPlugin/generator";
+import { importOpenPlugin } from "../../../../src/component/generator/openPlugin/importer";
 import { MockedM365Provider, MockTools } from "../../../core/utils";
 import { MockedLogProvider, MockedUserInteraction } from "../../../plugins/solution/util";
 import { scaffoldOpenPluginTemplateFromSource } from "./testTemplateScaffold";
@@ -52,13 +52,13 @@ describe("openPlugin fixture conversion (Contoso Helper)", () => {
 
   it("produces the expected vDevPreview manifest, project tree, and warnings", async () => {
     const expectedId = deterministicAppId("openplugin:contoso-helper");
-    const res = await convertOpenPlugin({
+    const res = await importOpenPlugin({
       path: FIXTURE,
       output: outDir,
       privacyUrl: "https://contoso.com/privacy",
       termsUrl: "https://contoso.com/terms",
     });
-    if (res.isErr()) throw new Error(`convertOpenPlugin failed: ${res.error.message}`);
+    if (res.isErr()) throw new Error(`importOpenPlugin failed: ${res.error.message}`);
 
     const manifest = await fs.readJSON(path.join(outDir, "appPackage", "manifest.json"));
 
@@ -177,7 +177,7 @@ describe("openPlugin fixture conversion (Contoso Helper)", () => {
   });
 
   it("packages the scaffolded project end-to-end with skills included in the zip", async () => {
-    const convertRes = await convertOpenPlugin({
+    const convertRes = await importOpenPlugin({
       path: FIXTURE,
       output: outDir,
       privacyUrl: "https://contoso.com/privacy",

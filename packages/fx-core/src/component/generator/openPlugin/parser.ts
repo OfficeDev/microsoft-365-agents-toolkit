@@ -4,6 +4,7 @@
 import fs from "fs-extra";
 import * as path from "path";
 import {
+  AtkExtensionBlock,
   OpenPluginManifest,
   OpenPluginMcpJson,
   OpenPluginMcpServerEntry,
@@ -153,6 +154,9 @@ export async function readOpenPluginDir(root: string): Promise<ParsedOpenPlugin>
   const hasColorPng = await fs.pathExists(path.join(absRoot, "color.png"));
   const hasOutlinePng = await fs.pathExists(path.join(absRoot, "outline.png"));
 
+  // 7. Round-trip extension block (written by `atk export openplugin`).
+  const atkExtension = readAtkExtensionBlock(manifest);
+
   return {
     pluginRoot: absRoot,
     manifest,
@@ -166,5 +170,16 @@ export async function readOpenPluginDir(root: string): Promise<ParsedOpenPlugin>
     hasColorPng,
     hasOutlinePng,
     warnings,
+    atkExtension,
   };
+}
+
+const ATK_EXTENSION_KEY = "x-microsoft-365-agents-toolkit";
+
+function readAtkExtensionBlock(manifest: OpenPluginManifest): AtkExtensionBlock | undefined {
+  const raw = (manifest as unknown as Record<string, unknown>)[ATK_EXTENSION_KEY];
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) {
+    return undefined;
+  }
+  return raw as AtkExtensionBlock;
 }

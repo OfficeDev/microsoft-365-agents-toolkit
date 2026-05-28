@@ -10,33 +10,34 @@ import { TemplateNames } from "../templates/templateNames";
 import { applyIcons } from "./iconStrategy";
 import { mapToTtkProject } from "./mapper";
 import { readOpenPluginDir } from "./parser";
-import { ConvertInputs } from "./types";
+import { ImportInputs } from "./types";
 
-export const OPEN_PLUGIN_CONVERT_SOURCE = "OpenPluginConvert";
+export const OPEN_PLUGIN_IMPORT_SOURCE = "OpenPluginImport";
 
-export interface ConvertResult {
+export interface ImportResult {
   projectPath: string;
   warnings: string[];
 }
 
 /**
- * Convert an Open Plugin / Claude Code plugin / Cursor plugin directory into
- * a scaffolded Teams Toolkit project. The output is a usable TTK project; run
- * `atk teamsapp package` from inside it to produce the upload zip.
+ * Import an Open Plugin / Claude Code plugin / Cursor plugin directory into
+ * a scaffolded Microsoft 365 Agents Toolkit project. The output is a usable
+ * ATK project; run `atk teamsapp package` from inside it to produce the
+ * upload zip.
  *
  * Static baseline files (m365agents.yml, README, .gitignore, .vscode, env)
- * come from the `open-plugin-convert` template, which ships in the standard
+ * come from the `open-plugin-import` template, which ships in the standard
  * template release pipeline and can be updated independently of fx-core.
  * Variable-length outputs (manifest, skill folders, icons) are written as
  * the post-scaffold step here.
  */
-export async function convertOpenPlugin(
-  inputs: ConvertInputs
-): Promise<Result<ConvertResult, FxError>> {
+export async function importOpenPlugin(
+  inputs: ImportInputs
+): Promise<Result<ImportResult, FxError>> {
   try {
     if (!inputs.path) {
       return err(
-        new UserError(OPEN_PLUGIN_CONVERT_SOURCE, "MissingPluginPath", "--path is required.")
+        new UserError(OPEN_PLUGIN_IMPORT_SOURCE, "MissingPluginPath", "--path is required.")
       );
     }
     const parsed = await readOpenPluginDir(inputs.path);
@@ -50,7 +51,7 @@ export async function convertOpenPlugin(
       if (entries.length > 0) {
         return err(
           new UserError(
-            OPEN_PLUGIN_CONVERT_SOURCE,
+            OPEN_PLUGIN_IMPORT_SOURCE,
             "OutputDirectoryNotEmpty",
             `Output directory is not empty: ${projectPath}. Choose a different --output path or empty the directory.`
           )
@@ -58,13 +59,13 @@ export async function convertOpenPlugin(
       }
     }
 
-    // 1. Scaffold the static baseline from the open-plugin-convert template.
+    // 1. Scaffold the static baseline from the open-plugin-import template.
     const ctx = createContext();
     ctx.templateVariables = { appName: parsed.manifest.name };
     const scaffoldRes = await Generator.generateTemplate(
       ctx,
       projectPath,
-      TemplateNames.OpenPluginConvert,
+      TemplateNames.OpenPluginImport,
       "common"
     );
     if (scaffoldRes.isErr()) return err(scaffoldRes.error);
@@ -86,11 +87,14 @@ export async function convertOpenPlugin(
 
     return ok({ projectPath, warnings });
   } catch (e) {
+    if (e instanceof UserError || e instanceof SystemError) {
+      return err(e);
+    }
     const message = e instanceof Error ? e.message : String(e);
     return err(
       new SystemError({
-        source: OPEN_PLUGIN_CONVERT_SOURCE,
-        name: "ConvertOpenPluginFailed",
+        source: OPEN_PLUGIN_IMPORT_SOURCE,
+        name: "ImportOpenPluginFailed",
         message,
         displayMessage: message,
       })

@@ -27,7 +27,7 @@ export class FeatureFlagName {
   static readonly DAMetaOS = "TEAMSFX_DA_METAOS";
   static readonly CFShortcutMetaOS = "TEAMSFX_CF_SHORTCUT_METAOS";
   static readonly MCPForDA = "TEAMSFX_MCP_FOR_DA";
-  static readonly OpenPluginConvert = "TEAMSFX_OPENPLUGIN_CONVERT";
+  static readonly OpenPluginImportExport = "TEAMSFX_OPENPLUGIN_IMPORT_EXPORT";
   static readonly AgentSkillsManifest = "TEAMSFX_AGENT_SKILLS";
   static readonly BrokerAuth = "TEAMSFX_BROKER_AUTH";
   // Add config files to existing project to make it toolkit compatible
@@ -100,8 +100,8 @@ export class FeatureFlags {
     name: FeatureFlagName.MCPForDA,
     defaultValue: "true",
   };
-  static readonly OpenPluginConvert = {
-    name: FeatureFlagName.OpenPluginConvert,
+  static readonly OpenPluginImportExport = {
+    name: FeatureFlagName.OpenPluginImportExport,
     defaultValue: "true",
   };
   static readonly AgentSkillsManifest = {

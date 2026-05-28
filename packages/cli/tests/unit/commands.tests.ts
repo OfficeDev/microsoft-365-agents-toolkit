@@ -57,7 +57,8 @@ import {
 import { addAuthConfigCommand } from "../../src/commands/models/addAuthConfig";
 import { addCapabilityCommand } from "../../src/commands/models/addCapability";
 import { addPluginCommand } from "../../src/commands/models/addPlugin";
-import { convertOpenPluginCommand } from "../../src/commands/models/convertOpenPlugin";
+import { exportOpenPluginCommand } from "../../src/commands/models/exportOpenPlugin";
+import { importOpenPluginCommand } from "../../src/commands/models/importOpenPlugin";
 import { entraAppUpdateCommand } from "../../src/commands/models/entraAppUpdate";
 import { envResetCommand } from "../../src/commands/models/envReset";
 import * as listTemplatesModule from "../../src/commands/models/listTemplates";
@@ -525,52 +526,102 @@ describe("CLI commands", () => {
     });
   });
 
-  describe("convertOpenPluginCommand", async () => {
+  describe("importOpenPluginCommand", async () => {
     it("success", async () => {
       sandbox
-        .stub(FxCore.prototype, "convertOpenPlugin")
-        .resolves(ok({ projectPath: "/tmp/converted", warnings: [] }));
+        .stub(FxCore.prototype, "importOpenPlugin")
+        .resolves(ok({ projectPath: "/tmp/imported", warnings: [] }));
       const ctx: CLIContext = {
-        command: { ...convertOpenPluginCommand, fullName: "convert openplugin" },
+        command: { ...importOpenPluginCommand, fullName: "import openplugin" },
         optionValues: {},
         globalOptionValues: {},
         argumentValues: [],
         telemetryProperties: {},
       };
-      const res = await convertOpenPluginCommand.handler!(ctx);
+      const res = await importOpenPluginCommand.handler!(ctx);
       assert.isTrue(res.isOk());
     });
 
-    it("logs warnings returned by convertOpenPlugin", async () => {
-      sandbox.stub(FxCore.prototype, "convertOpenPlugin").resolves(
+    it("logs warnings returned by importOpenPlugin", async () => {
+      sandbox.stub(FxCore.prototype, "importOpenPlugin").resolves(
         ok({
-          projectPath: "/tmp/converted",
-          warnings: [{ type: "openPluginConvert", content: "test warning" }],
+          projectPath: "/tmp/imported",
+          warnings: [{ type: "openPluginImport", content: "test warning" }],
         })
       );
       const ctx: CLIContext = {
-        command: { ...convertOpenPluginCommand, fullName: "convert openplugin" },
+        command: { ...importOpenPluginCommand, fullName: "import openplugin" },
         optionValues: {},
         globalOptionValues: {},
         argumentValues: [],
         telemetryProperties: {},
       };
-      const res = await convertOpenPluginCommand.handler!(ctx);
+      const res = await importOpenPluginCommand.handler!(ctx);
       assert.isTrue(res.isOk());
     });
 
-    it("propagates errors from convertOpenPlugin", async () => {
+    it("propagates errors from importOpenPlugin", async () => {
       sandbox
-        .stub(FxCore.prototype, "convertOpenPlugin")
-        .resolves(err(new SystemError("OpenPluginConvert", "Boom", "boom")));
+        .stub(FxCore.prototype, "importOpenPlugin")
+        .resolves(err(new SystemError("OpenPluginImport", "Boom", "boom")));
       const ctx: CLIContext = {
-        command: { ...convertOpenPluginCommand, fullName: "convert openplugin" },
+        command: { ...importOpenPluginCommand, fullName: "import openplugin" },
         optionValues: {},
         globalOptionValues: {},
         argumentValues: [],
         telemetryProperties: {},
       };
-      const res = await convertOpenPluginCommand.handler!(ctx);
+      const res = await importOpenPluginCommand.handler!(ctx);
+      assert.isTrue(res.isErr());
+    });
+  });
+
+  describe("exportOpenPluginCommand", async () => {
+    it("success", async () => {
+      sandbox
+        .stub(FxCore.prototype, "exportOpenPlugin")
+        .resolves(ok({ outputPath: "/tmp/exported", warnings: [] }));
+      const ctx: CLIContext = {
+        command: { ...exportOpenPluginCommand, fullName: "export openplugin" },
+        optionValues: {},
+        globalOptionValues: {},
+        argumentValues: [],
+        telemetryProperties: {},
+      };
+      const res = await exportOpenPluginCommand.handler!(ctx);
+      assert.isTrue(res.isOk());
+    });
+
+    it("logs warnings returned by exportOpenPlugin", async () => {
+      sandbox.stub(FxCore.prototype, "exportOpenPlugin").resolves(
+        ok({
+          outputPath: "/tmp/exported",
+          warnings: [{ type: "openPluginExport", content: "test warning" }],
+        })
+      );
+      const ctx: CLIContext = {
+        command: { ...exportOpenPluginCommand, fullName: "export openplugin" },
+        optionValues: {},
+        globalOptionValues: {},
+        argumentValues: [],
+        telemetryProperties: {},
+      };
+      const res = await exportOpenPluginCommand.handler!(ctx);
+      assert.isTrue(res.isOk());
+    });
+
+    it("propagates errors from exportOpenPlugin", async () => {
+      sandbox
+        .stub(FxCore.prototype, "exportOpenPlugin")
+        .resolves(err(new SystemError("OpenPluginExport", "Boom", "boom")));
+      const ctx: CLIContext = {
+        command: { ...exportOpenPluginCommand, fullName: "export openplugin" },
+        optionValues: {},
+        globalOptionValues: {},
+        argumentValues: [],
+        telemetryProperties: {},
+      };
+      const res = await exportOpenPluginCommand.handler!(ctx);
       assert.isTrue(res.isErr());
     });
   });

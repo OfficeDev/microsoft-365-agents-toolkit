@@ -8,7 +8,7 @@ import {
   renderTemplateFileName,
 } from "../../../../src/component/generator/utils";
 
-// Resolves to <repoRoot>/templates/vsc/common/openplugin-convert. Tests use this
+// Resolves to <repoRoot>/templates/vsc/common/open-plugin-import. Tests use this
 // to scaffold the baseline directly from the source template tree instead of
 // the (non-existent in dev) common.zip fallback.
 const SOURCE_TEMPLATE_DIR = path.resolve(
@@ -22,7 +22,7 @@ const SOURCE_TEMPLATE_DIR = path.resolve(
   "templates",
   "vsc",
   "common",
-  "openplugin-convert"
+  "open-plugin-import"
 );
 
 export async function scaffoldOpenPluginTemplateFromSource(
@@ -30,7 +30,7 @@ export async function scaffoldOpenPluginTemplateFromSource(
   replaceMap: Record<string, string>
 ): Promise<void> {
   if (!(await fs.pathExists(SOURCE_TEMPLATE_DIR))) {
-    throw new Error(`openplugin-convert template source not found at ${SOURCE_TEMPLATE_DIR}`);
+    throw new Error(`open-plugin-import template source not found at ${SOURCE_TEMPLATE_DIR}`);
   }
   await copyTree(SOURCE_TEMPLATE_DIR, destinationPath, replaceMap);
 }

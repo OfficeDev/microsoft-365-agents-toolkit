@@ -15,7 +15,7 @@ import { setTools } from "../../../../src/common/globalVars";
 import { CreateAppPackageDriver } from "../../../../src/component/driver/teamsApp/createAppPackage";
 import { CreateAppPackageArgs } from "../../../../src/component/driver/teamsApp/interfaces/CreateAppPackageArgs";
 import { Generator } from "../../../../src/component/generator/generator";
-import { convertOpenPlugin } from "../../../../src/component/generator/openPlugin/generator";
+import { importOpenPlugin } from "../../../../src/component/generator/openPlugin/importer";
 import { MockedM365Provider, MockTools } from "../../../core/utils";
 import { MockedLogProvider, MockedUserInteraction } from "../../../plugins/solution/util";
 import { scaffoldOpenPluginTemplateFromSource } from "./testTemplateScaffold";
@@ -77,7 +77,7 @@ describe("openPlugin → teamsApp/zipAppPackage end-to-end", () => {
   });
 
   it("zips skill folders when TEAMSFX_AGENT_SKILLS is on", async () => {
-    const convertRes = await convertOpenPlugin({
+    const convertRes = await importOpenPlugin({
       path: pluginDir,
       output: projectDir,
       privacyUrl: "https://example.com/privacy",
@@ -123,7 +123,7 @@ describe("openPlugin → teamsApp/zipAppPackage end-to-end", () => {
   });
 
   it("does NOT zip skill folders when TEAMSFX_AGENT_SKILLS is off", async () => {
-    const convertRes = await convertOpenPlugin({
+    const convertRes = await importOpenPlugin({
       path: pluginDir,
       output: projectDir,
       privacyUrl: "https://example.com/privacy",
@@ -161,7 +161,7 @@ describe("openPlugin → teamsApp/zipAppPackage end-to-end", () => {
   });
 
   it("returns error when agentSkills folder points outside appPackage", async () => {
-    const convertRes = await convertOpenPlugin({
+    const convertRes = await importOpenPlugin({
       path: pluginDir,
       output: projectDir,
       privacyUrl: "https://example.com/privacy",
@@ -198,7 +198,7 @@ describe("openPlugin → teamsApp/zipAppPackage end-to-end", () => {
   });
 
   it("returns error when agentSkills folder does not exist", async () => {
-    const convertRes = await convertOpenPlugin({
+    const convertRes = await importOpenPlugin({
       path: pluginDir,
       output: projectDir,
       privacyUrl: "https://example.com/privacy",

@@ -128,7 +128,8 @@ export enum TelemetryEvent {
   AddCopilotPlugin = "add-copilot-plugin",
   RegneratePlugin = "regenerate-copilot-plugin",
   AddAuthAction = "add-auth-action",
-  ConvertOpenPlugin = "convert-open-plugin",
+  ImportOpenPlugin = "import-open-plugin",
+  ExportOpenPlugin = "export-open-plugin",
 
   SetSensitivityLabel = "set-sensitivity-label",
 }
