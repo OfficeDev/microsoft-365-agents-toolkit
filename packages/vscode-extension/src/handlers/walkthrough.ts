@@ -26,6 +26,10 @@ export async function createProjectFromWalkthroughHandler(
   return result;
 }
 
+export function getBuildIntelligentAppsWalkthroughID() {
+  return "TeamsDevApp.ms-teams-vscode-extension#buildIntelligentApps";
+}
+
 export async function openBuildIntelligentAppsWalkthroughHandler(
   ...args: unknown[]
 ): Promise<Result<unknown, FxError>> {
@@ -35,7 +39,7 @@ export async function openBuildIntelligentAppsWalkthroughHandler(
   );
   const data = await vscode.commands.executeCommand(
     "workbench.action.openWalkthrough",
-    "TeamsDevApp.ms-teams-vscode-extension#buildIntelligentApps"
+    getBuildIntelligentAppsWalkthroughID()
   );
   return Promise.resolve(ok(data));
 }

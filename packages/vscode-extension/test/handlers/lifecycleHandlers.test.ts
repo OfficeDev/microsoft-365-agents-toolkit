@@ -1,7 +1,9 @@
-import { err, ok, Platform, SystemError, UserError } from "@microsoft/teamsfx-api";
+import { err, ok, SystemError, UserError } from "@microsoft/teamsfx-api";
 import {
   AppDefinition,
   FeatureFlagName,
+  FeatureFlags,
+  featureFlagManager,
   teamsDevPortalClient,
   UnhandledError,
   UserCancelError,
@@ -14,6 +16,7 @@ import * as vscode from "vscode";
 import * as globalVariables from "../../src/globalVariables";
 import * as copilotHandler from "../../src/handlers/copilotChatHandlers";
 import {
+  addAuthActionHandler,
   addPluginHandler,
   addWebpartHandler,
   copilotPluginAddAPIHandler,
@@ -22,19 +25,26 @@ import {
   provisionHandler,
   publishHandler,
   scaffoldFromDeveloperPortalHandler,
+  addKnowledgeHandler,
+  shareHandler,
+  setSensitivityLabelHandler,
+  m365PreAuthHandler,
+  shareRemoveHandler,
+  regeneratePluginHandler,
+  metaOSExtendToDAHandler,
 } from "../../src/handlers/lifecycleHandlers";
 import * as shared from "../../src/handlers/sharedOpts";
 import * as vsc_ui from "../../src/qm/vsc_ui";
 import { ExtTelemetry } from "../../src/telemetry/extTelemetry";
-import { TelemetryEvent } from "../../src/telemetry/extTelemetryEvents";
 import envTreeProviderInstance from "../../src/treeview/environmentTreeViewProvider";
-import * as telemetryUtils from "../../src/utils/telemetryUtils";
 import * as workspaceUtils from "../../src/utils/workspaceUtils";
 import M365TokenInstance from "../../src/commonlib/m365Login";
 import { MockCore } from "../mocks/mockCore";
 import * as globalState from "@microsoft/teamsfx-core/build/common/globalState";
 import mockedEnv, { RestoreFn } from "mocked-env";
 import VsCodeLogInstance from "../../src/commonlib/log";
+import { MockTools } from "../mocks/mockTools";
+import { shareRemoveCommand } from "../../../cli/src/commands/models/shareRemove";
 
 describe("Lifecycle handlers", () => {
   const sandbox = sinon.createSandbox();
@@ -58,12 +68,10 @@ describe("Lifecycle handlers", () => {
 
   describe("createNewProjectHandler", function () {
     const sandbox = sinon.createSandbox();
-    let mockedEnvRestore: RestoreFn;
+    const mockedEnvRestore: RestoreFn = () => {};
 
     afterEach(() => {
-      if (mockedEnvRestore) {
-        mockedEnvRestore();
-      }
+      mockedEnvRestore();
       sandbox.restore();
     });
 
@@ -124,184 +132,24 @@ describe("Lifecycle handlers", () => {
       assert.isTrue(openFolder.calledOnce);
     });
 
-    it("kiota integration: kiota installed release version", async () => {
-      mockedEnvRestore = mockedEnv({
-        [FeatureFlagName.KiotaIntegration]: "true",
-      });
+    it("metaOSExtendToDAHandler", async () => {
+      sandbox.stub(projectSettingsHelper, "isValidOfficeAddInProject").returns(false);
+      const openFolder = sandbox.stub(workspaceUtils, "openFolder").resolves();
       sandbox.stub(shared, "runCommand").resolves(
         ok({
-          projectPath: "",
-          lastCommand: "command",
+          projectPath: "abc",
         })
       );
-      sandbox.stub(vscode.extensions, "getExtension").returns({
-        id: "mockedId",
-        extensionUri: vscode.Uri.parse("file://mockedUri"),
-        isActive: true,
-        extensionPath: "mockedPath",
-        extensionKind: vscode.ExtensionKind.UI,
-        exports: {},
-        packageJSON: {
-          version: "1.18.100000002",
-        },
-        activate: () => Promise.resolve(),
-      });
-      const executeCommand = sandbox.stub(vscode.commands, "executeCommand").resolves();
-      const logError = sandbox.stub(VsCodeLogInstance, "error").resolves();
-      const res = await createNewProjectHandler();
+      const res = await metaOSExtendToDAHandler();
       assert.isTrue(res.isOk());
-      assert.isTrue(executeCommand.calledOnce);
-      assert.isTrue(logError.notCalled);
+      assert.isTrue(openFolder.calledOnce);
     });
 
-    it("kiota integration: kiota installed pre-release version", async () => {
-      mockedEnvRestore = mockedEnv({
-        [FeatureFlagName.KiotaIntegration]: "true",
-      });
-      sandbox.stub(shared, "runCommand").resolves(
-        ok({
-          projectPath: "",
-          lastCommand: "command",
-        })
-      );
-      sandbox.stub(vscode.extensions, "getExtension").returns({
-        id: "mockedId",
-        extensionUri: vscode.Uri.parse("file://mockedUri"),
-        isActive: true,
-        extensionPath: "mockedPath",
-        extensionKind: vscode.ExtensionKind.UI,
-        exports: {},
-        packageJSON: {
-          version: "1.19.24090901",
-        },
-        activate: () => Promise.resolve(),
-      });
-      const executeCommand = sandbox.stub(vscode.commands, "executeCommand").resolves();
-      const logError = sandbox.stub(VsCodeLogInstance, "error").resolves();
-      const res = await createNewProjectHandler();
-      assert.isTrue(res.isOk());
-      assert.isTrue(executeCommand.calledOnce);
-      assert.isTrue(logError.notCalled);
-    });
-
-    it("kiota integration: kiota not installed and click install", async () => {
-      mockedEnvRestore = mockedEnv({
-        [FeatureFlagName.KiotaIntegration]: "true",
-      });
-      sandbox.stub(shared, "runCommand").resolves(
-        ok({
-          projectPath: "",
-          lastCommand: "command",
-        })
-      );
-      sandbox.stub(vscode.extensions, "getExtension").returns(undefined);
-      const showMessageStub = sandbox
-        .stub(vscode.window, "showInformationMessage")
-        .callsFake((title: string, ...items: any[]) => {
-          return Promise.resolve(items[0]);
-        });
-      const executeCommand = sandbox.stub(vscode.commands, "executeCommand").resolves();
-      const logError = sandbox.stub(VsCodeLogInstance, "error").resolves();
-      const res = await createNewProjectHandler();
-      assert.isTrue(res.isOk());
-      assert.isTrue(showMessageStub.calledOnce);
-      assert.isTrue(executeCommand.calledOnce);
-      assert.isTrue(logError.calledOnce);
-    });
-
-    it("kiota integration: kiota version not match and click install", async () => {
-      mockedEnvRestore = mockedEnv({
-        [FeatureFlagName.KiotaIntegration]: "true",
-      });
-      sandbox.stub(shared, "runCommand").resolves(
-        ok({
-          projectPath: "",
-          lastCommand: "command",
-        })
-      );
-      sandbox.stub(vscode.extensions, "getExtension").returns({
-        id: "mockedId",
-        extensionUri: vscode.Uri.parse("file://mockedUri"),
-        isActive: true,
-        extensionPath: "mockedPath",
-        extensionKind: vscode.ExtensionKind.UI,
-        exports: {},
-        packageJSON: {
-          version: "1.18.100000001",
-        },
-        activate: () => Promise.resolve(),
-      });
-      const showMessageStub = sandbox
-        .stub(vscode.window, "showInformationMessage")
-        .callsFake((title: string, ...items: any[]) => {
-          return Promise.resolve(items[0]);
-        });
-      const executeCommand = sandbox.stub(vscode.commands, "executeCommand").resolves();
-      const logError = sandbox.stub(VsCodeLogInstance, "error").resolves();
-      const res = await createNewProjectHandler();
-      assert.isTrue(res.isOk());
-      assert.isTrue(showMessageStub.calledOnce);
-      assert.isTrue(executeCommand.calledOnce);
-      assert.isTrue(logError.calledOnce);
-    });
-
-    it("kiota integration: no kiota version and click install", async () => {
-      mockedEnvRestore = mockedEnv({
-        [FeatureFlagName.KiotaIntegration]: "true",
-      });
-      sandbox.stub(shared, "runCommand").resolves(
-        ok({
-          projectPath: "",
-          lastCommand: "command",
-        })
-      );
-      sandbox.stub(vscode.extensions, "getExtension").returns({
-        id: "mockedId",
-        extensionUri: vscode.Uri.parse("file://mockedUri"),
-        isActive: true,
-        extensionPath: "mockedPath",
-        extensionKind: vscode.ExtensionKind.UI,
-        exports: {},
-        packageJSON: {},
-        activate: () => Promise.resolve(),
-      });
-      const showMessageStub = sandbox
-        .stub(vscode.window, "showInformationMessage")
-        .callsFake((title: string, ...items: any[]) => {
-          return Promise.resolve(items[0]);
-        });
-      const executeCommand = sandbox.stub(vscode.commands, "executeCommand").resolves();
-      const logError = sandbox.stub(VsCodeLogInstance, "error").resolves();
-      const res = await createNewProjectHandler();
-      assert.isTrue(res.isOk());
-      assert.isTrue(showMessageStub.calledOnce);
-      assert.isTrue(executeCommand.calledOnce);
-      assert.isTrue(logError.calledOnce);
-    });
-
-    it("kiota integration: kiota not installed and click cancel", async () => {
-      mockedEnvRestore = mockedEnv({
-        [FeatureFlagName.KiotaIntegration]: "true",
-      });
-      sandbox.stub(shared, "runCommand").resolves(
-        ok({
-          projectPath: "",
-          lastCommand: "command",
-        })
-      );
-      sandbox.stub(vscode.extensions, "getExtension").returns(undefined);
-      const showMessageStub = sandbox
-        .stub(vscode.window, "showInformationMessage")
-        .callsFake((title: string, ...items: any[]) => {
-          return Promise.resolve(items[1]);
-        });
-      const executeCommand = sandbox.stub(vscode.commands, "executeCommand").resolves();
-      const logError = sandbox.stub(VsCodeLogInstance, "error").resolves();
-      const res = await createNewProjectHandler();
-      assert.isTrue(res.isOk());
-      assert.isTrue(showMessageStub.calledOnce);
-      assert.isTrue(executeCommand.notCalled);
-      assert.isTrue(logError.calledOnce);
+    it("metaOSExtendToDAHandler failed", async () => {
+      sandbox.stub(projectSettingsHelper, "isValidOfficeAddInProject").returns(false);
+      sandbox.stub(shared, "runCommand").resolves(err(new UserError("test", "name", "message")));
+      const res = await metaOSExtendToDAHandler();
+      assert.isTrue(res.isErr());
     });
   });
 
@@ -326,6 +174,14 @@ describe("Lifecycle handlers", () => {
     it("happy()", async () => {
       sandbox.stub(shared, "runCommand").resolves(ok(undefined));
       const res = await publishHandler();
+      assert.isTrue(res.isOk());
+    });
+  });
+
+  describe("shareHandler", function () {
+    it("happy()", async () => {
+      sandbox.stub(shared, "runCommand").resolves(ok(undefined));
+      const res = await shareHandler();
       assert.isTrue(res.isOk());
     });
   });
@@ -479,7 +335,7 @@ describe("Lifecycle handlers", () => {
         .stub(vsc_ui.VS_CODE_UI, "createProgressBar")
         .returns(progressHandler);
       sandbox.stub(globalVariables, "core").value(new MockCore());
-      const createProject = sandbox.spy(globalVariables.core, "createProject");
+      const createProject = sandbox.spy(globalVariables.core, "createProjectFromTdp");
       sandbox.stub(vscode.commands, "executeCommand");
       sandbox.stub(globalState, "globalStateUpdate");
       const appDefinition: AppDefinition = {
@@ -494,6 +350,32 @@ describe("Lifecycle handlers", () => {
       assert.isTrue(createProgressBar.calledOnce);
       assert.isTrue(startProgress.calledOnce);
       assert.isTrue(endProgress.calledOnceWithExactly(true));
+    });
+
+    it("skip AuthSvc region setup in sovereign high", async () => {
+      sandbox.stub(featureFlagManager, "getStringValue").returns("DoD");
+      sandbox.stub(vsc_ui, "VS_CODE_UI").value(new vsc_ui.VsCodeUI(<vscode.ExtensionContext>{}));
+      const progressHandler = new ProgressHandler("title", 1);
+      sandbox.stub(progressHandler, "start").resolves();
+      sandbox.stub(progressHandler, "end").resolves();
+      sandbox.stub(M365TokenInstance, "signInWhenInitiatedFromTdp").resolves(ok("token"));
+      const getAccessTokenStub = sandbox.stub(M365TokenInstance, "getAccessToken");
+      const setRegionStub = sandbox
+        .stub(teamsDevPortalClient, "setRegionEndpointByToken")
+        .resolves();
+      sandbox.stub(vsc_ui.VS_CODE_UI, "createProgressBar").returns(progressHandler);
+      sandbox.stub(globalVariables, "core").value(new MockCore());
+      sandbox.stub(vscode.commands, "executeCommand");
+      sandbox.stub(globalState, "globalStateUpdate");
+      sandbox
+        .stub(teamsDevPortalClient, "getApp")
+        .resolves({ teamsAppId: "mock-id" } as AppDefinition);
+
+      const res = await scaffoldFromDeveloperPortalHandler("appId", "testuser");
+
+      assert.isTrue(res.isOk());
+      assert.isTrue(getAccessTokenStub.notCalled);
+      assert.isTrue(setRegionStub.notCalled);
     });
   });
 
@@ -550,42 +432,120 @@ describe("Lifecycle handlers", () => {
 
       sinon.assert.calledOnce(addPluginHanlder);
     });
+  });
 
-    it("success: success call kiota", async () => {
-      const mockedEnvRestore = mockedEnv({
-        [FeatureFlagName.KiotaIntegration]: "true",
-      });
+  describe("regeneratePluginHandler", async () => {
+    const sandbox = sinon.createSandbox();
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it("success:", async () => {
       sandbox.stub(globalVariables, "core").value(new MockCore());
+      await regeneratePluginHandler();
+    });
+
+    it("failed: when runCommand throw error", async () => {
+      sandbox.stub(shared, "runCommand").resolves(err(new UserError("source", "name", "message")));
+      const result = await regeneratePluginHandler();
+      assert.isTrue(result.isErr());
+    });
+  });
+
+  describe("AddAuthActionHandler", async () => {
+    const sandbox = sinon.createSandbox();
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it("happy path", async () => {
+      sandbox.stub(globalVariables, "core").value(new MockCore());
+      const showMessageStub = sandbox
+        .stub(vscode.window, "showInformationMessage")
+        .callsFake((title: string, ...items: any[]) => {
+          return Promise.resolve(items[0]);
+        });
+      const addAuthAction = sandbox.spy(globalVariables.core, "addAuthAction");
+      const provisionction = sandbox.spy(globalVariables.core, "provisionResources");
+      await addAuthActionHandler();
+      sandbox.assert.calledOnce(addAuthAction);
+      sandbox.assert.calledOnce(provisionction);
+    });
+  });
+
+  describe("addKnowledgeHandler", async () => {
+    const sandbox = sinon.createSandbox();
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it("happy path", async () => {
+      sandbox.stub(globalVariables, "core").value(new MockCore());
+      const addKnowledge = sandbox.spy(globalVariables.core, "addKnowledge");
+
+      await addKnowledgeHandler();
+
+      sinon.assert.calledOnce(addKnowledge);
+    });
+  });
+
+  describe("setSensitivityLabelHandler", () => {
+    it("runCommand successfully", async () => {
+      const args = [{ declarativeAgentManifestPath: "path", sensitivityLabel: "label" }];
+      sandbox.stub(shared, "runCommand").resolves(ok(undefined));
+      await setSensitivityLabelHandler(args);
+    });
+
+    it("runCommand successfully - no args", async () => {
+      sandbox.stub(shared, "runCommand").resolves(ok(undefined));
+      await setSensitivityLabelHandler([]);
+    });
+
+    it("runCommand successfully - undefined array args", async () => {
+      sandbox.stub(shared, "runCommand").resolves(ok(undefined));
+      await setSensitivityLabelHandler([undefined]);
+    });
+
+    it("runCommand successfully - undefined args", async () => {
+      sandbox.stub(shared, "runCommand").resolves(ok(undefined));
+      await setSensitivityLabelHandler(undefined as any);
+    });
+
+    it("runCommand fails", async () => {
+      const args = [{ declarativeAgentManifestPath: "path", sensitivityLabel: "label" }];
+      const error = new UserError("source", "name", "message");
+      sandbox.stub(shared, "runCommand").resolves(err(error));
+
+      await setSensitivityLabelHandler(args);
+    });
+  });
+  describe("shareRemoveHandler", () => {
+    it("runCommand successfully", async () => {
+      const args = [{ teamsAppId: "appId" }];
+      sandbox.stub(shared, "runCommand").resolves(ok(undefined));
+      await shareRemoveHandler(args);
+    });
+  });
+  describe("m365PreAuthHandler", () => {
+    globalVariables.setTools(new MockTools());
+    it("get access token successfully", async () => {
+      const args = [{ scopes: ["scope1"] }];
       sandbox
-        .stub(globalVariables.core, "addPlugin")
-        .resolves(ok({ lastCommand: "addPlugin", manifestPath: "manifest.json" }));
-      sandbox.stub(shared, "runCommand").resolves(
-        ok({
-          projectPath: "",
-          lastCommand: "command",
-        })
-      );
-      sandbox.stub(vscode.extensions, "getExtension").returns({
-        id: "mockedId",
-        extensionUri: vscode.Uri.parse("file://mockedUri"),
-        isActive: true,
-        extensionPath: "mockedPath",
-        extensionKind: vscode.ExtensionKind.UI,
-        exports: {},
-        packageJSON: {
-          version: "1.18.100000002",
-        },
-        activate: () => Promise.resolve(),
-      });
-      const executeCommand = sandbox.stub(vscode.commands, "executeCommand").resolves();
-      const logError = sandbox.stub(VsCodeLogInstance, "error").resolves();
+        .stub(globalVariables.tools.tokenProvider.m365TokenProvider, "getAccessToken")
+        .resolves(ok("token"));
+      await m365PreAuthHandler(args);
+    });
 
-      const result = await addPluginHandler();
-
-      assert.isTrue(result.isOk());
-      assert.isTrue(executeCommand.calledOnce);
-      assert.isTrue(logError.notCalled);
-      mockedEnvRestore();
+    it("get access token fails", async () => {
+      const args = [{ scopes: ["scope1"] }];
+      const error = new UserError("source", "name", "message");
+      sandbox
+        .stub(globalVariables.tools.tokenProvider.m365TokenProvider, "getAccessToken")
+        .resolves(err(error));
+      await m365PreAuthHandler(args);
     });
   });
 });

@@ -2,7 +2,7 @@
 // Licensed under the MIT license.
 import fs from "fs-extra";
 import path from "path";
-import { MetadataV3, telemetryUtils } from "@microsoft/teamsfx-core";
+import { telemetryUtils } from "@microsoft/teamsfx-core";
 import { core, workspaceUri } from "../globalVariables";
 import { ExtTelemetry } from "../telemetry/extTelemetry";
 import { ConfigFolderName } from "@microsoft/teamsfx-api";
@@ -17,15 +17,6 @@ export async function checkProjectTypeAndSendTelemetry(): Promise<void> {
   for (const key of Object.keys(props)) {
     ExtTelemetry.addSharedProperty(key, props[key]);
   }
-}
-
-// Only work in ts/js project
-export function isTestToolEnabledProject(workspacePath: string): boolean {
-  const testToolYmlPath = path.join(workspacePath, MetadataV3.testToolConfigFile);
-  if (fs.pathExistsSync(testToolYmlPath)) {
-    return true;
-  }
-  return false;
 }
 
 export async function isM365Project(workspacePath: string): Promise<boolean> {

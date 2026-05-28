@@ -19,7 +19,7 @@ describe("ExtTelemetry", () => {
       eventName: string,
       properties?: { [key: string]: string } | undefined,
       measurements?: { [key: string]: number } | undefined,
-      errorProps?: string[] | undefined
+      errorProps?: string[] | undefined,
     ],
     void
   >;
@@ -27,7 +27,7 @@ describe("ExtTelemetry", () => {
     [
       eventName: string,
       properties?: { [key: string]: string } | undefined,
-      measurements?: { [key: string]: number } | undefined
+      measurements?: { [key: string]: number } | undefined,
     ],
     void
   >;
@@ -35,7 +35,7 @@ describe("ExtTelemetry", () => {
     [
       error: Error,
       properties?: { [key: string]: string } | undefined,
-      measurements?: { [key: string]: number } | undefined
+      measurements?: { [key: string]: number } | undefined,
     ],
     void
   >;
@@ -95,6 +95,11 @@ describe("ExtTelemetry", () => {
     it("Stage.syncManifest", () => {
       const stage = Stage.syncManifest;
       chai.expect(ExtTelemetry.stageToEvent(stage)).equals(TelemetryEvent.SyncManifest);
+    });
+
+    it("Stage.RegeneratePlugin", () => {
+      const stage = Stage.RegeneratePlugin;
+      chai.expect(ExtTelemetry.stageToEvent(stage)).equals(TelemetryEvent.RegenerateAction);
     });
 
     it("unknown", () => {

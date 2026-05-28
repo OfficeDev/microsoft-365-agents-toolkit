@@ -5,7 +5,12 @@ import * as vscode from "vscode";
 import { TreeCategory } from "@microsoft/teamsfx-api";
 import { featureFlagManager, FeatureFlags, manifestUtils } from "@microsoft/teamsfx-core";
 
-import { isDeclarativeCopilotApp, isSPFxProject, workspaceUri } from "../globalVariables";
+import {
+  isDeclarativeCopilotApp,
+  isMetaOSAddinProject,
+  isSPFxProject,
+  workspaceUri,
+} from "../globalVariables";
 import { hasAdaptiveCardInWorkspace } from "../utils/commonUtils";
 import { localize } from "../utils/localizeUtils";
 import accountTreeViewProviderInstance from "./account/accountTreeViewProvider";
@@ -90,13 +95,13 @@ class TreeViewManager {
       utilityTreeviewProvider.refresh();
     }
     if (await hasAdaptiveCardInWorkspace()) {
-      // after "Validate application" command, the adaptive card will be shown
+      // after "Preview Your Teams App" command, the adaptive card will be shown
       const utilityTreeviewProvider = this.getTreeView(
-        "teamsfx-utility"
+        "teamsfx-development"
       ) as CommandsTreeViewProvider;
       const utilityCommands = utilityTreeviewProvider.getCommands();
       const validateCommandIndex = utilityCommands.findIndex(
-        (command) => command.commandId === "fx-extension.validateManifest"
+        (command) => command.commandId === "fx-extension.localdebug"
       );
       if (validateCommandIndex >= 0) {
         utilityCommands.splice(
@@ -189,6 +194,14 @@ class TreeViewManager {
   }
 
   private getDevelopmentCommands(): TreeViewCommand[] {
+    const getHelpFromCopilotTitle = localize(
+      "teamstoolkit.commandsTreeViewProvider.getCopilotHelpTitle"
+    );
+    const getHelpFromCopilotCommand = "fx-extension.invokeChat";
+    const isKiotaNPMIntegrationEnabled = featureFlagManager.getBooleanValue(
+      FeatureFlags.KiotaNPMIntegration
+    );
+
     const treeviewCommands = [
       new TreeViewCommand(
         localize("teamstoolkit.commandsTreeViewProvider.createProjectTitle"),
@@ -197,6 +210,19 @@ class TreeViewManager {
         "createProject",
         { name: "new-folder", custom: false }
       ),
+      ...(isMetaOSAddinProject &&
+      !isDeclarativeCopilotApp &&
+      featureFlagManager.getBooleanValue(FeatureFlags.DAMetaOS)
+        ? [
+            new TreeViewCommand(
+              localize("teamstoolkit.commandsTreeViewProvider.metaOS.convert.title"),
+              localize("teamstoolkit.commandsTreeViewProvider.metaOS.convert.description"),
+              "fx-extension.metaOSExtendToDA",
+              undefined,
+              { name: "teamsfx-agent", custom: false }
+            ),
+          ]
+        : []),
       new TreeViewCommand(
         localize("teamstoolkit.commandsTreeViewProvider.samplesTitle"),
         localize("teamstoolkit.commandsTreeViewProvider.samplesDescription"),
@@ -227,6 +253,28 @@ class TreeViewManager {
             ),
           ]
         : []),
+      ...(isDeclarativeCopilotApp && isKiotaNPMIntegrationEnabled
+        ? [
+            new TreeViewCommand(
+              localize("teamstoolkit.commandsTreeViewProvider.regenerateActionTitle"),
+              localize("teamstoolkit.commandsTreeViewProvider.regenerateActionDescription"),
+              "fx-extension.regeneratePlugin",
+              "regeneratePlugin",
+              { name: "teamsfx-regenerate-feature", custom: false }
+            ),
+          ]
+        : []),
+      ...(isDeclarativeCopilotApp
+        ? [
+            new TreeViewCommand(
+              localize("teamstoolkit.commandsTreeViewProvider.addKnowledgeTitle"),
+              localize("teamstoolkit.commandsTreeViewProvider.addKnowledgeDescription"),
+              "fx-extension.addKnowledge",
+              "addKnowledge",
+              { name: "diff-added", custom: false }
+            ),
+          ]
+        : []),
       new TreeViewCommand(
         localize("teamstoolkit.commandsTreeViewProvider.guideTitle"),
         localize("teamstoolkit.commandsTreeViewProvider.guideDescription"),
@@ -245,9 +293,9 @@ class TreeViewManager {
       ...(featureFlagManager.getBooleanValue(FeatureFlags.ChatParticipantUIEntries)
         ? [
             new TreeViewCommand(
-              localize("teamstoolkit.commandsTreeViewProvider.getCopilotHelpTitle"),
+              getHelpFromCopilotTitle,
               localize("teamstoolkit.commandsTreeViewProvider.getCopilotHelpDescription"),
-              "fx-extension.invokeChat",
+              getHelpFromCopilotCommand,
               undefined,
               { name: "comment-discussion", custom: false }
             ),
@@ -314,6 +362,17 @@ class TreeViewManager {
         "deploy",
         { name: "cloud-upload", custom: false }
       ),
+      ...(isDeclarativeCopilotApp
+        ? [
+            new TreeViewCommand(
+              localize("teamstoolkit.commandsTreeViewProvider.shareTitle"),
+              localize("teamstoolkit.commandsTreeViewProvider.shareDescription"),
+              "fx-extension.share",
+              "share",
+              { name: "share", custom: false }
+            ),
+          ]
+        : []),
       new TreeViewCommand(
         localize("teamstoolkit.commandsTreeViewProvider.publishTitle"),
         localize("teamstoolkit.commandsTreeViewProvider.publishDescription"),

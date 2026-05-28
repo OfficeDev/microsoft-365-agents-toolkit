@@ -77,7 +77,7 @@ export default class SampleListItem extends React.Component<SampleProps, unknown
                 this.props.upgradeToolkit(this.props.sample, TelemetryTriggerFrom.SampleGallery)
               }
             >
-              Upgrade Teams Toolkit
+              Upgrade Microsoft 365 Agents Toolkit
             </VSCodeButton>
           ) : (
             <VSCodeButton disabled>Create</VSCodeButton>

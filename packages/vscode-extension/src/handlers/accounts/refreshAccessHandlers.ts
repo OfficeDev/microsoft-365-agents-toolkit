@@ -7,7 +7,7 @@ import accountTreeViewProviderInstance from "../../treeview/account/accountTreeV
 import M365TokenInstance from "../../commonlib/m365Login";
 
 export async function refreshSideloadingCallback(args?: any[]): Promise<Result<null, FxError>> {
-  const status = await M365TokenInstance.getStatus({ scopes: AppStudioScopes });
+  const status = await M365TokenInstance.getStatus({ scopes: AppStudioScopes() });
   if (status.isOk() && status.value.token !== undefined) {
     accountTreeViewProviderInstance.m365AccountNode.updateChecks(status.value.token, true, false);
   }
@@ -16,7 +16,7 @@ export async function refreshSideloadingCallback(args?: any[]): Promise<Result<n
 }
 
 export async function refreshCopilotCallback(args?: any[]): Promise<Result<null, FxError>> {
-  const status = await M365TokenInstance.getStatus({ scopes: AppStudioScopes });
+  const status = await M365TokenInstance.getStatus({ scopes: AppStudioScopes() });
   if (status.isOk() && status.value.token !== undefined) {
     accountTreeViewProviderInstance.m365AccountNode.updateChecks(status.value.token, false, true);
   }

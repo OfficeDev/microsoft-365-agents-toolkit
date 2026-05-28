@@ -29,17 +29,21 @@ export class ConfigManager {
       ConfigurationKey.BicepEnvCheckerEnable,
       false
     ).toString();
-    process.env["DEVELOP_COPILOT_EXTENSION"] = this.getConfiguration(
-      ConfigurationKey.CopilotExtensionEnable,
+    process.env[FeatureFlags.CEAEnabled.name] = this.getConfiguration(
+      ConfigurationKey.EnableCEA,
       false
     ).toString();
-    process.env["DEVELOP_COPILOT_PLUGIN"] = this.getConfiguration(
-      ConfigurationKey.CopilotExtensionEnable,
+    process.env[FeatureFlags.DAMetaOS.name] = this.getConfiguration(
+      ConfigurationKey.EnableDAMetaOS,
       false
     ).toString();
-    process.env[FeatureFlags.KiotaIntegration.name] = this.getConfiguration(
-      ConfigurationKey.EnableMicrosoftKiota,
+    process.env[FeatureFlags.CFShortcutMetaOS.name] = this.getConfiguration(
+      ConfigurationKey.EnableCFShortcutMetaOS,
       false
+    ).toString();
+    process.env[FeatureFlags.SovereignCloudEnvironment.name] = this.getConfiguration(
+      ConfigurationKey.SovereignCloudEnvironment,
+      ""
     ).toString();
   }
   loadLogLevel() {

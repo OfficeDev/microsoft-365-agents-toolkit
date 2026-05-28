@@ -25,12 +25,10 @@ export class AzureAccountNode extends DynamicNode {
     }
     this.status = AccountItemStatus.SignedIn;
     this.label = upn;
-    if (featureFlagManager.getBooleanValue(FeatureFlags.MultiTenant)) {
-      const tenants = await listAllTenants(token);
-      for (const tenant of tenants) {
-        if (tenant.tenantId === tid && tenant.displayName) {
-          this.label = `${upn} (${tenant.displayName as string})`;
-        }
+    const tenants = await listAllTenants(token);
+    for (const tenant of tenants) {
+      if (tenant.tenantId === tid && tenant.displayName) {
+        this.label = `${upn} (${tenant.displayName as string})`;
       }
     }
     this.contextValue = "signedinAzure";
@@ -86,7 +84,12 @@ export class AzureAccountNode extends DynamicNode {
     this.tooltip = new vscode.MarkdownString(
       localize("teamstoolkit.accountTree.azureAccountTooltip")
     );
-
+    this.accessibilityInformation = {
+      label:
+        (this.label ? (typeof this.label === "string" ? this.label : this.label.label) : "") +
+        ". " +
+        localize("teamstoolkit.accountTree.azureAccountTooltip"),
+    };
     return this;
   }
 }

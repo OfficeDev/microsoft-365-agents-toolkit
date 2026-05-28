@@ -1,9 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-/* eslint-disable @typescript-eslint/ban-types */
-/* eslint-disable @typescript-eslint/no-var-requires */
-
 import * as vscode from "vscode";
 import {
   PublicClientApplication,
@@ -11,15 +8,16 @@ import {
   Configuration,
   TokenCache,
   AuthorizationUrlRequest,
+  SilentFlowRequest,
 } from "@azure/msal-node";
-import express from "express";
 import * as http from "http";
-import fs from "fs-extra";
 import path from "path";
 import { Mutex } from "async-mutex";
 import { FxError, ok, Result, UserError, err } from "@microsoft/teamsfx-api";
 import VsCodeLogInstance from "./log";
 import * as crypto from "crypto";
+import express from "express";
+import * as fs from "fs-extra";
 import { AddressInfo } from "net";
 import {
   clearCache,
@@ -47,13 +45,18 @@ import {
 } from "../telemetry/extTelemetryEvents";
 import { getDefaultString, localize } from "../utils/localizeUtils";
 import { ExtensionErrors } from "../error/error";
-import { env, Uri } from "vscode";
 import { randomBytes } from "crypto";
 import { getExchangeCode } from "./exchangeCode";
 import * as os from "os";
-import { ErrorCategory, featureFlagManager, FeatureFlags } from "@microsoft/teamsfx-core";
+import {
+  ErrorCategory,
+  featureFlagManager,
+  FeatureFlags,
+  getTenantedAuthorityUrl,
+} from "@microsoft/teamsfx-core";
+import { getAccountByHomeId } from "./common/tokenCacheUtils";
+import { getInternalFlagFromTokenClaims } from "./accountInfoUtils";
 
-const BASE_AUTHORITY = "https://login.microsoftonline.com/";
 interface Deferred<T> {
   resolve: (result: T | Promise<T>) => void;
   reject: (reason: any) => void;
@@ -62,6 +65,7 @@ interface Deferred<T> {
 export class CodeFlowLogin {
   pca: PublicClientApplication;
   account: AccountInfo | undefined;
+  isBrokerAvailable: boolean;
   /**
    * @deprecated will be removed after unify m365 login
    */
@@ -82,23 +86,22 @@ export class CodeFlowLogin {
     this.msalTokenCache = this.pca.getTokenCache();
     this.accountName = accountName;
     this.status = loggedOut;
+    this.isBrokerAvailable = config.broker?.nativeBrokerPlugin?.isBrokerAvailable || false;
   }
 
   async reloadCache() {
     const accountCache = await loadAccountId(this.accountName);
     if (accountCache) {
-      const dataCache = await this.msalTokenCache.getAccountByHomeId(accountCache);
+      const dataCache = getAccountByHomeId(accountCache, await this.pca.getAllAccounts());
       if (dataCache) {
         this.account = dataCache;
         this.status = loggedIn;
       }
 
-      if (featureFlagManager.getBooleanValue(FeatureFlags.MultiTenant)) {
-        const tenantCache = await loadTenantId(this.accountName);
-        if (tenantCache) {
-          const allAccounts = await this.msalTokenCache.getAllAccounts();
-          this.account = allAccounts.find((account) => account.tenantId == tenantCache);
-        }
+      const tenantCache = await loadTenantId(this.accountName);
+      if (tenantCache) {
+        const allAccounts = await this.pca.getAllAccounts();
+        this.account = allAccounts.find((account) => account.tenantId == tenantCache);
       }
     } else if (this.status !== loggingIn) {
       this.account = undefined;
@@ -107,11 +110,26 @@ export class CodeFlowLogin {
   }
 
   async login(scopes: Array<string>, loginHint?: string, tenantId?: string): Promise<string> {
+    if (featureFlagManager.getBooleanValue(FeatureFlags.BrokerAuth)) {
+      return await this.loginWithBroker(scopes, loginHint, tenantId);
+    } else {
+      return await this.loginWithBrowser(scopes, loginHint, tenantId);
+    }
+  }
+
+  async loginWithBrowser(
+    scopes: Array<string>,
+    loginHint?: string,
+    tenantId?: string
+  ): Promise<string> {
     if (process.env.CODESPACES == "true") {
-      return await this.loginInCodeSpace(scopes);
+      return await this.loginInCodeSpace(scopes, tenantId);
     }
     ExtTelemetry.sendTelemetryEvent(TelemetryEvent.LoginStart, {
       [TelemetryProperty.AccountType]: this.accountName,
+      [TelemetryProperty.SovereignCloudType]: featureFlagManager.getStringValue(
+        FeatureFlags.SovereignCloudEnvironment
+      ),
     });
     const codeVerifier = CodeFlowLogin.toBase64UrlEncoding(
       crypto.randomBytes(32).toString("base64")
@@ -125,10 +143,7 @@ export class CodeFlowLogin {
     const app = express();
     const server = app.listen(serverPort);
     serverPort = (server.address() as AddressInfo).port;
-    const authority =
-      featureFlagManager.getBooleanValue(FeatureFlags.MultiTenant) && tenantId
-        ? BASE_AUTHORITY + tenantId
-        : undefined;
+    const authority = tenantId ? getTenantedAuthorityUrl(tenantId) : undefined;
 
     const authCodeUrlParameters: AuthorizationUrlRequest = {
       scopes: scopes,
@@ -194,21 +209,24 @@ export class CodeFlowLogin {
         });
     });
 
-    const codeTimer = setTimeout(() => {
-      if (this.account) {
-        this.status = loggedIn;
-      } else {
-        this.status = loggedOut;
-      }
-      const err = new UserError(
-        getDefaultString("teamstoolkit.codeFlowLogin.loginComponent"),
-        getDefaultString("teamstoolkit.codeFlowLogin.loginTimeoutTitle"),
-        getDefaultString("teamstoolkit.codeFlowLogin.loginTimeoutDescription"),
-        localize("teamstoolkit.codeFlowLogin.loginTimeoutDescription")
-      );
-      err.categories = [ErrorCategory.Internal];
-      deferredRedirect.reject(err);
-    }, 5 * 60 * 1000); // keep the same as azure login
+    const codeTimer = setTimeout(
+      () => {
+        if (this.account) {
+          this.status = loggedIn;
+        } else {
+          this.status = loggedOut;
+        }
+        const err = new UserError(
+          getDefaultString("teamstoolkit.codeFlowLogin.loginComponent"),
+          getDefaultString("teamstoolkit.codeFlowLogin.loginTimeoutTitle"),
+          getDefaultString("teamstoolkit.codeFlowLogin.loginTimeoutDescription"),
+          localize("teamstoolkit.codeFlowLogin.loginTimeoutDescription")
+        );
+        err.categories = [ErrorCategory.Internal];
+        deferredRedirect.reject(err);
+      },
+      5 * 60 * 1000
+    ); // keep the same as azure login
 
     function cancelCodeTimer() {
       clearTimeout(codeTimer);
@@ -224,6 +242,91 @@ export class CodeFlowLogin {
       redirectPromise.then(cancelCodeTimer, cancelCodeTimer);
       accessToken = await redirectPromise;
     } catch (e) {
+      ExtTelemetry.sendTelemetryErrorEvent(TelemetryEvent.Login, e, {
+        [TelemetryProperty.AccountType]: this.accountName,
+        [TelemetryProperty.SovereignCloudType]: featureFlagManager.getStringValue(
+          FeatureFlags.SovereignCloudEnvironment
+        ),
+        [TelemetryProperty.Success]: TelemetrySuccess.No,
+        [TelemetryProperty.UserId]: "",
+        [TelemetryProperty.Internal]: "false",
+        [TelemetryProperty.ErrorType]:
+          e instanceof UserError ? TelemetryErrorType.UserError : TelemetryErrorType.SystemError,
+        [TelemetryProperty.ErrorCode]: `${e.source as string}.${e.name as string}`,
+        [TelemetryProperty.ErrorMessage]: `${e.message as string}`,
+      });
+      throw e;
+    } finally {
+      if (accessToken) {
+        const tokenJson = ConvertTokenToJson(accessToken);
+        ExtTelemetry.sendTelemetryEvent(TelemetryEvent.Login, {
+          [TelemetryProperty.AccountType]: this.accountName,
+          [TelemetryProperty.SovereignCloudType]: featureFlagManager.getStringValue(
+            FeatureFlags.SovereignCloudEnvironment
+          ),
+          [TelemetryProperty.Success]: TelemetrySuccess.Yes,
+          [TelemetryProperty.UserId]: (tokenJson as any).oid ? (tokenJson as any).oid : "",
+          [TelemetryProperty.Internal]: getInternalFlagFromTokenClaims(tokenJson),
+        });
+      }
+      server.close();
+    }
+
+    return accessToken;
+  }
+
+  async loginWithBroker(
+    scopes: Array<string>,
+    loginHint?: string,
+    tenantId?: string
+  ): Promise<string> {
+    if (process.env.CODESPACES == "true") {
+      return await this.loginInCodeSpace(scopes, tenantId);
+    }
+    ExtTelemetry.sendTelemetryEvent(TelemetryEvent.LoginStart, {
+      [TelemetryProperty.AccountType]: this.accountName,
+    });
+
+    this.status = loggingIn;
+    const authority = tenantId ? getTenantedAuthorityUrl(tenantId) : undefined;
+
+    const loopbackTemplatePath = path.join(__dirname, "codeFlowResult", "index.html");
+    let loopbackTemplate = undefined;
+    if (fs.pathExistsSync(loopbackTemplatePath)) {
+      loopbackTemplate = await fs.readFile(loopbackTemplatePath, "utf-8");
+    }
+
+    const interactiveRequest = {
+      scopes: scopes,
+      openBrowser: async (url: string) => {
+        await vscode.env.openExternal(vscode.Uri.parse(url));
+      },
+      authority: authority,
+      prompt: !loginHint ? "select_account" : "login",
+      loginHint: loginHint,
+      windowHandle: vscode.window.nativeHandle
+        ? Buffer.from(vscode.window.nativeHandle)
+        : undefined,
+      successTemplate: loopbackTemplate,
+      errorTemplate: loopbackTemplate,
+    };
+
+    let accessToken = undefined;
+    try {
+      const response = await this.pca.acquireTokenInteractive(interactiveRequest);
+
+      if (response && response.account) {
+        await this.mutex?.runExclusive(async () => {
+          this.account = response.account!;
+          this.status = loggedIn;
+          await saveAccountId(this.accountName, this.account.homeAccountId);
+        });
+        accessToken = response.accessToken;
+      } else {
+        throw new Error("No response or account from interactive login");
+      }
+    } catch (e) {
+      this.status = loggedOut;
       ExtTelemetry.sendTelemetryErrorEvent(TelemetryEvent.Login, e, {
         [TelemetryProperty.AccountType]: this.accountName,
         [TelemetryProperty.Success]: TelemetrySuccess.No,
@@ -242,22 +345,17 @@ export class CodeFlowLogin {
           [TelemetryProperty.AccountType]: this.accountName,
           [TelemetryProperty.Success]: TelemetrySuccess.Yes,
           [TelemetryProperty.UserId]: (tokenJson as any).oid ? (tokenJson as any).oid : "",
-          [TelemetryProperty.Internal]: (
-            (tokenJson as any).upn ?? (tokenJson as any).unique_name
-          ).endsWith("@microsoft.com")
-            ? "true"
-            : "false",
+          [TelemetryProperty.Internal]: getInternalFlagFromTokenClaims(tokenJson),
         });
       }
-      server.close();
     }
 
     return accessToken;
   }
 
-  async loginInCodeSpace(scopes: Array<string>): Promise<string> {
-    let callbackUri: Uri = await env.asExternalUri(
-      Uri.parse(`${env.uriScheme}://${extensionID}/${codeSpacesAuthComplete}`)
+  async loginInCodeSpace(scopes: Array<string>, tenantId?: string): Promise<string> {
+    let callbackUri: vscode.Uri = await vscode.env.asExternalUri(
+      vscode.Uri.parse(`${vscode.env.uriScheme}://${extensionID}/${codeSpacesAuthComplete}`)
     );
     const nonce: string = randomBytes(16).toString("base64");
     const callbackQuery = new URLSearchParams(callbackUri.query);
@@ -272,6 +370,7 @@ export class CodeFlowLogin {
     const codeChallenge = CodeFlowLogin.toBase64UrlEncoding(
       await CodeFlowLogin.sha256(codeVerifier)
     );
+    const authority = tenantId ? getTenantedAuthorityUrl(tenantId) : undefined;
     const authCodeUrlParameters: AuthorizationUrlRequest = {
       scopes: scopes,
       codeChallenge: codeChallenge,
@@ -279,16 +378,20 @@ export class CodeFlowLogin {
       redirectUri: vscodeRedirect,
       prompt: "select_account",
       state: state,
+      authority: authority,
     };
     const signInUrl: string = await this.pca.getAuthCodeUrl(authCodeUrlParameters);
-    const uri: Uri = Uri.parse(signInUrl);
-    void env.openExternal(uri);
+    const uri: vscode.Uri = vscode.Uri.parse(signInUrl);
+    void vscode.env.openExternal(uri);
 
     const timeoutPromise = new Promise((_resolve: (value: string) => void, reject) => {
-      const wait = setTimeout(() => {
-        clearTimeout(wait);
-        reject("Login timed out.");
-      }, 1000 * 60 * 5);
+      const wait = setTimeout(
+        () => {
+          clearTimeout(wait);
+          reject("Login timed out.");
+        },
+        1000 * 60 * 5
+      );
     });
 
     const accessCode = await Promise.race([getExchangeCode(), timeoutPromise]);
@@ -312,7 +415,10 @@ export class CodeFlowLogin {
     try {
       await saveAccountId(this.accountName, undefined);
       await saveTenantId(this.accountName, undefined);
-      (this.msalTokenCache as any).storage.setCache({});
+      const accounts = await this.pca.getAllAccounts();
+      for (const account of accounts) {
+        await this.pca.signOut({ account: account });
+      }
       await clearCache(this.accountName);
       this.account = undefined;
       this.status = loggedOut;
@@ -341,51 +447,12 @@ export class CodeFlowLogin {
     loginHint?: string,
     tenantId?: string
   ): Promise<Result<string, FxError>> {
-    if (featureFlagManager.getBooleanValue(FeatureFlags.MultiTenant)) {
-      if (!tenantId) {
-        tenantId = await loadTenantId(this.accountName);
-      }
-      return await this.getToken(scopes, refresh, tenantId, loginHint);
+    if (!tenantId) {
+      tenantId = await loadTenantId(this.accountName);
     }
-
-    if (!this.account) {
-      const accessToken = await this.login(scopes, loginHint);
-      return ok(accessToken);
-    } else {
-      try {
-        const res = await this.pca.acquireTokenSilent({
-          account: this.account,
-          scopes: scopes,
-          forceRefresh: false,
-        });
-        if (res) {
-          return ok(res.accessToken);
-        } else {
-          return err(LoginCodeFlowError(new Error("No token response.")));
-        }
-      } catch (error) {
-        VsCodeLogInstance.debug(
-          "[Login] " +
-            stringUtil.format(
-              localize("teamstoolkit.codeFlowLogin.silentAcquireToken"),
-              path.join(os.homedir(), ".fx", "account"),
-              error.message
-            )
-        );
-        if (!(await checkIsOnline())) {
-          return err(CheckOnlineError());
-        }
-        await this.logout();
-        if (refresh) {
-          const accessToken = await this.login(scopes, loginHint);
-          return ok(accessToken);
-        }
-        return err(LoginCodeFlowError(error));
-      }
-    }
+    return await this.getToken(scopes, refresh, tenantId, loginHint);
   }
 
-  // For multi-tenant support, the legacy function wil be removed later
   async getToken(
     scopes: Array<string>,
     refresh = true,
@@ -398,18 +465,24 @@ export class CodeFlowLogin {
     } else {
       let tenantedAccount: AccountInfo | undefined = undefined;
       if (tenantId) {
-        const allAccounts = await this.msalTokenCache.getAllAccounts();
+        const allAccounts = await this.pca.getAllAccounts();
         tenantedAccount = allAccounts.find((account) => account.tenantId == tenantId);
         this.account = tenantedAccount ?? this.account;
       }
 
+      let tokenRequest: SilentFlowRequest = {
+        account: this.account,
+        scopes: scopes,
+        authority: tenantId ? getTenantedAuthorityUrl(tenantId) : this.config.auth.authority,
+      };
+      tokenRequest = this.isBrokerAvailable
+        ? // HACK: Broker doesn't support forceRefresh so we need to pass in claims which will force a refresh
+          tenantedAccount
+          ? tokenRequest
+          : { ...tokenRequest, claims: '{ "id_token": {}}' }
+        : { ...tokenRequest, forceRefresh: tenantedAccount ? false : true };
       try {
-        const res = await this.pca.acquireTokenSilent({
-          account: this.account,
-          scopes: scopes,
-          forceRefresh: tenantedAccount ? false : true,
-          authority: tenantId ? BASE_AUTHORITY + tenantId : this.config.auth.authority,
-        });
+        const res = await this.pca.acquireTokenSilent(tokenRequest);
         if (res) {
           return ok(res.accessToken);
         } else {

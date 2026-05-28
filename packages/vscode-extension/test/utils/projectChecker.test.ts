@@ -3,11 +3,7 @@ import * as sinon from "sinon";
 import * as chai from "chai";
 import fs from "fs-extra";
 import * as global from "../../src/globalVariables";
-import {
-  checkProjectTypeAndSendTelemetry,
-  isM365Project,
-  isTestToolEnabledProject,
-} from "../../src/utils/projectChecker";
+import { checkProjectTypeAndSendTelemetry, isM365Project } from "../../src/utils/projectChecker";
 import { MockCore } from "../mocks/mockCore";
 import * as vscode from "vscode";
 import { ExtTelemetry } from "../../src/telemetry/extTelemetry";
@@ -46,26 +42,6 @@ describe("projectChecker", () => {
     it("workspaceUri is undefined", async () => {
       sandbox.stub(global, "workspaceUri").value(undefined);
       await checkProjectTypeAndSendTelemetry();
-    });
-  });
-
-  describe("isTestToolEnabledProject", () => {
-    const sandbox = sinon.createSandbox();
-
-    afterEach(async () => {
-      sandbox.restore();
-    });
-
-    it("test tool yaml exist", async () => {
-      sandbox.stub(fs, "pathExistsSync").returns(true);
-      const res = isTestToolEnabledProject("testPath");
-      chai.assert.isTrue(res);
-    });
-
-    it("test tool yaml not exist", async () => {
-      sandbox.stub(fs, "pathExistsSync").returns(false);
-      const res = isTestToolEnabledProject("testPath");
-      chai.assert.isFalse(res);
     });
   });
 

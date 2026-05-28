@@ -6,6 +6,7 @@ import {
   FxError,
   ok,
   Result,
+  signedIn,
   SubscriptionInfo,
   UserError,
   Void,
@@ -13,7 +14,6 @@ import {
 import { AppStudioScopes, getHashedEnv } from "@microsoft/teamsfx-core";
 import * as vscode from "vscode";
 import * as util from "util";
-import { signedIn } from "../commonlib/common/constant";
 import M365TokenInstance from "../commonlib/m365Login";
 import {
   AzurePortalUrl,
@@ -33,7 +33,7 @@ import { getTriggerFromProperty } from "../utils/telemetryUtils";
 import { ExtensionSource, ExtensionErrors } from "../error/error";
 import { getSubscriptionInfoFromEnv, getResourceGroupNameFromEnv } from "../utils/envTreeUtils";
 import { localize } from "../utils/localizeUtils";
-import { getWalkThroughId } from "../utils/projectStatusUtils";
+import { commands, Uri } from "vscode";
 
 export async function openEnvLinkHandler(args: any[]): Promise<Result<unknown, FxError>> {
   ExtTelemetry.sendTelemetryEvent(TelemetryEvent.Documentation, {
@@ -79,11 +79,9 @@ export async function openDocumentLinkHandler(args?: any[]): Promise<Result<bool
   });
   switch (node.contextValue) {
     case "signinM365": {
-      await vscode.commands.executeCommand("workbench.action.openWalkthrough", {
-        category: getWalkThroughId(),
-        step: `${getWalkThroughId()}#teamsToolkitCreateFreeAccount`,
-      });
-      return Promise.resolve(ok(true));
+      return VS_CODE_UI.openUrl(
+        "https://learn.microsoft.com/en-us/microsoftteams/platform/toolkit/tools-prerequisites?from=teamstoolkit#microsoft-365-developer-program"
+      );
     }
     case "signinAzure": {
       return VS_CODE_UI.openUrl("https://portal.azure.com/");
@@ -95,7 +93,7 @@ export async function openDocumentLinkHandler(args?: any[]): Promise<Result<bool
     case "fx-extension.provision": {
       return VS_CODE_UI.openUrl("https://aka.ms/teamsfx-provision-cloud-resource");
     }
-    case "fx-extension.build": {
+    case "fx-extension.validateManifest": {
       return VS_CODE_UI.openUrl("https://aka.ms/teams-store-validation");
     }
     case "fx-extension.deploy": {
@@ -123,7 +121,7 @@ export async function openAzureAccountHandler() {
 
 export async function openAppManagement(...args: unknown[]): Promise<Result<boolean, FxError>> {
   ExtTelemetry.sendTelemetryEvent(TelemetryEvent.ManageTeamsApp, getTriggerFromProperty(args));
-  const accountRes = await M365TokenInstance.getStatus({ scopes: AppStudioScopes });
+  const accountRes = await M365TokenInstance.getStatus({ scopes: AppStudioScopes() });
 
   if (accountRes.isOk() && accountRes.value.status === signedIn) {
     const loginHint = accountRes.value.accountInfo?.upn as string;
@@ -163,6 +161,10 @@ export async function openDocumentHandler(...args: unknown[]): Promise<Result<bo
   let url = "https://aka.ms/teamsfx-build-first-app";
   if (documentName === "learnmore") {
     url = "https://aka.ms/teams-toolkit-5.0-upgrade";
+  } else if (documentName === "build-apps") {
+    url = "https://aka.ms/teamstoolkit-build-app";
+  } else if (documentName === "build-agents") {
+    url = "https://aka.ms/teamstoolkit-build-agent";
   }
   return VS_CODE_UI.openUrl(url);
 }
@@ -263,4 +265,18 @@ export async function openResourceGroupInPortal(env: string): Promise<Result<Voi
 
     return err(resourceInfoNotFoundError);
   }
+}
+
+export async function findGitHubSimilarIssue(args?: any[]): Promise<Result<Void, FxError>> {
+  if (args && args.length > 0) {
+    const errorCode = args[0] as string;
+    const similarIssueLink = Uri.parse(
+      `https://github.com/OfficeDev/TeamsFx/issues?q=is:issue+in:title+${errorCode}`
+    );
+
+    ExtTelemetry.sendTelemetryEvent(TelemetryEvent.FindSimilarIssues);
+    await commands.executeCommand("vscode.open", similarIssueLink);
+    return ok(Void);
+  }
+  return ok(Void);
 }

@@ -1,12 +1,12 @@
-import { ok } from "@microsoft/teamsfx-api";
+import { ok, signedIn, signedOut } from "@microsoft/teamsfx-api";
 import * as chai from "chai";
 import * as sinon from "sinon";
 import * as vscode from "vscode";
 import * as globalVariables from "../../src/globalVariables";
 import M365TokenInstance from "../../src/commonlib/m365Login";
-import { signedIn, signedOut } from "../../src/commonlib/common/constant";
 import { DeveloperPortalHomeLink } from "../../src/constants";
 import {
+  findGitHubSimilarIssue,
   openAccountLinkHandler,
   openAppManagement,
   openAzureAccountHandler,
@@ -113,6 +113,22 @@ describe("Open link handlers", () => {
 
       chai.assert.isTrue(openUrl.calledOnceWith("https://aka.ms/teams-toolkit-5.0-upgrade"));
     });
+    it("opens build app guide when clicked from left pane", async () => {
+      sandbox.stub(vsc_ui, "VS_CODE_UI").value(new vsc_ui.VsCodeUI(<vscode.ExtensionContext>{}));
+      const openUrl = sandbox.stub(vsc_ui.VS_CODE_UI, "openUrl").resolves(ok(true));
+
+      await openDocumentHandler("documentName", "build-apps");
+
+      chai.assert.isTrue(openUrl.calledOnceWith("https://aka.ms/teamstoolkit-build-app"));
+    });
+    it("opens build agent guide when clicked from left pane", async () => {
+      sandbox.stub(vsc_ui, "VS_CODE_UI").value(new vsc_ui.VsCodeUI(<vscode.ExtensionContext>{}));
+      const openUrl = sandbox.stub(vsc_ui.VS_CODE_UI, "openUrl").resolves(ok(true));
+
+      await openDocumentHandler("documentName", "build-agents");
+
+      chai.assert.isTrue(openUrl.calledOnceWith("https://aka.ms/teamstoolkit-build-agent"));
+    });
   });
 
   describe("openLifecycleLinkHandler", () => {
@@ -198,6 +214,11 @@ describe("Open link handlers", () => {
   });
 
   describe("openDocumentLinkHandler", () => {
+    it("signinM365", async () => {
+      sandbox.stub(vsc_ui.VS_CODE_UI, "openUrl").resolves(ok(true));
+      const res = await openDocumentLinkHandler([{ contextValue: "signinM365" }]);
+      chai.assert.isTrue(res.isOk());
+    });
     it("signinAzure", async () => {
       sandbox.stub(vsc_ui.VS_CODE_UI, "openUrl").resolves(ok(true));
       const res = await openDocumentLinkHandler([{ contextValue: "signinAzure" }]);
@@ -325,6 +346,31 @@ describe("Open link handlers", () => {
           `https://portal.azure.com/#@tenantId/resource/subscriptions/subscriptionId/resourceGroups/resourceGroupName`
         )
       );
+    });
+  });
+
+  describe("findGitHubSimilarIssue", () => {
+    it("open issues", async () => {
+      const commandStub = sandbox.stub(vscode.commands, "executeCommand").resolves();
+      await findGitHubSimilarIssue(["firsterror"]);
+
+      chai.assert.isTrue(commandStub.calledOnce);
+    });
+
+    it("do nothing if invalid args", async () => {
+      const commandStub = sandbox.stub(vscode.commands, "executeCommand").resolves();
+      const res = await findGitHubSimilarIssue([]);
+
+      chai.assert.isFalse(commandStub.calledOnce);
+      chai.assert.isTrue(res.isOk());
+    });
+
+    it("do nothing if no args", async () => {
+      const commandStub = sandbox.stub(vscode.commands, "executeCommand").resolves();
+      const res = await findGitHubSimilarIssue();
+
+      chai.assert.isFalse(commandStub.calledOnce);
+      chai.assert.isTrue(res.isOk());
     });
   });
 });

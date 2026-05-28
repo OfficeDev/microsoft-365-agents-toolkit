@@ -2,10 +2,10 @@
 // Licensed under the MIT license.
 import * as util from "util";
 
+import { ProductName } from "@microsoft/teamsfx-api";
 import { Hub, TaskLabel } from "@microsoft/teamsfx-core";
 import { ExtensionErrors } from "../../error/error";
 import { getDefaultString, localize } from "../../utils/localizeUtils";
-import { ProductName } from "@microsoft/teamsfx-api";
 
 export const issueChooseLink = "https://github.com/OfficeDev/TeamsFx/issues/new/choose";
 export const issueLink = "https://github.com/OfficeDev/TeamsFx/issues/new?";
@@ -37,16 +37,27 @@ export const errorDetail = `
 **Error detail**
 `;
 
-export const m365AppsPrerequisitesHelpLink = "https://aka.ms/teamsfx-m365-apps-prerequisites";
 export const clearAADAfterLocalDebugHelpLink = "https://aka.ms/teamsfx-clear-aad-after-local-debug";
 
 export enum Host {
   teams = "teams.microsoft.com",
   outlook = "outlook.office.com",
   office = "www.office.com",
+  copilot = "m365.cloud.microsoft",
+}
+
+export enum ANSIColors {
+  RED = "\u001b[31m",
+  GREEN = "\u001b[32m",
+  YELLOW = "\u001b[33m",
+  BLUE = "\u001b[34m",
+  MAGENTA = "\u001b[35m",
+  WHITE = "\u001b[37m",
+  GRAY = "\u001b[38;5;244m",
 }
 
 export const accountHintPlaceholder = "${account-hint}";
+export const m365AppIdEnv = "M365_APP_ID";
 
 export const openOutputMessage = () =>
   util.format(
@@ -93,12 +104,21 @@ function stepPrefix(stepNumber: number) {
 }
 
 export const openTestToolMessage = () =>
-  util.format(localize("teamstoolkit.localDebug.useTestTool"), "'Debug in Test Tool'");
+  util.format(
+    localize("teamstoolkit.localDebug.useTestTool"),
+    "'Debug in Microsoft 365 Agents Playground'"
+  );
 
 export const openTestToolDisplayMessage = () =>
   util.format(
     localize("teamstoolkit.localDebug.useTestTool"),
-    "[Debug in Test Tool](command:fx-extension.debugInTestToolFromMessage)"
+    "[Debug in Microsoft 365 Agents Playground](command:fx-extension.debugInTestToolFromMessage)"
+  );
+
+export const openSandboxMessage = () =>
+  util.format(
+    localize("teamstoolkit.localDebug.useTestTool"),
+    "'Debug in sandbox in Teams (Edge)'"
   );
 
 export const prerequisiteCheckForGetStartedDisplayMessages: DisplayMessages = {
@@ -107,7 +127,7 @@ export const prerequisiteCheckForGetStartedDisplayMessages: DisplayMessages = {
   checkNumber: (n: number) =>
     `${stepPrefix(
       n
-    )} Teams Toolkit is checking if all required prerequisites are installed and will install them if not.`,
+    )} Microsoft 365 Agents Toolkit is checking if all required prerequisites are installed and will install them if not.`,
   summary: "Summary:",
   learnMore: (link: string) =>
     `Visit ${link} to get more info about get started prerequisites check.`,
@@ -126,7 +146,7 @@ export const v3PrerequisiteCheckTaskDisplayMessages: DisplayMessages = {
   taskName: TaskLabel.PrerequisiteCheckV3,
   title: "Running 'Validate prerequisites' Visual Studio Code task.",
   checkNumber: (n: number) =>
-    `${stepPrefix(n)} Teams Toolkit is checking the required prerequisites.`,
+    `${stepPrefix(n)} Microsoft 365 Agents Toolkit is checking the required prerequisites.`,
   summary: "Summary:",
   learnMore: (link: string) =>
     `Visit ${link} to get more info about 'Validate prerequisites' task.`,
@@ -239,17 +259,25 @@ export const ngrokTunnelDisplayMessages = Object.freeze(
 export const sideloadingDisplayMessages = Object.freeze({
   title: (hub: Hub) => `Launching ${hub as string} web client.`,
   sideloadingUrlMessage: (hub: Hub, url: string) =>
-    `${hub as string} web client is being launched for you to debug the Teams app: ${url}.`,
+    `${hub as string} web client is being launched for you to debug the app: ${url}.`,
   hotReloadingMessage:
     "The app supports hot reloading. If you have any code changes in the project, the app will be reloaded.",
 });
 
 export const launchingTeamsClientDisplayMessages = Object.freeze({
-  title: "Launching Teams web client.",
+  title: "Launching web browser.",
   launchUrlMessage: (url: string) =>
-    `Teams web client is being launched for you to debug the Teams app: ${url}.`,
+    `Web browser is being launched for you to debug the app: ${url}.`,
   hotReloadingMessage:
     "The app supports hot reloading. If you have any code changes in the project, the app will be reloaded.",
+});
+
+export const connectToExistingBrowserDebugSessionForCopilot = Object.freeze({
+  title: "Connecting to Existing Browser Debug Session for Copilot.",
+  successfulConnectionMessage: (port: number) =>
+    `Connected to DevTools Protocol in existing debug session on port: ${port}.`,
+  unsuccessfulConnectionMessage: (error: string) =>
+    `Failed to connect to Chrome DevTools Protocol: ${error}.`,
 });
 
 export const DebugSessionExists = "Debug session exists";

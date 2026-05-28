@@ -9,9 +9,11 @@ import {
   Correlator,
   environmentNameManager,
   envUtil,
-  featureFlagManager,
   FeatureFlags,
+  featureFlagManager,
+  GraphScopes,
   Hub,
+  isSovereignHigh,
   isValidProject,
   isValidProjectV3,
   MissingEnvironmentVariablesError,
@@ -24,12 +26,19 @@ import { showError } from "../error/common";
 import { core } from "../globalVariables";
 import { TelemetryEvent, TelemetryProperty } from "../telemetry/extTelemetryEvents";
 import { getLocalDebugSessionId, endLocalDebugSession } from "./common/localDebugSession";
-import { accountHintPlaceholder, Host, sideloadingDisplayMessages } from "./common/debugConstants";
+import {
+  accountHintPlaceholder,
+  Host,
+  m365AppIdEnv,
+  sideloadingDisplayMessages,
+} from "./common/debugConstants";
 import { localTelemetryReporter, sendDebugAllEvent } from "./localTelemetryReporter";
 import { terminateAllRunningTeamsfxTasks } from "./teamsfxTaskHandler";
 import { triggerV3Migration } from "../utils/migrationUtils";
 import { getSystemInputs } from "../utils/systemEnvUtils";
 import { TeamsfxDebugConfiguration } from "./common/teamsfxDebugConfiguration";
+import { AgentHintData } from "./common/types";
+import { SovereignCloudEnvironment } from "@microsoft/teamsfx-core/build/common/accountUtils";
 
 export class TeamsfxDebugProvider implements vscode.DebugConfigurationProvider {
   public async resolveDebugConfiguration?(
@@ -73,7 +82,10 @@ export class TeamsfxDebugProvider implements vscode.DebugConfigurationProvider {
 
       // resolve env
       let url: string = debugConfiguration.url;
-      const host = new URL(url).host;
+      let host: string | undefined;
+      if (url.startsWith("https")) {
+        host = new URL(url).host;
+      }
       let env: string | undefined = undefined;
 
       // match ${{xxx:yyy}}
@@ -103,7 +115,8 @@ export class TeamsfxDebugProvider implements vscode.DebugConfigurationProvider {
 
       const isLocal =
         (env && !environmentNameManager.isRemoteEnvironment(env)) ||
-        !debugConfiguration.name.startsWith("Launch Remote");
+        (!debugConfiguration.name.startsWith("Launch Remote") &&
+          !debugConfiguration.name.startsWith("Preview in Copilot"));
       telemetryIsRemote = !isLocal;
 
       // Put env and hub in `debugConfiguration` so debug handlers can retrieve it and send telemetry
@@ -115,6 +128,8 @@ export class TeamsfxDebugProvider implements vscode.DebugConfigurationProvider {
         debugConfiguration.teamsfxHub = Hub.outlook;
       } else if (host === Host.office) {
         debugConfiguration.teamsfxHub = Hub.office;
+      } else if (host === Host.copilot) {
+        debugConfiguration.teamsfxHub = Hub.copilot;
       }
 
       // Attach correlation-id to DebugConfiguration so concurrent debug sessions are correctly handled in this stage.
@@ -158,6 +173,16 @@ export class TeamsfxDebugProvider implements vscode.DebugConfigurationProvider {
             );
           }
 
+          const agentHintMatch = /\${([^:]+):agent-hint}|\${agent-hint}/.exec(url);
+          if (agentHintMatch) {
+            url = url.replace(
+              agentHintMatch[0],
+              await generateAgentHint(folder.uri.fsPath, agentHintMatch[1])
+            );
+          }
+
+          url = updateHostBySovereignCloud(url);
+
           return url;
         }
       );
@@ -193,12 +218,43 @@ export class TeamsfxDebugProvider implements vscode.DebugConfigurationProvider {
       await vscode.debug.stopDebugging();
       // not for undefined
       if (telemetryIsRemote === false) {
-        await sendDebugAllEvent(error);
+        await sendDebugAllEvent(error, {
+          [TelemetryProperty.DebugConfigName]: debugConfiguration.name,
+        });
       }
       endLocalDebugSession();
     }
     return debugConfiguration;
   }
+}
+
+function updateHostBySovereignCloud(url: string): string {
+  const sovereignCloudEnvironment = featureFlagManager.getStringValue(
+    FeatureFlags.SovereignCloudEnvironment
+  );
+
+  let sovereignHost: string | undefined;
+  if (sovereignCloudEnvironment === SovereignCloudEnvironment.DOD) {
+    sovereignHost = "www.ohome.apps.mil";
+  } else if (sovereignCloudEnvironment === SovereignCloudEnvironment.GCCH) {
+    sovereignHost = "www.office365.us";
+  }
+
+  if (!sovereignHost) {
+    return url;
+  }
+
+  try {
+    const parsed = new URL(url);
+    if (parsed.host === Host.copilot) {
+      parsed.host = sovereignHost;
+      return parsed.toString();
+    }
+  } catch {
+    // Ignore invalid URL
+  }
+
+  return url;
 }
 
 async function generateAccountHint(includeTenantId = true): Promise<string> {
@@ -210,7 +266,9 @@ async function generateAccountHint(includeTenantId = true): Promise<string> {
     loginHint = accountInfo.username;
   } else {
     try {
-      const tokenObjectRes = await M365TokenInstance.getStatus({ scopes: AppStudioScopes });
+      const tokenObjectRes = await M365TokenInstance.getStatus({
+        scopes: isSovereignHigh() ? GraphScopes : AppStudioScopes(),
+      });
       const tokenObject = tokenObjectRes.isOk() ? tokenObjectRes.value.accountInfo : undefined;
       if (tokenObject) {
         // user signed in
@@ -225,14 +283,36 @@ async function generateAccountHint(includeTenantId = true): Promise<string> {
     }
   }
   if (includeTenantId && tenantId) {
-    if (featureFlagManager.getBooleanValue(FeatureFlags.MultiTenant)) {
-      return loginHint
-        ? `tenantId=${tenantId}&appTenantId=${tenantId}&login_hint=${loginHint}`
-        : "";
-    } else {
-      return loginHint ? `appTenantId=${tenantId}&login_hint=${loginHint}` : "";
-    }
+    return loginHint ? `tenantId=${tenantId}&appTenantId=${tenantId}&login_hint=${loginHint}` : "";
   } else {
     return loginHint ? `login_hint=${loginHint}` : "";
   }
+}
+
+async function generateAgentHint(projectPath: string, env: string | undefined): Promise<string> {
+  if (!env) {
+    env = environmentNameManager.getDefaultEnvName();
+  }
+  const envRes = await envUtil.readEnv(projectPath, env, false, true);
+  if (envRes.isErr()) {
+    throw envRes.error;
+  }
+  if (!envRes.value[m365AppIdEnv]) {
+    throw new MissingEnvironmentVariablesError(
+      ExtensionSource,
+      m365AppIdEnv,
+      path.normalize(path.join(projectPath, ".vscode", "launch.json")),
+      "https://aka.ms/teamsfx-tasks"
+    );
+  }
+  const id = envRes.value[m365AppIdEnv];
+  const clickTimestamp = new Date().toLocaleString();
+  const agentHintJson: AgentHintData = {
+    id,
+    scenario: "launchcopilotextension",
+    properties: { clickTimestamp },
+    version: 1,
+  };
+  const base64 = Buffer.from(JSON.stringify(agentHintJson)).toString("base64");
+  return base64;
 }

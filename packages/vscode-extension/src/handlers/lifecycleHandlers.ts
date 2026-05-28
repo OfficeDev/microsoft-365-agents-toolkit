@@ -11,20 +11,23 @@ import {
   UserError,
 } from "@microsoft/teamsfx-api";
 import {
-  ApiPluginStartOptions,
+  ActionStartOptions,
   AppStudioScopes,
   assembleError,
   AuthSvcScopes,
-  CapabilityOptions,
   featureFlagManager,
   FeatureFlags,
+  isSovereignHigh,
   isUserCancelError,
   isValidOfficeAddInProject,
   QuestionNames,
   teamsDevPortalClient,
 } from "@microsoft/teamsfx-core";
+import * as stringUtil from "util";
 import * as vscode from "vscode";
+import VsCodeLogInstance from "../commonlib/log";
 import M365TokenInstance from "../commonlib/m365Login";
+import { ExtensionSource } from "../error/error";
 import { VS_CODE_UI } from "../qm/vsc_ui";
 import { ExtTelemetry } from "../telemetry/extTelemetry";
 import {
@@ -36,42 +39,32 @@ import envTreeProviderInstance from "../treeview/environmentTreeViewProvider";
 import { localize } from "../utils/localizeUtils";
 import { getSystemInputs } from "../utils/systemEnvUtils";
 import { getTriggerFromProperty } from "../utils/telemetryUtils";
+import * as versionUtil from "../utils/versionUtil";
 import { openFolder, openOfficeDevFolder } from "../utils/workspaceUtils";
 import { invokeTeamsAgent } from "./copilotChatHandlers";
 import { runCommand } from "./sharedOpts";
-import { ExtensionSource } from "../error/error";
-import VsCodeLogInstance from "../commonlib/log";
-import * as versionUtil from "../utils/versionUtil";
-import { KiotaExtensionId, KiotaMinVersion } from "../constants";
-import * as stringUtil from "util";
+import { tools } from "../globalVariables";
 
 export async function createNewProjectHandler(...args: any[]): Promise<Result<any, FxError>> {
   ExtTelemetry.sendTelemetryEvent(TelemetryEvent.CreateProjectStart, getTriggerFromProperty(args));
   let inputs: Inputs | undefined;
+  let stage = Stage.create;
   if (args?.length === 1) {
     if (!!args[0].teamsAppFromTdp) {
       inputs = getSystemInputs();
       inputs.teamsAppFromTdp = args[0].teamsAppFromTdp;
+      stage = Stage.createTdp;
     }
-  } else if (args?.length === 2) {
-    // from copilot chat
+  } else if (args?.length === 2 && args[0] !== TelemetryTriggerFrom.TreeView) {
+    // from copilot chat or createDeclarativeAgentWithApiSpec
     inputs = { ...getSystemInputs(), ...args[1] };
   }
-  const result = await runCommand(Stage.create, inputs);
+  const result = await runCommand(stage, inputs);
   if (result.isErr()) {
     return err(result.error);
   }
 
   const res = result.value as CreateProjectResult;
-
-  // For Kiota integration
-  if (
-    featureFlagManager.getBooleanValue(FeatureFlags.KiotaIntegration) &&
-    res.projectPath === "" &&
-    res.lastCommand
-  ) {
-    return handleTriggerKiotaCommand(args, res, TelemetryEvent.CreateProject);
-  }
 
   if (res.shouldInvokeTeamsAgent) {
     await invokeTeamsAgent([TelemetryTriggerFrom.CreateAppQuestionFlow]);
@@ -114,24 +107,78 @@ export async function publishHandler(...args: unknown[]): Promise<Result<null, F
   return await runCommand(Stage.publish);
 }
 
+export async function shareHandler(...args: unknown[]): Promise<Result<null, FxError>> {
+  ExtTelemetry.sendTelemetryEvent(TelemetryEvent.ShareStart, getTriggerFromProperty(args));
+  return await runCommand(Stage.share);
+}
+
+export async function shareRemoveHandler(...args: unknown[]): Promise<Result<null, FxError>> {
+  ExtTelemetry.sendTelemetryEvent(TelemetryEvent.ShareRemoveStart, getTriggerFromProperty(args));
+  return await runCommand(Stage.shareRemove);
+}
+
 export async function addWebpartHandler(...args: unknown[]) {
   ExtTelemetry.sendTelemetryEvent(TelemetryEvent.AddWebpartStart, getTriggerFromProperty(args));
   return await runCommand(Stage.addWebpart);
 }
 
+export async function regeneratePluginHandler(...args: unknown[]) {
+  ExtTelemetry.sendTelemetryEvent(
+    TelemetryEvent.RegenerateActionStart,
+    getTriggerFromProperty(args)
+  );
+  const result = await runCommand(Stage.RegeneratePlugin);
+  if (result.isErr()) {
+    return err(result.error);
+  }
+  return result;
+}
+
 export async function addPluginHandler(...args: unknown[]) {
-  ExtTelemetry.sendTelemetryEvent(TelemetryEvent.AddPluginStart, getTriggerFromProperty(args));
+  ExtTelemetry.sendTelemetryEvent(TelemetryEvent.AddPluginStart, {
+    ...getTriggerFromProperty(args),
+    [TelemetryProperty.KiotaNPMIntegrationEnabled]: featureFlagManager
+      .getBooleanValue(FeatureFlags.KiotaNPMIntegration)
+      .toString(),
+  });
   const result = await runCommand(Stage.addPlugin);
   if (result.isErr()) {
     return err(result.error);
   }
-
-  const res = result.value;
-  if (featureFlagManager.getBooleanValue(FeatureFlags.KiotaIntegration) && res.lastCommand) {
-    return handleTriggerKiotaCommand(args, res, TelemetryEvent.AddPlugin, res.projectPath);
-  } else {
-    return result;
+  // For the MCP "Add Action" flow, addPlugin only writes the URL to
+  // .vscode/mcp.json. Reuse the same UX as the "DA with MCP" scaffolding
+  // flow: open mcp.json and show the "start MCP server / Fetch Action"
+  // notification so the user can populate tools afterwards.
+  if (result.value && (result.value as { kind?: string }).kind === "mcp") {
+    const { openWorkspaceMCPConfigHandler } = await import("./readmeHandlers");
+    await openWorkspaceMCPConfigHandler(TelemetryTriggerFrom.Auto);
   }
+  return result;
+}
+
+export async function metaOSExtendToDAHandler(...args: unknown[]) {
+  ExtTelemetry.sendTelemetryEvent(
+    TelemetryEvent.MetaOSExtendToDAStart,
+    getTriggerFromProperty(args)
+  );
+
+  const result = await runCommand(Stage.metaOSExtendToDA);
+  if (result.isErr()) {
+    return err(result.error);
+  }
+
+  const projectPathUri = vscode.Uri.file(result.value.projectPath);
+  await openFolder(projectPathUri, true, result.value.warnings);
+  return result;
+}
+
+export async function addKnowledgeHandler(...args: unknown[]) {
+  ExtTelemetry.sendTelemetryEvent(TelemetryEvent.AddKnowledgeStart, getTriggerFromProperty(args));
+  const result = await runCommand(Stage.addKnowledge);
+  if (result.isErr()) {
+    return err(result.error);
+  }
+  return result;
 }
 
 /**
@@ -161,7 +208,7 @@ export async function scaffoldFromDeveloperPortalHandler(
   let token = undefined;
   try {
     const tokenRes = await M365TokenInstance.signInWhenInitiatedFromTdp(
-      { scopes: AppStudioScopes },
+      { scopes: AppStudioScopes() },
       loginHint
     );
     if (tokenRes.isErr()) {
@@ -182,10 +229,12 @@ export async function scaffoldFromDeveloperPortalHandler(
     }
     token = tokenRes.value;
 
-    // set region
-    const AuthSvcTokenRes = await M365TokenInstance.getAccessToken({ scopes: AuthSvcScopes });
-    if (AuthSvcTokenRes.isOk()) {
-      await teamsDevPortalClient.setRegionEndpointByToken(AuthSvcTokenRes.value);
+    if (!isSovereignHigh()) {
+      // set region
+      const AuthSvcTokenRes = await M365TokenInstance.getAccessToken({ scopes: AuthSvcScopes() });
+      if (AuthSvcTokenRes.isOk()) {
+        await teamsDevPortalClient.setRegionEndpointByToken(AuthSvcTokenRes.value);
+      }
     }
 
     await progressBar.end(true);
@@ -243,7 +292,7 @@ export async function copilotPluginAddAPIHandler(args: any[]) {
       // Codelens for API ME. Trigger from manifest.json
       inputs[QuestionNames.ManifestPath] = filePath;
     } else {
-      inputs[QuestionNames.ApiPluginType] = ApiPluginStartOptions.apiSpec().id;
+      inputs[QuestionNames.ActionType] = ActionStartOptions.apiSpec().id;
       inputs[QuestionNames.DestinationApiSpecFilePath] = filePath;
       inputs[QuestionNames.ManifestPath] = args[0].manifestPath;
     }
@@ -252,74 +301,58 @@ export async function copilotPluginAddAPIHandler(args: any[]) {
   return result;
 }
 
-function handleTriggerKiotaCommand(
-  args: any[],
-  result: any,
-  event: string,
-  projectPath?: string
-): Result<any, FxError> {
-  if (!validateKiotaInstallation()) {
-    void vscode.window
-      .showInformationMessage(
-        stringUtil.format(localize("teamstoolkit.error.KiotaNotInstalled"), KiotaMinVersion),
-        "Install Kiota",
-        "Cancel"
-      )
-      .then((selection) => {
-        if (selection === "Install Kiota") {
-          // Open market place to install kiota
-          ExtTelemetry.sendTelemetryEvent(TelemetryEvent.InstallKiota, {
-            ...getTriggerFromProperty(args),
-          });
-          void vscode.commands.executeCommand("extension.open", "ms-graph.kiota");
-        } else {
-          return err(
-            new UserError(
-              ExtensionSource,
-              "KiotaNotInstalled",
-              stringUtil.format(localize("teamstoolkit.error.KiotaNotInstalled"), KiotaMinVersion)
-            )
-          );
-        }
-      });
-
-    ExtTelemetry.sendTelemetryEvent(event, {
-      [TelemetryProperty.KiotaInstalled]: "No",
-      ...getTriggerFromProperty(args),
-    });
-    VsCodeLogInstance.error(
-      stringUtil.format(localize("teamstoolkit.error.KiotaNotInstalled"), KiotaMinVersion)
+export async function setSensitivityLabelHandler(args: any[]) {
+  ExtTelemetry.sendTelemetryEvent(
+    TelemetryEvent.SetSensitivityLabelStart,
+    getTriggerFromProperty(args)
+  );
+  const inputs = getSystemInputs();
+  inputs[QuestionNames.DeclarativeAgentManifestPath] = args?.[0]?.declarativeAgentManifestPath;
+  inputs[QuestionNames.SensitivityLabel] = args?.[0]?.sensitivityLabel;
+  const result = await runCommand(Stage.setSensitivityLabel, inputs);
+  if (result.isErr()) {
+    ExtTelemetry.sendTelemetryErrorEvent(
+      TelemetryEvent.SetSensitivityLabel,
+      result.error,
+      getTriggerFromProperty(args)
     );
-    return ok({ projectPath: "" });
-  } else {
-    void vscode.commands.executeCommand("kiota.openApiExplorer.searchOrOpenApiDescription", {
-      kind: "Plugin",
-      type: "ApiPlugin",
-      source: "ttk",
-      ttkContext: {
-        lastCommand: result.lastCommand,
-        manifestPath: result.manifestPath,
-      },
-      projectPath: projectPath,
-    });
-    ExtTelemetry.sendTelemetryEvent(event, {
-      [TelemetryProperty.KiotaInstalled]: "Yes",
-      ...getTriggerFromProperty(args),
-    });
-    return ok(result);
+    return;
   }
+  ExtTelemetry.sendTelemetryEvent(TelemetryEvent.SetSensitivityLabel, getTriggerFromProperty(args));
+  return;
 }
 
-function validateKiotaInstallation(): boolean {
-  const installed = vscode.extensions.getExtension(KiotaExtensionId);
-  if (!installed) {
-    return false;
+export async function m365PreAuthHandler(args: any[]) {
+  ExtTelemetry.sendTelemetryEvent(TelemetryEvent.m365PreAuthStart, getTriggerFromProperty(args));
+  const res = await tools.tokenProvider?.m365TokenProvider?.getAccessToken({
+    scopes: args[0].scopes,
+  });
+  if (res.isErr()) {
+    ExtTelemetry.sendTelemetryErrorEvent(
+      TelemetryEvent.m365PreAuth,
+      res.error,
+      getTriggerFromProperty(args)
+    );
+    return;
   }
+  ExtTelemetry.sendTelemetryEvent(TelemetryEvent.m365PreAuth, getTriggerFromProperty(args));
+  return;
+}
 
-  const kiotaVersion = installed.packageJSON.version;
-  if (!kiotaVersion) {
-    return false;
-  }
-
-  return versionUtil.compare(kiotaVersion, KiotaMinVersion) !== -1;
+export async function addAuthActionHandler(...args: unknown[]) {
+  ExtTelemetry.sendTelemetryEvent(TelemetryEvent.AddAuthActionStart, getTriggerFromProperty(args));
+  const inputs = getSystemInputs();
+  const result = await runCommand(Stage.addAuthAction, inputs);
+  void vscode.window
+    .showInformationMessage(
+      localize("teamstoolkit.handeler.addAuthConfig.notification"),
+      localize("teamstoolkit.handeler.addAuthConfig.notification.provision")
+    )
+    .then((selection) => {
+      if (selection === "Provision") {
+        ExtTelemetry.sendTelemetryEvent(TelemetryEvent.ProvisionFromAddAuthConfig);
+        void runCommand(Stage.provision);
+      }
+    });
+  return result;
 }

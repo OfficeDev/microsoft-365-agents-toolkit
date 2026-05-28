@@ -6,11 +6,11 @@ import spies from "chai-spies";
 import * as sinon from "sinon";
 import * as vscode from "vscode";
 
+import { ExtensionContext } from "vscode";
 import * as globalVariables from "../../src/globalVariables";
 import { ExtTelemetry } from "../../src/telemetry/extTelemetry";
 import { ReleaseNote } from "../../src/utils/releaseNote";
 import * as versionUtil from "../../src/utils/versionUtil";
-import { ExtensionContext } from "vscode";
 
 chai.use(spies);
 const spy = chai.spy;
@@ -38,6 +38,7 @@ describe("Release Note", () => {
     const sandbox = sinon.createSandbox();
     let context: vscode.ExtensionContext;
     let telemetryStub: sinon.SinonStub;
+    let openDocumentStub: sinon.SinonStub;
     const mockGlobalState: vscode.Memento = {
       keys: gloablStateKeys,
       get: globalStateGet,
@@ -50,7 +51,7 @@ describe("Release Note", () => {
       } as unknown as vscode.ExtensionContext;
       sandbox.stub(versionUtil, "getExtensionId").returns("");
       sandbox.stub(vscode.extensions, "getExtension").returns({
-        packageJSON: { version: "5.0.0" },
+        packageJSON: { version: "6.2.0" },
         id: "",
         extensionPath: "",
         isActive: true,
@@ -62,14 +63,15 @@ describe("Release Note", () => {
         },
       });
       telemetryStub = sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
+      openDocumentStub = sandbox.stub(vscode.workspace, "openTextDocument").resolves();
       sandbox.stub(globalVariables, "context").value({ extensionPath: "" });
     });
     afterEach(() => {
       sandbox.restore();
     });
-    it("show changelog notification happy path", async () => {
-      const contextSpy = sandbox.spy(context.globalState, "update");
-      sandbox.stub(context.globalState, "get").returns("4.99.0");
+    it("show changelog notification when user has upgraded from previous version", async () => {
+      const stateUpdateSpy = sandbox.spy(context.globalState, "update");
+      sandbox.stub(context.globalState, "get").returns("6.0.0");
       let title = "";
       sandbox
         .stub(vscode.window, "showInformationMessage")
@@ -80,35 +82,37 @@ describe("Release Note", () => {
       const instance = new ReleaseNote(context);
       await instance.show();
       chai.assert(title === "Changelog");
-      chai.assert(contextSpy.callCount == 2);
+      chai.assert(stateUpdateSpy.callCount == 2);
+      chai.assert(openDocumentStub.calledOnce);
       chai.assert(telemetryStub.calledWith("show-what-is-new-notification"));
     });
     it("should not show changelog if button is not clicked", async () => {
-      const contextSpy = sandbox.spy(context.globalState, "update");
-      sandbox.stub(context.globalState, "get").returns("4.99.0");
+      const stateUpdateSpy = sandbox.spy(context.globalState, "update");
+      sandbox.stub(context.globalState, "get").returns("6.0.0");
       sandbox.stub(vscode.window, "showInformationMessage").resolves(undefined);
       const instance = new ReleaseNote(context);
       await instance.show();
-      chai.assert(contextSpy.callCount == 2);
+      chai.assert(stateUpdateSpy.callCount == 2);
       chai.assert(telemetryStub.calledOnce);
+      chai.assert(openDocumentStub.notCalled);
     });
     it("should not show changelog when version is not changed", async () => {
-      const contextSpy = sandbox.spy(context.globalState, "update");
-      sandbox.stub(context.globalState, "get").returns("5.0.0");
+      const stateUpdateSpy = sandbox.spy(context.globalState, "update");
+      sandbox.stub(context.globalState, "get").returns("6.2.0");
       sandbox.stub(vscode.window, "showInformationMessage").resolves();
       const instance = new ReleaseNote(context);
       await instance.show();
-      sinon.assert.calledOnce(contextSpy);
+      chai.assert(stateUpdateSpy.calledOnce);
       chai.assert(telemetryStub.notCalled);
+      chai.assert(openDocumentStub.notCalled);
     });
-    it("should not show changelog when it's a fresh install", async () => {
-      const contextSpy = sandbox.spy(context.globalState, "update");
+    it("should show changelog when it's a fresh install", async () => {
+      const stateUpdateSpy = sandbox.spy(context.globalState, "update");
       sandbox.stub(context.globalState, "get").returns(undefined);
-      sandbox.stub(vscode.window, "showInformationMessage").resolves();
+      const showInformationStub = sandbox.stub(vscode.window, "showInformationMessage").resolves();
       const instance = new ReleaseNote(context);
       await instance.show();
-      sinon.assert.calledOnce(contextSpy);
-      chai.assert(telemetryStub.notCalled);
+      chai.assert(showInformationStub.calledOnce);
     });
   });
 

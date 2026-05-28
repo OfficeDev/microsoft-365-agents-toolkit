@@ -10,7 +10,7 @@ import { RecommendedOperations } from "../debug/common/debugConstants";
 import { isLoginFailureError, showError, wrapError } from "../error/common";
 import { ExtensionErrors, ExtensionSource } from "../error/error";
 import { TreatmentVariableValue } from "../exp/treatmentVariables";
-import { core } from "../globalVariables";
+import { core, workspaceUri } from "../globalVariables";
 import { ExtTelemetry } from "../telemetry/extTelemetry";
 import {
   TelemetryEvent,
@@ -21,6 +21,7 @@ import { checkCoreNotEmpty } from "../utils/commonUtils";
 import { localize } from "../utils/localizeUtils";
 import { getSystemInputs } from "../utils/systemEnvUtils";
 import { getTeamsAppTelemetryInfoByEnv } from "../utils/telemetryUtils";
+import * as vscode from "vscode";
 
 export async function runCommand(
   stage: Stage,
@@ -43,7 +44,18 @@ export async function runCommand(
     switch (stage) {
       case Stage.create: {
         inputs.projectId = inputs.projectId ?? uuid.v4();
+        inputs["mcp-da-available-tools"] = vscode.lm.tools;
         const tmpResult = await core.createProject(inputs);
+        if (tmpResult.isErr()) {
+          result = err(tmpResult.error);
+        } else {
+          result = ok(tmpResult.value);
+        }
+        break;
+      }
+      case Stage.createTdp: {
+        inputs.projectId = inputs.projectId ?? uuid.v4();
+        const tmpResult = await core.createProjectFromTdp(inputs);
         if (tmpResult.isErr()) {
           result = err(tmpResult.error);
         } else {
@@ -77,8 +89,20 @@ export async function runCommand(
         result = await core.buildAadManifest(inputs);
         break;
       }
+      case Stage.ConvertAadToNewSchema: {
+        result = await core.convertAadToNewSchema(inputs);
+        break;
+      }
       case Stage.publish: {
         result = await core.publishApplication(inputs);
+        break;
+      }
+      case Stage.share: {
+        result = await core.shareApplication(inputs);
+        break;
+      }
+      case Stage.shareRemove: {
+        result = await core.removeSharedAccess(inputs);
         break;
       }
       case Stage.debug: {
@@ -122,8 +146,32 @@ export async function runCommand(
         result = await core.addPlugin(inputs);
         break;
       }
-      case Stage.kiotaRegenerate: {
-        result = await core.kiotaRegenerate(inputs);
+      case Stage.metaOSExtendToDA: {
+        result = await core.metaOSExtendToDA(inputs, workspaceUri!.fsPath);
+        break;
+      }
+      case Stage.RegeneratePlugin: {
+        result = await core.regeneratePlugin(inputs);
+        break;
+      }
+      case Stage.addAuthAction: {
+        result = await core.addAuthAction(inputs);
+        break;
+      }
+      case Stage.addKnowledge: {
+        result = await core.addKnowledge(inputs);
+        break;
+      }
+      case Stage.setSensitivityLabel: {
+        result = await core.setSensitivityLabel(inputs);
+        break;
+      }
+      case Stage.installApp: {
+        result = await core.installAppToChannel(inputs);
+        break;
+      }
+      case Stage.updateActionWithMCP: {
+        result = await core.updateActionWithMCP(inputs);
         break;
       }
       default:

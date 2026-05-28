@@ -65,6 +65,15 @@ describe("SharedOpts", () => {
       chai.assert.isTrue(sendTelemetryEvent.args[0][1]!["new-project-id"] != undefined);
     });
 
+    it("metaOSExtendToDA", async () => {
+      sandbox.stub(globalVariables, "core").value(new MockCore());
+      sandbox.stub(globalVariables, "workspaceUri").value(vscode.Uri.file("path"));
+      const metaOSExtendToDA = sandbox.spy(globalVariables.core, "metaOSExtendToDA");
+
+      await runCommand(Stage.metaOSExtendToDA);
+      sinon.assert.calledOnce(metaOSExtendToDA);
+    });
+
     it("provisionResources", async () => {
       sandbox.stub(globalVariables, "core").value(new MockCore());
       const provisionResources = sandbox.spy(globalVariables.core, "provisionResources");
@@ -201,6 +210,34 @@ describe("SharedOpts", () => {
 
       await runCommand(Stage.syncManifest);
       sinon.assert.calledOnce(syncManifest);
+    });
+    it("setSensitivityLabel", async () => {
+      sandbox.stub(globalVariables, "core").value(new MockCore());
+      const setSensitivityLabel = sandbox.spy(globalVariables.core, "setSensitivityLabel");
+      sandbox.stub(vscode.commands, "executeCommand");
+      await runCommand(Stage.setSensitivityLabel);
+      sinon.assert.calledOnce(setSensitivityLabel);
+    });
+    it("share", async () => {
+      sandbox.stub(globalVariables, "core").value(new MockCore());
+      const shareApplication = sandbox.spy(globalVariables.core, "shareApplication");
+      sandbox.stub(vscode.commands, "executeCommand");
+      await runCommand(Stage.share);
+      sinon.assert.calledOnce(shareApplication);
+    });
+    it("shareRemove", async () => {
+      sandbox.stub(globalVariables, "core").value(new MockCore());
+      const removeSharedAccess = sandbox.spy(globalVariables.core, "removeSharedAccess");
+      sandbox.stub(vscode.commands, "executeCommand");
+      await runCommand(Stage.shareRemove);
+      sinon.assert.calledOnce(removeSharedAccess);
+    });
+    it("installApp", async () => {
+      sandbox.stub(globalVariables, "core").value(new MockCore());
+      const installAppStub = sandbox.spy(globalVariables.core, "installAppToChannel");
+      sandbox.stub(vscode.commands, "executeCommand");
+      await runCommand(Stage.installApp);
+      sinon.assert.calledOnce(installAppStub);
     });
   });
 

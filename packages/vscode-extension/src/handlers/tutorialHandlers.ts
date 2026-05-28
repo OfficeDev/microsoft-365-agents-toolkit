@@ -2,14 +2,17 @@
 // Licensed under the MIT license.
 
 import {
-  Result,
   FxError,
+  OptionItem,
+  Platform,
+  Result,
   SingleSelectConfig,
   StaticOptions,
   err,
-  OptionItem,
   ok,
 } from "@microsoft/teamsfx-api";
+import { getDefaultTemplatesOnPlatform } from "@microsoft/teamsfx-core/build/component/generator/templates/metadata";
+import { PanelType } from "../controls/PanelType";
 import { WebviewPanel } from "../controls/webviewPanel";
 import { TreatmentVariableValue } from "../exp/treatmentVariables";
 import { isSPFxProject } from "../globalVariables";
@@ -22,7 +25,6 @@ import {
 } from "../telemetry/extTelemetryEvents";
 import { localize } from "../utils/localizeUtils";
 import { getTriggerFromProperty } from "../utils/telemetryUtils";
-import { PanelType } from "../controls/PanelType";
 
 export async function selectTutorialsHandler(
   ...args: unknown[]
@@ -324,17 +326,23 @@ export function openTutorialHandler(args?: any[]): Promise<Result<unknown, FxErr
     // should never happen
     return Promise.resolve(ok(null));
   }
-  const tutorial = args[1] as OptionItem;
+  const option = args[1] as OptionItem;
   ExtTelemetry.sendTelemetryEvent(TelemetryEvent.OpenTutorial, {
     ...getTriggerFromProperty(args),
-    [TelemetryProperty.TutorialName]: tutorial.id,
+    [TelemetryProperty.TutorialName]: option.id,
   });
   if (
     TreatmentVariableValue.inProductDoc &&
-    (tutorial.id === "cardActionResponse" || tutorial.data === "cardActionResponse")
+    (option.id === "cardActionResponse" || option.data === "cardActionResponse")
   ) {
     WebviewPanel.createOrShow(PanelType.RespondToCardActions);
     return Promise.resolve(ok(null));
   }
-  return VS_CODE_UI.openUrl(tutorial.data as string);
+  // find help link from template metadata
+  const templates = getDefaultTemplatesOnPlatform(Platform.VSCode);
+  const template = templates.find((t) => t.name === option.data);
+  if (template?.link) {
+    return VS_CODE_UI.openUrl(template.link);
+  }
+  return VS_CODE_UI.openUrl(option.data as string);
 }

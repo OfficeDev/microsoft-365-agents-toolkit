@@ -33,4 +33,22 @@ describe("CommandsTreeViewProvider", () => {
     chai.assert.equal(commands.length, 1);
     chai.assert.equal(commands[0].label, "test");
   });
+
+  it("accessibility tests", async () => {
+    const provider = new CommandsTreeViewProvider([]);
+    const command = new TreeViewCommand("testLabel", "testTooltip");
+    let treeItem = provider.getTreeItem(command);
+
+    chai.assert.equal(treeItem.accessibilityInformation?.label, "testLabel. testTooltip");
+
+    command.label = undefined;
+    command.tooltip = undefined;
+    treeItem = provider.getTreeItem(command);
+    chai.assert.equal(treeItem.accessibilityInformation?.label, ".");
+
+    command.label = { label: "testLabel" };
+    command.tooltip = { value: "testTooltip" } as any;
+    treeItem = provider.getTreeItem(command);
+    chai.assert.equal(treeItem.accessibilityInformation?.label, "testLabel. testTooltip");
+  });
 });

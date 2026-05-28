@@ -1,8 +1,5 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
-/* eslint-disable @typescript-eslint/no-empty-function */
-
-/* eslint-disable @typescript-eslint/no-empty-function */
 
 "use strict";
 
@@ -17,23 +14,17 @@ import {
   Result,
   ok,
   err,
-} from "@microsoft/teamsfx-api";
-import { ExtensionErrors } from "../error/error";
-import { LoginFailureError } from "./codeFlowLogin";
-import * as vscode from "vscode";
-import {
-  azureCacheName,
-  loggedIn,
-  loggedOut,
-  loggingIn,
   signedIn,
   signedOut,
-  signingIn,
-} from "./common/constant";
+} from "@microsoft/teamsfx-api";
+import { ExtensionErrors } from "../error/error";
+import { ConvertTokenToJson, LoginFailureError } from "./codeFlowLogin";
+import * as vscode from "vscode";
+import { azureCacheName, loggedIn, loggedOut, loggingIn, signingIn } from "./common/constant";
 import { login, LoginStatus } from "./common/login";
 import * as util from "util";
 import { ExtTelemetry } from "../telemetry/extTelemetry";
-import VsCodeLogInstance from "./log";
+import VsCodeLogInstance, { VsCodeLogProvider } from "./log";
 import {
   TelemetryEvent,
   TelemetryProperty,
@@ -56,6 +47,7 @@ import {
   getSessionFromVSCode,
 } from "./vscodeAzureSubscriptionProvider";
 import { loadTenantId, saveTenantId } from "./cacheAccess";
+import { getUsernameFromClaims } from "./accountInfoUtils";
 
 const showAzureSignOutHelp = "ShowAzureSignOutHelp";
 
@@ -88,30 +80,28 @@ export class AzureAccountManager extends login implements AzureAccountProvider {
   /**
    * Async get identity [crendential](https://github.com/Azure/azure-sdk-for-js/blob/master/sdk/core/core-auth/src/tokenCredential.ts)
    */
-  async getIdentityCredentialAsync(showDialog = true): Promise<TokenCredential | undefined> {
-    if (featureFlagManager.getBooleanValue(FeatureFlags.MultiTenant)) {
-      const tenantId = await loadTenantId(azureCacheName);
-      if (await this.isUserLogin(tenantId)) {
-        const res = await this.getIdentityCredentialSilently(tenantId);
-        if (res.isOk()) {
-          return res.value;
-        } else {
-          return undefined;
-        }
+  async getIdentityCredentialAsync(
+    showDialog = true,
+    authenticationSessionRequest?: vscode.AuthenticationWwwAuthenticateRequest
+  ): Promise<TokenCredential | undefined> {
+    const tenantId = await loadTenantId(azureCacheName);
+    if (await this.isUserLogin(tenantId)) {
+      const res = await this.getIdentityCredentialSilently(tenantId, authenticationSessionRequest);
+      if (res.isOk()) {
+        return res.value;
       } else {
-        return await this.login(showDialog, tenantId);
+        return undefined;
       }
     } else {
-      if (await this.isUserLogin()) {
-        return this.doGetIdentityCredentialAsync();
-      }
-      await this.login(showDialog);
-      return this.doGetIdentityCredentialAsync();
+      return await this.login(showDialog, tenantId);
     }
   }
 
   private async isUserLogin(tenantId?: string): Promise<boolean> {
-    const session = await getSessionFromVSCode(AzureScopes, tenantId, {
+    if (!tenantId) {
+      tenantId = await loadTenantId(azureCacheName);
+    }
+    const session = await getSessionFromVSCode(AzureScopes(), tenantId, {
       createIfNone: false,
       silent: true,
     });
@@ -134,11 +124,14 @@ export class AzureAccountManager extends login implements AzureAccountProvider {
 
     ExtTelemetry.sendTelemetryEvent(TelemetryEvent.LoginStart, {
       [TelemetryProperty.AccountType]: AccountType.Azure,
+      [TelemetryProperty.SovereignCloudType]: featureFlagManager.getStringValue(
+        FeatureFlags.SovereignCloudEnvironment
+      ),
     });
     try {
       AzureAccountManager.currentStatus = loggingIn;
       void this.notifyStatus();
-      const session = await getSessionFromVSCode(AzureScopes, tenantId, { createIfNone: true });
+      const session = await getSessionFromVSCode(AzureScopes(), tenantId, { createIfNone: true });
       if (session === undefined) {
         throw new UserError(
           getDefaultString("teamstoolkit.codeFlowLogin.loginComponent"),
@@ -159,9 +152,16 @@ export class AzureAccountManager extends login implements AzureAccountProvider {
             }
           });
       }
-      if (featureFlagManager.getBooleanValue(FeatureFlags.MultiTenant)) {
-        await saveTenantId(azureCacheName, session.id.split("/")[0]);
-      }
+      await saveTenantId(azureCacheName, (ConvertTokenToJson(session.accessToken) as any).tid);
+
+      ExtTelemetry.sendTelemetryEvent(TelemetryEvent.Login, {
+        [TelemetryProperty.AccountType]: AccountType.Azure,
+        [TelemetryProperty.SovereignCloudType]: featureFlagManager.getStringValue(
+          FeatureFlags.SovereignCloudEnvironment
+        ),
+        [TelemetryProperty.Success]: TelemetrySuccess.Yes,
+      });
+
       const credential: TokenCredential = {
         // eslint-disable-next-line @typescript-eslint/require-await
         getToken: async () => {
@@ -171,8 +171,22 @@ export class AzureAccountManager extends login implements AzureAccountProvider {
           };
         },
       };
+      AzureAccountManager.currentStatus = loggedIn;
+      void this.notifyStatus();
+
       return credential;
     } catch (e) {
+      ExtTelemetry.sendTelemetryErrorEvent(TelemetryEvent.Login, e, {
+        [TelemetryProperty.AccountType]: AccountType.Azure,
+        [TelemetryProperty.SovereignCloudType]: featureFlagManager.getStringValue(
+          FeatureFlags.SovereignCloudEnvironment
+        ),
+        [TelemetryProperty.Success]: TelemetrySuccess.No,
+        [TelemetryProperty.ErrorType]:
+          e instanceof UserError ? TelemetryErrorType.UserError : TelemetryErrorType.SystemError,
+        [TelemetryProperty.ErrorCode]: `${e.source as string}.${e.name as string}`,
+        [TelemetryProperty.ErrorMessage]: `${e.message as string}`,
+      });
       AzureAccountManager.currentStatus = loggedOut;
       void this.notifyStatus();
       if (e?.message.includes("User did not consent ")) {
@@ -189,7 +203,9 @@ export class AzureAccountManager extends login implements AzureAccountProvider {
     }
   }
 
-  private async doGetIdentityCredentialAsync(): Promise<TokenCredential | undefined> {
+  private async doGetIdentityCredentialAsync(
+    showDialog?: boolean
+  ): Promise<TokenCredential | undefined> {
     const tokenCredential = await this.doGetAccountCredentialAsync();
     if (tokenCredential) {
       return tokenCredential;
@@ -212,7 +228,7 @@ export class AzureAccountManager extends login implements AzureAccountProvider {
         }
         return subs[0].credential;
       } else {
-        const session = await getSessionFromVSCode(AzureScopes, undefined, {
+        const session = await getSessionFromVSCode(AzureScopes(), undefined, {
           createIfNone: false,
           silent: true,
         });
@@ -232,12 +248,19 @@ export class AzureAccountManager extends login implements AzureAccountProvider {
   }
 
   private async getIdentityCredentialSilently(
-    tenantId?: string
+    tenantId?: string,
+    authenticationSessionRequest?: vscode.AuthenticationWwwAuthenticateRequest
   ): Promise<Result<TokenCredential, FxError>> {
-    const session = await getSessionFromVSCode(AzureScopes, tenantId, {
-      createIfNone: false,
-      silent: true,
-    });
+    const session = await getSessionFromVSCode(
+      authenticationSessionRequest ?? AzureScopes(),
+      tenantId,
+      authenticationSessionRequest
+        ? { createIfNone: true, silent: false }
+        : {
+            createIfNone: false,
+            silent: true,
+          }
+    );
     if (!session) {
       return err(LoginFailureError());
     }
@@ -280,7 +303,7 @@ export class AzureAccountManager extends login implements AzureAccountProvider {
 
   private async doesUserConfirmSignout(): Promise<boolean> {
     const accountInfo = (await this.getStatus()).accountInfo;
-    const email = (accountInfo as any).upn ? (accountInfo as any).upn : (accountInfo as any).email;
+    const email = getUsernameFromClaims(accountInfo as Record<string, unknown>);
     const confirm = localize("teamstoolkit.common.signout");
     const userSelected: string | undefined = await vscode.window.showInformationMessage(
       util.format(localize("teamstoolkit.common.signOutOf"), email),
@@ -292,7 +315,7 @@ export class AzureAccountManager extends login implements AzureAccountProvider {
 
   async getJsonObject(showDialog = true): Promise<Record<string, unknown> | undefined> {
     const credential = await this.getIdentityCredentialAsync(showDialog);
-    const token = await credential?.getToken("https://management.core.windows.net/.default");
+    const token = await credential?.getToken(AzureScopes());
     if (token) {
       const array = token.token.split(".");
       const buff = Buffer.from(array[1], "base64");
@@ -444,7 +467,7 @@ export class AzureAccountManager extends login implements AzureAccountProvider {
       }
       if (AzureAccountManager.currentStatus === loggedIn || (await this.isUserLogin())) {
         const credential = await this.doGetIdentityCredentialAsync();
-        const token = await credential?.getToken(AzureScopes);
+        const token = await credential?.getToken(AzureScopes());
         const accountJson = await this.getJsonObject();
         return Promise.resolve({
           status: signedIn,
@@ -460,7 +483,6 @@ export class AzureAccountManager extends login implements AzureAccountProvider {
     }
   }
 
-  // eslint-disable-next-line @typescript-eslint/require-await
   async addStatusChangeEvent() {
     if (await this.isUserLogin()) {
       AzureAccountManager.currentStatus = loggedIn;
@@ -523,6 +545,9 @@ export class AzureAccountManager extends login implements AzureAccountProvider {
   async selectSubscription(): Promise<void> {
     const subscriptionList = await this.listSubscriptions();
     if (!subscriptionList || subscriptionList.length == 0) {
+      VsCodeLogProvider.getInstance().error(
+        "No subscription found with this tenant. Hover over your Azure account and click 'Switch' to change tenants."
+      );
       throw new UserError(
         getDefaultString("teamstoolkit.codeFlowLogin.loginComponent"),
         getDefaultString("teamstoolkit.azureLogin.noSubscriptionFound"),

@@ -27,6 +27,8 @@ import {
   loadingDefaultPlaceholder,
   loadingOptionsPlaceholder,
   maskSecret,
+  featureFlagManager,
+  FeatureFlags,
 } from "@microsoft/teamsfx-core";
 import { InternalUIError, Localizer, sleep, VSCodeUI } from "@microsoft/vscode-ui";
 import * as packageJson from "../../package.json";
@@ -39,8 +41,6 @@ import {
   TelemetryProperty,
 } from "../telemetry/extTelemetryEvents";
 import { diagnosticCollection, setDiagnosticCollection } from "../globalVariables";
-import { featureFlagManager } from "@microsoft/teamsfx-core";
-import { FeatureFlags } from "@microsoft/teamsfx-core";
 
 export class TTKLocalizer implements Localizer {
   invalidInputErrorMessage?(name: string, reason: string): string {

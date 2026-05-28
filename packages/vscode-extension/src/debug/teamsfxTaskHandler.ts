@@ -1,11 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import path from "path";
-import { performance } from "perf_hooks";
-import * as util from "util";
-import * as vscode from "vscode";
-
 import { ProductName, UserError } from "@microsoft/teamsfx-api";
 import {
   Correlator,
@@ -14,18 +9,23 @@ import {
   isValidProject,
   TaskCommand,
 } from "@microsoft/teamsfx-core";
-
+import path from "path";
+import { performance } from "perf_hooks";
+import * as util from "util";
+import * as vscode from "vscode";
 import VsCodeLogInstance from "../commonlib/log";
 import { ExtensionErrors, ExtensionSource } from "../error/error";
-import { VS_CODE_UI } from "../qm/vsc_ui";
 import * as globalVariables from "../globalVariables";
+import { cdpClientManager, isM365CopilotChatDebugConfiguration } from "../pluginDebugger/cdpClient";
+import { VS_CODE_UI } from "../qm/vsc_ui";
 import {
   TelemetryEvent,
   TelemetryMeasurements,
   TelemetryProperty,
 } from "../telemetry/extTelemetryEvents";
-import { localize } from "../utils/localizeUtils";
 import { getNpmInstallLogInfo, getTestToolLogInfo } from "../utils/localEnvManagerUtils";
+import { localize } from "../utils/localizeUtils";
+import { processUtil } from "../utils/processUtil";
 import {
   clearAADAfterLocalDebugHelpLink,
   DebugNoSessionId,
@@ -33,20 +33,18 @@ import {
   issueChooseLink,
   issueLink,
   issueTemplate,
-  m365AppsPrerequisitesHelpLink,
 } from "./common/debugConstants";
-import { localTelemetryReporter, sendDebugAllEvent } from "./localTelemetryReporter";
-import { BaseTunnelTaskTerminal } from "./taskTerminal/baseTunnelTaskTerminal";
-import { TeamsfxDebugConfiguration } from "./common/teamsfxDebugConfiguration";
 import { allRunningTeamsfxTasks } from "./common/globalVariables";
 import {
-  getLocalDebugSession,
   endLocalDebugSession,
+  getLocalDebugSession,
   getLocalDebugSessionId,
 } from "./common/localDebugSession";
-import { allRunningDebugSessions } from "./officeTaskHandler";
+import { TeamsfxDebugConfiguration } from "./common/teamsfxDebugConfiguration";
 import { deleteAad } from "./deleteAadHelper";
-import { processUtil } from "../utils/processUtil";
+import { localTelemetryReporter, sendDebugAllEvent } from "./localTelemetryReporter";
+import { allRunningDebugSessions } from "./officeTaskHandler";
+import { BaseTunnelTaskTerminal } from "./taskTerminal/baseTunnelTaskTerminal";
 
 class NpmInstallTaskInfo {
   private startTime: number;
@@ -143,9 +141,13 @@ function isTeamsfxTask(task: vscode.Task): boolean {
       const execution = <vscode.ShellExecution>task.execution;
       commandLine =
         execution.commandLine ||
-        `${typeof execution.command === "string" ? execution.command : execution.command.value} ${(
-          execution.args || []
-        ).join(" ")}`;
+        `${
+          execution.command
+            ? typeof execution.command === "string"
+              ? execution.command
+              : execution.command.value
+            : ""
+        } ${(execution.args || []).join(" ")}`;
     }
     if (commandLine !== undefined) {
       if (/(npm|yarn)[\s]+(run )?[\s]*[^:\s]+:teamsfx/i.test(commandLine)) {
@@ -170,10 +172,18 @@ function isLaunchTestToolTask(task: vscode.Task): boolean {
       const execution = <vscode.ShellExecution>task.execution;
       const commandLine =
         execution.commandLine ||
-        `${typeof execution.command === "string" ? execution.command : execution.command.value} ${(
-          execution.args || []
-        ).join(" ")}`;
-      if (/(npm|yarn)[\s]+(run )?[\s]*[^:\s]+:teamsfx:launch-testtool/i.test(commandLine)) {
+        `${
+          execution.command
+            ? typeof execution.command === "string"
+              ? execution.command
+              : execution.command.value
+            : ""
+        } ${(execution.args || []).join(" ")}`;
+      if (
+        /(npm|yarn)[\s]+(run )?[\s]*[^:\s]+:teamsfx:(launch-testtool|launch-playground)/i.test(
+          commandLine
+        )
+      ) {
         return true;
       }
     }
@@ -453,6 +463,12 @@ async function onDidEndTaskProcessHandler(event: vscode.TaskProcessEndEvent): Pr
 }
 
 async function onDidStartDebugSessionHandler(event: vscode.DebugSession): Promise<void> {
+  const port = isM365CopilotChatDebugConfiguration(event.configuration);
+  if (port) {
+    const url = event.configuration.url;
+    const name = event.configuration.name;
+    await cdpClientManager.start(url, port, name);
+  }
   if (globalVariables.workspaceUri && isValidProject(globalVariables.workspaceUri.fsPath)) {
     const debugConfig = event.configuration as TeamsfxDebugConfiguration;
     if (
@@ -462,25 +478,6 @@ async function onDidStartDebugSessionHandler(event: vscode.DebugSession): Promis
       !debugConfig.postRestartTask
     ) {
       allRunningDebugSessions.add(event.id);
-
-      // show M365 tenant hint message for Outlook and Office
-      if (debugConfig.teamsfxHub === Hub.outlook || debugConfig.teamsfxHub === Hub.office) {
-        VS_CODE_UI.showMessage(
-          "info",
-          localize("teamstoolkit.localDebug.m365TenantHintMessage"),
-          false,
-          localize("teamstoolkit.localDebug.learnMore")
-        ).then(
-          async (result) => {
-            if (result.isOk() && result.value === localize("teamstoolkit.localDebug.learnMore")) {
-              await VS_CODE_UI.openUrl(m365AppsPrerequisitesHelpLink);
-            }
-          },
-          () => {
-            // Do nothing on reject
-          }
-        );
-      }
 
       // and not a restart one
       // send f5 event telemetry
@@ -540,11 +537,15 @@ export async function terminateAllRunningTeamsfxTasks(): Promise<void> {
     }
   }
   allRunningTeamsfxTasks.clear();
-  BaseTunnelTaskTerminal.stopAll();
   void deleteAad();
+  BaseTunnelTaskTerminal.stopAll();
 }
 
 async function onDidTerminateDebugSessionHandler(event: vscode.DebugSession): Promise<void> {
+  const port = isM365CopilotChatDebugConfiguration(event.configuration);
+  if (port) {
+    await cdpClientManager.stop(port);
+  }
   if (allRunningDebugSessions.has(event.id)) {
     // a valid debug session
     // send stop-debug event telemetry

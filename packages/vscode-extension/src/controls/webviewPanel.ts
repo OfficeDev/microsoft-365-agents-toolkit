@@ -24,8 +24,8 @@ import {
   TelemetryProperty,
   TelemetryTriggerFrom,
 } from "../telemetry/extTelemetryEvents";
-import { getTriggerFromProperty, isTriggerFromWalkThrough } from "../utils/telemetryUtils";
 import { localize } from "../utils/localizeUtils";
+import { getTriggerFromProperty, isTriggerFromWalkThrough } from "../utils/telemetryUtils";
 import { compare } from "../utils/versionUtil";
 import { Commands } from "./Commands";
 import { PanelType } from "./PanelType";
@@ -146,7 +146,6 @@ export class WebviewPanel {
             });
             break;
           case Commands.DisplayCommands:
-            // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
             await vscode.commands.executeCommand("workbench.action.quickOpen", `>${msg.data}`);
             break;
           case Commands.CreateNewProject:
@@ -185,6 +184,12 @@ export class WebviewPanel {
           case Commands.InvokeTeamsAgent:
             await vscode.commands.executeCommand(
               "fx-extension.invokeChat",
+              TelemetryTriggerFrom.Webview
+            );
+            break;
+          case Commands.InvokeTeamsAgentWIthPreviewTag:
+            await vscode.commands.executeCommand(
+              "fx-extension.invokeChatWithPreviewTag",
               TelemetryTriggerFrom.Webview
             );
             break;
@@ -265,6 +270,7 @@ export class WebviewPanel {
     }
     if (this.panel && this.panel.webview) {
       let readme = this.replaceRelativeImagePaths(htmlContent, sample);
+      readme = this.replaceRelativeMarkdownPaths(readme, sample);
       readme = this.replaceMermaidRelatedContent(readme);
       readme = this.addTabIndex(readme);
       await this.panel.webview.postMessage({
@@ -286,7 +292,9 @@ export class WebviewPanel {
     const urlInfo = sample.downloadUrlInfo;
     const imageUrl = `https://github.com/${urlInfo.owner}/${urlInfo.repository}/blob/${urlInfo.ref}/${urlInfo.dir}/`;
     const imageRegex = /img\s+src="(?!https:\/\/camo\.githubusercontent\.com\/.)([^"]+)"/gm;
-    return htmlContent.replace(imageRegex, `img src="${imageUrl}$1?raw=1"`);
+    const newContent = htmlContent.replace(imageRegex, `img src="${imageUrl}$1?raw=1"`);
+    const hrefRegex = /href="([^"]+\.(jpg|png|gif|jpeg))"/gm;
+    return newContent.replace(hrefRegex, `href="${imageUrl}$1"`);
   }
 
   private replaceMermaidRelatedContent(htmlContent: string): string {
@@ -294,6 +302,14 @@ export class WebviewPanel {
     const loaderRegex = /<span(.*)>\s.*\s*<circle(.*)<\/circle>\s.*<\/path>\s.*\s*<\/span>/gm;
     const loaderRemovedHtmlContent = htmlContent.replace(loaderRegex, "");
     return loaderRemovedHtmlContent.replace(mermaidRegex, `<pre class="mermaid"`);
+  }
+
+  private replaceRelativeMarkdownPaths(htmlContent: string, sample: SampleConfig) {
+    const markdownRegex = /a\shref="([\.\-_/\\\w]*\.md)"/g;
+    const urlInfo = sample.downloadUrlInfo;
+    const markdownUrl = `https://github.com/${urlInfo.owner}/${urlInfo.repository}/tree/${urlInfo.ref}/${urlInfo.dir}`;
+    const result = htmlContent.replace(markdownRegex, `a href="${markdownUrl}/$1"`);
+    return result;
   }
 
   private addTabIndex(htmlContent: string): string {
@@ -340,6 +356,9 @@ export class WebviewPanel {
     );
 
     const allowChat = featureFlagManager.getBooleanValue(FeatureFlags.ChatParticipantUIEntries);
+    const shouldHideTeamsAgentPreviewTag = featureFlagManager.getBooleanValue(
+      FeatureFlags.HideGitHubCopilotPreviewTag
+    );
 
     // Use a nonce to to only allow specific scripts to be run
     const nonce = this.getNonce();
@@ -359,6 +378,9 @@ export class WebviewPanel {
               const vscode = acquireVsCodeApi();
               const panelType = '${panelType}';
               const shouldShowChat = '${allowChat ? "true" : "false"}';
+              const shouldHideTeamsAgentPreviewTag = '${
+                shouldHideTeamsAgentPreviewTag ? "true" : "false"
+              }';
             </script>
             <script nonce="${nonce}" type="module" src="${scriptUri.toString()}"></script>
             <script nonce="${nonce}" type="text/javascript" src="${dompurifyUri.toString()}"></script>

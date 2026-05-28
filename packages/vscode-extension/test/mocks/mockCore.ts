@@ -20,9 +20,22 @@ export class MockCore {
   async createProject(inputs: Inputs): Promise<Result<CreateProjectResult, FxError>> {
     return ok({ projectPath: "" });
   }
+
+  async createProjectFromTdp(inputs: Inputs): Promise<Result<CreateProjectResult, FxError>> {
+    return ok({ projectPath: "" });
+  }
+
   async createSampleProject(inputs: Inputs): Promise<Result<CreateProjectResult, FxError>> {
     return ok({ projectPath: "" });
   }
+
+  async metaOSExtendToDA(
+    inputs: Inputs,
+    workDir: string
+  ): Promise<Result<undefined | any, FxError>> {
+    return ok(undefined);
+  }
+
   async provisionResources(inputs: Inputs): Promise<Result<undefined, FxError>> {
     return ok(undefined);
   }
@@ -105,6 +118,10 @@ export class MockCore {
   async buildAadManifest(inputs: Inputs): Promise<Result<undefined, FxError>> {
     return ok(undefined);
   }
+  async convertAadToNewSchema(inputs: Inputs): Promise<Result<undefined, FxError>> {
+    return ok(undefined);
+  }
+
   async getProjectId(projectPath: string): Promise<Result<string, FxError>> {
     return ok("");
   }
@@ -115,6 +132,18 @@ export class MockCore {
     return ok(undefined);
   }
   async syncManifest(inputs: Inputs): Promise<Result<undefined, FxError>> {
+    return ok(undefined);
+  }
+  async setSensitivityLabel(inputs: Inputs): Promise<Result<undefined, FxError>> {
+    return ok(undefined);
+  }
+  async shareApplication(inputs: Inputs): Promise<Result<undefined, FxError>> {
+    return ok(undefined);
+  }
+  async removeSharedAccess(inputs: Inputs): Promise<Result<undefined, FxError>> {
+    return ok(undefined);
+  }
+  async installAppToChannel(inputs: Inputs): Promise<Result<undefined, FxError>> {
     return ok(undefined);
   }
   async getProjectInfo(
@@ -156,7 +185,11 @@ export class MockCore {
     return ok(undefined);
   }
 
-  async kiotaRegenerate(inputs: Inputs): Promise<Result<any, FxError>> {
+  async addAuthAction(inputs: Inputs): Promise<Result<any, FxError>> {
+    return ok(undefined);
+  }
+
+  async addKnowledge(inputs: Inputs): Promise<Result<any, FxError>> {
     return ok(undefined);
   }
 }

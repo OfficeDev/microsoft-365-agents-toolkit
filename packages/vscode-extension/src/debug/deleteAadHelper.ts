@@ -15,6 +15,10 @@ import { localize } from "../utils/localizeUtils";
 import { ExtTelemetry } from "../telemetry/extTelemetry";
 import { TelemetryEvent } from "../telemetry/extTelemetryEvents";
 import { FxError } from "@microsoft/teamsfx-api";
+import {
+  getResourceServiceEndpoint,
+  ResourceServiceType,
+} from "@microsoft/teamsfx-core/build/common/constants";
 
 const defaultNotificationLocalFile = ".notification.localstore.json";
 export async function deleteAad(): Promise<boolean> {
@@ -49,7 +53,7 @@ export async function deleteAad(): Promise<boolean> {
       ExtTelemetry.sendTelemetryEvent(TelemetryEvent.StartDeleteAadAfterDebug);
 
       const aadClient = axios.create({
-        baseURL: "https://graph.microsoft.com/v1.0",
+        baseURL: `${getResourceServiceEndpoint(ResourceServiceType.Graph)}/v1.0`,
       });
       aadClient.interceptors.request.use((config) => {
         config.headers["Authorization"] = `Bearer ${tokenRes.value}`;

@@ -1,10 +1,12 @@
-import { LogLevel } from "@microsoft/teamsfx-api";
+import { err, LogLevel, ok, UserError } from "@microsoft/teamsfx-api";
 import * as chai from "chai";
 import * as sinon from "sinon";
 import * as vscode from "vscode";
 import VsCodeLogInstance from "../../src/commonlib/log";
 import { configMgr } from "../../src/config";
 import { ExtTelemetry } from "../../src/telemetry/extTelemetry";
+import * as vsc_ui from "../../src/qm/vsc_ui";
+import * as lifecycleHandlers from "../../src/handlers/lifecycleHandlers";
 
 describe("configMgr", () => {
   const sanbox = sinon.createSandbox();

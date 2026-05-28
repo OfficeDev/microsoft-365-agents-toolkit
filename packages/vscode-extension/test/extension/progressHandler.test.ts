@@ -7,7 +7,6 @@ import * as chai from "chai";
 import { window } from "vscode";
 
 import { ProgressHandler } from "../../src/debug/progressHandler";
-import * as vsc_ui from "@microsoft/vscode-ui";
 import * as localizeUtils from "../../src/utils/localizeUtils";
 import * as vscodeMocks from "../mocks/vsc";
 
@@ -30,7 +29,6 @@ describe("ProgressHandler", () => {
         new vscodeMocks.CancellationToken()
       );
     });
-    sandbox.stub(vsc_ui, "sleep").callsFake(async () => {});
     sandbox.stub(localizeUtils, "localize").callsFake((key) => {
       if (key === "teamstoolkit.progressHandler.showOutputLink") {
         return "Check [output window](%s) for details.";

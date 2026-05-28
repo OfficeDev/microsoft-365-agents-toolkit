@@ -1,8 +1,8 @@
-# Prepare a Qualified Microsoft 365 Account for Teams App Development
+# Prepare a Qualified Microsoft 365 Account for App Development
 
 ## Account Requirements
 
-The following two conditions are required for Teams app development:
+The following two conditions are required for app development:
 
 1. The Microsoft 365 account should be your work or school account, not your personal account.
 2. The Microsoft 365 account needs permission to upload custom app in Teams.
@@ -24,9 +24,9 @@ For more information, visit the [Set up a developer subscription documentation](
 
 > Use the Administrator account (\*.onmicrosoft.com) email address to log in to your development environment.
 
-### Step 2. Use your development account in Teams Toolkit for Visual Studio Code
+### Step 2. Use your development account in Microsoft 365 Agents Toolkit for Visual Studio Code
 
-Open Teams Toolkit for Visual Studio Code and log into the Teams Toolkit extension using your developer account created in step 1.
+Open Microsoft 365 Agents Toolkit for Visual Studio Code and log into the Microsoft 365 Agents Toolkit extension using your developer account created in step 1.
 
 The permission to upload custom app is already set up.
 

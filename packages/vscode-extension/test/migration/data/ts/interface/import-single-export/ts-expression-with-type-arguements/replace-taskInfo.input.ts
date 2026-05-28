@@ -1,5 +1,4 @@
-import { TaskInfo } from "@microsoft/teams-js";
-import { TaskInfo as TaskInfoAlias } from "@microsoft/teams-js";
+import { TaskInfo, TaskInfo as TaskInfoAlias  } from "@microsoft/teams-js";
 
 interface ITestContext extends TaskInfo {
   x: number;

@@ -104,9 +104,3 @@ export async function getLaunchJSON(folder: string): Promise<string | undefined>
   }
   return undefined;
 }
-
-export function getWalkThroughId(): string {
-  return featureFlagManager.getBooleanValue(FeatureFlags.ChatParticipantUIEntries)
-    ? "TeamsDevApp.ms-teams-vscode-extension#teamsToolkitGetStartedWithChat"
-    : "TeamsDevApp.ms-teams-vscode-extension#teamsToolkitGetStarted";
-}

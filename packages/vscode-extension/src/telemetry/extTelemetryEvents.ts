@@ -2,6 +2,9 @@
 // Licensed under the MIT license.
 
 export enum TelemetryEvent {
+  UpdateActionWithMCPStart = "update-action-with-mcp-start",
+  UpdateActionWithMCP = "update-action-with-mcp",
+
   ManageAccount = "manage-account",
   CreateAccountStart = "create-account-start",
   CreateAccount = "create-account",
@@ -40,6 +43,15 @@ export enum TelemetryEvent {
   AddPluginStart = "add-plugin-start",
   AddPlugin = "add-plugin",
 
+  MetaOSExtendToDAStart = "meta-os-extend-to-da-start",
+  MetaOSExtendToDA = "meta-os-extend-to-da",
+
+  RegenerateActionStart = "regenerate-action-start",
+  RegenerateAction = "regenerate-action",
+
+  AddKnowledgeStart = "add-knowledge-start",
+  AddKnowledge = "add-knowledge",
+
   ValidateManifestStart = "validate-manifest-start",
   ValidateManifest = "validate-manifest",
   ValidateApplication = "validate-application",
@@ -48,6 +60,9 @@ export enum TelemetryEvent {
 
   UpdatePreviewManifestStart = "update-preview-manifest-start",
   UpdatePreviewManifest = "update-preview-manifest",
+
+  ConvertAadToNewSchemaStart = "convert-aad-to-new-schema-start",
+  ConvertAadToNewSchema = "convert-aad-to-new-schema",
 
   EditManifestTemplate = "edit-manifest-template",
   EditAadManifestTemplate = "edit-aad-manifest-template",
@@ -74,6 +89,12 @@ export enum TelemetryEvent {
 
   PublishStart = "publish-start",
   Publish = "publish",
+
+  ShareStart = "share-start",
+  Share = "share",
+
+  ShareRemoveStart = "share-remove-start",
+  ShareRemove = "share-remove",
 
   PublishInDeveloperPortalStart = "publish-in-developer-portal-start",
   PublishInDeveloperPortal = "publish-in-developer-portal",
@@ -139,6 +160,7 @@ export enum TelemetryEvent {
   DebugPrereqsCheckCert = "debug-prereqs-check-cert",
   DebugPrereqsCheckDependencies = "debug-prereqs-check-dependencies",
   DebugPrereqsCheckNpmInstall = "debug-prereqs-check-npm-install",
+  DebugPrereqsCheckSandbox = "debug-prereqs-check-sandbox",
   DebugPrereqsInstallPackages = "debug-prereqs-install-packages",
   DebugPreCheckCoreLocalDebug = "debug-precheck-core-local-debug",
   DebugTaskProvider = "debug-task-provider",
@@ -195,7 +217,8 @@ export enum TelemetryEvent {
   CheckPermissionStart = "check-permission-start",
   CheckPermission = "check-permission",
   OpenCopilotEnroll = "open-copilot-enroll",
-  OpenSideloadingLearnMore = "open-sideloading-learn-more",
+  OpenSideloadingEnable = "open-sideloading-learn-more",
+  OpenTestTenantLink = "open-test-tenant-link",
   OpenSignInJoinM365 = "open-sign-in-joinm365",
 
   ShowWhatIsNewNotification = "show-what-is-new-notification",
@@ -239,6 +262,7 @@ export enum TelemetryEvent {
   OpenFolder = "open-folder",
   ClickGetHelp = "click-get-help",
   MessageDebugInTestTool = "message-debugintesttool",
+  MessageDebugInSandbox = "message-debuginsandbox",
 
   // To track the event of opening in new window after creating a new project
   OpenNewProject = "open-new-project",
@@ -277,8 +301,24 @@ export enum TelemetryEvent {
 
   FindSimilarIssues = "find-similar-issues",
 
+  // Teams Github Copilot UI
   InvokeTeamsAgentStart = "invoke-teams-agent-start",
   InvokeTeamsAgent = "invoke-teams-agent",
+  TroubleshootSelectedTextStart = "troubleshoot-selected-text-start",
+  TroubleshootSelectedText = "troubleshoot-selected-text",
+  TroubleshootErrorFromNotificationStart = "troubleshoot-error-from-notification-start",
+  TroubleshootErrorFromNotification = "troubleshoot-error-from-notification",
+
+  OpenGitHubCopilotChatStart = "open-github-copilot-chat-start",
+  openGitHubCopilotChat = "open-github-copilot-chat",
+  InstallCopilotChatStart = "install-copilot-chat-start",
+  InstallCopilotChat = "install-copilot-chat",
+  OpenInstallTeamsAgentStart = "open-install-teams-agent-start",
+  OpenInstallTeamsAgent = "open-install-teams-agent",
+  MarkTeamsAgentInstallationDoneStart = "mark-teams-agent-installation-done-start",
+  MarkTeamsAgentInstallationDone = "mark-teams-agent-installation-done",
+  OpenTeamsAgentWalkthrough = "open-teams-agent-walkthrough",
+  TeamsAgentPreCheckResult = "teams-agent-pre-check-result",
 
   // Copilot Chat
   CopilotChatStart = "copilot-chat-start",
@@ -286,6 +326,8 @@ export enum TelemetryEvent {
   CopilotChatFeedback = "copilot-chat-feedback",
   CopilotChatClickButton = "copilot-chat-click-button",
   CopilotChatUserAction = "copilot-chat-action",
+  NotifyOutputTroubleshoot = "notify-output-troubleshoot",
+  ClickToOpenOutputForTroubleshoot = "click-to-open-output-for-troubleshoot",
 
   //Office add-in related
   validateAddInManifest = "validate-addin-manifest",
@@ -297,6 +339,9 @@ export enum TelemetryEvent {
   CreatePluginWithManifestStart = "create-plugin-with-manifest-start",
   CreatePluginWithManifest = "create-plugin-with-manifest",
 
+  CreateDeclarativeAgentWithApiSpecStart = "create-declarative-agent-with-api-spec-start",
+  CreateDeclarativeAgentWithApiSpec = "create-declarative-agent-with-api-spec",
+
   InstallKiota = "install-kiota",
   Configuration = "vsc-configuration",
 
@@ -306,6 +351,22 @@ export enum TelemetryEvent {
 
   KiotaRegenerateStart = "kiota-regenerate-start",
   KiotaRegenerate = "kiota-regenerate",
+
+  AddAuthActionStart = "add-auth-action-start",
+  AddAuthAction = "add-auth-action",
+  ProvisionFromAddAuthConfig = "provision-from-add-auth-config",
+
+  OpenOneDriveSharePointUrlStart = "open-one-drive-share-point-url-start",
+  OpenOneDriveSharePointUrl = "open-one-drive-share-point-url",
+
+  SetSensitivityLabelStart = "set-sensitivity-label-start",
+  SetSensitivityLabel = "set-sensitivity-label",
+
+  m365PreAuthStart = "m365-pre-auth-start",
+  m365PreAuth = "m365-pre-auth",
+
+  // MCP Server
+  PromptMCPServer = "prompt-mcp-server",
 }
 
 export enum TelemetryProperty {
@@ -316,6 +377,7 @@ export enum TelemetryProperty {
   TenantId = "tenant-id",
   UserId = "hashed-userid",
   AccountType = "account-type",
+  SovereignCloudType = "sovereign-cloud-type",
   TriggerFrom = "trigger-from",
   Success = "success",
   ErrorType = "error-type",
@@ -383,6 +445,9 @@ export enum TelemetryProperty {
   TeamsFxVersion = "version-teamsfx",
   TeamsJSVersion = "version-teams-js",
   BotbuilderVersion = "version-botbuilder",
+  KiotaInstalled = "kiota-installed",
+  KiotaNPMIntegrationEnabled = "kiota-npm-integration-enabled",
+  ShowAddPluginTreeView = "show-add-plugin-tree-view",
   // Used with OpenTutorial
   TutorialName = "tutorial-name",
   DocumentationName = "documentation-name",
@@ -425,8 +490,15 @@ export enum TelemetryProperty {
   CopilotChatResponseTokenPerSecond = "copilot-chat-response-token-per-second",
   CopilotChatRequestToken = "copilot-chat-request-token",
   CopilotChatResponseToken = "copilot-chat-response-token",
-  KiotaInstalled = "kiota-installed",
-  ShowAddPluginTreeView = "show-add-plugin-tree-view",
+  // Used in Copilot Chat UI
+  HasQueryForCopilotChat = "has-query-for-copilot-chat",
+  CopilotChatQuerySent = "copilot-chat-query-sent",
+  TeamsAgentPreCheckFailure = "teams-agent-pre-check-failure",
+  TeamsAgentPreCheckResultSuccess = "teams-agent-pre-check-result-success",
+  // MCP server setup
+  MissingCopilotInstructions = "missing-copilot-instructions",
+  MissingMCPConfig = "missing-mcp-config",
+  UserSelection = "UserSelection",
 }
 
 export enum TelemetryMeasurements {
@@ -450,15 +522,19 @@ export enum TelemetryTriggerFrom {
   EditorTitle = "EditorTitle",
   SideBar = "SideBar",
   WalkThrough = "WalkThrough",
+  TeamsAgentWalkthrough = "TeamsAgentWalkthrough",
+  TeamsAgentWalkthroughExplore = "TeamsAgentWalkthroughExplore",
+  TeamsAgentWalkthroughCreate = "TeamsAgentWalkthroughCreate",
+  TeamsAgentWalkthroughTroubleshoot = "TeamsAgentWalkthroughTroubleshoot",
   Notification = "Notification",
   QuickPick = "QuickPick",
   InProductDoc = "InProductDoc",
   AccountHelp = "AccountHelp",
-  SideloadingDisabled = "SideloadingDisabled",
   SampleGallery = "SampleGallery",
   SampleDetailPage = "SampleDetailPage",
   CopilotChat = "CopilotChat",
   CreateAppQuestionFlow = "CreateAppQuestionFlow",
+  EditorContextMenu = "EditorContextMenu",
   Other = "Other",
   Auto = "Auto",
   Unknow = "Unknow",

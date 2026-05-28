@@ -49,7 +49,12 @@ function App(props: any) {
     >
       <Route
         path="/sample-gallery"
-        render={() => <SampleGallery shouldShowChat={shouldShowChat} />}
+        render={() => (
+          <SampleGallery
+            shouldShowChat={shouldShowChat}
+            shouldHideTeamsAgentPreviewTag={shouldHideTeamsAgentPreviewTag}
+          />
+        )}
       />
       <Route path="/respond-to-card-actions" component={WorkflowBot} />
       <Route path="/account-help" component={AccountHelp} />

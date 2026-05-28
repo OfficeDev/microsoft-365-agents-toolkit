@@ -3,15 +3,8 @@
 
 import { ChatFollowup } from "vscode";
 
-export const chatParticipantId = "ms-teams-vscode-extension.teams";
-
 export const CHAT_EXECUTE_COMMAND_ID = "fx-extension.chat.executeCommand";
 export const CHAT_OPENURL_COMMAND_ID = "fx-extension.chat.openUrlCommand";
-
-export const enum TeamsChatCommand {
-  Create = "create",
-  NextStep = "nextstep",
-}
 
 export const DefaultNextStep: ChatFollowup = {
   prompt: "",

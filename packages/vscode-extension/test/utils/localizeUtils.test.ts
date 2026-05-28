@@ -40,6 +40,7 @@ describe("localizeUtils", () => {
     });
 
     it("should log error if no string file found for current locale", () => {
+      sandbox.stub(navigator, "language").value(undefined);
       sandbox.stub(process, "env").value({ VSCODE_NLS_CONFIG: '{ "locale": "zh-cn" }' });
       sandbox.stub(fs, "pathExistsSync").callsFake((directory: string) => {
         if (directory.includes("package.nls.json")) {
@@ -60,8 +61,8 @@ describe("localizeUtils", () => {
 
   describe("parseLocale", () => {
     it("should return current locale", () => {
+      sandbox.stub(navigator, "language").value(undefined);
       sandbox.stub(process, "env").value({ VSCODE_NLS_CONFIG: '{ "locale": "zh-cn" }' });
-
       const locale = parseLocale();
 
       chai.expect(locale).to.equal("zh-cn");

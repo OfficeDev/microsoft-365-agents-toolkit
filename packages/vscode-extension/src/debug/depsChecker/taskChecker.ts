@@ -62,6 +62,9 @@ function getOrderedCheckersForTask(
   ports?: number[]
 ): PrerequisiteOrderedChecker[] {
   const checkers: PrerequisiteOrderedChecker[] = [];
+  if (prerequisites.includes(Prerequisite.sandbox)) {
+    checkers.push({ info: { checker: Checker.SandboxedEnabled }, fastFail: false });
+  }
   if (prerequisites.includes(Prerequisite.nodejs)) {
     checkers.push({ info: { checker: DepsType.ProjectNode }, fastFail: true });
   }
@@ -108,10 +111,10 @@ function convertCheckResultsForTelemetry(checkResults: CheckResult[]): [string, 
         checkResult.error === undefined
           ? undefined
           : checkResult.error instanceof UserError
-          ? "user"
-          : checkResult.error instanceof SystemError
-          ? "system"
-          : "unknown",
+            ? "user"
+            : checkResult.error instanceof SystemError
+              ? "system"
+              : "unknown",
     };
   }
 

@@ -3,14 +3,14 @@
 
 import * as core from "@microsoft/teamsfx-core";
 import { AzureAccountManager } from "../../../commonlib/azureLogin";
-import { signedIn } from "../../../commonlib/common/constant";
 import { M365Login } from "../../../commonlib/m365Login";
+import { signedIn } from "@microsoft/teamsfx-api";
 
 export async function checkCredential(): Promise<{
   m365LoggedIn: boolean;
   azureLoggedIn: boolean;
 }> {
-  const m365Status = await M365Login.getInstance().getStatus({ scopes: core.AppStudioScopes });
+  const m365Status = await M365Login.getInstance().getStatus({ scopes: core.AppStudioScopes() });
   const azureStatus = await AzureAccountManager.getInstance().getStatus();
   return {
     m365LoggedIn: m365Status.isOk() && m365Status.value.status === signedIn,
