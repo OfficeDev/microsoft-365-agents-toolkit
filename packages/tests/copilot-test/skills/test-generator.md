@@ -53,9 +53,27 @@ Tests must reflect how a real user interacts with the extension. The following r
        var darker  = Math.min(L1, L2);
        return (lighter + 0.05) / (darker + 0.05);
      }
+     function effectiveBg(el, theme) {
+       var node = el;
+       while (node) {
+         var cs = getComputedStyle(node);
+         var bg = cs.backgroundColor;
+         if (bg && bg !== 'transparent' && bg !== 'rgba(0, 0, 0, 0)') {
+           var m = bg.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+           if (m) return [parseInt(m[1]), parseInt(m[2]), parseInt(m[3])];
+         }
+         node = node.parentElement;
+       }
+       // Read VS Code CSS variable as fallback before hardcoding
+       var bodyBg = getComputedStyle(document.body).backgroundColor;
+       var bm = bodyBg && bodyBg.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+       if (bm) return [parseInt(bm[1]), parseInt(bm[2]), parseInt(bm[3])];
+       // Last resort: use theme-appropriate fallback
+       return theme === 'dark' ? [30, 30, 30] : [255, 255, 255];
+     }
      ```
-   - Parse `getComputedStyle(el).color` (format: `rgb(r, g, b)`) and `getComputedStyle(el.parentElement).backgroundColor` to get foreground and background.
-   - If the background is transparent or `rgba(..., 0)`, walk up the DOM tree until you find a non-transparent background, or assume white (`255, 255, 255`) for light theme.
+   - Pass `theme` ('light' or 'dark') to `effectiveBg()` so the fallback is correct. **Never hardcode `[255,255,255]` as the only fallback** — in dark theme the background is near-black, not white.
+   - Parse `getComputedStyle(el).color` (format: `rgb(r, g, b)`) for foreground color.
    - The pass criterion is `contrastRatio(...) >= threshold` where threshold is the value stated in the test plan (4.5 for normal text, 3.0 for large text / non-text UI).
    - Return the computed ratio in the step `detail` field so it is visible in `results.json`.
 

@@ -84,11 +84,6 @@ export default class SampleCard extends React.Component<SampleProps, { imageUrl:
           }
         }}
       >
-        {this.props.featured && (
-          <span className="featured-badge" aria-hidden="true">
-            Featured
-          </span>
-        )}
         {unavailable && (
           <span className={`tooltip ${upgrade ? "upgrade" : ""}`}>{tooltipText}</span>
         )}

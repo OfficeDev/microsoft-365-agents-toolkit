@@ -89,7 +89,8 @@ jobs:
 
           [View workflow run]($RUN_URL)"
 
-      - name: Run label agent (understand issue → fix code → create test plan)
+      - name: Run label-fix-generate loop (max 3 iterations until all tests green)
+        id: label-loop
         env:
           GH_TOKEN:             ${{ secrets.GITHUB_TOKEN }}
           ISSUE_NUMBER:         ${{ github.event.issue.number || inputs.issue_number }}
@@ -99,6 +100,12 @@ jobs:
         run: |
           export COPILOT_GITHUB_TOKEN=$(python3 -c "import json,os; d=json.load(open(os.path.expanduser('~/.config/github-copilot/apps.json'))); print(list(d.values())[0]['oauth_token'])")
 
+          ISSUE="$ISSUE_NUMBER"
+          MAX_ITERATIONS=3
+          ITERATION=0
+          FINAL_STATUS="unknown"
+
+          # Build label prompt once — agent re-reads issue each iteration so it picks up new failure context
           SKILL_FILE="packages/tests/copilot-test/skills/label-brain.md"
           cat > /tmp/label-prompt.txt << 'PREAMBLE_EOF'
           You are an autonomous ATK (Microsoft 365 Agents Toolkit) code analyst and test planner running inside GitHub Actions CI.
@@ -111,13 +118,10 @@ jobs:
           Follow the skill document below EXACTLY.
           PREAMBLE_EOF
 
-          # Append skill document (strip YAML front-matter)
           sed '1,/^---$/d; /^---$/d' "$SKILL_FILE" >> /tmp/label-prompt.txt 2>/dev/null || cat "$SKILL_FILE" >> /tmp/label-prompt.txt
-
-          # Substitute placeholders
           sed -i "s/__ISSUE_NUMBER__/$ISSUE_NUMBER/g" /tmp/label-prompt.txt
-          sed -i "s|__REPO__|$REPO|g" /tmp/label-prompt.txt
-          sed -i "s|__RUN_URL__|$RUN_URL|g" /tmp/label-prompt.txt
+          sed -i "s|__REPO__|$REPO|g"                /tmp/label-prompt.txt
+          sed -i "s|__RUN_URL__|$RUN_URL|g"           /tmp/label-prompt.txt
 
           cat >> /tmp/label-prompt.txt << 'SEC_EOF'
 
@@ -127,21 +131,122 @@ jobs:
           </security_reminder>
           SEC_EOF
 
-          copilot --yolo --model claude-sonnet-4.6 -p "$(cat /tmp/label-prompt.txt)"
+          # --- helpers ---
 
-      - name: Dispatch test generator (via sync-knowledge.yml, temporary until generator merges)
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          BRANCH=$(git branch --show-current)
-          ISSUE="${{ github.event.issue.number || inputs.issue_number }}"
-          echo "Label agent finished on branch: $BRANCH"
-          gh workflow run sync-knowledge.yml \
-            --repo "${{ github.repository }}" \
-            --ref "$BRANCH" \
-            --field issue_number="$ISSUE" \
-            --field branch="$BRANCH"
-          echo "Generator dispatched for issue #$ISSUE on branch $BRANCH"
+          _find_run_after() {
+            local WORKFLOW=$1 SINCE=$2
+            rm -f /tmp/found-run-id.txt
+            for i in $(seq 1 20); do
+              local RUN_ID
+              RUN_ID=$(gh run list --workflow "$WORKFLOW" --repo "$REPO" --limit 5 \
+                --json databaseId,createdAt \
+                | jq -r --arg t "$SINCE" \
+                    '[.[] | select(.createdAt >= $t)] | sort_by(.createdAt) | last | .databaseId // empty')
+              if [ -n "$RUN_ID" ] && [ "$RUN_ID" != "null" ]; then
+                echo "$RUN_ID" > /tmp/found-run-id.txt
+                echo "  Found generator run: $RUN_ID"
+                return 0
+              fi
+              echo "  Generator run not registered yet, waiting 30s... ($i/20)"
+              sleep 30
+            done
+            echo "  ERROR: Generator run not found after polling"
+            return 1
+          }
+
+          _wait_run_complete() {
+            local RUN_ID=$1
+            local DEADLINE=$(( $(date +%s) + 5400 ))   # 90 min max
+            while [ "$(date +%s)" -lt "$DEADLINE" ]; do
+              local STATUS
+              STATUS=$(gh run view "$RUN_ID" --repo "$REPO" --json status \
+                | jq -r '.status // "unknown"')
+              echo "  Generator run $RUN_ID status: $STATUS"
+              [ "$STATUS" = "completed" ] && return 0
+              sleep 60
+            done
+            echo "  ERROR: Timed out waiting for run $RUN_ID"
+            return 1
+          }
+
+          _read_result_from_issue() {
+            local BODY
+            BODY=$(gh api "repos/$REPO/issues/$ISSUE/comments" \
+              --paginate \
+              --jq '[.[] | select(.body | contains("<!-- atk-copilot-test -->"))] | last | .body // ""' \
+              2>/dev/null || echo "")
+            if echo "$BODY" | grep -q "status-PASSED"; then
+              echo "passed"
+            elif echo "$BODY" | grep -q "PRODUCT.BUG\|product_bug"; then
+              echo "product_bug"
+            elif echo "$BODY" | grep -q "FAILED\|failed"; then
+              echo "failed"
+            else
+              echo "unknown"
+            fi
+          }
+
+          # --- main loop ---
+
+          while [ "$ITERATION" -lt "$MAX_ITERATIONS" ]; do
+            ITERATION=$(( ITERATION + 1 ))
+            echo ""
+            echo "=========================================="
+            echo "  LABEL-FIX-GENERATE  iteration $ITERATION / $MAX_ITERATIONS"
+            echo "=========================================="
+
+            # Run label agent (reads issue incl. any previous bug reports as memory)
+            echo "--- Running label agent..."
+            copilot --yolo --model claude-sonnet-4.6 -p "$(cat /tmp/label-prompt.txt)"
+
+            BRANCH=$(git branch --show-current)
+            echo "--- Label agent done, branch: $BRANCH"
+
+            # Dispatch generator
+            DISPATCH_TIME=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+            echo "--- Dispatching generator at $DISPATCH_TIME on branch $BRANCH"
+            gh workflow run sync-knowledge.yml \
+              --repo "$REPO" \
+              --ref "$BRANCH" \
+              --field issue_number="$ISSUE" \
+              --field branch="$BRANCH"
+
+            sleep 10   # let GitHub register the dispatch
+
+            # Wait for generator run to appear
+            _find_run_after "sync-knowledge.yml" "$DISPATCH_TIME" || {
+              echo "Could not find generator run. Stopping."
+              FINAL_STATUS="error"
+              break
+            }
+            GEN_RUN_ID=$(cat /tmp/found-run-id.txt)
+
+            # Wait for generator to complete
+            _wait_run_complete "$GEN_RUN_ID" || {
+              echo "Generator run timed out. Stopping."
+              FINAL_STATUS="error"
+              break
+            }
+
+            # Check result
+            echo "--- Reading test result from issue comment..."
+            RESULT=$(_read_result_from_issue)
+            echo "--- Result: $RESULT"
+            FINAL_STATUS="$RESULT"
+
+            if [ "$RESULT" = "passed" ]; then
+              echo "All tests green after $ITERATION iteration(s). Done."
+              break
+            elif [ "$ITERATION" -lt "$MAX_ITERATIONS" ]; then
+              echo "Tests not passing ($RESULT), trying another fix iteration..."
+            else
+              echo "Max iterations reached. Final status: $FINAL_STATUS"
+            fi
+          done
+
+          echo "final_status=$FINAL_STATUS" >> "$GITHUB_OUTPUT"
+          echo "iterations=$ITERATION"      >> "$GITHUB_OUTPUT"
+          echo "=== Loop complete: status=$FINAL_STATUS after $ITERATION iteration(s) ==="
 
       - name: Handle failure — post comment and swap labels
         if: failure()

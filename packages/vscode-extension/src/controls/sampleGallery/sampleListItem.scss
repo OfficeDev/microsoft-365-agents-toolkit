@@ -139,6 +139,22 @@ body.vscode-light {
   .featured-sample-section .buttonSection {
     background-color: #F8F8F8;
   }
+
+  /* TC-006b: Focus indicator contrast ≥ 3:1 in Light theme (list view).
+   * --vscode-focusBorder may resolve to a low-contrast value in Light 2026.
+   * Override with #005FB8 which gives ≥10:1 on white (normal section). */
+  .sample-list-item:focus-visible {
+    outline: 2px solid #005FB8;
+    outline-offset: -2px;
+  }
+
+  /* TC-006b (featured section): Focus ring must be visible against the featured
+   * section blue background (#3C8BC5). #005FB8 achieves only ~1.71:1 against
+   * #3C8BC5, which fails WCAG 1.4.11. Use white (#FFFFFF) which gives ~3.7:1. */
+  .featured-sample-section .sample-list-item:focus-visible {
+    outline: 2px solid #ffffff;
+    outline-offset: -2px;
+  }
 }
 
 body.vscode-dark {

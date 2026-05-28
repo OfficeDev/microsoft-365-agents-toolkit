@@ -2,18 +2,20 @@
 // Licensed under the MIT license.
 /**
  * sample-app-a11y.test.ts
- * Tests for Sample App panel accessibility (A11y) regressions.
- * Issue #15916: A11y bugs in Light 2026 theme (contrast + screen reader).
- *
- * TC-001:  Link text color contrast >= 4.5:1 (Gallery view)
- * TC-001b: Link text color contrast >= 4.5:1 (List view)
- * TC-002:  Featured vs non-Featured ARIA differentiation
- * TC-003:  Featured badge non-text contrast >= 3:1
- * TC-004:  Tags included in accessible name on keyboard focus
- * TC-005:  Gallery/List toggle buttons expose aria-pressed state
- * TC-006:  Focus indicator contrast >= 3:1 in Light theme
+ * TC-001a: Link text color contrast >= 4.5:1 when focused (Light theme)
+ * TC-001b: Link text color contrast >= 4.5:1 when focused (Dark theme)
+ * TC-002:  Gallery/List toggle buttons aria-pressed state before and after click
+ * TC-003:  Sample card accessible names include tags on keyboard focus
+ * TC-004a: Featured section background contrast >= 3:1 against non-featured section background (Light theme, WCAG 1.4.11)
+ * TC-004b: Featured section background contrast >= 3:1 against non-featured section background (Dark theme, WCAG 1.4.11)
+ * TC-005:  Screen reader differentiates Featured from non-Featured cards
+ * TC-006a: Focus ring contrast >= 3:1 in Gallery view (Light theme)
+ * TC-006b: Focus ring contrast >= 3:1 in List view (Light theme)
  *
  * Runs INSIDE VSCode extension host via @vscode/test-electron (Mocha TDD).
+ * All contrast checks use the WCAG relative luminance formula (IEC 61966-2-1 sRGB).
+ *
+ * Each TC flows: set theme → activate extension → open gallery → assert → screenshot
  */
 import * as vscode from "vscode";
 import * as assert from "assert";
@@ -62,7 +64,7 @@ function wait(ms: number): Promise<void> {
   return new Promise((r) => setTimeout(r, ms));
 }
 
-async function waitForCommand(cmd: string, maxMs = 30000): Promise<boolean> {
+async function waitForCommand(cmd: string, maxMs = 60000): Promise<boolean> {
   const deadline = Date.now() + maxMs;
   while (Date.now() < deadline) {
     const allCmds = await vscode.commands.getCommands(true);
@@ -82,8 +84,8 @@ function writeResults(passed: number, failed: number, steps: object[]) {
 }
 
 /**
- * Send an evaluation signal to Playwright for DOM inspection.
- * Returns result written to a response file.
+ * Send a DOM evaluation signal to Playwright.
+ * Returns the result written to a response file by the Playwright side.
  */
 function sendEvalSignal(evalScript: string, timeoutMs = 15000): string {
   try {
@@ -105,7 +107,6 @@ function sendEvalSignal(evalScript: string, timeoutMs = 15000): string {
       } catch {}
       return result;
     }
-    // Signal not processed — clean up and return empty
     try {
       fs.unlinkSync(signal);
     } catch {}
@@ -145,80 +146,187 @@ async function sendSignal(content: string, timeoutMs = 15000): Promise<void> {
 }
 
 /**
- * Parse Playwright ariaSnapshot YAML output (ACCESSIBILITY:{yaml}).
- * Returns structured nodes for ARIA attribute checks.
+ * WCAG relative luminance helper JS (IEC 61966-2-1 sRGB).
+ * Injected into every contrast evaluation script.
  */
-interface AxNode {
-  role: string;
-  name: string;
-  pressed?: string; // "true" | "false" | undefined
-  line: string;
-}
-function parseAriaSnapshot(yaml: string): AxNode[] {
-  const nodes: AxNode[] = [];
-  for (const line of yaml.split("\n")) {
-    const trimmed = line.trim();
-    if (!trimmed.startsWith("- ")) continue;
-    const rest = trimmed.slice(2);
-    const m = rest.match(/^(\w[\w-]*)\s+"([^"]*)"/);
-    if (!m) continue;
-    const role = m[1];
-    const name = m[2];
-    const node: AxNode = { role, name, line: rest };
-    const pressedM = rest.match(/\[pressed=(\w+)\]/);
-    if (pressedM) node.pressed = pressedM[1];
-    nodes.push(node);
-  }
-  return nodes;
-}
+const WCAG_HELPER_JS =
+  "function relativeLuminance(r,g,b){" +
+  "  var srgb=[r,g,b].map(function(c){" +
+  "    c=c/255;" +
+  "    return c<=0.03928?c/12.92:Math.pow((c+0.055)/1.055,2.4);" +
+  "  });" +
+  "  return 0.2126*srgb[0]+0.7152*srgb[1]+0.0722*srgb[2];" +
+  "}" +
+  "function contrastRatio(L1,L2){" +
+  "  var lighter=Math.max(L1,L2);" +
+  "  var darker=Math.min(L1,L2);" +
+  "  return (lighter+0.05)/(darker+0.05);" +
+  "}" +
+  "function parseRgb(str){" +
+  "  var m=str.match(/rgba?\\((\\d+),\\s*(\\d+),\\s*(\\d+)/);" +
+  "  return m?[parseInt(m[1]),parseInt(m[2]),parseInt(m[3])]:null;" +
+  "}" +
+  "function effectiveBg(el,theme){" +
+  "  var node=el;" +
+  "  while(node){" +
+  "    var cs=getComputedStyle(node);" +
+  "    var bg=cs.backgroundColor;" +
+  "    if(bg&&bg!=='transparent'&&bg!=='rgba(0, 0, 0, 0)'&&" +
+  "       !(bg==='rgb(0, 0, 0)'&&node===document.body&&theme==='light')){" +
+  "      var rgb=parseRgb(bg);" +
+  "      if(rgb){" +
+  "        var isBlack=rgb[0]+rgb[1]+rgb[2]<10;" +
+  "        if(!(theme==='light'&&isBlack))return rgb;" +
+  "      }" +
+  "    }" +
+  "    node=node.parentElement;" +
+  "  }" +
+  "  return theme==='dark'?[30,30,30]:[255,255,255];" +
+  "}";
 
 /**
- * Injects a CSS style that renders each .sample-card's aria-label as an overlay
- * (via ::before pseudo-element). Makes aria-label content VISIBLE in screenshots.
+ * Injects a CSS style that renders each card's aria-label as an overlay via ::before.
+ * Makes aria-label content VISIBLE in screenshots for manual verification.
  */
 function injectAriaOverlay(selector: string = ".sample-card"): void {
   const script =
-    "(function() {" +
-    "  var id = '__aria-overlay-style__';" +
-    "  if (document.getElementById(id)) return;" +
-    "  var s = document.createElement('style');" +
-    "  s.id = id;" +
-    "  s.textContent = '" + selector + " { position: relative !important; }" +
-    "    " + selector + "::before {" +
-    "      content: attr(aria-label);" +
-    "      position: absolute; top: 0; left: 0; right: 0;" +
-    "      background: rgba(0,0,0,0.82); color: #fff;" +
-    "      font-size: 8px; line-height: 1.3; padding: 3px 4px;" +
-    "      z-index: 9999; pointer-events: none;" +
-    "      white-space: normal; word-break: break-word;" +
-    "    }';" +
+    "(function(){" +
+    "  var id='__aria-overlay-style__';" +
+    "  if(document.getElementById(id))return;" +
+    "  var s=document.createElement('style');" +
+    "  s.id=id;" +
+    "  s.textContent='" +
+    selector +
+    "{position:relative!important;}" +
+    selector +
+    "::before{content:attr(aria-label);position:absolute;top:0;left:0;right:0;" +
+    "background:rgba(0,0,0,0.82);color:#fff;font-size:8px;line-height:1.3;" +
+    "padding:3px 4px;z-index:9999;pointer-events:none;" +
+    "white-space:normal;word-break:break-word;}';" +
     "  document.head.appendChild(s);" +
     "  return 'injected';" +
     "})()";
   sendEvalSignal(script, 3000);
 }
 
-/**
- * Removes the aria-label overlay CSS injected by injectAriaOverlay().
- */
 function removeAriaOverlay(): void {
   const script =
-    "(function() {" +
-    "  var s = document.getElementById('__aria-overlay-style__');" +
-    "  if (s) s.parentNode.removeChild(s);" +
+    "(function(){" +
+    "  var s=document.getElementById('__aria-overlay-style__');" +
+    "  if(s)s.parentNode.removeChild(s);" +
     "  return 'removed';" +
     "})()";
   sendEvalSignal(script, 1000);
 }
 
+/**
+ * Per-TC setup: set Default Light Modern theme, click ATK Activity Bar icon,
+ * open Sample Gallery, and wait for cards to render.
+ *
+ * Implements the common Steps 1-3 that appear in every TC of the test plan:
+ *   Step 1: Set VS Code color theme to "Default Light Modern"
+ *   Step 2: Click the ATK icon in the Activity Bar
+ *   Step 3: Open gallery and wait for cards to appear
+ *
+ * Returns true if the gallery was successfully opened.
+ */
+async function setupTcGallery(
+  tcLabel: string,
+  theme: "light" | "dark" = "light",
+): Promise<boolean> {
+  const themeName = theme === "dark" ? "Default Dark Modern" : "Default Light Modern";
+  const themeFallback = theme === "dark" ? "Default Dark+" : "Default Light+";
+  console.log(`\n  [setup] ${tcLabel}: setting ${themeName}...`);
+
+  // Step 1: Set VS Code color theme via VS Code settings API
+  // (equivalent to Ctrl+Shift+P → Preferences: Color Theme → select theme)
+  const wbConfig = vscode.workspace.getConfiguration("workbench");
+  try {
+    await wbConfig.update(
+      "colorTheme",
+      themeName,
+      vscode.ConfigurationTarget.Global,
+    );
+    console.log(`  [setup] ${tcLabel}: theme set to ${themeName}`);
+  } catch {
+    try {
+      await wbConfig.update(
+        "colorTheme",
+        themeFallback,
+        vscode.ConfigurationTarget.Global,
+      );
+      console.log(`  [setup] ${tcLabel}: theme set to ${themeFallback} (fallback)`);
+    } catch (e) {
+      console.warn(`  [setup] ${tcLabel}: could not set theme ${themeName}:`, e);
+    }
+  }
+  await wait(2000);
+
+  // Step 2: Click the ATK icon (M365 Agents Toolkit) in the VS Code Activity Bar.
+  // This ensures the ATK sidebar is visible before opening the Sample Gallery.
+  try {
+    await vscode.commands.executeCommand(
+      "workbench.view.extension.teamsfx-toolkit",
+    );
+    console.log(`  [setup] ${tcLabel}: ATK Activity Bar view activated`);
+  } catch {
+    // Try alternate Activity Bar icon click via signal
+    await sendSignal("click:.codicon-m365-agents-toolkit", 5000);
+    console.log(`  [setup] ${tcLabel}: sent Activity Bar click signal`);
+  }
+  await wait(2000);
+
+  // Step 3: Open Command Palette → "Microsoft 365 Agents Toolkit: View Samples"
+  const cmdName = "fx-extension.openSamples";
+  const cmdAvailable = await waitForCommand(cmdName, 60000);
+  if (!cmdAvailable) {
+    console.log(`  [setup] ${tcLabel}: ${cmdName} not registered`);
+    return false;
+  }
+
+  // Fire without await — command opens a webview panel
+  vscode.commands.executeCommand(cmdName).then(undefined, () => {});
+
+  // Poll until gallery renders
+  let galleryLoaded = false;
+  for (let poll = 0; poll < 30 && !galleryLoaded; poll++) {
+    await wait(2000);
+    const diagResult = sendEvalSignal(
+      "JSON.stringify({" +
+        "sampleCards:document.querySelectorAll(\".sample-card\").length," +
+        "hasFilter:!!document.querySelector(\".sample-filter\")," +
+        "hasOffline:!!document.querySelector(\".offlinePage\")" +
+        "})",
+      3000,
+    );
+    if (
+      diagResult &&
+      !diagResult.startsWith("ERROR:") &&
+      !diagResult.startsWith("ACCESSIBILITY:")
+    ) {
+      try {
+        const status = JSON.parse(diagResult);
+        if (status.sampleCards > 0 || status.hasFilter || status.hasOffline) {
+          galleryLoaded = true;
+          console.log(
+            `  [setup] ${tcLabel}: gallery loaded after ${(poll + 1) * 2}s — ${status.sampleCards} cards`,
+          );
+        }
+      } catch {}
+    }
+  }
+  if (!galleryLoaded) {
+    console.log(`  [setup] ${tcLabel}: gallery did not load in time`);
+  }
+  return galleryLoaded;
+}
 
 suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
-  this.timeout(8 * 60 * 1000);
+  this.timeout(10 * 60 * 1000);
 
   const steps: object[] = [];
   let passed = 0;
   let failed = 0;
-  let galleryOpened = false;
 
   const step = (name: string, ok: boolean, detail?: string) => {
     steps.push({ name, status: ok ? "pass" : "fail", detail });
@@ -233,7 +341,7 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
 
   suiteSetup(() => {
     ensureDirs();
-    console.log("=== ATK Sample App A11y Test ===");
+    console.log("=== ATK Sample App A11y Test (Issue #15916) ===");
     console.log("Output:", OUTPUT_DIR);
   });
 
@@ -242,7 +350,7 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
     console.log(`\n=== Results: ${passed} passed, ${failed} failed ===`);
   });
 
-  // Screenshot 01: VS Code with ATK extension activated
+  // ── Baseline: ATK extension activation ──────────────────────────────────────
   test("ATK extension is active", async () => {
     const extId = "TeamsDevApp.ms-teams-vscode-extension";
     let ext = vscode.extensions.getExtension(extId);
@@ -260,7 +368,6 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
         console.log("  Activation note:", e.message);
       }
     }
-    // Wait for extension to finish registering commands after activation
     await wait(8000);
     const active = !!ext?.isActive;
     step(
@@ -268,785 +375,1170 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
       active,
       ext ? `v${ext.packageJSON.version}` : "not found",
     );
-    // Screenshot 01: Baseline — proves extension is ready before gallery opens
+    // Screenshot 01 — baseline: extension loaded (used by TC-001 step 3)
     takeScreenshot("01-extension-active");
-    if (!active && ext) {
-      console.log(
-        "  Note: Extension found but not active (likely missing dependency — source-level checks used below)",
-      );
+    if (!active) {
+      console.log("  Note: Extension not active — remaining TCs will attempt per-TC setup");
     }
   });
 
-  // Screenshot 02: Sample Gallery panel with grid of sample cards
-  test("Open Sample Gallery panel", async () => {
-    const cmdName = "fx-extension.openSamples";
-    // Extension activation can be slow in CI. Poll 60s for command to register.
-    const available = await waitForCommand(cmdName, 60000);
-    step(
-      "fx-extension.openSamples registered",
-      available,
-      available
-        ? "command found"
-        : "command not registered (extension not fully active — source-level checks used for TC-002/004/005)",
-    );
+  // ─────────────────────────────────────────────────────────────────────────────
+  // TC-001a — Link text color contrast >= 4.5:1 when focused (Light theme)
+  //
+  // Steps per test plan:
+  //   1. Set VS Code color theme to "Default Light Modern"
+  //   2. Click ATK Activity Bar icon to open extension panel
+  //   3. Screenshot 01 (ATK extension panel open in Light theme)
+  //   4. Open gallery via Command Palette → View Samples
+  //   5. Screenshot 02 (gallery open with visible link text on light background)
+  //   6. Focus a .ms-Link via element.focus()
+  //   7. Read getComputedStyle(link).color and compute WCAG contrast ratio
+  //   8. Screenshot 03 (focused link with focus ring visible)
+  // ─────────────────────────────────────────────────────────────────────────────
+  test("TC-001a: Link text color contrast >= 4.5:1 (focused, Light theme)", async () => {
+    // Steps 1-2: set Light theme + click ATK Activity Bar icon
+    const galleryOpened = await setupTcGallery("TC-001a", "light");
 
-    if (!available) {
-      const allCmds = await vscode.commands.getCommands(true);
-      const fxCmds = allCmds.filter((c) => c.startsWith("fx-extension"));
-      console.log(
-        `  [diag] fx-extension.* commands registered (${fxCmds.length}):`,
-        fxCmds.slice(0, 20).join(", ") || "(none)",
-      );
-    }
+    // Step 3: screenshot showing ATK panel open in Light theme
+    takeScreenshot("01-tc001a-extension-active");
 
-    if (available) {
-      // Fire without await — command opens a webview panel
-      vscode.commands.executeCommand(cmdName).then(undefined, () => {});
-      // Poll for gallery to render
-      const galleryReadyScript =
-        "JSON.stringify({" +
-        "href: window.location.href.slice(0,60)," +
-        "sampleCards: document.querySelectorAll(\".sample-card\").length," +
-        "hasFilter: !!document.querySelector(\".sample-filter\")," +
-        "hasOffline: !!document.querySelector(\".offlinePage\")," +
-        "elemCount: document.querySelectorAll(\"*\").length," +
-        "loading: !document.querySelector(\".sample-filter\") && !document.querySelector(\".offlinePage\")" +
-        "})";
-      let pollCount = 0;
-      let galleryLoaded = false;
-      while (pollCount < 30 && !galleryLoaded) {
-        await wait(2000);
-        pollCount++;
-        const diagResult = sendEvalSignal(galleryReadyScript, 3000);
-        console.log(`  [poll ${pollCount}] Gallery status: ${diagResult.slice(0, 180)}`);
-        if (diagResult && !diagResult.startsWith("ERROR:") && !diagResult.startsWith("ACCESSIBILITY:")) {
-          try {
-            const status = JSON.parse(diagResult);
-            if (!status.loading) {
-              galleryLoaded = true;
-              console.log(`  Gallery loaded after ${pollCount * 2}s: ${status.sampleCards} cards, offline=${status.hasOffline}`);
-            }
-          } catch {}
-        }
-      }
-      if (!galleryLoaded) {
-        console.log("  Gallery did not load after 60s — dumping DOM state");
-        const bodyDump = sendEvalSignal(
-          "JSON.stringify({href: window.location.href.slice(0,80), bodyText: document.body.innerText.slice(0,300), elemCount: document.querySelectorAll(\"*\").length, html: document.documentElement.outerHTML.slice(0,400)})",
-          3000
-        );
-        console.log("  [diag] DOM dump:", bodyDump.slice(0, 500));
-      }
-      galleryOpened = true;
-    } else {
-      vscode.commands
-        .executeCommand("workbench.view.extension.teamsfx-toolkit")
-        .then(undefined, () => {});
-      await wait(2000);
-    }
+    // Step 5: screenshot showing gallery with visible link text
+    takeScreenshot("02-tc001a-gallery-open");
 
-    // Screenshot 02: Sample Gallery panel with grid of sample cards
-    takeScreenshot("02-gallery-open");
-  });
-
-  /**
-   * TC-001 — Link text is readable in Light theme (Gallery view)
-   * Steps: Open Command Palette → run View Samples → observe gallery → read link text
-   * Pass: contrast_ratio(computed link color, background) >= 4.5; at least one .ms-Link present
-   *
-   * Screenshot 03: Close-up of sample card link text in light theme
-   */
-  test("TC-001: Link text color contrast >= 4.5:1", async () => {
     if (!galleryOpened) {
-      takeScreenshot("03-tc001-link-contrast");
+      takeScreenshot("03-tc001a-link-focused");
       step(
-        "TC-001 Link text contrast >= 4.5:1",
+        "TC-001a Link text contrast >= 4.5:1 (Light)",
         false,
-        "FAIL: Gallery webview not open. Cannot verify link color contrast.",
+        "FAIL: Gallery webview not open after setup.",
       );
       return;
     }
 
-    // Primary: computed color of .ms-Link elements.
-    // Fallback: CSS stylesheet rule for the high-contrast override (#005B9E).
+    // Steps 6-7: Focus a .ms-Link element and compute WCAG contrast ratio
     const evalScript =
       "(function(){" +
-      "  var els = Array.from(document.querySelectorAll('.ms-Link'));" +
-      "  if (els.length > 0) {" +
-      "    return 'colors:' + els.map(function(e){return getComputedStyle(e).color;}).slice(0,3).join(',');" +
-      "  }" +
-      "  var linkRules = [];" +
-      "  try {" +
-      "    Array.from(document.styleSheets).forEach(function(ss){" +
-      "      try {" +
-      "        Array.from(ss.cssRules).forEach(function(r){" +
-      "          if (r.selectorText && r.selectorText.includes('ms-Link') && r.style && r.style.color) {" +
-      "            linkRules.push(r.selectorText + '|' + r.style.color);" +
-      "          }" +
-      "        });" +
-      "      } catch(e) {}" +
-      "    });" +
-      "  } catch(e) {}" +
-      "  return linkRules.length > 0 ? 'css-rule:' + linkRules.join(';') : 'no-ms-link';" +
+      WCAG_HELPER_JS +
+      "  var links=Array.from(document.querySelectorAll('.ms-Link'));" +
+      "  if(links.length===0) return JSON.stringify({error:'no-ms-link',count:0});" +
+      "  var link=links[0];" +
+      "  link.focus();" +
+      "  var cs=getComputedStyle(link);" +
+      "  var fgRaw=cs.color;" +
+      "  var fg=parseRgb(fgRaw);" +
+      "  var bg=effectiveBg(link,'light');" +
+      "  if(!fg) return JSON.stringify({error:'parse-fg',fgRaw:fgRaw});" +
+      "  var fgL=relativeLuminance(fg[0],fg[1],fg[2]);" +
+      "  var bgL=relativeLuminance(bg[0],bg[1],bg[2]);" +
+      "  var ratio=contrastRatio(fgL,bgL);" +
+      "  return JSON.stringify({" +
+      "    count:links.length," +
+      "    fgRaw:fgRaw," +
+      "    bgRgb:'rgb('+bg[0]+','+bg[1]+','+bg[2]+')'," +
+      "    ratio:Math.round(ratio*100)/100," +
+      "    passes:ratio>=4.5" +
+      "  });" +
       "})()";
-    const rawResult = sendEvalSignal(evalScript, 5000);
-    console.log("  TC-001 eval result:", rawResult ? rawResult.slice(0, 120) : "(empty)");
+
+    const rawResult = sendEvalSignal(evalScript, 8000);
+    console.log(
+      "  TC-001a eval result:",
+      rawResult ? rawResult.slice(0, 200) : "(empty)",
+    );
+
+    // Step 8: screenshot showing the link in focused state with focus ring
+    takeScreenshot("03-tc001a-link-focused");
 
     if (!rawResult || rawResult.startsWith("ERROR:")) {
-      takeScreenshot("03-tc001-link-contrast");
-      step("TC-001 Link text contrast >= 4.5:1", false,
-        "FAIL: DOM eval error — gallery may not be accessible via Playwright.");
-      return;
-    } else if (rawResult.startsWith("colors:")) {
-      const colors = rawResult.slice(7).split(",").filter(Boolean);
-      const problematicColor = "rgb(72, 160, 199)";
-      const hasProblematic = colors.some((c) => c.trim() === problematicColor);
-      takeScreenshot("03-tc001-link-contrast");
       step(
-        "TC-001 Link text contrast >= 4.5:1",
-        !hasProblematic,
-        hasProblematic
-          ? `FAIL: Found low-contrast color ${problematicColor} on .ms-Link`
-          : `Link colors OK: ${colors.join(", ")}`,
-      );
-      return;
-    } else if (rawResult.startsWith("css-rule:")) {
-      const rules = rawResult.slice(9);
-      const hasGoodRule =
-        rules.includes("#005b9e") || rules.includes("#005B9E") || rules.includes("rgb(0, 91, 158)");
-      takeScreenshot("03-tc001-link-contrast");
-      step(
-        "TC-001 Link text contrast >= 4.5:1",
-        hasGoodRule,
-        hasGoodRule
-          ? `CSS fix applied: ${rules.slice(0, 80)}`
-          : `FAIL: CSS rule for .ms-Link exists but wrong color: ${rules.slice(0, 80)}`,
-      );
-    } else {
-      takeScreenshot("03-tc001-link-contrast");
-      step(
-        "TC-001 Link text contrast >= 4.5:1",
+        "TC-001a Link text contrast >= 4.5:1 (Light)",
         false,
-        "FAIL: No .ms-Link elements and no CSS fix rule found.",
+        "FAIL: DOM eval error — gallery may not be accessible via Playwright CDP.",
       );
+      return;
     }
+
+    let data: any = null;
+    try {
+      data = JSON.parse(rawResult);
+    } catch {}
+    if (!data) {
+      step(
+        "TC-001a Link text contrast >= 4.5:1 (Light)",
+        false,
+        `FAIL: Could not parse eval result: ${rawResult.slice(0, 100)}`,
+      );
+      return;
+    }
+    if (data.error === "no-ms-link") {
+      step(
+        "TC-001a Link text contrast >= 4.5:1 (Light)",
+        false,
+        "FAIL: No .ms-Link elements found in gallery webview.",
+      );
+      return;
+    }
+    if (data.error) {
+      step(
+        "TC-001a Link text contrast >= 4.5:1 (Light)",
+        false,
+        `FAIL: ${data.error} fg=${data.fgRaw || "?"}`,
+      );
+      return;
+    }
+
+    const detail =
+      `Computed ratio=${data.ratio}:1; fg=${data.fgRaw}; bg=${data.bgRgb}; ` +
+      `${data.count} .ms-Link elements`;
+    step("TC-001a Link text contrast >= 4.5:1 (Light)", !!data.passes, detail);
   });
 
-  /**
-   * TC-001b — Link text is readable in Light theme (List view)
-   * Steps: Open gallery → click List toggle → observe list layout → read link text
-   * Pass: contrast_ratio(computed link color, background) >= 4.5 in list layout
-   *
-   * Screenshot 04: Sample Gallery in List view, link text visible
-   */
-  test("TC-001b: Link text color contrast >= 4.5:1 (list view)", async () => {
+  // ─────────────────────────────────────────────────────────────────────────────
+  // TC-001b — Link text color contrast >= 4.5:1 when focused (Dark theme)
+  //
+  // Steps per test plan:
+  //   1. Set VS Code color theme to "Default Dark Modern"
+  //   2. Click ATK Activity Bar icon to open extension panel
+  //   3. Screenshot 04 (ATK extension panel open in Dark theme)
+  //   4. Open gallery via Command Palette → View Samples
+  //   5. Screenshot 05 (gallery open with visible link text on dark background)
+  //   6. Focus a .ms-Link via element.focus()
+  //   7. Read getComputedStyle(link).color and background, compute WCAG contrast ratio
+  //   8. Screenshot 06 (focused link with focus ring visible in dark theme)
+  // ─────────────────────────────────────────────────────────────────────────────
+  test("TC-001b: Link text color contrast >= 4.5:1 (focused, Dark theme)", async () => {
+    // Steps 1-2: set Dark theme + click ATK Activity Bar icon
+    const galleryOpened = await setupTcGallery("TC-001b", "dark");
+
+    // Step 3: screenshot showing ATK panel open in Dark theme
+    takeScreenshot("04-tc001b-extension-active");
+
+    // Step 5: screenshot showing gallery with visible link text on dark background
+    takeScreenshot("05-tc001b-gallery-open");
+
     if (!galleryOpened) {
-      takeScreenshot("04-tc001b-link-contrast-list");
+      takeScreenshot("06-tc001b-link-focused");
       step(
-        "TC-001b Link text contrast >= 4.5:1 (list view)",
+        "TC-001b Link text contrast >= 4.5:1 (Dark)",
         false,
-        "FAIL: Gallery webview not open. Cannot verify link color in list view.",
+        "FAIL: Gallery webview not open after setup.",
       );
       return;
     }
 
-    // Step 2: User clicks the List view toggle button
-    const switchToList = sendEvalSignal(
-      "(function(){" +
-      "  var end = Date.now() + 5000;" +
-      "  var btn = null;" +
-      "  while (!btn && Date.now() < end) {" +
-      "    btn = document.querySelector('[aria-label=\"list view\"]') ||" +
-      "          document.querySelector('.layout-button[title*=\"list\"]') ||" +
-      "          Array.from(document.querySelectorAll('.layout-button')).find(function(b){" +
-      "            return (b.getAttribute('aria-label') || '').toLowerCase().indexOf('list') !== -1;" +
-      "          });" +
-      "    if (!btn) { var t = Date.now() + 200; while (Date.now() < t) {} }" +
-      "  }" +
-      "  if (!btn) return 'no-list-toggle';" +
-      "  btn.click(); return 'clicked';" +
-      "})()",
-      8000,
-    );
-    if (!switchToList || switchToList === "no-list-toggle") {
-      console.log("  TC-001b: list-view toggle not found, skipping");
-      takeScreenshot("04-tc001b-link-contrast-list");
-      step(
-        "TC-001b Link text contrast >= 4.5:1 (list view)",
-        false,
-        "FAIL: List-view toggle button not found — cannot verify list view contrast.",
-      );
-      return;
-    }
-    // Step 3: Observe the layout switches to a list of sample rows
-    await wait(1000);
-
-    // Step 4: User reads the blue link text in list view
+    // Steps 6-7: Focus a .ms-Link element and compute WCAG contrast ratio
     const evalScript =
       "(function(){" +
-      "  var els = Array.from(document.querySelectorAll('.ms-Link'));" +
-      "  if (els.length > 0) {" +
-      "    return 'colors:' + els.map(function(e){return getComputedStyle(e).color;}).slice(0,3).join(',');" +
-      "  }" +
-      "  return 'no-ms-link';" +
+      WCAG_HELPER_JS +
+      "  var links=Array.from(document.querySelectorAll('.ms-Link'));" +
+      "  if(links.length===0) return JSON.stringify({error:'no-ms-link',count:0});" +
+      "  var link=links[0];" +
+      "  link.focus();" +
+      "  var cs=getComputedStyle(link);" +
+      "  var fgRaw=cs.color;" +
+      "  var fg=parseRgb(fgRaw);" +
+      "  var bg=effectiveBg(link,'dark');" +
+      "  if(!fg) return JSON.stringify({error:'parse-fg',fgRaw:fgRaw});" +
+      "  var fgL=relativeLuminance(fg[0],fg[1],fg[2]);" +
+      "  var bgL=relativeLuminance(bg[0],bg[1],bg[2]);" +
+      "  var ratio=contrastRatio(fgL,bgL);" +
+      "  return JSON.stringify({" +
+      "    count:links.length," +
+      "    fgRaw:fgRaw," +
+      "    bgRgb:'rgb('+bg[0]+','+bg[1]+','+bg[2]+')'," +
+      "    ratio:Math.round(ratio*100)/100," +
+      "    passes:ratio>=4.5" +
+      "  });" +
       "})()";
-    const rawResult = sendEvalSignal(evalScript, 5000);
-    console.log("  TC-001b eval result:", rawResult ? rawResult.slice(0, 120) : "(empty)");
 
-    // Step 5: Screenshot — List view with link text visible
-    takeScreenshot("04-tc001b-link-contrast-list");
+    const rawResult = sendEvalSignal(evalScript, 8000);
+    console.log(
+      "  TC-001b eval result:",
+      rawResult ? rawResult.slice(0, 200) : "(empty)",
+    );
 
-    // Restore grid view — button aria-label is "Gallery view" (matches sampleFilter.tsx)
+    // Step 8: screenshot showing the link in focused state with focus ring (dark theme)
+    takeScreenshot("06-tc001b-link-focused");
+
+    if (!rawResult || rawResult.startsWith("ERROR:")) {
+      step(
+        "TC-001b Link text contrast >= 4.5:1 (Dark)",
+        false,
+        "FAIL: DOM eval error — gallery may not be accessible via Playwright CDP.",
+      );
+      return;
+    }
+
+    let data: any = null;
+    try {
+      data = JSON.parse(rawResult);
+    } catch {}
+    if (!data) {
+      step(
+        "TC-001b Link text contrast >= 4.5:1 (Dark)",
+        false,
+        `FAIL: Could not parse eval result: ${rawResult.slice(0, 100)}`,
+      );
+      return;
+    }
+    if (data.error === "no-ms-link") {
+      step(
+        "TC-001b Link text contrast >= 4.5:1 (Dark)",
+        false,
+        "FAIL: No .ms-Link elements found in gallery webview.",
+      );
+      return;
+    }
+    if (data.error) {
+      step(
+        "TC-001b Link text contrast >= 4.5:1 (Dark)",
+        false,
+        `FAIL: ${data.error} fg=${data.fgRaw || "?"}`,
+      );
+      return;
+    }
+
+    const detail =
+      `Computed ratio=${data.ratio}:1; fg=${data.fgRaw}; bg=${data.bgRgb}; ` +
+      `${data.count} .ms-Link elements`;
+    step("TC-001b Link text contrast >= 4.5:1 (Dark)", !!data.passes, detail);
+  });
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // TC-002 — Gallery/List toggle buttons expose aria-pressed before and after click
+  //
+  // Steps per test plan:
+  //   1. Set VS Code color theme to "Default Light Modern"
+  //   2. Click ATK Activity Bar icon
+  //   3. Open gallery (Gallery/Grid layout is default)
+  //   4. Read aria-pressed on Gallery button — expects "true"
+  //   5. Read aria-pressed on List button — expects "false"
+  //   6. Screenshot 04 (Gallery layout active, Gallery toggle selected)
+  //   7. Click List view toggle button — layout switches to vertical list
+  //   8. Read aria-pressed on Gallery button — expects "false"
+  //   9. Read aria-pressed on List button — expects "true"
+  //  10. Screenshot 05 (List layout active, List toggle selected)
+  // ─────────────────────────────────────────────────────────────────────────────
+  test("TC-002: Gallery/List toggle aria-pressed state toggles correctly", async () => {
+    // Steps 1-3: set Light theme + click ATK Activity Bar + open gallery
+    const galleryOpened = await setupTcGallery("TC-002");
+
+    if (!galleryOpened) {
+      takeScreenshot("04-tc002-gallery-active");
+      takeScreenshot("05-tc002-list-active");
+      step(
+        "TC-002 Toggle aria-pressed state",
+        false,
+        "FAIL: Gallery webview not open after setup.",
+      );
+      return;
+    }
+
+    // Ensure we start in gallery/grid view
     sendEvalSignal(
       "(function(){" +
-      "  var btn = document.querySelector('[aria-label=\"Gallery view\"]') ||" +
-      "            document.querySelector('[aria-label=\"grid view\"]') ||" +
-      "            document.querySelector('.layout-button[title*=\"grid\"]') ||" +
-      "            Array.from(document.querySelectorAll('.layout-button')).find(function(b){" +
-      "              var lbl = (b.getAttribute('aria-label') || '').toLowerCase();" +
-      "              return lbl.indexOf('gallery') !== -1 || lbl.indexOf('grid') !== -1;" +
-      "            });" +
-      "  if (btn) { btn.click(); return 'restored'; }" +
-      "  return 'no-grid-toggle';" +
-      "})()",
-      2000,
+        "  var btn=document.querySelector('[aria-label=\"grid view\"]')" +
+        "    ||document.querySelector('[aria-label=\"Gallery view\"]')" +
+        "    ||Array.from(document.querySelectorAll('.layout-button')).find(function(b){" +
+        "      var l=(b.getAttribute('aria-label')||'').toLowerCase();" +
+        "      return l.includes('grid')||l.includes('gallery');});" +
+        "  if(btn)btn.click();" +
+        "  return btn?'clicked':'no-btn';" +
+        "})()",
+      3000,
+    );
+    await wait(600);
+
+    const readPressedScript =
+      "(function(){" +
+      "  var btns=Array.from(document.querySelectorAll('.layout-button'));" +
+      "  var mapped=btns.map(function(b){return{" +
+      "    label:b.getAttribute('aria-label')||b.textContent||''," +
+      "    pressed:b.getAttribute('aria-pressed')" +
+      "  };});" +
+      "  return JSON.stringify({count:btns.length,buttons:mapped});" +
+      "})()";
+
+    // Steps 4-5: Read aria-pressed on Gallery (expects "true") and List (expects "false")
+    const beforeResult = sendEvalSignal(readPressedScript, 5000);
+    console.log(
+      "  TC-002 before-click state:",
+      beforeResult ? beforeResult.slice(0, 200) : "(empty)",
+    );
+
+    // Step 6: Screenshot showing Gallery layout is active with Gallery toggle visually selected
+    takeScreenshot("04-tc002-gallery-active");
+
+    // Step 7: Click the List view toggle button — observe layout switches to vertical list
+    const clickResult = sendEvalSignal(
+      "(function(){" +
+        "  var btn=document.querySelector('[aria-label=\"list view\"]')" +
+        "    ||document.querySelector('[aria-label=\"List view\"]')" +
+        "    ||Array.from(document.querySelectorAll('.layout-button')).find(function(b){" +
+        "      return (b.getAttribute('aria-label')||'').toLowerCase().includes('list');});" +
+        "  if(!btn)return 'no-list-button';" +
+        "  btn.click();" +
+        "  return 'clicked';" +
+        "})()",
+      5000,
+    );
+    console.log("  TC-002 list-click result:", clickResult);
+    await wait(800);
+
+    // Steps 8-9: Read aria-pressed — Gallery expects "false", List expects "true"
+    const afterResult = sendEvalSignal(readPressedScript, 5000);
+    console.log(
+      "  TC-002 after-click state:",
+      afterResult ? afterResult.slice(0, 200) : "(empty)",
+    );
+
+    // Step 10: Screenshot showing List layout is active with List toggle visually selected
+    takeScreenshot("05-tc002-list-active");
+
+    // Restore gallery view for subsequent tests
+    sendEvalSignal(
+      "(function(){" +
+        "  var btn=document.querySelector('[aria-label=\"grid view\"]')" +
+        "    ||document.querySelector('[aria-label=\"Gallery view\"]')" +
+        "    ||Array.from(document.querySelectorAll('.layout-button')).find(function(b){" +
+        "      var l=(b.getAttribute('aria-label')||'').toLowerCase();" +
+        "      return l.includes('grid')||l.includes('gallery');});" +
+        "  if(btn)btn.click();" +
+        "  return btn?'restored':'no-btn';" +
+        "})()",
+      3000,
     );
     await wait(500);
 
-    if (!rawResult || rawResult.startsWith("ERROR:")) {
-      step("TC-001b Link text contrast >= 4.5:1 (list view)", false,
-        "FAIL: DOM eval error in list view.");
+    if (
+      !beforeResult ||
+      beforeResult.startsWith("ERROR:") ||
+      !afterResult ||
+      afterResult.startsWith("ERROR:")
+    ) {
+      step(
+        "TC-002 Toggle aria-pressed state",
+        false,
+        `FAIL: DOM eval error. before=${beforeResult?.slice(0, 60)} after=${afterResult?.slice(0, 60)}`,
+      );
       return;
     }
 
-    if (rawResult.startsWith("colors:")) {
-      const colors = rawResult.slice(7).split(",").filter(Boolean);
-      const problematicColor = "rgb(72, 160, 199)";
-      const hasProblematic = colors.some((c) => c.trim() === problematicColor);
+    let beforeData: any = null;
+    let afterData: any = null;
+    try {
+      beforeData = JSON.parse(beforeResult);
+    } catch {}
+    try {
+      afterData = JSON.parse(afterResult);
+    } catch {}
+
+    if (!beforeData || !afterData) {
       step(
-        "TC-001b Link text contrast >= 4.5:1 (list view)",
-        !hasProblematic,
-        hasProblematic
-          ? `FAIL: Low-contrast color ${problematicColor} on .ms-Link in list view`
-          : `Link colors OK in list view: ${colors.join(", ")}`,
-      );
-    } else {
-      step(
-        "TC-001b Link text contrast >= 4.5:1 (list view)",
+        "TC-002 Toggle aria-pressed state",
         false,
-        `FAIL: No .ms-Link elements found in list view. raw=${rawResult.slice(0, 60)}`,
-      );
-    }
-  });
-
-  /**
-   * TC-002 — Screen reader users hear "Featured sample" prefix on featured cards
-   * Steps: Open gallery → inspect aria-label of featured card → inspect non-featured card
-   * Pass: >= 1 card with aria-label starting "Featured sample."; >= 1 without that prefix
-   *
-   * Screenshot 05: Gallery showing featured badge on featured cards (aria overlay visible)
-   */
-  test("TC-002: Featured vs non-Featured ARIA differentiation", async () => {
-    if (galleryOpened) {
-      // Query both .sample-card (grid layout) and .sample-list-item (list layout)
-      const evalScript =
-        "(() => {" +
-        "  var fSec = document.querySelector('.featured-sample-section');" +
-        "  var sSec = document.querySelector('.sample-section');" +
-        "  var cardSel = '.sample-card, .sample-list-item';" +
-        "  var fCards = fSec ? Array.from(fSec.querySelectorAll(cardSel)) : [];" +
-        "  var sCards = sSec ? Array.from(sSec.querySelectorAll(cardSel)) : [];" +
-        "  var fLabels = fCards.map(function(c){return c.getAttribute('aria-label')||'';});" +
-        "  var sLabels = sCards.map(function(c){return c.getAttribute('aria-label')||'';});" +
-        "  var fPrefixed = fLabels.filter(function(l){return l.startsWith('Featured sample');});" +
-        "  return JSON.stringify({featuredTotal:fCards.length,featuredPrefixed:fPrefixed.length," +
-        "    regularTotal:sCards.length,sampleFeaturedLabel:fLabels[0]||'none',sampleRegularLabel:sLabels[0]||'none'});" +
-        "})()";
-      const rawResult = sendEvalSignal(evalScript, 5000);
-
-      if (rawResult && rawResult.startsWith("ACCESSIBILITY:")) {
-        const nodes = parseAriaSnapshot(rawResult.slice("ACCESSIBILITY:".length));
-        const buttonNodes = nodes.filter((n) => n.role.toLowerCase() === "button");
-        const featuredNodes = buttonNodes.filter((n) =>
-          (n.name || "").startsWith("Featured sample"),
-        );
-        const hasFeaturedAria = featuredNodes.length > 0;
-        injectAriaOverlay();
-        await wait(300);
-        takeScreenshot("05-tc002-aria-labels");
-        removeAriaOverlay();
-        step(
-          "TC-002 Featured ARIA differentiation",
-          hasFeaturedAria,
-          `[AX-TREE] ${buttonNodes.length} button nodes, ${featuredNodes.length} with "Featured sample" prefix`,
-        );
-        return;
-      }
-      if (rawResult && !rawResult.startsWith("ERROR:")) {
-        let data002: any = null;
-        try { data002 = JSON.parse(rawResult); } catch {}
-        if (data002 !== null) {
-          const hasFeaturedAria = data002.featuredPrefixed > 0;
-          injectAriaOverlay();
-          await wait(300);
-          takeScreenshot("05-tc002-aria-labels");
-          removeAriaOverlay();
-          step(
-            "TC-002 Featured ARIA differentiation",
-            hasFeaturedAria,
-            hasFeaturedAria
-              ? `OK: ${data002.featuredPrefixed}/${data002.featuredTotal} featured cards have "Featured sample." prefix`
-              : `FAIL: ${data002.featuredTotal} featured cards, 0 with "Featured sample." in aria-label. ` +
-                `Sample: "${(data002.sampleFeaturedLabel || "").slice(0, 80)}"`,
-          );
-          return;
-        } else {
-          injectAriaOverlay();
-          await wait(300);
-          takeScreenshot("05-tc002-aria-labels");
-          removeAriaOverlay();
-          step("TC-002 Featured ARIA differentiation", false,
-            "parse error: " + rawResult.slice(0, 100));
-          return;
-        }
-      }
-    }
-
-    injectAriaOverlay();
-    await wait(300);
-    takeScreenshot("05-tc002-aria-labels");
-    removeAriaOverlay();
-    step(
-      "TC-002 Featured ARIA differentiation",
-      false,
-      "FAIL: Gallery webview not open. Extension must activate and gallery must load for DOM-based A11y check.",
-    );
-  });
-
-  /**
-   * TC-003 — Featured badge is distinguishable in Light theme
-   * Steps: Open gallery → observe featured badge → confirm badge text legible
-   * Pass: contrast_ratio("#7A5C00", "#FFFFFF") >= 3.0; at least one .featured-badge found
-   *
-   * Screenshot 06: Featured card with gold/brown badge in light theme
-   */
-  test("TC-003: Featured badge contrast >= 3:1", async () => {
-    if (!galleryOpened) {
-      takeScreenshot("06-tc003-badge-contrast");
-      step(
-        "TC-003 Featured badge present with accessible contrast",
-        false,
-        "FAIL: Gallery webview not open. Cannot check featured badge.",
+        `FAIL: Could not parse button state. before=${beforeResult?.slice(0, 80)}`,
       );
       return;
     }
-    const evalScript =
-      "(() => {" +
-      "  var fSec = document.querySelector('.featured-sample-section');" +
-      "  if (!fSec) return 'no-featured-section';" +
-      "  var badges = Array.from(document.querySelectorAll('.featured-badge'));" +
-      "  if (badges.length === 0) {" +
-      "    var listItems = Array.from(fSec.querySelectorAll('.sample-list-item'));" +
-      "    var withPrefix = listItems.filter(function(el){" +
-      "      return (el.getAttribute('aria-label')||'').startsWith('Featured sample');" +
-      "    });" +
-      "    return JSON.stringify({hasFeaturedSection:true,count:0," +
-      "      listViewFeaturedItems:withPrefix.length,totalListItems:listItems.length});" +
-      "  }" +
-      "  var s = getComputedStyle(badges[0]);" +
-      "  return JSON.stringify({hasFeaturedSection:true,bg:s.backgroundColor,color:s.color,count:badges.length});" +
-      "})()";
-    const rawResult = sendEvalSignal(evalScript, 5000);
-
-    if (!rawResult || rawResult.startsWith("ERROR:")) {
-      takeScreenshot("06-tc003-badge-contrast");
-      step("TC-003 Featured badge present with accessible contrast", false, "FAIL: DOM eval error.");
-    } else if (rawResult === "no-featured-section") {
-      takeScreenshot("06-tc003-badge-contrast");
-      step("TC-003 Featured badge present with accessible contrast", false,
-        "FAIL: .featured-sample-section not found (gallery may not have loaded featured samples).");
-    } else {
-      let data003: any = null;
-      try { data003 = JSON.parse(rawResult); } catch {}
-      if (data003 !== null) {
-        if (data003.count === 0) {
-          takeScreenshot("06-tc003-badge-contrast");
-          // In list view, SampleListItem has no .featured-badge element but still carries the
-          // "Featured sample." aria-label prefix — accept that as sufficient.
-          const listViewOk =
-            data003.totalListItems > 0 && data003.listViewFeaturedItems > 0;
-          step(
-            "TC-003 Featured badge present with accessible contrast",
-            listViewOk,
-            listViewOk
-              ? `OK (list-view): ${data003.listViewFeaturedItems}/${data003.totalListItems} ` +
-                `featured list items carry "Featured sample." aria-label prefix (no badge in list layout)`
-              : "FAIL: .featured-sample-section present but no .featured-badge elements and no " +
-                "featured list items with aria-label prefix. A11y bug: featured marker missing.",
-          );
-        } else {
-          takeScreenshot("06-tc003-badge-contrast");
-          step(
-            "TC-003 Featured badge present with accessible contrast",
-            true,
-            `${data003.count} badge(s) found. bg=${data003.bg}, color=${data003.color}`,
-          );
-        }
-      } else {
-        takeScreenshot("06-tc003-badge-contrast");
-        step("TC-003 Featured badge contrast >= 3:1", false, "parse error: " + rawResult.slice(0, 100));
-      }
-    }
-  });
-
-  /**
-   * TC-004 — Keyboard users hear sample tags when navigating cards
-   * Steps: Open gallery → press Tab to focus first card → check accessible name includes tags
-   * Pass: Every sample card aria-label contains ". Tags:" followed by at least one tag name
-   *
-   * Screenshot 07: Gallery with first card focused, tags visible in label (aria overlay)
-   */
-  test("TC-004: Tags announced on keyboard focus via aria-label", async () => {
-    if (galleryOpened) {
-      // Step 2: User presses Tab to move keyboard focus onto the first sample card
-      await sendSignal("pressKey:Tab", 3000);
-      await wait(300);
-
-      // Step 3: Check accessible name includes tags (simulating what screen reader would read)
-      // Query both .sample-card (grid layout) and .sample-list-item (list layout)
-      const evalScript =
-        "(() => {" +
-        "  var cards = Array.from(document.querySelectorAll('.sample-card, .sample-list-item'));" +
-        "  var withTags = cards.filter(function(c){" +
-        "    var l = c.getAttribute('aria-label') || '';" +
-        "    return l.toLowerCase().includes('tags:');" +
-        "  });" +
-        "  var sampleAny = cards[0];" +
-        "  var sample = withTags[0] ? (withTags[0].getAttribute('aria-label')||'')" +
-        "               : sampleAny ? (sampleAny.getAttribute('aria-label')||'none') : 'none';" +
-        "  return JSON.stringify({total:cards.length,withTags:withTags.length,sample:sample});" +
-        "})()";
-      const rawResult = sendEvalSignal(evalScript, 5000);
-
-      if (rawResult && rawResult.startsWith("ACCESSIBILITY:")) {
-        const nodes = parseAriaSnapshot(rawResult.slice("ACCESSIBILITY:".length));
-        const buttonNodes = nodes.filter((n) => n.role.toLowerCase() === "button");
-        const tagNodes = buttonNodes.filter((n) =>
-          (n.name || "").toLowerCase().includes("tags:"),
-        );
-        const hasTagsInLabel = tagNodes.length > 0;
-        const sample = tagNodes[0]?.name || "";
-        // Step 4: Screenshot — focused card with aria-label overlay showing tags
-        injectAriaOverlay(".sample-card, .sample-list-item");
-        await wait(300);
-        takeScreenshot("07-tc004-tags-aria");
-        removeAriaOverlay();
-        step(
-          "TC-004 Tags in aria-label",
-          hasTagsInLabel,
-          `[AX-TREE] ${buttonNodes.length} buttons, ${tagNodes.length} with "Tags:" in name. Sample: "${sample.slice(0, 80)}"`,
-        );
-        return;
-      }
-      if (rawResult && !rawResult.startsWith("ERROR:")) {
-        let data004: any = null;
-        try { data004 = JSON.parse(rawResult); } catch {}
-        if (data004 !== null) {
-          const hasTagsInLabel = data004.withTags > 0;
-          // Step 4: Screenshot — focused card with aria-label overlay showing tags
-          injectAriaOverlay(".sample-card, .sample-list-item");
-          await wait(300);
-          takeScreenshot("07-tc004-tags-aria");
-          removeAriaOverlay();
-          step(
-            "TC-004 Tags in aria-label",
-            hasTagsInLabel,
-            hasTagsInLabel
-              ? `OK: ${data004.withTags}/${data004.total} cards have "Tags:" in aria-label. Sample: "${(data004.sample || "").slice(0, 80)}"`
-              : `FAIL: ${data004.total} cards found, 0 have "Tags:" in aria-label. Sample: "${(data004.sample || "").slice(0, 80)}"`,
-          );
-          return;
-        } else {
-          injectAriaOverlay(".sample-card, .sample-list-item");
-          await wait(300);
-          takeScreenshot("07-tc004-tags-aria");
-          removeAriaOverlay();
-          step("TC-004 Tags in aria-label", false, "parse error: " + rawResult.slice(0, 100));
-          return;
-        }
-      }
+    if (beforeData.count === 0) {
+      step(
+        "TC-002 Toggle aria-pressed state",
+        false,
+        "FAIL: No .layout-button elements found in gallery webview.",
+      );
+      return;
     }
 
-    injectAriaOverlay(".sample-card, .sample-list-item");
-    await wait(300);
-    takeScreenshot("07-tc004-tags-aria");
-    removeAriaOverlay();
-    step(
-      "TC-004 Tags in aria-label",
-      false,
-      "FAIL: Gallery webview not open. Extension must activate and gallery must load for DOM-based A11y check.",
-    );
-  });
-
-  /**
-   * TC-005 — Gallery/List toggle buttons communicate their active state
-   * Steps:
-   *   1. Observe Gallery button is highlighted (aria-pressed="true")
-   *   2. Click List view button
-   *   3. Observe List button becomes highlighted; Gallery button unhighlighted
-   *   4. Click Gallery button to restore
-   *   5. Observe Gallery button highlighted again
-   *
-   * Pass: Gallery button aria-pressed="true" before click; List button aria-pressed="true" after
-   *
-   * Screenshot 08: Gallery layout active, Gallery button visually selected (BEFORE click)
-   * Screenshot 09: List layout active, List button visually selected (AFTER click)
-   */
-  test("TC-005: Gallery/List toggle buttons have aria-pressed", async () => {
-    if (galleryOpened) {
-      const readButtonsScript =
-        "(() => { const btns = Array.from(document.querySelectorAll('.layout-button')); " +
-        "const results = btns.map(function(b){ return {label: b.getAttribute('aria-label'), pressed: b.getAttribute('aria-pressed')}; }); " +
-        "return JSON.stringify({count: btns.length, buttons: results}); })()";
-
-      // Step 1: Read initial state (Gallery should be active = pressed="true")
-      const initialResult = sendEvalSignal(readButtonsScript, 5000);
-      // Screenshot 08: Before click — Gallery button highlighted
-      takeScreenshot("08-tc005-toggle-before");
-
-      // ARIA snapshot fallback path
-      if (initialResult && initialResult.startsWith("ACCESSIBILITY:")) {
-        const nodes = parseAriaSnapshot(initialResult.slice("ACCESSIBILITY:".length));
-        const pressedButtons = nodes.filter(
-          (n) => n.role.toLowerCase() === "button" && n.pressed !== undefined,
-        );
-        step(
-          "TC-005 Toggle buttons have aria-pressed",
-          pressedButtons.length > 0,
-          `[AX-TREE fallback] ${pressedButtons.length} buttons with pressed state.`,
-        );
-        return;
-      }
-
-      if (!initialResult || initialResult.startsWith("ERROR:")) {
-        takeScreenshot("09-tc005-toggle-after");
-        step("TC-005 Toggle buttons have aria-pressed", false,
-          "FAIL: DOM eval error reading initial button state.");
-        return;
-      }
-
-      let initialData: any = null;
-      try { initialData = JSON.parse(initialResult); } catch {}
-      if (!initialData) {
-        takeScreenshot("09-tc005-toggle-after");
-        step("TC-005 Toggle buttons have aria-pressed", false,
-          "parse error on initial read: " + initialResult.slice(0, 100));
-        return;
-      }
-
-      const hasInitialAriaPressed = initialData.count > 0 &&
-        initialData.buttons?.some((b: any) => b.pressed === "true" || b.pressed === "false");
-
-      // Step 2: User clicks the List view button
-      const clickResult = sendEvalSignal(
-        "(function(){" +
-        "  var btn = document.querySelector('[aria-label=\"list view\"]');" +
-        "  if (!btn) btn = Array.from(document.querySelectorAll('.layout-button')).find(function(b){" +
-        "    return (b.getAttribute('aria-label') || '').toLowerCase().includes('list');" +
-        "  });" +
-        "  if (btn) { btn.click(); return 'clicked'; }" +
-        "  return 'no-list-button';" +
-        "})()",
-        3000,
-      );
-      // Step 3: Observe layout switches to list style and List button becomes highlighted
-      await wait(600);
-
-      // Step 3 continued: Verify state changed — List button should now be pressed=true
-      const afterResult = sendEvalSignal(readButtonsScript, 5000);
-      // Screenshot 09: After click — List button highlighted
-      takeScreenshot("09-tc005-toggle-after");
-
-      // Step 4 & 5: Restore Gallery view
-      sendEvalSignal(
-        "(function(){" +
-        "  var btn = document.querySelector('[aria-label=\"grid view\"]');" +
-        "  if (!btn) btn = Array.from(document.querySelectorAll('.layout-button')).find(function(b){" +
-        "    return (b.getAttribute('aria-label') || '').toLowerCase().includes('grid') ||" +
-        "           (b.getAttribute('aria-label') || '').toLowerCase().includes('gallery');" +
-        "  });" +
-        "  if (btn) btn.click();" +
-        "})()",
-        2000,
-      );
-      await wait(300);
-
-      let afterData: any = null;
-      try { afterData = JSON.parse(afterResult); } catch {}
-
-      const listBtnAfter = afterData?.buttons?.find((b: any) =>
-        (b.label || "").toLowerCase().includes("list"),
-      );
-      const gridBtnAfter = afterData?.buttons?.find((b: any) =>
+    const galleryBefore = beforeData.buttons?.find(
+      (b: any) =>
         (b.label || "").toLowerCase().includes("grid") ||
         (b.label || "").toLowerCase().includes("gallery"),
-      );
-      const stateToggled = listBtnAfter?.pressed === "true" && gridBtnAfter?.pressed === "false";
+    );
+    const listBefore = beforeData.buttons?.find((b: any) =>
+      (b.label || "").toLowerCase().includes("list"),
+    );
+    const galleryAfter = afterData.buttons?.find(
+      (b: any) =>
+        (b.label || "").toLowerCase().includes("grid") ||
+        (b.label || "").toLowerCase().includes("gallery"),
+    );
+    const listAfter = afterData.buttons?.find((b: any) =>
+      (b.label || "").toLowerCase().includes("list"),
+    );
 
-      const passes = hasInitialAriaPressed && stateToggled && clickResult === "clicked";
+    const beforeOk =
+      galleryBefore?.pressed === "true" && listBefore?.pressed === "false";
+    const afterOk =
+      listAfter?.pressed === "true" && galleryAfter?.pressed === "false";
+    const passes = beforeOk && afterOk;
+
+    const detail =
+      `Before: gallery=${galleryBefore?.label}[${galleryBefore?.pressed}] ` +
+      `list=${listBefore?.label}[${listBefore?.pressed}]. ` +
+      `After: gallery=${galleryAfter?.label}[${galleryAfter?.pressed}] ` +
+      `list=${listAfter?.label}[${listAfter?.pressed}]`;
+    step("TC-002 Toggle aria-pressed state", passes, detail);
+  });
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // TC-003 — Sample card accessible names include tags on keyboard focus
+  //
+  // Steps per test plan:
+  //   1. Set VS Code color theme to "Default Light Modern"
+  //   2. Click ATK Activity Bar icon
+  //   3. Open gallery (Gallery/Grid layout default)
+  //   4. Click inside gallery webview to give it focus
+  //   5. Press Tab to move keyboard focus to first sample card
+  //   6. Read aria-label from focused card element
+  //   7. Verify aria-label matches pattern /.+\. Tags: .+/
+  //   8. Screenshot 06 (focused card with focus ring visible)
+  // ─────────────────────────────────────────────────────────────────────────────
+  test("TC-003: Sample card aria-label includes tags on keyboard focus", async () => {
+    // Steps 1-3: set Light theme + click ATK Activity Bar + open gallery
+    const galleryOpened = await setupTcGallery("TC-003");
+
+    if (!galleryOpened) {
+      takeScreenshot("06-tc003-focused-card");
       step(
-        "TC-005 Toggle buttons have aria-pressed",
-        passes,
-        passes
-          ? `OK: initial=${JSON.stringify(initialData.buttons)}, after-click=${JSON.stringify(afterData?.buttons)}`
-          : `FAIL: hasInitialAriaPressed=${hasInitialAriaPressed}, clickResult=${clickResult}, stateToggled=${stateToggled}. ` +
-            `Initial=${JSON.stringify(initialData.buttons)}, After=${JSON.stringify(afterData?.buttons)}`,
+        "TC-003 Card aria-label includes tags",
+        false,
+        "FAIL: Gallery webview not open after setup.",
       );
       return;
     }
 
-    takeScreenshot("08-tc005-toggle-before");
+    // Step 4: Click inside the Sample Gallery webview to give it keyboard focus
+    sendEvalSignal(
+      "(function(){" +
+        "  var card=document.querySelector('.sample-card');" +
+        "  if(card){card.focus();return 'focused';}" +
+        "  document.body.click();" +
+        "  return 'body-click';" +
+        "})()",
+      3000,
+    );
+    await wait(400);
+
+    // Step 5: Press Tab to move keyboard focus to the first .sample-card
+    await sendSignal("pressKey:Tab", 3000);
+    await wait(400);
+
+    // Steps 6-7: Read aria-label from focused card and verify it contains ". Tags:"
+    const evalScript =
+      "(function(){" +
+      "  var card=document.activeElement;" +
+      "  if(!card||!card.classList.contains('sample-card')){" +
+      "    card=document.querySelector('.sample-card');" +
+      "    if(card)card.focus();" +
+      "  }" +
+      "  if(!card) return JSON.stringify({error:'no-sample-card'});" +
+      "  var label=card.getAttribute('aria-label')||'';" +
+      "  var hasTags=/\\. Tags: .+/.test(label);" +
+      "  return JSON.stringify({" +
+      "    label:label.slice(0,200)," +
+      "    hasTags:hasTags," +
+      "    isFocused:document.activeElement===card" +
+      "  });" +
+      "})()";
+
+    const rawResult = sendEvalSignal(evalScript, 8000);
+    console.log(
+      "  TC-003 eval result:",
+      rawResult ? rawResult.slice(0, 300) : "(empty)",
+    );
+
+    // Step 8: Screenshot showing focused card with focus ring
+    takeScreenshot("06-tc003-focused-card");
+
+    if (!rawResult || rawResult.startsWith("ERROR:")) {
+      step(
+        "TC-003 Card aria-label includes tags",
+        false,
+        "FAIL: DOM eval error.",
+      );
+      return;
+    }
+
+    let data: any = null;
+    try {
+      data = JSON.parse(rawResult);
+    } catch {}
+    if (!data) {
+      step(
+        "TC-003 Card aria-label includes tags",
+        false,
+        `FAIL: Parse error: ${rawResult.slice(0, 100)}`,
+      );
+      return;
+    }
+    if (data.error === "no-sample-card") {
+      step(
+        "TC-003 Card aria-label includes tags",
+        false,
+        "FAIL: No .sample-card elements found in gallery webview.",
+      );
+      return;
+    }
+
+    const detail =
+      `aria-label="${data.label}"; hasTags=${data.hasTags}; isFocused=${data.isFocused}`;
+    step("TC-003 Card aria-label includes tags", !!data.hasTags, detail);
+  });
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // TC-004a — Featured section background contrast >= 3:1 against non-featured section background
+  //           (Light theme, WCAG 1.4.11 Non-text Contrast)
+  //
+  // Steps per test plan:
+  //   1. Set VS Code color theme to "Default Light Modern"
+  //   2. Click ATK Activity Bar icon
+  //   3. Open gallery — gallery shows both featured (blue bg) and non-featured sections
+  //   4. Screenshot 13 (featured and non-featured sections side by side, light theme)
+  //   5. Read effective background color of .featured-sample-section container
+  //   6. Read effective background color of the non-featured section container
+  //   7. Compute contrast_ratio(featured_section_bg, non_featured_section_bg)
+  // ─────────────────────────────────────────────────────────────────────────────
+  test("TC-004a: Featured section background contrast >= 3:1 (Light theme, WCAG 1.4.11)", async () => {
+    // Steps 1-3: set Light theme + click ATK Activity Bar + open gallery
+    const galleryOpened = await setupTcGallery("TC-004a", "light");
+
+    if (!galleryOpened) {
+      takeScreenshot("13-tc004a-sections-light");
+      step(
+        "TC-004a Featured section bg contrast >= 3:1 (Light)",
+        false,
+        "FAIL: Gallery webview not open after setup.",
+      );
+      return;
+    }
+
+    // Step 4: Screenshot showing both featured and non-featured sections side by side
+    takeScreenshot("13-tc004a-sections-light");
+
+    // Steps 5-7: Read featured section bg and non-featured section bg, compute WCAG contrast ratio
+    const evalScript =
+      "(function(){" +
+      WCAG_HELPER_JS +
+      // Find the featured section container
+      "  var featSec=document.querySelector('.featured-sample-section');" +
+      "  if(!featSec){" +
+      "    return JSON.stringify({error:'no-featured-section'});" +
+      "  }" +
+      // Find the non-featured section: any section-level container that is NOT .featured-sample-section
+      // Try siblings first, then fall back to a generic section selector
+      "  var nonFeatSec=null;" +
+      "  var sibling=featSec.nextElementSibling||featSec.previousElementSibling;" +
+      "  if(sibling){nonFeatSec=sibling;}" +
+      "  if(!nonFeatSec){" +
+      "    var allSections=document.querySelectorAll('.sample-section,.samples-section,section,[class*=\"section\"]');" +
+      "    for(var i=0;i<allSections.length;i++){" +
+      "      if(allSections[i]!==featSec&&!featSec.contains(allSections[i])&&!allSections[i].contains(featSec)){" +
+      "        nonFeatSec=allSections[i];break;" +
+      "      }" +
+      "    }" +
+      "  }" +
+      "  if(!nonFeatSec){" +
+      "    return JSON.stringify({error:'no-non-featured-section'});" +
+      "  }" +
+      // Read effective background colors via DOM traversal (TC-004a, Light theme)
+      "  var featBgArr=effectiveBg(featSec,'light');" +
+      "  var nonFeatBgArr=effectiveBg(nonFeatSec,'light');" +
+      "  var featL=relativeLuminance(featBgArr[0],featBgArr[1],featBgArr[2]);" +
+      "  var nonFeatL=relativeLuminance(nonFeatBgArr[0],nonFeatBgArr[1],nonFeatBgArr[2]);" +
+      "  var ratio=contrastRatio(featL,nonFeatL);" +
+      "  return JSON.stringify({" +
+      "    featuredSectionBg:'rgb('+featBgArr[0]+','+featBgArr[1]+','+featBgArr[2]+')'," +
+      "    nonFeaturedSectionBg:'rgb('+nonFeatBgArr[0]+','+nonFeatBgArr[1]+','+nonFeatBgArr[2]+')'," +
+      "    ratio:Math.round(ratio*100)/100," +
+      "    passes:ratio>=3.0" +
+      "  });" +
+      "})()";
+
+    const rawResult = sendEvalSignal(evalScript, 10000);
+    console.log(
+      "  TC-004a eval result:",
+      rawResult ? rawResult.slice(0, 300) : "(empty)",
+    );
+
+    if (!rawResult || rawResult.startsWith("ERROR:")) {
+      step(
+        "TC-004a Featured section bg contrast >= 3:1 (Light)",
+        false,
+        "FAIL: DOM eval error.",
+      );
+      return;
+    }
+
+    let data: any = null;
+    try {
+      data = JSON.parse(rawResult);
+    } catch {}
+    if (!data) {
+      step(
+        "TC-004a Featured section bg contrast >= 3:1 (Light)",
+        false,
+        `FAIL: Parse error: ${rawResult.slice(0, 100)}`,
+      );
+      return;
+    }
+    if (data.error === "no-featured-section") {
+      step(
+        "TC-004a Featured section bg contrast >= 3:1 (Light)",
+        false,
+        "FAIL: No .featured-sample-section element found in the gallery DOM.",
+      );
+      return;
+    }
+    if (data.error === "no-non-featured-section") {
+      step(
+        "TC-004a Featured section bg contrast >= 3:1 (Light)",
+        false,
+        "FAIL: Could not find a non-featured section container to compare against.",
+      );
+      return;
+    }
+    if (data.error) {
+      step(
+        "TC-004a Featured section bg contrast >= 3:1 (Light)",
+        false,
+        `FAIL: ${data.error}`,
+      );
+      return;
+    }
+
+    const detail =
+      `Computed ratio=${data.ratio}:1; featured section bg=${data.featuredSectionBg}; ` +
+      `non-featured section bg=${data.nonFeaturedSectionBg}`;
     step(
-      "TC-005 Toggle buttons aria-pressed",
-      false,
-      "FAIL: Gallery webview not open. Extension must activate and gallery must load for DOM-based A11y check.",
+      "TC-004a Featured section bg contrast >= 3:1 (Light)",
+      !!data.passes,
+      detail,
     );
   });
 
-  /**
-   * TC-006 — Keyboard focus ring is visible on sample cards in Light theme
-   * Steps:
-   *   1. Open gallery in Light theme
-   *   2. Press Tab to move keyboard focus to the first sample card
-   *   3. Observe dark-blue focus ring appears
-   *   4. Confirm ring is clearly visible against white card background
-   *
-   * Pass: outline-color of focused .sample-card is #005FB8; contrast_ratio >= 3.0
-   *
-   * Screenshot 10: First sample card focused, dark-blue outline shown
-   */
-  test("TC-006: Focus indicator contrast >= 3:1 in Light theme (sample cards)", async () => {
+  // ─────────────────────────────────────────────────────────────────────────────
+  // TC-004b — Featured section background contrast >= 3:1 against non-featured section background
+  //           (Dark theme, WCAG 1.4.11 Non-text Contrast)
+  //
+  // Steps per test plan:
+  //   1. Set VS Code color theme to "Default Dark Modern"
+  //   2. Click ATK Activity Bar icon
+  //   3. Open gallery — gallery shows both featured (steel-blue bg) and non-featured (dark) sections
+  //   4. Screenshot 14 (featured and non-featured sections side by side, dark theme)
+  //   5. Read effective background color of .featured-sample-section container
+  //   6. Read effective background color of the non-featured section container
+  //   7. Compute contrast_ratio(featured_section_bg, non_featured_section_bg)
+  // ─────────────────────────────────────────────────────────────────────────────
+  test("TC-004b: Featured section background contrast >= 3:1 (Dark theme, WCAG 1.4.11)", async () => {
+    // Steps 1-3: set Dark theme + click ATK Activity Bar + open gallery
+    const galleryOpened = await setupTcGallery("TC-004b", "dark");
+
     if (!galleryOpened) {
-      takeScreenshot("10-tc006-focus-ring");
-      step("TC-006 Focus indicator contrast", false, "FAIL: Gallery webview not open.");
+      takeScreenshot("14-tc004b-sections-dark");
+      step(
+        "TC-004b Featured section bg contrast >= 3:1 (Dark)",
+        false,
+        "FAIL: Gallery webview not open after setup.",
+      );
       return;
     }
 
-    // Step 1: Switch to Light theme
-    const wbConfig = vscode.workspace.getConfiguration("workbench");
-    const originalTheme = wbConfig.get<string>("colorTheme") ?? "Default Dark Modern";
-    try {
-      await wbConfig.update("colorTheme", "Default Light Modern", vscode.ConfigurationTarget.Global);
-    } catch {
-      try {
-        await wbConfig.update("colorTheme", "Default Light+", vscode.ConfigurationTarget.Global);
-      } catch (e) {
-        console.warn("  TC-006: Could not switch to light theme:", e);
-      }
-    }
-    await wait(3000); // allow webview to re-render with light theme styles
+    // Step 4: Screenshot showing both featured and non-featured sections side by side (dark theme)
+    takeScreenshot("14-tc004b-sections-dark");
 
-    // Step 2: User presses Tab to move keyboard focus to the first sample card
-    await sendSignal("pressKey:Tab", 3000);
-    await wait(300); // allow focus ring to render
-
-    // Step 3: Screenshot — light theme with focused card showing the actual focus ring
-    takeScreenshot("10-tc006-focus-ring");
-
-    // Step 4: Verify the focus ring is dark blue — check computed outline color
-    const outlineScript =
-      "(() => {" +
-      "  var card = document.activeElement;" +
-      "  if (!card || !card.classList.contains('sample-card')) {" +
-      "    card = document.querySelector('.sample-card');" +
+    // Steps 5-7: Read featured section bg and non-featured section bg, compute WCAG contrast ratio
+    const evalScriptDark =
+      "(function(){" +
+      WCAG_HELPER_JS +
+      // Find the featured section container
+      "  var featSec=document.querySelector('.featured-sample-section');" +
+      "  if(!featSec){" +
+      "    return JSON.stringify({error:'no-featured-section'});" +
       "  }" +
-      "  if (!card) return 'no-card';" +
-      "  var cs = getComputedStyle(card);" +
-      "  var isLight = document.body.classList.contains('vscode-light');" +
-      "  return JSON.stringify({outlineColor: cs.outlineColor, outlineStyle: cs.outlineStyle, isLight: isLight});" +
+      // Find the non-featured section: sibling first, then generic selector
+      "  var nonFeatSec=null;" +
+      "  var sibling=featSec.nextElementSibling||featSec.previousElementSibling;" +
+      "  if(sibling){nonFeatSec=sibling;}" +
+      "  if(!nonFeatSec){" +
+      "    var allSections=document.querySelectorAll('.sample-section,.samples-section,section,[class*=\"section\"]');" +
+      "    for(var i=0;i<allSections.length;i++){" +
+      "      if(allSections[i]!==featSec&&!featSec.contains(allSections[i])&&!allSections[i].contains(featSec)){" +
+      "        nonFeatSec=allSections[i];break;" +
+      "      }" +
+      "    }" +
+      "  }" +
+      "  if(!nonFeatSec){" +
+      "    return JSON.stringify({error:'no-non-featured-section'});" +
+      "  }" +
+      // Read effective background colors via DOM traversal (TC-004b, Dark theme)
+      "  var featBgArr=effectiveBg(featSec,'dark');" +
+      "  var nonFeatBgArr=effectiveBg(nonFeatSec,'dark');" +
+      "  var featL=relativeLuminance(featBgArr[0],featBgArr[1],featBgArr[2]);" +
+      "  var nonFeatL=relativeLuminance(nonFeatBgArr[0],nonFeatBgArr[1],nonFeatBgArr[2]);" +
+      "  var ratio=contrastRatio(featL,nonFeatL);" +
+      "  return JSON.stringify({" +
+      "    featuredSectionBg:'rgb('+featBgArr[0]+','+featBgArr[1]+','+featBgArr[2]+')'," +
+      "    nonFeaturedSectionBg:'rgb('+nonFeatBgArr[0]+','+nonFeatBgArr[1]+','+nonFeatBgArr[2]+')'," +
+      "    ratio:Math.round(ratio*100)/100," +
+      "    passes:ratio>=3.0" +
+      "  });" +
       "})()";
-    const outlineResult = sendEvalSignal(outlineScript, 5000);
-    console.log("  TC-006 outline result:", outlineResult ? outlineResult.slice(0, 160) : "(empty)");
 
-    // Supplementary: Check if the light-theme fix CSS rule exists
-    const ruleScript =
-      "(() => {" +
-      "  var found = false; var foundColor = '';" +
-      "  try {" +
-      "    Array.from(document.styleSheets).forEach(function(ss) {" +
-      "      try {" +
-      "        Array.from(ss.cssRules).forEach(function(r) {" +
-      "          if (r.selectorText &&" +
-      "              r.selectorText.includes('vscode-light') &&" +
-      "              r.selectorText.includes('sample-card') &&" +
-      "              r.selectorText.includes('focus-visible')) {" +
-      "            found = true;" +
-      "            foundColor = (r.style && r.style.outlineColor) || '#005FB8';" +
-      "          }" +
-      "        });" +
-      "      } catch(e) {}" +
-      "    });" +
-      "  } catch(e) {}" +
-      "  return JSON.stringify({found: found, color: foundColor});" +
-      "})()";
-    const ruleResult = sendEvalSignal(ruleScript, 5000);
-    console.log("  TC-006 rule result:", ruleResult ? ruleResult.slice(0, 120) : "(empty)");
+    const rawResult = sendEvalSignal(evalScriptDark, 10000);
+    console.log(
+      "  TC-004b eval result:",
+      rawResult ? rawResult.slice(0, 300) : "(empty)",
+    );
 
-    // Restore original theme
-    try {
-      await wbConfig.update("colorTheme", originalTheme, vscode.ConfigurationTarget.Global);
-    } catch (e) {
-      console.warn("  TC-006: Could not restore theme:", e);
-    }
-
-    // Primary behavioral criterion: computed outline-color of focused card must be #005FB8 (contrast 5.77:1 on white).
-    // Acceptable CSS computed values: rgb(0, 95, 184) or rgb(0, 91, 158) -- both pass >= 3:1 on white.
-    const GOOD_OUTLINE_COLORS = ["rgb(0, 95, 184)", "rgb(0, 91, 158)", "rgb(0, 95, 184)"];
-    let computedPasses = false;
-    let computedDetail = "";
-    if (outlineResult && !outlineResult.startsWith("ERROR:") && outlineResult !== "no-card") {
-      try {
-        const d = JSON.parse(outlineResult);
-        const color = (d.outlineColor || "").trim();
-        computedPasses = GOOD_OUTLINE_COLORS.some((g) => g === color) ||
-          // Accept any outline that is clearly not the dim default (transparent / low-opacity)
-          (!!color && color !== "rgba(0, 0, 0, 0)" && color !== "transparent");
-        computedDetail = `Computed outline: color=${color}, style=${d.outlineStyle}, isLight=${d.isLight}`;
-        console.log("  TC-006 computed outline:", computedDetail);
-      } catch {}
-    }
-
-    // Supplementary check: CSS rule existence (used as fallback when computed is unavailable)
-    let ruleData: any = null;
-    if (ruleResult && !ruleResult.startsWith("ERROR:")) {
-      try { ruleData = JSON.parse(ruleResult); } catch {}
-    }
-    const rulePasses = !!ruleData?.found;
-    console.log("  TC-006 css-rule passes:", rulePasses, ruleData);
-
-    // Behavioral pass takes priority; CSS rule is a fallback when DOM eval cannot reach the element
-    const passes = computedPasses || rulePasses;
-    if (passes) {
+    if (!rawResult || rawResult.startsWith("ERROR:")) {
       step(
-        "TC-006 Focus indicator contrast",
-        true,
-        computedPasses
-          ? `Behavioral: ${computedDetail}`
-          : `CSS rule present: outline-color ${ruleData?.color || "#005FB8"} >= 3:1 contrast on white`,
+        "TC-004b Featured section bg contrast >= 3:1 (Dark)",
+        false,
+        "FAIL: DOM eval error.",
       );
-    } else {
-      const detail =
-        "FAIL: Focus indicator does not meet contrast >= 3:1 in Light theme. " +
-        "Expected outline-color: #005FB8 (rgb(0, 95, 184)) on white (~5.77:1). " +
-        (computedDetail ? `Computed: ${computedDetail}. ` : "") +
-        "Fix: add body.vscode-light .sample-card:focus-visible { outline-color: #005FB8 } in sampleCard.scss";
-      step("TC-006 Focus indicator contrast", false, detail);
+      return;
     }
+
+    let data: any = null;
+    try {
+      data = JSON.parse(rawResult);
+    } catch {}
+    if (!data) {
+      step(
+        "TC-004b Featured section bg contrast >= 3:1 (Dark)",
+        false,
+        `FAIL: Parse error: ${rawResult.slice(0, 100)}`,
+      );
+      return;
+    }
+    if (data.error === "no-featured-section") {
+      step(
+        "TC-004b Featured section bg contrast >= 3:1 (Dark)",
+        false,
+        "FAIL: No .featured-sample-section element found in the gallery DOM.",
+      );
+      return;
+    }
+    if (data.error === "no-non-featured-section") {
+      step(
+        "TC-004b Featured section bg contrast >= 3:1 (Dark)",
+        false,
+        "FAIL: Could not find a non-featured section container to compare against.",
+      );
+      return;
+    }
+    if (data.error) {
+      step(
+        "TC-004b Featured section bg contrast >= 3:1 (Dark)",
+        false,
+        `FAIL: ${data.error}`,
+      );
+      return;
+    }
+
+    const detail =
+      `Computed ratio=${data.ratio}:1; featured section bg=${data.featuredSectionBg}; ` +
+      `non-featured section bg=${data.nonFeaturedSectionBg}`;
+    step(
+      "TC-004b Featured section bg contrast >= 3:1 (Dark)",
+      !!data.passes,
+      detail,
+    );
   });
 
-  test("Final state", async () => {
-    await wait(1000);
-    takeScreenshot("11-final-state");
-    step("Final state captured", true);
+  // ─────────────────────────────────────────────────────────────────────────────
+  // TC-005 — Screen reader differentiates Featured from non-Featured cards
+  //
+  // Steps per test plan:
+  //   1. Set VS Code color theme to "Default Light Modern"
+  //   2. Click ATK Activity Bar icon
+  //   3. Open gallery — mix of featured and non-featured cards
+  //   4. Screenshot 08 (gallery with featured and non-featured cards visible)
+  //   5. Find all card elements (.sample-card) and read their aria-label attributes
+  //   6. Verify at least one card has aria-label starting with "Featured sample."
+  //   7. Verify at least one card does NOT have "Featured sample." prefix
+  // ─────────────────────────────────────────────────────────────────────────────
+  test("TC-005: Featured cards have 'Featured sample.' aria-label prefix", async () => {
+    // Steps 1-3: set Light theme + click ATK Activity Bar + open gallery
+    const galleryOpened = await setupTcGallery("TC-005");
+
+    if (!galleryOpened) {
+      takeScreenshot("08-tc005-aria-labels");
+      step(
+        "TC-005 Featured ARIA differentiation",
+        false,
+        "FAIL: Gallery webview not open after setup.",
+      );
+      return;
+    }
+
+    // Steps 5-8: Find all cards, verify featured vs non-featured aria-labels,
+    //            and verify .featured-badge elements have been removed (badge-free DOM).
+    const evalScript =
+      "(function(){" +
+      "  var allCards=Array.from(document.querySelectorAll('.sample-card,.sample-list-item'));" +
+      "  var labels=allCards.map(function(c){return c.getAttribute('aria-label')||'';});" +
+      // Step 6: at least one card with aria-label starting with "Featured sample." (WITH period)
+      "  var featured=labels.filter(function(l){return l.startsWith('Featured sample.');});" +
+      // Step 7: at least one card without the "Featured sample." prefix
+      "  var nonFeatured=labels.filter(function(l){" +
+      "    return !l.startsWith('Featured sample.')&&l.length>0;});" +
+      // Step 8: featured badge elements must have been removed (count === 0)
+      "  var badgeCount=document.querySelectorAll('.featured-badge').length;" +
+      "  return JSON.stringify({" +
+      "    total:allCards.length," +
+      "    featuredCount:featured.length," +
+      "    nonFeaturedCount:nonFeatured.length," +
+      "    badgeCount:badgeCount," +
+      "    sampleFeaturedLabel:(featured[0]||'none').slice(0,100)," +
+      "    sampleNonFeaturedLabel:(nonFeatured[0]||'none').slice(0,100)" +
+      "  });" +
+      "})()";
+
+    const rawResult = sendEvalSignal(evalScript, 5000);
+    console.log(
+      "  TC-005 eval result:",
+      rawResult ? rawResult.slice(0, 300) : "(empty)",
+    );
+
+    // Step 4: Screenshot showing both featured and non-featured cards (no badge, ARIA only)
+    injectAriaOverlay(".sample-card,.sample-list-item");
+    await wait(300);
+    takeScreenshot("08-tc005-aria-labels");
+    removeAriaOverlay();
+
+    if (!rawResult || rawResult.startsWith("ERROR:")) {
+      step(
+        "TC-005 Featured ARIA differentiation",
+        false,
+        "FAIL: DOM eval error.",
+      );
+      return;
+    }
+
+    let data: any = null;
+    try {
+      data = JSON.parse(rawResult);
+    } catch {}
+    if (!data) {
+      step(
+        "TC-005 Featured ARIA differentiation",
+        false,
+        `FAIL: Parse error: ${rawResult.slice(0, 100)}`,
+      );
+      return;
+    }
+
+    const hasFeatured = data.featuredCount > 0;
+    const hasNonFeatured = data.nonFeaturedCount > 0;
+    // Step 8: badge must be gone — badgeCount === 0
+    const noBadge = data.badgeCount === 0;
+    const passes = hasFeatured && hasNonFeatured && noBadge;
+    const detail =
+      `${data.featuredCount} featured / ${data.nonFeaturedCount} non-featured of ${data.total} total. ` +
+      `badge count=${data.badgeCount} (expect 0). ` +
+      `Featured: "${data.sampleFeaturedLabel}". Non-featured: "${data.sampleNonFeaturedLabel}"`;
+    step("TC-005 Featured ARIA differentiation", passes, detail);
+  });
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // TC-006a — Focus ring contrast >= 3:1 in Gallery view (Light theme)
+  //
+  // Steps per test plan:
+  //   1. Set VS Code color theme to "Default Light Modern"
+  //   2. Click ATK Activity Bar icon
+  //   3. Open gallery in Gallery (Grid) view
+  //   4. Click inside gallery webview to give it keyboard focus
+  //   5. Press Tab to move keyboard focus to the first .sample-card
+  //   6. Screenshot 09 — IMMEDIATELY after Tab so focus ring is clearly visible
+  //   7. Read getComputedStyle(card).outlineColor from focused card
+  //   8. Read card background color
+  //   9. Compute contrast_ratio(outline_color, card_bg) using WCAG relative luminance
+  // ─────────────────────────────────────────────────────────────────────────────
+  test("TC-006a: Focus ring contrast >= 3:1 in Gallery view (Light theme)", async () => {
+    // Steps 1-3: set Light theme + click ATK Activity Bar + open gallery
+    const galleryOpened = await setupTcGallery("TC-006a");
+
+    if (!galleryOpened) {
+      takeScreenshot("09-tc006a-gallery-focus");
+      step(
+        "TC-006a Gallery focus ring contrast >= 3:1",
+        false,
+        "FAIL: Gallery webview not open after setup.",
+      );
+      return;
+    }
+
+    // Ensure Gallery (grid) view is active
+    sendEvalSignal(
+      "(function(){" +
+        "  var btn=document.querySelector('[aria-label=\"grid view\"]')" +
+        "    ||document.querySelector('[aria-label=\"Gallery view\"]')" +
+        "    ||Array.from(document.querySelectorAll('.layout-button')).find(function(b){" +
+        "      var l=(b.getAttribute('aria-label')||'').toLowerCase();" +
+        "      return l.includes('grid')||l.includes('gallery');});" +
+        "  if(btn)btn.click();" +
+        "  return btn?'clicked':'no-btn';" +
+        "})()",
+      3000,
+    );
+    await wait(600);
+
+    // Step 4: Click inside the gallery webview to give it keyboard focus
+    sendEvalSignal(
+      "(function(){" +
+        "  var el=document.querySelector('.sample-card,.sample-filter');" +
+        "  if(el){el.focus();return 'focused';}" +
+        "  document.body.click();" +
+        "  return 'body-click';" +
+        "})()",
+      3000,
+    );
+    await wait(400);
+
+    // Step 5: Press Tab to move keyboard focus to the first .sample-card
+    await sendSignal("pressKey:Tab", 3000);
+    await wait(400);
+
+    // Steps 7-9: Read outline color and card background, compute WCAG contrast ratio
+    const evalScript =
+      "(function(){" +
+      WCAG_HELPER_JS +
+      "  var card=document.activeElement;" +
+      "  if(!card||!card.classList.contains('sample-card')){" +
+      "    card=document.querySelector('.sample-card');" +
+      "    if(card)card.focus();" +
+      "  }" +
+      "  if(!card) return JSON.stringify({error:'no-sample-card'});" +
+      "  var cs=getComputedStyle(card);" +
+      "  var outlineRaw=cs.outlineColor;" +
+      "  var outlineRgb=parseRgb(outlineRaw);" +
+      "  var bgRgb=effectiveBg(card,'light');" +
+      "  if(!outlineRgb) return JSON.stringify({error:'parse-outline',outlineRaw:outlineRaw});" +
+      "  var outlineL=relativeLuminance(outlineRgb[0],outlineRgb[1],outlineRgb[2]);" +
+      "  var bgL=relativeLuminance(bgRgb[0],bgRgb[1],bgRgb[2]);" +
+      "  var ratio=contrastRatio(outlineL,bgL);" +
+      "  return JSON.stringify({" +
+      "    outlineRaw:outlineRaw," +
+      "    bgRgb:'rgb('+bgRgb[0]+','+bgRgb[1]+','+bgRgb[2]+')'," +
+      "    outlineStyle:cs.outlineStyle," +
+      "    ratio:Math.round(ratio*100)/100," +
+      "    passes:ratio>=3.0" +
+      "  });" +
+      "})()";
+
+    const rawResult = sendEvalSignal(evalScript, 8000);
+    console.log(
+      "  TC-006a eval result:",
+      rawResult ? rawResult.slice(0, 200) : "(empty)",
+    );
+
+    // Step 6: Screenshot — immediately after Tab so focus ring is clearly visible
+    takeScreenshot("09-tc006a-gallery-focus");
+
+    if (!rawResult || rawResult.startsWith("ERROR:")) {
+      step(
+        "TC-006a Gallery focus ring contrast >= 3:1",
+        false,
+        "FAIL: DOM eval error.",
+      );
+      return;
+    }
+
+    let data: any = null;
+    try {
+      data = JSON.parse(rawResult);
+    } catch {}
+    if (!data) {
+      step(
+        "TC-006a Gallery focus ring contrast >= 3:1",
+        false,
+        `FAIL: Parse error: ${rawResult.slice(0, 100)}`,
+      );
+      return;
+    }
+    if (data.error === "no-sample-card") {
+      step(
+        "TC-006a Gallery focus ring contrast >= 3:1",
+        false,
+        "FAIL: No .sample-card elements found in gallery webview.",
+      );
+      return;
+    }
+    if (data.error) {
+      step(
+        "TC-006a Gallery focus ring contrast >= 3:1",
+        false,
+        `FAIL: ${data.error} outlineRaw=${data.outlineRaw || "?"}`,
+      );
+      return;
+    }
+
+    const detail =
+      `Computed ratio=${data.ratio}:1; outline=${data.outlineRaw} (${data.outlineStyle}); bg=${data.bgRgb}`;
+    step("TC-006a Gallery focus ring contrast >= 3:1", !!data.passes, detail);
+  });
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // TC-006b — Focus ring contrast >= 3:1 in List view (Light theme)
+  //
+  // Steps per test plan:
+  //   1. Set VS Code color theme to "Default Light Modern"
+  //   2. Click ATK Activity Bar icon
+  //   3. Open gallery in Gallery (Grid) view
+  //   4. Click the List view toggle button — layout switches to vertical list
+  //   5. Click inside gallery webview to give it keyboard focus
+  //   6. Press Tab to move keyboard focus to the first .sample-list-item
+  //   7. Screenshot 10 — IMMEDIATELY after Tab so focus ring is clearly visible
+  //   8. Read getComputedStyle(listItem).outlineColor from focused list item
+  //   9. Read effective background color by walking up the DOM until a non-transparent
+  //      backgroundColor is found. For items in .featured-sample-section this will be
+  //      rgb(60, 139, 197) (#3C8BC5); for normal section items it will be #FFFFFF.
+  //  10. Compute contrast_ratio(outline_color, effective_background) using WCAG luminance
+  //
+  // Expected:
+  //   - Items inside .featured-sample-section: white focus ring (#FFFFFF, ~3.7:1 vs #3C8BC5)
+  //   - Items in normal section: dark-blue focus ring (#005FB8, ~10:1 vs white)
+  //   - contrast_ratio >= 3.0 in both cases
+  // ─────────────────────────────────────────────────────────────────────────────
+  test("TC-006b: Focus ring contrast >= 3:1 in List view (Light theme)", async () => {
+    // Steps 1-3: set Light theme + click ATK Activity Bar + open gallery
+    const galleryOpened = await setupTcGallery("TC-006b");
+
+    if (!galleryOpened) {
+      takeScreenshot("10-tc006b-list-focus");
+      step(
+        "TC-006b List focus ring contrast >= 3:1",
+        false,
+        "FAIL: Gallery webview not open after setup.",
+      );
+      return;
+    }
+
+    // Ensure we start from Gallery view
+    sendEvalSignal(
+      "(function(){" +
+        "  var btn=document.querySelector('[aria-label=\"grid view\"]')" +
+        "    ||document.querySelector('[aria-label=\"Gallery view\"]')" +
+        "    ||Array.from(document.querySelectorAll('.layout-button')).find(function(b){" +
+        "      var l=(b.getAttribute('aria-label')||'').toLowerCase();" +
+        "      return l.includes('grid')||l.includes('gallery');});" +
+        "  if(btn)btn.click();" +
+        "  return btn?'clicked':'no-btn';" +
+        "})()",
+      3000,
+    );
+    await wait(600);
+
+    // Step 4: Click the List view toggle button — observe layout switches to vertical list
+    const switchResult = sendEvalSignal(
+      "(function(){" +
+        "  var btn=document.querySelector('[aria-label=\"list view\"]')" +
+        "    ||document.querySelector('[aria-label=\"List view\"]')" +
+        "    ||Array.from(document.querySelectorAll('.layout-button')).find(function(b){" +
+        "      return (b.getAttribute('aria-label')||'').toLowerCase().includes('list');});" +
+        "  if(!btn)return 'no-list-button';" +
+        "  btn.click();" +
+        "  return 'clicked';" +
+        "})()",
+      5000,
+    );
+    console.log("  TC-006b switch to list result:", switchResult);
+    await wait(800);
+
+    // Step 5: Click inside gallery to give it keyboard focus
+    sendEvalSignal(
+      "(function(){" +
+        "  var el=document.querySelector('.sample-list-item,.sample-filter');" +
+        "  if(el){el.focus();return 'focused';}" +
+        "  document.body.click();" +
+        "  return 'body-click';" +
+        "})()",
+      3000,
+    );
+    await wait(400);
+
+    // Step 6: Press Tab to move keyboard focus to the first .sample-list-item
+    await sendSignal("pressKey:Tab", 3000);
+    await wait(400);
+
+    // Steps 8-10: Read outline color and list item background, compute WCAG contrast ratio
+    const evalScript =
+      "(function(){" +
+      WCAG_HELPER_JS +
+      "  var item=document.activeElement;" +
+      "  if(!item||!item.classList.contains('sample-list-item')){" +
+      "    item=document.querySelector('.sample-list-item');" +
+      "    if(item)item.focus();" +
+      "  }" +
+      "  if(!item) return JSON.stringify({error:'no-sample-list-item'});" +
+      "  var cs=getComputedStyle(item);" +
+      "  var outlineRaw=cs.outlineColor;" +
+      "  var outlineRgb=parseRgb(outlineRaw);" +
+      "  var bgRgb=effectiveBg(item,'light');" +
+      "  if(!outlineRgb) return JSON.stringify({error:'parse-outline',outlineRaw:outlineRaw});" +
+      "  var outlineL=relativeLuminance(outlineRgb[0],outlineRgb[1],outlineRgb[2]);" +
+      "  var bgL=relativeLuminance(bgRgb[0],bgRgb[1],bgRgb[2]);" +
+      "  var ratio=contrastRatio(outlineL,bgL);" +
+      "  return JSON.stringify({" +
+      "    outlineRaw:outlineRaw," +
+      "    bgRgb:'rgb('+bgRgb[0]+','+bgRgb[1]+','+bgRgb[2]+')'," +
+      "    outlineStyle:cs.outlineStyle," +
+      "    ratio:Math.round(ratio*100)/100," +
+      "    passes:ratio>=3.0" +
+      "  });" +
+      "})()";
+
+    const rawResult = sendEvalSignal(evalScript, 8000);
+    console.log(
+      "  TC-006b eval result:",
+      rawResult ? rawResult.slice(0, 200) : "(empty)",
+    );
+
+    // Step 7: Screenshot — immediately after Tab so focus ring is clearly visible
+    takeScreenshot("10-tc006b-list-focus");
+
+    if (!rawResult || rawResult.startsWith("ERROR:")) {
+      step(
+        "TC-006b List focus ring contrast >= 3:1",
+        false,
+        "FAIL: DOM eval error.",
+      );
+      return;
+    }
+
+    let data: any = null;
+    try {
+      data = JSON.parse(rawResult);
+    } catch {}
+    if (!data) {
+      step(
+        "TC-006b List focus ring contrast >= 3:1",
+        false,
+        `FAIL: Parse error: ${rawResult.slice(0, 100)}`,
+      );
+      return;
+    }
+    if (data.error === "no-sample-list-item") {
+      step(
+        "TC-006b List focus ring contrast >= 3:1",
+        false,
+        "FAIL: No .sample-list-item elements found — list view may not have rendered.",
+      );
+      return;
+    }
+    if (data.error) {
+      step(
+        "TC-006b List focus ring contrast >= 3:1",
+        false,
+        `FAIL: ${data.error} outlineRaw=${data.outlineRaw || "?"}`,
+      );
+      return;
+    }
+
+    const detail =
+      `Computed ratio=${data.ratio}:1; outline=${data.outlineRaw} (${data.outlineStyle}); bg=${data.bgRgb}`;
+    step("TC-006b List focus ring contrast >= 3:1", !!data.passes, detail);
   });
 });
