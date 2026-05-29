@@ -12,7 +12,7 @@ resource serverfarms 'Microsoft.Web/serverfarms@2021-02-01' = {
   name: serverfarmsName
   location: location
   sku: {
-    name: functionAppSKU // Add functionServerfarmsSku
+    name: functionAppSKU // Add functionServerfarmsSku property to provisionParameters to override the default value "Y1".
   }
   properties: {}
 }
