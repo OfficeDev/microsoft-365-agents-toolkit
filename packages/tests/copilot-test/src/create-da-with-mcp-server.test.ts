@@ -174,45 +174,40 @@ async function waitForProjectDir(
  * Navigate the wizard through the common DA+MCP steps up to (and including)
  * "Start with a MCP server". Caller handles subsequent steps.
  * Prefix is used to namespace screenshots (e.g. "tc001").
+ *
+ * Corrected flow per wizardNode.json + daProjectTypeNode.ts:
+ *   1. "New Project" QuickPick → click "Declarative Agent"
+ *      (id: copilot-agent-type, group "Agents for Microsoft 365 Copilot")
+ *   2. "App Features Using Agents" — auto-skipped (skipSingleOption: true)
+ *   3. "Create Declarative Agent" QuickPick → click "Add an Action"
+ *   4. "Create an Action" QuickPick → click "Start with a MCP server"
  */
 async function navigateToDaMcpServerStep(prefix: string): Promise<void> {
-  // Step 1: App category — "Teams Agents and Apps"
+  // Step 1: "New Project" QuickPick — select "Declarative Agent" directly
   await sendSignal(
-    `waitForTextThenScreenshot:Teams Agents and Apps:60000:${prefix}-01-wizard-open`,
+    `waitForTextThenScreenshot:Declarative Agent:60000:${prefix}-01-wizard-open`,
     68000,
   );
-  await sendSignal("clickText:Teams Agents and Apps", 10000);
-  await wait(1000);
-
-  // Step 2: App type — "Agent"
-  await sendSignal(
-    `waitForTextThenScreenshot:Agent:20000:${prefix}-02-agent-option`,
-    28000,
-  );
-  await sendSignal("clickText:Agent", 10000);
-  await wait(1000);
-
-  // Step 3: Agent variant — "Declarative Agent"
-  await sendSignal(
-    `waitForTextThenScreenshot:Declarative Agent:20000:${prefix}-03-declarative-agent`,
-    28000,
-  );
+  await takeScreenshot(`${prefix}-01-wizard-open`);
   await sendSignal("clickText:Declarative Agent", 10000);
   await wait(1000);
 
-  // Step 4: DA template path — "Add an Action"
+  // Step 2: "App Features Using Agents" is auto-skipped (skipSingleOption: true)
+  // Step 3: "Create Declarative Agent" QuickPick — select "Add an Action"
   await sendSignal(
-    `waitForTextThenScreenshot:Add an Action:20000:${prefix}-04-add-an-action`,
+    `waitForTextThenScreenshot:Add an Action:20000:${prefix}-02-create-da-quickpick`,
     28000,
   );
+  await takeScreenshot(`${prefix}-02-create-da-quickpick`);
   await sendSignal("clickText:Add an Action", 10000);
   await wait(1000);
 
-  // Step 5: Action source — "Start with a MCP server"
+  // Step 4: "Create an Action" QuickPick — select "Start with a MCP server"
   await sendSignal(
-    `waitForTextThenScreenshot:Start with a MCP server:20000:${prefix}-05-mcp-server-option`,
+    `waitForTextThenScreenshot:Start with a MCP server:20000:${prefix}-03-create-an-action`,
     28000,
   );
+  await takeScreenshot(`${prefix}-03-create-an-action`);
   await sendSignal("clickText:Start with a MCP server", 10000);
   await wait(1000);
 }
