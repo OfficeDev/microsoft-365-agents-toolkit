@@ -232,9 +232,9 @@ class CLIEngine {
         return err(res.error);
       } else {
         if (res.value.isSupport === VersionState.unsupported) {
-          return err(new IncompatibleProjectError("core.projectVersionChecker.cliUseNewVersion"));
-        } else if (res.value.isSupport === VersionState.upgradeable) {
           return err(new IncompatibleProjectError("core.migrationV3.abandonedProject"));
+        } else if (res.value.isSupport === VersionState.upgradeable) {
+          return err(new IncompatibleProjectError("core.migrationV3.notAllowedMigration"));
         }
       }
     }
