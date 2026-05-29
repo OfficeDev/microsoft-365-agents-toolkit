@@ -680,7 +680,7 @@ jobs:
             fi
 
             name=$(echo "$case" | awk -F '|' '{print $1}')
-            case_id=$(echo "$name" | awk -F '-' '{print $2}')
+            case_id="${name##*Case-}"
 
             title="Unknown Test Case Title"
             work_item_url="N/A"
@@ -760,7 +760,7 @@ jobs:
             fi
 
             url=$(echo "$jobs" | jq --arg case "$case" -r '[.[] | select(.name == $case)] | last | .html_url')
-            display_name=$(echo "$name" | sed 's/^Case-//')
+            display_name="$case_id"
             url="<a href=\"$url\">$display_name</a>"
 
             linked_bugs=""
