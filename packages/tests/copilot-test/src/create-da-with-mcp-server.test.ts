@@ -102,6 +102,28 @@ function wait(ms: number): Promise<void> {
   return new Promise((r) => setTimeout(r, ms));
 }
 
+/**
+ * Locate the ATK CLI binary. Checks (in order):
+ *   1. ATK_CLI_PATH env var
+ *   2. /usr/local/bin/atk
+ *   3. Common npm global bin directories
+ *   4. Falls back to "atk" (must be on PATH)
+ */
+function findAtkBin(): string {
+  if (process.env.ATK_CLI_PATH) return process.env.ATK_CLI_PATH;
+  const candidates = [
+    "/usr/local/bin/atk",
+    path.join(os.homedir(), ".npm-global", "bin", "atk"),
+    path.join(os.homedir(), ".npm", "bin", "atk"),
+    path.join(os.homedir(), "node_modules", ".bin", "atk"),
+    "/usr/bin/atk",
+  ];
+  for (const p of candidates) {
+    if (fs.existsSync(p)) return p;
+  }
+  return "atk";
+}
+
 async function waitForCommand(cmd: string, maxMs = 600000): Promise<boolean> {
   const deadline = Date.now() + maxMs;
   while (true) {
@@ -190,26 +212,29 @@ async function navigateToDaMcpServerStep(prefix: string): Promise<void> {
   );
   await takeScreenshot(`${prefix}-01-wizard-open`);
   await sendSignal("clickText:Declarative Agent", 10000);
-  await wait(1000);
+  await wait(2000);
 
   // Step 2: "App Features Using Agents" is auto-skipped (skipSingleOption: true)
   // Step 3: "Create Declarative Agent" QuickPick — select "Add an Action"
   await sendSignal(
-    `waitForTextThenScreenshot:Add an Action:20000:${prefix}-02-create-da-quickpick`,
-    28000,
+    `waitForTextThenScreenshot:Add an Action:30000:${prefix}-02-create-da-quickpick`,
+    38000,
   );
   await takeScreenshot(`${prefix}-02-create-da-quickpick`);
-  await sendSignal("clickText:Add an Action", 10000);
-  await wait(1000);
+  await sendSignal("clickText:Add an Action", 15000);
+  await wait(2000);
 
   // Step 4: "Create an Action" QuickPick — select "Start with a MCP server"
   await sendSignal(
-    `waitForTextThenScreenshot:Start with a MCP server:20000:${prefix}-03-create-an-action`,
-    28000,
+    `waitForTextThenScreenshot:Start with a MCP server:30000:${prefix}-03-create-an-action`,
+    38000,
   );
   await takeScreenshot(`${prefix}-03-create-an-action`);
-  await sendSignal("clickText:Start with a MCP server", 10000);
-  await wait(1000);
+  await sendSignal("clickText:Start with a MCP server", 15000);
+  // MCPServerTypeNode.dynamicOptions calls ODRProvider.listServers() async.
+  // When no local ODR servers are present the single "remote" option is
+  // auto-skipped (skipSingleOption: true), which takes several seconds.
+  await wait(10000);
 }
 
 // ---------------------------------------------------------------------------
@@ -300,10 +325,11 @@ suite("ATK Create Declarative Agent with MCP Server", function () {
 
     // Step 6: MCP URL InputBox — no odr.exe so no MCP Server Type QuickPick
     await sendSignal(
-      `waitForTextThenScreenshot:MCP:20000:${prefix}-06-mcp-url-input`,
-      28000,
+      `waitForTextThenScreenshot:MCP:45000:${prefix}-06-mcp-url-input`,
+      55000,
     );
     await takeScreenshot(`${prefix}-06-mcp-url-input`);
+    await wait(2000); // ensure the InputBox is ready before typing
     await sendSignal(`type:${MCP_URL}`, 8000);
     await wait(500);
     await sendSignal("pressKey:Enter", 5000);
@@ -439,10 +465,11 @@ suite("ATK Create Declarative Agent with MCP Server", function () {
 
     // Step 7 (odr) / Step 6 (no-odr): MCP URL InputBox
     await sendSignal(
-      `waitForTextThenScreenshot:MCP:20000:${prefix}-03-mcp-url-input`,
-      28000,
+      `waitForTextThenScreenshot:MCP:45000:${prefix}-03-mcp-url-input`,
+      55000,
     );
     await takeScreenshot(`${prefix}-03-mcp-url-input`);
+    await wait(2000); // ensure the InputBox is ready before typing
     await sendSignal(`type:${MCP_URL}`, 8000);
     await wait(500);
     await sendSignal("pressKey:Enter", 5000);
@@ -541,9 +568,7 @@ suite("ATK Create Declarative Agent with MCP Server", function () {
     }
 
     // Locate the ATK CLI binary
-    const atkBin =
-      process.env.ATK_CLI_PATH ||
-      (fs.existsSync("/usr/local/bin/atk") ? "/usr/local/bin/atk" : "atk");
+    const atkBin = findAtkBin();
 
     const cliArgs = [
       "new",
@@ -569,6 +594,9 @@ suite("ATK Create Declarative Agent with MCP Server", function () {
         timeout: 120000,
         cwd: outDir,
       });
+      if (result.error) {
+        console.log("  CLI spawn error (ENOENT or similar):", (result.error as NodeJS.ErrnoException).code, result.error.message);
+      }
       exitCode = result.status ?? -1;
       stdout = result.stdout || "";
       stderr = result.stderr || "";
@@ -647,9 +675,7 @@ suite("ATK Create Declarative Agent with MCP Server", function () {
       fs.rmSync(projectPath, { recursive: true, force: true });
     }
 
-    const atkBin =
-      process.env.ATK_CLI_PATH ||
-      (fs.existsSync("/usr/local/bin/atk") ? "/usr/local/bin/atk" : "atk");
+    const atkBin = findAtkBin();
 
     // Intentionally omit --mcp-da-server-url
     const cliArgs = [
@@ -675,6 +701,9 @@ suite("ATK Create Declarative Agent with MCP Server", function () {
         timeout: 60000,
         cwd: outDir,
       });
+      if (result.error) {
+        console.log("  CLI spawn error (ENOENT or similar):", (result.error as NodeJS.ErrnoException).code, result.error.message);
+      }
       exitCode = result.status ?? -1;
       stdout = result.stdout || "";
       stderr = result.stderr || "";
@@ -745,9 +774,7 @@ suite("ATK Create Declarative Agent with MCP Server", function () {
       "utf8",
     );
 
-    const atkBin =
-      process.env.ATK_CLI_PATH ||
-      (fs.existsSync("/usr/local/bin/atk") ? "/usr/local/bin/atk" : "atk");
+    const atkBin = findAtkBin();
 
     // Intentionally omit --mcp-da-auth-type
     const cliArgs = [
@@ -779,6 +806,9 @@ suite("ATK Create Declarative Agent with MCP Server", function () {
         timeout: 90000,
         cwd: outDir,
       });
+      if (result.error) {
+        console.log("  CLI spawn error (ENOENT or similar):", (result.error as NodeJS.ErrnoException).code, result.error.message);
+      }
       exitCode = result.status ?? -1;
       stdout = result.stdout || "";
       stderr = result.stderr || "";
@@ -880,8 +910,8 @@ suite("ATK Create Declarative Agent with MCP Server", function () {
 
     // Step 3 (TC-006): MCP URL InputBox appears — take screenshot before cancel
     await sendSignal(
-      `waitForTextThenScreenshot:MCP:20000:${prefix}-01-mcp-url-input-before-cancel`,
-      28000,
+      `waitForTextThenScreenshot:MCP:45000:${prefix}-01-mcp-url-input-before-cancel`,
+      55000,
     );
     await takeScreenshot(`${prefix}-01-mcp-url-input-before-cancel`);
 
