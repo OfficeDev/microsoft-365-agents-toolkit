@@ -161,12 +161,12 @@ describe("TreeViewManager", () => {
     ) as CommandsTreeViewProvider;
 
     const commands = developmentTreeviewProvider.getCommands();
-    chai.assert.equal(commands.length, 4);
+    chai.assert.equal(commands.length, 5);
 
     sandbox.stub(commonUtils, "hasAdaptiveCardInWorkspace").returns(Promise.resolve(true));
     await treeViewManager.updateTreeViewsByContent();
 
-    chai.assert.equal(commands.length, 5);
+    chai.assert.equal(commands.length, 6);
   });
 
   it("Development Treeview when Add knowledge is enabled", () => {

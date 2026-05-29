@@ -10,6 +10,7 @@ import {
 } from "@microsoft/teamsfx-api";
 import {
   FxCore,
+  IncompatibleProjectError,
   InputValidationError,
   MissingEnvironmentVariablesError,
   UserCancelError,
@@ -501,7 +502,7 @@ describe("CLI Engine", () => {
       await engine.start(rootCommand);
       assert.isTrue(error instanceof UserCancelError);
     });
-    it("run version check and return upgradeable and upgrade return error", async () => {
+    it("run version check and return upgradeable", async () => {
       sandbox.stub(FxCore.prototype, "projectVersionCheck").resolves(
         ok({
           isSupport: VersionState.upgradeable,
@@ -510,14 +511,13 @@ describe("CLI Engine", () => {
           versionSource: "1",
         })
       );
-      sandbox.stub(FxCore.prototype, "phantomMigrationV3").resolves(err(new UserCancelError()));
       sandbox.stub(process, "argv").value(["node", "cli", "provision", "--folder", "abc"]);
       let error: any = {};
       sandbox.stub(engine, "processResult").callsFake(async (context, fxError) => {
         error = fxError;
       });
       await engine.start(rootCommand);
-      assert.isTrue(error instanceof UserCancelError);
+      assert.isTrue(error instanceof IncompatibleProjectError);
     });
     it("skip options in interactive mode", async () => {
       sandbox.stub(FxCore.prototype, "createProject").resolves(ok({} as any));

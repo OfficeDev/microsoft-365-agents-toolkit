@@ -21,6 +21,7 @@ import {
   teamsDevPortalClient,
   TestToolInstallOptions,
 } from "@microsoft/teamsfx-core";
+import { SyncManifestInputsForVS } from "@microsoft/teamsfx-core/build/component/driver/teamsApp/interfaces/SyncManifest";
 import { assert } from "chai";
 import "mocha";
 import sinon from "sinon";
@@ -28,7 +29,6 @@ import { Duplex } from "stream";
 import { CancellationToken, createMessageConnection } from "vscode-jsonrpc";
 import { setFunc } from "../src/customizedFuncAdapter";
 import ServerConnection from "../src/serverConnection";
-import { SyncManifestInputsForVS } from "@microsoft/teamsfx-core/build/component/driver/teamsApp/interfaces/SyncManifest";
 
 class TestStream extends Duplex {
   _write(chunk: string, _encoding: string, done: () => void) {
@@ -351,58 +351,6 @@ describe("serverConnections", () => {
     res.then((data) => {
       assert.equal(data, ok("test"));
     });
-  });
-
-  it("getProjectMigrationStatusRequest", () => {
-    const connection = new ServerConnection(msgConn);
-    const fake = sandbox.fake.returns({
-      currentVersion: "3.0.0",
-      isSupport: 0,
-      trackingId: "1234-3213-4325-1231",
-    });
-    sandbox.replace(connection["core"], "projectVersionCheck", fake as any);
-
-    const inputs = {
-      platform: "vs",
-    };
-    const token = {};
-    const res = connection.getProjectMigrationStatusRequest(
-      inputs as Inputs,
-      token as CancellationToken
-    );
-    res.then((data) => {
-      assert.equal(data.isOk(), true);
-    });
-  });
-
-  it("migrateProjectRequest - ok(true)", async () => {
-    const connection = new ServerConnection(msgConn);
-    sandbox.replace(connection["core"], "phantomMigrationV3", sandbox.fake.returns(Void) as any);
-    connection
-      .migrateProjectRequest(
-        {
-          platform: "vs",
-        } as Inputs,
-        {} as CancellationToken
-      )
-      .then((data) => {
-        assert.equal(data, ok(true));
-      });
-  });
-
-  it("migrateProjectRequest - ok(false)", async () => {
-    const connection = new ServerConnection(msgConn);
-    sandbox.replace(connection["core"], "phantomMigrationV3", sandbox.fake.returns("test") as any);
-    connection
-      .migrateProjectRequest(
-        {
-          platform: "vs",
-        } as Inputs,
-        {} as CancellationToken
-      )
-      .then((data) => {
-        assert.equal(data, ok(false));
-      });
   });
 
   it("publishInDeveloperPortalRequest", () => {

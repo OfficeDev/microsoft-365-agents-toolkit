@@ -15,6 +15,7 @@ import "mocha";
 import mockedEnv, { RestoreFn } from "mocked-env";
 import * as path from "path";
 import * as sinon from "sinon";
+import { featureFlagManager } from "../../src/common/featureFlags";
 import { globalVars, setTools, TOOLS } from "../../src/common/globalVars";
 import * as projectTypeChecker from "../../src/common/projectTypeChecker";
 import { MetadataV3, MetadataV4 } from "../../src/common/versionMetadata";
@@ -924,14 +925,23 @@ describe("envUtils", () => {
   });
 
   describe("settingsUtil", () => {
-    afterEach(() => {
-      sandbox.restore();
+    let getBooleanValueStub: sinon.SinonStub;
+
+    beforeEach(() => {
+      getBooleanValueStub = sandbox.stub(featureFlagManager, "getBooleanValue").returns(false);
     });
+
     it("settingsUtil read not exist", async () => {
       sandbox.stub(fs, "pathExists").resolves(false);
       sandbox.stub(pathUtils, "getYmlFilePath").returns(".");
       const res = await settingsUtil.readSettings("abc");
       assert.isTrue(res.isErr());
+    });
+    afterEach(() => {
+      if (getBooleanValueStub && getBooleanValueStub.restore) {
+        getBooleanValueStub.restore();
+      }
+      sandbox.restore();
     });
 
     it("settingsUtil read and ensure trackingId", async () => {

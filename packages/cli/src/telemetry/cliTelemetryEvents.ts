@@ -114,9 +114,6 @@ export enum TelemetryEvent {
   AddWebpartStart = "add-webpart-start",
   AddWebpart = "add-webpart",
 
-  UpgradeStart = "upgrade-start",
-  Upgrade = "upgrade",
-
   Command = "command", // this event is used to track the usage of each command, including --help command
 
   Install = "install",

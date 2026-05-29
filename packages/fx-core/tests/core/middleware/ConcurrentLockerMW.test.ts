@@ -92,7 +92,7 @@ describe("Middleware - ConcurrentLockerMW", () => {
 
   it("sequence: ok", async () => {
     const inputs: Inputs = { platform: Platform.VSCode };
-    sinon.stub(projectSettingsHelper, "isValidProjectV2").resolves(true);
+    sinon.stub(projectSettingsHelper, "isValidProjectV3").returns(true);
     inputs.projectPath = path.join(os.tmpdir(), randomAppName());
     try {
       const settingDir = path.join(inputs.projectPath, `.${ConfigFolderName}`, "configs");
@@ -197,7 +197,7 @@ describe("Middleware - ConcurrentLockerMW", () => {
     const inputs: Inputs = { platform: Platform.VSCode };
     inputs.projectPath = path.join(os.tmpdir(), randomAppName());
     try {
-      sinon.stub(projectSettingsHelper, "isValidProjectV2").resolves(true);
+      sinon.stub(projectSettingsHelper, "isValidProjectV3").returns(true);
       await fs.ensureDir(inputs.projectPath);
       await fs.ensureDir(path.join(inputs.projectPath, `.${ConfigFolderName}`));
       await my.myMethod(inputs);

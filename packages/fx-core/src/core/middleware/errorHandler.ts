@@ -2,10 +2,11 @@
 // Licensed under the MIT license.
 "use strict";
 
-import { HookContext, NextFunction, Middleware } from "@feathersjs/hooks";
+import { HookContext, Middleware, NextFunction } from "@feathersjs/hooks";
 import { err, Inputs, SystemError, UserError } from "@microsoft/teamsfx-api";
 import { setLocale } from "../../common/globalVars";
-import { FilePermissionError, assembleError } from "../../error/common";
+import { settingsUtil } from "../../component/utils/settingsUtil";
+import { assembleError, FilePermissionError } from "../../error/common";
 
 /**
  * in case there're some uncatched exceptions, this middleware will act as a guard
@@ -14,6 +15,13 @@ import { FilePermissionError, assembleError } from "../../error/common";
 export const ErrorHandlerMW: Middleware = async (ctx: HookContext, next: NextFunction) => {
   const inputs = ctx.arguments[ctx.arguments.length - 1] as Inputs;
   if (inputs?.locale) setLocale(inputs.locale);
+  if (inputs?.projectPath) {
+    try {
+      await settingsUtil.readSettings(inputs.projectPath, false);
+    } catch {
+      // Ignore trackingId preload failure and continue normal flow.
+    }
+  }
   try {
     await next();
   } catch (e) {

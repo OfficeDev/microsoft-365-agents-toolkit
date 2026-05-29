@@ -3510,12 +3510,23 @@ describe("updateActionWithMCP - create new ai-plugin.json", () => {
       platform: Platform.VSCode,
       [QuestionNames.PluginManifestFilePath]: sentinel,
       [QuestionNames.NewPluginManifestFileName]: "ai-plugin.json",
+      [QuestionNames.MCPForDAServerUrl]: mcpServerUrl,
+      [QuestionNames.MCPForDAServerName]: serverName,
+      [QuestionNames.MCPForDAAuth]: "None",
+      [QuestionNames.MCPForDAAvailableTools]: [],
+      [QuestionNames.MCPForDAPreFetchTools]: [],
       ignoreLockByUT: true,
     };
 
     sandbox
       .stub(manifestUtils, "_readAppManifest")
       .resolves(err(new SystemError("test", "ReadFailed", "msg", "msg")));
+    sandbox.stub(fs, "pathExists").callsFake(async (filePath: string) => {
+      if (path.basename(filePath) === "ai-plugin.json") {
+        return false;
+      }
+      return true;
+    });
 
     const core = new FxCore(tools);
     const result = await core.updateActionWithMCP(inputs);
@@ -3533,11 +3544,22 @@ describe("updateActionWithMCP - create new ai-plugin.json", () => {
       platform: Platform.VSCode,
       [QuestionNames.PluginManifestFilePath]: sentinel,
       [QuestionNames.NewPluginManifestFileName]: "ai-plugin.json",
+      [QuestionNames.MCPForDAServerUrl]: mcpServerUrl,
+      [QuestionNames.MCPForDAServerName]: serverName,
+      [QuestionNames.MCPForDAAuth]: "None",
+      [QuestionNames.MCPForDAAvailableTools]: [],
+      [QuestionNames.MCPForDAPreFetchTools]: [],
       ignoreLockByUT: true,
     };
 
     const teamsManifest = new TeamsAppManifest();
     sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(teamsManifest));
+    sandbox.stub(fs, "pathExists").callsFake(async (filePath: string) => {
+      if (path.basename(filePath) === "ai-plugin.json") {
+        return false;
+      }
+      return true;
+    });
 
     const core = new FxCore(tools);
     const result = await core.updateActionWithMCP(inputs);
@@ -3555,6 +3577,11 @@ describe("updateActionWithMCP - create new ai-plugin.json", () => {
       platform: Platform.VSCode,
       [QuestionNames.PluginManifestFilePath]: sentinel,
       [QuestionNames.NewPluginManifestFileName]: "ai-plugin.json",
+      [QuestionNames.MCPForDAServerUrl]: mcpServerUrl,
+      [QuestionNames.MCPForDAServerName]: serverName,
+      [QuestionNames.MCPForDAAuth]: "None",
+      [QuestionNames.MCPForDAAvailableTools]: [],
+      [QuestionNames.MCPForDAPreFetchTools]: [],
       ignoreLockByUT: true,
     };
 
@@ -3566,6 +3593,12 @@ describe("updateActionWithMCP - create new ai-plugin.json", () => {
     sandbox
       .stub(declarativeAgentHelper, "createNewActionPluginManifest")
       .resolves(err(new SystemError("test", "CreateFailed", "msg", "msg")));
+    sandbox.stub(fs, "pathExists").callsFake(async (filePath: string) => {
+      if (path.basename(filePath) === "ai-plugin.json") {
+        return false;
+      }
+      return true;
+    });
 
     const core = new FxCore(tools);
     const result = await core.updateActionWithMCP(inputs);

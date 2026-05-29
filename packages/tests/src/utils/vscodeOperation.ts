@@ -1,9 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
-import * as os from "os";
-import * as path from "path";
+import { assert } from "chai";
 import * as fs from "fs-extra";
 import yaml from "js-yaml";
+import * as os from "os";
+import * as path from "path";
 import {
   ActivityBar,
   BottomBarPanel,
@@ -11,28 +12,26 @@ import {
   InputBox,
   Key,
   NotificationType,
+  SideBarView,
   TerminalView,
   until,
   VSBrowser,
   WebDriver,
-  Workbench,
-  SideBarView,
-  EditorView,
   WebElement,
+  Workbench,
 } from "vscode-extension-tester";
 import {
-  CommandPaletteCommands,
-  Extension,
-  Timeout,
-  CreateProjectQuestion,
   AppType,
+  CommandPaletteCommands,
+  CreateProjectQuestion,
+  Extension,
   Lang,
+  Timeout,
 } from "./constants";
-import { RetryHandler } from "./retryHandler";
 import { Env } from "./env";
 import { execCommand } from "./execCommand";
-import { assert } from "chai";
 import { getScreenshotName } from "./nameUtil";
+import { RetryHandler } from "./retryHandler";
 
 export async function ensureExtensionActivated(): Promise<void> {
   const driver = VSBrowser.instance.driver;
@@ -1316,74 +1315,6 @@ export async function validateNotification(text: string): Promise<void> {
     );
     assert.fail("[error] Cannot find notification: " + text);
   }
-}
-
-export async function upgrade() {
-  console.log("Upgrade...");
-  const driver = VSBrowser.instance.driver;
-  await driver.sleep(Timeout.shortTimeLoading);
-  const dialog = await driver.findElement(By.className("monaco-dialog-box"));
-  const btns = await dialog.findElements(By.className("monaco-text-button"));
-  for (const btn of btns) {
-    const text = await btn.getText();
-    if (text === "Upgrade") {
-      await btn.click();
-      await driver.sleep(Timeout.shortTimeLoading);
-      console.log("[success] Upgrad finished !!!");
-      return;
-    }
-  }
-  await VSBrowser.instance.takeScreenshot(
-    getScreenshotName("upgradeNotification"),
-  );
-  assert.fail("[error] Cannot find upgrade button.");
-}
-
-export async function upgradeByCommandPalette() {
-  console.log("Upgrade...");
-  await execCommandIfExist(CommandPaletteCommands.UpgradeProjectCommand);
-  const driver = VSBrowser.instance.driver;
-  await driver.sleep(Timeout.shortTimeLoading);
-  console.log("[success] Upgrad finished !!!");
-}
-
-export async function upgradeByTreeView() {
-  console.log("Upgrade using treeView...");
-  const driver = VSBrowser.instance.driver;
-  await driver.sleep(Timeout.shortTimeLoading);
-  await execCommandIfExistFromTreeView("Upgrade Project");
-  await driver.sleep(Timeout.shortTimeLoading);
-  try {
-    const dialog = await driver.findElement(By.className("monaco-dialog-box"));
-    const btns = await dialog.findElements(By.className("monaco-text-button"));
-    for (const btn of btns) {
-      const text = await btn.getText();
-      if (text === "OK") {
-        await btn.click();
-        await driver.sleep(Timeout.shortTimeLoading);
-      }
-    }
-    assert.fail("[error] Cannot find upgrade button.");
-  } catch (error) {}
-  console.log("[success] Upgrad finished !!!");
-}
-
-export async function validateUpgrade() {
-  console.log("Validate upgrade...");
-  const editorView = new EditorView();
-  const driver = VSBrowser.instance.driver;
-  await driver.sleep(Timeout.shortTimeLoading);
-  const titles = await editorView.getOpenEditorTitles();
-  for (const title of titles) {
-    if (title === "Preview upgradeReport.md") {
-      console.log("[success] Upgrade successfully !!!");
-      return;
-    }
-  }
-  await VSBrowser.instance.takeScreenshot(
-    getScreenshotName("upgradeNotification"),
-  );
-  assert.fail("[error] Cannot find upgrade report.");
 }
 
 export async function findWordFromTerminal(word: string): Promise<boolean> {

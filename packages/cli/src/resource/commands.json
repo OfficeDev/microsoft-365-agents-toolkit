@@ -189,13 +189,6 @@
   "update": {
     "description": "Update the app manifest to Developer Portal."
   },
-  "upgrade": {
-    "description": "Upgrade the project to work with the latest version of Microsoft 365 Agents Toolkit.",
-    "options": {
-      "force": "Force upgrade the project to work with the latest version of Microsoft 365 Agents Toolkit."
-    },
-    "success": "Upgrade project successfully."
-  },
   "validate": {
     "description": "Validate the app using manifest schema, validation rules, or test cases."
   }
