@@ -26,7 +26,6 @@ export class FeatureFlagName {
   static readonly SensitivityLabelEnabled = "TEAMSFX_SENSITIVITY_LABEL";
   static readonly DAMetaOS = "TEAMSFX_DA_METAOS";
   static readonly CFShortcutMetaOS = "TEAMSFX_CF_SHORTCUT_METAOS";
-  static readonly MCPForDA = "TEAMSFX_MCP_FOR_DA";
   static readonly OpenPluginImportExport = "TEAMSFX_OPENPLUGIN_IMPORT_EXPORT";
   static readonly AgentSkillsManifest = "TEAMSFX_AGENT_SKILLS";
   static readonly BrokerAuth = "TEAMSFX_BROKER_AUTH";
@@ -95,10 +94,6 @@ export class FeatureFlags {
   static readonly CFShortcutMetaOS = {
     name: FeatureFlagName.CFShortcutMetaOS,
     defaultValue: "false",
-  };
-  static readonly MCPForDA = {
-    name: FeatureFlagName.MCPForDA,
-    defaultValue: "true",
   };
   static readonly OpenPluginImportExport = {
     name: FeatureFlagName.OpenPluginImportExport,

@@ -22,6 +22,16 @@ provision:
     with:
       appPackagePath: ./appPackage/build/appPackage.${{TEAMSFX_ENV}}.zip
 
+  # Extend the agent to Outlook and the Microsoft 365 app so it can be uploaded to MOS3.
+  - uses: copilotAgent/publish
+    with:
+      appPackagePath: ./appPackage/build/appPackage.${{TEAMSFX_ENV}}.zip
+      scope: ${{AGENT_SCOPE}}
+    writeToEnvironmentFile:
+      titleId: M365_TITLE_ID
+      appId: M365_APP_ID
+      shareLink: SHARE_LINK
+
 # Triggered when 'atk publish' is executed
 publish:
   - uses: teamsApp/zipAppPackage
@@ -32,8 +42,12 @@ publish:
   - uses: teamsApp/update
     with:
       appPackagePath: ./appPackage/build/appPackage.${{TEAMSFX_ENV}}.zip
-  - uses: teamsApp/publishAppPackage
+  # Publish the agent to the tenant app catalog.
+  - uses: copilotAgent/publish
     with:
       appPackagePath: ./appPackage/build/appPackage.${{TEAMSFX_ENV}}.zip
+      scope: tenant
     writeToEnvironmentFile:
-      publishedAppId: TEAMS_APP_PUBLISHED_APP_ID
+      titleId: M365_PUBLISHED_TITLE_ID
+      appId: M365_PUBLISHED_APP_ID
+

@@ -3,6 +3,7 @@
 
 import { err, FxError, ok, Result, SystemError, UserError } from "@microsoft/teamsfx-api";
 import fs from "fs-extra";
+import yaml from "js-yaml";
 import * as path from "path";
 import { createContext } from "../../../common/globalVars";
 import { Generator } from "../generator";
@@ -82,6 +83,10 @@ export async function importOpenPlugin(
       await fs.copy(op.src, path.join(projectPath, op.destRelative));
     }
 
+    // Strip SKILL.md frontmatter fields that Teams Developer Portal rejects.
+    // Allowed: name, description, license, metadata, compatibility.
+    await sanitizeSkillFiles(path.join(appPackageDir, "skills"), warnings);
+
     // Icons.
     await applyIcons(parsed, appPackageDir, warnings);
 
@@ -100,4 +105,66 @@ export async function importOpenPlugin(
       })
     );
   }
+}
+
+// Teams Developer Portal accepts only these SKILL.md frontmatter keys.
+const ALLOWED_SKILL_FRONTMATTER_KEYS = new Set([
+  "name",
+  "description",
+  "license",
+  "metadata",
+  "compatibility",
+]);
+
+/**
+ * Walk every `skills/<name>/SKILL.md` and remove top-level frontmatter keys
+ * that aren't on the M365 allow-list (e.g. Claude-specific `user-invocable`,
+ * `argument-hint`). Records each removal as a warning. Files without a
+ * frontmatter block are left untouched.
+ */
+async function sanitizeSkillFiles(skillsRoot: string, warnings: string[]): Promise<void> {
+  if (!(await fs.pathExists(skillsRoot))) return;
+  const entries = await fs.readdir(skillsRoot, { withFileTypes: true });
+  for (const entry of entries) {
+    if (!entry.isDirectory()) continue;
+    const skillMd = path.join(skillsRoot, entry.name, "SKILL.md");
+    if (!(await fs.pathExists(skillMd))) continue;
+    const original = await fs.readFile(skillMd, "utf8");
+    const { content, removedKeys } = stripDisallowedFrontmatter(original);
+    if (removedKeys.length > 0) {
+      await fs.writeFile(skillMd, content, "utf8");
+      warnings.push(
+        `Removed unsupported SKILL.md frontmatter field(s) from skills/${
+          entry.name
+        }: ${removedKeys.join(", ")}.`
+      );
+    }
+  }
+}
+
+export function stripDisallowedFrontmatter(source: string): {
+  content: string;
+  removedKeys: string[];
+} {
+  const match = /^---\r?\n([\s\S]*?)\r?\n---(\r?\n|$)/.exec(source);
+  if (!match) return { content: source, removedKeys: [] };
+  const parsed = yaml.load(match[1]);
+  if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+    return { content: source, removedKeys: [] };
+  }
+  const obj = parsed as Record<string, unknown>;
+  const removedKeys: string[] = [];
+  const kept: Record<string, unknown> = {};
+  for (const key of Object.keys(obj)) {
+    if (ALLOWED_SKILL_FRONTMATTER_KEYS.has(key)) {
+      kept[key] = obj[key];
+    } else {
+      removedKeys.push(key);
+    }
+  }
+  if (removedKeys.length === 0) return { content: source, removedKeys: [] };
+  const dumped = yaml.dump(kept, { lineWidth: -1 }).replace(/\n$/, "");
+  const trailing = match[2] || "\n";
+  const rebuilt = `---\n${dumped}\n---${trailing}` + source.slice(match[0].length);
+  return { content: rebuilt, removedKeys };
 }
