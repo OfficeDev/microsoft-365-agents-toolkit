@@ -491,6 +491,14 @@ def main() -> int:
         safe_print(f"[dry-run] target_file={target_file}")
         return 0
 
+    # Create the auto-fix branch from origin/<base-branch> so the resulting PR
+    # only contains the bump — never any commits that the workflow's branch
+    # happens to be ahead of base by. Stash any dirty working-tree state from
+    # earlier workflow steps so the checkout can't be blocked.
+    run(["git", "fetch", "origin", args.base_branch], cwd=repo_root)
+    run(["git", "stash", "push", "--include-untracked", "-m", "vuln-fix-autostash"], cwd=repo_root, check=False)
+    run(["git", "checkout", "-B", branch, f"origin/{args.base_branch}"], cwd=repo_root)
+
     if can_bump_in_this_repo and target_file and target_file.exists():
         if ecosystem == "npm":
             ok, label = bump_npm_with_verify(target_file, vuln)
@@ -502,8 +510,6 @@ def main() -> int:
         elif ecosystem == "nuget" and fixed_version:
             automatic_fix = bump_csproj(target_file, package, fixed_version)
             strategy_label = "csproj version bump" if automatic_fix else ""
-
-    run(["git", "checkout", "-b", branch], cwd=repo_root)
 
     # NuGet: keep the historical placeholder fallback so the human gets a PR.
     # npm: we returned above if bump+verify failed, so we never land here without a real fix.
