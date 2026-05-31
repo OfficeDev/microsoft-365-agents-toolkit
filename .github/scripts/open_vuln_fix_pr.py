@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
 """
-Open a fix PR for the first vulnerability surfaced by the CD pipeline scans.
+Open fix PRs for vulnerabilities surfaced by the CD / scheduled scan pipeline.
 
 Reads JSON summaries produced by check_npm_vulnerabilities.py and
-check_nuget_vulnerabilities.py (in scan order), picks the first record where
-`has_vulnerabilities` is true, takes its first vulnerability, attempts a
-mechanical version bump in the relevant manifest, and opens a PR against the
-configured base branch.
+check_nuget_vulnerabilities.py (in scan order), walks every vulnerability,
+and for each one attempts a mechanical version bump in the relevant manifest
+and opens a PR against the configured base branch.
 
 For npm vulns the bump is verified end-to-end in a temp dir (`npm install` +
 `npm audit`) before being committed. Three strategies are tried in order:
@@ -19,6 +18,19 @@ if none work the PR is skipped (no placeholder).
 
 NuGet vulns fall back to the historical "write a TODO placeholder" behavior
 when an automatic bump isn't possible.
+
+Per-run controls:
+  --max-prs N      cap the number of *new* PRs opened in one invocation.
+                   0 = unlimited. Vulnerabilities skipped because of an
+                   existing PR do not count against the cap.
+  --manifest-out P write a structured JSON manifest describing the outcome
+                   (new PRs, skipped reasons, scan totals). Consumed by
+                   render_vuln_summary.py downstream.
+
+Dedup: a vuln is considered "already handled" if a PR with the same head
+branch name (auto-fix-vuln/{ecosystem}-{package}-{fixed_version}) has ever
+existed on this repo — regardless of whether that PR is open, closed, or
+merged.
 """
 
 from __future__ import annotations
@@ -70,7 +82,9 @@ def load_scan(path: Path) -> Optional[dict]:
         return None
 
 
-def pick_first_vuln(scan_jsons, skip_targets=None):
+def iter_all_vulns(scan_jsons, skip_targets=None):
+    """Yield (scan, vuln) tuples in scan-order, then vuln-order. Skip scans
+    whose `scan_target` is in `skip_targets`."""
     skip_targets = set(skip_targets or [])
     for path in scan_jsons:
         scan = load_scan(path)
@@ -81,16 +95,20 @@ def pick_first_vuln(scan_jsons, skip_targets=None):
             continue
         if not scan.get("has_vulnerabilities"):
             continue
-        vulns = scan.get("vulnerabilities") or []
-        if not vulns:
-            continue
-        return scan, vulns[0]
-    return None, None
+        for vuln in scan.get("vulnerabilities") or []:
+            yield scan, vuln
 
 
 def slugify(value: str) -> str:
     value = re.sub(r"[^A-Za-z0-9._-]+", "-", value or "")
     return value.strip("-") or "unknown"
+
+
+def compute_branch_name(scan: dict, vuln: dict) -> str:
+    ecosystem = scan.get("ecosystem", "unknown")
+    package = vuln.get("package") or "unknown"
+    fixed_version = vuln.get("fixed_version")
+    return f"auto-fix-vuln/{ecosystem}-{slugify(package)}-{slugify(fixed_version or 'unknown')}"
 
 
 def branch_exists_remote(branch: str, repo: str) -> bool:
@@ -102,9 +120,10 @@ def branch_exists_remote(branch: str, repo: str) -> bool:
     return result.returncode == 0
 
 
-def open_pr_exists(branch: str, repo: str) -> bool:
+def pr_ever_created(branch: str, repo: str) -> bool:
+    """True if a PR with this head branch ever existed (open / closed / merged)."""
     result = run(
-        ["gh", "pr", "list", "--repo", repo, "--head", branch, "--state", "open", "--json", "number"],
+        ["gh", "pr", "list", "--repo", repo, "--head", branch, "--state", "all", "--json", "number"],
         check=False,
         capture=True,
     )
@@ -366,7 +385,7 @@ def write_placeholder(repo_root: Path, scan: dict, vuln: dict) -> Path:
     body_lines = [
         "# Vulnerability fix TODO",
         "",
-        "This file was generated automatically because the CD vulnerability scan",
+        "This file was generated automatically because the vulnerability scan",
         "found an issue that could not be patched mechanically. Please review and",
         "replace this file with the actual fix, then re-open this PR.",
         "",
@@ -386,7 +405,7 @@ def write_placeholder(repo_root: Path, scan: dict, vuln: dict) -> Path:
 
 def build_pr_body(scan: dict, vuln: dict, automatic_fix: bool, strategy: str = "") -> str:
     lines = [
-        "This PR was opened automatically by the CD vulnerability scan.",
+        "This PR was opened automatically by the vulnerability scan pipeline.",
         "",
         f"- **Ecosystem**: {scan.get('ecosystem')}",
         f"- **Scan target**: `{scan.get('scan_target')}`",
@@ -420,58 +439,43 @@ def build_pr_body(scan: dict, vuln: dict, automatic_fix: bool, strategy: str = "
 
 
 # --------------------------------------------------------------------------- #
-# main
+# Per-vuln processing
 # --------------------------------------------------------------------------- #
 
 
-def main() -> int:
-    parser = argparse.ArgumentParser(description="Open a fix PR for the first vulnerability")
-    parser.add_argument("--scan-json", action="append", default=[], help="Path to a scan summary JSON (repeatable, order matters)")
-    parser.add_argument("--base-branch", default="dev")
-    parser.add_argument("--repo-root", default=".")
-    parser.add_argument(
-        "--skip-scan-target",
-        action="append",
-        default=[],
-        help="scan_target values to ignore entirely (e.g. samples-repo). Repeatable.",
-    )
-    parser.add_argument("--dry-run", action="store_true", help="Print actions but do not commit/push/open PR")
-    args = parser.parse_args()
+def _vuln_record_base(scan: dict, vuln: dict, branch: str) -> dict:
+    """Common metadata snapshot used in manifest entries."""
+    return {
+        "scan_target": scan.get("scan_target"),
+        "ecosystem": scan.get("ecosystem"),
+        "file": vuln.get("file"),
+        "package": vuln.get("package"),
+        "current_version": vuln.get("current_version"),
+        "fixed_version": vuln.get("fixed_version"),
+        "severity": vuln.get("severity"),
+        "advisory_url": vuln.get("advisory_url"),
+        "title": vuln.get("title"),
+        "branch": branch,
+    }
 
-    if not args.scan_json:
-        safe_print("No --scan-json provided; nothing to do.")
-        return 0
 
-    repo_root = Path(args.repo_root).resolve()
-    scan_paths = [Path(p) for p in args.scan_json]
-
-    scan, vuln = pick_first_vuln(scan_paths, skip_targets=args.skip_scan_target)
-    if not scan or not vuln:
-        safe_print("No actionable vulnerability found across scans; nothing to do.")
-        return 0
+def _create_pr_for_vuln(
+    scan: dict,
+    vuln: dict,
+    branch: str,
+    *,
+    repo: str,
+    repo_root: Path,
+    base_branch: str,
+    pr_env: Optional[dict],
+) -> Tuple[bool, dict]:
+    """Apply the bump, commit, push, and open the PR. Returns (success, info)
+    where info contains either {pr_url, strategy} on success or {reason} on
+    failure (the latter means we should bucket this into skipped_no_fix)."""
 
     ecosystem = scan.get("ecosystem", "unknown")
-    package = vuln.get("package") or "unknown"
     fixed_version = vuln.get("fixed_version")
-    branch = f"auto-fix-vuln/{ecosystem}-{slugify(package)}-{slugify(fixed_version or 'unknown')}"
-
-    repo = os.environ.get("GITHUB_REPOSITORY")
-    if not repo:
-        safe_print("GITHUB_REPOSITORY env var is not set; cannot check existing PRs.")
-        return 1
-
-    if open_pr_exists(branch, repo):
-        safe_print(f"Skipped: an open PR already exists for branch {branch}")
-        return 0
-    if branch_exists_remote(branch, repo):
-        safe_print(f"Remote branch exists without an open PR; deleting stale branch: {branch}")
-        if args.dry_run:
-            safe_print("[dry-run] would: git push origin --delete " + branch)
-        else:
-            run(["git", "push", "origin", "--delete", branch], cwd=repo_root, check=False)
-
-    samples_target = (scan.get("scan_target") or "").startswith("samples-repo")
-    can_bump_in_this_repo = not samples_target
+    package = vuln.get("package") or "unknown"
 
     file_rel = vuln.get("file") or ""
     target_file = (repo_root / file_rel).resolve() if file_rel else None
@@ -482,51 +486,46 @@ def main() -> int:
             safe_print(f"Refusing to touch file outside repo root: {target_file}")
             target_file = None
 
+    # Fresh branch from base every iteration so PRs don't accumulate each
+    # other's changes.
+    run(["git", "stash", "push", "--include-untracked", "-m", "vuln-fix-autostash"], cwd=repo_root, check=False)
+    run(["git", "checkout", "-B", branch, f"origin/{base_branch}"], cwd=repo_root)
+
+    # If a stale remote branch exists with no PR ever (caller has already
+    # checked pr_ever_created==False), wipe it so our push lands cleanly.
+    if branch_exists_remote(branch, repo):
+        safe_print(f"Deleting stale remote branch with no PR history: {branch}")
+        run(["git", "push", "origin", "--delete", branch], cwd=repo_root, check=False)
+
     automatic_fix = False
     strategy_label = ""
 
-    if args.dry_run:
-        safe_print(f"[dry-run] branch={branch}")
-        safe_print(f"[dry-run] ecosystem={ecosystem} package={package} fixed={fixed_version}")
-        safe_print(f"[dry-run] target_file={target_file}")
-        return 0
-
-    # Create the auto-fix branch from origin/<base-branch> so the resulting PR
-    # only contains the bump — never any commits that the workflow's branch
-    # happens to be ahead of base by. Stash any dirty working-tree state from
-    # earlier workflow steps so the checkout can't be blocked.
-    run(["git", "fetch", "origin", args.base_branch], cwd=repo_root)
-    run(["git", "stash", "push", "--include-untracked", "-m", "vuln-fix-autostash"], cwd=repo_root, check=False)
-    run(["git", "checkout", "-B", branch, f"origin/{args.base_branch}"], cwd=repo_root)
-
-    if can_bump_in_this_repo and target_file and target_file.exists():
+    if target_file and target_file.exists():
         if ecosystem == "npm":
             ok, label = bump_npm_with_verify(target_file, vuln)
             automatic_fix = ok
             strategy_label = label
             if not ok:
-                safe_print(f"npm bump+verify failed for {package}: {label}. Skipping PR.")
-                return 0
+                return False, {"reason": f"npm bump+verify failed: {label}"}
         elif ecosystem == "nuget" and fixed_version:
             automatic_fix = bump_csproj(target_file, package, fixed_version)
             strategy_label = "csproj version bump" if automatic_fix else ""
 
-    # NuGet: keep the historical placeholder fallback so the human gets a PR.
-    # npm: we returned above if bump+verify failed, so we never land here without a real fix.
+    # NuGet keeps the historical placeholder fallback so the human still
+    # gets a PR. npm returns above when verification fails — we never reach
+    # here for npm without a real bump.
     if not automatic_fix and ecosystem != "npm":
         placeholder = write_placeholder(repo_root, scan, vuln)
         safe_print(f"Wrote placeholder: {placeholder}")
 
-    # Stage everything first so untracked files (e.g. the placeholder) are visible
-    # to the diff check below — `git diff --quiet` ignores untracked paths.
-    # Exclude samples-repo/: CI checks it out as a sibling repo and `git add -A`
-    # would otherwise pick it up as a gitlink/submodule entry.
+    # Stage everything (incl. untracked placeholder) so the diff check sees it.
+    # Exclude samples-repo/ — CI checks it out as a sibling and `git add -A`
+    # would otherwise pick it up as a gitlink.
     run(["git", "add", "-A", "--", ":!samples-repo", ":!samples-repo/**"], cwd=repo_root)
 
     diff_result = run(["git", "diff", "--cached", "--quiet"], cwd=repo_root, check=False)
     if diff_result.returncode == 0:
-        safe_print("No staged changes after add; aborting PR creation.")
-        return 0
+        return False, {"reason": "no staged changes after bump"}
 
     commit_subject = (
         f"fix(deps): bump {package} to {fixed_version}"
@@ -538,29 +537,167 @@ def main() -> int:
 
     title = commit_subject
     body = build_pr_body(scan, vuln, automatic_fix, strategy=strategy_label)
-    personal_pat = os.environ.get("GH_TOKEN_PERSONAL") or ""
-    fallback_pr_token = os.environ.get("GH_TOKEN_FOR_PR") or ""
-    pr_token = personal_pat.strip() or fallback_pr_token.strip()
-    pr_env = None
-    if pr_token:
-        pr_env = os.environ.copy()
-        pr_env["GH_TOKEN"] = pr_token
-        source = "GH_TOKEN_PERSONAL" if personal_pat.strip() else "GH_TOKEN_FOR_PR"
-        safe_print(f"Using {source} for gh pr create")
-    run(
+    pr_result = run(
         [
             "gh", "pr", "create",
             "--repo", repo,
-            "--base", args.base_branch,
+            "--base", base_branch,
             "--head", branch,
             "--title", title,
             "--body", body,
         ],
         cwd=repo_root,
         env=pr_env,
+        capture=True,
     )
 
-    safe_print(f"Opened PR for {package} on branch {branch} (strategy: {strategy_label or 'placeholder'})")
+    # gh prints the PR URL as the last non-empty line of stdout.
+    pr_url = ""
+    for line in (pr_result.stdout or "").splitlines()[::-1]:
+        line = line.strip()
+        if line.startswith("https://"):
+            pr_url = line
+            break
+
+    return True, {"pr_url": pr_url, "strategy": strategy_label or ("placeholder" if not automatic_fix else "")}
+
+
+# --------------------------------------------------------------------------- #
+# main
+# --------------------------------------------------------------------------- #
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description="Open fix PRs for vulnerabilities")
+    parser.add_argument("--scan-json", action="append", default=[], help="Path to a scan summary JSON (repeatable, order matters)")
+    parser.add_argument("--base-branch", default="dev")
+    parser.add_argument("--repo-root", default=".")
+    parser.add_argument(
+        "--skip-scan-target",
+        action="append",
+        default=[],
+        help="scan_target values to ignore entirely (e.g. samples-repo). Repeatable.",
+    )
+    parser.add_argument(
+        "--max-prs",
+        type=int,
+        default=1,
+        help="Maximum number of *new* PRs to open this run. 0 = unlimited. "
+             "PRs skipped because they already exist do not count.",
+    )
+    parser.add_argument(
+        "--manifest-out",
+        default=None,
+        help="If set, write a structured JSON manifest of new/skipped PRs to this path.",
+    )
+    parser.add_argument("--dry-run", action="store_true", help="Print actions but do not commit/push/open PR")
+    args = parser.parse_args()
+
+    if not args.scan_json:
+        safe_print("No --scan-json provided; nothing to do.")
+        return 0
+
+    repo_root = Path(args.repo_root).resolve()
+    scan_paths = [Path(p) for p in args.scan_json]
+
+    repo = os.environ.get("GITHUB_REPOSITORY")
+    if not repo and not args.dry_run:
+        safe_print("GITHUB_REPOSITORY env var is not set; cannot check existing PRs.")
+        return 1
+
+    personal_pat = (os.environ.get("GH_TOKEN_PERSONAL") or "").strip()
+    fallback_pr_token = (os.environ.get("GH_TOKEN_FOR_PR") or "").strip()
+    pr_token = personal_pat or fallback_pr_token
+    pr_env = None
+    if pr_token:
+        pr_env = os.environ.copy()
+        pr_env["GH_TOKEN"] = pr_token
+        source = "GH_TOKEN_PERSONAL" if personal_pat else "GH_TOKEN_FOR_PR"
+        safe_print(f"Using {source} for gh pr create")
+
+    # Build scan summary (target counts) up front so the manifest reports
+    # zero-vuln scans too.
+    scans_summary = []
+    for path in scan_paths:
+        scan = load_scan(path)
+        if not scan:
+            continue
+        if (scan.get("scan_target") or "") in set(args.skip_scan_target or []):
+            continue
+        scans_summary.append({
+            "scan_target": scan.get("scan_target"),
+            "ecosystem": scan.get("ecosystem"),
+            "vuln_count": len(scan.get("vulnerabilities") or []),
+        })
+
+    new_prs = []
+    skipped_existing = []
+    skipped_no_fix = []
+    skipped_over_limit = []
+
+    # We need origin/<base_branch> fresh before any per-vuln checkout.
+    if not args.dry_run:
+        run(["git", "fetch", "origin", args.base_branch], cwd=repo_root)
+
+    for scan, vuln in iter_all_vulns(scan_paths, skip_targets=args.skip_scan_target):
+        branch = compute_branch_name(scan, vuln)
+        base_record = _vuln_record_base(scan, vuln, branch)
+
+        if args.dry_run:
+            safe_print(f"[dry-run] would consider {branch} (package={vuln.get('package')})")
+            # In dry-run, still bucket records so the manifest is meaningful.
+            if args.max_prs and len(new_prs) >= args.max_prs:
+                skipped_over_limit.append(dict(base_record))
+            else:
+                new_prs.append({**base_record, "pr_url": "", "strategy": "[dry-run]"})
+            continue
+
+        if pr_ever_created(branch, repo):
+            safe_print(f"Skipped: a PR already exists (any state) for branch {branch}")
+            skipped_existing.append({**base_record, "reason": "PR already created"})
+            continue
+
+        if args.max_prs and len(new_prs) >= args.max_prs:
+            safe_print(f"Skipped (over --max-prs={args.max_prs}): {branch}")
+            skipped_over_limit.append(dict(base_record))
+            continue
+
+        ok, info = _create_pr_for_vuln(
+            scan, vuln, branch,
+            repo=repo,
+            repo_root=repo_root,
+            base_branch=args.base_branch,
+            pr_env=pr_env,
+        )
+        if ok:
+            new_prs.append({
+                **base_record,
+                "pr_url": info.get("pr_url", ""),
+                "strategy": info.get("strategy", ""),
+            })
+            safe_print(f"Opened PR for {vuln.get('package')} on branch {branch}")
+        else:
+            skipped_no_fix.append({**base_record, "reason": info.get("reason", "unknown")})
+
+    manifest = {
+        "max_prs": args.max_prs,
+        "scans": scans_summary,
+        "new_prs": new_prs,
+        "skipped_existing": skipped_existing,
+        "skipped_no_fix": skipped_no_fix,
+        "skipped_over_limit": skipped_over_limit,
+    }
+
+    if args.manifest_out:
+        out_path = Path(args.manifest_out)
+        out_path.parent.mkdir(parents=True, exist_ok=True)
+        out_path.write_text(json.dumps(manifest, indent=2), encoding="utf-8")
+        safe_print(f"Wrote PR manifest to {out_path}")
+
+    safe_print(
+        f"Summary: new={len(new_prs)} existing={len(skipped_existing)} "
+        f"no_fix={len(skipped_no_fix)} over_limit={len(skipped_over_limit)}"
+    )
     return 0
 
 
