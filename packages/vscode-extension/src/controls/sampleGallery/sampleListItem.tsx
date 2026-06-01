@@ -44,10 +44,7 @@ export default class SampleListItem extends React.Component<SampleProps, unknown
         <div className="title-tag" onClick={this.onSampleTitleClicked}>
           <h3>
             {this.props.featured && (
-              <span
-                className="featured-star codicon codicon-star-full"
-                aria-hidden="true"
-              ></span>
+              <span className="featured-star codicon codicon-star-full" aria-hidden="true"></span>
             )}
             {sample.title}
           </h3>
