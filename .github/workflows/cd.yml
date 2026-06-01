@@ -51,7 +51,6 @@ on:
 permissions:
   actions: write
   contents: write
-  pull-requests: write
 
 jobs:
   cd:
@@ -150,7 +149,7 @@ jobs:
         id: security-check-vsc
         continue-on-error: true  # Allow pipeline to continue, notification will be sent on failure
         run: |
-          python -u .github/scripts/check_npm_vulnerabilities.py --scan-directory "templates/vsc" --output-json "${{ runner.temp }}/vuln-vsc.json"
+          python -u .github/scripts/check_npm_vulnerabilities.py --scan-directory "templates/vsc"
 
       - name: Setup .NET for NuGet security check
         if: ${{ github.event.inputs.skipmarkdownandvulnerabilitycheck == 'false' || github.event.inputs.skipmarkdownandvulnerabilitycheck == ''}}
@@ -163,14 +162,14 @@ jobs:
         id: security-check-vs
         continue-on-error: true  # Allow pipeline to continue, notification will be sent on failure
         run: |
-          python -u .github/scripts/check_nuget_vulnerabilities.py --scan-directory "templates/vs" --output-json "${{ runner.temp }}/vuln-vs.json"
+          python -u .github/scripts/check_nuget_vulnerabilities.py --scan-directory "templates/vs"
 
       - name: 🔍Check package.json files for security vulnerabilities(Samples)
         if: ${{ github.event.inputs.skipmarkdownandvulnerabilitycheck == 'false' || github.event.inputs.skipmarkdownandvulnerabilitycheck == ''}}
         id: security-check-samples
         continue-on-error: true  # Allow pipeline to continue, notification will be sent on failure
         run: |
-          python -u .github/scripts/check_npm_vulnerabilities.py --scan-directory "samples-repo" --output-json "${{ runner.temp }}/vuln-samples.json"
+          python -u .github/scripts/check_npm_vulnerabilities.py --scan-directory "samples-repo"
 
       - name: 📋 Check Results Summary
         if: ${{ always() && (github.event.inputs.skipmarkdownandvulnerabilitycheck == 'false' || github.event.inputs.skipmarkdownandvulnerabilitycheck == '') }}
@@ -238,27 +237,7 @@ jobs:
             echo "::error title=Security Check (Samples) Failed::npm vulnerabilities found in samples-repo"
           fi
 
-      - name: 🛠️ Open fix PR for first vulnerability
-        if: ${{ always() && (steps.security-check-vsc.outcome == 'failure' || steps.security-check-vs.outcome == 'failure' || steps.security-check-samples.outcome == 'failure') && (github.event.inputs.skipmarkdownandvulnerabilitycheck == 'false' || github.event.inputs.skipmarkdownandvulnerabilitycheck == '') }}
-        continue-on-error: true
-        env:
-          GH_TOKEN: ${{ steps.generate-token.outputs.token }}
-          GH_TOKEN_FOR_PR: ${{ secrets.GITHUB_TOKEN }}
-          GH_TOKEN_PERSONAL: ${{ secrets.PERSONAL_PAT }}
-          GITHUB_REPOSITORY: ${{ github.repository }}
-        run: |
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          python -u .github/scripts/open_vuln_fix_pr.py \
-            --scan-json "${{ runner.temp }}/vuln-vsc.json" \
-            --scan-json "${{ runner.temp }}/vuln-vs.json" \
-            --scan-json "${{ runner.temp }}/vuln-samples.json" \
-            --skip-scan-target samples-repo \
-            --base-branch dev \
-            --repo-root .
-
       - name: Install wine64
-        if: false  # TEMP DISABLED: stop here after vuln-fix step
         run: |
           sudo dpkg --add-architecture i386
           sudo mkdir -pm755 /etc/apt/keyrings
@@ -271,48 +250,44 @@ jobs:
           wine64 --version
 
       - name: Setup npm registry
-        if: false  # TEMP DISABLED
         run: |
           echo "${{ secrets.NPMRC }}" > ~/.npmrc
-
+      
       - name: Setup git
-        if: false  # TEMP DISABLED
         run: |
           git config --global user.name 'wh-alice'
           git config --global user.email 'alicewan@microsoft.com'
 
       - name: manage pkgs to release
-        if: ${{ false && github.event_name == 'workflow_dispatch' }}
+        if: ${{ github.event_name == 'workflow_dispatch' }}
         run: bash .github/scripts/lerna.sh ${{github.event.inputs.pkgs}}
 
       - name: Setup project
-        if: false  # TEMP DISABLED
         run: |
           npm run setup
 
       - name: release alpha npm packages to npmjs.org
-        if: ${{ false && github.ref == 'refs/heads/dev' }}
+        if: ${{ github.ref == 'refs/heads/dev' }}
         run: |
           npx lerna version prerelease --preid=alpha.$(git rev-parse --short HEAD) --exact --no-push --allow-branch dev --yes
 
       - name: release preview packages to npmjs.org
-        if: ${{ false && github.event_name == 'workflow_dispatch' && github.event.inputs.preid == 'preview' }}
+        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.preid == 'preview' }}
         run: |
-          npx lerna version prerelease --preid=beta.$(date "+%Y%m%d%H") --exact --no-push --allow-branch ${GITHUB_REF#refs/*/} --yes
+          npx lerna version prerelease --preid=beta.$(date "+%Y%m%d%H") --exact --no-push --force-publish=ms-teams-vscode-extension --allow-branch ${GITHUB_REF#refs/*/} --yes
 
       - name: version rc npm packages to npmjs.org
-        if: ${{ false && github.event_name == 'workflow_dispatch' && github.event.inputs.preid == 'rc' }}
+        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.preid == 'rc' }}
         run: |
           npx lerna version prerelease --conventional-prerelease --preid=rc --no-changelog --allow-branch ${GITHUB_REF#refs/*/} --yes
 
       - name: version stable npm packages to npmjs.org
-        if: ${{ false && github.event_name == 'workflow_dispatch' && github.ref != 'refs/heads/dev' && github.event.inputs.preid == 'stable' }}
+        if: ${{ github.event_name == 'workflow_dispatch' && github.ref != 'refs/heads/dev' && github.event.inputs.preid == 'stable' }}
         run: |
           npx lerna version --conventional-commits --conventional-graduate --no-changelog --allow-branch ${GITHUB_REF#refs/*/} --yes
 
       - name: version change
         id: version-change
-        if: false  # TEMP DISABLED
         run: |
           echo "CHANGED=$(git tag --points-at HEAD | xargs)" >> $GITHUB_OUTPUT
           echo "TEMPLATE_VERSION=$(git tag --points-at HEAD | grep templates)" >> $GITHUB_OUTPUT
@@ -321,14 +296,14 @@ jobs:
 
       - name: update template rc tag
         uses: richardsimko/update-tag@v1.0.7
-        if: ${{ false && (contains(steps.version-change.outputs.CHANGED, 'templates@') || contains(steps.version-change.outputs.CHANGED, '@microsoft/teamsfx')) && github.event_name == 'workflow_dispatch' && github.event.inputs.preid == 'rc' }}
+        if: ${{ (contains(steps.version-change.outputs.CHANGED, 'templates@') || contains(steps.version-change.outputs.CHANGED, '@microsoft/teamsfx')) && github.event_name == 'workflow_dispatch' && github.event.inputs.preid == 'rc' }}
         with:
           tag_name: "templates@0.0.0-rc"
         env:
           GITHUB_TOKEN: ${{ steps.generate-token.outputs.token }}
 
       - name: release templates' RC version to github
-        if: ${{ false && (contains(steps.version-change.outputs.CHANGED, 'templates@') || contains(steps.version-change.outputs.CHANGED, '@microsoft/teamsfx')) && github.event_name == 'workflow_dispatch' && github.event.inputs.preid == 'rc' }}
+        if: ${{ (contains(steps.version-change.outputs.CHANGED, 'templates@') || contains(steps.version-change.outputs.CHANGED, '@microsoft/teamsfx')) && github.event_name == 'workflow_dispatch' && github.event.inputs.preid == 'rc' }}
         uses: ncipollo/release-action@v1.10.0
         with:
           token: ${{ steps.generate-token.outputs.token }}
@@ -345,7 +320,7 @@ jobs:
           removeArtifacts: true
 
       - name: Create Templates Stable Release
-        if: ${{ false && contains(steps.version-change.outputs.CHANGED, 'templates@') && github.event_name == 'workflow_dispatch' && github.event.inputs.preid == 'stable' }}
+        if: ${{ contains(steps.version-change.outputs.CHANGED, 'templates@') && github.event_name == 'workflow_dispatch' && github.event.inputs.preid == 'stable' }}
         uses: ncipollo/release-action@v1.10.0
         with:
           artifacts: |
@@ -361,11 +336,11 @@ jobs:
           allowUpdates: true
 
       - name: Generate Tag List
-        if: ${{ false && contains(steps.version-change.outputs.CHANGED, 'templates@') && github.event_name == 'workflow_dispatch' && github.event.inputs.preid == 'stable' }}
+        if: ${{ contains(steps.version-change.outputs.CHANGED, 'templates@') && github.event_name == 'workflow_dispatch' && github.event.inputs.preid == 'stable' }}
         run: git tag | grep templates > ${{ runner.temp }}/template-tags.txt
 
       - name: Update Template Tag list Release
-        if: ${{ false && contains(steps.version-change.outputs.CHANGED, 'templates@') && github.event_name == 'workflow_dispatch' && github.event.inputs.preid == 'stable' }}
+        if: ${{ contains(steps.version-change.outputs.CHANGED, 'templates@') && github.event_name == 'workflow_dispatch' && github.event.inputs.preid == 'stable' }}
         uses: ncipollo/release-action@v1.10.0
         with:
           artifacts: ${{ runner.temp }}/template-tags.txt
@@ -376,7 +351,7 @@ jobs:
           allowUpdates: true
 
       - name: Release RC VS templates to GitHub
-        if: ${{ false && contains(steps.version-change.outputs.CHANGED, 'templates@') && github.event_name == 'workflow_dispatch' && github.event.inputs.vsrelease == 'true' }}
+        if: ${{ contains(steps.version-change.outputs.CHANGED, 'templates@') && github.event_name == 'workflow_dispatch' && github.event.inputs.vsrelease == 'true' }}
         uses: ncipollo/release-action@v1.10.0
         with:
           token: ${{ steps.generate-token.outputs.token }}
@@ -390,9 +365,9 @@ jobs:
           artifacts: |
             ${{ github.workspace }}/templates/build/fallback/csharp.zip
             ${{ github.workspace }}/templates/build/metadata.zip
-
+      
       - name: Get VS Templates version
-        if: ${{ false && github.event_name == 'workflow_dispatch' && github.event.inputs.vsrelease == 'true' && github.event.inputs.vstemplate == 'true' }}
+        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.vsrelease == 'true' && github.event.inputs.vstemplate == 'true' }}
         id: vs-template-tag
         run: |
           VS_VERSION=$(node -p "require('./templates/package.json').vsversion")
@@ -400,7 +375,7 @@ jobs:
 
       - name: Release stable VS Templates to GitHub
         uses: ncipollo/release-action@v1.10.0
-        if: ${{ false && github.event_name == 'workflow_dispatch' && github.event.inputs.vsrelease == 'true' && github.event.inputs.vstemplate == 'true' }}
+        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.vsrelease == 'true' && github.event.inputs.vstemplate == 'true' }}
         with:
           token: ${{ steps.generate-token.outputs.token }}
           tag: ${{ steps.vs-template-tag.outputs.VSTAG }}
@@ -414,13 +389,13 @@ jobs:
             ${{ github.workspace }}/templates/build/metadata.zip
 
       - name: Generate Tag List (VS stable release)
-        if: ${{ false && github.event_name == 'workflow_dispatch' && github.event.inputs.vsrelease == 'true' && github.event.inputs.vstemplate == 'true' }}
+        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.vsrelease == 'true' && github.event.inputs.vstemplate == 'true' }}
         run: |
           git fetch --tags
           git tag | grep templates > ${{ runner.temp }}/template-tags.txt
 
       - name: Update Template Tag list Release (VS stable release)
-        if: ${{ false && github.event_name == 'workflow_dispatch' && github.event.inputs.vsrelease == 'true' && github.event.inputs.vstemplate == 'true' }}
+        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.vsrelease == 'true' && github.event.inputs.vstemplate == 'true' }}
         uses: ncipollo/release-action@v1.10.0
         with:
           artifacts: ${{ runner.temp }}/template-tags.txt
@@ -431,7 +406,7 @@ jobs:
           allowUpdates: true
 
       - name: enable prerelease only features
-        if: ${{ false && (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && (github.event.inputs.preid == 'alpha' || github.event.inputs.preid == 'preview'))) }}
+        if: ${{ github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && (github.event.inputs.preid == 'alpha' || github.event.inputs.preid == 'preview')) }}
         run: |
           bash .github/scripts/prerelease-feature-control.sh
           changes_detected=$(git status --porcelain | grep "packages/vscode-extension/src/releaseBasedFeatureSettings.ts" || true)
@@ -442,9 +417,9 @@ jobs:
           else
             echo "No changes detected in releaseBasedFeatureSettings.ts"
           fi
-
+          
       - name: disable chat participant environment variable
-        if: ${{ false && github.event_name == 'workflow_dispatch' && (github.event.inputs.preid != 'alpha') }}
+        if: ${{ github.event_name == 'workflow_dispatch' && (github.event.inputs.preid != 'alpha') }}
         run: bash .github/scripts/chat-participant-disabled.sh
 
       # - name: disable api proposals in package.json
@@ -457,7 +432,7 @@ jobs:
       #     parse_json: true
 
       - name: disable chat participant in package.json
-        if: ${{ false && github.event_name == 'workflow_dispatch' && (github.event.inputs.preid != 'alpha') }}
+        if: ${{ github.event_name == 'workflow_dispatch' && (github.event.inputs.preid != 'alpha') }}
         uses: jossef/action-set-json-field@v2.1
         with:
           file: packages/vscode-extension/package.json
@@ -466,13 +441,13 @@ jobs:
           parse_json: true
 
       - name: commit change on local
-        if: ${{ false && github.event_name == 'workflow_dispatch' && (github.event.inputs.preid != 'alpha') }}
+        if: ${{ github.event_name == 'workflow_dispatch' && (github.event.inputs.preid != 'alpha') }}
         run: |
           git add ./packages/vscode-extension/package.json ./packages/vscode-extension/src/chat/consts.ts
           git commit -m "build: disable chat participant"
 
       - name: update cli ai key
-        if: ${{ false && github.event_name == 'workflow_dispatch' && github.event.inputs.preid != 'alpha' }}
+        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.preid != 'alpha' }}
         uses: jossef/action-set-json-field@v1
         with:
           file: ./packages/cli/package.json
@@ -480,7 +455,7 @@ jobs:
           value: ${{ secrets.CLI_PUBLIC_AIKEY }}
 
       - name: update extension ai key
-        if: ${{ false && github.event_name == 'workflow_dispatch' && github.event.inputs.preid != 'alpha' }}
+        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.preid != 'alpha' }}
         uses: jossef/action-set-json-field@v1
         with:
           file: ./packages/vscode-extension/package.json
@@ -488,33 +463,33 @@ jobs:
           value: ${{ secrets.EXT_PUBLIC_AIKEY }}
 
       - name: commit change on local
-        if: ${{ false && github.event_name == 'workflow_dispatch' && github.event.inputs.preid != 'alpha' }}
+        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.preid != 'alpha' }}
         run: |
           git add ./packages/cli/package.json ./packages/vscode-extension/package.json
           git commit -m "build: update ai key"
 
       - name: publish alpha release to npm org
-        if: ${{ false && github.ref == 'refs/heads/dev'}}
+        if: ${{ github.ref == 'refs/heads/dev'}}
         run: |
           npx lerna publish from-package --dist-tag=alpha --yes --allow-branch dev
 
       - name: publish preview release to npm org
-        if: ${{ false && github.event_name == 'workflow_dispatch' && github.event.inputs.preid == 'preview' }}
+        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.preid == 'preview' }}
         run: |
           npx lerna publish from-package --dist-tag=beta --yes
 
       - name: publish rc npm packages to npmjs.org
-        if: ${{ false && github.event_name == 'workflow_dispatch' && github.event.inputs.preid == 'rc' }}
+        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.preid == 'rc' }}
         run: |
           npx lerna publish from-package --dist-tag=rc --yes
 
       - name: publish stable npm packages to npmjs.org
-        if: ${{ false && github.event_name == 'workflow_dispatch' && github.event.inputs.preid == 'stable' }}
+        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.preid == 'stable' }}
         run: |
           npx lerna publish from-package --yes
 
       - name: pack server bits
-        if: ${{ false && (contains(steps.version-change.outputs.CHANGED, '@microsoft/teamsfx-server') || (github.event_name == 'workflow_dispatch' && github.event.inputs.vsrelease == 'true' )) }}
+        if: ${{ contains(steps.version-change.outputs.CHANGED, '@microsoft/teamsfx-server') || (github.event_name == 'workflow_dispatch' && github.event.inputs.vsrelease == 'true' ) }}
         uses: nick-invision/retry@v2
         with:
           timeout_minutes: 10
@@ -527,7 +502,7 @@ jobs:
             [ -d ./packages/server/lib ] && find ./packages/server/lib -type f -name '*.exe' -exec mv {} server.exe \;
 
       - name: pack vsix
-        if: ${{ false && (github.event.inputs.pkgs == '' || contains(github.event.inputs.pkgs, 'vscode')) }}
+        if: ${{ github.event.inputs.pkgs == '' || contains(github.event.inputs.pkgs, 'vscode') }}
         env:
           NODE_OPTIONS: "--max_old_space_size=4096"
         uses: nick-invision/retry@v2
@@ -546,7 +521,7 @@ jobs:
             fi
 
       - name: release stable VSCode extension to github
-        if: ${{ false && contains(steps.version-change.outputs.CHANGED, 'ms-teams-vscode-extension@') && github.event_name == 'workflow_dispatch' && github.event.inputs.preid == 'stable' }}
+        if: ${{ contains(steps.version-change.outputs.CHANGED, 'ms-teams-vscode-extension@') && github.event_name == 'workflow_dispatch' && github.event.inputs.preid == 'stable' }}
         uses: ncipollo/release-action@v1.10.0
         with:
           token: ${{ steps.generate-token.outputs.token }}
@@ -556,7 +531,6 @@ jobs:
           bodyFile: ./CHANGELOG.md
 
       - name: save release info
-        if: false  # TEMP DISABLED
         run: |
           rm -f changed.txt
           rm -f versions.json
@@ -567,7 +541,6 @@ jobs:
           find ./packages/vscode-extension -type f -name '*.vsix' -exec mv {} . \;
 
       - name: upload release info to artifact
-        if: false  # TEMP DISABLED
         uses: actions/upload-artifact@v4
         with:
           name: release
@@ -581,7 +554,7 @@ jobs:
 
   notify-check-failures:
     needs: cd
-    if: ${{ false && (needs.cd.outputs.markdown-check-result == 'failure' || needs.cd.outputs.security-check-vsc-result == 'failure' || needs.cd.outputs.security-check-vs-result == 'failure' || needs.cd.outputs.markdown-check-samples-result == 'failure' || needs.cd.outputs.security-check-samples-result == 'failure') }}  # TEMP DISABLED
+    if: ${{ needs.cd.outputs.markdown-check-result == 'failure' || needs.cd.outputs.security-check-vsc-result == 'failure' || needs.cd.outputs.security-check-vs-result == 'failure' || needs.cd.outputs.markdown-check-samples-result == 'failure' || needs.cd.outputs.security-check-samples-result == 'failure' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout branch
@@ -651,7 +624,7 @@ jobs:
 
   trigger-docker-build:
     needs: cd
-    if: ${{ false && success() }}  # TEMP DISABLED
+    if: ${{ success() }}
     runs-on: ubuntu-latest
     steps:
       - name: Trigger Docker Build Workflow
