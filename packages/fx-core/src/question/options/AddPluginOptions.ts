@@ -62,7 +62,7 @@ export const AddPluginOptions: CLICommandOption[] = [
     type: "string",
     description: "Select Authentication Type",
     default: "oauth",
-    choices: ["oauth", "entraSSO"],
+    choices: ["oauth", "entra-sso", "none"],
   },
   {
     name: "manifest-file",

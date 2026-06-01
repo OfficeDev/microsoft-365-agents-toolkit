@@ -60,5 +60,11 @@ export interface CreateProjectInputs extends Inputs {
   /** @description MCP Tools Definition File */
   "mcp-tools-file-path"?: string;
   /** @description Authentication type for the MCP server */
-  "mcp-da-auth-type"?: "oauth" | "entraSSO";
+  "mcp-da-auth-type"?: "oauth" | "oauth-dynamic" | "entra-sso" | "none";
+  /** @description OAuth client id (static OAuth) or Entra application client id (Entra SSO) for the MCP server */
+  "mcp-da-client-id"?: string;
+  /** @description OAuth client secret for the MCP server (static OAuth) */
+  "mcp-da-client-secret"?: string;
+  /** @description Space-separated OAuth scopes for the MCP server (static OAuth) */
+  "mcp-da-scopes"?: string;
 }

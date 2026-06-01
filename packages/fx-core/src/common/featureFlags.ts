@@ -29,6 +29,14 @@ export class FeatureFlagName {
   static readonly OpenPluginImportExport = "TEAMSFX_OPENPLUGIN_IMPORT_EXPORT";
   static readonly AgentSkillsManifest = "TEAMSFX_AGENT_SKILLS";
   static readonly BrokerAuth = "TEAMSFX_BROKER_AUTH";
+  // Dynamic Tool Discovery for MCP-backed Declarative Agents: drops static MCP tool fetching at
+  // scaffold time, absorbs the fetch-mcp-tools CodeLens flow into the create/add-action flows,
+  // and persists OAuth credentials into env files instead of the in-process bridge.
+  // See docs/01-product/scenarios/da/draft/.
+  static readonly MCPForDADT = "TEAMSFX_MCP_FOR_DA_DT";
+  // Surface the "OAuth (with dynamic registration)" auth-type option in the
+  // DA-with-MCP scaffold picker. Requires MCPForDADT to also be enabled.
+  static readonly MCPForDADCR = "TEAMSFX_MCP_FOR_DA_DCR";
   // Add config files to existing project to make it toolkit compatible
   static readonly GenerateConfigFiles = "TEAMSFX_GENERATE_CONFIG_FILES";
 
@@ -113,6 +121,14 @@ export class FeatureFlags {
   };
   static readonly V4Enabled = {
     name: FeatureFlagName.V4Enabled,
+    defaultValue: "false",
+  };
+  static readonly MCPForDADT = {
+    name: FeatureFlagName.MCPForDADT,
+    defaultValue: "false",
+  };
+  static readonly MCPForDADCR = {
+    name: FeatureFlagName.MCPForDADCR,
     defaultValue: "false",
   };
   static readonly GenerateConfigFiles = {
