@@ -6,8 +6,8 @@
  * TC-001b: Link text color contrast >= 4.5:1 when focused (Dark theme)
  * TC-002:  Gallery/List toggle buttons aria-pressed state before and after click
  * TC-003:  Sample card accessible names include tags on keyboard focus
- * TC-004a: Featured cards in Gallery (grid) view have a .featured-star-overlay (codicon-star-full) icon on the thumbnail; non-featured cards do not; featured section has no background color
- * TC-004b: Featured items in List view have a .featured-star (codicon-star-full) icon in their h3 before title text; non-featured items do not
+ * TC-004a: Featured cards in Gallery (grid) view display a .featured-corner-badge element containing a .featured-corner-star (codicon-star-full) on the top-left of the thumbnail; non-featured cards do not; featured section has no background color
+ * TC-004b: Featured items in List view have a .featured-star (codicon-star-full) icon in their h3 before title text (color matches title via currentColor); non-featured items do not
  * TC-005:  Screen reader differentiates Featured from non-Featured cards
  * TC-006a: Focus ring contrast >= 3:1 in Gallery view (Light theme)
  * TC-006b: Focus ring contrast >= 3:1 in List view (Light theme)
@@ -894,7 +894,8 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
   });
 
   // ─────────────────────────────────────────────────────────────────────────────
-  // TC-004a — Featured cards in Gallery (grid) view display a star icon overlay
+  // TC-004a — Featured cards in Gallery (grid) view display a blue corner triangle badge
+  //           (.featured-corner-badge) containing a white star (.featured-corner-star)
   //           on the top-left of the thumbnail; non-featured cards do not; the
   //           featured section has no background color (transparent / page bg).
   //
@@ -902,19 +903,20 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
   //   1. Set VS Code color theme to "Default Light Modern"
   //   2. Click ATK Activity Bar icon
   //   3. Open gallery — Gallery (Grid) view is the default
-  //   4. Screenshot 13 showing featured section with star icons on thumbnails
-  //   5. For each .sample-card inside .featured-sample-section verify .featured-star-overlay present
-  //   6. For each .sample-card outside .featured-sample-section verify .featured-star-overlay absent
+  //   4. Screenshot 13 showing featured section with blue corner badge on thumbnails
+  //   5. For each .sample-card inside .featured-sample-section verify .featured-corner-badge present
+  //   5b. Verify .featured-corner-badge contains .featured-corner-star
+  //   6. For each .sample-card outside .featured-sample-section verify .featured-corner-badge absent
   //   7. Verify .featured-sample-section has no background color
   // ─────────────────────────────────────────────────────────────────────────────
-  test("TC-004a: Featured cards display star overlay icon in Gallery view", async () => {
+  test("TC-004a: Featured cards display corner badge with star icon in Gallery view", async () => {
     // Steps 1-3: set Light theme + click ATK Activity Bar + open gallery
     const galleryOpened = await setupTcGallery("TC-004a", "light");
 
     if (!galleryOpened) {
       takeScreenshot("13-tc004a-gallery-star");
       step(
-        "TC-004a Featured gallery star icon present on thumbnail",
+        "TC-004a Featured gallery corner badge with star on thumbnail",
         false,
         "FAIL: Gallery webview not open after setup.",
       );
@@ -939,7 +941,7 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
     // Step 4: Screenshot showing featured section with star icons on card thumbnails
     takeScreenshot("13-tc004a-gallery-star");
 
-    // Steps 5-7: Verify star overlay on featured cards, absence on non-featured, no section bg
+    // Steps 5-7: Verify corner badge on featured cards, absence on non-featured, no section bg
     const evalScript =
       "(function(){" +
       "  var featSec=document.querySelector('.featured-sample-section');" +
@@ -948,23 +950,27 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
       "  var allCards=Array.from(document.querySelectorAll('.sample-card'));" +
       "  var nonFeatCards=allCards.filter(function(c){return !featSec.contains(c);});" +
       "  if(featCards.length===0) return JSON.stringify({error:'no-featured-cards'});" +
-      // Step 5: every featured card must have .featured-star-overlay
-      "  var missingStars=featCards.filter(function(c){" +
-      "    return !c.querySelector('.featured-star-overlay');});" +
-      // Step 6: no non-featured card should have .featured-star-overlay
-      "  var unexpectedStars=nonFeatCards.filter(function(c){" +
-      "    return !!c.querySelector('.featured-star-overlay');});" +
+      // Step 5: every featured card must have .featured-corner-badge
+      "  var missingBadge=featCards.filter(function(c){" +
+      "    return !c.querySelector('.featured-corner-badge');});" +
+      // Step 5b: every featured-corner-badge must contain .featured-corner-star
+      "  var missingStar=featCards.filter(function(c){" +
+      "    return !c.querySelector('.featured-corner-badge .featured-corner-star');});" +
+      // Step 6: no non-featured card should have .featured-corner-badge
+      "  var unexpectedBadge=nonFeatCards.filter(function(c){" +
+      "    return !!c.querySelector('.featured-corner-badge');});" +
       // Step 7: featured section background must be transparent
       "  var sectBg=getComputedStyle(featSec).backgroundColor;" +
       "  var bgTransparent=sectBg==='transparent'||sectBg==='rgba(0, 0, 0, 0)';" +
       "  return JSON.stringify({" +
       "    featuredCount:featCards.length," +
       "    nonFeaturedCount:nonFeatCards.length," +
-      "    missingStarCount:missingStars.length," +
-      "    unexpectedStarCount:unexpectedStars.length," +
+      "    missingBadgeCount:missingBadge.length," +
+      "    missingStarCount:missingStar.length," +
+      "    unexpectedBadgeCount:unexpectedBadge.length," +
       "    sectionBg:sectBg," +
       "    bgTransparent:bgTransparent," +
-      "    passes:missingStars.length===0&&unexpectedStars.length===0" +
+      "    passes:missingBadge.length===0&&missingStar.length===0&&unexpectedBadge.length===0" +
       "  });" +
       "})()";
 
@@ -976,7 +982,7 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
 
     if (!rawResult || rawResult.startsWith("ERROR:")) {
       step(
-        "TC-004a Featured gallery star icon present on thumbnail",
+        "TC-004a Featured gallery corner badge with star on thumbnail",
         false,
         "FAIL: DOM eval error.",
       );
@@ -989,7 +995,7 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
     } catch {}
     if (!data) {
       step(
-        "TC-004a Featured gallery star icon present on thumbnail",
+        "TC-004a Featured gallery corner badge with star on thumbnail",
         false,
         `FAIL: Parse error: ${rawResult.slice(0, 100)}`,
       );
@@ -997,7 +1003,7 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
     }
     if (data.error === "no-featured-section") {
       step(
-        "TC-004a Featured gallery star icon present on thumbnail",
+        "TC-004a Featured gallery corner badge with star on thumbnail",
         false,
         "FAIL: No .featured-sample-section element found in the gallery DOM.",
       );
@@ -1005,7 +1011,7 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
     }
     if (data.error === "no-featured-cards") {
       step(
-        "TC-004a Featured gallery star icon present on thumbnail",
+        "TC-004a Featured gallery corner badge with star on thumbnail",
         false,
         "FAIL: No .sample-card elements found inside .featured-sample-section.",
       );
@@ -1013,7 +1019,7 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
     }
     if (data.error) {
       step(
-        "TC-004a Featured gallery star icon present on thumbnail",
+        "TC-004a Featured gallery corner badge with star on thumbnail",
         false,
         `FAIL: ${data.error}`,
       );
@@ -1022,11 +1028,12 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
 
     const detail =
       `featured=${data.featuredCount} cards; nonFeatured=${data.nonFeaturedCount} cards; ` +
-      `missingStarOverlay=${data.missingStarCount} (expect 0); ` +
-      `unexpectedStarOverlay=${data.unexpectedStarCount} (expect 0); ` +
+      `missingCornerBadge=${data.missingBadgeCount} (expect 0); ` +
+      `missingCornerStar=${data.missingStarCount} (expect 0); ` +
+      `unexpectedCornerBadge=${data.unexpectedBadgeCount} (expect 0); ` +
       `sectionBg=${data.sectionBg} transparent=${data.bgTransparent}`;
     step(
-      "TC-004a Featured gallery star icon present on thumbnail",
+      "TC-004a Featured gallery corner badge with star on thumbnail",
       !!data.passes,
       detail,
     );
@@ -1035,7 +1042,8 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
   // ─────────────────────────────────────────────────────────────────────────────
   // TC-004b — Featured items in List view display a star icon (codicon-star-full)
   //           as the first child of their h3 before the title text;
-  //           non-featured list items do not.
+  //           the star uses currentColor so it renders in the same color as the title.
+  //           Non-featured list items do not have the star.
   //
   // Steps per test plan:
   //   1. Set VS Code color theme to "Default Light Modern"
@@ -1045,6 +1053,7 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
   //   5. Screenshot 14 showing list view with star icons before featured item titles
   //   6. For each .sample-list-item inside .featured-sample-section verify h3 .featured-star present
   //   7. For each .sample-list-item outside .featured-sample-section verify h3 .featured-star absent
+  //   8. Read getComputedStyle(starSpan).color and getComputedStyle(h3).color; verify equal (currentColor)
   // ─────────────────────────────────────────────────────────────────────────────
   test("TC-004b: Featured items display star icon before title in List view", async () => {
     // Steps 1-3: set Light theme + click ATK Activity Bar + open gallery
@@ -1094,7 +1103,8 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
     // Step 5: Screenshot showing list view with star icons before featured item titles
     takeScreenshot("14-tc004b-list-star");
 
-    // Steps 6-7: Verify star icon in h3 for featured list items; absent for non-featured
+    // Steps 6-8: Verify star icon in h3 for featured list items; absent for non-featured;
+    //            star color must equal h3 color (star uses currentColor)
     const evalScript =
       "(function(){" +
       "  var featSec=document.querySelector('.featured-sample-section');" +
@@ -1109,12 +1119,26 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
       // Step 7: no non-featured list item should have h3 .featured-star
       "  var unexpectedStars=nonFeatItems.filter(function(i){" +
       "    return !!i.querySelector('h3 .featured-star');});" +
+      // Step 8: star color must match h3 color (currentColor)
+      "  var colorMismatch=[];" +
+      "  var starColorSample=null,h3ColorSample=null;" +
+      "  featItems.forEach(function(i){" +
+      "    var starEl=i.querySelector('h3 .featured-star');" +
+      "    var h3El=i.querySelector('h3');" +
+      "    if(!starEl||!h3El)return;" +
+      "    var sc=getComputedStyle(starEl).color;" +
+      "    var hc=getComputedStyle(h3El).color;" +
+      "    if(!starColorSample){starColorSample=sc;h3ColorSample=hc;}" +
+      "    if(sc!==hc)colorMismatch.push({starColor:sc,h3Color:hc});});" +
       "  return JSON.stringify({" +
       "    featuredCount:featItems.length," +
       "    nonFeaturedCount:nonFeatItems.length," +
       "    missingStarCount:missingStars.length," +
       "    unexpectedStarCount:unexpectedStars.length," +
-      "    passes:missingStars.length===0&&unexpectedStars.length===0" +
+      "    colorMismatchCount:colorMismatch.length," +
+      "    starColorSample:starColorSample," +
+      "    h3ColorSample:h3ColorSample," +
+      "    passes:missingStars.length===0&&unexpectedStars.length===0&&colorMismatch.length===0" +
       "  });" +
       "})()";
 
@@ -1173,7 +1197,9 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
     const detail =
       `featured=${data.featuredCount} items; nonFeatured=${data.nonFeaturedCount} items; ` +
       `missingStarInH3=${data.missingStarCount} (expect 0); ` +
-      `unexpectedStarInH3=${data.unexpectedStarCount} (expect 0)`;
+      `unexpectedStarInH3=${data.unexpectedStarCount} (expect 0); ` +
+      `colorMismatch=${data.colorMismatchCount} (expect 0); ` +
+      `starColor=${data.starColorSample} h3Color=${data.h3ColorSample}`;
     step(
       "TC-004b Featured list item star icon before title",
       !!data.passes,
