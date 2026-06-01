@@ -614,6 +614,8 @@ def main() -> int:
         pr_env["GH_TOKEN"] = pr_token
         source = "GH_TOKEN_PERSONAL" if personal_pat else "GH_TOKEN_FOR_PR"
         safe_print(f"Using {source} for gh pr create")
+    else:
+        safe_print("Using top-level GH_TOKEN (GitHub App token) for gh pr create")
 
     # Build scan summary (target counts) up front so the manifest reports
     # zero-vuln scans too.
