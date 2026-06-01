@@ -233,35 +233,46 @@ suite("DA No Action – Local Debug in M365 Copilot", function () {
     });
     await wait(500); // yield event loop so command dispatch reaches extension host
 
-    // Step 3: QuickPick — "Declarative Agent"
+    // Step 3: QuickPick — "Declarative Agent" (first item, pre-highlighted by VS Code)
+    // Use waitForTextThenScreenshot to gate until the QuickPick is visible, then press
+    // Enter to select the highlighted item.  We intentionally avoid clickText here
+    // because page.getByText() matches sidebar text ("Build a Declarative Agent" button)
+    // before the QuickPick row, causing the QuickPick to close without advancing.
     await sendSignal(
       "waitForTextThenScreenshot:Declarative Agent:60000:02-da-option",
       68000,
     );
-    await sendSignal("clickText:Declarative Agent", 10000);
+    await sendSignal("pressKey:Enter", 5000); // select highlighted "Declarative Agent"
     await wait(1000);
 
-    // Step 4: QuickPick — "No Action"
+    // Step 4: QuickPick — "No Action" (first DA-capability option)
+    // "No Action" text does not appear in the sidebar, so clickText strategy 1
+    // (page.getByText) will find the QuickPick row directly and click it.
     await sendSignal(
       "waitForTextThenScreenshot:No Action:20000:03-no-action",
       28000,
     );
-    await sendSignal("clickText:No Action", 10000);
+    await wait(500); // let QuickPick fully render after screenshot
+    await sendSignal("clickText:No Action", 12000);
     await wait(1000);
 
     // Step 5: QuickPick — Workspace Folder "Default folder"
+    // "Default folder" text is unique to the folder QuickPick.
     await sendSignal(
-      "waitForTextThenScreenshot:Default folder:15000:04-workspace-folder",
-      23000,
+      "waitForTextThenScreenshot:Default folder:20000:04-workspace-folder",
+      28000,
     );
-    await sendSignal("clickText:Default folder", 10000);
+    await wait(500);
+    await sendSignal("clickText:Default folder", 12000);
     await wait(1000);
 
     // Step 6: InputBox — Application Name
-    await sendSignal(
-      "waitForTextThenScreenshot:Application Name:15000:05-app-name-input",
-      23000,
-    );
+    // After "Default folder" click the wizard transitions to an InputBox.
+    // Use a screenshot to capture state, then type the app name.
+    // Avoid waitForTextThenScreenshot here because the InputBox title is not in a
+    // .monaco-list-row and page.getByText for "Application Name" may time out.
+    await wait(2000); // let InputBox open
+    await sendSignal("screenshot:05-app-name-input", 5000);
     await sendSignal(`type:${APP_NAME}`, 8000);
     await wait(500);
     await sendSignal("pressKey:Enter", 5000);

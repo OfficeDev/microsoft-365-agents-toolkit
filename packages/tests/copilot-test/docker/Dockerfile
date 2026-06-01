@@ -54,6 +54,15 @@ RUN node -e " \
     .catch(e => console.warn('VSCode pre-download skipped:', e.message)) \
     .finally(() => process.exit(0));" || true
 
+# Pre-populate a minimal redhat.vscode-yaml stub so runTest.ts skips the
+# `runVSCodeCommand --install-extension` call, which hangs indefinitely in
+# headless Docker because VS Code's CLI extension installer never exits.
+# The check in runTest.ts is: !fs.existsSync(path.join(yamlExtDir, "package.json"))
+# Any valid package.json in the right directory is sufficient to skip the install.
+RUN mkdir -p /tmp/atk-test-vscode-ext/redhat.vscode-yaml \
+    && echo '{"name":"vscode-yaml","publisher":"redhat","version":"0.0.0","engines":{"vscode":"*"}}' \
+       > /tmp/atk-test-vscode-ext/redhat.vscode-yaml/package.json
+
 COPY packages/tests/copilot-test/docker/run-test.sh /usr/local/bin/run-test.sh
 RUN sed -i 's/\r//g' /usr/local/bin/run-test.sh \
     && chmod +x /usr/local/bin/run-test.sh \
