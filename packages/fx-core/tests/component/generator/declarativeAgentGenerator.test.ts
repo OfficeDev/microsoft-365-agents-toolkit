@@ -2020,7 +2020,7 @@ describe("helper", async () => {
 
       const envUtilModule = await import("../../../src/component/utils/envUtil");
       sandbox.stub(envUtilModule.envUtil, "listEnv").resolves(ok(["dev"]));
-      const writeEnvStub = sandbox.stub(envUtilModule.envUtil, "writeEnv").resolves(ok(""));
+      const writeEnvStub = sandbox.stub(envUtilModule.envUtil, "writeEnv").resolves(ok(undefined));
 
       const inputs: Inputs = {
         platform: Platform.VSCode,
