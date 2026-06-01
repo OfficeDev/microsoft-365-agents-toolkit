@@ -25,8 +25,8 @@ All contrast checks use the **WCAG relative luminance formula** (IEC 61966-2-1 s
 - TC-001b: Link text color contrast ≥ 4.5:1 when the link is **focused** in **Dark** theme (Default Dark Modern)
 - TC-002: Gallery/List toggle buttons expose correct `aria-pressed` state before and after click
 - TC-003: Sample card accessible names include `. Tags: <tag1>, <tag2>` on keyboard focus
-- TC-004a: Featured cards in **Gallery (grid) view** display a star (`codicon-star-full`) icon overlaid on the top-left of the thumbnail image; non-featured cards do not
-- TC-004b: Featured items in **List view** display a star (`codicon-star-full`) icon before the sample title text; non-featured items do not
+- TC-004a: Featured cards in **Gallery (grid) view** display a blue corner triangle badge with white star (`codicon-star-full`) on the top-left of the thumbnail image; non-featured cards do not
+- TC-004b: Featured items in **List view** display a star (`codicon-star-full`) icon before the sample title text in the **same color as the title text** (`currentColor`); non-featured items do not
 - TC-005: Featured cards have aria-label starting with `"Featured sample."`, non-featured cards do not
 - TC-006a: Focus ring contrast ≥ 3:1 in **Gallery view** (Light theme)
 - TC-006b: Focus ring contrast ≥ 3:1 in **List view** (Light theme)
@@ -176,7 +176,7 @@ All contrast checks use the **WCAG relative luminance formula** (IEC 61966-2-1 s
 
 ---
 
-### TC-004a – Featured cards display star icon overlay on thumbnail in Gallery view
+### TC-004a – Featured cards display corner triangle badge on thumbnail in Gallery view
 
 **Preconditions:**
 - VS Code is open with ATK extension installed from the `fix/issue-15916-copilot` branch build
@@ -185,30 +185,31 @@ All contrast checks use the **WCAG relative luminance formula** (IEC 61966-2-1 s
 1. Set VS Code color theme to "Default Light Modern" via Command Palette (`Ctrl+Shift+P` → `Preferences: Color Theme` → select "Default Light Modern").
 2. Click the ATK icon in the VS Code Activity Bar to activate the extension panel.
 3. Open Command Palette (`Ctrl+Shift+P`) and run `Microsoft 365 Agents Toolkit: View Samples`. Observe the Sample Gallery opens in Gallery (Grid) view. Observe the "Featured samples" section with sample cards.
-4. Take screenshot showing the featured samples section — the star icons should be visible on the top-left corner of featured card thumbnails.
-5. Find all `.sample-card` elements inside `.featured-sample-section`. For each, verify the card contains a `.featured-star-overlay` element (the `codicon-star-full` span).
-6. Find all `.sample-card` elements **outside** `.featured-sample-section` (i.e., in `.sample-section`). Verify none contain a `.featured-star-overlay` element.
+4. Take screenshot showing the featured samples section — a blue corner triangle badge with a white star should be visible on the top-left corner of featured card thumbnails.
+5. Find all `.sample-card` elements inside `.featured-sample-section`. For each, verify the card contains a `.featured-corner-badge` element and inside it a `.featured-corner-star` element (the `codicon-star-full` span).
+6. Find all `.sample-card` elements **outside** `.featured-sample-section` (i.e., in `.sample-section`). Verify none contain a `.featured-corner-badge` element.
 7. Verify the `.featured-sample-section` element has no background-color set (i.e., `getComputedStyle(section).backgroundColor` equals `"rgba(0, 0, 0, 0)"` or inherits from the page — confirming the background was removed per the new design).
 
 **Expected result:**
-- Each featured card in gallery view has a `.featured-star-overlay` span with class `codicon-star-full` overlaid on the thumbnail.
+- Each featured card in gallery view has a `.featured-corner-badge` span containing a `.featured-corner-star` span (white star on blue corner triangle) overlaid on the top-left of the thumbnail.
 - Non-featured cards do not have this element.
 - The featured section has no distinct background color (it matches the page background).
 
 **Pass criteria:**
-- `featuredCards.every(card => card.querySelector('.featured-star-overlay') !== null)`
-- `nonFeaturedCards.every(card => card.querySelector('.featured-star-overlay') === null)`
+- `featuredCards.every(card => card.querySelector('.featured-corner-badge') !== null)`
+- `featuredCards.every(card => card.querySelector('.featured-corner-badge .featured-corner-star') !== null)`
+- `nonFeaturedCards.every(card => card.querySelector('.featured-corner-badge') === null)`
 - `getComputedStyle(featuredSection).backgroundColor` is transparent or matches page bg
 
 **Screenshots produced by test:**
 
 | ID  | Filename                          | What is visible                                                        | Pass condition                                                        | Why                                                                       |
 |-----|-----------------------------------|------------------------------------------------------------------------|-----------------------------------------------------------------------|---------------------------------------------------------------------------|
-| 13  | `13-tc004a-gallery-star.png`      | Gallery view with featured section, star icons visible on thumbnails   | Star icon visible on top-left corner of featured card thumbnails      | Proves star indicator distinguishes featured items visually in gallery view |
+| 13  | `13-tc004a-gallery-star.png`      | Gallery view with featured section, blue corner badge visible on thumbnails   | Blue triangle badge with white star visible on top-left corner of featured card thumbnails      | Proves star-on-badge indicator distinguishes featured items visually in gallery view |
 
 ---
 
-### TC-004b – Featured items display star icon before title in List view
+### TC-004b – Featured items display star icon before title in List view (color matches text)
 
 **Preconditions:**
 - VS Code is open with ATK extension installed from the `fix/issue-15916-copilot` branch build
@@ -221,20 +222,23 @@ All contrast checks use the **WCAG relative luminance formula** (IEC 61966-2-1 s
 5. Take screenshot showing the list view with the featured section at the top — the star icons should appear before the title text of featured items.
 6. Find all `.sample-list-item` elements inside `.featured-sample-section`. For each, verify the item's `h3` contains a `.featured-star` span (the `codicon-star-full` icon).
 7. Find all `.sample-list-item` elements **outside** `.featured-sample-section` (i.e., in `.sample-section`). Verify none have a `.featured-star` span in their `h3`.
+8. Read `getComputedStyle(starSpan).color` for a `.featured-star` element. Read `getComputedStyle(h3).color` for its parent `h3`. Verify the two colors are equal (star inherits text color via `currentColor`).
 
 **Expected result:**
 - Each featured list item has a `codicon-star-full` icon as the first child of its `h3` element, before the title text.
+- The star icon uses `currentColor`, so it renders in the same color as the surrounding title text.
 - Non-featured list items do not have this icon in their `h3`.
 
 **Pass criteria:**
 - `featuredListItems.every(item => item.querySelector('h3 .featured-star') !== null)`
 - `nonFeaturedListItems.every(item => item.querySelector('h3 .featured-star') === null)`
+- `getComputedStyle(starSpan).color === getComputedStyle(h3).color` (star color matches title color)
 
 **Screenshots produced by test:**
 
 | ID  | Filename                          | What is visible                                                        | Pass condition                                                        | Why                                                                       |
 |-----|-----------------------------------|------------------------------------------------------------------------|-----------------------------------------------------------------------|---------------------------------------------------------------------------|
-| 14  | `14-tc004b-list-star.png`         | List view with featured section, star icons visible before title text  | Star icon visible before title of featured list items                 | Proves star indicator distinguishes featured items visually in list view  |
+| 14  | `14-tc004b-list-star.png`         | List view with featured section, star icons visible before title text  | Star icon visible before title of featured list items; star color matches title color  | Proves star indicator uses text color (not yellow) in list view  |
 
 ---
 

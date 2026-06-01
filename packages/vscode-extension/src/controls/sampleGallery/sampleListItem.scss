@@ -41,11 +41,11 @@
       white-space: nowrap;
       overflow: hidden;
 
-      /* Star icon before title in list view for featured samples */
+      /* Star icon before title in list view for featured samples — inherits text color */
       .featured-star {
         font-size: 13px;
         margin-right: 4px;
-        color: var(--vscode-editorLightBulb-foreground, #DDB100);
+        color: currentColor;
         vertical-align: middle;
       }
     }

@@ -90,10 +90,9 @@ export default class SampleCard extends React.Component<SampleProps, { imageUrl:
         <div className="thumbnail-wrapper">
           {sampleImage}
           {this.props.featured && (
-            <span
-              className="featured-star-overlay codicon codicon-star-full"
-              aria-hidden="true"
-            ></span>
+            <span className="featured-corner-badge" aria-hidden="true">
+              <span className="featured-corner-star codicon codicon-star-full"></span>
+            </span>
           )}
         </div>
         {cardInformation}

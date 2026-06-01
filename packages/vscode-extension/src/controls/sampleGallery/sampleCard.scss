@@ -24,16 +24,28 @@
         }
       }
 
-      /* Star overlay on top-left corner of the thumbnail image for featured samples */
-      .featured-star-overlay {
+      /* Corner triangle badge on top-left of the thumbnail for featured samples.
+       * A CSS border triangle gives the blue corner; a white star is placed on it. */
+      .featured-corner-badge {
         position: absolute;
-        top: 6px;
-        left: 6px;
-        font-size: 18px;
-        color: var(--vscode-editorLightBulb-foreground, #DDB100);
-        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+        top: 0;
+        left: 0;
+        width: 0;
+        height: 0;
+        border-style: solid;
+        border-width: 44px 44px 0 0;
+        border-color: var(--vscode-button-background, #0078d4) transparent transparent transparent;
         z-index: 1;
         pointer-events: none;
+        border-radius: 6px 0 0 0;
+
+        .featured-corner-star {
+          position: absolute;
+          top: -42px;
+          left: 3px;
+          font-size: 13px;
+          color: var(--vscode-button-foreground, #ffffff);
+        }
       }
     }
 
