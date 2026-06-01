@@ -13,6 +13,7 @@ import {
 import * as fs from "fs-extra";
 import path from "path";
 import { getLocalizedString } from "../../../common/localizeUtils";
+import { featureFlagManager, FeatureFlags } from "../../../common/featureFlags";
 import { fetchMCPTools, readMCPToolsFromFile } from "../../../component/utils/mcpToolFetcher";
 import { ODRProvider, ODRServer } from "../../../component/utils/odrProvider";
 import {
@@ -328,26 +329,20 @@ export function MCPServerTypeNode(): IQTreeNode {
           MCPToolsFileNode(),
           MCPCliPreFetchToolsNode(),
           {
-            condition: (inputs: Inputs) => {
-              if (inputs.platform === Platform.VSCode) return false;
-              return inputs[QuestionNames.MCPForDAAuth] !== "NoneAuth";
-            },
+            // VS Code: gated on TEAMSFX_MCP_FOR_DA_DT — shipped behavior (DT off)
+            // defers auth-type pick to the post-create fetch-mcp-tools CodeLens
+            // flow per SCN-DA-CREATE-WITH-MCP-SERVER. CLI keeps the inline pick.
+            condition: (inputs: Inputs) =>
+              inputs.platform !== Platform.VSCode ||
+              featureFlagManager.getBooleanValue(FeatureFlags.MCPForDADT),
             data: {
               type: "singleSelect",
               name: QuestionNames.MCPForDAAuthType,
               title: getLocalizedString("core.createProjectQuestion.mcpForDa.AuthType.title"),
-              staticOptions: [
-                {
-                  id: "oauth",
-                  label: getLocalizedString("core.createProjectQuestion.mcpForDa.Auth.OAuth"),
-                },
-                {
-                  id: "entraSSO",
-                  label: getLocalizedString("core.createProjectQuestion.mcpForDa.Auth.EntraSSO"),
-                },
-              ],
+              staticOptions: MCPForDAAuthTypeStaticOptions(),
               default: "oauth",
             },
+            children: MCPForDAAuthCredentialNodes(),
           },
         ],
       },
@@ -467,6 +462,123 @@ export function MCPLocalServerSelectionNode(): IQTreeNode {
     },
     children: [],
   };
+}
+
+/**
+ * Shared static option list for the `mcp-da-auth-type` single-select question.
+ * Kebab-case values so CLI flags (`--mcp-da-auth-type entra-sso` etc.) match the
+ * scaffold inputs and the scenario doc.
+ *
+ * `oauth-dynamic` (Dynamic Client Registration) is gated behind both
+ * `TEAMSFX_MCP_FOR_DA_DT` and `TEAMSFX_MCP_FOR_DA_DCR` because the DCR
+ * provisioning flow currently piggybacks on the DT-mode env-file plumbing.
+ */
+export function MCPForDAAuthTypeStaticOptions(): OptionItem[] {
+  const showDCR =
+    featureFlagManager.getBooleanValue(FeatureFlags.MCPForDADT) &&
+    featureFlagManager.getBooleanValue(FeatureFlags.MCPForDADCR);
+  const options: OptionItem[] = [
+    {
+      id: "oauth",
+      label: getLocalizedString("core.createProjectQuestion.mcpForDa.Auth.OAuth"),
+      detail: getLocalizedString("core.createProjectQuestion.mcpForDa.Auth.OAuth.Detail"),
+    },
+  ];
+  if (showDCR) {
+    options.push({
+      id: "oauth-dynamic",
+      label: getLocalizedString("core.createProjectQuestion.mcpForDa.Auth.OAuthDynamic"),
+      detail: getLocalizedString("core.createProjectQuestion.mcpForDa.Auth.OAuthDynamic.Detail"),
+    });
+  }
+  options.push(
+    {
+      id: "entra-sso",
+      label: getLocalizedString("core.createProjectQuestion.mcpForDa.Auth.EntraSSO"),
+      detail: getLocalizedString("core.createProjectQuestion.mcpForDa.Auth.EntraSSO.Detail"),
+    },
+    {
+      id: "none",
+      label: getLocalizedString("core.createProjectQuestion.mcpForDa.Auth.None"),
+      detail: getLocalizedString("core.createProjectQuestion.mcpForDa.Auth.None.Detail"),
+    }
+  );
+  return options;
+}
+
+/**
+ * Follow-up question nodes shown after the user picks an `mcp-da-auth-type`
+ * value. Unconditional per SCN-DA-CREATE-WITH-MCP-SERVER step 6a/6b: the
+ * answers are always collected; the TEAMSFX_MCP_FOR_DA_DT flag only governs
+ * how the answers reach `oauth/register` (env-file persistence + ${{...}}
+ * refs when on; in-process bridge `process.env["oauth-client-id"]` etc. when
+ * off).
+ *
+ * - `oauth` (static OAuth): client id (required) + client secret (required, password)
+ *   + scopes (optional).
+ * - `entra-sso`: only client id (required).
+ * - `oauth-dynamic` / `none`: no follow-up questions.
+ */
+export function MCPForDAAuthCredentialNodes(): IQTreeNode[] {
+  const clientIdNode: IQTreeNode = {
+    condition: (inputs: Inputs) => {
+      const authType = inputs[QuestionNames.MCPForDAAuthType];
+      return authType === "oauth" || authType === "entra-sso";
+    },
+    data: {
+      name: QuestionNames.MCPForDAClientId,
+      type: "text",
+      title: (inputs: Inputs) =>
+        inputs[QuestionNames.MCPForDAAuthType] === "entra-sso"
+          ? getLocalizedString("core.createProjectQuestion.mcpForDa.EntraClientId.title")
+          : getLocalizedString("core.createProjectQuestion.mcpForDa.ClientId.title"),
+      placeholder: (inputs: Inputs) =>
+        inputs[QuestionNames.MCPForDAAuthType] === "entra-sso"
+          ? getLocalizedString("core.createProjectQuestion.mcpForDa.EntraClientId.placeholder")
+          : getLocalizedString("core.createProjectQuestion.mcpForDa.ClientId.placeholder"),
+      validation: {
+        validFunc: (value: string, inputs?: Inputs): string | undefined => {
+          if (!value || value.trim().length === 0) {
+            return inputs?.[QuestionNames.MCPForDAAuthType] === "entra-sso"
+              ? getLocalizedString("core.createProjectQuestion.mcpForDa.EntraClientId.required")
+              : getLocalizedString("core.createProjectQuestion.mcpForDa.ClientId.required");
+          }
+          return undefined;
+        },
+      },
+    },
+  };
+  const clientSecretNode: IQTreeNode = {
+    condition: (inputs: Inputs) => inputs[QuestionNames.MCPForDAAuthType] === "oauth",
+    data: {
+      name: QuestionNames.MCPForDAClientSecret,
+      type: "text",
+      password: true,
+      title: getLocalizedString("core.createProjectQuestion.mcpForDa.ClientSecret.title"),
+      placeholder: getLocalizedString(
+        "core.createProjectQuestion.mcpForDa.ClientSecret.placeholder"
+      ),
+      validation: {
+        validFunc: (value: string): string | undefined => {
+          if (!value || value.trim().length === 0) {
+            return getLocalizedString("core.createProjectQuestion.mcpForDa.ClientSecret.required");
+          }
+          return undefined;
+        },
+      },
+    },
+  };
+  const scopesNode: IQTreeNode = {
+    condition: (inputs: Inputs) => inputs[QuestionNames.MCPForDAAuthType] === "oauth",
+    data: {
+      name: QuestionNames.MCPForDAScopes,
+      type: "text",
+      title: getLocalizedString("core.createProjectQuestion.mcpForDa.Scopes.title"),
+      placeholder: getLocalizedString("core.createProjectQuestion.mcpForDa.Scopes.placeholder"),
+      required: false,
+    },
+  };
+  return [clientIdNode, clientSecretNode, scopesNode];
 }
 
 export function MCPForDAServerUrlNode(): IQTreeNode {
@@ -673,18 +785,10 @@ export function updateActionWithMCP(): IQTreeNode {
           type: "singleSelect",
           name: QuestionNames.MCPForDAAuthType,
           title: getLocalizedString("core.createProjectQuestion.mcpForDa.AuthType.title"),
-          staticOptions: [
-            {
-              id: "oauth",
-              label: getLocalizedString("core.createProjectQuestion.mcpForDa.Auth.OAuth"),
-            },
-            {
-              id: "entraSSO",
-              label: getLocalizedString("core.createProjectQuestion.mcpForDa.Auth.EntraSSO"),
-            },
-          ],
+          staticOptions: MCPForDAAuthTypeStaticOptions(),
           default: "oauth",
         },
+        children: MCPForDAAuthCredentialNodes(),
       },
     ],
   };

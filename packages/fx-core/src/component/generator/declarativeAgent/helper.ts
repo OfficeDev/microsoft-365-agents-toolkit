@@ -40,14 +40,19 @@ import {
 } from "./oneDriveSharePointHandler";
 import { createContext } from "../../../common/globalVars";
 import { QuestionNames } from "../../../question/questionNames";
+import { featureFlagManager, FeatureFlags } from "../../../common/featureFlags";
 import {
   fetchMCPTools,
   probeMCPServerAuth,
   readMCPToolsFromFile,
-  resolveMCPOAuthMetadata,
 } from "../../utils/mcpToolFetcher";
-import { ActionInjector } from "../../configManager/actionInjector";
 import { pathUtils } from "../../utils/pathUtils";
+import {
+  deriveMCPManifestOAuth,
+  injectMCPAuthActionToYml,
+  persistMCPAuthCredentialEnvVars,
+  resolveMCPAuthEndpoints,
+} from "../../utils/mcpAuthScaffolder";
 
 // Non-translatable CLI command template used in warning messages
 const mcpAddActionHint =
@@ -78,6 +83,30 @@ export function deriveMCPServerNameFromUrl(mcpServerUrl: string | undefined): st
   } catch {
     return fallback;
   }
+}
+
+/**
+ * Derives the env-var name that holds the `oauth/register` configurationId for
+ * the given MCP server URL. Format: `MCP_DA_AUTH_ID_<UPPERCASED>` where
+ * `<UPPERCASED>` is `deriveMCPServerNameFromUrl(url).toUpperCase()`. Reused
+ * across multiple actions that target the same MCP server so they share one
+ * registration. Used by the Dynamic Tool Discovery (DT) DA-with-MCP flow.
+ */
+export function deriveMCPRegistrationIdFromUrl(mcpServerUrl: string | undefined): string {
+  return `MCP_DA_AUTH_ID_${deriveMCPServerNameFromUrl(mcpServerUrl).toUpperCase()}`;
+}
+
+/**
+ * Derives the `ai-plugin.json` `namespace` (and the matching `oauth/register`
+ * action `name`) for an MCP-backed action from the MCP server URL. Format:
+ * `deriveMCPServerNameFromUrl(url).toLowerCase()` — a schema-valid
+ * (alphanumeric, lowercase) token unique per MCP server host. Shared by both
+ * the create flow and the add-action flow so actions targeting different MCP
+ * servers get distinct namespaces while actions sharing one server stay aligned
+ * with the single registration they share.
+ */
+export function deriveMCPNamespaceFromUrl(mcpServerUrl: string | undefined): string {
+  return deriveMCPServerNameFromUrl(mcpServerUrl).toLowerCase();
 }
 
 /**
@@ -477,6 +506,16 @@ export async function generateForMCPForDA(
     return err(error);
   }
 
+  // Dynamic Tool Discovery flow: skip static tool fetch/selection entirely;
+  // the agent host discovers tools at runtime against the MCP server. Per
+  // SCN-DA-CREATE-WITH-MCP-SERVER the DT runtime shape is the unconditional
+  // default in the create flow; we branch on whether the user answered the
+  // (now-unconditional) auth-type question so existing legacy fixtures that
+  // mock inputs without it keep exercising the static-tools path.
+  if (inputs[QuestionNames.MCPForDAAuthType]) {
+    return generateForMCPForDAWithAuth(destinationPath, aiPluginFilePath, inputs);
+  }
+
   const mcpServerUrl = inputs[QuestionNames.MCPForDAServerUrl];
   const serverName = inputs[QuestionNames.MCPForDAServerName];
   const warnings: Warning[] = [];
@@ -635,39 +674,33 @@ export async function generateForMCPForDA(
       }
 
       const registrationId = "MCP_DA_AUTH_ID_ACTION_1";
-      aiPluginContent.runtimes[0].auth = {
-        type: "OAuthPluginVault",
-        reference_id: `$\{\{${registrationId}\}\}`,
-      };
+      const manifestOAuth = deriveMCPManifestOAuth(authType, registrationId);
+      if (manifestOAuth) {
+        aiPluginContent.runtimes[0].auth = manifestOAuth;
+      }
 
       // Resolve OAuth metadata and inject oauth/register into m365agents.yml
       try {
-        let authorizationUrl: string | undefined;
-        let tokenUrl: string | undefined;
-        let refreshUrl: string | undefined;
-
-        if (authType === "oauth") {
-          const metadata = await resolveMCPOAuthMetadata(
-            inputs[QuestionNames.MCPForDAAuthMetadataUrl],
-            inputs[QuestionNames.MCPForDAAuthWellKnownUrl]
-          );
-          authorizationUrl = metadata.authorizationUrl;
-          tokenUrl = metadata.tokenUrl;
-          refreshUrl = metadata.refreshUrl;
-        }
-
+        const endpoints = await resolveMCPAuthEndpoints(authType, inputs);
         const ymlPath = pathUtils.getYmlFilePath(destinationPath);
         if (ymlPath) {
-          await ActionInjector.injectCreateOAuthActionForMCP(
+          const injectResult = await injectMCPAuthActionToYml({
             ymlPath,
             authType,
-            "action_1",
+            authName: aiPluginContent.namespace || "action_1",
             registrationId,
             mcpServerUrl,
-            authorizationUrl,
-            tokenUrl,
-            refreshUrl
-          );
+            endpoints,
+          });
+          if (injectResult.wellKnownUrlPlaceholderUsed) {
+            warnings.push({
+              type: "mcpAuthDcrWellKnownUrlPlaceholder",
+              content: getLocalizedString(
+                "core.MCPForDA.mcpAuthDcrPlaceholderWarning",
+                mcpServerUrl
+              ),
+            });
+          }
         }
       } catch (error: any) {
         warnings.push({
@@ -680,6 +713,167 @@ export async function generateForMCPForDA(
   // If no tools available, leave ai-plugin.json with empty functions/runtimes (template default)
 
   // 3. Write ai-plugin.json
+  await fs.writeJSON(aiPluginFilePath, aiPluginContent, { spaces: 4 });
+
+  return ok({ warnings });
+}
+
+/**
+ * Modern DA-with-MCP scaffolder. Selected by `generateForMCPForDA` whenever
+ * the create flow answered `MCPForDAAuthType` (which is always the case for
+ * the current question graph; the legacy branch only stays alive for fixtures
+ * that mock inputs without it).
+ *
+ * Always emits the Dynamic Tool Discovery runtime shape per
+ * SCN-DA-CREATE-WITH-MCP-SERVER: `RemoteMCPServer` with
+ * `enable_dynamic_discovery: true` and `run_for_functions: ["*"]` — no
+ * `mcp-tools-N.json` and an empty `functions: []` (schema-required field;
+ * tools are discovered at runtime rather than declared statically). The runtime shape is
+ * unconditional and does NOT depend on the TEAMSFX_MCP_FOR_DA_DT flag.
+ *
+ * The flag scopes only how OAuth credentials reach the provisioned
+ * `oauth/register` action at provision time:
+ *   - flag ON  -> emit `${{MCP_DA_OAUTH_*_<SUFFIX>}}` refs in m365agents.yml
+ *                 and persist values to env/.env.<env>(.user).
+ *   - flag OFF -> stuff create-flow answers into `process.env["oauth-client-id"]`
+ *                 etc. so the legacy in-process bridge in oauth/create.ts
+ *                 picks them up without re-prompting via QuestionMW.
+ */
+async function generateForMCPForDAWithAuth(
+  destinationPath: string,
+  aiPluginFilePath: string,
+  inputs: Inputs
+): Promise<Result<GeneratorResult, FxError>> {
+  const mcpServerUrl = inputs[QuestionNames.MCPForDAServerUrl];
+  const warnings: Warning[] = [];
+
+  const aiPluginContent = await fs.readJSON(aiPluginFilePath);
+  aiPluginContent.functions = [];
+
+  // Namespace the action by the MCP server host (shared rule with the
+  // add-action flow) instead of the project name, so actions targeting
+  // different MCP servers get distinct namespaces and the matching
+  // oauth/register `name` derives from the same source.
+  if (mcpServerUrl) {
+    aiPluginContent.namespace = deriveMCPNamespaceFromUrl(mcpServerUrl);
+  }
+
+  const runtime: any = {
+    type: "RemoteMCPServer",
+    spec: { url: mcpServerUrl, enable_dynamic_discovery: true },
+    run_for_functions: ["*"],
+  };
+
+  if (mcpServerUrl) {
+    const authType = inputs[QuestionNames.MCPForDAAuthType] as string | undefined;
+    if (authType === "none") {
+      runtime.auth = { type: "None" };
+    } else if (authType) {
+      const serverName = deriveMCPServerNameFromUrl(mcpServerUrl).toUpperCase();
+      const registrationId = deriveMCPRegistrationIdFromUrl(mcpServerUrl);
+      const manifestOAuth = deriveMCPManifestOAuth(authType, registrationId);
+      if (manifestOAuth) {
+        runtime.auth = manifestOAuth;
+      }
+
+      // Probe the MCP server for resource_metadata so `resolveMCPAuthEndpoints`
+      // can discover authorization/token URLs. The legacy `generateForMCPForDA`
+      // branch populates `MCPForDAAuthMetadataUrl` via fetchMCPTools; the DT
+      // branch skips tool fetch, so we need an explicit probe here. Best-effort.
+      if (!inputs[QuestionNames.MCPForDAAuthMetadataUrl]) {
+        try {
+          const authProbe = await probeMCPServerAuth(mcpServerUrl);
+          if (authProbe.authMetadataUrl) {
+            inputs[QuestionNames.MCPForDAAuthMetadataUrl] = authProbe.authMetadataUrl;
+          }
+        } catch {
+          // Probe failed — continue; endpoint resolution below will best-effort
+          // and yml injection will still run with undefined endpoints.
+        }
+      }
+
+      // Endpoint resolution is best-effort: a failure (server unreachable, no
+      // well-known metadata, etc.) must not block credential persistence or
+      // yml injection. The OAuth action injector tolerates undefined endpoint
+      // URLs; the developer can fill them in later.
+      let endpoints: Awaited<ReturnType<typeof resolveMCPAuthEndpoints>> = {};
+      try {
+        endpoints = await resolveMCPAuthEndpoints(authType, inputs);
+      } catch (error: any) {
+        warnings.push({
+          type: "mcpAuthMetadataError",
+          content: getLocalizedString("core.MCPForDA.mcpAuthMetadataMissingError", error.message),
+        });
+      }
+
+      const dtOn = featureFlagManager.getBooleanValue(FeatureFlags.MCPForDADT);
+      try {
+        const ymlPath = pathUtils.getYmlFilePath(destinationPath);
+        if (ymlPath) {
+          const injectResult = await injectMCPAuthActionToYml({
+            ymlPath,
+            authType,
+            authName: aiPluginContent.namespace || "action_1",
+            registrationId,
+            mcpServerUrl,
+            endpoints,
+            persistCredentialEnvRefs: dtOn,
+            serverName,
+          });
+          if (injectResult.wellKnownUrlPlaceholderUsed) {
+            warnings.push({
+              type: "mcpAuthDcrWellKnownUrlPlaceholder",
+              content: getLocalizedString(
+                "core.MCPForDA.mcpAuthDcrPlaceholderWarning",
+                mcpServerUrl
+              ),
+            });
+          }
+        }
+      } catch (error: any) {
+        warnings.push({
+          type: "mcpAuthYmlInjectionError",
+          content: getLocalizedString("core.MCPForDA.mcpAuthMetadataMissingError", error.message),
+        });
+      }
+      if (dtOn) {
+        try {
+          await persistMCPAuthCredentialEnvVars({
+            projectPath: destinationPath,
+            authType,
+            serverName,
+            clientId: inputs[QuestionNames.MCPForDAClientId],
+            clientSecret: inputs[QuestionNames.MCPForDAClientSecret],
+            scopes: inputs[QuestionNames.MCPForDAScopes],
+          });
+        } catch (error: any) {
+          warnings.push({
+            type: "mcpAuthEnvPersistError",
+            content: getLocalizedString("core.MCPForDA.mcpAuthMetadataMissingError", error.message),
+          });
+        }
+      } else {
+        // Populate the in-process bridge consumed by oauth/create.ts so
+        // provision picks up create-time answers without re-prompting via
+        // QuestionMW. Only static OAuth and Entra SSO contribute creds.
+        const clientId = inputs[QuestionNames.MCPForDAClientId];
+        const clientSecret = inputs[QuestionNames.MCPForDAClientSecret];
+        const scopes = inputs[QuestionNames.MCPForDAScopes];
+        if (clientId) {
+          process.env[QuestionNames.OauthClientId] = clientId;
+        }
+        if (clientSecret) {
+          process.env[QuestionNames.OauthClientSecret] = clientSecret;
+        }
+        if (scopes) {
+          process.env[QuestionNames.OAuthScope] = scopes;
+        }
+      }
+    }
+  }
+
+  aiPluginContent.runtimes = [runtime];
+
   await fs.writeJSON(aiPluginFilePath, aiPluginContent, { spaces: 4 });
 
   return ok({ warnings });

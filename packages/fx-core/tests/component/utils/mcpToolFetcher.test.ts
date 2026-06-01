@@ -182,7 +182,7 @@ describe("mcpToolFetcher", () => {
 
   describe("probeMCPServerAuth", () => {
     it("should return requiresAuth=false when server responds 200", async () => {
-      sandbox.stub(axios, "get").resolves({ status: 200 });
+      sandbox.stub(axios, "post").resolves({ status: 200 });
 
       const result = await probeMCPServerAuth("https://example.com/mcp");
       assert.isFalse(result.requiresAuth);
@@ -190,7 +190,7 @@ describe("mcpToolFetcher", () => {
     });
 
     it("should return requiresAuth=true when server responds 401", async () => {
-      sandbox.stub(axios, "get").rejects({
+      sandbox.stub(axios, "post").rejects({
         response: {
           status: 401,
           headers: {},
@@ -203,7 +203,7 @@ describe("mcpToolFetcher", () => {
     });
 
     it("should extract authMetadataUrl from WWW-Authenticate header", async () => {
-      sandbox.stub(axios, "get").rejects({
+      sandbox.stub(axios, "post").rejects({
         response: {
           status: 401,
           headers: {
@@ -219,14 +219,14 @@ describe("mcpToolFetcher", () => {
     });
 
     it("should return requiresAuth=false on non-401 errors", async () => {
-      sandbox.stub(axios, "get").rejects(new Error("ECONNREFUSED"));
+      sandbox.stub(axios, "post").rejects(new Error("ECONNREFUSED"));
 
       const result = await probeMCPServerAuth("https://down.example.com/mcp");
       assert.isFalse(result.requiresAuth);
     });
 
     it("should handle 401 via error.status (no response object)", async () => {
-      sandbox.stub(axios, "get").rejects({ status: 401 });
+      sandbox.stub(axios, "post").rejects({ status: 401 });
 
       const result = await probeMCPServerAuth("https://secure.example.com/mcp");
       assert.isTrue(result.requiresAuth);

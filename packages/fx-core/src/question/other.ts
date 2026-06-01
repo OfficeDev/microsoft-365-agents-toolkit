@@ -64,6 +64,10 @@ import {
 } from "./create";
 import { UninstallInputs } from "./inputs";
 import { inputOrSearchAPISpecNode } from "./scaffold/commonNodes";
+import {
+  MCPForDAAuthCredentialNodes,
+  MCPForDAAuthTypeStaticOptions,
+} from "./scaffold/vsc/teamsProjectTypeNode";
 
 export function convertAadToNewSchemaQuestionNode(): IQTreeNode {
   return {
@@ -699,13 +703,11 @@ export function addPluginQuestionNode(): IQTreeNode {
         },
       },
       // MCP server URL input (when action type is "mcp").
-      // Aligned with the "DA with MCP" scaffolding flow for VS Code: only the URL is
-      // collected here. The toolkit writes the URL into .vscode/mcp.json, opens the
-      // file and shows a notification prompting the user to start the MCP server and
-      // click "Fetch Action" to populate tools.
-      // For CLI (non-interactive), the tools-file-path and auth-type follow-up
-      // questions are still asked so the original CLI flow that auto-generates
-      // ai-plugin.json and m365agents.yml continues to work.
+      // Mirrors the "create DA with MCP" subtree under TEAMSFX_MCP_FOR_DA_DT:
+      // CLI always collects auth-type + credential follow-ups; VS Code does the
+      // same only when DT is on (inline flow). DT-off VS Code falls through to
+      // the legacy `addPluginFromMCP` redirect (just writes `.vscode/mcp.json`)
+      // and lets `updateActionWithMCP` collect auth via CodeLens later.
       {
         condition: (inputs: Inputs) => {
           return inputs[QuestionNames.ActionType] === ActionStartOptions.mcp().id;
@@ -719,7 +721,7 @@ export function addPluginQuestionNode(): IQTreeNode {
           ),
         },
         children: [
-          // MCP tools file input (CLI only — VS Code uses the simplified mcp.json flow)
+          // MCP tools file input (CLI only — VS Code DT-on uses dynamic discovery)
           {
             condition: (inputs: Inputs) => inputs.platform === Platform.CLI,
             data: {
@@ -728,40 +730,39 @@ export function addPluginQuestionNode(): IQTreeNode {
               type: "text",
               placeholder: getLocalizedString("core.MCPForDA.toolsFilePath.placeholder"),
             },
-            children: [
-              // Auth type selection (CLI only)
-              {
-                condition: (inputs: Inputs) => inputs.platform === Platform.CLI,
-                data: {
-                  type: "singleSelect",
-                  name: QuestionNames.MCPForDAAuthType,
-                  title: getLocalizedString("core.createProjectQuestion.mcpForDa.AuthType.title"),
-                  staticOptions: [
-                    {
-                      id: "oauth",
-                      label: getLocalizedString("core.createProjectQuestion.mcpForDa.Auth.OAuth"),
-                    },
-                    {
-                      id: "entraSSO",
-                      label: getLocalizedString(
-                        "core.createProjectQuestion.mcpForDa.Auth.EntraSSO"
-                      ),
-                    },
-                  ],
-                  default: "oauth",
-                },
-              },
-            ],
+          },
+          // Auth type selection: CLI always; VS Code only when DT is on.
+          // Credential follow-ups (client id/secret/scopes) are only added under
+          // DT-on, because the legacy CLI branch in `core.addPlugin` does not
+          // consume them (`persistMCPAuthCredentialEnvVars` is only called from
+          // the DT-on branch). Keeping them off under DT preserves the original
+          // CLI DT-off prompt set.
+          {
+            condition: (inputs: Inputs) =>
+              inputs.platform !== Platform.VSCode ||
+              featureFlagManager.getBooleanValue(FeatureFlags.MCPForDADT),
+            data: {
+              type: "singleSelect",
+              name: QuestionNames.MCPForDAAuthType,
+              title: getLocalizedString("core.createProjectQuestion.mcpForDa.AuthType.title"),
+              staticOptions: MCPForDAAuthTypeStaticOptions(),
+              default: "oauth",
+            },
+            children: featureFlagManager.getBooleanValue(FeatureFlags.MCPForDADT)
+              ? MCPForDAAuthCredentialNodes()
+              : [],
           },
         ],
       },
       {
         data: selectTeamsAppManifestQuestion(),
         condition: (inputs: Inputs) => {
-          // Manifest path is not needed for the VS Code MCP "add action" flow because
-          // we only update .vscode/mcp.json and let the user run "Fetch Action"
-          // afterwards to update the declarative agent manifest. CLI still needs it
-          // for the original auto-generation flow.
+          // Manifest path is not asked for any MCP "add action" flow on VS Code:
+          // - Legacy (DT off) defers the manifest edit to the "Fetch Action" command.
+          // - Inline (DT on) infers the manifest path from `projectPath/appPackage/manifest.json`
+          //   in `core.addPlugin`, matching the leaner `core.updateActionWithMCP` UX
+          //   (no manifest picker, no confirmation modal).
+          // CLI still asks/requires it via `--manifest-file`.
           return (
             inputs[QuestionNames.ActionType] !== ActionStartOptions.mcp().id ||
             inputs.platform === Platform.CLI
@@ -1296,7 +1297,7 @@ export function oauthQuestion(): IQTreeNode {
       {
         data: oauthScopeCustomQuestion(),
         condition: (inputs: Inputs) => {
-          return inputs.identityProvider === "Custom";
+          return inputs.identityProvider === "Custom" && !inputs.scope;
         },
       },
       {

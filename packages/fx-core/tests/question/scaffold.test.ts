@@ -72,6 +72,9 @@ import {
   getTeamsProjectNode,
   TeamsProjectTypeOptions,
   CreateNewPluginManifestSentinel,
+  MCPForDAAuthTypeStaticOptions,
+  MCPForDAAuthCredentialNodes,
+  MCPServerTypeNode,
 } from "../../src/question/scaffold/vsc/teamsProjectTypeNode";
 
 describe("vsc", () => {
@@ -356,6 +359,136 @@ describe("teamsProjectTypeNode", () => {
     assert.isDefined(node);
     const condition = node.condition as StringValidation;
     assert.equal(condition.equals, "teams-agent-and-app-type");
+  });
+});
+
+describe("MCPForDAAuthTypeStaticOptions", () => {
+  const sandbox = sinon.createSandbox();
+  afterEach(() => {
+    sandbox.restore();
+  });
+
+  it("hides oauth-dynamic by default", () => {
+    sandbox.stub(featureFlagManager, "getBooleanValue").returns(false);
+    const options = MCPForDAAuthTypeStaticOptions();
+    assert.lengthOf(options, 3);
+    assert.sameMembers(
+      options.map((o) => o.id),
+      ["oauth", "entra-sso", "none"]
+    );
+  });
+
+  it("surfaces oauth-dynamic when both DT and DCR flags are on", () => {
+    sandbox.stub(featureFlagManager, "getBooleanValue").callsFake((flag) => {
+      return flag === FeatureFlags.MCPForDADT || flag === FeatureFlags.MCPForDADCR;
+    });
+    const options = MCPForDAAuthTypeStaticOptions();
+    assert.lengthOf(options, 4);
+    assert.sameMembers(
+      options.map((o) => o.id),
+      ["oauth", "oauth-dynamic", "entra-sso", "none"]
+    );
+  });
+
+  it("hides oauth-dynamic when only DT flag is on", () => {
+    sandbox.stub(featureFlagManager, "getBooleanValue").callsFake((flag) => {
+      return flag === FeatureFlags.MCPForDADT;
+    });
+    const options = MCPForDAAuthTypeStaticOptions();
+    assert.lengthOf(options, 3);
+  });
+});
+
+describe("MCPForDAAuthCredentialNodes", () => {
+  const [clientIdNode, clientSecretNode, scopesNode] = MCPForDAAuthCredentialNodes();
+
+  it("returns three credential nodes", () => {
+    assert.equal((clientIdNode.data as any).name, QuestionNames.MCPForDAClientId);
+    assert.equal((clientSecretNode.data as any).name, QuestionNames.MCPForDAClientSecret);
+    assert.equal((scopesNode.data as any).name, QuestionNames.MCPForDAScopes);
+  });
+
+  it("client id node is shown for oauth and entra-sso only", () => {
+    const cond = clientIdNode.condition as ConditionFunc;
+    assert.isTrue(cond({ [QuestionNames.MCPForDAAuthType]: "oauth" } as Inputs));
+    assert.isTrue(cond({ [QuestionNames.MCPForDAAuthType]: "entra-sso" } as Inputs));
+    assert.isFalse(cond({ [QuestionNames.MCPForDAAuthType]: "oauth-dynamic" } as Inputs));
+    assert.isFalse(cond({ [QuestionNames.MCPForDAAuthType]: "none" } as Inputs));
+  });
+
+  it("client id node title/placeholder differ between entra-sso and oauth", () => {
+    const data = clientIdNode.data as any;
+    const oauthInputs = { [QuestionNames.MCPForDAAuthType]: "oauth" } as Inputs;
+    const entraInputs = { [QuestionNames.MCPForDAAuthType]: "entra-sso" } as Inputs;
+    assert.isString(data.title(oauthInputs));
+    assert.isString(data.title(entraInputs));
+    assert.notEqual(data.title(oauthInputs), data.title(entraInputs));
+    assert.isString(data.placeholder(oauthInputs));
+    assert.notEqual(data.placeholder(oauthInputs), data.placeholder(entraInputs));
+  });
+
+  it("client id validation requires a value (oauth and entra-sso messages)", () => {
+    const validFunc = (clientIdNode.data as any).validation.validFunc;
+    assert.isString(validFunc("", { [QuestionNames.MCPForDAAuthType]: "oauth" } as Inputs));
+    const entraMsg = validFunc("  ", {
+      [QuestionNames.MCPForDAAuthType]: "entra-sso",
+    } as Inputs);
+    assert.isString(entraMsg);
+    assert.isUndefined(
+      validFunc("client-id", { [QuestionNames.MCPForDAAuthType]: "oauth" } as Inputs)
+    );
+  });
+
+  it("client secret node is shown only for oauth and requires a value", () => {
+    const cond = clientSecretNode.condition as ConditionFunc;
+    assert.isTrue(cond({ [QuestionNames.MCPForDAAuthType]: "oauth" } as Inputs));
+    assert.isFalse(cond({ [QuestionNames.MCPForDAAuthType]: "entra-sso" } as Inputs));
+    const validFunc = (clientSecretNode.data as any).validation.validFunc;
+    assert.isString(validFunc(""));
+    assert.isString(validFunc("   "));
+    assert.isUndefined(validFunc("a-secret"));
+    assert.isTrue((clientSecretNode.data as any).password);
+  });
+
+  it("scopes node is shown only for oauth and is optional", () => {
+    const cond = scopesNode.condition as ConditionFunc;
+    assert.isTrue(cond({ [QuestionNames.MCPForDAAuthType]: "oauth" } as Inputs));
+    assert.isFalse(cond({ [QuestionNames.MCPForDAAuthType]: "entra-sso" } as Inputs));
+    assert.isFalse((scopesNode.data as any).required);
+  });
+});
+
+describe("MCPServerTypeNode auth-type gating", () => {
+  const sandbox = sinon.createSandbox();
+  afterEach(() => {
+    sandbox.restore();
+  });
+
+  function getAuthTypeCondition(): ConditionFunc {
+    const node = MCPServerTypeNode();
+    const remote = node.children?.[0];
+    const authTypeNode = remote?.children?.[2];
+    return authTypeNode?.condition as ConditionFunc;
+  }
+
+  it("always shows auth-type pick for CLI", () => {
+    sandbox.stub(featureFlagManager, "getBooleanValue").returns(false);
+    const cond = getAuthTypeCondition();
+    assert.isTrue(cond({ platform: Platform.CLI } as Inputs));
+  });
+
+  it("hides auth-type pick for VS Code when DT flag is off", () => {
+    sandbox.stub(featureFlagManager, "getBooleanValue").returns(false);
+    const cond = getAuthTypeCondition();
+    assert.isFalse(cond({ platform: Platform.VSCode } as Inputs));
+  });
+
+  it("shows auth-type pick for VS Code when DT flag is on", () => {
+    sandbox.stub(featureFlagManager, "getBooleanValue").callsFake((flag) => {
+      return flag === FeatureFlags.MCPForDADT;
+    });
+    const cond = getAuthTypeCondition();
+    assert.isTrue(cond({ platform: Platform.VSCode } as Inputs));
   });
 });
 
