@@ -40,13 +40,20 @@
       text-overflow: ellipsis;
       white-space: nowrap;
       overflow: hidden;
+      /* Reserve space so title text column aligns between featured and non-featured rows */
+      padding-left: 17px;
 
-      /* Star icon before title in list view for featured samples — inherits text color */
+      /* Star icon before title in list view for featured samples — inherits text color.
+       * Negative margin-left pulls the star into the reserved padding so the title text
+       * stays left-aligned with non-featured rows. */
       .featured-star {
         font-size: 13px;
+        margin-left: -17px;
         margin-right: 4px;
         color: currentColor;
         vertical-align: middle;
+        position: relative;
+        top: -3px;
       }
     }
 
