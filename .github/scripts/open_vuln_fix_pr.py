@@ -590,6 +590,12 @@ def main() -> int:
         default=None,
         help="If set, write a structured JSON manifest of new/skipped PRs to this path.",
     )
+    parser.add_argument(
+        "--branch-suffix",
+        default="",
+        help="Optional suffix appended to every computed branch name. Use for "
+             "one-off verification runs to force fresh branches (e.g. '-apptest').",
+    )
     parser.add_argument("--dry-run", action="store_true", help="Print actions but do not commit/push/open PR")
     args = parser.parse_args()
 
@@ -642,7 +648,7 @@ def main() -> int:
         run(["git", "fetch", "origin", args.base_branch], cwd=repo_root)
 
     for scan, vuln in iter_all_vulns(scan_paths, skip_targets=args.skip_scan_target):
-        branch = compute_branch_name(scan, vuln)
+        branch = compute_branch_name(scan, vuln) + (args.branch_suffix or "")
         base_record = _vuln_record_base(scan, vuln, branch)
 
         if args.dry_run:
