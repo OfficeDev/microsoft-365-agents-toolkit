@@ -2674,7 +2674,7 @@ describe("addPlugin", async () => {
 
     const envUtilModule = await import("../../src/component/utils/envUtil");
     sandbox.stub(envUtilModule.envUtil, "listEnv").resolves(ok(["dev"]));
-    const writeEnvStub = sandbox.stub(envUtilModule.envUtil, "writeEnv").resolves(ok(""));
+    const writeEnvStub = sandbox.stub(envUtilModule.envUtil, "writeEnv").resolves(ok(undefined));
 
     sandbox.stub(pathUtils, "getYmlFilePath").returns("m365agents.yml");
     sandbox.stub(fs, "ensureFile").resolves();
