@@ -519,6 +519,23 @@ describe("CLI Engine", () => {
       await engine.start(rootCommand);
       assert.isTrue(error instanceof IncompatibleProjectError);
     });
+    it("run version check and return unsupported", async () => {
+      sandbox.stub(FxCore.prototype, "projectVersionCheck").resolves(
+        ok({
+          isSupport: VersionState.unsupported,
+          currentVersion: "1",
+          trackingId: "1",
+          versionSource: "1",
+        })
+      );
+      sandbox.stub(process, "argv").value(["node", "cli", "provision", "--folder", "abc"]);
+      let error: any = {};
+      sandbox.stub(engine, "processResult").callsFake(async (context, fxError) => {
+        error = fxError;
+      });
+      await engine.start(rootCommand);
+      assert.isTrue(error instanceof IncompatibleProjectError);
+    });
     it("skip options in interactive mode", async () => {
       sandbox.stub(FxCore.prototype, "createProject").resolves(ok({} as any));
       sandbox.stub(process, "argv").value(["node", "cli", "new", "--folder", "abc"]);
