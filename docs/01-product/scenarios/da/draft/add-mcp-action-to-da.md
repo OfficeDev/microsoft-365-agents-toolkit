@@ -47,9 +47,9 @@ Both flags are intended to be temporary and removed once the rollout is complete
 - Entry: an existing DA project is available.
 - Action-type pick (VS Code and CLI interactive): single-select titled `Add an Action`. When the MCP-for-DA preview is enabled the list contains `Start with an OpenAPI Description Document` and `Start with a MCP server`. The user picks `Start with a MCP server`.
 - Server URL input: text input titled `MCP Server URL` with placeholder `Enter your MCP server URL(e.g. https://example-mcp.com)`. Required.
-- Authentication type pick: single-select titled `Select Authentication Type` with options shown in this order (the `OAuth (with dynamic client registration)` option is only present when both `TEAMSFX_MCP_FOR_DA_DT` and `TEAMSFX_MCP_FOR_DA_DCR` are on):
-  - `OAuth (with dynamic client registration)` &mdash; the MCP server registers a client at runtime; no follow-up fields.
+- Authentication type pick: single-select titled `Select Authentication Type` with options shown in this order (the `OAuth (with dynamic registration)` option is only present when both `TEAMSFX_MCP_FOR_DA_DT` and `TEAMSFX_MCP_FOR_DA_DCR` are on):
   - `OAuth (with static registration)` &mdash; follow-up: required `Client ID`, required `Client Secret`, optional `Scopes` (space-separated).
+  - `OAuth (with dynamic registration)` &mdash; the MCP server registers a client at runtime; no follow-up fields.
   - `Entra SSO` &mdash; follow-up: required `Client ID` of an Entra application that will be used for provisioning. No tenant id or scopes are asked here.
   - `None` &mdash; no follow-up.
 
@@ -150,7 +150,7 @@ flowchart TD
   DcrGate -- Yes --> AuthSwitch{mcp-da-auth-type}
   AuthSwitch -- "oauth-dynamic / none" --> WriteFiles
   AuthSwitch -- "oauth (static)" --> StaticFlags{Static-OAuth follow-up flags present?}
-  AuthSwitch -- entraSSO --> SsoFlags{Entra-SSO follow-up flags present?}
+  AuthSwitch -- entra-sso --> SsoFlags{Entra-SSO follow-up flags present?}
   StaticFlags -- No --> MissingStatic[Return validation error: missing client id or client secret]
   StaticFlags -- Yes --> WriteFiles
   SsoFlags -- No --> MissingSso[Return validation error: missing Entra app client id]
@@ -184,8 +184,8 @@ atk add action --api-plugin-type mcp --mcp-da-server-url <server-url> --mcp-da-a
 Example non-interactive command (Entra SSO):
 
 ```bash
-atk add action --api-plugin-type mcp --mcp-da-server-url <server-url> --mcp-da-auth-type entraSSO \
-  --mcp-da-entra-client-id <entra-app-client-id> \
+atk add action --api-plugin-type mcp --mcp-da-server-url <server-url> --mcp-da-auth-type entra-sso \
+  --mcp-da-client-id <entra-app-client-id> \
   -t ./appPackage/manifest.json -f <project-path> --interactive false
 ```
 
@@ -200,6 +200,6 @@ atk add action --api-plugin-type mcp --mcp-da-server-url <server-url> --mcp-da-a
 
 - VS Code UI test intent should trace to `SCN-DA-ADD-MCP-ACTION-TO-DA` and cover the `Add action` command, the `Add an Action` action-type pick (with and without the MCP-for-DA preview enabled), the `MCP Server URL` input including empty-input recovery, the new `Select Authentication Type` pick for each of the four options, and each conditional follow-up path. The success state is the `Action added` notification and the matching writes to action manifest, DA manifest, and `m365agents.yml`; static-OAuth additionally verifies env file placeholders.
 - The legacy `.vscode/mcp.json`-then-CodeLens-fetch flow (live scenario `SCN-DA-FETCH-MCP-TOOLS`) is replaced by this end-to-end flow; UI tests for the old fetch CodeLens should retire when the redesign ships.
-- CLI E2E test intent should trace to `SCN-DA-ADD-MCP-ACTION-TO-DA` for interactive and non-interactive `atk add action --api-plugin-type mcp` paths and cover each auth-type value (`oauth-dynamic`, `oauth`, `entraSSO`, `none`).
-- CLI non-interactive validation should cover missing `--mcp-da-server-url`, missing `--mcp-da-auth-type`, missing static-OAuth follow-up flags (`--mcp-da-client-id`, `--mcp-da-client-secret`), missing Entra-SSO `--mcp-da-entra-client-id`, invalid manifest path, and invalid DA project path. When `TEAMSFX_MCP_FOR_DA_DT` is **off**, also cover the missing `--mcp-tools-file-path` validation error.
+- CLI E2E test intent should trace to `SCN-DA-ADD-MCP-ACTION-TO-DA` for interactive and non-interactive `atk add action --api-plugin-type mcp` paths and cover each auth-type value (`oauth-dynamic`, `oauth`, `entra-sso`, `none`).
+- CLI non-interactive validation should cover missing `--mcp-da-server-url`, missing `--mcp-da-auth-type`, missing static-OAuth follow-up flags (`--mcp-da-client-id`, `--mcp-da-client-secret`), missing Entra-SSO `--mcp-da-client-id`, invalid manifest path, and invalid DA project path. When `TEAMSFX_MCP_FOR_DA_DT` is **off**, also cover the missing `--mcp-tools-file-path` validation error.
 - The static MCP tools file flag (`--mcp-tools-file-path`) and the static "Select Operation(s) Copilot can interact with" pick are **required when `TEAMSFX_MCP_FOR_DA_DT` is off** (shipped behavior, static tools list) and **optional when DT is on**. When DT is on and no tools file is supplied, the generated `ai-plugin.json` runtime carries `enable_dynamic_discovery: true` and tool discovery is deferred to the agent host at runtime.
