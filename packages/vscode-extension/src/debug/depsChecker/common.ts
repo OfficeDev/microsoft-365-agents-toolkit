@@ -31,6 +31,7 @@ import {
   PortsConflictError,
   SideloadingDisabledError,
   TelemetryContext,
+  UserCancelError,
   assembleError,
   getSideloadingStatus,
   isSandboxedEnabled,
@@ -71,6 +72,7 @@ import {
 } from "./prerequisitesCheckerConstants";
 import { vscodeLogger } from "./vscodeLogger";
 import { vscodeTelemetry } from "./vscodeTelemetry";
+import { processUtil } from "../../utils/processUtil";
 
 export async function _checkAndInstall(
   displayMessages: DisplayMessages,
@@ -150,6 +152,76 @@ async function runWithCheckResultTelemetryProperties(
   );
 }
 
+export type KillPortsResult = "killed" | "cancelled" | "copilot" | "no-pids";
+
+export async function killProcessesOnPorts(portsInUse: number[]): Promise<KillPortsResult> {
+  try {
+    const port2pids = new Map<number, number[]>();
+    await Promise.all(
+      portsInUse.map(async (port) => {
+        const pids = await processUtil.getProcessIdsByPort(port);
+        if (pids.length > 0) {
+          port2pids.set(port, pids);
+        }
+      })
+    );
+
+    if (port2pids.size === 0) {
+      return "no-pids";
+    }
+
+    const portDetails = Array.from(port2pids.entries())
+      .map(([port, pids]) => `${port} (PID: ${pids.join(", ")})`)
+      .join(", ");
+
+    VsCodeLogInstance.info(`[Port Conflict] The following ports are occupied: ${portDetails}`);
+
+    const message =
+      portsInUse.length === 1
+        ? util.format(
+            localize("teamstoolkit.localDebug.terminateProcess.notification"),
+            portDetails
+          )
+        : util.format(
+            localize("teamstoolkit.localDebug.terminateProcess.notification.plural"),
+            portDetails
+          );
+
+    const terminateButton = localize("teamstoolkit.localDebug.terminateProcess.terminateButton");
+    const copilotButton = localize("teamstoolkit.commmands.teamsAgentResolve.title");
+
+    const selection = await vscode.window.showWarningMessage(
+      message,
+      { modal: true },
+      terminateButton,
+      copilotButton
+    );
+
+    if (!selection) {
+      return "cancelled";
+    }
+
+    if (selection === copilotButton) {
+      return "copilot";
+    }
+
+    const allPids = new Set<number>();
+    for (const pids of port2pids.values()) {
+      for (const pid of pids) {
+        allPids.add(pid);
+      }
+    }
+
+    await Promise.all(Array.from(allPids).map((pid) => processUtil.killProcess(pid)));
+
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    return "killed";
+  } catch (e) {
+    VsCodeLogInstance.warning(`Failed to kill processes on ports: ${(e as Error).message}`);
+    return "no-pids";
+  }
+}
+
 async function checkPort(
   localEnvManager: LocalEnvManager,
   ports: number[],
@@ -163,10 +235,43 @@ async function checkPort(
     additionalTelemetryProperties,
     async (ctx: TelemetryContext) => {
       VsCodeLogInstance.outputChannel.appendLine(displayMessage);
-      const portsInUse = await localEnvManager.getPortsInUse(ports);
+      let portsInUse = await localEnvManager.getPortsInUse(ports);
       LocalDebugPorts.conflictPorts = portsInUse;
       const formatPortStr = (ports: number[]) =>
         ports.length > 1 ? ports.join(", ") : `${ports[0]}`;
+      if (portsInUse.length > 0) {
+        const result = await killProcessesOnPorts(portsInUse);
+        if (result === "killed") {
+          portsInUse = await localEnvManager.getPortsInUse(ports);
+          LocalDebugPorts.conflictPorts = portsInUse;
+        } else if (result === "copilot") {
+          const error = new PortsConflictError(ports, portsInUse, ExtensionSource);
+          VsCodeLogInstance.error(
+            `[Ext.PortsConflictError] ${error.message} Ports expected: ${formatPortStr(ports)}. Ports occupied: ${formatPortStr(portsInUse)}.`
+          );
+          void vscode.commands.executeCommand(
+            "fx-extension.teamsAgentTroubleshootError",
+            "PortsConflictNotification",
+            error
+          );
+          return {
+            checker: Checker.Ports,
+            result: ResultStatus.failed,
+            failureMsg: doctorConstant.Port,
+            error: new UserCancelError(ExtensionSource),
+          };
+        } else if (result === "cancelled") {
+          VsCodeLogInstance.outputChannel.appendLine(
+            `[Port Conflict] User cancelled. Ports still in use: ${formatPortStr(portsInUse)}`
+          );
+          return {
+            checker: Checker.Ports,
+            result: ResultStatus.failed,
+            failureMsg: doctorConstant.Port,
+            error: new UserCancelError(ExtensionSource),
+          };
+        }
+      }
       if (portsInUse.length > 0) {
         ctx.properties[TelemetryProperty.DebugPortsInUse] = JSON.stringify(portsInUse);
         return {
