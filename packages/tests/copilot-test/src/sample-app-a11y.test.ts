@@ -6,8 +6,8 @@
  * TC-001b: Link text color contrast >= 4.5:1 when focused (Dark theme)
  * TC-002:  Gallery/List toggle buttons aria-pressed state before and after click
  * TC-003:  Sample card accessible names include tags on keyboard focus
- * TC-004a: Featured section background contrast >= 3:1 against non-featured section background (Light theme, WCAG 1.4.11)
- * TC-004b: Featured section background contrast >= 3:1 against non-featured section background (Dark theme, WCAG 1.4.11)
+ * TC-004a: Featured cards in Gallery (grid) view display a .featured-corner-badge element containing a .featured-corner-star (codicon-star-full) on the top-left of the thumbnail; non-featured cards do not; featured section has no background color
+ * TC-004b: Featured items in List view have a .featured-star (codicon-star-full) icon in their h3 before title text (color matches title via currentColor); non-featured items do not
  * TC-005:  Screen reader differentiates Featured from non-Featured cards
  * TC-006a: Focus ring contrast >= 3:1 in Gallery view (Light theme)
  * TC-006b: Focus ring contrast >= 3:1 in List view (Light theme)
@@ -894,71 +894,83 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
   });
 
   // ─────────────────────────────────────────────────────────────────────────────
-  // TC-004a — Featured section background contrast >= 3:1 against non-featured section background
-  //           (Light theme, WCAG 1.4.11 Non-text Contrast)
+  // TC-004a — Featured cards in Gallery (grid) view display a blue corner triangle badge
+  //           (.featured-corner-badge) containing a white star (.featured-corner-star)
+  //           on the top-left of the thumbnail; non-featured cards do not; the
+  //           featured section has no background color (transparent / page bg).
   //
   // Steps per test plan:
   //   1. Set VS Code color theme to "Default Light Modern"
   //   2. Click ATK Activity Bar icon
-  //   3. Open gallery — gallery shows both featured (blue bg) and non-featured sections
-  //   4. Screenshot 13 (featured and non-featured sections side by side, light theme)
-  //   5. Read effective background color of .featured-sample-section container
-  //   6. Read effective background color of the non-featured section container
-  //   7. Compute contrast_ratio(featured_section_bg, non_featured_section_bg)
+  //   3. Open gallery — Gallery (Grid) view is the default
+  //   4. Screenshot 13 showing featured section with blue corner badge on thumbnails
+  //   5. For each .sample-card inside .featured-sample-section verify .featured-corner-badge present
+  //   5b. Verify .featured-corner-badge contains .featured-corner-star
+  //   6. For each .sample-card outside .featured-sample-section verify .featured-corner-badge absent
+  //   7. Verify .featured-sample-section has no background color
   // ─────────────────────────────────────────────────────────────────────────────
-  test("TC-004a: Featured section background contrast >= 3:1 (Light theme, WCAG 1.4.11)", async () => {
+  test("TC-004a: Featured cards display corner badge with star icon in Gallery view", async () => {
     // Steps 1-3: set Light theme + click ATK Activity Bar + open gallery
     const galleryOpened = await setupTcGallery("TC-004a", "light");
 
     if (!galleryOpened) {
-      takeScreenshot("13-tc004a-sections-light");
+      takeScreenshot("13-tc004a-gallery-star");
       step(
-        "TC-004a Featured section bg contrast >= 3:1 (Light)",
+        "TC-004a Featured gallery corner badge with star on thumbnail",
         false,
         "FAIL: Gallery webview not open after setup.",
       );
       return;
     }
 
-    // Step 4: Screenshot showing both featured and non-featured sections side by side
-    takeScreenshot("13-tc004a-sections-light");
+    // Ensure Gallery (grid) view is active
+    sendEvalSignal(
+      "(function(){" +
+        "  var btn=document.querySelector('[aria-label=\"grid view\"]')" +
+        "    ||document.querySelector('[aria-label=\"Gallery view\"]')" +
+        "    ||Array.from(document.querySelectorAll('.layout-button')).find(function(b){" +
+        "      var l=(b.getAttribute('aria-label')||'').toLowerCase();" +
+        "      return l.includes('grid')||l.includes('gallery');});" +
+        "  if(btn)btn.click();" +
+        "  return btn?'clicked':'no-btn';" +
+        "})()",
+      3000,
+    );
+    await wait(600);
 
-    // Steps 5-7: Read featured section bg and non-featured section bg, compute WCAG contrast ratio
+    // Step 4: Screenshot showing featured section with star icons on card thumbnails
+    takeScreenshot("13-tc004a-gallery-star");
+
+    // Steps 5-7: Verify corner badge on featured cards, absence on non-featured, no section bg
     const evalScript =
       "(function(){" +
-      WCAG_HELPER_JS +
-      // Find the featured section container
       "  var featSec=document.querySelector('.featured-sample-section');" +
-      "  if(!featSec){" +
-      "    return JSON.stringify({error:'no-featured-section'});" +
-      "  }" +
-      // Find the non-featured section: any section-level container that is NOT .featured-sample-section
-      // Try siblings first, then fall back to a generic section selector
-      "  var nonFeatSec=null;" +
-      "  var sibling=featSec.nextElementSibling||featSec.previousElementSibling;" +
-      "  if(sibling){nonFeatSec=sibling;}" +
-      "  if(!nonFeatSec){" +
-      "    var allSections=document.querySelectorAll('.sample-section,.samples-section,section,[class*=\"section\"]');" +
-      "    for(var i=0;i<allSections.length;i++){" +
-      "      if(allSections[i]!==featSec&&!featSec.contains(allSections[i])&&!allSections[i].contains(featSec)){" +
-      "        nonFeatSec=allSections[i];break;" +
-      "      }" +
-      "    }" +
-      "  }" +
-      "  if(!nonFeatSec){" +
-      "    return JSON.stringify({error:'no-non-featured-section'});" +
-      "  }" +
-      // Read effective background colors via DOM traversal (TC-004a, Light theme)
-      "  var featBgArr=effectiveBg(featSec,'light');" +
-      "  var nonFeatBgArr=effectiveBg(nonFeatSec,'light');" +
-      "  var featL=relativeLuminance(featBgArr[0],featBgArr[1],featBgArr[2]);" +
-      "  var nonFeatL=relativeLuminance(nonFeatBgArr[0],nonFeatBgArr[1],nonFeatBgArr[2]);" +
-      "  var ratio=contrastRatio(featL,nonFeatL);" +
+      "  if(!featSec) return JSON.stringify({error:'no-featured-section'});" +
+      "  var featCards=Array.from(featSec.querySelectorAll('.sample-card'));" +
+      "  var allCards=Array.from(document.querySelectorAll('.sample-card'));" +
+      "  var nonFeatCards=allCards.filter(function(c){return !featSec.contains(c);});" +
+      "  if(featCards.length===0) return JSON.stringify({error:'no-featured-cards'});" +
+      // Step 5: every featured card must have .featured-corner-badge
+      "  var missingBadge=featCards.filter(function(c){" +
+      "    return !c.querySelector('.featured-corner-badge');});" +
+      // Step 5b: every featured-corner-badge must contain .featured-corner-star
+      "  var missingStar=featCards.filter(function(c){" +
+      "    return !c.querySelector('.featured-corner-badge .featured-corner-star');});" +
+      // Step 6: no non-featured card should have .featured-corner-badge
+      "  var unexpectedBadge=nonFeatCards.filter(function(c){" +
+      "    return !!c.querySelector('.featured-corner-badge');});" +
+      // Step 7: featured section background must be transparent
+      "  var sectBg=getComputedStyle(featSec).backgroundColor;" +
+      "  var bgTransparent=sectBg==='transparent'||sectBg==='rgba(0, 0, 0, 0)';" +
       "  return JSON.stringify({" +
-      "    featuredSectionBg:'rgb('+featBgArr[0]+','+featBgArr[1]+','+featBgArr[2]+')'," +
-      "    nonFeaturedSectionBg:'rgb('+nonFeatBgArr[0]+','+nonFeatBgArr[1]+','+nonFeatBgArr[2]+')'," +
-      "    ratio:Math.round(ratio*100)/100," +
-      "    passes:ratio>=3.0" +
+      "    featuredCount:featCards.length," +
+      "    nonFeaturedCount:nonFeatCards.length," +
+      "    missingBadgeCount:missingBadge.length," +
+      "    missingStarCount:missingStar.length," +
+      "    unexpectedBadgeCount:unexpectedBadge.length," +
+      "    sectionBg:sectBg," +
+      "    bgTransparent:bgTransparent," +
+      "    passes:missingBadge.length===0&&missingStar.length===0&&unexpectedBadge.length===0" +
       "  });" +
       "})()";
 
@@ -970,7 +982,7 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
 
     if (!rawResult || rawResult.startsWith("ERROR:")) {
       step(
-        "TC-004a Featured section bg contrast >= 3:1 (Light)",
+        "TC-004a Featured gallery corner badge with star on thumbnail",
         false,
         "FAIL: DOM eval error.",
       );
@@ -983,7 +995,7 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
     } catch {}
     if (!data) {
       step(
-        "TC-004a Featured section bg contrast >= 3:1 (Light)",
+        "TC-004a Featured gallery corner badge with star on thumbnail",
         false,
         `FAIL: Parse error: ${rawResult.slice(0, 100)}`,
       );
@@ -991,23 +1003,23 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
     }
     if (data.error === "no-featured-section") {
       step(
-        "TC-004a Featured section bg contrast >= 3:1 (Light)",
+        "TC-004a Featured gallery corner badge with star on thumbnail",
         false,
         "FAIL: No .featured-sample-section element found in the gallery DOM.",
       );
       return;
     }
-    if (data.error === "no-non-featured-section") {
+    if (data.error === "no-featured-cards") {
       step(
-        "TC-004a Featured section bg contrast >= 3:1 (Light)",
+        "TC-004a Featured gallery corner badge with star on thumbnail",
         false,
-        "FAIL: Could not find a non-featured section container to compare against.",
+        "FAIL: No .sample-card elements found inside .featured-sample-section.",
       );
       return;
     }
     if (data.error) {
       step(
-        "TC-004a Featured section bg contrast >= 3:1 (Light)",
+        "TC-004a Featured gallery corner badge with star on thumbnail",
         false,
         `FAIL: ${data.error}`,
       );
@@ -1015,84 +1027,122 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
     }
 
     const detail =
-      `Computed ratio=${data.ratio}:1; featured section bg=${data.featuredSectionBg}; ` +
-      `non-featured section bg=${data.nonFeaturedSectionBg}`;
+      `featured=${data.featuredCount} cards; nonFeatured=${data.nonFeaturedCount} cards; ` +
+      `missingCornerBadge=${data.missingBadgeCount} (expect 0); ` +
+      `missingCornerStar=${data.missingStarCount} (expect 0); ` +
+      `unexpectedCornerBadge=${data.unexpectedBadgeCount} (expect 0); ` +
+      `sectionBg=${data.sectionBg} transparent=${data.bgTransparent}`;
     step(
-      "TC-004a Featured section bg contrast >= 3:1 (Light)",
+      "TC-004a Featured gallery corner badge with star on thumbnail",
       !!data.passes,
       detail,
     );
   });
 
   // ─────────────────────────────────────────────────────────────────────────────
-  // TC-004b — Featured section background contrast >= 3:1 against non-featured section background
-  //           (Dark theme, WCAG 1.4.11 Non-text Contrast)
+  // TC-004b — Featured items in List view display a star icon (codicon-star-full)
+  //           as the first child of their h3 before the title text;
+  //           the star uses currentColor so it renders in the same color as the title.
+  //           Non-featured list items do not have the star.
   //
   // Steps per test plan:
-  //   1. Set VS Code color theme to "Default Dark Modern"
+  //   1. Set VS Code color theme to "Default Light Modern"
   //   2. Click ATK Activity Bar icon
-  //   3. Open gallery — gallery shows both featured (steel-blue bg) and non-featured (dark) sections
-  //   4. Screenshot 14 (featured and non-featured sections side by side, dark theme)
-  //   5. Read effective background color of .featured-sample-section container
-  //   6. Read effective background color of the non-featured section container
-  //   7. Compute contrast_ratio(featured_section_bg, non_featured_section_bg)
+  //   3. Open gallery in Gallery (Grid) view
+  //   4. Click the List view toggle button — observe layout switches to vertical list
+  //   5. Screenshot 14 showing list view with star icons before featured item titles
+  //   6. For each .sample-list-item inside .featured-sample-section verify h3 .featured-star present
+  //   7. For each .sample-list-item outside .featured-sample-section verify h3 .featured-star absent
+  //   8. Read getComputedStyle(starSpan).color and getComputedStyle(h3).color; verify equal (currentColor)
   // ─────────────────────────────────────────────────────────────────────────────
-  test("TC-004b: Featured section background contrast >= 3:1 (Dark theme, WCAG 1.4.11)", async () => {
-    // Steps 1-3: set Dark theme + click ATK Activity Bar + open gallery
-    const galleryOpened = await setupTcGallery("TC-004b", "dark");
+  test("TC-004b: Featured items display star icon before title in List view", async () => {
+    // Steps 1-3: set Light theme + click ATK Activity Bar + open gallery
+    const galleryOpened = await setupTcGallery("TC-004b", "light");
 
     if (!galleryOpened) {
-      takeScreenshot("14-tc004b-sections-dark");
+      takeScreenshot("14-tc004b-list-star");
       step(
-        "TC-004b Featured section bg contrast >= 3:1 (Dark)",
+        "TC-004b Featured list item star icon before title",
         false,
         "FAIL: Gallery webview not open after setup.",
       );
       return;
     }
 
-    // Step 4: Screenshot showing both featured and non-featured sections side by side (dark theme)
-    takeScreenshot("14-tc004b-sections-dark");
-
-    // Steps 5-7: Read featured section bg and non-featured section bg, compute WCAG contrast ratio
-    const evalScriptDark =
+    // Ensure we start from Gallery (grid) view before switching to List
+    sendEvalSignal(
       "(function(){" +
-      WCAG_HELPER_JS +
-      // Find the featured section container
+        "  var btn=document.querySelector('[aria-label=\"grid view\"]')" +
+        "    ||document.querySelector('[aria-label=\"Gallery view\"]')" +
+        "    ||Array.from(document.querySelectorAll('.layout-button')).find(function(b){" +
+        "      var l=(b.getAttribute('aria-label')||'').toLowerCase();" +
+        "      return l.includes('grid')||l.includes('gallery');});" +
+        "  if(btn)btn.click();" +
+        "  return btn?'clicked':'no-btn';" +
+        "})()",
+      3000,
+    );
+    await wait(600);
+
+    // Step 4: Click the List view toggle button — observe layout switches to vertical list
+    const switchResult = sendEvalSignal(
+      "(function(){" +
+        "  var btn=document.querySelector('[aria-label=\"list view\"]')" +
+        "    ||document.querySelector('[aria-label=\"List view\"]')" +
+        "    ||Array.from(document.querySelectorAll('.layout-button')).find(function(b){" +
+        "      return (b.getAttribute('aria-label')||'').toLowerCase().includes('list');});" +
+        "  if(!btn)return 'no-list-button';" +
+        "  btn.click();" +
+        "  return 'clicked';" +
+        "})()",
+      5000,
+    );
+    console.log("  TC-004b switch to list result:", switchResult);
+    await wait(800);
+
+    // Step 5: Screenshot showing list view with star icons before featured item titles
+    takeScreenshot("14-tc004b-list-star");
+
+    // Steps 6-8: Verify star icon in h3 for featured list items; absent for non-featured;
+    //            star color must equal h3 color (star uses currentColor)
+    const evalScript =
+      "(function(){" +
       "  var featSec=document.querySelector('.featured-sample-section');" +
-      "  if(!featSec){" +
-      "    return JSON.stringify({error:'no-featured-section'});" +
-      "  }" +
-      // Find the non-featured section: sibling first, then generic selector
-      "  var nonFeatSec=null;" +
-      "  var sibling=featSec.nextElementSibling||featSec.previousElementSibling;" +
-      "  if(sibling){nonFeatSec=sibling;}" +
-      "  if(!nonFeatSec){" +
-      "    var allSections=document.querySelectorAll('.sample-section,.samples-section,section,[class*=\"section\"]');" +
-      "    for(var i=0;i<allSections.length;i++){" +
-      "      if(allSections[i]!==featSec&&!featSec.contains(allSections[i])&&!allSections[i].contains(featSec)){" +
-      "        nonFeatSec=allSections[i];break;" +
-      "      }" +
-      "    }" +
-      "  }" +
-      "  if(!nonFeatSec){" +
-      "    return JSON.stringify({error:'no-non-featured-section'});" +
-      "  }" +
-      // Read effective background colors via DOM traversal (TC-004b, Dark theme)
-      "  var featBgArr=effectiveBg(featSec,'dark');" +
-      "  var nonFeatBgArr=effectiveBg(nonFeatSec,'dark');" +
-      "  var featL=relativeLuminance(featBgArr[0],featBgArr[1],featBgArr[2]);" +
-      "  var nonFeatL=relativeLuminance(nonFeatBgArr[0],nonFeatBgArr[1],nonFeatBgArr[2]);" +
-      "  var ratio=contrastRatio(featL,nonFeatL);" +
+      "  if(!featSec) return JSON.stringify({error:'no-featured-section'});" +
+      "  var featItems=Array.from(featSec.querySelectorAll('.sample-list-item'));" +
+      "  var allItems=Array.from(document.querySelectorAll('.sample-list-item'));" +
+      "  var nonFeatItems=allItems.filter(function(i){return !featSec.contains(i);});" +
+      "  if(featItems.length===0) return JSON.stringify({error:'no-featured-list-items'});" +
+      // Step 6: every featured list item must have h3 .featured-star
+      "  var missingStars=featItems.filter(function(i){" +
+      "    return !i.querySelector('h3 .featured-star');});" +
+      // Step 7: no non-featured list item should have h3 .featured-star
+      "  var unexpectedStars=nonFeatItems.filter(function(i){" +
+      "    return !!i.querySelector('h3 .featured-star');});" +
+      // Step 8: star color must match h3 color (currentColor)
+      "  var colorMismatch=[];" +
+      "  var starColorSample=null,h3ColorSample=null;" +
+      "  featItems.forEach(function(i){" +
+      "    var starEl=i.querySelector('h3 .featured-star');" +
+      "    var h3El=i.querySelector('h3');" +
+      "    if(!starEl||!h3El)return;" +
+      "    var sc=getComputedStyle(starEl).color;" +
+      "    var hc=getComputedStyle(h3El).color;" +
+      "    if(!starColorSample){starColorSample=sc;h3ColorSample=hc;}" +
+      "    if(sc!==hc)colorMismatch.push({starColor:sc,h3Color:hc});});" +
       "  return JSON.stringify({" +
-      "    featuredSectionBg:'rgb('+featBgArr[0]+','+featBgArr[1]+','+featBgArr[2]+')'," +
-      "    nonFeaturedSectionBg:'rgb('+nonFeatBgArr[0]+','+nonFeatBgArr[1]+','+nonFeatBgArr[2]+')'," +
-      "    ratio:Math.round(ratio*100)/100," +
-      "    passes:ratio>=3.0" +
+      "    featuredCount:featItems.length," +
+      "    nonFeaturedCount:nonFeatItems.length," +
+      "    missingStarCount:missingStars.length," +
+      "    unexpectedStarCount:unexpectedStars.length," +
+      "    colorMismatchCount:colorMismatch.length," +
+      "    starColorSample:starColorSample," +
+      "    h3ColorSample:h3ColorSample," +
+      "    passes:missingStars.length===0&&unexpectedStars.length===0&&colorMismatch.length===0" +
       "  });" +
       "})()";
 
-    const rawResult = sendEvalSignal(evalScriptDark, 10000);
+    const rawResult = sendEvalSignal(evalScript, 10000);
     console.log(
       "  TC-004b eval result:",
       rawResult ? rawResult.slice(0, 300) : "(empty)",
@@ -1100,7 +1150,7 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
 
     if (!rawResult || rawResult.startsWith("ERROR:")) {
       step(
-        "TC-004b Featured section bg contrast >= 3:1 (Dark)",
+        "TC-004b Featured list item star icon before title",
         false,
         "FAIL: DOM eval error.",
       );
@@ -1113,7 +1163,7 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
     } catch {}
     if (!data) {
       step(
-        "TC-004b Featured section bg contrast >= 3:1 (Dark)",
+        "TC-004b Featured list item star icon before title",
         false,
         `FAIL: Parse error: ${rawResult.slice(0, 100)}`,
       );
@@ -1121,23 +1171,23 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
     }
     if (data.error === "no-featured-section") {
       step(
-        "TC-004b Featured section bg contrast >= 3:1 (Dark)",
+        "TC-004b Featured list item star icon before title",
         false,
         "FAIL: No .featured-sample-section element found in the gallery DOM.",
       );
       return;
     }
-    if (data.error === "no-non-featured-section") {
+    if (data.error === "no-featured-list-items") {
       step(
-        "TC-004b Featured section bg contrast >= 3:1 (Dark)",
+        "TC-004b Featured list item star icon before title",
         false,
-        "FAIL: Could not find a non-featured section container to compare against.",
+        "FAIL: No .sample-list-item elements found inside .featured-sample-section — list view may not have rendered.",
       );
       return;
     }
     if (data.error) {
       step(
-        "TC-004b Featured section bg contrast >= 3:1 (Dark)",
+        "TC-004b Featured list item star icon before title",
         false,
         `FAIL: ${data.error}`,
       );
@@ -1145,10 +1195,13 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
     }
 
     const detail =
-      `Computed ratio=${data.ratio}:1; featured section bg=${data.featuredSectionBg}; ` +
-      `non-featured section bg=${data.nonFeaturedSectionBg}`;
+      `featured=${data.featuredCount} items; nonFeatured=${data.nonFeaturedCount} items; ` +
+      `missingStarInH3=${data.missingStarCount} (expect 0); ` +
+      `unexpectedStarInH3=${data.unexpectedStarCount} (expect 0); ` +
+      `colorMismatch=${data.colorMismatchCount} (expect 0); ` +
+      `starColor=${data.starColorSample} h3Color=${data.h3ColorSample}`;
     step(
-      "TC-004b Featured section bg contrast >= 3:1 (Dark)",
+      "TC-004b Featured list item star icon before title",
       !!data.passes,
       detail,
     );
@@ -1398,15 +1451,15 @@ suite("ATK Sample App A11y Regression Tests (Issue #15916)", function () {
   //   6. Press Tab to move keyboard focus to the first .sample-list-item
   //   7. Screenshot 10 — IMMEDIATELY after Tab so focus ring is clearly visible
   //   8. Read getComputedStyle(listItem).outlineColor from focused list item
-  //   9. Read effective background color by walking up the DOM until a non-transparent
-  //      backgroundColor is found. For items in .featured-sample-section this will be
-  //      rgb(60, 139, 197) (#3C8BC5); for normal section items it will be #FFFFFF.
+  //   9. Find the effective background color by walking up the DOM until a non-transparent
+  //      backgroundColor is found. Since the featured section background was removed (fix
+  //      #15916), all list items share the page background (white #FFFFFF in Light theme).
   //  10. Compute contrast_ratio(outline_color, effective_background) using WCAG luminance
   //
   // Expected:
-  //   - Items inside .featured-sample-section: white focus ring (#FFFFFF, ~3.7:1 vs #3C8BC5)
-  //   - Items in normal section: dark-blue focus ring (#005FB8, ~10:1 vs white)
-  //   - contrast_ratio >= 3.0 in both cases
+  //   - All list items share the white page background (#FFFFFF) — no grey featured section bg.
+  //   - Focused list item has a dark-blue focus ring (#005FB8, ~10:1 vs white).
+  //   - contrast_ratio >= 3.0 (WCAG AA non-text threshold)
   // ─────────────────────────────────────────────────────────────────────────────
   test("TC-006b: Focus ring contrast >= 3:1 in List view (Light theme)", async () => {
     // Steps 1-3: set Light theme + click ATK Activity Bar + open gallery

@@ -117,13 +117,6 @@
 }
 
 body.vscode-light {
-  /* TC-004a: Featured section bg rgb(140,140,140) vs page bg #FFFFFF = 3.36:1 ≥ 3.0 (WCAG 1.4.11)
-   * Black text on rgb(140,140,140) = 6.25:1 ≥ 4.5:1 (WCAG 1.4.3) */
-  .featured-sample-section {
-    background-color: rgb(140, 140, 140);
-    border-color: #888888;
-  }
-
   /* TC-001a: Ensure link text meets WCAG AA 4.5:1 contrast on light backgrounds */
   .sample-gallery {
     a.ms-Link,
@@ -136,31 +129,9 @@ body.vscode-light {
       }
     }
   }
-
-  /* Title text in black on rgb(140,140,140) bg = 6.25:1 ≥ 4.5:1 (WCAG AA normal text) */
-  .sample-gallery {
-    #featured-sample-title {
-      span {
-        color: #000000;
-      }
-
-      h4 {
-        color: #000000;
-      }
-    }
-  }
 }
 
 body.vscode-dark {
-  /* TC-004b: Featured section bg rgb(116,116,116) vs dark page bg rgb(30,30,30) = 3.57:1 ≥ 3.0 (WCAG 1.4.11)
-   * White text on rgb(116,116,116) = 4.67:1 ≥ 4.5:1 (WCAG 1.4.3) */
-  .featured-sample-section {
-    background-color: rgb(116, 116, 116);
-    border-color: #888888;
-    /* Force white text so card titles pass WCAG AA on grey bg (grey-on-grey fails) */
-    color: #FFFFFF;
-  }
-
   /* TC-001b: Light blue (#4FC3F7) vs dark bg rgb(30,30,30) = 8.32:1 ≥ 4.5:1 (WCAG AA)
    * !important overrides Fluent UI Link component inline styles */
   .sample-gallery {
@@ -173,23 +144,5 @@ body.vscode-dark {
         color: #81D4FA !important;
       }
     }
-  }
-
-  /* Title text in white on rgb(116,116,116) bg = 4.67:1 ≥ 4.5:1 (WCAG AA normal text) */
-  .sample-gallery {
-    #featured-sample-title {
-      span {
-        color: #FFFFFF;
-      }
-
-      h4 {
-        color: #FFFFFF;
-      }
-    }
-  }
-
-  /* Force card titles inside featured section to white for WCAG AA */
-  .featured-sample-section .sample-card h3 {
-    color: #FFFFFF;
   }
 }
