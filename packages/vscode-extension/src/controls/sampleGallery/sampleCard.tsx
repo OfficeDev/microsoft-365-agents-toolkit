@@ -87,7 +87,15 @@ export default class SampleCard extends React.Component<SampleProps, { imageUrl:
         {unavailable && (
           <span className={`tooltip ${upgrade ? "upgrade" : ""}`}>{tooltipText}</span>
         )}
-        {sampleImage}
+        <div className="thumbnail-wrapper">
+          {sampleImage}
+          {this.props.featured && (
+            <span
+              className="featured-star-overlay codicon codicon-star-full"
+              aria-hidden="true"
+            ></span>
+          )}
+        </div>
         {cardInformation}
       </div>
     );

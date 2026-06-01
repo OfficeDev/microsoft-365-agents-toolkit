@@ -42,7 +42,15 @@ export default class SampleListItem extends React.Component<SampleProps, unknown
         }}
       >
         <div className="title-tag" onClick={this.onSampleTitleClicked}>
-          <h3>{sample.title}</h3>
+          <h3>
+            {this.props.featured && (
+              <span
+                className="featured-star codicon codicon-star-full"
+                aria-hidden="true"
+              ></span>
+            )}
+            {sample.title}
+          </h3>
           <div className="tagSection" aria-hidden="true">
             {sample.tags &&
               sample.tags.map((value: string) => {

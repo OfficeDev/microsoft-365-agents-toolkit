@@ -15,9 +15,25 @@
       outline-offset: -2px;
     }
 
-    .thumbnail {
-      img {
-        aspect-ratio: 40 / 23;
+    .thumbnail-wrapper {
+      position: relative;
+
+      .thumbnail {
+        img {
+          aspect-ratio: 40 / 23;
+        }
+      }
+
+      /* Star overlay on top-left corner of the thumbnail image for featured samples */
+      .featured-star-overlay {
+        position: absolute;
+        top: 6px;
+        left: 6px;
+        font-size: 18px;
+        color: var(--vscode-editorLightBulb-foreground, #DDB100);
+        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+        z-index: 1;
+        pointer-events: none;
       }
     }
 
@@ -58,7 +74,7 @@
       padding: 0px 10px 0px 10px;
     }
 
-    .ms-Image {
+    .thumbnail-wrapper .ms-Image {
       border-radius: 6px 6px 0 0;
     }
 
