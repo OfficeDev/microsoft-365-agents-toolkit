@@ -405,16 +405,33 @@ describe("MCPForDAAuthCredentialNodes", () => {
 
   it("client id node is shown for oauth and entra-sso only", () => {
     const cond = clientIdNode.condition as ConditionFunc;
-    assert.isTrue(cond({ [QuestionNames.MCPForDAAuthType]: "oauth" } as Inputs));
-    assert.isTrue(cond({ [QuestionNames.MCPForDAAuthType]: "entra-sso" } as Inputs));
-    assert.isFalse(cond({ [QuestionNames.MCPForDAAuthType]: "oauth-dynamic" } as Inputs));
-    assert.isFalse(cond({ [QuestionNames.MCPForDAAuthType]: "none" } as Inputs));
+    assert.isTrue(
+      cond({ platform: Platform.VSCode, [QuestionNames.MCPForDAAuthType]: "oauth" } as Inputs)
+    );
+    assert.isTrue(
+      cond({ platform: Platform.VSCode, [QuestionNames.MCPForDAAuthType]: "entra-sso" } as Inputs)
+    );
+    assert.isFalse(
+      cond({
+        platform: Platform.VSCode,
+        [QuestionNames.MCPForDAAuthType]: "oauth-dynamic",
+      } as Inputs)
+    );
+    assert.isFalse(
+      cond({ platform: Platform.VSCode, [QuestionNames.MCPForDAAuthType]: "none" } as Inputs)
+    );
   });
 
   it("client id node title/placeholder differ between entra-sso and oauth", () => {
     const data = clientIdNode.data as any;
-    const oauthInputs = { [QuestionNames.MCPForDAAuthType]: "oauth" } as Inputs;
-    const entraInputs = { [QuestionNames.MCPForDAAuthType]: "entra-sso" } as Inputs;
+    const oauthInputs = {
+      platform: Platform.VSCode,
+      [QuestionNames.MCPForDAAuthType]: "oauth",
+    } as Inputs;
+    const entraInputs = {
+      platform: Platform.VSCode,
+      [QuestionNames.MCPForDAAuthType]: "entra-sso",
+    } as Inputs;
     assert.isString(data.title(oauthInputs));
     assert.isString(data.title(entraInputs));
     assert.notEqual(data.title(oauthInputs), data.title(entraInputs));
@@ -424,20 +441,33 @@ describe("MCPForDAAuthCredentialNodes", () => {
 
   it("client id validation requires a value (oauth and entra-sso messages)", () => {
     const validFunc = (clientIdNode.data as any).validation.validFunc;
-    assert.isString(validFunc("", { [QuestionNames.MCPForDAAuthType]: "oauth" } as Inputs));
+    assert.isString(
+      validFunc("", {
+        platform: Platform.VSCode,
+        [QuestionNames.MCPForDAAuthType]: "oauth",
+      } as Inputs)
+    );
     const entraMsg = validFunc("  ", {
+      platform: Platform.VSCode,
       [QuestionNames.MCPForDAAuthType]: "entra-sso",
     } as Inputs);
     assert.isString(entraMsg);
     assert.isUndefined(
-      validFunc("client-id", { [QuestionNames.MCPForDAAuthType]: "oauth" } as Inputs)
+      validFunc("client-id", {
+        platform: Platform.VSCode,
+        [QuestionNames.MCPForDAAuthType]: "oauth",
+      } as Inputs)
     );
   });
 
   it("client secret node is shown only for oauth and requires a value", () => {
     const cond = clientSecretNode.condition as ConditionFunc;
-    assert.isTrue(cond({ [QuestionNames.MCPForDAAuthType]: "oauth" } as Inputs));
-    assert.isFalse(cond({ [QuestionNames.MCPForDAAuthType]: "entra-sso" } as Inputs));
+    assert.isTrue(
+      cond({ platform: Platform.VSCode, [QuestionNames.MCPForDAAuthType]: "oauth" } as Inputs)
+    );
+    assert.isFalse(
+      cond({ platform: Platform.VSCode, [QuestionNames.MCPForDAAuthType]: "entra-sso" } as Inputs)
+    );
     const validFunc = (clientSecretNode.data as any).validation.validFunc;
     assert.isString(validFunc(""));
     assert.isString(validFunc("   "));
@@ -447,8 +477,12 @@ describe("MCPForDAAuthCredentialNodes", () => {
 
   it("scopes node is shown only for oauth and is optional", () => {
     const cond = scopesNode.condition as ConditionFunc;
-    assert.isTrue(cond({ [QuestionNames.MCPForDAAuthType]: "oauth" } as Inputs));
-    assert.isFalse(cond({ [QuestionNames.MCPForDAAuthType]: "entra-sso" } as Inputs));
+    assert.isTrue(
+      cond({ platform: Platform.VSCode, [QuestionNames.MCPForDAAuthType]: "oauth" } as Inputs)
+    );
+    assert.isFalse(
+      cond({ platform: Platform.VSCode, [QuestionNames.MCPForDAAuthType]: "entra-sso" } as Inputs)
+    );
     assert.isFalse((scopesNode.data as any).required);
   });
 });
