@@ -20,18 +20,20 @@ import chalk from "chalk";
 import { assign } from "lodash";
 import * as path from "path";
 import * as uuid from "uuid";
-import { getFxCore } from "../../activate";
+import * as activate from "../../activate";
 import { logger } from "../../commonlib/logger";
 import { commands } from "../../resource";
 import { TelemetryEvent, TelemetryProperty } from "../../telemetry/cliTelemetryEvents";
 import { createSampleCommand } from "./createSample";
-import { listAllTemplates } from "./listTemplates";
+import * as listTemplates from "./listTemplates";
 
 function adjustOptions(options: CLICommandOption[]) {
   for (const option of options) {
     if (option.type === "string" && option.name === CliQuestionName.Capability) {
       // use dynamic options for capability question
-      option.choices = listAllTemplates().flatMap((o) => (o.alias ? [o.alias, o.name] : [o.name]));
+      option.choices = listTemplates
+        .listAllTemplates()
+        .flatMap((o) => (o.alias ? [o.alias, o.name] : [o.name]));
       break;
     }
   }
@@ -61,7 +63,7 @@ export function getCreateCommand(): CLICommand {
     handler: async (ctx: CLIContext) => {
       const inputs = ctx.optionValues as CreateProjectInputs;
       inputs.projectId = inputs.projectId ?? uuid.v4();
-      const core = getFxCore();
+      const core = activate.getFxCore();
       if (inputs.nonInteractive) {
         if (featureFlagManager.getBooleanValue(FeatureFlags.CLIDotNet)) {
           // this feature is used in e2e test to scaffold VS project in non-interactive mode
@@ -72,7 +74,7 @@ export function getCreateCommand(): CLICommand {
           // for non-interactive mode, we need to preset project-type from capability to make sure the question model works
           const capability = inputs.capabilities as string;
           inputs["template-name"] = capability;
-          const templates = listAllTemplates();
+          const templates = listTemplates.listAllTemplates();
           const matched = templates.find((t) => t.name === capability || t.alias === capability);
           if (matched) {
             inputs["template-name"] = matched.name;

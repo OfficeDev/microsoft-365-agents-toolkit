@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 import { CLICommand, err, Inputs, ok } from "@microsoft/teamsfx-api";
-import { getFxCore } from "../../../activate";
+import * as activate from "../../../activate";
 import { commands } from "../../../resource";
 import { TelemetryEvent } from "../../../telemetry/cliTelemetryEvents";
 import { ProjectFolderOptionWithoutValidation, TeamsAppManifestFileOption } from "../../common";
@@ -46,7 +46,7 @@ export const initCommand: CLICommand = {
   ],
   handler: async (ctx) => {
     const inputs = ctx.optionValues;
-    const core = getFxCore();
+    const core = activate.getFxCore();
     const result = await core.generateConfigFiles(inputs as Inputs);
     if (result.isErr()) {
       return err(result.error);

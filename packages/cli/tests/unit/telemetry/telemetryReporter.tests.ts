@@ -6,10 +6,60 @@ import { TelemetryClient } from "applicationinsights";
 import log4js from "log4js";
 import os from "os";
 import sinon from "sinon";
+import { vi } from "vitest";
 
 import Logger from "../../../src/commonlib/log";
 import Reporter from "../../../src/telemetry/telemetryReporter";
 import { expect } from "../utils";
+
+vi.mock("node-machine-id", () => ({
+  machineIdSync: vi.fn(() => "mock-machine-id"),
+}));
+
+vi.mock("applicationinsights", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("applicationinsights")>();
+  let defaultClient: actual.TelemetryClient | undefined;
+
+  class MockTelemetryClient {
+    public channel = {
+      setUseDiskRetryCaching: vi.fn(),
+    };
+    public commonProperties: Record<string, string> | undefined;
+
+    constructor(public key: string) {}
+
+    trackEvent() {}
+
+    trackException() {}
+
+    flush(options?: { callback?: (response?: string) => void }) {
+      options?.callback?.("");
+    }
+  }
+
+  const setup = vi.fn(() => {
+    defaultClient = new MockTelemetryClient("setup") as unknown as actual.TelemetryClient;
+    return {
+      setAutoCollectRequests: vi.fn().mockReturnThis(),
+      setAutoCollectPerformance: vi.fn().mockReturnThis(),
+      setAutoCollectExceptions: vi.fn().mockReturnThis(),
+      setAutoCollectDependencies: vi.fn().mockReturnThis(),
+      setAutoDependencyCorrelation: vi.fn().mockReturnThis(),
+      setAutoCollectConsole: vi.fn().mockReturnThis(),
+      setUseDiskRetryCaching: vi.fn().mockReturnThis(),
+      start: vi.fn(),
+    };
+  });
+
+  return {
+    ...actual,
+    get defaultClient() {
+      return defaultClient;
+    },
+    setup,
+    TelemetryClient: MockTelemetryClient,
+  };
+});
 
 describe("Telemetry Reporter", function () {
   const sandbox = sinon.createSandbox();
