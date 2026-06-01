@@ -4,6 +4,10 @@ import { exec } from "child_process";
 import * as os from "os";
 import kill from "tree-kill";
 
+export const execModule = {
+  exec: exec,
+};
+
 export const killModule = {
   killTree: kill,
 };
@@ -36,7 +40,7 @@ class ProcessUtil {
     }
 
     return new Promise<number[]>((resolve) => {
-      exec(command, { timeout: 5000 }, (error, stdout) => {
+      execModule.exec(command, { timeout: 5000 }, (error, stdout) => {
         if (error || !stdout.trim()) {
           resolve([]);
           return;
