@@ -302,24 +302,29 @@ jobs:
             RUN_RESULT="$ROOT_DIR/run_result.txt"
 
             failed_step_id=$(awk '
-              {
-                if ($0 ~ /Execution failed:\\?/) {
-                  if (match(prev, /step_[A-Za-z0-9]+/)) {
-                    print substr(prev, RSTART, RLENGTH)
-                    exit
-                  }
-                }
-                prev = $0
+              /^Errors:/ { in_errors = 1; next }
+              in_errors && match($0, /step_[A-Za-z0-9]+/) {
+                print substr($0, RSTART, RLENGTH)
+                exit
               }
             ' "$RUN_RESULT")
 
             if [ -n "$failed_step_id" ]; then
-              failed_step_desc=$(find "$ROOT_DIR" -type f -name "*.json" -print0 \
-                | xargs -0 jq -r --arg sid "$failed_step_id" '.. | objects | select(.step_id? == $sid) | .description // empty' 2>/dev/null \
-                | head -n 1)
+              # Prefer the human-readable step name from the executor log line:
+              #   [EXECUTING] Step <id>: <name>
+              failed_step_name=$(grep -oE "\[EXECUTING\] Step ${failed_step_id}: .*" "$RUN_RESULT" \
+                | head -n 1 \
+                | sed "s/.*\[EXECUTING\] Step ${failed_step_id}: //")
 
-              if [ -n "$failed_step_desc" ]; then
-                echo "$failed_step_desc" > error.txt
+              # Fall back to the step description from the plan JSON.
+              if [ -z "$failed_step_name" ]; then
+                failed_step_name=$(find "$ROOT_DIR" -type f -name "*.json" -print0 \
+                  | xargs -0 jq -r --arg sid "$failed_step_id" '.. | objects | select(.step_id? == $sid) | .description // empty' 2>/dev/null \
+                  | head -n 1)
+              fi
+
+              if [ -n "$failed_step_name" ]; then
+                echo "${failed_step_id}: ${failed_step_name}" > error.txt
               else
                 echo "$failed_step_id" > error.txt
               fi
