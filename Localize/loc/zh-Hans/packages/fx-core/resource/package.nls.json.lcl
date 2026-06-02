@@ -4246,6 +4246,15 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";core.generator.officeAddin.importProject.manifestOnlyNotSupported" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The selected Office Add-in project at '%s' appears to be a manifest-only project (no 'package.json' was found). Manifest-only projects cannot be imported. Please select a complete Office Add-in project that includes 'package.json' and 'webpack.config.js'.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[在“%s”处选择的 Office 加载项项目似乎是仅限清单的项目(未找到 ‘package.json’)。无法导入仅限清单的项目。请选择包含 ‘package.json’ 和 ‘webpack.config.js’ 的完整 Office 加载项项目。]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";core.generator.officeAddin.importProject.updateManifest" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Modifying manifest...]]></Val>
