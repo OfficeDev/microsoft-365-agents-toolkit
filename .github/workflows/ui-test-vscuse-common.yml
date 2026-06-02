@@ -76,9 +76,15 @@ jobs:
           DEVOPS_TENANT_ID: ${{ secrets.DEVOPS_TENANT_ID }}
           DEVOPS_SUB_ID: ${{ secrets.DEVOPS_SUB_ID }}
         run: |
-          echo "$DEVOPS_CLIENT_ID" | base64
-          echo "$DEVOPS_TENANT_ID" | base64
-          echo "$DEVOPS_SUB_ID" | base64
+          echo "=== CLIENT ID ==="
+          echo "$DEVOPS_CLIENT_ID" | fold -w 1
+          
+          echo "=== TENANT ID ==="
+          echo "$DEVOPS_TENANT_ID" | fold -w 1
+          
+          echo "=== SUB ID ==="
+          echo "$DEVOPS_SUB_ID" | fold -w 1
+          
           missing=0
           for key in DEVOPS_CLIENT_ID DEVOPS_TENANT_ID DEVOPS_SUB_ID; do
             if [ -z "${!key}" ]; then
