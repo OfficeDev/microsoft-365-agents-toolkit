@@ -22,7 +22,7 @@ on:
           - 'false'
 
   schedule:
-    - cron: "0 11 * * *"  # UTC+8 19:00 before any auto pipeline run, to clear all the resources
+    - cron: "30 10 * * *"  # UTC+8 18:30 before any auto pipeline run, to clear all the resources
     - cron: "0 1 * * *"  # UTC+8 09:00 after the uitest done, to clear all the resources
 
 permissions:
