@@ -76,9 +76,9 @@ jobs:
           DEVOPS_TENANT_ID: ${{ secrets.DEVOPS_TENANT_ID }}
           DEVOPS_SUB_ID: ${{ secrets.DEVOPS_SUB_ID }}
         run: |
-          echo DEVOPS_CLIENT_ID
-          echo DEVOPS_TENANT_ID
-          echo DEVOPS_SUB_ID
+          echo "$DEVOPS_CLIENT_ID"
+          echo "$DEVOPS_TENANT_ID"
+          echo "$DEVOPS_SUB_ID"
           missing=0
           for key in DEVOPS_CLIENT_ID DEVOPS_TENANT_ID DEVOPS_SUB_ID; do
             if [ -z "${!key}" ]; then
