@@ -66,7 +66,38 @@ permissions:
   actions: read
 
 jobs:
+  debug-devops-secrets:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check Azure login secrets
+        shell: bash
+        env:
+          DEVOPS_CLIENT_ID: ${{ secrets.DEVOPS_CLIENT_ID }}
+          DEVOPS_TENANT_ID: ${{ secrets.DEVOPS_TENANT_ID }}
+          DEVOPS_SUB_ID: ${{ secrets.DEVOPS_SUB_ID }}
+        run: |
+          missing=0
+          for key in DEVOPS_CLIENT_ID DEVOPS_TENANT_ID DEVOPS_SUB_ID; do
+            if [ -z "${!key}" ]; then
+              echo "::error::$key is NOT set"
+              missing=1
+            else
+              echo "$key is set"
+            fi
+          done
+
+          if [ "$missing" -ne 0 ]; then
+            echo "Required Azure login secrets are missing. Stopping workflow."
+            exit 1
+          fi
+
+      - name: Stop workflow intentionally
+        run: |
+          echo "Azure login secrets are configured. Stopping workflow before the rest of the pipeline runs."
+          exit 1
+
   discover-test-plans:
+    needs: debug-devops-secrets
     runs-on: ubuntu-latest
     permissions:
       contents: write
