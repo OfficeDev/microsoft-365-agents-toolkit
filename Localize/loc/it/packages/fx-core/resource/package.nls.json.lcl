@@ -4246,6 +4246,15 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";core.generator.officeAddin.importProject.manifestOnlyNotSupported" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The selected Office Add-in project at '%s' appears to be a manifest-only project (no 'package.json' was found). Manifest-only projects cannot be imported. Please select a complete Office Add-in project that includes 'package.json' and 'webpack.config.js'.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Il progetto di componente aggiuntivo di Office selezionato in '%s' sembra essere un progetto solo manifesto (non è stato trovato alcun 'package.json'). I progetti solo manifesto non possono essere importati. Selezionare un progetto completo di componente aggiuntivo di Office che includa 'package.json' e 'webpack.config.js'.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";core.generator.officeAddin.importProject.updateManifest" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Modifying manifest...]]></Val>
