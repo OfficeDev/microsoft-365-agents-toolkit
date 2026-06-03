@@ -74,4 +74,7 @@ export enum TemplateNames {
   // VS only
   Empty = "empty",
   MessageExtensionSearch = "message-extension-search",
+
+  // openplugin import — baseline files scaffolded by 'atk import openplugin'
+  OpenPluginImport = "open-plugin-import",
 }

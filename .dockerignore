@@ -31,6 +31,13 @@ packages/server
 packages/simpleauth
 packages/spec-parser
 packages/vscode-extension
+!packages/vscode-extension/src/controls/sampleGallery
+# Bake compiled extension into Docker image for fast cold-start
+!packages/vscode-extension/out
+!packages/vscode-extension/media
+!packages/vscode-extension/syntaxes
+!packages/vscode-extension/package.json
+!packages/vscode-extension/package.nls.json
 packages/vscode-ui
 # Exclude the rest of packages/tests (only copilot-test subdir is needed)
 packages/tests/e2e-test

@@ -1,0 +1,13 @@
+{
+  "name": "contoso-helper",
+  "version": "2.1.0",
+  "description": "Contoso productivity helper that automates code review documentation generation and routine engineering tasks for Contoso teams.",
+  "author": {
+    "name": "Contoso Engineering",
+    "email": "support@contoso.com",
+    "url": "https://contoso.com"
+  },
+  "logo": "./assets/logo.png",
+  "agents": "./agents-dir",
+  "hooks": "./hooks-dir"
+}

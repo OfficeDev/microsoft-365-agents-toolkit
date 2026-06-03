@@ -76,6 +76,9 @@ export enum TemplateNames {
 
   FoundryAgent = "foundry-agent-to-m365",
   FoundryProxyAgent = "foundry-proxy-agent",
+
+  // openplugin import — baseline files scaffolded by 'atk import openplugin'
+  OpenPluginImport = "open-plugin-import",
 }
 
 export enum TemplateAlias {

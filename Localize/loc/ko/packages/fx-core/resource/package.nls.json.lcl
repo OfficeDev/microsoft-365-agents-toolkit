@@ -4246,6 +4246,15 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";core.generator.officeAddin.importProject.manifestOnlyNotSupported" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The selected Office Add-in project at '%s' appears to be a manifest-only project (no 'package.json' was found). Manifest-only projects cannot be imported. Please select a complete Office Add-in project that includes 'package.json' and 'webpack.config.js'.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA['%s'에서 선택한 Office 추가 기능 프로젝트는 매니페스트 전용 프로젝트인 것 같습니다. ('package.json'을 찾을 수 없습니다.) 매니페스트 전용 프로젝트는 가져올 수 없습니다. 'package.json'과 'webpack.config.js'가 포함된 완전한 Office 추가 기능 프로젝트를 선택하세요.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";core.generator.officeAddin.importProject.updateManifest" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Modifying manifest...]]></Val>

@@ -16,6 +16,7 @@ import {
   TeamsManifestV1D19,
   TeamsManifestV1D21,
   TeamsManifestV1D5,
+  TeamsManifestVDevPreview,
 } from "@microsoft/teamsfx-api";
 import AdmZip from "adm-zip";
 import fs from "fs-extra";
@@ -408,6 +409,17 @@ export class CreateAppPackageDriver implements StepDriver {
       }
     }
 
+    if (featureFlagManager.getBooleanValue(FeatureFlags.AgentSkillsManifest)) {
+      const agentSkills = (manifest as TeamsManifestVDevPreview.TeamsManifestVDevPreview)
+        .agentSkills;
+      if (agentSkills?.length) {
+        const addSkillsRes = await this.addAgentSkillFolders(zip, agentSkills, appDirectory);
+        if (addSkillsRes.isErr()) {
+          return err(addSkillsRes.error);
+        }
+      }
+    }
+
     zip.writeZip(zipFileName);
 
     await this.writeJsonFile(teamsManifestJsonFileName, JSON.stringify(manifest, null, 4));
@@ -475,6 +487,48 @@ export class CreateAppPackageDriver implements StepDriver {
     }
 
     return ok(undefined);
+  }
+
+  private async addAgentSkillFolders(
+    zip: AdmZip,
+    agentSkills: { folder: string }[],
+    appDirectory: string
+  ): Promise<Result<undefined, FxError>> {
+    for (const skill of agentSkills) {
+      const skillFolderAbs = path.resolve(appDirectory, skill.folder);
+      const relativeToApp = path.relative(appDirectory, skillFolderAbs);
+      if (relativeToApp.startsWith("..") || path.isAbsolute(relativeToApp)) {
+        return err(new InvalidFileOutsideOfTheDirectotryError(skillFolderAbs));
+      }
+      if (!(await fs.pathExists(skillFolderAbs))) {
+        return err(
+          new FileNotFoundError(
+            actionName,
+            skillFolderAbs,
+            "https://aka.ms/teamsfx-actions/teamsapp-zipAppPackage"
+          )
+        );
+      }
+      await this.addLocalFolderRecursive(zip, skillFolderAbs, appDirectory);
+    }
+    return ok(undefined);
+  }
+
+  private async addLocalFolderRecursive(
+    zip: AdmZip,
+    folderAbs: string,
+    appDirectory: string
+  ): Promise<void> {
+    const entries = await fs.readdir(folderAbs, { withFileTypes: true });
+    for (const entry of entries) {
+      const entryAbs = path.join(folderAbs, entry.name);
+      if (entry.isDirectory()) {
+        await this.addLocalFolderRecursive(zip, entryAbs, appDirectory);
+      } else if (entry.isFile()) {
+        const relDir = path.dirname(path.relative(appDirectory, entryAbs));
+        zip.addLocalFile(entryAbs, normalizePath(relDir, true));
+      }
+    }
   }
 
   /**

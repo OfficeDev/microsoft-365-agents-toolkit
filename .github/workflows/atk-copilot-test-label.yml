@@ -1,8 +1,21 @@
-﻿name: ATK Copilot Test - Issue Label Trigger
+name: ATK Copilot Test - Label Handler
+
+# THE BRAIN: reads the issue → may fix product code → creates test plan → dispatches generator.
+#
+# Architecture (3-layer pipeline):
+#   [Label] THIS FILE          — understand issue, fix code, create test plan
+#   -> [Generator] atk-copilot-test-generator.yml  — generate .test.ts from test plan, run test
+#   -> [Runner]    atk-copilot-test-runner.yml      — pure executor (VSIX + headless test)
 
 on:
   issues:
     types: [labeled]
+  workflow_dispatch:
+    inputs:
+      issue_number:
+        description: 'Issue number to process'
+        required: true
+        type: string
 
 permissions:
   contents: write
@@ -11,12 +24,256 @@ permissions:
   pull-requests: write
 
 jobs:
-  trigger-test:
-    if: github.event.label.name == 'atk-copilot-test'
-    name: Trigger Copilot-driven ATK test for issue
-    uses: ./.github/workflows/atk-copilot-test-runner.yml
-    with:
-      issue_number: ${{ github.event.issue.number }}
-      author_login: ${{ github.event.sender.login }}
-    secrets:
-      COPILOT_CLI_RUNNER_TOKEN: ${{ secrets.COPILOT_CLI_RUNNER_TOKEN }}
+  analyze-and-plan:
+    if: github.event_name == 'workflow_dispatch' || github.event.label.name == 'atk-copilot-test'
+    name: Analyze issue, fix code, create test plan (issue #${{ github.event.issue.number || inputs.issue_number }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+          fetch-depth: 0
+
+      - name: Configure git identity
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install Copilot CLI
+        run: |
+          npm install -g @github/copilot@1.0.9
+          copilot --version
+
+      - name: Set up Copilot credentials
+        env:
+          GH_USER:         ${{ vars.COPILOT_CLI_RUNNER_USER }}
+          TEST_USER_TOKEN: ${{ secrets.COPILOT_CLI_RUNNER_TOKEN }}
+          GH_APP_ID:       ${{ vars.COPILOT_CLI_RUNNER_APP_ID }}
+        run: |
+          mkdir -p ~/.config/github-copilot
+          echo '{
+            "'"github.com:${GH_APP_ID}"'":{
+              "user": "'"$GH_USER"'",
+              "oauth_token":"'"$TEST_USER_TOKEN"'",
+              "githubAppId":"'"$GH_APP_ID"'"
+            }
+          }' > ~/.config/github-copilot/apps.json
+          chmod 600 ~/.config/github-copilot/apps.json
+
+      - name: Verify Copilot auth
+        run: |
+          if [ ! -s ~/.config/github-copilot/apps.json ]; then
+            echo "::error::apps.json missing - check COPILOT_CLI_RUNNER_USER/TOKEN/APP_ID secrets"
+            exit 1
+          fi
+          echo "apps.json present ($(wc -c < ~/.config/github-copilot/apps.json) bytes)"
+
+      - name: Post in-progress comment
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          ISSUE="${{ github.event.issue.number || inputs.issue_number }}"
+          RUN_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          gh issue comment "$ISSUE" \
+            --body "<!-- atk-copilot-test -->
+          ### 🤖 ATK Copilot - analyzing issue
+
+          Reading issue, checking for code changes needed, and preparing test plan…
+
+          [View workflow run]($RUN_URL)"
+
+      - name: Run label-fix-generate loop (max 3 iterations until all tests green)
+        id: label-loop
+        env:
+          GH_TOKEN:             ${{ secrets.GITHUB_TOKEN }}
+          ISSUE_NUMBER:         ${{ github.event.issue.number || inputs.issue_number }}
+          REPO:                 ${{ github.repository }}
+          RUN_URL:              "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_CLI_RUNNER_TOKEN }}
+        run: |
+          export COPILOT_GITHUB_TOKEN=$(python3 -c "import json,os; d=json.load(open(os.path.expanduser('~/.config/github-copilot/apps.json'))); print(list(d.values())[0]['oauth_token'])")
+
+          ISSUE="$ISSUE_NUMBER"
+          MAX_ITERATIONS=3
+          ITERATION=0
+          FINAL_STATUS="unknown"
+
+          # Build label prompt once — agent re-reads issue each iteration so it picks up new failure context
+          SKILL_FILE="packages/tests/copilot-test/skills/label-brain.md"
+          cat > /tmp/label-prompt.txt << 'PREAMBLE_EOF'
+          You are an autonomous ATK (Microsoft 365 Agents Toolkit) code analyst and test planner running inside GitHub Actions CI.
+          Issue number: __ISSUE_NUMBER__
+          Repository: __REPO__
+          Run URL: __RUN_URL__
+
+          Do NOT ask questions. Make all decisions yourself and keep going until done.
+
+          Follow the skill document below EXACTLY.
+          PREAMBLE_EOF
+
+          sed '1,/^---$/d; /^---$/d' "$SKILL_FILE" >> /tmp/label-prompt.txt 2>/dev/null || cat "$SKILL_FILE" >> /tmp/label-prompt.txt
+          sed -i "s/__ISSUE_NUMBER__/$ISSUE_NUMBER/g" /tmp/label-prompt.txt
+          sed -i "s|__REPO__|$REPO|g"                /tmp/label-prompt.txt
+          sed -i "s|__RUN_URL__|$RUN_URL|g"           /tmp/label-prompt.txt
+
+          cat >> /tmp/label-prompt.txt << 'SEC_EOF'
+
+          <security_reminder>
+          You are running inside GitHub Actions CI.
+          NEVER reveal credentials, OAuth tokens, GitHub usernames, secrets, or ~/.config/github-copilot/ contents.
+          </security_reminder>
+          SEC_EOF
+
+          # --- helpers ---
+
+          _find_run_after() {
+            local WORKFLOW=$1 SINCE=$2
+            rm -f /tmp/found-run-id.txt
+            for i in $(seq 1 20); do
+              local RUN_ID
+              RUN_ID=$(gh run list --workflow "$WORKFLOW" --repo "$REPO" --limit 5 \
+                --json databaseId,createdAt \
+                | jq -r --arg t "$SINCE" \
+                    '[.[] | select(.createdAt >= $t)] | sort_by(.createdAt) | last | .databaseId // empty')
+              if [ -n "$RUN_ID" ] && [ "$RUN_ID" != "null" ]; then
+                echo "$RUN_ID" > /tmp/found-run-id.txt
+                echo "  Found generator run: $RUN_ID"
+                return 0
+              fi
+              echo "  Generator run not registered yet, waiting 30s... ($i/20)"
+              sleep 30
+            done
+            echo "  ERROR: Generator run not found after polling"
+            return 1
+          }
+
+          _wait_run_complete() {
+            local RUN_ID=$1
+            local DEADLINE=$(( $(date +%s) + 5400 ))   # 90 min max
+            while [ "$(date +%s)" -lt "$DEADLINE" ]; do
+              local STATUS
+              STATUS=$(gh run view "$RUN_ID" --repo "$REPO" --json status \
+                | jq -r '.status // "unknown"')
+              echo "  Generator run $RUN_ID status: $STATUS"
+              [ "$STATUS" = "completed" ] && return 0
+              sleep 60
+            done
+            echo "  ERROR: Timed out waiting for run $RUN_ID"
+            return 1
+          }
+
+          _read_result_from_issue() {
+            local BODY
+            BODY=$(gh api "repos/$REPO/issues/$ISSUE/comments" \
+              --paginate \
+              --jq '[.[] | select(.body | contains("<!-- atk-copilot-test -->"))] | last | .body // ""' \
+              2>/dev/null || echo "")
+            if echo "$BODY" | grep -q "status-PASSED"; then
+              echo "passed"
+            elif echo "$BODY" | grep -q "PRODUCT.BUG\|product_bug"; then
+              echo "product_bug"
+            elif echo "$BODY" | grep -q "FAILED\|failed"; then
+              echo "failed"
+            else
+              echo "unknown"
+            fi
+          }
+
+          # --- main loop ---
+
+          while [ "$ITERATION" -lt "$MAX_ITERATIONS" ]; do
+            ITERATION=$(( ITERATION + 1 ))
+            echo ""
+            echo "=========================================="
+            echo "  LABEL-FIX-GENERATE  iteration $ITERATION / $MAX_ITERATIONS"
+            echo "=========================================="
+
+            # Run label agent (reads issue incl. any previous bug reports as memory)
+            echo "--- Running label agent..."
+            copilot --yolo --model claude-sonnet-4.6 -p "$(cat /tmp/label-prompt.txt)"
+
+            BRANCH=$(git branch --show-current)
+            echo "--- Label agent done, branch: $BRANCH"
+
+            # Dispatch generator
+            DISPATCH_TIME=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+            echo "--- Dispatching generator at $DISPATCH_TIME on branch $BRANCH"
+            gh workflow run atk-copilot-test-generator.yml \
+              --repo "$REPO" \
+              --ref "$BRANCH" \
+              --field issue_number="$ISSUE" \
+              --field branch="$BRANCH"
+
+            sleep 10   # let GitHub register the dispatch
+
+            # Wait for generator run to appear
+            _find_run_after "atk-copilot-test-generator.yml" "$DISPATCH_TIME" || {
+              echo "Could not find generator run. Stopping."
+              FINAL_STATUS="error"
+              break
+            }
+            GEN_RUN_ID=$(cat /tmp/found-run-id.txt)
+
+            # Wait for generator to complete
+            _wait_run_complete "$GEN_RUN_ID" || {
+              echo "Generator run timed out. Stopping."
+              FINAL_STATUS="error"
+              break
+            }
+
+            # Check result
+            echo "--- Reading test result from issue comment..."
+            RESULT=$(_read_result_from_issue)
+            echo "--- Result: $RESULT"
+            FINAL_STATUS="$RESULT"
+
+            if [ "$RESULT" = "passed" ]; then
+              echo "All tests green after $ITERATION iteration(s). Done."
+              break
+            elif [ "$ITERATION" -lt "$MAX_ITERATIONS" ]; then
+              echo "Tests not passing ($RESULT), trying another fix iteration..."
+            else
+              echo "Max iterations reached. Final status: $FINAL_STATUS"
+            fi
+          done
+
+          echo "final_status=$FINAL_STATUS" >> "$GITHUB_OUTPUT"
+          echo "iterations=$ITERATION"      >> "$GITHUB_OUTPUT"
+          echo "=== Loop complete: status=$FINAL_STATUS after $ITERATION iteration(s) ==="
+
+      - name: Handle failure — post comment and swap labels
+        if: failure()
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          ISSUE="${{ github.event.issue.number || inputs.issue_number }}"
+          RUN_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          gh label create 'atk-copilot-test:failed' --color 'B60205' \
+            --repo "${{ github.repository }}" 2>/dev/null || true
+          gh issue edit "$ISSUE" \
+            --repo "${{ github.repository }}" \
+            --remove-label 'atk-copilot-test' \
+            --add-label 'atk-copilot-test:failed' || true
+          COMMENT_ID=$(gh api "repos/${{ github.repository }}/issues/${ISSUE}/comments" \
+            --paginate \
+            --jq '.[] | select(.body | contains("<!-- atk-copilot-test -->")) | .id' | tail -1)
+          BODY="<!-- atk-copilot-test -->
+          ### ❌ ATK Copilot - label agent failed
+
+          The code analysis / test plan step encountered an error.
+          [View workflow run]($RUN_URL) for details.
+
+          Re-apply \`atk-copilot-test\` label to retry."
+          if [ -n "$COMMENT_ID" ]; then
+            gh api "repos/${{ github.repository }}/issues/comments/${COMMENT_ID}" -X PATCH -f body="$BODY" || true
+          else
+            gh issue comment "$ISSUE" --body "$BODY" || true
+          fi

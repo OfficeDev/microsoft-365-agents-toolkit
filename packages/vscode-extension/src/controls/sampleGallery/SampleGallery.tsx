@@ -147,6 +147,7 @@ export default class SampleGallery extends React.Component<SampleGalleryProps, S
                           <SampleCard
                             key={sample.id}
                             sample={sample}
+                            featured={true}
                             selectSample={this.onSampleSelected}
                             createSample={this.onCreateSample}
                             viewGitHub={this.onViewGithub}
@@ -159,6 +160,7 @@ export default class SampleGallery extends React.Component<SampleGalleryProps, S
                           <SampleListItem
                             key={sample.id}
                             sample={sample}
+                            featured={true}
                             selectSample={this.onSampleSelected}
                             createSample={this.onCreateSample}
                             viewGitHub={this.onViewGithub}

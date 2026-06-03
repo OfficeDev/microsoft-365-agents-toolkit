@@ -26,6 +26,8 @@ export class FeatureFlagName {
   static readonly SensitivityLabelEnabled = "TEAMSFX_SENSITIVITY_LABEL";
   static readonly DAMetaOS = "TEAMSFX_DA_METAOS";
   static readonly CFShortcutMetaOS = "TEAMSFX_CF_SHORTCUT_METAOS";
+  static readonly OpenPluginImportExport = "TEAMSFX_OPENPLUGIN_IMPORT_EXPORT";
+  static readonly AgentSkillsManifest = "TEAMSFX_AGENT_SKILLS";
   static readonly BrokerAuth = "TEAMSFX_BROKER_AUTH";
   // Add config files to existing project to make it toolkit compatible
   static readonly GenerateConfigFiles = "TEAMSFX_GENERATE_CONFIG_FILES";
@@ -92,6 +94,14 @@ export class FeatureFlags {
   static readonly CFShortcutMetaOS = {
     name: FeatureFlagName.CFShortcutMetaOS,
     defaultValue: "false",
+  };
+  static readonly OpenPluginImportExport = {
+    name: FeatureFlagName.OpenPluginImportExport,
+    defaultValue: "true",
+  };
+  static readonly AgentSkillsManifest = {
+    name: FeatureFlagName.AgentSkillsManifest,
+    defaultValue: "true",
   };
   static readonly BrokerAuth = {
     name: FeatureFlagName.BrokerAuth,

@@ -99,9 +99,85 @@ jobs:
             core.setOutput('files', fileList);
             console.log(`Changed files (${files.length}):\n${fileList}`);
 
+      # ── 2b. Check if PR is non-code-only (test/doc/ci) — skip dispatch ──
+      - name: Check if non-code-only PR
+        id: code-check
+        uses: actions/github-script@v6
+        env:
+          PR_NUMBER: ${{ steps.pr-context.outputs.pr_number }}
+        with:
+          script: |
+            const { data: files } = await github.rest.pulls.listFiles({
+              owner:        context.repo.owner,
+              repo:         context.repo.repo,
+              pull_number:  parseInt(process.env.PR_NUMBER),
+              per_page:     100,
+            });
+
+            // Patterns that are considered non-code (test / doc / ci / config-only)
+            const NON_CODE_PREFIXES = [
+              'packages/tests/',          // all test files
+              'docs/',                    // documentation
+              'Localize/',                // localization
+              '.github/',                 // CI workflows & instructions
+            ];
+            const NON_CODE_SUFFIXES = [
+              '.md',                      // markdown (readme, changelog, etc.)
+              '.lcl',                     // localization files
+            ];
+            const NON_CODE_EXACT = [
+              '.gitignore',
+              '.gitattributes',
+              '.dockerignore',
+            ];
+
+            const isNonCode = f =>
+              NON_CODE_PREFIXES.some(p => f.startsWith(p)) ||
+              NON_CODE_SUFFIXES.some(s => f.endsWith(s))   ||
+              NON_CODE_EXACT.includes(f);
+
+            const allFiles   = files.map(f => f.filename);
+            const codeFiles  = allFiles.filter(f => !isNonCode(f));
+            const skipDispatch = codeFiles.length === 0;
+
+            core.setOutput('skip_dispatch', String(skipDispatch));
+            if (skipDispatch) {
+              console.log(`All ${allFiles.length} changed files are test/doc/ci — skipping vscuse dispatch.`);
+            } else {
+              console.log(`${codeFiles.length} code file(s) changed — vscuse dispatch required.`);
+              codeFiles.forEach(f => console.log(`  code: ${f}`));
+            }
+
+      # ── 2c. Post skip comment when non-code-only ───────────────────────
+      - name: Post skip comment (non-code-only PR)
+        if: steps.code-check.outputs.skip_dispatch == 'true'
+        uses: actions/github-script@v6
+        env:
+          PR_NUMBER: ${{ steps.pr-context.outputs.pr_number }}
+          HEAD_REF:  ${{ steps.pr-context.outputs.head_ref }}
+          BASE_REF:  ${{ steps.pr-context.outputs.base_ref }}
+        with:
+          script: |
+            const prNumber = parseInt(process.env.PR_NUMBER);
+            await github.rest.issues.createComment({
+              owner:        context.repo.owner,
+              repo:         context.repo.repo,
+              issue_number: prNumber,
+              body: [
+                '## ⏭️ VscUse Test Plan — Skipped',
+                '',
+                `**Branch diff:** \`${process.env.HEAD_REF}\` → \`${process.env.BASE_REF}\``,
+                '',
+                'All changed files are **test / doc / CI only** — no product code was modified.',
+                'VscUse UI tests are not required for this PR.',
+              ].join('\n'),
+            });
+            console.log(`Posted skip comment on PR #${prNumber}`);
+
       # ── 3. Get git diff summary between PR branch and target branch ────
       - name: Get git diff summary
         id: diff-summary
+        if: steps.code-check.outputs.skip_dispatch != 'true'
         env:
           BASE_REF: ${{ steps.pr-context.outputs.base_ref }}
           HEAD_REF: ${{ steps.pr-context.outputs.head_ref }}
@@ -116,16 +192,19 @@ jobs:
 
       # ── 3b. Install Copilot CLI ───────────────────────────────────────
       - uses: actions/setup-node@v4
+        if: steps.code-check.outputs.skip_dispatch != 'true'
         with:
           node-version: '22'
 
       - name: Install Copilot CLI
+        if: steps.code-check.outputs.skip_dispatch != 'true'
         run: |
           npm install -g @github/copilot@1.0.44
           copilot --version
       # ── 4. Select test plans via Copilot CLI ─────────────────────────
       - name: Select test plans via AI
         id: ai-select
+        if: steps.code-check.outputs.skip_dispatch != 'true'
         env:
           COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_CLI_RUNNER_TOKEN }}
           PR_TITLE:             ${{ steps.pr-context.outputs.pr_title }}
@@ -212,6 +291,7 @@ jobs:
       # ── 5. Post initial PR comment ─────────────────────────────────────
       - name: Post PR comment with selected test plans
         id: post-comment
+        if: steps.code-check.outputs.skip_dispatch != 'true'
         uses: actions/github-script@v6
         env:
           TEST_PLANS:   ${{ steps.ai-select.outputs.test_plans }}
@@ -269,6 +349,7 @@ jobs:
       # ── 6. Dispatch dev-smoke-test-pipeline with selected plans ────────
       - name: Dispatch dev-smoke-test-pipeline.yml
         id: dispatch
+        if: steps.code-check.outputs.skip_dispatch != 'true'
         uses: actions/github-script@v6
         env:
           TEST_PLANS:  ${{ steps.ai-select.outputs.test_plans }}
@@ -337,6 +418,7 @@ jobs:
 
       # Update comment: pipeline now running
       - name: Update PR comment — pipeline dispatched
+        if: steps.code-check.outputs.skip_dispatch != 'true'
         uses: actions/github-script@v6
         env:
           COMMENT_ID: ${{ steps.post-comment.outputs.comment_id }}
@@ -386,6 +468,7 @@ jobs:
       # ── 7. Poll smoke pipeline until done ─────────────────────────────
       - name: Wait for smoke pipeline to complete
         id: wait-smoke
+        if: steps.code-check.outputs.skip_dispatch != 'true'
         uses: actions/github-script@v6
         env:
           SMOKE_RUN_ID: ${{ steps.dispatch.outputs.smoke_run_id }}
@@ -413,7 +496,7 @@ jobs:
 
       # ── 8. Resolve PR comment with final result ────────────────────────
       - name: Resolve PR comment with test results
-        if: always()
+        if: always() && steps.code-check.outputs.skip_dispatch != 'true'
         uses: actions/github-script@v6
         env:
           COMMENT_ID:  ${{ steps.post-comment.outputs.comment_id }}
