@@ -14,9 +14,11 @@ import {
   ZIP_EXT,
   cacheFile,
   createTemplateSourcePort,
+  loadResolvedPackage,
   parseTagList,
   templateZipUrl,
 } from "../../../src/v4/distribution/templateSourcePort";
+import { TemplateSource } from "../../../src/v4/distribution/templateSource";
 
 describe("templateSourcePort pure helpers (v4)", () => {
   describe("parseTagList (NDJSON, decision #7)", () => {
@@ -166,5 +168,135 @@ describe("createTemplateSourcePort (v4, integration over real fs)", () => {
       templateZipUrl(config.templateDownloadBaseURL, "6.11.0"),
       "https://example.com/dl/templates-v4@6.11.0/templates.zip"
     );
+  });
+});
+
+// loadResolvedPackage is part of the thin IO adapter: tested over a real temp
+// filesystem (ADR-0013), not mock-heavy micro-units. It must never reach the
+// network — an online/cache source is already cached by resolution.
+describe("loadResolvedPackage (v4, integration over real fs)", () => {
+  const sandbox = sinon.createSandbox();
+  let tmpHome: string;
+  let tmpDir: string;
+
+  const config = {
+    templatesV4TagListURL: "https://example.com/tags.ndjson",
+    templateDownloadBaseURL: "https://example.com/dl",
+    tryLimits: 1,
+  };
+
+  beforeEach(() => {
+    tmpDir = path.join(os.tmpdir(), `v4-load-${Date.now()}-${Math.random().toString(36).slice(2)}`);
+    tmpHome = path.join(tmpDir, "home");
+    fs.ensureDirSync(tmpDir);
+    sandbox.stub(os, "homedir").returns(tmpHome);
+  });
+
+  afterEach(() => {
+    sandbox.restore();
+    fs.removeSync(tmpDir);
+  });
+
+  function floorFor(bytes: Buffer): BundledFloor {
+    const location = path.join(tmpDir, "floor.zip");
+    fs.writeFileSync(location, bytes);
+    return { version: "6.10.1", digest: computeDigest(bytes), location };
+  }
+
+  it("reads a bundled-floor source from disk and verifies its digest", () => {
+    const bytes = Buffer.from("floor-zip-bytes");
+    const floor = floorFor(bytes);
+    const port = createTemplateSourcePort(config, floor);
+    const source: TemplateSource = {
+      origin: "bundled",
+      version: floor.version,
+      digest: floor.digest,
+      location: floor.location,
+    };
+    const res = loadResolvedPackage(source, port);
+    assert.isTrue(res.isOk());
+    assert.strictEqual(res._unsafeUnwrap().toString(), "floor-zip-bytes");
+  });
+
+  it("reads a bundled-fallback source the same way as bundled", () => {
+    const bytes = Buffer.from("fallback-zip-bytes");
+    const floor = floorFor(bytes);
+    const port = createTemplateSourcePort(config, floor);
+    const source: TemplateSource = {
+      origin: "bundled-fallback",
+      version: floor.version,
+      digest: floor.digest,
+      location: floor.location,
+      warning: "offline",
+    };
+    const res = loadResolvedPackage(source, port);
+    assert.strictEqual(res._unsafeUnwrap().toString(), "fallback-zip-bytes");
+  });
+
+  it("errors when the bundled-floor file is missing", () => {
+    const floor: BundledFloor = {
+      version: "6.10.1",
+      digest: "sha256:floor",
+      location: path.join(tmpDir, "does-not-exist.zip"),
+    };
+    const port = createTemplateSourcePort(config, floor);
+    const source: TemplateSource = {
+      origin: "bundled",
+      version: floor.version,
+      digest: floor.digest,
+      location: floor.location,
+    };
+    const res = loadResolvedPackage(source, port);
+    assert.isTrue(res.isErr());
+    assert.strictEqual(res._unsafeUnwrapErr().name, "TemplatePackageUnreadable");
+  });
+
+  it("returns cached bytes for an online source without any network call", () => {
+    const floorBytes = Buffer.from("floor");
+    const port = createTemplateSourcePort(config, floorFor(floorBytes));
+    const axiosGet = sandbox.stub(axios, "get");
+    const bytes = Buffer.from("online-zip-6.11.2");
+    const digest = computeDigest(bytes);
+    port.cache.put("6.11.2", digest, bytes);
+    const source: TemplateSource = {
+      origin: "online",
+      version: "6.11.2",
+      digest,
+      location: "templates-v4@6.11.2",
+    };
+    const res = loadResolvedPackage(source, port);
+    assert.strictEqual(res._unsafeUnwrap().toString(), "online-zip-6.11.2");
+    assert.isTrue(axiosGet.notCalled);
+  });
+
+  it("errors (never re-downloads) when a cache source is not present in the cache", () => {
+    const floorBytes = Buffer.from("floor");
+    const port = createTemplateSourcePort(config, floorFor(floorBytes));
+    const axiosGet = sandbox.stub(axios, "get");
+    const source: TemplateSource = {
+      origin: "cache",
+      version: "6.11.9",
+      digest: "sha256:whatever",
+      location: "templates-v4@6.11.9",
+    };
+    const res = loadResolvedPackage(source, port);
+    assert.isTrue(res.isErr());
+    assert.strictEqual(res._unsafeUnwrapErr().name, "TemplatePackageNotCached");
+    assert.isTrue(axiosGet.notCalled);
+  });
+
+  it("errors when the loaded bytes do not match source.digest (integrity)", () => {
+    const bytes = Buffer.from("tampered");
+    const floor = floorFor(bytes);
+    const port = createTemplateSourcePort(config, floor);
+    const source: TemplateSource = {
+      origin: "bundled",
+      version: floor.version,
+      digest: "sha256:expected-something-else",
+      location: floor.location,
+    };
+    const res = loadResolvedPackage(source, port);
+    assert.isTrue(res.isErr());
+    assert.strictEqual(res._unsafeUnwrapErr().name, "TemplateDigestMismatch");
   });
 });

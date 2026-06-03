@@ -1,8 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { SystemError } from "@microsoft/teamsfx-api";
+import { FxError, SystemError } from "@microsoft/teamsfx-api";
 import axios, { AxiosResponse } from "axios";
+import { Result, err, ok } from "neverthrow";
 import * as fs from "fs-extra";
 import * as path from "path";
 import os from "os";
@@ -11,6 +12,7 @@ import {
   BundledFloor,
   CachedPackage,
   TagEntry,
+  TemplateSource,
   TemplateSourcePort,
   computeDigest,
 } from "./templateSource";
@@ -178,4 +180,65 @@ export function createTemplateSourcePort(
 
     floor,
   };
+}
+
+/**
+ * Load the bytes for an already-resolved {@link TemplateSource}.
+ *
+ * `resolveTemplateSource` decides *which* package a scaffold run uses but
+ * returns only the descriptor; this is the companion IO step that produces the
+ * bytes, the boundary the v3 chokepoint calls before `openTemplatePackage`.
+ *
+ * It never reaches the network: an `online`/`cache` source was already
+ * downloaded, verified, and cached during resolution, so re-downloading here
+ * would defeat the digest-keyed cache and reintroduce the v3 re-fetch churn. A
+ * cache miss is therefore an invariant violation (hard error), not a silent
+ * re-fetch. Every path re-checks the bytes against `source.digest` so
+ * `computeDigest` stays the single integrity authority and a corrupt package is
+ * never handed back.
+ *
+ * Spec: docs/03-specs/operations/scaffolding/resolve-template-source.md
+ */
+export function loadResolvedPackage(
+  source: TemplateSource,
+  port: TemplateSourcePort
+): Result<Buffer, FxError> {
+  let bytes: Buffer;
+  if (source.origin === "bundled" || source.origin === "bundled-fallback") {
+    try {
+      bytes = fs.readFileSync(source.location);
+    } catch {
+      return err(
+        new SystemError({
+          source: SOURCE,
+          name: "TemplatePackageUnreadable",
+          message: `The resolved bundled template package at "${source.location}" is missing or unreadable.`,
+        })
+      );
+    }
+  } else {
+    const cached = port.cache.get(source.version);
+    if (cached === undefined) {
+      return err(
+        new SystemError({
+          source: SOURCE,
+          name: "TemplatePackageNotCached",
+          message: `The resolved template package "${source.version}" is not present in the local cache.`,
+        })
+      );
+    }
+    bytes = cached.bytes;
+  }
+
+  const digest = computeDigest(bytes);
+  if (digest !== source.digest) {
+    return err(
+      new SystemError({
+        source: SOURCE,
+        name: "TemplateDigestMismatch",
+        message: `The resolved template package "${source.version}" failed its integrity check: expected ${source.digest}, got ${digest}.`,
+      })
+    );
+  }
+  return ok(bytes);
 }
