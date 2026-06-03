@@ -45,6 +45,16 @@ function locatorPrefix(locator: TemplateLocator): string {
 }
 
 /**
+ * Reject a stripped entry path whose segments are empty / `.` / `..` (Zip-Slip
+ * guard, INV-8). A digest check proves the bytes equal what was published, not
+ * that the published archive is free of traversal entries; the renderer writes
+ * these paths to disk, so containment is enforced here.
+ */
+function isSafeRelativePath(rel: string): boolean {
+  return rel.split("/").every((seg) => seg.length > 0 && seg !== "." && seg !== "..");
+}
+
+/**
  * Open the resolved template package and return the located template's file
  * entries, the locator prefix stripped. Pure function of `(bytes, locator)`:
  * no fs, no network, no render. Returns `Result` per the toolkit-wide
@@ -77,7 +87,17 @@ export function openTemplatePackage(
     if (!name.startsWith(prefix)) {
       continue; // INV-1 — trailing-slash prefix boundary; "da/" never matches "da-basic/"
     }
-    entries.push({ path: name.slice(prefix.length), data: entry.getData() });
+    const rel = name.slice(prefix.length);
+    if (!isSafeRelativePath(rel)) {
+      return err(
+        new SystemError({
+          source: SOURCE,
+          name: "TemplatePackageUnsafePath",
+          message: `The resolved template package contains an unsafe entry path: "${entry.entryName}".`,
+        })
+      ); // INV-8 — Zip-Slip guard: reject empty / "." / ".." path segments
+    }
+    entries.push({ path: rel, data: entry.getData() });
   }
 
   if (entries.length === 0) {

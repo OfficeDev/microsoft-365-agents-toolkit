@@ -76,6 +76,7 @@ or interprets the bytes.
 | AC-07 | L1 | identical `(bytes, locator)` | open twice | identical entry list in identical order (entries sorted by `path`) |
 | AC-08 | L1 | the zip has both `common/da/` and `common/da-basic/` subtrees, locator `{language:"common", scenario:"da"}` | open | only the exact `common/da/` subtree is returned, **not** `common/da-basic/` (prefix match is on `common/da/` with a trailing slash boundary) |
 | AC-09 | L1 | the located subtree contains a zero-byte file (e.g. `content/.gitkeep`) | open | the empty file is returned as a `{ path, data: Buffer(0) }` entry; an empty file is a file, not a directory, and is moved verbatim |
+| AC-10 | L1 | a zip whose located subtree contains an entry whose post-prefix path has a `..` (or empty / `.`) segment (e.g. `common/da-basic/../evil.txt`) | open | a `SystemError` (`TemplatePackageUnsafePath`) naming the entry; the traversal path is **never** returned (Zip-Slip guard) |
 
 ## Flow
 
@@ -89,7 +90,9 @@ flowchart TD
   filterDir --> match{any file entry matched?}
   match -->|no| errMiss([SystemError: template not found in package])
   match -->|yes| strip["strip prefix → relative path, normalize slashes"]
-  strip --> sort["sort entries by relative path"]
+  strip --> safe{path segments safe? no empty/./..}
+  safe -->|no| errUnsafe([SystemError: unsafe entry path])
+  safe -->|yes| sort["sort entries by relative path"]
   sort --> done([TemplateFileEntry list])
 ```
 
@@ -141,6 +144,13 @@ This operation does **not**:
 - **INV-7 — v4-owned.** This operation and its tests live in the v4 world; v3
   may call it, but it adds no v3-specific method, parameter, or test fixture
   (proposal §5.1 seam direction).
+- **INV-8 — No traversal paths escape.** A returned entry path is always a pure
+  relative path under the located template's content root: every segment is
+  non-empty and is neither `.` nor `..`. An entry whose post-prefix path
+  violates this is a hard `SystemError` (`TemplatePackageUnsafePath`), never a
+  returned entry. The upstream digest check proves the bytes equal what was
+  published, not that the published archive is traversal-free; since the
+  renderer writes these paths to disk, containment is enforced here (Zip-Slip).
 
 ## Resolved decisions (Gate 1)
 

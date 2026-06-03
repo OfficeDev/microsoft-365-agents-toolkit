@@ -308,6 +308,12 @@ jobs:
       # the v4-owned releases; the v3 templates@ channel above is untouched.
       - name: Publish v4 template channel
         if: ${{ contains(steps.version-change.outputs.CHANGED, 'templates@') && github.event_name == 'workflow_dispatch' && github.event.inputs.goproduct == 'true' }}
+        # continue-on-error is intentional ONLY while no shipped engine consumes
+        # the v4 channel yet (generator wiring is pending, plan item #7): a v4
+        # publish failure here has zero production impact and must not block the
+        # v3 CD. Remove this line once the v4 generator goes live, so a failed
+        # channel update fails the shipping build instead of silently leaving
+        # the channel behind the engine config.
         continue-on-error: true
         env:
           GH_TOKEN: ${{ steps.generate-token.outputs.token }}

@@ -70,7 +70,7 @@ outcome and telemetry; it is never written back into committed config.
 | AC-04 | L1 | `bundled=false`, tag-list has `6.10.5` (digest `D5`, > floor `6.10.1`) satisfying `~6.10` | resolve | `origin=online`, `version=6.10.5`; `digest=D5` (from tag-list) recorded |
 | AC-05 | L1 | `bundled=false`, highest channel version satisfying `range` equals the bundled floor | resolve | resolves to the floor without downloading; `origin=bundled` |
 | AC-06 | L1 | `bundled=false`, resolved `version` already in `port.cache` with digest matching the tag-list's | resolve | `origin=cache`; **zero** download; returned bytes are the cached bytes |
-| AC-07 | L1 | `bundled=false`, `port.tagList()` throws/unreachable, cache holds `6.10.4` satisfying `range`, floor is `6.10.1` | resolve | `origin=cache`, `version=6.10.4` (`max(cache, floor)`); outcome carries an observable warning |
+| AC-07 | L1 | `bundled=false`, `port.tagList()` is unreachable (network failure, **not** a malformed document), cache holds `6.10.4` satisfying `range`, floor is `6.10.1` | resolve | `origin=cache`, `version=6.10.4` (`max(cache, floor)`); outcome carries an observable warning |
 | AC-08 | L1 | `bundled=false`, `port.tagList()` unreachable, cache empty, floor `6.10.1` satisfies `range` | resolve | `origin=bundled-fallback`, `version=6.10.1`; outcome carries an observable warning |
 | AC-09 | L1 | `bundled=false`, stable `range` `~6.11`, tag-list has both `6.11.0` and `6.12.0-beta.1` | resolve | resolves `6.11.0`; the `-beta` version is **excluded** |
 | AC-10 | L1 | `bundled=false`, beta `range` `>=6.12.0-beta <6.13.0`, tag-list has `6.12.0-beta.1` | resolve | resolves `6.12.0-beta.1` (prerelease included because range names the segment) |
@@ -80,6 +80,8 @@ outcome and telemetry; it is never written back into committed config.
 | AC-14 | L1 | `bundled=false`, tag-list empty (no version satisfies `range`), floor satisfies `range` | resolve | `origin=bundled-fallback`, `version`=floor; observable warning |
 | AC-15 | L1 | `bundled=false`, tag-list empty **and** floor does **not** satisfy `range` | resolve | raises a `UserError` naming the engine/template version mismatch; no silent substitution |
 | AC-16 | L1 | `port.env("TEMPLATE_VERSION")="6.99.0"`, `bundled=false`, tag-list does **not** list `6.99.0` | resolve | raises a `UserError` (`TemplatePinnedVersionNotFound`) naming the pinned version; **no** fallback to range resolution, cache, or floor |
+| AC-17 | L1 | `bundled=false`, `port.tagList()` rejects with a malformed-document error (`TemplateTagListMalformed`) | resolve | the `SystemError` is **propagated** (returned as `err`); **no** offline fallback — a malformed channel is a hard error (decision #7), distinct from unreachable (AC-07) |
+| AC-18 | L1 | `port.env("TEMPLATE_VERSION")="6.11.2"`, `bundled=false`, `port.tagList()` is unreachable/rejects | resolve | returns `err(FxError)` (an existing FxError is preserved; otherwise wrapped); the rejection never escapes as a thrown promise; a pin **never** falls back |
 
 ## Flow
 

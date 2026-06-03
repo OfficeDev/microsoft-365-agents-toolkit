@@ -3,6 +3,7 @@
 
 import { assert } from "chai";
 import "mocha";
+import { SystemError, UserError } from "@microsoft/teamsfx-api";
 import {
   BundledFloor,
   CachedPackage,
@@ -19,6 +20,7 @@ class FakePort implements TemplateSourcePort {
   private readonly envMap: Record<string, string | undefined>;
   private readonly tags?: TagEntry[];
   private readonly tagListThrows: boolean;
+  private readonly tagListError?: Error;
   private readonly store = new Map<string, CachedPackage>();
   public readonly floor: BundledFloor;
   /** Bytes the channel will serve per version (for the download path). */
@@ -28,6 +30,7 @@ class FakePort implements TemplateSourcePort {
     env?: Record<string, string | undefined>;
     tags?: TagEntry[];
     tagListThrows?: boolean;
+    tagListError?: Error;
     floor: BundledFloor;
     cache?: Array<{ version: string; digest: string; bytes: Buffer }>;
     serve?: Record<string, Buffer>;
@@ -35,6 +38,7 @@ class FakePort implements TemplateSourcePort {
     this.envMap = opts.env ?? {};
     this.tags = opts.tags;
     this.tagListThrows = opts.tagListThrows ?? false;
+    this.tagListError = opts.tagListError;
     this.floor = opts.floor;
     this.serve = opts.serve ?? {};
     for (const c of opts.cache ?? []) {
@@ -48,6 +52,9 @@ class FakePort implements TemplateSourcePort {
 
   tagList(): Promise<TagEntry[]> {
     this.httpCalls++;
+    if (this.tagListError) {
+      return Promise.reject(this.tagListError);
+    }
     if (this.tagListThrows) {
       return Promise.reject(new Error("network unreachable"));
     }
@@ -312,5 +319,51 @@ describe("resolveTemplateSource (v4)", () => {
     assert.isTrue(res.isErr());
     assert.strictEqual(res._unsafeUnwrapErr().name, "TemplatePinnedVersionNotFound");
     assert.lengthOf(port.downloads, 0);
+  });
+
+  it("AC-17: a malformed tag-list document is propagated as a hard error, not an offline fallback", async () => {
+    const malformed = new SystemError({
+      source: "Scaffold",
+      name: "TemplateTagListMalformed",
+      message: "Malformed v4 tag-list entry on line 1: not valid JSON.",
+    });
+    const port = new FakePort({
+      tagListError: malformed,
+      // a satisfying cache + floor exist to prove resolution does NOT fall back.
+      cache: [{ version: "6.10.4", digest: "sha256:c", bytes: bytesFor("6.10.4") }],
+      floor: { version: "6.10.1", digest: "sha256:floor", location: "bundled://6.10.1" },
+    });
+    const res = await resolveTemplateSource({ range: "~6.10", bundled: false, port });
+    assert.isTrue(res.isErr());
+    assert.strictEqual(res._unsafeUnwrapErr().name, "TemplateTagListMalformed");
+  });
+
+  it("AC-18: a pinned version whose tag-list fetch rejects surfaces an error and never falls back", async () => {
+    const port = new FakePort({
+      env: { TEMPLATE_VERSION: "6.11.2" },
+      tagListThrows: true,
+      cache: [{ version: "6.10.4", digest: "sha256:c", bytes: bytesFor("6.10.4") }],
+      floor: { version: "6.10.1", digest: "sha256:floor", location: "bundled://6.10.1" },
+    });
+    const res = await resolveTemplateSource({ range: "~6.10", bundled: false, port });
+    assert.isTrue(res.isErr());
+    assert.strictEqual(res._unsafeUnwrapErr().name, "TemplateTagListUnavailable");
+    assert.lengthOf(port.downloads, 0);
+  });
+
+  it("AC-18: a pinned version preserves an existing FxError from the tag-list fetch", async () => {
+    const malformed = new UserError({
+      source: "Scaffold",
+      name: "TemplateTagListMalformed",
+      message: 'Malformed v4 tag-list entry on line 2: missing "digest".',
+    });
+    const port = new FakePort({
+      env: { TEMPLATE_VERSION: "6.11.2" },
+      tagListError: malformed,
+      floor: { version: "6.10.1", digest: "sha256:floor", location: "bundled://6.10.1" },
+    });
+    const res = await resolveTemplateSource({ range: "~6.10", bundled: false, port });
+    assert.isTrue(res.isErr());
+    assert.strictEqual(res._unsafeUnwrapErr().name, "TemplateTagListMalformed");
   });
 });

@@ -122,7 +122,14 @@ async function pinnedOnline(
   version: string,
   port: TemplateSourcePort
 ): Promise<Result<TemplateSource, FxError>> {
-  const tags = await port.tagList();
+  let tags: TagEntry[];
+  try {
+    tags = await port.tagList();
+  } catch (e) {
+    // A pin never falls back (AC-16 intent): surface the channel failure as a
+    // Result instead of letting the rejection escape (neverthrow contract).
+    return err(asTagListError(e));
+  }
   const entry = tags.find((t) => t.version === version);
   if (!entry) {
     return err(
@@ -143,8 +150,14 @@ async function resolveOnline(
   let tags: TagEntry[];
   try {
     tags = await port.tagList();
-  } catch {
-    return ok(offlineFallback(range, port)); // AC-07, AC-08
+  } catch (e) {
+    // A malformed channel document is a hard error (spec decision #7 / AC-17),
+    // distinct from an unreachable channel: it must never be masked as an
+    // offline fallback. Only a genuine reachability failure falls back.
+    if (isMalformedTagList(e)) {
+      return err(e);
+    }
+    return ok(offlineFallback(range, port)); // AC-07, AC-08 (unreachable only)
   }
 
   const picked = semver.maxSatisfying(
@@ -170,9 +183,39 @@ async function resolveOnline(
     return ok(floorSource(port.floor)); // AC-05 (floor is highest satisfier; no download)
   }
 
-  // non-null assertion is safe: `picked` came from `tags`
-  const entry = tags.find((t) => t.version === picked) as TagEntry;
+  const entry = tags.find((t) => t.version === picked);
+  /* istanbul ignore if -- defensive: `picked` is drawn from `tags`, so a miss
+     means the tag list mutated mid-resolution; not reproducible in a unit. */
+  if (!entry) {
+    return err(
+      new SystemError({
+        source: SOURCE,
+        name: "TemplateTagListInconsistent",
+        message: `Resolved version "${picked}" is no longer present in the tag list.`,
+      })
+    );
+  }
   return fetchVerify(entry, port, "online"); // AC-04, AC-06, AC-11
+}
+
+/** A malformed channel tag-list (decision #7) is a hard error, distinct from an unreachable channel. */
+function isMalformedTagList(e: unknown): e is SystemError {
+  return e instanceof SystemError && e.name === "TemplateTagListMalformed";
+}
+
+/** Preserve an existing FxError; wrap any other tag-list failure as a SystemError (neverthrow contract). */
+function asTagListError(e: unknown): FxError {
+  if (e instanceof UserError || e instanceof SystemError) {
+    return e;
+  }
+  /* istanbul ignore next -- the port rejects with an Error; the String(e)
+     fallback is defensive for non-Error rejections, not reproducible in a unit. */
+  const message = e instanceof Error ? e.message : String(e);
+  return new SystemError({
+    source: SOURCE,
+    name: "TemplateTagListUnavailable",
+    message: `Failed to read the template release channel: ${message}.`,
+  });
 }
 
 async function fetchVerify(

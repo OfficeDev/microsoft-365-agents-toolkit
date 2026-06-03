@@ -122,4 +122,18 @@ describe("open-template-package (v4)", () => {
     assert.isDefined(gitkeep);
     assert.strictEqual(gitkeep!.data.length, 0);
   });
+
+  // AC-10 — Zip-Slip guard: a `..` segment in a located entry is a hard error
+  it("AC-10: rejects a located entry whose path contains a .. segment", () => {
+    const zip = new AdmZip();
+    zip.addFile("common/da-basic/README.md", Buffer.from("ok"));
+    zip.addFile("common/da-basic/evil.txt", Buffer.from("pwned"));
+    // adm-zip canonicalizes `..` at add time, so set the raw traversal name directly.
+    const evil = zip.getEntries().find((e) => e.entryName.endsWith("evil.txt"));
+    assert.isDefined(evil);
+    evil!.entryName = "common/da-basic/../evil.txt";
+    const res = openTemplatePackage(zip.toBuffer(), { language: "common", scenario: "da-basic" });
+    assert.isTrue(res.isErr());
+    assert.strictEqual(res._unsafeUnwrapErr().name, "TemplatePackageUnsafePath");
+  });
 });
