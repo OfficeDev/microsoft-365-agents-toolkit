@@ -40,6 +40,21 @@
       text-overflow: ellipsis;
       white-space: nowrap;
       overflow: hidden;
+      /* Reserve space so title text column aligns between featured and non-featured rows */
+      padding-left: 17px;
+
+      /* Star icon before title in list view for featured samples — inherits text color.
+       * Negative margin-left pulls the star into the reserved padding so the title text
+       * stays left-aligned with non-featured rows. */
+      .featured-star {
+        font-size: 13px;
+        margin-left: -17px;
+        margin-right: 4px;
+        color: currentColor;
+        vertical-align: middle;
+        position: relative;
+        top: -3px;
+      }
     }
 
     h3:hover {
@@ -136,8 +151,12 @@ body.vscode-light {
     color: #606060;
   }
 
-  .featured-sample-section .buttonSection {
-    background-color: #F8F8F8;
+  /* TC-006b: Focus indicator contrast ≥ 3:1 in Light theme (list view).
+   * --vscode-focusBorder may resolve to a low-contrast value in Light 2026.
+   * Override with #005FB8 which gives ≥10:1 on white. */
+  .sample-list-item:focus-visible {
+    outline: 2px solid #005FB8;
+    outline-offset: -2px;
   }
 }
 
@@ -145,9 +164,5 @@ body.vscode-dark {
   .tag {
     background-color: #333333;
     color: #CCCCCC;
-  }
-
-  .featured-sample-section .buttonSection {
-    background-color: #252526;
   }
 }

@@ -94,7 +94,8 @@ export default class SampleFilter extends React.Component<SampleFilterProps, unk
           <VSCodeButton
             onClick={() => this.props.onLayoutChanged("grid")}
             appearance="icon"
-            aria-label="gallary view"
+            aria-label="Gallery view"
+            aria-pressed={this.props.layout === "grid"}
             className={`layout-button ${this.props.layout === "grid" ? "layout-selected" : ""}`}
           >
             <Grid />
@@ -102,7 +103,8 @@ export default class SampleFilter extends React.Component<SampleFilterProps, unk
           <VSCodeButton
             onClick={() => this.props.onLayoutChanged("list")}
             appearance="icon"
-            aria-label="list view"
+            aria-label="List view"
+            aria-pressed={this.props.layout === "list"}
             className={`layout-button ${this.props.layout === "list" ? "layout-selected" : ""}`}
           >
             <span className="codicon codicon-list-unordered"></span>

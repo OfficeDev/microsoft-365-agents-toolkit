@@ -5,7 +5,7 @@
 - **feature-slug**: `sample-app-a11y`
 - **owner**: atk-qa
 - **created**: 2026-05-15
-- **updated**: 2026-05-27
+- **updated**: 2026-06-01
 - **triggers**: issue-label `atk-copilot-test`, manual
 - **related-issue**: [#15916](https://github.com/OfficeDev/microsoft-365-agents-toolkit/issues/15916)
 
@@ -25,8 +25,8 @@ All contrast checks use the **WCAG relative luminance formula** (IEC 61966-2-1 s
 - TC-001b: Link text color contrast ≥ 4.5:1 when the link is **focused** in **Dark** theme (Default Dark Modern)
 - TC-002: Gallery/List toggle buttons expose correct `aria-pressed` state before and after click
 - TC-003: Sample card accessible names include `. Tags: <tag1>, <tag2>` on keyboard focus
-- TC-004a: Featured section background has ≥ 3:1 contrast against non-featured section background in **Light** theme (WCAG 1.4.11)
-- TC-004b: Featured section background has ≥ 3:1 contrast against non-featured section background in **Dark** theme (WCAG 1.4.11)
+- TC-004a: Featured cards in **Gallery (grid) view** display a blue corner triangle badge with white star (`codicon-star-full`) on the top-left of the thumbnail image; non-featured cards do not
+- TC-004b: Featured items in **List view** display a star (`codicon-star-full`) icon before the sample title text in the **same color as the title text** (`currentColor`); non-featured items do not
 - TC-005: Featured cards have aria-label starting with `"Featured sample."`, non-featured cards do not
 - TC-006a: Focus ring contrast ≥ 3:1 in **Gallery view** (Light theme)
 - TC-006b: Focus ring contrast ≥ 3:1 in **List view** (Light theme)
@@ -176,7 +176,7 @@ All contrast checks use the **WCAG relative luminance formula** (IEC 61966-2-1 s
 
 ---
 
-### TC-004a – Featured section background contrast ≥ 3:1 vs non-featured section background (Light theme, WCAG 1.4.11)
+### TC-004a – Featured cards display corner triangle badge on thumbnail in Gallery view
 
 **Preconditions:**
 - VS Code is open with ATK extension installed from the `fix/issue-15916-copilot` branch build
@@ -184,55 +184,61 @@ All contrast checks use the **WCAG relative luminance formula** (IEC 61966-2-1 s
 **Steps:**
 1. Set VS Code color theme to "Default Light Modern" via Command Palette (`Ctrl+Shift+P` → `Preferences: Color Theme` → select "Default Light Modern").
 2. Click the ATK icon in the VS Code Activity Bar to activate the extension panel.
-3. Open Command Palette (`Ctrl+Shift+P`) and run `Microsoft 365 Agents Toolkit: View Samples`. Observe the Sample Gallery opens and the featured section (grey background) is visually distinct from the non-featured section (white background).
-4. Take screenshot showing **both the featured section and non-featured section** side by side so both backgrounds are visible in the same viewport.
-5. Find the `.featured-sample-section` container element and read its effective background color using `getComputedStyle(el).backgroundColor`. Record as `featuredBg`.
-6. Find the `.sample-section` container element (non-featured) and read its effective background color using `getComputedStyle(el).backgroundColor`. Record as `nonFeaturedBg`.
-7. Compute `contrast_ratio(featuredBg, nonFeaturedBg)` using the WCAG relative luminance formula.
+3. Open Command Palette (`Ctrl+Shift+P`) and run `Microsoft 365 Agents Toolkit: View Samples`. Observe the Sample Gallery opens in Gallery (Grid) view. Observe the "Featured samples" section with sample cards.
+4. Take screenshot showing the featured samples section — a blue corner triangle badge with a white star should be visible on the top-left corner of featured card thumbnails.
+5. Find all `.sample-card` elements inside `.featured-sample-section`. For each, verify the card contains a `.featured-corner-badge` element and inside it a `.featured-corner-star` element (the `codicon-star-full` span).
+6. Find all `.sample-card` elements **outside** `.featured-sample-section` (i.e., in `.sample-section`). Verify none contain a `.featured-corner-badge` element.
+7. Verify the `.featured-sample-section` element has no background-color set (i.e., `getComputedStyle(section).backgroundColor` equals `"rgba(0, 0, 0, 0)"` or inherits from the page — confirming the background was removed per the new design).
 
 **Expected result:**
-- Featured section has a grey background (`rgb(140, 140, 140)` / `#8C8C8C`) clearly visible against the white non-featured section background.
-- Computed contrast ratio ≥ 3.0 (WCAG 1.4.11 non-text contrast for visual state differentiation).
+- Each featured card in gallery view has a `.featured-corner-badge` span containing a `.featured-corner-star` span (white star on blue corner triangle) overlaid on the top-left of the thumbnail.
+- Non-featured cards do not have this element.
+- The featured section has no distinct background color (it matches the page background).
 
 **Pass criteria:**
-- `contrast_ratio(featuredBg, nonFeaturedBg) >= 3.0`
-- `detail` field includes the computed ratio plus both color values
+- `featuredCards.every(card => card.querySelector('.featured-corner-badge') !== null)`
+- `featuredCards.every(card => card.querySelector('.featured-corner-badge .featured-corner-star') !== null)`
+- `nonFeaturedCards.every(card => card.querySelector('.featured-corner-badge') === null)`
+- `getComputedStyle(featuredSection).backgroundColor` is transparent or matches page bg
 
 **Screenshots produced by test:**
 
-| ID  | Filename                          | What is visible                                                        | Pass condition                                                      | Why                                                                           |
-|-----|-----------------------------------|------------------------------------------------------------------------|---------------------------------------------------------------------|-------------------------------------------------------------------------------|
-| 13  | `13-tc004a-sections-light.png`    | Featured (grey) and non-featured (white) sections side by side         | Grey featured section visually distinct from white non-featured     | Proves featured vs non-featured section bg contrast ≥ 3:1 in Light theme     |
+| ID  | Filename                          | What is visible                                                        | Pass condition                                                        | Why                                                                       |
+|-----|-----------------------------------|------------------------------------------------------------------------|-----------------------------------------------------------------------|---------------------------------------------------------------------------|
+| 13  | `13-tc004a-gallery-star.png`      | Gallery view with featured section, blue corner badge visible on thumbnails   | Blue triangle badge with white star visible on top-left corner of featured card thumbnails      | Proves star-on-badge indicator distinguishes featured items visually in gallery view |
 
 ---
 
-### TC-004b – Featured section background contrast ≥ 3:1 vs non-featured section background (Dark theme, WCAG 1.4.11)
+### TC-004b – Featured items display star icon before title in List view (color matches text)
 
 **Preconditions:**
 - VS Code is open with ATK extension installed from the `fix/issue-15916-copilot` branch build
 
 **Steps:**
-1. Set VS Code color theme to "Default Dark Modern" via Command Palette (`Ctrl+Shift+P` → `Preferences: Color Theme` → select "Default Dark Modern").
+1. Set VS Code color theme to "Default Light Modern" via Command Palette (`Ctrl+Shift+P` → `Preferences: Color Theme` → select "Default Light Modern").
 2. Click the ATK icon in the VS Code Activity Bar to activate the extension panel.
-3. Open Command Palette (`Ctrl+Shift+P`) and run `Microsoft 365 Agents Toolkit: View Samples`. Observe the Sample Gallery opens and the featured section (grey background) is visually distinct from the non-featured section (dark background).
-4. Take screenshot showing **both the featured section and non-featured section** side by side so both backgrounds are visible in the same viewport.
-5. Find the `.featured-sample-section` container element and read its effective background color using `getComputedStyle(el).backgroundColor`. Record as `featuredBg`.
-6. Find the `.sample-section` container element (non-featured) and read its effective background color using `getComputedStyle(el).backgroundColor`. Record as `nonFeaturedBg`.
-7. Compute `contrast_ratio(featuredBg, nonFeaturedBg)` using the WCAG relative luminance formula.
+3. Open Command Palette (`Ctrl+Shift+P`) and run `Microsoft 365 Agents Toolkit: View Samples`. Observe the Sample Gallery opens.
+4. Click the **List** view toggle button to switch to List layout. Observe the layout changes to a vertical list.
+5. Take screenshot showing the list view with the featured section at the top — the star icons should appear before the title text of featured items.
+6. Find all `.sample-list-item` elements inside `.featured-sample-section`. For each, verify the item's `h3` contains a `.featured-star` span (the `codicon-star-full` icon).
+7. Find all `.sample-list-item` elements **outside** `.featured-sample-section` (i.e., in `.sample-section`). Verify none have a `.featured-star` span in their `h3`.
+8. Read `getComputedStyle(starSpan).color` for a `.featured-star` element. Read `getComputedStyle(h3).color` for its parent `h3`. Verify the two colors are equal (star inherits text color via `currentColor`).
 
 **Expected result:**
-- Featured section has a grey background (`rgb(116, 116, 116)` / `#747474`) clearly distinct from the dark non-featured section background (approximately `#1E1E1E`).
-- Computed contrast ratio ≥ 3.0 (WCAG 1.4.11 non-text contrast for visual state differentiation).
+- Each featured list item has a `codicon-star-full` icon as the first child of its `h3` element, before the title text.
+- The star icon uses `currentColor`, so it renders in the same color as the surrounding title text.
+- Non-featured list items do not have this icon in their `h3`.
 
 **Pass criteria:**
-- `contrast_ratio(featuredBg, nonFeaturedBg) >= 3.0`
-- `detail` field includes the computed ratio plus both color values
+- `featuredListItems.every(item => item.querySelector('h3 .featured-star') !== null)`
+- `nonFeaturedListItems.every(item => item.querySelector('h3 .featured-star') === null)`
+- `getComputedStyle(starSpan).color === getComputedStyle(h3).color` (star color matches title color)
 
 **Screenshots produced by test:**
 
-| ID  | Filename                          | What is visible                                                        | Pass condition                                                      | Why                                                                           |
-|-----|-----------------------------------|------------------------------------------------------------------------|---------------------------------------------------------------------|-------------------------------------------------------------------------------|
-| 14  | `14-tc004b-sections-dark.png`     | Featured (grey) and non-featured (dark) sections side by side          | Grey featured section visually distinct from dark background        | Proves featured vs non-featured section bg contrast ≥ 3:1 in Dark theme      |
+| ID  | Filename                          | What is visible                                                        | Pass condition                                                        | Why                                                                       |
+|-----|-----------------------------------|------------------------------------------------------------------------|-----------------------------------------------------------------------|---------------------------------------------------------------------------|
+| 14  | `14-tc004b-list-star.png`         | List view with featured section, star icons visible before title text  | Star icon visible before title of featured list items; star color matches title color  | Proves star indicator uses text color (not yellow) in list view  |
 
 ---
 
@@ -245,27 +251,24 @@ All contrast checks use the **WCAG relative luminance formula** (IEC 61966-2-1 s
 1. Set VS Code color theme to "Default Light Modern" via Command Palette (`Ctrl+Shift+P` → `Preferences: Color Theme` → select "Default Light Modern").
 2. Click the ATK icon in the VS Code Activity Bar to activate the extension panel.
 3. Open Command Palette (`Ctrl+Shift+P`) and run `Microsoft 365 Agents Toolkit: View Samples`. Observe the Sample Gallery opens showing a mix of featured and non-featured cards.
-4. Take screenshot showing the gallery with both featured (grey-background section) and non-featured cards visible.
+4. Take screenshot showing the gallery with both featured and non-featured cards visible.
 5. Find all card elements (`.sample-card`) and read their `aria-label` attributes.
 6. Verify at least one card has `aria-label` starting with `"Featured sample."`.
 7. Verify at least one card does NOT have `aria-label` starting with `"Featured sample."`.
-8. Verify `document.querySelectorAll('.featured-badge').length` equals 0 (the featured badge element has been removed; differentiation is ARIA-only).
 
 **Expected result:**
 - Featured card: `aria-label="Featured sample. <Title>. Tags: <tags>"`
 - Non-featured card: `aria-label="<Title>. Tags: <tags>"` (no "Featured sample." prefix)
-- No `.featured-badge` elements exist in the DOM.
 
 **Pass criteria:**
 - At least 1 card element with `aria-label` starting with `"Featured sample."`
 - At least 1 card element with `aria-label` NOT starting with `"Featured sample."`
-- `document.querySelectorAll('.featured-badge').length === 0`
 
 **Screenshots produced by test:**
 
 | ID  | Filename                      | What is visible                                              | Pass condition                                        | Why                                                              |
 |-----|-------------------------------|--------------------------------------------------------------|-------------------------------------------------------|------------------------------------------------------------------|
-| 08  | `08-tc005-aria-labels.png`    | Gallery showing both featured and non-featured cards         | No visual badge; featured section bg is grey          | Proves ARIA "Featured sample." prefix is the only differentiation; badge removed |
+| 08  | `08-tc005-aria-labels.png`    | Gallery showing both featured and non-featured cards         | Featured and non-featured cards both visible          | Proves ARIA "Featured sample." prefix is present on featured items |
 
 ---
 
@@ -315,13 +318,13 @@ All contrast checks use the **WCAG relative luminance formula** (IEC 61966-2-1 s
 6. Press **Tab** to move keyboard focus to the first `.sample-list-item`. Observe the focus ring appears around the list item.
 7. Take screenshot **immediately after Tab** so the focus ring is clearly visible.
 8. Read `getComputedStyle(listItem).outlineColor` from the focused list item.
-9. Read the effective background color of the list item by walking up the DOM until a non-transparent `backgroundColor` is found. For items inside `.featured-sample-section` this will be `rgb(140, 140, 140)` (`#8C8C8C`); for items in the normal section it will be `rgb(255, 255, 255)` (`#FFFFFF`).
+9. Find the effective background color of the list item by reading `getComputedStyle` up the DOM until a non-transparent `backgroundColor` is found (expected: page background white `#FFFFFF` since featured section no longer has a grey background).
 10. Compute `contrast_ratio(outline_color, effective_background)` using the WCAG relative luminance formula.
 
 **Expected result:**
-- Items inside `.featured-sample-section`: white focus ring (`#FFFFFF`, ~3.35:1 against `#8C8C8C` grey background).
-- Items in the normal section: dark-blue focus ring (`#005FB8`, ~10:1 against white background).
-- Computed contrast ratio ≥ 3.0 in both cases.
+- All list items (featured and non-featured) share the same page background since the featured section background was removed.
+- Focused list item has a dark-blue focus ring (`#005FB8`, ~10:1 against white background).
+- Computed contrast ratio ≥ 3.0.
 
 **Pass criteria:**
 - `contrast_ratio(outline_color, effective_background) >= 3.0`
@@ -331,7 +334,7 @@ All contrast checks use the **WCAG relative luminance formula** (IEC 61966-2-1 s
 
 | ID  | Filename                        | What is visible                                                         | Pass condition                                              | Why                                                                              |
 |-----|---------------------------------|-------------------------------------------------------------------------|-------------------------------------------------------------|----------------------------------------------------------------------------------|
-| 10  | `10-tc006b-list-focus.png`      | List view with first list item (in featured section) focused            | White outline clearly surrounds the item on grey background | Proves focus ring is visible against featured section grey background (≥3:1)    |
+| 10  | `10-tc006b-list-focus.png`      | List view with first list item focused, focus ring visible              | Dark-blue outline clearly surrounds the focused list item   | Proves focus ring is visible against white page background (≥3:1)               |
 
 ---
 
@@ -344,13 +347,12 @@ All contrast checks use the **WCAG relative luminance formula** (IEC 61966-2-1 s
 - **Extension activation**: Each TC begins with clicking the ATK Activity Bar icon to guarantee the extension is activated before any command is run. The test harness should install the extension VSIX built from the `fix/issue-15916-copilot` branch before running.
 - The Sample Gallery renders inside a VS Code webview. DOM evaluation is performed via the Playwright CDP session targeting the webview frame.
 - All contrast calculations use the WCAG relative luminance formula (IEC 61966-2-1 sRGB, not a simple color blacklist).
-- For TC-001a/b: the link must be **focused** (`element.focus()`) before reading computed color — the `:focus` CSS rule changes the link color to `#004480` in Light theme (≥7:1 contrast). Dark theme uses `#4FC3F7` (≈8.32:1 on `#1E1E1E`), applied with `!important` to override Fluent UI inline styles.
-- For TC-004a/b: WCAG 1.4.11 (Non-text Contrast) applies to visual state differentiation. The fixed featured section background is `#8C8C8C` in Light (3.36:1 vs white) and `#747474` in Dark (3.57:1 vs `#1E1E1E`). TC-004 tests the **section container backgrounds** (`.featured-sample-section` vs `.sample-section`), NOT the badge element. The `.featured-badge` element has been removed — visual differentiation is now purely by the grey section background.
+- For TC-001a/b: the link must be **focused** (`element.focus()`) before reading computed color — the `:focus` CSS rule changes the link color in Light theme (≥4.5:1 contrast). Dark theme uses `#4FC3F7` (≈8.32:1 on `#1E1E1E`), applied with `!important` to override Fluent UI inline styles.
+- For TC-004a/b: The new design removes the featured section background color. Featured items are now distinguished by a `codicon-star-full` icon — overlaid on the top-left of the card thumbnail in gallery view, and prepended to the title text in list view. The icon color uses `var(--vscode-editorLightBulb-foreground, #DDB100)` which adapts to the active VS Code theme. TC-004a checks gallery star presence; TC-004b checks list star presence.
 - For TC-006a/b: `element.focus()` triggers `:focus-visible` styles in VSCode webview. In the light theme:
   - `.sample-card:focus-visible` uses `outline-color: #005FB8` (~10:1 against white card background).
-  - `.sample-list-item:focus-visible` uses `outline: 2px solid #005FB8` (~10:1 against white, normal section).
-  - `.featured-sample-section .sample-list-item:focus-visible` uses `outline: 2px solid #ffffff` (~3.35:1 against `#8C8C8C` grey featured section background). This more-specific rule overrides the general list-item rule when the item is inside the featured section.
+  - `.sample-list-item:focus-visible` uses `outline: 2px solid #005FB8` (~10:1 against white background).
+  - Since the featured section no longer has a grey background, a single focus-ring rule applies to all list items.
   - The screenshot step must immediately follow focus so the ring is still visible.
 - `aria-pressed` on `<vscode-button>` is forwarded to the inner `<button>` element by the FAST foundation runtime.
 - TC-002, TC-003, TC-005: these attributes are set inline in the React render path and are accessible without CDP frame evaluation.
-- **Why extension activated steps were failing in previous runs**: The test harness was not installing the extension VSIX before running, so `Ctrl+Shift+P → View Samples` returned "command not found". The fix is to install the built VSIX at the start of each TC (Step 2 — click ATK Activity Bar icon validates activation).
