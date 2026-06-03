@@ -234,6 +234,15 @@ jobs:
           echo "EXTENSION_VERSION=$(git tag --points-at HEAD | grep ms-teams-vscode-extension@)" >> $GITHUB_OUTPUT
           git tag --points-at HEAD | grep templates | grep rc | xargs -r git push -d origin
 
+      # v4 channel (isolated from the v3 steps above). The v4 distribution config
+      # block in templates-config.json is synced here, after lerna version mints
+      # the new templates version and before publish. fx-core's prepublishOnly
+      # rebuild then bundles the edited config into the published package — the
+      # same timing the v3 config sync relies on. `bundled = !goproduct`.
+      - name: sync v4 template config
+        if: ${{ contains(steps.version-change.outputs.CHANGED, 'templates@') && github.event_name == 'workflow_dispatch' }}
+        run: node .github/scripts/v4/sync-v4-template-config.js
+
       - name: update template rc tag
         uses: richardsimko/update-tag@v1.0.7
         if: ${{ (contains(steps.version-change.outputs.CHANGED, 'templates@') || contains(steps.version-change.outputs.CHANGED, '@microsoft/teamsfx')) && github.event_name == 'workflow_dispatch' && github.event.inputs.preid == 'rc' }}
@@ -289,6 +298,25 @@ jobs:
           token: ${{ steps.generate-token.outputs.token }}
           tag: "template-tag-list"
           allowUpdates: true
+
+      # ── v4 template channel ───────────────────────────────────────────────
+      # Gated on goproduct (ship-to-marketplace), independent of the preid lane:
+      # a prerelease built with goproduct=true also enters the v4 channel. The
+      # publish-v4-channel.sh wrapper does the whole channel update (immutable
+      # templates-v4@<ver> release + digest-bearing NDJSON tag-list append) so
+      # the v4 footprint in this workflow stays one step. It only ever touches
+      # the v4-owned releases; the v3 templates@ channel above is untouched.
+      - name: Publish v4 template channel
+        if: ${{ contains(steps.version-change.outputs.CHANGED, 'templates@') && github.event_name == 'workflow_dispatch' && github.event.inputs.goproduct == 'true' }}
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ steps.generate-token.outputs.token }}
+        run: |
+          bash .github/scripts/v4/publish-v4-channel.sh \
+            "${{ steps.version-change.outputs.TEMPLATE_VERSION }}" \
+            "${{ github.workspace }}/templates/build/v4/templates.zip" \
+            "${{ runner.temp }}" \
+            "${{ github.sha }}"
 
       - name: Release RC VS templates to GitHub
         if: ${{ contains(steps.version-change.outputs.CHANGED, 'templates@') && github.event_name == 'workflow_dispatch' && github.event.inputs.vsrelease == 'true' }}
