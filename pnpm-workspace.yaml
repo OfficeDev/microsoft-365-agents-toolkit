@@ -16,6 +16,7 @@ packages:
   -  "packages/server"
   -  "packages/vscode-ui"
   -  "packages/spec-parser"
+  -  "packages/m365-atk-skill"
   -  "templates"
 onlyBuiltDependencies:
   - keytar

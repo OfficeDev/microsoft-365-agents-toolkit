@@ -1,0 +1,8 @@
+# skill/ is generated at pack time by scripts/copy-skill.js
+# Run: node scripts/copy-skill.js  (to populate for local development)
+skill/
+
+node_modules/
+
+# Override root .gitignore: bin/ here is the npm CLI entry, not a build artifact
+!bin/

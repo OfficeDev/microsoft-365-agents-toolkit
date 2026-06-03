@@ -1,0 +1,44 @@
+{
+  "name": "@microsoft/m365agentstoolkit-skill",
+  "version": "0.1.0",
+  "description": "Microsoft 365 Agents Toolkit skill for AI coding tools — install into Claude Code, Cursor, GitHub Copilot, and OpenAI Codex projects",
+  "bin": {
+    "m365agentstoolkit-skill": "./bin/init.js"
+  },
+  "scripts": {
+    "prepack": "node scripts/copy-skill.js",
+    "precommit": "echo 'No lint for skill package'"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "bin",
+    "skill",
+    "scripts",
+    "README.md",
+    "LICENSE"
+  ],
+  "keywords": [
+    "m365",
+    "teams",
+    "copilot",
+    "skill",
+    "claude",
+    "cursor",
+    "codex",
+    "m365agentstoolkit",
+    "ai-coding",
+    "microsoft-365"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/OfficeDev/microsoft-365-agents-toolkit.git",
+    "directory": "packages/m365-atk-skill"
+  },
+  "author": "Microsoft Corporation",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  }
+}
