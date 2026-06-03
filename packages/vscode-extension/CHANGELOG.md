@@ -1,22 +1,21 @@
 # Changelog
-
+> Note: This changelog only includes the changes for the stable versions of Microsoft 365 Agents Toolkit (evolved from Teams Toolkit). For the changelog of pre-released versions, please refer to the [Microsoft 365 Agents Toolkit Pre-release Changelog](https://github.com/OfficeDev/TeamsFx/blob/dev/packages/vscode-extension/PRERELEASE.md).
 
 ## 6.10.1 - June 3, 2026
 
 ### New Features
 
-#### Added agent evaluation support to DA templates with evals/prompts.json
-[description]: This feature introduces an evaluation mechanism for all declarative agent (DA) project templates in the form of a predefined `evals/prompts.json` sample dataset. It enhances the development workflow by enabling users to test and refine their agents more effectively. The accompanying project README files have been updated to include an "Evaluating Agents" section, providing step-by-step guidance on using the `@microsoft/m365-copilot-eval` CLI for agent evaluation. Additionally, environment variable placeholders have been added to simplify configuration, improving user experience and speeding up setup.
+#### Agent evaluation support for Declarative Agent templates
+We introduce an evaluation mechanism for all declarative agent (DA) project templates in the form of a predefined `evals/prompts.json` sample dataset. It enhances the development workflow by enabling users to test and refine their agents more effectively. The accompanying project README files have been updated to include an "Evaluating Agents" section, providing step-by-step guidance on using the `@microsoft/m365-copilot-eval` CLI for agent evaluation. Additionally, environment variable placeholders have been added to simplify configuration, improving user experience and speeding up setup.
 
-#### Re-designed terminate process feature for port conflict handling
-[description]: This feature enhances the developer experience by redesigning how the extension handles port conflicts during debugging. When a port conflict is detected, the terminate process workflow has been restructured to enable smoother and more efficient resolution. This improvement minimizes disruption during local development, ensuring that debugging can resume quickly and with less manual intervention. The updated process is seamlessly integrated into the toolkit’s existing functionality for better usability.
+### Enhancement
+
+#### Re-designed terminate process for port conflict handling
+We enhance the developer experience by redesigning how the extension handles port conflicts during debugging. When a port conflict is detected, the terminate process workflow has been restructured to enable smoother and more efficient resolution. This improvement minimizes disruption during local development, ensuring that debugging can resume quickly and with less manual intervention. The updated process is seamlessly integrated into the toolkit’s existing functionality for better usability.
 
 ### Bug Fix
-- Added trailing newline to repair.yml.tpl for better formatting consistency, [PR #15962](https://github.com/OfficeDev/microsoft-365-agents-toolkit/pull/15962)
-- Updated the Evaluating Agents section in DA template READMEs to include a required project provisioning step before running evaluations. Also reverted previous changes to the TENANT_ID placeholder for greater clarity, [PR #16011](https://github.com/OfficeDev/microsoft-365-agents-toolkit/pull/16011)
-
-> Note: This changelog only includes the changes for the stable versions of Microsoft 365 Agents Toolkit (evolved from Teams Toolkit). For the changelog of pre-released versions, please refer to the [Microsoft 365 Agents Toolkit Pre-release Changelog](https://github.com/OfficeDev/TeamsFx/blob/dev/packages/vscode-extension/PRERELEASE.md).
-
+- Added trailing newline to repair.yml.tpl for better formatting consistency.
+- Updated the Evaluating Agents section in DA template READMEs to include a required project provisioning step before running evaluations. Also reverted previous changes to the TENANT_ID placeholder for greater clarity.
 
 ## 6.10.0 - May 22, 2026
 
