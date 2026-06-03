@@ -389,6 +389,7 @@
   "teamstoolkit.localDebug.launchTeamsDesktopClientMessage": "Before proceeding, make sure your Teams desktop login matches your current Microsoft 365 account%s used in Microsoft 365 Agents Toolkit.",
   "teamstoolkit.localDebug.terminateProcess.notification": "Port %s is occupied. Terminate the corresponding process(es) to continue local debug.",
   "teamstoolkit.localDebug.terminateProcess.notification.plural": "Ports %s are occupied. Terminate the corresponding process(es) to continue local debug.",
+  "teamstoolkit.localDebug.terminateProcess.terminateButton": "Terminate Process",
   "teamstoolkit.migrateTeamsManifest.progressTitle": "Upgrade App Manifest to extend in Outlook and the Microsoft 365 app",
   "teamstoolkit.migrateTeamsManifest.selectFileConfig.name": "Select App Manifest to Upgrade",
   "teamstoolkit.migrateTeamsManifest.selectFileConfig.title": "Select App Manifest to Upgrade",
