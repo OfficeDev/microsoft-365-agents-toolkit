@@ -20,7 +20,6 @@ import {
   CreateProjectInputs,
   CreateProjectResult,
   CryptoProvider,
-  DefaultApiSpecFolderName,
   Func,
   FxError,
   IGenerator,
@@ -39,7 +38,6 @@ import {
   TeamsAppManifest,
   Tools,
   UserError,
-  Warning,
   err,
   ok,
 } from "@microsoft/teamsfx-api";
@@ -55,10 +53,10 @@ import { teamsDevPortalClient } from "../client/teamsDevPortalClient";
 import { ApiKeyParameters, AuthParameters, OAuthParameters } from "../common/authInterface";
 import {
   AppStudioScopes,
-  getResourceServiceEndpoint,
+  MosServiceScope,
   ResourceServiceType,
   VSCodeExtensionCommand,
-  MosServiceScope,
+  getResourceServiceEndpoint,
 } from "../common/constants";
 import { listAPIInfo, parseAndUpdatePluginManifestForKiota } from "../common/daSpecParser";
 import {
@@ -70,11 +68,7 @@ import {
 } from "../common/globalVars";
 import { clearLocaleCache, getLocalizedString } from "../common/localizeUtils";
 import { ListCollaboratorResult, PermissionsResult } from "../common/permissionInterface";
-import {
-  getProjectMetadata,
-  isValidProjectV2,
-  isValidProjectV3,
-} from "../common/projectSettingsHelper";
+import { getProjectMetadata, isValidProjectV3 } from "../common/projectSettingsHelper";
 import {
   IsDeclarativeAgentManifest,
   ProjectTypeResult,
@@ -84,7 +78,7 @@ import { TelemetryEvent, TelemetryProperty, telemetryUtils } from "../common/tel
 import templateConfig from "../common/templates-config.json";
 import { runForTypeSpecProject } from "../common/tools";
 import { generateDriverContext } from "../common/utils";
-import { MetadataV3, MetadataV4, VersionSource, VersionState } from "../common/versionMetadata";
+import { MetadataV3, MetadataV4, VersionSource } from "../common/versionMetadata";
 
 import {
   APIKeyAuthType,
@@ -131,7 +125,6 @@ import { ValidateAppPackageDriver } from "../component/driver/teamsApp/validateA
 import { ValidateWithTestCasesDriver } from "../component/driver/teamsApp/validateTestCases";
 import { createDriverContext } from "../component/driver/util/utils";
 import { SSO } from "../component/feature/sso";
-import { addExistingPlugin } from "../component/generator/declarativeAgent/helper";
 import {
   ItemMetadata,
   getODSPItemDetailById,
@@ -157,10 +150,7 @@ import { LaunchHelper } from "../component/m365/launchHelper";
 import { PackageService } from "../component/m365/packageService";
 import { EnvLoaderMW, EnvWriterMW } from "../component/middleware/envMW";
 import { QuestionMW } from "../component/middleware/questionMW";
-import {
-  expandEnvironmentVariable,
-  outputScaffoldingWarningMessage,
-} from "../component/utils/common";
+import { expandEnvironmentVariable } from "../component/utils/common";
 import { envUtil } from "../component/utils/envUtil";
 import { metadataUtil } from "../component/utils/metadataUtil";
 import { pathUtils } from "../component/utils/pathUtils";
@@ -177,11 +167,9 @@ import {
   assembleError,
   isUserCancelError,
 } from "../error/common";
-import { NoNeedUpgradeError } from "../error/upgrade";
 import { YamlFieldMissingError } from "../error/yml";
 import { SyncManifestInputs, UninstallInputs } from "../question";
 import {
-  ActionStartOptions,
   AddAuthActionAuthTypeOptions,
   AppNamePattern,
   HubTypes,
@@ -212,7 +200,7 @@ import { ConcurrentLockerMW } from "./middleware/concurrentLocker";
 import { ContextInjectorMW } from "./middleware/contextInjector";
 import { ErrorHandlerMW } from "./middleware/errorHandler";
 import { withFileLock } from "./middleware/fileLocker";
-import { ProjectMigratorMWV3, checkActiveResourcePlugins } from "./middleware/projectMigratorV3";
+
 import { runWithRetry } from "./middleware/retry";
 import {
   getProjectVersionFromPath,
@@ -359,7 +347,6 @@ export class FxCore extends FxCoreOpenPluginPart {
   @hooks([
     ErrorContextMW({ component: "FxCore", stage: "provision", reset: true }),
     ErrorHandlerMW,
-    ProjectMigratorMWV3,
     EnvLoaderMW(false),
     ConcurrentLockerMW,
     ContextInjectorMW,
@@ -395,7 +382,6 @@ export class FxCore extends FxCoreOpenPluginPart {
   @hooks([
     ErrorContextMW({ component: "FxCore", stage: "uninstall", reset: true }),
     ErrorHandlerMW,
-    ProjectMigratorMWV3,
     QuestionMW("uninstall"),
   ])
   async uninstall(inputs: UninstallInputs): Promise<Result<undefined, FxError>> {
@@ -715,7 +701,6 @@ export class FxCore extends FxCoreOpenPluginPart {
   @hooks([
     ErrorContextMW({ component: "FxCore", stage: "deploy", reset: true }),
     ErrorHandlerMW,
-    ProjectMigratorMWV3,
     EnvLoaderMW(false),
     ConcurrentLockerMW,
     ContextInjectorMW,
@@ -749,7 +734,6 @@ export class FxCore extends FxCoreOpenPluginPart {
   @hooks([
     ErrorContextMW({ component: "FxCore", stage: "deployAadManifest", reset: true }),
     ErrorHandlerMW,
-    ProjectMigratorMWV3,
     QuestionMW("deployAadManifest"),
     EnvLoaderMW(true, true),
     ConcurrentLockerMW,
@@ -808,7 +792,6 @@ export class FxCore extends FxCoreOpenPluginPart {
     ErrorContextMW({ component: "FxCore", stage: "addWebpart", reset: true }),
     ErrorHandlerMW,
     QuestionMW("addWebpart"),
-    ProjectMigratorMWV3,
     ConcurrentLockerMW,
   ])
   async addWebpart(inputs: Inputs): Promise<Result<undefined, FxError>> {
@@ -835,7 +818,6 @@ export class FxCore extends FxCoreOpenPluginPart {
   @hooks([
     ErrorContextMW({ component: "FxCore", stage: "publish", reset: true }),
     ErrorHandlerMW,
-    ProjectMigratorMWV3,
     EnvLoaderMW(false),
     ConcurrentLockerMW,
     ContextInjectorMW,
@@ -862,7 +844,6 @@ export class FxCore extends FxCoreOpenPluginPart {
     ErrorContextMW({ component: "FxCore", stage: "share", reset: true }),
     ErrorHandlerMW,
     QuestionMW("removeSharedAccess"),
-    ProjectMigratorMWV3,
     EnvLoaderMW(false),
     ConcurrentLockerMW,
     ContextInjectorMW,
@@ -943,7 +924,6 @@ export class FxCore extends FxCoreOpenPluginPart {
     ErrorContextMW({ component: "FxCore", stage: "share", reset: true }),
     ErrorHandlerMW,
     QuestionMW("share"),
-    ProjectMigratorMWV3,
     EnvLoaderMW(false),
     ConcurrentLockerMW,
     ContextInjectorMW,
@@ -996,7 +976,6 @@ export class FxCore extends FxCoreOpenPluginPart {
   @hooks([
     ErrorContextMW({ component: "FxCore", stage: "executeUserTask", reset: true }),
     ErrorHandlerMW,
-    ProjectMigratorMWV3,
     EnvLoaderMW(false),
     ConcurrentLockerMW,
   ])
@@ -1019,7 +998,6 @@ export class FxCore extends FxCoreOpenPluginPart {
   @hooks([
     ErrorContextMW({ component: "FxCore", stage: "buildAadManifest", reset: true }),
     ErrorHandlerMW,
-    ProjectMigratorMWV3,
     EnvLoaderMW(false),
     ConcurrentLockerMW,
   ])
@@ -1062,7 +1040,6 @@ export class FxCore extends FxCoreOpenPluginPart {
   @hooks([
     ErrorContextMW({ component: "FxCore", stage: "deployTeamsManifest", reset: true }),
     ErrorHandlerMW,
-    ProjectMigratorMWV3,
     QuestionMW("selectTeamsAppManifest"),
     EnvLoaderMW(true),
     ConcurrentLockerMW,
@@ -1478,7 +1455,6 @@ export class FxCore extends FxCoreOpenPluginPart {
   @hooks([
     ErrorContextMW({ component: "FxCore", stage: "grantPermission", reset: true }),
     ErrorHandlerMW,
-    ProjectMigratorMWV3,
     QuestionMW("grantPermission"),
     EnvLoaderMW(false, true),
     ConcurrentLockerMW,
@@ -1501,7 +1477,6 @@ export class FxCore extends FxCoreOpenPluginPart {
   @hooks([
     ErrorContextMW({ component: "FxCore", stage: "checkPermission", reset: true }),
     ErrorHandlerMW,
-    ProjectMigratorMWV3,
     QuestionMW("listCollaborator"),
     EnvLoaderMW(false, true),
     ConcurrentLockerMW,
@@ -1523,7 +1498,6 @@ export class FxCore extends FxCoreOpenPluginPart {
   @hooks([
     ErrorContextMW({ component: "FxCore", stage: "listCollaborator", reset: true }),
     ErrorHandlerMW,
-    ProjectMigratorMWV3,
     QuestionMW("listCollaborator"),
     EnvLoaderMW(false, true),
     ConcurrentLockerMW,
@@ -1639,33 +1613,6 @@ export class FxCore extends FxCoreOpenPluginPart {
     return ok(undefined);
   }
 
-  // a phantom migration method for V3
-  @hooks([ErrorContextMW({ component: "FxCore", stage: "phantomMigrationV3", reset: true })])
-  async phantomMigrationV3(inputs: Inputs): Promise<Result<undefined, FxError>> {
-    // If the project is invalid or upgraded, the ProjectMigratorMWV3 will not take action.
-    // Check invaliad/upgraded project here before call ProjectMigratorMWV3
-    const projectPath = (inputs.projectPath as string) || "";
-    const version = await getProjectVersionFromPath(projectPath);
-
-    if (version.source === VersionSource.teamsapp) {
-      return err(new NoNeedUpgradeError());
-    } else if (version.source === VersionSource.projectSettings) {
-      const isValid = await checkActiveResourcePlugins(projectPath);
-      if (!isValid) {
-        return err(new InvalidProjectError(projectPath));
-      }
-    }
-    if (version.source === VersionSource.unknown) {
-      return err(new InvalidProjectError(projectPath));
-    }
-    return this.innerMigrationV3(inputs);
-  }
-
-  @hooks([ErrorHandlerMW, ProjectMigratorMWV3])
-  innerMigrationV3(inputs: Inputs): Result<undefined, FxError> {
-    return ok(undefined);
-  }
-
   // a project version check
   @hooks([
     ErrorContextMW({ component: "FxCore", stage: "projectVersionCheck", reset: true }),
@@ -1673,19 +1620,13 @@ export class FxCore extends FxCoreOpenPluginPart {
   ])
   async projectVersionCheck(inputs: Inputs): Promise<Result<VersionCheckRes, FxError>> {
     const projectPath = (inputs.projectPath as string) || "";
-    if (isValidProjectV3(projectPath) || isValidProjectV2(projectPath)) {
+    if (isValidProjectV3(projectPath)) {
       const versionInfo = await getProjectVersionFromPath(projectPath);
       if (!versionInfo.version) {
         return err(new InvalidProjectError(projectPath));
       }
       const trackingId = await getTrackingIdFromPath(projectPath);
       const isSupport = getVersionState(versionInfo);
-      // if the project is upgradeable, check whether the project is valid and invalid project should not show upgrade option.
-      if (isSupport === VersionState.upgradeable) {
-        if (!(await checkActiveResourcePlugins(projectPath))) {
-          return err(new InvalidProjectError(projectPath));
-        }
-      }
       return ok({
         currentVersion: versionInfo.version,
         trackingId,
@@ -1790,7 +1731,6 @@ export class FxCore extends FxCoreOpenPluginPart {
   @hooks([
     ErrorContextMW({ component: "FxCore", stage: "preProvisionForVS" }),
     ErrorHandlerMW,
-    ProjectMigratorMWV3,
     EnvLoaderMW(false),
     ConcurrentLockerMW,
     ContextInjectorMW,
@@ -1802,7 +1742,6 @@ export class FxCore extends FxCoreOpenPluginPart {
   @hooks([
     ErrorContextMW({ component: "FxCore", stage: "preCheckYmlAndEnvForVS" }),
     ErrorHandlerMW,
-    ProjectMigratorMWV3,
     EnvLoaderMW(false),
     ConcurrentLockerMW,
     ContextInjectorMW,

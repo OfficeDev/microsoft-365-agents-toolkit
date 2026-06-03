@@ -130,12 +130,6 @@ export enum TelemetryEvent {
   CheckSideloading = "check-sideloading",
   EnvConfig = "env-config",
   DisplayToolingUpdateNotification = "display-tooling-update-notification",
-  ProjectMigratorNotificationStart = "project-migrator-notification-start",
-  ProjectMigratorNotification = "project-migrator-notification",
-  ProjectMigratorMigrateStart = "project-migrator-migrate-start",
-  ProjectMigratorMigrate = "project-migrator-migrate",
-  ProjectMigratorPrecheckFailed = "project-migrator-pre-check-failed",
-  ProjectMigratorError = "project-migrator-error",
   ProjectConsolidateNotificationStart = "project-consolidate-notification-start",
   ProjectConsolidateNotification = "project-consolidate-notification",
   ProjectConsolidateUpgradeStart = "project-consolidate-upgrade-start",
@@ -236,21 +230,10 @@ export enum CustomizeSubscriptionType {
   Default = "default",
 }
 
-export enum ProjectMigratorStatus {
-  OK = "ok",
-  Cancel = "cancel",
-}
-
 export enum WebApplicationIdValue {
   None = "none",
   Default = "default",
   Customized = "customized",
-}
-
-export enum ProjectMigratorGuideStatus {
-  Reload = "reload",
-  LearnMore = "learn-more",
-  Cancel = "cancel",
 }
 
 export enum ApiSpecTelemetryPropertis {

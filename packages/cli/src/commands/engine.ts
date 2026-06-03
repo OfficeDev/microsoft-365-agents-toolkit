@@ -220,16 +220,7 @@ class CLIEngine {
     // 6. version check
     const inputs = getSystemInputs(context.optionValues.projectPath as string);
     inputs.ignoreEnvInfo = true;
-    const skipCommands = [
-      "new",
-      "sample",
-      "upgrade",
-      "update",
-      "package",
-      "publish",
-      "validate",
-      "deploy",
-    ];
+    const skipCommands = ["new", "sample", "update", "package", "publish", "validate", "deploy"];
     if (
       !skipCommands.includes(context.command.name) &&
       context.optionValues.projectPath &&
@@ -241,12 +232,9 @@ class CLIEngine {
         return err(res.error);
       } else {
         if (res.value.isSupport === VersionState.unsupported) {
-          return err(new IncompatibleProjectError("core.projectVersionChecker.cliUseNewVersion"));
+          return err(new IncompatibleProjectError("core.migrationV3.abandonedProject"));
         } else if (res.value.isSupport === VersionState.upgradeable) {
-          const upgrade = await core.phantomMigrationV3(inputs);
-          if (upgrade.isErr()) {
-            return err(upgrade.error);
-          }
+          return err(new IncompatibleProjectError("core.migrationV3.notAllowedMigration"));
         }
       }
     }

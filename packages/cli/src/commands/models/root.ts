@@ -32,7 +32,6 @@ import { teamsappPackageCommand } from "./teamsapp/package";
 import { teamsappPublishCommand } from "./teamsapp/publish";
 import { teamsappUpdateCommand } from "./teamsapp/update";
 import { teamsappValidateCommand } from "./teamsapp/validate";
-import { upgradeCommand } from "./upgrade";
 
 export const helpCommand: CLICommand = {
   name: "help",
@@ -63,7 +62,6 @@ export const rootCommand: CLICommand = {
     previewCommand,
     envCommand,
     permissionCommand,
-    upgradeCommand,
     ...(featureFlagManager.getBooleanValue(FeatureFlags.GenerateConfigFiles) ? [initCommand] : []),
     listCommand,
     helpCommand,

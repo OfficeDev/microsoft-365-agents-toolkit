@@ -2,43 +2,10 @@
 // Licensed under the MIT license.
 import { expect } from "chai";
 import "mocha";
-import { isValidProject, validateProjectSettings } from "../../src/common/projectSettingsHelper";
+import { isValidProject } from "../../src/common/projectSettingsHelper";
 describe("tools", () => {
   it("is not valid project", () => {
     expect(isValidProject()).is.false;
-  });
-
-  it("validateProjectSettings()", () => {
-    const projectSettings: any = {
-      appName: "my app",
-      projectId: "123234",
-      solutionSettings: {
-        name: "test",
-        version: "3.0.0",
-        capabilities: ["Tab"],
-        hostType: "Azure",
-        azureResources: [],
-        activeResourcePlugins: [],
-      },
-    };
-    expect(validateProjectSettings(projectSettings)).is.undefined;
-  });
-
-  it("validateProjectSettings() - migrateFromV1", () => {
-    const projectSettings: any = {
-      appName: "my app",
-      projectId: "123234",
-      solutionSettings: {
-        name: "test",
-        version: "3.0.0",
-        capabilities: ["Tab"],
-        hostType: "Azure",
-        azureResources: [],
-        activeResourcePlugins: [],
-        migrateFromV1: true,
-      },
-    };
-    expect(validateProjectSettings(projectSettings)).is.not.undefined;
   });
 });
 

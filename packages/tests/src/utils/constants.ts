@@ -361,8 +361,6 @@ export class CommandPaletteCommands {
     "Microsoft 365 Agents: Create New Environment";
   public static readonly DeployAadAppManifestCommand: string =
     "Microsoft 365 Agents: Update Microsoft Entra App";
-  public static readonly UpgradeProjectCommand: string =
-    "Microsoft 365 Agents: Upgrade Project";
   public static readonly InstallTTK: string =
     "Extensions: Install Specific Version of Extension";
   public static readonly AddSpfxWebPart: string =

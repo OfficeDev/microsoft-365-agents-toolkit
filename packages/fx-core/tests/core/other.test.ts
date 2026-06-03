@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { Settings } from "@microsoft/teamsfx-api";
 import { assert } from "chai";
 import fs from "fs-extra";
 import "mocha";
@@ -162,14 +161,7 @@ describe("Other test case", () => {
     }
   });
   it("isValidProject: true", async () => {
-    const projectSettings: any = {
-      appName: "myapp",
-      version: "1.0.0",
-      projectId: "123",
-    };
-    sandbox.stub(fs, "readJsonSync").returns(projectSettings);
-    sandbox.stub(fs, "existsSync").returns(true);
-    sandbox.stub(fs, "readdirSync").returns([]);
+    sandbox.stub(fs, "pathExistsSync").returns(true);
     const isValid = isValidProject("aaa");
     assert.isTrue(isValid);
   });
@@ -178,13 +170,7 @@ describe("Other test case", () => {
       TEAMSFX_V3: "true",
     });
     try {
-      const settings: Settings = {
-        version: "1.0.0",
-        trackingId: "123",
-      };
-      sandbox.stub(fs, "readJsonSync").returns(settings);
-      sandbox.stub(fs, "existsSync").returns(true);
-      sandbox.stub(fs, "readdirSync").returns([]);
+      sandbox.stub(fs, "pathExistsSync").returns(true);
       const isValid = isValidProject("aaa");
       assert.isTrue(isValid);
     } finally {

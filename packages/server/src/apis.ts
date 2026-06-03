@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
+import { Tunnel } from "@microsoft/dev-tunnels-contracts";
 import {
   ApiOperation,
   Colors,
@@ -26,9 +27,8 @@ import {
   SingleSelectResult,
   SubscriptionInfo,
   TokenRequest,
-  Void,
 } from "@microsoft/teamsfx-api";
-import { DependencyStatus, TestToolInstallOptions, VersionCheckRes } from "@microsoft/teamsfx-core";
+import { TestToolInstallOptions } from "@microsoft/teamsfx-core";
 import {
   CancellationToken,
   NotificationType2,
@@ -38,7 +38,6 @@ import {
   RequestType1,
   RequestType4,
 } from "vscode-jsonrpc";
-import { Tunnel } from "@microsoft/dev-tunnels-contracts";
 
 export enum Namespaces {
   /**
@@ -143,15 +142,6 @@ export interface IServerConnection {
     token: CancellationToken
   ) => Promise<Result<undefined, FxError>>;
   addSsoRequest: (inputs: Inputs, token: CancellationToken) => Promise<Result<any, FxError>>;
-
-  getProjectMigrationStatusRequest: (
-    inputs: Inputs,
-    token: CancellationToken
-  ) => Promise<Result<VersionCheckRes, FxError>>;
-  migrateProjectRequest: (
-    inputs: Inputs,
-    token: CancellationToken
-  ) => Promise<Result<boolean, FxError>>;
   publishInDeveloperPortalRequest: (
     inputs: Inputs,
     token: CancellationToken

@@ -163,11 +163,6 @@
         "view": "teamsfx-empty-project-with-chat",
         "contents": "%teamstoolkit.viewsWelcome.teamsfx-empty-project-with-chat.content%",
         "enablement": "fx-extension.initialized"
-      },
-      {
-        "view": "teamsfx-project-and-check-upgradeV3",
-        "contents": "%teamstoolkit.viewsWelcome.teamsfx-project-and-check-upgradeV3.content%",
-        "enablement": "fx-extension.initialized"
       }
     ],
     "views": {
@@ -180,7 +175,7 @@
         {
           "id": "teamsfx-environment",
           "name": "Environment",
-          "when": "fx-extension.isTeamsFx && !fx-extension.canUpgradeV3 && isWorkspaceTrusted"
+          "when": "fx-extension.isTeamsFx && isWorkspaceTrusted"
         },
         {
           "id": "teamsfx-development",
@@ -190,22 +185,17 @@
         {
           "id": "teamsfx-lifecycle",
           "name": "Lifecycle",
-          "when": "fx-extension.isTeamsFx && !fx-extension.canUpgradeV3"
+          "when": "fx-extension.isTeamsFx"
         },
         {
           "id": "teamsfx-utility",
           "name": "Utility",
-          "when": "fx-extension.isTeamsFx && !fx-extension.canUpgradeV3"
-        },
-        {
-          "id": "teamsfx-project-and-check-upgradeV3",
-          "name": "Upgrade",
-          "when": "fx-extension.isTeamsFx && fx-extension.canUpgradeV3 && isWorkspaceTrusted"
+          "when": "fx-extension.isTeamsFx"
         },
         {
           "id": "teamsfx-help-and-feedback",
           "name": "Help and feedback",
-          "when": "fx-extension.isTeamsFx && !fx-extension.canUpgradeV3",
+          "when": "fx-extension.isTeamsFx",
           "visibility": "visible"
         },
         {
@@ -561,10 +551,6 @@
           "when": "false"
         },
         {
-          "command": "fx-extension.checkProjectUpgrade",
-          "when": "fx-extension.canUpgradeV3"
-        },
-        {
           "command": "fx-extension.openOfficeDevLifecycleLink",
           "when": "false"
         },
@@ -664,12 +650,6 @@
         "command": "fx-extension.build",
         "title": "%teamstoolkit.commands.zipPackage.title%",
         "enablement": "fx-extension.isTeamsFx && isWorkspaceTrusted && !fx-extension.commandLocked",
-        "category": "Microsoft 365 Agents"
-      },
-      {
-        "command": "fx-extension.checkProjectUpgrade",
-        "title": "%teamstoolkit.commands.upgradeProject.title%",
-        "enablement": "fx-extension.initialized && isWorkspaceTrusted",
         "category": "Microsoft 365 Agents"
       },
       {

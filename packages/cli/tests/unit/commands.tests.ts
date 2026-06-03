@@ -51,7 +51,6 @@ import {
   previewCommand,
   provisionCommand,
   publishCommand,
-  upgradeCommand,
   validateCommand,
 } from "../../src/commands/models";
 import { addAuthConfigCommand } from "../../src/commands/models/addAuthConfig";
@@ -1108,20 +1107,6 @@ describe("CLI commands", () => {
         telemetryProperties: {},
       };
       const res = await entraAppUpdateCommand.handler!(ctx);
-      assert.isTrue(res.isOk());
-    });
-  });
-  describe("upgradeCommand", async () => {
-    it("success", async () => {
-      sandbox.stub(FxCore.prototype, "phantomMigrationV3").resolves(ok(undefined));
-      const ctx: CLIContext = {
-        command: { ...upgradeCommand, fullName: "teamsfx" },
-        optionValues: { force: true },
-        globalOptionValues: {},
-        argumentValues: [],
-        telemetryProperties: {},
-      };
-      const res = await upgradeCommand.handler!(ctx);
       assert.isTrue(res.isOk());
     });
   });
