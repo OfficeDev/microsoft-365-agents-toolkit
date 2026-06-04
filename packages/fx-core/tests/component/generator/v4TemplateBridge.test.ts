@@ -178,6 +178,20 @@ describe("v4TemplateBridge.renderTemplateEntries", () => {
     assert.deepEqual(outputs, ["bot/a.txt"]);
     assert.strictEqual((await fs.readFile(path.join(tmpDir, "bot/a.txt"))).toString(), "a");
   });
+
+  it("rejects an entry whose path escapes the destination (zip-slip)", async () => {
+    const folderName = "bot";
+    const ctx = makeContext(folderName, tmpDir, {});
+    // entryName "bot/../evil.txt" passes the startsWith("bot/") filter but the
+    // name-replace strips "bot/" leaving "../evil.txt", which escapes tmpDir.
+    const entries: TemplateFileEntry[] = [{ path: "../evil.txt", data: Buffer.from("pwned") }];
+
+    await assert.isRejected(
+      renderTemplateEntries(ctx, entries),
+      /resolves outside the destination directory/
+    );
+    assert.isFalse(await fs.pathExists(path.join(path.dirname(tmpDir), "evil.txt")));
+  });
 });
 
 describe("v4TemplateBridge.scaffoldFromV4Channel", () => {

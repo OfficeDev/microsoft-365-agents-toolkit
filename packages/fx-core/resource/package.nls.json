@@ -233,6 +233,7 @@
   "error.generator.TemplateNotFoundError": "Unable to find template: %s.",
   "error.generator.SampleNotFoundError": "Unable to find sample: %s.",
   "error.generator.UnzipError": "Unable to extract templates and save them to disk.",
+  "error.generator.TemplateOutputPathError": "Template entry %s resolves outside the destination directory.",
   "error.generator.MissKeyError": "Unable to find key %s",
   "error.generator.FileConflictError": "File conflict at %s",
   "error.generator.FetchSampleInfoError": "Unable to fetch sample info",

@@ -17,7 +17,24 @@ import {
   resolveTemplateSource,
 } from "../../v4";
 import { defaultTryLimits } from "./constant";
+import { TemplateOutputPathError } from "./error";
 import { GeneratorContext } from "./generatorAction";
+
+/**
+ * Resolve a template entry's relative name to an absolute path and verify it
+ * stays within `destination`. The entry name originates from the (untrusted)
+ * template archive, so a `../` segment could otherwise escape the project
+ * directory (zip-slip). Throws `TemplateOutputPathError` on escape.
+ */
+function resolveTemplateOutputPath(destination: string, entryName: string): string {
+  const base = path.resolve(destination);
+  const outputPath = path.resolve(base, entryName);
+  const relative = path.relative(base, outputPath);
+  if (relative === "" || relative.startsWith("..") || path.isAbsolute(relative)) {
+    throw new TemplateOutputPathError(entryName);
+  }
+  return outputPath;
+}
 
 /**
  * Render the located template's entries onto disk using the v3
@@ -46,7 +63,7 @@ export async function renderTemplateEntries(
     const finalData = context.fileDataReplaceFn
       ? context.fileDataReplaceFn(path.basename(entry.path), entry.data)
       : entry.data;
-    const filePath = path.join(context.destination, finalName);
+    const filePath = resolveTemplateOutputPath(context.destination, finalName);
     await fs.ensureDir(path.dirname(filePath));
     await fs.writeFile(filePath, finalData);
     output.push(finalName);
