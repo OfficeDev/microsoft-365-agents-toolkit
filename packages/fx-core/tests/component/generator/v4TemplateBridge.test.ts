@@ -192,6 +192,19 @@ describe("v4TemplateBridge.renderTemplateEntries", () => {
     );
     assert.isFalse(await fs.pathExists(path.join(path.dirname(tmpDir), "evil.txt")));
   });
+
+  it("allows an in-root filename that starts with '..' (not a traversal segment)", async () => {
+    const folderName = "bot";
+    const ctx = makeContext(folderName, tmpDir, {});
+    // "bot/..foo" name-replaces to "..foo": its relative path starts with ".."
+    // but stays inside tmpDir, so it must NOT be rejected.
+    const entries: TemplateFileEntry[] = [{ path: "..foo", data: Buffer.from("ok") }];
+
+    const outputs = await renderTemplateEntries(ctx, entries);
+
+    assert.deepEqual(outputs, ["..foo"]);
+    assert.strictEqual((await fs.readFile(path.join(tmpDir, "..foo"))).toString(), "ok");
+  });
 });
 
 describe("v4TemplateBridge.scaffoldFromV4Channel", () => {

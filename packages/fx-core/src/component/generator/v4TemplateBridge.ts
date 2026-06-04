@@ -30,7 +30,16 @@ function resolveTemplateOutputPath(destination: string, entryName: string): stri
   const base = path.resolve(destination);
   const outputPath = path.resolve(base, entryName);
   const relative = path.relative(base, outputPath);
-  if (relative === "" || relative.startsWith("..") || path.isAbsolute(relative)) {
+  // Reject only an actual parent-directory escape: a relative path that is the
+  // `..` segment itself or starts with `..<sep>`, or an absolute path. A leading
+  // `""` means the entry resolves to `base` itself (no filename). A filename
+  // that merely starts with ".." (e.g. "..foo") stays in-root and is allowed.
+  if (
+    relative === "" ||
+    relative === ".." ||
+    relative.startsWith(".." + path.sep) ||
+    path.isAbsolute(relative)
+  ) {
     throw new TemplateOutputPathError(entryName);
   }
   return outputPath;
