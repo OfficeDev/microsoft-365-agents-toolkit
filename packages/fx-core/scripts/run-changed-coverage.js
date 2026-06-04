@@ -1,14 +1,26 @@
 /* eslint-disable no-console */
 "use strict";
 
-const { execSync, spawnSync } = require("child_process");
+const { spawnSync } = require("child_process");
 
-function run(command) {
-  return execSync(command, { encoding: "utf8" }).trim();
+function runGitDiffNameOnly(baseRef) {
+  const result = spawnSync("git", ["diff", "--name-only", `${baseRef}...HEAD`], {
+    encoding: "utf8",
+  });
+
+  if (result.error) {
+    throw result.error;
+  }
+
+  if (result.status !== 0) {
+    throw new Error((result.stderr || "git diff failed").trim());
+  }
+
+  return (result.stdout || "").trim();
 }
 
 function getChangedSourceFiles(baseRef) {
-  const output = run(`git diff --name-only ${baseRef}...HEAD`);
+  const output = runGitDiffNameOnly(baseRef);
   return output
     .split(/\r?\n/)
     .map((file) => file.trim())
