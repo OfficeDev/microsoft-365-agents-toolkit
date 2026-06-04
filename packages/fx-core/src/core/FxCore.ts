@@ -2658,7 +2658,19 @@ export class FxCore extends FxCoreOpenPluginPart {
       const metadataDir = path.join(homedir, `.${String(ConfigFolderName)}`);
       await fs.ensureDir(metadataDir);
 
-      const versionFile = path.join(metadataDir, "template-version.txt");
+      // Transitional: when the v4 channel is enabled, pull metadata from the
+      // v4 release tag (`templates-v4@<ver>`). The v4 release shares the exact
+      // same version string as the v3 `templates@<ver>` release (both minted
+      // from the same templates version), so the cached version string alone
+      // cannot tell the two channels apart. Use a channel-specific cache file
+      // so flipping the flag triggers a fresh download instead of a stale v3
+      // cache hit, while still caching within a channel (no re-download every
+      // activation). Remove once selector.json drives metadata distribution.
+      const useV4Channel = featureFlagManager.getBooleanValue(FeatureFlags.V4Enabled);
+      const versionFile = path.join(
+        metadataDir,
+        useV4Channel ? "template-version-v4.txt" : "template-version.txt"
+      );
       const needDownload = async (): Promise<boolean> => {
         // Always re-download for mutable pre-release tags (content changes but tag stays the same)
         if (latestVersion === "0.0.0-rc") return true;
@@ -2677,14 +2689,7 @@ export class FxCore extends FxCoreOpenPluginPart {
       }
 
       // Construct metadata.zip download URL based on tag prefix and version.
-      // Transitional: when the v4 channel is enabled, pull metadata from the
-      // v4 release tag (`templates-v4@<ver>`). The v4 release shares the exact
-      // same version string as the v3 `templates@<ver>` release (both minted
-      // from the same templates version), so only the tag prefix differs.
-      // Remove this branch once selector.json drives metadata distribution.
-      const tagPrefix = featureFlagManager.getBooleanValue(FeatureFlags.V4Enabled)
-        ? templateConfig.v4tagPrefix
-        : templateConfig.tagPrefix;
+      const tagPrefix = useV4Channel ? templateConfig.v4tagPrefix : templateConfig.tagPrefix;
       const tag = `${tagPrefix}${latestVersion}`;
       const metadataZipUrl = `${templateConfig.templateDownloadBaseURL}/${tag}/metadata.zip`;
 

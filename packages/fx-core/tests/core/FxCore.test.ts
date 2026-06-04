@@ -7910,7 +7910,7 @@ describe("fetchOnlineTemplateMetadata", () => {
 
     sandbox.stub(fs, "pathExists").resolves(false);
     sandbox.stub(fs, "ensureDir").resolves();
-    sandbox.stub(fs, "writeFile").resolves();
+    const writeFileStub = sandbox.stub(fs, "writeFile").resolves();
 
     const result = await core.fetchOnlineTemplateMetadata();
 
@@ -7921,6 +7921,43 @@ describe("fetchOnlineTemplateMetadata", () => {
         "https://example.com/releases/download/templates-v4@2.0.0/metadata.zip"
       )
     );
+    assert.isTrue(unzipStub.calledOnce);
+    // The v4 channel uses its own version cache file so switching the flag does
+    // not get a stale hit on the shared v3 cache.
+    assert.isTrue(
+      writeFileStub.calledWith(sinon.match(/template-version-v4\.txt$/), "2.0.0", {
+        encoding: "utf-8",
+      })
+    );
+  });
+
+  it("should still download v4 metadata when only the shared v3 cache is current", async () => {
+    sandbox.stub(templateHelper, "useLocalTemplate").returns(false);
+    sandbox.stub(templateConfigModule, "v4tagPrefix").value("templates-v4@");
+    sandbox
+      .stub(templateConfigModule, "templateDownloadBaseURL")
+      .value("https://example.com/releases/download");
+    sandbox.stub(packageJson, "version").value("1.0.0");
+    sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
+
+    sandbox.stub(generatorUtils, "getTemplateLatestVersion").resolves("2.0.0");
+    const mockZip = new AdmZip();
+    const fetchZipStub = sandbox.stub(generatorUtils, "fetchZipFromUrl").resolves(mockZip);
+    const unzipStub = sandbox.stub(generatorUtils, "unzip").resolves();
+
+    sandbox.stub(fs, "ensureDir").resolves();
+    sandbox.stub(fs, "writeFile").resolves();
+    // The v4 version file is absent even though the (shared-name) v3 cache would
+    // otherwise look current; the v4 channel must not be fooled into skipping.
+    sandbox
+      .stub(fs, "pathExists")
+      .callsFake((p: string) => Promise.resolve(p.endsWith("template-version.txt")));
+    sandbox.stub(fs, "readFile").resolves("2.0.0" as any);
+
+    const result = await core.fetchOnlineTemplateMetadata();
+
+    assert.isTrue(result.isOk());
+    assert.isTrue(fetchZipStub.calledOnce);
     assert.isTrue(unzipStub.calledOnce);
   });
 
