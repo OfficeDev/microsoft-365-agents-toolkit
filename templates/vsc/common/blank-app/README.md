@@ -26,7 +26,7 @@ This blank project is a starting point. Add capabilities by editing `manifest.js
 ## Provision and Preview
 
 1. Press `F5` or run `Provision` from the command palette to register your app
-2. View your app in [Teams Admin Center](https://admin.teams.microsoft.com/policies/manage-apps)
+2. Launch `Preview in Teams (Edge)` or `Preview in Teams (Chrome)` to install and view your app in Microsoft Teams
 
 ## Learn More
 
