@@ -7961,6 +7961,29 @@ describe("fetchOnlineTemplateMetadata", () => {
     assert.isTrue(unzipStub.calledOnce);
   });
 
+  it("should skip online fetch in v4 channel for a prerelease (0.0.0-rc) build", async () => {
+    sandbox.stub(templateHelper, "useLocalTemplate").returns(false);
+    sandbox.stub(packageJson, "version").value("1.0.0-rc.0");
+    sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
+
+    const getLatestStub = sandbox.stub(generatorUtils, "getTemplateLatestVersion");
+    const fetchZipStub = sandbox.stub(generatorUtils, "fetchZipFromUrl");
+    const unzipStub = sandbox.stub(generatorUtils, "unzip");
+
+    sandbox.stub(fs, "ensureDir").resolves();
+    const writeFileStub = sandbox.stub(fs, "writeFile").resolves();
+
+    const result = await core.fetchOnlineTemplateMetadata();
+
+    assert.isTrue(result.isOk());
+    // The v4 channel has no `templates-v4@0.0.0-rc` release: do not hit the
+    // network and let the readers fall back to bundled metadata.
+    assert.equal(getLatestStub.called, false);
+    assert.equal(fetchZipStub.called, false);
+    assert.equal(unzipStub.called, false);
+    assert.equal(writeFileStub.called, false);
+  });
+
   it("should skip download when cached version matches latest version", async () => {
     sandbox.stub(templateHelper, "useLocalTemplate").returns(false);
     sandbox.stub(packageJson, "version").value("1.0.0");

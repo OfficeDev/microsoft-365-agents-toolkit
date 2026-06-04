@@ -2667,6 +2667,17 @@ export class FxCore extends FxCoreOpenPluginPart {
       // cache hit, while still caching within a channel (no re-download every
       // activation). Remove once selector.json drives metadata distribution.
       const useV4Channel = featureFlagManager.getBooleanValue(FeatureFlags.V4Enabled);
+
+      // Transitional: the v4 channel publishes no mutable `0.0.0-rc` release
+      // (only immutable `templates-v4@<ver>` tags minted on stable CD) and is
+      // bundled during the prerelease/test phase. So in v4 mode on a daily/
+      // beta/rc build, skip the online fetch (the v4 RC URL would 404 on every
+      // activation) and let the readers fall back to bundled metadata. Remove
+      // once selector.json drives metadata distribution.
+      if (useV4Channel && latestVersion === "0.0.0-rc") {
+        return ok(undefined);
+      }
+
       const versionFile = path.join(
         metadataDir,
         useV4Channel ? "template-version-v4.txt" : "template-version.txt"
