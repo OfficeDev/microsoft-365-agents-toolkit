@@ -12,6 +12,7 @@
     "test:unit:vitest": "vitest run --config vitest.config.ts --maxWorkers=75%",
     "test:unit:vitest:watch": "vitest --config vitest.config.ts",
     "test:coverage:changed": "node scripts/run-changed-coverage.js",
+    "test:env-checker": "vitest run --config vitest.config.ts --maxWorkers=75% \"tests/component/deps-checker/\"",
     "clean": "rimraf -rf build",
     "prebuild": "npm run gen:cli",
     "build": "tsc -p ./ --incremental",
