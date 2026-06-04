@@ -66,6 +66,7 @@ import {
   setErrorContext,
   setTools,
 } from "../common/globalVars";
+import { featureFlagManager, FeatureFlags } from "../common/featureFlags";
 import { clearLocaleCache, getLocalizedString } from "../common/localizeUtils";
 import { ListCollaboratorResult, PermissionsResult } from "../common/permissionInterface";
 import { getProjectMetadata, isValidProjectV3 } from "../common/projectSettingsHelper";
@@ -2675,8 +2676,16 @@ export class FxCore extends FxCoreOpenPluginPart {
         return ok(undefined); // Already up-to-date
       }
 
-      // Construct metadata.zip download URL based on tag prefix and version
-      const tag = `${templateConfig.tagPrefix}${latestVersion}`;
+      // Construct metadata.zip download URL based on tag prefix and version.
+      // Transitional: when the v4 channel is enabled, pull metadata from the
+      // v4 release tag (`templates-v4@<ver>`). The v4 release shares the exact
+      // same version string as the v3 `templates@<ver>` release (both minted
+      // from the same templates version), so only the tag prefix differs.
+      // Remove this branch once selector.json drives metadata distribution.
+      const tagPrefix = featureFlagManager.getBooleanValue(FeatureFlags.V4Enabled)
+        ? templateConfig.v4tagPrefix
+        : templateConfig.tagPrefix;
+      const tag = `${tagPrefix}${latestVersion}`;
       const metadataZipUrl = `${templateConfig.templateDownloadBaseURL}/${tag}/metadata.zip`;
 
       const zip = await fetchZipFromUrl(metadataZipUrl);

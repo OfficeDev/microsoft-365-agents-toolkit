@@ -7894,6 +7894,36 @@ describe("fetchOnlineTemplateMetadata", () => {
     assert.isTrue(writeFileStub.calledWith(sinon.match.string, "2.0.0", { encoding: "utf-8" }));
   });
 
+  it("should download metadata from the v4 release tag when V4 channel is enabled", async () => {
+    sandbox.stub(templateHelper, "useLocalTemplate").returns(false);
+    sandbox.stub(templateConfigModule, "v4tagPrefix").value("templates-v4@");
+    sandbox
+      .stub(templateConfigModule, "templateDownloadBaseURL")
+      .value("https://example.com/releases/download");
+    sandbox.stub(packageJson, "version").value("1.0.0");
+    sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
+
+    sandbox.stub(generatorUtils, "getTemplateLatestVersion").resolves("2.0.0");
+    const mockZip = new AdmZip();
+    const fetchZipStub = sandbox.stub(generatorUtils, "fetchZipFromUrl").resolves(mockZip);
+    const unzipStub = sandbox.stub(generatorUtils, "unzip").resolves();
+
+    sandbox.stub(fs, "pathExists").resolves(false);
+    sandbox.stub(fs, "ensureDir").resolves();
+    sandbox.stub(fs, "writeFile").resolves();
+
+    const result = await core.fetchOnlineTemplateMetadata();
+
+    assert.isTrue(result.isOk());
+    assert.isTrue(fetchZipStub.calledOnce);
+    assert.isTrue(
+      fetchZipStub.calledWith(
+        "https://example.com/releases/download/templates-v4@2.0.0/metadata.zip"
+      )
+    );
+    assert.isTrue(unzipStub.calledOnce);
+  });
+
   it("should skip download when cached version matches latest version", async () => {
     sandbox.stub(templateHelper, "useLocalTemplate").returns(false);
     sandbox.stub(packageJson, "version").value("1.0.0");
