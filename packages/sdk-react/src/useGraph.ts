@@ -66,8 +66,7 @@ export function useGraphWithCredential<T>(
           err.message +=
             '\nIf you see "AADSTS50011: The reply URL specified in the request does not match the reply URLs configured for the application" ' +
             "in the popup window, you may be using unmatched version for TeamsFx SDK (version >= 0.5.0) and Teams Toolkit (version < 3.3.0) or " +
-            "cli (version < 0.11.0). Please refer to the help link for how to fix the issue: " +
-            helpLink;
+            `cli (version < 0.11.0). Please refer to the help link for how to fix the issue: ${helpLink}`;
         }
         throw err;
       }
