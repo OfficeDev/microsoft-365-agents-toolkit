@@ -133,7 +133,9 @@ export class TeamsUserCredential implements TokenCredential {
     // If code exists in result, user may using previous auth-start and auth-end page.
     if (resultJson.code) {
       const usingPreviousAuthPage =
-        "Found auth code in response. Auth code is not support for current version of SDK. ";
+        "Found auth code in response. Auth code is not support for current version of SDK. " +
+        "Please refer to the help link for how to fix the issue: " +
+        "https://learn.microsoft.com/microsoftteams/platform/toolkit/develop-single-sign-on-experience-in-teams.";
       internalLogger.error(usingPreviousAuthPage);
       throw new ErrorWithCode(usingPreviousAuthPage, ErrorCode.InvalidResponse);
     }
