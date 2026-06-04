@@ -14,13 +14,7 @@
 #
 # Usage (run AFTER the templates build, with build/v4/templates.zip present):
 #   bash .github/scripts/v4/publish-v4-channel.sh \
-#     <templates@<ver> tag> <path to templates.zip> <temp dir> <commit sha> \
-#     [path to metadata.zip]
-#
-# The optional 5th argument is transitional: it mirrors the v3 `metadata.zip`
-# onto the v4 release so `fetchOnlineTemplateMetadata` can pull metadata from
-# the v4 tag when TEAMSFX_V4_ENABLED is on. Remove once selector.json drives
-# metadata distribution.
+#     <templates@<ver> tag> <path to templates.zip> <temp dir> <commit sha>
 #
 # Requires: gh CLI authenticated via GH_TOKEN, node on PATH.
 set -euo pipefail
@@ -29,7 +23,6 @@ TEMPLATE_TAG="${1:?Need the templates@<ver> tag (steps.version-change.outputs.TE
 ZIP="${2:?Need the path to templates.zip.}"
 TMP="${3:?Need a temp directory.}"
 SHA="${4:?Need the commit sha to anchor the release.}"
-METADATA_ZIP="${5:-}"
 
 VERSION="${TEMPLATE_TAG#templates@}"
 TAG="templates-v4@$VERSION"
@@ -43,12 +36,6 @@ if ! gh release view "$TAG" >/dev/null 2>&1; then
     --target "$SHA"
 fi
 gh release upload "$TAG" "$ZIP" --clobber
-
-# 1b. Transitional: mirror the v3 metadata.zip onto the v4 release so the
-#     engine can fetch metadata from the v4 tag when TEAMSFX_V4_ENABLED is on.
-if [ -n "$METADATA_ZIP" ]; then
-  gh release upload "$TAG" "$METADATA_ZIP" --clobber
-fi
 
 # 2. Pull the existing NDJSON tag-list (absent on the first release).
 gh release download template-v4-tag-list --pattern template-v4-tags.ndjson --dir "$TMP" || true
