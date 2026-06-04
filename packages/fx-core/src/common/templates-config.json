@@ -6,9 +6,15 @@
     "vsversion": "18.6.0",
     "vsVersionPattern": "~18.6",
     "tagListURL": "https://github.com/OfficeDev/microsoft-365-agents-toolkit/releases/download/template-tag-list/template-tags.txt",
+    "templatesV4TagListURL": "https://github.com/OfficeDev/microsoft-365-agents-toolkit/releases/download/template-v4-tag-list/template-v4-tags.ndjson",
     "templateDownloadBaseURL": "https://github.com/OfficeDev/microsoft-365-agents-toolkit/releases/download",
     "templateReleaseURL": "https://github.com/OfficeDev/microsoft-365-agents-toolkit/releases/expanded_assets",
     "templateDownloadBasePath": "/OfficeDev/microsoft-365-agents-toolkit/releases/download",
     "templateExt": ".zip",
-    "useLocalTemplate": true
+    "useLocalTemplate": true,
+    "v4": {
+        "range": "~6.10",
+        "bundled": true,
+        "localVersion": "6.10.1"
+    }
 }
