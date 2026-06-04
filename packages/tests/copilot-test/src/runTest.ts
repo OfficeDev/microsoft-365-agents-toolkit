@@ -169,6 +169,46 @@ async function startSignalWatcher(
             await page.screenshot({ path: dest, fullPage: false });
             console.log(`  Screenshot: ${path.basename(dest)}`);
           }
+        } else if (content.startsWith("screenshotElement:")) {
+          // Format: "screenshotElement:<cssSelector>:<dest>"
+          // Split on first and last colon so Windows paths (C:\...) are preserved.
+          const withoutPrefix = content.slice("screenshotElement:".length);
+          const selectorEnd = withoutPrefix.indexOf(":");
+          if (selectorEnd !== -1 && page) {
+            const selector = withoutPrefix.slice(0, selectorEnd);
+            const dest = withoutPrefix.slice(selectorEnd + 1);
+            try {
+              const el = await page.$(selector);
+              if (el) {
+                const box = await el.boundingBox();
+                if (box) {
+                  await page.screenshot({ path: dest, clip: box });
+                  console.log(
+                    `  Screenshot[${selector}]: ${path.basename(dest)}`,
+                  );
+                } else {
+                  // Element found but not visible — fall back to full-page
+                  await page.screenshot({ path: dest, fullPage: false });
+                  console.log(
+                    `  Screenshot[fallback, no box for ${selector}]: ${path.basename(dest)}`,
+                  );
+                }
+              } else {
+                // Element not found — fall back to full-page
+                await page.screenshot({ path: dest, fullPage: false });
+                console.log(
+                  `  Screenshot[fallback, ${selector} not found]: ${path.basename(dest)}`,
+                );
+              }
+            } catch (e: any) {
+              console.warn(
+                `  screenshotElement error (${selector}): ${e.message}`,
+              );
+              try {
+                await page.screenshot({ path: dest, fullPage: false });
+              } catch {}
+            }
+          }
         } else if (content.startsWith("clickText:")) {
           const text = content.slice("clickText:".length);
           if (page) {

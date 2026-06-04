@@ -21,6 +21,187 @@ You do NOT run the test. The runner workflow handles execution.
 
 ---
 
+## Workflow Overview
+
+Every test, regardless of route, follows this top-level sequence:
+
+```
+Open VS Code  →  Step 0: Verify ATK activated  →  Route-specific steps  →  Write results.json
+```
+
+**Success condition per route:**
+
+| Route | Primary success signal | Required screenshots |
+|---|---|---|
+| Scaffold | All expected files exist under project dir | wizard step (element), file-check (explorer element) |
+| Local Debug | Debug session attaches (breakpoint or terminal active) | accounts view (element), debug toolbar (element) |
+| Remote Provision | `teamsApp/create` output shows app ID in env file | accounts view (element), provisioned resource (element) |
+| Remote Deploy | Deploy completes with no error notification | accounts view (element), notification (element) |
+
+**Always take element-level screenshots** (not full-page) — see `takeElementScreenshot()` below.
+
+---
+
+## Routes
+
+### Route: Scaffold (no auth required)
+
+Scaffold creates a new project from the ATK wizard. The wizard tree is defined in
+`templates/src/ui/` — consult the relevant `*.ts` file for the exact option labels for
+each project type before writing the click sequence.
+
+**Key files:**
+- `templates/src/ui/root.ts` — first page (project-type) options
+- `templates/src/ui/da.ts` — Declarative Agent sub-tree
+- `templates/src/ui/cea.ts` — Custom Engine Agent sub-tree
+- `templates/src/ui/teams.ts` — Teams Apps sub-tree
+
+**Pattern:**
+
+```typescript
+// 1. Generate a unique app name to avoid collisions
+const appName = `da-${Date.now()}`;
+
+// 2. Fire wizard WITHOUT await (wizard blocks until user completes it)
+vscode.commands.executeCommand("fx-extension.create").catch(() => {});
+await wait(500);  // yield event loop so command reaches extension host
+
+// 3. Each wizard step: waitForText → screenshotElement(.quick-input-widget) → clickText
+await sendSignal("waitForTextThenScreenshot:Declarative Agent:60000:02-step1-project-type", 68000);
+await takeElementScreenshot("02-step1-project-type", ".quick-input-widget");
+await sendSignal("clickText:Declarative Agent", 10000);
+await wait(800);
+
+// ... repeat for each step (options come from templates/src/ui/*.ts)
+
+// 4. App name step: type random name
+await sendSignal("waitForTextThenScreenshot:Application Name:15000:07-step-appname", 23000);
+await takeElementScreenshot("07-step-appname", ".quick-input-widget");
+await sendSignal(`type:${appName}`, 8000);
+await wait(300);
+await sendSignal("pressKey:Enter", 5000);
+
+// 5. Wait for scaffold (ATK opens a new VS Code window; close it)
+await wait(30000);
+await takeElementScreenshot("08-scaffold-progress", ".notifications-toasts");
+await wait(60000);
+// Close the new window that ATK opens for the scaffolded project
+await vscode.commands.executeCommand("workbench.action.closeWindow");
+
+// 6. Open the scaffolded project in the current window
+const projectDir = findScaffoldedDir(appName);  // search ~/AgentsToolkitProjects + homedir
+await vscode.commands.executeCommand("vscode.openFolder", vscode.Uri.file(projectDir));
+await wait(5000);
+
+// 7. Verify files — poll sentinel, then check each, screenshot explorer per check
+const sentinel = path.join(projectDir, "m365agents.yml");
+for (let i = 0; i < 60 && !fs.existsSync(sentinel); i++) await wait(1000);
+
+for (const relPath of EXPECTED_FILES) {
+  const exists = fs.existsSync(path.join(projectDir, relPath));
+  step(`File: ${relPath}`, exists);
+  await takeElementScreenshot(`verify-${relPath.replace(/\//g, "-")}`, ".explorer-viewlet");
+}
+```
+
+**Always expected in scaffolded output** (regardless of template):
+- `m365agents.yml`
+- `appPackage/manifest.json`
+
+Additional files depend on the specific template — document them in the test plan.
+
+---
+
+### Route: Local Debug (requires scaffold + M365 auth)
+
+**Preconditions:**
+1. A scaffolded project is open as the workspace (either run scaffold route first, or open an existing project).
+2. M365 auth is completed — see **Auth Reference** below.
+
+**Pattern after auth:**
+
+```typescript
+// Open debug config picker (does NOT block — no await)
+vscode.commands.executeCommand("workbench.action.debug.selectandstart").catch(() => {});
+await wait(500);
+
+// Select the debug config for this template (label comes from .vscode/launch.json)
+await sendSignal("waitForTextThenScreenshot:Debug in Teams:20000:10-debug-picker", 28000);
+await takeElementScreenshot("10-debug-picker", ".quick-input-widget");
+await sendSignal("clickText:Debug in Teams", 10000);
+
+// Wait for debug session to start
+await sendSignal("waitForTextThenScreenshot:Debug Console:120000:11-debug-started", 130000);
+await takeElementScreenshot("11-debug-toolbar", ".debug-toolbar");
+```
+
+---
+
+### Route: Remote Provision / Deploy (requires M365 + Azure auth)
+
+Follow the same auth pattern for both M365 and Azure (see **Auth Reference**), then:
+
+```typescript
+// Provision
+vscode.commands.executeCommand("fx-extension.provision").catch(() => {});
+// Deploy
+vscode.commands.executeCommand("fx-extension.deploy").catch(() => {});
+```
+
+Screenshot the notification toast on completion:
+```typescript
+await takeElementScreenshot("provision-done", ".notifications-toasts");
+```
+
+---
+
+## Auth Reference
+
+**Source patches** (must be applied + rebuilt before running auth-dependent tests):
+
+| File | Patch | Effect |
+|---|---|---|
+| `packages/vscode-extension/src/commonlib/m365Login.ts` | `if (process.env["TEAMSFX_AUTO_CONFIRM_LOGIN"] === "true") return Promise.resolve(true);` at top of `doesUserConfirmLogin()` | Bypasses the VS Code modal confirmation dialog |
+| `packages/vscode-extension/src/commonlib/codeFlowLogin.ts` | Write auth URL to `$TEMP/atk-auth-url.txt` in `getAuthCodeUrl().then()` | Makes auth URL accessible to test automation |
+
+**Required env vars** when launching VS Code:
+```
+TEAMSFX_AUTO_CONFIRM_LOGIN=true
+TEAMSFX_BROKER_AUTH=false   # forces browser code flow (MSAL), not WAM
+```
+
+**Auth flow in test code:**
+
+```typescript
+// 1. Trigger sign-in via ATK accounts tree item click
+//    (ATK must be activated first — workspaceContains:m365agents*.yml fires activation)
+await sendSignal("waitForTextThenScreenshot:Sign in to Microsoft 365:20000:auth-01-signin-item", 28000);
+await takeElementScreenshot("auth-01-accounts-pane",
+  "[id='workbench.view.extension.teamsfx'] .pane-body");
+await sendSignal("clickText:Sign in to Microsoft 365", 10000);
+
+// 2. Poll for auth URL written by codeFlowLogin.ts patch
+const AUTH_URL_FILE = path.join(os.tmpdir(), "atk-auth-url.txt");
+let authUrl = "";
+for (let i = 0; i < 30 && !authUrl; i++) {
+  await wait(1000);
+  if (fs.existsSync(AUTH_URL_FILE)) {
+    authUrl = fs.readFileSync(AUTH_URL_FILE, "utf-8").trim();
+  }
+}
+step("Auth URL captured", !!authUrl, authUrl ? authUrl.substring(0, 60) + "..." : "not found");
+
+// 3. Open browser for OAuth (test infra handles the actual login)
+//    The runner environment must have credentials pre-seeded.
+
+// 4. After OAuth, verify sign-in by checking account view tree
+await sendSignal("waitForTextThenScreenshot:M365 account:60000:auth-02-signed-in", 70000);
+await takeElementScreenshot("auth-02-account-view",
+  "[id='workbench.view.extension.teamsfx'] .pane-body");
+```
+
+---
+
 ## Test Quality Rules — Simulate Real User Behavior
 
 Tests must reflect how a real user interacts with the extension. The following rules are **mandatory**:
@@ -142,26 +323,102 @@ const OUTPUT_DIR     = process.env.TEST_OUTPUT_DIR          || path.join(os.tmpd
 const SCREENSHOT_DIR = process.env.SCREENSHOT_DIR           || path.join(OUTPUT_DIR, "screenshots");
 const SIGNAL_DIR     = process.env.SCREENSHOT_SIGNAL_DIR    || path.join(OUTPUT_DIR, ".screenshot-signals");
 
-function takeScreenshot(name: string): void {
+function ensureDirs() {
+  [OUTPUT_DIR, SCREENSHOT_DIR, SIGNAL_DIR].forEach(d => fs.mkdirSync(d, { recursive: true }));
+}
+
+/** Full-page screenshot (fallback only — prefer takeElementScreenshot) */
+async function takeScreenshot(name: string): Promise<void> {
   const dest   = path.join(SCREENSHOT_DIR, `${name}.png`);
   const signal = path.join(SIGNAL_DIR, `${Date.now()}-${name}.signal`);
   fs.writeFileSync(signal, `screenshot:${dest}`, "utf8");
-  const deadline = Date.now() + 8000;
-  while (fs.existsSync(signal) && Date.now() < deadline) {
-    const end = Date.now() + 100; while (Date.now() < end) {}
+  await _waitForSignal(signal, 8000);
+}
+
+/**
+ * Element-level screenshot: Playwright gets the element's bounding box (x,y,w,h)
+ * and clips the screenshot to that region. Always prefer this over takeScreenshot().
+ *
+ * @param name    Screenshot basename (no extension)
+ * @param selector  CSS selector for the element to capture
+ *
+ * Common selectors:
+ *   Wizard QuickPick panel:   ".quick-input-widget"
+ *   QuickPick options list:   ".quick-input-list"
+ *   ATK sidebar (all panes):  "[id='workbench.view.extension.teamsfx'] .pane-body"
+ *   Accounts pane:            ".view-pane[aria-label*='Accounts']"
+ *   File explorer:            ".explorer-viewlet"
+ *   Debug toolbar:            ".debug-toolbar"
+ *   Notification toasts:      ".notifications-toasts"
+ *   Status bar:               "#workbench\\.parts\\.statusbar"
+ */
+async function takeElementScreenshot(name: string, selector: string): Promise<void> {
+  const dest   = path.join(SCREENSHOT_DIR, `${name}.png`);
+  const signal = path.join(SIGNAL_DIR, `${Date.now()}-${name}.signal`);
+  fs.writeFileSync(signal, `screenshotElement:${selector}:${dest}`, "utf8");
+  await _waitForSignal(signal, 8000);
+}
+
+async function _waitForSignal(signal: string, timeoutMs: number): Promise<void> {
+  await new Promise<void>(resolve => {
+    const deadline = Date.now() + timeoutMs;
+    const iv = setInterval(() => {
+      if (!fs.existsSync(signal) || Date.now() >= deadline) {
+        clearInterval(iv);
+        try { if (fs.existsSync(signal)) fs.unlinkSync(signal); } catch {}
+        resolve();
+      }
+    }, 100);
+  });
+}
+
+async function sendSignal(content: string, timeoutMs = 15000): Promise<void> {
+  const signal = path.join(SIGNAL_DIR, `${Date.now()}-action.signal`);
+  fs.writeFileSync(signal, content, "utf8");
+  await _waitForSignal(signal, timeoutMs);
+}
+
+function wait(ms: number): Promise<void> {
+  return new Promise(r => setTimeout(r, ms));
+}
+
+/** Step 0 (mandatory in every test): verify ATK extension is active */
+async function waitForATKActivation(timeoutMs = 60000): Promise<boolean> {
+  const extId = "TeamsDevApp.ms-teams-vscode-extension";
+  const deadline = Date.now() + timeoutMs;
+  let ext = vscode.extensions.getExtension(extId);
+  while (!ext?.isActive && Date.now() < deadline) {
+    await wait(1000);
+    ext = vscode.extensions.getExtension(extId);
   }
+  if (ext && !ext.isActive) {
+    try { await ext.activate(); } catch {}
+  }
+  return !!ext?.isActive;
 }
 
 suite("Your Suite Name", function () {
-  this.timeout(5 * 60 * 1000);
-  // ... tests using vscode.* API + takeScreenshot()
+  this.timeout(10 * 60 * 1000);
+
+  suiteSetup(() => ensureDirs());
+
+  test("Step 0: ATK extension is active", async () => {
+    const active = await waitForATKActivation();
+    // Screenshot the whole workbench to confirm extension loaded
+    await takeElementScreenshot("00-atk-active",
+      "[id='workbench.view.extension.teamsfx'] .pane-body");
+    assert.ok(active, "ATK extension must be active before any test step runs");
+  });
+
+  // ... route-specific tests
 });
 ```
 
 ### Key rules
 
 - Fire UI-blocking commands WITHOUT `await` (wizard blocks until user action)
-- Call `takeScreenshot()` after every meaningful UI state change — before AND after interactions
+- **Always use `takeElementScreenshot()`** — full-page `takeScreenshot()` is a fallback only
+- Call `takeElementScreenshot()` after every meaningful UI state change
 - Write results to `${TEST_OUTPUT_DIR}/results.json`:
   `{ passed: N, failed: N, steps: [{ name, status, detail }] }`
 
@@ -169,10 +426,12 @@ suite("Your Suite Name", function () {
 
 | Signal content | Action |
 |----------------|--------|
-| `screenshot:<dest>` | Take screenshot |
+| `screenshot:<dest>` | Full-page screenshot |
+| `screenshotElement:<cssSelector>:<dest>` | **Element screenshot** — Playwright calls `element.boundingBox()` and clips to that region |
 | `clickText:<text>` | Click element containing text |
 | `click:<selector>` | Click CSS selector |
 | `type:<text>` | Type text |
 | `pressKey:<key>` | Press keyboard key |
+| `waitForTextThenScreenshot:<text>:<timeoutMs>:<screenshotName>` | Wait for text to appear, then full-page screenshot |
 | `eval:<resultFile>:<script>` | Evaluate JS in webview, write result to resultFile |
 
