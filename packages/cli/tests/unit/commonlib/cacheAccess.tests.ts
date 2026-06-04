@@ -129,7 +129,7 @@ describe("tenant id save/load", () => {
 
   context("Files read/write successfully", () => {
     beforeEach(() => {
-      sandbox.stub(fs, "ensureFile").resolves();
+      sandbox.stub(fs, "ensureDir").resolves();
       sandbox.stub(fs, "writeFile").callsFake((dir, id) => {
         tenantId = id;
       });
@@ -159,14 +159,14 @@ describe("tenant id save/load", () => {
     it("should return undefined tenant id when cache path not exist", async () => {
       sandbox.stub(fs, "pathExists").resolves(false);
       const tid = await loadTenantId("m365");
-      expect(tid).to.equal("");
+      expect(tid).to.equal(undefined);
     });
   });
 
   context("Error throws", () => {
     let logStub: SinonStub;
     beforeEach(() => {
-      sandbox.stub(fs, "ensureFile").resolves();
+      sandbox.stub(fs, "ensureDir").resolves();
       sandbox.stub(fs, "writeFile").throws();
       sandbox.stub(fs, "readFile").throws();
       sandbox.stub(fs, "pathExists").resolves(true);

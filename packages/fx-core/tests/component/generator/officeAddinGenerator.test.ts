@@ -963,4 +963,3 @@ describe("MetaOSHelper", () => {
     chai.assert.include(writeFileCall.args[1], "TEAMS_APP_ID=");
   });
 });
-

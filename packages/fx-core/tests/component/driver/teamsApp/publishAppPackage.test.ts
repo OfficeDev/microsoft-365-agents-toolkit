@@ -1001,4 +1001,3 @@ describe("teamsApp/publishAppPackage", async () => {
     });
   });
 });
-

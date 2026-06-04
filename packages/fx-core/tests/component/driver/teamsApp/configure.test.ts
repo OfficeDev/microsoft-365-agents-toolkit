@@ -250,4 +250,3 @@ describe("teamsApp/update", async () => {
     chai.assert.isTrue(result.result.isOk());
   });
 });
-

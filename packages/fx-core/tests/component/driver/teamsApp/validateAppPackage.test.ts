@@ -578,4 +578,3 @@ describe("teamsApp/validateAppPackage", async () => {
     chai.assert(result.isOk());
   });
 });
-

@@ -253,4 +253,3 @@ describe("InstallAppToChannelDriver", () => {
     expect(deleteStub.calledOnce).to.be.true;
   });
 });
-
