@@ -34,6 +34,10 @@ export class FeatureFlagName {
 
   // Permanent feature flag for sovereign cloud environment setting
   static readonly SovereignCloudEnvironment = "TEAMSFX_SOVEREIGN_CLOUD_ENVIRONMENT";
+
+  // Global switch for the v4 architecture (currently routes scaffold template
+  // resolution through the v4 distribution channel).
+  static readonly V4Enabled = "TEAMSFX_V4_ENABLED";
 }
 
 export interface FeatureFlag {
@@ -105,6 +109,10 @@ export class FeatureFlags {
   };
   static readonly BrokerAuth = {
     name: FeatureFlagName.BrokerAuth,
+    defaultValue: "false",
+  };
+  static readonly V4Enabled = {
+    name: FeatureFlagName.V4Enabled,
     defaultValue: "false",
   };
   static readonly GenerateConfigFiles = {
