@@ -5,7 +5,6 @@
  * @author Ivan Jobs <ruhe@microsoft.com>
  */
 import { expect } from "chai";
-import "mocha";
 import { getDefaultString, getLocalizedString } from "../../../../src/common/localizeUtils";
 import { Messages } from "../../../../src/component/resource/botService/messages";
 describe("Test Messages", () => {

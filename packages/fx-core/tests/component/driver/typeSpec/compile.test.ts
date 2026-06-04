@@ -1,15 +1,5 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
-
-import "mocha";
-import * as sinon from "sinon";
-import mockedEnv, { RestoreFn } from "mocked-env";
-import * as chai from "chai";
-import chaiAsPromised from "chai-as-promised";
-import { MockedM365Provider, MockLogProvider, MockTools } from "../../../core/utils";
-import { TypeSpecCompileArgs } from "../../../../src/component/driver/typeSpec/interface/typeSpecCompileArgs";
-import { MockedUserInteraction } from "../../../plugins/solution/util";
-import fs from "fs-extra";
 import {
   DeclarativeCopilotManifestSchema,
   err,
@@ -18,10 +8,18 @@ import {
   SystemError,
   TeamsAppManifest,
 } from "@microsoft/teamsfx-api";
-import { TypeSpecCompileDriver } from "../../../../src/component/driver/typeSpec/compile";
-import * as helper from "../../../../src/component/generator/openApiSpec/helper";
-import * as kiotaClient from "../../../../src/common/kiotaClient";
-import * as daSpecParser from "../../../../src/common/daSpecParser";
+import * as chai from "chai";
+import chaiAsPromised from "chai-as-promised";
+import fs from "fs-extra";
+import mockedEnv, { RestoreFn } from "mocked-env";
+import * as sinon from "sinon";
+import {
+  typeSpecCompileDeps,
+  TypeSpecCompileDriver,
+} from "../../../../src/component/driver/typeSpec/compile";
+import { TypeSpecCompileArgs } from "../../../../src/component/driver/typeSpec/interface/typeSpecCompileArgs";
+import { MockedM365Provider, MockLogProvider, MockTools } from "../../../core/utils";
+import { MockedUserInteraction } from "../../../plugins/solution/util";
 
 chai.use(chaiAsPromised);
 const expect = chai.expect;
@@ -134,7 +132,7 @@ describe("typeSpecCompilt", async () => {
       const dataToWrite = JSON.stringify(data);
       expect(dataToWrite.includes("declarativeAgent.json")).to.be.true;
     });
-    sandbox.stub(daSpecParser, "parseAndUpdatePluginManifestForKiota").resolves([
+    sandbox.stub(typeSpecCompileDeps, "parseAndUpdatePluginManifestForKiota").resolves([
       {
         authName: "mockedAuthName",
         specPath: "mockedSpecPath",
@@ -142,8 +140,8 @@ describe("typeSpecCompilt", async () => {
         authType: "apiKey",
       },
     ]);
-    sandbox.stub(helper, "injectAuthAction").resolves(undefined);
-    sandbox.stub(kiotaClient, "kiotageneratePlugin").resolves({
+    sandbox.stub(typeSpecCompileDeps, "injectAuthAction").resolves(undefined);
+    sandbox.stub(typeSpecCompileDeps, "kiotageneratePlugin").resolves({
       aiPlugin: "mocked-ai-plugin",
       openAPISpec: "mocked-openapi-spec",
       isSuccess: true,
@@ -205,7 +203,7 @@ describe("typeSpecCompilt", async () => {
       const dataToWrite = JSON.stringify(data);
       expect(dataToWrite.includes("declarativeAgent.json")).to.be.true;
     });
-    sandbox.stub(daSpecParser, "parseAndUpdatePluginManifestForKiota").resolves([
+    sandbox.stub(typeSpecCompileDeps, "parseAndUpdatePluginManifestForKiota").resolves([
       {
         authName: "mockedAuthName",
         specPath: "mockedSpecPath",
@@ -213,8 +211,8 @@ describe("typeSpecCompilt", async () => {
         authType: "oauth2",
       },
     ]);
-    sandbox.stub(helper, "injectAuthAction").resolves(undefined);
-    sandbox.stub(kiotaClient, "kiotageneratePlugin").resolves({
+    sandbox.stub(typeSpecCompileDeps, "injectAuthAction").resolves(undefined);
+    sandbox.stub(typeSpecCompileDeps, "kiotageneratePlugin").resolves({
       aiPlugin: "mocked-ai-plugin",
       openAPISpec: "mocked-openapi-spec",
       isSuccess: true,
@@ -276,7 +274,7 @@ describe("typeSpecCompilt", async () => {
       const dataToWrite = JSON.stringify(data);
       expect(dataToWrite.includes("declarativeAgent.json")).to.be.true;
     });
-    sandbox.stub(daSpecParser, "parseAndUpdatePluginManifestForKiota").resolves([
+    sandbox.stub(typeSpecCompileDeps, "parseAndUpdatePluginManifestForKiota").resolves([
       {
         authName: "mockedAuthName",
         specPath: "mockedSpecPath",
@@ -284,11 +282,11 @@ describe("typeSpecCompilt", async () => {
         authType: "apiKey",
       },
     ]);
-    sandbox.stub(helper, "injectAuthAction").resolves({
+    sandbox.stub(typeSpecCompileDeps, "injectAuthAction").resolves({
       defaultRegistrationIdEnvName: "mockedDefaultRegistrationIdEnvName",
       registrationIdEnvName: "mockedRegistrationIdEnvName",
     });
-    sandbox.stub(kiotaClient, "kiotageneratePlugin").resolves({
+    sandbox.stub(typeSpecCompileDeps, "kiotageneratePlugin").resolves({
       aiPlugin: "mocked-ai-plugin",
       openAPISpec: "mocked-openapi-spec",
       isSuccess: true,
@@ -335,7 +333,7 @@ describe("typeSpecCompilt", async () => {
       expect(dataToWrite.includes("declarativeAgent.json")).to.be.true;
     });
     mockedDriverContext.platform = Platform.CLI;
-    sandbox.stub(kiotaClient, "kiotageneratePlugin").resolves({
+    sandbox.stub(typeSpecCompileDeps, "kiotageneratePlugin").resolves({
       aiPlugin: "mocked-ai-plugin",
       openAPISpec: "mocked-openapi-spec",
       isSuccess: true,
@@ -386,7 +384,7 @@ describe("typeSpecCompilt", async () => {
       const dataToWrite = JSON.stringify(data);
       expect(dataToWrite.includes("declarativeAgent.json")).to.be.true;
     });
-    sandbox.stub(kiotaClient, "kiotageneratePlugin").resolves({
+    sandbox.stub(typeSpecCompileDeps, "kiotageneratePlugin").resolves({
       aiPlugin: "mocked-ai-plugin",
       openAPISpec: "mocked-openapi-spec",
       isSuccess: true,

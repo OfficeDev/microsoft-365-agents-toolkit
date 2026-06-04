@@ -1,11 +1,5 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
-
-import "mocha";
-import * as sinon from "sinon";
-import chai from "chai";
-import fs from "fs-extra";
-import { pluginManifestUtils } from "../../../../src/component/driver/teamsApp/utils/PluginManifestUtils";
 import {
   AppManifestUtils,
   Colors,
@@ -14,23 +8,26 @@ import {
   SystemError,
   TeamsAppManifest,
   err,
-  ok,
 } from "@microsoft/teamsfx-api";
+import chai from "chai";
+import fs from "fs-extra";
+import mockedEnv, { RestoreFn } from "mocked-env";
+import path from "path";
+import * as sinon from "sinon";
 import {
   FileNotFoundError,
   JSONSyntaxError,
   MissingEnvironmentVariablesError,
 } from "../../../../src";
-import path from "path";
-import { AppStudioError } from "../../../../src/component/driver/teamsApp/errors";
-import { PluginManifestValidationResult } from "../../../../src/component/driver/teamsApp/interfaces/ValidationResult";
-import mockedEnv, { RestoreFn } from "mocked-env";
-import { MockedLogProvider, MockedTelemetryReporter } from "../../../plugins/solution/util";
 import { createContext, setTools } from "../../../../src/common/globalVars";
 import * as commonUtils from "../../../../src/common/utils";
-import { ODRProvider } from "../../../../src/component/utils/odrProvider";
+import { AppStudioError } from "../../../../src/component/driver/teamsApp/errors";
+import { PluginManifestValidationResult } from "../../../../src/component/driver/teamsApp/interfaces/ValidationResult";
+import { pluginManifestUtils } from "../../../../src/component/driver/teamsApp/utils/PluginManifestUtils";
 import { WrapDriverContext } from "../../../../src/component/driver/util/wrapUtil";
+import { ODRProvider } from "../../../../src/component/utils/odrProvider";
 import { MockTools } from "../../../core/utils";
+import { MockedLogProvider, MockedTelemetryReporter } from "../../../plugins/solution/util";
 
 describe("pluginManifestUtils", () => {
   const sandbox = sinon.createSandbox();
@@ -526,7 +523,7 @@ describe("pluginManifestUtils", () => {
 
       const res = await pluginManifestUtils.getDefaultNextAvailableApiSpecPath("testPath", "test");
 
-      chai.assert.equal(res, path.join("test", "openapi_3.json"));
+      chai.assert.equal(res, path.join("test", "openapi_3.yaml"));
     });
   });
 

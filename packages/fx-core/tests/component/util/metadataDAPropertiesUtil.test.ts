@@ -1,6 +1,5 @@
 import { FxError, LogProvider, ok, Result } from "@microsoft/teamsfx-api";
 import { assert } from "chai";
-import "mocha";
 import sinon from "sinon";
 import fs from "fs-extra";
 import {

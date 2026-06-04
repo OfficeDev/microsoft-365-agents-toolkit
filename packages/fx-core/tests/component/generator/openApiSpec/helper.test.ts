@@ -27,7 +27,6 @@ import { fail } from "assert";
 import axios from "axios";
 import { assert, expect } from "chai";
 import fs from "fs-extra";
-import "mocha";
 import mockedEnv, { RestoreFn } from "mocked-env";
 import { OpenAPIV3 } from "openapi-types";
 import path from "path";

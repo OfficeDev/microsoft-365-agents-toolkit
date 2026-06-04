@@ -5,7 +5,6 @@ import { SpecParser } from "@microsoft/m365-spec-parser";
 import { ConfirmConfig, UserError, err, ok } from "@microsoft/teamsfx-api";
 import * as chai from "chai";
 import chaiAsPromised from "chai-as-promised";
-import "mocha";
 import { RestoreFn } from "mocked-env";
 import * as sinon from "sinon";
 import { teamsGraphClient } from "../../../../src/client/teamsGraphClient";

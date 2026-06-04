@@ -1,7 +1,5 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
-
-import "mocha";
 import * as sinon from "sinon";
 import chai from "chai";
 import fs from "fs-extra";

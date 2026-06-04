@@ -4,8 +4,6 @@
 import { LogLevel, LogProvider, UserError } from "@microsoft/teamsfx-api";
 import { expect } from "chai";
 import fs from "fs-extra";
-import "mocha";
-import rewire from "rewire";
 import { assert, restore, spy, stub } from "sinon";
 import { createContext, setTools } from "../../../../../src/common/globalVars";
 import { cpUtils } from "../../../../../src/component/deps-checker/util/cpUtils";
@@ -13,8 +11,6 @@ import { YoChecker } from "../../../../../src/component/generator/spfx/depsCheck
 import { telemetryHelper } from "../../../../../src/component/generator/spfx/utils/telemetry-helper";
 import { Utils } from "../../../../../src/component/generator/spfx/utils/utils";
 import { MockTools } from "../../../../core/utils";
-
-const ryc = rewire("../../../../../src/component/generator/spfx/depsChecker/yoChecker");
 
 class StubLogger implements LogProvider {
   msg = "";

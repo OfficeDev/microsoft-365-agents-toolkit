@@ -1,7 +1,5 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
-
-import "mocha";
 import {
   DeployEmptyFolderError,
   CheckDeploymentStatusTimeoutError,

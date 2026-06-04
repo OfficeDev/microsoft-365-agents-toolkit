@@ -2,7 +2,6 @@
 // Licensed under the MIT license.
 
 import { assert } from "chai";
-import "mocha";
 import fs from "fs-extra";
 import sinon from "sinon";
 import properLock from "proper-lockfile";

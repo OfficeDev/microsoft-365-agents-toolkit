@@ -4,28 +4,27 @@
 /**
  * @author xzf0587 <zhaofengxu@microsoft.com>
  */
-import "mocha";
-import * as sinon from "sinon";
-import * as tools from "../../../../../src/common/utils";
-import { DeployArgs } from "../../../../../src/component/driver/interface/buildAndDeployArgs";
-import { TestLogProvider } from "../../../util/logProviderMock";
 import * as appService from "@azure/arm-appservice";
 import * as Models from "@azure/arm-appservice/src/models";
-import * as fileOpt from "../../../../../src/component/utils/fileOperation";
-import { AzureDeployImpl } from "../../../../../src/component/driver/deploy/azure/impl/azureDeployImpl";
+import { AxiosError } from "axios";
 import { assert, expect } from "chai";
 import fs from "fs-extra";
+import * as os from "os";
+import * as path from "path";
+import * as sinon from "sinon";
+import * as uuid from "uuid";
+import * as tools from "../../../../../src/common/utils";
 import { AzureFunctionDeployDriver } from "../../../../../src/component/driver/deploy/azure/azureFunctionDeployDriver";
+import { AzureDeployImpl } from "../../../../../src/component/driver/deploy/azure/impl/azureDeployImpl";
+import { DeployArgs } from "../../../../../src/component/driver/interface/buildAndDeployArgs";
+import * as fileOpt from "../../../../../src/component/utils/fileOperation";
 import {
   MockedAzureAccountProvider,
   MockTelemetryReporter,
   MockUserInteraction,
   MyTokenCredential,
 } from "../../../../core/utils";
-import * as os from "os";
-import * as uuid from "uuid";
-import * as path from "path";
-import { AxiosError } from "axios";
+import { TestLogProvider } from "../../../util/logProviderMock";
 
 describe("Azure Function Deploy Driver test", () => {
   const sandbox = sinon.createSandbox();
@@ -36,18 +35,6 @@ describe("Azure Function Deploy Driver test", () => {
   before(async () => {
     await fs.mkdirs(testFolder);
     await fs.writeFile(path.join(testFolder, "test.txt"), "test");
-    sandbox
-      .stub(fs, "createReadStream")
-      .withArgs(path.join(sysTmp, ".deployment/deployment.zip"))
-      .returns({
-        pipe: sandbox.stub().returns({
-          pipe: sandbox.stub().returns({
-            pipe: sandbox.stub().returns("responseMock"),
-          }),
-        }),
-        on: sandbox.spy(() => true),
-        destroy: sandbox.spy(() => true),
-      } as any);
     sandbox.stub(fs, "existsSync").returns(true);
     sandbox.stub(fs, "remove").resolves();
   });
@@ -57,6 +44,15 @@ describe("Azure Function Deploy Driver test", () => {
   });
 
   beforeEach(() => {
+    sandbox.stub(fileOpt.fileOperationDeps, "createReadStream").returns({
+      pipe: sandbox.stub().returns({
+        pipe: sandbox.stub().returns({
+          pipe: sandbox.stub().returns("responseMock"),
+        }),
+      }),
+      on: sandbox.spy(() => true),
+      destroy: sandbox.spy(() => true),
+    } as any);
     sandbox.stub(tools, "waitSeconds").resolves();
     const fetchStub = sandbox.stub(global, "fetch");
     fetchStub.callsFake((input: any) => {

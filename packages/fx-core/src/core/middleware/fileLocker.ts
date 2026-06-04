@@ -1,12 +1,17 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 "use strict";
-import * as fs from "fs-extra";
-import { lock } from "proper-lockfile";
-import { getLockFolder } from "./concurrentLocker";
-import path from "path";
 import { ConfigFolderName } from "@microsoft/teamsfx-api";
-import { waitSeconds } from "../../common/utils";
+import * as fs from "fs-extra";
+import path from "path";
+import * as properLock from "proper-lockfile";
+import * as commonUtils from "../../common/utils";
+import { getLockFolder } from "./concurrentLocker";
+
+export const fileLockerDeps = {
+  lock: properLock.lock,
+  waitSeconds: commonUtils.waitSeconds,
+};
 
 export async function withFileLock<T>(filePath: string, callback: () => Promise<T>): Promise<T> {
   if (!(await fs.pathExists(filePath))) {
@@ -20,11 +25,11 @@ export async function withFileLock<T>(filePath: string, callback: () => Promise<
   let release: (() => Promise<void>) | null = null;
   for (let i = 0; i < 10; i++) {
     try {
-      release = await lock(filePath, { lockfilePath: lockfilePath });
+      release = await fileLockerDeps.lock(filePath, { lockfilePath: lockfilePath });
       break;
     } catch (e) {
       if (e.code === "ELOCKED") {
-        await waitSeconds(1);
+        await fileLockerDeps.waitSeconds(1);
       } else {
         throw e;
       }

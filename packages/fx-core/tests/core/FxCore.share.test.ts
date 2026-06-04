@@ -9,12 +9,10 @@ import "mocha";
 import { createSandbox, match } from "sinon";
 import { InputValidationError, MAX_EMAIL_NUMBER } from "../../src";
 import { ProjectModel } from "../../src/component/configManager/interface";
-import * as shareUtils from "../../src/component/driver/share/utils";
 import { envUtil } from "../../src/component/utils/envUtil";
 import { metadataUtil } from "../../src/component/utils/metadataUtil";
 import { pathUtils } from "../../src/component/utils/pathUtils";
-import { FxCore } from "../../src/core/FxCore";
-import * as shareCore from "../../src/core/share";
+import { FxCore, fxCoreDeps } from "../../src/core/FxCore";
 import { QuestionNames } from "../../src/question/questionNames";
 import { ShareOperationOption, ShareScopeOption } from "../../src/question/share";
 import { MockLogProvider, MockTools } from "./utils";
@@ -26,7 +24,7 @@ describe("FxCore.shareApplication", () => {
   const tools = new MockTools();
   const logger = new MockLogProvider();
   const mockProjectModel: ProjectModel = {
-    version: "1.0.0",
+    version: "1.10.0",
   };
 
   beforeEach(() => {});
@@ -38,11 +36,11 @@ describe("FxCore.shareApplication", () => {
   describe("Share with tenant users", () => {
     it("share happy path", async () => {
       const shareWithTenantStub = sandbox
-        .stub(shareCore, "shareWithTenant")
+        .stub(fxCoreDeps, "shareWithTenant")
         .resolves(ok(undefined));
 
       sandbox
-        .stub(shareUtils, "parseShareAppActionYamlConfig")
+        .stub(fxCoreDeps, "parseShareAppActionYamlConfig")
         .resolves(ok({ teamsappId: "mockAppId", titleId: "mockTitleId", appId: "mockAppId" }));
       sandbox.stub(metadataUtil, "parse").resolves(ok(mockProjectModel));
       sandbox.stub(envUtil, "listEnv").resolves(ok(["dev", "prod"]));
@@ -63,7 +61,7 @@ describe("FxCore.shareApplication", () => {
       } as any as IProgressHandler);
       sandbox.stub(pathUtils, "getEnvFilePath").resolves(ok("."));
       sandbox.stub(pathUtils, "getYmlFilePath").returns("m365agents.yml");
-      sandbox.stub(fs, "pathExistsSync").onFirstCall().returns(false).onSecondCall().returns(true);
+      sandbox.stub(fs, "pathExistsSync").returns(true);
       const inputs: Inputs = {
         platform: Platform.VSCode,
         projectPath: ".",
@@ -79,11 +77,11 @@ describe("FxCore.shareApplication", () => {
 
   describe("Share with specific users", () => {
     it("share with specific users happy path", async () => {
-      const addSharedUsersStub = sandbox.stub(shareCore, "addSharedUsers").resolves(ok(undefined));
+      const addSharedUsersStub = sandbox.stub(fxCoreDeps, "addSharedUsers").resolves(ok(undefined));
 
       // Setup common stubs
       sandbox
-        .stub(shareUtils, "parseShareAppActionYamlConfig")
+        .stub(fxCoreDeps, "parseShareAppActionYamlConfig")
         .resolves(ok({ teamsappId: "mockAppId", titleId: "mockTitleId", appId: "mockAppId" }));
       sandbox.stub(metadataUtil, "parse").resolves(ok(mockProjectModel));
       sandbox.stub(envUtil, "listEnv").resolves(ok(["dev", "prod"]));
@@ -105,7 +103,7 @@ describe("FxCore.shareApplication", () => {
       } as any as IProgressHandler);
       sandbox.stub(pathUtils, "getEnvFilePath").resolves(ok("."));
       sandbox.stub(pathUtils, "getYmlFilePath").returns("m365agents.yml");
-      sandbox.stub(fs, "pathExistsSync").onFirstCall().returns(false).onSecondCall().returns(true);
+      sandbox.stub(fs, "pathExistsSync").returns(true);
 
       const emails = "user1@example.com,user2@example.com";
       const inputs: Inputs = {
@@ -132,7 +130,7 @@ describe("FxCore.shareApplication", () => {
     it("returns error when emails are invalid", async () => {
       // Setup common stubs
       sandbox
-        .stub(shareUtils, "parseShareAppActionYamlConfig")
+        .stub(fxCoreDeps, "parseShareAppActionYamlConfig")
         .resolves(ok({ teamsappId: "mockAppId", titleId: "mockTitleId", appId: "mockAppId" }));
       sandbox.stub(metadataUtil, "parse").resolves(ok(mockProjectModel));
       sandbox.stub(envUtil, "listEnv").resolves(ok(["dev", "prod"]));
@@ -154,7 +152,7 @@ describe("FxCore.shareApplication", () => {
       } as any as IProgressHandler);
       sandbox.stub(pathUtils, "getEnvFilePath").resolves(ok("."));
       sandbox.stub(pathUtils, "getYmlFilePath").returns("m365agents.yml");
-      sandbox.stub(fs, "pathExistsSync").onFirstCall().returns(false).onSecondCall().returns(true);
+      sandbox.stub(fs, "pathExistsSync").returns(true);
 
       // Case 1: No emails
       const noEmails: Inputs = {
@@ -196,12 +194,12 @@ describe("FxCore.shareApplication", () => {
   describe("Remove share access", () => {
     it("removes share access successfully", async () => {
       const removeShareAccessStub = sandbox
-        .stub(shareCore, "removeShareAccess")
+        .stub(fxCoreDeps, "removeShareAccess")
         .resolves(ok(undefined));
 
       // Setup common stubs
       sandbox
-        .stub(shareUtils, "parseShareAppActionYamlConfig")
+        .stub(fxCoreDeps, "parseShareAppActionYamlConfig")
         .resolves(ok({ teamsappId: "mockAppId", titleId: "mockTitleId", appId: "mockAppId" }));
       sandbox.stub(metadataUtil, "parse").resolves(ok(mockProjectModel));
       sandbox.stub(envUtil, "listEnv").resolves(ok(["dev", "prod"]));
@@ -223,7 +221,7 @@ describe("FxCore.shareApplication", () => {
       } as any as IProgressHandler);
       sandbox.stub(pathUtils, "getEnvFilePath").resolves(ok("."));
       sandbox.stub(pathUtils, "getYmlFilePath").returns("m365agents.yml");
-      sandbox.stub(fs, "pathExistsSync").onFirstCall().returns(false).onSecondCall().returns(true);
+      sandbox.stub(fs, "pathExistsSync").returns(true);
 
       const emails = "user1@example.com,user2@example.com";
       const inputs: Inputs = {
@@ -254,7 +252,7 @@ describe("FxCore.shareApplication", () => {
     it("returns error for invalid share option", async () => {
       // Setup common stubs
       sandbox
-        .stub(shareUtils, "parseShareAppActionYamlConfig")
+        .stub(fxCoreDeps, "parseShareAppActionYamlConfig")
         .resolves(ok({ teamsappId: "mockAppId", titleId: "mockTitleId", appId: "mockAppId" }));
       sandbox.stub(metadataUtil, "parse").resolves(ok(mockProjectModel));
       sandbox.stub(envUtil, "listEnv").resolves(ok(["dev", "prod"]));
@@ -324,7 +322,7 @@ describe("FxCore.shareApplication", () => {
         error: new Error(),
       });
 
-      sandbox.stub(shareUtils, "parseShareAppActionYamlConfig").resolves(err(parseError));
+      sandbox.stub(fxCoreDeps, "parseShareAppActionYamlConfig").resolves(err(parseError));
 
       const inputs: Inputs = {
         platform: Platform.VSCode,
@@ -352,7 +350,7 @@ describe("FxCore.shareApplication", () => {
 
       // Setup common stubs
       sandbox
-        .stub(shareUtils, "parseShareAppActionYamlConfig")
+        .stub(fxCoreDeps, "parseShareAppActionYamlConfig")
         .resolves(ok({ teamsappId: "mockAppId", titleId: "mockTitleId", appId: "mockAppId" }));
       // Setup common stubs
       sandbox.stub(metadataUtil, "parse").resolves(ok(mockProjectModel));

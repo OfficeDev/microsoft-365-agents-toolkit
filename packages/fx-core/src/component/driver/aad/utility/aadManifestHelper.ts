@@ -1,10 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { AADApplication } from "../interface/AADApplication";
-import { AADManifest } from "../interface/AADManifest";
+import { err, FxError, ok, Result } from "@microsoft/teamsfx-api";
+import fs from "fs-extra";
 import isUUID from "validator/lib/isUUID";
-import { getPermissionMap } from "../permissions";
+import { TOOLS } from "../../../../common/globalVars";
+import { getLocalizedString } from "../../../../common/localizeUtils";
+import { FileNotFoundError, UserCancelError } from "../../../../error";
+import { updateVersionForTeamsAppYamlFile } from "../../util/utils";
 import {
   AadManifestErrorMessage,
   MissingResourceAccessIdUserError,
@@ -15,12 +18,9 @@ import {
   UnknownResourceAccessTypeUserError,
   UnknownResourceAppIdUserError,
 } from "../error/aadManifestError";
-import { TOOLS } from "../../../../common/globalVars";
-import { getLocalizedString } from "../../../../common/localizeUtils";
-import { err, FxError, ok, Result } from "@microsoft/teamsfx-api";
-import { FileNotFoundError, UserCancelError } from "../../../../error";
-import fs from "fs-extra";
-import { updateVersionForTeamsAppYamlFile } from "../../util/utils";
+import { AADApplication } from "../interface/AADApplication";
+import { AADManifest } from "../interface/AADManifest";
+import { getPermissionMap } from "../permissions";
 
 const componentName = "AadManifestHelper";
 
@@ -320,6 +320,10 @@ export class AadManifestHelper {
     manifestTemplatePath: string,
     projectPath: string
   ): Promise<void> {
+    if (!TOOLS || !TOOLS.ui) {
+      return;
+    }
+
     const manifest = await fs.readJson(manifestTemplatePath);
     if (!AadManifestHelper.isNewAADManifestSchema(manifest)) {
       void TOOLS.ui

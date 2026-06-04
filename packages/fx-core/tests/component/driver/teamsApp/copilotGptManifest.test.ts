@@ -21,7 +21,6 @@ import {
 } from "@microsoft/teamsfx-api";
 import chai from "chai";
 import fs from "fs-extra";
-import "mocha";
 import mockedEnv, { RestoreFn } from "mocked-env";
 import path from "path";
 import * as sinon from "sinon";

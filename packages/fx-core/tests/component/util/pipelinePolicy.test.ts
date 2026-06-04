@@ -1,6 +1,5 @@
 import chai from "chai";
 import chaiAsPromised from "chai-as-promised";
-import "mocha";
 import * as sinon from "sinon";
 import { MockedAzureAccountProvider } from "../../core/utils";
 import { azureClientHelper } from "../../../src/component/utils/azureClient";

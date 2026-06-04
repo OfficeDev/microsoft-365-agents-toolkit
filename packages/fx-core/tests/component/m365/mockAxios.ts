@@ -2,7 +2,6 @@
 // Licensed under the MIT license.
 
 import { AxiosInstance, AxiosRequestConfig, AxiosResponse } from "axios";
-import "mocha";
 
 export class MockAxios {
   public axiosDeleteResponses: Record<string, unknown> = {};

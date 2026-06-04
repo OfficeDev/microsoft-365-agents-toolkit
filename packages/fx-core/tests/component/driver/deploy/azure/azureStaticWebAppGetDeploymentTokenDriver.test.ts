@@ -3,13 +3,13 @@
 /**
  * @author Siglud <siglud@gmail.com>
  */
-
-import "mocha";
+import * as appService from "@azure/arm-appservice";
 import { expect } from "chai";
 import * as sinon from "sinon";
-import { AzureStaticWebAppGetDeploymentTokenDriver } from "../../../../../src/component/driver/deploy/azure/azureStaticWebAppGetDeploymentTokenDriver";
-import * as appService from "@azure/arm-appservice";
-import * as azureResourceOperator from "../../../../../src/component/utils/azureResourceOperation";
+import {
+  AzureStaticWebAppGetDeploymentTokenDriver,
+  azureStaticWebAppGetTokenDeps,
+} from "../../../../../src/component/driver/deploy/azure/azureStaticWebAppGetDeploymentTokenDriver";
 
 describe("AzureStaticWebAppGetDeploymentTokenDriver", () => {
   let driver: AzureStaticWebAppGetDeploymentTokenDriver;
@@ -18,11 +18,11 @@ describe("AzureStaticWebAppGetDeploymentTokenDriver", () => {
   beforeEach(() => {
     driver = new AzureStaticWebAppGetDeploymentTokenDriver();
     clientStub = sinon.createStubInstance(appService.WebSiteManagementClient);
-    sinon.stub(appService, "WebSiteManagementClient").returns(clientStub);
+    sinon.stub(azureStaticWebAppGetTokenDeps, "createWebSiteManagementClient").returns(clientStub);
     clientStub.staticSites = {
       listStaticSiteSecrets: () => {},
     } as any;
-    sinon.stub(azureResourceOperator, "getAzureAccountCredential").returns({} as any);
+    sinon.stub(azureStaticWebAppGetTokenDeps, "getAzureAccountCredential").resolves({} as any);
   });
 
   afterEach(() => {

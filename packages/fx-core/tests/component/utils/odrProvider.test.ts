@@ -2,7 +2,6 @@
 // Licensed under the MIT license.
 
 import { assert } from "chai";
-import "mocha";
 import * as sinon from "sinon";
 import { ODRProvider } from "../../../src/component/utils/odrProvider";
 

@@ -1,15 +1,20 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import path from "path";
 import fs from "fs-extra";
+import path from "path";
 import isUUID from "validator/lib/isUUID";
+import { TelemetryProperty } from "../../common/telemetry";
 import { MetadataV3 } from "../../common/versionMetadata";
 import { ProjectModel } from "../configManager/interface";
 import { AADManifest } from "../driver/aad/interface/AADManifest";
 import { getDetailedGraphPermissionMap, graphAppId, graphAppName } from "../driver/aad/permissions";
-import { TelemetryProperty } from "../../common/telemetry";
 import { actionName } from "../driver/aad/update";
+
+export const metadataGraphPermissionDeps = {
+  getDetailedGraphPermissionMap,
+};
+
 interface summary {
   hasGraphPermission: boolean;
   hasRole: boolean;
@@ -76,7 +81,7 @@ class MetadataGraphPermissionUtil {
     let hasAdminScope = false;
     const scopes: string[] = [];
     const roles: string[] = [];
-    const graphPermissionMap = getDetailedGraphPermissionMap();
+    const graphPermissionMap = metadataGraphPermissionDeps.getDetailedGraphPermissionMap();
     if (!graphPermissionMap) {
       return undefined;
     }

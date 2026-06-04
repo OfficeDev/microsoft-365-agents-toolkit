@@ -57,6 +57,14 @@ import { ErrorHandlerMW } from "./middleware/errorHandler";
 const mcpAddActionHint =
   "atk add action --api-plugin-type mcp --mcp-da-server-url <server-url> --mcp-tools-file-path <path-to-tools-json> --interactive false";
 
+export const fxCoreDeclarativeAgentDeps = {
+  addExistingPlugin,
+  createNewActionPluginManifest,
+  deriveMCPServerNameFromUrl,
+  generateFromApiSpec,
+  generateScaffoldingSummary,
+};
+
 export class FxCoreDeclarativeAgentPart {
   @hooks([
     ErrorContextMW({ component: "FxCore", stage: Stage.installApp }),
@@ -107,7 +115,7 @@ export class FxCoreDeclarativeAgentPart {
         AppPackageFolderName,
         declarativeAgentRelativePath
       );
-      const createRes = await createNewActionPluginManifest(
+      const createRes = await fxCoreDeclarativeAgentDeps.createNewActionPluginManifest(
         projectPath,
         desiredFileName,
         declarativeAgentManifestPath
@@ -485,7 +493,7 @@ export class FxCoreDeclarativeAgentPart {
         path.join(appPackageFolder, DefaultApiSpecFolderName)
       );
 
-      const generateRes = await generateFromApiSpec(
+      const generateRes = await fxCoreDeclarativeAgentDeps.generateFromApiSpec(
         specParser,
         teamsManifestPath,
         inputs,
@@ -504,7 +512,7 @@ export class FxCoreDeclarativeAgentPart {
 
       const warnings = generateRes.value.warnings;
       if (warnings && warnings.length > 0) {
-        const warnSummary = await generateScaffoldingSummary(
+        const warnSummary = await fxCoreDeclarativeAgentDeps.generateScaffoldingSummary(
           warnings,
           manifestRes.value,
           path.relative(inputs.projectPath, destinationApiSpecPath),
@@ -771,7 +779,7 @@ export class FxCoreDeclarativeAgentPart {
         }
       }
     } else {
-      const addPluginRes = await addExistingPlugin(
+      const addPluginRes = await fxCoreDeclarativeAgentDeps.addExistingPlugin(
         declarativeCopilotManifestPath,
         inputs[QuestionNames.PluginManifestFilePath].trim(),
         inputs[QuestionNames.PluginOpenApiSpecFilePath].trim(),
@@ -838,7 +846,7 @@ export class FxCoreDeclarativeAgentPart {
 
     // Derive a server entry name from the URL host using the same logic as the
     // "DA with MCP" scaffolding template variable `ServerName`.
-    const serverName = deriveMCPServerNameFromUrl(mcpServerUrl);
+    const serverName = fxCoreDeclarativeAgentDeps.deriveMCPServerNameFromUrl(mcpServerUrl);
 
     const mcpConfigDir = path.join(projectPath, ".vscode");
     const mcpConfigPath = path.join(mcpConfigDir, "mcp.json");

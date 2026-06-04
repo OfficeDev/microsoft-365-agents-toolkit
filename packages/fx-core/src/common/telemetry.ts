@@ -255,7 +255,7 @@ export function sendTelemetryEvent(
     properties = {};
   }
   properties[TelemetryProperty.Component] = component;
-  TOOLS.telemetryReporter?.sendTelemetryEvent(eventName, properties, measurements);
+  TOOLS?.telemetryReporter?.sendTelemetryEvent(eventName, properties, measurements);
 }
 
 export function sendTelemetryErrorEvent(
@@ -271,7 +271,7 @@ export function sendTelemetryErrorEvent(
 
   telemetryUtils.fillInErrorProperties(properties, fxError);
 
-  TOOLS.telemetryReporter?.sendTelemetryErrorEvent(eventName, properties, {});
+  TOOLS?.telemetryReporter?.sendTelemetryErrorEvent(eventName, properties, {});
 }
 
 class TelemetryUtils {

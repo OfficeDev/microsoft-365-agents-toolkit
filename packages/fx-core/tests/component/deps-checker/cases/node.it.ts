@@ -3,7 +3,6 @@
 
 import * as chai from "chai";
 import * as fs from "fs-extra";
-import "mocha";
 import * as path from "path";
 import semver from "semver";
 import * as uuid from "uuid";

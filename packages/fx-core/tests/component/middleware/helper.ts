@@ -1,6 +1,5 @@
 import { hooks } from "@feathersjs/hooks/lib";
 import { FxError, ok, Result } from "@microsoft/teamsfx-api";
-import "mocha";
 import { DriverContext } from "../../../src/component/driver/interface/commonArgs";
 import { StepDriver, ExecutionResult } from "../../../src/component/driver/interface/stepDriver";
 import { addStartAndEndTelemetry } from "../../../src/component/driver/middleware/addStartAndEndTelemetry";

@@ -4,7 +4,6 @@
 /**
  * @author Aocheng Wang <aochengwang@microsoft.com>
  */
-import "mocha";
 
 import { TelemetryReporter } from "@microsoft/teamsfx-api";
 import chai from "chai";

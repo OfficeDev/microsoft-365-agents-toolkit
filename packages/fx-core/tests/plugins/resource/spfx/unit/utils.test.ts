@@ -2,19 +2,17 @@
 import { FuncValidation, Inputs, Platform, Stage, TextInputQuestion } from "@microsoft/teamsfx-api";
 import * as chai from "chai";
 import fs from "fs-extra";
-import "mocha";
 import mockedEnv, { RestoreFn } from "mocked-env";
 import * as path from "path";
 import * as sinon from "sinon";
-import * as glob from "glob";
 import { getLocalizedString } from "../../../../../src/common/localizeUtils";
+import { cpUtils } from "../../../../../src/component/deps-checker/util/cpUtils";
 import { Utils } from "../../../../../src/component/generator/spfx/utils/utils";
 import {
   QuestionNames,
   SPFxWebpartNameQuestion,
   appNameQuestion,
 } from "../../../../../src/question";
-import { cpUtils } from "../../../../../src/component/deps-checker/util/cpUtils";
 
 describe("utils", () => {
   afterEach(async () => {
@@ -202,17 +200,16 @@ describe("utils", () => {
     });
 
     it("replaces content in files found by glob when path is a directory", async () => {
-      const dirPath = "c:\\test";
-      const fakeFile = "c:\\test\\src\\file.json";
-      sinon.stub(fs, "lstatSync").returns({ isFile: () => false } as any);
-      sinon.stub(glob, "glob").resolves([fakeFile]);
-      sinon.stub(fs, "readFile").resolves(Buffer.from("value: OLD"));
-      const writeStub = sinon.stub(fs, "writeFile").resolves();
+      const dirPath = path.join(__dirname, "tmp-configure-dir");
+      const fakeFile = path.join(dirPath, "src", "file.json");
+      await fs.ensureDir(path.dirname(fakeFile));
+      await fs.writeFile(fakeFile, "value: OLD");
 
       await Utils.configure(dirPath, new Map([["OLD", "NEW"]]));
 
-      chai.expect(writeStub.called).to.be.true;
-      chai.expect(writeStub.firstCall.args[1]).to.equal("value: NEW");
+      const content = (await fs.readFile(fakeFile)).toString();
+      chai.expect(content).to.equal("value: NEW");
+      await fs.remove(dirPath);
     });
   });
 });

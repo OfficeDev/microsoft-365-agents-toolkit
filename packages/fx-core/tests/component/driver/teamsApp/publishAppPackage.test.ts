@@ -5,7 +5,6 @@ import { err, ok, Platform, TeamsAppManifest } from "@microsoft/teamsfx-api";
 import AdmZip from "adm-zip";
 import chai from "chai";
 import fs from "fs-extra";
-import "mocha";
 import mockedEnv from "mocked-env";
 import * as sinon from "sinon";
 import { v4 as uuid } from "uuid";
@@ -16,13 +15,16 @@ import { FeatureFlagName } from "../../../../src/common/featureFlags";
 import { AppStudioError } from "../../../../src/component/driver/teamsApp/errors";
 import { PublishingState } from "../../../../src/component/driver/teamsApp/interfaces/appdefinitions/IPublishingAppDefinition";
 import { PublishAppPackageArgs } from "../../../../src/component/driver/teamsApp/interfaces/PublishAppPackageArgs";
-import { PublishAppPackageDriver } from "../../../../src/component/driver/teamsApp/publishAppPackage";
+import {
+  publishAppPackageDeps,
+  PublishAppPackageDriver,
+} from "../../../../src/component/driver/teamsApp/publishAppPackage";
+import * as McpCertVerification from "../../../../src/component/driver/teamsApp/utils/McpCertVerification";
+import { ODRProvider } from "../../../../src/component/utils/odrProvider";
 import { UserCancelError } from "../../../../src/error/common";
+import { MockedM365Provider } from "../../../core/utils";
 import { MockedLogProvider, MockedUserInteraction } from "../../../plugins/solution/util";
 import { Constants } from "./../../../../src/component/driver/teamsApp/constants";
-import { MockedM365Provider } from "../../../core/utils";
-import { ODRProvider } from "../../../../src/component/utils/odrProvider";
-import * as McpCertVerification from "../../../../src/component/driver/teamsApp/utils/McpCertVerification";
 
 describe("teamsApp/publishAppPackage", async () => {
   const teamsAppDriver = new PublishAppPackageDriver();
@@ -114,8 +116,8 @@ describe("teamsApp/publishAppPackage", async () => {
     sinon.stub(fs, "readFile").callsFake(async () => {
       const zip = new AdmZip();
       zip.addFile(Constants.MANIFEST_FILE, Buffer.from(JSON.stringify(new TeamsAppManifest())));
-      zip.addFile("color.png", new Buffer(""));
-      zip.addFile("outlie.png", new Buffer(""));
+      zip.addFile("color.png", Buffer.from(""));
+      zip.addFile("outlie.png", Buffer.from(""));
 
       const archivedFile = zip.toBuffer();
       return archivedFile;
@@ -186,8 +188,8 @@ describe("teamsApp/publishAppPackage", async () => {
     sinon.stub(fs, "readFile").callsFake(async () => {
       const zip = new AdmZip();
       zip.addFile(Constants.MANIFEST_FILE, Buffer.from(JSON.stringify(new TeamsAppManifest())));
-      zip.addFile("color.png", new Buffer(""));
-      zip.addFile("outlie.png", new Buffer(""));
+      zip.addFile("color.png", Buffer.from(""));
+      zip.addFile("outlie.png", Buffer.from(""));
 
       const archivedFile = zip.toBuffer();
       return archivedFile;
@@ -213,8 +215,8 @@ describe("teamsApp/publishAppPackage", async () => {
     sinon.stub(fs, "readFile").callsFake(async () => {
       const zip = new AdmZip();
       zip.addFile(Constants.MANIFEST_FILE, Buffer.from(JSON.stringify(new TeamsAppManifest())));
-      zip.addFile("color.png", new Buffer(""));
-      zip.addFile("outlie.png", new Buffer(""));
+      zip.addFile("color.png", Buffer.from(""));
+      zip.addFile("outlie.png", Buffer.from(""));
 
       const archivedFile = zip.toBuffer();
       return archivedFile;
@@ -514,7 +516,7 @@ describe("teamsApp/publishAppPackage", async () => {
           tools: [],
         },
       ]);
-      sinon.stub(McpCertVerification, "verifyLocalMCPPluginCerts").resolves(true);
+      sinon.stub(publishAppPackageDeps, "verifyLocalMCPPluginCerts").resolves(true);
       sinon.stub(GraphClient.prototype, "getStagedApp").resolves(undefined);
       sinon.stub(GraphClient.prototype, "publishTeamsApp").resolves(uuid());
 
@@ -575,7 +577,7 @@ describe("teamsApp/publishAppPackage", async () => {
           tools: [],
         },
       ]);
-      sinon.stub(McpCertVerification, "verifyLocalMCPPluginCerts").resolves(false);
+      sinon.stub(publishAppPackageDeps, "verifyLocalMCPPluginCerts").resolves(false);
 
       const result = (await teamsAppDriver.execute(args, mockedDriverContext)).result;
       chai.assert.isTrue(result.isErr());
@@ -637,7 +639,7 @@ describe("teamsApp/publishAppPackage", async () => {
           tools: [],
         },
       ]);
-      sinon.stub(McpCertVerification, "verifyLocalMCPPluginCerts").resolves(false);
+      sinon.stub(publishAppPackageDeps, "verifyLocalMCPPluginCerts").resolves(false);
 
       const result = (await teamsAppDriver.execute(args, mockedDriverContext)).result;
       chai.assert.isTrue(result.isErr());
@@ -717,7 +719,7 @@ describe("teamsApp/publishAppPackage", async () => {
           tools: [],
         },
       ]);
-      sinon.stub(McpCertVerification, "verifyLocalMCPPluginCerts").resolves(true);
+      sinon.stub(publishAppPackageDeps, "verifyLocalMCPPluginCerts").resolves(true);
       sinon.stub(GraphClient.prototype, "getStagedApp").resolves(undefined);
       sinon.stub(GraphClient.prototype, "publishTeamsApp").resolves(uuid());
 
@@ -731,8 +733,7 @@ describe("teamsApp/publishAppPackage", async () => {
     let execStub: sinon.SinonStub;
 
     beforeEach(() => {
-      const childProcess = require("child_process");
-      execStub = sinon.stub(childProcess, "exec");
+      execStub = sinon.stub(McpCertVerification.mcpCertVerificationDeps, "exec");
     });
 
     afterEach(() => {
@@ -1000,3 +1001,4 @@ describe("teamsApp/publishAppPackage", async () => {
     });
   });
 });
+

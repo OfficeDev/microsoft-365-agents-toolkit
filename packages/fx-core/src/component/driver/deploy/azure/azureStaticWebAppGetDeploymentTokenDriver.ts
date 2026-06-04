@@ -1,23 +1,30 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { Service } from "typedi";
-import { ExecutionResult, StepDriver } from "../../interface/stepDriver";
-import { DriverContext } from "../../interface/commonArgs";
+import { WebSiteManagementClient } from "@azure/arm-appservice";
 import { hooks } from "@feathersjs/hooks";
-import { addStartAndEndTelemetry } from "../../middleware/addStartAndEndTelemetry";
+import { FxError, ok, Result } from "@microsoft/teamsfx-api";
+import { Service } from "typedi";
+import { getLocalizedString } from "../../../../common/localizeUtils";
 import { TelemetryConstant } from "../../../constant/commonConstant";
-import { asFactory, asString, errorHandle } from "../../../utils/common";
-import { AzureStaticWebAppConfigArgs } from "../../interface/provisionArgs";
 import {
   getAzureAccountCredential,
   parseAzureResourceId,
 } from "../../../utils/azureResourceOperation";
-import { WebSiteManagementClient } from "@azure/arm-appservice";
-import { FxError, ok, Result } from "@microsoft/teamsfx-api";
-import { getLocalizedString } from "../../../../common/localizeUtils";
+import { asFactory, asString, errorHandle } from "../../../utils/common";
+import { DriverContext } from "../../interface/commonArgs";
+import { AzureStaticWebAppConfigArgs } from "../../interface/provisionArgs";
+import { ExecutionResult, StepDriver } from "../../interface/stepDriver";
+import { addStartAndEndTelemetry } from "../../middleware/addStartAndEndTelemetry";
 
 const ACTION_NAME = "azureStaticWebApps/getDeploymentToken";
+
+export const azureStaticWebAppGetTokenDeps = {
+  getAzureAccountCredential,
+  parseAzureResourceId,
+  createWebSiteManagementClient: (credential: any, subscriptionId: string) =>
+    new WebSiteManagementClient(credential, subscriptionId),
+};
 
 @Service(ACTION_NAME)
 export class AzureStaticWebAppGetDeploymentTokenDriver implements StepDriver {
@@ -56,12 +63,17 @@ export class AzureStaticWebAppGetDeploymentTokenDriver implements StepDriver {
     const outputKey = !outputEnvVarNames?.get("deploymentToken")
       ? "SECRET_TAB_SWA_DEPLOYMENT_TOKEN"
       : outputEnvVarNames.get("deploymentToken")!;
-    const resourceInfo = parseAzureResourceId(
+    const resourceInfo = azureStaticWebAppGetTokenDeps.parseAzureResourceId(
       input.resourceId,
       AzureStaticWebAppGetDeploymentTokenDriver.RESOURCE_PATTERN
     );
-    const azureTokenCredential = await getAzureAccountCredential(ctx.azureAccountProvider);
-    const client = new WebSiteManagementClient(azureTokenCredential, resourceInfo.subscriptionId);
+    const azureTokenCredential = await azureStaticWebAppGetTokenDeps.getAzureAccountCredential(
+      ctx.azureAccountProvider
+    );
+    const client = azureStaticWebAppGetTokenDeps.createWebSiteManagementClient(
+      azureTokenCredential,
+      resourceInfo.subscriptionId
+    );
     const secrets = await client.staticSites.listStaticSiteSecrets(
       resourceInfo.resourceGroupName,
       resourceInfo.instanceId,

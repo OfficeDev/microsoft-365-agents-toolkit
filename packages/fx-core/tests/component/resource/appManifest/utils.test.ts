@@ -1,5 +1,4 @@
 import * as chai from "chai";
-import "mocha";
 import { AppDefinition } from "../../../../src/component/driver/teamsApp/interfaces/appdefinitions/appDefinition";
 import { Bot } from "../../../../src/component/driver/teamsApp/interfaces/appdefinitions/bot";
 import { ConfigurableTab } from "../../../../src/component/driver/teamsApp/interfaces/appdefinitions/configurableTab";

@@ -1,6 +1,5 @@
 import { assert } from "chai";
 import fs from "fs-extra";
-import "mocha";
 import mockedEnv, { RestoreFn } from "mocked-env";
 import sinon from "sinon";
 import { setTools } from "../../../src/common/globalVars";

@@ -12,10 +12,15 @@ import { teamsDevPortalClient } from "../client/teamsDevPortalClient";
 import { AppStudioScopes } from "../common/constants";
 import { TOOLS } from "../common/globalVars";
 import { getLocalizedString } from "../common/localizeUtils";
-import { parseShareAppActionYamlConfig } from "../component/driver/share/utils";
+import * as shareUtils from "../component/driver/share/utils";
 import { CollaborationUtil } from "../core/collaborator";
 import { QuestionNames } from "./constants";
 import { inputUserEmailQuestion } from "./other";
+
+export const shareQuestionDeps = {
+  parseShareAppActionYamlConfig: (projectPath: string) =>
+    shareUtils.parseShareAppActionYamlConfig(projectPath),
+};
 
 export enum ShareOperationOption {
   ShareWithUsers = "share",
@@ -152,7 +157,7 @@ export function selectUsersToRemoveSharedAccess(): MultiSelectQuestion {
         throw tokenRes.error;
       }
       const token = tokenRes.value;
-      const configRes = await parseShareAppActionYamlConfig(inputs.projectPath);
+      const configRes = await shareQuestionDeps.parseShareAppActionYamlConfig(inputs.projectPath);
       if (configRes.isErr()) {
         throw configRes.error;
       }

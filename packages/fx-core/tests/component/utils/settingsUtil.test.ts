@@ -3,7 +3,6 @@
 
 import { assert } from "chai";
 import * as fs from "fs-extra";
-import "mocha";
 import mockedEnv, { RestoreFn } from "mocked-env";
 import os from "os";
 import path from "path";

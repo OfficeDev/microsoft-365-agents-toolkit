@@ -3,7 +3,6 @@
 
 import axios, { AxiosInstance } from "axios";
 import { expect } from "chai";
-import "mocha";
 import { createSandbox } from "sinon";
 import { TEAMS_GRAPH_API_NAMES, TeamsGraphClient } from "../../src/client/teamsGraphClient";
 import { RetryHandler } from "../../src/common/retryHandler";

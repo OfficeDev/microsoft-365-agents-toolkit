@@ -4,7 +4,7 @@
 import { FxError, UserError, err, ok } from "@microsoft/teamsfx-api";
 import * as chai from "chai";
 import chaiAsPromised from "chai-as-promised";
-import "mocha";
+import { performance } from "perf_hooks";
 import * as sinon from "sinon";
 import {
   LocalTelemetryReporter,
@@ -232,22 +232,27 @@ describe("localTelemetryReporter", () => {
     });
 
     it("calculates correct durations", async () => {
-      const actualDuration = 0.00008;
-      const clock = sinon.useFakeTimers();
+      const durationSeconds = 0.08;
+      const startMillis = 1000;
+      const endMillis = startMillis + durationSeconds * 1000;
+      const nowStub = sinon.stub(performance, "now");
       try {
-        const resultPromise = reporter.runWithTelemetry(testEventName, async () => {
-          await sleep(actualDuration);
+        // runWithTelemetryGeneric() calls performance.now four times in this path:
+        // start -> start event emit -> end -> end event emit.
+        nowStub.onCall(0).returns(startMillis);
+        nowStub.onCall(1).returns(startMillis + 1);
+        nowStub.onCall(2).returns(endMillis);
+        nowStub.onCall(3).returns(endMillis + 1);
+
+        await reporter.runWithTelemetry(testEventName, async () => {
           return ok(undefined);
         });
 
-        clock.tick(actualDuration);
-        await resultPromise;
-
         chai
           .expect(mockedEvents[1].measurements?.["duration"])
-          .to.be.closeTo(actualDuration, actualDuration + 0.00001);
+          .to.be.closeTo(durationSeconds, 0.000001);
       } finally {
-        clock.restore();
+        nowStub.restore();
       }
     });
 

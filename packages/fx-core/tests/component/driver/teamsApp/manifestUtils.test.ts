@@ -1,24 +1,18 @@
-import "mocha";
-import { assert } from "chai";
-import * as sinon from "sinon";
 import {
-  manifestUtils,
-  ManifestUtils,
-  SharePointAppId,
-} from "../../../../src/component/driver/teamsApp/utils/ManifestUtils";
-import fs from "fs-extra";
-import path from "path";
-import {
-  TeamsAppManifest,
-  InputsWithProjectPath,
-  ok,
   err,
-  Platform,
-  ManifestCapability,
   IBot,
+  InputsWithProjectPath,
+  ManifestCapability,
+  ok,
+  Platform,
+  TeamsAppManifest,
   UserError,
 } from "@microsoft/teamsfx-api";
-import * as envFunctionUtils from "../../../../src/component/utils/envFunctionUtils";
+import { assert } from "chai";
+import fs from "fs-extra";
+import mockedEnv, { RestoreFn } from "mocked-env";
+import path from "path";
+import * as sinon from "sinon";
 import {
   getBotsTplBasedOnVersion,
   getBotsTplExistingAppBasedOnVersion,
@@ -28,8 +22,13 @@ import {
   getConfigurableTabsTplExistingAppBasedOnVersion,
 } from "../../../../src/component/driver/teamsApp/constants";
 import { AppStudioError } from "../../../../src/component/driver/teamsApp/errors";
+import {
+  manifestUtils,
+  ManifestUtils,
+  manifestUtilsDeps,
+  SharePointAppId,
+} from "../../../../src/component/driver/teamsApp/utils/ManifestUtils";
 import { FileNotFoundError, JSONSyntaxError, ReadFileError } from "../../../../src/error";
-import mockedEnv, { RestoreFn } from "mocked-env";
 
 const latestManifestVersion = "1.17";
 const oldManifestVersion = "1.16";
@@ -629,7 +628,7 @@ describe("resolveLocFile", () => {
     );
 
     const expansionError = new UserError("source", "name", "message");
-    sandbox.stub(envFunctionUtils, "expandVariableWithFunction").resolves(err(expansionError));
+    sandbox.stub(manifestUtilsDeps, "expandVariableWithFunction").resolves(err(expansionError));
 
     const context: any = {
       platform: Platform.VSCode,

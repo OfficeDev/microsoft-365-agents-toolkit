@@ -8,7 +8,9 @@ import fs from "fs-extra";
 import { merge } from "lodash";
 import { Service } from "typedi";
 import { GraphClient } from "../../../client/graphClient";
+import { SovereignCloudEnvironment } from "../../../common/accountUtils";
 import { GraphTeamsAppCatalogReadWriteScopes } from "../../../common/constants";
+import { FeatureFlagName } from "../../../common/featureFlags";
 import { getLocalizedString } from "../../../common/localizeUtils";
 import { FileNotFoundError, InvalidActionInputError, UserCancelError } from "../../../error/common";
 import { getAbsolutePath } from "../../utils/common";
@@ -17,13 +19,15 @@ import { ExecutionResult, StepDriver } from "../interface/stepDriver";
 import { addStartAndEndTelemetry } from "../middleware/addStartAndEndTelemetry";
 import { WrapDriverContext } from "../util/wrapUtil";
 import { Constants } from "./constants";
-import { PublishAppPackageArgs } from "./interfaces/PublishAppPackageArgs";
-import { TelemetryPropertyKey } from "./utils/telemetry";
 import { AppStudioError } from "./errors";
+import { PublishAppPackageArgs } from "./interfaces/PublishAppPackageArgs";
 import { AppStudioResultFactory } from "./results";
-import { FeatureFlagName } from "../../../common/featureFlags";
-import { SovereignCloudEnvironment } from "../../../common/accountUtils";
 import { verifyLocalMCPPluginCerts } from "./utils/McpCertVerification";
+import { TelemetryPropertyKey } from "./utils/telemetry";
+
+export const publishAppPackageDeps = {
+  verifyLocalMCPPluginCerts,
+};
 
 export const actionName = "teamsApp/publishAppPackage";
 
@@ -117,7 +121,7 @@ export class PublishAppPackageDriver implements StepDriver {
           for (const action of declarativeAgentManifest.actions) {
             const actionFile = zipEntries.find((x) => x.entryName === action.file);
             if (actionFile) {
-              const isValid = await verifyLocalMCPPluginCerts(actionFile);
+              const isValid = await publishAppPackageDeps.verifyLocalMCPPluginCerts(actionFile);
               if (!isValid) {
                 const message = getLocalizedString(
                   "driver.teamsApp.error.localMcpCertVerificationFailed"

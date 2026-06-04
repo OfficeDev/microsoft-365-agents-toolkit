@@ -3,7 +3,6 @@
 
 import { assert } from "chai";
 import fs from "fs-extra";
-import "mocha";
 import os from "os";
 import path from "path";
 import { createSandbox, SinonSandbox } from "sinon";

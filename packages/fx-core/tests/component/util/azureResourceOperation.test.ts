@@ -1,7 +1,6 @@
 import { ListAccountSasResponse, StorageAccounts } from "@azure/arm-storage";
 import chai from "chai";
 import chaiAsPromised from "chai-as-promised";
-import "mocha";
 import * as sinon from "sinon";
 import * as tools from "../../../src/common/utils";
 import {

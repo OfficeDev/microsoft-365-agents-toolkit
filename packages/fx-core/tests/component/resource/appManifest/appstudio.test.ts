@@ -15,7 +15,6 @@ import {
 import AdmZip from "adm-zip";
 import * as chai from "chai";
 import fs from "fs-extra";
-import "mocha";
 import { RestoreFn } from "mocked-env";
 import sinon from "sinon";
 import Container from "typedi";
@@ -132,10 +131,10 @@ describe.skip("appStudio", () => {
     it("get package successfully", async () => {
       m365TokenProvider.getAccessToken = sandbox.stub().returns(ok("token"));
       const zip = new AdmZip();
-      zip.addFile("manifest.json", new Buffer(""));
-      zip.addFile("color.png", new Buffer(""));
-      zip.addFile("outline.png", new Buffer(""));
-      zip.addFile("zh-cn.json", new Buffer(""));
+      zip.addFile("manifest.json", Buffer.from(""));
+      zip.addFile("color.png", Buffer.from(""));
+      zip.addFile("outline.png", Buffer.from(""));
+      zip.addFile("zh-cn.json", Buffer.from(""));
       const archivedFile = zip.toBuffer();
       sandbox.stub(RetryHandler, "Retry").resolves({
         data: archivedFile,
@@ -156,10 +155,10 @@ describe.skip("appStudio", () => {
     it("get package successfully with unsupported file", async () => {
       m365TokenProvider.getAccessToken = sandbox.stub().returns(ok("token"));
       const zip = new AdmZip();
-      zip.addFile("manifest.json", new Buffer(""));
-      zip.addFile("color.png", new Buffer(""));
-      zip.addFile("outline.png", new Buffer(""));
-      zip.addFile("idk.json", new Buffer(""));
+      zip.addFile("manifest.json", Buffer.from(""));
+      zip.addFile("color.png", Buffer.from(""));
+      zip.addFile("outline.png", Buffer.from(""));
+      zip.addFile("idk.json", Buffer.from(""));
       const archivedFile = zip.toBuffer();
       sandbox.stub(RetryHandler, "Retry").resolves({
         data: archivedFile,
@@ -217,7 +216,7 @@ describe.skip("appStudio", () => {
     it("not valid json", async () => {
       const ctx = createContext();
       const zip = new AdmZip();
-      zip.addFile("manifest.json", new Buffer(""));
+      zip.addFile("manifest.json", Buffer.from(""));
       const info = zip.toBuffer();
 
       const inputs: InputsWithProjectPath = {
@@ -256,7 +255,7 @@ describe.skip("appStudio", () => {
         $schema: "schema",
       };
       const zip = new AdmZip();
-      zip.addFile("manifest.json", new Buffer(JSON.stringify(json)));
+      zip.addFile("manifest.json", Buffer.from(JSON.stringify(json)));
       const info = zip.toBuffer();
 
       const inputs: InputsWithProjectPath = {
@@ -278,7 +277,7 @@ describe.skip("appStudio", () => {
         id: "fe58d257",
       };
       const zip = new AdmZip();
-      zip.addFile("manifest.json", new Buffer(JSON.stringify(json)));
+      zip.addFile("manifest.json", Buffer.from(JSON.stringify(json)));
       const info = zip.toBuffer();
 
       const inputs: InputsWithProjectPath = {
@@ -301,7 +300,7 @@ describe.skip("appStudio", () => {
         id: "fe58d257-4ce6-427e-a388-496c89633774",
       };
       const zip = new AdmZip();
-      zip.addFile("manifest.json", new Buffer(JSON.stringify(json)));
+      zip.addFile("manifest.json", Buffer.from(JSON.stringify(json)));
       const info = zip.toBuffer();
 
       const inputs: InputsWithProjectPath = {
@@ -325,7 +324,7 @@ describe.skip("appStudio", () => {
         id: "fe58d257-4ce6-427e-a388-496c89633774",
       };
       const zip = new AdmZip();
-      zip.addFile("manifest.json", new Buffer(JSON.stringify(json)));
+      zip.addFile("manifest.json", Buffer.from(JSON.stringify(json)));
       const info = zip.toBuffer();
 
       const inputs: InputsWithProjectPath = {
@@ -352,7 +351,7 @@ describe.skip("appStudio", () => {
         id: "fe58d257-4ce6-427e-a388-496c89633774",
       };
       const zip = new AdmZip();
-      zip.addFile("manifest.json", new Buffer(JSON.stringify(json)));
+      zip.addFile("manifest.json", Buffer.from(JSON.stringify(json)));
       const info = zip.toBuffer();
       sandbox.stub(AppManifestUtils, "validateAgainstSchema").resolves([]);
 
@@ -387,7 +386,7 @@ describe.skip("appStudio", () => {
         id: "fe58d257-4ce6-427e-a388-496c89633774",
       };
       const zip = new AdmZip();
-      zip.addFile("manifest.json", new Buffer(JSON.stringify(json)));
+      zip.addFile("manifest.json", Buffer.from(JSON.stringify(json)));
       const info = zip.toBuffer();
       sandbox.stub(AppManifestUtils, "validateAgainstSchema").resolves([]);
 
@@ -430,7 +429,7 @@ describe("updateTeamsAppV3ForPublish - validateAgainstSchema", () => {
       id: "fe58d257-4ce6-427e-a388-496c89633774",
     };
     const zip = new AdmZip();
-    zip.addFile("manifest.json", new Buffer(JSON.stringify(json)));
+    zip.addFile("manifest.json", Buffer.from(JSON.stringify(json)));
     const info = zip.toBuffer();
     const errors: string[] = ["error1"];
     sandbox.stub(AppManifestUtils, "validateAgainstSchema").resolves(errors);
@@ -456,7 +455,7 @@ describe("updateTeamsAppV3ForPublish - validateAgainstSchema", () => {
       id: "fe58d257-4ce6-427e-a388-496c89633774",
     };
     const zip = new AdmZip();
-    zip.addFile("manifest.json", new Buffer(JSON.stringify(json)));
+    zip.addFile("manifest.json", Buffer.from(JSON.stringify(json)));
     const info = zip.toBuffer();
     sandbox.stub(AppManifestUtils, "validateAgainstSchema").resolves([]);
 
@@ -538,7 +537,7 @@ describe("App-manifest Component - v3", () => {
     sandbox.stub(manifestUtils, "getManifestV3").resolves(ok(manifest as unknown as TeamsManifest));
     sandbox.stub(fs, "pathExists").resolves(true);
     sandbox.stub(fs, "readJSON").resolves(updatedManifest);
-    sandbox.stub(fs, "readFile").resolves(new Buffer(JSON.stringify(manifest)));
+    sandbox.stub(fs, "readFile").resolves(Buffer.from(JSON.stringify(manifest)));
     sandbox.stub(context.userInteraction, "showMessage").resolves(ok("Preview only"));
     sandbox.stub(ConfigureTeamsAppDriver.prototype, "execute").resolves(mockDriverRes);
     sandbox.stub(CreateAppPackageDriver.prototype, "execute").resolves(mockDriverRes);
@@ -555,7 +554,7 @@ describe("App-manifest Component - v3", () => {
     sandbox.stub(manifestUtils, "getManifestV3").resolves(ok(manifest as unknown as TeamsManifest));
     sandbox.stub(fs, "pathExists").resolves(true);
     sandbox.stub(fs, "readJSON").resolves(manifest);
-    sandbox.stub(fs, "readFile").resolves(new Buffer(JSON.stringify(manifest)));
+    sandbox.stub(fs, "readFile").resolves(Buffer.from(JSON.stringify(manifest)));
     sandbox.stub(context.userInteraction, "showMessage").resolves(ok("View in Developer Portal"));
     sandbox.stub(ConfigureTeamsAppDriver.prototype, "execute").resolves();
 
@@ -573,7 +572,7 @@ describe("App-manifest Component - v3", () => {
     sandbox.stub(manifestUtils, "getManifestV3").resolves(ok(manifest as unknown as TeamsManifest));
     sandbox.stub(fs, "pathExists").resolves(false);
     sandbox.stub(fs, "readJSON").resolves(updatedManifest);
-    sandbox.stub(fs, "readFile").resolves(new Buffer(JSON.stringify(manifest)));
+    sandbox.stub(fs, "readFile").resolves(Buffer.from(JSON.stringify(manifest)));
     sandbox.stub(context.userInteraction, "showMessage").resolves(ok("Preview and update"));
     sandbox.stub(ConfigureTeamsAppDriver.prototype, "execute").resolves(mockDriverRes);
     sandbox.stub(CreateAppPackageDriver.prototype, "execute").resolves(mockDriverRes);

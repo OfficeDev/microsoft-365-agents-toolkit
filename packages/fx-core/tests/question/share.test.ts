@@ -11,11 +11,9 @@ import {
   ok,
 } from "@microsoft/teamsfx-api";
 import { assert } from "chai";
-import "mocha";
 import * as sinon from "sinon";
 import * as teamsDevPortalClientModule from "../../src/client/teamsDevPortalClient";
 import { TOOLS, setTools } from "../../src/common/globalVars";
-import * as shareUtils from "../../src/component/driver/share/utils";
 import { AppUser } from "../../src/component/driver/teamsApp/interfaces/appdefinitions/appUser";
 import * as collaborator from "../../src/core/collaborator";
 import { InputValidationError } from "../../src/error/common";
@@ -26,6 +24,7 @@ import {
   ShareScopeOption,
   selectUsersToRemoveSharedAccess,
   shareNode,
+  shareQuestionDeps,
 } from "../../src/question/share";
 import { MockTools } from "../core/utils";
 
@@ -197,7 +196,9 @@ describe("selectUsersToRemoveSharedAccess", () => {
     sandbox.stub(TOOLS.tokenProvider.m365TokenProvider, "getAccessToken").resolves(ok("token"));
 
     // Mock parseShareAppActionYamlConfig to return error
-    sandbox.stub(shareUtils, "parseShareAppActionYamlConfig").resolves(err(mockError as FxError));
+    sandbox
+      .stub(shareQuestionDeps, "parseShareAppActionYamlConfig")
+      .resolves(err(mockError as FxError));
 
     try {
       await dynamicOptions({ projectPath: "path/to/project" } as unknown as Inputs);
@@ -216,7 +217,7 @@ describe("selectUsersToRemoveSharedAccess", () => {
 
     // Mock parseShareAppActionYamlConfig
     sandbox
-      .stub(shareUtils, "parseShareAppActionYamlConfig")
+      .stub(shareQuestionDeps, "parseShareAppActionYamlConfig")
       .resolves(ok({ teamsappId: "mockAppId", titleId: "mockTitleId", appId: "mockAppId" }));
 
     // Mock teamsDevPortalClient instance
@@ -242,7 +243,7 @@ describe("selectUsersToRemoveSharedAccess", () => {
 
     // Mock parseShareAppActionYamlConfig
     sandbox
-      .stub(shareUtils, "parseShareAppActionYamlConfig")
+      .stub(shareQuestionDeps, "parseShareAppActionYamlConfig")
       .resolves(ok({ teamsappId: "mockAppId", titleId: "mockTitleId", appId: "mockAppId" }));
 
     // Mock teamsDevPortalClient instance
@@ -276,7 +277,7 @@ describe("selectUsersToRemoveSharedAccess", () => {
 
     // Mock parseShareAppActionYamlConfig
     sandbox
-      .stub(shareUtils, "parseShareAppActionYamlConfig")
+      .stub(shareQuestionDeps, "parseShareAppActionYamlConfig")
       .resolves(ok({ teamsappId: "mockAppId", titleId: "mockTitleId", appId: "mockAppId" }));
 
     // Mock app users including current user

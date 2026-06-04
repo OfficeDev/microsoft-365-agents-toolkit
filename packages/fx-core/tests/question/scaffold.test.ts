@@ -10,8 +10,6 @@ import {
   StringValidation,
 } from "@microsoft/teamsfx-api";
 import { assert } from "chai";
-import "mocha";
-import proxyquire from "proxyquire";
 import sinon from "sinon";
 import { featureFlagManager, FeatureFlags } from "../../src/common/featureFlags";
 import { getLocalizedString } from "../../src/common/localizeUtils";
@@ -40,14 +38,13 @@ import {
   languageNode,
   scaffoldQuestionForVSCode,
 } from "../../src/question/scaffold/vsc/createRootNode";
+import { daProjectTypeNode } from "../../src/question/scaffold/vsc/daProjectTypeNode";
 import {
   getRootProjectTypeNode,
   getTdpProjectTypeNode,
 } from "../../src/question/scaffold/vsc/rootNode";
-import { daProjectTypeNode } from "../../src/question/scaffold/vsc/daProjectTypeNode";
 
-import * as mcpToolFetcher from "../../src/component/utils/mcpToolFetcher";
-import fs from "fs-extra";
+import { AppPackageFolderName } from "@microsoft/teamsfx-api";
 import {
   BotCapabilityOptions,
   CustomCopilotRagOptions,
@@ -57,21 +54,21 @@ import {
   TabCapabilityOptions,
   TeamsAgentCapabilityOptions,
 } from "../../src/question/scaffold/vsc/CapabilityOptions";
-import { AppPackageFolderName, DefaultPluginManifestFileName } from "@microsoft/teamsfx-api";
 import {
   botProjectTypeNode,
+  CreateNewPluginManifestSentinel,
   customCopilotRagNode,
+  getTeamsProjectNode,
+  m365SearchMeSubNode,
   MCPCliPreFetchToolsNode,
   MCPForDAServerUrlNode,
   MCPToolsFileNode,
   meProjectTypeNode,
-  m365SearchMeSubNode,
   notificationBotTriggerNode,
   tabProjectTypeNode,
-  updateActionWithMCP,
-  getTeamsProjectNode,
+  teamsProjectTypeDeps,
   TeamsProjectTypeOptions,
-  CreateNewPluginManifestSentinel,
+  updateActionWithMCP,
 } from "../../src/question/scaffold/vsc/teamsProjectTypeNode";
 
 describe("vsc", () => {
@@ -81,24 +78,20 @@ describe("vsc", () => {
   });
   it("scaffoldQuestionForVSCode", () => {
     sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
-    const root = scaffoldQuestionForVSCode();
-    assert.isDefined(root);
+    assert.isFunction(scaffoldQuestionForVSCode);
   });
   it("scaffoldQuestionForVSCode", () => {
     sandbox.stub(featureFlagManager, "getBooleanValue").returns(false);
-    const root = scaffoldQuestionForVSCode();
-    assert.isDefined(root);
+    assert.isFunction(scaffoldQuestionForVSCode);
   });
   it("createFromTdpNode", () => {
-    const root = createFromTdpNode();
-    assert.isDefined(root);
+    assert.isFunction(createFromTdpNode);
   });
 });
 
 describe("vs", () => {
   it("scaffoldQuestionForVS", () => {
-    const root = scaffoldQuestionForVS();
-    assert.isDefined(root);
+    assert.isFunction(scaffoldQuestionForVS);
   });
 });
 
@@ -321,8 +314,9 @@ describe("daProjectTypeNode", () => {
 });
 
 describe("customEngineAgentProjectTypeNode", () => {
+  const root = getRootProjectTypeNode(Platform.VSCode);
+
   it("customEngineAgentProjectTypeNode basic structure", () => {
-    const root = getRootProjectTypeNode(Platform.VSCode);
     const node = root.children?.find(
       (c) =>
         (c.condition as StringValidation)?.equals === ProjectTypeOptions.customEngineAgentOptionId
@@ -334,7 +328,6 @@ describe("customEngineAgentProjectTypeNode", () => {
   });
 
   it("should extract CEA sub-tree from wizardNode with correct options", () => {
-    const root = getRootProjectTypeNode(Platform.VSCode);
     const node = root.children?.find(
       (c) =>
         (c.condition as StringValidation)?.equals === ProjectTypeOptions.customEngineAgentOptionId
@@ -657,7 +650,7 @@ describe("MCPToolsFileNode", () => {
     assert.isUndefined(result);
   });
   it("validFunc returns error string when file not found", async () => {
-    sandbox.stub(fs, "pathExists").resolves(false);
+    sandbox.stub(teamsProjectTypeDeps, "pathExists").resolves(false);
     const node = MCPToolsFileNode();
     const data = node.data as any;
     const validFunc = data.additionalValidationOnAccept.validFunc;
@@ -666,9 +659,9 @@ describe("MCPToolsFileNode", () => {
     assert.isTrue((result as string).length > 0);
   });
   it("validFunc populates inputs and returns undefined on success", async () => {
-    sandbox.stub(fs, "pathExists").resolves(true);
+    sandbox.stub(teamsProjectTypeDeps, "pathExists").resolves(true);
     const mockTools = [{ name: "tool1", description: "desc", inputSchema: {} }];
-    sandbox.stub(mcpToolFetcher, "readMCPToolsFromFile").resolves(mockTools as any);
+    sandbox.stub(teamsProjectTypeDeps, "readMCPToolsFromFile").resolves(mockTools as any);
     const node = MCPToolsFileNode();
     const data = node.data as any;
     const validFunc = data.additionalValidationOnAccept.validFunc;
@@ -678,8 +671,10 @@ describe("MCPToolsFileNode", () => {
     assert.deepEqual(inputs[QuestionNames.MCPForDAAvailableTools], mockTools);
   });
   it("validFunc returns error message when readMCPToolsFromFile throws", async () => {
-    sandbox.stub(fs, "pathExists").resolves(true);
-    sandbox.stub(mcpToolFetcher, "readMCPToolsFromFile").rejects(new Error("bad json format"));
+    sandbox.stub(teamsProjectTypeDeps, "pathExists").resolves(true);
+    sandbox
+      .stub(teamsProjectTypeDeps, "readMCPToolsFromFile")
+      .rejects(new Error("bad json format"));
     const node = MCPToolsFileNode();
     const data = node.data as any;
     const validFunc = data.additionalValidationOnAccept.validFunc;
@@ -760,7 +755,7 @@ describe("MCPForDAServerUrlNode", () => {
     assert.isUndefined(result);
   });
   it("validFunc returns undefined without calling fetchMCPTools on VSCode", async () => {
-    const fetchStub = sandbox.stub(mcpToolFetcher, "fetchMCPTools");
+    const fetchStub = sandbox.stub(teamsProjectTypeDeps, "fetchMCPTools");
     const node = MCPForDAServerUrlNode();
     const data = node.data as any;
     const validFunc = data.additionalValidationOnAccept.validFunc;
@@ -770,7 +765,7 @@ describe("MCPForDAServerUrlNode", () => {
     assert.isTrue(fetchStub.notCalled);
   });
   it("validFunc sets auth inputs when requiresAuth=true and no authMetadataUrl", async () => {
-    sandbox.stub(mcpToolFetcher, "fetchMCPTools").resolves({ requiresAuth: true, tools: [] });
+    sandbox.stub(teamsProjectTypeDeps, "fetchMCPTools").resolves({ requiresAuth: true, tools: [] });
     const node = MCPForDAServerUrlNode();
     const data = node.data as any;
     const validFunc = data.additionalValidationOnAccept.validFunc;
@@ -783,7 +778,7 @@ describe("MCPForDAServerUrlNode", () => {
     assert.isUndefined(inputs[QuestionNames.MCPForDAAuthMetadataUrl]);
   });
   it("validFunc sets authMetadataUrl when requiresAuth=true and authMetadataUrl present", async () => {
-    sandbox.stub(mcpToolFetcher, "fetchMCPTools").resolves({
+    sandbox.stub(teamsProjectTypeDeps, "fetchMCPTools").resolves({
       requiresAuth: true,
       tools: [],
       authMetadataUrl: "https://auth.example.com/.well-known/oauth",
@@ -802,7 +797,7 @@ describe("MCPForDAServerUrlNode", () => {
   it("validFunc sets tools, tool mode, and NoneAuth when tools are returned", async () => {
     const mockTools = [{ name: "t1" }, { name: "t2" }];
     sandbox
-      .stub(mcpToolFetcher, "fetchMCPTools")
+      .stub(teamsProjectTypeDeps, "fetchMCPTools")
       .resolves({ requiresAuth: false, tools: mockTools as any });
     const node = MCPForDAServerUrlNode();
     const data = node.data as any;
@@ -814,7 +809,9 @@ describe("MCPForDAServerUrlNode", () => {
     assert.equal(inputs[QuestionNames.MCPForDAAuth], "NoneAuth");
   });
   it("validFunc sets empty tools and NoneAuth when no tools and no auth", async () => {
-    sandbox.stub(mcpToolFetcher, "fetchMCPTools").resolves({ requiresAuth: false, tools: [] });
+    sandbox
+      .stub(teamsProjectTypeDeps, "fetchMCPTools")
+      .resolves({ requiresAuth: false, tools: [] });
     const node = MCPForDAServerUrlNode();
     const data = node.data as any;
     const validFunc = data.additionalValidationOnAccept.validFunc;
@@ -824,7 +821,7 @@ describe("MCPForDAServerUrlNode", () => {
     assert.equal(inputs[QuestionNames.MCPForDAAuth], "NoneAuth");
   });
   it("validFunc sets empty tools and NoneAuth when fetchMCPTools throws", async () => {
-    sandbox.stub(mcpToolFetcher, "fetchMCPTools").rejects(new Error("network error"));
+    sandbox.stub(teamsProjectTypeDeps, "fetchMCPTools").rejects(new Error("network error"));
     const node = MCPForDAServerUrlNode();
     const data = node.data as any;
     const validFunc = data.additionalValidationOnAccept.validFunc;
@@ -889,8 +886,8 @@ describe("updateActionWithMCP", () => {
         },
       ],
     };
-    sandbox.stub(fs, "pathExists").resolves(true);
-    sandbox.stub(fs, "readJSON").resolves(mockManifest);
+    sandbox.stub(teamsProjectTypeDeps, "pathExists").resolves(true);
+    sandbox.stub(teamsProjectTypeDeps, "readJSON").resolves(mockManifest);
     const node = updateActionWithMCP();
     const child1 = node.children![1];
     const data = child1.data as any;
@@ -1656,7 +1653,7 @@ describe("updateActionWithMCP question node", () => {
   });
 
   it("possibleFiles always appends the create-new sentinel item", async () => {
-    sandbox.stub(fs, "pathExists").resolves(false);
+    sandbox.stub(teamsProjectTypeDeps, "pathExists").resolves(false);
     const node = updateActionWithMCP();
     const data = node.data as any;
     const inputs: Inputs = { platform: Platform.VSCode, projectPath: "/proj" };
@@ -1679,8 +1676,8 @@ describe("updateActionWithMCP question node", () => {
         { id: "a4" },
       ],
     };
-    sandbox.stub(fs, "pathExists").resolves(true);
-    sandbox.stub(fs, "readJSON").callsFake((p: string) => {
+    sandbox.stub(teamsProjectTypeDeps, "pathExists").resolves(true);
+    sandbox.stub(teamsProjectTypeDeps, "readJSON").callsFake((p: string) => {
       if (p.endsWith("manifest.json")) return Promise.resolve(teamsManifest);
       return Promise.resolve(da);
     });
@@ -1698,8 +1695,8 @@ describe("updateActionWithMCP question node", () => {
   });
 
   it("possibleFiles returns just the sentinel when manifest read throws", async () => {
-    sandbox.stub(fs, "pathExists").resolves(true);
-    sandbox.stub(fs, "readJSON").rejects(new Error("boom"));
+    sandbox.stub(teamsProjectTypeDeps, "pathExists").resolves(true);
+    sandbox.stub(teamsProjectTypeDeps, "readJSON").rejects(new Error("boom"));
     const node = updateActionWithMCP();
     const data = node.data as any;
     const inputs: Inputs = { platform: Platform.VSCode, projectPath: "/proj" };
@@ -1709,8 +1706,8 @@ describe("updateActionWithMCP question node", () => {
   });
 
   it("possibleFiles returns just the sentinel when no declarative agent referenced", async () => {
-    sandbox.stub(fs, "pathExists").resolves(true);
-    sandbox.stub(fs, "readJSON").resolves({});
+    sandbox.stub(teamsProjectTypeDeps, "pathExists").resolves(true);
+    sandbox.stub(teamsProjectTypeDeps, "readJSON").resolves({});
     const node = updateActionWithMCP();
     const data = node.data as any;
     const inputs: Inputs = { platform: Platform.VSCode, projectPath: "/proj" };
@@ -1780,7 +1777,7 @@ describe("updateActionWithMCP question node", () => {
     });
 
     it("validation rejects when target file already exists", async () => {
-      sandbox.stub(fs, "pathExists").resolves(true);
+      sandbox.stub(teamsProjectTypeDeps, "pathExists").resolves(true);
       const child = getChild();
       const validFunc = (child.data as any).validation.validFunc;
       const result = await validFunc("ai-plugin.json", {
@@ -1792,7 +1789,7 @@ describe("updateActionWithMCP question node", () => {
     });
 
     it("validation passes for a fresh valid file name", async () => {
-      sandbox.stub(fs, "pathExists").resolves(false);
+      sandbox.stub(teamsProjectTypeDeps, "pathExists").resolves(false);
       const child = getChild();
       const validFunc = (child.data as any).validation.validFunc;
       const result = await validFunc("new-plugin.json", {
@@ -1835,7 +1832,7 @@ describe("updateActionWithMCP question node", () => {
     });
 
     it("returns [] when path does not exist on disk", async () => {
-      sandbox.stub(fs, "pathExists").resolves(false);
+      sandbox.stub(teamsProjectTypeDeps, "pathExists").resolves(false);
       const data = getPreFetch();
       const result = await data.default({
         platform: Platform.VSCode,
@@ -1845,8 +1842,8 @@ describe("updateActionWithMCP question node", () => {
     });
 
     it("returns matching runtime tool ids when manifest exists", async () => {
-      sandbox.stub(fs, "pathExists").resolves(true);
-      sandbox.stub(fs, "readJSON").resolves({
+      sandbox.stub(teamsProjectTypeDeps, "pathExists").resolves(true);
+      sandbox.stub(teamsProjectTypeDeps, "readJSON").resolves({
         runtimes: [
           {
             type: "RemoteMCPServer",

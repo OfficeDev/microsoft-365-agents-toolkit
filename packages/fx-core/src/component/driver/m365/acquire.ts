@@ -7,14 +7,14 @@ import { Service } from "typedi";
 import { hooks } from "@feathersjs/hooks/lib";
 import { FxError, Result, SystemError, UserError } from "@microsoft/teamsfx-api";
 
-import { getLocalizedString } from "../../../common/localizeUtils";
-import { FileNotFoundError, InvalidActionInputError, assembleError } from "../../../error/common";
-import { AppScope, PackageService } from "../../m365/packageService";
 import {
   getResourceServiceEndpoint,
   MosServiceScope,
   ResourceServiceType,
 } from "../../../common/constants";
+import { getLocalizedString } from "../../../common/localizeUtils";
+import { assembleError, FileNotFoundError, InvalidActionInputError } from "../../../error/common";
+import { AppScope, PackageService } from "../../m365/packageService";
 import { getAbsolutePath, wrapRun } from "../../utils/common";
 import { logMessageKeys } from "../aad/utility/constants";
 import { DriverContext } from "../interface/commonArgs";
@@ -25,6 +25,16 @@ interface AcquireArgs {
   appPackagePath?: string; // The path of the app package
   scope?: AppScope;
 }
+
+export const m365AcquireDeps = {
+  pathExists: fs.pathExists,
+  getAbsolutePath,
+  getResourceServiceEndpoint,
+  MosServiceScope,
+  createPackageService: (serviceEndpoint: string, logProvider?: DriverContext["logProvider"]) =>
+    new PackageService(serviceEndpoint, logProvider),
+  assembleError,
+};
 
 export const actionName = "teamsApp/extendToM365";
 const helpLink = "https://aka.ms/teamsfx-actions/teamsapp-extendToM365";
@@ -80,17 +90,25 @@ export class M365TitleAcquireDriver implements StepDriver {
     try {
       this.validateArgs(args);
       this.validateOutputEnvVarNames(outputEnvVarNames);
-      const appPackagePath = getAbsolutePath(args.appPackagePath!, context.projectPath);
-      if (!(await fs.pathExists(appPackagePath))) {
+      const appPackagePath = m365AcquireDeps.getAbsolutePath(
+        args.appPackagePath!,
+        context.projectPath
+      );
+      if (!(await m365AcquireDeps.pathExists(appPackagePath))) {
         throw new FileNotFoundError(actionName, appPackagePath, helpLink);
       }
 
       // get sideloading service settings
-      const sideloadingServiceEndpoint = getResourceServiceEndpoint(ResourceServiceType.MOS3);
+      const sideloadingServiceEndpoint = m365AcquireDeps.getResourceServiceEndpoint(
+        ResourceServiceType.MOS3
+      );
 
-      const packageService = new PackageService(sideloadingServiceEndpoint, context.logProvider);
+      const packageService = m365AcquireDeps.createPackageService(
+        sideloadingServiceEndpoint,
+        context.logProvider
+      );
       const sideloadingTokenRes = await context.m365TokenProvider.getAccessToken({
-        scopes: MosServiceScope(),
+        scopes: m365AcquireDeps.MosServiceScope(),
       });
       if (sideloadingTokenRes.isErr()) {
         throw sideloadingTokenRes.error;
@@ -128,7 +146,7 @@ export class M365TitleAcquireDriver implements StepDriver {
       context.logProvider?.error(
         getLocalizedString(logMessageKeys.failExecuteDriver, actionName, message)
       );
-      throw assembleError(error as Error, actionName);
+      throw m365AcquireDeps.assembleError(error as Error, actionName);
     }
   }
 

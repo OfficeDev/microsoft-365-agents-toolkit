@@ -8,7 +8,6 @@ import {
   TeamsAppManifest,
 } from "@microsoft/teamsfx-api";
 import { assert } from "chai";
-import "mocha";
 import sinon from "sinon";
 import { TelemetryEvent, TelemetryProperty } from "../../../src/common/telemetry";
 import {

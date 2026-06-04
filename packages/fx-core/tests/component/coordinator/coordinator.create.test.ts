@@ -1,4 +1,3 @@
-import "mocha";
 
 import { err, Inputs, ok, Platform, SystemError, UserError } from "@microsoft/teamsfx-api";
 import { assert } from "chai";

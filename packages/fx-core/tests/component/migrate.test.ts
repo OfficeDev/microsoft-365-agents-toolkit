@@ -1,5 +1,4 @@
 import { assert } from "chai";
-import "mocha";
 import { convertProjectSettingsV2ToV3 } from "../../src/component/migrate";
 
 describe("convertProjectSettingsV2ToV3", () => {

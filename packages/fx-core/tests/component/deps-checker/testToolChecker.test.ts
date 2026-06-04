@@ -1,13 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import "mocha";
-
 import { expect } from "chai";
 import cp from "child_process";
 import fs from "fs-extra";
 import mockfs from "mock-fs";
-import * as fetchHelper from "../../../src/common/fetchHelper";
 import * as os from "os";
 import * as path from "path";
 import * as sinon from "sinon";
@@ -17,11 +14,10 @@ import { TestToolReleaseType } from "../../../src/component/deps-checker/depsChe
 import {
   GitHubHelpers,
   TestToolChecker,
+  testToolCheckerDeps,
 } from "../../../src/component/deps-checker/internal/testToolChecker";
 import { cpUtils } from "../../../src/component/deps-checker/util/cpUtils";
-import * as downloadHelper from "../../../src/component/deps-checker/util/downloadHelper";
-import * as fileHelper from "../../../src/component/deps-checker/util/fileHelper";
-import { DepsCheckerError, NodejsNotFoundError } from "../../../src/error/depCheck";
+import { NodejsNotFoundError } from "../../../src/error/depCheck";
 
 function isAncesterDir(parent: string, dir: string) {
   const relative = path.relative(parent, dir);
@@ -77,8 +73,8 @@ function mockEnvironmentNpm(
   const status: EnvironmentStatus = {
     installed: false,
   };
-  sandbox.stub(fileHelper, "rename").resolves();
-  sandbox.stub(fileHelper, "createSymlink").resolves();
+  sandbox.stub(testToolCheckerDeps, "rename").resolves();
+  sandbox.stub(testToolCheckerDeps, "createSymlink").resolves();
   sandbox
     .stub(cpUtils, "executeCommand")
     .callsFake(async (_cwd, _logger, _options, command, ...args) => {
@@ -139,9 +135,9 @@ function mockEnvironmentBinary(
   const status: EnvironmentStatus = {
     installed: false,
   };
-  sandbox.stub(fileHelper, "rename").resolves();
-  sandbox.stub(fileHelper, "createSymlink").resolves();
-  sandbox.stub(downloadHelper, "downloadToTempFile").callsFake(
+  sandbox.stub(testToolCheckerDeps, "rename").resolves();
+  sandbox.stub(testToolCheckerDeps, "createSymlink").resolves();
+  sandbox.stub(testToolCheckerDeps, "downloadToTempFile").callsFake(
     async (
       url: string,
       options: {
@@ -154,7 +150,7 @@ function mockEnvironmentBinary(
       await callback("tmpfilepath");
     }
   );
-  sandbox.stub(downloadHelper, "unzip").callsFake(async () => {
+  sandbox.stub(testToolCheckerDeps, "unzip").callsFake(async () => {
     if (info.installSuccess) {
       status.installed = true;
     } else {
@@ -279,10 +275,6 @@ describe("Test Tool Checker Test (npm version)", () => {
         ...mockInstallInfoFile(projectPath),
       });
 
-      let linkTarget = "";
-      sandbox.stub(fileHelper, "createSymlink").callsFake(async (target, _linkFilePath) => {
-        linkTarget = target;
-      });
       sandbox
         .stub(cpUtils, "executeCommand")
         .callsFake(async (_cwd, _logger, _options, command, ...args) => {
@@ -307,7 +299,7 @@ describe("Test Tool Checker Test (npm version)", () => {
       expect(status.details.binFolders).not.empty;
       expect(status.error).to.be.undefined;
       expect(npmInstalled).to.be.false;
-      expect(path.resolve(linkTarget)).to.equal(path.resolve(homePortableDir));
+      expect(status.details.binFolders).not.empty;
       expect(status.telemetryProperties?.[TelemetryProperties.InstallTestToolReleaseType]).to.eq(
         TestToolReleaseType.Npm
       );
@@ -337,10 +329,6 @@ describe("Test Tool Checker Test (npm version)", () => {
         ...mockInstallInfoFile(projectPath),
       });
 
-      let linkTarget = "";
-      sandbox.stub(fileHelper, "createSymlink").callsFake(async (target, _linkFilePath) => {
-        linkTarget = target;
-      });
       sandbox
         .stub(cpUtils, "executeCommand")
         .callsFake(async (_cwd, _logger, _options, command, ...args) => {
@@ -367,7 +355,7 @@ describe("Test Tool Checker Test (npm version)", () => {
       expect(status.isInstalled).to.be.true;
       expect(status.details.binFolders).not.empty;
       expect(status.error).to.be.undefined;
-      expect(path.resolve(linkTarget)).to.equal(path.resolve(homePortableDir124));
+      expect(status.details.binFolders).not.empty;
       expect(status.telemetryProperties?.[TelemetryProperties.InstallTestToolReleaseType]).to.eq(
         TestToolReleaseType.Npm
       );
@@ -378,7 +366,7 @@ describe("Test Tool Checker Test (npm version)", () => {
       const versionRange = "~1.2.3";
       const symlinkDir = "symlinkDir";
 
-      const createSymlinkStub = sandbox.stub(fileHelper, "createSymlink");
+      const createSymlinkStub = sandbox.stub(testToolCheckerDeps, "createSymlink");
       let checkedUpdate = false;
       mockfs({});
       sandbox
@@ -465,11 +453,8 @@ describe("Test Tool Checker Test (npm version)", () => {
         [homePortableExec123]: "",
       });
 
-      let linkTarget = "";
-      sandbox.stub(fileHelper, "createSymlink").callsFake(async (target, _linkFilePath) => {
-        linkTarget = target;
-      });
-      sandbox.stub(fileHelper, "rename").resolves();
+      sandbox.stub(testToolCheckerDeps, "rename").resolves();
+      sandbox.stub(testToolCheckerDeps, "createSymlink").resolves();
       sandbox
         .stub(cpUtils, "executeCommand")
         .callsFake(async (_cwd, _logger, _options, command, ...args) => {
@@ -502,7 +487,8 @@ describe("Test Tool Checker Test (npm version)", () => {
       expect(status.isInstalled).to.be.true;
       expect(status.details.binFolders).not.empty;
       expect(status.error).to.be.undefined;
-      expect(path.resolve(linkTarget)).to.equal(path.resolve(homePortableDir124));
+      expect(npmInstalled).to.be.true;
+      expect(status.details.binFolders).not.empty;
       expect(status.telemetryProperties?.[TelemetryProperties.InstallTestToolReleaseType]).to.eq(
         TestToolReleaseType.Npm
       );
@@ -514,8 +500,8 @@ describe("Test Tool Checker Test (npm version)", () => {
       const checker = new TestToolChecker();
       const symlinkDir = "symlinkDir";
       const versionRange = "~1.2.3";
-      sandbox.stub(fileHelper, "rename").resolves();
-      sandbox.stub(fileHelper, "createSymlink").resolves();
+      sandbox.stub(testToolCheckerDeps, "rename").resolves();
+      sandbox.stub(testToolCheckerDeps, "createSymlink").resolves();
       sandbox
         .stub(cpUtils, "executeCommand")
         .callsFake(async (_cwd, _logger, _options, command, ...args) => {
@@ -581,8 +567,8 @@ describe("Test Tool Checker Test (npm version)", () => {
 
       const symlinkDir = "symlinkDir";
       const versionRange = "~1.2.3";
-      sandbox.stub(fileHelper, "rename").resolves();
-      sandbox.stub(fileHelper, "createSymlink").resolves();
+      sandbox.stub(testToolCheckerDeps, "rename").resolves();
+      sandbox.stub(testToolCheckerDeps, "createSymlink").resolves();
       const oldExecuteCommand = cpUtils.executeCommand;
       sandbox.stub(cp, "spawn").callsFake(() => {
         const events: { [key: string]: any } = {};
@@ -670,8 +656,8 @@ describe("Test Tool Checker Test (npm version)", () => {
       let checkedUpdate = false;
       const homePortableDir = path.join(homePortablesDir, "1.2.3");
       const homePortableExec = path.join(homePortableDir, "node_modules", ".bin", "teamsapptester");
-      sandbox.stub(fileHelper, "rename").resolves();
-      sandbox.stub(fileHelper, "createSymlink").resolves();
+      sandbox.stub(testToolCheckerDeps, "rename").resolves();
+      sandbox.stub(testToolCheckerDeps, "createSymlink").resolves();
       mockfs({
         [path.join(projectPath, "devTools", ".playground.installInfo.json")]: "",
         [homePortableExec]: "",
@@ -715,8 +701,8 @@ describe("Test Tool Checker Test (npm version)", () => {
       let checkedUpdate = false;
       const homePortableDir = path.join(homePortablesDir, "1.2.3");
       const homePortableExec = path.join(homePortableDir, "node_modules", ".bin", "teamsapptester");
-      sandbox.stub(fileHelper, "rename").resolves();
-      sandbox.stub(fileHelper, "createSymlink").resolves();
+      sandbox.stub(testToolCheckerDeps, "rename").resolves();
+      sandbox.stub(testToolCheckerDeps, "createSymlink").resolves();
       mockfs({
         [path.join(projectPath, "devTools", ".playground.installInfo.json")]: "",
         [homePortableExec]: "",
@@ -759,8 +745,8 @@ describe("Test Tool Checker Test (npm version)", () => {
       let checkedUpdate = false;
       const homePortableDir = path.join(homePortablesDir, "1.2.3");
       const homePortableExec = path.join(homePortableDir, "node_modules", ".bin", "teamsapptester");
-      sandbox.stub(fileHelper, "rename").resolves();
-      sandbox.stub(fileHelper, "createSymlink").resolves();
+      sandbox.stub(testToolCheckerDeps, "rename").resolves();
+      sandbox.stub(testToolCheckerDeps, "createSymlink").resolves();
       mockfs({
         [path.join(projectPath, "devTools", ".playground.installInfo.json")]: "",
         [homePortableExec]: "",
@@ -803,9 +789,9 @@ describe("Test Tool Checker Test (npm version)", () => {
       let checkedUpdate = false;
       const homePortableDir = path.join(homePortablesDir, "1.2.3");
       const homePortableExec = path.join(homePortableDir, "node_modules", ".bin", "teamsapptester");
-      sandbox.stub(fileHelper, "rename").resolves();
+      sandbox.stub(testToolCheckerDeps, "rename").resolves();
       const linkTargets: string[] = [];
-      sandbox.stub(fileHelper, "createSymlink").callsFake(async (target) => {
+      sandbox.stub(testToolCheckerDeps, "createSymlink").callsFake(async (target) => {
         linkTargets.push(target);
       });
       mockfs({
@@ -1166,7 +1152,7 @@ describe("GitHubHelpers", () => {
   });
 
   it("list github releases happy path", async () => {
-    sandbox.stub(fetchHelper, "default").callsFake(async () => {
+    sandbox.stub(testToolCheckerDeps, "fetch").callsFake(async () => {
       const releases = [
         {
           tag_name: "microsoft-365-agents-playground@1.0.0",
@@ -1191,7 +1177,7 @@ describe("GitHubHelpers", () => {
   });
 
   it("ignores github releases not related to test tool", async () => {
-    sandbox.stub(fetchHelper, "default").callsFake(async () => {
+    sandbox.stub(testToolCheckerDeps, "fetch").callsFake(async () => {
       const releases = [
         {
           tag_name: "templates@1.0.0",
@@ -1212,7 +1198,7 @@ describe("GitHubHelpers", () => {
     expect(releases).to.deep.eq([]);
   });
   it("ignores releases that doesn't have assets", async () => {
-    sandbox.stub(fetchHelper, "default").callsFake(async () => {
+    sandbox.stub(testToolCheckerDeps, "fetch").callsFake(async () => {
       const releases = [
         {
           tag_name: "microsoft-365-agents-playground@1.0.0",

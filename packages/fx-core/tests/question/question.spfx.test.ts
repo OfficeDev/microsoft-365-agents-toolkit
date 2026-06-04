@@ -1,4 +1,3 @@
-import "mocha";
 import * as chai from "chai";
 import * as sinon from "sinon";
 import { SPFxPackageSelectQuestion, SPFxWebpartNameQuestion } from "../../src/question/create";

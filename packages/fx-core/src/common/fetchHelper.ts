@@ -9,8 +9,18 @@
 
 import type { RequestInit, Response } from "node-fetch";
 
-// eslint-disable-next-line @typescript-eslint/no-implied-eval,no-new-func
-const _importDynamic = new Function("modulePath", "return import(modulePath)");
+let nodeFetchPromise:
+  | Promise<{ default: (url: string, init?: RequestInit) => Promise<Response> }>
+  | undefined;
+
+async function loadNodeFetch(): Promise<{
+  default: (url: string, init?: RequestInit) => Promise<Response>;
+}> {
+  if (!nodeFetchPromise) {
+    nodeFetchPromise = import("node-fetch") as any;
+  }
+  return nodeFetchPromise!;
+}
 
 export default async function fetch(url: string | URL, init?: RequestInit): Promise<Response> {
   const urlString = url instanceof URL ? url.href : url;
@@ -20,6 +30,6 @@ export default async function fetch(url: string | URL, init?: RequestInit): Prom
   if (typeof globalThis.fetch === "function") {
     return globalThis.fetch(urlString, init as any) as any;
   }
-  const { default: nodeFetch } = await _importDynamic("node-fetch");
+  const { default: nodeFetch } = await loadNodeFetch();
   return nodeFetch(urlString, init);
 }

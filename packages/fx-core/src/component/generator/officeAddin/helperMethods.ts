@@ -5,12 +5,16 @@
  * @author darrmill@microsoft.com, yefuwang@microsoft.com
  */
 import { DevPreviewSchema, FxError, ManifestUtil, Result, err, ok } from "@microsoft/teamsfx-api";
+import AdmZip from "adm-zip";
 import fse from "fs-extra";
 import * as path from "path";
 import { AccessGithubError, ReadFileError, WriteFileError } from "../../../error/common";
 import { manifestUtils } from "../../driver/teamsApp/utils/ManifestUtils";
-import AdmZip from "adm-zip";
-import { fetchZipFromUrl } from "../utils";
+import * as generatorUtils from "../utils";
+
+export const helperMethodsDeps = {
+  fetchZipFromUrl: generatorUtils.fetchZipFromUrl,
+};
 
 export class HelperMethods {
   static copyAddinFiles(fromFolder: string, toFolder: string): void {
@@ -94,7 +98,7 @@ export class HelperMethods {
   ): Promise<Result<undefined, FxError>> {
     let zip: AdmZip;
     try {
-      zip = await fetchZipFromUrl(zipUrl);
+      zip = await helperMethodsDeps.fetchZipFromUrl(zipUrl);
     } catch (e: any) {
       return err(new AccessGithubError(zipUrl, component, e));
     }

@@ -3,6 +3,10 @@
 import type { Response } from "node-fetch";
 import fetch from "../../../common/fetchHelper";
 
+export const httpClientDeps = {
+  fetch,
+};
+
 export type DownloadOptions = {
   timeout?: number;
   maxRedirects?: number;
@@ -20,7 +24,7 @@ class HttpClient {
     const { timeout = 30000, progress } = options;
     const { signal, clear } = this.createTimeoutSignal(timeout);
     try {
-      const res: Response = await fetch(url, {
+      const res: Response = await httpClientDeps.fetch(url, {
         redirect: "follow",
         follow: options.maxRedirects ?? 5,
         signal: signal as any,
@@ -55,7 +59,7 @@ class HttpClient {
     const { signal, clear } = this.createTimeoutSignal(timeout);
     try {
       const startTime = Date.now();
-      const res: Response = await fetch(url, {
+      const res: Response = await httpClientDeps.fetch(url, {
         method: "HEAD",
         signal: signal as any,
       });

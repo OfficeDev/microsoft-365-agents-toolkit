@@ -2,7 +2,6 @@
 // Licensed under the MIT license.
 
 import { assert } from "chai";
-import "mocha";
 import sinon from "sinon";
 import "../../src/component/feature/sso";
 import { ErrorContextMW, globalVars, setErrorContext, setTools } from "../../src/common/globalVars";

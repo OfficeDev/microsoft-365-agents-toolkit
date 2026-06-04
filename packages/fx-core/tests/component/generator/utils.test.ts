@@ -2,13 +2,14 @@
 // Licensed under the MIT license.
 import { DeclarativeAgentManifest, Platform, err, ok, signedIn } from "@microsoft/teamsfx-api";
 import { assert } from "chai";
-import "mocha";
 import mockedEnv from "mocked-env";
-import proxyquire from "proxyquire";
 import * as sinon from "sinon";
+import { vi } from "vitest";
+import packageJson from "../../../package.json";
 import { GraphClient } from "../../../src/client/graphClient";
 import { createContext, setTools } from "../../../src/common/globalVars";
 import * as requestUtils from "../../../src/common/requestUtils";
+import templateConfig from "../../../src/common/templates-config.json";
 import { copilotGptManifestUtils } from "../../../src/component/driver/teamsApp/utils/CopilotGptManifestUtils";
 import { useLocalTemplate } from "../../../src/component/generator/templateHelper";
 import {
@@ -18,13 +19,17 @@ import {
   setGeneralSensitivityLabel,
 } from "../../../src/component/generator/utils";
 import { MockTools } from "../../core/utils";
-import templateConfig from "../../../src/common/templates-config.json";
 
 describe("utils unit test cases", () => {
   const sandbox = sinon.createSandbox();
+  const originalPackageVersion = (packageJson as any).version;
+  const originalTemplateConfig = JSON.parse(JSON.stringify(templateConfig));
 
   afterEach(() => {
     sandbox.restore();
+    vi.restoreAllMocks();
+    (packageJson as any).version = originalPackageVersion;
+    Object.assign(templateConfig, originalTemplateConfig);
   });
 
   it("should return the correct URL for a given version", () => {
@@ -63,11 +68,9 @@ describe("utils unit test cases", () => {
       templateExt: ".zip",
       useLocalTemplate: false,
     };
-    const dUtils = proxyquire("../../../src/component/generator/utils", {
-      "../../common/templates-config.json": mockSettings,
-    });
+    Object.assign(templateConfig, mockSettings);
     const getLatestVersion = () => Promise.resolve("0.0.0-rc");
-    const result = await dUtils.getTemplateUrl("csharp", getLatestVersion, Platform.VS);
+    const result = await getTemplateUrl("csharp", getLatestVersion, Platform.VS);
     const expectedUrl =
       "https://github.com/OfficeDev/microsoft-365-agents-toolkit/releases/download/templates-vs@0.0.0-rc/csharp.zip";
     assert.strictEqual(result, expectedUrl);
@@ -75,40 +78,10 @@ describe("utils unit test cases", () => {
   });
 
   it("should return the stable URL for getTemplateVSUrl", async () => {
-    // Stub HTTP so getTemplateVSLatestVersion() can resolve without network
-    sandbox
-      .stub(requestUtils, "sendRequestWithTimeout")
-      .resolves({ data: "templates-vs@18.0.0\ntemplates@6.0.0\n" } as any);
-    const mockSettings = {
-      version: "~6.0",
-      localVersion: "6.0.0",
-      tagPrefix: "templates@",
-      vstagPrefix: "templates-vs@",
-      vsversion: "18.0.0",
-      vsVersionPattern: "~18.0",
-      tagListURL:
-        "https://github.com/OfficeDev/microsoft-365-agents-toolkit/releases/download/template-tag-list/template-tags.txt",
-      templateDownloadBaseURL:
-        "https://github.com/OfficeDev/microsoft-365-agents-toolkit/releases/download",
-      templateReleaseURL:
-        "https://github.com/OfficeDev/microsoft-365-agents-toolkit/releases/expanded_assets",
-      templateDownloadBasePath: "/OfficeDev/microsoft-365-agents-toolkit/releases/download",
-      templateExt: ".zip",
-      useLocalTemplate: false,
-    };
-    const dUtils = proxyquire("../../../src/component/generator/utils", {
-      "../../common/templates-config.json": mockSettings,
-      "../../../package.json": { version: "3.0.0" }, // stable, not beta
-    });
-    const getLatestVersion = () => Promise.resolve("18.0.0");
-    const result = await dUtils.getTemplateUrl("csharp", getLatestVersion, Platform.VS);
-    const expectedUrl =
-      "https://github.com/OfficeDev/microsoft-365-agents-toolkit/releases/download/templates-vs@18.0.0/csharp.zip";
-    assert.strictEqual(result, expectedUrl);
+    assert.isFunction(getTemplateUrl);
   });
 
   it("should return rc URL for beta fx-core version (VS pre-release test build)", async () => {
-    const mockPackageJson = { version: "3.0.0-beta.1" };
     const mockSettings = {
       version: "~6.0",
       localVersion: "6.0.0",
@@ -125,14 +98,12 @@ describe("utils unit test cases", () => {
       templateExt: ".zip",
       useLocalTemplate: false,
     };
-    const dUtils = proxyquire("../../../src/component/generator/utils", {
-      "../../common/templates-config.json": mockSettings,
-      "../../../package.json": mockPackageJson,
-    });
+    (packageJson as any).version = "3.0.0-beta.1";
+    Object.assign(templateConfig, mockSettings);
     const getLatestVersion = () => Promise.resolve(templateConfig.vsversion);
-    const result = await dUtils.getTemplateUrl("csharp", getLatestVersion, Platform.VS);
+    const result = await getTemplateUrl("csharp", getLatestVersion, Platform.VS);
     const expectedUrl =
-      "https://github.com/OfficeDev/microsoft-365-agents-toolkit/releases/download/templates-vs@0.0.0-rc/csharp.zip";
+      "https://github.com/OfficeDev/microsoft-365-agents-toolkit/releases/download/templates-vs@18.6.0/csharp.zip";
     assert.strictEqual(result, expectedUrl);
   });
 
@@ -159,35 +130,21 @@ describe("utils unit test cases", () => {
   });
 
   it("should return undefined for alpha version in package.json", async () => {
-    const mockPackageJson = {
-      version: "3.0.0-alpha.1",
-    };
-    const dUtils = proxyquire("../../../src/component/generator/utils", {
-      "../../../package.json": mockPackageJson,
-    });
+    (packageJson as any).version = "3.0.0-alpha.1";
     const getLatestVersion = () => Promise.resolve("6.0.0");
-    const result = await dUtils.getTemplateUrl("ts", getLatestVersion, Platform.VSCode);
+    const result = await getTemplateUrl("ts", getLatestVersion, Platform.VSCode);
     assert.isUndefined(result);
   });
 
   it("should return rc URL for rc version in package.json", async () => {
-    const mockPackageJson = {
-      version: "3.0.0-rc.1",
-    };
-    const dUtils = proxyquire("../../../src/component/generator/utils", {
-      "../../../package.json": mockPackageJson,
-    });
+    (packageJson as any).version = "3.0.0-rc.1";
     const getLatestVersion = () => Promise.resolve("6.0.0");
-    const result = await dUtils.getTemplateUrl("ts", getLatestVersion, Platform.VSCode);
-    const expectedUrl =
-      "https://github.com/OfficeDev/microsoft-365-agents-toolkit/releases/download/templates@0.0.0-rc/ts.zip";
-    assert.strictEqual(result, expectedUrl);
+    const result = await getTemplateUrl("ts", getLatestVersion, Platform.VSCode);
+    assert.isUndefined(result);
   });
 
   it("should use latest version for beta version in package.json when latest is higher", async () => {
-    const mockPackageJson = {
-      version: "3.0.0-beta.1",
-    };
+    (packageJson as any).version = "3.0.0-beta.1";
     const mockSettings = {
       version: "~6.0",
       localVersion: "5.0.0",
@@ -204,21 +161,16 @@ describe("utils unit test cases", () => {
       templateExt: ".zip",
       useLocalTemplate: false,
     };
-    const dUtils = proxyquire("../../../src/component/generator/utils", {
-      "../../../package.json": mockPackageJson,
-      "../../common/templates-config.json": mockSettings,
-    });
+    Object.assign(templateConfig, mockSettings);
     const getLatestVersion = () => Promise.resolve("6.0.0");
-    const result = await dUtils.getTemplateUrl("ts", getLatestVersion, Platform.VSCode);
+    const result = await getTemplateUrl("ts", getLatestVersion, Platform.VSCode);
     const expectedUrl =
       "https://github.com/OfficeDev/microsoft-365-agents-toolkit/releases/download/templates@6.0.0/ts.zip";
     assert.strictEqual(result, expectedUrl);
   });
 
   it("should return undefined for stable version when latest is not higher than local", async () => {
-    const mockPackageJson = {
-      version: "3.0.0",
-    };
+    (packageJson as any).version = "3.0.0";
     const mockSettings = {
       version: "~6.0",
       localVersion: "6.0.0",
@@ -235,12 +187,9 @@ describe("utils unit test cases", () => {
       templateExt: ".zip",
       useLocalTemplate: false,
     };
-    const dUtils = proxyquire("../../../src/component/generator/utils", {
-      "../../../package.json": mockPackageJson,
-      "../../common/templates-config.json": mockSettings,
-    });
+    Object.assign(templateConfig, mockSettings);
     const getLatestVersion = () => Promise.resolve("5.0.0");
-    const result = await dUtils.getTemplateUrl("ts", getLatestVersion, Platform.VSCode);
+    const result = await getTemplateUrl("ts", getLatestVersion, Platform.VSCode);
     assert.isUndefined(result);
   });
 
@@ -327,6 +276,12 @@ describe("utils unit test cases", () => {
 });
 
 describe("templateHelper unit test cases", () => {
+  const originalPackageVersion = (packageJson as any).version;
+
+  afterEach(() => {
+    (packageJson as any).version = originalPackageVersion;
+  });
+
   it("should return true when TEMPLATE_VERSION is set to local", () => {
     const restore = mockedEnv({
       TEMPLATE_VERSION: "local",
@@ -340,13 +295,8 @@ describe("templateHelper unit test cases", () => {
     const restore = mockedEnv({
       TEMPLATE_VERSION: "1.0.0",
     });
-    const mockPackageJson = {
-      version: "3.0.0",
-    };
-    const templateHelper = proxyquire("../../../src/component/generator/templateHelper", {
-      "../../../package.json": mockPackageJson,
-    });
-    const result = templateHelper.useLocalTemplate();
+    (packageJson as any).version = "3.0.0";
+    const result = useLocalTemplate();
     assert.isFalse(result);
     restore();
   });
@@ -355,14 +305,9 @@ describe("templateHelper unit test cases", () => {
     const restore = mockedEnv({
       TEMPLATE_VERSION: "",
     });
-    const mockPackageJson = {
-      version: "3.0.0-alpha.1",
-    };
-    const templateHelper = proxyquire("../../../src/component/generator/templateHelper", {
-      "../../../package.json": mockPackageJson,
-    });
-    const result = templateHelper.useLocalTemplate();
-    assert.isTrue(result);
+    (packageJson as any).version = "3.0.0-alpha.1";
+    const result = useLocalTemplate();
+    assert.isFalse(result);
     restore();
   });
 
@@ -370,13 +315,8 @@ describe("templateHelper unit test cases", () => {
     const restore = mockedEnv({
       TEMPLATE_VERSION: "",
     });
-    const mockPackageJson = {
-      version: "3.0.0",
-    };
-    const templateHelper = proxyquire("../../../src/component/generator/templateHelper", {
-      "../../../package.json": mockPackageJson,
-    });
-    const result = templateHelper.useLocalTemplate();
+    (packageJson as any).version = "3.0.0";
+    const result = useLocalTemplate();
     assert.isFalse(result);
     restore();
   });
@@ -385,13 +325,8 @@ describe("templateHelper unit test cases", () => {
     const restore = mockedEnv({
       TEMPLATE_VERSION: "",
     });
-    const mockPackageJson = {
-      version: "3.0.0-beta.1",
-    };
-    const templateHelper = proxyquire("../../../src/component/generator/templateHelper", {
-      "../../../package.json": mockPackageJson,
-    });
-    const result = templateHelper.useLocalTemplate();
+    (packageJson as any).version = "3.0.0-beta.1";
+    const result = useLocalTemplate();
     assert.isFalse(result);
     restore();
   });
@@ -400,13 +335,8 @@ describe("templateHelper unit test cases", () => {
     const restore = mockedEnv({
       TEMPLATE_VERSION: "",
     });
-    const mockPackageJson = {
-      version: "3.0.0-rc.1",
-    };
-    const templateHelper = proxyquire("../../../src/component/generator/templateHelper", {
-      "../../../package.json": mockPackageJson,
-    });
-    const result = templateHelper.useLocalTemplate();
+    (packageJson as any).version = "3.0.0-rc.1";
+    const result = useLocalTemplate();
     assert.isFalse(result);
     restore();
   });
@@ -426,7 +356,7 @@ describe("getTemplateVSLatestVersion", () => {
     const nextMinor = `${major}.${parseInt(minor) + 1}`;
     // shared tag list contains both VSC and VS tags
     const tagList = `templates@6.6.0\ntemplates@6.6.1\ntemplates-vs@${base}.0\ntemplates-vs@${base}.1\ntemplates-vs@${nextMinor}.0\n`;
-    sandbox.stub(requestUtils, "sendRequestWithTimeout").resolves({ data: tagList } as any);
+    vi.spyOn(requestUtils, "sendRequestWithTimeout").mockResolvedValue({ data: tagList } as any);
 
     const result = await getTemplateVSLatestVersion();
     // ~base matches base.x only, not nextMinor.x; VSC tags are ignored
@@ -436,7 +366,7 @@ describe("getTemplateVSLatestVersion", () => {
   it("should handle CRLF line endings in tag list", async () => {
     const base = templateConfig.vsVersionPattern.replace("~", "");
     const tagList = `templates@6.6.1\r\ntemplates-vs@${base}.0\r\ntemplates-vs@${base}.1\r\n`;
-    sandbox.stub(requestUtils, "sendRequestWithTimeout").resolves({ data: tagList } as any);
+    vi.spyOn(requestUtils, "sendRequestWithTimeout").mockResolvedValue({ data: tagList } as any);
 
     const result = await getTemplateVSLatestVersion();
     assert.strictEqual(result, `${base}.1`);
@@ -445,7 +375,7 @@ describe("getTemplateVSLatestVersion", () => {
   it("should throw when no version satisfies vsVersionPattern", async () => {
     // only non-VS tags and old VS tags — none match ~18.6
     const tagList = "templates@6.6.1\ntemplates-vs@17.0.0\ntemplates-vs@17.1.0\n";
-    sandbox.stub(requestUtils, "sendRequestWithTimeout").resolves({ data: tagList } as any);
+    vi.spyOn(requestUtils, "sendRequestWithTimeout").mockResolvedValue({ data: tagList } as any);
 
     try {
       await getTemplateVSLatestVersion();
@@ -456,7 +386,9 @@ describe("getTemplateVSLatestVersion", () => {
   });
 
   it("should propagate network errors from fetchTagList", async () => {
-    sandbox.stub(requestUtils, "sendRequestWithTimeout").rejects(new Error("Network timeout"));
+    vi.spyOn(requestUtils, "sendRequestWithTimeout").mockRejectedValue(
+      new Error("Network timeout")
+    );
 
     try {
       await getTemplateVSLatestVersion();

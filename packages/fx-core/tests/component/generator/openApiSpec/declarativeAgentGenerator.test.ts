@@ -2,7 +2,6 @@ import { ProjectType, SpecParser, ValidationStatus } from "@microsoft/m365-spec-
 import { ApiOperation, Inputs, Platform, SystemError } from "@microsoft/teamsfx-api";
 import { assert } from "chai";
 import fs from "fs-extra";
-import "mocha";
 import { RestoreFn } from "mocked-env";
 import { err, ok } from "neverthrow";
 import * as sinon from "sinon";

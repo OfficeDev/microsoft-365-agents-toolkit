@@ -4,7 +4,6 @@
 /**
  * @author xzf0587 <zhaofengxu@microsoft.com>
  */
-import "mocha";
 import * as chai from "chai";
 import * as sinon from "sinon";
 import * as tools from "../../../../../src/common/utils";

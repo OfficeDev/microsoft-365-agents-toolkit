@@ -10,7 +10,6 @@ import {
 } from "@microsoft/teamsfx-api";
 import * as chai from "chai";
 import fs from "fs-extra";
-import "mocha";
 import "reflect-metadata";
 import sinon from "sinon";
 import * as uuid from "uuid";

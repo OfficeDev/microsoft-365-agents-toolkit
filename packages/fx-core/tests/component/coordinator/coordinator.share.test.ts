@@ -1,3 +1,11 @@
+import { describe, it } from "vitest";
+
+describe.skip("coordinator share", () => {
+  it("placeholder", () => {
+    // Placeholder to keep this intentionally-disabled suite from failing as empty.
+  });
+});
+
 // import "mocha";
 
 // import { assert } from "chai";

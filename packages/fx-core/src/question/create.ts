@@ -29,10 +29,12 @@ import * as path from "path";
 import { ConstantString, SpecParserSource } from "../common/constants";
 import { Correlator } from "../common/correlator";
 import { validateOpenAPISpec } from "../common/daSpecParser";
+import * as globalVars from "../common/globalVars";
 import { createContext } from "../common/globalVars";
 import { SearchOpenAPISpecResult, searchOpenAPISpec } from "../common/kiotaClient";
 import { getLocalizedString } from "../common/localizeUtils";
 import { sampleProvider } from "../common/samples";
+import * as stringUtils from "../common/stringUtils";
 import { convertToAlphanumericOnly, isValidHttpUrl } from "../common/stringUtils";
 import {
   ApiSpecTelemetryPropertis,
@@ -41,6 +43,7 @@ import {
 } from "../common/telemetry";
 import { AppDefinition } from "../component/driver/teamsApp/interfaces/appdefinitions/appDefinition";
 import { StaticTab } from "../component/driver/teamsApp/interfaces/appdefinitions/staticTab";
+import { manifestUtils } from "../component/driver/teamsApp/utils/ManifestUtils";
 import { pluginManifestUtils } from "../component/driver/teamsApp/utils/PluginManifestUtils";
 import {
   isBot,
@@ -53,6 +56,7 @@ import {
   getODSPItemInfo,
   validateSourcePluginManifest,
 } from "../component/generator/declarativeAgent/helper";
+import * as openApiSpecHelper from "../component/generator/openApiSpec/helper";
 import { listOperations } from "../component/generator/openApiSpec/helper";
 import { DevEnvironmentSetupError } from "../component/generator/spfx/error";
 import { Constants } from "../component/generator/spfx/utils/constants";
@@ -75,6 +79,7 @@ import {
   AppNamePattern,
   CustomCopilotAssistantOptions,
   CustomCopilotRagOptions,
+  DeclarativeAgentApiSpecOptionId,
   GCSelectOptions,
   KnowledgeSearchTypeOptions,
   KnowledgeSourceOptions,
@@ -82,7 +87,6 @@ import {
   ProgrammingLanguage,
   QuestionNames,
   SPFxVersionOptionIds,
-  DeclarativeAgentApiSpecOptionId,
 } from "./constants";
 import {
   BotCapabilityOptions,
@@ -92,7 +96,13 @@ import {
 } from "./scaffold/vsc/CapabilityOptions";
 import { ProjectTypeOptions } from "./scaffold/vsc/ProjectTypeOptions";
 import { ensureInputs } from "./utils";
-import { manifestUtils } from "../component/driver/teamsApp/utils/ManifestUtils";
+
+export const createQuestionDeps = {
+  createContext: () => globalVars.createContext(),
+  listOperations: (...args: Parameters<typeof listOperations>) =>
+    openApiSpecHelper.listOperations(...args),
+  isValidHttpUrl: (input: string) => stringUtils.isValidHttpUrl(input),
+};
 
 export function getProjectTypeAndCapability(
   teamsApp: AppDefinition
@@ -342,7 +352,7 @@ export function appNameQuestion(): TextInputQuestion {
         };
         if (input.length === 25) {
           // show warning notification because it may exceed the Teams app name max length after appending suffix
-          const context = createContext();
+          const context = createQuestionDeps.createContext();
           if (previousInputs?.platform === Platform.VSCode) {
             void context.userInteraction.showMessage(
               "warn",
@@ -670,8 +680,8 @@ export function apiSpecLocationQuestion(includeExistingAPIs = true): SingleFileO
       if (!inputs) {
         throw new Error("inputs is undefined"); // should never happen
       }
-      const context = createContext();
-      const res = await listOperations(
+      const context = createQuestionDeps.createContext();
+      const res = await createQuestionDeps.listOperations(
         context,
         input.trim(),
         inputs,
@@ -717,7 +727,7 @@ export function apiSpecLocationQuestion(includeExistingAPIs = true): SingleFileO
       step: 2, // Add "back" button
       validation: {
         validFunc: (input: string, inputs?: Inputs): Promise<string | undefined> => {
-          const result = isValidHttpUrl(input.trim())
+          const result = createQuestionDeps.isValidHttpUrl(input.trim())
             ? undefined
             : inputs?.platform === Platform.CLI
               ? "Please enter a valid HTTP URL to access your OpenAPI description document or enter a file path of your local OpenAPI description document."
@@ -735,7 +745,10 @@ export function apiSpecLocationQuestion(includeExistingAPIs = true): SingleFileO
     },
     validation: {
       validFunc: async (input: string, inputs?: Inputs): Promise<string | undefined> => {
-        if (!isValidHttpUrl(input.trim()) && !(await fs.pathExists(input.trim()))) {
+        if (
+          !createQuestionDeps.isValidHttpUrl(input.trim()) &&
+          !(await fs.pathExists(input.trim()))
+        ) {
           return "Please enter a valid HTTP URL without authentication to access your OpenAPI description document or enter a file path of your local OpenAPI description document.";
         }
 
@@ -761,7 +774,7 @@ export function apiSpecUrlQuestion(): TextInputQuestion {
     forgetLastValue: true,
     validation: {
       validFunc: (input: string, inputs?: Inputs): string | undefined => {
-        return isValidHttpUrl(input.trim())
+        return createQuestionDeps.isValidHttpUrl(input.trim())
           ? undefined
           : inputs?.platform === Platform.CLI
             ? "Please enter a valid HTTP URL to access your OpenAPI description document."
@@ -773,8 +786,8 @@ export function apiSpecUrlQuestion(): TextInputQuestion {
         if (!inputs) {
           throw new Error("inputs is undefined");
         }
-        const context = createContext();
-        const res = await listOperations(
+        const context = createQuestionDeps.createContext();
+        const res = await createQuestionDeps.listOperations(
           context,
           input.trim(),
           inputs,
@@ -827,8 +840,8 @@ export function apiSpecFileQuestion(): SingleFileQuestion {
         if (!(await fs.pathExists(input.trim()))) {
           return "File not found. Please select a valid OpenAPI description document file.";
         }
-        const context = createContext();
-        const res = await listOperations(
+        const context = createQuestionDeps.createContext();
+        const res = await createQuestionDeps.listOperations(
           context,
           input.trim(),
           inputs,
@@ -1353,9 +1366,9 @@ export function selectApiOperationForRegenerateQuestion(): MultiSelectQuestion {
       }
 
       inputs[QuestionNames.ApiSpecLocation] = specUrl;
-      const context = createContext();
+      const context = createQuestionDeps.createContext();
 
-      const res = await listOperations(context, specUrl, inputs, true, false);
+      const res = await createQuestionDeps.listOperations(context, specUrl, inputs, true, false);
       if (res.isOk()) {
         inputs.supportedApisFromApiSpec = res.value;
       } else {
@@ -1552,7 +1565,7 @@ export function oneDriveSharePointItemQuestion(): TextInputQuestion {
     forgetLastValue: true,
     additionalValidationOnAccept: {
       validFunc: async (input: string, inputs?: Inputs): Promise<string | undefined> => {
-        if (!isValidHttpUrl(input.trim())) {
+        if (!createQuestionDeps.isValidHttpUrl(input.trim())) {
           return "Please input a valid URL";
         }
         return await validationOnAccept(input.trim(), inputs);

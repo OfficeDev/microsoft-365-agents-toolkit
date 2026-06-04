@@ -20,7 +20,6 @@ import {
   SystemError,
   UserError,
 } from "@microsoft/teamsfx-api";
-import fs from "fs-extra";
 import { merge } from "lodash";
 import path from "path";
 import { featureFlagManager, FeatureFlags } from "../../../common/featureFlags";
@@ -31,17 +30,23 @@ import {
   ProgrammingLanguage,
   QuestionNames,
 } from "../../../question";
-import { EmbeddedKnowledgeLocalDirectoryName } from "../../driver/teamsApp/constants";
+import { developerPortalScaffoldUtils } from "../../developerPortalScaffoldUtils";
 import { copilotGptManifestUtils } from "../../driver/teamsApp/utils/CopilotGptManifestUtils";
 import { ActionContext } from "../../middleware/actionExecutionMW";
 import { outputScaffoldingWarningMessage } from "../../utils/common";
-import { developerPortalScaffoldUtils } from "../../developerPortalScaffoldUtils";
 import { DefaultTemplateGenerator } from "../defaultGenerator";
 import { Generator } from "../generator";
 import { TemplateInfo } from "../templates/templateInfo";
 import { TemplateNames } from "../templates/templateNames";
-import { setGeneralSensitivityLabel } from "../utils";
-import { addExistingPlugin, deriveMCPServerNameFromUrl, generateForMCPForDA } from "./helper";
+import * as generatorUtils from "../utils";
+import * as declarativeAgentHelper from "./helper";
+
+export const declarativeAgentGeneratorDeps = {
+  setGeneralSensitivityLabel: generatorUtils.setGeneralSensitivityLabel,
+  addExistingPlugin: declarativeAgentHelper.addExistingPlugin,
+  deriveMCPServerNameFromUrl: declarativeAgentHelper.deriveMCPServerNameFromUrl,
+  generateForMCPForDA: declarativeAgentHelper.generateForMCPForDA,
+};
 
 const enum telemetryProperties {
   templateName = "template-name",
@@ -106,7 +111,8 @@ export class DeclarativeAgentGenerator extends DefaultTemplateGenerator {
           : MCPForDAServerUrl
             ? {
                 MCPForDAServerUrl,
-                ServerName: deriveMCPServerNameFromUrl(MCPForDAServerUrl),
+                ServerName:
+                  declarativeAgentGeneratorDeps.deriveMCPServerNameFromUrl(MCPForDAServerUrl),
               }
             : {}),
       };
@@ -157,16 +163,22 @@ export class DeclarativeAgentGenerator extends DefaultTemplateGenerator {
 
     if (featureFlagManager.getBooleanValue(FeatureFlags.SensitivityLabelEnabled)) {
       // best-effort
-      await setGeneralSensitivityLabel(context, declarativeCopilotManifestPathRes.value);
+      await declarativeAgentGeneratorDeps.setGeneralSensitivityLabel(
+        context,
+        declarativeCopilotManifestPathRes.value
+      );
     }
 
     if (TemplateNames.DeclarativeAgentWithActionFromMCP === inputs[QuestionNames.TemplateName]) {
-      const result = await generateForMCPForDA(destinationPath, inputs);
+      const result = await declarativeAgentGeneratorDeps.generateForMCPForDA(
+        destinationPath,
+        inputs
+      );
       return result;
     }
 
     if (TemplateNames.DeclarativeAgentWithExistingAction === inputs[QuestionNames.TemplateName]) {
-      const addPluginRes = await addExistingPlugin(
+      const addPluginRes = await declarativeAgentGeneratorDeps.addExistingPlugin(
         declarativeCopilotManifestPathRes.value,
         inputs[QuestionNames.PluginManifestFilePath],
         inputs[QuestionNames.PluginOpenApiSpecFilePath],

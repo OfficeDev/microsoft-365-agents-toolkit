@@ -1,25 +1,25 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { assert } from "chai";
-import "mocha";
-import sinon from "sinon";
-import * as fs from "fs-extra";
-import * as os from "os";
-import * as path from "path";
-import * as kiotaClient from "../../src/common/kiotaClient";
-import * as daSpecParser from "../../src/common/daSpecParser";
-import * as utils from "../../src/common/utils";
-import { featureFlagManager, FeatureFlags } from "../../src/common/featureFlags";
-import { Platform } from "@microsoft/teamsfx-api";
 import { KiotaOpenApiNode, KiotaTreeResult, OpenApiSpecVersion } from "@microsoft/kiota";
 import {
   AdaptiveCardUpdateStrategy,
   ErrorType,
+  Utils,
   ValidationStatus,
   WarningResult,
   WarningType,
 } from "@microsoft/m365-spec-parser";
+import { Platform } from "@microsoft/teamsfx-api";
+import { assert } from "chai";
+import crypto from "crypto";
+import * as fs from "fs-extra";
+import * as os from "os";
+import * as path from "path";
+import sinon from "sinon";
+import * as daSpecParser from "../../src/common/daSpecParser";
+import { featureFlagManager, FeatureFlags } from "../../src/common/featureFlags";
+import * as utils from "../../src/common/utils";
 
 describe("daSpecParser", () => {
   let listAPITreeInfoStub: sinon.SinonStub;
@@ -28,11 +28,11 @@ describe("daSpecParser", () => {
   let parseAndUpdatePluginManifestStub: sinon.SinonStub;
 
   beforeEach(() => {
-    listAPITreeInfoStub = sinon.stub(kiotaClient, "listAPITreeInfo");
+    listAPITreeInfoStub = sinon.stub(daSpecParser.daSpecParserDeps, "listAPITreeInfo");
     featureFlagStub = sinon.stub(featureFlagManager, "getBooleanValue");
     isJsonSpecFileStub = sinon.stub(utils, "isJsonSpecFile");
     parseAndUpdatePluginManifestStub = sinon.stub(
-      daSpecParser,
+      daSpecParser.daSpecParserDeps,
       "parseAndUpdatePluginManifestForKiota"
     );
     parseAndUpdatePluginManifestStub.callsFake(async (pluginPath, updatePlaceholder) => {
@@ -734,11 +734,7 @@ describe("daSpecParser", () => {
       listAPITreeInfoStub.resolves(mockTreeInfo);
 
       const checkServerUrlStub = sinon.stub().returns([]);
-      sinon.replace(
-        require("@microsoft/m365-spec-parser").Utils,
-        "checkServerUrl",
-        checkServerUrlStub
-      );
+      sinon.replace(Utils, "checkServerUrl", checkServerUrlStub);
 
       const result = await daSpecParser.listAPIInfo("path/to/spec");
 
@@ -816,11 +812,7 @@ describe("daSpecParser", () => {
       listAPITreeInfoStub.resolves(mockTreeInfo);
 
       const checkServerUrlStub = sinon.stub();
-      sinon.replace(
-        require("@microsoft/m365-spec-parser").Utils,
-        "checkServerUrl",
-        checkServerUrlStub
-      );
+      sinon.replace(Utils, "checkServerUrl", checkServerUrlStub);
       checkServerUrlStub.returns([{ type: ErrorType.RelativeServerUrlNotSupported }]);
 
       const result = await daSpecParser.validateOpenAPISpec("path/to/spec");
@@ -863,11 +855,7 @@ describe("daSpecParser", () => {
       listAPITreeInfoStub.resolves(mockTreeInfo);
 
       const checkServerUrlStub = sinon.stub();
-      sinon.replace(
-        require("@microsoft/m365-spec-parser").Utils,
-        "checkServerUrl",
-        checkServerUrlStub
-      );
+      sinon.replace(Utils, "checkServerUrl", checkServerUrlStub);
       checkServerUrlStub.returns([]);
 
       const result = await daSpecParser.validateOpenAPISpec("path/to/spec");
@@ -877,7 +865,7 @@ describe("daSpecParser", () => {
       assert.isTrue(result.warnings.length === 1);
       assert.isTrue(result.warnings[0].type === WarningType.ConvertSwaggerToOpenAPI);
 
-      const expectedHash = require("crypto")
+      const expectedHash = crypto
         .createHash("sha256")
         .update(JSON.stringify(serverUrl))
         .digest("hex");
@@ -906,11 +894,7 @@ describe("daSpecParser", () => {
       listAPITreeInfoStub.resolves(mockTreeInfo);
 
       const checkServerUrlStub = sinon.stub();
-      sinon.replace(
-        require("@microsoft/m365-spec-parser").Utils,
-        "checkServerUrl",
-        checkServerUrlStub
-      );
+      sinon.replace(Utils, "checkServerUrl", checkServerUrlStub);
       checkServerUrlStub.returns([]);
 
       const result = await daSpecParser.validateOpenAPISpec("path/to/spec", Platform.VS);
@@ -926,9 +910,9 @@ describe("daSpecParser", () => {
     let pathRelativeStub: sinon.SinonStub;
 
     beforeEach(() => {
-      kiotaGeneratePluginStub = sinon.stub(kiotaClient, "kiotageneratePlugin");
-      tmpDirSyncStub = sinon.stub(require("tmp"), "dirSync");
-      pathRelativeStub = sinon.stub(require("path"), "relative");
+      kiotaGeneratePluginStub = sinon.stub(daSpecParser.daSpecParserDeps, "kiotageneratePlugin");
+      tmpDirSyncStub = sinon.stub(daSpecParser.daSpecParserDeps, "tmpDirSync");
+      pathRelativeStub = sinon.stub(daSpecParser.daSpecParserDeps, "pathRelative");
 
       featureFlagStub.withArgs(FeatureFlags.KiotaNPMIntegration).returns(true);
 
@@ -960,13 +944,15 @@ describe("daSpecParser", () => {
       const operations = ["GET /users", "POST /messages"];
       const adaptiveCardUpdateStrategy = AdaptiveCardUpdateStrategy.KeepExisting;
 
-      const pathExistsStub = sinon.stub(require("fs-extra"), "pathExists").resolves(true);
-      const readdirStub = sinon.stub(require("fs-extra"), "readdir").resolves(["openapi.json"]);
+      const pathExistsStub = sinon.stub(daSpecParser.daSpecParserDeps, "pathExists").resolves(true);
+      const readdirStub = sinon
+        .stub(daSpecParser.daSpecParserDeps, "readdir")
+        .resolves(["openapi.json"]);
       const fsReadJSONStub = sinon
-        .stub(require("fs-extra"), "readJSON")
+        .stub(daSpecParser.daSpecParserDeps, "readJSON")
         .resolves({ name: { short: "test-app" } });
-      const fsWriteJsonStub = sinon.stub(require("fs-extra"), "writeJson").resolves();
-      const fsCopyStub = sinon.stub(require("fs-extra"), "copy").resolves();
+      const fsWriteJsonStub = sinon.stub(daSpecParser.daSpecParserDeps, "writeJson").resolves();
+      const fsCopyStub = sinon.stub(daSpecParser.daSpecParserDeps, "copy").resolves();
 
       const result = await daSpecParser.generatePlugin(
         specPath,
@@ -978,7 +964,7 @@ describe("daSpecParser", () => {
       );
 
       assert.isTrue(tmpDirSyncStub.calledOnce);
-      assert.isTrue(fsReadJSONStub.calledThrice);
+      assert.isTrue(fsReadJSONStub.calledTwice);
       assert.isTrue(kiotaGeneratePluginStub.calledOnce);
       assert.deepEqual(kiotaGeneratePluginStub.firstCall.args[0], specPath);
       assert.deepEqual(
@@ -1076,12 +1062,14 @@ describe("daSpecParser", () => {
 
       isJsonSpecFileStub.resolves(true);
 
-      const readdirStub = sinon.stub(require("fs-extra"), "readdir").resolves(["openapi.json"]);
+      const readdirStub = sinon
+        .stub(daSpecParser.daSpecParserDeps, "readdir")
+        .resolves(["openapi.json"]);
       const fsReadJSONStub = sinon
-        .stub(require("fs-extra"), "readJSON")
+        .stub(daSpecParser.daSpecParserDeps, "readJSON")
         .resolves({ name: { short: "test-app" } });
-      const fsCopyStub = sinon.stub(require("fs-extra"), "copy").resolves();
-      const fsWriteJsonStub = sinon.stub(require("fs-extra"), "writeJson").resolves();
+      const fsCopyStub = sinon.stub(daSpecParser.daSpecParserDeps, "copy").resolves();
+      const fsWriteJsonStub = sinon.stub(daSpecParser.daSpecParserDeps, "writeJson").resolves();
 
       const result = await daSpecParser.generatePlugin(
         specPath,
@@ -1127,10 +1115,14 @@ describe("daSpecParser", () => {
         },
       };
 
-      const readdirStub = sinon.stub(require("fs-extra"), "readdir").resolves(["openapi.json"]);
-      const fsReadJSONStub = sinon.stub(require("fs-extra"), "readJSON").resolves(complexManifest);
-      const fsCopyStub = sinon.stub(require("fs-extra"), "copy").resolves();
-      const fsWriteJsonStub = sinon.stub(require("fs-extra"), "writeJson").resolves();
+      const readdirStub = sinon
+        .stub(daSpecParser.daSpecParserDeps, "readdir")
+        .resolves(["openapi.json"]);
+      const fsReadJSONStub = sinon
+        .stub(daSpecParser.daSpecParserDeps, "readJSON")
+        .resolves(complexManifest);
+      const fsCopyStub = sinon.stub(daSpecParser.daSpecParserDeps, "copy").resolves();
+      const fsWriteJsonStub = sinon.stub(daSpecParser.daSpecParserDeps, "writeJson").resolves();
 
       await daSpecParser.generatePlugin(
         "path/to/spec.yaml",
@@ -1152,8 +1144,10 @@ describe("daSpecParser", () => {
     it("should update plugin manifest with relative path", async () => {
       pathRelativeStub.returns("..\\..\\openapi.yaml");
 
-      const readdirStub = sinon.stub(require("fs-extra"), "readdir").resolves(["openapi.json"]);
-      const fsReadJSONStub = sinon.stub(require("fs-extra"), "readJSON").resolves({
+      const readdirStub = sinon
+        .stub(daSpecParser.daSpecParserDeps, "readdir")
+        .resolves(["openapi.json"]);
+      const fsReadJSONStub = sinon.stub(daSpecParser.daSpecParserDeps, "readJSON").resolves({
         name: { short: "test-app" },
         runtimes: [
           {
@@ -1161,8 +1155,8 @@ describe("daSpecParser", () => {
           },
         ],
       });
-      const fsCopyFileStub = sinon.stub(require("fs-extra"), "copy").resolves();
-      const fsWriteJsonStub = sinon.stub(require("fs-extra"), "writeJson").resolves();
+      const fsCopyFileStub = sinon.stub(daSpecParser.daSpecParserDeps, "copy").resolves();
+      const fsWriteJsonStub = sinon.stub(daSpecParser.daSpecParserDeps, "writeJson").resolves();
 
       await daSpecParser.generatePlugin(
         "path/to/spec.yaml",
@@ -1197,10 +1191,14 @@ describe("daSpecParser", () => {
         ],
       };
 
-      const readdirStub = sinon.stub(require("fs-extra"), "readdir").resolves(["openapi.json"]);
-      const fsReadJSONStub = sinon.stub(require("fs-extra"), "readJSON").resolves(pluginManifest);
-      const fsCopyFileStub = sinon.stub(require("fs-extra"), "copy").resolves();
-      const fsWriteJsonStub = sinon.stub(require("fs-extra"), "writeJson").resolves();
+      const readdirStub = sinon
+        .stub(daSpecParser.daSpecParserDeps, "readdir")
+        .resolves(["openapi.json"]);
+      const fsReadJSONStub = sinon
+        .stub(daSpecParser.daSpecParserDeps, "readJSON")
+        .resolves(pluginManifest);
+      const fsCopyFileStub = sinon.stub(daSpecParser.daSpecParserDeps, "copy").resolves();
+      const fsWriteJsonStub = sinon.stub(daSpecParser.daSpecParserDeps, "writeJson").resolves();
 
       await daSpecParser.generatePlugin(
         "path/to/spec.yaml",
@@ -1238,12 +1236,14 @@ describe("daSpecParser", () => {
         "PATCH /settings",
       ];
 
-      const readdirStub = sinon.stub(require("fs-extra"), "readdir").resolves(["openapi.json"]);
+      const readdirStub = sinon
+        .stub(daSpecParser.daSpecParserDeps, "readdir")
+        .resolves(["openapi.json"]);
       const fsReadJSONStub = sinon
-        .stub(require("fs-extra"), "readJSON")
+        .stub(daSpecParser.daSpecParserDeps, "readJSON")
         .resolves({ name: { short: "test-app" } });
-      const fsCopyFileStub = sinon.stub(require("fs-extra"), "copy").resolves();
-      const fsWriteJsonStub = sinon.stub(require("fs-extra"), "writeJson").resolves();
+      const fsCopyFileStub = sinon.stub(daSpecParser.daSpecParserDeps, "copy").resolves();
+      const fsWriteJsonStub = sinon.stub(daSpecParser.daSpecParserDeps, "writeJson").resolves();
 
       await daSpecParser.generatePlugin(
         "path/to/spec.yaml",
@@ -1280,12 +1280,14 @@ describe("daSpecParser", () => {
 
       listAPITreeInfoStub.resolves(mockTreeInfo);
 
-      const readdirStub = sinon.stub(require("fs-extra"), "readdir").resolves(["openapi.json"]);
+      const readdirStub = sinon
+        .stub(daSpecParser.daSpecParserDeps, "readdir")
+        .resolves(["openapi.json"]);
       const fsReadJSONStub = sinon
-        .stub(require("fs-extra"), "readJSON")
+        .stub(daSpecParser.daSpecParserDeps, "readJSON")
         .resolves({ name: { short: "test-app" } });
-      const fsCopyFileStub = sinon.stub(require("fs-extra"), "copy").resolves();
-      const fsWriteJsonStub = sinon.stub(require("fs-extra"), "writeJson").resolves();
+      const fsCopyFileStub = sinon.stub(daSpecParser.daSpecParserDeps, "copy").resolves();
+      const fsWriteJsonStub = sinon.stub(daSpecParser.daSpecParserDeps, "writeJson").resolves();
 
       const result = await daSpecParser.generatePlugin(
         "path/to/spec.yaml",
@@ -1302,12 +1304,14 @@ describe("daSpecParser", () => {
     it("should handle both JSON and YAML original spec files", async () => {
       isJsonSpecFileStub.resolves(true);
 
-      const readdirStub = sinon.stub(require("fs-extra"), "readdir").resolves(["openapi.json"]);
+      const readdirStub = sinon
+        .stub(daSpecParser.daSpecParserDeps, "readdir")
+        .resolves(["openapi.json"]);
       const fsReadJSONStub = sinon
-        .stub(require("fs-extra"), "readJSON")
+        .stub(daSpecParser.daSpecParserDeps, "readJSON")
         .resolves({ name: { short: "test-app" } });
-      const fsCopyFileStub = sinon.stub(require("fs-extra"), "copy").resolves();
-      const fsWriteJsonStub = sinon.stub(require("fs-extra"), "writeJson").resolves();
+      const fsCopyFileStub = sinon.stub(daSpecParser.daSpecParserDeps, "copy").resolves();
+      const fsWriteJsonStub = sinon.stub(daSpecParser.daSpecParserDeps, "writeJson").resolves();
 
       await daSpecParser.generatePlugin(
         "path/to/spec.json",
@@ -1347,10 +1351,12 @@ describe("daSpecParser", () => {
     });
 
     it("should handle original spec file properly based on updateExistingPlugin flag", async () => {
-      const readdirStub = sinon.stub(require("fs-extra"), "readdir").resolves(["openapi.json"]);
-      const fsReadJSONStub = sinon.stub(require("fs-extra"), "readJSON");
-      const fsCopyFileStub = sinon.stub(require("fs-extra"), "copy").resolves();
-      const fsWriteJsonStub = sinon.stub(require("fs-extra"), "writeJson").resolves();
+      const readdirStub = sinon
+        .stub(daSpecParser.daSpecParserDeps, "readdir")
+        .resolves(["openapi.json"]);
+      const fsReadJSONStub = sinon.stub(daSpecParser.daSpecParserDeps, "readJSON");
+      const fsCopyFileStub = sinon.stub(daSpecParser.daSpecParserDeps, "copy").resolves();
+      const fsWriteJsonStub = sinon.stub(daSpecParser.daSpecParserDeps, "writeJson").resolves();
 
       fsReadJSONStub.resolves({
         name: { short: "test-app" },
@@ -1408,10 +1414,14 @@ describe("daSpecParser", () => {
     });
 
     it("should properly filter and merge functions when updating existing plugin", async () => {
-      const readdirStub = sinon.stub(require("fs-extra"), "readdir").resolves(["openapi.json"]);
-      const fsReadJSONStub = sinon.stub(require("fs-extra"), "readJSON");
-      const fsPathExistsStub = sinon.stub(require("fs-extra"), "pathExists").resolves(true);
-      const fsCopyStub = sinon.stub(require("fs-extra"), "copy").resolves();
+      const readdirStub = sinon
+        .stub(daSpecParser.daSpecParserDeps, "readdir")
+        .resolves(["openapi.json"]);
+      const fsReadJSONStub = sinon.stub(daSpecParser.daSpecParserDeps, "readJSON");
+      const fsPathExistsStub = sinon
+        .stub(daSpecParser.daSpecParserDeps, "pathExists")
+        .resolves(true);
+      const fsCopyStub = sinon.stub(daSpecParser.daSpecParserDeps, "copy").resolves();
 
       fsReadJSONStub.callsFake(async (path: any) => {
         if (path.includes("manifest.json")) {
@@ -1452,7 +1462,7 @@ describe("daSpecParser", () => {
         }
       });
 
-      const fsWriteJsonStub = sinon.stub(require("fs-extra"), "writeJson").resolves();
+      const fsWriteJsonStub = sinon.stub(daSpecParser.daSpecParserDeps, "writeJson").resolves();
 
       pathRelativeStub.returns("../openapi.yaml");
 

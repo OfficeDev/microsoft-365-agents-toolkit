@@ -1,10 +1,28 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
+import { ResourceManagementClient } from "@azure/arm-resources";
+import { ok } from "@microsoft/teamsfx-api";
 import { assert } from "chai";
-import "mocha";
+import fs from "fs-extra";
 import { createSandbox } from "sinon";
+import { ConstantString } from "../../../../src/common/constants";
 import { setTools } from "../../../../src/common/globalVars";
+import { ArmDeployImpl } from "../../../../src/component/driver/arm/deployImpl";
+import {
+  ArmErrorHandle,
+  armErrorHandleDeps,
+} from "../../../../src/component/driver/arm/util/handleError";
+import { convertOutputs, getFileExtension } from "../../../../src/component/driver/arm/util/util";
+import { getAbsolutePath } from "../../../../src/component/utils/common";
+import { cpUtils } from "../../../../src/component/utils/depsChecker/cpUtils";
+import { MissingEnvironmentVariablesError } from "../../../../src/error";
+import {
+  CompileBicepError,
+  DeployArmError,
+  GetArmDeploymentError,
+} from "../../../../src/error/arm";
+import { ResourceGroupNotExistError } from "../../../../src/error/azure";
 import {
   MockedAzureAccountProvider,
   MockedM365Provider,
@@ -14,27 +32,6 @@ import {
   MockUserInteraction,
   MyTokenCredential,
 } from "../../../core/utils";
-import { ArmDeployImpl } from "../../../../src/component/driver/arm/deployImpl";
-import { ok } from "@microsoft/teamsfx-api";
-import { getAbsolutePath, getEnvironmentVariables } from "../../../../src/component/utils/common";
-import * as common from "../../../../src/component/utils/common";
-import { convertOutputs, getFileExtension } from "../../../../src/component/driver/arm/util/util";
-import {
-  ArmErrorHandle,
-  DeployContext,
-} from "../../../../src/component/driver/arm/util/handleError";
-import * as innerHandleError from "../../../../src/component/driver/arm/util/innerHandleError";
-import {
-  CompileBicepError,
-  DeployArmError,
-  GetArmDeploymentError,
-} from "../../../../src/error/arm";
-import { ResourceGroupNotExistError } from "../../../../src/error/azure";
-import { ResourceManagementClient } from "@azure/arm-resources";
-import { cpUtils } from "../../../../src/component/utils/depsChecker/cpUtils";
-import { ConstantString } from "../../../../src/common/constants";
-import { MissingEnvironmentVariablesError } from "../../../../src/error";
-import fs from "fs-extra";
 
 describe("utils test", () => {
   const sandbox = createSandbox();
@@ -389,7 +386,7 @@ describe("getDeploymentError", () => {
 
   it("throw error", async () => {
     sandbox
-      .stub(innerHandleError, "innerGetDeploymentError")
+      .stub(armErrorHandleDeps, "innerGetDeploymentError")
       .throws({ code: ConstantString.DeploymentNotFound });
     try {
       await ArmErrorHandle.getDeploymentError(
@@ -405,7 +402,7 @@ describe("getDeploymentError", () => {
 
   it("get error:empty", async () => {
     sandbox
-      .stub(innerHandleError, "innerGetDeploymentError")
+      .stub(armErrorHandleDeps, "innerGetDeploymentError")
       .throws({ code: ConstantString.DeploymentNotFound });
     const res = await ArmErrorHandle.getDeploymentError(
       deployCtx,
@@ -416,7 +413,7 @@ describe("getDeploymentError", () => {
   });
 
   it("timestamp is less than startTime", async () => {
-    sandbox.stub(innerHandleError, "innerGetDeploymentError").resolves({
+    sandbox.stub(armErrorHandleDeps, "innerGetDeploymentError").resolves({
       properties: {
         timestamp: new Date(deployCtx.deploymentStartTime - 1000),
       },
@@ -430,7 +427,7 @@ describe("getDeploymentError", () => {
   });
 
   it("error is empty", async () => {
-    sandbox.stub(innerHandleError, "innerGetDeploymentError").resolves({
+    sandbox.stub(armErrorHandleDeps, "innerGetDeploymentError").resolves({
       properties: {
         timestamp: new Date(),
       },
@@ -444,14 +441,14 @@ describe("getDeploymentError", () => {
   });
 
   it("error not empty", async () => {
-    sandbox.stub(innerHandleError, "innerGetDeploymentError").resolves({
+    sandbox.stub(armErrorHandleDeps, "innerGetDeploymentError").resolves({
       properties: {
         error: {
           message: "mockMessage",
         },
       },
     } as any);
-    sandbox.stub(innerHandleError, "innerGetDeploymentOperations").resolves([
+    sandbox.stub(armErrorHandleDeps, "innerGetDeploymentOperations").resolves([
       {
         properties: {
           targetResource: {
@@ -474,7 +471,7 @@ describe("getDeploymentError", () => {
   it("error not empty and nested error", async () => {
     // sandbox.stub(innerHandleError, "innerGetDeploymentError").onFirstCall
     sandbox
-      .stub(innerHandleError, "innerGetDeploymentError")
+      .stub(armErrorHandleDeps, "innerGetDeploymentError")
       .onFirstCall()
       .resolves({
         properties: {
@@ -485,7 +482,7 @@ describe("getDeploymentError", () => {
       } as any)
       .onSecondCall()
       .throws({ code: ConstantString.DeploymentNotFound });
-    sandbox.stub(innerHandleError, "innerGetDeploymentOperations").resolves([
+    sandbox.stub(armErrorHandleDeps, "innerGetDeploymentOperations").resolves([
       {
         id: "mockId",
         properties: {

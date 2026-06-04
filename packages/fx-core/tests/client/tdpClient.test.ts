@@ -4,14 +4,20 @@
 import { TeamsAppManifest, err, ok } from "@microsoft/teamsfx-api";
 import axios, { AxiosResponse } from "axios";
 import * as chai from "chai";
-import "mocha";
+import { expect } from "chai";
 import mockedEnv from "mocked-env";
 import { createSandbox } from "sinon";
 import { v4 as uuid } from "uuid";
-import { teamsDevPortalClient } from "../../src/client/teamsDevPortalClient";
-import { RetryHandler } from "../../src/common/retryHandler";
+import {
+  teamsDevPortalClient,
+  teamsDevPortalClientDeps,
+} from "../../src/client/teamsDevPortalClient";
+import { HelpLinks } from "../../src/common/constants";
 import { setTools } from "../../src/common/globalVars";
-import * as telemetry from "../../src/common/telemetry";
+import { getDefaultString } from "../../src/common/localizeUtils";
+import { RetryHandler } from "../../src/common/retryHandler";
+import { SignInAudienceNotAllowedError } from "../../src/component/driver/aad/error/signInAudienceNotAllowedError";
+import { AADApplication } from "../../src/component/driver/aad/interface/AADApplication";
 import { Constants, ErrorMessages } from "../../src/component/driver/teamsApp/constants";
 import { AppStudioError } from "../../src/component/driver/teamsApp/errors";
 import {
@@ -39,11 +45,6 @@ import {
 } from "../../src/error/teamsApp";
 import { Messages } from "../component/resource/botService/messages";
 import { MockTools } from "../core/utils";
-import { getDefaultString } from "../../src/common/localizeUtils";
-import { HelpLinks } from "../../src/common/constants";
-import { expect } from "chai";
-import { AADApplication } from "../../src/component/driver/aad/interface/AADApplication";
-import { SignInAudienceNotAllowedError } from "../../src/component/driver/aad/error/signInAudienceNotAllowedError";
 
 describe("TeamsDevPortalClient Test", () => {
   const tools = new MockTools();
@@ -2255,12 +2256,12 @@ describe("TeamsDevPortalClient Test", () => {
       sandbox.stub(axios, "create").returns(mockInstance);
 
       events = 0;
-      sandbox.stub(telemetry, "sendTelemetryEvent").callsFake(() => {
+      sandbox.stub(teamsDevPortalClientDeps, "sendTelemetryEvent").callsFake(() => {
         ++events;
       });
 
       errors = 0;
-      sandbox.stub(telemetry, "sendTelemetryErrorEvent").callsFake(() => {
+      sandbox.stub(teamsDevPortalClientDeps, "sendTelemetryErrorEvent").callsFake(() => {
         ++errors;
       });
     });
@@ -2390,6 +2391,7 @@ describe("TeamsDevPortalClient Test", () => {
   describe("createAADApp", () => {
     beforeEach(() => {
       sandbox.restore();
+      sandbox.stub(RetryHandler, "RETRIES").value(1);
     });
 
     it("happy pass", async () => {

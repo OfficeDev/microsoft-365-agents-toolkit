@@ -2,7 +2,6 @@
 // Licensed under the MIT license.
 
 import * as chai from "chai";
-import "mocha";
 import { isValidHttpUrl } from "../../src/common/stringUtils";
 
 describe("isValidHttpUrl", () => {

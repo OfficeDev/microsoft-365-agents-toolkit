@@ -3,7 +3,6 @@
 
 import { CoreCallbackEvent, FxError, UserError } from "@microsoft/teamsfx-api";
 import { CallbackRegistry } from "../../src/core/callback";
-import { it, describe } from "mocha";
 import { expect } from "chai";
 
 describe("Core event callback tests", async () => {

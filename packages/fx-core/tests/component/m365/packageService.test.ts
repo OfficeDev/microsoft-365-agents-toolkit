@@ -12,7 +12,11 @@ import { setTools } from "../../../src/common/globalVars";
 import { AppUser } from "../../../src/component/driver/teamsApp/interfaces/appdefinitions/appUser";
 import { advancedDASettingUrl } from "../../../src/component/m365/constants";
 import { NotExtendedToM365Error } from "../../../src/component/m365/errors";
-import { AppScope, PackageService } from "../../../src/component/m365/packageService";
+import {
+  AppScope,
+  PackageService,
+  packageServiceDeps,
+} from "../../../src/component/m365/packageService";
 import { UnhandledError } from "../../../src/error/common";
 import { MockLogProvider } from "../../core/utils";
 
@@ -81,6 +85,7 @@ describe("Package Service", () => {
       return Promise.resolve(Buffer.from("test"));
     });
     sandbox.stub(axios, "create").returns(testAxiosInstance);
+    sandbox.stub(packageServiceDeps, "waitSeconds").resolves();
 
     setTools({} as any);
     process.env["TEAMSFX_BUILDER_API"] = "1";

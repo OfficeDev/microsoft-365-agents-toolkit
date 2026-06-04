@@ -3,7 +3,6 @@
 
 import { err, ok, ManifestProperties } from "@microsoft/teamsfx-api";
 import * as chai from "chai";
-import "mocha";
 import sinon from "sinon";
 import { NotExtendedToM365Error } from "../../../src/component/m365/errors";
 import { LaunchHelper } from "../../../src/component/m365/launchHelper";

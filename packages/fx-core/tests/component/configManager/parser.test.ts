@@ -7,7 +7,6 @@
 
 import chai from "chai";
 import path from "path";
-import { describe, it, before, after, beforeEach, afterEach } from "mocha";
 import sinon from "sinon";
 import { YamlParser } from "../../../src/component/configManager/parser";
 import fs from "fs-extra";

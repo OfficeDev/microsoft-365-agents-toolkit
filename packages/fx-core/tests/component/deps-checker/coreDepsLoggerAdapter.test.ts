@@ -4,7 +4,6 @@
 /**
  * @author Aocheng Wang <aochengwang@microsoft.com>
  */
-import "mocha";
 
 import chai from "chai";
 import * as sinon from "sinon";

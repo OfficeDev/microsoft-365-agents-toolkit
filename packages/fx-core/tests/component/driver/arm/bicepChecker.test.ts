@@ -2,7 +2,6 @@ import { Context } from "@microsoft/teamsfx-api";
 import { AxiosRequestConfig, default as axios } from "axios";
 import * as chai from "chai";
 import chaiAsPromised from "chai-as-promised";
-import "mocha";
 import mockFs from "mock-fs";
 import * as sinon from "sinon";
 import * as stream from "stream";

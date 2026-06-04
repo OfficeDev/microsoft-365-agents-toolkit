@@ -1,6 +1,5 @@
 import { Inputs, Platform } from "@microsoft/teamsfx-api";
 import { assert } from "chai";
-import "mocha";
 import path from "path";
 import sinon, { createSandbox } from "sinon";
 import { createContext, setTools } from "../../../src/common/globalVars";

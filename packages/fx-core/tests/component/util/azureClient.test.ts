@@ -1,10 +1,9 @@
 import chai from "chai";
 import chaiAsPromised from "chai-as-promised";
-import "mocha";
 import * as sinon from "sinon";
-import { MockedAzureAccountProvider } from "../../core/utils";
 import { azureClientHelper } from "../../../src/component/utils/azureClient";
 import { InvalidAzureCredentialError } from "../../../src/error";
+import { MockedAzureAccountProvider } from "../../core/utils";
 
 chai.use(chaiAsPromised);
 
@@ -23,10 +22,11 @@ describe("azureClient test", () => {
 
     const getTokenForChallenge = azureClientHelper.getChallengeHandler(tokenProvider);
     try {
-      getTokenForChallenge({
+      await getTokenForChallenge({
         wwwAuthenticate: "faked-claim",
         scopes: ["https://management.azure.com/.default"],
       });
+      chai.assert.fail("Expected getTokenForChallenge to reject");
     } catch (e) {
       chai.assert.isTrue(e instanceof InvalidAzureCredentialError);
     }
