@@ -5,7 +5,7 @@ import { CopyToClipboard } from "react-copy-to-clipboard";
 import SyntaxHighlighter from "react-syntax-highlighter";
 import { lightfair, dark } from "react-syntax-highlighter/dist/esm/styles/hljs";
 
-import { Icon } from "@fluentui/react";
+import { CheckmarkRegular, CopyRegular } from "@fluentui/react-icons";
 
 import {
   TelemetryEvent,
@@ -50,13 +50,13 @@ export default function CodeSnippet(props: {
   if (copied) {
     copyButton = (
       <div className="copiedButton">
-        <Icon iconName="CheckMark" />
+        <CheckmarkRegular />
       </div>
     );
   } else {
     copyButton = (
       <div className="copyButton">
-        <Icon iconName="Copy" />
+        <CopyRegular />
         <button>Copy</button>
       </div>
     );

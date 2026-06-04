@@ -8,6 +8,7 @@
 .sample-filter-bar {
   display: flex;
   flex-direction: row;
+  gap: 8px;
 
   .search-box {
     width: 200px;
@@ -43,10 +44,37 @@
     flex-grow: 1;
   }
 
+  .sample-dropdown {
+    width: 152px;
+    min-width: 152px;
+    font-family: var(--font-family);
+
+    .fui-Dropdown__button {
+      min-height: 24px;
+      height: 24px;
+      font-size: 13px;
+      line-height: 21px;
+      color: var(--vscode-peekViewTitleDescription-foreground, #CCCCCC);
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid var(--vscode-menu-separatorBackground, #3C3C3C);
+      border-radius: 2px;
+      padding-top: 0;
+      padding-bottom: 0;
+    }
+
+    .fui-Dropdown__expandIcon {
+      font-size: 11px;
+      color: var(--vscode-dropdown-foreground, #CCCCCC);
+    }
+  }
+
+  .sample-dropdown:focus-within .fui-Dropdown__button {
+    border-color: var(--vscode-inputValidation-infoBorder, #007ACC);
+  }
+
   .layout-button {
     height: 24px;
     width: 24px;
-    margin-left: 8px;
 
     &:hover {
       border-radius: 2px;
@@ -57,6 +85,35 @@
   .layout-selected {
     border-radius: 2px;
     background: var(--vscode-diffEditor-unchangedRegionBackground, #3C3C3C);
+  }
+}
+
+.sample-dropdown-listbox {
+  padding: 4px 0;
+  border: 1px solid var(--vscode-inputValidation-infoBorder, #007ACC);
+  border-radius: 0;
+  background-color: var(--vscode-editorGroupHeader-tabsBackground, #252526);
+
+  .fui-Option {
+    min-height: 22px;
+    height: 22px;
+    font-size: 13px;
+    color: var(--vscode-dropdown-foreground, #CCCCCC);
+    line-height: 22px;
+  }
+
+  .fui-Option:hover,
+  .fui-Option[data-hovered="true"] {
+    background-color: var(--vscode-editorStickyScrollHover-background, #303031);
+  }
+
+  .fui-Option[aria-selected="true"] {
+    background-color: var(--vscode-editorGroupHeader-tabsBackground, #252526);
+    color: var(--vscode-dropdown-foreground, #CCCCCC);
+  }
+
+  .fui-Option[aria-selected="true"]:hover {
+    background-color: var(--vscode-editorStickyScrollHover-background, #303031);
   }
 }
 

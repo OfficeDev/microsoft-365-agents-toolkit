@@ -4,8 +4,7 @@
 import "./sampleCard.scss";
 
 import * as React from "react";
-
-import { Image } from "@fluentui/react";
+import { Image } from "@fluentui/react-components";
 
 import Turtle from "../../../img/webview/sample/turtle.svg?react";
 import { TelemetryTriggerFrom } from "../../telemetry/extTelemetryEvents";
@@ -23,7 +22,7 @@ export default class SampleCard extends React.Component<SampleProps, { imageUrl:
   render() {
     const sample = this.props.sample;
     const unavailable = sample.versionComparisonResult != 0;
-    const previewImage = <Image className="thumbnail" src={this.state.imageUrl} />;
+    const previewImage = <Image className="thumbnail" src={this.state.imageUrl} alt="" />;
     const legacySampleImage = (
       <div className="unavailableSampleImage">
         <Turtle className="turtle" />

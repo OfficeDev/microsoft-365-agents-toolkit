@@ -119,8 +119,8 @@
 body.vscode-light {
   /* TC-001a: Ensure link text meets WCAG AA 4.5:1 contrast on light backgrounds */
   .sample-gallery {
-    a.ms-Link,
-    .ms-Link {
+    a.fui-Link,
+    .fui-Link {
       color: #005B9E !important;
 
       &:hover,
@@ -135,8 +135,8 @@ body.vscode-dark {
   /* TC-001b: Light blue (#4FC3F7) vs dark bg rgb(30,30,30) = 8.32:1 ≥ 4.5:1 (WCAG AA)
    * !important overrides Fluent UI Link component inline styles */
   .sample-gallery {
-    a.ms-Link,
-    .ms-Link {
+    a.fui-Link,
+    .fui-Link {
       color: #4FC3F7 !important;
 
       &:hover,

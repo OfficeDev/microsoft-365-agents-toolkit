@@ -6,7 +6,7 @@ import "./SampleGallery.scss";
 import Fuse from "fuse.js";
 import * as React from "react";
 
-import { Icon, Link } from "@fluentui/react";
+import { Link } from "@fluentui/react-components";
 
 import { GlobalKey } from "../../constants";
 import {
@@ -62,7 +62,7 @@ export default class SampleGallery extends React.Component<SampleGalleryProps, S
     const titleSection = (
       <div id="title">
         <div className="logo">
-          <Icon iconName="Library" className="logo" />
+          <span className="codicon codicon-library" aria-hidden="true"></span>
         </div>
         <div className="title">
           <h1>Samples</h1>

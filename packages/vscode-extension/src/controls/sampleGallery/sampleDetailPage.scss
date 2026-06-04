@@ -11,8 +11,10 @@
         padding: 0;
         margin-bottom: 24px;
         color: var(--vscode-textLink-foreground);
+        background: transparent;
+        border: 0;
 
-        span>i {
+        svg {
             font-size: 12px;
             width: 14px;
             height: 14px;
@@ -22,6 +24,12 @@
         :active {
             color: var(--vscode-textLink-foreground);
         }
+    }
+
+    .back-button {
+        align-self: flex-start;
+        width: auto;
+        justify-content: flex-start;
     }
 
     .upgrade-banner {
