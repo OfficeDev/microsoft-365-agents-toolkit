@@ -2,19 +2,32 @@
 // Licensed under the MIT license.
 
 import { Platform } from "@microsoft/teamsfx-api";
-import { assert } from "chai";
+import chai, { assert } from "chai";
+import chaiAsPromised from "chai-as-promised";
 import fs from "fs-extra";
 import "mocha";
 import os from "os";
 import path from "path";
 import { createSandbox } from "sinon";
-import { TemplateFileEntry } from "../../../src/v4";
+import { err, ok } from "neverthrow";
+import { SystemError } from "@microsoft/teamsfx-api";
+import { TemplateFileEntry, TemplateSource } from "../../../src/v4";
+import * as templateSourceMod from "../../../src/v4/distribution/templateSource";
+import * as templateSourcePortMod from "../../../src/v4/distribution/templateSourcePort";
+import * as bundledFloorMod from "../../../src/v4/distribution/bundledFloor";
+import * as templatePackageMod from "../../../src/v4/distribution/templatePackage";
+import { TelemetryProperty } from "../../../src/common/telemetry";
 import { GeneratorContext } from "../../../src/component/generator/generatorAction";
 import {
   renderTemplateFileData,
   renderTemplateFileName,
 } from "../../../src/component/generator/utils";
-import { renderTemplateEntries } from "../../../src/component/generator/v4TemplateBridge";
+import {
+  renderTemplateEntries,
+  scaffoldFromV4Channel,
+} from "../../../src/component/generator/v4TemplateBridge";
+
+chai.use(chaiAsPromised);
 
 // Build a GeneratorContext whose rename/data/filter functions mirror exactly
 // what DefaultTemplateGenerator.scaffolding constructs, so the render contract
@@ -54,11 +67,7 @@ describe("v4TemplateBridge.renderTemplateEntries", () => {
   let tmpDir: string;
 
   beforeEach(async () => {
-    tmpDir = path.join(
-      os.tmpdir(),
-      `v4bridge-${Date.now()}-${Math.random().toString(36).slice(2)}`
-    );
-    await fs.ensureDir(tmpDir);
+    tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "v4bridge-"));
   });
 
   afterEach(async () => {
@@ -146,5 +155,107 @@ describe("v4TemplateBridge.renderTemplateEntries", () => {
     assert.deepEqual(outputs, ["file.txt"]);
     // entryName seen by filterFn is "da/file.txt", which does NOT start with "da-".
     assert.isFalse("da/file.txt".startsWith("da-/"));
+  });
+
+  it("writes entries verbatim under the name prefix when no optional fns are set", async () => {
+    const ctx: GeneratorContext = {
+      name: "bot",
+      language: "common",
+      destination: tmpDir,
+      logProvider: {
+        debug: () => {},
+        info: () => {},
+        warning: () => {},
+        error: () => {},
+      } as any,
+      platform: Platform.VSCode,
+      onActionError: () => Promise.resolve(),
+    };
+    const entries: TemplateFileEntry[] = [{ path: "a.txt", data: Buffer.from("a") }];
+
+    const outputs = await renderTemplateEntries(ctx, entries);
+
+    assert.deepEqual(outputs, ["bot/a.txt"]);
+    assert.strictEqual((await fs.readFile(path.join(tmpDir, "bot/a.txt"))).toString(), "a");
+  });
+});
+
+describe("v4TemplateBridge.scaffoldFromV4Channel", () => {
+  const sandbox = createSandbox();
+  let tmpDir: string;
+  const locator = { language: "common", scenario: "declarative-agent-basic" };
+  const source: TemplateSource = {
+    origin: "bundled",
+    version: "6.10.1",
+    digest: "sha256:abc",
+    location: "/floor/templates.zip",
+  };
+
+  beforeEach(async () => {
+    tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "v4bridge-"));
+    sandbox.stub(templateSourcePortMod, "createTemplateSourcePort").returns({} as any);
+    sandbox.stub(bundledFloorMod, "loadBundledFloor").returns({} as any);
+  });
+
+  afterEach(async () => {
+    sandbox.restore();
+    await fs.remove(tmpDir);
+  });
+
+  it("resolves, reads, renders and records source telemetry on the happy path", async () => {
+    const ctx = makeContext("declarative-agent-basic", tmpDir, {});
+    const entries: TemplateFileEntry[] = [{ path: "manifest.json", data: Buffer.from('{"a":1}') }];
+    sandbox.stub(templateSourceMod, "resolveTemplateSource").resolves(ok(source));
+    sandbox
+      .stub(templateSourcePortMod, "loadResolvedPackage")
+      .returns(ok(Buffer.from("zip-bytes")));
+    sandbox.stub(templatePackageMod, "openTemplatePackage").returns(ok(entries));
+    const telemetryProps: Record<string, string> = {};
+
+    const result = await scaffoldFromV4Channel(ctx, locator, telemetryProps);
+
+    assert.deepEqual(result, source);
+    assert.deepEqual(ctx.outputs, ["manifest.json"]);
+    assert.strictEqual(
+      (await fs.readFile(path.join(tmpDir, "manifest.json"))).toString(),
+      '{"a":1}'
+    );
+    assert.strictEqual(telemetryProps[TelemetryProperty.TemplatePackageSource], "bundled");
+    assert.strictEqual(telemetryProps[TelemetryProperty.TemplatePackageVersion], "6.10.1");
+    assert.strictEqual(telemetryProps[TelemetryProperty.TemplatePackageDigest], "sha256:abc");
+  });
+
+  it("throws and records no source telemetry when resolution fails", async () => {
+    const ctx = makeContext("declarative-agent-basic", tmpDir, {});
+    const resolveError = new SystemError("v4", "ResolveFailed", "no tag");
+    sandbox.stub(templateSourceMod, "resolveTemplateSource").resolves(err(resolveError));
+    const telemetryProps: Record<string, string> = {};
+
+    await assert.isRejected(scaffoldFromV4Channel(ctx, locator, telemetryProps), "no tag");
+    assert.isUndefined(telemetryProps[TelemetryProperty.TemplatePackageSource]);
+  });
+
+  it("throws but still records source telemetry when reading the package fails", async () => {
+    const ctx = makeContext("declarative-agent-basic", tmpDir, {});
+    sandbox.stub(templateSourceMod, "resolveTemplateSource").resolves(ok(source));
+    sandbox
+      .stub(templateSourcePortMod, "loadResolvedPackage")
+      .returns(err(new SystemError("v4", "DigestMismatch", "bad digest")));
+    const telemetryProps: Record<string, string> = {};
+
+    await assert.isRejected(scaffoldFromV4Channel(ctx, locator, telemetryProps), "bad digest");
+    assert.strictEqual(telemetryProps[TelemetryProperty.TemplatePackageVersion], "6.10.1");
+    assert.isUndefined(ctx.outputs);
+  });
+
+  it("throws when the package cannot be opened", async () => {
+    const ctx = makeContext("declarative-agent-basic", tmpDir, {});
+    sandbox.stub(templateSourceMod, "resolveTemplateSource").resolves(ok(source));
+    sandbox.stub(templateSourcePortMod, "loadResolvedPackage").returns(ok(Buffer.from("zip")));
+    sandbox
+      .stub(templatePackageMod, "openTemplatePackage")
+      .returns(err(new SystemError("v4", "OpenFailed", "corrupt zip")));
+
+    await assert.isRejected(scaffoldFromV4Channel(ctx, locator, {}), "corrupt zip");
   });
 });
