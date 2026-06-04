@@ -82,6 +82,8 @@ outcome and telemetry; it is never written back into committed config.
 | AC-16 | L1 | `port.env("TEMPLATE_VERSION")="6.99.0"`, `bundled=false`, tag-list does **not** list `6.99.0` | resolve | raises a `UserError` (`TemplatePinnedVersionNotFound`) naming the pinned version; **no** fallback to range resolution, cache, or floor |
 | AC-17 | L1 | `bundled=false`, `port.tagList()` rejects with a malformed-document error (`TemplateTagListMalformed`) | resolve | the `SystemError` is **propagated** (returned as `err`); **no** offline fallback — a malformed channel is a hard error (decision #7), distinct from unreachable (AC-07) |
 | AC-18 | L1 | `port.env("TEMPLATE_VERSION")="6.11.2"`, `bundled=false`, `port.tagList()` is unreachable/rejects | resolve | returns `err(FxError)` (an existing FxError is preserved; otherwise wrapped); the rejection never escapes as a thrown promise; a pin **never** falls back |
+| AC-19 | L1 | `bundled=false`, a version is picked from the tag-list, but `port.packages(...)` (download) rejects | resolve | returns `err(FxError)` (an existing FxError is preserved; otherwise wrapped as `TemplateDownloadFailed`); the rejection never escapes as a thrown promise — the neverthrow contract holds for the download path too |
+
 
 ## Flow
 

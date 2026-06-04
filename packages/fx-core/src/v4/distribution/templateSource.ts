@@ -218,6 +218,21 @@ function asTagListError(e: unknown): FxError {
   });
 }
 
+/** Preserve an existing FxError; wrap any other download failure as a SystemError (neverthrow contract). */
+function asDownloadError(e: unknown, version: string): FxError {
+  if (e instanceof UserError || e instanceof SystemError) {
+    return e;
+  }
+  /* istanbul ignore next -- the port rejects with an Error; the String(e)
+     fallback is defensive for non-Error rejections, not reproducible in a unit. */
+  const message = e instanceof Error ? e.message : String(e);
+  return new SystemError({
+    source: SOURCE,
+    name: "TemplateDownloadFailed",
+    message: `Failed to download template "${version}" from the release channel: ${message}.`,
+  });
+}
+
 async function fetchVerify(
   entry: TagEntry,
   port: TemplateSourcePort,
@@ -233,7 +248,14 @@ async function fetchVerify(
     }); // AC-06 (zero download)
   }
 
-  const bytes = await port.packages(entry.version, entry.digest);
+  let bytes: Buffer;
+  try {
+    bytes = await port.packages(entry.version, entry.digest);
+  } catch (e) {
+    // The download (sendRequestWithRetry) can reject; surface it as a Result
+    // rather than letting it escape resolveTemplateSource (neverthrow contract).
+    return err(asDownloadError(e, entry.version));
+  }
   const computed = computeDigest(bytes);
   if (computed !== entry.digest) {
     return err(
@@ -262,14 +284,18 @@ function offlineFallback(range: string, port: TemplateSourcePort): TemplateSourc
 
   // Cache wins only when strictly higher than the floor; a tie goes to the floor (decision #2).
   if (highestCached && (!floorSatisfies || semver.gt(highestCached, port.floor.version))) {
-    const cached = port.cache.get(highestCached) as CachedPackage;
-    return {
-      origin: "cache",
-      version: highestCached,
-      digest: cached.digest,
-      location: cacheLocation(highestCached),
-      warning: offlineWarning(range),
-    }; // AC-07
+    const cached = port.cache.get(highestCached);
+    /* istanbul ignore else -- highestCached is drawn from cache.keys(); a miss
+       means the cache mutated mid-resolution, so we degrade to the floor. */
+    if (cached) {
+      return {
+        origin: "cache",
+        version: highestCached,
+        digest: cached.digest,
+        location: cacheLocation(highestCached),
+        warning: offlineWarning(range),
+      }; // AC-07
+    }
   }
 
   return { ...floorFallback(port.floor), warning: offlineWarning(range) }; // AC-08

@@ -21,6 +21,7 @@ class FakePort implements TemplateSourcePort {
   private readonly tags?: TagEntry[];
   private readonly tagListThrows: boolean;
   private readonly tagListError?: Error;
+  private readonly packagesError?: Error;
   private readonly store = new Map<string, CachedPackage>();
   public readonly floor: BundledFloor;
   /** Bytes the channel will serve per version (for the download path). */
@@ -31,6 +32,7 @@ class FakePort implements TemplateSourcePort {
     tags?: TagEntry[];
     tagListThrows?: boolean;
     tagListError?: Error;
+    packagesError?: Error;
     floor: BundledFloor;
     cache?: Array<{ version: string; digest: string; bytes: Buffer }>;
     serve?: Record<string, Buffer>;
@@ -39,6 +41,7 @@ class FakePort implements TemplateSourcePort {
     this.tags = opts.tags;
     this.tagListThrows = opts.tagListThrows ?? false;
     this.tagListError = opts.tagListError;
+    this.packagesError = opts.packagesError;
     this.floor = opts.floor;
     this.serve = opts.serve ?? {};
     for (const c of opts.cache ?? []) {
@@ -64,6 +67,9 @@ class FakePort implements TemplateSourcePort {
   packages(version: string): Promise<Buffer> {
     this.httpCalls++;
     this.downloads.push(version);
+    if (this.packagesError) {
+      return Promise.reject(this.packagesError);
+    }
     const bytes = this.serve[version];
     if (!bytes) {
       return Promise.reject(new Error(`no bytes served for ${version}`));
@@ -365,5 +371,36 @@ describe("resolveTemplateSource (v4)", () => {
     const res = await resolveTemplateSource({ range: "~6.10", bundled: false, port });
     assert.isTrue(res.isErr());
     assert.strictEqual(res._unsafeUnwrapErr().name, "TemplateTagListMalformed");
+  });
+
+  it("AC-19: a download rejection surfaces as an error instead of throwing", async () => {
+    const bytes = bytesFor("6.11.0");
+    const port = new FakePort({
+      // tag is published so the version is picked, but no bytes are served, so
+      // the download rejects; the neverthrow contract must still hold.
+      tags: [{ version: "6.11.0", digest: computeDigest(bytes) }],
+      floor: { version: "6.10.1", digest: "sha256:floor", location: "bundled://6.10.1" },
+    });
+    const res = await resolveTemplateSource({ range: "~6.11", bundled: false, port });
+    assert.isTrue(res.isErr());
+    assert.strictEqual(res._unsafeUnwrapErr().name, "TemplateDownloadFailed");
+    assert.deepEqual(port.downloads, ["6.11.0"]);
+  });
+
+  it("AC-19: a download rejection preserves an existing FxError", async () => {
+    const bytes = bytesFor("6.11.0");
+    const existing = new UserError({
+      source: "Scaffold",
+      name: "TemplateDigestMismatch",
+      message: "boom",
+    });
+    const port = new FakePort({
+      tags: [{ version: "6.11.0", digest: computeDigest(bytes) }],
+      packagesError: existing,
+      floor: { version: "6.10.1", digest: "sha256:floor", location: "bundled://6.10.1" },
+    });
+    const res = await resolveTemplateSource({ range: "~6.11", bundled: false, port });
+    assert.isTrue(res.isErr());
+    assert.strictEqual(res._unsafeUnwrapErr().name, "TemplateDigestMismatch");
   });
 });
