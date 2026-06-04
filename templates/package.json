@@ -12,7 +12,7 @@
     "build:vsc": "npm run generate:vsc && npm run distribute",
     "build:vs": "npm run generate:vs && npm run distribute",
     "build:release": "node ./scripts/generateRelease.js",
-    "generate:vsc": "node ./scripts/generateVSCZip.js && tsx ./scripts/generate-metadata.ts",
+    "generate:vsc": "node ./scripts/generateVSCZip.js && node ./scripts/generateV4Zip.js && tsx ./scripts/generate-metadata.ts",
     "generate:vs": "node ./scripts/generateVSZip.js",
     "distribute": "copyfiles -u 1 \"build/**/*\" ../packages/fx-core/templates/ && copyfiles -u 3 \"src/ui/resource/**/*\" ../packages/fx-core/resource/templates/ && shx cp -r configs/ ../packages/fx-core/templates/",
     "version": "bash ../.github/scripts/pkg-version.sh template-sync && bash ../.github/scripts/pkg-version.sh core-template",
