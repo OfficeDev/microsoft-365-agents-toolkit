@@ -415,17 +415,21 @@ suite("DA No Action – Scaffold and Local Debug", function () {
         );
         await wait(1000);
 
-        // Step 16: "Start Agent Locally"
+        // Step 16: "Start Agent Locally" compound task
+        // NOTE: compound tasks (dependsOn) do NOT fire onDidStartTaskProcess.
+        // Detect them by waiting for any sub-task to fire instead.
         const t1 = Date.now() + 30000;
-        while (!taskStarted && Date.now() < t1) await wait(500);
+        while (!prereqsStarted && !createResourcesStarted && Date.now() < t1)
+          await wait(500);
+        const compoundStarted = prereqsStarted || createResourcesStarted;
         await sendSignal(
           "waitForTextThenScreenshot:Start Agent Locally:5000:12-task-started",
           10000,
         );
         step(
-          "Start Agent Locally task started",
-          taskStarted,
-          taskStarted ? "✓" : "not detected",
+          "Start Agent Locally task started (via sub-task proxy)",
+          compoundStarted,
+          compoundStarted ? "✓ (sub-task fired)" : "no sub-task detected",
         );
 
         // Step 17: "Validate prerequisites"
@@ -471,7 +475,7 @@ suite("DA No Action – Scaffold and Local Debug", function () {
         } catch {}
 
         assert.ok(debugStarted, "debug.startDebugging returned false");
-        assert.ok(taskStarted, "Start Agent Locally task never started");
+        assert.ok(compoundStarted, "Start Agent Locally: no sub-task fired");
         assert.ok(prereqsStarted, "Validate prerequisites task never started");
         assert.ok(
           createResourcesStarted,
