@@ -189,6 +189,25 @@ describe("FxCore.shareApplication", () => {
         chai.assert.instanceOf(res2.error, InputValidationError);
       }
     });
+
+    it("raw method returns No emails when parsed email list is empty", async () => {
+      const inputs: Inputs = {
+        platform: Platform.VSCode,
+        projectPath: ".",
+        [QuestionNames.ShareOperation]: ShareOperationOption.RemoveShareAccessFromUsers,
+        [QuestionNames.UserEmail]: "   ,  ,",
+      };
+
+      const fxCore = new FxCore(tools);
+      const shareApplicationRaw = (fxCore.shareApplication as any).original;
+      const res = await shareApplicationRaw.call(fxCore, inputs, undefined);
+
+      chai.assert.isTrue(res.isErr());
+      if (res.isErr()) {
+        chai.assert.instanceOf(res.error, InputValidationError);
+        chai.assert.include(res.error.message, "No emails");
+      }
+    });
   });
 
   describe("Remove share access", () => {
