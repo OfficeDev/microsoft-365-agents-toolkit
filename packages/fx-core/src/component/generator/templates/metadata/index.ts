@@ -6,7 +6,7 @@ import fs from "fs-extra";
 import os from "os";
 import path from "path";
 import { getTemplatesFolder } from "../../../../folder";
-import { useLocalTemplate } from "../../templateHelper";
+import { useBundledMetadataForV4, useLocalTemplate } from "../../templateHelper";
 import { Template } from "./interface";
 
 function getTemplateMetadataConfig(configName: string, platform?: Platform): Template[] {
@@ -21,7 +21,12 @@ function getTemplateMetadataConfig(configName: string, platform?: Platform): Tem
   );
 
   // Check if cached JSON exists, otherwise fallback to bundled templates folder
-  if (!useLocalTemplate() && cachedJsonPath && fs.pathExistsSync(cachedJsonPath)) {
+  if (
+    !useLocalTemplate() &&
+    !useBundledMetadataForV4() &&
+    cachedJsonPath &&
+    fs.pathExistsSync(cachedJsonPath)
+  ) {
     jsonPath = cachedJsonPath;
   } else {
     jsonPath = path.join(getTemplatesFolder(), "metadata", configName);

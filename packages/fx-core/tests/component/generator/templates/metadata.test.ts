@@ -14,6 +14,8 @@ import {
 import * as templateHelper from "../../../../src/component/generator/templateHelper";
 import * as folder from "../../../../src/folder";
 import { Template } from "../../../../src/component/generator/templates/metadata/interface";
+import { featureFlagManager } from "../../../../src/common/featureFlags";
+import packageJson from "../../../../package.json";
 
 const mockTemplates: Template[] = [
   { id: "t1", name: "TypeScript Bot", language: "typescript", description: "A TS bot" },
@@ -97,6 +99,23 @@ describe("metadata platform routing", () => {
 
       const readPath = readFileSyncStub.firstCall.args[0] as string;
       assert.include(readPath, bundledPath);
+    });
+
+    it("falls back to bundled path when v4 channel forces bundled metadata even if cache exists", () => {
+      sandbox.stub(templateHelper, "useLocalTemplate").returns(false);
+      sandbox.stub(templateHelper, "useBundledMetadataForV4").returns(true);
+      const bundledPath = path.resolve("/bundled");
+      sandbox.stub(folder, "getTemplatesFolder").returns(bundledPath);
+      sandbox.stub(fs, "pathExistsSync").returns(true);
+      const readFileSyncStub = sandbox
+        .stub(fs, "readFileSync")
+        .returns(JSON.stringify(mockTemplates));
+
+      getAllTemplatesOnPlatform(Platform.VSCode);
+
+      const readPath = readFileSyncStub.firstCall.args[0] as string;
+      assert.include(readPath, bundledPath);
+      assert.notInclude(readPath, ".fx");
     });
 
     it("returns only csharp templates for Platform.VS", () => {
@@ -215,4 +234,35 @@ describe("metadata platform routing", () => {
       assert.deepEqual(result, []);
     });
   });
+});
+
+describe("useBundledMetadataForV4", () => {
+  const sandbox = sinon.createSandbox();
+
+  afterEach(() => {
+    sandbox.restore();
+  });
+
+  it("returns false when the v4 flag is off", () => {
+    sandbox.stub(featureFlagManager, "getBooleanValue").returns(false);
+    sandbox.stub(packageJson, "version").value("1.0.0-rc.0");
+
+    assert.isFalse(templateHelper.useBundledMetadataForV4());
+  });
+
+  it("returns false for a stable build even when the v4 flag is on", () => {
+    sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
+    sandbox.stub(packageJson, "version").value("1.0.0");
+
+    assert.isFalse(templateHelper.useBundledMetadataForV4());
+  });
+
+  for (const version of ["1.0.0-alpha.0", "1.0.0-beta.1", "1.0.0-rc.2"]) {
+    it(`returns true for prerelease build ${version} when the v4 flag is on`, () => {
+      sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
+      sandbox.stub(packageJson, "version").value(version);
+
+      assert.isTrue(templateHelper.useBundledMetadataForV4());
+    });
+  }
 });
