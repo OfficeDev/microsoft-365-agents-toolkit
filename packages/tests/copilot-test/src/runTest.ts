@@ -439,6 +439,11 @@ async function main() {
   const testFile = process.argv[2] || process.env.TEST_FILE || undefined;
 
   const extPath = process.env.ATK_EXT_PATH ?? "";
+  // VS Code version to use. Default 1.105.1 — in this version the M365 login
+  // confirmation dialog is a native VS Code modal (capturable via Playwright),
+  // unlike "stable" (1.100+) where it may be suppressed by broker auth.
+  // Override with VSCODE_VERSION=stable or any specific version string.
+  const vscodeVersion = process.env.VSCODE_VERSION ?? "1.105.1";
   const outputDir =
     process.env.TEST_OUTPUT_DIR ||
     path.resolve(TESTS_ROOT, "../../test-output");
@@ -679,7 +684,7 @@ async function main() {
       `--remote-debugging-port=${CDP_PORT}`,
       `--extensions-dir=${userExtDir}`,
     ],
-    version: "stable",
+    version: vscodeVersion,
     extensionTestsEnv: {
       TEST_OUTPUT_DIR: outputDir,
       SCREENSHOT_SIGNAL_DIR: signalDir,
@@ -959,7 +964,7 @@ async function main() {
             `--extensions-dir=${userExtDir}`,
             projectDir, // open the scaffolded project as workspace
           ],
-          version: "stable",
+          version: vscodeVersion,
           extensionTestsEnv: vscodeTestOpts.extensionTestsEnv,
         };
         if (extPath) vscodeTestOpts2.extensionDevelopmentPath = extPath;
