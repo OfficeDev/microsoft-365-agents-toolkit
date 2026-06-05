@@ -20,8 +20,13 @@ export async function run(): Promise<void> {
   );
   if (fs.existsSync(lockFile)) {
     console.log(
-      "[suite/index] Lock file exists — another test instance is running, exiting.",
+      "[suite/index] Lock file exists — standby mode (primary host running, never exit)",
     );
+    // Never resolve: if this host returns (code 0), VS Code's test runner calls
+    // process.exit(0), which kills VS Code and terminates the primary host mid-test.
+    // Hanging here keeps VS Code alive until the primary host finishes and VS Code
+    // exits on its own.
+    await new Promise<void>(() => {}); // intentionally never resolves
     return;
   }
   fs.writeFileSync(lockFile, String(process.pid), "utf8");
