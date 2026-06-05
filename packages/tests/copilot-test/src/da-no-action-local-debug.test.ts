@@ -356,18 +356,13 @@ suite("DA No Action – Local Debug in M365 Copilot", function () {
   test("Phase 3: Sign in to M365 via ATK Accounts", async () => {
     const m365User = process.env.M365_ACCOUNT_NAME || "";
     const m365Pass = process.env.M365_ACCOUNT_PASSWORD || "";
-    if (!m365User || !m365Pass) {
-      console.log("  SKIP: M365_ACCOUNT_NAME / M365_ACCOUNT_PASSWORD not set");
-      step("M365 credentials available", false, "env vars not set — skipped");
-      return; // do not assert.ok — treat as skip, not failure
-    }
+    assert.ok(
+      m365User && m365Pass,
+      "M365_ACCOUNT_NAME and M365_ACCOUNT_PASSWORD must be set to run Phase 3",
+    );
 
-    // Step 12: open ATK Accounts QuickPick WITHOUT await
-    vscode.commands
-      .executeCommand("fx-extension.cmpAccounts")
-      .catch((e: any) => {
-        console.log("  cmpAccounts error:", e.message);
-      });
+    // Step 12: open ATK Accounts pane WITHOUT await
+    vscode.commands.executeCommand("fx-extension.cmpAccounts").catch(() => {});
     await wait(500);
 
     // Step 13: click "Sign in to Microsoft 365"
@@ -375,56 +370,57 @@ suite("DA No Action – Local Debug in M365 Copilot", function () {
       "waitForTextThenScreenshot:Sign in to Microsoft 365:20000:09-signin-option",
       28000,
     );
-    await sendSignal("clickText:Sign in to Microsoft 365", 10000);
-    await wait(500);
-
-    // Step 14: click "Sign in" in the modal
-    await sendSignal(
-      "waitForTextThenScreenshot:Sign in:15000:10-modal-signin",
-      23000,
+    await takeElementScreenshot(
+      "09-signin-option",
+      "[id='workbench.view.extension.teamsfx'] .pane-body",
     );
-    await sendSignal("clickText:Sign in", 10000);
+    await sendSignal("clickText:Sign in to Microsoft 365", 10000);
     await wait(1000);
 
-    // Step 15: [Chrome] wait for M365 login page (up to 60 s), enter credentials
-    await sendSignal(
-      "waitForTextThenScreenshot:Email or phone:60000:11-m365-login-page",
-      68000,
+    // Step 14 is skipped — TEAMSFX_AUTO_CONFIRM_LOGIN=true auto-confirms the VS Code
+    // modal in doesUserConfirmLogin(). The extension proceeds directly to MSAL code flow.
+
+    // Confirm MSAL flow started: codeFlowLogin.ts patch writes auth URL to atk-auth-url.txt.
+    // runTest.ts OAuth watcher picks this up and completes the browser OAuth automatically.
+    const AUTH_URL_FILE = path.join(os.tmpdir(), "atk-auth-url.txt");
+    let authUrlDetected = false;
+    console.log("  Polling for atk-auth-url.txt (up to 30s)...");
+    for (let i = 0; i < 30 && !authUrlDetected; i++) {
+      await wait(1000);
+      if (fs.existsSync(AUTH_URL_FILE)) {
+        authUrlDetected = true;
+      }
+    }
+    step(
+      "MSAL auth URL captured by extension patch",
+      authUrlDetected,
+      authUrlDetected
+        ? "atk-auth-url.txt found"
+        : "not found after 30s — check patches",
     );
-    await sendSignal("clickText:Email or phone", 10000);
-    await sendSignal(`type:${m365User}`, 5000);
-    await sendSignal("clickText:Next", 10000);
-    await wait(3000);
+    await takeScreenshot("10-auth-url-detected");
 
-    // Step 16: password
-    await sendSignal(`type:${m365Pass}`, 5000);
-    await sendSignal("pressKey:Enter", 5000);
-    await wait(3000);
-    await takeScreenshot("12-m365-login-complete");
-
-    // Step 17: close browser tab
+    // Wait for ATK sidebar to show the signed-in account name (up to 90s).
+    // The OAuth watcher in runTest.ts completes the browser sign-in automatically.
+    const accountHint = m365User.split("@")[0]; // e.g. "test008"
+    console.log(`  Waiting for "${accountHint}" in ATK sidebar (up to 90s)...`);
     await sendSignal(
-      "waitForTextThenScreenshot:Close:10000:13-close-browser-tab",
-      15000,
+      `waitForTextThenScreenshot:${accountHint}:90000:11-m365-signed-in`,
+      98000,
     );
-    await sendSignal("clickText:Close", 5000);
-    await wait(3000);
-    await takeScreenshot("14-m365-signed-in");
-
+    await takeElementScreenshot(
+      "11-m365-signed-in",
+      "[id='workbench.view.extension.teamsfx'] .pane-body",
+    );
     step("M365 sign-in completed", true, `user=${m365User}`);
   });
 
   // ── Test 4: Phase 4 – Launch local debug in M365 Copilot ─────────────────
   test("Phase 4: Launch local debug via Preview Local in Copilot (Chrome)", async () => {
     const m365User = process.env.M365_ACCOUNT_NAME || "";
-    const m365Pass = process.env.M365_ACCOUNT_PASSWORD || "";
-    if (!m365User || !m365Pass) {
-      console.log("  SKIP: M365_ACCOUNT_NAME / M365_ACCOUNT_PASSWORD not set");
-      step("Debug launch (skipped — no credentials)", false, "skipped");
-      return;
-    }
+    assert.ok(m365User, "M365_ACCOUNT_NAME must be set to run Phase 4");
 
-    // Step 18: fire debug-selection command WITHOUT await
+    // Step 14: fire debug-selection command WITHOUT await
     vscode.commands
       .executeCommand("workbench.action.debug.selectandstart")
       .catch((e: any) => {
@@ -432,41 +428,67 @@ suite("DA No Action – Local Debug in M365 Copilot", function () {
       });
     await wait(500);
 
-    // Step 19: select "Preview Local in Copilot (chrome)"
+    // Step 15: select "Preview Local in Copilot (Chrome)"
     await sendSignal(
-      "waitForTextThenScreenshot:Preview Local in Copilot:20000:15-debug-config",
+      "waitForTextThenScreenshot:Preview Local in Copilot:20000:11-debug-picker",
       28000,
     );
-    await sendSignal("clickText:Preview Local in Copilot (chrome)", 10000);
+    await takeElementScreenshot("11-debug-picker", ".quick-input-widget");
+    await sendSignal("clickText:Preview Local in Copilot (Chrome)", 10000);
     await wait(1000);
-    await takeScreenshot("16-debug-started");
 
-    // Step 20: [Chrome] wait up to 120 s for Microsoft sign-in page (new Chrome process)
+    // Step 16: terminal shows "Start Agent Locally" compound task starting
     await sendSignal(
-      "waitForTextThenScreenshot:Email or phone:120000:17-copilot-login-page",
+      "waitForTextThenScreenshot:Start Agent Locally:30000:12-task-started",
+      38000,
+    );
+    await takeElementScreenshot("12-task-started", ".panel, .terminal-wrapper");
+    step(
+      "Start Agent Locally task started",
+      true,
+      "terminal shows compound task",
+    );
+
+    // Step 17: "Validate prerequisites" subtask (checks M365 Copilot access)
+    await sendSignal(
+      "waitForTextThenScreenshot:Validate prerequisites:30000:13-validate-prereqs",
+      38000,
+    );
+    await takeElementScreenshot(
+      "13-validate-prereqs",
+      ".panel, .terminal-wrapper",
+    );
+    step("Validate prerequisites subtask ran", true, "terminal shows subtask");
+
+    // Step 18: "Create resources" subtask (ATK provision: zip/validate/update/publish)
+    await sendSignal(
+      "waitForTextThenScreenshot:Create resources:60000:14-create-resources",
+      68000,
+    );
+    await takeElementScreenshot(
+      "14-create-resources",
+      ".panel, .terminal-wrapper",
+    );
+    step(
+      "Create resources subtask started",
+      true,
+      "terminal shows ATK provision",
+    );
+
+    // Step 19: let provision progress, then screenshot terminal
+    await wait(10000);
+    await takeScreenshot("15-provision-progress");
+
+    // Step 20: [Chrome] wait for m365.cloud.microsoft URL to open in browser
+    // (signal watcher looks in VS Code window — will timeout non-fatally for external Chrome)
+    await sendSignal(
+      "waitForTextThenScreenshot:m365.cloud.microsoft:120000:16-copilot-browser",
       130000,
     );
-    await sendSignal("clickText:Email or phone", 10000);
-    await sendSignal(`type:${m365User}`, 5000);
-    await sendSignal("clickText:Next", 10000);
-    await wait(3000);
-
-    // Step 21: password
-    await sendSignal(`type:${m365Pass}`, 5000);
-    await sendSignal("clickText:Sign in", 10000);
-    await wait(3000);
-    await takeScreenshot("18-copilot-login-complete");
-
-    // Step 22: "Stay signed in?" → press Enter
-    await sendSignal(
-      "waitForTextThenScreenshot:Stay signed in:10000:19-stay-signed-in",
-      15000,
-    );
-    await sendSignal("pressKey:Enter", 5000);
-    await wait(3000);
+    await takeScreenshot("16-copilot-browser-state");
 
     step(
-      "Debug session launched in Copilot",
+      "Local debug launched in Copilot",
       true,
       "Preview Local in Copilot (Chrome) selected",
     );
@@ -475,11 +497,7 @@ suite("DA No Action – Local Debug in M365 Copilot", function () {
   // ── Test 5: Phase 5 – Validate agent responds in Copilot ─────────────────
   test("Phase 5: Validate DA agent visible and responds in M365 Copilot", async () => {
     const m365User = process.env.M365_ACCOUNT_NAME || "";
-    if (!m365User) {
-      console.log("  SKIP: M365_ACCOUNT_NAME not set");
-      step("Copilot validation (skipped — no credentials)", false, "skipped");
-      return;
-    }
+    assert.ok(m365User, "M365_ACCOUNT_NAME must be set to run Phase 5");
 
     const expectedAgent = `${APP_NAME}local`;
 

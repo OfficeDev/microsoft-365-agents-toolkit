@@ -499,7 +499,7 @@ async function main() {
       skipLibCheck: true,
       outDir: tmpOut,
       rootDir: HERE,
-      types: ["node", "mocha"],
+      types: ["node", "mocha", "vscode"],
       typeRoots: [path.join(TESTS_ROOT, "node_modules", "@types")],
     },
     include: ["suite/**/*.ts", "*.test.ts"],
@@ -539,6 +539,83 @@ async function main() {
     () => activeCtx,
     stopFlag,
   );
+
+  // M365 OAuth auto-completion: watches for atk-auth-url.txt written by the
+  // codeFlowLogin.ts patch (TEAMSFX_AUTO_CONFIRM_LOGIN=true + TEAMSFX_BROKER_AUTH=false)
+  // and completes the browser OAuth using Playwright so the test never blocks on a
+  // manual sign-in step. Only active when M365 credentials are in env vars.
+  const m365OAuthUser = process.env.M365_ACCOUNT_NAME;
+  const m365OAuthPass = process.env.M365_ACCOUNT_PASSWORD;
+  if (m365OAuthUser && m365OAuthPass) {
+    const authUrlFile = path.join(os.tmpdir(), "atk-auth-url.txt");
+    try {
+      if (fs.existsSync(authUrlFile)) fs.unlinkSync(authUrlFile);
+    } catch {}
+    console.log("[OAuth] Watcher started — credentials available");
+    (async () => {
+      const deadline = Date.now() + 10 * 60 * 1000;
+      while (Date.now() < deadline && !stopFlag.stop) {
+        await sleep(500);
+        if (!fs.existsSync(authUrlFile)) continue;
+        let authUrl = "";
+        try {
+          authUrl = fs.readFileSync(authUrlFile, "utf8").trim();
+        } catch {}
+        if (!authUrl) continue;
+        try {
+          fs.unlinkSync(authUrlFile);
+        } catch {}
+        console.log(`[OAuth] Auth URL detected — launching Playwright browser`);
+        const authBrowser = await chromium.launch({
+          headless: false,
+          slowMo: 80,
+        });
+        const authPage = await authBrowser.newPage();
+        try {
+          await authPage.goto(authUrl, {
+            waitUntil: "domcontentloaded",
+            timeout: 30000,
+          });
+          // Email
+          await authPage.waitForSelector(
+            'input[type="email"], input[name="loginfmt"]',
+            { timeout: 20000 },
+          );
+          await authPage.fill(
+            'input[type="email"], input[name="loginfmt"]',
+            m365OAuthUser,
+          );
+          await authPage.keyboard.press("Enter");
+          await sleep(2000);
+          // Password
+          await authPage.waitForSelector(
+            'input[type="password"], input[name="passwd"]',
+            { timeout: 20000 },
+          );
+          await authPage.fill(
+            'input[type="password"], input[name="passwd"]',
+            m365OAuthPass,
+          );
+          await authPage.keyboard.press("Enter");
+          await sleep(2000);
+          // "Stay signed in?" → Yes
+          try {
+            await authPage.waitForSelector("#idSIButton9", { timeout: 5000 });
+            await authPage.click("#idSIButton9");
+          } catch {}
+          // Wait for MSAL local server redirect (auth complete)
+          await authPage.waitForURL(/localhost:\d+/, { timeout: 30000 });
+          console.log("[OAuth] Completed — token delivered to VS Code");
+          await sleep(2000);
+        } catch (e: any) {
+          console.warn(`[OAuth] Browser flow error: ${e.message}`);
+        } finally {
+          await authBrowser.close().catch(() => {});
+        }
+        break; // Only handle one OAuth per test run
+      }
+    })().catch((e) => console.warn("[OAuth] Watcher error:", e));
+  }
 
   // Use a local temp dir for VS Code extensions (avoids cross-OS mount issues with Docker volumes).
   const userExtDir = path.join(os.tmpdir(), "atk-test-vscode-ext");
