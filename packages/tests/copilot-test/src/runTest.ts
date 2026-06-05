@@ -439,11 +439,11 @@ async function main() {
   const testFile = process.argv[2] || process.env.TEST_FILE || undefined;
 
   const extPath = process.env.ATK_EXT_PATH ?? "";
-  // VS Code version to use. Default 1.105.1 — in this version the M365 login
-  // confirmation dialog is a native VS Code modal (capturable via Playwright),
-  // unlike "stable" (1.100+) where it may be suppressed by broker auth.
-  // Override with VSCODE_VERSION=stable or any specific version string.
-  const vscodeVersion = process.env.VSCODE_VERSION ?? "1.105.1";
+  // VS Code version to use. Defaults to "stable" (latest release).
+  // Override with VSCODE_VERSION=1.105.1 or any specific version string.
+  // NOTE: the VS Code test host (DialogService) blocks all modal dialogs in
+  // ALL versions — use TEAMSFX_AUTO_CONFIRM_LOGIN=true (default) to bypass.
+  const vscodeVersion = process.env.VSCODE_VERSION ?? "stable";
   const outputDir =
     process.env.TEST_OUTPUT_DIR ||
     path.resolve(TESTS_ROOT, "../../test-output");
@@ -646,6 +646,23 @@ async function main() {
   const userExtDir = path.join(os.tmpdir(), "atk-test-vscode-ext");
   fs.mkdirSync(userExtDir, { recursive: true });
 
+  // Install ATK VSIX if provided (used when testing a published build rather than a dev build).
+  // When ATK_VSIX_PATH is set, install it into userExtDir so VS Code loads it as a normal
+  // extension — extensionDevelopmentPath is NOT set in this case.
+  const atkVsixPath = process.env.ATK_VSIX_PATH ?? "";
+  if (atkVsixPath && fs.existsSync(atkVsixPath)) {
+    try {
+      await runVSCodeCommand([
+        "--install-extension",
+        atkVsixPath,
+        `--extensions-dir=${userExtDir}`,
+      ]);
+      console.log(`ATK ext installed from VSIX: ${atkVsixPath}`);
+    } catch (e: any) {
+      console.warn("ATK VSIX install failed:", e.message);
+    }
+  }
+
   // Install redhat.vscode-yaml dependency. If a local VSIX path is provided via
   // YAML_STUB_VSIX env var, use it; otherwise install by extension ID directly from
   // the Marketplace — VS Code CLI handles the download automatically.
@@ -703,12 +720,17 @@ async function main() {
       ...(process.env.M365_TENANT_ID
         ? { M365_TENANT_ID: process.env.M365_TENANT_ID }
         : {}),
-      // Auth bypass flags (read by patched m365Login.ts and codeFlowLogin.ts)
+      // Auth bypass flags (read by patched m365Login.ts and codeFlowLogin.ts).
+      // TEAMSFX_AUTO_CONFIRM_LOGIN must be "true" because the VS Code test host
+      // (DialogService) refuses to show modal dialogs — without the bypass the
+      // M365 sign-in confirmation dialog throws "refused to show dialog in tests".
       TEAMSFX_AUTO_CONFIRM_LOGIN:
-        process.env.TEAMSFX_AUTO_CONFIRM_LOGIN ?? "false",
+        process.env.TEAMSFX_AUTO_CONFIRM_LOGIN ?? "true",
       TEAMSFX_BROKER_AUTH: process.env.TEAMSFX_BROKER_AUTH ?? "true",
     },
   };
+  // Set extensionDevelopmentPath only for dev builds (ATK_EXT_PATH).
+  // When using ATK_VSIX_PATH, the extension is already installed into userExtDir above.
   if (extPath) vscodeTestOpts.extensionDevelopmentPath = extPath;
 
   const testRunPromise = runTests(vscodeTestOpts);

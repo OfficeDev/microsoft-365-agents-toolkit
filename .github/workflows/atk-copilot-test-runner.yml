@@ -227,20 +227,23 @@ jobs:
           echo "TEMPLATE_VERSION=local" >> $GITHUB_ENV
           echo "VSIX ready: ATK v$VER at $EXT_DIR"
 
-      - name: Build ATK extension from source (Linux-compatible)
-        # The CD pipeline produces a Windows VSIX (includes msalruntime.dll).
-        # Running that VSIX on Linux causes the MSAL native broker to crash,
-        # killing the extension host before any commands are registered.
-        # Building from source produces a Linux-compatible bundle with our
-        # test-automation patches already included. Override ATK_EXT_PATH.
-        working-directory: packages/vscode-extension
+      - name: Remove Windows-only MSAL native modules from VSIX
+        # The CD pipeline builds a Windows VSIX containing msalruntime.dll and
+        # msal-node-runtime.node. On Linux these fail to load, crashing the
+        # extension host before any commands are registered.
+        # Deleting them forces the extension to fall back to MSAL browser code
+        # flow (which is what TEAMSFX_BROKER_AUTH=false requests anyway).
         run: |
-          npm install --legacy-peer-deps --ignore-scripts 2>&1 | tail -3
-          node esbuild.mjs --skip-type-check 2>&1 | tail -5
-          EXT_DIR="$(pwd)"
-          echo "ATK_EXT_PATH=$EXT_DIR" >> $GITHUB_ENV
-          echo "TEMPLATE_VERSION=local" >> $GITHUB_ENV
-          echo "Built ATK extension at $EXT_DIR ($(du -sh out/src/extension.js 2>/dev/null || echo 'NOT FOUND'))"
+          EXT_DIR="${{ env.ATK_EXT_PATH }}"
+          if [ -z "$EXT_DIR" ] || [ ! -d "$EXT_DIR" ]; then
+            echo "::warning::ATK_EXT_PATH not set or missing — skipping native module cleanup"
+            exit 0
+          fi
+          echo "Removing Windows MSAL native modules from $EXT_DIR"
+          find "$EXT_DIR" -name "msalruntime*.dll" -delete -print
+          find "$EXT_DIR" -name "msal-node-runtime*.node" -delete -print
+          find "$EXT_DIR" -name "msalruntime*.so" -delete -print 2>/dev/null || true
+          echo "Native module cleanup complete"
 
       - name: Patch extracted extension for test automation
         # Applies two patches to the compiled extension.js in the extracted VSIX:
