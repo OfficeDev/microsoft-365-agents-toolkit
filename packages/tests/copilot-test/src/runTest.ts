@@ -700,6 +700,9 @@ async function main() {
       "--disable-dev-shm-usage",
       `--remote-debugging-port=${CDP_PORT}`,
       `--extensions-dir=${userExtDir}`,
+      // Disable Copilot Chat — it intercepts QuickPick focus in CI and
+      // prevents the ATK New Project wizard from rendering.
+      "--disable-extension=GitHub.copilot-chat",
     ],
     version: vscodeVersion,
     extensionTestsEnv: {
@@ -984,6 +987,7 @@ async function main() {
             "--disable-dev-shm-usage",
             `--remote-debugging-port=${CDP_PORT2}`,
             `--extensions-dir=${userExtDir}`,
+            "--disable-extension=GitHub.copilot-chat",
             projectDir, // open the scaffolded project as workspace
           ],
           version: vscodeVersion,
