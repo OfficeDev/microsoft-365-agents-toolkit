@@ -23,6 +23,8 @@ import {
   placeholderDelimiters,
 } from "../../../src/component/generator/constant";
 import { DefaultTemplateGenerator } from "../../../src/component/generator/defaultGenerator";
+import * as v4TemplateBridge from "../../../src/component/generator/v4TemplateBridge";
+import { featureFlagManager, FeatureFlags } from "../../../src/common/featureFlags";
 import {
   DownloadSampleApiLimitError,
   DownloadSampleNetworkError,
@@ -893,6 +895,42 @@ describe("render template", () => {
       } else {
         assert.isFunction(Generator.generateTemplate);
       }
+    });
+
+    it("scaffolds via the v4 distribution channel when V4Enabled is on", async function () {
+      if (!newGeneratorFlag) {
+        this.skip();
+      }
+      const actionContext: ActionContext = { telemetryProps: {} };
+      sandbox
+        .stub(featureFlagManager, "getBooleanValue")
+        .callsFake((flag) =>
+          flag.name === FeatureFlags.V4Enabled.name ? true : flag.defaultValue === "true"
+        );
+      const bridgeStub = sandbox
+        .stub(v4TemplateBridge, "scaffoldFromV4Channel")
+        .callsFake(async (ctx) => {
+          ctx.outputs = ["manifest.json"];
+          return {
+            origin: "bundled",
+            version: "6.10.1",
+            digest: "sha256:abc",
+            location: "/floor/templates.zip",
+            warning: "resolved from floor",
+          };
+        });
+      context.templateVariables = Generator.getDefaultVariables("test");
+
+      const result = await new DefaultTemplateGenerator().run(
+        context,
+        inputs,
+        tmpDir,
+        actionContext
+      );
+
+      assert.isTrue(result.isOk());
+      assert.isTrue(bridgeStub.calledOnce);
+      assert.equal(actionContext.telemetryProps?.["template-channel"], "v4");
     });
 
     it("template variables when set placeProjectFileInSolutionDir to true", async () => {

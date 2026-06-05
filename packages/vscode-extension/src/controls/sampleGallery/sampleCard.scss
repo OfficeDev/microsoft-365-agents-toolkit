@@ -19,9 +19,7 @@
       position: relative;
 
       .thumbnail {
-        img {
-          aspect-ratio: 40 / 23;
-        }
+        aspect-ratio: 40 / 23;
       }
 
       /* Corner triangle badge on top-left of the thumbnail for featured samples.
@@ -86,8 +84,10 @@
       padding: 0px 10px 0px 10px;
     }
 
-    .thumbnail-wrapper .ms-Image {
+    .thumbnail-wrapper .thumbnail {
       border-radius: 6px 6px 0 0;
+      display: block;
+      width: 100%;
     }
 
     .tag {

@@ -6,7 +6,13 @@ import "./sampleFilter.scss";
 import { debounce } from "lodash";
 import * as React from "react";
 
-import { ActionButton, Dropdown, IDropdownOption, IDropdownStyles, IStyle } from "@fluentui/react";
+import {
+  Button,
+  Dropdown,
+  Option,
+  type OptionOnSelectData,
+  type SelectionEvents,
+} from "@fluentui/react-components";
 import { VSCodeButton, VSCodeTextField } from "@vscode/webview-ui-toolkit/react";
 
 import {
@@ -27,22 +33,26 @@ export default class SampleFilter extends React.Component<SampleFilterProps, unk
     const sampleTypes = this.props.filterOptions.capabilities;
     const sampleLanguages = this.props.filterOptions.languages;
     const sampleTechniques = this.props.filterOptions.technologies;
-    const typeOptions: IDropdownOption[] = sampleTypes.map((type) => {
-      const selected = this.props.filterTags.indexOf(type) >= 0;
+    const typeOptions = sampleTypes.map((type) => {
       const count = this.props.samples.filter((sample) => {
         return sample.types && sample.types.indexOf(type) >= 0;
       }).length;
-      return { key: type, text: `${type} (${count})`, selected };
+      return { key: type, text: `${type} (${count})` };
     });
-    const languageOptions: IDropdownOption[] = sampleLanguages.map((type) => {
-      const selected = this.props.filterTags.indexOf(type) >= 0;
-      return { key: type, text: type, selected };
+    const languageOptions = sampleLanguages.map((type) => {
+      return { key: type, text: type };
     });
-    const techniqueOptions: IDropdownOption[] = sampleTechniques.map((type) => {
-      const selected = this.props.filterTags.indexOf(type) >= 0;
-      return { key: type, text: type, selected };
+    const techniqueOptions = sampleTechniques.map((type) => {
+      return { key: type, text: type };
     });
-    const dropdownStyles = this.getDropdownStyles();
+    const selectedTypes = sampleTypes.filter((type) => this.props.filterTags.indexOf(type) >= 0);
+    const selectedLanguages = sampleLanguages.filter(
+      (type) => this.props.filterTags.indexOf(type) >= 0
+    );
+    const selectedTechniques = sampleTechniques.filter(
+      (type) => this.props.filterTags.indexOf(type) >= 0
+    );
+
     return (
       <div className="sample-filter">
         <div className="sample-filter-bar">
@@ -55,41 +65,56 @@ export default class SampleFilter extends React.Component<SampleFilterProps, unk
             <span slot="start" className="codicon codicon-search"></span>
           </VSCodeTextField>
           <Dropdown
-            ariaLabel="Select to filter platform capability:"
+            className="sample-dropdown"
+            aria-label="Select to filter platform capability:"
             placeholder="Platform capability"
-            multiSelect
-            options={typeOptions}
-            styles={dropdownStyles}
-            onChange={this.onFilterTagsChanged}
-            selectedKeys={sampleTypes.filter((type) => {
-              return this.props.filterTags.indexOf(type) >= 0;
-            })}
-            dropdownWidth="auto"
-          />
+            size="small"
+            multiselect
+            selectedOptions={selectedTypes}
+            value={this.getDropdownValue(selectedTypes)}
+            listbox={{ className: "sample-dropdown-listbox" }}
+            onOptionSelect={this.onFilterTagsChanged}
+          >
+            {typeOptions.map((option) => (
+              <Option key={option.key} value={option.key} text={option.text}>
+                {option.text}
+              </Option>
+            ))}
+          </Dropdown>
           <Dropdown
-            ariaLabel="Select to filter programming language:"
+            className="sample-dropdown"
+            aria-label="Select to filter programming language:"
             placeholder="Language"
-            multiSelect
-            options={languageOptions}
-            styles={dropdownStyles}
-            onChange={this.onFilterTagsChanged}
-            selectedKeys={sampleLanguages.filter((type) => {
-              return this.props.filterTags.indexOf(type) >= 0;
-            })}
-            dropdownWidth="auto"
-          />
+            size="small"
+            multiselect
+            selectedOptions={selectedLanguages}
+            value={this.getDropdownValue(selectedLanguages)}
+            listbox={{ className: "sample-dropdown-listbox" }}
+            onOptionSelect={this.onFilterTagsChanged}
+          >
+            {languageOptions.map((option) => (
+              <Option key={option.key} value={option.key} text={option.text}>
+                {option.text}
+              </Option>
+            ))}
+          </Dropdown>
           <Dropdown
-            ariaLabel="Select to filter technology:"
+            className="sample-dropdown"
+            aria-label="Select to filter technology:"
             placeholder="Technology"
-            multiSelect
-            options={techniqueOptions}
-            styles={dropdownStyles}
-            onChange={this.onFilterTagsChanged}
-            selectedKeys={sampleTechniques.filter((type) => {
-              return this.props.filterTags.indexOf(type) >= 0;
-            })}
-            dropdownWidth="auto"
-          />
+            size="small"
+            multiselect
+            selectedOptions={selectedTechniques}
+            value={this.getDropdownValue(selectedTechniques)}
+            listbox={{ className: "sample-dropdown-listbox" }}
+            onOptionSelect={this.onFilterTagsChanged}
+          >
+            {techniqueOptions.map((option) => (
+              <Option key={option.key} value={option.key} text={option.text}>
+                {option.text}
+              </Option>
+            ))}
+          </Dropdown>
           <div className="filter-bar"></div>
           <VSCodeButton
             onClick={() => this.props.onLayoutChanged("grid")}
@@ -130,7 +155,9 @@ export default class SampleFilter extends React.Component<SampleFilterProps, unk
             </div>
           ))}
           {this.props.filterTags.length > 0 && (
-            <ActionButton onClick={this.onAllTagsRemoved}>Clear all</ActionButton>
+            <Button appearance="subtle" onClick={this.onAllTagsRemoved}>
+              Clear all
+            </Button>
           )}
         </div>
       </div>
@@ -173,20 +200,25 @@ export default class SampleFilter extends React.Component<SampleFilterProps, unk
     this.props.onFilterConditionChanged(this.props.query, newFilterTags);
   };
 
-  private onFilterTagsChanged = (
-    _event: React.FormEvent<HTMLDivElement>,
-    option?: IDropdownOption
-  ) => {
-    const choice = option?.key as string;
+  private onFilterTagsChanged = (_event: SelectionEvents, data: OptionOnSelectData) => {
+    const choice = data.optionValue;
+    if (!choice) {
+      return;
+    }
+
     let telemetryEvent = TelemetryEvent.FilterSampleAdd;
     let newData: string[] = [];
-    if (option?.selected) {
+    if (data.selectedOptions.includes(choice)) {
       newData = [...this.props.filterTags, choice];
     } else {
       telemetryEvent = TelemetryEvent.FilterSampleRemove;
       newData = this.props.filterTags.filter((tag) => tag !== choice);
     }
     this.onFilterTagChanged(telemetryEvent, choice, newData);
+  };
+
+  private getDropdownValue = (selectedOptions: string[]) => {
+    return selectedOptions.length > 0 ? selectedOptions.join(", ") : undefined;
   };
 
   private onTagRemoved = (removedTag: string) => {
@@ -218,137 +250,5 @@ export default class SampleFilter extends React.Component<SampleFilterProps, unk
       },
     });
     this.props.onFilterConditionChanged(this.props.query, []);
-  };
-
-  private getDropdownStyles = (): Partial<IDropdownStyles> => {
-    const dropDownStyle: IStyle = {
-      "span:first-child": {
-        height: 24,
-        lineHeight: 21,
-        backgroundColor: "rgba(255, 255, 255, 0.1)",
-        color: "var(--vscode-peekViewTitleDescription-foreground, #CCCCCC)",
-        fontSize: 13,
-        border: "1px solid var(--vscode-menu-separatorBackground, #3C3C3C)",
-        fontFamily: "var(--font-family)",
-        width: 152,
-      },
-    };
-    const caretStyle: IStyle = {
-      color: "var(--vscode-dropdown-foreground, #CCCCCC)",
-      fontSize: 11,
-      lineHeight: 16,
-    };
-    const checkboxStyle: IStyle = {
-      ".ms-Checkbox-checkbox": {
-        backgroundColor: "var(--vscode-dropdown-background, #3C3C3C)",
-        border: "1px solid var(--vscode-button-secondaryHoverBackground, #3C3C3C)",
-        i: {
-          color: "var(--vscode-dropdown-background, #3C3C3C)",
-        },
-      },
-    };
-    const checkboxStyleSelected: IStyle = {
-      ".ms-Checkbox-checkbox": {
-        backgroundColor: "var(--vscode-dropdown-background, #3C3C3C)",
-        border: "1px solid var(--vscode-button-secondaryHoverBackground, #3C3C3C)",
-        i: {
-          color: "var(--vscode-peekViewTitleDescription-foreground, #cccccc)",
-        },
-      },
-    };
-    const dropdownStyles: Partial<IDropdownStyles> = {
-      dropdown: {
-        ...dropDownStyle,
-        ":hover": {
-          ...dropDownStyle,
-          ".ms-Dropdown-caretDown": {
-            color: "var(--vscode-dropdown-foreground, #CCCCCC)",
-          },
-        },
-        ":focus": {
-          ...dropDownStyle,
-          ".ms-Dropdown-caretDown": {
-            color: "var(--vscode-dropdown-foreground, #CCCCCC)",
-          },
-        },
-        ":active": {
-          ".ms-Dropdown-caretDown": {
-            color: "var(--vscode-dropdown-foreground, #CCCCCC)",
-          },
-        },
-        marginLeft: 16,
-      },
-      caretDown: {
-        ...caretStyle,
-      },
-      caretDownWrapper: {
-        height: 24,
-        lineHeight: 24,
-        color: "var(--vscode-dropdown-foreground, #CCCCCC)",
-      },
-      callout: {
-        ".ms-Callout-main": {
-          border: "1px solid var(--vscode-inputValidation-infoBorder, #007ACC)",
-        },
-      },
-      dropdownItemsWrapper: {
-        padding: "4px 0",
-        backgroundColor: "var(--vscode-editorGroupHeader-tabsBackground, #252526)",
-      },
-      dropdownItem: {
-        backgroundColor: "var(--vscode-editorGroupHeader-tabsBackground, #252526)",
-        minHeight: 22,
-        height: 22,
-        ...checkboxStyle,
-        ":active": {
-          backgroundColor: "var(--vscode-editorGroupHeader-tabsBackground, #252526) !important",
-        },
-        "input:focus + .ms-Checkbox-label": {
-          ...checkboxStyle,
-        },
-        "input:focus + .ms-Checkbox-label .ms-Checkbox-checkbox": {
-          borderColor: "var(--vscode-inputValidation-infoBorder, #007ACC)",
-        },
-        "input:focus + .ms-Checkbox-label .ms-Checkbox-checkmark": {
-          color: "var(--vscode-dropdown-background, #3C3C3C)",
-        },
-        ":hover": {
-          backgroundColor: "var(--vscode-editorStickyScrollHover-background, #303031) !important",
-          ".ms-Checkbox-checkmark": {
-            color: "var(--vscode-dropdown-background, #3C3C3C)",
-          },
-          ".ms-Checkbox-checkbox": {
-            borderColor: "var(--vscode-button-secondaryHoverBackground, #3C3C3C)",
-          },
-        },
-      },
-      dropdownItemSelected: {
-        minHeight: 22,
-        height: 22,
-        backgroundColor: "var(--vscode-editorGroupHeader-tabsBackground, #252526)",
-        ...checkboxStyleSelected,
-        ":active": {
-          backgroundColor: "var(--vscode-editorGroupHeader-tabsBackground, #252526) !important",
-        },
-        "input:focus + .ms-Checkbox-label": {
-          ...checkboxStyleSelected,
-        },
-        "input:focus + .ms-Checkbox-label .ms-Checkbox-checkbox": {
-          borderColor: "var(--vscode-inputValidation-infoBorder, #007ACC)",
-        },
-        ":focus": {
-          ...checkboxStyleSelected,
-        },
-        ":hover": {
-          backgroundColor: "var(--vscode-editorStickyScrollHover-background, #303031) !important",
-          ...checkboxStyleSelected,
-        },
-      },
-      dropdownOptionText: {
-        fontSize: "13px",
-        color: "var(--vscode-dropdown-foreground, #CCCCCC)",
-      },
-    };
-    return dropdownStyles;
   };
 }
