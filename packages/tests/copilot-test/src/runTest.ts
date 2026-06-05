@@ -571,8 +571,8 @@ async function main() {
         // that the MSAL flow started. Write a separate "done" marker after OAuth completes.
         console.log(`[OAuth] Auth URL detected — launching Playwright browser`);
         const authBrowser = await chromium.launch({
-          headless: false,
-          slowMo: 80,
+          headless: process.env.CI === "true",
+          slowMo: process.env.CI === "true" ? 0 : 80,
         });
         const authPage = await authBrowser.newPage();
         try {
@@ -805,191 +805,208 @@ async function main() {
         JSON.parse(fs.readFileSync(scaffoldMarker, "utf8")).projectDir ?? "";
     } catch {}
 
-    if (projectDir && fs.existsSync(projectDir)) {
-      console.log(`\n=== Window 2: project at ${projectDir} ===`);
-
-      // Fresh signal dir for Window 2
-      fs.readdirSync(signalDir).forEach((f) =>
-        fs.rmSync(path.join(signalDir, f), { force: true }),
-      );
-
-      // Fresh user data dir for Window 2 (preserve ext dir to avoid re-download)
-      const userDataDir2 = path.join(outputDir, "vscode-user-data-w2");
-      try {
-        fs.rmSync(userDataDir2, { recursive: true, force: true });
-      } catch {}
-      fs.mkdirSync(userDataDir2, { recursive: true });
-      const vscodeUserSettings2 = path.join(userDataDir2, "User");
-      fs.mkdirSync(vscodeUserSettings2, { recursive: true });
-      fs.writeFileSync(
-        path.join(vscodeUserSettings2, "settings.json"),
-        JSON.stringify(
-          {
-            "extensions.autoUpdate": false,
-            "extensions.autoCheckUpdates": false,
-            "update.mode": "none",
-            "telemetry.telemetryLevel": "off",
-          },
-          null,
-          2,
-        ),
-        "utf8",
-      );
-
-      const CDP_PORT2 = CDP_PORT + 1;
-      let mainPage2: Page | null = null;
-      const stopFlag2 = { stop: false };
-
-      const watcherPromise2 = startSignalWatcher(
-        signalDir,
-        screenshotDir,
-        () => ({ mainPage: mainPage2, galleryPage: null }),
-        () => null,
-        stopFlag2,
-      );
-
-      // Re-arm OAuth watcher for Window 2
-      const m365OAuthUser2 = process.env.M365_ACCOUNT_NAME;
-      const m365OAuthPass2 = process.env.M365_ACCOUNT_PASSWORD;
-      if (m365OAuthUser2 && m365OAuthPass2) {
-        const authUrlFile2 = path.join(os.tmpdir(), "atk-auth-url.txt");
-        try {
-          if (fs.existsSync(authUrlFile2)) fs.unlinkSync(authUrlFile2);
-        } catch {}
-        console.log("[OAuth-W2] Watcher started");
-        (async () => {
-          const deadline2 = Date.now() + 10 * 60 * 1000;
-          while (Date.now() < deadline2 && !stopFlag2.stop) {
-            await sleep(500);
-            if (!fs.existsSync(authUrlFile2)) continue;
-            let authUrl2 = "";
-            try {
-              authUrl2 = fs.readFileSync(authUrlFile2, "utf8").trim();
-            } catch {}
-            if (!authUrl2) continue;
-            console.log("[OAuth-W2] Auth URL detected — launching browser");
-            const authBrowser2 = await chromium.launch({
-              headless: false,
-              slowMo: 80,
-            });
-            const authPage2 = await authBrowser2.newPage();
-            try {
-              await authPage2.goto(authUrl2, {
-                waitUntil: "domcontentloaded",
-                timeout: 30000,
-              });
-              await authPage2.waitForSelector(
-                'input[type="email"], input[name="loginfmt"]',
-                { timeout: 20000 },
-              );
-              await authPage2.fill(
-                'input[type="email"], input[name="loginfmt"]',
-                m365OAuthUser2,
-              );
-              await authPage2.keyboard.press("Enter");
-              await sleep(2000);
-              await authPage2.waitForSelector(
-                'input[type="password"], input[name="passwd"]',
-                { timeout: 20000 },
-              );
-              await authPage2.fill(
-                'input[type="password"], input[name="passwd"]',
-                m365OAuthPass2,
-              );
-              await authPage2.keyboard.press("Enter");
-              await sleep(2000);
-              try {
-                await authPage2.waitForSelector("#idSIButton9", {
-                  timeout: 5000,
-                });
-                await authPage2.click("#idSIButton9");
-              } catch {}
-              try {
-                await authPage2.waitForURL(/localhost:\d+/, { timeout: 20000 });
-              } catch {
-                await sleep(3000);
-              }
-              console.log("[OAuth-W2] Completed");
-              try {
-                fs.writeFileSync(
-                  path.join(os.tmpdir(), "atk-auth-done.txt"),
-                  String(Date.now()),
-                  "utf8",
-                );
-              } catch {}
-            } catch (e: any) {
-              console.warn(`[OAuth-W2] Error: ${e.message}`);
-            } finally {
-              await authBrowser2.close().catch(() => {});
-            }
-            break;
-          }
-        })().catch((e) => console.warn("[OAuth-W2] Watcher error:", e));
+    if (projectDir) {
+      // Poll up to 90s for both the directory and sentinel file to appear.
+      // The marker is written as soon as the dir is first seen, but ATK may
+      // still be copying template files — wait for m365agents.yml as the signal
+      // that scaffold has finished.
+      const sentinel = path.join(projectDir, "m365agents.yml");
+      if (!fs.existsSync(sentinel)) {
+        console.log(`Waiting for scaffold to finish (up to 90s): ${sentinel}`);
+        for (let i = 0; i < 90 && !fs.existsSync(sentinel); i++)
+          await sleep(1000);
       }
 
-      const vscodeTestOpts2: any = {
-        extensionTestsPath,
-        launchArgs: [
-          "--disable-workspace-trust",
-          "--skip-welcome",
-          "--skip-release-notes",
-          `--user-data-dir=${userDataDir2}`,
-          "--no-sandbox",
-          "--disable-gpu",
-          "--disable-dev-shm-usage",
-          `--remote-debugging-port=${CDP_PORT2}`,
-          `--extensions-dir=${userExtDir}`,
-          projectDir, // open the scaffolded project as workspace
-        ],
-        version: "stable",
-        extensionTestsEnv: vscodeTestOpts.extensionTestsEnv,
-      };
-      if (extPath) vscodeTestOpts2.extensionDevelopmentPath = extPath;
-
-      const testRunPromise2 = runTests(vscodeTestOpts2);
-
-      let browser2: Browser | null = null;
-      let cdpConnected2 = false;
-      const cdpStart2 = Date.now();
-      while (!cdpConnected2 && Date.now() - cdpStart2 < 90000) {
-        await sleep(1000);
-        try {
-          browser2 = await chromium.connectOverCDP(
-            `http://localhost:${CDP_PORT2}`,
-            { timeout: 2000 },
-          );
-          cdpConnected2 = true;
-        } catch (_) {}
-      }
-
-      if (browser2) {
-        await sleep(1000);
-        const contexts2 = browser2.contexts();
-        const allPages2 = contexts2.flatMap((c) => c.pages());
-        mainPage2 =
-          allPages2.find((p) => p.url().includes("vscode-app")) ??
-          allPages2[0] ??
-          null;
-        console.log(
-          `CDP-W2 connected: ${contexts2.length} context(s), mainPage: ${mainPage2?.url().slice(0, 60) ?? "none"}`,
+      if (!fs.existsSync(projectDir)) {
+        console.warn(
+          `Window 2 skipped — projectDir not found after 90s: ${projectDir}`,
         );
       } else {
-        console.warn("CDP-W2 connect failed");
-      }
+        console.log(`\n=== Window 2: project at ${projectDir} ===`);
 
-      try {
-        await testRunPromise2;
-        console.log("Window 2 completed");
-      } catch (e: any) {
-        console.error("Window 2 failed:", e.message);
-        testFailed = true;
-      } finally {
-        stopFlag2.stop = true;
-        await sleep(300);
-        if (browser2) await browser2.close().catch(() => {});
-      }
-    } else {
-      console.warn(`Window 2 skipped — projectDir not found: ${projectDir}`);
+        // Fresh signal dir for Window 2
+        fs.readdirSync(signalDir).forEach((f) =>
+          fs.rmSync(path.join(signalDir, f), { force: true }),
+        );
+
+        // Fresh user data dir for Window 2 (preserve ext dir to avoid re-download)
+        const userDataDir2 = path.join(outputDir, "vscode-user-data-w2");
+        try {
+          fs.rmSync(userDataDir2, { recursive: true, force: true });
+        } catch {}
+        fs.mkdirSync(userDataDir2, { recursive: true });
+        const vscodeUserSettings2 = path.join(userDataDir2, "User");
+        fs.mkdirSync(vscodeUserSettings2, { recursive: true });
+        fs.writeFileSync(
+          path.join(vscodeUserSettings2, "settings.json"),
+          JSON.stringify(
+            {
+              "extensions.autoUpdate": false,
+              "extensions.autoCheckUpdates": false,
+              "update.mode": "none",
+              "telemetry.telemetryLevel": "off",
+            },
+            null,
+            2,
+          ),
+          "utf8",
+        );
+
+        const CDP_PORT2 = CDP_PORT + 1;
+        let mainPage2: Page | null = null;
+        const stopFlag2 = { stop: false };
+
+        const watcherPromise2 = startSignalWatcher(
+          signalDir,
+          screenshotDir,
+          () => ({ mainPage: mainPage2, galleryPage: null }),
+          () => null,
+          stopFlag2,
+        );
+
+        // Re-arm OAuth watcher for Window 2
+        const m365OAuthUser2 = process.env.M365_ACCOUNT_NAME;
+        const m365OAuthPass2 = process.env.M365_ACCOUNT_PASSWORD;
+        if (m365OAuthUser2 && m365OAuthPass2) {
+          const authUrlFile2 = path.join(os.tmpdir(), "atk-auth-url.txt");
+          try {
+            if (fs.existsSync(authUrlFile2)) fs.unlinkSync(authUrlFile2);
+          } catch {}
+          console.log("[OAuth-W2] Watcher started");
+          (async () => {
+            const deadline2 = Date.now() + 10 * 60 * 1000;
+            while (Date.now() < deadline2 && !stopFlag2.stop) {
+              await sleep(500);
+              if (!fs.existsSync(authUrlFile2)) continue;
+              let authUrl2 = "";
+              try {
+                authUrl2 = fs.readFileSync(authUrlFile2, "utf8").trim();
+              } catch {}
+              if (!authUrl2) continue;
+              console.log("[OAuth-W2] Auth URL detected — launching browser");
+              const authBrowser2 = await chromium.launch({
+                headless: process.env.CI === "true",
+                slowMo: process.env.CI === "true" ? 0 : 80,
+              });
+              const authPage2 = await authBrowser2.newPage();
+              try {
+                await authPage2.goto(authUrl2, {
+                  waitUntil: "domcontentloaded",
+                  timeout: 30000,
+                });
+                await authPage2.waitForSelector(
+                  'input[type="email"], input[name="loginfmt"]',
+                  { timeout: 20000 },
+                );
+                await authPage2.fill(
+                  'input[type="email"], input[name="loginfmt"]',
+                  m365OAuthUser2,
+                );
+                await authPage2.keyboard.press("Enter");
+                await sleep(2000);
+                await authPage2.waitForSelector(
+                  'input[type="password"], input[name="passwd"]',
+                  { timeout: 20000 },
+                );
+                await authPage2.fill(
+                  'input[type="password"], input[name="passwd"]',
+                  m365OAuthPass2,
+                );
+                await authPage2.keyboard.press("Enter");
+                await sleep(2000);
+                try {
+                  await authPage2.waitForSelector("#idSIButton9", {
+                    timeout: 5000,
+                  });
+                  await authPage2.click("#idSIButton9");
+                } catch {}
+                try {
+                  await authPage2.waitForURL(/localhost:\d+/, {
+                    timeout: 20000,
+                  });
+                } catch {
+                  await sleep(3000);
+                }
+                console.log("[OAuth-W2] Completed");
+                try {
+                  fs.writeFileSync(
+                    path.join(os.tmpdir(), "atk-auth-done.txt"),
+                    String(Date.now()),
+                    "utf8",
+                  );
+                } catch {}
+              } catch (e: any) {
+                console.warn(`[OAuth-W2] Error: ${e.message}`);
+              } finally {
+                await authBrowser2.close().catch(() => {});
+              }
+              break;
+            }
+          })().catch((e) => console.warn("[OAuth-W2] Watcher error:", e));
+        }
+
+        const vscodeTestOpts2: any = {
+          extensionTestsPath,
+          launchArgs: [
+            "--disable-workspace-trust",
+            "--skip-welcome",
+            "--skip-release-notes",
+            `--user-data-dir=${userDataDir2}`,
+            "--no-sandbox",
+            "--disable-gpu",
+            "--disable-dev-shm-usage",
+            `--remote-debugging-port=${CDP_PORT2}`,
+            `--extensions-dir=${userExtDir}`,
+            projectDir, // open the scaffolded project as workspace
+          ],
+          version: "stable",
+          extensionTestsEnv: vscodeTestOpts.extensionTestsEnv,
+        };
+        if (extPath) vscodeTestOpts2.extensionDevelopmentPath = extPath;
+
+        const testRunPromise2 = runTests(vscodeTestOpts2);
+
+        let browser2: Browser | null = null;
+        let cdpConnected2 = false;
+        const cdpStart2 = Date.now();
+        while (!cdpConnected2 && Date.now() - cdpStart2 < 90000) {
+          await sleep(1000);
+          try {
+            browser2 = await chromium.connectOverCDP(
+              `http://localhost:${CDP_PORT2}`,
+              { timeout: 2000 },
+            );
+            cdpConnected2 = true;
+          } catch (_) {}
+        }
+
+        if (browser2) {
+          await sleep(1000);
+          const contexts2 = browser2.contexts();
+          const allPages2 = contexts2.flatMap((c) => c.pages());
+          mainPage2 =
+            allPages2.find((p) => p.url().includes("vscode-app")) ??
+            allPages2[0] ??
+            null;
+          console.log(
+            `CDP-W2 connected: ${contexts2.length} context(s), mainPage: ${mainPage2?.url().slice(0, 60) ?? "none"}`,
+          );
+        } else {
+          console.warn("CDP-W2 connect failed");
+        }
+
+        try {
+          await testRunPromise2;
+          console.log("Window 2 completed");
+        } catch (e: any) {
+          console.error("Window 2 failed:", e.message);
+          testFailed = true;
+        } finally {
+          stopFlag2.stop = true;
+          await sleep(300);
+          if (browser2) await browser2.close().catch(() => {});
+        }
+      } // end else (projectDir exists)
     }
   } else {
     console.log("scaffold-done.json not found — skipping Window 2");

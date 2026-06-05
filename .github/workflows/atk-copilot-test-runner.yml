@@ -242,6 +242,11 @@ jobs:
           TEST_OUTPUT_DIR: /tmp/atk-test-output
           DISPLAY: ":99.0"
           ATK_EXT_PATH: ${{ env.ATK_EXT_PATH }}
+          M365_ACCOUNT_NAME: ${{ secrets.TEST_M365_NAME }}
+          M365_ACCOUNT_PASSWORD: ${{ secrets.TEST_M365_PASSWORD }}
+          M365_TENANT_ID: ${{ secrets.TEST_M365_TENANT_ID }}
+          TEAMSFX_AUTO_CONFIRM_LOGIN: "true"
+          TEAMSFX_BROKER_AUTH: "false"
         run: |
           cd packages/tests/copilot-test
           export TEST_FILE="${{ inputs.script }}"
