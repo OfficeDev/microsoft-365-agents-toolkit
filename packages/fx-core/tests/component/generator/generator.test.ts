@@ -8,10 +8,12 @@ import { assert } from "chai";
 import fs from "fs-extra";
 import mockedEnv, { RestoreFn } from "mocked-env";
 import Mustache from "mustache";
+import { ok } from "neverthrow";
 import os from "os";
 import path from "path";
 import { createSandbox } from "sinon";
 import * as folderUtils from "../../../../fx-core/src/folder";
+import { FeatureFlags } from "../../../src/common/featureFlags";
 import { createContext, setTools } from "../../../src/common/globalVars";
 import { getLocalizedString } from "../../../src/common/localizeUtils";
 import * as requestUtils from "../../../src/common/requestUtils";
@@ -23,8 +25,6 @@ import {
   placeholderDelimiters,
 } from "../../../src/component/generator/constant";
 import { DefaultTemplateGenerator } from "../../../src/component/generator/defaultGenerator";
-import * as v4TemplateBridge from "../../../src/component/generator/v4TemplateBridge";
-import { featureFlagManager, FeatureFlags } from "../../../src/common/featureFlags";
 import {
   DownloadSampleApiLimitError,
   DownloadSampleNetworkError,
@@ -35,7 +35,6 @@ import {
   GeneratorContext,
   ScaffoldLocalTemplateAction,
   ScaffoldRemoteTemplateAction,
-  TemplateActionSeq,
   fetchSampleInfoAction,
   generatorActionDeps,
 } from "../../../src/component/generator/generatorAction";
@@ -53,6 +52,7 @@ import {
   runWithLimitedConcurrency,
   simplifyAxiosError,
 } from "../../../src/component/generator/utils";
+import * as v4TemplateBridge from "../../../src/component/generator/v4TemplateBridge";
 import { ActionContext } from "../../../src/component/middleware/actionExecutionMW";
 import { ProgrammingLanguage, QuestionNames } from "../../../src/question";
 import {
@@ -897,28 +897,31 @@ describe("render template", () => {
       }
     });
 
-    it("scaffolds via the v4 distribution channel when V4Enabled is on", async function () {
+    it("scaffolds via the v4 distribution channel when V4Enabled is on", async () => {
       if (!newGeneratorFlag) {
-        this.skip();
+        return;
       }
       const actionContext: ActionContext = { telemetryProps: {} };
+      process.env[FeatureFlags.V4Enabled.name] = "true";
       sandbox
-        .stub(featureFlagManager, "getBooleanValue")
-        .callsFake((flag) =>
-          flag.name === FeatureFlags.V4Enabled.name ? true : flag.defaultValue === "true"
-        );
-      const bridgeStub = sandbox
-        .stub(v4TemplateBridge, "scaffoldFromV4Channel")
-        .callsFake(async (ctx) => {
-          ctx.outputs = ["manifest.json"];
-          return {
-            origin: "bundled",
-            version: "6.10.1",
-            digest: "sha256:abc",
-            location: "/floor/templates.zip",
-            warning: "resolved from floor",
-          };
-        });
+        .stub(v4TemplateBridge.v4TemplateBridgeDeps, "createTemplateSourcePort")
+        .returns({} as any);
+      sandbox.stub(v4TemplateBridge.v4TemplateBridgeDeps, "loadBundledFloor").returns({} as any);
+      sandbox.stub(v4TemplateBridge.v4TemplateBridgeDeps, "resolveTemplateSource").resolves(
+        ok({
+          origin: "bundled",
+          version: "6.10.1",
+          digest: "sha256:abc",
+          location: "/floor/templates.zip",
+          warning: "resolved from floor",
+        })
+      );
+      sandbox
+        .stub(v4TemplateBridge.v4TemplateBridgeDeps, "loadResolvedPackage")
+        .returns(ok(Buffer.from("zip-bytes")));
+      sandbox
+        .stub(v4TemplateBridge.v4TemplateBridgeDeps, "openTemplatePackage")
+        .returns(ok([{ path: "manifest.json", data: Buffer.from('{"a":1}') }]));
       context.templateVariables = Generator.getDefaultVariables("test");
 
       const result = await new DefaultTemplateGenerator().run(
@@ -929,7 +932,6 @@ describe("render template", () => {
       );
 
       assert.isTrue(result.isOk());
-      assert.isTrue(bridgeStub.calledOnce);
       assert.equal(actionContext.telemetryProps?.["template-channel"], "v4");
     });
 

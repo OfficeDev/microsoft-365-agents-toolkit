@@ -4,21 +4,24 @@
 import fs from "fs-extra";
 import { merge } from "lodash";
 import path from "path";
-import templateConfig from "../../common/templates-config.json";
 import { TelemetryProperty } from "../../common/telemetry";
-import {
-  TemplateFileEntry,
-  TemplateLocator,
-  TemplateSource,
-  createTemplateSourcePort,
-  loadBundledFloor,
-  loadResolvedPackage,
-  openTemplatePackage,
-  resolveTemplateSource,
-} from "../../v4";
+import templateConfig from "../../common/templates-config.json";
+import { TemplateFileEntry, TemplateLocator, TemplateSource } from "../../v4";
+import * as bundledFloorMod from "../../v4/distribution/bundledFloor";
+import * as templatePackageMod from "../../v4/distribution/templatePackage";
+import * as templateSourceMod from "../../v4/distribution/templateSource";
+import * as templateSourcePortMod from "../../v4/distribution/templateSourcePort";
 import { defaultTryLimits } from "./constant";
 import { TemplateOutputPathError } from "./error";
 import { GeneratorContext } from "./generatorAction";
+
+export const v4TemplateBridgeDeps = {
+  createTemplateSourcePort: templateSourcePortMod.createTemplateSourcePort,
+  loadBundledFloor: bundledFloorMod.loadBundledFloor,
+  resolveTemplateSource: templateSourceMod.resolveTemplateSource,
+  loadResolvedPackage: templateSourcePortMod.loadResolvedPackage,
+  openTemplatePackage: templatePackageMod.openTemplatePackage,
+};
 
 /**
  * Resolve a template entry's relative name to an absolute path and verify it
@@ -103,9 +106,12 @@ export async function scaffoldFromV4Channel(
     templateDownloadBaseURL: templateConfig.templateDownloadBaseURL,
     tryLimits: context.tryLimits ?? defaultTryLimits,
   };
-  const port = createTemplateSourcePort(channelConfig, loadBundledFloor());
+  const port = v4TemplateBridgeDeps.createTemplateSourcePort(
+    channelConfig,
+    v4TemplateBridgeDeps.loadBundledFloor()
+  );
 
-  const sourceResult = await resolveTemplateSource({
+  const sourceResult = await v4TemplateBridgeDeps.resolveTemplateSource({
     range: templateConfig.v4.range,
     bundled: templateConfig.v4.bundled,
     port,
@@ -120,12 +126,12 @@ export async function scaffoldFromV4Channel(
     [TelemetryProperty.TemplatePackageDigest]: source.digest,
   });
 
-  const bytesResult = loadResolvedPackage(source, port);
+  const bytesResult = v4TemplateBridgeDeps.loadResolvedPackage(source, port);
   if (bytesResult.isErr()) {
     throw bytesResult.error;
   }
 
-  const entriesResult = openTemplatePackage(bytesResult.value, locator);
+  const entriesResult = v4TemplateBridgeDeps.openTemplatePackage(bytesResult.value, locator);
   if (entriesResult.isErr()) {
     throw entriesResult.error;
   }
