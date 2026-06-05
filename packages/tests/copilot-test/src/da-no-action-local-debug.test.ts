@@ -371,6 +371,21 @@ suite("DA No Action – Scaffold and Local Debug", function () {
     await wait(500);
     await takeScreenshot("10-editors-closed");
 
+    // Add the scaffolded project to the current workspace (multi-root, no reload).
+    // Required for Phase 3: workbench.action.debug.selectandstart only shows
+    // launch.json configs from workspace folders. Without this, "Preview Local
+    // in Copilot" is not visible in the debug picker.
+    if (projectDir) {
+      const added = vscode.workspace.updateWorkspaceFolders(
+        vscode.workspace.workspaceFolders?.length ?? 0,
+        0,
+        { uri: vscode.Uri.file(projectDir) },
+      );
+      console.log(`  Workspace folder added: ${added} (${projectDir})`);
+      await wait(3000); // let ATK re-activate for the new folder
+      await takeScreenshot("10b-workspace-with-project");
+    }
+
     assert.ok(!!projectDir, "Project directory not found");
     assert.ok(
       fs.existsSync(path.join(projectDir, "m365agents.yml")),
