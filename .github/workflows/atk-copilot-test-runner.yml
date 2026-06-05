@@ -162,6 +162,22 @@ jobs:
         working-directory: packages/tests/copilot-test
         run: npm install --legacy-peer-deps
 
+      - name: Build ATK extension from source (Linux-compatible)
+        # The CD pipeline produces a Windows VSIX (includes msalruntime.dll).
+        # Running that VSIX on Linux causes the MSAL native broker to crash,
+        # killing the extension host before any commands are registered.
+        # Building from source produces a Linux-compatible bundle with the
+        # correct native MSAL binaries, and automatically includes our
+        # test-automation patches (codeFlowLogin.ts, m365Login.ts).
+        working-directory: packages/vscode-extension
+        run: |
+          npm install --legacy-peer-deps --ignore-scripts 2>&1 | tail -3
+          node esbuild.mjs --skip-type-check 2>&1 | tail -5
+          EXT_DIR="$(pwd)"
+          echo "ATK_EXT_PATH=$EXT_DIR" >> $GITHUB_ENV
+          echo "TEMPLATE_VERSION=local" >> $GITHUB_ENV
+          echo "Built ATK extension at $EXT_DIR ($(ls out/src/extension.js 2>/dev/null && du -sh out/src/extension.js || echo 'NOT FOUND'))"
+
       - name: Install system deps for headless VSCode + Playwright CDP
         run: |
           sudo apt-get update -qq
