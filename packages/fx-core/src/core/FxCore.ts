@@ -66,6 +66,7 @@ import {
   setErrorContext,
   setTools,
 } from "../common/globalVars";
+import { featureFlagManager, FeatureFlags } from "../common/featureFlags";
 import { clearLocaleCache, getLocalizedString } from "../common/localizeUtils";
 import { ListCollaboratorResult, PermissionsResult } from "../common/permissionInterface";
 import { getProjectMetadata, isValidProjectV3 } from "../common/projectSettingsHelper";
@@ -140,6 +141,7 @@ import {
 } from "../component/generator/openApiSpec/helper";
 import { useLocalTemplate } from "../component/generator/templateHelper";
 import { TemplateNames } from "../component/generator/templates/templateNames";
+import { resolveV4MetadataSource } from "../component/generator/v4MetadataSource";
 import {
   fetchZipFromUrl,
   getTemplateLatestVersion,
@@ -2637,27 +2639,60 @@ export class FxCore extends FxCoreOpenPluginPart {
     // Downloads the latest online template metadata (metadata.zip) into user's home .fx folder.
     // Caches the template version so subsequent calls avoid redundant downloads if unchanged.
     try {
-      // Determine latest template version (respect prerelease env variable similar to getTemplateVSCUrl)
-      const coreVersion = require("../../package.json").version as string;
-
-      let latestVersion = "0.0.0-rc";
-      if (
-        coreVersion.includes("alpha") ||
-        coreVersion.includes("beta") ||
-        coreVersion.includes("rc")
-      ) {
-        // daily build, prerelease or rc
-        latestVersion = "0.0.0-rc";
-      } else {
-        // stable version
-        latestVersion = await getTemplateLatestVersion();
-      }
+      const useV4Channel = featureFlagManager.getBooleanValue(FeatureFlags.V4Enabled);
 
       const homedir = os.homedir();
       const metadataDir = path.join(homedir, `.${String(ConfigFolderName)}`);
       await fs.ensureDir(metadataDir);
 
-      const versionFile = path.join(metadataDir, "template-version.txt");
+      let latestVersion: string;
+      if (useV4Channel) {
+        // Transitional: in the v4 channel the metadata rides the SAME single
+        // decision point as the template package —
+        // `resolveTemplateSource((v4.range, v4.bundled, port))`. The `bundled`
+        // field is CD-baked (= !goproduct), so goproduct builds (stable AND
+        // prerelease) resolve to an online/cache source while non-goproduct or
+        // daily builds resolve to the bundled floor. metadata.zip lives in the
+        // same `templates-v4@<ver>` release as the resolved package, so the
+        // resolved version names the release to pull metadata from. Remove once
+        // selector.json drives metadata distribution.
+        const resolved = await resolveV4MetadataSource();
+        if (resolved.isErr()) {
+          // Malformed tag list / digest mismatch are hard errors (no silent
+          // fallback). An unreachable channel does not reach here — it already
+          // resolved to a bundled-fallback origin handled below.
+          return err(resolved.error);
+        }
+        const source = resolved.value;
+        if (source.origin === "bundled" || source.origin === "bundled-fallback") {
+          // Bundled build or unreachable channel: read the bundled metadata
+          // (the readers fall back via `useBundledMetadataForV4`). No download.
+          return ok(undefined);
+        }
+        latestVersion = source.version;
+      } else {
+        // v3: prerelease builds use the mutable rolling `0.0.0-rc` tag; stable
+        // builds resolve the latest published templates version.
+        const coreVersion = require("../../package.json").version as string;
+        if (
+          coreVersion.includes("alpha") ||
+          coreVersion.includes("beta") ||
+          coreVersion.includes("rc")
+        ) {
+          latestVersion = "0.0.0-rc";
+        } else {
+          latestVersion = await getTemplateLatestVersion();
+        }
+      }
+
+      // Use a channel-specific cache file so flipping the flag triggers a fresh
+      // download instead of a stale v3 cache hit; the v4 file's presence is also
+      // the readers' signal (`useBundledMetadataForV4`) that downloaded v4
+      // metadata is available.
+      const versionFile = path.join(
+        metadataDir,
+        useV4Channel ? "template-version-v4.txt" : "template-version.txt"
+      );
       const needDownload = async (): Promise<boolean> => {
         // Always re-download for mutable pre-release tags (content changes but tag stays the same)
         if (latestVersion === "0.0.0-rc") return true;
@@ -2675,8 +2710,9 @@ export class FxCore extends FxCoreOpenPluginPart {
         return ok(undefined); // Already up-to-date
       }
 
-      // Construct metadata.zip download URL based on tag prefix and version
-      const tag = `${templateConfig.tagPrefix}${latestVersion}`;
+      // Construct metadata.zip download URL based on tag prefix and version.
+      const tagPrefix = useV4Channel ? templateConfig.v4tagPrefix : templateConfig.tagPrefix;
+      const tag = `${tagPrefix}${latestVersion}`;
       const metadataZipUrl = `${templateConfig.templateDownloadBaseURL}/${tag}/metadata.zip`;
 
       const zip = await fetchZipFromUrl(metadataZipUrl);

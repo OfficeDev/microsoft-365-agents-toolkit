@@ -91,6 +91,7 @@ import * as oneDriveSharePointHandler from "../../src/component/generator/declar
 import * as openApiSpecHelper from "../../src/component/generator/openApiSpec/helper";
 import * as templateHelper from "../../src/component/generator/templateHelper";
 import { TemplateNames } from "../../src/component/generator/templates/templateNames";
+import * as v4MetadataSource from "../../src/component/generator/v4MetadataSource";
 import * as generatorUtils from "../../src/component/generator/utils";
 import { LaunchHelper } from "../../src/component/m365/launchHelper";
 import { envUtil } from "../../src/component/utils/envUtil";
@@ -7892,6 +7893,134 @@ describe("fetchOnlineTemplateMetadata", () => {
     );
     assert.isTrue(unzipStub.calledOnce);
     assert.isTrue(writeFileStub.calledWith(sinon.match.string, "2.0.0", { encoding: "utf-8" }));
+  });
+
+  it("should download metadata from the v4 release tag when V4 channel is enabled", async () => {
+    sandbox.stub(templateHelper, "useLocalTemplate").returns(false);
+    sandbox.stub(templateConfigModule, "v4tagPrefix").value("templates-v4@");
+    sandbox
+      .stub(templateConfigModule, "templateDownloadBaseURL")
+      .value("https://example.com/releases/download");
+    sandbox.stub(packageJson, "version").value("1.0.0");
+    sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
+
+    // The v4 metadata rides the same decision point as the template package; an
+    // online source names the `templates-v4@<version>` release to pull from.
+    sandbox
+      .stub(v4MetadataSource, "resolveV4MetadataSource")
+      .resolves(ok({ origin: "online", version: "2.0.0", digest: "sha256:x", location: "" }));
+    const mockZip = new AdmZip();
+    const fetchZipStub = sandbox.stub(generatorUtils, "fetchZipFromUrl").resolves(mockZip);
+    const unzipStub = sandbox.stub(generatorUtils, "unzip").resolves();
+    sandbox.stub(fs, "pathExists").resolves(false);
+    sandbox.stub(fs, "ensureDir").resolves();
+    const writeFileStub = sandbox.stub(fs, "writeFile").resolves();
+
+    const result = await core.fetchOnlineTemplateMetadata();
+
+    assert.isTrue(result.isOk());
+    assert.isTrue(fetchZipStub.calledOnce);
+    assert.isTrue(
+      fetchZipStub.calledWith(
+        "https://example.com/releases/download/templates-v4@2.0.0/metadata.zip"
+      )
+    );
+    assert.isTrue(unzipStub.calledOnce);
+    // The v4 channel uses its own version cache file so switching the flag does
+    // not get a stale hit on the shared v3 cache.
+    assert.isTrue(
+      writeFileStub.calledWith(sinon.match(/template-version-v4\.txt$/), "2.0.0", {
+        encoding: "utf-8",
+      })
+    );
+  });
+
+  it("should still download v4 metadata when only the shared v3 cache is current", async () => {
+    sandbox.stub(templateHelper, "useLocalTemplate").returns(false);
+    sandbox.stub(templateConfigModule, "v4tagPrefix").value("templates-v4@");
+    sandbox
+      .stub(templateConfigModule, "templateDownloadBaseURL")
+      .value("https://example.com/releases/download");
+    sandbox.stub(packageJson, "version").value("1.0.0");
+    sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
+
+    sandbox
+      .stub(v4MetadataSource, "resolveV4MetadataSource")
+      .resolves(ok({ origin: "online", version: "2.0.0", digest: "sha256:x", location: "" }));
+    const mockZip = new AdmZip();
+    const fetchZipStub = sandbox.stub(generatorUtils, "fetchZipFromUrl").resolves(mockZip);
+    const unzipStub = sandbox.stub(generatorUtils, "unzip").resolves();
+
+    sandbox.stub(fs, "ensureDir").resolves();
+    sandbox.stub(fs, "writeFile").resolves();
+    // The v4 version file is absent even though the (shared-name) v3 cache would
+    // otherwise look current; the v4 channel must not be fooled into skipping.
+    sandbox
+      .stub(fs, "pathExists")
+      .callsFake((p: string) => Promise.resolve(p.endsWith("template-version.txt")));
+    sandbox.stub(fs, "readFile").resolves("2.0.0" as any);
+
+    const result = await core.fetchOnlineTemplateMetadata();
+
+    assert.isTrue(result.isOk());
+    assert.isTrue(fetchZipStub.calledOnce);
+    assert.isTrue(unzipStub.calledOnce);
+  });
+
+  it("should skip online fetch in v4 channel when the resolved source is bundled", async () => {
+    sandbox.stub(templateHelper, "useLocalTemplate").returns(false);
+    sandbox.stub(packageJson, "version").value("1.0.0-rc.0");
+    sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
+
+    // A bundled (non-goproduct) or unreachable channel resolves to a bundled /
+    // bundled-fallback origin: the readers fall back to bundled metadata and no
+    // download happens.
+    const resolveStub = sandbox
+      .stub(v4MetadataSource, "resolveV4MetadataSource")
+      .resolves(
+        ok({ origin: "bundled-fallback", version: "6.10.1", digest: "sha256:x", location: "" })
+      );
+    const fetchZipStub = sandbox.stub(generatorUtils, "fetchZipFromUrl");
+    const unzipStub = sandbox.stub(generatorUtils, "unzip");
+
+    sandbox.stub(fs, "ensureDir").resolves();
+    const writeFileStub = sandbox.stub(fs, "writeFile").resolves();
+
+    const result = await core.fetchOnlineTemplateMetadata();
+
+    assert.isTrue(result.isOk());
+    // The resolved source is bundled: do not hit the network and let the readers
+    // fall back to bundled metadata.
+    assert.equal(resolveStub.called, true);
+    assert.equal(fetchZipStub.called, false);
+    assert.equal(unzipStub.called, false);
+    assert.equal(writeFileStub.called, false);
+  });
+
+  it("should return error when v4 source resolution fails", async () => {
+    sandbox.stub(templateHelper, "useLocalTemplate").returns(false);
+    sandbox.stub(packageJson, "version").value("1.0.0");
+    sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
+
+    // A malformed tag list / digest mismatch is a hard error (no silent fallback).
+    const resolveError = new UserError("test", "ResolveError", "resolve failed");
+    const resolveStub = sandbox
+      .stub(v4MetadataSource, "resolveV4MetadataSource")
+      .resolves(err(resolveError));
+    const fetchZipStub = sandbox.stub(generatorUtils, "fetchZipFromUrl");
+    const unzipStub = sandbox.stub(generatorUtils, "unzip");
+
+    sandbox.stub(fs, "ensureDir").resolves();
+
+    const result = await core.fetchOnlineTemplateMetadata();
+
+    assert.isTrue(result.isErr());
+    if (result.isErr()) {
+      assert.strictEqual(result.error, resolveError);
+    }
+    assert.equal(resolveStub.called, true);
+    assert.equal(fetchZipStub.called, false);
+    assert.equal(unzipStub.called, false);
   });
 
   it("should skip download when cached version matches latest version", async () => {
