@@ -382,7 +382,15 @@ suite("DA No Action – Scaffold and Local Debug", function () {
         { uri: vscode.Uri.file(projectDir) },
       );
       console.log(`  Workspace folder added: ${added} (${projectDir})`);
-      await wait(3000); // let ATK re-activate for the new folder
+      // Poll until the folder appears in workspaceFolders (VS Code processes it async)
+      let wsReady = false;
+      for (let i = 0; i < 15 && !wsReady; i++) {
+        await wait(1000);
+        wsReady = (vscode.workspace.workspaceFolders ?? []).some((f) =>
+          f.uri.fsPath.includes(APP_NAME),
+        );
+      }
+      console.log(`  Workspace folder visible: ${wsReady}`);
       await takeScreenshot("10b-workspace-with-project");
     }
 
@@ -482,20 +490,40 @@ suite("DA No Action – Scaffold and Local Debug", function () {
     });
 
     try {
-      // Step 14: fire debug-selection command WITHOUT await
-      vscode.commands
-        .executeCommand("workbench.action.debug.selectandstart")
-        .then(undefined, (e: any) => {
-          console.log("  debug.selectandstart error:", e.message);
-        });
-      await wait(500);
+      // Step 14+15: Start "Preview Local in Copilot (Chrome)" debug session directly.
+      // workbench.action.debug.selectandstart requires the project to be the active
+      // workspace root, which isn't guaranteed in the test environment. Using
+      // vscode.debug.startDebugging() with an explicit folder is more reliable
+      // and exercises the same preLaunchTask chain.
+      const projectFolder: vscode.WorkspaceFolder | undefined =
+        vscode.workspace.workspaceFolders?.find((f) =>
+          f.uri.fsPath.includes(APP_NAME),
+        );
+      if (!projectFolder) {
+        // Log workspace state for debugging
+        console.log(
+          "  workspaceFolders:",
+          JSON.stringify(
+            (vscode.workspace.workspaceFolders ?? []).map((f) => f.uri.fsPath),
+          ),
+        );
+      }
 
-      // Step 15: select "Preview Local in Copilot (Chrome)"
-      await sendSignal(
-        "waitForTextThenScreenshot:Preview Local in Copilot:20000:11-debug-picker",
-        28000,
+      // Screenshot the Run & Debug panel before launching
+      await vscode.commands.executeCommand("workbench.view.debug");
+      await wait(1000);
+      await takeScreenshot("11-debug-panel");
+
+      const debugStarted = await vscode.debug.startDebugging(
+        projectFolder,
+        "Preview Local in Copilot (Chrome)",
       );
-      await sendSignal("clickText:Preview Local in Copilot (Chrome)", 10000);
+      console.log(`  debug.startDebugging: ${debugStarted}`);
+      step(
+        "Debug session started (Preview Local in Copilot Chrome)",
+        debugStarted,
+        debugStarted ? "✓" : "failed to start debug session",
+      );
       await wait(1000);
 
       // Step 16: wait for "Start Agent Locally" compound task (up to 30 s via task events)
