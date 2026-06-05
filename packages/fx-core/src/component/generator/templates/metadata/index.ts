@@ -20,10 +20,14 @@ function getTemplateMetadataConfig(configName: string, platform?: Platform): Tem
     configName
   );
 
-  // Check if cached JSON exists, otherwise fallback to bundled templates folder
+  // Check if cached JSON exists, otherwise fallback to bundled templates folder.
+  // The v4 channel migration covers only the VSC/CLI metadata (`templates-v4@`);
+  // VS keeps its v3 `templates-vs@` cache untouched, so the v4 bundled decision
+  // is not applied for Platform.VS.
+  const forceBundledForV4 = platform !== Platform.VS && useBundledMetadataForV4();
   if (
     !useLocalTemplate() &&
-    !useBundledMetadataForV4() &&
+    !forceBundledForV4 &&
     cachedJsonPath &&
     fs.pathExistsSync(cachedJsonPath)
   ) {

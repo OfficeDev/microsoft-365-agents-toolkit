@@ -15,7 +15,6 @@ import * as templateHelper from "../../../../src/component/generator/templateHel
 import * as folder from "../../../../src/folder";
 import { Template } from "../../../../src/component/generator/templates/metadata/interface";
 import { featureFlagManager } from "../../../../src/common/featureFlags";
-import packageJson from "../../../../package.json";
 
 const mockTemplates: Template[] = [
   { id: "t1", name: "TypeScript Bot", language: "typescript", description: "A TS bot" },
@@ -116,6 +115,20 @@ describe("metadata platform routing", () => {
       const readPath = readFileSyncStub.firstCall.args[0] as string;
       assert.include(readPath, bundledPath);
       assert.notInclude(readPath, ".fx");
+    });
+
+    it("keeps reading the VS cache even when v4 channel forces bundled metadata", () => {
+      sandbox.stub(templateHelper, "useLocalTemplate").returns(false);
+      sandbox.stub(templateHelper, "useBundledMetadataForV4").returns(true);
+      sandbox.stub(folder, "getTemplatesFolder").returns("/bundled");
+      const pathExistsStub = sandbox.stub(fs, "pathExistsSync").returns(true);
+      sandbox.stub(fs, "readFileSync").returns(JSON.stringify(mockTemplates));
+
+      getAllTemplatesOnPlatform(Platform.VS);
+
+      // The v4 migration covers only VSC/CLI; VS keeps its v3 vs-metadata cache.
+      const checkedPath = pathExistsStub.firstCall.args[0] as string;
+      assert.include(checkedPath, "vs-metadata");
     });
 
     it("returns only csharp templates for Platform.VS", () => {
@@ -245,24 +258,26 @@ describe("useBundledMetadataForV4", () => {
 
   it("returns false when the v4 flag is off", () => {
     sandbox.stub(featureFlagManager, "getBooleanValue").returns(false);
-    sandbox.stub(packageJson, "version").value("1.0.0-rc.0");
+    const pathExistsStub = sandbox.stub(fs, "pathExistsSync").returns(false);
 
     assert.isFalse(templateHelper.useBundledMetadataForV4());
+    // Short-circuits before touching the filesystem.
+    assert.isFalse(pathExistsStub.called);
   });
 
-  it("returns false for a stable build even when the v4 flag is on", () => {
+  it("returns false (read the downloaded v4 cache) when the v4 version file exists", () => {
     sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
-    sandbox.stub(packageJson, "version").value("1.0.0");
+    const pathExistsStub = sandbox.stub(fs, "pathExistsSync").returns(true);
 
     assert.isFalse(templateHelper.useBundledMetadataForV4());
+    const checkedPath = pathExistsStub.firstCall.args[0] as string;
+    assert.include(checkedPath, "template-version-v4.txt");
   });
 
-  for (const version of ["1.0.0-alpha.0", "1.0.0-beta.1", "1.0.0-rc.2"]) {
-    it(`returns true for prerelease build ${version} when the v4 flag is on`, () => {
-      sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
-      sandbox.stub(packageJson, "version").value(version);
+  it("returns true (read bundled) when the v4 version file is absent", () => {
+    sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
+    sandbox.stub(fs, "pathExistsSync").returns(false);
 
-      assert.isTrue(templateHelper.useBundledMetadataForV4());
-    });
-  }
+    assert.isTrue(templateHelper.useBundledMetadataForV4());
+  });
 });

@@ -91,6 +91,7 @@ import * as oneDriveSharePointHandler from "../../src/component/generator/declar
 import * as openApiSpecHelper from "../../src/component/generator/openApiSpec/helper";
 import * as templateHelper from "../../src/component/generator/templateHelper";
 import { TemplateNames } from "../../src/component/generator/templates/templateNames";
+import * as v4MetadataSource from "../../src/component/generator/v4MetadataSource";
 import * as generatorUtils from "../../src/component/generator/utils";
 import { LaunchHelper } from "../../src/component/m365/launchHelper";
 import { envUtil } from "../../src/component/utils/envUtil";
@@ -7903,11 +7904,14 @@ describe("fetchOnlineTemplateMetadata", () => {
     sandbox.stub(packageJson, "version").value("1.0.0");
     sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
 
-    sandbox.stub(generatorUtils, "getTemplateLatestVersion").resolves("2.0.0");
+    // The v4 metadata rides the same decision point as the template package; an
+    // online source names the `templates-v4@<version>` release to pull from.
+    sandbox
+      .stub(v4MetadataSource, "resolveV4MetadataSource")
+      .resolves(ok({ origin: "online", version: "2.0.0", digest: "sha256:x", location: "" }));
     const mockZip = new AdmZip();
     const fetchZipStub = sandbox.stub(generatorUtils, "fetchZipFromUrl").resolves(mockZip);
     const unzipStub = sandbox.stub(generatorUtils, "unzip").resolves();
-
     sandbox.stub(fs, "pathExists").resolves(false);
     sandbox.stub(fs, "ensureDir").resolves();
     const writeFileStub = sandbox.stub(fs, "writeFile").resolves();
@@ -7940,7 +7944,9 @@ describe("fetchOnlineTemplateMetadata", () => {
     sandbox.stub(packageJson, "version").value("1.0.0");
     sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
 
-    sandbox.stub(generatorUtils, "getTemplateLatestVersion").resolves("2.0.0");
+    sandbox
+      .stub(v4MetadataSource, "resolveV4MetadataSource")
+      .resolves(ok({ origin: "online", version: "2.0.0", digest: "sha256:x", location: "" }));
     const mockZip = new AdmZip();
     const fetchZipStub = sandbox.stub(generatorUtils, "fetchZipFromUrl").resolves(mockZip);
     const unzipStub = sandbox.stub(generatorUtils, "unzip").resolves();
@@ -7961,12 +7967,19 @@ describe("fetchOnlineTemplateMetadata", () => {
     assert.isTrue(unzipStub.calledOnce);
   });
 
-  it("should skip online fetch in v4 channel for a prerelease (0.0.0-rc) build", async () => {
+  it("should skip online fetch in v4 channel when the resolved source is bundled", async () => {
     sandbox.stub(templateHelper, "useLocalTemplate").returns(false);
     sandbox.stub(packageJson, "version").value("1.0.0-rc.0");
     sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
 
-    const getLatestStub = sandbox.stub(generatorUtils, "getTemplateLatestVersion");
+    // A bundled (non-goproduct) or unreachable channel resolves to a bundled /
+    // bundled-fallback origin: the readers fall back to bundled metadata and no
+    // download happens.
+    const resolveStub = sandbox
+      .stub(v4MetadataSource, "resolveV4MetadataSource")
+      .resolves(
+        ok({ origin: "bundled-fallback", version: "6.10.1", digest: "sha256:x", location: "" })
+      );
     const fetchZipStub = sandbox.stub(generatorUtils, "fetchZipFromUrl");
     const unzipStub = sandbox.stub(generatorUtils, "unzip");
 
@@ -7976,9 +7989,9 @@ describe("fetchOnlineTemplateMetadata", () => {
     const result = await core.fetchOnlineTemplateMetadata();
 
     assert.isTrue(result.isOk());
-    // The v4 channel has no `templates-v4@0.0.0-rc` release: do not hit the
-    // network and let the readers fall back to bundled metadata.
-    assert.equal(getLatestStub.called, false);
+    // The resolved source is bundled: do not hit the network and let the readers
+    // fall back to bundled metadata.
+    assert.equal(resolveStub.called, true);
     assert.equal(fetchZipStub.called, false);
     assert.equal(unzipStub.called, false);
     assert.equal(writeFileStub.called, false);

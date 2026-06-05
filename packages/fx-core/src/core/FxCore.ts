@@ -141,6 +141,7 @@ import {
 } from "../component/generator/openApiSpec/helper";
 import { useLocalTemplate } from "../component/generator/templateHelper";
 import { TemplateNames } from "../component/generator/templates/templateNames";
+import { resolveV4MetadataSource } from "../component/generator/v4MetadataSource";
 import {
   fetchZipFromUrl,
   getTemplateLatestVersion,
@@ -2638,46 +2639,56 @@ export class FxCore extends FxCoreOpenPluginPart {
     // Downloads the latest online template metadata (metadata.zip) into user's home .fx folder.
     // Caches the template version so subsequent calls avoid redundant downloads if unchanged.
     try {
-      // Determine latest template version (respect prerelease env variable similar to getTemplateVSCUrl)
-      const coreVersion = require("../../package.json").version as string;
-
-      let latestVersion = "0.0.0-rc";
-      if (
-        coreVersion.includes("alpha") ||
-        coreVersion.includes("beta") ||
-        coreVersion.includes("rc")
-      ) {
-        // daily build, prerelease or rc
-        latestVersion = "0.0.0-rc";
-      } else {
-        // stable version
-        latestVersion = await getTemplateLatestVersion();
-      }
+      const useV4Channel = featureFlagManager.getBooleanValue(FeatureFlags.V4Enabled);
 
       const homedir = os.homedir();
       const metadataDir = path.join(homedir, `.${String(ConfigFolderName)}`);
       await fs.ensureDir(metadataDir);
 
-      // Transitional: when the v4 channel is enabled, pull metadata from the
-      // v4 release tag (`templates-v4@<ver>`). The v4 release shares the exact
-      // same version string as the v3 `templates@<ver>` release (both minted
-      // from the same templates version), so the cached version string alone
-      // cannot tell the two channels apart. Use a channel-specific cache file
-      // so flipping the flag triggers a fresh download instead of a stale v3
-      // cache hit, while still caching within a channel (no re-download every
-      // activation). Remove once selector.json drives metadata distribution.
-      const useV4Channel = featureFlagManager.getBooleanValue(FeatureFlags.V4Enabled);
-
-      // Transitional: the v4 channel publishes no mutable `0.0.0-rc` release
-      // (only immutable `templates-v4@<ver>` tags minted on stable CD) and is
-      // bundled during the prerelease/test phase. So in v4 mode on a daily/
-      // beta/rc build, skip the online fetch (the v4 RC URL would 404 on every
-      // activation) and let the readers fall back to bundled metadata. Remove
-      // once selector.json drives metadata distribution.
-      if (useV4Channel && latestVersion === "0.0.0-rc") {
-        return ok(undefined);
+      let latestVersion: string;
+      if (useV4Channel) {
+        // Transitional: in the v4 channel the metadata rides the SAME single
+        // decision point as the template package —
+        // `resolveTemplateSource((v4.range, v4.bundled, port))`. The `bundled`
+        // field is CD-baked (= !goproduct), so goproduct builds (stable AND
+        // prerelease) resolve to an online/cache source while non-goproduct or
+        // daily builds resolve to the bundled floor. metadata.zip lives in the
+        // same `templates-v4@<ver>` release as the resolved package, so the
+        // resolved version names the release to pull metadata from. Remove once
+        // selector.json drives metadata distribution.
+        const resolved = await resolveV4MetadataSource();
+        if (resolved.isErr()) {
+          // Malformed tag list / digest mismatch are hard errors (no silent
+          // fallback). An unreachable channel does not reach here — it already
+          // resolved to a bundled-fallback origin handled below.
+          return err(resolved.error);
+        }
+        const source = resolved.value;
+        if (source.origin === "bundled" || source.origin === "bundled-fallback") {
+          // Bundled build or unreachable channel: read the bundled metadata
+          // (the readers fall back via `useBundledMetadataForV4`). No download.
+          return ok(undefined);
+        }
+        latestVersion = source.version;
+      } else {
+        // v3: prerelease builds use the mutable rolling `0.0.0-rc` tag; stable
+        // builds resolve the latest published templates version.
+        const coreVersion = require("../../package.json").version as string;
+        if (
+          coreVersion.includes("alpha") ||
+          coreVersion.includes("beta") ||
+          coreVersion.includes("rc")
+        ) {
+          latestVersion = "0.0.0-rc";
+        } else {
+          latestVersion = await getTemplateLatestVersion();
+        }
       }
 
+      // Use a channel-specific cache file so flipping the flag triggers a fresh
+      // download instead of a stale v3 cache hit; the v4 file's presence is also
+      // the readers' signal (`useBundledMetadataForV4`) that downloaded v4
+      // metadata is available.
       const versionFile = path.join(
         metadataDir,
         useV4Channel ? "template-version-v4.txt" : "template-version.txt"
