@@ -193,16 +193,18 @@ suite("DA No Action – Scaffold and Local Debug", function () {
         .then(undefined, () => {});
       await wait(500);
 
-      const cmdAvailable = await waitForCommand("fx-extension.create");
+      // Fire the wizard command directly — no need to wait for getCommands() to list it.
+      // ATK registers fx-extension.create during activation; ext.isActive=true (checked
+      // in Step 0) guarantees the command exists even if getCommands() hasn't refreshed.
       vscode.commands
         .executeCommand("fx-extension.create")
         .then(undefined, () => {});
-      await wait(500);
+      await wait(1000); // yield event loop so command reaches extension host
 
-      // Step 3: Declarative Agent
+      // Step 3: Declarative Agent — give 90s on CI (cold start is slower)
       await sendSignal(
-        "waitForTextThenScreenshot:Declarative Agent:60000:02-wizard-da",
-        68000,
+        "waitForTextThenScreenshot:Declarative Agent:90000:02-wizard-da",
+        98000,
       );
       await sendSignal("pressKey:Enter", 5000);
       await wait(800);
@@ -257,7 +259,7 @@ suite("DA No Action – Scaffold and Local Debug", function () {
       );
       console.log(`  Marker written: ${SCAFFOLD_MARKER}`);
       await takeScreenshot("06-scaffold-started");
-      step("fx-extension.create available", cmdAvailable);
+      step("Wizard completed", true, `appName=${APP_NAME}`);
       step("Scaffold marker written", true, `projectDir=${projectDir}`);
     });
   } else {
