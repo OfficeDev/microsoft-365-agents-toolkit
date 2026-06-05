@@ -5,10 +5,33 @@
  * suite/index.ts - Mocha suite entry, runs inside VSCode extension host
  */
 import * as path from "path";
+import * as fs from "fs";
+import * as os from "os";
 import Mocha from "mocha";
 import * as glob from "glob";
 
 export async function run(): Promise<void> {
+  // One-shot lock: when ATK opens the scaffolded project folder, VS Code reloads
+  // the extension host and runs this suite again in the new window. The lock
+  // prevents duplicate test runs — only the first host proceeds.
+  const lockFile = path.join(
+    process.env.TEST_OUTPUT_DIR || os.tmpdir(),
+    "atk-copilot-test.lock",
+  );
+  if (fs.existsSync(lockFile)) {
+    console.log(
+      "[suite/index] Lock file exists — another test instance is running, exiting.",
+    );
+    return;
+  }
+  fs.writeFileSync(lockFile, String(process.pid), "utf8");
+  // Clean up lock when the extension host exits so re-runs work.
+  process.on("exit", () => {
+    try {
+      fs.unlinkSync(lockFile);
+    } catch {}
+  });
+
   // Use "tdd" UI so suite()/test() work (ATK convention)
   const mocha = new Mocha({
     ui: "tdd",

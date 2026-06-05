@@ -476,6 +476,12 @@ async function main() {
     fs.rmSync(path.join(signalDir, f), { force: true }),
   );
 
+  // Remove stale lock file so the test suite runs fresh on each invocation
+  const lockFile = path.join(outputDir, "atk-copilot-test.lock");
+  try {
+    fs.rmSync(lockFile, { force: true });
+  } catch {}
+
   console.log("=== Playwright + test-electron Runner ===");
   console.log("Ext:", extPath);
   console.log("Out:", outputDir);
@@ -562,9 +568,8 @@ async function main() {
           authUrl = fs.readFileSync(authUrlFile, "utf8").trim();
         } catch {}
         if (!authUrl) continue;
-        try {
-          fs.unlinkSync(authUrlFile);
-        } catch {}
+        // Do NOT delete authUrlFile here — the test code polls for it as a confirmation
+        // that the MSAL flow started. Write a separate "done" marker after OAuth completes.
         console.log(`[OAuth] Auth URL detected — launching Playwright browser`);
         const authBrowser = await chromium.launch({
           headless: false,
@@ -606,6 +611,14 @@ async function main() {
           // Wait for MSAL local server redirect (auth complete)
           await authPage.waitForURL(/localhost:\d+/, { timeout: 30000 });
           console.log("[OAuth] Completed — token delivered to VS Code");
+          // Write done marker so test code knows OAuth completed (distinct from auth URL file)
+          try {
+            fs.writeFileSync(
+              path.join(os.tmpdir(), "atk-auth-done.txt"),
+              String(Date.now()),
+              "utf8",
+            );
+          } catch {}
           await sleep(2000);
         } catch (e: any) {
           console.warn(`[OAuth] Browser flow error: ${e.message}`);
