@@ -233,7 +233,8 @@ jobs:
         #    TEAMSFX_AUTO_CONFIRM_LOGIN=true, so the runTest.ts OAuth watcher can drive
         #    the browser sign-in automatically.
         # 2. m365Login: skip the confirmation modal when TEAMSFX_AUTO_CONFIRM_LOGIN=true.
-        # Both patterns target unique strings that exist in every ATK release build.
+        # Patch 1 uses a regex to find .openExternal(.Uri.parse(response)) regardless of
+        # the bundler variable name (vscode, vscode9, t, etc.)
         run: |
           EXT_JS="${{ env.ATK_EXT_PATH }}/out/src/extension.js"
           if [ ! -f "$EXT_JS" ]; then
@@ -242,29 +243,30 @@ jobs:
           fi
           echo "Patching $EXT_JS ($(du -sh "$EXT_JS" | cut -f1))"
 
-          # ── Patch 1: write auth URL to file in codeFlowLogin ─────────────────
-          # Find: void vscode.env.openExternal(vscode.Uri.parse(response));
-          # Wrap: write URL before opening browser
           node - << 'JSEOF'
           const fs = require('fs');
           const p = process.env.EXT_JS || '/tmp/atk-ext/extension/out/src/extension.js';
           let src = fs.readFileSync(p, 'utf8');
 
-          // Patch 1: inject auth URL file write before openExternal call
-          const openExternal = 'void vscode.env.openExternal(vscode.Uri.parse(response));';
-          const patch1 = `if(process.env["TEAMSFX_AUTO_CONFIRM_LOGIN"]==="true"){try{require("fs").writeFileSync(require("os").tmpdir()+"/atk-auth-url.txt",response,"utf8");}catch(e){}} ${openExternal}`;
-          if (src.includes(openExternal) && !src.includes('atk-auth-url.txt')) {
-            src = src.replace(openExternal, patch1);
-            console.log('Patch 1 applied: auth URL file write');
-          } else if (src.includes('atk-auth-url.txt')) {
-            console.log('Patch 1 already applied');
+          // Patch 1: inject auth URL file write before openExternal call.
+          // The bundler may rename 'vscode' to any short variable, so use a regex.
+          // Pattern: <varname>.env.openExternal(<varname>.Uri.parse(response))
+          const openExternalRe = /(\w+)\.env\.openExternal\(\1\.Uri\.parse\(response\)\)/;
+          if (!src.includes('atk-auth-url.txt')) {
+            const match = src.match(openExternalRe);
+            if (match) {
+              const original = match[0];
+              const patched = `(process.env["TEAMSFX_AUTO_CONFIRM_LOGIN"]==="true"&&(()=>{try{require("fs").writeFileSync(require("os").tmpdir()+"/atk-auth-url.txt",response,"utf8");}catch(e){}})()),${original}`;
+              src = src.replace(original, patched);
+              console.log('Patch 1 applied: auth URL file write (matched: ' + original + ')');
+            } else {
+              console.warn('Patch 1 target not found — openExternal(Uri.parse(response)) pattern missing');
+            }
           } else {
-            console.warn('Patch 1 target not found — openExternal pattern missing');
+            console.log('Patch 1 already applied');
           }
 
           // Patch 2: bypass confirmation modal
-          // Target unique string: "teamstoolkit.appStudioLogin.message"
-          // Insert auto-confirm bypass before the localize() call
           const confirmTarget = '"teamstoolkit.appStudioLogin.message"';
           const patch2Prefix = 'if(process.env["TEAMSFX_AUTO_CONFIRM_LOGIN"]==="true"){return Promise.resolve(true);} ';
           if (src.includes(confirmTarget) && !src.includes('TEAMSFX_AUTO_CONFIRM_LOGIN]==="true"){return Promise.resolve(true);}')) {

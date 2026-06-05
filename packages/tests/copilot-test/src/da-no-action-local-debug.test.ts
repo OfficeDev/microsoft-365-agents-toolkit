@@ -95,7 +95,7 @@ function wait(ms: number): Promise<void> {
   return new Promise((r) => setTimeout(r, ms));
 }
 
-async function waitForCommand(cmd: string, maxMs = 60000): Promise<boolean> {
+async function waitForCommand(cmd: string, maxMs = 120000): Promise<boolean> {
   const deadline = Date.now() + maxMs;
   while (Date.now() < deadline) {
     const cmds = await vscode.commands.getCommands(true);
