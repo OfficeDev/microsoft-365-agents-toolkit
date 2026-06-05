@@ -681,6 +681,20 @@ async function main() {
       // Force local bundled templates — prevents ATK from downloading metadata from GitHub
       // (which takes 4+ minutes in Docker/CI). Without this, useLocalTemplate() returns false.
       TEMPLATE_VERSION: process.env.TEMPLATE_VERSION ?? "local",
+      // Pass M365/Azure credentials so the extension host's test code can read them
+      ...(process.env.M365_ACCOUNT_NAME
+        ? { M365_ACCOUNT_NAME: process.env.M365_ACCOUNT_NAME }
+        : {}),
+      ...(process.env.M365_ACCOUNT_PASSWORD
+        ? { M365_ACCOUNT_PASSWORD: process.env.M365_ACCOUNT_PASSWORD }
+        : {}),
+      ...(process.env.M365_TENANT_ID
+        ? { M365_TENANT_ID: process.env.M365_TENANT_ID }
+        : {}),
+      // Auth bypass flags (read by patched m365Login.ts and codeFlowLogin.ts)
+      TEAMSFX_AUTO_CONFIRM_LOGIN:
+        process.env.TEAMSFX_AUTO_CONFIRM_LOGIN ?? "false",
+      TEAMSFX_BROKER_AUTH: process.env.TEAMSFX_BROKER_AUTH ?? "true",
     },
   };
   if (extPath) vscodeTestOpts.extensionDevelopmentPath = extPath;

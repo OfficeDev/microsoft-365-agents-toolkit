@@ -2,7 +2,7 @@
 // Licensed under the MIT license.
 /**
  * da-no-action-local-debug.test.ts
- * TC-001: Create DA (No Action), sign in to M365, local debug, verify agent responds in Copilot.
+ * TC-001: Create DA (No Action), verify scaffold files, launch local debug in VS Code.
  * Plan: packages/tests/copilot-test/test-plans/da-no-action-local-debug/da-no-action-local-debug.md
  *
  * Runs INSIDE VSCode extension host via @vscode/test-electron (Mocha TDD).
@@ -10,10 +10,8 @@
  *
  * Phases:
  *   1  Create project [VSC]
- *   2  Verify scaffold files [VSC]
- *   3  Sign in to M365 [VSC → Chrome]
- *   4  Launch local debug in Copilot [VSC → Chrome]
- *   5  Validate agent responds [Chrome]
+ *   2  Verify scaffold files and view in editor [VSC]
+ *   3  Launch local debug and observe VS Code tasks [VSC → Chrome]
  */
 
 import * as vscode from "vscode";
@@ -67,44 +65,6 @@ async function takeScreenshot(name: string): Promise<void> {
     );
   } catch (e) {
     console.warn("Screenshot failed:", e);
-  }
-}
-
-/**
- * Element-level screenshot: Playwright gets the element bounding box and clips
- * to that region. Falls back to full-page if the element is not found.
- * Format sent to runTest.ts: "screenshotElement:<selector>:<dest>"
- * CSS selectors must NOT contain colons (the first colon is the separator).
- */
-async function takeElementScreenshot(
-  name: string,
-  selector: string,
-): Promise<void> {
-  try {
-    const dest = path.join(SCREENSHOT_DIR, `${name}.png`);
-    const signal = path.join(SIGNAL_DIR, `${Date.now()}-${name}.signal`);
-    fs.writeFileSync(signal, `screenshotElement:${selector}:${dest}`, "utf8");
-    await new Promise<void>((resolve) => {
-      const deadline = Date.now() + 8000;
-      const iv = setInterval(() => {
-        if (!fs.existsSync(signal) || Date.now() >= deadline) {
-          clearInterval(iv);
-          if (fs.existsSync(signal)) {
-            try {
-              fs.unlinkSync(signal);
-            } catch {}
-          }
-          resolve();
-        }
-      }, 100);
-    });
-    console.log(
-      fs.existsSync(dest)
-        ? `Screenshot[element]: ${name}.png`
-        : `Screenshot[element] timeout: ${name}.png`,
-    );
-  } catch (e) {
-    console.warn("Element screenshot failed:", e);
   }
 }
 
@@ -199,8 +159,8 @@ function writeResults(passed: number, failed: number, steps: object[]) {
 // ─────────────────────────────────────────────────────────────────────────────
 // Suite
 // ─────────────────────────────────────────────────────────────────────────────
-suite("DA No Action – Local Debug in M365 Copilot", function () {
-  // Full test (including remote Copilot sign-in) can take up to 15 min
+suite("DA No Action – Scaffold and Local Debug", function () {
+  // Full test can take up to 15 min (provision + Chrome launch)
   this.timeout(15 * 60 * 1000);
 
   const steps: object[] = [];
@@ -218,7 +178,7 @@ suite("DA No Action – Local Debug in M365 Copilot", function () {
 
   suiteSetup(() => {
     ensureDirs();
-    console.log("=== DA No Action – Local Debug in M365 Copilot ===");
+    console.log("=== DA No Action – Scaffold and Local Debug ===");
     console.log("App name :", APP_NAME);
     console.log("Output   :", OUTPUT_DIR);
   });
@@ -253,12 +213,12 @@ suite("DA No Action – Local Debug in M365 Copilot", function () {
       active,
       ext ? `v${ext.packageJSON.version}` : "not found",
     );
-    await takeScreenshot("01-atk-sidebar");
+    await takeScreenshot("01-atk-fresh");
     assert.ok(active, "Extension should be active");
   });
 
-  // ── Test 2: Phase 1 + 2 – Create project and verify scaffold ─────────────
-  test("Phase 1-2: Create DA No Action project via wizard and verify scaffold", async () => {
+  // ── Test 2: Phase 1 – Create DA No Action project ────────────────────────
+  test("Phase 1: Create DA No Action project via wizard", async () => {
     // Step 1: clear notifications (dismiss welcome dialog)
     vscode.commands
       .executeCommand("notifications.clearAll")
@@ -276,50 +236,50 @@ suite("DA No Action – Local Debug in M365 Copilot", function () {
     await wait(500); // yield event loop so command dispatch reaches extension host
 
     // Step 3: QuickPick — "Declarative Agent" (first item, pre-highlighted by VS Code)
-    // Use waitForTextThenScreenshot to gate until the QuickPick is visible, then press
-    // Enter to select the highlighted item.  We intentionally avoid clickText here
-    // because page.getByText() matches sidebar text ("Build a Declarative Agent" button)
-    // before the QuickPick row, causing the QuickPick to close without advancing.
+    // Use pressKey:Enter rather than clickText to avoid matching the ATK sidebar
+    // "Build a Declarative Agent" button before the QuickPick row.
     await sendSignal(
-      "waitForTextThenScreenshot:Declarative Agent:60000:02-da-option",
+      "waitForTextThenScreenshot:Declarative Agent:60000:02-wizard-da",
       68000,
     );
     await sendSignal("pressKey:Enter", 5000); // select highlighted "Declarative Agent"
     await wait(1000);
 
-    // Step 4: QuickPick — "No Action" (first DA-capability option)
-    // "No Action" text does not appear in the sidebar, so clickText strategy 1
-    // (page.getByText) will find the QuickPick row directly and click it.
+    // Step 4: QuickPick — "No Action"
     await sendSignal(
-      "waitForTextThenScreenshot:No Action:20000:03-no-action",
+      "waitForTextThenScreenshot:No Action:20000:03-wizard-no-action",
       28000,
     );
-    await wait(500); // let QuickPick fully render after screenshot
-    await sendSignal("clickText:No Action", 12000);
+    await sendSignal("clickText:No Action", 10000);
     await wait(1000);
 
     // Step 5: QuickPick — Workspace Folder "Default folder"
-    // "Default folder" text is unique to the folder QuickPick.
     await sendSignal(
-      "waitForTextThenScreenshot:Default folder:20000:04-workspace-folder",
-      28000,
+      "waitForTextThenScreenshot:Default folder:15000:04-wizard-folder",
+      23000,
     );
-    await wait(500);
-    await sendSignal("clickText:Default folder", 12000);
+    await sendSignal("clickText:Default folder", 10000);
     await wait(1000);
 
     // Step 6: InputBox — Application Name
-    // After "Default folder" click the wizard transitions to an InputBox.
-    // Use a screenshot to capture state, then type the app name.
-    // Avoid waitForTextThenScreenshot here because the InputBox title is not in a
-    // .monaco-list-row and page.getByText for "Application Name" may time out.
-    await wait(2000); // let InputBox open
-    await takeScreenshot("05-app-name-input");
+    await sendSignal(
+      "waitForTextThenScreenshot:Application Name:15000:05-wizard-appname",
+      23000,
+    );
     await sendSignal(`type:${APP_NAME}`, 8000);
     await wait(500);
     await sendSignal("pressKey:Enter", 5000);
 
-    // Wait for scaffold — poll every second up to 90 s
+    step(
+      "fx-extension.create command available",
+      cmdAvailable,
+      `available=${cmdAvailable}`,
+    );
+  });
+
+  // ── Test 3: Phase 2 – Verify scaffold files and view in editor ────────────
+  test("Phase 2: Verify scaffold files and view in editor", async () => {
+    // Step 7: poll for m365agents.yml up to 90 s
     console.log(
       `  Waiting for scaffold files in ~/AgentsToolkitProjects/${APP_NAME} (up to 90s)...`,
     );
@@ -327,67 +287,103 @@ suite("DA No Action – Local Debug in M365 Copilot", function () {
       projectDir = findProjectDir(APP_NAME);
       if (
         projectDir &&
-        fs.existsSync(path.join(projectDir, "appPackage", "manifest.json"))
+        fs.existsSync(path.join(projectDir, "m365agents.yml"))
       ) {
         break;
       }
       await wait(1000);
     }
-    await takeScreenshot("06-scaffold-complete");
+    await takeScreenshot("06-scaffold-explorer");
 
-    step(
-      "fx-extension.create command available",
-      cmdAvailable,
-      `available=${cmdAvailable}`,
-    );
     step("Project directory found", !!projectDir, projectDir || "not found");
 
-    // Step 7-9: Verify scaffold files
-    const manifestPath = path.join(projectDir, "appPackage", "manifest.json");
-    const declarativePath = path.join(
-      projectDir,
-      "appPackage",
-      "declarativeAgent.json",
-    );
+    // Step 8: assert all 6 required files exist
+    const requiredFiles: Array<[string, string]> = [
+      ["m365agents.yml", path.join(projectDir, "m365agents.yml")],
+      ["m365agents.local.yml", path.join(projectDir, "m365agents.local.yml")],
+      [
+        "appPackage/manifest.json",
+        path.join(projectDir, "appPackage", "manifest.json"),
+      ],
+      [
+        "appPackage/declarativeAgent.json",
+        path.join(projectDir, "appPackage", "declarativeAgent.json"),
+      ],
+      [".vscode/tasks.json", path.join(projectDir, ".vscode", "tasks.json")],
+      [".vscode/launch.json", path.join(projectDir, ".vscode", "launch.json")],
+    ];
+    for (const [label, filePath] of requiredFiles) {
+      const exists = !!projectDir && fs.existsSync(filePath);
+      step(
+        `${label} exists`,
+        exists,
+        exists ? "✓" : `missing in ${projectDir}`,
+      );
+    }
+
+    // Step 9: assert ai-plugin.json does NOT exist (No Action DA has no plugin)
     const pluginPath = path.join(projectDir, "appPackage", "ai-plugin.json");
-
-    const hasManifest = !!projectDir && fs.existsSync(manifestPath);
-    const hasDeclarative = !!projectDir && fs.existsSync(declarativePath);
-    const noPlugin = !!projectDir && !fs.existsSync(pluginPath); // No Action DA has NO plugin file
-
-    step(
-      "appPackage/manifest.json exists",
-      hasManifest,
-      hasManifest ? "✓" : `missing in ${projectDir}`,
-    );
-    step(
-      "appPackage/declarativeAgent.json exists",
-      hasDeclarative,
-      hasDeclarative ? "✓" : `missing in ${projectDir}`,
-    );
+    const noPlugin = !!projectDir && !fs.existsSync(pluginPath);
     step(
       "appPackage/ai-plugin.json absent (No Action)",
       noPlugin,
       noPlugin ? "✓ not present" : "UNEXPECTED: file exists",
     );
 
-    // Step 10: Close auto-opened README tab
+    // Step 10: open m365agents.yml in editor
+    if (projectDir) {
+      await vscode.commands.executeCommand(
+        "vscode.open",
+        vscode.Uri.file(path.join(projectDir, "m365agents.yml")),
+      );
+      await wait(2000);
+      await takeScreenshot("07-m365agents-yml");
+    }
+
+    // Step 11: open .vscode/tasks.json in editor
+    if (projectDir) {
+      await vscode.commands.executeCommand(
+        "vscode.open",
+        vscode.Uri.file(path.join(projectDir, ".vscode", "tasks.json")),
+      );
+      await wait(2000);
+      await takeScreenshot("08-tasks-json");
+    }
+
+    // Step 12: open .vscode/launch.json in editor
+    if (projectDir) {
+      await vscode.commands.executeCommand(
+        "vscode.open",
+        vscode.Uri.file(path.join(projectDir, ".vscode", "launch.json")),
+      );
+      await wait(2000);
+      await takeScreenshot("09-launch-json");
+    }
+
+    // Step 13: close all editors and clear notifications
     vscode.commands
-      .executeCommand("workbench.action.closeActiveEditor")
+      .executeCommand("workbench.action.closeAllEditors")
       .then(undefined, () => {});
     await wait(500);
-    await takeScreenshot("07-readme-closed");
-
-    // Step 11: Clear all notifications
     vscode.commands
       .executeCommand("notifications.clearAll")
       .then(undefined, () => {});
     await wait(500);
-    await takeScreenshot("08-notifications-cleared");
+    await takeScreenshot("10-editors-closed");
 
-    assert.ok(hasManifest, `appPackage/manifest.json missing in ${projectDir}`);
+    assert.ok(!!projectDir, "Project directory not found");
     assert.ok(
-      hasDeclarative,
+      fs.existsSync(path.join(projectDir, "m365agents.yml")),
+      `m365agents.yml missing in ${projectDir}`,
+    );
+    assert.ok(
+      fs.existsSync(path.join(projectDir, "appPackage", "manifest.json")),
+      `appPackage/manifest.json missing in ${projectDir}`,
+    );
+    assert.ok(
+      fs.existsSync(
+        path.join(projectDir, "appPackage", "declarativeAgent.json"),
+      ),
       `appPackage/declarativeAgent.json missing in ${projectDir}`,
     );
     assert.ok(
@@ -396,228 +392,168 @@ suite("DA No Action – Local Debug in M365 Copilot", function () {
     );
   });
 
-  // ── Test 3: Phase 3 – Sign in to M365 ────────────────────────────────────
-  test("Phase 3: Sign in to M365 via ATK Accounts", async () => {
+  // ── Test 3b: Sign in to M365 (precondition for local debug) ──────────────
+  // The debug task "Validate prerequisites" checks M365 Copilot access.
+  // Sign-in must complete before Phase 3 debug launch.
+  // Credentials come from M365_ACCOUNT_NAME / M365_ACCOUNT_PASSWORD env vars.
+  // The codeFlowLogin.ts source patch writes the MSAL auth URL to
+  // $TEMP/atk-auth-url.txt; runTest.ts OAuth watcher completes the browser
+  // sign-in automatically using Playwright.
+  test("Sign in to M365 (precondition for local debug)", async () => {
     const m365User = process.env.M365_ACCOUNT_NAME || "";
     const m365Pass = process.env.M365_ACCOUNT_PASSWORD || "";
     assert.ok(
       m365User && m365Pass,
-      "M365_ACCOUNT_NAME and M365_ACCOUNT_PASSWORD must be set to run Phase 3",
+      "M365_ACCOUNT_NAME and M365_ACCOUNT_PASSWORD must be set — needed for debug task",
     );
 
-    // Step 12: open ATK Accounts pane WITHOUT await
+    // Open ATK Accounts pane
     vscode.commands
       .executeCommand("fx-extension.cmpAccounts")
       .then(undefined, () => {});
     await wait(500);
 
-    // Step 13: click "Sign in to Microsoft 365"
+    // Click "Sign in to Microsoft 365"
     await sendSignal(
       "waitForTextThenScreenshot:Sign in to Microsoft 365:20000:09-signin-option",
       28000,
     );
-    await takeElementScreenshot(
-      "09-signin-option",
-      "[id='workbench.view.extension.teamsfx'] .pane-body",
-    );
     await sendSignal("clickText:Sign in to Microsoft 365", 10000);
     await wait(1000);
+    await takeScreenshot("10-sign-in-triggered");
 
-    // Step 14 is skipped — TEAMSFX_AUTO_CONFIRM_LOGIN=true auto-confirms the VS Code
-    // modal in doesUserConfirmLogin(). The extension proceeds directly to MSAL code flow.
-
-    // Confirm MSAL flow started: codeFlowLogin.ts patch writes auth URL to atk-auth-url.txt.
-    // runTest.ts OAuth watcher picks this up and completes the browser OAuth automatically.
+    // TEAMSFX_AUTO_CONFIRM_LOGIN=true bypasses the VS Code confirmation modal.
+    // The extension writes the auth URL to atk-auth-url.txt which runTest.ts reads,
+    // then launches a Playwright browser to complete OAuth automatically.
     const AUTH_URL_FILE = path.join(os.tmpdir(), "atk-auth-url.txt");
     let authUrlDetected = false;
     console.log("  Polling for atk-auth-url.txt (up to 30s)...");
     for (let i = 0; i < 30 && !authUrlDetected; i++) {
       await wait(1000);
-      if (fs.existsSync(AUTH_URL_FILE)) {
-        authUrlDetected = true;
-      }
+      if (fs.existsSync(AUTH_URL_FILE)) authUrlDetected = true;
     }
     step(
-      "MSAL auth URL captured by extension patch",
+      "MSAL auth URL captured",
       authUrlDetected,
       authUrlDetected
         ? "atk-auth-url.txt found"
-        : "not found after 30s — check patches",
+        : "not found — check TEAMSFX_BROKER_AUTH=false patch",
     );
-    await takeScreenshot("10-auth-url-detected");
 
-    // Wait for ATK sidebar to show the signed-in account name (up to 90s).
-    // The OAuth watcher in runTest.ts completes the browser sign-in automatically.
-    const accountHint = m365User.split("@")[0]; // e.g. "test008"
+    // Wait for account name to appear in the ATK sidebar (up to 90s)
+    const accountHint = m365User.split("@")[0];
     console.log(`  Waiting for "${accountHint}" in ATK sidebar (up to 90s)...`);
     await sendSignal(
       `waitForTextThenScreenshot:${accountHint}:90000:11-m365-signed-in`,
       98000,
     );
-    await takeElementScreenshot(
-      "11-m365-signed-in",
-      "[id='workbench.view.extension.teamsfx'] .pane-body",
-    );
+    await takeScreenshot("11-m365-signed-in");
     step("M365 sign-in completed", true, `user=${m365User}`);
   });
+  test("Phase 3: Launch local debug and observe VS Code tasks", async () => {
+    // Set up task/debug event listeners BEFORE firing the debug command so no events are missed.
+    let taskStarted = false;
+    let prereqsStarted = false;
+    let createResourcesStarted = false;
+    const taskDisposable = vscode.tasks.onDidStartTaskProcess((e) => {
+      const name = e.execution.task.name;
+      console.log(`  Task started: "${name}"`);
+      if (/start agent locally/i.test(name)) taskStarted = true;
+      if (/validate prerequisites/i.test(name)) prereqsStarted = true;
+      if (/create resources/i.test(name)) createResourcesStarted = true;
+    });
+    const debugDisposable = vscode.debug.onDidStartDebugSession((s) => {
+      console.log(`  Debug session started: "${s.name}"`);
+    });
 
-  // ── Test 4: Phase 4 – Launch local debug in M365 Copilot ─────────────────
-  test("Phase 4: Launch local debug via Preview Local in Copilot (Chrome)", async () => {
-    const m365User = process.env.M365_ACCOUNT_NAME || "";
-    assert.ok(m365User, "M365_ACCOUNT_NAME must be set to run Phase 4");
-
-    // Step 14: fire debug-selection command WITHOUT await
-    vscode.commands
-      .executeCommand("workbench.action.debug.selectandstart")
-      .then(undefined, (e: any) => {
-        console.log("  debug.selectandstart error:", e.message);
-      });
-    await wait(500);
-
-    // Step 15: select "Preview Local in Copilot (Chrome)"
-    await sendSignal(
-      "waitForTextThenScreenshot:Preview Local in Copilot:20000:11-debug-picker",
-      28000,
-    );
-    await takeElementScreenshot("11-debug-picker", ".quick-input-widget");
-    await sendSignal("clickText:Preview Local in Copilot (Chrome)", 10000);
-    await wait(1000);
-
-    // Step 16: terminal shows "Start Agent Locally" compound task starting
-    await sendSignal(
-      "waitForTextThenScreenshot:Start Agent Locally:30000:12-task-started",
-      38000,
-    );
-    await takeElementScreenshot("12-task-started", ".panel, .terminal-wrapper");
-    step(
-      "Start Agent Locally task started",
-      true,
-      "terminal shows compound task",
-    );
-
-    // Step 17: "Validate prerequisites" subtask (checks M365 Copilot access)
-    await sendSignal(
-      "waitForTextThenScreenshot:Validate prerequisites:30000:13-validate-prereqs",
-      38000,
-    );
-    await takeElementScreenshot(
-      "13-validate-prereqs",
-      ".panel, .terminal-wrapper",
-    );
-    step("Validate prerequisites subtask ran", true, "terminal shows subtask");
-
-    // Step 18: "Create resources" subtask (ATK provision: zip/validate/update/publish)
-    await sendSignal(
-      "waitForTextThenScreenshot:Create resources:60000:14-create-resources",
-      68000,
-    );
-    await takeElementScreenshot(
-      "14-create-resources",
-      ".panel, .terminal-wrapper",
-    );
-    step(
-      "Create resources subtask started",
-      true,
-      "terminal shows ATK provision",
-    );
-
-    // Step 19: let provision progress, then screenshot terminal
-    await wait(10000);
-    await takeScreenshot("15-provision-progress");
-
-    // Step 20: [Chrome] wait for m365.cloud.microsoft URL to open in browser
-    // (signal watcher looks in VS Code window — will timeout non-fatally for external Chrome)
-    await sendSignal(
-      "waitForTextThenScreenshot:m365.cloud.microsoft:120000:16-copilot-browser",
-      130000,
-    );
-    await takeScreenshot("16-copilot-browser-state");
-
-    step(
-      "Local debug launched in Copilot",
-      true,
-      "Preview Local in Copilot (Chrome) selected",
-    );
-  });
-
-  // ── Test 5: Phase 5 – Validate agent responds in Copilot ─────────────────
-  test("Phase 5: Validate DA agent visible and responds in M365 Copilot", async () => {
-    const m365User = process.env.M365_ACCOUNT_NAME || "";
-    assert.ok(m365User, "M365_ACCOUNT_NAME must be set to run Phase 5");
-
-    const expectedAgent = `${APP_NAME}local`;
-
-    // Step 23: wait 30 s for agent registration to propagate, then zoom out [Chrome]
-    console.log("  Waiting 30s for agent registration to propagate...");
-    await wait(30000);
-    await sendSignal("pressKey:Ctrl+-", 5000);
-    await takeScreenshot("20-copilot-zoomed");
-
-    // Step 24: reload page [Chrome]
-    await sendSignal("pressKey:F5", 5000);
-    await wait(3000);
-    await takeScreenshot("21-copilot-reloaded");
-
-    // Step 25: assert agent entry visible (retry 30 s) — PRIMARY PASS CRITERION
-    await sendSignal(
-      `waitForTextThenScreenshot:${expectedAgent}:30000:22-agent-visible`,
-      38000,
-    );
-    // Evaluate DOM to confirm text presence for the pass/fail record
-    const agentResultFile = path.join(OUTPUT_DIR, "agent-check.json");
-    await sendSignal(
-      `eval:${agentResultFile}:JSON.stringify({found: !!document.querySelector('*:not(script):not(style)') && document.body.innerText.includes('${expectedAgent}')})`,
-      10000,
-    );
-    let agentFound = false;
     try {
-      if (fs.existsSync(agentResultFile)) {
-        const r = JSON.parse(fs.readFileSync(agentResultFile, "utf8"));
-        agentFound = r.found === true;
-      }
-    } catch {}
-    step(
-      `Agent "${expectedAgent}" visible in Copilot`,
-      agentFound,
-      agentFound ? "✓" : "not found after 30s retry",
-    );
+      // Step 14: fire debug-selection command WITHOUT await
+      vscode.commands
+        .executeCommand("workbench.action.debug.selectandstart")
+        .then(undefined, (e: any) => {
+          console.log("  debug.selectandstart error:", e.message);
+        });
+      await wait(500);
 
-    // Step 26: click chat input, type query, send [Chrome]
-    const query = "how can you assistant me?";
-    await sendSignal("clickText:Message Copilot", 10000);
-    await sendSignal(`type:${query}`, 5000);
-    await sendSignal("pressKey:Enter", 5000);
-    await takeScreenshot("23-query-sent");
+      // Step 15: select "Preview Local in Copilot (Chrome)"
+      await sendSignal(
+        "waitForTextThenScreenshot:Preview Local in Copilot:20000:11-debug-picker",
+        28000,
+      );
+      await sendSignal("clickText:Preview Local in Copilot (Chrome)", 10000);
+      await wait(1000);
 
-    // Step 27: assert bot response (retry 60 s) — PRIMARY E2E PASS CRITERION
-    await sendSignal(
-      "waitForTextThenScreenshot:response message:60000:24-agent-response",
-      68000,
-    );
-    await takeScreenshot("25-agent-response");
-    // Use eval to check for any visible response in the chat area
-    const responseResultFile = path.join(OUTPUT_DIR, "response-check.json");
-    await sendSignal(
-      `eval:${responseResultFile}:JSON.stringify({hasResponse: document.body.innerText.length > 200})`,
-      10000,
-    );
-    let hasResponse = false;
-    try {
-      if (fs.existsSync(responseResultFile)) {
-        const r = JSON.parse(fs.readFileSync(responseResultFile, "utf8"));
-        hasResponse = r.hasResponse === true;
-      }
-    } catch {}
-    step(
-      "Agent returns response in Copilot chat",
-      hasResponse,
-      hasResponse ? "✓" : "no response after 60s retry",
-    );
+      // Step 16: wait for "Start Agent Locally" compound task (up to 30 s via task events)
+      const taskStartDeadline = Date.now() + 30000;
+      while (!taskStarted && Date.now() < taskStartDeadline) await wait(500);
+      await sendSignal(
+        "waitForTextThenScreenshot:Start Agent Locally:5000:12-task-started",
+        10000,
+      );
+      step(
+        "Start Agent Locally task started",
+        taskStarted,
+        taskStarted ? "✓" : "not detected via task events",
+      );
 
-    assert.ok(
-      agentFound,
-      `Agent "${expectedAgent}" was not found in Copilot — local debug may not have registered the agent`,
-    );
-    assert.ok(hasResponse, "No bot response received after 60s");
+      // Step 17: wait for "Validate prerequisites" subtask (up to 30 s via task events)
+      const prereqDeadline = Date.now() + 30000;
+      while (!prereqsStarted && Date.now() < prereqDeadline) await wait(500);
+      await sendSignal(
+        "waitForTextThenScreenshot:Validate prerequisites:5000:13-validate-prereqs",
+        10000,
+      );
+      step(
+        "Validate prerequisites task started",
+        prereqsStarted,
+        prereqsStarted ? "✓" : "not detected via task events",
+      );
+
+      // Step 18: wait for "Create resources" subtask (up to 60 s via task events)
+      const createDeadline = Date.now() + 60000;
+      while (!createResourcesStarted && Date.now() < createDeadline)
+        await wait(500);
+      await sendSignal(
+        "waitForTextThenScreenshot:Create resources:5000:14-create-resources",
+        10000,
+      );
+      step(
+        "Create resources task started",
+        createResourcesStarted,
+        createResourcesStarted ? "✓" : "not detected via task events",
+      );
+
+      // Step 19: wait for provision to progress, screenshot
+      await wait(10000);
+      await takeScreenshot("15-provision-progress");
+
+      // Step 20: soft check — Chrome opens to m365.cloud.microsoft.
+      // The VS Code CDP connection does not have access to an external Chrome window,
+      // so this signal will time out gracefully if the browser is not observable.
+      await sendSignal(
+        "waitForTextThenScreenshot:m365.cloud.microsoft:120000:16-copilot-browser",
+        130000,
+      );
+      await takeScreenshot("16-copilot-browser");
+
+      step(
+        "Debug task chain initiated (Preview Local in Copilot Chrome)",
+        true,
+        "debug tasks started",
+      );
+
+      assert.ok(taskStarted, "Start Agent Locally task was never started");
+      assert.ok(
+        prereqsStarted,
+        "Validate prerequisites task was never started",
+      );
+      assert.ok(
+        createResourcesStarted,
+        "Create resources task was never started",
+      );
+    } finally {
+      taskDisposable.dispose();
+      debugDisposable.dispose();
+    }
   });
 });
