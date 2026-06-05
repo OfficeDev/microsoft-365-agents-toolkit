@@ -22,6 +22,7 @@ import {
   ShareOperationOption,
   ShareOperationOptions,
   ShareScopeOption,
+  removeSharedAccessNode,
   selectUsersToRemoveSharedAccess,
   shareNode,
   shareQuestionDeps,
@@ -322,5 +323,29 @@ describe("selectUsersToRemoveSharedAccess", () => {
     assert.equal((options[1] as OptionItem).id, "user2@example.com");
     assert.equal((options[1] as OptionItem).label, "User 2");
     assert.equal((options[1] as OptionItem).description, "user2@example.com");
+  });
+});
+
+describe("shareQuestionDeps", () => {
+  it("should execute dependency wrapper and surface parser error", async () => {
+    try {
+      await shareQuestionDeps.parseShareAppActionYamlConfig("path/to/project");
+      assert.fail("Expected function to throw");
+    } catch (error) {
+      assert.include((error as Error).message, "Missing required file");
+    }
+  });
+});
+
+describe("removeSharedAccessNode", () => {
+  it("should contain group root with selectUsersToRemoveSharedAccess as child", () => {
+    const node = removeSharedAccessNode();
+
+    assert.equal((node.data as { type: string }).type, "group");
+    assert.isArray(node.children);
+    assert.lengthOf(node.children!, 1);
+    const childQuestion = node.children![0].data;
+    assert.equal((childQuestion as { name: string }).name, QuestionNames.RemoveUsers);
+    assert.equal((childQuestion as { type: string }).type, "multiSelect");
   });
 });

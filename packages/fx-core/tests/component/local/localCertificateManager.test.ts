@@ -342,6 +342,56 @@ describe("certificate", () => {
       chai.assert.isFalse(cert.isTrusted);
       chai.assert.isDefined(cert.error);
     });
+
+    it("generateCertificate should write both cert and key", async () => {
+      const certFile = path.resolve(fakeHomeDir, "localhost.crt");
+      const keyFile = path.resolve(fakeHomeDir, "localhost.key");
+      const privateKey = pki.privateKeyFromPem(lightweightCertPair.keyPem);
+      const publicKey = pki.certificateFromPem(lightweightCertPair.certPem).publicKey;
+
+      sinon
+        .stub(pki.rsa, "generateKeyPair")
+        .returns({ privateKey, publicKey } as unknown as pki.rsa.KeyPair);
+      const writeFileStub = sinon.stub(localCertificateManagerDeps, "writeFile").resolves();
+
+      const certManager = new LocalCertificateManager();
+      await certManager.generateCertificate(certFile, keyFile);
+
+      chai.assert.equal(writeFileStub.callCount, 2);
+      chai.assert.equal(writeFileStub.firstCall.args[0], certFile);
+      chai.assert.equal(writeFileStub.secondCall.args[0], keyFile);
+    });
+
+    it("verifyCertificateInStore on Darwin should check keychain via shell", async () => {
+      sinon.stub(localCertificateManagerDeps, "osType").returns("Darwin");
+      sinon.stub(localCertificateManagerDeps, "homedir").returns(fakeHomeDir);
+      const execShellStub = sinon
+        .stub(localCertificateManagerDeps, "execShell")
+        .resolves("SHA-1 hash: ABCDEF");
+
+      const certManager = new LocalCertificateManager();
+      const found = await certManager.verifyCertificateInStore("ABCDEF");
+
+      chai.assert.isTrue(found);
+      chai.assert.isTrue(execShellStub.calledOnce);
+    });
+
+    it("trustCertificate on Darwin should run add-trusted-cert", async () => {
+      sinon.stub(localCertificateManagerDeps, "osType").returns("Darwin");
+      sinon.stub(LocalCertificateManager.prototype as any, "waitForUserConfirm").resolves(true);
+      const execShellStub = sinon.stub(localCertificateManagerDeps, "execShell").resolves("ok");
+
+      const certManager = new LocalCertificateManager();
+      const cert = {
+        certPath: path.resolve(fakeHomeDir, "localhost.crt"),
+        keyPath: path.resolve(fakeHomeDir, "localhost.key"),
+      } as any;
+
+      await (certManager as any).trustCertificate(cert, "thumbprint", "friendlyname");
+
+      chai.assert.isTrue(execShellStub.calledOnce);
+      chai.assert.isTrue(cert.isTrusted);
+    });
   });
 });
 

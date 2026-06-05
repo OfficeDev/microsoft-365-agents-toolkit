@@ -11,6 +11,7 @@ import * as path from "path";
 import Sinon, * as sinon from "sinon";
 import { pathUtils } from "../../src";
 import { GraphClient } from "../../src/client/graphClient";
+import { teamsDevPortalClient } from "../../src/client/teamsDevPortalClient";
 import { setTools } from "../../src/common/globalVars";
 import { getProjectMetadata } from "../../src/common/projectSettingsHelper";
 import {
@@ -75,6 +76,15 @@ describe("tools", () => {
       const result = await getSideloadingStatus("fake-token");
 
       chai.assert.isUndefined(result);
+    });
+
+    it("commonToolsDeps wrapper delegates to teamsDevPortalClient", async () => {
+      const statusStub = sinon.stub(teamsDevPortalClient, "getSideloadingStatus").resolves(true);
+
+      const result = await commonToolsDeps.getSideloadingStatus("wrapper-token");
+
+      chai.assert.isTrue(result);
+      chai.assert.isTrue(statusStub.calledOnceWithExactly("wrapper-token"));
     });
   });
 

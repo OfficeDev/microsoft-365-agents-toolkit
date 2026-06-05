@@ -1,5 +1,6 @@
 import * as armResources from "@azure/arm-resources";
 import { ResourceManagementClient } from "@azure/arm-resources";
+import { SubscriptionClient } from "@azure/arm-subscriptions";
 import { ok, Platform } from "@microsoft/teamsfx-api";
 import { assert } from "chai";
 import * as sinon from "sinon";
@@ -47,6 +48,11 @@ describe("resouce group helper test", () => {
       console.error(res.error);
     }
     assert.isTrue(res.isOk());
+  });
+
+  it("resourceGroupHelperDeps should create subscription client", () => {
+    const client = resourceGroupHelperDeps.createSubscriptionClient(new MyTokenCredential());
+    assert.instanceOf(client, SubscriptionClient);
   });
 
   it("createResourceGroup return undefined", async () => {

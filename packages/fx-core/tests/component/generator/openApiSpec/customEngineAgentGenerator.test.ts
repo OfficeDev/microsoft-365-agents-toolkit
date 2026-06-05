@@ -1,4 +1,4 @@
-import { ProjectType } from "@microsoft/m365-spec-parser";
+import { ErrorType, ProjectType, SpecParserError } from "@microsoft/m365-spec-parser";
 import { Inputs, ok, Platform, SystemError } from "@microsoft/teamsfx-api";
 import { assert } from "chai";
 import { RestoreFn } from "mocked-env";
@@ -194,6 +194,35 @@ describe("CustomEngineAgentWithExistingApiSpecGenerator", async () => {
 
       assert.isTrue(result.isErr());
       assert.isTrue(assembleErrorStub.calledOnce);
+    });
+
+    it("generateCustomCopilot: SpecParserError", async () => {
+      const inputs: Inputs = {
+        platform: Platform.VSCode,
+        projectPath: "path",
+        [QuestionNames.ProgrammingLanguage]: ProgrammingLanguage.TS,
+        [QuestionNames.ApiSpecLocation]: "test.yaml",
+        [QuestionNames.ApiOperation]: ["operation1"],
+        templateState: {
+          templateName: "custom-copilot-rag-custom-api",
+          isPlugin: false,
+          uri: "https://test.com",
+          isYaml: false,
+          type: ProjectType.TeamsAi,
+        },
+      };
+      const context = createContext();
+      const specError = new SpecParserError("test", ErrorType.Unknown);
+      sandbox.stub(customEngineAgentGeneratorDeps, "generateFilesFromApiSpec").rejects(specError);
+      const convertStub = sandbox
+        .stub(customEngineAgentGeneratorDeps, "convertSpecParserErrorToFxError")
+        .returns(new SystemError("ut", "spec-parser", "", ""));
+
+      const generator = new CustomEngineAgentWithExistingApiSpecGenerator();
+      const result = await generator.post(context, inputs, "projectPath");
+
+      assert.isTrue(result.isErr());
+      assert.isTrue(convertStub.calledOnceWithExactly(specError));
     });
   });
 });

@@ -48,6 +48,12 @@ describe("AzureStaticWebAppGetDeploymentTokenDriver", () => {
     );
   });
 
+  it("azureStaticWebAppGetTokenDeps should create management client", async () => {
+    (azureStaticWebAppGetTokenDeps.createWebSiteManagementClient as sinon.SinonStub).restore();
+    const client = azureStaticWebAppGetTokenDeps.createWebSiteManagementClient({} as any, "sub-id");
+    expect(client).to.be.instanceOf(appService.WebSiteManagementClient);
+  });
+
   it("should get deployment token use default settings", async () => {
     const secrets = { properties: { apiKey: "testKey" } };
     sinon.stub(clientStub.staticSites, "listStaticSiteSecrets").resolves(secrets);

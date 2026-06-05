@@ -71,4 +71,14 @@ describe("Test", () => {
       chai.expect(e instanceof ZipFileError).to.equal(true);
     });
   });
+
+  it("fileOperationDeps.writeZip should reject on callback error", async () => {
+    const fakeZip = {
+      writeZip: (_cache: string, cb: (err?: Error) => void) => cb(new Error("zip-failed")),
+    } as any;
+
+    await fileOperationDeps.writeZip(fakeZip, path.join(tmp, "tmp.zip")).catch((e: Error) => {
+      chai.expect(e.message).to.equal("zip-failed");
+    });
+  });
 });
