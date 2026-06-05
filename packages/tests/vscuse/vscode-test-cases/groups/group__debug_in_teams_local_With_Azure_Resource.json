@@ -9,14 +9,14 @@
       "precondition_retry_interval": 2
     },
     "total_steps": 17,
-    "created_at": "2026-05-13T03:36:21.344407",
+    "created_at": "2026-06-05T07:17:54.448300",
     "name": "group  debug in teams local With Azure Resource",
     "description": {
       "other": "Generated from recording r_0930_083113",
       "owner": "v-ivanchen@microsoft.com",
       "workitem": ""
     },
-    "generated_at": "2026-05-13T03:36:21.344407",
+    "generated_at": "2026-06-05T07:17:54.448300",
     "execution_order": [
       "step_51c26dd3",
       "step_372a68fe",
@@ -39,7 +39,7 @@
     "tags": [
       "group"
     ],
-    "updated_at": "2026-05-13T07:42:55.749725"
+    "updated_at": "2026-06-05T09:07:03.578648"
   },
   "steps": [
     {
@@ -61,7 +61,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_51c26dd3",
-      "created_at": "2026-05-13T03:36:21.352000",
+      "created_at": "2026-06-05T09:06:26.296448",
       "plan_id": "plan_f0f86494"
     },
     {
@@ -83,7 +83,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_372a68fe",
-      "created_at": "2026-05-13T03:36:21.359878",
+      "created_at": "2026-06-05T09:06:26.306397",
       "plan_id": "plan_f0f86494"
     },
     {
@@ -105,7 +105,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_33dab1a7",
-      "created_at": "2026-05-13T03:36:21.367930",
+      "created_at": "2026-06-05T09:06:26.314340",
       "plan_id": "plan_f0f86494"
     },
     {
@@ -127,7 +127,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_b254cc9c",
-      "created_at": "2026-05-13T03:36:21.377967",
+      "created_at": "2026-06-05T09:06:26.324120",
       "plan_id": "plan_f0f86494"
     },
     {
@@ -149,7 +149,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_755e4ec2",
-      "created_at": "2026-05-13T03:36:21.385925",
+      "created_at": "2026-06-05T09:06:26.334788",
       "plan_id": "plan_f0f86494"
     },
     {
@@ -175,7 +175,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_6c3d855b",
-      "created_at": "2026-05-13T03:36:21.394603",
+      "created_at": "2026-06-05T09:06:26.344080",
       "plan_id": "plan_f0f86494"
     },
     {
@@ -197,7 +197,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_20871edd",
-      "created_at": "2026-05-13T03:36:21.401641",
+      "created_at": "2026-06-05T09:06:26.353367",
       "plan_id": "plan_f0f86494"
     },
     {
@@ -223,7 +223,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_63a6ae2f",
-      "created_at": "2026-05-13T03:36:21.406436",
+      "created_at": "2026-06-05T09:06:26.361661",
       "plan_id": "plan_f0f86494"
     },
     {
@@ -249,7 +249,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_196a920f",
-      "created_at": "2026-05-13T03:36:21.419317",
+      "created_at": "2026-06-05T09:06:26.368223",
       "plan_id": "plan_f0f86494"
     },
     {
@@ -274,10 +274,11 @@
       ],
       "postconditions": [],
       "tags": [
-        "precondition_wait_timeout:240"
+        "precondition_wait_timeout:240",
+        "delay:30"
       ],
       "screenshot": "step_7ac90ace",
-      "created_at": "2026-05-13T03:36:21.426700",
+      "created_at": "2026-06-05T09:06:26.375678",
       "plan_id": "plan_f0f86494"
     },
     {
@@ -299,7 +300,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_de5581d4",
-      "created_at": "2026-05-13T03:36:21.435915",
+      "created_at": "2026-06-05T09:06:26.381677",
       "plan_id": "plan_f0f86494"
     },
     {
@@ -323,7 +324,7 @@
         "delay: 3"
       ],
       "screenshot": "step_a6a46045",
-      "created_at": "2026-05-13T03:36:21.443964",
+      "created_at": "2026-06-05T09:06:26.389879",
       "plan_id": "plan_f0f86494"
     },
     {
@@ -349,7 +350,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_d9551a88",
-      "created_at": "2026-05-13T03:36:21.451003",
+      "created_at": "2026-06-05T09:06:26.396360",
       "plan_id": "plan_f0f86494"
     },
     {
@@ -369,7 +370,7 @@
         "step_retry_timeout: 180"
       ],
       "screenshot": null,
-      "created_at": "2026-05-13T03:36:21.464844",
+      "created_at": "2026-06-05T09:06:26.404405",
       "plan_id": "plan_f0f86494"
     },
     {
@@ -395,7 +396,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_d5498f6a",
-      "created_at": "2026-05-13T03:36:21.472901",
+      "created_at": "2026-06-05T09:06:26.411457",
       "plan_id": "plan_f0f86494"
     },
     {
@@ -415,7 +416,7 @@
         "step_retry_timeout: 180"
       ],
       "screenshot": null,
-      "created_at": "2026-05-13T03:36:21.478683",
+      "created_at": "2026-06-05T09:06:26.420617",
       "plan_id": "plan_f0f86494"
     },
     {
@@ -443,7 +444,7 @@
         "precondition_wait_timeout: 120"
       ],
       "screenshot": "step_66d68b84",
-      "created_at": "2026-05-13T03:36:21.486734",
+      "created_at": "2026-06-05T09:06:26.428656",
       "plan_id": "plan_f0f86494"
     }
   ],
