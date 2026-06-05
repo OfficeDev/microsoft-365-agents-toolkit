@@ -7997,6 +7997,32 @@ describe("fetchOnlineTemplateMetadata", () => {
     assert.equal(writeFileStub.called, false);
   });
 
+  it("should return error when v4 source resolution fails", async () => {
+    sandbox.stub(templateHelper, "useLocalTemplate").returns(false);
+    sandbox.stub(packageJson, "version").value("1.0.0");
+    sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
+
+    // A malformed tag list / digest mismatch is a hard error (no silent fallback).
+    const resolveError = new UserError("test", "ResolveError", "resolve failed");
+    const resolveStub = sandbox
+      .stub(v4MetadataSource, "resolveV4MetadataSource")
+      .resolves(err(resolveError));
+    const fetchZipStub = sandbox.stub(generatorUtils, "fetchZipFromUrl");
+    const unzipStub = sandbox.stub(generatorUtils, "unzip");
+
+    sandbox.stub(fs, "ensureDir").resolves();
+
+    const result = await core.fetchOnlineTemplateMetadata();
+
+    assert.isTrue(result.isErr());
+    if (result.isErr()) {
+      assert.strictEqual(result.error, resolveError);
+    }
+    assert.equal(resolveStub.called, true);
+    assert.equal(fetchZipStub.called, false);
+    assert.equal(unzipStub.called, false);
+  });
+
   it("should skip download when cached version matches latest version", async () => {
     sandbox.stub(templateHelper, "useLocalTemplate").returns(false);
     sandbox.stub(packageJson, "version").value("1.0.0");
