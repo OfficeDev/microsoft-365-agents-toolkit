@@ -227,6 +227,61 @@ jobs:
           echo "TEMPLATE_VERSION=local" >> $GITHUB_ENV
           echo "VSIX ready: ATK v$VER at $EXT_DIR"
 
+      - name: Patch extracted extension for test automation
+        # Applies two patches to the compiled extension.js in the extracted VSIX:
+        # 1. codeFlowLogin: write MSAL auth URL to $TMPDIR/atk-auth-url.txt when
+        #    TEAMSFX_AUTO_CONFIRM_LOGIN=true, so the runTest.ts OAuth watcher can drive
+        #    the browser sign-in automatically.
+        # 2. m365Login: skip the confirmation modal when TEAMSFX_AUTO_CONFIRM_LOGIN=true.
+        # Both patterns target unique strings that exist in every ATK release build.
+        run: |
+          EXT_JS="${{ env.ATK_EXT_PATH }}/out/src/extension.js"
+          if [ ! -f "$EXT_JS" ]; then
+            echo "::warning::extension.js not found at $EXT_JS — skipping patches"
+            exit 0
+          fi
+          echo "Patching $EXT_JS ($(du -sh "$EXT_JS" | cut -f1))"
+
+          # ── Patch 1: write auth URL to file in codeFlowLogin ─────────────────
+          # Find: void vscode.env.openExternal(vscode.Uri.parse(response));
+          # Wrap: write URL before opening browser
+          node - << 'JSEOF'
+          const fs = require('fs');
+          const p = process.env.EXT_JS || '/tmp/atk-ext/extension/out/src/extension.js';
+          let src = fs.readFileSync(p, 'utf8');
+
+          // Patch 1: inject auth URL file write before openExternal call
+          const openExternal = 'void vscode.env.openExternal(vscode.Uri.parse(response));';
+          const patch1 = `if(process.env["TEAMSFX_AUTO_CONFIRM_LOGIN"]==="true"){try{require("fs").writeFileSync(require("os").tmpdir()+"/atk-auth-url.txt",response,"utf8");}catch(e){}} ${openExternal}`;
+          if (src.includes(openExternal) && !src.includes('atk-auth-url.txt')) {
+            src = src.replace(openExternal, patch1);
+            console.log('Patch 1 applied: auth URL file write');
+          } else if (src.includes('atk-auth-url.txt')) {
+            console.log('Patch 1 already applied');
+          } else {
+            console.warn('Patch 1 target not found — openExternal pattern missing');
+          }
+
+          // Patch 2: bypass confirmation modal
+          // Target unique string: "teamstoolkit.appStudioLogin.message"
+          // Insert auto-confirm bypass before the localize() call
+          const confirmTarget = '"teamstoolkit.appStudioLogin.message"';
+          const patch2Prefix = 'if(process.env["TEAMSFX_AUTO_CONFIRM_LOGIN"]==="true"){return Promise.resolve(true);} ';
+          if (src.includes(confirmTarget) && !src.includes('TEAMSFX_AUTO_CONFIRM_LOGIN]==="true"){return Promise.resolve(true);}')) {
+            src = src.replace(confirmTarget, patch2Prefix + confirmTarget);
+            console.log('Patch 2 applied: auto-confirm bypass');
+          } else if (src.includes('TEAMSFX_AUTO_CONFIRM_LOGIN]==="true"){return Promise.resolve(true);}')) {
+            console.log('Patch 2 already applied');
+          } else {
+            console.warn('Patch 2 target not found — appStudioLogin.message missing');
+          }
+
+          fs.writeFileSync(p, src, 'utf8');
+          console.log('Patching complete');
+          JSEOF
+        env:
+          EXT_JS: ${{ env.ATK_EXT_PATH }}/out/src/extension.js
+
       - name: Start Xvfb
         run: |
           Xvfb :99 -ac -screen 0 1920x1080x24 &
