@@ -476,10 +476,9 @@ async function main() {
     fs.rmSync(path.join(signalDir, f), { force: true }),
   );
 
-  // Remove stale lock file so the test suite runs fresh on each invocation
-  const lockFile = path.join(outputDir, "atk-copilot-test.lock");
+  // Remove stale scaffold marker so each test run starts fresh in Window 1
   try {
-    fs.rmSync(lockFile, { force: true });
+    fs.rmSync(path.join(outputDir, "scaffold-done.json"), { force: true });
   } catch {}
 
   console.log("=== Playwright + test-electron Runner ===");

@@ -4,6 +4,66 @@ No auth required. Creates a new project through the ATK wizard and verifies the 
 
 ---
 
+## Two-window design (important)
+
+When ATK finishes scaffolding, it **automatically opens a second VS Code window** with the new project as the workspace root. The first window remains open but has no project.
+
+**The correct test pattern is:**
+- **Window 1** (wizard window): run the wizard steps → write a `scaffold-done.json` marker with the `projectDir` → let the window exit naturally
+- **Window 2** (project window): read the marker → verify files + do sign-in + local debug → clean up marker
+
+Do **not** try to:
+- Reopen the project in Window 1 via `vscode.openFolder` (that reloads the window and breaks the extension host)
+- Use `updateWorkspaceFolders` to add the project folder (async, unreliable timing)
+- Close Window 2 and continue in Window 1
+
+Window 2 is the correct surface for everything after scaffold because:
+- The project is already the workspace root — `launch.json` configs are immediately visible
+- ATK is already activated (triggered by `workspaceContains:m365agents*.yml`)
+- No folder manipulation needed
+
+### Marker file pattern
+
+```typescript
+// In Window 1 — after pressing Enter on app name:
+const projectDir = path.join(os.homedir(), "AgentsToolkitProjects", appName);
+// Poll briefly to confirm scaffold started
+for (let i = 0; i < 30; i++) {
+  if (fs.existsSync(projectDir)) break;
+  await wait(1000);
+}
+// Write marker for Window 2
+fs.writeFileSync(
+  path.join(OUTPUT_DIR, "scaffold-done.json"),
+  JSON.stringify({ appName, projectDir, createdAt: Date.now() }),
+  "utf8",
+);
+// Window 1's work is done — it will exit when ATK finishes and the test suite completes
+```
+
+```typescript
+// In test file top-level (both windows read this at load time):
+const SCAFFOLD_MARKER = path.join(OUTPUT_DIR, "scaffold-done.json");
+const isWindow2 = fs.existsSync(SCAFFOLD_MARKER);
+let scaffoldedProjectDir = "";
+if (isWindow2) {
+  try {
+    const marker = JSON.parse(fs.readFileSync(SCAFFOLD_MARKER, "utf8"));
+    scaffoldedProjectDir = marker.projectDir;
+  } catch {}
+}
+
+// Then gate test cases:
+if (!isWindow2) {
+  test("Phase 1: wizard", async () => { /* ... wizard steps ... */ });
+} else {
+  test("Phase 2: verify files", async () => { /* ... */ });
+  test("Sign in + debug", async () => { /* ... */ });
+}
+```
+
+---
+
 ## Wizard option labels
 
 Option labels come from `templates/src/ui/` — **read the relevant file before writing the click sequence**:
@@ -17,87 +77,59 @@ Option labels come from `templates/src/ui/` — **read the relevant file before 
 
 ---
 
-## Pattern
+## Window 1 pattern (wizard only)
 
 ```typescript
-// 1. Random app name — prevents directory collisions between runs
 const appName = `da-${Date.now()}`;
 
-// 2. Fire wizard WITHOUT await — the wizard blocks the thread until the user finishes.
-//    Omitting await lets sendSignal() run so Playwright can interact with the QuickPick.
-vscode.commands.executeCommand("fx-extension.create").catch(() => {});
-await wait(500); // yield event loop so the command dispatch reaches the extension host
+// Fire wizard WITHOUT await
+vscode.commands.executeCommand("fx-extension.create").then(undefined, () => {});
+await wait(500);
 
-// 3. Each wizard step:
-//    a) Wait for the option text to appear (proves this step's QuickPick is open)
-//    b) Screenshot the QuickPick widget before clicking
-//    c) Click the option
+// Each wizard step: wait for text → screenshot → click/select
 await sendSignal("waitForTextThenScreenshot:Declarative Agent:60000:02-step1-project-type", 68000);
-await takeElementScreenshot("02-step1-project-type", ".quick-input-widget");
-await sendSignal("clickText:Declarative Agent", 10000);
+await sendSignal("pressKey:Enter", 5000); // first item is pre-highlighted; Enter selects it
 await wait(800);
 
 // ... repeat for each step using labels from templates/src/ui/*.ts ...
 
-// 4. App name input step — type the random name
-await sendSignal("waitForTextThenScreenshot:Application Name:15000:07-step-appname", 23000);
-await takeElementScreenshot("07-step-appname", ".quick-input-widget");
+// App name step
+await sendSignal("waitForTextThenScreenshot:Application Name:15000:05-wizard-appname", 23000);
 await sendSignal(`type:${appName}`, 8000);
 await wait(300);
 await sendSignal("pressKey:Enter", 5000);
 
-// 5. Scaffold in progress — ATK copies template files and opens a NEW VS Code window.
-//    Screenshot the progress notification, then close the new window.
-await wait(30000);
-await takeElementScreenshot("08-scaffold-progress", ".notifications-toasts");
-await wait(60000); // total ~90s for scaffold
-await vscode.commands.executeCommand("workbench.action.closeWindow");
-
-// 6. Open the scaffolded project in the current window
-const projectDir = findScaffoldedDir(appName); // search ~/AgentsToolkitProjects then homedir
-await vscode.commands.executeCommand("vscode.openFolder", vscode.Uri.file(projectDir));
-await wait(5000);
-
-// 7. Verify output files
-//    Poll for sentinel file first (ATK writes m365agents.yml early in copy)
-const sentinel = path.join(projectDir, "m365agents.yml");
-for (let i = 0; i < 60 && !fs.existsSync(sentinel); i++) await wait(1000);
-
-for (const relPath of EXPECTED_FILES) {
-  const exists = fs.existsSync(path.join(projectDir, relPath));
-  step(`File: ${relPath}`, exists, exists ? "✓" : `not found in ${projectDir}`);
-  // Screenshot explorer to show actual directory state for each check
-  await takeElementScreenshot(`verify-${relPath.replace(/\//g, "-")}`, ".explorer-viewlet");
+// ATK opens a new VS Code window with the project — Window 1's job is done.
+// Poll briefly to confirm the project dir was created, then write the marker.
+const projectDir = path.join(os.homedir(), "AgentsToolkitProjects", appName);
+for (let i = 0; i < 30; i++) {
+  if (fs.existsSync(projectDir)) break;
+  await wait(1000);
 }
+fs.writeFileSync(
+  path.join(OUTPUT_DIR, "scaffold-done.json"),
+  JSON.stringify({ appName, projectDir, createdAt: Date.now() }),
+  "utf8",
+);
+await takeScreenshot("06-scaffold-started");
 ```
 
 ---
 
-## findScaffoldedDir helper
+## Window 2 pattern (verify files)
 
 ```typescript
-function findScaffoldedDir(appName: string): string {
-  const roots = [
-    path.join(os.homedir(), "AgentsToolkitProjects"),
-    os.homedir(),
-    os.tmpdir(),
-    process.cwd(),
-  ];
-  for (const root of roots) {
-    if (!fs.existsSync(root)) continue;
-    const direct = path.join(root, appName);
-    if (fs.existsSync(direct)) return direct;
-    try {
-      for (const entry of fs.readdirSync(root)) {
-        if (entry.includes(appName)) {
-          const full = path.join(root, entry);
-          try { if (fs.statSync(full).isDirectory()) return full; } catch {}
-        }
-      }
-    } catch {}
-  }
-  return "";
+// projectDir comes from scaffold-done.json read at top of file
+const sentinel = path.join(projectDir, "m365agents.yml");
+for (let i = 0; i < 90 && !fs.existsSync(sentinel); i++) await wait(1000);
+await takeScreenshot("06-scaffold-explorer");
+
+for (const relPath of EXPECTED_FILES) {
+  const exists = fs.existsSync(path.join(projectDir, relPath));
+  step(`${relPath} exists`, exists, exists ? "✓" : `missing in ${projectDir}`);
 }
+// Clean up marker when all work in Window 2 is complete
+try { fs.unlinkSync(path.join(OUTPUT_DIR, "scaffold-done.json")); } catch {}
 ```
 
 ---
