@@ -71,6 +71,44 @@ async function takeScreenshot(name: string): Promise<void> {
 }
 
 /**
+ * Element-level screenshot: Playwright gets the element bounding box and clips
+ * to that region. Falls back to full-page if the element is not found.
+ * Format sent to runTest.ts: "screenshotElement:<selector>:<dest>"
+ * CSS selectors must NOT contain colons (the first colon is the separator).
+ */
+async function takeElementScreenshot(
+  name: string,
+  selector: string,
+): Promise<void> {
+  try {
+    const dest = path.join(SCREENSHOT_DIR, `${name}.png`);
+    const signal = path.join(SIGNAL_DIR, `${Date.now()}-${name}.signal`);
+    fs.writeFileSync(signal, `screenshotElement:${selector}:${dest}`, "utf8");
+    await new Promise<void>((resolve) => {
+      const deadline = Date.now() + 8000;
+      const iv = setInterval(() => {
+        if (!fs.existsSync(signal) || Date.now() >= deadline) {
+          clearInterval(iv);
+          if (fs.existsSync(signal)) {
+            try {
+              fs.unlinkSync(signal);
+            } catch {}
+          }
+          resolve();
+        }
+      }, 100);
+    });
+    console.log(
+      fs.existsSync(dest)
+        ? `Screenshot[element]: ${name}.png`
+        : `Screenshot[element] timeout: ${name}.png`,
+    );
+  } catch (e) {
+    console.warn("Element screenshot failed:", e);
+  }
+}
+
+/**
  * Write a signal file and wait for Playwright to consume it (up to timeoutMs).
  * Uses setInterval so the extension-host event loop stays free — critical for
  * "fire-and-forget" executeCommand calls that must reach VS Code before we block.
@@ -222,15 +260,19 @@ suite("DA No Action – Local Debug in M365 Copilot", function () {
   // ── Test 2: Phase 1 + 2 – Create project and verify scaffold ─────────────
   test("Phase 1-2: Create DA No Action project via wizard and verify scaffold", async () => {
     // Step 1: clear notifications (dismiss welcome dialog)
-    vscode.commands.executeCommand("notifications.clearAll").catch(() => {});
+    vscode.commands
+      .executeCommand("notifications.clearAll")
+      .then(undefined, () => {});
     await wait(500);
 
     // Step 2: fire the wizard WITHOUT await — it blocks until wizard completes
     const cmdAvailable = await waitForCommand("fx-extension.create");
     console.log("  fx-extension.create available:", cmdAvailable);
-    vscode.commands.executeCommand("fx-extension.create").catch((e: any) => {
-      console.log("  Command error:", e.message);
-    });
+    vscode.commands
+      .executeCommand("fx-extension.create")
+      .then(undefined, (e: any) => {
+        console.log("  Command error:", e.message);
+      });
     await wait(500); // yield event loop so command dispatch reaches extension host
 
     // Step 3: QuickPick — "Declarative Agent" (first item, pre-highlighted by VS Code)
@@ -332,12 +374,14 @@ suite("DA No Action – Local Debug in M365 Copilot", function () {
     // Step 10: Close auto-opened README tab
     vscode.commands
       .executeCommand("workbench.action.closeActiveEditor")
-      .catch(() => {});
+      .then(undefined, () => {});
     await wait(500);
     await takeScreenshot("07-readme-closed");
 
     // Step 11: Clear all notifications
-    vscode.commands.executeCommand("notifications.clearAll").catch(() => {});
+    vscode.commands
+      .executeCommand("notifications.clearAll")
+      .then(undefined, () => {});
     await wait(500);
     await takeScreenshot("08-notifications-cleared");
 
@@ -362,7 +406,9 @@ suite("DA No Action – Local Debug in M365 Copilot", function () {
     );
 
     // Step 12: open ATK Accounts pane WITHOUT await
-    vscode.commands.executeCommand("fx-extension.cmpAccounts").catch(() => {});
+    vscode.commands
+      .executeCommand("fx-extension.cmpAccounts")
+      .then(undefined, () => {});
     await wait(500);
 
     // Step 13: click "Sign in to Microsoft 365"
@@ -423,7 +469,7 @@ suite("DA No Action – Local Debug in M365 Copilot", function () {
     // Step 14: fire debug-selection command WITHOUT await
     vscode.commands
       .executeCommand("workbench.action.debug.selectandstart")
-      .catch((e: any) => {
+      .then(undefined, (e: any) => {
         console.log("  debug.selectandstart error:", e.message);
       });
     await wait(500);
