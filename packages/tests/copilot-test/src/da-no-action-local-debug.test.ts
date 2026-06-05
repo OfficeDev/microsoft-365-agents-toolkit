@@ -272,7 +272,7 @@ suite("DA No Action – Local Debug in M365 Copilot", function () {
     // Avoid waitForTextThenScreenshot here because the InputBox title is not in a
     // .monaco-list-row and page.getByText for "Application Name" may time out.
     await wait(2000); // let InputBox open
-    await sendSignal("screenshot:05-app-name-input", 5000);
+    await takeScreenshot("05-app-name-input");
     await sendSignal(`type:${APP_NAME}`, 8000);
     await wait(500);
     await sendSignal("pressKey:Enter", 5000);
