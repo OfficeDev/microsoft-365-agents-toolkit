@@ -13,11 +13,21 @@ import WorkflowBot from "./webviewDocs/workflowBot";
 
 const language = "en";
 
+const webviewLightTheme = {
+  ...webLightTheme,
+  fontFamilyBase: "var(--font-family)",
+};
+
+const webviewDarkTheme = {
+  ...webDarkTheme,
+  fontFamilyBase: "var(--font-family)",
+};
+
 function getBodyTheme() {
   const themeClass = document.body.className;
   return themeClass.includes("dark") || themeClass.includes("high-contrast")
-    ? webDarkTheme
-    : webLightTheme;
+    ? webviewDarkTheme
+    : webviewLightTheme;
 }
 
 function ThemedApp() {
@@ -37,7 +47,7 @@ function ThemedApp() {
   }, []);
 
   return (
-    <FluentProvider theme={theme}>
+    <FluentProvider theme={theme} style={{ backgroundColor: "transparent" }}>
       <App />
     </FluentProvider>
   );

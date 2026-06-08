@@ -6,7 +6,7 @@ import "./sampleDetailPage.scss";
 import * as React from "react";
 
 import { Button } from "@fluentui/react-components";
-import { ArrowLeftRegular } from "@fluentui/react-icons";
+import { ChevronLeftRegular } from "@fluentui/react-icons";
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 
 import { TelemetryTriggerFrom } from "../../telemetry/extTelemetryEvents";
@@ -96,7 +96,7 @@ export default class SampleDetailPage extends React.Component<SampleProps, Sampl
           <Button
             className="back-button"
             appearance="subtle"
-            icon={<ArrowLeftRegular />}
+            icon={<ChevronLeftRegular />}
             onClick={this.onBack}
           >
             Back
@@ -110,7 +110,7 @@ export default class SampleDetailPage extends React.Component<SampleProps, Sampl
         <Button
           className="back-button"
           appearance="subtle"
-          icon={<ArrowLeftRegular />}
+          icon={<ChevronLeftRegular />}
           onClick={this.onBack}
         >
           Back
