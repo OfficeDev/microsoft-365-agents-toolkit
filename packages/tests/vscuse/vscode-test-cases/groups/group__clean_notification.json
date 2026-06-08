@@ -9,14 +9,14 @@
       "precondition_retry_interval": 2
     },
     "total_steps": 3,
-    "created_at": "2025-12-11T03:06:20.733153",
+    "created_at": "2026-06-08T03:49:44.878968",
     "name": "group: clean_notification",
     "description": {
       "other": "clean_notification",
       "owner": "v-ivanchen@microsoft.com",
       "workitem": ""
     },
-    "generated_at": "2025-12-11T03:06:20.733153",
+    "generated_at": "2026-06-08T03:49:44.878968",
     "execution_order": [
       "step_a686eab5",
       "step_21f18976",
@@ -25,7 +25,7 @@
     "tags": [
       "group"
     ],
-    "updated_at": "2026-01-07T05:49:52.830198"
+    "updated_at": "2026-06-08T05:23:08.467668"
   },
   "steps": [
     {
@@ -45,9 +45,12 @@
         "dhash:512:384:0:20:b2942a2323232421"
       ],
       "postconditions": [],
-      "tags": [],
+      "tags": [
+        "delay:5",
+        "force_run:true"
+      ],
       "screenshot": "step_a686eab5",
-      "created_at": "2026-01-07T03:39:08.009825",
+      "created_at": "2026-06-08T03:49:44.898097",
       "plan_id": "plan_r_0929_040401"
     },
     {
@@ -69,7 +72,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_21f18976",
-      "created_at": "2026-01-07T03:39:08.016140",
+      "created_at": "2026-06-08T03:49:44.908522",
       "plan_id": "plan_r_0929_040401"
     },
     {
@@ -91,7 +94,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_5e61d416",
-      "created_at": "2026-01-07T03:39:08.022543",
+      "created_at": "2026-06-08T03:49:44.919015",
       "plan_id": "plan_r_0929_040401"
     }
   ],
