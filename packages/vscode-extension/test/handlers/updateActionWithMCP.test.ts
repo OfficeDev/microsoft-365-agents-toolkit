@@ -1201,7 +1201,8 @@ describe("updateActionWithMCP", () => {
       const listToolsStub = sandbox.stub(Client.prototype, "listTools").resolves({
         tools: [
           { name: "tool1", description: "Test tool 1", inputSchema: { type: "object" as const } },
-          { name: "tool2", description: "Test tool 2", inputSchema: { type: "object" as const } },
+          // tool2 has no description, exercising the `description ?? ""` dedup key path.
+          { name: "tool2", inputSchema: { type: "object" as const } },
         ],
       });
       const closeStub = sandbox.stub(Client.prototype, "close").resolves();
@@ -1287,6 +1288,42 @@ describe("updateActionWithMCP", () => {
       const tools = calledInputs[QuestionNames.MCPForDAAvailableTools];
       // Only first match should be kept due to dedup
       chai.assert.equal(tools.length, 1);
+    });
+
+    it("should fall back to selectedTools when gateway returns an empty tool list", async () => {
+      const args = [{ serverName: "testServer", serverConfig: { url: "http://test.com" } }];
+      const mockTools = [
+        { name: "mcp_testserver_tool1", description: "Fallback tool", inputSchema: {}, tags: [] },
+      ];
+
+      sandbox.stub(vscode.lm, "tools").value(mockTools);
+      const mockGateway = {
+        servers: [{ label: "testServer", address: { toString: () => "http://localhost:12345" } }],
+        dispose: sandbox.stub(),
+      };
+      Object.defineProperty(vscode.lm, "startMcpGateway", {
+        value: sandbox.stub().resolves(mockGateway),
+        configurable: true,
+      });
+      sandbox.stub(Client.prototype, "connect").resolves();
+      const listToolsStub = sandbox.stub(Client.prototype, "listTools").resolves({
+        tools: [],
+      });
+      const closeStub = sandbox.stub(Client.prototype, "close").resolves();
+      sandbox.stub(axios, "get").resolves({ status: 200 });
+      const runCommandStub = sandbox.stub(sharedOpts, "runCommand").resolves(ok(undefined));
+
+      const result = await updateActionWithMCP(args);
+
+      chai.assert.isTrue(result.isOk());
+      sinon.assert.calledOnce(listToolsStub);
+      sinon.assert.calledOnce(closeStub);
+      sinon.assert.calledOnce(mockGateway.dispose as sinon.SinonStub);
+      const calledInputs = runCommandStub.getCall(0).args[1] as Inputs;
+      const tools = calledInputs[QuestionNames.MCPForDAAvailableTools];
+      // Empty gateway result falls back to the vscode.lm.tools-derived list.
+      chai.assert.equal(tools.length, 1);
+      chai.assert.equal(tools[0].name, "tool1");
     });
 
     it("should include gateway tools even when absent from vscode.lm.tools", async () => {
