@@ -247,8 +247,6 @@ export async function updateActionWithMCP(args?: any[]): Promise<Result<any, FxE
           inputSchema: tool.inputSchema as any,
         };
       });
-    // Build a lookup key set using name+description to handle tools with duplicate names
-    const selectedToolKeys = new Set(selectedTools.map((t) => `${t.name}\n${t.description}`));
     try {
       // startMcpGateway is a proposed API (VS Code Insiders only)
       const mcpGateway = await vscode.lm.startMcpGateway();
@@ -270,15 +268,21 @@ export async function updateActionWithMCP(args?: any[]): Promise<Result<any, FxE
           try {
             await client.connect(transport);
             const result = await client.listTools();
-            const matched = new Set<string>();
-            tools = result.tools.filter((tool) => {
+            // The gateway queries the running MCP server directly, so its tool list is
+            // authoritative. Use it as-is instead of intersecting with vscode.lm.tools,
+            // which is not reliably populated for MCP servers on all platforms (e.g. macOS)
+            // and would otherwise collapse the result to an empty list. Deduplicate on
+            // name+description in case a proxied server reports the same tool twice.
+            const seen = new Set<string>();
+            const gatewayTools = result.tools.filter((tool) => {
               const key = `${tool.name}\n${tool.description ?? ""}`;
-              if (selectedToolKeys.has(key) && !matched.has(key)) {
-                matched.add(key);
-                return true;
+              if (seen.has(key)) {
+                return false;
               }
-              return false;
+              seen.add(key);
+              return true;
             });
+            tools = gatewayTools.length > 0 ? gatewayTools : selectedTools;
           } catch {
             tools = selectedTools;
           } finally {
