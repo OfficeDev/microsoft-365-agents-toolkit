@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
+import * as path from "path";
 import {
   DeclarativeCopilotManifestSchema,
   err,
@@ -1235,6 +1236,7 @@ describe("teamsApp/createAppPackage", async () => {
       return Buffer.from(content);
     }) as any);
     sinon.stub(fs, "pathExists").resolves(true);
+    sinon.stub(fs, "realpath").callsFake(async (p: any) => p);
 
     // Create a new driver instance and stub addFileInZip to track calls and prevent actual file read
     const testDriver = new CreateAppPackageDriver();
@@ -1279,6 +1281,7 @@ describe("teamsApp/createAppPackage", async () => {
     sinon.stub(fs, "pathExists").callsFake(() => {
       return true;
     });
+    sinon.stub(fs, "realpath").callsFake(async (p: any) => p);
     const result = (await teamsAppDriver.execute(args, mockedDriverContext)).result;
     chai.assert(result.isErr());
     if (result.isErr()) {
@@ -1307,6 +1310,7 @@ describe("teamsApp/createAppPackage", async () => {
     sinon.stub(fs, "pathExists").callsFake((filePath) => {
       return true;
     });
+    sinon.stub(fs, "realpath").callsFake(async (p: any) => p);
     const result = (await teamsAppDriver.execute(args, mockedDriverContext)).result;
     chai.assert(result.isErr());
     if (result.isErr()) {
@@ -1350,6 +1354,7 @@ describe("teamsApp/createAppPackage", async () => {
     sinon.stub(fs, "pathExists").callsFake((filePath) => {
       return true;
     });
+    sinon.stub(fs, "realpath").callsFake(async (p: any) => p);
     const result = (await teamsAppDriver.execute(args, mockedDriverContext)).result;
     chai.assert(result.isErr());
     if (result.isErr()) {
@@ -1393,11 +1398,207 @@ describe("teamsApp/createAppPackage", async () => {
     sinon.stub(fs, "pathExists").callsFake((filePath) => {
       return true;
     });
+    sinon.stub(fs, "realpath").callsFake(async (p: any) => p);
     const result = (await teamsAppDriver.execute(args, mockedDriverContext)).result;
     chai.assert(result.isErr());
     if (result.isErr()) {
       chai.assert.isTrue(result.error instanceof InvalidFileOutsideOfTheDirectotryError);
     }
+  });
+
+  it("rejects icon file that is a symlink to outside directory", async () => {
+    const args: CreateAppPackageArgs = {
+      manifestPath:
+        "./tests/plugins/resource/appstudio/resources-multi-env/templates/appPackage/v3.manifest.template.json",
+      outputZipPath:
+        "./tests/plugins/resource/appstudio/resources-multi-env/build/appPackage/appPackage.dev.zip",
+      outputJsonPath:
+        "./tests/plugins/resource/appstudio/resources-multi-env/build/appPackage/manifest.dev.json",
+    };
+
+    const manifest = {
+      manifestVersion: "1.19",
+    } as TeamsManifestV1D19.TeamsManifestV1D19;
+    manifest.icons = {
+      color: "symlinked/color.png",
+      outline: "resources/outline.png",
+    };
+    sinon.stub(manifestUtils, "getManifestV3").resolves(ok(manifest));
+    sinon.stub(fs, "pathExists").resolves(true);
+    const appDir = path.resolve(path.dirname(args.manifestPath));
+    sinon.stub(fs, "realpath").callsFake(async (p: any) => {
+      const resolved = String(p);
+      if (resolved.includes("symlinked")) {
+        return path.resolve("/outside-secrets/color.png");
+      }
+      return resolved;
+    });
+    const result = (await teamsAppDriver.execute(args, mockedDriverContext)).result;
+    chai.assert(result.isErr());
+    if (result.isErr()) {
+      chai.assert.isTrue(result.error instanceof InvalidFileOutsideOfTheDirectotryError);
+    }
+  });
+
+  it("rejects api spec file that is a symlink to outside directory", async () => {
+    const args: CreateAppPackageArgs = {
+      manifestPath:
+        "./tests/plugins/resource/appstudio/resources-multi-env/templates/appPackage/v3.manifest.template.json",
+      outputZipPath:
+        "./tests/plugins/resource/appstudio/resources-multi-env/build/appPackage/appPackage.dev.zip",
+      outputJsonPath:
+        "./tests/plugins/resource/appstudio/resources-multi-env/build/appPackage/manifest.dev.json",
+    };
+
+    const manifest = {
+      manifestVersion: "1.19",
+    } as TeamsManifestV1D19.TeamsManifestV1D19;
+    manifest.composeExtensions = [
+      {
+        composeExtensionType: "apiBased",
+        apiSpecificationFile: "api/openapi.yaml",
+        commands: [],
+        botId: "",
+      },
+    ];
+    manifest.icons = {
+      color: "resources/color.png",
+      outline: "resources/outline.png",
+    };
+    sinon.stub(manifestUtils, "getManifestV3").resolves(ok(manifest));
+    sinon.stub(fs, "pathExists").resolves(true);
+    sinon.stub(fs, "realpath").callsFake(async (p: any) => {
+      const resolved = String(p);
+      if (resolved.includes("api")) {
+        return path.resolve("/outside-secrets/openapi.yaml");
+      }
+      return resolved;
+    });
+    const result = (await teamsAppDriver.execute(args, mockedDriverContext)).result;
+    chai.assert(result.isErr());
+    if (result.isErr()) {
+      chai.assert.isTrue(result.error instanceof InvalidFileOutsideOfTheDirectotryError);
+    }
+  });
+
+  it("rejects agent skill folder that is a symlink to outside directory", async () => {
+    const args: CreateAppPackageArgs = {
+      manifestPath:
+        "./tests/plugins/resource/appstudio/resources-multi-env/templates/appPackage/v3.manifest.template.json",
+      outputZipPath:
+        "./tests/plugins/resource/appstudio/resources-multi-env/build/appPackage/appPackage.dev.zip",
+      outputJsonPath:
+        "./tests/plugins/resource/appstudio/resources-multi-env/build/appPackage/manifest.dev.json",
+    };
+
+    const manifest = {
+      manifestVersion: "devPreview",
+      agentSkills: [{ folder: "skills" }],
+    } as any;
+    manifest.icons = {
+      color: "resources/color.png",
+      outline: "resources/outline.png",
+    };
+    sinon.stub(manifestUtils, "getManifestV3").resolves(ok(manifest));
+    sinon.stub(fs, "pathExists").resolves(true);
+    sinon.stub(fs, "realpath").callsFake(async (p: any) => {
+      const resolved = String(p);
+      if (resolved.includes("skills")) {
+        return path.resolve("/outside-secrets/skills");
+      }
+      return resolved;
+    });
+    sinon.stub(featureFlagManager, "getBooleanValue").callsFake((flag: any) => {
+      if (flag.name === "TEAMSFX_AGENT_SKILLS") return true;
+      return false;
+    });
+    const result = (await teamsAppDriver.execute(args, mockedDriverContext)).result;
+    chai.assert(result.isErr());
+    if (result.isErr()) {
+      chai.assert.isTrue(result.error instanceof InvalidFileOutsideOfTheDirectotryError);
+    }
+  });
+
+  it("addLocalFolderRecursive skips symlink entries", async () => {
+    sinon.stub(fs, "realpath").callsFake(async (p: any) => p);
+    sinon.stub(fs, "readdir").callsFake(async () => {
+      return [
+        {
+          name: "symlinked-file.txt",
+          isSymbolicLink: () => true,
+          isDirectory: () => false,
+          isFile: () => false,
+        },
+        {
+          name: "normal-file.txt",
+          isSymbolicLink: () => false,
+          isDirectory: () => false,
+          isFile: () => true,
+        },
+      ] as any;
+    });
+
+    const addedFiles: string[] = [];
+    const fakeZip = {
+      addLocalFile: (localPath: string, zipPath: string) => {
+        addedFiles.push(localPath);
+      },
+    } as any;
+
+    const driver = new CreateAppPackageDriver();
+    await (driver as any).addLocalFolderRecursive(
+      fakeZip,
+      "/project/appPackage/skills",
+      "/project/appPackage"
+    );
+
+    chai.assert.isFalse(
+      addedFiles.some((f) => f.includes("symlinked-file")),
+      "symlinked file should be skipped"
+    );
+    chai.assert.isTrue(
+      addedFiles.some((f) => f.includes("normal-file")),
+      "normal file should be added"
+    );
+  });
+
+  it("addLocalFolderRecursive skips files whose realpath is outside app directory", async () => {
+    sinon.stub(fs, "realpath").callsFake(async (p: any) => {
+      const resolved = String(p);
+      if (resolved.includes("leaked-file")) {
+        return path.resolve("/outside-secrets/leaked-file.txt");
+      }
+      return resolved;
+    });
+    sinon.stub(fs, "readdir").callsFake(async () => {
+      return [
+        {
+          name: "leaked-file.txt",
+          isSymbolicLink: () => false,
+          isDirectory: () => false,
+          isFile: () => true,
+        },
+      ] as any;
+    });
+
+    const addedFiles: string[] = [];
+    const fakeZip = {
+      addLocalFile: (localPath: string, zipPath: string) => {
+        addedFiles.push(localPath);
+      },
+    } as any;
+
+    const driver = new CreateAppPackageDriver();
+    await (driver as any).addLocalFolderRecursive(
+      fakeZip,
+      "/project/appPackage/skills",
+      "/project/appPackage"
+    );
+
+    chai.assert.isFalse(
+      addedFiles.some((f) => f.includes("leaked-file")),
+      "file with realpath outside app directory should be skipped"
+    );
   });
 
   describe("copilotGpt", async () => {
@@ -1741,6 +1942,7 @@ describe("teamsApp/createAppPackage", async () => {
       sinon.stub(manifestUtils, "getManifestV3").resolves(ok(manifest));
       sinon.stub(fs, "pathExists").resolves(true);
       sinon.stub(fs, "chmod").callsFake(async () => {});
+      sinon.stub(fs, "realpath").callsFake(async (p: any) => p);
       const writeFileStub = sinon.stub(fs, "writeFile").callsFake(async () => {});
 
       const result = (await teamsAppDriver.execute(args, mockedDriverContext)).result;
@@ -1779,6 +1981,7 @@ describe("teamsApp/createAppPackage", async () => {
       sinon.stub(fs, "pathExists").resolves(true);
       sinon.stub(fs, "chmod").callsFake(async () => {});
       sinon.stub(fs, "writeFile").callsFake(async () => {});
+      sinon.stub(fs, "realpath").callsFake(async (p: any) => p);
       sinon
         .stub(manifestUtils, "resolveLocFile")
         .resolves(err(new FileNotFoundError("teamsapp", "faked_loc_path")));
@@ -1819,6 +2022,7 @@ describe("teamsApp/createAppPackage", async () => {
       sinon.stub(fs, "pathExists").resolves(true);
       sinon.stub(fs, "chmod").callsFake(async () => {});
       sinon.stub(fs, "writeFile").callsFake(async () => {});
+      sinon.stub(fs, "realpath").callsFake(async (p: any) => p);
       sinon.stub(manifestUtils, "resolveLocFile").callsFake(async (path) => {
         if (path.includes("migrate.manifest.json")) {
           return ok("{}");
@@ -1862,6 +2066,7 @@ describe("teamsApp/createAppPackage", async () => {
       sinon.stub(manifestUtils, "getManifestV3").resolves(ok(manifest));
       sinon.stub(fs, "pathExists").resolves(true);
       sinon.stub(fs, "chmod").callsFake(async () => {});
+      sinon.stub(fs, "realpath").callsFake(async (p: any) => p);
       const writeFileStub = sinon.stub(fs, "writeFile").callsFake(async () => {});
 
       const result = (await teamsAppDriver.execute(args, mockedDriverContext)).result;

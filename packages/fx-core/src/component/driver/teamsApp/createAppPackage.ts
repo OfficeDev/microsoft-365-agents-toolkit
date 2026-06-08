@@ -139,7 +139,9 @@ export class CreateAppPackageDriver implements StepDriver {
         );
         return err(error);
       }
-      const fileRelativePath = path.relative(appDirectory, filePath);
+      const realFilePath = await fs.realpath(filePath);
+      const realAppDirectory = await fs.realpath(appDirectory);
+      const fileRelativePath = path.relative(realAppDirectory, realFilePath);
       if (fileRelativePath.startsWith("..")) {
         return err(new InvalidFileOutsideOfTheDirectotryError(filePath));
       }
@@ -212,7 +214,9 @@ export class CreateAppPackageDriver implements StepDriver {
       for (const language of additionalLanguages) {
         const file = language.file;
         const fileName = path.resolve(appDirectory, file);
-        const relativePath = path.relative(appDirectory, fileName);
+        const realFileName = await fs.realpath(fileName);
+        const realAppDirectory = await fs.realpath(appDirectory);
+        const relativePath = path.relative(realAppDirectory, realFileName);
         if (relativePath.startsWith("..")) {
           return err(new InvalidFileOutsideOfTheDirectotryError(fileName));
         }
@@ -227,7 +231,9 @@ export class CreateAppPackageDriver implements StepDriver {
     }
     if (defaultLanguageFile) {
       const fileName = path.resolve(appDirectory, defaultLanguageFile);
-      const relativePath = path.relative(appDirectory, fileName);
+      const realFileName = await fs.realpath(fileName);
+      const realAppDirectory = await fs.realpath(appDirectory);
+      const relativePath = path.relative(realAppDirectory, realFileName);
       if (relativePath.startsWith("..")) {
         return err(new InvalidFileOutsideOfTheDirectotryError(fileName));
       }
@@ -481,7 +487,9 @@ export class CreateAppPackageDriver implements StepDriver {
       );
     }
 
-    const relativePath = path.relative(directory, file);
+    const realFile = await fs.realpath(file);
+    const realDirectory = await fs.realpath(directory);
+    const relativePath = path.relative(realDirectory, realFile);
     if (relativePath.startsWith("..")) {
       return err(new InvalidFileOutsideOfTheDirectotryError(file));
     }
@@ -496,10 +504,6 @@ export class CreateAppPackageDriver implements StepDriver {
   ): Promise<Result<undefined, FxError>> {
     for (const skill of agentSkills) {
       const skillFolderAbs = path.resolve(appDirectory, skill.folder);
-      const relativeToApp = path.relative(appDirectory, skillFolderAbs);
-      if (relativeToApp.startsWith("..") || path.isAbsolute(relativeToApp)) {
-        return err(new InvalidFileOutsideOfTheDirectotryError(skillFolderAbs));
-      }
       if (!(await fs.pathExists(skillFolderAbs))) {
         return err(
           new FileNotFoundError(
@@ -508,6 +512,12 @@ export class CreateAppPackageDriver implements StepDriver {
             "https://aka.ms/teamsfx-actions/teamsapp-zipAppPackage"
           )
         );
+      }
+      const realSkillFolder = await fs.realpath(skillFolderAbs);
+      const realAppDirectory = await fs.realpath(appDirectory);
+      const relativeToApp = path.relative(realAppDirectory, realSkillFolder);
+      if (relativeToApp.startsWith("..") || path.isAbsolute(relativeToApp)) {
+        return err(new InvalidFileOutsideOfTheDirectotryError(skillFolderAbs));
       }
       await this.addLocalFolderRecursive(zip, skillFolderAbs, appDirectory);
     }
@@ -520,11 +530,20 @@ export class CreateAppPackageDriver implements StepDriver {
     appDirectory: string
   ): Promise<void> {
     const entries = await fs.readdir(folderAbs, { withFileTypes: true });
+    const realAppDirectory = await fs.realpath(appDirectory);
     for (const entry of entries) {
       const entryAbs = path.join(folderAbs, entry.name);
+      if (entry.isSymbolicLink()) {
+        continue;
+      }
       if (entry.isDirectory()) {
         await this.addLocalFolderRecursive(zip, entryAbs, appDirectory);
       } else if (entry.isFile()) {
+        const realEntryAbs = await fs.realpath(entryAbs);
+        const relToApp = path.relative(realAppDirectory, realEntryAbs);
+        if (relToApp.startsWith("..")) {
+          continue;
+        }
         const relDir = path.dirname(path.relative(appDirectory, entryAbs));
         zip.addLocalFile(entryAbs, normalizePath(relDir, true));
       }
