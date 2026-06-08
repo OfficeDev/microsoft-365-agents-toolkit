@@ -8,7 +8,7 @@
 .sample-filter-bar {
   display: flex;
   flex-direction: row;
-  gap: 8px;
+  gap: 0;
 
   .search-box {
     width: 200px;
@@ -45,31 +45,33 @@
   }
 
   .sample-dropdown {
+    margin-left: 16px;
+    height: 24px;
+    line-height: 21px;
+    background-color: rgba(255, 255, 255, 0.1);
+    color: var(--vscode-peekViewTitleDescription-foreground, #cccccc);
+    font-size: 13px;
+    border: 1px solid var(--vscode-menu-separatorBackground, #3c3c3c);
+    font-family: var(--font-family);
     width: 152px;
     min-width: 152px;
-    font-family: var(--font-family);
 
+    // fui-Dropdown__button maps to v8 ms-Dropdown-title (the clickable title area)
     .fui-Dropdown__button {
-      min-height: 24px;
-      height: 24px;
       font-size: 13px;
-      line-height: 21px;
-      color: var(--vscode-peekViewTitleDescription-foreground, #CCCCCC);
-      background: rgba(255, 255, 255, 0.1);
-      border: 1px solid var(--vscode-menu-separatorBackground, #3C3C3C);
-      border-radius: 2px;
       padding-top: 0;
       padding-bottom: 0;
     }
 
-    .fui-Dropdown__expandIcon {
-      font-size: 11px;
-      color: var(--vscode-dropdown-foreground, #CCCCCC);
+    &:hover,
+    &:focus
+     {
+      .fui-Dropdown__button {
+        font-size: 13px;
+        padding-top: 0;
+        padding-bottom: 0;
+      }
     }
-  }
-
-  .sample-dropdown:focus-within .fui-Dropdown__button {
-    border-color: var(--vscode-inputValidation-infoBorder, #007ACC);
   }
 
   .layout-button {
@@ -90,6 +92,7 @@
 
 .sample-dropdown-listbox {
   padding: 4px 0;
+  font-size: 13px;
   border: 1px solid var(--vscode-inputValidation-infoBorder, #007ACC);
   border-radius: 0;
   background-color: var(--vscode-editorGroupHeader-tabsBackground, #252526);
@@ -158,14 +161,20 @@
     }
   }
 
-  button {
+  .fui-Button {
+    min-width: 0;
+    min-height: 20px;
     height: 20px;
     margin: 8px 0 0 0;
     font-size: 14px;
     padding: 0;
     color: var(--vscode-textLink-foreground);
+    background: transparent;
+    border: 0;
 
-    :active {
+    &:hover,
+    &:active {
+      background: transparent;
       color: var(--vscode-textLink-foreground);
     }
   }
