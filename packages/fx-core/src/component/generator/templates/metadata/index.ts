@@ -6,7 +6,7 @@ import fs from "fs-extra";
 import os from "os";
 import path from "path";
 import { getTemplatesFolder } from "../../../../folder";
-import { useLocalTemplate } from "../../templateHelper";
+import { useBundledMetadataForV4, useLocalTemplate } from "../../templateHelper";
 import { Template } from "./interface";
 
 function getTemplateMetadataConfig(configName: string, platform?: Platform): Template[] {
@@ -20,8 +20,17 @@ function getTemplateMetadataConfig(configName: string, platform?: Platform): Tem
     configName
   );
 
-  // Check if cached JSON exists, otherwise fallback to bundled templates folder
-  if (!useLocalTemplate() && cachedJsonPath && fs.pathExistsSync(cachedJsonPath)) {
+  // Check if cached JSON exists, otherwise fallback to bundled templates folder.
+  // The v4 channel migration covers only the VSC/CLI metadata (`templates-v4@`);
+  // VS keeps its v3 `templates-vs@` cache untouched, so the v4 bundled decision
+  // is not applied for Platform.VS.
+  const forceBundledForV4 = platform !== Platform.VS && useBundledMetadataForV4();
+  if (
+    !useLocalTemplate() &&
+    !forceBundledForV4 &&
+    cachedJsonPath &&
+    fs.pathExistsSync(cachedJsonPath)
+  ) {
     jsonPath = cachedJsonPath;
   } else {
     jsonPath = path.join(getTemplatesFolder(), "metadata", configName);

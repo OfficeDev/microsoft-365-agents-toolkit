@@ -9,14 +9,14 @@
       "precondition_retry_interval": 2
     },
     "total_steps": 14,
-    "created_at": "2026-05-08T03:48:03.593452",
+    "created_at": "2026-06-05T07:17:56.194190",
     "name": "group  debug in teams remote tdp",
     "description": {
       "other": "Generated from recording r_0930_063548",
       "owner": "v-liliu2@microsoft.com",
       "workitem": ""
     },
-    "generated_at": "2026-05-08T03:48:03.593449",
+    "generated_at": "2026-06-05T07:17:56.194190",
     "execution_order": [
       "step_6f59b229",
       "step_a04f3fd1",
@@ -36,7 +36,7 @@
     "tags": [
       "group"
     ],
-    "updated_at": "2026-05-08T09:27:25.917314"
+    "updated_at": "2026-06-05T09:15:59.180162"
   },
   "steps": [
     {
@@ -58,7 +58,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_6f59b229",
-      "created_at": "2026-05-08T09:21:39.778398",
+      "created_at": "2026-06-05T09:15:50.214927",
       "plan_id": "plan_9f3af161"
     },
     {
@@ -80,7 +80,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_a04f3fd1",
-      "created_at": "2026-05-08T09:21:39.794722",
+      "created_at": "2026-06-05T09:15:50.225924",
       "plan_id": "plan_9f3af161"
     },
     {
@@ -102,7 +102,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_b5f72af5",
-      "created_at": "2026-05-08T09:21:39.810887",
+      "created_at": "2026-06-05T09:15:50.236649",
       "plan_id": "plan_9f3af161"
     },
     {
@@ -124,7 +124,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_0931b668",
-      "created_at": "2026-05-08T09:21:39.825592",
+      "created_at": "2026-06-05T09:15:50.248362",
       "plan_id": "plan_9f3af161"
     },
     {
@@ -146,7 +146,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_81d5542c",
-      "created_at": "2026-05-08T09:21:39.837943",
+      "created_at": "2026-06-05T09:15:50.258281",
       "plan_id": "plan_9f3af161"
     },
     {
@@ -171,10 +171,11 @@
       ],
       "postconditions": [],
       "tags": [
-        "precondition_wait_timeout:60"
+        "precondition_wait_timeout:60",
+        "delay:30"
       ],
       "screenshot": "step_754b6f79",
-      "created_at": "2026-05-08T09:21:39.847557",
+      "created_at": "2026-06-05T09:15:50.277335",
       "plan_id": "plan_9f3af161"
     },
     {
@@ -196,7 +197,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_e5b4942b",
-      "created_at": "2026-05-08T09:21:39.857941",
+      "created_at": "2026-06-05T09:15:50.287385",
       "plan_id": "plan_9f3af161"
     },
     {
@@ -218,7 +219,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_22e461d1",
-      "created_at": "2026-05-08T09:21:39.866301",
+      "created_at": "2026-06-05T09:15:50.297339",
       "plan_id": "plan_9f3af161"
     },
     {
@@ -244,7 +245,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_01f3152f",
-      "created_at": "2026-05-08T09:21:39.884957",
+      "created_at": "2026-06-05T09:15:50.305160",
       "plan_id": "plan_9f3af161"
     },
     {
@@ -264,7 +265,7 @@
         "step_retry_timeout: 180"
       ],
       "screenshot": null,
-      "created_at": "2026-05-08T09:21:39.900405",
+      "created_at": "2026-06-05T09:15:50.314080",
       "plan_id": "plan_9f3af161"
     },
     {
@@ -290,7 +291,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_5e116a3c",
-      "created_at": "2026-05-08T09:21:39.913193",
+      "created_at": "2026-06-05T09:15:50.321903",
       "plan_id": "plan_9f3af161"
     },
     {
@@ -310,7 +311,7 @@
         "step_retry_timeout: 180"
       ],
       "screenshot": null,
-      "created_at": "2026-05-08T09:21:39.939118",
+      "created_at": "2026-06-05T09:15:50.329906",
       "plan_id": "plan_9f3af161"
     },
     {
@@ -338,7 +339,7 @@
         "precondition_wait_timeout: 200"
       ],
       "screenshot": "step_5d88ba94",
-      "created_at": "2026-05-08T09:21:39.964069",
+      "created_at": "2026-06-05T09:15:50.336292",
       "plan_id": "plan_9f3af161"
     },
     {
@@ -358,7 +359,7 @@
         "step_retry_timeout: 60"
       ],
       "screenshot": null,
-      "created_at": "2026-05-08T09:21:39.979683",
+      "created_at": "2026-06-05T09:15:50.346442",
       "plan_id": "plan_9f3af161"
     }
   ],

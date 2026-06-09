@@ -9,14 +9,14 @@
       "precondition_retry_interval": 2
     },
     "total_steps": 10,
-    "created_at": "2026-01-23T06:47:11.898633",
+    "created_at": "2026-06-05T07:18:07.394883",
     "name": "group  webpage login Azure account",
     "description": {
       "other": "Generated from recording r_0930_083113",
       "owner": "v-helzha@microsoft.com",
       "workitem": ""
     },
-    "generated_at": "2026-01-23T06:47:11.898633",
+    "generated_at": "2026-06-05T07:18:07.394883",
     "execution_order": [
       "step_c654d0c6",
       "step_ed944b83",
@@ -32,7 +32,7 @@
     "tags": [
       "group"
     ],
-    "updated_at": "2026-01-23T07:28:51.143877"
+    "updated_at": "2026-06-05T09:19:11.942789"
   },
   "steps": [
     {
@@ -57,10 +57,11 @@
       ],
       "postconditions": [],
       "tags": [
-        "precondition_wait_timeout: 180"
+        "precondition_wait_timeout: 180",
+        "delay:30"
       ],
       "screenshot": "step_c654d0c6",
-      "created_at": "2026-01-23T06:47:11.922831",
+      "created_at": "2026-06-05T09:18:59.198266",
       "plan_id": "plan_ba076e83"
     },
     {
@@ -82,7 +83,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_ed944b83",
-      "created_at": "2026-01-23T06:47:11.945792",
+      "created_at": "2026-06-05T09:18:59.207982",
       "plan_id": "plan_ba076e83"
     },
     {
@@ -106,7 +107,7 @@
         "delay: 3"
       ],
       "screenshot": "step_e5d102fb",
-      "created_at": "2026-01-23T06:47:11.964895",
+      "created_at": "2026-06-05T09:18:59.218283",
       "plan_id": "plan_ba076e83"
     },
     {
@@ -128,7 +129,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_763f5642",
-      "created_at": "2026-01-23T06:47:11.984326",
+      "created_at": "2026-06-05T09:18:59.227097",
       "plan_id": "plan_ba076e83"
     },
     {
@@ -152,7 +153,7 @@
         "delay: 3"
       ],
       "screenshot": "step_0e8d5bb0",
-      "created_at": "2026-01-23T06:47:11.998087",
+      "created_at": "2026-06-05T09:18:59.235382",
       "plan_id": "plan_ba076e83"
     },
     {
@@ -178,7 +179,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_f5a4956d",
-      "created_at": "2026-01-23T06:47:12.010535",
+      "created_at": "2026-06-05T09:18:59.241803",
       "plan_id": "plan_ba076e83"
     },
     {
@@ -198,7 +199,7 @@
         "step_retry_timeout: 180"
       ],
       "screenshot": null,
-      "created_at": "2026-01-23T06:47:12.025147",
+      "created_at": "2026-06-05T09:18:59.248804",
       "plan_id": "plan_ba076e83"
     },
     {
@@ -224,7 +225,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_1327b355",
-      "created_at": "2026-01-23T06:47:12.036448",
+      "created_at": "2026-06-05T09:18:59.255419",
       "plan_id": "plan_ba076e83"
     },
     {
@@ -244,7 +245,7 @@
         "step_retry_timeout: 180"
       ],
       "screenshot": null,
-      "created_at": "2026-01-23T06:47:12.049644",
+      "created_at": "2026-06-05T09:18:59.262245",
       "plan_id": "plan_ba076e83"
     },
     {
@@ -272,7 +273,7 @@
         "precondition_wait_timeout: 120"
       ],
       "screenshot": "step_1d2722c8",
-      "created_at": "2026-01-23T06:47:12.060803",
+      "created_at": "2026-06-05T09:18:59.270243",
       "plan_id": "plan_ba076e83"
     }
   ],

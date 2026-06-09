@@ -45,6 +45,9 @@ import {
 } from "../../src/question/scaffold/vsc/rootNode";
 
 import { AppPackageFolderName } from "@microsoft/teamsfx-api";
+import * as mcpToolFetcher from "../../src/component/utils/mcpToolFetcher";
+import fs from "fs-extra";
+import * as templateHelper from "../../src/component/generator/templateHelper";
 import {
   BotCapabilityOptions,
   CustomCopilotRagOptions,
@@ -1220,6 +1223,20 @@ describe("rootNode", () => {
     const nodeCLI = getRootProjectTypeNode(Platform.CLI);
     assert.isDefined(nodeCLI);
     assert.isDefined(nodeCLI.data);
+  });
+
+  it("should load bundled UI node when v4 channel forces bundled metadata even if cache exists", () => {
+    sandbox.stub(templateHelper, "useLocalTemplate").returns(false);
+    sandbox.stub(templateHelper, "useBundledMetadataForV4").returns(true);
+    sandbox.stub(fs, "pathExistsSync").returns(true);
+    const readFileSyncStub = sandbox
+      .stub(fs, "readFileSync")
+      .returns(JSON.stringify({ data: { type: "group", name: "root" } }));
+
+    getRootProjectTypeNode(Platform.VSCode);
+
+    const readPath = readFileSyncStub.firstCall.args[0] as string;
+    assert.notInclude(readPath, `.fx`);
   });
 });
 

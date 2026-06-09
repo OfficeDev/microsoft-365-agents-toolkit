@@ -10,14 +10,14 @@
       "step_retry_count": 0
     },
     "total_steps": 16,
-    "created_at": "2026-05-11T05:01:52.819750",
+    "created_at": "2026-06-08T01:55:22.439694",
     "name": "Feature Basic Tab Instant Tab Local",
     "description": {
       "other": "",
       "owner": "v-annefu@microsoft.com",
       "workitem": "28384685,28384695"
     },
-    "generated_at": "2026-05-11T05:01:52.819750",
+    "generated_at": "2026-06-08T01:55:22.439694",
     "execution_order": [
       "plan_r_0928_012254",
       "step_72a90a9b",
@@ -41,7 +41,7 @@
       "step_6196d43d"
     ],
     "tags": [],
-    "updated_at": "2026-05-11T05:43:50.225828"
+    "updated_at": "2026-06-08T02:57:50.602978"
   },
   "steps": [
     {
@@ -67,7 +67,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_72a90a9b",
-      "created_at": "2026-05-11T05:01:52.826744",
+      "created_at": "2026-06-08T02:30:19.902623",
       "plan_id": "plan_c475af6c"
     },
     {
@@ -93,7 +93,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_1b71352b",
-      "created_at": "2026-05-11T05:01:52.835740",
+      "created_at": "2026-06-08T02:30:19.922192",
       "plan_id": "plan_c475af6c"
     },
     {
@@ -119,7 +119,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_6d91716e",
-      "created_at": "2026-05-11T05:01:52.840850",
+      "created_at": "2026-06-08T02:30:19.939782",
       "plan_id": "plan_c475af6c"
     },
     {
@@ -145,7 +145,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_ebacafb5",
-      "created_at": "2026-05-11T05:01:52.847431",
+      "created_at": "2026-06-08T02:30:19.955388",
       "plan_id": "plan_c475af6c"
     },
     {
@@ -171,7 +171,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_146722ba",
-      "created_at": "2026-05-11T05:42:02.664168",
+      "created_at": "2026-06-08T02:30:19.969985",
       "plan_id": "plan_c475af6c"
     },
     {
@@ -197,7 +197,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_9dabd3b7",
-      "created_at": "2026-05-11T05:43:04.225405",
+      "created_at": "2026-06-08T02:30:19.985253",
       "plan_id": "plan_c475af6c"
     },
     {
@@ -219,7 +219,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_c68ba9ab",
-      "created_at": "2026-05-11T05:43:04.241787",
+      "created_at": "2026-06-08T02:30:20.000080",
       "plan_id": "plan_c475af6c"
     },
     {
@@ -241,7 +241,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_ef3e11fd",
-      "created_at": "2026-05-11T05:43:04.253313",
+      "created_at": "2026-06-08T02:30:20.015249",
       "plan_id": "plan_c475af6c"
     },
     {
@@ -267,7 +267,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_f06c614d",
-      "created_at": "2026-05-11T05:43:04.266199",
+      "created_at": "2026-06-08T02:30:20.029045",
       "plan_id": "plan_c475af6c"
     },
     {
@@ -293,7 +293,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_173c4e5a",
-      "created_at": "2026-05-11T05:43:04.277195",
+      "created_at": "2026-06-08T02:30:20.045191",
       "plan_id": "plan_c475af6c"
     },
     {
@@ -319,7 +319,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_f6365660",
-      "created_at": "2026-05-11T05:43:04.288194",
+      "created_at": "2026-06-08T02:30:20.060284",
       "plan_id": "plan_c475af6c"
     },
     {
@@ -343,9 +343,12 @@
         "dhash:759:198:0:10:28d8dac8c8464848"
       ],
       "postconditions": [],
-      "tags": [],
+      "tags": [
+        "step_retry_timeout:120",
+        "delay:10"
+      ],
       "screenshot": "step_16ae24a2",
-      "created_at": "2026-05-11T05:43:04.300318",
+      "created_at": "2026-06-08T02:30:20.077246",
       "plan_id": "plan_c475af6c"
     },
     {
@@ -371,7 +374,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_acd2f17b",
-      "created_at": "2026-05-11T05:43:04.313518",
+      "created_at": "2026-06-08T02:30:20.094885",
       "plan_id": "plan_c475af6c"
     },
     {
@@ -397,7 +400,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_93e13097",
-      "created_at": "2026-05-11T05:43:50.185131",
+      "created_at": "2026-06-08T02:30:20.111067",
       "plan_id": "plan_c475af6c"
     },
     {
@@ -423,7 +426,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_a7ac2c5e",
-      "created_at": "2026-05-11T05:43:50.196134",
+      "created_at": "2026-06-08T02:30:20.129953",
       "plan_id": "plan_c475af6c"
     },
     {
@@ -449,7 +452,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_6196d43d",
-      "created_at": "2026-05-11T05:43:50.204827",
+      "created_at": "2026-06-08T02:30:20.149056",
       "plan_id": "plan_c475af6c"
     }
   ],

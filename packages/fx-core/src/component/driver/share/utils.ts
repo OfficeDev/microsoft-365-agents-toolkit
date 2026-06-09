@@ -12,6 +12,7 @@ import { resolve } from "../../configManager/lifecycle";
 import { envUtil } from "../../utils/envUtil";
 import { metadataUtil } from "../../utils/metadataUtil";
 import { pathUtils } from "../../utils/pathUtils";
+import { actionName as agentPublishActionName } from "../copilotAgent/publish";
 import { actionName as extendToM365ActionName } from "../m365/acquire";
 import { Constants } from "../teamsApp/constants";
 
@@ -40,21 +41,22 @@ export async function parseShareAppActionYamlConfig(
       new UserError("FxCore", "Share", getLocalizedString("error.share.yamlConfigNotFound"))
     );
   }
-  const extendToM365Action =
+  const agentPublishAction =
+    projectModel.provision?.driverDefs.find((d) => d.uses === agentPublishActionName) ||
     projectModel.provision?.driverDefs.find((d) => d.uses === extendToM365ActionName) ||
     projectModel.deploy?.driverDefs.find((d) => d.uses === extendToM365ActionName);
-  if (!extendToM365Action) {
+  if (!agentPublishAction) {
     return err(
       new UserError(
         "FxCore",
         "Share",
-        getLocalizedString("error.share.shareActionConfigNotFound", extendToM365ActionName)
+        getLocalizedString("error.share.shareActionConfigNotFound", agentPublishActionName)
       )
     );
   }
 
   // 1. get manifest id
-  const appPackagePath = (extendToM365Action.with as any)?.appPackagePath;
+  const appPackagePath = (agentPublishAction.with as any)?.appPackagePath;
   if (!appPackagePath) {
     return err(
       new UserError(
@@ -69,7 +71,7 @@ export async function parseShareAppActionYamlConfig(
   if (readEnvRes.isErr()) {
     return err(readEnvRes.error);
   }
-  const resolvedDriver = resolve(extendToM365Action, [], []) as DriverDefinition;
+  const resolvedDriver = resolve(agentPublishAction, [], []) as DriverDefinition;
   const resolvedAppPackagePath = path.resolve(
     projectPath,
     (resolvedDriver.with as any).appPackagePath as string
@@ -107,8 +109,8 @@ export async function parseShareAppActionYamlConfig(
   }
 
   // 2. get shared title id and shared app id
-  const sharedTitleIdEnvName = (extendToM365Action.writeToEnvironmentFile as any)?.titleId;
-  const sharedAppIdEnvName = (extendToM365Action.writeToEnvironmentFile as any)?.appId;
+  const sharedTitleIdEnvName = (agentPublishAction.writeToEnvironmentFile as any)?.titleId;
+  const sharedAppIdEnvName = (agentPublishAction.writeToEnvironmentFile as any)?.appId;
   if (!sharedTitleIdEnvName || !sharedAppIdEnvName) {
     return err(
       new UserError("FxCore", "Share", getLocalizedString("error.share.sharedConfigNotFound"))
