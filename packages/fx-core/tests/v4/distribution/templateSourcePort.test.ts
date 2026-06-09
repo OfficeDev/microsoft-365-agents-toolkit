@@ -2,7 +2,6 @@
 // Licensed under the MIT license.
 
 import { assert } from "chai";
-import "mocha";
 import axios, { AxiosResponse } from "axios";
 import * as fs from "fs-extra";
 import os from "os";

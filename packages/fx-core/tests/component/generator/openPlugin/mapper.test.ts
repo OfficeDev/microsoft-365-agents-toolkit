@@ -2,7 +2,6 @@
 // Licensed under the MIT license.
 
 import { expect } from "chai";
-import "mocha";
 import {
   ACCENT_COLOR,
   MANIFEST_SCHEMA_URL,

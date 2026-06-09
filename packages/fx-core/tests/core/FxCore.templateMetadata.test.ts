@@ -4,7 +4,6 @@
 import AdmZip from "adm-zip";
 import { assert } from "chai";
 import fs from "fs-extra";
-import "mocha";
 import { RestoreFn } from "mocked-env";
 import * as os from "os";
 import * as path from "path";

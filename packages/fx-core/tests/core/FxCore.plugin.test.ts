@@ -25,7 +25,6 @@ import {
 import { assert } from "chai";
 import fs from "fs-extra";
 import jsyaml from "js-yaml";
-import "mocha";
 import mockedEnv, { RestoreFn } from "mocked-env";
 import * as os from "os";
 import * as path from "path";

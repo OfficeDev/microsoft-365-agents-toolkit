@@ -4,9 +4,9 @@
 import { FxError } from "@microsoft/teamsfx-api";
 import { Result } from "neverthrow";
 import templateConfig from "../../common/templates-config.json";
-import { loadBundledFloor } from "../../v4/distribution/bundledFloor";
-import { TemplateSource, resolveTemplateSource } from "../../v4/distribution/templateSource";
-import { createTemplateSourcePort } from "../../v4/distribution/templateSourcePort";
+import * as bundledFloor from "../../v4/distribution/bundledFloor";
+import * as templateSource from "../../v4/distribution/templateSource";
+import * as templateSourcePort from "../../v4/distribution/templateSourcePort";
 import { defaultTryLimits } from "./constant";
 
 /**
@@ -27,16 +27,16 @@ import { defaultTryLimits } from "./constant";
  *
  * Transitional: remove once selector.json drives metadata distribution.
  */
-export function resolveV4MetadataSource(): Promise<Result<TemplateSource, FxError>> {
-  const port = createTemplateSourcePort(
+export function resolveV4MetadataSource(): Promise<Result<templateSource.TemplateSource, FxError>> {
+  const port = templateSourcePort.createTemplateSourcePort(
     {
       templatesV4TagListURL: templateConfig.templatesV4TagListURL,
       templateDownloadBaseURL: templateConfig.templateDownloadBaseURL,
       tryLimits: defaultTryLimits,
     },
-    loadBundledFloor()
+    bundledFloor.loadBundledFloor()
   );
-  return resolveTemplateSource({
+  return templateSource.resolveTemplateSource({
     range: templateConfig.v4.range,
     bundled: templateConfig.v4.bundled,
     port,

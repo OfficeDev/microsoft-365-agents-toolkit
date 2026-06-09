@@ -2,7 +2,6 @@
 // Licensed under the MIT license.
 
 import { expect } from "chai";
-import "mocha";
 import { deterministicAppId } from "../../../../src/component/generator/openPlugin/deterministicId";
 
 describe("openPlugin.deterministicAppId", () => {

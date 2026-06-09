@@ -15,7 +15,6 @@ import {
 import axios from "axios";
 import { assert } from "chai";
 import fs from "fs-extra";
-import "mocha";
 import mockedEnv from "mocked-env";
 import * as os from "os";
 import * as path from "path";

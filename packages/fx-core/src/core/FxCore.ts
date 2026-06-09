@@ -59,6 +59,7 @@ import {
   getResourceServiceEndpoint,
 } from "../common/constants";
 import { listAPIInfo, parseAndUpdatePluginManifestForKiota } from "../common/daSpecParser";
+import { FeatureFlags, featureFlagManager } from "../common/featureFlags";
 import {
   ErrorContextMW,
   TOOLS,
@@ -66,7 +67,6 @@ import {
   setErrorContext,
   setTools,
 } from "../common/globalVars";
-import { featureFlagManager, FeatureFlags } from "../common/featureFlags";
 import { clearLocaleCache, getLocalizedString } from "../common/localizeUtils";
 import { ListCollaboratorResult, PermissionsResult } from "../common/permissionInterface";
 import { getProjectMetadata, isValidProjectV3 } from "../common/projectSettingsHelper";
@@ -138,13 +138,13 @@ import {
 } from "../component/generator/openApiSpec/helper";
 import { useLocalTemplate } from "../component/generator/templateHelper";
 import { TemplateNames } from "../component/generator/templates/templateNames";
-import { resolveV4MetadataSource } from "../component/generator/v4MetadataSource";
 import {
   fetchZipFromUrl,
   getTemplateLatestVersion,
   getTemplateVSLatestVersion,
   unzip,
 } from "../component/generator/utils";
+import { resolveV4MetadataSource } from "../component/generator/v4MetadataSource";
 import { LaunchHelper } from "../component/m365/launchHelper";
 import { PackageService } from "../component/m365/packageService";
 import { EnvLoaderMW, EnvWriterMW } from "../component/middleware/envMW";
@@ -2703,7 +2703,7 @@ export class FxCore extends FxCoreOpenPluginPart {
       } else {
         // v3: prerelease builds use the mutable rolling `0.0.0-rc` tag; stable
         // builds resolve the latest published templates version.
-        const coreVersion = require("../../package.json").version as string;
+        const coreVersion = fxCoreDeps.getCoreVersion();
         if (
           coreVersion.includes("alpha") ||
           coreVersion.includes("beta") ||
@@ -2711,7 +2711,7 @@ export class FxCore extends FxCoreOpenPluginPart {
         ) {
           latestVersion = "0.0.0-rc";
         } else {
-          latestVersion = await getTemplateLatestVersion();
+          latestVersion = await fxCoreDeps.getTemplateLatestVersion();
         }
       }
 

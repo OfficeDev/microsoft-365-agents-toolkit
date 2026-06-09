@@ -4,7 +4,6 @@
 import { err, ok, UserError } from "@microsoft/teamsfx-api";
 import chai from "chai";
 import fs from "fs-extra";
-import "mocha";
 import * as sinon from "sinon";
 import { getLocalizedString } from "../../../../src/common/localizeUtils";
 import { DepsType, TestToolReleaseType } from "../../../../src/component/deps-checker/depsChecker";

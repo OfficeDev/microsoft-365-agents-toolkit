@@ -2,7 +2,6 @@
 // Licensed under the MIT license.
 
 import { expect } from "chai";
-import "mocha";
 import { stripDisallowedFrontmatter } from "../../../../src/component/generator/openPlugin/importer";
 
 describe("stripDisallowedFrontmatter", () => {

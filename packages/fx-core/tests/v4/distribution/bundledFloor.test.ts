@@ -2,7 +2,6 @@
 // Licensed under the MIT license.
 
 import { assert } from "chai";
-import "mocha";
 import * as fs from "fs-extra";
 import * as os from "os";
 import * as path from "path";

@@ -4,7 +4,6 @@
 import { ok } from "@microsoft/teamsfx-api";
 import { expect } from "chai";
 import fs from "fs-extra";
-import "mocha";
 import * as os from "os";
 import * as path from "path";
 import sinon from "sinon";

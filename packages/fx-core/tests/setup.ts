@@ -60,7 +60,7 @@ afterAll(async () => {
   restoreConsoleSpies.forEach((spy) => spy.mockRestore());
 });
 
-// Keep Mocha-style aliases used by existing tests.
+// Keep legacy BDD aliases used by existing tests.
 Object.assign(globalThis, {
   before: beforeAll,
   after: afterAll,

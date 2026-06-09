@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import * as path from "path";
 import {
   DeclarativeCopilotManifestSchema,
   err,
@@ -16,7 +15,9 @@ import AdmZip from "adm-zip";
 import chai from "chai";
 import fs from "fs-extra";
 import mockedEnv, { RestoreFn } from "mocked-env";
+import * as path from "path";
 import * as sinon from "sinon";
+import { featureFlagManager } from "../../../../src/common/featureFlags";
 import { DriverContext } from "../../../../src/component/driver/interface/commonArgs";
 import {
   createAppPackageDeps,

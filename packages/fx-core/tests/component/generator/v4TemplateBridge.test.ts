@@ -5,7 +5,6 @@ import { Platform, SystemError } from "@microsoft/teamsfx-api";
 import chai, { assert } from "chai";
 import chaiAsPromised from "chai-as-promised";
 import fs from "fs-extra";
-import "mocha";
 import { err, ok } from "neverthrow";
 import os from "os";
 import path from "path";

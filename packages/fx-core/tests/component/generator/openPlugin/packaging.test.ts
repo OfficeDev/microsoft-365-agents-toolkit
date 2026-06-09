@@ -5,7 +5,6 @@ import { ok, Platform } from "@microsoft/teamsfx-api";
 import AdmZip from "adm-zip";
 import { expect } from "chai";
 import fs from "fs-extra";
-import "mocha";
 import mockedEnv, { RestoreFn } from "mocked-env";
 import * as os from "os";
 import * as path from "path";

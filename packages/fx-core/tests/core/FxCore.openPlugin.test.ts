@@ -3,7 +3,6 @@
 
 import { err, ok, UserError } from "@microsoft/teamsfx-api";
 import { assert } from "chai";
-import "mocha";
 import sinon from "sinon";
 import { featureFlagManager, FeatureFlags } from "../../src/common/featureFlags";
 import { setTools } from "../../src/common/globalVars";

@@ -6,7 +6,6 @@ import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from "axios";
 import * as chai from "chai";
 import chaiAsPromised from "chai-as-promised";
 import fs from "fs-extra";
-import "mocha";
 import { createSandbox, match as sinonMatch } from "sinon";
 import { setTools } from "../../../src/common/globalVars";
 import { AppUser } from "../../../src/component/driver/teamsApp/interfaces/appdefinitions/appUser";

@@ -45,7 +45,6 @@ import {
 } from "../../src/question/scaffold/vsc/rootNode";
 
 import { AppPackageFolderName } from "@microsoft/teamsfx-api";
-import * as mcpToolFetcher from "../../src/component/utils/mcpToolFetcher";
 import fs from "fs-extra";
 import * as templateHelper from "../../src/component/generator/templateHelper";
 import {
@@ -1227,8 +1226,15 @@ describe("rootNode", () => {
 
   it("should load bundled UI node when v4 channel forces bundled metadata even if cache exists", () => {
     sandbox.stub(templateHelper, "useLocalTemplate").returns(false);
-    sandbox.stub(templateHelper, "useBundledMetadataForV4").returns(true);
-    sandbox.stub(fs, "pathExistsSync").returns(true);
+    sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
+    sandbox.stub(fs, "pathExistsSync").callsFake((p: fs.PathLike) => {
+      const value = String(p);
+      // Simulate v4 channel with no downloaded v4 cache marker.
+      if (value.endsWith("template-version-v4.txt")) {
+        return false;
+      }
+      return true;
+    });
     const readFileSyncStub = sandbox
       .stub(fs, "readFileSync")
       .returns(JSON.stringify({ data: { type: "group", name: "root" } }));

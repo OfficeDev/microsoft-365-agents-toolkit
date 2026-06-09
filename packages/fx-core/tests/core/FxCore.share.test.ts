@@ -1,17 +1,26 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { err, Inputs, IProgressHandler, ok, Platform, UserError } from "@microsoft/teamsfx-api";
+import {
+  err,
+  Inputs,
+  IProgressHandler,
+  ok,
+  Platform,
+  SystemError,
+  UserError,
+} from "@microsoft/teamsfx-api";
 import * as chai from "chai";
 import chaiAsPromised from "chai-as-promised";
 import fs from "fs-extra";
-import "mocha";
 import { createSandbox, match } from "sinon";
-import { InputValidationError, MAX_EMAIL_NUMBER } from "../../src";
+import { InputValidationError, MAX_EMAIL_NUMBER, teamsDevPortalClient } from "../../src";
 import { ProjectModel } from "../../src/component/configManager/interface";
+import { PackageService } from "../../src/component/m365/packageService";
 import { envUtil } from "../../src/component/utils/envUtil";
 import { metadataUtil } from "../../src/component/utils/metadataUtil";
 import { pathUtils } from "../../src/component/utils/pathUtils";
+import { CollaborationUtil } from "../../src/core/collaborator";
 import { FxCore, fxCoreDeps } from "../../src/core/FxCore";
 import { QuestionNames } from "../../src/question/questionNames";
 import { ShareOperationOption, ShareScopeOption } from "../../src/question/share";
@@ -405,6 +414,157 @@ describe("FxCore.shareApplication", () => {
       chai.assert.isTrue(res.isErr());
       if (res.isErr()) {
         chai.assert.equal(res.error, tokenError);
+      }
+    });
+  });
+
+  describe("FxCore.removeSharedAccess", () => {
+    const projectPath = "./tests/plugins/resource/daTemplate/da-no-action-test-template";
+
+    function stubRemoveSharedAccessBase(options?: {
+      tokenResult?: ReturnType<typeof ok> | ReturnType<typeof err>;
+      currentUserErr?: UserError;
+      userInfoUndefined?: boolean;
+      sameUser?: boolean;
+      removePermissionErr?: UserError;
+    }): void {
+      const tokenResult = options?.tokenResult ?? ok("mock-token");
+      sandbox
+        .stub(fxCoreDeps, "parseShareAppActionYamlConfig")
+        .resolves(ok({ teamsappId: "mockAppId", titleId: "mockTitleId", appId: "mockAppId" }));
+      if (options?.currentUserErr) {
+        sandbox.stub(CollaborationUtil, "getCurrentUserInfo").resolves(err(options.currentUserErr));
+      } else {
+        sandbox.stub(CollaborationUtil, "getCurrentUserInfo").resolves(
+          ok({
+            aadId: options?.sameUser ? "target-aad" : "current-aad",
+            displayName: "current-user",
+            userPrincipalName: "current@example.com",
+          } as any)
+        );
+      }
+      sandbox.stub(CollaborationUtil, "getUserInfo").resolves(
+        options?.userInfoUndefined
+          ? (undefined as any)
+          : ({
+              aadId: "target-aad",
+              displayName: "target-user",
+              userPrincipalName: "target@example.com",
+            } as any)
+      );
+      sandbox.stub(teamsDevPortalClient, "removePermission").resolves();
+      sandbox
+        .stub(PackageService.GetSharedInstance(), "removePermission")
+        .resolves(options?.removePermissionErr ? err(options.removePermissionErr) : ok(undefined));
+      sandbox
+        .stub(tools.tokenProvider.m365TokenProvider, "getAccessToken")
+        .resolves(tokenResult as any);
+    }
+
+    it("remove shared access happy path", async () => {
+      stubRemoveSharedAccessBase();
+      const core = new FxCore(tools);
+      const result = await core.removeSharedAccess({
+        platform: Platform.VSCode,
+        projectPath,
+        nonInteractive: true,
+        [QuestionNames.RemoveUsers]: "user1@example.com,user2@example.com",
+      });
+      chai.assert.isTrue(result.isOk());
+    });
+
+    it("remove shared access - parse error", async () => {
+      sandbox
+        .stub(fxCoreDeps, "parseShareAppActionYamlConfig")
+        .resolves(err(new UserError("mockedSource", "mockedError", "mockedMessage")));
+      const core = new FxCore(tools);
+      const result = await core.removeSharedAccess({
+        platform: Platform.VSCode,
+        projectPath,
+        nonInteractive: true,
+        [QuestionNames.RemoveUsers]: ["user1@example.com"],
+      });
+      chai.assert.isTrue(result.isErr());
+      if (result.isErr()) {
+        chai.assert.include(result.error.message, "mockedMessage");
+      }
+    });
+
+    it("remove shared access - token error", async () => {
+      stubRemoveSharedAccessBase({
+        tokenResult: err(new SystemError("mockedSource", "mockedError", "mockedMessage")),
+      });
+      const core = new FxCore(tools);
+      const result = await core.removeSharedAccess({
+        platform: Platform.VSCode,
+        projectPath,
+        nonInteractive: true,
+        [QuestionNames.RemoveUsers]: ["user1@example.com"],
+      });
+      chai.assert.isTrue(result.isErr());
+      if (result.isErr()) {
+        chai.assert.include(result.error.message, "mockedMessage");
+      }
+    });
+
+    it("remove shared access - getCurrentUserInfo", async () => {
+      stubRemoveSharedAccessBase({
+        currentUserErr: new UserError("mockedSource", "mockedError", "mockedMessage"),
+      });
+      const core = new FxCore(tools);
+      const result = await core.removeSharedAccess({
+        platform: Platform.VSCode,
+        projectPath,
+        nonInteractive: true,
+        [QuestionNames.RemoveUsers]: ["user1@example.com"],
+      });
+      chai.assert.isTrue(result.isErr());
+      if (result.isErr()) {
+        chai.assert.include(result.error.message, "mockedMessage");
+      }
+    });
+
+    it("remove shared access - get user info error", async () => {
+      stubRemoveSharedAccessBase({ userInfoUndefined: true });
+      const core = new FxCore(tools);
+      const result = await core.removeSharedAccess({
+        platform: Platform.VSCode,
+        projectPath,
+        nonInteractive: true,
+        [QuestionNames.RemoveUsers]: ["user1@example.com"],
+      });
+      chai.assert.isTrue(result.isErr());
+      if (result.isErr()) {
+        chai.assert.include(result.error.message, "Invalid user");
+      }
+    });
+
+    it("remove shared access - remove current user", async () => {
+      stubRemoveSharedAccessBase({ sameUser: true });
+      const core = new FxCore(tools);
+      const result = await core.removeSharedAccess({
+        platform: Platform.VSCode,
+        projectPath,
+        nonInteractive: true,
+        [QuestionNames.RemoveUsers]: ["user1@example.com"],
+      });
+      chai.assert.isTrue(result.isErr());
+    });
+
+    it("remove shared access - mos grant permission error", async () => {
+      stubRemoveSharedAccessBase({
+        removePermissionErr: new UserError("mockedSource", "mockedError", "mockedMessage"),
+      });
+      const core = new FxCore(tools);
+      const result = await core.removeSharedAccess({
+        platform: Platform.VSCode,
+        projectPath,
+        nonInteractive: true,
+        [QuestionNames.RemoveUsers]: ["user1@example.com"],
+      });
+      chai.assert.isTrue(result.isErr());
+      if (result.isErr()) {
+        chai.assert.include(result.error.message, "mockedMessage");
       }
     });
   });

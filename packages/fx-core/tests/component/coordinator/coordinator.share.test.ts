@@ -6,8 +6,6 @@ describe.skip("coordinator share", () => {
   });
 });
 
-// import "mocha";
-
 // import { assert } from "chai";
 // import { DotenvParseOutput } from "dotenv";
 // import fs from "fs-extra";

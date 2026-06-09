@@ -7,7 +7,6 @@
 
 import * as chai from "chai";
 import fse from "fs-extra";
-import "mocha";
 import * as sinon from "sinon";
 import {
   HelperMethods,

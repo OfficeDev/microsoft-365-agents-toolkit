@@ -3,7 +3,6 @@
 
 import { assert } from "chai";
 import AdmZip from "adm-zip";
-import "mocha";
 import { openTemplatePackage } from "../../../src/v4/distribution/templatePackage";
 
 /** Build an in-memory zip from a `{ entryName: contents }` map. */

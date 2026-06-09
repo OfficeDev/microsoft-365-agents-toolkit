@@ -4,7 +4,6 @@
 import { ConfigFolderName, err, ok } from "@microsoft/teamsfx-api";
 import { assert } from "chai";
 import fs from "fs-extra";
-import "mocha";
 import os from "os";
 import path from "path";
 import * as sinon from "sinon";

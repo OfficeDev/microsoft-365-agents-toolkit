@@ -9,7 +9,6 @@ import * as Models from "@azure/arm-appservice/src/models";
 import { IProgressHandler } from "@microsoft/teamsfx-api";
 import { assert, expect } from "chai";
 import fs from "fs-extra";
-import "mocha";
 import * as os from "os";
 import * as path from "path";
 import * as sinon from "sinon";
