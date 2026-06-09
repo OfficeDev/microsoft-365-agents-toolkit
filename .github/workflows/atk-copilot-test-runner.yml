@@ -326,9 +326,13 @@ jobs:
           TEST_OUTPUT_DIR: /tmp/atk-test-output
           DISPLAY: ":99.0"
           ATK_EXT_PATH: ${{ env.ATK_EXT_PATH }}
-          M365_ACCOUNT_NAME: ${{ secrets.TEST_M365_NAME }}
-          M365_ACCOUNT_PASSWORD: ${{ secrets.TEST_M365_PASSWORD }}
-          M365_TENANT_ID: ${{ secrets.TEST_M365_TENANT_ID }}
+          M365_ACCOUNT_NAME: ${{ secrets.TEST_TENANT_M365_ACCOUNT_NAME }}
+          M365_ACCOUNT_PASSWORD: ${{ secrets.TEST_TENANT_M365_ACCOUNT_PASSWORD }}
+          M365_TENANT_ID: ${{ secrets.TEST_TENANT_TENANT_ID }}
+          AZURE_ACCOUNT_NAME: ${{ secrets.TEST_TENANT_AZURE_ACCOUNT_NAME }}
+          AZURE_ACCOUNT_PASSWORD: ${{ secrets.TEST_TENANT_AZURE_ACCOUNT_PASSWORD }}
+          AZURE_SUBSCRIPTION_ID: ${{ secrets.TEST_TENANT_SUBSCRIPTION_ID }}
+          AZURE_TENANT_ID: ${{ secrets.TEST_TENANT_TENANT_ID }}
           TEAMSFX_EXTENSION_TESTS: "true"
           TEAMSFX_BROKER_AUTH: "false"
         run: |
