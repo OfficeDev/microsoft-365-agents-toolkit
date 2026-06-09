@@ -25,6 +25,8 @@ RUN if [ -n "$NODE_VERSION" ]; then \
             NODE_ARCH="x64"; \
         fi && \
         NODE_PREFIX=$(dirname "$(dirname "$(command -v node || echo /usr/local/bin/node)")") && \
+        echo "Removing bundled npm/corepack from ${NODE_PREFIX} before overlay..." && \
+        rm -rf "${NODE_PREFIX}/lib/node_modules/npm" "${NODE_PREFIX}/lib/node_modules/corepack" && \
         curl -fsSL "https://nodejs.org/dist/v${RESOLVED}/node-v${RESOLVED}-linux-${NODE_ARCH}.tar.gz" -o /tmp/node.tar.gz && \
         tar -xzf /tmp/node.tar.gz -C "$NODE_PREFIX" --strip-components=1 --no-same-owner && \
         rm /tmp/node.tar.gz && \
