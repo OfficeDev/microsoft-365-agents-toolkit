@@ -8,12 +8,16 @@ ARG BASE_IMAGE=ghcr.io/microsoft/vscuse-base:latest
 FROM ${BASE_IMAGE}
 
 # Optionally override the Node.js version provided by the base image.
-# Pass a full version such as "20.18.1" (no leading "v") via the NODE_VERSION build arg
-# to override; leave empty to keep the base image's Node.js. Placed before the global
+# Pass either a major line (e.g. "22") or a full version (e.g. "22.11.0") via the
+# NODE_VERSION build arg; a major/partial value is resolved to the latest matching
+# release. Leave empty to keep the base image's Node.js. Placed before the global
 # npm installs below so those tools are installed with the selected Node.js.
 ARG NODE_VERSION=""
 RUN if [ -n "$NODE_VERSION" ]; then \
-        echo "Overriding Node.js to v${NODE_VERSION}..." && \
+        WANT="${NODE_VERSION#v}" && \
+        echo "Resolving Node.js version for '${WANT}'..." && \
+        RESOLVED=$(curl -fsSL https://nodejs.org/dist/index.json | node -e "const d=JSON.parse(require('fs').readFileSync(0,'utf8'));const w=process.argv[1];const m=d.find(v=>v.version==='v'+w||v.version.startsWith('v'+w+'.'));if(!m){console.error('No Node.js release matching '+w);process.exit(1);}process.stdout.write(m.version.replace(/^v/,''));" "$WANT") && \
+        echo "Overriding Node.js to v${RESOLVED}..." && \
         ARCH=$(dpkg --print-architecture) && \
         if [ "$ARCH" = "arm64" ]; then \
             NODE_ARCH="arm64"; \
@@ -21,7 +25,7 @@ RUN if [ -n "$NODE_VERSION" ]; then \
             NODE_ARCH="x64"; \
         fi && \
         NODE_PREFIX=$(dirname "$(dirname "$(command -v node || echo /usr/local/bin/node)")") && \
-        curl -fsSL "https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-${NODE_ARCH}.tar.gz" -o /tmp/node.tar.gz && \
+        curl -fsSL "https://nodejs.org/dist/v${RESOLVED}/node-v${RESOLVED}-linux-${NODE_ARCH}.tar.gz" -o /tmp/node.tar.gz && \
         tar -xzf /tmp/node.tar.gz -C "$NODE_PREFIX" --strip-components=1 --no-same-owner && \
         rm /tmp/node.tar.gz && \
         node --version && \

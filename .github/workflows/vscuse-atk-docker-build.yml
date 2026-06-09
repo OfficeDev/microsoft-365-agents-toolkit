@@ -13,9 +13,9 @@ on:
         required: false
         default: 'latest'
       node_version:
-        description: 'Override the Node.js version baked into the image (full version, e.g. 20.18.1). Leave empty to keep the base image Node.js.'
+        description: 'Override the Node.js version baked into the image. Accepts a major line (e.g. 22) or a full version (e.g. 22.11.0). Leave empty to keep the base image Node.js.'
         required: false
-        default: ''
+        default: '22'
       no_cache:
         description: 'Build without cache'
         type: boolean
