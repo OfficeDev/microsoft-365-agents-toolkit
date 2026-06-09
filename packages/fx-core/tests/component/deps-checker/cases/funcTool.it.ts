@@ -239,8 +239,7 @@ async function assertFuncStart(binFolder?: string): Promise<void> {
   // Either output signals the binary is runnable.
   const out = funcStartResult.cmdOutputIncludingStderr;
   expect(
-    out.includes("Unable to find project root") ||
-      out.includes("Can't determine project language"),
+    out.includes("Unable to find project root") || out.includes("Can't determine project language"),
     `func start should return a no-project hint message, but actual output: "${out}"`
   ).to.be.true;
 }
