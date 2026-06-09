@@ -2,7 +2,7 @@
     "name": "apipluginoauth",
     "version": "1.0.0",
     "engines": {
-        "node": "22 || 24"
+        "node": "22"
     },
     "scripts": {
         "dev:teamsfx": "env-cmd --silent -f .localConfigs npm run dev",
