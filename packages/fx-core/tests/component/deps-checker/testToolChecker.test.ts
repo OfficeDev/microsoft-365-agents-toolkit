@@ -211,7 +211,7 @@ describe("Test Tool Checker Test (npm version)", () => {
         writtenFiles.push(path);
       });
       const envStatus = mockEnvironmentNpm(sandbox, {
-        nodeVersion: "v18.16.1",
+        nodeVersion: "v22.22.3",
         npmVersion: "9.5.1",
         installSuccess: true,
         testToolVersionBeforeInstall: undefined,
@@ -244,7 +244,7 @@ describe("Test Tool Checker Test (npm version)", () => {
         ...mockInstallInfoFile(projectPath),
       });
       const envStatus = mockEnvironmentNpm(sandbox, {
-        nodeVersion: "v18.16.1",
+        nodeVersion: "v22.22.3",
         npmVersion: "9.5.1",
         testToolVersionBeforeInstall: "1.2.3",
       });
@@ -429,7 +429,7 @@ describe("Test Tool Checker Test (npm version)", () => {
       const symlinkDir = "symlinkDir";
       const versionRange = "~1.2.3";
       const envStatus = mockEnvironmentNpm(sandbox, {
-        nodeVersion: "v18.16.1",
+        nodeVersion: "v22.22.3",
         npmVersion: "9.5.1",
         testToolVersionBeforeInstall: "1.2.2",
         testToolVersionAfterInstall: "1.2.3",
@@ -548,7 +548,7 @@ describe("Test Tool Checker Test (npm version)", () => {
         [path.join(mockProjectPath, "microsoft-teams-app-test-tool-1.2.3.tgz")]: "",
       });
       const envStatus = mockEnvironmentNpm(sandbox, {
-        nodeVersion: "v18.16.1",
+        nodeVersion: "v22.22.3",
         npmVersion: "9.5.1",
         testToolVersionBeforeInstall: undefined,
         testToolVersionAfterInstall: "1.2.3",
@@ -726,7 +726,7 @@ describe("Test Tool Checker Test (npm version)", () => {
         .stub(cpUtils, "executeCommand")
         .callsFake(async (_cwd, _logger, _options, command, ...args) => {
           if (args.includes("--version")) {
-            if (command === "node") return "v18.16.1";
+            if (command === "node") return "v22.22.3";
             if (command === "npm") return "9.7.0";
             return installedVersion;
           } else if (args.includes("install")) {
@@ -770,7 +770,7 @@ describe("Test Tool Checker Test (npm version)", () => {
         .stub(cpUtils, "executeCommand")
         .callsFake(async (_cwd, _logger, _options, command, ...args) => {
           if (args.includes("--version")) {
-            if (command === "node") return "v18.16.1";
+            if (command === "node") return "v22.22.3";
             if (command === "npm") return "9.7.0";
             return installedVersion;
           } else if (args.includes("install")) {
@@ -816,7 +816,7 @@ describe("Test Tool Checker Test (npm version)", () => {
         .stub(cpUtils, "executeCommand")
         .callsFake(async (_cwd, _logger, _options, command, ...args) => {
           if (args.includes("--version")) {
-            if (command === "node") return "v18.16.1";
+            if (command === "node") return "v22.22.3";
             if (command === "npm") return "9.5.1";
             if (checkedUpdate) {
               // after update
@@ -918,7 +918,7 @@ describe("Test Tool Checker Test (npm version)", () => {
       const symlinkDir = "symlinkDir";
       const versionRange = "1.2.3";
       mockfs({});
-      mockEnvironmentNpm(sandbox, { nodeVersion: "v18.16.1", npmVersion: undefined });
+      mockEnvironmentNpm(sandbox, { nodeVersion: "v22.22.3", npmVersion: undefined });
       // Act
       const status = await checker.resolve({
         releaseType,

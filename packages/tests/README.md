@@ -6,7 +6,7 @@ A UI Test Project based on [Vscode Extension Tester](https://github.com/redhat-d
 
 ### Prerequisites
 
-- node >= 18
+- node >= 22
 - NPM >= 8
 - m365 account
 - azure account
@@ -64,12 +64,12 @@ There are some common VSCode operations in `./src/vscodeOperation.ts`. [Here](ht
 If your test case needs to open the browser, sideloading an Teams App and verify the Team App, you can find some common Teams App operations in `./src/playwrightOperation.ts`. [Here](https://playwright.dev/docs/intro) you can learn more about playwright.
 
 If you want to add your case to schedualed job, you can update the `.github/workflows/pvt.json`, choose target os, node version and add your file name to it.
-For example, if your test file is `src/ui-test/localdebug/localdebug-bot-ts.test.ts`, and you want to execute it on windows with node 18, then add `localdebug-bot-ts` to
+For example, if your test file is `src/ui-test/localdebug/localdebug-bot-ts.test.ts`, and you want to execute it on windows with node 22, then add `localdebug-bot-ts` to
 
 ```json
 {
   "windows-latest": {
-    "node-18": ["localdebug-bot-ts"]
+    "node-22": ["localdebug-bot-ts"]
   }
 }
 ```

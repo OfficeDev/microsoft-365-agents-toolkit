@@ -8,7 +8,7 @@ This template showcases how Microsoft Teams supports the ability to run web-base
 >
 > To run the basic tab template in your local dev machine, you will need:
 >
-> - [Node.js](https://nodejs.org/), supported versions: >=20.
+> - [Node.js](https://nodejs.org/), supported versions: >=22.
 > - A [Microsoft 365 account for development](https://docs.microsoft.com/microsoftteams/platform/toolkit/accounts)
 >   Please note that after you enrolled your developer tenant in Office 365 Target Release, it may take couple days for the enrollment to take effect.
 > - [Microsoft 365 Agents Toolkit Visual Studio Code Extension](https://aka.ms/teams-toolkit) version 6.0.0 and higher or [Microsoft 365 Agents Toolkit CLI](https://aka.ms/teamsfx-toolkit-cli)

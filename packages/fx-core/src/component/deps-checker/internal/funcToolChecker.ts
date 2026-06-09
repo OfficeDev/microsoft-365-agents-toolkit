@@ -31,10 +31,8 @@ type FuncVersion = {
 };
 
 const nodeFuncVersionRangeMapping: { [key: string]: string } = {
-  "12": "3",
-  "14": "3 || 4",
-  "16": ">=4",
-  "18": ">=4.0.4670",
+  "22": ">=4.0.5530",
+  "24": ">=4.0.5530",
 };
 
 const funcPackageName = "azure-functions-core-tools";

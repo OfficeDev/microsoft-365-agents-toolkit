@@ -15,7 +15,7 @@ import {
 import { TestLogger } from "../adapters/testLogger";
 import { TestTelemetry } from "../adapters/testTelemetry";
 
-const ltsNodeRange = "18 || 20 || 22";
+const ltsNodeRange = "22 || 24";
 
 describe("NodeChecker E2E Test", async () => {
   let baseFolder: string | undefined = undefined;
