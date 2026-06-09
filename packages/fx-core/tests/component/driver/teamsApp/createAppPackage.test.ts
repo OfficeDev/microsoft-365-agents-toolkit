@@ -18,7 +18,11 @@ import fs from "fs-extra";
 import "mocha";
 import mockedEnv, { RestoreFn } from "mocked-env";
 import * as sinon from "sinon";
-import { featureFlagManager, FeatureFlagName, FeatureFlags } from "../../../../src/common/featureFlags";
+import {
+  featureFlagManager,
+  FeatureFlagName,
+  FeatureFlags,
+} from "../../../../src/common/featureFlags";
 import { DriverContext } from "../../../../src/component/driver/interface/commonArgs";
 import { CreateAppPackageDriver } from "../../../../src/component/driver/teamsApp/createAppPackage";
 import { CreateAppPackageArgs } from "../../../../src/component/driver/teamsApp/interfaces/CreateAppPackageArgs";

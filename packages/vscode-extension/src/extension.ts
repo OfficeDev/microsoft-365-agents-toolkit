@@ -295,9 +295,7 @@ export async function activate(context: vscode.ExtensionContext) {
     isKiotaNPMIntegrationEnabled
   );
 
-  const isAgentSkillsEnabled = featureFlagManager.getBooleanValue(
-    FeatureFlags.AgentSkillsManifest
-  );
+  const isAgentSkillsEnabled = featureFlagManager.getBooleanValue(FeatureFlags.AgentSkillsManifest);
   await vscode.commands.executeCommand(
     "setContext",
     "fx-extension.isAgentSkillsEnabled",
