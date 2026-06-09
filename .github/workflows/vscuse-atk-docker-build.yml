@@ -8,6 +8,10 @@ on:
         description: 'Tag for the Docker image'
         required: false
         default: 'latest'
+      base_image_tag:
+        description: 'Tag of the base image (ghcr.io/microsoft/vscuse-base) to build from'
+        required: false
+        default: 'latest'
       no_cache:
         description: 'Build without cache'
         type: boolean
@@ -131,6 +135,8 @@ jobs:
           context: ./packages/tests/vscuse/docker/vscuse-atk
           # platforms: linux/amd64,linux/arm64
           push: true
+          build-args: |
+            BASE_IMAGE=ghcr.io/microsoft/vscuse-base:${{ github.event.inputs.base_image_tag || 'latest' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: ${{ github.event.inputs.no_cache != 'true' && 'type=gha' || '' }}
