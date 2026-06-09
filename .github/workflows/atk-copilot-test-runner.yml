@@ -269,12 +269,13 @@ jobs:
           // Patch 1: inject auth URL file write before openExternal call.
           // The bundler may rename 'vscode' to any short variable, so use a regex.
           // Pattern: <varname>.env.openExternal(<varname>.Uri.parse(response))
+          // The write is unconditional — runTest.ts OAuth watcher consumes the file.
           const openExternalRe = /(\w+)\.env\.openExternal\(\1\.Uri\.parse\(response\)\)/;
           if (!src.includes('atk-auth-url.txt')) {
             const match = src.match(openExternalRe);
             if (match) {
               const original = match[0];
-              const patched = `(process.env["TEAMSFX_AUTO_CONFIRM_LOGIN"]==="true"&&(()=>{try{require("fs").writeFileSync(require("os").tmpdir()+"/atk-auth-url.txt",response,"utf8");}catch(e){}})()),${original}`;
+              const patched = `(()=>{try{require("fs").writeFileSync(require("os").tmpdir()+"/atk-auth-url.txt",response,"utf8");}catch(e){}})(),${original}`;
               src = src.replace(original, patched);
               console.log('Patch 1 applied: auth URL file write (matched: ' + original + ')');
             } else {
@@ -284,21 +285,19 @@ jobs:
             console.log('Patch 1 already applied');
           }
 
-          // Patch 2: bypass confirmation modal in doesUserConfirmLogin.
-          // The minified code has: let VAR=localize("teamstoolkit.appStudioLogin.message")
-          // We need to insert the bypass BEFORE that let declaration.
-          // Find the pattern: `let <id>=<localizeCall>("teamstoolkit.appStudioLogin.message")`
-          // and prepend the early-return guard.
+          // Patch 2: bypass confirmation modal in doesUserConfirmLogin for test mode.
+          // VS Code's test host (injected by @vscode/test-electron) refuses all modal dialogs.
+          // The VSIX bundled code has: let VAR=localize("teamstoolkit.appStudioLogin.message")
+          // Prepend a guard that skips the dialog when TEAMSFX_EXTENSION_TESTS is set (test mode).
           const confirmRe = /(let \w+=\w+\("teamstoolkit\.appStudioLogin\.message"\))/;
-          const alreadyPatched2 = src.includes('TEAMSFX_AUTO_CONFIRM_LOGIN]==="true"){return Promise.resolve(!0);}') ||
-                                  src.includes('TEAMSFX_AUTO_CONFIRM_LOGIN]==="true"){return Promise.resolve(true);}');
+          const alreadyPatched2 = src.includes('TEAMSFX_EXTENSION_TESTS');
           if (!alreadyPatched2) {
             const m2 = src.match(confirmRe);
             if (m2) {
               const original2 = m2[0];
-              const patched2 = 'if(process.env["TEAMSFX_AUTO_CONFIRM_LOGIN"]==="true"){return Promise.resolve(!0);}' + original2;
+              const patched2 = 'if(process.env["TEAMSFX_EXTENSION_TESTS"]){return Promise.resolve(!0);}' + original2;
               src = src.replace(original2, patched2);
-              console.log('Patch 2 applied: auto-confirm bypass (matched: ' + original2.slice(0,60) + ')');
+              console.log('Patch 2 applied: test-mode dialog bypass (matched: ' + original2.slice(0,60) + ')');
             } else {
               console.warn('Patch 2 target not found — let <var>=localize("teamstoolkit.appStudioLogin.message") missing');
             }
@@ -330,7 +329,7 @@ jobs:
           M365_ACCOUNT_NAME: ${{ secrets.TEST_M365_NAME }}
           M365_ACCOUNT_PASSWORD: ${{ secrets.TEST_M365_PASSWORD }}
           M365_TENANT_ID: ${{ secrets.TEST_M365_TENANT_ID }}
-          TEAMSFX_AUTO_CONFIRM_LOGIN: "true"
+          TEAMSFX_EXTENSION_TESTS: "true"
           TEAMSFX_BROKER_AUTH: "false"
         run: |
           cd packages/tests/copilot-test

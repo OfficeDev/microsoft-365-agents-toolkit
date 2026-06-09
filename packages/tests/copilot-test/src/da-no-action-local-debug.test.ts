@@ -353,10 +353,14 @@ suite("DA No Action – Scaffold and Local Debug", function () {
         28000,
       );
       await sendSignal("clickText:Sign in to Microsoft 365", 10000);
+      await wait(500);
+      // ATK shows a confirmation dialog — runTest.ts clicks "Sign in" via CDP.
+      // window.dialogStyle:"custom" ensures the dialog renders as HTML (not native OS dialog).
+      await sendSignal("clickDialog:Sign in", 12000);
       await wait(1000);
       await takeScreenshot("10-sign-in-triggered");
 
-      // Poll for auth URL written by codeFlowLogin.ts patch
+      // Poll for auth URL written by codeFlowLogin.ts on every sign-in
       const AUTH_URL_FILE = path.join(os.tmpdir(), "atk-auth-url.txt");
       let authUrlDetected = false;
       for (let i = 0; i < 30 && !authUrlDetected; i++) {

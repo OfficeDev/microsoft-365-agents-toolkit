@@ -248,19 +248,10 @@ export class M365Login extends BasicLogin implements M365TokenProvider {
   }
 
   private async doesUserConfirmLogin(): Promise<boolean> {
-    // Debug: write env state to temp file so we can verify from test automation
-    try {
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
-      const nodefs = require("fs") as typeof import("fs");
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
-      const nodeos = require("os") as typeof import("os");
-      nodefs.writeFileSync(
-        nodeos.tmpdir() + "/atk-debug-confirm.txt",
-        `TEAMSFX_AUTO_CONFIRM_LOGIN=${process.env["TEAMSFX_AUTO_CONFIRM_LOGIN"]}\ntime=${Date.now()}`
-      );
-    } catch {}
-    // Allow test automation to bypass the confirmation dialog
-    if (process.env["TEAMSFX_AUTO_CONFIRM_LOGIN"] === "true") {
+    // VS Code's test host (injected by @vscode/test-electron) refuses all modal dialogs,
+    // throwing "DialogService: refused to show dialog in tests". Skip confirmation when
+    // TEAMSFX_EXTENSION_TESTS is set — this env var is injected by runTest.ts only.
+    if (process.env["TEAMSFX_EXTENSION_TESTS"]) {
       return Promise.resolve(true);
     }
     const message = localize("teamstoolkit.appStudioLogin.message");

@@ -236,10 +236,11 @@ export class CodeFlowLogin {
     try {
       await this.startServer(server, serverPort);
       void this.pca.getAuthCodeUrl(authCodeUrlParameters).then((response: string) => {
-        // Write auth URL to temp file for test automation (TEAMSFX_AUTO_CONFIRM_LOGIN=true)
-        if (process.env["TEAMSFX_AUTO_CONFIRM_LOGIN"] === "true") {
-          const os = require("os") as typeof import("os");
-          fs.writeFileSync(path.join(os.tmpdir(), "atk-auth-url.txt"), response, "utf8");
+        // Write auth URL to temp file so runTest.ts OAuth automation can complete sign-in (test-only)
+        if (process.env["TEAMSFX_EXTENSION_TESTS"] === "true") {
+          try {
+            fs.writeFileSync(path.join(os.tmpdir(), "atk-auth-url.txt"), response, "utf8");
+          } catch {}
         }
         void vscode.env.openExternal(vscode.Uri.parse(response));
       });

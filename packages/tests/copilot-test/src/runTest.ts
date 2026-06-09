@@ -264,6 +264,30 @@ async function startSignalWatcher(
               console.warn(`  click: "${selector}" not found`);
             }
           }
+        } else if (content.startsWith("clickDialog:")) {
+          // Click a button in the VS Code modal dialog (e.g. showInformationMessage({modal:true})).
+          // Note: @vscode/test-electron's DialogService stub refuses modal dialogs in test mode;
+          // the source-level bypass (VSCODE_EXTENSION_TESTS check) handles that case. This
+          // signal handler is a fallback for cases where the dialog does render (e.g. future
+          // VS Code versions) and Playwright can click it via CDP.
+          const btnText = content.slice("clickDialog:".length).trim();
+          if (page) {
+            try {
+              const dlg = page.locator(".monaco-dialog-box");
+              await dlg.waitFor({ state: "visible", timeout: 3000 });
+              const btn = dlg
+                .locator(".monaco-text-button, .monaco-button, button")
+                .filter({ hasText: btnText });
+              await btn.first().click();
+              console.log(`  Clicked dialog button: "${btnText}"`);
+              await sleep(500);
+            } catch {
+              // Dialog not present (likely bypassed at source level) — silently continue.
+              console.log(
+                `  clickDialog: "${btnText}" — no dialog visible (expected in test mode)`,
+              );
+            }
+          }
         } else if (content.startsWith("type:")) {
           const text = content.slice("type:".length);
           if (page) {
@@ -441,8 +465,6 @@ async function main() {
   const extPath = process.env.ATK_EXT_PATH ?? "";
   // VS Code version to use. Defaults to "stable" (latest release).
   // Override with VSCODE_VERSION=1.105.1 or any specific version string.
-  // NOTE: the VS Code test host (DialogService) blocks all modal dialogs in
-  // ALL versions — use TEAMSFX_AUTO_CONFIRM_LOGIN=true (default) to bypass.
   const vscodeVersion = process.env.VSCODE_VERSION ?? "stable";
   const outputDir =
     process.env.TEST_OUTPUT_DIR ||
@@ -458,18 +480,39 @@ async function main() {
   } catch {}
   for (const d of [screenshotDir, signalDir, userDataDir])
     fs.mkdirSync(d, { recursive: true });
-  // Disable VS Code extension auto-updates to prevent github.copilot-chat from downloading
-  // during the test run, which blocks the extension host and delays wizard QuickPick appearance.
+  // Write user settings.json before launching VS Code.
+  // These settings suppress UI noise (updates, tips, welcome page) and make VS Code
+  // render dialogs as HTML (window.dialogStyle: "custom") so Playwright can click them.
   const vscodeUserSettings = path.join(userDataDir, "User");
   fs.mkdirSync(vscodeUserSettings, { recursive: true });
   fs.writeFileSync(
     path.join(vscodeUserSettings, "settings.json"),
     JSON.stringify(
       {
+        // Automation: suppress update noise, telemetry, experiments
         "extensions.autoUpdate": false,
         "extensions.autoCheckUpdates": false,
+        "extensions.ignoreRecommendations": true,
         "update.mode": "none",
+        "update.showReleaseNotes": false,
         "telemetry.telemetryLevel": "off",
+        "workbench.enableExperiments": false,
+        // Clean workbench — no welcome page, stable tabs, no tips
+        "workbench.startupEditor": "none",
+        "workbench.editor.enablePreview": false,
+        "workbench.tips.enabled": false,
+        // UI rendering — VS Code draws its own title bar / dialogs so CDP can see them
+        "window.titleBarStyle": "custom",
+        "window.commandCenter": false,
+        "window.dialogStyle": "custom",
+        "window.newWindowDimensions": "maximized",
+        // No workspace trust prompt
+        "security.workspace.trust.enabled": false,
+        // Use quick-pick (keyboard-drivable) file picker instead of native OS picker
+        "files.simpleDialog.enable": true,
+        // Disable Copilot suggestions (extension is also disabled via launch arg)
+        "github.copilot.enable": false,
+        "github.copilot-chat.enabled": false,
       },
       null,
       2,
@@ -723,13 +766,14 @@ async function main() {
       ...(process.env.M365_TENANT_ID
         ? { M365_TENANT_ID: process.env.M365_TENANT_ID }
         : {}),
-      // Auth bypass flags (read by patched m365Login.ts and codeFlowLogin.ts).
-      // TEAMSFX_AUTO_CONFIRM_LOGIN must be "true" because the VS Code test host
-      // (DialogService) refuses to show modal dialogs — without the bypass the
-      // M365 sign-in confirmation dialog throws "refused to show dialog in tests".
-      TEAMSFX_AUTO_CONFIRM_LOGIN:
-        process.env.TEAMSFX_AUTO_CONFIRM_LOGIN ?? "true",
-      TEAMSFX_BROKER_AUTH: process.env.TEAMSFX_BROKER_AUTH ?? "true",
+      // Auth flags:
+      // TEAMSFX_EXTENSION_TESTS=true signals to m365Login.ts that modal dialogs are blocked
+      // by VS Code's test host (DialogService). Set by runTest.ts only — never in production.
+      // TEAMSFX_BROKER_AUTH=false forces MSAL code-flow (browser URL) instead of
+      // the Windows native broker (WAM), which would show a native OS dialog that
+      // Playwright cannot automate. Auth URL is captured via codeFlowLogin.ts write.
+      TEAMSFX_EXTENSION_TESTS: "true",
+      TEAMSFX_BROKER_AUTH: process.env.TEAMSFX_BROKER_AUTH ?? "false",
     },
   };
   // Set extensionDevelopmentPath only for dev builds (ATK_EXT_PATH).
@@ -873,8 +917,22 @@ async function main() {
             {
               "extensions.autoUpdate": false,
               "extensions.autoCheckUpdates": false,
+              "extensions.ignoreRecommendations": true,
               "update.mode": "none",
+              "update.showReleaseNotes": false,
               "telemetry.telemetryLevel": "off",
+              "workbench.enableExperiments": false,
+              "workbench.startupEditor": "none",
+              "workbench.editor.enablePreview": false,
+              "workbench.tips.enabled": false,
+              "window.titleBarStyle": "custom",
+              "window.commandCenter": false,
+              "window.dialogStyle": "custom",
+              "window.newWindowDimensions": "maximized",
+              "security.workspace.trust.enabled": false,
+              "files.simpleDialog.enable": true,
+              "github.copilot.enable": false,
+              "github.copilot-chat.enabled": false,
             },
             null,
             2,
