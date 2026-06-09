@@ -19,7 +19,7 @@ import * as funcUtils from "../utils/funcTool";
 
 chai.use(spies);
 const expect = chai.expect;
-const assert = chai.assert;
+const assert: Chai.AssertStatic = chai.assert;
 
 describe("FuncToolChecker E2E Test", async () => {
   const sandbox = sinon.createSandbox();
