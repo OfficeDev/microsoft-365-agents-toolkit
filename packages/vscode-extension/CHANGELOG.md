@@ -4,18 +4,11 @@
 
 ## 6.10.2 - June 9, 2026
 
-### New Features
-
-#### Add agent evaluation support to declarative agent templates
-[description]: This release introduces agent evaluation support across all declarative agent (DA) project templates. Each template now includes an `evals/prompts.json` file with a sample dataset to assist users in evaluating their agents effectively. Additionally, the associated README files have been updated with a new "Evaluating Agents" section that includes instructions for using the `@microsoft/m365-copilot-eval` CLI to perform evaluations. Environment variable placeholders have also been added for easier configuration. This enhancement provides a clear, standardized way to test and assess agent performance directly within the project structure.
-
-#### Redesign terminate process feature for handling port conflicts
-[description]: The terminate process feature has been re-designed to provide a better user experience when handling port conflicts during project setup or execution. The improved functionality ensures that processes using conflicting ports are identified and properly terminated, simplifying troubleshooting and minimizing workflow disruptions. This redesign enhances the reliability and usability of development workflows, especially when working with multiple agent configurations.
+This is a hotfix version.
 
 ### Bug Fix
-- Added a missing trailing newline to `repair.yml.tpl` file in templates to adhere to file formatting conventions, [PR #15962](https://github.com/OfficeDev/microsoft-365-agents-toolkit/pull/15962)
-- Updated the "Evaluating Agents" section in declarative agent template READMEs to include a required "Provision the project first" step and reverted prior incorrect changes to the `TENANT_ID` placeholder, [PR #16011](https://github.com/OfficeDev/microsoft-365-agents-toolkit/pull/16011)
-- Resolved an issue causing the "Fetch action from MCP" feature to fail on macOS by using the MCP gateway's tool list directly rather than relying on the VS Code LM tool registry, [PR #16104](https://github.com/OfficeDev/microsoft-365-agents-toolkit/pull/16104)
+- Resolved an issue causing the "Fetch action from MCP" feature to fail on macOS by using the MCP gateway's tool list directly rather than relying on the VS Code LM tool registry.
+
 
 ## 6.10.1 - June 3, 2026
 
