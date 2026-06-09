@@ -7,6 +7,29 @@
 ARG BASE_IMAGE=ghcr.io/microsoft/vscuse-base:latest
 FROM ${BASE_IMAGE}
 
+# Optionally override the Node.js version provided by the base image.
+# Pass a full version such as "20.18.1" (no leading "v") via the NODE_VERSION build arg
+# to override; leave empty to keep the base image's Node.js. Placed before the global
+# npm installs below so those tools are installed with the selected Node.js.
+ARG NODE_VERSION=""
+RUN if [ -n "$NODE_VERSION" ]; then \
+        echo "Overriding Node.js to v${NODE_VERSION}..." && \
+        ARCH=$(dpkg --print-architecture) && \
+        if [ "$ARCH" = "arm64" ]; then \
+            NODE_ARCH="arm64"; \
+        else \
+            NODE_ARCH="x64"; \
+        fi && \
+        NODE_PREFIX=$(dirname "$(dirname "$(command -v node || echo /usr/local/bin/node)")") && \
+        curl -fsSL "https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-${NODE_ARCH}.tar.gz" -o /tmp/node.tar.gz && \
+        tar -xzf /tmp/node.tar.gz -C "$NODE_PREFIX" --strip-components=1 --no-same-owner && \
+        rm /tmp/node.tar.gz && \
+        node --version && \
+        npm --version; \
+    else \
+        echo "Using base image Node.js version: $(node --version)"; \
+    fi
+
 # Install .NET 8.0 SDK
 RUN curl -fsSL https://packages.microsoft.com/config/ubuntu/22.04/packages-microsoft-prod.deb -o packages-microsoft-prod.deb \
     && dpkg -i packages-microsoft-prod.deb \

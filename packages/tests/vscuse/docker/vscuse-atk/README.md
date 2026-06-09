@@ -20,6 +20,15 @@ This profile extends the base image with ATK-specific tools:
 docker build -t ghcr.io/<your-github-username>/vscuse-atk:latest .
 ```
 
+### Overriding the Node.js version
+The image uses the Node.js provided by the base image by default. To bake a different
+Node.js version, pass the `NODE_VERSION` build arg with a full version (no leading `v`):
+```bash
+docker build --build-arg NODE_VERSION=20.18.1 -t ghcr.io/<your-github-username>/vscuse-atk:latest .
+```
+The same override is exposed as the `node_version` input on the
+`Build VscUse ATK Docker Image` workflow.
+
 ## Extending from Base Image
 
 This profile extends the base image:

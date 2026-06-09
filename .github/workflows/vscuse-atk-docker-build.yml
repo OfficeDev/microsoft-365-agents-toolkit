@@ -12,6 +12,10 @@ on:
         description: 'Tag of the base image (ghcr.io/microsoft/vscuse-base) to build from'
         required: false
         default: 'latest'
+      node_version:
+        description: 'Override the Node.js version baked into the image (full version, e.g. 20.18.1). Leave empty to keep the base image Node.js.'
+        required: false
+        default: ''
       no_cache:
         description: 'Build without cache'
         type: boolean
@@ -137,6 +141,7 @@ jobs:
           push: true
           build-args: |
             BASE_IMAGE=ghcr.io/microsoft/vscuse-base:${{ github.event.inputs.base_image_tag || 'latest' }}
+            NODE_VERSION=${{ github.event.inputs.node_version }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: ${{ github.event.inputs.no_cache != 'true' && 'type=gha' || '' }}
