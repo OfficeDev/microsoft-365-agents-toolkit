@@ -4,12 +4,12 @@
 "use strict";
 
 import { AadManager, ResourceGroupManager } from "../commonlib";
-import { getAppNamePrefix } from "./commonUtils";
+import { BASE_APP_NAME_PREFIX, getAppNamePrefix } from "./commonUtils";
 
 export async function cleanUpAad(
   contains: string,
   hours?: number,
-  retryTimes = 2
+  retryTimes = 2,
 ): Promise<void> {
   const aadManager = await AadManager.init();
   await aadManager.deleteAadApps(contains, hours, retryTimes);
@@ -18,7 +18,7 @@ export async function cleanUpAad(
 export async function cleanUpResourceGroup(
   contains: string,
   hours?: number,
-  retryTimes = 2
+  retryTimes = 2,
 ): Promise<void> {
   const groups = await ResourceGroupManager.searchResourceGroups(contains);
   const filteredGroups =
@@ -37,15 +37,23 @@ export async function cleanUpResourceGroup(
   });
   await Promise.all(promises);
   console.log(
-    `[Successfully] clean up ${promises.length} Azure resource groups.`
+    `[Successfully] clean up ${promises.length} Azure resource groups.`,
   );
 }
 
 (async () => {
-  const promise1 = cleanUpAad(getAppNamePrefix());
-  const promise2 = cleanUpResourceGroup(getAppNamePrefix());
-  const promise3 = cleanUpResourceGroup("fx_e_2_e_");
-  const promise4 = cleanUpResourceGroup("teamsfxt_");
-  const promise5 = cleanUpResourceGroup("fx_");
-  await Promise.all([promise1, promise2, promise3, promise4, promise5]);
+  const prefix = process.env.E2E_CLEANUP_PREFIX || getAppNamePrefix();
+
+  const promise1 = cleanUpAad(prefix);
+  const promise2 = cleanUpResourceGroup(prefix);
+
+  // Only clean legacy prefixes during broad (scheduled) cleanup
+  if (prefix === BASE_APP_NAME_PREFIX) {
+    const promise3 = cleanUpResourceGroup("fx_e_2_e_");
+    const promise4 = cleanUpResourceGroup("teamsfxt_");
+    const promise5 = cleanUpResourceGroup("fx_");
+    await Promise.all([promise1, promise2, promise3, promise4, promise5]);
+  } else {
+    await Promise.all([promise1, promise2]);
+  }
 })();

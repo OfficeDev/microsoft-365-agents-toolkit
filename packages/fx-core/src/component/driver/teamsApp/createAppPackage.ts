@@ -16,6 +16,7 @@ import {
   TeamsManifestV1D19,
   TeamsManifestV1D21,
   TeamsManifestV1D5,
+  TeamsManifestVDevPreview,
 } from "@microsoft/teamsfx-api";
 import AdmZip from "adm-zip";
 import fs from "fs-extra";
@@ -141,7 +142,9 @@ export class CreateAppPackageDriver implements StepDriver {
         );
         return err(error);
       }
-      const fileRelativePath = path.relative(appDirectory, filePath);
+      const realFilePath = await fs.realpath(filePath);
+      const realAppDirectory = await fs.realpath(appDirectory);
+      const fileRelativePath = path.relative(realAppDirectory, realFilePath);
       if (fileRelativePath.startsWith("..")) {
         return err(new InvalidFileOutsideOfTheDirectotryError(filePath));
       }
@@ -214,11 +217,13 @@ export class CreateAppPackageDriver implements StepDriver {
       for (const language of additionalLanguages) {
         const file = language.file;
         const fileName = path.resolve(appDirectory, file);
-        const relativePath = path.relative(appDirectory, fileName);
+        const realFileName = await fs.realpath(fileName);
+        const realAppDirectory = await fs.realpath(appDirectory);
+        const relativePath = path.relative(realAppDirectory, realFileName);
         if (relativePath.startsWith("..")) {
           return err(new InvalidFileOutsideOfTheDirectotryError(fileName));
         }
-        const resolvedLocFileRes = await manifestUtils.resolveLocFile(fileName);
+        const resolvedLocFileRes = await manifestUtils.resolveLocFile(fileName, context);
         if (resolvedLocFileRes.isErr()) {
           return err(resolvedLocFileRes.error);
         }
@@ -229,12 +234,14 @@ export class CreateAppPackageDriver implements StepDriver {
     }
     if (defaultLanguageFile) {
       const fileName = path.resolve(appDirectory, defaultLanguageFile);
-      const relativePath = path.relative(appDirectory, fileName);
+      const realFileName = await fs.realpath(fileName);
+      const realAppDirectory = await fs.realpath(appDirectory);
+      const relativePath = path.relative(realAppDirectory, realFileName);
       if (relativePath.startsWith("..")) {
         return err(new InvalidFileOutsideOfTheDirectotryError(fileName));
       }
 
-      const resolvedLocFileRes = await manifestUtils.resolveLocFile(fileName);
+      const resolvedLocFileRes = await manifestUtils.resolveLocFile(fileName, context);
       if (resolvedLocFileRes.isErr()) {
         return err(resolvedLocFileRes.error);
       }
@@ -318,9 +325,31 @@ export class CreateAppPackageDriver implements StepDriver {
         context
       );
       if (getCopilotGptRes.isOk()) {
+        const manifest = getCopilotGptRes.value;
+
+        if (manifest.actions !== undefined && !Array.isArray(manifest.actions)) {
+          return err(
+            new InvalidActionInputError(
+              actionName,
+              [`actions (in ${path.basename(declarativeAgentManifestFile)}) must be an array`],
+              "https://aka.ms/teamsfx-actions/teamsapp-zipAppPackage"
+            )
+          );
+        }
+
+        if (manifest.capabilities !== undefined && !Array.isArray(manifest.capabilities)) {
+          return err(
+            new InvalidActionInputError(
+              actionName,
+              [`capabilities (in ${path.basename(declarativeAgentManifestFile)}) must be an array`],
+              "https://aka.ms/teamsfx-actions/teamsapp-zipAppPackage"
+            )
+          );
+        }
+
         // Add action files
-        if (Array.isArray(getCopilotGptRes.value.actions)) {
-          const pluginFiles = getCopilotGptRes.value.actions.map((action) => action.file);
+        if (Array.isArray(manifest.actions)) {
+          const pluginFiles = manifest.actions.map((action) => action.file);
 
           for (const pluginFile of pluginFiles) {
             const pluginFileAbsolutePath = path.resolve(
@@ -349,8 +378,8 @@ export class CreateAppPackageDriver implements StepDriver {
           }
         }
         // Add embedded knowledge files
-        if (Array.isArray(getCopilotGptRes.value.capabilities)) {
-          const embeddedKnowledgeCapabilities = getCopilotGptRes.value.capabilities.filter(
+        if (Array.isArray(manifest.capabilities)) {
+          const embeddedKnowledgeCapabilities = manifest.capabilities.filter(
             (capability) => capability.name === DeclarativeCopilotCapabilityName.EmbeddedKnowledge
           );
           if (embeddedKnowledgeCapabilities.length > 0) {
@@ -422,37 +451,18 @@ export class CreateAppPackageDriver implements StepDriver {
       }
     }
 
-    // Package agent skills declared in the top-level Teams manifest (agentSkills)
-    const teamsManifestAgentSkills = (manifest as unknown as Record<string, unknown>)
-      .agentSkills as { folder: string }[] | undefined;
-    if (teamsManifestAgentSkills && Array.isArray(teamsManifestAgentSkills)) {
-      for (const skill of teamsManifestAgentSkills) {
-        if (skill.folder) {
-          const skillFolderAbsolutePath = path.resolve(appDirectory, skill.folder);
-          // Skip if already packaged from DA manifest
-          const skillRelativePath = path.relative(appDirectory, skillFolderAbsolutePath);
-          if (!zip.getEntry(skillRelativePath + "/") && !zip.getEntry(skillRelativePath + "\\")) {
-            const checkExistenceRes = await this.validateReferencedFile(
-              skillFolderAbsolutePath,
-              appDirectory
-            );
-            if (checkExistenceRes.isErr()) {
-              return err(checkExistenceRes.error);
-            }
-
-            const skillMdPath = path.join(skillFolderAbsolutePath, "SKILL.md");
-            if (!(await fs.pathExists(skillMdPath))) {
-              return err(
-                new FileNotFoundError(
-                  actionName,
-                  skillMdPath,
-                  "https://aka.ms/teamsfx-actions/teamsapp-zipAppPackage"
-                )
-              );
-            }
-
-            zip.addLocalFolder(skillFolderAbsolutePath, skillRelativePath);
-          }
+    if (featureFlagManager.getBooleanValue(FeatureFlags.AgentSkillsManifest)) {
+      const teamsManifestAgentSkills = (
+        manifest as TeamsManifestVDevPreview.TeamsManifestVDevPreview
+      ).agentSkills;
+      if (teamsManifestAgentSkills?.length) {
+        const addSkillsRes = await this.addAgentSkillFolders(
+          zip,
+          teamsManifestAgentSkills,
+          appDirectory
+        );
+        if (addSkillsRes.isErr()) {
+          return err(addSkillsRes.error);
         }
       }
     }
@@ -525,12 +535,67 @@ export class CreateAppPackageDriver implements StepDriver {
       );
     }
 
-    const relativePath = path.relative(directory, file);
+    const realFile = await fs.realpath(file);
+    const realDirectory = await fs.realpath(directory);
+    const relativePath = path.relative(realDirectory, realFile);
     if (relativePath.startsWith("..")) {
       return err(new InvalidFileOutsideOfTheDirectotryError(file));
     }
 
     return ok(undefined);
+  }
+
+  private async addAgentSkillFolders(
+    zip: AdmZip,
+    agentSkills: { folder: string }[],
+    appDirectory: string
+  ): Promise<Result<undefined, FxError>> {
+    for (const skill of agentSkills) {
+      const skillFolderAbs = path.resolve(appDirectory, skill.folder);
+      if (!(await fs.pathExists(skillFolderAbs))) {
+        return err(
+          new FileNotFoundError(
+            actionName,
+            skillFolderAbs,
+            "https://aka.ms/teamsfx-actions/teamsapp-zipAppPackage"
+          )
+        );
+      }
+      const realSkillFolder = await fs.realpath(skillFolderAbs);
+      const realAppDirectory = await fs.realpath(appDirectory);
+      const relativeToApp = path.relative(realAppDirectory, realSkillFolder);
+      if (relativeToApp.startsWith("..") || path.isAbsolute(relativeToApp)) {
+        return err(new InvalidFileOutsideOfTheDirectotryError(skillFolderAbs));
+      }
+      await this.addLocalFolderRecursive(zip, skillFolderAbs, appDirectory);
+    }
+    return ok(undefined);
+  }
+
+  private async addLocalFolderRecursive(
+    zip: AdmZip,
+    folderAbs: string,
+    appDirectory: string
+  ): Promise<void> {
+    const entries = await fs.readdir(folderAbs, { withFileTypes: true });
+    const realAppDirectory = await fs.realpath(appDirectory);
+    for (const entry of entries) {
+      const entryAbs = path.join(folderAbs, entry.name);
+      if (entry.isSymbolicLink()) {
+        continue;
+      }
+      if (entry.isDirectory()) {
+        await this.addLocalFolderRecursive(zip, entryAbs, appDirectory);
+      } else if (entry.isFile()) {
+        const realEntryAbs = await fs.realpath(entryAbs);
+        const relToApp = path.relative(realAppDirectory, realEntryAbs);
+        if (relToApp.startsWith("..")) {
+          continue;
+        }
+        const relDir = path.dirname(path.relative(appDirectory, entryAbs));
+        zip.addLocalFile(entryAbs, normalizePath(relDir, true));
+      }
+    }
   }
 
   /**

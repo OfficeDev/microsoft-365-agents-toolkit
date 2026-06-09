@@ -17,7 +17,7 @@ import * as os from "os";
 import * as path from "path";
 import { lock, unlock } from "proper-lockfile";
 import { TOOLS } from "../../common/globalVars";
-import { isValidProjectV2, isValidProjectV3 } from "../../common/projectSettingsHelper";
+import { isValidProjectV3 } from "../../common/projectSettingsHelper";
 import { sendTelemetryErrorEvent } from "../../common/telemetry";
 import { waitSeconds } from "../../common/utils";
 import {
@@ -48,8 +48,6 @@ export const ConcurrentLockerMW: Middleware = async (ctx: HookContext, next: Nex
   let configFolder = "";
   if (isValidProjectV3(inputs.projectPath)) {
     configFolder = path.join(inputs.projectPath);
-  } else if (isValidProjectV2(inputs.projectPath)) {
-    configFolder = path.join(inputs.projectPath, `.${ConfigFolderName}`);
   } else {
     ctx.result = err(new InvalidProjectError(inputs.projectPath));
     return;

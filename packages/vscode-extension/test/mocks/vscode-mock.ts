@@ -250,6 +250,7 @@ mockedVSCode.commands = {
   selectChatModels: () => {},
   languageModels: [],
   onDidChangeLanguageModels: undefined as any,
+  tools: [],
 };
 
 (mockedVSCode as any).env = {

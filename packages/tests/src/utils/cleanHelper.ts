@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 import axios, { AxiosInstance, AxiosRequestConfig, Method } from "axios";
-import { RetryHandler } from "./retryHandler";
 import { ResourceGroupManager } from "./resourceGroupManager";
 import * as msal from "@azure/msal-node";
 import * as qs from "querystring";
@@ -17,6 +16,8 @@ import {
 
 class CleanHelper {
   protected readonly axios: AxiosInstance;
+  private readonly maxRetries = 6;
+
   constructor(url: string, token: string) {
     this.axios = axios.create({
       baseURL: url,
@@ -28,15 +29,94 @@ class CleanHelper {
   }
 
   protected async execute(method: Method, url: string, data?: any) {
-    return await RetryHandler.retry(async () => {
-      const result = await this.axios.request({
-        method: method,
-        url: url,
-        data: data,
-      });
+    for (let attempt = 0; attempt <= this.maxRetries; attempt++) {
+      try {
+        return await this.axios.request({
+          method: method,
+          url: url,
+          data: data,
+        });
+      } catch (e: unknown) {
+        if (!this.shouldRetry(e) || attempt >= this.maxRetries) {
+          throw e;
+        }
 
-      return result;
-    }, 0);
+        const waitMs = this.getRetryDelayMs(e, attempt);
+        const message = e instanceof Error ? e.message : "Unknown error";
+        console.log(
+          `[Retry ${attempt}] ${message}. Wait ${waitMs}ms before retrying ${method.toUpperCase()} ${url}`,
+        );
+        await delay(waitMs);
+      }
+    }
+
+    throw new Error(`Failed to execute request ${method.toUpperCase()} ${url}`);
+  }
+
+  private shouldRetry(error: unknown): boolean {
+    if (!axios.isAxiosError(error)) {
+      return false;
+    }
+
+    const status = error.response?.status;
+    return (
+      status === 429 ||
+      status === 408 ||
+      (status !== undefined && status >= 500)
+    );
+  }
+
+  private getRetryDelayMs(error: unknown, attempt: number): number {
+    // Exponential backoff with a cap, plus small jitter to avoid synchronized bursts.
+    const backoffMs = Math.min(60_000, 2_000 * Math.pow(2, attempt));
+    const retryAfterMs = this.getServerSuggestedDelayMs(error);
+    const baseDelayMs = Math.max(backoffMs, retryAfterMs ?? 0);
+    const jitterMs = Math.floor(Math.random() * 500);
+    return baseDelayMs + jitterMs;
+  }
+
+  private getServerSuggestedDelayMs(error: unknown): number | undefined {
+    if (!axios.isAxiosError(error)) {
+      return undefined;
+    }
+
+    const headers = error.response?.headers;
+    if (!this.isRecord(headers)) {
+      return undefined;
+    }
+
+    const retryAfterMs = this.toPositiveNumber(headers["x-ms-retry-after-ms"]);
+    if (retryAfterMs !== undefined) {
+      return retryAfterMs;
+    }
+
+    const retryAfterSeconds = this.toPositiveNumber(headers["retry-after"]);
+    if (retryAfterSeconds !== undefined) {
+      return retryAfterSeconds * 1000;
+    }
+
+    return undefined;
+  }
+
+  private toPositiveNumber(value: unknown): number | undefined {
+    if (typeof value === "number") {
+      return value > 0 ? value : undefined;
+    }
+
+    if (typeof value === "string") {
+      const parsed = Number(value);
+      return Number.isFinite(parsed) && parsed > 0 ? parsed : undefined;
+    }
+
+    if (Array.isArray(value) && value.length > 0) {
+      return this.toPositiveNumber(value[0]);
+    }
+
+    return undefined;
+  }
+
+  private isRecord(value: unknown): value is Record<string, unknown> {
+    return typeof value === "object" && value !== null;
   }
 }
 
@@ -49,13 +129,13 @@ export class GraphApiCleanHelper extends CleanHelper {
     tenantId: string,
     clientId: string,
     username: string,
-    password: string
+    password: string,
   ): Promise<GraphApiCleanHelper> {
     const token = await this.getUserToken(
       tenantId,
       clientId,
       username,
-      password
+      password,
     );
     return new GraphApiCleanHelper(token);
   }
@@ -64,7 +144,7 @@ export class GraphApiCleanHelper extends CleanHelper {
     tenantId: string,
     clientId: string,
     username: string,
-    password: string
+    password: string,
   ): Promise<string> {
     const config = {
       auth: {
@@ -83,7 +163,7 @@ export class GraphApiCleanHelper extends CleanHelper {
 
     const pca = new msal.PublicClientApplication(config);
     const credential = await pca.acquireTokenByUsernamePassword(
-      usernamePasswordRequest
+      usernamePasswordRequest,
     );
     const accessToken = credential?.accessToken;
     if (!accessToken) {
@@ -125,7 +205,7 @@ export class GraphApiCleanHelper extends CleanHelper {
   }
 
   public async getAadObjectId(
-    applicationId: string
+    applicationId: string,
   ): Promise<string | undefined> {
     const result: any[] = [];
     const response = await this.execute("get", `/applications`, undefined);
@@ -152,7 +232,7 @@ export class GraphApiCleanHelper extends CleanHelper {
     const response = await this.execute(
       "get",
       `/applications/${applicationObjectId}`,
-      undefined
+      undefined,
     );
     return response?.data;
   }
@@ -162,7 +242,7 @@ export class GraphApiCleanHelper extends CleanHelper {
     await this.execute(
       "delete",
       `/directory/deletedItems/${objectId}`,
-      undefined
+      undefined,
     );
   }
 
@@ -171,7 +251,7 @@ export class GraphApiCleanHelper extends CleanHelper {
     const response = await this.execute(
       "get",
       `/directory/deletedItems/microsoft.graph.application`,
-      undefined
+      undefined,
     );
     if (response?.data?.value) {
       result.push(...(response?.data?.value as any[]));
@@ -214,7 +294,7 @@ export class GraphApiCleanHelper extends CleanHelper {
     const response = await this.execute(
       "get",
       `/directory/deletedItems/microsoft.graph.servicePrincipal?$top=999`,
-      undefined
+      undefined,
     );
     if (response?.data?.value) {
       result.push(...(response?.data?.value as any[]));
@@ -237,18 +317,18 @@ export class GraphApiCleanHelper extends CleanHelper {
   public async listTeamsApp(userId: string): Promise<any | undefined> {
     const response = await this.execute(
       "get",
-      `/users/${userId}/teamwork/installedApps?$expand=teamsAppDefinition`
+      `/users/${userId}/teamwork/installedApps?$expand=teamsAppDefinition`,
     );
     return response?.data?.value;
   }
 
   public async getInstalledTeamsAppId(
     userId: string,
-    displayName: string
+    displayName: string,
   ): Promise<string> {
     const response = await this.execute(
       "get",
-      `/users/${userId}/teamwork/installedApps?$expand=teamsAppDefinition&$filter=teamsAppDefinition/displayName eq '${displayName}'`
+      `/users/${userId}/teamwork/installedApps?$expand=teamsAppDefinition&$filter=teamsAppDefinition/displayName eq '${displayName}'`,
     );
     const results = response?.data?.value as any[];
     if (!results || results.length < 1) {
@@ -260,12 +340,12 @@ export class GraphApiCleanHelper extends CleanHelper {
 
   public async uninstallTeamsApp(
     userId: string,
-    installationId: string
+    installationId: string,
   ): Promise<void> {
     await this.execute(
       "delete",
       `/users/${userId}/teamwork/installedApps/${installationId}`,
-      undefined
+      undefined,
     );
   }
 }
@@ -282,13 +362,13 @@ export class SharePointApiCleanHelper extends CleanHelper {
     tenantId: string,
     clientId: string,
     username: string,
-    password: string
+    password: string,
   ): Promise<SharePointApiCleanHelper> {
     const token = await this.getSharePointUserToken(
       tenantId,
       clientId,
       username,
-      password
+      password,
     );
     return new SharePointApiCleanHelper(token);
   }
@@ -297,7 +377,7 @@ export class SharePointApiCleanHelper extends CleanHelper {
     tenantId: string,
     clientId: string,
     username: string,
-    password: string
+    password: string,
   ): Promise<string> {
     const config = {
       auth: {
@@ -317,7 +397,7 @@ export class SharePointApiCleanHelper extends CleanHelper {
 
     const pca = new msal.PublicClientApplication(config);
     const credential = await pca.acquireTokenByUsernamePassword(
-      usernamePasswordRequest
+      usernamePasswordRequest,
     );
     const accessToken = credential?.accessToken;
     if (!accessToken) {
@@ -331,7 +411,7 @@ export class SharePointApiCleanHelper extends CleanHelper {
     const response = await this.execute(
       "get",
       `/_api/web/tenantappcatalog/AvailableApps`,
-      undefined
+      undefined,
     );
     if (response?.data?.value) {
       result.push(...(response?.data?.value as any[]));
@@ -351,7 +431,7 @@ export class SharePointApiCleanHelper extends CleanHelper {
     await this.execute(
       "post",
       `/_api/web/tenantappcatalog/AvailableApps/GetById('${appId}')/Remove`,
-      undefined
+      undefined,
     );
   }
 }
@@ -365,13 +445,13 @@ export class AppStudioCleanHelper extends CleanHelper {
     tenantId: string,
     clientId: string,
     username: string,
-    password: string
+    password: string,
   ): Promise<AppStudioCleanHelper> {
     const token = await this.getAppStudioUserToken(
       tenantId,
       clientId,
       username,
-      password
+      password,
     );
     return new AppStudioCleanHelper(token);
   }
@@ -380,7 +460,7 @@ export class AppStudioCleanHelper extends CleanHelper {
     tenantId: string,
     clientId: string,
     username: string,
-    password: string
+    password: string,
   ) {
     const data = qs.stringify({
       client_id: "7ea7c24c-b1f6-4a20-9d11-9ae12e9e7ac0",
@@ -408,7 +488,7 @@ export class AppStudioCleanHelper extends CleanHelper {
   public async getApiKeyRegistration() {
     const response = await this.execute(
       "get",
-      `/api/v1.0/apiSecretRegistrations`
+      `/api/v1.0/apiSecretRegistrations`,
     );
     const results = response?.data?.value as any[];
     // if (!results || results.length < 1) {
@@ -421,7 +501,7 @@ export class AppStudioCleanHelper extends CleanHelper {
     await this.execute(
       "delete",
       `/api/v1.0/apiSecretRegistrations/${apiKeyId}`,
-      undefined
+      undefined,
     );
   }
 
@@ -454,7 +534,7 @@ export class AppStudioCleanHelper extends CleanHelper {
     await this.execute(
       "delete",
       `/api/publishing/${appId}/appdefinitions/${appDefinistionId}`,
-      undefined
+      undefined,
     );
   }
 }
@@ -468,13 +548,13 @@ export class M365TitleCleanHelper extends CleanHelper {
     tenantId: string,
     clientId: string,
     username: string,
-    password: string
+    password: string,
   ): Promise<M365TitleCleanHelper> {
     const token = await this.getUserToken(
       tenantId,
       clientId,
       username,
-      password
+      password,
     );
     return new M365TitleCleanHelper(token);
   }
@@ -483,7 +563,7 @@ export class M365TitleCleanHelper extends CleanHelper {
     tenantId: string,
     clientId: string,
     username: string,
-    password: string
+    password: string,
   ): Promise<string> {
     const config = {
       auth: {
@@ -502,7 +582,7 @@ export class M365TitleCleanHelper extends CleanHelper {
 
     const pca = new msal.PublicClientApplication(config);
     const credential = await pca.acquireTokenByUsernamePassword(
-      usernamePasswordRequest
+      usernamePasswordRequest,
     );
     const accessToken = credential?.accessToken;
     if (!accessToken) {
@@ -558,7 +638,7 @@ export class M365TitleCleanHelper extends CleanHelper {
             "Plugins",
           ],
         },
-      }
+      },
     );
 
     if (response?.data?.acquisitions) {
@@ -574,14 +654,14 @@ export class DevTunnelCleanHelper {
     this.tunnelManagementClientImpl = new TunnelManagementHttpClient(
       "Teams-Toolkit-UI-TEST",
       ManagementApiVersions.Version20230927preview,
-      () => Promise.resolve(`Bearer ${token}`)
+      () => Promise.resolve(`Bearer ${token}`),
     );
   }
 
   public static async create(
     tenantId: string,
     username: string,
-    password: string
+    password: string,
   ): Promise<DevTunnelCleanHelper> {
     const token = await this.getToken(tenantId, username, password);
     return new DevTunnelCleanHelper(token);
@@ -590,7 +670,7 @@ export class DevTunnelCleanHelper {
   private static async getToken(
     tenantId: string,
     username: string,
-    password: string
+    password: string,
   ): Promise<string> {
     const config = {
       auth: {
@@ -607,7 +687,7 @@ export class DevTunnelCleanHelper {
 
     const pca = new msal.PublicClientApplication(config);
     const credential = await pca.acquireTokenByUsernamePassword(
-      usernamePasswordRequest
+      usernamePasswordRequest,
     );
     const accessToken = credential?.accessToken;
     if (!accessToken) {
@@ -636,7 +716,7 @@ export class DevTunnelCleanHelper {
 
 export async function cleanUpLocalProject(
   projectPath: string,
-  necessary?: Promise<any>
+  necessary?: Promise<any>,
 ) {
   return new Promise<boolean>(async (resolve) => {
     try {
@@ -653,7 +733,7 @@ export async function cleanUpLocalProject(
 
 export async function cleanUpResourceGroup(
   appName: string,
-  envName?: string
+  envName?: string,
 ): Promise<boolean> {
   if (!appName) {
     return false;
@@ -665,7 +745,7 @@ export async function cleanUpResourceGroup(
 export async function createResourceGroup(
   appName: string,
   envName?: string,
-  location?: string
+  location?: string,
 ): Promise<boolean> {
   if (!appName) {
     return false;
@@ -676,35 +756,35 @@ export async function createResourceGroup(
 
 export async function createResourceGroupByName(
   name: string,
-  location = "eastus"
+  location = "eastus",
 ): Promise<boolean> {
   const manager = await ResourceGroupManager.init();
   const result = await manager.createResourceGroup(name, location);
   if (result) {
     console.log(
-      `[Successfully] create the Azure resource group with name: ${name}.`
+      `[Successfully] create the Azure resource group with name: ${name}.`,
     );
   } else {
     console.error(
-      `[Failed] create the Azure resource group with name: ${name}.`
+      `[Failed] create the Azure resource group with name: ${name}.`,
     );
   }
   return result;
 }
 
 export async function deleteResourceGroupByName(
-  name: string
+  name: string,
 ): Promise<boolean> {
   const manager = await ResourceGroupManager.init();
   if (await manager.hasResourceGroup(name)) {
     const result = await manager.deleteResourceGroup(name);
     if (result) {
       console.log(
-        `[Successfully] clean up the Azure resource group with name: ${name}.`
+        `[Successfully] clean up the Azure resource group with name: ${name}.`,
       );
     } else {
       console.error(
-        `[Failed] clean up the Azure resource group with name: ${name}.`
+        `[Failed] clean up the Azure resource group with name: ${name}.`,
       );
     }
     return result;
@@ -723,25 +803,25 @@ export async function cleanUpAadApp(
   hasAadPlugin?: boolean,
   hasBotPlugin?: boolean,
   hasApimPlugin?: boolean,
-  envName = "dev"
+  envName = "dev",
 ) {
   try {
     const userDataFile = path.join(
       TestFilePath.configurationFolder,
-      `.env.${envName}`
+      `.env.${envName}`,
     );
     const configFilePath = path.resolve(projectPath, userDataFile);
     if (!fs.existsSync(configFilePath)) {
       return;
     }
     const context = dotenvUtil.deserialize(
-      await fs.readFile(configFilePath, { encoding: "utf8" })
+      await fs.readFile(configFilePath, { encoding: "utf8" }),
     );
     const cleanService = await GraphApiCleanHelper.create(
       Env.cleanTenantId,
       Env.cleanClientId,
       Env.username,
-      Env.password
+      Env.password,
     );
     const promises: Promise<boolean>[] = [];
 
@@ -785,13 +865,13 @@ export async function cleanTeamsApp(appName: string) {
       Env.cleanTenantId,
       Env.cleanClientId,
       Env.username,
-      Env.password
+      Env.password,
     );
     console.log(`uninstall teams app ${appName}`);
     const teamsUserId = await cleanService.getUserIdByName(Env.username);
     const installationId = await cleanService.getInstalledTeamsAppId(
       teamsUserId,
-      appName
+      appName,
     );
     await cleanService.uninstallTeamsApp(teamsUserId, installationId);
   } catch (e: any) {
@@ -805,7 +885,7 @@ export async function cleanAppStudio(appName: string) {
       Env.cleanTenantId,
       Env.cleanClientId,
       Env.username,
-      Env.password
+      Env.password,
     );
     const appStudioAppList = await addStudioCleanService.getAppsInAppStudio();
     console.log(`clean app ${appName} in app studio`);
@@ -815,11 +895,11 @@ export async function cleanAppStudio(appName: string) {
           console.log(app?.displayName);
           try {
             await addStudioCleanService.deleteAppInAppStudio(
-              app?.appDefinitionId
+              app?.appDefinitionId,
             );
           } catch {
             console.log(
-              `Failed to delete Teams App ${app?.displayName} in App Studio`
+              `Failed to delete Teams App ${app?.displayName} in App Studio`,
             );
           }
           break;
@@ -828,7 +908,7 @@ export async function cleanAppStudio(appName: string) {
     }
   } catch (e: any) {
     console.log(
-      `Failed to get apps in app studio, error message: ${e.message}`
+      `Failed to get apps in app studio, error message: ${e.message}`,
     );
   }
 }
@@ -839,7 +919,7 @@ export async function cleanUpStagedPublishApp(appId: string) {
       Env.cleanTenantId,
       Env.cleanClientId,
       Env.username,
-      Env.password
+      Env.password,
     );
     const app = await addStudioCleanService.getAppInAdminPortal(appId);
     console.log(`App name for ${appId}: ${app[0]?.displayName}`);
@@ -853,7 +933,7 @@ export async function cleanUpStagedPublishApp(appId: string) {
     }
   } catch (e: any) {
     console.log(
-      `Failed to get apps in admin portal, error message: ${e.message}`
+      `Failed to get apps in admin portal, error message: ${e.message}`,
     );
   }
 }

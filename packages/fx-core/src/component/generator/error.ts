@@ -56,6 +56,18 @@ export class UnzipError extends BaseComponentInnerError {
   }
 }
 
+export class TemplateOutputPathError extends BaseComponentInnerError {
+  constructor(entryName: string) {
+    super(
+      errorSource,
+      "SystemError",
+      "TemplateOutputPathError",
+      "error.generator.TemplateOutputPathError",
+      [entryName]
+    );
+  }
+}
+
 export class DownloadSampleNetworkError extends BaseComponentInnerError {
   constructor(url: string, error: Error) {
     const innerError = axios.isAxiosError(error) ? simplifyAxiosError(error) : error;

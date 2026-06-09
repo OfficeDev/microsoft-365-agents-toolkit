@@ -12,11 +12,13 @@ import {
   TeamsAppManifest,
   InputsWithProjectPath,
   ok,
+  err,
   Platform,
   ManifestCapability,
   IBot,
   UserError,
 } from "@microsoft/teamsfx-api";
+import * as envFunctionUtils from "../../../../src/component/utils/envFunctionUtils";
 import {
   getBotsTplBasedOnVersion,
   getBotsTplExistingAppBasedOnVersion,
@@ -575,6 +577,75 @@ describe("resolveLocFile", () => {
         (JSON.parse(locFile.value) as TeamsAppManifest).name.short,
         "shortname - hello world"
       );
+    }
+  });
+
+  it("resolves $[file(...)] when context is provided", async () => {
+    sandbox.stub(fs, "pathExists").callsFake(async (filePath) => {
+      return filePath === "loc_file_path" || filePath === "instruction.txt";
+    });
+    sandbox.stub(fs, "readFile").callsFake(((filePath: number | fs.PathLike) => {
+      if (filePath === "loc_file_path") {
+        return Promise.resolve(
+          JSON.stringify({
+            name: {
+              short: "$[file('instruction.txt')]",
+            },
+          })
+        );
+      }
+      return Promise.resolve("localized short name");
+    }) as any);
+
+    const context: any = {
+      platform: Platform.VSCode,
+      logProvider: {
+        error: () => {},
+      },
+      telemetryReporter: {
+        sendTelemetryEvent: () => {},
+      },
+    };
+
+    const locFile = await manifestUtils.resolveLocFile("loc_file_path", context);
+
+    assert.isTrue(locFile.isOk());
+    if (locFile.isOk()) {
+      assert.equal(
+        (JSON.parse(locFile.value) as TeamsAppManifest).name.short,
+        "localized short name"
+      );
+    }
+  });
+
+  it("returns expansion error when $[file(...)] resolution fails", async () => {
+    sandbox.stub(fs, "pathExists").resolves(true);
+    sandbox.stub(fs, "readFile").resolves(
+      JSON.stringify({
+        name: {
+          short: "$[file('instruction.txt')]",
+        },
+      }) as any
+    );
+
+    const expansionError = new UserError("source", "name", "message");
+    sandbox.stub(envFunctionUtils, "expandVariableWithFunction").resolves(err(expansionError));
+
+    const context: any = {
+      platform: Platform.VSCode,
+      logProvider: {
+        error: () => {},
+      },
+      telemetryReporter: {
+        sendTelemetryEvent: () => {},
+      },
+    };
+
+    const locFile = await manifestUtils.resolveLocFile("loc_file_path", context);
+
+    assert.isTrue(locFile.isErr());
+    if (locFile.isErr()) {
+      assert.equal(locFile.error, expansionError);
     }
   });
 });

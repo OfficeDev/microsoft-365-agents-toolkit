@@ -11,8 +11,10 @@
         padding: 0;
         margin-bottom: 24px;
         color: var(--vscode-textLink-foreground);
+        background: transparent;
+        border: 0;
 
-        span>i {
+        svg {
             font-size: 12px;
             width: 14px;
             height: 14px;
@@ -22,6 +24,21 @@
         :active {
             color: var(--vscode-textLink-foreground);
         }
+    }
+
+    .back-button {
+        align-self: flex-start;
+        width: auto;
+        justify-content: flex-start;
+        min-width: 0;
+        min-height: 16px;
+        height: 16px;
+        padding: 0;
+        column-gap: 2px;
+    }
+
+    .back-button .fui-Button__icon {
+        margin: 0;
     }
 
     .upgrade-banner {

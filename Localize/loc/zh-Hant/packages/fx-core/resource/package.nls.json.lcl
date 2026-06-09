@@ -1331,7 +1331,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Enter the OAuth Token URL]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[輸入 OAuth 權杖 URL]]></Val>
+            <Val><![CDATA[輸入 OAuth Token URL]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -2447,7 +2447,7 @@
         <Str Cat="Text">
           <Val><![CDATA[API Key authentication(Bearer token authentication)]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[API 金鑰驗證(持有人令牌驗證)]]></Val>
+            <Val><![CDATA[API 金鑰驗證(持有人權杖驗證)]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4243,6 +4243,15 @@
           <Prev Cat="Text">
             <Val><![CDATA[Copying files]]></Val>
           </Prev>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.generator.officeAddin.importProject.manifestOnlyNotSupported" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The selected Office Add-in project at '%s' appears to be a manifest-only project (no 'package.json' was found). Manifest-only projects cannot be imported. Please select a complete Office Add-in project that includes 'package.json' and 'webpack.config.js'.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[位於 '%s' 的所選 Office 增益集專案似乎是僅限資訊清單的專案 (找不到 'package.json')。無法匯入僅限資訊清單的專案。請選取包含 'package.json' 和 'webpack.config.js' 的完整 Office 增益集專案。]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -6787,6 +6796,60 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";driver.dcr.description.create" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Create a Dynamic Client Registration (DCR) configuration on Developer Portal for MCP server authentication.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[在開發人員入口網站上建立動態用戶端註冊 (DCR) 設定，以用於 MCP 伺服器驗證。]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.dcr.error.nameTooLong" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The DCR configuration name is too long. The maximum character length is 128.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[DCR 設定名稱太長。字元長度上限為 128。]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.dcr.error.wellKnownInvalid" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The wellKnownAuthorizationServer URL is invalid. Please provide a valid HTTPS URL to the authorization server's RFC 8414 metadata document.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[wellKnownAuthorizationServer URL 無效。請提供授權伺服器 RFC 8414 中繼資料文件的有效 HTTPS URL。]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.dcr.log.skipCreateDcr" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Environment variable %s exists. Skip creating DCR configuration.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[環境變數 %s 已存在。正在略過建立 DCR 設定。]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.dcr.log.successCreateDcr" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[DCR configuration created successfully with id %s!]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[已成功建立具有識別碼 '%s' 的 DCR 設定!]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.dcr.title.create" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Creating DCR configuration...]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[正在建立 DCR 設定...]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";driver.deploy.azureAppServiceDeployDetailSummary" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[`%s` deployed to Azure App Service.]]></Val>
@@ -6893,7 +6956,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Get the deployment token from Azure Static Web Apps.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[從 Azure Static Web Apps 取得部署令牌。]]></Val>
+            <Val><![CDATA[從 Azure Static Web Apps 取得部署 Token。]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -6902,7 +6965,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Get the deployment token for Azure Static Web Apps.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[取得 Azure Static Web Apps 的部署令牌。]]></Val>
+            <Val><![CDATA[取得 Azure Static Web Apps 的部署 Token。]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -8076,10 +8139,13 @@
       </Item>
       <Item ItemId=";driver.teamsApp.warning.createUnsupportedCloud" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Skipping %s as the required Developer Portal API is not yet available in GCC H and DoD. App ID will be generated locally later.]]></Val>
+          <Val><![CDATA[Skipping %s as the required Developer Portal API is not yet available in GCC H and DoD. App ID will be generated locally.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[正在略過 %s，因為必要的開發人員入口網站 API 尚未在 GCC H 和 DoD 中提供。稍後將在本機產生應用程式識別碼。]]></Val>
+            <Val><![CDATA[正在略過 %s，因為必要的開發人員入口網站 API 尚未在 GCC H 和 DoD 中提供。將在本機產生 App ID。]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Skipping %s as the required Developer Portal API is not yet available in GCC H and DoD. App ID will be generated locally later.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -8465,7 +8531,7 @@
         <Str Cat="Text">
           <Val><![CDATA[This account can't get a botframework token.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[此帳戶無法取得 Botframework 令牌。]]></Val>
+            <Val><![CDATA[此帳戶無法取得 Botframework Token。]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[The current account is not allowed to acquire botframework token.]]></Val>
@@ -9578,7 +9644,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Unable to download sample due to rate limitation. Try again in an  hour after rate limit reset or you can manually clone the repo from %s.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[由於速率限制，無法下載樣本。請在速率限制重設后一小時后再試一次，或者您可以從 %s 手動複製存放庫。]]></Val>
+            <Val><![CDATA[由於有要求率的限制，所以無法下載樣本。請於重設要求率上限一小時之後，再試一次；抑或是以手動方式複製 %s 中的存放庫。]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Unable to download sample due to throttling. Retry later after rate limit reset (This may take up to 1 hour). Alternatively, you can go to %s to git clone the repo manually]]></Val>
@@ -9725,7 +9791,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Unable to get token for list sensitivity label API. Error: %s]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[無法取得清單敏感度標籤 API 的權杖。錯誤: %s]]></Val>
+            <Val><![CDATA[無法取得清單敏感度標籤 API 的 Token。錯誤: %s]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9734,7 +9800,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Unable to get token for list sensitivity label API. The token is undefined.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[無法取得清單敏感度標籤 API 的權杖。權杖未定義。]]></Val>
+            <Val><![CDATA[無法取得清單敏感度標籤 API 的 Token。Token 未定義。]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9743,7 +9809,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Unable to obtain Microsoft 365 tenant ID in token JSON object. Make sure your account is authorized to access the tenant and the token JSON object is valid.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[無法取得權杖 JSON 物件中的 Microsoft 365 租用戶識別碼。請確定您的帳戶已獲授權可存取租用戶，且權杖 JSON 物件有效。]]></Val>
+            <Val><![CDATA[無法取得 Token JSON 物件中的 Microsoft 365 租用戶識別碼。請確定您的帳戶已獲授權可存取租用戶，且 Token JSON 物件有效。]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Unable to obtain Microsoft 365 tenant ID in token JSON object. Ensure that your account is authorized to access the tenant and that the token JSON object is valid.]]></Val>
@@ -9767,7 +9833,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Unable to obtain JSON object for Microsoft 365 token. Make sure your account is authorized to access the tenant and the token JSON object is valid.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[無法取得 Microsoft 365 權杖的 JSON 物件。請確定您的帳戶已獲授權可存取租用戶，且權杖 JSON 物件有效。]]></Val>
+            <Val><![CDATA[無法取得 Microsoft 365 Token 的 JSON 物件。請確定您的帳戶已獲授權可存取租用戶，且 Token JSON 物件有效。]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Unable to obtain JSON object for Microsoft 365 token. Ensure that your account is authorized to access the tenant and that the token JSON object is valid.]]></Val>
@@ -10008,6 +10074,15 @@
           <Val><![CDATA[File path: %s, title: %s]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[檔案路徑： %s，標題： %s]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";error.teamsGraph.apiFailed" ItemType="0" PsrId="306" InstFlg="true" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to make API call to Teams Graph. Check [Output panel]5D;(command:fx-extension.showOutputChannel) for details.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[無法對 Teams Graph 執行 API 呼叫。請查看[輸出面板]5D;(command:fx-extension.showOutputChannel)以尋找詳細資料。]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -10898,7 +10973,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Unable to get Graph access token]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[無法取得圖表存取令牌]]></Val>
+            <Val><![CDATA[無法取得圖表存取權杖]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Cannot get Graph access token]]></Val>
@@ -10910,7 +10985,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Unable to get SPO access token]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[無法取得 SPO 存取令牌]]></Val>
+            <Val><![CDATA[無法取得 SPO 存取權杖]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Cannot get SPO access token]]></Val>

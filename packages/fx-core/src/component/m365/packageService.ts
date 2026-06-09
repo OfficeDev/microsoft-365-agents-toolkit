@@ -75,7 +75,6 @@ export class PackageService {
 
   public constructor(endpoint: string, logger?: LogProvider) {
     this.axiosInstance = WrappedAxiosClient.create({
-      timeout: 30000,
       httpsAgent: new https.Agent({ keepAlive: true }),
     });
     this.initEndpoint = endpoint;

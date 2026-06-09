@@ -345,10 +345,13 @@
       </Item>
       <Item ItemId=";teamstoolkit.accountTree.copilotWarningTooltip" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Microsoft 365 account administrator hasn't enabled Copilot access for this account. Contact your Teams administrator to resolve this issue by enrolling in Microsoft 365 Copilot Early Access program. Visit: https://aka.ms/PluginsEarlyAccess]]></Val>
+          <Val><![CDATA[Your Microsoft 365 account doesn't have Copilot developer access, to set up development environment to extend Copilot, visit [Set up development environment to extend Copilot]5D;(https://learn.microsoft.com/en-us/microsoft-365/copilot/extensibility/prerequisites)]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Microsoft 365 administrator konta nie włączył dostępu do copilotu dla tego konta. Skontaktuj się z administratorem aplikacji Teams, aby rozwiązać ten problem, rejestrując się w programie wczesnego dostępu Microsoft 365 Copilot. Odwiedź: https://aka.ms/PluginsEarlyAccess]]></Val>
+            <Val><![CDATA[Twoje konto platformy Microsoft 365 nie ma dostępu dla deweloperów funkcji Copilot. Aby skonfigurować środowisko deweloperskie w celu rozszerzenia funkcji Copilot, odwiedź stronę [Konfigurowanie środowiska deweloperskiego w celu rozszerzenia funkcji Copilot]5D;(https://learn.microsoft.com/pl-pl/microsoft-365/copilot/extensibility/prerequisites)]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Microsoft 365 account administrator hasn't enabled Copilot access for this account. Contact your Teams administrator to resolve this issue by enrolling in Microsoft 365 Copilot Early Access program. Visit: https://aka.ms/PluginsEarlyAccess]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -4531,6 +4534,15 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";teamstoolkit.localDebug.copilotChatHint" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[]A;Tip: To troubleshoot this error with Copilot, open the log file at %s and type the following prompt in Copilot Chat:]A;  /microsoft-365-agents-toolkit fix]A;Copilot will analyze the log and suggest a fix.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[]A;Porada: Aby rozwiązać ten problem z funkcją Copilot, otwórz plik dziennika w %s i wpisz następujące polecenie w czacie Copilot:]A;  /microsoft-365-agents-toolkit fix]A;Funkcja Copilot przeanalizuje dziennik i zasugeruje poprawkę.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";teamstoolkit.localDebug.deleteAadNotification" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Microsoft 365 Agents Toolkit will try to delete the Microsoft Entra application created for local debugging to resolve security issues.]]></Val>
@@ -6167,7 +6179,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Transform your app into a plugin to enhance Copilot's skills and boost user productivity in daily tasks and workflows. Explore [Copilot Extensibility]5D;(https://learn.microsoft.com/en-us/microsoft-365-copilot/extensibility/)]A;[Check Copilot Access]5D;(command:fx-extension.checkCopilotAccess?%5B%22WalkThrough%22%5D)]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Przekształć aplikację w wtyczkę, aby zwiększyć umiejętności copilot i zwiększyć produktywność użytkowników w codziennych zadaniach i przepływach pracy. Eksploruj [Copilot Extensibility]5D;(https://learn.microsoft.com/en-us/microsoft-365-copilot/extensibility/)]A;[Check Copilot Access]5D;(command:fx-extension.checkCopilotAccess?%5B%22WalkThrough%22%5D)]]></Val>
+            <Val><![CDATA[Przekształć aplikację w wtyczkę, aby zwiększyć umiejętności Copilot i zwiększyć produktywność użytkowników w codziennych zadaniach i przepływach pracy. Eksploruj [Copilot Extensibility]5D;(https://learn.microsoft.com/en-us/microsoft-365-copilot/extensibility/)]A;[Check Copilot Access]5D;(command:fx-extension.checkCopilotAccess?%5B%22WalkThrough%22%5D)]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />

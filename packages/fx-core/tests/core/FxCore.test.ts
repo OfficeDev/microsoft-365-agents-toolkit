@@ -48,7 +48,7 @@ import {
 } from "../../src";
 import { ConstantString } from "../../src/common/constants";
 import * as daSpecParser from "../../src/common/daSpecParser";
-import { FeatureFlags, featureFlagManager } from "../../src/common/featureFlags";
+import { featureFlagManager } from "../../src/common/featureFlags";
 import { TOOLS, setTools } from "../../src/common/globalVars";
 import * as projectHelper from "../../src/common/projectSettingsHelper";
 import { TeamsfxVersionState, projectTypeChecker } from "../../src/common/projectTypeChecker";
@@ -75,7 +75,6 @@ import { InstallAppToChannelDriver } from "../../src/component/driver/devChannel
 import { DriverContext } from "../../src/component/driver/interface/commonArgs";
 import * as shareUtils from "../../src/component/driver/share/utils";
 import { CreateAppPackageDriver } from "../../src/component/driver/teamsApp/createAppPackage";
-import { AppStudioError } from "../../src/component/driver/teamsApp/errors";
 import { SyncManifestArgs } from "../../src/component/driver/teamsApp/interfaces/SyncManifest";
 import { SyncManifestDriver } from "../../src/component/driver/teamsApp/syncManifest";
 import { teamsappMgr } from "../../src/component/driver/teamsApp/teamsappMgr";
@@ -88,11 +87,11 @@ import { ValidateWithTestCasesDriver } from "../../src/component/driver/teamsApp
 import { createDriverContext } from "../../src/component/driver/util/utils";
 import { WrapDriverContext } from "../../src/component/driver/util/wrapUtil";
 import "../../src/component/feature/sso";
-import * as declarativeAgentHelper from "../../src/component/generator/declarativeAgent/helper";
 import * as oneDriveSharePointHandler from "../../src/component/generator/declarativeAgent/oneDriveSharePointHandler";
 import * as openApiSpecHelper from "../../src/component/generator/openApiSpec/helper";
 import * as templateHelper from "../../src/component/generator/templateHelper";
 import { TemplateNames } from "../../src/component/generator/templates/templateNames";
+import * as v4MetadataSource from "../../src/component/generator/v4MetadataSource";
 import * as generatorUtils from "../../src/component/generator/utils";
 import { LaunchHelper } from "../../src/component/m365/launchHelper";
 import { envUtil } from "../../src/component/utils/envUtil";
@@ -100,20 +99,16 @@ import { metadataUtil } from "../../src/component/utils/metadataUtil";
 import { pathUtils } from "../../src/component/utils/pathUtils";
 import * as collaborator from "../../src/core/collaborator";
 import { environmentManager } from "../../src/core/environment";
-import * as projectMigratorV3 from "../../src/core/middleware/projectMigratorV3";
-import * as projMigrator from "../../src/core/middleware/projectMigratorV3";
 import * as migrationUtil from "../../src/core/middleware/utils/v3MigrationUtils";
 import { CoreHookContext } from "../../src/core/types";
 import {
   FileNotFoundError,
   InputValidationError,
-  InvalidProjectError,
   MissingEnvironmentVariablesError,
   MissingRequiredInputError,
   NotImplementedError,
   UserCancelError,
 } from "../../src/error/common";
-import { NoNeedUpgradeError } from "../../src/error/upgrade";
 import {
   QuestionNames,
   ScratchOptions,
@@ -554,63 +549,6 @@ describe("Core basic APIs", () => {
     if (res.isErr()) {
       assert.isTrue(res.error instanceof FileNotFoundError);
     }
-    await deleteTestProject(appName);
-  });
-
-  it("phantomMigrationV3 happy path", async () => {
-    const core = new FxCore(tools);
-    const appName = await mockV2Project();
-    const inputs: Inputs = {
-      platform: Platform.VSCode,
-      projectPath: path.join(os.tmpdir(), appName),
-      skipUserConfirm: true,
-    };
-    const res = await core.phantomMigrationV3(inputs);
-    assert.isTrue(res.isOk());
-    await deleteTestProject(appName);
-  });
-
-  it("phantomMigrationV3 return error for invalid V2 project", async () => {
-    sandbox.stub(projectMigratorV3, "checkActiveResourcePlugins").resolves(false);
-    const core = new FxCore(tools);
-    const appName = await mockV2Project();
-    const inputs: Inputs = {
-      platform: Platform.VSCode,
-      projectPath: path.join(os.tmpdir(), appName),
-      skipUserConfirm: true,
-    };
-    const res = await core.phantomMigrationV3(inputs);
-    assert.isTrue(res.isErr());
-    assert.isTrue(
-      res._unsafeUnwrapErr().message.includes(new InvalidProjectError(inputs.projectPath!).message)
-    );
-    await deleteTestProject(appName);
-  });
-
-  it("phantomMigrationV3 return error for non-project", async () => {
-    const core = new FxCore(tools);
-    const inputs: Inputs = {
-      platform: Platform.VSCode,
-      projectPath: path.join(os.tmpdir()),
-      skipUserConfirm: true,
-    };
-    const res = await core.phantomMigrationV3(inputs);
-    assert.isTrue(res.isErr());
-    assert.isTrue(
-      res._unsafeUnwrapErr().message.includes(new InvalidProjectError(inputs.projectPath!).message)
-    );
-  });
-
-  it("phantomMigrationV3 return error for V5 project", async () => {
-    const core = new FxCore(tools);
-    const appName = await mockV3Project();
-    const inputs: Inputs = {
-      platform: Platform.VSCode,
-      projectPath: path.join(os.tmpdir(), appName),
-    };
-    const res = await core.phantomMigrationV3(inputs);
-    assert.isTrue(res.isErr());
-    assert.isTrue(res._unsafeUnwrapErr().message.includes(new NoNeedUpgradeError().message));
     await deleteTestProject(appName);
   });
 
@@ -2057,16 +1995,6 @@ async function mockV3Project(): Promise<string> {
   const projectPath = path.join(os.tmpdir(), appName);
   // await fs.move(path.join(__dirname, "../sampleV3"), path.join(os.tmpdir(), appName));
   await fs.copy(path.join(__dirname, "../samples/sampleV3/"), path.join(projectPath));
-  return appName;
-}
-
-async function mockV2Project(): Promise<string> {
-  const appName = randomAppName();
-  const projectPath = path.join(os.tmpdir(), appName);
-  await fs.copy(
-    path.join(__dirname, "../core/middleware/testAssets/v3Migration/happyPath"),
-    path.join(projectPath)
-  );
   return appName;
 }
 
@@ -5193,7 +5121,6 @@ describe("addPlugin", async () => {
   describe("projectVersionCheck", async () => {
     it("invalid project", async () => {
       sandbox.stub(projectHelper, "isValidProjectV3").returns(false);
-      sandbox.stub(projectHelper, "isValidProjectV2").returns(false);
       const inputs: Inputs = {
         platform: Platform.VSCode,
         [QuestionNames.Folder]: os.tmpdir(),
@@ -5224,7 +5151,6 @@ describe("addPlugin", async () => {
         .resolves({ version: "1.0", source: VersionSource.teamsapp });
       sandbox.stub(migrationUtil, "getTrackingIdFromPath").resolves("xxxx-xxxx");
       sandbox.stub(migrationUtil, "getVersionState").returns(VersionState.upgradeable);
-      sandbox.stub(projMigrator, "checkActiveResourcePlugins").resolves(false);
       const inputs: Inputs = {
         platform: Platform.VSCode,
         [QuestionNames.Folder]: os.tmpdir(),
@@ -5232,7 +5158,7 @@ describe("addPlugin", async () => {
       };
       const core = new FxCore(tools);
       const result = await core.projectVersionCheck(inputs);
-      assert.isTrue(result.isErr());
+      assert.isTrue(result.isOk());
     });
     it("sync Manifest - success", async () => {
       const core = new FxCore(tools);
@@ -7967,6 +7893,134 @@ describe("fetchOnlineTemplateMetadata", () => {
     );
     assert.isTrue(unzipStub.calledOnce);
     assert.isTrue(writeFileStub.calledWith(sinon.match.string, "2.0.0", { encoding: "utf-8" }));
+  });
+
+  it("should download metadata from the v4 release tag when V4 channel is enabled", async () => {
+    sandbox.stub(templateHelper, "useLocalTemplate").returns(false);
+    sandbox.stub(templateConfigModule, "v4tagPrefix").value("templates-v4@");
+    sandbox
+      .stub(templateConfigModule, "templateDownloadBaseURL")
+      .value("https://example.com/releases/download");
+    sandbox.stub(packageJson, "version").value("1.0.0");
+    sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
+
+    // The v4 metadata rides the same decision point as the template package; an
+    // online source names the `templates-v4@<version>` release to pull from.
+    sandbox
+      .stub(v4MetadataSource, "resolveV4MetadataSource")
+      .resolves(ok({ origin: "online", version: "2.0.0", digest: "sha256:x", location: "" }));
+    const mockZip = new AdmZip();
+    const fetchZipStub = sandbox.stub(generatorUtils, "fetchZipFromUrl").resolves(mockZip);
+    const unzipStub = sandbox.stub(generatorUtils, "unzip").resolves();
+    sandbox.stub(fs, "pathExists").resolves(false);
+    sandbox.stub(fs, "ensureDir").resolves();
+    const writeFileStub = sandbox.stub(fs, "writeFile").resolves();
+
+    const result = await core.fetchOnlineTemplateMetadata();
+
+    assert.isTrue(result.isOk());
+    assert.isTrue(fetchZipStub.calledOnce);
+    assert.isTrue(
+      fetchZipStub.calledWith(
+        "https://example.com/releases/download/templates-v4@2.0.0/metadata.zip"
+      )
+    );
+    assert.isTrue(unzipStub.calledOnce);
+    // The v4 channel uses its own version cache file so switching the flag does
+    // not get a stale hit on the shared v3 cache.
+    assert.isTrue(
+      writeFileStub.calledWith(sinon.match(/template-version-v4\.txt$/), "2.0.0", {
+        encoding: "utf-8",
+      })
+    );
+  });
+
+  it("should still download v4 metadata when only the shared v3 cache is current", async () => {
+    sandbox.stub(templateHelper, "useLocalTemplate").returns(false);
+    sandbox.stub(templateConfigModule, "v4tagPrefix").value("templates-v4@");
+    sandbox
+      .stub(templateConfigModule, "templateDownloadBaseURL")
+      .value("https://example.com/releases/download");
+    sandbox.stub(packageJson, "version").value("1.0.0");
+    sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
+
+    sandbox
+      .stub(v4MetadataSource, "resolveV4MetadataSource")
+      .resolves(ok({ origin: "online", version: "2.0.0", digest: "sha256:x", location: "" }));
+    const mockZip = new AdmZip();
+    const fetchZipStub = sandbox.stub(generatorUtils, "fetchZipFromUrl").resolves(mockZip);
+    const unzipStub = sandbox.stub(generatorUtils, "unzip").resolves();
+
+    sandbox.stub(fs, "ensureDir").resolves();
+    sandbox.stub(fs, "writeFile").resolves();
+    // The v4 version file is absent even though the (shared-name) v3 cache would
+    // otherwise look current; the v4 channel must not be fooled into skipping.
+    sandbox
+      .stub(fs, "pathExists")
+      .callsFake((p: string) => Promise.resolve(p.endsWith("template-version.txt")));
+    sandbox.stub(fs, "readFile").resolves("2.0.0" as any);
+
+    const result = await core.fetchOnlineTemplateMetadata();
+
+    assert.isTrue(result.isOk());
+    assert.isTrue(fetchZipStub.calledOnce);
+    assert.isTrue(unzipStub.calledOnce);
+  });
+
+  it("should skip online fetch in v4 channel when the resolved source is bundled", async () => {
+    sandbox.stub(templateHelper, "useLocalTemplate").returns(false);
+    sandbox.stub(packageJson, "version").value("1.0.0-rc.0");
+    sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
+
+    // A bundled (non-goproduct) or unreachable channel resolves to a bundled /
+    // bundled-fallback origin: the readers fall back to bundled metadata and no
+    // download happens.
+    const resolveStub = sandbox
+      .stub(v4MetadataSource, "resolveV4MetadataSource")
+      .resolves(
+        ok({ origin: "bundled-fallback", version: "6.10.1", digest: "sha256:x", location: "" })
+      );
+    const fetchZipStub = sandbox.stub(generatorUtils, "fetchZipFromUrl");
+    const unzipStub = sandbox.stub(generatorUtils, "unzip");
+
+    sandbox.stub(fs, "ensureDir").resolves();
+    const writeFileStub = sandbox.stub(fs, "writeFile").resolves();
+
+    const result = await core.fetchOnlineTemplateMetadata();
+
+    assert.isTrue(result.isOk());
+    // The resolved source is bundled: do not hit the network and let the readers
+    // fall back to bundled metadata.
+    assert.equal(resolveStub.called, true);
+    assert.equal(fetchZipStub.called, false);
+    assert.equal(unzipStub.called, false);
+    assert.equal(writeFileStub.called, false);
+  });
+
+  it("should return error when v4 source resolution fails", async () => {
+    sandbox.stub(templateHelper, "useLocalTemplate").returns(false);
+    sandbox.stub(packageJson, "version").value("1.0.0");
+    sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
+
+    // A malformed tag list / digest mismatch is a hard error (no silent fallback).
+    const resolveError = new UserError("test", "ResolveError", "resolve failed");
+    const resolveStub = sandbox
+      .stub(v4MetadataSource, "resolveV4MetadataSource")
+      .resolves(err(resolveError));
+    const fetchZipStub = sandbox.stub(generatorUtils, "fetchZipFromUrl");
+    const unzipStub = sandbox.stub(generatorUtils, "unzip");
+
+    sandbox.stub(fs, "ensureDir").resolves();
+
+    const result = await core.fetchOnlineTemplateMetadata();
+
+    assert.isTrue(result.isErr());
+    if (result.isErr()) {
+      assert.strictEqual(result.error, resolveError);
+    }
+    assert.equal(resolveStub.called, true);
+    assert.equal(fetchZipStub.called, false);
+    assert.equal(unzipStub.called, false);
   });
 
   it("should skip download when cached version matches latest version", async () => {

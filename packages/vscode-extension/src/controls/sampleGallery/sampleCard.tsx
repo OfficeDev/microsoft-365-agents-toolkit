@@ -4,8 +4,7 @@
 import "./sampleCard.scss";
 
 import * as React from "react";
-
-import { Image } from "@fluentui/react";
+import { Image } from "@fluentui/react-components";
 
 import Turtle from "../../../img/webview/sample/turtle.svg?react";
 import { TelemetryTriggerFrom } from "../../telemetry/extTelemetryEvents";
@@ -23,7 +22,7 @@ export default class SampleCard extends React.Component<SampleProps, { imageUrl:
   render() {
     const sample = this.props.sample;
     const unavailable = sample.versionComparisonResult != 0;
-    const previewImage = <Image className="thumbnail" src={this.state.imageUrl} />;
+    const previewImage = <Image className="thumbnail" src={this.state.imageUrl} alt="" />;
     const legacySampleImage = (
       <div className="unavailableSampleImage">
         <Turtle className="turtle" />
@@ -68,10 +67,15 @@ export default class SampleCard extends React.Component<SampleProps, { imageUrl:
       sampleImage = upgradingSampleImage;
       tooltipText = "Coming soon";
     }
+    const tagNames = sample.tags?.length ? sample.tags.join(", ") : "";
+    const featuredPrefix = this.props.featured ? "Featured sample. " : "";
+    const cardAriaLabel = `${featuredPrefix}${sample.title}${tagNames ? `. Tags: ${tagNames}` : ""}`;
     return (
       <div
         className={`sample-card ${unavailable ? "unavailable" : ""}`}
         tabIndex={0}
+        role="button"
+        aria-label={cardAriaLabel}
         onClick={this.onSampleCardClicked}
         onKeyDown={(e) => {
           if (e.key === "Enter") {
@@ -79,11 +83,17 @@ export default class SampleCard extends React.Component<SampleProps, { imageUrl:
           }
         }}
       >
-        <label className="hidden-label">sample app card</label>
         {unavailable && (
           <span className={`tooltip ${upgrade ? "upgrade" : ""}`}>{tooltipText}</span>
         )}
-        {sampleImage}
+        <div className="thumbnail-wrapper">
+          {sampleImage}
+          {this.props.featured && (
+            <span className="featured-corner-badge" aria-hidden="true">
+              <span className="featured-corner-star codicon codicon-star-full"></span>
+            </span>
+          )}
+        </div>
         {cardInformation}
       </div>
     );

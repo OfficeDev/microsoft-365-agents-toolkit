@@ -26,13 +26,18 @@ export class FeatureFlagName {
   static readonly SensitivityLabelEnabled = "TEAMSFX_SENSITIVITY_LABEL";
   static readonly DAMetaOS = "TEAMSFX_DA_METAOS";
   static readonly CFShortcutMetaOS = "TEAMSFX_CF_SHORTCUT_METAOS";
+  static readonly OpenPluginImportExport = "TEAMSFX_OPENPLUGIN_IMPORT_EXPORT";
+  static readonly AgentSkillsManifest = "TEAMSFX_AGENT_SKILLS";
   static readonly BrokerAuth = "TEAMSFX_BROKER_AUTH";
-  static readonly AgentSkillsEnabled = "TEAMSFX_AGENT_SKILLS";
   // Add config files to existing project to make it toolkit compatible
   static readonly GenerateConfigFiles = "TEAMSFX_GENERATE_CONFIG_FILES";
 
   // Permanent feature flag for sovereign cloud environment setting
   static readonly SovereignCloudEnvironment = "TEAMSFX_SOVEREIGN_CLOUD_ENVIRONMENT";
+
+  // Global switch for the v4 architecture (currently routes scaffold template
+  // resolution through the v4 distribution channel).
+  static readonly V4Enabled = "TEAMSFX_V4_ENABLED";
 }
 
 export interface FeatureFlag {
@@ -94,12 +99,20 @@ export class FeatureFlags {
     name: FeatureFlagName.CFShortcutMetaOS,
     defaultValue: "false",
   };
+  static readonly OpenPluginImportExport = {
+    name: FeatureFlagName.OpenPluginImportExport,
+    defaultValue: "true",
+  };
+  static readonly AgentSkillsManifest = {
+    name: FeatureFlagName.AgentSkillsManifest,
+    defaultValue: "false",
+  };
   static readonly BrokerAuth = {
     name: FeatureFlagName.BrokerAuth,
     defaultValue: "false",
   };
-  static readonly AgentSkillsEnabled = {
-    name: FeatureFlagName.AgentSkillsEnabled,
+  static readonly V4Enabled = {
+    name: FeatureFlagName.V4Enabled,
     defaultValue: "false",
   };
   static readonly GenerateConfigFiles = {

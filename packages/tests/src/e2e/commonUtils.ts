@@ -55,8 +55,11 @@ export function getTestFolder(): string {
   return testFolder;
 }
 
+export const BASE_APP_NAME_PREFIX = "fxE2E";
+
 export function getAppNamePrefix(): string {
-  return "fxE2E";
+  const runId = process.env.E2E_RUN_ID;
+  return runId ? `${BASE_APP_NAME_PREFIX}${runId}` : BASE_APP_NAME_PREFIX;
 }
 
 export function getUniqueAppName(): string {
@@ -389,6 +392,9 @@ export async function createResourceGroup(name: string, location: string) {
     location,
   );
   if (result) {
+    // Azure ARM can return success before the RG is fully propagated; wait
+    // to avoid ResourceGroupNotExistError on the immediate provision call.
+    await new Promise((resolve) => setTimeout(resolve, 10000));
     console.log(`[Successfully] create resource group ${name}.`);
   } else {
     console.error(`[Failed] failed to create resource group ${name}.`);

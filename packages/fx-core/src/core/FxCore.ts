@@ -20,7 +20,6 @@ import {
   CreateProjectInputs,
   CreateProjectResult,
   CryptoProvider,
-  DefaultApiSpecFolderName,
   Func,
   FxError,
   IGenerator,
@@ -39,7 +38,6 @@ import {
   TeamsAppManifest,
   Tools,
   UserError,
-  Warning,
   err,
   ok,
 } from "@microsoft/teamsfx-api";
@@ -56,10 +54,10 @@ import { teamsDevPortalClient } from "../client/teamsDevPortalClient";
 import { ApiKeyParameters, AuthParameters, OAuthParameters } from "../common/authInterface";
 import {
   AppStudioScopes,
-  getResourceServiceEndpoint,
+  MosServiceScope,
   ResourceServiceType,
   VSCodeExtensionCommand,
-  MosServiceScope,
+  getResourceServiceEndpoint,
 } from "../common/constants";
 import { listAPIInfo, parseAndUpdatePluginManifestForKiota } from "../common/daSpecParser";
 import {
@@ -69,13 +67,10 @@ import {
   setErrorContext,
   setTools,
 } from "../common/globalVars";
+import { featureFlagManager, FeatureFlags } from "../common/featureFlags";
 import { clearLocaleCache, getLocalizedString } from "../common/localizeUtils";
 import { ListCollaboratorResult, PermissionsResult } from "../common/permissionInterface";
-import {
-  getProjectMetadata,
-  isValidProjectV2,
-  isValidProjectV3,
-} from "../common/projectSettingsHelper";
+import { getProjectMetadata, isValidProjectV3 } from "../common/projectSettingsHelper";
 import {
   IsDeclarativeAgentManifest,
   ProjectTypeResult,
@@ -85,7 +80,7 @@ import { TelemetryEvent, TelemetryProperty, telemetryUtils } from "../common/tel
 import templateConfig from "../common/templates-config.json";
 import { runForTypeSpecProject } from "../common/tools";
 import { generateDriverContext } from "../common/utils";
-import { MetadataV3, MetadataV4, VersionSource, VersionState } from "../common/versionMetadata";
+import { MetadataV3, MetadataV4, VersionSource } from "../common/versionMetadata";
 
 import {
   APIKeyAuthType,
@@ -132,7 +127,6 @@ import { ValidateAppPackageDriver } from "../component/driver/teamsApp/validateA
 import { ValidateWithTestCasesDriver } from "../component/driver/teamsApp/validateTestCases";
 import { createDriverContext } from "../component/driver/util/utils";
 import { SSO } from "../component/feature/sso";
-import { addExistingPlugin } from "../component/generator/declarativeAgent/helper";
 import {
   ItemMetadata,
   getODSPItemDetailById,
@@ -148,6 +142,7 @@ import {
 } from "../component/generator/openApiSpec/helper";
 import { useLocalTemplate } from "../component/generator/templateHelper";
 import { TemplateNames } from "../component/generator/templates/templateNames";
+import { resolveV4MetadataSource } from "../component/generator/v4MetadataSource";
 import {
   fetchZipFromUrl,
   getTemplateLatestVersion,
@@ -158,10 +153,7 @@ import { LaunchHelper } from "../component/m365/launchHelper";
 import { PackageService } from "../component/m365/packageService";
 import { EnvLoaderMW, EnvWriterMW } from "../component/middleware/envMW";
 import { QuestionMW } from "../component/middleware/questionMW";
-import {
-  expandEnvironmentVariable,
-  outputScaffoldingWarningMessage,
-} from "../component/utils/common";
+import { expandEnvironmentVariable } from "../component/utils/common";
 import { envUtil } from "../component/utils/envUtil";
 import { metadataUtil } from "../component/utils/metadataUtil";
 import { pathUtils } from "../component/utils/pathUtils";
@@ -178,11 +170,9 @@ import {
   assembleError,
   isUserCancelError,
 } from "../error/common";
-import { NoNeedUpgradeError } from "../error/upgrade";
 import { YamlFieldMissingError } from "../error/yml";
 import { SyncManifestInputs, UninstallInputs } from "../question";
 import {
-  ActionStartOptions,
   AddAuthActionAuthTypeOptions,
   AppNamePattern,
   HubTypes,
@@ -207,13 +197,13 @@ import {
 } from "./collaborator";
 import { LocalCrypto } from "./crypto";
 import { environmentNameManager } from "./environmentName";
-import { FxCoreDeclarativeAgentPart } from "./FxCore.declarativeAgent";
+import { FxCoreOpenPluginPart } from "./FxCore.openPlugin";
 import { generateConfigFiles } from "./generateConfigFiles";
 import { ConcurrentLockerMW } from "./middleware/concurrentLocker";
 import { ContextInjectorMW } from "./middleware/contextInjector";
 import { ErrorHandlerMW } from "./middleware/errorHandler";
 import { withFileLock } from "./middleware/fileLocker";
-import { ProjectMigratorMWV3, checkActiveResourcePlugins } from "./middleware/projectMigratorV3";
+
 import { runWithRetry } from "./middleware/retry";
 import {
   getProjectVersionFromPath,
@@ -224,7 +214,7 @@ import { addSharedUsers, removeShareAccess, shareWithTenant } from "./share";
 import { CoreTelemetryEvent, CoreTelemetryProperty } from "./telemetry";
 import { CoreHookContext, PreProvisionResForVS, VersionCheckRes } from "./types";
 
-export class FxCore extends FxCoreDeclarativeAgentPart {
+export class FxCore extends FxCoreOpenPluginPart {
   constructor(tools: Tools) {
     super();
     setTools(tools);
@@ -360,7 +350,6 @@ export class FxCore extends FxCoreDeclarativeAgentPart {
   @hooks([
     ErrorContextMW({ component: "FxCore", stage: "provision", reset: true }),
     ErrorHandlerMW,
-    ProjectMigratorMWV3,
     EnvLoaderMW(false),
     ConcurrentLockerMW,
     ContextInjectorMW,
@@ -396,7 +385,6 @@ export class FxCore extends FxCoreDeclarativeAgentPart {
   @hooks([
     ErrorContextMW({ component: "FxCore", stage: "uninstall", reset: true }),
     ErrorHandlerMW,
-    ProjectMigratorMWV3,
     QuestionMW("uninstall"),
   ])
   async uninstall(inputs: UninstallInputs): Promise<Result<undefined, FxError>> {
@@ -716,7 +704,6 @@ export class FxCore extends FxCoreDeclarativeAgentPart {
   @hooks([
     ErrorContextMW({ component: "FxCore", stage: "deploy", reset: true }),
     ErrorHandlerMW,
-    ProjectMigratorMWV3,
     EnvLoaderMW(false),
     ConcurrentLockerMW,
     ContextInjectorMW,
@@ -750,7 +737,6 @@ export class FxCore extends FxCoreDeclarativeAgentPart {
   @hooks([
     ErrorContextMW({ component: "FxCore", stage: "deployAadManifest", reset: true }),
     ErrorHandlerMW,
-    ProjectMigratorMWV3,
     QuestionMW("deployAadManifest"),
     EnvLoaderMW(true, true),
     ConcurrentLockerMW,
@@ -809,7 +795,6 @@ export class FxCore extends FxCoreDeclarativeAgentPart {
     ErrorContextMW({ component: "FxCore", stage: "addWebpart", reset: true }),
     ErrorHandlerMW,
     QuestionMW("addWebpart"),
-    ProjectMigratorMWV3,
     ConcurrentLockerMW,
   ])
   async addWebpart(inputs: Inputs): Promise<Result<undefined, FxError>> {
@@ -836,7 +821,6 @@ export class FxCore extends FxCoreDeclarativeAgentPart {
   @hooks([
     ErrorContextMW({ component: "FxCore", stage: "publish", reset: true }),
     ErrorHandlerMW,
-    ProjectMigratorMWV3,
     EnvLoaderMW(false),
     ConcurrentLockerMW,
     ContextInjectorMW,
@@ -863,7 +847,6 @@ export class FxCore extends FxCoreDeclarativeAgentPart {
     ErrorContextMW({ component: "FxCore", stage: "share", reset: true }),
     ErrorHandlerMW,
     QuestionMW("removeSharedAccess"),
-    ProjectMigratorMWV3,
     EnvLoaderMW(false),
     ConcurrentLockerMW,
     ContextInjectorMW,
@@ -944,7 +927,6 @@ export class FxCore extends FxCoreDeclarativeAgentPart {
     ErrorContextMW({ component: "FxCore", stage: "share", reset: true }),
     ErrorHandlerMW,
     QuestionMW("share"),
-    ProjectMigratorMWV3,
     EnvLoaderMW(false),
     ConcurrentLockerMW,
     ContextInjectorMW,
@@ -997,7 +979,6 @@ export class FxCore extends FxCoreDeclarativeAgentPart {
   @hooks([
     ErrorContextMW({ component: "FxCore", stage: "executeUserTask", reset: true }),
     ErrorHandlerMW,
-    ProjectMigratorMWV3,
     EnvLoaderMW(false),
     ConcurrentLockerMW,
   ])
@@ -1020,7 +1001,6 @@ export class FxCore extends FxCoreDeclarativeAgentPart {
   @hooks([
     ErrorContextMW({ component: "FxCore", stage: "buildAadManifest", reset: true }),
     ErrorHandlerMW,
-    ProjectMigratorMWV3,
     EnvLoaderMW(false),
     ConcurrentLockerMW,
   ])
@@ -1063,7 +1043,6 @@ export class FxCore extends FxCoreDeclarativeAgentPart {
   @hooks([
     ErrorContextMW({ component: "FxCore", stage: "deployTeamsManifest", reset: true }),
     ErrorHandlerMW,
-    ProjectMigratorMWV3,
     QuestionMW("selectTeamsAppManifest"),
     EnvLoaderMW(true),
     ConcurrentLockerMW,
@@ -1479,7 +1458,6 @@ export class FxCore extends FxCoreDeclarativeAgentPart {
   @hooks([
     ErrorContextMW({ component: "FxCore", stage: "grantPermission", reset: true }),
     ErrorHandlerMW,
-    ProjectMigratorMWV3,
     QuestionMW("grantPermission"),
     EnvLoaderMW(false, true),
     ConcurrentLockerMW,
@@ -1502,7 +1480,6 @@ export class FxCore extends FxCoreDeclarativeAgentPart {
   @hooks([
     ErrorContextMW({ component: "FxCore", stage: "checkPermission", reset: true }),
     ErrorHandlerMW,
-    ProjectMigratorMWV3,
     QuestionMW("listCollaborator"),
     EnvLoaderMW(false, true),
     ConcurrentLockerMW,
@@ -1524,7 +1501,6 @@ export class FxCore extends FxCoreDeclarativeAgentPart {
   @hooks([
     ErrorContextMW({ component: "FxCore", stage: "listCollaborator", reset: true }),
     ErrorHandlerMW,
-    ProjectMigratorMWV3,
     QuestionMW("listCollaborator"),
     EnvLoaderMW(false, true),
     ConcurrentLockerMW,
@@ -1640,33 +1616,6 @@ export class FxCore extends FxCoreDeclarativeAgentPart {
     return ok(undefined);
   }
 
-  // a phantom migration method for V3
-  @hooks([ErrorContextMW({ component: "FxCore", stage: "phantomMigrationV3", reset: true })])
-  async phantomMigrationV3(inputs: Inputs): Promise<Result<undefined, FxError>> {
-    // If the project is invalid or upgraded, the ProjectMigratorMWV3 will not take action.
-    // Check invaliad/upgraded project here before call ProjectMigratorMWV3
-    const projectPath = (inputs.projectPath as string) || "";
-    const version = await getProjectVersionFromPath(projectPath);
-
-    if (version.source === VersionSource.teamsapp) {
-      return err(new NoNeedUpgradeError());
-    } else if (version.source === VersionSource.projectSettings) {
-      const isValid = await checkActiveResourcePlugins(projectPath);
-      if (!isValid) {
-        return err(new InvalidProjectError(projectPath));
-      }
-    }
-    if (version.source === VersionSource.unknown) {
-      return err(new InvalidProjectError(projectPath));
-    }
-    return this.innerMigrationV3(inputs);
-  }
-
-  @hooks([ErrorHandlerMW, ProjectMigratorMWV3])
-  innerMigrationV3(inputs: Inputs): Result<undefined, FxError> {
-    return ok(undefined);
-  }
-
   // a project version check
   @hooks([
     ErrorContextMW({ component: "FxCore", stage: "projectVersionCheck", reset: true }),
@@ -1674,19 +1623,13 @@ export class FxCore extends FxCoreDeclarativeAgentPart {
   ])
   async projectVersionCheck(inputs: Inputs): Promise<Result<VersionCheckRes, FxError>> {
     const projectPath = (inputs.projectPath as string) || "";
-    if (isValidProjectV3(projectPath) || isValidProjectV2(projectPath)) {
+    if (isValidProjectV3(projectPath)) {
       const versionInfo = await getProjectVersionFromPath(projectPath);
       if (!versionInfo.version) {
         return err(new InvalidProjectError(projectPath));
       }
       const trackingId = await getTrackingIdFromPath(projectPath);
       const isSupport = getVersionState(versionInfo);
-      // if the project is upgradeable, check whether the project is valid and invalid project should not show upgrade option.
-      if (isSupport === VersionState.upgradeable) {
-        if (!(await checkActiveResourcePlugins(projectPath))) {
-          return err(new InvalidProjectError(projectPath));
-        }
-      }
       return ok({
         currentVersion: versionInfo.version,
         trackingId,
@@ -1791,7 +1734,6 @@ export class FxCore extends FxCoreDeclarativeAgentPart {
   @hooks([
     ErrorContextMW({ component: "FxCore", stage: "preProvisionForVS" }),
     ErrorHandlerMW,
-    ProjectMigratorMWV3,
     EnvLoaderMW(false),
     ConcurrentLockerMW,
     ContextInjectorMW,
@@ -1803,7 +1745,6 @@ export class FxCore extends FxCoreDeclarativeAgentPart {
   @hooks([
     ErrorContextMW({ component: "FxCore", stage: "preCheckYmlAndEnvForVS" }),
     ErrorHandlerMW,
-    ProjectMigratorMWV3,
     EnvLoaderMW(false),
     ConcurrentLockerMW,
     ContextInjectorMW,
@@ -3122,27 +3063,60 @@ export class FxCore extends FxCoreDeclarativeAgentPart {
     // Downloads the latest online template metadata (metadata.zip) into user's home .fx folder.
     // Caches the template version so subsequent calls avoid redundant downloads if unchanged.
     try {
-      // Determine latest template version (respect prerelease env variable similar to getTemplateVSCUrl)
-      const coreVersion = require("../../package.json").version as string;
-
-      let latestVersion = "0.0.0-rc";
-      if (
-        coreVersion.includes("alpha") ||
-        coreVersion.includes("beta") ||
-        coreVersion.includes("rc")
-      ) {
-        // daily build, prerelease or rc
-        latestVersion = "0.0.0-rc";
-      } else {
-        // stable version
-        latestVersion = await getTemplateLatestVersion();
-      }
+      const useV4Channel = featureFlagManager.getBooleanValue(FeatureFlags.V4Enabled);
 
       const homedir = os.homedir();
       const metadataDir = path.join(homedir, `.${String(ConfigFolderName)}`);
       await fs.ensureDir(metadataDir);
 
-      const versionFile = path.join(metadataDir, "template-version.txt");
+      let latestVersion: string;
+      if (useV4Channel) {
+        // Transitional: in the v4 channel the metadata rides the SAME single
+        // decision point as the template package —
+        // `resolveTemplateSource((v4.range, v4.bundled, port))`. The `bundled`
+        // field is CD-baked (= !goproduct), so goproduct builds (stable AND
+        // prerelease) resolve to an online/cache source while non-goproduct or
+        // daily builds resolve to the bundled floor. metadata.zip lives in the
+        // same `templates-v4@<ver>` release as the resolved package, so the
+        // resolved version names the release to pull metadata from. Remove once
+        // selector.json drives metadata distribution.
+        const resolved = await resolveV4MetadataSource();
+        if (resolved.isErr()) {
+          // Malformed tag list / digest mismatch are hard errors (no silent
+          // fallback). An unreachable channel does not reach here — it already
+          // resolved to a bundled-fallback origin handled below.
+          return err(resolved.error);
+        }
+        const source = resolved.value;
+        if (source.origin === "bundled" || source.origin === "bundled-fallback") {
+          // Bundled build or unreachable channel: read the bundled metadata
+          // (the readers fall back via `useBundledMetadataForV4`). No download.
+          return ok(undefined);
+        }
+        latestVersion = source.version;
+      } else {
+        // v3: prerelease builds use the mutable rolling `0.0.0-rc` tag; stable
+        // builds resolve the latest published templates version.
+        const coreVersion = require("../../package.json").version as string;
+        if (
+          coreVersion.includes("alpha") ||
+          coreVersion.includes("beta") ||
+          coreVersion.includes("rc")
+        ) {
+          latestVersion = "0.0.0-rc";
+        } else {
+          latestVersion = await getTemplateLatestVersion();
+        }
+      }
+
+      // Use a channel-specific cache file so flipping the flag triggers a fresh
+      // download instead of a stale v3 cache hit; the v4 file's presence is also
+      // the readers' signal (`useBundledMetadataForV4`) that downloaded v4
+      // metadata is available.
+      const versionFile = path.join(
+        metadataDir,
+        useV4Channel ? "template-version-v4.txt" : "template-version.txt"
+      );
       const needDownload = async (): Promise<boolean> => {
         // Always re-download for mutable pre-release tags (content changes but tag stays the same)
         if (latestVersion === "0.0.0-rc") return true;
@@ -3160,8 +3134,9 @@ export class FxCore extends FxCoreDeclarativeAgentPart {
         return ok(undefined); // Already up-to-date
       }
 
-      // Construct metadata.zip download URL based on tag prefix and version
-      const tag = `${templateConfig.tagPrefix}${latestVersion}`;
+      // Construct metadata.zip download URL based on tag prefix and version.
+      const tagPrefix = useV4Channel ? templateConfig.v4tagPrefix : templateConfig.tagPrefix;
+      const tag = `${tagPrefix}${latestVersion}`;
       const metadataZipUrl = `${templateConfig.templateDownloadBaseURL}/${tag}/metadata.zip`;
 
       const zip = await fetchZipFromUrl(metadataZipUrl);

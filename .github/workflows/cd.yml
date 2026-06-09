@@ -33,10 +33,10 @@ on:
         type: boolean
         default: false
         description: "Whether to release TTK as publish product"
-      skipmarkdownandvulnerabilitycheck:
+      skipmarkdowncheck:
         type: boolean
         default: false
-        description: "Whether to skip Markdown files and vulnerability check"
+        description: "Whether to skip Markdown files image/hyperlink check"
       run_test_cases:
         type: boolean
         default: false
@@ -57,10 +57,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       markdown-check-result: ${{ steps.markdown-check.outcome }}
-      security-check-vsc-result: ${{ steps.security-check-vsc.outcome }}
-      security-check-vs-result: ${{ steps.security-check-vs.outcome }}
       markdown-check-samples-result: ${{ steps.markdown-check-samples.outcome }}
-      security-check-samples-result: ${{ steps.security-check-samples.outcome }}
     env:
       CI: true
       PREID: ${{ github.event.inputs.preid }}
@@ -110,7 +107,7 @@ jobs:
           python-version: '3.x'
 
       - name: Install Python dependencies for image or hyperlink analysis
-        if: ${{ github.event.inputs.skipmarkdownandvulnerabilitycheck == 'false' || github.event.inputs.skipmarkdownandvulnerabilitycheck == ''}}
+        if: ${{ github.event.inputs.skipmarkdowncheck == 'false' || github.event.inputs.skipmarkdowncheck == ''}}
         run: |
           python -m pip install --upgrade pip
           python -m pip install python-dateutil
@@ -118,13 +115,13 @@ jobs:
 
       - name: 🔍Check Markdown files image/hyperlink availability
         id: markdown-check
-        if: ${{ github.event.inputs.skipmarkdownandvulnerabilitycheck == 'false' || github.event.inputs.skipmarkdownandvulnerabilitycheck == ''}}
+        if: ${{ github.event.inputs.skipmarkdowncheck == 'false' || github.event.inputs.skipmarkdowncheck == ''}}
         continue-on-error: true  # Temporary allow failure
         run: |
           python -u .github/scripts/analyze_markdown.py --scan-directory "templates/vsc" "templates/vs"  --file-patterns "**/README.md" "**/README.md.tpl" --extra-files "packages/vscode-extension/CHANGELOG.md"
 
       - name: Checkout samples repo
-        if: ${{ github.event.inputs.skipmarkdownandvulnerabilitycheck == 'false' || github.event.inputs.skipmarkdownandvulnerabilitycheck == ''}}
+        if: ${{ github.event.inputs.skipmarkdowncheck == 'false' || github.event.inputs.skipmarkdowncheck == ''}}
         uses: actions/checkout@v3
         with:
           repository: OfficeDev/microsoft-365-agents-toolkit-samples
@@ -133,7 +130,7 @@ jobs:
 
       - name: 🔍Check Markdown files in samples repo
         id: markdown-check-samples
-        if: ${{ github.event.inputs.skipmarkdownandvulnerabilitycheck == 'false' || github.event.inputs.skipmarkdownandvulnerabilitycheck == ''}}
+        if: ${{ github.event.inputs.skipmarkdowncheck == 'false' || github.event.inputs.skipmarkdowncheck == ''}}
         continue-on-error: true
         run: |
           python -u .github/scripts/analyze_markdown.py --scan-directory "samples-repo" --file-patterns "**/README.md" "**/README.md.tpl"
@@ -144,35 +141,8 @@ jobs:
 
       - uses: pnpm/action-setup@v4
 
-      - name: 🔍Check package.json files for security vulnerabilities(VSC)
-        if: ${{ github.event.inputs.skipmarkdownandvulnerabilitycheck == 'false' || github.event.inputs.skipmarkdownandvulnerabilitycheck == ''}}
-        id: security-check-vsc
-        continue-on-error: true  # Allow pipeline to continue, notification will be sent on failure
-        run: |
-          python -u .github/scripts/check_npm_vulnerabilities.py --scan-directory "templates/vsc"
-
-      - name: Setup .NET for NuGet security check
-        if: ${{ github.event.inputs.skipmarkdownandvulnerabilitycheck == 'false' || github.event.inputs.skipmarkdownandvulnerabilitycheck == ''}}
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: '8.0.x'
-
-      - name: 🔍Check C# project NuGet packages for security vulnerabilities(VS)
-        if: ${{ github.event.inputs.skipmarkdownandvulnerabilitycheck == 'false' || github.event.inputs.skipmarkdownandvulnerabilitycheck == ''}}
-        id: security-check-vs
-        continue-on-error: true  # Allow pipeline to continue, notification will be sent on failure
-        run: |
-          python -u .github/scripts/check_nuget_vulnerabilities.py --scan-directory "templates/vs"
-
-      - name: 🔍Check package.json files for security vulnerabilities(Samples)
-        if: ${{ github.event.inputs.skipmarkdownandvulnerabilitycheck == 'false' || github.event.inputs.skipmarkdownandvulnerabilitycheck == ''}}
-        id: security-check-samples
-        continue-on-error: true  # Allow pipeline to continue, notification will be sent on failure
-        run: |
-          python -u .github/scripts/check_npm_vulnerabilities.py --scan-directory "samples-repo"
-
       - name: 📋 Check Results Summary
-        if: ${{ always() && (github.event.inputs.skipmarkdownandvulnerabilitycheck == 'false' || github.event.inputs.skipmarkdownandvulnerabilitycheck == '') }}
+        if: ${{ always() && (github.event.inputs.skipmarkdowncheck == 'false' || github.event.inputs.skipmarkdowncheck == '') }}
         run: |
           echo "## 🔍 Quality Check Results" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
@@ -196,45 +166,15 @@ jobs:
           elif [ "${{ steps.markdown-check-samples.outcome }}" == "skipped" ]; then
             echo "| Markdown Check | samples-repo | ⏭️ Skipped |" >> $GITHUB_STEP_SUMMARY
           fi
-          
-          # Security Check - VSC
-          if [ "${{ steps.security-check-vsc.outcome }}" == "failure" ]; then
-            echo "| Security Check (npm) | templates/vsc | ❌ Failed |" >> $GITHUB_STEP_SUMMARY
-          elif [ "${{ steps.security-check-vsc.outcome }}" == "success" ]; then
-            echo "| Security Check (npm) | templates/vsc | ✅ Passed |" >> $GITHUB_STEP_SUMMARY
-          fi
-          
-          # Security Check - VS
-          if [ "${{ steps.security-check-vs.outcome }}" == "failure" ]; then
-            echo "| Security Check (NuGet) | templates/vs | ❌ Failed |" >> $GITHUB_STEP_SUMMARY
-          elif [ "${{ steps.security-check-vs.outcome }}" == "success" ]; then
-            echo "| Security Check (NuGet) | templates/vs | ✅ Passed |" >> $GITHUB_STEP_SUMMARY
-          fi
-          
-          # Security Check - Samples
-          if [ "${{ steps.security-check-samples.outcome }}" == "failure" ]; then
-            echo "| Security Check (npm) | samples-repo | ❌ Failed |" >> $GITHUB_STEP_SUMMARY
-          elif [ "${{ steps.security-check-samples.outcome }}" == "success" ]; then
-            echo "| Security Check (npm) | samples-repo | ✅ Passed |" >> $GITHUB_STEP_SUMMARY
-          fi
-          
+
           echo "" >> $GITHUB_STEP_SUMMARY
-          
+
           # Show warning/error annotations for failed checks
           if [ "${{ steps.markdown-check.outcome }}" == "failure" ]; then
             echo "::error title=Markdown Check Failed::Markdown files image/hyperlink check failed in templates/vsc and templates/vs"
           fi
           if [ "${{ steps.markdown-check-samples.outcome }}" == "failure" ]; then
             echo "::error title=Markdown Check (Samples) Failed::Markdown files image/hyperlink check failed in samples-repo"
-          fi
-          if [ "${{ steps.security-check-vsc.outcome }}" == "failure" ]; then
-            echo "::error title=Security Check (VSC) Failed::npm vulnerabilities found in templates/vsc"
-          fi
-          if [ "${{ steps.security-check-vs.outcome }}" == "failure" ]; then
-            echo "::error title=Security Check (VS) Failed::NuGet vulnerabilities found in templates/vs"
-          fi
-          if [ "${{ steps.security-check-samples.outcome }}" == "failure" ]; then
-            echo "::error title=Security Check (Samples) Failed::npm vulnerabilities found in samples-repo"
           fi
 
       - name: Install wine64
@@ -274,7 +214,7 @@ jobs:
       - name: release preview packages to npmjs.org
         if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.preid == 'preview' }}
         run: |
-          npx lerna version prerelease --preid=beta.$(date "+%Y%m%d%H") --exact --no-push --allow-branch ${GITHUB_REF#refs/*/} --yes
+          npx lerna version prerelease --preid=beta.$(date "+%Y%m%d%H") --exact --no-push --force-publish=ms-teams-vscode-extension --allow-branch ${GITHUB_REF#refs/*/} --yes
 
       - name: version rc npm packages to npmjs.org
         if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.preid == 'rc' }}
@@ -293,6 +233,15 @@ jobs:
           echo "TEMPLATE_VERSION=$(git tag --points-at HEAD | grep templates)" >> $GITHUB_OUTPUT
           echo "EXTENSION_VERSION=$(git tag --points-at HEAD | grep ms-teams-vscode-extension@)" >> $GITHUB_OUTPUT
           git tag --points-at HEAD | grep templates | grep rc | xargs -r git push -d origin
+
+      # v4 channel (isolated from the v3 steps above). The v4 distribution config
+      # block in templates-config.json is synced here, after lerna version mints
+      # the new templates version and before publish. fx-core's prepublishOnly
+      # rebuild then bundles the edited config into the published package — the
+      # same timing the v3 config sync relies on. `bundled = !goproduct`.
+      - name: sync v4 template config
+        if: ${{ contains(steps.version-change.outputs.CHANGED, 'templates@') && github.event_name == 'workflow_dispatch' }}
+        run: node .github/scripts/v4/sync-v4-template-config.js
 
       - name: update template rc tag
         uses: richardsimko/update-tag@v1.0.7
@@ -349,6 +298,32 @@ jobs:
           token: ${{ steps.generate-token.outputs.token }}
           tag: "template-tag-list"
           allowUpdates: true
+
+      # ── v4 template channel ───────────────────────────────────────────────
+      # Gated on goproduct (ship-to-marketplace), independent of the preid lane:
+      # a prerelease built with goproduct=true also enters the v4 channel. The
+      # publish-v4-channel.sh wrapper does the whole channel update (immutable
+      # templates-v4@<ver> release + digest-bearing NDJSON tag-list append) so
+      # the v4 footprint in this workflow stays one step. It only ever touches
+      # the v4-owned releases; the v3 templates@ channel above is untouched.
+      - name: Publish v4 template channel
+        if: ${{ contains(steps.version-change.outputs.CHANGED, 'templates@') && github.event_name == 'workflow_dispatch' && github.event.inputs.goproduct == 'true' }}
+        # continue-on-error is intentional ONLY while no shipped engine consumes
+        # the v4 channel yet (generator wiring is pending, plan item #7): a v4
+        # publish failure here has zero production impact and must not block the
+        # v3 CD. Remove this line once the v4 generator goes live, so a failed
+        # channel update fails the shipping build instead of silently leaving
+        # the channel behind the engine config.
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ steps.generate-token.outputs.token }}
+        run: |
+          bash .github/scripts/v4/publish-v4-channel.sh \
+            "${{ steps.version-change.outputs.TEMPLATE_VERSION }}" \
+            "${{ github.workspace }}/templates/build/v4/templates.zip" \
+            "${{ runner.temp }}" \
+            "${{ github.sha }}" \
+            "${{ github.workspace }}/templates/build/metadata.zip"
 
       - name: Release RC VS templates to GitHub
         if: ${{ contains(steps.version-change.outputs.CHANGED, 'templates@') && github.event_name == 'workflow_dispatch' && github.event.inputs.vsrelease == 'true' }}
@@ -554,7 +529,7 @@ jobs:
 
   notify-check-failures:
     needs: cd
-    if: ${{ needs.cd.outputs.markdown-check-result == 'failure' || needs.cd.outputs.security-check-vsc-result == 'failure' || needs.cd.outputs.security-check-vs-result == 'failure' || needs.cd.outputs.markdown-check-samples-result == 'failure' || needs.cd.outputs.security-check-samples-result == 'failure' }}
+    if: ${{ needs.cd.outputs.markdown-check-result == 'failure' || needs.cd.outputs.markdown-check-samples-result == 'failure' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout branch
@@ -579,34 +554,7 @@ jobs:
             fi
             BODY="${BODY}<b>Markdown Check Failed (Samples Repo)</b><br/>Markdown files image/hyperlink availability check failed in microsoft-365-agents-toolkit-samples repo.<br/><br/>"
           fi
-          
-          if [ "${{ needs.cd.outputs.security-check-vsc-result }}" == "failure" ]; then
-            if [ -n "$SUBJECT_PARTS" ]; then
-              SUBJECT_PARTS="${SUBJECT_PARTS}, Security Check (VSC)"
-            else
-              SUBJECT_PARTS="Security Check (VSC)"
-            fi
-            BODY="${BODY}<b>Security Check Failed (VSC Templates)</b><br/>Security vulnerabilities found in package.json files under templates/vsc.<br/><br/>"
-          fi
-          
-          if [ "${{ needs.cd.outputs.security-check-vs-result }}" == "failure" ]; then
-            if [ -n "$SUBJECT_PARTS" ]; then
-              SUBJECT_PARTS="${SUBJECT_PARTS}, Security Check (VS)"
-            else
-              SUBJECT_PARTS="Security Check (VS)"
-            fi
-            BODY="${BODY}<b>Security Check Failed (VS Templates)</b><br/>Vulnerable NuGet packages found in C# projects under templates/vs.<br/><br/>"
-          fi
-          
-          if [ "${{ needs.cd.outputs.security-check-samples-result }}" == "failure" ]; then
-            if [ -n "$SUBJECT_PARTS" ]; then
-              SUBJECT_PARTS="${SUBJECT_PARTS}, Security Check (Samples)"
-            else
-              SUBJECT_PARTS="Security Check (Samples)"
-            fi
-            BODY="${BODY}<b>Security Check Failed (Samples Repo)</b><br/>Security vulnerabilities found in package.json files in microsoft-365-agents-toolkit-samples repo.<br/><br/>"
-          fi
-          
+
           BODY="${BODY}Please check the workflow run for details: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
           
           echo "BODY=${BODY}" >> $GITHUB_OUTPUT

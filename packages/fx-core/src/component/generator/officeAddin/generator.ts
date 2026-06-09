@@ -15,7 +15,10 @@ import {
   ok,
   Result,
   TeamsManifestVDevPreview,
+  UserError,
 } from "@microsoft/teamsfx-api";
+import fse from "fs-extra";
+import path from "path";
 import { convertProject } from "office-addin-project";
 import { getLocalizedString } from "../../../common/localizeUtils";
 import { getUuid } from "../../../common/stringUtils";
@@ -51,6 +54,29 @@ export class OfficeAddinGenerator {
     process.chdir(addinRoot);
     try {
       if (fromFolder) {
+        // Validate the source project early to avoid cryptic failures when the user
+        // points at a manifest-only project.
+        // Without `package.json`, that project package's `convertProject` would
+        // ultimately call `Object.keys(content.scripts)` on undefined and throw runtime errors.
+        const sourceManifestFileEarly: string = inputs[QuestionNames.OfficeAddinManifest];
+        if (
+          sourceManifestFileEarly &&
+          sourceManifestFileEarly.endsWith(".xml") &&
+          !(await fse.pathExists(path.join(fromFolder, "package.json")))
+        ) {
+          await importProgress.end(false, true);
+          process.chdir(workingDir);
+          return err(
+            new UserError({
+              source: "office-addin-generator",
+              name: "ManifestOnlyAddinNotSupported",
+              message: getLocalizedString(
+                "core.generator.officeAddin.importProject.manifestOnlyNotSupported",
+                fromFolder
+              ),
+            })
+          );
+        }
         await importProgress.start();
         // from existing project
         await importProgress.next(
@@ -63,6 +89,11 @@ export class OfficeAddinGenerator {
           getLocalizedString("core.generator.officeAddin.importProject.convertProject")
         );
         if (manifestFile.endsWith(".xml")) {
+          // The convertProject reads `./package.json` and calls `Object.keys(content.scripts)` unconditionally.
+          // Formanifest-only Office Add-in projects there is no package.json (or no
+          // `scripts` field), which would otherwise crash with runtime errors. Ensure a minimal
+          // package.json with a `scripts` object exists before converting.
+          await OfficeAddinGenerator.ensurePackageJsonForConvert(addinRoot);
           // Need to convert to json project first
           await convertProject(manifestFile, "./backup.zip", addinRoot, true);
           manifestFile = manifestFile.replace(/\.xml$/, ".json");
@@ -80,6 +111,29 @@ export class OfficeAddinGenerator {
       process.chdir(workingDir);
       await importProgress.end(false, true);
       return err(assembleError(e as Error));
+    }
+  }
+
+  /**
+   * Ensure a `package.json` with a `scripts` object exists at `addinRoot`.
+   * The project package's `convertProject` reads
+   * `./package.json` and unconditionally calls `Object.keys(content.scripts)`,
+   * which throws runtime errors when the field is missing. Creating or
+   * normalizing the file beforehand prevents the crash.
+   */
+  static async ensurePackageJsonForConvert(addinRoot: string): Promise<void> {
+    const pkgJsonPath = path.join(addinRoot, "package.json");
+    let pkg: { scripts?: Record<string, string>; [key: string]: unknown } = {};
+    if (await fse.pathExists(pkgJsonPath)) {
+      try {
+        pkg = (await fse.readJSON(pkgJsonPath)) as typeof pkg;
+      } catch {
+        pkg = {};
+      }
+    }
+    if (!pkg.scripts || typeof pkg.scripts !== "object") {
+      pkg.scripts = {};
+      await fse.writeJSON(pkgJsonPath, pkg, { spaces: 2 });
     }
   }
 }

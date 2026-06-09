@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Scenario Diff Viewer</title>
+  <style>
+    html, body { margin: 0; height: 100%; font-family: -apple-system, "Segoe UI", system-ui, sans-serif; }
+    body { display: flex; flex-direction: column; }
+    header { display: flex; gap: 8px; padding: 6px 10px; border-bottom: 1px solid #d0d7de; background: #f6f8fa; font-size: 12px; align-items: center; }
+    header .side { flex: 1; display: flex; gap: 6px; align-items: center; min-width: 0; }
+    header .side strong { color: #57606a; white-space: nowrap; }
+    header .side input { flex: 1; min-width: 0; padding: 2px 6px; border: 1px solid #d0d7de; border-radius: 4px; font-family: ui-monospace, Consolas, monospace; font-size: 11px; }
+    header button { padding: 3px 10px; border: 1px solid #d0d7de; border-radius: 4px; background: #fff; cursor: pointer; font-size: 12px; }
+    header button:hover { background: #f0f3f6; }
+    .frames { flex: 1; display: flex; min-height: 0; }
+    iframe { flex: 1; border: 0; border-left: 1px solid #d0d7de; background: #fff; }
+    iframe:first-child { border-left: 0; }
+    .hint { padding: 24px; color: #57606a; font-size: 13px; line-height: 1.5; }
+    .hint code { background: #f6f8fa; padding: 1px 4px; border-radius: 3px; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="side"><strong>Left</strong><input id="leftInput" placeholder="left URL (baseline)"></div>
+    <div class="side"><strong>Right</strong><input id="rightInput" placeholder="right URL (new)"></div>
+    <button id="apply">Apply</button>
+    <button id="swap" title="Swap left and right">&#8644;</button>
+  </header>
+  <div id="frames" class="frames">
+    <div class="hint" id="hint">
+      <p>Pass two URLs as query parameters to render them side by side:</p>
+      <p><code>index.html?left=&lt;URL&gt;&amp;right=&lt;URL&gt;</code></p>
+      <p>Typical use:</p>
+      <ul>
+        <li><strong>Evolving draft</strong>: left = previous-commit raw.githack URL, right = HEAD raw.githack URL of the same path.</li>
+        <li><strong>New draft</strong>: left = live <code>../&lt;slug&gt;.html</code> (the redesigned target), right = <code>draft/&lt;slug&gt;.html</code>.</li>
+      </ul>
+      <p>raw.githack URL pattern: <code>https://raw.githack.com/&lt;org&gt;/&lt;repo&gt;/&lt;ref&gt;/&lt;path&gt;</code></p>
+    </div>
+  </div>
+  <script>
+    const params = new URLSearchParams(location.search);
+    const leftUrl = params.get("left");
+    const rightUrl = params.get("right");
+    const leftInput = document.getElementById("leftInput");
+    const rightInput = document.getElementById("rightInput");
+    const frames = document.getElementById("frames");
+    const ALLOWED_PROTOCOLS = new Set(["http:", "https:", "file:"]);
+
+    function safeIframeSrc(url) {
+      if (!url) return "about:blank";
+      try {
+        const parsed = new URL(url, location.href);
+        if (ALLOWED_PROTOCOLS.has(parsed.protocol)) return parsed.href;
+      } catch (_) { /* fall through */ }
+      return "about:blank";
+    }
+
+    function render(left, right) {
+      leftInput.value = left || "";
+      rightInput.value = right || "";
+      if (!left && !right) return;
+      frames.innerHTML = "";
+      const l = document.createElement("iframe");
+      const r = document.createElement("iframe");
+      l.src = safeIframeSrc(left);
+      r.src = safeIframeSrc(right);
+      frames.append(l, r);
+    }
+
+    function applyFromInputs() {
+      const left = leftInput.value.trim();
+      const right = rightInput.value.trim();
+      const next = new URLSearchParams();
+      if (left) next.set("left", left);
+      if (right) next.set("right", right);
+      location.search = next.toString();
+    }
+
+    document.getElementById("apply").addEventListener("click", applyFromInputs);
+    document.getElementById("swap").addEventListener("click", () => {
+      const next = new URLSearchParams();
+      if (rightInput.value) next.set("left", rightInput.value.trim());
+      if (leftInput.value) next.set("right", leftInput.value.trim());
+      location.search = next.toString();
+    });
+
+    if (leftUrl || rightUrl) render(leftUrl, rightUrl);
+  </script>
+</body>
+</html>

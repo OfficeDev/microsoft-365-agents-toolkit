@@ -9,6 +9,21 @@
   4. The Copilot CLI agent reads this file at runtime to generate & run the
      corresponding TypeScript test in:
        packages/tests/src/<feature-slug>-<task>.test.ts
+
+  CORE PRINCIPLE: Tests must simulate REAL USER BEHAVIOR
+  ======================================================
+  Every test case must describe what a real user does — not what the code does internally.
+
+  ✓ GOOD (user action):  "Click the List view button, observe layout changes to list style"
+  ✗ BAD  (code check):   "Assert CSS class 'list-view' is present on the container"
+
+  ✓ GOOD (user action):  "Tab to the first sample card, press Enter to open it"
+  ✗ BAD  (code check):   "Check that aria-label attribute contains the word 'Featured'"
+
+  Steps MUST be written from the user's perspective:
+  - Use "click", "type", "press", "navigate", "observe", "verify visually"
+  - Every step must state what the user does AND what they expect to see immediately after
+  - Screenshots must capture the UI state a user would see — not internal DOM state
 -->
 
 ## Metadata
@@ -60,21 +75,27 @@
 - <What the test asserts>
 - <File(s) or UI state(s) that must be present>
 
+**Pass criteria:**
+- <Measurable assertion 1, e.g. `contrast_ratio >= 4.5`>
+- <Measurable assertion 2, e.g. `aria-label contains "Featured sample"`>
+
 **Test script:**
 `packages/tests/src/<feature-slug>-<task>.test.ts`
 
 **Screenshots produced by test:**
 
 <!--
-  One row per named screenshot.  The test calls `screenshot("id")` before each
-  meaningful step so the QuickPick / dialog is still visible in the image.
+  One row per named screenshot. The test calls `screenshot("id")` before each
+  meaningful user action so the UI state is captured while still visible.
   IDs must be sequential two-digit strings (01, 02, …).
+  Pass condition: what must be TRUE in this screenshot for the TC to pass.
+  Why: why this screenshot proves the behavior (what regression would make it fail).
 -->
 
-| ID  | Filename                  | What is visible                   |
-|-----|---------------------------|-----------------------------------|
-| 01  | `01-<name>.png`           | <Description>                     |
-| 02  | `02-<name>.png`           | <Description>                     |
+| ID  | Filename                  | What is visible                   | Pass condition                              | Why                                              |
+|-----|---------------------------|-----------------------------------|---------------------------------------------|--------------------------------------------------|
+| 01  | `01-<name>.png`           | <UI state after user action>      | <e.g. button is highlighted / text appears> | <e.g. proves feature activated after user click> |
+| 02  | `02-<name>.png`           | <UI state after user action>      | <e.g. error message is absent>              | <e.g. proves no regression in happy path>        |
 
 ---
 

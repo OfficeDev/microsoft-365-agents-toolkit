@@ -1,0 +1,18 @@
+{
+  "mcpServers": {
+    "contoso-tools": {
+      "type": "http",
+      "url": "https://tools.contoso.com/mcp",
+      "description": "Contoso engineering toolbelt over MCP."
+    },
+    "local-dev": {
+      "type": "http",
+      "url": "http://localhost:5050/sse"
+    },
+    "stdio-only": {
+      "type": "stdio",
+      "command": "node",
+      "args": ["./local-server.js"]
+    }
+  }
+}

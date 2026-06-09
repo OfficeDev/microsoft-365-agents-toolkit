@@ -5,7 +5,8 @@ import "./sampleDetailPage.scss";
 
 import * as React from "react";
 
-import { ActionButton } from "@fluentui/react";
+import { Button } from "@fluentui/react-components";
+import { ChevronLeftRegular } from "@fluentui/react-icons";
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 
 import { TelemetryTriggerFrom } from "../../telemetry/extTelemetryEvents";
@@ -92,18 +93,28 @@ export default class SampleDetailPage extends React.Component<SampleProps, Sampl
     if (this.state.loading) {
       return (
         <div className="sample-detail-page">
-          <ActionButton iconProps={{ iconName: "ChevronLeft" }} onClick={this.onBack}>
+          <Button
+            className="back-button"
+            appearance="subtle"
+            icon={<ChevronLeftRegular />}
+            onClick={this.onBack}
+          >
             Back
-          </ActionButton>
+          </Button>
           {header}
         </div>
       );
     }
     return (
       <div className="sample-detail-page">
-        <ActionButton iconProps={{ iconName: "ChevronLeft" }} onClick={this.onBack}>
+        <Button
+          className="back-button"
+          appearance="subtle"
+          icon={<ChevronLeftRegular />}
+          onClick={this.onBack}
+        >
           Back
-        </ActionButton>
+        </Button>
         {sample.versionComparisonResult !== 0 && this.getBanner()}
         {header}
         {this.state.error ? (

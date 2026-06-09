@@ -15,7 +15,7 @@ const adjustCommands = (): CLICommand[] => {
     addPluginCommand,
     addAuthConfigCommand,
     addCapabilityCommand,
-    ...(featureFlagManager.getBooleanValue(FeatureFlags.AgentSkillsEnabled)
+    ...(featureFlagManager.getBooleanValue(FeatureFlags.AgentSkillsManifest)
       ? [addSkillCommand]
       : []),
   ];

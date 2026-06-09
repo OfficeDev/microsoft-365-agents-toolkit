@@ -10,6 +10,8 @@ import { getVersion } from "../../utils";
 import { helper } from "../helper";
 import { accountCommand } from "./account";
 import { addCommand } from "./add";
+import { exportCommand } from "./export";
+import { importCommand } from "./import";
 import { getCreateCommand } from "./create";
 import { deployCommand } from "./deploy";
 import { entraAppCommand } from "./entraAppUpdate";
@@ -30,7 +32,6 @@ import { teamsappPackageCommand } from "./teamsapp/package";
 import { teamsappPublishCommand } from "./teamsapp/publish";
 import { teamsappUpdateCommand } from "./teamsapp/update";
 import { teamsappValidateCommand } from "./teamsapp/validate";
-import { upgradeCommand } from "./upgrade";
 
 export const helpCommand: CLICommand = {
   name: "help",
@@ -51,6 +52,9 @@ export const rootCommand: CLICommand = {
     accountCommand,
     getCreateCommand(),
     addCommand(),
+    ...(featureFlagManager.getBooleanValue(FeatureFlags.OpenPluginImportExport)
+      ? [importCommand(), exportCommand()]
+      : []),
     regenerateCommand(),
     provisionCommand,
     deployCommand,
@@ -58,7 +62,6 @@ export const rootCommand: CLICommand = {
     previewCommand,
     envCommand,
     permissionCommand,
-    upgradeCommand,
     ...(featureFlagManager.getBooleanValue(FeatureFlags.GenerateConfigFiles) ? [initCommand] : []),
     listCommand,
     helpCommand,

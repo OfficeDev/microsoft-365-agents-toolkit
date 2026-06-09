@@ -1,4 +1,0 @@
-fx-resource-aad-app-for-teams.clientSecret=1234_abcd
-fx-resource-bot.botPassword=1234_abcd
-fx-resource-apim.apimClientAADClientSecret=1234_abcd
-fx-resource-azure-sql.adminPassword=1234_abcd

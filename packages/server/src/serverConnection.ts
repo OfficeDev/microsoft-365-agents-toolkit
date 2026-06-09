@@ -38,7 +38,6 @@ import {
   teamsDevPortalClient,
 } from "@microsoft/teamsfx-core";
 import { SyncManifestInputsForVS } from "@microsoft/teamsfx-core/build/component/driver/teamsApp/interfaces/SyncManifest";
-import { VersionCheckRes } from "@microsoft/teamsfx-core/build/core/types";
 import path from "path";
 import { CancellationToken, MessageConnection } from "vscode-jsonrpc";
 import { DependencyStatusRPC, IServerConnection, Namespaces } from "./apis";
@@ -85,8 +84,6 @@ export default class ServerConnection implements IServerConnection {
       this.customizeValidateFuncRequest.bind(this),
       this.customizeOnSelectionChangeFuncRequest.bind(this),
       this.addSsoRequest.bind(this),
-      this.getProjectMigrationStatusRequest.bind(this),
-      this.migrateProjectRequest.bind(this),
       this.publishInDeveloperPortalRequest.bind(this),
       this.setRegionRequest.bind(this),
       this.listDevTunnelsRequest.bind(this),
@@ -384,32 +381,6 @@ export default class ServerConnection implements IServerConnection {
       inputs
     );
     return standardizeResult(res);
-  }
-
-  public async getProjectMigrationStatusRequest(
-    inputs: Inputs,
-    token: CancellationToken
-  ): Promise<Result<VersionCheckRes, FxError>> {
-    const corrId = inputs.correlationId ? inputs.correlationId : "";
-    const res = await Correlator.runWithId(
-      corrId,
-      (inputs) => this.core.projectVersionCheck(inputs),
-      inputs
-    );
-    return standardizeResult(res);
-  }
-
-  public async migrateProjectRequest(
-    inputs: Inputs,
-    token: CancellationToken
-  ): Promise<Result<boolean, FxError>> {
-    const corrId = inputs.correlationId ? inputs.correlationId : "";
-    const res = await Correlator.runWithId(
-      corrId,
-      (inputs) => this.core.phantomMigrationV3(inputs),
-      inputs
-    );
-    return res.isErr() ? standardizeResult(err(res.error)) : ok(res.value === Void);
   }
 
   public async publishInDeveloperPortalRequest(

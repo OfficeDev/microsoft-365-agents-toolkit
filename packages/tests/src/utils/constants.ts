@@ -100,6 +100,12 @@ export enum TemplateProjectFolder {
   HelloWorldTabDocker = "hello-world-tab-docker",
   FoodCatalog = "nodejs-typescript-food-catalog",
   RedditLink = "nodejs",
+  IntelligentDataChart = "intelligent-data-chart-generator",
+  // new samples
+  CoffeeAgent = "coffee-agent",
+  DataAnalystAgentV2 = "data-analyst-agent-v2",
+  ProxyAgentNodeJS = "ProxyAgent-NodeJS",
+  HelloWorldOfficeAddin = "hello-world-office-addin",
   // v2 only
   Deeplinking = "deep-linking-hello-world-tab-without-sso-M365",
 }
@@ -355,8 +361,6 @@ export class CommandPaletteCommands {
     "Microsoft 365 Agents: Create New Environment";
   public static readonly DeployAadAppManifestCommand: string =
     "Microsoft 365 Agents: Update Microsoft Entra App";
-  public static readonly UpgradeProjectCommand: string =
-    "Microsoft 365 Agents: Upgrade Project";
   public static readonly InstallTTK: string =
     "Extensions: Install Specific Version of Extension";
   public static readonly AddSpfxWebPart: string =

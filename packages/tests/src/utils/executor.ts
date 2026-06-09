@@ -2,21 +2,21 @@
 // Licensed under the MIT license.
 
 import { ProgrammingLanguage } from "@microsoft/teamsfx-core";
-import { execAsync, editDotEnvFile, editSWASku } from "./commonUtils";
+import { expect } from "chai";
 import {
-  TemplateProjectFolder,
-  Capability,
-  LocalDebugError,
-} from "./constants";
-import path from "path";
+  ChildProcess,
+  ChildProcessWithoutNullStreams,
+  spawn,
+} from "child_process";
 import fs from "fs-extra";
 import * as os from "os";
+import path from "path";
+import { editDotEnvFile, editSWASku, execAsync } from "./commonUtils";
 import {
-  spawn,
-  ChildProcessWithoutNullStreams,
-  ChildProcess,
-} from "child_process";
-import { expect } from "chai";
+  Capability,
+  LocalDebugError,
+  TemplateProjectFolder,
+} from "./constants";
 import { Env } from "./env";
 
 export class Executor {
@@ -76,6 +76,8 @@ export class Executor {
           return { success: false, stdout: "", stderr: e.message as string };
         }
 
+        // Wait before retrying to let transient Azure issues resolve
+        await new Promise((resolve) => setTimeout(resolve, 10000));
         console.log(
           `Retrying "${command}" in ${cwd}. Attempt ${retryCount} of ${maxRetries}.`,
         );
@@ -143,12 +145,6 @@ export class Executor {
       `atk add spfx-web-part --spfx-webpart-name ${webpartName}` +
       ` --spfx-folder ${spfxFolder} --manifest-file ${manifestPath}` +
       ` --local-manifest-file ${localManifestPath} --interactive false `;
-    return this.execute(command, workspace);
-  }
-
-  static async upgrade(workspace: string, isV3 = true) {
-    const prefix = isV3 ? "atk" : "teamsfx";
-    const command = `${prefix} upgrade --force`;
     return this.execute(command, workspace);
   }
 
