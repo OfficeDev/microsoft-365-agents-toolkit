@@ -1,10 +1,17 @@
 ﻿name: PR VscUse Test Plan Selector
 
-# Triggered when the 'atk-vsuse-test' label is added to a PR,
+# Triggered automatically on every PR open/sync/reopen/ready_for_review,
+# when the 'atk-vsuse-test' label is added to a PR,
 # OR manually via workflow_dispatch with a pr_number input.
 #
+# IMPORTANT: this workflow is INFORMATIONAL ONLY — it must NEVER block merge.
+#   * The job always exits with success, regardless of UI test outcome.
+#   * Do NOT add this workflow to required status checks in branch protection.
+#   * Authors can merge while it is still running, or after it reports failure.
+#   * Results are surfaced via PR comments; use them as guidance, not a gate.
+#
 # This workflow:
-#   1. Resolves PR context (works for both label and manual triggers)
+#   1. Resolves PR context (works for label, auto, and manual triggers)
 #   2. Gets the diff between the PR branch and the target branch
 #   3. Calls GitHub Models (GPT-4.1) to select relevant VscUse test plans
 #   4. Posts a PR comment listing the selected plans
@@ -13,7 +20,7 @@
 
 on:
   pull_request:
-    types: [labeled]
+    types: [labeled, opened, synchronize, reopened, ready_for_review]
   workflow_dispatch:
     inputs:
       pr_number:
@@ -34,7 +41,13 @@ permissions:
 
 jobs:
   select-plans-and-run:
-    if: github.event.label.name == 'atk-vsuse-test' || github.event_name == 'workflow_dispatch'
+    # Run for: label add (atk-vsuse-test), automatic PR events (skip drafts), or manual dispatch.
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'pull_request' && (
+        (github.event.action == 'labeled' && github.event.label.name == 'atk-vsuse-test') ||
+        (github.event.action != 'labeled' && github.event.pull_request.draft == false)
+      ))
     runs-on: ubuntu-latest
 
     steps:
@@ -70,6 +83,40 @@ jobs:
             core.setOutput('pr_title',  prTitle);
             core.setOutput('pr_body',   prBody.slice(0, 2000));
             console.log(`PR #${prNumber}: ${headRef} -> ${baseRef}  "${prTitle}"`);
+
+      # ── 0b. Fetch most recent user-supplied AI hint (posted by pr-vscuse-test-comment-trigger.yml) ──
+      - name: Fetch latest user hint from PR comments
+        id: user-hint
+        uses: actions/github-script@v6
+        env:
+          PR_NUMBER: ${{ steps.pr-context.outputs.pr_number }}
+        with:
+          script: |
+            const MARKER = '<!-- atk-vsuse-test-hint -->';
+            const prNumber = parseInt(process.env.PR_NUMBER);
+            const comments = await github.paginate(github.rest.issues.listComments, {
+              owner:        context.repo.owner,
+              repo:         context.repo.repo,
+              issue_number: prNumber,
+              per_page:     100,
+            });
+            // Most recent hint comment wins.
+            const hintComment = comments
+              .filter(c => (c.body || '').includes(MARKER))
+              .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))[0];
+
+            let hint = '';
+            if (hintComment) {
+              // Extract text inside the first fenced code block of the marker comment.
+              const m = hintComment.body.match(/```[^\n]*\n([\s\S]*?)\n```/);
+              hint = (m ? m[1] : hintComment.body.replace(MARKER, '')).trim();
+            }
+            // Cap to keep prompt size bounded.
+            if (hint.length > 1500) hint = hint.slice(0, 1500) + '…';
+            core.setOutput('hint', hint);
+            console.log(hint
+              ? `Found user hint (${hint.length} chars): ${hint.slice(0, 200)}`
+              : 'No user hint comment found.');
 
       # ── 1. Checkout plans dir + full git history for diff ─────────────
       - name: Checkout repo
@@ -213,6 +260,7 @@ jobs:
           DIFF_STAT:            ${{ steps.diff-summary.outputs.diff_stat }}
           BASE_BRANCH:          ${{ steps.pr-context.outputs.base_ref }}
           HEAD_BRANCH:          ${{ steps.pr-context.outputs.head_ref }}
+          USER_HINT:            ${{ steps.user-hint.outputs.hint }}
         run: |
           set -euo pipefail
 
@@ -220,10 +268,17 @@ jobs:
           PLANS_TEXT=$(find packages/tests/vscuse/vscode-test-cases/plans \
             -maxdepth 1 -name "*.json" -exec basename {} .json \; | sort)
 
-          SYSTEM_PROMPT='You are a test plan selector for the Microsoft 365 Agents Toolkit (ATK) VS Code extension. Select the most relevant VscUse UI test plans for a given PR based on the changed files and PR description. IMPORTANT CONTEXT: VscUse tests only test the VS Code extension. The plan files are all for VS Code templates. There are NO C# plan files. FILE PATH MAPPING (apply in order, stop at first match): 1) templates/vs/** (Visual Studio C# templates, NOT VS Code) -> These have no VscUse test plans; return only 1-2 smoke plans (Basic_Custom_Engine_Azure_OpenAI_ts_Copilot_Remote_Debug or General_Teams_Agent_OpenAI_py_Remote_Debug) as a basic sanity check. 2) templates/vscode/ts/custom-copilot-** -> Basic_Custom_Engine_*_ts_* Remote_Debug plans only. 3) templates/vscode/js/** -> *_js_* Remote_Debug plans only. 4) templates/vscode/py/** -> *_py_* Remote_Debug plans only. 5) templates/vscode/**declarative** or **da-** -> DA_*. 6) templates/vscode/**message-extension** -> Message_Extension_*. 7) templates/vscode/**tab** -> Basic_Tab_*. 8) templates/vscode/**bot** -> Simple_Bot_*. 9) packages/vscode-extension/src/treeview/** -> Feature_TreeView_*. 10) packages/vscode-extension/** -> Feature_*. 11) trivial/infra changes (remove pkg, typo, readme, CI yml) -> 1-2 smoke plans only. LANGUAGE RULES (for vscode templates only): _ts_=TypeScript plans; _js_=JavaScript plans; _py_=Python plans. ALL plans have a language suffix (_ts_, _js_, or _py_) - never invent a plan name without one. PLAN PREFIXES: DA_*=Declarative Agent; Basic_Custom_Engine_*=Custom Engine AI bot; General_Teams_Agent_*=Teams agent; Teams_Agent_With_Data_*=AI Search/RAG; Weather_Agent_*=Weather bot; Simple_Bot_*=Simple bot; Message_Extension_*=Message extension; Basic_Tab_*=Tab app; Feature_*=VS Code UI features. Keep total 1-5 plans. Output ONLY a JSON object: {"plans": ["PlanName1"], "reason": "one sentence"}'
+          SYSTEM_PROMPT='You are a test plan selector for the Microsoft 365 Agents Toolkit (ATK) VS Code extension. Select the most relevant VscUse UI test plans for a given PR based on the changed files and PR description. IMPORTANT: If a USER HINT is provided below, treat it as AUTHORITATIVE guidance from a human reviewer — it overrides your own heuristics. The hint may name specific plans to include or exclude, or describe which feature area to focus on; honour it as long as the requested plans actually exist in the available list. IMPORTANT CONTEXT: VscUse tests only test the VS Code extension. The plan files are all for VS Code templates. There are NO C# plan files. FILE PATH MAPPING (apply in order, stop at first match): 1) templates/vs/** (Visual Studio C# templates, NOT VS Code) -> These have no VscUse test plans; return only 1-2 smoke plans (Basic_Custom_Engine_Azure_OpenAI_ts_Copilot_Remote_Debug or General_Teams_Agent_OpenAI_py_Remote_Debug) as a basic sanity check. 2) templates/vscode/ts/custom-copilot-** -> Basic_Custom_Engine_*_ts_* Remote_Debug plans only. 3) templates/vscode/js/** -> *_js_* Remote_Debug plans only. 4) templates/vscode/py/** -> *_py_* Remote_Debug plans only. 5) templates/vscode/**declarative** or **da-** -> DA_*. 6) templates/vscode/**message-extension** -> Message_Extension_*. 7) templates/vscode/**tab** -> Basic_Tab_*. 8) templates/vscode/**bot** -> Simple_Bot_*. 9) packages/vscode-extension/src/treeview/** -> Feature_TreeView_*. 10) packages/vscode-extension/** -> Feature_*. 11) trivial/infra changes (remove pkg, typo, readme, CI yml) -> 1-2 smoke plans only. LANGUAGE RULES (for vscode templates only): _ts_=TypeScript plans; _js_=JavaScript plans; _py_=Python plans. ALL plans have a language suffix (_ts_, _js_, or _py_) - never invent a plan name without one. PLAN PREFIXES: DA_*=Declarative Agent; Basic_Custom_Engine_*=Custom Engine AI bot; General_Teams_Agent_*=Teams agent; Teams_Agent_With_Data_*=AI Search/RAG; Weather_Agent_*=Weather bot; Simple_Bot_*=Simple bot; Message_Extension_*=Message extension; Basic_Tab_*=Tab app; Feature_*=VS Code UI features. Keep total 1-5 plans (or whatever the user hint asks for). Output ONLY a JSON object: {"plans": ["PlanName1"], "reason": "one sentence (mention if a user hint was applied)"}'
 
-          USER_PROMPT=$(printf '%s\n\nPR: %s -> %s\nTitle: %s\n\nDescription (first 1200 chars):\n%s\n\nChanged files (with status):\n%s\n\nDiff summary:\n%s\n\nAvailable test plans:\n%s\n\nOutput JSON only.' \
+          if [ -n "${USER_HINT:-}" ]; then
+            HINT_BLOCK=$(printf 'USER HINT (authoritative — overrides heuristics):\n%s\n\n' "$USER_HINT")
+          else
+            HINT_BLOCK=""
+          fi
+
+          USER_PROMPT=$(printf '%s\n\n%sPR: %s -> %s\nTitle: %s\n\nDescription (first 1200 chars):\n%s\n\nChanged files (with status):\n%s\n\nDiff summary:\n%s\n\nAvailable test plans:\n%s\n\nOutput JSON only.' \
             "$SYSTEM_PROMPT" \
+            "$HINT_BLOCK" \
             "${HEAD_BRANCH}" "${BASE_BRANCH}" "${PR_TITLE}" "${PR_BODY:0:1200}" \
             "${CHANGED_FILES}" "${DIFF_STAT}" "${PLANS_TEXT}")
 
@@ -492,7 +547,7 @@ jobs:
               await new Promise(r => setTimeout(r, 60000));
             }
             core.setOutput('conclusion', 'timed_out');
-            throw new Error('Smoke pipeline timed out after 8 hours');
+            console.log('Smoke pipeline timed out after 8 hours — reporting as timed_out (workflow stays green; this run is informational only).');
 
       # ── 8. Resolve PR comment with final result ────────────────────────
       - name: Resolve PR comment with test results
@@ -561,8 +616,10 @@ jobs:
             });
 
             console.log(`Resolved comment ${commentId}: ${conclusion}`);
-            if (!succeeded && conclusion !== 'timed_out') {
-              core.setFailed(`VscUse tests concluded: ${conclusion}. See: ${smokeUrl}`);
+            // Informational workflow: never fail the job, even on test failure or timeout.
+            // The PR comment carries the result; merge gating must not depend on this run.
+            if (!succeeded) {
+              console.log(`VscUse tests concluded: ${conclusion}. See: ${smokeUrl}`);
             }
       # ── 9. Remove atk-vsuse-test label (signals completion) ───────────
       - name: Remove atk-vsuse-test label

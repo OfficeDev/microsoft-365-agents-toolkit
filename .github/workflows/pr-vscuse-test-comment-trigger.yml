@@ -1,0 +1,124 @@
+name: PR VscUse Test Plan Comment Trigger
+
+# Triggered when a PR comment starts with `/atk-vsuse-test`.
+#
+# This workflow:
+#   1. Verifies the commenter has write/maintain/admin permission (anti-abuse).
+#   2. Extracts the hint text after `/atk-vsuse-test`.
+#   3. Posts a hidden marker comment (<!-- atk-vsuse-test-hint -->) carrying the hint
+#      so the existing pr-vscuse-test.yml workflow can feed it to the AI plan selector.
+#   4. Removes and re-adds the `atk-vsuse-test` label on the PR — the `pull_request: labeled`
+#      event then re-runs pr-vscuse-test.yml, which will now pick up the hint.
+
+on:
+  issue_comment:
+    types: [created]
+
+permissions:
+  pull-requests: write
+  issues: write
+  contents: read
+
+concurrency:
+  group: pr-vscuse-test-comment-trigger-${{ github.event.issue.number }}
+  cancel-in-progress: false
+
+jobs:
+  trigger-vscuse-test:
+    # Only run when the comment is on a PR and starts with the trigger keyword.
+    if: >-
+      github.event.issue.pull_request != null &&
+      startsWith(github.event.comment.body, '/atk-vsuse-test')
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Authorize commenter and extract hint
+        id: authorize
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const allowed = ['OWNER', 'MEMBER', 'COLLABORATOR'];
+            const assoc   = context.payload.comment.author_association;
+            if (!allowed.includes(assoc)) {
+              core.setFailed(`Commenter (${context.payload.comment.user.login}, association=${assoc}) is not authorized to trigger atk-vsuse-test.`);
+              return;
+            }
+
+            // Strip the trigger keyword and any leading whitespace/colon.
+            const raw = context.payload.comment.body || '';
+            const hint = raw
+              .replace(/^\/atk-vsuse-test\b[:\s]*/, '')
+              .trim();
+
+            core.setOutput('hint', hint);
+            core.setOutput('pr_number', String(context.payload.issue.number));
+            console.log(`PR #${context.payload.issue.number} hint (${hint.length} chars): ${hint.slice(0, 200)}`);
+
+      - name: React to triggering comment
+        if: success()
+        uses: actions/github-script@v6
+        with:
+          script: |
+            await github.rest.reactions.createForIssueComment({
+              owner:      context.repo.owner,
+              repo:       context.repo.repo,
+              comment_id: context.payload.comment.id,
+              content:    'eyes',
+            });
+
+      - name: Post hidden hint marker comment
+        if: steps.authorize.outputs.hint != ''
+        uses: actions/github-script@v6
+        env:
+          HINT:      ${{ steps.authorize.outputs.hint }}
+          PR_NUMBER: ${{ steps.authorize.outputs.pr_number }}
+          ACTOR:     ${{ github.event.comment.user.login }}
+        with:
+          script: |
+            const hint     = process.env.HINT;
+            const prNumber = parseInt(process.env.PR_NUMBER);
+            const actor    = process.env.ACTOR;
+            // The marker is what pr-vscuse-test.yml searches for. Keep it stable.
+            const body = [
+              '<!-- atk-vsuse-test-hint -->',
+              `**🎯 VscUse test plan hint from @${actor}:**`,
+              '',
+              '```',
+              hint,
+              '```',
+              '',
+              '_The next `atk-vsuse-test` run will pass this hint to the AI plan selector._',
+            ].join('\n');
+            await github.rest.issues.createComment({
+              owner:        context.repo.owner,
+              repo:         context.repo.repo,
+              issue_number: prNumber,
+              body,
+            });
+
+      - name: (Re)apply atk-vsuse-test label to fire pr-vscuse-test.yml
+        uses: actions/github-script@v6
+        env:
+          PR_NUMBER: ${{ steps.authorize.outputs.pr_number }}
+        with:
+          script: |
+            const owner    = context.repo.owner;
+            const repo     = context.repo.repo;
+            const issueNum = parseInt(process.env.PR_NUMBER);
+            const label    = 'atk-vsuse-test';
+
+            // Remove first (ignore 404 if not present) so re-adding always fires `labeled`.
+            try {
+              await github.rest.issues.removeLabel({
+                owner, repo, issue_number: issueNum, name: label,
+              });
+              console.log(`Removed existing '${label}' label.`);
+            } catch (err) {
+              if (err.status !== 404) throw err;
+              console.log(`Label '${label}' was not present — adding fresh.`);
+            }
+
+            await github.rest.issues.addLabels({
+              owner, repo, issue_number: issueNum, labels: [label],
+            });
+            console.log(`Applied '${label}' label to PR #${issueNum}.`);
