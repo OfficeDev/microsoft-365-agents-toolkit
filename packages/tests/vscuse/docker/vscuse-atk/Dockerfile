@@ -7,11 +7,7 @@
 ARG BASE_IMAGE=ghcr.io/microsoft/vscuse-base:latest
 FROM ${BASE_IMAGE}
 
-# Optionally override the Node.js version provided by the base image.
-# Pass either a major line (e.g. "22") or a full version (e.g. "22.11.0") via the
-# NODE_VERSION build arg; a major/partial value is resolved to the latest matching
-# release. Leave empty to keep the base image's Node.js. Placed before the global
-# npm installs below so those tools are installed with the selected Node.js.
+# Override the Node.js version provided by the base image.
 ARG NODE_VERSION=""
 RUN if [ -n "$NODE_VERSION" ]; then \
         WANT="${NODE_VERSION#v}" && \
