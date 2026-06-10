@@ -516,10 +516,9 @@ jobs:
 
             find /tmp/storage-urls -type f -name "storage_url.txt" | while read file; do
               dir_name=$(basename $(dirname "$file"))
-              run_attempt=$(echo "$dir_name" | rev | cut -d'-' -f1 | rev)
-              run_id=$(echo "$dir_name" | rev | cut -d'-' -f2 | rev)
-              test_plan=$(echo "$dir_name" | sed "s/^storage-url-//" | sed "s/-${run_id}-${run_attempt}$//")
-              case_run_id="${test_plan}-${run_id}-${run_attempt}"
+              run_id=$(echo "$dir_name" | rev | cut -d'-' -f1 | rev)
+              test_plan=$(echo "$dir_name" | sed "s/^storage-url-//" | sed "s/-${run_id}$//")
+              case_run_id="${test_plan}-${run_id}"
 
               echo "Processing: dir_name=$dir_name, test_plan=$test_plan, run_id=$run_id, case_run_id=$case_run_id"
 
@@ -560,10 +559,9 @@ jobs:
 
             find /tmp/error-files -type f -name "error.txt" | while read file; do
               dir_name=$(basename $(dirname "$file"))
-              run_attempt=$(echo "$dir_name" | rev | cut -d'-' -f1 | rev)
-              run_id=$(echo "$dir_name" | rev | cut -d'-' -f2 | rev)
-              test_plan=$(echo "$dir_name" | sed "s/^error-file-//" | sed "s/-${run_id}-${run_attempt}$//")
-              case_run_id="${test_plan}-${run_id}-${run_attempt}"
+              run_id=$(echo "$dir_name" | rev | cut -d'-' -f1 | rev)
+              test_plan=$(echo "$dir_name" | sed "s/^error-file-//" | sed "s/-${run_id}$//")
+              case_run_id="${test_plan}-${run_id}"
 
               echo "Processing error: dir_name=$dir_name, test_plan=$test_plan, run_id=$run_id, case_run_id=$case_run_id"
 
