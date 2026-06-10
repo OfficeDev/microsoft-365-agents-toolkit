@@ -13,7 +13,7 @@
 # This workflow:
 #   1. Resolves PR context (works for label, auto, and manual triggers)
 #   2. Gets the diff between the PR branch and the target branch
-#   3. Calls GitHub Models (GPT-4.1) to select relevant VscUse test plans
+#   3. Calls GitHub Copilot CLI (Claude Sonnet 4.6) to select relevant VscUse test plans
 #   4. Posts a PR comment listing the selected plans
 #   5. Dispatches dev-smoke-test-pipeline.yml with those plans
 #   6. Resolves (edits) the PR comment with the final pass/fail result
@@ -639,7 +639,7 @@ jobs:
               '<details>',
               '<summary>ℹ️ How were these tests selected?</summary>',
               '',
-              'GitHub Copilot (GPT-4.1) analysed the PR title, description, and the diff between',
+              'GitHub Copilot (Claude Sonnet 4.6, high reasoning) analysed the PR title, description, and the diff between',
               `\`${headRef}\` and \`${baseRef}\``,
               `to pick the most relevant test plans from [\`packages/tests/vscuse/Index.md\`](../blob/${baseRef}/packages/tests/vscuse/Index.md).`,
               '',
