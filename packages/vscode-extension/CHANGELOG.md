@@ -1,6 +1,15 @@
 # Changelog
 > Note: This changelog only includes the changes for the stable versions of Microsoft 365 Agents Toolkit (evolved from Teams Toolkit). For the changelog of pre-released versions, please refer to the [Microsoft 365 Agents Toolkit Pre-release Changelog](https://github.com/OfficeDev/TeamsFx/blob/dev/packages/vscode-extension/PRERELEASE.md).
 
+
+## 6.10.2 - June 9, 2026
+
+This is a hotfix version.
+
+### Bug Fix
+- Resolved an issue causing the "Fetch action from MCP" feature to fail on macOS by using the MCP gateway's tool list directly rather than relying on the VS Code LM tool registry.
+
+
 ## 6.10.1 - June 3, 2026
 
 ### New Features

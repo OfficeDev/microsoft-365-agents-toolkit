@@ -221,17 +221,27 @@
       "agent": "code",
       "tool": "",
       "parameters": {
-        "sample": "=== Generated Script ===\nLanguage: bash\n\n```bash\ncd /home/vscode/AgentsToolkitProjects/vscuse_app_ARpmg && npm run keygen\n```\n\n=== Execution Results ===\nExit Code: 0\n\n=== STDOUT ===\n> vscuseapparpmg@1.0.0 keygen\n> node -r ts-node/register ./src/keyGen.ts\n\nGenerated a new API Key: t5HJcfyTMegr\n\n✓ Script executed successfully\n=== Generated Script ===\nLanguage: bash\n\n```bash\nENV_FILE=\"/home/vscode/AgentsToolkitProjects/vscuse_app_ARpmg/env/.env.local.user\"\nAPI_KEY=\"t5HJcfyTMegr\"\n\n# Ensure the .env.local.user file exists\nif [ ! -f \"$ENV_FILE\" ]; then\n  echo \"SECRET_API_KEY=''\" > \"$ENV_FILE\"\nfi\n\n# Replace SECRET_API_KEY line with the new key, keeping the format SECRET_API_KEY='<value>'\nsed -i \"/^SECRET_API_KEY[ ]*=.*/c\\SECRET_API_KEY='${API_KEY}'\" \"$ENV_FILE\"\n\ncat \"$ENV_FILE\"\n```\n\n=== Execution Results ===\nExit Code: 0\n\n=== STDOUT ===\n# This file includes environment variables that will not be committed to git by default. You can set these environment variables in your CI/CD system for your project.\n\n# Secrets. Keys prefixed with `SECRET_` will be masked in Teams Toolkit logs.\nSECRET_API_KEY='fakekey'\n\n✓ Script executed successfully\n=== STDERR ===\n\nSuccess/failure status"
+        "button": null,
+        "dx": null,
+        "dy": null,
+        "key": null,
+        "keys": null,
+        "sample": "=== Generated Script ===\nLanguage: bash\n\n```bash\ncd /home/vscode/AgentsToolkitProjects/vscuse_app_MCcAh\nnpm run keygen\n```\n\n=== Execution Results ===\nExit Code: 0\n\n=== STDOUT ===\n> vscuseappmccah@1.0.0 keygen\n> node ./src/keyGen.js\n\nGenerated a new API Key: oD1SLOnx4xyH\n\n✓ Script executed successfully\n=== Generated Script ===\nLanguage: bash\n\n```bash\nENV_FILE=\"/home/vscode/AgentsToolkitProjects/vscuse_app_MCcAh/env/.env.local.user\"\nAPI_KEY=\"oD1SLOnx4xyH\"\nif [ ! -f \"$ENV_FILE\\\" ]; then\\n  echo \\\"File $ENV_FILE does not exist.\\\" >&2\\n  exit 1\\nfi\\nsed -i \\\"s/^SECRET_API_KEY=[[:space:]]*'.*'/SECRET_API_KEY='$API_KEY'/\\\" \\\"$ENV_FILE\\\"\\necho \\\"Updated SECRET_API_KEY in $ENV_FILE with $API_KEY\\\"\",\"language\":\"bash\",\"timeout\":30}\n```\n\n=== Execution Results ===\nExit Code: 0\n\n=== STDOUT ===\nUpdated SECRET_API_KEY in /home/vscode/AgentsToolkitProjects/vscuse_app_MCcAh/env/.env.local.user with fakekey\n\n✓ Script executed successfully",
+        "text": null,
+        "x": null,
+        "y": null
       },
       "description": "@code run \"npm run keygen\" at /home/vscode/AgentsToolkitProjects/${{var:app_name}}. fill in the \"Generated a new API Key: <value>\" into /home/vscode/AgentsToolkitProjects/${{var:app_name}}/env/.env.local.user, replace SECRET_API_KEY= ' ' with the  <value> and save the file.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
-      "continue_on_error": "false",
+      "continue_on_error": "0",
       "depends_on": [],
       "preconditions": [],
       "postconditions": [],
-      "tags": [],
+      "tags": [
+        "store_fact:SECRET_API_KEY"
+      ],
       "screenshot": null,
       "created_at": "2025-11-14T10:10:16.133368",
       "plan_id": "plan_de7c265d"

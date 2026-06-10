@@ -75,7 +75,7 @@ jobs:
       email-receiver: ${{ steps.set-email.outputs.email_receiver }}
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set email receiver
         id: set-email
@@ -202,17 +202,17 @@ jobs:
 
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: ${{ github.ref_name }}
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: "3.12"
 
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v6
         with:
           node-version: 22
 
@@ -340,7 +340,7 @@ jobs:
 
       - name: Upload error file
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: error-file-${{ matrix.test_plan }}-${{ github.run_id }}
           path: error.txt
@@ -382,7 +382,7 @@ jobs:
 
       - name: Upload encrypted test report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: test-report-${{ matrix.test_plan }}-${{ github.run_number }}
           path: packages/tests/vscuse/vscode-test-cases/test_report/${{ env.ZIP_FILE }}
@@ -423,7 +423,7 @@ jobs:
 
       - name: Upload storage URL artifact
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: storage-url-${{ matrix.test_plan }}-${{ github.run_id }}
           path: storage_url.txt
@@ -483,7 +483,7 @@ jobs:
         working-directory: packages/tests/vscuse
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v5
 
       - uses: azure/login@v2
         with:
@@ -493,13 +493,13 @@ jobs:
           enable-AzPSSession: true
 
       - name: Download storage URLs
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           pattern: storage-url-*
           path: /tmp/storage-urls
 
       - name: Download error files
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           pattern: error-file-*
           path: /tmp/error-files
@@ -737,6 +737,12 @@ jobs:
               error_info=""
             fi
             if [ "$FILTER_NO_ERRORS_FOUND" = "true" ] && [ "$error_info" = "No errors found" ]; then
+              error_info=""
+            fi
+
+            # Only show failed-step details for failed jobs.
+            # Also guards against any unexpected stale artifact entries.
+            if [ "$status" = "success" ]; then
               error_info=""
             fi
 
