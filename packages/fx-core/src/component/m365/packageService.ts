@@ -40,6 +40,9 @@ import { getResourceServiceEndpoint, ResourceServiceType } from "../../common/co
 const M365ErrorSource = "M365";
 const M365ErrorComponent = "PackageService";
 
+// MOS/Titles API maximum upload size (10 MB)
+const MOS_MAX_PACKAGE_SIZE_BYTES = 10 * 1024 * 1024;
+
 export enum AppScope {
   Personal = "Personal",
   Shared = "Shared",
@@ -125,6 +128,7 @@ export class PackageService {
   @hooks([ErrorContextMW({ source: M365ErrorSource, component: M365ErrorComponent })])
   public async sideLoadXmlManifest(token: string, manifestPath: string): Promise<[string, string]> {
     try {
+      this.validatePackageSize(manifestPath);
       const data = await fs.readFile(manifestPath);
       const content = new FormData();
       content.append("package", data);
@@ -193,6 +197,7 @@ export class PackageService {
     packagePath: string,
     appScope = AppScope.Personal
   ): Promise<[string, string, string]> {
+    this.validatePackageSize(packagePath);
     const manifest = this.getManifestFromZip(packagePath);
     if (!manifest) {
       throw new Error("Invalid app package zip. manifest.json is missing");
@@ -924,6 +929,24 @@ export class PackageService {
     } catch (error: any) {
       this.logger?.debug(`Invalid input zip ${path}. ${error.message as string}`);
       this.logger?.warning(`Please make sure input path is a valid app package zip. ${path}`);
+    }
+  }
+
+  private validatePackageSize(packagePath: string) {
+    const stats = fs.statSync(packagePath);
+    if (stats.size > MOS_MAX_PACKAGE_SIZE_BYTES) {
+      const actualMB = (stats.size / (1024 * 1024)).toFixed(2);
+      const maxMB = (MOS_MAX_PACKAGE_SIZE_BYTES / (1024 * 1024)).toFixed(2);
+      throw new UserError({
+        source: M365ErrorSource,
+        name: "AppPackageSizeExceeded",
+        message: getDefaultString("error.m365.packageService.packageSizeExceeded", actualMB, maxMB),
+        displayMessage: getLocalizedString(
+          "error.m365.packageService.packageSizeExceeded",
+          actualMB,
+          maxMB
+        ),
+      });
     }
   }
 

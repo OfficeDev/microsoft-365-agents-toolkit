@@ -114,6 +114,7 @@ import {
   addAuthActionHandler,
   addKnowledgeHandler,
   addPluginHandler,
+  addSkillHandler,
   addWebpartHandler,
   copilotPluginAddAPIHandler,
   createNewProjectHandler,
@@ -292,6 +293,13 @@ export async function activate(context: vscode.ExtensionContext) {
     "setContext",
     "fx-extension.isKiotaNPMIntegrationEnabled",
     isKiotaNPMIntegrationEnabled
+  );
+
+  const isAgentSkillsEnabled = featureFlagManager.getBooleanValue(FeatureFlags.AgentSkillsManifest);
+  await vscode.commands.executeCommand(
+    "setContext",
+    "fx-extension.isAgentSkillsEnabled",
+    isAgentSkillsEnabled
   );
 
   void VsCodeLogInstance.info("Microsoft 365 Agents Toolkit extension is now active!");
@@ -609,6 +617,7 @@ function registerTreeViewCommandsInDevelopment(context: vscode.ExtensionContext)
     addKnowledgeHandler,
     "addKnowledge"
   );
+  registerInCommandController(context, "fx-extension.addSkill", addSkillHandler, "addSkill");
 }
 
 function registerTreeViewCommandsInLifecycle(context: vscode.ExtensionContext) {

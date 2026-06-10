@@ -37,6 +37,7 @@ import {
   oauthScopeQuestion,
   oauthScopeCustomQuestion,
   oauthTokenUrlQuestion,
+  addSkillQuestionNode,
   selectDeclarativeAgentManifestQuestion,
   selectTargetEnvQuestion,
   setSensitivityLabelNode,
@@ -824,5 +825,114 @@ describe("setSensitivityLabelNode", () => {
     const question = selectDeclarativeAgentManifestQuestion() as SingleFileQuestion;
     const defaultPath = await ((question?.default as any)(inputs) as Promise<string | undefined>);
     assert.isUndefined(defaultPath);
+  });
+});
+
+describe("addSkillQuestionNode", () => {
+  const sandbox = sinon.createSandbox();
+
+  afterEach(() => {
+    sandbox.restore();
+  });
+
+  it("should return a group node with 6 children", () => {
+    const node = addSkillQuestionNode();
+    assert.equal(node.data.type, "group");
+    assert.equal(node.children?.length, 6);
+  });
+
+  it("skillNameQuestion child should have condition checking SkillFrom", () => {
+    const node = addSkillQuestionNode();
+    const nameChild = node.children![2];
+    assert.isDefined(nameChild.condition);
+    const conditionFn = nameChild.condition as ConditionFunc;
+    // When SkillFrom is set, condition should be false (skip the question)
+    const inputsWithFrom: Inputs = {
+      platform: Platform.VSCode,
+      [QuestionNames.SkillFrom]: "some/path",
+    };
+    assert.isFalse(conditionFn(inputsWithFrom));
+    // When SkillFrom is not set, condition should be true
+    const inputsWithoutFrom: Inputs = { platform: Platform.VSCode };
+    assert.isTrue(conditionFn(inputsWithoutFrom));
+  });
+
+  it("skillNameQuestion validates invalid pattern", () => {
+    const node = addSkillQuestionNode();
+    const nameChild = node.children![2];
+    const question = nameChild.data as TextInputQuestion;
+    const validFunc = (question.validation as FuncValidation<string>).validFunc;
+    // Invalid: starts with number
+    const result1 = validFunc("1abc", {} as Inputs);
+    assert.isDefined(result1);
+    // Invalid: contains spaces
+    const result2 = validFunc("my skill", {} as Inputs);
+    assert.isDefined(result2);
+    // Invalid: contains underscores
+    const result3 = validFunc("my_skill", {} as Inputs);
+    assert.isDefined(result3);
+    // Valid: starts with letter, alphanumeric + hyphens
+    const result4 = validFunc("my-skill", {} as Inputs);
+    assert.isUndefined(result4);
+    // Valid: single letter
+    const result5 = validFunc("a", {} as Inputs);
+    assert.isUndefined(result5);
+  });
+
+  it("skillNameQuestion validates duplicate skill directory", () => {
+    const node = addSkillQuestionNode();
+    const nameChild = node.children![2];
+    const question = nameChild.data as TextInputQuestion;
+    const validFunc = (question.validation as FuncValidation<string>).validFunc;
+
+    sandbox.stub(fs, "pathExistsSync").returns(true);
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+      projectPath: "/test/project",
+    };
+    const result = validFunc("existing-skill", inputs);
+    assert.isDefined(result);
+  });
+
+  it("skillNameQuestion skips duplicate check without projectPath", () => {
+    const node = addSkillQuestionNode();
+    const nameChild = node.children![2];
+    const question = nameChild.data as TextInputQuestion;
+    const validFunc = (question.validation as FuncValidation<string>).validFunc;
+    // No projectPath — should only validate pattern, not duplicates
+    const result = validFunc("valid-name", {} as Inputs);
+    assert.isUndefined(result);
+  });
+
+  it("skillNameQuestion uses custom ManifestPath when provided", () => {
+    const node = addSkillQuestionNode();
+    const nameChild = node.children![2];
+    const question = nameChild.data as TextInputQuestion;
+    const validFunc = (question.validation as FuncValidation<string>).validFunc;
+
+    const pathExistsStub = sandbox.stub(fs, "pathExistsSync").returns(false);
+    const inputs: Inputs = {
+      platform: Platform.VSCode,
+      projectPath: "/test/project",
+      [QuestionNames.ManifestPath]: "/test/project/custom/manifest.json",
+    };
+    const result = validFunc("my-skill", inputs);
+    assert.isUndefined(result);
+    // Verify it checked the correct path using custom manifest location
+    assert.isTrue(
+      pathExistsStub.calledWith(path.join("/test/project/custom", "skills", "my-skill"))
+    );
+  });
+
+  it("skillDescriptionQuestion child should have condition checking SkillFrom", () => {
+    const node = addSkillQuestionNode();
+    const descChild = node.children![3];
+    assert.isDefined(descChild.condition);
+    const conditionFn = descChild.condition as ConditionFunc;
+    const inputsWithFrom: Inputs = {
+      platform: Platform.VSCode,
+      [QuestionNames.SkillFrom]: "some/path",
+    };
+    assert.isFalse(conditionFn(inputsWithFrom));
   });
 });

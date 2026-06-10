@@ -93,9 +93,9 @@ describe("Manifest manipulation", async () => {
       chai.expect(manifest.manifestVersion).equals("1.15");
       const result = await ManifestUtil.validateManifestAgainstSchema(manifest, schema);
       chai.expect(result).not.to.be.empty;
-      chai.expect(result.length).equals(6);
+      chai.expect(result.length).equals(7);
       // 1.15 doesn't match 1.11, so it should return an error
-      chai.expect(result[4]).to.contain("/manifestVersion");
+      chai.expect(result[5]).to.contain("/manifestVersion");
     });
   });
 });

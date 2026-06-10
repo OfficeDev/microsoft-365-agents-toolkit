@@ -102,6 +102,28 @@ export class InvalidFileOutsideOfTheDirectotryError extends UserError {
   }
 }
 
+export class AppPackageSizeExceededError extends UserError {
+  constructor(actualSizeInBytes: number, maxSizeInBytes: number) {
+    const actualMB = (actualSizeInBytes / (1024 * 1024)).toFixed(2);
+    const maxMB = (maxSizeInBytes / (1024 * 1024)).toFixed(2);
+    const errorOptions: UserErrorOptions = {
+      source: Constants.PLUGIN_NAME,
+      message: getDefaultString(
+        "error.teamsApp.createAppPackage.packageSizeExceeded",
+        actualMB,
+        maxMB
+      ),
+      displayMessage: getLocalizedString(
+        "error.teamsApp.createAppPackage.packageSizeExceeded",
+        actualMB,
+        maxMB
+      ),
+      categories: [ErrorCategory.External],
+    };
+    super(errorOptions);
+  }
+}
+
 export class AppIdNotExist extends UserError {
   constructor(appId: string, source?: string) {
     super({

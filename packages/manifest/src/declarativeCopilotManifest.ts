@@ -88,7 +88,15 @@ export interface DeclarativeCopilotManifestSchema {
   )[];
   conversation_starters?: ConversationStarter[];
   actions?: ActionObject[];
+  agent_skills?: AgentSkillObject[];
   [k: string]: unknown;
+}
+
+/**
+ * @deprecated Use `AgentSkillElement` from `./generated-types` instead.
+ */
+export interface AgentSkillObject {
+  folder: string;
 }
 
 /**

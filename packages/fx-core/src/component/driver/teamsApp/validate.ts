@@ -167,6 +167,24 @@ export class ValidateManifestDriver implements StepDriver {
           telemetryProperties[`${TelemetryPropertyKey.gptActionValidationErrors}`] =
             errors.join(";");
         }
+
+        if ((declarativeAgentValidationResult.skillValidationResult ?? []).length > 0) {
+          let errors: string[] = [];
+          for (
+            let index = 0;
+            index < declarativeAgentValidationResult.skillValidationResult.length;
+            index++
+          ) {
+            errors = errors.concat(
+              declarativeAgentValidationResult.skillValidationResult[index].validationResult.map(
+                (r: string) => index.toString() + ":" + r.replace(/\//g, "")
+              )
+            );
+          }
+
+          telemetryProperties[`${TelemetryPropertyKey.gptSkillValidationErrors}`] =
+            errors.join(";");
+        }
       }
     }
 
@@ -175,11 +193,18 @@ export class ValidateManifestDriver implements StepDriver {
         .filter((o) => o.filePath !== "")
         .reduce((acc, { validationResult }) => acc + validationResult.length, 0) ?? 0;
 
+    const skillErrorCount =
+      declarativeAgentValidationResult?.skillValidationResult?.reduce(
+        (acc, { validationResult }) => acc + validationResult.length,
+        0
+      ) ?? 0;
+
     const allErrorCount =
       manifestValidationResult.length +
       localizationFilesValidationRes.value.error.length +
       (declarativeAgentValidationResult?.validationResult.length ?? 0) +
-      actionErrorCount;
+      actionErrorCount +
+      skillErrorCount;
 
     if (allErrorCount > 0) {
       const summaryStr = getLocalizedString(

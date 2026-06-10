@@ -44,6 +44,7 @@ import {
 import { DotenvParseOutput } from "dotenv";
 import fs from "fs-extra";
 import * as jsonschema from "jsonschema";
+import AdmZip from "adm-zip";
 import * as os from "os";
 import * as path from "path";
 import "reflect-metadata";
@@ -2245,6 +2246,438 @@ export class FxCore extends FxCoreOpenPluginPart {
     this.showAddKnowledgeSuccessMessage(context, inputs, agentManifestPath, knowledgeSource);
 
     return ok(result);
+  }
+
+  /**
+   * Add Skill
+   */
+  @hooks([
+    ErrorContextMW({ component: "FxCore", stage: Stage.addSkill }),
+    ErrorHandlerMW,
+    QuestionMW("addSkill"),
+    ConcurrentLockerMW,
+  ])
+  async addSkill(inputs: Inputs): Promise<Result<undefined | any, FxError>> {
+    if (!featureFlagManager.getBooleanValue(FeatureFlags.AgentSkillsManifest)) {
+      return err(
+        new UserError(
+          "FxCore",
+          "AgentSkillsDisabled",
+          getLocalizedString("core.addSkill.featureFlagDisabled")
+        )
+      );
+    }
+    if (!inputs.projectPath) {
+      throw new Error("projectPath is undefined"); // should never happen
+    }
+
+    const context = createContext();
+    const projectPath = inputs.projectPath;
+    const teamsManifestPath = path.resolve(projectPath, inputs[QuestionNames.ManifestPath]);
+    const appPackageFolder = path.dirname(teamsManifestPath);
+
+    // Validate the project is valid for adding a skill
+    const manifestRes = await manifestUtils._readAppManifest(teamsManifestPath);
+    if (manifestRes.isErr()) {
+      return err(manifestRes.error);
+    }
+
+    const teamsManifest = manifestRes.value;
+    const agent = teamsManifest.copilotExtensions
+      ? teamsManifest.copilotExtensions.declarativeCopilots?.[0]
+      : teamsManifest.copilotAgents?.declarativeAgents?.[0];
+    if (!agent?.file) {
+      return err(
+        AppStudioResultFactory.UserError(
+          AppStudioError.TeamsAppRequiredPropertyMissingError.name,
+          AppStudioError.TeamsAppRequiredPropertyMissingError.message(
+            "declarativeAgents",
+            teamsManifestPath
+          )
+        )
+      );
+    }
+    const agentFilePathRes = await copilotGptManifestUtils.getManifestPath(teamsManifestPath);
+    if (agentFilePathRes.isErr()) {
+      return err(agentFilePathRes.error);
+    }
+
+    const agentManifestPath = agentFilePathRes.value;
+
+    // Confirm before modifying files (matches addPlugin pattern)
+    const confirmMessage = getLocalizedString(
+      "core.addSkill.confirm",
+      path.relative(inputs.projectPath, appPackageFolder)
+    );
+    const confirmRes = await context.userInteraction.showMessage(
+      "warn",
+      confirmMessage,
+      true,
+      getLocalizedString("core.addSkill.continue")
+    );
+    if (confirmRes.isErr()) {
+      return err(confirmRes.error);
+    } else if (confirmRes.value !== getLocalizedString("core.addSkill.continue")) {
+      return err(new UserCancelError());
+    }
+
+    const skillName = inputs[QuestionNames.SkillName] as string;
+    const skillDescription = inputs[QuestionNames.SkillDescription] as string;
+    const skillFrom = inputs[QuestionNames.SkillFrom] as string | undefined;
+    const skillFromZipFile = inputs[QuestionNames.SkillFromZipFile] as string | undefined;
+
+    let skillFolder: string;
+    if (skillFrom || skillFromZipFile) {
+      const isZipImport =
+        skillFromZipFile || (skillFrom && skillFrom.toLowerCase().endsWith(".zip"));
+      const sourcePath = skillFromZipFile || (skillFrom as string);
+
+      if (isZipImport) {
+        // Zip import mode
+        const importRes = await this.importSkillFromZip(
+          sourcePath,
+          appPackageFolder,
+          agentManifestPath
+        );
+        if (importRes.isErr()) {
+          return err(importRes.error);
+        }
+        skillFolder = importRes.value;
+      } else {
+        // Existing skill folder mode: validate it's within appPackage
+        const skillAbsPath = path.resolve(appPackageFolder, sourcePath);
+        const relativePath = path.relative(appPackageFolder, skillAbsPath);
+        if (relativePath.startsWith("..")) {
+          return err(
+            new UserError(
+              "FxCore",
+              "SkillOutsideAppPackage",
+              "The skill directory must be within the app package folder."
+            )
+          );
+        }
+
+        // Validate folder name format
+        const folderName = path.basename(skillAbsPath);
+        const namePattern = /^[a-zA-Z][a-zA-Z0-9-]*$/;
+        if (!namePattern.test(folderName)) {
+          return err(
+            new UserError(
+              "FxCore",
+              "InvalidSkillFolderName",
+              `Skill folder name "${folderName}" is invalid. It must start with a letter and contain only letters, numbers, and hyphens.`
+            )
+          );
+        }
+
+        // Validate SKILL.md exists
+        const skillMdPath = path.join(skillAbsPath, "SKILL.md");
+        if (!(await fs.pathExists(skillMdPath))) {
+          return err(
+            new UserError(
+              "FxCore",
+              "SkillMdNotFound",
+              `SKILL.md not found in ${skillAbsPath}. Each skill directory must contain a SKILL.md file.`
+            )
+          );
+        }
+
+        // Validate skill name in SKILL.md matches folder name
+        const skillMdContent = await fs.readFile(skillMdPath, "utf-8");
+        const nameMatch = skillMdContent.match(/^---[\s\S]*?^name:\s*(.+)$/m);
+        if (nameMatch) {
+          const skillMdName = nameMatch[1].trim();
+          if (skillMdName !== folderName) {
+            return err(
+              new UserError(
+                "FxCore",
+                "SkillNameMismatch",
+                `Skill name "${skillMdName}" in SKILL.md does not match folder name "${folderName}". They must be the same.`
+              )
+            );
+          }
+        }
+
+        skillFolder = normalizePath(
+          path.relative(path.dirname(agentManifestPath), skillAbsPath),
+          true
+        );
+      }
+    } else {
+      // New skill mode: create the directory and SKILL.md
+      const skillDir = path.join(appPackageFolder, "skills", skillName);
+      await fs.ensureDir(skillDir);
+
+      const skillMdContent = [
+        "---",
+        `name: ${skillName}`,
+        `description: ${skillDescription}`,
+        "---",
+        `# ${skillName}`,
+        "",
+        "<!-- Add your skill instructions here -->",
+        "<!-- The agent will follow these instructions when this skill is activated -->",
+        "",
+      ].join("\n");
+      await fs.writeFile(path.join(skillDir, "SKILL.md"), skillMdContent);
+
+      skillFolder = normalizePath(path.relative(path.dirname(agentManifestPath), skillDir), true);
+    }
+
+    // Add skill entry to DA manifest
+    const addSkillRes = await copilotGptManifestUtils.addSkill(agentManifestPath, skillFolder);
+    if (addSkillRes.isErr()) {
+      return err(addSkillRes.error);
+    }
+
+    // Optionally expose skill to Copilot via top-level Teams manifest agentSkills
+    const exposeToCopilot = inputs[QuestionNames.ExposeToCopilot];
+    if (exposeToCopilot === true || exposeToCopilot === "yes") {
+      // Compute folder path relative to app package folder (Teams manifest dir)
+      const skillAbsPath = path.resolve(path.dirname(agentManifestPath), skillFolder);
+      const teamsManifestSkillFolder = normalizePath(
+        path.relative(appPackageFolder, skillAbsPath),
+        true
+      );
+
+      // Read, update, and write the Teams manifest
+      const teamsManifestForSkill = manifestRes.value;
+      if (!teamsManifestForSkill.agentSkills) {
+        teamsManifestForSkill.agentSkills = [];
+      }
+      if (
+        !teamsManifestForSkill.agentSkills.some(
+          (s: { folder: string }) => s.folder === teamsManifestSkillFolder
+        )
+      ) {
+        teamsManifestForSkill.agentSkills.push({ folder: teamsManifestSkillFolder });
+      }
+      await fs.writeFile(teamsManifestPath, JSON.stringify(teamsManifestForSkill, null, 4));
+    }
+
+    // Show success message
+    if (inputs.platform === Platform.VSCode) {
+      const successMessage = getLocalizedString("core.addSkill.success.vsc");
+      const viewAgentManifest = getLocalizedString("core.addSkill.success.viewAgentManifest");
+      void context.userInteraction
+        .showMessage("info", successMessage, false, viewAgentManifest)
+        .then((userRes) => {
+          if (userRes.isOk() && userRes.value === viewAgentManifest) {
+            void TOOLS?.ui?.openFile?.(agentManifestPath);
+          }
+        });
+    } else {
+      const successMessage = getLocalizedString("core.addSkill.success", agentManifestPath);
+      void context.userInteraction.showMessage("info", successMessage, false);
+    }
+
+    return ok(undefined);
+  }
+
+  /**
+   * Import a skill from a .zip file into the appPackage/skills folder.
+   * Validates zip entries for security, extracts to a temp directory, then moves atomically.
+   */
+  private async importSkillFromZip(
+    zipPath: string,
+    appPackageFolder: string,
+    agentManifestPath: string
+  ): Promise<Result<string, FxError>> {
+    // Resolve zip path relative to CWD (not appPackage)
+    const resolvedZipPath = path.resolve(zipPath);
+    if (!(await fs.pathExists(resolvedZipPath))) {
+      return err(
+        new UserError("FxCore", "ZipFileNotFound", `Zip file not found: ${resolvedZipPath}`)
+      );
+    }
+
+    let zip: AdmZip;
+    try {
+      zip = new AdmZip(resolvedZipPath);
+    } catch {
+      return err(
+        new UserError(
+          "FxCore",
+          "InvalidZipFile",
+          `Failed to read zip file: ${resolvedZipPath}. Please provide a valid .zip file.`
+        )
+      );
+    }
+
+    const entries = zip.getEntries();
+    // Metadata directories to ignore
+    const ignoredPrefixes = ["__MACOSX/", ".DS_Store"];
+
+    // Security: validate all entries before extraction
+    for (const entry of entries) {
+      const entryName = entry.entryName.replace(/\\/g, "/");
+      if (entryName.includes("..") || path.isAbsolute(entryName) || entryName.startsWith("/")) {
+        return err(
+          new UserError(
+            "FxCore",
+            "ZipInvalidEntries",
+            getLocalizedString("core.addSkill.zipInvalidEntries")
+          )
+        );
+      }
+    }
+
+    // Filter out metadata entries
+    const validEntries = entries.filter((entry) => {
+      const entryName = entry.entryName.replace(/\\/g, "/");
+      return !ignoredPrefixes.some(
+        (prefix) => entryName.startsWith(prefix) || entryName === prefix.replace("/", "")
+      );
+    });
+
+    // Determine zip layout: single top-level directory or root-level files
+    const topLevelDirs = new Set<string>();
+    let hasRootFiles = false;
+    for (const entry of validEntries) {
+      const entryName = entry.entryName.replace(/\\/g, "/");
+      const parts = entryName.split("/").filter((p) => p.length > 0);
+      if (parts.length === 1 && !entry.isDirectory) {
+        hasRootFiles = true;
+      } else if (parts.length >= 1) {
+        topLevelDirs.add(parts[0]);
+      }
+    }
+
+    let skillContentPrefix = "";
+    let derivedSkillName: string;
+
+    if (!hasRootFiles && topLevelDirs.size === 1) {
+      // Single top-level directory layout
+      skillContentPrefix = [...topLevelDirs][0] + "/";
+      derivedSkillName = [...topLevelDirs][0];
+    } else if (hasRootFiles) {
+      // Root-level files layout: derive name from SKILL.md frontmatter
+      const skillMdEntry = validEntries.find((e) => {
+        const name = e.entryName.replace(/\\/g, "/");
+        return name === "SKILL.md" || name === "./SKILL.md";
+      });
+      if (!skillMdEntry) {
+        return err(
+          new UserError("FxCore", "ZipNoSkillMd", getLocalizedString("core.addSkill.zipNoSkillMd"))
+        );
+      }
+      const skillMdContent = skillMdEntry.getData().toString("utf-8");
+      const nameMatch = skillMdContent.match(/^---[\s\S]*?^name:\s*(.+)$/m);
+      if (!nameMatch) {
+        return err(
+          new UserError(
+            "FxCore",
+            "ZipNoSkillMd",
+            getLocalizedString("core.addSkill.zipNoSkillMd") +
+              " The SKILL.md file must include a 'name' field in its frontmatter."
+          )
+        );
+      }
+      derivedSkillName = nameMatch[1].trim();
+    } else {
+      return err(
+        new UserError(
+          "FxCore",
+          "ZipInvalidLayout",
+          getLocalizedString("core.addSkill.zipInvalidLayout")
+        )
+      );
+    }
+
+    // Validate skill name format
+    const namePattern = /^[a-zA-Z][a-zA-Z0-9-]*$/;
+    if (!namePattern.test(derivedSkillName)) {
+      return err(
+        new UserError(
+          "FxCore",
+          "InvalidSkillFolderName",
+          `Skill name "${derivedSkillName}" is invalid. It must start with a letter and contain only letters, numbers, and hyphens.`
+        )
+      );
+    }
+
+    // Check target folder doesn't already exist
+    const targetSkillDir = path.join(appPackageFolder, "skills", derivedSkillName);
+    if (await fs.pathExists(targetSkillDir)) {
+      return err(
+        new UserError(
+          "FxCore",
+          "SkillFolderAlreadyExists",
+          getLocalizedString("core.addSkill.zipSkillFolderExists", derivedSkillName)
+        )
+      );
+    }
+
+    // Extract to temp directory first, then move atomically
+    const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "atk-skill-import-"));
+    const tempSkillDir = path.join(tempDir, derivedSkillName);
+    try {
+      await fs.ensureDir(tempSkillDir);
+
+      // Extract relevant entries
+      for (const entry of validEntries) {
+        if (entry.isDirectory) continue;
+        const entryName = entry.entryName.replace(/\\/g, "/");
+        let relativeName = entryName;
+        if (skillContentPrefix && entryName.startsWith(skillContentPrefix)) {
+          relativeName = entryName.slice(skillContentPrefix.length);
+        }
+        if (!relativeName) continue;
+
+        const targetPath = path.join(tempSkillDir, relativeName);
+        // Re-validate no path traversal after joining
+        const normalizedTarget = path.resolve(targetPath);
+        if (!normalizedTarget.startsWith(path.resolve(tempSkillDir))) {
+          return err(
+            new UserError(
+              "FxCore",
+              "ZipInvalidEntries",
+              getLocalizedString("core.addSkill.zipInvalidEntries")
+            )
+          );
+        }
+
+        await fs.ensureDir(path.dirname(targetPath));
+        await fs.writeFile(targetPath, entry.getData());
+      }
+
+      // Validate SKILL.md exists in extracted content
+      const extractedSkillMdPath = path.join(tempSkillDir, "SKILL.md");
+      if (!(await fs.pathExists(extractedSkillMdPath))) {
+        return err(
+          new UserError("FxCore", "ZipNoSkillMd", getLocalizedString("core.addSkill.zipNoSkillMd"))
+        );
+      }
+
+      // Validate name in SKILL.md matches derived folder name
+      const extractedSkillMd = await fs.readFile(extractedSkillMdPath, "utf-8");
+      const extractedNameMatch = extractedSkillMd.match(/^---[\s\S]*?^name:\s*(.+)$/m);
+      if (extractedNameMatch) {
+        const extractedName = extractedNameMatch[1].trim();
+        if (extractedName !== derivedSkillName) {
+          return err(
+            new UserError(
+              "FxCore",
+              "SkillNameMismatch",
+              `Skill name "${extractedName}" in SKILL.md does not match folder name "${derivedSkillName}". They must be the same.`
+            )
+          );
+        }
+      }
+
+      // Move to final location
+      await fs.ensureDir(path.dirname(targetSkillDir));
+      await fs.move(tempSkillDir, targetSkillDir);
+    } finally {
+      // Clean up temp directory
+      await fs.remove(tempDir).catch(() => {});
+    }
+
+    const skillFolder = normalizePath(
+      path.relative(path.dirname(agentManifestPath), targetSkillDir),
+      true
+    );
+    return ok(skillFolder);
   }
 
   /**

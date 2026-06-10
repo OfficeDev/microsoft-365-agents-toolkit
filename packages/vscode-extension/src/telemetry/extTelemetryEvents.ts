@@ -52,6 +52,9 @@ export enum TelemetryEvent {
   AddKnowledgeStart = "add-knowledge-start",
   AddKnowledge = "add-knowledge",
 
+  AddSkillStart = "add-skill-start",
+  AddSkill = "add-skill",
+
   ValidateManifestStart = "validate-manifest-start",
   ValidateManifest = "validate-manifest",
   ValidateApplication = "validate-application",

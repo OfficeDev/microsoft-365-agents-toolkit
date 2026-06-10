@@ -16,6 +16,14 @@
     "description": "Basic Declarative Agent without action"
   },
   {
+    "id": "declarative-agent-with-skill",
+    "name": "declarative-agent-with-skill",
+    "alias": "declarative-agent-skill",
+    "language": "common",
+    "displayName": "Declarative Agent with Skill",
+    "description": "Declarative Agent with a hello-atk agent skill"
+  },
+  {
     "id": "declarative-agent-with-action-from-scratch-ts",
     "name": "api-plugin-from-scratch",
     "alias": "declarative-agent-action",

@@ -74,6 +74,9 @@
   "add.capability": {
     "description": "A capability to extend Copilot using your APIs."
   },
+  "add.skill": {
+    "description": "An agent skill to bundle with your Declarative Agent."
+  },
   "regenerate": {
     "description": "Regenerate existing resources for your app."
   },

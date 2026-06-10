@@ -190,6 +190,10 @@ export async function runCommand(
         result = await core.addKnowledge(inputs);
         break;
       }
+      case Stage.addSkill: {
+        result = await core.addSkill(inputs);
+        break;
+      }
       case Stage.setSensitivityLabel: {
         result = await core.setSensitivityLabel(inputs);
         break;
