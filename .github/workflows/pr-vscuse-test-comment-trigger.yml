@@ -114,42 +114,19 @@ jobs:
             const repo     = context.repo.repo;
             const prNumber = parseInt(process.env.PR_NUMBER);
             const workflow = 'pr-vscuse-test.yml';
-            const fallback = 'dev';
+            // Always dispatch against `dev`: workflow_dispatch executes the workflow
+            // *file* from the dispatched ref, so dispatching on the PR head ref means
+            // older PRs (missing recent workflow improvements like the user-hint step)
+            // would silently skip those steps. The workflow already resolves the PR's
+            // head/base refs internally from the `pr_number` input, so the *tested
+            // code* is still the PR's head — only the workflow definition is pinned
+            // to dev. This also naturally handles fork PRs (head ref unavailable).
+            const ref = 'dev';
 
-            // Resolve the PR's head ref so we dispatch the workflow against the PR branch.
-            // Forked-PR head refs live on the fork repo, so workflow_dispatch on that ref
-            // will 422 — fall back to `dev` in that case.
-            let ref = fallback;
-            try {
-              const { data: pr } = await github.rest.pulls.get({
-                owner, repo, pull_number: prNumber,
-              });
-              if (pr.head && pr.head.repo && pr.head.repo.full_name === `${owner}/${repo}`) {
-                ref = pr.head.ref;
-              } else {
-                console.log(`PR #${prNumber} head is from a fork — dispatching against '${fallback}'.`);
-              }
-            } catch (err) {
-              console.log(`Failed to resolve PR head ref (${err.message}); dispatching against '${fallback}'.`);
-            }
-
-            const dispatch = async (targetRef) => {
-              await github.rest.actions.createWorkflowDispatch({
-                owner, repo,
-                workflow_id: workflow,
-                ref: targetRef,
-                inputs: { pr_number: String(prNumber) },
-              });
-              console.log(`Dispatched ${workflow} on ref '${targetRef}' for PR #${prNumber}.`);
-            };
-
-            try {
-              await dispatch(ref);
-            } catch (err) {
-              if (ref !== fallback && err.status === 422) {
-                console.log(`Dispatch on '${ref}' failed with 422 — retrying on '${fallback}'.`);
-                await dispatch(fallback);
-              } else {
-                throw err;
-              }
-            }
+            await github.rest.actions.createWorkflowDispatch({
+              owner, repo,
+              workflow_id: workflow,
+              ref,
+              inputs: { pr_number: String(prNumber) },
+            });
+            console.log(`Dispatched ${workflow} on ref '${ref}' for PR #${prNumber}.`);
