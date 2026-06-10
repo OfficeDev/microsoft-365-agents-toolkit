@@ -7,8 +7,15 @@ name: PR VscUse Test Plan Comment Trigger
 #   2. Extracts the hint text after `/atk-vsuse-test`.
 #   3. Posts a hidden marker comment (<!-- atk-vsuse-test-hint -->) carrying the hint
 #      so the existing pr-vscuse-test.yml workflow can feed it to the AI plan selector.
-#   4. Removes and re-adds the `atk-vsuse-test` label on the PR — the `pull_request: labeled`
-#      event then re-runs pr-vscuse-test.yml, which will now pick up the hint.
+#   4. Dispatches pr-vscuse-test.yml via workflow_dispatch with the PR number, so it
+#      re-runs and reads the hint comment we just posted.
+#
+# Why workflow_dispatch instead of cycling the `atk-vsuse-test` label?
+# GitHub's anti-recursion protection means actions performed with the default
+# GITHUB_TOKEN (such as remove/add label) do NOT trigger other workflows — so a
+# `pull_request: labeled` listener would silently never fire. workflow_dispatch
+# IS allowed from GITHUB_TOKEN and runs as expected, so it is the supported
+# manual-trigger path for chaining workflows.
 
 on:
   issue_comment:
@@ -18,6 +25,7 @@ permissions:
   pull-requests: write
   issues: write
   contents: read
+  actions: write
 
 concurrency:
   group: pr-vscuse-test-comment-trigger-${{ github.event.issue.number }}
@@ -96,7 +104,7 @@ jobs:
               body,
             });
 
-      - name: (Re)apply atk-vsuse-test label to fire pr-vscuse-test.yml
+      - name: Dispatch pr-vscuse-test.yml with the user's hint applied
         uses: actions/github-script@v6
         env:
           PR_NUMBER: ${{ steps.authorize.outputs.pr_number }}
@@ -104,21 +112,44 @@ jobs:
           script: |
             const owner    = context.repo.owner;
             const repo     = context.repo.repo;
-            const issueNum = parseInt(process.env.PR_NUMBER);
-            const label    = 'atk-vsuse-test';
+            const prNumber = parseInt(process.env.PR_NUMBER);
+            const workflow = 'pr-vscuse-test.yml';
+            const fallback = 'dev';
 
-            // Remove first (ignore 404 if not present) so re-adding always fires `labeled`.
+            // Resolve the PR's head ref so we dispatch the workflow against the PR branch.
+            // Forked-PR head refs live on the fork repo, so workflow_dispatch on that ref
+            // will 422 — fall back to `dev` in that case.
+            let ref = fallback;
             try {
-              await github.rest.issues.removeLabel({
-                owner, repo, issue_number: issueNum, name: label,
+              const { data: pr } = await github.rest.pulls.get({
+                owner, repo, pull_number: prNumber,
               });
-              console.log(`Removed existing '${label}' label.`);
+              if (pr.head && pr.head.repo && pr.head.repo.full_name === `${owner}/${repo}`) {
+                ref = pr.head.ref;
+              } else {
+                console.log(`PR #${prNumber} head is from a fork — dispatching against '${fallback}'.`);
+              }
             } catch (err) {
-              if (err.status !== 404) throw err;
-              console.log(`Label '${label}' was not present — adding fresh.`);
+              console.log(`Failed to resolve PR head ref (${err.message}); dispatching against '${fallback}'.`);
             }
 
-            await github.rest.issues.addLabels({
-              owner, repo, issue_number: issueNum, labels: [label],
-            });
-            console.log(`Applied '${label}' label to PR #${issueNum}.`);
+            const dispatch = async (targetRef) => {
+              await github.rest.actions.createWorkflowDispatch({
+                owner, repo,
+                workflow_id: workflow,
+                ref: targetRef,
+                inputs: { pr_number: String(prNumber) },
+              });
+              console.log(`Dispatched ${workflow} on ref '${targetRef}' for PR #${prNumber}.`);
+            };
+
+            try {
+              await dispatch(ref);
+            } catch (err) {
+              if (ref !== fallback && err.status === 422) {
+                console.log(`Dispatch on '${ref}' failed with 422 — retrying on '${fallback}'.`);
+                await dispatch(fallback);
+              } else {
+                throw err;
+              }
+            }
