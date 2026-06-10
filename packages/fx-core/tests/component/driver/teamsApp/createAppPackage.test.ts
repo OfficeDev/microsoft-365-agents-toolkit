@@ -17,11 +17,7 @@ import fs from "fs-extra";
 import mockedEnv, { RestoreFn } from "mocked-env";
 import * as path from "path";
 import * as sinon from "sinon";
-import {
-  featureFlagManager,
-  FeatureFlagName,
-  FeatureFlags,
-} from "../../../../src/common/featureFlags";
+import { featureFlagManager, FeatureFlagName } from "../../../../src/common/featureFlags";
 import { DriverContext } from "../../../../src/component/driver/interface/commonArgs";
 import {
   createAppPackageDeps,
@@ -33,8 +29,8 @@ import { manifestUtils } from "../../../../src/component/driver/teamsApp/utils/M
 import { ManifestType } from "../../../../src/component/utils/envFunctionUtils";
 import { FileNotFoundError, JSONSyntaxError } from "../../../../src/error/common";
 import {
-  InvalidFileOutsideOfTheDirectotryError,
   AppPackageSizeExceededError,
+  InvalidFileOutsideOfTheDirectotryError,
 } from "../../../../src/error/teamsApp";
 import { MockedM365Provider } from "../../../core/utils";
 import { MockedLogProvider, MockedUserInteraction } from "../../../plugins/solution/util";
@@ -3006,7 +3002,7 @@ describe("teamsApp/createAppPackage", async () => {
       sinon.stub(fs, "chmod").callsFake(async () => {});
       sinon.stub(fs, "existsSync").returns(false);
       sinon.stub(fs, "pathExists").resolves(true);
-      sinon.stub(utils, "updateVersionForTeamsAppYamlFile").resolves();
+      sinon.stub(createAppPackageDeps, "updateVersionForTeamsAppYamlFile").resolves();
       sinon.stub(fs, "writeFile").callsFake(async () => {});
       // Stub fs.stat to return a large file size
       sinon.stub(fs, "stat").resolves({ size: 20 * 1024 * 1024, mode: 0o644 } as any);
@@ -3040,7 +3036,7 @@ describe("teamsApp/createAppPackage", async () => {
       sinon.stub(fs, "chmod").callsFake(async () => {});
       sinon.stub(fs, "existsSync").returns(false);
       sinon.stub(fs, "pathExists").resolves(true);
-      sinon.stub(utils, "updateVersionForTeamsAppYamlFile").resolves();
+      sinon.stub(createAppPackageDeps, "updateVersionForTeamsAppYamlFile").resolves();
       sinon.stub(fs, "writeFile").callsFake(async () => {});
       // Stub fs.stat to return a small file size
       sinon.stub(fs, "stat").resolves({ size: 1024 * 1024, mode: 0o644 } as any);
