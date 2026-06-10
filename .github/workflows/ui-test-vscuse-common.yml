@@ -342,7 +342,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v6
         with:
-          name: error-file-${{ matrix.test_plan }}-${{ github.run_id }}-${{ github.run_attempt }}
+          name: error-file-${{ matrix.test_plan }}-${{ github.run_id }}
           path: error.txt
           retention-days: 7
           if-no-files-found: ignore
@@ -425,7 +425,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v6
         with:
-          name: storage-url-${{ matrix.test_plan }}-${{ github.run_id }}-${{ github.run_attempt }}
+          name: storage-url-${{ matrix.test_plan }}-${{ github.run_id }}
           path: storage_url.txt
           retention-days: 7
           if-no-files-found: ignore
@@ -521,7 +521,7 @@ jobs:
               test_plan=$(echo "$dir_name" | sed "s/^storage-url-//" | sed "s/-${run_id}-${run_attempt}$//")
               case_run_id="${test_plan}-${run_id}-${run_attempt}"
 
-              echo "Processing: dir_name=$dir_name, test_plan=$test_plan, run_id=$run_id, run_attempt=$run_attempt, case_run_id=$case_run_id"
+              echo "Processing: dir_name=$dir_name, test_plan=$test_plan, run_id=$run_id, case_run_id=$case_run_id"
 
               content_json=$(cat "$file" | tr -d '\n' | tr -d '\r' | jq -Rs .)
 
@@ -565,7 +565,7 @@ jobs:
               test_plan=$(echo "$dir_name" | sed "s/^error-file-//" | sed "s/-${run_id}-${run_attempt}$//")
               case_run_id="${test_plan}-${run_id}-${run_attempt}"
 
-              echo "Processing error: dir_name=$dir_name, test_plan=$test_plan, run_id=$run_id, run_attempt=$run_attempt, case_run_id=$case_run_id"
+              echo "Processing error: dir_name=$dir_name, test_plan=$test_plan, run_id=$run_id, case_run_id=$case_run_id"
 
               content_json=$(cat "$file" | tr -d '\n' | tr -d '\r' | jq -Rs .)
 
@@ -725,7 +725,7 @@ jobs:
 
             status=$(echo "$jobs" | jq --arg case "$case" -r '[.[] | select(.name == $case)] | last | .conclusion // "unknown"')
             run_id=$(echo "$jobs" | jq --arg case "$case" -r '[.[] | select(.name == $case)] | last | .run_id')
-            lookup_key="${case_id}-${run_id}-${{ github.run_attempt }}"
+            lookup_key="${case_id}-${run_id}"
 
             report_url=$(jq -r --arg key "$lookup_key" '.[$key]' "$report_map_json_file_path")
             if [ -z "$report_url" ] || [ "$report_url" = "null" ]; then
