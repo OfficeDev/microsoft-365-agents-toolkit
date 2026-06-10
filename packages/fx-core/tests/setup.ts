@@ -51,11 +51,10 @@ const restoreConsoleSpies = mutedConsoleMethods.map((method) =>
 process.on("warning", warningHandler);
 
 beforeAll(async () => {
-  await clearGeneratedTestArtifacts();
+  // Artifact cleanup is handled by global setup to avoid per-file I/O overhead.
 });
 
 afterAll(async () => {
-  await clearGeneratedTestArtifacts();
   process.off("warning", warningHandler);
   restoreConsoleSpies.forEach((spy) => spy.mockRestore());
 });
