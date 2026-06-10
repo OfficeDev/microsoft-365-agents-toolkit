@@ -14,6 +14,7 @@ export enum TemplateNames {
   DeclarativeAgentWithTypeSpec = "declarative-agent-typespec", // handled by DeclarativeAgentGenerator
   DeclarativeAgentWithGraphConnector = "declarative-agent-with-graph-connector", // handled by DeclarativeAgentGenerator
   DeclarativeAgentWithActionFromMCP = "declarative-agent-with-action-from-mcp", // handled by DeclarativeAgentGenerator
+  DeclarativeAgentWithSkill = "declarative-agent-with-skill", // handled by DeclarativeAgentGenerator
 
   DeclarativeAgentMetaOSNewProject = "declarative-agent-meta-os-new-project", // handled by OfficeAddinGeneratorNew
   DeclarativeAgentMetaOSUpgradeProject = "declarative-agent-meta-os-upgrade-project", // handled by OfficeAddinGeneratorNew
@@ -89,6 +90,7 @@ export enum TemplateAlias {
   DeclarativeAgentWithActionFromScratchOAuth = "declarative-agent-action-oauth",
   DeclarativeAgentWithActionFromExistingApiSpec = "declarative-agent-action-from-existing-api",
   DeclarativeAgentWithExistingAction = "declarative-agent-existing-action",
+  DeclarativeAgentWithSkill = "declarative-agent-skill",
 
   // agent for Teams
   CustomCopilotBasic = "teams-agent",

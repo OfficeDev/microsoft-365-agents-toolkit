@@ -83,6 +83,7 @@ describe("Package Service", () => {
     sandbox.stub(fs, "readFile").callsFake((file) => {
       return Promise.resolve(Buffer.from("test"));
     });
+    sandbox.stub(fs, "statSync").returns({ size: 1024 } as any);
     sandbox.stub(axios, "create").returns(testAxiosInstance);
     sandbox.stub(packageServiceDeps, "waitSeconds").resolves();
 
@@ -2090,6 +2091,40 @@ describe("Package Service", () => {
     const result = await packageService.getTitleServiceUrl("test-token");
     chai.assert.equal(result, "https://test-url");
     chai.assert.equal(callCount, 2);
+  });
+
+  it("sideLoading should throw when package exceeds 10 MB", async () => {
+    (fs.statSync as any).restore();
+    sandbox.stub(fs, "statSync").returns({ size: 15 * 1024 * 1024 } as any);
+
+    const packageService = new PackageService("https://test-endpoint", logger);
+    let actualError: Error | undefined;
+    try {
+      await packageService.sideLoading("test-token", "test-path");
+    } catch (error: any) {
+      actualError = error;
+    }
+
+    chai.assert.isDefined(actualError);
+    chai.assert.instanceOf(actualError, UserError);
+    chai.assert.equal((actualError as UserError).name, "AppPackageSizeExceeded");
+  });
+
+  it("sideLoadXmlManifest should throw when package exceeds 10 MB", async () => {
+    (fs.statSync as any).restore();
+    sandbox.stub(fs, "statSync").returns({ size: 15 * 1024 * 1024 } as any);
+
+    const packageService = new PackageService("https://test-endpoint", logger);
+    let actualError: Error | undefined;
+    try {
+      await packageService.sideLoadXmlManifest("test-token", "test-path");
+    } catch (error: any) {
+      actualError = error;
+    }
+
+    chai.assert.isDefined(actualError);
+    chai.assert.instanceOf(actualError, UserError);
+    chai.assert.equal((actualError as UserError).name, "AppPackageSizeExceeded");
   });
 
   it("publishAgent happy path with Personal scope", async () => {

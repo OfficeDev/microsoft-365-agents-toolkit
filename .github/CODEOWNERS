@@ -67,7 +67,7 @@
 /packages/mcp-server/ @Alive-Fish @tecton @HuihuiWu-Microsoft @wh-alice
 
 /packages/vscode-extension @tecton @HuihuiWu-Microsoft @qfai @wh-alice
-/packages/vscode-extension/CHANGELOG.md @summzhan @sffamily
+/packages/vscode-extension/CHANGELOG.md @summzhan @sffamily @qinzhouxu @tecton @HuihuiWu-Microsoft @qfai @Alive-Fish @wh-alice
 /packages/vscode-extension/package.nls.json @summzhan @sffamily @supkasar
 /packages/vscode-extension/PRERELEASE.md @summzhan @sffamily
 /packages/vscode-extension/README.md @summzhan @sffamily

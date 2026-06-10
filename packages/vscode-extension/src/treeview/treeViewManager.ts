@@ -264,6 +264,18 @@ class TreeViewManager {
             ),
           ]
         : []),
+      ...(isDeclarativeCopilotApp &&
+      featureFlagManager.getBooleanValue(FeatureFlags.AgentSkillsManifest)
+        ? [
+            new TreeViewCommand(
+              localize("teamstoolkit.commandsTreeViewProvider.addSkillTitle"),
+              localize("teamstoolkit.commandsTreeViewProvider.addSkillDescription"),
+              "fx-extension.addSkill",
+              "addSkill",
+              { name: "lightbulb", custom: false }
+            ),
+          ]
+        : []),
       ...(isDeclarativeCopilotApp
         ? [
             new TreeViewCommand(

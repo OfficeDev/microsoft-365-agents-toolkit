@@ -1649,6 +1649,134 @@ export function selectDeclarativeAgentManifestQuestion(): SingleFileQuestion {
   };
 }
 
+// add Skill to a declarative agent project
+export function addSkillQuestionNode(): IQTreeNode {
+  return {
+    data: { type: "group" },
+    children: [
+      {
+        data: skillSourceTypeQuestion(),
+        condition: (inputs: Inputs) =>
+          !inputs[QuestionNames.SkillFrom] && inputs.platform !== Platform.CLI,
+      },
+      {
+        data: skillFromZipFileQuestion(),
+        condition: (inputs: Inputs) =>
+          !inputs[QuestionNames.SkillFrom] && inputs[QuestionNames.SkillSourceType] === "existing",
+      },
+      {
+        data: skillNameQuestion(),
+        condition: (inputs: Inputs) =>
+          !inputs[QuestionNames.SkillFrom] && inputs[QuestionNames.SkillSourceType] !== "existing",
+      },
+      {
+        data: skillDescriptionQuestion(),
+        condition: (inputs: Inputs) =>
+          !inputs[QuestionNames.SkillFrom] && inputs[QuestionNames.SkillSourceType] !== "existing",
+      },
+      {
+        data: exposeToCopilotQuestion(),
+      },
+      {
+        data: selectTeamsAppManifestQuestion(),
+      },
+    ],
+  };
+}
+
+function skillNameQuestion(): TextInputQuestion {
+  return {
+    type: "text",
+    name: QuestionNames.SkillName,
+    title: getLocalizedString("core.addSkillQuestion.name.title"),
+    placeholder: getLocalizedString("core.addSkillQuestion.name.placeholder"),
+    validation: {
+      validFunc: (input: string, inputs?: Inputs): string | undefined => {
+        const pattern = /^[a-zA-Z][a-zA-Z0-9-]*$/;
+        if (!pattern.test(input)) {
+          return getLocalizedString("core.addSkillQuestion.name.validation");
+        }
+        // Check for duplicate skill name
+        if (inputs?.projectPath) {
+          const manifestPath =
+            inputs[QuestionNames.ManifestPath] ||
+            path.join(inputs.projectPath, AppPackageFolderName, "manifest.json");
+          const appPackageFolder = path.dirname(manifestPath);
+          const skillDir = path.join(appPackageFolder, "skills", input);
+          if (fs.pathExistsSync(skillDir)) {
+            return getLocalizedString("core.addSkillQuestion.name.duplicate", input);
+          }
+        }
+        return undefined;
+      },
+    },
+  };
+}
+
+function skillDescriptionQuestion(): TextInputQuestion {
+  return {
+    type: "text",
+    name: QuestionNames.SkillDescription,
+    title: getLocalizedString("core.addSkillQuestion.description.title"),
+    placeholder: getLocalizedString("core.addSkillQuestion.description.placeholder"),
+  };
+}
+
+function skillSourceTypeQuestion(): SingleSelectQuestion {
+  return {
+    name: QuestionNames.SkillSourceType,
+    title: getLocalizedString("core.addSkillQuestion.sourceType.title"),
+    type: "singleSelect",
+    staticOptions: [
+      {
+        id: "new",
+        label: getLocalizedString("core.addSkillQuestion.sourceType.new"),
+        detail: getLocalizedString("core.addSkillQuestion.sourceType.newDetail"),
+      },
+      {
+        id: "existing",
+        label: getLocalizedString("core.addSkillQuestion.sourceType.existing"),
+        detail: getLocalizedString("core.addSkillQuestion.sourceType.existingDetail"),
+      },
+    ],
+    default: "new",
+  };
+}
+
+function skillFromZipFileQuestion(): SingleFileQuestion {
+  return {
+    name: QuestionNames.SkillFromZipFile,
+    title: getLocalizedString("core.addSkillQuestion.zipFile.title"),
+    placeholder: getLocalizedString("core.addSkillQuestion.zipFile.placeholder"),
+    type: "singleFile",
+    filters: {
+      "Zip files": ["zip"],
+    },
+  };
+}
+
+function exposeToCopilotQuestion(): SingleSelectQuestion {
+  return {
+    name: QuestionNames.ExposeToCopilot,
+    cliName: "expose-to-copilot",
+    title: getLocalizedString("core.addSkillQuestion.exposeToCopilot.title"),
+    type: "singleSelect",
+    staticOptions: [
+      {
+        id: "yes",
+        label: getLocalizedString("core.addSkillQuestion.exposeToCopilot.yes"),
+        detail: getLocalizedString("core.addSkillQuestion.exposeToCopilot.yesDetail"),
+      },
+      {
+        id: "no",
+        label: getLocalizedString("core.addSkillQuestion.exposeToCopilot.no"),
+        detail: getLocalizedString("core.addSkillQuestion.exposeToCopilot.noDetail"),
+      },
+    ],
+    default: "no",
+  };
+}
+
 export function SelectSensitivityLabelQuestion(): SingleSelectQuestion {
   return {
     name: QuestionNames.SensitivityLabel,

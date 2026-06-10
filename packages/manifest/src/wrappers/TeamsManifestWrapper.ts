@@ -8,6 +8,7 @@ import {
   TeamsManifestConverter,
   AppManifestUtils,
   TeamsManifestLatest,
+  AgentSkill,
 } from "../generated-types";
 
 // Use the latest manifest type for internal type aliases
@@ -877,5 +878,71 @@ export class TeamsManifestWrapper {
   get mutableData(): TeamsManifest {
     this.markDirty();
     return this._data;
+  }
+
+  // ── Agent Skills ──────────────────────────────────────────────────
+
+  private static readonly MAX_AGENT_SKILLS = 20;
+
+  /**
+   * Returns the list of agent skills declared in the manifest.
+   */
+  get skills(): readonly AgentSkill[] {
+    const data = this._data as unknown as Record<string, unknown>;
+    return (data.agentSkills as AgentSkill[] | undefined) ?? [];
+  }
+
+  /**
+   * Adds an agent skill to the Teams manifest.
+   * Maximum 20 skills are allowed. Duplicate folder paths are ignored.
+   * @param folder - Path to the skill directory within the app package.
+   */
+  addSkill(folder: string): this {
+    const data = this._data as unknown as Record<string, unknown>;
+    if (!data.agentSkills) {
+      data.agentSkills = [];
+    }
+
+    const skills = data.agentSkills as AgentSkill[];
+    if (skills.length >= TeamsManifestWrapper.MAX_AGENT_SKILLS) {
+      console.warn(
+        `Maximum ${TeamsManifestWrapper.MAX_AGENT_SKILLS} agent skills allowed. Ignoring addition.`
+      );
+      return this;
+    }
+
+    if (!skills.some((s) => s.folder === folder)) {
+      skills.push({ folder });
+      this.markDirty();
+    }
+    return this;
+  }
+
+  /**
+   * Removes an agent skill by folder path.
+   * @param folder - The folder path of the skill to remove.
+   */
+  removeSkill(folder: string): this {
+    const data = this._data as unknown as Record<string, unknown>;
+    const skills = data.agentSkills as AgentSkill[] | undefined;
+    if (skills) {
+      data.agentSkills = skills.filter((s) => s.folder !== folder);
+      this.markDirty();
+    }
+    return this;
+  }
+
+  /**
+   * Checks if an agent skill exists by folder path.
+   */
+  hasSkill(folder: string): boolean {
+    return this.skills.some((s) => s.folder === folder);
+  }
+
+  /**
+   * Returns all skill folder paths.
+   */
+  getSkillFolders(): string[] {
+    return this.skills.map((s) => s.folder);
   }
 }

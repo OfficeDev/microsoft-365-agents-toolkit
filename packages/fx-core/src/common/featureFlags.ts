@@ -105,7 +105,7 @@ export class FeatureFlags {
   };
   static readonly AgentSkillsManifest = {
     name: FeatureFlagName.AgentSkillsManifest,
-    defaultValue: "true",
+    defaultValue: "false",
   };
   static readonly BrokerAuth = {
     name: FeatureFlagName.BrokerAuth,

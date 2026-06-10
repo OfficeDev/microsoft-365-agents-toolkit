@@ -15,6 +15,7 @@ export { APIPluginManifestWrapper, RuntimeType } from "./APIPluginManifestWrappe
 export type { RuntimeTypeValue } from "./APIPluginManifestWrapper";
 export { DeclarativeAgentManifestWrapper, CapabilityName } from "./DeclarativeAgentManifestWrapper";
 export type { CapabilityNameValue } from "./DeclarativeAgentManifestWrapper";
+export type { AgentSkillElement } from "../generated-types";
 export {
   TeamsManifestWrapper,
   DefaultInstallScope,

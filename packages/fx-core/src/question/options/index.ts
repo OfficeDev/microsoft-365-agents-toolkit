@@ -21,3 +21,4 @@ export * from "./SetSensitivityLabelOptions";
 export * from "./ShareOptions";
 export * from "./removeSharedAccessOptions";
 export * from "./RegeneratePluginOptions";
+export * from "./AddSkillOptions";

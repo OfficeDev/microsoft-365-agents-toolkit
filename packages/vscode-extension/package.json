@@ -43,9 +43,6 @@
   ],
   "aiKey": "1c56be97-bb74-42cf-b04b-8f1aabf04592",
   "featureFlag": "true",
-  "files": [
-    "out/**/*"
-  ],
   "activationEvents": [
     "onCommand:fx-extension.create",
     "onCommand:fx-extension.createFromWalkthrough",
@@ -906,6 +903,12 @@
         "command": "fx-extension.regeneratePlugin",
         "title": "Regenerate Action",
         "enablement": "fx-extension.isTeamsFx && isWorkspaceTrusted && !fx-extension.commandLocked && fx-extension.isDeclarativeCopilotApp && fx-extension.isKiotaNPMIntegrationEnabled",
+        "category": "Microsoft 365 Agents"
+      },
+      {
+        "command": "fx-extension.addSkill",
+        "title": "%teamstoolkit.commandsTreeViewProvider.addSkillTitle%",
+        "enablement": "fx-extension.isTeamsFx && isWorkspaceTrusted && !fx-extension.commandLocked && fx-extension.isDeclarativeCopilotApp && fx-extension.isAgentSkillsEnabled",
         "category": "Microsoft 365 Agents"
       },
       {
