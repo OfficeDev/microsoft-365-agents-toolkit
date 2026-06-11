@@ -27,6 +27,7 @@ export default [
   },
   {
     rules: {
+      "import-x/default": "off",
       "import-x/namespace": "off",
     },
   },
