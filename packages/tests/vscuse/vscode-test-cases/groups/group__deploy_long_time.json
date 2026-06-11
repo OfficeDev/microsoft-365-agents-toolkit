@@ -8,15 +8,15 @@
       "precondition_wait_timeout": 60,
       "precondition_retry_interval": 2
     },
-    "total_steps": 15,
-    "created_at": "2026-03-26T02:04:08.379748",
+    "total_steps": 10,
+    "created_at": "2026-06-11T03:17:05.474045",
     "name": "group  deploy long time",
     "description": {
       "other": "Generated from recording r_0928_075846",
       "owner": "v-helzha@microsoft.com",
       "workitem": ""
     },
-    "generated_at": "2026-03-26T02:04:08.379748",
+    "generated_at": "2026-06-11T03:17:05.474045",
     "execution_order": [
       "step_c9a82278",
       "step_f55de5c3",
@@ -27,17 +27,12 @@
       "step_a0d30029",
       "step_760e0956",
       "step_641585bf",
-      "step_b186b894",
-      "step_bc6a80bc",
-      "step_38e7db4e",
-      "step_2c6885f7",
-      "step_c42a28cc",
       "step_497ce710"
     ],
     "tags": [
       "group"
     ],
-    "updated_at": "2026-03-26T02:58:08.966509"
+    "updated_at": "2026-06-11T05:12:57.872207"
   },
   "steps": [
     {
@@ -59,7 +54,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_c9a82278",
-      "created_at": "2026-03-26T02:04:08.407052",
+      "created_at": "2026-06-11T03:17:05.482836",
       "plan_id": "plan_6aba0466"
     },
     {
@@ -85,7 +80,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_f55de5c3",
-      "created_at": "2026-03-26T02:04:08.412796",
+      "created_at": "2026-06-11T03:17:05.490837",
       "plan_id": "plan_6aba0466"
     },
     {
@@ -107,7 +102,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_e00491df",
-      "created_at": "2026-03-26T02:04:08.433713",
+      "created_at": "2026-06-11T03:17:05.499348",
       "plan_id": "plan_6aba0466"
     },
     {
@@ -129,7 +124,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_36526c5c",
-      "created_at": "2026-03-26T02:04:08.439820",
+      "created_at": "2026-06-11T03:17:05.505490",
       "plan_id": "plan_6aba0466"
     },
     {
@@ -151,7 +146,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_751994fd",
-      "created_at": "2026-03-26T02:04:08.452392",
+      "created_at": "2026-06-11T03:17:05.513465",
       "plan_id": "plan_6aba0466"
     },
     {
@@ -173,7 +168,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_168f8b93",
-      "created_at": "2026-03-26T02:04:08.462079",
+      "created_at": "2026-06-11T03:17:05.520463",
       "plan_id": "plan_6aba0466"
     },
     {
@@ -195,7 +190,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_a0d30029",
-      "created_at": "2026-03-26T02:04:08.462957",
+      "created_at": "2026-06-11T03:17:05.526592",
       "plan_id": "plan_6aba0466"
     },
     {
@@ -217,7 +212,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_760e0956",
-      "created_at": "2026-03-26T02:04:08.479722",
+      "created_at": "2026-06-11T03:17:05.534622",
       "plan_id": "plan_6aba0466"
     },
     {
@@ -234,110 +229,10 @@
       "preconditions": [],
       "postconditions": [],
       "tags": [
-        "delay:300"
+        "step_retry_timeout:1200"
       ],
       "screenshot": null,
-      "created_at": "2026-03-26T02:04:08.479722",
-      "plan_id": "plan_6aba0466"
-    },
-    {
-      "step_id": "step_b186b894",
-      "agent": "code",
-      "tool": "",
-      "parameters": {},
-      "description": "@code echo \"wait for deploy completed\"",
-      "content_refs": [],
-      "timeout": 30,
-      "retry_count": 0,
-      "continue_on_error": "false",
-      "depends_on": [],
-      "preconditions": [],
-      "postconditions": [],
-      "tags": [
-        "delay:300"
-      ],
-      "screenshot": null,
-      "created_at": "2026-03-26T02:04:08.479722",
-      "plan_id": "plan_6aba0466"
-    },
-    {
-      "step_id": "step_bc6a80bc",
-      "agent": "code",
-      "tool": "",
-      "parameters": {},
-      "description": "@code echo \"wait for deploy completed\"",
-      "content_refs": [],
-      "timeout": 30,
-      "retry_count": 0,
-      "continue_on_error": "false",
-      "depends_on": [],
-      "preconditions": [],
-      "postconditions": [],
-      "tags": [
-        "delay:300"
-      ],
-      "screenshot": null,
-      "created_at": "2026-03-26T02:56:07.223084",
-      "plan_id": "plan_6aba0466"
-    },
-    {
-      "step_id": "step_38e7db4e",
-      "agent": "code",
-      "tool": "",
-      "parameters": {},
-      "description": "@code echo \"wait for deploy completed\"",
-      "content_refs": [],
-      "timeout": 30,
-      "retry_count": 0,
-      "continue_on_error": "false",
-      "depends_on": [],
-      "preconditions": [],
-      "postconditions": [],
-      "tags": [
-        "delay:300"
-      ],
-      "screenshot": null,
-      "created_at": "2026-03-26T02:57:04.021592",
-      "plan_id": "plan_6aba0466"
-    },
-    {
-      "step_id": "step_2c6885f7",
-      "agent": "code",
-      "tool": "",
-      "parameters": {},
-      "description": "@code echo \"wait for deploy completed\"",
-      "content_refs": [],
-      "timeout": 30,
-      "retry_count": 0,
-      "continue_on_error": "false",
-      "depends_on": [],
-      "preconditions": [],
-      "postconditions": [],
-      "tags": [
-        "delay:300"
-      ],
-      "screenshot": null,
-      "created_at": "2026-03-26T02:57:38.773618",
-      "plan_id": "plan_6aba0466"
-    },
-    {
-      "step_id": "step_c42a28cc",
-      "agent": "code",
-      "tool": "",
-      "parameters": {},
-      "description": "@code echo \"wait for deploy completed\"",
-      "content_refs": [],
-      "timeout": 30,
-      "retry_count": 0,
-      "continue_on_error": "false",
-      "depends_on": [],
-      "preconditions": [],
-      "postconditions": [],
-      "tags": [
-        "delay:300"
-      ],
-      "screenshot": null,
-      "created_at": "2026-03-26T02:58:08.015205",
+      "created_at": "2026-06-11T03:17:05.539610",
       "plan_id": "plan_6aba0466"
     },
     {
@@ -357,7 +252,7 @@
         "step_retry_timeout:300"
       ],
       "screenshot": null,
-      "created_at": "2026-03-26T02:04:08.499403",
+      "created_at": "2026-06-11T03:17:05.570254",
       "plan_id": "plan_6aba0466"
     }
   ],
