@@ -15,6 +15,9 @@
 - In test files, do not double-stub the same symbol in nested hooks/tests; keep one owner stub per symbol to avoid Sinon wrap conflicts.
 - For new feature code, add at least one UT that validates the main behavior through the same seam used for mocking.
 
+## Code formatting
+- Use `pnpm exec eslint --fix <file>` to fix formatting issues. Do NOT use `prettier --write` directly — `eslint-plugin-prettier` may enforce different line-wrapping rules than standalone prettier, causing lint errors after a bare `prettier --write`.
+
 ## Testing instructions
 - Use `pnpm test:unit` to run full set of unit tests and get coverage report.
 - Use `pnpm test:unit:vitest` for faster local/full UT verification without coverage.
