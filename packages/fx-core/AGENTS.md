@@ -28,3 +28,10 @@
 - Keep external dependencies mocked and avoid slow test patterns. New test cases should have low incremental runtime and should not introduce flaky behavior.
 - Existing legacy BDD aliases (`before`/`after`/`context`) are provided by `tests/setup.ts`; prefer Vitest APIs for new tests.
 - VS Code debug launch config uses `Vitest All` in `.vscode/launch.json`.
+
+## Sinon vs Vitest mock best practices
+- **New tests**: use Vitest-native APIs (`vi.fn()`, `vi.mock()`, `vi.spyOn()`, `vi.mocked()`) exclusively. Do not introduce Sinon in new test files.
+- **Existing tests**: Sinon sandboxes are fine to keep. Do not mix Sinon stubs and `vi.spyOn`/`vi.mock` on the same symbol in the same file — this causes double-wrap conflicts and unpredictable restore order.
+- When a file already uses `sinon.createSandbox()`, keep all stubs in that sandbox and call `sandbox.restore()` in `afterEach`. Do not add `vi.mock` at the module level in the same file.
+- When a file already uses `vi.mock()` at the top, do not also use `sinon.stub()` for the same module; use `vi.mocked()` to access the mock and control its behavior.
+- Prefer `vi.mock(module, factory)` over `sinon.stub(obj, method)` for ES module boundaries, since Sinon cannot stub frozen ESM namespace objects directly.
