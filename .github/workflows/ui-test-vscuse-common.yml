@@ -887,6 +887,39 @@ jobs:
           fi
           echo "Email body file size: $(wc -c < email-body.html) bytes"
 
+      # Upload the aggregated email-body.html to the same blob proxy so PR-triggered
+      # runs (whose email goes to an unattended mailbox) can still surface a single
+      # shareable report URL. Printed marker "Report Summary URL: <url>" is parsed by
+      # pr-vscuse-test.yml to render the link in its PR comment.
+      - name: Upload aggregated report to Azure Blob Storage
+        if: always()
+        shell: pwsh
+        working-directory: packages/tests/vscuse
+        run: |
+          if (-not (Test-Path "email-body.html")) {
+            Write-Host "email-body.html not found; skipping aggregate upload."
+            exit 0
+          }
+
+          $guid = [guid]::NewGuid().ToString()
+          $account = $env:AZURE_STORAGE_ACCOUNT
+          $summaryUrl = "https://storproxy-app-voazuxhhvtgiq.azurewebsites.net/$guid/index.html"
+
+          Copy-Item "email-body.html" "index.html" -Force
+
+          az storage blob upload `
+            --account-name $account `
+            --auth-mode login `
+            --container-name 'content' `
+            --name "$guid/index.html" `
+            --file "index.html" `
+            --content-type "text/html" `
+            --overwrite
+
+          Write-Host "Report Summary URL: $summaryUrl"
+        env:
+          AZURE_STORAGE_ACCOUNT: storproxystvoazuxhhvtgiq
+
       - name: Send E-mail
         uses: ./.github/actions/send-email-report-vscuse
         env:

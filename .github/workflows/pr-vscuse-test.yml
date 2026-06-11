@@ -569,19 +569,55 @@ jobs:
               }
             };
 
+            // On the UI test run, the `report` job (ui-test-vscuse-common.yml) uploads
+            // the aggregated email-body.html to Azure Blob and prints
+            // "Report Summary URL: <url>". The PR-trigger path emails the report to an
+            // unattended mailbox, so this single aggregate blob link is the only
+            // user-facing report surface.
+            const extractReportUrl = async (uiUrl) => {
+              const idMatch = (uiUrl || '').match(/\/runs\/(\d+)/);
+              if (!idMatch) return '';
+              try {
+                const { data: uiJobs } = await github.rest.actions.listJobsForWorkflowRun({
+                  owner, repo, run_id: parseInt(idMatch[1]), per_page: 100,
+                });
+                // The report job is invoked via a reusable workflow, so its rendered
+                // name is typically "<caller_job> / report". Match the trailing token.
+                const reportJob = (uiJobs.jobs || []).find(j =>
+                  /(^|\/\s*)report$/.test((j.name || '').trim())
+                );
+                if (!reportJob) { console.log('report job not found on UI test run.'); return ''; }
+                const log = await github.request(
+                  'GET /repos/{owner}/{repo}/actions/jobs/{job_id}/logs',
+                  { owner, repo, job_id: reportJob.id }
+                );
+                const m = String(log.data || '').match(/Report Summary URL:\s*(https?:\/\/\S+)/);
+                if (!m) { console.log('No "Report Summary URL:" marker found in report job logs.'); return ''; }
+                console.log(`Extracted aggregated report URL: ${m[1]}`);
+                return m[1];
+              } catch (err) {
+                console.log(`Failed to extract aggregated report URL: ${err.message}`);
+                return '';
+              }
+            };
+
             while (Date.now() - start < EIGHT_HOURS) {
               const { data: run } = await github.rest.actions.getWorkflowRun({ owner, repo, run_id: runId });
               console.log(`Smoke pipeline: ${run.status} / ${run.conclusion}`);
               if (run.status === 'completed') {
                 core.setOutput('conclusion',  run.conclusion);
                 core.setOutput('run_url',     run.html_url);
-                core.setOutput('ui_test_url', await extractUiTestUrl());
+                const uiUrl = await extractUiTestUrl();
+                core.setOutput('ui_test_url', uiUrl);
+                core.setOutput('report_url',  await extractReportUrl(uiUrl));
                 return;
               }
               await new Promise(r => setTimeout(r, 60000));
             }
             core.setOutput('conclusion',  'timed_out');
-            core.setOutput('ui_test_url', await extractUiTestUrl());
+            const uiUrl = await extractUiTestUrl();
+            core.setOutput('ui_test_url', uiUrl);
+            core.setOutput('report_url',  await extractReportUrl(uiUrl));
             console.log('Smoke pipeline timed out after 8 hours — reporting as timed_out (workflow stays green; this run is informational only).');
 
       # ── 8. Resolve PR comment with final result ────────────────────────
@@ -595,6 +631,7 @@ jobs:
           CONCLUSION:  ${{ steps.wait-smoke.outputs.conclusion }}
           SMOKE_URL:   ${{ steps.wait-smoke.outputs.run_url }}
           UI_TEST_URL: ${{ steps.wait-smoke.outputs.ui_test_url }}
+          REPORT_URL:  ${{ steps.wait-smoke.outputs.report_url }}
           PR_NUMBER:   ${{ steps.pr-context.outputs.pr_number }}
           HEAD_REF:    ${{ steps.pr-context.outputs.head_ref }}
           BASE_REF:    ${{ steps.pr-context.outputs.base_ref }}
@@ -608,6 +645,7 @@ jobs:
             const conclusion = process.env.CONCLUSION || 'unknown';
             const smokeUrl   = process.env.SMOKE_URL || '';
             const uiTestUrl  = process.env.UI_TEST_URL || '';
+            const reportUrl  = process.env.REPORT_URL || '';
             const headRef    = process.env.HEAD_REF;
             const baseRef    = process.env.BASE_REF;
             const planList   = plans.map(p => `- \`${p}\``).join('\n');
@@ -635,6 +673,7 @@ jobs:
               '',
               uiTestUrl ? `> 🎯 [Actual UI test run](${uiTestUrl})` : '',
               smokeUrl  ? `> 🔗 [Full pipeline results](${smokeUrl})`  : '',
+              reportUrl ? `> 📊 [Detailed test report](${reportUrl})`  : '',
               '',
               '<details>',
               '<summary>ℹ️ How were these tests selected?</summary>',
