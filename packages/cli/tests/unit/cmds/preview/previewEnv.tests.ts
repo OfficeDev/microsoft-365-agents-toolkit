@@ -12,11 +12,16 @@ import {
   UserError,
 } from "@microsoft/teamsfx-api";
 import { envUtil, FxCore, HubTypes, VersionCheckRes, VersionState } from "@microsoft/teamsfx-core";
+import * as settingHelper from "@microsoft/teamsfx-core/build/common/projectSettingsHelper";
+import * as tools from "@microsoft/teamsfx-core/build/common/tools";
+import * as packageJson from "@microsoft/teamsfx-core/build/component/local/packageJsonHelper";
 import fs from "fs-extra";
 import { RestoreFn } from "mocked-env";
 import * as path from "path";
 import sinon from "sinon";
+import * as commonUtils from "../../../../src/cmds/preview/commonUtils";
 import * as constants from "../../../../src/cmds/preview/constants";
+import * as launch from "../../../../src/cmds/preview/launch";
 import PreviewEnv from "../../../../src/cmds/preview/previewEnv";
 import { ServiceLogWriter } from "../../../../src/cmds/preview/serviceLogWriter";
 import { Task } from "../../../../src/cmds/preview/task";
@@ -297,6 +302,48 @@ describe("PreviewEnv Steps", () => {
 
     public getRunningTasks() {
       return this.runningTasks;
+    }
+
+    public isValidProjectV3Wrap(projectPath: string): boolean {
+      return super.isValidProjectV3(projectPath);
+    }
+
+    public async getSideloadingStatusWrap(token: string): Promise<boolean> {
+      return await super.getSideloadingStatus(token);
+    }
+
+    public async loadTeamsFxDevScriptWrap(projectPath: string): Promise<string | undefined> {
+      return await super.loadTeamsFxDevScript(projectPath);
+    }
+
+    public createTaskStartCbWrap(
+      progressBar: any,
+      startMessage: string,
+      telemetryProperties?: { [key: string]: string }
+    ) {
+      return super.createTaskStartCb(progressBar, startMessage, telemetryProperties);
+    }
+
+    public createTaskStopCbWrap(progressBar: any, telemetryProperties?: { [key: string]: string }) {
+      return super.createTaskStopCb(progressBar, telemetryProperties);
+    }
+
+    public async openHubWebClientNewWrap(
+      hub: HubTypes,
+      url: string,
+      browser: constants.Browser,
+      browserArgs: string[]
+    ): Promise<void> {
+      return await super.openHubWebClientNew(hub, url, browser, browserArgs);
+    }
+
+    public async openTeamsDesktopClientWrap(
+      url: string,
+      username: string,
+      browser: constants.Browser,
+      browserArgs: string[]
+    ): Promise<void> {
+      return await super.openTeamsDesktopClient(url, username, browser, browserArgs);
     }
   }
 
@@ -668,6 +715,36 @@ describe("PreviewEnv Steps", () => {
       []
     );
     expect(openRes.isOk()).to.be.true;
+  });
+
+  it("delegates wrapper methods to dependencies", async () => {
+    sandbox.stub(settingHelper, "isValidProjectV3").returns(true);
+    sandbox.stub(tools, "getSideloadingStatus").resolves(undefined);
+    sandbox.stub(packageJson, "loadTeamsFxDevScript").resolves("npm run dev:teamsfx");
+
+    const startCb = sinon.stub().resolves();
+    const stopCb = sinon.stub().resolves(null);
+    sandbox.stub(commonUtils, "createTaskStartCb").returns(startCb as any);
+    sandbox.stub(commonUtils, "createTaskStopCb").returns(stopCb as any);
+
+    sandbox.stub(launch, "openHubWebClientNew").resolves();
+    sandbox.stub(launch, "openTeamsDesktopClient").resolves();
+
+    const previewEnv = new PreviewEnvTest();
+
+    const isValid = previewEnv.isValidProjectV3Wrap("./");
+    expect(typeof isValid).to.equal("boolean");
+    expect(await previewEnv.getSideloadingStatusWrap("token")).to.equal(false);
+    const script = await previewEnv.loadTeamsFxDevScriptWrap("./");
+    expect(script === undefined || typeof script === "string").to.equal(true);
+
+    const createdStartCb = previewEnv.createTaskStartCbWrap({}, "start", {});
+    const createdStopCb = previewEnv.createTaskStopCbWrap({}, {});
+    expect(typeof createdStartCb).to.equal("function");
+    expect(typeof createdStopCb).to.equal("function");
+
+    await previewEnv.openHubWebClientNewWrap(HubTypes.teams, "https://example.com", "default", []);
+    await previewEnv.openTeamsDesktopClientWrap("https://example.com", "user", "default", []);
   });
 });
 

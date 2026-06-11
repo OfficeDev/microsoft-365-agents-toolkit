@@ -9,6 +9,7 @@ import {
   LtsNodeChecker,
   UserCancelError,
 } from "@microsoft/teamsfx-core";
+import * as tools from "@microsoft/teamsfx-core/build/common/tools";
 import { assert } from "chai";
 import * as sinon from "sinon";
 import { setCommand } from "../../src/commands/models/set";
@@ -200,6 +201,14 @@ describe("CLI read-only commands doctor", () => {
         await checker.checkCert();
       });
     });
+
+    it("getSideloadingStatus defaults to false when dependency returns undefined", async () => {
+      sandbox.stub(tools, "getSideloadingStatus").resolves(undefined);
+      const checker = new DoctorChecker();
+      const result = await (checker as any).getSideloadingStatus("token");
+      assert.isFalse(result);
+    });
+
     it("happy", async () => {
       sandbox.stub(DoctorChecker.prototype, "checkAccount").resolves();
       sandbox.stub(DoctorChecker.prototype, "checkNodejs").resolves();
