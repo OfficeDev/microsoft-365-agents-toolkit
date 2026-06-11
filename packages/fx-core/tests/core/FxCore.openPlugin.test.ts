@@ -3,13 +3,11 @@
 
 import { err, ok, UserError } from "@microsoft/teamsfx-api";
 import { assert } from "chai";
-import "mocha";
 import sinon from "sinon";
 import { featureFlagManager, FeatureFlags } from "../../src/common/featureFlags";
-import * as exporter from "../../src/component/generator/openPlugin/exporter";
-import * as importer from "../../src/component/generator/openPlugin/importer";
-import { FxCore } from "../../src/core/FxCore";
 import { setTools } from "../../src/common/globalVars";
+import { FxCore } from "../../src/core/FxCore";
+import { fxCoreOpenPluginDeps } from "../../src/core/FxCore.openPlugin";
 import { MockTools } from "./utils";
 
 describe("FxCore.openPlugin", () => {
@@ -55,7 +53,7 @@ describe("FxCore.openPlugin", () => {
 
     it("delegates to importer.importOpenPlugin on the success path", async () => {
       const stub = sandbox
-        .stub(importer, "importOpenPlugin")
+        .stub(fxCoreOpenPluginDeps, "importOpenPlugin")
         .resolves(ok({ projectPath: "/tmp/out", warnings: ["w"] }));
       const res = await core.importOpenPlugin({
         platform: "cli",
@@ -79,7 +77,7 @@ describe("FxCore.openPlugin", () => {
 
     it("propagates importer errors", async () => {
       sandbox
-        .stub(importer, "importOpenPlugin")
+        .stub(fxCoreOpenPluginDeps, "importOpenPlugin")
         .resolves(err(new UserError("OpenPluginImport", "Boom", "boom")));
       const res = await core.importOpenPlugin({
         platform: "cli",
@@ -116,7 +114,7 @@ describe("FxCore.openPlugin", () => {
 
     it("delegates to exporter.exportOpenPlugin on the success path", async () => {
       const stub = sandbox
-        .stub(exporter, "exportOpenPlugin")
+        .stub(fxCoreOpenPluginDeps, "exportOpenPlugin")
         .resolves(ok({ outputPath: "/tmp/out", warnings: ["w"] }));
       const res = await core.exportOpenPlugin({
         platform: "cli",
@@ -137,7 +135,7 @@ describe("FxCore.openPlugin", () => {
 
     it("propagates exporter errors", async () => {
       sandbox
-        .stub(exporter, "exportOpenPlugin")
+        .stub(fxCoreOpenPluginDeps, "exportOpenPlugin")
         .resolves(err(new UserError("OpenPluginExport", "Boom", "boom")));
       const res = await core.exportOpenPlugin({
         platform: "cli",

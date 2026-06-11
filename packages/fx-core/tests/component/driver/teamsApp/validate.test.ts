@@ -12,7 +12,6 @@ import {
   TeamsManifestVDevPreview,
 } from "@microsoft/teamsfx-api";
 import chai from "chai";
-import "mocha";
 import * as sinon from "sinon";
 import { AppStudioError } from "../../../../src/component/driver/teamsApp/errors";
 import { ValidateManifestArgs } from "../../../../src/component/driver/teamsApp/interfaces/ValidateManifestArgs";

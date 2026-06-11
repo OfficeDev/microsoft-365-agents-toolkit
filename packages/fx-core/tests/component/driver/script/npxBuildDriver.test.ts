@@ -4,14 +4,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import chai, { assert } from "chai";
-import "mocha";
-import * as sinon from "sinon";
 import { err, ok, UserError } from "@microsoft/teamsfx-api";
+import chai, { assert } from "chai";
+import * as sinon from "sinon";
 import * as tools from "../../../../src/common/utils";
 import { NpxBuildDriver } from "../../../../src/component/driver/script/npxBuildDriver";
 import * as utils from "../../../../src/component/driver/script/scriptDriver";
-import { MockUserInteraction, MockedAzureAccountProvider } from "../../../core/utils";
+import { MockedAzureAccountProvider, MockUserInteraction } from "../../../core/utils";
 import { TestLogProvider } from "../../util/logProviderMock";
 
 describe("NPX Build Driver test", () => {
@@ -50,12 +49,14 @@ describe("NPX Build Driver test", () => {
       args: "build",
       env: { a: "HELLO" },
     };
+    const ui = new MockUserInteraction();
+    sandbox.stub(ui, "runCommand").resolves(err(new UserError({})));
     const context = {
       azureAccountProvider: new MockedAzureAccountProvider(),
       logProvider: new TestLogProvider(),
+      ui,
       projectPath: "./",
     } as any;
-    sandbox.stub(utils, "executeCommand").resolves(err(new UserError({})));
     const res = await driver.execute(args, context);
     assert.equal(res.result.isErr(), true);
   });

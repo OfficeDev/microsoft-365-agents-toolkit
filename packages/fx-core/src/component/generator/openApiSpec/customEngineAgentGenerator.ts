@@ -15,6 +15,13 @@ import { TemplateNames } from "../templates/templateNames";
 import { generateFilesFromApiSpec, getTemplateInfosFromApiSpec } from "./common";
 import { convertSpecParserErrorToFxError } from "./helper";
 
+export const customEngineAgentGeneratorDeps = {
+  assembleError,
+  convertSpecParserErrorToFxError,
+  generateFilesFromApiSpec,
+  getTemplateInfosFromApiSpec,
+};
+
 export class CustomEngineAgentWithExistingApiSpecGenerator extends DefaultTemplateGenerator {
   componentName = "cea-with-existing-api-generator";
 
@@ -28,7 +35,12 @@ export class CustomEngineAgentWithExistingApiSpecGenerator extends DefaultTempla
     destinationPath: string,
     actionContext?: ActionContext
   ): Promise<Result<TemplateInfo[], FxError>> {
-    return getTemplateInfosFromApiSpec(context, inputs, ProjectType.TeamsAi, actionContext);
+    return customEngineAgentGeneratorDeps.getTemplateInfosFromApiSpec(
+      context,
+      inputs,
+      ProjectType.TeamsAi,
+      actionContext
+    );
   }
 
   public override async post(
@@ -38,7 +50,7 @@ export class CustomEngineAgentWithExistingApiSpecGenerator extends DefaultTempla
     actionContext?: ActionContext
   ): Promise<Result<GeneratorResult, FxError>> {
     try {
-      return await generateFilesFromApiSpec(
+      return await customEngineAgentGeneratorDeps.generateFilesFromApiSpec(
         context,
         inputs,
         destinationPath,
@@ -48,9 +60,9 @@ export class CustomEngineAgentWithExistingApiSpecGenerator extends DefaultTempla
     } catch (e) {
       let error: FxError;
       if (e instanceof SpecParserError) {
-        error = convertSpecParserErrorToFxError(e);
+        error = customEngineAgentGeneratorDeps.convertSpecParserErrorToFxError(e);
       } else {
-        error = assembleError(e);
+        error = customEngineAgentGeneratorDeps.assembleError(e);
       }
       return err(error);
     }

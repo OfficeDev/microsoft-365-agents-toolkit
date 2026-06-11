@@ -2,25 +2,23 @@
 // Licensed under the MIT license.
 
 import { SpecParser } from "@microsoft/m365-spec-parser";
-import { ConfirmConfig, UserError, err, ok } from "@microsoft/teamsfx-api";
+import { ConfirmConfig, err, ok, UserError } from "@microsoft/teamsfx-api";
 import * as chai from "chai";
 import chaiAsPromised from "chai-as-promised";
-import "mocha";
 import { RestoreFn } from "mocked-env";
 import * as sinon from "sinon";
+import { featureFlagManager, FeatureFlags } from "../../../../src";
 import { teamsGraphClient } from "../../../../src/client/teamsGraphClient";
 import { setTools } from "../../../../src/common/globalVars";
 import { UpdateOauthArgs } from "../../../../src/component/driver/oauth/interface/updateOauthArgs";
-import { UpdateOauthDriver } from "../../../../src/component/driver/oauth/update";
+import { oauthUpdateDeps, UpdateOauthDriver } from "../../../../src/component/driver/oauth/update";
 import {
   OauthRegistrationAppType,
   OauthRegistrationTargetAudience,
   TokenExchangeMethodType,
 } from "../../../../src/component/driver/teamsApp/interfaces/OauthRegistration";
-import { MockedLogProvider, MockedUserInteraction } from "../../../plugins/solution/util";
 import { MockedAzureAccountProvider, MockedM365Provider } from "../../../core/utils";
-import * as utiltiy from "../../../../src/component/driver/oauth/utility/utility";
-import { featureFlagManager, FeatureFlags } from "../../../../src";
+import { MockedLogProvider, MockedUserInteraction } from "../../../plugins/solution/util";
 
 chai.use(chaiAsPromised);
 const expect = chai.expect;
@@ -961,7 +959,7 @@ describe("UpdateOauthDriver", () => {
       identityProvider: "Custom",
       configurationId: "mockedRegistrationId",
     };
-    sinon.stub(utiltiy, "getAuthInfo").resolves({} as any);
+    sinon.stub(oauthUpdateDeps, "getAuthInfo").resolves({} as any);
     sinon.stub(teamsGraphClient, "getOauthRegistrationById").resolves(
       ok({
         identityProvider: "Custom",
@@ -982,7 +980,7 @@ describe("UpdateOauthDriver", () => {
       applicableToApps: "SpecificApp",
       configurationId: "mockedRegistrationId",
     };
-    sinon.stub(utiltiy, "getAuthInfo").resolves({} as any);
+    sinon.stub(oauthUpdateDeps, "getAuthInfo").resolves({} as any);
     sinon.stub(teamsGraphClient, "getOauthRegistrationById").resolves(ok({}) as any);
 
     const result = await updateOauthDriver.execute(args, mockedDriverContext);
@@ -1006,7 +1004,7 @@ describe("UpdateOauthDriver", () => {
       clientSecret: 123,
       configurationId: "mockedRegistrationId",
     };
-    sinon.stub(utiltiy, "getAuthInfo").resolves({} as any);
+    sinon.stub(oauthUpdateDeps, "getAuthInfo").resolves({} as any);
     sinon.stub(teamsGraphClient, "getOauthRegistrationById").resolves(
       ok({
         identityProvider: "Custom",

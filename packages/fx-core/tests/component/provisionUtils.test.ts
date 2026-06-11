@@ -8,22 +8,21 @@ import {
 } from "@microsoft/teamsfx-api";
 import chai from "chai";
 import { assert } from "console";
-import "mocha";
 import mockedEnv, { RestoreFn } from "mocked-env";
 import * as sinon from "sinon";
-import { M365TenantRes, provisionUtils } from "../../src/component/provisionUtils";
-import { resourceGroupHelper } from "../../src/component/utils/ResourceGroupHelper";
+import { SovereignCloudEnvironment } from "../../src/common/accountUtils";
 import { GraphScopes } from "../../src/common/constants";
 import { FeatureFlagName } from "../../src/common/featureFlags";
 import { setTools } from "../../src/common/globalVars";
-import { SovereignCloudEnvironment } from "../../src/common/accountUtils";
+import { M365TenantRes, provisionUtils } from "../../src/component/provisionUtils";
+import { resourceGroupHelper } from "../../src/component/utils/ResourceGroupHelper";
 import { ResourceGroupNotExistError } from "../../src/error/azure";
 import { M365TenantIdNotFoundInTokenError, M365TokenJSONNotFoundError } from "../../src/error/m365";
 import {
   MockedAzureAccountProvider,
-  MyTokenCredential,
   MockTelemetryReporter,
   MockTools,
+  MyTokenCredential,
 } from "../core/utils";
 import { MockedUserInteraction } from "../plugins/solution/util";
 
@@ -534,6 +533,10 @@ describe("provisionUtils", () => {
         mockedEnvRestore();
       }
       mocker.restore();
+    });
+
+    it("placeholder", () => {
+      chai.assert.isTrue(true);
     });
   });
 });

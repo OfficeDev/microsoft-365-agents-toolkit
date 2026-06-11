@@ -4,12 +4,12 @@
 import { hooks } from "@feathersjs/hooks/lib";
 import {
   Colors,
+  err,
   FxError,
+  ok,
   Platform,
   Result,
   TeamsManifestConverter,
-  err,
-  ok,
 } from "@microsoft/teamsfx-api";
 import AdmZip from "adm-zip";
 import fs from "fs-extra";
@@ -42,6 +42,16 @@ import { ValidateWithTestCasesArgs } from "./interfaces/ValidateWithTestCasesArg
 import { manifestUtils } from "./utils/ManifestUtils";
 
 const actionName = "teamsApp/validateWithTestCases";
+
+export const validateWithTestCasesDeps = {
+  pathExists: fs.pathExists,
+  readFile: fs.readFile,
+  waitSeconds,
+  parseManifest: metadataUtil.parseManifest,
+  getAppValidationRequestList: teamsDevPortalClient.getAppValidationRequestList,
+  submitAppValidationRequest: teamsDevPortalClient.submitAppValidationRequest,
+  getAppValidationById: teamsDevPortalClient.getAppValidationById,
+};
 
 @Service(actionName)
 export class ValidateWithTestCasesDriver implements StepDriver {
@@ -76,18 +86,18 @@ export class ValidateWithTestCasesDriver implements StepDriver {
     if (!path.isAbsolute(appPackagePath)) {
       appPackagePath = path.join(context.projectPath, appPackagePath);
     }
-    if (!(await fs.pathExists(appPackagePath))) {
+    if (!(await validateWithTestCasesDeps.pathExists(appPackagePath))) {
       return err(new FileNotFoundError(actionName, appPackagePath));
     }
 
-    const archivedFile = await fs.readFile(appPackagePath);
+    const archivedFile = await validateWithTestCasesDeps.readFile(appPackagePath);
 
     const zipEntries = new AdmZip(archivedFile).getEntries();
     const manifestFile = zipEntries.find((x) => x.entryName === Constants.MANIFEST_FILE);
     if (manifestFile) {
       const manifestContent = manifestFile.getData().toString();
       const manifest = TeamsManifestConverter.jsonToManifest(manifestContent);
-      metadataUtil.parseManifest(manifest);
+      validateWithTestCasesDeps.parseManifest(manifest);
 
       // Add common properties like isCopilotPlugin: boolean
       const manifestTelemetries = manifestUtils.parseCommonTelemetryProperties(manifest as any);
@@ -101,10 +111,8 @@ export class ValidateWithTestCasesDriver implements StepDriver {
       }
       const appStudioToken = appStudioTokenRes.value;
       // Check if the app has ongoing validation
-      const existingValidationResponse = await teamsDevPortalClient.getAppValidationRequestList(
-        appStudioToken,
-        manifest.id
-      );
+      const existingValidationResponse =
+        await validateWithTestCasesDeps.getAppValidationRequestList(appStudioToken, manifest.id);
       if (existingValidationResponse.appValidations) {
         for (const validation of existingValidationResponse.appValidations) {
           if (
@@ -139,7 +147,7 @@ export class ValidateWithTestCasesDriver implements StepDriver {
         }
       }
       const response: AsyncAppValidationResponse =
-        await teamsDevPortalClient.submitAppValidationRequest(appStudioToken, manifest.id);
+        await validateWithTestCasesDeps.submitAppValidationRequest(appStudioToken, manifest.id);
 
       if (context.platform === Platform.CLI) {
         const message: Array<{ content: string; color: Colors }> = [
@@ -210,14 +218,14 @@ export class ValidateWithTestCasesDriver implements StepDriver {
         resultResp.status !== AsyncAppValidationStatus.Completed &&
         resultResp.status !== AsyncAppValidationStatus.Aborted
       ) {
-        await waitSeconds(CEHCK_VALIDATION_RESULTS_INTERVAL_SECONDS);
+        await validateWithTestCasesDeps.waitSeconds(CEHCK_VALIDATION_RESULTS_INTERVAL_SECONDS);
         const message = getLocalizedString(
           "driver.teamsApp.progressBar.validateWithTestCases.step",
           resultResp.status,
           validationRequestListUrl
         );
         context.logProvider.info(message);
-        resultResp = await teamsDevPortalClient.getAppValidationById(
+        resultResp = await validateWithTestCasesDeps.getAppValidationById(
           appStudioToken,
           resultResp.appValidationId
         );

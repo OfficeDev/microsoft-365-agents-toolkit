@@ -3,13 +3,13 @@
 
 import { ConfigFolderName, err, ok, Result, UserError } from "@microsoft/teamsfx-api";
 import * as fs from "fs-extra";
-import fetch from "../../../common/fetchHelper";
 import * as os from "os";
 import * as path from "path";
 import semver from "semver";
 import maxSatisfying from "semver/ranges/max-satisfying";
 import * as url from "url";
 import * as uuid from "uuid";
+import * as fetchHelper from "../../../common/fetchHelper";
 import { getDefaultString, getLocalizedString } from "../../../common/localizeUtils";
 import { DepsCheckerError, NodejsNotFoundError } from "../../../error";
 import { playgroundInstallationLink, v3DefaultHelpLink } from "../constant/helpLink";
@@ -23,9 +23,19 @@ import {
   TestToolReleaseType,
 } from "../depsChecker";
 import { cpUtils } from "../util";
-import { downloadToTempFile, unzip } from "../util/downloadHelper";
-import { cleanup, createSymlink, rename, unlinkSymlink } from "../util/fileHelper";
+import * as downloadHelper from "../util/downloadHelper";
+import * as fileHelper from "../util/fileHelper";
 import { isWindows } from "../util/system";
+
+export const testToolCheckerDeps = {
+  fetch: fetchHelper.default,
+  downloadToTempFile: downloadHelper.downloadToTempFile,
+  unzip: downloadHelper.unzip,
+  cleanup: fileHelper.cleanup,
+  createSymlink: fileHelper.createSymlink,
+  rename: fileHelper.rename,
+  unlinkSymlink: fileHelper.unlinkSymlink,
+};
 
 enum InstallType {
   Global = "global",
@@ -97,7 +107,7 @@ export class TestToolChecker implements DepsChecker {
       } else {
         this.telemetryProperties[TelemetryProperties.SymlinkTestToolVersionError] =
           versionRes.error.message;
-        await unlinkSymlink(symlinkDir, true);
+        await testToolCheckerDeps.unlinkSymlink(symlinkDir, true);
       }
     }
 
@@ -113,7 +123,7 @@ export class TestToolChecker implements DepsChecker {
       );
       this.telemetryProperties[TelemetryProperties.SelectedPortableTestToolVersion] = version;
       if (symlinkDir) {
-        await createSymlink(portablePath, symlinkDir, true);
+        await testToolCheckerDeps.createSymlink(portablePath, symlinkDir, true);
         return await this.getSuccessDepsInfo(version, symlinkDir);
       } else {
         return await this.getSuccessDepsInfo(version, portablePath);
@@ -211,7 +221,7 @@ export class TestToolChecker implements DepsChecker {
         knownBinaryVersion
       );
       if (!fallbackVersion || !semver.satisfies(fallbackVersion, versionRange)) {
-        await cleanup(tmpPath);
+        await testToolCheckerDeps.cleanup(tmpPath);
         this.telemetryProperties[TelemetryProperties.InstallTestToolError] =
           versionRes.error.message;
         throw new DepsCheckerError(
@@ -229,10 +239,10 @@ export class TestToolChecker implements DepsChecker {
     this.telemetryProperties[TelemetryProperties.InstalledTestToolVersion] = actualVersion;
 
     const portablePath = this.getPortableInstallPath(releaseType, actualVersion);
-    await rename(tmpPath, portablePath);
+    await testToolCheckerDeps.rename(tmpPath, portablePath);
 
     if (symlinkDir) {
-      await createSymlink(portablePath, symlinkDir, true);
+      await testToolCheckerDeps.createSymlink(portablePath, symlinkDir, true);
     }
 
     await this.writeInstallInfoFile(projectPath);
@@ -361,7 +371,7 @@ export class TestToolChecker implements DepsChecker {
     } catch {
       // ignore invalid installation info file
     }
-    await cleanup(installInfoPath);
+    await testToolCheckerDeps.cleanup(installInfoPath);
     return undefined;
   }
 
@@ -581,7 +591,7 @@ export class TestToolChecker implements DepsChecker {
         "--no-audit"
       );
     } catch (error: any) {
-      await cleanup(prefix);
+      await testToolCheckerDeps.cleanup(prefix);
       // @ is incorrectly identified as an email format.
       const packageName = this.getPackageName(symlinkDir);
       this.telemetryProperties[TelemetryProperties.InstallTestToolError] = (error.message as string)
@@ -642,7 +652,7 @@ export class TestToolChecker implements DepsChecker {
     }
     const release = releases.find((value) => value.version === targetVersion) as GitHubRelease;
 
-    await downloadToTempFile(
+    await testToolCheckerDeps.downloadToTempFile(
       release.url,
       {
         timeout: InstallTimeout,
@@ -651,7 +661,7 @@ export class TestToolChecker implements DepsChecker {
         },
       },
       async (filePath: string) => {
-        await unzip(filePath, installPath);
+        await testToolCheckerDeps.unzip(filePath, installPath);
       }
     );
     return targetVersion;
@@ -784,7 +794,7 @@ export class GitHubHelpers {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), InstallTimeout);
     try {
-      const response = await fetch(
+      const response = await testToolCheckerDeps.fetch(
         "https://api.github.com/repos/OfficeDev/microsoft-365-agents-toolkit/releases",
         {
           headers: {

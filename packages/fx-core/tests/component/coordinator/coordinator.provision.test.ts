@@ -1,5 +1,3 @@
-import "mocha";
-
 import { assert } from "chai";
 import fs, { PathLike } from "fs-extra";
 import * as os from "os";
@@ -8,7 +6,6 @@ import * as sinon from "sinon";
 
 import {
   err,
-  FxError,
   Inputs,
   IProgressHandler,
   ok,
@@ -17,8 +14,11 @@ import {
   UserError,
 } from "@microsoft/teamsfx-api";
 
+import mockedEnv, { RestoreFn } from "mocked-env";
+import { setTools } from "../../../src/common/globalVars";
 import { MetadataV3, VersionInfo, VersionSource } from "../../../src/common/versionMetadata";
 import { ExecutionResult, ProjectModel } from "../../../src/component/configManager/interface";
+import { openUrl, showAadResourceLink } from "../../../src/component/coordinator";
 import { SummaryReporter } from "../../../src/component/coordinator/summary";
 import { DriverContext } from "../../../src/component/driver/interface/commonArgs";
 import { provisionUtils } from "../../../src/component/provisionUtils";
@@ -28,7 +28,6 @@ import { pathUtils } from "../../../src/component/utils/pathUtils";
 import { resourceGroupHelper } from "../../../src/component/utils/ResourceGroupHelper";
 import { settingsUtil } from "../../../src/component/utils/settingsUtil";
 import { FxCore } from "../../../src/core/FxCore";
-import { setTools } from "../../../src/common/globalVars";
 import * as v3MigrationUtils from "../../../src/core/middleware/utils/v3MigrationUtils";
 import {
   InvalidAzureCredentialError,
@@ -38,8 +37,6 @@ import {
 import { UserCancelError } from "../../../src/error/common";
 import { MockTools, randomAppName } from "../../core/utils";
 import { mockedResolveDriverInstances } from "./coordinator.test";
-import mockedEnv, { RestoreFn } from "mocked-env";
-import { openUrl, showAadResourceLink } from "../../../src/component/coordinator";
 
 const versionInfo: VersionInfo = {
   version: MetadataV3.projectVersion,
@@ -2075,6 +2072,7 @@ describe("coordinator provision", () => {
     } as ProjectModel;
     const ctx = tools as unknown as DriverContext;
     const stubShowMessage = sandbox.stub(tools.ui, "showMessage");
+    sandbox.stub(tools.ui, "openUrl").resolves(ok(true));
     stubShowMessage.onFirstCall().resolves(err("error" as any));
     stubShowMessage.onSecondCall().resolves(ok("false title"));
     stubShowMessage.onThirdCall().resolves(ok("View provisioned Entra ID"));

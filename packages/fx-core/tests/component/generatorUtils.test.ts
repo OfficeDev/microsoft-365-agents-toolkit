@@ -7,10 +7,11 @@
 
 import * as chai from "chai";
 import fse from "fs-extra";
-import "mocha";
 import * as sinon from "sinon";
-import * as generatorUtils from "../../src/component/generator/utils";
-import { HelperMethods } from "../../src/component/generator/officeAddin/helperMethods";
+import {
+  HelperMethods,
+  helperMethodsDeps,
+} from "../../src/component/generator/officeAddin/helperMethods";
 
 describe("Generator related Utils", function () {
   describe("fetchAndUnzip", async () => {
@@ -42,7 +43,7 @@ describe("Generator related Utils", function () {
     });
 
     it("happy path", async () => {
-      sandbox.stub(generatorUtils, "fetchZipFromUrl").resolves(new MockAdmZip() as any);
+      sandbox.stub(helperMethodsDeps, "fetchZipFromUrl").resolves(new MockAdmZip() as any);
       const stub1 = sandbox.stub(fse, "ensureDir").resolves();
       const stub2 = sandbox.stub(fse, "writeFile").resolves();
       const res = await HelperMethods.fetchAndUnzip("test", "url", "dest");
@@ -52,19 +53,19 @@ describe("Generator related Utils", function () {
     });
 
     it("fail case: fetch zip throw error", async () => {
-      sandbox.stub(generatorUtils, "fetchZipFromUrl").rejects(new Error());
+      sandbox.stub(helperMethodsDeps, "fetchZipFromUrl").rejects(new Error());
       const res = await HelperMethods.fetchAndUnzip("test", "url", "dest");
       chai.assert.isTrue(res.isErr());
     });
 
     it("fail case: fetch zip returns undefined", async () => {
-      sandbox.stub(generatorUtils, "fetchZipFromUrl").resolves(undefined);
+      sandbox.stub(helperMethodsDeps, "fetchZipFromUrl").resolves(undefined);
       const res = await HelperMethods.fetchAndUnzip("test", "url", "dest");
       chai.assert.isTrue(res.isErr());
     });
 
     it("fail case: ensureDir throws error", async () => {
-      sandbox.stub(generatorUtils, "fetchZipFromUrl").resolves(new MockAdmZip() as any);
+      sandbox.stub(helperMethodsDeps, "fetchZipFromUrl").resolves(new MockAdmZip() as any);
       sandbox.stub(fse, "ensureDir").rejects(new Error());
       const res = await HelperMethods.fetchAndUnzip("test", "url", "dest");
       chai.assert.isTrue(res.isErr());

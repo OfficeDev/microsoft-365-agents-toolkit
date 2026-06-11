@@ -9,7 +9,6 @@ import {
   ok,
 } from "@microsoft/teamsfx-api";
 import { assert, expect } from "chai";
-import "mocha";
 import mockedEnv, { RestoreFn } from "mocked-env";
 import sinon from "sinon";
 import { getLocalizedString } from "../../src/common/localizeUtils";

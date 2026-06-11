@@ -17,7 +17,6 @@ import {
 } from "@microsoft/teamsfx-api";
 import { assert } from "chai";
 import fs from "fs-extra";
-import "mocha";
 import path from "path";
 import * as sinon from "sinon";
 import { manifestUtils } from "../../src";

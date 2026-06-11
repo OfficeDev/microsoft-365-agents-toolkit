@@ -1,12 +1,31 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import * as fs from "fs-extra";
-import klaw from "klaw";
 import AdmZip, { EntryHeader } from "adm-zip";
+import * as fs from "fs-extra";
 import { Ignore } from "ignore";
+import klaw from "klaw";
 import path from "path";
 import { CacheFileInUse, DeployEmptyFolderError, ZipFileError } from "../../error/deploy";
+
+export const fileOperationDeps = {
+  existsSync: fs.existsSync,
+  remove: fs.remove,
+  mkdirs: fs.mkdirs,
+  readFile: fs.readFile,
+  createReadStream: fs.createReadStream,
+  createZip: () => new AdmZip(),
+  writeZip: async (zip: AdmZip, cache: string) =>
+    await new Promise((resolve, reject) => {
+      zip.writeZip(cache, (err) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve({});
+        }
+      });
+    }),
+};
 
 /**
  * Asynchronously zip a folder and return buffer
@@ -22,9 +41,9 @@ export async function zipFolderAsync(
   const tasks: Promise<void>[] = [];
   const ig = notIncluded;
   // always delete cache if exists
-  if (fs.existsSync(cache)) {
+  if (fileOperationDeps.existsSync(cache)) {
     try {
-      await fs.remove(cache);
+      await fileOperationDeps.remove(cache);
     } catch (e) {
       if (e instanceof Error && (e as any)?.code === "EBUSY") {
         throw new CacheFileInUse(cache, e);
@@ -32,7 +51,7 @@ export async function zipFolderAsync(
       throw e;
     }
   }
-  const zip = new AdmZip();
+  const zip = fileOperationDeps.createZip();
 
   const addFileIntoZip = async (
     zp: AdmZip,
@@ -40,7 +59,7 @@ export async function zipFolderAsync(
     zipPath: string,
     stats?: fs.Stats
   ) => {
-    const content = await fs.readFile(filePath);
+    const content = await fileOperationDeps.readFile(filePath);
     zp.addFile(zipPath, content);
     if (stats) {
       (zp.getEntry(zipPath)?.header as EntryHeader).time = stats.mtime;
@@ -70,24 +89,16 @@ export async function zipFolderAsync(
   await Promise.all(tasks);
   // save to cache if exists
   if (cache && tasks) {
-    await fs.mkdirs(path.dirname(cache));
+    await fileOperationDeps.mkdirs(path.dirname(cache));
     try {
-      await new Promise((resolve, reject) => {
-        zip.writeZip(cache, (err) => {
-          if (err) {
-            reject(err);
-          } else {
-            resolve({});
-          }
-        });
-      });
+      await fileOperationDeps.writeZip(zip, cache);
     } catch (e) {
       if (e instanceof Error && (e as any)?.code === "ERR_OUT_OF_RANGE") {
         throw new ZipFileError(e);
       }
     }
   }
-  return fs.createReadStream(cache);
+  return fileOperationDeps.createReadStream(cache);
 }
 
 export async function forEachFileAndDir(

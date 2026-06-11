@@ -1,17 +1,43 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { assert } from "chai";
-import "mocha";
-import * as sinon from "sinon";
 import axios from "axios";
+import { assert } from "chai";
 import fs from "fs-extra";
+import * as sinon from "sinon";
+import { vi } from "vitest";
 import {
   fetchMCPTools,
-  readMCPToolsFromFile,
   probeMCPServerAuth,
+  readMCPToolsFromFile,
   resolveMCPOAuthMetadata,
 } from "../../../src/component/utils/mcpToolFetcher";
+
+vi.mock("@modelcontextprotocol/sdk/client/index.js", () => ({
+  Client: class {
+    async connect(): Promise<void> {
+      throw new Error("mock connect failure");
+    }
+    async listTools(): Promise<{ tools: any[] }> {
+      return { tools: [] };
+    }
+    async close(): Promise<void> {
+      return;
+    }
+  },
+}));
+
+vi.mock("@modelcontextprotocol/sdk/client/streamableHttp.js", () => ({
+  StreamableHTTPClientTransport: class {
+    constructor(_url: URL) {}
+  },
+}));
+
+vi.mock("@modelcontextprotocol/sdk/client/sse.js", () => ({
+  SSEClientTransport: class {
+    constructor(_url: URL) {}
+  },
+}));
 
 describe("mcpToolFetcher", () => {
   const sandbox = sinon.createSandbox();
@@ -53,7 +79,7 @@ describe("mcpToolFetcher", () => {
       // Simulate non-401 error from initial GET
       sandbox.stub(axios, "get").rejects(new Error("Connection refused"));
 
-      const result = await fetchMCPTools("https://nonexistent.example.com/mcp");
+      const result = await fetchMCPTools("invalid-url");
       // When SDK imports fail, should return empty tools
       assert.isFalse(result.requiresAuth);
       assert.isEmpty(result.tools);

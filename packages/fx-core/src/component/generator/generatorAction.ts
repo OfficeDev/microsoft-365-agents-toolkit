@@ -7,17 +7,19 @@ import path from "path";
 
 import { LogProvider, Platform } from "@microsoft/teamsfx-api";
 
+import { SampleUrlInfo } from "../../common/samples";
 import { getTemplatesFolder } from "../../folder";
 import { MissKeyError, SampleNotFoundError, TemplateNotFoundError } from "./error";
-import {
-  downloadDirectory,
-  fetchZipFromUrl,
-  getSampleInfoFromName,
-  unzip,
-  getTemplateUrl,
-  getTemplateLatestVersion,
-} from "./utils";
-import { SampleUrlInfo } from "../../common/samples";
+import * as generatorUtils from "./utils";
+
+export const generatorActionDeps = {
+  getTemplateUrl: generatorUtils.getTemplateUrl,
+  getTemplateLatestVersion: generatorUtils.getTemplateLatestVersion,
+  fetchZipFromUrl: generatorUtils.fetchZipFromUrl,
+  unzip: generatorUtils.unzip,
+  getSampleInfoFromName: generatorUtils.getSampleInfoFromName,
+  downloadDirectory: generatorUtils.downloadDirectory,
+};
 
 export interface GeneratorContext {
   name: string;
@@ -63,17 +65,21 @@ export const ScaffoldRemoteTemplateAction: GeneratorAction = {
       throw new MissKeyError("language");
     }
 
-    const templateUrl = await getTemplateUrl(
+    const templateUrl = await generatorActionDeps.getTemplateUrl(
       context.language,
-      getTemplateLatestVersion,
+      generatorActionDeps.getTemplateLatestVersion,
       context.platform
     );
     if (!templateUrl) {
       return;
     }
 
-    const zip = await fetchZipFromUrl(templateUrl, context.tryLimits, context.timeoutInMs);
-    context.outputs = await unzip(
+    const zip = await generatorActionDeps.fetchZipFromUrl(
+      templateUrl,
+      context.tryLimits,
+      context.timeoutInMs
+    );
+    context.outputs = await generatorActionDeps.unzip(
       zip,
       context.destination,
       context.fileNameReplaceFn,
@@ -100,7 +106,7 @@ export const ScaffoldLocalTemplateAction: GeneratorAction = {
 
     const data: Buffer = await fs.readFile(zipPath);
     const zip = new AdmZip(data);
-    context.outputs = await unzip(
+    context.outputs = await generatorActionDeps.unzip(
       zip,
       context.destination,
       context.fileNameReplaceFn,
@@ -117,7 +123,7 @@ export const ScaffoldLocalTemplateAction: GeneratorAction = {
 export const fetchSampleInfoAction: GeneratorAction = {
   name: GeneratorActionName.FetchSampleInfo,
   run: async (context: GeneratorContext) => {
-    const sample = await getSampleInfoFromName(context.name);
+    const sample = await generatorActionDeps.getSampleInfoFromName(context.name);
     context.sampleInfo = sample.downloadUrlInfo;
   },
 };
@@ -130,7 +136,10 @@ export const downloadDirectoryAction: GeneratorAction = {
       throw new MissKeyError("sampleInfo");
     }
 
-    context.outputs = await downloadDirectory(context.sampleInfo, context.destination);
+    context.outputs = await generatorActionDeps.downloadDirectory(
+      context.sampleInfo,
+      context.destination
+    );
     if (!context.outputs?.length) {
       throw new SampleNotFoundError(context.name);
     }

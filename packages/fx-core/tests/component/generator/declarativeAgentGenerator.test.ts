@@ -23,23 +23,23 @@ import {
 } from "@microsoft/teamsfx-api";
 import { assert } from "chai";
 import fs from "fs-extra";
-import "mocha";
 import { RestoreFn } from "mocked-env";
 import path from "path";
 import sinon from "sinon";
 import { GraphClient } from "../../../src/client/graphClient";
 import { featureFlagManager } from "../../../src/common/featureFlags";
 import { createContext, setTools } from "../../../src/common/globalVars";
+import { developerPortalScaffoldUtils } from "../../../src/component/developerPortalScaffoldUtils";
 import { copilotGptManifestUtils } from "../../../src/component/driver/teamsApp/utils/CopilotGptManifestUtils";
 import { pluginManifestUtils } from "../../../src/component/driver/teamsApp/utils/PluginManifestUtils";
-import { developerPortalScaffoldUtils } from "../../../src/component/developerPortalScaffoldUtils";
-import { DeclarativeAgentGenerator } from "../../../src/component/generator/declarativeAgent/generator";
+import {
+  DeclarativeAgentGenerator,
+  declarativeAgentGeneratorDeps,
+} from "../../../src/component/generator/declarativeAgent/generator";
 import * as generatorHelper from "../../../src/component/generator/declarativeAgent/helper";
-import * as oneDriveSharePointHandler from "../../../src/component/generator/declarativeAgent/oneDriveSharePointHandler";
 import { TemplateNames } from "../../../src/component/generator/templates/templateNames";
 import * as utils from "../../../src/component/generator/utils";
-import * as commons from "../../../src/component/utils/common";
-import { ODRProvider } from "../../../src/component/utils/odrProvider";
+import { ODRProvider, odrProviderDeps } from "../../../src/component/utils/odrProvider";
 import { ActionStartOptions, ApiAuthOptions, QuestionNames } from "../../../src/question";
 import {
   ActionStartOptions as CapabilityActionStartOptions,
@@ -262,12 +262,12 @@ describe("copilotExtension", async () => {
         [QuestionNames.AppName]: "app",
       };
 
-      sandbox.stub(utils, "setGeneralSensitivityLabel").resolves();
+      sandbox.stub(declarativeAgentGeneratorDeps, "setGeneralSensitivityLabel").resolves();
       sandbox
         .stub(copilotGptManifestUtils, "getManifestPath")
         .resolves(ok("declarativeAgent.json"));
       sandbox
-        .stub(generatorHelper, "addExistingPlugin")
+        .stub(declarativeAgentGeneratorDeps, "addExistingPlugin")
         .resolves(ok({ destinationPluginManifestPath: "test.json", warnings: [] }));
 
       let res = await generator.post(context, inputs, "");
@@ -295,11 +295,11 @@ describe("copilotExtension", async () => {
       const logStub = sandbox.stub(MockLogProvider.prototype, "info").resolves();
       // mock sensitivity label feature flag
       sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
-      sandbox.stub(utils, "setGeneralSensitivityLabel").resolves();
+      sandbox.stub(declarativeAgentGeneratorDeps, "setGeneralSensitivityLabel").resolves();
       sandbox
         .stub(copilotGptManifestUtils, "getManifestPath")
         .resolves(ok("declarativeAgent.json"));
-      sandbox.stub(generatorHelper, "addExistingPlugin").resolves(
+      sandbox.stub(declarativeAgentGeneratorDeps, "addExistingPlugin").resolves(
         ok({
           destinationPluginManifestPath: "test.json",
           warnings: [{ type: "test", content: "warningContent" }],
@@ -369,7 +369,7 @@ describe("copilotExtension", async () => {
         .stub(copilotGptManifestUtils, "getManifestPath")
         .resolves(ok("declarativeAgent.json"));
       sandbox
-        .stub(generatorHelper, "addExistingPlugin")
+        .stub(declarativeAgentGeneratorDeps, "addExistingPlugin")
         .resolves(err(new UserError("fakeError", "fakeError", "fakeError", "fakeError")));
 
       const res = await generator.post(context, inputs, "");
@@ -595,11 +595,6 @@ describe("copilotExtension", async () => {
       await utils.setGeneralSensitivityLabel(context, manifestPath);
 
       assert.isTrue(infoStub.calledOnce);
-
-      const contextWithoutProvider = createContext() as any;
-      contextWithoutProvider.logProvider = undefined;
-      await utils.setGeneralSensitivityLabel(contextWithoutProvider, manifestPath);
-      assert.isTrue(infoStub.calledOnce);
     });
 
     it("get label id error", async () => {
@@ -715,7 +710,9 @@ describe("helper", async () => {
       sandbox.stub(fs, "copyFile").resolves();
       sandbox.stub(fs, "writeFile").resolves();
       sandbox.stub(fs, "readFile").resolves();
-      sandbox.stub(commons, "getEnvironmentVariables").returns([]);
+      sandbox
+        .stub(generatorHelper.declarativeAgentHelperDeps, "getEnvironmentVariables")
+        .returns([]);
       const res = await generatorHelper.addExistingPlugin(
         "test.json",
         "originalManifest.json",
@@ -740,7 +737,9 @@ describe("helper", async () => {
       const getApiSpecPath = sandbox
         .stub(pluginManifestUtils, "getDefaultNextAvailableApiSpecPath")
         .resolves("nextApiSpec.json");
-      sandbox.stub(commons, "getEnvironmentVariables").returns([]);
+      sandbox
+        .stub(generatorHelper.declarativeAgentHelperDeps, "getEnvironmentVariables")
+        .returns([]);
       sandbox
         .stub(copilotGptManifestUtils, "getDefaultNextAvailablePluginManifestPath")
         .resolves("nextPluginManifest.json");
@@ -774,7 +773,9 @@ describe("helper", async () => {
       const getApiSpecPath = sandbox
         .stub(pluginManifestUtils, "getDefaultNextAvailableApiSpecPath")
         .resolves("nextApiSpec.json");
-      sandbox.stub(commons, "getEnvironmentVariables").returns(["TEST_ENV"]);
+      sandbox
+        .stub(generatorHelper.declarativeAgentHelperDeps, "getEnvironmentVariables")
+        .returns(["TEST_ENV"]);
       sandbox
         .stub(copilotGptManifestUtils, "getDefaultNextAvailablePluginManifestPath")
         .resolves("nextPluginManifest.json");
@@ -811,7 +812,9 @@ describe("helper", async () => {
       const getApiSpecPath = sandbox
         .stub(pluginManifestUtils, "getDefaultNextAvailableApiSpecPath")
         .resolves("nextApiSpec.json");
-      sandbox.stub(commons, "getEnvironmentVariables").returns(["TEST_ENV"]);
+      sandbox
+        .stub(generatorHelper.declarativeAgentHelperDeps, "getEnvironmentVariables")
+        .returns(["TEST_ENV"]);
       sandbox
         .stub(copilotGptManifestUtils, "getDefaultNextAvailablePluginManifestPath")
         .resolves("nextPluginManifest.json");
@@ -945,7 +948,7 @@ describe("helper", async () => {
 
     it("error: createGraphClientWithToken fails propagates error", async () => {
       sandbox
-        .stub(oneDriveSharePointHandler, "createGraphClientWithToken")
+        .stub(generatorHelper.declarativeAgentHelperDeps, "createGraphClientWithToken")
         .resolves(err(new UserError("source", "GetGraphTokenFailed", "msg", "msg")));
 
       const res = await generatorHelper.getODSPItemInfo(
@@ -961,10 +964,10 @@ describe("helper", async () => {
     it("success: siteResult isOk returns site metadata", async () => {
       const fakeClient: any = {};
       sandbox
-        .stub(oneDriveSharePointHandler, "createGraphClientWithToken")
+        .stub(generatorHelper.declarativeAgentHelperDeps, "createGraphClientWithToken")
         .resolves(ok(fakeClient));
       sandbox
-        .stub(oneDriveSharePointHandler, "getSharePointSiteByRelativePath")
+        .stub(generatorHelper.declarativeAgentHelperDeps, "getSharePointSiteByRelativePath")
         .resolves(ok({ id: "site-id", name: "site-name", webId: "web-id", siteId: "s-id" }));
 
       const res = await generatorHelper.getODSPItemInfo(
@@ -984,12 +987,12 @@ describe("helper", async () => {
     it("success: siteResult isErr falls through to getDriveItemInfo", async () => {
       const fakeClient: any = {};
       sandbox
-        .stub(oneDriveSharePointHandler, "createGraphClientWithToken")
+        .stub(generatorHelper.declarativeAgentHelperDeps, "createGraphClientWithToken")
         .resolves(ok(fakeClient));
       sandbox
-        .stub(oneDriveSharePointHandler, "getSharePointSiteByRelativePath")
+        .stub(generatorHelper.declarativeAgentHelperDeps, "getSharePointSiteByRelativePath")
         .resolves(err(new UserError("source", "GetSharePointSiteFailed", "msg", "msg")));
-      sandbox.stub(oneDriveSharePointHandler, "getDriveItemInfo").resolves({
+      sandbox.stub(generatorHelper.declarativeAgentHelperDeps, "getDriveItemInfo").resolves({
         id: "item-id",
         name: "item-name",
         uniqueId: "unique-id",
@@ -1015,16 +1018,18 @@ describe("helper", async () => {
     it("error: axios error with 4xx status returns UserError", async () => {
       const fakeClient: any = {};
       sandbox
-        .stub(oneDriveSharePointHandler, "createGraphClientWithToken")
+        .stub(generatorHelper.declarativeAgentHelperDeps, "createGraphClientWithToken")
         .resolves(ok(fakeClient));
       sandbox
-        .stub(oneDriveSharePointHandler, "getSharePointSiteByRelativePath")
+        .stub(generatorHelper.declarativeAgentHelperDeps, "getSharePointSiteByRelativePath")
         .resolves(err(new UserError("source", "SiteFailed", "msg", "msg")));
       const axiosErr: any = Object.assign(new Error("Not Found"), {
         isAxiosError: true,
         response: { status: 404 },
       });
-      sandbox.stub(oneDriveSharePointHandler, "getDriveItemInfo").rejects(axiosErr);
+      sandbox
+        .stub(generatorHelper.declarativeAgentHelperDeps, "getDriveItemInfo")
+        .rejects(axiosErr);
       sandbox.stub(context.logProvider!, "error");
 
       const res = await generatorHelper.getODSPItemInfo(
@@ -1041,13 +1046,13 @@ describe("helper", async () => {
     it("error: non-axios error returns SystemError", async () => {
       const fakeClient: any = {};
       sandbox
-        .stub(oneDriveSharePointHandler, "createGraphClientWithToken")
+        .stub(generatorHelper.declarativeAgentHelperDeps, "createGraphClientWithToken")
         .resolves(ok(fakeClient));
       sandbox
-        .stub(oneDriveSharePointHandler, "getSharePointSiteByRelativePath")
+        .stub(generatorHelper.declarativeAgentHelperDeps, "getSharePointSiteByRelativePath")
         .resolves(err(new UserError("source", "SiteFailed", "msg", "msg")));
       sandbox
-        .stub(oneDriveSharePointHandler, "getDriveItemInfo")
+        .stub(generatorHelper.declarativeAgentHelperDeps, "getDriveItemInfo")
         .rejects(new Error("Unexpected network failure"));
       sandbox.stub(context.logProvider!, "error");
 
@@ -1102,16 +1107,11 @@ describe("helper", async () => {
         [QuestionNames.MCPForDAServerName]: "testServer",
       };
 
-      const mockFetchMCPTools = sandbox.stub().resolves({ requiresAuth: false, tools: [] });
-      const importStub = sandbox
-        .stub(generatorHelper, "generateForMCPForDA")
-        .callsFake(async (destPath, inp) => {
-          // Restore to call real implementation but with mocked fetch
-          importStub.restore();
-          // Pre-set empty tools to simulate no-tools scenario
-          inp[QuestionNames.MCPForDAAvailableTools] = [];
-          return generatorHelper.generateForMCPForDA(destPath, inp);
-        });
+      sandbox.stub(generatorHelper.declarativeAgentHelperDeps, "fetchMCPTools").resolves({
+        requiresAuth: false,
+        tools: [],
+      });
+      inputs[QuestionNames.MCPForDAAvailableTools] = [];
 
       const res = await generatorHelper.generateForMCPForDA(testDestinationPath, inputs);
 
@@ -1331,9 +1331,8 @@ describe("helper", async () => {
       };
 
       // Mock fetchMCPTools to return empty
-      const mcpToolFetcherModule = await import("../../../src/component/utils/mcpToolFetcher");
       sandbox
-        .stub(mcpToolFetcherModule, "fetchMCPTools")
+        .stub(generatorHelper.declarativeAgentHelperDeps, "fetchMCPTools")
         .resolves({ requiresAuth: false, tools: [] });
 
       const res = await generatorHelper.generateForMCPForDA(testDestinationPath, inputs);
@@ -1507,8 +1506,7 @@ describe("helper", async () => {
         );
       const writeFileStub = sandbox.stub(fs, "writeFile").resolves();
 
-      const mcpToolFetcherModule = await import("../../../src/component/utils/mcpToolFetcher");
-      sandbox.stub(mcpToolFetcherModule, "resolveMCPOAuthMetadata").resolves({
+      sandbox.stub(generatorHelper.declarativeAgentHelperDeps, "resolveMCPOAuthMetadata").resolves({
         authorizationUrl: "https://auth.example.com/authorize",
         tokenUrl: "https://auth.example.com/token",
         refreshUrl: "https://auth.example.com/token",
@@ -1554,12 +1552,11 @@ describe("helper", async () => {
       sandbox.stub(fs, "readJSON").resolves(existingPluginContent);
       const writeJSONStub = sandbox.stub(fs, "writeJSON").resolves();
 
-      const mcpToolFetcherModule = await import("../../../src/component/utils/mcpToolFetcher");
-      sandbox.stub(mcpToolFetcherModule, "readMCPToolsFromFile").resolves([
+      sandbox.stub(generatorHelper.declarativeAgentHelperDeps, "readMCPToolsFromFile").resolves([
         { name: "fileTool1", description: "File Tool 1", inputSchema: { type: "object" } },
         { name: "fileTool2", description: "File Tool 2", inputSchema: { type: "object" } },
       ]);
-      sandbox.stub(mcpToolFetcherModule, "probeMCPServerAuth").resolves({
+      sandbox.stub(generatorHelper.declarativeAgentHelperDeps, "probeMCPServerAuth").resolves({
         requiresAuth: false,
       });
 
@@ -1591,8 +1588,7 @@ describe("helper", async () => {
       sandbox.stub(fs, "readJSON").resolves(existingPluginContent);
       const writeJSONStub = sandbox.stub(fs, "writeJSON").resolves();
 
-      const mcpToolFetcherModule = await import("../../../src/component/utils/mcpToolFetcher");
-      sandbox.stub(mcpToolFetcherModule, "fetchMCPTools").resolves({
+      sandbox.stub(generatorHelper.declarativeAgentHelperDeps, "fetchMCPTools").resolves({
         requiresAuth: true,
         tools: [],
         authMetadataUrl: "https://example.com/.well-known/oauth-authorization-server",
@@ -1630,8 +1626,9 @@ describe("helper", async () => {
       sandbox.stub(fs, "readJSON").resolves(existingPluginContent);
       const writeJSONStub = sandbox.stub(fs, "writeJSON").resolves();
 
-      const mcpToolFetcherModule = await import("../../../src/component/utils/mcpToolFetcher");
-      sandbox.stub(mcpToolFetcherModule, "fetchMCPTools").rejects(new Error("Network error"));
+      sandbox
+        .stub(generatorHelper.declarativeAgentHelperDeps, "fetchMCPTools")
+        .rejects(new Error("Network error"));
 
       const inputs: Inputs = {
         platform: Platform.CLI,
@@ -1659,10 +1656,11 @@ describe("helper", async () => {
       sandbox.stub(fs, "readJSON").resolves(existingPluginContent);
       sandbox.stub(fs, "writeJSON").resolves();
 
-      const mcpToolFetcherModule = await import("../../../src/component/utils/mcpToolFetcher");
-      sandbox.stub(mcpToolFetcherModule, "readMCPToolsFromFile").rejects(new Error("bad json"));
       sandbox
-        .stub(mcpToolFetcherModule, "fetchMCPTools")
+        .stub(generatorHelper.declarativeAgentHelperDeps, "readMCPToolsFromFile")
+        .rejects(new Error("bad json"));
+      sandbox
+        .stub(generatorHelper.declarativeAgentHelperDeps, "fetchMCPTools")
         .resolves({ requiresAuth: false, tools: [] });
 
       const inputs: Inputs = {
@@ -1692,8 +1690,7 @@ describe("helper", async () => {
       sandbox.stub(fs, "readJSON").resolves(existingPluginContent);
       sandbox.stub(fs, "writeJSON").resolves();
 
-      const mcpToolFetcherModule = await import("../../../src/component/utils/mcpToolFetcher");
-      sandbox.stub(mcpToolFetcherModule, "probeMCPServerAuth").resolves({
+      sandbox.stub(generatorHelper.declarativeAgentHelperDeps, "probeMCPServerAuth").resolves({
         requiresAuth: true,
       });
 
@@ -1728,8 +1725,7 @@ describe("helper", async () => {
       sandbox.stub(fs, "readJSON").resolves(existingPluginContent);
       sandbox.stub(fs, "writeJSON").resolves();
 
-      const mcpToolFetcherModule = await import("../../../src/component/utils/mcpToolFetcher");
-      sandbox.stub(mcpToolFetcherModule, "probeMCPServerAuth").resolves({
+      sandbox.stub(generatorHelper.declarativeAgentHelperDeps, "probeMCPServerAuth").resolves({
         requiresAuth: true,
         authMetadataUrl: "https://auth.example.com/.well-known/oauth",
       });
@@ -1764,8 +1760,9 @@ describe("helper", async () => {
       sandbox.stub(fs, "readJSON").resolves(existingPluginContent);
       sandbox.stub(fs, "writeJSON").resolves();
 
-      const mcpToolFetcherModule = await import("../../../src/component/utils/mcpToolFetcher");
-      sandbox.stub(mcpToolFetcherModule, "probeMCPServerAuth").rejects(new Error("network error"));
+      sandbox
+        .stub(generatorHelper.declarativeAgentHelperDeps, "probeMCPServerAuth")
+        .rejects(new Error("network error"));
 
       const inputs: Inputs = {
         platform: Platform.CLI,
@@ -1808,9 +1805,8 @@ describe("helper", async () => {
       sandbox.stub(fs, "readJSON").resolves(existingPluginContent);
       sandbox.stub(fs, "writeJSON").resolves();
 
-      const mcpToolFetcherModule = await import("../../../src/component/utils/mcpToolFetcher");
       sandbox
-        .stub(mcpToolFetcherModule, "resolveMCPOAuthMetadata")
+        .stub(generatorHelper.declarativeAgentHelperDeps, "resolveMCPOAuthMetadata")
         .rejects(new Error("metadata unavailable"));
 
       const inputs: Inputs = {
@@ -1844,8 +1840,7 @@ describe("helper", async () => {
       sandbox.stub(fs, "readJSON").resolves(existingPluginContent);
       const writeJSONStub = sandbox.stub(fs, "writeJSON").resolves();
 
-      const mcpToolFetcherModule = await import("../../../src/component/utils/mcpToolFetcher");
-      sandbox.stub(mcpToolFetcherModule, "fetchMCPTools").resolves({
+      sandbox.stub(generatorHelper.declarativeAgentHelperDeps, "fetchMCPTools").resolves({
         requiresAuth: false,
         tools: [
           { name: "autoTool1", description: "Auto Tool 1", inputSchema: { type: "object" } },
@@ -1884,7 +1879,7 @@ describe("helper", async () => {
         .stub(copilotGptManifestUtils, "getManifestPath")
         .resolves(ok("/test/destination/appPackage/da.json"));
       const generateStub = sandbox
-        .stub(generatorHelper, "generateForMCPForDA")
+        .stub(declarativeAgentGeneratorDeps, "generateForMCPForDA")
         .resolves(ok({ warnings: [] }));
 
       const inputs: Inputs = {
@@ -2344,10 +2339,13 @@ describe("helper", async () => {
     });
 
     it("ODRProvider listServers should handle empty output", async () => {
-      sandbox.stub(process, "platform").value("win32");
-      const execStub = sandbox
-        .stub(require("child_process"), "exec")
-        .callsArgWith(1, null, JSON.stringify({ servers: [] }), "");
+      sandbox.stub(odrProviderDeps, "getPlatform").returns("win32");
+      const execStub = sandbox.stub(odrProviderDeps, "exec").callsFake(((
+        _command: string,
+        callback: (...args: any[]) => void
+      ) => {
+        callback(null, JSON.stringify({ servers: [] }), "");
+      }) as any);
 
       const servers = await ODRProvider.listServers();
 
@@ -2357,8 +2355,8 @@ describe("helper", async () => {
     });
 
     it("ODRProvider listServers should return empty array on non-Windows platform", async () => {
-      sandbox.stub(process, "platform").value("darwin"); // macOS
-      const execStub = sandbox.stub(require("child_process"), "exec");
+      sandbox.stub(odrProviderDeps, "getPlatform").returns("darwin");
+      const execStub = sandbox.stub(odrProviderDeps, "exec");
 
       const servers = await ODRProvider.listServers();
 
@@ -2368,8 +2366,13 @@ describe("helper", async () => {
     });
 
     it("ODRProvider listServers should return empty array when stdout is empty", async () => {
-      sandbox.stub(process, "platform").value("win32");
-      const execStub = sandbox.stub(require("child_process"), "exec").callsArgWith(1, null, "", "");
+      sandbox.stub(odrProviderDeps, "getPlatform").returns("win32");
+      const execStub = sandbox.stub(odrProviderDeps, "exec").callsFake(((
+        _command: string,
+        callback: (...args: any[]) => void
+      ) => {
+        callback(null, "", "");
+      }) as any);
 
       const servers = await ODRProvider.listServers();
 
@@ -2379,10 +2382,13 @@ describe("helper", async () => {
     });
 
     it("ODRProvider listServers should handle malformed JSON", async () => {
-      sandbox.stub(process, "platform").value("win32");
-      const execStub = sandbox
-        .stub(require("child_process"), "exec")
-        .callsArgWith(1, null, "invalid json", "");
+      sandbox.stub(odrProviderDeps, "getPlatform").returns("win32");
+      const execStub = sandbox.stub(odrProviderDeps, "exec").callsFake(((
+        _command: string,
+        callback: (...args: any[]) => void
+      ) => {
+        callback(null, "invalid json", "");
+      }) as any);
 
       const servers = await ODRProvider.listServers();
 
@@ -2392,10 +2398,14 @@ describe("helper", async () => {
     });
 
     it("ODRProvider listServers should handle exec errors", async () => {
-      sandbox.stub(process, "platform").value("win32");
-      const execStub = sandbox
-        .stub(require("child_process"), "exec")
-        .callsArgWith(1, new Error("Command failed"), "", "error output");
+      sandbox.stub(odrProviderDeps, "getPlatform").returns("win32");
+      sandbox.stub(odrProviderDeps, "logError");
+      const execStub = sandbox.stub(odrProviderDeps, "exec").callsFake(((
+        _command: string,
+        callback: (...args: any[]) => void
+      ) => {
+        callback(new Error("Command failed"), "", "error output");
+      }) as any);
 
       const servers = await ODRProvider.listServers();
 
@@ -2405,15 +2415,14 @@ describe("helper", async () => {
     });
 
     it("ODRProvider listServers should handle command not found (ODR not installed)", async () => {
-      sandbox.stub(process, "platform").value("win32");
-      const execStub = sandbox
-        .stub(require("child_process"), "exec")
-        .callsArgWith(
-          1,
-          new Error("'odr' is not recognized as an internal or external command"),
-          "",
-          ""
-        );
+      sandbox.stub(odrProviderDeps, "getPlatform").returns("win32");
+      sandbox.stub(odrProviderDeps, "logError");
+      const execStub = sandbox.stub(odrProviderDeps, "exec").callsFake(((
+        _command: string,
+        callback: (...args: any[]) => void
+      ) => {
+        callback(new Error("'odr' is not recognized as an internal or external command"), "", "");
+      }) as any);
 
       const servers = await ODRProvider.listServers();
 

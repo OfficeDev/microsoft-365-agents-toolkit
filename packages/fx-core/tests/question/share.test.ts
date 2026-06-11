@@ -11,11 +11,9 @@ import {
   ok,
 } from "@microsoft/teamsfx-api";
 import { assert } from "chai";
-import "mocha";
 import * as sinon from "sinon";
 import * as teamsDevPortalClientModule from "../../src/client/teamsDevPortalClient";
 import { TOOLS, setTools } from "../../src/common/globalVars";
-import * as shareUtils from "../../src/component/driver/share/utils";
 import { AppUser } from "../../src/component/driver/teamsApp/interfaces/appdefinitions/appUser";
 import * as collaborator from "../../src/core/collaborator";
 import { InputValidationError } from "../../src/error/common";
@@ -24,8 +22,10 @@ import {
   ShareOperationOption,
   ShareOperationOptions,
   ShareScopeOption,
+  removeSharedAccessNode,
   selectUsersToRemoveSharedAccess,
   shareNode,
+  shareQuestionDeps,
 } from "../../src/question/share";
 import { MockTools } from "../core/utils";
 
@@ -197,7 +197,9 @@ describe("selectUsersToRemoveSharedAccess", () => {
     sandbox.stub(TOOLS.tokenProvider.m365TokenProvider, "getAccessToken").resolves(ok("token"));
 
     // Mock parseShareAppActionYamlConfig to return error
-    sandbox.stub(shareUtils, "parseShareAppActionYamlConfig").resolves(err(mockError as FxError));
+    sandbox
+      .stub(shareQuestionDeps, "parseShareAppActionYamlConfig")
+      .resolves(err(mockError as FxError));
 
     try {
       await dynamicOptions({ projectPath: "path/to/project" } as unknown as Inputs);
@@ -216,7 +218,7 @@ describe("selectUsersToRemoveSharedAccess", () => {
 
     // Mock parseShareAppActionYamlConfig
     sandbox
-      .stub(shareUtils, "parseShareAppActionYamlConfig")
+      .stub(shareQuestionDeps, "parseShareAppActionYamlConfig")
       .resolves(ok({ teamsappId: "mockAppId", titleId: "mockTitleId", appId: "mockAppId" }));
 
     // Mock teamsDevPortalClient instance
@@ -242,7 +244,7 @@ describe("selectUsersToRemoveSharedAccess", () => {
 
     // Mock parseShareAppActionYamlConfig
     sandbox
-      .stub(shareUtils, "parseShareAppActionYamlConfig")
+      .stub(shareQuestionDeps, "parseShareAppActionYamlConfig")
       .resolves(ok({ teamsappId: "mockAppId", titleId: "mockTitleId", appId: "mockAppId" }));
 
     // Mock teamsDevPortalClient instance
@@ -276,7 +278,7 @@ describe("selectUsersToRemoveSharedAccess", () => {
 
     // Mock parseShareAppActionYamlConfig
     sandbox
-      .stub(shareUtils, "parseShareAppActionYamlConfig")
+      .stub(shareQuestionDeps, "parseShareAppActionYamlConfig")
       .resolves(ok({ teamsappId: "mockAppId", titleId: "mockTitleId", appId: "mockAppId" }));
 
     // Mock app users including current user
@@ -321,5 +323,29 @@ describe("selectUsersToRemoveSharedAccess", () => {
     assert.equal((options[1] as OptionItem).id, "user2@example.com");
     assert.equal((options[1] as OptionItem).label, "User 2");
     assert.equal((options[1] as OptionItem).description, "user2@example.com");
+  });
+});
+
+describe("shareQuestionDeps", () => {
+  it("should execute dependency wrapper and surface parser error", async () => {
+    try {
+      await shareQuestionDeps.parseShareAppActionYamlConfig("path/to/project");
+      assert.fail("Expected function to throw");
+    } catch (error) {
+      assert.include((error as Error).message, "Missing required file");
+    }
+  });
+});
+
+describe("removeSharedAccessNode", () => {
+  it("should contain group root with selectUsersToRemoveSharedAccess as child", () => {
+    const node = removeSharedAccessNode();
+
+    assert.equal((node.data as { type: string }).type, "group");
+    assert.isArray(node.children);
+    assert.lengthOf(node.children!, 1);
+    const childQuestion = node.children![0].data;
+    assert.equal((childQuestion as { name: string }).name, QuestionNames.RemoveUsers);
+    assert.equal((childQuestion as { type: string }).type, "multiSelect");
   });
 });

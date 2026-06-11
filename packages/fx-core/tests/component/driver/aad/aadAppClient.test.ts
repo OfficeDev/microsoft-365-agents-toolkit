@@ -1,7 +1,5 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
-
-import "mocha";
 import * as sinon from "sinon";
 import { AadAppClient } from "../../../../src/client/aadAppClient";
 import chai from "chai";

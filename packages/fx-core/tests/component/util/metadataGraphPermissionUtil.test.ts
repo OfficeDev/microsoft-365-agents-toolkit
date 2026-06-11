@@ -1,17 +1,35 @@
-import { ok } from "@microsoft/teamsfx-api";
+import { FxError, LogProvider, ok, Result } from "@microsoft/teamsfx-api";
 import { assert } from "chai";
-import "mocha";
-import sinon from "sinon";
 import fs from "fs-extra";
-import { ExecutionResult, ProjectModel } from "../../../src/component/configManager/interface";
-import { DriverContext } from "../../../src/component/driver/interface/commonArgs";
+import sinon from "sinon";
 import { setTools } from "../../../src/common/globalVars";
-import { MockTools } from "../../core/utils";
-import { metadataGraphPermissionUtil } from "../../../src/component/utils/metadataGraphPermssion";
 import { TelemetryProperty } from "../../../src/common/telemetry";
+import {
+  DriverInstance,
+  ExecutionResult,
+  ProjectModel,
+} from "../../../src/component/configManager/interface";
 import { graphAppId } from "../../../src/component/driver/aad/permissions";
-import * as permission from "../../../src/component/driver/aad/permissions";
-import { mockedResolveDriverInstances } from "../coordinator/coordinator.test";
+import { DriverContext } from "../../../src/component/driver/interface/commonArgs";
+import {
+  metadataGraphPermissionDeps,
+  metadataGraphPermissionUtil,
+} from "../../../src/component/utils/metadataGraphPermssion";
+import { MockTools } from "../../core/utils";
+
+function mockedResolveDriverInstances(log: LogProvider): Result<DriverInstance[], FxError> {
+  return ok([
+    {
+      uses: "arm/deploy",
+      with: undefined,
+      instance: {
+        execute: async (args: unknown, context: DriverContext): Promise<ExecutionResult> => {
+          return { result: ok(new Map()), summaries: [] };
+        },
+      },
+    },
+  ]);
+}
 
 describe("metadata graph permission util", () => {
   const manifestContent = `
@@ -108,7 +126,7 @@ describe("metadata graph permission util", () => {
   });
 
   it("getPermissionSummary no graph permission map", async () => {
-    sandbox.stub(permission, "getDetailedGraphPermissionMap").returns(null);
+    sandbox.stub(metadataGraphPermissionDeps, "getDetailedGraphPermissionMap").returns(null);
     const manifest = JSON.parse(manifestContent);
     const res = metadataGraphPermissionUtil.summary(manifest);
     assert(res === undefined);

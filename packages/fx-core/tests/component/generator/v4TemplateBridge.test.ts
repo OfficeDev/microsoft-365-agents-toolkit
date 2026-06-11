@@ -1,21 +1,14 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { Platform } from "@microsoft/teamsfx-api";
+import { Platform, SystemError } from "@microsoft/teamsfx-api";
 import chai, { assert } from "chai";
 import chaiAsPromised from "chai-as-promised";
 import fs from "fs-extra";
-import "mocha";
+import { err, ok } from "neverthrow";
 import os from "os";
 import path from "path";
 import { createSandbox } from "sinon";
-import { err, ok } from "neverthrow";
-import { SystemError } from "@microsoft/teamsfx-api";
-import { TemplateFileEntry, TemplateSource } from "../../../src/v4";
-import * as templateSourceMod from "../../../src/v4/distribution/templateSource";
-import * as templateSourcePortMod from "../../../src/v4/distribution/templateSourcePort";
-import * as bundledFloorMod from "../../../src/v4/distribution/bundledFloor";
-import * as templatePackageMod from "../../../src/v4/distribution/templatePackage";
 import { TelemetryProperty } from "../../../src/common/telemetry";
 import { GeneratorContext } from "../../../src/component/generator/generatorAction";
 import {
@@ -25,7 +18,9 @@ import {
 import {
   renderTemplateEntries,
   scaffoldFromV4Channel,
+  v4TemplateBridgeDeps,
 } from "../../../src/component/generator/v4TemplateBridge";
+import { TemplateFileEntry, TemplateSource } from "../../../src/v4";
 
 chai.use(chaiAsPromised);
 
@@ -220,8 +215,8 @@ describe("v4TemplateBridge.scaffoldFromV4Channel", () => {
 
   beforeEach(async () => {
     tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "v4bridge-"));
-    sandbox.stub(templateSourcePortMod, "createTemplateSourcePort").returns({} as any);
-    sandbox.stub(bundledFloorMod, "loadBundledFloor").returns({} as any);
+    sandbox.stub(v4TemplateBridgeDeps, "createTemplateSourcePort").returns({} as any);
+    sandbox.stub(v4TemplateBridgeDeps, "loadBundledFloor").returns({} as any);
   });
 
   afterEach(async () => {
@@ -232,11 +227,9 @@ describe("v4TemplateBridge.scaffoldFromV4Channel", () => {
   it("resolves, reads, renders and records source telemetry on the happy path", async () => {
     const ctx = makeContext("declarative-agent-basic", tmpDir, {});
     const entries: TemplateFileEntry[] = [{ path: "manifest.json", data: Buffer.from('{"a":1}') }];
-    sandbox.stub(templateSourceMod, "resolveTemplateSource").resolves(ok(source));
-    sandbox
-      .stub(templateSourcePortMod, "loadResolvedPackage")
-      .returns(ok(Buffer.from("zip-bytes")));
-    sandbox.stub(templatePackageMod, "openTemplatePackage").returns(ok(entries));
+    sandbox.stub(v4TemplateBridgeDeps, "resolveTemplateSource").resolves(ok(source));
+    sandbox.stub(v4TemplateBridgeDeps, "loadResolvedPackage").returns(ok(Buffer.from("zip-bytes")));
+    sandbox.stub(v4TemplateBridgeDeps, "openTemplatePackage").returns(ok(entries));
     const telemetryProps: Record<string, string> = {};
 
     const result = await scaffoldFromV4Channel(ctx, locator, telemetryProps);
@@ -255,7 +248,7 @@ describe("v4TemplateBridge.scaffoldFromV4Channel", () => {
   it("throws and records no source telemetry when resolution fails", async () => {
     const ctx = makeContext("declarative-agent-basic", tmpDir, {});
     const resolveError = new SystemError("v4", "ResolveFailed", "no tag");
-    sandbox.stub(templateSourceMod, "resolveTemplateSource").resolves(err(resolveError));
+    sandbox.stub(v4TemplateBridgeDeps, "resolveTemplateSource").resolves(err(resolveError));
     const telemetryProps: Record<string, string> = {};
 
     await assert.isRejected(scaffoldFromV4Channel(ctx, locator, telemetryProps), "no tag");
@@ -264,9 +257,9 @@ describe("v4TemplateBridge.scaffoldFromV4Channel", () => {
 
   it("throws but still records source telemetry when reading the package fails", async () => {
     const ctx = makeContext("declarative-agent-basic", tmpDir, {});
-    sandbox.stub(templateSourceMod, "resolveTemplateSource").resolves(ok(source));
+    sandbox.stub(v4TemplateBridgeDeps, "resolveTemplateSource").resolves(ok(source));
     sandbox
-      .stub(templateSourcePortMod, "loadResolvedPackage")
+      .stub(v4TemplateBridgeDeps, "loadResolvedPackage")
       .returns(err(new SystemError("v4", "DigestMismatch", "bad digest")));
     const telemetryProps: Record<string, string> = {};
 
@@ -277,10 +270,10 @@ describe("v4TemplateBridge.scaffoldFromV4Channel", () => {
 
   it("throws when the package cannot be opened", async () => {
     const ctx = makeContext("declarative-agent-basic", tmpDir, {});
-    sandbox.stub(templateSourceMod, "resolveTemplateSource").resolves(ok(source));
-    sandbox.stub(templateSourcePortMod, "loadResolvedPackage").returns(ok(Buffer.from("zip")));
+    sandbox.stub(v4TemplateBridgeDeps, "resolveTemplateSource").resolves(ok(source));
+    sandbox.stub(v4TemplateBridgeDeps, "loadResolvedPackage").returns(ok(Buffer.from("zip")));
     sandbox
-      .stub(templatePackageMod, "openTemplatePackage")
+      .stub(v4TemplateBridgeDeps, "openTemplatePackage")
       .returns(err(new SystemError("v4", "OpenFailed", "corrupt zip")));
 
     await assert.isRejected(scaffoldFromV4Channel(ctx, locator, {}), "corrupt zip");

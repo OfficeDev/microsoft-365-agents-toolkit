@@ -2,7 +2,6 @@
 // Licensed under the MIT license.
 
 import { expect } from "chai";
-import "mocha";
 import sinon from "sinon";
 import { TextType, colorize, replaceTemplateString } from "../../src/colorize";
 import ScreenManager from "../../src/console/screen";

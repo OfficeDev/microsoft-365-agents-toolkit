@@ -1,10 +1,16 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
+import { ok } from "@microsoft/teamsfx-api";
+import axios from "axios";
 import { assert } from "chai";
-import "mocha";
+import fs from "fs-extra";
 import { createSandbox } from "sinon";
 import { setTools } from "../../../../src/common/globalVars";
+import { ArmDeployDriver } from "../../../../src/component/driver/arm/deploy";
+import { ArmDeployImpl } from "../../../../src/component/driver/arm/deployImpl";
+import { azureClientHelper } from "../../../../src/component/utils/azureClient";
+import { cpUtils } from "../../../../src/component/utils/depsChecker/cpUtils";
 import {
   MockedAzureAccountProvider,
   MockedM365Provider,
@@ -13,13 +19,6 @@ import {
   MockTools,
   MockUserInteraction,
 } from "../../../core/utils";
-import { ArmDeployDriver } from "../../../../src/component/driver/arm/deploy";
-import fs from "fs-extra";
-import { ArmDeployImpl } from "../../../../src/component/driver/arm/deployImpl";
-import { ok } from "@microsoft/teamsfx-api";
-import * as bicepChecker from "../../../../src/component/driver/arm/util/bicepChecker";
-import axios from "axios";
-import { cpUtils } from "../../../../src/component/utils/depsChecker/cpUtils";
 
 describe("Arm driver deploy", () => {
   const sandbox = createSandbox();
@@ -52,8 +51,9 @@ describe("Arm driver deploy", () => {
           value: "mockValue",
         },
       });
+      sandbox.stub(azureClientHelper, "createRmClient").resolves({} as any);
       sandbox.stub(ArmDeployImpl.prototype, "executeDeployment").resolves(deployRes as any);
-      sandbox.stub(bicepChecker, "ensureBicepForDriver").resolves("bicep");
+      sandbox.stub(ArmDeployImpl.prototype, "ensureBicepCli").resolves("bicep");
       const fakeAxiosInstance = axios.create();
       sandbox.stub(axios, "create").returns(fakeAxiosInstance);
       sandbox.stub(fakeAxiosInstance, "get").resolves({

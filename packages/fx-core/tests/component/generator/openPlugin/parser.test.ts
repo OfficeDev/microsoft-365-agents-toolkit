@@ -3,7 +3,6 @@
 
 import { expect } from "chai";
 import fs from "fs-extra";
-import "mocha";
 import * as os from "os";
 import * as path from "path";
 import { readOpenPluginDir } from "../../../../src/component/generator/openPlugin/parser";

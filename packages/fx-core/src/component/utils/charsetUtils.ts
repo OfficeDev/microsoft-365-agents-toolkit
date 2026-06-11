@@ -203,7 +203,7 @@ export async function getSystemEncoding(cmd?: string): Promise<string> {
           resolve(DefaultEncoding);
           return;
         }
-        const output = stdout.toString().trim();
+        const output = (stdout ?? "").toString().trim();
         const code = output.match(/:\s*(\d+)/)?.[1] || "";
         const encoding = chcpCodeToEncoding[code] || DefaultEncoding;
         resolve(encoding);
@@ -216,7 +216,7 @@ export async function getSystemEncoding(cmd?: string): Promise<string> {
           resolve(DefaultEncoding);
           return;
         }
-        const output = stdout.toString().toLowerCase();
+        const output = (stdout ?? "").toString().toLowerCase();
         const encoding = output || DefaultEncoding;
         resolve(encoding);
       });
@@ -228,7 +228,7 @@ export async function getSystemEncoding(cmd?: string): Promise<string> {
           resolve(DefaultEncoding);
           return;
         }
-        const appleLocale = stdout.trim();
+        const appleLocale = (stdout ?? "").toString().trim();
         const localeParts = appleLocale.split("_");
         const language = localeParts[0].toLowerCase();
         const encoding = appleLanguageToEncoding[language] || DefaultEncoding;

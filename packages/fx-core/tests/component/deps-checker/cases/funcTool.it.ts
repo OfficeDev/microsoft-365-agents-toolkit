@@ -7,7 +7,6 @@
 import chai from "chai";
 import spies from "chai-spies";
 import * as fs from "fs-extra";
-import "mocha";
 import * as os from "os";
 import * as path from "path";
 import semver from "semver";

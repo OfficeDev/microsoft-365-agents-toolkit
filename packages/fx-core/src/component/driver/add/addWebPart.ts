@@ -7,11 +7,11 @@ import * as fs from "fs-extra";
 import path from "path";
 import { Service } from "typedi";
 import * as util from "util";
+import { createContext } from "../../../common/globalVars";
 import { getLocalizedString } from "../../../common/localizeUtils";
 import { QuestionNames } from "../../../question/constants";
 import { SPFxGenerator } from "../../generator/spfx/spfxGenerator";
 import { ManifestTemplate } from "../../generator/spfx/utils/constants";
-import { createContext } from "../../../common/globalVars";
 import { wrapRun } from "../../utils/common";
 import { DriverContext } from "../interface/commonArgs";
 import { ExecutionResult, StepDriver } from "../interface/stepDriver";
@@ -21,6 +21,13 @@ import { WrapDriverContext } from "../util/wrapUtil";
 import { NoConfigurationError } from "./error/noConfigurationError";
 import { AddWebPartArgs } from "./interface/AddWebPartArgs";
 import { Constants } from "./utility/constants";
+
+export const addWebPartDeps = {
+  pathExists: fs.pathExists,
+  createContext,
+  doYeomanScaffold: SPFxGenerator.doYeomanScaffold,
+  addCapabilities: manifestUtils.addCapabilities.bind(manifestUtils),
+};
 
 @Service(Constants.ActionName)
 export class AddWebPartDriver implements StepDriver {
@@ -54,7 +61,7 @@ export class AddWebPartDriver implements StepDriver {
 
     const yorcPath = path.join(spfxFolder, Constants.YO_RC_FILE);
     context.logProvider.verbose(`Checking configuration file under ${yorcPath}...`);
-    if (!(await fs.pathExists(yorcPath))) {
+    if (!(await addWebPartDeps.pathExists(yorcPath))) {
       throw new NoConfigurationError();
     }
     context.logProvider.verbose(`Configuration file exists.`);
@@ -71,8 +78,8 @@ export class AddWebPartDriver implements StepDriver {
       `SPFx web part name: ${webpartName}, SPFx folder: ${spfxFolder}, manifest path: ${manifestPath}, local manifest path: ${localManifestPath}`
     );
 
-    const SPFxContext = createContext();
-    const yeomanRes = await SPFxGenerator.doYeomanScaffold(
+    const SPFxContext = addWebPartDeps.createContext();
+    const yeomanRes = await addWebPartDeps.doYeomanScaffold(
       SPFxContext,
       inputs,
       context.projectPath
@@ -107,7 +114,7 @@ export class AddWebPartDriver implements StepDriver {
     context.logProvider.verbose(
       `Exposing web part with component id ${componentId} to local manifest file under ${localManifestPath}...`
     );
-    const localRes = await manifestUtils.addCapabilities(
+    const localRes = await addWebPartDeps.addCapabilities(
       { ...inputs, projectPath: context.projectPath },
       [{ name: "staticTab", snippet: localStaticSnippet }]
     );
@@ -118,7 +125,7 @@ export class AddWebPartDriver implements StepDriver {
     context.logProvider.verbose(
       `Exposing web part with component id ${componentId} to remote manifest file under ${manifestPath}...`
     );
-    const remoteRes = await manifestUtils.addCapabilities(
+    const remoteRes = await addWebPartDeps.addCapabilities(
       { ...inputs, projectPath: context.projectPath },
       [{ name: "staticTab", snippet: remoteStaticSnippet }]
     );

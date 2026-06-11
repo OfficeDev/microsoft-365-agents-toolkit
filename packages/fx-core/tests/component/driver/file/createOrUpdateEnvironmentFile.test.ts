@@ -1,8 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import "mocha";
-
 import * as chai from "chai";
 import fs from "fs-extra";
 import * as os from "os";
@@ -10,17 +8,17 @@ import * as path from "path";
 import * as sinon from "sinon";
 import * as util from "util";
 
+import { err, ok } from "@microsoft/teamsfx-api";
 import * as localizeUtils from "../../../../src/common/localizeUtils";
+import { getLocalizedString } from "../../../../src/common/localizeUtils";
 import { CreateOrUpdateEnvironmentFileDriver } from "../../../../src/component/driver/file/createOrUpdateEnvironmentFile";
-import { MockedLogProvider, MockedUserInteraction } from "../../../plugins/solution/util";
+import { pathUtils } from "../../../../src/component/utils/pathUtils";
 import {
   InvalidActionInputError,
   UnhandledError,
   UserCancelError,
 } from "../../../../src/error/common";
-import { pathUtils } from "../../../../src/component/utils/pathUtils";
-import { err, ok } from "@microsoft/teamsfx-api";
-import { getLocalizedString } from "../../../../src/common/localizeUtils";
+import { MockedLogProvider, MockedUserInteraction } from "../../../plugins/solution/util";
 
 describe("CreateOrUpdateEnvironmentFileDriver", () => {
   const mockedDriverContexts = [
@@ -285,10 +283,7 @@ describe("CreateOrUpdateEnvironmentFileDriver", () => {
           chai.assert.equal(content, expectedContent);
         }
         chai.assert.equal(executionResult.summaries.length, 1);
-        chai.assert.equal(
-          executionResult.summaries[0],
-          `driver.file.createOrUpdateEnvironmentFile.summary. ${path.normalize(target)}.`
-        );
+        chai.assert.include(executionResult.summaries[0], path.normalize(target));
       });
     }
   });

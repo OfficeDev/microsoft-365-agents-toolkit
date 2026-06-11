@@ -6,13 +6,13 @@ import AdmZip from "adm-zip";
 import axios, { AxiosError, AxiosResponse } from "axios";
 import * as fs from "fs-extra";
 import { cloneDeep } from "lodash";
-import Mustache, { Context, Writer } from "mustache";
+import Mustache from "mustache";
 import path from "path";
 import semver from "semver";
 import { GraphClient } from "../../client/graphClient";
 import { ListSensitivityLabelScope } from "../../common/constants";
 import { getDefaultString } from "../../common/localizeUtils";
-import { sendRequestWithRetry, sendRequestWithTimeout } from "../../common/requestUtils";
+import * as requestUtils from "../../common/requestUtils";
 import { SampleConfig, SampleUrlInfo, sampleProvider } from "../../common/samples";
 import templateConfig from "../../common/templates-config.json";
 import { InputValidationError } from "../../error";
@@ -107,7 +107,7 @@ async function selectTemplateVersion(
 }
 
 async function fetchTagList(url: string, tryLimits: number, timeoutInMs: number): Promise<string> {
-  const res: AxiosResponse<string> = await sendRequestWithTimeout(
+  const res: AxiosResponse<string> = await requestUtils.sendRequestWithTimeout(
     async (cancelToken) => {
       return await axios.get(url, {
         cancelToken: cancelToken,
@@ -160,7 +160,7 @@ export async function fetchZipFromUrl(
   tryLimits = defaultTryLimits,
   timeoutInMs = defaultTimeoutInMs
 ): Promise<AdmZip> {
-  const res: AxiosResponse<any> = await sendRequestWithRetry(async () => {
+  const res: AxiosResponse<any> = await requestUtils.sendRequestWithRetry(async () => {
     return await axios.get(url, {
       responseType: "arraybuffer",
       timeout: timeoutInMs,
@@ -210,8 +210,8 @@ export function renderTemplateFileData(
   //only mustache files with name ending with .tpl
   if (path.extname(fileName) === templateFileExt) {
     const token = escapeEmptyVariable(fileData.toString(), variables ?? {});
-    const writer = new Writer();
-    const result = writer.renderTokens(token, new Context(variables));
+    const writer = new Mustache.Writer();
+    const result = writer.renderTokens(token, new Mustache.Context(variables));
     // Be compatible with current stable templates, can be removed after new template released.
     // Disable HTML escaping to prevent URLs and other content from being encoded
     Mustache.escape = (value) => value;
@@ -325,7 +325,7 @@ type SampleFileInfo = {
 export async function getSampleFileInfo(urlInfo: SampleUrlInfo, retryLimits: number): Promise<any> {
   const fileInfoUrl = `https://api.github.com/repos/${urlInfo.owner}/${urlInfo.repository}/git/trees/${urlInfo.ref}?recursive=1`;
   const fileInfo = (
-    await sendRequestWithRetry(async () => {
+    await requestUtils.sendRequestWithRetry(async () => {
       return await axios.get(fileInfoUrl);
     }, retryLimits)
   ).data as SampleFileInfo;
@@ -348,7 +348,7 @@ async function downloadSampleFiles(
 ): Promise<void> {
   const downloadCallback = async (samplePath: string) => {
     const lfsRegex = /^.*oid sha256:[0-9a-f]+\nsize \d+/gm;
-    const file = (await sendRequestWithRetry(async () => {
+    const file = (await requestUtils.sendRequestWithRetry(async () => {
       const content = await axios.get(fileUrlPrefix + samplePath, { responseType: "arraybuffer" });
       if (lfsRegex.test(content.data.toString())) {
         return await axios.get(

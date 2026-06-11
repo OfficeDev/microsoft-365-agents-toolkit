@@ -5,8 +5,8 @@ import { ConfigFolderName, Platform } from "@microsoft/teamsfx-api";
 import fs from "fs-extra";
 import os from "os";
 import path from "path";
-import { getTemplatesFolder } from "../../../../folder";
-import { useBundledMetadataForV4, useLocalTemplate } from "../../templateHelper";
+import * as folder from "../../../../folder";
+import * as templateHelper from "../../templateHelper";
 import { Template } from "./interface";
 
 function getTemplateMetadataConfig(configName: string, platform?: Platform): Template[] {
@@ -24,16 +24,16 @@ function getTemplateMetadataConfig(configName: string, platform?: Platform): Tem
   // The v4 channel migration covers only the VSC/CLI metadata (`templates-v4@`);
   // VS keeps its v3 `templates-vs@` cache untouched, so the v4 bundled decision
   // is not applied for Platform.VS.
-  const forceBundledForV4 = platform !== Platform.VS && useBundledMetadataForV4();
+  const forceBundledForV4 = platform !== Platform.VS && templateHelper.useBundledMetadataForV4();
   if (
-    !useLocalTemplate() &&
+    !templateHelper.useLocalTemplate() &&
     !forceBundledForV4 &&
     cachedJsonPath &&
     fs.pathExistsSync(cachedJsonPath)
   ) {
     jsonPath = cachedJsonPath;
   } else {
-    jsonPath = path.join(getTemplatesFolder(), "metadata", configName);
+    jsonPath = path.join(folder.getTemplatesFolder(), "metadata", configName);
   }
 
   const content = fs.readFileSync(jsonPath, "utf-8");

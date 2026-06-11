@@ -46,6 +46,10 @@ import { manifestUtils } from "./utils/ManifestUtils";
 import { getResolvedManifest, normalizePath } from "./utils/utils";
 
 export const actionName = "teamsApp/zipAppPackage";
+export const createAppPackageDeps = {
+  updateVersionForTeamsAppYamlFile,
+  expandVariableWithFunction,
+};
 
 @Service(actionName)
 export class CreateAppPackageDriver implements StepDriver {
@@ -690,14 +694,14 @@ export class CreateAppPackageDriver implements StepDriver {
     }
 
     if (containExternalAdaptiveCard) {
-      await updateVersionForTeamsAppYamlFile(context.projectPath);
+      await createAppPackageDeps.updateVersionForTeamsAppYamlFile(context.projectPath);
     }
 
     if (namespaceContainsUnderscore || containExternalAdaptiveCard) {
       tempFolder = path.join(appDirectory, ".tmp");
       await fs.ensureDir(tempFolder);
       tmpPluginFile = path.join(tempFolder, `tmp-ai-plugin-${uuid.v4().slice(0, 6)}.json`);
-      const processedFunctionRes = await expandVariableWithFunction(
+      const processedFunctionRes = await createAppPackageDeps.expandVariableWithFunction(
         JSON.stringify(pluginFileContent),
         context,
         undefined,

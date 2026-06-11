@@ -5,7 +5,6 @@ import axios from "axios";
 import * as chai from "chai";
 import chaiAsPromised from "chai-as-promised";
 import fs from "fs-extra";
-import "mocha";
 import { createSandbox } from "sinon";
 import { setTools } from "../../../src/common/globalVars";
 import { M365AppEntity, M365EntityType } from "../../../src/component/m365/interface";

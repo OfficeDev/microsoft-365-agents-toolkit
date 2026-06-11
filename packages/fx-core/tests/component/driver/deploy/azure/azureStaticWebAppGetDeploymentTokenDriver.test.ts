@@ -3,13 +3,13 @@
 /**
  * @author Siglud <siglud@gmail.com>
  */
-
-import "mocha";
+import * as appService from "@azure/arm-appservice";
 import { expect } from "chai";
 import * as sinon from "sinon";
-import { AzureStaticWebAppGetDeploymentTokenDriver } from "../../../../../src/component/driver/deploy/azure/azureStaticWebAppGetDeploymentTokenDriver";
-import * as appService from "@azure/arm-appservice";
-import * as azureResourceOperator from "../../../../../src/component/utils/azureResourceOperation";
+import {
+  AzureStaticWebAppGetDeploymentTokenDriver,
+  azureStaticWebAppGetTokenDeps,
+} from "../../../../../src/component/driver/deploy/azure/azureStaticWebAppGetDeploymentTokenDriver";
 
 describe("AzureStaticWebAppGetDeploymentTokenDriver", () => {
   let driver: AzureStaticWebAppGetDeploymentTokenDriver;
@@ -18,11 +18,11 @@ describe("AzureStaticWebAppGetDeploymentTokenDriver", () => {
   beforeEach(() => {
     driver = new AzureStaticWebAppGetDeploymentTokenDriver();
     clientStub = sinon.createStubInstance(appService.WebSiteManagementClient);
-    sinon.stub(appService, "WebSiteManagementClient").returns(clientStub);
+    sinon.stub(azureStaticWebAppGetTokenDeps, "createWebSiteManagementClient").returns(clientStub);
     clientStub.staticSites = {
       listStaticSiteSecrets: () => {},
     } as any;
-    sinon.stub(azureResourceOperator, "getAzureAccountCredential").returns({} as any);
+    sinon.stub(azureStaticWebAppGetTokenDeps, "getAzureAccountCredential").resolves({} as any);
   });
 
   afterEach(() => {
@@ -46,6 +46,12 @@ describe("AzureStaticWebAppGetDeploymentTokenDriver", () => {
     expect(result.result.unwrapOr(new Map()).get("SECRET_TAB_SWA_DEPLOYMENT_TOKEN")).to.equal(
       "testKey"
     );
+  });
+
+  it("azureStaticWebAppGetTokenDeps should create management client", async () => {
+    (azureStaticWebAppGetTokenDeps.createWebSiteManagementClient as sinon.SinonStub).restore();
+    const client = azureStaticWebAppGetTokenDeps.createWebSiteManagementClient({} as any, "sub-id");
+    expect(client).to.be.instanceOf(appService.WebSiteManagementClient);
   });
 
   it("should get deployment token use default settings", async () => {

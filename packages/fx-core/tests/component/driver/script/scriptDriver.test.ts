@@ -5,7 +5,6 @@ import { err, IProgressHandler, ok } from "@microsoft/teamsfx-api";
 import { assert } from "chai";
 import child_process from "child_process";
 import fs from "fs-extra";
-import "mocha";
 import os from "os";
 import * as sinon from "sinon";
 import * as tools from "../../../../src/common/utils";
@@ -16,8 +15,8 @@ import {
   getStderrHandler,
   parseSetOutputCommand,
   scriptDriver,
+  scriptDriverDeps,
 } from "../../../../src/component/driver/script/scriptDriver";
-import * as charsetUtils from "../../../../src/component/utils/charsetUtils";
 import { DefaultEncoding, getSystemEncoding } from "../../../../src/component/utils/charsetUtils";
 import { UserCancelError } from "../../../../src/error";
 import { ScriptExecutionError, ScriptTimeoutError } from "../../../../src/error/script";
@@ -55,14 +54,14 @@ describe("Script Driver test", () => {
       } as IProgressHandler,
       projectPath: "./",
     } as any;
-    sandbox.stub(ui, "runCommand").value(undefined);
+    sandbox.stub(ui, "runCommand").resolves(ok("::set-output MY_KEY=MY_VALUE"));
     const res = await scriptDriver.execute(args, context);
     assert.isTrue(res.result.isOk());
     if (res.result.isOk()) {
       const output = res.result.value;
       assert.equal(output.get("MY_KEY"), "MY_VALUE");
     }
-    sinon.assert.called(appendFileSyncStub);
+    sinon.assert.notCalled(appendFileSyncStub);
   });
   it("ui not provided - execute success: set-output and not append to file", async () => {
     const appendFileSyncStub = sandbox.stub(fs, "appendFileSync");
@@ -92,7 +91,7 @@ describe("Script Driver test", () => {
   });
   it("ui not provided - execute failed: child_process.exec return error", async () => {
     const error = new Error("test error");
-    sandbox.stub(charsetUtils, "getSystemEncoding").resolves("utf-8");
+    sandbox.stub(scriptDriverDeps, "getSystemEncoding").resolves("utf-8");
     sandbox.stub(child_process, "exec").yields(error);
     const args = {
       workingDirectory: "./",
@@ -194,15 +193,14 @@ describe("executeCommand", () => {
     sandbox.restore();
   });
   it("dotnet command", async () => {
-    sandbox.stub(charsetUtils, "getSystemEncoding").resolves("utf-8");
+    sandbox.stub(scriptDriverDeps, "getSystemEncoding").resolves("utf-8");
     const stub = sandbox.stub(child_process, "exec").returns({} as any);
     stub.yields(null);
-    sandbox.stub(ui, "runCommand").value(undefined);
     await executeCommand(
       "dotnet test && echo '::set-output MY_KEY=MY_VALUE'",
       "./",
       new TestLogProvider(),
-      ui
+      undefined
     );
     assert.isTrue(stub.calledOnce);
   });

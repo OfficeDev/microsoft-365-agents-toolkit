@@ -14,9 +14,10 @@ import {
   Result,
   SingleSelectQuestion,
   TextInputQuestion,
-  UserError,
 } from "@microsoft/teamsfx-api";
 import { TOOLS } from "../../common/globalVars";
+import { getLocalizedString } from "../../common/localizeUtils";
+import { InputValidationError } from "../../error";
 import {
   CheckResourceGroupExistenceError,
   CreateResourceGroupError,
@@ -28,12 +29,14 @@ import {
 } from "../../error/azure";
 import { QuestionNames, recommendedLocations } from "../../question/constants";
 import { traverse } from "../../ui/visitor";
-import { getLocalizedString } from "../../common/localizeUtils";
-import { InputValidationError } from "../../error";
 import { azureClientHelper } from "./azureClient";
 
 const MsResources = "Microsoft.Resources";
 const ResourceGroups = "resourceGroups";
+
+export const resourceGroupHelperDeps = {
+  createSubscriptionClient: (token: any) => new SubscriptionClient(token),
+};
 
 export type ResourceGroupInfo = {
   createNewResourceGroup: boolean;
@@ -298,7 +301,7 @@ class ResourceGroupHelper {
   ): Promise<Result<string[], FxError>> {
     const azureToken = await azureAccountProvider.getIdentityCredentialAsync();
     if (!azureToken) return err(new InvalidAzureCredentialError());
-    const subscriptionClient = new SubscriptionClient(azureToken);
+    const subscriptionClient = resourceGroupHelperDeps.createSubscriptionClient(azureToken);
     const askSubRes = await azureAccountProvider.getSelectedSubscription(true);
     try {
       const res = subscriptionClient.subscriptions.listLocations(askSubRes!.subscriptionId);

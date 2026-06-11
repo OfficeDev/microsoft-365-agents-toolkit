@@ -4,7 +4,6 @@
 // Use require so we can mock it
 import * as chai from "chai";
 import fs from "fs-extra";
-import "mocha";
 import mockFs from "mock-fs";
 import * as os from "os";
 import * as path from "path";

@@ -1,9 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { tryDetectCICDPlatform } from "../../../src/commonlib/common/cicdPlatformDetector";
-import "mocha";
-import { expect } from "../utils";
 import { CliConfigRunFrom } from "../../../src/telemetry/cliTelemetryEvents";
 
 function backupAndSetEnv(key: string, value: string) {
@@ -26,12 +25,12 @@ function restoreAndDeleteEnv(key: string) {
 }
 
 describe("Detect CI/CD Platforms", () => {
-  before(() => {
+  beforeAll(() => {
     // As the UT is to be executed under GitHub, reset the predefined var.
     backupAndSetEnv("GITHUB_ACTIONS", "false");
   });
 
-  after(() => {
+  afterAll(() => {
     restoreAndDeleteEnv("GITHUB_ACTIONS");
   });
 
@@ -41,7 +40,7 @@ describe("Detect CI/CD Platforms", () => {
       // Act
       const plat = tryDetectCICDPlatform();
       // Assert
-      expect(plat).to.be.equals(CliConfigRunFrom.Other);
+      expect(plat).toBe(CliConfigRunFrom.Other);
     });
 
     it("GitHub Detected", () => {
@@ -51,7 +50,7 @@ describe("Detect CI/CD Platforms", () => {
       const plat = tryDetectCICDPlatform();
       restoreAndDeleteEnv("GITHUB_ACTIONS");
       // Assert
-      expect(plat).to.be.equals(CliConfigRunFrom.GitHub);
+      expect(plat).toBe(CliConfigRunFrom.GitHub);
     });
 
     it("Azure DevOps Detected", () => {
@@ -63,7 +62,7 @@ describe("Detect CI/CD Platforms", () => {
       restoreAndDeleteEnv("BUILD_SOURCEBRANCHNAME");
       restoreAndDeleteEnv("AGENT_BUILDDIRECTORY");
       // Assert
-      expect(plat).to.be.equals(CliConfigRunFrom.AzDo);
+      expect(plat).toBe(CliConfigRunFrom.AzDo);
     });
 
     it("Jenkins Detected", () => {
@@ -75,7 +74,7 @@ describe("Detect CI/CD Platforms", () => {
       restoreAndDeleteEnv("JENKINS_URL");
       restoreAndDeleteEnv("BUILD_URL");
       // Assert
-      expect(plat).to.be.equals(CliConfigRunFrom.Jenkins);
+      expect(plat).toBe(CliConfigRunFrom.Jenkins);
     });
   });
 });

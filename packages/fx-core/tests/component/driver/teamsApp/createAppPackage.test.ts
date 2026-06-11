@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import * as path from "path";
 import {
   DeclarativeCopilotManifestSchema,
   err,
@@ -15,26 +14,23 @@ import {
 import AdmZip from "adm-zip";
 import chai from "chai";
 import fs from "fs-extra";
-import "mocha";
 import mockedEnv, { RestoreFn } from "mocked-env";
+import * as path from "path";
 import * as sinon from "sinon";
-import {
-  featureFlagManager,
-  FeatureFlagName,
-  FeatureFlags,
-} from "../../../../src/common/featureFlags";
+import { featureFlagManager, FeatureFlagName } from "../../../../src/common/featureFlags";
 import { DriverContext } from "../../../../src/component/driver/interface/commonArgs";
-import { CreateAppPackageDriver } from "../../../../src/component/driver/teamsApp/createAppPackage";
+import {
+  createAppPackageDeps,
+  CreateAppPackageDriver,
+} from "../../../../src/component/driver/teamsApp/createAppPackage";
 import { CreateAppPackageArgs } from "../../../../src/component/driver/teamsApp/interfaces/CreateAppPackageArgs";
 import { copilotGptManifestUtils } from "../../../../src/component/driver/teamsApp/utils/CopilotGptManifestUtils";
 import { manifestUtils } from "../../../../src/component/driver/teamsApp/utils/ManifestUtils";
-import * as utils from "../../../../src/component/driver/util/utils";
-import * as envFunctionUtils from "../../../../src/component/utils/envFunctionUtils";
 import { ManifestType } from "../../../../src/component/utils/envFunctionUtils";
 import { FileNotFoundError, JSONSyntaxError } from "../../../../src/error/common";
 import {
-  InvalidFileOutsideOfTheDirectotryError,
   AppPackageSizeExceededError,
+  InvalidFileOutsideOfTheDirectotryError,
 } from "../../../../src/error/teamsApp";
 import { MockedM365Provider } from "../../../core/utils";
 import { MockedLogProvider, MockedUserInteraction } from "../../../plugins/solution/util";
@@ -101,7 +97,7 @@ describe("teamsApp/createAppPackage", async () => {
     sinon.stub(fs, "chmod").callsFake(async () => {});
     sinon.stub(fs, "existsSync").returns(true);
     sinon.stub(fs, "pathExists").resolves(true);
-    sinon.stub(utils, "updateVersionForTeamsAppYamlFile").resolves();
+    sinon.stub(createAppPackageDeps, "updateVersionForTeamsAppYamlFile").resolves();
     const writeFileStub = sinon.stub(fs, "writeFile").callsFake(async () => {});
 
     const driverContext: any = {
@@ -161,7 +157,7 @@ describe("teamsApp/createAppPackage", async () => {
         return true;
       }
     });
-    sinon.stub(utils, "updateVersionForTeamsAppYamlFile").resolves();
+    sinon.stub(createAppPackageDeps, "updateVersionForTeamsAppYamlFile").resolves();
     const writeFileStub = sinon.stub(fs, "writeFile").callsFake(async () => {});
 
     const driverContext: any = {
@@ -960,7 +956,7 @@ describe("teamsApp/createAppPackage", async () => {
     sinon.stub(fs, "writeFile").callsFake(async () => {});
 
     sinon
-      .stub(envFunctionUtils, "expandVariableWithFunction")
+      .stub(createAppPackageDeps, "expandVariableWithFunction")
       .callsFake(
         async (
           content: string,
@@ -3006,7 +3002,7 @@ describe("teamsApp/createAppPackage", async () => {
       sinon.stub(fs, "chmod").callsFake(async () => {});
       sinon.stub(fs, "existsSync").returns(false);
       sinon.stub(fs, "pathExists").resolves(true);
-      sinon.stub(utils, "updateVersionForTeamsAppYamlFile").resolves();
+      sinon.stub(createAppPackageDeps, "updateVersionForTeamsAppYamlFile").resolves();
       sinon.stub(fs, "writeFile").callsFake(async () => {});
       // Stub fs.stat to return a large file size
       sinon.stub(fs, "stat").resolves({ size: 20 * 1024 * 1024, mode: 0o644 } as any);
@@ -3040,7 +3036,7 @@ describe("teamsApp/createAppPackage", async () => {
       sinon.stub(fs, "chmod").callsFake(async () => {});
       sinon.stub(fs, "existsSync").returns(false);
       sinon.stub(fs, "pathExists").resolves(true);
-      sinon.stub(utils, "updateVersionForTeamsAppYamlFile").resolves();
+      sinon.stub(createAppPackageDeps, "updateVersionForTeamsAppYamlFile").resolves();
       sinon.stub(fs, "writeFile").callsFake(async () => {});
       // Stub fs.stat to return a small file size
       sinon.stub(fs, "stat").resolves({ size: 1024 * 1024, mode: 0o644 } as any);

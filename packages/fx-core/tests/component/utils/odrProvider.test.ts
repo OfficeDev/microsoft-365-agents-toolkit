@@ -2,9 +2,8 @@
 // Licensed under the MIT license.
 
 import { assert } from "chai";
-import "mocha";
 import * as sinon from "sinon";
-import { ODRProvider } from "../../../src/component/utils/odrProvider";
+import { ODRProvider, odrProviderDeps } from "../../../src/component/utils/odrProvider";
 
 describe("ODRProvider", () => {
   const sandbox = sinon.createSandbox();
@@ -14,6 +13,14 @@ describe("ODRProvider", () => {
   });
 
   describe("isODRServer", () => {
+    it("odrProviderDeps.logError should delegate to console.error", () => {
+      const errorStub = sandbox.stub(console, "error");
+
+      odrProviderDeps.logError("odr", "failed");
+
+      assert.isTrue(errorStub.calledOnceWithExactly("odr", "failed"));
+    });
+
     it("should return true for ODR server with lowercase odr command", () => {
       const serverConfig = { type: "stdio", command: "odr" };
       assert.isTrue(ODRProvider.isODRServer(serverConfig));

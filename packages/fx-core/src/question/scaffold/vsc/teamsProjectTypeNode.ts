@@ -38,6 +38,13 @@ import {
 } from "./CapabilityOptions";
 import { getRootProjectTypeNode } from "./rootNode";
 
+export const teamsProjectTypeDeps = {
+  fetchMCPTools,
+  readMCPToolsFromFile,
+  pathExists: fs.pathExists,
+  readJSON: fs.readJSON,
+};
+
 /**
  * Extract the Teams Agents and Apps sub-tree from the combined wizardNode.json.
  * Used by TDP (Teams Developer Portal) flow.
@@ -374,11 +381,11 @@ export function MCPToolsFileNode(): IQTreeNode {
         validFunc: async (value: string, inputs?: Inputs): Promise<string | undefined> => {
           if (!value) return undefined;
           const filePath = value;
-          if (!(await fs.pathExists(filePath))) {
+          if (!(await teamsProjectTypeDeps.pathExists(filePath))) {
             return getLocalizedString("core.MCPForDA.toolsFileNotFound", filePath);
           }
           try {
-            const tools = await readMCPToolsFromFile(filePath);
+            const tools = await teamsProjectTypeDeps.readMCPToolsFromFile(filePath);
             if (inputs) {
               inputs[QuestionNames.MCPForDAAvailableTools] = tools;
             }
@@ -483,7 +490,7 @@ export function MCPForDAServerUrlNode(): IQTreeNode {
           // For CLI: attempt to auto-fetch tools from the server
           if (inputs.platform !== Platform.VSCode) {
             try {
-              const result = await fetchMCPTools(value);
+              const result = await teamsProjectTypeDeps.fetchMCPTools(value);
               if (result.requiresAuth) {
                 inputs["_mcpAuthRequired"] = true;
                 inputs[QuestionNames.MCPForDAAvailableTools] = [];
@@ -534,8 +541,8 @@ export function updateActionWithMCP(): IQTreeNode {
             AppPackageFolderName,
             ManifestTemplateFileName
           );
-          if (await fs.pathExists(teamsManifestPath)) {
-            const teamsManifest = await fs.readJSON(teamsManifestPath);
+          if (await teamsProjectTypeDeps.pathExists(teamsManifestPath)) {
+            const teamsManifest = await teamsProjectTypeDeps.readJSON(teamsManifestPath);
             const declarativeAgentRelativePath: string | undefined =
               teamsManifest?.copilotAgents?.declarativeAgents?.[0]?.file;
             if (declarativeAgentRelativePath) {
@@ -544,8 +551,8 @@ export function updateActionWithMCP(): IQTreeNode {
                 AppPackageFolderName,
                 declarativeAgentRelativePath
               );
-              if (await fs.pathExists(declarativeAgentPath)) {
-                const da = await fs.readJSON(declarativeAgentPath);
+              if (await teamsProjectTypeDeps.pathExists(declarativeAgentPath)) {
+                const da = await teamsProjectTypeDeps.readJSON(declarativeAgentPath);
                 const actions: { id?: string; file?: string }[] = da?.actions ?? [];
                 const seen = new Set<string>();
                 for (const action of actions) {
@@ -608,7 +615,7 @@ export function updateActionWithMCP(): IQTreeNode {
               const projectPath = inputs?.projectPath;
               if (projectPath) {
                 const target = path.join(projectPath, AppPackageFolderName, trimmed);
-                if (await fs.pathExists(target)) {
+                if (await teamsProjectTypeDeps.pathExists(target)) {
                   return getLocalizedString(
                     "core.createProjectQuestion.mcpForDa.File.createNew.validation.exists",
                     trimmed
@@ -646,11 +653,11 @@ export function updateActionWithMCP(): IQTreeNode {
             if (
               !pluginManifestFilePath ||
               pluginManifestFilePath === CreateNewPluginManifestSentinel ||
-              !(await fs.pathExists(pluginManifestFilePath as string))
+              !(await teamsProjectTypeDeps.pathExists(pluginManifestFilePath as string))
             ) {
               return [];
             }
-            const pluginManifest = await fs.readJSON(pluginManifestFilePath);
+            const pluginManifest = await teamsProjectTypeDeps.readJSON(pluginManifestFilePath);
             const serverUrl = inputs[QuestionNames.MCPForDAServerUrl];
             const result: string[] = [];
             (pluginManifest.runtimes as any[])

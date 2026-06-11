@@ -3,7 +3,6 @@
 
 import { err, ok } from "@microsoft/teamsfx-api";
 import { assert } from "chai";
-import "mocha";
 import sinon from "sinon";
 import { GraphClient } from "../../src/client/graphClient";
 import { setTools } from "../../src/common/globalVars";

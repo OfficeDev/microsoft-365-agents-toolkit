@@ -2,7 +2,6 @@ import { err, ok, UserError } from "@microsoft/teamsfx-api";
 import AdmZip from "adm-zip";
 import chai from "chai";
 import fs from "fs-extra";
-import "mocha";
 import os from "os";
 import path from "path";
 import sinon from "sinon";

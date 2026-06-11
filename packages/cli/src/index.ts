@@ -5,15 +5,13 @@
 
 import fs from "fs-extra";
 import * as path from "path";
-import { start as startNewUX } from "./commands/index";
-import { CliTelemetryReporter } from "./commonlib/telemetry";
-import "./console/screen";
 import * as constants from "./constants";
 import cliTelemetry from "./telemetry/cliTelemetry";
 import { TelemetryProperty } from "./telemetry/cliTelemetryEvents";
-import { logger } from "./commonlib/logger";
 
 export function initTelemetryReporter(): void {
+  const { CliTelemetryReporter } =
+    require("./commonlib/telemetry") as typeof import("./commonlib/telemetry");
   const cliPackage = JSON.parse(fs.readFileSync(path.join(__dirname, "/../package.json"), "utf8"));
   const reporter = new CliTelemetryReporter(
     cliPackage.aiKey,
@@ -27,6 +25,9 @@ export function initTelemetryReporter(): void {
  * Starts the CLI process.
  */
 export async function start(): Promise<void> {
+  const { logger } = require("./commonlib/logger") as typeof import("./commonlib/logger");
+  const { start: startNewUX } = require("./commands/index") as typeof import("./commands/index");
+
   initTelemetryReporter();
   const binName = process.env.TEAMSFX_CLI_BIN_NAME as string;
   if (binName === "teamsapp") {

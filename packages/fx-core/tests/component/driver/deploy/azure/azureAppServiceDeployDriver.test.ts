@@ -4,29 +4,28 @@
 /**
  * @author xzf0587 <zhaofengxu@microsoft.com>
  */
-import "mocha";
-import * as sinon from "sinon";
-import * as tools from "../../../../../src/common/utils";
-import { DeployArgs } from "../../../../../src/component/driver/interface/buildAndDeployArgs";
-import { TestLogProvider } from "../../../util/logProviderMock";
 import * as appService from "@azure/arm-appservice";
 import * as Models from "@azure/arm-appservice/src/models";
-import * as fileOpt from "../../../../../src/component/utils/fileOperation";
-import { AzureDeployImpl } from "../../../../../src/component/driver/deploy/azure/impl/azureDeployImpl";
-import { expect, assert } from "chai";
+import { IProgressHandler } from "@microsoft/teamsfx-api";
+import { assert, expect } from "chai";
 import fs from "fs-extra";
-import { AzureAppServiceDeployDriver } from "../../../../../src/component/driver/deploy/azure/azureAppServiceDeployDriver";
+import * as os from "os";
+import * as path from "path";
+import * as sinon from "sinon";
+import * as uuid from "uuid";
+import * as tools from "../../../../../src/common/utils";
 import { DeployConstant } from "../../../../../src/component/constant/deployConstant";
+import { AzureAppServiceDeployDriver } from "../../../../../src/component/driver/deploy/azure/azureAppServiceDeployDriver";
+import { AzureDeployImpl } from "../../../../../src/component/driver/deploy/azure/impl/azureDeployImpl";
+import { DeployArgs } from "../../../../../src/component/driver/interface/buildAndDeployArgs";
+import * as fileOpt from "../../../../../src/component/utils/fileOperation";
 import {
   MockedAzureAccountProvider,
   MockTelemetryReporter,
   MockUserInteraction,
   MyTokenCredential,
 } from "../../../../core/utils";
-import * as os from "os";
-import * as path from "path";
-import * as uuid from "uuid";
-import { IProgressHandler } from "@microsoft/teamsfx-api";
+import { TestLogProvider } from "../../../util/logProviderMock";
 
 describe("Azure App Service Deploy Driver test", () => {
   const sandbox = sinon.createSandbox();
@@ -45,18 +44,6 @@ describe("Azure App Service Deploy Driver test", () => {
     sandbox.stub(fs, "removeSync");
     sandbox.stub(fs, "readdirSync").returns([new fs.Dirent(), new fs.Dirent()]);
     sandbox.stub(fs, "readFileSync").resolves("test");
-    sandbox
-      .stub(fs, "createReadStream")
-      .withArgs(path.join(sysTmp, ".deployment/deployment.zip"))
-      .returns({
-        pipe: sandbox.stub().returns({
-          pipe: sandbox.stub().returns({
-            pipe: sandbox.stub().returns("responseMock"),
-          }),
-        }),
-        on: sandbox.spy(() => true),
-        destroy: sandbox.spy(() => true),
-      } as any);
   });
 
   after(async () => {
@@ -72,6 +59,15 @@ describe("Azure App Service Deploy Driver test", () => {
   });
 
   beforeEach(async () => {
+    sandbox.stub(fileOpt.fileOperationDeps, "createReadStream").returns({
+      pipe: sandbox.stub().returns({
+        pipe: sandbox.stub().returns({
+          pipe: sandbox.stub().returns("responseMock"),
+        }),
+      }),
+      on: sandbox.spy(() => true),
+      destroy: sandbox.spy(() => true),
+    } as any);
     sandbox.stub(tools, "waitSeconds").resolves();
     const fetchStub = sandbox.stub(global, "fetch");
     fetchStub.callsFake((input: any) => {
@@ -133,9 +129,6 @@ describe("Azure App Service Deploy Driver test", () => {
       }
       return Promise.resolve(Buffer.from("any other content"));
     });
-    sandbox.stub(fs, "mkdirs").resolves();
-    sandbox.stub(fs, "removeSync");
-    sandbox.stub(fs, "readdirSync").returns([new fs.Dirent(), new fs.Dirent()]);
     const client = new appService.WebSiteManagementClient(credential, "z");
     sandbox.stub(appService, "WebSiteManagementClient").returns(client);
     sandbox.stub(client.webApps, "beginListPublishingCredentialsAndWait").resolves({

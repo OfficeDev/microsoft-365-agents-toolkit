@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
+import fs, { WriteFileOptions } from "fs-extra";
+import sinon, { SinonStub } from "sinon";
 import { AzureAccountManager } from "../../../src/commonlib/azureLogin";
 import {
   AccountCrypto,
@@ -11,10 +13,8 @@ import {
   loadTenantId,
   saveTenantId,
 } from "../../../src/commonlib/cacheAccess";
-import { expect } from "../utils";
-import fs, { WriteFileOptions } from "fs-extra";
-import sinon, { SinonStub } from "sinon";
 import VsCodeLogInstance from "../../../src/commonlib/log";
+import { expect } from "../utils";
 
 class MockKeytar {
   public async getPassword(service: string, account: string): Promise<string | null> {
@@ -60,7 +60,9 @@ describe("AccountCrypto Tests", function () {
   it("Encrypt/Decrypt Content - Unknown key", async () => {
     const accountCrypto = new AccountCrypto("test");
     (<any>accountCrypto).keytar = new MockKeytar();
-    (<any>accountCrypto).keytar.getPassword = Promise.reject();
+    (<any>accountCrypto).keytar.getPassword = async () => {
+      throw new Error("unknown key");
+    };
 
     const content =
       '{"clientId":"clientId","secret":"secret","tenantId":"3c8f28dd-b990-4925-96a6-3ea9495654b8"}';
@@ -127,7 +129,7 @@ describe("tenant id save/load", () => {
 
   context("Files read/write successfully", () => {
     beforeEach(() => {
-      sandbox.stub(fs, "ensureFile").resolves();
+      sandbox.stub(fs, "ensureDir").resolves();
       sandbox.stub(fs, "writeFile").callsFake((dir, id) => {
         tenantId = id;
       });
@@ -164,7 +166,7 @@ describe("tenant id save/load", () => {
   context("Error throws", () => {
     let logStub: SinonStub;
     beforeEach(() => {
-      sandbox.stub(fs, "ensureFile").resolves();
+      sandbox.stub(fs, "ensureDir").resolves();
       sandbox.stub(fs, "writeFile").throws();
       sandbox.stub(fs, "readFile").throws();
       sandbox.stub(fs, "pathExists").resolves(true);

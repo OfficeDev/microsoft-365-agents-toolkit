@@ -27,7 +27,7 @@ import { getAllTemplatesOnPlatform, getDefaultTemplatesOnPlatform } from "./temp
 import { TemplateInfo } from "./templates/templateInfo";
 import { getTemplateReplaceMap } from "./templates/templateReplaceMap";
 import { convertToLangKey, renderTemplateFileData, renderTemplateFileName } from "./utils";
-import { scaffoldFromV4Channel } from "./v4TemplateBridge";
+import * as v4TemplateBridge from "./v4TemplateBridge";
 
 export class DefaultTemplateGenerator implements IGenerator {
   // override this property to send telemetry event with different component name
@@ -159,7 +159,7 @@ export class DefaultTemplateGenerator implements IGenerator {
       [TelemetryProperty.TemplateChannel]: useV4Channel ? "v4" : "v3",
     });
     if (useV4Channel) {
-      const source = await scaffoldFromV4Channel(
+      const source = await v4TemplateBridge.scaffoldFromV4Channel(
         generatorContext,
         { language: language, scenario: folderName },
         actionContext?.telemetryProps

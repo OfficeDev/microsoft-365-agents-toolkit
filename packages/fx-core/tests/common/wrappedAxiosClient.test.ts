@@ -3,20 +3,19 @@
 
 import axios, { AxiosInstance } from "axios";
 import * as chai from "chai";
-import "mocha";
 import * as sinon from "sinon";
 import { v4 as uuid } from "uuid";
+import { TEAMS_GRAPH_API_NAMES } from "../../src/client/teamsGraphClient";
 import { getResourceServiceEndpoint, ResourceServiceType } from "../../src/common/constants";
 import { setTools } from "../../src/common/globalVars";
+import { TelemetryEvent } from "../../src/common/telemetry";
 import { WrappedAxiosClient } from "../../src/common/wrappedAxiosClient";
 import {
   APP_STUDIO_API_NAMES,
   GRAPH_API_NAMES,
 } from "../../src/component/driver/teamsApp/constants";
-import { MockTools } from "../core/utils";
 import { MOS3ApiDefinitions } from "../../src/component/m365/serviceConstant";
-import { TEAMS_GRAPH_API_NAMES } from "../../src/client/teamsGraphClient";
-import { TelemetryEvent } from "../../src/common/telemetry";
+import { MockTools } from "../core/utils";
 
 describe("Wrapped Axios Client Test", () => {
   const mockTools = new MockTools();
@@ -88,7 +87,7 @@ describe("Wrapped Axios Client Test", () => {
         },
       },
     } as any;
-    WrappedAxiosClient.onRejected(mockedError);
+    await WrappedAxiosClient.onRejected(mockedError).catch(() => undefined);
   });
 
   it("TOOLS not initialized", async () => {
@@ -134,7 +133,7 @@ describe("Wrapped Axios Client Test", () => {
         },
       },
     } as any;
-    WrappedAxiosClient.onRejected(mockedError);
+    await WrappedAxiosClient.onRejected(mockedError).catch(() => undefined);
   });
 
   it("TDP API start telemetry", async () => {
@@ -268,7 +267,7 @@ describe("Wrapped Axios Client Test", () => {
     } as any;
     const telemetryChecker = sinon.spy(mockTools.telemetryReporter, "sendTelemetryErrorEvent");
 
-    WrappedAxiosClient.onRejected(mockedError);
+    await WrappedAxiosClient.onRejected(mockedError).catch(() => undefined);
     chai.expect(telemetryChecker.calledOnce).to.be.true;
   });
 
@@ -288,7 +287,7 @@ describe("Wrapped Axios Client Test", () => {
     } as any;
     const telemetryChecker = sinon.spy(mockTools.telemetryReporter, "sendTelemetryErrorEvent");
 
-    WrappedAxiosClient.onRejected(mockedError);
+    await WrappedAxiosClient.onRejected(mockedError).catch(() => undefined);
     chai.expect(telemetryChecker.calledOnce).to.be.true;
   });
 
@@ -392,7 +391,7 @@ describe("Wrapped Axios Client Test", () => {
       },
     } as any;
     const telemetryChecker = sinon.spy(mockTools.telemetryReporter, "sendTelemetryErrorEvent");
-    WrappedAxiosClient.onRejected(mockedError);
+    await WrappedAxiosClient.onRejected(mockedError).catch(() => undefined);
     chai.expect(telemetryChecker.calledOnce).to.be.true;
   });
 
@@ -413,7 +412,7 @@ describe("Wrapped Axios Client Test", () => {
       },
     } as any;
     const telemetryChecker = sinon.spy(mockTools.telemetryReporter, "sendTelemetryErrorEvent");
-    WrappedAxiosClient.onRejected(mockedError);
+    await WrappedAxiosClient.onRejected(mockedError).catch(() => undefined);
     chai.expect(telemetryChecker.calledOnce).to.be.true;
   });
 

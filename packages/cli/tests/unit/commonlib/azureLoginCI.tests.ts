@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import "mocha";
 import sinon from "sinon";
 import AzureLoginCI from "../../../src/commonlib/azureLoginCI";
 import { expect } from "../utils";

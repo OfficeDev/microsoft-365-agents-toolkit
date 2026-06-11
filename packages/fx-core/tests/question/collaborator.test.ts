@@ -12,7 +12,6 @@ import {
   ok,
 } from "@microsoft/teamsfx-api";
 import { assert } from "chai";
-import "mocha";
 import sinon from "sinon";
 import { CollaborationConstants, CollaborationUtil } from "../../src/core/collaborator";
 import {

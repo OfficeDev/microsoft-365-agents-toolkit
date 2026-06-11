@@ -1,7 +1,6 @@
 import { CLICommand, ok } from "@microsoft/teamsfx-api";
 import { assert } from "chai";
 import { cloneDeep } from "lodash";
-import "mocha";
 import * as sinon from "sinon";
 import { helper } from "../../src/commands/helper";
 import { getCreateCommand } from "../../src/commands/models/create";

@@ -2,7 +2,6 @@
 // Licensed under the MIT license.
 
 import { assert } from "chai";
-import "mocha";
 import sinon from "sinon";
 import { dictMatcher } from "../../src/common/secretmasker/dict";
 import { secretMasker } from "../../src/common/secretmasker/masker";

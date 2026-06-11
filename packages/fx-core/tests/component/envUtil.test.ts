@@ -11,7 +11,6 @@ import {
 } from "@microsoft/teamsfx-api";
 import { assert } from "chai";
 import fs from "fs-extra";
-import "mocha";
 import mockedEnv, { RestoreFn } from "mocked-env";
 import * as path from "path";
 import * as sinon from "sinon";
@@ -933,7 +932,7 @@ describe("envUtils", () => {
 
     it("settingsUtil read not exist", async () => {
       sandbox.stub(fs, "pathExists").resolves(false);
-      sandbox.stub(pathUtils, "getYmlFilePath").returns(".");
+      sandbox.stub(pathUtils, "getYmlFilePath").returns("./m365agents.yml");
       const res = await settingsUtil.readSettings("abc");
       assert.isTrue(res.isErr());
     });
@@ -965,7 +964,7 @@ describe("envUtils", () => {
       assert.isTrue(res.isOk());
     });
     it("settingsUtil write failed", async () => {
-      sandbox.stub(pathUtils, "getYmlFilePath").returns(".");
+      sandbox.stub(pathUtils, "getYmlFilePath").returns("./m365agents.yml");
       sandbox.stub(fs, "pathExists").resolves(false);
       const res = await settingsUtil.writeSettings(".", { trackingId: "123", version: "2" });
       assert.isTrue(res.isErr());

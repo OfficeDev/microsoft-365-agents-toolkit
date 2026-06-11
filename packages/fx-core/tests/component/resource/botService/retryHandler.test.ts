@@ -1,7 +1,5 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
-
-import "mocha";
 import * as chai from "chai";
 import { RetryHandler } from "../../../../src/component/resource/botService/retryHandler";
 import { Messages } from "./messages";

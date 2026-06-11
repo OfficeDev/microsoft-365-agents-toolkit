@@ -13,6 +13,8 @@ on:
 jobs:
   unit-test:
     runs-on: ubuntu-latest
+    env:
+      CODECOV_FILES: packages/api/coverage/lcov.info,packages/vscode-ui/coverage/lcov.info,packages/fx-core/coverage/lcov.info,packages/manifest/coverage/lcov.info,packages/vscode-extension/coverage/lcov.info,packages/server/coverage/lcov.info,packages/spec-parser/coverage/lcov.info,packages/cli/coverage/lcov.info,packages/cli/coverage/coverage-summary.json
     steps:
       - name: Checkout-pr
         if: ${{ github.event_name == 'pull_request' }}
@@ -45,7 +47,7 @@ jobs:
 
       - name: Unit Test
         run: |
-          xvfb-run -a pnpm run -r --stream test:unit
+          xvfb-run -a pnpm -r --stream --workspace-concurrency=8 run test:unit
 
       - name: CodeCov report attempt 1
         id: codecov1
@@ -53,6 +55,8 @@ jobs:
         uses: codecov/codecov-action@v4
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
+          files: ${{ env.CODECOV_FILES }}
+          disable_search: true
           fail_ci_if_error: true
           verbose: true
 
@@ -68,6 +72,8 @@ jobs:
         uses: codecov/codecov-action@v3
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
+          files: ${{ env.CODECOV_FILES }}
+          disable_search: true
           fail_ci_if_error: true
           verbose: true
 
@@ -83,6 +89,8 @@ jobs:
         uses: codecov/codecov-action@v3
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
+          files: ${{ env.CODECOV_FILES }}
+          disable_search: true
           fail_ci_if_error: true
           verbose: true
 
@@ -98,6 +106,8 @@ jobs:
         uses: codecov/codecov-action@v3
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
+          files: ${{ env.CODECOV_FILES }}
+          disable_search: true
           fail_ci_if_error: true
           verbose: true
 
@@ -112,5 +122,7 @@ jobs:
         uses: codecov/codecov-action@v3
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
+          files: ${{ env.CODECOV_FILES }}
+          disable_search: true
           fail_ci_if_error: true
           verbose: true

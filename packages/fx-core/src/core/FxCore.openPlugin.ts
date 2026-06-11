@@ -28,8 +28,8 @@ import {
   ExportInputs,
   ImportInputs,
 } from "../component/generator/openPlugin/types";
-import { ErrorHandlerMW } from "./middleware/errorHandler";
 import { FxCoreDeclarativeAgentPart } from "./FxCore.declarativeAgent";
+import { ErrorHandlerMW } from "./middleware/errorHandler";
 
 const ALLOWED_AUTH: DefaultAuthOption[] = ["Auto", "None", "OAuthPluginVault", "ApiKeyPluginVault"];
 const ALLOWED_MANIFEST_KINDS: NonNullable<ExportInputs["manifestKind"]>[] = [
@@ -42,6 +42,11 @@ export interface ExportOpenPluginCoreResult {
   outputPath: string;
   warnings: Warning[];
 }
+
+export const fxCoreOpenPluginDeps = {
+  importOpenPlugin,
+  exportOpenPlugin,
+};
 
 export class FxCoreOpenPluginPart extends FxCoreDeclarativeAgentPart {
   /**
@@ -68,7 +73,7 @@ export class FxCoreOpenPluginPart extends FxCoreDeclarativeAgentPart {
     if (validatedInputs.isErr()) {
       return err(validatedInputs.error);
     }
-    const res = await importOpenPlugin(validatedInputs.value);
+    const res = await fxCoreOpenPluginDeps.importOpenPlugin(validatedInputs.value);
     if (res.isErr()) {
       return err(res.error);
     }
@@ -103,7 +108,7 @@ export class FxCoreOpenPluginPart extends FxCoreDeclarativeAgentPart {
     if (validatedInputs.isErr()) {
       return err(validatedInputs.error);
     }
-    const res = await exportOpenPlugin(validatedInputs.value);
+    const res = await fxCoreOpenPluginDeps.exportOpenPlugin(validatedInputs.value);
     if (res.isErr()) {
       return err(res.error);
     }

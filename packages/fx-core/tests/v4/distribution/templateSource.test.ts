@@ -2,7 +2,6 @@
 // Licensed under the MIT license.
 
 import { assert } from "chai";
-import "mocha";
 import { SystemError, UserError } from "@microsoft/teamsfx-api";
 import {
   BundledFloor,

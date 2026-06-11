@@ -4,7 +4,6 @@
 import { LogLevel, LogProvider, UserError } from "@microsoft/teamsfx-api";
 import chai from "chai";
 import fs from "fs-extra";
-import "mocha";
 import { restore, stub } from "sinon";
 import { createContext, setTools } from "../../../../../src/common/globalVars";
 import { cpUtils } from "../../../../../src/component/deps-checker/util/cpUtils";
@@ -180,12 +179,8 @@ describe("generator checker", () => {
 
     it("miss sentinel version", async () => {
       const checker = new GeneratorChecker(new StubLogger());
-      stub(fs, "pathExists").callsFake(async () => {
-        return false;
-      });
-
-      stub(GeneratorChecker.prototype, "queryVersion" as any).callsFake(async () => {
-        return "latest";
+      stub(GeneratorChecker.prototype, "findLocalInstalledVersion" as any).callsFake(async () => {
+        return undefined;
       });
 
       stub(GeneratorChecker.prototype, "findLatestVersion" as any).callsFake(async () => {

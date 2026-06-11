@@ -1,6 +1,5 @@
 import * as chai from "chai";
 import chaiAsPromised from "chai-as-promised";
-import "mocha";
 import { performance } from "perf_hooks";
 import sinon from "sinon";
 import { setTools } from "../../../src/common/globalVars";

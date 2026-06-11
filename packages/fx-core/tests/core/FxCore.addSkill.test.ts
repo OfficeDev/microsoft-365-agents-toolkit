@@ -3,24 +3,22 @@
 
 import {
   DeclarativeCopilotManifestSchema,
+  err,
   Inputs,
+  ok,
   Platform,
   TeamsAppManifest,
   UserError,
-  err,
-  ok,
 } from "@microsoft/teamsfx-api";
 import { assert } from "chai";
 import fs from "fs-extra";
-import "mocha";
 import * as path from "path";
 import sinon from "sinon";
-import { FxCore } from "../../src/core/FxCore";
-import { setTools, TOOLS } from "../../src/common/globalVars";
 import { featureFlagManager, FeatureFlagName } from "../../src/common/featureFlags";
+import { setTools } from "../../src/common/globalVars";
 import { copilotGptManifestUtils } from "../../src/component/driver/teamsApp/utils/CopilotGptManifestUtils";
 import { manifestUtils } from "../../src/component/driver/teamsApp/utils/ManifestUtils";
-import { UserCancelError } from "../../src/error/common";
+import { FxCore } from "../../src/core/FxCore";
 import { QuestionNames } from "../../src/question/questionNames";
 import { validationUtils } from "../../src/ui/validationUtils";
 import { MockTools, MockUserInteraction } from "./utils";

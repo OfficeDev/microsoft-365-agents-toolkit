@@ -42,6 +42,12 @@ const funcToolName = "Azure Functions Core Tools";
 
 const timeout = 10 * 60 * 1000;
 
+export const funcToolCheckerDeps = {
+  homedir: () => os.homedir(),
+  isLinux,
+  isWindows,
+};
+
 export class FuncToolChecker implements DepsChecker {
   private telemetryProperties: { [key: string]: string };
   constructor(logger?: DepsLogger, telemetry?: DepsTelemetry) {
@@ -295,7 +301,7 @@ export class FuncToolChecker implements DepsChecker {
     expectedFuncVersion: string,
     symlinkDir: string | undefined
   ): Promise<DependencyStatus> {
-    if (isLinux()) {
+    if (funcToolCheckerDeps.isLinux()) {
       throw new InstallSoftwareError(funcToolName, functionToolInstallationLink);
     }
     if (!(await this.hasNPM())) {
@@ -335,20 +341,20 @@ export class FuncToolChecker implements DepsChecker {
   }
 
   protected static getDefaultInstallPath(): string {
-    return path.join(os.homedir(), `.${ConfigFolderName}`, "bin", "azfunc");
+    return path.join(funcToolCheckerDeps.homedir(), `.${ConfigFolderName}`, "bin", "azfunc");
   }
 
   private static getFuncInstallPath(versionStr: string | undefined): string {
     return versionStr
       ? path.join(this.getDefaultInstallPath(), versionStr)
-      : path.join(os.homedir(), `.${ConfigFolderName}`, "bin", "func");
+      : path.join(funcToolCheckerDeps.homedir(), `.${ConfigFolderName}`, "bin", "func");
   }
 
   private static getVersioningSentinelPath(versionStr: string): string {
     return path.join(FuncToolChecker.getPortableFuncBinFolder(versionStr), "func-sentinel");
   }
   private static getHistorySentinelPath(): string {
-    return path.join(os.homedir(), `.${ConfigFolderName}`, "func-sentinel");
+    return path.join(funcToolCheckerDeps.homedir(), `.${ConfigFolderName}`, "func-sentinel");
   }
 
   private static getPortableFuncBinFolder(versionStr: string | undefined): string {
@@ -366,7 +372,7 @@ export class FuncToolChecker implements DepsChecker {
       undefined,
       undefined,
       // same as backend start, avoid powershell execution policy issue.
-      { shell: isWindows() ? "cmd.exe" : true },
+      { shell: funcToolCheckerDeps.isWindows() ? "cmd.exe" : true },
       `"${execPath}"`,
       "--version"
     );
@@ -394,7 +400,7 @@ export class FuncToolChecker implements DepsChecker {
       await cpUtils.executeCommand(
         undefined,
         undefined,
-        { timeout: timeout, shell: isWindows() ? "cmd.exe" : true },
+        { timeout: timeout, shell: funcToolCheckerDeps.isWindows() ? "cmd.exe" : true },
         this.getExecCommand("npm"),
         "install",
         // not use -f, to avoid npm@6 bug: exit code = 0, even if install fail
@@ -422,7 +428,7 @@ export class FuncToolChecker implements DepsChecker {
   }
 
   private getExecCommand(command: string): string {
-    return isWindows() ? `${command}.cmd` : command;
+    return funcToolCheckerDeps.isWindows() ? `${command}.cmd` : command;
   }
 }
 

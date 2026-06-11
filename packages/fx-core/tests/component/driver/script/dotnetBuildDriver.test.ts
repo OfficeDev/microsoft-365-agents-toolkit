@@ -1,17 +1,14 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
-
-import "mocha";
+import { err, IProgressHandler, ok, UserError } from "@microsoft/teamsfx-api";
 import * as chai from "chai";
+import { assert } from "chai";
 import * as sinon from "sinon";
 import * as tools from "../../../../src/common/utils";
-import * as utils from "../../../../src/component/driver/script/scriptDriver";
 import { DotnetBuildDriver } from "../../../../src/component/driver/script/dotnetBuildDriver";
-import { TestLogProvider } from "../../util/logProviderMock";
-import { DriverContext } from "../../../../src/component/driver/interface/commonArgs";
-import { assert } from "chai";
+import * as utils from "../../../../src/component/driver/script/scriptDriver";
 import { MockedAzureAccountProvider, MockUserInteraction } from "../../../core/utils";
-import { err, IProgressHandler, ok, UserError } from "@microsoft/teamsfx-api";
+import { TestLogProvider } from "../../util/logProviderMock";
 
 describe("Dotnet Build Driver test", () => {
   const sandbox = sinon.createSandbox();
@@ -74,12 +71,14 @@ describe("Dotnet Build Driver test", () => {
       workingDirectory: "./",
       args: "build",
     };
+    const ui = new MockUserInteraction();
+    sandbox.stub(ui, "runCommand").resolves(err(new UserError({})));
     const context = {
       azureAccountProvider: new MockedAzureAccountProvider(),
       logProvider: new TestLogProvider(),
+      ui,
       projectPath: "./",
     } as any;
-    sandbox.stub(utils, "executeCommand").resolves(err(new UserError({})));
     const res = await driver.execute(args, context);
     assert.equal(res.result.isErr(), true);
   });

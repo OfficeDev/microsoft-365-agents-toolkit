@@ -1,19 +1,15 @@
 /* eslint-disable prettier/prettier */
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
-
-import "mocha";
-import * as sinon from "sinon";
-import fs from "fs-extra";
 import * as chai from "chai";
-import { zipFolderAsync } from "../../../src/component/utils/fileOperation";
+import fs from "fs-extra";
 import ignore from "ignore";
-import { CacheFileInUse, DeployEmptyFolderError, ZipFileError } from "../../../src";
 import * as os from "os";
-import * as uuid from "uuid";
 import * as path from "path";
-import AdmZip from "adm-zip";
-import proxyquire from "proxyquire";
+import * as sinon from "sinon";
+import * as uuid from "uuid";
+import { CacheFileInUse, DeployEmptyFolderError, ZipFileError } from "../../../src";
+import { fileOperationDeps, zipFolderAsync } from "../../../src/component/utils/fileOperation";
 
 describe("Test", () => {
   const sandbox = sinon.createSandbox();
@@ -44,14 +40,16 @@ describe("Test", () => {
 
   it("should throw error when EBUSY", async () => {
     const err = new EError(new Error("EBUSY"));
-    sandbox.stub(fs, "remove").throws(err);
+    sandbox.stub(fileOperationDeps, "existsSync").returns(true);
+    sandbox.stub(fileOperationDeps, "remove").rejects(err);
     await zipFolderAsync(tmp, tmpFile, ignore()).catch((e) => {
       chai.expect(e instanceof CacheFileInUse).to.equal(true);
     });
   });
 
   it("should throw error when Other error", async () => {
-    sandbox.stub(fs, "remove").throws(new Error("Other"));
+    sandbox.stub(fileOperationDeps, "existsSync").returns(true);
+    sandbox.stub(fileOperationDeps, "remove").rejects(new Error("Other"));
     await zipFolderAsync(tmp, tmpFile, ignore()).catch((e) => {
       chai.expect(e.message).to.equal("Other");
     });
@@ -67,14 +65,20 @@ describe("Test", () => {
   });
 
   it("write to zip throws ERR_OUT_OF_RANGE", async () => {
-    const test = new AdmZip();
     const err = new EError(new Error("ERR_OUT_OF_RANGE"));
-    sandbox.stub(test, "writeZip").yields(err);
-    const zipFolderAsync = proxyquire("../../../src/component/utils/fileOperation", {
-      "adm-zip": function() { return test; } // This function will be called instead of `new AdmZip()`
-    }).zipFolderAsync;
+    sandbox.stub(fileOperationDeps, "writeZip").rejects(err);
     await zipFolderAsync(tmp, path.join(tmp, "tmp.zip"), ignore()).catch((e: Error) => {
       chai.expect(e instanceof ZipFileError).to.equal(true);
+    });
+  });
+
+  it("fileOperationDeps.writeZip should reject on callback error", async () => {
+    const fakeZip = {
+      writeZip: (_cache: string, cb: (err?: Error) => void) => cb(new Error("zip-failed")),
+    } as any;
+
+    await fileOperationDeps.writeZip(fakeZip, path.join(tmp, "tmp.zip")).catch((e: Error) => {
+      chai.expect(e.message).to.equal("zip-failed");
     });
   });
 });

@@ -6,16 +6,16 @@
 import { TokenCacheContext } from "@azure/msal-node";
 import { ConfigFolderName } from "@microsoft/teamsfx-api";
 import * as crypto from "crypto";
-import * as fs from "fs-extra";
+import fs from "fs-extra";
 import * as os from "os";
 import VsCodeLogInstance from "./log";
 
-const cacheDir = os.homedir + `/.${ConfigFolderName}/account`;
-const cachePath = os.homedir + `/.${ConfigFolderName}/account/token.cache.`;
-const accountPath = os.homedir + `/.${ConfigFolderName}/account/homeId.cache.`;
+const cacheDir = os.homedir() + `/.${ConfigFolderName}/account`;
+const cachePath = os.homedir() + `/.${ConfigFolderName}/account/token.cache.`;
+const accountPath = os.homedir() + `/.${ConfigFolderName}/account/homeId.cache.`;
 const tenantPath = os.homedir() + `/.${ConfigFolderName}/account/tenantId.cache.`;
 const cachePathEnd = ".json";
-const azureSPPath = os.homedir + `/.${ConfigFolderName}/account/azure.sp`;
+const azureSPPath = os.homedir() + `/.${ConfigFolderName}/account/azure.sp`;
 
 // the friendly service name to store secret in keytar
 const serviceName = "Microsoft 365 Agents Toolkit";

@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import * as inquirer from "@inquirer/prompts";
 import {
   InputTextConfig,
   MultiSelectConfig,
@@ -13,7 +12,6 @@ import {
 import { SelectSubscriptionError, UnhandledError } from "@microsoft/teamsfx-core";
 import { assert } from "chai";
 import child_process from "child_process";
-import "mocha";
 import * as sinon from "sinon";
 import { logger } from "../../src/commonlib/logger";
 import UI from "../../src/userInteraction";
@@ -119,6 +117,7 @@ describe("UserInteraction(CLI) 2", () => {
       assert.isTrue(result.isErr());
     });
     it("success with default=all", async () => {
+      sandbox.stub(UI, "multiSelect").resolves(ok(["a", "b", "c"]));
       const config: MultiSelectConfig = {
         name: "test",
         title: "test",
@@ -131,6 +130,7 @@ describe("UserInteraction(CLI) 2", () => {
       assert.isTrue(result.isOk());
     });
     it("success with default=all", async () => {
+      sandbox.stub(UI, "multiSelect").resolves(ok(["a", "b"]));
       const config: MultiSelectConfig = {
         name: "test",
         title: "test",
@@ -146,6 +146,7 @@ describe("UserInteraction(CLI) 2", () => {
       assert.isTrue(result.isOk());
     });
     it("success with default=none", async () => {
+      sandbox.stub(UI, "multiSelect").resolves(ok([]));
       const config: MultiSelectConfig = {
         name: "test",
         title: "test",
@@ -268,7 +269,7 @@ describe("UserInteraction(CLI) 2", () => {
 
   describe("selectFileOrInput", () => {
     it("happy path", async () => {
-      sandbox.stub(inquirer, "input").resolves("somevalue");
+      sandbox.stub(UI, "input").resolves(ok("somevalue"));
       const res = await UI.selectFileOrInput({
         name: "test",
         title: "test",

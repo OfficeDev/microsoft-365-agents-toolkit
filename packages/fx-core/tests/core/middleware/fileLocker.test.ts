@@ -1,9 +1,8 @@
-import * as fs from "fs-extra";
-import * as sinon from "sinon";
 import { assert } from "chai";
+import * as fs from "fs-extra";
 import path from "path";
-import { withFileLock } from "../../../src/core/middleware/fileLocker";
-import "mocha";
+import * as sinon from "sinon";
+import { fileLockerDeps, withFileLock } from "../../../src/core/middleware/fileLocker";
 
 describe("withFileLock", () => {
   const sandbox = sinon.createSandbox();
@@ -49,7 +48,8 @@ describe("withFileLock", () => {
       .onSecondCall()
       .resolves(async () => {});
 
-    sandbox.replace(require("proper-lockfile"), "lock", lockStub);
+    sandbox.stub(fileLockerDeps, "lock").callsFake(lockStub as any);
+    sandbox.stub(fileLockerDeps, "waitSeconds").resolves();
 
     const result = await withFileLock(testFilePath, callback);
 
@@ -60,7 +60,8 @@ describe("withFileLock", () => {
 
   it("should throw an error if lock cannot be acquired after retries", async () => {
     const lockStub = sandbox.stub().throws({ code: "ELOCKED" });
-    sandbox.replace(require("proper-lockfile"), "lock", lockStub);
+    sandbox.stub(fileLockerDeps, "lock").callsFake(lockStub as any);
+    sandbox.stub(fileLockerDeps, "waitSeconds").resolves();
 
     try {
       await withFileLock(testFilePath, async () => "should not reach here");
@@ -75,7 +76,7 @@ describe("withFileLock", () => {
 
   it("should throw an error if lock fails for a reason other than ELOCKED", async () => {
     const lockStub = sandbox.stub().throws(new Error("Some other error"));
-    sandbox.replace(require("proper-lockfile"), "lock", lockStub);
+    sandbox.stub(fileLockerDeps, "lock").callsFake(lockStub as any);
     try {
       await withFileLock(testFilePath, async () => "should not reach here");
       assert.fail("Expected error was not thrown");
@@ -87,7 +88,7 @@ describe("withFileLock", () => {
   it("should release the lock after the callback is executed", async () => {
     const releaseStub = sandbox.stub().resolves();
     const lockStub = sandbox.stub().resolves(releaseStub);
-    sandbox.replace(require("proper-lockfile"), "lock", lockStub);
+    sandbox.stub(fileLockerDeps, "lock").callsFake(lockStub as any);
 
     const callback = sandbox.stub().resolves("success");
 

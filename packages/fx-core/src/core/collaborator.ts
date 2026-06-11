@@ -4,16 +4,16 @@
 import {
   Colors,
   Context,
+  err,
   FxError,
   InputsWithProjectPath,
   M365TokenProvider,
+  ok,
   Platform,
   Result,
   SystemError,
   TokenProvider,
   UserError,
-  err,
-  ok,
 } from "@microsoft/teamsfx-api";
 import axios from "axios";
 import * as dotenv from "dotenv";
@@ -45,6 +45,10 @@ import {
 } from "../component/feature/collaboration";
 import { FailedToLoadManifestId, FileNotFoundError } from "../error/common";
 import { QuestionNames } from "../question/constants";
+
+export const collaboratorDeps = {
+  parseShareAppActionYamlConfig,
+};
 
 export class CollaborationConstants {
   // Collaboartion CLI parameters
@@ -314,7 +318,7 @@ export async function listCollaborator(
     inputs[QuestionNames.collaborationAppType] &&
     inputs[QuestionNames.collaborationAppType].indexOf(CollaborationConstants.AgentOptionId) > -1
   ) {
-    const parseRes = await parseShareAppActionYamlConfig(inputs.projectPath);
+    const parseRes = await collaboratorDeps.parseShareAppActionYamlConfig(inputs.projectPath);
     if (parseRes.isErr()) {
       return err(parseRes.error);
     }
@@ -632,7 +636,7 @@ export async function grantPermission(
       inputs[QuestionNames.collaborationAppType] &&
       inputs[QuestionNames.collaborationAppType].indexOf(CollaborationConstants.AgentOptionId) > -1
     ) {
-      const parseRes = await parseShareAppActionYamlConfig(inputs.projectPath);
+      const parseRes = await collaboratorDeps.parseShareAppActionYamlConfig(inputs.projectPath);
       if (parseRes.isErr()) {
         return err(parseRes.error);
       }

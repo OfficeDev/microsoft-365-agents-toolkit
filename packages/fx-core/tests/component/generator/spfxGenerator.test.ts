@@ -4,7 +4,6 @@
 import { Context, err, Inputs, ok, Platform, Stage, SystemError } from "@microsoft/teamsfx-api";
 import * as chai from "chai";
 import fs from "fs-extra";
-import "mocha";
 import mockedEnv, { RestoreFn } from "mocked-env";
 import os from "os";
 import * as path from "path";
@@ -48,7 +47,7 @@ describe("SPFxGenerator", function () {
     sinon
       .stub(fs, "readFile")
       .resolves(
-        new Buffer(
+        Buffer.from(
           `{"id": "${manifestId}", "preconfiguredEntries": [{"title": {"default": "helloworld"}}]}`
         )
       );

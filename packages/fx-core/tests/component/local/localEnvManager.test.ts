@@ -3,7 +3,6 @@
 
 import * as chai from "chai";
 import chaiAsPromised from "chai-as-promised";
-import "mocha";
 import mockfs from "mock-fs";
 import path from "path";
 import { LocalEnvManager } from "../../../src/component/local/localEnvManager";

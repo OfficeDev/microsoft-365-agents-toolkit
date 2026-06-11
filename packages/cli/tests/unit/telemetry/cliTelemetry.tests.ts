@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { ok, SystemError, UserError } from "@microsoft/teamsfx-api";
+import { SystemError, UserError } from "@microsoft/teamsfx-api";
 import sinon from "sinon";
 
 import { CliTelemetryReporter } from "../../../src/commonlib/telemetry";
@@ -14,8 +14,21 @@ import {
 } from "../../../src/telemetry/cliTelemetryEvents";
 import { expect } from "../utils";
 
+const validInstrumentationKey = "00000000-0000-0000-0000-000000000000";
+
 describe("Telemetry", function () {
   const sandbox = sinon.createSandbox();
+  const stderrWrite = process.stderr.write.bind(process.stderr);
+
+  beforeEach(() => {
+    sandbox.stub(process.stderr, "write").callsFake(((chunk: any, ...args: any[]) => {
+      const text = typeof chunk === "string" ? chunk : chunk?.toString?.() ?? "";
+      if (text.includes("ApplicationInsights:An invalid instrumentation key was provided.")) {
+        return true;
+      }
+      return stderrWrite(chunk, ...args);
+    }) as any);
+  });
 
   afterEach(() => {
     sandbox.restore();
@@ -34,7 +47,7 @@ describe("Telemetry", function () {
         expect(properties[TelemetryProperty.Component]).equals(TelemetryComponentType);
         expect(properties[TelemetryProperty.AppId]).equals(undefined);
       });
-    const reporter = new CliTelemetryReporter("real", "real", "real", "real");
+    const reporter = new CliTelemetryReporter(validInstrumentationKey, "real", "real", "real");
     cliTelemetry.reporter = reporter;
     cliTelemetry.sendTelemetryEvent("eventName");
   });
@@ -59,7 +72,7 @@ describe("Telemetry", function () {
             // expect(properties[TelemetryProperty.ErrorMessage]).equals("SystemError");
           }
         });
-      const reporter = new CliTelemetryReporter("real", "real", "real", "real");
+      const reporter = new CliTelemetryReporter(validInstrumentationKey, "real", "real", "real");
       cliTelemetry.reporter = reporter;
     });
 
@@ -86,14 +99,14 @@ describe("Telemetry", function () {
         expect(properties[TelemetryProperty.Component]).equals(TelemetryComponentType);
         expect(properties[TelemetryProperty.AppId]).equals(undefined);
       });
-    const reporter = new CliTelemetryReporter("real", "real", "real", "real");
+    const reporter = new CliTelemetryReporter(validInstrumentationKey, "real", "real", "real");
     cliTelemetry.reporter = reporter;
     cliTelemetry.sendTelemetryException(new Error("exception"));
   });
 
   it("flush", async () => {
     sandbox.stub(CliTelemetryReporter.prototype, "flush");
-    const reporter = new CliTelemetryReporter("real", "real", "real", "real");
+    const reporter = new CliTelemetryReporter(validInstrumentationKey, "real", "real", "real");
     cliTelemetry.reporter = reporter;
     await cliTelemetry.flush();
   });

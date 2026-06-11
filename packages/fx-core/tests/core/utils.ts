@@ -2,6 +2,7 @@
 // Licensed under the MIT license.
 
 import { TokenCredential } from "@azure/core-auth";
+import { AccessToken, GetTokenOptions } from "@azure/identity";
 import {
   AzureAccountProvider,
   Colors,
@@ -39,10 +40,9 @@ import {
   UserInteraction,
 } from "@microsoft/teamsfx-api";
 import fs from "fs-extra";
-import { AccessToken, GetTokenOptions } from "@azure/identity";
 
 export function randomAppName() {
-  return "mock" + new Date().getTime();
+  return `mock${Date.now()}-${Math.floor(Math.random() * 1000000)}`;
 }
 
 export class MyTokenCredential implements TokenCredential {

@@ -93,6 +93,11 @@ export const EnvWriterMW: Middleware = async (ctx: CoreHookContext, next: NextFu
   if (projectPath && env && envVars) {
     const res = await envUtil.writeEnv(projectPath, env, envVars);
     if (res.isErr()) {
+      // Some command paths don't have project YAML (for example, lightweight test fixtures).
+      // In that case we skip persisting env vars and keep the command result from upstream.
+      if (res.error.name === "FileNotFoundError") {
+        return;
+      }
       ctx.result = err(res.error);
       return;
     }

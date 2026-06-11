@@ -6,7 +6,6 @@
  */
 
 import { assert } from "chai";
-import { describe, it } from "mocha";
 import mockedEnv, { RestoreFn } from "mocked-env";
 import sinon from "sinon";
 import { Lifecycle } from "../../../src/component/configManager/lifecycle";

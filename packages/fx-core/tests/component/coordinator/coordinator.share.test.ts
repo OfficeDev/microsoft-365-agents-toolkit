@@ -1,4 +1,10 @@
-// import "mocha";
+import { describe, it } from "vitest";
+
+describe.skip("coordinator share", () => {
+  it("placeholder", () => {
+    // Placeholder to keep this intentionally-disabled suite from failing as empty.
+  });
+});
 
 // import { assert } from "chai";
 // import { DotenvParseOutput } from "dotenv";

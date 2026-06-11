@@ -1,19 +1,17 @@
-import { ProjectType, SpecParser, ValidationStatus } from "@microsoft/m365-spec-parser";
-import { ApiOperation, Inputs, ok, Platform } from "@microsoft/teamsfx-api";
+import { ErrorType, ProjectType, SpecParserError } from "@microsoft/m365-spec-parser";
+import { Inputs, ok, Platform, SystemError } from "@microsoft/teamsfx-api";
 import { assert } from "chai";
-import fs from "fs-extra";
-import "mocha";
 import { RestoreFn } from "mocked-env";
 import * as sinon from "sinon";
 import { createContext, setTools } from "../../../../src/common/globalVars";
-import { manifestUtils } from "../../../../src/component/driver/teamsApp/utils/ManifestUtils";
-import { CustomEngineAgentWithExistingApiSpecGenerator } from "../../../../src/component/generator/openApiSpec/customEngineAgentGenerator";
-import * as helper from "../../../../src/component/generator/openApiSpec/helper";
+import {
+  customEngineAgentGeneratorDeps,
+  CustomEngineAgentWithExistingApiSpecGenerator,
+} from "../../../../src/component/generator/openApiSpec/customEngineAgentGenerator";
 import { TemplateNames } from "../../../../src/component/generator/templates/templateNames";
 import { ActionStartOptions, ProgrammingLanguage, QuestionNames } from "../../../../src/question";
 import { TeamsAgentCapabilityOptions } from "../../../../src/question/scaffold/vsc/CapabilityOptions";
 import { MockTools } from "../../../core/utils";
-import { teamsManifest } from "./fakeData";
 
 const tools = new MockTools();
 
@@ -76,26 +74,6 @@ describe("CustomEngineAgentWithExistingApiSpecGenerator", async () => {
     const sandbox = sinon.createSandbox();
     let mockedEnvRestore: RestoreFn | undefined;
 
-    const apiOperations: ApiOperation[] = [
-      {
-        id: "operation1",
-        label: "operation1",
-        groupName: "1",
-        data: {
-          serverUrl: "https://server1",
-        },
-      },
-      {
-        id: "operation2",
-        label: "operation2",
-        groupName: "1",
-        data: {
-          serverUrl: "https://server1",
-          authName: "auth",
-        },
-      },
-    ];
-
     before(() => {
       setTools(tools);
     });
@@ -123,34 +101,9 @@ describe("CustomEngineAgentWithExistingApiSpecGenerator", async () => {
         },
       };
       const context = createContext();
-      sandbox
-        .stub(SpecParser.prototype, "validate")
-        .resolves({ status: ValidationStatus.Valid, errors: [], warnings: [] });
-      sandbox.stub(SpecParser.prototype, "getFilteredSpecs").resolves([
-        {
-          openapi: "3.0.0",
-          info: {
-            title: "test",
-            version: "1.0",
-          },
-          paths: {},
-        },
-        {
-          openapi: "3.0.0",
-          info: {
-            title: "test",
-            version: "1.0",
-          },
-          paths: {},
-        },
-      ]);
-      sandbox.stub(helper, "updateForCustomApi").resolves([]);
-      sandbox.stub(fs, "ensureDir").resolves();
-      sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(teamsManifest));
       const generateBasedOnSpec = sandbox
-        .stub(SpecParser.prototype, "generate")
-        .resolves({ allSuccess: true, warnings: [] });
-      sandbox.stub(helper, "generateScaffoldingSummary").resolves("");
+        .stub(customEngineAgentGeneratorDeps, "generateFilesFromApiSpec")
+        .resolves(ok({}));
 
       const generator = new CustomEngineAgentWithExistingApiSpecGenerator();
       const result = await generator.post(context, inputs, "projectPath");
@@ -175,34 +128,9 @@ describe("CustomEngineAgentWithExistingApiSpecGenerator", async () => {
         },
       };
       const context = createContext();
-      sandbox
-        .stub(SpecParser.prototype, "validate")
-        .resolves({ status: ValidationStatus.Valid, errors: [], warnings: [] });
-      sandbox.stub(SpecParser.prototype, "getFilteredSpecs").resolves([
-        {
-          openapi: "3.0.0",
-          info: {
-            title: "test",
-            version: "1.0",
-          },
-          paths: {},
-        },
-        {
-          openapi: "3.0.0",
-          info: {
-            title: "test",
-            version: "1.0",
-          },
-          paths: {},
-        },
-      ]);
-      sandbox.stub(helper, "updateForCustomApi").resolves([]);
-      sandbox.stub(fs, "ensureDir").resolves();
-      sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(teamsManifest));
       const generateBasedOnSpec = sandbox
-        .stub(SpecParser.prototype, "generate")
-        .resolves({ allSuccess: true, warnings: [] });
-      sandbox.stub(helper, "generateScaffoldingSummary").resolves("");
+        .stub(customEngineAgentGeneratorDeps, "generateFilesFromApiSpec")
+        .resolves(ok({}));
 
       const generator = new CustomEngineAgentWithExistingApiSpecGenerator();
       const result = await generator.post(context, inputs, "projectPath");
@@ -227,34 +155,9 @@ describe("CustomEngineAgentWithExistingApiSpecGenerator", async () => {
         },
       };
       const context = createContext();
-      sandbox
-        .stub(SpecParser.prototype, "validate")
-        .resolves({ status: ValidationStatus.Valid, errors: [], warnings: [] });
-      sandbox.stub(SpecParser.prototype, "getFilteredSpecs").resolves([
-        {
-          openapi: "3.0.0",
-          info: {
-            title: "test",
-            version: "1.0",
-          },
-          paths: {},
-        },
-        {
-          openapi: "3.0.0",
-          info: {
-            title: "test",
-            version: "1.0",
-          },
-          paths: {},
-        },
-      ]);
-      sandbox.stub(helper, "updateForCustomApi").resolves([]);
-      sandbox.stub(fs, "ensureDir").resolves();
-      sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(teamsManifest));
       const generateBasedOnSpec = sandbox
-        .stub(SpecParser.prototype, "generate")
-        .resolves({ allSuccess: true, warnings: [] });
-      sandbox.stub(helper, "generateScaffoldingSummary").resolves("warning message");
+        .stub(customEngineAgentGeneratorDeps, "generateFilesFromApiSpec")
+        .resolves(ok({}));
 
       const generator = new CustomEngineAgentWithExistingApiSpecGenerator();
       const result = await generator.post(context, inputs, "projectPath");
@@ -280,35 +183,46 @@ describe("CustomEngineAgentWithExistingApiSpecGenerator", async () => {
       };
       const context = createContext();
       sandbox
-        .stub(SpecParser.prototype, "validate")
-        .resolves({ status: ValidationStatus.Valid, errors: [], warnings: [] });
-      sandbox.stub(SpecParser.prototype, "getFilteredSpecs").resolves([
-        {
-          openapi: "3.0.0",
-          info: {
-            title: "test",
-            version: "1.0",
-          },
-          paths: {},
-        },
-        {
-          openapi: "3.0.0",
-          info: {
-            title: "test",
-            version: "1.0",
-          },
-          paths: {},
-        },
-      ]);
-      sandbox.stub(helper, "updateForCustomApi").throws(new Error("test"));
-      sandbox.stub(fs, "ensureDir").resolves();
-      sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(teamsManifest));
-      sandbox.stub(SpecParser.prototype, "generate").resolves({ allSuccess: true, warnings: [] });
+        .stub(customEngineAgentGeneratorDeps, "generateFilesFromApiSpec")
+        .rejects(new Error("test"));
+      const assembleErrorStub = sandbox
+        .stub(customEngineAgentGeneratorDeps, "assembleError")
+        .returns(new SystemError("ut", "test", "", ""));
 
       const generator = new CustomEngineAgentWithExistingApiSpecGenerator();
       const result = await generator.post(context, inputs, "projectPath");
 
-      assert.isTrue(result.isErr() && result.error.message === "test");
+      assert.isTrue(result.isErr());
+      assert.isTrue(assembleErrorStub.calledOnce);
+    });
+
+    it("generateCustomCopilot: SpecParserError", async () => {
+      const inputs: Inputs = {
+        platform: Platform.VSCode,
+        projectPath: "path",
+        [QuestionNames.ProgrammingLanguage]: ProgrammingLanguage.TS,
+        [QuestionNames.ApiSpecLocation]: "test.yaml",
+        [QuestionNames.ApiOperation]: ["operation1"],
+        templateState: {
+          templateName: "custom-copilot-rag-custom-api",
+          isPlugin: false,
+          uri: "https://test.com",
+          isYaml: false,
+          type: ProjectType.TeamsAi,
+        },
+      };
+      const context = createContext();
+      const specError = new SpecParserError("test", ErrorType.Unknown);
+      sandbox.stub(customEngineAgentGeneratorDeps, "generateFilesFromApiSpec").rejects(specError);
+      const convertStub = sandbox
+        .stub(customEngineAgentGeneratorDeps, "convertSpecParserErrorToFxError")
+        .returns(new SystemError("ut", "spec-parser", "", ""));
+
+      const generator = new CustomEngineAgentWithExistingApiSpecGenerator();
+      const result = await generator.post(context, inputs, "projectPath");
+
+      assert.isTrue(result.isErr());
+      assert.isTrue(convertStub.calledOnceWithExactly(specError));
     });
   });
 });

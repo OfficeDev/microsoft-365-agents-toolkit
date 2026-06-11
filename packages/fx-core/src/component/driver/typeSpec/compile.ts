@@ -14,11 +14,8 @@ import {
 import fs from "fs-extra";
 import path from "path";
 import { Service } from "typedi";
-import {
-  parseAndUpdatePluginManifestForKiota,
-  patchOpenApiExtensionsIntoPluginManifest,
-} from "../../../common/daSpecParser";
-import { kiotageneratePlugin } from "../../../common/kiotaClient";
+import * as daSpecParser from "../../../common/daSpecParser";
+import * as kiotaClient from "../../../common/kiotaClient";
 import { getLocalizedString } from "../../../common/localizeUtils";
 import { MetadataV4 } from "../../../common/versionMetadata";
 import {
@@ -27,7 +24,7 @@ import {
   InvalidActionInputError,
   NeedRedoError,
 } from "../../../error/common";
-import { injectAuthAction } from "../../generator/openApiSpec/helper";
+import * as openApiSpecHelper from "../../generator/openApiSpec/helper";
 import { DriverContext } from "../interface/commonArgs";
 import { ExecutionResult, StepDriver } from "../interface/stepDriver";
 import { addStartAndEndTelemetry } from "../middleware/addStartAndEndTelemetry";
@@ -38,6 +35,13 @@ import { TypeSpecCompileError } from "./error/typeSpecCompileError";
 import { TypeSpecCompileArgs } from "./interface/typeSpecCompileArgs";
 
 const actionName = "typeSpec/compile"; // DO NOT MODIFY the name
+
+export const typeSpecCompileDeps = {
+  kiotageneratePlugin: kiotaClient.kiotageneratePlugin,
+  patchOpenApiExtensionsIntoPluginManifest: daSpecParser.patchOpenApiExtensionsIntoPluginManifest,
+  parseAndUpdatePluginManifestForKiota: daSpecParser.parseAndUpdatePluginManifestForKiota,
+  injectAuthAction: openApiSpecHelper.injectAuthAction,
+};
 
 @Service(actionName) // DO NOT MODIFY the service name
 export class TypeSpecCompileDriver implements StepDriver {
@@ -118,7 +122,7 @@ export class TypeSpecCompileDriver implements StepDriver {
             }
 
             const pluginManifestName = actions[0].id;
-            await kiotageneratePlugin(
+            await typeSpecCompileDeps.kiotageneratePlugin(
               `${openApiSpecsFolderPath}/${spec}`,
               `${outputFolderPath}`,
               `${pluginManifestName}`,
@@ -129,7 +133,7 @@ export class TypeSpecCompileDriver implements StepDriver {
               undefined,
               true
             );
-            await patchOpenApiExtensionsIntoPluginManifest(
+            await typeSpecCompileDeps.patchOpenApiExtensionsIntoPluginManifest(
               `${openApiSpecsFolderPath}/${spec}`,
               path.join(outputFolderPath, `${pluginManifestName.toLowerCase()}-apiplugin.json`)
             );
@@ -146,7 +150,7 @@ export class TypeSpecCompileDriver implements StepDriver {
                 continue;
               }
               const pluginManifestName = action.id;
-              await kiotageneratePlugin(
+              await typeSpecCompileDeps.kiotageneratePlugin(
                 `${openApiSpecsFolderPath}/${spec}`,
                 `${outputFolderPath}`,
                 `${pluginManifestName}`,
@@ -157,7 +161,7 @@ export class TypeSpecCompileDriver implements StepDriver {
                 undefined,
                 true
               );
-              await patchOpenApiExtensionsIntoPluginManifest(
+              await typeSpecCompileDeps.patchOpenApiExtensionsIntoPluginManifest(
                 `${openApiSpecsFolderPath}/${spec}`,
                 path.join(outputFolderPath, `${pluginManifestName.toLowerCase()}-apiplugin.json`)
               );
@@ -188,9 +192,12 @@ export class TypeSpecCompileDriver implements StepDriver {
         for (const file of generatedFolder) {
           if (file.match(/[^-]+\-apiplugin\.json/)) {
             const pluginManifestPath = path.join(outputFolderPath, file);
-            const authData = await parseAndUpdatePluginManifestForKiota(pluginManifestPath, true);
+            const authData = await typeSpecCompileDeps.parseAndUpdatePluginManifestForKiota(
+              pluginManifestPath,
+              true
+            );
             for (const authInfo of authData) {
-              const addAuthRes = await injectAuthAction(
+              const addAuthRes = await typeSpecCompileDeps.injectAuthAction(
                 ctx.projectPath,
                 authInfo.authName,
                 undefined,

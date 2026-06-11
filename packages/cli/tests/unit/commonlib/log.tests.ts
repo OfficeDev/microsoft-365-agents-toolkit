@@ -3,7 +3,6 @@
 
 import { Colors, LogLevel } from "@microsoft/teamsfx-api";
 import { expect } from "chai";
-import "mocha";
 import sinon from "sinon";
 import { CLILogProvider } from "../../../src/commonlib/log";
 import ScreenManager from "../../../src/console/screen";
