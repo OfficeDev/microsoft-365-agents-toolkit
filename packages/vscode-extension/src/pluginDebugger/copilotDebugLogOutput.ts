@@ -54,7 +54,7 @@ interface CapabilityExecution {
   };
 }
 
-interface AgentMetadata {
+interface AgentMetaData {
   agentId: string;
   conversationId: string;
   agentVersion: string;
@@ -110,7 +110,7 @@ export class CopilotDebugLog {
   capabilitiesDeveloperInfo?: CapabilitiesDeveloperInfo;
   pluginDeveloperInfo?: PluginDeveloperInfo;
   prompt?: string;
-  agentMetadata?: AgentMetadata;
+  agentMetaData?: AgentMetaData;
 
   constructor(logAsJson: string, prompt?: string) {
     let message: this;
@@ -132,7 +132,7 @@ export class CopilotDebugLog {
       message.functionExecutions ?? message.pluginDeveloperInfo?.functionExecutions;
     this.capabilitiesDeveloperInfo = message.capabilitiesDeveloperInfo;
     this.pluginDeveloperInfo = message.pluginDeveloperInfo;
-    this.agentMetadata = message.agentMetadata;
+    this.agentMetaData = message.agentMetaData;
 
     if (this.functionExecutions) {
       this.functionExecutions.forEach((functionExecution) => {
@@ -290,9 +290,9 @@ export class CopilotDebugLog {
     debugConsole.appendLine("");
     debugConsole.appendLine(`${ANSIColors.WHITE}User's input prompt: ${this.prompt ?? ""}`); // pull from search query - action/capability execution
     debugConsole.appendLine(
-      `${ANSIColors.WHITE}Agent ID (${this.agentMetadata?.agentId ?? ""}). Conversation ID (${
-        this.agentMetadata?.conversationId ?? ""
-      }). Request ID (${this.agentMetadata?.requestId ?? ""})`
+      `${ANSIColors.WHITE}Agent ID (${this.agentMetaData?.agentId ?? ""}). Conversation ID (${
+        this.agentMetaData?.conversationId ?? ""
+      }). Request ID (${this.agentMetaData?.requestId ?? ""})`
     );
   }
 

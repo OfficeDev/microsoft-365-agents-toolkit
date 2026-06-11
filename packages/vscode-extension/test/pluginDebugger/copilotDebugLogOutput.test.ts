@@ -371,7 +371,7 @@ describe("copilotDebugLogOutput", () => {
             },
           ],
         },
-        agentMetadata: {
+        agentMetaData: {
           agentId: "agentId",
           agentVersion: "1.0",
           conversationId: "conversationId",
@@ -417,7 +417,7 @@ describe("copilotDebugLogOutput", () => {
           errorMessage: "",
         },
       ]);
-      chai.assert.deepEqual(copilotDebugLog.agentMetadata, {
+      chai.assert.deepEqual(copilotDebugLog.agentMetaData, {
         agentId: "agentId",
         agentVersion: "1.0",
         conversationId: "conversationId",
@@ -427,7 +427,7 @@ describe("copilotDebugLogOutput", () => {
 
     it("should write header details", () => {
       const logJson = JSON.stringify({
-        agentMetadata: {
+        agentMetaData: {
           agentId: "agentId",
           agentVersion: "1.0",
           conversationId: "conversationId",
