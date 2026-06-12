@@ -1,13 +1,14 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 import axios, {
-  AxiosInstance,
   AxiosError,
-  CreateAxiosDefaults,
+  AxiosInstance,
   AxiosResponse,
+  CreateAxiosDefaults,
   InternalAxiosRequestConfig,
 } from "axios";
-import { TOOLS } from "./globalVars";
+import { TEAMS_GRAPH_API_NAMES } from "../client/teamsGraphClient";
+import { HttpMethod } from "../component/constant/commonConstant";
 import {
   APP_STUDIO_API_NAMES,
   Constants,
@@ -17,12 +18,11 @@ import {
   TelemetryPropertyKey,
   TelemetryPropertyValue,
 } from "../component/driver/teamsApp/utils/telemetry";
-import { TelemetryEvent, TelemetryProperty, TelemetrySuccess } from "./telemetry";
-import { DeveloperPortalAPIFailedSystemError } from "../error/teamsApp";
-import { HttpMethod } from "../component/constant/commonConstant";
-import { getDefaultString } from "./localizeUtils";
 import { MOS3Api, MOS3ApiDefinitions } from "../component/m365/serviceConstant";
-import { TEAMS_GRAPH_API_NAMES } from "../client/teamsGraphClient";
+import { DeveloperPortalAPIFailedSystemError } from "../error/teamsApp";
+import { TOOLS } from "./globalVars";
+import { getDefaultString } from "./localizeUtils";
+import { TelemetryEvent, TelemetryProperty, TelemetrySuccess } from "./telemetry";
 
 /**
  * This client will send telemetries to record API request trace
@@ -33,8 +33,10 @@ export class WrappedAxiosClient {
 
     instance.interceptors.request.use((request) => this.onRequest(request));
 
-    // eslint-disable-next-line prettier/prettier
-    instance.interceptors.response.use((response) => this.onResponse(response), (error) => this.onRejected(error));
+    instance.interceptors.response.use(
+      (response) => this.onResponse(response),
+      (error) => this.onRejected(error)
+    );
 
     return instance;
   }
@@ -66,9 +68,7 @@ export class WrappedAxiosClient {
    */
   public static onResponse(response: AxiosResponse) {
     const method = response.request.method;
-    const fullPath = `${(response.request.host as string) ?? ""}${
-      (response.request.path as string) ?? ""
-    }`;
+    const fullPath = `${response.config.baseURL ?? ""}${response.config.url ?? ""}`;
     const apiName = this.convertUrlToApiName(fullPath, method);
 
     const properties: { [key: string]: string } = {
@@ -96,9 +96,7 @@ export class WrappedAxiosClient {
     // socket, etc.) returned to the caller. See AB#37640864.
     try {
       const method = ((error.request?.method as string) ?? "").toString();
-      const fullPath = `${(error.request?.host as string) ?? ""}${
-        (error.request?.path as string) ?? ""
-      }`;
+      const fullPath = `${error.config?.baseURL ?? ""}${error.config?.url ?? ""}`;
       const apiName = this.convertUrlToApiName(fullPath, method);
 
       let requestData: any;

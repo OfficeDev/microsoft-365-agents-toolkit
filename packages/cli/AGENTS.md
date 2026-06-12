@@ -16,6 +16,9 @@
 - For `fs-extra`, keep default import style (`import fs from "fs-extra"`) where stubbing is needed; namespace import can break Sinon stubbing in current Vitest setup.
 - For new feature code, add at least one UT that validates the main behavior through the same seam used for mocking.
 
+## Code formatting
+- Use `pnpm exec eslint --fix <file>` to fix formatting issues. Do NOT use `prettier --write` directly — `eslint-plugin-prettier` may enforce different line-wrapping rules than standalone prettier, causing lint errors after a bare `prettier --write`.
+
 ## Testing instructions
 - Use `pnpm test:unit` to run full set of unit tests and get coverage report.
 - Use `pnpm test:unit:vitest` for faster local/full UT verification without coverage.
