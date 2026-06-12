@@ -3,7 +3,7 @@ using Microsoft.Teams.Plugins.AspNetCore.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.AddTeams();
+builder.AddTeams(skipAuth: true);
 
 var app = builder.Build();
 
