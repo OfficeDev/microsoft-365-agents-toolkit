@@ -56,7 +56,7 @@ builder.Services.AddSingleton(apiClient);
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddSingleton<Handlers>();
 
-builder.AddTeams(appBuilder);
+builder.AddTeams(appBuilder, skipAuth: string.IsNullOrEmpty(config.Teams.ClientId));
 
 // Read instructions from file
 var instructionsPath = Path.Combine(builder.Environment.ContentRootPath, "Prompts", "instructions.txt");
