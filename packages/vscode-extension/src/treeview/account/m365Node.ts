@@ -13,6 +13,13 @@ import { tools } from "../../globalVariables";
 import { listAllTenants } from "@microsoft/teamsfx-core/build/common/tools";
 import { SandboxNode } from "./sandBoxNode";
 
+export const m365NodeDeps = {
+  getTools: () => tools,
+  listAllTenants: (token: string) => listAllTenants(token),
+  getBooleanValue: (flag: string) => featureFlagManager.getBooleanValue(flag),
+  localize: (key: string, ...args: any[]) => localize(key, ...args),
+};
+
 export class M365AccountNode extends DynamicNode {
   public status: AccountItemStatus;
   private sideloadingNode: SideloadingNode;
@@ -36,11 +43,11 @@ export class M365AccountNode extends DynamicNode {
     this.status = AccountItemStatus.SignedIn;
 
     this.label = displayName;
-    const tokenRes = await tools.tokenProvider.m365TokenProvider.getAccessToken({
+    const tokenRes = await m365NodeDeps.getTools().tokenProvider.m365TokenProvider.getAccessToken({
       scopes: AzureScopes(),
     });
     if (tokenRes.isOk() && tokenRes.value) {
-      const tenants = await listAllTenants(tokenRes.value);
+      const tenants = await m365NodeDeps.listAllTenants(tokenRes.value);
       for (const tenant of tenants) {
         if (tenant.tenantId === tid && tenant.displayName) {
           this.label = `${displayName} (${tenant.displayName as string})`;
@@ -107,7 +114,7 @@ export class M365AccountNode extends DynamicNode {
 
   public override getChildren(): vscode.ProviderResult<DynamicNode[]> {
     const children: DynamicNode[] = [this.sideloadingNode];
-    if (featureFlagManager.getBooleanValue(FeatureFlags.SandBoxedTeam)) {
+    if (m365NodeDeps.getBooleanValue(FeatureFlags.SandBoxedTeam)) {
       children.push(this.sandboxNode);
     }
     if (this.copilotNode) {
@@ -119,7 +126,7 @@ export class M365AccountNode extends DynamicNode {
   public override getTreeItem(): vscode.TreeItem | Promise<vscode.TreeItem> {
     this.collapsibleState = vscode.TreeItemCollapsibleState.None;
     if (this.status !== AccountItemStatus.SignedIn) {
-      this.label = localize("teamstoolkit.handlers.signIn365");
+      this.label = m365NodeDeps.localize("teamstoolkit.handlers.signIn365");
       this.command = {
         title: this.label,
         command: "fx-extension.signinM365",
@@ -129,7 +136,7 @@ export class M365AccountNode extends DynamicNode {
       this.collapsibleState = vscode.TreeItemCollapsibleState.Expanded;
     }
     this.tooltip = new vscode.MarkdownString(
-      localize("teamstoolkit.accountTree.m365AccountTooltip")
+      m365NodeDeps.localize("teamstoolkit.accountTree.m365AccountTooltip")
     );
     if (
       this.status === AccountItemStatus.SigningIn ||
@@ -138,8 +145,8 @@ export class M365AccountNode extends DynamicNode {
       this.iconPath = loadingIcon;
       this.label =
         this.status === AccountItemStatus.Switching
-          ? localize("teamstoolkit.accountTree.switchingM365")
-          : localize("teamstoolkit.accountTree.signingInM365");
+          ? m365NodeDeps.localize("teamstoolkit.accountTree.switchingM365")
+          : m365NodeDeps.localize("teamstoolkit.accountTree.signingInM365");
     } else {
       this.iconPath = m365Icon;
     }
@@ -147,7 +154,7 @@ export class M365AccountNode extends DynamicNode {
       label:
         (this.label ? (typeof this.label === "string" ? this.label : this.label.label) : "") +
         ". " +
-        localize("teamstoolkit.accountTree.m365AccountTooltip"),
+        m365NodeDeps.localize("teamstoolkit.accountTree.m365AccountTooltip"),
     };
     return this;
   }

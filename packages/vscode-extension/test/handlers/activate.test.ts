@@ -2,11 +2,10 @@ import * as sinon from "sinon";
 import * as chai from "chai";
 import * as vscode from "vscode";
 import path from "path";
-import * as fileSystemWatcher from "../../src/utils/fileSystemWatcher";
 import * as globalVariables from "../../src/globalVariables";
-import * as projectSettingsHelper from "@microsoft/teamsfx-core/build/common/projectSettingsHelper";
 import {
   activate,
+  activateDeps,
   refreshEnvTreeOnEnvFileChanged,
   refreshEnvTreeOnFilesNameChanged,
   refreshEnvTreeOnProjectSettingFileChanged,
@@ -44,12 +43,12 @@ describe("Activate", function () {
     });
 
     it("Valid project", async () => {
-      sandbox.stub(projectSettingsHelper, "isValidProject").returns(true);
+      sandbox.stub(activateDeps, "isValidProject").returns(true);
       const sendTelemetryStub = sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
       const addSharedPropertyStub = sandbox.stub(ExtTelemetry, "addSharedProperty");
       const setCommandIsRunningStub = sandbox.stub(globalVariables, "setCommandIsRunning");
       sandbox.stub(globalVariables, "workspaceUri").value(vscode.Uri.parse("test"));
-      const addFileSystemWatcherStub = sandbox.stub(fileSystemWatcher, "addFileSystemWatcher");
+      const addFileSystemWatcherStub = sandbox.stub(activateDeps, "addFileSystemWatcher");
       const lockedByOperationStub = sandbox.stub(commandController, "lockedByOperation");
       const unlockedByOperationStub = sandbox.stub(commandController, "unlockedByOperation");
       const azureAccountSetStatusChangeMapStub = sandbox.stub(
@@ -60,7 +59,9 @@ describe("Activate", function () {
         M365TokenInstance,
         "setStatusChangeMap"
       );
-      const showMessageStub = sandbox.stub(vscode.window, "showInformationMessage");
+      const showMessageStub = sandbox
+        .stub(vscode.window, "showInformationMessage")
+        .resolves(undefined);
       let lockCallback: any;
       let unlockCallback: any;
 
@@ -119,18 +120,18 @@ describe("Activate", function () {
 
     it("uses Graph scopes for M365 status change in sovereign high", async () => {
       sandbox.stub(featureFlagManager, "getStringValue").returns("GCC H");
-      sandbox.stub(projectSettingsHelper, "isValidProject").returns(true);
+      sandbox.stub(activateDeps, "isValidProject").returns(true);
       sandbox.stub(ExtTelemetry, "addSharedProperty");
       sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
       sandbox.stub(globalVariables, "workspaceUri").value(vscode.Uri.parse("test"));
-      sandbox.stub(fileSystemWatcher, "addFileSystemWatcher");
+      sandbox.stub(activateDeps, "addFileSystemWatcher");
       sandbox.stub(commandController, "lockedByOperation");
       sandbox.stub(commandController, "unlockedByOperation");
       sandbox.stub(AzureAccountManager.prototype, "setStatusChangeMap").resolves(true);
       const m365AccountSetStatusChangeMapStub = sandbox
         .stub(M365TokenInstance, "setStatusChangeMap")
         .resolves(ok(true));
-      sandbox.stub(vscode.window, "showInformationMessage");
+      sandbox.stub(vscode.window, "showInformationMessage").resolves(undefined);
       sandbox.stub(FxCore.prototype, "on").returns();
 
       const result = await activate();
@@ -147,10 +148,12 @@ describe("Activate", function () {
     });
 
     it("throws error", async () => {
-      sandbox.stub(projectSettingsHelper, "isValidProject").returns(false);
+      sandbox.stub(activateDeps, "isValidProject").returns(false);
       sandbox.stub(M365TokenInstance, "setStatusChangeMap");
       sandbox.stub(FxCore.prototype, "on").throws(new Error("test"));
-      const showErrorMessageStub = sandbox.stub(vscode.window, "showErrorMessage");
+      const showErrorMessageStub = sandbox
+        .stub(vscode.window, "showErrorMessage")
+        .resolves(undefined);
 
       const result = await activate();
 

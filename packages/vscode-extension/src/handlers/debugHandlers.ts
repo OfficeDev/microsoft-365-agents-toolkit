@@ -18,6 +18,14 @@ import { getSystemInputs } from "../utils/systemEnvUtils";
 import { getTriggerFromProperty } from "../utils/telemetryUtils";
 import { processResult } from "./sharedOpts";
 
+export const debugHandlersDeps = {
+  selectAndDebug: () => selectAndDebug(),
+  processResult: (eventName: string, result: Result<null, FxError>) =>
+    processResult(eventName, result),
+  getSystemInputs: () => getSystemInputs(),
+  openHubWebClient: (hub: Hub, url: string) => openHubWebClient(hub, url),
+};
+
 export function debugInTestToolHandler(source: "treeview" | "message") {
   return async () => {
     if (source === "treeview") {
@@ -35,8 +43,8 @@ export function debugInTestToolHandler(source: "treeview" | "message") {
 
 export async function selectAndDebugHandler(args?: any[]): Promise<Result<null, FxError>> {
   ExtTelemetry.sendTelemetryEvent(TelemetryEvent.RunIconDebugStart, getTriggerFromProperty(args));
-  const result = await selectAndDebug();
-  await processResult(TelemetryEvent.RunIconDebug, result);
+  const result = await debugHandlersDeps.selectAndDebug();
+  await debugHandlersDeps.processResult(TelemetryEvent.RunIconDebug, result);
   return result;
 }
 
@@ -55,7 +63,7 @@ export async function treeViewPreviewHandler(...args: any[]): Promise<Result<nul
 
   try {
     const env = args[1]?.identifier as string;
-    const inputs = getSystemInputs();
+    const inputs = debugHandlersDeps.getSystemInputs();
     inputs.env = env;
     properties[TelemetryProperty.Env] = env;
 
@@ -68,7 +76,7 @@ export async function treeViewPreviewHandler(...args: any[]): Promise<Result<nul
     const url = result.value;
     properties[TelemetryProperty.Hub] = hub;
 
-    await openHubWebClient(hub, url);
+    await debugHandlersDeps.openHubWebClient(hub, url);
   } catch (error) {
     const assembledError = assembleError(error);
     void showError(assembledError);

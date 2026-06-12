@@ -1,6 +1,6 @@
 import * as chai from "chai";
 import * as sinon from "sinon";
-import * as globalState from "@microsoft/teamsfx-core/build/common/globalState";
+import * as globalState from "@microsoft/teamsfx-core";
 import { ExtTelemetry } from "../../src/telemetry/extTelemetry";
 import { Uri, commands } from "vscode";
 import { openOfficeDevFolder } from "../../src/utils/workspaceUtils";
@@ -9,10 +9,26 @@ import { GlobalKey } from "../../src/constants";
 describe("WorkspaceUtils", () => {
   describe("openOfficeDevFolder", () => {
     const sandbox = sinon.createSandbox();
+    let inMemoryGlobalState: Map<string, any>;
 
-    beforeEach(() => {
+    beforeEach(async () => {
+      inMemoryGlobalState = new Map<string, any>();
+      sandbox
+        .stub(globalState, "globalStateGet")
+        .callsFake(async (key: string, defaultValue?: any) => {
+          return inMemoryGlobalState.has(key) ? inMemoryGlobalState.get(key) : defaultValue;
+        });
+      sandbox.stub(globalState, "globalStateUpdate").callsFake(async (key: string, value: any) => {
+        inMemoryGlobalState.set(key, value);
+      });
+
       sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
       sandbox.stub(commands, "executeCommand");
+      await globalState.globalStateUpdate(GlobalKey.OpenWalkThrough, false);
+      await globalState.globalStateUpdate(GlobalKey.AutoInstallDependency, false);
+      await globalState.globalStateUpdate(GlobalKey.OpenReadMe, "");
+      await globalState.globalStateUpdate(GlobalKey.ShowLocalDebugMessage, false);
+      await globalState.globalStateUpdate(GlobalKey.CreateWarnings, "");
     });
 
     afterEach(() => {
@@ -20,38 +36,28 @@ describe("WorkspaceUtils", () => {
     });
 
     it("triggered from walkthrough with local debug message and warnings", async () => {
-      const globalStateUpdateStub = sandbox.stub(globalState, "globalStateUpdate");
       const warnings = [{ type: "type", content: "content" }];
       await openOfficeDevFolder(Uri.parse("fakePath"), true, warnings, ["WalkThrough"]);
-      chai.expect(globalStateUpdateStub.callCount).equals(5);
+      chai.expect(await globalState.globalStateGet(GlobalKey.OpenWalkThrough, true)).equals(false);
       chai
-        .expect(globalStateUpdateStub.getCall(0).args)
-        .deep.equals([GlobalKey.OpenWalkThrough, false]);
+        .expect(await globalState.globalStateGet(GlobalKey.AutoInstallDependency, false))
+        .equals(true);
+      chai.expect(await globalState.globalStateGet(GlobalKey.OpenReadMe, "")).equals("");
       chai
-        .expect(globalStateUpdateStub.getCall(1).args)
-        .deep.equals([GlobalKey.AutoInstallDependency, true]);
-      chai.expect(globalStateUpdateStub.getCall(2).args).deep.equals([GlobalKey.OpenReadMe, ""]);
+        .expect(await globalState.globalStateGet(GlobalKey.ShowLocalDebugMessage, false))
+        .equals(true);
       chai
-        .expect(globalStateUpdateStub.getCall(3).args)
-        .deep.equals([GlobalKey.ShowLocalDebugMessage, true]);
-      chai
-        .expect(globalStateUpdateStub.getCall(4).args)
-        .deep.equals([GlobalKey.CreateWarnings, JSON.stringify(warnings)]);
+        .expect(await globalState.globalStateGet(GlobalKey.CreateWarnings, ""))
+        .equals(JSON.stringify(warnings));
     });
 
     it("not triggered from walkthrough with no local debug message and warnings", async () => {
-      const globalStateUpdateStub = sandbox.stub(globalState, "globalStateUpdate");
       await openOfficeDevFolder(Uri.parse("fakePath"), false, undefined);
-      chai.expect(globalStateUpdateStub.callCount).equals(3);
+      chai.expect(await globalState.globalStateGet(GlobalKey.OpenWalkThrough, true)).equals(false);
       chai
-        .expect(globalStateUpdateStub.getCall(0).args)
-        .deep.equals([GlobalKey.OpenWalkThrough, false]);
-      chai
-        .expect(globalStateUpdateStub.getCall(1).args)
-        .deep.equals([GlobalKey.AutoInstallDependency, true]);
-      chai
-        .expect(globalStateUpdateStub.getCall(2).args)
-        .deep.equals([GlobalKey.OpenReadMe, "fakePath"]);
+        .expect(await globalState.globalStateGet(GlobalKey.AutoInstallDependency, false))
+        .equals(true);
+      chai.expect(await globalState.globalStateGet(GlobalKey.OpenReadMe, "")).equals("fakePath");
     });
   });
 });

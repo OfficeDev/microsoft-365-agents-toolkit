@@ -14,6 +14,7 @@ import { environmentManager } from "@microsoft/teamsfx-core";
 import { ExtTelemetry } from "../../src/telemetry/extTelemetry";
 import { MockCore } from "../mocks/mockCore";
 import {
+  aadManifestHandlersDeps,
   convertAadToNewSchemaHandler,
   editAadManifestTemplateHandler,
   openPreviewAadFileHandler,
@@ -36,19 +37,19 @@ describe("aadManifestHandlers", () => {
     it("project is not valid", async () => {
       const core = new MockCore();
       sandbox.stub(globalVariables, "core").value(core);
-      sandbox.stub(projectSettingsHelper, "isValidProject").returns(false);
-      sandbox.stub(localizeUtils, "getDefaultString").returns("InvalidProjectError");
-      sandbox.stub(localizeUtils, "getLocalizedString").returns("InvalidProjectError");
+      sandbox.stub(aadManifestHandlersDeps, "isValidProject").returns(false);
       const res = await openPreviewAadFileHandler([]);
       chai.assert.isTrue(res.isErr());
-      chai.assert.equal(res.isErr() ? res.error.message : "Not Err", "InvalidProjectError");
+      chai.assert.equal(res.isErr() ? res.error.name : "Not Err", "InvalidProjectError");
     });
 
     it("select Env returns error", async () => {
       const core = new MockCore();
       sandbox.stub(globalVariables, "core").value(core);
-      sandbox.stub(projectSettingsHelper, "isValidProject").returns(true);
-      sandbox.stub(envHandlers, "askTargetEnvironment").resolves(err("selectEnvErr") as any);
+      sandbox.stub(aadManifestHandlersDeps, "isValidProject").returns(true);
+      sandbox
+        .stub(aadManifestHandlersDeps, "askTargetEnvironment")
+        .resolves(err("selectEnvErr") as any);
       const res = await openPreviewAadFileHandler([]);
       chai.assert.isTrue(res.isErr());
       chai.assert.equal(res.isErr() ? res.error : "Not Err", "selectEnvErr");
@@ -57,9 +58,9 @@ describe("aadManifestHandlers", () => {
     it("runCommand returns error", async () => {
       const core = new MockCore();
       sandbox.stub(globalVariables, "core").value(core);
-      sandbox.stub(projectSettingsHelper, "isValidProject").returns(true);
-      sandbox.stub(envHandlers, "askTargetEnvironment").resolves(ok("dev"));
-      sandbox.stub(sharedOpts, "runCommand").resolves(err("runCommandErr") as any);
+      sandbox.stub(aadManifestHandlersDeps, "isValidProject").returns(true);
+      sandbox.stub(aadManifestHandlersDeps, "askTargetEnvironment").resolves(ok("dev"));
+      sandbox.stub(aadManifestHandlersDeps, "runCommand").resolves(err("runCommandErr") as any);
       const res = await openPreviewAadFileHandler([]);
       chai.assert.isTrue(res.isErr());
       chai.assert.equal(res.isErr() ? res.error : "Not Err", "runCommandErr");
@@ -68,7 +69,7 @@ describe("aadManifestHandlers", () => {
     it("manifest file not exists", async () => {
       const core = new MockCore();
       sandbox.stub(globalVariables, "core").value(core);
-      sandbox.stub(projectSettingsHelper, "isValidProject").returns(true);
+      sandbox.stub(aadManifestHandlersDeps, "isValidProject").returns(true);
       sandbox.stub(fs, "existsSync").returns(false);
       sandbox.stub(environmentManager, "listAllEnvConfigs").resolves(ok(["dev"]));
       sandbox.stub(vsc_ui, "VS_CODE_UI").value(new vsc_ui.VsCodeUI(<vscode.ExtensionContext>{}));
@@ -78,9 +79,9 @@ describe("aadManifestHandlers", () => {
           result: "dev",
         })
       );
-      sandbox.stub(envHandlers, "askTargetEnvironment").resolves(ok("dev"));
+      sandbox.stub(aadManifestHandlersDeps, "askTargetEnvironment").resolves(ok("dev"));
       sandbox.stub(errorCommon, "showError").callsFake(async () => {});
-      sandbox.stub(globalVariables.core, "buildAadManifest").resolves(ok(undefined));
+      sandbox.stub(aadManifestHandlersDeps, "runCommand").resolves(ok(undefined));
       const res = await openPreviewAadFileHandler([]);
       chai.assert.isTrue(res.isErr());
     });
@@ -88,7 +89,7 @@ describe("aadManifestHandlers", () => {
     it("happy path", async () => {
       const core = new MockCore();
       sandbox.stub(globalVariables, "core").value(core);
-      sandbox.stub(projectSettingsHelper, "isValidProject").returns(true);
+      sandbox.stub(aadManifestHandlersDeps, "isValidProject").returns(true);
       sandbox.stub(fs, "existsSync").returns(true);
       sandbox.stub(environmentManager, "listAllEnvConfigs").resolves(ok(["dev"]));
       sandbox.stub(vsc_ui, "VS_CODE_UI").value(new vsc_ui.VsCodeUI(<vscode.ExtensionContext>{}));
@@ -98,9 +99,9 @@ describe("aadManifestHandlers", () => {
           result: "dev",
         })
       );
-      sandbox.stub(envHandlers, "askTargetEnvironment").resolves(ok("dev"));
+      sandbox.stub(aadManifestHandlersDeps, "askTargetEnvironment").resolves(ok("dev"));
       sandbox.stub(errorCommon, "showError").callsFake(async () => {});
-      sandbox.stub(globalVariables.core, "buildAadManifest").resolves(ok(undefined));
+      sandbox.stub(aadManifestHandlersDeps, "runCommand").resolves(ok(undefined));
       sandbox.stub(vscode.workspace, "openTextDocument").resolves();
       sandbox.stub(vscode.window, "showTextDocument").resolves();
 

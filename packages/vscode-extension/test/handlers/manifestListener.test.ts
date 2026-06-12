@@ -2,7 +2,7 @@ import * as chai from "chai";
 import * as sinon from "sinon";
 import * as vscode from "vscode";
 import * as globalVariables from "../../src/globalVariables";
-import { manifestListener } from "../../src/manifestListener";
+import { manifestListener, manifestListenerDeps } from "../../src/manifestListener";
 import { TeamsAppManifest } from "@microsoft/teamsfx-api";
 import path from "path";
 import TreeViewManagerInstance from "../../src/treeview/treeViewManager";
@@ -26,7 +26,7 @@ describe("registerManifestListener", () => {
   it("successfully refresh item", async () => {
     clock = sandbox.useFakeTimers();
     let handler = async (event: any) => {};
-    sandbox.stub(projectSettingsHelper, "isValidProjectV3").returns(true);
+    sandbox.stub(manifestListenerDeps, "isValidProjectV3").returns(true);
     sandbox.stub(vscode.workspace, "onDidSaveTextDocument").callsFake((listener: any) => {
       handler = listener;
       return new vscode.Disposable(() => {
@@ -36,7 +36,7 @@ describe("registerManifestListener", () => {
     sandbox.stub(globalVariables, "isDeclarativeCopilotApp").value(false);
     sandbox.stub(globalVariables, "workspaceUri").value(vscode.Uri.file("."));
     sandbox
-      .stub(globalVariables, "updateIsDeclarativeCopilotApp")
+      .stub(manifestListenerDeps, "updateIsDeclarativeCopilotApp")
       .onFirstCall()
       .returns(true)
       .onSecondCall()
@@ -66,7 +66,7 @@ describe("registerManifestListener", () => {
   it("abort previous one", async () => {
     clock = sandbox.useFakeTimers();
     let handler = async (event: any) => {};
-    sandbox.stub(projectSettingsHelper, "isValidProjectV3").returns(true);
+    sandbox.stub(manifestListenerDeps, "isValidProjectV3").returns(true);
     sandbox.stub(vscode.workspace, "onDidSaveTextDocument").callsFake((listener: any) => {
       handler = listener;
       return new vscode.Disposable(() => {
@@ -76,7 +76,7 @@ describe("registerManifestListener", () => {
     sandbox.stub(globalVariables, "isDeclarativeCopilotApp").value(false);
     sandbox.stub(globalVariables, "workspaceUri").value(vscode.Uri.file("."));
     sandbox
-      .stub(globalVariables, "updateIsDeclarativeCopilotApp")
+      .stub(manifestListenerDeps, "updateIsDeclarativeCopilotApp")
       .onFirstCall()
       .returns(true)
       .onSecondCall()
@@ -106,7 +106,7 @@ describe("registerManifestListener", () => {
   it("not run if invalid project", async () => {
     clock = sandbox.useFakeTimers();
     let handler = async (event: any) => {};
-    sandbox.stub(projectSettingsHelper, "isValidProjectV3").returns(false);
+    sandbox.stub(manifestListenerDeps, "isValidProjectV3").returns(false);
     sandbox.stub(globalVariables, "workspaceUri").value(vscode.Uri.file("."));
     sandbox.stub(vscode.workspace, "onDidSaveTextDocument").callsFake((listener: any) => {
       handler = listener;

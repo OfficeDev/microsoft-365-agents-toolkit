@@ -1,10 +1,9 @@
-import * as handlers from "../../src/handlers/sharedOpts";
-import * as environmentUtils from "../../src/utils/systemEnvUtils";
 import * as vscode from "vscode";
 import { ExtTelemetry } from "../../src/telemetry/extTelemetry";
 import {
   createProjectFromWalkthroughHandler,
   openBuildIntelligentAppsWalkthroughHandler,
+  walkthroughDeps,
 } from "../../src/handlers/walkthrough";
 import * as sinon from "sinon";
 import { expect } from "chai";
@@ -20,11 +19,11 @@ describe("walkthrough", () => {
   it("create proejct from walkthrough", async () => {
     const sendTelemetryEventStub = sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
     const inputs = {} as Inputs;
-    const systemInputsStub = sandbox.stub(environmentUtils, "getSystemInputs").callsFake(() => {
+    const systemInputsStub = sandbox.stub(walkthroughDeps, "getSystemInputs").callsFake(() => {
       return inputs;
     });
 
-    const runCommandStub = sandbox.stub(handlers, "runCommand").resolves(ok(null));
+    const runCommandStub = sandbox.stub(walkthroughDeps, "runCommand").resolves(ok(null));
 
     await createProjectFromWalkthroughHandler([
       "walkthrough",

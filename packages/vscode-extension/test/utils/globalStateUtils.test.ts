@@ -1,11 +1,9 @@
 import * as sinon from "sinon";
 import * as chai from "chai";
 import * as vscode from "vscode";
-import * as telemetryUtils from "../../src/utils/telemetryUtils";
-import * as globalVariables from "../../src/globalVariables";
-import * as globalState from "@microsoft/teamsfx-core/build/common/globalState";
 import * as projectSettingsHelper from "@microsoft/teamsfx-core/build/common/projectSettingsHelper";
-import { updateAutoOpenGlobalKey } from "../../src/utils/globalStateUtils";
+import { GlobalKey } from "../../src/constants";
+import { globalStateUtilsDeps, updateAutoOpenGlobalKey } from "../../src/utils/globalStateUtils";
 
 describe("GlobalStateUtils", () => {
   const sandbox = sinon.createSandbox();
@@ -15,15 +13,20 @@ describe("GlobalStateUtils", () => {
   });
 
   it("updateAutoOpenGlobalKey", async () => {
-    sandbox.stub(telemetryUtils, "isTriggerFromWalkThrough").returns(true);
-    sandbox.stub(globalVariables, "checkIsSPFx").returns(true);
+    sandbox.stub(globalStateUtilsDeps, "isTriggerFromWalkThrough").returns(true);
+    sandbox.stub(globalStateUtilsDeps, "checkIsSPFx").returns(true);
     sandbox.stub(projectSettingsHelper, "isValidOfficeAddInProject").returns(false);
-    const globalStateUpdateStub = sandbox.stub(globalState, "globalStateUpdate");
+    const globalStateUpdateStub = sandbox.stub(globalStateUtilsDeps, "globalStateUpdate");
 
     await updateAutoOpenGlobalKey(false, vscode.Uri.file("test"), [
       { type: "type", content: "content" },
     ]);
 
-    chai.assert.isTrue(globalStateUpdateStub.callCount === 4);
+    chai.assert.isTrue(globalStateUpdateStub.calledWith(GlobalKey.OpenWalkThrough, true));
+    chai.assert.isTrue(globalStateUpdateStub.calledWith(GlobalKey.OpenReadMe, ""));
+    chai.assert.isTrue(
+      globalStateUpdateStub.calledWith(GlobalKey.CreateWarnings, sinon.match.string)
+    );
+    chai.assert.isTrue(globalStateUpdateStub.calledWith(GlobalKey.AutoInstallDependency, true));
   });
 });

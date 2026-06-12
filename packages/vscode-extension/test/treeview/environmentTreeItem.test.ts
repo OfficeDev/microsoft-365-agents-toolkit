@@ -9,7 +9,7 @@ import { M365Login } from "../../src/commonlib/m365Login";
 import * as globalVariables from "../../src/globalVariables";
 import { warningIcon } from "../../src/treeview/account/common";
 import { DynamicNode } from "../../src/treeview/dynamicNode";
-import { EnvironmentNode } from "../../src/treeview/environmentTreeItem";
+import { EnvironmentNode, environmentTreeItemDeps } from "../../src/treeview/environmentTreeItem";
 import * as commonUtils from "../../src/utils/commonUtils";
 import * as localizeUtils from "../../src/utils/localizeUtils";
 import * as envTreeUtils from "../../src/utils/envTreeUtils";
@@ -45,7 +45,8 @@ describe("EnvironmentNode", () => {
 
   it("getChildren returns warning for SPFx project", async () => {
     const environmentNode = new EnvironmentNode("test");
-    sandbox.stub(M365Login.getInstance(), "getStatus").returns(
+    sandbox.stub(environmentTreeItemDeps, "isRemoteEnvironment").returns(true);
+    sandbox.stub(environmentTreeItemDeps, "M365LoginGetStatus").returns(
       Promise.resolve<Result<LoginStatus, FxError>>(
         ok({
           status: "SignedIn",
@@ -55,18 +56,18 @@ describe("EnvironmentNode", () => {
         })
       )
     );
-    sandbox.stub(envTreeUtils, "getM365TenantFromEnv").returns(Promise.resolve("m365TenantId"));
-    sandbox.stub(globalVariables, "isSPFxProject").value(true);
-    // eslint-disable-next-line no-secrets/no-secrets
-    sandbox.stub(envTreeUtils, "getSubscriptionInfoFromEnv").returns(
+    sandbox
+      .stub(environmentTreeItemDeps, "getM365TenantFromEnv")
+      .returns(Promise.resolve("m365TenantId"));
+    sandbox.stub(environmentTreeItemDeps, "isSPFxProject").returns(true);
+    sandbox.stub(environmentTreeItemDeps, "getSubscriptionInfoFromEnv").returns(
       Promise.resolve<SubscriptionInfo | undefined>({
         subscriptionName: "subscriptionName",
         subscriptionId: "subscriptionId",
         tenantId: "tenantId",
       })
     );
-    sandbox.stub(localizeUtils, "localize").callsFake((key: string, _defValue?: string) => {
-      // eslint-disable-next-line no-secrets/no-secrets
+    sandbox.stub(environmentTreeItemDeps, "localize").callsFake((key: string) => {
       if (key === "teamstoolkit.commandsTreeViewProvider.m365AccountNotMatch") {
         return "test string";
       }
@@ -85,7 +86,8 @@ describe("EnvironmentNode", () => {
 
   it("getChildren returns subscription", async () => {
     const environmentNode = new EnvironmentNode("test");
-    sandbox.stub(M365Login.getInstance(), "getStatus").returns(
+    sandbox.stub(environmentTreeItemDeps, "isRemoteEnvironment").returns(true);
+    sandbox.stub(environmentTreeItemDeps, "M365LoginGetStatus").returns(
       Promise.resolve<Result<LoginStatus, FxError>>(
         ok({
           status: "SignedIn",
@@ -95,24 +97,23 @@ describe("EnvironmentNode", () => {
         })
       )
     );
-    sandbox.stub(envTreeUtils, "getM365TenantFromEnv").returns(Promise.resolve("test"));
-    sandbox.stub(globalVariables, "isSPFxProject").value(true);
-    // eslint-disable-next-line no-secrets/no-secrets
-    sandbox.stub(envTreeUtils, "getSubscriptionInfoFromEnv").returns(
+    sandbox.stub(environmentTreeItemDeps, "getM365TenantFromEnv").returns(Promise.resolve("test"));
+    sandbox.stub(environmentTreeItemDeps, "isSPFxProject").returns(true);
+    sandbox.stub(environmentTreeItemDeps, "getSubscriptionInfoFromEnv").returns(
       Promise.resolve<SubscriptionInfo | undefined>({
         subscriptionName: "subscriptionName",
         subscriptionId: "subscriptionId",
         tenantId: "tenantId",
       })
     );
-    sandbox.stub(localizeUtils, "localize").callsFake((key: string, _defValue?: string) => {
+    sandbox.stub(environmentTreeItemDeps, "localize").callsFake((key: string) => {
       if (key === "teamstoolkit.envTree.subscriptionTooltip") {
         return "'%s' environment is provisioned in Azure subscription '%s' (ID: %s)";
       }
       return "";
     });
     sandbox
-      .stub(envTreeUtils, "getResourceGroupNameFromEnv")
+      .stub(environmentTreeItemDeps, "getResourceGroupNameFromEnv")
       .returns(Promise.resolve("resource group"));
 
     const children = await environmentNode.getChildren();

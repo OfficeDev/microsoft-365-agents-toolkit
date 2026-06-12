@@ -14,22 +14,38 @@ import { VS_CODE_UI } from "../../qm/vsc_ui";
 import { ExtensionSource } from "../../error/error";
 import { showError } from "../../error/common";
 
+export const switchTenantHandlerDeps = {
+  sendTelemetryEvent: (eventName: string, properties?: any) =>
+    ExtTelemetry.sendTelemetryEvent(eventName as any, properties),
+  sendTelemetryErrorEvent: (eventName: string, error: FxError, properties?: any) =>
+    ExtTelemetry.sendTelemetryErrorEvent(eventName as any, error, properties),
+  getTriggerFromProperty: (args?: unknown[]) => getTriggerFromProperty(args),
+  m365GetAccessToken: (scopes: string[]) => M365TokenInstance.getAccessToken({ scopes }),
+  m365SwitchTenant: (tenantId: string) => M365TokenInstance.switchTenant(tenantId),
+  azureGetIdentityCredentialAsync: () => azureAccountManager.getIdentityCredentialAsync(false),
+  azureSwitchTenant: (tenantId: string) => azureAccountManager.switchTenant(tenantId),
+  listAllTenants: (token: string) => listAllTenants(token),
+  selectOption: (config: SingleSelectConfig) => VS_CODE_UI.selectOption(config),
+  createProgressBar: (title: string, totalSteps: number) =>
+    VS_CODE_UI.createProgressBar(title, totalSteps),
+  localize: (key: string, ...args: any[]) => localize(key, ...args),
+  showError: (error: FxError) => showError(error),
+};
+
 export async function onSwitchM365Tenant(...args: unknown[]): Promise<void> {
-  ExtTelemetry.sendTelemetryEvent(TelemetryEvent.SwitchTenantStart, {
+  switchTenantHandlerDeps.sendTelemetryEvent(TelemetryEvent.SwitchTenantStart, {
     [TelemetryProperty.AccountType]: AccountType.M365,
-    ...getTriggerFromProperty(args),
+    ...switchTenantHandlerDeps.getTriggerFromProperty(args),
   });
 
   let error: FxError | undefined = undefined;
-  const tokenRes = await M365TokenInstance.getAccessToken({
-    scopes: AzureScopes(),
-  });
+  const tokenRes = await switchTenantHandlerDeps.m365GetAccessToken(AzureScopes());
   if (tokenRes.isOk()) {
     const config: SingleSelectConfig = {
       name: "SwitchTenant",
-      title: localize("teamstoolkit.handlers.switchtenant.quickpick.title"),
+      title: switchTenantHandlerDeps.localize("teamstoolkit.handlers.switchtenant.quickpick.title"),
       options: async () => {
-        const tenants = await listAllTenants(tokenRes.value);
+        const tenants = await switchTenantHandlerDeps.listAllTenants(tokenRes.value);
         return tenants.map((tenant: any) => {
           return {
             id: tenant.tenantId,
@@ -39,21 +55,25 @@ export async function onSwitchM365Tenant(...args: unknown[]): Promise<void> {
         });
       },
     };
-    const result = await VS_CODE_UI.selectOption(config);
+    const result = await switchTenantHandlerDeps.selectOption(config);
     if (result.isOk()) {
-      const progressHandler = VS_CODE_UI.createProgressBar(
-        localize("teamstoolkit.commands.switchTenant.progressbar.title"),
+      const progressHandler = switchTenantHandlerDeps.createProgressBar(
+        switchTenantHandlerDeps.localize("teamstoolkit.commands.switchTenant.progressbar.title"),
         1
       );
       await progressHandler.start();
-      await progressHandler.next(localize("teamstoolkit.commands.switchTenant.progressbar.detail"));
-      const switchRes = await M365TokenInstance.switchTenant(result.value.result as string);
+      await progressHandler.next(
+        switchTenantHandlerDeps.localize("teamstoolkit.commands.switchTenant.progressbar.detail")
+      );
+      const switchRes = await switchTenantHandlerDeps.m365SwitchTenant(
+        result.value.result as string
+      );
       await progressHandler.end(switchRes.isOk());
       if (switchRes.isOk()) {
-        ExtTelemetry.sendTelemetryEvent(TelemetryEvent.SwitchTenant, {
+        switchTenantHandlerDeps.sendTelemetryEvent(TelemetryEvent.SwitchTenant, {
           [TelemetryProperty.AccountType]: AccountType.M365,
           [TelemetryProperty.TenantId]: result.value.result as string,
-          ...getTriggerFromProperty(args),
+          ...switchTenantHandlerDeps.getTriggerFromProperty(args),
         });
         return;
       } else {
@@ -67,28 +87,28 @@ export async function onSwitchM365Tenant(...args: unknown[]): Promise<void> {
   }
 
   if (!isUserCancelError(error)) {
-    void showError(error);
+    void switchTenantHandlerDeps.showError(error);
   }
-  ExtTelemetry.sendTelemetryErrorEvent(TelemetryEvent.SwitchTenant, error, {
+  switchTenantHandlerDeps.sendTelemetryErrorEvent(TelemetryEvent.SwitchTenant, error, {
     [TelemetryProperty.AccountType]: AccountType.M365,
-    ...getTriggerFromProperty(args),
+    ...switchTenantHandlerDeps.getTriggerFromProperty(args),
   });
 }
 
 export async function onSwitchAzureTenant(...args: unknown[]): Promise<void> {
-  ExtTelemetry.sendTelemetryEvent(TelemetryEvent.SwitchTenantStart, {
+  switchTenantHandlerDeps.sendTelemetryEvent(TelemetryEvent.SwitchTenantStart, {
     [TelemetryProperty.AccountType]: AccountType.Azure,
-    ...getTriggerFromProperty(args),
+    ...switchTenantHandlerDeps.getTriggerFromProperty(args),
   });
 
   const config: SingleSelectConfig = {
     name: "SwitchTenant",
-    title: localize("teamstoolkit.handlers.switchtenant.quickpick.title"),
+    title: switchTenantHandlerDeps.localize("teamstoolkit.handlers.switchtenant.quickpick.title"),
     options: async () => {
-      const tokenCredential = await azureAccountManager.getIdentityCredentialAsync(false);
+      const tokenCredential = await switchTenantHandlerDeps.azureGetIdentityCredentialAsync();
       const token = tokenCredential ? await tokenCredential.getToken(AzureScopes()) : undefined;
       if (token && token.token) {
-        const tenants = await listAllTenants(token.token);
+        const tenants = await switchTenantHandlerDeps.listAllTenants(token.token);
         return tenants.map((tenant: any) => {
           return {
             id: tenant.tenantId,
@@ -100,27 +120,31 @@ export async function onSwitchAzureTenant(...args: unknown[]): Promise<void> {
         throw new SystemError(
           ExtensionSource,
           "SwitchTenantFailed",
-          localize("teamstoolkit.handlers.switchtenant.error")
+          switchTenantHandlerDeps.localize("teamstoolkit.handlers.switchtenant.error")
         );
       }
     },
   };
-  const result = await VS_CODE_UI.selectOption(config);
+  const result = await switchTenantHandlerDeps.selectOption(config);
   let error: any;
   if (result.isOk()) {
-    const progressHandler = VS_CODE_UI.createProgressBar(
-      localize("teamstoolkit.commands.switchTenant.progressbar.title"),
+    const progressHandler = switchTenantHandlerDeps.createProgressBar(
+      switchTenantHandlerDeps.localize("teamstoolkit.commands.switchTenant.progressbar.title"),
       1
     );
     await progressHandler.start();
-    await progressHandler.next(localize("teamstoolkit.commands.switchTenant.progressbar.detail"));
-    const switchRes = await azureAccountManager.switchTenant(result.value.result as string);
+    await progressHandler.next(
+      switchTenantHandlerDeps.localize("teamstoolkit.commands.switchTenant.progressbar.detail")
+    );
+    const switchRes = await switchTenantHandlerDeps.azureSwitchTenant(
+      result.value.result as string
+    );
     await progressHandler.end(switchRes.isOk());
     if (switchRes.isOk()) {
-      ExtTelemetry.sendTelemetryEvent(TelemetryEvent.SwitchTenant, {
+      switchTenantHandlerDeps.sendTelemetryEvent(TelemetryEvent.SwitchTenant, {
         [TelemetryProperty.AccountType]: AccountType.Azure,
         [TelemetryProperty.TenantId]: result.value.result as string,
-        ...getTriggerFromProperty(args),
+        ...switchTenantHandlerDeps.getTriggerFromProperty(args),
       });
       return;
     } else {
@@ -131,10 +155,10 @@ export async function onSwitchAzureTenant(...args: unknown[]): Promise<void> {
   }
 
   if (!isUserCancelError(error)) {
-    void showError(error);
+    void switchTenantHandlerDeps.showError(error);
   }
-  ExtTelemetry.sendTelemetryErrorEvent(TelemetryEvent.SwitchTenant, error, {
+  switchTenantHandlerDeps.sendTelemetryErrorEvent(TelemetryEvent.SwitchTenant, error, {
     [TelemetryProperty.AccountType]: AccountType.Azure,
-    ...getTriggerFromProperty(args),
+    ...switchTenantHandlerDeps.getTriggerFromProperty(args),
   });
 }

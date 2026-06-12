@@ -12,6 +12,10 @@ export const killModule = {
   killTree: kill,
 };
 
+export const processUtilDeps = {
+  platform: () => os.platform(),
+};
+
 class ProcessUtil {
   // kill process and its child processes
   async killProcess(pid: number, timeout = 5000, silent = true): Promise<void> {
@@ -29,7 +33,7 @@ class ProcessUtil {
   }
 
   async getProcessIdsByPort(port: number): Promise<number[]> {
-    const platform = os.platform();
+    const platform = processUtilDeps.platform();
     let command: string;
     if (platform === "win32") {
       command = `netstat -ano | findstr LISTENING | findstr :${port}`;

@@ -8,6 +8,7 @@ import {
   migrateTeamsManifestHandler,
   migrateTeamsTabAppHandler,
 } from "../../src/handlers/migrationHandler";
+import { migrationHandlerDeps } from "../../src/handlers/migrationHandler";
 import { TeamsAppMigrationHandler } from "../../src/migration/migrationHandler";
 import * as vsc_ui from "../../src/qm/vsc_ui";
 import { ExtTelemetry } from "../../src/telemetry/extTelemetry";
@@ -17,7 +18,7 @@ describe("Migration handlers", () => {
   const sandbox = sinon.createSandbox();
 
   beforeEach(() => {
-    sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
+    sandbox.stub(migrationHandlerDeps, "sendTelemetryEvent");
   });
 
   afterEach(() => {
@@ -32,13 +33,15 @@ describe("Migration handlers", () => {
     });
 
     it("happy path", async () => {
-      sandbox.stub(localizeUtils, "localize").callsFake((key: string) => key);
+      sandbox.stub(migrationHandlerDeps, "localize").callsFake((key: string) => key);
       const progressHandler = new ProgressHandler("title", 1);
-      sandbox.stub(vsc_ui, "VS_CODE_UI").value({
-        showMessage: () => Promise.resolve(ok("teamstoolkit.migrateTeamsTabApp.upgrade")),
-        selectFolder: () => Promise.resolve(ok({ type: "success", result: "test" })),
-        createProgressBar: () => progressHandler,
-      });
+      sandbox
+        .stub(migrationHandlerDeps, "showMessage")
+        .resolves(ok("teamstoolkit.migrateTeamsTabApp.upgrade"));
+      sandbox
+        .stub(migrationHandlerDeps, "selectFolder")
+        .resolves(ok({ type: "success", result: "test" }));
+      sandbox.stub(migrationHandlerDeps, "createProgressBar").returns(progressHandler);
       sandbox.stub(VsCodeLogInstance, "info").returns();
       sandbox.stub(TeamsAppMigrationHandler.prototype, "updatePackageJson").resolves(ok(true));
       sandbox.stub(TeamsAppMigrationHandler.prototype, "updateCodes").resolves(ok([]));
@@ -49,13 +52,15 @@ describe("Migration handlers", () => {
     });
 
     it("happy path: failed files", async () => {
-      sandbox.stub(localizeUtils, "localize").callsFake((key: string) => key);
+      sandbox.stub(migrationHandlerDeps, "localize").callsFake((key: string) => key);
       const progressHandler = new ProgressHandler("title", 1);
-      sandbox.stub(vsc_ui, "VS_CODE_UI").value({
-        showMessage: () => Promise.resolve(ok("teamstoolkit.migrateTeamsTabApp.upgrade")),
-        selectFolder: () => Promise.resolve(ok({ type: "success", result: "test" })),
-        createProgressBar: () => progressHandler,
-      });
+      sandbox
+        .stub(migrationHandlerDeps, "showMessage")
+        .resolves(ok("teamstoolkit.migrateTeamsTabApp.upgrade"));
+      sandbox
+        .stub(migrationHandlerDeps, "selectFolder")
+        .resolves(ok({ type: "success", result: "test" }));
+      sandbox.stub(migrationHandlerDeps, "createProgressBar").returns(progressHandler);
       sandbox.stub(VsCodeLogInstance, "info").returns();
       const warningStub = sandbox.stub(VsCodeLogInstance, "warning");
       sandbox.stub(TeamsAppMigrationHandler.prototype, "updatePackageJson").resolves(ok(true));
@@ -70,14 +75,19 @@ describe("Migration handlers", () => {
     });
 
     it("error", async () => {
-      const sendTelemetryErrorEventStub = sandbox.stub(ExtTelemetry, "sendTelemetryErrorEvent");
-      sandbox.stub(localizeUtils, "localize").callsFake((key: string) => key);
+      const sendTelemetryErrorEventStub = sandbox.stub(
+        migrationHandlerDeps,
+        "sendTelemetryErrorEvent"
+      );
+      sandbox.stub(migrationHandlerDeps, "localize").callsFake((key: string) => key);
       const progressHandler = new ProgressHandler("title", 1);
-      sandbox.stub(vsc_ui, "VS_CODE_UI").value({
-        showMessage: () => Promise.resolve(ok("teamstoolkit.migrateTeamsTabApp.upgrade")),
-        selectFolder: () => Promise.resolve(ok({ type: "success", result: "test" })),
-        createProgressBar: () => progressHandler,
-      });
+      sandbox
+        .stub(migrationHandlerDeps, "showMessage")
+        .resolves(ok("teamstoolkit.migrateTeamsTabApp.upgrade"));
+      sandbox
+        .stub(migrationHandlerDeps, "selectFolder")
+        .resolves(ok({ type: "success", result: "test" }));
+      sandbox.stub(migrationHandlerDeps, "createProgressBar").returns(progressHandler);
       sandbox.stub(VsCodeLogInstance, "info").returns();
       sandbox.stub(TeamsAppMigrationHandler.prototype, "updatePackageJson").resolves(ok(true));
       sandbox
@@ -91,12 +101,15 @@ describe("Migration handlers", () => {
     });
 
     it("user cancel", async () => {
-      sandbox.stub(localizeUtils, "localize").callsFake((key: string) => key);
-      const sendTelemetryErrorEventStub = sandbox.stub(ExtTelemetry, "sendTelemetryErrorEvent");
-      sandbox.stub(vsc_ui, "VS_CODE_UI").value({
-        showMessage: () => Promise.resolve(ok("teamstoolkit.migrateTeamsTabApp.upgrade")),
-        selectFolder: () => Promise.resolve(ok({ type: "skip" })),
-      });
+      sandbox.stub(migrationHandlerDeps, "localize").callsFake((key: string) => key);
+      const sendTelemetryErrorEventStub = sandbox.stub(
+        migrationHandlerDeps,
+        "sendTelemetryErrorEvent"
+      );
+      sandbox
+        .stub(migrationHandlerDeps, "showMessage")
+        .resolves(ok("teamstoolkit.migrateTeamsTabApp.upgrade"));
+      sandbox.stub(migrationHandlerDeps, "selectFolder").resolves(ok({ type: "skip" }));
 
       const result = await migrateTeamsTabAppHandler();
 
@@ -105,11 +118,12 @@ describe("Migration handlers", () => {
     });
 
     it("user cancel: skip folder selection", async () => {
-      sandbox.stub(localizeUtils, "localize").callsFake((key: string) => key);
-      const sendTelemetryErrorEventStub = sandbox.stub(ExtTelemetry, "sendTelemetryErrorEvent");
-      sandbox.stub(vsc_ui, "VS_CODE_UI").value({
-        showMessage: () => Promise.resolve(ok("cancel")),
-      });
+      sandbox.stub(migrationHandlerDeps, "localize").callsFake((key: string) => key);
+      const sendTelemetryErrorEventStub = sandbox.stub(
+        migrationHandlerDeps,
+        "sendTelemetryErrorEvent"
+      );
+      sandbox.stub(migrationHandlerDeps, "showMessage").resolves(ok("cancel"));
 
       const result = await migrateTeamsTabAppHandler();
 
@@ -118,13 +132,15 @@ describe("Migration handlers", () => {
     });
 
     it("no change in package.json", async () => {
-      sandbox.stub(localizeUtils, "localize").callsFake((key: string) => key);
+      sandbox.stub(migrationHandlerDeps, "localize").callsFake((key: string) => key);
       const progressHandler = new ProgressHandler("title", 1);
-      sandbox.stub(vsc_ui, "VS_CODE_UI").value({
-        showMessage: () => Promise.resolve(ok("teamstoolkit.migrateTeamsTabApp.upgrade")),
-        selectFolder: () => Promise.resolve(ok({ type: "success", result: "test" })),
-        createProgressBar: () => progressHandler,
-      });
+      sandbox
+        .stub(migrationHandlerDeps, "showMessage")
+        .resolves(ok("teamstoolkit.migrateTeamsTabApp.upgrade"));
+      sandbox
+        .stub(migrationHandlerDeps, "selectFolder")
+        .resolves(ok({ type: "success", result: "test" }));
+      sandbox.stub(migrationHandlerDeps, "createProgressBar").returns(progressHandler);
       sandbox.stub(VsCodeLogInstance, "info").returns();
       sandbox.stub(VsCodeLogInstance, "warning").returns();
       sandbox.stub(TeamsAppMigrationHandler.prototype, "updatePackageJson").resolves(ok(false));
@@ -143,13 +159,15 @@ describe("Migration handlers", () => {
     });
 
     it("happy path", async () => {
-      sandbox.stub(localizeUtils, "localize").callsFake((key: string) => key);
+      sandbox.stub(migrationHandlerDeps, "localize").callsFake((key: string) => key);
       const progressHandler = new ProgressHandler("title", 1);
-      sandbox.stub(vsc_ui, "VS_CODE_UI").value({
-        showMessage: () => Promise.resolve(ok("teamstoolkit.migrateTeamsManifest.upgrade")),
-        selectFile: () => Promise.resolve(ok({ type: "success", result: "test" })),
-        createProgressBar: () => progressHandler,
-      });
+      sandbox
+        .stub(migrationHandlerDeps, "showMessage")
+        .resolves(ok("teamstoolkit.migrateTeamsManifest.upgrade"));
+      sandbox
+        .stub(migrationHandlerDeps, "selectFile")
+        .resolves(ok({ type: "success", result: "test" }));
+      sandbox.stub(migrationHandlerDeps, "createProgressBar").returns(progressHandler);
       sandbox.stub(VsCodeLogInstance, "info").returns();
       sandbox.stub(TeamsAppMigrationHandler.prototype, "updateManifest").resolves(ok(null));
 
@@ -159,14 +177,17 @@ describe("Migration handlers", () => {
     });
 
     it("user cancel: skip file selection", async () => {
-      const sendTelemetryErrorEventStub = sandbox.stub(ExtTelemetry, "sendTelemetryErrorEvent");
-      sandbox.stub(localizeUtils, "localize").callsFake((key: string) => key);
+      const sendTelemetryErrorEventStub = sandbox.stub(
+        migrationHandlerDeps,
+        "sendTelemetryErrorEvent"
+      );
+      sandbox.stub(migrationHandlerDeps, "localize").callsFake((key: string) => key);
       const progressHandler = new ProgressHandler("title", 1);
-      sandbox.stub(vsc_ui, "VS_CODE_UI").value({
-        showMessage: () => Promise.resolve(ok("teamstoolkit.migrateTeamsManifest.upgrade")),
-        selectFile: () => Promise.resolve(ok({ type: "skip" })),
-        createProgressBar: () => progressHandler,
-      });
+      sandbox
+        .stub(migrationHandlerDeps, "showMessage")
+        .resolves(ok("teamstoolkit.migrateTeamsManifest.upgrade"));
+      sandbox.stub(migrationHandlerDeps, "selectFile").resolves(ok({ type: "skip" }));
+      sandbox.stub(migrationHandlerDeps, "createProgressBar").returns(progressHandler);
       sandbox.stub(VsCodeLogInstance, "info").returns();
       sandbox.stub(TeamsAppMigrationHandler.prototype, "updateManifest").resolves(ok(null));
 
@@ -177,19 +198,24 @@ describe("Migration handlers", () => {
     });
 
     it("error", async () => {
-      sandbox.stub(localizeUtils, "localize").callsFake((key: string) => key);
-      const sendTelemetryErrorEventStub = sandbox.stub(ExtTelemetry, "sendTelemetryErrorEvent");
+      sandbox.stub(migrationHandlerDeps, "localize").callsFake((key: string) => key);
+      const sendTelemetryErrorEventStub = sandbox.stub(
+        migrationHandlerDeps,
+        "sendTelemetryErrorEvent"
+      );
       const progressHandler = new ProgressHandler("title", 1);
-      sandbox.stub(vsc_ui, "VS_CODE_UI").value({
-        showMessage: () => Promise.resolve(ok("teamstoolkit.migrateTeamsManifest.upgrade")),
-        selectFile: () => Promise.resolve(ok({ type: "success", result: "test" })),
-        createProgressBar: () => progressHandler,
-      });
+      sandbox
+        .stub(migrationHandlerDeps, "showMessage")
+        .resolves(ok("teamstoolkit.migrateTeamsManifest.upgrade"));
+      sandbox
+        .stub(migrationHandlerDeps, "selectFile")
+        .resolves(ok({ type: "success", result: "test" }));
+      sandbox.stub(migrationHandlerDeps, "createProgressBar").returns(progressHandler);
       sandbox.stub(VsCodeLogInstance, "info").returns();
       sandbox
         .stub(TeamsAppMigrationHandler.prototype, "updateManifest")
         .resolves(err(new UserError("source", "name", "")));
-      sandbox.stub(errorCommon, "showError").callsFake(async () => {});
+      sandbox.stub(migrationHandlerDeps, "showError").callsFake(async () => {});
 
       const result = await migrateTeamsManifestHandler();
 

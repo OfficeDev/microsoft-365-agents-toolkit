@@ -11,6 +11,7 @@ import {
   getTeamsAppTelemetryInfoByEnv,
   getSettingsVersion,
 } from "../../src/utils/telemetryUtils";
+import { telemetryUtilsDeps } from "../../src/utils/telemetryUtils";
 import * as systemEnvUtils from "../../src/utils/systemEnvUtils";
 import { MockCore } from "../mocks/mockCore";
 import { TelemetryProperty, TelemetryTriggerFrom } from "../../src/telemetry/extTelemetryEvents";
@@ -49,7 +50,7 @@ describe("TelemetryUtils", () => {
     const core = new MockCore();
 
     beforeEach(() => {
-      sandbox.stub(globalVariables, "core").value(core);
+      sandbox.stub(telemetryUtilsDeps, "getCore").returns(core as any);
     });
 
     afterEach(() => {
@@ -57,24 +58,24 @@ describe("TelemetryUtils", () => {
     });
 
     it("happy path", async () => {
-      sandbox.stub(globalVariables, "workspaceUri").value(Uri.file("."));
+      sandbox.stub(telemetryUtilsDeps, "getWorkspacePath").returns(".");
       sandbox.stub(core, "getProjectId").resolves(ok("mock-project-id"));
       const result = await getProjectId();
       chai.expect(result).equals("mock-project-id");
     });
     it("workspaceUri is undefined", async () => {
-      sandbox.stub(globalVariables, "workspaceUri").value(undefined);
+      sandbox.stub(telemetryUtilsDeps, "getWorkspacePath").returns(undefined);
       const result = await getProjectId();
       chai.expect(result).equals(undefined);
     });
     it("return error", async () => {
-      sandbox.stub(globalVariables, "workspaceUri").value(Uri.file("."));
+      sandbox.stub(telemetryUtilsDeps, "getWorkspacePath").returns(".");
       sandbox.stub(core, "getProjectId").resolves(err(new UserError({})));
       const result = await getProjectId();
       chai.expect(result).equals(undefined);
     });
     it("throw error", async () => {
-      sandbox.stub(globalVariables, "workspaceUri").value(Uri.file("."));
+      sandbox.stub(telemetryUtilsDeps, "getWorkspacePath").returns(".");
       sandbox.stub(core, "getProjectId").rejects(new UserError({}));
       const result = await getProjectId();
       chai.expect(result).equals(undefined);
@@ -160,11 +161,6 @@ describe("TelemetryUtils", () => {
   // eslint-disable-next-line no-secrets/no-secrets
   describe("getTeamsAppTelemetryInfoByEnv", async () => {
     const sandbox = sinon.createSandbox();
-    const core = new MockCore();
-
-    beforeEach(() => {
-      sandbox.stub(globalVariables, "core").value(core);
-    });
 
     afterEach(() => {
       sandbox.restore();
@@ -177,9 +173,13 @@ describe("TelemetryUtils", () => {
         teamsAppName: "mock-app-name",
         m365TenantId: "mock-tenant-id",
       };
-      sandbox.stub(core, "getProjectInfo").resolves(ok(info));
-      sandbox.stub(globalVariables, "workspaceUri").value(Uri.file("."));
-      sandbox.stub(coreUtils, "isValidProject").returns(true);
+      const mockCore = {
+        getProjectInfo: sandbox.stub().resolves(ok(info)),
+      };
+      sandbox.stub(telemetryUtilsDeps, "getWorkspacePath").returns(".");
+      sandbox.stub(telemetryUtilsDeps, "isValidProject").returns(true);
+      sandbox.stub(telemetryUtilsDeps, "getCore").returns(mockCore as any);
+
       const result = await getTeamsAppTelemetryInfoByEnv("dev");
       chai.expect(result).deep.equals({
         appId: "mock-app-id",
@@ -187,20 +187,30 @@ describe("TelemetryUtils", () => {
       });
     });
     it("isValidProject is false", async () => {
-      sandbox.stub(globalVariables, "workspaceUri").value(Uri.file("."));
-      sandbox.stub(coreUtils, "isValidProject").returns(false);
+      sandbox.stub(telemetryUtilsDeps, "getWorkspacePath").returns(".");
+      sandbox.stub(telemetryUtilsDeps, "isValidProject").returns(false);
       const result = await getTeamsAppTelemetryInfoByEnv("dev");
       chai.expect(result).equals(undefined);
     });
     it("return error", async () => {
-      sandbox.stub(coreUtils, "isValidProject").returns(true);
-      sandbox.stub(core, "getProjectInfo").resolves(err(new UserError({})));
+      const mockCore = {
+        getProjectInfo: sandbox.stub().resolves(err(new UserError({}))),
+      };
+      sandbox.stub(telemetryUtilsDeps, "getWorkspacePath").returns(".");
+      sandbox.stub(telemetryUtilsDeps, "isValidProject").returns(true);
+      sandbox.stub(telemetryUtilsDeps, "getCore").returns(mockCore as any);
+
       const result = await getTeamsAppTelemetryInfoByEnv("dev");
       chai.expect(result).equals(undefined);
     });
     it("throw error", async () => {
-      sandbox.stub(coreUtils, "isValidProject").returns(true);
-      sandbox.stub(core, "getTeamsAppName").rejects(new UserError({}));
+      const mockCore = {
+        getProjectInfo: sandbox.stub().rejects(new UserError({})),
+      };
+      sandbox.stub(telemetryUtilsDeps, "getWorkspacePath").returns(".");
+      sandbox.stub(telemetryUtilsDeps, "isValidProject").returns(true);
+      sandbox.stub(telemetryUtilsDeps, "getCore").returns(mockCore as any);
+
       const result = await getTeamsAppTelemetryInfoByEnv("dev");
       chai.expect(result).equals(undefined);
     });
@@ -214,25 +224,27 @@ describe("TelemetryUtils", () => {
     });
 
     it("happy path", async () => {
-      sandbox.stub(globalVariables, "core").value(new MockCore());
-      sandbox.stub(systemEnvUtils, "getSystemInputs").returns({} as Inputs);
+      const core = new MockCore();
+      sandbox.stub(telemetryUtilsDeps, "getCore").returns(core as any);
+      sandbox.stub(telemetryUtilsDeps, "getSystemInputs").returns({} as Inputs);
       sandbox
-        .stub(globalVariables.core, "projectVersionCheck")
+        .stub(core, "projectVersionCheck")
         .resolves(ok({ currentVersion: "3.0.0" } as VersionCheckRes));
       const res = await getSettingsVersion();
       chai.assert.equal(res, "3.0.0");
     });
 
     it("core is undefined", async () => {
-      sandbox.stub(globalVariables, "core").value(undefined);
+      sandbox.stub(telemetryUtilsDeps, "getCore").returns(undefined as any);
       const res = await getSettingsVersion();
       chai.assert.equal(res, undefined);
     });
 
     it("return error", async () => {
-      sandbox.stub(globalVariables, "core").value(new MockCore());
-      sandbox.stub(systemEnvUtils, "getSystemInputs").returns({} as Inputs);
-      sandbox.stub(globalVariables.core, "projectVersionCheck").resolves(err(new UserError({})));
+      const core = new MockCore();
+      sandbox.stub(telemetryUtilsDeps, "getCore").returns(core as any);
+      sandbox.stub(telemetryUtilsDeps, "getSystemInputs").returns({} as Inputs);
+      sandbox.stub(core, "projectVersionCheck").resolves(err(new UserError({})));
       const res = await getSettingsVersion();
       chai.assert.equal(res, undefined);
     });

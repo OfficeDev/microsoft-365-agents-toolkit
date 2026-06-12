@@ -2,8 +2,11 @@ import * as chai from "chai";
 import * as sinon from "sinon";
 import * as vscode from "vscode";
 
-import { CommandStatus, TreeViewCommand } from "../../src/treeview/treeViewCommand";
-import * as localizeUtils from "../../src/utils/localizeUtils";
+import {
+  CommandStatus,
+  TreeViewCommand,
+  treeViewCommandDeps,
+} from "../../src/treeview/treeViewCommand";
 
 describe("TreeViewCommand", () => {
   const sandbox = sinon.createSandbox();
@@ -13,7 +16,7 @@ describe("TreeViewCommand", () => {
   });
 
   it("setStatus", async () => {
-    sandbox.stub(localizeUtils, "localize").callsFake((key: string) => {
+    sandbox.stub(treeViewCommandDeps, "localize").callsFake((key: string) => {
       if (key === "teamstoolkit.commandsTreeViewProvider.key.running") {
         return "test running";
       } else if (key === "teamstoolkit.commandsTreeViewProvider.key.blockTooltip") {

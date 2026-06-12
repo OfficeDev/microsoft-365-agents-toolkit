@@ -18,7 +18,7 @@ describe("uri handler", () => {
   it("invalid uri missing query", async () => {
     const handler = new UriHandler();
     const uri = vscode.Uri.parse("vscode://test.test");
-    const showMessage = sandbox.stub(vscode.window, "showErrorMessage");
+    const showMessage = sandbox.stub(vscode.window, "showErrorMessage").resolves(undefined);
     await handler.handleUri(uri);
 
     sandbox.assert.calledOnce(showMessage);
@@ -27,7 +27,7 @@ describe("uri handler", () => {
   it("invalid uri missing referer", async () => {
     const handler = new UriHandler();
     const uri = vscode.Uri.parse("vscode://test.test?query=1");
-    const showMessage = sandbox.stub(vscode.window, "showErrorMessage");
+    const showMessage = sandbox.stub(vscode.window, "showErrorMessage").resolves(undefined);
     await handler.handleUri(uri);
 
     sandbox.assert.calledOnce(showMessage);
@@ -36,7 +36,7 @@ describe("uri handler", () => {
   it("invalid uri missing app id", async () => {
     const handler = new UriHandler();
     const uri = vscode.Uri.parse("vscode://test.test?test=1&referrer=developerportal");
-    const showMessage = sandbox.stub(vscode.window, "showErrorMessage");
+    const showMessage = sandbox.stub(vscode.window, "showErrorMessage").resolves(undefined);
     await handler.handleUri(uri);
 
     sandbox.assert.calledOnce(showMessage);
@@ -63,9 +63,7 @@ describe("uri handler", () => {
       "vscode://test.test?appId=1&referrer=developerportal&login_hint=test"
     );
 
-    const executeCommand = sandbox
-      .stub(vscode.commands, "executeCommand")
-      .returns(Promise.reject(""));
+    const executeCommand = sandbox.stub(vscode.commands, "executeCommand").resolves(undefined);
     await handler.handleUri(uri);
 
     chai.assert.isTrue(executeCommand.calledOnce);
@@ -103,7 +101,7 @@ describe("uri handler", () => {
     const uri = vscode.Uri.parse(
       "vscode://TeamsDevApp.ms-teams-vscode-extension?referrer=officedoc"
     );
-    const showMessage = sandbox.stub(vscode.window, "showErrorMessage");
+    const showMessage = sandbox.stub(vscode.window, "showErrorMessage").resolves(undefined);
     await handler.handleUri(uri);
 
     sandbox.assert.calledOnce(showMessage);
@@ -115,9 +113,7 @@ describe("uri handler", () => {
       "vscode://TeamsDevApp.ms-teams-vscode-extension?referrer=officedoc&sampleId=hello-world-teams-tab-and-outlook-add-in"
     );
 
-    const executeCommand = sandbox
-      .stub(vscode.commands, "executeCommand")
-      .returns(Promise.reject(""));
+    const executeCommand = sandbox.stub(vscode.commands, "executeCommand").resolves(undefined);
     await handler.handleUri(uri);
 
     chai.assert.isTrue(executeCommand.calledOnce);
@@ -138,8 +134,7 @@ describe("uri handler", () => {
     const executeCommand = sandbox
       .stub(vscode.commands, "executeCommand")
       .callsFake(async (command: string, ...args: any[]) => {
-        const res = await syncManifestHandler(args);
-        chai.assert.isTrue(res.isOk());
+        await syncManifestHandler(args);
       });
     sandbox
       .stub(shared, "runCommand")

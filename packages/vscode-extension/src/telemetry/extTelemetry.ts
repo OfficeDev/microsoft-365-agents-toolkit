@@ -16,8 +16,17 @@ import { getProjectId } from "../utils/telemetryUtils";
 import { TelemetryComponentType, TelemetryEvent, TelemetryProperty } from "./extTelemetryEvents";
 
 const TelemetryCacheKey = "TelemetryEvents";
+
 // export for UT
 export let lastCorrelationId: string | undefined = undefined;
+
+// Dependency injection wrapper for testability
+export const extTelemetryDeps = {
+  globalStateUpdate: (key: string, value: unknown) => globalStateUpdate(key, value),
+  globalStateGet: (key: string) => globalStateGet(key),
+  getLastCorrelationId: () => lastCorrelationId,
+  getProjectId: () => getProjectId(),
+};
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace ExtTelemetry {
@@ -192,18 +201,20 @@ export namespace ExtTelemetry {
     const telemetryEvents = {
       eventName: eventName,
       properties: {
-        [TelemetryProperty.CorrelationId]: lastCorrelationId,
-        [TelemetryProperty.ProjectId]: await getProjectId(),
+        [TelemetryProperty.CorrelationId]: extTelemetryDeps.getLastCorrelationId(),
+        [TelemetryProperty.ProjectId]: await extTelemetryDeps.getProjectId(),
         [TelemetryProperty.Timestamp]: new Date().toISOString(),
         ...properties,
       },
     };
     const newValue = JSON.stringify(telemetryEvents);
-    await globalStateUpdate(TelemetryCacheKey, newValue);
+    await extTelemetryDeps.globalStateUpdate(TelemetryCacheKey, newValue);
   }
 
   export async function sendCachedTelemetryEventsAsync() {
-    const existingValue = (await globalStateGet(TelemetryCacheKey)) as string | undefined;
+    const existingValue = (await extTelemetryDeps.globalStateGet(TelemetryCacheKey)) as
+      | string
+      | undefined;
     if (existingValue) {
       try {
         const telemetryEvent = JSON.parse(existingValue) as {
@@ -212,7 +223,7 @@ export namespace ExtTelemetry {
         };
         reporter.sendTelemetryEvent(telemetryEvent.eventName, telemetryEvent.properties);
       } catch (e) {}
-      await globalStateUpdate(TelemetryCacheKey, undefined);
+      await extTelemetryDeps.globalStateUpdate(TelemetryCacheKey, undefined);
     }
   }
 

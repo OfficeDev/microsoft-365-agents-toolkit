@@ -87,6 +87,13 @@ describe("devTunnelTaskTerminal", () => {
       sandbox.stub(process, "env").value({ TEAMSFX_DEV_TUNNEL_TEST: "true" });
       sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
       sandbox.stub(ExtTelemetry, "sendTelemetryErrorEvent");
+      sandbox.stub(globalVariables, "tools").value({
+        tokenProvider: {
+          m365TokenProvider: {
+            getAccessToken: async () => ok("test-token"),
+          },
+        },
+      });
     });
 
     afterEach(async () => {

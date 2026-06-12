@@ -2,20 +2,17 @@ import { Inputs, err, ok } from "@microsoft/teamsfx-api";
 import * as chai from "chai";
 import * as sinon from "sinon";
 import * as vscode from "vscode";
-import * as launch from "../../src/debug/launch";
-import * as runIconHandler from "../../src/debug/runIconHandler";
 import * as globalVariables from "../../src/globalVariables";
 import {
+  debugHandlersDeps,
   debugInTestToolHandler,
   selectAndDebugHandler,
   treeViewLocalDebugHandler,
   treeViewPreviewHandler,
 } from "../../src/handlers/debugHandlers";
-import * as sharedOpts from "../../src/handlers/sharedOpts";
 import { ExtTelemetry } from "../../src/telemetry/extTelemetry";
 import { TelemetryEvent } from "../../src/telemetry/extTelemetryEvents";
 import * as localizeUtils from "../../src/utils/localizeUtils";
-import * as systemEnvUtils from "../../src/utils/systemEnvUtils";
 import { MockCore } from "../mocks/mockCore";
 
 describe("DebugHandlers", () => {
@@ -68,7 +65,7 @@ describe("DebugHandlers", () => {
       sandbox.stub(localizeUtils, "localize").returns("");
       sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
       sandbox.stub(ExtTelemetry, "sendTelemetryErrorEvent");
-      sandbox.stub(systemEnvUtils, "getSystemInputs").returns({} as Inputs);
+      sandbox.stub(debugHandlersDeps, "getSystemInputs").returns({} as Inputs);
       sandbox.stub(globalVariables, "core").value(new MockCore());
       sandbox
         .stub(globalVariables.core, "previewWithManifest")
@@ -83,10 +80,10 @@ describe("DebugHandlers", () => {
       sandbox.stub(localizeUtils, "localize").returns("");
       sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
       sandbox.stub(ExtTelemetry, "sendTelemetryErrorEvent");
-      sandbox.stub(systemEnvUtils, "getSystemInputs").returns({} as Inputs);
+      sandbox.stub(debugHandlersDeps, "getSystemInputs").returns({} as Inputs);
       sandbox.stub(globalVariables, "core").value(new MockCore());
       sandbox.stub(globalVariables.core, "previewWithManifest").resolves(ok("test-url"));
-      sandbox.stub(launch, "openHubWebClient").resolves();
+      sandbox.stub(debugHandlersDeps, "openHubWebClient").resolves();
 
       const result = await treeViewPreviewHandler("dev");
 
@@ -103,8 +100,10 @@ describe("DebugHandlers", () => {
 
     it("Happy path", async () => {
       const sendTelemetryEventStub = sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
-      const selectAndDebugStub = sandbox.stub(runIconHandler, "selectAndDebug").resolves(ok(null));
-      const processResultStub = sandbox.stub(sharedOpts, "processResult");
+      const selectAndDebugStub = sandbox
+        .stub(debugHandlersDeps, "selectAndDebug")
+        .resolves(ok(null));
+      const processResultStub = sandbox.stub(debugHandlersDeps, "processResult");
 
       await selectAndDebugHandler();
 

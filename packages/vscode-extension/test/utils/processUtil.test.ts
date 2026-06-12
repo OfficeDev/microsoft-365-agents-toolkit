@@ -1,6 +1,12 @@
 import sinon, { SinonFakeTimers, useFakeTimers } from "sinon";
 import * as chai from "chai";
-import { execModule, killModule, processUtil, timeoutPromise } from "../../src/utils/processUtil";
+import {
+  execModule,
+  killModule,
+  processUtil,
+  processUtilDeps,
+  timeoutPromise,
+} from "../../src/utils/processUtil";
 describe("ProcessUtil", () => {
   const sandbox = sinon.createSandbox();
 
@@ -30,7 +36,7 @@ describe("ProcessUtil", () => {
   describe("getProcessIdsByPort", () => {
     it("should return PIDs from netstat output on Windows", async () => {
       const execStub = sandbox.stub(execModule, "exec") as sinon.SinonStub;
-      const osStub = sandbox.stub(require("os"), "platform").returns("win32");
+      const osStub = sandbox.stub(processUtilDeps, "platform").returns("win32");
       execStub.callsFake((_cmd: string, _opts: any, cb: (...args: unknown[]) => void) => {
         cb(null, "  TCP    0.0.0.0:3978    0.0.0.0:0    LISTENING    12345\n");
       });
@@ -41,7 +47,7 @@ describe("ProcessUtil", () => {
 
     it("should not match similar port numbers on Windows", async () => {
       const execStub = sandbox.stub(execModule, "exec") as sinon.SinonStub;
-      const osStub = sandbox.stub(require("os"), "platform").returns("win32");
+      const osStub = sandbox.stub(processUtilDeps, "platform").returns("win32");
       execStub.callsFake((_cmd: string, _opts: any, cb: (...args: unknown[]) => void) => {
         cb(
           null,
@@ -55,7 +61,7 @@ describe("ProcessUtil", () => {
 
     it("should return PIDs from lsof output on macOS", async () => {
       const execStub = sandbox.stub(execModule, "exec") as sinon.SinonStub;
-      const osStub = sandbox.stub(require("os"), "platform").returns("darwin");
+      const osStub = sandbox.stub(processUtilDeps, "platform").returns("darwin");
       execStub.callsFake((_cmd: string, _opts: any, cb: (...args: unknown[]) => void) => {
         cb(null, "12345\n67890\n");
       });
@@ -66,7 +72,7 @@ describe("ProcessUtil", () => {
 
     it("should parse ss output on Linux when lsof is unavailable", async () => {
       const execStub = sandbox.stub(execModule, "exec") as sinon.SinonStub;
-      const osStub = sandbox.stub(require("os"), "platform").returns("linux");
+      const osStub = sandbox.stub(processUtilDeps, "platform").returns("linux");
       execStub.callsFake((_cmd: string, _opts: any, cb: (...args: unknown[]) => void) => {
         cb(null, 'LISTEN  0  128  0.0.0.0:3978  0.0.0.0:*  users:(("node",pid=12345,fd=18))\n');
       });
@@ -86,7 +92,7 @@ describe("ProcessUtil", () => {
 
     it("should deduplicate PIDs on Windows", async () => {
       const execStub = sandbox.stub(execModule, "exec") as sinon.SinonStub;
-      const osStub = sandbox.stub(require("os"), "platform").returns("win32");
+      const osStub = sandbox.stub(processUtilDeps, "platform").returns("win32");
       execStub.callsFake((_cmd: string, _opts: any, cb: (...args: unknown[]) => void) => {
         cb(
           null,

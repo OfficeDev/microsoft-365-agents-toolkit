@@ -76,7 +76,9 @@ describe("DownloadSample", () => {
       platform: Platform.VSCode,
     };
     sandbox.stub(globalVariables, "core").value(new MockCore());
-    const showErrorMessageStub = sandbox.stub(vscode.window, "showErrorMessage");
+    const showErrorMessageStub = sandbox
+      .stub(vscode.window, "showErrorMessage")
+      .resolves(undefined);
     const createProject = sandbox
       .stub(globalVariables.core, "createSampleProject")
       .rejects(err(new Error("Cannot get user login information")));
@@ -94,7 +96,9 @@ describe("DownloadSample", () => {
       platform: Platform.VSCode,
     };
     sandbox.stub(globalVariables, "core").value(new MockCore());
-    const showErrorMessageStub = sandbox.stub(vscode.window, "showErrorMessage");
+    const showErrorMessageStub = sandbox
+      .stub(vscode.window, "showErrorMessage")
+      .resolves(undefined);
     const createProject = sandbox
       .stub(globalVariables.core, "createProject")
       .resolves(err(new SystemError("test", "test", "Cannot get user login information")));

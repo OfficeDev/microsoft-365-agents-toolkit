@@ -3,6 +3,7 @@ import chaiPromised from "chai-as-promised";
 import fs from "fs-extra";
 import * as sinon from "sinon";
 import * as projectStatusUtils from "../../src/utils/projectStatusUtils";
+import { projectStatusUtilsDeps } from "../../src/utils/projectStatusUtils";
 import { err, ok } from "@microsoft/teamsfx-api";
 import * as helper from "../../src/chat/commands/nextstep/helper";
 import * as glob from "glob";
@@ -24,7 +25,7 @@ describe("project status utils", () => {
 
     it("project state file deos not exist", async () => {
       sandbox.stub(Date, "now").returns(1711987200000);
-      sandbox.stub(fs, "pathExists").resolves(false);
+      sandbox.stub(projectStatusUtilsDeps, "pathExists").resolves(false);
       await chai
         .expect(projectStatusUtils.getProjectStatus("test-id"))
         .to.eventually.deep.equal(projectStatusUtils.emptyProjectStatus());
@@ -32,8 +33,10 @@ describe("project status utils", () => {
 
     it("project state file exists - not a json file", async () => {
       sandbox.stub(Date, "now").returns(1711987200000);
-      sandbox.stub(fs, "pathExists").resolves(false);
-      sandbox.stub(fs, "readFile").resolves(Buffer.from("not a json file"));
+      sandbox.stub(projectStatusUtilsDeps, "pathExists").resolves(false);
+      sandbox
+        .stub(projectStatusUtilsDeps, "readFile")
+        .resolves(Buffer.from("not a json file") as any);
       await chai
         .expect(projectStatusUtils.getProjectStatus("test-id"))
         .to.eventually.deep.equal(projectStatusUtils.emptyProjectStatus());
@@ -46,8 +49,10 @@ describe("project status utils", () => {
         result: "success",
         time: new Date(1711987200000 + 3600000),
       };
-      sandbox.stub(fs, "pathExists").resolves(true);
-      sandbox.stub(fs, "readFile").resolves(Buffer.from(JSON.stringify({ "test-id": status })));
+      sandbox.stub(projectStatusUtilsDeps, "pathExists").resolves(true);
+      sandbox
+        .stub(projectStatusUtilsDeps, "readFile")
+        .resolves(Buffer.from(JSON.stringify({ "test-id": status })) as any);
       await chai
         .expect(projectStatusUtils.getProjectStatus("test-id"))
         .to.eventually.deep.equal(status);
@@ -60,15 +65,17 @@ describe("project status utils", () => {
     });
 
     it("command name is not in RecordedActions", async () => {
-      sandbox.stub(helper, "getProjectMetadata").returns(undefined);
+      sandbox.stub(projectStatusUtilsDeps, "getProjectMetadata").returns(undefined as any);
       await projectStatusUtils.updateProjectStatus("test-path", "test-command", ok(undefined));
     });
 
     it("command name is in RecordedActions - project state file not exist", async () => {
-      sandbox.stub(helper, "getProjectMetadata").returns({ projectId: "test-id" });
+      sandbox
+        .stub(projectStatusUtilsDeps, "getProjectMetadata")
+        .returns({ projectId: "test-id" } as any);
       sandbox.stub(Date, "now").returns(1711987200000);
-      sandbox.stub(fs, "pathExists").resolves(false);
-      const writeFileStub = sandbox.stub(fs, "writeFile").resolves();
+      sandbox.stub(projectStatusUtilsDeps, "pathExists").resolves(false);
+      const writeFileStub = sandbox.stub(projectStatusUtilsDeps, "writeFile").resolves();
       await projectStatusUtils.updateProjectStatus(
         "test-path",
         projectStatusUtils.RecordedActions[0],
@@ -93,13 +100,17 @@ describe("project status utils", () => {
     });
 
     it("command name is not in RecordedActions but forced - not json", async () => {
-      sandbox.stub(helper, "getProjectMetadata").returns({ projectId: "test-id" });
+      sandbox
+        .stub(projectStatusUtilsDeps, "getProjectMetadata")
+        .returns({ projectId: "test-id" } as any);
       sandbox.stub(Date, "now").returns(1711987200000);
-      sandbox.stub(fs, "pathExists").callsFake(async (path: string) => {
+      sandbox.stub(projectStatusUtilsDeps, "pathExists").callsFake(async (path: string) => {
         return path === projectStatusUtils.projectStatusFilePath;
       });
-      sandbox.stub(fs, "readFile").resolves(Buffer.from("not a json file"));
-      const writeFileStub = sandbox.stub(fs, "writeFile").resolves();
+      sandbox
+        .stub(projectStatusUtilsDeps, "readFile")
+        .resolves(Buffer.from("not a json file") as any);
+      const writeFileStub = sandbox.stub(projectStatusUtilsDeps, "writeFile").resolves();
       await projectStatusUtils.updateProjectStatus(
         "test-path",
         "test-command",
@@ -125,13 +136,15 @@ describe("project status utils", () => {
     });
 
     it("command name is not in RecordedActions but forced - json", async () => {
-      sandbox.stub(helper, "getProjectMetadata").returns({ projectId: "test-id" });
+      sandbox
+        .stub(projectStatusUtilsDeps, "getProjectMetadata")
+        .returns({ projectId: "test-id" } as any);
       sandbox.stub(Date, "now").returns(1711987200000);
-      sandbox.stub(fs, "pathExists").callsFake(async (path: string) => {
+      sandbox.stub(projectStatusUtilsDeps, "pathExists").callsFake(async (path: string) => {
         return path === projectStatusUtils.projectStatusFilePath;
       });
-      sandbox.stub(fs, "readFile").resolves(Buffer.from("{}"));
-      const writeFileStub = sandbox.stub(fs, "writeFile").resolves();
+      sandbox.stub(projectStatusUtilsDeps, "readFile").resolves(Buffer.from("{}") as any);
+      const writeFileStub = sandbox.stub(projectStatusUtilsDeps, "writeFile").resolves();
       await projectStatusUtils.updateProjectStatus(
         "test-path",
         "test-command",
@@ -158,12 +171,12 @@ describe("project status utils", () => {
   });
 
   it("func: getFileModifiedTime", async () => {
-    sandbox.stub(glob, "glob").resolves(["test-file1", "test-file2"]);
+    sandbox.stub(projectStatusUtilsDeps, "glob").resolves(["test-file1", "test-file2"] as any);
     const statInstance1 = sandbox.createStubInstance(fs.Stats);
     statInstance1.mtime = new Date(1711987200000);
     const statInstance2 = sandbox.createStubInstance(fs.Stats);
     statInstance2.mtime = new Date(1711987200000 - 3600000);
-    sandbox.stub(fs, "stat").callsFake(async (path: fs.PathLike) => {
+    sandbox.stub(projectStatusUtilsDeps, "stat").callsFake(async (path: fs.PathLike) => {
       if (path === "test-file1") {
         return statInstance1;
       } else {
@@ -181,13 +194,13 @@ describe("project status utils", () => {
     });
 
     it("file not exist", async () => {
-      sandbox.stub(fs, "pathExists").resolves(false);
+      sandbox.stub(projectStatusUtilsDeps, "pathExists").resolves(false);
       await chai.expect(projectStatusUtils.getREADME("test-folder")).to.eventually.equal(undefined);
     });
 
     it("file exists", async () => {
-      sandbox.stub(fs, "pathExists").resolves(true);
-      sandbox.stub(fs, "readFile").resolves(Buffer.from("123"));
+      sandbox.stub(projectStatusUtilsDeps, "pathExists").resolves(true);
+      sandbox.stub(projectStatusUtilsDeps, "readFile").resolves(Buffer.from("123") as any);
       await chai
         .expect(projectStatusUtils.getREADME("test-folder"))
         .to.eventually.deep.equal(Buffer.from("123"));
@@ -200,15 +213,15 @@ describe("project status utils", () => {
     });
 
     it("file not exist", async () => {
-      sandbox.stub(fs, "pathExists").resolves(false);
+      sandbox.stub(projectStatusUtilsDeps, "pathExists").resolves(false);
       await chai
         .expect(projectStatusUtils.getLaunchJSON("test-folder"))
         .to.eventually.equal(undefined);
     });
 
     it("file exists", async () => {
-      sandbox.stub(fs, "pathExists").resolves(true);
-      sandbox.stub(fs, "readFile").resolves(Buffer.from("123"));
+      sandbox.stub(projectStatusUtilsDeps, "pathExists").resolves(true);
+      sandbox.stub(projectStatusUtilsDeps, "readFile").resolves(Buffer.from("123") as any);
       await chai
         .expect(projectStatusUtils.getLaunchJSON("test-folder"))
         .to.eventually.deep.equal(Buffer.from("123"));

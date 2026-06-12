@@ -1,5 +1,5 @@
 import { FxError, Result, ok } from "@microsoft/teamsfx-api";
-import * as globalState from "@microsoft/teamsfx-core/build/common/globalState";
+import * as globalState from "@microsoft/teamsfx-core";
 import * as chai from "chai";
 import * as mockfs from "mock-fs";
 import * as sinon from "sinon";
@@ -13,6 +13,7 @@ import { ExtTelemetry } from "../../src/telemetry/extTelemetry";
 import { openOfficeDevFolder } from "../../src/utils/workspaceUtils";
 import * as autoOpenHelper from "../../src/utils/autoOpenHelper";
 import * as readmeHandlers from "../../src/handlers/readmeHandlers";
+import * as telemetryUtils from "../../src/utils/telemetryUtils";
 
 describe("officeDevHandler", () => {
   const sandbox = sinon.createSandbox();
@@ -121,9 +122,28 @@ describe("officeDevHandler", () => {
 
 describe("autoOpenOfficeDevProjectHandler", () => {
   const sandbox = sinon.createSandbox();
+  let inMemoryGlobalState: Map<string, any>;
+
+  beforeEach(async () => {
+    inMemoryGlobalState = new Map<string, any>();
+    sandbox
+      .stub(globalState, "globalStateGet")
+      .callsFake(async (key: string, defaultValue?: any) => {
+        return inMemoryGlobalState.has(key) ? inMemoryGlobalState.get(key) : defaultValue;
+      });
+    sandbox.stub(globalState, "globalStateUpdate").callsFake(async (key: string, value: any) => {
+      inMemoryGlobalState.set(key, value);
+    });
+
+    await globalState.globalStateUpdate("fx-extension.openWalkThrough", false);
+    await globalState.globalStateUpdate("fx-extension.openReadMe", "");
+    await globalState.globalStateUpdate("fx-extension.openSampleReadMe", false);
+    await globalState.globalStateUpdate("CreateWarnings", "");
+  });
 
   beforeEach(() => {
     sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
+    sandbox.stub(autoOpenHelper, "ShowScaffoldingWarningSummary").resolves();
   });
 
   afterEach(() => {
@@ -132,60 +152,45 @@ describe("autoOpenOfficeDevProjectHandler", () => {
   });
 
   it("opens walk through", async () => {
-    sandbox.stub(globalState, "globalStateGet").callsFake(async (key: string) => {
-      if (key === "fx-extension.openWalkThrough") {
-        return true;
-      } else {
-        return false;
-      }
-    });
-    const stateUpdate = sandbox.stub(globalState, "globalStateUpdate");
+    await globalState.globalStateUpdate("fx-extension.openWalkThrough", true);
 
     await officeDevHandlers.autoOpenOfficeDevProjectHandler();
 
-    chai.assert.isTrue(stateUpdate.calledOnce);
+    const isOpenWalkThrough = (await globalState.globalStateGet(
+      "fx-extension.openWalkThrough",
+      true
+    )) as boolean;
+    chai.assert.isFalse(isOpenWalkThrough);
   });
 
   it("opens README", async () => {
     sandbox.stub(globalVariables, "workspaceUri").value(vscode.Uri.file("test"));
-    sandbox.stub(globalState, "globalStateGet").callsFake(async (key: string) => {
-      if (key === "fx-extension.openReadMe") {
-        return vscode.Uri.file("test").fsPath;
-      } else {
-        return "";
-      }
-    });
-
-    const openReadMeHandlerStub = sandbox.stub(readmeHandlers, "openReadMeHandler");
-    const globalStateUpdateStub = sandbox.stub(globalState, "globalStateUpdate");
-    const ShowScaffoldingWarningSummaryStub = sandbox.stub(
-      autoOpenHelper,
-      "ShowScaffoldingWarningSummary"
-    );
+    sandbox.stub(readmeHandlers, "openReadMeHandler").resolves();
+    const readmePath = vscode.Uri.file("test").fsPath;
+    await globalState.globalStateUpdate("fx-extension.openReadMe", readmePath);
 
     await officeDevHandlers.autoOpenOfficeDevProjectHandler();
 
-    chai.assert.isTrue(openReadMeHandlerStub.calledOnce);
-    chai.assert.isTrue(globalStateUpdateStub.calledTwice);
-    chai.assert.isTrue(ShowScaffoldingWarningSummaryStub.calledOnce);
+    const currentReadMe = (await globalState.globalStateGet(
+      "fx-extension.openReadMe",
+      ""
+    )) as string;
+    chai.assert.equal(currentReadMe, "");
   });
 
   it("opens sample README", async () => {
     sandbox.stub(globalVariables, "workspaceUri").value(vscode.Uri.file("test"));
     sandbox.stub(globalVariables, "isTeamsFxProject").resolves(false);
     sandbox.stub(globalVariables, "isOfficeAddInProject").resolves(false);
-    const showMessageStub = sandbox.stub(vscode.window, "showInformationMessage");
+    const showMessageStub = sandbox
+      .stub(vscode.window, "showInformationMessage")
+      .resolves(undefined);
     sandbox.stub(vscode.workspace, "workspaceFolders").value([{ uri: vscode.Uri.file("test") }]);
     sandbox.stub(vscode.workspace, "openTextDocument");
     const executeCommandStub = sandbox.stub(vscode.commands, "executeCommand");
-    sandbox.stub(globalState, "globalStateGet").callsFake(async (key: string) => {
-      if (key === "fx-extension.openSampleReadMe") {
-        return true;
-      } else {
-        return "";
-      }
-    });
-    sandbox.stub(globalState, "globalStateUpdate");
+    sandbox.stub(autoOpenHelper, "showLocalDebugMessage").resolves();
+    sandbox.stub(readmeHandlers, "openSampleReadmeHandler").resolves();
+    await globalState.globalStateUpdate("fx-extension.openSampleReadMe", true);
 
     await officeDevHandlers.autoOpenOfficeDevProjectHandler();
 
@@ -193,13 +198,21 @@ describe("autoOpenOfficeDevProjectHandler", () => {
   });
 
   it("openOfficeDevFolder", async () => {
+    await globalState.globalStateUpdate("ShowLocalDebugMessage", false);
+    await globalState.globalStateUpdate("fx-extension.openReadMe", "");
+    await globalState.globalStateUpdate("fx-extension.openWalkThrough", true);
     const folderPath = vscode.Uri.file("/test");
     const executeCommandStub = sandbox.stub(vscode.commands, "executeCommand");
-    const globalStateUpdateStub = sandbox.stub(globalState, "globalStateUpdate");
+    sandbox.stub(telemetryUtils, "isTriggerFromWalkThrough").returns(false);
 
     await openOfficeDevFolder(folderPath, true, [{ type: "warnning", content: "test" }]);
 
-    chai.assert(globalStateUpdateStub.callCount == 5);
+    const openWalkThrough = await globalState.globalStateGet("fx-extension.openWalkThrough", true);
+    const openReadMe = await globalState.globalStateGet("fx-extension.openReadMe", "");
+    const showLocalDebugMessage = await globalState.globalStateGet("ShowLocalDebugMessage", false);
+    chai.assert.equal(openWalkThrough, false);
+    chai.assert.equal(openReadMe, folderPath.fsPath);
+    chai.assert.equal(showLocalDebugMessage, true);
     chai.assert(executeCommandStub.calledWithExactly("vscode.openFolder", folderPath, true));
   });
 });

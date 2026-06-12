@@ -42,25 +42,24 @@ describe("UI Unit Tests", async () => {
   });
 
   describe("Manually", () => {
-    it("Show Progress 2", async function (this: Mocha.Context) {
-      this.timeout(0);
+    it("Show Progress 2", async () => {
       const VS_CODE_UI = new VsCodeUI(<ExtensionContext>{});
       const handler = VS_CODE_UI.createProgressBar("Test Progress Bar", 3);
 
       await handler.start("Prepare");
-      await sleep(2 * 1000);
+      await sleep(1);
 
       await handler.next("First step");
-      await sleep(2 * 1000);
+      await sleep(1);
 
       await handler.next("Second step");
-      await sleep(2 * 1000);
+      await sleep(1);
 
       await handler.next("Third step");
-      await sleep(2 * 1000);
+      await sleep(1);
 
       await handler.end(true);
-    });
+    }, 30000);
   });
 
   describe("Select Folder", () => {
@@ -656,6 +655,7 @@ describe("UI Unit Tests", async () => {
     });
 
     it("loads dynamic option in a long time and shows", async function (this: Mocha.Context) {
+      const clock = sinon.useFakeTimers();
       const ui = new VsCodeUI(<ExtensionContext>{});
       const config: SingleSelectConfig = {
         name: "name",
@@ -693,13 +693,16 @@ describe("UI Unit Tests", async () => {
       });
       sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
 
-      const result = await ui.selectOption(config);
+      const selectTask = ui.selectOption(config);
+      await clock.tickAsync(1100);
+      const result = await selectTask;
 
       expect(result.isOk()).is.true;
       if (result.isOk()) {
         expect(result.value.result).to.equal("1");
         expect(mockQuickPick.show.called).is.true;
       }
+      clock.restore();
       sandbox.restore();
     });
   });

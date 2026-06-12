@@ -20,6 +20,10 @@ import { GlobalKey, InstallCopilotChatLink } from "../constants";
 import { isVSCodeInsiderVersion } from "../utils/versionUtil";
 import { VS_CODE_UI } from "../qm/vsc_ui";
 
+export const copilotChatHandlersDeps = {
+  globalStateUpdate: (key: string, value: any) => globalStateUpdate(key, value),
+};
+
 const githubCopilotChatExtensionId = "github.copilot-chat";
 const teamsAgentLink = "https://aka.ms/install-m365agents";
 
@@ -177,7 +181,7 @@ export async function markTeamsAgentInstallationDone(args?: any[]) {
   ExtTelemetry.sendTelemetryEvent(startEventName);
 
   try {
-    await globalStateUpdate(GlobalKey.TeamsAgentInstalled, true);
+    await copilotChatHandlersDeps.globalStateUpdate(GlobalKey.TeamsAgentInstalled, true);
     ExtTelemetry.sendTelemetryEvent(eventName);
   } catch (e) {
     ExtTelemetry.sendTelemetryErrorEvent(eventName, assembleError(e));

@@ -2,10 +2,8 @@ import * as chai from "chai";
 import fs from "fs-extra";
 import * as sinon from "sinon";
 import { ExtensionContext, Uri } from "vscode";
-import "mocha";
 
 import * as globalVariables from "../../src/globalVariables";
-import * as projectSettingHelper from "@microsoft/teamsfx-core/build/common/projectSettingsHelper";
 import { err, ok, SystemError, TeamsAppManifest } from "@microsoft/teamsfx-api";
 import { manifestUtils, copilotGptManifestUtils } from "@microsoft/teamsfx-core";
 
@@ -22,8 +20,9 @@ describe("Global Variables", () => {
         return false;
       });
       sandbox.stub(fs, "pathExistsSync").returns(true);
-      sandbox.stub(projectSettingHelper, "isValidProject").returns(true);
-      sandbox.stub(globalVariables, "workspaceUri").returns({ fsPath: "/test" });
+      sandbox.stub(globalVariables.globalVariablesDeps, "isValidProject").returns(true);
+      sandbox.stub(globalVariables.globalVariablesDeps, "isValidOfficeAddInProject").returns(false);
+      sandbox.stub(globalVariables, "workspaceUri").value({ fsPath: "/test" } as any);
       sandbox.stub(fs, "readdirSync").returns(["package.json"] as any);
 
       globalVariables.initializeGlobalVariables({
@@ -38,16 +37,11 @@ describe("Global Variables", () => {
 
     it("return true for spfx project", () => {
       sandbox.stub(fs, "existsSync").callsFake((path: fs.PathLike) => {
-        return false;
+        return true;
       });
-      sandbox.stub(fs, "pathExistsSync").resolves(true);
-      sandbox.stub(projectSettingHelper, "isValidProject").returns(true);
-      sandbox.stub(projectSettingHelper, "isValidOfficeAddInProject").returns(false);
-      sandbox.stub(globalVariables, "workspaceUri").value({ fsPath: "/test" });
-      sandbox.stub(fs, "readdirSync").returns([".yo-rc.json"] as any);
-      sandbox
-        .stub(fs, "readJsonSync")
-        .returns({ "@microsoft/generator-sharepoint": { version: " 1.16.0" } });
+      sandbox.stub(fs, "pathExistsSync").returns(true);
+      sandbox.stub(globalVariables.globalVariablesDeps, "isValidProject").returns(false);
+      sandbox.stub(globalVariables.globalVariablesDeps, "isValidOfficeAddInProject").returns(false);
 
       globalVariables.initializeGlobalVariables({
         globalState: {

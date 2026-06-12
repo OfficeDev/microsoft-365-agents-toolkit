@@ -6,6 +6,7 @@ import * as vscode from "vscode";
 import { ExtTelemetry } from "../../src/telemetry/extTelemetry";
 import {
   addFileSystemWatcher,
+  fileSystemWatcherDeps,
   refreshSPFxTreeOnFileChanged,
   sendSDKVersionTelemetry,
 } from "../../src/utils/fileSystemWatcher";
@@ -22,9 +23,9 @@ describe("FileSystemWatcher", function () {
 
     it("addFileSystemWatcher detect SPFx project", async () => {
       const workspacePath = "test";
-      sandbox.stub(projectSettingsHelper, "isValidProject").returns(true);
-      sandbox.stub(globalVariables, "initializeGlobalVariables");
-      sandbox.stub(TreeViewManagerInstance, "updateDevelopmentTreeView");
+      sandbox.stub(fileSystemWatcherDeps, "isValidProject").returns(true);
+      sandbox.stub(fileSystemWatcherDeps, "initializeGlobalVariables");
+      sandbox.stub(fileSystemWatcherDeps, "updateDevelopmentTreeView");
 
       const watcher = {
         onDidCreate: () => ({ dispose: () => undefined }),
@@ -32,20 +33,23 @@ describe("FileSystemWatcher", function () {
         onDidDelete: () => ({ dispose: () => undefined }),
       } as any;
       const createWatcher = sandbox
-        .stub(vscode.workspace, "createFileSystemWatcher")
+        .stub(fileSystemWatcherDeps, "createFileSystemWatcher")
         .returns(watcher);
       const createListener = sandbox
         .stub(watcher, "onDidCreate")
         .callsFake((...args: unknown[]) => {
-          (args as any)[0]();
+          (args as any)[0]({ fsPath: "test/package-lock.json" });
+          return { dispose: () => undefined };
         });
       const changeListener = sandbox
         .stub(watcher, "onDidChange")
         .callsFake((...args: unknown[]) => {
-          (args as any)[0]();
+          (args as any)[0]({ fsPath: "test/package-lock.json" });
+          return { dispose: () => undefined };
         });
       sandbox.stub(watcher, "onDidDelete").callsFake((...args: unknown[]) => {
-        (args as any)[0]();
+        (args as any)[0]({ fsPath: "test/.yo-rc.json" });
+        return { dispose: () => undefined };
       });
       sandbox.stub(ExtTelemetry, "sendTelemetryEvent").callsFake(() => {});
 
@@ -58,14 +62,14 @@ describe("FileSystemWatcher", function () {
 
     it("addFileSystemWatcher in invalid project", async () => {
       const workspacePath = "test";
-      sandbox.stub(projectSettingsHelper, "isValidProject").returns(false);
+      sandbox.stub(fileSystemWatcherDeps, "isValidProject").returns(false);
 
       const watcher = {
         onDidCreate: () => ({ dispose: () => undefined }),
         onDidChange: () => ({ dispose: () => undefined }),
       } as any;
       const createWatcher = sandbox
-        .stub(vscode.workspace, "createFileSystemWatcher")
+        .stub(fileSystemWatcherDeps, "createFileSystemWatcher")
         .returns(watcher);
       const createListener = sandbox.stub(watcher, "onDidCreate").resolves();
       const changeListener = sandbox.stub(watcher, "onDidChange").resolves();
@@ -86,10 +90,9 @@ describe("FileSystemWatcher", function () {
     });
 
     it("refreshSPFxTreeOnFileChanged", () => {
-      const initGlobalVariables = sandbox.stub(globalVariables, "initializeGlobalVariables");
+      const initGlobalVariables = sandbox.stub(fileSystemWatcherDeps, "initializeGlobalVariables");
       const updateDevelopmentTreeView = sandbox
-
-        .stub(TreeViewManagerInstance, "updateDevelopmentTreeView")
+        .stub(fileSystemWatcherDeps, "updateDevelopmentTreeView")
         .resolves();
 
       refreshSPFxTreeOnFileChanged();
@@ -109,8 +112,8 @@ describe("FileSystemWatcher", function () {
     it("happy path", async () => {
       const filePath = "test/package-lock.json";
 
-      const readJsonFunc = sandbox.stub(fs, "readJson").resolves();
-      sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
+      const readJsonFunc = sandbox.stub(fileSystemWatcherDeps, "readJson").resolves();
+      sandbox.stub(fileSystemWatcherDeps, "sendTelemetryEvent");
 
       sendSDKVersionTelemetry(filePath);
 

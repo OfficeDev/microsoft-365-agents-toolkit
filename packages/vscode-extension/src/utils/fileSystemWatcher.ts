@@ -9,9 +9,20 @@ import { ExtTelemetry } from "../telemetry/extTelemetry";
 import { TelemetryEvent, TelemetryProperty } from "../telemetry/extTelemetryEvents";
 import TreeViewManagerInstance from "../treeview/treeViewManager";
 
+export const fileSystemWatcherDeps = {
+  isValidProject: (workspacePath: string) => isValidProject(workspacePath),
+  createFileSystemWatcher: (pattern: string) => vscode.workspace.createFileSystemWatcher(pattern),
+  initializeGlobalVariables: () => initializeGlobalVariables(context),
+  updateDevelopmentTreeView: () => TreeViewManagerInstance.updateDevelopmentTreeView(),
+  readJson: (filePath: string) => fs.readJson(filePath),
+  sendTelemetryEvent: (eventName: string, properties?: any) =>
+    ExtTelemetry.sendTelemetryEvent(eventName as any, properties),
+};
+
 export function addFileSystemWatcher(workspacePath: string) {
-  if (isValidProject(workspacePath)) {
-    const packageLockFileWatcher = vscode.workspace.createFileSystemWatcher("**/package-lock.json");
+  if (fileSystemWatcherDeps.isValidProject(workspacePath)) {
+    const packageLockFileWatcher =
+      fileSystemWatcherDeps.createFileSystemWatcher("**/package-lock.json");
 
     packageLockFileWatcher.onDidCreate(async (event) => {
       await sendSDKVersionTelemetry(event.fsPath);
@@ -21,29 +32,29 @@ export function addFileSystemWatcher(workspacePath: string) {
       await sendSDKVersionTelemetry(event.fsPath);
     });
 
-    const yorcFileWatcher = vscode.workspace.createFileSystemWatcher("**/.yo-rc.json");
-    yorcFileWatcher.onDidCreate((event) => {
+    const yorcFileWatcher = fileSystemWatcherDeps.createFileSystemWatcher("**/.yo-rc.json");
+    yorcFileWatcher.onDidCreate((_event) => {
       refreshSPFxTreeOnFileChanged();
     });
-    yorcFileWatcher.onDidChange((event) => {
+    yorcFileWatcher.onDidChange((_event) => {
       refreshSPFxTreeOnFileChanged();
     });
-    yorcFileWatcher.onDidDelete((event) => {
+    yorcFileWatcher.onDidDelete((_event) => {
       refreshSPFxTreeOnFileChanged();
     });
   }
 }
 
 export function refreshSPFxTreeOnFileChanged() {
-  initializeGlobalVariables(context);
-  TreeViewManagerInstance.updateDevelopmentTreeView();
+  fileSystemWatcherDeps.initializeGlobalVariables();
+  fileSystemWatcherDeps.updateDevelopmentTreeView();
 }
 
 export async function sendSDKVersionTelemetry(filePath: string) {
-  const packageLockFile = (await fs.readJson(filePath).catch(() => {})) as {
+  const packageLockFile = (await fileSystemWatcherDeps.readJson(filePath).catch(() => {})) as {
     dependencies: { [key: string]: { version: string } };
   };
-  ExtTelemetry.sendTelemetryEvent(TelemetryEvent.UpdateSDKPackages, {
+  fileSystemWatcherDeps.sendTelemetryEvent(TelemetryEvent.UpdateSDKPackages, {
     [TelemetryProperty.BotbuilderVersion]: packageLockFile?.dependencies["botbuilder"]?.version,
     [TelemetryProperty.TeamsFxVersion]:
       packageLockFile?.dependencies["@microsoft/teamsfx"]?.version,

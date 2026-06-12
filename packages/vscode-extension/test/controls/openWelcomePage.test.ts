@@ -1,8 +1,10 @@
 import * as chai from "chai";
 import * as sinon from "sinon";
 import * as vscode from "vscode";
-import * as globalState from "@microsoft/teamsfx-core/build/common/globalState";
-import { openWelcomePageAfterExtensionInstallation } from "../../src/controls/openWelcomePage";
+import {
+  openWelcomePageAfterExtensionInstallation,
+  openWelcomePageDeps,
+} from "../../src/controls/openWelcomePage";
 import { ExtTelemetry } from "../../src/telemetry/extTelemetry";
 
 describe("openWelcomePageAfterExtensionInstallation()", () => {
@@ -13,8 +15,8 @@ describe("openWelcomePageAfterExtensionInstallation()", () => {
   });
 
   it("will not open welcome page if shown before", async () => {
-    sandbox.stub(globalState, "globalStateGet").resolves(true);
-    const globalStateUpdateStub = sandbox.stub(globalState, "globalStateUpdate");
+    sandbox.stub(openWelcomePageDeps, "globalStateGet").resolves(true);
+    const globalStateUpdateStub = sandbox.stub(openWelcomePageDeps, "globalStateUpdate");
 
     await openWelcomePageAfterExtensionInstallation();
 
@@ -22,8 +24,8 @@ describe("openWelcomePageAfterExtensionInstallation()", () => {
   });
 
   it("opens welcome page if not shown before", async () => {
-    sandbox.stub(globalState, "globalStateGet").resolves(false);
-    const globalStateUpdateStub = sandbox.stub(globalState, "globalStateUpdate");
+    sandbox.stub(openWelcomePageDeps, "globalStateGet").resolves(false);
+    const globalStateUpdateStub = sandbox.stub(openWelcomePageDeps, "globalStateUpdate");
     sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
     const executeCommandStub = sandbox.stub(vscode.commands, "executeCommand").resolves();
 

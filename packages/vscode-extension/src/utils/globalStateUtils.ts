@@ -2,11 +2,17 @@
 // Licensed under the MIT license.
 
 import { Warning } from "@microsoft/teamsfx-api";
-import { globalStateUpdate } from "@microsoft/teamsfx-core";
+import * as globalState from "@microsoft/teamsfx-core/build/common/globalState";
 import { Uri } from "vscode";
 import { GlobalKey } from "../constants";
-import { checkIsSPFx } from "../globalVariables";
-import { isTriggerFromWalkThrough } from "./telemetryUtils";
+import * as globalVariables from "../globalVariables";
+import * as telemetryUtils from "./telemetryUtils";
+
+export const globalStateUtilsDeps = {
+  globalStateUpdate: globalState.globalStateUpdate,
+  checkIsSPFx: globalVariables.checkIsSPFx,
+  isTriggerFromWalkThrough: telemetryUtils.isTriggerFromWalkThrough,
+};
 
 export async function updateAutoOpenGlobalKey(
   showLocalDebugMessage: boolean,
@@ -14,23 +20,26 @@ export async function updateAutoOpenGlobalKey(
   warnings: Warning[] | undefined,
   args?: any[]
 ): Promise<void> {
-  if (isTriggerFromWalkThrough(args)) {
-    await globalStateUpdate(GlobalKey.OpenWalkThrough, true);
-    await globalStateUpdate(GlobalKey.OpenReadMe, "");
+  if (globalStateUtilsDeps.isTriggerFromWalkThrough(args)) {
+    await globalStateUtilsDeps.globalStateUpdate(GlobalKey.OpenWalkThrough, true);
+    await globalStateUtilsDeps.globalStateUpdate(GlobalKey.OpenReadMe, "");
   } else {
-    await globalStateUpdate(GlobalKey.OpenWalkThrough, false);
-    await globalStateUpdate(GlobalKey.OpenReadMe, projectUri.fsPath);
+    await globalStateUtilsDeps.globalStateUpdate(GlobalKey.OpenWalkThrough, false);
+    await globalStateUtilsDeps.globalStateUpdate(GlobalKey.OpenReadMe, projectUri.fsPath);
   }
 
   if (showLocalDebugMessage) {
-    await globalStateUpdate(GlobalKey.ShowLocalDebugMessage, true);
+    await globalStateUtilsDeps.globalStateUpdate(GlobalKey.ShowLocalDebugMessage, true);
   }
 
   if (warnings?.length) {
-    await globalStateUpdate(GlobalKey.CreateWarnings, JSON.stringify(warnings));
+    await globalStateUtilsDeps.globalStateUpdate(
+      GlobalKey.CreateWarnings,
+      JSON.stringify(warnings)
+    );
   }
 
-  if (checkIsSPFx(projectUri.fsPath)) {
-    void globalStateUpdate(GlobalKey.AutoInstallDependency, true);
+  if (globalStateUtilsDeps.checkIsSPFx(projectUri.fsPath)) {
+    void globalStateUtilsDeps.globalStateUpdate(GlobalKey.AutoInstallDependency, true);
   }
 }

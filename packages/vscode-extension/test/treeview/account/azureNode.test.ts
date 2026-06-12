@@ -4,6 +4,7 @@ import * as vscode from "vscode";
 
 import { AzureAccountManager } from "../../../src/commonlib/azureLogin";
 import { AzureAccountNode } from "../../../src/treeview/account/azureNode";
+import { azureNodeDeps } from "../../../src/treeview/account/azureNode";
 import { AccountItemStatus, azureIcon, loadingIcon } from "../../../src/treeview/account/common";
 import { DynamicNode } from "../../../src/treeview/dynamicNode";
 import { featureFlagManager } from "@microsoft/teamsfx-core";
@@ -62,7 +63,7 @@ describe("AzureNode", () => {
 
   it("setSignedIn with multi-tenant", async () => {
     sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
-    sandbox.stub(tools, "listAllTenants").resolves([
+    sandbox.stub(azureNodeDeps, "listAllTenants").resolves([
       {
         tenantId: "0022fd51-06f5-4557-8a34-69be98de6e20",
         displayName: "MSFT",

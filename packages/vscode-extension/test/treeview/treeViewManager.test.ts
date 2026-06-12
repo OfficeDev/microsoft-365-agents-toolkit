@@ -5,7 +5,7 @@ import * as sinon from "sinon";
 import * as vscode from "vscode";
 import * as globalVariables from "../../src/globalVariables";
 import { CommandsTreeViewProvider } from "../../src/treeview/commandsTreeViewProvider";
-import treeViewManager from "../../src/treeview/treeViewManager";
+import treeViewManager, { treeViewManagerDeps } from "../../src/treeview/treeViewManager";
 import * as commonUtils from "../../src/utils/commonUtils";
 
 describe("TreeViewManager", () => {
@@ -163,7 +163,7 @@ describe("TreeViewManager", () => {
     const commands = developmentTreeviewProvider.getCommands();
     chai.assert.equal(commands.length, 4);
 
-    sandbox.stub(commonUtils, "hasAdaptiveCardInWorkspace").returns(Promise.resolve(true));
+    sandbox.stub(treeViewManagerDeps, "hasAdaptiveCardInWorkspace").returns(Promise.resolve(true));
     await treeViewManager.updateTreeViewsByContent();
 
     chai.assert.equal(commands.length, 5);

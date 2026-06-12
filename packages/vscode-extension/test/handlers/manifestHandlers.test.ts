@@ -7,6 +7,7 @@ import * as vscode from "vscode";
 import * as globalVariables from "../../src/globalVariables";
 import {
   buildPackageHandler,
+  manifestHandlersDeps,
   publishInDeveloperPortalHandler,
   syncManifestHandler,
   updatePreviewManifest,
@@ -29,14 +30,14 @@ describe("Manifest handlers", () => {
   });
   describe("validateManifestHandler", () => {
     it("happy", async () => {
-      sandbox.stub(shared, "runCommand").resolves(ok(undefined));
+      sandbox.stub(manifestHandlersDeps, "runCommand").resolves(ok(undefined));
       const res = await validateManifestHandler();
       assert.isTrue(res.isOk());
     });
   });
   describe("buildPackageHandler", function () {
     it("happy()", async () => {
-      sandbox.stub(shared, "runCommand").resolves(ok(undefined));
+      sandbox.stub(manifestHandlersDeps, "runCommand").resolves(ok(undefined));
       const res = await buildPackageHandler();
       assert.isTrue(res.isOk());
     });
@@ -50,7 +51,7 @@ describe("Manifest handlers", () => {
       sandbox
         .stub(vsc_ui.VS_CODE_UI, "selectFile")
         .resolves(ok({ type: "success", result: "test.zip" }));
-      sandbox.stub(shared, "runCommand").resolves(ok(undefined));
+      sandbox.stub(manifestHandlersDeps, "runCommand").resolves(ok(undefined));
       sandbox
         .stub(vsc_ui.VS_CODE_UI, "selectOption")
         .resolves(ok({ type: "success", result: "test.zip" }));
@@ -87,7 +88,7 @@ describe("Manifest handlers", () => {
       sandbox
         .stub(vsc_ui.VS_CODE_UI, "selectFile")
         .resolves(ok({ type: "success", result: "test.zip" }));
-      sandbox.stub(shared, "runCommand").resolves(err(new UserCancelError("VSC")));
+      sandbox.stub(manifestHandlersDeps, "runCommand").resolves(err(new UserCancelError("VSC")));
       sandbox
         .stub(vsc_ui.VS_CODE_UI, "selectOption")
         .resolves(ok({ type: "success", result: "test.zip" }));
@@ -104,7 +105,7 @@ describe("Manifest handlers", () => {
       const openTextDocumentStub = sandbox
         .stub(vscode.workspace, "openTextDocument")
         .returns(Promise.resolve("" as any));
-      sandbox.stub(shared, "runCommand").resolves(ok(undefined));
+      sandbox.stub(manifestHandlersDeps, "runCommand").resolves(ok(undefined));
       await updatePreviewManifest([]);
       assert.isTrue(openTextDocumentStub.calledOnce);
     });
@@ -112,20 +113,22 @@ describe("Manifest handlers", () => {
       const core = new MockCore();
       sandbox.stub(globalVariables, "core").value(core);
       sandbox.stub(core, "getSelectedEnv").resolves(err(new UserCancelError("VSC")));
-      sandbox.stub(shared, "runCommand").resolves(ok(undefined));
+      sandbox.stub(manifestHandlersDeps, "runCommand").resolves(ok(undefined));
       const res = await updatePreviewManifest([]);
       assert.isTrue(res.isErr());
     });
   });
   describe("syncManifest", () => {
     it("happy", async () => {
-      const runCommandStub = sandbox.stub(shared, "runCommand").resolves(ok(undefined));
+      const runCommandStub = sandbox
+        .stub(manifestHandlersDeps, "runCommand")
+        .resolves(ok(undefined));
       await syncManifestHandler();
       assert.isTrue(runCommandStub.calledOnce);
     });
     it("teams app id in the input", async () => {
       const runCommandStub = sandbox
-        .stub(shared, "runCommand")
+        .stub(manifestHandlersDeps, "runCommand")
         .callsFake((stage: Stage, inputs: Inputs | undefined): Promise<Result<any, FxError>> => {
           if (inputs && inputs[QuestionNames.TeamsAppId] === "teamsAppId") {
             return Promise.resolve(ok(undefined));

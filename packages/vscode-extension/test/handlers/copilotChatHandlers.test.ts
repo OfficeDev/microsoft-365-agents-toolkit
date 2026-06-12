@@ -4,6 +4,7 @@ import * as vscode from "vscode";
 
 import VsCodeLogInstance from "../../src/commonlib/log";
 import * as handlers from "../../src/handlers/copilotChatHandlers";
+import { copilotChatHandlersDeps } from "../../src/handlers/copilotChatHandlers";
 import { ExtTelemetry } from "../../src/telemetry/extTelemetry";
 import * as extTelemetryEvents from "../../src/telemetry/extTelemetryEvents";
 import * as versionUtils from "../../src/utils/versionUtil";
@@ -198,14 +199,18 @@ describe("copilotChatHandler", async () => {
 
   describe("markTeamsAgentInstallationDone", () => {
     it("should update global state successfully", async () => {
-      const globalStateUpdateStub = sandbox.stub(globalState, "globalStateUpdate").resolves();
+      const globalStateUpdateStub = sandbox
+        .stub(copilotChatHandlersDeps, "globalStateUpdate")
+        .resolves();
       await handlers.markTeamsAgentInstallationDone();
       chai.assert.isTrue(globalStateUpdateStub.calledOnceWith(GlobalKey.TeamsAgentInstalled, true));
     });
 
     it("should handle global state update failure", async () => {
       const error = new SystemError("test", "test", "test", "test");
-      const globalStateUpdateStub = sandbox.stub(globalState, "globalStateUpdate").rejects(error);
+      const globalStateUpdateStub = sandbox
+        .stub(copilotChatHandlersDeps, "globalStateUpdate")
+        .rejects(error);
       await handlers.markTeamsAgentInstallationDone();
       chai.assert.isTrue(globalStateUpdateStub.calledOnceWith(GlobalKey.TeamsAgentInstalled, true));
       chai.assert.isTrue(sendTelemetryErrorEventStub.calledOnce);

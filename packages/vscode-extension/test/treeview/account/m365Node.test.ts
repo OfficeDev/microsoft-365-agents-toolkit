@@ -4,6 +4,7 @@ import * as sinon from "sinon";
 import * as vscode from "vscode";
 import { AccountItemStatus, loadingIcon, m365Icon } from "../../../src/treeview/account/common";
 import { M365AccountNode } from "../../../src/treeview/account/m365Node";
+import { m365NodeDeps } from "../../../src/treeview/account/m365Node";
 import { DynamicNode } from "../../../src/treeview/dynamicNode";
 import * as tool from "@microsoft/teamsfx-core/build/common/tools";
 import * as globalVariables from "../../../src/globalVariables";
@@ -67,10 +68,11 @@ describe("m365Node", () => {
   it("setSignedIn - multitenant", async () => {
     sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
     sandbox.stub(globalVariables, "tools").value(new MockTools());
+    sandbox.stub(m365NodeDeps, "getTools").returns(globalVariables.tools as any);
     sandbox
       .stub(globalVariables.tools.tokenProvider.m365TokenProvider, "getAccessToken")
       .resolves(ok("test-token"));
-    sandbox.stub(tool, "listAllTenants").resolves([
+    sandbox.stub(m365NodeDeps, "listAllTenants").resolves([
       {
         tenantId: "0022fd51-06f5-4557-8a34-69be98de6e20",
         displayName: "MSFT",

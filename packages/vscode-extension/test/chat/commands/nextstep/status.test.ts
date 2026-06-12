@@ -2,7 +2,6 @@ import * as chai from "chai";
 import chaiPromised from "chai-as-promised";
 import * as sinon from "sinon";
 import * as status from "../../../../src/chat/commands/nextstep/status";
-import * as helper from "../../../../src/chat/commands/nextstep/helper";
 import { MachineStatus, WholeStatus } from "../../../../src/chat/commands/nextstep/types";
 import * as projectStatusUtils from "../../../../src/utils/projectStatusUtils";
 
@@ -22,9 +21,11 @@ describe("chat nextstep status", () => {
     });
 
     it("folder === undefined", async () => {
-      sandbox.stub(helper, "checkCredential").resolves({ m365LoggedIn: true, azureLoggedIn: true });
-      sandbox.stub(helper, "globalStateGet").resolves(true);
-      sandbox.stub(helper, "globalStateUpdate");
+      sandbox
+        .stub(status.statusDeps, "checkCredential")
+        .resolves({ m365LoggedIn: true, azureLoggedIn: true });
+      sandbox.stub(status.statusDeps, "globalStateGet").resolves(true);
+      sandbox.stub(status.statusDeps, "globalStateUpdate");
       await chai.expect(status.getWholeStatus()).to.eventually.deep.equal({
         machineStatus: {
           azureLoggedIn: true,
@@ -35,16 +36,18 @@ describe("chat nextstep status", () => {
     });
 
     it("folder !== undefined", async () => {
-      sandbox.stub(helper, "getProjectMetadata").returns({ projectId: "test-id" });
+      sandbox.stub(status.statusDeps, "getProjectMetadata").returns({ projectId: "test-id" });
       sandbox
-        .stub(projectStatusUtils, "getProjectStatus")
+        .stub(status.statusDeps, "getProjectStatus")
         .resolves(projectStatusUtils.emptyProjectStatus());
-      sandbox.stub(projectStatusUtils, "getFileModifiedTime").resolves(new Date(0));
-      sandbox.stub(projectStatusUtils, "getREADME").resolves(undefined);
-      sandbox.stub(projectStatusUtils, "getLaunchJSON").resolves(undefined);
-      sandbox.stub(helper, "checkCredential").resolves({ m365LoggedIn: true, azureLoggedIn: true });
-      sandbox.stub(helper, "globalStateGet").resolves(true);
-      sandbox.stub(helper, "globalStateUpdate");
+      sandbox.stub(status.statusDeps, "getFileModifiedTime").resolves(new Date(0));
+      sandbox.stub(status.statusDeps, "getREADME").resolves(undefined);
+      sandbox.stub(status.statusDeps, "getLaunchJSON").resolves(undefined);
+      sandbox
+        .stub(status.statusDeps, "checkCredential")
+        .resolves({ m365LoggedIn: true, azureLoggedIn: true });
+      sandbox.stub(status.statusDeps, "globalStateGet").resolves(true);
+      sandbox.stub(status.statusDeps, "globalStateUpdate");
       await chai.expect(status.getWholeStatus("test-folder")).to.eventually.deep.equal({
         machineStatus: {
           azureLoggedIn: true,
@@ -66,16 +69,18 @@ describe("chat nextstep status", () => {
     });
 
     it("folder !== undefined (no project id)", async () => {
-      sandbox.stub(helper, "getProjectMetadata").returns(undefined);
+      sandbox.stub(status.statusDeps, "getProjectMetadata").returns(undefined);
       sandbox
-        .stub(projectStatusUtils, "getProjectStatus")
+        .stub(status.statusDeps, "getProjectStatus")
         .resolves(projectStatusUtils.emptyProjectStatus());
-      sandbox.stub(projectStatusUtils, "getFileModifiedTime").resolves(new Date(0));
-      sandbox.stub(projectStatusUtils, "getREADME").resolves(undefined);
-      sandbox.stub(projectStatusUtils, "getLaunchJSON").resolves(undefined);
-      sandbox.stub(helper, "checkCredential").resolves({ m365LoggedIn: true, azureLoggedIn: true });
-      sandbox.stub(helper, "globalStateGet").resolves(true);
-      sandbox.stub(helper, "globalStateUpdate");
+      sandbox.stub(status.statusDeps, "getFileModifiedTime").resolves(new Date(0));
+      sandbox.stub(status.statusDeps, "getREADME").resolves(undefined);
+      sandbox.stub(status.statusDeps, "getLaunchJSON").resolves(undefined);
+      sandbox
+        .stub(status.statusDeps, "checkCredential")
+        .resolves({ m365LoggedIn: true, azureLoggedIn: true });
+      sandbox.stub(status.statusDeps, "globalStateGet").resolves(true);
+      sandbox.stub(status.statusDeps, "globalStateUpdate");
       await chai.expect(status.getWholeStatus("test-folder")).to.eventually.deep.equal({
         machineStatus: {
           azureLoggedIn: true,
@@ -105,9 +110,11 @@ describe("chat nextstep status", () => {
     });
 
     it("func: getMachineStatus", async () => {
-      sandbox.stub(helper, "checkCredential").resolves({ m365LoggedIn: true, azureLoggedIn: true });
-      sandbox.stub(helper, "globalStateGet").resolves(true);
-      sandbox.stub(helper, "globalStateUpdate");
+      sandbox
+        .stub(status.statusDeps, "checkCredential")
+        .resolves({ m365LoggedIn: true, azureLoggedIn: true });
+      sandbox.stub(status.statusDeps, "globalStateGet").resolves(true);
+      sandbox.stub(status.statusDeps, "globalStateUpdate");
       await chai.expect(status.getMachineStatus()).to.eventually.deep.equal({
         azureLoggedIn: true,
         firstInstalled: true,

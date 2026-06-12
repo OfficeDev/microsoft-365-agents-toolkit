@@ -14,21 +14,40 @@ import { localize } from "./localizeUtils";
 import { ExtensionSource, ExtensionErrors } from "../error/error";
 import { isTestToolEnabledProject } from "@microsoft/teamsfx-core";
 
+export const commonUtilsDeps = {
+  getOSType: () => os.type(),
+  exec: (cmd: string, callback?: (error: any, stdout: string, stderr: string) => void) =>
+    exec(cmd, callback),
+  getExtension: (id: string) => vscode.extensions.getExtension(id),
+  glob: (pattern: string, options?: any) => glob(pattern, options),
+  fsOpen: (filePath: string, flag: string) => fs.open(filePath, flag),
+  fsStat: (fd: number) => fs.fstat(fd),
+  fsRead: (
+    fd: number,
+    buffer: Uint8Array,
+    offset: number,
+    length: number,
+    position: number | null
+  ) => fs.read(fd, buffer, offset, length, position),
+  fsClose: (fd: number) => fs.close(fd),
+  isTestToolEnabledProject: (projectPath: string) => isTestToolEnabledProject(projectPath),
+};
+
 export function isWindows() {
-  return os.type() === "Windows_NT";
+  return commonUtilsDeps.getOSType() === "Windows_NT";
 }
 
 export function isMacOS() {
-  return os.type() === "Darwin";
+  return commonUtilsDeps.getOSType() === "Darwin";
 }
 
 export function isLinux() {
-  return os.type() === "Linux";
+  return commonUtilsDeps.getOSType() === "Linux";
 }
 
 export function openFolderInExplorer(folderPath: string): void {
   const command = format('start "" "%s"', folderPath);
-  exec(command);
+  commonUtilsDeps.exec(command);
 }
 
 export function delay(ms: number) {
@@ -36,7 +55,7 @@ export function delay(ms: number) {
 }
 
 export function acpInstalled(): boolean {
-  const extension = vscode.extensions.getExtension("TeamsDevApp.vscode-adaptive-cards");
+  const extension = commonUtilsDeps.getExtension("TeamsDevApp.vscode-adaptive-cards");
   return !!extension;
 }
 
@@ -45,15 +64,15 @@ export async function hasAdaptiveCardInWorkspace(): Promise<boolean> {
   const fileSizeLimit = 1024 * 1024;
 
   if (workspaceUri) {
-    const files = await glob(workspaceUri.path + "/**/*.json", {
+    const files = await commonUtilsDeps.glob(workspaceUri.path + "/**/*.json", {
       ignore: ["**/node_modules/**", "./node_modules/**"],
     });
     for (const file of files) {
       let content = "";
       let fd = -1;
       try {
-        fd = await fs.open(file, "r");
-        const stat = await fs.fstat(fd);
+        fd = await commonUtilsDeps.fsOpen(file, "r");
+        const stat = await commonUtilsDeps.fsStat(fd);
         // limit file size to prevent performance impact
         if (stat.size > fileSizeLimit) {
           continue;
@@ -61,14 +80,14 @@ export async function hasAdaptiveCardInWorkspace(): Promise<boolean> {
 
         // avoid security issue
         const buffer = new Uint8Array(fileSizeLimit);
-        const { bytesRead } = await fs.read(fd, buffer, 0, buffer.byteLength, 0);
+        const { bytesRead } = await commonUtilsDeps.fsRead(fd, buffer, 0, buffer.byteLength, 0);
         content = new TextDecoder().decode(buffer.slice(0, bytesRead));
       } catch (e) {
         // skip invalid files
         continue;
       } finally {
         if (fd >= 0) {
-          fs.close(fd).catch(() => {});
+          commonUtilsDeps.fsClose(fd).catch(() => {});
         }
       }
 
@@ -86,10 +105,11 @@ function isAdaptiveCard(content: string): boolean {
   return pattern.test(content);
 }
 
-export function getLocalDebugMessageTemplate(isWindows: boolean): string {
-  const enabledTestTool = workspaceUri?.fsPath && isTestToolEnabledProject(workspaceUri.fsPath);
+export function getLocalDebugMessageTemplate(isWindowsOS: boolean): string {
+  const enabledTestTool =
+    workspaceUri?.fsPath && commonUtilsDeps.isTestToolEnabledProject(workspaceUri.fsPath);
 
-  if (isWindows) {
+  if (isWindowsOS) {
     return enabledTestTool
       ? localize("teamstoolkit.handlers.localDebugDescription.enabledTestTool")
       : localize("teamstoolkit.handlers.localDebugDescription");

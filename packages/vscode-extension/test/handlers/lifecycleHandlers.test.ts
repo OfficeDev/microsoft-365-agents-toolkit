@@ -47,12 +47,13 @@ import VsCodeLogInstance from "../../src/commonlib/log";
 import { MockTools } from "../mocks/mockTools";
 import { shareRemoveCommand } from "../../../cli/src/commands/models/shareRemove";
 
+import { lifecycleHandlersDeps } from "../../src/handlers/lifecycleHandlers";
 describe("Lifecycle handlers", () => {
   const sandbox = sinon.createSandbox();
 
   beforeEach(() => {
-    sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
-    sandbox.stub(ExtTelemetry, "sendTelemetryErrorEvent");
+    sandbox.stub(lifecycleHandlersDeps, "sendTelemetryEvent");
+    sandbox.stub(lifecycleHandlersDeps, "sendTelemetryErrorEvent");
   });
 
   afterEach(() => {
@@ -61,7 +62,7 @@ describe("Lifecycle handlers", () => {
 
   describe("provision handlers", () => {
     it("error", async () => {
-      sandbox.stub(shared, "runCommand").resolves(err(new UserCancelError()));
+      sandbox.stub(lifecycleHandlersDeps, "runCommand").resolves(err(new UserCancelError()));
       const res = await provisionHandler();
       assert.isTrue(res.isErr());
     });
@@ -77,36 +78,38 @@ describe("Lifecycle handlers", () => {
     });
 
     it("invokeTeamsAgent", async () => {
-      sandbox.stub(shared, "runCommand").resolves(
+      sandbox.stub(lifecycleHandlersDeps, "runCommand").resolves(
         ok({
           projectPath: "abc",
           shouldInvokeTeamsAgent: true,
           projectId: "mockId",
         })
       );
-      sandbox.stub(copilotHandler, "invokeTeamsAgent").resolves();
+      sandbox.stub(lifecycleHandlersDeps, "invokeTeamsAgent").resolves();
       const res = await createNewProjectHandler();
       assert.isTrue(res.isOk());
     });
 
     it("triggered in office agent", async () => {
-      sandbox.stub(projectSettingsHelper, "isValidOfficeAddInProject").returns(true);
-      sandbox.stub(shared, "runCommand").resolves(
+      sandbox.stub(lifecycleHandlersDeps, "isValidOfficeAddInProject").returns(true);
+      sandbox.stub(lifecycleHandlersDeps, "runCommand").resolves(
         ok({
           projectPath: "abc",
           shouldInvokeTeamsAgent: false,
           projectId: "mockId",
         })
       );
-      sandbox.stub(copilotHandler, "invokeTeamsAgent").resolves();
+      sandbox.stub(lifecycleHandlersDeps, "invokeTeamsAgent").resolves();
       const res = await createNewProjectHandler("", { agent: "office" });
       assert.isTrue(res.isOk());
     });
 
     it("office add-in", async () => {
-      sandbox.stub(projectSettingsHelper, "isValidOfficeAddInProject").returns(true);
-      const openOfficeDevFolder = sandbox.stub(workspaceUtils, "openOfficeDevFolder").resolves();
-      sandbox.stub(shared, "runCommand").resolves(
+      sandbox.stub(lifecycleHandlersDeps, "isValidOfficeAddInProject").returns(true);
+      const openOfficeDevFolder = sandbox
+        .stub(lifecycleHandlersDeps, "openOfficeDevFolder")
+        .resolves();
+      sandbox.stub(lifecycleHandlersDeps, "runCommand").resolves(
         ok({
           projectPath: "abc",
           shouldInvokeTeamsAgent: false,
@@ -119,9 +122,9 @@ describe("Lifecycle handlers", () => {
     });
 
     it("none office add-in", async () => {
-      sandbox.stub(projectSettingsHelper, "isValidOfficeAddInProject").returns(false);
-      const openFolder = sandbox.stub(workspaceUtils, "openFolder").resolves();
-      sandbox.stub(shared, "runCommand").resolves(
+      sandbox.stub(lifecycleHandlersDeps, "isValidOfficeAddInProject").returns(false);
+      const openFolder = sandbox.stub(lifecycleHandlersDeps, "openFolder").resolves();
+      sandbox.stub(lifecycleHandlersDeps, "runCommand").resolves(
         ok({
           projectPath: "abc",
           shouldInvokeTeamsAgent: false,
@@ -134,9 +137,9 @@ describe("Lifecycle handlers", () => {
     });
 
     it("metaOSExtendToDAHandler", async () => {
-      sandbox.stub(projectSettingsHelper, "isValidOfficeAddInProject").returns(false);
-      const openFolder = sandbox.stub(workspaceUtils, "openFolder").resolves();
-      sandbox.stub(shared, "runCommand").resolves(
+      sandbox.stub(lifecycleHandlersDeps, "isValidOfficeAddInProject").returns(false);
+      const openFolder = sandbox.stub(lifecycleHandlersDeps, "openFolder").resolves();
+      sandbox.stub(lifecycleHandlersDeps, "runCommand").resolves(
         ok({
           projectPath: "abc",
         })
@@ -147,8 +150,10 @@ describe("Lifecycle handlers", () => {
     });
 
     it("metaOSExtendToDAHandler failed", async () => {
-      sandbox.stub(projectSettingsHelper, "isValidOfficeAddInProject").returns(false);
-      sandbox.stub(shared, "runCommand").resolves(err(new UserError("test", "name", "message")));
+      sandbox.stub(lifecycleHandlersDeps, "isValidOfficeAddInProject").returns(false);
+      sandbox
+        .stub(lifecycleHandlersDeps, "runCommand")
+        .resolves(err(new UserError("test", "name", "message")));
       const res = await metaOSExtendToDAHandler();
       assert.isTrue(res.isErr());
     });
@@ -156,8 +161,8 @@ describe("Lifecycle handlers", () => {
 
   describe("provisionHandler", function () {
     it("happy", async () => {
-      sandbox.stub(shared, "runCommand").resolves(ok(undefined));
-      sandbox.stub(envTreeProviderInstance, "reloadEnvironments");
+      sandbox.stub(lifecycleHandlersDeps, "runCommand").resolves(ok(undefined));
+      sandbox.stub(lifecycleHandlersDeps, "reloadEnvironments").resolves();
       const res = await provisionHandler();
       assert.isTrue(res.isOk());
     });
@@ -165,7 +170,7 @@ describe("Lifecycle handlers", () => {
 
   describe("deployHandler", function () {
     it("happy", async () => {
-      sandbox.stub(shared, "runCommand").resolves(ok(undefined));
+      sandbox.stub(lifecycleHandlersDeps, "runCommand").resolves(ok(undefined));
       const res = await deployHandler();
       assert.isTrue(res.isOk());
     });
@@ -173,7 +178,7 @@ describe("Lifecycle handlers", () => {
 
   describe("publishHandler", function () {
     it("happy()", async () => {
-      sandbox.stub(shared, "runCommand").resolves(ok(undefined));
+      sandbox.stub(lifecycleHandlersDeps, "runCommand").resolves(ok(undefined));
       const res = await publishHandler();
       assert.isTrue(res.isOk());
     });
@@ -181,7 +186,7 @@ describe("Lifecycle handlers", () => {
 
   describe("shareHandler", function () {
     it("happy()", async () => {
-      sandbox.stub(shared, "runCommand").resolves(ok(undefined));
+      sandbox.stub(lifecycleHandlersDeps, "runCommand").resolves(ok(undefined));
       const res = await shareHandler();
       assert.isTrue(res.isOk());
     });
@@ -189,7 +194,7 @@ describe("Lifecycle handlers", () => {
 
   describe("addWebpartHandler", function () {
     it("happy()", async () => {
-      sandbox.stub(shared, "runCommand").resolves(ok(undefined));
+      sandbox.stub(lifecycleHandlersDeps, "runCommand").resolves(ok(undefined));
       const res = await addWebpartHandler();
       assert.isTrue(res.isOk());
     });
@@ -210,7 +215,7 @@ describe("Lifecycle handlers", () => {
       const progressHandler = new ProgressHandler("title", 1);
       sandbox.stub(vsc_ui, "VS_CODE_UI").value(new vsc_ui.VsCodeUI(<vscode.ExtensionContext>{}));
       const createProgressBar = sandbox
-        .stub(vsc_ui.VS_CODE_UI, "createProgressBar")
+        .stub(lifecycleHandlersDeps, "createProgressBar")
         .returns(progressHandler);
 
       const res = await scaffoldFromDeveloperPortalHandler();
@@ -223,7 +228,7 @@ describe("Lifecycle handlers", () => {
       const progressHandler = new ProgressHandler("title", 1);
       sandbox.stub(vsc_ui, "VS_CODE_UI").value(new vsc_ui.VsCodeUI(<vscode.ExtensionContext>{}));
       const createProgressBar = sandbox
-        .stub(vsc_ui.VS_CODE_UI, "createProgressBar")
+        .stub(lifecycleHandlersDeps, "createProgressBar")
         .returns(progressHandler);
 
       const res = await scaffoldFromDeveloperPortalHandler();
@@ -237,11 +242,13 @@ describe("Lifecycle handlers", () => {
       const progressHandler = new ProgressHandler("title", 1);
       const startProgress = sandbox.stub(progressHandler, "start").resolves();
       const endProgress = sandbox.stub(progressHandler, "end").resolves();
-      sandbox.stub(M365TokenInstance, "signInWhenInitiatedFromTdp").throws("error1");
+      sandbox.stub(lifecycleHandlersDeps, "signInWhenInitiatedFromTdp").throws("error1");
       const createProgressBar = sandbox
-        .stub(vsc_ui.VS_CODE_UI, "createProgressBar")
+        .stub(lifecycleHandlersDeps, "createProgressBar")
         .returns(progressHandler);
-      const showErrorMessage = sandbox.stub(vscode.window, "showErrorMessage");
+      const showErrorMessage = sandbox
+        .stub(lifecycleHandlersDeps, "showErrorMessage")
+        .resolves(undefined);
 
       const res = await scaffoldFromDeveloperPortalHandler(["appId"]);
       assert.isTrue(res.isErr());
@@ -260,12 +267,14 @@ describe("Lifecycle handlers", () => {
       const startProgress = sandbox.stub(progressHandler, "start").resolves();
       const endProgress = sandbox.stub(progressHandler, "end").resolves();
       sandbox
-        .stub(M365TokenInstance, "signInWhenInitiatedFromTdp")
+        .stub(lifecycleHandlersDeps, "signInWhenInitiatedFromTdp")
         .resolves(err(new UserError("source", "name", "message", "displayMessage")));
       const createProgressBar = sandbox
-        .stub(vsc_ui.VS_CODE_UI, "createProgressBar")
+        .stub(lifecycleHandlersDeps, "createProgressBar")
         .returns(progressHandler);
-      const showErrorMessage = sandbox.stub(vscode.window, "showErrorMessage");
+      const showErrorMessage = sandbox
+        .stub(lifecycleHandlersDeps, "showErrorMessage")
+        .resolves(undefined);
 
       const res = await scaffoldFromDeveloperPortalHandler(["appId"]);
 
@@ -282,12 +291,14 @@ describe("Lifecycle handlers", () => {
       const startProgress = sandbox.stub(progressHandler, "start").resolves();
       const endProgress = sandbox.stub(progressHandler, "end").resolves();
       sandbox
-        .stub(M365TokenInstance, "signInWhenInitiatedFromTdp")
+        .stub(lifecycleHandlersDeps, "signInWhenInitiatedFromTdp")
         .resolves(err(new UserError("source", "name", "", "")));
       const createProgressBar = sandbox
-        .stub(vsc_ui.VS_CODE_UI, "createProgressBar")
+        .stub(lifecycleHandlersDeps, "createProgressBar")
         .returns(progressHandler);
-      const showErrorMessage = sandbox.stub(vscode.window, "showErrorMessage");
+      const showErrorMessage = sandbox
+        .stub(lifecycleHandlersDeps, "showErrorMessage")
+        .resolves(undefined);
 
       const res = await scaffoldFromDeveloperPortalHandler(["appId"]);
 
@@ -303,17 +314,17 @@ describe("Lifecycle handlers", () => {
       const progressHandler = new ProgressHandler("title", 1);
       const startProgress = sandbox.stub(progressHandler, "start").resolves();
       const endProgress = sandbox.stub(progressHandler, "end").resolves();
-      sandbox.stub(M365TokenInstance, "signInWhenInitiatedFromTdp").resolves(ok("token"));
+      sandbox.stub(lifecycleHandlersDeps, "signInWhenInitiatedFromTdp").resolves(ok("token"));
       sandbox
-        .stub(M365TokenInstance, "getAccessToken")
+        .stub(lifecycleHandlersDeps, "getAccessToken")
         .resolves(err(new SystemError("source", "name", "", "")));
       const createProgressBar = sandbox
-        .stub(vsc_ui.VS_CODE_UI, "createProgressBar")
+        .stub(lifecycleHandlersDeps, "createProgressBar")
         .returns(progressHandler);
       sandbox.stub(globalVariables, "core").value(new MockCore());
       sandbox.stub(vscode.commands, "executeCommand");
       sandbox.stub(globalState, "globalStateUpdate");
-      const getApp = sandbox.stub(teamsDevPortalClient, "getApp").throws("error");
+      const getApp = sandbox.stub(lifecycleHandlersDeps, "getApp").throws("error");
 
       const res = await scaffoldFromDeveloperPortalHandler(["appId"]);
 
@@ -329,11 +340,12 @@ describe("Lifecycle handlers", () => {
       const progressHandler = new ProgressHandler("title", 1);
       const startProgress = sandbox.stub(progressHandler, "start").resolves();
       const endProgress = sandbox.stub(progressHandler, "end").resolves();
-      sandbox.stub(M365TokenInstance, "signInWhenInitiatedFromTdp").resolves(ok("token"));
-      sandbox.stub(M365TokenInstance, "getAccessToken").resolves(ok("authSvcToken"));
-      sandbox.stub(teamsDevPortalClient, "setRegionEndpointByToken").resolves();
+      sandbox.stub(lifecycleHandlersDeps, "signInWhenInitiatedFromTdp").resolves(ok("token"));
+      sandbox.stub(lifecycleHandlersDeps, "getAccessToken").resolves(ok("authSvcToken"));
+      sandbox.stub(lifecycleHandlersDeps, "setRegionEndpointByToken").resolves();
+      sandbox.stub(lifecycleHandlersDeps, "openFolder").resolves();
       const createProgressBar = sandbox
-        .stub(vsc_ui.VS_CODE_UI, "createProgressBar")
+        .stub(lifecycleHandlersDeps, "createProgressBar")
         .returns(progressHandler);
       sandbox.stub(globalVariables, "core").value(new MockCore());
       const createProject = sandbox.spy(globalVariables.core, "createProjectFromTdp");
@@ -342,7 +354,7 @@ describe("Lifecycle handlers", () => {
       const appDefinition: AppDefinition = {
         teamsAppId: "mock-id",
       };
-      sandbox.stub(teamsDevPortalClient, "getApp").resolves(appDefinition);
+      sandbox.stub(lifecycleHandlersDeps, "getApp").resolves(appDefinition);
 
       const res = await scaffoldFromDeveloperPortalHandler("appId", "testuser");
 
@@ -359,17 +371,18 @@ describe("Lifecycle handlers", () => {
       const progressHandler = new ProgressHandler("title", 1);
       sandbox.stub(progressHandler, "start").resolves();
       sandbox.stub(progressHandler, "end").resolves();
-      sandbox.stub(M365TokenInstance, "signInWhenInitiatedFromTdp").resolves(ok("token"));
-      const getAccessTokenStub = sandbox.stub(M365TokenInstance, "getAccessToken");
+      sandbox.stub(lifecycleHandlersDeps, "signInWhenInitiatedFromTdp").resolves(ok("token"));
+      const getAccessTokenStub = sandbox.stub(lifecycleHandlersDeps, "getAccessToken");
       const setRegionStub = sandbox
-        .stub(teamsDevPortalClient, "setRegionEndpointByToken")
+        .stub(lifecycleHandlersDeps, "setRegionEndpointByToken")
         .resolves();
-      sandbox.stub(vsc_ui.VS_CODE_UI, "createProgressBar").returns(progressHandler);
+      sandbox.stub(lifecycleHandlersDeps, "openFolder").resolves();
+      sandbox.stub(lifecycleHandlersDeps, "createProgressBar").returns(progressHandler);
       sandbox.stub(globalVariables, "core").value(new MockCore());
       sandbox.stub(vscode.commands, "executeCommand");
       sandbox.stub(globalState, "globalStateUpdate");
       sandbox
-        .stub(teamsDevPortalClient, "getApp")
+        .stub(lifecycleHandlersDeps, "getApp")
         .resolves({ teamsAppId: "mock-id" } as AppDefinition);
 
       const res = await scaffoldFromDeveloperPortalHandler("appId", "testuser");
@@ -448,7 +461,9 @@ describe("Lifecycle handlers", () => {
     });
 
     it("failed: when runCommand throw error", async () => {
-      sandbox.stub(shared, "runCommand").resolves(err(new UserError("source", "name", "message")));
+      sandbox
+        .stub(lifecycleHandlersDeps, "runCommand")
+        .resolves(err(new UserError("source", "name", "message")));
       const result = await regeneratePluginHandler();
       assert.isTrue(result.isErr());
     });
@@ -464,7 +479,7 @@ describe("Lifecycle handlers", () => {
     it("happy path", async () => {
       sandbox.stub(globalVariables, "core").value(new MockCore());
       const showMessageStub = sandbox
-        .stub(vscode.window, "showInformationMessage")
+        .stub(lifecycleHandlersDeps, "showInformationMessage")
         .callsFake((title: string, ...items: any[]) => {
           return Promise.resolve(items[0]);
         });
@@ -513,29 +528,29 @@ describe("Lifecycle handlers", () => {
   describe("setSensitivityLabelHandler", () => {
     it("runCommand successfully", async () => {
       const args = [{ declarativeAgentManifestPath: "path", sensitivityLabel: "label" }];
-      sandbox.stub(shared, "runCommand").resolves(ok(undefined));
+      sandbox.stub(lifecycleHandlersDeps, "runCommand").resolves(ok(undefined));
       await setSensitivityLabelHandler(args);
     });
 
     it("runCommand successfully - no args", async () => {
-      sandbox.stub(shared, "runCommand").resolves(ok(undefined));
+      sandbox.stub(lifecycleHandlersDeps, "runCommand").resolves(ok(undefined));
       await setSensitivityLabelHandler([]);
     });
 
     it("runCommand successfully - undefined array args", async () => {
-      sandbox.stub(shared, "runCommand").resolves(ok(undefined));
+      sandbox.stub(lifecycleHandlersDeps, "runCommand").resolves(ok(undefined));
       await setSensitivityLabelHandler([undefined]);
     });
 
     it("runCommand successfully - undefined args", async () => {
-      sandbox.stub(shared, "runCommand").resolves(ok(undefined));
+      sandbox.stub(lifecycleHandlersDeps, "runCommand").resolves(ok(undefined));
       await setSensitivityLabelHandler(undefined as any);
     });
 
     it("runCommand fails", async () => {
       const args = [{ declarativeAgentManifestPath: "path", sensitivityLabel: "label" }];
       const error = new UserError("source", "name", "message");
-      sandbox.stub(shared, "runCommand").resolves(err(error));
+      sandbox.stub(lifecycleHandlersDeps, "runCommand").resolves(err(error));
 
       await setSensitivityLabelHandler(args);
     });
@@ -543,7 +558,7 @@ describe("Lifecycle handlers", () => {
   describe("shareRemoveHandler", () => {
     it("runCommand successfully", async () => {
       const args = [{ teamsAppId: "appId" }];
-      sandbox.stub(shared, "runCommand").resolves(ok(undefined));
+      sandbox.stub(lifecycleHandlersDeps, "runCommand").resolves(ok(undefined));
       await shareRemoveHandler(args);
     });
   });
@@ -551,6 +566,7 @@ describe("Lifecycle handlers", () => {
     globalVariables.setTools(new MockTools());
     it("get access token successfully", async () => {
       const args = [{ scopes: ["scope1"] }];
+      sandbox.stub(lifecycleHandlersDeps, "getTools").returns(globalVariables.tools as any);
       sandbox
         .stub(globalVariables.tools.tokenProvider.m365TokenProvider, "getAccessToken")
         .resolves(ok("token"));
@@ -560,6 +576,7 @@ describe("Lifecycle handlers", () => {
     it("get access token fails", async () => {
       const args = [{ scopes: ["scope1"] }];
       const error = new UserError("source", "name", "message");
+      sandbox.stub(lifecycleHandlersDeps, "getTools").returns(globalVariables.tools as any);
       sandbox
         .stub(globalVariables.tools.tokenProvider.m365TokenProvider, "getAccessToken")
         .resolves(err(error));

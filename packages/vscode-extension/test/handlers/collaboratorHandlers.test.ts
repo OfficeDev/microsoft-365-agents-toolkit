@@ -102,7 +102,9 @@ describe("manageCollaboratorHandler", () => {
     sandbox.stub(vsc_ui, "VS_CODE_UI").value({
       selectOption: () => Promise.resolve(ok({ type: "success", result: "listCollaborator" })),
     });
-    const showErrorMessageStub = sandbox.stub(vscode.window, "showErrorMessage");
+    const showErrorMessageStub = sandbox
+      .stub(vscode.window, "showErrorMessage")
+      .resolves(undefined);
     sandbox
       .stub(globalVariables.core, "listCollaborator")
       .throws(new Error("Cannot get user login information"));

@@ -1,13 +1,12 @@
 import { Stage, UserError } from "@microsoft/teamsfx-api";
 import { maskSecret, telemetryUtils } from "@microsoft/teamsfx-core";
-import * as globalState from "@microsoft/teamsfx-core/build/common/globalState";
 import * as chai from "chai";
 import fs from "fs-extra";
 import * as sinon from "sinon";
 import { Uri } from "vscode";
 import * as globalVariables from "../../src/globalVariables";
 import * as telemetryModule from "../../src/telemetry/extTelemetry";
-import { ExtTelemetry } from "../../src/telemetry/extTelemetry";
+import { ExtTelemetry, extTelemetryDeps } from "../../src/telemetry/extTelemetry";
 import { TelemetryEvent } from "../../src/telemetry/extTelemetryEvents";
 import * as vscTelemetryUtils from "../../src/utils/telemetryUtils";
 import { MockTelemetryReporter } from "../mocks/mockTools";
@@ -220,11 +219,11 @@ describe("ExtTelemetry", () => {
     it("cacheTelemetryEventAsync", async () => {
       const clock = sandbox.useFakeTimers();
       let state = "";
-      sandbox.stub(telemetryModule, "lastCorrelationId").value("correlation-id");
-      sandbox.stub(vscTelemetryUtils, "getProjectId").resolves("project-id");
+      sandbox.stub(extTelemetryDeps, "getLastCorrelationId").returns("correlation-id");
+      sandbox.stub(extTelemetryDeps, "getProjectId").resolves("project-id");
       const globalStateUpdateStub = sandbox
-        .stub(globalState, "globalStateUpdate")
-        .callsFake(async (key, value) => (state = value));
+        .stub(extTelemetryDeps, "globalStateUpdate")
+        .callsFake(async (key, value) => (state = value as string));
       const eventName = "deactivate";
 
       await ExtTelemetry.cacheTelemetryEventAsync(eventName);
@@ -257,8 +256,8 @@ describe("ExtTelemetry", () => {
         },
       };
       const telemetryData = JSON.stringify(telemetryEvents);
-      sandbox.stub(globalState, "globalStateGet").callsFake(async () => telemetryData);
-      sandbox.stub(globalState, "globalStateUpdate");
+      sandbox.stub(extTelemetryDeps, "globalStateGet").callsFake(async () => telemetryData);
+      sandbox.stub(extTelemetryDeps, "globalStateUpdate");
 
       await ExtTelemetry.sendCachedTelemetryEventsAsync();
 

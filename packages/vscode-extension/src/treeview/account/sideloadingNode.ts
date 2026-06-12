@@ -24,6 +24,15 @@ enum ContextValues {
   ShowInfo = "checkSideloading-info",
 }
 
+export const sideloadingNodeDeps = {
+  getSideloadingStatus: (token: string) => getSideloadingStatus(token),
+  getBooleanValue: (flag: string) => featureFlagManager.getBooleanValue(flag),
+  isSandboxedEnabled: () => isSandboxedEnabled(M365TokenInstance),
+  checkSandboxCallback: () => checkSandboxCallback(),
+  checkSideloadingCallback: () => checkSideloadingCallback(),
+  localize: (key: string, ...args: any[]) => localize(key, ...args),
+};
+
 export class SideloadingNode extends DynamicNode {
   constructor(
     private eventEmitter: vscode.EventEmitter<DynamicNode | undefined | void>,
@@ -40,37 +49,45 @@ export class SideloadingNode extends DynamicNode {
   public override async getTreeItem(): Promise<vscode.TreeItem> {
     let isSideloadingAllowed: boolean | undefined;
     if (this.token != "") {
-      isSideloadingAllowed = await getSideloadingStatus(this.token);
+      isSideloadingAllowed = await sideloadingNodeDeps.getSideloadingStatus(this.token);
       if (isSideloadingAllowed === false) {
-        if (featureFlagManager.getBooleanValue(FeatureFlags.SandBoxedTeam)) {
+        if (sideloadingNodeDeps.getBooleanValue(FeatureFlags.SandBoxedTeam)) {
           // Suggest users to use sandboxed containers for local testing
-          const isSandboxedAllowed = await isSandboxedEnabled(M365TokenInstance);
+          const isSandboxedAllowed = await sideloadingNodeDeps.isSandboxedEnabled();
           if (isSandboxedAllowed) {
-            await checkSandboxCallback();
+            await sideloadingNodeDeps.checkSandboxCallback();
           } else {
-            await checkSideloadingCallback();
+            await sideloadingNodeDeps.checkSideloadingCallback();
           }
         } else {
-          await checkSideloadingCallback();
+          await sideloadingNodeDeps.checkSideloadingCallback();
         }
       }
     }
     if (isSideloadingAllowed === undefined) {
-      this.label = localize("teamstoolkit.accountTree.sideloadingStatusUnknown");
+      this.label = sideloadingNodeDeps.localize(
+        "teamstoolkit.accountTree.sideloadingStatusUnknown"
+      );
       this.iconPath = infoIcon;
-      this.tooltip = localize("teamstoolkit.accountTree.sideloadingStatusUnknownTooltip");
+      this.tooltip = sideloadingNodeDeps.localize(
+        "teamstoolkit.accountTree.sideloadingStatusUnknownTooltip"
+      );
       this.contextValue = ContextValues.Normal;
       this.command = undefined;
     } else if (isSideloadingAllowed) {
-      this.label = localize("teamstoolkit.accountTree.sideloadingPass");
+      this.label = sideloadingNodeDeps.localize("teamstoolkit.accountTree.sideloadingPass");
       this.iconPath = passIcon;
-      this.tooltip = localize("teamstoolkit.accountTree.sideloadingPassTooltip");
+      this.tooltip = sideloadingNodeDeps.localize(
+        "teamstoolkit.accountTree.sideloadingPassTooltip"
+      );
       this.contextValue = ContextValues.Normal;
       this.command = undefined;
     } else {
-      this.label = localize("teamstoolkit.accountTree.sideloadingWarning");
+      this.label = sideloadingNodeDeps.localize("teamstoolkit.accountTree.sideloadingWarning");
       this.iconPath = errorIcon;
-      this.tooltip = localize("teamstoolkit.accountTree.sideloadingWarningTooltip");
+      this.tooltip = sideloadingNodeDeps.localize(
+        "teamstoolkit.accountTree.sideloadingWarningTooltip"
+      );
       this.contextValue = ContextValues.ShowInfo;
       this.command = {
         title: this.label,

@@ -2,15 +2,12 @@
 // Licensed under the MIT license.
 
 import * as chai from "chai";
-import fs from "fs-extra";
 import * as sinon from "sinon";
 import * as vscode from "vscode";
 import * as globalVariables from "../../src/globalVariables";
-import { ExtTelemetry } from "../../src/telemetry/extTelemetry";
-import { setupMCPServer } from "../../src/utils/mcpUtils";
+import { mcpUtilsDeps, setupMCPServer } from "../../src/utils/mcpUtils";
 import { TelemetryEvent, TelemetryProperty } from "../../src/telemetry/extTelemetryEvents";
 import path from "path";
-import * as localizeUtils from "../../src/utils/localizeUtils";
 import { FxError } from "@microsoft/teamsfx-api";
 
 describe("mcpUtils", () => {
@@ -30,11 +27,16 @@ describe("mcpUtils", () => {
     beforeEach(() => {
       sandbox.stub(globalVariables, "workspaceUri").value(vscode.Uri.file("/test"));
       sandbox.stub(globalVariables, "context").value({ extensionPath: "/mock/extension/path" });
-      showInformationMessageStub = sandbox.stub(vscode.window, "showInformationMessage");
-      sendTelemetryEventStub = sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
+      showInformationMessageStub = sandbox
+        .stub(mcpUtilsDeps, "showInformationMessage")
+        .resolves(undefined);
+      sendTelemetryEventStub = sandbox.stub(mcpUtilsDeps, "sendTelemetryEvent");
       getConfigurationStub = sandbox.stub(vscode.workspace, "getConfiguration");
-      existsSyncStub = sandbox.stub(fs, "existsSync");
-      localizeStub = sandbox.stub(localizeUtils, "localize");
+      sandbox
+        .stub(mcpUtilsDeps, "getMcpServers")
+        .callsFake(() => (vscode.workspace.getConfiguration("mcp") as any).get("servers"));
+      existsSyncStub = sandbox.stub(mcpUtilsDeps, "existsSync");
+      localizeStub = sandbox.stub(mcpUtilsDeps, "localize");
       localizeStub
         .withArgs("teamstoolkit.mcpUtils.setupMcpServer.message")
         .returns("Setup MCP Server for %s");
@@ -189,12 +191,14 @@ describe("mcpUtils", () => {
 
     it("should create files when user confirms and both are missing", async () => {
       existsSyncStub.returns(false);
-      const mkdirSyncStub = sandbox.stub(fs, "mkdirSync");
-      const readFileSyncStub = sandbox.stub(fs, "readFileSync");
-      const writeFileSyncStub = sandbox.stub(fs, "writeFileSync");
-      const openSyncStub = sandbox.stub(fs, "openSync");
-      sandbox.stub(fs, "closeSync");
-      const showErrorMessageStub = sandbox.stub(vscode.window, "showErrorMessage");
+      const mkdirSyncStub = sandbox.stub(mcpUtilsDeps, "mkdirSync");
+      const readFileSyncStub = sandbox.stub(mcpUtilsDeps, "readFileSync");
+      const writeFileSyncStub = sandbox.stub(mcpUtilsDeps, "writeFileSync");
+      const openSyncStub = sandbox.stub(mcpUtilsDeps, "openSync");
+      sandbox.stub(mcpUtilsDeps, "closeSync");
+      const showErrorMessageStub = sandbox
+        .stub(mcpUtilsDeps, "showErrorMessage")
+        .resolves(undefined);
 
       readFileSyncStub.returns("Default copilot instructions content");
       openSyncStub.returns(3);
@@ -233,11 +237,11 @@ describe("mcpUtils", () => {
         return true;
       });
 
-      const mkdirSyncStub = sandbox.stub(fs, "mkdirSync");
-      const readFileSyncStub = sandbox.stub(fs, "readFileSync");
-      const writeFileSyncStub = sandbox.stub(fs, "writeFileSync");
-      const openSyncStub = sandbox.stub(fs, "openSync");
-      sandbox.stub(fs, "closeSync");
+      const mkdirSyncStub = sandbox.stub(mcpUtilsDeps, "mkdirSync");
+      const readFileSyncStub = sandbox.stub(mcpUtilsDeps, "readFileSync");
+      const writeFileSyncStub = sandbox.stub(mcpUtilsDeps, "writeFileSync");
+      const openSyncStub = sandbox.stub(mcpUtilsDeps, "openSync");
+      sandbox.stub(mcpUtilsDeps, "closeSync");
 
       readFileSyncStub.returns("Default copilot instructions content");
       openSyncStub.returns(3);
@@ -272,8 +276,8 @@ describe("mcpUtils", () => {
         return true;
       });
 
-      const mkdirSyncStub = sandbox.stub(fs, "mkdirSync");
-      const writeFileSyncStub = sandbox.stub(fs, "writeFileSync");
+      const mkdirSyncStub = sandbox.stub(mcpUtilsDeps, "mkdirSync");
+      const writeFileSyncStub = sandbox.stub(mcpUtilsDeps, "writeFileSync");
 
       const mockMcpConfig = {
         get: sandbox
@@ -308,10 +312,10 @@ describe("mcpUtils", () => {
         return true;
       });
 
-      const readFileSyncStub = sandbox.stub(fs, "readFileSync");
-      const writeFileSyncStub = sandbox.stub(fs, "writeFileSync");
-      const openSyncStub = sandbox.stub(fs, "openSync");
-      sandbox.stub(fs, "closeSync");
+      const readFileSyncStub = sandbox.stub(mcpUtilsDeps, "readFileSync");
+      const writeFileSyncStub = sandbox.stub(mcpUtilsDeps, "writeFileSync");
+      const openSyncStub = sandbox.stub(mcpUtilsDeps, "openSync");
+      sandbox.stub(mcpUtilsDeps, "closeSync");
 
       readFileSyncStub.returns(
         JSON.stringify({
@@ -358,10 +362,10 @@ describe("mcpUtils", () => {
         return true;
       });
 
-      const readFileSyncStub = sandbox.stub(fs, "readFileSync");
-      const writeFileSyncStub = sandbox.stub(fs, "writeFileSync");
-      const openSyncStub = sandbox.stub(fs, "openSync");
-      sandbox.stub(fs, "closeSync");
+      const readFileSyncStub = sandbox.stub(mcpUtilsDeps, "readFileSync");
+      const writeFileSyncStub = sandbox.stub(mcpUtilsDeps, "writeFileSync");
+      const openSyncStub = sandbox.stub(mcpUtilsDeps, "openSync");
+      sandbox.stub(mcpUtilsDeps, "closeSync");
 
       readFileSyncStub.returns(
         JSON.stringify({
@@ -401,10 +405,10 @@ describe("mcpUtils", () => {
         return true;
       });
 
-      const readFileSyncStub = sandbox.stub(fs, "readFileSync");
-      const writeFileSyncStub = sandbox.stub(fs, "writeFileSync");
-      const openSyncStub = sandbox.stub(fs, "openSync");
-      sandbox.stub(fs, "closeSync");
+      const readFileSyncStub = sandbox.stub(mcpUtilsDeps, "readFileSync");
+      const writeFileSyncStub = sandbox.stub(mcpUtilsDeps, "writeFileSync");
+      const openSyncStub = sandbox.stub(mcpUtilsDeps, "openSync");
+      sandbox.stub(mcpUtilsDeps, "closeSync");
 
       readFileSyncStub.returns(
         JSON.stringify({
@@ -439,10 +443,12 @@ describe("mcpUtils", () => {
 
     it("should handle error during file creation", async () => {
       existsSyncStub.returns(false);
-      sandbox.stub(fs, "mkdirSync");
-      const readFileSyncStub = sandbox.stub(fs, "readFileSync");
-      const showErrorMessageStub = sandbox.stub(vscode.window, "showErrorMessage");
-      const sendTelemetryErrorEventStub = sandbox.stub(ExtTelemetry, "sendTelemetryErrorEvent");
+      sandbox.stub(mcpUtilsDeps, "mkdirSync");
+      const readFileSyncStub = sandbox.stub(mcpUtilsDeps, "readFileSync");
+      const showErrorMessageStub = sandbox
+        .stub(mcpUtilsDeps, "showErrorMessage")
+        .resolves(undefined);
+      const sendTelemetryErrorEventStub = sandbox.stub(mcpUtilsDeps, "sendTelemetryErrorEvent");
 
       const testError = new Error("Test error");
       readFileSyncStub.throws(testError);
@@ -545,11 +551,11 @@ describe("mcpUtils", () => {
         return true;
       });
 
-      const mkdirSyncStub = sandbox.stub(fs, "mkdirSync");
-      const readFileSyncStub = sandbox.stub(fs, "readFileSync");
-      const writeFileSyncStub = sandbox.stub(fs, "writeFileSync");
-      const openSyncStub = sandbox.stub(fs, "openSync");
-      sandbox.stub(fs, "closeSync");
+      const mkdirSyncStub = sandbox.stub(mcpUtilsDeps, "mkdirSync");
+      const readFileSyncStub = sandbox.stub(mcpUtilsDeps, "readFileSync");
+      const writeFileSyncStub = sandbox.stub(mcpUtilsDeps, "writeFileSync");
+      const openSyncStub = sandbox.stub(mcpUtilsDeps, "openSync");
+      sandbox.stub(mcpUtilsDeps, "closeSync");
 
       readFileSyncStub.returns("Default copilot instructions content");
       openSyncStub.returns(3);
@@ -586,8 +592,8 @@ describe("mcpUtils", () => {
         return true;
       });
 
-      const mkdirSyncStub = sandbox.stub(fs, "mkdirSync");
-      const writeFileSyncStub = sandbox.stub(fs, "writeFileSync");
+      const mkdirSyncStub = sandbox.stub(mcpUtilsDeps, "mkdirSync");
+      const writeFileSyncStub = sandbox.stub(mcpUtilsDeps, "writeFileSync");
 
       const mockMcpConfig = {
         get: sandbox

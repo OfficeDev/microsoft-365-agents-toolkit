@@ -6,6 +6,13 @@ import { workspaceUri, core } from "../globalVariables";
 import { TelemetryProperty, TelemetryTriggerFrom } from "../telemetry/extTelemetryEvents";
 import { getSystemInputs } from "./systemEnvUtils";
 
+export const telemetryUtilsDeps = {
+  getWorkspacePath: () => workspaceUri?.fsPath,
+  getCore: () => core,
+  isValidProject: (workspacePath: string) => isValidProject(workspacePath),
+  getSystemInputs: () => getSystemInputs(),
+};
+
 export function getPackageVersion(versionStr: string): string {
   if (versionStr.includes("alpha")) {
     return "alpha";
@@ -23,12 +30,13 @@ export function getPackageVersion(versionStr: string): string {
 }
 
 export async function getProjectId(): Promise<string | undefined> {
-  if (!workspaceUri) {
+  const workspacePath = telemetryUtilsDeps.getWorkspacePath();
+  const currentCore = telemetryUtilsDeps.getCore();
+  if (!workspacePath || !currentCore) {
     return undefined;
   }
   try {
-    const ws = workspaceUri.fsPath;
-    const projInfoRes = await core.getProjectId(ws);
+    const projInfoRes = await currentCore.getProjectId(workspacePath);
     if (projInfoRes.isOk()) {
       return projInfoRes.value;
     }
@@ -112,9 +120,10 @@ export async function getTeamsAppTelemetryInfoByEnv(
   env: string
 ): Promise<TeamsAppTelemetryInfo | undefined> {
   try {
-    const ws = workspaceUri!.fsPath;
-    if (isValidProject(ws)) {
-      const projectInfoRes = await core.getProjectInfo(ws, env);
+    const ws = telemetryUtilsDeps.getWorkspacePath();
+    const currentCore = telemetryUtilsDeps.getCore();
+    if (ws && currentCore && telemetryUtilsDeps.isValidProject(ws)) {
+      const projectInfoRes = await currentCore.getProjectInfo(ws, env);
       if (projectInfoRes.isOk()) {
         const projectInfo = projectInfoRes.value;
         return {
@@ -128,7 +137,7 @@ export async function getTeamsAppTelemetryInfoByEnv(
 }
 
 export async function getSettingsVersion(): Promise<string | undefined> {
-  if (core) {
+  if (telemetryUtilsDeps.getCore()) {
     const versionCheckResult = await projectVersionCheck();
 
     if (versionCheckResult.isOk()) {
@@ -139,5 +148,7 @@ export async function getSettingsVersion(): Promise<string | undefined> {
 }
 
 export async function projectVersionCheck() {
-  return await core.projectVersionCheck(getSystemInputs());
+  return await telemetryUtilsDeps
+    .getCore()
+    .projectVersionCheck(telemetryUtilsDeps.getSystemInputs());
 }

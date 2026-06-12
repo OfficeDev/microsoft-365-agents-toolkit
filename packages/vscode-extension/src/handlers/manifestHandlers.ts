@@ -25,6 +25,10 @@ import { getTriggerFromProperty } from "../utils/telemetryUtils";
 import { runCommand } from "./sharedOpts";
 import { SyncManifestInputs } from "@microsoft/teamsfx-core";
 
+export const manifestHandlersDeps = {
+  runCommand: (stage: Stage, inputs?: Inputs) => runCommand(stage, inputs),
+};
+
 export async function validateManifestHandler(args?: any[]): Promise<Result<null, FxError>> {
   ExtTelemetry.sendTelemetryEvent(
     TelemetryEvent.ValidateManifestStart,
@@ -32,7 +36,7 @@ export async function validateManifestHandler(args?: any[]): Promise<Result<null
   );
 
   const inputs = getSystemInputs();
-  return await runCommand(Stage.validateApplication, inputs);
+  return await manifestHandlersDeps.runCommand(Stage.validateApplication, inputs);
 }
 
 export async function syncManifestHandler(...args: any[]): Promise<Result<null, FxError>> {
@@ -43,12 +47,12 @@ export async function syncManifestHandler(...args: any[]): Promise<Result<null, 
   if (args.length > 0) {
     inputs["teams-app-id"] = args[0];
   }
-  return await runCommand(Stage.syncManifest, inputs);
+  return await manifestHandlersDeps.runCommand(Stage.syncManifest, inputs);
 }
 
 export async function buildPackageHandler(...args: unknown[]): Promise<Result<unknown, FxError>> {
   ExtTelemetry.sendTelemetryEvent(TelemetryEvent.BuildStart, getTriggerFromProperty(args));
-  return await runCommand(Stage.createAppPackage);
+  return await manifestHandlersDeps.runCommand(Stage.createAppPackage);
 }
 
 let lastAppPackageFile: string | undefined;
@@ -147,7 +151,7 @@ export async function publishInDeveloperPortalHandler(
   }
   const inputs = getSystemInputs();
   inputs["appPackagePath"] = lastAppPackageFile;
-  const res = await runCommand(Stage.publishInDeveloperPortal, inputs);
+  const res = await manifestHandlersDeps.runCommand(Stage.publishInDeveloperPortal, inputs);
   if (res.isErr()) {
     ExtTelemetry.sendTelemetryErrorEvent(
       TelemetryEvent.PublishInDeveloperPortal,
@@ -164,7 +168,7 @@ export async function updatePreviewManifest(args: any[]): Promise<any> {
     getTriggerFromProperty(args && args.length > 1 ? [args[1]] : undefined)
   );
   const inputs = getSystemInputs();
-  const result = await runCommand(Stage.deployTeams, inputs);
+  const result = await manifestHandlersDeps.runCommand(Stage.deployTeams, inputs);
 
   if (!args || args.length === 0) {
     const workspacePath = workspaceUri?.fsPath;

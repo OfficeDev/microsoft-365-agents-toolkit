@@ -20,6 +20,12 @@ import { ExtTelemetry } from "./telemetry/extTelemetry";
 import { TelemetryEvent, TelemetryProperty } from "./telemetry/extTelemetryEvents";
 import { isValidProjectV3 } from "@microsoft/teamsfx-core";
 
+export const manifestListenerDeps = {
+  isValidProjectV3: (fsPath: string) => isValidProjectV3(fsPath),
+  updateIsDeclarativeCopilotApp: (manifest: TeamsAppManifest) =>
+    updateIsDeclarativeCopilotApp(manifest),
+};
+
 function setAbortableTimeout(ms: number, signal: any) {
   return new Promise((resolve, reject) => {
     const timeoutId = setTimeout(() => {
@@ -43,7 +49,7 @@ export function manifestListener(): vscode.Disposable {
       try {
         if (
           workspaceUri &&
-          isValidProjectV3(workspaceUri.fsPath) &&
+          manifestListenerDeps.isValidProjectV3(workspaceUri.fsPath) &&
           event.fileName ===
             path.join(workspaceUri.fsPath, AppPackageFolderName, ManifestTemplateFileName)
         ) {
@@ -56,7 +62,7 @@ export function manifestListener(): vscode.Disposable {
           if (!abortController.signal.aborted) {
             const currValue = isDeclarativeCopilotApp;
             const manifest: TeamsAppManifest = JSON.parse(event.getText());
-            const newValue = updateIsDeclarativeCopilotApp(manifest);
+            const newValue = manifestListenerDeps.updateIsDeclarativeCopilotApp(manifest);
             if (currValue !== newValue) {
               ExtTelemetry.sendTelemetryEvent(TelemetryEvent.UpdateAddPluginTreeview, {
                 [TelemetryProperty.ShowAddPluginTreeView]: newValue.toString(),

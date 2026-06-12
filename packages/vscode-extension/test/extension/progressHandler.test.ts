@@ -6,8 +6,7 @@ import * as sinon from "sinon";
 import * as chai from "chai";
 import { window } from "vscode";
 
-import { ProgressHandler } from "../../src/debug/progressHandler";
-import * as localizeUtils from "../../src/utils/localizeUtils";
+import { ProgressHandler, progressHandlerDeps } from "../../src/debug/progressHandler";
 import * as vscodeMocks from "../mocks/vsc";
 
 afterEach(() => {
@@ -29,7 +28,7 @@ describe("ProgressHandler", () => {
         new vscodeMocks.CancellationToken()
       );
     });
-    sandbox.stub(localizeUtils, "localize").callsFake((key) => {
+    sandbox.stub(progressHandlerDeps, "localize").callsFake((key) => {
       if (key === "teamstoolkit.progressHandler.showOutputLink") {
         return "Check [output window](%s) for details.";
       } else if (key === "teamstoolkit.progressHandler.showTerminalLink") {

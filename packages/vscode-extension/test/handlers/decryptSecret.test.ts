@@ -76,7 +76,7 @@ describe("decryptSecret", function () {
         });
       },
     });
-    const showMessage = sandbox.stub(vscode.window, "showErrorMessage");
+    const showMessage = sandbox.stub(vscode.window, "showErrorMessage").resolves(undefined);
     const range = new vscode.Range(new vscode.Position(0, 10), new vscode.Position(0, 15));
 
     await decryptSecret("test", range);

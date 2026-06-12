@@ -10,6 +10,7 @@ import { PanelType } from "../../src/controls/PanelType";
 import { WebviewPanel } from "../../src/controls/webviewPanel";
 import * as globalVariables from "../../src/globalVariables";
 import {
+  controlHandlersDeps,
   openFolderHandler,
   openLifecycleTreeview,
   openSamplesHandler,
@@ -146,7 +147,7 @@ describe("Control Handlers", () => {
 
     it("happy path", async () => {
       const sendTelemetryStub = sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
-      const openFolderInExplorerStub = sandbox.stub(commonUtils, "openFolderInExplorer");
+      const openFolderInExplorerStub = sandbox.stub(controlHandlersDeps, "openFolderInExplorer");
 
       const result = await openFolderHandler("file://path/to/folder");
 
@@ -165,9 +166,7 @@ describe("Control Handlers", () => {
     });
 
     it("non valid project", () => {
-      const isValidProjectStub = sandbox
-        .stub(projectSettingsHelper, "isValidProject")
-        .returns(false);
+      const isValidProjectStub = sandbox.stub(controlHandlersDeps, "isValidProject").returns(false);
       sandbox.stub(globalVariables, "workspaceUri").value({ fsPath: "/path/to/workspace" });
 
       saveTextDocumentHandler({ document: {} } as any);
@@ -176,9 +175,7 @@ describe("Control Handlers", () => {
     });
 
     it("manual save reason", () => {
-      const isValidProjectStub = sandbox
-        .stub(projectSettingsHelper, "isValidProject")
-        .returns(true);
+      const isValidProjectStub = sandbox.stub(controlHandlersDeps, "isValidProject").returns(true);
       const sendTelemetryEventStub = sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
       sandbox.stub(globalVariables, "workspaceUri").value({ fsPath: "/path/to/workspace" });
 
@@ -197,9 +194,7 @@ describe("Control Handlers", () => {
     });
 
     it("after delay save reason", () => {
-      const isValidProjectStub = sandbox
-        .stub(projectSettingsHelper, "isValidProject")
-        .returns(true);
+      const isValidProjectStub = sandbox.stub(controlHandlersDeps, "isValidProject").returns(true);
       const sendTelemetryEventStub = sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
       sandbox.stub(globalVariables, "workspaceUri").value({ fsPath: "/path/to/workspace" });
 
@@ -221,7 +216,7 @@ describe("Control Handlers", () => {
       const dirname = "/dirname";
       const parentDir = path.join(dirname, "..");
       const isValidProjectStub = sandbox
-        .stub(projectSettingsHelper, "isValidProject")
+        .stub(controlHandlersDeps, "isValidProject")
         .callsFake((p: string | undefined) => {
           return p !== dirname;
         });

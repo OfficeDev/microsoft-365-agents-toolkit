@@ -1,9 +1,9 @@
 import * as chai from "chai";
 import * as sinon from "sinon";
-import { TeamsFollowupProvider } from "../../src/chat/followupProvider";
 import { ChatFollowup } from "vscode";
-import { CancellationToken } from "../mocks/vsc";
 import { DefaultNextStep } from "../../src/chat/consts";
+import { TeamsFollowupProvider } from "../../src/chat/followupProvider";
+import { CancellationToken } from "../mocks/vsc";
 
 describe("chat followup provider", () => {
   const sandbox = sinon.createSandbox();

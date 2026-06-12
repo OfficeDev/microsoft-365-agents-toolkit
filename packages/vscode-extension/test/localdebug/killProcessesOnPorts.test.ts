@@ -6,11 +6,25 @@ import * as sinon from "sinon";
 import * as vscode from "vscode";
 
 import { processUtil } from "../../src/utils/processUtil";
-import { killProcessesOnPorts } from "../../src/debug/depsChecker/common";
+import { killProcessesOnPorts, killProcessesOnPortsDeps } from "../../src/debug/depsChecker/common";
 import VsCodeLogInstance from "../../src/commonlib/log";
 
 describe("killProcessesOnPorts", () => {
   const sandbox = sinon.createSandbox();
+
+  beforeEach(() => {
+    // Stub the post-kill delay so tests don't wait 1 second.
+    sandbox.stub(killProcessesOnPortsDeps, "waitAfterKill").resolves();
+    // Always reset to a fresh stubbed output channel to avoid cross-test stub conflicts.
+    VsCodeLogInstance.outputChannel = {
+      appendLine: sandbox.stub(),
+      append: sandbox.stub(),
+      clear: sandbox.stub(),
+      show: sandbox.stub(),
+      hide: sandbox.stub(),
+      dispose: sandbox.stub(),
+    } as any;
+  });
 
   afterEach(() => {
     sandbox.restore();
@@ -97,7 +111,7 @@ describe("killProcessesOnPorts", () => {
     sandbox.stub(processUtil, "getProcessIdsByPort").resolves([12345]);
     sandbox.stub(vscode.window, "showWarningMessage").resolves("Terminate Process" as any);
     sandbox.stub(processUtil, "killProcess").resolves();
-    const appendStub = sandbox.stub(VsCodeLogInstance.outputChannel, "appendLine");
+    const appendStub = VsCodeLogInstance.outputChannel.appendLine as sinon.SinonStub;
 
     await killProcessesOnPorts([3978]);
 

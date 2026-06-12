@@ -4,6 +4,7 @@ import * as vscode from "vscode";
 import * as tools from "@microsoft/teamsfx-core/build/common/tools";
 import { errorIcon, infoIcon, passIcon } from "../../../src/treeview/account/common";
 import { SideloadingNode } from "../../../src/treeview/account/sideloadingNode";
+import { sideloadingNodeDeps } from "../../../src/treeview/account/sideloadingNode";
 import { DynamicNode } from "../../../src/treeview/dynamicNode";
 import * as checkAccessCallback from "../../../src/handlers/accounts/checkAccessCallback";
 import { featureFlagManager, GraphClient } from "@microsoft/teamsfx-core";
@@ -24,8 +25,8 @@ describe("sideloadingNode", () => {
   });
 
   it("getTreeItem with invalid token", async () => {
-    sandbox.stub(tools, "getSideloadingStatus").returns(Promise.resolve(false));
-    sandbox.stub(checkAccessCallback, "checkSideloadingCallback");
+    sandbox.stub(sideloadingNodeDeps, "getSideloadingStatus").returns(Promise.resolve(false));
+    sandbox.stub(sideloadingNodeDeps, "checkSideloadingCallback");
     const sideloadingNode = new SideloadingNode(eventEmitter, "token");
     const treeItem = await sideloadingNode.getTreeItem();
 
@@ -33,7 +34,7 @@ describe("sideloadingNode", () => {
   });
 
   it("getTreeItem with valid token", async () => {
-    sandbox.stub(tools, "getSideloadingStatus").returns(Promise.resolve(true));
+    sandbox.stub(sideloadingNodeDeps, "getSideloadingStatus").returns(Promise.resolve(true));
     const sideloadingNode = new SideloadingNode(eventEmitter, "token");
     const treeItem = await sideloadingNode.getTreeItem();
 
@@ -46,15 +47,15 @@ describe("sideloadingNode", () => {
   });
 
   it("Check sandbox permission", async () => {
-    sandbox.stub(tools, "getSideloadingStatus").returns(Promise.resolve(false));
-    sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
+    sandbox.stub(sideloadingNodeDeps, "getSideloadingStatus").returns(Promise.resolve(false));
+    sandbox.stub(sideloadingNodeDeps, "getBooleanValue").returns(true);
     sandbox.stub(GraphClient.prototype, "GetTeamsAppSettingsAsync").resolves({
       sandboxingConfiguration: {
         isSideloadingEnabled: false,
         sensitivityLabelUsedToIdentifySandboxedContainers: "0fcfd0ff-1cda-407e-bc2b-a350307bd1d5",
       },
     });
-    sandbox.stub(checkAccessCallback, "checkSandboxCallback");
+    sandbox.stub(sideloadingNodeDeps, "checkSandboxCallback");
     const sideloadingNode = new SideloadingNode(eventEmitter, "token");
     const treeItem = await sideloadingNode.getTreeItem();
 
@@ -62,15 +63,15 @@ describe("sideloadingNode", () => {
   });
 
   it("Check sandbox permission - disabled", async () => {
-    sandbox.stub(tools, "getSideloadingStatus").returns(Promise.resolve(false));
-    sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
+    sandbox.stub(sideloadingNodeDeps, "getSideloadingStatus").returns(Promise.resolve(false));
+    sandbox.stub(sideloadingNodeDeps, "getBooleanValue").returns(true);
     sandbox.stub(GraphClient.prototype, "GetTeamsAppSettingsAsync").resolves({
       sandboxingConfiguration: {
         isSideloadingEnabled: false,
         sensitivityLabelUsedToIdentifySandboxedContainers: "",
       },
     });
-    sandbox.stub(checkAccessCallback, "checkSideloadingCallback");
+    sandbox.stub(sideloadingNodeDeps, "checkSideloadingCallback");
     const sideloadingNode = new SideloadingNode(eventEmitter, "token");
     const treeItem = await sideloadingNode.getTreeItem();
 

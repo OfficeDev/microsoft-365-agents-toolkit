@@ -10,6 +10,15 @@ import { getProjectMetadata } from "../chat/commands/nextstep/helper";
 import { ProjectActionStatus } from "../chat/commands/nextstep/types";
 import { CommandKey } from "../constants";
 
+export const projectStatusUtilsDeps = {
+  pathExists: (filePath: string) => fs.pathExists(filePath),
+  readFile: (filePath: string, encoding: BufferEncoding) => fs.readFile(filePath, encoding),
+  writeFile: (filePath: string, data: string) => fs.writeFile(filePath, data),
+  stat: (filePath: fs.PathLike) => fs.stat(filePath),
+  glob: (pattern: string, options: { ignore: string }) => glob(pattern, options),
+  getProjectMetadata: (fsPath: string) => getProjectMetadata(fsPath),
+};
+
 export const projectStatusFilePath = os.homedir() + `/.${ConfigFolderName}/projectStates.json`;
 
 export const RecordedActions: (keyof ProjectActionStatus)[] = [
@@ -31,9 +40,9 @@ export function emptyProjectStatus(): ProjectActionStatus {
 
 export async function getProjectStatus(projectId: string): Promise<ProjectActionStatus> {
   let status = emptyProjectStatus();
-  if (await fs.pathExists(projectStatusFilePath)) {
+  if (await projectStatusUtilsDeps.pathExists(projectStatusFilePath)) {
     try {
-      const content = await fs.readFile(projectStatusFilePath, "utf8");
+      const content = await projectStatusUtilsDeps.readFile(projectStatusFilePath, "utf8");
       const json = JSON.parse(content, (_, value) => {
         const date = Date.parse(value);
         if (!isNaN(date)) {
@@ -54,7 +63,7 @@ export async function updateProjectStatus(
   result: Result<unknown, Error>,
   forced = false
 ) {
-  const projectSettings = getProjectMetadata(fsPath);
+  const projectSettings = projectStatusUtilsDeps.getProjectMetadata(fsPath);
   const p = projectSettings?.projectId ?? fsPath;
   const actions = RecordedActions.map((x) => x.toString());
   if (actions.includes(commandName) || forced) {
@@ -65,23 +74,23 @@ export async function updateProjectStatus(
       time: new Date(Date.now()),
     };
     let json: any = {};
-    if (await fs.pathExists(projectStatusFilePath)) {
+    if (await projectStatusUtilsDeps.pathExists(projectStatusFilePath)) {
       try {
-        json = JSON.parse(await fs.readFile(projectStatusFilePath, "utf8"));
+        json = JSON.parse(await projectStatusUtilsDeps.readFile(projectStatusFilePath, "utf8"));
       } catch {}
     }
     try {
       json[p] = status;
-      await fs.writeFile(projectStatusFilePath, JSON.stringify(json, null, 2));
+      await projectStatusUtilsDeps.writeFile(projectStatusFilePath, JSON.stringify(json, null, 2));
     } catch {}
   }
 }
 
 export async function getFileModifiedTime(pattern: string): Promise<Date> {
-  const files = await glob(pattern, { ignore: "node_modules/**" });
+  const files = await projectStatusUtilsDeps.glob(pattern, { ignore: "node_modules/**" });
   let lastModifiedTime = new Date(0);
   for (const file of files) {
-    const stat = await fs.stat(file);
+    const stat = await projectStatusUtilsDeps.stat(file);
     if (stat.mtime > lastModifiedTime) {
       lastModifiedTime = stat.mtime;
     }
@@ -91,16 +100,16 @@ export async function getFileModifiedTime(pattern: string): Promise<Date> {
 
 export async function getREADME(folder: string): Promise<string | undefined> {
   const readmePath = `${folder}/README.md`;
-  if (await fs.pathExists(readmePath)) {
-    return await fs.readFile(readmePath, "utf-8");
+  if (await projectStatusUtilsDeps.pathExists(readmePath)) {
+    return await projectStatusUtilsDeps.readFile(readmePath, "utf-8");
   }
   return undefined;
 }
 
 export async function getLaunchJSON(folder: string): Promise<string | undefined> {
   const launchJSONPath = `${folder}/.vscode/launch.json`;
-  if (await fs.pathExists(launchJSONPath)) {
-    return await fs.readFile(launchJSONPath, "utf-8");
+  if (await projectStatusUtilsDeps.pathExists(launchJSONPath)) {
+    return await projectStatusUtilsDeps.readFile(launchJSONPath, "utf-8");
   }
   return undefined;
 }

@@ -11,6 +11,7 @@ import {
   onSwitchM365Tenant,
   onSwitchAzureTenant,
 } from "../../../src/handlers/accounts/switchTenantHandler";
+import { switchTenantHandlerDeps } from "../../../src/handlers/accounts/switchTenantHandler";
 import { TelemetryTriggerFrom } from "../../../src/telemetry/extTelemetryEvents";
 import * as tool from "@microsoft/teamsfx-core/build/common/tools";
 import * as vsc_ui from "../../../src/qm/vsc_ui";
@@ -23,8 +24,8 @@ describe("onSwitchM365Tenant", () => {
   let selectOptionStub: sinon.SinonStub;
 
   beforeEach(() => {
-    sendTelemetryEventStub = sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
-    sendTelemetryErrorEventStub = sandbox.stub(ExtTelemetry, "sendTelemetryErrorEvent");
+    sendTelemetryEventStub = sandbox.stub(switchTenantHandlerDeps, "sendTelemetryEvent");
+    sendTelemetryErrorEventStub = sandbox.stub(switchTenantHandlerDeps, "sendTelemetryErrorEvent");
     sandbox.stub(vsc_ui, "VS_CODE_UI").value(new vsc_ui.VsCodeUI(<vscode.ExtensionContext>{}));
   });
 
@@ -47,7 +48,7 @@ describe("onSwitchM365Tenant", () => {
   it("Failed to select tenant in UI", async () => {
     sandbox.stub(M365TokenInstance, "getAccessToken").resolves(ok("faked token"));
     sandbox.stub(M365TokenInstance, "switchTenant").resolves(ok("faked token"));
-    sandbox.stub(tool, "listAllTenants").resolves([
+    sandbox.stub(switchTenantHandlerDeps, "listAllTenants").resolves([
       {
         tenantId: "0022fd51-06f5-4557-8a34-69be98de6e20",
         displayName: "MSFT",
@@ -60,7 +61,7 @@ describe("onSwitchM365Tenant", () => {
       },
     ]);
     selectOptionStub = sandbox
-      .stub(vsc_ui.VS_CODE_UI, "selectOption")
+      .stub(switchTenantHandlerDeps, "selectOption")
       .resolves(err(new UserCancelError()));
 
     await onSwitchM365Tenant(TelemetryTriggerFrom.SideBar);
@@ -75,7 +76,7 @@ describe("onSwitchM365Tenant", () => {
     sandbox
       .stub(M365TokenInstance, "switchTenant")
       .resolves(err(new NetworkError("extension", "")));
-    sandbox.stub(tool, "listAllTenants").resolves([
+    sandbox.stub(switchTenantHandlerDeps, "listAllTenants").resolves([
       {
         tenantId: "0022fd51-06f5-4557-8a34-69be98de6e20",
         displayName: "MSFT",
@@ -88,7 +89,7 @@ describe("onSwitchM365Tenant", () => {
       },
     ]);
     selectOptionStub = sandbox
-      .stub(vsc_ui.VS_CODE_UI, "selectOption")
+      .stub(switchTenantHandlerDeps, "selectOption")
       .resolves(ok({ type: "success" }));
 
     await onSwitchM365Tenant(TelemetryTriggerFrom.SideBar);
@@ -101,7 +102,7 @@ describe("onSwitchM365Tenant", () => {
   it("Succeed to switch tenant", async () => {
     sandbox.stub(M365TokenInstance, "getAccessToken").resolves(ok("faked token"));
     sandbox.stub(M365TokenInstance, "switchTenant").resolves(ok("faked token"));
-    sandbox.stub(tool, "listAllTenants").resolves([
+    sandbox.stub(switchTenantHandlerDeps, "listAllTenants").resolves([
       {
         tenantId: "0022fd51-06f5-4557-8a34-69be98de6e20",
         displayName: "MSFT",
@@ -114,7 +115,7 @@ describe("onSwitchM365Tenant", () => {
       },
     ]);
     selectOptionStub = sandbox
-      .stub(vsc_ui.VS_CODE_UI, "selectOption")
+      .stub(switchTenantHandlerDeps, "selectOption")
       .resolves(ok({ type: "success" }));
 
     await onSwitchM365Tenant(TelemetryTriggerFrom.SideBar);
@@ -144,8 +145,8 @@ describe("onSwitchAzureTenant", () => {
   let selectOptionStub: sinon.SinonStub;
 
   beforeEach(() => {
-    sendTelemetryEventStub = sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
-    sendTelemetryErrorEventStub = sandbox.stub(ExtTelemetry, "sendTelemetryErrorEvent");
+    sendTelemetryEventStub = sandbox.stub(switchTenantHandlerDeps, "sendTelemetryEvent");
+    sendTelemetryErrorEventStub = sandbox.stub(switchTenantHandlerDeps, "sendTelemetryErrorEvent");
     sandbox.stub(vsc_ui, "VS_CODE_UI").value(new vsc_ui.VsCodeUI(<vscode.ExtensionContext>{}));
   });
 
@@ -159,7 +160,7 @@ describe("onSwitchAzureTenant", () => {
         return Promise.resolve(null);
       },
     });
-    selectOptionStub = sandbox.stub(vsc_ui.VS_CODE_UI, "selectOption").resolves(
+    selectOptionStub = sandbox.stub(switchTenantHandlerDeps, "selectOption").resolves(
       err({
         name: "switchTenantFailed",
         source: "extension",
@@ -186,7 +187,7 @@ describe("onSwitchAzureTenant", () => {
       },
     });
     selectOptionStub = sandbox
-      .stub(vsc_ui.VS_CODE_UI, "selectOption")
+      .stub(switchTenantHandlerDeps, "selectOption")
       .resolves(err(new UserCancelError()));
 
     await onSwitchAzureTenant(TelemetryTriggerFrom.SideBar);
@@ -201,7 +202,7 @@ describe("onSwitchAzureTenant", () => {
         return Promise.resolve({ token: "faked token", expiresOnTimestamp: 0 });
       },
     });
-    sandbox.stub(tool, "listAllTenants").resolves([
+    sandbox.stub(switchTenantHandlerDeps, "listAllTenants").resolves([
       {
         tenantId: "0022fd51-06f5-4557-8a34-69be98de6e20",
         displayName: "MSFT",
@@ -214,7 +215,7 @@ describe("onSwitchAzureTenant", () => {
       },
     ]);
     selectOptionStub = sandbox
-      .stub(vsc_ui.VS_CODE_UI, "selectOption")
+      .stub(switchTenantHandlerDeps, "selectOption")
       .resolves(ok({ type: "success" }));
     const switchTenantStub = sandbox
       .stub(azureAccountManager, "switchTenant")
@@ -234,7 +235,7 @@ describe("onSwitchAzureTenant", () => {
         return Promise.resolve({ token: "faked token", expiresOnTimestamp: 0 });
       },
     });
-    sandbox.stub(tool, "listAllTenants").resolves([
+    sandbox.stub(switchTenantHandlerDeps, "listAllTenants").resolves([
       {
         tenantId: "0022fd51-06f5-4557-8a34-69be98de6e20",
         displayName: "MSFT",
@@ -247,7 +248,7 @@ describe("onSwitchAzureTenant", () => {
       },
     ]);
     selectOptionStub = sandbox
-      .stub(vsc_ui.VS_CODE_UI, "selectOption")
+      .stub(switchTenantHandlerDeps, "selectOption")
       .resolves(ok({ type: "success" }));
     const switchTenantStub = sandbox.stub(azureAccountManager, "switchTenant").resolves(
       ok({

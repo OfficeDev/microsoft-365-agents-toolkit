@@ -8,6 +8,7 @@ import {
   checkCopilotCallback,
   checkSideloadingCallback,
 } from "../../../src/handlers/accounts/checkAccessCallback";
+import { checkAccessCallbackDeps } from "../../../src/handlers/accounts/checkAccessCallback";
 import * as vsc_ui from "../../../src/qm/vsc_ui";
 import { ExtTelemetry } from "../../../src/telemetry/extTelemetry";
 import * as localizeUtils from "../../../src/utils/localizeUtils";
@@ -25,10 +26,12 @@ describe("checkAccessCallback", () => {
     });
 
     it("checkCopilotCallback() and open url", async () => {
-      sandbox.stub(localizeUtils, "localize").returns("Enroll");
-      sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
-      const showMessageStub = sandbox.stub(vsc_ui.VS_CODE_UI, "showMessage").resolves(ok("Enroll"));
-      const openUrlStub = sandbox.stub(vsc_ui.VS_CODE_UI, "openUrl");
+      sandbox.stub(checkAccessCallbackDeps, "localize").returns("Enroll");
+      sandbox.stub(checkAccessCallbackDeps, "sendTelemetryEvent");
+      const showMessageStub = sandbox
+        .stub(checkAccessCallbackDeps, "showMessage")
+        .resolves(ok("Enroll"));
+      const openUrlStub = sandbox.stub(checkAccessCallbackDeps, "openUrl");
 
       await checkCopilotCallback();
 
@@ -37,10 +40,12 @@ describe("checkAccessCallback", () => {
     });
 
     it("checkCopilotCallback() and fail to open url", async () => {
-      sandbox.stub(localizeUtils, "localize").returns("");
-      sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
-      const showMessageStub = sandbox.stub(vsc_ui.VS_CODE_UI, "showMessage").resolves(ok("Enroll"));
-      const openUrlStub = sandbox.stub(vsc_ui.VS_CODE_UI, "openUrl");
+      sandbox.stub(checkAccessCallbackDeps, "localize").returns("");
+      sandbox.stub(checkAccessCallbackDeps, "sendTelemetryEvent");
+      const showMessageStub = sandbox
+        .stub(checkAccessCallbackDeps, "showMessage")
+        .resolves(ok("Enroll"));
+      const openUrlStub = sandbox.stub(checkAccessCallbackDeps, "openUrl");
 
       await checkCopilotCallback();
 
@@ -49,10 +54,10 @@ describe("checkAccessCallback", () => {
     });
 
     it("checkCopilotCallback() and fail to show message", async () => {
-      const localizeStub = sandbox.stub(localizeUtils, "localize").returns("");
-      sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
+      const localizeStub = sandbox.stub(checkAccessCallbackDeps, "localize").returns("");
+      sandbox.stub(checkAccessCallbackDeps, "sendTelemetryEvent");
       const showMessageStub = sandbox
-        .stub(vsc_ui.VS_CODE_UI, "showMessage")
+        .stub(checkAccessCallbackDeps, "showMessage")
         .rejects(new Error("error"));
 
       await checkCopilotCallback();
@@ -75,15 +80,15 @@ describe("checkAccessCallback", () => {
     });
 
     beforeEach(() => {
-      sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
+      sandbox.stub(checkAccessCallbackDeps, "sendTelemetryEvent");
       sandbox.stub(vsc_ui, "VS_CODE_UI").value(new vsc_ui.VsCodeUI(<vscode.ExtensionContext>{}));
     });
 
     it("checkSideloadingCallback() - click enable custom app upload button", async () => {
       const showMessageStub = sandbox
-        .stub(vsc_ui.VS_CODE_UI, "showMessage")
+        .stub(checkAccessCallbackDeps, "showMessage")
         .resolves(ok("Enable Custom App Upload"));
-      const openUrlStub = sandbox.stub(vsc_ui.VS_CODE_UI, "openUrl");
+      const openUrlStub = sandbox.stub(checkAccessCallbackDeps, "openUrl");
 
       clock = sandbox.useFakeTimers();
       await checkSideloadingCallback();
@@ -98,9 +103,9 @@ describe("checkAccessCallback", () => {
 
     it("checkSideloadingCallback() - click use test tenant button", async () => {
       const showMessageStub = sandbox
-        .stub(vsc_ui.VS_CODE_UI, "showMessage")
+        .stub(checkAccessCallbackDeps, "showMessage")
         .resolves(ok("Use Test Tenant"));
-      const createOrShow = sandbox.stub(WebviewPanel, "createOrShow");
+      const createOrShow = sandbox.stub(checkAccessCallbackDeps, "createOrShow");
 
       clock = sandbox.useFakeTimers();
       await checkSideloadingCallback();

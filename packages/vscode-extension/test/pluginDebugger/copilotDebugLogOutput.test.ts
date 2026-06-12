@@ -17,6 +17,11 @@ describe("copilotDebugLogOutput", () => {
   const logDateString = fixedDate.toJSON();
 
   beforeEach(() => {
+    (vscode as any).debug = {
+      activeDebugConsole: {
+        appendLine: () => {},
+      },
+    };
     sandbox.useFakeTimers(fixedDate.getTime());
   });
 

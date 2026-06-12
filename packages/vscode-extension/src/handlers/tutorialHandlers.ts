@@ -26,6 +26,10 @@ import {
 import { localize } from "../utils/localizeUtils";
 import { getTriggerFromProperty } from "../utils/telemetryUtils";
 
+export const tutorialHandlersDeps = {
+  getDefaultTemplatesOnPlatform: (platform: Platform) => getDefaultTemplatesOnPlatform(platform),
+};
+
 export async function selectTutorialsHandler(
   ...args: unknown[]
 ): Promise<Result<unknown, FxError>> {
@@ -339,7 +343,7 @@ export function openTutorialHandler(args?: any[]): Promise<Result<unknown, FxErr
     return Promise.resolve(ok(null));
   }
   // find help link from template metadata
-  const templates = getDefaultTemplatesOnPlatform(Platform.VSCode);
+  const templates = tutorialHandlersDeps.getDefaultTemplatesOnPlatform(Platform.VSCode);
   const template = templates.find((t) => t.name === option.data);
   if (template?.link) {
     return VS_CODE_UI.openUrl(template.link);

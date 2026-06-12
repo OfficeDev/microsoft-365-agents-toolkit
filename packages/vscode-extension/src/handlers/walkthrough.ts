@@ -9,20 +9,25 @@ import { CreateProjectResult, FxError, Result, Stage, ok } from "@microsoft/team
 import { getSystemInputs } from "../utils/systemEnvUtils";
 import { getTriggerFromProperty } from "../utils/telemetryUtils";
 
+export const walkthroughDeps = {
+  getSystemInputs: () => getSystemInputs(),
+  runCommand: (stage: Stage, inputs: Record<string, unknown>) => runCommand(stage, inputs),
+};
+
 export async function createProjectFromWalkthroughHandler(
   args?: any[]
 ): Promise<Result<CreateProjectResult, FxError>> {
   ExtTelemetry.sendTelemetryEvent(TelemetryEvent.CreateProjectStart, getTriggerFromProperty(args));
 
   // parse questions model answers to inputs
-  const inputs = getSystemInputs();
+  const inputs = walkthroughDeps.getSystemInputs();
   if (args && args.length >= 2 && args[1]) {
     Object.keys(args[1]).forEach((k) => {
       inputs[k] = args[1][k];
     });
   }
 
-  const result = await runCommand(Stage.create, inputs);
+  const result = await walkthroughDeps.runCommand(Stage.create, inputs);
   return result;
 }
 

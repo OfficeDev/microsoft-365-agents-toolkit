@@ -5,10 +5,10 @@ import * as systemEnvUtils from "../../src/utils/systemEnvUtils";
 import { Inputs, Platform, VsCodeEnv } from "@microsoft/teamsfx-api";
 
 describe("SystemEnvUtils", () => {
-  describe("detectVsCodeEnv()", function () {
+  describe("detectVsCodeEnv()", () => {
     const sandbox = sinon.createSandbox();
 
-    this.afterEach(() => {
+    afterEach(() => {
       sandbox.restore();
     });
 
@@ -57,10 +57,10 @@ describe("SystemEnvUtils", () => {
     });
   });
 
-  describe("getSystemInputs()", function () {
+  describe("getSystemInputs()", () => {
     const sandbox = sinon.createSandbox();
 
-    this.afterEach(() => {
+    afterEach(() => {
       sandbox.restore();
     });
 

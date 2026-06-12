@@ -9,6 +9,7 @@ import * as globalVariables from "../../src/globalVariables";
 import { ExtTelemetry } from "../../src/telemetry/extTelemetry";
 import {
   acpInstalled,
+  commonUtilsDeps,
   getLocalDebugMessageTemplate,
   hasAdaptiveCardInWorkspace,
   isLinux,
@@ -33,7 +34,7 @@ describe("CommonUtils", () => {
 
     it("happy path", () => {
       const folderPath = "fakePath";
-      sandbox.stub(cp, "exec");
+      sandbox.stub(commonUtilsDeps, "exec");
       openFolderInExplorer(folderPath);
     });
   });
@@ -46,15 +47,15 @@ describe("CommonUtils", () => {
     });
 
     it("should return exactly result according to os.type", async () => {
-      sandbox.stub(os, "type").returns("Windows_NT");
+      sandbox.stub(commonUtilsDeps, "getOSType").returns("Windows_NT");
       chai.expect(isWindows()).equals(true);
       sandbox.restore();
 
-      sandbox.stub(os, "type").returns("Linux");
+      sandbox.stub(commonUtilsDeps, "getOSType").returns("Linux");
       chai.expect(isLinux()).equals(true);
       sandbox.restore();
 
-      sandbox.stub(os, "type").returns("Darwin");
+      sandbox.stub(commonUtilsDeps, "getOSType").returns("Darwin");
       chai.expect(isMacOS()).equals(true);
       sandbox.restore();
     });
@@ -142,7 +143,7 @@ describe("CommonUtils", () => {
 
     it("already installed", async () => {
       sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
-      sandbox.stub(vscode.extensions, "getExtension").returns({} as any);
+      sandbox.stub(commonUtilsDeps, "getExtension").returns({} as any);
 
       const installed = acpInstalled();
 
@@ -151,7 +152,7 @@ describe("CommonUtils", () => {
 
     it("not installed", async () => {
       sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
-      sandbox.stub(vscode.extensions, "getExtension").returns(undefined);
+      sandbox.stub(commonUtilsDeps, "getExtension").returns(undefined);
 
       const installed = acpInstalled();
 
@@ -168,7 +169,7 @@ describe("CommonUtils", () => {
 
     it("Test Tool enabled in Windows platform", async () => {
       sandbox.stub(vscode.workspace, "workspaceFolders").value([{ uri: vscode.Uri.file("test") }]);
-      sandbox.stub(tools, "isTestToolEnabledProject").returns(true);
+      sandbox.stub(commonUtilsDeps, "isTestToolEnabledProject").returns(true);
       sandbox.stub(globalVariables, "workspaceUri").value(vscode.Uri.file("path"));
 
       const result = await getLocalDebugMessageTemplate(true);
@@ -177,7 +178,7 @@ describe("CommonUtils", () => {
 
     it("Test Tool disabled in Windows platform", async () => {
       sandbox.stub(vscode.workspace, "workspaceFolders").value([{ uri: vscode.Uri.file("test") }]);
-      sandbox.stub(tools, "isTestToolEnabledProject").returns(false);
+      sandbox.stub(commonUtilsDeps, "isTestToolEnabledProject").returns(false);
       sandbox.stub(globalVariables, "workspaceUri").value(vscode.Uri.file("path"));
 
       const result = await getLocalDebugMessageTemplate(true);
@@ -186,7 +187,7 @@ describe("CommonUtils", () => {
 
     it("Test Tool enabled in non-Windows platform", async () => {
       sandbox.stub(vscode.workspace, "workspaceFolders").value([{ uri: vscode.Uri.file("test") }]);
-      sandbox.stub(tools, "isTestToolEnabledProject").returns(true);
+      sandbox.stub(commonUtilsDeps, "isTestToolEnabledProject").returns(true);
       sandbox.stub(globalVariables, "workspaceUri").value(vscode.Uri.file("path"));
 
       const result = await getLocalDebugMessageTemplate(false);
@@ -195,7 +196,7 @@ describe("CommonUtils", () => {
 
     it("Test Tool disabled in non-Windows platform", async () => {
       sandbox.stub(vscode.workspace, "workspaceFolders").value([{ uri: vscode.Uri.file("test") }]);
-      sandbox.stub(tools, "isTestToolEnabledProject").returns(false);
+      sandbox.stub(commonUtilsDeps, "isTestToolEnabledProject").returns(false);
       sandbox.stub(globalVariables, "workspaceUri").value(vscode.Uri.file("path"));
 
       const result = await getLocalDebugMessageTemplate(false);

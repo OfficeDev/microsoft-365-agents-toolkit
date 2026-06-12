@@ -8,6 +8,10 @@ import { TreeCategory } from "@microsoft/teamsfx-api";
 import { TelemetryTriggerFrom } from "../telemetry/extTelemetryEvents";
 import { localize } from "../utils/localizeUtils";
 
+export const treeViewCommandDeps = {
+  localize: (key: string) => localize(key),
+};
+
 export enum CommandStatus {
   Ready,
   Running,
@@ -47,7 +51,9 @@ export class TreeViewCommand extends vscode.TreeItem {
       case CommandStatus.Running:
         this.iconPath = new vscode.ThemeIcon("loading~spin");
         if (this.runningLabelKey) {
-          const label = localize(`${labelPrefix}${this.runningLabelKey}.running`);
+          const label = treeViewCommandDeps.localize(
+            `${labelPrefix}${this.runningLabelKey}.running`
+          );
           if (label) {
             this.label = label;
           }
@@ -69,7 +75,9 @@ export class TreeViewCommand extends vscode.TreeItem {
 
   public getBlockingTooltip(): string | undefined {
     if (this.runningLabelKey) {
-      const tooltip = localize(`${labelPrefix}${this.runningLabelKey}.blockTooltip`);
+      const tooltip = treeViewCommandDeps.localize(
+        `${labelPrefix}${this.runningLabelKey}.blockTooltip`
+      );
       return tooltip;
     }
   }

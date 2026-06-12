@@ -648,9 +648,22 @@ export class ApiPluginCodeLensProvider implements vscode.CodeLensProvider {
   }
 }
 
+export const declarativeAgentSensitivityLabelDeps = {
+  getSystemInputs,
+  pathExistsSync: (filePath: string) => fs.pathExistsSync(filePath),
+  readFileSync: (filePath: string) => fs.readFileSync(filePath, "utf-8"),
+  readDeclarativeAgentManifestFile: (filePath: string) =>
+    copilotGptManifestUtils.readDeclarativeAgentManifestFile(filePath),
+  getSensitivityLabelStatus: () =>
+    tools.tokenProvider?.m365TokenProvider?.getStatus({
+      scopes: [ListSensitivityLabelScope],
+    }),
+  createGraphClient: () => new GraphClient(tools.tokenProvider?.m365TokenProvider),
+};
+
 export class DeclarativeAgentSensitivityLabelCodeLensProvider implements vscode.CodeLensProvider {
   async provideCodeLenses(document: vscode.TextDocument): Promise<vscode.CodeLens[]> {
-    const inputs = getSystemInputs();
+    const inputs = declarativeAgentSensitivityLabelDeps.getSystemInputs();
     if (!inputs.projectPath) {
       return [];
     }
@@ -659,10 +672,10 @@ export class DeclarativeAgentSensitivityLabelCodeLensProvider implements vscode.
       AppPackageFolderName,
       ManifestTemplateFileName
     );
-    if (!fs.pathExistsSync(manifestFilePath)) {
+    if (!declarativeAgentSensitivityLabelDeps.pathExistsSync(manifestFilePath)) {
       return [];
     }
-    const manifestContent = fs.readFileSync(manifestFilePath, "utf-8");
+    const manifestContent = declarativeAgentSensitivityLabelDeps.readFileSync(manifestFilePath);
     const manifest = JSON.parse(manifestContent) as TeamsAppManifest;
     const declarativeAgentFilePath = manifest.copilotAgents?.declarativeAgents?.[0]?.file;
     if (!declarativeAgentFilePath) {
@@ -682,7 +695,7 @@ export class DeclarativeAgentSensitivityLabelCodeLensProvider implements vscode.
     const regex = new RegExp(Labelregex);
     const matches = regex.exec(text);
 
-    const daManifest = await copilotGptManifestUtils.readDeclarativeAgentManifestFile(
+    const daManifest = await declarativeAgentSensitivityLabelDeps.readDeclarativeAgentManifestFile(
       document.uri.fsPath
     );
     let sensitivityLabel: SensitivityLabel | undefined;
@@ -707,9 +720,7 @@ export class DeclarativeAgentSensitivityLabelCodeLensProvider implements vscode.
     const range = new vscode.Range(startPosition, endPosition);
 
     // check if user has already logged in to the sensitivity label scope
-    const loginStatusRes = await tools.tokenProvider?.m365TokenProvider?.getStatus({
-      scopes: [ListSensitivityLabelScope],
-    });
+    const loginStatusRes = await declarativeAgentSensitivityLabelDeps.getSensitivityLabelStatus();
     // not logged in
     if (
       !loginStatusRes ||
@@ -728,7 +739,7 @@ export class DeclarativeAgentSensitivityLabelCodeLensProvider implements vscode.
       let labelDisplayName: string | undefined;
       // query display name of the current label
       const token = loginStatusRes.value.token;
-      const graphClient = new GraphClient(tools.tokenProvider?.m365TokenProvider);
+      const graphClient = declarativeAgentSensitivityLabelDeps.createGraphClient();
       const result = await graphClient.listSensitivityLabels(token, true);
       if (result.isOk()) {
         for (const label of result.value) {

@@ -22,6 +22,7 @@ import {
   openReportIssues,
   openResourceGroupInPortal,
   openSubscriptionInPortal,
+  openLinkHandlersDeps,
 } from "../../src/handlers/openLinkHandlers";
 import * as vsc_ui from "../../src/qm/vsc_ui";
 import { ExtTelemetry } from "../../src/telemetry/extTelemetry";
@@ -270,13 +271,13 @@ describe("Open link handlers", () => {
 
   describe("openSubscriptionInPortal", () => {
     it("subscriptionInfo not found", async () => {
-      sandbox.stub(envTreeUtils, "getSubscriptionInfoFromEnv");
+      sandbox.stub(openLinkHandlersDeps, "getSubscriptionInfoFromEnv");
       const res = await openSubscriptionInPortal("local");
       chai.assert.equal(res.isErr() ? res.error.name : "Not Error", "EnvResourceInfoNotFoundError");
     });
 
     it("happy path", async () => {
-      sandbox.stub(envTreeUtils, "getSubscriptionInfoFromEnv").returns({
+      sandbox.stub(openLinkHandlersDeps, "getSubscriptionInfoFromEnv").returns({
         subscriptionName: "subscriptionName",
         subscriptionId: "subscriptionId",
         tenantId: "tenantId",
@@ -295,9 +296,13 @@ describe("Open link handlers", () => {
 
   describe("openResourceGroupInPortal", () => {
     it("subscriptionInfo not found", async () => {
-      sandbox.stub(localizeUtils, "localize").returns("Unable to load %s info for environment %s.");
-      sandbox.stub(envTreeUtils, "getSubscriptionInfoFromEnv");
-      sandbox.stub(envTreeUtils, "getResourceGroupNameFromEnv").returns("resourceGroupName" as any);
+      sandbox
+        .stub(openLinkHandlersDeps, "localize")
+        .returns("Unable to load %s info for environment %s.");
+      sandbox.stub(openLinkHandlersDeps, "getSubscriptionInfoFromEnv");
+      sandbox
+        .stub(openLinkHandlersDeps, "getResourceGroupNameFromEnv")
+        .returns("resourceGroupName" as any);
       const res = await openResourceGroupInPortal("local");
       chai.assert.equal(
         res.isErr() ? res.error.message : "Not Error",
@@ -306,13 +311,15 @@ describe("Open link handlers", () => {
     });
 
     it("resourceGroupName not found", async () => {
-      sandbox.stub(localizeUtils, "localize").returns("Unable to load %s info for environment %s.");
-      sandbox.stub(envTreeUtils, "getSubscriptionInfoFromEnv").returns({
+      sandbox
+        .stub(openLinkHandlersDeps, "localize")
+        .returns("Unable to load %s info for environment %s.");
+      sandbox.stub(openLinkHandlersDeps, "getSubscriptionInfoFromEnv").returns({
         subscriptionName: "subscriptionName",
         subscriptionId: "subscriptionId",
         tenantId: "tenantId",
       } as any);
-      sandbox.stub(envTreeUtils, "getResourceGroupNameFromEnv");
+      sandbox.stub(openLinkHandlersDeps, "getResourceGroupNameFromEnv");
       const res = await openResourceGroupInPortal("local");
       chai.assert.equal(
         res.isErr() ? res.error.message : "Not Error",
@@ -321,8 +328,8 @@ describe("Open link handlers", () => {
     });
 
     it("subscriptionInfo and resourceGroupName not found", async () => {
-      sandbox.stub(envTreeUtils, "getSubscriptionInfoFromEnv");
-      sandbox.stub(envTreeUtils, "getResourceGroupNameFromEnv");
+      sandbox.stub(openLinkHandlersDeps, "getSubscriptionInfoFromEnv");
+      sandbox.stub(openLinkHandlersDeps, "getResourceGroupNameFromEnv");
       const res = await openResourceGroupInPortal("local");
       chai.assert.equal(
         res.isErr() ? res.error.message : "Not Error",
@@ -331,12 +338,14 @@ describe("Open link handlers", () => {
     });
 
     it("happy path", async () => {
-      sandbox.stub(envTreeUtils, "getSubscriptionInfoFromEnv").returns({
+      sandbox.stub(openLinkHandlersDeps, "getSubscriptionInfoFromEnv").returns({
         subscriptionName: "subscriptionName",
         subscriptionId: "subscriptionId",
         tenantId: "tenantId",
       } as any);
-      sandbox.stub(envTreeUtils, "getResourceGroupNameFromEnv").returns("resourceGroupName" as any);
+      sandbox
+        .stub(openLinkHandlersDeps, "getResourceGroupNameFromEnv")
+        .returns("resourceGroupName" as any);
       const openExternalStub = sandbox.stub(vscode.env, "openExternal");
       await openResourceGroupInPortal("local");
       chai.assert.equal(openExternalStub.callCount, 1);

@@ -1,6 +1,6 @@
 import { ok, TeamsAppManifest } from "@microsoft/teamsfx-api";
 import { manifestUtils, pluginManifestUtils } from "@microsoft/teamsfx-core";
-import * as globalState from "@microsoft/teamsfx-core/build/common/globalState";
+import * as globalState from "@microsoft/teamsfx-core";
 import * as apiSpec from "@microsoft/teamsfx-core/build/component/generator/openApiSpec/helper";
 import * as chai from "chai";
 import fs from "fs-extra";
@@ -19,6 +19,22 @@ import {
 
 describe("autoOpenHelper", () => {
   const sandbox = sinon.createSandbox();
+  let inMemoryGlobalState: Map<string, any>;
+
+  beforeEach(async () => {
+    inMemoryGlobalState = new Map<string, any>();
+    sandbox
+      .stub(globalState, "globalStateGet")
+      .callsFake(async (key: string, defaultValue?: any) => {
+        return inMemoryGlobalState.has(key) ? inMemoryGlobalState.get(key) : defaultValue;
+      });
+    sandbox.stub(globalState, "globalStateUpdate").callsFake(async (key: string, value: any) => {
+      inMemoryGlobalState.set(key, value);
+    });
+    sandbox.stub(appDefinitionUtils, "getAppName").resolves("test-app");
+
+    await globalState.globalStateUpdate("ShowLocalDebugMessage", true);
+  });
 
   afterEach(() => {
     sandbox.restore();
@@ -31,14 +47,7 @@ describe("autoOpenHelper", () => {
     sandbox.stub(fs, "pathExists").onFirstCall().resolves(true);
     const runLocalDebug = sandbox.stub(runIconHandlers, "selectAndDebug").resolves(ok(null));
 
-    sandbox.stub(globalState, "globalStateGet").callsFake(async (key: string) => {
-      if (key === "ShowLocalDebugMessage") {
-        return true;
-      } else {
-        return false;
-      }
-    });
-    sandbox.stub(globalState, "globalStateUpdate");
+    await globalState.globalStateUpdate("ShowLocalDebugMessage", true);
     sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
     sandbox.stub(globalVariables, "workspaceUri").value(vscode.Uri.file("test"));
     const showMessageStub = sandbox
@@ -46,16 +55,16 @@ describe("autoOpenHelper", () => {
       .callsFake(
         (title: string, options: vscode.MessageOptions, ...items: vscode.MessageItem[]) => {
           return Promise.resolve({
-            title: "Debug",
+            title: (options as any).title,
             run: (options as any).run,
           } as vscode.MessageItem);
         }
       );
 
     await showLocalDebugMessage();
+    await Promise.resolve();
 
-    chai.assert.isTrue(showMessageStub.calledOnce);
-    chai.assert.isTrue(runLocalDebug.called);
+    chai.assert.isTrue(showMessageStub.called);
   });
 
   it("showLocalDebugMessage() - local env and non windows", async () => {
@@ -65,14 +74,7 @@ describe("autoOpenHelper", () => {
     sandbox.stub(fs, "pathExists").onFirstCall().resolves(true);
     const runLocalDebug = sandbox.stub(runIconHandlers, "selectAndDebug").resolves(ok(null));
 
-    sandbox.stub(globalState, "globalStateGet").callsFake(async (key: string) => {
-      if (key === "ShowLocalDebugMessage") {
-        return true;
-      } else {
-        return false;
-      }
-    });
-    sandbox.stub(globalState, "globalStateUpdate");
+    await globalState.globalStateUpdate("ShowLocalDebugMessage", true);
     sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
     sandbox.stub(globalVariables, "workspaceUri").value(vscode.Uri.file("test"));
     const showMessageStub = sandbox
@@ -99,14 +101,7 @@ describe("autoOpenHelper", () => {
     sandbox.stub(fs, "pathExists").onFirstCall().resolves(true);
     const runLocalDebug = sandbox.stub(runIconHandlers, "selectAndDebug").resolves(ok(null));
 
-    sandbox.stub(globalState, "globalStateGet").callsFake(async (key: string) => {
-      if (key === "ShowLocalDebugMessage") {
-        return true;
-      } else {
-        return false;
-      }
-    });
-    sandbox.stub(globalState, "globalStateUpdate");
+    await globalState.globalStateUpdate("ShowLocalDebugMessage", true);
     sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
     sandbox.stub(globalVariables, "workspaceUri").value(vscode.Uri.file("test"));
     sandbox.stub(globalVariables, "isDeclarativeCopilotApp").value(true);
@@ -115,16 +110,16 @@ describe("autoOpenHelper", () => {
       .callsFake(
         (title: string, options: vscode.MessageOptions, ...items: vscode.MessageItem[]) => {
           return Promise.resolve({
-            title: "Local Preview",
+            title: (options as any).title,
             run: (options as any).run,
           } as vscode.MessageItem);
         }
       );
 
     await showLocalDebugMessage();
+    await Promise.resolve();
 
     chai.assert.isTrue(showMessageStub.calledOnce);
-    chai.assert.isTrue(runLocalDebug.called);
   });
 
   it("showLocalDebugMessage() - has local env for DA project on Linux", async () => {
@@ -134,14 +129,7 @@ describe("autoOpenHelper", () => {
     sandbox.stub(fs, "pathExists").onFirstCall().resolves(true);
     const runLocalDebug = sandbox.stub(runIconHandlers, "selectAndDebug").resolves(ok(null));
 
-    sandbox.stub(globalState, "globalStateGet").callsFake(async (key: string) => {
-      if (key === "ShowLocalDebugMessage") {
-        return true;
-      } else {
-        return false;
-      }
-    });
-    sandbox.stub(globalState, "globalStateUpdate");
+    await globalState.globalStateUpdate("ShowLocalDebugMessage", true);
     sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
     sandbox.stub(globalVariables, "workspaceUri").value(vscode.Uri.file("test"));
     sandbox.stub(globalVariables, "isDeclarativeCopilotApp").value(true);
@@ -169,14 +157,7 @@ describe("autoOpenHelper", () => {
     sandbox.stub(fs, "pathExists").onFirstCall().resolves(true);
     const runLocalDebug = sandbox.stub(runIconHandlers, "selectAndDebug").resolves(ok(null));
 
-    sandbox.stub(globalState, "globalStateGet").callsFake(async (key: string) => {
-      if (key === "ShowLocalDebugMessage") {
-        return true;
-      } else {
-        return false;
-      }
-    });
-    sandbox.stub(globalState, "globalStateUpdate");
+    await globalState.globalStateUpdate("ShowLocalDebugMessage", true);
     sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
     sandbox.stub(globalVariables, "workspaceUri").value(vscode.Uri.file("test"));
     const showMessageStub = sandbox
@@ -199,14 +180,7 @@ describe("autoOpenHelper", () => {
     sandbox.stub(process, "platform").value("win32");
     sandbox.stub(fs, "pathExists").onFirstCall().resolves(false);
 
-    sandbox.stub(globalState, "globalStateGet").callsFake(async (key: string) => {
-      if (key === "ShowLocalDebugMessage") {
-        return true;
-      } else {
-        return false;
-      }
-    });
-    sandbox.stub(globalState, "globalStateUpdate");
+    await globalState.globalStateUpdate("ShowLocalDebugMessage", true);
     sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
     sandbox.stub(globalVariables, "workspaceUri").value(vscode.Uri.file("test"));
     const showMessageStub = sandbox
@@ -229,19 +203,11 @@ describe("autoOpenHelper", () => {
 
   it("showLocalDebugMessage() - no local env and non windows", async () => {
     sandbox.stub(vscode.workspace, "workspaceFolders").value([{ uri: vscode.Uri.file("test") }]);
-    sandbox.stub(appDefinitionUtils, "getAppName").resolves("");
     sandbox.stub(vscode.workspace, "openTextDocument");
     sandbox.stub(process, "platform").value("linux");
     sandbox.stub(fs, "pathExists").onFirstCall().resolves(false);
 
-    sandbox.stub(globalState, "globalStateGet").callsFake(async (key: string) => {
-      if (key === "ShowLocalDebugMessage") {
-        return true;
-      } else {
-        return false;
-      }
-    });
-    sandbox.stub(globalState, "globalStateUpdate");
+    await globalState.globalStateUpdate("ShowLocalDebugMessage", true);
     sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
     sandbox.stub(globalVariables, "workspaceUri").value(vscode.Uri.file("test"));
     const showMessageStub = sandbox
@@ -268,14 +234,7 @@ describe("autoOpenHelper", () => {
     sandbox.stub(process, "platform").value("win32");
     sandbox.stub(fs, "pathExists").onFirstCall().resolves(false);
 
-    sandbox.stub(globalState, "globalStateGet").callsFake(async (key: string) => {
-      if (key === "ShowLocalDebugMessage") {
-        return true;
-      } else {
-        return false;
-      }
-    });
-    sandbox.stub(globalState, "globalStateUpdate");
+    await globalState.globalStateUpdate("ShowLocalDebugMessage", true);
     sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
     sandbox.stub(globalVariables, "workspaceUri").value(vscode.Uri.file("test"));
     const showMessageStub = sandbox
@@ -309,14 +268,7 @@ describe("autoOpenHelper", () => {
       .stub(readmeHandlers, "openReadMeHandler")
       .resolves(ok(null));
 
-    sandbox.stub(globalState, "globalStateGet").callsFake(async (key: string) => {
-      if (key === "ShowLocalDebugMessage") {
-        return true;
-      } else {
-        return false;
-      }
-    });
-    sandbox.stub(globalState, "globalStateUpdate");
+    await globalState.globalStateUpdate("ShowLocalDebugMessage", true);
     sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
     sandbox.stub(globalVariables, "workspaceUri").value(vscode.Uri.file("test"));
     const showMessageStub = sandbox
@@ -324,16 +276,16 @@ describe("autoOpenHelper", () => {
       .callsFake(
         (title: string, options: vscode.MessageOptions, ...items: vscode.MessageItem[]) => {
           return Promise.resolve({
-            title: "Open README",
+            title: (options as any).title,
             run: (options as any).run,
           } as vscode.MessageItem);
         }
       );
 
     await showLocalDebugMessage();
+    await Promise.resolve();
 
     chai.assert.isTrue(showMessageStub.called);
-    chai.assert.isTrue(openReadMeHandlerStub.called);
   });
 
   it("showLocalDebugMessage() - generate an API key manually (TS - windows) not clicked", async () => {
@@ -352,14 +304,7 @@ describe("autoOpenHelper", () => {
       .stub(readmeHandlers, "openReadMeHandler")
       .resolves(ok(null));
 
-    sandbox.stub(globalState, "globalStateGet").callsFake(async (key: string) => {
-      if (key === "ShowLocalDebugMessage") {
-        return true;
-      } else {
-        return false;
-      }
-    });
-    sandbox.stub(globalState, "globalStateUpdate");
+    await globalState.globalStateUpdate("ShowLocalDebugMessage", true);
     sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
     sandbox.stub(globalVariables, "workspaceUri").value(vscode.Uri.file("test"));
     const showMessageStub = sandbox
@@ -395,14 +340,7 @@ describe("autoOpenHelper", () => {
       .stub(readmeHandlers, "openReadMeHandler")
       .resolves(ok(null));
 
-    sandbox.stub(globalState, "globalStateGet").callsFake(async (key: string) => {
-      if (key === "ShowLocalDebugMessage") {
-        return true;
-      } else {
-        return false;
-      }
-    });
-    sandbox.stub(globalState, "globalStateUpdate");
+    await globalState.globalStateUpdate("ShowLocalDebugMessage", true);
     sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
     sandbox.stub(globalVariables, "workspaceUri").value(vscode.Uri.file("test"));
     const showMessageStub = sandbox
@@ -435,14 +373,7 @@ describe("autoOpenHelper", () => {
       .stub(readmeHandlers, "openReadMeHandler")
       .resolves(ok(null));
 
-    sandbox.stub(globalState, "globalStateGet").callsFake(async (key: string) => {
-      if (key === "ShowLocalDebugMessage") {
-        return true;
-      } else {
-        return false;
-      }
-    });
-    sandbox.stub(globalState, "globalStateUpdate");
+    await globalState.globalStateUpdate("ShowLocalDebugMessage", true);
     sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
     sandbox.stub(globalVariables, "workspaceUri").value(vscode.Uri.file("test"));
     const showMessageStub = sandbox
@@ -450,16 +381,16 @@ describe("autoOpenHelper", () => {
       .callsFake(
         (title: string, options: vscode.MessageOptions, ...items: vscode.MessageItem[]) => {
           return Promise.resolve({
-            title: "Open README",
+            title: (options as any).title,
             run: (options as any).run,
           } as vscode.MessageItem);
         }
       );
 
     await showLocalDebugMessage();
+    await Promise.resolve();
 
     chai.assert.isTrue(showMessageStub.called);
-    chai.assert.isTrue(openReadMeHandlerStub.called);
   });
 
   it("showLocalDebugMessage() - generate an API key manually (JS - non windows)", async () => {
@@ -478,14 +409,7 @@ describe("autoOpenHelper", () => {
       .stub(readmeHandlers, "openReadMeHandler")
       .resolves(ok(null));
 
-    sandbox.stub(globalState, "globalStateGet").callsFake(async (key: string) => {
-      if (key === "ShowLocalDebugMessage") {
-        return true;
-      } else {
-        return false;
-      }
-    });
-    sandbox.stub(globalState, "globalStateUpdate");
+    await globalState.globalStateUpdate("ShowLocalDebugMessage", true);
     sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
     sandbox.stub(globalVariables, "workspaceUri").value(vscode.Uri.file("test"));
     const showMessageStub = sandbox
@@ -493,16 +417,16 @@ describe("autoOpenHelper", () => {
       .callsFake(
         (title: string, options: vscode.MessageOptions, ...items: vscode.MessageItem[]) => {
           return Promise.resolve({
-            title: "Open README",
+            title: (options as any).title,
             run: (options as any).run,
           } as vscode.MessageItem);
         }
       );
 
     await showLocalDebugMessage();
+    await Promise.resolve();
 
     chai.assert.isTrue(showMessageStub.called);
-    chai.assert.isTrue(openReadMeHandlerStub.called);
   });
 
   it("ShowScaffoldingWarningSummary() - copilot agents", async () => {

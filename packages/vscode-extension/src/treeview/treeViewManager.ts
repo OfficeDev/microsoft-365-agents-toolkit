@@ -18,6 +18,12 @@ import { CommandsTreeViewProvider } from "./commandsTreeViewProvider";
 import envTreeProviderInstance from "./environmentTreeViewProvider";
 import { CommandStatus, TreeViewCommand } from "./treeViewCommand";
 
+export const treeViewManagerDeps = {
+  hasAdaptiveCardInWorkspace: () => hasAdaptiveCardInWorkspace(),
+  manifestUtilsReadAppManifest: (fsPath: string) => manifestUtils.readAppManifest(fsPath),
+  manifestUtilsGetCapabilities: (manifest: any) => manifestUtils.getCapabilities(manifest),
+};
+
 class TreeViewManager {
   private static instance: TreeViewManager;
   private commandMap: Map<string, TreeViewCommand>;
@@ -54,9 +60,11 @@ class TreeViewManager {
 
   public async updateTreeViewsByContent(removeProjectRelatedCommands = false): Promise<void> {
     let isTeamsApp = false;
-    const manifestRes = await manifestUtils.readAppManifest(workspaceUri?.fsPath || "");
+    const manifestRes = await treeViewManagerDeps.manifestUtilsReadAppManifest(
+      workspaceUri?.fsPath || ""
+    );
     if (manifestRes.isOk()) {
-      isTeamsApp = manifestUtils.getCapabilities(manifestRes.value).length > 0;
+      isTeamsApp = treeViewManagerDeps.manifestUtilsGetCapabilities(manifestRes.value).length > 0;
     }
 
     const developmentTreeviewProvider = this.getTreeView(
@@ -94,7 +102,7 @@ class TreeViewManager {
       }
       utilityTreeviewProvider.refresh();
     }
-    if (await hasAdaptiveCardInWorkspace()) {
+    if (await treeViewManagerDeps.hasAdaptiveCardInWorkspace()) {
       // after "Preview Your Teams App" command, the adaptive card will be shown
       const utilityTreeviewProvider = this.getTreeView(
         "teamsfx-development"

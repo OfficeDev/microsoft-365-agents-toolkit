@@ -1,16 +1,22 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import {
-  getFileModifiedTime,
-  getLaunchJSON,
-  getProjectStatus,
-  getREADME,
-} from "../../../utils/projectStatusUtils";
-import { checkCredential, getProjectMetadata, globalStateGet, globalStateUpdate } from "./helper";
+import * as projectStatusUtils from "../../../utils/projectStatusUtils";
+import * as helper from "./helper";
 import { MachineStatus, WholeStatus } from "./types";
 
 export const firstInstalledKey = "first-installation";
+
+export const statusDeps = {
+  getProjectMetadata: helper.getProjectMetadata,
+  getProjectStatus: projectStatusUtils.getProjectStatus,
+  getFileModifiedTime: projectStatusUtils.getFileModifiedTime,
+  getREADME: projectStatusUtils.getREADME,
+  getLaunchJSON: projectStatusUtils.getLaunchJSON,
+  globalStateGet: helper.globalStateGet,
+  globalStateUpdate: helper.globalStateUpdate,
+  checkCredential: helper.checkCredential,
+};
 
 export async function getWholeStatus(folder?: string): Promise<WholeStatus> {
   if (!folder) {
@@ -18,12 +24,14 @@ export async function getWholeStatus(folder?: string): Promise<WholeStatus> {
       machineStatus: await getMachineStatus(),
     };
   } else {
-    const projectSettings = getProjectMetadata(folder);
+    const projectSettings = statusDeps.getProjectMetadata(folder);
     const projectId = projectSettings?.projectId;
-    const actionStatus = await getProjectStatus(projectId ?? folder);
+    const actionStatus = await statusDeps.getProjectStatus(projectId ?? folder);
     const codeModifiedTime = {
-      source: await getFileModifiedTime(`${folder.split("\\").join("/")}/**/*.{ts,tsx,js,jsx}`),
-      infra: await getFileModifiedTime(`${folder.split("\\").join("/")}/infra/**/*`),
+      source: await statusDeps.getFileModifiedTime(
+        `${folder.split("\\").join("/")}/**/*.{ts,tsx,js,jsx}`
+      ),
+      infra: await statusDeps.getFileModifiedTime(`${folder.split("\\").join("/")}/infra/**/*`),
     };
 
     return {
@@ -32,19 +40,19 @@ export async function getWholeStatus(folder?: string): Promise<WholeStatus> {
         path: folder,
         projectId,
         codeModifiedTime,
-        readmeContent: await getREADME(folder),
+        readmeContent: await statusDeps.getREADME(folder),
         actionStatus,
-        launchJSONContent: await getLaunchJSON(folder),
+        launchJSONContent: await statusDeps.getLaunchJSON(folder),
       },
     };
   }
 }
 
 export async function getMachineStatus(): Promise<MachineStatus> {
-  const firstInstalled = await globalStateGet(firstInstalledKey, true);
-  await globalStateUpdate(firstInstalledKey, false);
+  const firstInstalled = await statusDeps.globalStateGet(firstInstalledKey, true);
+  await statusDeps.globalStateUpdate(firstInstalledKey, false);
   return {
     firstInstalled,
-    ...(await checkCredential()),
+    ...(await statusDeps.checkCredential()),
   };
 }

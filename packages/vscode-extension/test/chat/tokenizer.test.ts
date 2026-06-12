@@ -16,8 +16,13 @@ describe("Tokenizer", () => {
 
   it("tokenize", () => {
     const tokenizer = new Tokenizer();
+    const initStub = sandbox.stub(tokenizer as any, "initTokenize").returns({
+      encode: () => [1, 2, 3],
+    } as any);
+
     const result = tokenizer.tokenize("Hello world!");
-    chai.assert.deepStrictEqual(result, [9906, 1917, 0]);
+    chai.assert.deepStrictEqual(result, [1, 2, 3]);
+    chai.assert.isTrue(initStub.calledOnce);
   });
 
   describe("tokenLength", () => {
@@ -33,8 +38,13 @@ describe("Tokenizer", () => {
 
     it("non-empty content", () => {
       const tokenizer = new Tokenizer();
+      const initStub = sandbox.stub(tokenizer as any, "initTokenize").returns({
+        encode: () => [4, 5, 6],
+      } as any);
+
       const result = tokenizer.tokenLength("Hello world!");
       chai.assert.equal(result, 3);
+      chai.assert.isTrue(initStub.calledOnce);
     });
   });
 });

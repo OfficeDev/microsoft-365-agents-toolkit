@@ -10,9 +10,10 @@ import axios from "axios";
 import * as parser from "jsonc-parser";
 import { Stage, err, ok, UserError, Inputs, Platform } from "@microsoft/teamsfx-api";
 
-import { updateActionWithMCP } from "../../src/handlers/updateActionWithMCP";
-import * as systemEnvUtils from "../../src/utils/systemEnvUtils";
-import * as sharedOpts from "../../src/handlers/sharedOpts";
+import {
+  updateActionWithMCP,
+  updateActionWithMCPDeps,
+} from "../../src/handlers/updateActionWithMCP";
 import { ExtTelemetry } from "../../src/telemetry/extTelemetry";
 import * as vscUI from "../../src/qm/vsc_ui";
 import { QuestionNames, ODRProvider } from "@microsoft/teamsfx-core";
@@ -30,8 +31,8 @@ describe("updateActionWithMCP", () => {
       projectPath: mockProjectPath,
       platform: Platform.VSCode,
     };
-    sandbox.stub(systemEnvUtils, "getSystemInputs").returns(mockInputs);
-    sandbox.stub(vscode.window, "showErrorMessage");
+    sandbox.stub(updateActionWithMCPDeps, "getSystemInputs").returns(mockInputs);
+    sandbox.stub(vscode.window, "showErrorMessage").resolves(undefined);
     sandbox.stub(globalVariables, "core").value(new MockCore());
     sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
     sandbox.stub(ExtTelemetry, "sendTelemetryErrorEvent");
@@ -47,7 +48,7 @@ describe("updateActionWithMCP", () => {
       const args = [{ serverName: "test-server@123!#$", serverConfig: { url: "http://test.com" } }];
 
       sandbox.stub(fs, "pathExistsSync").returns(false);
-      sandbox.stub(sharedOpts, "runCommand").resolves(ok(undefined));
+      sandbox.stub(updateActionWithMCPDeps, "runCommand").resolves(ok(undefined));
       Object.defineProperty(vscode.lm, "tools", { value: [], configurable: true });
 
       const result = await updateActionWithMCP(args);
@@ -65,7 +66,7 @@ describe("updateActionWithMCP", () => {
       ];
 
       sandbox.stub(fs, "pathExistsSync").returns(false);
-      sandbox.stub(sharedOpts, "runCommand").resolves(ok(undefined));
+      sandbox.stub(updateActionWithMCPDeps, "runCommand").resolves(ok(undefined));
       Object.defineProperty(vscode.lm, "tools", { value: [], configurable: true });
 
       await updateActionWithMCP(args);
@@ -95,7 +96,9 @@ describe("updateActionWithMCP", () => {
 
       Object.defineProperty(vscode.lm, "tools", { value: mockTools, configurable: true });
       sandbox.stub(axios, "get").resolves({ status: 200 });
-      const runCommandStub = sandbox.stub(sharedOpts, "runCommand").resolves(ok(undefined));
+      const runCommandStub = sandbox
+        .stub(updateActionWithMCPDeps, "runCommand")
+        .resolves(ok(undefined));
 
       const result = await updateActionWithMCP(args);
 
@@ -126,7 +129,7 @@ describe("updateActionWithMCP", () => {
         platform: Platform.VSCode,
       };
       sandbox.restore();
-      sandbox.stub(systemEnvUtils, "getSystemInputs").returns(emptyInputs);
+      sandbox.stub(updateActionWithMCPDeps, "getSystemInputs").returns(emptyInputs);
       sandbox.stub(vscode.window, "showErrorMessage");
       sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
       sandbox.stub(ExtTelemetry, "sendTelemetryErrorEvent");
@@ -190,7 +193,9 @@ describe("updateActionWithMCP", () => {
       sandbox.stub(parser, "parse").returns(mcpContent);
       Object.defineProperty(vscode.lm, "tools", { value: mockTools, configurable: true });
       sandbox.stub(axios, "get").resolves({ status: 200 });
-      const runCommandStub = sandbox.stub(sharedOpts, "runCommand").resolves(ok(undefined));
+      const runCommandStub = sandbox
+        .stub(updateActionWithMCPDeps, "runCommand")
+        .resolves(ok(undefined));
 
       const result = await updateActionWithMCP();
 
@@ -229,7 +234,9 @@ describe("updateActionWithMCP", () => {
       sandbox.stub(ODRProvider, "listServers").resolves(mockODRServers);
       sandbox.stub(ODRProvider, "getToolsForODRServer").resolves(mockODRTools);
       sandbox.stub(ODRProvider, "isODRServer").returns(true);
-      const runCommandStub = sandbox.stub(sharedOpts, "runCommand").resolves(ok(undefined));
+      const runCommandStub = sandbox
+        .stub(updateActionWithMCPDeps, "runCommand")
+        .resolves(ok(undefined));
 
       const result = await updateActionWithMCP(args);
 
@@ -270,7 +277,9 @@ describe("updateActionWithMCP", () => {
         .returns(JSON.stringify(mcpContent));
       sandbox.stub(parser, "parse").returns(mcpContent);
       sandbox.stub(vscode.lm, "tools").value(mockTools);
-      const runCommandStub = sandbox.stub(sharedOpts, "runCommand").resolves(ok(undefined));
+      const runCommandStub = sandbox
+        .stub(updateActionWithMCPDeps, "runCommand")
+        .resolves(ok(undefined));
 
       const result = await updateActionWithMCP();
 
@@ -321,7 +330,9 @@ describe("updateActionWithMCP", () => {
       sandbox.stub(ODRProvider, "listServers").resolves(mockODRServers);
       sandbox.stub(ODRProvider, "getToolsForODRServer").resolves(mockODRTools);
       sandbox.stub(ODRProvider, "isODRServer").returns(true);
-      const runCommandStub = sandbox.stub(sharedOpts, "runCommand").resolves(ok(undefined));
+      const runCommandStub = sandbox
+        .stub(updateActionWithMCPDeps, "runCommand")
+        .resolves(ok(undefined));
 
       const result = await updateActionWithMCP();
 
@@ -361,7 +372,9 @@ describe("updateActionWithMCP", () => {
       sandbox.stub(vscUI, "VS_CODE_UI").value({
         selectOption: sandbox.stub().resolves(ok({ type: "success", result: "remote-server" })),
       });
-      const runCommandStub = sandbox.stub(sharedOpts, "runCommand").resolves(ok(undefined));
+      const runCommandStub = sandbox
+        .stub(updateActionWithMCPDeps, "runCommand")
+        .resolves(ok(undefined));
 
       const result = await updateActionWithMCP();
 
@@ -401,7 +414,9 @@ describe("updateActionWithMCP", () => {
       sandbox.stub(vscUI, "VS_CODE_UI").value({
         selectOption: sandbox.stub().resolves(ok({ type: "success", result: "local-server" })),
       });
-      const runCommandStub = sandbox.stub(sharedOpts, "runCommand").resolves(ok(undefined));
+      const runCommandStub = sandbox
+        .stub(updateActionWithMCPDeps, "runCommand")
+        .resolves(ok(undefined));
 
       const result = await updateActionWithMCP();
 
@@ -474,7 +489,7 @@ describe("updateActionWithMCP", () => {
           return Promise.resolve(ok({ type: "success", result: "remote-server" }));
         }),
       });
-      sandbox.stub(sharedOpts, "runCommand").resolves(ok(undefined));
+      sandbox.stub(updateActionWithMCPDeps, "runCommand").resolves(ok(undefined));
 
       await updateActionWithMCP();
 
@@ -522,7 +537,9 @@ describe("updateActionWithMCP", () => {
 
       sandbox.stub(vscode.lm, "tools").value(mockTools);
       sandbox.stub(axios, "get").resolves({ status: 200 });
-      const runCommandStub = sandbox.stub(sharedOpts, "runCommand").resolves(ok(undefined));
+      const runCommandStub = sandbox
+        .stub(updateActionWithMCPDeps, "runCommand")
+        .resolves(ok(undefined));
 
       const result = await updateActionWithMCP(args);
 
@@ -547,7 +564,9 @@ describe("updateActionWithMCP", () => {
 
       sandbox.stub(vscode.lm, "tools").value(mockTools);
       sandbox.stub(axios, "get").resolves({ status: 200 });
-      const runCommandStub = sandbox.stub(sharedOpts, "runCommand").resolves(ok(undefined));
+      const runCommandStub = sandbox
+        .stub(updateActionWithMCPDeps, "runCommand")
+        .resolves(ok(undefined));
 
       await updateActionWithMCP(args);
 
@@ -576,7 +595,9 @@ describe("updateActionWithMCP", () => {
         .throws(axiosError)
         .onSecondCall()
         .resolves({ status: 200 });
-      const runCommandStub = sandbox.stub(sharedOpts, "runCommand").resolves(ok(undefined));
+      const runCommandStub = sandbox
+        .stub(updateActionWithMCPDeps, "runCommand")
+        .resolves(ok(undefined));
 
       await updateActionWithMCP(args);
 
@@ -606,7 +627,9 @@ describe("updateActionWithMCP", () => {
       axiosStub
         .withArgs("https://api.test.com/.well-known/oauth-authorization-server")
         .resolves({ status: 200 }); // well-known URL response
-      const runCommandStub = sandbox.stub(sharedOpts, "runCommand").resolves(ok(undefined));
+      const runCommandStub = sandbox
+        .stub(updateActionWithMCPDeps, "runCommand")
+        .resolves(ok(undefined));
 
       await updateActionWithMCP(args);
 
@@ -627,7 +650,9 @@ describe("updateActionWithMCP", () => {
 
       sandbox.stub(vscode.lm, "tools").value(mockTools);
       sandbox.stub(axios, "get").throws(networkError);
-      const runCommandStub = sandbox.stub(sharedOpts, "runCommand").resolves(ok(undefined));
+      const runCommandStub = sandbox
+        .stub(updateActionWithMCPDeps, "runCommand")
+        .resolves(ok(undefined));
 
       await updateActionWithMCP(args);
 
@@ -645,7 +670,9 @@ describe("updateActionWithMCP", () => {
 
       sandbox.stub(vscode.lm, "tools").value(mockTools);
       sandbox.stub(axios, "get").resolves({ status: 200 });
-      const runCommandStub = sandbox.stub(sharedOpts, "runCommand").resolves(ok(undefined));
+      const runCommandStub = sandbox
+        .stub(updateActionWithMCPDeps, "runCommand")
+        .resolves(ok(undefined));
 
       await updateActionWithMCP(args);
 
@@ -665,7 +692,7 @@ describe("updateActionWithMCP", () => {
 
       sandbox.stub(vscode.lm, "tools").value(mockTools);
       sandbox.stub(axios, "get").resolves({ status: 200 });
-      sandbox.stub(sharedOpts, "runCommand").resolves(err(runCommandError));
+      sandbox.stub(updateActionWithMCPDeps, "runCommand").resolves(err(runCommandError));
 
       const result = await updateActionWithMCP(args);
 
@@ -744,7 +771,7 @@ describe("updateActionWithMCP", () => {
           return Promise.resolve(ok({ type: "success", result: "remote-server" }));
         }),
       });
-      sandbox.stub(sharedOpts, "runCommand").resolves(ok(undefined));
+      sandbox.stub(updateActionWithMCPDeps, "runCommand").resolves(ok(undefined));
 
       await updateActionWithMCP();
 
@@ -787,7 +814,7 @@ describe("updateActionWithMCP", () => {
           return Promise.resolve(ok({ type: "success", result: "remote-server" }));
         }),
       });
-      sandbox.stub(sharedOpts, "runCommand").resolves(ok(undefined));
+      sandbox.stub(updateActionWithMCPDeps, "runCommand").resolves(ok(undefined));
 
       await updateActionWithMCP();
 
@@ -826,7 +853,9 @@ describe("updateActionWithMCP", () => {
 
       sandbox.stub(vscode.lm, "tools").value(mockTools);
       sandbox.stub(axios, "get").resolves({ status: 200 });
-      const runCommandStub = sandbox.stub(sharedOpts, "runCommand").resolves(ok(undefined));
+      const runCommandStub = sandbox
+        .stub(updateActionWithMCPDeps, "runCommand")
+        .resolves(ok(undefined));
 
       const result = await updateActionWithMCP(args);
 
@@ -848,7 +877,9 @@ describe("updateActionWithMCP", () => {
 
       sandbox.stub(vscode.lm, "tools").value(mockTools);
       sandbox.stub(ODRProvider, "listServers").resolves([]);
-      const runCommandStub = sandbox.stub(sharedOpts, "runCommand").resolves(ok(undefined));
+      const runCommandStub = sandbox
+        .stub(updateActionWithMCPDeps, "runCommand")
+        .resolves(ok(undefined));
 
       const result = await updateActionWithMCP(args);
 
@@ -882,7 +913,9 @@ describe("updateActionWithMCP", () => {
       sandbox.stub(ODRProvider, "listServers").resolves(mockODRServers);
       sandbox.stub(ODRProvider, "getToolsForODRServer").resolves(mockODRTools);
       sandbox.stub(ODRProvider, "isODRServer").returns(true);
-      const runCommandStub = sandbox.stub(sharedOpts, "runCommand").resolves(ok(undefined));
+      const runCommandStub = sandbox
+        .stub(updateActionWithMCPDeps, "runCommand")
+        .resolves(ok(undefined));
 
       const result = await updateActionWithMCP(args);
 
@@ -909,7 +942,7 @@ describe("updateActionWithMCP", () => {
 
       sandbox.stub(vscode.lm, "tools").value(mockTools);
       sandbox.stub(ODRProvider, "listServers").resolves([]);
-      sandbox.stub(sharedOpts, "runCommand").resolves(ok(undefined));
+      sandbox.stub(updateActionWithMCPDeps, "runCommand").resolves(ok(undefined));
 
       await updateActionWithMCP(args);
 
@@ -925,7 +958,7 @@ describe("updateActionWithMCP", () => {
 
       sandbox.stub(vscode.lm, "tools").value(mockTools);
       sandbox.stub(axios, "get").resolves({ status: 200 });
-      sandbox.stub(sharedOpts, "runCommand").resolves(ok(undefined));
+      sandbox.stub(updateActionWithMCPDeps, "runCommand").resolves(ok(undefined));
 
       await updateActionWithMCP(args);
 
@@ -947,7 +980,7 @@ describe("updateActionWithMCP", () => {
 
       sandbox.stub(vscode.lm, "tools").value(mockTools);
       sandbox.stub(ODRProvider, "listServers").resolves([]);
-      sandbox.stub(sharedOpts, "runCommand").resolves(err(runCommandError));
+      sandbox.stub(updateActionWithMCPDeps, "runCommand").resolves(err(runCommandError));
 
       await updateActionWithMCP(args);
 
@@ -971,7 +1004,9 @@ describe("updateActionWithMCP", () => {
       axiosStub
         .withArgs("http://test.com/.well-known/oauth-authorization-server")
         .resolves({ status: 200 });
-      const runCommandStub = sandbox.stub(sharedOpts, "runCommand").resolves(ok(undefined));
+      const runCommandStub = sandbox
+        .stub(updateActionWithMCPDeps, "runCommand")
+        .resolves(ok(undefined));
 
       await updateActionWithMCP(args);
 
@@ -995,7 +1030,9 @@ describe("updateActionWithMCP", () => {
 
       sandbox.stub(vscode.lm, "tools").value(mockTools);
       sandbox.stub(axios, "get").onFirstCall().throws(axiosError);
-      const runCommandStub = sandbox.stub(sharedOpts, "runCommand").resolves(ok(undefined));
+      const runCommandStub = sandbox
+        .stub(updateActionWithMCPDeps, "runCommand")
+        .resolves(ok(undefined));
 
       await updateActionWithMCP(args);
 
@@ -1020,7 +1057,9 @@ describe("updateActionWithMCP", () => {
       sandbox.stub(vscode.lm, "tools").value(mockTools);
       sandbox.stub(ODRProvider, "listServers").resolves([]);
       const axiosStub = sandbox.stub(axios, "get");
-      const runCommandStub = sandbox.stub(sharedOpts, "runCommand").resolves(ok(undefined));
+      const runCommandStub = sandbox
+        .stub(updateActionWithMCPDeps, "runCommand")
+        .resolves(ok(undefined));
 
       await updateActionWithMCP(args);
 
@@ -1043,7 +1082,9 @@ describe("updateActionWithMCP", () => {
 
       sandbox.stub(vscode.lm, "tools").value(mockTools);
       sandbox.stub(axios, "get").resolves({ status: 200 });
-      const runCommandStub = sandbox.stub(sharedOpts, "runCommand").resolves(ok(undefined));
+      const runCommandStub = sandbox
+        .stub(updateActionWithMCPDeps, "runCommand")
+        .resolves(ok(undefined));
 
       const result = await updateActionWithMCP(args);
 
@@ -1083,7 +1124,7 @@ describe("updateActionWithMCP", () => {
           return Promise.resolve(ok({ type: "success", result: "test-server" }));
         }),
       });
-      sandbox.stub(sharedOpts, "runCommand").resolves(ok(undefined));
+      sandbox.stub(updateActionWithMCPDeps, "runCommand").resolves(ok(undefined));
 
       await updateActionWithMCP();
 
@@ -1105,7 +1146,9 @@ describe("updateActionWithMCP", () => {
         configurable: true,
       });
       sandbox.stub(axios, "get").resolves({ status: 200 });
-      const runCommandStub = sandbox.stub(sharedOpts, "runCommand").resolves(ok(undefined));
+      const runCommandStub = sandbox
+        .stub(updateActionWithMCPDeps, "runCommand")
+        .resolves(ok(undefined));
 
       const result = await updateActionWithMCP(args);
 
@@ -1128,7 +1171,9 @@ describe("updateActionWithMCP", () => {
         configurable: true,
       });
       sandbox.stub(axios, "get").resolves({ status: 200 });
-      const runCommandStub = sandbox.stub(sharedOpts, "runCommand").resolves(ok(undefined));
+      const runCommandStub = sandbox
+        .stub(updateActionWithMCPDeps, "runCommand")
+        .resolves(ok(undefined));
 
       const result = await updateActionWithMCP(args);
 
@@ -1165,7 +1210,9 @@ describe("updateActionWithMCP", () => {
       });
       const closeStub = sandbox.stub(Client.prototype, "close").resolves();
       sandbox.stub(axios, "get").resolves({ status: 200 });
-      const runCommandStub = sandbox.stub(sharedOpts, "runCommand").resolves(ok(undefined));
+      const runCommandStub = sandbox
+        .stub(updateActionWithMCPDeps, "runCommand")
+        .resolves(ok(undefined));
 
       const result = await updateActionWithMCP(args);
 
@@ -1207,7 +1254,9 @@ describe("updateActionWithMCP", () => {
       });
       const closeStub = sandbox.stub(Client.prototype, "close").resolves();
       sandbox.stub(axios, "get").resolves({ status: 200 });
-      const runCommandStub = sandbox.stub(sharedOpts, "runCommand").resolves(ok(undefined));
+      const runCommandStub = sandbox
+        .stub(updateActionWithMCPDeps, "runCommand")
+        .resolves(ok(undefined));
 
       const result = await updateActionWithMCP(args);
 
@@ -1241,7 +1290,9 @@ describe("updateActionWithMCP", () => {
       sandbox.stub(Client.prototype, "connect").rejects(new Error("Connection failed"));
       const closeStub = sandbox.stub(Client.prototype, "close").resolves();
       sandbox.stub(axios, "get").resolves({ status: 200 });
-      const runCommandStub = sandbox.stub(sharedOpts, "runCommand").resolves(ok(undefined));
+      const runCommandStub = sandbox
+        .stub(updateActionWithMCPDeps, "runCommand")
+        .resolves(ok(undefined));
 
       const result = await updateActionWithMCP(args);
 
@@ -1279,7 +1330,9 @@ describe("updateActionWithMCP", () => {
       });
       sandbox.stub(Client.prototype, "close").resolves();
       sandbox.stub(axios, "get").resolves({ status: 200 });
-      const runCommandStub = sandbox.stub(sharedOpts, "runCommand").resolves(ok(undefined));
+      const runCommandStub = sandbox
+        .stub(updateActionWithMCPDeps, "runCommand")
+        .resolves(ok(undefined));
 
       const result = await updateActionWithMCP(args);
 
@@ -1311,7 +1364,9 @@ describe("updateActionWithMCP", () => {
       });
       const closeStub = sandbox.stub(Client.prototype, "close").resolves();
       sandbox.stub(axios, "get").resolves({ status: 200 });
-      const runCommandStub = sandbox.stub(sharedOpts, "runCommand").resolves(ok(undefined));
+      const runCommandStub = sandbox
+        .stub(updateActionWithMCPDeps, "runCommand")
+        .resolves(ok(undefined));
 
       const result = await updateActionWithMCP(args);
 
@@ -1353,7 +1408,9 @@ describe("updateActionWithMCP", () => {
       });
       sandbox.stub(Client.prototype, "close").resolves();
       sandbox.stub(axios, "get").resolves({ status: 200 });
-      const runCommandStub = sandbox.stub(sharedOpts, "runCommand").resolves(ok(undefined));
+      const runCommandStub = sandbox
+        .stub(updateActionWithMCPDeps, "runCommand")
+        .resolves(ok(undefined));
 
       const result = await updateActionWithMCP(args);
 
@@ -1389,7 +1446,9 @@ describe("updateActionWithMCP", () => {
       });
       sandbox.stub(Client.prototype, "close").resolves();
       sandbox.stub(axios, "get").resolves({ status: 200 });
-      const runCommandStub = sandbox.stub(sharedOpts, "runCommand").resolves(ok(undefined));
+      const runCommandStub = sandbox
+        .stub(updateActionWithMCPDeps, "runCommand")
+        .resolves(ok(undefined));
 
       const result = await updateActionWithMCP(args);
 
@@ -1417,7 +1476,9 @@ describe("updateActionWithMCP", () => {
         configurable: true,
       });
       sandbox.stub(axios, "get").resolves({ status: 200 });
-      const runCommandStub = sandbox.stub(sharedOpts, "runCommand").resolves(ok(undefined));
+      const runCommandStub = sandbox
+        .stub(updateActionWithMCPDeps, "runCommand")
+        .resolves(ok(undefined));
 
       const result = await updateActionWithMCP(args);
 
@@ -1445,7 +1506,9 @@ describe("updateActionWithMCP", () => {
       isODRStub.onSecondCall().returns(true); // main function ODR check
       sandbox.stub(ODRProvider, "listServers").rejects(new Error("ODR unavailable"));
       sandbox.stub(ODRProvider, "getToolsForODRServer").resolves(mockODRTools);
-      const runCommandStub = sandbox.stub(sharedOpts, "runCommand").resolves(ok(undefined));
+      const runCommandStub = sandbox
+        .stub(updateActionWithMCPDeps, "runCommand")
+        .resolves(ok(undefined));
 
       const result = await updateActionWithMCP(args);
 
@@ -1482,7 +1545,9 @@ describe("updateActionWithMCP", () => {
       isODRStub.onSecondCall().returns(true); // main function ODR check
       sandbox.stub(ODRProvider, "listServers").resolves(mockODRServers);
       sandbox.stub(ODRProvider, "getToolsForODRServer").resolves(mockODRTools);
-      const runCommandStub = sandbox.stub(sharedOpts, "runCommand").resolves(ok(undefined));
+      const runCommandStub = sandbox
+        .stub(updateActionWithMCPDeps, "runCommand")
+        .resolves(ok(undefined));
 
       const result = await updateActionWithMCP(args);
 
@@ -1505,7 +1570,9 @@ describe("updateActionWithMCP", () => {
 
       sandbox.stub(ODRProvider, "isODRServer").returns(false);
       sandbox.stub(vscode.lm, "tools").value(mockTools);
-      const runCommandStub = sandbox.stub(sharedOpts, "runCommand").resolves(ok(undefined));
+      const runCommandStub = sandbox
+        .stub(updateActionWithMCPDeps, "runCommand")
+        .resolves(ok(undefined));
 
       const result = await updateActionWithMCP(args);
 

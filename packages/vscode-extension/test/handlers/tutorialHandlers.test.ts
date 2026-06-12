@@ -1,12 +1,15 @@
 import { OptionItem, err, ok } from "@microsoft/teamsfx-api";
-import * as templateMetadata from "@microsoft/teamsfx-core/build/component/generator/templates/metadata";
 import * as chai from "chai";
 import * as sinon from "sinon";
 import { PanelType } from "../../src/controls/PanelType";
 import { WebviewPanel } from "../../src/controls/webviewPanel";
 import { TreatmentVariableValue } from "../../src/exp/treatmentVariables";
 import * as globalVariables from "../../src/globalVariables";
-import { openTutorialHandler, selectTutorialsHandler } from "../../src/handlers/tutorialHandlers";
+import {
+  openTutorialHandler,
+  selectTutorialsHandler,
+  tutorialHandlersDeps,
+} from "../../src/handlers/tutorialHandlers";
 import * as vsc_ui from "../../src/qm/vsc_ui";
 import { ExtTelemetry } from "../../src/telemetry/extTelemetry";
 import { TelemetryTriggerFrom } from "../../src/telemetry/extTelemetryEvents";
@@ -121,7 +124,7 @@ describe("tutorialHandlers", () => {
           return Promise.resolve(ok(true));
         },
       });
-      sandbox.stub(templateMetadata, "getDefaultTemplatesOnPlatform").returns([
+      sandbox.stub(tutorialHandlersDeps, "getDefaultTemplatesOnPlatform").returns([
         {
           id: "test",
           description: "test",

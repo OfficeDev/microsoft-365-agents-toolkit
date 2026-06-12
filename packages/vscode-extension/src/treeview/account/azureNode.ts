@@ -10,6 +10,11 @@ import { AccountItemStatus, azureIcon, loadingIcon } from "./common";
 import { featureFlagManager, FeatureFlags } from "@microsoft/teamsfx-core";
 import { listAllTenants } from "@microsoft/teamsfx-core/build/common/tools";
 
+export const azureNodeDeps = {
+  listAllTenants: (token: string) => listAllTenants(token),
+  localize: (key: string, ...args: any[]) => localize(key, ...args),
+};
+
 export class AzureAccountNode extends DynamicNode {
   public status: AccountItemStatus;
 
@@ -25,7 +30,7 @@ export class AzureAccountNode extends DynamicNode {
     }
     this.status = AccountItemStatus.SignedIn;
     this.label = upn;
-    const tenants = await listAllTenants(token);
+    const tenants = await azureNodeDeps.listAllTenants(token);
     for (const tenant of tenants) {
       if (tenant.tenantId === tid && tenant.displayName) {
         this.label = `${upn} (${tenant.displayName as string})`;
@@ -71,9 +76,9 @@ export class AzureAccountNode extends DynamicNode {
       this.collapsibleState = vscode.TreeItemCollapsibleState.None;
       this.command = undefined;
     } else if (this.status === AccountItemStatus.SigningIn) {
-      this.label = localize("teamstoolkit.accountTree.signingInAzure");
+      this.label = azureNodeDeps.localize("teamstoolkit.accountTree.signingInAzure");
     } else {
-      this.label = localize("teamstoolkit.handlers.signInAzure");
+      this.label = azureNodeDeps.localize("teamstoolkit.handlers.signInAzure");
       this.collapsibleState = vscode.TreeItemCollapsibleState.None;
       this.command = {
         title: this.label,
@@ -82,13 +87,13 @@ export class AzureAccountNode extends DynamicNode {
       };
     }
     this.tooltip = new vscode.MarkdownString(
-      localize("teamstoolkit.accountTree.azureAccountTooltip")
+      azureNodeDeps.localize("teamstoolkit.accountTree.azureAccountTooltip")
     );
     this.accessibilityInformation = {
       label:
         (this.label ? (typeof this.label === "string" ? this.label : this.label.label) : "") +
         ". " +
-        localize("teamstoolkit.accountTree.azureAccountTooltip"),
+        azureNodeDeps.localize("teamstoolkit.accountTree.azureAccountTooltip"),
     };
     return this;
   }

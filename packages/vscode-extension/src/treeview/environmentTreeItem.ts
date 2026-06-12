@@ -22,6 +22,22 @@ import {
 import { localize } from "../utils/localizeUtils";
 import { DynamicNode } from "./dynamicNode";
 
+export const environmentTreeItemDeps = {
+  isRemoteEnvironment: (envName: string) => environmentNameManager.isRemoteEnvironment(envName),
+  getSubscriptionInfoFromEnv: (env: string) => getSubscriptionInfoFromEnv(env),
+  getM365TenantFromEnv: (env: string) => getM365TenantFromEnv(env),
+  getProvisionSucceedFromEnv: (env: string) => getProvisionSucceedFromEnv(env),
+  getResourceGroupNameFromEnv: (env: string) => getResourceGroupNameFromEnv(env),
+  getLocalEnvName: () => environmentNameManager.getLocalEnvName(),
+  getTestToolEnvName: () => environmentNameManager.getTestToolEnvName(),
+  isSPFxProject: () => isSPFxProject,
+  localize: (key: string, defValue?: string) => localize(key, defValue),
+  M365LoginGetStatus: (scopes: string[]) => M365Login.getInstance().getStatus({ scopes }),
+  azureAccountManagerGetAccountInfo: () => azureAccountManager.getAccountInfo(),
+  azureAccountManagerListAllSubscriptions: () => azureAccountManager.listAllSubscriptions(),
+  isSovereignHigh: () => isSovereignHigh(),
+};
+
 enum EnvInfo {
   Local = "local",
   TestTool = "testtool",
@@ -58,7 +74,7 @@ export class EnvironmentNode extends DynamicNode {
     }
 
     const children: DynamicNode[] = [];
-    if (environmentNameManager.isRemoteEnvironment(this.identifier)) {
+    if (environmentTreeItemDeps.isRemoteEnvironment(this.identifier)) {
       // check account status
       const accountStatus = await this.checkAccountForEnvironment(this.identifier);
       if (!accountStatus.isM365AccountLogin || accountStatus.isAzureAccountLogin === false) {
@@ -66,7 +82,9 @@ export class EnvironmentNode extends DynamicNode {
         children.push(warningNode);
       }
       // show subscription
-      const subscriptionInfo = await getSubscriptionInfoFromEnv(this.identifier);
+      const subscriptionInfo = await environmentTreeItemDeps.getSubscriptionInfoFromEnv(
+        this.identifier
+      );
       if (subscriptionInfo) {
         const subscriptionNode = new SubscriptionNode(this.identifier, subscriptionInfo);
         children.push(subscriptionNode);
@@ -97,25 +115,33 @@ export class EnvironmentNode extends DynamicNode {
     const warnings: string[] = [];
 
     // Check M365 account status
-    const loginStatusRes = await M365Login.getInstance().getStatus({
-      scopes: isSovereignHigh() ? GraphScopes : AppStudioScopes(),
-    });
+    const loginStatusRes = await environmentTreeItemDeps.M365LoginGetStatus(
+      environmentTreeItemDeps.isSovereignHigh() ? GraphScopes : AppStudioScopes()
+    );
     const loginStatus = loginStatusRes.isOk() ? loginStatusRes.value : undefined;
     if (loginStatus && loginStatus.status == signedIn) {
       // Signed account doesn't match
-      const m365TenantId = await getM365TenantFromEnv(env);
+      const m365TenantId = await environmentTreeItemDeps.getM365TenantFromEnv(env);
       if (m365TenantId && loginStatus.accountInfo?.tid !== m365TenantId) {
         isM365AccountLogin = false;
-        warnings.push(localize("teamstoolkit.commandsTreeViewProvider.m365AccountNotMatch"));
+        warnings.push(
+          environmentTreeItemDeps.localize(
+            "teamstoolkit.commandsTreeViewProvider.m365AccountNotMatch"
+          )
+        );
       }
     } else {
       // Not signed in
       isM365AccountLogin = false;
-      warnings.push(localize("teamstoolkit.commandsTreeViewProvider.m365AccountNotSignedIn"));
+      warnings.push(
+        environmentTreeItemDeps.localize(
+          "teamstoolkit.commandsTreeViewProvider.m365AccountNotSignedIn"
+        )
+      );
     }
 
     // Check Azure account status
-    if (isSPFxProject) {
+    if (environmentTreeItemDeps.isSPFxProject()) {
       return {
         isM365AccountLogin,
         warnings,
@@ -123,12 +149,13 @@ export class EnvironmentNode extends DynamicNode {
     }
 
     let isAzureAccountLogin = true;
-    if (azureAccountManager.getAccountInfo() !== undefined) {
-      const subscriptionInfo = await getSubscriptionInfoFromEnv(env);
+    if (environmentTreeItemDeps.azureAccountManagerGetAccountInfo() !== undefined) {
+      const subscriptionInfo = await environmentTreeItemDeps.getSubscriptionInfoFromEnv(env);
       const provisionedSubId = subscriptionInfo?.subscriptionId;
 
       if (provisionedSubId) {
-        const subscriptions: SubscriptionInfo[] = await azureAccountManager.listAllSubscriptions();
+        const subscriptions: SubscriptionInfo[] =
+          await environmentTreeItemDeps.azureAccountManagerListAllSubscriptions();
         const targetSub = subscriptions.find(
           (sub) => sub.subscriptionId === subscriptionInfo?.subscriptionId
         );
@@ -136,7 +163,9 @@ export class EnvironmentNode extends DynamicNode {
           isAzureAccountLogin = false;
           warnings.push(
             util.format(
-              localize("teamstoolkit.commandsTreeViewProvider.azureAccountNotMatch"),
+              environmentTreeItemDeps.localize(
+                "teamstoolkit.commandsTreeViewProvider.azureAccountNotMatch"
+              ),
               subscriptionInfo?.subscriptionName ?? subscriptionInfo?.subscriptionId
             )
           );
@@ -144,7 +173,11 @@ export class EnvironmentNode extends DynamicNode {
       }
     } else {
       isAzureAccountLogin = false;
-      warnings.push(localize("teamstoolkit.commandsTreeViewProvider.azureAccountNotSignedIn"));
+      warnings.push(
+        environmentTreeItemDeps.localize(
+          "teamstoolkit.commandsTreeViewProvider.azureAccountNotSignedIn"
+        )
+      );
     }
 
     return {
@@ -156,12 +189,12 @@ export class EnvironmentNode extends DynamicNode {
 
   // Get the environment info for the given environment name.
   private async getCurrentEnvInfo(envName: string): Promise<EnvInfo> {
-    if (envName === environmentNameManager.getLocalEnvName()) {
+    if (envName === environmentTreeItemDeps.getLocalEnvName()) {
       return EnvInfo.Local;
-    } else if (envName === environmentNameManager.getTestToolEnvName()) {
+    } else if (envName === environmentTreeItemDeps.getTestToolEnvName()) {
       return EnvInfo.TestTool;
     } else {
-      const provisionSucceeded = await getProvisionSucceedFromEnv(envName);
+      const provisionSucceeded = await environmentTreeItemDeps.getProvisionSucceedFromEnv(envName);
       return provisionSucceeded ? EnvInfo.ProvisionedRemoteEnv : EnvInfo.RemoteEnv;
     }
   }
@@ -227,20 +260,22 @@ class SubscriptionNode extends DynamicNode {
   public override async getTreeItem(): Promise<vscode.TreeItem> {
     this.tooltip = this.subscriptionInfo.subscriptionName
       ? util.format(
-          localize("teamstoolkit.envTree.subscriptionTooltip"),
+          environmentTreeItemDeps.localize("teamstoolkit.envTree.subscriptionTooltip"),
           this.identifier,
           this.subscriptionInfo.subscriptionName,
           this.subscriptionInfo.subscriptionId
         )
       : util.format(
-          localize("teamstoolkit.envTree.subscriptionTooltipWithoutName"),
+          environmentTreeItemDeps.localize("teamstoolkit.envTree.subscriptionTooltipWithoutName"),
           this.identifier,
           this.subscriptionInfo.subscriptionId
         );
     this.label = this.subscriptionInfo.subscriptionName ?? this.subscriptionInfo.subscriptionId;
     this.description = this.subscriptionInfo.subscriptionId;
 
-    const resourceGroupName = await getResourceGroupNameFromEnv(this.identifier);
+    const resourceGroupName = await environmentTreeItemDeps.getResourceGroupNameFromEnv(
+      this.identifier
+    );
     if (resourceGroupName) {
       this.resourceGroupNode = new ResourceGroupNode(this.identifier, resourceGroupName);
       this.collapsibleState = vscode.TreeItemCollapsibleState.Expanded;

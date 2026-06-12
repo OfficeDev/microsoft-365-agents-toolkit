@@ -8,7 +8,13 @@ import * as ui from "../../src/qm/vsc_ui";
 describe("WebSocketEventHandler", () => {
   const sandbox = sinon.createSandbox();
 
-  beforeEach(() => {});
+  beforeEach(() => {
+    (vscode as any).debug = {
+      activeDebugConsole: {
+        appendLine: () => {},
+      },
+    };
+  });
 
   afterEach(() => {
     sandbox.restore();

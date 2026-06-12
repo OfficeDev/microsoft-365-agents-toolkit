@@ -34,13 +34,19 @@ import { getTriggerFromProperty } from "../utils/telemetryUtils";
 import { runCommand } from "./sharedOpts";
 import { askTargetEnvironment } from "./envHandlers";
 
+export const aadManifestHandlersDeps = {
+  isValidProject: (path?: string) => isValidProject(path),
+  runCommand: (stage: Stage, inputs?: any) => runCommand(stage, inputs),
+  askTargetEnvironment: () => askTargetEnvironment(),
+};
+
 export async function openPreviewAadFileHandler(args: any[]): Promise<Result<any, FxError>> {
   ExtTelemetry.sendTelemetryEvent(
     TelemetryEvent.PreviewAadManifestFile,
     getTriggerFromProperty(args)
   );
   const workspacePath = workspaceUri?.fsPath;
-  const validProject = isValidProject(workspacePath);
+  const validProject = aadManifestHandlersDeps.isValidProject(workspacePath);
   if (!validProject) {
     ExtTelemetry.sendTelemetryErrorEvent(
       TelemetryEvent.PreviewAadManifestFile,
@@ -49,7 +55,7 @@ export async function openPreviewAadFileHandler(args: any[]): Promise<Result<any
     return err(new InvalidProjectError(workspacePath || ""));
   }
 
-  const selectedEnv = await askTargetEnvironment();
+  const selectedEnv = await aadManifestHandlersDeps.askTargetEnvironment();
   if (selectedEnv.isErr()) {
     ExtTelemetry.sendTelemetryErrorEvent(TelemetryEvent.PreviewAadManifestFile, selectedEnv.error);
     return err(selectedEnv.error);
@@ -62,7 +68,7 @@ export async function openPreviewAadFileHandler(args: any[]): Promise<Result<any
   );
   const inputs = getSystemInputs();
   inputs.env = envName;
-  const res = await runCommand(Stage.buildAad, inputs);
+  const res = await aadManifestHandlersDeps.runCommand(Stage.buildAad, inputs);
 
   if (res.isErr()) {
     ExtTelemetry.sendTelemetryErrorEvent(TelemetryEvent.PreviewAadManifestFile, res.error);

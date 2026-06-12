@@ -5,6 +5,7 @@ import * as globalVariables from "../../src/globalVariables";
 import { Uri } from "vscode";
 import { envUtil, metadataUtil, pathUtils } from "@microsoft/teamsfx-core";
 import * as envTreeUtils from "../../src/utils/envTreeUtils";
+import { envTreeUtilsDeps } from "../../src/utils/envTreeUtils";
 import { ok } from "@microsoft/teamsfx-api";
 import * as fileSystemUtils from "../../src/utils/fileSystemUtils";
 
@@ -26,25 +27,25 @@ describe("EnvTreeUtils", () => {
     });
 
     it("returns subscription info successfully", async () => {
-      sandbox.stub(fileSystemUtils, "getProvisionResultJson").resolves(provisionResult);
+      sandbox.stub(envTreeUtilsDeps, "getProvisionResultJson").resolves(provisionResult);
       const result = await envTreeUtils.getSubscriptionInfoFromEnv("test");
       chai.expect(result).deep.equals(subscriptionInfo);
     });
 
     it("returns undefined if get provision result throws error", async () => {
-      sandbox.stub(fileSystemUtils, "getProvisionResultJson").rejects(new Error());
+      sandbox.stub(envTreeUtilsDeps, "getProvisionResultJson").rejects(new Error());
       const result = await envTreeUtils.getSubscriptionInfoFromEnv("test");
       chai.expect(result).is.undefined;
     });
 
     it("returns undefined if get provision result is undefined", async () => {
-      sandbox.stub(fileSystemUtils, "getProvisionResultJson").resolves(undefined);
+      sandbox.stub(envTreeUtilsDeps, "getProvisionResultJson").resolves(undefined);
       const result = await envTreeUtils.getSubscriptionInfoFromEnv("test");
       chai.expect(result).is.undefined;
     });
 
     it("returns undefined if get provision result does not contain subscriptionId", async () => {
-      sandbox.stub(fileSystemUtils, "getProvisionResultJson").resolves({ solution: {} } as any);
+      sandbox.stub(envTreeUtilsDeps, "getProvisionResultJson").resolves({ solution: {} } as any);
       const result = await envTreeUtils.getSubscriptionInfoFromEnv("test");
       chai.expect(result).is.undefined;
     });
@@ -58,6 +59,7 @@ describe("EnvTreeUtils", () => {
 
     beforeEach(() => {
       sandbox.stub(globalVariables, "workspaceUri").value({ fsPath: "/test" });
+      sandbox.stub(envTreeUtilsDeps, "getWorkspacePath").returns("/test");
     });
 
     afterEach(() => {
@@ -65,21 +67,21 @@ describe("EnvTreeUtils", () => {
     });
 
     it("returns m365 tenantId successfully", async () => {
-      sandbox.stub(fs, "pathExists").resolves(true);
-      sandbox.stub(fs, "readFileSync").returns("TEAMS_APP_TENANT_ID=fakeTenantId\n");
+      sandbox.stub(envTreeUtilsDeps, "pathExists").resolves(true);
+      sandbox.stub(envTreeUtilsDeps, "readFileSync").returns("TEAMS_APP_TENANT_ID=fakeTenantId\n");
       const result = await envTreeUtils.getM365TenantFromEnv("test");
       chai.expect(result).equal("fakeTenantId");
     });
 
     it("returns undefined if env file doesn't exist", async () => {
-      sandbox.stub(fs, "pathExists").resolves(false);
+      sandbox.stub(envTreeUtilsDeps, "pathExists").resolves(false);
       const result = await envTreeUtils.getM365TenantFromEnv("test");
       chai.expect(result).equal(undefined);
     });
 
     it("returns undefined if tenant id doesn't exist in env file", async () => {
-      sandbox.stub(fs, "pathExists").resolves(true);
-      sandbox.stub(fs, "readFileSync").returns("");
+      sandbox.stub(envTreeUtilsDeps, "pathExists").resolves(true);
+      sandbox.stub(envTreeUtilsDeps, "readFileSync").returns("");
       const result = await envTreeUtils.getM365TenantFromEnv("test");
       chai.expect(result).equal(undefined);
     });
@@ -99,25 +101,25 @@ describe("EnvTreeUtils", () => {
     });
 
     it("returns resource group name successfully", async () => {
-      sandbox.stub(fileSystemUtils, "getProvisionResultJson").resolves(provisionResult);
+      sandbox.stub(envTreeUtilsDeps, "getProvisionResultJson").resolves(provisionResult);
       const result = await envTreeUtils.getResourceGroupNameFromEnv("test");
       chai.expect(result).equal("fakeResourceGroupName");
     });
 
     it("returns undefined if get provision result throws error", async () => {
-      sandbox.stub(fileSystemUtils, "getProvisionResultJson").rejects(new Error());
+      sandbox.stub(envTreeUtilsDeps, "getProvisionResultJson").rejects(new Error());
       const result = await envTreeUtils.getResourceGroupNameFromEnv("test");
       chai.expect(result).is.undefined;
     });
 
     it("returns undefined if get provision result returns undefined", async () => {
-      sandbox.stub(fileSystemUtils, "getProvisionResultJson").resolves(undefined);
+      sandbox.stub(envTreeUtilsDeps, "getProvisionResultJson").resolves(undefined);
       const result = await envTreeUtils.getResourceGroupNameFromEnv("test");
       chai.expect(result).is.undefined;
     });
 
     it("returns undefined if get provision result does not contain solution", async () => {
-      sandbox.stub(fileSystemUtils, "getProvisionResultJson").resolves({});
+      sandbox.stub(envTreeUtilsDeps, "getProvisionResultJson").resolves({});
       const result = await envTreeUtils.getResourceGroupNameFromEnv("test");
       chai.expect(result).is.undefined;
     });
@@ -132,11 +134,8 @@ describe("EnvTreeUtils", () => {
 
     it("returns false if teamsAppId is empty", async () => {
       sandbox.stub(globalVariables, "workspaceUri").value(Uri.file("test"));
-      sandbox.stub(envUtil, "readEnv").resolves(
-        ok({
-          TEAMS_APP_ID: "",
-        })
-      );
+      sandbox.stub(envTreeUtilsDeps, "getWorkspacePath").returns("test");
+      sandbox.stub(envTreeUtilsDeps, "getV3TeamsAppId").resolves("");
 
       const result = await envTreeUtils.getProvisionSucceedFromEnv("test");
 
@@ -145,14 +144,8 @@ describe("EnvTreeUtils", () => {
 
     it("returns true if teamsAppId is not empty", async () => {
       sandbox.stub(globalVariables, "workspaceUri").value(Uri.file("test"));
-      sandbox.stub(envUtil, "readEnv").resolves(
-        ok({
-          TEAMS_APP_ID: "xxx",
-        })
-      );
-      sandbox.stub(globalVariables, "workspaceUri").value(Uri.file("test"));
-      sandbox.stub(pathUtils, "getYmlFilePath");
-      sandbox.stub(metadataUtil, "parse").resolves(ok({} as any));
+      sandbox.stub(envTreeUtilsDeps, "getWorkspacePath").returns("test");
+      sandbox.stub(envTreeUtilsDeps, "getV3TeamsAppId").resolves("xxx");
 
       const result = await envTreeUtils.getProvisionSucceedFromEnv("test");
 
@@ -161,7 +154,8 @@ describe("EnvTreeUtils", () => {
 
     it("returns false if teamsAppId has error", async () => {
       sandbox.stub(globalVariables, "workspaceUri").value(Uri.file("test"));
-      sandbox.stub(envUtil, "readEnv").resolves(ok({}));
+      sandbox.stub(envTreeUtilsDeps, "getWorkspacePath").returns("test");
+      sandbox.stub(envTreeUtilsDeps, "getV3TeamsAppId").rejects(new Error("test"));
 
       const result = await envTreeUtils.getProvisionSucceedFromEnv("test");
 
