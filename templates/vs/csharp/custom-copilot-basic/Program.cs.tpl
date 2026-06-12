@@ -47,7 +47,7 @@ if (config.Teams.BotType == "UserAssignedMsi")
 }
 
 builder.Services.AddSingleton<Controller>();
-builder.AddTeams(appBuilder);
+builder.AddTeams(appBuilder, skipAuth: string.IsNullOrEmpty(config.Teams.ClientId));
 
 // Read instructions from file
 var instructionsPath = Path.Combine(builder.Environment.ContentRootPath, "Prompts", "instructions.txt");
