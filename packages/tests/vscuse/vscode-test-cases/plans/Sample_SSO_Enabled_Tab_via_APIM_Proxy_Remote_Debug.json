@@ -10,14 +10,14 @@
       "step_retry_timeout": 0.0
     },
     "total_steps": 11,
-    "created_at": "2026-06-11T07:45:46.518742",
+    "created_at": "2026-06-12T05:54:06.230301",
     "name": "Sample SSO Enabled Tab via APIM Proxy Remote Debug",
     "description": {
       "other": "",
       "owner": "v-helzha@microsoft.com",
       "workitem": "25191534"
     },
-    "generated_at": "2026-06-11T07:45:46.518742",
+    "generated_at": "2026-06-12T05:54:06.229771",
     "execution_order": [
       "plan_r_1107_015711",
       "step_0935df50",
@@ -39,7 +39,7 @@
       "step_319aecac"
     ],
     "tags": [],
-    "updated_at": "2026-06-11T08:43:25.468799"
+    "updated_at": "2026-06-12T05:55:56.454964"
   },
   "steps": [
     {
@@ -61,7 +61,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_0935df50",
-      "created_at": "2026-06-11T07:45:46.527826",
+      "created_at": "2026-06-12T05:54:06.245808",
       "plan_id": "plan_cd4eb9c5"
     },
     {
@@ -87,7 +87,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_b2be6335",
-      "created_at": "2026-06-11T07:45:46.533584",
+      "created_at": "2026-06-12T05:54:06.264348",
       "plan_id": "plan_cd4eb9c5"
     },
     {
@@ -105,7 +105,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": null,
-      "created_at": "2026-06-11T07:45:46.542973",
+      "created_at": "2026-06-12T05:54:06.274435",
       "plan_id": "plan_cd4eb9c5"
     },
     {
@@ -129,9 +129,11 @@
         "dhash:543:459:0:10:10b0a8928eac9080"
       ],
       "postconditions": [],
-      "tags": [],
+      "tags": [
+        "precondition_wait_timeout:240"
+      ],
       "screenshot": "step_0cd42e8d",
-      "created_at": "2026-06-11T07:45:46.549439",
+      "created_at": "2026-06-12T05:54:06.280005",
       "plan_id": "plan_cd4eb9c5"
     },
     {
@@ -157,7 +159,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_aba2bfa1",
-      "created_at": "2026-06-11T07:45:46.549439",
+      "created_at": "2026-06-12T05:54:06.292102",
       "plan_id": "plan_cd4eb9c5"
     },
     {
@@ -183,7 +185,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_6ceaa581",
-      "created_at": "2026-06-11T08:43:25.397933",
+      "created_at": "2026-06-12T05:54:06.300109",
       "plan_id": "plan_cd4eb9c5"
     },
     {
@@ -209,7 +211,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_addd0bc4",
-      "created_at": "2026-06-11T08:43:25.413239",
+      "created_at": "2026-06-12T05:54:06.309493",
       "plan_id": "plan_cd4eb9c5"
     },
     {
@@ -235,7 +237,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_98ebfc70",
-      "created_at": "2026-06-11T08:43:25.425639",
+      "created_at": "2026-06-12T05:54:06.317460",
       "plan_id": "plan_cd4eb9c5"
     },
     {
@@ -261,7 +263,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_38c54995",
-      "created_at": "2026-06-11T08:43:25.438750",
+      "created_at": "2026-06-12T05:54:06.324989",
       "plan_id": "plan_cd4eb9c5"
     },
     {
@@ -287,7 +289,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_86b646e3",
-      "created_at": "2026-06-11T08:43:25.451635",
+      "created_at": "2026-06-12T05:54:06.331104",
       "plan_id": "plan_cd4eb9c5"
     },
     {
@@ -305,7 +307,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": null,
-      "created_at": "2026-06-11T07:45:46.565459",
+      "created_at": "2026-06-12T05:54:06.339104",
       "plan_id": "plan_cd4eb9c5"
     }
   ],
