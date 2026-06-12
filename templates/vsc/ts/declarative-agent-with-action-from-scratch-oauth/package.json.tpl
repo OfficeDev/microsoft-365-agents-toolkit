@@ -2,7 +2,7 @@
     "name": "apipluginoauth",
     "version": "1.0.0",
     "engines": {
-        "node": "18 || 20 || 22"
+        "node": "22"
     },
     "scripts": {
         "dev:teamsfx": "env-cmd --silent -f .localConfigs npm run dev",
@@ -22,7 +22,7 @@
     },
     "devDependencies": {
         "@types/debug": "^4.1.12",
-        "@types/node": "^20.14.9",
+        "@types/node": "^22.0.0",
         "env-cmd": "^10.1.0",
         "rimraf": "^5.0.7",
         "typescript": "^4.1.6"

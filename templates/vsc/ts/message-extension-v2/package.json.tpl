@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Microsoft 365 Agents Toolkit message extension sample",
   "engines": {
-    "node": "20 || 22"
+    "node": "22"
   },
   "author": "Microsoft",
   "license": "MIT",

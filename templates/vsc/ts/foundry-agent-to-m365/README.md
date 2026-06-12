@@ -30,7 +30,7 @@ This approach allows you to leverage your existing Foundry agents directly withi
 >
 > To run the template in your local dev machine, you will need:
 >
-> - [Node.js](https://nodejs.org/), supported versions: 18, 20, 22.
+> - [Node.js](https://nodejs.org/), supported versions: 22.
 > - [Microsoft 365 Agents Toolkit Visual Studio Code Extension](https://aka.ms/teams-toolkit) latest version or [Microsoft 365 Agents Toolkit CLI](https://aka.ms/teamsfx-toolkit-cli).
 > - A Microsoft Foundry project with a deployed agent (e.g., `mail-assistant`)
 > - Azure credentials configured (run `az login` if using Azure CLI)

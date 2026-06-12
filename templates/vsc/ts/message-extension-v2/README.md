@@ -10,7 +10,7 @@ A Teams app that show cases three message extensions features:
 
 > **Prerequisites**
 >
-> - [Node.js](https://nodejs.org/), supported versions: 20, 22
+> - [Node.js](https://nodejs.org/), supported versions: 22
 > - [Microsoft 365 Agents Toolkit Visual Studio Code Extension](https://aka.ms/teams-toolkit) version 5.0.0 and higher or [Microsoft 365 Agents Toolkit CLI](https://aka.ms/teamsfx-toolkit-cli)
 
 > For local debugging using Microsoft 365 Agents Toolkit CLI, you need to do some extra steps described in [Set up your Microsoft 365 Agents Toolkit CLI for local debugging](https://aka.ms/teamsfx-cli-debugging).

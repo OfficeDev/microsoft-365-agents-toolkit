@@ -12,7 +12,7 @@
     "dev_server_port": 3000
   },
   "engines": {
-    "node": "18 || 20 || 22"
+    "node": "22"
   },
   "scripts": {
     "build": "webpack --mode production",

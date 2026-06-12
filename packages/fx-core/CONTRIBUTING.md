@@ -7,7 +7,7 @@ Welcome and thank you for your interest in contributing to **fx-core**! Before c
 Follow the official documents to install the required softwares:
 
 1. [Git](https://git-scm.com/)
-2. [Node.js and NPM](https://nodejs.org/), **x64**, Node version >= 18
+2. [Node.js and NPM](https://nodejs.org/), **x64**, Node version >= 22
 3. [PNPM](https://pnpm.io/), PNPM version >=8
 4. [Visual Studio Code](https://code.visualstudio.com/)
 

@@ -816,59 +816,39 @@ describe("Func Tools Checker Test", () => {
     // not match cases
     {
       funcVersion: "4.0.0",
-      nodeVersion: "12.0.0",
+      nodeVersion: "22.0.0",
       isSuccess: false,
     },
     {
-      funcVersion: "3.0.0",
-      nodeVersion: "16.0.0",
-      isSuccess: false,
-    },
-    {
-      funcVersion: "4.0.0",
-      nodeVersion: "18.0.0",
+      funcVersion: "4.0.5529",
+      nodeVersion: "24.0.0",
       isSuccess: false,
     },
     // match cases
     {
-      funcVersion: "3.0.0",
-      nodeVersion: "12.0.0",
+      funcVersion: "4.0.5530",
+      nodeVersion: "22.0.0",
       isSuccess: true,
     },
     {
-      funcVersion: "3.0.0",
-      nodeVersion: "14.0.0",
+      funcVersion: "4.12.0",
+      nodeVersion: "22.0.0",
       isSuccess: true,
     },
     {
-      funcVersion: "4.0.0",
-      nodeVersion: "16.0.0",
+      funcVersion: "4.0.5530",
+      nodeVersion: "24.0.0",
       isSuccess: true,
     },
     {
-      funcVersion: "4.0.4670",
-      nodeVersion: "18.0.0",
+      funcVersion: "4.12.0",
+      nodeVersion: "24.0.0",
       isSuccess: true,
     },
-    {
-      funcVersion: "4.0.5095",
-      nodeVersion: "18.0.0",
-      isSuccess: true,
-    },
-    {
-      funcVersion: "5.0.0",
-      nodeVersion: "16.0.0",
-      isSuccess: true,
-    },
-    {
-      funcVersion: "5.0.0",
-      nodeVersion: "18.0.0",
-      isSuccess: true,
-    },
-    // ignore validation cases
+    // ignore validation cases (node version not in mapping table)
     {
       funcVersion: "4.0.0",
-      nodeVersion: "11.0.0",
+      nodeVersion: "18.0.0",
       isSuccess: true,
     },
     {

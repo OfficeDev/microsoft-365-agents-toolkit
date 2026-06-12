@@ -2,7 +2,7 @@
     "name": "{{SafeProjectNameLowerCase}}",
     "version": "1.0.0",
     "engines": {
-        "node": "18 || 20 || 22"
+        "node": "22"
     },
     "scripts": {
         "dev:teamsfx": "env-cmd --silent -f .localConfigs npm run dev",
@@ -19,7 +19,7 @@
     },
     "devDependencies": {
         "env-cmd": "^10.1.0",
-        "@types/node": "^18.11.9",
+        "@types/node": "^22.0.0",
         "typescript": "^4.1.6"
     },
     "main": "dist/src/functions/*.js"

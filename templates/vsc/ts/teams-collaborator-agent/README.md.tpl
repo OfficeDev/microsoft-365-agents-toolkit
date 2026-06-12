@@ -36,7 +36,7 @@ This manager may route to a capability based on the request--this capability ret
 
 ### Prerequisites
 
-- [Node.js](https://nodejs.org/) version 20, 22
+- [Node.js](https://nodejs.org/) version 22
 - [npm](https://www.npmjs.com/) (comes with Node.js)
 - [Microsoft 365 Agents Toolkit](https://marketplace.visualstudio.com/items?itemName=TeamsDevApp.ms-teams-vscode-extension) for Visual Studio Code
 - [Visual Studio Code](https://code.visualstudio.com/)

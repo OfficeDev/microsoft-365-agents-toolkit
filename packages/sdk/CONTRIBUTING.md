@@ -10,7 +10,7 @@ To test the SDK, you'd better install [Visual Studio Code](https://code.visualst
 ## Prerequisites
 
 - Git
-- Node 18 or higher (Node 18 is recommended)
+- Node 22 or higher (Node 22 is recommended)
 - PNPM 8 or higher
 
 # Building SDK

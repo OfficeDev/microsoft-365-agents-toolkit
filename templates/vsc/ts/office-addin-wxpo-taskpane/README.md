@@ -7,7 +7,7 @@ Now you have the ability to create a single unit of distribution for all your Mi
 
 ## Prerequisites
 
-- [Node.js](https://nodejs.org/), supported versions: 18, 20, 22.
+- [Node.js](https://nodejs.org/), supported versions: 22.
 - Word/Excel/PowerPoint for Windows: Beta Channel, Build 18514 or higher. Outlook For Windows, Build 16425 or higher. Follow [this link](https://github.com/OfficeDev/TeamsFx/wiki/How-to-switch-Outlook-client-update-channel-and-verify-Outlook-client-build-version) for switching update channels and check your Office client build version.
 - Edge installed for debugging Office add-in.
 - A M365 account. If you do not have M365 account, apply one from [M365 developer program](https://developer.microsoft.com/en-us/microsoft-365/dev-program)

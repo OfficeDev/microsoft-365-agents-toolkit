@@ -30,7 +30,7 @@
   "devDependencies": {
     "@microsoft/microsoft-graph-client": "^3.0.6",
     "@microsoft/microsoft-graph-types": "^2.40.0",
-    "@types/node": "^18.0.0",
+    "@types/node": "^22.0.0",
     "azure-functions-core-tools": "^4.10.0",
     "azurite": "^3.35.0",
     "minimist": "^1.2.8",

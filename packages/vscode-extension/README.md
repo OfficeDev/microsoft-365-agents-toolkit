@@ -69,7 +69,7 @@ Verify you have the right prerequisites for building apps and install some recom
 <table>
     <tr>
         <td><img src="https://raw.githubusercontent.com/OfficeDev/TeamsFx/main/packages/vscode-extension/img/landingPage_nodejs.png"></td>
-        <td><h3>Node.js</h3>As a fundamental runtime context for app, Node.js is required. If you develop SPFx Tab app, please install v18.x.</td>
+        <td><h3>Node.js</h3>As a fundamental runtime context for app, Node.js is required. If you develop SPFx Tab app, please install v22.x.</td>
     </tr>
     <tr>
         <td><img src="https://raw.githubusercontent.com/OfficeDev/TeamsFx/main/packages/vscode-extension/img/landingPage_m365.png"></td>
