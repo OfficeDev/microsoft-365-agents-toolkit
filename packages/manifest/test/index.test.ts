@@ -181,6 +181,48 @@ describe("ManifestUtil", () => {
     }
   });
 
+  // An agentConnector that relies on dynamic MCP tool discovery legitimately
+  // omits `mcpToolDescription` — its presence is the opt-out of dynamic
+  // discovery, so requiring it makes dynamic discovery impossible to express.
+  // devPreview keeps it optional; v1.27/v1.28 must match.
+  for (const version of ["1.27", "1.28"]) {
+    it(`accepts an agentConnector remoteMcpServer without mcpToolDescription (v${version})`, () => {
+      const json = {
+        $schema: `https://developer.microsoft.com/en-us/json-schemas/teams/v${version}/MicrosoftTeams.schema.json`,
+        manifestVersion: version,
+        version: "1.0.0",
+        id: "${{TEAMS_APP_ID}}",
+        developer: {
+          name: "Contoso",
+          websiteUrl: "https://www.example.com",
+          privacyUrl: "https://www.example.com/privacy",
+          termsOfUseUrl: "https://www.example.com/termsofuse",
+        },
+        icons: { color: "color.png", outline: "outline.png" },
+        name: { short: "Contoso", full: "Contoso App" },
+        description: { short: "Short", full: "Full description" },
+        accentColor: "#FFFFFF",
+        agentConnectors: [
+          {
+            id: "crm",
+            displayName: "CRM",
+            description: "Contoso CRM MCP",
+            toolSource: {
+              remoteMcpServer: { mcpServerUrl: "https://crm.contoso.com/mcp" },
+            },
+          },
+        ],
+      };
+      const manifest = TeamsManifestConverter.jsonToManifest(JSON.stringify(json)) as any;
+      chai.expect(manifest.agentConnectors).to.have.length(1);
+      chai
+        .expect(manifest.agentConnectors[0].toolSource.remoteMcpServer.mcpServerUrl)
+        .to.equal("https://crm.contoso.com/mcp");
+      chai.expect(manifest.agentConnectors[0].toolSource.remoteMcpServer.mcpToolDescription).to.be
+        .undefined;
+    });
+  }
+
   describe("fetchSchema", () => {
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     const mockFetch = require("../src/fetchHelper");

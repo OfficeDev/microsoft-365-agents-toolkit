@@ -251,7 +251,7 @@ export interface RemoteMCPServer {
      * not both). When this property is present it indicates that dynamic discovery will not be
      * used.
      */
-    mcpToolDescription: MCPToolDescription;
+    mcpToolDescription?: MCPToolDescription;
     /**
      * Authorization configuration for connecting to the local MCP server. The design mirrors
      * that of Plugin Manifests
@@ -2680,7 +2680,7 @@ const typeMap: any = {
     ], false),
     "RemoteMCPServer": o([
         { json: "mcpServerUrl", js: "mcpServerUrl", typ: "" },
-        { json: "mcpToolDescription", js: "mcpToolDescription", typ: r("MCPToolDescription") },
+        { json: "mcpToolDescription", js: "mcpToolDescription", typ: u(undefined, r("MCPToolDescription")) },
         { json: "authorization", js: "authorization", typ: u(undefined, r("RemoteMCPServerAuthorization")) },
     ], false),
     "RemoteMCPServerAuthorization": o([

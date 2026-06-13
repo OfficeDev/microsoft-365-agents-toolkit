@@ -1513,7 +1513,7 @@
                     }
                   }
                 },
-                    "required": [ "mcpServerUrl", "mcpToolDescription"
+                    "required": [ "mcpServerUrl"
  ]
               }
             },
