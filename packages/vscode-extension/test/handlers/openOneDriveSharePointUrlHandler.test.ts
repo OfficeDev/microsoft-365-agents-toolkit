@@ -1,8 +1,9 @@
+import { vi } from "vitest";
+import { mockValue } from "../mocks/vitestMockUtils";
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
 import * as chai from "chai";
-import * as sinon from "sinon";
 import * as vscode from "vscode";
 import * as vsc_ui from "../../src/qm/vsc_ui";
 import { openOneDriveSharePointUrlHandler } from "../../src/handlers/openOneDriveSharePointUrlHandler";
@@ -14,21 +15,15 @@ import {
 } from "../../src/telemetry/extTelemetryEvents";
 
 describe("openOneDriveSharePointUrlHandler", () => {
-  const sandbox = sinon.createSandbox();
-
   beforeEach(() => {
-    sandbox.stub(vsc_ui, "VS_CODE_UI").value(new vsc_ui.VsCodeUI(<vscode.ExtensionContext>{}));
-  });
-
-  afterEach(() => {
-    sandbox.restore();
+    mockValue(vsc_ui, "VS_CODE_UI", new vsc_ui.VsCodeUI(<vscode.ExtensionContext>{}));
   });
 
   it("should not open URL when no active editor", async () => {
     // Stub window.activeTextEditor to return null
-    sandbox.stub(vscode.window, "activeTextEditor").value(undefined);
-    const openUrlStub = sandbox.stub(vsc_ui.VS_CODE_UI, "openUrl");
-    const sendTelemetryStub = sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
+    mockValue(vscode.window, "activeTextEditor", undefined);
+    const openUrlStub = vi.spyOn(vsc_ui.VS_CODE_UI, "openUrl");
+    const sendTelemetryStub = vi.spyOn(ExtTelemetry, "sendTelemetryEvent");
 
     await openOneDriveSharePointUrlHandler(["https://example.com"]);
 
@@ -44,10 +39,10 @@ describe("openOneDriveSharePointUrlHandler", () => {
 
   it("should open URL when active editor exists", async () => {
     // Mock active editor
-    sandbox.stub(vscode.window, "activeTextEditor").value({} as vscode.TextEditor);
+    mockValue(vscode.window, "activeTextEditor", {} as vscode.TextEditor);
     const testUrl = "https://example.com";
-    const openUrlStub = sandbox.stub(vsc_ui.VS_CODE_UI, "openUrl");
-    const sendTelemetryStub = sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
+    const openUrlStub = vi.spyOn(vsc_ui.VS_CODE_UI, "openUrl");
+    const sendTelemetryStub = vi.spyOn(ExtTelemetry, "sendTelemetryEvent");
 
     await openOneDriveSharePointUrlHandler([testUrl]);
 

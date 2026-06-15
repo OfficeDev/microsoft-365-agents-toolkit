@@ -1,9 +1,10 @@
+import { vi } from "vitest";
+import { mockValue } from "../mocks/vitestMockUtils";
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 import { LocalEnvManager, TaskOverallLabel } from "@microsoft/teamsfx-core";
 import * as chai from "chai";
 import path from "path";
-import * as sinon from "sinon";
 import * as vscode from "vscode";
 import {
   DefaultPlaceholder,
@@ -92,37 +93,37 @@ describe("LocalTelemetryReporter", () => {
   });
 
   describe("getTaskInfo()", () => {
-    const sandbox = sinon.createSandbox();
-
     afterEach(async () => {
-      sandbox.restore();
+      vi.restoreAllMocks();
     });
 
     it("Failed to get task.json", async () => {
-      sandbox.stub(globalVariables, "isTeamsFxProject").value(true);
-      sandbox
-        .stub(globalVariables, "workspaceUri")
-        .value(vscode.Uri.parse(path.resolve(__dirname, "unknown")));
-      sandbox.stub(LocalEnvManager.prototype, "getTaskJson").returns(Promise.resolve(undefined));
+      mockValue(globalVariables, "isTeamsFxProject", true);
+      vi.spyOn(globalVariables, "workspaceUri").value(
+        vscode.Uri.parse(path.resolve(__dirname, "unknown"))
+      );
+      vi.spyOn(LocalEnvManager.prototype, "getTaskJson").mockReturnValue(
+        Promise.resolve(undefined)
+      );
       const res = await getTaskInfo();
       chai.assert.isUndefined(res);
     });
 
     it("Failed to get renamed label", async () => {
-      sandbox.stub(globalVariables, "isTeamsFxProject").value(true);
-      sandbox
-        .stub(globalVariables, "workspaceUri")
-        .value(vscode.Uri.parse(path.resolve(__dirname, "data", "renameLabel")));
+      mockValue(globalVariables, "isTeamsFxProject", true);
+      vi.spyOn(globalVariables, "workspaceUri").value(
+        vscode.Uri.parse(path.resolve(__dirname, "data", "renameLabel"))
+      );
       const res = await getTaskInfo();
       chai.assert.isEmpty(res?.PreLaunchTaskInfo);
       chai.assert.isFalse(res?.IsTransparentTask);
     });
 
     it("task.json of old tab project", async () => {
-      sandbox.stub(globalVariables, "isTeamsFxProject").value(true);
-      sandbox
-        .stub(globalVariables, "workspaceUri")
-        .value(vscode.Uri.parse(path.resolve(__dirname, "data", "oldTab")));
+      mockValue(globalVariables, "isTeamsFxProject", true);
+      vi.spyOn(globalVariables, "workspaceUri").value(
+        vscode.Uri.parse(path.resolve(__dirname, "data", "oldTab"))
+      );
       const res = await getTaskInfo();
       chai.assert.exists(res?.PreLaunchTaskInfo);
       chai.assert.sameDeepOrderedMembers(
@@ -149,10 +150,10 @@ describe("LocalTelemetryReporter", () => {
     });
 
     it("task.json of a tab + bot + func project", async () => {
-      sandbox.stub(globalVariables, "isTeamsFxProject").value(true);
-      sandbox
-        .stub(globalVariables, "workspaceUri")
-        .value(vscode.Uri.parse(path.resolve(__dirname, "data", "tabbotfunc")));
+      mockValue(globalVariables, "isTeamsFxProject", true);
+      vi.spyOn(globalVariables, "workspaceUri").value(
+        vscode.Uri.parse(path.resolve(__dirname, "data", "tabbotfunc"))
+      );
       const res = await getTaskInfo();
       chai.assert.isTrue(res?.IsTransparentTask);
       chai.assert.isUndefined(res?.PreLaunchTaskInfo?.[TaskOverallLabel.TransparentM365]);
@@ -205,10 +206,10 @@ describe("LocalTelemetryReporter", () => {
     });
 
     it("task.json of a m365 project", async () => {
-      sandbox.stub(globalVariables, "isTeamsFxProject").value(true);
-      sandbox
-        .stub(globalVariables, "workspaceUri")
-        .value(vscode.Uri.parse(path.resolve(__dirname, "data", "m365")));
+      mockValue(globalVariables, "isTeamsFxProject", true);
+      vi.spyOn(globalVariables, "workspaceUri").value(
+        vscode.Uri.parse(path.resolve(__dirname, "data", "m365"))
+      );
       const res = await getTaskInfo();
       chai.assert.isTrue(res?.IsTransparentTask);
       chai.assert.exists(res?.PreLaunchTaskInfo?.[TaskOverallLabel.TransparentM365]);
@@ -290,10 +291,10 @@ describe("LocalTelemetryReporter", () => {
       );
     });
     it("task.json of user customized project", async () => {
-      sandbox.stub(globalVariables, "isTeamsFxProject").value(true);
-      sandbox
-        .stub(globalVariables, "workspaceUri")
-        .value(vscode.Uri.parse(path.resolve(__dirname, "data", "customized")));
+      mockValue(globalVariables, "isTeamsFxProject", true);
+      vi.spyOn(globalVariables, "workspaceUri").value(
+        vscode.Uri.parse(path.resolve(__dirname, "data", "customized"))
+      );
       const res = await getTaskInfo();
       chai.assert.isTrue(res?.IsTransparentTask);
       chai.assert.isUndefined(res?.PreLaunchTaskInfo?.[TaskOverallLabel.TransparentM365]);

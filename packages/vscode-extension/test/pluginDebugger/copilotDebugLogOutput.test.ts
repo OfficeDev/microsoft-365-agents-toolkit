@@ -1,9 +1,10 @@
 import { LogLevel } from "@microsoft/teamsfx-api";
 import * as chai from "chai";
-import * as sinon from "sinon";
 import * as vscode from "vscode";
 import { ANSIColors } from "../../src/debug/common/debugConstants";
 import * as globalVariables from "../../src/globalVariables";
+import { vi } from "vitest";
+import { mockValue } from "../mocks/vitestMockUtils";
 import {
   CopilotDebugLog,
   logToDebugConsole,
@@ -11,7 +12,6 @@ import {
 } from "../../src/pluginDebugger/copilotDebugLogOutput";
 
 describe("copilotDebugLogOutput", () => {
-  const sandbox = sinon.createSandbox();
   const message = "log message";
   const fixedDate = new Date("2023-01-01T00:00:00.000Z");
   const logDateString = fixedDate.toJSON();
@@ -25,13 +25,9 @@ describe("copilotDebugLogOutput", () => {
     sandbox.useFakeTimers(fixedDate.getTime());
   });
 
-  afterEach(() => {
-    sandbox.restore();
-  });
-
   describe("logToDebugConsole", () => {
     it("should log info messages to the debug console", () => {
-      const appendLineStub = sandbox.stub(vscode.debug.activeDebugConsole, "appendLine");
+      const appendLineStub = vi.spyOn(vscode.debug.activeDebugConsole, "appendLine");
       logToDebugConsole(LogLevel.Info, message);
       chai.assert.isTrue(appendLineStub.calledOnce);
       chai.assert.isTrue(
@@ -41,7 +37,7 @@ describe("copilotDebugLogOutput", () => {
       );
     });
     it("should log warning messages to the debug console", () => {
-      const appendLineStub = sandbox.stub(vscode.debug.activeDebugConsole, "appendLine");
+      const appendLineStub = vi.spyOn(vscode.debug.activeDebugConsole, "appendLine");
       logToDebugConsole(LogLevel.Warning, message);
       chai.assert.isTrue(appendLineStub.calledOnce);
       chai.assert.isTrue(
@@ -51,7 +47,7 @@ describe("copilotDebugLogOutput", () => {
       );
     });
     it("should log error messages to the debug console", () => {
-      const appendLineStub = sandbox.stub(vscode.debug.activeDebugConsole, "appendLine");
+      const appendLineStub = vi.spyOn(vscode.debug.activeDebugConsole, "appendLine");
       logToDebugConsole(LogLevel.Error, message);
       chai.assert.isTrue(appendLineStub.calledOnce);
       chai.assert.isTrue(
@@ -61,7 +57,7 @@ describe("copilotDebugLogOutput", () => {
       );
     });
     it("should log debug messages to the debug console", () => {
-      const appendLineStub = sandbox.stub(vscode.debug.activeDebugConsole, "appendLine");
+      const appendLineStub = vi.spyOn(vscode.debug.activeDebugConsole, "appendLine");
       logToDebugConsole(LogLevel.Debug, message);
       chai.assert.isTrue(appendLineStub.calledOnce);
       chai.assert.isTrue(
@@ -71,7 +67,7 @@ describe("copilotDebugLogOutput", () => {
       );
     });
     it("should log messages to the debug console", () => {
-      const appendLineStub = sandbox.stub(vscode.debug.activeDebugConsole, "appendLine");
+      const appendLineStub = vi.spyOn(vscode.debug.activeDebugConsole, "appendLine");
       logToDebugConsole(LogLevel.Verbose, message);
       chai.assert.isTrue(appendLineStub.calledOnce);
       chai.assert.isTrue(
@@ -83,18 +79,13 @@ describe("copilotDebugLogOutput", () => {
   describe("writeExecutionDetailsToFile", () => {
     it("should write function execution details to file", async () => {
       const fs = require("fs");
-      const appendFileStub = sandbox.stub(fs, "appendFileSync").resolves();
+      const appendFileStub = vi.spyOn(fs, "appendFileSync").mockResolvedValue();
       writeExecutionDetailsToFile("path/to/log.txt", "log message");
       chai.assert.isTrue(appendFileStub.calledWith("path/to/log.txt", "log message\n"));
     });
   });
 
   describe("CopilotDebugLog", () => {
-    const sandbox = sinon.createSandbox();
-
-    afterEach(() => {
-      sandbox.restore();
-    });
     it("should parse log JSON and initialize properties", () => {
       const logJson = JSON.stringify({
         enabledPlugins: [{ name: "plugin1", id: "1", version: "1.0" }],
@@ -193,7 +184,7 @@ describe("copilotDebugLogOutput", () => {
         ],
       });
       const copilotDebugLog = new CopilotDebugLog(logJson);
-      const appendLineStub = sandbox.stub(vscode.debug.activeDebugConsole, "appendLine");
+      const appendLineStub = vi.spyOn(vscode.debug.activeDebugConsole, "appendLine");
       copilotDebugLog.write();
 
       chai.assert.isFalse(
@@ -210,7 +201,7 @@ describe("copilotDebugLogOutput", () => {
         },
       });
       const copilotDebugLog = new CopilotDebugLog(logJson);
-      const appendLineStub = sandbox.stub(vscode.debug.activeDebugConsole, "appendLine");
+      const appendLineStub = vi.spyOn(vscode.debug.activeDebugConsole, "appendLine");
 
       copilotDebugLog["logCapabilities"](vscode.debug.activeDebugConsole);
       chai.assert.isFalse(appendLineStub.calledOnce);
@@ -225,7 +216,7 @@ describe("copilotDebugLogOutput", () => {
       });
 
       const copilotDebugLog = new CopilotDebugLog(logJson);
-      const appendLineStub = sandbox.stub(vscode.debug.activeDebugConsole, "appendLine");
+      const appendLineStub = vi.spyOn(vscode.debug.activeDebugConsole, "appendLine");
       copilotDebugLog.write();
 
       chai.assert.isTrue(appendLineStub.calledWith(""));
@@ -250,7 +241,7 @@ describe("copilotDebugLogOutput", () => {
       });
 
       const copilotDebugLog = new CopilotDebugLog(logJson);
-      const appendLineStub = sandbox.stub(vscode.debug.activeDebugConsole, "appendLine");
+      const appendLineStub = vi.spyOn(vscode.debug.activeDebugConsole, "appendLine");
       copilotDebugLog.write();
 
       chai.assert.isTrue(appendLineStub.calledWith(""));
@@ -290,11 +281,11 @@ describe("copilotDebugLogOutput", () => {
       const logFilePath = `/path/to/log/Copilot-debug-test.txt`;
       const responseStatus = 200;
       const fs = require("fs");
-      const appendFileSyncStub = sandbox.stub(fs, "appendFileSync").resolves();
-      sandbox.stub(globalVariables, "defaultExtensionLogPath").value("/path/to/log");
-      sandbox.stub(Date.prototype, "toISOString").returns("test");
+      const appendFileSyncStub = vi.spyOn(fs, "appendFileSync").mockResolvedValue();
+      mockValue(globalVariables, "defaultExtensionLogPath", "/path/to/log");
+      vi.spyOn(Date.prototype, "toISOString").mockReturnValue("test");
       const copilotDebugLog = new CopilotDebugLog(logJson);
-      const appendLineStub = sandbox.stub(vscode.debug.activeDebugConsole, "appendLine");
+      const appendLineStub = vi.spyOn(vscode.debug.activeDebugConsole, "appendLine");
       copilotDebugLog.write();
       chai.assert.isTrue(
         appendLineStub.calledWith(
@@ -440,7 +431,7 @@ describe("copilotDebugLogOutput", () => {
         },
       });
       const copilotDebugLog = new CopilotDebugLog(logJson);
-      const appendLineStub = sandbox.stub(vscode.debug.activeDebugConsole, "appendLine");
+      const appendLineStub = vi.spyOn(vscode.debug.activeDebugConsole, "appendLine");
       copilotDebugLog.write();
       chai.assert.isTrue(
         appendLineStub.calledWith(
@@ -466,7 +457,7 @@ describe("copilotDebugLogOutput", () => {
       });
 
       const copilotDebugLog = new CopilotDebugLog(logJson);
-      const appendLineStub = sandbox.stub(vscode.debug.activeDebugConsole, "appendLine");
+      const appendLineStub = vi.spyOn(vscode.debug.activeDebugConsole, "appendLine");
       copilotDebugLog.write();
 
       chai.assert.isTrue(appendLineStub.calledWith(ANSIColors.WHITE + "CAPABILITIES"));
@@ -501,7 +492,7 @@ describe("copilotDebugLogOutput", () => {
       });
 
       const copilotDebugLog = new CopilotDebugLog(logJson);
-      const appendLineStub = sandbox.stub(vscode.debug.activeDebugConsole, "appendLine");
+      const appendLineStub = vi.spyOn(vscode.debug.activeDebugConsole, "appendLine");
       copilotDebugLog.write();
 
       chai.assert.isTrue(
@@ -530,7 +521,7 @@ describe("copilotDebugLogOutput", () => {
       });
 
       const copilotDebugLog = new CopilotDebugLog(logJson);
-      const appendLineStub = sandbox.stub(vscode.debug.activeDebugConsole, "appendLine");
+      const appendLineStub = vi.spyOn(vscode.debug.activeDebugConsole, "appendLine");
       copilotDebugLog.write();
 
       chai.assert.isTrue(
@@ -583,11 +574,11 @@ describe("copilotDebugLogOutput", () => {
       });
 
       const fs = require("fs");
-      const appendFileStub = sandbox.stub(fs, "appendFileSync").resolves();
-      sandbox.stub(globalVariables, "defaultExtensionLogPath").value("/path/to/log");
-      sandbox.stub(Date.prototype, "toISOString").returns("test");
+      const appendFileStub = vi.spyOn(fs, "appendFileSync").mockResolvedValue();
+      mockValue(globalVariables, "defaultExtensionLogPath", "/path/to/log");
+      vi.spyOn(Date.prototype, "toISOString").mockReturnValue("test");
       const copilotDebugLog = new CopilotDebugLog(logJson);
-      const appendLineStub = sandbox.stub(vscode.debug.activeDebugConsole, "appendLine");
+      const appendLineStub = vi.spyOn(vscode.debug.activeDebugConsole, "appendLine");
       copilotDebugLog.write();
 
       chai.assert.isTrue(

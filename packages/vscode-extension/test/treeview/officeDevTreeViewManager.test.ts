@@ -1,15 +1,9 @@
 import * as chai from "chai";
-import * as sinon from "sinon";
 import * as vscode from "vscode";
 import officeDevTreeViewManager from "../../src/treeview/officeDevTreeViewManager";
+import { vi } from "vitest";
 
 describe("OfficeDevTreeViewManager", () => {
-  const sandbox = sinon.createSandbox();
-
-  afterEach(() => {
-    sandbox.restore();
-  });
-
   it("registerOfficeDevTreeViews", () => {
     officeDevTreeViewManager.registerOfficeDevTreeViews({
       subscriptions: [],

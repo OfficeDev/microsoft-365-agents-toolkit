@@ -3,8 +3,8 @@ import { envUtil, featureFlagManager } from "@microsoft/teamsfx-core";
 import * as chai from "chai";
 import fs from "fs-extra";
 import * as path from "path";
-import * as sinon from "sinon";
 import { afterEach, describe } from "vitest";
+import { mockValue } from "../mocks/vitestMockUtils";
 import * as vscode from "vscode";
 import {
   AadAppTemplateCodeLensProvider,
@@ -28,19 +28,9 @@ import { TelemetryTriggerFrom } from "../../src/telemetry/extTelemetryEvents";
 import { MockTools } from "../mocks/mockTools";
 
 describe("CodeLens Provider", () => {
-  afterEach(() => {
-    sinon.restore();
-  });
-
   describe("Manifest codelens", () => {
-    const sandbox = sinon.createSandbox();
-
     beforeEach(() => {
-      sandbox.stub(envUtil, "readEnv").resolves(ok({}));
-    });
-
-    afterEach(() => {
-      sandbox.restore();
+      vi.spyOn(envUtil, "readEnv").mockResolvedValue(ok({}));
     });
 
     it("Template codelens - V3", async () => {
@@ -144,7 +134,7 @@ describe("CodeLens Provider", () => {
     });
 
     it("ComputeTemplateCodeLenses for aad manifest", async () => {
-      sandbox.stub(fs, "pathExistsSync").returns(true);
+      vi.spyOn(fs, "pathExistsSync").mockReturnValue(true);
       const document = <vscode.TextDocument>{
         fileName: "./build/aad.manifest.dev.json",
         getText: () => {
@@ -152,9 +142,7 @@ describe("CodeLens Provider", () => {
         },
       };
 
-      sandbox
-        .stub(vscode.workspace, "workspaceFolders")
-        .value([{ uri: { fsPath: "workspacePath" } }]);
+      vi.spyOn(vscode.workspace, "workspaceFolders").value([{ uri: { fsPath: "workspacePath" } }]);
 
       const aadProvider = new AadAppTemplateCodeLensProvider();
       const res = await aadProvider.provideCodeLenses(document);
@@ -168,7 +156,7 @@ describe("CodeLens Provider", () => {
     });
 
     it("ComputeTemplateCodeLenses for aad manifest if template not exist", async () => {
-      sandbox.stub(fs, "pathExistsSync").returns(false);
+      vi.spyOn(fs, "pathExistsSync").mockReturnValue(false);
       const document = <vscode.TextDocument>{
         fileName: "./build/aad.manifest.dev.json",
         getText: () => {
@@ -176,9 +164,7 @@ describe("CodeLens Provider", () => {
         },
       };
 
-      sandbox
-        .stub(vscode.workspace, "workspaceFolders")
-        .value([{ uri: { fsPath: "workspacePath" } }]);
+      vi.spyOn(vscode.workspace, "workspaceFolders").value([{ uri: { fsPath: "workspacePath" } }]);
 
       const aadProvider = new AadAppTemplateCodeLensProvider();
       const res = await aadProvider.provideCodeLenses(document);
@@ -191,10 +177,8 @@ describe("CodeLens Provider", () => {
     });
 
     it("PermissionsJsonFileCodeLensProvider for Microsoft Entra manifest template", async () => {
-      sandbox.stub(fs, "pathExistsSync").returns(true);
-      sandbox
-        .stub(vscode.workspace, "workspaceFolders")
-        .value([{ uri: { fsPath: "workspacePath" } }]);
+      vi.spyOn(fs, "pathExistsSync").mockReturnValue(true);
+      vi.spyOn(vscode.workspace, "workspaceFolders").value([{ uri: { fsPath: "workspacePath" } }]);
       const document = <vscode.TextDocument>{
         fileName: "./aad.manifest.json",
         getText: () => {
@@ -235,12 +219,6 @@ describe("CodeLens Provider", () => {
   });
 
   describe("Crypto CodeLensProvider", () => {
-    const sandbox = sinon.createSandbox();
-
-    afterEach(() => {
-      sandbox.restore();
-    });
-
     it("envData codelens", async () => {
       const document = {
         fileName: ".env.local",
@@ -272,7 +250,7 @@ describe("CodeLens Provider", () => {
     });
 
     it("hides when command is running", async () => {
-      sandbox.stub(globalVariables, "commandIsRunning").value(true);
+      mockValue(globalVariables, "commandIsRunning", true);
       const document = {
         fileName: ".env.local",
         getText: () => {
@@ -302,12 +280,6 @@ describe("CodeLens Provider", () => {
   });
 
   describe("API ME CodeLensProvider", () => {
-    const sandbox = sinon.createSandbox();
-
-    afterEach(() => {
-      sandbox.restore();
-    });
-
     it("Add API", async () => {
       const manifest = new TeamsAppManifest();
       manifest.composeExtensions = [
@@ -375,12 +347,6 @@ describe("CodeLens Provider", () => {
   });
 
   describe("Api plugin CodeLensProvider", () => {
-    const sandbox = sinon.createSandbox();
-
-    afterEach(() => {
-      sandbox.restore();
-    });
-
     it("Add API", async () => {
       const manifest = new TeamsAppManifest();
       manifest.copilotExtensions = {
@@ -411,11 +377,11 @@ describe("CodeLens Provider", () => {
         },
       } as any as vscode.TextDocument;
 
-      sandbox.stub(fs, "existsSync").returns(true);
-      sandbox.stub(fs, "readFileSync").returns(JSON.stringify(manifest));
-      sandbox
-        .stub(globalVariables, "workspaceUri")
-        .value(vscode.Uri.parse(path.resolve(__dirname, "unknown")));
+      vi.spyOn(fs, "existsSync").mockReturnValue(true);
+      vi.spyOn(fs, "readFileSync").mockReturnValue(JSON.stringify(manifest));
+      vi.spyOn(globalVariables, "workspaceUri").value(
+        vscode.Uri.parse(path.resolve(__dirname, "unknown"))
+      );
       const apiPluginCodelensProvider = new ApiPluginCodeLensProvider();
       const codelens: vscode.CodeLens[] = apiPluginCodelensProvider.provideCodeLenses(
         document
@@ -449,10 +415,10 @@ describe("CodeLens Provider", () => {
         },
       } as any as vscode.TextDocument;
 
-      sandbox.stub(fs, "existsSync").returns(false);
-      sandbox
-        .stub(globalVariables, "workspaceUri")
-        .value(vscode.Uri.parse(path.resolve(__dirname, "unknown")));
+      vi.spyOn(fs, "existsSync").mockReturnValue(false);
+      vi.spyOn(globalVariables, "workspaceUri").value(
+        vscode.Uri.parse(path.resolve(__dirname, "unknown"))
+      );
       const apiPluginCodelensProvider = new ApiPluginCodeLensProvider();
       const codelens: vscode.CodeLens[] = apiPluginCodelensProvider.provideCodeLenses(
         document
@@ -482,10 +448,10 @@ describe("CodeLens Provider", () => {
         },
       } as any as vscode.TextDocument;
 
-      sandbox.stub(fs, "existsSync").returns(false);
-      sandbox
-        .stub(globalVariables, "workspaceUri")
-        .value(vscode.Uri.parse(path.resolve(__dirname, "unknown")));
+      vi.spyOn(fs, "existsSync").mockReturnValue(false);
+      vi.spyOn(globalVariables, "workspaceUri").value(
+        vscode.Uri.parse(path.resolve(__dirname, "unknown"))
+      );
       const apiPluginCodelensProvider = new ApiPluginCodeLensProvider();
       const codelens: vscode.CodeLens[] = apiPluginCodelensProvider.provideCodeLenses(
         document
@@ -517,11 +483,11 @@ describe("CodeLens Provider", () => {
         },
       } as any as vscode.TextDocument;
 
-      sandbox.stub(fs, "existsSync").returns(true);
-      sandbox.stub(fs, "readFileSync").returns(JSON.stringify(manifest));
-      sandbox
-        .stub(globalVariables, "workspaceUri")
-        .value(vscode.Uri.parse(path.resolve(__dirname, "unknown")));
+      vi.spyOn(fs, "existsSync").mockReturnValue(true);
+      vi.spyOn(fs, "readFileSync").mockReturnValue(JSON.stringify(manifest));
+      vi.spyOn(globalVariables, "workspaceUri").value(
+        vscode.Uri.parse(path.resolve(__dirname, "unknown"))
+      );
       const apiPluginCodelensProvider = new ApiPluginCodeLensProvider();
       const codelens: vscode.CodeLens[] = apiPluginCodelensProvider.provideCodeLenses(
         document
@@ -532,12 +498,6 @@ describe("CodeLens Provider", () => {
   });
 
   describe("m365agents.yml CodeLensProvider", () => {
-    const sandbox = sinon.createSandbox();
-
-    afterEach(() => {
-      sandbox.restore();
-    });
-
     it("should work with correct m365agents.yml", async () => {
       const text = `
 version: 1.1.0
@@ -578,12 +538,6 @@ publish:
   });
 
   describe("manifest*.xml CodeLensProvider", () => {
-    const sandbox = sinon.createSandbox();
-
-    afterEach(() => {
-      sandbox.restore();
-    });
-
     it("should work with correct manifest.xml", async () => {
       const text = `
     <OfficeApp xmlns="http://schemas.microsoft.com/office/appforoffice/1.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bt="http://schemas.microsoft.com/office/officeappbasictypes/1.0" xmlns:ov="http://schemas.microsoft.com/office/taskpaneappversionoverrides" xsi:type="TaskPaneApp">
@@ -621,14 +575,8 @@ publish:
   });
 
   describe("OneDriveSharePointCodeLensProvider", () => {
-    const sandbox = sinon.createSandbox();
-
-    afterEach(() => {
-      sandbox.restore();
-    });
-
     it("should not provide codelens when feature flag is disabled", async () => {
-      sandbox.stub(featureFlagManager, "getBooleanValue").returns(false);
+      vi.spyOn(featureFlagManager, "getBooleanValue").mockReturnValue(false);
       const document = {
         fileName: "agent.json",
         getText: () => {
@@ -657,11 +605,11 @@ publish:
     });
 
     it("should not provide codelens when manifest file does not exist", async () => {
-      sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
-      sandbox.stub(fs, "existsSync").returns(false);
-      sandbox
-        .stub(globalVariables, "workspaceUri")
-        .value(vscode.Uri.parse(path.resolve(__dirname, "unknown")));
+      vi.spyOn(featureFlagManager, "getBooleanValue").mockReturnValue(true);
+      vi.spyOn(fs, "existsSync").mockReturnValue(false);
+      vi.spyOn(globalVariables, "workspaceUri").value(
+        vscode.Uri.parse(path.resolve(__dirname, "unknown"))
+      );
 
       const document = {
         fileName: "agent.json",
@@ -691,14 +639,14 @@ publish:
     });
 
     it("should not provide codelens when not a copilot project", async () => {
-      sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
-      sandbox.stub(fs, "existsSync").returns(true);
+      vi.spyOn(featureFlagManager, "getBooleanValue").mockReturnValue(true);
+      vi.spyOn(fs, "existsSync").mockReturnValue(true);
       const manifest = new TeamsAppManifest();
       manifest.copilotAgents = {};
-      sandbox.stub(fs, "readFileSync").returns(JSON.stringify(manifest));
-      sandbox
-        .stub(globalVariables, "workspaceUri")
-        .value(vscode.Uri.parse(path.resolve(__dirname, "unknown")));
+      vi.spyOn(fs, "readFileSync").mockReturnValue(JSON.stringify(manifest));
+      vi.spyOn(globalVariables, "workspaceUri").value(
+        vscode.Uri.parse(path.resolve(__dirname, "unknown"))
+      );
 
       const document = {
         fileName: "agent.json",
@@ -728,8 +676,8 @@ publish:
     });
 
     it("should provide codelens for SharePoint IDs", async () => {
-      sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
-      sandbox.stub(fs, "existsSync").returns(true);
+      vi.spyOn(featureFlagManager, "getBooleanValue").mockReturnValue(true);
+      vi.spyOn(fs, "existsSync").mockReturnValue(true);
       const manifest = {
         copilotAgents: {
           declarativeAgents: [
@@ -741,10 +689,10 @@ publish:
         },
         capabilities: ["copilotGpt"],
       };
-      sandbox.stub(fs, "readFileSync").returns(JSON.stringify(manifest));
-      sandbox
-        .stub(globalVariables, "workspaceUri")
-        .value(vscode.Uri.parse(path.resolve(__dirname, "unknown")));
+      vi.spyOn(fs, "readFileSync").mockReturnValue(JSON.stringify(manifest));
+      vi.spyOn(globalVariables, "workspaceUri").value(
+        vscode.Uri.parse(path.resolve(__dirname, "unknown"))
+      );
 
       const document = {
         fileName: "agent.json",
@@ -785,9 +733,9 @@ publish:
       );
 
       const mockCore = {
-        getODSPItemDetails: sinon.stub(),
+        getODSPItemDetails: vi.fn(),
       };
-      mockCore.getODSPItemDetails.resolves(
+      mockCore.getODSPItemDetails.mockResolvedValue(
         ok({
           id: "test-id",
           name: "Test Item",
@@ -798,7 +746,7 @@ publish:
           size: 0,
         })
       );
-      sandbox.stub(globalVariables, "core").value(mockCore);
+      mockValue(globalVariables, "core", mockCore);
 
       const provider = new OneDriveSharePointCodeLensProvider();
       const resolvedLens = await provider.resolveCodeLens(
@@ -830,10 +778,10 @@ publish:
       };
       const error = new SystemError(errorOptions);
       const mockCore = {
-        getODSPItemDetails: sinon.stub(),
+        getODSPItemDetails: vi.fn(),
       };
-      mockCore.getODSPItemDetails.resolves(err(error));
-      sandbox.stub(globalVariables, "core").value(mockCore);
+      mockCore.getODSPItemDetails.mockResolvedValue(err(error));
+      mockValue(globalVariables, "core", mockCore);
 
       const provider = new OneDriveSharePointCodeLensProvider();
       const resolvedLens = await provider.resolveCodeLens(
@@ -876,9 +824,9 @@ publish:
         range
       );
       const mockCore = {
-        getODSPItemDetails: sinon.stub(),
+        getODSPItemDetails: vi.fn(),
       };
-      mockCore.getODSPItemDetails.resolves(
+      mockCore.getODSPItemDetails.mockResolvedValue(
         ok({
           id: "test-id",
           name: "Test Item",
@@ -889,7 +837,7 @@ publish:
           size: 0,
         })
       );
-      sandbox.stub(globalVariables, "core").value(mockCore);
+      mockValue(globalVariables, "core", mockCore);
 
       const provider = new OneDriveSharePointCodeLensProvider();
       const resolvedLens = await provider.resolveCodeLens(
@@ -947,21 +895,18 @@ publish:
   });
 
   describe("DeclarativeAgentSensitivityLabelCodeLensProvider", () => {
-    const sandbox = sinon.createSandbox();
     setTools(new MockTools());
 
     beforeEach(() => {
-      sandbox
-        .stub(declarativeAgentSensitivityLabelDeps, "getSystemInputs")
-        .returns({ projectPath: path.join(__dirname, "unknown") } as any);
-    });
-
-    afterEach(() => {
-      sandbox.restore();
+      vi.spyOn(declarativeAgentSensitivityLabelDeps, "getSystemInputs").mockReturnValue({
+        projectPath: path.join(__dirname, "unknown"),
+      } as any);
     });
 
     it("should not provide codelens when projectPath is not available", async () => {
-      (declarativeAgentSensitivityLabelDeps.getSystemInputs as sinon.SinonStub).returns({});
+      (
+        declarativeAgentSensitivityLabelDeps.getSystemInputs as ReturnType<typeof vi.spyOn>
+      ).mockReturnValue({});
 
       const document = {
         fileName: "agent.json",
@@ -992,10 +937,10 @@ publish:
     });
 
     it("should not provide codelens when manifest file does not exist", async () => {
-      sandbox.stub(fs, "pathExistsSync").returns(false);
-      sandbox
-        .stub(globalVariables, "workspaceUri")
-        .value(vscode.Uri.parse(path.resolve(__dirname, "unknown")));
+      vi.spyOn(fs, "pathExistsSync").mockReturnValue(false);
+      vi.spyOn(globalVariables, "workspaceUri").value(
+        vscode.Uri.parse(path.resolve(__dirname, "unknown"))
+      );
 
       const document = {
         fileName: "agent.json",
@@ -1026,7 +971,7 @@ publish:
     });
 
     it("should not provide codelens when document path doesn't match declarative agent file path", async () => {
-      sandbox.stub(fs, "pathExistsSync").returns(true);
+      vi.spyOn(fs, "pathExistsSync").mockReturnValue(true);
       const projectPath = path.join(__dirname, "unknown");
       const agentPath = "agent.json";
 
@@ -1040,8 +985,8 @@ publish:
           ],
         },
       };
-      sandbox.stub(fs, "readFileSync").returns(JSON.stringify(manifest));
-      sandbox.stub(globalVariables, "workspaceUri").value(vscode.Uri.parse(projectPath));
+      vi.spyOn(fs, "readFileSync").mockReturnValue(JSON.stringify(manifest));
+      mockValue(globalVariables, "workspaceUri", vscode.Uri.parse(projectPath));
 
       // Create a document with a different path than the agent file path
       const document = {
@@ -1073,13 +1018,13 @@ publish:
     });
 
     it("should not provide codelens when manifest does not contain declarative agent", async () => {
-      sandbox.stub(fs, "pathExistsSync").returns(true);
+      vi.spyOn(fs, "pathExistsSync").mockReturnValue(true);
       const projectPath = path.join(__dirname, "unknown");
       const agentPath = "agent.json";
 
       const manifest = {};
-      sandbox.stub(fs, "readFileSync").returns(JSON.stringify(manifest));
-      sandbox.stub(globalVariables, "workspaceUri").value(vscode.Uri.parse(projectPath));
+      vi.spyOn(fs, "readFileSync").mockReturnValue(JSON.stringify(manifest));
+      mockValue(globalVariables, "workspaceUri", vscode.Uri.parse(projectPath));
 
       // Create a document with a different path than the agent file path
       const document = {
@@ -1111,7 +1056,7 @@ publish:
     });
 
     it("should provide sensitivity label codelens when label exists", async () => {
-      sandbox.stub(fs, "pathExistsSync").returns(true);
+      vi.spyOn(fs, "pathExistsSync").mockReturnValue(true);
       const projectPath = path.join(__dirname, "unknown");
       const agentPath = "agent.json";
       const absoluteAgentPath = path.join(projectPath, "appPackage", agentPath);
@@ -1126,10 +1071,10 @@ publish:
           ],
         },
       };
-      sandbox.stub(fs, "readFileSync").returns(JSON.stringify(manifest));
-      sandbox.stub(globalVariables, "workspaceUri").value(vscode.Uri.parse(projectPath));
+      vi.spyOn(fs, "readFileSync").mockReturnValue(JSON.stringify(manifest));
+      mockValue(globalVariables, "workspaceUri", vscode.Uri.parse(projectPath));
 
-      sandbox.stub(declarativeAgentSensitivityLabelDeps, "getSensitivityLabelStatus").resolves(
+      vi.spyOn(declarativeAgentSensitivityLabelDeps, "getSensitivityLabelStatus").mockResolvedValue(
         ok({
           status: "SignedIn",
           token: "mock_token",
@@ -1140,7 +1085,7 @@ publish:
         })
       );
 
-      sandbox.stub(declarativeAgentSensitivityLabelDeps, "createGraphClient").returns({
+      vi.spyOn(declarativeAgentSensitivityLabelDeps, "createGraphClient").mockReturnValue({
         listSensitivityLabels: () =>
           Promise.resolve(
             ok([
@@ -1175,16 +1120,17 @@ publish:
           fsPath: absoluteAgentPath,
         },
       } as any as vscode.TextDocument;
-      sandbox
-        .stub(declarativeAgentSensitivityLabelDeps, "readDeclarativeAgentManifestFile")
-        .resolves(
-          ok({
-            type: "declarative",
-            sensitivity_label: {
-              id: "test-label-id",
-            },
-          } as any)
-        );
+      vi.spyOn(
+        declarativeAgentSensitivityLabelDeps,
+        "readDeclarativeAgentManifestFile"
+      ).mockResolvedValue(
+        ok({
+          type: "declarative",
+          sensitivity_label: {
+            id: "test-label-id",
+          },
+        } as any)
+      );
       const provider = new DeclarativeAgentSensitivityLabelCodeLensProvider();
       const codelens = await provider.provideCodeLenses(document);
 
@@ -1196,7 +1142,7 @@ publish:
     });
 
     it("should show login codelens when user not logged in", async () => {
-      sandbox.stub(fs, "pathExistsSync").returns(true);
+      vi.spyOn(fs, "pathExistsSync").mockReturnValue(true);
       const projectPath = path.join(__dirname, "unknown");
       const agentPath = "agent.json";
       const absoluteAgentPath = path.join(projectPath, "appPackage", agentPath);
@@ -1211,22 +1157,23 @@ publish:
           ],
         },
       };
-      sandbox.stub(fs, "readFileSync").returns(JSON.stringify(manifest));
-      sandbox.stub(globalVariables, "workspaceUri").value(vscode.Uri.parse(projectPath));
+      vi.spyOn(fs, "readFileSync").mockReturnValue(JSON.stringify(manifest));
+      mockValue(globalVariables, "workspaceUri", vscode.Uri.parse(projectPath));
 
-      sandbox
-        .stub(declarativeAgentSensitivityLabelDeps, "getSensitivityLabelStatus")
-        .resolves(undefined);
-      sandbox
-        .stub(declarativeAgentSensitivityLabelDeps, "readDeclarativeAgentManifestFile")
-        .resolves(
-          ok({
-            type: "declarative",
-            sensitivity_label: {
-              id: "test-label-id",
-            },
-          } as any)
-        );
+      vi.spyOn(declarativeAgentSensitivityLabelDeps, "getSensitivityLabelStatus").mockResolvedValue(
+        undefined
+      );
+      vi.spyOn(
+        declarativeAgentSensitivityLabelDeps,
+        "readDeclarativeAgentManifestFile"
+      ).mockResolvedValue(
+        ok({
+          type: "declarative",
+          sensitivity_label: {
+            id: "test-label-id",
+          },
+        } as any)
+      );
       const document = {
         fileName: "agent.json",
         getText: () => {
@@ -1260,7 +1207,7 @@ publish:
     });
 
     it("should provide add sensitivity label codelens when label not exists", async () => {
-      sandbox.stub(fs, "pathExistsSync").returns(true);
+      vi.spyOn(fs, "pathExistsSync").mockReturnValue(true);
       const projectPath = path.join(__dirname, "unknown");
       const agentPath = "agent.json";
       const absoluteAgentPath = path.join(projectPath, "appPackage", agentPath);
@@ -1275,8 +1222,8 @@ publish:
           ],
         },
       };
-      sandbox.stub(fs, "readFileSync").returns(JSON.stringify(manifest));
-      sandbox.stub(globalVariables, "workspaceUri").value(vscode.Uri.parse(projectPath));
+      vi.spyOn(fs, "readFileSync").mockReturnValue(JSON.stringify(manifest));
+      mockValue(globalVariables, "workspaceUri", vscode.Uri.parse(projectPath));
 
       const document = {
         fileName: "agent.json",
@@ -1310,12 +1257,6 @@ publish:
   });
 
   describe("WorkspaceMCPConfigCodeLensProvider", () => {
-    const sandbox = sinon.createSandbox();
-
-    afterEach(() => {
-      sandbox.restore();
-    });
-
     it("should provide codelens for valid MCP config with single server", async () => {
       const mcpConfigText = `{
   // MCP Server Configuration

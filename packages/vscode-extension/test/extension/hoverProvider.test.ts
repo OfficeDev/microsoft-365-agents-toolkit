@@ -1,10 +1,11 @@
+import { vi } from "vitest";
+import { mockValue } from "../mocks/vitestMockUtils";
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
 import { ok } from "@microsoft/teamsfx-api";
 import { envUtil } from "@microsoft/teamsfx-core";
 import * as chai from "chai";
-import * as sinon from "sinon";
 import { v4 } from "uuid";
 import * as vscode from "vscode";
 import { environmentVariableRegex } from "../../src/constants";
@@ -13,7 +14,6 @@ import { ManifestTemplateHoverProvider } from "../../src/hoverProvider";
 import { MockCore } from "../mocks/mockCore";
 
 describe("Manifest template hover - V3", async () => {
-  const sandbox = sinon.createSandbox();
   const text = `{
     "$schema": "https://developer.microsoft.com/en-us/json-schemas/teams/v1.14/MicrosoftTeams.schema.json",
     "manifestVersion": "1.14",
@@ -38,17 +38,17 @@ describe("Manifest template hover - V3", async () => {
   } as any;
 
   beforeEach(() => {
-    sandbox.stub(globalVariables, "core").value(new MockCore());
-    sandbox.stub(envUtil, "listEnv").resolves(ok(["local", "dev"]));
+    mockValue(globalVariables, "core", new MockCore());
+    vi.spyOn(envUtil, "listEnv").mockResolvedValue(ok(["local", "dev"]));
   });
 
   afterEach(() => {
-    sandbox.restore();
+    vi.restoreAllMocks();
     environmentVariableRegex.lastIndex = 0;
   });
 
   it("hover - match", async () => {
-    sandbox.stub(envUtil, "readEnv").resolves(
+    vi.spyOn(envUtil, "readEnv").mockResolvedValue(
       ok({
         ["TEAMS_APP_ID"]: v4(),
       })
@@ -66,7 +66,7 @@ describe("Manifest template hover - V3", async () => {
   });
 
   it("hover - local", async () => {
-    sandbox.stub(envUtil, "readEnv").resolves(
+    vi.spyOn(envUtil, "readEnv").mockResolvedValue(
       ok({
         ["TEAMS_APP_ID"]: v4(),
       })
@@ -101,7 +101,7 @@ describe("Manifest template hover - V3", async () => {
   });
 
   it("hover-undefined", async () => {
-    sandbox.stub(envUtil, "readEnv").resolves(
+    vi.spyOn(envUtil, "readEnv").mockResolvedValue(
       ok({
         ["TEAMS_APP_ID"]: v4(),
       })
@@ -116,7 +116,7 @@ describe("Manifest template hover - V3", async () => {
   });
 
   it("hover - no value", async () => {
-    sandbox.stub(envUtil, "readEnv").resolves(ok({}));
+    vi.spyOn(envUtil, "readEnv").mockResolvedValue(ok({}));
 
     const hoverProvider = new ManifestTemplateHoverProvider();
     const position = new vscode.Position(5, 15);
@@ -130,9 +130,9 @@ describe("Manifest template hover - V3", async () => {
   });
 
   it("hover - playground env no value", async () => {
-    (envUtil.listEnv as sinon.SinonStub).restore();
-    sandbox.stub(envUtil, "listEnv").resolves(ok(["local", "playground"]));
-    sandbox.stub(envUtil, "readEnv").resolves(ok({}));
+    (envUtil.listEnv as ReturnType<typeof vi.spyOn>).restore();
+    vi.spyOn(envUtil, "listEnv").mockResolvedValue(ok(["local", "playground"]));
+    vi.spyOn(envUtil, "readEnv").mockResolvedValue(ok({}));
 
     const hoverProvider = new ManifestTemplateHoverProvider();
     const position = new vscode.Position(5, 15);

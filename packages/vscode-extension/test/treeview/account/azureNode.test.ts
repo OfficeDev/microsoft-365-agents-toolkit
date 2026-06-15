@@ -1,6 +1,6 @@
 import * as chai from "chai";
-import * as sinon from "sinon";
 import * as vscode from "vscode";
+import { vi } from "vitest";
 
 import { AzureAccountManager } from "../../../src/commonlib/azureLogin";
 import { AzureAccountNode } from "../../../src/treeview/account/azureNode";
@@ -12,15 +12,10 @@ import * as tools from "@microsoft/teamsfx-core/build/common/tools";
 import { localize } from "../../../src/utils/localizeUtils";
 
 describe("AzureNode", () => {
-  const sandbox = sinon.createSandbox();
   const eventEmitter = new vscode.EventEmitter<DynamicNode | undefined | void>();
 
   before(() => {
-    Object.setPrototypeOf(AzureAccountManager, sandbox.stub());
-  });
-
-  afterEach(() => {
-    sandbox.restore();
+    Object.setPrototypeOf(AzureAccountManager, vi.fn());
   });
 
   it("setSignedIn", async () => {
@@ -62,8 +57,8 @@ describe("AzureNode", () => {
   });
 
   it("setSignedIn with multi-tenant", async () => {
-    sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
-    sandbox.stub(azureNodeDeps, "listAllTenants").resolves([
+    vi.spyOn(featureFlagManager, "getBooleanValue").mockReturnValue(true);
+    vi.spyOn(azureNodeDeps, "listAllTenants").mockResolvedValue([
       {
         tenantId: "0022fd51-06f5-4557-8a34-69be98de6e20",
         displayName: "MSFT",

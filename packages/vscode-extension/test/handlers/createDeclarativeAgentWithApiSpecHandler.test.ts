@@ -1,26 +1,21 @@
-import * as sinon from "sinon";
 import * as chai from "chai";
 import * as globalVariables from "../../src/globalVariables";
 import * as telemetry from "../../src/telemetry/extTelemetry";
 import { createDeclarativeAgentWithApiSpec } from "../../src/handlers/createDeclarativeAgentWithApiSpecHandler";
 import { err, UserError } from "@microsoft/teamsfx-api";
 import { MockCore } from "../mocks/mockCore";
+import { vi } from "vitest";
+import { mockValue } from "../mocks/vitestMockUtils";
 
 describe("createDeclarativeAgentWithApiSpecHandler", () => {
-  const sandbox = sinon.createSandbox();
-
   beforeEach(() => {
-    sandbox.stub(telemetry.ExtTelemetry, "sendTelemetryEvent");
-    sandbox.stub(telemetry.ExtTelemetry, "sendTelemetryErrorEvent");
-  });
-
-  afterEach(() => {
-    sandbox.restore();
+    vi.spyOn(telemetry.ExtTelemetry, "sendTelemetryEvent");
+    vi.spyOn(telemetry.ExtTelemetry, "sendTelemetryErrorEvent");
   });
 
   it("should return error if args are invalid", async () => {
     const core = new MockCore();
-    sandbox.stub(globalVariables, "core").value(core);
+    mockValue(globalVariables, "core", core);
 
     const res = await createDeclarativeAgentWithApiSpec([]);
 
@@ -32,7 +27,7 @@ describe("createDeclarativeAgentWithApiSpecHandler", () => {
 
   it("should create project successfully with valid args", async () => {
     const core = new MockCore();
-    sandbox.stub(globalVariables, "core").value(core);
+    mockValue(globalVariables, "core", core);
 
     const res = await createDeclarativeAgentWithApiSpec(["test-path"]);
 
@@ -41,10 +36,10 @@ describe("createDeclarativeAgentWithApiSpecHandler", () => {
 
   it("should throw error if core return error", async () => {
     const core = new MockCore();
-    sandbox.stub(globalVariables, "core").value(core);
-    sandbox
-      .stub(globalVariables.core, "createProject")
-      .resolves(err(new UserError("core", "fakeError", "fakeErrorMessage")));
+    mockValue(globalVariables, "core", core);
+    vi.spyOn(globalVariables.core, "createProject").mockResolvedValue(
+      err(new UserError("core", "fakeError", "fakeErrorMessage"))
+    );
 
     const res = await createDeclarativeAgentWithApiSpec(["test-path"]);
 

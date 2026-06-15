@@ -1,3 +1,5 @@
+import { vi } from "vitest";
+import { mockValue } from "../mocks/vitestMockUtils";
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 /**
@@ -8,7 +10,6 @@ import * as chai from "chai";
 import chaiAsPromised from "chai-as-promised";
 import fs from "fs-extra";
 import path from "path";
-import * as sinon from "sinon";
 import * as uuid from "uuid";
 import * as vscode from "vscode";
 
@@ -72,22 +73,17 @@ class TestDevTunnelTaskTerminal extends DevTunnelTaskTerminal {
 describe("devTunnelTaskTerminal", () => {
   const baseDir = path.resolve(__dirname, "data", "devTunnelTaskTerminal");
 
-  afterEach(() => {
-    sinon.restore();
-  });
-
   describe("do", () => {
-    const sandbox = sinon.createSandbox();
     let filePath: string | undefined = undefined;
 
     beforeEach(async () => {
       filePath = path.resolve(baseDir, uuid.v4().substring(0, 6));
       await fs.ensureDir(filePath);
-      sandbox.stub(globalVariables, "workspaceUri").value(vscode.Uri.parse(filePath));
-      sandbox.stub(process, "env").value({ TEAMSFX_DEV_TUNNEL_TEST: "true" });
-      sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
-      sandbox.stub(ExtTelemetry, "sendTelemetryErrorEvent");
-      sandbox.stub(globalVariables, "tools").value({
+      mockValue(globalVariables, "workspaceUri", vscode.Uri.parse(filePath));
+      mockValue(process, "env", { TEAMSFX_DEV_TUNNEL_TEST: "true" });
+      vi.spyOn(ExtTelemetry, "sendTelemetryEvent");
+      vi.spyOn(ExtTelemetry, "sendTelemetryErrorEvent");
+      vi.spyOn(globalVariables, "tools").value({
         tokenProvider: {
           m365TokenProvider: {
             getAccessToken: async () => ok("test-token"),
@@ -97,7 +93,7 @@ describe("devTunnelTaskTerminal", () => {
     });
 
     afterEach(async () => {
-      sandbox.restore();
+      vi.restoreAllMocks();
       if (filePath) {
         await fs.remove(filePath);
       }
@@ -125,46 +121,53 @@ describe("devTunnelTaskTerminal", () => {
 
     const mock = (initTunnel: Tunnel[] = []): { mockTunnelArray: Tunnel[] } => {
       const mockTunnelArray: Tunnel[] = initTunnel;
-      sandbox.stub(process, "env").value({ TEAMSFX_DEV_TUNNEL_TEST: "true" });
-      sandbox
-        .stub(globalVariables.tools.tokenProvider.m365TokenProvider, "getAccessToken")
-        .resolves(ok("test-token"));
-      sandbox.stub(TunnelManagementHttpClient.prototype, "getTunnel").callsFake(async (t) => {
+      mockValue(process, "env", { TEAMSFX_DEV_TUNNEL_TEST: "true" });
+      vi.spyOn(
+        globalVariables.tools.tokenProvider.m365TokenProvider,
+        "getAccessToken"
+      ).mockResolvedValue(ok("test-token"));
+      vi.spyOn(TunnelManagementHttpClient.prototype, "getTunnel").mockImplementation(async (t) => {
         return (
           mockTunnelArray.find(
             (mt) => t.tunnelId === mt.tunnelId && t.clusterId === mt.clusterId
           ) ?? null
         );
       });
-      sandbox.stub(TunnelManagementHttpClient.prototype, "createTunnel").callsFake(async (t) => {
-        const id = uuid.v4().substring(0, 8);
-        t.tunnelId = id;
-        t.clusterId = "test";
-        mockTunnelArray.push(t);
-        return t;
-      });
-      sandbox.stub(TunnelManagementHttpClient.prototype, "listTunnels").callsFake(async (t) => {
-        return mockTunnelArray;
-      });
-      sandbox.stub(TunnelManagementHttpClient.prototype, "deleteTunnel").callsFake(async (t) => {
-        let isDeleted = false;
-        let index = 0;
-        while (index < mockTunnelArray.length) {
-          if (
-            mockTunnelArray[index].clusterId === t.clusterId &&
-            mockTunnelArray[index].tunnelId === t.tunnelId
-          ) {
-            mockTunnelArray.splice(index, 1);
-            isDeleted = true;
-          } else {
-            ++index;
-          }
+      vi.spyOn(TunnelManagementHttpClient.prototype, "createTunnel").mockImplementation(
+        async (t) => {
+          const id = uuid.v4().substring(0, 8);
+          t.tunnelId = id;
+          t.clusterId = "test";
+          mockTunnelArray.push(t);
+          return t;
         }
-        return isDeleted;
-      });
+      );
+      vi.spyOn(TunnelManagementHttpClient.prototype, "listTunnels").mockImplementation(
+        async (t) => {
+          return mockTunnelArray;
+        }
+      );
+      vi.spyOn(TunnelManagementHttpClient.prototype, "deleteTunnel").mockImplementation(
+        async (t) => {
+          let isDeleted = false;
+          let index = 0;
+          while (index < mockTunnelArray.length) {
+            if (
+              mockTunnelArray[index].clusterId === t.clusterId &&
+              mockTunnelArray[index].tunnelId === t.tunnelId
+            ) {
+              mockTunnelArray.splice(index, 1);
+              isDeleted = true;
+            } else {
+              ++index;
+            }
+          }
+          return isDeleted;
+        }
+      );
 
       let hostTunnel: Tunnel | undefined = undefined;
-      sandbox.stub(TunnelRelayTunnelHost.prototype, "start").callsFake(async (t) => {
+      vi.spyOn(TunnelRelayTunnelHost.prototype, "start").mockImplementation(async (t) => {
         t.ports?.forEach((p) => {
           p.portForwardingUris = [
             `https://${p.tunnelId}-${p.portNumber}.${p.clusterId}.devtunnel.test`,
@@ -172,17 +175,17 @@ describe("devTunnelTaskTerminal", () => {
         });
         hostTunnel = t;
       });
-      sandbox.stub(TunnelRelayTunnelHost.prototype, "tunnel").get(() => {
+      vi.spyOn(TunnelRelayTunnelHost.prototype, "tunnel", "get").mockImplementation(() => {
         return hostTunnel;
       });
 
-      sandbox.stub(localTelemetryReporter, "sendTelemetryEvent").callsFake(() => {});
-      sandbox.stub(localTelemetryReporter, "sendTelemetryErrorEvent").callsFake(() => {});
+      vi.spyOn(localTelemetryReporter, "sendTelemetryEvent").mockImplementation(() => {});
+      vi.spyOn(localTelemetryReporter, "sendTelemetryErrorEvent").mockImplementation(() => {});
       VsCodeLogInstance.outputChannel = {
         appendLine: () => {},
       } as unknown as vscode.OutputChannel;
-      sandbox.stub(envUtil, "writeEnv").resolves(ok(undefined));
-      sandbox.stub(pathUtils, "getEnvFilePath").resolves(ok("test-path"));
+      vi.spyOn(envUtil, "writeEnv").mockResolvedValue(ok(undefined));
+      vi.spyOn(pathUtils, "getEnvFilePath").mockResolvedValue(ok("test-path"));
       return { mockTunnelArray: mockTunnelArray };
     };
 
@@ -249,10 +252,9 @@ describe("devTunnelTaskTerminal", () => {
     const taskDefinition: vscode.TaskDefinition = {
       type: "teamsfx",
     };
-    const sandbox = sinon.createSandbox();
     const tunnelTaskTerminal = TestDevTunnelTaskTerminal.create(taskDefinition);
     beforeEach(async () => {
-      sandbox.stub(BaseTaskTerminal, "taskDefinitionError").callsFake((argName) => {
+      vi.spyOn(BaseTaskTerminal, "taskDefinitionError").mockImplementation((argName) => {
         return new UserError(
           ExtensionSource,
           ExtensionErrors.TaskDefinitionError,
@@ -262,7 +264,7 @@ describe("devTunnelTaskTerminal", () => {
     });
 
     afterEach(async () => {
-      sandbox.restore();
+      vi.restoreAllMocks();
     });
     const testDataList: { message: string; args: any; errorPropertyName?: string }[] = [
       {
@@ -538,30 +540,29 @@ describe("devTunnelTaskTerminal", () => {
     };
     const tunnelTaskTerminal = TestDevTunnelTaskTerminal.create(taskDefinition);
 
-    const sandbox = sinon.createSandbox();
     let filePath: string | undefined = undefined;
 
     beforeEach(async () => {
       filePath = path.resolve(baseDir, uuid.v4().substring(0, 6));
       await fs.ensureDir(filePath);
-      sandbox.stub(globalVariables, "workspaceUri").value(vscode.Uri.parse(filePath));
+      mockValue(globalVariables, "workspaceUri", vscode.Uri.parse(filePath));
     });
 
     afterEach(async () => {
-      sandbox.restore();
+      vi.restoreAllMocks();
       if (filePath) {
         await fs.remove(filePath);
       }
     });
 
     it("empty tunnel", async () => {
-      const writeEnvStub = sandbox.stub(envUtil, "writeEnv").resolves(ok(undefined));
+      const writeEnvStub = vi.spyOn(envUtil, "writeEnv").mockResolvedValue(ok(undefined));
       await tunnelTaskTerminal.saveTunnelToEnv("local", []);
-      sandbox.assert.notCalled(writeEnvStub);
+      expect(writeEnvStub).not.toHaveBeenCalled();
     });
 
     it("empty env", async () => {
-      const writeEnvStub = sandbox.stub(envUtil, "writeEnv").resolves(ok(undefined));
+      const writeEnvStub = vi.spyOn(envUtil, "writeEnv").mockResolvedValue(ok(undefined));
       await tunnelTaskTerminal.saveTunnelToEnv(undefined, [
         {
           protocol: "http",
@@ -573,7 +574,7 @@ describe("devTunnelTaskTerminal", () => {
           },
         },
       ]);
-      sandbox.assert.notCalled(writeEnvStub);
+      expect(writeEnvStub).not.toHaveBeenCalled();
     });
 
     it("error uri", async () => {
@@ -594,7 +595,7 @@ describe("devTunnelTaskTerminal", () => {
     });
 
     it("one port", async () => {
-      const writeEnvStub = sandbox.stub(envUtil, "writeEnv").resolves(ok(undefined));
+      const writeEnvStub = vi.spyOn(envUtil, "writeEnv").mockResolvedValue(ok(undefined));
       await tunnelTaskTerminal.saveTunnelToEnv("local", [
         {
           protocol: "http",
@@ -606,14 +607,14 @@ describe("devTunnelTaskTerminal", () => {
           },
         },
       ]);
-      sandbox.assert.calledWith(writeEnvStub, sandbox.match.any, "local", {
+      expect(writeEnvStub).toHaveBeenCalledWith(expect.anything(), "local", {
         BOT_ENDPOINT: "https://id-port.cluster.devtunnels.ms",
         BOT_DOMAIN: "id-port.cluster.devtunnels.ms",
       });
     });
 
     it("multiple ports", async () => {
-      const writeEnvStub = sandbox.stub(envUtil, "writeEnv").resolves(ok(undefined));
+      const writeEnvStub = vi.spyOn(envUtil, "writeEnv").mockResolvedValue(ok(undefined));
       await tunnelTaskTerminal.saveTunnelToEnv("local", [
         {
           protocol: "http",
@@ -638,7 +639,7 @@ describe("devTunnelTaskTerminal", () => {
           writeToEnvironmentFile: {},
         },
       ]);
-      sandbox.assert.calledWith(writeEnvStub, sandbox.match.any, "local", {
+      expect(writeEnvStub).toHaveBeenCalledWith(expect.anything(), "local", {
         BOT_DOMAIN: "id-3978.cluster.devtunnels.ms",
         TAB_ENDPOINT: "https://id-53000.cluster.devtunnels.ms",
       });

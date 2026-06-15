@@ -1,13 +1,12 @@
 import * as chai from "chai";
-import * as sinon from "sinon";
 import * as vscode from "vscode";
 import { CopilotDebugLog } from "../../src/pluginDebugger/copilotDebugLogOutput";
 import { WebSocketEventHandler } from "../../src/pluginDebugger/webSocketEventHandler";
 import * as ui from "../../src/qm/vsc_ui";
+import { vi } from "vitest";
+import { mockValue } from "../mocks/vitestMockUtils";
 
 describe("WebSocketEventHandler", () => {
-  const sandbox = sinon.createSandbox();
-
   beforeEach(() => {
     (vscode as any).debug = {
       activeDebugConsole: {
@@ -16,34 +15,30 @@ describe("WebSocketEventHandler", () => {
     };
   });
 
-  afterEach(() => {
-    sandbox.restore();
-  });
-
   describe("handleEvent", () => {
     it("isWebSocketDataRelevant returns false", () => {
-      sandbox.stub(WebSocketEventHandler, "isWebSocketDataRelevant").returns(false);
+      vi.spyOn(WebSocketEventHandler, "isWebSocketDataRelevant").mockReturnValue(false);
       const num = WebSocketEventHandler.handleEvent({ payloadData: '{"type":1' } as any);
       chai.assert.equal(num, 0);
     });
     it("throw error", () => {
-      const appendLineStub = sandbox.stub(vscode.debug.activeDebugConsole, "appendLine");
+      const appendLineStub = vi.spyOn(vscode.debug.activeDebugConsole, "appendLine");
       const mockUi = { showMessage: () => {} } as any;
-      sandbox.stub(ui, "VS_CODE_UI").value(mockUi);
-      const showMessageStub = sandbox.stub(mockUi, "showMessage");
-      sandbox.stub(WebSocketEventHandler, "isWebSocketDataRelevant").returns(true);
-      sandbox.stub(WebSocketEventHandler, "splitObjects").throws(new Error("Test"));
+      mockValue(ui, "VS_CODE_UI", mockUi);
+      const showMessageStub = vi.spyOn(mockUi, "showMessage");
+      vi.spyOn(WebSocketEventHandler, "isWebSocketDataRelevant").mockReturnValue(true);
+      vi.spyOn(WebSocketEventHandler, "splitObjects").throws(new Error("Test"));
       const num = WebSocketEventHandler.handleEvent({ payloadData: '{"type":1' } as any);
       chai.assert.equal(num, 0);
       chai.assert.isTrue(showMessageStub.calledOnce);
       chai.assert.isTrue(appendLineStub.calledOnce);
     });
     it("happy", () => {
-      sandbox.stub(WebSocketEventHandler, "isWebSocketDataRelevant").returns(true);
+      vi.spyOn(WebSocketEventHandler, "isWebSocketDataRelevant").mockReturnValue(true);
       const obj = { item: { messages: [] } };
-      sandbox.stub(WebSocketEventHandler, "splitObjects").returns([JSON.stringify(obj)]);
-      sandbox.stub(WebSocketEventHandler, "selectBotTextMessages").returns([{} as any]);
-      sandbox.stub(WebSocketEventHandler, "convertBotMessageToChannelOutput").returns();
+      vi.spyOn(WebSocketEventHandler, "splitObjects").mockReturnValue([JSON.stringify(obj)]);
+      vi.spyOn(WebSocketEventHandler, "selectBotTextMessages").mockReturnValue([{} as any]);
+      vi.spyOn(WebSocketEventHandler, "convertBotMessageToChannelOutput").mockReturnValue();
       const num = WebSocketEventHandler.handleEvent({ payloadData: '{"type":1' } as any);
       chai.assert.equal(num, 1);
     });
@@ -92,7 +87,7 @@ describe("WebSocketEventHandler", () => {
   });
   describe("convertBotMessageToChannelOutput", () => {
     it("happy", () => {
-      const stub = sandbox.stub(CopilotDebugLog.prototype, "write");
+      const stub = vi.spyOn(CopilotDebugLog.prototype, "write");
       WebSocketEventHandler.convertBotMessageToChannelOutput({
         messageType: "DeveloperLogs",
         text: JSON.stringify({
@@ -105,8 +100,8 @@ describe("WebSocketEventHandler", () => {
   });
   describe("convertBotMessageToChannelOutputJson", () => {
     it("happy", () => {
-      const stub = sandbox.stub(WebSocketEventHandler, "prettyPrintJson");
-      stub.returns(
+      const stub = vi.spyOn(WebSocketEventHandler, "prettyPrintJson");
+      stub.mockReturnValue(
         JSON.stringify({
           functionExecutions: [{ requestUrl: "" }],
         })

@@ -1,9 +1,10 @@
 import { ok } from "@microsoft/teamsfx-api";
 import * as chai from "chai";
-import * as sinon from "sinon";
 import * as vscode from "vscode";
 import { PanelType } from "../../../src/controls/PanelType";
 import { WebviewPanel } from "../../../src/controls/webviewPanel";
+import { vi } from "vitest";
+import { mockValue } from "../../mocks/vitestMockUtils";
 import {
   checkCopilotCallback,
   checkSideloadingCallback,
@@ -15,23 +16,17 @@ import * as localizeUtils from "../../../src/utils/localizeUtils";
 
 describe("checkAccessCallback", () => {
   describe("checkCopilotCallback", () => {
-    const sandbox = sinon.createSandbox();
-
-    afterEach(() => {
-      sandbox.restore();
-    });
-
     beforeEach(() => {
-      sandbox.stub(vsc_ui, "VS_CODE_UI").value(new vsc_ui.VsCodeUI(<vscode.ExtensionContext>{}));
+      mockValue(vsc_ui, "VS_CODE_UI", new vsc_ui.VsCodeUI(<vscode.ExtensionContext>{}));
     });
 
     it("checkCopilotCallback() and open url", async () => {
-      sandbox.stub(checkAccessCallbackDeps, "localize").returns("Enroll");
-      sandbox.stub(checkAccessCallbackDeps, "sendTelemetryEvent");
-      const showMessageStub = sandbox
-        .stub(checkAccessCallbackDeps, "showMessage")
-        .resolves(ok("Enroll"));
-      const openUrlStub = sandbox.stub(checkAccessCallbackDeps, "openUrl");
+      vi.spyOn(checkAccessCallbackDeps, "localize").mockReturnValue("Enroll");
+      vi.spyOn(checkAccessCallbackDeps, "sendTelemetryEvent");
+      const showMessageStub = vi
+        .spyOn(checkAccessCallbackDeps, "showMessage")
+        .mockResolvedValue(ok("Enroll"));
+      const openUrlStub = vi.spyOn(checkAccessCallbackDeps, "openUrl");
 
       await checkCopilotCallback();
 
@@ -40,12 +35,12 @@ describe("checkAccessCallback", () => {
     });
 
     it("checkCopilotCallback() and fail to open url", async () => {
-      sandbox.stub(checkAccessCallbackDeps, "localize").returns("");
-      sandbox.stub(checkAccessCallbackDeps, "sendTelemetryEvent");
-      const showMessageStub = sandbox
-        .stub(checkAccessCallbackDeps, "showMessage")
-        .resolves(ok("Enroll"));
-      const openUrlStub = sandbox.stub(checkAccessCallbackDeps, "openUrl");
+      vi.spyOn(checkAccessCallbackDeps, "localize").mockReturnValue("");
+      vi.spyOn(checkAccessCallbackDeps, "sendTelemetryEvent");
+      const showMessageStub = vi
+        .spyOn(checkAccessCallbackDeps, "showMessage")
+        .mockResolvedValue(ok("Enroll"));
+      const openUrlStub = vi.spyOn(checkAccessCallbackDeps, "openUrl");
 
       await checkCopilotCallback();
 
@@ -54,11 +49,11 @@ describe("checkAccessCallback", () => {
     });
 
     it("checkCopilotCallback() and fail to show message", async () => {
-      const localizeStub = sandbox.stub(checkAccessCallbackDeps, "localize").returns("");
-      sandbox.stub(checkAccessCallbackDeps, "sendTelemetryEvent");
-      const showMessageStub = sandbox
-        .stub(checkAccessCallbackDeps, "showMessage")
-        .rejects(new Error("error"));
+      const localizeStub = vi.spyOn(checkAccessCallbackDeps, "localize").mockReturnValue("");
+      vi.spyOn(checkAccessCallbackDeps, "sendTelemetryEvent");
+      const showMessageStub = vi
+        .spyOn(checkAccessCallbackDeps, "showMessage")
+        .mockRejectedValue(new Error("error"));
 
       await checkCopilotCallback();
 
@@ -68,51 +63,51 @@ describe("checkAccessCallback", () => {
   });
 
   describe("CheckSideloading", () => {
-    const sandbox = sinon.createSandbox();
-    let clock: sinon.SinonFakeTimers;
+    let clock: ReturnType<typeof vi.useFakeTimers>;
 
     afterEach(() => {
       if (clock) {
         clock.restore();
       }
       clock.restore();
-      sandbox.restore();
+      vi.restoreAllMocks();
     });
 
     beforeEach(() => {
-      sandbox.stub(checkAccessCallbackDeps, "sendTelemetryEvent");
-      sandbox.stub(vsc_ui, "VS_CODE_UI").value(new vsc_ui.VsCodeUI(<vscode.ExtensionContext>{}));
+      vi.spyOn(checkAccessCallbackDeps, "sendTelemetryEvent");
+      mockValue(vsc_ui, "VS_CODE_UI", new vsc_ui.VsCodeUI(<vscode.ExtensionContext>{}));
     });
 
     it("checkSideloadingCallback() - click enable custom app upload button", async () => {
-      const showMessageStub = sandbox
-        .stub(checkAccessCallbackDeps, "showMessage")
-        .resolves(ok("Enable Custom App Upload"));
-      const openUrlStub = sandbox.stub(checkAccessCallbackDeps, "openUrl");
+      const showMessageStub = vi
+        .spyOn(checkAccessCallbackDeps, "showMessage")
+        .mockResolvedValue(ok("Enable Custom App Upload"));
+      const openUrlStub = vi.spyOn(checkAccessCallbackDeps, "openUrl");
 
-      clock = sandbox.useFakeTimers();
+      clock = vi.useFakeTimers();
       await checkSideloadingCallback();
       await clock.tickAsync(5000);
 
-      sinon.assert.calledOnce(showMessageStub);
-      sinon.assert.calledOnceWithExactly(
-        openUrlStub,
+      expect(showMessageStub).toHaveBeenCalledTimes(1);
+      expect(openUrlStub).toHaveBeenCalledTimes(1);
+      expect(openUrlStub).toHaveBeenCalledWith(
         "https://learn.microsoft.com/en-us/microsoftteams/platform/toolkit/tools-prerequisites#enable-custom-app-upload-using-admin-center"
       );
     });
 
     it("checkSideloadingCallback() - click use test tenant button", async () => {
-      const showMessageStub = sandbox
-        .stub(checkAccessCallbackDeps, "showMessage")
-        .resolves(ok("Use Test Tenant"));
-      const createOrShow = sandbox.stub(checkAccessCallbackDeps, "createOrShow");
+      const showMessageStub = vi
+        .spyOn(checkAccessCallbackDeps, "showMessage")
+        .mockResolvedValue(ok("Use Test Tenant"));
+      const createOrShow = vi.spyOn(checkAccessCallbackDeps, "createOrShow");
 
-      clock = sandbox.useFakeTimers();
+      clock = vi.useFakeTimers();
       await checkSideloadingCallback();
       await clock.tickAsync(5000);
 
-      sinon.assert.calledOnce(showMessageStub);
-      sinon.assert.calledOnceWithExactly(createOrShow, PanelType.AccountHelp);
+      expect(showMessageStub).toHaveBeenCalledTimes(1);
+      expect(createOrShow).toHaveBeenCalledTimes(1);
+      expect(createOrShow).toHaveBeenCalledWith(PanelType.AccountHelp);
     });
   });
 });

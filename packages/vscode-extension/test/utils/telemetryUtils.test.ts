@@ -1,8 +1,8 @@
 import * as chai from "chai";
-import * as sinon from "sinon";
 import { Uri } from "vscode";
 import { err, Inputs, ok, UserError } from "@microsoft/teamsfx-api";
 import * as globalVariables from "../../src/globalVariables";
+import { vi } from "vitest";
 import {
   getPackageVersion,
   getProjectId,
@@ -46,37 +46,32 @@ describe("TelemetryUtils", () => {
   });
 
   describe("getProjectId", async () => {
-    const sandbox = sinon.createSandbox();
     const core = new MockCore();
 
     beforeEach(() => {
-      sandbox.stub(telemetryUtilsDeps, "getCore").returns(core as any);
-    });
-
-    afterEach(() => {
-      sandbox.restore();
+      vi.spyOn(telemetryUtilsDeps, "getCore").mockReturnValue(core as any);
     });
 
     it("happy path", async () => {
-      sandbox.stub(telemetryUtilsDeps, "getWorkspacePath").returns(".");
-      sandbox.stub(core, "getProjectId").resolves(ok("mock-project-id"));
+      vi.spyOn(telemetryUtilsDeps, "getWorkspacePath").mockReturnValue(".");
+      vi.spyOn(core, "getProjectId").mockResolvedValue(ok("mock-project-id"));
       const result = await getProjectId();
       chai.expect(result).equals("mock-project-id");
     });
     it("workspaceUri is undefined", async () => {
-      sandbox.stub(telemetryUtilsDeps, "getWorkspacePath").returns(undefined);
+      vi.spyOn(telemetryUtilsDeps, "getWorkspacePath").mockReturnValue(undefined);
       const result = await getProjectId();
       chai.expect(result).equals(undefined);
     });
     it("return error", async () => {
-      sandbox.stub(telemetryUtilsDeps, "getWorkspacePath").returns(".");
-      sandbox.stub(core, "getProjectId").resolves(err(new UserError({})));
+      vi.spyOn(telemetryUtilsDeps, "getWorkspacePath").mockReturnValue(".");
+      vi.spyOn(core, "getProjectId").mockResolvedValue(err(new UserError({})));
       const result = await getProjectId();
       chai.expect(result).equals(undefined);
     });
     it("throw error", async () => {
-      sandbox.stub(telemetryUtilsDeps, "getWorkspacePath").returns(".");
-      sandbox.stub(core, "getProjectId").rejects(new UserError({}));
+      vi.spyOn(telemetryUtilsDeps, "getWorkspacePath").mockReturnValue(".");
+      vi.spyOn(core, "getProjectId").mockRejectedValue(new UserError({}));
       const result = await getProjectId();
       chai.expect(result).equals(undefined);
     });
@@ -160,12 +155,6 @@ describe("TelemetryUtils", () => {
 
   // eslint-disable-next-line no-secrets/no-secrets
   describe("getTeamsAppTelemetryInfoByEnv", async () => {
-    const sandbox = sinon.createSandbox();
-
-    afterEach(() => {
-      sandbox.restore();
-    });
-
     it("happy path", async () => {
       const info = {
         projectId: "mock-project-id",
@@ -174,11 +163,11 @@ describe("TelemetryUtils", () => {
         m365TenantId: "mock-tenant-id",
       };
       const mockCore = {
-        getProjectInfo: sandbox.stub().resolves(ok(info)),
+        getProjectInfo: vi.fn().mockResolvedValue(ok(info)),
       };
-      sandbox.stub(telemetryUtilsDeps, "getWorkspacePath").returns(".");
-      sandbox.stub(telemetryUtilsDeps, "isValidProject").returns(true);
-      sandbox.stub(telemetryUtilsDeps, "getCore").returns(mockCore as any);
+      vi.spyOn(telemetryUtilsDeps, "getWorkspacePath").mockReturnValue(".");
+      vi.spyOn(telemetryUtilsDeps, "isValidProject").mockReturnValue(true);
+      vi.spyOn(telemetryUtilsDeps, "getCore").mockReturnValue(mockCore as any);
 
       const result = await getTeamsAppTelemetryInfoByEnv("dev");
       chai.expect(result).deep.equals({
@@ -187,29 +176,29 @@ describe("TelemetryUtils", () => {
       });
     });
     it("isValidProject is false", async () => {
-      sandbox.stub(telemetryUtilsDeps, "getWorkspacePath").returns(".");
-      sandbox.stub(telemetryUtilsDeps, "isValidProject").returns(false);
+      vi.spyOn(telemetryUtilsDeps, "getWorkspacePath").mockReturnValue(".");
+      vi.spyOn(telemetryUtilsDeps, "isValidProject").mockReturnValue(false);
       const result = await getTeamsAppTelemetryInfoByEnv("dev");
       chai.expect(result).equals(undefined);
     });
     it("return error", async () => {
       const mockCore = {
-        getProjectInfo: sandbox.stub().resolves(err(new UserError({}))),
+        getProjectInfo: vi.fn().mockResolvedValue(err(new UserError({}))),
       };
-      sandbox.stub(telemetryUtilsDeps, "getWorkspacePath").returns(".");
-      sandbox.stub(telemetryUtilsDeps, "isValidProject").returns(true);
-      sandbox.stub(telemetryUtilsDeps, "getCore").returns(mockCore as any);
+      vi.spyOn(telemetryUtilsDeps, "getWorkspacePath").mockReturnValue(".");
+      vi.spyOn(telemetryUtilsDeps, "isValidProject").mockReturnValue(true);
+      vi.spyOn(telemetryUtilsDeps, "getCore").mockReturnValue(mockCore as any);
 
       const result = await getTeamsAppTelemetryInfoByEnv("dev");
       chai.expect(result).equals(undefined);
     });
     it("throw error", async () => {
       const mockCore = {
-        getProjectInfo: sandbox.stub().rejects(new UserError({})),
+        getProjectInfo: vi.fn().mockRejectedValue(new UserError({})),
       };
-      sandbox.stub(telemetryUtilsDeps, "getWorkspacePath").returns(".");
-      sandbox.stub(telemetryUtilsDeps, "isValidProject").returns(true);
-      sandbox.stub(telemetryUtilsDeps, "getCore").returns(mockCore as any);
+      vi.spyOn(telemetryUtilsDeps, "getWorkspacePath").mockReturnValue(".");
+      vi.spyOn(telemetryUtilsDeps, "isValidProject").mockReturnValue(true);
+      vi.spyOn(telemetryUtilsDeps, "getCore").mockReturnValue(mockCore as any);
 
       const result = await getTeamsAppTelemetryInfoByEnv("dev");
       chai.expect(result).equals(undefined);
@@ -217,34 +206,28 @@ describe("TelemetryUtils", () => {
   });
 
   describe("getSettingsVersion", async () => {
-    const sandbox = sinon.createSandbox();
-
-    afterEach(() => {
-      sandbox.restore();
-    });
-
     it("happy path", async () => {
       const core = new MockCore();
-      sandbox.stub(telemetryUtilsDeps, "getCore").returns(core as any);
-      sandbox.stub(telemetryUtilsDeps, "getSystemInputs").returns({} as Inputs);
-      sandbox
-        .stub(core, "projectVersionCheck")
-        .resolves(ok({ currentVersion: "3.0.0" } as VersionCheckRes));
+      vi.spyOn(telemetryUtilsDeps, "getCore").mockReturnValue(core as any);
+      vi.spyOn(telemetryUtilsDeps, "getSystemInputs").mockReturnValue({} as Inputs);
+      vi.spyOn(core, "projectVersionCheck").mockResolvedValue(
+        ok({ currentVersion: "3.0.0" } as VersionCheckRes)
+      );
       const res = await getSettingsVersion();
       chai.assert.equal(res, "3.0.0");
     });
 
     it("core is undefined", async () => {
-      sandbox.stub(telemetryUtilsDeps, "getCore").returns(undefined as any);
+      vi.spyOn(telemetryUtilsDeps, "getCore").mockReturnValue(undefined as any);
       const res = await getSettingsVersion();
       chai.assert.equal(res, undefined);
     });
 
     it("return error", async () => {
       const core = new MockCore();
-      sandbox.stub(telemetryUtilsDeps, "getCore").returns(core as any);
-      sandbox.stub(telemetryUtilsDeps, "getSystemInputs").returns({} as Inputs);
-      sandbox.stub(core, "projectVersionCheck").resolves(err(new UserError({})));
+      vi.spyOn(telemetryUtilsDeps, "getCore").mockReturnValue(core as any);
+      vi.spyOn(telemetryUtilsDeps, "getSystemInputs").mockReturnValue({} as Inputs);
+      vi.spyOn(core, "projectVersionCheck").mockResolvedValue(err(new UserError({})));
       const res = await getSettingsVersion();
       chai.assert.equal(res, undefined);
     });

@@ -9,8 +9,13 @@ if (!process.env.VSCODE_NLS_CONFIG) {
 
 import * as child_process from "child_process";
 import * as os from "os";
-import { afterAll, beforeAll, describe, vi } from "vitest";
+import * as chai from "chai";
+import * as vscode from "vscode";
+import { ok } from "@microsoft/teamsfx-api";
+import { afterAll, afterEach, beforeAll, beforeEach, describe, vi } from "vitest";
 import { ExtTelemetry } from "../src/telemetry/extTelemetry";
+import * as globalVariables from "../src/globalVariables";
+import { installVitestMockCompat, restoreMockValues } from "./mocks/vitestMockUtils";
 if (os.platform() === "win32") {
   const proc = child_process.spawn("C:\\Windows\\System32\\Reg.exe", ["/?"]);
   proc.on("error", () => {
@@ -25,6 +30,76 @@ if ((Reflect as any).metadata === undefined) {
 import { initialize } from "./mocks/vscode-mock";
 
 initialize();
+installVitestMockCompat();
+const defaultExtensionContext = {
+  extensionPath: process.cwd(),
+  extensionUri: vscode.Uri.file(process.cwd()),
+  logUri: vscode.Uri.file(process.cwd()),
+  globalState: {
+    get: () => undefined,
+    update: async () => undefined,
+  },
+  ui: {
+    showMessage: async () => ({ isOk: () => true }) as any,
+  },
+  tokenProvider: {
+    m365TokenProvider: {} as vscode.AuthenticationProvider,
+    azureAccountProvider: {} as vscode.AuthenticationProvider,
+  },
+} as unknown as vscode.ExtensionContext;
+const createDefaultWebviewPanel = () => ({
+  webview: {
+    html: "",
+    options: {},
+    onDidReceiveMessage: () => ({ dispose: () => undefined }),
+    postMessage: async () => true,
+    asWebviewUri: (uri: vscode.Uri) => uri,
+  },
+  reveal: () => undefined,
+  onDidDispose: () => ({ dispose: () => undefined }),
+  onDidChangeViewState: () => ({ dispose: () => undefined }),
+  dispose: () => undefined,
+  title: "",
+});
+const setDefaultValue = <T extends object, K extends keyof T>(target: T, key: K, value: T[K]) => {
+  Object.defineProperty(target, key, {
+    configurable: true,
+    writable: true,
+    value,
+  });
+};
+const applyDefaultGlobals = (resetExtensionContext = false) => {
+  setDefaultValue(globalVariables, "workspaceUri", vscode.Uri.file(process.cwd()));
+  setDefaultValue(globalVariables, "tools", {
+    tokenProvider: {
+      m365TokenProvider: {
+        getAccessToken: async () => ok("test-token"),
+        getJsonObject: async () => ok({ upn: "test", tid: "" }),
+      },
+      azureAccountProvider: {
+        getAccessToken: async () => ok("test-token"),
+      },
+    },
+    ui: {
+      showMessage: async () => ok(""),
+    },
+    getCommands: async () => [],
+  } as never);
+  if (resetExtensionContext || !globalVariables.context) {
+    globalVariables.initializeGlobalVariables(defaultExtensionContext);
+  }
+  setDefaultValue(
+    vscode.window,
+    "createWebviewPanel",
+    vi.fn(() => createDefaultWebviewPanel()) as never
+  );
+};
+beforeAll(() => {
+  applyDefaultGlobals(true);
+});
+beforeEach(() => {
+  applyDefaultGlobals();
+});
 
 // Keep a single vscode module instance so Sinon stubs in tests and runtime code target the same object.
 vi.mock("vscode", async () => {
@@ -55,4 +130,36 @@ Object.assign(globalThis, {
   before: beforeAll,
   after: afterAll,
   context: describe,
+  sandbox: {
+    useFakeTimers: (time?: number) => {
+      const clock = vi.useFakeTimers();
+      if (typeof time === "number") {
+        vi.setSystemTime(time);
+      }
+      return clock;
+    },
+    restore: () => {
+      vi.restoreAllMocks();
+      vi.useRealTimers();
+    },
+    assert: {
+      match: (actual: unknown, expected: unknown) => {
+        if (typeof expected === "string" && typeof actual === "string") {
+          chai.assert.include(actual, expected);
+          return;
+        }
+        if (expected && typeof expected === "object") {
+          chai.expect(actual).to.deep.include(expected as never);
+          return;
+        }
+        chai.assert.equal(actual, expected);
+      },
+    },
+  },
+});
+
+afterEach(() => {
+  vi.restoreAllMocks();
+  vi.useRealTimers();
+  restoreMockValues();
 });

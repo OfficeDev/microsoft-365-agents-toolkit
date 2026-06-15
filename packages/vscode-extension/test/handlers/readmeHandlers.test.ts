@@ -1,5 +1,4 @@
 import * as vscode from "vscode";
-import * as sinon from "sinon";
 import fs from "fs-extra";
 import * as chai from "chai";
 import * as globalVariables from "../../src/globalVariables";
@@ -9,26 +8,22 @@ import { PanelType } from "../../src/controls/PanelType";
 import { TreatmentVariableValue } from "../../src/exp/treatmentVariables";
 import { WebviewPanel } from "../../src/controls/webviewPanel";
 import { openReadMeHandler, openSampleReadmeHandler } from "../../src/handlers/readmeHandlers";
+import { vi } from "vitest";
+import { mockValue } from "../mocks/vitestMockUtils";
 
 describe("readmeHandlers", () => {
   describe("openReadMeHandler", () => {
-    const sandbox = sinon.createSandbox();
-
-    afterEach(() => {
-      sandbox.restore();
-    });
-
     it("Happy Path", async () => {
-      sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
-      sandbox.stub(globalVariables, "isTeamsFxProject").value(true);
-      const executeCommands = sandbox.stub(vscode.commands, "executeCommand");
-      sandbox
-        .stub(vscode.workspace, "workspaceFolders")
-        .value([{ uri: { fsPath: "readmeTestFolder" } }]);
-      sandbox.stub(fs, "pathExists").resolves(true);
-      const openTextDocumentStub = sandbox
-        .stub(vscode.workspace, "openTextDocument")
-        .resolves({} as any as vscode.TextDocument);
+      vi.spyOn(ExtTelemetry, "sendTelemetryEvent");
+      mockValue(globalVariables, "isTeamsFxProject", true);
+      const executeCommands = vi.spyOn(vscode.commands, "executeCommand");
+      vi.spyOn(vscode.workspace, "workspaceFolders").value([
+        { uri: { fsPath: "readmeTestFolder" } },
+      ]);
+      vi.spyOn(fs, "pathExists").mockResolvedValue(true);
+      const openTextDocumentStub = vi
+        .spyOn(vscode.workspace, "openTextDocument")
+        .mockResolvedValue({} as any as vscode.TextDocument);
 
       await openReadMeHandler([extTelemetryEvents.TelemetryTriggerFrom.Auto]);
 
@@ -37,12 +32,12 @@ describe("readmeHandlers", () => {
     });
 
     it("Create Project", async () => {
-      sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
-      sandbox.stub(globalVariables, "isTeamsFxProject").value(false);
-      sandbox.stub(globalVariables, "core").value(undefined);
-      const showMessageStub = sandbox
-        .stub(vscode.window, "showInformationMessage")
-        .callsFake(
+      vi.spyOn(ExtTelemetry, "sendTelemetryEvent");
+      mockValue(globalVariables, "isTeamsFxProject", false);
+      mockValue(globalVariables, "core", undefined);
+      const showMessageStub = vi
+        .spyOn(vscode.window, "showInformationMessage")
+        .mockImplementation(
           (title: string, options: vscode.MessageOptions, ...items: vscode.MessageItem[]) => {
             return Promise.resolve({
               title: "Yes",
@@ -56,13 +51,13 @@ describe("readmeHandlers", () => {
     });
 
     it("Open Folder", async () => {
-      sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
-      sandbox.stub(globalVariables, "isTeamsFxProject").value(false);
-      sandbox.stub(globalVariables, "core").value(undefined);
-      const executeCommandStub = sandbox.stub(vscode.commands, "executeCommand");
-      const showMessageStub = sandbox
-        .stub(vscode.window, "showInformationMessage")
-        .callsFake(
+      vi.spyOn(ExtTelemetry, "sendTelemetryEvent");
+      mockValue(globalVariables, "isTeamsFxProject", false);
+      mockValue(globalVariables, "core", undefined);
+      const executeCommandStub = vi.spyOn(vscode.commands, "executeCommand");
+      const showMessageStub = vi
+        .spyOn(vscode.window, "showInformationMessage")
+        .mockImplementation(
           (title: string, options: vscode.MessageOptions, ...items: vscode.MessageItem[]) => {
             return Promise.resolve({
               title: "Yes",
@@ -76,59 +71,53 @@ describe("readmeHandlers", () => {
     });
 
     it("Function Notification Bot Template", async () => {
-      sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
-      sandbox.stub(globalVariables, "isTeamsFxProject").value(true);
-      sandbox
-        .stub(vscode.workspace, "workspaceFolders")
-        .value([{ uri: { fsPath: "readmeTestFolder" } }]);
-      sandbox.stub(TreatmentVariableValue, "inProductDoc").value(true);
-      sandbox.stub(fs, "pathExists").resolves(true);
-      sandbox
-        .stub(fs, "readFile")
-        .resolves(Buffer.from("## Get Started with the Notification bot"));
-      const createOrShow = sandbox.stub(WebviewPanel, "createOrShow");
+      vi.spyOn(ExtTelemetry, "sendTelemetryEvent");
+      mockValue(globalVariables, "isTeamsFxProject", true);
+      vi.spyOn(vscode.workspace, "workspaceFolders").value([
+        { uri: { fsPath: "readmeTestFolder" } },
+      ]);
+      mockValue(TreatmentVariableValue, "inProductDoc", true);
+      vi.spyOn(fs, "pathExists").mockResolvedValue(true);
+      vi.spyOn(fs, "readFile").mockResolvedValue(
+        Buffer.from("## Get Started with the Notification bot")
+      );
+      const createOrShow = vi
+        .spyOn(WebviewPanel, "createOrShow")
+        .mockImplementation(() => undefined);
 
       await openReadMeHandler([extTelemetryEvents.TelemetryTriggerFrom.Auto]);
 
-      sandbox.assert.calledOnceWithExactly(
-        createOrShow,
-        PanelType.FunctionBasedNotificationBotReadme
-      );
+      expect(createOrShow).toHaveBeenCalledTimes(1);
+      expect(createOrShow).toHaveBeenCalledWith(PanelType.FunctionBasedNotificationBotReadme);
     });
 
     it("Express Notification Bot Template", async () => {
-      sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
-      sandbox.stub(globalVariables, "isTeamsFxProject").value(true);
-      sandbox
-        .stub(vscode.workspace, "workspaceFolders")
-        .value([{ uri: { fsPath: "readmeTestFolder" } }]);
-      sandbox.stub(TreatmentVariableValue, "inProductDoc").value(true);
-      sandbox.stub(fs, "pathExists").resolves(true);
-      sandbox
-        .stub(fs, "readFile")
-        .resolves(Buffer.from("## Get Started with the Notification bot express"));
-      const createOrShow = sandbox.stub(WebviewPanel, "createOrShow");
+      vi.spyOn(ExtTelemetry, "sendTelemetryEvent");
+      mockValue(globalVariables, "isTeamsFxProject", true);
+      vi.spyOn(vscode.workspace, "workspaceFolders").value([
+        { uri: { fsPath: "readmeTestFolder" } },
+      ]);
+      mockValue(TreatmentVariableValue, "inProductDoc", true);
+      vi.spyOn(fs, "pathExists").mockResolvedValue(true);
+      vi.spyOn(fs, "readFile").mockResolvedValue(
+        Buffer.from("## Get Started with the Notification bot express")
+      );
+      const createOrShow = vi
+        .spyOn(WebviewPanel, "createOrShow")
+        .mockImplementation(() => undefined);
 
       await openReadMeHandler([extTelemetryEvents.TelemetryTriggerFrom.Auto]);
 
-      sandbox.assert.calledOnceWithExactly(
-        createOrShow,
-        PanelType.ExpressServerNotificationBotReadme
-      );
+      expect(createOrShow).toHaveBeenCalledTimes(1);
+      expect(createOrShow).toHaveBeenCalledWith(PanelType.ExpressServerNotificationBotReadme);
     });
   });
 
   describe("openSampleReadmeHandler", () => {
-    const sandbox = sinon.createSandbox();
-
-    afterEach(() => {
-      sandbox.restore();
-    });
-
     it("Trigger from Walkthrough", async () => {
-      sandbox.stub(vscode.workspace, "workspaceFolders").value([{ uri: vscode.Uri.file("test") }]);
-      sandbox.stub(vscode.workspace, "openTextDocument");
-      const executeCommandStub = sandbox.stub(vscode.commands, "executeCommand");
+      mockValue(vscode.workspace, "workspaceFolders", [{ uri: vscode.Uri.file("test") }]);
+      vi.spyOn(vscode.workspace, "openTextDocument");
+      const executeCommandStub = vi.spyOn(vscode.commands, "executeCommand");
 
       await openSampleReadmeHandler(["WalkThrough"]);
 

@@ -1,4 +1,6 @@
 import { err, ok, SystemError, UserError } from "@microsoft/teamsfx-api";
+import { vi } from "vitest";
+import { mockValue } from "../mocks/vitestMockUtils";
 import {
   AppDefinition,
   FeatureFlagName,
@@ -11,7 +13,6 @@ import {
 import * as projectSettingsHelper from "@microsoft/teamsfx-core/build/common/projectSettingsHelper";
 import { ProgressHandler } from "@microsoft/vscode-ui";
 import { assert } from "chai";
-import * as sinon from "sinon";
 import * as vscode from "vscode";
 import * as globalVariables from "../../src/globalVariables";
 import * as copilotHandler from "../../src/handlers/copilotChatHandlers";
@@ -49,67 +50,60 @@ import { shareRemoveCommand } from "../../../cli/src/commands/models/shareRemove
 
 import { lifecycleHandlersDeps } from "../../src/handlers/lifecycleHandlers";
 describe("Lifecycle handlers", () => {
-  const sandbox = sinon.createSandbox();
-
   beforeEach(() => {
-    sandbox.stub(lifecycleHandlersDeps, "sendTelemetryEvent");
-    sandbox.stub(lifecycleHandlersDeps, "sendTelemetryErrorEvent");
-  });
-
-  afterEach(() => {
-    sandbox.restore();
+    vi.spyOn(lifecycleHandlersDeps, "sendTelemetryEvent");
+    vi.spyOn(lifecycleHandlersDeps, "sendTelemetryErrorEvent");
   });
 
   describe("provision handlers", () => {
     it("error", async () => {
-      sandbox.stub(lifecycleHandlersDeps, "runCommand").resolves(err(new UserCancelError()));
+      vi.spyOn(lifecycleHandlersDeps, "runCommand").mockResolvedValue(err(new UserCancelError()));
       const res = await provisionHandler();
       assert.isTrue(res.isErr());
     });
   });
 
   describe("createNewProjectHandler", function () {
-    const sandbox = sinon.createSandbox();
     const mockedEnvRestore: RestoreFn = () => {};
 
     afterEach(() => {
       mockedEnvRestore();
-      sandbox.restore();
+      vi.restoreAllMocks();
     });
 
     it("invokeTeamsAgent", async () => {
-      sandbox.stub(lifecycleHandlersDeps, "runCommand").resolves(
+      vi.spyOn(lifecycleHandlersDeps, "runCommand").mockResolvedValue(
         ok({
           projectPath: "abc",
           shouldInvokeTeamsAgent: true,
           projectId: "mockId",
         })
       );
-      sandbox.stub(lifecycleHandlersDeps, "invokeTeamsAgent").resolves();
+      vi.spyOn(lifecycleHandlersDeps, "invokeTeamsAgent").mockResolvedValue();
       const res = await createNewProjectHandler();
       assert.isTrue(res.isOk());
     });
 
     it("triggered in office agent", async () => {
-      sandbox.stub(lifecycleHandlersDeps, "isValidOfficeAddInProject").returns(true);
-      sandbox.stub(lifecycleHandlersDeps, "runCommand").resolves(
+      vi.spyOn(lifecycleHandlersDeps, "isValidOfficeAddInProject").mockReturnValue(true);
+      vi.spyOn(lifecycleHandlersDeps, "runCommand").mockResolvedValue(
         ok({
           projectPath: "abc",
           shouldInvokeTeamsAgent: false,
           projectId: "mockId",
         })
       );
-      sandbox.stub(lifecycleHandlersDeps, "invokeTeamsAgent").resolves();
+      vi.spyOn(lifecycleHandlersDeps, "invokeTeamsAgent").mockResolvedValue();
       const res = await createNewProjectHandler("", { agent: "office" });
       assert.isTrue(res.isOk());
     });
 
     it("office add-in", async () => {
-      sandbox.stub(lifecycleHandlersDeps, "isValidOfficeAddInProject").returns(true);
-      const openOfficeDevFolder = sandbox
-        .stub(lifecycleHandlersDeps, "openOfficeDevFolder")
-        .resolves();
-      sandbox.stub(lifecycleHandlersDeps, "runCommand").resolves(
+      vi.spyOn(lifecycleHandlersDeps, "isValidOfficeAddInProject").mockReturnValue(true);
+      const openOfficeDevFolder = vi
+        .spyOn(lifecycleHandlersDeps, "openOfficeDevFolder")
+        .mockResolvedValue();
+      vi.spyOn(lifecycleHandlersDeps, "runCommand").mockResolvedValue(
         ok({
           projectPath: "abc",
           shouldInvokeTeamsAgent: false,
@@ -122,9 +116,9 @@ describe("Lifecycle handlers", () => {
     });
 
     it("none office add-in", async () => {
-      sandbox.stub(lifecycleHandlersDeps, "isValidOfficeAddInProject").returns(false);
-      const openFolder = sandbox.stub(lifecycleHandlersDeps, "openFolder").resolves();
-      sandbox.stub(lifecycleHandlersDeps, "runCommand").resolves(
+      vi.spyOn(lifecycleHandlersDeps, "isValidOfficeAddInProject").mockReturnValue(false);
+      const openFolder = vi.spyOn(lifecycleHandlersDeps, "openFolder").mockResolvedValue();
+      vi.spyOn(lifecycleHandlersDeps, "runCommand").mockResolvedValue(
         ok({
           projectPath: "abc",
           shouldInvokeTeamsAgent: false,
@@ -137,9 +131,9 @@ describe("Lifecycle handlers", () => {
     });
 
     it("metaOSExtendToDAHandler", async () => {
-      sandbox.stub(lifecycleHandlersDeps, "isValidOfficeAddInProject").returns(false);
-      const openFolder = sandbox.stub(lifecycleHandlersDeps, "openFolder").resolves();
-      sandbox.stub(lifecycleHandlersDeps, "runCommand").resolves(
+      vi.spyOn(lifecycleHandlersDeps, "isValidOfficeAddInProject").mockReturnValue(false);
+      const openFolder = vi.spyOn(lifecycleHandlersDeps, "openFolder").mockResolvedValue();
+      vi.spyOn(lifecycleHandlersDeps, "runCommand").mockResolvedValue(
         ok({
           projectPath: "abc",
         })
@@ -150,10 +144,10 @@ describe("Lifecycle handlers", () => {
     });
 
     it("metaOSExtendToDAHandler failed", async () => {
-      sandbox.stub(lifecycleHandlersDeps, "isValidOfficeAddInProject").returns(false);
-      sandbox
-        .stub(lifecycleHandlersDeps, "runCommand")
-        .resolves(err(new UserError("test", "name", "message")));
+      vi.spyOn(lifecycleHandlersDeps, "isValidOfficeAddInProject").mockReturnValue(false);
+      vi.spyOn(lifecycleHandlersDeps, "runCommand").mockResolvedValue(
+        err(new UserError("test", "name", "message"))
+      );
       const res = await metaOSExtendToDAHandler();
       assert.isTrue(res.isErr());
     });
@@ -161,8 +155,8 @@ describe("Lifecycle handlers", () => {
 
   describe("provisionHandler", function () {
     it("happy", async () => {
-      sandbox.stub(lifecycleHandlersDeps, "runCommand").resolves(ok(undefined));
-      sandbox.stub(lifecycleHandlersDeps, "reloadEnvironments").resolves();
+      vi.spyOn(lifecycleHandlersDeps, "runCommand").mockResolvedValue(ok(undefined));
+      vi.spyOn(lifecycleHandlersDeps, "reloadEnvironments").mockResolvedValue();
       const res = await provisionHandler();
       assert.isTrue(res.isOk());
     });
@@ -170,7 +164,7 @@ describe("Lifecycle handlers", () => {
 
   describe("deployHandler", function () {
     it("happy", async () => {
-      sandbox.stub(lifecycleHandlersDeps, "runCommand").resolves(ok(undefined));
+      vi.spyOn(lifecycleHandlersDeps, "runCommand").mockResolvedValue(ok(undefined));
       const res = await deployHandler();
       assert.isTrue(res.isOk());
     });
@@ -178,7 +172,7 @@ describe("Lifecycle handlers", () => {
 
   describe("publishHandler", function () {
     it("happy()", async () => {
-      sandbox.stub(lifecycleHandlersDeps, "runCommand").resolves(ok(undefined));
+      vi.spyOn(lifecycleHandlersDeps, "runCommand").mockResolvedValue(ok(undefined));
       const res = await publishHandler();
       assert.isTrue(res.isOk());
     });
@@ -186,7 +180,7 @@ describe("Lifecycle handlers", () => {
 
   describe("shareHandler", function () {
     it("happy()", async () => {
-      sandbox.stub(lifecycleHandlersDeps, "runCommand").resolves(ok(undefined));
+      vi.spyOn(lifecycleHandlersDeps, "runCommand").mockResolvedValue(ok(undefined));
       const res = await shareHandler();
       assert.isTrue(res.isOk());
     });
@@ -194,29 +188,23 @@ describe("Lifecycle handlers", () => {
 
   describe("addWebpartHandler", function () {
     it("happy()", async () => {
-      sandbox.stub(lifecycleHandlersDeps, "runCommand").resolves(ok(undefined));
+      vi.spyOn(lifecycleHandlersDeps, "runCommand").mockResolvedValue(ok(undefined));
       const res = await addWebpartHandler();
       assert.isTrue(res.isOk());
     });
   });
 
   describe("scaffoldFromDeveloperPortalHandler", async () => {
-    const sandbox = sinon.createSandbox();
-
     beforeEach(() => {
-      sandbox.stub(globalVariables, "checkIsSPFx").returns(false);
-    });
-
-    afterEach(() => {
-      sandbox.restore();
+      vi.spyOn(globalVariables, "checkIsSPFx").mockReturnValue(false);
     });
 
     it("missing args", async () => {
       const progressHandler = new ProgressHandler("title", 1);
-      sandbox.stub(vsc_ui, "VS_CODE_UI").value(new vsc_ui.VsCodeUI(<vscode.ExtensionContext>{}));
-      const createProgressBar = sandbox
-        .stub(lifecycleHandlersDeps, "createProgressBar")
-        .returns(progressHandler);
+      mockValue(vsc_ui, "VS_CODE_UI", new vsc_ui.VsCodeUI(<vscode.ExtensionContext>{}));
+      const createProgressBar = vi
+        .spyOn(lifecycleHandlersDeps, "createProgressBar")
+        .mockReturnValue(progressHandler);
 
       const res = await scaffoldFromDeveloperPortalHandler();
 
@@ -226,10 +214,10 @@ describe("Lifecycle handlers", () => {
 
     it("incorrect number of args", async () => {
       const progressHandler = new ProgressHandler("title", 1);
-      sandbox.stub(vsc_ui, "VS_CODE_UI").value(new vsc_ui.VsCodeUI(<vscode.ExtensionContext>{}));
-      const createProgressBar = sandbox
-        .stub(lifecycleHandlersDeps, "createProgressBar")
-        .returns(progressHandler);
+      mockValue(vsc_ui, "VS_CODE_UI", new vsc_ui.VsCodeUI(<vscode.ExtensionContext>{}));
+      const createProgressBar = vi
+        .spyOn(lifecycleHandlersDeps, "createProgressBar")
+        .mockReturnValue(progressHandler);
 
       const res = await scaffoldFromDeveloperPortalHandler();
 
@@ -238,17 +226,17 @@ describe("Lifecycle handlers", () => {
     });
 
     it("general error when signing in M365", async () => {
-      sandbox.stub(vsc_ui, "VS_CODE_UI").value(new vsc_ui.VsCodeUI(<vscode.ExtensionContext>{}));
+      mockValue(vsc_ui, "VS_CODE_UI", new vsc_ui.VsCodeUI(<vscode.ExtensionContext>{}));
       const progressHandler = new ProgressHandler("title", 1);
-      const startProgress = sandbox.stub(progressHandler, "start").resolves();
-      const endProgress = sandbox.stub(progressHandler, "end").resolves();
-      sandbox.stub(lifecycleHandlersDeps, "signInWhenInitiatedFromTdp").throws("error1");
-      const createProgressBar = sandbox
-        .stub(lifecycleHandlersDeps, "createProgressBar")
-        .returns(progressHandler);
-      const showErrorMessage = sandbox
-        .stub(lifecycleHandlersDeps, "showErrorMessage")
-        .resolves(undefined);
+      const startProgress = vi.spyOn(progressHandler, "start").mockResolvedValue();
+      const endProgress = vi.spyOn(progressHandler, "end").mockResolvedValue();
+      vi.spyOn(lifecycleHandlersDeps, "signInWhenInitiatedFromTdp").throws("error1");
+      const createProgressBar = vi
+        .spyOn(lifecycleHandlersDeps, "createProgressBar")
+        .mockReturnValue(progressHandler);
+      const showErrorMessage = vi
+        .spyOn(lifecycleHandlersDeps, "showErrorMessage")
+        .mockResolvedValue(undefined);
 
       const res = await scaffoldFromDeveloperPortalHandler(["appId"]);
       assert.isTrue(res.isErr());
@@ -262,19 +250,19 @@ describe("Lifecycle handlers", () => {
     });
 
     it("error when signing M365", async () => {
-      sandbox.stub(vsc_ui, "VS_CODE_UI").value(new vsc_ui.VsCodeUI(<vscode.ExtensionContext>{}));
+      mockValue(vsc_ui, "VS_CODE_UI", new vsc_ui.VsCodeUI(<vscode.ExtensionContext>{}));
       const progressHandler = new ProgressHandler("title", 1);
-      const startProgress = sandbox.stub(progressHandler, "start").resolves();
-      const endProgress = sandbox.stub(progressHandler, "end").resolves();
-      sandbox
-        .stub(lifecycleHandlersDeps, "signInWhenInitiatedFromTdp")
-        .resolves(err(new UserError("source", "name", "message", "displayMessage")));
-      const createProgressBar = sandbox
-        .stub(lifecycleHandlersDeps, "createProgressBar")
-        .returns(progressHandler);
-      const showErrorMessage = sandbox
-        .stub(lifecycleHandlersDeps, "showErrorMessage")
-        .resolves(undefined);
+      const startProgress = vi.spyOn(progressHandler, "start").mockResolvedValue();
+      const endProgress = vi.spyOn(progressHandler, "end").mockResolvedValue();
+      vi.spyOn(lifecycleHandlersDeps, "signInWhenInitiatedFromTdp").mockResolvedValue(
+        err(new UserError("source", "name", "message", "displayMessage"))
+      );
+      const createProgressBar = vi
+        .spyOn(lifecycleHandlersDeps, "createProgressBar")
+        .mockReturnValue(progressHandler);
+      const showErrorMessage = vi
+        .spyOn(lifecycleHandlersDeps, "showErrorMessage")
+        .mockResolvedValue(undefined);
 
       const res = await scaffoldFromDeveloperPortalHandler(["appId"]);
 
@@ -286,19 +274,19 @@ describe("Lifecycle handlers", () => {
     });
 
     it("error when signing in M365 but missing display message", async () => {
-      sandbox.stub(vsc_ui, "VS_CODE_UI").value(new vsc_ui.VsCodeUI(<vscode.ExtensionContext>{}));
+      mockValue(vsc_ui, "VS_CODE_UI", new vsc_ui.VsCodeUI(<vscode.ExtensionContext>{}));
       const progressHandler = new ProgressHandler("title", 1);
-      const startProgress = sandbox.stub(progressHandler, "start").resolves();
-      const endProgress = sandbox.stub(progressHandler, "end").resolves();
-      sandbox
-        .stub(lifecycleHandlersDeps, "signInWhenInitiatedFromTdp")
-        .resolves(err(new UserError("source", "name", "", "")));
-      const createProgressBar = sandbox
-        .stub(lifecycleHandlersDeps, "createProgressBar")
-        .returns(progressHandler);
-      const showErrorMessage = sandbox
-        .stub(lifecycleHandlersDeps, "showErrorMessage")
-        .resolves(undefined);
+      const startProgress = vi.spyOn(progressHandler, "start").mockResolvedValue();
+      const endProgress = vi.spyOn(progressHandler, "end").mockResolvedValue();
+      vi.spyOn(lifecycleHandlersDeps, "signInWhenInitiatedFromTdp").mockResolvedValue(
+        err(new UserError("source", "name", "", ""))
+      );
+      const createProgressBar = vi
+        .spyOn(lifecycleHandlersDeps, "createProgressBar")
+        .mockReturnValue(progressHandler);
+      const showErrorMessage = vi
+        .spyOn(lifecycleHandlersDeps, "showErrorMessage")
+        .mockResolvedValue(undefined);
 
       const res = await scaffoldFromDeveloperPortalHandler(["appId"]);
 
@@ -310,21 +298,21 @@ describe("Lifecycle handlers", () => {
     });
 
     it("failed to get teams app", async () => {
-      sandbox.stub(vsc_ui, "VS_CODE_UI").value(new vsc_ui.VsCodeUI(<vscode.ExtensionContext>{}));
+      mockValue(vsc_ui, "VS_CODE_UI", new vsc_ui.VsCodeUI(<vscode.ExtensionContext>{}));
       const progressHandler = new ProgressHandler("title", 1);
-      const startProgress = sandbox.stub(progressHandler, "start").resolves();
-      const endProgress = sandbox.stub(progressHandler, "end").resolves();
-      sandbox.stub(lifecycleHandlersDeps, "signInWhenInitiatedFromTdp").resolves(ok("token"));
-      sandbox
-        .stub(lifecycleHandlersDeps, "getAccessToken")
-        .resolves(err(new SystemError("source", "name", "", "")));
-      const createProgressBar = sandbox
-        .stub(lifecycleHandlersDeps, "createProgressBar")
-        .returns(progressHandler);
-      sandbox.stub(globalVariables, "core").value(new MockCore());
-      sandbox.stub(vscode.commands, "executeCommand");
-      sandbox.stub(globalState, "globalStateUpdate");
-      const getApp = sandbox.stub(lifecycleHandlersDeps, "getApp").throws("error");
+      const startProgress = vi.spyOn(progressHandler, "start").mockResolvedValue();
+      const endProgress = vi.spyOn(progressHandler, "end").mockResolvedValue();
+      vi.spyOn(lifecycleHandlersDeps, "signInWhenInitiatedFromTdp").mockResolvedValue(ok("token"));
+      vi.spyOn(lifecycleHandlersDeps, "getAccessToken").mockResolvedValue(
+        err(new SystemError("source", "name", "", ""))
+      );
+      const createProgressBar = vi
+        .spyOn(lifecycleHandlersDeps, "createProgressBar")
+        .mockReturnValue(progressHandler);
+      mockValue(globalVariables, "core", new MockCore());
+      vi.spyOn(vscode.commands, "executeCommand");
+      vi.spyOn(globalState, "globalStateUpdate");
+      const getApp = vi.spyOn(lifecycleHandlersDeps, "getApp").throws("error");
 
       const res = await scaffoldFromDeveloperPortalHandler(["appId"]);
 
@@ -336,25 +324,25 @@ describe("Lifecycle handlers", () => {
     });
 
     it("happy path", async () => {
-      sandbox.stub(vsc_ui, "VS_CODE_UI").value(new vsc_ui.VsCodeUI(<vscode.ExtensionContext>{}));
+      mockValue(vsc_ui, "VS_CODE_UI", new vsc_ui.VsCodeUI(<vscode.ExtensionContext>{}));
       const progressHandler = new ProgressHandler("title", 1);
-      const startProgress = sandbox.stub(progressHandler, "start").resolves();
-      const endProgress = sandbox.stub(progressHandler, "end").resolves();
-      sandbox.stub(lifecycleHandlersDeps, "signInWhenInitiatedFromTdp").resolves(ok("token"));
-      sandbox.stub(lifecycleHandlersDeps, "getAccessToken").resolves(ok("authSvcToken"));
-      sandbox.stub(lifecycleHandlersDeps, "setRegionEndpointByToken").resolves();
-      sandbox.stub(lifecycleHandlersDeps, "openFolder").resolves();
-      const createProgressBar = sandbox
-        .stub(lifecycleHandlersDeps, "createProgressBar")
-        .returns(progressHandler);
-      sandbox.stub(globalVariables, "core").value(new MockCore());
-      const createProject = sandbox.spy(globalVariables.core, "createProjectFromTdp");
-      sandbox.stub(vscode.commands, "executeCommand");
-      sandbox.stub(globalState, "globalStateUpdate");
+      const startProgress = vi.spyOn(progressHandler, "start").mockResolvedValue();
+      const endProgress = vi.spyOn(progressHandler, "end").mockResolvedValue();
+      vi.spyOn(lifecycleHandlersDeps, "signInWhenInitiatedFromTdp").mockResolvedValue(ok("token"));
+      vi.spyOn(lifecycleHandlersDeps, "getAccessToken").mockResolvedValue(ok("authSvcToken"));
+      vi.spyOn(lifecycleHandlersDeps, "setRegionEndpointByToken").mockResolvedValue();
+      vi.spyOn(lifecycleHandlersDeps, "openFolder").mockResolvedValue();
+      const createProgressBar = vi
+        .spyOn(lifecycleHandlersDeps, "createProgressBar")
+        .mockReturnValue(progressHandler);
+      mockValue(globalVariables, "core", new MockCore());
+      const createProject = vi.spyOn(globalVariables.core, "createProjectFromTdp");
+      vi.spyOn(vscode.commands, "executeCommand");
+      vi.spyOn(globalState, "globalStateUpdate");
       const appDefinition: AppDefinition = {
         teamsAppId: "mock-id",
       };
-      sandbox.stub(lifecycleHandlersDeps, "getApp").resolves(appDefinition);
+      vi.spyOn(lifecycleHandlersDeps, "getApp").mockResolvedValue(appDefinition);
 
       const res = await scaffoldFromDeveloperPortalHandler("appId", "testuser");
 
@@ -366,24 +354,24 @@ describe("Lifecycle handlers", () => {
     });
 
     it("skip AuthSvc region setup in sovereign high", async () => {
-      sandbox.stub(featureFlagManager, "getStringValue").returns("DoD");
-      sandbox.stub(vsc_ui, "VS_CODE_UI").value(new vsc_ui.VsCodeUI(<vscode.ExtensionContext>{}));
+      vi.spyOn(featureFlagManager, "getStringValue").mockReturnValue("DoD");
+      mockValue(vsc_ui, "VS_CODE_UI", new vsc_ui.VsCodeUI(<vscode.ExtensionContext>{}));
       const progressHandler = new ProgressHandler("title", 1);
-      sandbox.stub(progressHandler, "start").resolves();
-      sandbox.stub(progressHandler, "end").resolves();
-      sandbox.stub(lifecycleHandlersDeps, "signInWhenInitiatedFromTdp").resolves(ok("token"));
-      const getAccessTokenStub = sandbox.stub(lifecycleHandlersDeps, "getAccessToken");
-      const setRegionStub = sandbox
-        .stub(lifecycleHandlersDeps, "setRegionEndpointByToken")
-        .resolves();
-      sandbox.stub(lifecycleHandlersDeps, "openFolder").resolves();
-      sandbox.stub(lifecycleHandlersDeps, "createProgressBar").returns(progressHandler);
-      sandbox.stub(globalVariables, "core").value(new MockCore());
-      sandbox.stub(vscode.commands, "executeCommand");
-      sandbox.stub(globalState, "globalStateUpdate");
-      sandbox
-        .stub(lifecycleHandlersDeps, "getApp")
-        .resolves({ teamsAppId: "mock-id" } as AppDefinition);
+      vi.spyOn(progressHandler, "start").mockResolvedValue();
+      vi.spyOn(progressHandler, "end").mockResolvedValue();
+      vi.spyOn(lifecycleHandlersDeps, "signInWhenInitiatedFromTdp").mockResolvedValue(ok("token"));
+      const getAccessTokenStub = vi.spyOn(lifecycleHandlersDeps, "getAccessToken");
+      const setRegionStub = vi
+        .spyOn(lifecycleHandlersDeps, "setRegionEndpointByToken")
+        .mockResolvedValue();
+      vi.spyOn(lifecycleHandlersDeps, "openFolder").mockResolvedValue();
+      vi.spyOn(lifecycleHandlersDeps, "createProgressBar").mockReturnValue(progressHandler);
+      mockValue(globalVariables, "core", new MockCore());
+      vi.spyOn(vscode.commands, "executeCommand");
+      vi.spyOn(globalState, "globalStateUpdate");
+      vi.spyOn(lifecycleHandlersDeps, "getApp").mockResolvedValue({
+        teamsAppId: "mock-id",
+      } as AppDefinition);
 
       const res = await scaffoldFromDeveloperPortalHandler("appId", "testuser");
 
@@ -394,15 +382,9 @@ describe("Lifecycle handlers", () => {
   });
 
   describe("copilotPluginAddAPIHandler", async () => {
-    const sandbox = sinon.createSandbox();
-
-    afterEach(() => {
-      sandbox.restore();
-    });
-
     it("API ME:", async () => {
-      sandbox.stub(globalVariables, "core").value(new MockCore());
-      const addAPIHanlder = sandbox.spy(globalVariables.core, "copilotPluginAddAPI");
+      mockValue(globalVariables, "core", new MockCore());
+      const addAPIHanlder = vi.spyOn(globalVariables.core, "copilotPluginAddAPI");
       const args = [
         {
           fsPath: "manifest.json",
@@ -411,12 +393,12 @@ describe("Lifecycle handlers", () => {
 
       await copilotPluginAddAPIHandler(args);
 
-      sinon.assert.calledOnce(addAPIHanlder);
+      expect(addAPIHanlder).toHaveBeenCalledTimes(1);
     });
 
     it("API Plugin", async () => {
-      sandbox.stub(globalVariables, "core").value(new MockCore());
-      const addAPIHanlder = sandbox.spy(globalVariables.core, "copilotPluginAddAPI");
+      mockValue(globalVariables, "core", new MockCore());
+      const addAPIHanlder = vi.spyOn(globalVariables.core, "copilotPluginAddAPI");
       const args = [
         {
           fsPath: "openapi.yaml",
@@ -427,130 +409,98 @@ describe("Lifecycle handlers", () => {
 
       await copilotPluginAddAPIHandler(args);
 
-      sinon.assert.calledOnce(addAPIHanlder);
+      expect(addAPIHanlder).toHaveBeenCalledTimes(1);
     });
   });
 
   describe("AddPluginHandler", async () => {
-    const sandbox = sinon.createSandbox();
-
-    afterEach(() => {
-      sandbox.restore();
-    });
-
     it("success:", async () => {
-      sandbox.stub(globalVariables, "core").value(new MockCore());
-      const addPluginHanlder = sandbox.spy(globalVariables.core, "addPlugin");
+      mockValue(globalVariables, "core", new MockCore());
+      const addPluginHanlder = vi.spyOn(globalVariables.core, "addPlugin");
 
       await addPluginHandler();
 
-      sinon.assert.calledOnce(addPluginHanlder);
+      expect(addPluginHanlder).toHaveBeenCalledTimes(1);
     });
   });
 
   describe("regeneratePluginHandler", async () => {
-    const sandbox = sinon.createSandbox();
-
-    afterEach(() => {
-      sandbox.restore();
-    });
-
     it("success:", async () => {
-      sandbox.stub(globalVariables, "core").value(new MockCore());
+      mockValue(globalVariables, "core", new MockCore());
       await regeneratePluginHandler();
     });
 
     it("failed: when runCommand throw error", async () => {
-      sandbox
-        .stub(lifecycleHandlersDeps, "runCommand")
-        .resolves(err(new UserError("source", "name", "message")));
+      vi.spyOn(lifecycleHandlersDeps, "runCommand").mockResolvedValue(
+        err(new UserError("source", "name", "message"))
+      );
       const result = await regeneratePluginHandler();
       assert.isTrue(result.isErr());
     });
   });
 
   describe("AddAuthActionHandler", async () => {
-    const sandbox = sinon.createSandbox();
-
-    afterEach(() => {
-      sandbox.restore();
-    });
-
     it("happy path", async () => {
-      sandbox.stub(globalVariables, "core").value(new MockCore());
-      const showMessageStub = sandbox
-        .stub(lifecycleHandlersDeps, "showInformationMessage")
-        .callsFake((title: string, ...items: any[]) => {
-          return Promise.resolve(items[0]);
-        });
-      const addAuthAction = sandbox.spy(globalVariables.core, "addAuthAction");
-      const provisionction = sandbox.spy(globalVariables.core, "provisionResources");
+      mockValue(globalVariables, "core", new MockCore());
+      const showMessageStub = vi
+        .spyOn(lifecycleHandlersDeps, "showInformationMessage")
+        .mockResolvedValue("Provision");
+      const addAuthAction = vi.spyOn(globalVariables.core, "addAuthAction");
+      const runCommandSpy = vi.spyOn(lifecycleHandlersDeps, "runCommand");
       await addAuthActionHandler();
-      sandbox.assert.calledOnce(addAuthAction);
-      sandbox.assert.calledOnce(provisionction);
+      expect(addAuthAction).toHaveBeenCalledTimes(1);
+      expect(runCommandSpy.mock.calls.some((call) => call[0] === "provision")).toBe(true);
     });
   });
 
   describe("addKnowledgeHandler", async () => {
-    const sandbox = sinon.createSandbox();
-
-    afterEach(() => {
-      sandbox.restore();
-    });
-
     it("happy path", async () => {
-      sandbox.stub(globalVariables, "core").value(new MockCore());
-      const addKnowledge = sandbox.spy(globalVariables.core, "addKnowledge");
+      mockValue(globalVariables, "core", new MockCore());
+      const addKnowledge = vi.spyOn(globalVariables.core, "addKnowledge");
 
       await addKnowledgeHandler();
 
-      sinon.assert.calledOnce(addKnowledge);
+      expect(addKnowledge).toHaveBeenCalledTimes(1);
     });
   });
 
   describe("addSkillHandler", async () => {
-    const sandbox = sinon.createSandbox();
-
-    afterEach(() => {
-      sandbox.restore();
-    });
-
     it("happy path", async () => {
-      sandbox.stub(globalVariables, "core").value(new MockCore());
-      const addSkill = sandbox.spy(globalVariables.core, "addSkill");
+      mockValue(globalVariables, "core", new MockCore());
+      const addSkill = vi.spyOn(globalVariables.core, "addSkill");
 
       await addSkillHandler();
 
-      sinon.assert.calledOnce(addSkill);
+      expect(addSkill).toHaveBeenCalledTimes(1);
     });
   });
 
   describe("setSensitivityLabelHandler", () => {
     it("runCommand successfully", async () => {
       const args = [{ declarativeAgentManifestPath: "path", sensitivityLabel: "label" }];
-      sandbox.stub(lifecycleHandlersDeps, "runCommand").resolves(ok(undefined));
+      vi.spyOn(lifecycleHandlersDeps, "runCommand").mockResolvedValue(ok(undefined));
       await setSensitivityLabelHandler(args);
     });
 
     it("runCommand successfully - no args", async () => {
-      sandbox.stub(lifecycleHandlersDeps, "runCommand").resolves(ok(undefined));
+      vi.spyOn(lifecycleHandlersDeps, "runCommand").mockResolvedValue(ok(undefined));
       await setSensitivityLabelHandler([]);
     });
 
     it("runCommand successfully - undefined array args", async () => {
-      sandbox.stub(lifecycleHandlersDeps, "runCommand").resolves(ok(undefined));
+      vi.spyOn(lifecycleHandlersDeps, "runCommand").mockResolvedValue(ok(undefined));
       await setSensitivityLabelHandler([undefined]);
     });
 
     it("runCommand successfully - undefined args", async () => {
-      sandbox.stub(lifecycleHandlersDeps, "runCommand").resolves(ok(undefined));
+      vi.spyOn(lifecycleHandlersDeps, "runCommand").mockResolvedValue(ok(undefined));
       await setSensitivityLabelHandler(undefined as any);
     });
 
     it("runCommand fails", async () => {
       const args = [{ declarativeAgentManifestPath: "path", sensitivityLabel: "label" }];
       const error = new UserError("source", "name", "message");
-      sandbox.stub(lifecycleHandlersDeps, "runCommand").resolves(err(error));
+      vi.spyOn(lifecycleHandlersDeps, "runCommand").mockResolvedValue(err(error));
 
       await setSensitivityLabelHandler(args);
     });
@@ -558,7 +508,7 @@ describe("Lifecycle handlers", () => {
   describe("shareRemoveHandler", () => {
     it("runCommand successfully", async () => {
       const args = [{ teamsAppId: "appId" }];
-      sandbox.stub(lifecycleHandlersDeps, "runCommand").resolves(ok(undefined));
+      vi.spyOn(lifecycleHandlersDeps, "runCommand").mockResolvedValue(ok(undefined));
       await shareRemoveHandler(args);
     });
   });
@@ -566,20 +516,22 @@ describe("Lifecycle handlers", () => {
     globalVariables.setTools(new MockTools());
     it("get access token successfully", async () => {
       const args = [{ scopes: ["scope1"] }];
-      sandbox.stub(lifecycleHandlersDeps, "getTools").returns(globalVariables.tools as any);
-      sandbox
-        .stub(globalVariables.tools.tokenProvider.m365TokenProvider, "getAccessToken")
-        .resolves(ok("token"));
+      vi.spyOn(lifecycleHandlersDeps, "getTools").mockReturnValue(globalVariables.tools as any);
+      vi.spyOn(
+        globalVariables.tools.tokenProvider.m365TokenProvider,
+        "getAccessToken"
+      ).mockResolvedValue(ok("token"));
       await m365PreAuthHandler(args);
     });
 
     it("get access token fails", async () => {
       const args = [{ scopes: ["scope1"] }];
       const error = new UserError("source", "name", "message");
-      sandbox.stub(lifecycleHandlersDeps, "getTools").returns(globalVariables.tools as any);
-      sandbox
-        .stub(globalVariables.tools.tokenProvider.m365TokenProvider, "getAccessToken")
-        .resolves(err(error));
+      vi.spyOn(lifecycleHandlersDeps, "getTools").mockReturnValue(globalVariables.tools as any);
+      vi.spyOn(
+        globalVariables.tools.tokenProvider.m365TokenProvider,
+        "getAccessToken"
+      ).mockResolvedValue(err(error));
       await m365PreAuthHandler(args);
     });
   });

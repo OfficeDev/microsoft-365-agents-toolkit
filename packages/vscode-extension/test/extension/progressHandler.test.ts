@@ -2,23 +2,18 @@
 // Licensed under the MIT license.
 "use strict";
 
-import * as sinon from "sinon";
+import { vi } from "vitest";
 import * as chai from "chai";
 import { window } from "vscode";
 
 import { ProgressHandler, progressHandlerDeps } from "../../src/debug/progressHandler";
 import * as vscodeMocks from "../mocks/vsc";
 
-afterEach(() => {
-  sinon.restore();
-});
-
 describe("ProgressHandler", () => {
   let message: string | undefined = undefined;
-  const sandbox = sinon.createSandbox();
 
   beforeEach(() => {
-    sandbox.stub(window, "withProgress").callsFake(async (options, task) => {
+    vi.spyOn(window, "withProgress").mockImplementation(async (options, task) => {
       return await task(
         {
           report: (value) => {
@@ -28,7 +23,7 @@ describe("ProgressHandler", () => {
         new vscodeMocks.CancellationToken()
       );
     });
-    sandbox.stub(progressHandlerDeps, "localize").callsFake((key) => {
+    vi.spyOn(progressHandlerDeps, "localize").mockImplementation((key) => {
       if (key === "teamstoolkit.progressHandler.showOutputLink") {
         return "Check [output window](%s) for details.";
       } else if (key === "teamstoolkit.progressHandler.showTerminalLink") {
@@ -40,10 +35,6 @@ describe("ProgressHandler", () => {
       }
       return "";
     });
-  });
-
-  afterEach(() => {
-    sandbox.restore();
   });
 
   it("terminal", async () => {

@@ -1,4 +1,3 @@
-import * as sinon from "sinon";
 import * as chai from "chai";
 import fs from "fs-extra";
 import * as globalVariables from "../../src/globalVariables";
@@ -13,6 +12,8 @@ import { FxError, err, ok } from "@microsoft/teamsfx-api";
 import { environmentManager } from "@microsoft/teamsfx-core";
 import { ExtTelemetry } from "../../src/telemetry/extTelemetry";
 import { MockCore } from "../mocks/mockCore";
+import { vi } from "vitest";
+import { mockValue } from "../mocks/vitestMockUtils";
 import {
   aadManifestHandlersDeps,
   convertAadToNewSchemaHandler,
@@ -23,21 +24,15 @@ import {
 
 describe("aadManifestHandlers", () => {
   describe("openPreviewAadFileHandler", () => {
-    const sandbox = sinon.createSandbox();
-
     beforeEach(() => {
-      sandbox.stub(ExtTelemetry, "sendTelemetryErrorEvent");
-      sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
-    });
-
-    afterEach(() => {
-      sandbox.restore();
+      vi.spyOn(ExtTelemetry, "sendTelemetryErrorEvent");
+      vi.spyOn(ExtTelemetry, "sendTelemetryEvent");
     });
 
     it("project is not valid", async () => {
       const core = new MockCore();
-      sandbox.stub(globalVariables, "core").value(core);
-      sandbox.stub(aadManifestHandlersDeps, "isValidProject").returns(false);
+      mockValue(globalVariables, "core", core);
+      vi.spyOn(aadManifestHandlersDeps, "isValidProject").mockReturnValue(false);
       const res = await openPreviewAadFileHandler([]);
       chai.assert.isTrue(res.isErr());
       chai.assert.equal(res.isErr() ? res.error.name : "Not Err", "InvalidProjectError");
@@ -45,11 +40,11 @@ describe("aadManifestHandlers", () => {
 
     it("select Env returns error", async () => {
       const core = new MockCore();
-      sandbox.stub(globalVariables, "core").value(core);
-      sandbox.stub(aadManifestHandlersDeps, "isValidProject").returns(true);
-      sandbox
-        .stub(aadManifestHandlersDeps, "askTargetEnvironment")
-        .resolves(err("selectEnvErr") as any);
+      mockValue(globalVariables, "core", core);
+      vi.spyOn(aadManifestHandlersDeps, "isValidProject").mockReturnValue(true);
+      vi.spyOn(aadManifestHandlersDeps, "askTargetEnvironment").mockResolvedValue(
+        err("selectEnvErr") as any
+      );
       const res = await openPreviewAadFileHandler([]);
       chai.assert.isTrue(res.isErr());
       chai.assert.equal(res.isErr() ? res.error : "Not Err", "selectEnvErr");
@@ -57,10 +52,12 @@ describe("aadManifestHandlers", () => {
 
     it("runCommand returns error", async () => {
       const core = new MockCore();
-      sandbox.stub(globalVariables, "core").value(core);
-      sandbox.stub(aadManifestHandlersDeps, "isValidProject").returns(true);
-      sandbox.stub(aadManifestHandlersDeps, "askTargetEnvironment").resolves(ok("dev"));
-      sandbox.stub(aadManifestHandlersDeps, "runCommand").resolves(err("runCommandErr") as any);
+      mockValue(globalVariables, "core", core);
+      vi.spyOn(aadManifestHandlersDeps, "isValidProject").mockReturnValue(true);
+      vi.spyOn(aadManifestHandlersDeps, "askTargetEnvironment").mockResolvedValue(ok("dev"));
+      vi.spyOn(aadManifestHandlersDeps, "runCommand").mockResolvedValue(
+        err("runCommandErr") as any
+      );
       const res = await openPreviewAadFileHandler([]);
       chai.assert.isTrue(res.isErr());
       chai.assert.equal(res.isErr() ? res.error : "Not Err", "runCommandErr");
@@ -68,42 +65,42 @@ describe("aadManifestHandlers", () => {
 
     it("manifest file not exists", async () => {
       const core = new MockCore();
-      sandbox.stub(globalVariables, "core").value(core);
-      sandbox.stub(aadManifestHandlersDeps, "isValidProject").returns(true);
-      sandbox.stub(fs, "existsSync").returns(false);
-      sandbox.stub(environmentManager, "listAllEnvConfigs").resolves(ok(["dev"]));
-      sandbox.stub(vsc_ui, "VS_CODE_UI").value(new vsc_ui.VsCodeUI(<vscode.ExtensionContext>{}));
-      sandbox.stub(vsc_ui.VS_CODE_UI, "selectOption").resolves(
+      mockValue(globalVariables, "core", core);
+      vi.spyOn(aadManifestHandlersDeps, "isValidProject").mockReturnValue(true);
+      vi.spyOn(fs, "existsSync").mockReturnValue(false);
+      vi.spyOn(environmentManager, "listAllEnvConfigs").mockResolvedValue(ok(["dev"]));
+      mockValue(vsc_ui, "VS_CODE_UI", new vsc_ui.VsCodeUI(<vscode.ExtensionContext>{}));
+      vi.spyOn(vsc_ui.VS_CODE_UI, "selectOption").mockResolvedValue(
         ok({
           type: "success",
           result: "dev",
         })
       );
-      sandbox.stub(aadManifestHandlersDeps, "askTargetEnvironment").resolves(ok("dev"));
-      sandbox.stub(errorCommon, "showError").callsFake(async () => {});
-      sandbox.stub(aadManifestHandlersDeps, "runCommand").resolves(ok(undefined));
+      vi.spyOn(aadManifestHandlersDeps, "askTargetEnvironment").mockResolvedValue(ok("dev"));
+      vi.spyOn(errorCommon, "showError").mockImplementation(async () => {});
+      vi.spyOn(aadManifestHandlersDeps, "runCommand").mockResolvedValue(ok(undefined));
       const res = await openPreviewAadFileHandler([]);
       chai.assert.isTrue(res.isErr());
     });
 
     it("happy path", async () => {
       const core = new MockCore();
-      sandbox.stub(globalVariables, "core").value(core);
-      sandbox.stub(aadManifestHandlersDeps, "isValidProject").returns(true);
-      sandbox.stub(fs, "existsSync").returns(true);
-      sandbox.stub(environmentManager, "listAllEnvConfigs").resolves(ok(["dev"]));
-      sandbox.stub(vsc_ui, "VS_CODE_UI").value(new vsc_ui.VsCodeUI(<vscode.ExtensionContext>{}));
-      sandbox.stub(vsc_ui.VS_CODE_UI, "selectOption").resolves(
+      mockValue(globalVariables, "core", core);
+      vi.spyOn(aadManifestHandlersDeps, "isValidProject").mockReturnValue(true);
+      vi.spyOn(fs, "existsSync").mockReturnValue(true);
+      vi.spyOn(environmentManager, "listAllEnvConfigs").mockResolvedValue(ok(["dev"]));
+      mockValue(vsc_ui, "VS_CODE_UI", new vsc_ui.VsCodeUI(<vscode.ExtensionContext>{}));
+      vi.spyOn(vsc_ui.VS_CODE_UI, "selectOption").mockResolvedValue(
         ok({
           type: "success",
           result: "dev",
         })
       );
-      sandbox.stub(aadManifestHandlersDeps, "askTargetEnvironment").resolves(ok("dev"));
-      sandbox.stub(errorCommon, "showError").callsFake(async () => {});
-      sandbox.stub(aadManifestHandlersDeps, "runCommand").resolves(ok(undefined));
-      sandbox.stub(vscode.workspace, "openTextDocument").resolves();
-      sandbox.stub(vscode.window, "showTextDocument").resolves();
+      vi.spyOn(aadManifestHandlersDeps, "askTargetEnvironment").mockResolvedValue(ok("dev"));
+      vi.spyOn(errorCommon, "showError").mockImplementation(async () => {});
+      vi.spyOn(aadManifestHandlersDeps, "runCommand").mockResolvedValue(ok(undefined));
+      vi.spyOn(vscode.workspace, "openTextDocument").mockResolvedValue();
+      vi.spyOn(vscode.window, "showTextDocument").mockResolvedValue();
 
       const res = await openPreviewAadFileHandler([]);
       chai.assert.isTrue(res.isOk());
@@ -111,78 +108,60 @@ describe("aadManifestHandlers", () => {
   });
 
   describe("updateAadAppManifestHandler", () => {
-    const sandbox = sinon.createSandbox();
-
     beforeEach(() => {
-      sandbox.stub(ExtTelemetry, "sendTelemetryErrorEvent");
-      sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
-    });
-
-    afterEach(() => {
-      sandbox.restore();
+      vi.spyOn(ExtTelemetry, "sendTelemetryErrorEvent");
+      vi.spyOn(ExtTelemetry, "sendTelemetryEvent");
     });
 
     it("deployAadAppmanifest", async () => {
-      sandbox.stub(globalVariables, "core").value(new MockCore());
-      const deployAadManifest = sandbox.spy(globalVariables.core, "deployAadManifest");
+      mockValue(globalVariables, "core", new MockCore());
+      const deployAadManifest = vi.spyOn(globalVariables.core, "deployAadManifest");
       await updateAadAppManifestHandler([{ fsPath: "path/aad.dev.template" }]);
-      sandbox.assert.calledOnce(deployAadManifest);
+      expect(deployAadManifest).toHaveBeenCalledTimes(1);
     });
   });
 
   describe("convertAadToNewSchemaHandler", () => {
-    const sandbox = sinon.createSandbox();
-
     beforeEach(() => {
-      sandbox.stub(ExtTelemetry, "sendTelemetryErrorEvent");
-      sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
-    });
-
-    afterEach(() => {
-      sandbox.restore();
+      vi.spyOn(ExtTelemetry, "sendTelemetryErrorEvent");
+      vi.spyOn(ExtTelemetry, "sendTelemetryEvent");
     });
 
     it("convertAadToNewSchemaHandler", async () => {
-      sandbox.stub(globalVariables, "core").value(new MockCore());
-      const convertAadToNewSchema = sandbox.spy(globalVariables.core, "convertAadToNewSchema");
+      mockValue(globalVariables, "core", new MockCore());
+      const convertAadToNewSchema = vi.spyOn(globalVariables.core, "convertAadToNewSchema");
       await convertAadToNewSchemaHandler([{ fsPath: "path/aad.manifest.json" }]);
-      sandbox.assert.calledOnce(convertAadToNewSchema);
+      expect(convertAadToNewSchema).toHaveBeenCalledTimes(1);
     });
 
     it("convertAadToNewSchemaHandler no parameter", async () => {
-      sandbox.stub(globalVariables, "core").value(new MockCore());
-      const convertAadToNewSchema = sandbox.spy(globalVariables.core, "convertAadToNewSchema");
+      mockValue(globalVariables, "core", new MockCore());
+      const convertAadToNewSchema = vi.spyOn(globalVariables.core, "convertAadToNewSchema");
       await convertAadToNewSchemaHandler([]);
-      sandbox.assert.calledOnce(convertAadToNewSchema);
+      expect(convertAadToNewSchema).toHaveBeenCalledTimes(1);
     });
   });
 
   describe("editAadManifestTemplate", () => {
-    const sandbox = sinon.createSandbox();
-
     beforeEach(() => {
-      sandbox.stub(ExtTelemetry, "sendTelemetryErrorEvent");
-      sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
-    });
-
-    afterEach(() => {
-      sandbox.restore();
+      vi.spyOn(ExtTelemetry, "sendTelemetryErrorEvent");
+      vi.spyOn(ExtTelemetry, "sendTelemetryEvent");
     });
 
     it("happy path", async () => {
       const workspacePath = "/test/workspace/path";
       const workspaceUri = vscode.Uri.file(workspacePath);
-      sandbox.stub(globalVariables, "workspaceUri").value(workspaceUri);
+      mockValue(globalVariables, "workspaceUri", workspaceUri);
 
-      const openTextDocumentStub = sandbox
-        .stub(vscode.workspace, "openTextDocument")
-        .resolves({} as any);
-      sandbox.stub(vscode.window, "showTextDocument");
+      const openTextDocumentStub = vi
+        .spyOn(vscode.workspace, "openTextDocument")
+        .mockResolvedValue({} as any);
+      vi.spyOn(vscode.window, "showTextDocument");
 
       await editAadManifestTemplateHandler([null, "testTrigger"]);
 
-      sandbox.assert.calledOnceWithExactly(
-        openTextDocumentStub as any,
+      expect(openTextDocumentStub as any).toHaveBeenCalledTimes(1);
+      expect(openTextDocumentStub as any).toHaveBeenCalledWith(
         `${workspaceUri.fsPath}/aad.manifest.json`
       );
     });
@@ -190,10 +169,10 @@ describe("aadManifestHandlers", () => {
     it("happy path: no parameter", async () => {
       const workspacePath = "/test/workspace/path";
       const workspaceUri = vscode.Uri.file(workspacePath);
-      sandbox.stub(globalVariables, "workspaceUri").value(workspaceUri);
+      mockValue(globalVariables, "workspaceUri", workspaceUri);
 
-      sandbox.stub(vscode.workspace, "openTextDocument").resolves({} as any);
-      const showTextDocumentStub = sandbox.stub(vscode.window, "showTextDocument");
+      vi.spyOn(vscode.workspace, "openTextDocument").mockResolvedValue({} as any);
+      const showTextDocumentStub = vi.spyOn(vscode.window, "showTextDocument");
 
       await editAadManifestTemplateHandler([]);
 
@@ -202,19 +181,17 @@ describe("aadManifestHandlers", () => {
 
     it("happy path: workspaceUri is undefined", async () => {
       const workspaceUri = undefined;
-      sandbox.stub(globalVariables, "workspaceUri").value(undefined);
+      mockValue(globalVariables, "workspaceUri", undefined);
 
-      const openTextDocumentStub = sandbox
-        .stub(vscode.workspace, "openTextDocument")
-        .resolves({} as any);
-      sandbox.stub(vscode.window, "showTextDocument");
+      const openTextDocumentStub = vi
+        .spyOn(vscode.workspace, "openTextDocument")
+        .mockResolvedValue({} as any);
+      vi.spyOn(vscode.window, "showTextDocument");
 
       await editAadManifestTemplateHandler([null, "testTrigger"]);
 
-      sandbox.assert.calledOnceWithExactly(
-        openTextDocumentStub as any,
-        `${workspaceUri}/aad.manifest.json`
-      );
+      expect(openTextDocumentStub as any).toHaveBeenCalledTimes(1);
+      expect(openTextDocumentStub as any).toHaveBeenCalledWith(`${workspaceUri}/aad.manifest.json`);
     });
   });
 });

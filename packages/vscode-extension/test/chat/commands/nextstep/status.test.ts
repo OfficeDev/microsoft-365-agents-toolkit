@@ -1,31 +1,26 @@
 import * as chai from "chai";
 import chaiPromised from "chai-as-promised";
-import * as sinon from "sinon";
 import * as status from "../../../../src/chat/commands/nextstep/status";
 import { MachineStatus, WholeStatus } from "../../../../src/chat/commands/nextstep/types";
 import * as projectStatusUtils from "../../../../src/utils/projectStatusUtils";
+import { vi } from "vitest";
 
 chai.use(chaiPromised);
 
 describe("chat nextstep status", () => {
   afterEach(() => {
     // Restore the default sandbox here
-    sinon.restore();
+    vi.restoreAllMocks();
   });
 
   describe("func: getWholeStatus", () => {
-    const sandbox = sinon.createSandbox();
-
-    afterEach(() => {
-      sandbox.restore();
-    });
-
     it("folder === undefined", async () => {
-      sandbox
-        .stub(status.statusDeps, "checkCredential")
-        .resolves({ m365LoggedIn: true, azureLoggedIn: true });
-      sandbox.stub(status.statusDeps, "globalStateGet").resolves(true);
-      sandbox.stub(status.statusDeps, "globalStateUpdate");
+      vi.spyOn(status.statusDeps, "checkCredential").mockResolvedValue({
+        m365LoggedIn: true,
+        azureLoggedIn: true,
+      });
+      vi.spyOn(status.statusDeps, "globalStateGet").mockResolvedValue(true);
+      vi.spyOn(status.statusDeps, "globalStateUpdate");
       await chai.expect(status.getWholeStatus()).to.eventually.deep.equal({
         machineStatus: {
           azureLoggedIn: true,
@@ -36,18 +31,19 @@ describe("chat nextstep status", () => {
     });
 
     it("folder !== undefined", async () => {
-      sandbox.stub(status.statusDeps, "getProjectMetadata").returns({ projectId: "test-id" });
-      sandbox
-        .stub(status.statusDeps, "getProjectStatus")
-        .resolves(projectStatusUtils.emptyProjectStatus());
-      sandbox.stub(status.statusDeps, "getFileModifiedTime").resolves(new Date(0));
-      sandbox.stub(status.statusDeps, "getREADME").resolves(undefined);
-      sandbox.stub(status.statusDeps, "getLaunchJSON").resolves(undefined);
-      sandbox
-        .stub(status.statusDeps, "checkCredential")
-        .resolves({ m365LoggedIn: true, azureLoggedIn: true });
-      sandbox.stub(status.statusDeps, "globalStateGet").resolves(true);
-      sandbox.stub(status.statusDeps, "globalStateUpdate");
+      vi.spyOn(status.statusDeps, "getProjectMetadata").mockReturnValue({ projectId: "test-id" });
+      vi.spyOn(status.statusDeps, "getProjectStatus").mockResolvedValue(
+        projectStatusUtils.emptyProjectStatus()
+      );
+      vi.spyOn(status.statusDeps, "getFileModifiedTime").mockResolvedValue(new Date(0));
+      vi.spyOn(status.statusDeps, "getREADME").mockResolvedValue(undefined);
+      vi.spyOn(status.statusDeps, "getLaunchJSON").mockResolvedValue(undefined);
+      vi.spyOn(status.statusDeps, "checkCredential").mockResolvedValue({
+        m365LoggedIn: true,
+        azureLoggedIn: true,
+      });
+      vi.spyOn(status.statusDeps, "globalStateGet").mockResolvedValue(true);
+      vi.spyOn(status.statusDeps, "globalStateUpdate");
       await chai.expect(status.getWholeStatus("test-folder")).to.eventually.deep.equal({
         machineStatus: {
           azureLoggedIn: true,
@@ -69,18 +65,19 @@ describe("chat nextstep status", () => {
     });
 
     it("folder !== undefined (no project id)", async () => {
-      sandbox.stub(status.statusDeps, "getProjectMetadata").returns(undefined);
-      sandbox
-        .stub(status.statusDeps, "getProjectStatus")
-        .resolves(projectStatusUtils.emptyProjectStatus());
-      sandbox.stub(status.statusDeps, "getFileModifiedTime").resolves(new Date(0));
-      sandbox.stub(status.statusDeps, "getREADME").resolves(undefined);
-      sandbox.stub(status.statusDeps, "getLaunchJSON").resolves(undefined);
-      sandbox
-        .stub(status.statusDeps, "checkCredential")
-        .resolves({ m365LoggedIn: true, azureLoggedIn: true });
-      sandbox.stub(status.statusDeps, "globalStateGet").resolves(true);
-      sandbox.stub(status.statusDeps, "globalStateUpdate");
+      vi.spyOn(status.statusDeps, "getProjectMetadata").mockReturnValue(undefined);
+      vi.spyOn(status.statusDeps, "getProjectStatus").mockResolvedValue(
+        projectStatusUtils.emptyProjectStatus()
+      );
+      vi.spyOn(status.statusDeps, "getFileModifiedTime").mockResolvedValue(new Date(0));
+      vi.spyOn(status.statusDeps, "getREADME").mockResolvedValue(undefined);
+      vi.spyOn(status.statusDeps, "getLaunchJSON").mockResolvedValue(undefined);
+      vi.spyOn(status.statusDeps, "checkCredential").mockResolvedValue({
+        m365LoggedIn: true,
+        azureLoggedIn: true,
+      });
+      vi.spyOn(status.statusDeps, "globalStateGet").mockResolvedValue(true);
+      vi.spyOn(status.statusDeps, "globalStateUpdate");
       await chai.expect(status.getWholeStatus("test-folder")).to.eventually.deep.equal({
         machineStatus: {
           azureLoggedIn: true,
@@ -103,18 +100,13 @@ describe("chat nextstep status", () => {
   });
 
   describe("func: getMachineStatus", () => {
-    const sandbox = sinon.createSandbox();
-
-    afterEach(() => {
-      sandbox.restore();
-    });
-
     it("func: getMachineStatus", async () => {
-      sandbox
-        .stub(status.statusDeps, "checkCredential")
-        .resolves({ m365LoggedIn: true, azureLoggedIn: true });
-      sandbox.stub(status.statusDeps, "globalStateGet").resolves(true);
-      sandbox.stub(status.statusDeps, "globalStateUpdate");
+      vi.spyOn(status.statusDeps, "checkCredential").mockResolvedValue({
+        m365LoggedIn: true,
+        azureLoggedIn: true,
+      });
+      vi.spyOn(status.statusDeps, "globalStateGet").mockResolvedValue(true);
+      vi.spyOn(status.statusDeps, "globalStateUpdate");
       await chai.expect(status.getMachineStatus()).to.eventually.deep.equal({
         azureLoggedIn: true,
         firstInstalled: true,

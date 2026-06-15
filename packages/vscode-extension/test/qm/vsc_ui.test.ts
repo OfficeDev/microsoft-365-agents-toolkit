@@ -2,9 +2,9 @@
 // Licensed under the MIT license.
 "use strict";
 
+import { vi } from "vitest";
+import { createMock } from "../mocks/vitestMockUtils";
 import { expect } from "chai";
-import * as sinon from "sinon";
-import { stubInterface } from "ts-sinon";
 import {
   commands,
   DiagnosticCollection,
@@ -37,10 +37,6 @@ import { featureFlagManager } from "@microsoft/teamsfx-core";
 import * as globalVariables from "../../src/globalVariables";
 
 describe("UI Unit Tests", async () => {
-  afterEach(() => {
-    sinon.restore();
-  });
-
   describe("Manually", () => {
     it("Show Progress 2", async () => {
       const VS_CODE_UI = new VsCodeUI(<ExtensionContext>{});
@@ -63,12 +59,6 @@ describe("UI Unit Tests", async () => {
   });
 
   describe("Select Folder", () => {
-    const sandbox = sinon.createSandbox();
-
-    afterEach(() => {
-      sandbox.restore();
-    });
-
     it("has returns default folder", async function (this: Mocha.Context) {
       const ui = new VsCodeUI(<ExtensionContext>{});
       const config: SelectFolderConfig = {
@@ -78,27 +68,29 @@ describe("UI Unit Tests", async () => {
         default: "default folder",
       };
 
-      const mockQuickPick = stubInterface<QuickPick<FxQuickPickItem>>();
-      const mockDisposable = stubInterface<Disposable>();
+      const mockQuickPick = createMock<QuickPick<FxQuickPickItem>>();
+      const mockDisposable = createMock<Disposable>();
       let acceptListener: (e: void) => any;
-      mockQuickPick.onDidAccept.callsFake((listener: (e: void) => unknown) => {
+      mockQuickPick.onDidAccept.mockImplementation((listener: (e: void) => unknown) => {
         acceptListener = listener;
         return mockDisposable;
       });
-      mockQuickPick.onDidHide.callsFake((listener: (e: void) => unknown) => {
+      mockQuickPick.onDidHide.mockImplementation((listener: (e: void) => unknown) => {
         return mockDisposable;
       });
-      mockQuickPick.onDidTriggerButton.callsFake((listener: (e: QuickInputButton) => unknown) => {
-        return mockDisposable;
-      });
-      mockQuickPick.show.callsFake(() => {
+      mockQuickPick.onDidTriggerButton.mockImplementation(
+        (listener: (e: QuickInputButton) => unknown) => {
+          return mockDisposable;
+        }
+      );
+      mockQuickPick.show.mockImplementation(() => {
         mockQuickPick.selectedItems = [{ id: "default" } as FxQuickPickItem];
         acceptListener();
       });
-      sandbox.stub(window, "createQuickPick").callsFake(() => {
+      vi.spyOn(window, "createQuickPick").mockImplementation(() => {
         return mockQuickPick;
       });
-      // const telemetryStub = sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
+      // const telemetryStub = vi.spyOn(ExtTelemetry, "sendTelemetryEvent");
 
       const result = await ui.selectFolder(config);
 
@@ -122,28 +114,30 @@ describe("UI Unit Tests", async () => {
         default: "default folder",
       };
 
-      const mockQuickPick = stubInterface<QuickPick<FxQuickPickItem>>();
-      const mockDisposable = stubInterface<Disposable>();
+      const mockQuickPick = createMock<QuickPick<FxQuickPickItem>>();
+      const mockDisposable = createMock<Disposable>();
       let acceptListener: (e: void) => any;
-      mockQuickPick.onDidAccept.callsFake((listener: (e: void) => unknown) => {
+      mockQuickPick.onDidAccept.mockImplementation((listener: (e: void) => unknown) => {
         acceptListener = listener;
         return mockDisposable;
       });
-      mockQuickPick.onDidHide.callsFake((listener: (e: void) => unknown) => {
+      mockQuickPick.onDidHide.mockImplementation((listener: (e: void) => unknown) => {
         return mockDisposable;
       });
-      mockQuickPick.onDidTriggerButton.callsFake((listener: (e: QuickInputButton) => unknown) => {
-        return mockDisposable;
-      });
-      mockQuickPick.show.callsFake(() => {
+      mockQuickPick.onDidTriggerButton.mockImplementation(
+        (listener: (e: QuickInputButton) => unknown) => {
+          return mockDisposable;
+        }
+      );
+      mockQuickPick.show.mockImplementation(() => {
         mockQuickPick.selectedItems = [{ id: "browse" } as FxQuickPickItem];
         acceptListener();
       });
-      sandbox.stub(window, "createQuickPick").callsFake(() => {
+      vi.spyOn(window, "createQuickPick").mockImplementation(() => {
         return mockQuickPick;
       });
-      sandbox.stub(window, "showOpenDialog").resolves(undefined);
-      sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
+      vi.spyOn(window, "showOpenDialog").mockResolvedValue(undefined);
+      vi.spyOn(ExtTelemetry, "sendTelemetryEvent");
 
       const result = await ui.selectFolder(config);
 
@@ -155,12 +149,6 @@ describe("UI Unit Tests", async () => {
   });
 
   describe("Select File", () => {
-    const sandbox = sinon.createSandbox();
-
-    afterEach(() => {
-      sandbox.restore();
-    });
-
     it("has returns default file", async function (this: Mocha.Context) {
       const ui = new VsCodeUI(<ExtensionContext>{});
       const config: SelectFileConfig = {
@@ -170,27 +158,29 @@ describe("UI Unit Tests", async () => {
         default: "default file",
       };
 
-      const mockQuickPick = stubInterface<QuickPick<FxQuickPickItem>>();
-      const mockDisposable = stubInterface<Disposable>();
+      const mockQuickPick = createMock<QuickPick<FxQuickPickItem>>();
+      const mockDisposable = createMock<Disposable>();
       let acceptListener: (e: void) => any;
-      mockQuickPick.onDidAccept.callsFake((listener: (e: void) => unknown) => {
+      mockQuickPick.onDidAccept.mockImplementation((listener: (e: void) => unknown) => {
         acceptListener = listener;
         return mockDisposable;
       });
-      mockQuickPick.onDidHide.callsFake((listener: (e: void) => unknown) => {
+      mockQuickPick.onDidHide.mockImplementation((listener: (e: void) => unknown) => {
         return mockDisposable;
       });
-      mockQuickPick.onDidTriggerButton.callsFake((listener: (e: QuickInputButton) => unknown) => {
-        return mockDisposable;
-      });
-      mockQuickPick.show.callsFake(() => {
+      mockQuickPick.onDidTriggerButton.mockImplementation(
+        (listener: (e: QuickInputButton) => unknown) => {
+          return mockDisposable;
+        }
+      );
+      mockQuickPick.show.mockImplementation(() => {
         mockQuickPick.selectedItems = [{ id: "default" } as FxQuickPickItem];
         acceptListener();
       });
-      sandbox.stub(window, "createQuickPick").callsFake(() => {
+      vi.spyOn(window, "createQuickPick").mockImplementation(() => {
         return mockQuickPick;
       });
-      sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
+      vi.spyOn(ExtTelemetry, "sendTelemetryEvent");
 
       const result = await ui.selectFile(config);
 
@@ -209,28 +199,30 @@ describe("UI Unit Tests", async () => {
         default: "default folder",
       };
 
-      const mockQuickPick = stubInterface<QuickPick<FxQuickPickItem>>();
-      const mockDisposable = stubInterface<Disposable>();
+      const mockQuickPick = createMock<QuickPick<FxQuickPickItem>>();
+      const mockDisposable = createMock<Disposable>();
       let onHideListener: (e: void) => any;
-      mockQuickPick.onDidAccept.callsFake((listener: (e: void) => unknown) => {
+      mockQuickPick.onDidAccept.mockImplementation((listener: (e: void) => unknown) => {
         return mockDisposable;
       });
-      mockQuickPick.onDidHide.callsFake((listener: (e: void) => unknown) => {
+      mockQuickPick.onDidHide.mockImplementation((listener: (e: void) => unknown) => {
         onHideListener = listener;
         return mockDisposable;
       });
-      mockQuickPick.onDidTriggerButton.callsFake((listener: (e: QuickInputButton) => unknown) => {
-        return mockDisposable;
-      });
-      mockQuickPick.show.callsFake(() => {
+      mockQuickPick.onDidTriggerButton.mockImplementation(
+        (listener: (e: QuickInputButton) => unknown) => {
+          return mockDisposable;
+        }
+      );
+      mockQuickPick.show.mockImplementation(() => {
         mockQuickPick.selectedItems = [{ id: "browse" } as FxQuickPickItem];
         onHideListener();
       });
-      sandbox.stub(window, "createQuickPick").callsFake(() => {
+      vi.spyOn(window, "createQuickPick").mockImplementation(() => {
         return mockQuickPick;
       });
-      sandbox.stub(window, "showOpenDialog").resolves(undefined);
-      sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
+      vi.spyOn(window, "showOpenDialog").mockResolvedValue(undefined);
+      vi.spyOn(ExtTelemetry, "sendTelemetryEvent");
 
       const result = await ui.selectFile(config);
 
@@ -259,27 +251,29 @@ describe("UI Unit Tests", async () => {
         ],
       };
 
-      const mockQuickPick = stubInterface<QuickPick<FxQuickPickItem>>();
-      const mockDisposable = stubInterface<Disposable>();
+      const mockQuickPick = createMock<QuickPick<FxQuickPickItem>>();
+      const mockDisposable = createMock<Disposable>();
       let acceptListener: (e: void) => any;
-      mockQuickPick.onDidAccept.callsFake((listener: (e: void) => unknown) => {
+      mockQuickPick.onDidAccept.mockImplementation((listener: (e: void) => unknown) => {
         acceptListener = listener;
         return mockDisposable;
       });
-      mockQuickPick.onDidHide.callsFake((listener: (e: void) => unknown) => {
+      mockQuickPick.onDidHide.mockImplementation((listener: (e: void) => unknown) => {
         return mockDisposable;
       });
-      mockQuickPick.onDidTriggerButton.callsFake((listener: (e: QuickInputButton) => unknown) => {
-        return mockDisposable;
-      });
-      mockQuickPick.show.callsFake(() => {
+      mockQuickPick.onDidTriggerButton.mockImplementation(
+        (listener: (e: QuickInputButton) => unknown) => {
+          return mockDisposable;
+        }
+      );
+      mockQuickPick.show.mockImplementation(() => {
         mockQuickPick.selectedItems = [{ id: "1" } as FxQuickPickItem];
         acceptListener();
       });
-      sandbox.stub(window, "createQuickPick").callsFake(() => {
+      vi.spyOn(window, "createQuickPick").mockImplementation(() => {
         return mockQuickPick;
       });
-      sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
+      vi.spyOn(ExtTelemetry, "sendTelemetryEvent");
 
       const result = await ui.selectFile(config);
 
@@ -327,28 +321,30 @@ describe("UI Unit Tests", async () => {
         },
       };
 
-      const mockQuickPick = stubInterface<QuickPick<FxQuickPickItem>>();
-      const mockDisposable = stubInterface<Disposable>();
+      const mockQuickPick = createMock<QuickPick<FxQuickPickItem>>();
+      const mockDisposable = createMock<Disposable>();
       let acceptListener: (e: void) => any;
-      mockQuickPick.onDidAccept.callsFake((listener: (e: void) => unknown) => {
+      mockQuickPick.onDidAccept.mockImplementation((listener: (e: void) => unknown) => {
         acceptListener = listener;
         return mockDisposable;
       });
-      mockQuickPick.onDidHide.callsFake((listener: (e: void) => unknown) => {
+      mockQuickPick.onDidHide.mockImplementation((listener: (e: void) => unknown) => {
         return mockDisposable;
       });
-      mockQuickPick.onDidTriggerButton.callsFake((listener: (e: QuickInputButton) => unknown) => {
-        return mockDisposable;
-      });
-      mockQuickPick.show.callsFake(() => {
+      mockQuickPick.onDidTriggerButton.mockImplementation(
+        (listener: (e: QuickInputButton) => unknown) => {
+          return mockDisposable;
+        }
+      );
+      mockQuickPick.show.mockImplementation(() => {
         mockQuickPick.selectedItems = [{ id: "default" } as FxQuickPickItem];
         acceptListener();
       });
-      sandbox.stub(window, "createQuickPick").callsFake(() => {
+      vi.spyOn(window, "createQuickPick").mockImplementation(() => {
         return mockQuickPick;
       });
 
-      sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
+      vi.spyOn(ExtTelemetry, "sendTelemetryEvent");
 
       const res = await ui.selectFile(config);
       expect(res.isOk()).is.true;
@@ -366,28 +362,30 @@ describe("UI Unit Tests", async () => {
         },
       };
 
-      const mockQuickPick = stubInterface<QuickPick<FxQuickPickItem>>();
-      const mockDisposable = stubInterface<Disposable>();
+      const mockQuickPick = createMock<QuickPick<FxQuickPickItem>>();
+      const mockDisposable = createMock<Disposable>();
       let acceptListener: (e: void) => any;
-      mockQuickPick.onDidAccept.callsFake((listener: (e: void) => unknown) => {
+      mockQuickPick.onDidAccept.mockImplementation((listener: (e: void) => unknown) => {
         acceptListener = listener;
         return mockDisposable;
       });
-      mockQuickPick.onDidHide.callsFake((listener: (e: void) => unknown) => {
+      mockQuickPick.onDidHide.mockImplementation((listener: (e: void) => unknown) => {
         return mockDisposable;
       });
-      mockQuickPick.onDidTriggerButton.callsFake((listener: (e: QuickInputButton) => unknown) => {
-        return mockDisposable;
-      });
-      mockQuickPick.show.callsFake(() => {
+      mockQuickPick.onDidTriggerButton.mockImplementation(
+        (listener: (e: QuickInputButton) => unknown) => {
+          return mockDisposable;
+        }
+      );
+      mockQuickPick.show.mockImplementation(() => {
         mockQuickPick.selectedItems = [{ id: "default" } as FxQuickPickItem];
         acceptListener();
       });
-      sandbox.stub(window, "createQuickPick").callsFake(() => {
+      vi.spyOn(window, "createQuickPick").mockImplementation(() => {
         return mockQuickPick;
       });
 
-      sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
+      vi.spyOn(ExtTelemetry, "sendTelemetryEvent");
 
       const res = await ui.selectFile(config);
       expect(res.isErr()).is.true;
@@ -395,21 +393,15 @@ describe("UI Unit Tests", async () => {
   });
 
   describe("Open File", () => {
-    const sandbox = sinon.createSandbox();
-
-    afterEach(() => {
-      sandbox.restore();
-    });
-
     it("open the preview of Markdown file", async function (this: Mocha.Context) {
       const ui = new VsCodeUI(<ExtensionContext>{});
-      sandbox.stub(workspace, "openTextDocument").resolves({} as TextDocument);
+      vi.spyOn(workspace, "openTextDocument").mockResolvedValue({} as TextDocument);
       let executedCommand = "";
-      sandbox.stub(commands, "executeCommand").callsFake((command: string, ...args: any[]) => {
+      vi.spyOn(commands, "executeCommand").mockImplementation((command: string, ...args: any[]) => {
         executedCommand = command;
         return Promise.resolve();
       });
-      const showTextStub = sandbox.stub(window, "showTextDocument");
+      const showTextStub = vi.spyOn(window, "showTextDocument");
 
       const result = await ui.openFile("test.md");
 
@@ -420,12 +412,6 @@ describe("UI Unit Tests", async () => {
   });
 
   describe("single select", () => {
-    const sandbox = sinon.createSandbox();
-
-    afterEach(() => {
-      sandbox.restore();
-    });
-
     it("select success with validation", async function (this: Mocha.Context) {
       const ui = new VsCodeUI(<ExtensionContext>{});
       let hasRun = false;
@@ -442,30 +428,32 @@ describe("UI Unit Tests", async () => {
         },
       };
 
-      const mockQuickPick = stubInterface<QuickPick<FxQuickPickItem>>();
-      const mockDisposable = stubInterface<Disposable>();
+      const mockQuickPick = createMock<QuickPick<FxQuickPickItem>>();
+      const mockDisposable = createMock<Disposable>();
       let acceptListener: (e: void) => any;
-      mockQuickPick.onDidAccept.callsFake((listener: (e: void) => unknown) => {
+      mockQuickPick.onDidAccept.mockImplementation((listener: (e: void) => unknown) => {
         acceptListener = listener;
         return mockDisposable;
       });
-      mockQuickPick.onDidHide.callsFake((listener: (e: void) => unknown) => {
+      mockQuickPick.onDidHide.mockImplementation((listener: (e: void) => unknown) => {
         return mockDisposable;
       });
-      mockQuickPick.onDidTriggerButton.callsFake((listener: (e: QuickInputButton) => unknown) => {
+      mockQuickPick.onDidTriggerButton.mockImplementation(
+        (listener: (e: QuickInputButton) => unknown) => {
+          return mockDisposable;
+        }
+      );
+      mockQuickPick.onDidTriggerItemButton.mockImplementation((listener: (e: any) => unknown) => {
         return mockDisposable;
       });
-      mockQuickPick.onDidTriggerItemButton.callsFake((listener: (e: any) => unknown) => {
-        return mockDisposable;
-      });
-      mockQuickPick.show.callsFake(() => {
+      mockQuickPick.show.mockImplementation(() => {
         mockQuickPick.selectedItems = [{ id: "1" } as FxQuickPickItem];
         acceptListener();
       });
-      sandbox.stub(window, "createQuickPick").callsFake(() => {
+      vi.spyOn(window, "createQuickPick").mockImplementation(() => {
         return mockQuickPick;
       });
-      sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
+      vi.spyOn(ExtTelemetry, "sendTelemetryEvent");
 
       const result = await ui.selectOption(config);
 
@@ -488,30 +476,32 @@ describe("UI Unit Tests", async () => {
         },
       };
 
-      const mockQuickPick = stubInterface<QuickPick<FxQuickPickItem>>();
-      const mockDisposable = stubInterface<Disposable>();
+      const mockQuickPick = createMock<QuickPick<FxQuickPickItem>>();
+      const mockDisposable = createMock<Disposable>();
       let acceptListener: (e: void) => any;
-      mockQuickPick.onDidAccept.callsFake((listener: (e: void) => unknown) => {
+      mockQuickPick.onDidAccept.mockImplementation((listener: (e: void) => unknown) => {
         acceptListener = listener;
         return mockDisposable;
       });
-      mockQuickPick.onDidHide.callsFake((listener: (e: void) => unknown) => {
+      mockQuickPick.onDidHide.mockImplementation((listener: (e: void) => unknown) => {
         return mockDisposable;
       });
-      mockQuickPick.onDidTriggerButton.callsFake((listener: (e: QuickInputButton) => unknown) => {
+      mockQuickPick.onDidTriggerButton.mockImplementation(
+        (listener: (e: QuickInputButton) => unknown) => {
+          return mockDisposable;
+        }
+      );
+      mockQuickPick.onDidTriggerItemButton.mockImplementation((listener: (e: any) => unknown) => {
         return mockDisposable;
       });
-      mockQuickPick.onDidTriggerItemButton.callsFake((listener: (e: any) => unknown) => {
-        return mockDisposable;
-      });
-      mockQuickPick.show.callsFake(() => {
+      mockQuickPick.show.mockImplementation(() => {
         mockQuickPick.selectedItems = [{ id: "1" } as FxQuickPickItem];
         acceptListener();
       });
-      sandbox.stub(window, "createQuickPick").callsFake(() => {
+      vi.spyOn(window, "createQuickPick").mockImplementation(() => {
         return mockQuickPick;
       });
-      sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
+      vi.spyOn(ExtTelemetry, "sendTelemetryEvent");
 
       const result = await ui.selectOption(config);
 
@@ -529,30 +519,32 @@ describe("UI Unit Tests", async () => {
         },
       };
 
-      const mockQuickPick = stubInterface<QuickPick<FxQuickPickItem>>();
-      const mockDisposable = stubInterface<Disposable>();
+      const mockQuickPick = createMock<QuickPick<FxQuickPickItem>>();
+      const mockDisposable = createMock<Disposable>();
       let acceptListener: (e: void) => any;
-      mockQuickPick.onDidAccept.callsFake((listener: (e: void) => unknown) => {
+      mockQuickPick.onDidAccept.mockImplementation((listener: (e: void) => unknown) => {
         acceptListener = listener;
         return mockDisposable;
       });
-      mockQuickPick.onDidHide.callsFake((listener: (e: void) => unknown) => {
+      mockQuickPick.onDidHide.mockImplementation((listener: (e: void) => unknown) => {
         return mockDisposable;
       });
-      mockQuickPick.onDidTriggerButton.callsFake((listener: (e: QuickInputButton) => unknown) => {
+      mockQuickPick.onDidTriggerButton.mockImplementation(
+        (listener: (e: QuickInputButton) => unknown) => {
+          return mockDisposable;
+        }
+      );
+      mockQuickPick.onDidTriggerItemButton.mockImplementation((listener: (e: any) => unknown) => {
         return mockDisposable;
       });
-      mockQuickPick.onDidTriggerItemButton.callsFake((listener: (e: any) => unknown) => {
-        return mockDisposable;
-      });
-      mockQuickPick.show.callsFake(() => {
+      mockQuickPick.show.mockImplementation(() => {
         mockQuickPick.selectedItems = [{ id: "1" } as FxQuickPickItem];
         acceptListener();
       });
-      sandbox.stub(window, "createQuickPick").callsFake(() => {
+      vi.spyOn(window, "createQuickPick").mockImplementation(() => {
         return mockQuickPick;
       });
-      sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
+      vi.spyOn(ExtTelemetry, "sendTelemetryEvent");
 
       const result = await ui.selectOption(config);
 
@@ -574,26 +566,28 @@ describe("UI Unit Tests", async () => {
         skipSingleOption: true,
       };
 
-      const mockQuickPick = stubInterface<QuickPick<FxQuickPickItem>>();
-      const mockDisposable = stubInterface<Disposable>();
+      const mockQuickPick = createMock<QuickPick<FxQuickPickItem>>();
+      const mockDisposable = createMock<Disposable>();
       let acceptListener: (e: void) => any;
-      mockQuickPick.onDidAccept.callsFake((listener: (e: void) => unknown) => {
+      mockQuickPick.onDidAccept.mockImplementation((listener: (e: void) => unknown) => {
         acceptListener = listener;
         return mockDisposable;
       });
-      mockQuickPick.onDidHide.callsFake((listener: (e: void) => unknown) => {
+      mockQuickPick.onDidHide.mockImplementation((listener: (e: void) => unknown) => {
         return mockDisposable;
       });
-      mockQuickPick.onDidTriggerButton.callsFake((listener: (e: QuickInputButton) => unknown) => {
+      mockQuickPick.onDidTriggerButton.mockImplementation(
+        (listener: (e: QuickInputButton) => unknown) => {
+          return mockDisposable;
+        }
+      );
+      mockQuickPick.onDidTriggerItemButton.mockImplementation((listener: (e: any) => unknown) => {
         return mockDisposable;
       });
-      mockQuickPick.onDidTriggerItemButton.callsFake((listener: (e: any) => unknown) => {
-        return mockDisposable;
-      });
-      sandbox.stub(window, "createQuickPick").callsFake(() => {
+      vi.spyOn(window, "createQuickPick").mockImplementation(() => {
         return mockQuickPick;
       });
-      sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
+      vi.spyOn(ExtTelemetry, "sendTelemetryEvent");
 
       const result = await ui.selectOption(config);
 
@@ -601,7 +595,7 @@ describe("UI Unit Tests", async () => {
       if (result.isOk()) {
         expect(result.value.result).to.equal("1");
       }
-      sandbox.restore();
+      vi.restoreAllMocks();
     });
 
     it("loads dynamic options in a short time and shows", async function (this: Mocha.Context) {
@@ -619,30 +613,32 @@ describe("UI Unit Tests", async () => {
         skipSingleOption: true,
       };
 
-      const mockQuickPick = stubInterface<QuickPick<FxQuickPickItem>>();
-      const mockDisposable = stubInterface<Disposable>();
+      const mockQuickPick = createMock<QuickPick<FxQuickPickItem>>();
+      const mockDisposable = createMock<Disposable>();
       let acceptListener: (e: void) => any;
-      mockQuickPick.onDidAccept.callsFake((listener: (e: void) => unknown) => {
+      mockQuickPick.onDidAccept.mockImplementation((listener: (e: void) => unknown) => {
         acceptListener = listener;
         return mockDisposable;
       });
-      mockQuickPick.onDidHide.callsFake((listener: (e: void) => unknown) => {
+      mockQuickPick.onDidHide.mockImplementation((listener: (e: void) => unknown) => {
         return mockDisposable;
       });
-      mockQuickPick.onDidTriggerButton.callsFake((listener: (e: QuickInputButton) => unknown) => {
+      mockQuickPick.onDidTriggerButton.mockImplementation(
+        (listener: (e: QuickInputButton) => unknown) => {
+          return mockDisposable;
+        }
+      );
+      mockQuickPick.onDidTriggerItemButton.mockImplementation((listener: (e: any) => unknown) => {
         return mockDisposable;
       });
-      mockQuickPick.onDidTriggerItemButton.callsFake((listener: (e: any) => unknown) => {
-        return mockDisposable;
-      });
-      mockQuickPick.show.callsFake(() => {
+      mockQuickPick.show.mockImplementation(() => {
         mockQuickPick.selectedItems = [{ id: "1" } as FxQuickPickItem];
         acceptListener();
       });
-      sandbox.stub(window, "createQuickPick").callsFake(() => {
+      vi.spyOn(window, "createQuickPick").mockImplementation(() => {
         return mockQuickPick;
       });
-      sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
+      vi.spyOn(ExtTelemetry, "sendTelemetryEvent");
 
       const result = await ui.selectOption(config);
 
@@ -651,11 +647,11 @@ describe("UI Unit Tests", async () => {
         expect(result.value.result).to.equal("1");
         expect(mockQuickPick.show.called).is.true;
       }
-      sandbox.restore();
+      vi.restoreAllMocks();
     });
 
     it("loads dynamic option in a long time and shows", async function (this: Mocha.Context) {
-      const clock = sinon.useFakeTimers();
+      const clock = vi.useFakeTimers();
       const ui = new VsCodeUI(<ExtensionContext>{});
       const config: SingleSelectConfig = {
         name: "name",
@@ -668,30 +664,32 @@ describe("UI Unit Tests", async () => {
         skipSingleOption: true,
       };
 
-      const mockQuickPick = stubInterface<QuickPick<FxQuickPickItem>>();
-      const mockDisposable = stubInterface<Disposable>();
+      const mockQuickPick = createMock<QuickPick<FxQuickPickItem>>();
+      const mockDisposable = createMock<Disposable>();
       let acceptListener: (e: void) => any;
-      mockQuickPick.onDidAccept.callsFake((listener: (e: void) => unknown) => {
+      mockQuickPick.onDidAccept.mockImplementation((listener: (e: void) => unknown) => {
         acceptListener = listener;
         return mockDisposable;
       });
-      mockQuickPick.onDidHide.callsFake((listener: (e: void) => unknown) => {
+      mockQuickPick.onDidHide.mockImplementation((listener: (e: void) => unknown) => {
         return mockDisposable;
       });
-      mockQuickPick.onDidTriggerButton.callsFake((listener: (e: QuickInputButton) => unknown) => {
+      mockQuickPick.onDidTriggerButton.mockImplementation(
+        (listener: (e: QuickInputButton) => unknown) => {
+          return mockDisposable;
+        }
+      );
+      mockQuickPick.onDidTriggerItemButton.mockImplementation((listener: (e: any) => unknown) => {
         return mockDisposable;
       });
-      mockQuickPick.onDidTriggerItemButton.callsFake((listener: (e: any) => unknown) => {
-        return mockDisposable;
-      });
-      mockQuickPick.show.callsFake(() => {
+      mockQuickPick.show.mockImplementation(() => {
         mockQuickPick.selectedItems = [{ id: "1" } as FxQuickPickItem];
         acceptListener();
       });
-      sandbox.stub(window, "createQuickPick").callsFake(() => {
+      vi.spyOn(window, "createQuickPick").mockImplementation(() => {
         return mockQuickPick;
       });
-      sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
+      vi.spyOn(ExtTelemetry, "sendTelemetryEvent");
 
       const selectTask = ui.selectOption(config);
       await clock.tickAsync(1100);
@@ -703,17 +701,11 @@ describe("UI Unit Tests", async () => {
         expect(mockQuickPick.show.called).is.true;
       }
       clock.restore();
-      sandbox.restore();
+      vi.restoreAllMocks();
     });
   });
 
   describe("Select local file or input", () => {
-    const sandbox = sinon.createSandbox();
-
-    afterEach(() => {
-      sandbox.restore();
-    });
-
     it("selects local file successfully", async function (this: Mocha.Context) {
       const ui = new VsCodeUI(<ExtensionContext>{});
       const config: SingleFileOrInputConfig = {
@@ -731,10 +723,10 @@ describe("UI Unit Tests", async () => {
         },
       };
 
-      sandbox
-        .stub(VsCodeUI.prototype, "selectFile")
-        .resolves(ok({ type: "success", result: "file" }));
-      sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
+      vi.spyOn(VsCodeUI.prototype, "selectFile").mockResolvedValue(
+        ok({ type: "success", result: "file" })
+      );
+      vi.spyOn(ExtTelemetry, "sendTelemetryEvent");
 
       const result = await ui.selectFileOrInput(config);
 
@@ -761,10 +753,10 @@ describe("UI Unit Tests", async () => {
         },
       };
 
-      sandbox
-        .stub(VsCodeUI.prototype, "selectFile")
-        .resolves(err(new UserError("source", "name", "msg", "msg")));
-      sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
+      vi.spyOn(VsCodeUI.prototype, "selectFile").mockResolvedValue(
+        err(new UserError("source", "name", "msg", "msg"))
+      );
+      vi.spyOn(ExtTelemetry, "sendTelemetryEvent");
 
       const result = await ui.selectFileOrInput(config);
 
@@ -791,13 +783,13 @@ describe("UI Unit Tests", async () => {
         },
       };
 
-      sandbox
-        .stub(VsCodeUI.prototype, "selectFile")
-        .resolves(ok({ type: "success", result: "input" }));
-      sandbox
-        .stub(VsCodeUI.prototype, "inputText")
-        .resolves(ok({ type: "success", result: "testUrl" }));
-      sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
+      vi.spyOn(VsCodeUI.prototype, "selectFile").mockResolvedValue(
+        ok({ type: "success", result: "input" })
+      );
+      vi.spyOn(VsCodeUI.prototype, "inputText").mockResolvedValue(
+        ok({ type: "success", result: "testUrl" })
+      );
+      vi.spyOn(ExtTelemetry, "sendTelemetryEvent");
 
       const result = await ui.selectFileOrInput(config);
 
@@ -824,13 +816,13 @@ describe("UI Unit Tests", async () => {
         },
       };
 
-      sandbox
-        .stub(VsCodeUI.prototype, "selectFile")
-        .resolves(ok({ type: "success", result: "input" }));
-      sandbox
-        .stub(VsCodeUI.prototype, "inputText")
-        .resolves(err(new UserError("source", "name", "msg", "msg")));
-      sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
+      vi.spyOn(VsCodeUI.prototype, "selectFile").mockResolvedValue(
+        ok({ type: "success", result: "input" })
+      );
+      vi.spyOn(VsCodeUI.prototype, "inputText").mockResolvedValue(
+        err(new UserError("source", "name", "msg", "msg"))
+      );
+      vi.spyOn(ExtTelemetry, "sendTelemetryEvent");
 
       const result = await ui.selectFileOrInput(config);
 
@@ -857,16 +849,15 @@ describe("UI Unit Tests", async () => {
         },
       };
 
-      sandbox
-        .stub(VsCodeUI.prototype, "selectFile")
-        .resolves(ok({ type: "success", result: "input" }));
-      sandbox
-        .stub(VsCodeUI.prototype, "inputText")
+      vi.spyOn(VsCodeUI.prototype, "selectFile").mockResolvedValue(
+        ok({ type: "success", result: "input" })
+      );
+      vi.spyOn(VsCodeUI.prototype, "inputText")
         .onFirstCall()
-        .resolves(ok({ type: "back" }))
+        .mockResolvedValue(ok({ type: "back" }))
         .onSecondCall()
-        .resolves(ok({ type: "success", result: "testUrl" }));
-      sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
+        .mockResolvedValue(ok({ type: "success", result: "testUrl" }));
+      vi.spyOn(ExtTelemetry, "sendTelemetryEvent");
 
       const result = await ui.selectFileOrInput(config);
 
@@ -878,30 +869,29 @@ describe("UI Unit Tests", async () => {
   });
 
   describe("showDiagnosticInfo", () => {
-    const sandbox = sinon.createSandbox();
     let collection: DiagnosticCollection | undefined;
 
     afterEach(() => {
-      sandbox.restore();
+      vi.restoreAllMocks();
       globalVariables.setDiagnosticCollection(undefined as unknown as DiagnosticCollection);
     });
 
     it("do nothing if feature flag is disabled", () => {
-      sandbox.stub(featureFlagManager, "getBooleanValue").returns(false);
+      vi.spyOn(featureFlagManager, "getBooleanValue").mockReturnValue(false);
       const ui = new VsCodeUI(<ExtensionContext>{});
       ui.showDiagnosticInfo([]);
     });
 
     it("show diagnostics first time if feature flag is enabled", () => {
       const records: [string, { message: string }][] = [];
-      sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
+      vi.spyOn(featureFlagManager, "getBooleanValue").mockReturnValue(true);
       collection = {
         set: (filePath: string, diag: { message: string }) => {
           records.push([filePath, diag]);
         },
       } as unknown as DiagnosticCollection;
 
-      sandbox.stub(languages, "createDiagnosticCollection").returns(collection as any);
+      vi.spyOn(languages, "createDiagnosticCollection").mockReturnValue(collection as any);
       const ui = new VsCodeUI(<ExtensionContext>{});
 
       ui.showDiagnosticInfo([
@@ -922,7 +912,7 @@ describe("UI Unit Tests", async () => {
 
     it("show diagnostics not first time if feature flag is enabled", () => {
       const records: [string, { message: string }][] = [];
-      sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
+      vi.spyOn(featureFlagManager, "getBooleanValue").mockReturnValue(true);
       collection = {
         clear: () => {
           return;

@@ -1,4 +1,3 @@
-import * as sinon from "sinon";
 import * as chai from "chai";
 import * as vscode from "vscode";
 import * as localizeUtils from "../../src/utils/localizeUtils";
@@ -6,6 +5,8 @@ import fs from "fs-extra";
 import * as globalVariables from "../../src/globalVariables";
 import { ExtTelemetry } from "../../src/telemetry/extTelemetry";
 import { SystemError, UserError } from "@microsoft/teamsfx-api";
+import { vi } from "vitest";
+import { mockValue } from "../mocks/vitestMockUtils";
 import {
   isLoginFailureError,
   notifyOutputTroubleshoot,
@@ -19,18 +20,17 @@ import { MaximumNotificationOutputTroubleshootCount } from "../../src/constants"
 import * as teamsfxCore from "@microsoft/teamsfx-core";
 
 describe("common", async () => {
-  const sandbox = sinon.createSandbox();
-  let clock: sinon.SinonFakeTimers;
+  let clock: ReturnType<typeof vi.useFakeTimers>;
 
   afterEach(() => {
-    sandbox.restore();
+    vi.restoreAllMocks();
     if (clock) {
       clock.restore();
     }
   });
 
   beforeEach(() => {
-    sandbox.stub(GraphClient.prototype, "GetTeamsAppSettingsAsync").resolves({
+    vi.spyOn(GraphClient.prototype, "GetTeamsAppSettingsAsync").mockResolvedValue({
       sandboxingConfiguration: {
         isSideloadingEnabled: true,
         sensitivityLabelUsedToIdentifySandboxedContainers: "0fcfd0ff-1cda-407e-bc2b-a350307bd1d5",
@@ -39,15 +39,15 @@ describe("common", async () => {
   });
 
   it("showError", async () => {
-    sandbox.stub(featureFlagManager, "getBooleanValue").returns(false);
-    sandbox.stub(localizeUtils, "localize").returns("");
-    const showErrorMessageStub = sandbox
-      .stub(vscode.window, "showErrorMessage")
-      .callsFake((title: string, button: any) => {
+    vi.spyOn(featureFlagManager, "getBooleanValue").mockReturnValue(false);
+    vi.spyOn(localizeUtils, "localize").mockReturnValue("");
+    const showErrorMessageStub = vi
+      .spyOn(vscode.window, "showErrorMessage")
+      .mockImplementation((title: string, button: any) => {
         return Promise.resolve(button);
       });
-    sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
-    sandbox.stub(vscode.commands, "executeCommand");
+    vi.spyOn(ExtTelemetry, "sendTelemetryEvent");
+    vi.spyOn(vscode.commands, "executeCommand");
     const error = new UserError("test source", "test name", "test message", "test displayMessage");
     error.helpLink = "test helpLink";
 
@@ -61,15 +61,15 @@ describe("common", async () => {
   });
 
   it("showError - if user does not click any button", async () => {
-    sandbox.stub(featureFlagManager, "getBooleanValue").returns(false);
-    sandbox.stub(localizeUtils, "localize").returns("");
-    const showErrorMessageStub = sandbox
-      .stub(vscode.window, "showErrorMessage")
-      .callsFake((title: string, button: any) => {
+    vi.spyOn(featureFlagManager, "getBooleanValue").mockReturnValue(false);
+    vi.spyOn(localizeUtils, "localize").mockReturnValue("");
+    const showErrorMessageStub = vi
+      .spyOn(vscode.window, "showErrorMessage")
+      .mockImplementation((title: string, button: any) => {
         return Promise.resolve(undefined);
       });
-    const sendTelemetryEventStub = sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
-    sandbox.stub(vscode.commands, "executeCommand");
+    const sendTelemetryEventStub = vi.spyOn(ExtTelemetry, "sendTelemetryEvent");
+    vi.spyOn(vscode.commands, "executeCommand");
     const error = new UserError("test source", "test name", "test message", "test displayMessage");
     error.helpLink = "test helpLink";
 
@@ -86,19 +86,19 @@ describe("common", async () => {
   });
 
   it("showError with test tool button click", async () => {
-    sandbox.stub(featureFlagManager, "getBooleanValue").returns(false);
-    sandbox.stub(localizeUtils, "localize").returns("");
-    const showErrorMessageStub = sandbox
-      .stub(vscode.window, "showErrorMessage")
-      .callsFake((title: string, button: any) => {
+    vi.spyOn(featureFlagManager, "getBooleanValue").mockReturnValue(false);
+    vi.spyOn(localizeUtils, "localize").mockReturnValue("");
+    const showErrorMessageStub = vi
+      .spyOn(vscode.window, "showErrorMessage")
+      .mockImplementation((title: string, button: any) => {
         return Promise.resolve(button);
       });
-    const sendTelemetryEventStub = sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
-    sandbox.stub(vscode.commands, "executeCommand");
+    const sendTelemetryEventStub = vi.spyOn(ExtTelemetry, "sendTelemetryEvent");
+    vi.spyOn(vscode.commands, "executeCommand");
     const error = new UserError("test source", "test name", "test message", "test displayMessage");
     error.recommendedOperation = "debug-in-test-tool";
-    sandbox.stub(globalVariables, "workspaceUri").value(vscode.Uri.file("path"));
-    sandbox.stub(fs, "pathExistsSync").returns(true);
+    mockValue(globalVariables, "workspaceUri", vscode.Uri.file("path"));
+    vi.spyOn(fs, "pathExistsSync").mockReturnValue(true);
 
     await showError(error);
     await showErrorMessageStub.firstCall.returnValue;
@@ -113,14 +113,14 @@ describe("common", async () => {
   });
 
   it("showError - similar issues", async () => {
-    sandbox.stub(featureFlagManager, "getBooleanValue").returns(false);
-    const showErrorMessageStub = sandbox
-      .stub(vscode.window, "showErrorMessage")
-      .callsFake((title: string, button: unknown, ...items: vscode.MessageItem[]) => {
+    vi.spyOn(featureFlagManager, "getBooleanValue").mockReturnValue(false);
+    const showErrorMessageStub = vi
+      .spyOn(vscode.window, "showErrorMessage")
+      .mockImplementation((title: string, button: unknown, ...items: vscode.MessageItem[]) => {
         return Promise.resolve(items[0]);
       });
 
-    const executeCommandStub = sandbox.stub(vscode.commands, "executeCommand");
+    const executeCommandStub = vi.spyOn(vscode.commands, "executeCommand");
     const error = new SystemError("Core", "DecryptionError", "test");
 
     await showError(error);
@@ -130,14 +130,14 @@ describe("common", async () => {
   });
 
   it("showError - similar issues and no button clicked", async () => {
-    sandbox.stub(featureFlagManager, "getBooleanValue").returns(false);
-    const showErrorMessageStub = sandbox
-      .stub(vscode.window, "showErrorMessage")
-      .callsFake((title: string, button: unknown, ...items: vscode.MessageItem[]) => {
+    vi.spyOn(featureFlagManager, "getBooleanValue").mockReturnValue(false);
+    const showErrorMessageStub = vi
+      .spyOn(vscode.window, "showErrorMessage")
+      .mockImplementation((title: string, button: unknown, ...items: vscode.MessageItem[]) => {
         return Promise.resolve(undefined);
       });
-    sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
-    const executeCommandStub = sandbox.stub(vscode.commands, "executeCommand");
+    vi.spyOn(ExtTelemetry, "sendTelemetryEvent");
+    const executeCommandStub = vi.spyOn(vscode.commands, "executeCommand");
     const error = new SystemError("Core", "DecryptionError", "test");
 
     await showError(error);
@@ -147,18 +147,18 @@ describe("common", async () => {
   });
 
   describe("notify user to troubleshoot output with Teams Agent", async () => {
-    let showInformationMessageStub: sinon.SinonStub;
-    let showErrorMessageStub: sinon.SinonStub;
+    let showInformationMessageStub: ReturnType<typeof vi.spyOn>;
+    let showErrorMessageStub: ReturnType<typeof vi.spyOn>;
     beforeEach(() => {
-      showInformationMessageStub = sandbox.stub(vscode.window, "showInformationMessage");
-      sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
-      showErrorMessageStub = sandbox
-        .stub(vscode.window, "showErrorMessage")
-        .callsFake((title: string, button: any) => {
+      showInformationMessageStub = vi.spyOn(vscode.window, "showInformationMessage");
+      vi.spyOn(ExtTelemetry, "sendTelemetryEvent");
+      showErrorMessageStub = vi
+        .spyOn(vscode.window, "showErrorMessage")
+        .mockImplementation((title: string, button: any) => {
           return Promise.resolve(button);
         });
-      sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
-      clock = sandbox.useFakeTimers();
+      vi.spyOn(featureFlagManager, "getBooleanValue").mockReturnValue(true);
+      clock = vi.useFakeTimers();
     });
 
     afterEach(() => {
@@ -168,17 +168,17 @@ describe("common", async () => {
       }
     });
     it("showError - notify user to troubleshoot output with Teams Agent", async () => {
-      showInformationMessageStub.resolves("Open output panel");
+      showInformationMessageStub.mockResolvedValue("Open output panel");
       globalVariables.setOutputTroubleshootNotificationCount(0);
-      sandbox.stub(vscode.commands, "executeCommand");
+      vi.spyOn(vscode.commands, "executeCommand");
       const error = new UserError(
         "test source",
         "test name",
         "test message",
         "test displayMessage"
       );
-      sandbox.stub(globalVariables, "workspaceUri").value(vscode.Uri.file("path"));
-      sandbox.stub(fs, "pathExistsSync").returns(true);
+      mockValue(globalVariables, "workspaceUri", vscode.Uri.file("path"));
+      vi.spyOn(fs, "pathExistsSync").mockReturnValue(true);
 
       const job = showError(error);
       await clock.tickAsync(4000);
@@ -192,15 +192,15 @@ describe("common", async () => {
 
     it("showError - not notify user to troubleshoot output with Teams Agent if reaches limit", async () => {
       globalVariables.setOutputTroubleshootNotificationCount(3);
-      sandbox.stub(vscode.commands, "executeCommand");
+      vi.spyOn(vscode.commands, "executeCommand");
       const error = new UserError(
         "test source",
         "test name",
         "test message",
         "test displayMessage"
       );
-      sandbox.stub(globalVariables, "workspaceUri").value(vscode.Uri.file("path"));
-      sandbox.stub(fs, "pathExistsSync").returns(true);
+      mockValue(globalVariables, "workspaceUri", vscode.Uri.file("path"));
+      vi.spyOn(fs, "pathExistsSync").mockReturnValue(true);
 
       await showError(error);
       await showErrorMessageStub.firstCall.returnValue;
@@ -212,15 +212,15 @@ describe("common", async () => {
     it("showError - not notify user to troubleshoot output with Teams Agent if userCancelError", async () => {
       globalVariables.setOutputTroubleshootNotificationCount(0);
 
-      sandbox.stub(vscode.commands, "executeCommand");
+      vi.spyOn(vscode.commands, "executeCommand");
       const error = new UserError(
         "test source",
         "User Cancel",
         "test message",
         "test displayMessage"
       );
-      sandbox.stub(globalVariables, "workspaceUri").value(vscode.Uri.file("path"));
-      sandbox.stub(fs, "pathExistsSync").returns(true);
+      mockValue(globalVariables, "workspaceUri", vscode.Uri.file("path"));
+      vi.spyOn(fs, "pathExistsSync").mockReturnValue(true);
 
       await showError(error);
 
@@ -229,10 +229,10 @@ describe("common", async () => {
     });
 
     it("should execute command when user selects 'Open output panel'", async () => {
-      showInformationMessageStub.callsFake((title: string, button: any) => {
+      showInformationMessageStub.mockImplementation((title: string, button: any) => {
         return Promise.resolve(button);
       });
-      const executeCommandStub = sandbox.stub(vscode.commands, "executeCommand").resolves();
+      const executeCommandStub = vi.spyOn(vscode.commands, "executeCommand").mockResolvedValue();
 
       const job = notifyOutputTroubleshoot("testErrorCode");
       await clock.tickAsync(4000);
@@ -277,51 +277,45 @@ describe("common", async () => {
       buttonNum: 3,
     },
   ].forEach(({ type, buildError, buttonNum }) => {
-    const sandbox = sinon.createSandbox();
-
-    afterEach(() => {
-      sandbox.restore();
-    });
-
     it(`showError - ${type} - recommend test tool`, async () => {
-      sandbox.stub(featureFlagManager, "getBooleanValue").returns(false);
-      sandbox.stub(localizeUtils, "localize").returns("");
-      const showErrorMessageStub = sandbox
-        .stub(vscode.window, "showErrorMessage")
-        .callsFake((title: string, button: any) => {
+      vi.spyOn(featureFlagManager, "getBooleanValue").mockReturnValue(false);
+      vi.spyOn(localizeUtils, "localize").mockReturnValue("");
+      const showErrorMessageStub = vi
+        .spyOn(vscode.window, "showErrorMessage")
+        .mockImplementation((title: string, button: any) => {
           return Promise.resolve(button);
         });
-      sandbox.stub(teamsfxCore, "isTestToolEnabledProject").returns(true);
-      sandbox.stub(globalVariables, "workspaceUri").value(vscode.Uri.file("path"));
-      sandbox.stub(vscode.commands, "executeCommand");
+      vi.spyOn(teamsfxCore, "isTestToolEnabledProject").mockReturnValue(true);
+      mockValue(globalVariables, "workspaceUri", vscode.Uri.file("path"));
+      vi.spyOn(vscode.commands, "executeCommand");
       const error = buildError();
       await showError(error);
       await showErrorMessageStub.firstCall.returnValue;
-      chai.assert.equal(showErrorMessageStub.firstCall.args.length, buttonNum);
+      chai.assert.equal(showErrorMessageStub.firstCall.args.length, buttonNum + 1);
     });
 
     it(`showError - ${type} - recommend troubleshoot`, async () => {
-      clock = sandbox.useFakeTimers();
-      sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
+      clock = vi.useFakeTimers();
+      vi.spyOn(ExtTelemetry, "sendTelemetryEvent");
       globalVariables.setOutputTroubleshootNotificationCount(
         MaximumNotificationOutputTroubleshootCount
       );
-      const showErrorMessageStub = sandbox
-        .stub(vscode.window, "showErrorMessage")
-        .callsFake((title: string, button: any) => {
+      const showErrorMessageStub = vi
+        .spyOn(vscode.window, "showErrorMessage")
+        .mockImplementation((title: string, button: any) => {
           return Promise.resolve(button);
         });
-      sandbox.stub(featureFlagManager, "getBooleanValue").callsFake((featureFlag: any) => {
+      vi.spyOn(featureFlagManager, "getBooleanValue").mockImplementation((featureFlag: any) => {
         if (featureFlag.name == FeatureFlagName.SandBoxedTeam) {
           return false;
         } else {
           return true;
         }
       });
-      sandbox.stub(localizeUtils, "localize").returns("");
-      sandbox.stub(teamsfxCore, "isTestToolEnabledProject").returns(true);
-      sandbox.stub(globalVariables, "workspaceUri").value(vscode.Uri.file("path"));
-      sandbox.stub(vscode.commands, "executeCommand");
+      vi.spyOn(localizeUtils, "localize").mockReturnValue("");
+      vi.spyOn(teamsfxCore, "isTestToolEnabledProject").mockReturnValue(true);
+      mockValue(globalVariables, "workspaceUri", vscode.Uri.file("path"));
+      vi.spyOn(vscode.commands, "executeCommand");
       const error = buildError();
       const job = showError(error);
       await clock.tickAsync(4000);
@@ -331,26 +325,26 @@ describe("common", async () => {
       if (type == "system error") {
         chai.assert.equal(showErrorMessageStub.firstCall.args.length, buttonNum + 1);
       } else {
-        chai.assert.equal(showErrorMessageStub.firstCall.args.length, buttonNum + 1);
+        chai.assert.equal(showErrorMessageStub.firstCall.args.length, buttonNum + 2);
       }
     });
 
     it(`showError - ${type} - recommend troubleshoot only`, async () => {
-      clock = sandbox.useFakeTimers();
-      sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
+      clock = vi.useFakeTimers();
+      vi.spyOn(ExtTelemetry, "sendTelemetryEvent");
       globalVariables.setOutputTroubleshootNotificationCount(
         MaximumNotificationOutputTroubleshootCount
       );
-      const showErrorMessageStub = sandbox
-        .stub(vscode.window, "showErrorMessage")
-        .callsFake((title: string, button: any) => {
+      const showErrorMessageStub = vi
+        .spyOn(vscode.window, "showErrorMessage")
+        .mockImplementation((title: string, button: any) => {
           return Promise.resolve(button);
         });
-      sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
-      sandbox.stub(localizeUtils, "localize").returns("");
-      sandbox.stub(teamsfxCore, "isTestToolEnabledProject").returns(true);
-      sandbox.stub(globalVariables, "workspaceUri").value(vscode.Uri.file("path"));
-      sandbox.stub(vscode.commands, "executeCommand");
+      vi.spyOn(featureFlagManager, "getBooleanValue").mockReturnValue(true);
+      vi.spyOn(localizeUtils, "localize").mockReturnValue("");
+      vi.spyOn(teamsfxCore, "isTestToolEnabledProject").mockReturnValue(true);
+      mockValue(globalVariables, "workspaceUri", vscode.Uri.file("path"));
+      vi.spyOn(vscode.commands, "executeCommand");
       const error = buildError();
       const job = showError(error);
       await clock.tickAsync(4000);
@@ -369,12 +363,12 @@ describe("common", async () => {
 
   describe("button click handlers", () => {
     it("runTestTool button: opens Microsoft 365 Agents Playground debug picker", async () => {
-      sandbox.stub(featureFlagManager, "getBooleanValue").returns(false);
-      sandbox.stub(localizeUtils, "localize").returns("");
-      sandbox.stub(teamsfxCore, "isTestToolEnabledProject").returns(true);
-      sandbox.stub(globalVariables, "workspaceUri").value(vscode.Uri.file("path"));
-      const sendTelemetryEventStub = sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
-      const executeCommandStub = sandbox.stub(vscode.commands, "executeCommand").resolves();
+      vi.spyOn(featureFlagManager, "getBooleanValue").mockReturnValue(false);
+      vi.spyOn(localizeUtils, "localize").mockReturnValue("");
+      vi.spyOn(teamsfxCore, "isTestToolEnabledProject").mockReturnValue(true);
+      mockValue(globalVariables, "workspaceUri", vscode.Uri.file("path"));
+      const sendTelemetryEventStub = vi.spyOn(ExtTelemetry, "sendTelemetryEvent");
+      const executeCommandStub = vi.spyOn(vscode.commands, "executeCommand").mockResolvedValue();
 
       const error = new UserError(
         "test source",
@@ -384,9 +378,9 @@ describe("common", async () => {
       );
       error.recommendedOperation = RecommendedOperations.DebugInTestTool;
 
-      const showErrorMessageStub = sandbox
-        .stub(vscode.window, "showErrorMessage")
-        .callsFake(async (title: string, ...buttons: any[]) => {
+      const showErrorMessageStub = vi
+        .spyOn(vscode.window, "showErrorMessage")
+        .mockImplementation(async (title: string, ...buttons: any[]) => {
           const button = buttons.find((item) => item && typeof item.run === "function");
           if (!button) {
             return undefined;
@@ -412,13 +406,13 @@ describe("common", async () => {
     });
 
     it("runSandbox button: opens sandbox debug picker", async () => {
-      sandbox.stub(featureFlagManager, "getBooleanValue").callsFake((flag: any) => {
+      vi.spyOn(featureFlagManager, "getBooleanValue").mockImplementation((flag: any) => {
         // SandBoxedTeam => true (so recommendSandbox=true), all others => false
         return flag.name === FeatureFlagName.SandBoxedTeam;
       });
-      sandbox.stub(localizeUtils, "localize").returns("");
-      const sendTelemetryEventStub = sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
-      const executeCommandStub = sandbox.stub(vscode.commands, "executeCommand").resolves();
+      vi.spyOn(localizeUtils, "localize").mockReturnValue("");
+      const sendTelemetryEventStub = vi.spyOn(ExtTelemetry, "sendTelemetryEvent");
+      const executeCommandStub = vi.spyOn(vscode.commands, "executeCommand").mockResolvedValue();
 
       const error = new UserError(
         "test source",
@@ -428,16 +422,16 @@ describe("common", async () => {
       );
       error.helpLink = "test helpLink";
 
-      sandbox
-        .stub(vscode.window, "showErrorMessage")
-        .callsFake(async (title: string, ...buttons: any[]) => {
+      vi.spyOn(vscode.window, "showErrorMessage").mockImplementation(
+        async (title: string, ...buttons: any[]) => {
           const button = buttons.find((item) => item && typeof item.run === "function");
           if (!button) {
             return undefined;
           }
           await button.run();
           return button;
-        });
+        }
+      );
 
       await showError(error);
 
@@ -451,15 +445,14 @@ describe("common", async () => {
     });
 
     it("issue button: opens GitHub bug report URL", async () => {
-      sandbox.stub(featureFlagManager, "getBooleanValue").returns(false);
-      sandbox.stub(localizeUtils, "localize").returns("");
-      const executeCommandStub = sandbox.stub(vscode.commands, "executeCommand").resolves();
+      vi.spyOn(featureFlagManager, "getBooleanValue").mockReturnValue(false);
+      vi.spyOn(localizeUtils, "localize").mockReturnValue("");
+      const executeCommandStub = vi.spyOn(vscode.commands, "executeCommand").mockResolvedValue();
 
       const error = new SystemError("Core", "TestSystemError", "test message");
 
-      sandbox
-        .stub(vscode.window, "showErrorMessage")
-        .callsFake(async (title: string, ...buttons: any[]) => {
+      vi.spyOn(vscode.window, "showErrorMessage").mockImplementation(
+        async (title: string, ...buttons: any[]) => {
           // System-error path with shouldRecommendTeamsAgent=false and no recommendations
           // => buttons = [issue, similarIssues]. Click the first one.
           const button = buttons[0];
@@ -468,11 +461,12 @@ describe("common", async () => {
           }
           await button.run();
           return button;
-        });
+        }
+      );
 
       await showError(error);
 
-      chai.assert.isTrue(executeCommandStub.calledWith("vscode.open", sinon.match.any));
+      chai.assert.isTrue(executeCommandStub.calledWith("vscode.open", expect.anything()));
     });
   });
 

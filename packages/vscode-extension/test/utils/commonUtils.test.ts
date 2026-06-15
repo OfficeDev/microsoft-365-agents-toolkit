@@ -3,10 +3,11 @@ import cp from "child_process";
 import fs from "fs-extra";
 import mockfs from "mock-fs";
 import os from "os";
-import * as sinon from "sinon";
 import * as vscode from "vscode";
 import * as globalVariables from "../../src/globalVariables";
 import { ExtTelemetry } from "../../src/telemetry/extTelemetry";
+import { vi } from "vitest";
+import { mockValue } from "../mocks/vitestMockUtils";
 import {
   acpInstalled,
   commonUtilsDeps,
@@ -22,55 +23,43 @@ import * as tools from "@microsoft/teamsfx-core/build/common/tools";
 describe("CommonUtils", () => {
   afterEach(() => {
     // Restore the default sandbox here
-    sinon.restore();
+    vi.restoreAllMocks();
   });
 
   describe("openFolderInExplorer", () => {
-    const sandbox = sinon.createSandbox();
-
-    afterEach(() => {
-      sandbox.restore();
-    });
-
     it("happy path", () => {
-      const folderPath = "fakePath";
-      sandbox.stub(commonUtilsDeps, "exec");
+      const folderPath = "C:\\fakePath";
+      vi.spyOn(commonUtilsDeps, "exec").mockImplementation(() => {
+        return {} as never;
+      });
       openFolderInExplorer(folderPath);
     });
   });
 
   describe("os assertion", () => {
-    const sandbox = sinon.createSandbox();
-
-    afterEach(() => {
-      sandbox.restore();
-    });
-
     it("should return exactly result according to os.type", async () => {
-      sandbox.stub(commonUtilsDeps, "getOSType").returns("Windows_NT");
+      vi.spyOn(commonUtilsDeps, "getOSType").mockReturnValue("Windows_NT");
       chai.expect(isWindows()).equals(true);
-      sandbox.restore();
+      vi.restoreAllMocks();
 
-      sandbox.stub(commonUtilsDeps, "getOSType").returns("Linux");
+      vi.spyOn(commonUtilsDeps, "getOSType").mockReturnValue("Linux");
       chai.expect(isLinux()).equals(true);
-      sandbox.restore();
+      vi.restoreAllMocks();
 
-      sandbox.stub(commonUtilsDeps, "getOSType").returns("Darwin");
+      vi.spyOn(commonUtilsDeps, "getOSType").mockReturnValue("Darwin");
       chai.expect(isMacOS()).equals(true);
-      sandbox.restore();
+      vi.restoreAllMocks();
     });
   });
 
   describe("hasAdaptiveCardInWorkspace()", () => {
-    const sandbox = sinon.createSandbox();
-
     afterEach(() => {
       mockfs.restore();
-      sandbox.restore();
+      vi.restoreAllMocks();
     });
 
     it("no workspace", async () => {
-      sandbox.stub(globalVariables, "workspaceUri").value(undefined);
+      mockValue(globalVariables, "workspaceUri", undefined);
 
       const result = await hasAdaptiveCardInWorkspace();
 
@@ -78,7 +67,7 @@ describe("CommonUtils", () => {
     });
 
     it("happy path", async () => {
-      sandbox.stub(globalVariables, "workspaceUri").value(vscode.Uri.file("/test"));
+      mockValue(globalVariables, "workspaceUri", vscode.Uri.file("/test"));
       mockfs({
         "/test/card.json": JSON.stringify({
           $schema: "http://adaptivecards.io/schemas/adaptive-card.json",
@@ -100,7 +89,7 @@ describe("CommonUtils", () => {
     });
 
     it("hasAdaptiveCardInWorkspace() no adaptive card file", async () => {
-      sandbox.stub(globalVariables, "workspaceUri").value(vscode.Uri.file("/test"));
+      mockValue(globalVariables, "workspaceUri", vscode.Uri.file("/test"));
       mockfs({
         "/test/card.json": JSON.stringify({ hello: "world" }),
       });
@@ -111,7 +100,7 @@ describe("CommonUtils", () => {
     });
 
     it("hasAdaptiveCardInWorkspace() very large adaptive card file", async () => {
-      sandbox.stub(globalVariables, "workspaceUri").value(vscode.Uri.file("/test"));
+      mockValue(globalVariables, "workspaceUri", vscode.Uri.file("/test"));
       mockfs({
         "/test/card.json": JSON.stringify({
           $schema: "http://adaptivecards.io/schemas/adaptive-card.json",
@@ -134,16 +123,14 @@ describe("CommonUtils", () => {
   });
 
   describe("acpInstalled()", () => {
-    const sandbox = sinon.createSandbox();
-
     afterEach(() => {
       mockfs.restore();
-      sandbox.restore();
+      vi.restoreAllMocks();
     });
 
     it("already installed", async () => {
-      sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
-      sandbox.stub(commonUtilsDeps, "getExtension").returns({} as any);
+      vi.spyOn(ExtTelemetry, "sendTelemetryEvent");
+      vi.spyOn(commonUtilsDeps, "getExtension").mockReturnValue({} as any);
 
       const installed = acpInstalled();
 
@@ -151,8 +138,8 @@ describe("CommonUtils", () => {
     });
 
     it("not installed", async () => {
-      sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
-      sandbox.stub(commonUtilsDeps, "getExtension").returns(undefined);
+      vi.spyOn(ExtTelemetry, "sendTelemetryEvent");
+      vi.spyOn(commonUtilsDeps, "getExtension").mockReturnValue(undefined);
 
       const installed = acpInstalled();
 
@@ -161,51 +148,45 @@ describe("CommonUtils", () => {
   });
 
   describe("getLocalDebugMessageTemplate()", () => {
-    const sandbox = sinon.createSandbox();
-
-    afterEach(() => {
-      sandbox.restore();
-    });
-
     it("Test Tool enabled in Windows platform", async () => {
-      sandbox.stub(vscode.workspace, "workspaceFolders").value([{ uri: vscode.Uri.file("test") }]);
-      sandbox.stub(commonUtilsDeps, "isTestToolEnabledProject").returns(true);
-      sandbox.stub(globalVariables, "workspaceUri").value(vscode.Uri.file("path"));
+      mockValue(vscode.workspace, "workspaceFolders", [{ uri: vscode.Uri.file("test") }]);
+      vi.spyOn(commonUtilsDeps, "isTestToolEnabledProject").mockReturnValue(true);
+      mockValue(globalVariables, "workspaceUri", vscode.Uri.file("path"));
 
       const result = await getLocalDebugMessageTemplate(true);
       chai.assert.isTrue(result.includes("Microsoft 365 Agents Playground"));
     });
 
     it("Test Tool disabled in Windows platform", async () => {
-      sandbox.stub(vscode.workspace, "workspaceFolders").value([{ uri: vscode.Uri.file("test") }]);
-      sandbox.stub(commonUtilsDeps, "isTestToolEnabledProject").returns(false);
-      sandbox.stub(globalVariables, "workspaceUri").value(vscode.Uri.file("path"));
+      mockValue(vscode.workspace, "workspaceFolders", [{ uri: vscode.Uri.file("test") }]);
+      vi.spyOn(commonUtilsDeps, "isTestToolEnabledProject").mockReturnValue(false);
+      mockValue(globalVariables, "workspaceUri", vscode.Uri.file("path"));
 
       const result = await getLocalDebugMessageTemplate(true);
       chai.assert.isFalse(result.includes("Microsoft 365 Agents Playground"));
     });
 
     it("Test Tool enabled in non-Windows platform", async () => {
-      sandbox.stub(vscode.workspace, "workspaceFolders").value([{ uri: vscode.Uri.file("test") }]);
-      sandbox.stub(commonUtilsDeps, "isTestToolEnabledProject").returns(true);
-      sandbox.stub(globalVariables, "workspaceUri").value(vscode.Uri.file("path"));
+      mockValue(vscode.workspace, "workspaceFolders", [{ uri: vscode.Uri.file("test") }]);
+      vi.spyOn(commonUtilsDeps, "isTestToolEnabledProject").mockReturnValue(true);
+      mockValue(globalVariables, "workspaceUri", vscode.Uri.file("path"));
 
       const result = await getLocalDebugMessageTemplate(false);
       chai.assert.isTrue(result.includes("Microsoft 365 Agents Playground"));
     });
 
     it("Test Tool disabled in non-Windows platform", async () => {
-      sandbox.stub(vscode.workspace, "workspaceFolders").value([{ uri: vscode.Uri.file("test") }]);
-      sandbox.stub(commonUtilsDeps, "isTestToolEnabledProject").returns(false);
-      sandbox.stub(globalVariables, "workspaceUri").value(vscode.Uri.file("path"));
+      mockValue(vscode.workspace, "workspaceFolders", [{ uri: vscode.Uri.file("test") }]);
+      vi.spyOn(commonUtilsDeps, "isTestToolEnabledProject").mockReturnValue(false);
+      mockValue(globalVariables, "workspaceUri", vscode.Uri.file("path"));
 
       const result = await getLocalDebugMessageTemplate(false);
       chai.assert.isFalse(result.includes("Microsoft 365 Agents Playground"));
     });
 
     it("No workspace folder", async () => {
-      sandbox.stub(vscode.workspace, "workspaceFolders").value([]);
-      sandbox.stub(fs, "pathExists").resolves(false);
+      mockValue(vscode.workspace, "workspaceFolders", []);
+      vi.spyOn(fs, "pathExists").mockResolvedValue(false);
 
       const result = await getLocalDebugMessageTemplate(false);
       chai.assert.isFalse(result.includes("Microsoft 365 Agents Playground"));

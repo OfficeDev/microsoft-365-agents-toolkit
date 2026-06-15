@@ -1,29 +1,30 @@
 import * as chai from "chai";
-import * as sinon from "sinon";
 import * as globalState from "@microsoft/teamsfx-core";
 import { ExtTelemetry } from "../../src/telemetry/extTelemetry";
 import { Uri, commands } from "vscode";
 import { openOfficeDevFolder } from "../../src/utils/workspaceUtils";
 import { GlobalKey } from "../../src/constants";
+import { vi } from "vitest";
 
 describe("WorkspaceUtils", () => {
   describe("openOfficeDevFolder", () => {
-    const sandbox = sinon.createSandbox();
     let inMemoryGlobalState: Map<string, any>;
 
     beforeEach(async () => {
       inMemoryGlobalState = new Map<string, any>();
-      sandbox
-        .stub(globalState, "globalStateGet")
-        .callsFake(async (key: string, defaultValue?: any) => {
+      vi.spyOn(globalState, "globalStateGet").mockImplementation(
+        async (key: string, defaultValue?: any) => {
           return inMemoryGlobalState.has(key) ? inMemoryGlobalState.get(key) : defaultValue;
-        });
-      sandbox.stub(globalState, "globalStateUpdate").callsFake(async (key: string, value: any) => {
-        inMemoryGlobalState.set(key, value);
-      });
+        }
+      );
+      vi.spyOn(globalState, "globalStateUpdate").mockImplementation(
+        async (key: string, value: any) => {
+          inMemoryGlobalState.set(key, value);
+        }
+      );
 
-      sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
-      sandbox.stub(commands, "executeCommand");
+      vi.spyOn(ExtTelemetry, "sendTelemetryEvent");
+      vi.spyOn(commands, "executeCommand");
       await globalState.globalStateUpdate(GlobalKey.OpenWalkThrough, false);
       await globalState.globalStateUpdate(GlobalKey.AutoInstallDependency, false);
       await globalState.globalStateUpdate(GlobalKey.OpenReadMe, "");
@@ -31,13 +32,10 @@ describe("WorkspaceUtils", () => {
       await globalState.globalStateUpdate(GlobalKey.CreateWarnings, "");
     });
 
-    afterEach(() => {
-      sandbox.restore();
-    });
-
     it("triggered from walkthrough with local debug message and warnings", async () => {
       const warnings = [{ type: "type", content: "content" }];
-      await openOfficeDevFolder(Uri.parse("fakePath"), true, warnings, ["WalkThrough"]);
+      const folderPath = Uri.file("C:\\fakePath");
+      await openOfficeDevFolder(folderPath, true, warnings, ["WalkThrough"]);
       chai.expect(await globalState.globalStateGet(GlobalKey.OpenWalkThrough, true)).equals(false);
       chai
         .expect(await globalState.globalStateGet(GlobalKey.AutoInstallDependency, false))
@@ -52,12 +50,15 @@ describe("WorkspaceUtils", () => {
     });
 
     it("not triggered from walkthrough with no local debug message and warnings", async () => {
-      await openOfficeDevFolder(Uri.parse("fakePath"), false, undefined);
+      const folderPath = Uri.file("C:\\fakePath");
+      await openOfficeDevFolder(folderPath, false, undefined);
       chai.expect(await globalState.globalStateGet(GlobalKey.OpenWalkThrough, true)).equals(false);
       chai
         .expect(await globalState.globalStateGet(GlobalKey.AutoInstallDependency, false))
         .equals(true);
-      chai.expect(await globalState.globalStateGet(GlobalKey.OpenReadMe, "")).equals("fakePath");
+      chai
+        .expect(await globalState.globalStateGet(GlobalKey.OpenReadMe, ""))
+        .equals(folderPath.fsPath);
     });
   });
 });

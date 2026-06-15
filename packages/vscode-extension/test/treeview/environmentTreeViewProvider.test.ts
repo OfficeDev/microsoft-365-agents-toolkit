@@ -1,5 +1,6 @@
 import * as chai from "chai";
-import * as sinon from "sinon";
+import { vi } from "vitest";
+import { mockValue } from "../mocks/vitestMockUtils";
 
 import { ok } from "@microsoft/teamsfx-api";
 import { environmentManager } from "@microsoft/teamsfx-core";
@@ -9,15 +10,9 @@ import * as globalVariables from "../../src/globalVariables";
 import EnvironmentTreeViewProvider from "../../src/treeview/environmentTreeViewProvider";
 
 describe("EnvironmentTreeViewProvider", () => {
-  const sandbox = sinon.createSandbox();
-
-  afterEach(() => {
-    sandbox.restore();
-  });
-
   it("reloadEnvironments", async () => {
-    sandbox.stub(projectSettingsHelper, "isValidProject").returns(true);
-    sandbox.stub(globalVariables, "workspaceUri").value({ fsPath: "test" });
+    vi.spyOn(projectSettingsHelper, "isValidProject").mockReturnValue(true);
+    mockValue(globalVariables, "workspaceUri", { fsPath: "test" });
 
     const result = await EnvironmentTreeViewProvider.reloadEnvironments();
 
@@ -25,9 +20,13 @@ describe("EnvironmentTreeViewProvider", () => {
   });
 
   it("getChildren", async () => {
-    sandbox.stub(globalVariables, "workspaceUri").value({ fsPath: "test" });
-    sandbox.stub(environmentManager, "listRemoteEnvConfigs").returns(Promise.resolve(ok(["test"])));
-    sandbox.stub(environmentManager, "getExistingNonRemoteEnvs").returns(Promise.resolve(["test"]));
+    mockValue(globalVariables, "workspaceUri", { fsPath: "test" });
+    vi.spyOn(environmentManager, "listRemoteEnvConfigs").mockReturnValue(
+      Promise.resolve(ok(["test"]))
+    );
+    vi.spyOn(environmentManager, "getExistingNonRemoteEnvs").mockReturnValue(
+      Promise.resolve(["test"])
+    );
 
     const children = await EnvironmentTreeViewProvider.getChildren();
 

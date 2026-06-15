@@ -46,10 +46,6 @@ describe("autoOpenProjectHandler", () => {
     await globalState.globalStateUpdate(GlobalKey.ShowLocalDebugMessage, false);
   });
 
-  afterEach(() => {
-    vi.restoreAllMocks();
-  });
-
   it("opens walk through", async () => {
     await globalState.globalStateUpdate(GlobalKey.OpenWalkThrough, true);
     const sendTelemetryStub = vi.spyOn(ExtTelemetry, "sendTelemetryEvent");

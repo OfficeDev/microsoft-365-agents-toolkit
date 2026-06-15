@@ -1,16 +1,10 @@
 import * as chai from "chai";
-import * as sinon from "sinon";
+import { vi } from "vitest";
 
 import { TreeViewCommand } from "../../src/treeview/treeViewCommand";
 import { CommandsTreeViewProvider } from "../../src/treeview/commandsTreeViewProvider";
 
 describe("CommandsTreeViewProvider", () => {
-  const sandbox = sinon.createSandbox();
-
-  afterEach(() => {
-    sandbox.restore();
-  });
-
   it("getCommands", async () => {
     const provider = new CommandsTreeViewProvider([new TreeViewCommand("test", "test")]);
     const commands = provider.getCommands();

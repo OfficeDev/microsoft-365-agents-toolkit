@@ -1,6 +1,5 @@
 import { featureFlagManager } from "@microsoft/teamsfx-core";
 import * as chai from "chai";
-import * as sinon from "sinon";
 import * as vscode from "vscode";
 import { AccountItemStatus, loadingIcon, m365Icon } from "../../../src/treeview/account/common";
 import { M365AccountNode } from "../../../src/treeview/account/m365Node";
@@ -11,20 +10,18 @@ import * as globalVariables from "../../../src/globalVariables";
 import { MockTools } from "../../mocks/mockTools";
 import { ok } from "@microsoft/teamsfx-api";
 import { localize } from "../../../src/utils/localizeUtils";
+import { vi } from "vitest";
+import { mockValue } from "../../mocks/vitestMockUtils";
 
 describe("m365Node", () => {
-  const sandbox = sinon.createSandbox();
   const eventEmitter = new vscode.EventEmitter<DynamicNode | undefined | void>();
 
-  afterEach(() => {
-    sandbox.restore();
-  });
-
   it("setSignedIn", async () => {
-    sandbox.stub(globalVariables, "tools").value(new MockTools());
-    sandbox
-      .stub(globalVariables.tools.tokenProvider.m365TokenProvider, "getAccessToken")
-      .resolves(ok(""));
+    mockValue(globalVariables, "tools", new MockTools());
+    vi.spyOn(
+      globalVariables.tools.tokenProvider.m365TokenProvider,
+      "getAccessToken"
+    ).mockResolvedValue(ok(""));
     const m365Node = new M365AccountNode(eventEmitter);
     await m365Node.setSignedIn("test upn", "");
     const treeItem = await m365Node.getTreeItem();
@@ -37,10 +34,11 @@ describe("m365Node", () => {
   });
 
   it("accessibility test for m365 node", async () => {
-    sandbox.stub(globalVariables, "tools").value(new MockTools());
-    sandbox
-      .stub(globalVariables.tools.tokenProvider.m365TokenProvider, "getAccessToken")
-      .resolves(ok(""));
+    mockValue(globalVariables, "tools", new MockTools());
+    vi.spyOn(
+      globalVariables.tools.tokenProvider.m365TokenProvider,
+      "getAccessToken"
+    ).mockResolvedValue(ok(""));
     const m365Node = new M365AccountNode(eventEmitter);
     await m365Node.setSignedIn("test upn", "");
     const treeItem = await m365Node.getTreeItem();
@@ -66,13 +64,14 @@ describe("m365Node", () => {
   });
 
   it("setSignedIn - multitenant", async () => {
-    sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
-    sandbox.stub(globalVariables, "tools").value(new MockTools());
-    sandbox.stub(m365NodeDeps, "getTools").returns(globalVariables.tools as any);
-    sandbox
-      .stub(globalVariables.tools.tokenProvider.m365TokenProvider, "getAccessToken")
-      .resolves(ok("test-token"));
-    sandbox.stub(m365NodeDeps, "listAllTenants").resolves([
+    vi.spyOn(featureFlagManager, "getBooleanValue").mockReturnValue(true);
+    mockValue(globalVariables, "tools", new MockTools());
+    vi.spyOn(m365NodeDeps, "getTools").mockReturnValue(globalVariables.tools as any);
+    vi.spyOn(
+      globalVariables.tools.tokenProvider.m365TokenProvider,
+      "getAccessToken"
+    ).mockResolvedValue(ok("test-token"));
+    vi.spyOn(m365NodeDeps, "listAllTenants").mockResolvedValue([
       {
         tenantId: "0022fd51-06f5-4557-8a34-69be98de6e20",
         displayName: "MSFT",
@@ -138,7 +137,7 @@ describe("m365Node", () => {
     m365Node.updateChecks("test token", true, false);
     chai.assert.isDefined(m365Node.getChildren());
     chai.assert.equal(2, (m365Node.getChildren() as any).length);
-    sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
+    vi.spyOn(featureFlagManager, "getBooleanValue").mockReturnValue(true);
     const m365NodeWithCopilot = new M365AccountNode(eventEmitter);
     m365NodeWithCopilot.updateChecks("test token", false, true);
     chai.assert.isDefined(m365NodeWithCopilot.getChildren());

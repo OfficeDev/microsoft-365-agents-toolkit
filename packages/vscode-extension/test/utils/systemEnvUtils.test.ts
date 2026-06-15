@@ -1,17 +1,11 @@
 import * as chai from "chai";
-import * as sinon from "sinon";
 import * as vscode from "vscode";
 import * as systemEnvUtils from "../../src/utils/systemEnvUtils";
 import { Inputs, Platform, VsCodeEnv } from "@microsoft/teamsfx-api";
+import { vi } from "vitest";
 
 describe("SystemEnvUtils", () => {
   describe("detectVsCodeEnv()", () => {
-    const sandbox = sinon.createSandbox();
-
-    afterEach(() => {
-      sandbox.restore();
-    });
-
     it("locally run", () => {
       const expectedResult = {
         extensionKind: vscode.ExtensionKind.UI,
@@ -21,11 +15,11 @@ describe("SystemEnvUtils", () => {
         isActive: true,
         packageJSON: {},
         exports: undefined,
-        activate: sandbox.spy(),
+        activate: vi.fn(),
       };
-      const getExtension = sandbox
-        .stub(vscode.extensions, "getExtension")
-        .callsFake((name: string) => {
+      const getExtension = vi
+        .spyOn(vscode.extensions, "getExtension")
+        .mockImplementation((name: string) => {
           return expectedResult;
         });
 
@@ -42,11 +36,11 @@ describe("SystemEnvUtils", () => {
         isActive: true,
         packageJSON: {},
         exports: undefined,
-        activate: sandbox.spy(),
+        activate: vi.fn(),
       };
-      const getExtension = sandbox
-        .stub(vscode.extensions, "getExtension")
-        .callsFake((name: string) => {
+      const getExtension = vi
+        .spyOn(vscode.extensions, "getExtension")
+        .mockImplementation((name: string) => {
           return expectedResult;
         });
 
@@ -58,12 +52,6 @@ describe("SystemEnvUtils", () => {
   });
 
   describe("getSystemInputs()", () => {
-    const sandbox = sinon.createSandbox();
-
-    afterEach(() => {
-      sandbox.restore();
-    });
-
     it("getSystemInputs()", () => {
       const input: Inputs = systemEnvUtils.getSystemInputs();
 

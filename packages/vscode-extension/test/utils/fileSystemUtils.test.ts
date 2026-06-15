@@ -1,18 +1,17 @@
 import * as chai from "chai";
-import * as sinon from "sinon";
 import * as fileSystemUtils from "../../src/utils/fileSystemUtils";
 import * as mockfs from "mock-fs";
 import fs from "fs-extra";
 import * as globalVariables from "../../src/globalVariables";
 import { Uri } from "vscode";
+import { vi } from "vitest";
+import { mockValue } from "../mocks/vitestMockUtils";
 
 describe("FileSystemUtils", () => {
   describe("anonymizeFilePaths()", () => {
-    const sandbox = sinon.createSandbox();
-
     afterEach(() => {
       mockfs.restore();
-      sandbox.restore();
+      vi.restoreAllMocks();
     });
 
     it("undefined", async () => {
@@ -50,30 +49,24 @@ describe("FileSystemUtils", () => {
   });
 
   describe("getProvisionResultJson", () => {
-    const sandbox = sinon.createSandbox();
-
-    afterEach(() => {
-      sandbox.restore();
-    });
-
     it("returns undefined if no workspace Uri", async () => {
-      sandbox.stub(globalVariables, "workspaceUri").value(undefined);
+      mockValue(globalVariables, "workspaceUri", undefined);
       const result = await fileSystemUtils.getProvisionResultJson("test");
       chai.expect(result).equals(undefined);
     });
 
     it("returns undefined if is not TeamsFx project", async () => {
-      sandbox.stub(globalVariables, "workspaceUri").value(Uri.file("test"));
-      sandbox.stub(globalVariables, "isTeamsFxProject").value(false);
+      mockValue(globalVariables, "workspaceUri", Uri.file("test"));
+      mockValue(globalVariables, "isTeamsFxProject", false);
       const result = await fileSystemUtils.getProvisionResultJson("test");
       chai.expect(result).deep.equals(undefined);
     });
 
     it("returns undefined if provision output file does not exists", async () => {
-      sandbox.stub(globalVariables, "workspaceUri").value(Uri.file("test"));
-      sandbox.stub(globalVariables, "isTeamsFxProject").value(true);
-      sandbox.stub(fs, "pathExists").resolves(true);
-      sandbox.stub(fs, "existsSync").returns(false);
+      mockValue(globalVariables, "workspaceUri", Uri.file("test"));
+      mockValue(globalVariables, "isTeamsFxProject", true);
+      vi.spyOn(fs, "pathExists").mockResolvedValue(true);
+      vi.spyOn(fs, "existsSync").mockReturnValue(false);
 
       const result = await fileSystemUtils.getProvisionResultJson("test");
       chai.expect(result).equals(undefined);
@@ -81,11 +74,11 @@ describe("FileSystemUtils", () => {
 
     it("returns provision output file result", async () => {
       const expectedResult = { test: "test" };
-      sandbox.stub(globalVariables, "workspaceUri").value(Uri.file("test"));
-      sandbox.stub(globalVariables, "isTeamsFxProject").value(true);
-      sandbox.stub(fs, "pathExists").resolves(true);
-      sandbox.stub(fs, "existsSync").returns(true);
-      sandbox.stub(fs, "readJSON").resolves(expectedResult);
+      mockValue(globalVariables, "workspaceUri", Uri.file("test"));
+      mockValue(globalVariables, "isTeamsFxProject", true);
+      vi.spyOn(fs, "pathExists").mockResolvedValue(true);
+      vi.spyOn(fs, "existsSync").mockReturnValue(true);
+      vi.spyOn(fs, "readJSON").mockResolvedValue(expectedResult);
 
       const result = await fileSystemUtils.getProvisionResultJson("test");
       chai.expect(result).equals(expectedResult);

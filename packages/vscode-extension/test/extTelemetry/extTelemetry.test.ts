@@ -2,7 +2,6 @@ import { Stage, UserError } from "@microsoft/teamsfx-api";
 import { maskSecret, telemetryUtils } from "@microsoft/teamsfx-core";
 import * as chai from "chai";
 import fs from "fs-extra";
-import * as sinon from "sinon";
 import { Uri } from "vscode";
 import * as globalVariables from "../../src/globalVariables";
 import * as telemetryModule from "../../src/telemetry/extTelemetry";
@@ -10,34 +9,14 @@ import { ExtTelemetry, extTelemetryDeps } from "../../src/telemetry/extTelemetry
 import { TelemetryEvent } from "../../src/telemetry/extTelemetryEvents";
 import * as vscTelemetryUtils from "../../src/utils/telemetryUtils";
 import { MockTelemetryReporter } from "../mocks/mockTools";
+import { vi } from "vitest";
+import { mockValue } from "../mocks/vitestMockUtils";
 
 describe("ExtTelemetry", () => {
   chai.util.addProperty(ExtTelemetry, "reporter", () => {});
-  let sendTelemetryErrorEventSpy: sinon.SinonSpy<
-    [
-      eventName: string,
-      properties?: { [key: string]: string } | undefined,
-      measurements?: { [key: string]: number } | undefined,
-      errorProps?: string[] | undefined,
-    ],
-    void
-  >;
-  let sendTelemetryEventSpy: sinon.SinonSpy<
-    [
-      eventName: string,
-      properties?: { [key: string]: string } | undefined,
-      measurements?: { [key: string]: number } | undefined,
-    ],
-    void
-  >;
-  let sendTelemetryExceptionSpy: sinon.SinonSpy<
-    [
-      error: Error,
-      properties?: { [key: string]: string } | undefined,
-      measurements?: { [key: string]: number } | undefined,
-    ],
-    void
-  >;
+  let sendTelemetryErrorEventSpy: ReturnType<typeof vi.spyOn>;
+  let sendTelemetryEventSpy: ReturnType<typeof vi.spyOn>;
+  let sendTelemetryExceptionSpy: ReturnType<typeof vi.spyOn>;
 
   describe("setHasSentTelemetry", () => {
     it("query-expfeature", () => {
@@ -108,23 +87,18 @@ describe("ExtTelemetry", () => {
   });
 
   describe("Send Telemetry", () => {
-    const sandbox = sinon.createSandbox();
     const reporterStub = new MockTelemetryReporter();
 
     beforeEach(() => {
-      sendTelemetryErrorEventSpy = sandbox.spy(reporterStub, "sendTelemetryErrorEvent");
-      sendTelemetryEventSpy = sandbox.spy(reporterStub, "sendTelemetryEvent");
-      sendTelemetryExceptionSpy = sandbox.spy(reporterStub, "sendTelemetryException");
-      sandbox.stub(ExtTelemetry, "reporter").value(reporterStub);
-      sandbox.stub(ExtTelemetry, "settingsVersion").value("1.0.0");
-      sandbox.stub(fs, "pathExistsSync").returns(false);
-      sandbox.stub(globalVariables, "workspaceUri").value(Uri.file("test"));
-      sandbox.stub(globalVariables, "isSPFxProject").value(false);
-      sandbox.stub(globalVariables, "isExistingUser").value("no");
-    });
-
-    afterEach(() => {
-      sandbox.restore();
+      sendTelemetryErrorEventSpy = vi.spyOn(reporterStub, "sendTelemetryErrorEvent");
+      sendTelemetryEventSpy = vi.spyOn(reporterStub, "sendTelemetryEvent");
+      sendTelemetryExceptionSpy = vi.spyOn(reporterStub, "sendTelemetryException");
+      mockValue(ExtTelemetry, "reporter", reporterStub);
+      mockValue(ExtTelemetry, "settingsVersion", "1.0.0");
+      vi.spyOn(fs, "pathExistsSync").mockReturnValue(false);
+      mockValue(globalVariables, "workspaceUri", Uri.file("test"));
+      mockValue(globalVariables, "isSPFxProject", false);
+      mockValue(globalVariables, "isExistingUser", "no");
     });
 
     it("sendTelemetryEvent", () => {
@@ -134,16 +108,16 @@ describe("ExtTelemetry", () => {
         { numericMeasure: 123 }
       );
 
-      sinon.assert.calledOnceWithMatch(
-        sendTelemetryEventSpy,
+      expect(sendTelemetryEventSpy).toHaveBeenCalledTimes(1);
+      expect(sendTelemetryEventSpy).toHaveBeenCalledWith(
         "sampleEvent",
-        {
+        expect.objectContaining({
           stringProp: "some string",
           component: "extension",
           "is-existing-user": "no",
           "is-spfx": "false",
           "settings-version": "1.0.0",
-        },
+        }),
         { numericMeasure: 123 }
       );
     });
@@ -163,10 +137,10 @@ describe("ExtTelemetry", () => {
         ["errorProps"]
       );
 
-      sinon.assert.calledOnceWithMatch(
-        sendTelemetryErrorEventSpy,
+      expect(sendTelemetryErrorEventSpy).toHaveBeenCalledTimes(1);
+      expect(sendTelemetryErrorEventSpy).toHaveBeenCalledWith(
         "sampleEvent",
-        {
+        expect.objectContaining({
           stringProp: "some string",
           component: "extension",
           success: "no",
@@ -182,7 +156,7 @@ describe("ExtTelemetry", () => {
           "error-method": "",
           "error-source": "",
           "error-stage": "",
-        },
+        }),
         { numericMeasure: 123 },
         ["errorProps"]
       );
@@ -196,39 +170,35 @@ describe("ExtTelemetry", () => {
         { numericMeasure: 123 }
       );
 
-      sinon.assert.calledOnceWithMatch(
-        sendTelemetryExceptionSpy,
+      expect(sendTelemetryExceptionSpy).toHaveBeenCalledTimes(1);
+      expect(sendTelemetryExceptionSpy).toHaveBeenCalledWith(
         error,
-        {
+        expect.objectContaining({
           stringProp: "some string",
           component: "extension",
           "is-existing-user": "no",
           "is-spfx": "false",
           "settings-version": "1.0.0",
-        },
+        }),
         { numericMeasure: 123 }
       );
     });
   });
 
   describe("deactivate event", () => {
-    const sandbox = sinon.createSandbox();
-    afterEach(() => {
-      sandbox.restore();
-    });
     it("cacheTelemetryEventAsync", async () => {
-      const clock = sandbox.useFakeTimers();
+      const clock = vi.useFakeTimers();
       let state = "";
-      sandbox.stub(extTelemetryDeps, "getLastCorrelationId").returns("correlation-id");
-      sandbox.stub(extTelemetryDeps, "getProjectId").resolves("project-id");
-      const globalStateUpdateStub = sandbox
-        .stub(extTelemetryDeps, "globalStateUpdate")
-        .callsFake(async (key, value) => (state = value as string));
+      vi.spyOn(extTelemetryDeps, "getLastCorrelationId").mockReturnValue("correlation-id");
+      vi.spyOn(extTelemetryDeps, "getProjectId").mockResolvedValue("project-id");
+      const globalStateUpdateStub = vi
+        .spyOn(extTelemetryDeps, "globalStateUpdate")
+        .mockImplementation(async (key, value) => (state = value as string));
       const eventName = "deactivate";
 
       await ExtTelemetry.cacheTelemetryEventAsync(eventName);
 
-      sandbox.assert.calledOnce(globalStateUpdateStub);
+      expect(globalStateUpdateStub).toHaveBeenCalledTimes(1);
       const telemetryEvents = {
         eventName: eventName,
         properties: {
@@ -244,8 +214,8 @@ describe("ExtTelemetry", () => {
 
     it("sendCachedTelemetryEventsAsync", async () => {
       const reporterStub = new MockTelemetryReporter();
-      sendTelemetryEventSpy = sandbox.spy(reporterStub, "sendTelemetryEvent");
-      sandbox.stub(ExtTelemetry, "reporter").value(reporterStub);
+      sendTelemetryEventSpy = vi.spyOn(reporterStub, "sendTelemetryEvent");
+      mockValue(ExtTelemetry, "reporter", reporterStub);
       const timestamp = new Date().toISOString();
       const telemetryEvents = {
         eventName: "deactivate",
@@ -256,16 +226,20 @@ describe("ExtTelemetry", () => {
         },
       };
       const telemetryData = JSON.stringify(telemetryEvents);
-      sandbox.stub(extTelemetryDeps, "globalStateGet").callsFake(async () => telemetryData);
-      sandbox.stub(extTelemetryDeps, "globalStateUpdate");
+      vi.spyOn(extTelemetryDeps, "globalStateGet").mockImplementation(async () => telemetryData);
+      vi.spyOn(extTelemetryDeps, "globalStateUpdate");
 
       await ExtTelemetry.sendCachedTelemetryEventsAsync();
 
-      sinon.assert.calledOnceWithMatch(sendTelemetryEventSpy, "deactivate", {
-        "correlation-id": "correlation-id",
-        "project-id": "project-id",
-        timestamp: timestamp,
-      });
+      expect(sendTelemetryEventSpy).toHaveBeenCalledTimes(1);
+      expect(sendTelemetryEventSpy).toHaveBeenCalledWith(
+        "deactivate",
+        expect.objectContaining({
+          "correlation-id": "correlation-id",
+          "project-id": "project-id",
+          timestamp: timestamp,
+        })
+      );
     });
   });
 });

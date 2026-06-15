@@ -14,6 +14,7 @@ export default defineConfig({
   },
   test: {
     globals: true,
+    pool: "threads",
     fileParallelism: true,
     include: ["test/**/*.test.ts"],
     setupFiles: ["test/setup.ts"],

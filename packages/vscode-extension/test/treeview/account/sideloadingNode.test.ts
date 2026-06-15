@@ -1,5 +1,4 @@
 import * as chai from "chai";
-import * as sinon from "sinon";
 import * as vscode from "vscode";
 import * as tools from "@microsoft/teamsfx-core/build/common/tools";
 import { errorIcon, infoIcon, passIcon } from "../../../src/treeview/account/common";
@@ -8,14 +7,11 @@ import { sideloadingNodeDeps } from "../../../src/treeview/account/sideloadingNo
 import { DynamicNode } from "../../../src/treeview/dynamicNode";
 import * as checkAccessCallback from "../../../src/handlers/accounts/checkAccessCallback";
 import { featureFlagManager, GraphClient } from "@microsoft/teamsfx-core";
+import { vi } from "vitest";
+import { mockValue } from "../../mocks/vitestMockUtils";
 
 describe("sideloadingNode", () => {
-  const sandbox = sinon.createSandbox();
   const eventEmitter = new vscode.EventEmitter<DynamicNode | undefined | void>();
-
-  afterEach(() => {
-    sandbox.restore();
-  });
 
   it("getTreeItem with empty string", async () => {
     const sideloadingNode = new SideloadingNode(eventEmitter, "");
@@ -25,8 +21,12 @@ describe("sideloadingNode", () => {
   });
 
   it("getTreeItem with invalid token", async () => {
-    sandbox.stub(sideloadingNodeDeps, "getSideloadingStatus").returns(Promise.resolve(false));
-    sandbox.stub(sideloadingNodeDeps, "checkSideloadingCallback");
+    vi.spyOn(sideloadingNodeDeps, "getSideloadingStatus").mockReturnValue(Promise.resolve(false));
+    mockValue(
+      sideloadingNodeDeps,
+      "checkSideloadingCallback",
+      vi.fn().mockResolvedValue(undefined) as never
+    );
     const sideloadingNode = new SideloadingNode(eventEmitter, "token");
     const treeItem = await sideloadingNode.getTreeItem();
 
@@ -34,7 +34,7 @@ describe("sideloadingNode", () => {
   });
 
   it("getTreeItem with valid token", async () => {
-    sandbox.stub(sideloadingNodeDeps, "getSideloadingStatus").returns(Promise.resolve(true));
+    vi.spyOn(sideloadingNodeDeps, "getSideloadingStatus").mockReturnValue(Promise.resolve(true));
     const sideloadingNode = new SideloadingNode(eventEmitter, "token");
     const treeItem = await sideloadingNode.getTreeItem();
 
@@ -47,15 +47,19 @@ describe("sideloadingNode", () => {
   });
 
   it("Check sandbox permission", async () => {
-    sandbox.stub(sideloadingNodeDeps, "getSideloadingStatus").returns(Promise.resolve(false));
-    sandbox.stub(sideloadingNodeDeps, "getBooleanValue").returns(true);
-    sandbox.stub(GraphClient.prototype, "GetTeamsAppSettingsAsync").resolves({
+    vi.spyOn(sideloadingNodeDeps, "getSideloadingStatus").mockReturnValue(Promise.resolve(false));
+    vi.spyOn(sideloadingNodeDeps, "getBooleanValue").mockReturnValue(true);
+    vi.spyOn(GraphClient.prototype, "GetTeamsAppSettingsAsync").mockResolvedValue({
       sandboxingConfiguration: {
         isSideloadingEnabled: false,
         sensitivityLabelUsedToIdentifySandboxedContainers: "0fcfd0ff-1cda-407e-bc2b-a350307bd1d5",
       },
     });
-    sandbox.stub(sideloadingNodeDeps, "checkSandboxCallback");
+    mockValue(
+      sideloadingNodeDeps,
+      "checkSandboxCallback",
+      vi.fn().mockResolvedValue(undefined) as never
+    );
     const sideloadingNode = new SideloadingNode(eventEmitter, "token");
     const treeItem = await sideloadingNode.getTreeItem();
 
@@ -63,15 +67,19 @@ describe("sideloadingNode", () => {
   });
 
   it("Check sandbox permission - disabled", async () => {
-    sandbox.stub(sideloadingNodeDeps, "getSideloadingStatus").returns(Promise.resolve(false));
-    sandbox.stub(sideloadingNodeDeps, "getBooleanValue").returns(true);
-    sandbox.stub(GraphClient.prototype, "GetTeamsAppSettingsAsync").resolves({
+    vi.spyOn(sideloadingNodeDeps, "getSideloadingStatus").mockReturnValue(Promise.resolve(false));
+    vi.spyOn(sideloadingNodeDeps, "getBooleanValue").mockReturnValue(true);
+    vi.spyOn(GraphClient.prototype, "GetTeamsAppSettingsAsync").mockResolvedValue({
       sandboxingConfiguration: {
         isSideloadingEnabled: false,
         sensitivityLabelUsedToIdentifySandboxedContainers: "",
       },
     });
-    sandbox.stub(sideloadingNodeDeps, "checkSideloadingCallback");
+    mockValue(
+      sideloadingNodeDeps,
+      "checkSideloadingCallback",
+      vi.fn().mockResolvedValue(undefined) as never
+    );
     const sideloadingNode = new SideloadingNode(eventEmitter, "token");
     const treeItem = await sideloadingNode.getTreeItem();
 

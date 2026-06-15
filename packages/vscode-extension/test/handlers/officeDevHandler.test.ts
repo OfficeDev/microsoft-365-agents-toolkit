@@ -2,7 +2,6 @@ import { FxError, Result, ok } from "@microsoft/teamsfx-api";
 import * as globalState from "@microsoft/teamsfx-core";
 import * as chai from "chai";
 import * as mockfs from "mock-fs";
-import * as sinon from "sinon";
 import * as vscode from "vscode";
 import { OfficeDevTerminal, TriggerCmdType } from "../../src/debug/taskTerminal/officeDevTerminal";
 import * as globalVariables from "../../src/globalVariables";
@@ -14,12 +13,12 @@ import { openOfficeDevFolder } from "../../src/utils/workspaceUtils";
 import * as autoOpenHelper from "../../src/utils/autoOpenHelper";
 import * as readmeHandlers from "../../src/handlers/readmeHandlers";
 import * as telemetryUtils from "../../src/utils/telemetryUtils";
+import { vi } from "vitest";
+import { mockValue } from "../mocks/vitestMockUtils";
 
 describe("officeDevHandler", () => {
-  const sandbox = sinon.createSandbox();
-
   afterEach(() => {
-    sandbox.restore();
+    vi.restoreAllMocks();
     mockfs.restore();
   });
 
@@ -27,8 +26,8 @@ describe("officeDevHandler", () => {
     openLinkFunc: (args?: any[]) => Promise<Result<boolean, FxError>>,
     urlPath: string
   ) {
-    sandbox.stub(vsc_ui, "VS_CODE_UI").value(new vsc_ui.VsCodeUI(<vscode.ExtensionContext>{}));
-    const openUrl = sandbox.stub(vsc_ui.VS_CODE_UI, "openUrl").resolves(ok(true));
+    mockValue(vsc_ui, "VS_CODE_UI", new vsc_ui.VsCodeUI(<vscode.ExtensionContext>{}));
+    const openUrl = vi.spyOn(vsc_ui.VS_CODE_UI, "openUrl").mockResolvedValue(ok(true));
     const res = await openLinkFunc(undefined);
     chai.assert.isTrue(openUrl.calledOnce);
     chai.assert.isTrue(res.isOk());
@@ -121,19 +120,20 @@ describe("officeDevHandler", () => {
 });
 
 describe("autoOpenOfficeDevProjectHandler", () => {
-  const sandbox = sinon.createSandbox();
   let inMemoryGlobalState: Map<string, any>;
 
   beforeEach(async () => {
     inMemoryGlobalState = new Map<string, any>();
-    sandbox
-      .stub(globalState, "globalStateGet")
-      .callsFake(async (key: string, defaultValue?: any) => {
+    vi.spyOn(globalState, "globalStateGet").mockImplementation(
+      async (key: string, defaultValue?: any) => {
         return inMemoryGlobalState.has(key) ? inMemoryGlobalState.get(key) : defaultValue;
-      });
-    sandbox.stub(globalState, "globalStateUpdate").callsFake(async (key: string, value: any) => {
-      inMemoryGlobalState.set(key, value);
-    });
+      }
+    );
+    vi.spyOn(globalState, "globalStateUpdate").mockImplementation(
+      async (key: string, value: any) => {
+        inMemoryGlobalState.set(key, value);
+      }
+    );
 
     await globalState.globalStateUpdate("fx-extension.openWalkThrough", false);
     await globalState.globalStateUpdate("fx-extension.openReadMe", "");
@@ -142,12 +142,12 @@ describe("autoOpenOfficeDevProjectHandler", () => {
   });
 
   beforeEach(() => {
-    sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
-    sandbox.stub(autoOpenHelper, "ShowScaffoldingWarningSummary").resolves();
+    vi.spyOn(ExtTelemetry, "sendTelemetryEvent");
+    vi.spyOn(autoOpenHelper, "ShowScaffoldingWarningSummary").mockResolvedValue();
   });
 
   afterEach(() => {
-    sandbox.restore();
+    vi.restoreAllMocks();
     mockfs.restore();
   });
 
@@ -164,8 +164,8 @@ describe("autoOpenOfficeDevProjectHandler", () => {
   });
 
   it("opens README", async () => {
-    sandbox.stub(globalVariables, "workspaceUri").value(vscode.Uri.file("test"));
-    sandbox.stub(readmeHandlers, "openReadMeHandler").resolves();
+    mockValue(globalVariables, "workspaceUri", vscode.Uri.file("test"));
+    vi.spyOn(readmeHandlers, "openReadMeHandler").mockResolvedValue();
     const readmePath = vscode.Uri.file("test").fsPath;
     await globalState.globalStateUpdate("fx-extension.openReadMe", readmePath);
 
@@ -179,22 +179,24 @@ describe("autoOpenOfficeDevProjectHandler", () => {
   });
 
   it("opens sample README", async () => {
-    sandbox.stub(globalVariables, "workspaceUri").value(vscode.Uri.file("test"));
-    sandbox.stub(globalVariables, "isTeamsFxProject").resolves(false);
-    sandbox.stub(globalVariables, "isOfficeAddInProject").resolves(false);
-    const showMessageStub = sandbox
-      .stub(vscode.window, "showInformationMessage")
-      .resolves(undefined);
-    sandbox.stub(vscode.workspace, "workspaceFolders").value([{ uri: vscode.Uri.file("test") }]);
-    sandbox.stub(vscode.workspace, "openTextDocument");
-    const executeCommandStub = sandbox.stub(vscode.commands, "executeCommand");
-    sandbox.stub(autoOpenHelper, "showLocalDebugMessage").resolves();
-    sandbox.stub(readmeHandlers, "openSampleReadmeHandler").resolves();
+    mockValue(globalVariables, "workspaceUri", vscode.Uri.file("test"));
+    vi.spyOn(globalVariables, "isTeamsFxProject").mockResolvedValue(false);
+    vi.spyOn(globalVariables, "isOfficeAddInProject").mockResolvedValue(false);
+    const showMessageStub = vi
+      .spyOn(vscode.window, "showInformationMessage")
+      .mockResolvedValue(undefined);
+    mockValue(vscode.workspace, "workspaceFolders", [{ uri: vscode.Uri.file("test") }]);
+    vi.spyOn(vscode.workspace, "openTextDocument");
+    vi.spyOn(vscode.commands, "executeCommand");
+    vi.spyOn(autoOpenHelper, "showLocalDebugMessage").mockResolvedValue();
+    const openSampleReadmeHandlerStub = vi
+      .spyOn(readmeHandlers, "openSampleReadmeHandler")
+      .mockResolvedValue();
     await globalState.globalStateUpdate("fx-extension.openSampleReadMe", true);
 
     await officeDevHandlers.autoOpenOfficeDevProjectHandler();
 
-    chai.assert.isTrue(executeCommandStub.calledOnce);
+    chai.assert.isTrue(openSampleReadmeHandlerStub.calledOnce);
   });
 
   it("openOfficeDevFolder", async () => {
@@ -202,8 +204,8 @@ describe("autoOpenOfficeDevProjectHandler", () => {
     await globalState.globalStateUpdate("fx-extension.openReadMe", "");
     await globalState.globalStateUpdate("fx-extension.openWalkThrough", true);
     const folderPath = vscode.Uri.file("/test");
-    const executeCommandStub = sandbox.stub(vscode.commands, "executeCommand");
-    sandbox.stub(telemetryUtils, "isTriggerFromWalkThrough").returns(false);
+    const executeCommandStub = vi.spyOn(vscode.commands, "executeCommand");
+    vi.spyOn(telemetryUtils, "isTriggerFromWalkThrough").mockReturnValue(false);
 
     await openOfficeDevFolder(folderPath, true, [{ type: "warnning", content: "test" }]);
 
@@ -218,34 +220,33 @@ describe("autoOpenOfficeDevProjectHandler", () => {
 });
 
 describe("OfficeDevTerminal", () => {
-  const sandbox = sinon.createSandbox();
   let getInstanceStub: any, showStub: any, sendTextStub: any;
 
   beforeEach(() => {
-    getInstanceStub = sandbox.stub(OfficeDevTerminal, "getInstance");
-    showStub = sandbox.stub();
-    sendTextStub = sandbox.stub();
-    getInstanceStub.returns({ show: showStub, sendText: sendTextStub });
-    sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
+    getInstanceStub = vi.spyOn(OfficeDevTerminal, "getInstance");
+    showStub = vi.fn();
+    sendTextStub = vi.fn();
+    getInstanceStub.mockReturnValue({ show: showStub, sendText: sendTextStub });
+    vi.spyOn(ExtTelemetry, "sendTelemetryEvent");
   });
 
   afterEach(() => {
     getInstanceStub.restore();
-    sandbox.restore();
+    vi.restoreAllMocks();
   });
 
   it("should validate Office AddIn Manifest", async () => {
     const result = await officeDevHandlers.validateOfficeAddInManifest();
     chai.expect(result.isOk()).to.be.true;
-    sinon.assert.calledOnce(showStub);
-    sinon.assert.calledWith(sendTextStub, TriggerCmdType.triggerValidate); // replace triggerValidate with actual value
+    expect(showStub).toHaveBeenCalledTimes(1);
+    expect(sendTextStub).toHaveBeenCalledWith(TriggerCmdType.triggerValidate); // replace triggerValidate with actual value
   });
 
   it("should install Office AddIn Dependencies", async () => {
     const result = await officeDevHandlers.installOfficeAddInDependencies();
     chai.expect(result.isOk()).to.be.true;
-    sinon.assert.calledOnce(showStub);
-    sinon.assert.calledWith(sendTextStub, TriggerCmdType.triggerInstall); // replace triggerInstall with actual value
+    expect(showStub).toHaveBeenCalledTimes(1);
+    expect(sendTextStub).toHaveBeenCalledWith(TriggerCmdType.triggerInstall); // replace triggerInstall with actual value
   });
 });
 
@@ -275,57 +276,47 @@ class TerminalStub implements vscode.Terminal {
 }
 
 describe("stopOfficeAddInDebug", () => {
-  let getInstanceStub: sinon.SinonStub;
-  let showStub: sinon.SinonStub;
-  let sendTextStub: sinon.SinonStub;
-  const sandbox = sinon.createSandbox();
+  let getInstanceStub: ReturnType<typeof vi.spyOn>;
+  let showStub: ReturnType<typeof vi.spyOn>;
+  let sendTextStub: ReturnType<typeof vi.spyOn>;
 
   beforeEach(() => {
-    sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
-  });
-
-  afterEach(() => {
-    sandbox.restore();
+    vi.spyOn(ExtTelemetry, "sendTelemetryEvent");
   });
 
   it("should call getInstance, show and sendText", async () => {
     const terminalStub = new TerminalStub();
-    getInstanceStub = sandbox.stub(OfficeDevTerminal, "getInstance").returns(terminalStub);
-    showStub = sandbox.stub(terminalStub, "show");
-    sendTextStub = sandbox.stub(terminalStub, "sendText");
+    getInstanceStub = vi.spyOn(OfficeDevTerminal, "getInstance").mockReturnValue(terminalStub);
+    showStub = vi.spyOn(terminalStub, "show");
+    sendTextStub = vi.spyOn(terminalStub, "sendText");
     await stopOfficeAddInDebug();
 
-    sinon.assert.calledOnce(getInstanceStub);
-    sinon.assert.calledOnce(showStub);
-    sinon.assert.calledOnce(sendTextStub);
+    expect(getInstanceStub).toHaveBeenCalledTimes(1);
+    expect(showStub).toHaveBeenCalledTimes(1);
+    expect(sendTextStub).toHaveBeenCalledTimes(1);
   });
 });
 
 describe("generateManifestGUID", () => {
-  let getInstanceStub: sinon.SinonStub;
-  let showStub: sinon.SinonStub;
-  let sendTextStub: sinon.SinonStub;
-  const sandbox = sinon.createSandbox();
+  let getInstanceStub: ReturnType<typeof vi.spyOn>;
+  let showStub: ReturnType<typeof vi.spyOn>;
+  let sendTextStub: ReturnType<typeof vi.spyOn>;
 
   beforeEach(() => {
-    sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
-  });
-
-  afterEach(() => {
-    sandbox.restore();
+    vi.spyOn(ExtTelemetry, "sendTelemetryEvent");
   });
 
   it("should call getInstance, show and sendText with correct arguments", async () => {
     const terminalStub = new TerminalStub();
-    getInstanceStub = sandbox.stub(OfficeDevTerminal, "getInstance").returns(terminalStub);
-    showStub = sandbox.stub(terminalStub, "show");
-    sendTextStub = sandbox.stub(terminalStub, "sendText");
+    getInstanceStub = vi.spyOn(OfficeDevTerminal, "getInstance").mockReturnValue(terminalStub);
+    showStub = vi.spyOn(terminalStub, "show");
+    sendTextStub = vi.spyOn(terminalStub, "sendText");
 
     await generateManifestGUID();
 
-    sinon.assert.calledOnce(getInstanceStub);
-    sinon.assert.calledOnce(showStub);
-    sinon.assert.calledOnce(sendTextStub);
-    sinon.assert.calledWithExactly(sendTextStub, TriggerCmdType.triggerGenerateGUID);
+    expect(getInstanceStub).toHaveBeenCalledTimes(1);
+    expect(showStub).toHaveBeenCalledTimes(1);
+    expect(sendTextStub).toHaveBeenCalledTimes(1);
+    expect(sendTextStub).toHaveBeenCalledWith(TriggerCmdType.triggerGenerateGUID);
   });
 });
