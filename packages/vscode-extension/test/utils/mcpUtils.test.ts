@@ -36,19 +36,22 @@ describe("mcpUtils", () => {
       );
       existsSyncStub = vi.spyOn(mcpUtilsDeps, "existsSync");
       localizeStub = vi.spyOn(mcpUtilsDeps, "localize");
-      localizeStub
-        .withArgs("teamstoolkit.mcpUtils.setupMcpServer.message")
-        .mockReturnValue("Setup MCP Server for %s");
-      localizeStub
-        .withArgs("teamstoolkit.mcpUtils.setupMcpServer.confirm")
-        .mockReturnValue("Confirm");
-      localizeStub.withArgs("teamstoolkit.mcpUtils.setupMcpServer.skip").mockReturnValue("Skip");
-      localizeStub
-        .withArgs("teamstoolkit.mcpUtils.setupMcpServer.successMessage")
-        .mockReturnValue("MCP Server setup completed successfully!");
-      localizeStub
-        .withArgs("teamstoolkit.mcpUtils.setupMcpServer.errorMessage")
-        .mockReturnValue("Error setting up MCP Server: %s");
+      localizeStub.mockImplementation((key: string) => {
+        switch (key) {
+          case "teamstoolkit.mcpUtils.setupMcpServer.message":
+            return "Setup MCP Server for %s";
+          case "teamstoolkit.mcpUtils.setupMcpServer.confirm":
+            return "Confirm";
+          case "teamstoolkit.mcpUtils.setupMcpServer.skip":
+            return "Skip";
+          case "teamstoolkit.mcpUtils.setupMcpServer.successMessage":
+            return "MCP Server setup completed successfully!";
+          case "teamstoolkit.mcpUtils.setupMcpServer.errorMessage":
+            return "Error setting up MCP Server: %s";
+          default:
+            return key;
+        }
+      });
     });
 
     it("should return early if no workspace folders", async () => {
