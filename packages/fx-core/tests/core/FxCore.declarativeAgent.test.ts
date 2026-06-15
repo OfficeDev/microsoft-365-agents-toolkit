@@ -2509,13 +2509,15 @@ describe("addPlugin", async () => {
       return Promise.resolve(ok(""));
     });
 
-    const mcpToolFetcherModule = await import("../../src/component/utils/mcpToolFetcher");
-    sandbox.stub(mcpToolFetcherModule, "resolveMCPOAuthMetadata").resolves({
-      authorizationUrl: "https://example.com/oauth/authorize",
-      tokenUrl: "https://example.com/oauth/token",
-      refreshUrl: "https://example.com/oauth/token",
-      wellKnownUrl: "https://example.com/.well-known/oauth-authorization-server",
-    });
+    const mcpAuthScaffolderModule = await import("../../src/component/utils/mcpAuthScaffolder");
+    sandbox
+      .stub(mcpAuthScaffolderModule.mcpAuthScaffolderDeps, "resolveMCPOAuthMetadata")
+      .resolves({
+        authorizationUrl: "https://example.com/oauth/authorize",
+        tokenUrl: "https://example.com/oauth/token",
+        refreshUrl: "https://example.com/oauth/token",
+        wellKnownUrl: "https://example.com/.well-known/oauth-authorization-server",
+      });
 
     const actionInjectorModule = await import("../../src/component/configManager/actionInjector");
     const injectStub = sandbox
@@ -2650,13 +2652,15 @@ describe("addPlugin", async () => {
       return Promise.resolve(ok(""));
     });
 
-    const mcpToolFetcherModule = await import("../../src/component/utils/mcpToolFetcher");
-    sandbox.stub(mcpToolFetcherModule, "resolveMCPOAuthMetadata").resolves({
-      authorizationUrl: "https://example.com/oauth/authorize",
-      tokenUrl: "https://example.com/oauth/token",
-      refreshUrl: "https://example.com/oauth/token",
-      wellKnownUrl: "https://example.com/.well-known/oauth-authorization-server",
-    });
+    const mcpAuthScaffolderModule = await import("../../src/component/utils/mcpAuthScaffolder");
+    sandbox
+      .stub(mcpAuthScaffolderModule.mcpAuthScaffolderDeps, "resolveMCPOAuthMetadata")
+      .resolves({
+        authorizationUrl: "https://example.com/oauth/authorize",
+        tokenUrl: "https://example.com/oauth/token",
+        refreshUrl: "https://example.com/oauth/token",
+        wellKnownUrl: "https://example.com/.well-known/oauth-authorization-server",
+      });
 
     const actionInjectorModule = await import("../../src/component/configManager/actionInjector");
     const injectStub = sandbox
@@ -3482,9 +3486,9 @@ describe("addPlugin", async () => {
     });
 
     // resolveMCPOAuthMetadata throws
-    const mcpToolFetcherModule = await import("../../src/component/utils/mcpToolFetcher");
+    const mcpAuthScaffolderModule = await import("../../src/component/utils/mcpAuthScaffolder");
     sandbox
-      .stub(mcpToolFetcherModule, "resolveMCPOAuthMetadata")
+      .stub(mcpAuthScaffolderModule.mcpAuthScaffolderDeps, "resolveMCPOAuthMetadata")
       .rejects(new Error("metadata fetch failed"));
 
     sandbox.stub(fs, "ensureFile").resolves();

@@ -63,7 +63,6 @@ export const declarativeAgentHelperDeps = {
   fetchMCPTools: mcpToolFetcher.fetchMCPTools,
   probeMCPServerAuth: mcpToolFetcher.probeMCPServerAuth,
   readMCPToolsFromFile: mcpToolFetcher.readMCPToolsFromFile,
-  resolveMCPOAuthMetadata: mcpToolFetcher.resolveMCPOAuthMetadata,
   getEnvironmentVariables,
 };
 
@@ -790,7 +789,7 @@ async function generateForMCPForDAWithAuth(
       // branch skips tool fetch, so we need an explicit probe here. Best-effort.
       if (!inputs[QuestionNames.MCPForDAAuthMetadataUrl]) {
         try {
-          const authProbe = await mcpToolFetcher.probeMCPServerAuth(mcpServerUrl);
+          const authProbe = await declarativeAgentHelperDeps.probeMCPServerAuth(mcpServerUrl);
           if (authProbe.authMetadataUrl) {
             inputs[QuestionNames.MCPForDAAuthMetadataUrl] = authProbe.authMetadataUrl;
           }

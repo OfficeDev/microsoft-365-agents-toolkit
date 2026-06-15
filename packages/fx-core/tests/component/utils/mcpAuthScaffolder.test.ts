@@ -3,15 +3,14 @@
 
 import { Inputs, Platform, ok, err, UserError } from "@microsoft/teamsfx-api";
 import { assert } from "chai";
-import "mocha";
 import * as sinon from "sinon";
 
 import { ActionInjector } from "../../../src/component/configManager/actionInjector";
 import { envUtil } from "../../../src/component/utils/envUtil";
-import * as mcpToolFetcher from "../../../src/component/utils/mcpToolFetcher";
 import {
   deriveMCPManifestOAuth,
   injectMCPAuthActionToYml,
+  mcpAuthScaffolderDeps,
   MCP_DCR_WELL_KNOWN_URL_PLACEHOLDER,
   persistMCPAuthCredentialEnvVars,
   resolveMCPAuthEndpoints,
@@ -61,28 +60,28 @@ describe("mcpAuthScaffolder", () => {
     const baseInputs: Inputs = { platform: Platform.VSCode };
 
     it("returns empty for entra-sso", async () => {
-      const stub = sandbox.stub(mcpToolFetcher, "resolveMCPOAuthMetadata");
+      const stub = sandbox.stub(mcpAuthScaffolderDeps, "resolveMCPOAuthMetadata");
       const result = await resolveMCPAuthEndpoints("entra-sso", baseInputs);
       assert.deepEqual(result, {});
       assert.isTrue(stub.notCalled);
     });
 
     it("returns empty for none", async () => {
-      const stub = sandbox.stub(mcpToolFetcher, "resolveMCPOAuthMetadata");
+      const stub = sandbox.stub(mcpAuthScaffolderDeps, "resolveMCPOAuthMetadata");
       const result = await resolveMCPAuthEndpoints("none", baseInputs);
       assert.deepEqual(result, {});
       assert.isTrue(stub.notCalled);
     });
 
     it("returns empty for undefined auth type", async () => {
-      const stub = sandbox.stub(mcpToolFetcher, "resolveMCPOAuthMetadata");
+      const stub = sandbox.stub(mcpAuthScaffolderDeps, "resolveMCPOAuthMetadata");
       const result = await resolveMCPAuthEndpoints(undefined, baseInputs);
       assert.deepEqual(result, {});
       assert.isTrue(stub.notCalled);
     });
 
     it("resolves endpoints for oauth via metadata url", async () => {
-      const stub = sandbox.stub(mcpToolFetcher, "resolveMCPOAuthMetadata").resolves({
+      const stub = sandbox.stub(mcpAuthScaffolderDeps, "resolveMCPOAuthMetadata").resolves({
         authorizationUrl: "https://auth/authorize",
         tokenUrl: "https://auth/token",
         refreshUrl: "https://auth/token",
@@ -103,7 +102,7 @@ describe("mcpAuthScaffolder", () => {
     });
 
     it("resolves endpoints for oauth-dynamic via well-known url", async () => {
-      const stub = sandbox.stub(mcpToolFetcher, "resolveMCPOAuthMetadata").resolves({
+      const stub = sandbox.stub(mcpAuthScaffolderDeps, "resolveMCPOAuthMetadata").resolves({
         authorizationUrl: "https://auth/authorize",
         tokenUrl: "https://auth/token",
         refreshUrl: undefined,

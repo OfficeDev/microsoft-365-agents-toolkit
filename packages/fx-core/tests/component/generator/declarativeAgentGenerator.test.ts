@@ -39,6 +39,7 @@ import {
 import * as generatorHelper from "../../../src/component/generator/declarativeAgent/helper";
 import { TemplateNames } from "../../../src/component/generator/templates/templateNames";
 import * as utils from "../../../src/component/generator/utils";
+import { mcpAuthScaffolderDeps } from "../../../src/component/utils/mcpAuthScaffolder";
 import { ODRProvider, odrProviderDeps } from "../../../src/component/utils/odrProvider";
 import { ActionStartOptions, ApiAuthOptions, QuestionNames } from "../../../src/question";
 import {
@@ -1512,7 +1513,7 @@ describe("helper", async () => {
         );
       const writeFileStub = sandbox.stub(fs, "writeFile").resolves();
 
-      sandbox.stub(generatorHelper.declarativeAgentHelperDeps, "resolveMCPOAuthMetadata").resolves({
+      sandbox.stub(mcpAuthScaffolderDeps, "resolveMCPOAuthMetadata").resolves({
         authorizationUrl: "https://auth.example.com/authorize",
         tokenUrl: "https://auth.example.com/token",
         refreshUrl: "https://auth.example.com/token",
@@ -1817,7 +1818,7 @@ describe("helper", async () => {
       sandbox.stub(fs, "writeJSON").resolves();
 
       sandbox
-        .stub(generatorHelper.declarativeAgentHelperDeps, "resolveMCPOAuthMetadata")
+        .stub(mcpAuthScaffolderDeps, "resolveMCPOAuthMetadata")
         .rejects(new Error("metadata unavailable"));
 
       const inputs: Inputs = {
@@ -1909,12 +1910,11 @@ describe("helper", async () => {
         );
       sandbox.stub(fs, "writeFile").resolves();
 
-      const mcpToolFetcherModule = await import("../../../src/component/utils/mcpToolFetcher");
-      sandbox.stub(mcpToolFetcherModule, "probeMCPServerAuth").resolves({
+      sandbox.stub(generatorHelper.declarativeAgentHelperDeps, "probeMCPServerAuth").resolves({
         requiresAuth: true,
         authMetadataUrl: "https://auth.example.com/.well-known/oauth-authorization-server",
       });
-      sandbox.stub(mcpToolFetcherModule, "resolveMCPOAuthMetadata").resolves({
+      sandbox.stub(mcpAuthScaffolderDeps, "resolveMCPOAuthMetadata").resolves({
         authorizationUrl: "https://auth.example.com/authorize",
         tokenUrl: "https://auth.example.com/token",
         refreshUrl: "https://auth.example.com/token",

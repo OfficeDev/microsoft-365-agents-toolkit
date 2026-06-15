@@ -4,7 +4,6 @@
 import { CLICommandOption } from "@microsoft/teamsfx-api";
 import { FeatureFlags, featureFlagManager } from "@microsoft/teamsfx-core";
 import { assert } from "chai";
-import "mocha";
 import * as sinon from "sinon";
 import { gateMCPDAAuthTypeChoices, gateMCPDACredentialOptions } from "../../../src/commands/common";
 
