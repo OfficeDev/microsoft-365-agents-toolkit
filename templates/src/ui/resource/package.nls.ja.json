@@ -35,6 +35,8 @@
   "template.createProjectQuestion.addApiPlugin.placeholder": "アクションの追加方法を選択します",
   "template.createProjectQuestion.addGC.detail": "Copilot コネクタを含む宣言型エージェントを作成する",
   "template.createProjectQuestion.addGC.label": "Copilot コネクタの追加",
+  "template.createProjectQuestion.addSkill.detail": "Create a declarative agent with an agent skill",
+  "template.createProjectQuestion.addSkill.label": "Add an Agent Skill",
   "template.createProjectQuestion.addPlugin.detail": "アクションを含む宣言型エージェントを作成する",
   "template.createProjectQuestion.addPlugin.label": "アクションの追加",
   "template.createProjectQuestion.apiMessageExtensionAuth.placeholder": "認証の種類を選択します",

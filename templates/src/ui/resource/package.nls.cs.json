@@ -35,6 +35,8 @@
   "template.createProjectQuestion.addApiPlugin.placeholder": "Vyberte, jak přidat akci",
   "template.createProjectQuestion.addGC.detail": "Vytvořit deklarativního agenta pomocí konektoru Copilotu",
   "template.createProjectQuestion.addGC.label": "Přidat konektor Copilotu",
+  "template.createProjectQuestion.addSkill.detail": "Create a declarative agent with an agent skill",
+  "template.createProjectQuestion.addSkill.label": "Add an Agent Skill",
   "template.createProjectQuestion.addPlugin.detail": "Vytvoření deklarativního agenta s akcí",
   "template.createProjectQuestion.addPlugin.label": "Přidat akci",
   "template.createProjectQuestion.apiMessageExtensionAuth.placeholder": "Vybrat typ ověřování",

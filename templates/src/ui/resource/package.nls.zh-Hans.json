@@ -35,6 +35,8 @@
   "template.createProjectQuestion.addApiPlugin.placeholder": "选择添加操作的方式",
   "template.createProjectQuestion.addGC.detail": "使用 Copilot 连接器创建声明性代理",
   "template.createProjectQuestion.addGC.label": "添加 Copilot 连接器",
+  "template.createProjectQuestion.addSkill.detail": "Create a declarative agent with an agent skill",
+  "template.createProjectQuestion.addSkill.label": "Add an Agent Skill",
   "template.createProjectQuestion.addPlugin.detail": "通过操作创建声明性智能体",
   "template.createProjectQuestion.addPlugin.label": "添加操作",
   "template.createProjectQuestion.apiMessageExtensionAuth.placeholder": "选择身份验证类型",

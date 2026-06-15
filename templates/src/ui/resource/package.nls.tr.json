@@ -35,6 +35,8 @@
   "template.createProjectQuestion.addApiPlugin.placeholder": "Eylem ekleme yöntemini belirtin",
   "template.createProjectQuestion.addGC.detail": "Copilot bağlayıcısıyla bir bildirim aracısı oluştur",
   "template.createProjectQuestion.addGC.label": "Copilot bağlayıcısı ekle",
+  "template.createProjectQuestion.addSkill.detail": "Create a declarative agent with an agent skill",
+  "template.createProjectQuestion.addSkill.label": "Add an Agent Skill",
   "template.createProjectQuestion.addPlugin.detail": "Eylem içeren bir bildirim temelli aracı oluşturun",
   "template.createProjectQuestion.addPlugin.label": "Eylem Ekle",
   "template.createProjectQuestion.apiMessageExtensionAuth.placeholder": "Kimlik doğrulaması türü seçin",
