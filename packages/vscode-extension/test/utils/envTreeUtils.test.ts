@@ -7,6 +7,7 @@ import * as envTreeUtils from "../../src/utils/envTreeUtils";
 import { envTreeUtilsDeps } from "../../src/utils/envTreeUtils";
 import { ok } from "@microsoft/teamsfx-api";
 import * as fileSystemUtils from "../../src/utils/fileSystemUtils";
+import * as appDefinitionUtils from "../../src/utils/appDefinitionUtils";
 import { vi } from "vitest";
 import { mockValue } from "../mocks/vitestMockUtils";
 
@@ -144,6 +145,31 @@ describe("EnvTreeUtils", () => {
       const result = await envTreeUtils.getProvisionSucceedFromEnv("test");
 
       chai.expect(result).equals(false);
+    });
+  });
+
+  describe("envTreeUtilsDeps delegation", () => {
+    it("delegates getWorkspacePath", () => {
+      mockValue(globalVariables, "workspaceUri", Uri.file("C:\\test"));
+      const workspacePath = envTreeUtilsDeps.getWorkspacePath();
+      chai.expect(workspacePath?.toLowerCase()).equals("c:\\test");
+    });
+
+    it("delegates pathExists and readFileSync", async () => {
+      vi.spyOn(fs, "pathExists").mockResolvedValue(true as never);
+      vi.spyOn(fs, "readFileSync").mockReturnValue("A=B" as never);
+
+      const exists = await envTreeUtilsDeps.pathExists("C:\\test\\.env.dev");
+      const content = envTreeUtilsDeps.readFileSync("C:\\test\\.env.dev", "utf8");
+
+      chai.expect(exists).to.be.true;
+      chai.expect(content).equals("A=B");
+    });
+
+    it("delegates getV3TeamsAppId", async () => {
+      vi.spyOn(appDefinitionUtils, "getV3TeamsAppId").mockResolvedValue("app-id");
+      const appId = await envTreeUtilsDeps.getV3TeamsAppId("C:\\test", "dev");
+      chai.expect(appId).equals("app-id");
     });
   });
 });

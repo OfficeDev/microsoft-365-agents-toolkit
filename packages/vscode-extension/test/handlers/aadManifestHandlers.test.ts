@@ -194,4 +194,26 @@ describe("aadManifestHandlers", () => {
       expect(openTextDocumentStub as any).toHaveBeenCalledWith(`${workspaceUri}/aad.manifest.json`);
     });
   });
+
+  describe("aadManifestHandlersDeps delegation", () => {
+    it("isValidProject delegates", () => {
+      const result = aadManifestHandlersDeps.isValidProject(undefined);
+      chai.expect(typeof result).to.equal("boolean");
+    });
+
+    it("runCommand delegates to sharedOpts", async () => {
+      vi.spyOn(sharedOpts, "runCommand").mockResolvedValue(ok(null as any));
+      const result = await aadManifestHandlersDeps.runCommand("deployAad" as any, {});
+      chai.expect(result.isOk()).to.be.true;
+    });
+
+    it("askTargetEnvironment delegates to envHandlers", async () => {
+      vi.spyOn(envHandlers, "askTargetEnvironment").mockResolvedValue(ok("dev"));
+      const result = await aadManifestHandlersDeps.askTargetEnvironment();
+      chai.expect(result.isOk()).to.be.true;
+      if (result.isOk()) {
+        chai.expect(result.value).to.equal("dev");
+      }
+    });
+  });
 });
