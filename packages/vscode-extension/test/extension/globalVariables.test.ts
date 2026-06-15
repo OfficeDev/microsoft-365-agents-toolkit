@@ -8,6 +8,7 @@ import { mockValue } from "../mocks/vitestMockUtils";
 import * as globalVariables from "../../src/globalVariables";
 import { err, ok, SystemError, TeamsAppManifest } from "@microsoft/teamsfx-api";
 import { manifestUtils, copilotGptManifestUtils } from "@microsoft/teamsfx-core";
+import * as projectSettingsHelper from "@microsoft/teamsfx-core/build/common/projectSettingsHelper";
 
 describe("Global Variables", () => {
   describe("isSPFxProject", () => {
@@ -301,8 +302,7 @@ describe("Global Variables", () => {
 
   describe("globalVariablesDeps", () => {
     it("isValidOfficeAddInProject delegates to core", () => {
-      vi.spyOn(fs, "pathExistsSync").mockReturnValue(false);
-      vi.spyOn(fs, "existsSync").mockReturnValue(false);
+      vi.spyOn(projectSettingsHelper, "isValidOfficeAddInProject").mockReturnValue(false);
       const result = globalVariables.globalVariablesDeps.isValidOfficeAddInProject("/test");
       chai.expect(typeof result).to.equal("boolean");
     });
