@@ -35,6 +35,8 @@
   "template.createProjectQuestion.addApiPlugin.placeholder": "Выберите способ добавления действия",
   "template.createProjectQuestion.addGC.detail": "Создайте декларативный агент с помощью соединителя Copilot",
   "template.createProjectQuestion.addGC.label": "Добавить соединитель Copilot",
+  "template.createProjectQuestion.addSkill.detail": "Create a declarative agent with an agent skill",
+  "template.createProjectQuestion.addSkill.label": "Add an Agent Skill",
   "template.createProjectQuestion.addPlugin.detail": "Создать декларативный агент с действием",
   "template.createProjectQuestion.addPlugin.label": "Добавить действие",
   "template.createProjectQuestion.apiMessageExtensionAuth.placeholder": "Выберите тип проверки подлинности",

@@ -35,6 +35,8 @@
   "template.createProjectQuestion.addApiPlugin.placeholder": "Seleccionar cómo agregar una acción",
   "template.createProjectQuestion.addGC.detail": "Crear un agente declarativo con un conector de Copilot",
   "template.createProjectQuestion.addGC.label": "Añadir un conector de Copilot",
+  "template.createProjectQuestion.addSkill.detail": "Create a declarative agent with an agent skill",
+  "template.createProjectQuestion.addSkill.label": "Add an Agent Skill",
   "template.createProjectQuestion.addPlugin.detail": "Crear un agente declarativo con una acción",
   "template.createProjectQuestion.addPlugin.label": "Agregar una acción",
   "template.createProjectQuestion.apiMessageExtensionAuth.placeholder": "Seleccionar un tipo de autenticación",

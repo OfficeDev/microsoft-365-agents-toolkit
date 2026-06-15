@@ -35,6 +35,8 @@
   "template.createProjectQuestion.addApiPlugin.placeholder": "選取新增動作的方式",
   "template.createProjectQuestion.addGC.detail": "使用 Copilot 連接器建立宣告式代理程式",
   "template.createProjectQuestion.addGC.label": "新增 Copilot 連接器",
+  "template.createProjectQuestion.addSkill.detail": "Create a declarative agent with an agent skill",
+  "template.createProjectQuestion.addSkill.label": "Add an Agent Skill",
   "template.createProjectQuestion.addPlugin.detail": "建立具有動作的宣告式 Agent",
   "template.createProjectQuestion.addPlugin.label": "新增動作",
   "template.createProjectQuestion.apiMessageExtensionAuth.placeholder": "選取驗證類型",
