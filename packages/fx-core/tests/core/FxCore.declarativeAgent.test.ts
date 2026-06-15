@@ -2683,9 +2683,12 @@ describe("addPlugin", async () => {
     assert.isTrue(writeEnvStub.called);
     // DT branch writes a RemoteMCPServer runtime with dynamic discovery and
     // a namespace derived from the MCP server host (alphanumeric, lowercase).
+    // Dynamic discovery is signalled by a spec carrying only `url` (no
+    // `mcp_tool_description`) per the v2.4 plugin schema.
     const pluginManifest = writeJSONStub.firstCall.args[1];
     assert.equal(pluginManifest.namespace, "examplecom");
-    assert.isTrue(pluginManifest.runtimes[0].spec.enable_dynamic_discovery);
+    assert.deepEqual(pluginManifest.runtimes[0].spec, { url: "https://example.com/mcp" });
+    assert.deepEqual(pluginManifest.runtimes[0].run_for_functions, ["*"]);
 
     if (await fs.pathExists(projectPath)) {
       await fs.remove(projectPath);

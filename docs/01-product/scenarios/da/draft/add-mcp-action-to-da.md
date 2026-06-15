@@ -24,7 +24,7 @@ Success means that after the flow completes, the project's declarative agent man
 - VS Code precondition: the project is open, and the MCP-for-DA preview is enabled so `Start with a MCP server` shows up in the action-type picker.
 - CLI precondition: the DA project path is supplied with `-f` / `--folder` or is the current project folder, and the manifest path is supplied with `-t` / `--manifest-file` or defaults to `./appPackage/manifest.json`.
 - Produces: an updated declarative agent manifest, a new action manifest (`ai-plugin.json`), and an updated `m365agents.yml`. For `OAuth (with static registration)`, also updated env files with placeholders for the developer-provided credentials.
-- Does not produce: a static MCP tools JSON file **when `TEAMSFX_MCP_FOR_DA_DT` is on and no `--mcp-tools-file-path` is supplied** &mdash; in that case the generated `ai-plugin.json` carries `enable_dynamic_discovery: true` and tool discovery is deferred to the agent host at runtime. When DT is off, or when DT is on and `--mcp-tools-file-path` is supplied, a static tools list is written into the action manifest using the shipped behavior.
+- Does not produce: a static MCP tools JSON file **when `TEAMSFX_MCP_FOR_DA_DT` is on and no `--mcp-tools-file-path` is supplied** &mdash; in that case the generated `ai-plugin.json` runtime `spec` carries only the MCP server `url` (no `mcp_tool_description`), which per the v2.4 plugin schema defers tool discovery to the agent host at runtime. When DT is off, or when DT is on and `--mcp-tools-file-path` is supplied, a static tools list is written into the action manifest using the shipped behavior.
 
 ## Feature flags
 
@@ -96,7 +96,7 @@ flowchart TD
 
 ### CLI interactive add-action flow
 
-Focus: the auth-type pick is always reachable in CLI (no DT gate); only the **option set** is gated by DCR. The static MCP tools file is **required when `TEAMSFX_MCP_FOR_DA_DT` is off** (shipped behavior) and **optional when DT is on** &mdash; skipping it under DT-on routes to dynamic discovery (`enable_dynamic_discovery: true`).
+Focus: the auth-type pick is always reachable in CLI (no DT gate); only the **option set** is gated by DCR. The static MCP tools file is **required when `TEAMSFX_MCP_FOR_DA_DT` is off** (shipped behavior) and **optional when DT is on** &mdash; skipping it under DT-on routes to dynamic discovery (the runtime `spec` carries only `url`, with no `mcp_tool_description`).
 
 ```mermaid
 flowchart TD
@@ -104,7 +104,7 @@ flowchart TD
   DtGate -- No --> LegacyTools["Auto-fetch tools from MCP server; prompt for MCP tools file when auto-fetch is empty (required); pick tools"] --> DcrGate
   DtGate -- Yes --> OptionalTools{Provide MCP tools file?}
   OptionalTools -- Yes --> LoadStatic[Load static tools list from file] --> DcrGate
-  OptionalTools -- Skip --> DtPath["Mark ai-plugin runtime with enable_dynamic_discovery: true"] --> DcrGate
+  OptionalTools -- Skip --> DtPath["Write ai-plugin runtime spec with url only (no mcp_tool_description)"] --> DcrGate
   DcrGate{TEAMSFX_MCP_FOR_DA_DCR on?}
   DcrGate -- No --> SelectAuth3["Select Authentication Type<br/>3 options: OAuth (static) / Entra SSO / None"]
   DcrGate -- Yes --> SelectAuth4["Select Authentication Type<br/>4 options: + OAuth (dynamic)"]
@@ -142,7 +142,7 @@ flowchart TD
   RequireTools -- Yes --> LoadStaticOff[Load static tools list from file] --> DcrGate
   DtGate -- Yes --> OptionalTools{--mcp-tools-file-path provided?}
   OptionalTools -- Yes --> LoadStaticOn[Load static tools list from file] --> DcrGate
-  OptionalTools -- No --> DtPath["Mark ai-plugin runtime with enable_dynamic_discovery: true"] --> DcrGate
+  OptionalTools -- No --> DtPath["Write ai-plugin runtime spec with url only (no mcp_tool_description)"] --> DcrGate
   DcrGate{TEAMSFX_MCP_FOR_DA_DCR on?}
   DcrGate -- No --> RejectDynamic{auth-type == oauth-dynamic?}
   RejectDynamic -- Yes --> UnknownValue["Return error: unknown value for --mcp-da-auth-type"]
@@ -202,4 +202,4 @@ atk add action --api-plugin-type mcp --mcp-da-server-url <server-url> --mcp-da-a
 - The legacy `.vscode/mcp.json`-then-CodeLens-fetch flow (live scenario `SCN-DA-FETCH-MCP-TOOLS`) is replaced by this end-to-end flow; UI tests for the old fetch CodeLens should retire when the redesign ships.
 - CLI E2E test intent should trace to `SCN-DA-ADD-MCP-ACTION-TO-DA` for interactive and non-interactive `atk add action --api-plugin-type mcp` paths and cover each auth-type value (`oauth-dynamic`, `oauth`, `entra-sso`, `none`).
 - CLI non-interactive validation should cover missing `--mcp-da-server-url`, missing `--mcp-da-auth-type`, missing static-OAuth follow-up flags (`--mcp-da-client-id`, `--mcp-da-client-secret`), missing Entra-SSO `--mcp-da-client-id`, invalid manifest path, and invalid DA project path. When `TEAMSFX_MCP_FOR_DA_DT` is **off**, also cover the missing `--mcp-tools-file-path` validation error.
-- The static MCP tools file flag (`--mcp-tools-file-path`) and the static "Select Operation(s) Copilot can interact with" pick are **required when `TEAMSFX_MCP_FOR_DA_DT` is off** (shipped behavior, static tools list) and **optional when DT is on**. When DT is on and no tools file is supplied, the generated `ai-plugin.json` runtime carries `enable_dynamic_discovery: true` and tool discovery is deferred to the agent host at runtime.
+- The static MCP tools file flag (`--mcp-tools-file-path`) and the static "Select Operation(s) Copilot can interact with" pick are **required when `TEAMSFX_MCP_FOR_DA_DT` is off** (shipped behavior, static tools list) and **optional when DT is on**. When DT is on and no tools file is supplied, the generated `ai-plugin.json` runtime `spec` carries only the MCP server `url` (no `mcp_tool_description`), which per the v2.4 plugin schema defers tool discovery to the agent host at runtime.

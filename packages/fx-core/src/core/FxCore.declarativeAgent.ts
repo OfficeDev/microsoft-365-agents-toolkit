@@ -606,7 +606,7 @@ export class FxCoreDeclarativeAgentPart {
           runtimes: [
             {
               type: "RemoteMCPServer",
-              spec: { url: mcpServerUrl, enable_dynamic_discovery: true },
+              spec: { url: mcpServerUrl },
               run_for_functions: ["*"],
             } as any,
           ],

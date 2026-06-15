@@ -732,11 +732,14 @@ export async function generateForMCPForDA(
  * that mock inputs without it).
  *
  * Always emits the Dynamic Tool Discovery runtime shape per
- * SCN-DA-CREATE-WITH-MCP-SERVER: `RemoteMCPServer` with
- * `enable_dynamic_discovery: true` and `run_for_functions: ["*"]` — no
- * `mcp-tools-N.json` and an empty `functions: []` (schema-required field;
- * tools are discovered at runtime rather than declared statically). The runtime shape is
- * unconditional and does NOT depend on the TEAMSFX_MCP_FOR_DA_DT flag.
+ * SCN-DA-CREATE-WITH-MCP-SERVER: `RemoteMCPServer` with a `spec` that carries
+ * only the MCP server `url` (no `mcp_tool_description`) and
+ * `run_for_functions: ["*"]`. Per the v2.4 plugin schema, omitting
+ * `mcp_tool_description` is what makes the host use dynamic tool discovery — no
+ * `mcp-tools-N.json` is written and `functions` stays an empty array
+ * (schema-required field; tools are discovered at runtime rather than declared
+ * statically). The runtime shape is unconditional and does NOT depend on the
+ * TEAMSFX_MCP_FOR_DA_DT flag.
  *
  * The flag scopes only how OAuth credentials reach the provisioned
  * `oauth/register` action at provision time:
@@ -767,7 +770,7 @@ async function generateForMCPForDAWithAuth(
 
   const runtime: any = {
     type: "RemoteMCPServer",
-    spec: { url: mcpServerUrl, enable_dynamic_discovery: true },
+    spec: { url: mcpServerUrl },
     run_for_functions: ["*"],
   };
 

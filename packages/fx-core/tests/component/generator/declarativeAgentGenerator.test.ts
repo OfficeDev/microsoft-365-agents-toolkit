@@ -1302,9 +1302,11 @@ describe("helper", async () => {
 
       // Check runtime is RemoteMCPServer with dynamic discovery + URL-derived
       // registration id (suffix = first 10 alphanumeric chars of hostname).
+      // Dynamic discovery is signalled by a spec carrying only `url` (no
+      // `mcp_tool_description`) per the v2.4 plugin schema.
       assert.equal(writtenContent.runtimes.length, 1);
       assert.equal(writtenContent.runtimes[0].type, "RemoteMCPServer");
-      assert.isTrue(writtenContent.runtimes[0].spec.enable_dynamic_discovery);
+      assert.deepEqual(writtenContent.runtimes[0].spec, { url: "https://secure.example.com/mcp" });
       assert.deepEqual(writtenContent.runtimes[0].run_for_functions, ["*"]);
       assert.deepEqual(writtenContent.runtimes[0].auth, {
         type: "OAuthPluginVault",
@@ -1539,7 +1541,7 @@ describe("helper", async () => {
       assert.isTrue(writeJSONStub.calledOnce);
       const aiPluginContent = writeJSONStub.firstCall.args[1];
       assert.equal(aiPluginContent.runtimes[0].type, "RemoteMCPServer");
-      assert.isTrue(aiPluginContent.runtimes[0].spec.enable_dynamic_discovery);
+      assert.deepEqual(aiPluginContent.runtimes[0].spec, { url: "https://secure.example.com/mcp" });
       assert.deepEqual(aiPluginContent.runtimes[0].auth, {
         type: "OAuthPluginVault",
         reference_id: "${{MCP_DA_AUTH_ID_SECUREEXAM}}",
@@ -1896,7 +1898,7 @@ describe("helper", async () => {
       assert.isTrue(res.isOk());
       const aiPluginContent = writeJSONStub.firstCall.args[1];
       assert.deepEqual(aiPluginContent.runtimes[0].auth, { type: "None" });
-      assert.isTrue(aiPluginContent.runtimes[0].spec.enable_dynamic_discovery);
+      assert.deepEqual(aiPluginContent.runtimes[0].spec, { url: "https://example.com/mcp" });
     });
 
     it("DT auth: probes MCP server for auth metadata when none provided", async () => {
