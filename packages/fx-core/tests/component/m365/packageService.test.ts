@@ -13,6 +13,7 @@ import { advancedDASettingUrl } from "../../../src/component/m365/constants";
 import { NotExtendedToM365Error } from "../../../src/component/m365/errors";
 import {
   AppScope,
+  MOS_AXIOS_TIMEOUT_MS,
   PackageService,
   packageServiceDeps,
 } from "../../../src/component/m365/packageService";
@@ -96,6 +97,22 @@ describe("Package Service", () => {
     chai.assert.isDefined(instance);
     instance = PackageService.GetSharedInstance();
     chai.assert.isDefined(instance);
+  });
+
+  it("constructor configures axios with a 60s upload timeout", () => {
+    const axiosCreateStub = axios.create as unknown as {
+      resetHistory: () => void;
+      firstCall: any;
+      called: boolean;
+    };
+    axiosCreateStub.resetHistory();
+
+    new PackageService("https://test-endpoint", logger);
+
+    chai.assert.strictEqual(MOS_AXIOS_TIMEOUT_MS, 60 * 1000);
+    chai.assert.isTrue(axiosCreateStub.called);
+    const config = axiosCreateStub.firstCall.args[0];
+    chai.assert.strictEqual(config.timeout, MOS_AXIOS_TIMEOUT_MS);
   });
 
   it("sideLoadXmlManifest happy path with 200 return code", async () => {

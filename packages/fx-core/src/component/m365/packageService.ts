@@ -47,6 +47,12 @@ const M365ErrorComponent = "PackageService";
 // MOS/Titles API maximum upload size (10 MB)
 const MOS_MAX_PACKAGE_SIZE_BYTES = 10 * 1024 * 1024;
 
+// Per-request timeout for MOS/Titles API calls (60 s).
+// Restores a client-side timeout removed in #16017; 60 s is double the prior 30 s,
+// which was hitting timeouts on larger package uploads. A follow-up should move
+// uploads to the documented async polling flow rather than further raising this.
+export const MOS_AXIOS_TIMEOUT_MS = 60 * 1000;
+
 export enum AppScope {
   Personal = "Personal",
   Shared = "Shared",
@@ -79,6 +85,7 @@ export class PackageService {
 
   public constructor(endpoint: string, logger?: LogProvider) {
     this.axiosInstance = WrappedAxiosClient.create({
+      timeout: MOS_AXIOS_TIMEOUT_MS,
       httpsAgent: new https.Agent({ keepAlive: true }),
     });
     this.initEndpoint = endpoint;
