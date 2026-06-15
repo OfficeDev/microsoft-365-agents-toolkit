@@ -16,7 +16,8 @@ import { SandboxNode } from "./sandBoxNode";
 export const m365NodeDeps = {
   getTools: () => tools,
   listAllTenants: (token: string) => listAllTenants(token),
-  getBooleanValue: (flag: string) => featureFlagManager.getBooleanValue(flag),
+  getBooleanValue: (flag: Parameters<typeof featureFlagManager.getBooleanValue>[0]) =>
+    featureFlagManager.getBooleanValue(flag),
   localize: (key: string, ...args: any[]) => localize(key, ...args),
 };
 

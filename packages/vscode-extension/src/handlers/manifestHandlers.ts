@@ -5,6 +5,7 @@ import {
   BuildFolderName,
   err,
   FxError,
+  Inputs,
   ok,
   Platform,
   Result,

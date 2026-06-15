@@ -26,7 +26,8 @@ enum ContextValues {
 
 export const sideloadingNodeDeps = {
   getSideloadingStatus: (token: string) => getSideloadingStatus(token),
-  getBooleanValue: (flag: string) => featureFlagManager.getBooleanValue(flag),
+  getBooleanValue: (flag: Parameters<typeof featureFlagManager.getBooleanValue>[0]) =>
+    featureFlagManager.getBooleanValue(flag),
   isSandboxedEnabled: () => isSandboxedEnabled(M365TokenInstance),
   checkSandboxCallback: () => checkSandboxCallback(),
   checkSideloadingCallback: () => checkSideloadingCallback(),

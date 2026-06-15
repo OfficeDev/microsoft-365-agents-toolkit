@@ -77,11 +77,14 @@ if (vscode.workspace && vscode.workspace.workspaceFolders) {
 export function initializeGlobalVariables(ctx: vscode.ExtensionContext): void {
   context = ctx;
   outputTroubleshootNotificationCount = 0;
+  const workspacePath = workspaceUri?.fsPath;
   isExistingUser = context.globalState.get<string>(UserState.IsExisting) || "no";
-  isTeamsFxProject = globalVariablesDeps.isValidProject(workspaceUri?.fsPath);
-  isOfficeAddInProject = globalVariablesDeps.isValidOfficeAddInProject(workspaceUri?.fsPath);
-  if (isOfficeAddInProject) {
-    isOfficeManifestOnlyProject = isManifestOnlyOfficeAddinProject(workspaceUri?.fsPath);
+  isTeamsFxProject = globalVariablesDeps.isValidProject(workspacePath);
+  isOfficeAddInProject = workspacePath
+    ? globalVariablesDeps.isValidOfficeAddInProject(workspacePath)
+    : false;
+  if (isOfficeAddInProject && workspacePath) {
+    isOfficeManifestOnlyProject = isManifestOnlyOfficeAddinProject(workspacePath);
   }
   // Default Extension log path
   // eslint-disable-next-line no-secrets/no-secrets

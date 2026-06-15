@@ -68,12 +68,13 @@ export const lifecycleHandlersDeps = {
   createProgressBar: (title: string, totalSteps: number) =>
     VS_CODE_UI.createProgressBar(title, totalSteps),
   signInWhenInitiatedFromTdp: (options: any, loginHint?: string) =>
-    M365TokenInstance.signInWhenInitiatedFromTdp(options, loginHint),
+    M365TokenInstance.signInWhenInitiatedFromTdp(options, loginHint ?? ""),
   isSovereignHigh: () => isSovereignHigh(),
   getAccessToken: (options: any) => M365TokenInstance.getAccessToken(options),
   setRegionEndpointByToken: (token: string) => teamsDevPortalClient.setRegionEndpointByToken(token),
   getApp: (token: string, appId: string) => teamsDevPortalClient.getApp(token, appId),
-  getBooleanValue: (flag: string) => featureFlagManager.getBooleanValue(flag),
+  getBooleanValue: (flag: Parameters<typeof featureFlagManager.getBooleanValue>[0]) =>
+    featureFlagManager.getBooleanValue(flag),
   getTools: () => tools,
 };
 

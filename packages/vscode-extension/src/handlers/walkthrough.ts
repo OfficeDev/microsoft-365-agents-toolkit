@@ -5,13 +5,13 @@ import * as vscode from "vscode";
 import { runCommand } from "../handlers/sharedOpts";
 import { ExtTelemetry } from "../telemetry/extTelemetry";
 import { TelemetryEvent } from "../telemetry/extTelemetryEvents";
-import { CreateProjectResult, FxError, Result, Stage, ok } from "@microsoft/teamsfx-api";
+import { CreateProjectResult, FxError, Inputs, Result, Stage, ok } from "@microsoft/teamsfx-api";
 import { getSystemInputs } from "../utils/systemEnvUtils";
 import { getTriggerFromProperty } from "../utils/telemetryUtils";
 
 export const walkthroughDeps = {
   getSystemInputs: () => getSystemInputs(),
-  runCommand: (stage: Stage, inputs: Record<string, unknown>) => runCommand(stage, inputs),
+  runCommand: (stage: Stage, inputs: Inputs) => runCommand(stage, inputs),
 };
 
 export async function createProjectFromWalkthroughHandler(

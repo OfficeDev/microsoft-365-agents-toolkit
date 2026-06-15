@@ -15,7 +15,8 @@ export const mcpUtilsDeps = {
   getWorkspaceUri: () => globalVariables.workspaceUri,
   getExtensionPath: () => globalVariables.context?.extensionPath || "",
   localize: (key: string, ...args: any[]) => localizeUtils.localize(key, ...args),
-  showInformationMessage: (...args: any[]) => vscode.window.showInformationMessage(...args),
+  showInformationMessage: (message: string, ...items: string[]) =>
+    vscode.window.showInformationMessage(message, ...items),
   showErrorMessage: (message: string) => vscode.window.showErrorMessage(message),
   sendTelemetryEvent: (eventName: string, properties?: any) =>
     ExtTelemetry.sendTelemetryEvent(eventName as any, properties),
@@ -23,7 +24,8 @@ export const mcpUtilsDeps = {
     ExtTelemetry.sendTelemetryErrorEvent(eventName as any, error, properties),
   getMcpServers: () => vscode.workspace.getConfiguration("mcp").get("servers"),
   existsSync: (filePath: string) => fs.existsSync(filePath),
-  mkdirSync: (dirPath: string, options?: fs.MkdirOptions) => fs.mkdirSync(dirPath, options),
+  mkdirSync: (dirPath: string, options?: Parameters<typeof fs.mkdirSync>[1]) =>
+    fs.mkdirSync(dirPath, options),
   readFileSync: (filePath: string, encoding: BufferEncoding) => fs.readFileSync(filePath, encoding),
   writeFileSync: (file: any, data: any, encoding?: BufferEncoding) =>
     fs.writeFileSync(file, data, encoding),
