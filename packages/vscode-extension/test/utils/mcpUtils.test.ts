@@ -184,11 +184,13 @@ describe("mcpUtils", () => {
 
     it("should create files when user confirms and both are missing", async () => {
       existsSyncStub.mockReturnValue(false);
-      const mkdirSyncStub = vi.spyOn(mcpUtilsDeps, "mkdirSync");
+      const mkdirSyncStub = vi.spyOn(mcpUtilsDeps, "mkdirSync").mockImplementation(() => undefined);
       const readFileSyncStub = vi.spyOn(mcpUtilsDeps, "readFileSync");
-      const writeFileSyncStub = vi.spyOn(mcpUtilsDeps, "writeFileSync");
+      const writeFileSyncStub = vi
+        .spyOn(mcpUtilsDeps, "writeFileSync")
+        .mockImplementation(() => {});
       const openSyncStub = vi.spyOn(mcpUtilsDeps, "openSync");
-      vi.spyOn(mcpUtilsDeps, "closeSync");
+      vi.spyOn(mcpUtilsDeps, "closeSync").mockImplementation(() => {});
       const showErrorMessageStub = vi
         .spyOn(mcpUtilsDeps, "showErrorMessage")
         .mockResolvedValue(undefined);
@@ -232,11 +234,13 @@ describe("mcpUtils", () => {
         return true;
       });
 
-      const mkdirSyncStub = vi.spyOn(mcpUtilsDeps, "mkdirSync");
+      const mkdirSyncStub = vi.spyOn(mcpUtilsDeps, "mkdirSync").mockImplementation(() => undefined);
       const readFileSyncStub = vi.spyOn(mcpUtilsDeps, "readFileSync");
-      const writeFileSyncStub = vi.spyOn(mcpUtilsDeps, "writeFileSync");
+      const writeFileSyncStub = vi
+        .spyOn(mcpUtilsDeps, "writeFileSync")
+        .mockImplementation(() => {});
       const openSyncStub = vi.spyOn(mcpUtilsDeps, "openSync");
-      vi.spyOn(mcpUtilsDeps, "closeSync");
+      vi.spyOn(mcpUtilsDeps, "closeSync").mockImplementation(() => {});
 
       readFileSyncStub.mockReturnValue("Default copilot instructions content");
       openSyncStub.mockReturnValue(3);
@@ -276,8 +280,10 @@ describe("mcpUtils", () => {
         return true;
       });
 
-      const mkdirSyncStub = vi.spyOn(mcpUtilsDeps, "mkdirSync");
-      const writeFileSyncStub = vi.spyOn(mcpUtilsDeps, "writeFileSync");
+      const mkdirSyncStub = vi.spyOn(mcpUtilsDeps, "mkdirSync").mockImplementation(() => undefined);
+      const writeFileSyncStub = vi
+        .spyOn(mcpUtilsDeps, "writeFileSync")
+        .mockImplementation(() => {});
 
       const mockMcpConfig = {
         get: vi.fn((key: string) =>
@@ -559,11 +565,13 @@ describe("mcpUtils", () => {
         return true;
       });
 
-      const mkdirSyncStub = vi.spyOn(mcpUtilsDeps, "mkdirSync");
+      const mkdirSyncStub = vi.spyOn(mcpUtilsDeps, "mkdirSync").mockImplementation(() => undefined);
       const readFileSyncStub = vi.spyOn(mcpUtilsDeps, "readFileSync");
-      const writeFileSyncStub = vi.spyOn(mcpUtilsDeps, "writeFileSync");
+      const writeFileSyncStub = vi
+        .spyOn(mcpUtilsDeps, "writeFileSync")
+        .mockImplementation(() => {});
       const openSyncStub = vi.spyOn(mcpUtilsDeps, "openSync");
-      vi.spyOn(mcpUtilsDeps, "closeSync");
+      vi.spyOn(mcpUtilsDeps, "closeSync").mockImplementation(() => {});
 
       readFileSyncStub.mockReturnValue("Default copilot instructions content");
       openSyncStub.mockReturnValue(3);
@@ -605,8 +613,10 @@ describe("mcpUtils", () => {
         return true;
       });
 
-      const mkdirSyncStub = vi.spyOn(mcpUtilsDeps, "mkdirSync");
-      const writeFileSyncStub = vi.spyOn(mcpUtilsDeps, "writeFileSync");
+      const mkdirSyncStub = vi.spyOn(mcpUtilsDeps, "mkdirSync").mockImplementation(() => undefined);
+      const writeFileSyncStub = vi
+        .spyOn(mcpUtilsDeps, "writeFileSync")
+        .mockImplementation(() => {});
 
       const mockMcpConfig = {
         get: vi.fn((key: string) =>
