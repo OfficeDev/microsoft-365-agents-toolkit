@@ -45,8 +45,6 @@ on:
         type: boolean
         default: false
         description: "[Dev/Testing only] Skip branch validation."
-  schedule:
-    - cron: "15 11 * * *"  # UTC+8 19:15 make sure the daily build generated before the daily test pipeline trigger
 
 permissions:
   actions: write
