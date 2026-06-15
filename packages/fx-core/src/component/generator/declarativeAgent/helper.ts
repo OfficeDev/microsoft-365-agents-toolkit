@@ -515,11 +515,15 @@ export async function generateForMCPForDA(
 
   // Dynamic Tool Discovery flow: skip static tool fetch/selection entirely;
   // the agent host discovers tools at runtime against the MCP server. Per
-  // SCN-DA-CREATE-WITH-MCP-SERVER the DT runtime shape is the unconditional
-  // default in the create flow; we branch on whether the user answered the
-  // (now-unconditional) auth-type question so existing legacy fixtures that
-  // mock inputs without it keep exercising the static-tools path.
-  if (inputs[QuestionNames.MCPForDAAuthType]) {
+  // SCN-DA-CREATE-WITH-MCP-SERVER this DT runtime shape is gated behind
+  // TEAMSFX_MCP_FOR_DA_DT: when the flag is off the create flow keeps the
+  // legacy static-tools behavior (populated `functions` + `mcp-tools-1.json`),
+  // matching the add-action flow. We also require the auth-type answer so
+  // legacy fixtures that mock inputs without it stay on the static-tools path.
+  if (
+    featureFlagManager.getBooleanValue(FeatureFlags.MCPForDADT) &&
+    inputs[QuestionNames.MCPForDAAuthType]
+  ) {
     return generateForMCPForDAWithAuth(destinationPath, aiPluginFilePath, inputs);
   }
 
@@ -726,28 +730,27 @@ export async function generateForMCPForDA(
 }
 
 /**
- * Modern DA-with-MCP scaffolder. Selected by `generateForMCPForDA` whenever
- * the create flow answered `MCPForDAAuthType` (which is always the case for
- * the current question graph; the legacy branch only stays alive for fixtures
- * that mock inputs without it).
+ * Modern DA-with-MCP scaffolder. Selected by `generateForMCPForDA` only when
+ * TEAMSFX_MCP_FOR_DA_DT is on AND the create flow answered `MCPForDAAuthType`.
+ * When the flag is off, the dispatcher keeps the legacy static-tools path
+ * instead, so this function never runs with the flag off.
  *
- * Always emits the Dynamic Tool Discovery runtime shape per
+ * Emits the Dynamic Tool Discovery runtime shape per
  * SCN-DA-CREATE-WITH-MCP-SERVER: `RemoteMCPServer` with a `spec` that carries
  * only the MCP server `url` (no `mcp_tool_description`) and
  * `run_for_functions: ["*"]`. Per the v2.4 plugin schema, omitting
  * `mcp_tool_description` is what makes the host use dynamic tool discovery — no
  * `mcp-tools-N.json` is written and `functions` stays an empty array
  * (schema-required field; tools are discovered at runtime rather than declared
- * statically). The runtime shape is unconditional and does NOT depend on the
- * TEAMSFX_MCP_FOR_DA_DT flag.
+ * statically). This DT shape is gated behind TEAMSFX_MCP_FOR_DA_DT via the
+ * dispatcher; with the flag off the create flow produces the legacy static
+ * shape instead.
  *
- * The flag scopes only how OAuth credentials reach the provisioned
- * `oauth/register` action at provision time:
- *   - flag ON  -> emit `${{MCP_DA_OAUTH_*_<SUFFIX>}}` refs in m365agents.yml
- *                 and persist values to env/.env.<env>(.user).
- *   - flag OFF -> stuff create-flow answers into `process.env["oauth-client-id"]`
- *                 etc. so the legacy in-process bridge in oauth/create.ts
- *                 picks them up without re-prompting via QuestionMW.
+ * OAuth credentials reach the provisioned `oauth/register` action as
+ * `${{MCP_DA_OAUTH_*_<SUFFIX>}}` refs in m365agents.yml, persisted to
+ * env/.env.<env>(.user). (The in-process `process.env` bridge below is a
+ * defensive fallback for the flag-off path, which the dispatcher no longer
+ * routes here.)
  */
 async function generateForMCPForDAWithAuth(
   destinationPath: string,

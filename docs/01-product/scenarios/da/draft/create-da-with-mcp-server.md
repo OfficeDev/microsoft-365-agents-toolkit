@@ -22,14 +22,14 @@ Success means the developer can choose the Declarative Agent path, choose `Add a
 
 - Produces: a DA project folder with `appPackage/manifest.json`, a declarative agent manifest referencing the new MCP action, an action manifest (`ai-plugin.json`) wired to the MCP server URL, an `m365agents.yml` whose provisioning steps include the OAuth registration action when the authentication type requires it, and a `.vscode/mcp.json` with an entry for the MCP server URL so the developer can immediately exercise the server from Copilot Chat in VS Code.
 - For the `OAuth (with static registration)` authentication type, the project also contains environment files (`env/.env.dev` and `env/.env.dev.user`) populated with placeholders for the developer-provided client id, client secret, and optional scopes.
-- Does not include: a static MCP tools JSON file. Tool discovery is deferred to the agent host at runtime.
+- Does not include (when `TEAMSFX_MCP_FOR_DA_DT` is on): a static MCP tools JSON file &mdash; tool discovery is deferred to the agent host at runtime. When the flag is off, the create flow writes a static `mcp-tools-1.json` and populates `functions`, matching shipped behavior.
 - Companion redesign: `SCN-DA-ADD-MCP-ACTION-TO-DA` uses the same auth-type question tree for an already-existing DA project.
 
 ## Feature flags
 
 Two temporary flags scope incremental rollout of the new behavior on this page; both default **off**.
 
-- `TEAMSFX_MCP_FOR_DA_DT` &mdash; gates the credential-persistence subset of this scenario: the scaffold persists OAuth client id / scope / secret answers under project-standard UPPER_SNAKE names in `env/.env.<env>` and `env/.env.<env>.user`, and the `oauth/register` step in `m365agents.yml` references them via `${{...}}`. MCP-backed DA itself is now unconditionally available in the create flow (the old umbrella flag has been removed).
+- `TEAMSFX_MCP_FOR_DA_DT` &mdash; gates the Dynamic Tool Discovery runtime shape of this scenario. When **on**, the scaffold produces the dynamic shape described on this page (no static `mcp-tools-1.json`; the `ai-plugin.json` runtime `spec` carries only the MCP server `url` with no `mcp_tool_description` and `run_for_functions: ["*"]`; `functions` stays empty &mdash; tools are discovered by the agent host at runtime), and it persists OAuth client id / scope / secret answers under project-standard UPPER_SNAKE names in `env/.env.<env>` and `env/.env.<env>.user`, with the `oauth/register` step in `m365agents.yml` referencing them via `${{...}}`. When **off**, the create flow keeps the legacy static-tools behavior &mdash; it fetches/loads the MCP tool list, writes a static `mcp-tools-1.json`, and populates `functions` &mdash; matching shipped behavior.
 - `TEAMSFX_MCP_FOR_DA_DCR` &mdash; gates only the `OAuth (with dynamic registration)` auth-type option in step 6 and the matching `dcr/register` action in `m365agents.yml`. The option is shown &mdash; and the CLI value `oauth-dynamic` is accepted &mdash; only when **both** `TEAMSFX_MCP_FOR_DA_DT` and `TEAMSFX_MCP_FOR_DA_DCR` are `true`, because DCR scaffolding currently piggybacks on the DT-mode env-file plumbing.
 
 Both flags are intended to be temporary and removed once the rollout is complete.

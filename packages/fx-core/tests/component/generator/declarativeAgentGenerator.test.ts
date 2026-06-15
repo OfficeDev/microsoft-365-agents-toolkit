@@ -1247,6 +1247,7 @@ describe("helper", async () => {
     });
 
     it("success: pre-fetch tool with OAuth auth and auth-type entra-sso", async () => {
+      sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
       const existingPluginContent = {
         schema_version: "v1",
         name_for_human: "Test Plugin",
@@ -1488,6 +1489,7 @@ describe("helper", async () => {
     });
 
     it("success: OAuth auth-type resolves metadata and injects into yml", async () => {
+      sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
       const existingPluginContent = {
         schema_version: "v1",
         name_for_human: "Test Plugin",
@@ -1883,6 +1885,7 @@ describe("helper", async () => {
     });
 
     it("DT auth: none auth type emits runtime.auth None", async () => {
+      sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
       sandbox.stub(fs, "pathExists").resolves(true);
       sandbox.stub(fs, "readJSON").resolves({ schema_version: "v1", functions: [], runtimes: [] });
       const writeJSONStub = sandbox.stub(fs, "writeJSON").resolves();
@@ -1902,6 +1905,7 @@ describe("helper", async () => {
     });
 
     it("DT auth: probes MCP server for auth metadata when none provided", async () => {
+      sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
       sandbox.stub(fs, "pathExists").resolves(true);
       sandbox.stub(fs, "readJSON").resolves({ schema_version: "v1", functions: [], runtimes: [] });
       sandbox.stub(fs, "writeJSON").resolves();
@@ -1939,60 +1943,49 @@ describe("helper", async () => {
       );
     });
 
-    it("DT auth: flag OFF bridges credentials to process.env", async () => {
-      const savedClientId = process.env[QuestionNames.OauthClientId];
-      const savedClientSecret = process.env[QuestionNames.OauthClientSecret];
-      const savedScope = process.env[QuestionNames.OAuthScope];
-      delete process.env[QuestionNames.OauthClientId];
-      delete process.env[QuestionNames.OauthClientSecret];
-      delete process.env[QuestionNames.OAuthScope];
-      try {
-        sandbox.stub(featureFlagManager, "getBooleanValue").returns(false);
-        sandbox.stub(fs, "pathExists").resolves(true);
-        sandbox
-          .stub(fs, "readJSON")
-          .resolves({ schema_version: "v1", functions: [], runtimes: [] });
-        sandbox.stub(fs, "writeJSON").resolves();
-        sandbox
-          .stub(fs, "readFile")
-          .resolves(
-            "provision:\n  - uses: teamsApp/create\n    writeToEnvironmentFile:\n      teamsAppId: TEAMS_APP_ID\n" as any
-          );
-        sandbox.stub(fs, "writeFile").resolves();
+    it("flag OFF with auth type uses legacy static path (no DT)", async () => {
+      // With TEAMSFX_MCP_FOR_DA_DT off, the dispatcher must keep the legacy
+      // static-tools behavior even when an auth-type answer is present:
+      // mcp-tools-1.json is written alongside ai-plugin.json and `functions`
+      // is populated from the selected tools (no dynamic discovery).
+      sandbox.stub(featureFlagManager, "getBooleanValue").returns(false);
+      sandbox.stub(fs, "pathExists").resolves(true);
+      sandbox.stub(fs, "readJSON").resolves({
+        schema_version: "v1",
+        name_for_human: "Test Plugin",
+        functions: [],
+        runtimes: [],
+      });
+      const writeJSONStub = sandbox.stub(fs, "writeJSON").resolves();
 
-        const mcpToolFetcherModule = await import("../../../src/component/utils/mcpToolFetcher");
-        sandbox.stub(mcpToolFetcherModule, "resolveMCPOAuthMetadata").resolves({
-          authorizationUrl: "https://auth.example.com/authorize",
-          tokenUrl: "https://auth.example.com/token",
-          refreshUrl: "https://auth.example.com/token",
-          wellKnownUrl: "https://auth.example.com/.well-known/oauth-authorization-server",
-        });
+      const mockToolsDetail = [
+        {
+          name: "testServer_tool1",
+          description: "Tool 1 description",
+          inputSchema: { type: "object", properties: { q: { type: "string" } } },
+          tags: [],
+        },
+      ];
 
-        const inputs: Inputs = {
-          platform: Platform.VSCode,
-          [QuestionNames.MCPForDAServerUrl]: "https://secure.example.com/mcp",
-          [QuestionNames.MCPForDAAuthType]: "oauth",
-          [QuestionNames.MCPForDAAuthMetadataUrl]:
-            "https://auth.example.com/.well-known/oauth-authorization-server",
-          [QuestionNames.MCPForDAClientId]: "the-client-id",
-          [QuestionNames.MCPForDAClientSecret]: "the-client-secret",
-          [QuestionNames.MCPForDAScopes]: "scope-a scope-b",
-        };
+      const inputs: Inputs = {
+        platform: Platform.CLI,
+        [QuestionNames.MCPForDAServerUrl]: "https://example.com/mcp",
+        [QuestionNames.MCPForDAServerName]: "testServer",
+        [QuestionNames.MCPForDAAvailableTools]: mockToolsDetail,
+        [QuestionNames.MCPForDAPreFetchTools]: ["tool1"],
+        [QuestionNames.MCPForDAAuthType]: "none",
+      };
 
-        const res = await generatorHelper.generateForMCPForDA(testDestinationPath, inputs);
+      const res = await generatorHelper.generateForMCPForDA(testDestinationPath, inputs);
 
-        assert.isTrue(res.isOk());
-        assert.equal(process.env[QuestionNames.OauthClientId], "the-client-id");
-        assert.equal(process.env[QuestionNames.OauthClientSecret], "the-client-secret");
-        assert.equal(process.env[QuestionNames.OAuthScope], "scope-a scope-b");
-      } finally {
-        if (savedClientId === undefined) delete process.env[QuestionNames.OauthClientId];
-        else process.env[QuestionNames.OauthClientId] = savedClientId;
-        if (savedClientSecret === undefined) delete process.env[QuestionNames.OauthClientSecret];
-        else process.env[QuestionNames.OauthClientSecret] = savedClientSecret;
-        if (savedScope === undefined) delete process.env[QuestionNames.OAuthScope];
-        else process.env[QuestionNames.OAuthScope] = savedScope;
-      }
+      assert.isTrue(res.isOk());
+      // Legacy static shape: both mcp-tools-1.json and ai-plugin.json written.
+      assert.isTrue(writeJSONStub.calledTwice);
+      const aiPluginContent = writeJSONStub.secondCall.args[1];
+      assert.equal(aiPluginContent.functions.length, 1);
+      assert.equal(aiPluginContent.functions[0].name, "tool1");
+      assert.equal(aiPluginContent.runtimes[0].spec.mcp_tool_description.file, "mcp-tools-1.json");
+      assert.deepEqual(aiPluginContent.runtimes[0].run_for_functions, ["tool1"]);
     });
 
     it("DT auth: flag ON persists credential env vars", async () => {
@@ -2080,7 +2073,7 @@ describe("helper", async () => {
     });
 
     it("DT auth: DCR well-known placeholder used adds warning", async () => {
-      sandbox.stub(featureFlagManager, "getBooleanValue").returns(false);
+      sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
       sandbox.stub(fs, "pathExists").resolves(true);
       sandbox.stub(fs, "readJSON").resolves({ schema_version: "v1", functions: [], runtimes: [] });
       sandbox.stub(fs, "writeJSON").resolves();
