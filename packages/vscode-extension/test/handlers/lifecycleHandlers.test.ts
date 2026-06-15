@@ -577,7 +577,7 @@ describe("Lifecycle handlers", () => {
 
     it("isValidOfficeAddInProject delegates to core", () => {
       vi.spyOn(projectSettingsHelper, "isValidOfficeAddInProject").mockReturnValue(false);
-      const result = lifecycleHandlersDeps.isValidOfficeAddInProject("/test");
+      const result = lifecycleHandlersDeps.isValidOfficeAddInProject(process.cwd());
       chai.expect(typeof result).to.equal("boolean");
     });
 

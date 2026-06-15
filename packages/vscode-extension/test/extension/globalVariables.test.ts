@@ -303,7 +303,7 @@ describe("Global Variables", () => {
   describe("globalVariablesDeps", () => {
     it("isValidOfficeAddInProject delegates to core", () => {
       vi.spyOn(projectSettingsHelper, "isValidOfficeAddInProject").mockReturnValue(false);
-      const result = globalVariables.globalVariablesDeps.isValidOfficeAddInProject("/test");
+      const result = globalVariables.globalVariablesDeps.isValidOfficeAddInProject(process.cwd());
       chai.expect(typeof result).to.equal("boolean");
     });
 
