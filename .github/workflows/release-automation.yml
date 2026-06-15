@@ -862,6 +862,41 @@ jobs:
           BODY: ${{ steps.notify.outputs.body }}
         uses: ./.github/actions/send-email-report
 
+  trigger-cd-dev:
+    needs: select-release
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'schedule' && needs.select-release.outputs.found == 'false' }}
+    env:
+      APP_GITHUB_APP_ID: ${{ vars.APP_GITHUB_APP_ID }}
+      APP_GITHUB_APP_PRIVATE_KEY: ${{ secrets.APP_GITHUB_APP_PRIVATE_KEY }}
+    steps:
+      - id: generate-token
+        if: ${{ env.APP_GITHUB_APP_ID != '' && env.APP_GITHUB_APP_PRIVATE_KEY != '' }}
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ env.APP_GITHUB_APP_ID }}
+          private-key: ${{ env.APP_GITHUB_APP_PRIVATE_KEY }}
+
+      - name: Trigger CD on dev with defaults
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ steps.generate-token.outputs.token || github.token }}
+          script: |
+            console.log('No release scheduled for tomorrow. Triggering default CD on dev.');
+
+            await github.rest.actions.createWorkflowDispatch({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'cd.yml',
+              ref: 'dev',
+              inputs: {}
+            });
+
+            core.summary
+              .addHeading('🚀 Default CD Triggered on dev', 2)
+              .addRaw('\nNo release scheduled for tomorrow — triggered CD on `dev` with default parameters.\n')
+              .write();
+
   trigger-cd:
     needs: prepare-release
     runs-on: ubuntu-latest
