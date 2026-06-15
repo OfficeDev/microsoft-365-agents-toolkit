@@ -186,4 +186,64 @@ describe("Env handlers", () => {
       chai.assert.isTrue(res.isErr());
     });
   });
+
+  describe("envHandlersDeps delegation", () => {
+    it("isValidProject delegates to core", () => {
+      const result = envHandlersDeps.isValidProject(undefined);
+      chai.expect(typeof result).to.equal("boolean");
+    });
+
+    it("listAllEnvConfigs delegates to environmentManager", async () => {
+      vi.spyOn(environmentManager, "listAllEnvConfigs").mockResolvedValue(ok(["dev"]));
+      const result = await envHandlersDeps.listAllEnvConfigs("/test");
+      chai.expect(result.isOk()).to.be.true;
+    });
+
+    it("getEnvFolderPath delegates to pathUtils", async () => {
+      vi.spyOn(pathUtils, "getEnvFolderPath").mockResolvedValue(ok("/test/.env"));
+      const result = await envHandlersDeps.getEnvFolderPath("/test");
+      chai.expect(result.isOk()).to.be.true;
+    });
+
+    it("pathExists delegates to fs", async () => {
+      vi.spyOn(fs, "pathExists").mockResolvedValue(true as never);
+      const result = await envHandlersDeps.pathExists("/test");
+      chai.expect(result).to.be.true;
+    });
+
+    it("openTextDocument delegates to vscode.workspace", async () => {
+      vi.spyOn(vscode.workspace, "openTextDocument").mockResolvedValue({} as any);
+      await envHandlersDeps.openTextDocument("/test");
+      chai.expect((vscode.workspace.openTextDocument as any).called).to.be.true;
+    });
+
+    it("showTextDocument delegates to vscode.window", async () => {
+      vi.spyOn(vscode.window, "showTextDocument").mockResolvedValue({} as any);
+      await envHandlersDeps.showTextDocument({} as any);
+      chai.expect((vscode.window.showTextDocument as any).called).to.be.true;
+    });
+
+    it("runCommand delegates to sharedOpts.runCommand", async () => {
+      vi.spyOn(shared, "runCommand").mockResolvedValue(ok(undefined));
+      const result = await envHandlersDeps.runCommand("provision" as any);
+      chai.expect(result.isOk()).to.be.true;
+    });
+
+    it("reloadEnvironments delegates to envTreeProviderInstance", async () => {
+      vi.spyOn(envTreeProviderInstance, "reloadEnvironments").mockResolvedValue(
+        ok(undefined as any)
+      );
+      await envHandlersDeps.reloadEnvironments();
+      chai.expect((envTreeProviderInstance.reloadEnvironments as any).called).to.be.true;
+    });
+
+    it("selectOption delegates to VS_CODE_UI", async () => {
+      mockValue(vsc_ui, "VS_CODE_UI", new vsc_ui.VsCodeUI(<vscode.ExtensionContext>{}));
+      vi.spyOn(vsc_ui.VS_CODE_UI, "selectOption").mockResolvedValue(
+        ok({ type: "success", result: "dev" } as any)
+      );
+      await envHandlersDeps.selectOption({ name: "env", title: "Select env" });
+      chai.expect((vsc_ui.VS_CODE_UI.selectOption as any).called).to.be.true;
+    });
+  });
 });

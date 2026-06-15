@@ -7,6 +7,7 @@ import { vi } from "vitest";
 import { mockValue } from "../../mocks/vitestMockUtils";
 import {
   checkCopilotCallback,
+  checkSandboxCallback,
   checkSideloadingCallback,
 } from "../../../src/handlers/accounts/checkAccessCallback";
 import { checkAccessCallbackDeps } from "../../../src/handlers/accounts/checkAccessCallback";
@@ -108,6 +109,78 @@ describe("checkAccessCallback", () => {
       expect(showMessageStub).toHaveBeenCalledTimes(1);
       expect(createOrShow).toHaveBeenCalledTimes(1);
       expect(createOrShow).toHaveBeenCalledWith(PanelType.AccountHelp);
+    });
+  });
+
+  describe("checkSandboxCallback", () => {
+    beforeEach(() => {
+      mockValue(vsc_ui, "VS_CODE_UI", new vsc_ui.VsCodeUI(<vscode.ExtensionContext>{}));
+    });
+
+    it("executes quick open command when user confirms", async () => {
+      vi.spyOn(checkAccessCallbackDeps, "localize").mockImplementation((key: string) => {
+        if (key === "teamstoolkit.accountTree.sandboxedTeam.button") {
+          return "Debug in Sandbox";
+        }
+        return key;
+      });
+      vi.spyOn(checkAccessCallbackDeps, "showMessage").mockResolvedValue(ok("Debug in Sandbox"));
+      const executeCommandStub = vi
+        .spyOn(checkAccessCallbackDeps, "executeCommand")
+        .mockResolvedValue(undefined as any);
+
+      await checkSandboxCallback();
+
+      chai.expect(executeCommandStub.calledOnce).to.be.true;
+    });
+
+    it("does not execute command when user skips", async () => {
+      vi.spyOn(checkAccessCallbackDeps, "localize").mockReturnValue("Debug in Sandbox");
+      vi.spyOn(checkAccessCallbackDeps, "showMessage").mockResolvedValue(ok("Skip"));
+      const executeCommandStub = vi
+        .spyOn(checkAccessCallbackDeps, "executeCommand")
+        .mockResolvedValue(undefined as any);
+
+      await checkSandboxCallback();
+
+      chai.expect(executeCommandStub.called).to.be.false;
+    });
+  });
+
+  describe("checkAccessCallbackDeps delegation", () => {
+    beforeEach(() => {
+      mockValue(vsc_ui, "VS_CODE_UI", new vsc_ui.VsCodeUI(<vscode.ExtensionContext>{}));
+    });
+
+    it("showMessage and openUrl delegate to VS_CODE_UI", async () => {
+      const showMessageStub = vi.spyOn(vsc_ui.VS_CODE_UI, "showMessage").mockResolvedValue(ok(""));
+      const openUrlStub = vi.spyOn(vsc_ui.VS_CODE_UI, "openUrl").mockResolvedValue(undefined);
+
+      await checkAccessCallbackDeps.showMessage("info", "msg", false, "ok");
+      await checkAccessCallbackDeps.openUrl("https://example.com");
+
+      chai.expect(showMessageStub.calledOnce).to.be.true;
+      chai.expect(openUrlStub.calledOnce).to.be.true;
+    });
+
+    it("localize and sendTelemetryEvent delegate", () => {
+      const localizeStub = vi.spyOn(localizeUtils, "localize").mockReturnValue("x");
+      const telemetryStub = vi.spyOn(ExtTelemetry, "sendTelemetryEvent");
+
+      const localized = checkAccessCallbackDeps.localize("key");
+      checkAccessCallbackDeps.sendTelemetryEvent("evt");
+
+      chai.expect(localized).to.equal("x");
+      chai.expect(localizeStub.calledOnce).to.be.true;
+      chai.expect(telemetryStub.calledOnce).to.be.true;
+    });
+
+    it("createOrShow delegates to WebviewPanel", () => {
+      const createOrShowStub = vi.spyOn(WebviewPanel, "createOrShow").mockImplementation(() => {});
+
+      checkAccessCallbackDeps.createOrShow(PanelType.AccountHelp);
+
+      chai.expect(createOrShowStub.calledOnce).to.be.true;
     });
   });
 });

@@ -5,6 +5,7 @@ import { mockValue } from "../mocks/vitestMockUtils";
 
 import * as chai from "chai";
 import * as vscode from "vscode";
+import fs from "fs-extra";
 import * as globalVariables from "../../src/globalVariables";
 import { mcpUtilsDeps, setupMCPServer } from "../../src/utils/mcpUtils";
 import { TelemetryEvent, TelemetryProperty } from "../../src/telemetry/extTelemetryEvents";
@@ -672,6 +673,52 @@ describe("mcpUtils", () => {
       chai.expect(showInformationMessageStub.called).to.be.true;
       const messageCall = showInformationMessageStub.firstCall.args[0];
       chai.expect(messageCall).to.include("and");
+    });
+  });
+
+  describe("mcpUtilsDeps", () => {
+    it("existsSync delegates to fs", () => {
+      vi.spyOn(fs, "existsSync").mockReturnValue(true);
+      const result = mcpUtilsDeps.existsSync("/test");
+      chai.expect(result).to.be.true;
+    });
+
+    it("mkdirSync delegates to fs", () => {
+      const spy = vi.spyOn(fs, "mkdirSync").mockImplementation((() => undefined) as any);
+      mcpUtilsDeps.mkdirSync("/test", { recursive: true });
+      chai.expect(spy.called).to.be.true;
+    });
+
+    it("readFileSync delegates to fs", () => {
+      vi.spyOn(fs, "readFileSync").mockReturnValue("content" as any);
+      const result = mcpUtilsDeps.readFileSync("/test", "utf8");
+      chai.expect(result).to.equal("content");
+    });
+
+    it("writeFileSync delegates to fs", () => {
+      const spy = vi.spyOn(fs, "writeFileSync").mockImplementation(() => {});
+      mcpUtilsDeps.writeFileSync("/test", "data", "utf8");
+      chai.expect(spy.called).to.be.true;
+    });
+
+    it("openSync delegates to fs", () => {
+      vi.spyOn(fs, "openSync").mockReturnValue(5 as any);
+      const result = mcpUtilsDeps.openSync("/test", "r");
+      chai.expect(result).to.equal(5);
+    });
+
+    it("closeSync delegates to fs", () => {
+      const spy = vi.spyOn(fs, "closeSync").mockImplementation(() => {});
+      mcpUtilsDeps.closeSync(5);
+      chai.expect(spy.called).to.be.true;
+    });
+
+    it("getMcpServers delegates to vscode configuration", () => {
+      vi.spyOn(vscode.workspace, "getConfiguration").mockReturnValue({
+        get: vi.fn().mockReturnValue({ "test-server": {} }),
+      } as any);
+      const result = mcpUtilsDeps.getMcpServers();
+      chai.expect(result).to.deep.equal({ "test-server": {} });
     });
   });
 });

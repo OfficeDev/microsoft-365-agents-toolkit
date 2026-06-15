@@ -1,5 +1,6 @@
 import * as chai from "chai";
 import fs from "fs-extra";
+import path from "path";
 import { ExtensionContext, Uri } from "vscode";
 import { vi } from "vitest";
 import { mockValue } from "../mocks/vitestMockUtils";
@@ -231,5 +232,85 @@ describe("Global Variables", () => {
       },
     });
     chai.assert.isTrue(res);
+  });
+
+  describe("checkIsSPFx", () => {
+    it("returns false for empty directory", () => {
+      const result = globalVariables.checkIsSPFx("");
+      chai.expect(result).to.be.false;
+    });
+
+    it("returns false for root directory", () => {
+      const root = path.parse(process.cwd()).root;
+      const result = globalVariables.checkIsSPFx(root);
+      chai.expect(result).to.be.false;
+    });
+
+    it("returns false when readdirSync throws", () => {
+      vi.spyOn(fs, "readdirSync").mockImplementation(() => {
+        throw new Error("ENOENT");
+      });
+      const result = globalVariables.checkIsSPFx("/nonexistent");
+      chai.expect(result).to.be.false;
+    });
+
+    it("returns false when .yo-rc.json has no sharepoint generator", () => {
+      vi.spyOn(fs, "readdirSync").mockReturnValue([".yo-rc.json"] as any);
+      vi.spyOn(fs, "readJsonSync").mockReturnValue({});
+      const result = globalVariables.checkIsSPFx("/some/dir");
+      chai.expect(result).to.be.false;
+    });
+
+    it("returns true when .yo-rc.json has sharepoint generator", () => {
+      vi.spyOn(fs, "readdirSync").mockReturnValue([".yo-rc.json"] as any);
+      vi.spyOn(fs, "readJsonSync").mockReturnValue({ "@microsoft/generator-sharepoint": {} });
+      const result = globalVariables.checkIsSPFx("/some/dir");
+      chai.expect(result).to.be.true;
+    });
+
+    it("returns false when readJsonSync throws on .yo-rc.json", () => {
+      vi.spyOn(fs, "readdirSync").mockReturnValue([".yo-rc.json"] as any);
+      vi.spyOn(fs, "readJsonSync").mockImplementation(() => {
+        throw new Error("bad json");
+      });
+      const result = globalVariables.checkIsSPFx("/some/dir");
+      chai.expect(result).to.be.false;
+    });
+
+    it("returns true via recursive directory check", () => {
+      let callCount = 0;
+      vi.spyOn(fs, "readdirSync").mockImplementation(() => {
+        callCount++;
+        return (callCount === 1 ? ["subdir"] : [".yo-rc.json"]) as any;
+      });
+      vi.spyOn(fs, "lstatSync").mockReturnValue({ isDirectory: () => true } as any);
+      vi.spyOn(fs, "readJsonSync").mockReturnValue({ "@microsoft/generator-sharepoint": {} });
+      const result = globalVariables.checkIsSPFx("/some/dir");
+      chai.expect(result).to.be.true;
+    });
+
+    it("returns false when lstatSync throws", () => {
+      vi.spyOn(fs, "readdirSync").mockReturnValue(["somefile"] as any);
+      vi.spyOn(fs, "lstatSync").mockImplementation(() => {
+        throw new Error("ENOENT");
+      });
+      const result = globalVariables.checkIsSPFx("/some/dir");
+      chai.expect(result).to.be.false;
+    });
+  });
+
+  describe("globalVariablesDeps", () => {
+    it("isValidOfficeAddInProject delegates to core", () => {
+      vi.spyOn(fs, "pathExistsSync").mockReturnValue(false);
+      vi.spyOn(fs, "existsSync").mockReturnValue(false);
+      const result = globalVariables.globalVariablesDeps.isValidOfficeAddInProject("/test");
+      chai.expect(typeof result).to.equal("boolean");
+    });
+
+    it("checkIsSPFx delegates to checkIsSPFx", () => {
+      vi.spyOn(fs, "readdirSync").mockReturnValue([]);
+      const result = globalVariables.globalVariablesDeps.checkIsSPFx("/test");
+      chai.expect(result).to.be.false;
+    });
   });
 });
