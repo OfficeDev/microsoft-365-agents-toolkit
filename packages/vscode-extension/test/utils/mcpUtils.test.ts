@@ -197,18 +197,23 @@ describe("mcpUtils", () => {
       openSyncStub.mockReturnValue(3);
 
       const mockMcpConfig = {
-        get: vi
-          .spyOn()
-          .withArgs("servers")
-          .mockReturnValue({
-            "other-server": {
-              command: "other-command",
-            },
-          }),
+        get: vi.fn((key: string) =>
+          key === "servers"
+            ? {
+                "other-server": {
+                  command: "other-command",
+                },
+              }
+            : undefined
+        ),
       };
-      getConfigurationStub.withArgs("mcp").mockReturnValue(mockMcpConfig);
+      getConfigurationStub.mockReturnValue(mockMcpConfig as any);
 
-      showInformationMessageStub.mockResolvedValue("Confirm");
+      showInformationMessageStub.mockImplementation(
+        async (_message: string, ...items: string[]) => {
+          return items[0];
+        }
+      );
 
       await setupMCPServer();
 
@@ -237,19 +242,24 @@ describe("mcpUtils", () => {
       openSyncStub.mockReturnValue(3);
 
       const mockMcpConfig = {
-        get: vi
-          .spyOn()
-          .withArgs("servers")
-          .mockReturnValue({
-            "test-server": {
-              command: "npx",
-              args: ["@microsoft/m365agentstoolkit-mcp@latest", "server", "start"],
-            },
-          }),
+        get: vi.fn((key: string) =>
+          key === "servers"
+            ? {
+                "test-server": {
+                  command: "npx",
+                  args: ["@microsoft/m365agentstoolkit-mcp@latest", "server", "start"],
+                },
+              }
+            : undefined
+        ),
       };
-      getConfigurationStub.withArgs("mcp").mockReturnValue(mockMcpConfig);
+      getConfigurationStub.mockReturnValue(mockMcpConfig as any);
 
-      showInformationMessageStub.mockResolvedValue("Confirm");
+      showInformationMessageStub.mockImplementation(
+        async (_message: string, ...items: string[]) => {
+          return items[0];
+        }
+      );
 
       await setupMCPServer();
 
@@ -270,18 +280,23 @@ describe("mcpUtils", () => {
       const writeFileSyncStub = vi.spyOn(mcpUtilsDeps, "writeFileSync");
 
       const mockMcpConfig = {
-        get: vi
-          .spyOn()
-          .withArgs("servers")
-          .mockReturnValue({
-            "other-server": {
-              command: "other-command",
-            },
-          }),
+        get: vi.fn((key: string) =>
+          key === "servers"
+            ? {
+                "other-server": {
+                  command: "other-command",
+                },
+              }
+            : undefined
+        ),
       };
-      getConfigurationStub.withArgs("mcp").mockReturnValue(mockMcpConfig);
+      getConfigurationStub.mockReturnValue(mockMcpConfig as any);
 
-      showInformationMessageStub.mockResolvedValue("Confirm");
+      showInformationMessageStub.mockImplementation(
+        async (_message: string, ...items: string[]) => {
+          return items[0];
+        }
+      );
 
       await setupMCPServer();
 
@@ -554,19 +569,24 @@ describe("mcpUtils", () => {
       openSyncStub.mockReturnValue(3);
 
       const mockMcpConfig = {
-        get: vi
-          .spyOn()
-          .withArgs("servers")
-          .mockReturnValue({
-            "test-server": {
-              command: "npx",
-              args: ["@microsoft/m365agentstoolkit-mcp@latest", "server", "start"],
-            },
-          }),
+        get: vi.fn((key: string) =>
+          key === "servers"
+            ? {
+                "test-server": {
+                  command: "npx",
+                  args: ["@microsoft/m365agentstoolkit-mcp@latest", "server", "start"],
+                },
+              }
+            : undefined
+        ),
       };
-      getConfigurationStub.withArgs("mcp").mockReturnValue(mockMcpConfig);
+      getConfigurationStub.mockReturnValue(mockMcpConfig as any);
 
-      showInformationMessageStub.mockResolvedValue("Confirm");
+      showInformationMessageStub.mockImplementation(
+        async (_message: string, ...items: string[]) => {
+          return items[0];
+        }
+      );
 
       await setupMCPServer();
 
@@ -589,18 +609,23 @@ describe("mcpUtils", () => {
       const writeFileSyncStub = vi.spyOn(mcpUtilsDeps, "writeFileSync");
 
       const mockMcpConfig = {
-        get: vi
-          .spyOn()
-          .withArgs("servers")
-          .mockReturnValue({
-            "other-server": {
-              command: "other-command",
-            },
-          }),
+        get: vi.fn((key: string) =>
+          key === "servers"
+            ? {
+                "other-server": {
+                  command: "other-command",
+                },
+              }
+            : undefined
+        ),
       };
-      getConfigurationStub.withArgs("mcp").mockReturnValue(mockMcpConfig);
+      getConfigurationStub.mockReturnValue(mockMcpConfig as any);
 
-      showInformationMessageStub.mockResolvedValue("Confirm");
+      showInformationMessageStub.mockImplementation(
+        async (_message: string, ...items: string[]) => {
+          return items[0];
+        }
+      );
 
       await setupMCPServer();
 
