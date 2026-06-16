@@ -4,13 +4,12 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "Mocha All",
-      "program": "${workspaceFolder}/node_modules/mocha/bin/_mocha",
+      "name": "Vitest All",
+      "program": "${workspaceFolder}/node_modules/vitest/vitest.mjs",
       "args": [
-        "-r",
-        "ts-node/register",
-        "--no-timeouts",
-        "--colors",
+        "run",
+        "--config",
+        "${workspaceFolder}/vitest.config.ts",
         "${workspaceFolder}/tests/**/*.test.ts"
       ],
       "console": "integratedTerminal",

@@ -1,0 +1,9 @@
+:setDefaultCluster("ddtelfiltered.centralus.kusto.windows.net")
+:setDefaultDb("teamsfxcli")
+
+database("teamsfxcli").RawEventsCustomEvents
+| where eventTimestamp >= ago(90d)   // 过去三个月
+| extend command = tostring(name)
+| where isnotempty(command)
+| summarize execCount = sum(coalesce(itemCount, 1)) by command
+| order by execCount desc

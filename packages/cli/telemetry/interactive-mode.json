@@ -1,0 +1,194 @@
+[
+  {
+    "commandName": "atk package",
+    "interactiveCount": 0,
+    "nonInteractiveCount": 28060,
+    "totalCount": 28060
+  },
+  {
+    "commandName": "atk install",
+    "interactiveCount": 31,
+    "nonInteractiveCount": 26116,
+    "totalCount": 26147
+  },
+  {
+    "commandName": "atk provision",
+    "interactiveCount": 6295,
+    "nonInteractiveCount": 3054,
+    "totalCount": 9349
+  },
+  {
+    "commandName": "atk uninstall",
+    "interactiveCount": 299,
+    "nonInteractiveCount": 6787,
+    "totalCount": 7086
+  },
+  {
+    "commandName": "atk validate",
+    "interactiveCount": 3,
+    "nonInteractiveCount": 5861,
+    "totalCount": 5864
+  },
+  {
+    "commandName": "atk deploy",
+    "interactiveCount": 2662,
+    "nonInteractiveCount": 1962,
+    "totalCount": 4624
+  },
+  {
+    "commandName": "atk",
+    "interactiveCount": 3957,
+    "nonInteractiveCount": 66,
+    "totalCount": 4023
+  },
+  {
+    "commandName": "atk preview",
+    "interactiveCount": 0,
+    "nonInteractiveCount": 3435,
+    "totalCount": 3435
+  },
+  {
+    "commandName": "atk auth login azure",
+    "interactiveCount": 421,
+    "nonInteractiveCount": 1075,
+    "totalCount": 1496
+  },
+  {
+    "commandName": "atk new",
+    "interactiveCount": 542,
+    "nonInteractiveCount": 860,
+    "totalCount": 1402
+  },
+  {
+    "commandName": "atk auth login m365",
+    "interactiveCount": 1139,
+    "nonInteractiveCount": 127,
+    "totalCount": 1266
+  },
+  {
+    "commandName": "atk publish",
+    "interactiveCount": 3,
+    "nonInteractiveCount": 1043,
+    "totalCount": 1046
+  },
+  {
+    "commandName": "atk auth logout",
+    "interactiveCount": 0,
+    "nonInteractiveCount": 637,
+    "totalCount": 637
+  },
+  {
+    "commandName": "atk launchinfo",
+    "interactiveCount": 0,
+    "nonInteractiveCount": 401,
+    "totalCount": 401
+  },
+  {
+    "commandName": "atk doctor",
+    "interactiveCount": 3,
+    "nonInteractiveCount": 390,
+    "totalCount": 393
+  },
+  {
+    "commandName": "atk list templates",
+    "interactiveCount": 0,
+    "nonInteractiveCount": 335,
+    "totalCount": 335
+  },
+  {
+    "commandName": "atk account login m365",
+    "interactiveCount": 175,
+    "nonInteractiveCount": 86,
+    "totalCount": 261
+  },
+  {
+    "commandName": "atk env add",
+    "interactiveCount": 0,
+    "nonInteractiveCount": 159,
+    "totalCount": 159
+  },
+  {
+    "commandName": "atk add action",
+    "interactiveCount": 34,
+    "nonInteractiveCount": 78,
+    "totalCount": 112
+  },
+  {
+    "commandName": "atk env list",
+    "interactiveCount": 88,
+    "nonInteractiveCount": 7,
+    "totalCount": 95
+  },
+  {
+    "commandName": "atk collaborator grant",
+    "interactiveCount": 2,
+    "nonInteractiveCount": 78,
+    "totalCount": 80
+  },
+  {
+    "commandName": "atk account login azure",
+    "interactiveCount": 53,
+    "nonInteractiveCount": 19,
+    "totalCount": 72
+  },
+  {
+    "commandName": "atk list samples",
+    "interactiveCount": 0,
+    "nonInteractiveCount": 71,
+    "totalCount": 71
+  },
+  {
+    "commandName": "atk new sample",
+    "interactiveCount": 26,
+    "nonInteractiveCount": 38,
+    "totalCount": 64
+  },
+  {
+    "commandName": "atk account logout",
+    "interactiveCount": 0,
+    "nonInteractiveCount": 54,
+    "totalCount": 54
+  },
+  {
+    "commandName": "atk share",
+    "interactiveCount": 14,
+    "nonInteractiveCount": 20,
+    "totalCount": 34
+  },
+  {
+    "commandName": "atk add capability",
+    "interactiveCount": 13,
+    "nonInteractiveCount": 9,
+    "totalCount": 22
+  },
+  {
+    "commandName": "atk add auth-config",
+    "interactiveCount": 13,
+    "nonInteractiveCount": 8,
+    "totalCount": 21
+  },
+  {
+    "commandName": "atk env reset",
+    "interactiveCount": 0,
+    "nonInteractiveCount": 7,
+    "totalCount": 7
+  },
+  {
+    "commandName": "atk collaborator status",
+    "interactiveCount": 2,
+    "nonInteractiveCount": 3,
+    "totalCount": 5
+  },
+  {
+    "commandName": "atk init",
+    "interactiveCount": 0,
+    "nonInteractiveCount": 3,
+    "totalCount": 3
+  },
+  {
+    "commandName": "atk permission grant",
+    "interactiveCount": 0,
+    "nonInteractiveCount": 2,
+    "totalCount": 2
+  }
+]

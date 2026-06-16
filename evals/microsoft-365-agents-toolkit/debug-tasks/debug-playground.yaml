@@ -37,7 +37,7 @@ graders:
     name: atk_configs
     config:
       must_exist:
-        - "simple-bot/.localConfigs.playground"
+        - "simple-bot/.localConfigs.playground1"
   - type: behavior
     name: efficiency_check
     config:
@@ -51,7 +51,7 @@ graders:
     config:
       prompt: |
         Review the agent's response. Check that the response is:
-        1. Successfully started Agents Playground.
+        1. Successfully started Teams client.
         2. Successfully started teams bot.
         3. User can interact with bot in Playground.
 

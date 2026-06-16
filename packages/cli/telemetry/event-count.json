@@ -1,0 +1,634 @@
+[
+  {
+    "command": "teamsfx-cli/dependency-api",
+    "execCount": 170770
+  },
+  {
+    "command": "teamsfx-cli/project-type",
+    "execCount": 66668
+  },
+  {
+    "command": "teamsfx-cli/metadata",
+    "execCount": 52692
+  },
+  {
+    "command": "teamsfx-cli/app-studio-api-start",
+    "execCount": 47792
+  },
+  {
+    "command": "teamsfx-cli/app-studio-api",
+    "execCount": 47666
+  },
+  {
+    "command": "teamsfx-cli/askquestion",
+    "execCount": 43336
+  },
+  {
+    "command": "teamsfx-cli/project-migrator-pre-check-failed",
+    "execCount": 35233
+  },
+  {
+    "command": "teamsfx-cli/build-start",
+    "execCount": 33327
+  },
+  {
+    "command": "teamsfx-cli/build",
+    "execCount": 32020
+  },
+  {
+    "command": "teamsfx-cli/install-start",
+    "execCount": 27382
+  },
+  {
+    "command": "teamsfx-cli/install",
+    "execCount": 26728
+  },
+  {
+    "command": "teamsfx-cli/lifecycle-execution-start",
+    "execCount": 17453
+  },
+  {
+    "command": "teamsfx-cli/lifecycle-execution",
+    "execCount": 16900
+  },
+  {
+    "command": "teamsfx-cli/m365-sideloading-start",
+    "execCount": 16668
+  },
+  {
+    "command": "teamsfx-cli/provision-start",
+    "execCount": 14474
+  },
+  {
+    "command": "teamsfx-cli/login-start",
+    "execCount": 14389
+  },
+  {
+    "command": "teamsfx-cli/provision",
+    "execCount": 13534
+  },
+  {
+    "command": "teamsfx-cli/manifest-with-function",
+    "execCount": 12712
+  },
+  {
+    "command": "teamsfx-cli/login",
+    "execCount": 12466
+  },
+  {
+    "command": "teamsfx-cli/cli/runnpmcommand-start",
+    "execCount": 11922
+  },
+  {
+    "command": "teamsfx-cli/cli/runnpmcommand",
+    "execCount": 11887
+  },
+  {
+    "command": "teamsfx-cli/mos-sideload-end",
+    "execCount": 10681
+  },
+  {
+    "command": "teamsfx-cli/validate-manifest-start",
+    "execCount": 7873
+  },
+  {
+    "command": "teamsfx-cli/validate-manifest",
+    "execCount": 7789
+  },
+  {
+    "command": "teamsfx-cli/deploy-start",
+    "execCount": 7337
+  },
+  {
+    "command": "teamsfx-cli/uninstall-start",
+    "execCount": 7261
+  },
+  {
+    "command": "teamsfx-cli/uninstall",
+    "execCount": 7213
+  },
+  {
+    "command": "teamsfx-cli/root-start",
+    "execCount": 6501
+  },
+  {
+    "command": "teamsfx-cli/deploy",
+    "execCount": 6436
+  },
+  {
+    "command": "teamsfx-cli/preview-start",
+    "execCount": 5252
+  },
+  {
+    "command": "teamsfx-cli/preview",
+    "execCount": 5065
+  },
+  {
+    "command": "teamsfx-cli/m365-sideloading",
+    "execCount": 4797
+  },
+  {
+    "command": "teamsfx-cli/m365-unacquire-start",
+    "execCount": 4516
+  },
+  {
+    "command": "teamsfx-cli/aadapp/create-start",
+    "execCount": 3170
+  },
+  {
+    "command": "teamsfx-cli/aadapp/create",
+    "execCount": 3153
+  },
+  {
+    "command": "teamsfx-cli/deployresponse",
+    "execCount": 2815
+  },
+  {
+    "command": "teamsfx-cli/check-sideloading",
+    "execCount": 2741
+  },
+  {
+    "command": "teamsfx-cli/login-azure-start",
+    "execCount": 2603
+  },
+  {
+    "command": "teamsfx-cli/azureappservice/zipdeploy-start",
+    "execCount": 2505
+  },
+  {
+    "command": "teamsfx-cli/script-start",
+    "execCount": 2504
+  },
+  {
+    "command": "teamsfx-cli/script",
+    "execCount": 2470
+  },
+  {
+    "command": "teamsfx-cli/azureappservice/zipdeploy",
+    "execCount": 2412
+  },
+  {
+    "command": "teamsfx-cli/preview-prereqs-check-m365-account-start",
+    "execCount": 2398
+  },
+  {
+    "command": "teamsfx-cli/preview-prereqs-check-m365-account",
+    "execCount": 2385
+  },
+  {
+    "command": "teamsfx-cli/confirm-provision",
+    "execCount": 2151
+  },
+  {
+    "command": "teamsfx-cli/arm/deploy-start",
+    "execCount": 2080
+  },
+  {
+    "command": "teamsfx-cli/publish-start",
+    "execCount": 2040
+  },
+  {
+    "command": "teamsfx-cli/arm/deploy",
+    "execCount": 2022
+  },
+  {
+    "command": "teamsfx-cli/create-project-start",
+    "execCount": 1933
+  },
+  {
+    "command": "teamsfx-cli/login-m-start",
+    "execCount": 1918
+  },
+  {
+    "command": "teamsfx-cli/publish",
+    "execCount": 1892
+  },
+  {
+    "command": "teamsfx-cli/cli/runnpxcommand-start",
+    "execCount": 1868
+  },
+  {
+    "command": "teamsfx-cli/cli/runnpxcommand",
+    "execCount": 1815
+  },
+  {
+    "command": "teamsfx-cli/create-project",
+    "execCount": 1725
+  },
+  {
+    "command": "teamsfx-cli/login-m",
+    "execCount": 1682
+  },
+  {
+    "command": "teamsfx-cli/preview-sideloading",
+    "execCount": 1539
+  },
+  {
+    "command": "teamsfx-cli/preview-sideloading-start",
+    "execCount": 1539
+  },
+  {
+    "command": "teamsfx-cli/botframework/create-start",
+    "execCount": 1406
+  },
+  {
+    "command": "teamsfx-cli/botframework/create",
+    "execCount": 1400
+  },
+  {
+    "command": "teamsfx-cli/aadapp/update",
+    "execCount": 1358
+  },
+  {
+    "command": "teamsfx-cli/aadapp/update-start",
+    "execCount": 1356
+  },
+  {
+    "command": "teamsfx-cli/create-start",
+    "execCount": 1289
+  },
+  {
+    "command": "teamsfx-cli/create",
+    "execCount": 1287
+  },
+  {
+    "command": "teamsfx-cli/generate-template",
+    "execCount": 1217
+  },
+  {
+    "command": "teamsfx-cli/m365-unacquire",
+    "execCount": 1200
+  },
+  {
+    "command": "teamsfx-cli/preview-start-services-start",
+    "execCount": 1126
+  },
+  {
+    "command": "teamsfx-cli/preview-service-start",
+    "execCount": 1126
+  },
+  {
+    "command": "teamsfx-cli/preview-start-services",
+    "execCount": 1078
+  },
+  {
+    "command": "teamsfx-cli/preview-service",
+    "execCount": 1078
+  },
+  {
+    "command": "teamsfx-cli/logout-start",
+    "execCount": 906
+  },
+  {
+    "command": "teamsfx-cli/oauth/register-start",
+    "execCount": 745
+  },
+  {
+    "command": "teamsfx-cli/oauth/register",
+    "execCount": 744
+  },
+  {
+    "command": "teamsfx-cli/azurestorage/deploy",
+    "execCount": 740
+  },
+  {
+    "command": "teamsfx-cli/azurestorage/deploy-start",
+    "execCount": 740
+  },
+  {
+    "command": "teamsfx-cli/azurefunctions/zipdeploy-start",
+    "execCount": 738
+  },
+  {
+    "command": "teamsfx-cli/devtool/install-start",
+    "execCount": 723
+  },
+  {
+    "command": "teamsfx-cli/azurefunctions/zipdeploy",
+    "execCount": 722
+  },
+  {
+    "command": "teamsfx-cli/devtool/install",
+    "execCount": 698
+  },
+  {
+    "command": "teamsfx-cli/azurestaticwebapps/getdeploymenttoken",
+    "execCount": 606
+  },
+  {
+    "command": "teamsfx-cli/azurestaticwebapps/getdeploymenttoken-start",
+    "execCount": 606
+  },
+  {
+    "command": "teamsfx-cli/mos-launch-info-start",
+    "execCount": 584
+  },
+  {
+    "command": "teamsfx-cli/mos-launch-info",
+    "execCount": 579
+  },
+  {
+    "command": "teamsfx-cli/bicep-install-script-completed",
+    "execCount": 566
+  },
+  {
+    "command": "teamsfx-cli/bicep-install-completed",
+    "execCount": 564
+  },
+  {
+    "command": "teamsfx-cli/cli/rundotnetcommand-start",
+    "execCount": 525
+  },
+  {
+    "command": "teamsfx-cli/cli/rundotnetcommand",
+    "execCount": 524
+  },
+  {
+    "command": "teamsfx-cli/list-sample-start",
+    "execCount": 521
+  },
+  {
+    "command": "teamsfx-cli/typespec/compile-start",
+    "execCount": 485
+  },
+  {
+    "command": "teamsfx-cli/typespec/compile",
+    "execCount": 484
+  },
+  {
+    "command": "teamsfx-cli/doctor-start",
+    "execCount": 431
+  },
+  {
+    "command": "teamsfx-cli/fill-project-id",
+    "execCount": 395
+  },
+  {
+    "command": "teamsfx-cli/apikey/register",
+    "execCount": 348
+  },
+  {
+    "command": "teamsfx-cli/apikey/register-start",
+    "execCount": 348
+  },
+  {
+    "command": "teamsfx-cli/botaadapp/create-start",
+    "execCount": 298
+  },
+  {
+    "command": "teamsfx-cli/botaadapp/create",
+    "execCount": 298
+  },
+  {
+    "command": "teamsfx-cli/botaadapp/create/success",
+    "execCount": 272
+  },
+  {
+    "command": "teamsfx-cli/grant-permission-start",
+    "execCount": 246
+  },
+  {
+    "command": "teamsfx-cli/concurrent-operation",
+    "execCount": 242
+  },
+  {
+    "command": "teamsfx-cli/grant-permission",
+    "execCount": 242
+  },
+  {
+    "command": "teamsfx-cli/login-m365-start",
+    "execCount": 211
+  },
+  {
+    "command": "teamsfx-cli/preview-teams-desktop-client-start",
+    "execCount": 179
+  },
+  {
+    "command": "teamsfx-cli/preview-teams-desktop-client",
+    "execCount": 179
+  },
+  {
+    "command": "teamsfx-cli/create-new-environment-start",
+    "execCount": 175
+  },
+  {
+    "command": "teamsfx-cli/create-new-environment",
+    "execCount": 173
+  },
+  {
+    "command": "teamsfx-cli/add-copilot-plugin-start",
+    "execCount": 127
+  },
+  {
+    "command": "teamsfx-cli/add-copilot-plugin",
+    "execCount": 124
+  },
+  {
+    "command": "teamsfx-cli/download-sample",
+    "execCount": 79
+  },
+  {
+    "command": "teamsfx-cli/download-sample-start",
+    "execCount": 78
+  },
+  {
+    "command": "teamsfx-cli/login-m365",
+    "execCount": 69
+  },
+  {
+    "command": "teamsfx-cli/oauth/update-start",
+    "execCount": 61
+  },
+  {
+    "command": "teamsfx-cli/oauth/update",
+    "execCount": 61
+  },
+  {
+    "command": "teamsfx-cli/generate-sample-start",
+    "execCount": 42
+  },
+  {
+    "command": "teamsfx-cli/generate-sample",
+    "execCount": 42
+  },
+  {
+    "command": "teamsfx-cli/validate-api-spec",
+    "execCount": 40
+  },
+  {
+    "command": "teamsfx-cli/spec-parser-list-apis-result",
+    "execCount": 37
+  },
+  {
+    "command": "teamsfx-cli/share",
+    "execCount": 31
+  },
+  {
+    "command": "teamsfx-cli/share-start",
+    "execCount": 31
+  },
+  {
+    "command": "teamsfx-cli/spec-parser-generate-result",
+    "execCount": 27
+  },
+  {
+    "command": "teamsfx-cli/add-knowledge-start",
+    "execCount": 25
+  },
+  {
+    "command": "teamsfx-cli/add-knowledge",
+    "execCount": 24
+  },
+  {
+    "command": "teamsfx-cli/add-auth-action",
+    "execCount": 24
+  },
+  {
+    "command": "teamsfx-cli/add-auth-action-start",
+    "execCount": 21
+  },
+  {
+    "command": "teamsfx-cli/node-not-supported-for-azure",
+    "execCount": 12
+  },
+  {
+    "command": "teamsfx-cli/apikey/update",
+    "execCount": 12
+  },
+  {
+    "command": "teamsfx-cli/apikey/update-start",
+    "execCount": 12
+  },
+  {
+    "command": "teamsfx-cli/copilot-plugin-existing-api-spec-url",
+    "execCount": 12
+  },
+  {
+    "command": "teamsfx-cli/reset-environment",
+    "execCount": 11
+  },
+  {
+    "command": "teamsfx-cli/reset-environment-start",
+    "execCount": 11
+  },
+  {
+    "command": "teamsfx-cli/azurestorage/enablestaticwebsite",
+    "execCount": 8
+  },
+  {
+    "command": "teamsfx-cli/azurestorage/enablestaticwebsite-start",
+    "execCount": 8
+  },
+  {
+    "command": "teamsfx-cli/check-permission-start",
+    "execCount": 8
+  },
+  {
+    "command": "teamsfx-cli/teamsapp/validatewithtestcases-start",
+    "execCount": 7
+  },
+  {
+    "command": "teamsfx-cli/check-permission",
+    "execCount": 7
+  },
+  {
+    "command": "teamsfx-cli/detect-port",
+    "execCount": 6
+  },
+  {
+    "command": "teamsfx-cli/detect-port-start",
+    "execCount": 6
+  },
+  {
+    "command": "teamsfx-cli/preview-npm-install-start",
+    "execCount": 6
+  },
+  {
+    "command": "teamsfx-cli/preview-npm-install",
+    "execCount": 6
+  },
+  {
+    "command": "teamsfx-cli/local-debug",
+    "execCount": 6
+  },
+  {
+    "command": "teamsfx-cli/project-migrator-migrate-start",
+    "execCount": 5
+  },
+  {
+    "command": "teamsfx-cli/project-migrator-notification",
+    "execCount": 5
+  },
+  {
+    "command": "teamsfx-cli/bicep-install-script-error",
+    "execCount": 5
+  },
+  {
+    "command": "teamsfx-cli/bicep-validation-error",
+    "execCount": 4
+  },
+  {
+    "command": "teamsfx-cli/invalid-plugin-manifest-path",
+    "execCount": 4
+  },
+  {
+    "command": "teamsfx-cli/project-migrator-error",
+    "execCount": 4
+  },
+  {
+    "command": "teamsfx-cli/local-debug-start",
+    "execCount": 4
+  },
+  {
+    "command": "teamsfx-cli/init-project-start",
+    "execCount": 3
+  },
+  {
+    "command": "teamsfx-cli/init-project",
+    "execCount": 3
+  },
+  {
+    "command": "teamsfx-cli/project-migrator-notification-start",
+    "execCount": 3
+  },
+  {
+    "command": "teamsfx-cli/bicep-install-error",
+    "execCount": 2
+  },
+  {
+    "command": "teamsfx-cli/ensure-yo",
+    "execCount": 2
+  },
+  {
+    "command": "teamsfx-cli/ensure-sharepoint-generator-start",
+    "execCount": 2
+  },
+  {
+    "command": "teamsfx-cli/ensure-yo-start",
+    "execCount": 2
+  },
+  {
+    "command": "teamsfx-cli/generate-config-summary",
+    "execCount": 1
+  },
+  {
+    "command": "teamsfx-cli/generate-config",
+    "execCount": 1
+  },
+  {
+    "command": "teamsfx-cli/generate-config-start",
+    "execCount": 1
+  },
+  {
+    "command": "teamsfx-cli/ensure-sharepoint-generator",
+    "execCount": 1
+  },
+  {
+    "command": "teamsfx-cli/dotnet-already-installed",
+    "execCount": 1
+  },
+  {
+    "command": "teamsfx-cli/project-migrator-migrate",
+    "execCount": 1
+  }
+]

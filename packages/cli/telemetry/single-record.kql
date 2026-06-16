@@ -1,0 +1,10 @@
+:setDefaultCluster("ddtelfiltered.centralus.kusto.windows.net")
+:setDefaultDb("teamsfxcli")
+
+let eventName = "migrate-teams-tab-app-start";
+let lookback = 180d;
+teamsfx_all_cli
+| where timestamp >= ago(lookback)
+| where name =~ eventName
+| summarize event_count = count() by day = bin(timestamp, 1d)
+| order by day asc

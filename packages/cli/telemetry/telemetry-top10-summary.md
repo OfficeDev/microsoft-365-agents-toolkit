@@ -1,0 +1,21 @@
+排名	telemetry event	count (cliversion=1.1.11)
+1	teamsfx-cli/dependency-api	3204
+2	teamsfx-cli/metadata	1885
+3	teamsfx-cli/app-studio-api-start	1836
+4	teamsfx-cli/app-studio-api	1830
+5	teamsfx-cli/install-start	1650
+6	teamsfx-cli/project-type	1628
+7	teamsfx-cli/install	1590
+8	teamsfx-cli/askquestion	1248
+9	teamsfx-cli/project-migrator-pre-check-failed	1070
+10	teamsfx-cli/manifest-with-function	793
+11	teamsfx-cli/mos-sideload-end	623
+12	teamsfx-cli/lifecycle-execution-start	610
+13	teamsfx-cli/lifecycle-execution	600
+14	teamsfx-cli/login-start	593
+15	teamsfx-cli/dependency-api-start	588
+16	teamsfx-cli/provision-start	533
+17	teamsfx-cli/provision	499
+18	teamsfx-cli/login	490
+19	teamsfx-cli/validate-manifest-start	404
+20	teamsfx-cli/validate-manifest	402

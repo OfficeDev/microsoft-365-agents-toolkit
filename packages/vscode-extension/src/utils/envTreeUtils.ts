@@ -5,18 +5,8 @@ import { SubscriptionInfo } from "@microsoft/teamsfx-api";
 import { getProvisionResultJson } from "./fileSystemUtils";
 import { workspaceUri } from "../globalVariables";
 import { getV3TeamsAppId } from "./appDefinitionUtils";
+import { fsAdapter, envParseAdapter } from "../common/npmPackageDeps";
 import path from "path";
-import fs from "fs-extra";
-import { dotenvUtil } from "@microsoft/teamsfx-core/build/component/utils/envUtil";
-
-export const envTreeUtilsDeps = {
-  getProvisionResultJson: (env: string) => getProvisionResultJson(env),
-  getWorkspacePath: () => workspaceUri?.fsPath || "",
-  pathExists: (filePath: string) => fs.pathExists(filePath),
-  readFileSync: (filePath: string, encoding: BufferEncoding) => fs.readFileSync(filePath, encoding),
-  deserializeDotenv: (content: string) => dotenvUtil.deserialize(content),
-  getV3TeamsAppId: (projectPath: string, env: string) => getV3TeamsAppId(projectPath, env),
-};
 
 export async function getSubscriptionInfoFromEnv(
   env: string
@@ -24,7 +14,7 @@ export async function getSubscriptionInfoFromEnv(
   let provisionResult: Record<string, any> | undefined;
 
   try {
-    provisionResult = await envTreeUtilsDeps.getProvisionResultJson(env);
+    provisionResult = await getProvisionResultJson(env);
   } catch (error) {
     // ignore error on tree view when load provision result failed.
     return undefined;
@@ -46,12 +36,10 @@ export async function getSubscriptionInfoFromEnv(
 }
 
 export async function getM365TenantFromEnv(env: string): Promise<string | undefined> {
-  const projectPath = envTreeUtilsDeps.getWorkspacePath();
+  const projectPath = workspaceUri?.fsPath || "";
   const envFile = path.resolve(projectPath, "env", `.env.${env}`);
-  if (await envTreeUtilsDeps.pathExists(envFile)) {
-    const envData = envTreeUtilsDeps.deserializeDotenv(
-      envTreeUtilsDeps.readFileSync(envFile, "utf-8")
-    );
+  if (await fsAdapter.pathExists(envFile)) {
+    const envData = envParseAdapter.deserializeDotenv(fsAdapter.readFileSync(envFile, "utf-8"));
     return envData.obj["TEAMS_APP_TENANT_ID"];
   }
   return undefined;
@@ -61,7 +49,7 @@ export async function getResourceGroupNameFromEnv(env: string): Promise<string |
   let provisionResult: Record<string, any> | undefined;
 
   try {
-    provisionResult = await envTreeUtilsDeps.getProvisionResultJson(env);
+    provisionResult = await getProvisionResultJson(env);
   } catch (error) {
     // ignore error on tree view when load provision result failed.
     return undefined;
@@ -77,10 +65,7 @@ export async function getResourceGroupNameFromEnv(env: string): Promise<string |
 export async function getProvisionSucceedFromEnv(env: string): Promise<boolean | undefined> {
   // If TEAMS_APP_ID is set, it's highly possible that the project is provisioned.
   try {
-    const teamsAppId = await envTreeUtilsDeps.getV3TeamsAppId(
-      envTreeUtilsDeps.getWorkspacePath(),
-      env
-    );
+    const teamsAppId = await getV3TeamsAppId(workspaceUri?.fsPath || "", env);
     return teamsAppId !== "";
   } catch (error) {
     return false;

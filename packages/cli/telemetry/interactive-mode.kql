@@ -1,0 +1,18 @@
+:setDefaultCluster("ddtelfiltered.centralus.kusto.windows.net")
+:setDefaultDb("teamsfxcli")
+
+let base =
+    database("teamsfxcli").RawEventsCustomEvents
+    | where eventTimestamp >= ago(90d)   // 过去三个月
+    | where name startswith "teamsfx-cli/" and name endswith "-start"
+    | extend commandName = tostring(properties["command-name"])
+    | extend interactive = tolower(tostring(properties["command-interactive"]))
+    | where isnotempty(commandName) and interactive in ("true", "false") and commandName startswith "atk"
+    | extend cnt = tolong(coalesce(itemCount, 1));
+base
+| summarize
+    interactiveCount = sumif(cnt, interactive == "true"),
+    nonInteractiveCount = sumif(cnt, interactive == "false"),
+    totalCount = sum(cnt)
+  by commandName
+| order by totalCount desc

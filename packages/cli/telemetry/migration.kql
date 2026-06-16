@@ -1,0 +1,79 @@
+:setDefaultCluster("https://kustoproxytest.azure-api.net/rentu-test-product/teamsfx")
+:setDefaultDb("vscode-ext-aggregate")
+
+let eventName = "migrate-teams-tab-app-start";
+let lookback = 180d;
+TelemetryTable
+| where timestamp >= ago(lookback)
+| where name =~ eventName
+| summarize event_count = count() by day = bin(timestamp, 1d)
+| order by day asc
+
+Query 2: 历史总趋势（周）
+let eventName = "project-migrator-migrate-start";
+let lookback = 365d;
+TelemetryTable
+| where timestamp >= ago(lookback)
+| where name =~ eventName
+| summarize event_count = count() by week = bin(timestamp, 7d)
+| order by week asc
+
+Query 3: 平台分布（按 customDimensions.platform）
+let eventName = "project-migrator-migrate-start";
+let lookback = 180d;
+TelemetryTable
+| where timestamp >= ago(lookback)
+| where name =~ eventName
+| extend platform = tostring(customDimensions.platform)
+| summarize event_count = count() by platform
+| order by event_count desc
+
+Query 4: 版本分布（找出哪些旧版本还在上报）
+let eventName = "project-migrator-migrate-start";
+let lookback = 180d;
+TelemetryTable
+| where timestamp >= ago(lookback)
+| where name =~ eventName
+| extend
+cliVersion = tostring(customDimensions.cliVersion),
+extensionVersion = tostring(customDimensions.extensionVersion),
+coreVersion = tostring(customDimensions.coreVersion)
+| summarize event_count = count() by cliVersion, extensionVersion, coreVersion
+| order by event_count desc
+
+Query 5: 最近一次上报时间（Last Seen）
+let eventName = "project-migrator-migrate-start";
+TelemetryTable
+| where name =~ eventName
+| summarize
+first_seen = min(timestamp),
+last_seen = max(timestamp),
+total_count = count()
+
+Query 6: 删除前后对比（确认删掉后是否归零）
+let eventName = "project-migrator-migrate-start";
+let removalDate = datetime(2026-05-29);
+TelemetryTable
+| where name =~ eventName
+| summarize
+before_count = countif(timestamp < removalDate),
+after_count = countif(timestamp >= removalDate),
+last_seen = max(timestamp)
+
+如果你不确定事件到底存在哪个字段（name 还是 customDimensions.eventName），先跑这个探测查询：
+let lookback = 30d;
+TelemetryTable
+| where timestamp >= ago(lookback)
+| where
+name has "migrator"
+or tostring(customDimensions.eventName) has "migrator"
+or tostring(customDimensions.EventName) has "migrator"
+| project
+timestamp,
+name,
+eventName = tostring(customDimensions.eventName),
+EventName = tostring(customDimensions.EventName),
+platform = tostring(customDimensions.platform),
+cliVersion = tostring(customDimensions.cliVersion),
+extensionVersion = tostring(customDimensions.extensionVersion)
+| take 200

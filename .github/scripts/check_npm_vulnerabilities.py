@@ -16,6 +16,11 @@ from typing import List, Tuple
 import json
 
 
+def get_npm_command() -> str:
+    """Return the npm executable name for the current platform."""
+    return "npm.cmd" if os.name == "nt" else "npm"
+
+
 def safe_print(message: str) -> None:
     """Safely print message, handling encoding issues"""
     try:
@@ -135,6 +140,7 @@ def check_package_vulnerabilities(pkg_file: Path, temp_dir: Path, is_template: b
     # Create a unique work directory for this check
     work_dir = temp_dir / f"check_{pkg_file.name}_{hash(str(pkg_file)) % 10000}"
     work_dir.mkdir(parents=True, exist_ok=True)
+    npm_cmd = get_npm_command()
 
     try:
         # Copy the file to the work directory as package.json
@@ -143,10 +149,12 @@ def check_package_vulnerabilities(pkg_file: Path, temp_dir: Path, is_template: b
 
         # Run npm install --package-lock-only to generate package-lock.json
         install_result = subprocess.run(
-            ["npm", "install", "--package-lock-only"],
+            [npm_cmd, "install", "--package-lock-only"],
             cwd=work_dir,
             capture_output=True,
             text=True,
+            encoding="utf-8",
+            errors="replace",
             timeout=120
         )
 
@@ -155,10 +163,12 @@ def check_package_vulnerabilities(pkg_file: Path, temp_dir: Path, is_template: b
 
         # Run npm audit to check for vulnerabilities
         audit_result = subprocess.run(
-            ["npm", "audit", "--json"],
+            [npm_cmd, "audit", "--json"],
             cwd=work_dir,
             capture_output=True,
             text=True,
+            encoding="utf-8",
+            errors="replace",
             timeout=120
         )
 
