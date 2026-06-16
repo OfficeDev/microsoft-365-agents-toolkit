@@ -954,7 +954,7 @@ jobs:
                 vstemplate: 'false',
                 goproduct: goproduct.toString(),
                 run_test_cases: 'true',
-                skipmarkdownandvulnerabilitycheck: goproduct.toString()
+                skipmarkdowncheck: goproduct.toString()
               }
             });
 
@@ -1062,7 +1062,7 @@ jobs:
                 vstemplate: 'false',
                 goproduct: goproduct.toString(),
                 run_test_cases: 'true',
-                skipmarkdownandvulnerabilitycheck: goproduct.toString()
+                skipmarkdowncheck: goproduct.toString()
               },
             });
 
