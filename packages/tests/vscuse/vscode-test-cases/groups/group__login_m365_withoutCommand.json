@@ -27,7 +27,7 @@
     "tags": [
       "group"
     ],
-    "updated_at": "2026-06-16T01:16:19.360999"
+    "updated_at": "2026-06-16T01:17:14.957508"
   },
   "steps": [
     {
@@ -77,7 +77,8 @@
       "postconditions": [],
       "tags": [
         "step_retry_timeout:60",
-        "force_run:true"
+        "force_run:true",
+        "delay:2"
       ],
       "screenshot": "step_50e90196",
       "created_at": "2026-06-16T01:15:39.380983",
