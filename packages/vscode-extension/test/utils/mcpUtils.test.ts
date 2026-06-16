@@ -4,6 +4,7 @@
 import { vi, describe, it, beforeEach } from "vitest";
 import * as chai from "chai";
 import * as vscode from "vscode";
+import fs from "fs-extra";
 import { setupMCPServer } from "../../src/utils/mcpUtils";
 import { TelemetryEvent, TelemetryProperty } from "../../src/telemetry/extTelemetryEvents";
 import { fsAdapter, pathAdapter } from "../../src/common/npmPackageDeps";
@@ -147,8 +148,10 @@ describe("mcpUtils", () => {
     });
 
     it("fsAdapter.writeFileSync delegates to fs-extra", () => {
+      const writeSpy = vi.spyOn(fs, "writeFileSync").mockImplementation(() => undefined);
       fsAdapter.writeFileSync("/test/path", "content");
-      // No exception should be thrown
+      chai.expect(writeSpy).toHaveBeenCalledWith("/test/path", "content", "utf-8");
+      writeSpy.mockRestore();
     });
 
     it("pathAdapter.join delegates to path module", () => {
