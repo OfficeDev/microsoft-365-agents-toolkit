@@ -8,7 +8,8 @@
 
 ## Code style and testability
 - Prefer namespace imports for internal modules that need stubbing in UT.
-- Keep external boundaries injectable via deps objects (for example `*Deps` in handlers/utils) instead of hard-binding calls at use sites.
+- Default to direct module calls; do not add `*Deps` wrappers only for test convenience.
+- Use a small `*Ops` seam only when direct spying is unreliable or the boundary is hard to mock (for example fs/process/runtime bindings).
 - Avoid side effects at module load time; initialize inside functions where possible.
 - Isolate mutable global state (`globalVariables`, VS Code window/workspace objects) behind stable seams so tests can mock one place.
 - Do not mix multiple mock owners for the same symbol in one test file.
@@ -19,7 +20,8 @@
 - `npm run test:debug` runs debugger/plugin-specific UT.
 - Run a focused file with:
   - `npx vitest run test/<path>.test.ts --config vitest.config.ts`
-- Use Vitest-native mocks (`vi.fn`, `vi.spyOn`, `vi.mock`) for new tests.
+- Use Vitest-only assertions and mocks (`expect`/`assert`, `vi.fn`, `vi.spyOn`, `vi.mock`).
+- Do not introduce or use Chai/Chai plugins in test files.
 
 ## Test reliability and performance tips
 - Keep default setup lightweight; avoid expensive per-test re-initialization in `test/setup.ts`.

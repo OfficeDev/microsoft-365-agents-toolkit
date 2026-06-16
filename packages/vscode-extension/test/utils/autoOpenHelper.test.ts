@@ -2,7 +2,6 @@ import { ok, TeamsAppManifest } from "@microsoft/teamsfx-api";
 import { manifestUtils, pluginManifestUtils } from "@microsoft/teamsfx-core";
 import * as globalState from "@microsoft/teamsfx-core";
 import * as apiSpec from "@microsoft/teamsfx-core/build/component/generator/openApiSpec/helper";
-import * as chai from "chai";
 import fs from "fs-extra";
 import * as vscode from "vscode";
 import VscodeLogInstance from "../../src/commonlib/log";
@@ -11,7 +10,7 @@ import * as globalVariables from "../../src/globalVariables";
 import * as readmeHandlers from "../../src/handlers/readmeHandlers";
 import { ExtTelemetry } from "../../src/telemetry/extTelemetry";
 import * as appDefinitionUtils from "../../src/utils/appDefinitionUtils";
-import { vi } from "vitest";
+import { vi, assert } from "vitest";
 import { mockValue } from "../mocks/vitestMockUtils";
 import {
   showLocalDebugMessage,
@@ -62,7 +61,7 @@ describe("autoOpenHelper", () => {
     await showLocalDebugMessage();
     await Promise.resolve();
 
-    chai.assert.isTrue(showMessageStub.called);
+    assert.isTrue(showMessageStub.called);
   });
 
   it("showLocalDebugMessage() - local env and non windows", async () => {
@@ -88,8 +87,8 @@ describe("autoOpenHelper", () => {
 
     await showLocalDebugMessage();
 
-    chai.assert.isTrue(showMessageStub.calledOnce);
-    chai.assert.isFalse(runLocalDebug.called);
+    assert.isTrue(showMessageStub.calledOnce);
+    assert.isFalse(runLocalDebug.called);
   });
 
   it("showLocalDebugMessage() - has local env for DA project", async () => {
@@ -117,7 +116,7 @@ describe("autoOpenHelper", () => {
     await showLocalDebugMessage();
     await Promise.resolve();
 
-    chai.assert.isTrue(showMessageStub.calledOnce);
+    assert.isTrue(showMessageStub.calledOnce);
   });
 
   it("showLocalDebugMessage() - has local env for DA project on Linux", async () => {
@@ -144,8 +143,8 @@ describe("autoOpenHelper", () => {
 
     await showLocalDebugMessage();
 
-    chai.assert.isTrue(showMessageStub.calledOnce);
-    chai.assert.isFalse(runLocalDebug.called);
+    assert.isTrue(showMessageStub.calledOnce);
+    assert.isFalse(runLocalDebug.called);
   });
 
   it("showLocalDebugMessage() - has local env and not click debug", async () => {
@@ -168,8 +167,8 @@ describe("autoOpenHelper", () => {
 
     await showLocalDebugMessage();
 
-    chai.assert.isTrue(showMessageStub.calledOnce);
-    chai.assert.isFalse(runLocalDebug.called);
+    assert.isTrue(showMessageStub.calledOnce);
+    assert.isFalse(runLocalDebug.called);
   });
 
   it("showLocalDebugMessage() - no local env", async () => {
@@ -195,8 +194,8 @@ describe("autoOpenHelper", () => {
 
     await showLocalDebugMessage();
 
-    chai.assert.isTrue(showMessageStub.called);
-    chai.assert.isTrue(executeCommandStub.called);
+    assert.isTrue(showMessageStub.called);
+    assert.isTrue(executeCommandStub.called);
   });
 
   it("showLocalDebugMessage() - no local env and non windows", async () => {
@@ -222,8 +221,8 @@ describe("autoOpenHelper", () => {
 
     await showLocalDebugMessage();
 
-    chai.assert.isTrue(showMessageStub.called);
-    chai.assert.isTrue(executeCommandStub.notCalled);
+    assert.isTrue(showMessageStub.called);
+    assert.isTrue(executeCommandStub.notCalled);
   });
 
   it("showLocalDebugMessage() - no local env and not click provision", async () => {
@@ -246,8 +245,8 @@ describe("autoOpenHelper", () => {
 
     await showLocalDebugMessage();
 
-    chai.assert.isTrue(showMessageStub.called);
-    chai.assert.isFalse(executeCommandStub.called);
+    assert.isTrue(showMessageStub.called);
+    assert.isFalse(executeCommandStub.called);
   });
 
   it("showLocalDebugMessage() - generate an API key manually (TS - windows)", async () => {
@@ -282,7 +281,7 @@ describe("autoOpenHelper", () => {
     await showLocalDebugMessage();
     await Promise.resolve();
 
-    chai.assert.isTrue(showMessageStub.called);
+    assert.isTrue(showMessageStub.called);
   });
 
   it("showLocalDebugMessage() - generate an API key manually (TS - windows) not clicked", async () => {
@@ -316,8 +315,8 @@ describe("autoOpenHelper", () => {
 
     await showLocalDebugMessage();
 
-    chai.assert.isTrue(showMessageStub.called);
-    chai.assert.isFalse(openReadMeHandlerStub.called);
+    assert.isTrue(showMessageStub.called);
+    assert.isFalse(openReadMeHandlerStub.called);
   });
 
   it("showLocalDebugMessage() - generate an API key manually (TS - windows - non selection)", async () => {
@@ -348,8 +347,8 @@ describe("autoOpenHelper", () => {
 
     await showLocalDebugMessage();
 
-    chai.assert.isTrue(showMessageStub.called);
-    chai.assert.isFalse(openReadMeHandlerStub.called);
+    assert.isTrue(showMessageStub.called);
+    assert.isFalse(openReadMeHandlerStub.called);
   });
 
   it("showLocalDebugMessage() - generate an API key manually (JS - windows)", async () => {
@@ -384,7 +383,7 @@ describe("autoOpenHelper", () => {
     await showLocalDebugMessage();
     await Promise.resolve();
 
-    chai.assert.isTrue(showMessageStub.called);
+    assert.isTrue(showMessageStub.called);
   });
 
   it("showLocalDebugMessage() - generate an API key manually (JS - non windows)", async () => {
@@ -419,7 +418,7 @@ describe("autoOpenHelper", () => {
     await showLocalDebugMessage();
     await Promise.resolve();
 
-    chai.assert.isTrue(showMessageStub.called);
+    assert.isTrue(showMessageStub.called);
   });
 
   it("ShowScaffoldingWarningSummary() - copilot agents", async () => {

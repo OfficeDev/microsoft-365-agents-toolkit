@@ -1,9 +1,7 @@
-import { vi } from "vitest";
+import { vi, assert } from "vitest";
 import { createMock } from "../mocks/vitestMockUtils";
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
-
-import * as chai from "chai";
 import { ProgressHelper } from "../../src/debug/progressHelper";
 import { ProgressHandler } from "../../src/debug/progressHandler";
 
@@ -102,7 +100,7 @@ describe("[debug > ProgressHelper]", () => {
           await testProgressHelper.end(callMessage);
         }
         const called = mockProgressHandler.next.getCalls().map(({ args }) => args[0]);
-        chai.assert.deepEqual(called, data.expected);
+        assert.deepEqual(called, data.expected);
         vi.restoreAllMocks();
       });
     });

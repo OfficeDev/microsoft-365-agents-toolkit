@@ -1,11 +1,10 @@
-import { vi } from "vitest";
+import { vi, assert } from "vitest";
 import { mockValue } from "../mocks/vitestMockUtils";
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
 import { ok } from "@microsoft/teamsfx-api";
 import { envUtil } from "@microsoft/teamsfx-core";
-import * as chai from "chai";
 import { v4 } from "uuid";
 import * as vscode from "vscode";
 import { environmentVariableRegex } from "../../src/constants";
@@ -59,9 +58,9 @@ describe("Manifest template hover - V3", async () => {
     const cts = new vscode.CancellationTokenSource();
     const hover = await hoverProvider.provideHover(document, position, cts.token);
 
-    chai.assert.isTrue(hover !== undefined);
+    assert.isTrue(hover !== undefined);
     if (hover !== undefined) {
-      chai.assert.isTrue(hover.contents.length > 0);
+      assert.isTrue(hover.contents.length > 0);
     }
   });
 
@@ -94,9 +93,9 @@ describe("Manifest template hover - V3", async () => {
     const cts = new vscode.CancellationTokenSource();
     const hover = await hoverProvider.provideHover(document, position, cts.token);
 
-    chai.assert.isTrue(hover !== undefined);
+    assert.isTrue(hover !== undefined);
     if (hover !== undefined) {
-      chai.assert.isTrue(hover.contents.length > 0);
+      assert.isTrue(hover.contents.length > 0);
     }
   });
 
@@ -112,7 +111,7 @@ describe("Manifest template hover - V3", async () => {
     const cts = new vscode.CancellationTokenSource();
     const hover = await hoverProvider.provideHover(document, position, cts.token);
 
-    chai.assert.isTrue(hover === undefined);
+    assert.isTrue(hover === undefined);
   });
 
   it("hover - no value", async () => {
@@ -123,9 +122,9 @@ describe("Manifest template hover - V3", async () => {
     const cts = new vscode.CancellationTokenSource();
     const hover = await hoverProvider.provideHover(document, position, cts.token);
 
-    chai.assert.isTrue(hover !== undefined);
+    assert.isTrue(hover !== undefined);
     if (hover !== undefined) {
-      chai.assert.isTrue(hover.contents.length > 0);
+      assert.isTrue(hover.contents.length > 0);
     }
   });
 
@@ -139,13 +138,13 @@ describe("Manifest template hover - V3", async () => {
     const cts = new vscode.CancellationTokenSource();
     const hover = await hoverProvider.provideHover(document, position, cts.token);
 
-    chai.assert.isTrue(hover !== undefined);
+    assert.isTrue(hover !== undefined);
     if (hover !== undefined) {
-      chai.assert.isTrue(hover.contents.length > 0);
+      assert.isTrue(hover.contents.length > 0);
       const content = (hover.contents[0] as vscode.MarkdownString).value;
-      chai.assert.notInclude(content, "playground");
-      chai.assert.notInclude(content, "command:fx-extension.localdebug");
-      chai.assert.include(content, "local");
+      assert.notInclude(content, "playground");
+      assert.notInclude(content, "command:fx-extension.localdebug");
+      assert.include(content, "local");
     }
   });
 });

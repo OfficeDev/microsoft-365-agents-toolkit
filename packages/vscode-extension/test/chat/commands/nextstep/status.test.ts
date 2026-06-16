@@ -1,12 +1,8 @@
-import * as chai from "chai";
-import chaiPromised from "chai-as-promised";
 import * as status from "../../../../src/chat/commands/nextstep/status";
 import { MachineStatus, WholeStatus } from "../../../../src/chat/commands/nextstep/types";
 import * as projectStatusUtils from "../../../../src/utils/projectStatusUtils";
 import * as helper from "../../../../src/chat/commands/nextstep/helper";
-import { vi } from "vitest";
-
-chai.use(chaiPromised);
+import { vi, expect } from "vitest";
 
 describe("chat nextstep status", () => {
   afterEach(() => {
@@ -22,7 +18,7 @@ describe("chat nextstep status", () => {
       });
       vi.spyOn(helper, "globalStateGet").mockResolvedValue(true);
       vi.spyOn(helper, "globalStateUpdate").mockResolvedValue(undefined as any);
-      await chai.expect(status.getWholeStatus()).to.eventually.deep.equal({
+      await expect(status.getWholeStatus()).resolves.toEqual({
         machineStatus: {
           azureLoggedIn: true,
           firstInstalled: true,
@@ -45,7 +41,7 @@ describe("chat nextstep status", () => {
       });
       vi.spyOn(helper, "globalStateGet").mockResolvedValue(true);
       vi.spyOn(helper, "globalStateUpdate").mockResolvedValue(undefined as any);
-      await chai.expect(status.getWholeStatus("test-folder")).to.eventually.deep.equal({
+      await expect(status.getWholeStatus("test-folder")).resolves.toEqual({
         machineStatus: {
           azureLoggedIn: true,
           firstInstalled: true,
@@ -79,7 +75,7 @@ describe("chat nextstep status", () => {
       });
       vi.spyOn(helper, "globalStateGet").mockResolvedValue(true);
       vi.spyOn(helper, "globalStateUpdate").mockResolvedValue(undefined as any);
-      await chai.expect(status.getWholeStatus("test-folder")).to.eventually.deep.equal({
+      await expect(status.getWholeStatus("test-folder")).resolves.toEqual({
         machineStatus: {
           azureLoggedIn: true,
           firstInstalled: true,
@@ -108,7 +104,7 @@ describe("chat nextstep status", () => {
       });
       vi.spyOn(helper, "globalStateGet").mockResolvedValue(true);
       vi.spyOn(helper, "globalStateUpdate").mockResolvedValue(undefined as any);
-      await chai.expect(status.getMachineStatus()).to.eventually.deep.equal({
+      await expect(status.getMachineStatus()).resolves.toEqual({
         azureLoggedIn: true,
         firstInstalled: true,
         m365LoggedIn: true,

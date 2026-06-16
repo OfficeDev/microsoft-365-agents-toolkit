@@ -1,4 +1,3 @@
-import * as chai from "chai";
 import * as vscode from "vscode";
 import * as tools from "@microsoft/teamsfx-core/build/common/tools";
 import { errorIcon, infoIcon, passIcon } from "../../../src/treeview/account/common";
@@ -6,7 +5,7 @@ import { SideloadingNode } from "../../../src/treeview/account/sideloadingNode";
 import { DynamicNode } from "../../../src/treeview/dynamicNode";
 import * as checkAccessCallback from "../../../src/handlers/accounts/checkAccessCallback";
 import { featureFlagManager, GraphClient } from "@microsoft/teamsfx-core";
-import { vi } from "vitest";
+import { vi, assert } from "vitest";
 
 describe("sideloadingNode", () => {
   const eventEmitter = new vscode.EventEmitter<DynamicNode | undefined | void>();
@@ -15,7 +14,7 @@ describe("sideloadingNode", () => {
     const sideloadingNode = new SideloadingNode(eventEmitter, "");
     const treeItem = await sideloadingNode.getTreeItem();
 
-    chai.assert.equal(treeItem.iconPath, infoIcon);
+    assert.equal(treeItem.iconPath, infoIcon);
   });
 
   it("getTreeItem with invalid token", async () => {
@@ -24,7 +23,7 @@ describe("sideloadingNode", () => {
     const sideloadingNode = new SideloadingNode(eventEmitter, "token");
     const treeItem = await sideloadingNode.getTreeItem();
 
-    chai.assert.equal(treeItem.iconPath, errorIcon);
+    assert.equal(treeItem.iconPath, errorIcon);
   });
 
   it("getTreeItem with valid token", async () => {
@@ -32,12 +31,12 @@ describe("sideloadingNode", () => {
     const sideloadingNode = new SideloadingNode(eventEmitter, "token");
     const treeItem = await sideloadingNode.getTreeItem();
 
-    chai.assert.equal(treeItem.iconPath, passIcon);
+    assert.equal(treeItem.iconPath, passIcon);
   });
 
   it("getChildren", () => {
     const sideloadingNode = new SideloadingNode(eventEmitter, "token");
-    chai.assert.isNull(sideloadingNode.getChildren());
+    assert.isNull(sideloadingNode.getChildren());
   });
 
   it("Check sandbox permission", async () => {
@@ -53,7 +52,7 @@ describe("sideloadingNode", () => {
     const sideloadingNode = new SideloadingNode(eventEmitter, "token");
     const treeItem = await sideloadingNode.getTreeItem();
 
-    chai.assert.equal(treeItem.iconPath, errorIcon);
+    assert.equal(treeItem.iconPath, errorIcon);
   });
 
   it("Check sandbox permission - disabled", async () => {
@@ -69,6 +68,6 @@ describe("sideloadingNode", () => {
     const sideloadingNode = new SideloadingNode(eventEmitter, "token");
     const treeItem = await sideloadingNode.getTreeItem();
 
-    chai.assert.equal(treeItem.iconPath, errorIcon);
+    assert.equal(treeItem.iconPath, errorIcon);
   });
 });

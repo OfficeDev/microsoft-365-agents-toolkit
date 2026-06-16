@@ -2,13 +2,12 @@ import { ConfigFolderName, err, ok, Void } from "@microsoft/teamsfx-api";
 import { environmentManager, pathUtils } from "@microsoft/teamsfx-core";
 import * as localizeUtils from "@microsoft/teamsfx-core/build/common/localizeUtils";
 import * as projectSettingsHelper from "@microsoft/teamsfx-core/build/common/projectSettingsHelper";
-import * as chai from "chai";
 import fs from "fs-extra";
 import path from "path";
 import * as vscode from "vscode";
 import { ExtensionErrors } from "../../src/error/error";
 import * as globalVariables from "../../src/globalVariables";
-import { vi } from "vitest";
+import { vi, assert } from "vitest";
 import { mockValue } from "../mocks/vitestMockUtils";
 import {
   askTargetEnvironment,
@@ -32,7 +31,7 @@ describe("Env handlers", () => {
       vi.spyOn(envTreeProviderInstance, "reloadEnvironments").mockResolvedValue(ok(Void));
       vi.spyOn(shared, "runCommand").mockResolvedValue(ok(undefined));
       const res = await createNewEnvironment();
-      chai.assert.isTrue(res.isOk());
+      assert.isTrue(res.isOk());
     });
   });
 
@@ -45,7 +44,7 @@ describe("Env handlers", () => {
     it("happy", async () => {
       vi.spyOn(envTreeProviderInstance, "reloadEnvironments").mockResolvedValue(ok(Void));
       const res = await refreshEnvironment();
-      chai.assert.isTrue(res.isOk());
+      assert.isTrue(res.isOk());
     });
   });
 
@@ -62,8 +61,8 @@ describe("Env handlers", () => {
       const res = await openConfigStateFile([]);
 
       if (res) {
-        chai.assert.isTrue(res.isErr());
-        chai.assert.equal(res.error.name, ExtensionErrors.InvalidArgs);
+        assert.isTrue(res.isErr());
+        assert.equal(res.error.name, ExtensionErrors.InvalidArgs);
       }
     });
 
@@ -74,8 +73,8 @@ describe("Env handlers", () => {
       const res = await openConfigStateFile([]);
 
       if (res) {
-        chai.assert.isTrue(res.isErr());
-        chai.assert.equal(res.error.name, ExtensionErrors.NoWorkspaceError);
+        assert.isTrue(res.isErr());
+        assert.equal(res.error.name, ExtensionErrors.NoWorkspaceError);
       }
     });
 
@@ -86,8 +85,8 @@ describe("Env handlers", () => {
       const res = await openConfigStateFile([{ env: "dev" }]);
 
       if (res) {
-        chai.assert.isTrue(res.isErr());
-        chai.assert.equal(res.error.name, ExtensionErrors.InvalidProject);
+        assert.isTrue(res.isErr());
+        assert.equal(res.error.name, ExtensionErrors.InvalidProject);
       }
     });
 
@@ -103,7 +102,7 @@ describe("Env handlers", () => {
       const res = await openConfigStateFile([{ env: undefined, type: "env" }]);
 
       if (res) {
-        chai.assert.isTrue(res.isErr());
+        assert.isTrue(res.isErr());
       }
     });
 
@@ -117,8 +116,8 @@ describe("Env handlers", () => {
       const res = await openConfigStateFile([{ env: env, type: "env", from: "aad" }]);
 
       if (res) {
-        chai.assert.isTrue(res.isErr());
-        chai.assert.equal(res.error.name, ExtensionErrors.EnvFileNotFoundError);
+        assert.isTrue(res.isErr());
+        assert.equal(res.error.name, ExtensionErrors.EnvFileNotFoundError);
       }
     });
 
@@ -132,7 +131,7 @@ describe("Env handlers", () => {
       const res = await openConfigStateFile([{ env: "local", type: "env" }]);
 
       if (res) {
-        chai.assert.isTrue(res.isErr());
+        assert.isTrue(res.isErr());
       }
     });
 
@@ -146,7 +145,7 @@ describe("Env handlers", () => {
 
       const res = await openConfigStateFile([{ env: "local", type: "env" }]);
 
-      chai.assert.isTrue(res === undefined);
+      assert.isTrue(res === undefined);
     });
   });
 
@@ -157,7 +156,7 @@ describe("Env handlers", () => {
 
       const res = await askTargetEnvironment();
 
-      chai.assert.isTrue(res.isErr());
+      assert.isTrue(res.isErr());
     });
 
     it("success", async () => {
@@ -169,8 +168,8 @@ describe("Env handlers", () => {
 
       const res = await askTargetEnvironment();
 
-      chai.assert.isTrue(res.isOk());
-      chai.assert.equal(res.value, "dev");
+      assert.isTrue(res.isOk());
+      assert.equal(res.value, "dev");
     });
 
     it("listAllEnvConfigs returns error", async () => {
@@ -182,7 +181,7 @@ describe("Env handlers", () => {
 
       const res = await askTargetEnvironment();
 
-      chai.assert.isTrue(res.isErr());
+      assert.isTrue(res.isErr());
     });
   });
 });

@@ -1,4 +1,4 @@
-import { vi } from "vitest";
+import { vi, expect, assert } from "vitest";
 import { mockValue } from "../mocks/vitestMockUtils";
 import {
   err,
@@ -11,7 +11,6 @@ import {
   UserError,
 } from "@microsoft/teamsfx-api";
 import { UserCancelError, VersionState } from "@microsoft/teamsfx-core";
-import * as chai from "chai";
 import * as uuid from "uuid";
 import * as vscode from "vscode";
 import { RecommendedOperations } from "../../src/debug/common/debugConstants";
@@ -42,8 +41,8 @@ describe("SharedOpts", () => {
       await runCommand(Stage.create, inputs);
 
       expect(createProject).toHaveBeenCalledTimes(1);
-      chai.assert.isTrue(createProject.args[0][0].projectId != undefined);
-      chai.assert.isTrue(sendTelemetryEvent.args[0][1]!["new-project-id"] != undefined);
+      assert.isTrue(createProject.args[0][0].projectId != undefined);
+      assert.isTrue(sendTelemetryEvent.args[0][1]!["new-project-id"] != undefined);
     });
 
     it("create from scratch without projectid", async () => {
@@ -56,8 +55,8 @@ describe("SharedOpts", () => {
 
       await runCommand(Stage.create);
       expect(createProject).toHaveBeenCalledTimes(1);
-      chai.assert.isTrue(createProject.args[0][0].projectId != undefined);
-      chai.assert.isTrue(sendTelemetryEvent.args[0][1]!["new-project-id"] != undefined);
+      assert.isTrue(createProject.args[0][0].projectId != undefined);
+      assert.isTrue(sendTelemetryEvent.args[0][1]!["new-project-id"] != undefined);
     });
 
     it("metaOSExtendToDA", async () => {
@@ -90,13 +89,13 @@ describe("SharedOpts", () => {
         projectPath: "test-project",
       } as Inputs);
 
-      chai.assert.isTrue(result.isErr());
+      assert.isTrue(result.isErr());
       if (result.isErr()) {
-        chai.assert.equal(result.error.name, "IncompatibleProject");
-        chai.assert.include(result.error.message, "cannot be upgraded");
+        assert.equal(result.error.name, "IncompatibleProject");
+        assert.include(result.error.message, "cannot be upgraded");
       }
       expect(projectVersionCheck).toHaveBeenCalledTimes(1);
-      chai.assert.equal(projectVersionCheck.args[0][0].ignoreEnvInfo, true);
+      assert.equal(projectVersionCheck.args[0][0].ignoreEnvInfo, true);
       expect(provisionResources).not.toHaveBeenCalled();
     });
 
@@ -113,13 +112,13 @@ describe("SharedOpts", () => {
         projectPath: "test-project",
       } as Inputs);
 
-      chai.assert.isTrue(result.isErr());
+      assert.isTrue(result.isErr());
       if (result.isErr()) {
-        chai.assert.equal(result.error.name, "IncompatibleProject");
-        chai.assert.include(result.error.message, "can be upgraded");
+        assert.equal(result.error.name, "IncompatibleProject");
+        assert.include(result.error.message, "can be upgraded");
       }
       expect(projectVersionCheck).toHaveBeenCalledTimes(1);
-      chai.assert.equal(projectVersionCheck.args[0][0].ignoreEnvInfo, true);
+      assert.equal(projectVersionCheck.args[0][0].ignoreEnvInfo, true);
       expect(deployArtifacts).not.toHaveBeenCalled();
     });
 
@@ -136,9 +135,9 @@ describe("SharedOpts", () => {
         projectPath: "test-project",
       } as Inputs);
 
-      chai.assert.isTrue(result.isOk());
+      assert.isTrue(result.isOk());
       expect(projectVersionCheck).toHaveBeenCalledTimes(1);
-      chai.assert.equal(projectVersionCheck.args[0][0].ignoreEnvInfo, true);
+      assert.equal(projectVersionCheck.args[0][0].ignoreEnvInfo, true);
       expect(deployArtifacts).toHaveBeenCalledTimes(1);
     });
 
@@ -167,7 +166,7 @@ describe("SharedOpts", () => {
       mockValue(globalVariables, "core", new MockCore());
       try {
         await runCommand("none" as any);
-        chai.assert.fail("should not reach here");
+        assert.fail("should not reach here");
       } catch (e) {}
     });
     it("provisionResources - local", async () => {
@@ -181,9 +180,9 @@ describe("SharedOpts", () => {
         platform: Platform.VSCode,
         env: "local",
       } as Inputs);
-      chai.assert.isTrue(res.isErr());
+      assert.isTrue(res.isErr());
       if (res.isErr()) {
-        chai.assert.equal(res.error.recommendedOperation, RecommendedOperations.DebugInTestTool);
+        assert.equal(res.error.recommendedOperation, RecommendedOperations.DebugInTestTool);
       }
       expect(mockCoreStub).toHaveBeenCalledTimes(1);
     });
@@ -224,9 +223,9 @@ describe("SharedOpts", () => {
       vi.spyOn(globalVariables.core, "deployAadManifest").mockResolvedValue(ok(undefined));
       const input: Inputs = systemEnvUtils.getSystemInputs();
       const res = await runCommand(Stage.deployAad, input);
-      chai.assert.isTrue(res.isOk());
+      assert.isTrue(res.isOk());
       if (res.isOk()) {
-        chai.assert.strictEqual(res.value, undefined);
+        assert.strictEqual(res.value, undefined);
       }
     });
 
@@ -244,8 +243,8 @@ describe("SharedOpts", () => {
       );
 
       await runCommand(Stage.debug);
-      chai.expect(ignoreEnvInfo).to.equal(false);
-      chai.expect(localDebugCalled).equals(1);
+      expect(ignoreEnvInfo).to.equal(false);
+      expect(localDebugCalled).equals(1);
     });
 
     it("publishApplication", async () => {

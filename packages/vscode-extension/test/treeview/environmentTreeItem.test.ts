@@ -1,6 +1,5 @@
-import * as chai from "chai";
 import * as vscode from "vscode";
-import { vi } from "vitest";
+import { vi, expect, assert } from "vitest";
 import { mockValue } from "../mocks/vitestMockUtils";
 
 import { FxError, LoginStatus, ok, Result, SubscriptionInfo } from "@microsoft/teamsfx-api";
@@ -27,9 +26,9 @@ describe("EnvironmentNode", () => {
 
     const treeItem = await environmentNode.getTreeItem();
 
-    chai.assert.deepEqual(treeItem.iconPath, new vscode.ThemeIcon("symbol-folder"));
-    chai.assert.equal(treeItem.collapsibleState, vscode.TreeItemCollapsibleState.None);
-    chai.assert.equal(treeItem.contextValue, "local");
+    assert.deepEqual(treeItem.iconPath, new vscode.ThemeIcon("symbol-folder"));
+    assert.equal(treeItem.collapsibleState, vscode.TreeItemCollapsibleState.None);
+    assert.equal(treeItem.contextValue, "local");
   });
 
   it("getTreeItem for local", async () => {
@@ -38,9 +37,9 @@ describe("EnvironmentNode", () => {
 
     const treeItem = await environmentNode.getTreeItem();
 
-    chai.assert.deepEqual(treeItem.iconPath, new vscode.ThemeIcon("symbol-folder"));
-    chai.assert.equal(treeItem.collapsibleState, vscode.TreeItemCollapsibleState.None);
-    chai.assert.equal(treeItem.contextValue, "testtool");
+    assert.deepEqual(treeItem.iconPath, new vscode.ThemeIcon("symbol-folder"));
+    assert.equal(treeItem.collapsibleState, vscode.TreeItemCollapsibleState.None);
+    assert.equal(treeItem.contextValue, "testtool");
   });
 
   it("getChildren returns warning for SPFx project", async () => {
@@ -74,12 +73,12 @@ describe("EnvironmentNode", () => {
 
     const children = await environmentNode.getChildren();
 
-    chai.assert.equal(children?.length, 2);
+    assert.equal(children?.length, 2);
     const warningNode = (await (children as DynamicNode[])[0].getTreeItem()) as DynamicNode;
-    chai.assert.deepEqual(warningNode.iconPath, warningIcon);
-    chai.assert.equal(warningNode.tooltip, "test string");
-    chai.assert.equal(warningNode.getChildren(), null);
-    chai.assert.equal(warningNode.getTreeItem(), warningNode);
+    assert.deepEqual(warningNode.iconPath, warningIcon);
+    assert.equal(warningNode.tooltip, "test string");
+    assert.equal(warningNode.getChildren(), null);
+    assert.equal(warningNode.getTreeItem(), warningNode);
   });
 
   it("getChildren returns subscription", async () => {
@@ -116,22 +115,22 @@ describe("EnvironmentNode", () => {
 
     const children = await environmentNode.getChildren();
 
-    chai.assert.equal(children?.length, 1);
+    assert.equal(children?.length, 1);
     const subscriptionNode = (await (children as DynamicNode[])[0].getTreeItem()) as DynamicNode;
-    chai.assert.deepEqual(subscriptionNode.iconPath, new vscode.ThemeIcon("key"));
-    chai.assert.equal(subscriptionNode.label, "subscriptionName");
-    chai.assert.equal(
+    assert.deepEqual(subscriptionNode.iconPath, new vscode.ThemeIcon("key"));
+    assert.equal(subscriptionNode.label, "subscriptionName");
+    assert.equal(
       subscriptionNode.tooltip,
       "'test' environment is provisioned in Azure subscription 'subscriptionName' (ID: subscriptionId)"
     );
-    chai.assert.equal(subscriptionNode.description, "subscriptionId");
+    assert.equal(subscriptionNode.description, "subscriptionId");
     const subscriptionNodeTreeItem = await subscriptionNode.getTreeItem();
-    chai.assert.equal(subscriptionNodeTreeItem, subscriptionNode);
+    assert.equal(subscriptionNodeTreeItem, subscriptionNode);
 
     const subscriptionNodeChildren = await subscriptionNode.getChildren();
     const resourceGroupNode = (subscriptionNodeChildren as DynamicNode[])[0];
-    chai.assert.equal(resourceGroupNode.getTreeItem(), resourceGroupNode);
-    chai.assert.isNull(resourceGroupNode.getChildren());
+    assert.equal(resourceGroupNode.getTreeItem(), resourceGroupNode);
+    assert.isNull(resourceGroupNode.getChildren());
   });
 
   it("checkAccountForEnvironment uses Graph scopes in sovereign high", async () => {
@@ -144,7 +143,7 @@ describe("EnvironmentNode", () => {
 
     await environmentNode.getChildren();
 
-    chai.assert.isTrue(getStatusStub.calledOnceWithExactly({ scopes: GraphScopes }));
+    assert.isTrue(getStatusStub.calledOnceWithExactly({ scopes: GraphScopes }));
   });
 
   it("getChildren returns cached children", async () => {
@@ -154,7 +153,7 @@ describe("EnvironmentNode", () => {
     const children1 = await environmentNode.getChildren();
     const children2 = await environmentNode.getChildren();
 
-    chai.expect(children1).to.equal(children2);
+    expect(children1).to.equal(children2);
   });
 
   it("getChildren adds warning when Azure account is not signed in", async () => {
@@ -177,9 +176,9 @@ describe("EnvironmentNode", () => {
     const children = await environmentNode.getChildren();
     const warningNode = (await (children as DynamicNode[])[0].getTreeItem()) as DynamicNode;
 
-    chai.expect(warningNode).to.not.be.undefined;
-    chai
-      .expect(String(warningNode.tooltip))
-      .to.include("teamstoolkit.commandsTreeViewProvider.azureAccountNotSignedIn");
+    expect(warningNode).to.not.be.undefined;
+    expect(String(warningNode.tooltip)).to.include(
+      "teamstoolkit.commandsTreeViewProvider.azureAccountNotSignedIn"
+    );
   });
 });

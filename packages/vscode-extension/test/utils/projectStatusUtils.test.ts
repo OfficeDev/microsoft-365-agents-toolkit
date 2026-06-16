@@ -1,5 +1,3 @@
-import * as chai from "chai";
-import chaiPromised from "chai-as-promised";
 import fs from "fs-extra";
 import * as projectStatusUtils from "../../src/utils/projectStatusUtils";
 import { err, ok } from "@microsoft/teamsfx-api";
@@ -7,27 +5,25 @@ import * as helper from "../../src/chat/commands/nextstep/helper";
 import * as os from "os";
 import * as path from "path";
 import { UserCancelError } from "@microsoft/teamsfx-core";
-import { vi } from "vitest";
-
-chai.use(chaiPromised);
+import { vi, expect, assert } from "vitest";
 
 describe("project status utils", () => {
   describe("func: getProjectStatus", () => {
     it("project state file deos not exist", async () => {
       vi.spyOn(Date, "now").mockReturnValue(1711987200000);
       vi.spyOn(fs, "pathExists").mockResolvedValue(false);
-      await chai
-        .expect(projectStatusUtils.getProjectStatus("test-id"))
-        .to.eventually.deep.equal(projectStatusUtils.emptyProjectStatus());
+      await expect(projectStatusUtils.getProjectStatus("test-id")).resolves.toEqual(
+        projectStatusUtils.emptyProjectStatus()
+      );
     });
 
     it("project state file exists - not a json file", async () => {
       vi.spyOn(Date, "now").mockReturnValue(1711987200000);
       vi.spyOn(fs, "pathExists").mockResolvedValue(false);
       vi.spyOn(fs, "readFile").mockResolvedValue(Buffer.from("not a json file") as any);
-      await chai
-        .expect(projectStatusUtils.getProjectStatus("test-id"))
-        .to.eventually.deep.equal(projectStatusUtils.emptyProjectStatus());
+      await expect(projectStatusUtils.getProjectStatus("test-id")).resolves.toEqual(
+        projectStatusUtils.emptyProjectStatus()
+      );
     });
 
     it("project state file exists - a json file", async () => {
@@ -41,9 +37,7 @@ describe("project status utils", () => {
       vi.spyOn(fs, "readFile").mockResolvedValue(
         Buffer.from(JSON.stringify({ "test-id": status })) as any
       );
-      await chai
-        .expect(projectStatusUtils.getProjectStatus("test-id"))
-        .to.eventually.deep.equal(status);
+      await expect(projectStatusUtils.getProjectStatus("test-id")).resolves.toEqual(status);
     });
   });
 
@@ -65,7 +59,7 @@ describe("project status utils", () => {
         projectStatusUtils.RecordedActions[0],
         ok(undefined)
       );
-      chai.assert.equal(
+      assert.equal(
         writeFileStub.getCall(0).args[1],
         JSON.stringify(
           {
@@ -99,7 +93,7 @@ describe("project status utils", () => {
         err(new UserCancelError()),
         true
       );
-      chai.assert.equal(
+      assert.equal(
         writeFileStub.getCall(0).args[1],
         JSON.stringify(
           {
@@ -133,7 +127,7 @@ describe("project status utils", () => {
         ok(undefined),
         true
       );
-      chai.assert.equal(
+      assert.equal(
         writeFileStub.getCall(0).args[1],
         JSON.stringify(
           {
@@ -166,7 +160,7 @@ describe("project status utils", () => {
 
     const pattern = `${tempDir.replace(/\\/g, "/")}/*.txt`;
     const result = await projectStatusUtils.getFileModifiedTime(pattern);
-    chai.expect(result.getTime()).equals(latestTime.getTime());
+    expect(result.getTime()).equals(latestTime.getTime());
 
     await fs.remove(tempDir);
   });
@@ -174,32 +168,30 @@ describe("project status utils", () => {
   describe("func: getREADME", () => {
     it("file not exist", async () => {
       vi.spyOn(fs, "pathExists").mockResolvedValue(false);
-      await chai.expect(projectStatusUtils.getREADME("test-folder")).to.eventually.equal(undefined);
+      await expect(projectStatusUtils.getREADME("test-folder")).resolves.toEqual(undefined);
     });
 
     it("file exists", async () => {
       vi.spyOn(fs, "pathExists").mockResolvedValue(true);
       vi.spyOn(fs, "readFile").mockResolvedValue(Buffer.from("123") as any);
-      await chai
-        .expect(projectStatusUtils.getREADME("test-folder"))
-        .to.eventually.deep.equal(Buffer.from("123"));
+      await expect(projectStatusUtils.getREADME("test-folder")).resolves.toEqual(
+        Buffer.from("123")
+      );
     });
   });
 
   describe("func: getLaunchJSON", () => {
     it("file not exist", async () => {
       vi.spyOn(fs, "pathExists").mockResolvedValue(false);
-      await chai
-        .expect(projectStatusUtils.getLaunchJSON("test-folder"))
-        .to.eventually.equal(undefined);
+      await expect(projectStatusUtils.getLaunchJSON("test-folder")).resolves.toEqual(undefined);
     });
 
     it("file exists", async () => {
       vi.spyOn(fs, "pathExists").mockResolvedValue(true);
       vi.spyOn(fs, "readFile").mockResolvedValue(Buffer.from("123") as any);
-      await chai
-        .expect(projectStatusUtils.getLaunchJSON("test-folder"))
-        .to.eventually.deep.equal(Buffer.from("123"));
+      await expect(projectStatusUtils.getLaunchJSON("test-folder")).resolves.toEqual(
+        Buffer.from("123")
+      );
     });
   });
 });

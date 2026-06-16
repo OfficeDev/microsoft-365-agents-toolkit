@@ -1,7 +1,6 @@
-import * as chai from "chai";
 import * as vscode from "vscode";
 import officeDevTreeViewManager from "../../src/treeview/officeDevTreeViewManager";
-import { vi } from "vitest";
+import { vi, assert } from "vitest";
 
 describe("OfficeDevTreeViewManager", () => {
   it("registerOfficeDevTreeViews", () => {
@@ -12,21 +11,21 @@ describe("OfficeDevTreeViewManager", () => {
     const developmentTreeview = officeDevTreeViewManager.getTreeView(
       "teamsfx-officedev-development"
     );
-    chai.assert.isDefined(developmentTreeview);
-    chai.assert.equal((developmentTreeview as any).commands.length, 5);
+    assert.isDefined(developmentTreeview);
+    assert.equal((developmentTreeview as any).commands.length, 5);
 
     const lifeCycleTreeview = officeDevTreeViewManager.getTreeView("teamsfx-officedev-lifecycle");
-    chai.assert.isDefined(lifeCycleTreeview);
-    chai.assert.equal((lifeCycleTreeview as any).commands.length, 2);
+    assert.isDefined(lifeCycleTreeview);
+    assert.equal((lifeCycleTreeview as any).commands.length, 2);
 
     const utilityTreeView = officeDevTreeViewManager.getTreeView("teamsfx-officedev-utility");
-    chai.assert.isDefined(utilityTreeView);
-    chai.assert.equal((utilityTreeView as any).commands.length, 3);
+    assert.isDefined(utilityTreeView);
+    assert.equal((utilityTreeView as any).commands.length, 3);
 
     const helpAndFeedbackTreeView = officeDevTreeViewManager.getTreeView(
       "teamsfx-officedev-help-and-feedback"
     );
-    chai.assert.isDefined(helpAndFeedbackTreeView);
-    chai.assert.equal((helpAndFeedbackTreeView as any).commands.length, 4);
+    assert.isDefined(helpAndFeedbackTreeView);
+    assert.equal((helpAndFeedbackTreeView as any).commands.length, 4);
   });
 });

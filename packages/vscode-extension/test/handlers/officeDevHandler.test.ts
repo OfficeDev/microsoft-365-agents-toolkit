@@ -1,6 +1,5 @@
 import { FxError, Result, ok } from "@microsoft/teamsfx-api";
 import * as globalState from "@microsoft/teamsfx-core";
-import * as chai from "chai";
 import * as mockfs from "mock-fs";
 import * as vscode from "vscode";
 import { OfficeDevTerminal, TriggerCmdType } from "../../src/debug/taskTerminal/officeDevTerminal";
@@ -13,7 +12,7 @@ import { openOfficeDevFolder } from "../../src/utils/workspaceUtils";
 import * as autoOpenHelper from "../../src/utils/autoOpenHelper";
 import * as readmeHandlers from "../../src/handlers/readmeHandlers";
 import * as telemetryUtils from "../../src/utils/telemetryUtils";
-import { vi } from "vitest";
+import { vi, expect, assert } from "vitest";
 import { mockValue } from "../mocks/vitestMockUtils";
 
 describe("officeDevHandler", () => {
@@ -29,9 +28,9 @@ describe("officeDevHandler", () => {
     mockValue(vsc_ui, "VS_CODE_UI", new vsc_ui.VsCodeUI(<vscode.ExtensionContext>{}));
     const openUrl = vi.spyOn(vsc_ui.VS_CODE_UI, "openUrl").mockResolvedValue(ok(true));
     const res = await openLinkFunc(undefined);
-    chai.assert.isTrue(openUrl.calledOnce);
-    chai.assert.isTrue(res.isOk());
-    chai.assert.equal(openUrl.args[0][0], urlPath);
+    assert.isTrue(openUrl.calledOnce);
+    assert.isTrue(res.isOk());
+    assert.equal(openUrl.args[0][0], urlPath);
   }
 
   it("openOfficePartnerCenterHandler", async () => {
@@ -160,7 +159,7 @@ describe("autoOpenOfficeDevProjectHandler", () => {
       "fx-extension.openWalkThrough",
       true
     )) as boolean;
-    chai.assert.isFalse(isOpenWalkThrough);
+    assert.isFalse(isOpenWalkThrough);
   });
 
   it("opens README", async () => {
@@ -175,7 +174,7 @@ describe("autoOpenOfficeDevProjectHandler", () => {
       "fx-extension.openReadMe",
       ""
     )) as string;
-    chai.assert.equal(currentReadMe, "");
+    assert.equal(currentReadMe, "");
   });
 
   it("opens sample README", async () => {
@@ -196,7 +195,7 @@ describe("autoOpenOfficeDevProjectHandler", () => {
 
     await officeDevHandlers.autoOpenOfficeDevProjectHandler();
 
-    chai.assert.isTrue(openSampleReadmeHandlerStub.calledOnce);
+    assert.isTrue(openSampleReadmeHandlerStub.calledOnce);
   });
 
   it("openOfficeDevFolder", async () => {
@@ -212,10 +211,10 @@ describe("autoOpenOfficeDevProjectHandler", () => {
     const openWalkThrough = await globalState.globalStateGet("fx-extension.openWalkThrough", true);
     const openReadMe = await globalState.globalStateGet("fx-extension.openReadMe", "");
     const showLocalDebugMessage = await globalState.globalStateGet("ShowLocalDebugMessage", false);
-    chai.assert.equal(openWalkThrough, false);
-    chai.assert.equal(openReadMe, folderPath.fsPath);
-    chai.assert.equal(showLocalDebugMessage, true);
-    chai.assert(executeCommandStub.calledWithExactly("vscode.openFolder", folderPath, true));
+    assert.equal(openWalkThrough, false);
+    assert.equal(openReadMe, folderPath.fsPath);
+    assert.equal(showLocalDebugMessage, true);
+    assert(executeCommandStub.calledWithExactly("vscode.openFolder", folderPath, true));
   });
 });
 
@@ -237,14 +236,14 @@ describe("OfficeDevTerminal", () => {
 
   it("should validate Office AddIn Manifest", async () => {
     const result = await officeDevHandlers.validateOfficeAddInManifest();
-    chai.expect(result.isOk()).to.be.true;
+    expect(result.isOk()).to.be.true;
     expect(showStub).toHaveBeenCalledTimes(1);
     expect(sendTextStub).toHaveBeenCalledWith(TriggerCmdType.triggerValidate); // replace triggerValidate with actual value
   });
 
   it("should install Office AddIn Dependencies", async () => {
     const result = await officeDevHandlers.installOfficeAddInDependencies();
-    chai.expect(result.isOk()).to.be.true;
+    expect(result.isOk()).to.be.true;
     expect(showStub).toHaveBeenCalledTimes(1);
     expect(sendTextStub).toHaveBeenCalledWith(TriggerCmdType.triggerInstall); // replace triggerInstall with actual value
   });

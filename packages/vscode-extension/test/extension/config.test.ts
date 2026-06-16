@@ -1,12 +1,11 @@
 import { err, LogLevel, ok, UserError } from "@microsoft/teamsfx-api";
-import * as chai from "chai";
 import * as vscode from "vscode";
 import VsCodeLogInstance from "../../src/commonlib/log";
 import { configMgr } from "../../src/config";
 import { ExtTelemetry } from "../../src/telemetry/extTelemetry";
 import * as vsc_ui from "../../src/qm/vsc_ui";
 import * as lifecycleHandlers from "../../src/handlers/lifecycleHandlers";
-import { vi } from "vitest";
+import { vi, assert } from "vitest";
 
 describe("configMgr", () => {
   describe("loadLogLevel", () => {
@@ -20,7 +19,7 @@ describe("configMgr", () => {
         },
       } as any);
       configMgr.loadLogLevel();
-      chai.assert.equal(VsCodeLogInstance.logLevel, LogLevel.Debug);
+      assert.equal(VsCodeLogInstance.logLevel, LogLevel.Debug);
     });
 
     it("Verbose", () => {
@@ -30,7 +29,7 @@ describe("configMgr", () => {
         },
       } as any);
       configMgr.loadLogLevel();
-      chai.assert.equal(VsCodeLogInstance.logLevel, LogLevel.Verbose);
+      assert.equal(VsCodeLogInstance.logLevel, LogLevel.Verbose);
     });
 
     it("Info", () => {
@@ -40,7 +39,7 @@ describe("configMgr", () => {
         },
       } as any);
       configMgr.loadLogLevel();
-      chai.assert.equal(VsCodeLogInstance.logLevel, LogLevel.Info);
+      assert.equal(VsCodeLogInstance.logLevel, LogLevel.Info);
     });
   });
 
@@ -48,7 +47,7 @@ describe("configMgr", () => {
     it("happy", () => {
       const stub = vi.spyOn(configMgr, "loadConfigs").mockReturnValue();
       configMgr.changeConfigCallback({ affectsConfiguration: () => true });
-      chai.assert.isTrue(stub.called);
+      assert.isTrue(stub.called);
     });
   });
   describe("loadConfigs", () => {
@@ -64,8 +63,8 @@ describe("configMgr", () => {
       const stub = vi.spyOn(configMgr, "loadLogLevel").mockReturnValue();
       const stub2 = vi.spyOn(configMgr, "loadFeatureFlags").mockReturnValue();
       configMgr.loadConfigs();
-      chai.assert.isTrue(stub.called);
-      chai.assert.isTrue(stub2.called);
+      assert.isTrue(stub.called);
+      assert.isTrue(stub2.called);
     });
   });
 
@@ -73,7 +72,7 @@ describe("configMgr", () => {
     it("happy", () => {
       const stub = vi.spyOn(configMgr, "getConfiguration").mockReturnValue(false);
       configMgr.loadFeatureFlags();
-      chai.assert.isTrue(stub.called);
+      assert.isTrue(stub.called);
     });
   });
 
@@ -81,7 +80,7 @@ describe("configMgr", () => {
     it("happy", () => {
       const stub = vi.spyOn(configMgr, "loadConfigs").mockReturnValue();
       configMgr.registerConfigChangeCallback();
-      chai.assert.isTrue(stub.called);
+      assert.isTrue(stub.called);
     });
   });
 });

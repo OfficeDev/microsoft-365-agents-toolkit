@@ -9,10 +9,9 @@ if (!process.env.VSCODE_NLS_CONFIG) {
 
 import * as child_process from "child_process";
 import * as os from "os";
-import * as chai from "chai";
 import * as vscode from "vscode";
 import { ok } from "@microsoft/teamsfx-api";
-import { afterAll, afterEach, beforeAll, beforeEach, describe, vi } from "vitest";
+import { afterAll, afterEach, assert, beforeAll, beforeEach, describe, expect, vi } from "vitest";
 import { ExtTelemetry } from "../src/telemetry/extTelemetry";
 import * as globalVariables from "../src/globalVariables";
 import { installVitestMockCompat, restoreMockValues } from "./mocks/vitestMockUtils";
@@ -145,14 +144,14 @@ Object.assign(globalThis, {
     assert: {
       match: (actual: unknown, expected: unknown) => {
         if (typeof expected === "string" && typeof actual === "string") {
-          chai.assert.include(actual, expected);
+          assert.include(actual, expected);
           return;
         }
         if (expected && typeof expected === "object") {
-          chai.expect(actual).to.deep.include(expected as never);
+          assert.deepInclude(actual as never, expected as never);
           return;
         }
-        chai.assert.equal(actual, expected);
+        assert.equal(actual, expected);
       },
     },
   },

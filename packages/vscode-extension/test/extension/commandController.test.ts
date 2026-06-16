@@ -1,11 +1,9 @@
-import { vi } from "vitest";
+import { vi, assert } from "vitest";
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 /**
  * @author Ning Tang <nintan@microsoft.com>
  */
-
-import * as chai from "chai";
 import * as vscode from "vscode";
 import { ok } from "@microsoft/teamsfx-api";
 
@@ -20,7 +18,7 @@ describe("Command Controller", () => {
     commandController.registerCommand(commandName, commandCallback);
     await commandController.runCommand(commandName, []);
 
-    chai.assert.isTrue(commandCallback.calledOnce);
+    assert.isTrue(commandCallback.calledOnce);
   });
 
   it("refresh UI when receiving lock events", async () => {
@@ -29,10 +27,10 @@ describe("Command Controller", () => {
 
     await commandController.lockedByOperation("provisionResources");
 
-    chai.assert.isTrue(
+    assert.isTrue(
       executeCommandStub.calledOnceWithExactly("setContext", "fx-extension.commandLocked", true)
     );
-    chai.assert.isTrue(setRunningCommandStub.calledOnce);
+    assert.isTrue(setRunningCommandStub.calledOnce);
   });
 
   it("refresh UI when receiving unlock events", async () => {
@@ -41,9 +39,9 @@ describe("Command Controller", () => {
 
     await commandController.unlockedByOperation("provisionResources");
 
-    chai.assert.isTrue(
+    assert.isTrue(
       executeCommandStub.calledOnceWithExactly("setContext", "fx-extension.commandLocked", false)
     );
-    chai.assert.isTrue(restoreRunningCommandStub.calledOnce);
+    assert.isTrue(restoreRunningCommandStub.calledOnce);
   });
 });

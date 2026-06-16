@@ -1,11 +1,10 @@
 import * as vscode from "vscode";
-import { expect } from "chai";
 import { SandboxNode } from "../../../src/treeview/account/sandBoxNode";
 import { passIcon, warningIcon } from "../../../src/treeview/account/common";
 import { MockedM365Provider } from "@microsoft/teamsfx-core/tests/core/utils";
 import { GraphClient } from "@microsoft/teamsfx-core";
 import { localize } from "../../../src/utils/localizeUtils";
-import { vi } from "vitest";
+import { vi, expect } from "vitest";
 
 describe("SandboxNode", () => {
   let sandboxNode: SandboxNode;

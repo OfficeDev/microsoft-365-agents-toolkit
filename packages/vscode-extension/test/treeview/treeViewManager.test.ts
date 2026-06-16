@@ -1,12 +1,11 @@
 import { TeamsAppManifest, ok } from "@microsoft/teamsfx-api";
 import { featureFlagManager, manifestUtils } from "@microsoft/teamsfx-core";
-import * as chai from "chai";
 import * as vscode from "vscode";
 import * as globalVariables from "../../src/globalVariables";
 import { CommandsTreeViewProvider } from "../../src/treeview/commandsTreeViewProvider";
 import treeViewManager from "../../src/treeview/treeViewManager";
 import * as commonUtils from "../../src/utils/commonUtils";
-import { vi } from "vitest";
+import { vi, assert } from "vitest";
 import { mockValue } from "../mocks/vitestMockUtils";
 
 describe("TreeViewManager", () => {
@@ -14,12 +13,12 @@ describe("TreeViewManager", () => {
     treeViewManager.registerTreeViews({
       subscriptions: [],
     } as unknown as vscode.ExtensionContext);
-    chai.assert.isDefined(treeViewManager.getTreeView("teamsfx-accounts"));
+    assert.isDefined(treeViewManager.getTreeView("teamsfx-accounts"));
 
     const lifecycleTreeView = treeViewManager.getTreeView("teamsfx-lifecycle");
-    chai.assert.isDefined(lifecycleTreeView);
-    chai.assert.equal((lifecycleTreeView as any).commands.length, 3);
-    chai.assert.equal((lifecycleTreeView as any).commands[0].commandId, "fx-extension.provision");
+    assert.isDefined(lifecycleTreeView);
+    assert.equal((lifecycleTreeView as any).commands.length, 3);
+    assert.equal((lifecycleTreeView as any).commands[0].commandId, "fx-extension.provision");
   });
 
   it("Development Treeview", () => {
@@ -31,8 +30,8 @@ describe("TreeViewManager", () => {
     } as unknown as vscode.ExtensionContext);
 
     const developmentTreeview = treeViewManager.getTreeView("teamsfx-development");
-    chai.assert.isDefined(developmentTreeview);
-    chai.assert.equal((developmentTreeview as any).commands.length, 4);
+    assert.isDefined(developmentTreeview);
+    assert.equal((developmentTreeview as any).commands.length, 4);
   });
 
   it("Development Treeview when HideGitHubCopilotPreviewTag is enabled", () => {
@@ -44,8 +43,8 @@ describe("TreeViewManager", () => {
     } as unknown as vscode.ExtensionContext);
 
     const developmentTreeview = treeViewManager.getTreeView("teamsfx-development");
-    chai.assert.isDefined(developmentTreeview);
-    chai.assert.equal((developmentTreeview as any).commands.length, 5);
+    assert.isDefined(developmentTreeview);
+    assert.equal((developmentTreeview as any).commands.length, 5);
   });
 
   it("Development Treeview when enable extend MetaOS to DA", () => {
@@ -58,8 +57,8 @@ describe("TreeViewManager", () => {
     } as unknown as vscode.ExtensionContext);
 
     const developmentTreeview = treeViewManager.getTreeView("teamsfx-development");
-    chai.assert.isDefined(developmentTreeview);
-    chai.assert.equal((developmentTreeview as any).commands.length, 6);
+    assert.isDefined(developmentTreeview);
+    assert.equal((developmentTreeview as any).commands.length, 6);
   });
 
   it("setRunningCommand", () => {
@@ -70,10 +69,10 @@ describe("TreeViewManager", () => {
     const setStatusStub = vi.spyOn(command, "setStatus");
     treeViewManager.setRunningCommand("fx-extension.create", ["fx-extension.openSamples"]);
 
-    chai.assert.equal(setStatusStub.callCount, 1);
+    assert.equal(setStatusStub.callCount, 1);
 
     treeViewManager.restoreRunningCommand(["fx-extension.openSamples"]);
-    chai.assert.equal(setStatusStub.callCount, 2);
+    assert.equal(setStatusStub.callCount, 2);
   });
 
   it("updateDevelopmentTreeView", () => {
@@ -88,12 +87,12 @@ describe("TreeViewManager", () => {
     ) as CommandsTreeViewProvider;
 
     const commands = developmentTreeviewProvider.getCommands();
-    chai.assert.equal(commands.length, 4);
+    assert.equal(commands.length, 4);
 
     mockValue(globalVariables, "isSPFxProject", true);
     treeViewManager.updateDevelopmentTreeView();
 
-    chai.assert.equal(commands.length, 5);
+    assert.equal(commands.length, 5);
   });
 
   it("updateTreeViewsByContent if remove project related commands", async () => {
@@ -116,8 +115,8 @@ describe("TreeViewManager", () => {
     await treeViewManager.updateTreeViewsByContent(true);
     const developmentCommands = developmentTreeviewProvider.getCommands();
     const utilityCommands = utilityTreeviewProvider.getCommands();
-    chai.assert.equal(developmentCommands.length, 3);
-    chai.assert.equal(utilityCommands.length, 3);
+    assert.equal(developmentCommands.length, 3);
+    assert.equal(utilityCommands.length, 3);
   });
 
   it("updateTreeViewsByContent if remove project related commands when HideGitHubCopilotPreviewTag is enabled", async () => {
@@ -138,12 +137,12 @@ describe("TreeViewManager", () => {
       "teamsfx-utility"
     ) as CommandsTreeViewProvider;
     const utilityCommands = utilityTreeviewProvider.getCommands();
-    chai.assert.equal(developmentCommands.length, 5);
-    chai.assert.equal(utilityCommands.length, 3);
+    assert.equal(developmentCommands.length, 5);
+    assert.equal(utilityCommands.length, 3);
 
     await treeViewManager.updateTreeViewsByContent(true);
-    chai.assert.equal(developmentCommands.length, 4);
-    chai.assert.equal(utilityCommands.length, 3);
+    assert.equal(developmentCommands.length, 4);
+    assert.equal(utilityCommands.length, 3);
   });
 
   it("updateTreeViewsByContent when adaptiveCardInWorkspace is enabled", async () => {
@@ -156,12 +155,12 @@ describe("TreeViewManager", () => {
     ) as CommandsTreeViewProvider;
 
     const commands = developmentTreeviewProvider.getCommands();
-    chai.assert.equal(commands.length, 4);
+    assert.equal(commands.length, 4);
 
     vi.spyOn(commonUtils, "hasAdaptiveCardInWorkspace").mockReturnValue(Promise.resolve(true));
     await treeViewManager.updateTreeViewsByContent();
 
-    chai.assert.equal(commands.length, 5);
+    assert.equal(commands.length, 5);
   });
 
   it("Development Treeview when Add knowledge is enabled", () => {
@@ -172,7 +171,7 @@ describe("TreeViewManager", () => {
     } as unknown as vscode.ExtensionContext);
 
     const developmentTreeview = treeViewManager.getTreeView("teamsfx-development");
-    chai.assert.isDefined(developmentTreeview);
-    chai.assert.equal((developmentTreeview as any).commands.length, 9);
+    assert.isDefined(developmentTreeview);
+    assert.equal((developmentTreeview as any).commands.length, 9);
   });
 });

@@ -1,6 +1,5 @@
-import * as chai from "chai";
 import { ok } from "@microsoft/teamsfx-api";
-import { vi } from "vitest";
+import { vi, assert } from "vitest";
 import {
   refreshCopilotCallback,
   refreshSideloadingCallback,
@@ -21,7 +20,7 @@ describe("refreshAccessHandlers", () => {
         "updateChecks"
       );
       await refreshSideloadingCallback();
-      chai.assert(updateChecksStub.calledOnceWithExactly("test-token", true, false));
+      assert(updateChecksStub.calledOnceWithExactly("test-token", true, false));
     });
 
     it("No token", async () => {
@@ -34,7 +33,7 @@ describe("refreshAccessHandlers", () => {
         "updateChecks"
       );
       await refreshSideloadingCallback();
-      chai.assert(updateChecksStub.notCalled);
+      assert(updateChecksStub.notCalled);
     });
   });
 
@@ -50,7 +49,7 @@ describe("refreshAccessHandlers", () => {
         "updateChecks"
       );
       await refreshCopilotCallback();
-      chai.assert(updateChecksStub.calledOnceWithExactly("test-token", false, true));
+      assert(updateChecksStub.calledOnceWithExactly("test-token", false, true));
     });
 
     it("No token", async () => {
@@ -63,7 +62,7 @@ describe("refreshAccessHandlers", () => {
         "updateChecks"
       );
       await refreshCopilotCallback();
-      chai.assert(updateChecksStub.notCalled);
+      assert(updateChecksStub.notCalled);
     });
   });
 });

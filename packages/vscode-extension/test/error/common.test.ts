@@ -1,11 +1,10 @@
-import * as chai from "chai";
 import * as vscode from "vscode";
 import * as localizeUtils from "../../src/utils/localizeUtils";
 import fs from "fs-extra";
 import * as globalVariables from "../../src/globalVariables";
 import { ExtTelemetry } from "../../src/telemetry/extTelemetry";
 import { SystemError, UserError } from "@microsoft/teamsfx-api";
-import { vi } from "vitest";
+import { vi, assert } from "vitest";
 import { mockValue } from "../mocks/vitestMockUtils";
 import {
   isLoginFailureError,
@@ -57,7 +56,7 @@ describe("common", async () => {
     // "Get Help" button has been removed; only the troubleshoot button is shown
     // when no other recommendations apply, so the call should still happen with
     // exactly one button.
-    chai.assert.isTrue(showErrorMessageStub.calledOnce);
+    assert.isTrue(showErrorMessageStub.calledOnce);
   });
 
   it("showError - if user does not click any button", async () => {
@@ -76,7 +75,7 @@ describe("common", async () => {
     await showError(error);
     await showErrorMessageStub.firstCall.returnValue;
 
-    chai.assert.isFalse(
+    assert.isFalse(
       sendTelemetryEventStub.calledWith(TelemetryEvent.ClickGetHelp, {
         "error-code": "test source.test name",
         "err-message": "test displayMessage",
@@ -103,7 +102,7 @@ describe("common", async () => {
     await showError(error);
     await showErrorMessageStub.firstCall.returnValue;
 
-    chai.assert.isFalse(
+    assert.isFalse(
       sendTelemetryEventStub.calledWith(TelemetryEvent.ClickGetHelp, {
         "error-code": "test source.test name",
         "err-message": "test displayMessage",
@@ -126,7 +125,7 @@ describe("common", async () => {
     await showError(error);
     await showErrorMessageStub.firstCall.returnValue;
 
-    chai.assert.isTrue(executeCommandStub.called);
+    assert.isTrue(executeCommandStub.called);
   });
 
   it("showError - similar issues and no button clicked", async () => {
@@ -143,7 +142,7 @@ describe("common", async () => {
     await showError(error);
     await showErrorMessageStub.firstCall.returnValue;
 
-    chai.assert.isTrue(executeCommandStub.notCalled);
+    assert.isTrue(executeCommandStub.notCalled);
   });
 
   describe("notify user to troubleshoot output with Teams Agent", async () => {
@@ -187,7 +186,7 @@ describe("common", async () => {
 
       // The auto-notify-after-error info message has been removed; the count
       // should remain unchanged.
-      chai.assert.equal(globalVariables.outputTroubleshootNotificationCount, 0);
+      assert.equal(globalVariables.outputTroubleshootNotificationCount, 0);
     });
 
     it("showError - not notify user to troubleshoot output with Teams Agent if reaches limit", async () => {
@@ -205,8 +204,8 @@ describe("common", async () => {
       await showError(error);
       await showErrorMessageStub.firstCall.returnValue;
 
-      chai.assert.equal(globalVariables.outputTroubleshootNotificationCount, 3);
-      chai.assert.isTrue(showErrorMessageStub.calledOnce);
+      assert.equal(globalVariables.outputTroubleshootNotificationCount, 3);
+      assert.isTrue(showErrorMessageStub.calledOnce);
     });
 
     it("showError - not notify user to troubleshoot output with Teams Agent if userCancelError", async () => {
@@ -224,8 +223,8 @@ describe("common", async () => {
 
       await showError(error);
 
-      chai.assert.equal(globalVariables.outputTroubleshootNotificationCount, 0);
-      chai.assert.isFalse(showErrorMessageStub.called);
+      assert.equal(globalVariables.outputTroubleshootNotificationCount, 0);
+      assert.isFalse(showErrorMessageStub.called);
     });
 
     it("should execute command when user selects 'Open output panel'", async () => {
@@ -239,7 +238,7 @@ describe("common", async () => {
       await job;
       await showInformationMessageStub.firstCall.returnValue;
 
-      chai.assert.isTrue(executeCommandStub.calledOnceWith("fx-extension.showOutputChannel"));
+      assert.isTrue(executeCommandStub.calledOnceWith("fx-extension.showOutputChannel"));
     });
   });
 
@@ -291,7 +290,7 @@ describe("common", async () => {
       const error = buildError();
       await showError(error);
       await showErrorMessageStub.firstCall.returnValue;
-      chai.assert.equal(showErrorMessageStub.firstCall.args.length, buttonNum + 1);
+      assert.equal(showErrorMessageStub.firstCall.args.length, buttonNum + 1);
     });
 
     it(`showError - ${type} - recommend troubleshoot`, async () => {
@@ -323,9 +322,9 @@ describe("common", async () => {
       await showErrorMessageStub.firstCall.returnValue;
 
       if (type == "system error") {
-        chai.assert.equal(showErrorMessageStub.firstCall.args.length, buttonNum + 1);
+        assert.equal(showErrorMessageStub.firstCall.args.length, buttonNum + 1);
       } else {
-        chai.assert.equal(showErrorMessageStub.firstCall.args.length, buttonNum + 2);
+        assert.equal(showErrorMessageStub.firstCall.args.length, buttonNum + 2);
       }
     });
 
@@ -352,11 +351,11 @@ describe("common", async () => {
       await showErrorMessageStub.firstCall.returnValue;
 
       if (type == "system error") {
-        chai.assert.equal(showErrorMessageStub.firstCall.args.length, buttonNum + 1);
+        assert.equal(showErrorMessageStub.firstCall.args.length, buttonNum + 1);
       } else {
         // User-error helpLink branch with sandbox + troubleshoot:
         // [troubleshoot, runSandbox] = 2 buttons + title = 3 args
-        chai.assert.equal(showErrorMessageStub.firstCall.args.length, buttonNum + 2);
+        assert.equal(showErrorMessageStub.firstCall.args.length, buttonNum + 2);
       }
     });
   });
@@ -391,17 +390,15 @@ describe("common", async () => {
 
       await showError(error);
 
-      chai.assert.isTrue(showErrorMessageStub.calledOnce);
+      assert.isTrue(showErrorMessageStub.calledOnce);
       if (executeCommandStub.called) {
-        chai.assert.isTrue(
+        assert.isTrue(
           executeCommandStub.calledWith(
             "workbench.action.quickOpen",
             "debug Debug in Microsoft 365 Agents Playground"
           )
         );
-        chai.assert.isTrue(
-          sendTelemetryEventStub.calledWith(TelemetryEvent.MessageDebugInTestTool)
-        );
+        assert.isTrue(sendTelemetryEventStub.calledWith(TelemetryEvent.MessageDebugInTestTool));
       }
     });
 
@@ -435,13 +432,13 @@ describe("common", async () => {
 
       await showError(error);
 
-      chai.assert.isTrue(
+      assert.isTrue(
         executeCommandStub.calledWith(
           "workbench.action.quickOpen",
           "debug Debug in sandbox in Teams (Edge)"
         )
       );
-      chai.assert.isTrue(sendTelemetryEventStub.calledWith(TelemetryEvent.MessageDebugInSandbox));
+      assert.isTrue(sendTelemetryEventStub.calledWith(TelemetryEvent.MessageDebugInSandbox));
     });
 
     it("issue button: opens GitHub bug report URL", async () => {
@@ -466,7 +463,7 @@ describe("common", async () => {
 
       await showError(error);
 
-      chai.assert.isTrue(executeCommandStub.calledWith("vscode.open", expect.anything()));
+      assert.isTrue(executeCommandStub.calledWith("vscode.open", expect.anything()));
     });
   });
 
@@ -474,27 +471,27 @@ describe("common", async () => {
     it("returns the error directly when input is a UserError", () => {
       const original = new UserError("src", "name", "message");
       const result = wrapError(original);
-      chai.assert.isTrue(result.isErr());
+      assert.isTrue(result.isErr());
       if (result.isErr()) {
-        chai.assert.strictEqual(result.error, original);
+        assert.strictEqual(result.error, original);
       }
     });
 
     it("returns the error directly when input is a SystemError", () => {
       const original = new SystemError("src", "name", "message");
       const result = wrapError(original);
-      chai.assert.isTrue(result.isErr());
+      assert.isTrue(result.isErr());
       if (result.isErr()) {
-        chai.assert.strictEqual(result.error, original);
+        assert.strictEqual(result.error, original);
       }
     });
 
     it("wraps a plain Error in a SystemError", () => {
       const original = new Error("boom");
       const result = wrapError(original);
-      chai.assert.isTrue(result.isErr());
+      assert.isTrue(result.isErr());
       if (result.isErr()) {
-        chai.assert.instanceOf(result.error, SystemError);
+        assert.instanceOf(result.error, SystemError);
       }
     });
   });
@@ -502,17 +499,17 @@ describe("common", async () => {
   describe("isLoginFailureError", () => {
     it("returns true when the message contains the login failure marker", () => {
       const e = new UserError("src", "name", "Cannot get user login information from cache");
-      chai.assert.isTrue(isLoginFailureError(e));
+      assert.isTrue(isLoginFailureError(e));
     });
 
     it("returns false for unrelated errors", () => {
       const e = new UserError("src", "name", "Something else went wrong");
-      chai.assert.isFalse(isLoginFailureError(e));
+      assert.isFalse(isLoginFailureError(e));
     });
 
     it("returns false when message is empty", () => {
       const e = new UserError("src", "name", "");
-      chai.assert.isFalse(isLoginFailureError(e));
+      assert.isFalse(isLoginFailureError(e));
     });
   });
 });

@@ -5,10 +5,9 @@ import {
   GraphClient,
   copilotGptManifestUtils,
 } from "@microsoft/teamsfx-core";
-import * as chai from "chai";
 import fs from "fs-extra";
 import * as path from "path";
-import { afterEach, describe } from "vitest";
+import { afterEach, describe, expect, assert } from "vitest";
 import { mockValue } from "../mocks/vitestMockUtils";
 import * as vscode from "vscode";
 import {
@@ -62,8 +61,8 @@ describe("CodeLens Provider", () => {
         document
       ) as vscode.CodeLens[];
 
-      chai.assert.equal(codelens.length, 1);
-      chai.expect(codelens[0].command).to.deep.equal({
+      assert.equal(codelens.length, 1);
+      expect(codelens[0].command).to.deep.equal({
         title: "Open schema",
         command: "fx-extension.openSchema",
         arguments: [{ url: url }],
@@ -81,9 +80,9 @@ describe("CodeLens Provider", () => {
       const cts = new vscode.CancellationTokenSource();
 
       const res = await manifestProvider.resolveCodeLens(lens, cts.token);
-      chai.assert.equal(res.command?.command, "fx-extension.openConfigState");
-      chai.assert.isTrue(res.command?.title.includes("👉"));
-      chai.expect(res.command?.arguments).to.deep.equal([{ type: "env", from: "manifest" }]);
+      assert.equal(res.command?.command, "fx-extension.openConfigState");
+      assert.isTrue(res.command?.title.includes("👉"));
+      expect(res.command?.arguments).to.deep.equal([{ type: "env", from: "manifest" }]);
     });
 
     it("ResolveEnvironmentVariableCodelens for AAD manifest", async () => {
@@ -97,9 +96,9 @@ describe("CodeLens Provider", () => {
       const cts = new vscode.CancellationTokenSource();
 
       const res = await aadProvider.resolveCodeLens(lens, cts.token);
-      chai.assert.equal(res.command?.command, "fx-extension.openConfigState");
-      chai.assert.isTrue(res.command?.title.includes("👉"));
-      chai.expect(res.command?.arguments).to.deep.equal([{ type: "env", from: "aad" }]);
+      assert.equal(res.command?.command, "fx-extension.openConfigState");
+      assert.isTrue(res.command?.title.includes("👉"));
+      expect(res.command?.arguments).to.deep.equal([{ type: "env", from: "aad" }]);
     });
 
     it("ComputeTemplateCodeLenses for AAD manifest template", async () => {
@@ -112,11 +111,9 @@ describe("CodeLens Provider", () => {
 
       const aadProvider = new AadAppTemplateCodeLensProvider();
       const res = await aadProvider.provideCodeLenses(document);
-      chai.assert.isTrue(
-        res != null && res[0].command!.command === "fx-extension.openPreviewAadFile"
-      );
+      assert.isTrue(res != null && res[0].command!.command === "fx-extension.openPreviewAadFile");
 
-      chai.assert.isTrue(
+      assert.isTrue(
         res != null && res[1].command!.command === "fx-extension.convertAadToNewSchema"
       );
     });
@@ -131,7 +128,7 @@ describe("CodeLens Provider", () => {
 
       const aadProvider = new AadAppTemplateCodeLensProvider();
       const res = await aadProvider.provideCodeLenses(document);
-      chai.assert.isTrue(
+      assert.isTrue(
         res != null &&
           res.length === 1 &&
           res[0].command!.command === "fx-extension.openPreviewAadFile"
@@ -151,11 +148,9 @@ describe("CodeLens Provider", () => {
 
       const aadProvider = new AadAppTemplateCodeLensProvider();
       const res = await aadProvider.provideCodeLenses(document);
-      chai.assert.isTrue(
-        res != null && res[0].command!.command === "fx-extension.updateAadAppManifest"
-      );
+      assert.isTrue(res != null && res[0].command!.command === "fx-extension.updateAadAppManifest");
 
-      chai.assert.isTrue(
+      assert.isTrue(
         res != null && res[1].command!.command === "fx-extension.editAadManifestTemplate"
       );
     });
@@ -174,7 +169,7 @@ describe("CodeLens Provider", () => {
       const aadProvider = new AadAppTemplateCodeLensProvider();
       const res = await aadProvider.provideCodeLenses(document);
 
-      chai.assert.isTrue(
+      assert.isTrue(
         res != null &&
           res.length === 1 &&
           res[0].command!.command === "fx-extension.updateAadAppManifest"
@@ -193,7 +188,7 @@ describe("CodeLens Provider", () => {
 
       const permissionsJsonFile = new PermissionsJsonFileCodeLensProvider();
       const res = await permissionsJsonFile.provideCodeLenses(document);
-      chai.assert.isTrue(
+      assert.isTrue(
         res != null && res[0].command!.command === "fx-extension.editAadManifestTemplate"
       );
     });
@@ -219,7 +214,7 @@ describe("CodeLens Provider", () => {
 
       const aadProvider = new AadAppTemplateCodeLensProvider();
       const res = await aadProvider.provideCodeLenses(document);
-      chai.assert.isTrue(res != null && res[0].command!.title.includes("resource name"));
+      assert.isTrue(res != null && res[0].command!.title.includes("resource name"));
     });
   });
 
@@ -249,9 +244,9 @@ describe("CodeLens Provider", () => {
         document
       ) as vscode.CodeLens[];
 
-      chai.assert.equal(codelens.length, 1);
-      chai.expect(codelens[0].command?.title).equal("🔑Decrypt secret");
-      chai.expect(codelens[0].command?.command).equal("fx-extension.decryptSecret");
+      assert.equal(codelens.length, 1);
+      expect(codelens[0].command?.title).equal("🔑Decrypt secret");
+      expect(codelens[0].command?.command).equal("fx-extension.decryptSecret");
     });
 
     it("hides when command is running", async () => {
@@ -280,7 +275,7 @@ describe("CodeLens Provider", () => {
         document
       ) as vscode.CodeLens[];
 
-      chai.assert.equal(codelens.length, 0);
+      assert.equal(codelens.length, 0);
     });
   });
 
@@ -315,8 +310,8 @@ describe("CodeLens Provider", () => {
         document
       ) as vscode.CodeLens[];
 
-      chai.assert.equal(codelens.length, 1);
-      chai.expect(codelens[0].command).to.deep.equal({
+      assert.equal(codelens.length, 1);
+      expect(codelens[0].command).to.deep.equal({
         title: "➕Add another API",
         command: "fx-extension.copilotPluginAddAPI",
         arguments: [{ fsPath: document.fileName }],
@@ -347,7 +342,7 @@ describe("CodeLens Provider", () => {
         document
       ) as vscode.CodeLens[];
 
-      chai.assert.equal(codelens.length, 0);
+      assert.equal(codelens.length, 0);
     });
   });
 
@@ -392,11 +387,11 @@ describe("CodeLens Provider", () => {
         document
       ) as vscode.CodeLens[];
 
-      chai.assert.equal(codelens.length, 1);
-      chai.expect(codelens[0].command!.title).to.equal("➕Add another API");
-      chai.expect(codelens[0].command!.command).to.equal("fx-extension.copilotPluginAddAPI");
-      chai.expect(codelens[0].command!.arguments![0].fsPath).to.equal(document.fileName);
-      chai.expect(codelens[0].command!.arguments![0].isFromApiPlugin).to.be.true;
+      assert.equal(codelens.length, 1);
+      expect(codelens[0].command!.title).to.equal("➕Add another API");
+      expect(codelens[0].command!.command).to.equal("fx-extension.copilotPluginAddAPI");
+      expect(codelens[0].command!.arguments![0].fsPath).to.equal(document.fileName);
+      expect(codelens[0].command!.arguments![0].isFromApiPlugin).to.be.true;
     });
 
     it("Do not show codelens for if not api spec file", async () => {
@@ -429,7 +424,7 @@ describe("CodeLens Provider", () => {
         document
       ) as vscode.CodeLens[];
 
-      chai.assert.equal(codelens.length, 0);
+      assert.equal(codelens.length, 0);
     });
 
     it("Do not show codelens for if Teams manifest not exist", async () => {
@@ -462,7 +457,7 @@ describe("CodeLens Provider", () => {
         document
       ) as vscode.CodeLens[];
 
-      chai.assert.equal(codelens.length, 0);
+      assert.equal(codelens.length, 0);
     });
 
     it("Do not show codelens for if not API plugin project", async () => {
@@ -498,7 +493,7 @@ describe("CodeLens Provider", () => {
         document
       ) as vscode.CodeLens[];
 
-      chai.assert.equal(codelens.length, 0);
+      assert.equal(codelens.length, 0);
     });
   });
 
@@ -532,13 +527,13 @@ publish:
       const provider = new TeamsAppYamlCodeLensProvider();
       const codelens: vscode.CodeLens[] = provider.provideCodeLenses(document) as vscode.CodeLens[];
 
-      chai.assert.equal(codelens.length, 3);
-      chai.expect(codelens[0].command?.command).eq("fx-extension.provision");
-      chai.expect(codelens[0].command?.arguments).deep.eq([TelemetryTriggerFrom.CodeLens]);
-      chai.expect(codelens[1].command?.command).eq("fx-extension.deploy");
-      chai.expect(codelens[1].command?.arguments).deep.eq([TelemetryTriggerFrom.CodeLens]);
-      chai.expect(codelens[2].command?.command).eq("fx-extension.publish");
-      chai.expect(codelens[2].command?.arguments).deep.eq([TelemetryTriggerFrom.CodeLens]);
+      assert.equal(codelens.length, 3);
+      expect(codelens[0].command?.command).eq("fx-extension.provision");
+      expect(codelens[0].command?.arguments).deep.eq([TelemetryTriggerFrom.CodeLens]);
+      expect(codelens[1].command?.command).eq("fx-extension.deploy");
+      expect(codelens[1].command?.arguments).deep.eq([TelemetryTriggerFrom.CodeLens]);
+      expect(codelens[2].command?.command).eq("fx-extension.publish");
+      expect(codelens[2].command?.arguments).deep.eq([TelemetryTriggerFrom.CodeLens]);
     });
   });
 
@@ -571,11 +566,9 @@ publish:
 
       const provider = new OfficeDevManifestCodeLensProvider();
       const codelens: vscode.CodeLens[] = provider.provideCodeLenses(document) as vscode.CodeLens[];
-      chai.assert.equal(codelens.length, 1);
-      chai.expect(codelens[0].command?.command).eq("fx-extension.generateManifestGUID");
-      chai
-        .expect(codelens[0].command?.arguments?.[0])
-        .deep.eq("518f978a-6cf4-46f8-8f1e-10881613fe54");
+      assert.equal(codelens.length, 1);
+      expect(codelens[0].command?.command).eq("fx-extension.generateManifestGUID");
+      expect(codelens[0].command?.arguments?.[0]).deep.eq("518f978a-6cf4-46f8-8f1e-10881613fe54");
     });
   });
 
@@ -606,7 +599,7 @@ publish:
       const provider = new OneDriveSharePointCodeLensProvider();
       const codelens = await provider.provideCodeLenses(document);
 
-      chai.assert.equal((codelens as vscode.CodeLens[]).length, 0);
+      assert.equal((codelens as vscode.CodeLens[]).length, 0);
     });
 
     it("should not provide codelens when manifest file does not exist", async () => {
@@ -640,7 +633,7 @@ publish:
       const provider = new OneDriveSharePointCodeLensProvider();
       const codelens = await provider.provideCodeLenses(document);
 
-      chai.assert.equal((codelens as vscode.CodeLens[]).length, 0);
+      assert.equal((codelens as vscode.CodeLens[]).length, 0);
     });
 
     it("should not provide codelens when not a copilot project", async () => {
@@ -677,7 +670,7 @@ publish:
       const provider = new OneDriveSharePointCodeLensProvider();
       const codelens = await provider.provideCodeLenses(document);
 
-      chai.assert.equal((codelens as vscode.CodeLens[]).length, 0);
+      assert.equal((codelens as vscode.CodeLens[]).length, 0);
     });
 
     it("should provide codelens for SharePoint IDs", async () => {
@@ -723,8 +716,8 @@ publish:
       const provider = new OneDriveSharePointCodeLensProvider();
       const codelens = await provider.provideCodeLenses(document);
 
-      chai.assert.equal((codelens as vscode.CodeLens[]).length, 1);
-      chai.assert.isTrue((codelens as vscode.CodeLens[])[0] instanceof SharePointIdCodeLens);
+      assert.equal((codelens as vscode.CodeLens[]).length, 1);
+      assert.isTrue((codelens as vscode.CodeLens[])[0] instanceof SharePointIdCodeLens);
     });
 
     it("should resolve codelens with item details", async () => {
@@ -759,10 +752,10 @@ publish:
         new vscode.CancellationTokenSource().token
       );
 
-      chai.assert.isDefined(resolvedLens.command);
-      chai.assert.equal(resolvedLens.command?.command, "fx-extension.openOneDriveSharePointUrl");
-      chai.assert.isTrue(resolvedLens.command?.title.includes("Test Item"));
-      chai.assert.deepEqual(resolvedLens.command?.arguments, ["https://test.sharepoint.com"]);
+      assert.isDefined(resolvedLens.command);
+      assert.equal(resolvedLens.command?.command, "fx-extension.openOneDriveSharePointUrl");
+      assert.isTrue(resolvedLens.command?.title.includes("Test Item"));
+      assert.deepEqual(resolvedLens.command?.arguments, ["https://test.sharepoint.com"]);
     });
 
     it("should handle error when resolving codelens", async () => {
@@ -794,9 +787,9 @@ publish:
         new vscode.CancellationTokenSource().token
       );
 
-      chai.assert.isDefined(resolvedLens.command);
-      chai.assert.equal(resolvedLens.command?.command, "");
-      chai.assert.isTrue(resolvedLens.command?.title.includes("Test error"));
+      assert.isDefined(resolvedLens.command);
+      assert.equal(resolvedLens.command?.command, "");
+      assert.isTrue(resolvedLens.command?.title.includes("Test error"));
     });
 
     it("should handle missing required IDs when resolving codelens", async () => {
@@ -815,9 +808,9 @@ publish:
         new vscode.CancellationTokenSource().token
       );
 
-      chai.assert.isDefined(resolvedLens.command);
-      chai.assert.equal(resolvedLens.command?.command, "");
-      chai.assert.isTrue(resolvedLens.command?.title.includes("Missing required SharePoint IDs"));
+      assert.isDefined(resolvedLens.command);
+      assert.equal(resolvedLens.command?.command, "");
+      assert.isTrue(resolvedLens.command?.title.includes("Missing required SharePoint IDs"));
     });
 
     it("should handle missing unique ID when resolving codelens", async () => {
@@ -850,10 +843,10 @@ publish:
         new vscode.CancellationTokenSource().token
       );
 
-      chai.assert.isDefined(resolvedLens.command);
-      chai.assert.equal(resolvedLens.command?.command, "fx-extension.openOneDriveSharePointUrl");
-      chai.assert.isTrue(resolvedLens.command?.title.includes("Test Item"));
-      chai.assert.deepEqual(resolvedLens.command?.arguments, ["https://test.sharepoint.com"]);
+      assert.isDefined(resolvedLens.command);
+      assert.equal(resolvedLens.command?.command, "fx-extension.openOneDriveSharePointUrl");
+      assert.isTrue(resolvedLens.command?.title.includes("Test Item"));
+      assert.deepEqual(resolvedLens.command?.arguments, ["https://test.sharepoint.com"]);
     });
 
     it("should return unmodified lens when not a SharePointIdCodeLens", async () => {
@@ -870,12 +863,12 @@ publish:
       );
 
       // Explicitly verify that the original lens is returned without modification
-      chai.assert.strictEqual(resolvedLens, lens);
-      chai.assert.deepEqual(resolvedLens.command, {
+      assert.strictEqual(resolvedLens, lens);
+      assert.deepEqual(resolvedLens.command, {
         title: "Original command",
         command: "test.command",
       });
-      chai.assert.deepEqual(resolvedLens.range, range);
+      assert.deepEqual(resolvedLens.range, range);
     });
 
     it("should handle undefined SharePoint IDs when resolving codelens", async () => {
@@ -893,9 +886,9 @@ publish:
         new vscode.CancellationTokenSource().token
       );
 
-      chai.assert.isDefined(resolvedLens.command);
-      chai.assert.equal(resolvedLens.command?.command, "");
-      chai.assert.isTrue(resolvedLens.command?.title.includes("Missing required SharePoint IDs"));
+      assert.isDefined(resolvedLens.command);
+      assert.equal(resolvedLens.command?.command, "");
+      assert.isTrue(resolvedLens.command?.title.includes("Missing required SharePoint IDs"));
     });
   });
 
@@ -936,7 +929,7 @@ publish:
       const provider = new DeclarativeAgentSensitivityLabelCodeLensProvider();
       const codelens = await provider.provideCodeLenses(document);
 
-      chai.assert.equal((codelens as vscode.CodeLens[]).length, 0);
+      assert.equal((codelens as vscode.CodeLens[]).length, 0);
     });
 
     it("should not provide codelens when manifest file does not exist", async () => {
@@ -970,7 +963,7 @@ publish:
       const provider = new DeclarativeAgentSensitivityLabelCodeLensProvider();
       const codelens = await provider.provideCodeLenses(document);
 
-      chai.assert.equal((codelens as vscode.CodeLens[]).length, 0);
+      assert.equal((codelens as vscode.CodeLens[]).length, 0);
     });
 
     it("should not provide codelens when document path doesn't match declarative agent file path", async () => {
@@ -1017,7 +1010,7 @@ publish:
       const provider = new DeclarativeAgentSensitivityLabelCodeLensProvider();
       const codelens = await provider.provideCodeLenses(document);
 
-      chai.assert.equal((codelens as vscode.CodeLens[]).length, 0);
+      assert.equal((codelens as vscode.CodeLens[]).length, 0);
     });
 
     it("should not provide codelens when manifest does not contain declarative agent", async () => {
@@ -1055,7 +1048,7 @@ publish:
       const provider = new DeclarativeAgentSensitivityLabelCodeLensProvider();
       const codelens = await provider.provideCodeLenses(document);
 
-      chai.assert.equal((codelens as vscode.CodeLens[]).length, 0);
+      assert.equal((codelens as vscode.CodeLens[]).length, 0);
     });
 
     it("should provide sensitivity label codelens when label exists", async () => {
@@ -1135,11 +1128,11 @@ publish:
       const provider = new DeclarativeAgentSensitivityLabelCodeLensProvider();
       const codelens = await provider.provideCodeLenses(document);
 
-      chai.assert.equal((codelens as vscode.CodeLens[]).length, 1);
+      assert.equal((codelens as vscode.CodeLens[]).length, 1);
       const lens = codelens[0] as vscode.CodeLens;
-      chai.assert.equal(lens.command?.command, "fx-extension.setSensitivityLabel");
-      chai.assert.isString(lens.command?.title);
-      chai.assert.isTrue((lens.command?.title?.length ?? 0) > 0);
+      assert.equal(lens.command?.command, "fx-extension.setSensitivityLabel");
+      assert.isString(lens.command?.title);
+      assert.isTrue((lens.command?.title?.length ?? 0) > 0);
     });
 
     it("should show login codelens when user not logged in", async () => {
@@ -1201,9 +1194,9 @@ publish:
       const provider = new DeclarativeAgentSensitivityLabelCodeLensProvider();
       const codelens = await provider.provideCodeLenses(document);
 
-      chai.assert.equal((codelens as vscode.CodeLens[]).length, 1);
+      assert.equal((codelens as vscode.CodeLens[]).length, 1);
       const lens = codelens[0] as vscode.CodeLens;
-      chai.assert.equal(lens.command?.command, "fx-extension.m365PreAuth");
+      assert.equal(lens.command?.command, "fx-extension.m365PreAuth");
     });
 
     it("should provide add sensitivity label codelens when label not exists", async () => {
@@ -1250,9 +1243,9 @@ publish:
       const provider = new DeclarativeAgentSensitivityLabelCodeLensProvider();
       const codelens = await provider.provideCodeLenses(document);
 
-      chai.assert.equal((codelens as vscode.CodeLens[]).length, 1);
+      assert.equal((codelens as vscode.CodeLens[]).length, 1);
       const lens = codelens[0] as vscode.CodeLens;
-      chai.assert.equal(lens.command?.command, "fx-extension.setSensitivityLabel");
+      assert.equal(lens.command?.command, "fx-extension.setSensitivityLabel");
     });
   });
 
@@ -1291,10 +1284,10 @@ publish:
       const provider = new WorkspaceMCPConfigCodeLensProvider();
       const codelens: vscode.CodeLens[] = provider.provideCodeLenses(document) as vscode.CodeLens[];
 
-      chai.assert.equal(codelens.length, 1);
-      chai.expect(codelens[0].command?.title).to.equal("⚡ ATK: Fetch action from MCP");
-      chai.expect(codelens[0].command?.command).to.equal("fx-extension.updateActionWithMCP");
-      chai.expect(codelens[0].command?.arguments).to.deep.equal([
+      assert.equal(codelens.length, 1);
+      expect(codelens[0].command?.title).to.equal("⚡ ATK: Fetch action from MCP");
+      expect(codelens[0].command?.command).to.equal("fx-extension.updateActionWithMCP");
+      expect(codelens[0].command?.arguments).to.deep.equal([
         {
           serverName: "my-server",
           serverConfig: {
@@ -1343,11 +1336,11 @@ publish:
       const provider = new WorkspaceMCPConfigCodeLensProvider();
       const codelens: vscode.CodeLens[] = provider.provideCodeLenses(document) as vscode.CodeLens[];
 
-      chai.assert.equal(codelens.length, 2);
+      assert.equal(codelens.length, 2);
 
-      chai.expect(codelens[0].command?.title).to.equal("⚡ ATK: Fetch action from MCP");
-      chai.expect(codelens[0].command?.command).to.equal("fx-extension.updateActionWithMCP");
-      chai.expect(codelens[0].command?.arguments).to.deep.equal([
+      expect(codelens[0].command?.title).to.equal("⚡ ATK: Fetch action from MCP");
+      expect(codelens[0].command?.command).to.equal("fx-extension.updateActionWithMCP");
+      expect(codelens[0].command?.arguments).to.deep.equal([
         {
           serverName: "server-one",
           serverConfig: {
@@ -1358,9 +1351,9 @@ publish:
         "CodeLens",
       ]);
 
-      chai.expect(codelens[1].command?.title).to.equal("⚡ ATK: Fetch action from MCP");
-      chai.expect(codelens[1].command?.command).to.equal("fx-extension.updateActionWithMCP");
-      chai.expect(codelens[1].command?.arguments).to.deep.equal([
+      expect(codelens[1].command?.title).to.equal("⚡ ATK: Fetch action from MCP");
+      expect(codelens[1].command?.command).to.equal("fx-extension.updateActionWithMCP");
+      expect(codelens[1].command?.arguments).to.deep.equal([
         {
           serverName: "server-two",
           serverConfig: {
@@ -1406,10 +1399,10 @@ publish:
       const provider = new WorkspaceMCPConfigCodeLensProvider();
       const codelens: vscode.CodeLens[] = provider.provideCodeLenses(document) as vscode.CodeLens[];
 
-      chai.assert.equal(codelens.length, 1);
-      chai.expect(codelens[0].command?.title).to.equal("⚡ ATK: Fetch action from MCP");
-      chai.expect(codelens[0].command?.command).to.equal("fx-extension.updateActionWithMCP");
-      chai.expect(codelens[0].command?.arguments).to.deep.equal([
+      assert.equal(codelens.length, 1);
+      expect(codelens[0].command?.title).to.equal("⚡ ATK: Fetch action from MCP");
+      expect(codelens[0].command?.command).to.equal("fx-extension.updateActionWithMCP");
+      expect(codelens[0].command?.arguments).to.deep.equal([
         {
           serverName: "test-server",
           serverConfig: {
@@ -1447,7 +1440,7 @@ publish:
       const provider = new WorkspaceMCPConfigCodeLensProvider();
       const codelens: vscode.CodeLens[] = provider.provideCodeLenses(document) as vscode.CodeLens[];
 
-      chai.assert.equal(codelens.length, 0);
+      assert.equal(codelens.length, 0);
     });
 
     it("should return empty array when servers is not an object", async () => {
@@ -1474,7 +1467,7 @@ publish:
       const provider = new WorkspaceMCPConfigCodeLensProvider();
       const codelens: vscode.CodeLens[] = provider.provideCodeLenses(document) as vscode.CodeLens[];
 
-      chai.assert.equal(codelens.length, 0);
+      assert.equal(codelens.length, 0);
     });
 
     it("should return empty array when servers object is empty", async () => {
@@ -1501,7 +1494,7 @@ publish:
       const provider = new WorkspaceMCPConfigCodeLensProvider();
       const codelens: vscode.CodeLens[] = provider.provideCodeLenses(document) as vscode.CodeLens[];
 
-      chai.assert.equal(codelens.length, 0);
+      assert.equal(codelens.length, 0);
     });
 
     it("should handle empty document", async () => {
@@ -1526,7 +1519,7 @@ publish:
       const provider = new WorkspaceMCPConfigCodeLensProvider();
       const codelens: vscode.CodeLens[] = provider.provideCodeLenses(document) as vscode.CodeLens[];
 
-      chai.assert.equal(codelens.length, 0);
+      assert.equal(codelens.length, 0);
     });
 
     it("should handle document with only whitespace", async () => {
@@ -1551,7 +1544,7 @@ publish:
       const provider = new WorkspaceMCPConfigCodeLensProvider();
       const codelens: vscode.CodeLens[] = provider.provideCodeLenses(document) as vscode.CodeLens[];
 
-      chai.assert.equal(codelens.length, 0);
+      assert.equal(codelens.length, 0);
     });
 
     it("should calculate correct range for server name", async () => {
@@ -1587,15 +1580,15 @@ publish:
       const provider = new WorkspaceMCPConfigCodeLensProvider();
       const codelens: vscode.CodeLens[] = provider.provideCodeLenses(document) as vscode.CodeLens[];
 
-      chai.assert.equal(codelens.length, 1);
+      assert.equal(codelens.length, 1);
 
       // The range should cover the server name with quotes
       const expectedStartPos = mcpConfigText.indexOf('"my-test-server"');
-      chai.assert.isTrue(expectedStartPos !== -1, "Server name should be found in the text");
+      assert.isTrue(expectedStartPos !== -1, "Server name should be found in the text");
 
       // Check that the range properties are set correctly
-      chai.assert.equal(codelens[0].range.start.line, codelens[0].range.end.line);
-      chai.assert.equal(
+      assert.equal(codelens[0].range.start.line, codelens[0].range.end.line);
+      assert.equal(
         codelens[0].range.end.character - codelens[0].range.start.character,
         "my-test-server".length + 2
       );
@@ -1635,9 +1628,9 @@ publish:
       const provider = new WorkspaceMCPConfigCodeLensProvider();
       const codelens: vscode.CodeLens[] = provider.provideCodeLenses(document) as vscode.CodeLens[];
 
-      chai.assert.equal(codelens.length, 2);
+      assert.equal(codelens.length, 2);
 
-      chai.expect(codelens[0].command?.arguments).to.deep.equal([
+      expect(codelens[0].command?.arguments).to.deep.equal([
         {
           serverName: "server-with-dashes_and_underscores.123",
           serverConfig: {
@@ -1648,7 +1641,7 @@ publish:
         "CodeLens",
       ]);
 
-      chai.expect(codelens[1].command?.arguments).to.deep.equal([
+      expect(codelens[1].command?.arguments).to.deep.equal([
         {
           serverName: "@scoped/server-name",
           serverConfig: {
@@ -1690,9 +1683,9 @@ publish:
       const provider = new WorkspaceMCPConfigCodeLensProvider();
       const codelens: vscode.CodeLens[] = provider.provideCodeLenses(document) as vscode.CodeLens[];
 
-      chai.assert.equal(codelens.length, 2);
+      assert.equal(codelens.length, 2);
 
-      chai.expect(codelens[0].command?.arguments).to.deep.equal([
+      expect(codelens[0].command?.arguments).to.deep.equal([
         {
           serverName: "null-server",
           serverConfig: null,
@@ -1700,7 +1693,7 @@ publish:
         "CodeLens",
       ]);
 
-      chai.expect(codelens[1].command?.arguments).to.deep.equal([
+      expect(codelens[1].command?.arguments).to.deep.equal([
         {
           serverName: "undefined-server",
           serverConfig: {

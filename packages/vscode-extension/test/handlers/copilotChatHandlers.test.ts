@@ -1,6 +1,5 @@
-import * as chai from "chai";
 import * as vscode from "vscode";
-import { vi } from "vitest";
+import { vi, assert } from "vitest";
 import { mockValue } from "../mocks/vitestMockUtils";
 
 import VsCodeLogInstance from "../../src/commonlib/log";
@@ -53,8 +52,8 @@ describe("copilotChatHandler", async () => {
       const res = await handlers.openGithubCopilotChat([
         extTelemetryEvents.TelemetryTriggerFrom.CreateAppQuestionFlow,
       ]);
-      chai.assert.isTrue(res.isOk());
-      chai.assert.isTrue(executeCommandStub.called);
+      assert.isTrue(res.isOk());
+      assert.isTrue(executeCommandStub.called);
     });
 
     it("open without query success", async () => {
@@ -63,8 +62,8 @@ describe("copilotChatHandler", async () => {
         extTelemetryEvents.TelemetryTriggerFrom.CreateAppQuestionFlow,
         "test",
       ]);
-      chai.assert.isTrue(res.isOk());
-      chai.assert.isTrue(executeCommandStub.called);
+      assert.isTrue(res.isOk());
+      assert.isTrue(executeCommandStub.called);
     });
 
     it("open without query error", async () => {
@@ -80,9 +79,9 @@ describe("copilotChatHandler", async () => {
 
       const res = await handlers.openGithubCopilotChat();
 
-      chai.assert.isTrue(res.isErr());
+      assert.isTrue(res.isErr());
       if (res.isErr()) {
-        chai.assert.equal(res.error.source, "open-github-copilot-chat");
+        assert.equal(res.error.source, "open-github-copilot-chat");
       }
     });
 
@@ -102,8 +101,8 @@ describe("copilotChatHandler", async () => {
         "test",
       ]);
 
-      chai.assert.isTrue(res.isOk());
-      chai.assert.isTrue(executeCommandStub.called);
+      assert.isTrue(res.isOk());
+      assert.isTrue(executeCommandStub.called);
     });
 
     it("open with query error", async () => {
@@ -122,9 +121,9 @@ describe("copilotChatHandler", async () => {
         "test",
       ]);
 
-      chai.assert.isTrue(res.isErr());
+      assert.isTrue(res.isErr());
       if (res.isErr()) {
-        chai.assert.equal(res.error.source, "open-github-copilot-chat");
+        assert.equal(res.error.source, "open-github-copilot-chat");
       }
     });
   });
@@ -140,7 +139,7 @@ describe("copilotChatHandler", async () => {
         extTelemetryEvents.TelemetryTriggerFrom.CreateAppQuestionFlow,
       ]);
 
-      chai.assert.isTrue(res.isOk());
+      assert.isTrue(res.isOk());
     });
 
     it("install Github Copilot successfully", async () => {
@@ -151,8 +150,8 @@ describe("copilotChatHandler", async () => {
         extTelemetryEvents.TelemetryTriggerFrom.CreateAppQuestionFlow,
       ]);
 
-      chai.assert.isTrue(res.isOk());
-      chai.assert.isTrue(installStub.called);
+      assert.isTrue(res.isOk());
+      assert.isTrue(installStub.called);
     });
 
     it("Install github copilot extension error", async () => {
@@ -172,11 +171,11 @@ describe("copilotChatHandler", async () => {
 
       const res = await handlers.installGithubCopilotChatExtension();
 
-      chai.assert.isTrue(res.isErr());
+      assert.isTrue(res.isErr());
       if (res.isErr()) {
-        chai.assert.equal(res.error.source, "install-copilot-chat");
+        assert.equal(res.error.source, "install-copilot-chat");
       }
-      chai.assert.equal(commandStub.callCount, 1);
+      assert.equal(commandStub.callCount, 1);
     });
   });
 
@@ -184,7 +183,7 @@ describe("copilotChatHandler", async () => {
     it("should open URL successfully", async () => {
       const openUrlStub = vi.spyOn(vsc_ui.VS_CODE_UI, "openUrl").mockResolvedValue(ok(true));
       await handlers.openInstallTeamsAgent();
-      chai.assert.isTrue(openUrlStub.calledOnce);
+      assert.isTrue(openUrlStub.calledOnce);
     });
 
     it("should handle URL opening failure", async () => {
@@ -192,8 +191,8 @@ describe("copilotChatHandler", async () => {
       const openUrlStub = vi.spyOn(vsc_ui.VS_CODE_UI, "openUrl").mockResolvedValue(err(error));
       const logErrorStub = vi.spyOn(VsCodeLogInstance, "error").mockResolvedValue();
       await handlers.openInstallTeamsAgent();
-      chai.assert.isTrue(openUrlStub.calledOnce);
-      chai.assert.isTrue(logErrorStub.calledOnceWith(error.message));
+      assert.isTrue(openUrlStub.calledOnce);
+      assert.isTrue(logErrorStub.calledOnceWith(error.message));
     });
   });
 
@@ -201,7 +200,7 @@ describe("copilotChatHandler", async () => {
     it("should update global state successfully", async () => {
       const globalStateUpdateStub = vi.spyOn(teamsfxCore, "globalStateUpdate").mockResolvedValue();
       await handlers.markTeamsAgentInstallationDone();
-      chai.assert.isTrue(globalStateUpdateStub.calledOnceWith(GlobalKey.TeamsAgentInstalled, true));
+      assert.isTrue(globalStateUpdateStub.calledOnceWith(GlobalKey.TeamsAgentInstalled, true));
     });
 
     it("should handle global state update failure", async () => {
@@ -210,8 +209,8 @@ describe("copilotChatHandler", async () => {
         .spyOn(teamsfxCore, "globalStateUpdate")
         .mockRejectedValue(error);
       await handlers.markTeamsAgentInstallationDone();
-      chai.assert.isTrue(globalStateUpdateStub.calledOnceWith(GlobalKey.TeamsAgentInstalled, true));
-      chai.assert.isTrue(sendTelemetryErrorEventStub.calledOnce);
+      assert.isTrue(globalStateUpdateStub.calledOnceWith(GlobalKey.TeamsAgentInstalled, true));
+      assert.isTrue(sendTelemetryErrorEventStub.calledOnce);
     });
   });
 
@@ -219,7 +218,7 @@ describe("copilotChatHandler", async () => {
     it("should execute command successfully", async () => {
       const executeCommandStub = vi.spyOn(vscode.commands, "executeCommand").mockResolvedValue();
       await handlers.openTeamsAgentWalkthrough();
-      chai.assert.isTrue(
+      assert.isTrue(
         executeCommandStub.calledOnceWith("workbench.action.openWalkthrough", {
           category: "TeamsDevApp.ms-teams-vscode-extension#teamsAgentGetStarted",
         })
@@ -243,8 +242,8 @@ describe("copilotChatHandler", async () => {
 
       const res = await handlers.invokeTeamsAgent(args);
 
-      chai.assert.isTrue(res.isErr());
-      chai.assert.isTrue(executeCommandStub.notCalled);
+      assert.isTrue(res.isErr());
+      assert.isTrue(executeCommandStub.notCalled);
     });
 
     it("invokes chat from treeview when not signed in (sign-in precheck removed)", async () => {
@@ -258,12 +257,12 @@ describe("copilotChatHandler", async () => {
 
       const res = await handlers.invokeTeamsAgent(args);
 
-      chai.assert.isTrue(res.isOk());
+      assert.isTrue(res.isOk());
       if (res.isOk()) {
-        chai.assert.isTrue(res.value);
+        assert.isTrue(res.value);
       }
-      chai.assert.isTrue(executeCommandStub.called);
-      chai.assert.isTrue(sendTelemetryErrorEventStub.notCalled);
+      assert.isTrue(executeCommandStub.called);
+      assert.isTrue(sendTelemetryErrorEventStub.notCalled);
     });
 
     it("invokes chat from treeview when @m365agents not installed (install precheck removed)", async () => {
@@ -282,12 +281,12 @@ describe("copilotChatHandler", async () => {
 
       const res = await handlers.invokeTeamsAgent(args);
 
-      chai.assert.isTrue(res.isOk());
+      assert.isTrue(res.isOk());
       if (res.isOk()) {
-        chai.assert.isTrue(res.value);
+        assert.isTrue(res.value);
       }
-      chai.assert.isTrue(executeCommandStub.called);
-      chai.assert.isTrue(sendTelemetryErrorEventStub.notCalled);
+      assert.isTrue(executeCommandStub.called);
+      assert.isTrue(sendTelemetryErrorEventStub.notCalled);
     });
 
     it("invoke chat successfully from command palette", async () => {
@@ -306,12 +305,12 @@ describe("copilotChatHandler", async () => {
 
       const res = await handlers.invokeTeamsAgent(args);
 
-      chai.assert.isTrue(res.isOk());
+      assert.isTrue(res.isOk());
       if (res.isOk()) {
-        chai.assert.isTrue(res.value);
+        assert.isTrue(res.value);
       }
-      chai.assert.isTrue(executeCommandStub.called);
-      chai.assert.isTrue(sendTelemetryErrorEventStub.notCalled);
+      assert.isTrue(executeCommandStub.called);
+      assert.isTrue(sendTelemetryErrorEventStub.notCalled);
     });
 
     it("invoke chat successfully from unknown", async () => {
@@ -330,12 +329,12 @@ describe("copilotChatHandler", async () => {
 
       const res = await handlers.invokeTeamsAgent(args);
 
-      chai.assert.isTrue(res.isOk());
+      assert.isTrue(res.isOk());
       if (res.isOk()) {
-        chai.assert.isTrue(res.value);
+        assert.isTrue(res.value);
       }
-      chai.assert.isTrue(executeCommandStub.called);
-      chai.assert.isTrue(sendTelemetryErrorEventStub.notCalled);
+      assert.isTrue(executeCommandStub.called);
+      assert.isTrue(sendTelemetryErrorEventStub.notCalled);
     });
 
     it("skip precheck and invoke chat error from WalkThrough", async () => {
@@ -351,11 +350,11 @@ describe("copilotChatHandler", async () => {
 
       const res = await handlers.invokeTeamsAgent(args);
 
-      chai.assert.isTrue(res.isErr());
+      assert.isTrue(res.isErr());
       if (res.isOk()) {
-        chai.assert.isTrue(res.value);
+        assert.isTrue(res.value);
       }
-      chai.assert.isTrue(sendTelemetryErrorEventStub.called);
+      assert.isTrue(sendTelemetryErrorEventStub.called);
     });
 
     describe("invoke chat successfully from WalkThrough", async () => {
@@ -370,9 +369,9 @@ describe("copilotChatHandler", async () => {
           const args = [trigger];
           vi.spyOn(vscode.commands, "executeCommand").mockResolvedValue();
           const res = await handlers.invokeTeamsAgent(args);
-          chai.assert.isTrue(res.isOk());
+          assert.isTrue(res.isOk());
           if (res.isOk()) {
-            chai.assert.isTrue(res.value);
+            assert.isTrue(res.value);
           } else {
             console.log(res.error);
           }
@@ -406,13 +405,13 @@ describe("copilotChatHandler", async () => {
       if (res.isErr()) {
         console.log(res.error);
       }
-      chai.assert.isTrue(res.isOk());
+      assert.isTrue(res.isOk());
     });
 
     it("no active text", async () => {
       mockValue(vscode.window, "activeTextEditor", undefined);
       const res = await handlers.troubleshootSelectedText();
-      chai.assert.isTrue(res.isErr());
+      assert.isTrue(res.isErr());
     });
 
     it("error", async () => {
@@ -430,7 +429,7 @@ describe("copilotChatHandler", async () => {
       vi.spyOn(vscode.commands, "executeCommand").mockRejectedValue(error);
 
       const res = await handlers.troubleshootSelectedText();
-      chai.assert.isTrue(res.isErr());
+      assert.isTrue(res.isErr());
     });
   });
 
@@ -452,14 +451,14 @@ describe("copilotChatHandler", async () => {
 
       const currentError = new SystemError("test", "test", "test", "test");
       const res = await handlers.troubleshootError(["Notification", currentError]);
-      chai.assert.isTrue(res.isOk());
+      assert.isTrue(res.isOk());
     });
 
     it("missing args", async () => {
       const res = await handlers.troubleshootError([]);
       const calledCommand = vi.spyOn(vscode.commands, "executeCommand").mockResolvedValue();
-      chai.assert.isTrue(res.isOk());
-      chai.assert.isFalse(calledCommand.calledOnce);
+      assert.isTrue(res.isOk());
+      assert.isFalse(calledCommand.calledOnce);
     });
 
     it("error", async () => {
@@ -471,7 +470,7 @@ describe("copilotChatHandler", async () => {
 
       const currentError = new SystemError("test", "test", "test", "test");
       const res = await handlers.troubleshootError(["triggerFrom", currentError]);
-      chai.assert.isTrue(res.isErr());
+      assert.isTrue(res.isErr());
     });
   });
 });

@@ -1,9 +1,8 @@
-import * as chai from "chai";
 import * as vscode from "vscode";
 import { NetworkError, UserCancelError } from "@microsoft/teamsfx-core";
 import { FeatureFlags, GraphScopes, featureFlagManager } from "@microsoft/teamsfx-core";
 import { AzureAccountManager } from "../../../src/commonlib/azureLogin";
-import { vi } from "vitest";
+import { vi, assert } from "vitest";
 import {
   signinAzureCallback,
   signinM365Callback,
@@ -28,7 +27,7 @@ describe("SigninAccountHandlers", () => {
 
       await signinAzureCallback({}, { status: 0 });
 
-      chai.assert.isTrue(getIdentityCredentialStub.calledOnce);
+      assert.isTrue(getIdentityCredentialStub.calledOnce);
     });
 
     it("signinAzureCallback with error", async () => {
@@ -37,7 +36,7 @@ describe("SigninAccountHandlers", () => {
 
       const res = await signinAzureCallback({}, { status: 0 });
 
-      chai.assert.isTrue(res.isErr());
+      assert.isTrue(res.isErr());
     });
 
     it("signinAzureCallback with cancel error", async () => {
@@ -48,7 +47,7 @@ describe("SigninAccountHandlers", () => {
 
       const res = await signinAzureCallback({}, { status: 0 });
 
-      chai.assert.isTrue(res.isOk());
+      assert.isTrue(res.isOk());
     });
 
     it("Signed in status", async () => {
@@ -60,7 +59,7 @@ describe("SigninAccountHandlers", () => {
 
       await signinAzureCallback({}, { status: 2 });
 
-      chai.assert.isTrue(getIdentityCredentialStub.notCalled);
+      assert.isTrue(getIdentityCredentialStub.notCalled);
     });
   });
 
@@ -87,8 +86,8 @@ describe("SigninAccountHandlers", () => {
         }
       );
 
-      chai.assert.isTrue(getJsonObjectStub.calledOnce);
-      chai.assert.isTrue(setSignedInStub.calledOnceWith(["test", ""]));
+      assert.isTrue(getJsonObjectStub.calledOnce);
+      assert.isTrue(setSignedInStub.calledOnceWith(["test", ""]));
     });
 
     it("Happy path - valid tid", async () => {
@@ -107,8 +106,8 @@ describe("SigninAccountHandlers", () => {
         }
       );
 
-      chai.assert.isTrue(getJsonObjectStub.calledOnce);
-      chai.assert.isTrue(setSignedInStub.calledOnceWith(["", "test"]));
+      assert.isTrue(getJsonObjectStub.calledOnce);
+      assert.isTrue(setSignedInStub.calledOnceWith(["", "test"]));
     });
 
     it("Happy path - valid upn & tid", async () => {
@@ -127,8 +126,8 @@ describe("SigninAccountHandlers", () => {
         }
       );
 
-      chai.assert.isTrue(getJsonObjectStub.calledOnce);
-      chai.assert.isTrue(setSignedInStub.calledOnceWith(["test upn", "test tid"]));
+      assert.isTrue(getJsonObjectStub.calledOnce);
+      assert.isTrue(setSignedInStub.calledOnceWith(["test upn", "test tid"]));
     });
 
     it("invalid token result", async () => {
@@ -149,8 +148,8 @@ describe("SigninAccountHandlers", () => {
         }
       );
 
-      chai.assert.isTrue(getJsonObjectStub.calledOnce);
-      chai.assert.isTrue(setSignedInStub.notCalled);
+      assert.isTrue(getJsonObjectStub.calledOnce);
+      assert.isTrue(setSignedInStub.notCalled);
     });
 
     it("Signed in", async () => {
@@ -169,8 +168,8 @@ describe("SigninAccountHandlers", () => {
         }
       );
 
-      chai.assert.isTrue(getJsonObjectStub.notCalled);
-      chai.assert.isTrue(setSignedInStub.notCalled);
+      assert.isTrue(getJsonObjectStub.notCalled);
+      assert.isTrue(setSignedInStub.notCalled);
     });
 
     it("uses Graph scopes in sovereign high", async () => {
@@ -181,7 +180,7 @@ describe("SigninAccountHandlers", () => {
 
       await signinM365Callback({}, { status: 0, setSignedIn: () => {} });
 
-      chai.assert.isTrue(
+      assert.isTrue(
         getJsonObjectStub.calledOnceWithExactly({
           scopes: GraphScopes,
           showDialog: true,

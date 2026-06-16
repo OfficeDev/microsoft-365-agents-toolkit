@@ -1,9 +1,7 @@
-import { vi } from "vitest";
+import { vi, expect, assert } from "vitest";
 import { mockValue } from "../mocks/vitestMockUtils";
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
-
-import * as chai from "chai";
 import * as vscode from "vscode";
 import fs from "fs-extra";
 import * as path from "path";
@@ -53,7 +51,7 @@ describe("updateActionWithMCP", () => {
       const result = await updateActionWithMCP(args);
 
       // The function should still process even with empty tools (will show error)
-      chai.assert.isTrue(result.isErr());
+      assert.isTrue(result.isErr());
     });
 
     it("should limit MCP name to 13 characters", async () => {
@@ -71,7 +69,7 @@ describe("updateActionWithMCP", () => {
       await updateActionWithMCP(args);
 
       // Verify the sanitized name was used (indirectly through no errors about invalid names)
-      chai.assert.isTrue(true); // If we reach here, sanitization worked
+      assert.isTrue(true); // If we reach here, sanitization worked
     });
   });
 
@@ -99,7 +97,7 @@ describe("updateActionWithMCP", () => {
 
       const result = await updateActionWithMCP(args);
 
-      chai.assert.isTrue(result.isOk());
+      assert.isTrue(result.isOk());
       expect(runCommandStub).toHaveBeenCalledWith(Stage.updateActionWithMCP, expect.anything());
     });
 
@@ -108,7 +106,7 @@ describe("updateActionWithMCP", () => {
 
       const result = await updateActionWithMCP(args);
 
-      chai.assert.isTrue(result.isErr());
+      assert.isTrue(result.isErr());
     });
 
     it("should return error when URL is provided but server name is missing", async () => {
@@ -116,7 +114,7 @@ describe("updateActionWithMCP", () => {
 
       const result = await updateActionWithMCP(args);
 
-      chai.assert.isTrue(result.isErr());
+      assert.isTrue(result.isErr());
     });
   });
 
@@ -133,7 +131,7 @@ describe("updateActionWithMCP", () => {
 
       const result = await updateActionWithMCP();
 
-      chai.assert.isTrue(result.isErr());
+      assert.isTrue(result.isErr());
     });
 
     it("should return error when MCP file does not exist", async () => {
@@ -141,7 +139,7 @@ describe("updateActionWithMCP", () => {
 
       const result = await updateActionWithMCP();
 
-      chai.assert.isTrue(result.isErr());
+      assert.isTrue(result.isErr());
     });
 
     it("should return error when MCP file has invalid content", async () => {
@@ -152,7 +150,7 @@ describe("updateActionWithMCP", () => {
 
       const result = await updateActionWithMCP();
 
-      chai.assert.isTrue(result.isErr());
+      assert.isTrue(result.isErr());
     });
 
     it("should return error when no MCP servers found", async () => {
@@ -165,7 +163,7 @@ describe("updateActionWithMCP", () => {
 
       const result = await updateActionWithMCP();
 
-      chai.assert.isTrue(result.isErr());
+      assert.isTrue(result.isErr());
     });
 
     it("should process single MCP server automatically", async () => {
@@ -197,7 +195,7 @@ describe("updateActionWithMCP", () => {
 
       const result = await updateActionWithMCP();
 
-      chai.assert.isTrue(result.isOk());
+      assert.isTrue(result.isOk());
       expect(runCommandStub).toHaveBeenCalledTimes(1);
     });
 
@@ -238,14 +236,14 @@ describe("updateActionWithMCP", () => {
 
       const result = await updateActionWithMCP(args);
 
-      chai.assert.isTrue(result.isOk());
+      assert.isTrue(result.isOk());
       const calledInputs = runCommandStub.getCall(0).args[1] as Inputs;
-      chai.assert.equal(
+      assert.equal(
         calledInputs[QuestionNames.MCPLocalServerIdentifier],
         "my-server-identifier-noargs"
       );
-      chai.assert.equal(calledInputs[QuestionNames.MCPForDAAvailableTools].length, 1);
-      chai.assert.equal(calledInputs[QuestionNames.MCPForDAAvailableTools][0].name, "tool1");
+      assert.equal(calledInputs[QuestionNames.MCPForDAAvailableTools].length, 1);
+      assert.equal(calledInputs[QuestionNames.MCPForDAAvailableTools][0].name, "tool1");
     });
 
     it("should process single local MCP server automatically (non-ODR)", async () => {
@@ -280,10 +278,10 @@ describe("updateActionWithMCP", () => {
 
       const result = await updateActionWithMCP();
 
-      chai.assert.isTrue(result.isOk());
+      assert.isTrue(result.isOk());
       expect(runCommandStub).toHaveBeenCalledTimes(1);
       const calledInputs = runCommandStub.getCall(0).args[1] as Inputs;
-      chai.assert.equal(calledInputs[QuestionNames.MCPLocalServerIdentifier], "local-server");
+      assert.equal(calledInputs[QuestionNames.MCPLocalServerIdentifier], "local-server");
     });
 
     it("should process single local MCP server automatically (ODR)", async () => {
@@ -332,12 +330,12 @@ describe("updateActionWithMCP", () => {
 
       const result = await updateActionWithMCP();
 
-      chai.assert.isTrue(result.isOk());
+      assert.isTrue(result.isOk());
       expect(runCommandStub).toHaveBeenCalledTimes(1);
       const calledInputs = runCommandStub.getCall(0).args[1] as Inputs;
-      chai.assert.equal(calledInputs[QuestionNames.MCPLocalServerIdentifier], "my-mcp-server-id");
-      chai.assert.equal(calledInputs[QuestionNames.MCPForDAAvailableTools].length, 1);
-      chai.assert.equal(calledInputs[QuestionNames.MCPForDAAvailableTools][0].name, "tool1");
+      assert.equal(calledInputs[QuestionNames.MCPLocalServerIdentifier], "my-mcp-server-id");
+      assert.equal(calledInputs[QuestionNames.MCPForDAAvailableTools].length, 1);
+      assert.equal(calledInputs[QuestionNames.MCPForDAAvailableTools][0].name, "tool1");
     });
 
     it("should show selection UI for multiple MCP servers", async () => {
@@ -375,7 +373,7 @@ describe("updateActionWithMCP", () => {
 
       const result = await updateActionWithMCP();
 
-      chai.assert.isTrue(result.isOk());
+      assert.isTrue(result.isOk());
       expect(runCommandStub).toHaveBeenCalledTimes(1);
     });
 
@@ -416,10 +414,10 @@ describe("updateActionWithMCP", () => {
 
       const result = await updateActionWithMCP();
 
-      chai.assert.isTrue(result.isOk());
+      assert.isTrue(result.isOk());
       expect(runCommandStub).toHaveBeenCalledTimes(1);
       const calledInputs = runCommandStub.getCall(0).args[1] as Inputs;
-      chai.assert.equal(calledInputs[QuestionNames.MCPLocalServerIdentifier], "local-server");
+      assert.equal(calledInputs[QuestionNames.MCPLocalServerIdentifier], "local-server");
     });
 
     it("should return error when user cancels server selection", async () => {
@@ -444,7 +442,7 @@ describe("updateActionWithMCP", () => {
 
       const result = await updateActionWithMCP();
 
-      chai.assert.isTrue(result.isErr());
+      assert.isTrue(result.isErr());
     });
 
     it("should construct detail correctly for local server in selection UI", async () => {
@@ -488,10 +486,10 @@ describe("updateActionWithMCP", () => {
       await updateActionWithMCP();
 
       const localServerOption = capturedOptions.find((opt: any) => opt.id === "local-server");
-      chai.assert.equal(localServerOption.detail, "node server.js arg1");
+      assert.equal(localServerOption.detail, "node server.js arg1");
 
       const remoteServerOption = capturedOptions.find((opt: any) => opt.id === "remote-server");
-      chai.assert.equal(remoteServerOption.detail, "http://remote.com");
+      assert.equal(remoteServerOption.detail, "http://remote.com");
     });
   });
 
@@ -503,7 +501,7 @@ describe("updateActionWithMCP", () => {
 
       const result = await updateActionWithMCP(args);
 
-      chai.assert.isTrue(result.isErr());
+      assert.isTrue(result.isErr());
     });
 
     it("should filter and transform tools correctly", async () => {
@@ -537,15 +535,15 @@ describe("updateActionWithMCP", () => {
 
       const result = await updateActionWithMCP(args);
 
-      chai.assert.isTrue(result.isOk());
+      assert.isTrue(result.isOk());
 
       // Verify runCommand was called with correct inputs
       const calledInputs = runCommandStub.getCall(0).args[1] as Inputs;
       const tools = calledInputs[QuestionNames.MCPForDAAvailableTools];
 
-      chai.assert.equal(tools.length, 2);
-      chai.assert.equal(tools[0].name, "getTodos");
-      chai.assert.equal(tools[1].name, "createTodo");
+      assert.equal(tools.length, 2);
+      assert.equal(tools[0].name, "getTodos");
+      assert.equal(tools[1].name, "createTodo");
     });
   });
 
@@ -565,7 +563,7 @@ describe("updateActionWithMCP", () => {
       await updateActionWithMCP(args);
 
       const calledInputs = runCommandStub.getCall(0).args[1] as Inputs;
-      chai.assert.equal(calledInputs[QuestionNames.MCPForDAAuth], "NoneAuth");
+      assert.equal(calledInputs[QuestionNames.MCPForDAAuth], "NoneAuth");
     });
 
     it("should handle OAuth authentication (401 response)", async () => {
@@ -595,8 +593,8 @@ describe("updateActionWithMCP", () => {
       await updateActionWithMCP(args);
 
       const calledInputs = runCommandStub.getCall(0).args[1] as Inputs;
-      chai.assert.equal(calledInputs[QuestionNames.MCPForDAAuth], "OAuthPluginVault");
-      chai.assert.equal(
+      assert.equal(calledInputs[QuestionNames.MCPForDAAuth], "OAuthPluginVault");
+      assert.equal(
         calledInputs[QuestionNames.MCPForDAAuthMetadataUrl],
         "http://test.com/.well-known/oauth"
       );
@@ -627,8 +625,8 @@ describe("updateActionWithMCP", () => {
       await updateActionWithMCP(args);
 
       const calledInputs = runCommandStub.getCall(0).args[1] as Inputs;
-      chai.assert.equal(calledInputs[QuestionNames.MCPForDAAuth], "OAuthPluginVault");
-      chai.assert.equal(
+      assert.equal(calledInputs[QuestionNames.MCPForDAAuth], "OAuthPluginVault");
+      assert.equal(
         calledInputs[QuestionNames.MCPForDAAuthWellKnownUrl],
         "https://api.test.com/.well-known/oauth-authorization-server"
       );
@@ -650,7 +648,7 @@ describe("updateActionWithMCP", () => {
       await updateActionWithMCP(args);
 
       const calledInputs = runCommandStub.getCall(0).args[1] as Inputs;
-      chai.assert.equal(calledInputs[QuestionNames.MCPForDAAuth], "NoneAuth");
+      assert.equal(calledInputs[QuestionNames.MCPForDAAuth], "NoneAuth");
     });
   });
 
@@ -670,10 +668,10 @@ describe("updateActionWithMCP", () => {
       await updateActionWithMCP(args);
 
       const calledInputs = runCommandStub.getCall(0).args[1] as Inputs;
-      chai.assert.equal(calledInputs[QuestionNames.MCPForDAServerUrl], "http://test.com");
-      chai.assert.equal(calledInputs[QuestionNames.MCPForDAServerName], "testserver");
-      chai.assert.isArray(calledInputs[QuestionNames.MCPForDAAvailableTools]);
-      chai.assert.equal(calledInputs[QuestionNames.MCPForDAAuth], "NoneAuth");
+      assert.equal(calledInputs[QuestionNames.MCPForDAServerUrl], "http://test.com");
+      assert.equal(calledInputs[QuestionNames.MCPForDAServerName], "testserver");
+      assert.isArray(calledInputs[QuestionNames.MCPForDAAvailableTools]);
+      assert.equal(calledInputs[QuestionNames.MCPForDAAuth], "NoneAuth");
     });
 
     it("should propagate runCommand errors", async () => {
@@ -689,8 +687,8 @@ describe("updateActionWithMCP", () => {
 
       const result = await updateActionWithMCP(args);
 
-      chai.assert.isTrue(result.isErr());
-      chai.assert.equal(result._unsafeUnwrapErr().message, "Run command failed");
+      assert.isTrue(result.isErr());
+      assert.equal(result._unsafeUnwrapErr().message, "Run command failed");
     });
   });
 
@@ -723,7 +721,7 @@ describe("updateActionWithMCP", () => {
 
       const result = await updateActionWithMCP();
 
-      chai.assert.isTrue(result.isErr());
+      assert.isTrue(result.isErr());
     });
 
     it("should handle server config with empty args for detail fallback", async () => {
@@ -767,7 +765,7 @@ describe("updateActionWithMCP", () => {
       await updateActionWithMCP();
 
       const localServerOption = capturedOptions.find((opt: any) => opt.id === "local-server");
-      chai.assert.equal(localServerOption.detail, "python");
+      assert.equal(localServerOption.detail, "python");
     });
 
     it("should handle remote server config with empty url", async () => {
@@ -809,7 +807,7 @@ describe("updateActionWithMCP", () => {
       await updateActionWithMCP();
 
       const remoteServer2Option = capturedOptions.find((opt: any) => opt.id === "remote-server2");
-      chai.assert.equal(remoteServer2Option.detail, "");
+      assert.equal(remoteServer2Option.detail, "");
     });
 
     it("should handle undefined args", async () => {
@@ -818,7 +816,7 @@ describe("updateActionWithMCP", () => {
 
       const result = await updateActionWithMCP(undefined);
 
-      chai.assert.isTrue(result.isErr());
+      assert.isTrue(result.isErr());
     });
 
     it("should handle empty args array", async () => {
@@ -827,7 +825,7 @@ describe("updateActionWithMCP", () => {
 
       const result = await updateActionWithMCP([]);
 
-      chai.assert.isTrue(result.isErr());
+      assert.isTrue(result.isErr());
     });
 
     it("should handle tools with missing name parts", async () => {
@@ -849,9 +847,9 @@ describe("updateActionWithMCP", () => {
 
       const result = await updateActionWithMCP(args);
 
-      chai.assert.isTrue(result.isOk());
+      assert.isTrue(result.isOk());
       const calledInputs = runCommandStub.getCall(0).args[1] as Inputs;
-      chai.assert.isUndefined(calledInputs[QuestionNames.MCPLocalServerIdentifier]);
+      assert.isUndefined(calledInputs[QuestionNames.MCPLocalServerIdentifier]);
     });
 
     it("should handle local MCP with stdio type (non-ODR)", async () => {
@@ -873,9 +871,9 @@ describe("updateActionWithMCP", () => {
 
       const result = await updateActionWithMCP(args);
 
-      chai.assert.isTrue(result.isOk());
+      assert.isTrue(result.isOk());
       const calledInputs = runCommandStub.getCall(0).args[1] as Inputs;
-      chai.assert.equal(calledInputs[QuestionNames.MCPLocalServerIdentifier], "localServer");
+      assert.equal(calledInputs[QuestionNames.MCPLocalServerIdentifier], "localServer");
     });
 
     it("should handle local MCP with stdio type (ODR)", async () => {
@@ -909,14 +907,11 @@ describe("updateActionWithMCP", () => {
 
       const result = await updateActionWithMCP(args);
 
-      chai.assert.isTrue(result.isOk());
+      assert.isTrue(result.isOk());
       const calledInputs = runCommandStub.getCall(0).args[1] as Inputs;
-      chai.assert.equal(
-        calledInputs[QuestionNames.MCPLocalServerIdentifier],
-        "my-server-identifier"
-      );
-      chai.assert.equal(calledInputs[QuestionNames.MCPForDAAvailableTools].length, 1);
-      chai.assert.equal(calledInputs[QuestionNames.MCPForDAAvailableTools][0].name, "tool1");
+      assert.equal(calledInputs[QuestionNames.MCPLocalServerIdentifier], "my-server-identifier");
+      assert.equal(calledInputs[QuestionNames.MCPForDAAvailableTools].length, 1);
+      assert.equal(calledInputs[QuestionNames.MCPForDAAvailableTools][0].name, "tool1");
     });
 
     it("should set mcp-type to local for stdio servers", async () => {
@@ -938,7 +933,7 @@ describe("updateActionWithMCP", () => {
 
       const telemetryCall = (ExtTelemetry.sendTelemetryEvent as ReturnType<typeof vi.spyOn>)
         .lastCall;
-      chai.assert.equal(telemetryCall.args[1]["mcp-type"], "local");
+      assert.equal(telemetryCall.args[1]["mcp-type"], "local");
     });
 
     it("should set mcp-type to remote for non-stdio servers", async () => {
@@ -955,7 +950,7 @@ describe("updateActionWithMCP", () => {
 
       const telemetryCall = (ExtTelemetry.sendTelemetryEvent as ReturnType<typeof vi.spyOn>)
         .lastCall;
-      chai.assert.equal(telemetryCall.args[1]["mcp-type"], "remote");
+      assert.equal(telemetryCall.args[1]["mcp-type"], "remote");
     });
 
     it("should send telemetry with local mcp-type on error", async () => {
@@ -978,7 +973,7 @@ describe("updateActionWithMCP", () => {
 
       const telemetryCall = (ExtTelemetry.sendTelemetryErrorEvent as ReturnType<typeof vi.spyOn>)
         .lastCall;
-      chai.assert.equal(telemetryCall.args[2]["mcp-type"], "local");
+      assert.equal(telemetryCall.args[2]["mcp-type"], "local");
     });
 
     it("should handle 401 error with no response headers", async () => {
@@ -1004,7 +999,7 @@ describe("updateActionWithMCP", () => {
       await updateActionWithMCP(args);
 
       const calledInputs = runCommandStub.getCall(0).args[1] as Inputs;
-      chai.assert.equal(calledInputs[QuestionNames.MCPForDAAuth], "OAuthPluginVault");
+      assert.equal(calledInputs[QuestionNames.MCPForDAAuth], "OAuthPluginVault");
     });
 
     it("should parse www-authenticate header with match", async () => {
@@ -1030,7 +1025,7 @@ describe("updateActionWithMCP", () => {
       await updateActionWithMCP(args);
 
       const calledInputs = runCommandStub.getCall(0).args[1] as Inputs;
-      chai.assert.equal(
+      assert.equal(
         calledInputs[QuestionNames.MCPForDAAuthMetadataUrl],
         "http://auth.test.com/metadata"
       );
@@ -1057,9 +1052,9 @@ describe("updateActionWithMCP", () => {
       await updateActionWithMCP(args);
 
       // Axios should not be called for local MCP
-      chai.assert.isFalse(axiosStub.called);
+      assert.isFalse(axiosStub.called);
       const calledInputs = runCommandStub.getCall(0).args[1] as Inputs;
-      chai.assert.equal(calledInputs[QuestionNames.MCPForDAAuth], "NoneAuth");
+      assert.equal(calledInputs[QuestionNames.MCPForDAAuth], "NoneAuth");
     });
 
     it("should return original server name when serverConfig type is not stdio", async () => {
@@ -1081,9 +1076,9 @@ describe("updateActionWithMCP", () => {
 
       const result = await updateActionWithMCP(args);
 
-      chai.assert.isTrue(result.isOk());
+      assert.isTrue(result.isOk());
       const calledInputs = runCommandStub.getCall(0).args[1] as Inputs;
-      chai.assert.isUndefined(calledInputs[QuestionNames.MCPLocalServerIdentifier]);
+      assert.isUndefined(calledInputs[QuestionNames.MCPLocalServerIdentifier]);
     });
 
     it("should construct detail with command only when args is undefined", async () => {
@@ -1121,7 +1116,7 @@ describe("updateActionWithMCP", () => {
       await updateActionWithMCP();
 
       const server2Option = capturedOptions.find((opt: any) => opt.id === "test-server2");
-      chai.assert.equal(server2Option.detail, "node");
+      assert.equal(server2Option.detail, "node");
     });
   });
 
@@ -1144,11 +1139,11 @@ describe("updateActionWithMCP", () => {
 
       const result = await updateActionWithMCP(args);
 
-      chai.assert.isTrue(result.isOk());
+      assert.isTrue(result.isOk());
       const calledInputs = runCommandStub.getCall(0).args[1] as Inputs;
       const tools = calledInputs[QuestionNames.MCPForDAAvailableTools];
-      chai.assert.equal(tools.length, 1);
-      chai.assert.equal(tools[0].name, "tool1");
+      assert.equal(tools.length, 1);
+      assert.equal(tools[0].name, "tool1");
     });
 
     it("should fall back to selectedTools when startMcpGateway throws", async () => {
@@ -1169,11 +1164,11 @@ describe("updateActionWithMCP", () => {
 
       const result = await updateActionWithMCP(args);
 
-      chai.assert.isTrue(result.isOk());
+      assert.isTrue(result.isOk());
       const calledInputs = runCommandStub.getCall(0).args[1] as Inputs;
       const tools = calledInputs[QuestionNames.MCPForDAAvailableTools];
-      chai.assert.equal(tools.length, 1);
-      chai.assert.equal(tools[0].name, "tool1");
+      assert.equal(tools.length, 1);
+      assert.equal(tools[0].name, "tool1");
     });
 
     it("should use gateway tools when gateway succeeds and tools match", async () => {
@@ -1208,7 +1203,7 @@ describe("updateActionWithMCP", () => {
 
       const result = await updateActionWithMCP(args);
 
-      chai.assert.isTrue(result.isOk());
+      assert.isTrue(result.isOk());
       expect(connectStub).toHaveBeenCalledTimes(1);
       expect(listToolsStub).toHaveBeenCalledTimes(1);
       expect(closeStub).toHaveBeenCalledTimes(1);
@@ -1216,10 +1211,10 @@ describe("updateActionWithMCP", () => {
       const calledInputs = runCommandStub.getCall(0).args[1] as Inputs;
       const tools = calledInputs[QuestionNames.MCPForDAAvailableTools];
       // The gateway's tool list is authoritative; all server tools are returned as-is.
-      chai.assert.equal(tools.length, 3);
-      chai.assert.equal(tools[0].name, "tool1");
-      chai.assert.equal(tools[1].name, "tool2");
-      chai.assert.equal(tools[2].name, "tool3");
+      assert.equal(tools.length, 3);
+      assert.equal(tools[0].name, "tool1");
+      assert.equal(tools[1].name, "tool2");
+      assert.equal(tools[2].name, "tool3");
     });
 
     it("should use gateway tools even when vscode.lm.tools is empty (macOS regression)", async () => {
@@ -1252,16 +1247,16 @@ describe("updateActionWithMCP", () => {
 
       const result = await updateActionWithMCP(args);
 
-      chai.assert.isTrue(result.isOk());
+      assert.isTrue(result.isOk());
       expect(connectStub).toHaveBeenCalledTimes(1);
       expect(listToolsStub).toHaveBeenCalledTimes(1);
       expect(closeStub).toHaveBeenCalledTimes(1);
       expect(mockGateway.dispose as ReturnType<typeof vi.spyOn>).toHaveBeenCalledTimes(1);
       const calledInputs = runCommandStub.getCall(0).args[1] as Inputs;
       const tools = calledInputs[QuestionNames.MCPForDAAvailableTools];
-      chai.assert.equal(tools.length, 2);
-      chai.assert.equal(tools[0].name, "tool1");
-      chai.assert.equal(tools[1].name, "tool2");
+      assert.equal(tools.length, 2);
+      assert.equal(tools[0].name, "tool1");
+      assert.equal(tools[1].name, "tool2");
     });
 
     it("should fall back to selectedTools when client.connect throws", async () => {
@@ -1288,14 +1283,14 @@ describe("updateActionWithMCP", () => {
 
       const result = await updateActionWithMCP(args);
 
-      chai.assert.isTrue(result.isOk());
+      assert.isTrue(result.isOk());
       // finally block should still call close and dispose
       expect(closeStub).toHaveBeenCalledTimes(1);
       expect(mockGateway.dispose as ReturnType<typeof vi.spyOn>).toHaveBeenCalledTimes(1);
       const calledInputs = runCommandStub.getCall(0).args[1] as Inputs;
       const tools = calledInputs[QuestionNames.MCPForDAAvailableTools];
-      chai.assert.equal(tools.length, 1);
-      chai.assert.equal(tools[0].name, "tool1");
+      assert.equal(tools.length, 1);
+      assert.equal(tools[0].name, "tool1");
     });
 
     it("should deduplicate gateway tools with same name and description", async () => {
@@ -1328,11 +1323,11 @@ describe("updateActionWithMCP", () => {
 
       const result = await updateActionWithMCP(args);
 
-      chai.assert.isTrue(result.isOk());
+      assert.isTrue(result.isOk());
       const calledInputs = runCommandStub.getCall(0).args[1] as Inputs;
       const tools = calledInputs[QuestionNames.MCPForDAAvailableTools];
       // Only first match should be kept due to dedup
-      chai.assert.equal(tools.length, 1);
+      assert.equal(tools.length, 1);
     });
 
     it("should fall back to selectedTools when gateway returns an empty tool list", async () => {
@@ -1362,15 +1357,15 @@ describe("updateActionWithMCP", () => {
 
       const result = await updateActionWithMCP(args);
 
-      chai.assert.isTrue(result.isOk());
+      assert.isTrue(result.isOk());
       expect(listToolsStub).toHaveBeenCalledTimes(1);
       expect(closeStub).toHaveBeenCalledTimes(1);
       expect(mockGateway.dispose as ReturnType<typeof vi.spyOn>).toHaveBeenCalledTimes(1);
       const calledInputs = runCommandStub.getCall(0).args[1] as Inputs;
       const tools = calledInputs[QuestionNames.MCPForDAAvailableTools];
       // Empty gateway result falls back to the vscode.lm.tools-derived list.
-      chai.assert.equal(tools.length, 1);
-      chai.assert.equal(tools[0].name, "tool1");
+      assert.equal(tools.length, 1);
+      assert.equal(tools[0].name, "tool1");
     });
 
     it("should include gateway tools even when absent from vscode.lm.tools", async () => {
@@ -1408,11 +1403,11 @@ describe("updateActionWithMCP", () => {
 
       // The gateway list is authoritative, so the tool is included even though it is
       // not present in vscode.lm.tools.
-      chai.assert.isTrue(result.isOk());
+      assert.isTrue(result.isOk());
       const calledInputs = runCommandStub.getCall(0).args[1] as Inputs;
       const tools = calledInputs[QuestionNames.MCPForDAAvailableTools];
-      chai.assert.equal(tools.length, 1);
-      chai.assert.equal(tools[0].name, "unknownTool");
+      assert.equal(tools.length, 1);
+      assert.equal(tools[0].name, "unknownTool");
     });
 
     it("should fall back to old gateway address API when servers property is absent", async () => {
@@ -1444,12 +1439,12 @@ describe("updateActionWithMCP", () => {
 
       const result = await updateActionWithMCP(args);
 
-      chai.assert.isTrue(result.isOk());
+      assert.isTrue(result.isOk());
       expect(mockGateway.dispose as ReturnType<typeof vi.spyOn>).toHaveBeenCalledTimes(1);
       const calledInputs = runCommandStub.getCall(0).args[1] as Inputs;
       const tools = calledInputs[QuestionNames.MCPForDAAvailableTools];
-      chai.assert.equal(tools.length, 1);
-      chai.assert.equal(tools[0].name, "tool1");
+      assert.equal(tools.length, 1);
+      assert.equal(tools[0].name, "tool1");
     });
 
     it("should fall back to selectedTools when no matching server found in gateway", async () => {
@@ -1474,12 +1469,12 @@ describe("updateActionWithMCP", () => {
 
       const result = await updateActionWithMCP(args);
 
-      chai.assert.isTrue(result.isOk());
+      assert.isTrue(result.isOk());
       expect(mockGateway.dispose as ReturnType<typeof vi.spyOn>).toHaveBeenCalledTimes(1);
       const calledInputs = runCommandStub.getCall(0).args[1] as Inputs;
       const tools = calledInputs[QuestionNames.MCPForDAAvailableTools];
-      chai.assert.equal(tools.length, 1);
-      chai.assert.equal(tools[0].name, "tool1");
+      assert.equal(tools.length, 1);
+      assert.equal(tools[0].name, "tool1");
     });
   });
 
@@ -1504,10 +1499,10 @@ describe("updateActionWithMCP", () => {
 
       const result = await updateActionWithMCP(args);
 
-      chai.assert.isTrue(result.isOk());
+      assert.isTrue(result.isOk());
       const calledInputs = runCommandStub.getCall(0).args[1] as Inputs;
       // Should fall back to original serverName
-      chai.assert.equal(calledInputs[QuestionNames.MCPLocalServerIdentifier], "odrServer");
+      assert.equal(calledInputs[QuestionNames.MCPLocalServerIdentifier], "odrServer");
     });
 
     it("should return original name when no ODR server matches by command and args", async () => {
@@ -1543,10 +1538,10 @@ describe("updateActionWithMCP", () => {
 
       const result = await updateActionWithMCP(args);
 
-      chai.assert.isTrue(result.isOk());
+      assert.isTrue(result.isOk());
       const calledInputs = runCommandStub.getCall(0).args[1] as Inputs;
       // Should fall back to original serverName since args don't match
-      chai.assert.equal(calledInputs[QuestionNames.MCPLocalServerIdentifier], "odrServer");
+      assert.equal(calledInputs[QuestionNames.MCPLocalServerIdentifier], "odrServer");
     });
 
     it("should return original name for non-ODR local server in extractLocalServerIdentifier", async () => {
@@ -1568,9 +1563,9 @@ describe("updateActionWithMCP", () => {
 
       const result = await updateActionWithMCP(args);
 
-      chai.assert.isTrue(result.isOk());
+      assert.isTrue(result.isOk());
       const calledInputs = runCommandStub.getCall(0).args[1] as Inputs;
-      chai.assert.equal(calledInputs[QuestionNames.MCPLocalServerIdentifier], "myLocalServer");
+      assert.equal(calledInputs[QuestionNames.MCPLocalServerIdentifier], "myLocalServer");
     });
   });
 });

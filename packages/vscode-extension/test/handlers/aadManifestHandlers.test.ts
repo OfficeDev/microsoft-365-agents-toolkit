@@ -1,4 +1,3 @@
-import * as chai from "chai";
 import fs from "fs-extra";
 import * as globalVariables from "../../src/globalVariables";
 import * as vsc_ui from "../../src/qm/vsc_ui";
@@ -12,7 +11,7 @@ import { FxError, err, ok } from "@microsoft/teamsfx-api";
 import { environmentManager } from "@microsoft/teamsfx-core";
 import { ExtTelemetry } from "../../src/telemetry/extTelemetry";
 import { MockCore } from "../mocks/mockCore";
-import { vi } from "vitest";
+import { vi, expect, assert } from "vitest";
 import { mockValue } from "../mocks/vitestMockUtils";
 import {
   convertAadToNewSchemaHandler,
@@ -33,8 +32,8 @@ describe("aadManifestHandlers", () => {
       mockValue(globalVariables, "core", core);
       vi.spyOn(projectSettingsHelper, "isValidProject").mockReturnValue(false);
       const res = await openPreviewAadFileHandler([]);
-      chai.assert.isTrue(res.isErr());
-      chai.assert.equal(res.isErr() ? res.error.name : "Not Err", "InvalidProjectError");
+      assert.isTrue(res.isErr());
+      assert.equal(res.isErr() ? res.error.name : "Not Err", "InvalidProjectError");
     });
 
     it("select Env returns error", async () => {
@@ -43,8 +42,8 @@ describe("aadManifestHandlers", () => {
       vi.spyOn(projectSettingsHelper, "isValidProject").mockReturnValue(true);
       vi.spyOn(envHandlers, "askTargetEnvironment").mockResolvedValue(err("selectEnvErr") as any);
       const res = await openPreviewAadFileHandler([]);
-      chai.assert.isTrue(res.isErr());
-      chai.assert.equal(res.isErr() ? res.error : "Not Err", "selectEnvErr");
+      assert.isTrue(res.isErr());
+      assert.equal(res.isErr() ? res.error : "Not Err", "selectEnvErr");
     });
 
     it("runCommand returns error", async () => {
@@ -54,8 +53,8 @@ describe("aadManifestHandlers", () => {
       vi.spyOn(envHandlers, "askTargetEnvironment").mockResolvedValue(ok("dev"));
       vi.spyOn(sharedOpts, "runCommand").mockResolvedValue(err("runCommandErr") as any);
       const res = await openPreviewAadFileHandler([]);
-      chai.assert.isTrue(res.isErr());
-      chai.assert.equal(res.isErr() ? res.error : "Not Err", "runCommandErr");
+      assert.isTrue(res.isErr());
+      assert.equal(res.isErr() ? res.error : "Not Err", "runCommandErr");
     });
 
     it("manifest file not exists", async () => {
@@ -75,7 +74,7 @@ describe("aadManifestHandlers", () => {
       vi.spyOn(errorCommon, "showError").mockImplementation(async () => {});
       vi.spyOn(sharedOpts, "runCommand").mockResolvedValue(ok(undefined));
       const res = await openPreviewAadFileHandler([]);
-      chai.assert.isTrue(res.isErr());
+      assert.isTrue(res.isErr());
     });
 
     it("happy path", async () => {
@@ -98,7 +97,7 @@ describe("aadManifestHandlers", () => {
       vi.spyOn(vscode.window, "showTextDocument").mockResolvedValue();
 
       const res = await openPreviewAadFileHandler([]);
-      chai.assert.isTrue(res.isOk());
+      assert.isTrue(res.isOk());
     });
   });
 
@@ -171,7 +170,7 @@ describe("aadManifestHandlers", () => {
 
       await editAadManifestTemplateHandler([]);
 
-      chai.assert.isTrue(showTextDocumentStub.callCount === 0);
+      assert.isTrue(showTextDocumentStub.callCount === 0);
     });
 
     it("happy path: workspaceUri is undefined", async () => {

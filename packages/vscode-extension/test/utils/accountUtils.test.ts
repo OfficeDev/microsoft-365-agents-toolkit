@@ -1,11 +1,10 @@
-import * as chai from "chai";
 import * as vscode from "vscode";
 import { AzureAccountManager } from "../../src/commonlib/azureLogin";
 import { ExtTelemetry } from "../../src/telemetry/extTelemetry";
 import { signOutM365, signOutAzure, signInAzure, signInM365 } from "../../src/utils/accountUtils";
 import envTreeProviderInstance from "../../src/treeview/environmentTreeViewProvider";
 import M365TokenInstance from "../../src/commonlib/m365Login";
-import { vi } from "vitest";
+import { vi, expect, assert } from "vitest";
 
 describe("accountUtils", () => {
   it("signInAzure()", async () => {
@@ -13,7 +12,7 @@ describe("accountUtils", () => {
 
     await signInAzure();
 
-    chai.assert.isTrue(executeCommandStub.calledOnce);
+    assert.isTrue(executeCommandStub.calledOnce);
   });
 
   it("signInM365()", async () => {
@@ -21,7 +20,7 @@ describe("accountUtils", () => {
 
     await signInM365();
 
-    chai.assert.isTrue(executeCommandStub.calledOnce);
+    assert.isTrue(executeCommandStub.calledOnce);
   });
 
   it("signOutM365", async () => {

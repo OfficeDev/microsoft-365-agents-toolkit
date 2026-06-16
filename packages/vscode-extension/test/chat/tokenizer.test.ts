@@ -1,11 +1,10 @@
-import * as chai from "chai";
 import { Tokenizer } from "../../src/chat/tokenizer";
-import { vi } from "vitest";
+import { vi, assert } from "vitest";
 
 describe("Tokenizer", () => {
   it("getInstance", () => {
     const instance = Tokenizer.getInstance();
-    chai.assert.isDefined(instance);
+    assert.isDefined(instance);
   });
 
   it("tokenize", () => {
@@ -15,15 +14,15 @@ describe("Tokenizer", () => {
     } as any);
 
     const result = tokenizer.tokenize("Hello world!");
-    chai.assert.deepStrictEqual(result, [1, 2, 3]);
-    chai.assert.isTrue(initStub.calledOnce);
+    assert.deepStrictEqual(result, [1, 2, 3]);
+    assert.isTrue(initStub.calledOnce);
   });
 
   describe("tokenLength", () => {
     it("empty content", () => {
       const tokenizer = new Tokenizer();
       const result = tokenizer.tokenLength("");
-      chai.assert.equal(result, 0);
+      assert.equal(result, 0);
     });
 
     it("non-empty content", () => {
@@ -33,8 +32,8 @@ describe("Tokenizer", () => {
       } as any);
 
       const result = tokenizer.tokenLength("Hello world!");
-      chai.assert.equal(result, 3);
-      chai.assert.isTrue(initStub.calledOnce);
+      assert.equal(result, 3);
+      assert.isTrue(initStub.calledOnce);
     });
   });
 });

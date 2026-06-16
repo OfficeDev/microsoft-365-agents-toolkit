@@ -1,6 +1,5 @@
-import * as chai from "chai";
 import { ExtTelemetry } from "../../src/telemetry/extTelemetry";
-import { vi } from "vitest";
+import { vi, expect, assert } from "vitest";
 import {
   addFileSystemWatcher,
   fileSystemWatcherOps,
@@ -45,9 +44,9 @@ describe("FileSystemWatcher", function () {
 
       addFileSystemWatcher(workspacePath);
 
-      chai.assert.equal(createWatcher.callCount, 2);
-      chai.assert.equal(createListener.callCount, 2);
-      chai.assert.isTrue(changeListener.calledTwice);
+      assert.equal(createWatcher.callCount, 2);
+      assert.equal(createListener.callCount, 2);
+      assert.isTrue(changeListener.calledTwice);
     });
 
     it("addFileSystemWatcher in invalid project", async () => {
@@ -66,9 +65,9 @@ describe("FileSystemWatcher", function () {
 
       addFileSystemWatcher(workspacePath);
 
-      chai.assert.isTrue(createWatcher.notCalled);
-      chai.assert.isTrue(createListener.notCalled);
-      chai.assert.isTrue(changeListener.notCalled);
+      assert.isTrue(createWatcher.notCalled);
+      assert.isTrue(createListener.notCalled);
+      assert.isTrue(changeListener.notCalled);
     });
   });
 
@@ -83,8 +82,8 @@ describe("FileSystemWatcher", function () {
 
       refreshSPFxTreeOnFileChanged();
 
-      chai.expect(initGlobalVariables.calledOnce).to.be.true;
-      chai.expect(updateDevelopmentTreeView.calledOnce).to.be.true;
+      expect(initGlobalVariables.calledOnce).to.be.true;
+      expect(updateDevelopmentTreeView.calledOnce).to.be.true;
     });
   });
 
@@ -97,7 +96,7 @@ describe("FileSystemWatcher", function () {
 
       sendSDKVersionTelemetry(filePath);
 
-      chai.assert.isTrue(readJsonFunc.calledOnce);
+      assert.isTrue(readJsonFunc.calledOnce);
     });
   });
 });

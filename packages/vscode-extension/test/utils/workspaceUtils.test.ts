@@ -1,10 +1,9 @@
-import * as chai from "chai";
 import * as globalState from "@microsoft/teamsfx-core";
 import { ExtTelemetry } from "../../src/telemetry/extTelemetry";
 import { Uri, commands } from "vscode";
 import { openOfficeDevFolder } from "../../src/utils/workspaceUtils";
 import { GlobalKey } from "../../src/constants";
-import { vi } from "vitest";
+import { vi, expect } from "vitest";
 
 describe("WorkspaceUtils", () => {
   describe("openOfficeDevFolder", () => {
@@ -36,29 +35,21 @@ describe("WorkspaceUtils", () => {
       const warnings = [{ type: "type", content: "content" }];
       const folderPath = Uri.file("C:\\fakePath");
       await openOfficeDevFolder(folderPath, true, warnings, ["WalkThrough"]);
-      chai.expect(await globalState.globalStateGet(GlobalKey.OpenWalkThrough, true)).equals(false);
-      chai
-        .expect(await globalState.globalStateGet(GlobalKey.AutoInstallDependency, false))
-        .equals(true);
-      chai.expect(await globalState.globalStateGet(GlobalKey.OpenReadMe, "")).equals("");
-      chai
-        .expect(await globalState.globalStateGet(GlobalKey.ShowLocalDebugMessage, false))
-        .equals(true);
-      chai
-        .expect(await globalState.globalStateGet(GlobalKey.CreateWarnings, ""))
-        .equals(JSON.stringify(warnings));
+      expect(await globalState.globalStateGet(GlobalKey.OpenWalkThrough, true)).equals(false);
+      expect(await globalState.globalStateGet(GlobalKey.AutoInstallDependency, false)).equals(true);
+      expect(await globalState.globalStateGet(GlobalKey.OpenReadMe, "")).equals("");
+      expect(await globalState.globalStateGet(GlobalKey.ShowLocalDebugMessage, false)).equals(true);
+      expect(await globalState.globalStateGet(GlobalKey.CreateWarnings, "")).equals(
+        JSON.stringify(warnings)
+      );
     });
 
     it("not triggered from walkthrough with no local debug message and warnings", async () => {
       const folderPath = Uri.file("C:\\fakePath");
       await openOfficeDevFolder(folderPath, false, undefined);
-      chai.expect(await globalState.globalStateGet(GlobalKey.OpenWalkThrough, true)).equals(false);
-      chai
-        .expect(await globalState.globalStateGet(GlobalKey.AutoInstallDependency, false))
-        .equals(true);
-      chai
-        .expect(await globalState.globalStateGet(GlobalKey.OpenReadMe, ""))
-        .equals(folderPath.fsPath);
+      expect(await globalState.globalStateGet(GlobalKey.OpenWalkThrough, true)).equals(false);
+      expect(await globalState.globalStateGet(GlobalKey.AutoInstallDependency, false)).equals(true);
+      expect(await globalState.globalStateGet(GlobalKey.OpenReadMe, "")).equals(folderPath.fsPath);
     });
   });
 });

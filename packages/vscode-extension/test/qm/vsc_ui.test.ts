@@ -2,9 +2,8 @@
 // Licensed under the MIT license.
 "use strict";
 
-import { vi } from "vitest";
+import { vi, expect } from "vitest";
 import { createMock } from "../mocks/vitestMockUtils";
-import { expect } from "chai";
 import {
   commands,
   DiagnosticCollection,

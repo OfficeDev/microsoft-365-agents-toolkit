@@ -1,9 +1,8 @@
 import { ok } from "@microsoft/teamsfx-api";
-import * as chai from "chai";
 import * as vscode from "vscode";
 import { PanelType } from "../../../src/controls/PanelType";
 import { WebviewPanel } from "../../../src/controls/webviewPanel";
-import { vi } from "vitest";
+import { vi, expect } from "vitest";
 import { mockValue } from "../../mocks/vitestMockUtils";
 import {
   checkCopilotCallback,
@@ -30,8 +29,8 @@ describe("checkAccessCallback", () => {
 
       await checkCopilotCallback();
 
-      chai.expect(showMessageStub.callCount).to.be.equal(1);
-      chai.expect(openUrlStub.callCount).to.be.equal(1);
+      expect(showMessageStub.callCount).to.be.equal(1);
+      expect(openUrlStub.callCount).to.be.equal(1);
     });
 
     it("checkCopilotCallback() and fail to open url", async () => {
@@ -44,8 +43,8 @@ describe("checkAccessCallback", () => {
 
       await checkCopilotCallback();
 
-      chai.expect(showMessageStub.callCount).to.be.equal(1);
-      chai.expect(openUrlStub.callCount).to.be.equal(0);
+      expect(showMessageStub.callCount).to.be.equal(1);
+      expect(openUrlStub.callCount).to.be.equal(0);
     });
 
     it("checkCopilotCallback() and fail to show message", async () => {
@@ -57,8 +56,8 @@ describe("checkAccessCallback", () => {
 
       await checkCopilotCallback();
 
-      chai.expect(showMessageStub.callCount).to.be.equal(1);
-      chai.expect(localizeStub.callCount).to.be.equal(2);
+      expect(showMessageStub.callCount).to.be.equal(1);
+      expect(localizeStub.callCount).to.be.equal(2);
     });
   });
 
@@ -130,7 +129,7 @@ describe("checkAccessCallback", () => {
 
       await checkSandboxCallback();
 
-      chai.expect(executeCommandStub.calledOnce).to.be.true;
+      expect(executeCommandStub.calledOnce).to.be.true;
     });
 
     it("does not execute command when user skips", async () => {
@@ -142,7 +141,7 @@ describe("checkAccessCallback", () => {
 
       await checkSandboxCallback();
 
-      chai.expect(executeCommandStub.called).to.be.false;
+      expect(executeCommandStub.called).to.be.false;
     });
   });
 });

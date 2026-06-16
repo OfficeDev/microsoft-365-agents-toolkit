@@ -1,5 +1,4 @@
-import * as chai from "chai";
-import { vi } from "vitest";
+import { vi, assert } from "vitest";
 import { mockValue } from "../mocks/vitestMockUtils";
 import {
   CDPClient,
@@ -34,9 +33,9 @@ describe("cdpClient", () => {
         const p = client.connectWithBackoff(9222, "", 1, 1);
         clock.tick(1);
         await p;
-        chai.assert.fail("should not reach here");
+        assert.fail("should not reach here");
       } catch (e) {
-        chai.assert.isDefined(e);
+        assert.isDefined(e);
       }
     });
   });
@@ -56,7 +55,7 @@ describe("cdpClient", () => {
       } as any;
       const webSocketFrameReceived = vi.spyOn(client.Network, "webSocketFrameReceived");
       await cdpClient.subscribeToWebSocketEvents(client);
-      chai.assert.isTrue(webSocketFrameReceived.called);
+      assert.isTrue(webSocketFrameReceived.called);
     });
   });
   describe("start", () => {
@@ -77,7 +76,7 @@ describe("cdpClient", () => {
       const startPromise = cdpClient.start();
       clock.tick(2000);
       await startPromise;
-      chai.assert.isTrue(sendTelemetryEvent.called);
+      assert.isTrue(sendTelemetryEvent.called);
     });
     it("error", async () => {
       const sendTelemetryEvent = vi.spyOn(ExtTelemetry, "sendTelemetryEvent");
@@ -97,8 +96,8 @@ describe("cdpClient", () => {
       const startPromise = cdpClient.start();
       clock.tick(2000);
       await startPromise;
-      chai.assert.isTrue(sendTelemetryEvent.called);
-      chai.assert.isTrue(sendTelemetryErrorEvent.called);
+      assert.isTrue(sendTelemetryEvent.called);
+      assert.isTrue(sendTelemetryErrorEvent.called);
     });
   });
   describe("stop", () => {
@@ -110,7 +109,7 @@ describe("cdpClient", () => {
         close: () => {},
       } as any;
       await cdpClient.stop();
-      chai.assert.isTrue(sendTelemetryEvent.called);
+      assert.isTrue(sendTelemetryEvent.called);
     });
   });
   describe("webSocketFrameReceivedHandler", () => {
@@ -119,7 +118,7 @@ describe("cdpClient", () => {
       stub.mockReturnValue(1);
       const cdpClient = new CDPClient("url", 9222, "name");
       cdpClient.webSocketFrameReceivedHandler({} as any);
-      chai.assert.isTrue(stub.called);
+      assert.isTrue(stub.called);
     });
   });
 
@@ -131,14 +130,14 @@ describe("cdpClient", () => {
       stub.mockResolvedValue(true);
       cdpClient.enableRetry = true;
       cdpClient.connectToTargetIframeWithRetries(client);
-      chai.assert.isTrue(stub.calledOnce);
+      assert.isTrue(stub.calledOnce);
     });
     // it("error", async () => {
     //   const cdpClient = new CDPClient("url", 9222, "name");
     //   vi.spyOn(cdpClient, "connectToTargetIframe").mockRejectedValue(new Error());
     //   const client = {} as any;
     //   await cdpClient.connectToTargetIframeWithRetries(client, 1, 1);
-    //   chai.assert.isUndefined(cdpClient.client);
+    //   assert.isUndefined(cdpClient.client);
     // });
     it("reach max try", async () => {
       const cdpClient = new CDPClient("url", 9222, "name");
@@ -147,7 +146,7 @@ describe("cdpClient", () => {
       const p = cdpClient.connectToTargetIframeWithRetries(client, 2, 1);
       await clock.tickAsync(2000);
       await p;
-      chai.assert.isUndefined(cdpClient.client);
+      assert.isUndefined(cdpClient.client);
     });
   });
 
@@ -164,7 +163,7 @@ describe("cdpClient", () => {
       } as any;
       const cdpClient = new CDPClient("url", 9222, "name");
       const res = await cdpClient.connectToTargetIframe(client);
-      chai.assert.isFalse(res);
+      assert.isFalse(res);
     });
     it("no sessionClient", async () => {
       const client = {
@@ -186,7 +185,7 @@ describe("cdpClient", () => {
       const cdpClient = new CDPClient("url", 9222, "name");
       vi.spyOn(cdpClient, "connectWithBackoff").mockResolvedValue(undefined);
       const res = await cdpClient.connectToTargetIframe(client);
-      chai.assert.isFalse(res);
+      assert.isFalse(res);
     });
     it("happy path", async () => {
       const client = {
@@ -209,7 +208,7 @@ describe("cdpClient", () => {
       const cdpClient = new CDPClient("url", 9222, "name");
       vi.spyOn(cdpClient, "connectWithBackoff").mockResolvedValue(client);
       const res = await cdpClient.connectToTargetIframe(client);
-      chai.assert.isTrue(res);
+      assert.isTrue(res);
     });
   });
 });
@@ -222,7 +221,7 @@ describe("isM365CopilotChatDebugConfiguration", () => {
       runtimeArgs: ["--remote-debugging-port=9222"],
     };
     const res = isM365CopilotChatDebugConfiguration(config);
-    chai.assert.isDefined(res);
+    assert.isDefined(res);
   });
 
   it("false - request", async () => {
@@ -230,14 +229,14 @@ describe("isM365CopilotChatDebugConfiguration", () => {
       request: "abc",
     };
     const res = isM365CopilotChatDebugConfiguration(config);
-    chai.assert.isUndefined(res);
+    assert.isUndefined(res);
   });
   it("false - url undefined", async () => {
     const config: any = {
       request: "launch",
     };
     const res = isM365CopilotChatDebugConfiguration(config);
-    chai.assert.isUndefined(res);
+    assert.isUndefined(res);
   });
 
   it("false - url is not chat", async () => {
@@ -246,7 +245,7 @@ describe("isM365CopilotChatDebugConfiguration", () => {
       url: "https://abc",
     };
     const res = isM365CopilotChatDebugConfiguration(config);
-    chai.assert.isUndefined(res);
+    assert.isUndefined(res);
   });
 
   it("false - url param", async () => {
@@ -255,7 +254,7 @@ describe("isM365CopilotChatDebugConfiguration", () => {
       url: "https://www.office.com/chat?auth=2",
     };
     const res = isM365CopilotChatDebugConfiguration(config);
-    chai.assert.isUndefined(res);
+    assert.isUndefined(res);
   });
 
   it("false - runtimeArgs undefined", async () => {
@@ -264,7 +263,7 @@ describe("isM365CopilotChatDebugConfiguration", () => {
       url: "https://www.office.com/chat?auth=2&developerMode=Basic",
     };
     const res = isM365CopilotChatDebugConfiguration(config);
-    chai.assert.isUndefined(res);
+    assert.isUndefined(res);
   });
 
   it("false - runtimeArgs not contains port", async () => {
@@ -274,7 +273,7 @@ describe("isM365CopilotChatDebugConfiguration", () => {
       runtimeArgs: [],
     };
     const res = isM365CopilotChatDebugConfiguration(config);
-    chai.assert.isUndefined(res);
+    assert.isUndefined(res);
   });
 
   it("false - runtimeArgs contains invalid port", async () => {
@@ -284,7 +283,7 @@ describe("isM365CopilotChatDebugConfiguration", () => {
       runtimeArgs: ["--remote-debugging-port=abc"],
     };
     const res = isM365CopilotChatDebugConfiguration(config);
-    chai.assert.isUndefined(res);
+    assert.isUndefined(res);
   });
 
   it("Mac OS remove user-data-dir", async () => {
@@ -298,43 +297,43 @@ describe("isM365CopilotChatDebugConfiguration", () => {
     };
     mockValue(process, "platform", "darwin");
     const res = isM365CopilotChatDebugConfiguration(config);
-    chai.assert.equal(res, 9222);
-    chai.assert.equal(config.runtimeArgs.length, 1);
+    assert.equal(res, 9222);
+    assert.equal(config.runtimeArgs.length, 1);
   });
 });
 
 describe("isCopilotChatUrl", () => {
   it("true", async () => {
     const res = isCopilotChatUrl("https://www.office.com/chat?auth=2&developerMode=Basic");
-    chai.assert.isTrue(res);
+    assert.isTrue(res);
   });
 
   it("false", async () => {
     const res = isCopilotChatUrl("https://abc.com");
-    chai.assert.isFalse(res);
+    assert.isFalse(res);
   });
 });
 
 describe("isOfficeChatUrl", () => {
   it("true", async () => {
     const res = isOfficeChatUrl("https://www.office.com/chat?auth=2&developerMode=Basic");
-    chai.assert.isTrue(res);
+    assert.isTrue(res);
   });
 
   it("false", async () => {
     const res = isOfficeChatUrl("https://abc.com");
-    chai.assert.isFalse(res);
+    assert.isFalse(res);
   });
 });
 
 describe("isM365ChatUrl", () => {
   it("true", async () => {
     const res = isM365ChatUrl("https://m365.cloud.microsoft/chat");
-    chai.assert.isTrue(res);
+    assert.isTrue(res);
   });
   it("false", async () => {
     const res = isM365ChatUrl("https://abc.com");
-    chai.assert.isFalse(res);
+    assert.isFalse(res);
   });
 });
 
@@ -346,7 +345,7 @@ describe("CDPClientManager", () => {
       vi.spyOn(CDPClient.prototype, "start").mockResolvedValue();
       cdpClientManager.sessions.set(9222, new CDPClient("url", 9222, "name"));
       const client = cdpClientManager.start("https://m365.cloud.microsoft/chat", 9222, "name");
-      chai.assert.isDefined(client);
+      assert.isDefined(client);
     });
   });
   describe("stop", () => {
@@ -355,7 +354,7 @@ describe("CDPClientManager", () => {
       cdpClientManager.sessions.set(9222, client);
       const stub = vi.spyOn(client, "stop").mockResolvedValue();
       await cdpClientManager.stop(9222);
-      chai.assert.isTrue(stub.called);
+      assert.isTrue(stub.called);
     });
   });
 });

@@ -1,5 +1,5 @@
 import { err, ok, SystemError, UserError } from "@microsoft/teamsfx-api";
-import { vi } from "vitest";
+import { vi, expect, assert } from "vitest";
 import { mockValue } from "../mocks/vitestMockUtils";
 import {
   AppDefinition,
@@ -12,7 +12,6 @@ import {
 } from "@microsoft/teamsfx-core";
 import * as projectSettingsHelper from "@microsoft/teamsfx-core/build/common/projectSettingsHelper";
 import { ProgressHandler } from "@microsoft/vscode-ui";
-import { assert } from "chai";
 import * as vscode from "vscode";
 import * as globalVariables from "../../src/globalVariables";
 import * as copilotHandler from "../../src/handlers/copilotChatHandlers";
@@ -540,32 +539,32 @@ describe("Lifecycle handlers", () => {
   describe("lifecycleHandlersDeps delegation", () => {
     it("uriFile delegates to vscode.Uri.file", () => {
       const uri = lifecycleHandlersDeps.uriFile("/test/path");
-      chai.expect(uri).to.not.be.undefined;
+      expect(uri).to.not.be.undefined;
     });
 
     it("showInformationMessage delegates to vscode.window", async () => {
       vi.spyOn(vscode.window, "showInformationMessage").mockResolvedValue(undefined as any);
       await lifecycleHandlersDeps.showInformationMessage("msg", "btn");
-      chai.expect((vscode.window.showInformationMessage as any).called).to.be.true;
+      expect((vscode.window.showInformationMessage as any).called).to.be.true;
     });
 
     it("showErrorMessage delegates to vscode.window", async () => {
       const spy = vi.spyOn(vscode.window, "showErrorMessage").mockResolvedValue(undefined as any);
       await lifecycleHandlersDeps.showErrorMessage("error");
-      chai.expect(spy.called).to.be.true;
+      expect(spy.called).to.be.true;
     });
 
     it("invokeTeamsAgent delegates to copilotChatHandlers", async () => {
       vi.spyOn(copilotHandler, "invokeTeamsAgent").mockResolvedValue(undefined);
       await lifecycleHandlersDeps.invokeTeamsAgent([]);
-      chai.expect((copilotHandler.invokeTeamsAgent as any).called).to.be.true;
+      expect((copilotHandler.invokeTeamsAgent as any).called).to.be.true;
     });
 
     it("createProgressBar delegates to VS_CODE_UI", () => {
       mockValue(vsc_ui, "VS_CODE_UI", new vsc_ui.VsCodeUI(<vscode.ExtensionContext>{}));
       vi.spyOn(vsc_ui.VS_CODE_UI, "createProgressBar").mockReturnValue({} as any);
       const result = lifecycleHandlersDeps.createProgressBar("title", 1);
-      chai.expect(result).to.not.be.undefined;
+      expect(result).to.not.be.undefined;
     });
 
     it("reloadEnvironments delegates to envTreeProviderInstance", async () => {
@@ -573,25 +572,25 @@ describe("Lifecycle handlers", () => {
         ok(undefined as any)
       );
       await lifecycleHandlersDeps.reloadEnvironments();
-      chai.expect((envTreeProviderInstance.reloadEnvironments as any).called).to.be.true;
+      expect((envTreeProviderInstance.reloadEnvironments as any).called).to.be.true;
     });
 
     it("isValidOfficeAddInProject delegates to core", () => {
       vi.spyOn(projectSettingsHelper, "isValidOfficeAddInProject").mockReturnValue(false);
       const result = lifecycleHandlersDeps.isValidOfficeAddInProject(process.cwd());
-      chai.expect(typeof result).to.equal("boolean");
+      expect(typeof result).to.equal("boolean");
     });
 
     it("openOfficeDevFolder delegates to workspaceUtils", async () => {
       vi.spyOn(workspaceUtils, "openOfficeDevFolder").mockResolvedValue(undefined);
       await lifecycleHandlersDeps.openOfficeDevFolder(vscode.Uri.file("/test"), false);
-      chai.expect((workspaceUtils.openOfficeDevFolder as any).called).to.be.true;
+      expect((workspaceUtils.openOfficeDevFolder as any).called).to.be.true;
     });
 
     it("openFolder delegates to workspaceUtils", async () => {
       vi.spyOn(workspaceUtils, "openFolder").mockResolvedValue(undefined);
       await lifecycleHandlersDeps.openFolder(vscode.Uri.file("/test"), false);
-      chai.expect((workspaceUtils.openFolder as any).called).to.be.true;
+      expect((workspaceUtils.openFolder as any).called).to.be.true;
     });
 
     it("signInWhenInitiatedFromTdp delegates to M365TokenInstance", async () => {
@@ -599,46 +598,46 @@ describe("Lifecycle handlers", () => {
         ok("token") as any
       );
       await lifecycleHandlersDeps.signInWhenInitiatedFromTdp({ scopes: [] });
-      chai.expect((M365TokenInstance.signInWhenInitiatedFromTdp as any).called).to.be.true;
+      expect((M365TokenInstance.signInWhenInitiatedFromTdp as any).called).to.be.true;
     });
 
     it("getAccessToken delegates to M365TokenInstance", async () => {
       vi.spyOn(M365TokenInstance, "getAccessToken").mockResolvedValue(ok("token"));
       await lifecycleHandlersDeps.getAccessToken({ scopes: [] });
-      chai.expect((M365TokenInstance.getAccessToken as any).called).to.be.true;
+      expect((M365TokenInstance.getAccessToken as any).called).to.be.true;
     });
 
     it("setRegionEndpointByToken delegates to teamsDevPortalClient", async () => {
       vi.spyOn(teamsDevPortalClient, "setRegionEndpointByToken").mockResolvedValue(undefined);
       await lifecycleHandlersDeps.setRegionEndpointByToken("token");
-      chai.expect((teamsDevPortalClient.setRegionEndpointByToken as any).called).to.be.true;
+      expect((teamsDevPortalClient.setRegionEndpointByToken as any).called).to.be.true;
     });
 
     it("getApp delegates to teamsDevPortalClient", async () => {
       vi.spyOn(teamsDevPortalClient, "getApp").mockResolvedValue({} as any);
       await lifecycleHandlersDeps.getApp("token", "appId");
-      chai.expect((teamsDevPortalClient.getApp as any).called).to.be.true;
+      expect((teamsDevPortalClient.getApp as any).called).to.be.true;
     });
 
     it("getBooleanValue delegates to featureFlagManager", () => {
       vi.spyOn(featureFlagManager, "getBooleanValue").mockReturnValue(true);
       const result = lifecycleHandlersDeps.getBooleanValue("EnvFileV3" as any);
-      chai.expect(result).to.be.true;
+      expect(result).to.be.true;
     });
 
     it("getTools returns current tools", () => {
       const result = lifecycleHandlersDeps.getTools();
-      chai.expect(typeof result === "undefined" || typeof result === "object").to.be.true;
+      expect(typeof result === "undefined" || typeof result === "object").to.be.true;
     });
 
     it("isSovereignHigh delegates to core", () => {
       const result = lifecycleHandlersDeps.isSovereignHigh();
-      chai.expect(typeof result).to.equal("boolean");
+      expect(typeof result).to.equal("boolean");
     });
 
     it("getTriggerFromProperty delegates to telemetryUtils", () => {
       const result = lifecycleHandlersDeps.getTriggerFromProperty([]);
-      chai.expect(typeof result).to.equal("object");
+      expect(typeof result).to.equal("object");
     });
   });
 });

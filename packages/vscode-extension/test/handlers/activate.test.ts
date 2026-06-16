@@ -1,8 +1,7 @@
-import * as chai from "chai";
 import * as vscode from "vscode";
 import path from "path";
 import * as globalVariables from "../../src/globalVariables";
-import { vi } from "vitest";
+import { vi, assert } from "vitest";
 import { mockValue } from "../mocks/vitestMockUtils";
 import {
   activate,
@@ -36,7 +35,7 @@ describe("Activate", function () {
 
     it("No globalState error", async () => {
       const result = await activate();
-      chai.assert.deepEqual(result.isOk() ? result.value : result.error.name, {});
+      assert.deepEqual(result.isOk() ? result.value : result.error.name, {});
     });
 
     it("Valid project", async () => {
@@ -97,10 +96,10 @@ describe("Activate", function () {
       );
       const result = await activate();
 
-      chai.assert.isTrue(addFileSystemWatcherStub.calledOnceWith("test"));
-      chai.assert.isTrue(addSharedPropertyStub.called);
-      chai.assert.isTrue(sendTelemetryStub.calledOnceWith("open-teams-app"));
-      chai.assert.deepEqual(result.isOk() ? result.value : result.error.name, {});
+      assert.isTrue(addFileSystemWatcherStub.calledOnceWith("test"));
+      assert.isTrue(addSharedPropertyStub.called);
+      assert.isTrue(sendTelemetryStub.calledOnceWith("open-teams-app"));
+      assert.deepEqual(result.isOk() ? result.value : result.error.name, {});
 
       lockCallback("test");
       setCommandIsRunningStub.calledOnceWith(true);
@@ -109,7 +108,7 @@ describe("Activate", function () {
       unlockCallback("test");
       unlockedByOperationStub.calledOnceWith("test");
 
-      chai.assert.isTrue(showMessageStub.called);
+      assert.isTrue(showMessageStub.called);
     });
 
     it("uses Graph scopes for M365 status change in sovereign high", async () => {
@@ -130,8 +129,8 @@ describe("Activate", function () {
 
       const result = await activate();
 
-      chai.assert.isTrue(result.isOk());
-      chai.assert.isTrue(
+      assert.isTrue(result.isOk());
+      assert.isTrue(
         m365AccountSetStatusChangeMapStub.calledWithMatch(
           "successfully-sign-in-m365",
           { scopes: GraphScopes },
@@ -151,8 +150,8 @@ describe("Activate", function () {
 
       const result = await activate();
 
-      chai.assert.isTrue(result.isErr());
-      chai.assert.isTrue(showErrorMessageStub.called);
+      assert.isTrue(result.isErr());
+      assert.isTrue(showErrorMessageStub.called);
     });
   });
 
@@ -165,8 +164,8 @@ describe("Activate", function () {
         vscode.Uri.parse("File1"),
         vscode.Uri.parse("File2"),
       ]);
-      chai.assert.isTrue(isEnvFileStub.calledOnce);
-      chai.assert.isTrue(reloadEnvStub.calledOnce);
+      assert.isTrue(isEnvFileStub.calledOnce);
+      assert.isTrue(reloadEnvStub.calledOnce);
     });
 
     it("No need to refresh Env", async () => {
@@ -179,8 +178,8 @@ describe("Activate", function () {
         vscode.Uri.parse("File1"),
         vscode.Uri.parse("File2"),
       ]);
-      chai.assert.isTrue(isEnvFileStub.calledTwice);
-      chai.assert.isTrue(reloadEnvStub.notCalled);
+      assert.isTrue(isEnvFileStub.calledTwice);
+      assert.isTrue(reloadEnvStub.notCalled);
     });
   });
 
@@ -202,8 +201,8 @@ describe("Activate", function () {
           { newUri: vscode.Uri.parse("File2New"), oldUri: vscode.Uri.parse("File2Old") },
         ],
       });
-      chai.assert.isTrue(isEnvFileStub.calledOnce);
-      chai.assert.isTrue(reloadEnvStub.calledOnce);
+      assert.isTrue(isEnvFileStub.calledOnce);
+      assert.isTrue(reloadEnvStub.calledOnce);
     });
 
     it("No need to refresh Env", async () => {
@@ -218,8 +217,8 @@ describe("Activate", function () {
           { newUri: vscode.Uri.parse("File2New"), oldUri: vscode.Uri.parse("File2Old") },
         ],
       });
-      chai.assert.isTrue(isEnvFileStub.callCount === 4);
-      chai.assert.isTrue(reloadEnvStub.notCalled);
+      assert.isTrue(isEnvFileStub.callCount === 4);
+      assert.isTrue(reloadEnvStub.notCalled);
     });
   });
 
@@ -232,7 +231,7 @@ describe("Activate", function () {
         ".",
         path.resolve(".", `.fx`, "configs", "projectSettings.json")
       );
-      chai.assert.isTrue(reloadEnvStub.calledOnce);
+      assert.isTrue(reloadEnvStub.calledOnce);
     });
 
     it("No need to refresh Env", async () => {
@@ -242,7 +241,7 @@ describe("Activate", function () {
         "..",
         path.resolve(".", `.fx`, "configs", "projectSettings.json")
       );
-      chai.assert.isTrue(reloadEnvStub.notCalled);
+      assert.isTrue(reloadEnvStub.notCalled);
     });
   });
 });

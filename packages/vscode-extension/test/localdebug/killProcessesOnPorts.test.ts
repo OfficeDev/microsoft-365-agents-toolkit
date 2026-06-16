@@ -1,8 +1,6 @@
-import { vi } from "vitest";
+import { vi, assert } from "vitest";
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
-
-import * as chai from "chai";
 import * as vscode from "vscode";
 
 import { processUtil } from "../../src/utils/processUtil";
@@ -27,7 +25,7 @@ describe("killProcessesOnPorts", () => {
   it("should return 'no-pids' when no PIDs found for ports", async () => {
     vi.spyOn(processUtil, "getProcessIdsByPort").mockResolvedValue([]);
     const result = await depsCheckerCommon.killProcessesOnPorts([3978]);
-    chai.assert.equal(result, "no-pids");
+    assert.equal(result, "no-pids");
   });
 
   it("should kill processes and return 'killed' when user confirms", async () => {
@@ -37,8 +35,8 @@ describe("killProcessesOnPorts", () => {
 
     const result = await depsCheckerCommon.killProcessesOnPorts([3978]);
 
-    chai.assert.equal(result, "killed");
-    chai.assert.isTrue(killStub.calledOnceWith(12345));
+    assert.equal(result, "killed");
+    assert.isTrue(killStub.calledOnceWith(12345));
   });
 
   it("should return 'cancelled' when user dismisses notification", async () => {
@@ -48,8 +46,8 @@ describe("killProcessesOnPorts", () => {
 
     const result = await depsCheckerCommon.killProcessesOnPorts([3978]);
 
-    chai.assert.equal(result, "cancelled");
-    chai.assert.isTrue(killStub.notCalled);
+    assert.equal(result, "cancelled");
+    assert.isTrue(killStub.notCalled);
   });
 
   it("should return 'copilot' when user clicks Resolve with Copilot Chat", async () => {
@@ -61,8 +59,8 @@ describe("killProcessesOnPorts", () => {
 
     const result = await depsCheckerCommon.killProcessesOnPorts([3978]);
 
-    chai.assert.equal(result, "copilot");
-    chai.assert.isTrue(killStub.notCalled);
+    assert.equal(result, "copilot");
+    assert.isTrue(killStub.notCalled);
   });
 
   it("should deduplicate PIDs across multiple ports", async () => {
@@ -74,10 +72,10 @@ describe("killProcessesOnPorts", () => {
 
     const result = await depsCheckerCommon.killProcessesOnPorts([3978, 9239]);
 
-    chai.assert.equal(result, "killed");
-    chai.assert.equal(killStub.callCount, 2);
+    assert.equal(result, "killed");
+    assert.equal(killStub.callCount, 2);
     const killedPids = killStub.getCalls().map((c) => c.args[0]);
-    chai.assert.includeMembers(killedPids, [12345, 67890]);
+    assert.includeMembers(killedPids, [12345, 67890]);
   });
 
   it("should return 'no-pids' and log warning when an exception occurs", async () => {
@@ -86,9 +84,9 @@ describe("killProcessesOnPorts", () => {
 
     const result = await depsCheckerCommon.killProcessesOnPorts([3978]);
 
-    chai.assert.equal(result, "no-pids");
-    chai.assert.isTrue(warnStub.calledOnce);
-    chai.assert.include(warnStub.firstCall.args[0], "unexpected failure");
+    assert.equal(result, "no-pids");
+    assert.isTrue(warnStub.calledOnce);
+    assert.include(warnStub.firstCall.args[0], "unexpected failure");
   });
 
   it("should return 'no-pids' and log warning when killProcess throws", async () => {
@@ -99,8 +97,8 @@ describe("killProcessesOnPorts", () => {
 
     const result = await depsCheckerCommon.killProcessesOnPorts([3978]);
 
-    chai.assert.equal(result, "no-pids");
-    chai.assert.isTrue(warnStub.calledOnce);
+    assert.equal(result, "no-pids");
+    assert.isTrue(warnStub.calledOnce);
   });
 
   it("should log port conflict details to output channel", async () => {
@@ -114,8 +112,8 @@ describe("killProcessesOnPorts", () => {
     const logCall = appendStub
       .getCalls()
       .find((c) => (c.args[0] as string).includes("[Port Conflict]"));
-    chai.assert.isDefined(logCall);
-    chai.assert.include(logCall!.args[0] as string, "3978");
-    chai.assert.include(logCall!.args[0] as string, "12345");
+    assert.isDefined(logCall);
+    assert.include(logCall!.args[0] as string, "3978");
+    assert.include(logCall!.args[0] as string, "12345");
   });
 });

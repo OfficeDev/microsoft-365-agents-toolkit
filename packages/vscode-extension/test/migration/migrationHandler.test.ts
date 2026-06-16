@@ -1,4 +1,4 @@
-import { vi } from "vitest";
+import { vi, expect } from "vitest";
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
@@ -7,7 +7,6 @@ import vsCodeLogProvider from "../../src/commonlib/log";
 import * as localizeUtils from "../../src/utils/localizeUtils";
 import * as replaceTsSDK from "../../src/migration/migrationTool/ts/replaceTsSDK";
 import fs from "fs-extra";
-import * as chai from "chai";
 import {
   teamsClientSDKVersion,
   teamsManifestSchema,
@@ -33,8 +32,8 @@ describe("TeamsAppMigrationHandler", () => {
 
       const migrationHandler = new TeamsAppMigrationHandler("test");
       const result = await migrationHandler.updateCodes();
-      chai.expect(result.isOk()).equals(true);
-      chai.expect((result as any).value.length).equals(0);
+      expect(result.isOk()).equals(true);
+      expect((result as any).value.length).equals(0);
     });
 
     it("some failures", async () => {
@@ -52,8 +51,8 @@ describe("TeamsAppMigrationHandler", () => {
 
       const migrationHandler = new TeamsAppMigrationHandler("test");
       const result = await migrationHandler.updateCodes();
-      chai.expect(result.isOk()).equals(true);
-      chai.expect((result as any).value.length).equals(1);
+      expect(result.isOk()).equals(true);
+      expect((result as any).value.length).equals(1);
     });
   });
 
@@ -77,9 +76,9 @@ describe("TeamsAppMigrationHandler", () => {
       if (result.isErr()) {
         console.log(result.error);
       }
-      chai.expect(result.isOk()).equals(true);
-      chai.expect((result as any).value).equals(true);
-      chai.expect(packageJson).deep.equals({
+      expect(result.isOk()).equals(true);
+      expect((result as any).value).equals(true);
+      expect(packageJson).deep.equals({
         dependencies: {
           "@microsoft/teams-js": teamsClientSDKVersion,
         },
@@ -91,8 +90,8 @@ describe("TeamsAppMigrationHandler", () => {
       vi.spyOn(fs, "pathExists").mockResolvedValue(false);
       const migrationHandler = new TeamsAppMigrationHandler("test");
       const result = await migrationHandler.updatePackageJson();
-      chai.expect(result.isOk()).equals(true);
-      chai.expect((result as any).value).equals(false);
+      expect(result.isOk()).equals(true);
+      expect((result as any).value).equals(false);
     });
   });
 
@@ -108,9 +107,9 @@ describe("TeamsAppMigrationHandler", () => {
       });
       const migrationHandler = new TeamsAppMigrationHandler("test");
       const result = await migrationHandler.updateManifest();
-      chai.expect(result.isOk()).equals(true);
-      chai.expect((result as any).value).equals(null);
-      chai.expect(manifestJson).deep.equals({
+      expect(result.isOk()).equals(true);
+      expect((result as any).value).equals(null);
+      expect(manifestJson).deep.equals({
         $schema: teamsManifestSchema,
         manifestVersion: teamsManifestVersion,
       });
@@ -120,8 +119,8 @@ describe("TeamsAppMigrationHandler", () => {
       vi.spyOn(fs, "readJSON").throws(new Error("exception"));
       const migrationHandler = new TeamsAppMigrationHandler("test");
       const result = await migrationHandler.updateManifest();
-      chai.expect(result.isErr()).equals(true);
-      chai.expect((result as any).error.name).equals(ExtensionErrors.UpdateManifestError);
+      expect(result.isErr()).equals(true);
+      expect((result as any).error.name).equals(ExtensionErrors.UpdateManifestError);
     });
   });
 });

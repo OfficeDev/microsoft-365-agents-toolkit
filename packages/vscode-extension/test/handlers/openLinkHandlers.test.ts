@@ -1,10 +1,9 @@
 import { ok, signedIn, signedOut } from "@microsoft/teamsfx-api";
-import * as chai from "chai";
 import * as vscode from "vscode";
 import * as globalVariables from "../../src/globalVariables";
 import M365TokenInstance from "../../src/commonlib/m365Login";
 import { DeveloperPortalHomeLink } from "../../src/constants";
-import { vi } from "vitest";
+import { vi, assert } from "vitest";
 import { mockValue } from "../mocks/vitestMockUtils";
 import {
   findGitHubSimilarIssue,
@@ -53,9 +52,9 @@ describe("Open link handlers", () => {
 
       const res = await openAppManagement();
 
-      chai.assert.isTrue(openUrl.calledOnce);
-      chai.assert.isTrue(res.isOk());
-      chai.assert.equal(openUrl.args[0][0], `${DeveloperPortalHomeLink}?login_hint=test`);
+      assert.isTrue(openUrl.calledOnce);
+      assert.isTrue(res.isOk());
+      assert.equal(openUrl.args[0][0], `${DeveloperPortalHomeLink}?login_hint=test`);
     });
 
     it("open link without loginHint", async () => {
@@ -71,9 +70,9 @@ describe("Open link handlers", () => {
 
       const res = await openAppManagement();
 
-      chai.assert.isTrue(openUrl.calledOnce);
-      chai.assert.isTrue(res.isOk());
-      chai.assert.equal(openUrl.args[0][0], DeveloperPortalHomeLink);
+      assert.isTrue(openUrl.calledOnce);
+      assert.isTrue(res.isOk());
+      assert.equal(openUrl.args[0][0], DeveloperPortalHomeLink);
     });
   });
 
@@ -81,7 +80,7 @@ describe("Open link handlers", () => {
     it("happy", async () => {
       vi.spyOn(vsc_ui.VS_CODE_UI, "openUrl").mockResolvedValue(ok(true));
       const res = await openEnvLinkHandler([]);
-      chai.assert.isTrue(res.isOk());
+      assert.isTrue(res.isOk());
     });
   });
 
@@ -89,7 +88,7 @@ describe("Open link handlers", () => {
     it("happy", async () => {
       vi.spyOn(vsc_ui.VS_CODE_UI, "openUrl").mockResolvedValue(ok(true));
       const res = await openDevelopmentLinkHandler([]);
-      chai.assert.isTrue(res.isOk());
+      assert.isTrue(res.isOk());
     });
   });
 
@@ -100,7 +99,7 @@ describe("Open link handlers", () => {
 
       await openDocumentHandler(TelemetryTriggerFrom.SideBar, "learnmore");
 
-      chai.assert.isTrue(openUrl.calledOnceWith("https://aka.ms/teams-toolkit-5.0-upgrade"));
+      assert.isTrue(openUrl.calledOnceWith("https://aka.ms/teams-toolkit-5.0-upgrade"));
     });
     it("opens build app guide when clicked from left pane", async () => {
       mockValue(vsc_ui, "VS_CODE_UI", new vsc_ui.VsCodeUI(<vscode.ExtensionContext>{}));
@@ -108,7 +107,7 @@ describe("Open link handlers", () => {
 
       await openDocumentHandler("documentName", "build-apps");
 
-      chai.assert.isTrue(openUrl.calledOnceWith("https://aka.ms/teamstoolkit-build-app"));
+      assert.isTrue(openUrl.calledOnceWith("https://aka.ms/teamstoolkit-build-app"));
     });
     it("opens build agent guide when clicked from left pane", async () => {
       mockValue(vsc_ui, "VS_CODE_UI", new vsc_ui.VsCodeUI(<vscode.ExtensionContext>{}));
@@ -116,7 +115,7 @@ describe("Open link handlers", () => {
 
       await openDocumentHandler("documentName", "build-agents");
 
-      chai.assert.isTrue(openUrl.calledOnceWith("https://aka.ms/teamstoolkit-build-agent"));
+      assert.isTrue(openUrl.calledOnceWith("https://aka.ms/teamstoolkit-build-agent"));
     });
   });
 
@@ -124,7 +123,7 @@ describe("Open link handlers", () => {
     it("happy", async () => {
       vi.spyOn(vsc_ui.VS_CODE_UI, "openUrl").mockResolvedValue(ok(true));
       const res = await openLifecycleLinkHandler([]);
-      chai.assert.isTrue(res.isOk());
+      assert.isTrue(res.isOk());
     });
   });
 
@@ -132,7 +131,7 @@ describe("Open link handlers", () => {
     it("happy", async () => {
       vi.spyOn(vsc_ui.VS_CODE_UI, "openUrl").mockResolvedValue(ok(true));
       const res = await openHelpFeedbackLinkHandler([]);
-      chai.assert.isTrue(res.isOk());
+      assert.isTrue(res.isOk());
     });
   });
 
@@ -140,7 +139,7 @@ describe("Open link handlers", () => {
     it("happy", async () => {
       vi.spyOn(vsc_ui.VS_CODE_UI, "openUrl").mockResolvedValue(ok(true));
       const res = await openM365AccountHandler();
-      chai.assert.isTrue(res.isOk());
+      assert.isTrue(res.isOk());
     });
   });
 
@@ -148,7 +147,7 @@ describe("Open link handlers", () => {
     it("happy", async () => {
       vi.spyOn(vsc_ui.VS_CODE_UI, "openUrl").mockResolvedValue(ok(true));
       const res = await openAzureAccountHandler();
-      chai.assert.isTrue(res.isOk());
+      assert.isTrue(res.isOk());
     });
   });
 
@@ -156,7 +155,7 @@ describe("Open link handlers", () => {
     it("happy", async () => {
       vi.spyOn(vsc_ui.VS_CODE_UI, "openUrl").mockResolvedValue(ok(true));
       const res = await openBotManagement();
-      chai.assert.isTrue(res.isOk());
+      assert.isTrue(res.isOk());
     });
   });
 
@@ -164,7 +163,7 @@ describe("Open link handlers", () => {
     it("happy", async () => {
       vi.spyOn(vsc_ui.VS_CODE_UI, "openUrl").mockResolvedValue(ok(true));
       const res = await openAccountLinkHandler([]);
-      chai.assert.isTrue(res.isOk());
+      assert.isTrue(res.isOk());
     });
   });
 
@@ -172,7 +171,7 @@ describe("Open link handlers", () => {
     it("happy", async () => {
       vi.spyOn(vsc_ui.VS_CODE_UI, "openUrl").mockResolvedValue(ok(true));
       const res = await openReportIssues([]);
-      chai.assert.isTrue(res.isOk());
+      assert.isTrue(res.isOk());
     });
   });
 
@@ -180,12 +179,12 @@ describe("Open link handlers", () => {
     it("happy", async () => {
       vi.spyOn(vsc_ui.VS_CODE_UI, "openUrl").mockResolvedValue(ok(true));
       const res = await openExternalHandler([{ url: "abc" }]);
-      chai.assert.isTrue(res.isOk());
+      assert.isTrue(res.isOk());
     });
     it("happy", async () => {
       vi.spyOn(vsc_ui.VS_CODE_UI, "openUrl").mockResolvedValue(ok(true));
       const res = await openExternalHandler([]);
-      chai.assert.isTrue(res.isOk());
+      assert.isTrue(res.isOk());
     });
   });
 
@@ -193,12 +192,12 @@ describe("Open link handlers", () => {
     it("happy", async () => {
       vi.spyOn(vsc_ui.VS_CODE_UI, "openUrl").mockResolvedValue(ok(true));
       const res = await openDocumentHandler(["", ""]);
-      chai.assert.isTrue(res.isOk());
+      assert.isTrue(res.isOk());
     });
     it("happy learnmore", async () => {
       vi.spyOn(vsc_ui.VS_CODE_UI, "openUrl").mockResolvedValue(ok(true));
       const res = await openDocumentHandler(["", "learnmore"]);
-      chai.assert.isTrue(res.isOk());
+      assert.isTrue(res.isOk());
     });
   });
 
@@ -206,54 +205,54 @@ describe("Open link handlers", () => {
     it("signinM365", async () => {
       vi.spyOn(vsc_ui.VS_CODE_UI, "openUrl").mockResolvedValue(ok(true));
       const res = await openDocumentLinkHandler([{ contextValue: "signinM365" }]);
-      chai.assert.isTrue(res.isOk());
+      assert.isTrue(res.isOk());
     });
     it("signinAzure", async () => {
       vi.spyOn(vsc_ui.VS_CODE_UI, "openUrl").mockResolvedValue(ok(true));
       const res = await openDocumentLinkHandler([{ contextValue: "signinAzure" }]);
-      chai.assert.isTrue(res.isOk());
+      assert.isTrue(res.isOk());
     });
     it("fx-extension.create", async () => {
       vi.spyOn(vsc_ui.VS_CODE_UI, "openUrl").mockResolvedValue(ok(true));
       const res = await openDocumentLinkHandler([{ contextValue: "fx-extension.create" }]);
-      chai.assert.isTrue(res.isOk());
+      assert.isTrue(res.isOk());
     });
     it("fx-extension.provision", async () => {
       vi.spyOn(vsc_ui.VS_CODE_UI, "openUrl").mockResolvedValue(ok(true));
       const res = await openDocumentLinkHandler([{ contextValue: "fx-extension.provision" }]);
-      chai.assert.isTrue(res.isOk());
+      assert.isTrue(res.isOk());
     });
     it("fx-extension.build", async () => {
       vi.spyOn(vsc_ui.VS_CODE_UI, "openUrl").mockResolvedValue(ok(true));
       const res = await openDocumentLinkHandler([{ contextValue: "fx-extension.build" }]);
-      chai.assert.isTrue(res.isOk());
+      assert.isTrue(res.isOk());
     });
     it("fx-extension.deploy", async () => {
       vi.spyOn(vsc_ui.VS_CODE_UI, "openUrl").mockResolvedValue(ok(true));
       const res = await openDocumentLinkHandler([{ contextValue: "fx-extension.deploy" }]);
-      chai.assert.isTrue(res.isOk());
+      assert.isTrue(res.isOk());
     });
     it("fx-extension.publish", async () => {
       vi.spyOn(vsc_ui.VS_CODE_UI, "openUrl").mockResolvedValue(ok(true));
       const res = await openDocumentLinkHandler([{ contextValue: "fx-extension.publish" }]);
-      chai.assert.isTrue(res.isOk());
+      assert.isTrue(res.isOk());
     });
     it("fx-extension.publishInDeveloperPortal", async () => {
       vi.spyOn(vsc_ui.VS_CODE_UI, "openUrl").mockResolvedValue(ok(true));
       const res = await openDocumentLinkHandler([
         { contextValue: "fx-extension.publishInDeveloperPortal" },
       ]);
-      chai.assert.isTrue(res.isOk());
+      assert.isTrue(res.isOk());
     });
     it("empty", async () => {
       vi.spyOn(vsc_ui.VS_CODE_UI, "openUrl").mockResolvedValue(ok(true));
       const res = await openDocumentLinkHandler([]);
-      chai.assert.isTrue(res.isOk());
+      assert.isTrue(res.isOk());
     });
     it("none", async () => {
       vi.spyOn(vsc_ui.VS_CODE_UI, "openUrl").mockResolvedValue(ok(true));
       const res = await openDocumentLinkHandler([{ contextValue: "" }]);
-      chai.assert.isTrue(res.isOk());
+      assert.isTrue(res.isOk());
     });
   });
 
@@ -261,7 +260,7 @@ describe("Open link handlers", () => {
     it("subscriptionInfo not found", async () => {
       vi.spyOn(envTreeUtils, "getSubscriptionInfoFromEnv");
       const res = await openSubscriptionInPortal("local");
-      chai.assert.equal(res.isErr() ? res.error.name : "Not Error", "EnvResourceInfoNotFoundError");
+      assert.equal(res.isErr() ? res.error.name : "Not Error", "EnvResourceInfoNotFoundError");
     });
 
     it("happy path", async () => {
@@ -272,8 +271,8 @@ describe("Open link handlers", () => {
       } as any);
       const openExternalStub = vi.spyOn(vscode.env, "openExternal");
       await openSubscriptionInPortal("local");
-      chai.assert.equal(openExternalStub.callCount, 1);
-      chai.assert.deepEqual(
+      assert.equal(openExternalStub.callCount, 1);
+      assert.deepEqual(
         openExternalStub.args[0][0],
         vscode.Uri.parse(
           `https://portal.azure.com/#@tenantId/resource/subscriptions/subscriptionId`
@@ -292,7 +291,7 @@ describe("Open link handlers", () => {
         "resourceGroupName" as any
       );
       const res = await openResourceGroupInPortal("local");
-      chai.assert.equal(
+      assert.equal(
         res.isErr() ? res.error.message : "Not Error",
         "Unable to load Subscription info for environment local."
       );
@@ -309,7 +308,7 @@ describe("Open link handlers", () => {
       } as any);
       vi.spyOn(envTreeUtils, "getResourceGroupNameFromEnv");
       const res = await openResourceGroupInPortal("local");
-      chai.assert.equal(
+      assert.equal(
         res.isErr() ? res.error.message : "Not Error",
         "Unable to load Resource Group info for environment local."
       );
@@ -319,7 +318,7 @@ describe("Open link handlers", () => {
       vi.spyOn(envTreeUtils, "getSubscriptionInfoFromEnv");
       vi.spyOn(envTreeUtils, "getResourceGroupNameFromEnv");
       const res = await openResourceGroupInPortal("local");
-      chai.assert.equal(
+      assert.equal(
         res.isErr() ? res.error.message : "Not Error",
         "Unable to load Subscription and Resource Group info for environment local."
       );
@@ -336,8 +335,8 @@ describe("Open link handlers", () => {
       );
       const openExternalStub = vi.spyOn(vscode.env, "openExternal");
       await openResourceGroupInPortal("local");
-      chai.assert.equal(openExternalStub.callCount, 1);
-      chai.assert.deepEqual(
+      assert.equal(openExternalStub.callCount, 1);
+      assert.deepEqual(
         openExternalStub.args[0][0],
         vscode.Uri.parse(
           `https://portal.azure.com/#@tenantId/resource/subscriptions/subscriptionId/resourceGroups/resourceGroupName`
@@ -351,23 +350,23 @@ describe("Open link handlers", () => {
       const commandStub = vi.spyOn(vscode.commands, "executeCommand").mockResolvedValue();
       await findGitHubSimilarIssue(["firsterror"]);
 
-      chai.assert.isTrue(commandStub.calledOnce);
+      assert.isTrue(commandStub.calledOnce);
     });
 
     it("do nothing if invalid args", async () => {
       const commandStub = vi.spyOn(vscode.commands, "executeCommand").mockResolvedValue();
       const res = await findGitHubSimilarIssue([]);
 
-      chai.assert.isFalse(commandStub.calledOnce);
-      chai.assert.isTrue(res.isOk());
+      assert.isFalse(commandStub.calledOnce);
+      assert.isTrue(res.isOk());
     });
 
     it("do nothing if no args", async () => {
       const commandStub = vi.spyOn(vscode.commands, "executeCommand").mockResolvedValue();
       const res = await findGitHubSimilarIssue();
 
-      chai.assert.isFalse(commandStub.calledOnce);
-      chai.assert.isTrue(res.isOk());
+      assert.isFalse(commandStub.calledOnce);
+      assert.isTrue(res.isOk());
     });
   });
 });

@@ -1,4 +1,3 @@
-import * as chai from "chai";
 import cp from "child_process";
 import fs from "fs-extra";
 import mockfs from "mock-fs";
@@ -6,7 +5,7 @@ import os from "os";
 import * as vscode from "vscode";
 import * as globalVariables from "../../src/globalVariables";
 import { ExtTelemetry } from "../../src/telemetry/extTelemetry";
-import { vi } from "vitest";
+import { vi, expect, assert } from "vitest";
 import { mockValue } from "../mocks/vitestMockUtils";
 import {
   acpInstalled,
@@ -44,15 +43,15 @@ describe("CommonUtils", () => {
   describe("os assertion", () => {
     it("should return exactly result according to os.type", async () => {
       vi.spyOn(processAdapter, "type").mockReturnValue("Windows_NT");
-      chai.expect(isWindows()).equals(true);
+      expect(isWindows()).equals(true);
       vi.restoreAllMocks();
 
       vi.spyOn(processAdapter, "type").mockReturnValue("Linux");
-      chai.expect(isLinux()).equals(true);
+      expect(isLinux()).equals(true);
       vi.restoreAllMocks();
 
       vi.spyOn(processAdapter, "type").mockReturnValue("Darwin");
-      chai.expect(isMacOS()).equals(true);
+      expect(isMacOS()).equals(true);
       vi.restoreAllMocks();
     });
   });
@@ -68,7 +67,7 @@ describe("CommonUtils", () => {
 
       const result = await hasAdaptiveCardInWorkspace();
 
-      chai.assert.isFalse(result);
+      assert.isFalse(result);
     });
 
     it("happy path", async () => {
@@ -90,7 +89,7 @@ describe("CommonUtils", () => {
 
       const result = await hasAdaptiveCardInWorkspace();
 
-      chai.assert.isTrue(result);
+      assert.isTrue(result);
     });
 
     it("hasAdaptiveCardInWorkspace() no adaptive card file", async () => {
@@ -101,7 +100,7 @@ describe("CommonUtils", () => {
 
       const result = await hasAdaptiveCardInWorkspace();
 
-      chai.assert.isFalse(result);
+      assert.isFalse(result);
     });
 
     it("hasAdaptiveCardInWorkspace() very large adaptive card file", async () => {
@@ -123,7 +122,7 @@ describe("CommonUtils", () => {
 
       const result = await hasAdaptiveCardInWorkspace();
 
-      chai.assert.isFalse(result);
+      assert.isFalse(result);
     });
   });
 
@@ -139,7 +138,7 @@ describe("CommonUtils", () => {
 
       const installed = acpInstalled();
 
-      chai.assert.isTrue(installed);
+      assert.isTrue(installed);
     });
 
     it("not installed", async () => {
@@ -148,7 +147,7 @@ describe("CommonUtils", () => {
 
       const installed = acpInstalled();
 
-      chai.assert.isFalse(installed);
+      assert.isFalse(installed);
     });
   });
 
@@ -159,7 +158,7 @@ describe("CommonUtils", () => {
       mockValue(globalVariables, "workspaceUri", vscode.Uri.file("path"));
 
       const result = await getLocalDebugMessageTemplate(true);
-      chai.assert.isTrue(result.includes("Microsoft 365 Agents Playground"));
+      assert.isTrue(result.includes("Microsoft 365 Agents Playground"));
     });
 
     it("Test Tool disabled in Windows platform", async () => {
@@ -168,7 +167,7 @@ describe("CommonUtils", () => {
       mockValue(globalVariables, "workspaceUri", vscode.Uri.file("path"));
 
       const result = await getLocalDebugMessageTemplate(true);
-      chai.assert.isFalse(result.includes("Microsoft 365 Agents Playground"));
+      assert.isFalse(result.includes("Microsoft 365 Agents Playground"));
     });
 
     it("Test Tool enabled in non-Windows platform", async () => {
@@ -177,7 +176,7 @@ describe("CommonUtils", () => {
       mockValue(globalVariables, "workspaceUri", vscode.Uri.file("path"));
 
       const result = await getLocalDebugMessageTemplate(false);
-      chai.assert.isTrue(result.includes("Microsoft 365 Agents Playground"));
+      assert.isTrue(result.includes("Microsoft 365 Agents Playground"));
     });
 
     it("Test Tool disabled in non-Windows platform", async () => {
@@ -186,7 +185,7 @@ describe("CommonUtils", () => {
       mockValue(globalVariables, "workspaceUri", vscode.Uri.file("path"));
 
       const result = await getLocalDebugMessageTemplate(false);
-      chai.assert.isFalse(result.includes("Microsoft 365 Agents Playground"));
+      assert.isFalse(result.includes("Microsoft 365 Agents Playground"));
     });
 
     it("No workspace folder", async () => {
@@ -194,7 +193,7 @@ describe("CommonUtils", () => {
       vi.spyOn(fsAdapter, "pathExists").mockResolvedValue(false);
 
       const result = await getLocalDebugMessageTemplate(false);
-      chai.assert.isFalse(result.includes("Microsoft 365 Agents Playground"));
+      assert.isFalse(result.includes("Microsoft 365 Agents Playground"));
     });
   });
 });

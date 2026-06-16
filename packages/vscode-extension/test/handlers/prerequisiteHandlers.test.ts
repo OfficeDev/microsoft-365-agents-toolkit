@@ -1,11 +1,10 @@
-import { vi } from "vitest";
+import { vi, assert } from "vitest";
 import { mockValue } from "../mocks/vitestMockUtils";
 /**
  * @author HuihuiWu-Microsoft <73154171+HuihuiWu-Microsoft@users.noreply.github.com>
  */
 import { SystemError, err } from "@microsoft/teamsfx-api";
 import { DepsManager, DepsType } from "@microsoft/teamsfx-core";
-import * as chai from "chai";
 import path from "path";
 import * as vscode from "vscode";
 import * as getStartedChecker from "../../src/debug/depsChecker/getStartedChecker";
@@ -37,7 +36,7 @@ describe("prerequisiteHandlers", () => {
       ]);
 
       const dotnetPath = await getDotnetPathHandler();
-      chai.assert.equal(dotnetPath, `${path.delimiter}dotnet-bin-folder${path.delimiter}`);
+      assert.equal(dotnetPath, `${path.delimiter}dotnet-bin-folder${path.delimiter}`);
     });
 
     it("dotnet is not installed", async () => {
@@ -57,7 +56,7 @@ describe("prerequisiteHandlers", () => {
       ]);
 
       const dotnetPath = await getDotnetPathHandler();
-      chai.assert.equal(dotnetPath, `${path.delimiter}`);
+      assert.equal(dotnetPath, `${path.delimiter}`);
     });
 
     it("failed to get dotnet path", async () => {
@@ -65,14 +64,14 @@ describe("prerequisiteHandlers", () => {
         new Error("failed to get status")
       );
       const dotnetPath = await getDotnetPathHandler();
-      chai.assert.equal(dotnetPath, `${path.delimiter}`);
+      assert.equal(dotnetPath, `${path.delimiter}`);
     });
   });
 
   describe("getPathDelimiterHandler", () => {
     it("happy path", async () => {
       const actualPath = await getPathDelimiterHandler();
-      chai.assert.equal(actualPath, path.delimiter);
+      assert.equal(actualPath, path.delimiter);
     });
   });
 
@@ -85,8 +84,8 @@ describe("prerequisiteHandlers", () => {
 
       const result = await validateGetStartedPrerequisitesHandler();
 
-      chai.assert.isTrue(sendTelemetryStub.called);
-      chai.assert.isTrue(result.isErr());
+      assert.isTrue(sendTelemetryStub.called);
+      assert.isTrue(result.isErr());
     });
   });
 
@@ -103,7 +102,7 @@ describe("prerequisiteHandlers", () => {
 
       await installAdaptiveCardExt();
 
-      chai.assert.isTrue(executeCommandStub.calledOnce);
+      assert.isTrue(executeCommandStub.calledOnce);
     });
   });
 });

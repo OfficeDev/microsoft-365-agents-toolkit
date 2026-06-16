@@ -1,5 +1,4 @@
-import * as chai from "chai";
-import { vi } from "vitest";
+import { vi, assert } from "vitest";
 import { createMock } from "../../mocks/vitestMockUtils";
 import { mockValue } from "../../mocks/vitestMockUtils";
 
@@ -62,58 +61,58 @@ describe("AccountTreeViewProvider", () => {
       m365TokenProvider: m365TokenProviderStub,
     });
 
-    chai.assert.isTrue(azureAccountProviderStub.setStatusChangeMap.calledOnce);
-    chai.assert.isTrue(m365TokenProviderStub.setStatusChangeMap.calledOnce);
+    assert.isTrue(azureAccountProviderStub.setStatusChangeMap.calledOnce);
+    assert.isTrue(m365TokenProviderStub.setStatusChangeMap.calledOnce);
 
     const m365SigingInStub = vi.spyOn(AccountTreeViewProvider.m365AccountNode, "setSigningIn");
     await m365StatusChange("SigningIn");
-    chai.assert.isTrue(m365SigingInStub.calledOnce);
+    assert.isTrue(m365SigingInStub.calledOnce);
 
     const m365SignedOutStub = vi.spyOn(AccountTreeViewProvider.m365AccountNode, "setSignedOut");
     await m365StatusChange("SignedOut");
-    chai.assert.isTrue(m365SignedOutStub.calledOnce);
+    assert.isTrue(m365SignedOutStub.calledOnce);
 
     const m365SignedInStub = vi
       .spyOn(AccountTreeViewProvider.m365AccountNode, "setSignedIn")
       .mockResolvedValue();
     const updateChecksStub = vi.spyOn(AccountTreeViewProvider.m365AccountNode, "updateChecks");
     await m365StatusChange("SignedIn", "token", { upn: "upn" });
-    chai.assert.isTrue(m365SignedInStub.calledOnceWithExactly("upn", ""));
-    chai.assert.isTrue(updateChecksStub.calledOnce);
+    assert.isTrue(m365SignedInStub.calledOnceWithExactly("upn", ""));
+    assert.isTrue(updateChecksStub.calledOnce);
 
     m365SignedInStub.mockClear();
     updateChecksStub.mockClear();
     await m365StatusChange("SignedIn", "token", { tid: "tid" });
-    chai.assert.isTrue(m365SignedInStub.calledOnceWithExactly("", "tid"));
-    chai.assert.isTrue(updateChecksStub.calledOnce);
+    assert.isTrue(m365SignedInStub.calledOnceWithExactly("", "tid"));
+    assert.isTrue(updateChecksStub.calledOnce);
 
     m365SignedInStub.mockClear();
     updateChecksStub.mockClear();
     await m365StatusChange("SignedIn", "token", { upn: "upn", tid: "tid" });
-    chai.assert.isTrue(m365SignedInStub.calledOnceWithExactly("upn", "tid"));
-    chai.assert.isTrue(updateChecksStub.calledOnce);
+    assert.isTrue(m365SignedInStub.calledOnceWithExactly("upn", "tid"));
+    assert.isTrue(updateChecksStub.calledOnce);
 
     const m365SwitchingStub = vi.spyOn(AccountTreeViewProvider.m365AccountNode, "setSwitching");
     await m365StatusChange("Switching");
-    chai.assert.isTrue(m365SwitchingStub.calledOnce);
+    assert.isTrue(m365SwitchingStub.calledOnce);
 
     const azureSignedOutStub = vi.spyOn(AccountTreeViewProvider.azureAccountNode, "setSignedOut");
     await azureStatusChange("SignedOut");
-    chai.assert.isTrue(azureSignedOutStub.calledOnce);
+    assert.isTrue(azureSignedOutStub.calledOnce);
 
     const azureSignedInStub = vi
       .spyOn(AccountTreeViewProvider.azureAccountNode, "setSignedIn")
       .mockResolvedValue();
     await azureStatusChange("SignedIn", "token", { upn: "upn" });
-    chai.assert.isTrue(azureSignedInStub.calledOnce);
+    assert.isTrue(azureSignedInStub.calledOnce);
 
     azureSignedInStub.mockClear();
     await azureStatusChange("SignedIn", "token", { upn: "upn", tid: "tid" });
-    chai.assert.isTrue(azureSignedInStub.calledOnceWithExactly("token", "tid", "upn"));
+    assert.isTrue(azureSignedInStub.calledOnceWithExactly("token", "tid", "upn"));
 
     const azureSigningInStub = vi.spyOn(AccountTreeViewProvider.azureAccountNode, "setSigningIn");
     await azureStatusChange("SigningIn", undefined, {});
-    chai.assert.isTrue(azureSigningInStub.calledOnce);
+    assert.isTrue(azureSigningInStub.calledOnce);
   });
 
   it("getChildren", async () => {
@@ -121,7 +120,7 @@ describe("AccountTreeViewProvider", () => {
 
     const children = await AccountTreeViewProvider.getChildren();
 
-    chai.assert.equal(children?.length, 2);
+    assert.equal(children?.length, 2);
   });
 
   it("subscribeToStatusChanges uses Graph scopes in sovereign high", async () => {
@@ -137,7 +136,7 @@ describe("AccountTreeViewProvider", () => {
       m365TokenProvider: m365TokenProviderStub,
     });
 
-    chai.assert.isTrue(
+    assert.isTrue(
       m365TokenProviderStub.setStatusChangeMap.calledWithMatch(
         "tree-view",
         { scopes: GraphScopes },

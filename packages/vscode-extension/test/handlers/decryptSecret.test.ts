@@ -5,7 +5,7 @@ import { ok, err, UserError } from "@microsoft/teamsfx-api";
 import { decryptSecret } from "../../src/handlers/decryptSecret";
 import { ExtTelemetry } from "../../src/telemetry/extTelemetry";
 import { MockCore } from "../mocks/mockCore";
-import { vi } from "vitest";
+import { vi, expect } from "vitest";
 import { mockValue } from "../mocks/vitestMockUtils";
 
 describe("decryptSecret", function () {
@@ -114,6 +114,6 @@ describe("decryptSecret", function () {
     expect(editBuilder).not.toHaveBeenCalled();
     expect(sendTelemetryEvent).toHaveBeenCalledTimes(1);
     expect(sendTelemetryErrorEvent).toHaveBeenCalledTimes(1);
-    chai.expect(sendTelemetryErrorEvent.getCall(0).args[0]).to.contain("edit-secret");
+    expect(sendTelemetryErrorEvent.getCall(0).args[0]).to.contain("edit-secret");
   });
 });

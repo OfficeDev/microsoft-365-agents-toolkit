@@ -1,9 +1,8 @@
-import * as chai from "chai";
 import * as vscode from "vscode";
 import { CopilotDebugLog } from "../../src/pluginDebugger/copilotDebugLogOutput";
 import { WebSocketEventHandler } from "../../src/pluginDebugger/webSocketEventHandler";
 import * as ui from "../../src/qm/vsc_ui";
-import { vi } from "vitest";
+import { vi, assert } from "vitest";
 import { mockValue } from "../mocks/vitestMockUtils";
 
 describe("WebSocketEventHandler", () => {
@@ -19,7 +18,7 @@ describe("WebSocketEventHandler", () => {
     it("isWebSocketDataRelevant returns false", () => {
       vi.spyOn(WebSocketEventHandler, "isWebSocketDataRelevant").mockReturnValue(false);
       const num = WebSocketEventHandler.handleEvent({ payloadData: '{"type":1' } as any);
-      chai.assert.equal(num, 0);
+      assert.equal(num, 0);
     });
     it("throw error", () => {
       const appendLineStub = vi.spyOn(vscode.debug.activeDebugConsole, "appendLine");
@@ -29,9 +28,9 @@ describe("WebSocketEventHandler", () => {
       vi.spyOn(WebSocketEventHandler, "isWebSocketDataRelevant").mockReturnValue(true);
       vi.spyOn(WebSocketEventHandler, "splitObjects").throws(new Error("Test"));
       const num = WebSocketEventHandler.handleEvent({ payloadData: '{"type":1' } as any);
-      chai.assert.equal(num, 0);
-      chai.assert.isTrue(showMessageStub.calledOnce);
-      chai.assert.isTrue(appendLineStub.calledOnce);
+      assert.equal(num, 0);
+      assert.isTrue(showMessageStub.calledOnce);
+      assert.isTrue(appendLineStub.calledOnce);
     });
     it("happy", () => {
       vi.spyOn(WebSocketEventHandler, "isWebSocketDataRelevant").mockReturnValue(true);
@@ -40,7 +39,7 @@ describe("WebSocketEventHandler", () => {
       vi.spyOn(WebSocketEventHandler, "selectBotTextMessages").mockReturnValue([{} as any]);
       vi.spyOn(WebSocketEventHandler, "convertBotMessageToChannelOutput").mockReturnValue();
       const num = WebSocketEventHandler.handleEvent({ payloadData: '{"type":1' } as any);
-      chai.assert.equal(num, 1);
+      assert.equal(num, 1);
     });
   });
   describe("isWebSocketDataRelevant", () => {
@@ -48,13 +47,13 @@ describe("WebSocketEventHandler", () => {
       const res = WebSocketEventHandler.isWebSocketDataRelevant({
         payloadData: '{"type":2',
       } as any);
-      chai.assert.isTrue(res);
+      assert.isTrue(res);
     });
     it("false", () => {
       const res = WebSocketEventHandler.isWebSocketDataRelevant({
         payloadData: '{"type":1',
       } as any);
-      chai.assert.isFalse(res);
+      assert.isFalse(res);
     });
   });
   describe("splitObjects", () => {
@@ -62,7 +61,7 @@ describe("WebSocketEventHandler", () => {
       const res = WebSocketEventHandler.splitObjects({
         payloadData: "abc\x1e123",
       } as any);
-      chai.assert.deepEqual(res, ["abc", "123"]);
+      assert.deepEqual(res, ["abc", "123"]);
     });
   });
   describe("selectBotTextMessages", () => {
@@ -70,7 +69,7 @@ describe("WebSocketEventHandler", () => {
       const res = WebSocketEventHandler.selectBotTextMessages({
         item: { messages: [{ messageType: "DeveloperLogs" }] },
       } as any);
-      chai.assert.deepEqual(res, [{ messageType: "DeveloperLogs" }] as any);
+      assert.deepEqual(res, [{ messageType: "DeveloperLogs" }] as any);
     });
 
     it("with prompt", () => {
@@ -82,7 +81,7 @@ describe("WebSocketEventHandler", () => {
           ],
         },
       } as any);
-      chai.assert.deepEqual(res, [{ messageType: "DeveloperLogs", prompt: "test" }] as any);
+      assert.deepEqual(res, [{ messageType: "DeveloperLogs", prompt: "test" }] as any);
     });
   });
   describe("convertBotMessageToChannelOutput", () => {
@@ -95,7 +94,7 @@ describe("WebSocketEventHandler", () => {
         }),
         prompt: "listRepairs",
       } as any);
-      chai.assert.isTrue(stub.calledOnce);
+      assert.isTrue(stub.calledOnce);
     });
   });
   describe("convertBotMessageToChannelOutputJson", () => {
@@ -112,13 +111,13 @@ describe("WebSocketEventHandler", () => {
           functionExecutions: [{ requestUrl: "" }],
         }),
       } as any);
-      chai.assert.isTrue(stub.calledOnce);
+      assert.isTrue(stub.calledOnce);
     });
   });
   describe("prettyPrintJson", () => {
     it("happy", () => {
       const res = WebSocketEventHandler.prettyPrintJson(JSON.stringify({ a: "b" }));
-      chai.assert.equal(res, JSON.stringify({ a: "b" }, null, 2));
+      assert.equal(res, JSON.stringify({ a: "b" }, null, 2));
     });
   });
 });

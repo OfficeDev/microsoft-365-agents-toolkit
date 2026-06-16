@@ -1,9 +1,7 @@
-import { vi } from "vitest";
+import { vi, assert } from "vitest";
 import { mockValue } from "../mocks/vitestMockUtils";
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
-
-import * as chai from "chai";
 import * as vscode from "vscode";
 import * as vsc_ui from "../../src/qm/vsc_ui";
 import { openOneDriveSharePointUrlHandler } from "../../src/handlers/openOneDriveSharePointUrlHandler";
@@ -28,13 +26,13 @@ describe("openOneDriveSharePointUrlHandler", () => {
     await openOneDriveSharePointUrlHandler(["https://example.com"]);
 
     // Verify telemetry was sent
-    chai.assert.isTrue(
+    assert.isTrue(
       sendTelemetryStub.calledOnceWith(TelemetryEvent.OpenOneDriveSharePointUrlStart, {
         [TelemetryProperty.TriggerFrom]: TelemetryTriggerFrom.Other,
       })
     );
     // Verify URL was not opened
-    chai.assert.isTrue(openUrlStub.notCalled);
+    assert.isTrue(openUrlStub.notCalled);
   });
 
   it("should open URL when active editor exists", async () => {
@@ -47,12 +45,12 @@ describe("openOneDriveSharePointUrlHandler", () => {
     await openOneDriveSharePointUrlHandler([testUrl]);
 
     // Verify telemetry was sent
-    chai.assert.isTrue(
+    assert.isTrue(
       sendTelemetryStub.calledOnceWith(TelemetryEvent.OpenOneDriveSharePointUrlStart, {
         [TelemetryProperty.TriggerFrom]: TelemetryTriggerFrom.Other,
       })
     );
     // Verify URL was opened with correct parameter
-    chai.assert.isTrue(openUrlStub.calledOnceWith(testUrl));
+    assert.isTrue(openUrlStub.calledOnceWith(testUrl));
   });
 });

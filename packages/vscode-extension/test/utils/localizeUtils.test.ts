@@ -1,8 +1,7 @@
-import * as chai from "chai";
 import fs from "fs-extra";
 import VsCodeLogInstance from "../../src/commonlib/log";
 import * as globalVariables from "../../src/globalVariables";
-import { vi } from "vitest";
+import { vi, expect } from "vitest";
 import { mockValue } from "../mocks/vitestMockUtils";
 import {
   _resetCollections,
@@ -31,7 +30,7 @@ describe("localizeUtils", () => {
 
       loadLocalizedStrings();
 
-      chai.expect(vscodeLogStub.calledOnce).to.be.true;
+      expect(vscodeLogStub.calledOnce).to.be.true;
     });
 
     it("should log error if no string file found for current locale", () => {
@@ -50,7 +49,7 @@ describe("localizeUtils", () => {
 
       loadLocalizedStrings();
 
-      chai.expect(vscodeLogStub.calledOnce).to.be.true;
+      expect(vscodeLogStub.calledOnce).to.be.true;
     });
   });
 
@@ -60,7 +59,7 @@ describe("localizeUtils", () => {
       mockValue(process, "env", { VSCODE_NLS_CONFIG: '{ "locale": "zh-cn" }' });
       const locale = parseLocale();
 
-      chai.expect(locale).to.equal("zh-cn");
+      expect(locale).to.equal("zh-cn");
     });
   });
 });

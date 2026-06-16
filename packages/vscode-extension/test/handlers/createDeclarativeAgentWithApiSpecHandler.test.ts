@@ -1,11 +1,10 @@
-import * as chai from "chai";
 import * as globalVariables from "../../src/globalVariables";
 import * as telemetry from "../../src/telemetry/extTelemetry";
 import { createDeclarativeAgentWithApiSpec } from "../../src/handlers/createDeclarativeAgentWithApiSpecHandler";
 import { err, UserError } from "@microsoft/teamsfx-api";
 import * as globalState from "@microsoft/teamsfx-core/build/common/globalState";
 import { MockCore } from "../mocks/mockCore";
-import { vi } from "vitest";
+import { vi, assert } from "vitest";
 import { mockValue } from "../mocks/vitestMockUtils";
 
 describe("createDeclarativeAgentWithApiSpecHandler", () => {
@@ -21,9 +20,9 @@ describe("createDeclarativeAgentWithApiSpecHandler", () => {
 
     const res = await createDeclarativeAgentWithApiSpec([]);
 
-    chai.assert.isTrue(res.isErr());
+    assert.isTrue(res.isErr());
     if (res.isErr()) {
-      chai.assert.equal(res.error.name, "invalidParameter");
+      assert.equal(res.error.name, "invalidParameter");
     }
   });
 
@@ -33,7 +32,7 @@ describe("createDeclarativeAgentWithApiSpecHandler", () => {
 
     const res = await createDeclarativeAgentWithApiSpec(["test-path"]);
 
-    chai.assert.isTrue(res.isOk());
+    assert.isTrue(res.isOk());
   });
 
   it("should throw error if core return error", async () => {
@@ -45,9 +44,9 @@ describe("createDeclarativeAgentWithApiSpecHandler", () => {
 
     const res = await createDeclarativeAgentWithApiSpec(["test-path"]);
 
-    chai.assert.isTrue(res.isErr());
+    assert.isTrue(res.isErr());
     if (res.isErr()) {
-      chai.assert.equal(res.error.name, "fakeError");
+      assert.equal(res.error.name, "fakeError");
     }
   });
 });

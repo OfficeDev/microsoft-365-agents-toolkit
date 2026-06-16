@@ -2,10 +2,9 @@ import { err, ok, SystemError, UserError } from "@microsoft/teamsfx-api";
 import { manifestUtils, pluginManifestUtils } from "@microsoft/teamsfx-core";
 import * as globalState from "@microsoft/teamsfx-core";
 import * as pluginGeneratorHelper from "@microsoft/teamsfx-core/build/component/generator/openApiSpec/helper";
-import * as chai from "chai";
 import path from "path";
 import * as vscode from "vscode";
-import { vi } from "vitest";
+import { vi, assert } from "vitest";
 import VsCodeLogInstance from "../../src/commonlib/log";
 import { GlobalKey } from "../../src/constants";
 import * as globalVariables from "../../src/globalVariables";
@@ -53,8 +52,8 @@ describe("autoOpenProjectHandler", () => {
 
     await autoOpenProjectHandler();
 
-    chai.assert.equal(sendTelemetryStub.mock.calls.length, 0);
-    chai.assert.equal(executeCommandFunc.mock.calls.length, 0);
+    assert.equal(sendTelemetryStub.mock.calls.length, 0);
+    assert.equal(executeCommandFunc.mock.calls.length, 0);
   });
 
   it("opens walk through if workspace Uri exists", async () => {
@@ -67,7 +66,7 @@ describe("autoOpenProjectHandler", () => {
       GlobalKey.OpenWalkThrough,
       true
     )) as boolean;
-    chai.assert.isFalse(isOpenWalkThrough);
+    assert.isFalse(isOpenWalkThrough);
   });
 
   it("opens README", async () => {
@@ -77,7 +76,7 @@ describe("autoOpenProjectHandler", () => {
     await autoOpenProjectHandler();
 
     const openReadMe = (await globalState.globalStateGet(GlobalKey.OpenReadMe, "")) as string;
-    chai.assert.equal(openReadMe, "");
+    assert.equal(openReadMe, "");
   });
 
   it("opens sample README", async () => {
@@ -89,7 +88,7 @@ describe("autoOpenProjectHandler", () => {
       GlobalKey.OpenSampleReadMe,
       true
     )) as boolean;
-    chai.assert.isFalse(openSampleReadMe);
+    assert.isFalse(openSampleReadMe);
   });
 
   it("opens README and show APIE ME warnings successfully", async () => {
@@ -128,7 +127,7 @@ describe("autoOpenProjectHandler", () => {
     await autoOpenProjectHandler();
 
     const openReadMe = (await globalState.globalStateGet(GlobalKey.OpenReadMe, "")) as string;
-    chai.assert.equal(openReadMe, "");
+    assert.equal(openReadMe, "");
   });
 
   it("opens README and show warnings", async () => {
@@ -166,7 +165,7 @@ describe("autoOpenProjectHandler", () => {
 
     await autoOpenProjectHandler();
 
-    chai.assert.equal(generateWarningStub.mock.calls.length, 0);
+    assert.equal(generateWarningStub.mock.calls.length, 0);
   });
 
   it("opens README and show copilot plugin warnings successfully", async () => {
@@ -269,7 +268,7 @@ describe("autoOpenProjectHandler", () => {
     vi.spyOn(ExtTelemetry, "sendTelemetryErrorEvent");
 
     await autoOpenProjectHandler();
-    chai.assert.isDefined(getApiSpecStub);
+    assert.isDefined(getApiSpecStub);
   });
 
   it("auto install dependency", async () => {
@@ -285,7 +284,7 @@ describe("autoOpenProjectHandler", () => {
       GlobalKey.AutoInstallDependency,
       true
     )) as boolean;
-    chai.assert.isFalse(autoInstallDependency);
-    chai.assert.equal(autoInstallDependencyHandlerStub.mock.calls.length, 1);
+    assert.isFalse(autoInstallDependency);
+    assert.equal(autoInstallDependencyHandlerStub.mock.calls.length, 1);
   });
 });

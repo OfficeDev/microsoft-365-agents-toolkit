@@ -1,8 +1,7 @@
 import { Inputs, err, ok } from "@microsoft/teamsfx-api";
-import * as chai from "chai";
 import * as vscode from "vscode";
 import * as globalVariables from "../../src/globalVariables";
-import { vi } from "vitest";
+import { vi, assert } from "vitest";
 import { mockValue } from "../mocks/vitestMockUtils";
 import {
   debugInTestToolHandler,
@@ -32,7 +31,7 @@ describe("DebugHandlers", () => {
 
       await debugInTestToolHandler("treeview")();
 
-      chai.assert.isTrue(
+      assert.isTrue(
         executeCommandStub.calledOnceWith(
           "workbench.action.quickOpen",
           "debug Debug in Microsoft 365 Agents Playground"
@@ -47,7 +46,7 @@ describe("DebugHandlers", () => {
 
       await debugInTestToolHandler("message")();
 
-      chai.assert.isTrue(
+      assert.isTrue(
         executeCommandStub.calledOnceWith(
           "workbench.action.quickOpen",
           "debug Debug in Microsoft 365 Agents Playground"
@@ -69,7 +68,7 @@ describe("DebugHandlers", () => {
 
       const result = await treeViewPreviewHandler("dev");
 
-      chai.assert.isTrue(result.isErr());
+      assert.isTrue(result.isErr());
     });
 
     it("treeViewPreviewHandler() - happy path", async () => {
@@ -83,7 +82,7 @@ describe("DebugHandlers", () => {
 
       const result = await treeViewPreviewHandler("dev");
 
-      chai.assert.isTrue(result.isOk());
+      assert.isTrue(result.isOk());
     });
   });
 
@@ -97,14 +96,11 @@ describe("DebugHandlers", () => {
 
       await selectAndDebugHandler();
 
-      chai.assert.isTrue(sendTelemetryEventStub.called);
-      chai.assert.equal(
-        sendTelemetryEventStub.getCall(0).args[0],
-        TelemetryEvent.RunIconDebugStart
-      );
-      chai.assert.isTrue(selectAndDebugStub.calledOnce);
-      chai.assert.isTrue(processResultStub.calledOnce);
-      chai.assert.equal(processResultStub.getCall(0).args[0], TelemetryEvent.RunIconDebug);
+      assert.isTrue(sendTelemetryEventStub.called);
+      assert.equal(sendTelemetryEventStub.getCall(0).args[0], TelemetryEvent.RunIconDebugStart);
+      assert.isTrue(selectAndDebugStub.calledOnce);
+      assert.isTrue(processResultStub.calledOnce);
+      assert.equal(processResultStub.getCall(0).args[0], TelemetryEvent.RunIconDebug);
     });
   });
 
@@ -115,8 +111,8 @@ describe("DebugHandlers", () => {
 
       await treeViewLocalDebugHandler();
 
-      chai.assert.isTrue(sendTelemetryEventStub.calledOnceWith(TelemetryEvent.TreeViewLocalDebug));
-      chai.assert.isTrue(executeCommandStub.calledOnceWith("workbench.action.quickOpen", "debug "));
+      assert.isTrue(sendTelemetryEventStub.calledOnceWith(TelemetryEvent.TreeViewLocalDebug));
+      assert.isTrue(executeCommandStub.calledOnceWith("workbench.action.quickOpen", "debug "));
     });
   });
 });

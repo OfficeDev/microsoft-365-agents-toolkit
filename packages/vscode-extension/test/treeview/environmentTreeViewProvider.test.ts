@@ -1,5 +1,4 @@
-import * as chai from "chai";
-import { vi } from "vitest";
+import { vi, assert } from "vitest";
 import { mockValue } from "../mocks/vitestMockUtils";
 
 import { ok } from "@microsoft/teamsfx-api";
@@ -16,7 +15,7 @@ describe("EnvironmentTreeViewProvider", () => {
 
     const result = await EnvironmentTreeViewProvider.reloadEnvironments();
 
-    chai.assert.isTrue(result.isOk());
+    assert.isTrue(result.isOk());
   });
 
   it("getChildren", async () => {
@@ -30,6 +29,6 @@ describe("EnvironmentTreeViewProvider", () => {
 
     const children = await EnvironmentTreeViewProvider.getChildren();
 
-    chai.assert.equal(children?.length, 2);
+    assert.equal(children?.length, 2);
   });
 });

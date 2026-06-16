@@ -1,4 +1,4 @@
-import { vi } from "vitest";
+import { vi, assert } from "vitest";
 import { mockValue } from "../mocks/vitestMockUtils";
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
@@ -11,7 +11,6 @@ import M365TokenInstance from "../../src/commonlib/m365Login";
 import { ok } from "@microsoft/teamsfx-api";
 import { ExtTelemetry } from "../../src/telemetry/extTelemetry";
 import axios from "axios";
-import * as chai from "chai";
 
 describe("delete aad helper", () => {
   describe("delete aad", () => {
@@ -19,7 +18,7 @@ describe("delete aad helper", () => {
       mockValue(globalVariables, "workspaceUri", vscode.Uri.file("path"));
       vi.spyOn(fs, "existsSync").mockReturnValue(false);
       const res = await deleteAad();
-      chai.assert.isTrue(res);
+      assert.isTrue(res);
     });
 
     it("no aad id", async () => {
@@ -27,7 +26,7 @@ describe("delete aad helper", () => {
       vi.spyOn(fs, "existsSync").mockReturnValue(true);
       vi.spyOn(fs, "readFileSync").mockReturnValue("{}");
       const res = await deleteAad();
-      chai.assert.isTrue(res);
+      assert.isTrue(res);
     });
 
     it("normal test account", async () => {
@@ -47,7 +46,7 @@ describe("delete aad helper", () => {
         )
       );
       const res = await deleteAad();
-      chai.assert.isTrue(res);
+      assert.isTrue(res);
     });
 
     it("no telemetry handler", async () => {
@@ -65,7 +64,7 @@ describe("delete aad helper", () => {
       vi.spyOn(ExtTelemetry, "sendTelemetryEvent").throws(new Error("test error"));
       vi.spyOn(ExtTelemetry, "sendTelemetryErrorEvent");
       const res = await deleteAad();
-      chai.assert.isFalse(res);
+      assert.isFalse(res);
     });
 
     it("happy path for bot id", async () => {
@@ -87,7 +86,7 @@ describe("delete aad helper", () => {
       vi.spyOn(axios, "create").mockReturnValue(fakeAxiosInstance);
       vi.spyOn(fakeAxiosInstance, "delete").mockResolvedValue({ data: { status: 204 } });
       const res = await deleteAad();
-      chai.assert.isTrue(res);
+      assert.isTrue(res);
     });
 
     it("happy path for sso id", async () => {
@@ -109,7 +108,7 @@ describe("delete aad helper", () => {
       vi.spyOn(axios, "create").mockReturnValue(fakeAxiosInstance);
       vi.spyOn(fakeAxiosInstance, "delete").mockResolvedValue({ data: { status: 204 } });
       const res = await deleteAad();
-      chai.assert.isTrue(res);
+      assert.isTrue(res);
     });
 
     it("happy path for bot id and sso id", async () => {
@@ -131,7 +130,7 @@ describe("delete aad helper", () => {
       vi.spyOn(axios, "create").mockReturnValue(fakeAxiosInstance);
       vi.spyOn(fakeAxiosInstance, "delete").mockResolvedValue({ data: { status: 204 } });
       const res = await deleteAad();
-      chai.assert.isTrue(res);
+      assert.isTrue(res);
     });
 
     it("axios handler error", async () => {
@@ -153,7 +152,7 @@ describe("delete aad helper", () => {
       vi.spyOn(axios, "create").mockReturnValue(fakeAxiosInstance);
       vi.spyOn(fakeAxiosInstance, "delete").mockRejectedValue(new Error("error"));
       const res = await deleteAad();
-      chai.assert.isTrue(res);
+      assert.isTrue(res);
     });
   });
 });

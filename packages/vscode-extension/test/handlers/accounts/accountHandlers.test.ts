@@ -1,11 +1,10 @@
 import * as vscode from "vscode";
-import * as chai from "chai";
 import { FeatureFlags, GraphScopes, featureFlagManager } from "@microsoft/teamsfx-core";
 import M365TokenInstance from "../../../src/commonlib/m365Login";
 import { err, ok } from "@microsoft/teamsfx-api";
 import { AzureAccountManager } from "../../../src/commonlib/azureLogin";
 import * as vsc_ui from "../../../src/qm/vsc_ui";
-import { vi } from "vitest";
+import { vi, expect, assert } from "vitest";
 import { mockValue } from "../../mocks/vitestMockUtils";
 import {
   azureAccountSignOutHelpHandler,
@@ -31,12 +30,12 @@ describe("AccountHandlers", () => {
 
       await createAccountHandler([]);
 
-      chai.expect(selectOptionStub.calledOnce).to.be.true;
-      chai.expect(
+      expect(selectOptionStub.calledOnce).to.be.true;
+      expect(
         openUrlStub.calledOnceWith("https://developer.microsoft.com/microsoft-365/dev-program")
       ).to.be.true;
-      chai.expect(sendTelemetryEventStub.args[1][1]["account-type"]).to.equal("m365");
-      chai.expect(sendTelemetryEventStub.args[1][1]["trigger-from"]).to.equal("CommandPalette");
+      expect(sendTelemetryEventStub.args[1][1]["account-type"]).to.equal("m365");
+      expect(sendTelemetryEventStub.args[1][1]["trigger-from"]).to.equal("CommandPalette");
     });
 
     it("create Azure account", async () => {
@@ -48,10 +47,10 @@ describe("AccountHandlers", () => {
 
       await createAccountHandler([]);
 
-      chai.expect(selectOptionStub.calledOnce).to.be.true;
-      chai.expect(openUrlStub.calledOnceWith("https://azure.microsoft.com/en-us/free/")).to.be.true;
-      chai.expect(sendTelemetryEventStub.args[1][1]["account-type"]).to.equal("azure");
-      chai.expect(sendTelemetryEventStub.args[1][1]["trigger-from"]).to.equal("CommandPalette");
+      expect(selectOptionStub.calledOnce).to.be.true;
+      expect(openUrlStub.calledOnceWith("https://azure.microsoft.com/en-us/free/")).to.be.true;
+      expect(sendTelemetryEventStub.args[1][1]["account-type"]).to.equal("azure");
+      expect(sendTelemetryEventStub.args[1][1]["trigger-from"]).to.equal("CommandPalette");
     });
 
     it("create account error", async () => {
@@ -63,9 +62,9 @@ describe("AccountHandlers", () => {
 
       await createAccountHandler([]);
 
-      chai.expect(selectOptionStub.calledOnce).to.be.true;
-      chai.expect(sendTelemetryEventStub.calledOnce).to.be.true;
-      chai.expect(sendTelemetryErrorEventStub.calledOnce).to.be.true;
+      expect(selectOptionStub.calledOnce).to.be.true;
+      expect(sendTelemetryEventStub.calledOnce).to.be.true;
+      expect(sendTelemetryErrorEventStub.calledOnce).to.be.true;
     });
   });
 
@@ -124,9 +123,9 @@ describe("AccountHandlers", () => {
         await (i as any).function();
       }
 
-      chai.assert.isTrue(showMessageStub.calledTwice);
-      chai.assert.isTrue(m365SignoutMock.mock.calls.length === 1);
-      chai.assert.isTrue(hideStub.calledOnce);
+      assert.isTrue(showMessageStub.calledTwice);
+      assert.isTrue(m365SignoutMock.mock.calls.length === 1);
+      assert.isTrue(hideStub.calledOnce);
     });
 
     it("Sign in happy path", async () => {
@@ -150,12 +149,12 @@ describe("AccountHandlers", () => {
         await (i as any).function();
       }
 
-      chai.assert.isTrue(showMessageStub.notCalled);
-      chai.assert.isTrue(executeCommandStub.calledThrice);
-      chai.expect(executeCommandStub.args[0][0]).to.be.equal("fx-extension.signinAzure");
-      chai.expect(executeCommandStub.args[1][0]).to.be.equal("fx-extension.signinM365");
-      chai.expect(executeCommandStub.args[2][0]).to.be.equal("fx-extension.signinAzure");
-      chai.assert.isTrue(hideStub.calledOnce);
+      assert.isTrue(showMessageStub.notCalled);
+      assert.isTrue(executeCommandStub.calledThrice);
+      expect(executeCommandStub.args[0][0]).to.be.equal("fx-extension.signinAzure");
+      expect(executeCommandStub.args[1][0]).to.be.equal("fx-extension.signinM365");
+      expect(executeCommandStub.args[2][0]).to.be.equal("fx-extension.signinAzure");
+      assert.isTrue(hideStub.calledOnce);
     });
 
     it("Sign out happy path - unique_name", async () => {
@@ -172,7 +171,7 @@ describe("AccountHandlers", () => {
 
       await cmpAccountsHandler([]);
 
-      chai.assert.isTrue((stubQuickPick.items[0].label as string).includes("test.email.com"));
+      assert.isTrue((stubQuickPick.items[0].label as string).includes("test.email.com"));
     });
 
     it("Sign out happy path - undefined", async () => {
@@ -189,7 +188,7 @@ describe("AccountHandlers", () => {
 
       await cmpAccountsHandler([]);
 
-      chai.assert.equal(
+      assert.equal(
         stubQuickPick.items[0].label as string,
         localizeUtils.localize("teamstoolkit.handlers.signOutOfM365")
       );
@@ -208,7 +207,7 @@ describe("AccountHandlers", () => {
 
       await cmpAccountsHandler([]);
 
-      chai.assert.isTrue(getStatusStub.calledOnceWithExactly({ scopes: GraphScopes }));
+      assert.isTrue(getStatusStub.calledOnceWithExactly({ scopes: GraphScopes }));
     });
   });
 
@@ -217,7 +216,7 @@ describe("AccountHandlers", () => {
       try {
         azureAccountSignOutHelpHandler();
       } catch (e) {
-        chai.assert.isTrue(e instanceof Error);
+        assert.isTrue(e instanceof Error);
       }
     });
   });

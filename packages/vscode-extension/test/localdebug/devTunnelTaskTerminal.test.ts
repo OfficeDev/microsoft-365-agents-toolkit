@@ -1,13 +1,10 @@
-import { vi } from "vitest";
+import { vi, expect, assert } from "vitest";
 import { mockValue } from "../mocks/vitestMockUtils";
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 /**
  * @author Xiaofu Huang <xiaofhua@microsoft.com>
  */
-
-import * as chai from "chai";
-import chaiAsPromised from "chai-as-promised";
 import fs from "fs-extra";
 import path from "path";
 import * as uuid from "uuid";
@@ -37,8 +34,6 @@ import { DevTunnelManager } from "../../src/debug/taskTerminal/utils/devTunnelMa
 import { ExtensionErrors, ExtensionSource } from "../../src/error/error";
 import * as globalVariables from "../../src/globalVariables";
 import { ExtTelemetry } from "../../src/telemetry/extTelemetry";
-
-chai.use(chaiAsPromised);
 
 class TestDevTunnelTaskTerminal extends DevTunnelTaskTerminal {
   public started(): boolean {
@@ -212,13 +207,13 @@ describe("devTunnelTaskTerminal", () => {
         tunnelTaskTerminal.do(),
         waitDevTunnelEnabled(tunnelTaskTerminal).then(() => tunnelTaskTerminal.stop()),
       ]);
-      chai.assert.isTrue(
+      assert.isTrue(
         resArr[0].isOk(),
         `Failed with error message - ${resArr[0].isErr() ? resArr[0].error : ""}`
       );
       const devTunnelStateManager = DevTunnelStateManager.create();
       const devTunnelState = await devTunnelStateManager.listDevTunnelStates();
-      chai.assert.isEmpty(devTunnelState);
+      assert.isEmpty(devTunnelState);
     });
 
     it("delete existing tunnel", async () => {
@@ -238,13 +233,13 @@ describe("devTunnelTaskTerminal", () => {
         tunnelTaskTerminal.do(),
         waitDevTunnelEnabled(tunnelTaskTerminal).then(() => tunnelTaskTerminal.stop()),
       ]);
-      chai.assert.isTrue(
+      assert.isTrue(
         resArr[0].isOk(),
         `Failed with error message - ${resArr[0].isErr() ? resArr[0].error : ""}`
       );
       const devTunnelState = await devTunnelStateManager.listDevTunnelStates();
-      chai.assert.isEmpty(devTunnelState);
-      chai.assert.equal(mockResource.mockTunnelArray.length, 1);
+      assert.isEmpty(devTunnelState);
+      assert.equal(mockResource.mockTunnelArray.length, 1);
     });
   });
 
@@ -522,11 +517,9 @@ describe("devTunnelTaskTerminal", () => {
     testDataList.forEach((testData) => {
       it(testData.message, async () => {
         if (testData.errorPropertyName) {
-          chai
-            .expect(() => tunnelTaskTerminal.resolveArgs(testData.args as IDevTunnelArgs))
-            .throw(
-              `The value of '${testData.errorPropertyName}' is invalid for the task of type 'teamsfx'`
-            );
+          expect(() => tunnelTaskTerminal.resolveArgs(testData.args as IDevTunnelArgs)).to.throw(
+            `The value of '${testData.errorPropertyName}' is invalid for the task of type 'teamsfx'`
+          );
         } else {
           tunnelTaskTerminal.resolveArgs(testData.args as IDevTunnelArgs);
         }
@@ -590,8 +583,8 @@ describe("devTunnelTaskTerminal", () => {
         },
       ]);
 
-      chai.assert.isTrue(res.isErr());
-      chai.assert.equal(res.isErr() ? res.error.name : undefined, "TunnelEnvError");
+      assert.isTrue(res.isErr());
+      assert.equal(res.isErr() ? res.error.name : undefined, "TunnelEnvError");
     });
 
     it("one port", async () => {

@@ -1,9 +1,8 @@
-import * as chai from "chai";
 import { ChatFollowup } from "vscode";
 import { DefaultNextStep } from "../../src/chat/consts";
 import { TeamsFollowupProvider } from "../../src/chat/followupProvider";
 import { CancellationToken } from "../mocks/vsc";
-import { vi } from "vitest";
+import { vi, expect } from "vitest";
 
 describe("chat followup provider", () => {
   describe("getInstance()", () => {
@@ -13,7 +12,7 @@ describe("chat followup provider", () => {
 
     it("create instance if not existed", async () => {
       const instance = TeamsFollowupProvider.getInstance();
-      chai.expect(instance).to.be.an.instanceof(TeamsFollowupProvider);
+      expect(instance).to.be.an.instanceof(TeamsFollowupProvider);
     });
   });
 
@@ -26,7 +25,7 @@ describe("chat followup provider", () => {
       const instance = TeamsFollowupProvider.getInstance();
       instance["followups"] = [{ prompt: "fakePrompt" }];
       instance.clearFollowups();
-      chai.expect(instance["followups"]).to.be.empty;
+      expect(instance["followups"]).to.be.empty;
     });
   });
 
@@ -42,7 +41,7 @@ describe("chat followup provider", () => {
         { prompt: "fakePrompt2" },
       ];
       instance.addFollowups(testFollowupCommands);
-      chai.expect(instance["followups"]).to.deep.equal(testFollowupCommands);
+      expect(instance["followups"]).to.deep.equal(testFollowupCommands);
     });
   });
 
@@ -55,7 +54,7 @@ describe("chat followup provider", () => {
       const instance = TeamsFollowupProvider.getInstance();
       instance["followups"] = [];
       const result = instance.provideFollowups({}, { history: [] }, new CancellationToken());
-      chai.expect(result).to.deep.equal([DefaultNextStep]);
+      expect(result).to.deep.equal([DefaultNextStep]);
     });
 
     it("provide followups", async () => {
@@ -66,7 +65,7 @@ describe("chat followup provider", () => {
       ];
       instance["followups"] = testFollowupCommands;
       const result = instance.provideFollowups({}, { history: [] }, new CancellationToken());
-      chai.expect(result).to.deep.equal(testFollowupCommands);
+      expect(result).to.deep.equal(testFollowupCommands);
     });
   });
 });

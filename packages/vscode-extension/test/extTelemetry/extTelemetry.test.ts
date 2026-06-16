@@ -1,6 +1,5 @@
 import { Stage, UserError } from "@microsoft/teamsfx-api";
 import { maskSecret, telemetryUtils } from "@microsoft/teamsfx-core";
-import * as chai from "chai";
 import fs from "fs-extra";
 import { Uri } from "vscode";
 import * as teamsfxCore from "@microsoft/teamsfx-core";
@@ -10,11 +9,11 @@ import { ExtTelemetry } from "../../src/telemetry/extTelemetry";
 import { TelemetryEvent } from "../../src/telemetry/extTelemetryEvents";
 import * as vscTelemetryUtils from "../../src/utils/telemetryUtils";
 import { MockTelemetryReporter } from "../mocks/mockTools";
-import { vi } from "vitest";
+import { vi, expect } from "vitest";
 import { mockValue } from "../mocks/vitestMockUtils";
 
 describe("ExtTelemetry", () => {
-  chai.util.addProperty(ExtTelemetry, "reporter", () => {});
+  mockValue(ExtTelemetry, "reporter", undefined as any);
   let sendTelemetryErrorEventSpy: ReturnType<typeof vi.spyOn>;
   let sendTelemetryEventSpy: ReturnType<typeof vi.spyOn>;
   let sendTelemetryExceptionSpy: ReturnType<typeof vi.spyOn>;
@@ -24,66 +23,66 @@ describe("ExtTelemetry", () => {
       const eventName = "query-expfeature";
       ExtTelemetry.hasSentTelemetry = false;
       ExtTelemetry.setHasSentTelemetry(eventName);
-      chai.expect(ExtTelemetry.hasSentTelemetry).equals(false);
+      expect(ExtTelemetry.hasSentTelemetry).equals(false);
     });
 
     it("other-event", () => {
       const eventName = "other-event";
       ExtTelemetry.hasSentTelemetry = false;
       ExtTelemetry.setHasSentTelemetry(eventName);
-      chai.expect(ExtTelemetry.hasSentTelemetry).equals(true);
+      expect(ExtTelemetry.hasSentTelemetry).equals(true);
     });
   });
 
   describe("stageToEvent", () => {
     it("Stage.create", () => {
       const stage = Stage.create;
-      chai.expect(ExtTelemetry.stageToEvent(stage)).equals(TelemetryEvent.CreateProject);
+      expect(ExtTelemetry.stageToEvent(stage)).equals(TelemetryEvent.CreateProject);
     });
 
     it("Stage.provision", () => {
       const stage = Stage.provision;
-      chai.expect(ExtTelemetry.stageToEvent(stage)).equals(TelemetryEvent.Provision);
+      expect(ExtTelemetry.stageToEvent(stage)).equals(TelemetryEvent.Provision);
     });
 
     it("Stage.deploy", () => {
       const stage = Stage.deploy;
-      chai.expect(ExtTelemetry.stageToEvent(stage)).equals(TelemetryEvent.Deploy);
+      expect(ExtTelemetry.stageToEvent(stage)).equals(TelemetryEvent.Deploy);
     });
 
     it("Stage.publish", () => {
       const stage = Stage.publish;
-      chai.expect(ExtTelemetry.stageToEvent(stage)).equals(TelemetryEvent.Publish);
+      expect(ExtTelemetry.stageToEvent(stage)).equals(TelemetryEvent.Publish);
     });
 
     it("Stage.creatEnv", () => {
       const stage = Stage.createEnv;
-      chai.expect(ExtTelemetry.stageToEvent(stage)).equals(TelemetryEvent.CreateNewEnvironment);
+      expect(ExtTelemetry.stageToEvent(stage)).equals(TelemetryEvent.CreateNewEnvironment);
     });
 
     it("Stage.addWebpart", () => {
       const stage = Stage.addWebpart;
-      chai.expect(ExtTelemetry.stageToEvent(stage)).equals(TelemetryEvent.AddWebpart);
+      expect(ExtTelemetry.stageToEvent(stage)).equals(TelemetryEvent.AddWebpart);
     });
 
     it("Stage.copilotPluginAddAPI", () => {
       const stage = Stage.copilotPluginAddAPI;
-      chai.expect(ExtTelemetry.stageToEvent(stage)).equals(TelemetryEvent.CopilotPluginAddAPI);
+      expect(ExtTelemetry.stageToEvent(stage)).equals(TelemetryEvent.CopilotPluginAddAPI);
     });
 
     it("Stage.syncManifest", () => {
       const stage = Stage.syncManifest;
-      chai.expect(ExtTelemetry.stageToEvent(stage)).equals(TelemetryEvent.SyncManifest);
+      expect(ExtTelemetry.stageToEvent(stage)).equals(TelemetryEvent.SyncManifest);
     });
 
     it("Stage.RegeneratePlugin", () => {
       const stage = Stage.RegeneratePlugin;
-      chai.expect(ExtTelemetry.stageToEvent(stage)).equals(TelemetryEvent.RegenerateAction);
+      expect(ExtTelemetry.stageToEvent(stage)).equals(TelemetryEvent.RegenerateAction);
     });
 
     it("unknown", () => {
       const stage = "unknown";
-      chai.expect(ExtTelemetry.stageToEvent(stage as Stage)).equals(undefined);
+      expect(ExtTelemetry.stageToEvent(stage as Stage)).equals(undefined);
     });
   });
 
@@ -208,7 +207,7 @@ describe("ExtTelemetry", () => {
         },
       };
       const newValue = JSON.stringify(telemetryEvents);
-      chai.expect(state).equals(newValue);
+      expect(state).equals(newValue);
       clock.restore();
     });
 

@@ -1,6 +1,5 @@
 import * as vscode from "vscode";
 import fs from "fs-extra";
-import * as chai from "chai";
 import * as globalVariables from "../../src/globalVariables";
 import * as extTelemetryEvents from "../../src/telemetry/extTelemetryEvents";
 import { ExtTelemetry } from "../../src/telemetry/extTelemetry";
@@ -8,7 +7,7 @@ import { PanelType } from "../../src/controls/PanelType";
 import { TreatmentVariableValue } from "../../src/exp/treatmentVariables";
 import { WebviewPanel } from "../../src/controls/webviewPanel";
 import { openReadMeHandler, openSampleReadmeHandler } from "../../src/handlers/readmeHandlers";
-import { vi } from "vitest";
+import { vi, expect, assert } from "vitest";
 import { mockValue } from "../mocks/vitestMockUtils";
 
 describe("readmeHandlers", () => {
@@ -27,8 +26,8 @@ describe("readmeHandlers", () => {
 
       await openReadMeHandler([extTelemetryEvents.TelemetryTriggerFrom.Auto]);
 
-      chai.assert.isTrue(openTextDocumentStub.calledOnce);
-      chai.assert.isTrue(executeCommands.calledOnce);
+      assert.isTrue(openTextDocumentStub.calledOnce);
+      assert.isTrue(executeCommands.calledOnce);
     });
 
     it("Create Project", async () => {
@@ -47,7 +46,7 @@ describe("readmeHandlers", () => {
         );
       await openReadMeHandler([extTelemetryEvents.TelemetryTriggerFrom.Auto]);
 
-      chai.assert.isTrue(showMessageStub.calledOnce);
+      assert.isTrue(showMessageStub.calledOnce);
     });
 
     it("Open Folder", async () => {
@@ -67,7 +66,7 @@ describe("readmeHandlers", () => {
         );
       await openReadMeHandler([extTelemetryEvents.TelemetryTriggerFrom.Auto]);
 
-      chai.assert.isTrue(executeCommandStub.calledOnce);
+      assert.isTrue(executeCommandStub.calledOnce);
     });
 
     it("Function Notification Bot Template", async () => {
@@ -121,7 +120,7 @@ describe("readmeHandlers", () => {
 
       await openSampleReadmeHandler(["WalkThrough"]);
 
-      chai.assert.isTrue(executeCommandStub.calledOnce);
+      assert.isTrue(executeCommandStub.calledOnce);
     });
   });
 });

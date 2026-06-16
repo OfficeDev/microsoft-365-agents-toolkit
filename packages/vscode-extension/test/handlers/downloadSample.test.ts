@@ -1,4 +1,3 @@
-import * as chai from "chai";
 import * as globalVariables from "../../src/globalVariables";
 import * as vscode from "vscode";
 import { err, Inputs, Platform, Stage, SystemError } from "@microsoft/teamsfx-api";
@@ -8,7 +7,7 @@ import { MockCore } from "../mocks/mockCore";
 import { downloadSample, downloadSampleApp } from "../../src/handlers/downloadSample";
 import { TelemetryTriggerFrom } from "../../src/telemetry/extTelemetryEvents";
 import * as projectSettingsHelper from "@microsoft/teamsfx-core/build/common/projectSettingsHelper";
-import { vi } from "vitest";
+import { vi, assert } from "vitest";
 import { mockValue } from "../mocks/vitestMockUtils";
 
 describe("downloadSampleApp", () => {
@@ -26,8 +25,8 @@ describe("downloadSampleApp", () => {
 
     await downloadSampleApp(TelemetryTriggerFrom.CopilotChat, "test");
 
-    chai.assert.isTrue(createProject.calledOnce);
-    chai.assert.isTrue(errorEventStub.notCalled);
+    assert.isTrue(createProject.calledOnce);
+    assert.isTrue(errorEventStub.notCalled);
   });
 
   it("has error", async () => {
@@ -43,7 +42,7 @@ describe("downloadSampleApp", () => {
 
     await downloadSampleApp(TelemetryTriggerFrom.CopilotChat, "test");
 
-    chai.assert.isTrue(errorEventStub.calledOnce);
+    assert.isTrue(errorEventStub.calledOnce);
   });
 });
 
@@ -59,7 +58,7 @@ describe("DownloadSample", () => {
     await downloadSample(inputs);
 
     inputs.stage = Stage.create;
-    chai.assert.isTrue(createProject.calledOnceWith(inputs));
+    assert.isTrue(createProject.calledOnceWith(inputs));
   });
 
   it("downloadSample - error", async () => {
@@ -78,8 +77,8 @@ describe("DownloadSample", () => {
     await downloadSample(inputs);
 
     inputs.stage = Stage.create;
-    chai.assert.isTrue(createProject.calledOnceWith(inputs));
-    chai.assert.isTrue(showErrorMessageStub.calledOnce);
+    assert.isTrue(createProject.calledOnceWith(inputs));
+    assert.isTrue(showErrorMessageStub.calledOnce);
   });
 
   it("downloadSample - LoginFailureError", async () => {

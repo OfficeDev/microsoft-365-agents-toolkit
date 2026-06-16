@@ -1,9 +1,8 @@
 import { LogLevel } from "@microsoft/teamsfx-api";
-import * as chai from "chai";
 import * as vscode from "vscode";
 import { ANSIColors } from "../../src/debug/common/debugConstants";
 import * as globalVariables from "../../src/globalVariables";
-import { vi } from "vitest";
+import { vi, assert } from "vitest";
 import { mockValue } from "../mocks/vitestMockUtils";
 import {
   CopilotDebugLog,
@@ -29,8 +28,8 @@ describe("copilotDebugLogOutput", () => {
     it("should log info messages to the debug console", () => {
       const appendLineStub = vi.spyOn(vscode.debug.activeDebugConsole, "appendLine");
       logToDebugConsole(LogLevel.Info, message);
-      chai.assert.isTrue(appendLineStub.calledOnce);
-      chai.assert.isTrue(
+      assert.isTrue(appendLineStub.calledOnce);
+      assert.isTrue(
         appendLineStub.calledWith(
           ANSIColors.WHITE + `[${logDateString}] - ` + ANSIColors.BLUE + `${message}`
         )
@@ -39,8 +38,8 @@ describe("copilotDebugLogOutput", () => {
     it("should log warning messages to the debug console", () => {
       const appendLineStub = vi.spyOn(vscode.debug.activeDebugConsole, "appendLine");
       logToDebugConsole(LogLevel.Warning, message);
-      chai.assert.isTrue(appendLineStub.calledOnce);
-      chai.assert.isTrue(
+      assert.isTrue(appendLineStub.calledOnce);
+      assert.isTrue(
         appendLineStub.calledWith(
           ANSIColors.WHITE + `[${logDateString}] - ` + ANSIColors.YELLOW + `${message}`
         )
@@ -49,8 +48,8 @@ describe("copilotDebugLogOutput", () => {
     it("should log error messages to the debug console", () => {
       const appendLineStub = vi.spyOn(vscode.debug.activeDebugConsole, "appendLine");
       logToDebugConsole(LogLevel.Error, message);
-      chai.assert.isTrue(appendLineStub.calledOnce);
-      chai.assert.isTrue(
+      assert.isTrue(appendLineStub.calledOnce);
+      assert.isTrue(
         appendLineStub.calledWith(
           ANSIColors.WHITE + `[${logDateString}] - ` + ANSIColors.RED + `${message}`
         )
@@ -59,8 +58,8 @@ describe("copilotDebugLogOutput", () => {
     it("should log debug messages to the debug console", () => {
       const appendLineStub = vi.spyOn(vscode.debug.activeDebugConsole, "appendLine");
       logToDebugConsole(LogLevel.Debug, message);
-      chai.assert.isTrue(appendLineStub.calledOnce);
-      chai.assert.isTrue(
+      assert.isTrue(appendLineStub.calledOnce);
+      assert.isTrue(
         appendLineStub.calledWith(
           ANSIColors.WHITE + `[${logDateString}] - ` + ANSIColors.GREEN + `${message}`
         )
@@ -69,8 +68,8 @@ describe("copilotDebugLogOutput", () => {
     it("should log messages to the debug console", () => {
       const appendLineStub = vi.spyOn(vscode.debug.activeDebugConsole, "appendLine");
       logToDebugConsole(LogLevel.Verbose, message);
-      chai.assert.isTrue(appendLineStub.calledOnce);
-      chai.assert.isTrue(
+      assert.isTrue(appendLineStub.calledOnce);
+      assert.isTrue(
         appendLineStub.calledWith(ANSIColors.WHITE + `[${logDateString}] - ${message}`)
       );
     });
@@ -81,7 +80,7 @@ describe("copilotDebugLogOutput", () => {
       const fs = require("fs");
       const appendFileStub = vi.spyOn(fs, "appendFileSync").mockResolvedValue();
       writeExecutionDetailsToFile("path/to/log.txt", "log message");
-      chai.assert.isTrue(appendFileStub.calledWith("path/to/log.txt", "log message\n"));
+      assert.isTrue(appendFileStub.calledWith("path/to/log.txt", "log message\n"));
     });
   });
 
@@ -118,16 +117,16 @@ describe("copilotDebugLogOutput", () => {
         ],
       });
       const copilotDebugLog = new CopilotDebugLog(logJson);
-      chai.assert.deepEqual(copilotDebugLog.enabledPlugins, [
+      assert.deepEqual(copilotDebugLog.enabledPlugins, [
         { name: "plugin1", id: "1", version: "1.0" },
       ]);
-      chai.assert.deepEqual(copilotDebugLog.matchedFunctionCandidates, [
+      assert.deepEqual(copilotDebugLog.matchedFunctionCandidates, [
         { plugin: { name: "plugin1", id: "1", version: "1.0" }, functionDisplayName: "function1" },
       ]);
-      chai.assert.deepEqual(copilotDebugLog.functionsSelectedForInvocation, [
+      assert.deepEqual(copilotDebugLog.functionsSelectedForInvocation, [
         { plugin: { name: "plugin1", id: "1", version: "1.0" }, functionDisplayName: "function1" },
       ]);
-      chai.assert.deepEqual(copilotDebugLog.functionExecutions, [
+      assert.deepEqual(copilotDebugLog.functionExecutions, [
         {
           function: {
             plugin: { name: "plugin1", id: "1", version: "1.0" },
@@ -146,7 +145,7 @@ describe("copilotDebugLogOutput", () => {
 
     it("should throw an error if log JSON is invalid", () => {
       const invalidLogJson = "{ invalid json }";
-      chai.assert.throws(() => new CopilotDebugLog(invalidLogJson), /Error parsing logAsJson/);
+      assert.throws(() => new CopilotDebugLog(invalidLogJson), /Error parsing logAsJson/);
     });
 
     it("should throw an error if requestUri is invalid", () => {
@@ -167,10 +166,7 @@ describe("copilotDebugLogOutput", () => {
           },
         ],
       });
-      chai.assert.throws(
-        () => new CopilotDebugLog(logJson),
-        /Error creating URL object for requestUri/
-      );
+      assert.throws(() => new CopilotDebugLog(logJson), /Error creating URL object for requestUri/);
     });
 
     it("should skip if matched function plugin id not equal to enabled plugin id", () => {
@@ -187,7 +183,7 @@ describe("copilotDebugLogOutput", () => {
       const appendLineStub = vi.spyOn(vscode.debug.activeDebugConsole, "appendLine");
       copilotDebugLog.write();
 
-      chai.assert.isFalse(
+      assert.isFalse(
         appendLineStub.calledWith(
           `${ANSIColors.GREEN}   (√) ${ANSIColors.WHITE}Matched functions: ${ANSIColors.MAGENTA}plugin2`
         )
@@ -204,7 +200,7 @@ describe("copilotDebugLogOutput", () => {
       const appendLineStub = vi.spyOn(vscode.debug.activeDebugConsole, "appendLine");
 
       copilotDebugLog["logCapabilities"](vscode.debug.activeDebugConsole);
-      chai.assert.isFalse(appendLineStub.calledOnce);
+      assert.isFalse(appendLineStub.calledOnce);
     });
 
     it("write with 0 enabled plugin(s)", () => {
@@ -219,13 +215,13 @@ describe("copilotDebugLogOutput", () => {
       const appendLineStub = vi.spyOn(vscode.debug.activeDebugConsole, "appendLine");
       copilotDebugLog.write();
 
-      chai.assert.isTrue(appendLineStub.calledWith(""));
-      chai.assert.isTrue(
+      assert.isTrue(appendLineStub.calledWith(""));
+      assert.isTrue(
         appendLineStub.calledWith(
           `${ANSIColors.WHITE}[${new Date().toJSON()}] - ${ANSIColors.BLUE}0 enabled action(s).`
         )
       );
-      chai.assert.isTrue(
+      assert.isTrue(
         appendLineStub.calledWith(
           `${ANSIColors.RED}(×) Error: ${ANSIColors.WHITE}Enabled plugin: None`
         )
@@ -244,7 +240,7 @@ describe("copilotDebugLogOutput", () => {
       const appendLineStub = vi.spyOn(vscode.debug.activeDebugConsole, "appendLine");
       copilotDebugLog.write();
 
-      chai.assert.isTrue(appendLineStub.calledWith(""));
+      assert.isTrue(appendLineStub.calledWith(""));
     });
 
     it("write with plugins enabled", () => {
@@ -287,27 +283,27 @@ describe("copilotDebugLogOutput", () => {
       const copilotDebugLog = new CopilotDebugLog(logJson);
       const appendLineStub = vi.spyOn(vscode.debug.activeDebugConsole, "appendLine");
       copilotDebugLog.write();
-      chai.assert.isTrue(
+      assert.isTrue(
         appendLineStub.calledWith(
           `${ANSIColors.GREEN}(√) ${ANSIColors.WHITE}Enabled action: ${ANSIColors.MAGENTA}plugin1 ${ANSIColors.GRAY}• version 1.0 • 1`
         )
       );
-      chai.assert.isTrue(
+      assert.isTrue(
         appendLineStub.calledWith(
           `${ANSIColors.GREEN}   (√) ${ANSIColors.WHITE}Matched functions: ${ANSIColors.MAGENTA}function1`
         )
       );
-      chai.assert.isTrue(
+      assert.isTrue(
         appendLineStub.calledWith(
           `${ANSIColors.GREEN}      (√) ${ANSIColors.WHITE}Selected functions for execution: ${ANSIColors.MAGENTA}function1`
         )
       );
-      chai.assert.isTrue(
+      assert.isTrue(
         appendLineStub.calledWith(
           `${ANSIColors.GREEN}         (√) ${ANSIColors.WHITE}Function execution details: ${ANSIColors.GREEN}Status ${responseStatus}, ${ANSIColors.WHITE}refer to ${ANSIColors.BLUE}${logFilePath}${ANSIColors.WHITE} for all details.`
         )
       );
-      chai.assert.isTrue(
+      assert.isTrue(
         appendLineStub.calledWith(
           `${ANSIColors.RED}            (×) Error: ${ANSIColors.WHITE}Sample error`
         )
@@ -316,7 +312,7 @@ describe("copilotDebugLogOutput", () => {
     it("should pretty print JSON", () => {
       const jsonText = '{"key":"value"}';
       const result = CopilotDebugLog.prettyPrintJson(jsonText);
-      chai.assert.strictEqual(result, '{\n  "key": "value"\n}');
+      assert.strictEqual(result, '{\n  "key": "value"\n}');
     });
 
     it("should parse full JSON with capabilities and initialize properties", () => {
@@ -375,16 +371,16 @@ describe("copilotDebugLogOutput", () => {
         },
       });
       const copilotDebugLog = new CopilotDebugLog(logJson);
-      chai.assert.deepEqual(copilotDebugLog.enabledPlugins, [
+      assert.deepEqual(copilotDebugLog.enabledPlugins, [
         { name: "plugin1", id: "1", version: "1.0" },
       ]);
-      chai.assert.deepEqual(copilotDebugLog.matchedFunctionCandidates, [
+      assert.deepEqual(copilotDebugLog.matchedFunctionCandidates, [
         { plugin: { name: "plugin1", id: "1", version: "1.0" }, functionDisplayName: "function1" },
       ]);
-      chai.assert.deepEqual(copilotDebugLog.functionsSelectedForInvocation, [
+      assert.deepEqual(copilotDebugLog.functionsSelectedForInvocation, [
         { plugin: { name: "plugin1", id: "1", version: "1.0" }, functionDisplayName: "function1" },
       ]);
-      chai.assert.deepEqual(copilotDebugLog.functionExecutions, [
+      assert.deepEqual(copilotDebugLog.functionExecutions, [
         {
           function: {
             plugin: { name: "plugin1", id: "1", version: "1.0" },
@@ -399,21 +395,21 @@ describe("copilotDebugLogOutput", () => {
           errorMessage: "",
         },
       ]);
-      chai.assert.deepEqual(copilotDebugLog.capabilitiesDeveloperInfo?.enabledCapabilities, [
+      assert.deepEqual(copilotDebugLog.capabilitiesDeveloperInfo?.enabledCapabilities, [
         {
           capabilityIcon: "iconUrl",
           capabilityName: "GraphConnectors",
           scopes: {},
         },
       ]);
-      chai.assert.deepEqual(copilotDebugLog.capabilitiesDeveloperInfo?.capabilityExecutions, [
+      assert.deepEqual(copilotDebugLog.capabilitiesDeveloperInfo?.capabilityExecutions, [
         {
           name: "GraphConnectors",
           status: "0",
           errorMessage: "",
         },
       ]);
-      chai.assert.deepEqual(copilotDebugLog.agentMetaData, {
+      assert.deepEqual(copilotDebugLog.agentMetaData, {
         agentId: "agentId",
         agentVersion: "1.0",
         conversationId: "conversationId",
@@ -433,19 +429,19 @@ describe("copilotDebugLogOutput", () => {
       const copilotDebugLog = new CopilotDebugLog(logJson);
       const appendLineStub = vi.spyOn(vscode.debug.activeDebugConsole, "appendLine");
       copilotDebugLog.write();
-      chai.assert.isTrue(
+      assert.isTrue(
         appendLineStub.calledWith(
           `${ANSIColors.WHITE}Agent ID (agentId). Conversation ID (conversationId). Request ID (requestId)`
         )
       );
-      chai.assert.isTrue(
+      assert.isTrue(
         appendLineStub.calledWith(
           `${
             ANSIColors.GREEN
           }${0} enabled capabilities, ${0} enabled actions, ${0} failed function executions, ${0} successful function executions, ${0} matched function candidates, ${0} functions selected for invocation.`
         )
       );
-      chai.assert.isTrue(appendLineStub.calledWith(ANSIColors.WHITE + "Execution summary"));
+      assert.isTrue(appendLineStub.calledWith(ANSIColors.WHITE + "Execution summary"));
     });
 
     it("should write with 0 capabilities", () => {
@@ -460,13 +456,13 @@ describe("copilotDebugLogOutput", () => {
       const appendLineStub = vi.spyOn(vscode.debug.activeDebugConsole, "appendLine");
       copilotDebugLog.write();
 
-      chai.assert.isTrue(appendLineStub.calledWith(ANSIColors.WHITE + "CAPABILITIES"));
-      chai.assert.isTrue(
+      assert.isTrue(appendLineStub.calledWith(ANSIColors.WHITE + "CAPABILITIES"));
+      assert.isTrue(
         appendLineStub.calledWith(
           `${ANSIColors.RED} (×) ${ANSIColors.WHITE}Enabled capabilities: None.`
         )
       );
-      chai.assert.isTrue(
+      assert.isTrue(
         appendLineStub.calledWith(
           `   ${ANSIColors.RED} (×) Execution status: ${ANSIColors.WHITE}None.`
         )
@@ -495,7 +491,7 @@ describe("copilotDebugLogOutput", () => {
       const appendLineStub = vi.spyOn(vscode.debug.activeDebugConsole, "appendLine");
       copilotDebugLog.write();
 
-      chai.assert.isTrue(
+      assert.isTrue(
         appendLineStub.calledWith(
           `${ANSIColors.GREEN}(√) ${ANSIColors.WHITE}Enabled capabilities: ${ANSIColors.MAGENTA}GraphConnectors`
         )
@@ -524,7 +520,7 @@ describe("copilotDebugLogOutput", () => {
       const appendLineStub = vi.spyOn(vscode.debug.activeDebugConsole, "appendLine");
       copilotDebugLog.write();
 
-      chai.assert.isTrue(
+      assert.isTrue(
         appendLineStub.calledWith(`       ${ANSIColors.WHITE}scope1 - {"scopeName":"scope1"}`)
       );
     });
@@ -581,12 +577,12 @@ describe("copilotDebugLogOutput", () => {
       const appendLineStub = vi.spyOn(vscode.debug.activeDebugConsole, "appendLine");
       copilotDebugLog.write();
 
-      chai.assert.isTrue(
+      assert.isTrue(
         appendLineStub.calledWith(
           `${ANSIColors.GREEN}(√) ${ANSIColors.WHITE}Enabled capabilities: ${ANSIColors.MAGENTA}GraphConnectors`
         )
       );
-      chai.assert.isTrue(appendFileStub.calledTwice);
+      assert.isTrue(appendFileStub.calledTwice);
     });
   });
 });

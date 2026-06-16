@@ -1,8 +1,7 @@
 import { LocalEnvManager } from "@microsoft/teamsfx-core";
-import * as chai from "chai";
 import * as globalVariables from "../../src/globalVariables";
 import { getNpmInstallLogInfo, getTestToolLogInfo } from "../../src/utils/localEnvManagerUtils";
-import { vi } from "vitest";
+import { vi, expect } from "vitest";
 import { mockValue } from "../mocks/vitestMockUtils";
 
 describe("LocalEnvUtils", () => {
@@ -20,7 +19,7 @@ describe("LocalEnvUtils", () => {
       fakeNpmInstallLogInfo
     );
     const result = await getNpmInstallLogInfo();
-    chai.expect(result).to.deep.equal(fakeNpmInstallLogInfo);
+    expect(result).to.deep.equal(fakeNpmInstallLogInfo);
   });
 
   it("Get Test Tool Log Info", async () => {
@@ -30,7 +29,7 @@ describe("LocalEnvUtils", () => {
       fakeTestToolLogInfo
     );
     const result = await getTestToolLogInfo();
-    chai.expect(result).to.equal(fakeTestToolLogInfo);
+    expect(result).to.equal(fakeTestToolLogInfo);
   });
 
   it("Get Test Tool Log Info and Return Undefined", async () => {
@@ -40,6 +39,6 @@ describe("LocalEnvUtils", () => {
       fakeTestToolLogInfo
     );
     const result = await getTestToolLogInfo();
-    chai.expect(result).to.be.undefined;
+    expect(result).to.be.undefined;
   });
 });

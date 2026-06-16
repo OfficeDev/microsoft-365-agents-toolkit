@@ -1,8 +1,7 @@
-import * as chai from "chai";
 import fs from "fs-extra";
 import path from "path";
 import { ExtensionContext, Uri } from "vscode";
-import { vi } from "vitest";
+import { vi, expect, assert } from "vitest";
 import { mockValue } from "../mocks/vitestMockUtils";
 
 import * as globalVariables from "../../src/globalVariables";
@@ -30,7 +29,7 @@ describe("Global Variables", () => {
         logUri: Uri.file("test"),
       } as unknown as ExtensionContext);
 
-      chai.expect(globalVariables.isSPFxProject).equals(false);
+      expect(globalVariables.isSPFxProject).equals(false);
     });
 
     it("return true for spfx project", () => {
@@ -50,7 +49,7 @@ describe("Global Variables", () => {
         },
       } as unknown as ExtensionContext);
 
-      chai.expect(globalVariables.isSPFxProject).equals(true);
+      expect(globalVariables.isSPFxProject).equals(true);
     });
 
     it("set log folder", () => {
@@ -64,19 +63,19 @@ describe("Global Variables", () => {
           fsPath: "fakePath",
         },
       } as unknown as ExtensionContext);
-      chai.expect(globalVariables.defaultExtensionLogPath).equals("fakePath");
+      expect(globalVariables.defaultExtensionLogPath).equals("fakePath");
     });
 
     it("set commandIsRunning", async () => {
       globalVariables.setCommandIsRunning(true);
 
-      chai.expect(globalVariables.commandIsRunning).equals(true);
+      expect(globalVariables.commandIsRunning).equals(true);
     });
 
     it("unsetIsTeamsFxProject()", async () => {
       globalVariables.unsetIsTeamsFxProject();
 
-      chai.expect(globalVariables.isTeamsFxProject).equals(false);
+      expect(globalVariables.isTeamsFxProject).equals(false);
     });
   });
 
@@ -89,7 +88,7 @@ describe("Global Variables", () => {
       vi.spyOn(manifestUtils, "readAppManifestSync").mockReturnValue(ok(teamsManifest));
 
       const res = globalVariables.checkIsDeclarativeCopilotApp("projectPath");
-      chai.expect(res).to.be.true;
+      expect(res).to.be.true;
     });
 
     it("Not declarative copilot project", () => {
@@ -97,7 +96,7 @@ describe("Global Variables", () => {
       vi.spyOn(manifestUtils, "readAppManifestSync").mockReturnValue(ok(teamsManifest));
 
       const res = globalVariables.checkIsDeclarativeCopilotApp("projectPath");
-      chai.expect(res).to.be.false;
+      expect(res).to.be.false;
     });
 
     it("Error: return false", () => {
@@ -106,14 +105,14 @@ describe("Global Variables", () => {
       );
 
       const res = globalVariables.checkIsDeclarativeCopilotApp("projectPath");
-      chai.expect(res).to.be.false;
+      expect(res).to.be.false;
     });
   });
 
   describe("isMetaOSAddinProject", () => {
     it("MetaOS Addin Project: no directory", () => {
       const res = globalVariables.checkIsMetaOSAddinProject("");
-      chai.expect(res).equals(false);
+      expect(res).equals(false);
     });
 
     it("MetaOS Addin Project: manifest not ok", () => {
@@ -121,25 +120,25 @@ describe("Global Variables", () => {
         err(new SystemError("error", "error", "error", "error"))
       );
       const res = globalVariables.checkIsMetaOSAddinProject("abc");
-      chai.expect(res).equals(false);
+      expect(res).equals(false);
     });
 
     it("MetaOS Addin Project: manifest is undefined", () => {
       vi.spyOn(manifestUtils, "readAppManifestSync").mockReturnValue(ok(undefined as any));
       const res = globalVariables.checkIsMetaOSAddinProject("abc");
-      chai.expect(res).equals(false);
+      expect(res).equals(false);
     });
 
     it("MetaOS Addin Project: manifest is not metaOS", () => {
       vi.spyOn(manifestUtils, "readAppManifestSync").mockReturnValue(ok({} as any));
       const res = globalVariables.checkIsMetaOSAddinProject("abc");
-      chai.expect(res).equals(false);
+      expect(res).equals(false);
     });
 
     it("MetaOS Addin Project: manifest is ok", () => {
       vi.spyOn(manifestUtils, "readAppManifestSync").mockReturnValue(ok({ extensions: {} } as any));
       const res = globalVariables.checkIsMetaOSAddinProject("abc");
-      chai.expect(res).equals(true);
+      expect(res).equals(true);
     });
   });
 
@@ -161,7 +160,7 @@ describe("Global Variables", () => {
       );
 
       const result = globalVariables.checkIsSensitivityLabelSet(fakeDirectory);
-      chai.expect(result).to.be.true;
+      expect(result).to.be.true;
     });
 
     it("returns false when manifest read fails", () => {
@@ -170,7 +169,7 @@ describe("Global Variables", () => {
       );
 
       const result = globalVariables.checkIsSensitivityLabelSet(fakeDirectory);
-      chai.expect(result).to.be.false;
+      expect(result).to.be.false;
     });
 
     it("returns false when manifest has no declarative agent path", () => {
@@ -178,7 +177,7 @@ describe("Global Variables", () => {
       vi.spyOn(manifestUtils, "readAppManifestSync").mockReturnValue(ok(teamsManifest));
 
       const result = globalVariables.checkIsSensitivityLabelSet(fakeDirectory);
-      chai.expect(result).to.be.false;
+      expect(result).to.be.false;
     });
 
     it("returns false when declarative agent manifest read fails", () => {
@@ -192,7 +191,7 @@ describe("Global Variables", () => {
       );
 
       const result = globalVariables.checkIsSensitivityLabelSet(fakeDirectory);
-      chai.expect(result).to.be.false;
+      expect(result).to.be.false;
     });
 
     it("returns false when declarative agent manifest has no sensitivity label", () => {
@@ -209,14 +208,14 @@ describe("Global Variables", () => {
       );
 
       const result = globalVariables.checkIsSensitivityLabelSet(fakeDirectory);
-      chai.expect(result).to.be.false;
+      expect(result).to.be.false;
     });
   });
 
   it("updateIsDeclarativeCopilotApp", () => {
     const manifest = new TeamsAppManifest();
     let res = globalVariables.updateIsDeclarativeCopilotApp(manifest);
-    chai.assert.isFalse(res);
+    assert.isFalse(res);
 
     res = globalVariables.updateIsDeclarativeCopilotApp({
       ...manifest,
@@ -229,19 +228,19 @@ describe("Global Variables", () => {
         ],
       },
     });
-    chai.assert.isTrue(res);
+    assert.isTrue(res);
   });
 
   describe("checkIsSPFx", () => {
     it("returns false for empty directory", () => {
       const result = globalVariables.checkIsSPFx("");
-      chai.expect(result).to.be.false;
+      expect(result).to.be.false;
     });
 
     it("returns false for root directory", () => {
       const root = path.parse(process.cwd()).root;
       const result = globalVariables.checkIsSPFx(root);
-      chai.expect(result).to.be.false;
+      expect(result).to.be.false;
     });
 
     it("returns false when readdirSync throws", () => {
@@ -249,21 +248,21 @@ describe("Global Variables", () => {
         throw new Error("ENOENT");
       });
       const result = globalVariables.checkIsSPFx("/nonexistent");
-      chai.expect(result).to.be.false;
+      expect(result).to.be.false;
     });
 
     it("returns false when .yo-rc.json has no sharepoint generator", () => {
       vi.spyOn(fs, "readdirSync").mockReturnValue([".yo-rc.json"] as any);
       vi.spyOn(fs, "readJsonSync").mockReturnValue({});
       const result = globalVariables.checkIsSPFx("/some/dir");
-      chai.expect(result).to.be.false;
+      expect(result).to.be.false;
     });
 
     it("returns true when .yo-rc.json has sharepoint generator", () => {
       vi.spyOn(fs, "readdirSync").mockReturnValue([".yo-rc.json"] as any);
       vi.spyOn(fs, "readJsonSync").mockReturnValue({ "@microsoft/generator-sharepoint": {} });
       const result = globalVariables.checkIsSPFx("/some/dir");
-      chai.expect(result).to.be.true;
+      expect(result).to.be.true;
     });
 
     it("returns false when readJsonSync throws on .yo-rc.json", () => {
@@ -272,7 +271,7 @@ describe("Global Variables", () => {
         throw new Error("bad json");
       });
       const result = globalVariables.checkIsSPFx("/some/dir");
-      chai.expect(result).to.be.false;
+      expect(result).to.be.false;
     });
 
     it("returns true via recursive directory check", () => {
@@ -284,7 +283,7 @@ describe("Global Variables", () => {
       vi.spyOn(fs, "lstatSync").mockReturnValue({ isDirectory: () => true } as any);
       vi.spyOn(fs, "readJsonSync").mockReturnValue({ "@microsoft/generator-sharepoint": {} });
       const result = globalVariables.checkIsSPFx("/some/dir");
-      chai.expect(result).to.be.true;
+      expect(result).to.be.true;
     });
 
     it("returns false when lstatSync throws", () => {
@@ -293,7 +292,7 @@ describe("Global Variables", () => {
         throw new Error("ENOENT");
       });
       const result = globalVariables.checkIsSPFx("/some/dir");
-      chai.expect(result).to.be.false;
+      expect(result).to.be.false;
     });
   });
 
@@ -301,13 +300,13 @@ describe("Global Variables", () => {
     it("isValidOfficeAddInProject delegates to core", () => {
       vi.spyOn(projectSettingsHelper, "isValidOfficeAddInProject").mockReturnValue(false);
       const result = globalVariablesDeps.isValidOfficeAddInProject(process.cwd());
-      chai.expect(typeof result).to.equal("boolean");
+      expect(typeof result).to.equal("boolean");
     });
 
     it("checkIsSPFx delegates to checkIsSPFx", () => {
       vi.spyOn(fs, "readdirSync").mockReturnValue([]);
       const result = globalVariablesDeps.checkIsSPFx("/test");
-      chai.expect(result).to.be.false;
+      expect(result).to.be.false;
     });
   });
 });

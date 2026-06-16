@@ -1,5 +1,4 @@
-import * as chai from "chai";
-import { vi } from "vitest";
+import { vi, assert } from "vitest";
 import { processUtil, timeoutPromise } from "../../src/utils/processUtil";
 import { processAdapter } from "../../src/common/npmPackageDeps";
 
@@ -12,9 +11,9 @@ describe("ProcessUtil", () => {
       });
       try {
         await processUtil.killProcess(-1, 5000, false);
-        chai.assert.fail("Expected promise to reject, but it resolved.");
+        assert.fail("Expected promise to reject, but it resolved.");
       } catch (error) {
-        chai.assert.isTrue(error instanceof Error);
+        assert.isTrue(error instanceof Error);
       }
     });
     it("happy", async () => {
@@ -23,7 +22,7 @@ describe("ProcessUtil", () => {
         cb();
       });
       await processUtil.killProcess(-1);
-      chai.assert.isTrue(killStub.calledOnce);
+      assert.isTrue(killStub.calledOnce);
     });
   });
 
@@ -35,7 +34,7 @@ describe("ProcessUtil", () => {
         cb(null, "  TCP    0.0.0.0:3978    0.0.0.0:0    LISTENING    12345\n");
       });
       const pids = await processUtil.getProcessIdsByPort(3978);
-      chai.assert.deepEqual(pids, [12345]);
+      assert.deepEqual(pids, [12345]);
       platformStub.restore();
     });
 
@@ -49,7 +48,7 @@ describe("ProcessUtil", () => {
         );
       });
       const pids = await processUtil.getProcessIdsByPort(3978);
-      chai.assert.deepEqual(pids, [12345]);
+      assert.deepEqual(pids, [12345]);
       platformStub.restore();
     });
 
@@ -60,7 +59,7 @@ describe("ProcessUtil", () => {
         cb(null, "12345\n67890\n");
       });
       const pids = await processUtil.getProcessIdsByPort(3978);
-      chai.assert.deepEqual(pids, [12345, 67890]);
+      assert.deepEqual(pids, [12345, 67890]);
       platformStub.restore();
     });
 
@@ -71,7 +70,7 @@ describe("ProcessUtil", () => {
         cb(null, 'LISTEN  0  128  0.0.0.0:3978  0.0.0.0:*  users:(("node",pid=12345,fd=18))\n');
       });
       const pids = await processUtil.getProcessIdsByPort(3978);
-      chai.assert.deepEqual(pids, [12345]);
+      assert.deepEqual(pids, [12345]);
       platformStub.restore();
     });
 
@@ -81,7 +80,7 @@ describe("ProcessUtil", () => {
         cb(new Error("command failed"), "");
       });
       const pids = await processUtil.getProcessIdsByPort(3978);
-      chai.assert.deepEqual(pids, []);
+      assert.deepEqual(pids, []);
     });
 
     it("should deduplicate PIDs on Windows", async () => {
@@ -94,7 +93,7 @@ describe("ProcessUtil", () => {
         );
       });
       const pids = await processUtil.getProcessIdsByPort(3978);
-      chai.assert.deepEqual(pids, [12345]);
+      assert.deepEqual(pids, [12345]);
       platformStub.restore();
     });
   });
@@ -117,10 +116,10 @@ describe("timeoutPromise", () => {
       const promise = timeoutPromise(timeout, false);
       clock.tick(timeout);
       await promise;
-      chai.assert.fail("Expected promise to reject, but it resolved.");
+      assert.fail("Expected promise to reject, but it resolved.");
     } catch (error) {
-      chai.assert.isTrue(error instanceof Error);
-      chai.assert.equal(error.message, "Operation timeout");
+      assert.isTrue(error instanceof Error);
+      assert.equal(error.message, "Operation timeout");
     }
   });
   it("timeoutPromise - silent", async () => {
@@ -130,7 +129,7 @@ describe("timeoutPromise", () => {
       clock.tick(timeout);
       await promise;
     } catch (error) {
-      chai.assert.fail("Expected promise to resolve, but it rejected.");
+      assert.fail("Expected promise to resolve, but it rejected.");
     }
   });
 });

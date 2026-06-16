@@ -1,10 +1,9 @@
 import { err, FxError, Inputs, ok, Result, Stage, UserError } from "@microsoft/teamsfx-api";
 import { QuestionNames, UserCancelError } from "@microsoft/teamsfx-core";
-import { assert } from "chai";
 import fs from "fs-extra";
 import * as vscode from "vscode";
 import * as globalVariables from "../../src/globalVariables";
-import { vi } from "vitest";
+import { vi, assert } from "vitest";
 import { mockValue } from "../mocks/vitestMockUtils";
 import {
   buildPackageHandler,

@@ -1,8 +1,7 @@
-import * as chai from "chai";
 import * as vscode from "vscode";
 import { GlobalKey } from "../../src/constants";
 import { updateAutoOpenGlobalKey } from "../../src/utils/globalStateUtils";
-import { vi } from "vitest";
+import { vi, assert } from "vitest";
 import * as telemetryUtils from "../../src/utils/telemetryUtils";
 import * as globalVariables from "../../src/globalVariables";
 import * as globalState from "@microsoft/teamsfx-core/build/common/globalState";
@@ -19,11 +18,9 @@ describe("GlobalStateUtils", () => {
       { type: "type", content: "content" },
     ]);
 
-    chai.assert.isTrue(globalStateUpdateStub.calledWith(GlobalKey.OpenWalkThrough, true));
-    chai.assert.isTrue(globalStateUpdateStub.calledWith(GlobalKey.OpenReadMe, ""));
-    chai.assert.isTrue(
-      globalStateUpdateStub.calledWith(GlobalKey.CreateWarnings, expect.any(String))
-    );
-    chai.assert.isTrue(globalStateUpdateStub.calledWith(GlobalKey.AutoInstallDependency, true));
+    assert.isTrue(globalStateUpdateStub.calledWith(GlobalKey.OpenWalkThrough, true));
+    assert.isTrue(globalStateUpdateStub.calledWith(GlobalKey.OpenReadMe, ""));
+    assert.isTrue(globalStateUpdateStub.calledWith(GlobalKey.CreateWarnings, expect.any(String)));
+    assert.isTrue(globalStateUpdateStub.calledWith(GlobalKey.AutoInstallDependency, true));
   });
 });

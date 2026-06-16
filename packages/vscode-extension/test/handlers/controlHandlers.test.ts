@@ -1,13 +1,12 @@
 import { ok, TeamsAppManifest } from "@microsoft/teamsfx-api";
 import * as projectSettingsHelper from "@microsoft/teamsfx-core/build/common/projectSettingsHelper";
-import * as chai from "chai";
 import fs from "fs-extra";
 import * as path from "path";
 import * as vscode from "vscode";
 import { PanelType } from "../../src/controls/PanelType";
 import { WebviewPanel } from "../../src/controls/webviewPanel";
 import * as globalVariables from "../../src/globalVariables";
-import { vi } from "vitest";
+import { vi, expect, assert } from "vitest";
 import { mockValue } from "../mocks/vitestMockUtils";
 import {
   controlHandlersOps,
@@ -136,8 +135,8 @@ describe("Control Handlers", () => {
 
       const result = await openFolderHandler();
 
-      chai.assert.isTrue(sendTelemetryStub.called);
-      chai.assert.isTrue(result.isOk());
+      assert.isTrue(sendTelemetryStub.called);
+      assert.isTrue(result.isOk());
     });
 
     it("happy path", async () => {
@@ -151,9 +150,9 @@ describe("Control Handlers", () => {
       const result = await openFolderHandler("file://path/to/folder");
 
       const expectedPath = "/path/to/folder".split("/").join(path.sep);
-      chai.assert.isTrue(sendTelemetryStub.called);
-      chai.assert.isTrue(openFolderInExplorerStub.calledOnceWith(expectedPath));
-      chai.assert.isTrue(result.isOk());
+      assert.isTrue(sendTelemetryStub.called);
+      assert.isTrue(openFolderInExplorerStub.calledOnceWith(expectedPath));
+      assert.isTrue(result.isOk());
     });
   });
 
@@ -166,7 +165,7 @@ describe("Control Handlers", () => {
 
       saveTextDocumentHandler({ document: {} } as any);
 
-      chai.assert.isTrue(isValidProjectStub.calledOnceWith("/path/to/workspace"));
+      assert.isTrue(isValidProjectStub.calledOnceWith("/path/to/workspace"));
     });
 
     it("manual save reason", () => {
@@ -181,11 +180,11 @@ describe("Control Handlers", () => {
         reason: vscode.TextDocumentSaveReason.Manual,
       } as vscode.TextDocumentWillSaveEvent);
 
-      chai.assert.isTrue(isValidProjectStub.calledTwice);
-      chai.assert.equal(isValidProjectStub.getCall(0).args[0], "/path/to/workspace");
-      chai.assert.equal(isValidProjectStub.getCall(1).args[0], "/dirname");
-      chai.assert.equal(sendTelemetryEventStub.getCall(0).args[0], TelemetryEvent.UpdateTeamsApp);
-      chai.assert.equal(
+      assert.isTrue(isValidProjectStub.calledTwice);
+      assert.equal(isValidProjectStub.getCall(0).args[0], "/path/to/workspace");
+      assert.equal(isValidProjectStub.getCall(1).args[0], "/dirname");
+      assert.equal(sendTelemetryEventStub.getCall(0).args[0], TelemetryEvent.UpdateTeamsApp);
+      assert.equal(
         sendTelemetryEventStub.getCall(0).args[1][TelemetryProperty.UpdateTeamsAppReason],
         TelemetryUpdateAppReason.Manual
       );
@@ -203,11 +202,11 @@ describe("Control Handlers", () => {
         reason: vscode.TextDocumentSaveReason.AfterDelay,
       } as vscode.TextDocumentWillSaveEvent);
 
-      chai.assert.isTrue(isValidProjectStub.calledTwice);
-      chai.assert.equal(isValidProjectStub.getCall(0).args[0], "/path/to/workspace");
-      chai.assert.equal(isValidProjectStub.getCall(1).args[0], "/dirname");
-      chai.assert.equal(sendTelemetryEventStub.getCall(0).args[0], TelemetryEvent.UpdateTeamsApp);
-      chai.assert.equal(
+      assert.isTrue(isValidProjectStub.calledTwice);
+      assert.equal(isValidProjectStub.getCall(0).args[0], "/path/to/workspace");
+      assert.equal(isValidProjectStub.getCall(1).args[0], "/dirname");
+      assert.equal(sendTelemetryEventStub.getCall(0).args[0], TelemetryEvent.UpdateTeamsApp);
+      assert.equal(
         sendTelemetryEventStub.getCall(0).args[1][TelemetryProperty.UpdateTeamsAppReason],
         TelemetryUpdateAppReason.AfterDelay
       );
@@ -229,12 +228,12 @@ describe("Control Handlers", () => {
         reason: vscode.TextDocumentSaveReason.FocusOut,
       } as vscode.TextDocumentWillSaveEvent);
 
-      chai.assert.isTrue(isValidProjectStub.calledThrice);
-      chai.assert.equal(isValidProjectStub.getCall(0).args[0], "/path/to/workspace");
-      chai.assert.equal(isValidProjectStub.getCall(1).args[0], dirname);
-      chai.assert.equal(isValidProjectStub.getCall(2).args[0], parentDir);
-      chai.assert.equal(sendTelemetryEventStub.getCall(0).args[0], TelemetryEvent.UpdateTeamsApp);
-      chai.assert.equal(
+      assert.isTrue(isValidProjectStub.calledThrice);
+      assert.equal(isValidProjectStub.getCall(0).args[0], "/path/to/workspace");
+      assert.equal(isValidProjectStub.getCall(1).args[0], dirname);
+      assert.equal(isValidProjectStub.getCall(2).args[0], parentDir);
+      assert.equal(sendTelemetryEventStub.getCall(0).args[0], TelemetryEvent.UpdateTeamsApp);
+      assert.equal(
         sendTelemetryEventStub.getCall(0).args[1][TelemetryProperty.UpdateTeamsAppReason],
         TelemetryUpdateAppReason.FocusOut
       );
@@ -249,7 +248,7 @@ describe("Control Handlers", () => {
 
       await openLifecycleTreeview();
 
-      chai.assert.isTrue(executeCommandStub.calledWith("teamsfx-lifecycle.focus"));
+      assert.isTrue(executeCommandStub.calledWith("teamsfx-lifecycle.focus"));
     });
 
     it("non-TeamsFx Project", async () => {
@@ -259,7 +258,7 @@ describe("Control Handlers", () => {
 
       await openLifecycleTreeview();
 
-      chai.assert.isTrue(executeCommandStub.calledWith("workbench.view.extension.teamsfx"));
+      assert.isTrue(executeCommandStub.calledWith("workbench.view.extension.teamsfx"));
     });
   });
 
@@ -280,16 +279,16 @@ describe("Control Handlers", () => {
       });
 
       executeCommandStub.mockImplementation((command: string, ...args: any[]) => {
-        chai.assert(command, "workbench.action.openWalkthrough");
-        chai.assert(args[0], "TeamsDevApp.ms-teams-vscode-extension#buildIntelligentApps");
+        assert(command, "workbench.action.openWalkthrough");
+        assert(args[0], "TeamsDevApp.ms-teams-vscode-extension#buildIntelligentApps");
         return "Success";
       });
 
       const result = await selectWalkthrough();
 
-      chai.assert.isTrue(quickPickStub.calledOnce);
-      chai.assert.isTrue(executeCommandStub.calledOnce);
-      chai.assert.isTrue(result.isOk());
+      assert.isTrue(quickPickStub.calledOnce);
+      assert.isTrue(executeCommandStub.calledOnce);
+      assert.isTrue(result.isOk());
     });
   });
 });

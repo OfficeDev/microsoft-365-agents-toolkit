@@ -1,6 +1,5 @@
-import * as chai from "chai";
 import * as vscode from "vscode";
-import { vi } from "vitest";
+import { vi, assert } from "vitest";
 import { mockValue } from "../../mocks/vitestMockUtils";
 
 import { ExtTelemetry } from "../../../src/telemetry/extTelemetry";
@@ -35,9 +34,9 @@ describe("onSwitchM365Tenant", () => {
 
     await onSwitchM365Tenant(TelemetryTriggerFrom.SideBar);
 
-    chai.assert.isTrue(sendTelemetryEventStub.calledOnce);
-    chai.assert.isTrue(sendTelemetryErrorEventStub.calledOnce);
-    chai.assert.isTrue(sendTelemetryErrorEventStub.args[0][1] instanceof NetworkError);
+    assert.isTrue(sendTelemetryEventStub.calledOnce);
+    assert.isTrue(sendTelemetryErrorEventStub.calledOnce);
+    assert.isTrue(sendTelemetryErrorEventStub.args[0][1] instanceof NetworkError);
   });
 
   it("Failed to select tenant in UI", async () => {
@@ -61,9 +60,9 @@ describe("onSwitchM365Tenant", () => {
 
     await onSwitchM365Tenant(TelemetryTriggerFrom.SideBar);
 
-    chai.assert.isTrue(sendTelemetryEventStub.calledOnce);
-    chai.assert.isTrue(sendTelemetryErrorEventStub.calledOnce);
-    chai.assert.isTrue(sendTelemetryErrorEventStub.args[0][1] instanceof UserCancelError);
+    assert.isTrue(sendTelemetryEventStub.calledOnce);
+    assert.isTrue(sendTelemetryErrorEventStub.calledOnce);
+    assert.isTrue(sendTelemetryErrorEventStub.args[0][1] instanceof UserCancelError);
   });
 
   it("Failed to switch tenant", async () => {
@@ -89,9 +88,9 @@ describe("onSwitchM365Tenant", () => {
 
     await onSwitchM365Tenant(TelemetryTriggerFrom.SideBar);
 
-    chai.assert.isTrue(sendTelemetryEventStub.calledOnce);
-    chai.assert.isTrue(sendTelemetryErrorEventStub.calledOnce);
-    chai.assert.isTrue(sendTelemetryErrorEventStub.args[0][1] instanceof NetworkError);
+    assert.isTrue(sendTelemetryEventStub.calledOnce);
+    assert.isTrue(sendTelemetryErrorEventStub.calledOnce);
+    assert.isTrue(sendTelemetryErrorEventStub.args[0][1] instanceof NetworkError);
   });
 
   it("Succeed to switch tenant", async () => {
@@ -115,10 +114,10 @@ describe("onSwitchM365Tenant", () => {
 
     await onSwitchM365Tenant(TelemetryTriggerFrom.SideBar);
 
-    chai.assert.isTrue(sendTelemetryEventStub.calledTwice);
-    chai.assert.isTrue(sendTelemetryErrorEventStub.notCalled);
+    assert.isTrue(sendTelemetryEventStub.calledTwice);
+    assert.isTrue(sendTelemetryErrorEventStub.notCalled);
     const items = await selectOptionStub.args[0][0].options();
-    chai.assert.deepEqual(items, [
+    assert.deepEqual(items, [
       {
         id: "0022fd51-06f5-4557-8a34-69be98de6e20",
         label: "MSFT",
@@ -161,12 +160,12 @@ describe("onSwitchAzureTenant", () => {
 
     await onSwitchAzureTenant(TelemetryTriggerFrom.SideBar);
 
-    chai.assert.isTrue(sendTelemetryEventStub.calledOnce);
-    chai.assert.isTrue(sendTelemetryErrorEventStub.calledOnce);
+    assert.isTrue(sendTelemetryEventStub.calledOnce);
+    assert.isTrue(sendTelemetryErrorEventStub.calledOnce);
     try {
       await selectOptionStub.args[0][0].options();
     } catch (e) {
-      chai.assert.isTrue(e instanceof SystemError);
+      assert.isTrue(e instanceof SystemError);
     }
   });
 
@@ -182,8 +181,8 @@ describe("onSwitchAzureTenant", () => {
 
     await onSwitchAzureTenant(TelemetryTriggerFrom.SideBar);
 
-    chai.assert.isTrue(sendTelemetryEventStub.calledOnce);
-    chai.assert.isTrue(sendTelemetryErrorEventStub.calledOnce);
+    assert.isTrue(sendTelemetryEventStub.calledOnce);
+    assert.isTrue(sendTelemetryErrorEventStub.calledOnce);
   });
 
   it("Failed to switch tenant", async () => {
@@ -213,10 +212,10 @@ describe("onSwitchAzureTenant", () => {
 
     await onSwitchAzureTenant(TelemetryTriggerFrom.SideBar);
 
-    chai.assert.isTrue(sendTelemetryEventStub.calledOnce);
-    chai.assert.isTrue(sendTelemetryErrorEventStub.calledOnce);
-    chai.assert.isTrue(selectOptionStub.calledOnce);
-    chai.assert.isTrue(switchTenantStub.calledOnce);
+    assert.isTrue(sendTelemetryEventStub.calledOnce);
+    assert.isTrue(sendTelemetryErrorEventStub.calledOnce);
+    assert.isTrue(selectOptionStub.calledOnce);
+    assert.isTrue(switchTenantStub.calledOnce);
   });
 
   it("Succeed to switch tenant", async () => {
@@ -250,12 +249,12 @@ describe("onSwitchAzureTenant", () => {
 
     await onSwitchAzureTenant(TelemetryTriggerFrom.SideBar);
 
-    chai.assert.isTrue(sendTelemetryEventStub.calledTwice);
-    chai.assert.isTrue(sendTelemetryErrorEventStub.notCalled);
-    chai.assert.isTrue(selectOptionStub.calledOnce);
-    chai.assert.isTrue(switchTenantStub.calledOnce);
+    assert.isTrue(sendTelemetryEventStub.calledTwice);
+    assert.isTrue(sendTelemetryErrorEventStub.notCalled);
+    assert.isTrue(selectOptionStub.calledOnce);
+    assert.isTrue(switchTenantStub.calledOnce);
     const items = await selectOptionStub.args[0][0].options();
-    chai.assert.deepEqual(items, [
+    assert.deepEqual(items, [
       {
         id: "0022fd51-06f5-4557-8a34-69be98de6e20",
         label: "MSFT",

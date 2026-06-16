@@ -1,4 +1,3 @@
-import * as chai from "chai";
 import * as vscode from "vscode";
 import * as globalVariables from "../../src/globalVariables";
 import { manifestListener } from "../../src/manifestListener";
@@ -7,7 +6,7 @@ import path from "path";
 import TreeViewManagerInstance from "../../src/treeview/treeViewManager";
 import * as projectSettingsHelper from "@microsoft/teamsfx-core/build/common/projectSettingsHelper";
 import { ExtTelemetry } from "../../src/telemetry/extTelemetry";
-import { vi } from "vitest";
+import { vi, assert } from "vitest";
 import { mockValue } from "../mocks/vitestMockUtils";
 
 describe("registerManifestListener", () => {
@@ -54,12 +53,12 @@ describe("registerManifestListener", () => {
 
     await clock.tickAsync(5000);
     let res = await job;
-    chai.assert.isTrue(res);
+    assert.isTrue(res);
 
     job = handler(fakeDocument);
     await clock.tickAsync(5000);
     res = await job;
-    chai.assert.isFalse(res);
+    assert.isFalse(res);
   });
 
   it("abort previous one", async () => {
@@ -97,8 +96,8 @@ describe("registerManifestListener", () => {
     const res1 = await job1;
     const res2 = await job2;
 
-    chai.assert.isUndefined(res1);
-    chai.assert.isTrue(res2);
+    assert.isUndefined(res1);
+    assert.isTrue(res2);
   });
 
   it("not run if invalid project", async () => {
@@ -123,7 +122,7 @@ describe("registerManifestListener", () => {
     manifestListener();
     const res = await handler(fakeDocument);
 
-    chai.assert.isUndefined(res);
+    assert.isUndefined(res);
   });
 
   it("not run if empty workspace", async () => {
@@ -148,7 +147,7 @@ describe("registerManifestListener", () => {
     manifestListener();
     const res = await handler(fakeDocument);
 
-    chai.assert.isUndefined(res);
+    assert.isUndefined(res);
   });
 
   it("not run if not default app manifest", async () => {
@@ -173,6 +172,6 @@ describe("registerManifestListener", () => {
     manifestListener();
     const res = await handler(fakeDocument);
 
-    chai.assert.isUndefined(res);
+    assert.isUndefined(res);
   });
 });

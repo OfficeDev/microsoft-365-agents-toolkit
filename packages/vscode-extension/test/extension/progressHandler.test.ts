@@ -2,8 +2,7 @@
 // Licensed under the MIT license.
 "use strict";
 
-import { vi } from "vitest";
-import * as chai from "chai";
+import { vi, assert } from "vitest";
 import { window } from "vscode";
 
 import { ProgressHandler } from "../../src/debug/progressHandler";
@@ -43,11 +42,11 @@ describe("ProgressHandler", () => {
     let expected =
       "test title: [0/1] Prepare task. Check [terminal window](command:workbench.action.terminal.focus) for details. (Notice: You can reload the window and retry if task spends too long time.)";
     await progressHandler.start();
-    chai.assert.equal(message, expected);
+    assert.equal(message, expected);
     await progressHandler.next("test message.");
     expected =
       "test title: [1/1] test message. Check [terminal window](command:workbench.action.terminal.focus) for details. (Notice: You can reload the window and retry if task spends too long time.)";
-    chai.assert.equal(message, expected);
+    assert.equal(message, expected);
   });
 
   it("output", async () => {
@@ -55,11 +54,11 @@ describe("ProgressHandler", () => {
     let expected =
       "test title: [0/1] Prepare task. Check [output window](command:fx-extension.showOutputChannel) for details. (Notice: You can reload the window and retry if task spends too long time.)";
     await progressHandler.start();
-    chai.assert.equal(message, expected);
+    assert.equal(message, expected);
     await progressHandler.next("test message.");
     expected =
       "test title: [1/1] test message. Check [output window](command:fx-extension.showOutputChannel) for details. (Notice: You can reload the window and retry if task spends too long time.)";
-    chai.assert.equal(message, expected);
+    assert.equal(message, expected);
   });
 
   it("not started", async () => {
@@ -67,6 +66,6 @@ describe("ProgressHandler", () => {
     const progressHandler = new ProgressHandler("test title", 1, "output");
     await progressHandler.next("test message.");
     await progressHandler.end(true);
-    chai.assert.equal(message, undefined);
+    assert.equal(message, undefined);
   });
 });

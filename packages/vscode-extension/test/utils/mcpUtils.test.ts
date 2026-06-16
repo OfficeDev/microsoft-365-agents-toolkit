@@ -1,8 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { vi, describe, it, beforeEach } from "vitest";
-import * as chai from "chai";
+import { vi, describe, it, beforeEach, expect } from "vitest";
 import * as vscode from "vscode";
 import fs from "fs-extra";
 import { setupMCPServer } from "../../src/utils/mcpUtils";
@@ -42,8 +41,8 @@ describe("mcpUtils", () => {
 
       await setupMCPServer();
 
-      chai.expect(showInformationMessageStub.called).to.be.false;
-      chai.expect(sendTelemetryEventStub.called).to.be.false;
+      expect(showInformationMessageStub.called).to.be.false;
+      expect(sendTelemetryEventStub.called).to.be.false;
     });
 
     it("should create files when user confirms and both are missing", async () => {
@@ -72,7 +71,7 @@ describe("mcpUtils", () => {
 
       await setupMCPServer();
 
-      chai.expect(sendTelemetryEventStub.called).to.be.true;
+      expect(sendTelemetryEventStub.called).to.be.true;
     });
 
     it("should handle error during file creation", async () => {
@@ -104,8 +103,8 @@ describe("mcpUtils", () => {
 
       await setupMCPServer();
 
-      chai.expect(showErrorMessageStub.called).to.be.true;
-      chai.expect(sendTelemetryErrorEventStub.called).to.be.true;
+      expect(showErrorMessageStub.called).to.be.true;
+      expect(sendTelemetryErrorEventStub.called).to.be.true;
     });
 
     it("should prompt user when copilot instructions file is missing", async () => {
@@ -136,28 +135,29 @@ describe("mcpUtils", () => {
 
       await setupMCPServer();
 
-      chai.expect(showInformationMessageStub.called).to.be.true;
-      chai.expect(sendTelemetryEventStub.called).to.be.true;
+      expect(showInformationMessageStub.called).to.be.true;
+      expect(sendTelemetryEventStub.called).to.be.true;
     });
   });
 
   describe("Adapter delegation tests", () => {
     it("fsAdapter.existsSync delegates to fs-extra", () => {
       const result = fsAdapter.existsSync("/test/path");
-      chai.expect(typeof result).to.equal("boolean");
+      expect(typeof result).to.equal("boolean");
     });
 
     it("fsAdapter.writeFileSync delegates to fs-extra", () => {
       const writeSpy = vi.spyOn(fs, "writeFileSync").mockImplementation(() => undefined);
       fsAdapter.writeFileSync("/test/path", "content");
-      chai.expect(writeSpy).toHaveBeenCalledWith("/test/path", "content", "utf-8");
+      expect(writeSpy.mock.calls.length).to.equal(1);
+      expect(writeSpy.mock.calls[0]).to.deep.equal(["/test/path", "content", "utf-8"]);
       writeSpy.mockRestore();
     });
 
     it("pathAdapter.join delegates to path module", () => {
       const result = pathAdapter.join("/test", "path");
-      chai.expect(typeof result).to.equal("string");
-      chai.expect(result.toLowerCase()).to.include("test");
+      expect(typeof result).to.equal("string");
+      expect(result.toLowerCase()).to.include("test");
     });
   });
 });

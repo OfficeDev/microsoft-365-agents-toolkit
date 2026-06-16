@@ -1,6 +1,5 @@
-import * as chai from "chai";
 import * as vscode from "vscode";
-import { vi } from "vitest";
+import { vi, assert } from "vitest";
 import { openWelcomePageAfterExtensionInstallation } from "../../src/controls/openWelcomePage";
 import { ExtTelemetry } from "../../src/telemetry/extTelemetry";
 import * as teamsfxCore from "@microsoft/teamsfx-core";
@@ -14,7 +13,7 @@ describe("openWelcomePageAfterExtensionInstallation()", () => {
 
     await openWelcomePageAfterExtensionInstallation();
 
-    chai.assert.isTrue(globalStateUpdateStub.notCalled);
+    assert.isTrue(globalStateUpdateStub.notCalled);
   });
 
   it("opens welcome page if not shown before", async () => {
@@ -27,7 +26,7 @@ describe("openWelcomePageAfterExtensionInstallation()", () => {
 
     await openWelcomePageAfterExtensionInstallation();
 
-    chai.assert.isTrue(globalStateUpdateStub.calledOnce);
-    chai.assert.isTrue(executeCommandStub.calledTwice);
+    assert.isTrue(globalStateUpdateStub.calledOnce);
+    assert.isTrue(executeCommandStub.calledTwice);
   });
 });

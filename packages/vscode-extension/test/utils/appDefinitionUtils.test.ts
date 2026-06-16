@@ -1,11 +1,10 @@
-import * as chai from "chai";
 import * as appDefinitionUtils from "../../src/utils/appDefinitionUtils";
 import * as globalVariables from "../../src/globalVariables";
 import { MockCore } from "../mocks/mockCore";
 import { Uri } from "vscode";
 import { UserError, err, ok } from "@microsoft/teamsfx-api";
 import { envUtil, metadataUtil, pathUtils } from "@microsoft/teamsfx-core";
-import { vi } from "vitest";
+import { vi, expect } from "vitest";
 import { mockValue } from "../mocks/vitestMockUtils";
 
 describe("AppDefinitionUtils", () => {
@@ -20,34 +19,34 @@ describe("AppDefinitionUtils", () => {
       vi.spyOn(core, "getTeamsAppName").mockResolvedValue(ok("mock-app-name"));
       mockValue(globalVariables, "workspaceUri", Uri.file("."));
       const result = await appDefinitionUtils.getAppName();
-      chai.expect(result).equals("mock-app-name");
+      expect(result).equals("mock-app-name");
     });
 
     it("workspaceUri is undefined", async () => {
       mockValue(globalVariables, "workspaceUri", undefined);
       const result = await appDefinitionUtils.getAppName();
-      chai.expect(result).equals(undefined);
+      expect(result).equals(undefined);
     });
 
     it("return error", async () => {
       mockValue(globalVariables, "workspaceUri", Uri.file("."));
       vi.spyOn(core, "getTeamsAppName").mockResolvedValue(err(new UserError({})));
       const result = await appDefinitionUtils.getAppName();
-      chai.expect(result).equals(undefined);
+      expect(result).equals(undefined);
     });
 
     it("throw error", async () => {
       mockValue(globalVariables, "workspaceUri", Uri.file("."));
       vi.spyOn(core, "getTeamsAppName").mockRejectedValue(new UserError({}));
       const result = await appDefinitionUtils.getAppName();
-      chai.expect(result).equals(undefined);
+      expect(result).equals(undefined);
     });
 
     it("should return undefined if getTeamsAppName returns empty string", async () => {
       mockValue(globalVariables, "workspaceUri", Uri.file("."));
       vi.spyOn(core, "getTeamsAppName").mockResolvedValue(ok(""));
       const result = await appDefinitionUtils.getAppName();
-      chai.expect(result).equals(undefined);
+      expect(result).equals(undefined);
     });
   });
 
@@ -67,14 +66,14 @@ describe("AppDefinitionUtils", () => {
       vi.spyOn(envUtil, "readEnv").mockResolvedValue(ok({ TeamsAppId: "testId" } as any));
 
       const result = await appDefinitionUtils.getV3TeamsAppId("testProjectPath", "test");
-      chai.expect(result).equals("testId");
+      expect(result).equals("testId");
     });
 
     it("readEnv throws error", async () => {
       vi.spyOn(envUtil, "readEnv").mockResolvedValue(err("error") as any);
 
       appDefinitionUtils.getV3TeamsAppId("testProjectPath", "test").catch((e) => {
-        chai.expect(e).equals("error");
+        expect(e).equals("error");
       });
     });
 
@@ -93,8 +92,8 @@ describe("AppDefinitionUtils", () => {
       vi.spyOn(envUtil, "readEnv").mockResolvedValue(ok({ TeamsAppId: "testId" } as any));
 
       appDefinitionUtils.getV3TeamsAppId("testProjectPath", "test").catch((e) => {
-        chai.expect(e).to.be.an.instanceOf(UserError);
-        chai.expect(e.message).equals("TEAMS_APP_ID is missing in test environment.");
+        expect(e).to.be.an.instanceOf(UserError);
+        expect(e.message).equals("TEAMS_APP_ID is missing in test environment.");
       });
     });
   });
@@ -114,7 +113,7 @@ describe("AppDefinitionUtils", () => {
       );
 
       const result = await appDefinitionUtils.getTeamsAppKeyName("test");
-      chai.expect(result).equals("TeamsAppId");
+      expect(result).equals("TeamsAppId");
     });
 
     it("returns undefined if failed to parse", async () => {
@@ -123,7 +122,7 @@ describe("AppDefinitionUtils", () => {
       vi.spyOn(metadataUtil, "parse").mockResolvedValue(err({ error: "error" } as any));
 
       const result = await appDefinitionUtils.getTeamsAppKeyName("test");
-      chai.expect(result).is.undefined;
+      expect(result).is.undefined;
     });
 
     it("returns undefined if no driverDefs", async () => {
@@ -138,7 +137,7 @@ describe("AppDefinitionUtils", () => {
       );
 
       const result = await appDefinitionUtils.getTeamsAppKeyName("test");
-      chai.expect(result).is.undefined;
+      expect(result).is.undefined;
     });
 
     it("returns undefined if no teamsApp/create in driverDefs", async () => {
@@ -155,7 +154,7 @@ describe("AppDefinitionUtils", () => {
       );
 
       const result = await appDefinitionUtils.getTeamsAppKeyName("test");
-      chai.expect(result).is.undefined;
+      expect(result).is.undefined;
     });
 
     it("returns undefined if no writeToEnvironmentFile is defined", async () => {
@@ -170,7 +169,7 @@ describe("AppDefinitionUtils", () => {
       );
 
       const result = await appDefinitionUtils.getTeamsAppKeyName("test");
-      chai.expect(result).is.undefined;
+      expect(result).is.undefined;
     });
   });
 });
