@@ -5,7 +5,6 @@
  * @author zhijie <zhihuan@microsoft.com>
  */
 import { assert } from "chai";
-import "mocha";
 import { getDefaultString } from "../../../../src/common/localizeUtils";
 import { ErrorNames } from "../../../../src/component/resource/botService/constants";
 import {

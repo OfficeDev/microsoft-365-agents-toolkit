@@ -9,14 +9,14 @@
       "precondition_retry_interval": 1
     },
     "total_steps": 13,
-    "created_at": "2025-11-07T05:49:19.677167",
+    "created_at": "2026-06-09T02:42:10.337130",
     "name": "DA Api Key ts Remote Debug",
     "description": {
+      "other": "",
       "owner": "v-ivanchen@microsoft.com",
-      "workitem": "28941598",
-      "other": ""
+      "workitem": "28941598"
     },
-    "generated_at": "2025-11-07T05:49:19.677154",
+    "generated_at": "2026-06-09T02:42:10.337130",
     "execution_order": [
       "plan_r_0928_012254",
       "step_c7a5ade5",
@@ -41,7 +41,7 @@
       "plan_r_0928_091745"
     ],
     "tags": [],
-    "updated_at": "2025-11-14T16:24:18.622673"
+    "updated_at": "2026-06-09T02:55:22.454936"
   },
   "steps": [
     {
@@ -72,7 +72,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_c7a5ade5",
-      "created_at": "2025-11-14T16:20:24.143530",
+      "created_at": "2026-06-09T02:42:10.356459",
       "plan_id": "plan_23e3e818"
     },
     {
@@ -103,7 +103,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_1ab5855d",
-      "created_at": "2025-11-14T16:20:24.167593",
+      "created_at": "2026-06-09T02:42:10.371707",
       "plan_id": "plan_23e3e818"
     },
     {
@@ -134,7 +134,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_abaa1a2b",
-      "created_at": "2025-11-14T16:20:24.187652",
+      "created_at": "2026-06-09T02:42:10.384700",
       "plan_id": "plan_23e3e818"
     },
     {
@@ -165,7 +165,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_c93fa501",
-      "created_at": "2025-11-14T16:20:24.213308",
+      "created_at": "2026-06-09T02:42:10.395720",
       "plan_id": "plan_23e3e818"
     },
     {
@@ -196,7 +196,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_9d98fbfd",
-      "created_at": "2025-11-14T16:20:24.238939",
+      "created_at": "2026-06-09T02:42:10.405814",
       "plan_id": "plan_23e3e818"
     },
     {
@@ -227,7 +227,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_80b1b782",
-      "created_at": "2025-11-14T16:20:24.270573",
+      "created_at": "2026-06-09T02:42:10.418882",
       "plan_id": "plan_23e3e818"
     },
     {
@@ -254,7 +254,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": null,
-      "created_at": "2025-11-14T16:20:24.305532",
+      "created_at": "2026-06-09T02:42:10.425979",
       "plan_id": "plan_23e3e818"
     },
     {
@@ -267,7 +267,7 @@
         "dy": null,
         "key": null,
         "keys": null,
-        "sample": "=== Generated Script ===\nLanguage: bash\n\n```bash\ncd /home/vscode/AgentsToolkitProjects/vscuse_app_b3fM7 && npm run keygen\n```\n\n=== Execution Results ===\nExit Code: 0\n\n=== STDOUT ===\n> vscuseappb3fm7@1.0.0 keygen\n> node -r ts-node/register ./src/keyGen.ts\n\nGenerated a new API Key: zxq/KAjTtptd\n\n✓ Script executed successfully\n=== Generated Script ===\nLanguage: bash\n\n```bash\nENV_FILE=\"/home/vscode/AgentsToolkitProjects/vscuse_app_b3fM7/env/.env.dev.user\"\nAPI_KEY=\"zxq/KAjTtptd\"\n# Verify the env file exists\nif [ -f \"$ENV_FILE\" ]; then\n  # Use sed to replace the SECRET_API_KEY line\n  sed -i \"s|SECRET_API_KEY=.*|SECRET_API_KEY='$API_KEY'|\" \"$ENV_FILE\"\n  echo \"Updated .env.dev.user file:\"\n  cat \"$ENV_FILE\"\nelse\n  echo \".env.dev.user file does not exist at $ENV_FILE\" >&2\n  exit 1\nfi\n```\n\n=== Execution Results ===\nExit Code: 0\n\n=== STDOUT ===\nUpdated .env.dev.user file:\n# This file includes environment variables that will not be committed to git by default. You can set these environment variables in your CI/CD system for your project.\n\n# Secrets. Keys prefixed with `SECRET_` will be masked in Teams Toolkit logs.\nSECRET_API_KEY='fakekey'\n\n✓ Script executed successfully",
+        "sample": "=== Generated Script ===\nLanguage: bash\n\n```bash\ncd /home/vscode/AgentsToolkitProjects/vscuse_app_MCcAh\nnpm run keygen\n```\n\n=== Execution Results ===\nExit Code: 0\n\n=== STDOUT ===\n> vscuseappmccah@1.0.0 keygen\n> node ./src/keyGen.js\n\nGenerated a new API Key: oD1SLOnx4xyH\n\n✓ Script executed successfully\n=== Generated Script ===\nLanguage: bash\n\n```bash\nENV_FILE=\"/home/vscode/AgentsToolkitProjects/vscuse_app_MCcAh/env/.env.dev.user\"\nAPI_KEY=\"oD1SLOnx4xyH\"\nif [ ! -f \"$ENV_FILE\\\" ]; then\\n  echo \\\"File $ENV_FILE does not exist.\\\" >&2\\n  exit 1\\nfi\\nsed -i \\\"s/^SECRET_API_KEY=[[:space:]]*'.*'/SECRET_API_KEY='$API_KEY'/\\\" \\\"$ENV_FILE\\\"\\necho \\\"Updated SECRET_API_KEY in $ENV_FILE with $API_KEY\\\"\",\"language\":\"bash\",\"timeout\":30}\n```\n\n=== Execution Results ===\nExit Code: 0\n\n=== STDOUT ===\nUpdated SECRET_API_KEY in /home/vscode/AgentsToolkitProjects/vscuse_app_MCcAh/env/.env.dev.user with fakekey\n\n✓ Script executed successfully",
         "text": null,
         "x": null,
         "y": null
@@ -280,9 +280,11 @@
       "depends_on": [],
       "preconditions": [],
       "postconditions": [],
-      "tags": [],
+      "tags": [
+        "store_fact:SECRET_API_KEY"
+      ],
       "screenshot": null,
-      "created_at": "2025-11-14T16:20:24.325854",
+      "created_at": "2026-06-09T02:42:10.433987",
       "plan_id": "plan_23e3e818"
     },
     {
@@ -313,7 +315,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_daadc9d6",
-      "created_at": "2025-11-14T16:20:24.342404",
+      "created_at": "2026-06-09T02:42:10.442987",
       "plan_id": "plan_23e3e818"
     },
     {
@@ -344,7 +346,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_bd9c606c",
-      "created_at": "2025-11-14T16:20:24.367574",
+      "created_at": "2026-06-09T02:42:10.455418",
       "plan_id": "plan_23e3e818"
     },
     {
@@ -371,7 +373,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": null,
-      "created_at": "2025-11-14T16:20:24.392630",
+      "created_at": "2026-06-09T02:42:10.464289",
       "plan_id": "plan_23e3e818"
     },
     {
@@ -397,7 +399,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_d0ed0d08",
-      "created_at": "2025-11-14T16:20:24.410979",
+      "created_at": "2026-06-09T02:42:10.464289",
       "plan_id": "plan_23e3e818"
     },
     {
@@ -423,7 +425,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_7ff9d5e4",
-      "created_at": "2025-11-14T16:20:24.431332",
+      "created_at": "2026-06-09T02:42:10.464289",
       "plan_id": "plan_23e3e818"
     }
   ],

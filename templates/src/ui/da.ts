@@ -47,6 +47,13 @@ export const daNode = {
             data: "declarative-agent-with-graph-connector",
           },
           {
+            id: "skill",
+            label: "template.createProjectQuestion.addSkill.label",
+            detail: "template.createProjectQuestion.addSkill.detail",
+            data: "declarative-agent-with-skill",
+            featureFlag: "TEAMSFX_AGENT_SKILLS",
+          },
+          {
             id: "type-spec",
             label: "template.createProjectQuestion.apiPlugin.typeSpec.label",
             detail: "template.createProjectQuestion.apiPlugin.typeSpec.detail",

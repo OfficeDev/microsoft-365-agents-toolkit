@@ -3,8 +3,9 @@
 
 import { err, ok, UserError } from "@microsoft/teamsfx-api";
 import chai from "chai";
-import "mocha";
+import fs from "fs-extra";
 import * as sinon from "sinon";
+import { getLocalizedString } from "../../../../src/common/localizeUtils";
 import { DepsType, TestToolReleaseType } from "../../../../src/component/deps-checker/depsChecker";
 import { DotnetChecker } from "../../../../src/component/deps-checker/internal/dotnetChecker";
 import { FuncToolChecker } from "../../../../src/component/deps-checker/internal/funcToolChecker";
@@ -14,6 +15,7 @@ import {
   ToolsInstallDriverImpl,
 } from "../../../../src/component/driver/devTool/installDriver";
 import { InstallToolArgs } from "../../../../src/component/driver/devTool/interfaces/InstallToolArgs";
+import { nodejsInstaller } from "../../../../src/component/driver/devTool/nodeInstaller";
 import { LocalCertificateManager } from "../../../../src/component/local/localCertificateManager";
 import {
   CoreSource,
@@ -22,9 +24,6 @@ import {
   InvalidActionInputError,
 } from "../../../../src/error";
 import { MockedLogProvider, MockedUserInteraction } from "../../../plugins/solution/util";
-import { nodejsInstaller } from "../../../../src/component/driver/devTool/nodeInstaller";
-import * as fileHelper from "../../../../src/component/deps-checker/util/fileHelper";
-import { getLocalizedString } from "../../../../src/common/localizeUtils";
 
 describe("Tools Install Driver test", () => {
   const sandbox = sinon.createSandbox();
@@ -1003,7 +1002,9 @@ describe("Tools Install Driver test", () => {
       sandbox
         .stub(nodejsInstaller, "ensureNodeJS")
         .resolves(ok({ status: "installed", installPath: "/path/to/nodejs" }));
-      sandbox.stub(fileHelper, "createSymlink").resolves();
+      sandbox.stub(fs, "lstat").rejects({ code: "ENOENT" });
+      sandbox.stub(fs, "pathExists").resolves(false);
+      sandbox.stub(fs, "ensureSymlink").resolves();
       const addSummary = sandbox.stub(context, "addSummary");
       await impl.resolveNodeJS("./devTool/nodejs");
       chai.assert.isTrue(

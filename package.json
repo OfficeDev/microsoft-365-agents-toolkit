@@ -9,7 +9,7 @@
     "setup:cli": "pnpm install && pnpm --filter templates --filter @microsoft/m365agentstoolkit-cli... build",
     "setup:vsc": "pnpm install && pnpm --filter templates --filter ms-teams-vscode-extension... build",
     "watch": "pnpm --parallel -r run watch",
-    "build": "pnpm -r run build",
+    "build": "pnpm -r --workspace-concurrency=8 run build",
     "precommit": "lint-staged",
     "clean": "pnpm -r exec rimraf node_modules",
     "prepare": "husky install"

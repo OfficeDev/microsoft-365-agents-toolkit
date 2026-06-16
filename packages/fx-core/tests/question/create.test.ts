@@ -17,14 +17,12 @@ import {
 import axios, { AxiosError, AxiosResponse, InternalAxiosRequestConfig } from "axios";
 import { assert } from "chai";
 import fs from "fs-extra";
-import "mocha";
 import mockedEnv, { RestoreFn } from "mocked-env";
 import * as path from "path";
 import sinon from "sinon";
 import * as utils from "../../src/common/globalVars";
 import { setTools } from "../../src/common/globalVars";
 import { getLocalizedString } from "../../src/common/localizeUtils";
-import * as stringUtils from "../../src/common/stringUtils";
 import { OneDriveSharePointItemType } from "../../src/component/generator/constant";
 import * as generatorHelper from "../../src/component/generator/declarativeAgent/helper";
 import * as oneDriveSharePointHandler from "../../src/component/generator/declarativeAgent/oneDriveSharePointHandler";
@@ -38,7 +36,9 @@ import {
   UserCancelError,
 } from "../../src/error";
 
-import * as apiSpecHelper from "../../src/component/generator/openApiSpec/helper";
+import { manifestUtils } from "../../src";
+import { pluginManifestUtils } from "../../src/component/driver/teamsApp/utils/PluginManifestUtils";
+import * as daHelper from "../../src/component/generator/declarativeAgent/helper";
 import {
   ActionStartOptions,
   ApiAuthOptions,
@@ -64,12 +64,10 @@ import {
   selectOpenAPISpecFromPluginQuestion,
   webContentQuestion,
 } from "../../src/question";
+import { createQuestionDeps } from "../../src/question/create";
+import { DACapabilityOptions } from "../../src/question/scaffold/vsc/CapabilityOptions";
 import { MockTools, MockUserInteraction, randomAppName } from "../core/utils";
 import { MockedLogProvider, MockedUserInteraction } from "../plugins/solution/util";
-import { DACapabilityOptions } from "../../src/question/scaffold/vsc/CapabilityOptions";
-import { pluginManifestUtils } from "../../src/component/driver/teamsApp/utils/PluginManifestUtils";
-import * as daHelper from "../../src/component/generator/declarativeAgent/helper";
-import { manifestUtils } from "../../src";
 
 describe("scaffold question", () => {
   const sandbox = sinon.createSandbox();
@@ -101,7 +99,7 @@ describe("scaffold question", () => {
 
     it("app name has 25 length - VSC", async () => {
       const mockedUI = new MockedUserInteraction();
-      sandbox.stub(utils, "createContext").returns({
+      sandbox.stub(createQuestionDeps, "createContext").returns({
         userInteraction: mockedUI,
       } as Context);
       const showMessageStub = sandbox.stub(mockedUI, "showMessage");
@@ -114,7 +112,7 @@ describe("scaffold question", () => {
 
     it("app name has 25 length - VS", async () => {
       const mockedLogProvider = new MockedLogProvider();
-      sandbox.stub(utils, "createContext").returns({
+      sandbox.stub(createQuestionDeps, "createContext").returns({
         logProvider: mockedLogProvider as LogProvider,
       } as Context);
       const warningStub = sandbox.stub(mockedLogProvider, "warning");
@@ -514,11 +512,10 @@ describe("scaffold question", () => {
         const inputs: Inputs = {
           platform: Platform.VSCode,
         };
-        sandbox.stub(stringUtils, "isValidHttpUrl").returns(true);
 
         const validationSchema = question.additionalValidationOnAccept as FuncValidation<string>;
         const res = await validationSchema.validFunc?.("", inputs);
-        assert.isUndefined(res);
+        assert.equal(res, "Please input a valid URL");
       });
 
       it("error path: graph client result error", async () => {
@@ -1198,7 +1195,7 @@ describe("scaffold question", () => {
         [QuestionNames.SelectOpenAPISpecFromPlugin]: "path/to/spec",
       };
 
-      sandbox.stub(require("fs-extra"), "pathExists").resolves(false);
+      sandbox.stub(fs, "pathExists").resolves(false);
 
       try {
         await question.dynamicOptions!(inputs);
@@ -1217,9 +1214,9 @@ describe("scaffold question", () => {
       const errorMessage = "List operations failed";
       const mockError = [new Error(errorMessage)];
 
-      sandbox.stub(require("fs-extra"), "pathExists").resolves(true);
-      sandbox.stub(utils, "createContext").returns({} as Context);
-      sandbox.stub(apiSpecHelper, "listOperations").resolves(err(mockError as any));
+      sandbox.stub(fs, "pathExists").resolves(true);
+      sandbox.stub(createQuestionDeps, "createContext").returns({} as Context);
+      sandbox.stub(createQuestionDeps, "listOperations").resolves(err(mockError as any));
 
       try {
         await question.dynamicOptions!(inputs);
@@ -1235,9 +1232,9 @@ describe("scaffold question", () => {
         [QuestionNames.SelectOpenAPISpecFromPlugin]: "path/to/spec",
       };
 
-      sandbox.stub(require("fs-extra"), "pathExists").resolves(true);
-      sandbox.stub(utils, "createContext").returns({} as Context);
-      sandbox.stub(apiSpecHelper, "listOperations").resolves(ok([]));
+      sandbox.stub(fs, "pathExists").resolves(true);
+      sandbox.stub(createQuestionDeps, "createContext").returns({} as Context);
+      sandbox.stub(createQuestionDeps, "listOperations").resolves(ok([]));
 
       try {
         await question.dynamicOptions!(inputs);
@@ -1269,8 +1266,8 @@ describe("scaffold question", () => {
       ];
 
       sandbox.stub(fs, "pathExists").resolves(true);
-      sandbox.stub(utils, "createContext").returns({} as Context);
-      sandbox.stub(apiSpecHelper, "listOperations").resolves(ok(operations as any));
+      sandbox.stub(createQuestionDeps, "createContext").returns({} as Context);
+      sandbox.stub(createQuestionDeps, "listOperations").resolves(ok(operations as any));
 
       const result = await question.dynamicOptions!(inputs);
 
@@ -1345,7 +1342,7 @@ describe("scaffold question", () => {
       const question = apiSpecUrlQuestion();
       const inputs: Inputs = { platform: Platform.VSCode };
       const mockOperations = [{ id: "op1", label: "GET /pets", data: {} }];
-      sandbox.stub(apiSpecHelper, "listOperations").resolves(ok(mockOperations as any));
+      sandbox.stub(createQuestionDeps, "listOperations").resolves(ok(mockOperations as any));
       const validFunc = (question as any).additionalValidationOnAccept.validFunc;
       const result = await validFunc("https://example.com/api.yaml", inputs);
       assert.isUndefined(result);
@@ -1356,7 +1353,7 @@ describe("scaffold question", () => {
       const question = apiSpecUrlQuestion();
       const inputs: Inputs = { platform: Platform.VSCode };
       const mockErrors = [{ type: 0, content: "Spec parse error" }];
-      sandbox.stub(apiSpecHelper, "listOperations").resolves(err(mockErrors as any));
+      sandbox.stub(createQuestionDeps, "listOperations").resolves(err(mockErrors as any));
       const validFunc = (question as any).additionalValidationOnAccept.validFunc;
       const result = await validFunc("https://example.com/api.yaml", inputs);
       assert.equal(result, "Spec parse error");
@@ -1369,7 +1366,7 @@ describe("scaffold question", () => {
         { type: 0, content: "Error 1" },
         { type: 0, content: "Error 2" },
       ];
-      sandbox.stub(apiSpecHelper, "listOperations").resolves(err(mockErrors as any));
+      sandbox.stub(createQuestionDeps, "listOperations").resolves(err(mockErrors as any));
       const validFunc = (question as any).additionalValidationOnAccept.validFunc;
       const result = await validFunc("https://example.com/api.yaml", inputs);
       assert.equal(result, "Error 1\nError 2");
@@ -1383,7 +1380,7 @@ describe("scaffold question", () => {
         { type: 0, content: longError },
         { type: 0, content: "Error 2" },
       ];
-      sandbox.stub(apiSpecHelper, "listOperations").resolves(err(mockErrors as any));
+      sandbox.stub(createQuestionDeps, "listOperations").resolves(err(mockErrors as any));
       const validFunc = (question as any).additionalValidationOnAccept.validFunc;
       const result = await validFunc("https://example.com/api.yaml", inputs);
       assert.equal(
@@ -1437,7 +1434,7 @@ describe("scaffold question", () => {
       const inputs: Inputs = { platform: Platform.VSCode };
       const mockOperations = [{ id: "op1", label: "GET /pets", data: {} }];
       sandbox.stub(fs, "pathExists").resolves(true);
-      sandbox.stub(apiSpecHelper, "listOperations").resolves(ok(mockOperations as any));
+      sandbox.stub(createQuestionDeps, "listOperations").resolves(ok(mockOperations as any));
       const result = await validFunc("test.yaml", inputs);
       assert.isUndefined(result);
       assert.deepEqual(inputs.supportedApisFromApiSpec, mockOperations);
@@ -1449,7 +1446,7 @@ describe("scaffold question", () => {
       const inputs: Inputs = { platform: Platform.VSCode };
       const mockErrors = [{ type: 0, content: "Invalid spec" }];
       sandbox.stub(fs, "pathExists").resolves(true);
-      sandbox.stub(apiSpecHelper, "listOperations").resolves(err(mockErrors as any));
+      sandbox.stub(createQuestionDeps, "listOperations").resolves(err(mockErrors as any));
       const result = await validFunc("test.yaml", inputs);
       assert.equal(result, "Invalid spec");
     });
@@ -1463,7 +1460,7 @@ describe("scaffold question", () => {
         { type: 0, content: "Error 2" },
       ];
       sandbox.stub(fs, "pathExists").resolves(true);
-      sandbox.stub(apiSpecHelper, "listOperations").resolves(err(mockErrors as any));
+      sandbox.stub(createQuestionDeps, "listOperations").resolves(err(mockErrors as any));
       const result = await validFunc("test.yaml", inputs);
       assert.equal(result, "Error 1\nError 2");
     });
@@ -1515,7 +1512,7 @@ describe("scaffold question", () => {
       const validFunc = (question.validation as FuncValidation<string>).validFunc;
       const inputs: Inputs = { platform: Platform.VSCode };
       const mockOperations = [{ id: "op1", label: "GET /pets", data: {} }];
-      sandbox.stub(apiSpecHelper, "listOperations").resolves(ok(mockOperations as any));
+      sandbox.stub(createQuestionDeps, "listOperations").resolves(ok(mockOperations as any));
       const result = await validFunc("https://example.com/api.yaml", inputs);
       assert.isUndefined(result);
       assert.deepEqual(inputs.supportedApisFromApiSpec, mockOperations);

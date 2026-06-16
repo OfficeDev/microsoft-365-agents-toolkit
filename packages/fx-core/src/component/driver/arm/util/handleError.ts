@@ -5,9 +5,14 @@ import { ResourceManagementClient } from "@azure/arm-resources";
 import { Context, err, FxError, ok, Result } from "@microsoft/teamsfx-api";
 import { ConstantString } from "../../../../common/constants";
 import { getResourceGroupNameFromResourceId } from "../../../../common/stringUtils";
-import { ResourceGroupNotExistError } from "../../../../error/azure";
 import { DeployArmError, GetArmDeploymentError } from "../../../../error/arm";
-import { innerGetDeploymentError, innerGetDeploymentOperations } from "./innerHandleError";
+import { ResourceGroupNotExistError } from "../../../../error/azure";
+import * as innerHandleError from "./innerHandleError";
+
+export const armErrorHandleDeps = {
+  innerGetDeploymentError: innerHandleError.innerGetDeploymentError,
+  innerGetDeploymentOperations: innerHandleError.innerGetDeploymentOperations,
+};
 
 // constant string
 const ErrorCodes = {
@@ -134,7 +139,7 @@ export namespace ArmErrorHandle {
   ): Promise<any> {
     let deployment;
     try {
-      deployment = await innerGetDeploymentError(
+      deployment = await armErrorHandleDeps.innerGetDeploymentError(
         deployCtx.client,
         resourceGroupName,
         deploymentName
@@ -166,7 +171,7 @@ export namespace ArmErrorHandle {
       error: deployment.properties?.error,
     };
     const operations = [];
-    const deploymentOperations = await innerGetDeploymentOperations(
+    const deploymentOperations = await armErrorHandleDeps.innerGetDeploymentOperations(
       deployCtx.client,
       resourceGroupName,
       deploymentName

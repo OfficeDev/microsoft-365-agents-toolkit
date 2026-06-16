@@ -15,7 +15,6 @@ import {
   ok,
 } from "@microsoft/teamsfx-api";
 import { SelectSubscriptionError, UserCancelError } from "@microsoft/teamsfx-core";
-import "mocha";
 import sinon from "sinon";
 import { logger } from "../../src/commonlib/logger";
 import * as customizedPrompts from "../../src/prompts";

@@ -1,13 +1,14 @@
+import * as armResources from "@azure/arm-resources";
 import { ResourceManagementClient } from "@azure/arm-resources";
+import { SubscriptionClient } from "@azure/arm-subscriptions";
 import { ok, Platform } from "@microsoft/teamsfx-api";
 import { assert } from "chai";
-import "mocha";
 import * as sinon from "sinon";
-import { resourceGroupHelper } from "../../src/component/utils/ResourceGroupHelper";
 import { setTools, TOOLS } from "../../src/common/globalVars";
-import { MockTools, MyTokenCredential } from "../core/utils";
-import * as armResources from "@azure/arm-resources";
-import * as armSubscriptions from "@azure/arm-subscriptions";
+import {
+  resourceGroupHelper,
+  resourceGroupHelperDeps,
+} from "../../src/component/utils/ResourceGroupHelper";
 import {
   CheckResourceGroupExistenceError,
   CreateResourceGroupError,
@@ -15,7 +16,7 @@ import {
   ListResourceGroupLocationsError,
   ListResourceGroupsError,
 } from "../../src/error/azure";
-import { SubscriptionClient } from "@azure/arm-subscriptions";
+import { MockTools, MyTokenCredential } from "../core/utils";
 
 describe("resouce group helper test", () => {
   const sandbox = sinon.createSandbox();
@@ -47,6 +48,11 @@ describe("resouce group helper test", () => {
       console.error(res.error);
     }
     assert.isTrue(res.isOk());
+  });
+
+  it("resourceGroupHelperDeps should create subscription client", () => {
+    const client = resourceGroupHelperDeps.createSubscriptionClient(new MyTokenCredential());
+    assert.instanceOf(client, SubscriptionClient);
   });
 
   it("createResourceGroup return undefined", async () => {
@@ -272,17 +278,9 @@ describe("resouce group helper test", () => {
         return this;
       },
     };
-    const originalDescriptor = Object.getOwnPropertyDescriptor(
-      armSubscriptions,
-      "SubscriptionClient"
-    )!;
-    Object.defineProperty(armSubscriptions, "SubscriptionClient", {
-      configurable: true,
-      writable: true,
-      value: function () {
-        return { subscriptions: { listLocations: () => iterator } };
-      },
-    });
+    sandbox
+      .stub(resourceGroupHelperDeps, "createSubscriptionClient")
+      .returns({ subscriptions: { listLocations: () => iterator } } as any);
     sandbox.stub(tools.tokenProvider.azureAccountProvider, "getSelectedSubscription").resolves({
       subscriptionId: "mockSubId",
       subscriptionName: "mockSubName",
@@ -294,24 +292,18 @@ describe("resouce group helper test", () => {
     sandbox
       .stub(tools.tokenProvider.azureAccountProvider, "getIdentityCredentialAsync")
       .resolves(new MyTokenCredential());
-    try {
-      const res = await resourceGroupHelper.getLocations(
-        tools.tokenProvider.azureAccountProvider,
-        rmClient
-      );
-      assert.isTrue(res.isOk());
-      if (res.isOk()) {
-        assert.isTrue(res.value.length === 1);
-      }
-    } finally {
-      Object.defineProperty(armSubscriptions, "SubscriptionClient", originalDescriptor);
+    const res = await resourceGroupHelper.getLocations(
+      tools.tokenProvider.azureAccountProvider,
+      rmClient
+    );
+    assert.isTrue(res.isOk());
+    if (res.isOk()) {
+      assert.isTrue(res.value.length === 1);
     }
   });
 
   it("getLocations return zero results", async () => {
-    const subClient = new SubscriptionClient(new MyTokenCredential());
     const rmClient = new ResourceManagementClient(new MyTokenCredential(), "id");
-    sandbox.stub(armSubscriptions, "SubscriptionClient").returns(subClient);
     const iterator = {
       next: sandbox
         .stub()
@@ -330,7 +322,9 @@ describe("resouce group helper test", () => {
         return this;
       },
     };
-    sandbox.stub(subClient.subscriptions, "listLocations").returns(iterator);
+    sandbox
+      .stub(resourceGroupHelperDeps, "createSubscriptionClient")
+      .returns({ subscriptions: { listLocations: () => iterator } } as any);
     sandbox.stub(tools.tokenProvider.azureAccountProvider, "getSelectedSubscription").resolves({
       subscriptionId: "mockSubId",
       subscriptionName: "mockSubName",
@@ -353,9 +347,7 @@ describe("resouce group helper test", () => {
   });
 
   it("getLocations throw Error", async () => {
-    const subClient = new SubscriptionClient(new MyTokenCredential());
     const rmClient = new ResourceManagementClient(new MyTokenCredential(), "id");
-    sandbox.stub(armSubscriptions, "SubscriptionClient").returns(subClient);
     const iterator = {
       next: sandbox.stub().rejects({ message: "test error" }),
       byPage: sandbox.stub().resolves([[{ displayName: "east us" }]]),
@@ -363,7 +355,9 @@ describe("resouce group helper test", () => {
         return this;
       },
     };
-    sandbox.stub(subClient.subscriptions, "listLocations").returns(iterator);
+    sandbox
+      .stub(resourceGroupHelperDeps, "createSubscriptionClient")
+      .returns({ subscriptions: { listLocations: () => iterator } } as any);
     sandbox.stub(tools.tokenProvider.azureAccountProvider, "getSelectedSubscription").resolves({
       subscriptionId: "mockSubId",
       subscriptionName: "mockSubName",

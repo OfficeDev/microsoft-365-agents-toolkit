@@ -8,7 +8,6 @@
 import { err, Inputs, ok, OptionItem, Platform, UserError } from "@microsoft/teamsfx-api";
 import { assert } from "chai";
 import fs from "fs-extra";
-import "mocha";
 import { RestoreFn } from "mocked-env";
 import sinon from "sinon";
 import { createContext, setTools } from "../../../src/common/globalVars";

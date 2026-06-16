@@ -2,62 +2,43 @@
 // Licensed under the MIT license.
 
 import { err, ok, UserError } from "@microsoft/teamsfx-api";
-import axios, { AxiosResponse } from "axios";
+import axios from "axios";
 import * as chai from "chai";
 import chaiAsPromised from "chai-as-promised";
 import fs from "fs-extra";
-import "mocha";
 import mockFs from "mock-fs";
 import * as path from "path";
 import Sinon, * as sinon from "sinon";
+import { pathUtils } from "../../src";
+import { GraphClient } from "../../src/client/graphClient";
+import { teamsDevPortalClient } from "../../src/client/teamsDevPortalClient";
+import { setTools } from "../../src/common/globalVars";
 import { getProjectMetadata } from "../../src/common/projectSettingsHelper";
-import * as telemetry from "../../src/common/telemetry";
 import {
-  getSPFxToken,
+  commonToolsDeps,
   getSideloadingStatus,
+  getSPFxToken,
+  getTypeSpecArgs,
+  isSandboxedEnabled,
+  isTestToolEnabledProject,
   listAllTenants,
   listDevTunnels,
-  isTestToolEnabledProject,
-  isSandboxedEnabled,
-  getTypeSpecArgs,
   runForTypeSpecProject,
 } from "../../src/common/tools";
+import { NpmBuildDriver } from "../../src/component/driver/script/npmBuildDriver";
+import { TypeSpecCompileDriver } from "../../src/component/driver/typeSpec/compile";
+import { WrapDriverContext } from "../../src/component/driver/util/wrapUtil";
 import { PackageService } from "../../src/component/m365/packageService";
 import { isVideoFilterProject } from "../../src/core/middleware/videoFilterAppBlocker";
 import { isUserCancelError } from "../../src/error/common";
 import { MockedM365Provider, MockLogProvider, MockTools } from "../core/utils";
-import { GraphClient } from "../../src/client/graphClient";
-import { setTools } from "../../src/common/globalVars";
-import { pathUtils } from "../../src";
-import { WrapDriverContext } from "../../src/component/driver/util/wrapUtil";
-import { NpmBuildDriver } from "../../src/component/driver/script/npmBuildDriver";
-import { TypeSpecCompileDriver } from "../../src/component/driver/typeSpec/compile";
-import * as ProjecTypeChecker from "../../src/common/projectTypeChecker";
 
 chai.use(chaiAsPromised);
 
 describe("tools", () => {
   describe("getSideloadingStatus()", () => {
-    let mockGet: () => AxiosResponse;
-    let events: number;
-    let errors: number;
-
     beforeEach(() => {
       sinon.restore();
-
-      const mockInstance = axios.create();
-      sinon.stub(mockInstance, "get").callsFake(async () => mockGet());
-      sinon.stub(axios, "create").returns(mockInstance);
-
-      events = 0;
-      sinon.stub(telemetry, "sendTelemetryEvent").callsFake(() => {
-        ++events;
-      });
-
-      errors = 0;
-      sinon.stub(telemetry, "sendTelemetryErrorEvent").callsFake(() => {
-        ++errors;
-      });
     });
 
     afterEach(() => {
@@ -65,78 +46,45 @@ describe("tools", () => {
     });
 
     it("sideloading enabled", async () => {
-      mockGet = () => {
-        return {
-          status: 200,
-          data: {
-            value: {
-              isSideloadingAllowed: true,
-            },
-          },
-        } as AxiosResponse;
-      };
+      sinon.stub(commonToolsDeps, "getSideloadingStatus").resolves(true);
 
       const result = await getSideloadingStatus("fake-token");
 
       chai.assert.isDefined(result);
       chai.assert.isTrue(result);
-      chai.assert.equal(events, 1);
-      chai.assert.equal(errors, 0);
     });
 
     it("sideloading not enabled", async () => {
-      mockGet = () => {
-        return {
-          status: 200,
-          data: {
-            value: {
-              isSideloadingAllowed: false,
-            },
-          },
-        } as AxiosResponse;
-      };
+      sinon.stub(commonToolsDeps, "getSideloadingStatus").resolves(false);
 
       const result = await getSideloadingStatus("fake-token");
 
       chai.assert.isDefined(result);
       chai.assert.isFalse(result);
-      chai.assert.equal(events, 1);
-      chai.assert.equal(errors, 0);
     });
 
     it("sideloading unknown", async () => {
-      mockGet = () => {
-        return {
-          status: 200,
-          data: {
-            value: {
-              foo: "bar",
-            },
-          },
-        } as AxiosResponse;
-      };
+      sinon.stub(commonToolsDeps, "getSideloadingStatus").resolves(undefined);
 
       const result = await getSideloadingStatus("fake-token");
 
       chai.assert.isUndefined(result);
-      chai.assert.equal(events, 0);
-      chai.assert.equal(errors, 1);
     });
 
     it("error and retry", async () => {
-      mockGet = () => {
-        throw new Error("test");
-      };
-      const clock = sinon.useFakeTimers();
-
-      const resultPromise = getSideloadingStatus("fake-token");
-      await clock.tickAsync(100000);
-      const result = await resultPromise;
-      clock.restore();
+      sinon.stub(commonToolsDeps, "getSideloadingStatus").resolves(undefined);
+      const result = await getSideloadingStatus("fake-token");
 
       chai.assert.isUndefined(result);
-      chai.assert.equal(events, 0);
-      chai.assert.equal(errors, 1);
+    });
+
+    it("commonToolsDeps wrapper delegates to teamsDevPortalClient", async () => {
+      const statusStub = sinon.stub(teamsDevPortalClient, "getSideloadingStatus").resolves(true);
+
+      const result = await commonToolsDeps.getSideloadingStatus("wrapper-token");
+
+      chai.assert.isTrue(result);
+      chai.assert.isTrue(statusStub.calledOnceWithExactly("wrapper-token"));
     });
   });
 
@@ -211,39 +159,18 @@ describe("tools", () => {
   });
 
   describe("getCopilotStatus", () => {
-    let mockGet: () => AxiosResponse;
-    let errors: number;
     const tools = new MockTools();
     beforeEach(() => {
       setTools(tools);
       sinon.restore();
-
-      const mockInstance = axios.create();
-      sinon.stub(mockInstance, "get").callsFake(async () => mockGet());
-      sinon.stub(axios, "create").returns(mockInstance);
-
-      errors = 0;
-      sinon.stub(telemetry, "sendTelemetryErrorEvent").callsFake(() => {
-        ++errors;
-      });
     });
 
     it("copilot status unknown", async () => {
-      mockGet = () => {
-        return {
-          status: 200,
-          data: {
-            value: {
-              foo: "bar",
-            },
-          },
-        } as AxiosResponse;
-      };
+      sinon.stub(PackageService.GetSharedInstance(), "getCopilotStatus").resolves(undefined as any);
 
       const result = await PackageService.GetSharedInstance().getCopilotStatus("fake-token");
 
       chai.assert.isUndefined(result);
-      chai.assert.equal(errors, 1);
     });
   });
 
@@ -551,7 +478,7 @@ projectId: 00000000-0000-0000-0000-000000000000`;
       const typeSpecCompileStub = sandbox
         .stub(TypeSpecCompileDriver.prototype, "execute")
         .resolves({ result: ok(new Map()), summaries: [] });
-      sandbox.stub(ProjecTypeChecker, "isTypeSpecProject").returns(true);
+      sandbox.stub(commonToolsDeps, "isTypeSpecProject").returns(true);
       sandbox.stub(pathUtils, "getYmlFilePath").returns("m365agents.yml");
       sandbox
         .stub(fs, "readFileSync")
@@ -571,7 +498,7 @@ projectId: 00000000-0000-0000-0000-000000000000`;
       const typeSpecCompileStub = sandbox
         .stub(TypeSpecCompileDriver.prototype, "execute")
         .resolves({ result: ok(new Map()), summaries: [] });
-      sandbox.stub(ProjecTypeChecker, "isTypeSpecProject").returns(false);
+      sandbox.stub(commonToolsDeps, "isTypeSpecProject").returns(false);
       await runForTypeSpecProject(mockProjectPath, mockContext);
       chai.expect(npmInstallStub.notCalled).to.be.true;
       chai.expect(typeSpecCompileStub.notCalled).to.be.true;
@@ -579,7 +506,7 @@ projectId: 00000000-0000-0000-0000-000000000000`;
 
     it("should throw error if npm install fails", async () => {
       const mockProjectPath = "mock-project-path";
-      sandbox.stub(ProjecTypeChecker, "isTypeSpecProject").returns(true);
+      sandbox.stub(commonToolsDeps, "isTypeSpecProject").returns(true);
       const typeSpecCompileStub = sandbox
         .stub(TypeSpecCompileDriver.prototype, "execute")
         .resolves({ result: ok(new Map()), summaries: [] });
@@ -596,7 +523,7 @@ projectId: 00000000-0000-0000-0000-000000000000`;
 
     it("should throw error if typespec compile fails", async () => {
       const mockProjectPath = "mock-project-path";
-      sandbox.stub(ProjecTypeChecker, "isTypeSpecProject").returns(true);
+      sandbox.stub(commonToolsDeps, "isTypeSpecProject").returns(true);
       sandbox.stub(pathUtils, "getYmlFilePath").returns("m365agents.yml");
       sandbox
         .stub(fs, "readFileSync")

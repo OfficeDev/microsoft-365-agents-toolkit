@@ -41,7 +41,6 @@ import {
   ok,
 } from "@microsoft/teamsfx-api";
 import { assert } from "chai";
-import "mocha";
 import mockedEnv, { RestoreFn } from "mocked-env";
 import sinon from "sinon";
 import { setTools } from "../../src/common/globalVars";

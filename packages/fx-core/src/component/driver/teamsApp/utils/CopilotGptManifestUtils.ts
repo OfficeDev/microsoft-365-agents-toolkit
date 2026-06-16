@@ -38,7 +38,10 @@ import { ManifestType } from "../../../utils/envFunctionUtils";
 import { DriverContext } from "../../interface/commonArgs";
 import { EmbeddedKnowledgeLocalDirectoryName } from "../constants";
 import { AppStudioError } from "../errors";
-import { DeclarativeCopilotManifestValidationResult } from "../interfaces/ValidationResult";
+import {
+  DeclarativeCopilotManifestValidationResult,
+  SkillValidationResult,
+} from "../interfaces/ValidationResult";
 import { AppStudioResultFactory } from "../results";
 import { manifestUtils } from "./ManifestUtils";
 import { pluginManifestUtils } from "./PluginManifestUtils";
@@ -201,6 +204,7 @@ export class CopilotGptManifestUtils {
         filePath: manifestPath,
         validationResult: manifestValidationRes,
         actionValidationResult: [],
+        skillValidationResult: [],
       };
 
       if (manifest.actions?.length) {
@@ -220,6 +224,47 @@ export class CopilotGptManifestUtils {
           }
         }
       }
+
+      // Validate skills
+      const skills = manifest.agent_skills;
+      if (skills && Array.isArray(skills)) {
+        for (const skill of skills) {
+          const skillResult: SkillValidationResult = {
+            folder: skill.folder,
+            filePath: "",
+            validationResult: [],
+          };
+
+          const skillFolderPath = path.join(path.dirname(manifestPath), skill.folder);
+          if (!(await fs.pathExists(skillFolderPath))) {
+            skillResult.validationResult.push(`Skill folder not found: ${skillFolderPath}`);
+          } else {
+            const skillMdPath = path.join(skillFolderPath, "SKILL.md");
+            skillResult.filePath = skillMdPath;
+            if (!(await fs.pathExists(skillMdPath))) {
+              skillResult.validationResult.push(
+                `SKILL.md not found in skill folder: ${skillFolderPath}`
+              );
+            } else {
+              const content = await fs.readFile(skillMdPath, { encoding: "utf-8" });
+              const frontmatter = this.parseYamlFrontmatter(content);
+              if (!frontmatter.name) {
+                skillResult.validationResult.push(
+                  `SKILL.md is missing required field 'name' in YAML frontmatter: ${skillMdPath}`
+                );
+              }
+              if (!frontmatter.description) {
+                skillResult.validationResult.push(
+                  `SKILL.md is missing required field 'description' in YAML frontmatter: ${skillMdPath}`
+                );
+              }
+            }
+          }
+
+          res.skillValidationResult.push(skillResult);
+        }
+      }
+
       return ok(res);
     } catch (e: any) {
       return err(
@@ -351,6 +396,40 @@ export class CopilotGptManifestUtils {
     }
   }
 
+  public async addSkill(
+    copilotGptPath: string,
+    folder: string
+  ): Promise<Result<DeclarativeCopilotManifestSchema, FxError>> {
+    const gptManifestRes = await copilotGptManifestUtils.readCopilotGptManifestFile(copilotGptPath);
+    if (gptManifestRes.isErr()) {
+      return err(gptManifestRes.error);
+    }
+
+    const gptManifest = gptManifestRes.value;
+
+    // Initialize agent_skills array if not present
+    if (!gptManifest.agent_skills) {
+      gptManifest.agent_skills = [];
+    }
+
+    // Prevent duplicate folder paths
+    const skills = gptManifest.agent_skills;
+    if (!skills.some((s) => s.folder === folder)) {
+      skills.push({ folder });
+    }
+
+    // Write updated manifest back
+    const updateRes = await copilotGptManifestUtils.writeCopilotGptManifestFile(
+      gptManifest,
+      copilotGptPath
+    );
+    if (updateRes.isErr()) {
+      return err(updateRes.error);
+    }
+
+    return ok(gptManifest);
+  }
+
   public logValidationErrors(
     validationRes: DeclarativeCopilotManifestValidationResult,
     platform: Platform
@@ -359,6 +438,7 @@ export class CopilotGptManifestUtils {
     const filePath = validationRes.filePath;
     const hasDeclarativeCopilotError = validationErrors.length > 0;
     let hasActionError = false;
+    let hasSkillError = false;
 
     for (const actionValidationRes of validationRes.actionValidationResult) {
       if (actionValidationRes.validationResult.length > 0) {
@@ -366,7 +446,13 @@ export class CopilotGptManifestUtils {
         break;
       }
     }
-    if (!hasDeclarativeCopilotError && !hasActionError) {
+    for (const skillValidationRes of validationRes.skillValidationResult ?? []) {
+      if (skillValidationRes.validationResult.length > 0) {
+        hasSkillError = true;
+        break;
+      }
+    }
+    if (!hasDeclarativeCopilotError && !hasActionError && !hasSkillError) {
       return "";
     }
 
@@ -394,6 +480,17 @@ export class CopilotGptManifestUtils {
         ) as string;
         if (actionValidationMessage) {
           outputMessage += (!outputMessage ? "" : EOL) + actionValidationMessage;
+        }
+      }
+
+      for (const skillValidationRes of validationRes.skillValidationResult ?? []) {
+        if (skillValidationRes.validationResult.length > 0) {
+          const skillErrors = skillValidationRes.validationResult
+            .map((error: string) => `${SummaryConstant.Failed} ${error}`)
+            .join(EOL);
+          const skillPath = skillValidationRes.filePath || skillValidationRes.folder;
+          outputMessage +=
+            (!outputMessage ? "" : EOL) + `Skill validation (${skillPath}):` + EOL + skillErrors;
         }
       }
 
@@ -427,6 +524,26 @@ export class CopilotGptManifestUtils {
           outputMessage.push(
             ...(actionValidationMessage as Array<{ content: string; color: Colors }>)
           );
+        }
+      }
+
+      for (const skillValidationRes of validationRes.skillValidationResult ?? []) {
+        if (skillValidationRes.validationResult.length > 0) {
+          const skillPath = skillValidationRes.filePath || skillValidationRes.folder;
+          outputMessage.push({
+            content: `Skill validation (${skillPath}):\n`,
+            color: Colors.BRIGHT_WHITE,
+          });
+          skillValidationRes.validationResult.map((error: string) => {
+            outputMessage.push({
+              content: `${SummaryConstant.Failed} `,
+              color: Colors.BRIGHT_RED,
+            });
+            outputMessage.push({
+              content: `${error}\n`,
+              color: Colors.BRIGHT_WHITE,
+            });
+          });
         }
       }
 
@@ -730,6 +847,27 @@ export class CopilotGptManifestUtils {
     } else {
       return ok(agentManifest);
     }
+  }
+
+  private parseYamlFrontmatter(content: string): Record<string, string> {
+    const result: Record<string, string> = {};
+    const trimmed = content.trimStart();
+    if (!trimmed.startsWith("---")) {
+      return result;
+    }
+    const endIndex = trimmed.indexOf("---", 3);
+    if (endIndex === -1) {
+      return result;
+    }
+    const frontmatter = trimmed.substring(3, endIndex);
+    const lines = frontmatter.split(/\r?\n/);
+    for (const line of lines) {
+      const match = line.match(/^(\w+)\s*:\s*(.+)$/);
+      if (match) {
+        result[match[1]] = match[2].trim();
+      }
+    }
+    return result;
   }
 }
 

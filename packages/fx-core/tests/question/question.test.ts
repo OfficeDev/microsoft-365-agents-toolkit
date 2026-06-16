@@ -20,7 +20,6 @@ import {
 } from "@microsoft/teamsfx-api";
 import { assert } from "chai";
 import fs from "fs-extra";
-import "mocha";
 import mockedEnv, { RestoreFn } from "mocked-env";
 import * as path from "path";
 import sinon from "sinon";
@@ -33,6 +32,7 @@ import {
   resourceGroupQuestionNode,
   validateResourceGroupName,
 } from "../../src/component/utils/ResourceGroupHelper";
+import { azureClientHelper } from "../../src/component/utils/azureClient";
 import { envUtil } from "../../src/component/utils/envUtil";
 import { CollaborationConstants, CollaborationUtil } from "../../src/core/collaborator";
 import {
@@ -63,9 +63,9 @@ import {
   selectLocalTeamsAppManifestQuestion,
   selectTeamsAppManifestQuestion,
 } from "../../src/question/other";
+import { teamsProjectTypeDeps } from "../../src/question/scaffold/vsc/teamsProjectTypeNode";
 import { QuestionTreeVisitor, traverse } from "../../src/ui/visitor";
 import { MockTools, MockUserInteraction, MockedAzureAccountProvider } from "../core/utils";
-import { azureClientHelper } from "../../src/component/utils/azureClient";
 
 const ui = new MockUserInteraction();
 export async function callFuncs(question: Question, inputs: Inputs, answer?: string) {
@@ -1465,7 +1465,7 @@ describe("addKnowledgeQuestionNode", async () => {
     };
     const validation = question.validation as FuncValidation<string>;
     try {
-      const res = validation.validFunc("test");
+      await validation.validFunc("test");
       assert.fail("Should throw error");
     } catch (error) {}
     validation.validFunc([] as any, inputs);
@@ -1531,10 +1531,10 @@ describe("scaffold Copilot connector", async () => {
     const question = GCNameQuestion();
     const validation = question.additionalValidationOnAccept as FuncValidation<string>;
     try {
-      const res = validation.validFunc("test");
+      await validation.validFunc("test");
       assert.fail("Should throw error");
     } catch (error) {}
-    validation.validFunc("test", inputs);
+    await validation.validFunc("test", inputs);
   });
 
   it("GC connection id validate check", async () => {
@@ -1681,9 +1681,9 @@ describe("updateActionWithMCP", async () => {
       ],
     };
 
-    // Mock fs.readJSON
-    sandbox.stub(fs, "pathExists").resolves(true);
-    sandbox.stub(fs, "readJSON").resolves(mockPluginManifest);
+    // Mock deps used by updateActionWithMCP
+    sandbox.stub(teamsProjectTypeDeps, "pathExists").resolves(true);
+    sandbox.stub(teamsProjectTypeDeps, "readJSON").resolves(mockPluginManifest as any);
 
     const testInputs: Inputs = {
       platform: Platform.VSCode,
@@ -1752,10 +1752,9 @@ describe("updateActionWithMCP", async () => {
     const res = questionNodes.updateActionWithMCP();
     const preFetchToolsNode = res.children?.[1];
 
-    // Mock fs.pathExists to return true so the default function proceeds to readJSON,
-    // and fs.readJSON to throw an error
-    sandbox.stub(fs, "pathExists").resolves(true);
-    sandbox.stub(fs, "readJSON").rejects(new Error("File not found"));
+    // Mock deps used by updateActionWithMCP default
+    sandbox.stub(teamsProjectTypeDeps, "pathExists").resolves(true);
+    sandbox.stub(teamsProjectTypeDeps, "readJSON").rejects(new Error("File not found"));
 
     const testInputs: Inputs = {
       platform: Platform.VSCode,
@@ -1798,8 +1797,8 @@ describe("updateActionWithMCP", async () => {
       ],
     };
 
-    sandbox.stub(fs, "pathExists").resolves(true);
-    sandbox.stub(fs, "readJSON").resolves(mockPluginManifest);
+    sandbox.stub(teamsProjectTypeDeps, "pathExists").resolves(true);
+    sandbox.stub(teamsProjectTypeDeps, "readJSON").resolves(mockPluginManifest as any);
 
     const testInputs: Inputs = {
       platform: Platform.VSCode,

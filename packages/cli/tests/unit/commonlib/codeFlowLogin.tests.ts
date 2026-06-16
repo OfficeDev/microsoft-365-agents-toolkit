@@ -1,13 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import "mocha";
-import sinon from "sinon";
 import { AccountInfo } from "@azure/msal-node";
-import { expect } from "../utils";
+import sinon from "sinon";
 import { CodeFlowLogin } from "../../../src/commonlib/codeFlowLogin";
 import CliTelemetry from "../../../src/telemetry/cliTelemetry";
-import * as cacheAccess from "../../../src/commonlib/cacheAccess";
+import { expect } from "../utils";
 
 describe("CodeFlowLogin.loginWithBroker", function () {
   const sandbox = sinon.createSandbox();
@@ -107,10 +105,10 @@ describe("CodeFlowLogin.logout", function () {
     const accountA = createMockAccount("account-a");
     const accountB = createMockAccount("account-b");
 
-    sandbox.stub(cacheAccess, "loadAccountId").resolves("account-b");
-    sandbox.stub(cacheAccess, "clearCache").resolves();
-    sandbox.stub(cacheAccess, "saveAccountId").resolves();
-    sandbox.stub(cacheAccess, "saveTenantId").resolves();
+    sandbox.stub(codeFlowLogin as any, "loadAccountIdFromCache").resolves("account-b");
+    sandbox.stub(codeFlowLogin as any, "clearAccountCache").resolves();
+    sandbox.stub(codeFlowLogin as any, "saveAccountIdToCache").resolves();
+    sandbox.stub(codeFlowLogin as any, "saveTenantIdToCache").resolves();
     sandbox
       .stub(codeFlowLogin.pca, "getAllAccounts")
       .resolves([accountA, accountB] as AccountInfo[]);
@@ -130,9 +128,9 @@ describe("CodeFlowLogin.logout", function () {
     const accountA = createMockAccount("account-a");
     const accountB = createMockAccount("account-b");
 
-    sandbox.stub(cacheAccess, "clearCache").resolves();
-    sandbox.stub(cacheAccess, "saveAccountId").resolves();
-    sandbox.stub(cacheAccess, "saveTenantId").resolves();
+    sandbox.stub(codeFlowLogin as any, "clearAccountCache").resolves();
+    sandbox.stub(codeFlowLogin as any, "saveAccountIdToCache").resolves();
+    sandbox.stub(codeFlowLogin as any, "saveTenantIdToCache").resolves();
     sandbox
       .stub(codeFlowLogin.pca, "getAllAccounts")
       .resolves([accountA, accountB] as AccountInfo[]);

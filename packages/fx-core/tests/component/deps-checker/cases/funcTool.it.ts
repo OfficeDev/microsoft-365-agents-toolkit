@@ -7,7 +7,6 @@
 import chai from "chai";
 import spies from "chai-spies";
 import * as fs from "fs-extra";
-import "mocha";
 import * as os from "os";
 import * as path from "path";
 import semver from "semver";
@@ -19,7 +18,7 @@ import * as funcUtils from "../utils/funcTool";
 
 chai.use(spies);
 const expect = chai.expect;
-const assert = chai.assert;
+const assert: Chai.AssertStatic = chai.assert;
 
 describe("FuncToolChecker E2E Test", async () => {
   const sandbox = sinon.createSandbox();
@@ -233,9 +232,13 @@ describe("FuncToolChecker E2E Test", async () => {
 
 async function assertFuncStart(binFolder?: string): Promise<void> {
   const funcStartResult = await funcUtils.funcStart(binFolder);
-  // func start can work: "Unable to find project root. Expecting to find one of host.json, local.settings.json in project root."
-  expect(funcStartResult.cmdOutputIncludingStderr).to.includes(
-    "Unable to find project root",
-    `func start should return error message that contains "Unable to find project root", but actual output: "${funcStartResult.cmdOutputIncludingStderr}"`
-  );
+  // func start can work: prints a usage / no-project hint when there's no project in cwd.
+  // Older func versions printed "Unable to find project root";
+  // func >= 4.0.6280 (approx) prints "Can't determine project language from files".
+  // Either output signals the binary is runnable.
+  const out = funcStartResult.cmdOutputIncludingStderr;
+  expect(
+    out.includes("Unable to find project root") || out.includes("Can't determine project language"),
+    `func start should return a no-project hint message, but actual output: "${out}"`
+  ).to.be.true;
 }

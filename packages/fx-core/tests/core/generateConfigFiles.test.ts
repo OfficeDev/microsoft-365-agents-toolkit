@@ -10,21 +10,22 @@ import {
   UserInteraction,
 } from "@microsoft/teamsfx-api";
 import { assert } from "chai";
-import "mocha";
 import { createSandbox, SinonSandbox, SinonStub } from "sinon";
-import { TOOLS } from "../../src/common/globalVars";
+import { setTools, TOOLS } from "../../src/common/globalVars";
 import { configGenerator } from "../../src/component/generator/configFiles/configGenerator";
 import { generateConfigFiles } from "../../src/core/generateConfigFiles";
+import { MockTools } from "./utils";
 
 describe("generateConfigFiles", () => {
   let sandbox: SinonSandbox;
   let runStub: SinonStub;
   let readManifestStub: SinonStub;
   let showMessageStub: SinonStub;
+  let mockTools: MockTools;
   const manifestPath = "appPackage/manifest.json";
   const projectPath = "/tmp/project";
   const programmingLanguage = "typescript";
-  const originalUI = TOOLS.ui;
+  const originalTools = TOOLS;
 
   beforeEach(() => {
     sandbox = createSandbox();
@@ -32,12 +33,14 @@ describe("generateConfigFiles", () => {
     readManifestStub = sandbox.stub(AppManifestUtils, "readTeamsManifest");
     runStub = sandbox.stub(configGenerator, "run").resolves(ok({}) as unknown as RunResult);
     showMessageStub = sandbox.stub();
-    TOOLS.ui = { showMessage: showMessageStub } as unknown as UserInteraction;
+    mockTools = new MockTools();
+    mockTools.ui = { showMessage: showMessageStub } as unknown as UserInteraction;
+    setTools(mockTools);
   });
 
   afterEach(() => {
     sandbox.restore();
-    TOOLS.ui = originalUI;
+    setTools(originalTools);
   });
 
   const createInputs = (overrides: Record<string, unknown>): Inputs => {

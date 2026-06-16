@@ -2,7 +2,6 @@
 // Licensed under the MIT license.
 
 import { assert } from "chai";
-import "mocha";
 import path from "path";
 import { createSandbox, SinonSandbox, SinonStub } from "sinon";
 import { featureFlagManager, FeatureFlags } from "../../../src/common/featureFlags";

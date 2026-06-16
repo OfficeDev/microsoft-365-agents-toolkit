@@ -27,6 +27,7 @@ import { getAllTemplatesOnPlatform, getDefaultTemplatesOnPlatform } from "./temp
 import { TemplateInfo } from "./templates/templateInfo";
 import { getTemplateReplaceMap } from "./templates/templateReplaceMap";
 import { convertToLangKey, renderTemplateFileData, renderTemplateFileName } from "./utils";
+import * as v4TemplateBridge from "./v4TemplateBridge";
 
 export class DefaultTemplateGenerator implements IGenerator {
   // override this property to send telemetry event with different component name
@@ -153,7 +154,22 @@ export class DefaultTemplateGenerator implements IGenerator {
 
     await actionContext?.progressBar?.next(ProgressMessages.generateTemplate);
     context.logProvider.debug(`Downloading app template "${templateName}" to ${destinationPath}`);
-    await Generator.generate(generatorContext, TemplateActionSeq);
+    const useV4Channel = featureFlagManager.getBooleanValue(FeatureFlags.V4Enabled);
+    merge(actionContext?.telemetryProps, {
+      [TelemetryProperty.TemplateChannel]: useV4Channel ? "v4" : "v3",
+    });
+    if (useV4Channel) {
+      const source = await v4TemplateBridge.scaffoldFromV4Channel(
+        generatorContext,
+        { language: language, scenario: folderName },
+        actionContext?.telemetryProps
+      );
+      if (source.warning) {
+        context.logProvider.warning(source.warning);
+      }
+    } else {
+      await Generator.generate(generatorContext, TemplateActionSeq);
+    }
 
     merge(actionContext?.telemetryProps, {
       [TelemetryProperty.Fallback]: generatorContext.fallback ? "true" : "false", // Track fallback cases.

@@ -9,14 +9,14 @@
       "precondition_retry_interval": 2
     },
     "total_steps": 10,
-    "created_at": "2026-05-12T05:39:25.747112",
+    "created_at": "2026-06-11T03:17:04.362054",
     "name": "group  debug in teams remote coffee",
     "description": {
       "other": "Generated from recording r_1223_063548",
       "owner": "v-liliu2@microsoft.com",
       "workitem": ""
     },
-    "generated_at": "2026-05-12T05:39:25.747109",
+    "generated_at": "2026-06-11T03:17:04.362054",
     "execution_order": [
       "step_9458cbb5",
       "step_e283f51a",
@@ -33,7 +33,7 @@
     "tags": [
       "group"
     ],
-    "updated_at": "2026-05-12T06:28:51.956699"
+    "updated_at": "2026-06-11T05:45:01.704594"
   },
   "steps": [
     {
@@ -55,7 +55,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_9458cbb5",
-      "created_at": "2026-05-12T06:27:29.408686",
+      "created_at": "2026-06-11T03:17:04.378761",
       "plan_id": "plan_61729b9a"
     },
     {
@@ -77,7 +77,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_e283f51a",
-      "created_at": "2026-05-12T06:27:29.418035",
+      "created_at": "2026-06-11T03:17:04.378761",
       "plan_id": "plan_61729b9a"
     },
     {
@@ -99,7 +99,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_7d494f08",
-      "created_at": "2026-05-12T06:27:29.425878",
+      "created_at": "2026-06-11T03:17:04.395357",
       "plan_id": "plan_61729b9a"
     },
     {
@@ -121,7 +121,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_02b37799",
-      "created_at": "2026-05-12T06:27:29.433591",
+      "created_at": "2026-06-11T03:17:04.395357",
       "plan_id": "plan_61729b9a"
     },
     {
@@ -143,7 +143,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_0091be3e",
-      "created_at": "2026-05-12T06:27:29.439557",
+      "created_at": "2026-06-11T03:17:04.395357",
       "plan_id": "plan_61729b9a"
     },
     {
@@ -163,7 +163,7 @@
         "step_retry_timeout: 180"
       ],
       "screenshot": null,
-      "created_at": "2026-05-12T06:27:29.473078",
+      "created_at": "2026-06-11T03:17:04.411903",
       "plan_id": "plan_61729b9a"
     },
     {
@@ -187,9 +187,11 @@
         "dhash:307:221:0:10:20b4b0f0e8f8e0f4"
       ],
       "postconditions": [],
-      "tags": [],
+      "tags": [
+        "force_run:true"
+      ],
       "screenshot": "step_400e7d18",
-      "created_at": "2026-05-12T06:27:29.480026",
+      "created_at": "2026-06-11T03:17:04.411903",
       "plan_id": "plan_61729b9a"
     },
     {
@@ -209,7 +211,7 @@
         "step_retry_timeout: 180"
       ],
       "screenshot": null,
-      "created_at": "2026-05-12T06:27:29.488342",
+      "created_at": "2026-06-11T03:17:04.422925",
       "plan_id": "plan_61729b9a"
     },
     {
@@ -237,7 +239,7 @@
         "precondition_wait_timeout: 200"
       ],
       "screenshot": "step_496b1568",
-      "created_at": "2026-05-12T06:27:29.497025",
+      "created_at": "2026-06-11T03:17:04.428967",
       "plan_id": "plan_61729b9a"
     },
     {
@@ -257,7 +259,7 @@
         "step_retry_timeout: 60"
       ],
       "screenshot": null,
-      "created_at": "2026-05-12T06:27:29.512822",
+      "created_at": "2026-06-11T03:17:04.435362",
       "plan_id": "plan_61729b9a"
     }
   ],

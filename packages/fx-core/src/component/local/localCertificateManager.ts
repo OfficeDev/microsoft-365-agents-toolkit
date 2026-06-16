@@ -2,31 +2,45 @@
 // Licensed under the MIT license.
 "use strict";
 
-import * as fs from "fs-extra";
 import {
   ConfigFolderName,
-  LogProvider,
-  UserInteraction,
   FxError,
+  LogProvider,
   UserError,
+  UserInteraction,
 } from "@microsoft/teamsfx-api";
+import * as fs from "fs-extra";
 import { asn1, md, pki } from "node-forge";
 import * as os from "os";
 import * as path from "path";
 import { v4 as uuidv4 } from "uuid";
 
+import * as shellQuote from "shell-quote";
+import { getDefaultString, getLocalizedString } from "../../common/localizeUtils";
+import { CoreSource } from "../../error";
 import { LocalDebugCertificate } from "./constants";
 import * as ps from "./process";
-import { CoreSource } from "../../error";
-import { getDefaultString, getLocalizedString } from "../../common/localizeUtils";
-import * as shellQuote from "shell-quote";
 
-const installText = () => getLocalizedString("debug.install");
-const learnMoreText = () => getLocalizedString("core.provision.learnMore");
+export const localCertificateManagerDeps = {
+  ensureDir: fs.ensureDir,
+  pathExists: fs.pathExists,
+  readFile: fs.readFile,
+  writeFile: fs.writeFile,
+  homedir: os.homedir,
+  osType: os.type,
+  osEol: os.EOL,
+  execPowerShell: ps.execPowerShell,
+  execShell: ps.execShell,
+  localize: getLocalizedString,
+};
+
+const installText = () => localCertificateManagerDeps.localize("debug.install");
+const learnMoreText = () => localCertificateManagerDeps.localize("core.provision.learnMore");
 // TODO(xiaofhua): update help link for v3
 const learnMoreUrl = "https://aka.ms/teamsfx-ca-certificate";
-const warningMessage = () => getLocalizedString("debug.warningMessage");
-const confirmMessage = () => warningMessage() + getLocalizedString("debug.warningMessage2");
+const warningMessage = () => localCertificateManagerDeps.localize("debug.warningMessage");
+const confirmMessage = () =>
+  warningMessage() + localCertificateManagerDeps.localize("debug.warningMessage2");
 
 const trustCertificateCancelError = () =>
   new UserError({
@@ -54,7 +68,7 @@ export class LocalCertificateManager {
     this.ui = ui;
     this.logger = logger;
     this.certFolder = path
-      .normalize(`${os.homedir()}/.${ConfigFolderName}/certificate`)
+      .normalize(`${localCertificateManagerDeps.homedir()}/.${ConfigFolderName}/certificate`)
       .split(path.sep)
       .join(path.posix.sep);
   }
@@ -77,11 +91,18 @@ export class LocalCertificateManager {
 
     try {
       let certThumbprint: string | undefined = undefined;
-      await fs.ensureDir(this.certFolder);
+      await localCertificateManagerDeps.ensureDir(this.certFolder);
 
-      if ((await fs.pathExists(certFilePath)) && (await fs.pathExists(keyFilePath))) {
-        const certContent = await fs.readFile(certFilePath, { encoding: "utf8" });
-        const keyContent = await fs.readFile(keyFilePath, { encoding: "utf8" });
+      if (
+        (await localCertificateManagerDeps.pathExists(certFilePath)) &&
+        (await localCertificateManagerDeps.pathExists(keyFilePath))
+      ) {
+        const certContent = await localCertificateManagerDeps.readFile(certFilePath, {
+          encoding: "utf8",
+        });
+        const keyContent = await localCertificateManagerDeps.readFile(keyFilePath, {
+          encoding: "utf8",
+        });
         const verifyRes = this.verifyCertificateContent(certContent, keyContent);
         if (verifyRes[1]) {
           certThumbprint = verifyRes[0];
@@ -185,8 +206,8 @@ export class LocalCertificateManager {
     // output
     const certContent = pki.certificateToPem(cert);
     const keyContent = pki.privateKeyToPem(keys.privateKey);
-    await fs.writeFile(certFile, certContent, { encoding: "utf8" });
-    await fs.writeFile(keyFile, keyContent, { encoding: "utf8" });
+    await localCertificateManagerDeps.writeFile(certFile, certContent, { encoding: "utf8" });
+    await localCertificateManagerDeps.writeFile(keyFile, keyContent, { encoding: "utf8" });
 
     return thumbprint;
   }
@@ -276,11 +297,11 @@ export class LocalCertificateManager {
 
   async verifyCertificateInStore(thumbprint: string): Promise<boolean | undefined> {
     try {
-      if (os.type() === "Windows_NT") {
+      if (localCertificateManagerDeps.osType() === "Windows_NT") {
         return await this.checkCertificateWindows(thumbprint);
-      } else if (os.type() === "Darwin") {
-        const listCertCommand = `security find-certificate -c localhost -a -Z -p "${os.homedir()}/Library/Keychains/login.keychain-db"`;
-        const existingCertificates = await ps.execShell(listCertCommand);
+      } else if (localCertificateManagerDeps.osType() === "Darwin") {
+        const listCertCommand = `security find-certificate -c localhost -a -Z -p "${localCertificateManagerDeps.homedir()}/Library/Keychains/login.keychain-db"`;
+        const existingCertificates = await localCertificateManagerDeps.execShell(listCertCommand);
         if (existingCertificates) {
           const thumbprintRegex = /SHA-1 hash: ([0-9A-Z]+)/g;
           let match = undefined;
@@ -311,7 +332,7 @@ export class LocalCertificateManager {
     friendlyName: string
   ): Promise<void> {
     try {
-      if (os.type() === "Windows_NT") {
+      if (localCertificateManagerDeps.osType() === "Windows_NT") {
         if (!(await this.waitForUserConfirm())) {
           localCert.isTrusted = false;
           localCert.error = trustCertificateCancelError();
@@ -322,15 +343,15 @@ export class LocalCertificateManager {
 
         localCert.isTrusted = true;
         return;
-      } else if (os.type() === "Darwin") {
+      } else if (localCertificateManagerDeps.osType() === "Darwin") {
         if (!(await this.waitForUserConfirm())) {
           localCert.isTrusted = false;
           localCert.error = trustCertificateCancelError();
           return;
         }
 
-        await ps.execShell(
-          `security add-trusted-cert -p ssl -k "${os.homedir()}/Library/Keychains/login.keychain-db" "${
+        await localCertificateManagerDeps.execShell(
+          `security add-trusted-cert -p ssl -k "${localCertificateManagerDeps.homedir()}/Library/Keychains/login.keychain-db" "${
             localCert.certPath
           }"`
         );
@@ -385,12 +406,12 @@ export class LocalCertificateManager {
     try {
       // try powershell first
       const getCertCommand = `Get-ChildItem -Path Cert:\\CurrentUser\\Root | Where-Object { $_.Thumbprint -match '${quotedThumbprint}' }`;
-      const getCertRes = await ps.execPowerShell(getCertCommand);
+      const getCertRes = await localCertificateManagerDeps.execPowerShell(getCertCommand);
       return getCertRes.toUpperCase().includes(thumbprint.toUpperCase());
     } catch (error: any) {
       // if any error, try certutil
       const getCertCommand = `certutil -user -verifystore root ${quotedThumbprint}`;
-      const getCertRes = (await ps.execShell(getCertCommand)).trim();
+      const getCertRes = (await localCertificateManagerDeps.execShell(getCertCommand)).trim();
       return getCertRes.toUpperCase().includes(thumbprint.toUpperCase());
     }
   }
@@ -403,30 +424,30 @@ export class LocalCertificateManager {
     try {
       // try powershell first
       const installCertCommand = `Import-Certificate -FilePath '${localCert.certPath}' -CertStoreLocation Cert:\\CurrentUser\\Root`;
-      await ps.execPowerShell(installCertCommand);
+      await localCertificateManagerDeps.execPowerShell(installCertCommand);
       try {
         const friendlyNameCommand = `(Get-ChildItem -Path Cert:\\CurrentUser\\Root\\${thumbprint}).FriendlyName='${friendlyName}'`;
-        await ps.execPowerShell(friendlyNameCommand);
+        await localCertificateManagerDeps.execPowerShell(friendlyNameCommand);
       } catch (e) {
         // ignore friendly name failure
       }
     } catch (error: any) {
       // if any error, try certutil
       const installCertCommand = `certutil -user -addstore root "${localCert.certPath}"`;
-      await ps.execShell(installCertCommand);
+      await localCertificateManagerDeps.execShell(installCertCommand);
       try {
         const certInfPath = path.join(path.dirname(localCert.certPath), "localhost.inf");
-        await fs.writeFile(
+        await localCertificateManagerDeps.writeFile(
           certInfPath,
           [
             "[Version]",
             `Signature = "$Windows NT$"`,
             "[Properties]",
             `11 = {text}${friendlyName}`,
-          ].join(os.EOL)
+          ].join(localCertificateManagerDeps.osEol)
         );
         const friendlyNameCommand = `certutil -user -repairstore root ${thumbprint} "${certInfPath}"`;
-        await ps.execShell(friendlyNameCommand);
+        await localCertificateManagerDeps.execShell(friendlyNameCommand);
       } catch (e) {
         // ignore friendly name failure
       }

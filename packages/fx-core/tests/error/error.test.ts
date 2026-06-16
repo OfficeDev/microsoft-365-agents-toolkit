@@ -13,7 +13,6 @@ import {
   UserError,
 } from "@microsoft/teamsfx-api";
 import { assert } from "chai";
-import "mocha";
 import { convertError, ErrorHandlerMW } from "../../src/core/middleware/errorHandler";
 import {
   assembleError,

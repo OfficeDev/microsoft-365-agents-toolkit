@@ -51,7 +51,8 @@ def create_token_factory():
 
 # Initialize the Teams app
 app = App(
-    token=create_token_factory() if config.APP_TYPE == "UserAssignedMsi" else None
+    token=create_token_factory() if config.APP_TYPE == "UserAssignedMsi" else None,
+    skip_auth=not config.APP_ID,
 )
 
 

@@ -55,6 +55,10 @@ export enum TelemetryProperty {
   TemplateScenario = "template-scenario",
   TemplateFallback = "template-fallback",
   TemplateName = "template-name",
+  TemplateChannel = "template-channel",
+  TemplatePackageSource = "template-package-source",
+  TemplatePackageVersion = "template-package-version",
+  TemplatePackageDigest = "template-package-digest",
   TenantId = "tenant-id",
   TimeCost = "time-cost",
   SampleDownloadDirectory = "sample-download-directory",
@@ -130,12 +134,6 @@ export enum TelemetryEvent {
   CheckSideloading = "check-sideloading",
   EnvConfig = "env-config",
   DisplayToolingUpdateNotification = "display-tooling-update-notification",
-  ProjectMigratorNotificationStart = "project-migrator-notification-start",
-  ProjectMigratorNotification = "project-migrator-notification",
-  ProjectMigratorMigrateStart = "project-migrator-migrate-start",
-  ProjectMigratorMigrate = "project-migrator-migrate",
-  ProjectMigratorPrecheckFailed = "project-migrator-pre-check-failed",
-  ProjectMigratorError = "project-migrator-error",
   ProjectConsolidateNotificationStart = "project-consolidate-notification-start",
   ProjectConsolidateNotification = "project-consolidate-notification",
   ProjectConsolidateUpgradeStart = "project-consolidate-upgrade-start",
@@ -236,21 +234,10 @@ export enum CustomizeSubscriptionType {
   Default = "default",
 }
 
-export enum ProjectMigratorStatus {
-  OK = "ok",
-  Cancel = "cancel",
-}
-
 export enum WebApplicationIdValue {
   None = "none",
   Default = "default",
   Customized = "customized",
-}
-
-export enum ProjectMigratorGuideStatus {
-  Reload = "reload",
-  LearnMore = "learn-more",
-  Cancel = "cancel",
 }
 
 export enum ApiSpecTelemetryPropertis {
@@ -272,7 +259,7 @@ export function sendTelemetryEvent(
     properties = {};
   }
   properties[TelemetryProperty.Component] = component;
-  TOOLS.telemetryReporter?.sendTelemetryEvent(eventName, properties, measurements);
+  TOOLS?.telemetryReporter?.sendTelemetryEvent(eventName, properties, measurements);
 }
 
 export function sendTelemetryErrorEvent(
@@ -288,7 +275,7 @@ export function sendTelemetryErrorEvent(
 
   telemetryUtils.fillInErrorProperties(properties, fxError);
 
-  TOOLS.telemetryReporter?.sendTelemetryErrorEvent(eventName, properties, {});
+  TOOLS?.telemetryReporter?.sendTelemetryErrorEvent(eventName, properties, {});
 }
 
 class TelemetryUtils {

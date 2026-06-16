@@ -19,13 +19,10 @@ import {
 import * as chai from "chai";
 import fs from "fs";
 import fse from "fs-extra";
-import "mocha";
 import mockfs from "mock-fs";
 import mockedEnv, { RestoreFn } from "mocked-env";
 import { OfficeAddinManifest } from "office-addin-manifest";
-import { MetaOSHelper } from "../../../src/component/generator/officeAddin/metaOSHelper";
 import * as path from "path";
-import proxyquire from "proxyquire";
 import * as sinon from "sinon";
 import * as uuid from "uuid";
 import { createContext, setTools } from "../../../src/common/globalVars";
@@ -34,9 +31,11 @@ import { manifestUtils } from "../../../src/component/driver/teamsApp/utils/Mani
 import {
   getHost,
   OfficeAddinGenerator,
+  officeAddinGeneratorDeps,
   OfficeAddinGeneratorNew,
 } from "../../../src/component/generator/officeAddin/generator";
 import { HelperMethods } from "../../../src/component/generator/officeAddin/helperMethods";
+import { MetaOSHelper } from "../../../src/component/generator/officeAddin/metaOSHelper";
 import { TemplateNames } from "../../../src/component/generator/templates/templateNames";
 import { dotenvUtil, envUtil } from "../../../src/component/utils/envUtil";
 import { UserCancelError } from "../../../src/error";
@@ -61,7 +60,7 @@ describe("OfficeAddinGenerator for Outlook Addin", function () {
     sinon.stub(fs, "stat").resolves();
     sinon.stub(cpUtils, "executeCommand").resolves("succeed");
     const manifestId = uuid.v4();
-    sinon.stub(fs, "readFile").resolves(new Buffer(`{"id": "${manifestId}"}`));
+    sinon.stub(fs, "readFile").resolves(Buffer.from(`{"id": "${manifestId}"}`));
     sinon.stub(fs, "writeFile").resolves();
     sinon.stub(fs, "rename").resolves();
     sinon.stub(fs, "copyFile").resolves();
@@ -197,11 +196,7 @@ describe("OfficeAddinGenerator for Outlook Addin", function () {
     // test still exercises the convertProject path.
     sinon.stub(fse, "pathExists").resolves(true as any);
 
-    const generator = proxyquire("../../../src/component/generator/officeAddin/generator", {
-      "office-addin-project": {
-        convertProject: convertProjectStub,
-      },
-    });
+    sinon.stub(officeAddinGeneratorDeps, "convertProject").callsFake(convertProjectStub as any);
 
     sinon.stub<any, any>(ManifestUtil, "loadFromPath").resolves({
       extensions: [
@@ -213,7 +208,7 @@ describe("OfficeAddinGenerator for Outlook Addin", function () {
       ],
     });
 
-    const result = await generator.OfficeAddinGenerator.doScaffolding(context, inputs, testFolder);
+    const result = await OfficeAddinGenerator.doScaffolding(context, inputs, testFolder);
 
     chai.expect(result.isOk()).to.eq(true);
     chai.expect(copyAddinFilesStub.calledOnce).to.be.true;
@@ -252,13 +247,9 @@ describe("OfficeAddinGenerator for Outlook Addin", function () {
     const copyAddinFilesStub = sinon.stub(HelperMethods, "copyAddinFiles");
     const convertProjectStub = sinon.stub();
 
-    const generator = proxyquire("../../../src/component/generator/officeAddin/generator", {
-      "office-addin-project": {
-        convertProject: convertProjectStub,
-      },
-    });
+    sinon.stub(officeAddinGeneratorDeps, "convertProject").callsFake(convertProjectStub as any);
 
-    const result = await generator.OfficeAddinGenerator.doScaffolding(context, inputs, testFolder);
+    const result = await OfficeAddinGenerator.doScaffolding(context, inputs, testFolder);
 
     chai.expect(result.isErr()).to.eq(true);
     if (result.isErr()) {
@@ -462,7 +453,7 @@ describe("OfficeAddinGenerator for Office Addin", function () {
     sinon.stub(fs, "stat").resolves();
     sinon.stub(cpUtils, "executeCommand").resolves("succeed");
     const manifestId = uuid.v4();
-    sinon.stub(fs, "readFile").resolves(new Buffer(`{"id": "${manifestId}"}`));
+    sinon.stub(fs, "readFile").resolves(Buffer.from(`{"id": "${manifestId}"}`));
     sinon.stub(fs, "writeFile").resolves();
     sinon.stub(fs, "rename").resolves();
     sinon.stub(fs, "copyFile").resolves();

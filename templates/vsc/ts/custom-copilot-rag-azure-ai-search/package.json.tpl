@@ -6,7 +6,7 @@
     },
     "description": "Microsoft 365 Agents Toolkit RAG Bot Sample with Azure AI Search and Microsoft Teams SDK",
     "engines": {
-        "node": "20 || 22"
+        "node": "22"
     },
     "author": "Microsoft",
     "license": "MIT",
@@ -36,7 +36,7 @@
         "@microsoft/teams.common": "^2.0.0"
     },
     "devDependencies": {
-        "@types/node": "^20.0.0",
+        "@types/node": "^22.0.0",
         "env-cmd": "^10.1.0",
         "ts-node": "^10.4.0",
         "typescript": "~5.8.3",

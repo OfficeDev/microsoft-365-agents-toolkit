@@ -1,6 +1,5 @@
 import chai from "chai";
 import fs from "fs-extra";
-import "mocha";
 import sinon from "sinon";
 import { jsonUtils } from "../../src/common/jsonUtils";
 import { convertToAlphanumericOnly } from "../../src/common/stringUtils";
@@ -36,28 +35,39 @@ describe("convert to valid AppName in ProjectSetting", () => {
 
 describe("JSONUtils", () => {
   const sandbox = sinon.createSandbox();
+  const tempDir = ".tmp-json-utils-tests";
+
+  beforeEach(() => {
+    fs.ensureDirSync(tempDir);
+  });
+
   afterEach(() => {
     sandbox.restore();
+    fs.removeSync(tempDir);
   });
+
   it("readJSONFileSync JSONSyntaxError", () => {
-    sandbox.stub(fs, "readJSONSync").throws(new SyntaxError());
-    const res = jsonUtils.readJSONFileSync(".");
+    const badJsonPath = `${tempDir}/bad.json`;
+    fs.writeFileSync(badJsonPath, "{ bad json }");
+    const res = jsonUtils.readJSONFileSync(badJsonPath);
     chai.assert.isTrue(res.isErr());
     if (res.isErr()) {
       chai.assert.isTrue(res.error instanceof JSONSyntaxError);
     }
   });
+
   it("readJSONFileSync ReadFileError", () => {
-    sandbox.stub(fs, "readJSONSync").throws(new Error());
-    const res = jsonUtils.readJSONFileSync(".");
+    const folderPath = `${tempDir}/folder`;
+    fs.ensureDirSync(folderPath);
+    const res = jsonUtils.readJSONFileSync(folderPath);
     chai.assert.isTrue(res.isErr());
     if (res.isErr()) {
       chai.assert.isTrue(res.error instanceof ReadFileError);
     }
   });
+
   it("readJSONFileSync FileNotFoundError", () => {
-    sandbox.stub(fs, "readJSONSync").throws(new Error("no such file or directory"));
-    const res = jsonUtils.readJSONFileSync(".");
+    const res = jsonUtils.readJSONFileSync(`${tempDir}/not-exist.json`);
     chai.assert.isTrue(res.isErr());
     if (res.isErr()) {
       chai.assert.isTrue(res.error instanceof FileNotFoundError);

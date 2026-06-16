@@ -50,6 +50,18 @@
   "add": {
     "description": "Add feature to your app."
   },
+  "import": {
+    "description": "Import an external agent plugin into a Microsoft 365 Agents Toolkit project."
+  },
+  "import.openplugin": {
+    "description": "Import an Open Plugin / Claude Code plugin / Cursor plugin directory into a scaffolded Microsoft 365 Agents Toolkit project (agentSkills + agentConnectors, vDevPreview manifest)."
+  },
+  "export": {
+    "description": "Export a Microsoft 365 Agents Toolkit project to an external agent plugin format."
+  },
+  "export.openplugin": {
+    "description": "Export a Microsoft 365 Agents Toolkit project to an Open Plugin Spec v1.0 directory. Round-trips losslessly with 'atk import openplugin'."
+  },
   "add.spfx-web-part": {
     "description": "Auto-hosted SPFx web part tightly integrated with Microsoft 365."
   },
@@ -61,6 +73,9 @@
   },
   "add.capability": {
     "description": "A capability to extend Copilot using your APIs."
+  },
+  "add.skill": {
+    "description": "An agent skill to bundle with your Declarative Agent."
   },
   "regenerate": {
     "description": "Regenerate existing resources for your app."
@@ -188,13 +203,6 @@
   },
   "update": {
     "description": "Update the app manifest to Developer Portal."
-  },
-  "upgrade": {
-    "description": "Upgrade the project to work with the latest version of Microsoft 365 Agents Toolkit.",
-    "options": {
-      "force": "Force upgrade the project to work with the latest version of Microsoft 365 Agents Toolkit."
-    },
-    "success": "Upgrade project successfully."
   },
   "validate": {
     "description": "Validate the app using manifest schema, validation rules, or test cases."

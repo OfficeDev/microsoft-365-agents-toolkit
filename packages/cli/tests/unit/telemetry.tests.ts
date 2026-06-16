@@ -1,42 +1,68 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { assert } from "chai";
-import "mocha";
-import sinon from "sinon";
-import cliTelemetry from "../../src/telemetry/cliTelemetry";
-import { CliTelemetryReporter } from "../../src/commonlib/telemetry";
 import { UserCancelError } from "@microsoft/teamsfx-core";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { CliTelemetryReporter } from "../../src/commonlib/telemetry";
+import cliTelemetry from "../../src/telemetry/cliTelemetry";
+
+const validInstrumentationKey = "00000000-0000-0000-0000-000000000000";
 
 describe("CLI Telemetry", function () {
-  const sandbox = sinon.createSandbox();
+  const stderrWrite = process.stderr.write.bind(process.stderr);
+
+  beforeEach(() => {
+    vi.spyOn(process.stderr, "write").mockImplementation(((chunk: any, ...args: any[]) => {
+      const text = typeof chunk === "string" ? chunk : chunk?.toString?.() ?? "";
+      if (text.includes("ApplicationInsights:An invalid instrumentation key was provided.")) {
+        return true;
+      }
+      return stderrWrite(chunk, ...args);
+    }) as any);
+  });
+
   afterEach(() => {
-    sandbox.restore();
+    vi.restoreAllMocks();
   });
   describe("disable", () => {
     it("no reporter", () => {
       cliTelemetry.enable = false;
     });
     it("sendTelemetryEvent", () => {
-      cliTelemetry.reporter = new CliTelemetryReporter("real", "real", "real", "real");
-      const spy = sandbox.spy(cliTelemetry.reporter.reporter, "sendTelemetryEvent");
+      cliTelemetry.reporter = new CliTelemetryReporter(
+        validInstrumentationKey,
+        "real",
+        "real",
+        "real"
+      );
+      const spy = vi.spyOn(cliTelemetry.reporter.reporter, "sendTelemetryEvent");
       cliTelemetry.enable = false;
       cliTelemetry.sendTelemetryEvent("eventName");
-      assert.isTrue(spy.notCalled);
+      expect(spy).not.toHaveBeenCalled();
     });
     it("sendTelemetryErrorEvent", () => {
-      cliTelemetry.reporter = new CliTelemetryReporter("real", "real", "real", "real");
-      const spy = sandbox.spy(cliTelemetry.reporter.reporter, "sendTelemetryErrorEvent");
+      cliTelemetry.reporter = new CliTelemetryReporter(
+        validInstrumentationKey,
+        "real",
+        "real",
+        "real"
+      );
+      const spy = vi.spyOn(cliTelemetry.reporter.reporter, "sendTelemetryErrorEvent");
       cliTelemetry.enable = false;
       cliTelemetry.sendTelemetryErrorEvent("eventName", new UserCancelError());
-      assert.isTrue(spy.notCalled);
+      expect(spy).not.toHaveBeenCalled();
     });
     it("sendTelemetryException", () => {
-      cliTelemetry.reporter = new CliTelemetryReporter("real", "real", "real", "real");
-      const spy = sandbox.spy(cliTelemetry.reporter.reporter, "sendTelemetryException");
+      cliTelemetry.reporter = new CliTelemetryReporter(
+        validInstrumentationKey,
+        "real",
+        "real",
+        "real"
+      );
+      const spy = vi.spyOn(cliTelemetry.reporter.reporter, "sendTelemetryException");
       cliTelemetry.enable = false;
       cliTelemetry.sendTelemetryException(new Error());
-      assert.isTrue(spy.notCalled);
+      expect(spy).not.toHaveBeenCalled();
     });
   });
 });

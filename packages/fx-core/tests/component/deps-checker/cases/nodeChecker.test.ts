@@ -1,6 +1,5 @@
 import * as chai from "chai";
 import chaiAsPromised from "chai-as-promised";
-import "mocha";
 import * as path from "path";
 import * as sinon from "sinon";
 import { DepsType, EmptyLogger, EmptyTelemetry } from "../../../../src/component/deps-checker";

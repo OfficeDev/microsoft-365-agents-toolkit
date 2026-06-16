@@ -1,9 +1,8 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
+import { FluentProvider, webDarkTheme, webLightTheme } from "@fluentui/react-components";
 import { IntlProvider } from "react-intl";
 import { MemoryRouter, Route } from "react-router-dom";
-
-import { initializeIcons } from "@fluentui/react/lib/Icons";
 
 import { PanelType } from "./PanelType";
 import SampleGallery from "./sampleGallery/SampleGallery";
@@ -14,17 +13,54 @@ import WorkflowBot from "./webviewDocs/workflowBot";
 
 const language = "en";
 
+const webviewLightTheme = {
+  ...webLightTheme,
+  fontFamilyBase: "var(--font-family)",
+};
+
+const webviewDarkTheme = {
+  ...webDarkTheme,
+  fontFamilyBase: "var(--font-family)",
+};
+
+function getBodyTheme() {
+  const themeClass = document.body.className;
+  return themeClass.includes("dark") || themeClass.includes("high-contrast")
+    ? webviewDarkTheme
+    : webviewLightTheme;
+}
+
+function ThemedApp() {
+  const [theme, setTheme] = React.useState(getBodyTheme);
+
+  React.useEffect(() => {
+    const observer = new MutationObserver(() => {
+      setTheme(getBodyTheme());
+    });
+
+    observer.observe(document.body, {
+      attributes: true,
+      attributeFilter: ["class"],
+    });
+
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <FluentProvider theme={theme} style={{ backgroundColor: "transparent" }}>
+      <App />
+    </FluentProvider>
+  );
+}
+
 ReactDOM.render(
   <IntlProvider locale={language}>
-    <App />
+    <ThemedApp />
   </IntlProvider>,
   document.getElementById("root") as HTMLElement
 );
 
 function App(props: any) {
-  // Initializing the office-ui-fabric-icons here to avoid multiple initializations in every component.
-  initializeIcons();
-
   let initialIndex = 0;
   if (panelType === PanelType.RespondToCardActions) {
     initialIndex = 1;

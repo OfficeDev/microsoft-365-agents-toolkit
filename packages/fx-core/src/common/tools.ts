@@ -5,30 +5,35 @@ import {
   ManagementApiVersions,
   TunnelManagementHttpClient,
 } from "@microsoft/dev-tunnels-management";
-import { FxError, M365TokenProvider, Result, SystemError, err, ok } from "@microsoft/teamsfx-api";
+import { err, FxError, M365TokenProvider, ok, Result, SystemError } from "@microsoft/teamsfx-api";
 import axios from "axios";
-import { teamsDevPortalClient } from "../client/teamsDevPortalClient";
+import fs from "fs-extra";
+import path from "path";
+import Container from "typedi";
+import { parseDocument } from "yaml";
 import { GraphClient } from "../client/graphClient";
+import { teamsDevPortalClient } from "../client/teamsDevPortalClient";
+import { DriverContext } from "../component/driver/interface/commonArgs";
+import { NpmBuildDriver } from "../component/driver/script/npmBuildDriver";
+import { TypeSpecCompileDriver } from "../component/driver/typeSpec/compile";
+import { TypeSpecCompileArgs } from "../component/driver/typeSpec/interface/typeSpecCompileArgs";
+import { pathUtils } from "../component/utils/pathUtils";
 import {
   getResourceServiceEndpoint,
   GraphReadUserScopes,
   ResourceServiceType,
   SPFxScopes,
 } from "./constants";
-import fs from "fs-extra";
-import path from "path";
-import { MetadataV3, MetadataV4 } from "./versionMetadata";
-import { pathUtils } from "../component/utils/pathUtils";
-import { TypeSpecCompileArgs } from "../component/driver/typeSpec/interface/typeSpecCompileArgs";
-import { parseDocument } from "yaml";
-import { TypeSpecCompileDriver } from "../component/driver/typeSpec/compile";
-import { NpmBuildDriver } from "../component/driver/script/npmBuildDriver";
-import { DriverContext } from "../component/driver/interface/commonArgs";
 import { isTypeSpecProject } from "./projectTypeChecker";
-import Container from "typedi";
+import { MetadataV3, MetadataV4 } from "./versionMetadata";
+
+export const commonToolsDeps = {
+  getSideloadingStatus: (token: string) => teamsDevPortalClient.getSideloadingStatus(token),
+  isTypeSpecProject,
+};
 
 export async function getSideloadingStatus(token: string): Promise<boolean | undefined> {
-  return teamsDevPortalClient.getSideloadingStatus(token);
+  return commonToolsDeps.getSideloadingStatus(token);
 }
 
 export async function isSandboxedEnabled(tokenProvider: M365TokenProvider): Promise<boolean> {
@@ -169,7 +174,7 @@ export async function runForTypeSpecProject(
   projectPath: string | undefined,
   context: DriverContext
 ): Promise<void> {
-  const isTspProject = isTypeSpecProject(projectPath);
+  const isTspProject = commonToolsDeps.isTypeSpecProject(projectPath);
   if (isTspProject) {
     // Call npm/install
     const npmInstallDriver: NpmBuildDriver = Container.get("cli/runNpmCommand");

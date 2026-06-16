@@ -1,7 +1,5 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
-
-import "mocha";
 import { assert } from "chai";
 import sinon from "sinon";
 import * as fetchHelper from "../../src/common/fetchHelper";
@@ -19,7 +17,7 @@ describe("fetchHelper", () => {
 
   it("should be stubbable via sinon", async () => {
     const fakeResponse = { ok: true, status: 200, json: async () => ({ key: "value" }) };
-    sandbox.stub(fetchHelper, "default").resolves(fakeResponse as any);
+    sandbox.stub(globalThis, "fetch").resolves(fakeResponse as any);
 
     const result = await fetchHelper.default("https://example.com");
     assert.strictEqual(result.ok, true);
@@ -29,7 +27,7 @@ describe("fetchHelper", () => {
   });
 
   it("should pass url and init to the stubbed function", async () => {
-    const stub = sandbox.stub(fetchHelper, "default").resolves({ ok: true } as any);
+    const stub = sandbox.stub(globalThis, "fetch").resolves({ ok: true } as any);
 
     const init = { method: "POST", headers: { "Content-Type": "application/json" } };
     await fetchHelper.default("https://example.com/api", init as any);
@@ -76,15 +74,19 @@ describe("fetchHelper", () => {
     try {
       // Remove globalThis.fetch to simulate environments where it is not available
       (globalThis as any).fetch = undefined;
-      // The call should still succeed via node-fetch fallback
-      const promise = fetchHelper.default("https://localhost:0");
+      // Use an already-aborted signal to avoid long network waits in fallback path.
+      const controller = new AbortController();
+      controller.abort();
+      const promise = fetchHelper.default("https://example.com", {
+        signal: controller.signal,
+      } as any);
       assert.instanceOf(promise, Promise);
       try {
         await promise;
       } catch (err: any) {
-        // Expected: connection refused or fetch error from node-fetch
+        // Expected: abort or fetch error from node-fetch fallback.
         assert.isOk(err);
-        assert.notInclude(err.message, "fetch only supports HTTP/HTTPS URLs");
+        assert.notInclude(String(err?.message ?? ""), "fetch only supports HTTP/HTTPS URLs");
       }
     } finally {
       globalThis.fetch = originalFetch;

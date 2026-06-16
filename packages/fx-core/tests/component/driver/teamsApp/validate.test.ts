@@ -12,7 +12,6 @@ import {
   TeamsManifestVDevPreview,
 } from "@microsoft/teamsfx-api";
 import chai from "chai";
-import "mocha";
 import * as sinon from "sinon";
 import { AppStudioError } from "../../../../src/component/driver/teamsApp/errors";
 import { ValidateManifestArgs } from "../../../../src/component/driver/teamsApp/interfaces/ValidateManifestArgs";
@@ -467,6 +466,7 @@ describe("teamsApp/validateManifest", async () => {
               validationResult: ["error3"],
             },
           ],
+          skillValidationResult: [],
         })
       );
       sinon.stub(copilotGptManifestUtils, "logValidationErrors").returns("errorMessage2");
@@ -525,6 +525,7 @@ describe("teamsApp/validateManifest", async () => {
               validationResult: ["error3"],
             },
           ],
+          skillValidationResult: [],
         })
       );
       sinon.stub(copilotGptManifestUtils, "logValidationErrors").returns("errorMessage2");
@@ -583,6 +584,66 @@ describe("teamsApp/validateManifest", async () => {
               validationResult: ["error3"],
             },
           ],
+          skillValidationResult: [],
+        })
+      );
+      sinon.stub(copilotGptManifestUtils, "logValidationErrors").returns("errorMessage2");
+
+      const args: ValidateManifestArgs = {
+        manifestPath:
+          "./tests/plugins/resource/appstudio/resources-multi-env/templates/appPackage/v3.manifest.template.json",
+        showMessage: true,
+      };
+
+      mockedDriverContext.platform = Platform.VSCode;
+      mockedDriverContext.projectPath = "test";
+
+      const result = (await teamsAppDriver.execute(args, mockedDriverContext)).result;
+      chai.assert(result.isErr());
+      if (result.isErr()) {
+        chai.assert.equal(result.error.name, AppStudioError.ValidationFailedError.name);
+      }
+    });
+
+    it("validate with skill errors returned - copilot agent", async () => {
+      const teamsManifest = {
+        $schema:
+          "https://developer.microsoft.com/en-us/json-schemas/teams/v1.19/MicrosoftTeams.schema.json",
+        manifestVersion: "1.19",
+      } as TeamsManifestV1D19.TeamsManifestV1D19;
+      teamsManifest.copilotAgents = {
+        declarativeAgents: [
+          {
+            id: "fakeId",
+            file: "fakeFile",
+          },
+        ],
+      };
+
+      sinon.stub(manifestUtils, "getManifestV3").resolves(ok(teamsManifest));
+      sinon.stub(ManifestUtil, "validateManifest").resolves([]);
+      sinon.stub(pluginManifestUtils, "validateAgainstSchema").resolves(
+        ok({
+          id: "fakeId",
+          filePath: "fakeFile",
+          validationResult: ["error1"],
+        })
+      );
+      sinon.stub(pluginManifestUtils, "logValidationErrors").returns("errorMessage1");
+
+      sinon.stub(copilotGptManifestUtils, "validateAgainstSchema").resolves(
+        ok({
+          id: "fakeId",
+          filePath: "fakeFile",
+          validationResult: [],
+          actionValidationResult: [],
+          skillValidationResult: [
+            {
+              folder: "skills/my-skill",
+              filePath: "skills/my-skill/SKILL.md",
+              validationResult: ["skill-error1", "skill-error2"],
+            },
+          ],
         })
       );
       sinon.stub(copilotGptManifestUtils, "logValidationErrors").returns("errorMessage2");
@@ -633,6 +694,7 @@ describe("teamsApp/validateManifest", async () => {
               validationResult: ["error3"],
             },
           ],
+          skillValidationResult: [],
         })
       );
       sinon.stub(copilotGptManifestUtils, "logValidationErrors").returns("errorMessage2");

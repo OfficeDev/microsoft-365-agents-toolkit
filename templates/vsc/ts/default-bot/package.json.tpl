@@ -25,7 +25,7 @@
         "@microsoft/teams.common": "^2.0.0"
     },
     "devDependencies": {
-        "@types/node": "^20.0.0",
+        "@types/node": "^22.0.0",
         "env-cmd": "^10.1.0",
         "nodemon": "^3.1.7",
         "ts-node": "^10.4.0",

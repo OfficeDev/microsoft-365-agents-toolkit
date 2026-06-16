@@ -14,14 +14,15 @@ import {
 } from "@microsoft/teamsfx-api";
 import { assert, expect } from "chai";
 import fs from "fs-extra";
-import "mocha";
 import * as os from "os";
 import * as path from "path";
 import * as sinon from "sinon";
-import * as projectSettingsHelper from "../../../src/common/projectSettingsHelper";
-import * as tools from "../../../src/common/utils";
 import { CallbackRegistry } from "../../../src/core/callback";
-import { ConcurrentLockerMW, getLockFolder } from "../../../src/core/middleware/concurrentLocker";
+import {
+  concurrentLockerDeps,
+  ConcurrentLockerMW,
+  getLockFolder,
+} from "../../../src/core/middleware/concurrentLocker";
 import { CoreSource, NoProjectOpenedError } from "../../../src/error";
 import {
   ConcurrentError,
@@ -92,7 +93,7 @@ describe("Middleware - ConcurrentLockerMW", () => {
 
   it("sequence: ok", async () => {
     const inputs: Inputs = { platform: Platform.VSCode };
-    sinon.stub(projectSettingsHelper, "isValidProjectV2").resolves(true);
+    sinon.stub(concurrentLockerDeps, "isValidProjectV3").returns(true);
     inputs.projectPath = path.join(os.tmpdir(), randomAppName());
     try {
       const settingDir = path.join(inputs.projectPath, `.${ConfigFolderName}`, "configs");
@@ -156,10 +157,10 @@ describe("Middleware - ConcurrentLockerMW", () => {
   it("concurrent: fail to get lock", async () => {
     const inputs: Inputs = { platform: Platform.VSCode };
     const my = new MyClass();
-    sinon.stub(tools, "waitSeconds").resolves();
+    sinon.stub(concurrentLockerDeps, "waitSeconds").resolves();
     try {
       inputs.projectPath = path.join(os.tmpdir(), randomAppName());
-      sinon.stub(projectSettingsHelper, "isValidProjectV3").resolves(true);
+      sinon.stub(concurrentLockerDeps, "isValidProjectV3").returns(true);
       await fs.ensureDir(inputs.projectPath);
       await fs.ensureDir(path.join(inputs.projectPath, `${SettingsFolderName}`));
       await my.methodCallSelf(inputs);
@@ -197,7 +198,7 @@ describe("Middleware - ConcurrentLockerMW", () => {
     const inputs: Inputs = { platform: Platform.VSCode };
     inputs.projectPath = path.join(os.tmpdir(), randomAppName());
     try {
-      sinon.stub(projectSettingsHelper, "isValidProjectV2").resolves(true);
+      sinon.stub(concurrentLockerDeps, "isValidProjectV3").returns(true);
       await fs.ensureDir(inputs.projectPath);
       await fs.ensureDir(path.join(inputs.projectPath, `.${ConfigFolderName}`));
       await my.myMethod(inputs);

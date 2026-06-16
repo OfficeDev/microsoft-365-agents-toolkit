@@ -1,30 +1,46 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { err, ok, TeamsAppManifest } from "@microsoft/teamsfx-api";
+import { err, TeamsAppManifest } from "@microsoft/teamsfx-api";
 import AdmZip from "adm-zip";
 import chai from "chai";
 import fs from "fs-extra";
-import "mocha";
-import * as sinon from "sinon";
+import os from "os";
+import path from "path";
 import { v4 as uuid } from "uuid";
-import { CopilotAgentPublishDriver } from "../../../../src/component/driver/copilotAgent/publish";
+import { vi } from "vitest";
 import { CopilotAgentPublishArgs } from "../../../../src/component/driver/copilotAgent/interfaces/PublishArgs";
-import { AppStudioError } from "../../../../src/component/driver/teamsApp/errors";
+import { CopilotAgentPublishDriver } from "../../../../src/component/driver/copilotAgent/publish";
 import { Constants } from "../../../../src/component/driver/teamsApp/constants";
-import { UserCancelError } from "../../../../src/error/common";
-import { MockedLogProvider, MockedUserInteraction } from "../../../plugins/solution/util";
-import { MockedM365Provider } from "../../../core/utils";
-import { PackageService } from "../../../../src/component/m365/packageService";
+import { AppStudioError } from "../../../../src/component/driver/teamsApp/errors";
 import * as McpCertVerification from "../../../../src/component/driver/teamsApp/utils/McpCertVerification";
+import { PackageService } from "../../../../src/component/m365/packageService";
+import { UserCancelError } from "../../../../src/error/common";
+import { MockedM365Provider } from "../../../core/utils";
+import { MockedLogProvider, MockedUserInteraction } from "../../../plugins/solution/util";
 
 describe("copilotAgent/publish", async () => {
+  const tempDir = path.join(os.tmpdir(), "fx-core-copilot-publish-tests");
   const createManifestWithDA = (declarativeAgentFile: string) => {
     const manifest = new TeamsAppManifest();
     manifest.copilotAgents = {
       declarativeAgents: [{ id: "da1", file: declarativeAgentFile }],
     };
     return manifest;
+  };
+  const createPackage = async (entryMap: Record<string, unknown | Buffer>): Promise<string> => {
+    await fs.ensureDir(tempDir);
+    const zip = new AdmZip();
+    for (const [entryName, content] of Object.entries(entryMap)) {
+      if (Buffer.isBuffer(content)) {
+        zip.addFile(entryName, content);
+      } else {
+        zip.addFile(entryName, Buffer.from(JSON.stringify(content)));
+      }
+    }
+    const filePath = path.join(tempDir, `${uuid()}.zip`);
+    await fs.writeFile(filePath, zip.toBuffer());
+    return filePath;
   };
   const driver = new CopilotAgentPublishDriver();
   const mockedDriverContext: any = {
@@ -34,8 +50,9 @@ describe("copilotAgent/publish", async () => {
     projectPath: "./",
   };
 
-  afterEach(() => {
-    sinon.restore();
+  afterEach(async () => {
+    vi.restoreAllMocks();
+    await fs.remove(tempDir);
   });
 
   it("should throw error if file not exists", async () => {
@@ -80,8 +97,6 @@ describe("copilotAgent/publish", async () => {
       ["appId", "M365_PUBLISHED_APP_ID"],
     ]);
 
-    sinon.stub(fs, "pathExists").resolves(true);
-
     const result = (await driver.execute(args, mockedDriverContext, outputEnvVarNames)).result;
     chai.assert(result.isErr());
     if (result.isErr()) {
@@ -94,8 +109,6 @@ describe("copilotAgent/publish", async () => {
       appPackagePath: "fakepath",
     };
 
-    sinon.stub(fs, "pathExists").resolves(true);
-
     const result = (await driver.execute(args, mockedDriverContext)).result;
     chai.assert(result.isErr());
     if (result.isErr()) {
@@ -104,8 +117,13 @@ describe("copilotAgent/publish", async () => {
   });
 
   it("happy path - default scope (Personal)", async () => {
+    const appPackagePath = await createPackage({
+      [Constants.MANIFEST_FILE]: new TeamsAppManifest(),
+      "color.png": Buffer.from(""),
+      "outline.png": Buffer.from(""),
+    });
     const args: CopilotAgentPublishArgs = {
-      appPackagePath: "fakepath",
+      appPackagePath,
     };
     const outputEnvVarNames = new Map<string, string>([
       ["titleId", "M365_TITLE_ID"],
@@ -115,16 +133,7 @@ describe("copilotAgent/publish", async () => {
     const titleId = uuid();
     const appId = uuid();
 
-    sinon.stub(fs, "pathExists").resolves(true);
-    sinon.stub(fs, "readFile").callsFake(async () => {
-      const zip = new AdmZip();
-      zip.addFile(Constants.MANIFEST_FILE, Buffer.from(JSON.stringify(new TeamsAppManifest())));
-      zip.addFile("color.png", Buffer.from(""));
-      zip.addFile("outline.png", Buffer.from(""));
-      return zip.toBuffer();
-    });
-    sinon.stub(PackageService.prototype, "getTitleServiceUrl").resolves("https://fake.url");
-    sinon.stub(PackageService.prototype, "publishAgent").resolves([titleId, appId, ""]);
+    vi.spyOn(PackageService.prototype, "publishAgent").mockResolvedValue([titleId, appId, ""]);
 
     const result = await driver.execute(args, mockedDriverContext, outputEnvVarNames);
     chai.assert.isTrue(result.result.isOk());
@@ -135,8 +144,13 @@ describe("copilotAgent/publish", async () => {
   });
 
   it("happy path - tenant scope", async () => {
+    const appPackagePath = await createPackage({
+      [Constants.MANIFEST_FILE]: new TeamsAppManifest(),
+      "color.png": Buffer.from(""),
+      "outline.png": Buffer.from(""),
+    });
     const args: CopilotAgentPublishArgs = {
-      appPackagePath: "fakepath",
+      appPackagePath,
       scope: "tenant",
     };
     const outputEnvVarNames = new Map<string, string>([
@@ -147,16 +161,7 @@ describe("copilotAgent/publish", async () => {
     const titleId = uuid();
     const appId = uuid();
 
-    sinon.stub(fs, "pathExists").resolves(true);
-    sinon.stub(fs, "readFile").callsFake(async () => {
-      const zip = new AdmZip();
-      zip.addFile(Constants.MANIFEST_FILE, Buffer.from(JSON.stringify(new TeamsAppManifest())));
-      zip.addFile("color.png", Buffer.from(""));
-      zip.addFile("outline.png", Buffer.from(""));
-      return zip.toBuffer();
-    });
-    sinon.stub(PackageService.prototype, "getTitleServiceUrl").resolves("https://fake.url");
-    sinon.stub(PackageService.prototype, "publishAgent").resolves([titleId, appId, ""]);
+    vi.spyOn(PackageService.prototype, "publishAgent").mockResolvedValue([titleId, appId, ""]);
 
     const result = await driver.execute(args, mockedDriverContext, outputEnvVarNames);
     chai.assert.isTrue(result.result.isOk());
@@ -167,8 +172,13 @@ describe("copilotAgent/publish", async () => {
   });
 
   it("happy path - shared scope", async () => {
+    const appPackagePath = await createPackage({
+      [Constants.MANIFEST_FILE]: new TeamsAppManifest(),
+      "color.png": Buffer.from(""),
+      "outline.png": Buffer.from(""),
+    });
     const args: CopilotAgentPublishArgs = {
-      appPackagePath: "fakepath",
+      appPackagePath,
       scope: "Shared",
     };
     const outputEnvVarNames = new Map<string, string>([
@@ -179,16 +189,7 @@ describe("copilotAgent/publish", async () => {
     const titleId = uuid();
     const appId = uuid();
 
-    sinon.stub(fs, "pathExists").resolves(true);
-    sinon.stub(fs, "readFile").callsFake(async () => {
-      const zip = new AdmZip();
-      zip.addFile(Constants.MANIFEST_FILE, Buffer.from(JSON.stringify(new TeamsAppManifest())));
-      zip.addFile("color.png", Buffer.from(""));
-      zip.addFile("outline.png", Buffer.from(""));
-      return zip.toBuffer();
-    });
-    sinon.stub(PackageService.prototype, "getTitleServiceUrl").resolves("https://fake.url");
-    sinon.stub(PackageService.prototype, "publishAgent").resolves([titleId, appId, ""]);
+    vi.spyOn(PackageService.prototype, "publishAgent").mockResolvedValue([titleId, appId, ""]);
 
     const result = await driver.execute(args, mockedDriverContext, outputEnvVarNames);
     chai.assert.isTrue(result.result.isOk());
@@ -199,25 +200,23 @@ describe("copilotAgent/publish", async () => {
   });
 
   it("should return token error when getAccessToken fails", async () => {
+    const manifest = new TeamsAppManifest();
+    manifest.id = uuid();
+    const appPackagePath = await createPackage({
+      [Constants.MANIFEST_FILE]: manifest,
+    });
     const args: CopilotAgentPublishArgs = {
-      appPackagePath: "fakepath",
+      appPackagePath,
     };
     const outputEnvVarNames = new Map<string, string>([
       ["titleId", "M365_TITLE_ID"],
       ["appId", "M365_APP_ID"],
     ]);
 
-    sinon.stub(fs, "pathExists").resolves(true);
-    sinon.stub(fs, "readFile").callsFake(async () => {
-      const zip = new AdmZip();
-      const manifest = new TeamsAppManifest();
-      manifest.id = uuid();
-      zip.addFile(Constants.MANIFEST_FILE, Buffer.from(JSON.stringify(manifest)));
-      return zip.toBuffer();
-    });
-
     const tokenError = new UserCancelError();
-    sinon.stub(mockedDriverContext.m365TokenProvider, "getAccessToken").resolves(err(tokenError));
+    vi.spyOn(mockedDriverContext.m365TokenProvider, "getAccessToken").mockResolvedValue(
+      err(tokenError)
+    );
 
     const result = (await driver.execute(args, mockedDriverContext, outputEnvVarNames)).result;
     chai.assert.isTrue(result.isErr());
@@ -227,24 +226,22 @@ describe("copilotAgent/publish", async () => {
   });
 
   it("should return error when publishAgent throws", async () => {
+    const manifest = new TeamsAppManifest();
+    manifest.id = uuid();
+    const appPackagePath = await createPackage({
+      [Constants.MANIFEST_FILE]: manifest,
+    });
     const args: CopilotAgentPublishArgs = {
-      appPackagePath: "fakepath",
+      appPackagePath,
     };
     const outputEnvVarNames = new Map<string, string>([
       ["titleId", "M365_TITLE_ID"],
       ["appId", "M365_APP_ID"],
     ]);
 
-    sinon.stub(fs, "pathExists").resolves(true);
-    sinon.stub(fs, "readFile").callsFake(async () => {
-      const zip = new AdmZip();
-      const manifest = new TeamsAppManifest();
-      manifest.id = uuid();
-      zip.addFile(Constants.MANIFEST_FILE, Buffer.from(JSON.stringify(manifest)));
-      return zip.toBuffer();
-    });
-    sinon.stub(PackageService.prototype, "getTitleServiceUrl").resolves("https://fake.url");
-    sinon.stub(PackageService.prototype, "publishAgent").rejects(new Error("publish failed"));
+    vi.spyOn(PackageService.prototype, "publishAgent").mockRejectedValue(
+      new Error("publish failed")
+    );
 
     const result = (await driver.execute(args, mockedDriverContext, outputEnvVarNames)).result;
     chai.assert.isTrue(result.isErr());
@@ -254,41 +251,33 @@ describe("copilotAgent/publish", async () => {
   });
 
   it("run method should work", async () => {
+    const appPackagePath = await createPackage({
+      [Constants.MANIFEST_FILE]: new TeamsAppManifest(),
+    });
     const args: CopilotAgentPublishArgs = {
-      appPackagePath: "fakepath",
+      appPackagePath,
     };
 
     const titleId = uuid();
     const appId = uuid();
 
-    sinon.stub(fs, "pathExists").resolves(true);
-    sinon.stub(fs, "readFile").callsFake(async () => {
-      const zip = new AdmZip();
-      zip.addFile(Constants.MANIFEST_FILE, Buffer.from(JSON.stringify(new TeamsAppManifest())));
-      return zip.toBuffer();
-    });
-    sinon.stub(PackageService.prototype, "getTitleServiceUrl").resolves("https://fake.url");
-    sinon.stub(PackageService.prototype, "publishAgent").resolves([titleId, appId, ""]);
+    vi.spyOn(PackageService.prototype, "publishAgent").mockResolvedValue([titleId, appId, ""]);
 
     const result = await driver.run(args, mockedDriverContext);
     chai.assert.isTrue(result.isErr());
   });
 
   it("should throw error if manifest.json not found in package", async () => {
+    const appPackagePath = await createPackage({
+      "other.json": {},
+    });
     const args: CopilotAgentPublishArgs = {
-      appPackagePath: "fakepath",
+      appPackagePath,
     };
     const outputEnvVarNames = new Map<string, string>([
       ["titleId", "M365_TITLE_ID"],
       ["appId", "M365_APP_ID"],
     ]);
-
-    sinon.stub(fs, "pathExists").resolves(true);
-    sinon.stub(fs, "readFile").callsFake(async () => {
-      const zip = new AdmZip();
-      zip.addFile("other.json", Buffer.from("{}"));
-      return zip.toBuffer();
-    });
 
     const result = (await driver.execute(args, mockedDriverContext, outputEnvVarNames)).result;
     chai.assert.isTrue(result.isErr());
@@ -298,8 +287,11 @@ describe("copilotAgent/publish", async () => {
   });
 
   it("should return shareLink when published with shared scope", async () => {
+    const appPackagePath = await createPackage({
+      [Constants.MANIFEST_FILE]: new TeamsAppManifest(),
+    });
     const args: CopilotAgentPublishArgs = {
-      appPackagePath: "fakepath",
+      appPackagePath,
       scope: "Shared",
     };
     const outputEnvVarNames = new Map<string, string>([
@@ -312,14 +304,11 @@ describe("copilotAgent/publish", async () => {
     const appId = uuid();
     const shareLink = "https://fake.sharelink.com";
 
-    sinon.stub(fs, "pathExists").resolves(true);
-    sinon.stub(fs, "readFile").callsFake(async () => {
-      const zip = new AdmZip();
-      zip.addFile(Constants.MANIFEST_FILE, Buffer.from(JSON.stringify(new TeamsAppManifest())));
-      return zip.toBuffer();
-    });
-    sinon.stub(PackageService.prototype, "getTitleServiceUrl").resolves("https://fake.url");
-    sinon.stub(PackageService.prototype, "publishAgent").resolves([titleId, appId, shareLink]);
+    vi.spyOn(PackageService.prototype, "publishAgent").mockResolvedValue([
+      titleId,
+      appId,
+      shareLink,
+    ]);
 
     const result = await driver.execute(args, mockedDriverContext, outputEnvVarNames);
     chai.assert.isTrue(result.result.isOk());
@@ -331,8 +320,11 @@ describe("copilotAgent/publish", async () => {
   });
 
   it("should not set shareLink when shareLinkKey is not provided", async () => {
+    const appPackagePath = await createPackage({
+      [Constants.MANIFEST_FILE]: new TeamsAppManifest(),
+    });
     const args: CopilotAgentPublishArgs = {
-      appPackagePath: "fakepath",
+      appPackagePath,
       scope: "Shared",
     };
     const outputEnvVarNames = new Map<string, string>([
@@ -344,14 +336,11 @@ describe("copilotAgent/publish", async () => {
     const appId = uuid();
     const shareLink = "https://fake.sharelink.com";
 
-    sinon.stub(fs, "pathExists").resolves(true);
-    sinon.stub(fs, "readFile").callsFake(async () => {
-      const zip = new AdmZip();
-      zip.addFile(Constants.MANIFEST_FILE, Buffer.from(JSON.stringify(new TeamsAppManifest())));
-      return zip.toBuffer();
-    });
-    sinon.stub(PackageService.prototype, "getTitleServiceUrl").resolves("https://fake.url");
-    sinon.stub(PackageService.prototype, "publishAgent").resolves([titleId, appId, shareLink]);
+    vi.spyOn(PackageService.prototype, "publishAgent").mockResolvedValue([
+      titleId,
+      appId,
+      shareLink,
+    ]);
 
     const result = await driver.execute(args, mockedDriverContext, outputEnvVarNames);
     chai.assert.isTrue(result.result.isOk());
@@ -363,8 +352,17 @@ describe("copilotAgent/publish", async () => {
   });
 
   it("should verify MCP certs for declarative agents with actions", async () => {
+    const manifest = createManifestWithDA("declarativeAgent.json");
+    const daManifest = {
+      actions: [{ id: "action1", file: "plugin.json" }],
+    };
+    const appPackagePath = await createPackage({
+      [Constants.MANIFEST_FILE]: manifest,
+      "declarativeAgent.json": daManifest,
+      "plugin.json": { runtimes: [] },
+    });
     const args: CopilotAgentPublishArgs = {
-      appPackagePath: "fakepath",
+      appPackagePath,
     };
     const outputEnvVarNames = new Map<string, string>([
       ["titleId", "M365_TITLE_ID"],
@@ -374,48 +372,35 @@ describe("copilotAgent/publish", async () => {
     const titleId = uuid();
     const appId = uuid();
 
-    sinon.stub(fs, "pathExists").resolves(true);
-    sinon.stub(fs, "readFile").callsFake(async () => {
-      const zip = new AdmZip();
-      const manifest = createManifestWithDA("declarativeAgent.json");
-      zip.addFile(Constants.MANIFEST_FILE, Buffer.from(JSON.stringify(manifest)));
-      const daManifest = {
-        actions: [{ id: "action1", file: "plugin.json" }],
-      };
-      zip.addFile("declarativeAgent.json", Buffer.from(JSON.stringify(daManifest)));
-      zip.addFile("plugin.json", Buffer.from(JSON.stringify({ runtimes: [] })));
-      return zip.toBuffer();
-    });
-    sinon.stub(McpCertVerification, "verifyLocalMCPPluginCerts").resolves(true);
-    sinon.stub(PackageService.prototype, "getTitleServiceUrl").resolves("https://fake.url");
-    sinon.stub(PackageService.prototype, "publishAgent").resolves([titleId, appId, ""]);
+    const verifyStub = vi
+      .spyOn(McpCertVerification, "verifyLocalMCPPluginCerts")
+      .mockResolvedValue(true);
+    vi.spyOn(PackageService.prototype, "publishAgent").mockResolvedValue([titleId, appId, ""]);
 
     const result = await driver.execute(args, mockedDriverContext, outputEnvVarNames);
     chai.assert.isTrue(result.result.isOk());
+    chai.assert.isTrue(verifyStub.mock.calls.length > 0);
   });
 
   it("should fail when MCP cert verification fails", async () => {
+    const manifest = createManifestWithDA("declarativeAgent.json");
+    const daManifest = {
+      actions: [{ id: "action1", file: "plugin.json" }],
+    };
+    const appPackagePath = await createPackage({
+      [Constants.MANIFEST_FILE]: manifest,
+      "declarativeAgent.json": daManifest,
+      "plugin.json": { runtimes: [] },
+    });
     const args: CopilotAgentPublishArgs = {
-      appPackagePath: "fakepath",
+      appPackagePath,
     };
     const outputEnvVarNames = new Map<string, string>([
       ["titleId", "M365_TITLE_ID"],
       ["appId", "M365_APP_ID"],
     ]);
 
-    sinon.stub(fs, "pathExists").resolves(true);
-    sinon.stub(fs, "readFile").callsFake(async () => {
-      const zip = new AdmZip();
-      const manifest = createManifestWithDA("declarativeAgent.json");
-      zip.addFile(Constants.MANIFEST_FILE, Buffer.from(JSON.stringify(manifest)));
-      const daManifest = {
-        actions: [{ id: "action1", file: "plugin.json" }],
-      };
-      zip.addFile("declarativeAgent.json", Buffer.from(JSON.stringify(daManifest)));
-      zip.addFile("plugin.json", Buffer.from(JSON.stringify({ runtimes: [] })));
-      return zip.toBuffer();
-    });
-    sinon.stub(McpCertVerification, "verifyLocalMCPPluginCerts").resolves(false);
+    vi.spyOn(McpCertVerification, "verifyLocalMCPPluginCerts").mockResolvedValue(false);
 
     const result = (await driver.execute(args, mockedDriverContext, outputEnvVarNames)).result;
     chai.assert.isTrue(result.isErr());
@@ -425,8 +410,12 @@ describe("copilotAgent/publish", async () => {
   });
 
   it("should skip MCP verification when declarative agent file not found", async () => {
+    const manifest = createManifestWithDA("nonexistent.json");
+    const appPackagePath = await createPackage({
+      [Constants.MANIFEST_FILE]: manifest,
+    });
     const args: CopilotAgentPublishArgs = {
-      appPackagePath: "fakepath",
+      appPackagePath,
     };
     const outputEnvVarNames = new Map<string, string>([
       ["titleId", "M365_TITLE_ID"],
@@ -436,23 +425,25 @@ describe("copilotAgent/publish", async () => {
     const titleId = uuid();
     const appId = uuid();
 
-    sinon.stub(fs, "pathExists").resolves(true);
-    sinon.stub(fs, "readFile").callsFake(async () => {
-      const zip = new AdmZip();
-      const manifest = createManifestWithDA("nonexistent.json");
-      zip.addFile(Constants.MANIFEST_FILE, Buffer.from(JSON.stringify(manifest)));
-      return zip.toBuffer();
-    });
-    sinon.stub(PackageService.prototype, "getTitleServiceUrl").resolves("https://fake.url");
-    sinon.stub(PackageService.prototype, "publishAgent").resolves([titleId, appId, ""]);
+    const verifyStub = vi.spyOn(McpCertVerification, "verifyLocalMCPPluginCerts");
+    vi.spyOn(PackageService.prototype, "publishAgent").mockResolvedValue([titleId, appId, ""]);
 
     const result = await driver.execute(args, mockedDriverContext, outputEnvVarNames);
     chai.assert.isTrue(result.result.isOk());
+    chai.assert.equal(verifyStub.mock.calls.length, 0);
   });
 
   it("should skip action file verification when action file not found", async () => {
+    const manifest = createManifestWithDA("declarativeAgent.json");
+    const daManifest = {
+      actions: [{ id: "action1", file: "nonexistent-plugin.json" }],
+    };
+    const appPackagePath = await createPackage({
+      [Constants.MANIFEST_FILE]: manifest,
+      "declarativeAgent.json": daManifest,
+    });
     const args: CopilotAgentPublishArgs = {
-      appPackagePath: "fakepath",
+      appPackagePath,
     };
     const outputEnvVarNames = new Map<string, string>([
       ["titleId", "M365_TITLE_ID"],
@@ -462,27 +453,29 @@ describe("copilotAgent/publish", async () => {
     const titleId = uuid();
     const appId = uuid();
 
-    sinon.stub(fs, "pathExists").resolves(true);
-    sinon.stub(fs, "readFile").callsFake(async () => {
-      const zip = new AdmZip();
-      const manifest = createManifestWithDA("declarativeAgent.json");
-      zip.addFile(Constants.MANIFEST_FILE, Buffer.from(JSON.stringify(manifest)));
-      const daManifest = {
-        actions: [{ id: "action1", file: "nonexistent-plugin.json" }],
-      };
-      zip.addFile("declarativeAgent.json", Buffer.from(JSON.stringify(daManifest)));
-      return zip.toBuffer();
-    });
-    sinon.stub(PackageService.prototype, "getTitleServiceUrl").resolves("https://fake.url");
-    sinon.stub(PackageService.prototype, "publishAgent").resolves([titleId, appId, ""]);
+    const verifyStub = vi.spyOn(McpCertVerification, "verifyLocalMCPPluginCerts");
+    vi.spyOn(PackageService.prototype, "publishAgent").mockResolvedValue([titleId, appId, ""]);
 
     const result = await driver.execute(args, mockedDriverContext, outputEnvVarNames);
     chai.assert.isTrue(result.result.isOk());
+    chai.assert.equal(verifyStub.mock.calls.length, 0);
   });
 
   it("should handle copilotExtensions.declarativeCopilots format", async () => {
+    const manifest = new TeamsAppManifest();
+    manifest.copilotExtensions = {
+      declarativeCopilots: [{ id: "dc1", file: "declarativeAgent.json" }],
+    };
+    const daManifest = {
+      actions: [{ id: "action1", file: "plugin.json" }],
+    };
+    const appPackagePath = await createPackage({
+      [Constants.MANIFEST_FILE]: manifest,
+      "declarativeAgent.json": daManifest,
+      "plugin.json": { runtimes: [] },
+    });
     const args: CopilotAgentPublishArgs = {
-      appPackagePath: "fakepath",
+      appPackagePath,
     };
     const outputEnvVarNames = new Map<string, string>([
       ["titleId", "M365_TITLE_ID"],
@@ -492,24 +485,8 @@ describe("copilotAgent/publish", async () => {
     const titleId = uuid();
     const appId = uuid();
 
-    sinon.stub(fs, "pathExists").resolves(true);
-    sinon.stub(fs, "readFile").callsFake(async () => {
-      const zip = new AdmZip();
-      const manifest = new TeamsAppManifest();
-      manifest.copilotExtensions = {
-        declarativeCopilots: [{ id: "dc1", file: "declarativeAgent.json" }],
-      };
-      zip.addFile(Constants.MANIFEST_FILE, Buffer.from(JSON.stringify(manifest)));
-      const daManifest = {
-        actions: [{ id: "action1", file: "plugin.json" }],
-      };
-      zip.addFile("declarativeAgent.json", Buffer.from(JSON.stringify(daManifest)));
-      zip.addFile("plugin.json", Buffer.from(JSON.stringify({ runtimes: [] })));
-      return zip.toBuffer();
-    });
-    sinon.stub(McpCertVerification, "verifyLocalMCPPluginCerts").resolves(true);
-    sinon.stub(PackageService.prototype, "getTitleServiceUrl").resolves("https://fake.url");
-    sinon.stub(PackageService.prototype, "publishAgent").resolves([titleId, appId, ""]);
+    vi.spyOn(McpCertVerification, "verifyLocalMCPPluginCerts").mockResolvedValue(true);
+    vi.spyOn(PackageService.prototype, "publishAgent").mockResolvedValue([titleId, appId, ""]);
 
     const result = await driver.execute(args, mockedDriverContext, outputEnvVarNames);
     chai.assert.isTrue(result.result.isOk());

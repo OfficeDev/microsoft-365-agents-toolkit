@@ -1,25 +1,18 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
-
-import "mocha";
 import { Context, err, Inputs, ok, Platform } from "@microsoft/teamsfx-api";
 import chai from "chai";
-import fs from "fs-extra";
 import sinon from "sinon";
-import * as path from "path";
 import * as uuid from "uuid";
 
-import { MockedLogProvider, MockedUserInteraction } from "../../../plugins/solution/util";
-import { AddWebPartDriver } from "../../../../src/component/driver/add/addWebPart";
-import { AddWebPartArgs } from "../../../../src/component/driver/add/interface/AddWebPartArgs";
-import { Constants } from "../../../../src/component/driver/add/utility/constants";
-import { NoConfigurationError } from "../../../../src/component/driver/add/error/noConfigurationError";
-import { SPFxGenerator } from "../../../../src/component/generator/spfx/spfxGenerator";
-import { ManifestUtils } from "../../../../src/component/driver/teamsApp/utils/ManifestUtils";
-import { AppStudioResultFactory } from "../../../../src/component/driver/teamsApp/results";
 import { setTools } from "../../../../src/common/globalVars";
+import { addWebPartDeps, AddWebPartDriver } from "../../../../src/component/driver/add/addWebPart";
+import { NoConfigurationError } from "../../../../src/component/driver/add/error/noConfigurationError";
+import { AddWebPartArgs } from "../../../../src/component/driver/add/interface/AddWebPartArgs";
+import { AppStudioResultFactory } from "../../../../src/component/driver/teamsApp/results";
 import { InstallSoftwareError } from "../../../../src/error/common";
-import { MockedAzureAccountProvider, MockedM365Provider } from "../../../core/utils";
+import { MockedM365Provider, MockTools } from "../../../core/utils";
+import { MockedLogProvider, MockedUserInteraction } from "../../../plugins/solution/util";
 
 describe("Add web part driver", async () => {
   const args: AddWebPartArgs = {
@@ -42,12 +35,12 @@ describe("Add web part driver", async () => {
     sinon.restore();
   });
 
+  beforeEach(() => {
+    setTools(new MockTools());
+  });
+
   it("Returns error when no .yo-rc.json file exist", async () => {
-    sinon.stub(fs, "pathExists").callsFake(async (directory) => {
-      if (directory === path.join(args.spfxFolder, Constants.YO_RC_FILE)) {
-        return false;
-      }
-    });
+    sinon.stub(addWebPartDeps, "pathExists").resolves(false);
 
     const res = await driver.run(args, mockedDriverContext);
 
@@ -56,13 +49,9 @@ describe("Add web part driver", async () => {
   });
 
   it("Returns error when Yeoman scaffold fails", async () => {
-    sinon.stub(fs, "pathExists").callsFake(async (directory) => {
-      if (directory === path.join(args.spfxFolder, Constants.YO_RC_FILE)) {
-        return true;
-      }
-    });
+    sinon.stub(addWebPartDeps, "pathExists").resolves(true);
     sinon
-      .stub(SPFxGenerator, "doYeomanScaffold")
+      .stub(addWebPartDeps, "doYeomanScaffold")
       .resolves(err(new InstallSoftwareError("spfx", "yo")));
 
     const res = await driver.run(args, mockedDriverContext);
@@ -71,15 +60,11 @@ describe("Add web part driver", async () => {
   });
 
   it("Returns error when updating manifest fails", async () => {
-    sinon.stub(fs, "pathExists").callsFake(async (directory) => {
-      if (directory === path.join(args.spfxFolder, Constants.YO_RC_FILE)) {
-        return true;
-      }
-    });
+    sinon.stub(addWebPartDeps, "pathExists").resolves(true);
     const componentId = uuid.v4();
-    sinon.stub(SPFxGenerator, "doYeomanScaffold").resolves(ok(componentId));
+    sinon.stub(addWebPartDeps, "doYeomanScaffold").resolves(ok(componentId));
     sinon
-      .stub(ManifestUtils.prototype, "addCapabilities")
+      .stub(addWebPartDeps, "addCapabilities")
       .resolves(err(AppStudioResultFactory.UserError("test", ["test msg", "test msg"])));
 
     const res = await driver.run(args, mockedDriverContext);
@@ -88,51 +73,28 @@ describe("Add web part driver", async () => {
   });
 
   it("Returns success when add web part OK", async () => {
-    sinon.stub(fs, "pathExists").callsFake(async (directory) => {
-      if (directory === path.join(args.spfxFolder, Constants.YO_RC_FILE)) {
-        return true;
-      }
-    });
+    sinon.stub(addWebPartDeps, "pathExists").resolves(true);
     const componentId = uuid.v4();
-    setTools({
-      logProvider: new MockedLogProvider(),
-      ui: new MockedUserInteraction(),
-      tokenProvider: {
-        m365TokenProvider: new MockedM365Provider(),
-        azureAccountProvider: new MockedAzureAccountProvider(),
-      },
-    });
     const doYeomanScaffoldStub = sinon
-      .stub(SPFxGenerator, "doYeomanScaffold")
+      .stub(addWebPartDeps, "doYeomanScaffold")
       .resolves(ok(componentId));
     const addCapabilitiesStub = sinon
-      .stub(ManifestUtils.prototype, "addCapabilities")
+      .stub(addWebPartDeps, "addCapabilities")
       .resolves(ok(undefined));
 
     const res = await driver.run(args, mockedDriverContext);
 
-    chai.expect(res.isOk()).to.be.true;
+    chai.expect(res.isOk(), res.isErr() ? String(res.error?.message ?? res.error) : undefined).to.be
+      .true;
     chai.expect(doYeomanScaffoldStub.calledOnce).to.be.true;
     chai.expect(addCapabilitiesStub.calledTwice).to.be.true;
   });
 
   it("Returns success when add web part for SPFx higher than 1.21", async () => {
-    sinon.stub(fs, "pathExists").callsFake(async (directory) => {
-      if (directory === path.join(args.spfxFolder, Constants.YO_RC_FILE)) {
-        return true;
-      }
-    });
+    sinon.stub(addWebPartDeps, "pathExists").resolves(true);
     const componentId = uuid.v4();
-    setTools({
-      logProvider: new MockedLogProvider(),
-      ui: new MockedUserInteraction(),
-      tokenProvider: {
-        m365TokenProvider: new MockedM365Provider(),
-        azureAccountProvider: new MockedAzureAccountProvider(),
-      },
-    });
     const doYeomanScaffoldStub = sinon
-      .stub(SPFxGenerator, "doYeomanScaffold")
+      .stub(addWebPartDeps, "doYeomanScaffold")
       .callsFake(async (SPFxContext: Context, inputs: Inputs, projectPath: string) => {
         if (!SPFxContext.templateVariables) {
           SPFxContext.templateVariables = {};
@@ -141,12 +103,13 @@ describe("Add web part driver", async () => {
         return Promise.resolve(ok(componentId));
       });
     const addCapabilitiesStub = sinon
-      .stub(ManifestUtils.prototype, "addCapabilities")
+      .stub(addWebPartDeps, "addCapabilities")
       .resolves(ok(undefined));
 
     const res = await driver.run(args, mockedDriverContext);
 
-    chai.expect(res.isOk()).to.be.true;
+    chai.expect(res.isOk(), res.isErr() ? String(res.error?.message ?? res.error) : undefined).to.be
+      .true;
     chai.expect(doYeomanScaffoldStub.calledOnce).to.be.true;
     chai.expect(addCapabilitiesStub.calledTwice).to.be.true;
   });

@@ -3,7 +3,6 @@
 
 import { assert } from "chai";
 import fs from "fs-extra";
-import "mocha";
 import path from "path";
 import sinon from "sinon";
 import {

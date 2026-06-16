@@ -13,6 +13,14 @@
 const Module = require("module");
 const originalRequire = Module.prototype.require;
 
+// Keep legacy `require("../../src/foo")` calls working in tests.
+require("ts-node/register/transpile-only");
+
+// Mocha-style aliases used by existing tests.
+global.before = global.beforeAll;
+global.after = global.afterAll;
+global.context = global.describe;
+
 Module.prototype.require = function (id, ...args) {
   if (id === "keytar") {
     return {
@@ -24,4 +32,29 @@ Module.prototype.require = function (id, ...args) {
     };
   }
   return originalRequire.apply(this, [id, ...args]);
+};
+
+const originalConsoleWarn = console.warn.bind(console);
+const originalConsoleError = console.error.bind(console);
+
+function isNoisyTelemetryWarning(args: unknown[]): boolean {
+  return args.some(
+    (arg) =>
+      typeof arg === "string" &&
+      arg.includes("ApplicationInsights:An invalid instrumentation key was provided.")
+  );
+}
+
+console.warn = (...args: unknown[]) => {
+  if (isNoisyTelemetryWarning(args)) {
+    return;
+  }
+  originalConsoleWarn(...args);
+};
+
+console.error = (...args: unknown[]) => {
+  if (isNoisyTelemetryWarning(args)) {
+    return;
+  }
+  originalConsoleError(...args);
 };

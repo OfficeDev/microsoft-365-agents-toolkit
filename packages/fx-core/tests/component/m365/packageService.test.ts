@@ -6,13 +6,16 @@ import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from "axios";
 import * as chai from "chai";
 import chaiAsPromised from "chai-as-promised";
 import fs from "fs-extra";
-import "mocha";
 import { createSandbox, match as sinonMatch } from "sinon";
 import { setTools } from "../../../src/common/globalVars";
 import { AppUser } from "../../../src/component/driver/teamsApp/interfaces/appdefinitions/appUser";
 import { advancedDASettingUrl } from "../../../src/component/m365/constants";
 import { NotExtendedToM365Error } from "../../../src/component/m365/errors";
-import { AppScope, PackageService } from "../../../src/component/m365/packageService";
+import {
+  AppScope,
+  PackageService,
+  packageServiceDeps,
+} from "../../../src/component/m365/packageService";
 import { UnhandledError } from "../../../src/error/common";
 import { MockLogProvider } from "../../core/utils";
 
@@ -80,7 +83,9 @@ describe("Package Service", () => {
     sandbox.stub(fs, "readFile").callsFake((file) => {
       return Promise.resolve(Buffer.from("test"));
     });
+    sandbox.stub(fs, "statSync").returns({ size: 1024 } as any);
     sandbox.stub(axios, "create").returns(testAxiosInstance);
+    sandbox.stub(packageServiceDeps, "waitSeconds").resolves();
 
     setTools({} as any);
     process.env["TEAMSFX_BUILDER_API"] = "1";
@@ -2086,6 +2091,40 @@ describe("Package Service", () => {
     const result = await packageService.getTitleServiceUrl("test-token");
     chai.assert.equal(result, "https://test-url");
     chai.assert.equal(callCount, 2);
+  });
+
+  it("sideLoading should throw when package exceeds 10 MB", async () => {
+    (fs.statSync as any).restore();
+    sandbox.stub(fs, "statSync").returns({ size: 15 * 1024 * 1024 } as any);
+
+    const packageService = new PackageService("https://test-endpoint", logger);
+    let actualError: Error | undefined;
+    try {
+      await packageService.sideLoading("test-token", "test-path");
+    } catch (error: any) {
+      actualError = error;
+    }
+
+    chai.assert.isDefined(actualError);
+    chai.assert.instanceOf(actualError, UserError);
+    chai.assert.equal((actualError as UserError).name, "AppPackageSizeExceeded");
+  });
+
+  it("sideLoadXmlManifest should throw when package exceeds 10 MB", async () => {
+    (fs.statSync as any).restore();
+    sandbox.stub(fs, "statSync").returns({ size: 15 * 1024 * 1024 } as any);
+
+    const packageService = new PackageService("https://test-endpoint", logger);
+    let actualError: Error | undefined;
+    try {
+      await packageService.sideLoadXmlManifest("test-token", "test-path");
+    } catch (error: any) {
+      actualError = error;
+    }
+
+    chai.assert.isDefined(actualError);
+    chai.assert.instanceOf(actualError, UserError);
+    chai.assert.equal((actualError as UserError).name, "AppPackageSizeExceeded");
   });
 
   it("publishAgent happy path with Personal scope", async () => {

@@ -92,6 +92,8 @@ export namespace ExtTelemetry {
         return TelemetryEvent.AddAuthAction;
       case Stage.addKnowledge:
         return TelemetryEvent.AddKnowledge;
+      case Stage.addSkill:
+        return TelemetryEvent.AddSkill;
       case Stage.shareRemove:
         return TelemetryEvent.ShareRemove;
       default:

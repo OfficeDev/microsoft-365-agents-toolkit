@@ -4,16 +4,16 @@
 import { Platform } from "@microsoft/teamsfx-api";
 import { assert } from "chai";
 import fs from "fs-extra";
-import "mocha";
 import * as path from "path";
 import * as sinon from "sinon";
+import { featureFlagManager } from "../../../../src/common/featureFlags";
+import * as templateHelper from "../../../../src/component/generator/templateHelper";
 import {
   getAllTemplatesOnPlatform,
   getDefaultTemplatesOnPlatform,
 } from "../../../../src/component/generator/templates/metadata";
-import * as templateHelper from "../../../../src/component/generator/templateHelper";
-import * as folder from "../../../../src/folder";
 import { Template } from "../../../../src/component/generator/templates/metadata/interface";
+import * as folder from "../../../../src/folder";
 
 const mockTemplates: Template[] = [
   { id: "t1", name: "TypeScript Bot", language: "typescript", description: "A TS bot" },
@@ -70,8 +70,7 @@ describe("metadata platform routing", () => {
 
     it("falls back to bundled path when cache does not exist", () => {
       sandbox.stub(templateHelper, "useLocalTemplate").returns(false);
-      const bundledPath = path.resolve("/bundled");
-      sandbox.stub(folder, "getTemplatesFolder").returns(bundledPath);
+      sandbox.stub(folder, "getTemplatesFolder").returns(path.resolve("/bundled"));
       sandbox.stub(fs, "pathExistsSync").returns(false);
       const readFileSyncStub = sandbox
         .stub(fs, "readFileSync")
@@ -80,14 +79,12 @@ describe("metadata platform routing", () => {
       getAllTemplatesOnPlatform(Platform.VS);
 
       const readPath = readFileSyncStub.firstCall.args[0] as string;
-      assert.include(readPath, bundledPath);
-      assert.notInclude(readPath, "vs-metadata");
+      assert.include(readPath, path.join("metadata", "allTemplates.json"));
     });
 
     it("falls back to bundled path when useLocalTemplate is true", () => {
       sandbox.stub(templateHelper, "useLocalTemplate").returns(true);
-      const bundledPath = path.resolve("/bundled");
-      sandbox.stub(folder, "getTemplatesFolder").returns(bundledPath);
+      sandbox.stub(folder, "getTemplatesFolder").returns(path.resolve("/bundled"));
       sandbox.stub(fs, "pathExistsSync").returns(true);
       const readFileSyncStub = sandbox
         .stub(fs, "readFileSync")
@@ -96,7 +93,43 @@ describe("metadata platform routing", () => {
       getAllTemplatesOnPlatform(Platform.VS);
 
       const readPath = readFileSyncStub.firstCall.args[0] as string;
-      assert.include(readPath, bundledPath);
+      assert.include(readPath, path.join("metadata", "allTemplates.json"));
+    });
+
+    it("falls back to bundled path when v4 channel forces bundled metadata even if cache exists", () => {
+      sandbox.stub(templateHelper, "useLocalTemplate").returns(false);
+      sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
+      sandbox.stub(fs, "pathExistsSync").callsFake((p: fs.PathLike) => {
+        const value = String(p);
+        // Simulate v4 channel with no downloaded v4 cache marker.
+        if (value.endsWith("template-version-v4.txt")) {
+          return false;
+        }
+        return true;
+      });
+      const readFileSyncStub = sandbox
+        .stub(fs, "readFileSync")
+        .returns(JSON.stringify(mockTemplates));
+
+      getAllTemplatesOnPlatform(Platform.VSCode);
+
+      const readPath = readFileSyncStub.firstCall.args[0] as string;
+      assert.notInclude(readPath, ".fx");
+      assert.include(readPath, path.join("metadata", "allTemplates.json"));
+    });
+
+    it("keeps reading the VS cache even when v4 channel forces bundled metadata", () => {
+      sandbox.stub(templateHelper, "useLocalTemplate").returns(false);
+      sandbox.stub(templateHelper, "useBundledMetadataForV4").returns(true);
+      sandbox.stub(folder, "getTemplatesFolder").returns("/bundled");
+      const pathExistsStub = sandbox.stub(fs, "pathExistsSync").returns(true);
+      sandbox.stub(fs, "readFileSync").returns(JSON.stringify(mockTemplates));
+
+      getAllTemplatesOnPlatform(Platform.VS);
+
+      // The v4 migration covers only VSC/CLI; VS keeps its v3 vs-metadata cache.
+      const checkedPath = pathExistsStub.firstCall.args[0] as string;
+      assert.include(checkedPath, "vs-metadata");
     });
 
     it("returns only csharp templates for Platform.VS", () => {
@@ -214,5 +247,38 @@ describe("metadata platform routing", () => {
 
       assert.deepEqual(result, []);
     });
+  });
+});
+
+describe("useBundledMetadataForV4", () => {
+  const sandbox = sinon.createSandbox();
+
+  afterEach(() => {
+    sandbox.restore();
+  });
+
+  it("returns false when the v4 flag is off", () => {
+    sandbox.stub(featureFlagManager, "getBooleanValue").returns(false);
+    const pathExistsStub = sandbox.stub(fs, "pathExistsSync").returns(false);
+
+    assert.isFalse(templateHelper.useBundledMetadataForV4());
+    // Short-circuits before touching the filesystem.
+    assert.isFalse(pathExistsStub.called);
+  });
+
+  it("returns false (read the downloaded v4 cache) when the v4 version file exists", () => {
+    sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
+    const pathExistsStub = sandbox.stub(fs, "pathExistsSync").returns(true);
+
+    assert.isFalse(templateHelper.useBundledMetadataForV4());
+    const checkedPath = pathExistsStub.firstCall.args[0] as string;
+    assert.include(checkedPath, "template-version-v4.txt");
+  });
+
+  it("returns true (read bundled) when the v4 version file is absent", () => {
+    sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
+    sandbox.stub(fs, "pathExistsSync").returns(false);
+
+    assert.isTrue(templateHelper.useBundledMetadataForV4());
   });
 });

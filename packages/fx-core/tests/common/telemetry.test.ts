@@ -2,7 +2,6 @@
 // Licensed under the MIT license.
 
 import { assert } from "chai";
-import "mocha";
 import sinon from "sinon";
 import { TelemetryProperty, telemetryUtils } from "../../src/common/telemetry";
 import { ScriptExecutionError } from "../../src/error/script";

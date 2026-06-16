@@ -5,7 +5,6 @@ import { err, ok, TeamsAppManifest, UserError } from "@microsoft/teamsfx-api";
 import AdmZip from "adm-zip";
 import chai from "chai";
 import fs from "fs-extra";
-import "mocha";
 import mockedEnv from "mocked-env";
 import * as sinon from "sinon";
 import { v4 as uuid } from "uuid";
@@ -108,8 +107,8 @@ describe("teamsApp/create", async () => {
     sinon.stub(fs, "readFile").callsFake(async () => {
       const zip = new AdmZip();
       zip.addFile(Constants.MANIFEST_FILE, Buffer.from(JSON.stringify(new TeamsAppManifest())));
-      zip.addFile("color.png", new Buffer(""));
-      zip.addFile("outlie.png", new Buffer(""));
+      zip.addFile("color.png", Buffer.from(""));
+      zip.addFile("outlie.png", Buffer.from(""));
 
       const archivedFile = zip.toBuffer();
       return archivedFile;
@@ -168,8 +167,8 @@ describe("teamsApp/create", async () => {
     sinon.stub(fs, "readFile").callsFake(async () => {
       const zip = new AdmZip();
       zip.addFile(Constants.MANIFEST_FILE, Buffer.from(JSON.stringify(new TeamsAppManifest())));
-      zip.addFile("color.png", new Buffer(""));
-      zip.addFile("outline.png", new Buffer(""));
+      zip.addFile("color.png", Buffer.from(""));
+      zip.addFile("outline.png", Buffer.from(""));
       return zip.toBuffer();
     });
 
@@ -200,8 +199,8 @@ describe("teamsApp/create", async () => {
     sinon.stub(fs, "readFile").callsFake(async () => {
       const zip = new AdmZip();
       zip.addFile(Constants.MANIFEST_FILE, Buffer.from(JSON.stringify(new TeamsAppManifest())));
-      zip.addFile("color.png", new Buffer(""));
-      zip.addFile("outline.png", new Buffer(""));
+      zip.addFile("color.png", Buffer.from(""));
+      zip.addFile("outline.png", Buffer.from(""));
       return zip.toBuffer();
     });
 

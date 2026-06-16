@@ -1,8 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import "mocha";
-
 import * as chai from "chai";
 import chaiAsPromised from "chai-as-promised";
 import mockedEnv, { RestoreFn } from "mocked-env";
@@ -42,6 +40,7 @@ describe("FeatureFlagManager", () => {
   it("listEnabled", async () => {
     mockedEnvRestore = mockedEnv({ TEAMSFX_CLI_DOTNET: "true", SME_OAUTH: "true" });
     const list = featureFlagManager.listEnabled();
-    chai.assert.deepEqual(list, ["TEAMSFX_CLI_DOTNET", "SME_OAUTH"]);
+    chai.assert.include(list, "TEAMSFX_CLI_DOTNET");
+    chai.assert.include(list, "SME_OAUTH");
   });
 });

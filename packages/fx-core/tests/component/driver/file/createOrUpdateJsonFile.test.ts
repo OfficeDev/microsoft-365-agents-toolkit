@@ -1,19 +1,16 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import "mocha";
-
 import * as chai from "chai";
 import fs from "fs-extra";
 import * as sinon from "sinon";
 import * as util from "util";
 
+import * as commentJson from "comment-json";
 import * as localizeUtils from "../../../../src/common/localizeUtils";
 import { CreateOrUpdateJsonFileDriver } from "../../../../src/component/driver/file/createOrUpdateJsonFile";
-import { DriverContext } from "../../../../src/component/driver/interface/commonArgs";
-import { MockedLogProvider } from "../../../plugins/solution/util";
 import { InvalidActionInputError } from "../../../../src/error/common";
-import * as commentJson from "comment-json";
+import { MockedLogProvider } from "../../../plugins/solution/util";
 
 describe("CreateOrUpdateJsonFileDriver", () => {
   const mockedDriverContext = {
@@ -66,8 +63,8 @@ describe("CreateOrUpdateJsonFileDriver", () => {
     });
 
     it("exception", async () => {
-      sinon.stub(fs, "pathExists").rejects(new Error("exception"));
-      sinon.stub(fs, "existsSync").throws(new Error("exception"));
+      sinon.stub(fs, "pathExists").resolves(true);
+      sinon.stub(fs, "readFile").rejects(new Error("exception"));
       const args: any = {
         target: "path",
         appsettings: {

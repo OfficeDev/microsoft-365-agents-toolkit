@@ -4,7 +4,6 @@
 import { SystemError, err } from "@microsoft/teamsfx-api";
 import * as chai from "chai";
 import chaiAsPromised from "chai-as-promised";
-import "mocha";
 import mockedEnv, { RestoreFn } from "mocked-env";
 import * as sinon from "sinon";
 import { teamsGraphClient } from "../../../../src/client/teamsGraphClient";

@@ -18,8 +18,10 @@
       display: flex;
       padding: 0 8.5px;
 
-      i {
+      svg {
         padding: 2px;
+        width: 16px;
+        height: 16px;
       }
 
       button {
@@ -44,6 +46,12 @@
       margin-right: 5px;
       display: flex;
       justify-content: center;
+
+      svg {
+        width: 16px;
+        height: 16px;
+        margin-top: 5px;
+      }
     }
   }
 

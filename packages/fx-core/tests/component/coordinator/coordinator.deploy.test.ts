@@ -1,5 +1,3 @@
-import "mocha";
-
 import { assert } from "chai";
 import fs from "fs-extra";
 import * as sinon from "sinon";

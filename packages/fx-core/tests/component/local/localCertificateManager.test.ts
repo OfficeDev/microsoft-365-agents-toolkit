@@ -5,16 +5,17 @@ import { ConfigFolderName, FxError, Result, UserInteraction, ok } from "@microso
 import * as chai from "chai";
 import chaiAsPromised from "chai-as-promised";
 import fs from "fs-extra";
-import "mocha";
 import { asn1, md, pki } from "node-forge";
-import os from "os";
 import * as path from "path";
 import * as sinon from "sinon";
-import * as localizeUtils from "../../../src/common/localizeUtils";
-import { LocalCertificateManager } from "../../../src/component/local/localCertificateManager";
-import * as ps from "../../../src/component/local/process";
+import {
+  LocalCertificateManager,
+  localCertificateManagerDeps,
+} from "../../../src/component/local/localCertificateManager";
 
 chai.use(chaiAsPromised);
+
+const lightweightCertPair = createLightweightCertPair();
 
 describe("certificate", () => {
   const workspaceFolder = path.resolve(__dirname, "../data/n/t/r/test space 1/");
@@ -35,33 +36,44 @@ describe("certificate", () => {
     beforeEach(() => {
       files = {};
       sinon.restore();
-      sinon.stub(fs, "ensureDir").callsFake(async (dir: string) => {
+      sinon
+        .stub(LocalCertificateManager.prototype, "generateCertificate")
+        .callsFake(async (certFile: string, keyFile: string) => {
+          files[path.resolve(certFile)] = lightweightCertPair.certPem;
+          files[path.resolve(keyFile)] = lightweightCertPair.keyPem;
+          return lightweightCertPair.thumbprint;
+        });
+      sinon.stub(localCertificateManagerDeps, "ensureDir").callsFake(async (dir: string) => {
         return Promise.resolve();
       });
-      sinon.stub(fs, "pathExists").callsFake(async (file: string) => {
+      sinon.stub(localCertificateManagerDeps, "pathExists").callsFake(async (file: string) => {
         return Promise.resolve(files[path.resolve(file)] !== undefined);
       });
-      sinon.stub(fs, "readFile").callsFake(async (file: fs.PathLike | number, options?: any) => {
-        return Promise.resolve(files[path.resolve(file as string)]);
-      });
       sinon
-        .stub(fs, "writeFile")
+        .stub(localCertificateManagerDeps, "readFile")
+        .callsFake(async (file: fs.PathLike | number, options?: any) => {
+          return Promise.resolve(files[path.resolve(file as string)]);
+        });
+      sinon
+        .stub(localCertificateManagerDeps, "writeFile")
         .callsFake(async (file: fs.PathLike | number, data: any, options?: any) => {
           files[path.resolve(file as string)] = data;
           return Promise.resolve();
         });
-      sinon.stub(os, "homedir").callsFake(() => fakeHomeDir);
-      sinon.stub(ps, "execPowerShell").callsFake(async (command: string) => {
-        if (command.startsWith("Get-ChildItem")) {
-          // Command: `Get-ChildItem -Path Cert:\\CurrentUser\\Root | Where-Object { $_.Thumbprint -match '${thumbprint}' }`
-          return command.split("'")[1];
-        } else if (command.startsWith("Import-Certificate")) {
-          // Command: `Import-Certificate -FilePath '${localCert.certPath}' -CertStoreLocation Cert:\\CurrentUser\\Root)`
-          return "thumbprint";
-        } else {
-          return "";
-        }
-      });
+      sinon.stub(localCertificateManagerDeps, "homedir").callsFake(() => fakeHomeDir);
+      sinon
+        .stub(localCertificateManagerDeps, "execPowerShell")
+        .callsFake(async (command: string) => {
+          if (command.startsWith("Get-ChildItem")) {
+            // Command: `Get-ChildItem -Path Cert:\\CurrentUser\\Root | Where-Object { $_.Thumbprint -match '${thumbprint}' }`
+            return command.split("'")[1];
+          } else if (command.startsWith("Import-Certificate")) {
+            // Command: `Import-Certificate -FilePath '${localCert.certPath}' -CertStoreLocation Cert:\\CurrentUser\\Root)`
+            return "thumbprint";
+          } else {
+            return "";
+          }
+        });
       certManager = new LocalCertificateManager();
     });
 
@@ -74,7 +86,7 @@ describe("certificate", () => {
       { osType: "Linux", isTrusted: undefined },
     ].forEach((data) => {
       it(`happy path ${data.osType}`, async () => {
-        sinon.stub(os, "type").returns(data.osType);
+        sinon.stub(localCertificateManagerDeps, "osType").returns(data.osType);
         const res = await certManager.setupCertificate(true);
 
         chai.assert.equal(
@@ -105,7 +117,7 @@ describe("certificate", () => {
       { osType: "Linux", isTrusted: undefined },
     ].forEach((data) => {
       it(`skip trust ${data.osType}`, async () => {
-        sinon.stub(os, "type").returns(data.osType);
+        sinon.stub(localCertificateManagerDeps, "osType").returns(data.osType);
         const res = await certManager.setupCertificate(false);
 
         const certContent = files[path.resolve(expectedCertFile)];
@@ -127,7 +139,7 @@ describe("certificate", () => {
       { osType: "Linux", isTrusted: undefined },
     ].forEach((data) => {
       it(`existing verified cert ${data.osType}`, async () => {
-        sinon.stub(os, "type").returns(data.osType);
+        sinon.stub(localCertificateManagerDeps, "osType").returns(data.osType);
         let res = await certManager.setupCertificate(true);
         const certContent1 = files[path.resolve(expectedCertFile)];
         chai.assert.isDefined(certContent1);
@@ -153,23 +165,32 @@ describe("certificate", () => {
     beforeEach(() => {
       files = {};
       sinon.restore();
-      sinon.stub(os, "type").returns("Windows_NT");
-      sinon.stub(fs, "ensureDir").resolves();
-      sinon.stub(fs, "pathExists").callsFake(async (file: string) => {
+      sinon
+        .stub(LocalCertificateManager.prototype, "generateCertificate")
+        .callsFake(async (certFile: string, keyFile: string) => {
+          files[path.resolve(certFile)] = lightweightCertPair.certPem;
+          files[path.resolve(keyFile)] = lightweightCertPair.keyPem;
+          return lightweightCertPair.thumbprint;
+        });
+      sinon.stub(localCertificateManagerDeps, "osType").returns("Windows_NT");
+      sinon.stub(localCertificateManagerDeps, "ensureDir").resolves();
+      sinon.stub(localCertificateManagerDeps, "pathExists").callsFake(async (file: string) => {
         return Promise.resolve(files[path.resolve(file)] !== undefined);
       });
-      sinon.stub(fs, "readFile").callsFake(async (file: fs.PathLike | number, options?: any) => {
-        return Promise.resolve(files[path.resolve(file as string)]);
-      });
       sinon
-        .stub(fs, "writeFile")
+        .stub(localCertificateManagerDeps, "readFile")
+        .callsFake(async (file: fs.PathLike | number, options?: any) => {
+          return Promise.resolve(files[path.resolve(file as string)]);
+        });
+      sinon
+        .stub(localCertificateManagerDeps, "writeFile")
         .callsFake(async (file: fs.PathLike | number, data: any, options?: any) => {
           files[path.resolve(file as string)] = data;
           return Promise.resolve();
         });
-      sinon.stub(os, "homedir").callsFake(() => fakeHomeDir);
-      sinon.stub(ps, "execPowerShell").rejects();
-      sinon.stub(ps, "execShell").callsFake(async (command: string) => {
+      sinon.stub(localCertificateManagerDeps, "homedir").callsFake(() => fakeHomeDir);
+      sinon.stub(localCertificateManagerDeps, "execPowerShell").rejects();
+      sinon.stub(localCertificateManagerDeps, "execShell").callsFake(async (command: string) => {
         if (command.startsWith("certutil -user -verifystore")) {
           // Command: `certutil -user -verifystore root ${thumbprint}`
           return "Not Found";
@@ -230,7 +251,7 @@ describe("certificate", () => {
     });
 
     it("waitForUserConfirm once", async () => {
-      sinon.stub(localizeUtils, "getLocalizedString").callsFake((key, ...params) => {
+      sinon.stub(localCertificateManagerDeps, "localize").callsFake((key, ...params) => {
         if (key === "debug.install") {
           return "install";
         }
@@ -253,7 +274,7 @@ describe("certificate", () => {
     });
 
     it("waitForUserConfirm twice", async () => {
-      sinon.stub(localizeUtils, "getLocalizedString").callsFake((key, ...params) => {
+      sinon.stub(localCertificateManagerDeps, "localize").callsFake((key, ...params) => {
         if (key === "debug.install") {
           return "install";
         } else if (key === "core.provision.learnMore") {
@@ -283,17 +304,19 @@ describe("certificate", () => {
     });
 
     it("trustCertificateWindows", async () => {
-      sinon.stub(ps, "execPowerShell").callsFake(async (command: string) => {
-        if (command.startsWith("(Get-ChildItem")) {
-          // Command: `(Get-ChildItem -Path Cert:\\CurrentUser\\Root\\${thumbprint}).FriendlyName='${friendlyName}'`
-          return "friendlyname";
-        } else if (command.startsWith("Import-Certificate")) {
-          // Command: `Import-Certificate -FilePath '${localCert.certPath}' -CertStoreLocation Cert:\\CurrentUser\\Root`
-          return "import";
-        } else {
-          return "";
-        }
-      });
+      sinon
+        .stub(localCertificateManagerDeps, "execPowerShell")
+        .callsFake(async (command: string) => {
+          if (command.startsWith("(Get-ChildItem")) {
+            // Command: `(Get-ChildItem -Path Cert:\\CurrentUser\\Root\\${thumbprint}).FriendlyName='${friendlyName}'`
+            return "friendlyname";
+          } else if (command.startsWith("Import-Certificate")) {
+            // Command: `Import-Certificate -FilePath '${localCert.certPath}' -CertStoreLocation Cert:\\CurrentUser\\Root`
+            return "import";
+          } else {
+            return "";
+          }
+        });
       const certManager = new LocalCertificateManager();
       await (certManager as any).trustCertificateWindows(
         {
@@ -306,7 +329,7 @@ describe("certificate", () => {
     });
 
     it("trustCertificate error", async () => {
-      sinon.stub(os, "type").returns("Windows_NT");
+      sinon.stub(localCertificateManagerDeps, "osType").returns("Windows_NT");
       const certManager = new LocalCertificateManager();
       (certManager as any).waitForUserConfirm = function (): Promise<boolean> {
         return Promise.reject(new Error("test"));
@@ -319,6 +342,56 @@ describe("certificate", () => {
       chai.assert.isFalse(cert.isTrusted);
       chai.assert.isDefined(cert.error);
     });
+
+    it("generateCertificate should write both cert and key", async () => {
+      const certFile = path.resolve(fakeHomeDir, "localhost.crt");
+      const keyFile = path.resolve(fakeHomeDir, "localhost.key");
+      const privateKey = pki.privateKeyFromPem(lightweightCertPair.keyPem);
+      const publicKey = pki.certificateFromPem(lightweightCertPair.certPem).publicKey;
+
+      sinon
+        .stub(pki.rsa, "generateKeyPair")
+        .returns({ privateKey, publicKey } as unknown as pki.rsa.KeyPair);
+      const writeFileStub = sinon.stub(localCertificateManagerDeps, "writeFile").resolves();
+
+      const certManager = new LocalCertificateManager();
+      await certManager.generateCertificate(certFile, keyFile);
+
+      chai.assert.equal(writeFileStub.callCount, 2);
+      chai.assert.equal(writeFileStub.firstCall.args[0], certFile);
+      chai.assert.equal(writeFileStub.secondCall.args[0], keyFile);
+    });
+
+    it("verifyCertificateInStore on Darwin should check keychain via shell", async () => {
+      sinon.stub(localCertificateManagerDeps, "osType").returns("Darwin");
+      sinon.stub(localCertificateManagerDeps, "homedir").returns(fakeHomeDir);
+      const execShellStub = sinon
+        .stub(localCertificateManagerDeps, "execShell")
+        .resolves("SHA-1 hash: ABCDEF");
+
+      const certManager = new LocalCertificateManager();
+      const found = await certManager.verifyCertificateInStore("ABCDEF");
+
+      chai.assert.isTrue(found);
+      chai.assert.isTrue(execShellStub.calledOnce);
+    });
+
+    it("trustCertificate on Darwin should run add-trusted-cert", async () => {
+      sinon.stub(localCertificateManagerDeps, "osType").returns("Darwin");
+      sinon.stub(LocalCertificateManager.prototype as any, "waitForUserConfirm").resolves(true);
+      const execShellStub = sinon.stub(localCertificateManagerDeps, "execShell").resolves("ok");
+
+      const certManager = new LocalCertificateManager();
+      const cert = {
+        certPath: path.resolve(fakeHomeDir, "localhost.crt"),
+        keyPath: path.resolve(fakeHomeDir, "localhost.key"),
+      } as any;
+
+      await (certManager as any).trustCertificate(cert, "thumbprint", "friendlyname");
+
+      chai.assert.isTrue(execShellStub.calledOnce);
+      chai.assert.isTrue(cert.isTrusted);
+    });
   });
 });
 
@@ -328,16 +401,16 @@ describe("setupCertificate check only", () => {
     sandbox.restore();
   });
   it("not found", async () => {
-    sandbox.stub(fs, "ensureDir").resolves();
-    sandbox.stub(fs, "pathExists").resolves(false);
+    sandbox.stub(localCertificateManagerDeps, "ensureDir").resolves();
+    sandbox.stub(localCertificateManagerDeps, "pathExists").resolves(false);
     const certManager = new LocalCertificateManager();
     const res = await certManager.setupCertificate(true, true);
     chai.assert.isFalse(res.found);
   });
   it("found but not trusted", async () => {
-    sandbox.stub(fs, "ensureDir").resolves();
-    sandbox.stub(fs, "pathExists").resolves(true);
-    sandbox.stub(fs, "readFile").resolves("aaa" as any);
+    sandbox.stub(localCertificateManagerDeps, "ensureDir").resolves();
+    sandbox.stub(localCertificateManagerDeps, "pathExists").resolves(true);
+    sandbox.stub(localCertificateManagerDeps, "readFile").resolves("aaa" as any);
     const certManager = new LocalCertificateManager();
     sandbox
       .stub(LocalCertificateManager.prototype, "verifyCertificateContent")
@@ -356,4 +429,35 @@ function getCertThumbprint(certContent: string): string {
   const m = md.sha1.create();
   m.update(der);
   return m.digest().toHex();
+}
+
+function createLightweightCertPair(): { certPem: string; keyPem: string; thumbprint: string } {
+  const now = new Date();
+  const expiry = new Date();
+  expiry.setFullYear(expiry.getFullYear() + 1);
+
+  const keys = pki.rsa.generateKeyPair({ bits: 512, algorithm: "sha256" });
+  const cert = pki.createCertificate();
+  cert.publicKey = keys.publicKey;
+  cert.serialNumber = "01";
+  cert.validity.notBefore = now;
+  cert.validity.notAfter = expiry;
+  cert.setSubject([{ name: "commonName", value: "localhost" }]);
+  cert.setIssuer([{ name: "commonName", value: "localhost" }]);
+  cert.setExtensions([
+    { name: "basicConstraints", cA: false },
+    { name: "extKeyUsage", serverAuth: true },
+    { name: "subjectAltName", altNames: [{ type: 2, value: "localhost" }] },
+  ]);
+  cert.sign(keys.privateKey, md.sha256.create());
+
+  const der = asn1.toDer(pki.certificateToAsn1(cert)).getBytes();
+  const digest = md.sha1.create();
+  digest.update(der);
+
+  return {
+    certPem: pki.certificateToPem(cert),
+    keyPem: pki.privateKeyToPem(keys.privateKey),
+    thumbprint: digest.digest().toHex(),
+  };
 }

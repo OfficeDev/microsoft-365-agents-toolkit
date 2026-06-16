@@ -9,36 +9,34 @@ import {
   Correlator,
   environmentNameManager,
   envUtil,
-  FeatureFlags,
   featureFlagManager,
+  FeatureFlags,
   GraphScopes,
   Hub,
   isSovereignHigh,
   isValidProject,
-  isValidProjectV3,
   MissingEnvironmentVariablesError,
 } from "@microsoft/teamsfx-core";
 
+import { SovereignCloudEnvironment } from "@microsoft/teamsfx-core/build/common/accountUtils";
 import VsCodeLogInstance from "../commonlib/log";
 import M365TokenInstance from "../commonlib/m365Login";
-import { ExtensionSource } from "../error/error";
 import { showError } from "../error/common";
+import { ExtensionSource } from "../error/error";
 import { core } from "../globalVariables";
 import { TelemetryEvent, TelemetryProperty } from "../telemetry/extTelemetryEvents";
-import { getLocalDebugSessionId, endLocalDebugSession } from "./common/localDebugSession";
+import { getSystemInputs } from "../utils/systemEnvUtils";
 import {
   accountHintPlaceholder,
   Host,
   m365AppIdEnv,
   sideloadingDisplayMessages,
 } from "./common/debugConstants";
-import { localTelemetryReporter, sendDebugAllEvent } from "./localTelemetryReporter";
-import { terminateAllRunningTeamsfxTasks } from "./teamsfxTaskHandler";
-import { triggerV3Migration } from "../utils/migrationUtils";
-import { getSystemInputs } from "../utils/systemEnvUtils";
+import { endLocalDebugSession, getLocalDebugSessionId } from "./common/localDebugSession";
 import { TeamsfxDebugConfiguration } from "./common/teamsfxDebugConfiguration";
 import { AgentHintData } from "./common/types";
-import { SovereignCloudEnvironment } from "@microsoft/teamsfx-core/build/common/accountUtils";
+import { localTelemetryReporter, sendDebugAllEvent } from "./localTelemetryReporter";
+import { terminateAllRunningTeamsfxTasks } from "./teamsfxTaskHandler";
 
 export class TeamsfxDebugProvider implements vscode.DebugConfigurationProvider {
   public async resolveDebugConfiguration?(
@@ -71,12 +69,6 @@ export class TeamsfxDebugProvider implements vscode.DebugConfigurationProvider {
       }
 
       if (!isValidProject(folder.uri.fsPath)) {
-        return debugConfiguration;
-      }
-
-      // migrate to v3
-      if (!isValidProjectV3(folder.uri.fsPath)) {
-        await triggerV3Migration();
         return debugConfiguration;
       }
 

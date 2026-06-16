@@ -7,6 +7,31 @@
 ARG BASE_IMAGE=ghcr.io/microsoft/vscuse-base:latest
 FROM ${BASE_IMAGE}
 
+# Override the Node.js version provided by the base image.
+ARG NODE_VERSION=""
+RUN if [ -n "$NODE_VERSION" ]; then \
+        WANT="${NODE_VERSION#v}" && \
+        echo "Resolving Node.js version for '${WANT}'..." && \
+        RESOLVED=$(curl -fsSL https://nodejs.org/dist/index.json | node -e "const d=JSON.parse(require('fs').readFileSync(0,'utf8'));const w=process.argv[1];const m=d.find(v=>v.version==='v'+w||v.version.startsWith('v'+w+'.'));if(!m){console.error('No Node.js release matching '+w);process.exit(1);}process.stdout.write(m.version.replace(/^v/,''));" "$WANT") && \
+        echo "Overriding Node.js to v${RESOLVED}..." && \
+        ARCH=$(dpkg --print-architecture) && \
+        if [ "$ARCH" = "arm64" ]; then \
+            NODE_ARCH="arm64"; \
+        else \
+            NODE_ARCH="x64"; \
+        fi && \
+        NODE_PREFIX=$(dirname "$(dirname "$(command -v node || echo /usr/local/bin/node)")") && \
+        echo "Removing bundled npm/corepack from ${NODE_PREFIX} before overlay..." && \
+        rm -rf "${NODE_PREFIX}/lib/node_modules/npm" "${NODE_PREFIX}/lib/node_modules/corepack" && \
+        curl -fsSL "https://nodejs.org/dist/v${RESOLVED}/node-v${RESOLVED}-linux-${NODE_ARCH}.tar.gz" -o /tmp/node.tar.gz && \
+        tar -xzf /tmp/node.tar.gz -C "$NODE_PREFIX" --strip-components=1 --no-same-owner && \
+        rm /tmp/node.tar.gz && \
+        node --version && \
+        npm --version; \
+    else \
+        echo "Using base image Node.js version: $(node --version)"; \
+    fi
+
 # Install .NET 8.0 SDK
 RUN curl -fsSL https://packages.microsoft.com/config/ubuntu/22.04/packages-microsoft-prod.deb -o packages-microsoft-prod.deb \
     && dpkg -i packages-microsoft-prod.deb \

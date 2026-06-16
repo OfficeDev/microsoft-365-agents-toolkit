@@ -3,7 +3,6 @@
 
 import { render } from "@inquirer/testing";
 import figures from "figures";
-import "mocha";
 import { checkbox } from "../../../src/prompts/customizedCheckboxPrompt";
 import { expect } from "../utils";
 

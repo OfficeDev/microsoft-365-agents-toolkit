@@ -1,8 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import "mocha";
-
 import { assert } from "chai";
 
 import { MissKeyError } from "../../../src/component/generator/error";
@@ -24,10 +22,11 @@ describe("Generator Actions", async () => {
       onActionError: sampleDefaultOnActionError,
     };
     try {
-      downloadDirectoryAction.run(generatorContext);
+      await downloadDirectoryAction.run(generatorContext);
+      assert.fail("Expected downloadDirectoryAction.run to reject");
     } catch (e: unknown) {
       assert.isTrue(e instanceof MissKeyError);
-      assert.equal((e as MissKeyError).message, "sampleInfo");
+      assert.equal((e as MissKeyError).message, "Unable to find key sampleInfo");
     }
   });
 });

@@ -7,16 +7,16 @@ import { Colors, err, FxError, LogLevel, ok, Result, signedOut } from "@microsof
 import {
   AppStudioScopes,
   assembleError,
-  QuestionNames,
   environmentNameManager,
   envUtil,
   FxCore,
-  getSideloadingStatus,
   HubTypes,
-  isValidProjectV3,
-  loadTeamsFxDevScript,
+  QuestionNames,
   TelemetryContext,
 } from "@microsoft/teamsfx-core";
+import * as settingHelper from "@microsoft/teamsfx-core/build/common/projectSettingsHelper";
+import * as tools from "@microsoft/teamsfx-core/build/common/tools";
+import * as packageJson from "@microsoft/teamsfx-core/build/component/local/packageJsonHelper";
 import fs from "fs-extra";
 import * as path from "path";
 import * as util from "util";
@@ -31,7 +31,7 @@ import { getColorizedString, getSystemInputs } from "../../utils";
 import * as commonUtils from "./commonUtils";
 import * as constants from "./constants";
 import * as errors from "./errors";
-import { openHubWebClientNew, openTeamsDesktopClient } from "./launch";
+import * as launch from "./launch";
 import { localTelemetryReporter } from "./localTelemetryReporter";
 import { ServiceLogWriter } from "./serviceLogWriter";
 import { Task } from "./task";
@@ -54,7 +54,7 @@ export default class PreviewEnv {
   public async runCommand(args: {
     [argName: string]: boolean | string | string[] | undefined;
   }): Promise<Result<null, FxError>> {
-    if (args.folder === undefined || !isValidProjectV3(args.folder as string)) {
+    if (args.folder === undefined || !this.isValidProjectV3(args.folder as string)) {
       return err(errors.WorkspaceNotSupported(args.folder as string));
     }
     const workspaceFolder = path.resolve(args.folder as string);
@@ -248,7 +248,7 @@ export default class PreviewEnv {
         result = false;
         summaryMsg = constants.doctorResult.NotSignIn;
       } else {
-        const isSideloadingEnabled = await getSideloadingStatus(token);
+        const isSideloadingEnabled = await this.getSideloadingStatus(token);
         if (isSideloadingEnabled === false) {
           // sideloading disabled
           result = false;
@@ -315,7 +315,7 @@ export default class PreviewEnv {
     const hasCsproj = csprojs.length === 1;
     if (hasPackageJson && !hasCsproj) {
       // package.json should have "dev:teamsfx"
-      const script = await loadTeamsFxDevScript(projectPath);
+      const script = await this.loadTeamsFxDevScript(projectPath);
       runCommand = script !== undefined ? "npm run dev:teamsfx" : undefined;
     } else if (!hasPackageJson && hasCsproj) {
       const csprojContent = await fs.readFile(path.join(projectPath, csprojs[0]), "utf-8");
@@ -350,8 +350,8 @@ export default class PreviewEnv {
     });
     this.runningTasks.push(runningTask);
     const bar = CLIUIInstance.createProgressBar(taskName, 1);
-    const startCb = commonUtils.createTaskStartCb(bar, runCommand, this.telemetryProperties);
-    const stopCb = commonUtils.createTaskStopCb(bar, this.telemetryProperties);
+    const startCb = this.createTaskStartCb(bar, runCommand, this.telemetryProperties);
+    const stopCb = this.createTaskStopCb(bar, this.telemetryProperties);
     const serviceLogWriter = new ServiceLogWriter();
     await serviceLogWriter.init();
     cliLogger.necessaryLog(
@@ -392,7 +392,7 @@ export default class PreviewEnv {
     browser: constants.Browser,
     browserArgs: string[]
   ): Promise<Result<null, FxError>> {
-    await openHubWebClientNew(hub, url, browser, browserArgs, this.telemetryProperties);
+    await this.openHubWebClientNew(hub, url, browser, browserArgs);
 
     cliLogger.necessaryLog(
       LogLevel.Warning,
@@ -417,7 +417,7 @@ export default class PreviewEnv {
     ) {
       username = " (" + (loginStatusRes.value.accountInfo["unique_name"] as string) + ")";
     }
-    await openTeamsDesktopClient(url, username, browser, browserArgs, this.telemetryProperties);
+    await this.openTeamsDesktopClient(url, username, browser, browserArgs);
 
     cliLogger.necessaryLog(
       LogLevel.Warning,
@@ -431,5 +431,53 @@ export default class PreviewEnv {
     for (const task of this.runningTasks) {
       await task.terminate();
     }
+  }
+
+  protected isValidProjectV3(projectPath: string): boolean {
+    return settingHelper.isValidProjectV3(projectPath);
+  }
+
+  protected async getSideloadingStatus(token: string): Promise<boolean> {
+    return (await tools.getSideloadingStatus(token)) ?? false;
+  }
+
+  protected async loadTeamsFxDevScript(projectPath: string): Promise<string | undefined> {
+    return packageJson.loadTeamsFxDevScript(projectPath);
+  }
+
+  protected createTaskStartCb(
+    progressBar: any,
+    startMessage: string,
+    telemetryProperties?: { [key: string]: string }
+  ) {
+    return commonUtils.createTaskStartCb(progressBar, startMessage, telemetryProperties);
+  }
+
+  protected createTaskStopCb(progressBar: any, telemetryProperties?: { [key: string]: string }) {
+    return commonUtils.createTaskStopCb(progressBar, telemetryProperties);
+  }
+
+  protected async openHubWebClientNew(
+    hub: HubTypes,
+    url: string,
+    browser: constants.Browser,
+    browserArgs: string[]
+  ): Promise<void> {
+    await launch.openHubWebClientNew(hub, url, browser, browserArgs, this.telemetryProperties);
+  }
+
+  protected async openTeamsDesktopClient(
+    url: string,
+    username: string,
+    browser: constants.Browser,
+    browserArgs: string[]
+  ): Promise<void> {
+    await launch.openTeamsDesktopClient(
+      url,
+      username,
+      browser,
+      browserArgs,
+      this.telemetryProperties
+    );
   }
 }

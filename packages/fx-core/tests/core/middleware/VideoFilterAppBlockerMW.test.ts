@@ -4,7 +4,6 @@
 import { hooks, NextFunction } from "@feathersjs/hooks/lib";
 import { Func, FxError, Inputs, ok, Platform, Result } from "@microsoft/teamsfx-api";
 import { assert } from "chai";
-import "mocha";
 import mockFs from "mock-fs";
 import * as path from "path";
 import { setTools } from "../../../src/common/globalVars";

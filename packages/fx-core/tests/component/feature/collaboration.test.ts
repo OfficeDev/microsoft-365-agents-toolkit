@@ -5,7 +5,6 @@ import { FxError } from "@microsoft/teamsfx-api";
 import axios from "axios";
 import * as chai from "chai";
 import chaiAsPromised from "chai-as-promised";
-import "mocha";
 import { err, ok } from "neverthrow";
 import * as sinon from "sinon";
 import { GraphClient } from "../../../src/client/graphClient";

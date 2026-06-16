@@ -3,20 +3,19 @@
 
 import axios, { AxiosInstance } from "axios";
 import * as chai from "chai";
-import "mocha";
 import * as sinon from "sinon";
 import { v4 as uuid } from "uuid";
+import { TEAMS_GRAPH_API_NAMES } from "../../src/client/teamsGraphClient";
 import { getResourceServiceEndpoint, ResourceServiceType } from "../../src/common/constants";
 import { setTools } from "../../src/common/globalVars";
+import { TelemetryEvent } from "../../src/common/telemetry";
 import { WrappedAxiosClient } from "../../src/common/wrappedAxiosClient";
 import {
   APP_STUDIO_API_NAMES,
   GRAPH_API_NAMES,
 } from "../../src/component/driver/teamsApp/constants";
-import { MockTools } from "../core/utils";
 import { MOS3ApiDefinitions } from "../../src/component/m365/serviceConstant";
-import { TEAMS_GRAPH_API_NAMES } from "../../src/client/teamsGraphClient";
-import { TelemetryEvent } from "../../src/common/telemetry";
+import { MockTools } from "../core/utils";
 
 describe("Wrapped Axios Client Test", () => {
   const mockTools = new MockTools();
@@ -61,10 +60,10 @@ describe("Wrapped Axios Client Test", () => {
     const mockedResponse = {
       request: {
         method: "GET",
-        host: getResourceServiceEndpoint(ResourceServiceType.TDP),
-        path: "/api/appdefinitions/manifest",
       },
       config: {
+        baseURL: getResourceServiceEndpoint(ResourceServiceType.TDP),
+        url: "/api/appdefinitions/manifest",
         params: {},
       },
       status: 200,
@@ -75,10 +74,10 @@ describe("Wrapped Axios Client Test", () => {
     const mockedError = {
       request: {
         method: "GET",
-        host: getResourceServiceEndpoint(ResourceServiceType.TDP),
-        path: "/api/appdefinitions/fakeId",
       },
       config: {
+        baseURL: getResourceServiceEndpoint(ResourceServiceType.TDP),
+        url: "/api/appdefinitions/fakeId",
         data: "Invalid JSON",
       },
       response: {
@@ -88,7 +87,7 @@ describe("Wrapped Axios Client Test", () => {
         },
       },
     } as any;
-    WrappedAxiosClient.onRejected(mockedError);
+    await WrappedAxiosClient.onRejected(mockedError).catch(() => undefined);
   });
 
   it("TOOLS not initialized", async () => {
@@ -109,10 +108,10 @@ describe("Wrapped Axios Client Test", () => {
     const mockedResponse = {
       request: {
         method: "GET",
-        host: getResourceServiceEndpoint(ResourceServiceType.TDP),
-        path: "/api/appdefinitions/manifest",
       },
       config: {
+        baseURL: getResourceServiceEndpoint(ResourceServiceType.TDP),
+        url: "/api/appdefinitions/manifest",
         params: {},
       },
       status: 200,
@@ -123,10 +122,11 @@ describe("Wrapped Axios Client Test", () => {
     const mockedError = {
       request: {
         method: "GET",
-        host: getResourceServiceEndpoint(ResourceServiceType.TDP),
-        path: "/api/appdefinitions/fakeId",
       },
-      config: {},
+      config: {
+        baseURL: getResourceServiceEndpoint(ResourceServiceType.TDP),
+        url: "/api/appdefinitions/fakeId",
+      },
       response: {
         status: 404,
         headers: {
@@ -134,7 +134,7 @@ describe("Wrapped Axios Client Test", () => {
         },
       },
     } as any;
-    WrappedAxiosClient.onRejected(mockedError);
+    await WrappedAxiosClient.onRejected(mockedError).catch(() => undefined);
   });
 
   it("TDP API start telemetry", async () => {
@@ -194,10 +194,10 @@ describe("Wrapped Axios Client Test", () => {
     const mockedResponse = {
       request: {
         method: "GET",
-        host: getResourceServiceEndpoint(ResourceServiceType.TDP),
-        path: "/api/appdefinitions/manifest",
       },
       config: {
+        baseURL: getResourceServiceEndpoint(ResourceServiceType.TDP),
+        url: "/api/appdefinitions/manifest",
         params: {},
       },
       status: 200,
@@ -213,10 +213,10 @@ describe("Wrapped Axios Client Test", () => {
     const mockedResponse = {
       request: {
         method: "GET",
-        host: "https://example.com",
-        path: "",
       },
       config: {
+        baseURL: "https://example.com",
+        url: "",
         params: {},
       },
       status: 200,
@@ -232,10 +232,10 @@ describe("Wrapped Axios Client Test", () => {
     const mockedResponse = {
       request: {
         method: "GET",
-        host: getResourceServiceEndpoint(ResourceServiceType.TeamsGraph),
-        path: "/api/v1.0/oAuthConfigurations/fakeId",
       },
       config: {
+        baseURL: getResourceServiceEndpoint(ResourceServiceType.TeamsGraph),
+        url: "/api/v1.0/oAuthConfigurations/fakeId",
         params: {},
       },
       status: 200,
@@ -255,10 +255,11 @@ describe("Wrapped Axios Client Test", () => {
     const mockedError = {
       request: {
         method: "GET",
-        host: getResourceServiceEndpoint(ResourceServiceType.TDP),
-        path: "/api/appdefinitions/fakeId",
       },
-      config: {},
+      config: {
+        baseURL: getResourceServiceEndpoint(ResourceServiceType.TDP),
+        url: "/api/appdefinitions/fakeId",
+      },
       response: {
         status: 404,
         headers: {
@@ -268,7 +269,7 @@ describe("Wrapped Axios Client Test", () => {
     } as any;
     const telemetryChecker = sinon.spy(mockTools.telemetryReporter, "sendTelemetryErrorEvent");
 
-    WrappedAxiosClient.onRejected(mockedError);
+    await WrappedAxiosClient.onRejected(mockedError).catch(() => undefined);
     chai.expect(telemetryChecker.calledOnce).to.be.true;
   });
 
@@ -276,10 +277,10 @@ describe("Wrapped Axios Client Test", () => {
     const mockedError = {
       request: {
         method: "GET",
-        host: "https://example.com",
-        path: "",
       },
       config: {
+        baseURL: "https://example.com",
+        url: "",
         data: '{"botId":"fakeId"}',
       },
       response: {
@@ -288,7 +289,7 @@ describe("Wrapped Axios Client Test", () => {
     } as any;
     const telemetryChecker = sinon.spy(mockTools.telemetryReporter, "sendTelemetryErrorEvent");
 
-    WrappedAxiosClient.onRejected(mockedError);
+    await WrappedAxiosClient.onRejected(mockedError).catch(() => undefined);
     chai.expect(telemetryChecker.calledOnce).to.be.true;
   });
 
@@ -297,10 +298,11 @@ describe("Wrapped Axios Client Test", () => {
     const mockedError = {
       request: {
         method: "GET",
-        host: getResourceServiceEndpoint(ResourceServiceType.TeamsGraph),
-        path: "/api/v1.0/oAuthConfigurations/fakeId",
       },
-      config: {},
+      config: {
+        baseURL: getResourceServiceEndpoint(ResourceServiceType.TeamsGraph),
+        url: "/api/v1.0/oAuthConfigurations/fakeId",
+      },
       response: {
         status: 404,
         headers: {
@@ -324,10 +326,11 @@ describe("Wrapped Axios Client Test", () => {
     const mockedError = {
       request: {
         method: "GET",
-        host: getResourceServiceEndpoint(ResourceServiceType.TeamsGraph),
-        path: "/api/v1.0/oAuthConfigurations/fakeId",
       },
-      config: {},
+      config: {
+        baseURL: getResourceServiceEndpoint(ResourceServiceType.TeamsGraph),
+        url: "/api/v1.0/oAuthConfigurations/fakeId",
+      },
       response: {
         status: 404,
         headers: {
@@ -353,10 +356,11 @@ describe("Wrapped Axios Client Test", () => {
     const mockedError = {
       request: {
         method: "GET",
-        host: getResourceServiceEndpoint(ResourceServiceType.TeamsGraph),
-        path: "/api/v1.0/apiSecretRegistrations/fakeId",
       },
-      config: {},
+      config: {
+        baseURL: getResourceServiceEndpoint(ResourceServiceType.TeamsGraph),
+        url: "/api/v1.0/apiSecretRegistrations/fakeId",
+      },
       response: {
         status: 404,
         headers: {
@@ -379,10 +383,11 @@ describe("Wrapped Axios Client Test", () => {
     const mockedError = {
       request: {
         method: "POST",
-        host: "https://titles.prod.mos.microsoft.com",
-        path: "/dev/v1/users/packages",
       },
-      config: {},
+      config: {
+        baseURL: "https://titles.prod.mos.microsoft.com",
+        url: "/dev/v1/users/packages",
+      },
       response: {
         status: 400,
         data: {
@@ -392,7 +397,7 @@ describe("Wrapped Axios Client Test", () => {
       },
     } as any;
     const telemetryChecker = sinon.spy(mockTools.telemetryReporter, "sendTelemetryErrorEvent");
-    WrappedAxiosClient.onRejected(mockedError);
+    await WrappedAxiosClient.onRejected(mockedError).catch(() => undefined);
     chai.expect(telemetryChecker.calledOnce).to.be.true;
   });
 
@@ -400,10 +405,11 @@ describe("Wrapped Axios Client Test", () => {
     const mockedError = {
       request: {
         method: "POST",
-        host: "https://titles.prod.mos.microsoft.com",
-        path: "/abc/def",
       },
-      config: {},
+      config: {
+        baseURL: "https://titles.prod.mos.microsoft.com",
+        url: "/abc/def",
+      },
       response: {
         status: 400,
         data: {
@@ -413,7 +419,7 @@ describe("Wrapped Axios Client Test", () => {
       },
     } as any;
     const telemetryChecker = sinon.spy(mockTools.telemetryReporter, "sendTelemetryErrorEvent");
-    WrappedAxiosClient.onRejected(mockedError);
+    await WrappedAxiosClient.onRejected(mockedError).catch(() => undefined);
     chai.expect(telemetryChecker.calledOnce).to.be.true;
   });
 
@@ -424,11 +430,12 @@ describe("Wrapped Axios Client Test", () => {
       message: "socket hang up",
       code: "ECONNRESET",
       request: {
-        // method, host, path can all be undefined for low-level socket errors
-        host: "https://titles.prod.mos.microsoft.com",
-        path: "/dev/v1/users/packages",
+        // method can be undefined for low-level socket errors
       },
-      config: {},
+      config: {
+        baseURL: "https://titles.prod.mos.microsoft.com",
+        url: "/dev/v1/users/packages",
+      },
       // no `response` property -> transport failure
     } as any;
     const telemetryChecker = sinon.spy(mockTools.telemetryReporter, "sendTelemetryErrorEvent");
@@ -458,10 +465,11 @@ describe("Wrapped Axios Client Test", () => {
       message: "Bad Gateway",
       request: {
         method: "POST",
-        host: "https://titles.prod.mos.microsoft.com",
-        path: "/dev/v1/users/packages",
       },
-      config: {},
+      config: {
+        baseURL: "https://titles.prod.mos.microsoft.com",
+        url: "/dev/v1/users/packages",
+      },
       response: {
         status: 502,
         // data is a string (e.g. HTML body from a gateway), not an object
@@ -499,10 +507,11 @@ describe("Wrapped Axios Client Test", () => {
       message: "Bad Request",
       request: {
         method: "GET",
-        host: getResourceServiceEndpoint(ResourceServiceType.TDP),
-        path: "/api/appdefinitions/fakeId",
       },
-      config: {},
+      config: {
+        baseURL: getResourceServiceEndpoint(ResourceServiceType.TDP),
+        url: "/api/appdefinitions/fakeId",
+      },
       response: {
         status: 400,
         // headers intentionally omitted
@@ -522,10 +531,11 @@ describe("Wrapped Axios Client Test", () => {
       message: "Conflict",
       request: {
         method: "POST",
-        host: "https://titles.prod.mos.microsoft.com",
-        path: "/dev/v1/users/packages",
       },
-      config: {},
+      config: {
+        baseURL: "https://titles.prod.mos.microsoft.com",
+        url: "/dev/v1/users/packages",
+      },
       response: {
         status: 409,
         data: {
@@ -550,8 +560,8 @@ describe("Wrapped Axios Client Test", () => {
   it("onRejected swallows internal telemetry errors and still rejects", async () => {
     const mockedError = {
       message: "boom",
-      request: { method: "GET", host: "https://example.com", path: "/x" },
-      config: {},
+      request: { method: "GET" },
+      config: { baseURL: "https://example.com", url: "/x" },
     } as any;
     // Force the telemetry reporter itself to throw, exercising the outer catch.
     sinon
@@ -587,10 +597,11 @@ describe("Wrapped Axios Client Test", () => {
       message: "Server Error",
       request: {
         method: "POST",
-        host: "https://titles.prod.mos.microsoft.com",
-        path: "/dev/v1/users/packages",
       },
-      config: {},
+      config: {
+        baseURL: "https://titles.prod.mos.microsoft.com",
+        url: "/dev/v1/users/packages",
+      },
       response: {
         status: 500,
         // .error exists but has neither .code nor .message → exercises the
@@ -1008,5 +1019,89 @@ describe("Wrapped Axios Client Test", () => {
 
     modApiDef = WrappedAxiosClient.convertMethodUrlToApiDefForMOS("GET", "/abcdef/v1/users/xxxxx");
     chai.assert.isUndefined(modApiDef);
+  });
+
+  // Regression tests for the bug where onResponse/onRejected used
+  // response.request.host + path (which contains ":443" and no scheme in real
+  // Node.js requests) instead of config.baseURL + config.url, causing
+  // Teams Graph API and MOS API calls to be mis-classified as "dependency-api".
+  describe("event name routing uses config.baseURL + config.url (not request.host:port)", () => {
+    it("Teams Graph API success response is classified as teams-graph-api, not dependency-api", async () => {
+      // Simulate what Node.js actually sets: host includes port, no scheme
+      const mockedResponse = {
+        request: {
+          method: "GET",
+          host: "teams.microsoft.com:443", // real-world format — would fail old regex
+          path: "/api/platform/v1.0/oAuthConfigurations/fakeId",
+        },
+        config: {
+          baseURL: getResourceServiceEndpoint(ResourceServiceType.TeamsGraph),
+          url: "/api/v1.0/oAuthConfigurations/fakeId",
+          params: {},
+        },
+        status: 200,
+        data: {},
+      } as any;
+      const telemetryChecker = sinon.spy(mockTools.telemetryReporter, "sendTelemetryEvent");
+
+      WrappedAxiosClient.onResponse(mockedResponse);
+
+      chai.expect(telemetryChecker.calledOnce).to.be.true;
+      chai.expect(telemetryChecker.firstCall.args[0]).to.equal(TelemetryEvent.TeamsGraphApi);
+    });
+
+    it("Teams Graph API error response is classified as teams-graph-api, not dependency-api", async () => {
+      const correlationId = uuid();
+      const mockedError = {
+        request: {
+          method: "GET",
+          host: "teams.microsoft.com:443", // real-world format — would fail old regex
+          path: "/api/platform/v1.0/oAuthConfigurations/fakeId",
+        },
+        config: {
+          baseURL: getResourceServiceEndpoint(ResourceServiceType.TeamsGraph),
+          url: "/api/v1.0/oAuthConfigurations/fakeId",
+        },
+        response: {
+          status: 404,
+          headers: { "x-correlation-id": correlationId },
+        },
+      } as any;
+      const telemetryChecker = sinon.spy(mockTools.telemetryReporter, "sendTelemetryErrorEvent");
+
+      await WrappedAxiosClient.onRejected(mockedError).catch(() => undefined);
+
+      chai.expect(telemetryChecker.calledOnce).to.be.true;
+      chai.expect(telemetryChecker.firstCall.args[0]).to.equal(TelemetryEvent.TeamsGraphApi);
+      const props = telemetryChecker.firstCall.args[1] as Record<string, string>;
+      chai.expect(props["teams-graph-trace-id"]).to.equal(correlationId);
+    });
+
+    it("MOS API error response is classified as mos-api, not dependency-api", async () => {
+      const mockedError = {
+        request: {
+          method: "POST",
+          host: "titles.prod.mos.microsoft.com:443", // real-world format
+          path: "/dev/v1/users/packages",
+        },
+        config: {
+          baseURL: "https://titles.prod.mos.microsoft.com",
+          url: "/dev/v1/users/packages",
+        },
+        response: {
+          status: 409,
+          data: { error: { code: "Conflict", message: "Already exists" } },
+          headers: { traceresponse: "trace-reg" },
+        },
+      } as any;
+      const telemetryChecker = sinon.spy(mockTools.telemetryReporter, "sendTelemetryErrorEvent");
+
+      await WrappedAxiosClient.onRejected(mockedError).catch(() => undefined);
+
+      chai.expect(telemetryChecker.calledOnce).to.be.true;
+      chai.expect(telemetryChecker.firstCall.args[0]).to.equal(TelemetryEvent.MOSApi);
+      const props = telemetryChecker.firstCall.args[1] as any;
+      chai.expect(props["err-message"]).to.contain("trace-reg");
+    });
   });
 });

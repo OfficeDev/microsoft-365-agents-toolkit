@@ -4,6 +4,12 @@
 import { exec } from "child_process";
 import { promisify } from "util";
 
+export const odrProviderDeps = {
+  exec,
+  getPlatform: (): string => process.platform,
+  logError: (...args: any[]): void => console.error(...args),
+};
+
 export interface ODRServer {
   name: string;
   display_name: string;
@@ -92,11 +98,11 @@ export class ODRProvider {
    *   - ODR command fails or returns invalid output
    */
   static async listServers(): Promise<ODRServer[]> {
-    if (process.platform !== "win32") {
+    if (odrProviderDeps.getPlatform() !== "win32") {
       return [];
     }
 
-    const execAsync = promisify(exec);
+    const execAsync = promisify(odrProviderDeps.exec);
     try {
       const { stdout } = await execAsync("odr list");
 
@@ -107,7 +113,7 @@ export class ODRProvider {
       const jsonOutput = JSON.parse(stdout);
       return ODRProvider.parseODRListOutput(jsonOutput);
     } catch (error) {
-      console.error("Error executing odr list:", error);
+      odrProviderDeps.logError("Error executing odr list:", error);
       return [];
     }
   }

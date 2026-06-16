@@ -14,6 +14,7 @@ export enum TemplateNames {
   DeclarativeAgentWithTypeSpec = "declarative-agent-typespec", // handled by DeclarativeAgentGenerator
   DeclarativeAgentWithGraphConnector = "declarative-agent-with-graph-connector", // handled by DeclarativeAgentGenerator
   DeclarativeAgentWithActionFromMCP = "declarative-agent-with-action-from-mcp", // handled by DeclarativeAgentGenerator
+  DeclarativeAgentWithSkill = "declarative-agent-with-skill", // handled by DeclarativeAgentGenerator
 
   DeclarativeAgentMetaOSNewProject = "declarative-agent-meta-os-new-project", // handled by OfficeAddinGeneratorNew
   DeclarativeAgentMetaOSUpgradeProject = "declarative-agent-meta-os-upgrade-project", // handled by OfficeAddinGeneratorNew
@@ -74,4 +75,7 @@ export enum TemplateNames {
   // VS only
   Empty = "empty",
   MessageExtensionSearch = "message-extension-search",
+
+  // openplugin import — baseline files scaffolded by 'atk import openplugin'
+  OpenPluginImport = "open-plugin-import",
 }

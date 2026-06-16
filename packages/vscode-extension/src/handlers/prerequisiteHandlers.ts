@@ -13,31 +13,11 @@ import { checkPrerequisitesForGetStarted } from "../debug/depsChecker/getStarted
 import { vscodeLogger } from "../debug/depsChecker/vscodeLogger";
 import { vscodeTelemetry } from "../debug/depsChecker/vscodeTelemetry";
 import { showError } from "../error/common";
-import { core } from "../globalVariables";
 import { ExtTelemetry } from "../telemetry/extTelemetry";
-import {
-  TelemetryEvent,
-  TelemetryProperty,
-  TelemetryTriggerFrom,
-} from "../telemetry/extTelemetryEvents";
+import { TelemetryEvent } from "../telemetry/extTelemetryEvents";
 import { acpInstalled } from "../utils/commonUtils";
 import { localize } from "../utils/localizeUtils";
-import { triggerV3Migration } from "../utils/migrationUtils";
-import { getSystemInputs } from "../utils/systemEnvUtils";
 import { getTriggerFromProperty } from "../utils/telemetryUtils";
-
-/**
- * Trigger V3 migration for deprecated projects.
- */
-export async function triggerV3MigrationHandler(): Promise<string | undefined> {
-  try {
-    await triggerV3Migration();
-    return undefined;
-  } catch (error: any) {
-    void showError(error as FxError);
-    return "1";
-  }
-}
 
 /**
  * Check required prerequisites in Get Started Page.
@@ -84,31 +64,6 @@ export async function getDotnetPathHandler(): Promise<string> {
   }
 
   return `${path.delimiter}`;
-}
-
-export async function checkUpgrade(args?: any[]) {
-  const triggerFrom = getTriggerFromProperty(args);
-  const input = getSystemInputs();
-  if (triggerFrom?.[TelemetryProperty.TriggerFrom] === TelemetryTriggerFrom.Auto) {
-    input["isNonmodalMessage"] = true;
-    // not await here to avoid blocking the UI.
-    void core.phantomMigrationV3(input).then((result) => {
-      if (result.isErr()) {
-        void showError(result.error);
-      }
-    });
-    return;
-  } else if (
-    triggerFrom[TelemetryProperty.TriggerFrom] &&
-    (triggerFrom[TelemetryProperty.TriggerFrom] === TelemetryTriggerFrom.SideBar ||
-      triggerFrom[TelemetryProperty.TriggerFrom] === TelemetryTriggerFrom.CommandPalette)
-  ) {
-    input["skipUserConfirm"] = true;
-  }
-  const result = await core.phantomMigrationV3(input);
-  if (result.isErr()) {
-    void showError(result.error);
-  }
 }
 
 export async function installAdaptiveCardExt(

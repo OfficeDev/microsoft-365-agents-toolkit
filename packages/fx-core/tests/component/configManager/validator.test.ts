@@ -6,7 +6,6 @@
  */
 
 import chai from "chai";
-import { describe, it } from "mocha";
 import { Validator } from "../../../src/component/configManager/validator";
 import * as sinon from "sinon";
 describe("yaml validator", () => {

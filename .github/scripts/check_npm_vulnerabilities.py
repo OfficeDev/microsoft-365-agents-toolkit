@@ -49,27 +49,98 @@ def find_package_files(scan_dirs: List[str]) -> Tuple[List[Path], List[Path]]:
     return package_files, template_files
 
 
-def check_package_vulnerabilities(pkg_file: Path, temp_dir: Path, is_template: bool = False) -> Tuple[bool, str]:
+SEVERITY_ORDER = {"critical": 0, "high": 1, "moderate": 2, "low": 3, "info": 4}
+
+
+def extract_first_vuln_details(audit_data: dict, source_file: Path) -> dict:
+    """Pick the highest-severity vulnerability and return PR-ready metadata.
+
+    Returns {} when nothing actionable is found.
+    """
+    vulns = audit_data.get("vulnerabilities", {}) or {}
+    if not vulns:
+        return {}
+
+    def sort_key(item):
+        name, info = item
+        sev = (info.get("severity") or "info").lower()
+        return (SEVERITY_ORDER.get(sev, 99), name)
+
+    name, info = sorted(vulns.items(), key=sort_key)[0]
+
+    # Discover current version from the source manifest (best-effort).
+    current_version = ""
+    try:
+        manifest = json.loads(source_file.read_text(encoding="utf-8"))
+        for section in ("dependencies", "devDependencies", "optionalDependencies"):
+            if name in (manifest.get(section) or {}):
+                current_version = manifest[section][name]
+                break
+    except Exception:
+        pass
+
+    fixed_version = None
+    fix_available = info.get("fixAvailable")
+    if isinstance(fix_available, dict):
+        fixed_version = fix_available.get("version")
+    elif fix_available is True:
+        # npm marks transitive auto-fixes as `true` without a concrete version.
+        fixed_version = None
+
+    advisory_url = None
+    title = None
+    via = info.get("via") or []
+    for entry in via:
+        if isinstance(entry, dict):
+            advisory_url = entry.get("url")
+            title = entry.get("title")
+            break
+
+    # Determine if this package is a direct dependency of the manifest.
+    is_direct = False
+    try:
+        manifest = json.loads(source_file.read_text(encoding="utf-8"))
+        for section in ("dependencies", "devDependencies", "optionalDependencies"):
+            if name in (manifest.get(section) or {}):
+                is_direct = True
+                break
+    except Exception:
+        pass
+
+    return {
+        "file": str(source_file).replace("\\", "/"),
+        "package": name,
+        "current_version": current_version,
+        "fixed_version": fixed_version,
+        "severity": (info.get("severity") or "").lower() or None,
+        "advisory_url": advisory_url,
+        "title": title,
+        "is_direct": is_direct,
+    }
+
+
+def check_package_vulnerabilities(pkg_file: Path, temp_dir: Path, is_template: bool = False) -> Tuple[bool, str, dict]:
     """
     Check a package.json file for vulnerabilities using npm audit.
-    
+
     Args:
         pkg_file: Path to the package.json or package.json.tpl file
         temp_dir: Temporary directory to use for the check
         is_template: Whether this is a .tpl template file
-        
+
     Returns:
-        Tuple of (has_vulnerabilities: bool, message: str)
+        Tuple of (has_vulnerabilities: bool, message: str, first_vuln_details: dict)
+        first_vuln_details is empty {} when no vuln is found.
     """
     # Create a unique work directory for this check
     work_dir = temp_dir / f"check_{pkg_file.name}_{hash(str(pkg_file)) % 10000}"
     work_dir.mkdir(parents=True, exist_ok=True)
-    
+
     try:
         # Copy the file to the work directory as package.json
         dest_file = work_dir / "package.json"
         shutil.copy(pkg_file, dest_file)
-        
+
         # Run npm install --package-lock-only to generate package-lock.json
         install_result = subprocess.run(
             ["npm", "install", "--package-lock-only"],
@@ -78,10 +149,10 @@ def check_package_vulnerabilities(pkg_file: Path, temp_dir: Path, is_template: b
             text=True,
             timeout=120
         )
-        
+
         if install_result.returncode != 0:
-            return False, f"WARNING: Could not generate package-lock.json: {install_result.stderr[:200]}"
-        
+            return False, f"WARNING: Could not generate package-lock.json: {install_result.stderr[:200]}", {}
+
         # Run npm audit to check for vulnerabilities
         audit_result = subprocess.run(
             ["npm", "audit", "--json"],
@@ -90,25 +161,24 @@ def check_package_vulnerabilities(pkg_file: Path, temp_dir: Path, is_template: b
             text=True,
             timeout=120
         )
-        
+
         # Parse the audit result
         try:
             audit_data = json.loads(audit_result.stdout) if audit_result.stdout else {}
         except json.JSONDecodeError:
             # If JSON parsing fails, check the return code
             if audit_result.returncode != 0:
-                return True, f"Vulnerabilities found (npm audit exit code: {audit_result.returncode})"
-            return False, "OK"
-        
+                return True, f"Vulnerabilities found (npm audit exit code: {audit_result.returncode})", {}
+            return False, "OK", {}
+
         # Check for vulnerabilities in the audit result
-        vulnerabilities = audit_data.get("vulnerabilities", {})
         metadata = audit_data.get("metadata", {}).get("vulnerabilities", {})
-        
+
         # Count vulnerabilities by severity
         critical = metadata.get("critical", 0)
         high = metadata.get("high", 0)
         moderate = metadata.get("moderate", 0)
-        
+
         if critical > 0 or high > 0 or moderate > 0:
             vuln_summary = []
             if critical > 0:
@@ -117,14 +187,15 @@ def check_package_vulnerabilities(pkg_file: Path, temp_dir: Path, is_template: b
                 vuln_summary.append(f"{high} high")
             if moderate > 0:
                 vuln_summary.append(f"{moderate} moderate")
-            return True, f"Vulnerabilities found: {', '.join(vuln_summary)}"
-        
-        return False, "OK"
-        
+            details = extract_first_vuln_details(audit_data, pkg_file)
+            return True, f"Vulnerabilities found: {', '.join(vuln_summary)}", details
+
+        return False, "OK", {}
+
     except subprocess.TimeoutExpired:
-        return False, "WARNING: npm command timed out"
+        return False, "WARNING: npm command timed out", {}
     except Exception as e:
-        return False, f"WARNING: Error during check: {str(e)}"
+        return False, f"WARNING: Error during check: {str(e)}", {}
     finally:
         # Clean up the work directory
         try:
@@ -148,7 +219,12 @@ def main():
         action="store_true",
         help="Enable verbose output"
     )
-    
+    parser.add_argument(
+        "--output-json",
+        default=None,
+        help="If set, write a structured summary of findings to this path"
+    )
+
     args = parser.parse_args()
     
     safe_print("=" * 60)
@@ -177,34 +253,39 @@ def main():
         safe_print("")
         
         failed_files = []
+        vuln_records = []
         checked_count = 0
-        
+
         # Check regular package.json files
         for pkg_file in package_files:
             checked_count += 1
             safe_print(f"[{checked_count}/{total_files}] Checking: {pkg_file}")
-            
-            has_vuln, message = check_package_vulnerabilities(pkg_file, temp_path, is_template=False)
-            
+
+            has_vuln, message, details = check_package_vulnerabilities(pkg_file, temp_path, is_template=False)
+
             if has_vuln:
                 safe_print(f"  ❌ ERROR: {message}")
                 failed_files.append((pkg_file, message))
+                if details:
+                    vuln_records.append(details)
             else:
                 if message.startswith("WARNING"):
                     safe_print(f"  ⚠️ {message}")
                 else:
                     safe_print(f"  ✅ {message}")
-        
+
         # Check template files
         for tpl_file in template_files:
             checked_count += 1
             safe_print(f"[{checked_count}/{total_files}] Checking: {tpl_file}")
-            
-            has_vuln, message = check_package_vulnerabilities(tpl_file, temp_path, is_template=True)
-            
+
+            has_vuln, message, details = check_package_vulnerabilities(tpl_file, temp_path, is_template=True)
+
             if has_vuln:
                 safe_print(f"  ❌ ERROR: {message}")
                 failed_files.append((tpl_file, message))
+                if details:
+                    vuln_records.append(details)
             else:
                 if message.startswith("WARNING"):
                     safe_print(f"  ⚠️ {message}")
@@ -218,7 +299,22 @@ def main():
     safe_print("=" * 60)
     safe_print(f"Total files checked: {checked_count}")
     safe_print(f"Files with vulnerabilities: {len(failed_files)}")
-    
+
+    if args.output_json:
+        scan_target = args.scan_directory[0] if args.scan_directory else ""
+        payload = {
+            "scan_target": scan_target,
+            "ecosystem": "npm",
+            "has_vulnerabilities": bool(vuln_records),
+            "vulnerabilities": vuln_records,
+        }
+        try:
+            Path(args.output_json).parent.mkdir(parents=True, exist_ok=True)
+            Path(args.output_json).write_text(json.dumps(payload, indent=2), encoding="utf-8")
+            safe_print(f"Wrote scan summary to {args.output_json}")
+        except Exception as e:
+            safe_print(f"WARNING: Failed to write output JSON: {e}")
+
     if failed_files:
         safe_print("")
         safe_print("Failed files:")

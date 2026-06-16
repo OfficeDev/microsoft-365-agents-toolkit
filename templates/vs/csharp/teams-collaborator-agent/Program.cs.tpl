@@ -93,7 +93,7 @@ builder.Services.AddSingleton<List<CapabilityDefinition>>(sp =>
 
 builder.Services.AddSingleton<Controller>();
 
-builder.AddTeams(appBuilder);
+builder.AddTeams(appBuilder, skipAuth: string.IsNullOrEmpty(config.Teams.ClientId));
 var app = builder.Build();
 var logger = app.Services.GetRequiredService<ILogger<Program>>();
 ConfigHelper.ValidateEnvironment(logger);

@@ -75,7 +75,7 @@ jobs:
       email-receiver: ${{ steps.set-email.outputs.email_receiver }}
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set email receiver
         id: set-email
@@ -149,6 +149,7 @@ jobs:
       #AZURE_CLIENT_SECRET: ${{ secrets.AZURE_SERVICE_PRINCIPAL_SECRET }}
       AZURE_TENANT_ID: ${{ secrets.TEST_TENANT_TENANT_ID  }}
       AZURE_SUBSCRIPTION_ID: ${{ secrets.TEST_TENANT_SUBSCRIPTION_ID }}
+      RESOURCE_GROUP_REGION: ${{ vars.RESOURCE_GROUP_REGION }}
       AZURE_AUTH_ENABLED: ${{ secrets.AZURE_SERVICE_PRINCIPAL_ID != '' && secrets.AZURE_SERVICE_PRINCIPAL_SECRET != '' && secrets.TEST_TENANT_TENANT_ID != '' }}
       # M365 account for testing (comma-separated list from GitHub variable)
       M365_USERNAMES: ${{ vars.M365_USERNAMES }}
@@ -201,17 +202,17 @@ jobs:
 
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: ${{ github.ref_name }}
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: "3.12"
 
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v6
         with:
           node-version: 22
 
@@ -301,24 +302,29 @@ jobs:
             RUN_RESULT="$ROOT_DIR/run_result.txt"
 
             failed_step_id=$(awk '
-              {
-                if ($0 ~ /Execution failed:\\?/) {
-                  if (match(prev, /step_[A-Za-z0-9]+/)) {
-                    print substr(prev, RSTART, RLENGTH)
-                    exit
-                  }
-                }
-                prev = $0
+              /^Errors:/ { in_errors = 1; next }
+              in_errors && match($0, /step_[A-Za-z0-9]+/) {
+                print substr($0, RSTART, RLENGTH)
+                exit
               }
             ' "$RUN_RESULT")
 
             if [ -n "$failed_step_id" ]; then
-              failed_step_desc=$(find "$ROOT_DIR" -type f -name "*.json" -print0 \
-                | xargs -0 jq -r --arg sid "$failed_step_id" '.. | objects | select(.step_id? == $sid) | .description // empty' 2>/dev/null \
-                | head -n 1)
+              # Prefer the human-readable step name from the executor log line:
+              #   [EXECUTING] Step <id>: <name>
+              failed_step_name=$(grep -oE "\[EXECUTING\] Step ${failed_step_id}: .*" "$RUN_RESULT" \
+                | head -n 1 \
+                | sed "s/.*\[EXECUTING\] Step ${failed_step_id}: //")
 
-              if [ -n "$failed_step_desc" ]; then
-                echo "$failed_step_desc" > error.txt
+              # Fall back to the step description from the plan JSON.
+              if [ -z "$failed_step_name" ]; then
+                failed_step_name=$(find "$ROOT_DIR" -type f -name "*.json" -print0 \
+                  | xargs -0 jq -r --arg sid "$failed_step_id" '.. | objects | select(.step_id? == $sid) | .description // empty' 2>/dev/null \
+                  | head -n 1)
+              fi
+
+              if [ -n "$failed_step_name" ]; then
+                echo "${failed_step_id}: ${failed_step_name}" > error.txt
               else
                 echo "$failed_step_id" > error.txt
               fi
@@ -334,7 +340,7 @@ jobs:
 
       - name: Upload error file
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: error-file-${{ matrix.test_plan }}-${{ github.run_id }}
           path: error.txt
@@ -376,7 +382,7 @@ jobs:
 
       - name: Upload encrypted test report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: test-report-${{ matrix.test_plan }}-${{ github.run_number }}
           path: packages/tests/vscuse/vscode-test-cases/test_report/${{ env.ZIP_FILE }}
@@ -417,7 +423,7 @@ jobs:
 
       - name: Upload storage URL artifact
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: storage-url-${{ matrix.test_plan }}-${{ github.run_id }}
           path: storage_url.txt
@@ -477,7 +483,7 @@ jobs:
         working-directory: packages/tests/vscuse
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v5
 
       - uses: azure/login@v2
         with:
@@ -487,13 +493,13 @@ jobs:
           enable-AzPSSession: true
 
       - name: Download storage URLs
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           pattern: storage-url-*
           path: /tmp/storage-urls
 
       - name: Download error files
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           pattern: error-file-*
           path: /tmp/error-files
@@ -603,9 +609,10 @@ jobs:
 
           query_bugs_by_tag() {
             local tag="$1"
-            local encoded_tag=$(echo "$tag" | sed 's/ /%20/g')
+            # Escape single quotes for WIQL string literal.
+            local escaped_tag="${tag//\'/\'\'}"
 
-            local wiql_query="{\"query\": \"SELECT [System.Id], [System.Title], [System.State] FROM WorkItems WHERE [System.WorkItemType] = 'Bug' AND [System.State] IN ('Active','New','Committed') AND [System.Tags] CONTAINS '${tag}'\"}"
+            local wiql_query="{\"query\": \"SELECT [System.Id], [System.Title], [System.State] FROM WorkItems WHERE [System.WorkItemType] = 'Bug' AND [System.State] IN ('Active','New','Committed') AND [System.Tags] CONTAINS '${escaped_tag}'\"}"
 
             local http_code
             local response
@@ -733,6 +740,12 @@ jobs:
               error_info=""
             fi
 
+            # Only show failed-step details for failed jobs.
+            # Also guards against any unexpected stale artifact entries.
+            if [ "$status" = "success" ]; then
+              error_info=""
+            fi
+
             if [[ -n "$email" && ! "$emails" == *"$email"* && "$status" == "failure" ]]; then
               emails="$emails;$email;"
             fi
@@ -765,34 +778,59 @@ jobs:
             linked_bugs=""
             if [ "$status" != "success" ]; then
               bug_response=""
+              bug_ids=""
               query_error=""
 
               if [ -z "$AZURE_DEVOPS_PAT" ]; then
                 query_error="⚠️No ADO PAT configured"
               else
-                bug_response=$(query_bugs_by_tag "$display_name" 2>/dev/null)
-                query_exit_code=$?
+                # Try multiple case-name variants to avoid missing matches due to
+                # underscore/space/case differences between pipeline case name and ADO tags.
+                case_name_space=$(echo "$case_id" | tr '_' ' ')
+                case_name_hyphen=$(echo "$case_id" | sed 's/_/-/g')
+                candidate_tags=$(printf '%s\n%s\n%s\n%s\n%s' "$display_name" "$case_id" "$title" "$case_name_space" "$case_name_hyphen" | awk 'NF && !seen[$0]++')
 
-                if [ $query_exit_code -ne 0 ]; then
-                  if echo "$bug_response" | grep -q "^HTTP_ERROR:"; then
-                    error_detail=$(echo "$bug_response" | sed 's/^HTTP_ERROR://')
-                    query_error="⚠️ADO API error (HTTP $error_detail)"
-                  else
-                    query_error="⚠️Network issue"
+                while IFS= read -r candidate_tag; do
+                  if [ -z "$candidate_tag" ]; then
+                    continue
                   fi
-                else
-                  api_error=$(echo "$bug_response" | jq -r '.message // empty' 2>/dev/null)
+
+                  current_response=$(query_bugs_by_tag "$candidate_tag" 2>/dev/null)
+                  query_exit_code=$?
+
+                  if [ $query_exit_code -ne 0 ]; then
+                    if [ -z "$query_error" ]; then
+                      if echo "$current_response" | grep -q "^HTTP_ERROR:"; then
+                        error_detail=$(echo "$current_response" | sed 's/^HTTP_ERROR://')
+                        query_error="⚠️ADO API error (HTTP $error_detail)"
+                      else
+                        query_error="⚠️Network issue"
+                      fi
+                    fi
+                    continue
+                  fi
+
+                  api_error=$(echo "$current_response" | jq -r '.message // empty' 2>/dev/null)
                   if [ -n "$api_error" ]; then
-                    query_error="⚠️ADO API error"
+                    if [ -z "$query_error" ]; then
+                      query_error="⚠️ADO API error"
+                    fi
+                    continue
                   fi
-                fi
+
+                  current_ids=$(echo "$current_response" | jq -r '.workItems[]?.id // empty' 2>/dev/null)
+                  if [ -n "$current_ids" ]; then
+                    bug_ids=$(printf '%s\n%s\n' "$bug_ids" "$current_ids")
+                    query_error=""
+                  fi
+                done <<< "$candidate_tags"
+
+                bug_ids=$(echo "$bug_ids" | awk 'NF && !seen[$0]++')
               fi
 
               if [ -n "$query_error" ]; then
                 linked_bugs="$query_error"
               else
-                bug_ids=$(echo "$bug_response" | jq -r '.workItems[]?.id // empty' 2>/dev/null)
-
                 if [ -n "$bug_ids" ]; then
                   bug_links=""
                   for bug_id in $bug_ids; do
@@ -848,6 +886,39 @@ jobs:
             echo "BODY_FILE=$(pwd)/email-body.html" >> $GITHUB_ENV
           fi
           echo "Email body file size: $(wc -c < email-body.html) bytes"
+
+      # Upload the aggregated email-body.html to the same blob proxy so PR-triggered
+      # runs (whose email goes to an unattended mailbox) can still surface a single
+      # shareable report URL. Printed marker "Report Summary URL: <url>" is parsed by
+      # pr-vscuse-test.yml to render the link in its PR comment.
+      - name: Upload aggregated report to Azure Blob Storage
+        if: always()
+        shell: pwsh
+        working-directory: packages/tests/vscuse
+        run: |
+          if (-not (Test-Path "email-body.html")) {
+            Write-Host "email-body.html not found; skipping aggregate upload."
+            exit 0
+          }
+
+          $guid = [guid]::NewGuid().ToString()
+          $account = $env:AZURE_STORAGE_ACCOUNT
+          $summaryUrl = "https://storproxy-app-voazuxhhvtgiq.azurewebsites.net/$guid/index.html"
+
+          Copy-Item "email-body.html" "index.html" -Force
+
+          az storage blob upload `
+            --account-name $account `
+            --auth-mode login `
+            --container-name 'content' `
+            --name "$guid/index.html" `
+            --file "index.html" `
+            --content-type "text/html" `
+            --overwrite
+
+          Write-Host "Report Summary URL: $summaryUrl"
+        env:
+          AZURE_STORAGE_ACCOUNT: storproxystvoazuxhhvtgiq
 
       - name: Send E-mail
         uses: ./.github/actions/send-email-report-vscuse

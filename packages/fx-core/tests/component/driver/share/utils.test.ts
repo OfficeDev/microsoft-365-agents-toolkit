@@ -2,7 +2,6 @@ import { err, ok, UserError } from "@microsoft/teamsfx-api";
 import AdmZip from "adm-zip";
 import chai from "chai";
 import fs from "fs-extra";
-import "mocha";
 import os from "os";
 import path from "path";
 import sinon from "sinon";
@@ -294,7 +293,7 @@ describe("parseShareAppActionYamlConfig", () => {
     process.env["parseShareAppActionYamlConfigMockAppIdName"] = undefined;
   });
 
-  it("should return error when extendToM365Action is not found in either provision or deploy", async () => {
+  it("should return error when share action is not found in either provision or deploy", async () => {
     sandbox.stub(pathUtils, "getYmlFilePath").returns("mockTemplatePath");
     sandbox.stub(metadataUtil, "parse").resolves(
       ok({
@@ -320,8 +319,47 @@ describe("parseShareAppActionYamlConfig", () => {
     chai.assert.isTrue(result.isErr());
     if (result.isErr()) {
       chai.assert.equal(result.error.name, "Share");
-      chai.assert.include(result.error.message, 'Unable to find the "teamsApp/extendToM365"');
+      chai.assert.include(result.error.message, 'Unable to find the "copilotAgent/publish"');
     }
+  });
+
+  it("should find copilotAgent/publish action in provision", async () => {
+    const mockZipPath = createMockZipFile();
+    sandbox.stub(pathUtils, "getYmlFilePath").returns("mockTemplatePath");
+    sandbox.stub(metadataUtil, "parse").resolves(
+      ok({
+        provision: {
+          driverDefs: [
+            {
+              uses: "copilotAgent/publish",
+              with: { appPackagePath: mockZipPath } as any,
+              writeToEnvironmentFile: {
+                titleId: "parseShareAppActionYamlConfigMockTitleIdName",
+                appId: "parseShareAppActionYamlConfigMockAppIdName",
+              } as any,
+            },
+          ],
+        },
+      } as any)
+    );
+    sandbox.stub(envUtil, "readEnv").resolves(ok({}));
+    sandbox.stub(fs, "existsSync").returns(true);
+    process.env["parseShareAppActionYamlConfigMockTitleIdName"] = "mockTitleId";
+    process.env["parseShareAppActionYamlConfigMockAppIdName"] = "mockAppId";
+
+    const result = await parseShareAppActionYamlConfig("mockProjectPath");
+
+    chai.assert.isTrue(result.isOk());
+    if (result.isOk()) {
+      chai.assert.deepEqual(result.value, {
+        teamsappId: "mockManifestId",
+        titleId: "mockTitleId",
+        appId: "mockAppId",
+      });
+    }
+
+    process.env["parseShareAppActionYamlConfigMockTitleIdName"] = undefined;
+    process.env["parseShareAppActionYamlConfigMockAppIdName"] = undefined;
   });
 
   it("should return error when extendToM365Action is missing", async () => {
@@ -427,6 +465,39 @@ describe("parseShareAppActionYamlConfig", () => {
     chai.assert.isTrue(result.isErr());
     if (result.isErr()) {
       chai.assert.equal(result.error.name, "Share to Users");
+    }
+  });
+
+  it("should return error when shared ids are missing in environment", async () => {
+    const mockZipPath = createMockZipFile();
+    sandbox.stub(pathUtils, "getYmlFilePath").returns("mockTemplatePath");
+    sandbox.stub(metadataUtil, "parse").resolves(
+      ok({
+        deploy: {
+          driverDefs: [
+            {
+              uses: "teamsApp/extendToM365",
+              with: { appPackagePath: mockZipPath } as any,
+              writeToEnvironmentFile: {
+                titleId: "parseShareAppActionYamlConfigMissingTitleIdName",
+                appId: "parseShareAppActionYamlConfigMissingAppIdName",
+              } as any,
+            },
+          ],
+        },
+      } as any)
+    );
+    sandbox.stub(envUtil, "readEnv").resolves(ok({}));
+    sandbox.stub(fs, "existsSync").returns(true);
+    delete process.env["parseShareAppActionYamlConfigMissingTitleIdName"];
+    delete process.env["parseShareAppActionYamlConfigMissingAppIdName"];
+
+    const result = await parseShareAppActionYamlConfig("mockProjectPath");
+
+    chai.assert.isTrue(result.isErr());
+    if (result.isErr()) {
+      chai.assert.equal(result.error.name, "Share");
+      chai.assert.include(result.error.message, "Unable to get title id or app id");
     }
   });
 

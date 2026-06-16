@@ -19,13 +19,13 @@ import {
 } from "@microsoft/teamsfx-api";
 import { Mutex } from "async-mutex";
 import * as crypto from "crypto";
+import express from "express";
+import * as fs from "fs-extra";
 import * as http from "http";
+import { AddressInfo } from "net";
 import open from "open";
 import os from "os";
 import * as path from "path";
-import express from "express";
-import * as fs from "fs-extra";
-import { AddressInfo } from "net";
 import { TextType, colorize } from "../colorize";
 import CliTelemetry from "../telemetry/cliTelemetry";
 import {
@@ -34,20 +34,12 @@ import {
   TelemetryProperty,
   TelemetrySuccess,
 } from "../telemetry/cliTelemetryEvents";
-import {
-  UTF8,
-  clearCache,
-  loadAccountId,
-  loadTenantId,
-  saveAccountId,
-  saveTenantId,
-} from "./cacheAccess";
-import { azureLoginMessage, env, m365LoginMessage, sendFileTimeout } from "./common/constant";
-import CliCodeLogInstance from "./log";
-import { decodeClaimsChallenge } from "./common/utils";
-import { getAccountByHomeId } from "./common/tokenCacheUtils";
-import { featureFlagManager, FeatureFlags } from "@microsoft/teamsfx-core";
 import { getInternalFlagFromTokenClaims } from "./accountInfoUtils";
+import * as cacheAccess from "./cacheAccess";
+import { azureLoginMessage, env, m365LoginMessage, sendFileTimeout } from "./common/constant";
+import { getAccountByHomeId } from "./common/tokenCacheUtils";
+import { decodeClaimsChallenge } from "./common/utils";
+import CliCodeLogInstance from "./log";
 
 export class ErrorMessage {
   static readonly loginFailureTitle = "LoginFail";
@@ -87,6 +79,26 @@ export class CodeFlowLogin {
   accountName: string;
   socketMap: Map<number, any>;
 
+  protected async loadAccountIdFromCache(): Promise<string | undefined> {
+    return cacheAccess.loadAccountId(this.accountName);
+  }
+
+  protected async loadTenantIdFromCache(): Promise<string | undefined> {
+    return cacheAccess.loadTenantId(this.accountName);
+  }
+
+  protected async saveAccountIdToCache(accountId: string | undefined): Promise<void> {
+    await cacheAccess.saveAccountId(this.accountName, accountId);
+  }
+
+  protected async saveTenantIdToCache(tenantId: string | undefined): Promise<void> {
+    await cacheAccess.saveTenantId(this.accountName, tenantId);
+  }
+
+  protected async clearAccountCache(): Promise<void> {
+    await cacheAccess.clearCache(this.accountName);
+  }
+
   constructor(scopes: string[], config: Configuration, port: number, accountName: string) {
     this.scopes = scopes;
     this.config = config;
@@ -99,14 +111,14 @@ export class CodeFlowLogin {
   }
 
   async reloadCache() {
-    const accountCache = await loadAccountId(this.accountName);
+    const accountCache = await this.loadAccountIdFromCache();
     if (accountCache) {
       const dataCache = getAccountByHomeId(accountCache, await this.pca.getAllAccounts());
       if (dataCache) {
         this.account = dataCache;
       }
 
-      const tenantCache = await loadTenantId(this.accountName);
+      const tenantCache = await this.loadTenantIdFromCache();
       if (tenantCache) {
         const allAccounts = await this.pca.getAllAccounts();
         this.account = allAccounts.find((account) => account.tenantId == tenantCache);
@@ -195,7 +207,7 @@ export class CodeFlowLogin {
             if (response.account) {
               await this.mutex?.runExclusive(async () => {
                 this.account = response.account!;
-                await saveAccountId(this.accountName, this.account.homeAccountId);
+                await this.saveAccountIdToCache(this.account.homeAccountId);
               });
               await sendFile(
                 res,
@@ -337,7 +349,7 @@ export class CodeFlowLogin {
       if (response && response.account) {
         await this.mutex?.runExclusive(async () => {
           this.account = response.account!;
-          await saveAccountId(this.accountName, this.account.homeAccountId);
+          await this.saveAccountIdToCache(this.account.homeAccountId);
         });
         accessToken = response.accessToken;
       } else {
@@ -372,7 +384,7 @@ export class CodeFlowLogin {
 
   async logout(): Promise<boolean> {
     if (this.isBrokerAvailable) {
-      const accountId = await loadAccountId(this.accountName);
+      const accountId = await this.loadAccountIdFromCache();
       if (accountId) {
         const allAccounts = await this.pca.getAllAccounts();
         const accountToSignOut = allAccounts.find((account) => account.homeAccountId === accountId);
@@ -387,15 +399,15 @@ export class CodeFlowLogin {
       }
     }
 
-    await clearCache(this.accountName);
-    await saveAccountId(this.accountName, undefined);
-    await saveTenantId(this.accountName, undefined);
+    await this.clearAccountCache();
+    await this.saveAccountIdToCache(undefined);
+    await this.saveTenantIdToCache(undefined);
     this.account = undefined;
     return true;
   }
 
   async switchTenant(tenantId: string): Promise<void> {
-    return await saveTenantId(this.accountName, tenantId);
+    return await this.saveTenantIdToCache(tenantId);
   }
 
   async getTokenByScopes(
@@ -408,7 +420,7 @@ export class CodeFlowLogin {
     }
 
     if (!tenantId) {
-      tenantId = await loadTenantId(this.accountName);
+      tenantId = await this.loadTenantIdFromCache();
     }
 
     if (!this.account) {
@@ -529,7 +541,7 @@ function sendFile(
       let body = await fs.readFile(filepath);
       let data = body.toString();
       data = data.replace(/\${accountName}/g, accountName == "azure" ? "Azure" : "M365");
-      body = Buffer.from(data, UTF8);
+      body = Buffer.from(data, cacheAccess.UTF8);
       res.writeHead(200, {
         "Content-Length": body.length,
         "Content-Type": contentType,
@@ -581,7 +593,7 @@ export function ConvertTokenToJson(token: string): any {
     return {};
   }
   const buff = Buffer.from(array[1], "base64");
-  return JSON.parse(buff.toString(UTF8));
+  return JSON.parse(buff.toString(cacheAccess.UTF8));
 }
 
 export async function checkIsOnline(): Promise<boolean> {

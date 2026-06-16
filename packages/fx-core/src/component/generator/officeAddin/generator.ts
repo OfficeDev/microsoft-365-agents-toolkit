@@ -18,8 +18,8 @@ import {
   UserError,
 } from "@microsoft/teamsfx-api";
 import fse from "fs-extra";
+import * as officeAddinProject from "office-addin-project";
 import path from "path";
-import { convertProject } from "office-addin-project";
 import { getLocalizedString } from "../../../common/localizeUtils";
 import { getUuid } from "../../../common/stringUtils";
 import { assembleError } from "../../../error";
@@ -31,6 +31,10 @@ import { TemplateInfo } from "../templates/templateInfo";
 import { TemplateNames } from "../templates/templateNames";
 import { HelperMethods } from "./helperMethods";
 import { MetaOSHelper } from "./metaOSHelper";
+
+export const officeAddinGeneratorDeps = {
+  convertProject: officeAddinProject.convertProject,
+};
 
 /**
  * case 1: project-type=office-xml-addin-type AND addin-host=outlook
@@ -95,7 +99,12 @@ export class OfficeAddinGenerator {
           // package.json with a `scripts` object exists before converting.
           await OfficeAddinGenerator.ensurePackageJsonForConvert(addinRoot);
           // Need to convert to json project first
-          await convertProject(manifestFile, "./backup.zip", addinRoot, true);
+          await officeAddinGeneratorDeps.convertProject(
+            manifestFile,
+            "./backup.zip",
+            addinRoot,
+            true
+          );
           manifestFile = manifestFile.replace(/\.xml$/, ".json");
         }
         inputs[QuestionNames.OfficeAddinHost] = await getHost(manifestFile);

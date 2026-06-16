@@ -3,6 +3,8 @@
 export * from "./AddAuthActionInputs";
 export * from "./AddKnowledgeInputs";
 export * from "./AddPluginInputs";
+export * from "./ImportOpenPluginInputs";
+export * from "./ExportOpenPluginInputs";
 export * from "./CreateEnvInputs";
 export * from "./CreateProjectInputs";
 export * from "./CreateSampleProjectInputs";
@@ -19,3 +21,4 @@ export * from "./SyncManifestInputs";
 export * from "./UninstallInputs";
 export * from "./ValidateTeamsAppInputs";
 export * from "./removeSharedAccessInputs";
+export * from "./AddSkillInputs";

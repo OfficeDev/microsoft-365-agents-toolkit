@@ -1,7 +1,5 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
-
-import "mocha";
 import { expect } from "chai";
 import { normalizePath } from "../../../../src/component/driver/teamsApp/utils/utils";
 

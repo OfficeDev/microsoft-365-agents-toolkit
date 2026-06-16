@@ -2,9 +2,15 @@
 // Licensed under the MIT license.
 
 import { err, FxError, Inputs, ok, Result, Stage, SystemError } from "@microsoft/teamsfx-api";
-import { getHashedEnv, isUserCancelError } from "@microsoft/teamsfx-core";
+import {
+  getHashedEnv,
+  IncompatibleProjectError,
+  isUserCancelError,
+  VersionState,
+} from "@microsoft/teamsfx-core";
 import * as util from "util";
 import * as uuid from "uuid";
+import * as vscode from "vscode";
 import { window } from "vscode";
 import { RecommendedOperations } from "../debug/common/debugConstants";
 import { isLoginFailureError, showError, wrapError } from "../error/common";
@@ -21,7 +27,6 @@ import { checkCoreNotEmpty } from "../utils/commonUtils";
 import { localize } from "../utils/localizeUtils";
 import { getSystemInputs } from "../utils/systemEnvUtils";
 import { getTeamsAppTelemetryInfoByEnv } from "../utils/telemetryUtils";
-import * as vscode from "vscode";
 
 export async function runCommand(
   stage: Stage,
@@ -40,6 +45,29 @@ export async function runCommand(
     inputs = defaultInputs ? defaultInputs : getSystemInputs();
     inputs.stage = stage;
     inputs.inProductDoc = TreatmentVariableValue.inProductDoc;
+
+    const skipVersionCheckStages = new Set<Stage>([Stage.create, Stage.createTdp]);
+    if (!skipVersionCheckStages.has(stage) && inputs.projectPath) {
+      const versionCheckInputs: Inputs = { ...inputs, ignoreEnvInfo: true };
+      const versionCheckRes = await core.projectVersionCheck(versionCheckInputs);
+      if (versionCheckRes.isErr()) {
+        result = err(versionCheckRes.error);
+        await processResult(eventName, result, inputs, telemetryProperties);
+        return result;
+      }
+
+      if (versionCheckRes.value.isSupport === VersionState.unsupported) {
+        result = err(new IncompatibleProjectError("core.migrationV3.abandonedProject"));
+        await processResult(eventName, result, inputs, telemetryProperties);
+        return result;
+      }
+
+      if (versionCheckRes.value.isSupport === VersionState.upgradeable) {
+        result = err(new IncompatibleProjectError("core.migrationV3.notAllowedMigration"));
+        await processResult(eventName, result, inputs, telemetryProperties);
+        return result;
+      }
+    }
 
     switch (stage) {
       case Stage.create: {
@@ -160,6 +188,10 @@ export async function runCommand(
       }
       case Stage.addKnowledge: {
         result = await core.addKnowledge(inputs);
+        break;
+      }
+      case Stage.addSkill: {
+        result = await core.addSkill(inputs);
         break;
       }
       case Stage.setSensitivityLabel: {

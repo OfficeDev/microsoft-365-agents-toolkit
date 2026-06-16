@@ -2,7 +2,6 @@
 // Licensed under the MIT license.
 
 import * as chai from "chai";
-import "mocha";
 import * as sinon from "sinon";
 import * as util from "util";
 import { teamsDevPortalClient } from "../../../../src/client/teamsDevPortalClient";

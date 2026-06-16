@@ -10,14 +10,14 @@
       "step_retry_timeout": 0.0
     },
     "total_steps": 16,
-    "created_at": "2026-04-21T01:30:04.357865",
+    "created_at": "2026-06-16T01:18:04.028331",
     "name": "Feature Add Bot From TDP",
     "description": {
       "other": "",
       "owner": "v-liliu2@microsoft.com",
       "workitem": "16672797"
     },
-    "generated_at": "2026-04-21T01:30:04.357854",
+    "generated_at": "2026-06-16T01:18:04.028331",
     "execution_order": [
       "plan_59bf0f50",
       "plan_r_0113_093650",
@@ -43,7 +43,7 @@
       "plan_r_1023_094053"
     ],
     "tags": [],
-    "updated_at": "2026-04-21T01:31:11.883113"
+    "updated_at": "2026-06-16T01:30:37.610071"
   },
   "steps": [
     {
@@ -69,7 +69,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_ef5280d8",
-      "created_at": "2026-04-21T01:30:04.371968",
+      "created_at": "2026-06-16T01:18:04.054398",
       "plan_id": "plan_00430f25"
     },
     {
@@ -95,7 +95,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_865ba5ed",
-      "created_at": "2026-04-21T01:30:04.385753",
+      "created_at": "2026-06-16T01:18:04.065914",
       "plan_id": "plan_00430f25"
     },
     {
@@ -121,7 +121,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_109637cb",
-      "created_at": "2026-04-21T01:30:04.400590",
+      "created_at": "2026-06-16T01:18:04.078443",
       "plan_id": "plan_00430f25"
     },
     {
@@ -147,7 +147,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_9c98b411",
-      "created_at": "2026-04-21T01:30:04.412449",
+      "created_at": "2026-06-16T01:18:04.089635",
       "plan_id": "plan_00430f25"
     },
     {
@@ -173,7 +173,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_a2a7d68e",
-      "created_at": "2026-04-21T01:30:04.425661",
+      "created_at": "2026-06-16T01:18:04.100353",
       "plan_id": "plan_00430f25"
     },
     {
@@ -195,7 +195,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_2e335f2c",
-      "created_at": "2026-04-21T01:30:04.439712",
+      "created_at": "2026-06-16T01:18:04.109758",
       "plan_id": "plan_00430f25"
     },
     {
@@ -221,7 +221,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_a7466bbf",
-      "created_at": "2026-04-21T01:30:04.453083",
+      "created_at": "2026-06-16T01:18:04.119960",
       "plan_id": "plan_00430f25"
     },
     {
@@ -247,7 +247,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_9be353e1",
-      "created_at": "2026-04-21T01:30:04.466498",
+      "created_at": "2026-06-16T01:18:04.130583",
       "plan_id": "plan_00430f25"
     },
     {
@@ -269,7 +269,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_c8424bed",
-      "created_at": "2026-04-21T01:30:04.478750",
+      "created_at": "2026-06-16T01:18:04.141581",
       "plan_id": "plan_00430f25"
     },
     {
@@ -277,7 +277,7 @@
       "agent": "assertion",
       "tool": "",
       "parameters": {},
-      "description": "@assertion 'Create new bot(s) for debugging' is exist",
+      "description": "@assertion 'Create new bot(s) for debugging' exists.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -289,7 +289,7 @@
         "step_retry_timeout:120"
       ],
       "screenshot": null,
-      "created_at": "2026-04-21T01:30:04.489378",
+      "created_at": "2026-06-16T01:18:04.151708",
       "plan_id": "plan_00430f25"
     },
     {
@@ -315,7 +315,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_64ebaf4c",
-      "created_at": "2026-04-21T01:30:04.498759",
+      "created_at": "2026-06-16T01:18:04.159720",
       "plan_id": "plan_00430f25"
     },
     {
@@ -341,7 +341,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_9bf26d31",
-      "created_at": "2026-04-21T01:30:04.510645",
+      "created_at": "2026-06-16T01:18:04.169600",
       "plan_id": "plan_00430f25"
     },
     {
@@ -367,7 +367,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_ec44aff4",
-      "created_at": "2026-04-21T01:30:04.517736",
+      "created_at": "2026-06-16T01:18:04.178163",
       "plan_id": "plan_00430f25"
     },
     {
@@ -389,7 +389,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "step_bc3af2ee",
-      "created_at": "2026-04-21T01:30:04.524345",
+      "created_at": "2026-06-16T01:18:04.187094",
       "plan_id": "plan_00430f25"
     },
     {
@@ -409,7 +409,7 @@
         "step_retry_timeout:60"
       ],
       "screenshot": null,
-      "created_at": "2026-04-21T01:30:04.532705",
+      "created_at": "2026-06-16T01:18:04.194495",
       "plan_id": "plan_00430f25"
     },
     {
@@ -427,7 +427,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": null,
-      "created_at": "2026-04-21T01:30:04.539317",
+      "created_at": "2026-06-16T01:18:04.204141",
       "plan_id": "plan_00430f25"
     }
   ],

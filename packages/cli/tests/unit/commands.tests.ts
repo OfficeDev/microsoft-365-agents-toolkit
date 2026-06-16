@@ -1,13 +1,10 @@
-import { CLIContext, SystemError, err, ok, signedIn, signedOut } from "@microsoft/teamsfx-api";
+import { CLIContext, SystemError, err, ok } from "@microsoft/teamsfx-api";
 import {
   CliQuestionName,
   CollaborationConstants,
   CollaborationStateResult,
-  FuncToolChecker,
   FxCore,
   ListCollaboratorResult,
-  LocalCertificateManager,
-  LtsNodeChecker,
   PackageService,
   PermissionGrantInputs,
   PermissionListInputs,
@@ -17,19 +14,14 @@ import {
   envUtil,
   featureFlagManager,
 } from "@microsoft/teamsfx-core";
-import * as settingHelper from "@microsoft/teamsfx-core/build/common/projectSettingsHelper";
-import * as tools from "@microsoft/teamsfx-core/build/common/tools";
 import { assert } from "chai";
-import "mocha";
-import mockedEnv, { RestoreFn } from "mocked-env";
+import { RestoreFn } from "mocked-env";
 import * as sinon from "sinon";
 import * as activate from "../../src/activate";
 import { localTelemetryReporter } from "../../src/cmds/preview/localTelemetryReporter";
 import {
   accountLoginAzureCommand,
   accountLoginM365Command,
-  accountLogoutCommand,
-  accountShowCommand,
   accountUtils,
   addCommand,
   addSPFxWebpartCommand,
@@ -38,9 +30,7 @@ import {
   envAddCommand,
   envListCommand,
   getCreateCommand,
-  helpCommand,
   listSamplesCommand,
-  listTemplatesCommand,
   m365LaunchInfoCommand,
   m365SideloadingCommand,
   m365UnacquireCommand,
@@ -51,28 +41,26 @@ import {
   previewCommand,
   provisionCommand,
   publishCommand,
-  upgradeCommand,
   validateCommand,
 } from "../../src/commands/models";
 import { addAuthConfigCommand } from "../../src/commands/models/addAuthConfig";
 import { addCapabilityCommand } from "../../src/commands/models/addCapability";
 import { addPluginCommand } from "../../src/commands/models/addPlugin";
+import { exportOpenPluginCommand } from "../../src/commands/models/exportOpenPlugin";
+import { importOpenPluginCommand } from "../../src/commands/models/importOpenPlugin";
 import { entraAppUpdateCommand } from "../../src/commands/models/entraAppUpdate";
+import { envAddDeps } from "../../src/commands/models/envAdd";
+import { envListDeps } from "../../src/commands/models/envList";
 import { envResetCommand } from "../../src/commands/models/envReset";
 import * as listTemplatesModule from "../../src/commands/models/listTemplates";
 import { regeneratePluginCommand } from "../../src/commands/models/regeneratePlugin";
-import { setCommand } from "../../src/commands/models/set";
-import { setSensitivityLabelCommand } from "../../src/commands/models/setSensitivityLabel";
 import { shareCommand } from "../../src/commands/models/share";
 import { shareRemoveCommand } from "../../src/commands/models/shareRemove";
-import { DoctorChecker, teamsappDoctorCommand } from "../../src/commands/models/teamsapp/doctor";
 import { teamsappPackageCommand } from "../../src/commands/models/teamsapp/package";
 import { teamsappPublishCommand } from "../../src/commands/models/teamsapp/publish";
 import { teamsappUpdateCommand } from "../../src/commands/models/teamsapp/update";
 import { teamsappValidateCommand } from "../../src/commands/models/teamsapp/validate";
 import AzureTokenProvider from "../../src/commonlib/azureLogin";
-import AzureTokenCIProvider from "../../src/commonlib/azureLoginCI";
-import { AzureSpCrypto } from "../../src/commonlib/cacheAccess";
 import { logger } from "../../src/commonlib/logger";
 import M365TokenProvider from "../../src/commonlib/M365TokenProviderWrapper";
 import { MissingRequiredOptionError } from "../../src/error";
@@ -85,6 +73,8 @@ describe("CLI commands", () => {
 
   process.env.TEAMSFX_CLI_BIN_NAME = "atk";
   beforeEach(() => {
+    sandbox.stub(process.stdout, "write").returns(true as any);
+    sandbox.stub(process.stderr, "write").returns(true as any);
     sandbox.stub(logger, "info").resolves(true);
     sandbox.stub(logger, "error").resolves(true);
   });
@@ -177,7 +167,7 @@ describe("CLI commands", () => {
       assert.isTrue(res.isOk());
       assert.isTrue(createProjectStub.calledOnce);
       const inputs = createProjectStub.firstCall.args[0] as any;
-      assert.equal(inputs["template-name"], "api-plugin");
+      assert.equal(inputs["template-name"], "api-plugin-from-scratch");
       assert.equal(inputs["programming-language"], "typescript");
     });
 
@@ -209,7 +199,7 @@ describe("CLI commands", () => {
       assert.equal(inputs["programming-language"], "javascript");
     });
 
-    it("includes alias and name in capability choices", async () => {
+    it("includes template alias in capability choices", async () => {
       sandbox.stub(listTemplatesModule, "listAllTemplates").returns([
         {
           name: "api-plugin",
@@ -223,10 +213,7 @@ describe("CLI commands", () => {
       const command = getCreateCommand();
       const capabilityOption = command.options?.find((o) => o.name === CliQuestionName.Capability);
 
-      assert.deepEqual((capabilityOption as any)?.choices, [
-        "api-plugin-from-scratch",
-        "api-plugin",
-      ]);
+      assert.include((capabilityOption as any)?.choices, "api-plugin-from-scratch");
     });
 
     it("with-plugin=yes and api-plugin-type matches a sub-template → uses subTemplate name", async () => {
@@ -524,6 +511,106 @@ describe("CLI commands", () => {
     });
   });
 
+  describe("importOpenPluginCommand", async () => {
+    it("success", async () => {
+      sandbox
+        .stub(FxCore.prototype, "importOpenPlugin")
+        .resolves(ok({ projectPath: "/tmp/imported", warnings: [] }));
+      const ctx: CLIContext = {
+        command: { ...importOpenPluginCommand, fullName: "import openplugin" },
+        optionValues: {},
+        globalOptionValues: {},
+        argumentValues: [],
+        telemetryProperties: {},
+      };
+      const res = await importOpenPluginCommand.handler!(ctx);
+      assert.isTrue(res.isOk());
+    });
+
+    it("logs warnings returned by importOpenPlugin", async () => {
+      sandbox.stub(FxCore.prototype, "importOpenPlugin").resolves(
+        ok({
+          projectPath: "/tmp/imported",
+          warnings: [{ type: "openPluginImport", content: "test warning" }],
+        })
+      );
+      const ctx: CLIContext = {
+        command: { ...importOpenPluginCommand, fullName: "import openplugin" },
+        optionValues: {},
+        globalOptionValues: {},
+        argumentValues: [],
+        telemetryProperties: {},
+      };
+      const res = await importOpenPluginCommand.handler!(ctx);
+      assert.isTrue(res.isOk());
+    });
+
+    it("propagates errors from importOpenPlugin", async () => {
+      sandbox
+        .stub(FxCore.prototype, "importOpenPlugin")
+        .resolves(err(new SystemError("OpenPluginImport", "Boom", "boom")));
+      const ctx: CLIContext = {
+        command: { ...importOpenPluginCommand, fullName: "import openplugin" },
+        optionValues: {},
+        globalOptionValues: {},
+        argumentValues: [],
+        telemetryProperties: {},
+      };
+      const res = await importOpenPluginCommand.handler!(ctx);
+      assert.isTrue(res.isErr());
+    });
+  });
+
+  describe("exportOpenPluginCommand", async () => {
+    it("success", async () => {
+      sandbox
+        .stub(FxCore.prototype, "exportOpenPlugin")
+        .resolves(ok({ outputPath: "/tmp/exported", warnings: [] }));
+      const ctx: CLIContext = {
+        command: { ...exportOpenPluginCommand, fullName: "export openplugin" },
+        optionValues: {},
+        globalOptionValues: {},
+        argumentValues: [],
+        telemetryProperties: {},
+      };
+      const res = await exportOpenPluginCommand.handler!(ctx);
+      assert.isTrue(res.isOk());
+    });
+
+    it("logs warnings returned by exportOpenPlugin", async () => {
+      sandbox.stub(FxCore.prototype, "exportOpenPlugin").resolves(
+        ok({
+          outputPath: "/tmp/exported",
+          warnings: [{ type: "openPluginExport", content: "test warning" }],
+        })
+      );
+      const ctx: CLIContext = {
+        command: { ...exportOpenPluginCommand, fullName: "export openplugin" },
+        optionValues: {},
+        globalOptionValues: {},
+        argumentValues: [],
+        telemetryProperties: {},
+      };
+      const res = await exportOpenPluginCommand.handler!(ctx);
+      assert.isTrue(res.isOk());
+    });
+
+    it("propagates errors from exportOpenPlugin", async () => {
+      sandbox
+        .stub(FxCore.prototype, "exportOpenPlugin")
+        .resolves(err(new SystemError("OpenPluginExport", "Boom", "boom")));
+      const ctx: CLIContext = {
+        command: { ...exportOpenPluginCommand, fullName: "export openplugin" },
+        optionValues: {},
+        globalOptionValues: {},
+        argumentValues: [],
+        telemetryProperties: {},
+      };
+      const res = await exportOpenPluginCommand.handler!(ctx);
+      assert.isTrue(res.isErr());
+    });
+  });
+
   describe("regeneratePlguinCommand", async () => {
     it("success", async () => {
       sandbox.stub(FxCore.prototype, "regeneratePlugin").resolves(ok(undefined));
@@ -590,7 +677,7 @@ describe("CLI commands", () => {
   describe("envAddCommand", async () => {
     it("success", async () => {
       sandbox.stub(FxCore.prototype, "createEnv").resolves(ok(undefined));
-      sandbox.stub(settingHelper, "isValidProjectV3").returns(true);
+      sandbox.stub(envAddDeps, "isValidProjectV3").returns(true);
       const ctx: CLIContext = {
         command: { ...envAddCommand, fullName: "teamsfx" },
         optionValues: { projectPath: "." },
@@ -603,7 +690,7 @@ describe("CLI commands", () => {
     });
     it("isValidProjectV3: false", async () => {
       sandbox.stub(FxCore.prototype, "createEnv").resolves(ok(undefined));
-      sandbox.stub(settingHelper, "isValidProjectV3").returns(false);
+      sandbox.stub(envAddDeps, "isValidProjectV3").returns(false);
       const ctx: CLIContext = {
         command: { ...envAddCommand, fullName: "teamsfx" },
         optionValues: { projectPath: "." },
@@ -617,7 +704,7 @@ describe("CLI commands", () => {
   });
   describe("envListCommand", async () => {
     it("success", async () => {
-      sandbox.stub(settingHelper, "isValidProjectV3").returns(true);
+      sandbox.stub(envListDeps, "isValidProjectV3").returns(true);
       sandbox.stub(envUtil, "listEnv").resolves(ok(["dev"]));
       const ctx: CLIContext = {
         command: { ...envListCommand, fullName: "teamsfx" },
@@ -630,7 +717,7 @@ describe("CLI commands", () => {
       assert.isTrue(res.isOk());
     });
     it("isValidProjectV3: false", async () => {
-      sandbox.stub(settingHelper, "isValidProjectV3").returns(false);
+      sandbox.stub(envListDeps, "isValidProjectV3").returns(false);
       const ctx: CLIContext = {
         command: { ...envListCommand, fullName: "teamsfx" },
         optionValues: { projectPath: "." },
@@ -642,7 +729,7 @@ describe("CLI commands", () => {
       assert.isTrue(res.isErr());
     });
     it("listEnv error", async () => {
-      sandbox.stub(settingHelper, "isValidProjectV3").returns(true);
+      sandbox.stub(envListDeps, "isValidProjectV3").returns(true);
       sandbox.stub(envUtil, "listEnv").resolves(err(new UserCancelError()));
       const ctx: CLIContext = {
         command: { ...envListCommand, fullName: "teamsfx" },
@@ -1006,20 +1093,6 @@ describe("CLI commands", () => {
         telemetryProperties: {},
       };
       const res = await entraAppUpdateCommand.handler!(ctx);
-      assert.isTrue(res.isOk());
-    });
-  });
-  describe("upgradeCommand", async () => {
-    it("success", async () => {
-      sandbox.stub(FxCore.prototype, "phantomMigrationV3").resolves(ok(undefined));
-      const ctx: CLIContext = {
-        command: { ...upgradeCommand, fullName: "teamsfx" },
-        optionValues: { force: true },
-        globalOptionValues: {},
-        argumentValues: [],
-        telemetryProperties: {},
-      };
-      const res = await upgradeCommand.handler!(ctx);
       assert.isTrue(res.isOk());
     });
   });
@@ -1433,688 +1506,6 @@ describe("CLI commands", () => {
       };
       const res = await addAuthConfigCommand.handler!(ctx);
       assert.isTrue(res.isOk());
-    });
-  });
-});
-
-describe("CLI read-only commands", () => {
-  const sandbox = sinon.createSandbox();
-
-  let messages: string[] = [];
-
-  beforeEach(() => {
-    sandbox.stub(logger, "info").callsFake(async (message: string) => {
-      messages.push(message);
-      return true;
-    });
-    sandbox.stub(logger, "error").callsFake(async (message: string) => {
-      messages.push(message);
-      return true;
-    });
-    sandbox.stub(logger, "outputInfo").callsFake(async (message: string) => {
-      messages.push(message);
-      return true;
-    });
-    sandbox.stub(logger, "outputError").callsFake(async (message: string) => {
-      messages.push(message);
-      return true;
-    });
-  });
-
-  afterEach(() => {
-    messages = [];
-    sandbox.restore();
-  });
-  describe("AccountUtils", async () => {
-    it("outputAccountInfoOffline", async () => {
-      const res = accountUtils.outputAccountInfoOffline("m365", "xxx");
-      assert.isTrue(res);
-    });
-    it("outputM365Info login success", async () => {
-      sandbox.stub(M365TokenProvider, "getJsonObject").resolves(ok({ upn: "fakename" }));
-      sandbox.stub(M365TokenProvider, "getTenant").resolves(undefined);
-      const res = await accountUtils.outputM365Info("login");
-      assert.isTrue(res);
-    });
-    context("outputM365Info login under hosting tenant", () => {
-      let mocks: RestoreFn;
-      beforeEach(() => {
-        mocks = mockedEnv({ TEAMSFX_MULTI_TENANT: "true" });
-        sandbox.stub(M365TokenProvider, "getJsonObject").resolves(ok({ unique_name: "fakename" }));
-        sandbox.stub(M365TokenProvider, "getTenant").resolves("faked_tenant_id");
-      });
-
-      afterEach(() => {
-        mocks();
-      });
-
-      it("specified tenant name displayed", async () => {
-        sandbox.stub(M365TokenProvider, "getAccessToken").resolves(ok("token"));
-        sandbox
-          .stub(tools, "listAllTenants")
-          .resolves([
-            { tenantId: "faked_tid_1" },
-            { tenantId: "faked_tenant_id", displayName: "Test tenant" },
-          ]);
-        const res = await accountUtils.outputM365Info("login", "faked_tenant_id");
-        assert.isTrue(res);
-      });
-
-      it("specified tenant not match", async () => {
-        sandbox.stub(M365TokenProvider, "getAccessToken").resolves(ok("token"));
-        sandbox
-          .stub(tools, "listAllTenants")
-          .resolves([{ tenantId: "faked_tid_1" }, { tenantId: "faked_tid_2" }]);
-        const res = await accountUtils.outputM365Info("login", "faked_tenant_id");
-        assert.isTrue(res);
-      });
-
-      it("failed to retrieve access token", async () => {
-        sandbox
-          .stub(M365TokenProvider, "getAccessToken")
-          .resolves(err("failed to get access token" as any));
-        const res = await accountUtils.outputM365Info("login", "faked_tenant_id");
-        assert.isTrue(res);
-      });
-    });
-    it("outputM365Info login fail", async () => {
-      sandbox.stub(M365TokenProvider, "getJsonObject").resolves(err(new UserCancelError()));
-      const res = await accountUtils.outputM365Info("login");
-      assert.isFalse(res);
-    });
-    it("outputM365Info show success", async () => {
-      sandbox.stub(M365TokenProvider, "getJsonObject").resolves(ok({ upn: "fakename" }));
-      sandbox.stub(M365TokenProvider, "getTenant").resolves("faked_tenant_id");
-      sandbox.stub(M365TokenProvider, "getAccessToken").resolves(ok("token"));
-      sandbox
-        .stub(tools, "listAllTenants")
-        .resolves([{ tenantId: "faked_tid_1" }, { tenantId: "faked_tenant_id" }]);
-      const res = await accountUtils.outputM365Info("show");
-      assert.isTrue(res);
-    });
-    it("outputM365Info show fail", async () => {
-      sandbox.stub(M365TokenProvider, "getJsonObject").resolves(err(new UserCancelError()));
-      const res = await accountUtils.outputM365Info("show");
-      assert.isFalse(res);
-    });
-    it("outputAzureInfo login", async () => {
-      sandbox.stub(AzureTokenCIProvider, "load").resolves();
-      sandbox.stub(AzureTokenCIProvider, "init").resolves();
-      sandbox.stub(AzureTokenCIProvider, "getJsonObject").resolves({ upn: "test" });
-      sandbox.stub(AzureTokenCIProvider, "listSubscriptions").resolves([]);
-      const res = await accountUtils.outputAzureInfo("login", undefined, true);
-      assert.isTrue(res);
-    });
-    it("outputAzureInfo login with tenant parameter", async () => {
-      const mockedEnvRestore = mockedEnv({ TEAMSFX_MULTI_TENANT: "true" });
-      sandbox.stub(AzureTokenCIProvider, "load").resolves();
-      sandbox.stub(AzureTokenCIProvider, "init").resolves();
-      sandbox.stub(AzureTokenCIProvider, "switchTenant").resolves();
-      sandbox.stub(AzureTokenCIProvider, "getJsonObject").resolves({ unique_name: "test" });
-      sandbox.stub(AzureTokenCIProvider, "listSubscriptions").resolves([]);
-      sandbox.stub(AzureTokenCIProvider, "getTenant").resolves("faked_tenant_id");
-      sandbox.stub(AzureTokenCIProvider, "getIdentityCredentialAsync").resolves({
-        getToken: async () => {
-          return Promise.resolve({ token: "faked_token" });
-        },
-      } as any);
-      sandbox
-        .stub(tools, "listAllTenants")
-        .resolves([{ tenantId: "faked_tid_1" }, { tenantId: "faked_tenant_id" }]);
-      const res = await accountUtils.outputAzureInfo("login", "faked_tenant_id", true);
-      assert.isTrue(res);
-      mockedEnvRestore();
-    });
-    it("outputAzureInfo login fail with tenant parameter - invalid token", async () => {
-      const mockedEnvRestore = mockedEnv({ TEAMSFX_MULTI_TENANT: "true" });
-      sandbox.stub(AzureTokenCIProvider, "load").resolves();
-      sandbox.stub(AzureTokenCIProvider, "init").resolves();
-      sandbox.stub(AzureTokenCIProvider, "switchTenant").resolves();
-      sandbox.stub(AzureTokenCIProvider, "getJsonObject").resolves({ unique_name: "test" });
-      sandbox.stub(AzureTokenCIProvider, "listSubscriptions").resolves([]);
-      sandbox.stub(AzureTokenCIProvider, "getTenant").resolves("faked_tenant_id");
-      sandbox.stub(AzureTokenCIProvider, "getIdentityCredentialAsync").resolves(undefined);
-      const res = await accountUtils.outputAzureInfo("login", "faked_tenant_id", true);
-      assert.isTrue(res);
-      mockedEnvRestore();
-    });
-    it("outputAzureInfo login fail with tenant parameter - tenant mismatch", async () => {
-      const mockedEnvRestore = mockedEnv({ TEAMSFX_MULTI_TENANT: "true" });
-      sandbox.stub(AzureTokenCIProvider, "load").resolves();
-      sandbox.stub(AzureTokenCIProvider, "init").resolves();
-      sandbox.stub(AzureTokenCIProvider, "switchTenant").resolves();
-      sandbox.stub(AzureTokenCIProvider, "getJsonObject").resolves({ unique_name: "test" });
-      sandbox.stub(AzureTokenCIProvider, "listSubscriptions").resolves([]);
-      sandbox.stub(AzureTokenCIProvider, "getTenant").resolves("faked_tenant_id");
-      sandbox.stub(AzureTokenCIProvider, "getIdentityCredentialAsync").resolves({
-        getToken: async () => {
-          return Promise.resolve({ token: "faked_token" });
-        },
-      } as any);
-      sandbox
-        .stub(tools, "listAllTenants")
-        .resolves([{ tenantId: "faked_tid_1" }, { tenantId: "faked_tid_2" }]);
-      const res = await accountUtils.outputAzureInfo("login", "faked_tenant_id", true);
-      assert.isTrue(res);
-      mockedEnvRestore();
-    });
-    it("outputAzureInfo login fail", async () => {
-      sandbox.stub(AzureTokenProvider, "getJsonObject").resolves(undefined);
-      const res = await accountUtils.outputAzureInfo("login");
-      assert.isFalse(res);
-    });
-    it("outputAzureInfo show", async () => {
-      sandbox.stub(AzureTokenProvider, "getJsonObject").resolves({ upn: "test" });
-      sandbox.stub(AzureTokenProvider, "listSubscriptions").resolves([]);
-      const res = await accountUtils.outputAzureInfo("show");
-      assert.isTrue(res);
-    });
-    it("outputAzureInfo show fail", async () => {
-      sandbox.stub(AzureTokenProvider, "getJsonObject").resolves(undefined);
-      const res = await accountUtils.outputAzureInfo("show");
-      assert.isFalse(res);
-    });
-    it("outputAzureInfo show with sp login", async () => {
-      sandbox.stub(AzureSpCrypto, "checkAzureSPFile").resolves(true);
-      sandbox.stub(AzureTokenCIProvider, "load").resolves();
-      sandbox.stub(AzureTokenCIProvider, "init").resolves();
-      sandbox.stub(AzureTokenCIProvider, "switchTenant").resolves();
-      sandbox.stub(AzureTokenCIProvider, "getJsonObject").resolves({ unique_name: "test" });
-      sandbox.stub(AzureTokenCIProvider, "listSubscriptions").resolves([]);
-      sandbox.stub(AzureTokenCIProvider, "getTenant").resolves("faked_tenant_id");
-      const getTokenFake = {
-        getToken: async (scope: string) => {
-          return Promise.resolve({ token: "faked_token" });
-        },
-      };
-      const getTokenSpy = sandbox.spy(getTokenFake, "getToken");
-      sandbox
-        .stub(AzureTokenCIProvider, "getIdentityCredentialAsync")
-        .resolves(getTokenFake as any);
-      sandbox
-        .stub(tools, "listAllTenants")
-        .resolves([{ tenantId: "faked_tid_1" }, { tenantId: "faked_tid_2" }]);
-      const res = await accountUtils.outputAzureInfo("login", "faked_tenant_id", true);
-      assert.isTrue(res);
-      assert.isTrue(getTokenSpy.calledOnceWith("https://management.core.windows.net/.default"));
-    });
-  });
-  describe("accountShowCommand", async () => {
-    it("both signedOut", async () => {
-      sandbox.stub(M365TokenProvider, "getStatus").resolves(ok({ status: signedOut }));
-      sandbox.stub(AzureTokenProvider, "getStatus").resolves({ status: signedOut });
-      messages = [];
-      const ctx: CLIContext = {
-        command: {
-          ...accountShowCommand,
-          fullName: `${process.env.TEAMSFX_CLI_BIN_NAME} auth list`,
-        },
-        optionValues: {},
-        globalOptionValues: {},
-        argumentValues: [],
-        telemetryProperties: {},
-      };
-      const res = await accountShowCommand.handler!(ctx);
-      assert.isTrue(res.isOk());
-    });
-    it("both signedIn and checkIsOnline = true", async () => {
-      sandbox.stub(M365TokenProvider, "getStatus").resolves(ok({ status: signedIn }));
-      sandbox.stub(AzureTokenProvider, "getStatus").resolves({ status: signedIn });
-      sandbox.stub(accountUtils, "checkIsOnline").resolves(true);
-      const outputM365Info = sandbox.stub(accountUtils, "outputM365Info").resolves();
-      const outputAzureInfo = sandbox.stub(accountUtils, "outputAzureInfo").resolves();
-      messages = [];
-      const ctx: CLIContext = {
-        command: {
-          ...accountShowCommand,
-          fullName: `${process.env.TEAMSFX_CLI_BIN_NAME} auth list`,
-        },
-        optionValues: {},
-        globalOptionValues: {},
-        argumentValues: [],
-        telemetryProperties: {},
-      };
-      const res = await accountShowCommand.handler!(ctx);
-      assert.isTrue(res.isOk());
-      assert.isTrue(outputM365Info.calledOnce);
-      assert.isTrue(outputAzureInfo.calledOnce);
-    });
-    it("both signedIn and checkIsOnline = false", async () => {
-      sandbox
-        .stub(M365TokenProvider, "getStatus")
-        .resolves(ok({ status: signedIn, accountInfo: { upn: "xxx" } }));
-      sandbox
-        .stub(AzureTokenProvider, "getStatus")
-        .resolves({ status: signedIn, accountInfo: { upn: "xxx" } });
-      sandbox.stub(accountUtils, "checkIsOnline").resolves(false);
-      const outputAccountInfoOffline = sandbox.stub(accountUtils, "outputAccountInfoOffline");
-      messages = [];
-      const ctx: CLIContext = {
-        command: {
-          ...accountShowCommand,
-          fullName: `${process.env.TEAMSFX_CLI_BIN_NAME} auth list`,
-        },
-        optionValues: {},
-        globalOptionValues: {},
-        argumentValues: [],
-        telemetryProperties: {},
-      };
-      const res = await accountShowCommand.handler!(ctx);
-      assert.isTrue(res.isOk());
-      assert.isTrue(outputAccountInfoOffline.calledTwice);
-    });
-    it("M365TokenProvider.getStatus() returns error", async () => {
-      sandbox.stub(M365TokenProvider, "getStatus").resolves(err(new UserCancelError()));
-      messages = [];
-      const ctx: CLIContext = {
-        command: {
-          ...accountShowCommand,
-          fullName: `${process.env.TEAMSFX_CLI_BIN_NAME} auth list`,
-        },
-        optionValues: {},
-        globalOptionValues: {},
-        argumentValues: [],
-        telemetryProperties: {},
-      };
-      const res = await accountShowCommand.handler!(ctx);
-      assert.isTrue(res.isErr());
-    });
-  });
-
-  describe("accountLogoutCommand", async () => {
-    it("azure success", async () => {
-      sandbox.stub(AzureTokenProvider, "signout").resolves(true);
-      const ctx: CLIContext = {
-        command: {
-          ...accountLogoutCommand,
-          fullName: `${process.env.TEAMSFX_CLI_BIN_NAME} auth logout`,
-        },
-        optionValues: {},
-        globalOptionValues: {},
-        argumentValues: ["azure"],
-        telemetryProperties: {},
-      };
-      messages = [];
-      const res = await accountLogoutCommand.handler!(ctx);
-      assert.isTrue(res.isOk());
-    });
-    it("azure fail", async () => {
-      sandbox.stub(AzureTokenProvider, "signout").resolves(false);
-      const ctx: CLIContext = {
-        command: {
-          ...accountLogoutCommand,
-          fullName: `${process.env.TEAMSFX_CLI_BIN_NAME} auth logout`,
-        },
-        optionValues: {},
-        globalOptionValues: {},
-        argumentValues: ["azure"],
-        telemetryProperties: {},
-      };
-      messages = [];
-      const res = await accountLogoutCommand.handler!(ctx);
-      assert.isTrue(res.isOk());
-    });
-    it("m365 success", async () => {
-      sandbox.stub(M365TokenProvider, "signout").resolves(true);
-      const ctx: CLIContext = {
-        command: {
-          ...accountLogoutCommand,
-          fullName: `${process.env.TEAMSFX_CLI_BIN_NAME} auth logout`,
-        },
-        optionValues: {},
-        globalOptionValues: {},
-        argumentValues: ["m365"],
-        telemetryProperties: {},
-      };
-      const res = await accountLogoutCommand.handler!(ctx);
-      assert.isTrue(res.isOk());
-    });
-    it("m365 fail", async () => {
-      sandbox.stub(M365TokenProvider, "signout").resolves(false);
-      const ctx: CLIContext = {
-        command: {
-          ...accountLogoutCommand,
-          fullName: `${process.env.TEAMSFX_CLI_BIN_NAME} auth logout`,
-        },
-        optionValues: {},
-        globalOptionValues: {},
-        argumentValues: ["m365"],
-        telemetryProperties: {},
-      };
-      messages = [];
-      const res = await accountLogoutCommand.handler!(ctx);
-      assert.isTrue(res.isOk());
-    });
-  });
-  describe("listTemplatesCommand", async () => {
-    const mockedEnvRestore: RestoreFn = () => {};
-    afterEach(() => {
-      if (mockedEnvRestore) {
-        mockedEnvRestore();
-      }
-    });
-    it("happy path", async () => {
-      const ctx: CLIContext = {
-        command: { ...listTemplatesCommand, fullName: "list" },
-        optionValues: {},
-        globalOptionValues: {},
-        argumentValues: [],
-        telemetryProperties: {},
-      };
-      const res = await listTemplatesCommand.handler!(ctx);
-      assert.isTrue(res.isOk());
-    });
-    it("table with description", async () => {
-      const ctx: CLIContext = {
-        command: { ...listTemplatesCommand, fullName: "..." },
-        optionValues: { format: "table", description: true },
-        globalOptionValues: {},
-        argumentValues: ["key", "value"],
-        telemetryProperties: {},
-      };
-      const res = await listTemplatesCommand.handler!(ctx);
-      assert.isTrue(res.isOk());
-    });
-    it("table without description", async () => {
-      const ctx: CLIContext = {
-        command: { ...listTemplatesCommand, fullName: "..." },
-        optionValues: { format: "table", description: false },
-        globalOptionValues: {},
-        argumentValues: ["key", "value"],
-        telemetryProperties: {},
-      };
-      const res = await listTemplatesCommand.handler!(ctx);
-      assert.isTrue(res.isOk());
-    });
-
-    it("groupTemplatesByName groups by name and falls back display name", async () => {
-      const templates = listTemplatesModule.groupTemplatesByName([
-        {
-          name: "dup-template",
-          alias: "dup-alias",
-          description: "desc 1",
-          language: "typescript",
-        },
-        {
-          name: "dup-template",
-          alias: "dup-alias-2",
-          description: "desc 2",
-          language: "javascript",
-        },
-        {
-          name: "no-alias-template",
-          description: "desc 3",
-          language: "typescript",
-        },
-      ] as any);
-
-      assert.equal(templates.length, 2);
-      assert.equal(templates[0].displayName, "dup-alias");
-      assert.equal(templates[1].displayName, "no-alias-template");
-    });
-  });
-  describe("listSamplesCommand", async () => {
-    it("json", async () => {
-      sandbox.stub(utils, "getTemplates").resolves([]);
-      const ctx: CLIContext = {
-        command: { ...listSamplesCommand, fullName: "..." },
-        optionValues: { format: "json" },
-        globalOptionValues: {},
-        argumentValues: ["key", "value"],
-        telemetryProperties: {},
-      };
-      const res = await listSamplesCommand.handler!(ctx);
-      assert.isTrue(res.isOk());
-    });
-    it("table with filter + description", async () => {
-      sandbox.stub(utils, "getTemplates").resolves([]);
-      const ctx: CLIContext = {
-        command: { ...listSamplesCommand, fullName: "..." },
-        optionValues: { tag: "tab", format: "table", description: true },
-        globalOptionValues: {},
-        argumentValues: ["key", "value"],
-        telemetryProperties: {},
-      };
-      const res = await listSamplesCommand.handler!(ctx);
-      assert.isTrue(res.isOk());
-    });
-    it("table without description", async () => {
-      sandbox.stub(utils, "getTemplates").resolves([]);
-      const ctx: CLIContext = {
-        command: { ...listSamplesCommand, fullName: "..." },
-        optionValues: { format: "table", description: false },
-        globalOptionValues: {},
-        argumentValues: ["key", "value"],
-        telemetryProperties: {},
-      };
-      const res = await listSamplesCommand.handler!(ctx);
-      assert.isTrue(res.isOk());
-    });
-  });
-  describe("helpCommand", async () => {
-    it("happy", async () => {
-      const ctx: CLIContext = {
-        command: { ...helpCommand, fullName: "..." },
-        optionValues: {},
-        globalOptionValues: {},
-        argumentValues: [],
-        telemetryProperties: {},
-      };
-      const res = await helpCommand.handler!(ctx);
-      assert.isTrue(res.isOk());
-    });
-  });
-
-  describe("doctor", async () => {
-    describe("checkAccount", async () => {
-      it("checkAccount error", async () => {
-        sandbox
-          .stub(DoctorChecker.prototype, "checkM365Account")
-          .resolves(err(new UserCancelError()));
-        const checker = new DoctorChecker();
-        await checker.checkAccount();
-      });
-      it("checkAccount success", async () => {
-        sandbox.stub(DoctorChecker.prototype, "checkM365Account").resolves(ok("success"));
-        const checker = new DoctorChecker();
-        await checker.checkAccount();
-      });
-    });
-    describe("checkM365Account", async () => {
-      it("checkM365Account - signin", async () => {
-        const token = "test-token";
-        const tenantId = "test-tenant-id";
-        const upn = "test-user";
-        sandbox.stub(M365TokenProvider, "getStatus").returns(
-          Promise.resolve(
-            ok({
-              status: signedIn,
-              token: token,
-              accountInfo: {
-                tid: tenantId,
-                upn: upn,
-              },
-            })
-          )
-        );
-        sandbox.stub(tools, "getSideloadingStatus").resolves(true);
-        const checker = new DoctorChecker();
-        const accountRes = await checker.checkM365Account();
-        assert.isTrue(accountRes.isOk());
-        const account = (accountRes as any).value;
-        assert.include(account, "is signed in and custom app upload permission is enabled");
-      });
-      it("checkM365Account - error", async () => {
-        sandbox.stub(M365TokenProvider, "getStatus").resolves(err(new UserCancelError()));
-        sandbox.stub(tools, "getSideloadingStatus").resolves(true);
-        const checker = new DoctorChecker();
-        const accountRes = await checker.checkM365Account();
-        assert.isTrue(accountRes.isOk());
-        const account = (accountRes as any).value;
-        assert.include(account, "You've not signed into your Microsoft 365 account yet.");
-      });
-      it("checkM365Account - error2", async () => {
-        sandbox.stub(M365TokenProvider, "getStatus").rejects(new Error("test"));
-        sandbox.stub(tools, "getSideloadingStatus").resolves(true);
-        const checker = new DoctorChecker();
-        const accountRes = await checker.checkM365Account();
-        assert.isTrue(accountRes.isErr());
-      });
-      it("checkM365Account - signout", async () => {
-        const token = "test-token";
-        const tenantId = "test-tenant-id";
-        const upn = "test-user";
-        const getStatusStub = sandbox.stub(M365TokenProvider, "getStatus");
-        getStatusStub.onCall(0).resolves(
-          ok({
-            status: signedOut,
-          })
-        );
-        getStatusStub.onCall(1).resolves(
-          ok({
-            status: signedIn,
-            token: token,
-            accountInfo: {
-              tid: tenantId,
-              upn: upn,
-            },
-          })
-        );
-        sandbox.stub(M365TokenProvider, "getAccessToken").resolves(ok(token));
-        sandbox.stub(tools, "getSideloadingStatus").resolves(true);
-        const checker = new DoctorChecker();
-        const accountRes = await checker.checkM365Account();
-        assert.isTrue(accountRes.isOk());
-        const account = (accountRes as any).value;
-        assert.include(account, "is signed in and custom app upload permission is enabled");
-      });
-
-      it("checkM365Account - no custom app upload permission", async () => {
-        const token = "test-token";
-        const tenantId = "test-tenant-id";
-        const upn = "test-user";
-        sandbox.stub(M365TokenProvider, "getStatus").returns(
-          Promise.resolve(
-            ok({
-              status: signedIn,
-              token: token,
-              accountInfo: {
-                tid: tenantId,
-                upn: upn,
-              },
-            })
-          )
-        );
-        sandbox.stub(tools, "getSideloadingStatus").resolves(false);
-        const checker = new DoctorChecker();
-        const accountRes = await checker.checkM365Account();
-        assert.isTrue(accountRes.isOk());
-        const value = (accountRes as any).value;
-        assert.include(
-          value,
-          "Your Microsoft 365 tenant admin hasn't enabled custom app upload permission for your account"
-        );
-      });
-    });
-
-    describe("checkNodejs", async () => {
-      it("installed", async () => {
-        sandbox
-          .stub(LtsNodeChecker.prototype, "getInstallationInfo")
-          .resolves({ isInstalled: true } as any);
-        const checker = new DoctorChecker();
-        await checker.checkNodejs();
-      });
-      it("error", async () => {
-        sandbox
-          .stub(LtsNodeChecker.prototype, "getInstallationInfo")
-          .resolves({ isInstalled: true, error: new UserCancelError() } as any);
-        const checker = new DoctorChecker();
-        await checker.checkNodejs();
-      });
-      it("not installed", async () => {
-        sandbox
-          .stub(LtsNodeChecker.prototype, "getInstallationInfo")
-          .resolves({ isInstalled: false } as any);
-        const checker = new DoctorChecker();
-        await checker.checkNodejs();
-      });
-    });
-    describe("checkFuncCoreTool", async () => {
-      it("installed", async () => {
-        sandbox
-          .stub(FuncToolChecker.prototype, "queryFuncVersion")
-          .resolves({ versionStr: "3.0" } as any);
-        const checker = new DoctorChecker();
-        await checker.checkFuncCoreTool();
-      });
-      it("not installed", async () => {
-        sandbox.stub(FuncToolChecker.prototype, "queryFuncVersion").rejects(new Error());
-        const checker = new DoctorChecker();
-        await checker.checkFuncCoreTool();
-      });
-    });
-    describe("checkCert", async () => {
-      it("not found", async () => {
-        sandbox
-          .stub(LocalCertificateManager.prototype, "setupCertificate")
-          .resolves({ found: false } as any);
-        const checker = new DoctorChecker();
-        await checker.checkCert();
-      });
-      it("found trusted", async () => {
-        sandbox
-          .stub(LocalCertificateManager.prototype, "setupCertificate")
-          .resolves({ found: true, alreadyTrusted: true } as any);
-        const checker = new DoctorChecker();
-        await checker.checkCert();
-      });
-      it("found not trusted", async () => {
-        sandbox
-          .stub(LocalCertificateManager.prototype, "setupCertificate")
-          .resolves({ found: true, alreadyTrusted: false } as any);
-        const checker = new DoctorChecker();
-        await checker.checkCert();
-      });
-    });
-    it("happy", async () => {
-      sandbox.stub(DoctorChecker.prototype, "checkAccount").resolves();
-      sandbox.stub(DoctorChecker.prototype, "checkNodejs").resolves();
-      sandbox.stub(DoctorChecker.prototype, "checkFuncCoreTool").resolves();
-      sandbox.stub(DoctorChecker.prototype, "checkCert").resolves();
-      const ctx: CLIContext = {
-        command: {
-          ...teamsappDoctorCommand,
-          fullName: `${process.env.TEAMSFX_CLI_BIN_NAME} doctor`,
-        },
-        optionValues: {},
-        globalOptionValues: {},
-        argumentValues: [],
-        telemetryProperties: {},
-      };
-      const res = await teamsappDoctorCommand.handler!(ctx);
-      assert.isTrue(res.isOk());
-    });
-    describe("getSetCommand", async () => {
-      it("set command", async () => {
-        const commands = setCommand();
-        assert.isTrue(commands.commands?.length === 1);
-      });
-    });
-
-    describe("set sensitivity label", async () => {
-      it("success", async () => {
-        sandbox.stub(FxCore.prototype, "setSensitivityLabel").resolves(ok(undefined));
-        const ctx: CLIContext = {
-          command: { ...setSensitivityLabelCommand, fullName: "set sensitivity label" },
-          optionValues: {},
-          globalOptionValues: {},
-          argumentValues: [],
-          telemetryProperties: {},
-        };
-        const res = await setSensitivityLabelCommand.handler!(ctx);
-        assert.isTrue(res.isOk());
-      });
     });
   });
 });

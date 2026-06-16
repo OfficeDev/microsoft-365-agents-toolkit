@@ -84,6 +84,7 @@ export enum Stage {
   kiotaRegenerate = "kiotaRegenerate",
   addAuthAction = "addAuthAction",
   addKnowledge = "addKnowledge",
+  addSkill = "addSkill",
   setSensitivityLabel = "setSensitivityLabel",
   installApp = "installApp",
   updateActionWithMCP = "updateActionWithMCP",

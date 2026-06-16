@@ -35,7 +35,7 @@ import {
   UserCancelError,
   assembleError,
 } from "@microsoft/teamsfx-core";
-import { spawn } from "child_process";
+import child_process from "child_process";
 import fs from "fs-extra";
 import open from "open";
 import path from "path";
@@ -642,7 +642,7 @@ class CLIUserInteraction implements UserInteraction {
       const commandArgs = isWindows ? ["/c", args.cmd] : ["-c", args.cmd];
       logger.info(`Executing task: ${args.cmd}`);
       let output = "";
-      const childProcess = spawn(command, commandArgs, {
+      const childProcess = child_process.spawn(command, commandArgs, {
         stdio: ["inherit", "pipe", "pipe"],
         cwd: args.workingDirectory,
         timeout: args.timeout,

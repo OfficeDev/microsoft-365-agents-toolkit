@@ -1,7 +1,5 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
-
-import "mocha";
 import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
 import chai from "chai";
 import chaiAsPromised from "chai-as-promised";

@@ -1,6 +1,5 @@
 import { assert } from "chai";
 import fs from "fs-extra";
-import "mocha";
 import mockedEnv, { RestoreFn } from "mocked-env";
 import * as sinon from "sinon";
 import { jsonUtils } from "../../src/common/jsonUtils";

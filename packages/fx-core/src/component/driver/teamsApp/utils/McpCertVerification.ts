@@ -7,6 +7,10 @@ import { promisify } from "util";
 import { LocalMcpPrefix } from "../../../constants";
 import { ODRProvider } from "../../../utils/odrProvider";
 
+export const mcpCertVerificationDeps = {
+  exec,
+};
+
 /**
  * Verifies that all Local MCP plugin certificates in the plugin file are valid.
  * Returns true if all certs are valid or no Local MCP plugins exist, false otherwise.
@@ -18,20 +22,26 @@ export async function verifyLocalMCPPluginCerts(pluginFile: AdmZip.IZipEntry): P
     return true;
   }
 
-  const servers = await ODRProvider.listServers();
-
   let allValidCerts = true;
 
   const localPluginRuntimes = pluginManifest.runtimes.filter(
     (runtime: { type: string }) => runtime.type === "LocalPlugin"
   );
 
-  for (const runtime of localPluginRuntimes) {
+  const localMcpPluginRuntimes = localPluginRuntimes.filter((runtime: any) =>
+    runtime?.spec?.local_endpoint?.startsWith(LocalMcpPrefix)
+  );
+
+  if (localMcpPluginRuntimes.length === 0) {
+    return true;
+  }
+
+  const servers = await ODRProvider.listServers();
+
+  for (const runtime of localMcpPluginRuntimes) {
     const localEndpoint = (runtime as { spec?: { local_endpoint?: string } }).spec?.local_endpoint;
 
-    if (!localEndpoint || !localEndpoint.startsWith(LocalMcpPrefix)) {
-      continue;
-    }
+    if (!localEndpoint) continue;
 
     const mcpIdentifier = localEndpoint.substring(LocalMcpPrefix.length);
     const serverInfo = servers.find((x) => x.identifier === mcpIdentifier);
@@ -57,7 +67,7 @@ export async function verifyLocalMCPPluginCerts(pluginFile: AdmZip.IZipEntry): P
  * Invalid certs include: Developer (self-signed).
  */
 export async function verifyPackageFamilyCertIsValid(packageName: string): Promise<boolean> {
-  const execAsync = promisify(exec);
+  const execAsync = promisify(mcpCertVerificationDeps.exec);
   const command = `powershell.exe -Command "& Get-AppxPackage | where { $_.PackageFamilyName -eq '${packageName}' } | select { $_.SignatureKind }"`;
 
   try {

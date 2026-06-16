@@ -4,7 +4,6 @@
 import { expect } from "chai";
 import { createSandbox } from "sinon";
 import axios from "axios";
-import "mocha";
 import mockedEnv from "mocked-env";
 import fs from "fs-extra";
 import path from "path";
@@ -40,8 +39,8 @@ describe("InstallAppToChannelDriver", () => {
   manifest.id = "fake-id";
   const zip = new AdmZip();
   zip.addFile(Constants.MANIFEST_FILE, Buffer.from(JSON.stringify(manifest)));
-  zip.addFile("color.png", new Buffer(""));
-  zip.addFile("outlie.png", new Buffer(""));
+  zip.addFile("color.png", Buffer.from(""));
+  zip.addFile("outlie.png", Buffer.from(""));
 
   const archivedFile = zip.toBuffer();
 

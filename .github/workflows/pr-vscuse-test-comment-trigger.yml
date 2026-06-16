@@ -1,0 +1,155 @@
+name: PR VscUse Test Plan Comment Trigger
+
+# Triggered when a PR comment starts with `/atk-vsuse-test`.
+#
+# This workflow:
+#   1. Verifies the commenter has write/maintain/admin permission (anti-abuse).
+#   2. Extracts the hint text after `/atk-vsuse-test`.
+#   3. Posts a hidden marker comment (<!-- atk-vsuse-test-hint -->) carrying the hint
+#      so the existing pr-vscuse-test.yml workflow can feed it to the AI plan selector.
+#   4. Dispatches pr-vscuse-test.yml via workflow_dispatch with the PR number, so it
+#      re-runs and reads the hint comment we just posted.
+#
+# Why workflow_dispatch instead of cycling the `atk-vsuse-test` label?
+# GitHub's anti-recursion protection means actions performed with the default
+# GITHUB_TOKEN (such as remove/add label) do NOT trigger other workflows — so a
+# `pull_request: labeled` listener would silently never fire. workflow_dispatch
+# IS allowed from GITHUB_TOKEN and runs as expected, so it is the supported
+# manual-trigger path for chaining workflows.
+
+on:
+  issue_comment:
+    types: [created]
+
+permissions:
+  pull-requests: write
+  issues: write
+  contents: read
+  actions: write
+
+concurrency:
+  group: pr-vscuse-test-comment-trigger-${{ github.event.issue.number }}
+  cancel-in-progress: false
+
+jobs:
+  trigger-vscuse-test:
+    # Only run when the comment is on a PR and starts with the trigger keyword.
+    if: >-
+      github.event.issue.pull_request != null &&
+      startsWith(github.event.comment.body, '/atk-vsuse-test')
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Authorize commenter and extract hint
+        id: authorize
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const allowed = ['OWNER', 'MEMBER', 'COLLABORATOR'];
+            const assoc   = context.payload.comment.author_association;
+            if (!allowed.includes(assoc)) {
+              core.setFailed(`Commenter (${context.payload.comment.user.login}, association=${assoc}) is not authorized to trigger atk-vsuse-test.`);
+              return;
+            }
+
+            // Strip the trigger keyword and any leading whitespace/colon.
+            const raw = context.payload.comment.body || '';
+            const hint = raw
+              .replace(/^\/atk-vsuse-test\b[:\s]*/, '')
+              .trim();
+
+            core.setOutput('hint', hint);
+            core.setOutput('pr_number', String(context.payload.issue.number));
+            console.log(`PR #${context.payload.issue.number} hint (${hint.length} chars): ${hint.slice(0, 200)}`);
+
+      - name: React to triggering comment
+        if: success()
+        uses: actions/github-script@v6
+        with:
+          script: |
+            await github.rest.reactions.createForIssueComment({
+              owner:      context.repo.owner,
+              repo:       context.repo.repo,
+              comment_id: context.payload.comment.id,
+              content:    'eyes',
+            });
+
+      - name: Post hidden hint marker comment
+        if: steps.authorize.outputs.hint != ''
+        uses: actions/github-script@v6
+        env:
+          HINT:      ${{ steps.authorize.outputs.hint }}
+          PR_NUMBER: ${{ steps.authorize.outputs.pr_number }}
+          ACTOR:     ${{ github.event.comment.user.login }}
+        with:
+          script: |
+            const hint     = process.env.HINT;
+            const prNumber = parseInt(process.env.PR_NUMBER);
+            const actor    = process.env.ACTOR;
+            // The marker is what pr-vscuse-test.yml searches for. Keep it stable.
+            const body = [
+              '<!-- atk-vsuse-test-hint -->',
+              `**🎯 VscUse test plan hint from @${actor}:**`,
+              '',
+              '```',
+              hint,
+              '```',
+              '',
+              '_The next `atk-vsuse-test` run will pass this hint to the AI plan selector._',
+            ].join('\n');
+            await github.rest.issues.createComment({
+              owner:        context.repo.owner,
+              repo:         context.repo.repo,
+              issue_number: prNumber,
+              body,
+            });
+
+      - name: Dispatch pr-vscuse-test.yml with the user's hint applied
+        uses: actions/github-script@v6
+        env:
+          PR_NUMBER: ${{ steps.authorize.outputs.pr_number }}
+        with:
+          script: |
+            const owner    = context.repo.owner;
+            const repo     = context.repo.repo;
+            const prNumber = parseInt(process.env.PR_NUMBER);
+            const workflow = 'pr-vscuse-test.yml';
+            const fallback = 'dev';
+
+            // Resolve the PR's head ref so we dispatch the workflow against the PR branch.
+            // Forked-PR head refs live on the fork repo, so workflow_dispatch on that ref
+            // will 422 — fall back to `dev` in that case.
+            let ref = fallback;
+            try {
+              const { data: pr } = await github.rest.pulls.get({
+                owner, repo, pull_number: prNumber,
+              });
+              if (pr.head && pr.head.repo && pr.head.repo.full_name === `${owner}/${repo}`) {
+                ref = pr.head.ref;
+              } else {
+                console.log(`PR #${prNumber} head is from a fork — dispatching against '${fallback}'.`);
+              }
+            } catch (err) {
+              console.log(`Failed to resolve PR head ref (${err.message}); dispatching against '${fallback}'.`);
+            }
+
+            const dispatch = async (targetRef) => {
+              await github.rest.actions.createWorkflowDispatch({
+                owner, repo,
+                workflow_id: workflow,
+                ref: targetRef,
+                inputs: { pr_number: String(prNumber) },
+              });
+              console.log(`Dispatched ${workflow} on ref '${targetRef}' for PR #${prNumber}.`);
+            };
+
+            try {
+              await dispatch(ref);
+            } catch (err) {
+              if (ref !== fallback && err.status === 422) {
+                console.log(`Dispatch on '${ref}' failed with 422 — retrying on '${fallback}'.`);
+                await dispatch(fallback);
+              } else {
+                throw err;
+              }
+            }

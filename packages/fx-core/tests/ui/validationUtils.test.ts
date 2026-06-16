@@ -10,7 +10,6 @@ import {
   VsCodeEnv,
 } from "@microsoft/teamsfx-api";
 import { assert } from "chai";
-import "mocha";
 import sinon from "sinon";
 import { validate, validationUtils } from "../../src/ui/validationUtils";
 

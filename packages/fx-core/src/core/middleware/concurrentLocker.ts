@@ -15,11 +15,11 @@ import crypto from "crypto";
 import * as fs from "fs-extra";
 import * as os from "os";
 import * as path from "path";
-import { lock, unlock } from "proper-lockfile";
+import * as properLock from "proper-lockfile";
 import { TOOLS } from "../../common/globalVars";
-import { isValidProjectV2, isValidProjectV3 } from "../../common/projectSettingsHelper";
+import * as projectSettingsHelper from "../../common/projectSettingsHelper";
 import { sendTelemetryErrorEvent } from "../../common/telemetry";
-import { waitSeconds } from "../../common/utils";
+import * as commonUtils from "../../common/utils";
 import {
   ConcurrentError,
   CoreSource,
@@ -29,6 +29,13 @@ import {
 } from "../../error/common";
 import { CallbackRegistry } from "../callback";
 import { shouldIgnored } from "./projectSettingsLoader";
+
+export const concurrentLockerDeps = {
+  isValidProjectV3: projectSettingsHelper.isValidProjectV3,
+  lock: properLock.lock,
+  unlock: properLock.unlock,
+  waitSeconds: commonUtils.waitSeconds,
+};
 
 let doingTask: string | undefined = undefined;
 export const ConcurrentLockerMW: Middleware = async (ctx: HookContext, next: NextFunction) => {
@@ -46,10 +53,8 @@ export const ConcurrentLockerMW: Middleware = async (ctx: HookContext, next: Nex
     return;
   }
   let configFolder = "";
-  if (isValidProjectV3(inputs.projectPath)) {
+  if (concurrentLockerDeps.isValidProjectV3(inputs.projectPath)) {
     configFolder = path.join(inputs.projectPath);
-  } else if (isValidProjectV2(inputs.projectPath)) {
-    configFolder = path.join(inputs.projectPath, `.${ConfigFolderName}`);
   } else {
     ctx.result = err(new InvalidProjectError(inputs.projectPath));
     return;
@@ -68,7 +73,7 @@ export const ConcurrentLockerMW: Middleware = async (ctx: HookContext, next: Nex
   let retryNum = 0;
   for (let i = 0; i < 10; ++i) {
     try {
-      await lock(configFolder, { lockfilePath: lockfilePath });
+      await concurrentLockerDeps.lock(configFolder, { lockfilePath: lockfilePath });
       acquired = true;
       for (const f of CallbackRegistry.get(CoreCallbackEvent.lock)) {
         await f(taskName);
@@ -87,7 +92,7 @@ export const ConcurrentLockerMW: Middleware = async (ctx: HookContext, next: Nex
         }
         await next();
       } finally {
-        await unlock(configFolder, { lockfilePath: lockfilePath });
+        await concurrentLockerDeps.unlock(configFolder, { lockfilePath: lockfilePath });
         for (const f of CallbackRegistry.get(CoreCallbackEvent.unlock)) {
           await f(taskName);
         }
@@ -96,7 +101,7 @@ export const ConcurrentLockerMW: Middleware = async (ctx: HookContext, next: Nex
       break;
     } catch (e) {
       if (e["code"] === "ELOCKED") {
-        await waitSeconds(1);
+        await concurrentLockerDeps.waitSeconds(1);
         ++retryNum;
         continue;
       }

@@ -5,8 +5,6 @@ import { assert } from "chai";
 import * as fs from "fs-extra";
 import * as os from "os";
 import * as path from "path";
-
-import "mocha";
 import * as process from "process";
 import * as sinon from "sinon";
 import { CheckerFactory } from "../../../../src/component/deps-checker/checkerFactory";

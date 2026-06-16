@@ -34,7 +34,7 @@
   .featured-sample-section {
     padding: 16px 24px 24px 24px;
     border-radius: 4px;
-    border: 1px solid var(--vscode-menu-separatorBackground, #454545);
+    border: 1px solid var(--vscode-editorWidget-border, #454545);
     margin-top: 24px;
 
     display: flex;
@@ -117,13 +117,42 @@
 }
 
 body.vscode-light {
-  .featured-sample-section {
-    background-color: #F8F8F8;
+  /* TC-001a: Ensure link text meets WCAG AA 4.5:1 contrast on light backgrounds */
+  .sample-gallery {
+    a.fui-Link,
+    .fui-Link {
+      color: #005B9E !important;
+
+      &:hover,
+      &:focus {
+        color: #004480 !important;
+      }
+    }
   }
 }
 
 body.vscode-dark {
-  .featured-sample-section {
-    background-color: #252526;
+  /* TC-001b: Light blue (#4FC3F7) vs dark bg rgb(30,30,30) = 8.32:1 ≥ 4.5:1 (WCAG AA)
+   * !important overrides Fluent UI Link component inline styles */
+  .sample-gallery {
+    background: transparent;
+
+    .sample-section {
+      background: transparent;
+    }
+
+    .featured-sample-section {
+      border-color: #454545;
+    }
+
+    a.fui-Link,
+    .fui-Link {
+      color: #4FC3F7 !important;
+
+      &:hover,
+      &:focus {
+        color: #81D4FA !important;
+      }
+    }
   }
 }

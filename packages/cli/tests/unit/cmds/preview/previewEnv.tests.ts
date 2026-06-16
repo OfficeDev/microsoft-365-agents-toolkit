@@ -7,13 +7,14 @@ import {
   IProgressHandler,
   ok,
   Result,
-  UserError,
   signedIn,
   signedOut,
+  UserError,
 } from "@microsoft/teamsfx-api";
 import { envUtil, FxCore, HubTypes, VersionCheckRes, VersionState } from "@microsoft/teamsfx-core";
-import * as packageJson from "@microsoft/teamsfx-core/build/component/local/packageJsonHelper";
+import * as settingHelper from "@microsoft/teamsfx-core/build/common/projectSettingsHelper";
 import * as tools from "@microsoft/teamsfx-core/build/common/tools";
+import * as packageJson from "@microsoft/teamsfx-core/build/component/local/packageJsonHelper";
 import fs from "fs-extra";
 import { RestoreFn } from "mocked-env";
 import * as path from "path";
@@ -28,10 +29,7 @@ import cliLogger from "../../../../src/commonlib/log";
 import M365TokenInstance from "../../../../src/commonlib/M365TokenProviderWrapper";
 import cliTelemetry from "../../../../src/telemetry/cliTelemetry";
 import CLIUIInstance from "../../../../src/userInteraction";
-import * as Utils from "../../../../src/utils";
 import { expect } from "../../utils";
-import * as settingHelper from "@microsoft/teamsfx-core/build/common/projectSettingsHelper";
-import { unique } from "underscore";
 
 describe("Preview --env", () => {
   const sandbox = sinon.createSandbox();
@@ -84,7 +82,7 @@ describe("Preview --env", () => {
   });
 
   it("Preview Command Running - Default", async () => {
-    sandbox.stub(settingHelper, "isValidProjectV3").returns(true);
+    sandbox.stub(PreviewEnv.prototype as any, "isValidProjectV3").returns(true);
     sandbox.stub(envUtil, "readEnv").resolves(ok({}));
     sandbox.stub(PreviewEnv.prototype, <any>"checkM365Account").resolves(ok({}));
     sandbox.stub(PreviewEnv.prototype, <any>"previewWithManifest").resolves(ok("test-url"));
@@ -98,7 +96,7 @@ describe("Preview --env", () => {
   });
 
   it("Preview Command Running - outlook", async () => {
-    sandbox.stub(settingHelper, "isValidProjectV3").returns(true);
+    sandbox.stub(PreviewEnv.prototype as any, "isValidProjectV3").returns(true);
     sandbox.stub(envUtil, "readEnv").resolves(ok({}));
     sandbox.stub(PreviewEnv.prototype, <any>"checkM365Account").resolves(ok({}));
     sandbox.stub(PreviewEnv.prototype, <any>"previewWithManifest").resolves(ok("test-url"));
@@ -116,7 +114,7 @@ describe("Preview --env", () => {
   });
 
   it("Preview Command Running - office", async () => {
-    sandbox.stub(settingHelper, "isValidProjectV3").returns(true);
+    sandbox.stub(PreviewEnv.prototype as any, "isValidProjectV3").returns(true);
     sandbox.stub(envUtil, "readEnv").resolves(ok({}));
     sandbox.stub(PreviewEnv.prototype, <any>"checkM365Account").resolves(ok({}));
     sandbox.stub(PreviewEnv.prototype, <any>"previewWithManifest").resolves(ok("test-url"));
@@ -136,7 +134,7 @@ describe("Preview --env", () => {
   });
 
   it("Preview Command Running - workspace not supported error", async () => {
-    sandbox.stub(settingHelper, "isValidProjectV3").returns(false);
+    sandbox.stub(PreviewEnv.prototype as any, "isValidProjectV3").returns(false);
 
     const cmd = new PreviewEnv();
     const result = await cmd.runCommand(defaultOptions);
@@ -146,7 +144,7 @@ describe("Preview --env", () => {
   });
 
   it("Preview Command Running - load envs error", async () => {
-    sandbox.stub(settingHelper, "isValidProjectV3").returns(true);
+    sandbox.stub(PreviewEnv.prototype as any, "isValidProjectV3").returns(true);
     sandbox.stub(envUtil, "readEnv").resolves(err({ foo: "bar" } as any));
 
     const cmd = new PreviewEnv();
@@ -157,7 +155,7 @@ describe("Preview --env", () => {
   });
 
   it("Preview Command Running - check account error", async () => {
-    sandbox.stub(settingHelper, "isValidProjectV3").returns(true);
+    sandbox.stub(PreviewEnv.prototype as any, "isValidProjectV3").returns(true);
     sandbox.stub(envUtil, "readEnv").resolves(ok({}));
     sandbox
       .stub(PreviewEnv.prototype, <any>"checkM365Account")
@@ -171,7 +169,7 @@ describe("Preview --env", () => {
   });
 
   it("Preview Command Running - previewWithManifest error", async () => {
-    sandbox.stub(settingHelper, "isValidProjectV3").returns(true);
+    sandbox.stub(PreviewEnv.prototype as any, "isValidProjectV3").returns(true);
     sandbox.stub(envUtil, "readEnv").resolves(ok({}));
     sandbox.stub(PreviewEnv.prototype, <any>"checkM365Account").resolves(ok({}));
     sandbox
@@ -186,7 +184,7 @@ describe("Preview --env", () => {
   });
 
   it("Preview Command Running - detect run command error", async () => {
-    sandbox.stub(settingHelper, "isValidProjectV3").returns(true);
+    sandbox.stub(PreviewEnv.prototype as any, "isValidProjectV3").returns(true);
     sandbox.stub(envUtil, "readEnv").resolves(ok({}));
     sandbox.stub(PreviewEnv.prototype, <any>"checkM365Account").resolves(ok({}));
     sandbox.stub(PreviewEnv.prototype, <any>"previewWithManifest").resolves(ok("test-url"));
@@ -202,7 +200,7 @@ describe("Preview --env", () => {
   });
 
   it("Preview Command Running - run task error", async () => {
-    sandbox.stub(settingHelper, "isValidProjectV3").returns(true);
+    sandbox.stub(PreviewEnv.prototype as any, "isValidProjectV3").returns(true);
     sandbox.stub(envUtil, "readEnv").resolves(ok({}));
     sandbox.stub(PreviewEnv.prototype, <any>"checkM365Account").resolves(ok({}));
     sandbox.stub(PreviewEnv.prototype, <any>"previewWithManifest").resolves(ok("test-url"));
@@ -220,7 +218,7 @@ describe("Preview --env", () => {
   });
 
   it("Preview Command Running - launch browser error", async () => {
-    sandbox.stub(settingHelper, "isValidProjectV3").returns(true);
+    sandbox.stub(PreviewEnv.prototype as any, "isValidProjectV3").returns(true);
     sandbox.stub(envUtil, "readEnv").resolves(ok({}));
     sandbox.stub(PreviewEnv.prototype, <any>"checkM365Account").resolves(ok({}));
     sandbox.stub(PreviewEnv.prototype, <any>"previewWithManifest").resolves(ok("test-url"));
@@ -305,6 +303,48 @@ describe("PreviewEnv Steps", () => {
     public getRunningTasks() {
       return this.runningTasks;
     }
+
+    public isValidProjectV3Wrap(projectPath: string): boolean {
+      return super.isValidProjectV3(projectPath);
+    }
+
+    public async getSideloadingStatusWrap(token: string): Promise<boolean> {
+      return await super.getSideloadingStatus(token);
+    }
+
+    public async loadTeamsFxDevScriptWrap(projectPath: string): Promise<string | undefined> {
+      return await super.loadTeamsFxDevScript(projectPath);
+    }
+
+    public createTaskStartCbWrap(
+      progressBar: any,
+      startMessage: string,
+      telemetryProperties?: { [key: string]: string }
+    ) {
+      return super.createTaskStartCb(progressBar, startMessage, telemetryProperties);
+    }
+
+    public createTaskStopCbWrap(progressBar: any, telemetryProperties?: { [key: string]: string }) {
+      return super.createTaskStopCb(progressBar, telemetryProperties);
+    }
+
+    public async openHubWebClientNewWrap(
+      hub: HubTypes,
+      url: string,
+      browser: constants.Browser,
+      browserArgs: string[]
+    ): Promise<void> {
+      return await super.openHubWebClientNew(hub, url, browser, browserArgs);
+    }
+
+    public async openTeamsDesktopClientWrap(
+      url: string,
+      username: string,
+      browser: constants.Browser,
+      browserArgs: string[]
+    ): Promise<void> {
+      return await super.openTeamsDesktopClient(url, username, browser, browserArgs);
+    }
   }
 
   beforeEach(() => {
@@ -346,7 +386,7 @@ describe("PreviewEnv Steps", () => {
         })
       )
     );
-    sandbox.stub(tools, "getSideloadingStatus").resolves(true);
+    sandbox.stub(PreviewEnvTest.prototype as any, "getSideloadingStatus").resolves(true);
 
     const previewEnv = new PreviewEnvTest();
     const accountRes = await previewEnv.checkM365Account(undefined);
@@ -377,7 +417,7 @@ describe("PreviewEnv Steps", () => {
       })
     );
     sandbox.stub(M365TokenInstance, "getAccessToken").resolves(ok(token));
-    sandbox.stub(tools, "getSideloadingStatus").resolves(true);
+    sandbox.stub(PreviewEnvTest.prototype as any, "getSideloadingStatus").resolves(true);
 
     const previewEnv = new PreviewEnvTest();
     const accountRes = await previewEnv.checkM365Account(undefined);
@@ -403,7 +443,7 @@ describe("PreviewEnv Steps", () => {
         })
       )
     );
-    sandbox.stub(tools, "getSideloadingStatus").resolves(false);
+    sandbox.stub(PreviewEnvTest.prototype as any, "getSideloadingStatus").resolves(false);
 
     const previewEnv = new PreviewEnvTest();
     const accountRes = await previewEnv.checkM365Account(undefined);
@@ -418,7 +458,7 @@ describe("PreviewEnv Steps", () => {
     sandbox.stub(fs, "pathExists").resolves(true);
     sandbox.stub(fs, "readdir").resolves([]);
     // eslint-disable-next-line no-secrets/no-secrets
-    sandbox.stub(packageJson, "loadTeamsFxDevScript").resolves("test");
+    sandbox.stub(PreviewEnvTest.prototype as any, "loadTeamsFxDevScript").resolves("test");
 
     const previewEnv = new PreviewEnvTest();
     const runCommandRes = await previewEnv.detectRunCommand("./");
@@ -510,10 +550,10 @@ describe("PreviewEnv Steps", () => {
 
   it("runCommandAsTask - ok", async () => {
     sandbox
-      .stub(commonUtils, "createTaskStartCb")
+      .stub(PreviewEnvTest.prototype as any, "createTaskStartCb")
       .returns((a0: any, a1: any) => new Promise((res, rej) => res()));
     sandbox
-      .stub(commonUtils, "createTaskStopCb")
+      .stub(PreviewEnvTest.prototype as any, "createTaskStopCb")
       .returns((a0: any, a1: any, a2: any, a3: any) => new Promise((res, rej) => res(null)));
     sandbox.stub(ServiceLogWriter.prototype, "init").resolves();
     sandbox.stub(Task.prototype, "waitFor").resolves(ok({ foo: "bar" } as any));
@@ -534,10 +574,10 @@ describe("PreviewEnv Steps", () => {
 
   it("runCommandAsTask - customize exec path", async () => {
     sandbox
-      .stub(commonUtils, "createTaskStartCb")
+      .stub(PreviewEnvTest.prototype as any, "createTaskStartCb")
       .returns((a0: any, a1: any) => new Promise((res, rej) => res()));
     sandbox
-      .stub(commonUtils, "createTaskStopCb")
+      .stub(PreviewEnvTest.prototype as any, "createTaskStopCb")
       .returns((a0: any, a1: any, a2: any, a3: any) => new Promise((res, rej) => res(null)));
     sandbox.stub(ServiceLogWriter.prototype, "init").resolves();
     sandbox.stub(Task.prototype, "waitFor").resolves(ok({ foo: "bar" } as any));
@@ -562,7 +602,7 @@ describe("PreviewEnv Steps", () => {
   });
 
   it("launchBrowser - teams", async () => {
-    sandbox.stub(launch, "openHubWebClientNew").resolves();
+    sandbox.stub(PreviewEnvTest.prototype as any, "openHubWebClientNew").resolves();
 
     const previewEnv = new PreviewEnvTest();
     const openRes = await previewEnv.launchBrowser(
@@ -577,7 +617,7 @@ describe("PreviewEnv Steps", () => {
   });
 
   it("launchBrowser: outlook", async () => {
-    sandbox.stub(launch, "openHubWebClientNew").resolves();
+    sandbox.stub(PreviewEnvTest.prototype as any, "openHubWebClientNew").resolves();
 
     const previewEnv = new PreviewEnvTest();
     const openRes = await previewEnv.launchBrowser(
@@ -592,7 +632,7 @@ describe("PreviewEnv Steps", () => {
   });
 
   it("launchDesktopClient - without accountInfo", async () => {
-    sandbox.stub(launch, "openTeamsDesktopClient").resolves();
+    sandbox.stub(PreviewEnvTest.prototype as any, "openTeamsDesktopClient").resolves();
     sandbox.stub(M365TokenInstance, "getStatus").returns(
       Promise.resolve(
         ok({
@@ -613,7 +653,7 @@ describe("PreviewEnv Steps", () => {
   });
 
   it("launchDesktopClient - without unique_name", async () => {
-    sandbox.stub(launch, "openTeamsDesktopClient").resolves();
+    sandbox.stub(PreviewEnvTest.prototype as any, "openTeamsDesktopClient").resolves();
     sandbox.stub(M365TokenInstance, "getStatus").returns(
       Promise.resolve(
         ok({
@@ -638,7 +678,7 @@ describe("PreviewEnv Steps", () => {
   });
 
   it("launchDesktopClient - happy path", async () => {
-    sandbox.stub(launch, "openTeamsDesktopClient").resolves();
+    sandbox.stub(PreviewEnvTest.prototype as any, "openTeamsDesktopClient").resolves();
     sandbox.stub(M365TokenInstance, "getStatus").returns(
       Promise.resolve(
         ok({
@@ -664,7 +704,7 @@ describe("PreviewEnv Steps", () => {
   });
 
   it("launchDesktopClient - without user information", async () => {
-    sandbox.stub(launch, "openTeamsDesktopClient").resolves();
+    sandbox.stub(PreviewEnvTest.prototype as any, "openTeamsDesktopClient").resolves();
     sandbox.stub(M365TokenInstance, "getStatus").resolves(err(new UserError("", "", "", "")));
 
     const previewEnv = new PreviewEnvTest();
@@ -675,6 +715,36 @@ describe("PreviewEnv Steps", () => {
       []
     );
     expect(openRes.isOk()).to.be.true;
+  });
+
+  it("delegates wrapper methods to dependencies", async () => {
+    sandbox.stub(settingHelper, "isValidProjectV3").returns(true);
+    sandbox.stub(tools, "getSideloadingStatus").resolves(undefined);
+    sandbox.stub(packageJson, "loadTeamsFxDevScript").resolves("npm run dev:teamsfx");
+
+    const startCb = sinon.stub().resolves();
+    const stopCb = sinon.stub().resolves(null);
+    sandbox.stub(commonUtils, "createTaskStartCb").returns(startCb as any);
+    sandbox.stub(commonUtils, "createTaskStopCb").returns(stopCb as any);
+
+    sandbox.stub(launch, "openHubWebClientNew").resolves();
+    sandbox.stub(launch, "openTeamsDesktopClient").resolves();
+
+    const previewEnv = new PreviewEnvTest();
+
+    const isValid = previewEnv.isValidProjectV3Wrap("./");
+    expect(typeof isValid).to.equal("boolean");
+    expect(await previewEnv.getSideloadingStatusWrap("token")).to.equal(false);
+    const script = await previewEnv.loadTeamsFxDevScriptWrap("./");
+    expect(script === undefined || typeof script === "string").to.equal(true);
+
+    const createdStartCb = previewEnv.createTaskStartCbWrap({}, "start", {});
+    const createdStopCb = previewEnv.createTaskStopCbWrap({}, {});
+    expect(typeof createdStartCb).to.equal("function");
+    expect(typeof createdStopCb).to.equal("function");
+
+    await previewEnv.openHubWebClientNewWrap(HubTypes.teams, "https://example.com", "default", []);
+    await previewEnv.openTeamsDesktopClientWrap("https://example.com", "user", "default", []);
   });
 });
 

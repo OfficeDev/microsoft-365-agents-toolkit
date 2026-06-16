@@ -1331,7 +1331,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Enter the OAuth Token URL]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[輸入 OAuth 權杖 URL]]></Val>
+            <Val><![CDATA[輸入 OAuth Token URL]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -2447,7 +2447,7 @@
         <Str Cat="Text">
           <Val><![CDATA[API Key authentication(Bearer token authentication)]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[API 金鑰驗證(持有人令牌驗證)]]></Val>
+            <Val><![CDATA[API 金鑰驗證(持有人權杖驗證)]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4246,6 +4246,15 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";core.generator.officeAddin.importProject.manifestOnlyNotSupported" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The selected Office Add-in project at '%s' appears to be a manifest-only project (no 'package.json' was found). Manifest-only projects cannot be imported. Please select a complete Office Add-in project that includes 'package.json' and 'webpack.config.js'.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[位於 '%s' 的所選 Office 增益集專案似乎是僅限資訊清單的專案 (找不到 'package.json')。無法匯入僅限資訊清單的專案。請選取包含 'package.json' 和 'webpack.config.js' 的完整 Office 增益集專案。]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";core.generator.officeAddin.importProject.updateManifest" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Modifying manifest...]]></Val>
@@ -4387,92 +4396,26 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
-      <Item ItemId=";core.migrationV3.Message" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Upgrade your Microsoft 365 Agents Toolkit project to stay compatible with the latest version. A backup directory will be created along with an Upgrade Summary.]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[升級您的 Microsoft 365 代理程式工具組專案，以與最新版本保持相容。備份目錄會隨著升級摘要建立。]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Upgrade your Teams Toolkit project to stay compatible with the latest version. A backup directory will be created along with an Upgrade Summary.]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.migrationV3.VS.Message" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Upgrade your solution to stay compatible with the latest Microsoft 365 Agents Toolkit version. A backup directory will be generated in which it contains an upgrade report.]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[升級您的解決方案，以與最新版本的 Microsoft 365 代理程式工具組保持相容。將產生備份目錄，其中會包含升級報告。]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Upgrade your solution to stay compatible with the latest Teams Toolkit version. A backup directory will be generated in which it contains an upgrade report.]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.migrationV3.aadManifestNotExist" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[templates/appPackage/aad.manifest.template.json does not exist. You may be trying to upgrade a project created by Microsoft 365 Agents Toolkit for Visual Studio Code v3.x / Microsoft 365 Agents Toolkit CLI v0.x / Microsoft 365 Agents Toolkit for Visual Studio v17.3. Please install Microsoft 365 Agents Toolkit for Visual Studio Code v4.x / Microsoft 365 Agents Toolkit CLI v1.x / Microsoft 365 Agents Toolkit for Visual Studio v17.4 and run upgrade first.]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[templates/appPackage/aad.manifest.template.json 不存在。您可能正嘗試升級由適用於 Visual Studio Code v3.x 的 Microsoft 365 代理程式工具組 / Microsoft 365 代理程式工具組 CLI v0.x / 適用於 Visual Studio v17.3 的 Microsoft 365 代理程式工具組建立的專案。請安裝適用於 Visual Studio Code v4.x 的 Microsoft 365 代理程式工具組 / Microsoft 365 代理程式工具組 CLI v1.x / 適用於 Visual Studio v17.4 的 Microsoft 365 代理程式工具組，並先執行升級。]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[templates/appPackage/aad.manifest.template.json does not exist. You may be trying to upgrade a project created by Teams Toolkit for Visual Studio Code v3.x / Teams Toolkit CLI v0.x / Teams Toolkit for Visual Studio v17.3. Please install Teams Toolkit for Visual Studio Code v4.x / Teams Toolkit CLI v1.x / Teams Toolkit for Visual Studio v17.4 and run upgrade first.]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
       <Item ItemId=";core.migrationV3.abandonedProject" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[This project is only for previewing and will not be supported by Microsoft 365 Agents Toolkit. Please try Microsoft 365 Agents Toolkit by creating a new project]]></Val>
+          <Val><![CDATA[This project version is not supported and cannot be upgraded. Please create a new project with Microsoft 365 Agents Toolkit.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[此專案僅供預覽，且 Microsoft 365 代理程式工具組不會予以支援。請建立新專案以試用 Microsoft 365 代理程式工具組]]></Val>
+            <Val><![CDATA[不支援此專案版本，且無法升級。請使用 Microsoft 365 Agents 工具組建立新專案。]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[This project is only for previewing and will not be supported by Teams Toolkit. Please try Teams Toolkit by creating a new project]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.migrationV3.confirmOnly.Message" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Please confirm the upgrade]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[請確認升級]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.migrationV3.manifestInvalid" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[templates/appPackage/manifest.template.json is invalid.]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[templates/appPackage/manifest.template.json 無效。]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.migrationV3.manifestNotExist" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[templates/appPackage/manifest.template.json does not exist. You may be trying to upgrade a project created by Microsoft 365 Agents Toolkit for Visual Studio Code v3.x / Microsoft 365 Agents Toolkit CLI v0.x / Microsoft 365 Agents Toolkit for Visual Studio v17.3. Please install Microsoft 365 Agents Toolkit for Visual Studio Code v4.x / Microsoft 365 Agents Toolkit CLI v1.x / Microsoft 365 Agents Toolkit for Visual Studio v17.4 and run upgrade first.]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[templates/appPackage/manifest.template.json 不存在。您可能正嘗試升級由適用於 Visual Studio Code v3.x 的 Microsoft 365 代理程式工具組 / Microsoft 365 代理程式工具組 CLI v0.x / 適用於 Visual Studio v17.3 的 Microsoft 365 代理程式工具組建立的專案。請安裝適用於 Visual Studio Code v4.x 的 Microsoft 365 代理程式工具組 / Microsoft 365 代理程式工具組 CLI v1.x / 適用於 Visual Studio v17.4 的 Microsoft 365 代理程式工具組，並先執行升級。]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[templates/appPackage/manifest.template.json does not exist. You may be trying to upgrade a project created by Teams Toolkit for Visual Studio Code v3.x / Teams Toolkit CLI v0.x / Teams Toolkit for Visual Studio v17.3. Please install Teams Toolkit for Visual Studio Code v4.x / Teams Toolkit CLI v1.x / Teams Toolkit for Visual Studio v17.4 and run upgrade first.]]></Val>
+            <Val><![CDATA[This project is only for previewing and will not be supported by Microsoft 365 Agents Toolkit. Please try Microsoft 365 Agents Toolkit by creating a new project]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
       <Item ItemId=";core.migrationV3.notAllowedMigration" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Microsoft 365 Agents Toolkit's Pre-Release version supports new project configuration and is incompatible with previous versions. Try it by creating a new project or run "teamsapp upgrade" to upgrade your project first.]]></Val>
+          <Val><![CDATA[This project can be upgraded. Please use Microsoft 365 Agents Toolkit for VS Code v6.10 or Microsoft 365 Agents Toolkit CLI v1.1.11 to upgrade your project.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Microsoft 365 代理程式工具組的發行前版本支援新的專案設定，而且與舊版不相容。請建立新專案以加以試用，或執行「teamsapp 升級」以先升級您的專案。]]></Val>
+            <Val><![CDATA[此專案可升級。請使用適用於 VS Code v6.10 的 Microsoft 365 Agents 工具組或 Microsoft 365 Agents 工具組 CLI v1.1.11 以升級您的專案。]]></Val>
           </Tgt>
           <Prev Cat="Text">
-            <Val><![CDATA[Teams Toolkit's Pre-Release version supports new project configuration and is incompatible with previous versions. Try it by creating a new project or run "teamsapp upgrade" to upgrade your project first.]]></Val>
+            <Val><![CDATA[Microsoft 365 Agents Toolkit's Pre-Release version supports new project configuration and is incompatible with previous versions. Try it by creating a new project or run "teamsapp upgrade" to upgrade your project first.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -4543,29 +4486,11 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
-      <Item ItemId=";core.option.moreInfo" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[More Info]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[更多資訊]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
       <Item ItemId=";core.option.tutorial" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Open tutorial]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[開啟教學課程]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.option.upgrade" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Upgrade]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[升級]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4672,42 +4597,6 @@
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[分享]]></Val>
           </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.projectVersionChecker.cliUseNewVersion" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[The existing Microsoft 365 Agents Toolkit CLI version doesn't support current project. Upgrade to the latest version using below command:]A;npm install -g @microsoft/m365agentstoolkit-cli@latest]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[現有的 Microsoft 365 Agents 工具組 CLI 版本不支援目前的專案。使用下列命令升級至最新版本:]A;npm install -g @microsoft/m365agentstoolkit-cli@latest]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Your Microsoft 365 Agents Toolkit CLI version is old and it doesn't support current project, please upgrade to the latest version using command below:]A;npm install -g @microsoft/teamsapp-cli@latest]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.projectVersionChecker.incompatibleProject" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[The current project is incompatible with the installed version of Microsoft 365 Agents Toolkit.]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[目前的專案與已安裝的 Microsoft 365 代理程式工具組版本不相容。]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[The current project is incompatible with the installed version of Teams Toolkit.]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.projectVersionChecker.vs.incompatibleProject" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[The project in the solution is created with Microsoft 365 Agents Toolkit preview feature - app Configuration Improvements. You can turn on the preview feature to continue.]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[解決方案中的專案是使用 Microsoft 365 Agents 工具組預覽功能建立 - 應用程式組設定改進。您可以開啟預覽功能以繼續。]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[The project in the solution is created with Microsoft 365 Agents Toolkit preview feature - Teams App Configuration Improvements. You can turn on the preview feature to continue.]]></Val>
-          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -6787,6 +6676,60 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";driver.dcr.description.create" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Create a Dynamic Client Registration (DCR) configuration on Developer Portal for MCP server authentication.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[在開發人員入口網站上建立動態用戶端註冊 (DCR) 設定，以用於 MCP 伺服器驗證。]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.dcr.error.nameTooLong" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The DCR configuration name is too long. The maximum character length is 128.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[DCR 設定名稱太長。字元長度上限為 128。]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.dcr.error.wellKnownInvalid" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The wellKnownAuthorizationServer URL is invalid. Please provide a valid HTTPS URL to the authorization server's RFC 8414 metadata document.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[wellKnownAuthorizationServer URL 無效。請提供授權伺服器 RFC 8414 中繼資料文件的有效 HTTPS URL。]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.dcr.log.skipCreateDcr" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Environment variable %s exists. Skip creating DCR configuration.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[環境變數 %s 已存在。正在略過建立 DCR 設定。]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.dcr.log.successCreateDcr" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[DCR configuration created successfully with id %s!]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[已成功建立具有識別碼 '%s' 的 DCR 設定!]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.dcr.title.create" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Creating DCR configuration...]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[正在建立 DCR 設定...]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";driver.deploy.azureAppServiceDeployDetailSummary" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[`%s` deployed to Azure App Service.]]></Val>
@@ -6893,7 +6836,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Get the deployment token from Azure Static Web Apps.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[從 Azure Static Web Apps 取得部署令牌。]]></Val>
+            <Val><![CDATA[從 Azure Static Web Apps 取得部署 Token。]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -6902,7 +6845,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Get the deployment token for Azure Static Web Apps.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[取得 Azure Static Web Apps 的部署令牌。]]></Val>
+            <Val><![CDATA[取得 Azure Static Web Apps 的部署 Token。]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -8076,10 +8019,13 @@
       </Item>
       <Item ItemId=";driver.teamsApp.warning.createUnsupportedCloud" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Skipping %s as the required Developer Portal API is not yet available in GCC H and DoD. App ID will be generated locally later.]]></Val>
+          <Val><![CDATA[Skipping %s as the required Developer Portal API is not yet available in GCC H and DoD. App ID will be generated locally.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[正在略過 %s，因為必要的開發人員入口網站 API 尚未在 GCC H 和 DoD 中提供。稍後將在本機產生應用程式識別碼。]]></Val>
+            <Val><![CDATA[正在略過 %s，因為必要的開發人員入口網站 API 尚未在 GCC H 和 DoD 中提供。將在本機產生 App ID。]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Skipping %s as the required Developer Portal API is not yet available in GCC H and DoD. App ID will be generated locally later.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -8465,7 +8411,7 @@
         <Str Cat="Text">
           <Val><![CDATA[This account can't get a botframework token.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[此帳戶無法取得 Botframework 令牌。]]></Val>
+            <Val><![CDATA[此帳戶無法取得 Botframework Token。]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[The current account is not allowed to acquire botframework token.]]></Val>
@@ -9578,7 +9524,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Unable to download sample due to rate limitation. Try again in an  hour after rate limit reset or you can manually clone the repo from %s.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[由於速率限制，無法下載樣本。請在速率限制重設后一小時后再試一次，或者您可以從 %s 手動複製存放庫。]]></Val>
+            <Val><![CDATA[由於有要求率的限制，所以無法下載樣本。請於重設要求率上限一小時之後，再試一次；抑或是以手動方式複製 %s 中的存放庫。]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Unable to download sample due to throttling. Retry later after rate limit reset (This may take up to 1 hour). Alternatively, you can go to %s to git clone the repo manually]]></Val>
@@ -9655,6 +9601,15 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";error.generator.TemplateOutputPathError" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Template entry %s resolves outside the destination directory.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[範本項目 %s 會解析到目的地目錄外。]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";error.generator.UnknownPolicy" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Unknown auth policy: %s]]></Val>
@@ -9725,7 +9680,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Unable to get token for list sensitivity label API. Error: %s]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[無法取得清單敏感度標籤 API 的權杖。錯誤: %s]]></Val>
+            <Val><![CDATA[無法取得清單敏感度標籤 API 的 Token。錯誤: %s]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9734,7 +9689,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Unable to get token for list sensitivity label API. The token is undefined.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[無法取得清單敏感度標籤 API 的權杖。權杖未定義。]]></Val>
+            <Val><![CDATA[無法取得清單敏感度標籤 API 的 Token。Token 未定義。]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9743,7 +9698,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Unable to obtain Microsoft 365 tenant ID in token JSON object. Make sure your account is authorized to access the tenant and the token JSON object is valid.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[無法取得權杖 JSON 物件中的 Microsoft 365 租用戶識別碼。請確定您的帳戶已獲授權可存取租用戶，且權杖 JSON 物件有效。]]></Val>
+            <Val><![CDATA[無法取得 Token JSON 物件中的 Microsoft 365 租用戶識別碼。請確定您的帳戶已獲授權可存取租用戶，且 Token JSON 物件有效。]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Unable to obtain Microsoft 365 tenant ID in token JSON object. Ensure that your account is authorized to access the tenant and that the token JSON object is valid.]]></Val>
@@ -9767,7 +9722,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Unable to obtain JSON object for Microsoft 365 token. Make sure your account is authorized to access the tenant and the token JSON object is valid.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[無法取得 Microsoft 365 權杖的 JSON 物件。請確定您的帳戶已獲授權可存取租用戶，且權杖 JSON 物件有效。]]></Val>
+            <Val><![CDATA[無法取得 Microsoft 365 Token 的 JSON 物件。請確定您的帳戶已獲授權可存取租用戶，且 Token JSON 物件有效。]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Unable to obtain JSON object for Microsoft 365 token. Ensure that your account is authorized to access the tenant and that the token JSON object is valid.]]></Val>
@@ -10008,6 +9963,15 @@
           <Val><![CDATA[File path: %s, title: %s]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[檔案路徑： %s，標題： %s]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";error.teamsGraph.apiFailed" ItemType="0" PsrId="306" InstFlg="true" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to make API call to Teams Graph. Check [Output panel]5D;(command:fx-extension.showOutputChannel) for details.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[無法對 Teams Graph 執行 API 呼叫。請查看[輸出面板]5D;(command:fx-extension.showOutputChannel)以尋找詳細資料。]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -10898,7 +10862,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Unable to get Graph access token]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[無法取得圖表存取令牌]]></Val>
+            <Val><![CDATA[無法取得圖表存取權杖]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Cannot get Graph access token]]></Val>
@@ -10910,7 +10874,7 @@
         <Str Cat="Text">
           <Val><![CDATA[Unable to get SPO access token]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[無法取得 SPO 存取令牌]]></Val>
+            <Val><![CDATA[無法取得 SPO 存取權杖]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Cannot get SPO access token]]></Val>

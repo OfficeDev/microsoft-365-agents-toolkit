@@ -20,7 +20,6 @@ import {
   CreateProjectInputs,
   CreateProjectResult,
   CryptoProvider,
-  DefaultApiSpecFolderName,
   Func,
   FxError,
   IGenerator,
@@ -39,13 +38,13 @@ import {
   TeamsAppManifest,
   Tools,
   UserError,
-  Warning,
   err,
   ok,
 } from "@microsoft/teamsfx-api";
 import { DotenvParseOutput } from "dotenv";
 import fs from "fs-extra";
 import * as jsonschema from "jsonschema";
+import AdmZip from "adm-zip";
 import * as os from "os";
 import * as path from "path";
 import "reflect-metadata";
@@ -55,12 +54,13 @@ import { teamsDevPortalClient } from "../client/teamsDevPortalClient";
 import { ApiKeyParameters, AuthParameters, OAuthParameters } from "../common/authInterface";
 import {
   AppStudioScopes,
-  getResourceServiceEndpoint,
+  MosServiceScope,
   ResourceServiceType,
   VSCodeExtensionCommand,
-  MosServiceScope,
+  getResourceServiceEndpoint,
 } from "../common/constants";
 import { listAPIInfo, parseAndUpdatePluginManifestForKiota } from "../common/daSpecParser";
+import { FeatureFlags, featureFlagManager } from "../common/featureFlags";
 import {
   ErrorContextMW,
   TOOLS,
@@ -70,11 +70,7 @@ import {
 } from "../common/globalVars";
 import { clearLocaleCache, getLocalizedString } from "../common/localizeUtils";
 import { ListCollaboratorResult, PermissionsResult } from "../common/permissionInterface";
-import {
-  getProjectMetadata,
-  isValidProjectV2,
-  isValidProjectV3,
-} from "../common/projectSettingsHelper";
+import { getProjectMetadata, isValidProjectV3 } from "../common/projectSettingsHelper";
 import {
   IsDeclarativeAgentManifest,
   ProjectTypeResult,
@@ -84,7 +80,7 @@ import { TelemetryEvent, TelemetryProperty, telemetryUtils } from "../common/tel
 import templateConfig from "../common/templates-config.json";
 import { runForTypeSpecProject } from "../common/tools";
 import { generateDriverContext } from "../common/utils";
-import { MetadataV3, MetadataV4, VersionSource, VersionState } from "../common/versionMetadata";
+import { MetadataV3, MetadataV4, VersionSource } from "../common/versionMetadata";
 
 import {
   APIKeyAuthType,
@@ -106,7 +102,7 @@ import { InstallAppArgs } from "../component/driver/devChannel/interfaces/Instal
 import "../component/driver/index";
 import { DriverContext } from "../component/driver/interface/commonArgs";
 import "../component/driver/script/scriptDriver";
-import { parseShareAppActionYamlConfig } from "../component/driver/share/utils";
+import * as shareUtils from "../component/driver/share/utils";
 import { updateManifestV3 } from "../component/driver/teamsApp/appStudio";
 import { CreateAppPackageDriver } from "../component/driver/teamsApp/createAppPackage";
 import { AppStudioError } from "../component/driver/teamsApp/errors";
@@ -131,19 +127,15 @@ import { ValidateAppPackageDriver } from "../component/driver/teamsApp/validateA
 import { ValidateWithTestCasesDriver } from "../component/driver/teamsApp/validateTestCases";
 import { createDriverContext } from "../component/driver/util/utils";
 import { SSO } from "../component/feature/sso";
-import { addExistingPlugin } from "../component/generator/declarativeAgent/helper";
 import {
   ItemMetadata,
   getODSPItemDetailById,
 } from "../component/generator/declarativeAgent/oneDriveSharePointHandler";
+import * as openApiSpecHelper from "../component/generator/openApiSpec/helper";
 import {
   convertSpecParserErrorToFxError,
   generateAdaptiveCardInPluginManifestForKiota,
-  generateFromApiSpec,
-  generateScaffoldingSummary,
   getParserOptions,
-  injectAuthAction,
-  listOperations,
 } from "../component/generator/openApiSpec/helper";
 import { useLocalTemplate } from "../component/generator/templateHelper";
 import { TemplateNames } from "../component/generator/templates/templateNames";
@@ -153,14 +145,12 @@ import {
   getTemplateVSLatestVersion,
   unzip,
 } from "../component/generator/utils";
+import { resolveV4MetadataSource } from "../component/generator/v4MetadataSource";
 import { LaunchHelper } from "../component/m365/launchHelper";
 import { PackageService } from "../component/m365/packageService";
 import { EnvLoaderMW, EnvWriterMW } from "../component/middleware/envMW";
 import { QuestionMW } from "../component/middleware/questionMW";
-import {
-  expandEnvironmentVariable,
-  outputScaffoldingWarningMessage,
-} from "../component/utils/common";
+import { expandEnvironmentVariable } from "../component/utils/common";
 import { envUtil } from "../component/utils/envUtil";
 import { metadataUtil } from "../component/utils/metadataUtil";
 import { pathUtils } from "../component/utils/pathUtils";
@@ -177,11 +167,9 @@ import {
   assembleError,
   isUserCancelError,
 } from "../error/common";
-import { NoNeedUpgradeError } from "../error/upgrade";
 import { YamlFieldMissingError } from "../error/yml";
 import { SyncManifestInputs, UninstallInputs } from "../question";
 import {
-  ActionStartOptions,
   AddAuthActionAuthTypeOptions,
   AppNamePattern,
   HubTypes,
@@ -198,21 +186,17 @@ import { isAadMainifestContainsPlaceholder } from "../question/other";
 import { ProjectTypeOptions } from "../question/scaffold/vsc/ProjectTypeOptions";
 import { ShareOperationOption, ShareScopeOption } from "../question/share";
 import { CallbackRegistry, CoreCallbackFunc } from "./callback";
-import {
-  CollaborationUtil,
-  checkPermission,
-  grantPermission,
-  listCollaborator,
-} from "./collaborator";
+import * as collaboratorCore from "./collaborator";
+import { CollaborationUtil } from "./collaborator";
 import { LocalCrypto } from "./crypto";
 import { environmentNameManager } from "./environmentName";
-import { FxCoreDeclarativeAgentPart } from "./FxCore.declarativeAgent";
+import { FxCoreOpenPluginPart } from "./FxCore.openPlugin";
 import { generateConfigFiles } from "./generateConfigFiles";
 import { ConcurrentLockerMW } from "./middleware/concurrentLocker";
 import { ContextInjectorMW } from "./middleware/contextInjector";
 import { ErrorHandlerMW } from "./middleware/errorHandler";
 import { withFileLock } from "./middleware/fileLocker";
-import { ProjectMigratorMWV3, checkActiveResourcePlugins } from "./middleware/projectMigratorV3";
+
 import { runWithRetry } from "./middleware/retry";
 import {
   getProjectVersionFromPath,
@@ -223,7 +207,33 @@ import { addSharedUsers, removeShareAccess, shareWithTenant } from "./share";
 import { CoreTelemetryEvent, CoreTelemetryProperty } from "./telemetry";
 import { CoreHookContext, PreProvisionResForVS, VersionCheckRes } from "./types";
 
-export class FxCore extends FxCoreDeclarativeAgentPart {
+export const fxCoreDeps = {
+  parseShareAppActionYamlConfig: shareUtils.parseShareAppActionYamlConfig,
+  shareWithTenant,
+  addSharedUsers,
+  removeShareAccess,
+  grantPermission: collaboratorCore.grantPermission,
+  checkPermission: collaboratorCore.checkPermission,
+  listCollaborator: collaboratorCore.listCollaborator,
+  buildAadManifest,
+  listAPIInfo,
+  listOperations: openApiSpecHelper.listOperations,
+  getManifestPath: copilotGptManifestUtils.getManifestPath,
+  readCopilotGptManifestFile: copilotGptManifestUtils.readCopilotGptManifestFile,
+  updateConversationStarters: copilotGptManifestUtils.updateConversationStarters,
+  isValidProjectV3,
+  getProjectVersionFromPath,
+  getTrackingIdFromPath,
+  getVersionState,
+  getCoreVersion: () => require("../../package.json").version as string,
+  useLocalTemplate,
+  getTemplateLatestVersion,
+  getTemplateVSLatestVersion,
+  fetchZipFromUrl,
+  unzip,
+};
+
+export class FxCore extends FxCoreOpenPluginPart {
   constructor(tools: Tools) {
     super();
     setTools(tools);
@@ -359,7 +369,6 @@ export class FxCore extends FxCoreDeclarativeAgentPart {
   @hooks([
     ErrorContextMW({ component: "FxCore", stage: "provision", reset: true }),
     ErrorHandlerMW,
-    ProjectMigratorMWV3,
     EnvLoaderMW(false),
     ConcurrentLockerMW,
     ContextInjectorMW,
@@ -395,7 +404,6 @@ export class FxCore extends FxCoreDeclarativeAgentPart {
   @hooks([
     ErrorContextMW({ component: "FxCore", stage: "uninstall", reset: true }),
     ErrorHandlerMW,
-    ProjectMigratorMWV3,
     QuestionMW("uninstall"),
   ])
   async uninstall(inputs: UninstallInputs): Promise<Result<undefined, FxError>> {
@@ -715,7 +723,6 @@ export class FxCore extends FxCoreDeclarativeAgentPart {
   @hooks([
     ErrorContextMW({ component: "FxCore", stage: "deploy", reset: true }),
     ErrorHandlerMW,
-    ProjectMigratorMWV3,
     EnvLoaderMW(false),
     ConcurrentLockerMW,
     ContextInjectorMW,
@@ -749,7 +756,6 @@ export class FxCore extends FxCoreDeclarativeAgentPart {
   @hooks([
     ErrorContextMW({ component: "FxCore", stage: "deployAadManifest", reset: true }),
     ErrorHandlerMW,
-    ProjectMigratorMWV3,
     QuestionMW("deployAadManifest"),
     EnvLoaderMW(true, true),
     ConcurrentLockerMW,
@@ -808,7 +814,6 @@ export class FxCore extends FxCoreDeclarativeAgentPart {
     ErrorContextMW({ component: "FxCore", stage: "addWebpart", reset: true }),
     ErrorHandlerMW,
     QuestionMW("addWebpart"),
-    ProjectMigratorMWV3,
     ConcurrentLockerMW,
   ])
   async addWebpart(inputs: Inputs): Promise<Result<undefined, FxError>> {
@@ -835,7 +840,6 @@ export class FxCore extends FxCoreDeclarativeAgentPart {
   @hooks([
     ErrorContextMW({ component: "FxCore", stage: "publish", reset: true }),
     ErrorHandlerMW,
-    ProjectMigratorMWV3,
     EnvLoaderMW(false),
     ConcurrentLockerMW,
     ContextInjectorMW,
@@ -862,7 +866,6 @@ export class FxCore extends FxCoreDeclarativeAgentPart {
     ErrorContextMW({ component: "FxCore", stage: "share", reset: true }),
     ErrorHandlerMW,
     QuestionMW("removeSharedAccess"),
-    ProjectMigratorMWV3,
     EnvLoaderMW(false),
     ConcurrentLockerMW,
     ContextInjectorMW,
@@ -871,11 +874,17 @@ export class FxCore extends FxCoreDeclarativeAgentPart {
     inputs: Inputs,
     ctx?: CoreHookContext
   ): Promise<Result<undefined, FxError>> {
-    const emails = inputs[QuestionNames.RemoveUsers] as string[];
+    const removeUsersInput = inputs[QuestionNames.RemoveUsers] as string[] | string | undefined;
+    const emails = Array.isArray(removeUsersInput)
+      ? removeUsersInput
+      : removeUsersInput
+          ?.split(",")
+          .map((email) => email.trim())
+          .filter((email) => !!email) ?? [];
     if (!emails || emails.length === 0) {
       return err(new MissingRequiredInputError("emails", "FxCore"));
     }
-    const parseRes = await parseShareAppActionYamlConfig(inputs.projectPath!);
+    const parseRes = await fxCoreDeps.parseShareAppActionYamlConfig(inputs.projectPath!);
     if (parseRes.isErr()) {
       return err(parseRes.error);
     }
@@ -943,7 +952,6 @@ export class FxCore extends FxCoreDeclarativeAgentPart {
     ErrorContextMW({ component: "FxCore", stage: "share", reset: true }),
     ErrorHandlerMW,
     QuestionMW("share"),
-    ProjectMigratorMWV3,
     EnvLoaderMW(false),
     ConcurrentLockerMW,
     ContextInjectorMW,
@@ -961,12 +969,19 @@ export class FxCore extends FxCoreDeclarativeAgentPart {
       scope === ShareScopeOption.ShareAppWithSpecificUsers ||
       operation === ShareOperationOption.RemoveShareAccessFromUsers
     ) {
-      emails = (inputs[QuestionNames.UserEmail] as string).split(",").map((e) => e.trim());
+      emails =
+        (inputs[QuestionNames.UserEmail] as string | undefined)
+          ?.split(",")
+          .map((e) => e.trim())
+          .filter((e) => !!e) ?? [];
+      if (emails.length === 0) {
+        return err(new InputValidationError("emails", "No emails"));
+      }
       if (emails.length > MAX_EMAIL_NUMBER) {
         return err(new InputValidationError("emails", "Too many emails"));
       }
     }
-    const parseRes = await parseShareAppActionYamlConfig(inputs.projectPath!);
+    const parseRes = await fxCoreDeps.parseShareAppActionYamlConfig(inputs.projectPath!);
     if (parseRes.isErr()) {
       return err(parseRes.error);
     }
@@ -981,11 +996,11 @@ export class FxCore extends FxCoreDeclarativeAgentPart {
     const mosToken = mosTokenRes.value;
 
     if (operation === ShareOperationOption.RemoveShareAccessFromUsers) {
-      return removeShareAccess(mosToken, sharedTitleId, emails);
+      return fxCoreDeps.removeShareAccess(mosToken, sharedTitleId, emails);
     } else if (scope === ShareScopeOption.ShareAppWithTenantUsers) {
-      return shareWithTenant(mosToken, sharedTitleId);
+      return fxCoreDeps.shareWithTenant(mosToken, sharedTitleId);
     } else if (scope === ShareScopeOption.ShareAppWithSpecificUsers) {
-      return addSharedUsers(mosToken, sharedTitleId, emails);
+      return fxCoreDeps.addSharedUsers(mosToken, sharedTitleId, emails);
     } else {
       return err(new InputValidationError("shareOption", "Invalid share option"));
     }
@@ -996,7 +1011,6 @@ export class FxCore extends FxCoreDeclarativeAgentPart {
   @hooks([
     ErrorContextMW({ component: "FxCore", stage: "executeUserTask", reset: true }),
     ErrorHandlerMW,
-    ProjectMigratorMWV3,
     EnvLoaderMW(false),
     ConcurrentLockerMW,
   ])
@@ -1019,7 +1033,6 @@ export class FxCore extends FxCoreDeclarativeAgentPart {
   @hooks([
     ErrorContextMW({ component: "FxCore", stage: "buildAadManifest", reset: true }),
     ErrorHandlerMW,
-    ProjectMigratorMWV3,
     EnvLoaderMW(false),
     ConcurrentLockerMW,
   ])
@@ -1038,7 +1051,7 @@ export class FxCore extends FxCoreDeclarativeAgentPart {
       `aad.${inputs.env}.json`
     );
     const Context: DriverContext = createDriverContext(inputs);
-    await buildAadManifest(Context, manifestTemplatePath, manifestOutputPath);
+    await fxCoreDeps.buildAadManifest(Context, manifestTemplatePath, manifestOutputPath);
     return ok(undefined);
   }
 
@@ -1062,7 +1075,6 @@ export class FxCore extends FxCoreDeclarativeAgentPart {
   @hooks([
     ErrorContextMW({ component: "FxCore", stage: "deployTeamsManifest", reset: true }),
     ErrorHandlerMW,
-    ProjectMigratorMWV3,
     QuestionMW("selectTeamsAppManifest"),
     EnvLoaderMW(true),
     ConcurrentLockerMW,
@@ -1478,7 +1490,6 @@ export class FxCore extends FxCoreDeclarativeAgentPart {
   @hooks([
     ErrorContextMW({ component: "FxCore", stage: "grantPermission", reset: true }),
     ErrorHandlerMW,
-    ProjectMigratorMWV3,
     QuestionMW("grantPermission"),
     EnvLoaderMW(false, true),
     ConcurrentLockerMW,
@@ -1488,7 +1499,7 @@ export class FxCore extends FxCoreDeclarativeAgentPart {
     inputs.stage = Stage.grantPermission;
     const context = createContext();
     setErrorContext({ component: "collaborator" });
-    const res = await grantPermission(
+    const res = await fxCoreDeps.grantPermission(
       context,
       inputs as InputsWithProjectPath,
       TOOLS.tokenProvider
@@ -1501,7 +1512,6 @@ export class FxCore extends FxCoreDeclarativeAgentPart {
   @hooks([
     ErrorContextMW({ component: "FxCore", stage: "checkPermission", reset: true }),
     ErrorHandlerMW,
-    ProjectMigratorMWV3,
     QuestionMW("listCollaborator"),
     EnvLoaderMW(false, true),
     ConcurrentLockerMW,
@@ -1510,7 +1520,7 @@ export class FxCore extends FxCoreDeclarativeAgentPart {
   async checkPermission(inputs: Inputs): Promise<Result<PermissionsResult, FxError>> {
     inputs.stage = Stage.checkPermission;
     const context = createContext();
-    const res = await checkPermission(
+    const res = await fxCoreDeps.checkPermission(
       context,
       inputs as InputsWithProjectPath,
       TOOLS.tokenProvider
@@ -1523,7 +1533,6 @@ export class FxCore extends FxCoreDeclarativeAgentPart {
   @hooks([
     ErrorContextMW({ component: "FxCore", stage: "listCollaborator", reset: true }),
     ErrorHandlerMW,
-    ProjectMigratorMWV3,
     QuestionMW("listCollaborator"),
     EnvLoaderMW(false, true),
     ConcurrentLockerMW,
@@ -1532,7 +1541,7 @@ export class FxCore extends FxCoreDeclarativeAgentPart {
   async listCollaborator(inputs: Inputs): Promise<Result<ListCollaboratorResult, FxError>> {
     inputs.stage = Stage.listCollaborator;
     const context = createContext();
-    const res = await listCollaborator(
+    const res = await fxCoreDeps.listCollaborator(
       context,
       inputs as InputsWithProjectPath,
       TOOLS.tokenProvider
@@ -1639,33 +1648,6 @@ export class FxCore extends FxCoreDeclarativeAgentPart {
     return ok(undefined);
   }
 
-  // a phantom migration method for V3
-  @hooks([ErrorContextMW({ component: "FxCore", stage: "phantomMigrationV3", reset: true })])
-  async phantomMigrationV3(inputs: Inputs): Promise<Result<undefined, FxError>> {
-    // If the project is invalid or upgraded, the ProjectMigratorMWV3 will not take action.
-    // Check invaliad/upgraded project here before call ProjectMigratorMWV3
-    const projectPath = (inputs.projectPath as string) || "";
-    const version = await getProjectVersionFromPath(projectPath);
-
-    if (version.source === VersionSource.teamsapp) {
-      return err(new NoNeedUpgradeError());
-    } else if (version.source === VersionSource.projectSettings) {
-      const isValid = await checkActiveResourcePlugins(projectPath);
-      if (!isValid) {
-        return err(new InvalidProjectError(projectPath));
-      }
-    }
-    if (version.source === VersionSource.unknown) {
-      return err(new InvalidProjectError(projectPath));
-    }
-    return this.innerMigrationV3(inputs);
-  }
-
-  @hooks([ErrorHandlerMW, ProjectMigratorMWV3])
-  innerMigrationV3(inputs: Inputs): Result<undefined, FxError> {
-    return ok(undefined);
-  }
-
   // a project version check
   @hooks([
     ErrorContextMW({ component: "FxCore", stage: "projectVersionCheck", reset: true }),
@@ -1673,19 +1655,13 @@ export class FxCore extends FxCoreDeclarativeAgentPart {
   ])
   async projectVersionCheck(inputs: Inputs): Promise<Result<VersionCheckRes, FxError>> {
     const projectPath = (inputs.projectPath as string) || "";
-    if (isValidProjectV3(projectPath) || isValidProjectV2(projectPath)) {
-      const versionInfo = await getProjectVersionFromPath(projectPath);
+    if (fxCoreDeps.isValidProjectV3(projectPath)) {
+      const versionInfo = await fxCoreDeps.getProjectVersionFromPath(projectPath);
       if (!versionInfo.version) {
         return err(new InvalidProjectError(projectPath));
       }
-      const trackingId = await getTrackingIdFromPath(projectPath);
-      const isSupport = getVersionState(versionInfo);
-      // if the project is upgradeable, check whether the project is valid and invalid project should not show upgrade option.
-      if (isSupport === VersionState.upgradeable) {
-        if (!(await checkActiveResourcePlugins(projectPath))) {
-          return err(new InvalidProjectError(projectPath));
-        }
-      }
+      const trackingId = await fxCoreDeps.getTrackingIdFromPath(projectPath);
+      const isSupport = fxCoreDeps.getVersionState(versionInfo);
       return ok({
         currentVersion: versionInfo.version,
         trackingId,
@@ -1790,7 +1766,6 @@ export class FxCore extends FxCoreDeclarativeAgentPart {
   @hooks([
     ErrorContextMW({ component: "FxCore", stage: "preProvisionForVS" }),
     ErrorHandlerMW,
-    ProjectMigratorMWV3,
     EnvLoaderMW(false),
     ConcurrentLockerMW,
     ContextInjectorMW,
@@ -1802,7 +1777,6 @@ export class FxCore extends FxCoreDeclarativeAgentPart {
   @hooks([
     ErrorContextMW({ component: "FxCore", stage: "preCheckYmlAndEnvForVS" }),
     ErrorHandlerMW,
-    ProjectMigratorMWV3,
     EnvLoaderMW(false),
     ConcurrentLockerMW,
     ContextInjectorMW,
@@ -1904,7 +1878,7 @@ export class FxCore extends FxCoreDeclarativeAgentPart {
 
       if (authNames.size >= 1) {
         for (const authName of authNames) {
-          await injectAuthAction(
+          await openApiSpecHelper.injectAuthAction(
             inputs.projectPath!,
             [...authNames][0],
             authNamesDict[authName],
@@ -1916,7 +1890,7 @@ export class FxCore extends FxCoreDeclarativeAgentPart {
 
       let pluginPath: string | undefined;
 
-      const generateResult = await generateFromApiSpec(
+      const generateResult = await openApiSpecHelper.generateFromApiSpec(
         specParser,
         manifestPath,
         inputs,
@@ -1936,7 +1910,7 @@ export class FxCore extends FxCoreDeclarativeAgentPart {
       }
 
       if (generateResult.value.warnings && generateResult.value.warnings.length > 0) {
-        const warnSummary = await generateScaffoldingSummary(
+        const warnSummary = await openApiSpecHelper.generateScaffoldingSummary(
           generateResult.value.warnings,
           manifestRes.value,
           path.relative(inputs.projectPath!, outputApiSpecPath),
@@ -1999,7 +1973,7 @@ export class FxCore extends FxCoreDeclarativeAgentPart {
     ErrorHandlerMW,
   ])
   async copilotPluginListOperations(inputs: Inputs): Promise<Result<ApiOperation[], FxError>> {
-    const res = await listOperations(
+    const res = await fxCoreDeps.listOperations(
       createContext(),
       inputs.apiSpecUrl,
       inputs,
@@ -2036,7 +2010,8 @@ export class FxCore extends FxCoreDeclarativeAgentPart {
     const projectPath = inputs.projectPath!;
     const context = createContext();
 
-    const teamsManifestPath = inputs[QuestionNames.ManifestPath];
+    const teamsManifestPath = (inputs[QuestionNames.ManifestPath] ??
+      inputs[QuestionNames.TeamsAppManifestFilePath]) as string;
     const appPackageFolder = path.dirname(teamsManifestPath);
 
     const manifestRes = await manifestUtils._readAppManifest(teamsManifestPath);
@@ -2044,7 +2019,7 @@ export class FxCore extends FxCoreDeclarativeAgentPart {
       return err(manifestRes.error);
     }
 
-    const gptManifestFilePathRes = await copilotGptManifestUtils.getManifestPath(teamsManifestPath);
+    const gptManifestFilePathRes = await fxCoreDeps.getManifestPath(teamsManifestPath);
     if (gptManifestFilePathRes.isErr()) {
       return err(gptManifestFilePathRes.error);
     }
@@ -2059,7 +2034,7 @@ export class FxCore extends FxCoreDeclarativeAgentPart {
 
     const specPath = inputs[QuestionNames.ApiSpecLocation].trim() as string;
 
-    const listResult = await listAPIInfo(specPath);
+    const listResult = await fxCoreDeps.listAPIInfo(specPath);
 
     authNameAndSchemes = this.parseAuthNameAndScheme(listResult, inputs);
 
@@ -2097,7 +2072,7 @@ export class FxCore extends FxCoreDeclarativeAgentPart {
     const destinationPluginManifestPath = inputs[QuestionNames.SelectPluginManifest];
     const destinationApiSpecPath = inputs[QuestionNames.SelectOpenAPISpecFromPlugin];
 
-    const generateRes = await generateFromApiSpec(
+    const generateRes = await openApiSpecHelper.generateFromApiSpec(
       undefined,
       teamsManifestPath,
       inputs,
@@ -2117,7 +2092,7 @@ export class FxCore extends FxCoreDeclarativeAgentPart {
 
     const warnings = generateRes.value.warnings;
     if (warnings && warnings.length > 0) {
-      const warnSummary = await generateScaffoldingSummary(
+      const warnSummary = await openApiSpecHelper.generateScaffoldingSummary(
         warnings,
         manifestRes.value,
         path.relative(projectPath, destinationApiSpecPath),
@@ -2140,7 +2115,7 @@ export class FxCore extends FxCoreDeclarativeAgentPart {
 
     const declarativeAgentManifestPath = gptManifestFilePathRes.value;
 
-    const declarativeAgentManifesRes = await copilotGptManifestUtils.readCopilotGptManifestFile(
+    const declarativeAgentManifesRes = await fxCoreDeps.readCopilotGptManifestFile(
       declarativeAgentManifestPath
     );
     if (declarativeAgentManifesRes.isErr()) {
@@ -2150,10 +2125,7 @@ export class FxCore extends FxCoreDeclarativeAgentPart {
     const declarativeAgentManifest = declarativeAgentManifesRes.value;
     for (const action of declarativeAgentManifest.actions!) {
       const actionPath = path.normalize(path.join(appPackageFolder, action.file));
-      await copilotGptManifestUtils.updateConversationStarters(
-        actionPath,
-        declarativeAgentManifest
-      );
+      await fxCoreDeps.updateConversationStarters(actionPath, declarativeAgentManifest);
     }
 
     const actionId = inputs[QuestionNames.SelectPluginId];
@@ -2307,6 +2279,438 @@ export class FxCore extends FxCoreDeclarativeAgentPart {
   }
 
   /**
+   * Add Skill
+   */
+  @hooks([
+    ErrorContextMW({ component: "FxCore", stage: Stage.addSkill }),
+    ErrorHandlerMW,
+    QuestionMW("addSkill"),
+    ConcurrentLockerMW,
+  ])
+  async addSkill(inputs: Inputs): Promise<Result<undefined | any, FxError>> {
+    if (!featureFlagManager.getBooleanValue(FeatureFlags.AgentSkillsManifest)) {
+      return err(
+        new UserError(
+          "FxCore",
+          "AgentSkillsDisabled",
+          getLocalizedString("core.addSkill.featureFlagDisabled")
+        )
+      );
+    }
+    if (!inputs.projectPath) {
+      throw new Error("projectPath is undefined"); // should never happen
+    }
+
+    const context = createContext();
+    const projectPath = inputs.projectPath;
+    const teamsManifestPath = path.resolve(projectPath, inputs[QuestionNames.ManifestPath]);
+    const appPackageFolder = path.dirname(teamsManifestPath);
+
+    // Validate the project is valid for adding a skill
+    const manifestRes = await manifestUtils._readAppManifest(teamsManifestPath);
+    if (manifestRes.isErr()) {
+      return err(manifestRes.error);
+    }
+
+    const teamsManifest = manifestRes.value;
+    const agent = teamsManifest.copilotExtensions
+      ? teamsManifest.copilotExtensions.declarativeCopilots?.[0]
+      : teamsManifest.copilotAgents?.declarativeAgents?.[0];
+    if (!agent?.file) {
+      return err(
+        AppStudioResultFactory.UserError(
+          AppStudioError.TeamsAppRequiredPropertyMissingError.name,
+          AppStudioError.TeamsAppRequiredPropertyMissingError.message(
+            "declarativeAgents",
+            teamsManifestPath
+          )
+        )
+      );
+    }
+    const agentFilePathRes = await copilotGptManifestUtils.getManifestPath(teamsManifestPath);
+    if (agentFilePathRes.isErr()) {
+      return err(agentFilePathRes.error);
+    }
+
+    const agentManifestPath = agentFilePathRes.value;
+
+    // Confirm before modifying files (matches addPlugin pattern)
+    const confirmMessage = getLocalizedString(
+      "core.addSkill.confirm",
+      path.relative(inputs.projectPath, appPackageFolder)
+    );
+    const confirmRes = await context.userInteraction.showMessage(
+      "warn",
+      confirmMessage,
+      true,
+      getLocalizedString("core.addSkill.continue")
+    );
+    if (confirmRes.isErr()) {
+      return err(confirmRes.error);
+    } else if (confirmRes.value !== getLocalizedString("core.addSkill.continue")) {
+      return err(new UserCancelError());
+    }
+
+    const skillName = inputs[QuestionNames.SkillName] as string;
+    const skillDescription = inputs[QuestionNames.SkillDescription] as string;
+    const skillFrom = inputs[QuestionNames.SkillFrom] as string | undefined;
+    const skillFromZipFile = inputs[QuestionNames.SkillFromZipFile] as string | undefined;
+
+    let skillFolder: string;
+    if (skillFrom || skillFromZipFile) {
+      const isZipImport =
+        skillFromZipFile || (skillFrom && skillFrom.toLowerCase().endsWith(".zip"));
+      const sourcePath = skillFromZipFile || (skillFrom as string);
+
+      if (isZipImport) {
+        // Zip import mode
+        const importRes = await this.importSkillFromZip(
+          sourcePath,
+          appPackageFolder,
+          agentManifestPath
+        );
+        if (importRes.isErr()) {
+          return err(importRes.error);
+        }
+        skillFolder = importRes.value;
+      } else {
+        // Existing skill folder mode: validate it's within appPackage
+        const skillAbsPath = path.resolve(appPackageFolder, sourcePath);
+        const relativePath = path.relative(appPackageFolder, skillAbsPath);
+        if (relativePath.startsWith("..")) {
+          return err(
+            new UserError(
+              "FxCore",
+              "SkillOutsideAppPackage",
+              "The skill directory must be within the app package folder."
+            )
+          );
+        }
+
+        // Validate folder name format
+        const folderName = path.basename(skillAbsPath);
+        const namePattern = /^[a-zA-Z][a-zA-Z0-9-]*$/;
+        if (!namePattern.test(folderName)) {
+          return err(
+            new UserError(
+              "FxCore",
+              "InvalidSkillFolderName",
+              `Skill folder name "${folderName}" is invalid. It must start with a letter and contain only letters, numbers, and hyphens.`
+            )
+          );
+        }
+
+        // Validate SKILL.md exists
+        const skillMdPath = path.join(skillAbsPath, "SKILL.md");
+        if (!(await fs.pathExists(skillMdPath))) {
+          return err(
+            new UserError(
+              "FxCore",
+              "SkillMdNotFound",
+              `SKILL.md not found in ${skillAbsPath}. Each skill directory must contain a SKILL.md file.`
+            )
+          );
+        }
+
+        // Validate skill name in SKILL.md matches folder name
+        const skillMdContent = await fs.readFile(skillMdPath, "utf-8");
+        const nameMatch = skillMdContent.match(/^---[\s\S]*?^name:\s*(.+)$/m);
+        if (nameMatch) {
+          const skillMdName = nameMatch[1].trim();
+          if (skillMdName !== folderName) {
+            return err(
+              new UserError(
+                "FxCore",
+                "SkillNameMismatch",
+                `Skill name "${skillMdName}" in SKILL.md does not match folder name "${folderName}". They must be the same.`
+              )
+            );
+          }
+        }
+
+        skillFolder = normalizePath(
+          path.relative(path.dirname(agentManifestPath), skillAbsPath),
+          true
+        );
+      }
+    } else {
+      // New skill mode: create the directory and SKILL.md
+      const skillDir = path.join(appPackageFolder, "skills", skillName);
+      await fs.ensureDir(skillDir);
+
+      const skillMdContent = [
+        "---",
+        `name: ${skillName}`,
+        `description: ${skillDescription}`,
+        "---",
+        `# ${skillName}`,
+        "",
+        "<!-- Add your skill instructions here -->",
+        "<!-- The agent will follow these instructions when this skill is activated -->",
+        "",
+      ].join("\n");
+      await fs.writeFile(path.join(skillDir, "SKILL.md"), skillMdContent);
+
+      skillFolder = normalizePath(path.relative(path.dirname(agentManifestPath), skillDir), true);
+    }
+
+    // Add skill entry to DA manifest
+    const addSkillRes = await copilotGptManifestUtils.addSkill(agentManifestPath, skillFolder);
+    if (addSkillRes.isErr()) {
+      return err(addSkillRes.error);
+    }
+
+    // Optionally expose skill to Copilot via top-level Teams manifest agentSkills
+    const exposeToCopilot = inputs[QuestionNames.ExposeToCopilot];
+    if (exposeToCopilot === true || exposeToCopilot === "yes") {
+      // Compute folder path relative to app package folder (Teams manifest dir)
+      const skillAbsPath = path.resolve(path.dirname(agentManifestPath), skillFolder);
+      const teamsManifestSkillFolder = normalizePath(
+        path.relative(appPackageFolder, skillAbsPath),
+        true
+      );
+
+      // Read, update, and write the Teams manifest
+      const teamsManifestForSkill = manifestRes.value;
+      if (!teamsManifestForSkill.agentSkills) {
+        teamsManifestForSkill.agentSkills = [];
+      }
+      if (
+        !teamsManifestForSkill.agentSkills.some(
+          (s: { folder: string }) => s.folder === teamsManifestSkillFolder
+        )
+      ) {
+        teamsManifestForSkill.agentSkills.push({ folder: teamsManifestSkillFolder });
+      }
+      await fs.writeFile(teamsManifestPath, JSON.stringify(teamsManifestForSkill, null, 4));
+    }
+
+    // Show success message
+    if (inputs.platform === Platform.VSCode) {
+      const successMessage = getLocalizedString("core.addSkill.success.vsc");
+      const viewAgentManifest = getLocalizedString("core.addSkill.success.viewAgentManifest");
+      void context.userInteraction
+        .showMessage("info", successMessage, false, viewAgentManifest)
+        .then((userRes) => {
+          if (userRes.isOk() && userRes.value === viewAgentManifest) {
+            void TOOLS?.ui?.openFile?.(agentManifestPath);
+          }
+        });
+    } else {
+      const successMessage = getLocalizedString("core.addSkill.success", agentManifestPath);
+      void context.userInteraction.showMessage("info", successMessage, false);
+    }
+
+    return ok(undefined);
+  }
+
+  /**
+   * Import a skill from a .zip file into the appPackage/skills folder.
+   * Validates zip entries for security, extracts to a temp directory, then moves atomically.
+   */
+  private async importSkillFromZip(
+    zipPath: string,
+    appPackageFolder: string,
+    agentManifestPath: string
+  ): Promise<Result<string, FxError>> {
+    // Resolve zip path relative to CWD (not appPackage)
+    const resolvedZipPath = path.resolve(zipPath);
+    if (!(await fs.pathExists(resolvedZipPath))) {
+      return err(
+        new UserError("FxCore", "ZipFileNotFound", `Zip file not found: ${resolvedZipPath}`)
+      );
+    }
+
+    let zip: AdmZip;
+    try {
+      zip = new AdmZip(resolvedZipPath);
+    } catch {
+      return err(
+        new UserError(
+          "FxCore",
+          "InvalidZipFile",
+          `Failed to read zip file: ${resolvedZipPath}. Please provide a valid .zip file.`
+        )
+      );
+    }
+
+    const entries = zip.getEntries();
+    // Metadata directories to ignore
+    const ignoredPrefixes = ["__MACOSX/", ".DS_Store"];
+
+    // Security: validate all entries before extraction
+    for (const entry of entries) {
+      const entryName = entry.entryName.replace(/\\/g, "/");
+      if (entryName.includes("..") || path.isAbsolute(entryName) || entryName.startsWith("/")) {
+        return err(
+          new UserError(
+            "FxCore",
+            "ZipInvalidEntries",
+            getLocalizedString("core.addSkill.zipInvalidEntries")
+          )
+        );
+      }
+    }
+
+    // Filter out metadata entries
+    const validEntries = entries.filter((entry) => {
+      const entryName = entry.entryName.replace(/\\/g, "/");
+      return !ignoredPrefixes.some(
+        (prefix) => entryName.startsWith(prefix) || entryName === prefix.replace("/", "")
+      );
+    });
+
+    // Determine zip layout: single top-level directory or root-level files
+    const topLevelDirs = new Set<string>();
+    let hasRootFiles = false;
+    for (const entry of validEntries) {
+      const entryName = entry.entryName.replace(/\\/g, "/");
+      const parts = entryName.split("/").filter((p) => p.length > 0);
+      if (parts.length === 1 && !entry.isDirectory) {
+        hasRootFiles = true;
+      } else if (parts.length >= 1) {
+        topLevelDirs.add(parts[0]);
+      }
+    }
+
+    let skillContentPrefix = "";
+    let derivedSkillName: string;
+
+    if (!hasRootFiles && topLevelDirs.size === 1) {
+      // Single top-level directory layout
+      skillContentPrefix = [...topLevelDirs][0] + "/";
+      derivedSkillName = [...topLevelDirs][0];
+    } else if (hasRootFiles) {
+      // Root-level files layout: derive name from SKILL.md frontmatter
+      const skillMdEntry = validEntries.find((e) => {
+        const name = e.entryName.replace(/\\/g, "/");
+        return name === "SKILL.md" || name === "./SKILL.md";
+      });
+      if (!skillMdEntry) {
+        return err(
+          new UserError("FxCore", "ZipNoSkillMd", getLocalizedString("core.addSkill.zipNoSkillMd"))
+        );
+      }
+      const skillMdContent = skillMdEntry.getData().toString("utf-8");
+      const nameMatch = skillMdContent.match(/^---[\s\S]*?^name:\s*(.+)$/m);
+      if (!nameMatch) {
+        return err(
+          new UserError(
+            "FxCore",
+            "ZipNoSkillMd",
+            getLocalizedString("core.addSkill.zipNoSkillMd") +
+              " The SKILL.md file must include a 'name' field in its frontmatter."
+          )
+        );
+      }
+      derivedSkillName = nameMatch[1].trim();
+    } else {
+      return err(
+        new UserError(
+          "FxCore",
+          "ZipInvalidLayout",
+          getLocalizedString("core.addSkill.zipInvalidLayout")
+        )
+      );
+    }
+
+    // Validate skill name format
+    const namePattern = /^[a-zA-Z][a-zA-Z0-9-]*$/;
+    if (!namePattern.test(derivedSkillName)) {
+      return err(
+        new UserError(
+          "FxCore",
+          "InvalidSkillFolderName",
+          `Skill name "${derivedSkillName}" is invalid. It must start with a letter and contain only letters, numbers, and hyphens.`
+        )
+      );
+    }
+
+    // Check target folder doesn't already exist
+    const targetSkillDir = path.join(appPackageFolder, "skills", derivedSkillName);
+    if (await fs.pathExists(targetSkillDir)) {
+      return err(
+        new UserError(
+          "FxCore",
+          "SkillFolderAlreadyExists",
+          getLocalizedString("core.addSkill.zipSkillFolderExists", derivedSkillName)
+        )
+      );
+    }
+
+    // Extract to temp directory first, then move atomically
+    const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "atk-skill-import-"));
+    const tempSkillDir = path.join(tempDir, derivedSkillName);
+    try {
+      await fs.ensureDir(tempSkillDir);
+
+      // Extract relevant entries
+      for (const entry of validEntries) {
+        if (entry.isDirectory) continue;
+        const entryName = entry.entryName.replace(/\\/g, "/");
+        let relativeName = entryName;
+        if (skillContentPrefix && entryName.startsWith(skillContentPrefix)) {
+          relativeName = entryName.slice(skillContentPrefix.length);
+        }
+        if (!relativeName) continue;
+
+        const targetPath = path.join(tempSkillDir, relativeName);
+        // Re-validate no path traversal after joining
+        const normalizedTarget = path.resolve(targetPath);
+        if (!normalizedTarget.startsWith(path.resolve(tempSkillDir))) {
+          return err(
+            new UserError(
+              "FxCore",
+              "ZipInvalidEntries",
+              getLocalizedString("core.addSkill.zipInvalidEntries")
+            )
+          );
+        }
+
+        await fs.ensureDir(path.dirname(targetPath));
+        await fs.writeFile(targetPath, entry.getData());
+      }
+
+      // Validate SKILL.md exists in extracted content
+      const extractedSkillMdPath = path.join(tempSkillDir, "SKILL.md");
+      if (!(await fs.pathExists(extractedSkillMdPath))) {
+        return err(
+          new UserError("FxCore", "ZipNoSkillMd", getLocalizedString("core.addSkill.zipNoSkillMd"))
+        );
+      }
+
+      // Validate name in SKILL.md matches derived folder name
+      const extractedSkillMd = await fs.readFile(extractedSkillMdPath, "utf-8");
+      const extractedNameMatch = extractedSkillMd.match(/^---[\s\S]*?^name:\s*(.+)$/m);
+      if (extractedNameMatch) {
+        const extractedName = extractedNameMatch[1].trim();
+        if (extractedName !== derivedSkillName) {
+          return err(
+            new UserError(
+              "FxCore",
+              "SkillNameMismatch",
+              `Skill name "${extractedName}" in SKILL.md does not match folder name "${derivedSkillName}". They must be the same.`
+            )
+          );
+        }
+      }
+
+      // Move to final location
+      await fs.ensureDir(path.dirname(targetSkillDir));
+      await fs.move(tempSkillDir, targetSkillDir);
+    } finally {
+      // Clean up temp directory
+      await fs.remove(tempDir).catch(() => {});
+    }
+
+    const skillFolder = normalizePath(
+      path.relative(path.dirname(agentManifestPath), targetSkillDir),
+      true
+    );
+    return ok(skillFolder);
+  }
+
+  /**
    * only for vs code extension
    */
   @hooks([
@@ -2419,7 +2823,7 @@ export class FxCore extends FxCoreDeclarativeAgentPart {
     // 2. Update teamsapp.local.yaml and teamsapp.yaml if need to add auth action
     const specPath = inputs[QuestionNames.ApiSpecLocation].trim();
     for (const authInfo of authData) {
-      await injectAuthAction(
+      await openApiSpecHelper.injectAuthAction(
         inputs.projectPath,
         authInfo.authName,
         undefined,
@@ -2531,7 +2935,7 @@ export class FxCore extends FxCoreDeclarativeAgentPart {
           break;
       }
 
-      const addAuthActionRes = await injectAuthAction(
+      const addAuthActionRes = await openApiSpecHelper.injectAuthAction(
         inputs.projectPath,
         authName,
         undefined,
@@ -2589,8 +2993,8 @@ export class FxCore extends FxCoreDeclarativeAgentPart {
       context.telemetryReporter.sendTelemetryEvent(TelemetryEvent.AddAuthAction, {
         [TelemetryProperty.AddAuthType]: authType,
       });
-    } catch (err: any) {
-      const error = assembleError(err);
+    } catch (e: any) {
+      const error = assembleError(e);
       context.telemetryReporter.sendTelemetryErrorEvent(TelemetryEvent.AddAuthAction, {
         [TelemetryProperty.ErrorCode]: error.name,
         [TelemetryProperty.ErrorMessage]: error.message,
@@ -2692,33 +3096,66 @@ export class FxCore extends FxCoreDeclarativeAgentPart {
     ErrorHandlerMW,
   ])
   async fetchOnlineTemplateMetadata(): Promise<Result<undefined, FxError>> {
-    if (useLocalTemplate()) {
+    if (fxCoreDeps.useLocalTemplate()) {
       return ok(undefined); // Skip if using local templates
     }
     // Downloads the latest online template metadata (metadata.zip) into user's home .fx folder.
     // Caches the template version so subsequent calls avoid redundant downloads if unchanged.
     try {
-      // Determine latest template version (respect prerelease env variable similar to getTemplateVSCUrl)
-      const coreVersion = require("../../package.json").version as string;
-
-      let latestVersion = "0.0.0-rc";
-      if (
-        coreVersion.includes("alpha") ||
-        coreVersion.includes("beta") ||
-        coreVersion.includes("rc")
-      ) {
-        // daily build, prerelease or rc
-        latestVersion = "0.0.0-rc";
-      } else {
-        // stable version
-        latestVersion = await getTemplateLatestVersion();
-      }
+      const useV4Channel = featureFlagManager.getBooleanValue(FeatureFlags.V4Enabled);
 
       const homedir = os.homedir();
       const metadataDir = path.join(homedir, `.${String(ConfigFolderName)}`);
       await fs.ensureDir(metadataDir);
 
-      const versionFile = path.join(metadataDir, "template-version.txt");
+      let latestVersion: string;
+      if (useV4Channel) {
+        // Transitional: in the v4 channel the metadata rides the SAME single
+        // decision point as the template package —
+        // `resolveTemplateSource((v4.range, v4.bundled, port))`. The `bundled`
+        // field is CD-baked (= !goproduct), so goproduct builds (stable AND
+        // prerelease) resolve to an online/cache source while non-goproduct or
+        // daily builds resolve to the bundled floor. metadata.zip lives in the
+        // same `templates-v4@<ver>` release as the resolved package, so the
+        // resolved version names the release to pull metadata from. Remove once
+        // selector.json drives metadata distribution.
+        const resolved = await resolveV4MetadataSource();
+        if (resolved.isErr()) {
+          // Malformed tag list / digest mismatch are hard errors (no silent
+          // fallback). An unreachable channel does not reach here — it already
+          // resolved to a bundled-fallback origin handled below.
+          return err(resolved.error);
+        }
+        const source = resolved.value;
+        if (source.origin === "bundled" || source.origin === "bundled-fallback") {
+          // Bundled build or unreachable channel: read the bundled metadata
+          // (the readers fall back via `useBundledMetadataForV4`). No download.
+          return ok(undefined);
+        }
+        latestVersion = source.version;
+      } else {
+        // v3: prerelease builds use the mutable rolling `0.0.0-rc` tag; stable
+        // builds resolve the latest published templates version.
+        const coreVersion = fxCoreDeps.getCoreVersion();
+        if (
+          coreVersion.includes("alpha") ||
+          coreVersion.includes("beta") ||
+          coreVersion.includes("rc")
+        ) {
+          latestVersion = "0.0.0-rc";
+        } else {
+          latestVersion = await fxCoreDeps.getTemplateLatestVersion();
+        }
+      }
+
+      // Use a channel-specific cache file so flipping the flag triggers a fresh
+      // download instead of a stale v3 cache hit; the v4 file's presence is also
+      // the readers' signal (`useBundledMetadataForV4`) that downloaded v4
+      // metadata is available.
+      const versionFile = path.join(
+        metadataDir,
+        useV4Channel ? "template-version-v4.txt" : "template-version.txt"
+      );
       const needDownload = async (): Promise<boolean> => {
         // Always re-download for mutable pre-release tags (content changes but tag stays the same)
         if (latestVersion === "0.0.0-rc") return true;
@@ -2736,12 +3173,13 @@ export class FxCore extends FxCoreDeclarativeAgentPart {
         return ok(undefined); // Already up-to-date
       }
 
-      // Construct metadata.zip download URL based on tag prefix and version
-      const tag = `${templateConfig.tagPrefix}${latestVersion}`;
+      // Construct metadata.zip download URL based on tag prefix and version.
+      const tagPrefix = useV4Channel ? templateConfig.v4tagPrefix : templateConfig.tagPrefix;
+      const tag = `${tagPrefix}${latestVersion}`;
       const metadataZipUrl = `${templateConfig.templateDownloadBaseURL}/${tag}/metadata.zip`;
 
-      const zip = await fetchZipFromUrl(metadataZipUrl);
-      await unzip(zip, metadataDir);
+      const zip = await fxCoreDeps.fetchZipFromUrl(metadataZipUrl);
+      await fxCoreDeps.unzip(zip, metadataDir);
       await fs.writeFile(versionFile, latestVersion, { encoding: "utf-8" });
 
       // Clear locale cache so freshly downloaded NLS files are picked up
@@ -2768,16 +3206,16 @@ export class FxCore extends FxCoreDeclarativeAgentPart {
     ErrorHandlerMW,
   ])
   async fetchOnlineTemplateMetadataForVS(): Promise<Result<undefined, FxError>> {
-    if (useLocalTemplate()) {
+    if (fxCoreDeps.useLocalTemplate()) {
       return ok(undefined); // Skip if using local templates
     }
     try {
       // VS ships stable templates with a stable fx-core and test/pre-release
       // templates with a beta fx-core. So beta = pre-stable test build → RC.
-      const coreVersion = require("../../package.json").version as string;
+      const coreVersion = fxCoreDeps.getCoreVersion();
       const latestVersion = coreVersion.includes("beta")
         ? "0.0.0-rc"
-        : await getTemplateVSLatestVersion();
+        : await fxCoreDeps.getTemplateVSLatestVersion();
 
       const homedir = os.homedir();
       const metadataDir = path.join(homedir, `.${String(ConfigFolderName)}`, "vs-metadata");
@@ -2801,8 +3239,8 @@ export class FxCore extends FxCoreDeclarativeAgentPart {
       const tag = `${templateConfig.vstagPrefix}${latestVersion}`;
       const metadataZipUrl = `${templateConfig.templateDownloadBaseURL}/${tag}/metadata.zip`;
 
-      const zip = await fetchZipFromUrl(metadataZipUrl);
-      await unzip(zip, metadataDir);
+      const zip = await fxCoreDeps.fetchZipFromUrl(metadataZipUrl);
+      await fxCoreDeps.unzip(zip, metadataDir);
       await fs.writeFile(versionFile, latestVersion, { encoding: "utf-8" });
       return ok(undefined);
     } catch (error: any) {
@@ -2834,7 +3272,7 @@ export class FxCore extends FxCoreDeclarativeAgentPart {
     forceToAddNew = true
   ): Promise<void> {
     if (authName && authScheme) {
-      const authInjectRes = await injectAuthAction(
+      const authInjectRes = await openApiSpecHelper.injectAuthAction(
         projectPath,
         authName,
         authScheme,

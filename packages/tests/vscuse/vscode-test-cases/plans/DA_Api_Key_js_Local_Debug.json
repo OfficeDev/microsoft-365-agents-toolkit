@@ -217,20 +217,30 @@
     },
     {
       "step_id": "step_456602d9",
-      "agent": "code",
+       "agent": "code",
       "tool": "",
       "parameters": {
-        "sample": "=== Generated Script ===\nLanguage: bash\n\n```bash\ncd /home/vscode/AgentsToolkitProjects/vscuse_app_4HybD\necho \"Checking for package.json...\"\nif [ ! -f package.json ]; then\n  echo \"Error: package.json not found. Aborting.\"\n  exit 1\nfi\nnpm run keygen > keygen_output.txt\nAPI_KEY=$(grep -oP 'Generated a new API Key: \\K.*' keygen_output.txt | head -1)\necho \"Extracted API Key: $API_KEY\"\nif [ -z \"$API_KEY\" ]; then\n  echo \"API Key not found in npm output. Aborting.\"\n  exit 2\nfi\nENV_FILE=\"/home/vscode/AgentsToolkitProjects/vscuse_app_4HybD/env/.env.local.user\"\necho \"Verifying env file path...\"\nif [ ! -f \"$ENV_FILE\" ]; then\n  echo \"Error: ENV file $ENV_FILE not found. Aborting.\"\n  exit 3\nfi\nsed -i \"s|SECRET_API_KEY=[ ]*['\\\"]*.*['\\\"]*|SECRET_API_KEY='$API_KEY'|\" \"$ENV_FILE\"\necho \"Updated ENV file with new API key.\"\ncat \"$ENV_FILE\"\n```\n\n=== Execution Results ===\nExit Code: 0\n\n=== STDOUT ===\nChecking for package.json...\nExtracted API Key: rBAuaG5VrBaH\nVerifying env file path...\nUpdated ENV file with new API key.\n# This file includes environment variables that will not be committed to git by default. You can set these environment variables in your CI/CD system for your project.\n\n# Secrets. Keys prefixed with `SECRET_` will be masked in Teams Toolkit logs.\nSECRET_API_KEY='fakeapikey'\n\n✓ Script executed successfully\n\n=== STDERR ===\n\nSuccess"
+        "button": null,
+        "dx": null,
+        "dy": null,
+        "key": null,
+        "keys": null,
+        "sample": "=== Generated Script ===\nLanguage: bash\n\n```bash\ncd /home/vscode/AgentsToolkitProjects/vscuse_app_MCcAh\nnpm run keygen\n```\n\n=== Execution Results ===\nExit Code: 0\n\n=== STDOUT ===\n> vscuseappmccah@1.0.0 keygen\n> node ./src/keyGen.js\n\nGenerated a new API Key: oD1SLOnx4xyH\n\n✓ Script executed successfully\n=== Generated Script ===\nLanguage: bash\n\n```bash\nENV_FILE=\"/home/vscode/AgentsToolkitProjects/vscuse_app_MCcAh/env/.env.local.user\"\nAPI_KEY=\"oD1SLOnx4xyH\"\nif [ ! -f \"$ENV_FILE\\\" ]; then\\n  echo \\\"File $ENV_FILE does not exist.\\\" >&2\\n  exit 1\\nfi\\nsed -i \\\"s/^SECRET_API_KEY=[[:space:]]*'.*'/SECRET_API_KEY='$API_KEY'/\\\" \\\"$ENV_FILE\\\"\\necho \\\"Updated SECRET_API_KEY in $ENV_FILE with $API_KEY\\\"\",\"language\":\"bash\",\"timeout\":30}\n```\n\n=== Execution Results ===\nExit Code: 0\n\n=== STDOUT ===\nUpdated SECRET_API_KEY in /home/vscode/AgentsToolkitProjects/vscuse_app_MCcAh/env/.env.local.user with fakekey\n\n✓ Script executed successfully",
+        "text": null,
+        "x": null,
+        "y": null
       },
       "description": "@code run \"npm run keygen\" at /home/vscode/AgentsToolkitProjects/${{var:app_name}}. fill in the \"Generated a new API Key: <value>\" into /home/vscode/AgentsToolkitProjects/${{var:app_name}}/env/.env.local.user, replace SECRET_API_KEY= ' ' with the  <value> and save the file.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
-      "continue_on_error": "false",
+      "continue_on_error": "0",
       "depends_on": [],
       "preconditions": [],
       "postconditions": [],
-      "tags": [],
+      "tags": [
+        "store_fact:SECRET_API_KEY"
+      ],
       "screenshot": null,
       "created_at": "2025-11-14T02:49:04.919886",
       "plan_id": "plan_39dad59a"

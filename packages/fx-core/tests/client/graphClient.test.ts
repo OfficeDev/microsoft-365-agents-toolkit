@@ -4,12 +4,11 @@
 import { err, ok, SensitivityLabel, signedIn, SystemError } from "@microsoft/teamsfx-api";
 import axios from "axios";
 import { expect } from "chai";
-import "mocha";
 import { createSandbox } from "sinon";
 import { GraphClient } from "../../src/client/graphClient";
-import { RetryHandler } from "../../src/common/retryHandler";
 import * as globalState from "../../src/common/globalState";
 import { setTools } from "../../src/common/globalVars";
+import { RetryHandler } from "../../src/common/retryHandler";
 import { MockedM365Provider, MockTools } from "../core/utils";
 
 describe("GraphAPIClient Test", () => {
@@ -33,6 +32,7 @@ describe("GraphAPIClient Test", () => {
     });
 
     it("Retry on error and succeed", async () => {
+      const clock = sandbox.useFakeTimers();
       const fn = sandbox.stub();
       fn.onFirstCall().rejects(new Error("Failed"));
       fn.onSecondCall().resolves("success");
@@ -40,7 +40,9 @@ describe("GraphAPIClient Test", () => {
       // Set RETRIES to 2 for this test
       sandbox.stub(RetryHandler, "RETRIES").value(2);
 
-      const result = await RetryHandler.Retry(fn);
+      const retryPromise = RetryHandler.Retry(fn);
+      await clock.tickAsync(5000);
+      const result = await retryPromise;
       expect(result).to.equal("success");
       expect(fn.calledTwice).to.be.true;
     });
@@ -156,9 +158,11 @@ describe("GraphAPIClient Test", () => {
     });
 
     it("Should use cache when useCache is true and cache is valid", async () => {
+      const accountUniqueName = `name-${Date.now()}`;
+      const tenantId = `tenant-${Date.now()}`;
       sandbox.stub(tokenProvider, "getStatus").resolves(
         ok({
-          accountInfo: { unique_name: "name", tid: "123" },
+          accountInfo: { unique_name: accountUniqueName, tid: tenantId },
           status: signedIn,
           token: "token",
         } as any)
@@ -176,14 +180,21 @@ describe("GraphAPIClient Test", () => {
         labels: labels,
         unixTimestamp: Date.now() - 1000 * 60 * 60, // 1 hour ago
       };
+      const cacheKey = `listSensitivityLabelCacheKey:${tenantId}:${accountUniqueName}`;
 
-      sandbox.stub(globalState, "globalStateGet").resolves(cacheValue);
+      await globalState.globalStateUpdate(cacheKey, cacheValue);
+
+      const retryStub = sandbox
+        .stub(RetryHandler, "Retry")
+        .resolves({ data: { value: [{ id: "newLabel" }] } } as any);
+
       const result = await graphAPIClient.listSensitivityLabels(token, true);
 
       expect(result.isOk()).to.be.true;
       if (result.isOk()) {
         expect(result.value).to.deep.equal(labels);
       }
+      expect(retryStub.called).to.be.false;
     });
 
     it("Should not use cache when cache is expired", async () => {
@@ -230,9 +241,11 @@ describe("GraphAPIClient Test", () => {
     });
 
     it("Should update cache after API call", async () => {
+      const accountUniqueName = `name-${Date.now()}`;
+      const tenantId = `tenant-${Date.now()}`;
       sandbox.stub(tokenProvider, "getStatus").resolves(
         ok({
-          accountInfo: { unique_name: "name", tid: "123" },
+          accountInfo: { unique_name: accountUniqueName, tid: tenantId },
           status: signedIn,
           token: "token",
         } as any)
@@ -253,16 +266,13 @@ describe("GraphAPIClient Test", () => {
         },
       };
 
-      let updatedCache: any;
-      sandbox.stub(globalState, "globalStateUpdate").callsFake(async (key: string, value: any) => {
-        updatedCache = value;
-      });
-
       sandbox.stub(fakeAxiosInstance, "get").resolves(response);
       sandbox.stub(RetryHandler, "Retry").resolves(response);
 
       const graphAPIClient = new GraphClient(tokenProvider);
       const result = await graphAPIClient.listSensitivityLabels(token, false);
+      const cacheKey = `listSensitivityLabelCacheKey:${tenantId}:${accountUniqueName}`;
+      const updatedCache = await globalState.globalStateGet(cacheKey);
 
       expect(result.isOk()).to.be.true;
       expect(updatedCache).to.not.be.undefined;
@@ -313,14 +323,15 @@ describe("GraphAPIClient Test", () => {
     });
 
     it("Should handle response with undefined or missing label properties", async () => {
+      const accountUniqueName = `name-${Date.now()}`;
+      const tenantId = `tenant-${Date.now()}`;
       sandbox.stub(tokenProvider, "getStatus").resolves(
         ok({
-          accountInfo: { unique_name: "name", tid: "123" },
+          accountInfo: { unique_name: accountUniqueName, tid: tenantId },
           status: signedIn,
           token: "token",
         } as any)
       );
-      sandbox.stub(globalState, "globalStateGet").resolves(undefined);
       const fakeAxiosInstance = axios.create();
       sandbox.stub(axios, "create").returns(fakeAxiosInstance);
 
@@ -350,7 +361,7 @@ describe("GraphAPIClient Test", () => {
       sandbox.stub(RetryHandler, "Retry").resolves(response);
 
       const graphAPIClient = new GraphClient(tokenProvider);
-      const result = await graphAPIClient.listSensitivityLabels(token, true);
+      const result = await graphAPIClient.listSensitivityLabels(token, false);
 
       expect(result.isOk()).to.be.true;
       if (result.isOk()) {
@@ -1089,6 +1100,7 @@ describe("Sandbox related APIs", () => {
   });
 
   it("CreateTeamAndChannelAsync should create team and channel successfully", async () => {
+    const clock = sandbox.useFakeTimers();
     const teamName = "Test Team";
     const description = "Test Description";
     const defaultChannelName = "General";
@@ -1109,11 +1121,13 @@ describe("Sandbox related APIs", () => {
     };
     statusStub.onThirdCall().resolves(channelsResponse);
 
-    const result = await graphClient.CreateTeamAndChannelAsync(
+    const createPromise = graphClient.CreateTeamAndChannelAsync(
       teamName,
       description,
       defaultChannelName
     );
+    await clock.tickAsync(5000);
+    const result = await createPromise;
 
     expect(result).to.deep.equal({
       teamId: teamId,

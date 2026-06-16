@@ -3,8 +3,6 @@
 /**
  * @author Siglud <siglud@gmail.com>
  */
-
-import "mocha";
 import { LogProvider, UserError, err } from "@microsoft/teamsfx-api";
 import { errorHandle } from "../../../src/component/utils/common";
 import { BaseComponentInnerError } from "../../../src/component/error/componentError";

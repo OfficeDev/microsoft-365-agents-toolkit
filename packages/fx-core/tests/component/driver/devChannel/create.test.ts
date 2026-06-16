@@ -4,7 +4,6 @@
 import { expect } from "chai";
 import { createSandbox } from "sinon";
 import axios from "axios";
-import "mocha";
 import mockedEnv from "mocked-env";
 import { CreateDevChannelDriver } from "../../../../src/component/driver/devChannel/create";
 import { GraphClient } from "../../../../src/client/graphClient";

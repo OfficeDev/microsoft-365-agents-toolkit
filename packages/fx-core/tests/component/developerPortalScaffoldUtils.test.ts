@@ -5,7 +5,6 @@ import { err, Inputs, ok, Platform, TeamsAppManifest, UserError } from "@microso
 import chai from "chai";
 import fs from "fs-extra";
 import { merge } from "lodash";
-import "mocha";
 import path from "path";
 import * as sinon from "sinon";
 import { createContext, setTools } from "../../src/common/globalVars";
@@ -13,8 +12,8 @@ import * as tdpUtils from "../../src/component/developerPortalScaffoldUtils";
 import {
   adjustScopeBasedOnVersion,
   developerPortalScaffoldUtils,
+  developerPortalScaffoldUtilsDeps,
 } from "../../src/component/developerPortalScaffoldUtils";
-import * as appStudio from "../../src/component/driver/teamsApp/appStudio";
 import {
   BOTS_TPL_V3,
   COMPOSE_EXTENSIONS_TPL_V3,
@@ -26,10 +25,8 @@ import { Bot } from "../../src/component/driver/teamsApp/interfaces/appdefinitio
 import { ConfigurableTab } from "../../src/component/driver/teamsApp/interfaces/appdefinitions/configurableTab";
 import { MessagingExtension } from "../../src/component/driver/teamsApp/interfaces/appdefinitions/messagingExtension";
 import { StaticTab } from "../../src/component/driver/teamsApp/interfaces/appdefinitions/staticTab";
-import { manifestUtils } from "../../src/component/driver/teamsApp/utils/ManifestUtils";
 import { CommandScope, MeetingsContext } from "../../src/component/driver/teamsApp/utils/utils";
-import { DotenvOutput, envUtil } from "../../src/component/utils/envUtil";
-import { pathUtils } from "../../src/component/utils/pathUtils";
+import { DotenvOutput } from "../../src/component/utils/envUtil";
 import { InputValidationError } from "../../src/error";
 import { getProjectTypeAndCapability } from "../../src/question/create";
 import { QuestionNames } from "../../src/question/questionNames";
@@ -44,14 +41,6 @@ describe("developPortalScaffoldUtils", () => {
   setTools(new MockTools());
   describe("updateFilesForTdp", () => {
     const sandbox = sinon.createSandbox();
-    class MockedWriteStream {
-      write(): boolean {
-        return true;
-      }
-      end(): boolean {
-        return true;
-      }
-    }
 
     afterEach(() => {
       sandbox.restore();
@@ -106,7 +95,7 @@ describe("developPortalScaffoldUtils", () => {
       const inputs: Inputs = { platform: Platform.VSCode, projectPath: "project-path" };
 
       sandbox
-        .stub(appStudio, "getAppPackage")
+        .stub(developerPortalScaffoldUtilsDeps, "getAppPackage")
         .resolves(err(new UserError("source", "getAppPackage", "msg", "msg")));
       const res = await developerPortalScaffoldUtils.updateFilesForTdp(ctx, appDefinition, inputs);
 
@@ -129,7 +118,7 @@ describe("developPortalScaffoldUtils", () => {
       };
       const inputs: Inputs = { platform: Platform.VSCode, projectPath: "project-path" };
 
-      sandbox.stub(appStudio, "getAppPackage").resolves(ok({}));
+      sandbox.stub(developerPortalScaffoldUtilsDeps, "getAppPackage").resolves(ok({}));
       const res = await developerPortalScaffoldUtils.updateFilesForTdp(ctx, appDefinition, inputs);
 
       chai.assert.isTrue(res.isErr());
@@ -182,7 +171,7 @@ describe("developPortalScaffoldUtils", () => {
           },
         ],
       };
-      sandbox.stub(appStudio, "getAppPackage").resolves(
+      sandbox.stub(developerPortalScaffoldUtilsDeps, "getAppPackage").resolves(
         ok({
           manifest: Buffer.from(JSON.stringify(manifest)),
           icons: { color: Buffer.from(""), outline: Buffer.from("") },
@@ -190,7 +179,7 @@ describe("developPortalScaffoldUtils", () => {
         })
       );
       sandbox
-        .stub(manifestUtils, "_readAppManifest")
+        .stub(developerPortalScaffoldUtilsDeps, "readAppManifest")
         .resolves(ok(undefined as unknown as TeamsAppManifest));
       const res = await developerPortalScaffoldUtils.updateFilesForTdp(ctx, appDefinition, inputs);
 
@@ -291,34 +280,40 @@ describe("developPortalScaffoldUtils", () => {
       let updateOutline = false;
       let updatedManifestData = "";
 
-      sandbox.stub(pathUtils, "getEnvFilePath").resolves(ok("fake env path"));
-      sandbox.stub(fs, "pathExists").resolves(true);
-      sandbox.stub(appStudio, "getAppPackage").resolves(
+      sandbox
+        .stub(developerPortalScaffoldUtilsDeps, "getEnvFilePath")
+        .resolves(ok("fake env path"));
+      sandbox.stub(developerPortalScaffoldUtilsDeps, "pathExists").resolves(true);
+      sandbox.stub(developerPortalScaffoldUtilsDeps, "getAppPackage").resolves(
         ok({
           manifest: Buffer.from(JSON.stringify(manifest)),
           icons: { color: Buffer.from(""), outline: Buffer.from("") },
           languages: { zh: Buffer.from(JSON.stringify({})) },
         })
       );
-      sandbox.stub(fs, "writeFile").callsFake((file: number | fs.PathLike, data: any) => {
-        if (file === path.join(ctx.projectPath!, "appPackage", "color.png")) {
-          updateColor = true;
-        } else if (file === path.join(ctx.projectPath!, "appPackage", "outline.png")) {
-          updateOutline = true;
-        } else if (file === path.join(ctx.projectPath!, "appPackage", "zh.json")) {
-          updateLanguage = true;
-        } else if (file === path.join(ctx.projectPath!, "appPackage", "manifest.json")) {
-          updateManifest = true;
-          updatedManifestData = data;
-        } else {
-          throw new Error("not support " + file);
-        }
-      });
+      sandbox
+        .stub(developerPortalScaffoldUtilsDeps, "writeFile")
+        .callsFake((file: number | fs.PathLike, data: any) => {
+          if (file === path.join(ctx.projectPath!, "appPackage", "color.png")) {
+            updateColor = true;
+          } else if (file === path.join(ctx.projectPath!, "appPackage", "outline.png")) {
+            updateOutline = true;
+          } else if (file === path.join(ctx.projectPath!, "appPackage", "zh.json")) {
+            updateLanguage = true;
+          } else if (file === path.join(ctx.projectPath!, "appPackage", "manifest.json")) {
+            updateManifest = true;
+            updatedManifestData = data;
+          } else {
+            throw new Error("not support " + file);
+          }
+        });
 
       const originalEnvs: DotenvOutput = {};
-      sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifestTemplate));
       sandbox
-        .stub(envUtil, "writeEnv")
+        .stub(developerPortalScaffoldUtilsDeps, "readAppManifest")
+        .resolves(ok(manifestTemplate));
+      sandbox
+        .stub(developerPortalScaffoldUtilsDeps, "writeEnv")
         .callsFake(async (projectPath: string, env: string, envs: DotenvOutput) => {
           merge(originalEnvs, envs);
           return ok(undefined);
@@ -411,32 +406,36 @@ describe("developPortalScaffoldUtils", () => {
       let updateColor = false;
       let updateOutline = false;
       let updatedManifestData = "";
-      sandbox.stub(pathUtils, "getEnvFilePath").resolves(ok("fake env path"));
-      sandbox.stub(fs, "pathExists").resolves(true);
-      sandbox.stub(appStudio, "getAppPackage").resolves(
+      sandbox
+        .stub(developerPortalScaffoldUtilsDeps, "getEnvFilePath")
+        .resolves(ok("fake env path"));
+      sandbox.stub(developerPortalScaffoldUtilsDeps, "pathExists").resolves(true);
+      sandbox.stub(developerPortalScaffoldUtilsDeps, "getAppPackage").resolves(
         ok({
           manifest: Buffer.from(JSON.stringify(manifest)),
           icons: { color: Buffer.from(""), outline: Buffer.from("") },
           languages: { zh: Buffer.from(JSON.stringify({})) },
         })
       );
-      sandbox.stub(fs, "writeFile").callsFake((file: number | fs.PathLike, data: any) => {
-        if (file === path.join(ctx.projectPath!, "appPackage", "color.png")) {
-          updateColor = true;
-        } else if (file === path.join(ctx.projectPath!, "appPackage", "outline.png")) {
-          updateOutline = true;
-        } else if (file === path.join(ctx.projectPath!, "appPackage", "zh.json")) {
-          updateLanguage = true;
-        } else if (file === path.join(ctx.projectPath!, "appPackage", "manifest.json")) {
-          updateManifest = true;
-          updatedManifestData = data;
-        } else {
-          throw new Error("not support " + file);
-        }
-      });
+      sandbox
+        .stub(developerPortalScaffoldUtilsDeps, "writeFile")
+        .callsFake((file: number | fs.PathLike, data: any) => {
+          if (file === path.join(ctx.projectPath!, "appPackage", "color.png")) {
+            updateColor = true;
+          } else if (file === path.join(ctx.projectPath!, "appPackage", "outline.png")) {
+            updateOutline = true;
+          } else if (file === path.join(ctx.projectPath!, "appPackage", "zh.json")) {
+            updateLanguage = true;
+          } else if (file === path.join(ctx.projectPath!, "appPackage", "manifest.json")) {
+            updateManifest = true;
+            updatedManifestData = data;
+          } else {
+            throw new Error("not support " + file);
+          }
+        });
 
-      sandbox.stub(envUtil, "writeEnv").resolves(ok(undefined));
-      sandbox.stub(manifestUtils, "_readAppManifest").resolves(
+      sandbox.stub(developerPortalScaffoldUtilsDeps, "writeEnv").resolves(ok(undefined));
+      sandbox.stub(developerPortalScaffoldUtilsDeps, "readAppManifest").resolves(
         ok({
           manifestVersion: "version",
           id: "mock-app-id",
@@ -563,32 +562,38 @@ describe("developPortalScaffoldUtils", () => {
       let updateColor = false;
       let updateOutline = false;
       let updatedManifestData = "";
-      sandbox.stub(pathUtils, "getEnvFilePath").resolves(ok("fake env path"));
-      sandbox.stub(fs, "pathExists").resolves(true);
-      sandbox.stub(appStudio, "getAppPackage").resolves(
+      sandbox
+        .stub(developerPortalScaffoldUtilsDeps, "getEnvFilePath")
+        .resolves(ok("fake env path"));
+      sandbox.stub(developerPortalScaffoldUtilsDeps, "pathExists").resolves(true);
+      sandbox.stub(developerPortalScaffoldUtilsDeps, "getAppPackage").resolves(
         ok({
           manifest: Buffer.from(JSON.stringify(manifest)),
           icons: { color: Buffer.from(""), outline: Buffer.from("") },
           languages: { zh: Buffer.from(JSON.stringify({})) },
         })
       );
-      sandbox.stub(fs, "writeFile").callsFake((file: number | fs.PathLike, data: any) => {
-        if (file === path.join(ctx.projectPath!, "appPackage", "color.png")) {
-          updateColor = true;
-        } else if (file === path.join(ctx.projectPath!, "appPackage", "outline.png")) {
-          updateOutline = true;
-        } else if (file === path.join(ctx.projectPath!, "appPackage", "zh.json")) {
-          updateLanguage = true;
-        } else if (file === path.join(ctx.projectPath!, "appPackage", "manifest.json")) {
-          updateManifest = true;
-          updatedManifestData = data;
-        } else {
-          throw new Error("not support " + file);
-        }
-      });
+      sandbox
+        .stub(developerPortalScaffoldUtilsDeps, "writeFile")
+        .callsFake((file: number | fs.PathLike, data: any) => {
+          if (file === path.join(ctx.projectPath!, "appPackage", "color.png")) {
+            updateColor = true;
+          } else if (file === path.join(ctx.projectPath!, "appPackage", "outline.png")) {
+            updateOutline = true;
+          } else if (file === path.join(ctx.projectPath!, "appPackage", "zh.json")) {
+            updateLanguage = true;
+          } else if (file === path.join(ctx.projectPath!, "appPackage", "manifest.json")) {
+            updateManifest = true;
+            updatedManifestData = data;
+          } else {
+            throw new Error("not support " + file);
+          }
+        });
 
-      sandbox.stub(envUtil, "writeEnv").resolves(ok(undefined));
-      sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(existingManifest));
+      sandbox.stub(developerPortalScaffoldUtilsDeps, "writeEnv").resolves(ok(undefined));
+      sandbox
+        .stub(developerPortalScaffoldUtilsDeps, "readAppManifest")
+        .resolves(ok(existingManifest));
       const res = await developerPortalScaffoldUtils.updateFilesForTdp(ctx, appDefinition, inputs);
 
       chai.assert.isTrue(res.isOk());
@@ -699,32 +704,38 @@ describe("developPortalScaffoldUtils", () => {
       let updateColor = false;
       let updateOutline = false;
       let updatedManifestData = "";
-      sandbox.stub(pathUtils, "getEnvFilePath").resolves(ok("fake env path"));
-      sandbox.stub(fs, "pathExists").resolves(true);
-      sandbox.stub(appStudio, "getAppPackage").resolves(
+      sandbox
+        .stub(developerPortalScaffoldUtilsDeps, "getEnvFilePath")
+        .resolves(ok("fake env path"));
+      sandbox.stub(developerPortalScaffoldUtilsDeps, "pathExists").resolves(true);
+      sandbox.stub(developerPortalScaffoldUtilsDeps, "getAppPackage").resolves(
         ok({
           manifest: Buffer.from(JSON.stringify(manifest)),
           icons: { color: Buffer.from(""), outline: Buffer.from("") },
           languages: { zh: Buffer.from(JSON.stringify({})) },
         })
       );
-      sandbox.stub(fs, "writeFile").callsFake((file: number | fs.PathLike, data: any) => {
-        if (file === path.join(ctx.projectPath!, "appPackage", "color.png")) {
-          updateColor = true;
-        } else if (file === path.join(ctx.projectPath!, "appPackage", "outline.png")) {
-          updateOutline = true;
-        } else if (file === path.join(ctx.projectPath!, "appPackage", "zh.json")) {
-          updateLanguage = true;
-        } else if (file === path.join(ctx.projectPath!, "appPackage", "manifest.json")) {
-          updateManifest = true;
-          updatedManifestData = data;
-        } else {
-          throw new Error("not support " + file);
-        }
-      });
+      sandbox
+        .stub(developerPortalScaffoldUtilsDeps, "writeFile")
+        .callsFake((file: number | fs.PathLike, data: any) => {
+          if (file === path.join(ctx.projectPath!, "appPackage", "color.png")) {
+            updateColor = true;
+          } else if (file === path.join(ctx.projectPath!, "appPackage", "outline.png")) {
+            updateOutline = true;
+          } else if (file === path.join(ctx.projectPath!, "appPackage", "zh.json")) {
+            updateLanguage = true;
+          } else if (file === path.join(ctx.projectPath!, "appPackage", "manifest.json")) {
+            updateManifest = true;
+            updatedManifestData = data;
+          } else {
+            throw new Error("not support " + file);
+          }
+        });
 
-      sandbox.stub(envUtil, "writeEnv").resolves(ok(undefined));
-      sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(existingManifest));
+      sandbox.stub(developerPortalScaffoldUtilsDeps, "writeEnv").resolves(ok(undefined));
+      sandbox
+        .stub(developerPortalScaffoldUtilsDeps, "readAppManifest")
+        .resolves(ok(existingManifest));
       const res = await developerPortalScaffoldUtils.updateFilesForTdp(ctx, appDefinition, inputs);
 
       chai.assert.isTrue(res.isOk());
@@ -838,32 +849,38 @@ describe("developPortalScaffoldUtils", () => {
       let updateColor = false;
       let updateOutline = false;
       let updatedManifestData = "";
-      sandbox.stub(pathUtils, "getEnvFilePath").resolves(ok("fake env path"));
-      sandbox.stub(fs, "pathExists").resolves(true);
-      sandbox.stub(appStudio, "getAppPackage").resolves(
+      sandbox
+        .stub(developerPortalScaffoldUtilsDeps, "getEnvFilePath")
+        .resolves(ok("fake env path"));
+      sandbox.stub(developerPortalScaffoldUtilsDeps, "pathExists").resolves(true);
+      sandbox.stub(developerPortalScaffoldUtilsDeps, "getAppPackage").resolves(
         ok({
           manifest: Buffer.from(JSON.stringify(manifest)),
           icons: { color: Buffer.from(""), outline: Buffer.from("") },
           languages: { zh: Buffer.from(JSON.stringify({})) },
         })
       );
-      sandbox.stub(fs, "writeFile").callsFake((file: number | fs.PathLike, data: any) => {
-        if (file === path.join(ctx.projectPath!, "appPackage", "color.png")) {
-          updateColor = true;
-        } else if (file === path.join(ctx.projectPath!, "appPackage", "outline.png")) {
-          updateOutline = true;
-        } else if (file === path.join(ctx.projectPath!, "appPackage", "zh.json")) {
-          updateLanguage = true;
-        } else if (file === path.join(ctx.projectPath!, "appPackage", "manifest.json")) {
-          updateManifest = true;
-          updatedManifestData = data;
-        } else {
-          throw new Error("not support " + file);
-        }
-      });
+      sandbox
+        .stub(developerPortalScaffoldUtilsDeps, "writeFile")
+        .callsFake((file: number | fs.PathLike, data: any) => {
+          if (file === path.join(ctx.projectPath!, "appPackage", "color.png")) {
+            updateColor = true;
+          } else if (file === path.join(ctx.projectPath!, "appPackage", "outline.png")) {
+            updateOutline = true;
+          } else if (file === path.join(ctx.projectPath!, "appPackage", "zh.json")) {
+            updateLanguage = true;
+          } else if (file === path.join(ctx.projectPath!, "appPackage", "manifest.json")) {
+            updateManifest = true;
+            updatedManifestData = data;
+          } else {
+            throw new Error("not support " + file);
+          }
+        });
 
-      sandbox.stub(envUtil, "writeEnv").resolves(ok(undefined));
-      sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(existingManifest));
+      sandbox.stub(developerPortalScaffoldUtilsDeps, "writeEnv").resolves(ok(undefined));
+      sandbox
+        .stub(developerPortalScaffoldUtilsDeps, "readAppManifest")
+        .resolves(ok(existingManifest));
       const res = await developerPortalScaffoldUtils.updateFilesForTdp(ctx, appDefinition, inputs);
 
       chai.assert.isTrue(res.isOk());
@@ -950,9 +967,11 @@ describe("developPortalScaffoldUtils", () => {
       let updateColor = false;
       let updateOutline = false;
       let updatedManifestData = "";
-      sandbox.stub(pathUtils, "getEnvFilePath").resolves(ok("fake env path"));
-      sandbox.stub(fs, "pathExists").resolves(true);
-      sandbox.stub(appStudio, "getAppPackage").resolves(
+      sandbox
+        .stub(developerPortalScaffoldUtilsDeps, "getEnvFilePath")
+        .resolves(ok("fake env path"));
+      sandbox.stub(developerPortalScaffoldUtilsDeps, "pathExists").resolves(true);
+      sandbox.stub(developerPortalScaffoldUtilsDeps, "getAppPackage").resolves(
         ok({
           manifest: Buffer.from(
             JSON.stringify({
@@ -975,23 +994,27 @@ describe("developPortalScaffoldUtils", () => {
           languages: { zh: Buffer.from(JSON.stringify({})) },
         })
       );
-      sandbox.stub(fs, "writeFile").callsFake((file: number | fs.PathLike, data: any) => {
-        if (file === path.join(ctx.projectPath!, "appPackage", "color.png")) {
-          updateColor = true;
-        } else if (file === path.join(ctx.projectPath!, "appPackage", "outline.png")) {
-          updateOutline = true;
-        } else if (file === path.join(ctx.projectPath!, "appPackage", "zh.json")) {
-          updateLanguage = true;
-        } else if (file === path.join(ctx.projectPath!, "appPackage", "manifest.json")) {
-          updateManifest = true;
-          updatedManifestData = data;
-        } else {
-          throw new Error("not support " + file);
-        }
-      });
+      sandbox
+        .stub(developerPortalScaffoldUtilsDeps, "writeFile")
+        .callsFake((file: number | fs.PathLike, data: any) => {
+          if (file === path.join(ctx.projectPath!, "appPackage", "color.png")) {
+            updateColor = true;
+          } else if (file === path.join(ctx.projectPath!, "appPackage", "outline.png")) {
+            updateOutline = true;
+          } else if (file === path.join(ctx.projectPath!, "appPackage", "zh.json")) {
+            updateLanguage = true;
+          } else if (file === path.join(ctx.projectPath!, "appPackage", "manifest.json")) {
+            updateManifest = true;
+            updatedManifestData = data;
+          } else {
+            throw new Error("not support " + file);
+          }
+        });
 
-      sandbox.stub(envUtil, "writeEnv").resolves(ok(undefined));
-      sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(existingManifest));
+      sandbox.stub(developerPortalScaffoldUtilsDeps, "writeEnv").resolves(ok(undefined));
+      sandbox
+        .stub(developerPortalScaffoldUtilsDeps, "readAppManifest")
+        .resolves(ok(existingManifest));
       const res = await developerPortalScaffoldUtils.updateFilesForTdp(ctx, appDefinition, inputs);
 
       chai.assert.isTrue(res.isOk());
@@ -1088,43 +1111,38 @@ describe("developPortalScaffoldUtils", () => {
       let updateColor = false;
       let updateOutline = false;
       let updatedManifestData = "";
-      sandbox.stub(pathUtils, "getEnvFilePath").resolves(ok("fake env path"));
-      sandbox.stub(fs, "pathExists").resolves(true);
-      sandbox.stub(appStudio, "getAppPackage").resolves(
+      sandbox
+        .stub(developerPortalScaffoldUtilsDeps, "getEnvFilePath")
+        .resolves(ok("fake env path"));
+      sandbox.stub(developerPortalScaffoldUtilsDeps, "pathExists").resolves(true);
+      sandbox.stub(developerPortalScaffoldUtilsDeps, "getAppPackage").resolves(
         ok({
           manifest: Buffer.from(JSON.stringify(manifest)),
           icons: { color: Buffer.from(""), outline: Buffer.from("") },
           languages: { zh: Buffer.from(JSON.stringify({})) },
         })
       );
-      sandbox.stub(envUtil, "writeEnv").resolves(ok(undefined));
-      sandbox.stub(fs, "writeFile").callsFake((file: number | fs.PathLike, data: any) => {
-        if (file === path.join(ctx.projectPath!, "appPackage", "color.png")) {
-          updateColor = true;
-        } else if (file === path.join(ctx.projectPath!, "appPackage", "outline.png")) {
-          updateOutline = true;
-        } else if (file === path.join(ctx.projectPath!, "appPackage", "zh.json")) {
-          updateLanguage = true;
-        } else if (file === path.join(ctx.projectPath!, "appPackage", "manifest.json")) {
-          updateManifest = true;
-          updatedManifestData = data;
-        } else {
-          throw new Error("not support " + file);
-        }
-      });
+      sandbox.stub(developerPortalScaffoldUtilsDeps, "writeEnv").resolves(ok(undefined));
+      sandbox
+        .stub(developerPortalScaffoldUtilsDeps, "writeFile")
+        .callsFake((file: number | fs.PathLike, data: any) => {
+          if (file === path.join(ctx.projectPath!, "appPackage", "color.png")) {
+            updateColor = true;
+          } else if (file === path.join(ctx.projectPath!, "appPackage", "outline.png")) {
+            updateOutline = true;
+          } else if (file === path.join(ctx.projectPath!, "appPackage", "zh.json")) {
+            updateLanguage = true;
+          } else if (file === path.join(ctx.projectPath!, "appPackage", "manifest.json")) {
+            updateManifest = true;
+            updatedManifestData = data;
+          } else {
+            throw new Error("not support " + file);
+          }
+        });
 
-      const mockWriteStream = new MockedWriteStream();
-      sandbox.stub(fs, "createWriteStream").returns(mockWriteStream as any);
-      const writeSpy = sandbox.stub(mockWriteStream, "write").resolves();
-      sandbox.stub(mockWriteStream, "end").resolves();
-      sandbox.stub(fs, "readFile").callsFake((file: number | fs.PathLike) => {
-        if (file === path.join(ctx.projectPath!, "env", ".env.local")) {
-          return Promise.resolve(Buffer.from("TEAMS_APP_ID=\nENV=\n"));
-        } else {
-          throw new Error("not support " + file);
-        }
-      });
-      sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest as TeamsAppManifest));
+      sandbox
+        .stub(developerPortalScaffoldUtilsDeps, "readAppManifest")
+        .resolves(ok(manifest as TeamsAppManifest));
 
       const res = await developerPortalScaffoldUtils.updateFilesForTdp(ctx, appDefinition, inputs);
 
@@ -1223,43 +1241,38 @@ describe("developPortalScaffoldUtils", () => {
       let updateColor = false;
       let updateOutline = false;
       let updatedManifestData = "";
-      sandbox.stub(pathUtils, "getEnvFilePath").resolves(ok("fake env path"));
-      sandbox.stub(fs, "pathExists").resolves(true);
-      sandbox.stub(appStudio, "getAppPackage").resolves(
+      sandbox
+        .stub(developerPortalScaffoldUtilsDeps, "getEnvFilePath")
+        .resolves(ok("fake env path"));
+      sandbox.stub(developerPortalScaffoldUtilsDeps, "pathExists").resolves(true);
+      sandbox.stub(developerPortalScaffoldUtilsDeps, "getAppPackage").resolves(
         ok({
           manifest: Buffer.from(JSON.stringify(manifest)),
           icons: { color: Buffer.from(""), outline: Buffer.from("") },
           languages: { zh: Buffer.from(JSON.stringify({})) },
         })
       );
-      sandbox.stub(envUtil, "writeEnv").resolves(ok(undefined));
-      sandbox.stub(fs, "writeFile").callsFake((file: number | fs.PathLike, data: any) => {
-        if (file === path.join(ctx.projectPath!, "appPackage", "color.png")) {
-          updateColor = true;
-        } else if (file === path.join(ctx.projectPath!, "appPackage", "outline.png")) {
-          updateOutline = true;
-        } else if (file === path.join(ctx.projectPath!, "appPackage", "zh.json")) {
-          updateLanguage = true;
-        } else if (file === path.join(ctx.projectPath!, "appPackage", "manifest.json")) {
-          updateManifest = true;
-          updatedManifestData = data;
-        } else {
-          throw new Error("not support " + file);
-        }
-      });
+      sandbox.stub(developerPortalScaffoldUtilsDeps, "writeEnv").resolves(ok(undefined));
+      sandbox
+        .stub(developerPortalScaffoldUtilsDeps, "writeFile")
+        .callsFake((file: number | fs.PathLike, data: any) => {
+          if (file === path.join(ctx.projectPath!, "appPackage", "color.png")) {
+            updateColor = true;
+          } else if (file === path.join(ctx.projectPath!, "appPackage", "outline.png")) {
+            updateOutline = true;
+          } else if (file === path.join(ctx.projectPath!, "appPackage", "zh.json")) {
+            updateLanguage = true;
+          } else if (file === path.join(ctx.projectPath!, "appPackage", "manifest.json")) {
+            updateManifest = true;
+            updatedManifestData = data;
+          } else {
+            throw new Error("not support " + file);
+          }
+        });
 
-      const mockWriteStream = new MockedWriteStream();
-      sandbox.stub(fs, "createWriteStream").returns(mockWriteStream as any);
-      const writeSpy = sandbox.stub(mockWriteStream, "write").resolves();
-      sandbox.stub(mockWriteStream, "end").resolves();
-      sandbox.stub(fs, "readFile").callsFake((file: number | fs.PathLike) => {
-        if (file === path.join(ctx.projectPath!, "env", ".env.local")) {
-          return Promise.resolve(Buffer.from("TEAMS_APP_ID=\nENV=\n"));
-        } else {
-          throw new Error("not support " + file);
-        }
-      });
-      sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest as TeamsAppManifest));
+      sandbox
+        .stub(developerPortalScaffoldUtilsDeps, "readAppManifest")
+        .resolves(ok(manifest as TeamsAppManifest));
 
       const res = await developerPortalScaffoldUtils.updateFilesForTdp(ctx, appDefinition, inputs);
 
@@ -1331,7 +1344,7 @@ describe("developPortalScaffoldUtils", () => {
           },
         ],
       };
-      sandbox.stub(appStudio, "getAppPackage").resolves(
+      sandbox.stub(developerPortalScaffoldUtilsDeps, "getAppPackage").resolves(
         ok({
           manifest: Buffer.from(JSON.stringify(manifest)),
           icons: { color: Buffer.from(""), outline: Buffer.from("") },
@@ -1339,9 +1352,11 @@ describe("developPortalScaffoldUtils", () => {
         })
       );
 
-      sandbox.stub(envUtil, "writeEnv").resolves(ok(undefined));
+      sandbox.stub(developerPortalScaffoldUtilsDeps, "writeEnv").resolves(ok(undefined));
 
-      sandbox.stub(manifestUtils, "_readAppManifest").resolves(err(new UserError("", "", "", "")));
+      sandbox
+        .stub(developerPortalScaffoldUtilsDeps, "readAppManifest")
+        .resolves(err(new UserError("", "", "", "")));
       const res = await developerPortalScaffoldUtils.updateFilesForTdp(ctx, appDefinition, inputs);
 
       chai.assert.isTrue(res.isErr());
@@ -1398,23 +1413,29 @@ describe("developPortalScaffoldUtils", () => {
 
       let updatedManifestData = "";
 
-      sandbox.stub(pathUtils, "getEnvFilePath").resolves(ok("fake env path"));
-      sandbox.stub(fs, "pathExists").resolves(true);
-      sandbox.stub(appStudio, "getAppPackage").resolves(
+      sandbox
+        .stub(developerPortalScaffoldUtilsDeps, "getEnvFilePath")
+        .resolves(ok("fake env path"));
+      sandbox.stub(developerPortalScaffoldUtilsDeps, "pathExists").resolves(true);
+      sandbox.stub(developerPortalScaffoldUtilsDeps, "getAppPackage").resolves(
         ok({
           manifest: Buffer.from(JSON.stringify(manifest)),
           icons: { color: Buffer.from(""), outline: Buffer.from("") },
           languages: {},
         })
       );
-      sandbox.stub(fs, "writeFile").callsFake((file: number | fs.PathLike, data: any) => {
-        if (file === path.join(ctx.projectPath!, "appPackage", "manifest.json")) {
-          updatedManifestData = data;
-        }
-      });
+      sandbox
+        .stub(developerPortalScaffoldUtilsDeps, "writeFile")
+        .callsFake((file: number | fs.PathLike, data: any) => {
+          if (file === path.join(ctx.projectPath!, "appPackage", "manifest.json")) {
+            updatedManifestData = data;
+          }
+        });
 
-      sandbox.stub(envUtil, "writeEnv").resolves(ok(undefined));
-      sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifestTemplate));
+      sandbox.stub(developerPortalScaffoldUtilsDeps, "writeEnv").resolves(ok(undefined));
+      sandbox
+        .stub(developerPortalScaffoldUtilsDeps, "readAppManifest")
+        .resolves(ok(manifestTemplate));
 
       const res = await developerPortalScaffoldUtils.updateFilesForTdp(ctx, appDefinition, inputs);
 
@@ -1474,23 +1495,29 @@ describe("developPortalScaffoldUtils", () => {
 
       let updatedManifestData = "";
 
-      sandbox.stub(pathUtils, "getEnvFilePath").resolves(ok("fake env path"));
-      sandbox.stub(fs, "pathExists").resolves(true);
-      sandbox.stub(appStudio, "getAppPackage").resolves(
+      sandbox
+        .stub(developerPortalScaffoldUtilsDeps, "getEnvFilePath")
+        .resolves(ok("fake env path"));
+      sandbox.stub(developerPortalScaffoldUtilsDeps, "pathExists").resolves(true);
+      sandbox.stub(developerPortalScaffoldUtilsDeps, "getAppPackage").resolves(
         ok({
           manifest: Buffer.from(JSON.stringify(manifest)),
           icons: { color: Buffer.from(""), outline: Buffer.from("") },
           languages: {},
         })
       );
-      sandbox.stub(fs, "writeFile").callsFake((file: number | fs.PathLike, data: any) => {
-        if (file === path.join(ctx.projectPath!, "appPackage", "manifest.json")) {
-          updatedManifestData = data;
-        }
-      });
+      sandbox
+        .stub(developerPortalScaffoldUtilsDeps, "writeFile")
+        .callsFake((file: number | fs.PathLike, data: any) => {
+          if (file === path.join(ctx.projectPath!, "appPackage", "manifest.json")) {
+            updatedManifestData = data;
+          }
+        });
 
-      sandbox.stub(envUtil, "writeEnv").resolves(ok(undefined));
-      sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifestTemplate));
+      sandbox.stub(developerPortalScaffoldUtilsDeps, "writeEnv").resolves(ok(undefined));
+      sandbox
+        .stub(developerPortalScaffoldUtilsDeps, "readAppManifest")
+        .resolves(ok(manifestTemplate));
 
       const res = await developerPortalScaffoldUtils.updateFilesForTdp(ctx, appDefinition, inputs);
 
@@ -1550,23 +1577,29 @@ describe("developPortalScaffoldUtils", () => {
 
       let updatedManifestData = "";
 
-      sandbox.stub(pathUtils, "getEnvFilePath").resolves(ok("fake env path"));
-      sandbox.stub(fs, "pathExists").resolves(true);
-      sandbox.stub(appStudio, "getAppPackage").resolves(
+      sandbox
+        .stub(developerPortalScaffoldUtilsDeps, "getEnvFilePath")
+        .resolves(ok("fake env path"));
+      sandbox.stub(developerPortalScaffoldUtilsDeps, "pathExists").resolves(true);
+      sandbox.stub(developerPortalScaffoldUtilsDeps, "getAppPackage").resolves(
         ok({
           manifest: Buffer.from(JSON.stringify(manifest)),
           icons: { color: Buffer.from(""), outline: Buffer.from("") },
           languages: {},
         })
       );
-      sandbox.stub(fs, "writeFile").callsFake((file: number | fs.PathLike, data: any) => {
-        if (file === path.join(ctx.projectPath!, "appPackage", "manifest.json")) {
-          updatedManifestData = data;
-        }
-      });
+      sandbox
+        .stub(developerPortalScaffoldUtilsDeps, "writeFile")
+        .callsFake((file: number | fs.PathLike, data: any) => {
+          if (file === path.join(ctx.projectPath!, "appPackage", "manifest.json")) {
+            updatedManifestData = data;
+          }
+        });
 
-      sandbox.stub(envUtil, "writeEnv").resolves(ok(undefined));
-      sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifestTemplate));
+      sandbox.stub(developerPortalScaffoldUtilsDeps, "writeEnv").resolves(ok(undefined));
+      sandbox
+        .stub(developerPortalScaffoldUtilsDeps, "readAppManifest")
+        .resolves(ok(manifestTemplate));
 
       const res = await developerPortalScaffoldUtils.updateFilesForTdp(ctx, appDefinition, inputs);
 
@@ -1626,23 +1659,29 @@ describe("developPortalScaffoldUtils", () => {
 
       let updatedManifestData = "";
 
-      sandbox.stub(pathUtils, "getEnvFilePath").resolves(ok("fake env path"));
-      sandbox.stub(fs, "pathExists").resolves(true);
-      sandbox.stub(appStudio, "getAppPackage").resolves(
+      sandbox
+        .stub(developerPortalScaffoldUtilsDeps, "getEnvFilePath")
+        .resolves(ok("fake env path"));
+      sandbox.stub(developerPortalScaffoldUtilsDeps, "pathExists").resolves(true);
+      sandbox.stub(developerPortalScaffoldUtilsDeps, "getAppPackage").resolves(
         ok({
           manifest: Buffer.from(JSON.stringify(manifest)),
           icons: { color: Buffer.from(""), outline: Buffer.from("") },
           languages: {},
         })
       );
-      sandbox.stub(fs, "writeFile").callsFake((file: number | fs.PathLike, data: any) => {
-        if (file === path.join(ctx.projectPath!, "appPackage", "manifest.json")) {
-          updatedManifestData = data;
-        }
-      });
+      sandbox
+        .stub(developerPortalScaffoldUtilsDeps, "writeFile")
+        .callsFake((file: number | fs.PathLike, data: any) => {
+          if (file === path.join(ctx.projectPath!, "appPackage", "manifest.json")) {
+            updatedManifestData = data;
+          }
+        });
 
-      sandbox.stub(envUtil, "writeEnv").resolves(ok(undefined));
-      sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifestTemplate));
+      sandbox.stub(developerPortalScaffoldUtilsDeps, "writeEnv").resolves(ok(undefined));
+      sandbox
+        .stub(developerPortalScaffoldUtilsDeps, "readAppManifest")
+        .resolves(ok(manifestTemplate));
 
       const res = await developerPortalScaffoldUtils.updateFilesForTdp(ctx, appDefinition, inputs);
 
@@ -1762,10 +1801,14 @@ describe("developPortalScaffoldUtils", () => {
     });
 
     it("writes to .env.local when it exists", async () => {
-      sandbox.stub(pathUtils, "getEnvFilePath").resolves(ok("path/to/.env.local"));
-      sandbox.stub(fs, "pathExists").resolves(true);
+      sandbox
+        .stub(developerPortalScaffoldUtilsDeps, "getEnvFilePath")
+        .resolves(ok("path/to/.env.local"));
+      sandbox.stub(developerPortalScaffoldUtilsDeps, "pathExists").resolves(true);
 
-      const writeEnvStub = sandbox.stub(envUtil, "writeEnv").resolves(ok(undefined));
+      const writeEnvStub = sandbox
+        .stub(developerPortalScaffoldUtilsDeps, "writeEnv")
+        .resolves(ok(undefined));
 
       // Use the private method for testing
       const result = await tdpUtils.updateEnv("mock-app-id", "project-path");
@@ -1779,10 +1822,12 @@ describe("developPortalScaffoldUtils", () => {
     });
 
     it("writes to .env.dev when cannot find env path", async () => {
-      sandbox.stub(pathUtils, "getEnvFilePath").resolves(ok(undefined));
-      sandbox.stub(fs, "pathExists").resolves(true);
+      sandbox.stub(developerPortalScaffoldUtilsDeps, "getEnvFilePath").resolves(ok(undefined));
+      sandbox.stub(developerPortalScaffoldUtilsDeps, "pathExists").resolves(true);
 
-      const writeEnvStub = sandbox.stub(envUtil, "writeEnv").resolves(ok(undefined));
+      const writeEnvStub = sandbox
+        .stub(developerPortalScaffoldUtilsDeps, "writeEnv")
+        .resolves(ok(undefined));
 
       // Use the private method for testing
       const result = await tdpUtils.updateEnv("mock-app-id", "project-path");
@@ -1796,10 +1841,14 @@ describe("developPortalScaffoldUtils", () => {
     });
 
     it("writes to .env.dev when .env.local doesn't exist", async () => {
-      sandbox.stub(pathUtils, "getEnvFilePath").resolves(ok("path/to/.env.local"));
-      sandbox.stub(fs, "pathExists").resolves(false);
+      sandbox
+        .stub(developerPortalScaffoldUtilsDeps, "getEnvFilePath")
+        .resolves(ok("path/to/.env.local"));
+      sandbox.stub(developerPortalScaffoldUtilsDeps, "pathExists").resolves(false);
 
-      const writeEnvStub = sandbox.stub(envUtil, "writeEnv").resolves(ok(undefined));
+      const writeEnvStub = sandbox
+        .stub(developerPortalScaffoldUtilsDeps, "writeEnv")
+        .resolves(ok(undefined));
 
       // Use the private method for testing
       const result = await tdpUtils.updateEnv("mock-app-id", "project-path");
@@ -1814,7 +1863,7 @@ describe("developPortalScaffoldUtils", () => {
 
     it("returns error when getEnvFilePath fails", async () => {
       const error = new UserError("source", "name", "msg", "msg");
-      sandbox.stub(pathUtils, "getEnvFilePath").resolves(err(error));
+      sandbox.stub(developerPortalScaffoldUtilsDeps, "getEnvFilePath").resolves(err(error));
 
       // Use the private method for testing
       const result = await tdpUtils.updateEnv("mock-app-id", "project-path");

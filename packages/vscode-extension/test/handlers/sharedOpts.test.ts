@@ -1,26 +1,26 @@
-import * as sinon from "sinon";
-import * as chai from "chai";
-import * as uuid from "uuid";
-import * as globalVariables from "../../src/globalVariables";
-import * as systemEnvUtils from "../../src/utils/systemEnvUtils";
-import * as vscode from "vscode";
-import * as telemetryUtils from "../../src/utils/telemetryUtils";
 import {
-  Platform,
-  Stage,
   err,
-  UserError,
+  FxError,
   Inputs,
   ok,
+  Platform,
   Result,
-  FxError,
+  Stage,
+  UserError,
 } from "@microsoft/teamsfx-api";
+import { UserCancelError, VersionState } from "@microsoft/teamsfx-core";
+import * as chai from "chai";
+import * as sinon from "sinon";
+import * as uuid from "uuid";
+import * as vscode from "vscode";
+import { RecommendedOperations } from "../../src/debug/common/debugConstants";
+import * as globalVariables from "../../src/globalVariables";
 import { processResult, runCommand } from "../../src/handlers/sharedOpts";
 import { ExtTelemetry } from "../../src/telemetry/extTelemetry";
-import { MockCore } from "../mocks/mockCore";
-import { RecommendedOperations } from "../../src/debug/common/debugConstants";
-import { UserCancelError } from "@microsoft/teamsfx-core";
 import { TelemetryEvent } from "../../src/telemetry/extTelemetryEvents";
+import * as systemEnvUtils from "../../src/utils/systemEnvUtils";
+import * as telemetryUtils from "../../src/utils/telemetryUtils";
+import { MockCore } from "../mocks/mockCore";
 
 describe("SharedOpts", () => {
   describe("runCommand()", function () {
@@ -81,6 +81,72 @@ describe("SharedOpts", () => {
       await runCommand(Stage.provision);
       sinon.assert.calledOnce(provisionResources);
     });
+
+    it("version check - unsupported should stop stage execution", async () => {
+      const mockCore = new MockCore();
+      const projectVersionCheck = sandbox
+        .stub(mockCore, "projectVersionCheck")
+        .resolves(ok({ isSupport: VersionState.unsupported }));
+      const provisionResources = sandbox.spy(mockCore, "provisionResources");
+      sandbox.stub(globalVariables, "core").value(mockCore);
+
+      const result = await runCommand(Stage.provision, {
+        platform: Platform.VSCode,
+        projectPath: "test-project",
+      } as Inputs);
+
+      chai.assert.isTrue(result.isErr());
+      if (result.isErr()) {
+        chai.assert.equal(result.error.name, "IncompatibleProject");
+        chai.assert.include(result.error.message, "cannot be upgraded");
+      }
+      sinon.assert.calledOnce(projectVersionCheck);
+      chai.assert.equal(projectVersionCheck.args[0][0].ignoreEnvInfo, true);
+      sinon.assert.notCalled(provisionResources);
+    });
+
+    it("version check - upgradeable should stop stage execution", async () => {
+      const mockCore = new MockCore();
+      const projectVersionCheck = sandbox
+        .stub(mockCore, "projectVersionCheck")
+        .resolves(ok({ isSupport: VersionState.upgradeable }));
+      const deployArtifacts = sandbox.spy(mockCore, "deployArtifacts");
+      sandbox.stub(globalVariables, "core").value(mockCore);
+
+      const result = await runCommand(Stage.deploy, {
+        platform: Platform.VSCode,
+        projectPath: "test-project",
+      } as Inputs);
+
+      chai.assert.isTrue(result.isErr());
+      if (result.isErr()) {
+        chai.assert.equal(result.error.name, "IncompatibleProject");
+        chai.assert.include(result.error.message, "can be upgraded");
+      }
+      sinon.assert.calledOnce(projectVersionCheck);
+      chai.assert.equal(projectVersionCheck.args[0][0].ignoreEnvInfo, true);
+      sinon.assert.notCalled(deployArtifacts);
+    });
+
+    it("version check - compatible should continue stage execution", async () => {
+      const mockCore = new MockCore();
+      const projectVersionCheck = sandbox
+        .stub(mockCore, "projectVersionCheck")
+        .resolves(ok({ isSupport: VersionState.compatible }));
+      const deployArtifacts = sandbox.spy(mockCore, "deployArtifacts");
+      sandbox.stub(globalVariables, "core").value(mockCore);
+
+      const result = await runCommand(Stage.deploy, {
+        platform: Platform.VSCode,
+        projectPath: "test-project",
+      } as Inputs);
+
+      chai.assert.isTrue(result.isOk());
+      sinon.assert.calledOnce(projectVersionCheck);
+      chai.assert.equal(projectVersionCheck.args[0][0].ignoreEnvInfo, true);
+      sinon.assert.calledOnce(deployArtifacts);
+    });
+
     it("deployTeamsManifest", async () => {
       sandbox.stub(globalVariables, "core").value(new MockCore());
       const deployTeamsManifest = sandbox.spy(globalVariables.core, "deployTeamsManifest");

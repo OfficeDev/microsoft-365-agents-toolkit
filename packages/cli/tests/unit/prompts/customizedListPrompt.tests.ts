@@ -3,7 +3,6 @@
 
 import { render } from "@inquirer/testing";
 import figures from "figures";
-import "mocha";
 import { select } from "../../../src/prompts/customizedListPrompt";
 import { expect } from "../utils";
 

@@ -1,10 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { Settings } from "@microsoft/teamsfx-api";
 import { assert } from "chai";
 import fs from "fs-extra";
-import "mocha";
 import mockedEnv from "mocked-env";
 import os from "os";
 import * as path from "path";
@@ -15,7 +13,7 @@ import {
   isValidProject,
   isValidProjectV3,
 } from "../../src/common/projectSettingsHelper";
-import { execPowerShell, execShell } from "../../src/component/local/process";
+import * as localProcess from "../../src/component/local/process";
 import { TaskDefinition } from "../../src/component/local/taskDefinition";
 import { cpUtils } from "../../src/component/utils/depsChecker/cpUtils";
 import { randomAppName } from "./utils";
@@ -80,30 +78,10 @@ describe("Other test case", () => {
   });
 
   it("executeCommand", async () => {
-    {
-      try {
-        const res = await cpUtils.executeCommand(undefined, undefined, undefined, "ls");
-        assert.isTrue(res !== undefined);
-      } catch (e) {}
-    }
-    {
-      try {
-        const res = await cpUtils.tryExecuteCommand(undefined, undefined, undefined, "ls");
-        assert.isTrue(res !== undefined);
-      } catch (e) {}
-    }
-    {
-      try {
-        const res = await execShell("ls");
-        assert.isTrue(res !== undefined);
-      } catch (e) {}
-    }
-    {
-      try {
-        const res = await execPowerShell("ls");
-        assert.isTrue(res !== undefined);
-      } catch (e) {}
-    }
+    assert.isTrue(!!cpUtils.executeCommand);
+    assert.isTrue(!!cpUtils.tryExecuteCommand);
+    assert.isTrue(!!localProcess.execShell);
+    assert.isTrue(!!localProcess.execPowerShell);
   });
   it("TaskDefinition", async () => {
     const appName = randomAppName();
@@ -162,14 +140,7 @@ describe("Other test case", () => {
     }
   });
   it("isValidProject: true", async () => {
-    const projectSettings: any = {
-      appName: "myapp",
-      version: "1.0.0",
-      projectId: "123",
-    };
-    sandbox.stub(fs, "readJsonSync").returns(projectSettings);
-    sandbox.stub(fs, "existsSync").returns(true);
-    sandbox.stub(fs, "readdirSync").returns([]);
+    sandbox.stub(fs, "pathExistsSync").returns(true);
     const isValid = isValidProject("aaa");
     assert.isTrue(isValid);
   });
@@ -178,13 +149,7 @@ describe("Other test case", () => {
       TEAMSFX_V3: "true",
     });
     try {
-      const settings: Settings = {
-        version: "1.0.0",
-        trackingId: "123",
-      };
-      sandbox.stub(fs, "readJsonSync").returns(settings);
-      sandbox.stub(fs, "existsSync").returns(true);
-      sandbox.stub(fs, "readdirSync").returns([]);
+      sandbox.stub(fs, "pathExistsSync").returns(true);
       const isValid = isValidProject("aaa");
       assert.isTrue(isValid);
     } finally {

@@ -3,8 +3,6 @@
 /**
  * @author Siglud <siglud@gmail.com>
  */
-
-import "mocha";
 import { assert } from "chai";
 import { maskSecretFromEnv } from "../../../src/common/stringUtils";
 

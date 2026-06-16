@@ -7,6 +7,7 @@ import { createSampleProjectQuestionNode } from "./create";
 import {
   addAuthActionQuestion,
   addKnowledgeQuestionNode,
+  addSkillQuestionNode,
   addPluginQuestionNode,
   addWebPartQuestionNode,
   apiSpecApiKeyQuestion,
@@ -105,6 +106,9 @@ export class QuestionNodes {
   }
   addKnowledge(): IQTreeNode {
     return addKnowledgeQuestionNode();
+  }
+  addSkill(): IQTreeNode {
+    return addSkillQuestionNode();
   }
   setSensitivityLabel(): IQTreeNode {
     return setSensitivityLabelNode();

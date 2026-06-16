@@ -6,8 +6,8 @@ import fs from "fs-extra";
 import os from "os";
 import path from "path";
 import { TOOLS } from "../../../common/globalVars";
-import { useLocalTemplate } from "../../../component/generator/templateHelper";
-import { getTemplatesFolder } from "../../../folder";
+import * as templateHelper from "../../../component/generator/templateHelper";
+import * as folder from "../../../folder";
 import { constructNode } from "../constructNode";
 
 /**
@@ -31,11 +31,15 @@ function loadUiNode(fileName: string, platform: Platform): IQTreeNode {
 
   let jsonPath: string;
   let source: string;
-  if (!useLocalTemplate() && fs.pathExistsSync(cachedJsonPath)) {
+  if (
+    !templateHelper.useLocalTemplate() &&
+    !templateHelper.useBundledMetadataForV4() &&
+    fs.pathExistsSync(cachedJsonPath)
+  ) {
     jsonPath = cachedJsonPath;
     source = "cache";
   } else {
-    jsonPath = path.join(getTemplatesFolder(), "ui", fileName);
+    jsonPath = path.join(folder.getTemplatesFolder(), "ui", fileName);
     source = "bundled";
   }
 

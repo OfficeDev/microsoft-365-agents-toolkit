@@ -160,4 +160,11 @@ export enum QuestionNames {
   MCPForDAAuthWellKnownUrl = "mcp-da-auth-well-known-url",
   MCPForDAAuthType = "mcp-da-auth-type",
   MCPToolsFilePath = "mcp-tools-file-path",
+
+  SkillName = "skill-name",
+  SkillDescription = "skill-description",
+  SkillFrom = "skill-from",
+  SkillSourceType = "skill-source-type",
+  SkillFromZipFile = "skill-from-zip-file",
+  ExposeToCopilot = "expose-to-copilot",
 }

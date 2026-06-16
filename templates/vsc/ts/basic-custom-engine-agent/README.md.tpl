@@ -9,7 +9,7 @@ It showcases an agent that responds to user questions like ChatGPT. This enables
 >
 > To run the template in your local dev machine, you will need:
 >
-> - [Node.js](https://nodejs.org/), supported versions: 18, 20, 22.
+> - [Node.js](https://nodejs.org/), supported versions: 22.
 > - [Microsoft 365 Agents Toolkit Visual Studio Code Extension](https://aka.ms/teams-toolkit) latest version or [Microsoft 365 Agents Toolkit CLI](https://aka.ms/teamsfx-toolkit-cli).
 {{#useOpenAI}}
 > - An account with [OpenAI](https://platform.openai.com/).
