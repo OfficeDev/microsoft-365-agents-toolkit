@@ -7,8 +7,7 @@ import { Result, SystemError, err, ok } from "@microsoft/teamsfx-api";
 import { core, workspaceUri } from "../globalVariables";
 import { localize } from "./localizeUtils";
 import { ExtensionSource, ExtensionErrors } from "../error/error";
-import { isTestToolEnabledProject } from "@microsoft/teamsfx-core";
-import { processAdapter, globAdapter, fsAdapter } from "../common/npmPackageDeps";
+import { processAdapter, globAdapter, fsAdapter, envParseAdapter } from "../common/npmPackageDeps";
 
 export function isWindows() {
   return processAdapter.type() === "Windows_NT";
@@ -83,7 +82,8 @@ function isAdaptiveCard(content: string): boolean {
 }
 
 export function getLocalDebugMessageTemplate(isWindowsOS: boolean): string {
-  const enabledTestTool = workspaceUri?.fsPath && isTestToolEnabledProject(workspaceUri.fsPath);
+  const enabledTestTool =
+    workspaceUri?.fsPath && envParseAdapter.isTestToolEnabledProject(workspaceUri.fsPath);
 
   if (isWindowsOS) {
     return enabledTestTool

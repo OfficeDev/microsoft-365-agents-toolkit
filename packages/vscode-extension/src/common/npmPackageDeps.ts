@@ -45,6 +45,10 @@ export const fsAdapter = {
  */
 export const envParseAdapter = {
   deserializeDotenv: (content: string) => dotenvUtil.deserialize(content),
+  isTestToolEnabledProject: (projectPath: string) => {
+    const { isTestToolEnabledProject } = require("@microsoft/teamsfx-core");
+    return isTestToolEnabledProject(projectPath);
+  },
 };
 
 /**

@@ -17,7 +17,12 @@ import {
   isWindows,
   openFolderInExplorer,
 } from "../../src/utils/commonUtils";
-import { processAdapter, globAdapter, fsAdapter } from "../../src/common/npmPackageDeps";
+import {
+  processAdapter,
+  globAdapter,
+  fsAdapter,
+  envParseAdapter,
+} from "../../src/common/npmPackageDeps";
 import * as tools from "@microsoft/teamsfx-core/build/common/tools";
 
 describe("CommonUtils", () => {
@@ -150,7 +155,7 @@ describe("CommonUtils", () => {
   describe("getLocalDebugMessageTemplate()", () => {
     it("Test Tool enabled in Windows platform", async () => {
       mockValue(vscode.workspace, "workspaceFolders", [{ uri: vscode.Uri.file("test") }]);
-      vi.spyOn(tools, "isTestToolEnabledProject").mockReturnValue(true);
+      vi.spyOn(envParseAdapter, "isTestToolEnabledProject").mockReturnValue(true);
       mockValue(globalVariables, "workspaceUri", vscode.Uri.file("path"));
 
       const result = await getLocalDebugMessageTemplate(true);
@@ -159,7 +164,7 @@ describe("CommonUtils", () => {
 
     it("Test Tool disabled in Windows platform", async () => {
       mockValue(vscode.workspace, "workspaceFolders", [{ uri: vscode.Uri.file("test") }]);
-      vi.spyOn(tools, "isTestToolEnabledProject").mockReturnValue(false);
+      vi.spyOn(envParseAdapter, "isTestToolEnabledProject").mockReturnValue(false);
       mockValue(globalVariables, "workspaceUri", vscode.Uri.file("path"));
 
       const result = await getLocalDebugMessageTemplate(true);
@@ -168,7 +173,7 @@ describe("CommonUtils", () => {
 
     it("Test Tool enabled in non-Windows platform", async () => {
       mockValue(vscode.workspace, "workspaceFolders", [{ uri: vscode.Uri.file("test") }]);
-      vi.spyOn(tools, "isTestToolEnabledProject").mockReturnValue(true);
+      vi.spyOn(envParseAdapter, "isTestToolEnabledProject").mockReturnValue(true);
       mockValue(globalVariables, "workspaceUri", vscode.Uri.file("path"));
 
       const result = await getLocalDebugMessageTemplate(false);
@@ -177,7 +182,7 @@ describe("CommonUtils", () => {
 
     it("Test Tool disabled in non-Windows platform", async () => {
       mockValue(vscode.workspace, "workspaceFolders", [{ uri: vscode.Uri.file("test") }]);
-      vi.spyOn(tools, "isTestToolEnabledProject").mockReturnValue(false);
+      vi.spyOn(envParseAdapter, "isTestToolEnabledProject").mockReturnValue(false);
       mockValue(globalVariables, "workspaceUri", vscode.Uri.file("path"));
 
       const result = await getLocalDebugMessageTemplate(false);
