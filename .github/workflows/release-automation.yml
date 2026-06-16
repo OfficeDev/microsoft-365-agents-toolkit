@@ -43,7 +43,7 @@ on:
         type: boolean
         default: true
   schedule:
-    - cron: "0 12 * * *" # Run daily at 20:00 (UTC+8) => 12:00 UTC
+    - cron: "0 10 * * *" # Run daily at 18:00 (UTC+8) => 10:00 UTC
   pull_request:
     types: [closed]
     branches:
