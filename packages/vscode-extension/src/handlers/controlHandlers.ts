@@ -2,12 +2,7 @@
 // Licensed under the MIT license.
 
 import { FxError, Result, ok } from "@microsoft/teamsfx-api";
-import {
-  featureFlagManager,
-  FeatureFlags,
-  isValidProject,
-  manifestUtils,
-} from "@microsoft/teamsfx-core";
+import * as teamsfxCore from "@microsoft/teamsfx-core";
 import fs from "fs-extra";
 import path from "path";
 import * as vscode from "vscode";
@@ -21,10 +16,16 @@ import {
   TelemetryTriggerFrom,
   TelemetryUpdateAppReason,
 } from "../telemetry/extTelemetryEvents";
-import { openFolderInExplorer } from "../utils/commonUtils";
+import * as commonUtils from "../utils/commonUtils";
 import { getTriggerFromProperty } from "../utils/telemetryUtils";
 import { getDefaultString } from "../utils/localizeUtils";
 import { getBuildIntelligentAppsWalkthroughID } from "./walkthrough";
+
+export const controlHandlersOps = {
+  openFolderInExplorer: (fsPath: string) => commonUtils.openFolderInExplorer(fsPath),
+  isValidProject: (path?: string) => teamsfxCore.isValidProject(path),
+};
+const controlHandlersDeps = controlHandlersOps;
 
 export async function openLifecycleTreeview(args?: any[]) {
   ExtTelemetry.sendTelemetryEvent(
@@ -91,13 +92,13 @@ export function openFolderHandler(...args: unknown[]): Promise<Result<unknown, F
       path = path.substring(scheme.length);
     }
     const uri = vscode.Uri.file(path);
-    openFolderInExplorer(uri.fsPath);
+    controlHandlersDeps.openFolderInExplorer(uri.fsPath);
   }
   return Promise.resolve(ok(null));
 }
 
 export function saveTextDocumentHandler(document: vscode.TextDocumentWillSaveEvent) {
-  if (!isValidProject(workspaceUri?.fsPath)) {
+  if (!controlHandlersDeps.isValidProject(workspaceUri?.fsPath)) {
     return;
   }
 
@@ -116,7 +117,7 @@ export function saveTextDocumentHandler(document: vscode.TextDocumentWillSaveEve
 
   let curDirectory = path.dirname(document.document.fileName);
   while (curDirectory) {
-    if (isValidProject(curDirectory)) {
+    if (controlHandlersDeps.isValidProject(curDirectory)) {
       ExtTelemetry.sendTelemetryEvent(TelemetryEvent.UpdateTeamsApp, {
         [TelemetryProperty.UpdateTeamsAppReason]: reason,
       });

@@ -1,5 +1,4 @@
 import * as chai from "chai";
-import * as sinon from "sinon";
 import * as vscode from "vscode";
 import * as tools from "@microsoft/teamsfx-core/build/common/tools";
 import { errorIcon, infoIcon, passIcon } from "../../../src/treeview/account/common";
@@ -7,14 +6,10 @@ import { SideloadingNode } from "../../../src/treeview/account/sideloadingNode";
 import { DynamicNode } from "../../../src/treeview/dynamicNode";
 import * as checkAccessCallback from "../../../src/handlers/accounts/checkAccessCallback";
 import { featureFlagManager, GraphClient } from "@microsoft/teamsfx-core";
+import { vi } from "vitest";
 
 describe("sideloadingNode", () => {
-  const sandbox = sinon.createSandbox();
   const eventEmitter = new vscode.EventEmitter<DynamicNode | undefined | void>();
-
-  afterEach(() => {
-    sandbox.restore();
-  });
 
   it("getTreeItem with empty string", async () => {
     const sideloadingNode = new SideloadingNode(eventEmitter, "");
@@ -24,8 +19,8 @@ describe("sideloadingNode", () => {
   });
 
   it("getTreeItem with invalid token", async () => {
-    sandbox.stub(tools, "getSideloadingStatus").returns(Promise.resolve(false));
-    sandbox.stub(checkAccessCallback, "checkSideloadingCallback");
+    vi.spyOn(tools, "getSideloadingStatus").mockReturnValue(Promise.resolve(false));
+    vi.spyOn(checkAccessCallback, "checkSideloadingCallback").mockResolvedValue(undefined as never);
     const sideloadingNode = new SideloadingNode(eventEmitter, "token");
     const treeItem = await sideloadingNode.getTreeItem();
 
@@ -33,7 +28,7 @@ describe("sideloadingNode", () => {
   });
 
   it("getTreeItem with valid token", async () => {
-    sandbox.stub(tools, "getSideloadingStatus").returns(Promise.resolve(true));
+    vi.spyOn(tools, "getSideloadingStatus").mockReturnValue(Promise.resolve(true));
     const sideloadingNode = new SideloadingNode(eventEmitter, "token");
     const treeItem = await sideloadingNode.getTreeItem();
 
@@ -46,15 +41,15 @@ describe("sideloadingNode", () => {
   });
 
   it("Check sandbox permission", async () => {
-    sandbox.stub(tools, "getSideloadingStatus").returns(Promise.resolve(false));
-    sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
-    sandbox.stub(GraphClient.prototype, "GetTeamsAppSettingsAsync").resolves({
+    vi.spyOn(tools, "getSideloadingStatus").mockReturnValue(Promise.resolve(false));
+    vi.spyOn(featureFlagManager, "getBooleanValue").mockReturnValue(true);
+    vi.spyOn(GraphClient.prototype, "GetTeamsAppSettingsAsync").mockResolvedValue({
       sandboxingConfiguration: {
         isSideloadingEnabled: false,
         sensitivityLabelUsedToIdentifySandboxedContainers: "0fcfd0ff-1cda-407e-bc2b-a350307bd1d5",
       },
     });
-    sandbox.stub(checkAccessCallback, "checkSandboxCallback");
+    vi.spyOn(checkAccessCallback, "checkSandboxCallback").mockResolvedValue(undefined as never);
     const sideloadingNode = new SideloadingNode(eventEmitter, "token");
     const treeItem = await sideloadingNode.getTreeItem();
 
@@ -62,15 +57,15 @@ describe("sideloadingNode", () => {
   });
 
   it("Check sandbox permission - disabled", async () => {
-    sandbox.stub(tools, "getSideloadingStatus").returns(Promise.resolve(false));
-    sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
-    sandbox.stub(GraphClient.prototype, "GetTeamsAppSettingsAsync").resolves({
+    vi.spyOn(tools, "getSideloadingStatus").mockReturnValue(Promise.resolve(false));
+    vi.spyOn(featureFlagManager, "getBooleanValue").mockReturnValue(true);
+    vi.spyOn(GraphClient.prototype, "GetTeamsAppSettingsAsync").mockResolvedValue({
       sandboxingConfiguration: {
         isSideloadingEnabled: false,
         sensitivityLabelUsedToIdentifySandboxedContainers: "",
       },
     });
-    sandbox.stub(checkAccessCallback, "checkSideloadingCallback");
+    vi.spyOn(checkAccessCallback, "checkSideloadingCallback").mockResolvedValue(undefined as never);
     const sideloadingNode = new SideloadingNode(eventEmitter, "token");
     const treeItem = await sideloadingNode.getTreeItem();
 

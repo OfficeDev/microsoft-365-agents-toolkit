@@ -1,29 +1,29 @@
 import * as chai from "chai";
-import * as sinon from "sinon";
 import * as vscode from "vscode";
+import { vi } from "vitest";
+import { mockValue } from "../mocks/vitestMockUtils";
 
 import { FxError, LoginStatus, ok, Result, SubscriptionInfo } from "@microsoft/teamsfx-api";
-import { FeatureFlags, GraphScopes, featureFlagManager } from "@microsoft/teamsfx-core";
+import {
+  FeatureFlags,
+  GraphScopes,
+  environmentNameManager,
+  featureFlagManager,
+} from "@microsoft/teamsfx-core";
 
 import { M365Login } from "../../src/commonlib/m365Login";
+import azureAccountManager from "../../src/commonlib/azureLogin";
 import * as globalVariables from "../../src/globalVariables";
 import { warningIcon } from "../../src/treeview/account/common";
 import { DynamicNode } from "../../src/treeview/dynamicNode";
 import { EnvironmentNode } from "../../src/treeview/environmentTreeItem";
-import * as commonUtils from "../../src/utils/commonUtils";
 import * as localizeUtils from "../../src/utils/localizeUtils";
 import * as envTreeUtils from "../../src/utils/envTreeUtils";
 
 describe("EnvironmentNode", () => {
-  const sandbox = sinon.createSandbox();
-
-  afterEach(() => {
-    sandbox.restore();
-  });
-
   it("getTreeItem for local", async () => {
     const environmentNode = new EnvironmentNode("local");
-    sandbox.stub(environmentNode, "getChildren").returns(Promise.resolve([]));
+    vi.spyOn(environmentNode, "getChildren").mockReturnValue(Promise.resolve([]));
 
     const treeItem = await environmentNode.getTreeItem();
 
@@ -34,7 +34,7 @@ describe("EnvironmentNode", () => {
 
   it("getTreeItem for local", async () => {
     const environmentNode = new EnvironmentNode("testtool");
-    sandbox.stub(environmentNode, "getChildren").returns(Promise.resolve([]));
+    vi.spyOn(environmentNode, "getChildren").mockReturnValue(Promise.resolve([]));
 
     const treeItem = await environmentNode.getTreeItem();
 
@@ -45,7 +45,8 @@ describe("EnvironmentNode", () => {
 
   it("getChildren returns warning for SPFx project", async () => {
     const environmentNode = new EnvironmentNode("test");
-    sandbox.stub(M365Login.getInstance(), "getStatus").returns(
+    vi.spyOn(environmentNameManager, "isRemoteEnvironment").mockReturnValue(true);
+    vi.spyOn(M365Login.getInstance(), "getStatus").mockReturnValue(
       Promise.resolve<Result<LoginStatus, FxError>>(
         ok({
           status: "SignedIn",
@@ -55,18 +56,16 @@ describe("EnvironmentNode", () => {
         })
       )
     );
-    sandbox.stub(envTreeUtils, "getM365TenantFromEnv").returns(Promise.resolve("m365TenantId"));
-    sandbox.stub(globalVariables, "isSPFxProject").value(true);
-    // eslint-disable-next-line no-secrets/no-secrets
-    sandbox.stub(envTreeUtils, "getSubscriptionInfoFromEnv").returns(
+    vi.spyOn(envTreeUtils, "getM365TenantFromEnv").mockReturnValue(Promise.resolve("m365TenantId"));
+    mockValue(globalVariables, "isSPFxProject", true);
+    vi.spyOn(envTreeUtils, "getSubscriptionInfoFromEnv").mockReturnValue(
       Promise.resolve<SubscriptionInfo | undefined>({
         subscriptionName: "subscriptionName",
         subscriptionId: "subscriptionId",
         tenantId: "tenantId",
       })
     );
-    sandbox.stub(localizeUtils, "localize").callsFake((key: string, _defValue?: string) => {
-      // eslint-disable-next-line no-secrets/no-secrets
+    vi.spyOn(localizeUtils, "localize").mockImplementation((key: string) => {
       if (key === "teamstoolkit.commandsTreeViewProvider.m365AccountNotMatch") {
         return "test string";
       }
@@ -85,7 +84,8 @@ describe("EnvironmentNode", () => {
 
   it("getChildren returns subscription", async () => {
     const environmentNode = new EnvironmentNode("test");
-    sandbox.stub(M365Login.getInstance(), "getStatus").returns(
+    vi.spyOn(environmentNameManager, "isRemoteEnvironment").mockReturnValue(true);
+    vi.spyOn(M365Login.getInstance(), "getStatus").mockReturnValue(
       Promise.resolve<Result<LoginStatus, FxError>>(
         ok({
           status: "SignedIn",
@@ -95,25 +95,24 @@ describe("EnvironmentNode", () => {
         })
       )
     );
-    sandbox.stub(envTreeUtils, "getM365TenantFromEnv").returns(Promise.resolve("test"));
-    sandbox.stub(globalVariables, "isSPFxProject").value(true);
-    // eslint-disable-next-line no-secrets/no-secrets
-    sandbox.stub(envTreeUtils, "getSubscriptionInfoFromEnv").returns(
+    vi.spyOn(envTreeUtils, "getM365TenantFromEnv").mockReturnValue(Promise.resolve("test"));
+    mockValue(globalVariables, "isSPFxProject", true);
+    vi.spyOn(envTreeUtils, "getSubscriptionInfoFromEnv").mockReturnValue(
       Promise.resolve<SubscriptionInfo | undefined>({
         subscriptionName: "subscriptionName",
         subscriptionId: "subscriptionId",
         tenantId: "tenantId",
       })
     );
-    sandbox.stub(localizeUtils, "localize").callsFake((key: string, _defValue?: string) => {
+    vi.spyOn(localizeUtils, "localize").mockImplementation((key: string) => {
       if (key === "teamstoolkit.envTree.subscriptionTooltip") {
         return "'%s' environment is provisioned in Azure subscription '%s' (ID: %s)";
       }
       return "";
     });
-    sandbox
-      .stub(envTreeUtils, "getResourceGroupNameFromEnv")
-      .returns(Promise.resolve("resource group"));
+    vi.spyOn(envTreeUtils, "getResourceGroupNameFromEnv").mockReturnValue(
+      Promise.resolve("resource group")
+    );
 
     const children = await environmentNode.getChildren();
 
@@ -136,15 +135,51 @@ describe("EnvironmentNode", () => {
   });
 
   it("checkAccountForEnvironment uses Graph scopes in sovereign high", async () => {
-    sandbox.stub(featureFlagManager, "getStringValue").returns("GCC H");
+    vi.spyOn(featureFlagManager, "getStringValue").mockReturnValue("GCC H");
     const environmentNode = new EnvironmentNode("test");
-    const getStatusStub = sandbox
-      .stub(M365Login.getInstance(), "getStatus")
-      .resolves(ok({ status: "SignedOut", accountInfo: {} } as any));
-    sandbox.stub(globalVariables, "isSPFxProject").value(true);
+    const getStatusStub = vi
+      .spyOn(M365Login.getInstance(), "getStatus")
+      .mockResolvedValue(ok({ status: "SignedOut", accountInfo: {} } as any));
+    mockValue(globalVariables, "isSPFxProject", true);
 
     await environmentNode.getChildren();
 
     chai.assert.isTrue(getStatusStub.calledOnceWithExactly({ scopes: GraphScopes }));
+  });
+
+  it("getChildren returns cached children", async () => {
+    const environmentNode = new EnvironmentNode("test");
+    vi.spyOn(environmentNameManager, "isRemoteEnvironment").mockReturnValue(false);
+
+    const children1 = await environmentNode.getChildren();
+    const children2 = await environmentNode.getChildren();
+
+    chai.expect(children1).to.equal(children2);
+  });
+
+  it("getChildren adds warning when Azure account is not signed in", async () => {
+    const environmentNode = new EnvironmentNode("test");
+    vi.spyOn(environmentNameManager, "isRemoteEnvironment").mockReturnValue(true);
+    vi.spyOn(M365Login.getInstance(), "getStatus").mockResolvedValue(
+      ok({
+        status: "SignedIn",
+        accountInfo: {
+          tid: "tenant-id",
+        },
+      } as LoginStatus)
+    );
+    vi.spyOn(envTreeUtils, "getM365TenantFromEnv").mockResolvedValue("tenant-id");
+    mockValue(globalVariables, "isSPFxProject", false);
+    vi.spyOn(azureAccountManager, "getAccountInfo").mockReturnValue(undefined);
+    vi.spyOn(envTreeUtils, "getSubscriptionInfoFromEnv").mockResolvedValue(undefined);
+    vi.spyOn(localizeUtils, "localize").mockImplementation((key: string) => key);
+
+    const children = await environmentNode.getChildren();
+    const warningNode = (await (children as DynamicNode[])[0].getTreeItem()) as DynamicNode;
+
+    chai.expect(warningNode).to.not.be.undefined;
+    chai
+      .expect(String(warningNode.tooltip))
+      .to.include("teamstoolkit.commandsTreeViewProvider.azureAccountNotSignedIn");
   });
 });

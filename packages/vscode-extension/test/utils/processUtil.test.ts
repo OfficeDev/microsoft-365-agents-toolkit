@@ -1,17 +1,15 @@
-import sinon, { SinonFakeTimers, useFakeTimers } from "sinon";
 import * as chai from "chai";
-import { execModule, killModule, processUtil, timeoutPromise } from "../../src/utils/processUtil";
+import { vi } from "vitest";
+import { processUtil, timeoutPromise } from "../../src/utils/processUtil";
+import { processAdapter } from "../../src/common/npmPackageDeps";
+
 describe("ProcessUtil", () => {
-  const sandbox = sinon.createSandbox();
-
-  afterEach(() => {
-    sandbox.restore();
-  });
-
   describe("killProcess", () => {
     it("error", async () => {
-      const killStub = sandbox.stub(killModule, "killTree");
-      killStub.yields(new Error());
+      const killStub = vi.spyOn(processAdapter, "killTree");
+      killStub.mockImplementation((_pid: number, _signal: string, cb: (err?: Error) => void) => {
+        cb(new Error());
+      });
       try {
         await processUtil.killProcess(-1, 5000, false);
         chai.assert.fail("Expected promise to reject, but it resolved.");
@@ -20,8 +18,10 @@ describe("ProcessUtil", () => {
       }
     });
     it("happy", async () => {
-      const killStub = sandbox.stub(killModule, "killTree");
-      killStub.yields(null);
+      const killStub = vi.spyOn(processAdapter, "killTree");
+      killStub.mockImplementation((_pid: number, _signal: string, cb: () => void) => {
+        cb();
+      });
       await processUtil.killProcess(-1);
       chai.assert.isTrue(killStub.calledOnce);
     });
@@ -29,20 +29,20 @@ describe("ProcessUtil", () => {
 
   describe("getProcessIdsByPort", () => {
     it("should return PIDs from netstat output on Windows", async () => {
-      const execStub = sandbox.stub(execModule, "exec") as sinon.SinonStub;
-      const osStub = sandbox.stub(require("os"), "platform").returns("win32");
-      execStub.callsFake((_cmd: string, _opts: any, cb: (...args: unknown[]) => void) => {
+      const execStub = vi.spyOn(processAdapter, "execWithOptions") as ReturnType<typeof vi.spyOn>;
+      const platformStub = vi.spyOn(processAdapter, "platform").mockReturnValue("win32");
+      execStub.mockImplementation((_cmd: string, _opts: any, cb: (...args: unknown[]) => void) => {
         cb(null, "  TCP    0.0.0.0:3978    0.0.0.0:0    LISTENING    12345\n");
       });
       const pids = await processUtil.getProcessIdsByPort(3978);
       chai.assert.deepEqual(pids, [12345]);
-      osStub.restore();
+      platformStub.restore();
     });
 
     it("should not match similar port numbers on Windows", async () => {
-      const execStub = sandbox.stub(execModule, "exec") as sinon.SinonStub;
-      const osStub = sandbox.stub(require("os"), "platform").returns("win32");
-      execStub.callsFake((_cmd: string, _opts: any, cb: (...args: unknown[]) => void) => {
+      const execStub = vi.spyOn(processAdapter, "execWithOptions") as ReturnType<typeof vi.spyOn>;
+      const platformStub = vi.spyOn(processAdapter, "platform").mockReturnValue("win32");
+      execStub.mockImplementation((_cmd: string, _opts: any, cb: (...args: unknown[]) => void) => {
         cb(
           null,
           "  TCP    0.0.0.0:39780    0.0.0.0:0    LISTENING    99999\n  TCP    0.0.0.0:3978    0.0.0.0:0    LISTENING    12345\n"
@@ -50,34 +50,34 @@ describe("ProcessUtil", () => {
       });
       const pids = await processUtil.getProcessIdsByPort(3978);
       chai.assert.deepEqual(pids, [12345]);
-      osStub.restore();
+      platformStub.restore();
     });
 
     it("should return PIDs from lsof output on macOS", async () => {
-      const execStub = sandbox.stub(execModule, "exec") as sinon.SinonStub;
-      const osStub = sandbox.stub(require("os"), "platform").returns("darwin");
-      execStub.callsFake((_cmd: string, _opts: any, cb: (...args: unknown[]) => void) => {
+      const execStub = vi.spyOn(processAdapter, "execWithOptions") as ReturnType<typeof vi.spyOn>;
+      const platformStub = vi.spyOn(processAdapter, "platform").mockReturnValue("darwin");
+      execStub.mockImplementation((_cmd: string, _opts: any, cb: (...args: unknown[]) => void) => {
         cb(null, "12345\n67890\n");
       });
       const pids = await processUtil.getProcessIdsByPort(3978);
       chai.assert.deepEqual(pids, [12345, 67890]);
-      osStub.restore();
+      platformStub.restore();
     });
 
     it("should parse ss output on Linux when lsof is unavailable", async () => {
-      const execStub = sandbox.stub(execModule, "exec") as sinon.SinonStub;
-      const osStub = sandbox.stub(require("os"), "platform").returns("linux");
-      execStub.callsFake((_cmd: string, _opts: any, cb: (...args: unknown[]) => void) => {
+      const execStub = vi.spyOn(processAdapter, "execWithOptions") as ReturnType<typeof vi.spyOn>;
+      const platformStub = vi.spyOn(processAdapter, "platform").mockReturnValue("linux");
+      execStub.mockImplementation((_cmd: string, _opts: any, cb: (...args: unknown[]) => void) => {
         cb(null, 'LISTEN  0  128  0.0.0.0:3978  0.0.0.0:*  users:(("node",pid=12345,fd=18))\n');
       });
       const pids = await processUtil.getProcessIdsByPort(3978);
       chai.assert.deepEqual(pids, [12345]);
-      osStub.restore();
+      platformStub.restore();
     });
 
     it("should return empty array on error", async () => {
-      const execStub = sandbox.stub(execModule, "exec") as sinon.SinonStub;
-      execStub.callsFake((_cmd: string, _opts: any, cb: (...args: unknown[]) => void) => {
+      const execStub = vi.spyOn(processAdapter, "execWithOptions") as ReturnType<typeof vi.spyOn>;
+      execStub.mockImplementation((_cmd: string, _opts: any, cb: (...args: unknown[]) => void) => {
         cb(new Error("command failed"), "");
       });
       const pids = await processUtil.getProcessIdsByPort(3978);
@@ -85,9 +85,9 @@ describe("ProcessUtil", () => {
     });
 
     it("should deduplicate PIDs on Windows", async () => {
-      const execStub = sandbox.stub(execModule, "exec") as sinon.SinonStub;
-      const osStub = sandbox.stub(require("os"), "platform").returns("win32");
-      execStub.callsFake((_cmd: string, _opts: any, cb: (...args: unknown[]) => void) => {
+      const execStub = vi.spyOn(processAdapter, "execWithOptions") as ReturnType<typeof vi.spyOn>;
+      const platformStub = vi.spyOn(processAdapter, "platform").mockReturnValue("win32");
+      execStub.mockImplementation((_cmd: string, _opts: any, cb: (...args: unknown[]) => void) => {
         cb(
           null,
           "  TCP    0.0.0.0:3978    0.0.0.0:0    LISTENING    12345\n  TCP    [::]:3978    [::]:0    LISTENING    12345\n"
@@ -95,16 +95,16 @@ describe("ProcessUtil", () => {
       });
       const pids = await processUtil.getProcessIdsByPort(3978);
       chai.assert.deepEqual(pids, [12345]);
-      osStub.restore();
+      platformStub.restore();
     });
   });
 });
 
 describe("timeoutPromise", () => {
-  let clock: SinonFakeTimers;
+  let clock: ReturnType<typeof vi.useFakeTimers>;
 
   beforeEach(() => {
-    clock = useFakeTimers();
+    clock = vi.useFakeTimers();
   });
 
   afterEach(() => {

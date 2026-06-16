@@ -1,6 +1,6 @@
-import * as sinon from "sinon";
 import * as chai from "chai";
 import { ok } from "@microsoft/teamsfx-api";
+import { vi } from "vitest";
 import {
   refreshCopilotCallback,
   refreshSideloadingCallback,
@@ -10,19 +10,13 @@ import accountTreeViewProviderInstance from "../../../src/treeview/account/accou
 
 describe("refreshAccessHandlers", () => {
   describe("refreshSideloadingCallback", async () => {
-    const sandbox = sinon.createSandbox();
-
-    afterEach(() => {
-      sandbox.restore();
-    });
-
     it("Happy path", async () => {
       const status = {
         status: "success",
         token: "test-token",
       };
-      sandbox.stub(M365TokenInstance, "getStatus").resolves(ok(status));
-      const updateChecksStub = sandbox.stub(
+      vi.spyOn(M365TokenInstance, "getStatus").mockResolvedValue(ok(status));
+      const updateChecksStub = vi.spyOn(
         accountTreeViewProviderInstance.m365AccountNode,
         "updateChecks"
       );
@@ -34,8 +28,8 @@ describe("refreshAccessHandlers", () => {
       const status = {
         status: "success",
       };
-      sandbox.stub(M365TokenInstance, "getStatus").resolves(ok(status));
-      const updateChecksStub = sandbox.stub(
+      vi.spyOn(M365TokenInstance, "getStatus").mockResolvedValue(ok(status));
+      const updateChecksStub = vi.spyOn(
         accountTreeViewProviderInstance.m365AccountNode,
         "updateChecks"
       );
@@ -45,19 +39,13 @@ describe("refreshAccessHandlers", () => {
   });
 
   describe("refreshCopilotCallback", async () => {
-    const sandbox = sinon.createSandbox();
-
-    afterEach(() => {
-      sandbox.restore();
-    });
-
     it("Happy path", async () => {
       const status = {
         status: "success",
         token: "test-token",
       };
-      sandbox.stub(M365TokenInstance, "getStatus").resolves(ok(status));
-      const updateChecksStub = sandbox.stub(
+      vi.spyOn(M365TokenInstance, "getStatus").mockResolvedValue(ok(status));
+      const updateChecksStub = vi.spyOn(
         accountTreeViewProviderInstance.m365AccountNode,
         "updateChecks"
       );
@@ -69,8 +57,8 @@ describe("refreshAccessHandlers", () => {
       const status = {
         status: "success",
       };
-      sandbox.stub(M365TokenInstance, "getStatus").resolves(ok(status));
-      const updateChecksStub = sandbox.stub(
+      vi.spyOn(M365TokenInstance, "getStatus").mockResolvedValue(ok(status));
+      const updateChecksStub = vi.spyOn(
         accountTreeViewProviderInstance.m365AccountNode,
         "updateChecks"
       );

@@ -1,30 +1,28 @@
-import * as sinon from "sinon";
 import * as chai from "chai";
 import * as globalVariables from "../../src/globalVariables";
 import * as vscode from "vscode";
 import { err, Inputs, Platform, Stage, SystemError } from "@microsoft/teamsfx-api";
+import * as globalState from "@microsoft/teamsfx-core/build/common/globalState";
 import { ExtTelemetry } from "../../src/telemetry/extTelemetry";
 import { MockCore } from "../mocks/mockCore";
 import { downloadSample, downloadSampleApp } from "../../src/handlers/downloadSample";
 import { TelemetryTriggerFrom } from "../../src/telemetry/extTelemetryEvents";
 import * as projectSettingsHelper from "@microsoft/teamsfx-core/build/common/projectSettingsHelper";
+import { vi } from "vitest";
+import { mockValue } from "../mocks/vitestMockUtils";
 
 describe("downloadSampleApp", () => {
-  const sandbox = sinon.createSandbox();
-
-  beforeEach(() => {});
-
-  afterEach(() => {
-    sandbox.restore();
+  beforeEach(() => {
+    vi.spyOn(globalState, "globalStateUpdate").mockResolvedValue(undefined as any);
   });
 
   it("happy path", async () => {
-    sandbox.stub(globalVariables, "checkIsSPFx").returns(false);
-    sandbox.stub(vscode.commands, "executeCommand");
-    sandbox.stub(globalVariables, "core").value(new MockCore());
-    sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
-    const errorEventStub = sandbox.stub(ExtTelemetry, "sendTelemetryErrorEvent");
-    const createProject = sandbox.spy(globalVariables.core, "createSampleProject");
+    vi.spyOn(globalVariables, "checkIsSPFx").mockReturnValue(false);
+    vi.spyOn(vscode.commands, "executeCommand");
+    mockValue(globalVariables, "core", new MockCore());
+    vi.spyOn(ExtTelemetry, "sendTelemetryEvent");
+    const errorEventStub = vi.spyOn(ExtTelemetry, "sendTelemetryErrorEvent");
+    const createProject = vi.spyOn(globalVariables.core, "createSampleProject");
 
     await downloadSampleApp(TelemetryTriggerFrom.CopilotChat, "test");
 
@@ -33,15 +31,15 @@ describe("downloadSampleApp", () => {
   });
 
   it("has error", async () => {
-    sandbox.stub(globalVariables, "checkIsSPFx").returns(false);
-    sandbox.stub(vscode.commands, "executeCommand");
-    sandbox.stub(globalVariables, "core").value(new MockCore());
-    sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
-    const errorEventStub = sandbox.stub(ExtTelemetry, "sendTelemetryErrorEvent");
-    sandbox.stub(projectSettingsHelper, "isValidOfficeAddInProject").returns(false);
-    sandbox
-      .stub(globalVariables.core, "createSampleProject")
-      .rejects(err(new Error("Cannot get user login information")));
+    vi.spyOn(globalVariables, "checkIsSPFx").mockReturnValue(false);
+    vi.spyOn(vscode.commands, "executeCommand");
+    mockValue(globalVariables, "core", new MockCore());
+    vi.spyOn(ExtTelemetry, "sendTelemetryEvent");
+    const errorEventStub = vi.spyOn(ExtTelemetry, "sendTelemetryErrorEvent");
+    vi.spyOn(projectSettingsHelper, "isValidOfficeAddInProject").mockReturnValue(false);
+    vi.spyOn(globalVariables.core, "createSampleProject").mockRejectedValue(
+      err(new Error("Cannot get user login information"))
+    );
 
     await downloadSampleApp(TelemetryTriggerFrom.CopilotChat, "test");
 
@@ -50,19 +48,13 @@ describe("downloadSampleApp", () => {
 });
 
 describe("DownloadSample", () => {
-  const sandbox = sinon.createSandbox();
-
-  afterEach(() => {
-    sandbox.restore();
-  });
-
   it("downloadSample", async () => {
     const inputs: Inputs = {
       scratch: "no",
       platform: Platform.VSCode,
     };
-    sandbox.stub(globalVariables, "core").value(new MockCore());
-    const createProject = sandbox.spy(globalVariables.core, "createSampleProject");
+    mockValue(globalVariables, "core", new MockCore());
+    const createProject = vi.spyOn(globalVariables.core, "createSampleProject");
 
     await downloadSample(inputs);
 
@@ -75,11 +67,13 @@ describe("DownloadSample", () => {
       scratch: "no",
       platform: Platform.VSCode,
     };
-    sandbox.stub(globalVariables, "core").value(new MockCore());
-    const showErrorMessageStub = sandbox.stub(vscode.window, "showErrorMessage");
-    const createProject = sandbox
-      .stub(globalVariables.core, "createSampleProject")
-      .rejects(err(new Error("Cannot get user login information")));
+    mockValue(globalVariables, "core", new MockCore());
+    const showErrorMessageStub = vi
+      .spyOn(vscode.window, "showErrorMessage")
+      .mockResolvedValue(undefined);
+    const createProject = vi
+      .spyOn(globalVariables.core, "createSampleProject")
+      .mockRejectedValue(err(new Error("Cannot get user login information")));
 
     await downloadSample(inputs);
 
@@ -93,11 +87,13 @@ describe("DownloadSample", () => {
       scratch: "no",
       platform: Platform.VSCode,
     };
-    sandbox.stub(globalVariables, "core").value(new MockCore());
-    const showErrorMessageStub = sandbox.stub(vscode.window, "showErrorMessage");
-    const createProject = sandbox
-      .stub(globalVariables.core, "createProject")
-      .resolves(err(new SystemError("test", "test", "Cannot get user login information")));
+    mockValue(globalVariables, "core", new MockCore());
+    const showErrorMessageStub = vi
+      .spyOn(vscode.window, "showErrorMessage")
+      .mockResolvedValue(undefined);
+    const createProject = vi
+      .spyOn(globalVariables.core, "createProject")
+      .mockResolvedValue(err(new SystemError("test", "test", "Cannot get user login information")));
 
     await downloadSample(inputs);
   });

@@ -9,7 +9,7 @@ import {
   Stage,
   UserError,
 } from "@microsoft/teamsfx-api";
-import { getSystemInputs } from "../utils/systemEnvUtils";
+import * as systemEnvUtils from "../utils/systemEnvUtils";
 import { ExtTelemetry } from "../telemetry/extTelemetry";
 import { TelemetryEvent } from "../telemetry/extTelemetryEvents";
 import path from "path";
@@ -20,12 +20,17 @@ import axios from "axios";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
 import type { Tool } from "@modelcontextprotocol/sdk/types.js";
-import { runCommand } from "./sharedOpts";
+import * as sharedOpts from "./sharedOpts";
 import { VS_CODE_UI } from "../qm/vsc_ui";
 import * as parser from "jsonc-parser";
 import { getDefaultString, localize } from "../utils/localizeUtils";
 import { ExtensionErrors } from "../error/error";
 import { getTriggerFromProperty } from "../utils/telemetryUtils";
+
+export const updateActionWithMCPOps = {
+  getSystemInputs: () => systemEnvUtils.getSystemInputs(),
+  runCommand: (stage: Stage, inputs: any) => sharedOpts.runCommand(stage, inputs),
+};
 
 /**
  * Sanitize MCP server name to match VS Code's tool prefix generation logic.
@@ -79,7 +84,7 @@ export async function updateActionWithMCP(args?: any[]): Promise<Result<any, FxE
     TelemetryEvent.UpdateActionWithMCPStart,
     getTriggerFromProperty(args && args.length > 1 ? [args[1]] : undefined)
   );
-  const inputs = getSystemInputs();
+  const inputs = updateActionWithMCPOps.getSystemInputs();
   let mcpName = args && args.length > 0 ? args[0].serverName : undefined;
   let server = args && args.length > 0 ? args[0].serverConfig?.url : undefined;
   let command = args && args.length > 0 ? args[0].serverConfig?.command : undefined;
@@ -347,7 +352,7 @@ export async function updateActionWithMCP(args?: any[]): Promise<Result<any, FxE
 
   inputs[QuestionNames.MCPForDAAuth] = auth;
   inputs[QuestionNames.MCPForDAAuthMetadataUrl] = oauthMetadataUrl;
-  const result = await runCommand(Stage.updateActionWithMCP, inputs);
+  const result = await updateActionWithMCPOps.runCommand(Stage.updateActionWithMCP, inputs);
   if (result.isErr()) {
     ExtTelemetry.sendTelemetryErrorEvent(TelemetryEvent.UpdateActionWithMCP, result.error, {
       "auth-type": auth,

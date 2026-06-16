@@ -1,3 +1,5 @@
+import { vi } from "vitest";
+import { mockValue } from "../mocks/vitestMockUtils";
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 /**
@@ -8,7 +10,6 @@ import * as chai from "chai";
 import chaiAsPromised from "chai-as-promised";
 import fs from "fs-extra";
 import path from "path";
-import * as sinon from "sinon";
 import * as uuid from "uuid";
 import * as vscode from "vscode";
 import { DevTunnelStateManager } from "../../src/debug/taskTerminal/utils/devTunnelStateManager";
@@ -16,17 +17,16 @@ import * as globalVariables from "../../src/globalVariables";
 chai.use(chaiAsPromised);
 
 describe("devTunnelStateManager", () => {
-  const sandbox = sinon.createSandbox();
   const baseDir = path.resolve(__dirname, "data", "devTunnelStateManager");
   beforeEach(async () => {
     const filePath = path.resolve(baseDir, uuid.v4().substring(0, 6));
     await fs.ensureDir(filePath);
-    sandbox.stub(globalVariables, "workspaceUri").value(vscode.Uri.parse(filePath));
-    sandbox.stub(process, "env").value({ TEAMSFX_DEV_TUNNEL_TEST: "true" });
+    mockValue(globalVariables, "workspaceUri", vscode.Uri.parse(filePath));
+    mockValue(process, "env", { TEAMSFX_DEV_TUNNEL_TEST: "true" });
   });
 
   afterEach(async () => {
-    sandbox.restore();
+    vi.restoreAllMocks();
     await fs.remove(baseDir);
   });
 

@@ -2,24 +2,19 @@
 // Licensed under the MIT license.
 "use strict";
 
-import * as sinon from "sinon";
+import { vi } from "vitest";
 import * as chai from "chai";
 import { window } from "vscode";
 
 import { ProgressHandler } from "../../src/debug/progressHandler";
-import * as localizeUtils from "../../src/utils/localizeUtils";
 import * as vscodeMocks from "../mocks/vsc";
-
-afterEach(() => {
-  sinon.restore();
-});
+import * as localizeUtils from "../../src/utils/localizeUtils";
 
 describe("ProgressHandler", () => {
   let message: string | undefined = undefined;
-  const sandbox = sinon.createSandbox();
 
   beforeEach(() => {
-    sandbox.stub(window, "withProgress").callsFake(async (options, task) => {
+    vi.spyOn(window, "withProgress").mockImplementation(async (options, task) => {
       return await task(
         {
           report: (value) => {
@@ -29,7 +24,7 @@ describe("ProgressHandler", () => {
         new vscodeMocks.CancellationToken()
       );
     });
-    sandbox.stub(localizeUtils, "localize").callsFake((key) => {
+    vi.spyOn(localizeUtils, "localize").mockImplementation((key) => {
       if (key === "teamstoolkit.progressHandler.showOutputLink") {
         return "Check [output window](%s) for details.";
       } else if (key === "teamstoolkit.progressHandler.showTerminalLink") {
@@ -41,10 +36,6 @@ describe("ProgressHandler", () => {
       }
       return "";
     });
-  });
-
-  afterEach(() => {
-    sandbox.restore();
   });
 
   it("terminal", async () => {

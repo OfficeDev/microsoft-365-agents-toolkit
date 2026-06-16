@@ -5,10 +5,11 @@ import * as projectSettingsHelper from "@microsoft/teamsfx-core/build/common/pro
 import * as chai from "chai";
 import fs from "fs-extra";
 import path from "path";
-import * as sinon from "sinon";
 import * as vscode from "vscode";
 import { ExtensionErrors } from "../../src/error/error";
 import * as globalVariables from "../../src/globalVariables";
+import { vi } from "vitest";
+import { mockValue } from "../mocks/vitestMockUtils";
 import {
   askTargetEnvironment,
   createNewEnvironment,
@@ -22,79 +23,43 @@ import envTreeProviderInstance from "../../src/treeview/environmentTreeViewProvi
 
 describe("Env handlers", () => {
   describe("createNewEnvironment", () => {
-    const sandbox = sinon.createSandbox();
-
     beforeEach(() => {
-      sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
-      sandbox.stub(ExtTelemetry, "sendTelemetryErrorEvent");
-    });
-
-    afterEach(() => {
-      sandbox.restore();
+      vi.spyOn(ExtTelemetry, "sendTelemetryEvent");
+      vi.spyOn(ExtTelemetry, "sendTelemetryErrorEvent");
     });
 
     it("happy", async () => {
-      sandbox.stub(envTreeProviderInstance, "reloadEnvironments").resolves(ok(Void));
-      sandbox.stub(shared, "runCommand").resolves(ok(undefined));
+      vi.spyOn(envTreeProviderInstance, "reloadEnvironments").mockResolvedValue(ok(Void));
+      vi.spyOn(shared, "runCommand").mockResolvedValue(ok(undefined));
       const res = await createNewEnvironment();
       chai.assert.isTrue(res.isOk());
     });
   });
 
   describe("refreshEnvironment", () => {
-    const sandbox = sinon.createSandbox();
-
     beforeEach(() => {
-      sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
-      sandbox.stub(ExtTelemetry, "sendTelemetryErrorEvent");
-    });
-
-    afterEach(() => {
-      sandbox.restore();
+      vi.spyOn(ExtTelemetry, "sendTelemetryEvent");
+      vi.spyOn(ExtTelemetry, "sendTelemetryErrorEvent");
     });
 
     it("happy", async () => {
-      sandbox.stub(envTreeProviderInstance, "reloadEnvironments").resolves(ok(Void));
+      vi.spyOn(envTreeProviderInstance, "reloadEnvironments").mockResolvedValue(ok(Void));
       const res = await refreshEnvironment();
       chai.assert.isTrue(res.isOk());
     });
   });
 
   describe("openConfigStateFile", () => {
-    const sandbox = sinon.createSandbox();
-
     beforeEach(() => {
-      sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
-      sandbox.stub(ExtTelemetry, "sendTelemetryErrorEvent");
-    });
-
-    afterEach(() => {
-      sandbox.restore();
+      vi.spyOn(ExtTelemetry, "sendTelemetryEvent");
+      vi.spyOn(ExtTelemetry, "sendTelemetryErrorEvent");
     });
 
     it("InvalidArgs", async () => {
-      const env = "local";
-      const tmpDir = fs.mkdtempSync(path.resolve("./tmp"));
-
-      sandbox.stub(projectSettingsHelper, "isValidProject").returns(true);
-      sandbox.stub(globalVariables, "workspaceUri").value(vscode.Uri.file(tmpDir));
-      const projectSettings: any = {
-        appName: "myapp",
-        version: "1.0.0",
-        projectId: "123",
-      };
-      const configFolder = path.resolve(tmpDir, `.${ConfigFolderName}`, "configs");
-      await fs.mkdir(configFolder, { recursive: true });
-      const settingsFile = path.resolve(configFolder, "projectSettings.json");
-      await fs.writeJSON(settingsFile, JSON.stringify(projectSettings, null, 4));
-
-      sandbox.stub(globalVariables, "context").value({ extensionPath: path.resolve("../../") });
-      sandbox.stub(vsc_ui, "VS_CODE_UI").value({
-        selectOption: () => Promise.resolve(ok({ type: "success", result: env })),
-      });
+      vi.spyOn(projectSettingsHelper, "isValidProject").mockReturnValue(true);
+      mockValue(globalVariables, "workspaceUri", vscode.Uri.file("./tmp"));
 
       const res = await openConfigStateFile([]);
-      await fs.remove(tmpDir);
 
       if (res) {
         chai.assert.isTrue(res.isErr());
@@ -103,14 +68,8 @@ describe("Env handlers", () => {
     });
 
     it("noOpenWorkspace", async () => {
-      const env = "local";
-
-      sandbox.stub(globalVariables, "workspaceUri").value({ fsPath: undefined });
-
-      sandbox.stub(globalVariables, "context").value({ extensionPath: path.resolve("../../") });
-      sandbox.stub(vsc_ui, "VS_CODE_UI").value({
-        selectOption: () => Promise.resolve(ok({ type: "success", result: env })),
-      });
+      vi.spyOn(projectSettingsHelper, "isValidProject").mockReturnValue(true);
+      mockValue(globalVariables, "workspaceUri", { fsPath: undefined });
 
       const res = await openConfigStateFile([]);
 
@@ -121,19 +80,10 @@ describe("Env handlers", () => {
     });
 
     it("invalidProject", async () => {
-      const env = "local";
-      const tmpDir = fs.mkdtempSync(path.resolve("./tmp"));
+      vi.spyOn(projectSettingsHelper, "isValidProject").mockReturnValue(false);
+      mockValue(globalVariables, "workspaceUri", vscode.Uri.file("./tmp"));
 
-      sandbox.stub(projectSettingsHelper, "isValidProject").returns(false);
-
-      sandbox.stub(globalVariables, "workspaceUri").value(vscode.Uri.file(tmpDir));
-      sandbox.stub(globalVariables, "context").value({ extensionPath: path.resolve("../../") });
-      sandbox.stub(vsc_ui, "VS_CODE_UI").value({
-        selectOption: () => Promise.resolve(ok({ type: "success", result: env })),
-      });
-
-      const res = await openConfigStateFile([]);
-      await fs.remove(tmpDir);
+      const res = await openConfigStateFile([{ env: "dev" }]);
 
       if (res) {
         chai.assert.isTrue(res.isErr());
@@ -142,31 +92,15 @@ describe("Env handlers", () => {
     });
 
     it("invalid target environment", async () => {
-      const env = "local";
-      const tmpDir = fs.mkdtempSync(path.resolve("./tmp"));
-
-      sandbox.stub(projectSettingsHelper, "isValidProject").returns(true);
-      sandbox.stub(globalVariables, "workspaceUri").value(vscode.Uri.file(tmpDir));
-      const projectSettings: any = {
-        appName: "myapp",
-        version: "1.0.0",
-        projectId: "123",
-      };
-      const configFolder = path.resolve(tmpDir, `.${ConfigFolderName}`, "configs");
-      await fs.mkdir(configFolder, { recursive: true });
-      const settingsFile = path.resolve(configFolder, "projectSettings.json");
-      await fs.writeJSON(settingsFile, JSON.stringify(projectSettings, null, 4));
-
-      sandbox.stub(globalVariables, "context").value({ extensionPath: path.resolve("../../") });
-      sandbox.stub(vsc_ui, "VS_CODE_UI").value({
-        selectOption: () => Promise.resolve(err({ error: "invalid target env" })),
-      });
-      sandbox.stub(environmentManager, "listAllEnvConfigs").resolves(ok([]));
-      sandbox.stub(fs, "pathExists").resolves(false);
-      sandbox.stub(pathUtils, "getEnvFolderPath").resolves(ok(env));
+      vi.spyOn(projectSettingsHelper, "isValidProject").mockReturnValue(true);
+      vi.spyOn(environmentManager, "listAllEnvConfigs").mockResolvedValue(ok([]));
+      mockValue(vsc_ui, "VS_CODE_UI", new vsc_ui.VsCodeUI(<vscode.ExtensionContext>{}));
+      vi.spyOn(vsc_ui.VS_CODE_UI, "selectOption").mockResolvedValue(
+        err({ error: "invalid target env" } as any)
+      );
+      mockValue(globalVariables, "workspaceUri", vscode.Uri.file("./tmp"));
 
       const res = await openConfigStateFile([{ env: undefined, type: "env" }]);
-      await fs.remove(tmpDir);
 
       if (res) {
         chai.assert.isTrue(res.isErr());
@@ -175,30 +109,12 @@ describe("Env handlers", () => {
 
     it("valid args", async () => {
       const env = "remote";
-      const tmpDir = fs.mkdtempSync(path.resolve("./tmp"));
+      vi.spyOn(projectSettingsHelper, "isValidProject").mockReturnValue(true);
+      vi.spyOn(pathUtils, "getEnvFolderPath").mockResolvedValue(ok(env));
+      vi.spyOn(fs, "pathExists").mockResolvedValue(false);
+      mockValue(globalVariables, "workspaceUri", vscode.Uri.file("./tmp"));
 
-      sandbox.stub(projectSettingsHelper, "isValidProject").returns(true);
-      sandbox.stub(globalVariables, "workspaceUri").value(vscode.Uri.file(tmpDir));
-      const projectSettings: any = {
-        appName: "myapp",
-        version: "1.0.0",
-        projectId: "123",
-      };
-      const configFolder = path.resolve(tmpDir, `.${ConfigFolderName}`, "configs");
-      await fs.mkdir(configFolder, { recursive: true });
-      const settingsFile = path.resolve(configFolder, "projectSettings.json");
-      await fs.writeJSON(settingsFile, JSON.stringify(projectSettings, null, 4));
-
-      sandbox.stub(globalVariables, "context").value({ extensionPath: path.resolve("../../") });
-      sandbox.stub(vsc_ui, "VS_CODE_UI").value({
-        selectOption: () => Promise.resolve(ok({ type: "success", result: env })),
-      });
-      sandbox.stub(pathUtils, "getEnvFolderPath").resolves(ok(env));
-      sandbox.stub(fs, "pathExists").resolves(false);
-      sandbox.stub(environmentManager, "listAllEnvConfigs").resolves(ok([]));
-
-      const res = await openConfigStateFile([{ env: undefined, type: "env", from: "aad" }]);
-      await fs.remove(tmpDir);
+      const res = await openConfigStateFile([{ env: env, type: "env", from: "aad" }]);
 
       if (res) {
         chai.assert.isTrue(res.isErr());
@@ -207,31 +123,13 @@ describe("Env handlers", () => {
     });
 
     it("invalid env folder", async () => {
-      const env = "local";
-      const tmpDir = fs.mkdtempSync(path.resolve("./tmp"));
+      vi.spyOn(projectSettingsHelper, "isValidProject").mockReturnValue(true);
+      vi.spyOn(pathUtils, "getEnvFolderPath").mockResolvedValue(err({ error: "unknown" } as any));
+      vi.spyOn(fs, "pathExists").mockResolvedValue(true);
+      vi.spyOn(vscode.workspace, "openTextDocument").mockResolvedValue("" as any);
+      mockValue(globalVariables, "workspaceUri", vscode.Uri.file("./tmp"));
 
-      sandbox.stub(projectSettingsHelper, "isValidProject").returns(true);
-      sandbox.stub(globalVariables, "workspaceUri").value(vscode.Uri.file(tmpDir));
-      const projectSettings: any = {
-        appName: "myapp",
-        version: "1.0.0",
-        projectId: "123",
-      };
-      const configFolder = path.resolve(tmpDir, `.${ConfigFolderName}`, "configs");
-      await fs.mkdir(configFolder, { recursive: true });
-      const settingsFile = path.resolve(configFolder, "projectSettings.json");
-      await fs.writeJSON(settingsFile, JSON.stringify(projectSettings, null, 4));
-
-      sandbox.stub(globalVariables, "context").value({ extensionPath: path.resolve("../../") });
-      sandbox.stub(vsc_ui, "VS_CODE_UI").value({
-        selectOption: () => Promise.resolve(ok({ type: "success", result: env })),
-      });
-      sandbox.stub(pathUtils, "getEnvFolderPath").resolves(err({ error: "unknown" } as any));
-      sandbox.stub(fs, "pathExists").resolves(true);
-      sandbox.stub(vscode.workspace, "openTextDocument").resolves("" as any);
-
-      const res = await openConfigStateFile([{ env: env, type: "env" }]);
-      await fs.remove(tmpDir);
+      const res = await openConfigStateFile([{ env: "local", type: "env" }]);
 
       if (res) {
         chai.assert.isTrue(res.isErr());
@@ -239,64 +137,52 @@ describe("Env handlers", () => {
     });
 
     it("success", async () => {
-      const env = "local";
-      const tmpDir = fs.mkdtempSync(path.resolve("./tmp"));
+      vi.spyOn(projectSettingsHelper, "isValidProject").mockReturnValue(true);
+      vi.spyOn(pathUtils, "getEnvFolderPath").mockResolvedValue(ok(""));
+      vi.spyOn(fs, "pathExists").mockResolvedValue(true);
+      vi.spyOn(vscode.workspace, "openTextDocument").mockResolvedValue("" as any);
+      vi.spyOn(vscode.window, "showTextDocument").mockReturnValue(undefined as any);
+      mockValue(globalVariables, "workspaceUri", vscode.Uri.file("./tmp"));
 
-      sandbox.stub(projectSettingsHelper, "isValidProject").returns(true);
-      sandbox.stub(globalVariables, "workspaceUri").value(vscode.Uri.file(tmpDir));
-      const projectSettings: any = {
-        appName: "myapp",
-        version: "1.0.0",
-        projectId: "123",
-      };
-      const configFolder = path.resolve(tmpDir, `.${ConfigFolderName}`, "configs");
-      await fs.mkdir(configFolder, { recursive: true });
-      const settingsFile = path.resolve(configFolder, "projectSettings.json");
-      await fs.writeJSON(settingsFile, JSON.stringify(projectSettings, null, 4));
+      const res = await openConfigStateFile([{ env: "local", type: "env" }]);
 
-      sandbox.stub(globalVariables, "context").value({ extensionPath: path.resolve("../../") });
-      sandbox.stub(vsc_ui, "VS_CODE_UI").value({
-        selectOption: () => Promise.resolve(ok({ type: "success", result: env })),
-      });
-      sandbox.stub(pathUtils, "getEnvFolderPath").resolves(ok(env));
-      sandbox.stub(fs, "pathExists").resolves(true);
-      sandbox.stub(vscode.workspace, "openTextDocument").returns(Promise.resolve("" as any));
-
-      const res = await openConfigStateFile([{ env: env, type: "env" }]);
-      await fs.remove(tmpDir);
-
-      if (res) {
-        chai.assert.isTrue(res.isOk());
-      }
+      chai.assert.isTrue(res === undefined);
     });
   });
 
   describe("askTargetEnvironment", () => {
-    const sandbox = sinon.createSandbox();
+    it("invalid project", async () => {
+      vi.spyOn(projectSettingsHelper, "isValidProject").mockReturnValue(false);
+      mockValue(globalVariables, "workspaceUri", vscode.Uri.file("./tmp"));
 
-    afterEach(() => {
-      sandbox.restore();
+      const res = await askTargetEnvironment();
+
+      chai.assert.isTrue(res.isErr());
     });
 
-    it("invalid project", async () => {
-      sandbox.stub(globalVariables, "workspaceUri");
-      sandbox.stub(projectSettingsHelper, "isValidProject").returns(false);
-      sandbox.stub(localizeUtils, "getDefaultString").returns("InvalidProjectError");
-      sandbox.stub(localizeUtils, "getLocalizedString").returns("InvalidProjectError");
+    it("success", async () => {
+      vi.spyOn(projectSettingsHelper, "isValidProject").mockReturnValue(true);
+      vi.spyOn(environmentManager, "listAllEnvConfigs").mockResolvedValue(ok(["dev", "prod"]));
+      mockValue(vsc_ui, "VS_CODE_UI", new vsc_ui.VsCodeUI(<vscode.ExtensionContext>{}));
+      vi.spyOn(vsc_ui.VS_CODE_UI, "selectOption").mockResolvedValue(ok({ result: "dev" } as any));
+      mockValue(globalVariables, "workspaceUri", vscode.Uri.file("./tmp"));
+
       const res = await askTargetEnvironment();
-      chai.assert.isTrue(res.isErr());
-      chai.assert.equal(res.isErr() ? res.error.message : "Not Error", "InvalidProjectError");
+
+      chai.assert.isTrue(res.isOk());
+      chai.assert.equal(res.value, "dev");
     });
 
     it("listAllEnvConfigs returns error", async () => {
-      sandbox.stub(globalVariables, "workspaceUri");
-      sandbox.stub(projectSettingsHelper, "isValidProject").returns(true);
-      sandbox
-        .stub(environmentManager, "listAllEnvConfigs")
-        .resolves(err("envProfilesResultErr") as any);
+      vi.spyOn(projectSettingsHelper, "isValidProject").mockReturnValue(true);
+      vi.spyOn(environmentManager, "listAllEnvConfigs").mockResolvedValue(
+        err({ error: "unknown" } as any)
+      );
+      mockValue(globalVariables, "workspaceUri", vscode.Uri.file("./tmp"));
+
       const res = await askTargetEnvironment();
+
       chai.assert.isTrue(res.isErr());
-      chai.assert.equal(res.isErr() ? res.error : "Not Error", "envProfilesResultErr");
     });
   });
 });

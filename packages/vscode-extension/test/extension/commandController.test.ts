@@ -1,3 +1,4 @@
+import { vi } from "vitest";
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 /**
@@ -5,22 +6,16 @@
  */
 
 import * as chai from "chai";
-import * as sinon from "sinon";
 import * as vscode from "vscode";
+import { ok } from "@microsoft/teamsfx-api";
 
 import commandController from "../../src/commandController";
 import TreeViewManagerInstance from "../../src/treeview/treeViewManager";
 
 describe("Command Controller", () => {
-  const sandbox = sinon.createSandbox();
-
-  afterEach(() => {
-    sandbox.restore();
-  });
-
   it("directly call command callback", async () => {
     const commandName = "fx-extension.provision";
-    const commandCallback = sandbox.stub();
+    const commandCallback = vi.fn().mockResolvedValue(ok(undefined));
 
     commandController.registerCommand(commandName, commandCallback);
     await commandController.runCommand(commandName, []);
@@ -29,8 +24,8 @@ describe("Command Controller", () => {
   });
 
   it("refresh UI when receiving lock events", async () => {
-    const executeCommandStub = sandbox.stub(vscode.commands, "executeCommand").resolves();
-    const setRunningCommandStub = sandbox.stub(TreeViewManagerInstance, "setRunningCommand");
+    const executeCommandStub = vi.spyOn(vscode.commands, "executeCommand").mockResolvedValue();
+    const setRunningCommandStub = vi.spyOn(TreeViewManagerInstance, "setRunningCommand");
 
     await commandController.lockedByOperation("provisionResources");
 
@@ -41,11 +36,8 @@ describe("Command Controller", () => {
   });
 
   it("refresh UI when receiving unlock events", async () => {
-    const executeCommandStub = sandbox.stub(vscode.commands, "executeCommand").resolves();
-    const restoreRunningCommandStub = sandbox.stub(
-      TreeViewManagerInstance,
-      "restoreRunningCommand"
-    );
+    const executeCommandStub = vi.spyOn(vscode.commands, "executeCommand").mockResolvedValue();
+    const restoreRunningCommandStub = vi.spyOn(TreeViewManagerInstance, "restoreRunningCommand");
 
     await commandController.unlockedByOperation("provisionResources");
 

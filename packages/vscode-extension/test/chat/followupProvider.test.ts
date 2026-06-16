@@ -1,16 +1,14 @@
 import * as chai from "chai";
-import * as sinon from "sinon";
-import { TeamsFollowupProvider } from "../../src/chat/followupProvider";
 import { ChatFollowup } from "vscode";
-import { CancellationToken } from "../mocks/vsc";
 import { DefaultNextStep } from "../../src/chat/consts";
+import { TeamsFollowupProvider } from "../../src/chat/followupProvider";
+import { CancellationToken } from "../mocks/vsc";
+import { vi } from "vitest";
 
 describe("chat followup provider", () => {
-  const sandbox = sinon.createSandbox();
-
   describe("getInstance()", () => {
     afterEach(async () => {
-      sandbox.restore();
+      vi.restoreAllMocks();
     });
 
     it("create instance if not existed", async () => {
@@ -21,7 +19,7 @@ describe("chat followup provider", () => {
 
   describe("clearFollowups()", () => {
     afterEach(async () => {
-      sandbox.restore();
+      vi.restoreAllMocks();
     });
 
     it("clear followups", async () => {
@@ -34,7 +32,7 @@ describe("chat followup provider", () => {
 
   describe("addFollowups()", () => {
     afterEach(async () => {
-      sandbox.restore();
+      vi.restoreAllMocks();
     });
 
     it("add followups", async () => {
@@ -50,7 +48,7 @@ describe("chat followup provider", () => {
 
   describe("provideFollowups()", () => {
     afterEach(async () => {
-      sandbox.restore();
+      vi.restoreAllMocks();
     });
 
     it("provide default followup if empty", async () => {

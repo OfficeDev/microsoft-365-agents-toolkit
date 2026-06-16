@@ -1,19 +1,13 @@
 import * as chai from "chai";
-import * as sinon from "sinon";
 import * as vscode from "vscode";
+import { vi } from "vitest";
 
 import { CommandStatus, TreeViewCommand } from "../../src/treeview/treeViewCommand";
 import * as localizeUtils from "../../src/utils/localizeUtils";
 
 describe("TreeViewCommand", () => {
-  const sandbox = sinon.createSandbox();
-
-  afterEach(() => {
-    sandbox.restore();
-  });
-
   it("setStatus", async () => {
-    sandbox.stub(localizeUtils, "localize").callsFake((key: string) => {
+    vi.spyOn(localizeUtils, "localize").mockImplementation((key: string) => {
       if (key === "teamstoolkit.commandsTreeViewProvider.key.running") {
         return "test running";
       } else if (key === "teamstoolkit.commandsTreeViewProvider.key.blockTooltip") {
