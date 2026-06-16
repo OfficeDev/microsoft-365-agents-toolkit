@@ -14,6 +14,11 @@
 
 import fs from "fs-extra";
 import { dotenvUtil } from "@microsoft/teamsfx-core/build/component/utils/envUtil";
+import { exec } from "child_process";
+import * as os from "os";
+import kill from "tree-kill";
+import { glob } from "glob";
+import path from "path";
 
 /**
  * File system operations adapter for fs-extra
@@ -26,6 +31,13 @@ export const fsAdapter = {
   existsSync: (filePath: string) => fs.existsSync(filePath),
   mkdirSync: (dirPath: string, options?: any) => fs.mkdirSync(dirPath, options),
   closeSync: (fd: number) => fs.closeSync(fd),
+  openSync: (filePath: string, flags: number | string, mode?: number) =>
+    fs.openSync(filePath, flags, mode),
+  open: (filePath: string, flag: string) => fs.open(filePath, flag),
+  fstat: (fd: number) => fs.fstat(fd),
+  read: (fd: number, buffer: Uint8Array, offset: number, length: number, position: number | null) =>
+    fs.read(fd, buffer, offset, length, position),
+  close: (fd: number) => fs.close(fd),
 };
 
 /**
@@ -33,4 +45,38 @@ export const fsAdapter = {
  */
 export const envParseAdapter = {
   deserializeDotenv: (content: string) => dotenvUtil.deserialize(content),
+};
+
+/**
+ * Process utilities adapter for os and child_process
+ */
+export const processAdapter = {
+  platform: () => os.platform(),
+  type: () => os.type(),
+  exec: (cmd: string, callback?: (error: any, stdout: string, stderr: string) => void) =>
+    exec(cmd, callback),
+  execWithOptions: (
+    cmd: string,
+    options: any,
+    callback?: (error: any, stdout: string, stderr: string) => void
+  ) => exec(cmd, options, callback),
+  killTree: (pid: number, signal: string, callback: (err?: any) => void) =>
+    kill(pid, signal, callback),
+};
+
+/**
+ * Path utilities adapter (node path module)
+ */
+export const pathAdapter = {
+  join: (...args: string[]) => path.join(...args),
+  resolve: (...args: string[]) => path.resolve(...args),
+  dirname: (filePath: string) => path.dirname(filePath),
+  basename: (filePath: string, ext?: string) => path.basename(filePath, ext),
+};
+
+/**
+ * Glob adapter for glob package
+ */
+export const globAdapter = {
+  glob: (pattern: string, options?: any) => glob(pattern, options),
 };

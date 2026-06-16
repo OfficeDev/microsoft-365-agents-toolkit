@@ -1,53 +1,30 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { exec } from "child_process";
-import fs from "fs-extra";
-import * as os from "os";
-import path from "path";
-import * as vscode from "vscode";
 import { format } from "util";
+import * as vscode from "vscode";
 import { Result, SystemError, err, ok } from "@microsoft/teamsfx-api";
-import { glob } from "glob";
 import { core, workspaceUri } from "../globalVariables";
 import { localize } from "./localizeUtils";
 import { ExtensionSource, ExtensionErrors } from "../error/error";
 import { isTestToolEnabledProject } from "@microsoft/teamsfx-core";
-
-export const commonUtilsDeps = {
-  getOSType: () => os.type(),
-  exec: (cmd: string, callback?: (error: any, stdout: string, stderr: string) => void) =>
-    exec(cmd, callback),
-  getExtension: (id: string) => vscode.extensions.getExtension(id),
-  glob: (pattern: string, options?: any) => glob(pattern, options),
-  fsOpen: (filePath: string, flag: string) => fs.open(filePath, flag),
-  fsStat: (fd: number) => fs.fstat(fd),
-  fsRead: (
-    fd: number,
-    buffer: Uint8Array,
-    offset: number,
-    length: number,
-    position: number | null
-  ) => fs.read(fd, buffer, offset, length, position),
-  fsClose: (fd: number) => fs.close(fd),
-  isTestToolEnabledProject: (projectPath: string) => isTestToolEnabledProject(projectPath),
-};
+import { processAdapter, globAdapter, fsAdapter } from "../common/npmPackageDeps";
 
 export function isWindows() {
-  return commonUtilsDeps.getOSType() === "Windows_NT";
+  return processAdapter.type() === "Windows_NT";
 }
 
 export function isMacOS() {
-  return commonUtilsDeps.getOSType() === "Darwin";
+  return processAdapter.type() === "Darwin";
 }
 
 export function isLinux() {
-  return commonUtilsDeps.getOSType() === "Linux";
+  return processAdapter.type() === "Linux";
 }
 
 export function openFolderInExplorer(folderPath: string): void {
   const command = format('start "" "%s"', folderPath);
-  commonUtilsDeps.exec(command);
+  processAdapter.exec(command);
 }
 
 export function delay(ms: number) {
@@ -55,7 +32,7 @@ export function delay(ms: number) {
 }
 
 export function acpInstalled(): boolean {
-  const extension = commonUtilsDeps.getExtension("TeamsDevApp.vscode-adaptive-cards");
+  const extension = vscode.extensions.getExtension("TeamsDevApp.vscode-adaptive-cards");
   return !!extension;
 }
 
@@ -64,15 +41,15 @@ export async function hasAdaptiveCardInWorkspace(): Promise<boolean> {
   const fileSizeLimit = 1024 * 1024;
 
   if (workspaceUri) {
-    const files = await commonUtilsDeps.glob(workspaceUri.path + "/**/*.json", {
+    const files = await globAdapter.glob(workspaceUri.path + "/**/*.json", {
       ignore: ["**/node_modules/**", "./node_modules/**"],
     });
     for (const file of files) {
       let content = "";
       let fd = -1;
       try {
-        fd = await commonUtilsDeps.fsOpen(file, "r");
-        const stat = await commonUtilsDeps.fsStat(fd);
+        fd = await fsAdapter.open(file, "r");
+        const stat = await fsAdapter.fstat(fd);
         // limit file size to prevent performance impact
         if (stat.size > fileSizeLimit) {
           continue;
@@ -80,14 +57,14 @@ export async function hasAdaptiveCardInWorkspace(): Promise<boolean> {
 
         // avoid security issue
         const buffer = new Uint8Array(fileSizeLimit);
-        const { bytesRead } = await commonUtilsDeps.fsRead(fd, buffer, 0, buffer.byteLength, 0);
+        const { bytesRead } = await fsAdapter.read(fd, buffer, 0, buffer.byteLength, 0);
         content = new TextDecoder().decode(buffer.slice(0, bytesRead));
       } catch (e) {
         // skip invalid files
         continue;
       } finally {
         if (fd >= 0) {
-          commonUtilsDeps.fsClose(fd).catch(() => {});
+          fsAdapter.close(fd).catch(() => {});
         }
       }
 
@@ -106,8 +83,7 @@ function isAdaptiveCard(content: string): boolean {
 }
 
 export function getLocalDebugMessageTemplate(isWindowsOS: boolean): string {
-  const enabledTestTool =
-    workspaceUri?.fsPath && commonUtilsDeps.isTestToolEnabledProject(workspaceUri.fsPath);
+  const enabledTestTool = workspaceUri?.fsPath && isTestToolEnabledProject(workspaceUri.fsPath);
 
   if (isWindowsOS) {
     return enabledTestTool

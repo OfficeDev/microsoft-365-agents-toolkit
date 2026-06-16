@@ -10,7 +10,6 @@ import { vi } from "vitest";
 import { mockValue } from "../mocks/vitestMockUtils";
 import {
   acpInstalled,
-  commonUtilsDeps,
   getLocalDebugMessageTemplate,
   hasAdaptiveCardInWorkspace,
   isLinux,
@@ -18,6 +17,7 @@ import {
   isWindows,
   openFolderInExplorer,
 } from "../../src/utils/commonUtils";
+import { processAdapter, globAdapter, fsAdapter } from "../../src/common/npmPackageDeps";
 import * as tools from "@microsoft/teamsfx-core/build/common/tools";
 
 describe("CommonUtils", () => {
@@ -29,7 +29,7 @@ describe("CommonUtils", () => {
   describe("openFolderInExplorer", () => {
     it("happy path", () => {
       const folderPath = "C:\\fakePath";
-      vi.spyOn(commonUtilsDeps, "exec").mockImplementation(() => {
+      vi.spyOn(processAdapter, "exec").mockImplementation(() => {
         return {} as never;
       });
       openFolderInExplorer(folderPath);
@@ -38,15 +38,15 @@ describe("CommonUtils", () => {
 
   describe("os assertion", () => {
     it("should return exactly result according to os.type", async () => {
-      vi.spyOn(commonUtilsDeps, "getOSType").mockReturnValue("Windows_NT");
+      vi.spyOn(processAdapter, "type").mockReturnValue("Windows_NT");
       chai.expect(isWindows()).equals(true);
       vi.restoreAllMocks();
 
-      vi.spyOn(commonUtilsDeps, "getOSType").mockReturnValue("Linux");
+      vi.spyOn(processAdapter, "type").mockReturnValue("Linux");
       chai.expect(isLinux()).equals(true);
       vi.restoreAllMocks();
 
-      vi.spyOn(commonUtilsDeps, "getOSType").mockReturnValue("Darwin");
+      vi.spyOn(processAdapter, "type").mockReturnValue("Darwin");
       chai.expect(isMacOS()).equals(true);
       vi.restoreAllMocks();
     });
@@ -130,7 +130,7 @@ describe("CommonUtils", () => {
 
     it("already installed", async () => {
       vi.spyOn(ExtTelemetry, "sendTelemetryEvent");
-      vi.spyOn(commonUtilsDeps, "getExtension").mockReturnValue({} as any);
+      vi.spyOn(vscode.extensions, "getExtension").mockReturnValue({} as any);
 
       const installed = acpInstalled();
 
@@ -139,7 +139,7 @@ describe("CommonUtils", () => {
 
     it("not installed", async () => {
       vi.spyOn(ExtTelemetry, "sendTelemetryEvent");
-      vi.spyOn(commonUtilsDeps, "getExtension").mockReturnValue(undefined);
+      vi.spyOn(vscode.extensions, "getExtension").mockReturnValue(undefined);
 
       const installed = acpInstalled();
 
@@ -150,7 +150,7 @@ describe("CommonUtils", () => {
   describe("getLocalDebugMessageTemplate()", () => {
     it("Test Tool enabled in Windows platform", async () => {
       mockValue(vscode.workspace, "workspaceFolders", [{ uri: vscode.Uri.file("test") }]);
-      vi.spyOn(commonUtilsDeps, "isTestToolEnabledProject").mockReturnValue(true);
+      vi.spyOn(tools, "isTestToolEnabledProject").mockReturnValue(true);
       mockValue(globalVariables, "workspaceUri", vscode.Uri.file("path"));
 
       const result = await getLocalDebugMessageTemplate(true);
@@ -159,7 +159,7 @@ describe("CommonUtils", () => {
 
     it("Test Tool disabled in Windows platform", async () => {
       mockValue(vscode.workspace, "workspaceFolders", [{ uri: vscode.Uri.file("test") }]);
-      vi.spyOn(commonUtilsDeps, "isTestToolEnabledProject").mockReturnValue(false);
+      vi.spyOn(tools, "isTestToolEnabledProject").mockReturnValue(false);
       mockValue(globalVariables, "workspaceUri", vscode.Uri.file("path"));
 
       const result = await getLocalDebugMessageTemplate(true);
@@ -168,7 +168,7 @@ describe("CommonUtils", () => {
 
     it("Test Tool enabled in non-Windows platform", async () => {
       mockValue(vscode.workspace, "workspaceFolders", [{ uri: vscode.Uri.file("test") }]);
-      vi.spyOn(commonUtilsDeps, "isTestToolEnabledProject").mockReturnValue(true);
+      vi.spyOn(tools, "isTestToolEnabledProject").mockReturnValue(true);
       mockValue(globalVariables, "workspaceUri", vscode.Uri.file("path"));
 
       const result = await getLocalDebugMessageTemplate(false);
@@ -177,7 +177,7 @@ describe("CommonUtils", () => {
 
     it("Test Tool disabled in non-Windows platform", async () => {
       mockValue(vscode.workspace, "workspaceFolders", [{ uri: vscode.Uri.file("test") }]);
-      vi.spyOn(commonUtilsDeps, "isTestToolEnabledProject").mockReturnValue(false);
+      vi.spyOn(tools, "isTestToolEnabledProject").mockReturnValue(false);
       mockValue(globalVariables, "workspaceUri", vscode.Uri.file("path"));
 
       const result = await getLocalDebugMessageTemplate(false);
@@ -186,7 +186,7 @@ describe("CommonUtils", () => {
 
     it("No workspace folder", async () => {
       mockValue(vscode.workspace, "workspaceFolders", []);
-      vi.spyOn(fs, "pathExists").mockResolvedValue(false);
+      vi.spyOn(fsAdapter, "pathExists").mockResolvedValue(false);
 
       const result = await getLocalDebugMessageTemplate(false);
       chai.assert.isFalse(result.includes("Microsoft 365 Agents Playground"));
