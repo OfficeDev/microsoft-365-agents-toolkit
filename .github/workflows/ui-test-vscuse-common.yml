@@ -293,7 +293,7 @@ jobs:
           if [ -n "$INPUT_TEMPLATE_VERSION" ]; then
             awk '
               /^execution:/ && !inserted {
-                print "TEMPLATE_VERSION: \"" ENVIRON["INPUT_TEMPLATE_VERSION"] "\"  # Version of the template used in the image, e.g. 0.0.0-rc"
+                print "TEMPLATE_VERSION: \"" ENVIRON["INPUT_TEMPLATE_VERSION"] "\""
                 print ""
                 inserted = 1
               }
@@ -301,10 +301,10 @@ jobs:
             ' config.yaml > config.yaml.tmp
             mv config.yaml.tmp config.yaml
 
-            echo "Injected TEMPLATE_VERSION into config.yaml: $INPUT_TEMPLATE_VERSION"
+            echo "Injected TEMPLATE_VERSION into VSCUSE config.yaml: $INPUT_TEMPLATE_VERSION"
             grep -n "TEMPLATE_VERSION" config.yaml
           else
-            echo "TEMPLATE_VERSION not provided; leaving config.yaml unchanged"
+            echo "TEMPLATE_VERSION not provided; TEMPLATE_VERSION won't be added to config.yaml"
           fi
 
       - name: Run test
