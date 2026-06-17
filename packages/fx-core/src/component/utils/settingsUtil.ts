@@ -22,20 +22,11 @@ class SettingsUtils {
   private async isInTempDirectory(filePath: string): Promise<boolean> {
     const resolvedPath = path.resolve(filePath);
     const tempDir = path.resolve(os.tmpdir());
-
     const realFilePath = await fs.realpath(resolvedPath).catch(() => resolvedPath);
     const realTempDir = await fs.realpath(tempDir).catch(() => tempDir);
-
     const normalizedFilePath = path.normalize(realFilePath);
     const normalizedTempDir = path.normalize(realTempDir);
     return normalizedFilePath.startsWith(normalizedTempDir + path.sep);
-  }
-
-  private isPathWithinDirectory(baseDir: string, targetPath: string): boolean {
-    const resolvedBase = path.resolve(baseDir);
-    const resolvedTarget = path.resolve(targetPath);
-    const relative = path.relative(resolvedBase, resolvedTarget);
-    return relative !== "" && !relative.startsWith("..") && !path.isAbsolute(relative);
   }
 
   async readSettings(
@@ -48,13 +39,7 @@ class SettingsUtils {
     } else {
       projectYamlPath = pathUtils.getYmlFilePath(projectPath, "dev");
     }
-    if (
-      projectYamlPath &&
-      !(await this.isInTempDirectory(projectYamlPath)) &&
-      this.isPathWithinDirectory(projectPath, projectYamlPath)
-    ) {
-      // projectYamlPath is within project directory and not in temp directory
-    }
+
     if (!projectYamlPath || !(await fs.pathExists(projectYamlPath))) {
       return err(new FileNotFoundError("SettingsUtils", projectYamlPath || "m365agents.*.yml"));
     }
@@ -79,14 +64,12 @@ class SettingsUtils {
     globalVars.trackingId = projectSettings.trackingId; // set trackingId to globalVars
     return ok(projectSettings);
   }
+
   async writeSettings(projectPath: string, settings: Settings): Promise<Result<string, FxError>> {
     let projectYamlPath: string | undefined;
     if (featureFlagManager.getBooleanValue(FeatureFlags.GenerateConfigFiles)) {
       projectYamlPath = pathUtils.getAvailableYmlFilePath(projectPath);
-    if (
-      !this.isInTempDirectory(projectYamlPath) &&
-      this.isPathWithinDirectory(projectPath, projectYamlPath)
-    ) {
+    } else {
       projectYamlPath = pathUtils.getYmlFilePath(projectPath, "dev");
     }
 
