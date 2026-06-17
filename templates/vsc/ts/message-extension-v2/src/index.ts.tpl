@@ -42,6 +42,7 @@ const options =
 const app = new App({
   ...options,
   logger: new ConsoleLogger("{{appName}}", { level: "debug" }),
+  skipAuth: !process.env.CLIENT_ID,
 });
 
 app.on("install.add", async ({ send }) => {

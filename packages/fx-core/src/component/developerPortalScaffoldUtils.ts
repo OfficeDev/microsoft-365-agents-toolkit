@@ -45,11 +45,11 @@ const manifestFileName = "manifest.json";
 
 export const developerPortalScaffoldUtilsDeps = {
   getAppPackage: appStudio.getAppPackage,
-  readAppManifest: manifestUtils._readAppManifest,
+  readAppManifest: manifestUtils._readAppManifest.bind(manifestUtils),
   writeFile: fs.writeFile,
   pathExists: fs.pathExists,
-  getEnvFilePath: pathUtils.getEnvFilePath,
-  writeEnv: envUtil.writeEnv,
+  getEnvFilePath: pathUtils.getEnvFilePath.bind(pathUtils),
+  writeEnv: envUtil.writeEnv.bind(envUtil),
 };
 
 export const answerToRepaceBotId = "bot";

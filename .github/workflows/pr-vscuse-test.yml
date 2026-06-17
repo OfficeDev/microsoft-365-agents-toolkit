@@ -13,7 +13,8 @@
 # This workflow:
 #   1. Resolves PR context (works for label, auto, and manual triggers)
 #   2. Gets the diff between the PR branch and the target branch
-#   3. Calls GitHub Copilot CLI (Claude Sonnet 4.6) to select relevant VscUse test plans
+#   3. Selects test plans — a changed test plan file is run as an "impacted" case;
+#      for product-code changes GitHub Copilot CLI (Claude Sonnet 4.6) picks relevant plans
 #   4. Posts a PR comment listing the selected plans
 #   5. Dispatches dev-smoke-test-pipeline.yml with those plans
 #   6. Resolves (edits) the PR comment with the final pass/fail result
@@ -154,7 +155,7 @@ jobs:
           PR_NUMBER: ${{ steps.pr-context.outputs.pr_number }}
         with:
           script: |
-            const { data: files } = await github.rest.pulls.listFiles({
+            const files = await github.paginate(github.rest.pulls.listFiles, {
               owner:        context.repo.owner,
               repo:         context.repo.repo,
               pull_number:  parseInt(process.env.PR_NUMBER),
@@ -183,16 +184,35 @@ jobs:
               NON_CODE_SUFFIXES.some(s => f.endsWith(s))   ||
               NON_CODE_EXACT.includes(f);
 
+            // Impacted test plans: an added / modified / renamed plan JSON maps 1:1 to a
+            // runnable plan (basename == plan name). Removed plans cannot be run.
+            const PLAN_DIR = 'packages/tests/vscuse/vscode-test-cases/plans/';
+            const changedPlans = files
+              .filter(f => f.filename.startsWith(PLAN_DIR) &&
+                           f.filename.endsWith('.json')    &&
+                           f.status !== 'removed')
+              .map(f => f.filename.slice(PLAN_DIR.length).replace(/\.json$/, ''));
+
             const allFiles   = files.map(f => f.filename);
             const codeFiles  = allFiles.filter(f => !isNonCode(f));
-            const skipDispatch = codeFiles.length === 0;
+            // Run when product code changed OR a test plan itself changed (impacted plans).
+            const skipDispatch = codeFiles.length === 0 && changedPlans.length === 0;
 
-            core.setOutput('skip_dispatch', String(skipDispatch));
+            core.setOutput('skip_dispatch',      String(skipDispatch));
+            core.setOutput('has_code_files',     String(codeFiles.length > 0));
+            core.setOutput('changed_plans_json', JSON.stringify(changedPlans));
+
             if (skipDispatch) {
               console.log(`All ${allFiles.length} changed files are test/doc/ci — skipping vscuse dispatch.`);
             } else {
-              console.log(`${codeFiles.length} code file(s) changed — vscuse dispatch required.`);
-              codeFiles.forEach(f => console.log(`  code: ${f}`));
+              if (codeFiles.length) {
+                console.log(`${codeFiles.length} code file(s) changed — vscuse dispatch required.`);
+                codeFiles.forEach(f => console.log(`  code: ${f}`));
+              }
+              if (changedPlans.length) {
+                console.log(`${changedPlans.length} impacted test plan(s) changed:`);
+                changedPlans.forEach(p => console.log(`  plan: ${p}`));
+              }
             }
 
       # ── 2c. Post skip comment when non-code-only ───────────────────────
@@ -224,7 +244,7 @@ jobs:
       # ── 3. Get git diff summary between PR branch and target branch ────
       - name: Get git diff summary
         id: diff-summary
-        if: steps.code-check.outputs.skip_dispatch != 'true'
+        if: steps.code-check.outputs.skip_dispatch != 'true' && steps.code-check.outputs.has_code_files == 'true'
         env:
           BASE_REF: ${{ steps.pr-context.outputs.base_ref }}
           HEAD_REF: ${{ steps.pr-context.outputs.head_ref }}
@@ -239,12 +259,12 @@ jobs:
 
       # ── 3b. Install Copilot CLI ───────────────────────────────────────
       - uses: actions/setup-node@v4
-        if: steps.code-check.outputs.skip_dispatch != 'true'
+        if: steps.code-check.outputs.skip_dispatch != 'true' && steps.code-check.outputs.has_code_files == 'true'
         with:
           node-version: '22'
 
       - name: Install Copilot CLI
-        if: steps.code-check.outputs.skip_dispatch != 'true'
+        if: steps.code-check.outputs.skip_dispatch != 'true' && steps.code-check.outputs.has_code_files == 'true'
         run: |
           npm install -g @github/copilot@1.0.44
           copilot --version
@@ -261,8 +281,48 @@ jobs:
           BASE_BRANCH:          ${{ steps.pr-context.outputs.base_ref }}
           HEAD_BRANCH:          ${{ steps.pr-context.outputs.head_ref }}
           USER_HINT:            ${{ steps.user-hint.outputs.hint }}
+          CHANGED_PLANS_JSON:   ${{ steps.code-check.outputs.changed_plans_json }}
+          HAS_CODE_FILES:       ${{ steps.code-check.outputs.has_code_files }}
         run: |
           set -euo pipefail
+
+          # ── Impacted plans: changed test plan files map 1:1 to runnable plans. ──
+          IMPACTED_PLANS='[]'
+          if [ -n "${CHANGED_PLANS_JSON:-}" ] && [ "${CHANGED_PLANS_JSON:-}" != "[]" ]; then
+            while IFS= read -r plan; do
+              [ -z "$plan" ] && continue
+              if [ -f "packages/tests/vscuse/vscode-test-cases/plans/${plan}.json" ]; then
+                IMPACTED_PLANS=$(echo "$IMPACTED_PLANS" | jq --arg p "$plan" '. + [$p]')
+              else
+                echo "Warning: changed plan not found on disk, skipping: $plan"
+              fi
+            done < <(echo "$CHANGED_PLANS_JSON" | jq -r '.[]' 2>/dev/null || true)
+          fi
+          IMPACTED_COUNT=$(echo "$IMPACTED_PLANS" | jq 'length')
+          echo "Impacted plans (${IMPACTED_COUNT}): $IMPACTED_PLANS"
+
+          # ── Plan-only PR (no product code changed): run exactly the impacted plans. ──
+          # The Copilot CLI is intentionally not installed for this path (the install
+          # steps are gated on has_code_files), so we must not invoke it here.
+          if [ "${HAS_CODE_FILES:-true}" != "true" ]; then
+            if [ "$IMPACTED_COUNT" -gt 0 ]; then
+              PLANS_CSV=$(echo "$IMPACTED_PLANS" | jq -r 'join(",")')
+              echo "test_plans=${PLANS_CSV}" >> "$GITHUB_OUTPUT"
+              echo "reason=Selected ${IMPACTED_COUNT} impacted test plan(s) changed in this PR (no product code modified)." >> "$GITHUB_OUTPUT"
+              echo "ai_source=impacted-plans" >> "$GITHUB_OUTPUT"
+              echo "is_fallback=false" >> "$GITHUB_OUTPUT"
+              echo "Selected impacted plans only: $PLANS_CSV"
+            else
+              SMOKE_PLANS=$(jq -c '[.smokeTestCases[]]' packages/tests/vscuse/smoking-test-cases.json)
+              PLANS_CSV=$(echo "$SMOKE_PLANS" | jq -r 'join(",")')
+              echo "test_plans=${PLANS_CSV}" >> "$GITHUB_OUTPUT"
+              echo "reason=No runnable changed plans found; using smoke test cases as fallback." >> "$GITHUB_OUTPUT"
+              echo "ai_source=smoke-fallback" >> "$GITHUB_OUTPUT"
+              echo "is_fallback=true" >> "$GITHUB_OUTPUT"
+              echo "Fallback to smoke plans: $PLANS_CSV"
+            fi
+            exit 0
+          fi
 
           # List every available plan name (one per line)
           PLANS_TEXT=$(find packages/tests/vscuse/vscode-test-cases/plans \
@@ -327,7 +387,19 @@ jobs:
             done < <(echo "$AI_PLANS" | jq -r '.[]' 2>/dev/null || true)
           fi
 
-          # Fallback to smoke tests if AI produced nothing usable
+          # Force-include impacted plans: a changed test plan must always run, on top
+          # of the AI's code-based picks (order-preserving dedup).
+          if [ "$IMPACTED_COUNT" -gt 0 ]; then
+            VALID_PLANS=$(jq -cn --argjson a "$VALID_PLANS" --argjson b "$IMPACTED_PLANS" \
+              'reduce ($a + $b)[] as $p ([]; if index($p) then . else . + [$p] end)')
+            if [ -n "$AI_REASON" ]; then
+              AI_REASON="${AI_REASON} (Also running ${IMPACTED_COUNT} impacted test plan(s) changed in this PR.)"
+            else
+              AI_REASON="Running ${IMPACTED_COUNT} impacted test plan(s) changed in this PR."
+            fi
+          fi
+
+          # Fallback to smoke tests if neither AI nor impacted plans produced anything usable
           IS_FALLBACK="false"
           if [ "$(echo "$VALID_PLANS" | jq 'length')" -eq 0 ]; then
             echo "No valid AI plans — falling back to smoke test cases."

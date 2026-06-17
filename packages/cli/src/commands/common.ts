@@ -2,7 +2,72 @@
 // Licensed under the MIT license.
 
 import { CLICommandOption } from "@microsoft/teamsfx-api";
+import { featureFlagManager, FeatureFlags } from "@microsoft/teamsfx-core";
 import { commands } from "../resource";
+
+/**
+ * Gates the `oauth-dynamic` (DCR) value of the `mcp-da-auth-type` option behind the feature
+ * flags. The value is accepted only when both `TEAMSFX_MCP_FOR_DA_DT` and `TEAMSFX_MCP_FOR_DA_DCR`
+ * are on, mirroring the model-layer `MCPForDAAuthTypeStaticOptions()` so the CLI parse layer and
+ * the interactive picker stay consistent.
+ */
+export function gateMCPDAAuthTypeChoices(options: CLICommandOption[]): CLICommandOption[] {
+  const showDCR =
+    featureFlagManager.getBooleanValue(FeatureFlags.MCPForDADT) &&
+    featureFlagManager.getBooleanValue(FeatureFlags.MCPForDADCR);
+  for (const option of options) {
+    if (option.name === "mcp-da-auth-type" && option.type === "string") {
+      option.choices = showDCR
+        ? ["oauth", "oauth-dynamic", "entra-sso", "none"]
+        : ["oauth", "entra-sso", "none"];
+      break;
+    }
+  }
+  return options;
+}
+
+const MCP_DA_CREDENTIAL_OPTION_NAMES = [
+  "mcp-da-client-id",
+  "mcp-da-client-secret",
+  "mcp-da-scopes",
+];
+
+function mcpDACredentialOptions(): CLICommandOption[] {
+  return [
+    {
+      name: "mcp-da-client-id",
+      type: "string",
+      description:
+        "OAuth client id for the MCP server (static OAuth), or the Entra application client id (Entra SSO).",
+    },
+    {
+      name: "mcp-da-client-secret",
+      type: "string",
+      description: "OAuth client secret for the MCP server. Required for static OAuth.",
+    },
+    {
+      name: "mcp-da-scopes",
+      type: "string",
+      description: "Space-separated OAuth scopes for the MCP server. Optional for static OAuth.",
+    },
+  ];
+}
+
+/**
+ * Runtime gate for the static-OAuth / Entra-SSO credential options of the MCP-for-DA add-action
+ * flow (`mcp-da-client-id`, `mcp-da-client-secret`, `mcp-da-scopes`). The whole add-action MCP
+ * branch in `core.addPlugin` lives behind `TEAMSFX_MCP_FOR_DA_DT`, so the credential flags are
+ * only accepted when that flag is on. Idempotent: any previously-injected credential options are
+ * dropped first so repeated calls (and flag flips) stay in sync. Returns a new array; the input
+ * is not mutated.
+ */
+export function gateMCPDACredentialOptions(options: CLICommandOption[]): CLICommandOption[] {
+  const result = options.filter((o) => !MCP_DA_CREDENTIAL_OPTION_NAMES.includes(o.name));
+  if (featureFlagManager.getBooleanValue(FeatureFlags.MCPForDADT)) {
+    result.push(...mcpDACredentialOptions());
+  }
+  return result;
+}
 
 export const ProjectFolderOption: CLICommandOption = {
   name: "folder",

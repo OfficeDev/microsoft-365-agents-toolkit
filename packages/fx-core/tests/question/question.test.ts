@@ -1735,17 +1735,35 @@ describe("updateActionWithMCP", async () => {
     };
     assert.isTrue(conditionFunc(inputsVSCode));
 
-    // Test static options
+    // Test static options - by default oauth-dynamic is hidden behind two flags.
     const staticOptions = (authTypeNode?.data as any)?.staticOptions;
     assert.isArray(staticOptions);
-    assert.lengthOf(staticOptions, 2);
+    assert.lengthOf(staticOptions, 3);
 
-    const oauthOption = staticOptions?.find((opt: any) => opt.id === "oauth");
-    const entraOption = staticOptions?.find((opt: any) => opt.id === "entraSSO");
-
-    assert.isDefined(oauthOption);
-    assert.isDefined(entraOption);
+    assert.isDefined(staticOptions?.find((opt: any) => opt.id === "oauth"));
+    assert.isDefined(staticOptions?.find((opt: any) => opt.id === "entra-sso"));
+    assert.isDefined(staticOptions?.find((opt: any) => opt.id === "none"));
+    assert.isUndefined(staticOptions?.find((opt: any) => opt.id === "oauth-dynamic"));
     assert.equal((authTypeNode?.data as any)?.default, "oauth");
+
+    // When both TEAMSFX_MCP_FOR_DA_DT and TEAMSFX_MCP_FOR_DA_DCR are enabled,
+    // the dynamic-registration option is surfaced.
+    const flagSandbox = sinon.createSandbox();
+    try {
+      flagSandbox.stub(featureFlagManager, "getBooleanValue").callsFake((flag) => {
+        if (flag === FeatureFlags.MCPForDADT || flag === FeatureFlags.MCPForDADCR) {
+          return true;
+        }
+        return false;
+      });
+      const optionsWithFlags = (questionNodes.updateActionWithMCP().children?.[2]?.data as any)
+        ?.staticOptions;
+      assert.isArray(optionsWithFlags);
+      assert.lengthOf(optionsWithFlags, 4);
+      assert.isDefined(optionsWithFlags?.find((opt: any) => opt.id === "oauth-dynamic"));
+    } finally {
+      flagSandbox.restore();
+    }
   });
 
   it("should handle fs.readJSON errors gracefully in default function", async () => {

@@ -24,7 +24,7 @@ import {
 // auth is driven by server probe, not solely by the CLI flag.
 // To test actual auth injection, an auth-required MCP server is needed.
 class DeclarativeAgentMCPWithAuth extends CaseFactory {
-  private authType: "oauth" | "entraSSO";
+  private authType: "oauth" | "entra-sso";
 
   public override async onBefore(): Promise<void> {
     await writeMCPToolsFixture();
@@ -36,7 +36,7 @@ class DeclarativeAgentMCPWithAuth extends CaseFactory {
   }
 
   public constructor(
-    authType: "oauth" | "entraSSO",
+    authType: "oauth" | "entra-sso",
     testPlanCaseId: number,
     author: string,
     custimized: Record<string, string>,
@@ -108,10 +108,10 @@ const entraRecord: Record<string, string> = {};
 entraRecord["with-plugin"] = "yes";
 entraRecord["api-plugin-type"] = "mcp";
 entraRecord["mcp-da-server-url"] = "https://learn.microsoft.com/api/mcp";
-entraRecord["mcp-da-auth-type"] = "entraSSO";
+entraRecord["mcp-da-auth-type"] = "entra-sso";
 
 new DeclarativeAgentMCPWithAuth(
-  "entraSSO",
+  "entra-sso",
   37357431,
   "zhiyou@microsoft.com",
   entraRecord,
@@ -137,11 +137,11 @@ const entraFileRecord: Record<string, string> = {};
 entraFileRecord["with-plugin"] = "yes";
 entraFileRecord["api-plugin-type"] = "mcp";
 entraFileRecord["mcp-da-server-url"] = "https://learn.microsoft.com/api/mcp";
-entraFileRecord["mcp-da-auth-type"] = "entraSSO";
+entraFileRecord["mcp-da-auth-type"] = "entra-sso";
 entraFileRecord["mcp-tools-file-path"] = mcpToolsFilePath;
 
 new DeclarativeAgentMCPWithAuth(
-  "entraSSO",
+  "entra-sso",
   37357431,
   "zhiyou@microsoft.com",
   entraFileRecord,

@@ -269,6 +269,9 @@ describe("updateActionWithMCP", () => {
       [QuestionNames.MCPForDAServerName]: serverName,
       [QuestionNames.MCPForDAAuth]: "OAuthPluginVault",
       [QuestionNames.MCPForDAAuthType]: "oauth",
+      [QuestionNames.MCPForDAClientId]: "client-id",
+      [QuestionNames.MCPForDAClientSecret]: "client-secret",
+      [QuestionNames.MCPForDAScopes]: "",
       [QuestionNames.MCPForDAAuthWellKnownUrl]:
         "https://example.com/.well-known/oauth-authorization-server",
       [QuestionNames.MCPForDAAvailableTools]: [
@@ -331,6 +334,9 @@ describe("updateActionWithMCP", () => {
       [QuestionNames.MCPForDAServerName]: serverName,
       [QuestionNames.MCPForDAAuth]: "OAuthPluginVault",
       [QuestionNames.MCPForDAAuthType]: "oauth",
+      [QuestionNames.MCPForDAClientId]: "client-id",
+      [QuestionNames.MCPForDAClientSecret]: "client-secret",
+      [QuestionNames.MCPForDAScopes]: "",
       [QuestionNames.MCPForDAAuthMetadataUrl]: "https://example.com/mcp/metadata",
       [QuestionNames.MCPForDAAvailableTools]: [
         {
@@ -699,6 +705,9 @@ describe("updateActionWithMCP", () => {
       [QuestionNames.MCPForDAServerName]: serverName,
       [QuestionNames.MCPForDAAuth]: "OAuthPluginVault",
       [QuestionNames.MCPForDAAuthType]: "oauth",
+      [QuestionNames.MCPForDAClientId]: "client-id",
+      [QuestionNames.MCPForDAClientSecret]: "client-secret",
+      [QuestionNames.MCPForDAScopes]: "",
       // Neither MCPForDAAuthWellKnownUrl nor MCPForDAAuthMetadataUrl is provided
       [QuestionNames.MCPForDAAvailableTools]: [
         {
@@ -748,6 +757,9 @@ describe("updateActionWithMCP", () => {
       [QuestionNames.MCPForDAServerName]: serverName,
       [QuestionNames.MCPForDAAuth]: "OAuthPluginVault",
       [QuestionNames.MCPForDAAuthType]: "oauth",
+      [QuestionNames.MCPForDAClientId]: "client-id",
+      [QuestionNames.MCPForDAClientSecret]: "client-secret",
+      [QuestionNames.MCPForDAScopes]: "",
       [QuestionNames.MCPForDAAuthMetadataUrl]: "https://example.com/mcp/metadata",
       [QuestionNames.MCPForDAAvailableTools]: [
         {
@@ -803,6 +815,9 @@ describe("updateActionWithMCP", () => {
       [QuestionNames.MCPForDAServerName]: serverName,
       [QuestionNames.MCPForDAAuth]: "OAuthPluginVault",
       [QuestionNames.MCPForDAAuthType]: "oauth",
+      [QuestionNames.MCPForDAClientId]: "client-id",
+      [QuestionNames.MCPForDAClientSecret]: "client-secret",
+      [QuestionNames.MCPForDAScopes]: "",
       [QuestionNames.MCPForDAAuthMetadataUrl]: "https://example.com/mcp/metadata",
       [QuestionNames.MCPForDAAvailableTools]: [
         {
@@ -858,6 +873,9 @@ describe("updateActionWithMCP", () => {
       [QuestionNames.MCPForDAServerName]: serverName,
       [QuestionNames.MCPForDAAuth]: "OAuthPluginVault",
       [QuestionNames.MCPForDAAuthType]: "oauth",
+      [QuestionNames.MCPForDAClientId]: "client-id",
+      [QuestionNames.MCPForDAClientSecret]: "client-secret",
+      [QuestionNames.MCPForDAScopes]: "",
       [QuestionNames.MCPForDAAuthWellKnownUrl]:
         "https://example.com/.well-known/oauth-authorization-server",
       [QuestionNames.MCPForDAAvailableTools]: [
@@ -2347,6 +2365,8 @@ describe("addPlugin", async () => {
       [QuestionNames.MCPForDAAvailableTools]: [{ name: "search", description: "Search docs" }],
       [QuestionNames.MCPForDAPreFetchTools]: ["search"],
       [QuestionNames.MCPForDAAuthType]: "oauth",
+      [QuestionNames.MCPForDAClientId]: "client-id",
+      [QuestionNames.MCPForDAClientSecret]: "client-secret",
       projectPath,
     };
 
@@ -2404,6 +2424,8 @@ describe("addPlugin", async () => {
       ],
       [QuestionNames.MCPForDAPreFetchTools]: ["tool1", "tool2"],
       [QuestionNames.MCPForDAAuthType]: "oauth",
+      [QuestionNames.MCPForDAClientId]: "client-id",
+      [QuestionNames.MCPForDAClientSecret]: "client-secret",
       projectPath,
     };
 
@@ -2456,7 +2478,9 @@ describe("addPlugin", async () => {
       [QuestionNames.MCPForDAAvailableTools]: [{ name: "search", description: "Search" }],
       [QuestionNames.MCPForDAPreFetchTools]: ["search"],
       [QuestionNames.MCPForDAAuth]: "OAuthPluginVault",
-      [QuestionNames.MCPForDAAuthType]: "MicrosoftEntra",
+      [QuestionNames.MCPForDAAuthType]: "oauth",
+      [QuestionNames.MCPForDAClientId]: "client-id",
+      [QuestionNames.MCPForDAClientSecret]: "client-secret",
       [QuestionNames.MCPForDAAuthMetadataUrl]:
         "https://example.com/.well-known/oauth-authorization-server",
       projectPath,
@@ -2485,6 +2509,16 @@ describe("addPlugin", async () => {
       return Promise.resolve(ok(""));
     });
 
+    const mcpAuthScaffolderModule = await import("../../src/component/utils/mcpAuthScaffolder");
+    sandbox
+      .stub(mcpAuthScaffolderModule.mcpAuthScaffolderDeps, "resolveMCPOAuthMetadata")
+      .resolves({
+        authorizationUrl: "https://example.com/oauth/authorize",
+        tokenUrl: "https://example.com/oauth/token",
+        refreshUrl: "https://example.com/oauth/token",
+        wellKnownUrl: "https://example.com/.well-known/oauth-authorization-server",
+      });
+
     const actionInjectorModule = await import("../../src/component/configManager/actionInjector");
     const injectStub = sandbox
       .stub(actionInjectorModule.ActionInjector, "injectCreateOAuthActionForMCP")
@@ -2508,7 +2542,7 @@ describe("addPlugin", async () => {
     }
   });
 
-  it("from MCP: add action with EntraSSO auth type", async () => {
+  it("from MCP: add action with entra-sso auth type", async () => {
     const appName = await mockV3Project();
     const projectPath = path.join(os.tmpdir(), appName);
     const inputs: Inputs = {
@@ -2521,7 +2555,8 @@ describe("addPlugin", async () => {
       [QuestionNames.MCPForDAAvailableTools]: [{ name: "data", description: "Get data" }],
       [QuestionNames.MCPForDAPreFetchTools]: ["data"],
       [QuestionNames.MCPForDAAuth]: "OAuthPluginVault",
-      [QuestionNames.MCPForDAAuthType]: "MicrosoftEntra",
+      [QuestionNames.MCPForDAAuthType]: "entra-sso",
+      [QuestionNames.MCPForDAClientId]: "entra-client-id",
       projectPath,
     };
 
@@ -2562,8 +2597,159 @@ describe("addPlugin", async () => {
 
     assert.isTrue(result.isOk());
     assert.isTrue(injectStub.calledOnce);
-    // authType should be "MicrosoftEntra" (no resolveMCPOAuthMetadata call)
-    assert.equal(injectStub.firstCall.args[1], "MicrosoftEntra");
+    // authType is forwarded; "entra-sso" routes the injector to the Entra branch
+    // (no resolveMCPOAuthMetadata call)
+    assert.equal(injectStub.firstCall.args[1], "entra-sso");
+
+    if (await fs.pathExists(projectPath)) {
+      await fs.remove(projectPath);
+    }
+  });
+
+  it("from MCP (DT flag on): writes dynamic-discovery plugin and injects oauth action", async () => {
+    const appName = await mockV3Project();
+    const projectPath = path.join(os.tmpdir(), appName);
+    const inputs: Inputs = {
+      platform: Platform.CLI,
+      [QuestionNames.Folder]: os.tmpdir(),
+      [QuestionNames.TeamsAppManifestFilePath]: "manifest.json",
+      [QuestionNames.ActionType]: ActionStartOptions.mcp().id,
+      [QuestionNames.MCPForDAServerUrl]: "https://example.com/mcp",
+      [QuestionNames.MCPToolsFilePath]: "",
+      [QuestionNames.MCPForDAAuthType]: "oauth",
+      [QuestionNames.MCPForDAClientId]: "client-id",
+      [QuestionNames.MCPForDAClientSecret]: "client-secret",
+      [QuestionNames.MCPForDAScopes]: "scope-a",
+      [QuestionNames.MCPForDAAuthMetadataUrl]:
+        "https://example.com/.well-known/oauth-authorization-server",
+      projectPath,
+    };
+
+    const manifest = new TeamsAppManifest();
+    manifest.name = { short: "My MCP App", full: "My MCP App" };
+    manifest.copilotExtensions = {
+      declarativeCopilots: [{ file: "test1.json", id: "action_1" }],
+    };
+
+    sandbox.stub(featureFlagManager, "getBooleanValue").callsFake((flag) => {
+      return flag === FeatureFlags.MCPForDADT;
+    });
+    sandbox.stub(validationUtils, "validateInputs").resolves(undefined);
+    sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
+    sandbox.stub(copilotGptManifestUtils, "getManifestPath").resolves(ok("dcManifest.json"));
+    sandbox
+      .stub(copilotGptManifestUtils, "readCopilotGptManifestFile")
+      .resolves(ok({} as DeclarativeCopilotManifestSchema));
+    sandbox
+      .stub(copilotGptManifestUtils, "getDefaultNextAvailablePluginManifestPath")
+      .resolves("ai-plugin_1.json");
+    sandbox
+      .stub(copilotGptManifestUtils, "addAction")
+      .resolves(ok({} as DeclarativeCopilotManifestSchema));
+
+    sandbox.stub(addPluginTools.ui, "showMessage").callsFake((level) => {
+      if (level === "warn") return Promise.resolve(ok("Add"));
+      return Promise.resolve(ok(""));
+    });
+
+    const mcpAuthScaffolderModule = await import("../../src/component/utils/mcpAuthScaffolder");
+    sandbox
+      .stub(mcpAuthScaffolderModule.mcpAuthScaffolderDeps, "resolveMCPOAuthMetadata")
+      .resolves({
+        authorizationUrl: "https://example.com/oauth/authorize",
+        tokenUrl: "https://example.com/oauth/token",
+        refreshUrl: "https://example.com/oauth/token",
+        wellKnownUrl: "https://example.com/.well-known/oauth-authorization-server",
+      });
+
+    const actionInjectorModule = await import("../../src/component/configManager/actionInjector");
+    const injectStub = sandbox
+      .stub(actionInjectorModule.ActionInjector, "injectCreateOAuthActionForMCP")
+      .resolves();
+
+    const envUtilModule = await import("../../src/component/utils/envUtil");
+    sandbox.stub(envUtilModule.envUtil, "listEnv").resolves(ok(["dev"]));
+    const writeEnvStub = sandbox.stub(envUtilModule.envUtil, "writeEnv").resolves(ok(undefined));
+
+    sandbox.stub(pathUtils, "getYmlFilePath").returns("m365agents.yml");
+    sandbox.stub(fs, "ensureFile").resolves();
+    const writeJSONStub = sandbox.stub(fs, "writeJSON").resolves();
+
+    const core = new FxCore(addPluginTools);
+    const result = await core.addPlugin(inputs);
+
+    assert.isTrue(result.isOk());
+    assert.isTrue(injectStub.calledOnce);
+    assert.isTrue(writeEnvStub.called);
+    // DT branch writes a RemoteMCPServer runtime with dynamic discovery and
+    // a namespace derived from the MCP server host (alphanumeric, lowercase).
+    // Dynamic discovery is signalled by a spec carrying only `url` (no
+    // `mcp_tool_description`) per the v2.4 plugin schema.
+    const pluginManifest = writeJSONStub.firstCall.args[1];
+    assert.equal(pluginManifest.namespace, "examplecom");
+    assert.deepEqual(pluginManifest.runtimes[0].spec, { url: "https://example.com/mcp" });
+    assert.deepEqual(pluginManifest.runtimes[0].run_for_functions, ["*"]);
+
+    if (await fs.pathExists(projectPath)) {
+      await fs.remove(projectPath);
+    }
+  });
+
+  it("from MCP (DT flag on): none auth type writes None auth without injection", async () => {
+    const appName = await mockV3Project();
+    const projectPath = path.join(os.tmpdir(), appName);
+    const inputs: Inputs = {
+      platform: Platform.CLI,
+      [QuestionNames.Folder]: os.tmpdir(),
+      [QuestionNames.TeamsAppManifestFilePath]: "manifest.json",
+      [QuestionNames.ActionType]: ActionStartOptions.mcp().id,
+      [QuestionNames.MCPForDAServerUrl]: "https://example.com/mcp",
+      [QuestionNames.MCPToolsFilePath]: "",
+      [QuestionNames.MCPForDAAuthType]: "none",
+      projectPath,
+    };
+
+    const manifest = new TeamsAppManifest();
+    manifest.copilotExtensions = {
+      declarativeCopilots: [{ file: "test1.json", id: "action_1" }],
+    };
+
+    sandbox.stub(featureFlagManager, "getBooleanValue").callsFake((flag) => {
+      return flag === FeatureFlags.MCPForDADT;
+    });
+    sandbox.stub(validationUtils, "validateInputs").resolves(undefined);
+    sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
+    sandbox.stub(copilotGptManifestUtils, "getManifestPath").resolves(ok("dcManifest.json"));
+    sandbox
+      .stub(copilotGptManifestUtils, "readCopilotGptManifestFile")
+      .resolves(ok({} as DeclarativeCopilotManifestSchema));
+    sandbox
+      .stub(copilotGptManifestUtils, "getDefaultNextAvailablePluginManifestPath")
+      .resolves("ai-plugin_1.json");
+    sandbox
+      .stub(copilotGptManifestUtils, "addAction")
+      .resolves(ok({} as DeclarativeCopilotManifestSchema));
+
+    sandbox.stub(addPluginTools.ui, "showMessage").callsFake((level) => {
+      if (level === "warn") return Promise.resolve(ok("Add"));
+      return Promise.resolve(ok(""));
+    });
+
+    const actionInjectorModule = await import("../../src/component/configManager/actionInjector");
+    const injectStub = sandbox
+      .stub(actionInjectorModule.ActionInjector, "injectCreateOAuthActionForMCP")
+      .resolves();
+
+    sandbox.stub(fs, "ensureFile").resolves();
+    const writeJSONStub = sandbox.stub(fs, "writeJSON").resolves();
+
+    const core = new FxCore(addPluginTools);
+    const result = await core.addPlugin(inputs);
+
+    assert.isTrue(result.isOk());
+    assert.isTrue(injectStub.notCalled);
+    const pluginManifest = writeJSONStub.firstCall.args[1];
+    assert.deepEqual(pluginManifest.runtimes[0].auth, { type: "None" });
 
     if (await fs.pathExists(projectPath)) {
       await fs.remove(projectPath);
@@ -2581,6 +2767,8 @@ describe("addPlugin", async () => {
       [QuestionNames.MCPForDAServerUrl]: "",
       [QuestionNames.MCPToolsFilePath]: "",
       [QuestionNames.MCPForDAAuthType]: "oauth",
+      [QuestionNames.MCPForDAClientId]: "client-id",
+      [QuestionNames.MCPForDAClientSecret]: "client-secret",
       projectPath,
     };
 
@@ -2677,6 +2865,8 @@ describe("addPlugin", async () => {
       [QuestionNames.MCPForDAServerUrl]: "https://example.com/mcp",
       [QuestionNames.MCPToolsFilePath]: "",
       [QuestionNames.MCPForDAAuthType]: "oauth",
+      [QuestionNames.MCPForDAClientId]: "client-id",
+      [QuestionNames.MCPForDAClientSecret]: "client-secret",
       projectPath,
       ignoreLockByUT: true,
     };
@@ -3265,6 +3455,8 @@ describe("addPlugin", async () => {
       [QuestionNames.MCPToolsFilePath]: "",
       [QuestionNames.MCPForDAAuth]: "OAuthPluginVault",
       [QuestionNames.MCPForDAAuthType]: "oauth",
+      [QuestionNames.MCPForDAClientId]: "client-id",
+      [QuestionNames.MCPForDAClientSecret]: "client-secret",
       [QuestionNames.MCPForDAAuthMetadataUrl]: "https://example.com/bad-metadata",
       [QuestionNames.MCPForDAAvailableTools]: [
         { name: "authtool", description: "Needs auth", inputSchema: {} },
@@ -3297,9 +3489,9 @@ describe("addPlugin", async () => {
     });
 
     // resolveMCPOAuthMetadata throws
-    const mcpToolFetcherModule = await import("../../src/component/utils/mcpToolFetcher");
+    const mcpAuthScaffolderModule = await import("../../src/component/utils/mcpAuthScaffolder");
     sandbox
-      .stub(mcpToolFetcherModule, "resolveMCPOAuthMetadata")
+      .stub(mcpAuthScaffolderModule.mcpAuthScaffolderDeps, "resolveMCPOAuthMetadata")
       .rejects(new Error("metadata fetch failed"));
 
     sandbox.stub(fs, "ensureFile").resolves();

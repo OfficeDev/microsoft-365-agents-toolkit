@@ -2,13 +2,18 @@ import * as vscode from "vscode";
 import * as sinon from "sinon";
 import fs from "fs-extra";
 import * as chai from "chai";
+import { featureFlagManager, FeatureFlags } from "@microsoft/teamsfx-core";
 import * as globalVariables from "../../src/globalVariables";
 import * as extTelemetryEvents from "../../src/telemetry/extTelemetryEvents";
 import { ExtTelemetry } from "../../src/telemetry/extTelemetry";
 import { PanelType } from "../../src/controls/PanelType";
 import { TreatmentVariableValue } from "../../src/exp/treatmentVariables";
 import { WebviewPanel } from "../../src/controls/webviewPanel";
-import { openReadMeHandler, openSampleReadmeHandler } from "../../src/handlers/readmeHandlers";
+import {
+  openReadMeHandler,
+  openSampleReadmeHandler,
+  openWorkspaceMCPConfigHandler,
+} from "../../src/handlers/readmeHandlers";
 
 describe("readmeHandlers", () => {
   describe("openReadMeHandler", () => {
@@ -133,6 +138,100 @@ describe("readmeHandlers", () => {
       await openSampleReadmeHandler(["WalkThrough"]);
 
       chai.assert.isTrue(executeCommandStub.calledOnce);
+    });
+  });
+
+  describe("openWorkspaceMCPConfigHandler", () => {
+    const sandbox = sinon.createSandbox();
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it("no workspace folder - returns ok without opening", async () => {
+      sandbox.stub(vscode.workspace, "workspaceFolders").value(undefined);
+      const openTextDocumentStub = sandbox.stub(vscode.workspace, "openTextDocument");
+
+      const res = await openWorkspaceMCPConfigHandler();
+
+      chai.assert.isTrue(res.isOk());
+      chai.assert.isTrue(openTextDocumentStub.notCalled);
+    });
+
+    it("config file missing - returns ok without opening", async () => {
+      sandbox.stub(vscode.workspace, "workspaceFolders").value([{ uri: vscode.Uri.file("test") }]);
+      sandbox.stub(fs, "pathExists").resolves(false);
+      const openTextDocumentStub = sandbox.stub(vscode.workspace, "openTextDocument");
+
+      const res = await openWorkspaceMCPConfigHandler();
+
+      chai.assert.isTrue(res.isOk());
+      chai.assert.isTrue(openTextDocumentStub.notCalled);
+    });
+
+    it("DT flag off - shows Fetch Action notification and opens mcp.json", async () => {
+      sandbox.stub(vscode.workspace, "workspaceFolders").value([{ uri: vscode.Uri.file("test") }]);
+      sandbox.stub(fs, "pathExists").resolves(true);
+      sandbox.stub(featureFlagManager, "getBooleanValue").returns(false);
+      const openTextDocumentStub = sandbox
+        .stub(vscode.workspace, "openTextDocument")
+        .resolves({} as vscode.TextDocument);
+      sandbox.stub(vscode.window, "showTextDocument").resolves();
+      const showMessageStub = sandbox
+        .stub(vscode.window, "showInformationMessage")
+        .resolves("Fetch Action" as any);
+      const executeCommandStub = sandbox.stub(vscode.commands, "executeCommand");
+
+      const res = await openWorkspaceMCPConfigHandler();
+
+      chai.assert.isTrue(res.isOk());
+      chai.assert.isTrue(showMessageStub.calledOnce);
+      chai.assert.isTrue(openTextDocumentStub.calledOnce);
+      // Fetch Action selection wires the updateActionWithMCP command.
+      await Promise.resolve();
+      chai.assert.isTrue(executeCommandStub.calledWith("fx-extension.updateActionWithMCP"));
+    });
+
+    it("DT flag on - opens ai-plugin.json without Fetch Action notification", async () => {
+      sandbox.stub(vscode.workspace, "workspaceFolders").value([{ uri: vscode.Uri.file("test") }]);
+      sandbox.stub(fs, "pathExists").resolves(true);
+      sandbox
+        .stub(featureFlagManager, "getBooleanValue")
+        .callsFake((flag) => flag === FeatureFlags.MCPForDADT);
+      const openTextDocumentStub = sandbox
+        .stub(vscode.workspace, "openTextDocument")
+        .resolves({} as vscode.TextDocument);
+      sandbox.stub(vscode.window, "showTextDocument").resolves();
+      const showMessageStub = sandbox.stub(vscode.window, "showInformationMessage");
+
+      const res = await openWorkspaceMCPConfigHandler();
+
+      chai.assert.isTrue(res.isOk());
+      chai.assert.isTrue(showMessageStub.notCalled);
+      chai.assert.isTrue(openTextDocumentStub.calledOnce);
+      const openedUri = openTextDocumentStub.firstCall.args[0] as vscode.Uri;
+      chai.assert.isTrue(openedUri.fsPath.endsWith("ai-plugin.json"));
+    });
+
+    it("DT flag on but ai-plugin.json missing - falls back to mcp.json", async () => {
+      sandbox.stub(vscode.workspace, "workspaceFolders").value([{ uri: vscode.Uri.file("test") }]);
+      sandbox
+        .stub(fs, "pathExists")
+        .callsFake((p: string) => Promise.resolve(p.endsWith("mcp.json")) as any);
+      sandbox
+        .stub(featureFlagManager, "getBooleanValue")
+        .callsFake((flag) => flag === FeatureFlags.MCPForDADT);
+      const openTextDocumentStub = sandbox
+        .stub(vscode.workspace, "openTextDocument")
+        .resolves({} as vscode.TextDocument);
+      sandbox.stub(vscode.window, "showTextDocument").resolves();
+
+      const res = await openWorkspaceMCPConfigHandler();
+
+      chai.assert.isTrue(res.isOk());
+      chai.assert.isTrue(openTextDocumentStub.calledOnce);
+      const openedUri = openTextDocumentStub.firstCall.args[0] as vscode.Uri;
+      chai.assert.isTrue(openedUri.fsPath.endsWith("mcp.json"));
     });
   });
 });

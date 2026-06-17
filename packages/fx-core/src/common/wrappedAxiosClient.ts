@@ -95,7 +95,7 @@ export class WrappedAxiosClient {
     // real transport-level failure (TLS handshake, ECONNRESET on a kept-alive
     // socket, etc.) returned to the caller. See AB#37640864.
     try {
-      const method = ((error.request?.method as string) ?? "").toString();
+      const method = ((error.request?.method as string) ?? error.config?.method ?? "").toString();
       const fullPath = `${error.config?.baseURL ?? ""}${error.config?.url ?? ""}`;
       const apiName = this.convertUrlToApiName(fullPath, method);
 
@@ -337,7 +337,7 @@ export class WrappedAxiosClient {
         return `mos_unclassified_${relativePath.replace(/\//g, "_")}`;
       }
     } else if (this.isTeamsGraphApi(fullPath)) {
-      if (fullPath.match(new RegExp("/api/v1\\.0/apiSecretRegistrations/.*"))) {
+      if (fullPath.match(new RegExp("/v1\\.0/apiSecretRegistrations/.*"))) {
         if (method.toUpperCase() === HttpMethod.GET) {
           return TEAMS_GRAPH_API_NAMES.GET_API_KEY;
         }
@@ -345,10 +345,10 @@ export class WrappedAxiosClient {
           return TEAMS_GRAPH_API_NAMES.UPDATE_API_KEY;
         }
       }
-      if (fullPath.match(new RegExp("/api/v1\\.0/apiSecretRegistrations"))) {
+      if (fullPath.match(new RegExp("/v1\\.0/apiSecretRegistrations"))) {
         return TEAMS_GRAPH_API_NAMES.CREATE_API_KEY;
       }
-      if (fullPath.match(new RegExp("/api/v1\\.0/oAuthConfigurations/.*"))) {
+      if (fullPath.match(new RegExp("/v1\\.0/oAuthConfigurations/.*"))) {
         if (method.toUpperCase() === HttpMethod.GET) {
           return TEAMS_GRAPH_API_NAMES.GET_OAUTH;
         }
@@ -356,7 +356,7 @@ export class WrappedAxiosClient {
           return TEAMS_GRAPH_API_NAMES.UPDATE_OAUTH;
         }
       }
-      if (fullPath.match(new RegExp("/api/v1\\.0/oAuthConfigurations"))) {
+      if (fullPath.match(new RegExp("/v1\\.0/oAuthConfigurations"))) {
         return TEAMS_GRAPH_API_NAMES.CREATE_OAUTH;
       }
     }

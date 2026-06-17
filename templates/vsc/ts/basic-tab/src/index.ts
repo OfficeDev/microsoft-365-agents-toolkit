@@ -30,6 +30,7 @@ const app = new App({
   logger: new ConsoleLogger("tab", { level: "debug" }),
   plugins: plugins,
   httpServerAdapter: adapter,
+  skipAuth: true,
 });
 
 app.tab("home", path.join(__dirname, "./client"));

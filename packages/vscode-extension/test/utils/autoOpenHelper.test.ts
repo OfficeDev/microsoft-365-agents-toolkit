@@ -1,5 +1,6 @@
 import { ok, TeamsAppManifest } from "@microsoft/teamsfx-api";
 import { manifestUtils, pluginManifestUtils } from "@microsoft/teamsfx-core";
+import { featureFlagManager, FeatureFlags } from "@microsoft/teamsfx-core";
 import * as globalState from "@microsoft/teamsfx-core/build/common/globalState";
 import * as apiSpec from "@microsoft/teamsfx-core/build/component/generator/openApiSpec/helper";
 import * as chai from "chai";
@@ -290,6 +291,40 @@ describe("autoOpenHelper", () => {
     await showLocalDebugMessage();
 
     chai.assert.isTrue(showMessageStub.called);
+    chai.assert.isFalse(executeCommandStub.called);
+  });
+
+  it("showLocalDebugMessage() - DA with MCP (DT flag on) shows scenario notification", async () => {
+    sandbox.stub(vscode.workspace, "workspaceFolders").value([{ uri: vscode.Uri.file("test") }]);
+    sandbox.stub(vscode.workspace, "openTextDocument");
+    sandbox.stub(process, "platform").value("win32");
+    // No local env (.local.yml / keyGen absent) so the else branch runs;
+    // the .vscode/mcp.json marker exists -> DT scenario notification.
+    sandbox
+      .stub(fs, "pathExists")
+      .callsFake((p: string) => Promise.resolve(p.includes("mcp.json")) as any);
+    sandbox
+      .stub(featureFlagManager, "getBooleanValue")
+      .callsFake((flag) => flag === FeatureFlags.MCPForDADT);
+
+    sandbox.stub(globalState, "globalStateGet").callsFake(async (key: string) => {
+      if (key === "ShowLocalDebugMessage") {
+        return true;
+      } else {
+        return false;
+      }
+    });
+    sandbox.stub(globalState, "globalStateUpdate");
+    sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
+    sandbox.stub(globalVariables, "workspaceUri").value(vscode.Uri.file("test"));
+    const showMessageStub = sandbox
+      .stub(vscode.window, "showInformationMessage")
+      .resolves(undefined);
+    const executeCommandStub = sandbox.stub(vscode.commands, "executeCommand");
+
+    await showLocalDebugMessage();
+
+    chai.assert.isTrue(showMessageStub.calledOnce);
     chai.assert.isFalse(executeCommandStub.called);
   });
 
