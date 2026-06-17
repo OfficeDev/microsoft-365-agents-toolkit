@@ -41,6 +41,7 @@ const options =
 const app = new App({
   ...options,
   logger,
+  skipAuth: !process.env.CLIENT_ID,
 });
 
 // Initialize storage
