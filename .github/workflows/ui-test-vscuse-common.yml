@@ -307,6 +307,10 @@ jobs:
             echo "TEMPLATE_VERSION not provided; TEMPLATE_VERSION won't be added to config.yaml"
           fi
 
+          echo "===== Full VSCUSE config.yaml ====="
+          cat config.yaml
+          echo "===== End of config.yaml ====="
+
       - name: Run test
         run: |
           echo "🚀 Running test plan: ${{ matrix.test_plan }}"
