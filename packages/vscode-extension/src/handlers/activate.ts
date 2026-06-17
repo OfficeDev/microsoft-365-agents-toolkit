@@ -45,18 +45,11 @@ import { TelemetryEvent, TelemetryProperty } from "../telemetry/extTelemetryEven
 import { getExpService } from "../exp/index";
 import { addFileSystemWatcher } from "../utils/fileSystemWatcher";
 
-export const activateOps = {
-  isValidProject: (projectPath?: string) => isValidProject(projectPath),
-  getProjectMetadata: (projectPath?: string) => getProjectMetadata(projectPath),
-  addFileSystemWatcher: (workspacePath: string) => addFileSystemWatcher(workspacePath),
-};
-const activateDeps = activateOps;
-
 export function activate(): Result<Void, FxError> {
   const result: Result<Void, FxError> = ok(Void);
-  const validProject = activateDeps.isValidProject(workspaceUri?.fsPath);
+  const validProject = isValidProject(workspaceUri?.fsPath);
   if (validProject) {
-    const fixedProjectSettings = activateDeps.getProjectMetadata(workspaceUri?.fsPath);
+    const fixedProjectSettings = getProjectMetadata(workspaceUri?.fsPath);
     ExtTelemetry.addSharedProperty(
       TelemetryProperty.ProjectId,
       fixedProjectSettings?.projectId as string
@@ -118,7 +111,7 @@ export function activate(): Result<Void, FxError> {
     });
     const workspacePath = workspaceUri?.fsPath;
     if (workspacePath) {
-      activateDeps.addFileSystemWatcher(workspacePath);
+      addFileSystemWatcher(workspacePath);
     }
 
     if (workspacePath) {

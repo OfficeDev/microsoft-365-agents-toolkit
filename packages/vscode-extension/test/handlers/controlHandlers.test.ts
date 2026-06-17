@@ -8,8 +8,8 @@ import { WebviewPanel } from "../../src/controls/webviewPanel";
 import * as globalVariables from "../../src/globalVariables";
 import { vi, expect, assert } from "vitest";
 import { mockValue } from "../mocks/vitestMockUtils";
+import * as commonUtils from "../../src/utils/commonUtils";
 import {
-  controlHandlersOps,
   openFolderHandler,
   openLifecycleTreeview,
   openSamplesHandler,
@@ -18,6 +18,11 @@ import {
   selectWalkthrough,
 } from "../../src/handlers/controlHandlers";
 import { ExtTelemetry } from "../../src/telemetry/extTelemetry";
+
+vi.mock("@microsoft/teamsfx-core", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@microsoft/teamsfx-core")>();
+  return { ...actual };
+});
 import {
   TelemetryEvent,
   TelemetryProperty,
@@ -25,8 +30,6 @@ import {
 } from "../../src/telemetry/extTelemetryEvents";
 import { getDefaultString } from "../../src/utils/localizeUtils";
 import * as teamsfxCore from "@microsoft/teamsfx-core";
-
-const controlHandlersDeps = controlHandlersOps;
 
 describe("Control Handlers", () => {
   describe("openWelcomeHandler", () => {
@@ -142,7 +145,7 @@ describe("Control Handlers", () => {
     it("happy path", async () => {
       const sendTelemetryStub = vi.spyOn(ExtTelemetry, "sendTelemetryEvent");
       const openFolderInExplorerStub = vi
-        .spyOn(controlHandlersDeps, "openFolderInExplorer")
+        .spyOn(commonUtils, "openFolderInExplorer")
         .mockImplementation(() => {
           return;
         });
@@ -158,9 +161,7 @@ describe("Control Handlers", () => {
 
   describe("saveTextDocumentHandler", () => {
     it("non valid project", () => {
-      const isValidProjectStub = vi
-        .spyOn(controlHandlersDeps, "isValidProject")
-        .mockReturnValue(false);
+      const isValidProjectStub = vi.spyOn(teamsfxCore, "isValidProject").mockReturnValue(false);
       mockValue(globalVariables, "workspaceUri", { fsPath: "/path/to/workspace" });
 
       saveTextDocumentHandler({ document: {} } as any);
@@ -169,9 +170,7 @@ describe("Control Handlers", () => {
     });
 
     it("manual save reason", () => {
-      const isValidProjectStub = vi
-        .spyOn(controlHandlersDeps, "isValidProject")
-        .mockReturnValue(true);
+      const isValidProjectStub = vi.spyOn(teamsfxCore, "isValidProject").mockReturnValue(true);
       const sendTelemetryEventStub = vi.spyOn(ExtTelemetry, "sendTelemetryEvent");
       mockValue(globalVariables, "workspaceUri", { fsPath: "/path/to/workspace" });
 
@@ -191,9 +190,7 @@ describe("Control Handlers", () => {
     });
 
     it("after delay save reason", () => {
-      const isValidProjectStub = vi
-        .spyOn(controlHandlersDeps, "isValidProject")
-        .mockReturnValue(true);
+      const isValidProjectStub = vi.spyOn(teamsfxCore, "isValidProject").mockReturnValue(true);
       const sendTelemetryEventStub = vi.spyOn(ExtTelemetry, "sendTelemetryEvent");
       mockValue(globalVariables, "workspaceUri", { fsPath: "/path/to/workspace" });
 
@@ -216,7 +213,7 @@ describe("Control Handlers", () => {
       const dirname = "/dirname";
       const parentDir = path.join(dirname, "..");
       const isValidProjectStub = vi
-        .spyOn(controlHandlersDeps, "isValidProject")
+        .spyOn(teamsfxCore, "isValidProject")
         .mockImplementation((p: string | undefined) => {
           return p !== dirname;
         });

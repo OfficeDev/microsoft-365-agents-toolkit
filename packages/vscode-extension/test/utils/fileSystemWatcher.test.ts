@@ -1,5 +1,23 @@
 import { ExtTelemetry } from "../../src/telemetry/extTelemetry";
+import * as vscode from "vscode";
+import * as globalVariables from "../../src/globalVariables";
+import * as projectSettingsHelper from "@microsoft/teamsfx-core/build/common/projectSettingsHelper";
+import TreeViewManagerInstance from "../../src/treeview/treeViewManager";
 import { vi, expect, assert } from "vitest";
+
+vi.mock("@microsoft/teamsfx-core/build/common/projectSettingsHelper", async (importOriginal) => {
+  const actual =
+    await importOriginal<
+      typeof import("@microsoft/teamsfx-core/build/common/projectSettingsHelper")
+    >();
+  return { ...actual };
+});
+
+import * as teamsfxCore from "@microsoft/teamsfx-core";
+vi.mock("@microsoft/teamsfx-core", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@microsoft/teamsfx-core")>();
+  return { ...actual };
+});
 import {
   addFileSystemWatcher,
   fileSystemWatcherOps,
@@ -13,9 +31,9 @@ describe("FileSystemWatcher", function () {
   describe("addFileSystemWatcher", function () {
     it("addFileSystemWatcher detect SPFx project", async () => {
       const workspacePath = "test";
-      vi.spyOn(fileSystemWatcherDeps, "isValidProject").mockReturnValue(true);
-      vi.spyOn(fileSystemWatcherDeps, "initializeGlobalVariables").mockImplementation(() => {});
-      vi.spyOn(fileSystemWatcherDeps, "updateDevelopmentTreeView").mockResolvedValue();
+      vi.spyOn(teamsfxCore, "isValidProject").mockReturnValue(true);
+      vi.spyOn(globalVariables, "initializeGlobalVariables").mockImplementation(() => {});
+      vi.spyOn(TreeViewManagerInstance, "updateDevelopmentTreeView").mockResolvedValue();
 
       const watcher = {
         onDidCreate: () => ({ dispose: () => undefined }),
@@ -23,7 +41,7 @@ describe("FileSystemWatcher", function () {
         onDidDelete: () => ({ dispose: () => undefined }),
       } as any;
       const createWatcher = vi
-        .spyOn(fileSystemWatcherDeps, "createFileSystemWatcher")
+        .spyOn(vscode.workspace, "createFileSystemWatcher")
         .mockReturnValue(watcher);
       const createListener = vi
         .spyOn(watcher, "onDidCreate")
@@ -51,15 +69,13 @@ describe("FileSystemWatcher", function () {
 
     it("addFileSystemWatcher in invalid project", async () => {
       const workspacePath = "test";
-      vi.spyOn(fileSystemWatcherDeps, "isValidProject").mockReturnValue(false);
+      vi.spyOn(teamsfxCore, "isValidProject").mockReturnValue(false);
 
       const watcher = {
         onDidCreate: () => ({ dispose: () => undefined }),
         onDidChange: () => ({ dispose: () => undefined }),
       } as any;
-      const createWatcher = vi
-        .spyOn(fileSystemWatcherDeps, "createFileSystemWatcher")
-        .mockReturnValue(watcher);
+      const createWatcher = vi.spyOn(vscode.workspace, "createFileSystemWatcher");
       const createListener = vi.spyOn(watcher, "onDidCreate").mockResolvedValue();
       const changeListener = vi.spyOn(watcher, "onDidChange").mockResolvedValue();
 
@@ -74,10 +90,10 @@ describe("FileSystemWatcher", function () {
   describe("refreshSPFxTreeOnFileChanged", function () {
     it("refreshSPFxTreeOnFileChanged", () => {
       const initGlobalVariables = vi
-        .spyOn(fileSystemWatcherDeps, "initializeGlobalVariables")
+        .spyOn(globalVariables, "initializeGlobalVariables")
         .mockImplementation(() => {});
       const updateDevelopmentTreeView = vi
-        .spyOn(fileSystemWatcherDeps, "updateDevelopmentTreeView")
+        .spyOn(TreeViewManagerInstance, "updateDevelopmentTreeView")
         .mockResolvedValue();
 
       refreshSPFxTreeOnFileChanged();
@@ -92,7 +108,7 @@ describe("FileSystemWatcher", function () {
       const filePath = "test/package-lock.json";
 
       const readJsonFunc = vi.spyOn(fileSystemWatcherDeps, "readJson").mockResolvedValue();
-      vi.spyOn(fileSystemWatcherDeps, "sendTelemetryEvent");
+      vi.spyOn(ExtTelemetry, "sendTelemetryEvent");
 
       sendSDKVersionTelemetry(filePath);
 

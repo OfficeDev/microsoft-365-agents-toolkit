@@ -8,17 +8,22 @@ import * as globalVariables from "../../src/globalVariables";
 import { err, ok, SystemError, TeamsAppManifest } from "@microsoft/teamsfx-api";
 import { manifestUtils, copilotGptManifestUtils } from "@microsoft/teamsfx-core";
 import * as projectSettingsHelper from "@microsoft/teamsfx-core/build/common/projectSettingsHelper";
+import * as teamsfxCore from "@microsoft/teamsfx-core";
+
+vi.mock("@microsoft/teamsfx-core", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@microsoft/teamsfx-core")>();
+  return { ...actual };
+});
 
 describe("Global Variables", () => {
-  const globalVariablesDeps = globalVariables.globalVariablesOps;
   describe("isSPFxProject", () => {
     it("return false for non-spfx project", async () => {
       vi.spyOn(fs, "existsSync").mockImplementation((path: fs.PathLike) => {
         return false;
       });
       vi.spyOn(fs, "pathExistsSync").mockReturnValue(true);
-      vi.spyOn(globalVariablesDeps, "isValidProject").mockReturnValue(true);
-      vi.spyOn(globalVariablesDeps, "isValidOfficeAddInProject").mockReturnValue(false);
+      vi.spyOn(teamsfxCore, "isValidProject").mockReturnValue(true);
+      vi.spyOn(teamsfxCore, "isValidOfficeAddInProject").mockReturnValue(false);
       mockValue(globalVariables, "workspaceUri", { fsPath: "/test" } as any);
       vi.spyOn(fs, "readdirSync").mockReturnValue(["package.json"] as any);
 
@@ -37,8 +42,8 @@ describe("Global Variables", () => {
         return true;
       });
       vi.spyOn(fs, "pathExistsSync").mockReturnValue(true);
-      vi.spyOn(globalVariablesDeps, "isValidProject").mockReturnValue(false);
-      vi.spyOn(globalVariablesDeps, "isValidOfficeAddInProject").mockReturnValue(false);
+      vi.spyOn(teamsfxCore, "isValidProject").mockReturnValue(false);
+      vi.spyOn(teamsfxCore, "isValidOfficeAddInProject").mockReturnValue(false);
 
       globalVariables.initializeGlobalVariables({
         globalState: {
@@ -292,20 +297,6 @@ describe("Global Variables", () => {
         throw new Error("ENOENT");
       });
       const result = globalVariables.checkIsSPFx("/some/dir");
-      expect(result).to.be.false;
-    });
-  });
-
-  describe("globalVariablesOps", () => {
-    it("isValidOfficeAddInProject delegates to core", () => {
-      vi.spyOn(projectSettingsHelper, "isValidOfficeAddInProject").mockReturnValue(false);
-      const result = globalVariablesDeps.isValidOfficeAddInProject(process.cwd());
-      expect(typeof result).to.equal("boolean");
-    });
-
-    it("checkIsSPFx delegates to checkIsSPFx", () => {
-      vi.spyOn(fs, "readdirSync").mockReturnValue([]);
-      const result = globalVariablesDeps.checkIsSPFx("/test");
       expect(result).to.be.false;
     });
   });

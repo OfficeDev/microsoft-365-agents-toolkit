@@ -45,58 +45,21 @@ import { invokeTeamsAgent } from "./copilotChatHandlers";
 import { runCommand } from "./sharedOpts";
 import { tools } from "../globalVariables";
 
-export const lifecycleHandlersOps = {
-  sendTelemetryEvent: (eventName: string, properties?: any) =>
-    ExtTelemetry.sendTelemetryEvent(eventName as any, properties),
-  sendTelemetryErrorEvent: (eventName: string, error: FxError, properties?: any) =>
-    ExtTelemetry.sendTelemetryErrorEvent(eventName as any, error, properties),
-  getTriggerFromProperty: (args?: any[]) => getTriggerFromProperty(args),
-  getSystemInputs: () => getSystemInputs(),
-  runCommand: (stage: Stage, inputs?: Inputs) => runCommand(stage, inputs),
-  invokeTeamsAgent: (args: any[]) => invokeTeamsAgent(args),
-  uriFile: (path: string) => vscode.Uri.file(path),
-  showErrorMessage: (message: string) => vscode.window.showErrorMessage(message),
-  showInformationMessage: (message: string, ...items: string[]) =>
-    vscode.window.showInformationMessage(message, ...items),
-  isValidOfficeAddInProject: (filePath: string) => isValidOfficeAddInProject(filePath),
-  openOfficeDevFolder: (uri: vscode.Uri, openBrowser: boolean, warnings?: any[], args?: any[]) =>
-    openOfficeDevFolder(uri, openBrowser, warnings, args),
-  openFolder: (uri: vscode.Uri, openBrowser: boolean, warnings?: any[], args?: any[]) =>
-    openFolder(uri, openBrowser, warnings, args),
-  reloadEnvironments: () => envTreeProviderInstance.reloadEnvironments(),
-  localize: (key: string, ...args: any[]) => localize(key, ...args),
-  createProgressBar: (title: string, totalSteps: number) =>
-    VS_CODE_UI.createProgressBar(title, totalSteps),
-  signInWhenInitiatedFromTdp: (options: any, loginHint?: string) =>
-    M365TokenInstance.signInWhenInitiatedFromTdp(options, loginHint ?? ""),
-  isSovereignHigh: () => isSovereignHigh(),
-  getAccessToken: (options: any) => M365TokenInstance.getAccessToken(options),
-  setRegionEndpointByToken: (token: string) => teamsDevPortalClient.setRegionEndpointByToken(token),
-  getApp: (token: string, appId: string) => teamsDevPortalClient.getApp(token, appId),
-  getBooleanValue: (flag: Parameters<typeof featureFlagManager.getBooleanValue>[0]) =>
-    featureFlagManager.getBooleanValue(flag),
-  getTools: () => tools,
-};
-const lifecycleHandlersDeps = lifecycleHandlersOps;
-
 export async function createNewProjectHandler(...args: any[]): Promise<Result<any, FxError>> {
-  lifecycleHandlersDeps.sendTelemetryEvent(
-    TelemetryEvent.CreateProjectStart,
-    lifecycleHandlersDeps.getTriggerFromProperty(args)
-  );
+  ExtTelemetry.sendTelemetryEvent(TelemetryEvent.CreateProjectStart, getTriggerFromProperty(args));
   let inputs: Inputs | undefined;
   let stage = Stage.create;
   if (args?.length === 1) {
     if (!!args[0].teamsAppFromTdp) {
-      inputs = lifecycleHandlersDeps.getSystemInputs();
+      inputs = getSystemInputs();
       inputs.teamsAppFromTdp = args[0].teamsAppFromTdp;
       stage = Stage.createTdp;
     }
   } else if (args?.length === 2 && args[0] !== TelemetryTriggerFrom.TreeView) {
     // from copilot chat or createDeclarativeAgentWithApiSpec
-    inputs = { ...lifecycleHandlersDeps.getSystemInputs(), ...args[1] };
+    inputs = { ...getSystemInputs(), ...args[1] };
   }
-  const result = await lifecycleHandlersDeps.runCommand(stage, inputs);
+  const result = await runCommand(stage, inputs);
   if (result.isErr()) {
     return err(result.error);
   }
@@ -104,85 +67,67 @@ export async function createNewProjectHandler(...args: any[]): Promise<Result<an
   const res = result.value as CreateProjectResult;
 
   if (res.shouldInvokeTeamsAgent) {
-    await lifecycleHandlersDeps.invokeTeamsAgent([TelemetryTriggerFrom.CreateAppQuestionFlow]);
+    await invokeTeamsAgent([TelemetryTriggerFrom.CreateAppQuestionFlow]);
     return result;
   }
-  const projectPathUri = lifecycleHandlersDeps.uriFile(res.projectPath);
-  const isOfficeAddin = lifecycleHandlersDeps.isValidOfficeAddInProject(projectPathUri.fsPath);
+  const projectPathUri = vscode.Uri.file(res.projectPath);
+  const isOfficeAddin = isValidOfficeAddInProject(projectPathUri.fsPath);
   // If it is triggered in @office /create for code gen, then do no open the temp folder.
   if (isOfficeAddin && inputs?.agent === "office") {
     return result;
   }
   // show local debug button by default
   if (isOfficeAddin) {
-    await lifecycleHandlersDeps.openOfficeDevFolder(projectPathUri, true, res.warnings, args);
+    await openOfficeDevFolder(projectPathUri, true, res.warnings, args);
   } else {
-    await lifecycleHandlersDeps.openFolder(projectPathUri, true, res.warnings, args);
+    await openFolder(projectPathUri, true, res.warnings, args);
   }
   return result;
 }
 
 export async function provisionHandler(...args: unknown[]): Promise<Result<unknown, FxError>> {
-  lifecycleHandlersDeps.sendTelemetryEvent(
-    TelemetryEvent.ProvisionStart,
-    lifecycleHandlersDeps.getTriggerFromProperty(args)
-  );
-  const result = await lifecycleHandlersDeps.runCommand(Stage.provision);
+  ExtTelemetry.sendTelemetryEvent(TelemetryEvent.ProvisionStart, getTriggerFromProperty(args));
+  const result = await runCommand(Stage.provision);
   if (result.isErr() && isUserCancelError(result.error)) {
     return result;
   } else {
     // refresh env tree except provision cancelled
-    await lifecycleHandlersDeps.reloadEnvironments();
+    await envTreeProviderInstance.reloadEnvironments();
     return result;
   }
 }
 
 export async function deployHandler(...args: unknown[]): Promise<Result<null, FxError>> {
-  lifecycleHandlersDeps.sendTelemetryEvent(
-    TelemetryEvent.DeployStart,
-    lifecycleHandlersDeps.getTriggerFromProperty(args)
-  );
-  return await lifecycleHandlersDeps.runCommand(Stage.deploy);
+  ExtTelemetry.sendTelemetryEvent(TelemetryEvent.DeployStart, getTriggerFromProperty(args));
+  return await runCommand(Stage.deploy);
 }
 
 export async function publishHandler(...args: unknown[]): Promise<Result<null, FxError>> {
-  lifecycleHandlersDeps.sendTelemetryEvent(
-    TelemetryEvent.PublishStart,
-    lifecycleHandlersDeps.getTriggerFromProperty(args)
-  );
-  return await lifecycleHandlersDeps.runCommand(Stage.publish);
+  ExtTelemetry.sendTelemetryEvent(TelemetryEvent.PublishStart, getTriggerFromProperty(args));
+  return await runCommand(Stage.publish);
 }
 
 export async function shareHandler(...args: unknown[]): Promise<Result<null, FxError>> {
-  lifecycleHandlersDeps.sendTelemetryEvent(
-    TelemetryEvent.ShareStart,
-    lifecycleHandlersDeps.getTriggerFromProperty(args)
-  );
-  return await lifecycleHandlersDeps.runCommand(Stage.share);
+  ExtTelemetry.sendTelemetryEvent(TelemetryEvent.ShareStart, getTriggerFromProperty(args));
+  return await runCommand(Stage.share);
 }
 
 export async function shareRemoveHandler(...args: unknown[]): Promise<Result<null, FxError>> {
-  lifecycleHandlersDeps.sendTelemetryEvent(
-    TelemetryEvent.ShareRemoveStart,
-    lifecycleHandlersDeps.getTriggerFromProperty(args)
-  );
-  return await lifecycleHandlersDeps.runCommand(Stage.shareRemove);
+  ExtTelemetry.sendTelemetryEvent(TelemetryEvent.ShareRemoveStart, getTriggerFromProperty(args));
+  return await runCommand(Stage.shareRemove);
 }
 
 export async function addWebpartHandler(...args: unknown[]) {
-  lifecycleHandlersDeps.sendTelemetryEvent(
-    TelemetryEvent.AddWebpartStart,
-    lifecycleHandlersDeps.getTriggerFromProperty(args)
-  );
-  return await lifecycleHandlersDeps.runCommand(Stage.addWebpart);
+  ExtTelemetry.sendTelemetryEvent(TelemetryEvent.AddWebpartStart, getTriggerFromProperty(args));
+  return await runCommand(Stage.addWebpart);
 }
 
 export async function regeneratePluginHandler(...args: unknown[]) {
-  lifecycleHandlersDeps.sendTelemetryEvent(
+  ExtTelemetry.sendTelemetryEvent(
     TelemetryEvent.RegenerateActionStart,
-    lifecycleHandlersDeps.getTriggerFromProperty(args)
+    getTriggerFromProperty(args)
   );
-  const result = await lifecycleHandlersDeps.runCommand(Stage.RegeneratePlugin);
+  const result = await runCommand(Stage.RegeneratePlugin);
   if (result.isErr()) {
     return err(result.error);
   }
@@ -190,13 +135,13 @@ export async function regeneratePluginHandler(...args: unknown[]) {
 }
 
 export async function addPluginHandler(...args: unknown[]) {
-  lifecycleHandlersDeps.sendTelemetryEvent(TelemetryEvent.AddPluginStart, {
-    ...lifecycleHandlersDeps.getTriggerFromProperty(args),
-    [TelemetryProperty.KiotaNPMIntegrationEnabled]: lifecycleHandlersDeps
+  ExtTelemetry.sendTelemetryEvent(TelemetryEvent.AddPluginStart, {
+    ...getTriggerFromProperty(args),
+    [TelemetryProperty.KiotaNPMIntegrationEnabled]: featureFlagManager
       .getBooleanValue(FeatureFlags.KiotaNPMIntegration)
       .toString(),
   });
-  const result = await lifecycleHandlersDeps.runCommand(Stage.addPlugin);
+  const result = await runCommand(Stage.addPlugin);
   if (result.isErr()) {
     return err(result.error);
   }
@@ -212,27 +157,24 @@ export async function addPluginHandler(...args: unknown[]) {
 }
 
 export async function metaOSExtendToDAHandler(...args: unknown[]) {
-  lifecycleHandlersDeps.sendTelemetryEvent(
+  ExtTelemetry.sendTelemetryEvent(
     TelemetryEvent.MetaOSExtendToDAStart,
-    lifecycleHandlersDeps.getTriggerFromProperty(args)
+    getTriggerFromProperty(args)
   );
 
-  const result = await lifecycleHandlersDeps.runCommand(Stage.metaOSExtendToDA);
+  const result = await runCommand(Stage.metaOSExtendToDA);
   if (result.isErr()) {
     return err(result.error);
   }
 
-  const projectPathUri = lifecycleHandlersDeps.uriFile(result.value.projectPath);
-  await lifecycleHandlersDeps.openFolder(projectPathUri, true, result.value.warnings);
+  const projectPathUri = vscode.Uri.file(result.value.projectPath);
+  await openFolder(projectPathUri, true, result.value.warnings);
   return result;
 }
 
 export async function addKnowledgeHandler(...args: unknown[]) {
-  lifecycleHandlersDeps.sendTelemetryEvent(
-    TelemetryEvent.AddKnowledgeStart,
-    lifecycleHandlersDeps.getTriggerFromProperty(args)
-  );
-  const result = await lifecycleHandlersDeps.runCommand(Stage.addKnowledge);
+  ExtTelemetry.sendTelemetryEvent(TelemetryEvent.AddKnowledgeStart, getTriggerFromProperty(args));
+  const result = await runCommand(Stage.addKnowledge);
   if (result.isErr()) {
     return err(result.error);
   }
@@ -240,11 +182,8 @@ export async function addKnowledgeHandler(...args: unknown[]) {
 }
 
 export async function addSkillHandler(...args: unknown[]) {
-  lifecycleHandlersDeps.sendTelemetryEvent(
-    TelemetryEvent.AddSkillStart,
-    lifecycleHandlersDeps.getTriggerFromProperty(args)
-  );
-  const result = await lifecycleHandlersDeps.runCommand(Stage.addSkill);
+  ExtTelemetry.sendTelemetryEvent(TelemetryEvent.AddSkillStart, getTriggerFromProperty(args));
+  const result = await runCommand(Stage.addSkill);
   if (result.isErr()) {
     return err(result.error);
   }
@@ -267,12 +206,9 @@ export async function scaffoldFromDeveloperPortalHandler(
     teamsAppId: appId,
   };
 
-  lifecycleHandlersDeps.sendTelemetryEvent(
-    TelemetryEvent.HandleUrlFromDeveloperProtalStart,
-    properties
-  );
+  ExtTelemetry.sendTelemetryEvent(TelemetryEvent.HandleUrlFromDeveloperProtalStart, properties);
   const loginHint = args.length < 2 ? undefined : args[1];
-  const progressBar = lifecycleHandlersDeps.createProgressBar(
+  const progressBar = VS_CODE_UI.createProgressBar(
     localize("teamstoolkit.devPortalIntegration.checkM365Account.progressTitle"),
     1
   );
@@ -280,19 +216,19 @@ export async function scaffoldFromDeveloperPortalHandler(
   await progressBar.start();
   let token = undefined;
   try {
-    const tokenRes = await lifecycleHandlersDeps.signInWhenInitiatedFromTdp(
+    const tokenRes = await M365TokenInstance.signInWhenInitiatedFromTdp(
       { scopes: AppStudioScopes() },
       loginHint
     );
     if (tokenRes.isErr()) {
       if ((tokenRes.error as any).displayMessage) {
-        void lifecycleHandlersDeps.showErrorMessage((tokenRes.error as any).displayMessage);
+        void vscode.window.showErrorMessage((tokenRes.error as any).displayMessage);
       } else {
-        void lifecycleHandlersDeps.showErrorMessage(
-          lifecycleHandlersDeps.localize("teamstoolkit.devPortalIntegration.generalError.message")
+        void vscode.window.showErrorMessage(
+          localize("teamstoolkit.devPortalIntegration.generalError.message")
         );
       }
-      lifecycleHandlersDeps.sendTelemetryErrorEvent(
+      ExtTelemetry.sendTelemetryErrorEvent(
         TelemetryEvent.HandleUrlFromDeveloperProtal,
         tokenRes.error,
         properties
@@ -302,24 +238,24 @@ export async function scaffoldFromDeveloperPortalHandler(
     }
     token = tokenRes.value;
 
-    if (!lifecycleHandlersDeps.isSovereignHigh()) {
+    if (!isSovereignHigh()) {
       // set region
-      const AuthSvcTokenRes = await lifecycleHandlersDeps.getAccessToken({
+      const AuthSvcTokenRes = await M365TokenInstance.getAccessToken({
         scopes: AuthSvcScopes(),
       });
       if (AuthSvcTokenRes.isOk()) {
-        await lifecycleHandlersDeps.setRegionEndpointByToken(AuthSvcTokenRes.value);
+        await teamsDevPortalClient.setRegionEndpointByToken(AuthSvcTokenRes.value);
       }
     }
 
     await progressBar.end(true);
   } catch (e) {
-    void lifecycleHandlersDeps.showErrorMessage(
-      lifecycleHandlersDeps.localize("teamstoolkit.devPortalIntegration.generalError.message")
+    void vscode.window.showErrorMessage(
+      localize("teamstoolkit.devPortalIntegration.generalError.message")
     );
     await progressBar.end(false);
     const error = assembleError(e);
-    lifecycleHandlersDeps.sendTelemetryErrorEvent(
+    ExtTelemetry.sendTelemetryErrorEvent(
       TelemetryEvent.HandleUrlFromDeveloperProtal,
       error,
       properties
@@ -329,15 +265,15 @@ export async function scaffoldFromDeveloperPortalHandler(
 
   let appDefinition;
   try {
-    appDefinition = await lifecycleHandlersDeps.getApp(token, appId);
+    appDefinition = await teamsDevPortalClient.getApp(token, appId);
   } catch (error: any) {
-    lifecycleHandlersDeps.sendTelemetryErrorEvent(
+    ExtTelemetry.sendTelemetryErrorEvent(
       TelemetryEvent.HandleUrlFromDeveloperProtal,
       error,
       properties
     );
-    void lifecycleHandlersDeps.showErrorMessage(
-      lifecycleHandlersDeps.localize("teamstoolkit.devPortalIntegration.getTeamsAppError.message")
+    void vscode.window.showErrorMessage(
+      localize("teamstoolkit.devPortalIntegration.getTeamsAppError.message")
     );
     return err(error);
   }
@@ -345,7 +281,7 @@ export async function scaffoldFromDeveloperPortalHandler(
   const res = await createNewProjectHandler({ teamsAppFromTdp: appDefinition });
 
   if (res.isErr()) {
-    lifecycleHandlersDeps.sendTelemetryErrorEvent(
+    ExtTelemetry.sendTelemetryErrorEvent(
       TelemetryEvent.HandleUrlFromDeveloperProtal,
       res.error,
       properties
@@ -353,13 +289,13 @@ export async function scaffoldFromDeveloperPortalHandler(
     return err(res.error);
   }
 
-  lifecycleHandlersDeps.sendTelemetryEvent(TelemetryEvent.HandleUrlFromDeveloperProtal, properties);
+  ExtTelemetry.sendTelemetryEvent(TelemetryEvent.HandleUrlFromDeveloperProtal, properties);
   return ok(null);
 }
 
 export async function copilotPluginAddAPIHandler(args: any[]) {
   // Telemetries are handled in runCommand()
-  const inputs = lifecycleHandlersDeps.getSystemInputs();
+  const inputs = getSystemInputs();
   if (args && args.length > 0) {
     const filePath = args[0].fsPath as string;
     const isFromApiPlugin: boolean = args[0].isFromApiPlugin ?? false;
@@ -372,75 +308,61 @@ export async function copilotPluginAddAPIHandler(args: any[]) {
       inputs[QuestionNames.ManifestPath] = args[0].manifestPath;
     }
   }
-  const result = await lifecycleHandlersDeps.runCommand(Stage.copilotPluginAddAPI, inputs);
+  const result = await runCommand(Stage.copilotPluginAddAPI, inputs);
   return result;
 }
 
 export async function setSensitivityLabelHandler(args: any[]) {
-  lifecycleHandlersDeps.sendTelemetryEvent(
+  ExtTelemetry.sendTelemetryEvent(
     TelemetryEvent.SetSensitivityLabelStart,
-    lifecycleHandlersDeps.getTriggerFromProperty(args)
+    getTriggerFromProperty(args)
   );
-  const inputs = lifecycleHandlersDeps.getSystemInputs();
+  const inputs = getSystemInputs();
   inputs[QuestionNames.DeclarativeAgentManifestPath] = args?.[0]?.declarativeAgentManifestPath;
   inputs[QuestionNames.SensitivityLabel] = args?.[0]?.sensitivityLabel;
-  const result = await lifecycleHandlersDeps.runCommand(Stage.setSensitivityLabel, inputs);
+  const result = await runCommand(Stage.setSensitivityLabel, inputs);
   if (result.isErr()) {
-    lifecycleHandlersDeps.sendTelemetryErrorEvent(
+    ExtTelemetry.sendTelemetryErrorEvent(
       TelemetryEvent.SetSensitivityLabel,
       result.error,
-      lifecycleHandlersDeps.getTriggerFromProperty(args)
+      getTriggerFromProperty(args)
     );
     return;
   }
-  lifecycleHandlersDeps.sendTelemetryEvent(
-    TelemetryEvent.SetSensitivityLabel,
-    lifecycleHandlersDeps.getTriggerFromProperty(args)
-  );
+  ExtTelemetry.sendTelemetryEvent(TelemetryEvent.SetSensitivityLabel, getTriggerFromProperty(args));
   return;
 }
 
 export async function m365PreAuthHandler(args: any[]) {
-  lifecycleHandlersDeps.sendTelemetryEvent(
-    TelemetryEvent.m365PreAuthStart,
-    lifecycleHandlersDeps.getTriggerFromProperty(args)
-  );
-  const res = await lifecycleHandlersDeps
-    .getTools()
-    .tokenProvider?.m365TokenProvider?.getAccessToken({
-      scopes: args[0].scopes,
-    });
+  ExtTelemetry.sendTelemetryEvent(TelemetryEvent.m365PreAuthStart, getTriggerFromProperty(args));
+  const res = await tools.tokenProvider?.m365TokenProvider?.getAccessToken({
+    scopes: args[0].scopes,
+  });
   if (res.isErr()) {
-    lifecycleHandlersDeps.sendTelemetryErrorEvent(
+    ExtTelemetry.sendTelemetryErrorEvent(
       TelemetryEvent.m365PreAuth,
       res.error,
-      lifecycleHandlersDeps.getTriggerFromProperty(args)
+      getTriggerFromProperty(args)
     );
     return;
   }
-  lifecycleHandlersDeps.sendTelemetryEvent(
-    TelemetryEvent.m365PreAuth,
-    lifecycleHandlersDeps.getTriggerFromProperty(args)
-  );
+  ExtTelemetry.sendTelemetryEvent(TelemetryEvent.m365PreAuth, getTriggerFromProperty(args));
   return;
 }
 
 export async function addAuthActionHandler(...args: unknown[]) {
-  lifecycleHandlersDeps.sendTelemetryEvent(
-    TelemetryEvent.AddAuthActionStart,
-    lifecycleHandlersDeps.getTriggerFromProperty(args)
-  );
-  const inputs = lifecycleHandlersDeps.getSystemInputs();
-  const result = await lifecycleHandlersDeps.runCommand(Stage.addAuthAction, inputs);
-  void lifecycleHandlersDeps
+  ExtTelemetry.sendTelemetryEvent(TelemetryEvent.AddAuthActionStart, getTriggerFromProperty(args));
+  const inputs = getSystemInputs();
+  const result = await runCommand(Stage.addAuthAction, inputs);
+  void vscode.window
     .showInformationMessage(
-      lifecycleHandlersDeps.localize("teamstoolkit.handeler.addAuthConfig.notification"),
-      lifecycleHandlersDeps.localize("teamstoolkit.handeler.addAuthConfig.notification.provision")
+      localize("teamstoolkit.handeler.addAuthConfig.notification"),
+      localize("teamstoolkit.handeler.addAuthConfig.notification.provision")
     )
     .then((selection) => {
       if (selection === "Provision") {
-        lifecycleHandlersDeps.sendTelemetryEvent(TelemetryEvent.ProvisionFromAddAuthConfig);
-        void lifecycleHandlersDeps.runCommand(Stage.provision);
+        ExtTelemetry.sendTelemetryEvent(TelemetryEvent.ProvisionFromAddAuthConfig);
+        void runCommand(Stage.provision);
       }
     });
   return result;

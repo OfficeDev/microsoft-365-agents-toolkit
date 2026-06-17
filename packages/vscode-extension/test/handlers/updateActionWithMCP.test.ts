@@ -9,10 +9,7 @@ import axios from "axios";
 import * as parser from "jsonc-parser";
 import { Stage, err, ok, UserError, Inputs, Platform } from "@microsoft/teamsfx-api";
 
-import {
-  updateActionWithMCP,
-  updateActionWithMCPOps,
-} from "../../src/handlers/updateActionWithMCP";
+import { updateActionWithMCP } from "../../src/handlers/updateActionWithMCP";
 import { ExtTelemetry } from "../../src/telemetry/extTelemetry";
 import * as vscUI from "../../src/qm/vsc_ui";
 import { QuestionNames, ODRProvider } from "@microsoft/teamsfx-core";
@@ -21,8 +18,6 @@ import { MockCore } from "../mocks/mockCore";
 import * as globalVariables from "../../src/globalVariables";
 import * as systemEnvUtils from "../../src/utils/systemEnvUtils";
 import * as sharedOpts from "../../src/handlers/sharedOpts";
-
-const updateActionWithMCPDeps = updateActionWithMCPOps;
 
 describe("updateActionWithMCP", () => {
   const mockProjectPath = "/mock/project/path";
@@ -189,9 +184,7 @@ describe("updateActionWithMCP", () => {
       vi.spyOn(parser, "parse").mockReturnValue(mcpContent);
       Object.defineProperty(vscode.lm, "tools", { value: mockTools, configurable: true });
       vi.spyOn(axios, "get").mockResolvedValue({ status: 200 });
-      const runCommandStub = vi
-        .spyOn(updateActionWithMCPDeps, "runCommand")
-        .mockResolvedValue(ok(undefined));
+      const runCommandStub = vi.spyOn(sharedOpts, "runCommand").mockResolvedValue(ok(undefined));
 
       const result = await updateActionWithMCP();
 
@@ -230,9 +223,7 @@ describe("updateActionWithMCP", () => {
       vi.spyOn(ODRProvider, "listServers").mockResolvedValue(mockODRServers);
       vi.spyOn(ODRProvider, "getToolsForODRServer").mockResolvedValue(mockODRTools);
       vi.spyOn(ODRProvider, "isODRServer").mockReturnValue(true);
-      const runCommandStub = vi
-        .spyOn(updateActionWithMCPDeps, "runCommand")
-        .mockResolvedValue(ok(undefined));
+      const runCommandStub = vi.spyOn(sharedOpts, "runCommand").mockResolvedValue(ok(undefined));
 
       const result = await updateActionWithMCP(args);
 
@@ -272,9 +263,7 @@ describe("updateActionWithMCP", () => {
         .mockReturnValue(JSON.stringify(mcpContent));
       vi.spyOn(parser, "parse").mockReturnValue(mcpContent);
       mockValue(vscode.lm, "tools", mockTools);
-      const runCommandStub = vi
-        .spyOn(updateActionWithMCPDeps, "runCommand")
-        .mockResolvedValue(ok(undefined));
+      const runCommandStub = vi.spyOn(sharedOpts, "runCommand").mockResolvedValue(ok(undefined));
 
       const result = await updateActionWithMCP();
 
@@ -324,9 +313,7 @@ describe("updateActionWithMCP", () => {
       vi.spyOn(ODRProvider, "listServers").mockResolvedValue(mockODRServers);
       vi.spyOn(ODRProvider, "getToolsForODRServer").mockResolvedValue(mockODRTools);
       vi.spyOn(ODRProvider, "isODRServer").mockReturnValue(true);
-      const runCommandStub = vi
-        .spyOn(updateActionWithMCPDeps, "runCommand")
-        .mockResolvedValue(ok(undefined));
+      const runCommandStub = vi.spyOn(sharedOpts, "runCommand").mockResolvedValue(ok(undefined));
 
       const result = await updateActionWithMCP();
 
@@ -367,9 +354,7 @@ describe("updateActionWithMCP", () => {
           .spyOn()
           .mockResolvedValue(ok({ type: "success", result: "remote-server" })),
       });
-      const runCommandStub = vi
-        .spyOn(updateActionWithMCPDeps, "runCommand")
-        .mockResolvedValue(ok(undefined));
+      const runCommandStub = vi.spyOn(sharedOpts, "runCommand").mockResolvedValue(ok(undefined));
 
       const result = await updateActionWithMCP();
 
@@ -408,9 +393,7 @@ describe("updateActionWithMCP", () => {
       vi.spyOn(vscUI, "VS_CODE_UI").value({
         selectOption: vi.fn().mockResolvedValue(ok({ type: "success", result: "local-server" })),
       });
-      const runCommandStub = vi
-        .spyOn(updateActionWithMCPDeps, "runCommand")
-        .mockResolvedValue(ok(undefined));
+      const runCommandStub = vi.spyOn(sharedOpts, "runCommand").mockResolvedValue(ok(undefined));
 
       const result = await updateActionWithMCP();
 
@@ -481,7 +464,7 @@ describe("updateActionWithMCP", () => {
           return Promise.resolve(ok({ type: "success", result: "remote-server" }));
         }),
       });
-      vi.spyOn(updateActionWithMCPDeps, "runCommand").mockResolvedValue(ok(undefined));
+      vi.spyOn(sharedOpts, "runCommand").mockResolvedValue(ok(undefined));
 
       await updateActionWithMCP();
 
@@ -529,9 +512,7 @@ describe("updateActionWithMCP", () => {
 
       mockValue(vscode.lm, "tools", mockTools);
       vi.spyOn(axios, "get").mockResolvedValue({ status: 200 });
-      const runCommandStub = vi
-        .spyOn(updateActionWithMCPDeps, "runCommand")
-        .mockResolvedValue(ok(undefined));
+      const runCommandStub = vi.spyOn(sharedOpts, "runCommand").mockResolvedValue(ok(undefined));
 
       const result = await updateActionWithMCP(args);
 
@@ -556,9 +537,7 @@ describe("updateActionWithMCP", () => {
 
       mockValue(vscode.lm, "tools", mockTools);
       vi.spyOn(axios, "get").mockResolvedValue({ status: 200 });
-      const runCommandStub = vi
-        .spyOn(updateActionWithMCPDeps, "runCommand")
-        .mockResolvedValue(ok(undefined));
+      const runCommandStub = vi.spyOn(sharedOpts, "runCommand").mockResolvedValue(ok(undefined));
 
       await updateActionWithMCP(args);
 
@@ -586,9 +565,7 @@ describe("updateActionWithMCP", () => {
         .throws(axiosError)
         .onSecondCall()
         .mockResolvedValue({ status: 200 });
-      const runCommandStub = vi
-        .spyOn(updateActionWithMCPDeps, "runCommand")
-        .mockResolvedValue(ok(undefined));
+      const runCommandStub = vi.spyOn(sharedOpts, "runCommand").mockResolvedValue(ok(undefined));
 
       await updateActionWithMCP(args);
 
@@ -618,9 +595,7 @@ describe("updateActionWithMCP", () => {
       axiosStub
         .withArgs("https://api.test.com/.well-known/oauth-authorization-server")
         .mockResolvedValue({ status: 200 }); // well-known URL response
-      const runCommandStub = vi
-        .spyOn(updateActionWithMCPDeps, "runCommand")
-        .mockResolvedValue(ok(undefined));
+      const runCommandStub = vi.spyOn(sharedOpts, "runCommand").mockResolvedValue(ok(undefined));
 
       await updateActionWithMCP(args);
 
@@ -641,9 +616,7 @@ describe("updateActionWithMCP", () => {
 
       mockValue(vscode.lm, "tools", mockTools);
       vi.spyOn(axios, "get").throws(networkError);
-      const runCommandStub = vi
-        .spyOn(updateActionWithMCPDeps, "runCommand")
-        .mockResolvedValue(ok(undefined));
+      const runCommandStub = vi.spyOn(sharedOpts, "runCommand").mockResolvedValue(ok(undefined));
 
       await updateActionWithMCP(args);
 
@@ -661,9 +634,7 @@ describe("updateActionWithMCP", () => {
 
       mockValue(vscode.lm, "tools", mockTools);
       vi.spyOn(axios, "get").mockResolvedValue({ status: 200 });
-      const runCommandStub = vi
-        .spyOn(updateActionWithMCPDeps, "runCommand")
-        .mockResolvedValue(ok(undefined));
+      const runCommandStub = vi.spyOn(sharedOpts, "runCommand").mockResolvedValue(ok(undefined));
 
       await updateActionWithMCP(args);
 
@@ -683,7 +654,7 @@ describe("updateActionWithMCP", () => {
 
       mockValue(vscode.lm, "tools", mockTools);
       vi.spyOn(axios, "get").mockResolvedValue({ status: 200 });
-      vi.spyOn(updateActionWithMCPDeps, "runCommand").mockResolvedValue(err(runCommandError));
+      vi.spyOn(sharedOpts, "runCommand").mockResolvedValue(err(runCommandError));
 
       const result = await updateActionWithMCP(args);
 
@@ -760,7 +731,7 @@ describe("updateActionWithMCP", () => {
           return Promise.resolve(ok({ type: "success", result: "remote-server" }));
         }),
       });
-      vi.spyOn(updateActionWithMCPDeps, "runCommand").mockResolvedValue(ok(undefined));
+      vi.spyOn(sharedOpts, "runCommand").mockResolvedValue(ok(undefined));
 
       await updateActionWithMCP();
 
@@ -802,7 +773,7 @@ describe("updateActionWithMCP", () => {
           return Promise.resolve(ok({ type: "success", result: "remote-server" }));
         }),
       });
-      vi.spyOn(updateActionWithMCPDeps, "runCommand").mockResolvedValue(ok(undefined));
+      vi.spyOn(sharedOpts, "runCommand").mockResolvedValue(ok(undefined));
 
       await updateActionWithMCP();
 
@@ -841,9 +812,7 @@ describe("updateActionWithMCP", () => {
 
       mockValue(vscode.lm, "tools", mockTools);
       vi.spyOn(axios, "get").mockResolvedValue({ status: 200 });
-      const runCommandStub = vi
-        .spyOn(updateActionWithMCPDeps, "runCommand")
-        .mockResolvedValue(ok(undefined));
+      const runCommandStub = vi.spyOn(sharedOpts, "runCommand").mockResolvedValue(ok(undefined));
 
       const result = await updateActionWithMCP(args);
 
@@ -865,9 +834,7 @@ describe("updateActionWithMCP", () => {
 
       mockValue(vscode.lm, "tools", mockTools);
       vi.spyOn(ODRProvider, "listServers").mockResolvedValue([]);
-      const runCommandStub = vi
-        .spyOn(updateActionWithMCPDeps, "runCommand")
-        .mockResolvedValue(ok(undefined));
+      const runCommandStub = vi.spyOn(sharedOpts, "runCommand").mockResolvedValue(ok(undefined));
 
       const result = await updateActionWithMCP(args);
 
@@ -901,9 +868,7 @@ describe("updateActionWithMCP", () => {
       vi.spyOn(ODRProvider, "listServers").mockResolvedValue(mockODRServers);
       vi.spyOn(ODRProvider, "getToolsForODRServer").mockResolvedValue(mockODRTools);
       vi.spyOn(ODRProvider, "isODRServer").mockReturnValue(true);
-      const runCommandStub = vi
-        .spyOn(updateActionWithMCPDeps, "runCommand")
-        .mockResolvedValue(ok(undefined));
+      const runCommandStub = vi.spyOn(sharedOpts, "runCommand").mockResolvedValue(ok(undefined));
 
       const result = await updateActionWithMCP(args);
 
@@ -927,7 +892,7 @@ describe("updateActionWithMCP", () => {
 
       mockValue(vscode.lm, "tools", mockTools);
       vi.spyOn(ODRProvider, "listServers").mockResolvedValue([]);
-      vi.spyOn(updateActionWithMCPDeps, "runCommand").mockResolvedValue(ok(undefined));
+      vi.spyOn(sharedOpts, "runCommand").mockResolvedValue(ok(undefined));
 
       await updateActionWithMCP(args);
 
@@ -944,7 +909,7 @@ describe("updateActionWithMCP", () => {
 
       mockValue(vscode.lm, "tools", mockTools);
       vi.spyOn(axios, "get").mockResolvedValue({ status: 200 });
-      vi.spyOn(updateActionWithMCPDeps, "runCommand").mockResolvedValue(ok(undefined));
+      vi.spyOn(sharedOpts, "runCommand").mockResolvedValue(ok(undefined));
 
       await updateActionWithMCP(args);
 
@@ -967,7 +932,7 @@ describe("updateActionWithMCP", () => {
 
       mockValue(vscode.lm, "tools", mockTools);
       vi.spyOn(ODRProvider, "listServers").mockResolvedValue([]);
-      vi.spyOn(updateActionWithMCPDeps, "runCommand").mockResolvedValue(err(runCommandError));
+      vi.spyOn(sharedOpts, "runCommand").mockResolvedValue(err(runCommandError));
 
       await updateActionWithMCP(args);
 
@@ -992,9 +957,7 @@ describe("updateActionWithMCP", () => {
       axiosStub
         .withArgs("http://test.com/.well-known/oauth-authorization-server")
         .mockResolvedValue({ status: 200 });
-      const runCommandStub = vi
-        .spyOn(updateActionWithMCPDeps, "runCommand")
-        .mockResolvedValue(ok(undefined));
+      const runCommandStub = vi.spyOn(sharedOpts, "runCommand").mockResolvedValue(ok(undefined));
 
       await updateActionWithMCP(args);
 
@@ -1018,9 +981,7 @@ describe("updateActionWithMCP", () => {
 
       mockValue(vscode.lm, "tools", mockTools);
       vi.spyOn(axios, "get").onFirstCall().throws(axiosError);
-      const runCommandStub = vi
-        .spyOn(updateActionWithMCPDeps, "runCommand")
-        .mockResolvedValue(ok(undefined));
+      const runCommandStub = vi.spyOn(sharedOpts, "runCommand").mockResolvedValue(ok(undefined));
 
       await updateActionWithMCP(args);
 
@@ -1045,9 +1006,7 @@ describe("updateActionWithMCP", () => {
       mockValue(vscode.lm, "tools", mockTools);
       vi.spyOn(ODRProvider, "listServers").mockResolvedValue([]);
       const axiosStub = vi.spyOn(axios, "get");
-      const runCommandStub = vi
-        .spyOn(updateActionWithMCPDeps, "runCommand")
-        .mockResolvedValue(ok(undefined));
+      const runCommandStub = vi.spyOn(sharedOpts, "runCommand").mockResolvedValue(ok(undefined));
 
       await updateActionWithMCP(args);
 
@@ -1070,9 +1029,7 @@ describe("updateActionWithMCP", () => {
 
       mockValue(vscode.lm, "tools", mockTools);
       vi.spyOn(axios, "get").mockResolvedValue({ status: 200 });
-      const runCommandStub = vi
-        .spyOn(updateActionWithMCPDeps, "runCommand")
-        .mockResolvedValue(ok(undefined));
+      const runCommandStub = vi.spyOn(sharedOpts, "runCommand").mockResolvedValue(ok(undefined));
 
       const result = await updateActionWithMCP(args);
 
@@ -1111,7 +1068,7 @@ describe("updateActionWithMCP", () => {
           return Promise.resolve(ok({ type: "success", result: "test-server" }));
         }),
       });
-      vi.spyOn(updateActionWithMCPDeps, "runCommand").mockResolvedValue(ok(undefined));
+      vi.spyOn(sharedOpts, "runCommand").mockResolvedValue(ok(undefined));
 
       await updateActionWithMCP();
 
@@ -1133,9 +1090,7 @@ describe("updateActionWithMCP", () => {
         configurable: true,
       });
       vi.spyOn(axios, "get").mockResolvedValue({ status: 200 });
-      const runCommandStub = vi
-        .spyOn(updateActionWithMCPDeps, "runCommand")
-        .mockResolvedValue(ok(undefined));
+      const runCommandStub = vi.spyOn(sharedOpts, "runCommand").mockResolvedValue(ok(undefined));
 
       const result = await updateActionWithMCP(args);
 
@@ -1158,9 +1113,7 @@ describe("updateActionWithMCP", () => {
         configurable: true,
       });
       vi.spyOn(axios, "get").mockResolvedValue({ status: 200 });
-      const runCommandStub = vi
-        .spyOn(updateActionWithMCPDeps, "runCommand")
-        .mockResolvedValue(ok(undefined));
+      const runCommandStub = vi.spyOn(sharedOpts, "runCommand").mockResolvedValue(ok(undefined));
 
       const result = await updateActionWithMCP(args);
 
@@ -1197,9 +1150,7 @@ describe("updateActionWithMCP", () => {
       });
       const closeStub = vi.spyOn(Client.prototype, "close").mockResolvedValue();
       vi.spyOn(axios, "get").mockResolvedValue({ status: 200 });
-      const runCommandStub = vi
-        .spyOn(updateActionWithMCPDeps, "runCommand")
-        .mockResolvedValue(ok(undefined));
+      const runCommandStub = vi.spyOn(sharedOpts, "runCommand").mockResolvedValue(ok(undefined));
 
       const result = await updateActionWithMCP(args);
 
@@ -1241,9 +1192,7 @@ describe("updateActionWithMCP", () => {
       });
       const closeStub = vi.spyOn(Client.prototype, "close").mockResolvedValue();
       vi.spyOn(axios, "get").mockResolvedValue({ status: 200 });
-      const runCommandStub = vi
-        .spyOn(updateActionWithMCPDeps, "runCommand")
-        .mockResolvedValue(ok(undefined));
+      const runCommandStub = vi.spyOn(sharedOpts, "runCommand").mockResolvedValue(ok(undefined));
 
       const result = await updateActionWithMCP(args);
 
@@ -1277,9 +1226,7 @@ describe("updateActionWithMCP", () => {
       vi.spyOn(Client.prototype, "connect").mockRejectedValue(new Error("Connection failed"));
       const closeStub = vi.spyOn(Client.prototype, "close").mockResolvedValue();
       vi.spyOn(axios, "get").mockResolvedValue({ status: 200 });
-      const runCommandStub = vi
-        .spyOn(updateActionWithMCPDeps, "runCommand")
-        .mockResolvedValue(ok(undefined));
+      const runCommandStub = vi.spyOn(sharedOpts, "runCommand").mockResolvedValue(ok(undefined));
 
       const result = await updateActionWithMCP(args);
 
@@ -1317,9 +1264,7 @@ describe("updateActionWithMCP", () => {
       });
       vi.spyOn(Client.prototype, "close").mockResolvedValue();
       vi.spyOn(axios, "get").mockResolvedValue({ status: 200 });
-      const runCommandStub = vi
-        .spyOn(updateActionWithMCPDeps, "runCommand")
-        .mockResolvedValue(ok(undefined));
+      const runCommandStub = vi.spyOn(sharedOpts, "runCommand").mockResolvedValue(ok(undefined));
 
       const result = await updateActionWithMCP(args);
 
@@ -1351,9 +1296,7 @@ describe("updateActionWithMCP", () => {
       });
       const closeStub = vi.spyOn(Client.prototype, "close").mockResolvedValue();
       vi.spyOn(axios, "get").mockResolvedValue({ status: 200 });
-      const runCommandStub = vi
-        .spyOn(updateActionWithMCPDeps, "runCommand")
-        .mockResolvedValue(ok(undefined));
+      const runCommandStub = vi.spyOn(sharedOpts, "runCommand").mockResolvedValue(ok(undefined));
 
       const result = await updateActionWithMCP(args);
 
@@ -1395,9 +1338,7 @@ describe("updateActionWithMCP", () => {
       });
       vi.spyOn(Client.prototype, "close").mockResolvedValue();
       vi.spyOn(axios, "get").mockResolvedValue({ status: 200 });
-      const runCommandStub = vi
-        .spyOn(updateActionWithMCPDeps, "runCommand")
-        .mockResolvedValue(ok(undefined));
+      const runCommandStub = vi.spyOn(sharedOpts, "runCommand").mockResolvedValue(ok(undefined));
 
       const result = await updateActionWithMCP(args);
 
@@ -1433,9 +1374,7 @@ describe("updateActionWithMCP", () => {
       });
       vi.spyOn(Client.prototype, "close").mockResolvedValue();
       vi.spyOn(axios, "get").mockResolvedValue({ status: 200 });
-      const runCommandStub = vi
-        .spyOn(updateActionWithMCPDeps, "runCommand")
-        .mockResolvedValue(ok(undefined));
+      const runCommandStub = vi.spyOn(sharedOpts, "runCommand").mockResolvedValue(ok(undefined));
 
       const result = await updateActionWithMCP(args);
 
@@ -1463,9 +1402,7 @@ describe("updateActionWithMCP", () => {
         configurable: true,
       });
       vi.spyOn(axios, "get").mockResolvedValue({ status: 200 });
-      const runCommandStub = vi
-        .spyOn(updateActionWithMCPDeps, "runCommand")
-        .mockResolvedValue(ok(undefined));
+      const runCommandStub = vi.spyOn(sharedOpts, "runCommand").mockResolvedValue(ok(undefined));
 
       const result = await updateActionWithMCP(args);
 
@@ -1493,9 +1430,7 @@ describe("updateActionWithMCP", () => {
       isODRStub.onSecondCall().mockReturnValue(true); // main function ODR check
       vi.spyOn(ODRProvider, "listServers").mockRejectedValue(new Error("ODR unavailable"));
       vi.spyOn(ODRProvider, "getToolsForODRServer").mockResolvedValue(mockODRTools);
-      const runCommandStub = vi
-        .spyOn(updateActionWithMCPDeps, "runCommand")
-        .mockResolvedValue(ok(undefined));
+      const runCommandStub = vi.spyOn(sharedOpts, "runCommand").mockResolvedValue(ok(undefined));
 
       const result = await updateActionWithMCP(args);
 
@@ -1532,9 +1467,7 @@ describe("updateActionWithMCP", () => {
       isODRStub.onSecondCall().mockReturnValue(true); // main function ODR check
       vi.spyOn(ODRProvider, "listServers").mockResolvedValue(mockODRServers);
       vi.spyOn(ODRProvider, "getToolsForODRServer").mockResolvedValue(mockODRTools);
-      const runCommandStub = vi
-        .spyOn(updateActionWithMCPDeps, "runCommand")
-        .mockResolvedValue(ok(undefined));
+      const runCommandStub = vi.spyOn(sharedOpts, "runCommand").mockResolvedValue(ok(undefined));
 
       const result = await updateActionWithMCP(args);
 
@@ -1557,9 +1490,7 @@ describe("updateActionWithMCP", () => {
 
       vi.spyOn(ODRProvider, "isODRServer").mockReturnValue(false);
       mockValue(vscode.lm, "tools", mockTools);
-      const runCommandStub = vi
-        .spyOn(updateActionWithMCPDeps, "runCommand")
-        .mockResolvedValue(ok(undefined));
+      const runCommandStub = vi.spyOn(sharedOpts, "runCommand").mockResolvedValue(ok(undefined));
 
       const result = await updateActionWithMCP(args);
 

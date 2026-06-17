@@ -3,9 +3,30 @@ import path from "path";
 import * as globalVariables from "../../src/globalVariables";
 import { vi, assert } from "vitest";
 import { mockValue } from "../mocks/vitestMockUtils";
+import * as fileSystemWatcher from "../../src/utils/fileSystemWatcher";
+import * as projectSettingsHelper from "@microsoft/teamsfx-core/build/common/projectSettingsHelper";
+
+import * as teamsfxCore from "@microsoft/teamsfx-core";
+
+vi.mock("@microsoft/teamsfx-core/build/common/projectSettingsHelper", async (importOriginal) => {
+  const actual =
+    await importOriginal<
+      typeof import("@microsoft/teamsfx-core/build/common/projectSettingsHelper")
+    >();
+  return { ...actual };
+});
+
+vi.mock("@microsoft/teamsfx-core", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@microsoft/teamsfx-core")>();
+  return { ...actual };
+});
+
+vi.mock("../../src/utils/fileSystemWatcher", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("../../src/utils/fileSystemWatcher")>();
+  return { ...actual };
+});
 import {
   activate,
-  activateOps,
   refreshEnvTreeOnEnvFileChanged,
   refreshEnvTreeOnFilesNameChanged,
   refreshEnvTreeOnProjectSettingFileChanged,
@@ -22,8 +43,6 @@ import TreeViewManagerInstance from "../../src/treeview/treeViewManager";
 import M365TokenInstance from "../../src/commonlib/m365Login";
 import { MockCore } from "../mocks/mockCore";
 
-const activateDeps = activateOps;
-
 describe("Activate", function () {
   describe("activate()", function () {
     beforeEach(() => {
@@ -39,12 +58,14 @@ describe("Activate", function () {
     });
 
     it("Valid project", async () => {
-      vi.spyOn(activateDeps, "isValidProject").mockReturnValue(true);
+      vi.spyOn(teamsfxCore, "isValidProject").mockReturnValue(true);
       const sendTelemetryStub = vi.spyOn(ExtTelemetry, "sendTelemetryEvent");
       const addSharedPropertyStub = vi.spyOn(ExtTelemetry, "addSharedProperty");
       const setCommandIsRunningStub = vi.spyOn(globalVariables, "setCommandIsRunning");
       mockValue(globalVariables, "workspaceUri", vscode.Uri.parse("test"));
-      const addFileSystemWatcherStub = vi.spyOn(activateDeps, "addFileSystemWatcher");
+      const addFileSystemWatcherStub = vi
+        .spyOn(fileSystemWatcher, "addFileSystemWatcher")
+        .mockImplementation(() => {});
       const lockedByOperationStub = vi.spyOn(commandController, "lockedByOperation");
       const unlockedByOperationStub = vi.spyOn(commandController, "unlockedByOperation");
       const azureAccountSetStatusChangeMapStub = vi.spyOn(
@@ -113,11 +134,11 @@ describe("Activate", function () {
 
     it("uses Graph scopes for M365 status change in sovereign high", async () => {
       vi.spyOn(featureFlagManager, "getStringValue").mockReturnValue("GCC H");
-      vi.spyOn(activateDeps, "isValidProject").mockReturnValue(true);
+      vi.spyOn(teamsfxCore, "isValidProject").mockReturnValue(true);
       vi.spyOn(ExtTelemetry, "addSharedProperty");
       vi.spyOn(ExtTelemetry, "sendTelemetryEvent");
       mockValue(globalVariables, "workspaceUri", vscode.Uri.parse("test"));
-      vi.spyOn(activateDeps, "addFileSystemWatcher");
+      vi.spyOn(fileSystemWatcher, "addFileSystemWatcher").mockImplementation(() => {});
       vi.spyOn(commandController, "lockedByOperation");
       vi.spyOn(commandController, "unlockedByOperation");
       vi.spyOn(AzureAccountManager.prototype, "setStatusChangeMap").mockResolvedValue(true);
@@ -141,7 +162,7 @@ describe("Activate", function () {
     });
 
     it("throws error", async () => {
-      vi.spyOn(activateDeps, "isValidProject").mockReturnValue(false);
+      vi.spyOn(teamsfxCore, "isValidProject").mockReturnValue(false);
       vi.spyOn(M365TokenInstance, "setStatusChangeMap");
       vi.spyOn(FxCore.prototype, "on").throws(new Error("test"));
       const showErrorMessageStub = vi

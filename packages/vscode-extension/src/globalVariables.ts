@@ -16,14 +16,6 @@ import {
 } from "@microsoft/teamsfx-core";
 import { TeamsAppManifest, Tools } from "@microsoft/teamsfx-api";
 
-// Dependency injection wrapper for testability
-export const globalVariablesOps = {
-  isValidProject: (fsPath?: string) => isValidProject(fsPath),
-  isValidOfficeAddInProject: (projectPath: string) => isValidOfficeAddInProject(projectPath),
-  checkIsSPFx: (directory: string) => checkIsSPFx(directory),
-};
-const globalVariablesDeps = globalVariablesOps;
-
 /**
  * Common variables used throughout the extension. They must be initialized in the activate() method of extension.ts
  */
@@ -80,10 +72,8 @@ export function initializeGlobalVariables(ctx: vscode.ExtensionContext): void {
   outputTroubleshootNotificationCount = 0;
   const workspacePath = workspaceUri?.fsPath;
   isExistingUser = context.globalState.get<string>(UserState.IsExisting) || "no";
-  isTeamsFxProject = globalVariablesDeps.isValidProject(workspacePath);
-  isOfficeAddInProject = workspacePath
-    ? globalVariablesDeps.isValidOfficeAddInProject(workspacePath)
-    : false;
+  isTeamsFxProject = isValidProject(workspacePath);
+  isOfficeAddInProject = workspacePath ? isValidOfficeAddInProject(workspacePath) : false;
   if (isOfficeAddInProject && workspacePath) {
     isOfficeManifestOnlyProject = isManifestOnlyOfficeAddinProject(workspacePath);
   }
@@ -95,7 +85,7 @@ export function initializeGlobalVariables(ctx: vscode.ExtensionContext): void {
     fs.mkdirSync(defaultExtensionLogPath);
   }
   if (isTeamsFxProject && workspaceUri?.fsPath) {
-    isSPFxProject = globalVariablesDeps.checkIsSPFx(workspaceUri?.fsPath);
+    isSPFxProject = checkIsSPFx(workspaceUri?.fsPath);
     isMetaOSAddinProject = checkIsMetaOSAddinProject(workspaceUri.fsPath);
     isDeclarativeCopilotApp = checkIsDeclarativeCopilotApp(workspaceUri.fsPath);
     isSensitivityLabelSet = checkIsSensitivityLabelSet(workspaceUri.fsPath);

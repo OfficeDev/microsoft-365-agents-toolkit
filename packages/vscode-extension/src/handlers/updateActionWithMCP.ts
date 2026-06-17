@@ -27,11 +27,6 @@ import { getDefaultString, localize } from "../utils/localizeUtils";
 import { ExtensionErrors } from "../error/error";
 import { getTriggerFromProperty } from "../utils/telemetryUtils";
 
-export const updateActionWithMCPOps = {
-  getSystemInputs: () => systemEnvUtils.getSystemInputs(),
-  runCommand: (stage: Stage, inputs: any) => sharedOpts.runCommand(stage, inputs),
-};
-
 /**
  * Sanitize MCP server name to match VS Code's tool prefix generation logic.
  * Based on VS Code's McpPrefixGenerator class.
@@ -84,7 +79,7 @@ export async function updateActionWithMCP(args?: any[]): Promise<Result<any, FxE
     TelemetryEvent.UpdateActionWithMCPStart,
     getTriggerFromProperty(args && args.length > 1 ? [args[1]] : undefined)
   );
-  const inputs = updateActionWithMCPOps.getSystemInputs();
+  const inputs = systemEnvUtils.getSystemInputs();
   let mcpName = args && args.length > 0 ? args[0].serverName : undefined;
   let server = args && args.length > 0 ? args[0].serverConfig?.url : undefined;
   let command = args && args.length > 0 ? args[0].serverConfig?.command : undefined;
@@ -352,7 +347,7 @@ export async function updateActionWithMCP(args?: any[]): Promise<Result<any, FxE
 
   inputs[QuestionNames.MCPForDAAuth] = auth;
   inputs[QuestionNames.MCPForDAAuthMetadataUrl] = oauthMetadataUrl;
-  const result = await updateActionWithMCPOps.runCommand(Stage.updateActionWithMCP, inputs);
+  const result = await sharedOpts.runCommand(Stage.updateActionWithMCP, inputs);
   if (result.isErr()) {
     ExtTelemetry.sendTelemetryErrorEvent(TelemetryEvent.UpdateActionWithMCP, result.error, {
       "auth-type": auth,

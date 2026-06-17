@@ -24,104 +24,66 @@ import {
 } from "../telemetry/extTelemetryEvents";
 import { localize } from "../utils/localizeUtils";
 
-export const migrationHandlerOps = {
-  sendTelemetryEvent: (eventName: string, properties?: any) =>
-    ExtTelemetry.sendTelemetryEvent(eventName as any, properties),
-  sendTelemetryErrorEvent: (eventName: string, error: FxError) =>
-    ExtTelemetry.sendTelemetryErrorEvent(eventName as any, error),
-  showMessage: (
-    messageLevel: "warn" | "error" | "info",
-    message: string,
-    modal: boolean,
-    ...items: string[]
-  ) => VS_CODE_UI.showMessage(messageLevel, message, modal, ...items),
-  selectFolder: (config: SelectFolderConfig) => VS_CODE_UI.selectFolder(config),
-  selectFile: (config: SelectFileConfig) => VS_CODE_UI.selectFile(config),
-  createProgressBar: (title: string, totalSteps: number) =>
-    VS_CODE_UI.createProgressBar(title, totalSteps),
-  createMigrationHandler: (targetPath: string) => new TeamsAppMigrationHandler(targetPath),
-  showError: (error: FxError) => showError(error),
-  wrapError: (error: Error) => wrapError(error),
-  localize: (key: string, ...args: any[]) => localize(key, ...args),
-};
-const migrationHandlerDeps = migrationHandlerOps;
-
 export async function migrateTeamsTabAppHandler(): Promise<Result<null, FxError>> {
-  migrationHandlerDeps.sendTelemetryEvent(TelemetryEvent.MigrateTeamsTabAppStart);
-  const selection = await migrationHandlerDeps.showMessage(
+  ExtTelemetry.sendTelemetryEvent(TelemetryEvent.MigrateTeamsTabAppStart);
+  const selection = await VS_CODE_UI.showMessage(
     "warn",
-    migrationHandlerDeps.localize("teamstoolkit.migrateTeamsTabApp.warningMessage"),
+    localize("teamstoolkit.migrateTeamsTabApp.warningMessage"),
     true,
-    migrationHandlerDeps.localize("teamstoolkit.migrateTeamsTabApp.upgrade")
+    localize("teamstoolkit.migrateTeamsTabApp.upgrade")
   );
   const userCancelError = new UserError(
     ExtensionSource,
     ExtensionErrors.UserCancel,
-    migrationHandlerDeps.localize("teamstoolkit.common.userCancel")
+    localize("teamstoolkit.common.userCancel")
   );
   if (
     selection.isErr() ||
-    selection.value !== migrationHandlerDeps.localize("teamstoolkit.migrateTeamsTabApp.upgrade")
+    selection.value !== localize("teamstoolkit.migrateTeamsTabApp.upgrade")
   ) {
-    migrationHandlerDeps.sendTelemetryErrorEvent(
-      TelemetryEvent.MigrateTeamsTabApp,
-      userCancelError
-    );
+    ExtTelemetry.sendTelemetryErrorEvent(TelemetryEvent.MigrateTeamsTabApp, userCancelError);
     return ok(null);
   }
   const selectFolderConfig: SelectFolderConfig = {
-    name: migrationHandlerDeps.localize("teamstoolkit.migrateTeamsTabApp.selectFolderConfig.name"),
-    title: migrationHandlerDeps.localize(
-      "teamstoolkit.migrateTeamsTabApp.selectFolderConfig.title"
-    ),
+    name: localize("teamstoolkit.migrateTeamsTabApp.selectFolderConfig.name"),
+    title: localize("teamstoolkit.migrateTeamsTabApp.selectFolderConfig.title"),
   };
-  const selectFolderResult = await migrationHandlerDeps.selectFolder(selectFolderConfig);
+  const selectFolderResult = await VS_CODE_UI.selectFolder(selectFolderConfig);
   if (selectFolderResult.isErr() || selectFolderResult.value.type !== "success") {
-    migrationHandlerDeps.sendTelemetryErrorEvent(
-      TelemetryEvent.MigrateTeamsTabApp,
-      userCancelError
-    );
+    ExtTelemetry.sendTelemetryErrorEvent(TelemetryEvent.MigrateTeamsTabApp, userCancelError);
     return ok(null);
   }
   const tabAppPath = selectFolderResult.value.result as string;
 
-  const progressBar = migrationHandlerDeps.createProgressBar(
-    migrationHandlerDeps.localize("teamstoolkit.migrateTeamsTabApp.progressTitle"),
+  const progressBar = VS_CODE_UI.createProgressBar(
+    localize("teamstoolkit.migrateTeamsTabApp.progressTitle"),
     2
   );
   await progressBar.start();
 
-  const migrationHandler = migrationHandlerDeps.createMigrationHandler(tabAppPath);
+  const migrationHandler = new TeamsAppMigrationHandler(tabAppPath);
   let result: Result<null, FxError> = ok(null);
   let packageUpdated: Result<boolean, FxError> = ok(true);
   let updateFailedFiles: string[] = [];
   try {
     // Update package.json to use @microsoft/teams-js v2
-    await progressBar.next(
-      migrationHandlerDeps.localize("teamstoolkit.migrateTeamsTabApp.updatingPackageJson")
-    );
-    VsCodeLogInstance.info(
-      migrationHandlerDeps.localize("teamstoolkit.migrateTeamsTabApp.updatingPackageJson")
-    );
+    await progressBar.next(localize("teamstoolkit.migrateTeamsTabApp.updatingPackageJson"));
+    VsCodeLogInstance.info(localize("teamstoolkit.migrateTeamsTabApp.updatingPackageJson"));
     packageUpdated = await migrationHandler.updatePackageJson();
     if (packageUpdated.isErr()) {
       throw packageUpdated.error;
     } else if (!packageUpdated.value) {
       // no change in package.json, show warning.
       const warningMessage = util.format(
-        migrationHandlerDeps.localize("teamstoolkit.migrateTeamsTabApp.updatePackageJsonWarning"),
+        localize("teamstoolkit.migrateTeamsTabApp.updatePackageJsonWarning"),
         path.join(tabAppPath, "package.json")
       );
       VsCodeLogInstance.warning(warningMessage);
-      void migrationHandlerDeps.showMessage("warn", warningMessage, false, "OK");
+      void VS_CODE_UI.showMessage("warn", warningMessage, false, "OK");
     } else {
       // Update codes to use @microsoft/teams-js v2
-      await progressBar.next(
-        migrationHandlerDeps.localize("teamstoolkit.migrateTeamsTabApp.updatingCodes")
-      );
-      VsCodeLogInstance.info(
-        migrationHandlerDeps.localize("teamstoolkit.migrateTeamsTabApp.updatingCodes")
-      );
+      await progressBar.next(localize("teamstoolkit.migrateTeamsTabApp.updatingCodes"));
+      VsCodeLogInstance.info(localize("teamstoolkit.migrateTeamsTabApp.updatingCodes"));
       const failedFiles = await migrationHandler.updateCodes();
       if (failedFiles.isErr()) {
         throw failedFiles.error;
@@ -130,19 +92,15 @@ export async function migrateTeamsTabAppHandler(): Promise<Result<null, FxError>
         if (failedFiles.value.length > 0) {
           VsCodeLogInstance.warning(
             util.format(
-              migrationHandlerDeps.localize(
-                "teamstoolkit.migrateTeamsTabApp.updateCodesErrorOutput"
-              ),
+              localize("teamstoolkit.migrateTeamsTabApp.updateCodesErrorOutput"),
               failedFiles.value.length,
               failedFiles.value.join(", ")
             )
           );
-          void migrationHandlerDeps.showMessage(
+          void VS_CODE_UI.showMessage(
             "warn",
             util.format(
-              migrationHandlerDeps.localize(
-                "teamstoolkit.migrateTeamsTabApp.updateCodesErrorMessage"
-              ),
+              localize("teamstoolkit.migrateTeamsTabApp.updateCodesErrorMessage"),
               failedFiles.value.length,
               failedFiles.value[0]
             ),
@@ -153,26 +111,23 @@ export async function migrateTeamsTabAppHandler(): Promise<Result<null, FxError>
       }
     }
   } catch (error) {
-    result = migrationHandlerDeps.wrapError(error as Error);
+    result = wrapError(error as Error);
   }
 
   if (result.isErr()) {
     await progressBar.end(false);
-    void migrationHandlerDeps.showError(result.error);
-    migrationHandlerDeps.sendTelemetryErrorEvent(TelemetryEvent.MigrateTeamsTabApp, result.error);
+    void showError(result.error);
+    ExtTelemetry.sendTelemetryErrorEvent(TelemetryEvent.MigrateTeamsTabApp, result.error);
   } else {
     await progressBar.end(true);
     if (!packageUpdated.isErr() && packageUpdated.value) {
-      void migrationHandlerDeps.showMessage(
+      void VS_CODE_UI.showMessage(
         "info",
-        util.format(
-          migrationHandlerDeps.localize("teamstoolkit.migrateTeamsTabApp.success"),
-          tabAppPath
-        ),
+        util.format(localize("teamstoolkit.migrateTeamsTabApp.success"), tabAppPath),
         false
       );
     }
-    migrationHandlerDeps.sendTelemetryEvent(TelemetryEvent.MigrateTeamsTabApp, {
+    ExtTelemetry.sendTelemetryEvent(TelemetryEvent.MigrateTeamsTabApp, {
       [TelemetryProperty.Success]: TelemetrySuccess.Yes,
       [TelemetryProperty.UpdateFailedFiles]: updateFailedFiles.length.toString(),
     });
@@ -181,84 +136,69 @@ export async function migrateTeamsTabAppHandler(): Promise<Result<null, FxError>
 }
 
 export async function migrateTeamsManifestHandler(): Promise<Result<null, FxError>> {
-  migrationHandlerDeps.sendTelemetryEvent(TelemetryEvent.MigrateTeamsManifestStart);
-  const selection = await migrationHandlerDeps.showMessage(
+  ExtTelemetry.sendTelemetryEvent(TelemetryEvent.MigrateTeamsManifestStart);
+  const selection = await VS_CODE_UI.showMessage(
     "warn",
-    migrationHandlerDeps.localize("teamstoolkit.migrateTeamsManifest.warningMessage"),
+    localize("teamstoolkit.migrateTeamsManifest.warningMessage"),
     true,
-    migrationHandlerDeps.localize("teamstoolkit.migrateTeamsManifest.upgrade")
+    localize("teamstoolkit.migrateTeamsManifest.upgrade")
   );
   const userCancelError = new UserError(
     ExtensionSource,
     ExtensionErrors.UserCancel,
-    migrationHandlerDeps.localize("teamstoolkit.common.userCancel")
+    localize("teamstoolkit.common.userCancel")
   );
   if (
     selection.isErr() ||
-    selection.value !== migrationHandlerDeps.localize("teamstoolkit.migrateTeamsManifest.upgrade")
+    selection.value !== localize("teamstoolkit.migrateTeamsManifest.upgrade")
   ) {
-    migrationHandlerDeps.sendTelemetryErrorEvent(
-      TelemetryEvent.MigrateTeamsManifest,
-      userCancelError
-    );
+    ExtTelemetry.sendTelemetryErrorEvent(TelemetryEvent.MigrateTeamsManifest, userCancelError);
     return ok(null);
   }
   const selectFileConfig: SelectFileConfig = {
-    name: migrationHandlerDeps.localize("teamstoolkit.migrateTeamsManifest.selectFileConfig.name"),
-    title: migrationHandlerDeps.localize(
-      "teamstoolkit.migrateTeamsManifest.selectFileConfig.title"
-    ),
+    name: localize("teamstoolkit.migrateTeamsManifest.selectFileConfig.name"),
+    title: localize("teamstoolkit.migrateTeamsManifest.selectFileConfig.title"),
   };
-  const selectFileResult = await migrationHandlerDeps.selectFile(selectFileConfig);
+  const selectFileResult = await VS_CODE_UI.selectFile(selectFileConfig);
   if (selectFileResult.isErr() || selectFileResult.value.type !== "success") {
-    migrationHandlerDeps.sendTelemetryErrorEvent(
-      TelemetryEvent.MigrateTeamsManifest,
-      userCancelError
-    );
+    ExtTelemetry.sendTelemetryErrorEvent(TelemetryEvent.MigrateTeamsManifest, userCancelError);
     return ok(null);
   }
   const manifestPath = selectFileResult.value.result as string;
 
-  const progressBar = migrationHandlerDeps.createProgressBar(
-    migrationHandlerDeps.localize("teamstoolkit.migrateTeamsManifest.progressTitle"),
+  const progressBar = VS_CODE_UI.createProgressBar(
+    localize("teamstoolkit.migrateTeamsManifest.progressTitle"),
     1
   );
   await progressBar.start();
 
-  const migrationHandler = migrationHandlerDeps.createMigrationHandler(manifestPath);
+  const migrationHandler = new TeamsAppMigrationHandler(manifestPath);
   let result: Result<null, FxError> = ok(null);
 
   try {
     // Update Teams manifest
-    await progressBar.next(
-      migrationHandlerDeps.localize("teamstoolkit.migrateTeamsManifest.updateManifest")
-    );
-    VsCodeLogInstance.info(
-      migrationHandlerDeps.localize("teamstoolkit.migrateTeamsManifest.updateManifest")
-    );
+    await progressBar.next(localize("teamstoolkit.migrateTeamsManifest.updateManifest"));
+    VsCodeLogInstance.info(localize("teamstoolkit.migrateTeamsManifest.updateManifest"));
     result = await migrationHandler.updateManifest();
     if (result.isErr()) {
       throw result.error;
     }
   } catch (error) {
-    result = migrationHandlerDeps.wrapError(error as Error);
+    result = wrapError(error as Error);
   }
 
   if (result.isErr()) {
     await progressBar.end(false);
-    void migrationHandlerDeps.showError(result.error);
-    migrationHandlerDeps.sendTelemetryErrorEvent(TelemetryEvent.MigrateTeamsManifest, result.error);
+    void showError(result.error);
+    ExtTelemetry.sendTelemetryErrorEvent(TelemetryEvent.MigrateTeamsManifest, result.error);
   } else {
     await progressBar.end(true);
-    void migrationHandlerDeps.showMessage(
+    void VS_CODE_UI.showMessage(
       "info",
-      util.format(
-        migrationHandlerDeps.localize("teamstoolkit.migrateTeamsManifest.success"),
-        manifestPath
-      ),
+      util.format(localize("teamstoolkit.migrateTeamsManifest.success"), manifestPath),
       false
     );
-    migrationHandlerDeps.sendTelemetryEvent(TelemetryEvent.MigrateTeamsManifest, {
+    ExtTelemetry.sendTelemetryEvent(TelemetryEvent.MigrateTeamsManifest, {
       [TelemetryProperty.Success]: TelemetrySuccess.Yes,
     });
   }

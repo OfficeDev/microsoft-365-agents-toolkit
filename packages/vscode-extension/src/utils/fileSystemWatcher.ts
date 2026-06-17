@@ -10,20 +10,13 @@ import { TelemetryEvent, TelemetryProperty } from "../telemetry/extTelemetryEven
 import TreeViewManagerInstance from "../treeview/treeViewManager";
 
 export const fileSystemWatcherOps = {
-  isValidProject: (workspacePath: string) => isValidProject(workspacePath),
-  createFileSystemWatcher: (pattern: string) => vscode.workspace.createFileSystemWatcher(pattern),
-  initializeGlobalVariables: () => initializeGlobalVariables(context),
-  updateDevelopmentTreeView: () => TreeViewManagerInstance.updateDevelopmentTreeView(),
   readJson: (filePath: string) => fs.readJson(filePath),
-  sendTelemetryEvent: (eventName: string, properties?: any) =>
-    ExtTelemetry.sendTelemetryEvent(eventName as any, properties),
 };
 const fileSystemWatcherDeps = fileSystemWatcherOps;
 
 export function addFileSystemWatcher(workspacePath: string) {
-  if (fileSystemWatcherDeps.isValidProject(workspacePath)) {
-    const packageLockFileWatcher =
-      fileSystemWatcherDeps.createFileSystemWatcher("**/package-lock.json");
+  if (isValidProject(workspacePath)) {
+    const packageLockFileWatcher = vscode.workspace.createFileSystemWatcher("**/package-lock.json");
 
     packageLockFileWatcher.onDidCreate(async (event) => {
       await sendSDKVersionTelemetry(event.fsPath);
@@ -33,7 +26,7 @@ export function addFileSystemWatcher(workspacePath: string) {
       await sendSDKVersionTelemetry(event.fsPath);
     });
 
-    const yorcFileWatcher = fileSystemWatcherDeps.createFileSystemWatcher("**/.yo-rc.json");
+    const yorcFileWatcher = vscode.workspace.createFileSystemWatcher("**/.yo-rc.json");
     yorcFileWatcher.onDidCreate((_event) => {
       refreshSPFxTreeOnFileChanged();
     });
@@ -47,15 +40,15 @@ export function addFileSystemWatcher(workspacePath: string) {
 }
 
 export function refreshSPFxTreeOnFileChanged() {
-  fileSystemWatcherDeps.initializeGlobalVariables();
-  fileSystemWatcherDeps.updateDevelopmentTreeView();
+  initializeGlobalVariables(context);
+  TreeViewManagerInstance.updateDevelopmentTreeView();
 }
 
 export async function sendSDKVersionTelemetry(filePath: string) {
   const packageLockFile = (await fileSystemWatcherDeps.readJson(filePath).catch(() => {})) as {
     dependencies: { [key: string]: { version: string } };
   };
-  fileSystemWatcherDeps.sendTelemetryEvent(TelemetryEvent.UpdateSDKPackages, {
+  ExtTelemetry.sendTelemetryEvent(TelemetryEvent.UpdateSDKPackages, {
     [TelemetryProperty.BotbuilderVersion]: packageLockFile?.dependencies["botbuilder"]?.version,
     [TelemetryProperty.TeamsFxVersion]:
       packageLockFile?.dependencies["@microsoft/teamsfx"]?.version,

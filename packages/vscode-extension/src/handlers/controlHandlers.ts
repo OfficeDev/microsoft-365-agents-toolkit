@@ -21,12 +21,6 @@ import { getTriggerFromProperty } from "../utils/telemetryUtils";
 import { getDefaultString } from "../utils/localizeUtils";
 import { getBuildIntelligentAppsWalkthroughID } from "./walkthrough";
 
-export const controlHandlersOps = {
-  openFolderInExplorer: (fsPath: string) => commonUtils.openFolderInExplorer(fsPath),
-  isValidProject: (path?: string) => teamsfxCore.isValidProject(path),
-};
-const controlHandlersDeps = controlHandlersOps;
-
 export async function openLifecycleTreeview(args?: any[]) {
   ExtTelemetry.sendTelemetryEvent(
     TelemetryEvent.ClickOpenLifecycleTreeview,
@@ -92,13 +86,13 @@ export function openFolderHandler(...args: unknown[]): Promise<Result<unknown, F
       path = path.substring(scheme.length);
     }
     const uri = vscode.Uri.file(path);
-    controlHandlersDeps.openFolderInExplorer(uri.fsPath);
+    commonUtils.openFolderInExplorer(uri.fsPath);
   }
   return Promise.resolve(ok(null));
 }
 
 export function saveTextDocumentHandler(document: vscode.TextDocumentWillSaveEvent) {
-  if (!controlHandlersDeps.isValidProject(workspaceUri?.fsPath)) {
+  if (!teamsfxCore.isValidProject(workspaceUri?.fsPath)) {
     return;
   }
 
@@ -117,7 +111,7 @@ export function saveTextDocumentHandler(document: vscode.TextDocumentWillSaveEve
 
   let curDirectory = path.dirname(document.document.fileName);
   while (curDirectory) {
-    if (controlHandlersDeps.isValidProject(curDirectory)) {
+    if (teamsfxCore.isValidProject(curDirectory)) {
       ExtTelemetry.sendTelemetryEvent(TelemetryEvent.UpdateTeamsApp, {
         [TelemetryProperty.UpdateTeamsAppReason]: reason,
       });
