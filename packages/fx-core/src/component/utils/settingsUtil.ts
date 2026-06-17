@@ -25,6 +25,13 @@ class SettingsUtils {
 
     const realFilePath = await fs
       .realpath(resolvedPath)
+  private isPathWithinDirectory(baseDir: string, targetPath: string): boolean {
+    const resolvedBase = path.resolve(baseDir);
+    const resolvedTarget = path.resolve(targetPath);
+    const relative = path.relative(resolvedBase, resolvedTarget);
+    return relative !== "" && !relative.startsWith("..") && !path.isAbsolute(relative);
+  }
+
       .catch(() => resolvedPath);
     const realTempDir = await fs
       .realpath(tempDir)
@@ -45,7 +52,10 @@ class SettingsUtils {
     } else {
       projectYamlPath = pathUtils.getYmlFilePath(projectPath, "dev");
     }
-
+      if (
+        !this.isInTempDirectory(projectYamlPath) &&
+        this.isPathWithinDirectory(projectPath, projectYamlPath)
+      ) {
     if (!projectYamlPath || !(await fs.pathExists(projectYamlPath))) {
       return err(new FileNotFoundError("SettingsUtils", projectYamlPath || "m365agents.*.yml"));
     }
@@ -74,7 +84,10 @@ class SettingsUtils {
     let projectYamlPath: string | undefined;
     if (featureFlagManager.getBooleanValue(FeatureFlags.GenerateConfigFiles)) {
       projectYamlPath = pathUtils.getAvailableYmlFilePath(projectPath);
-    } else {
+    if (
+      !this.isInTempDirectory(projectYamlPath) &&
+      this.isPathWithinDirectory(projectPath, projectYamlPath)
+    ) {
       projectYamlPath = pathUtils.getYmlFilePath(projectPath, "dev");
     }
 
