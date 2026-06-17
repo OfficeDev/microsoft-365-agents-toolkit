@@ -308,16 +308,9 @@ jobs:
           fi
 
       - name: Run test
-        env:
-          INPUT_TEMPLATE_VERSION: ${{ inputs.TEMPLATE_VERSION }}
         run: |
           echo "🚀 Running test plan: ${{ matrix.test_plan }}"
           echo "Using image tag: ${{ inputs.image_tag }}"
-          if [ -n "$INPUT_TEMPLATE_VERSION" ]; then
-            echo "Using TEMPLATE_VERSION: $INPUT_TEMPLATE_VERSION"
-          else
-            echo "Using TEMPLATE_VERSION: <not set>"
-          fi
           echo "Test execution started at: $(date)"
 
           set -o pipefail
