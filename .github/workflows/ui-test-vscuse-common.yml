@@ -28,7 +28,7 @@ on:
         required: false
         type: string
         default: "latest"
-      TEMPLATE_VERSION:
+      template_version:
         required: false
         type: string
         default: ""
@@ -286,14 +286,14 @@ jobs:
 
       - name: Inject TEMPLATE_VERSION into config.yaml
         env:
-          INPUT_TEMPLATE_VERSION: ${{ inputs.TEMPLATE_VERSION }}
+          TEMPLATE_VERSION: ${{ inputs.template_version }}
         run: |
           cd packages/tests/vscuse/vscode-test-cases
 
-          if [ -n "$INPUT_TEMPLATE_VERSION" ]; then
+          if [ -n "$TEMPLATE_VERSION" ]; then
             awk '
               /^execution:/ && !inserted {
-                print "TEMPLATE_VERSION: \"" ENVIRON["INPUT_TEMPLATE_VERSION"] "\""
+                print "TEMPLATE_VERSION: \"" ENVIRON["TEMPLATE_VERSION"] "\""
                 print ""
                 inserted = 1
               }
@@ -301,7 +301,7 @@ jobs:
             ' config.yaml > config.yaml.tmp
             mv config.yaml.tmp config.yaml
 
-            echo "Injected TEMPLATE_VERSION into VSCUSE config.yaml: $INPUT_TEMPLATE_VERSION"
+            echo "Injected TEMPLATE_VERSION into VSCUSE config.yaml: $TEMPLATE_VERSION"
             grep -n "TEMPLATE_VERSION" config.yaml
           else
             echo "TEMPLATE_VERSION not provided; TEMPLATE_VERSION won't be added to config.yaml"
