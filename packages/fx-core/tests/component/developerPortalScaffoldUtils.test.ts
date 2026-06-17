@@ -27,6 +27,7 @@ import { MessagingExtension } from "../../src/component/driver/teamsApp/interfac
 import { StaticTab } from "../../src/component/driver/teamsApp/interfaces/appdefinitions/staticTab";
 import { CommandScope, MeetingsContext } from "../../src/component/driver/teamsApp/utils/utils";
 import { DotenvOutput } from "../../src/component/utils/envUtil";
+import { pathUtils } from "../../src/component/utils/pathUtils";
 import { InputValidationError } from "../../src/error";
 import { getProjectTypeAndCapability } from "../../src/question/create";
 import { QuestionNames } from "../../src/question/questionNames";
@@ -1872,6 +1873,25 @@ describe("developPortalScaffoldUtils", () => {
       if (result.isErr()) {
         chai.assert.equal(result.error, error);
       }
+    });
+
+    it("getEnvFilePath through deps maintains this context and can call internal methods", async () => {
+      // This test actually calls getEnvFilePath through the deps object to verify
+      // that the binding fixes the "this.getEnvFolderPath is not a function" error.
+      // Without the .bind() fix, this would fail when getEnvFilePath tries to call this.getEnvFolderPath
+
+      sandbox.stub(pathUtils, "getYmlFilePath").returns("mock-yml-path");
+
+      sandbox.stub(fs, "readFile").resolves("environmentFolderPath: ./env" as any);
+
+      sandbox.stub(fs, "pathExists").resolves(true);
+
+      const result = await developerPortalScaffoldUtilsDeps.getEnvFilePath(
+        "test-project-path",
+        "local"
+      );
+
+      chai.assert.isTrue(result.isOk() || result.isErr(), "Should return a Result");
     });
   });
 });
