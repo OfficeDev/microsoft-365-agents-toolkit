@@ -18,7 +18,7 @@ on:
         type: string
         default: "latest"
       TEMPLATE_VERSION:
-        description: "Template version to inject into VSCUSE config.yaml"
+        description: "Template version to inject into VSCUSE config.yaml. Version of the template used in the image, e.g. 0.0.0-rc."
         required: false
         type: string
       email-receiver:
