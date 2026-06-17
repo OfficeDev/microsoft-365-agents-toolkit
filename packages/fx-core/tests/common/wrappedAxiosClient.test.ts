@@ -892,42 +892,41 @@ describe("Wrapped Axios Client Test", () => {
     chai.assert.equal(apiName, "mos_unclassified__abc");
 
     apiName = WrappedAxiosClient.convertUrlToApiName(
-      getResourceServiceEndpoint(ResourceServiceType.TeamsGraph) +
-        `/api/v1.0/apiSecretRegistrations`,
+      getResourceServiceEndpoint(ResourceServiceType.TeamsGraph) + `/v1.0/apiSecretRegistrations`,
       "POST"
     );
     chai.assert.equal(apiName, TEAMS_GRAPH_API_NAMES.CREATE_API_KEY);
 
     apiName = WrappedAxiosClient.convertUrlToApiName(
       getResourceServiceEndpoint(ResourceServiceType.TeamsGraph) +
-        `/api/v1.0/apiSecretRegistrations/${fakeId}`,
+        `/v1.0/apiSecretRegistrations/${fakeId}`,
       "GET"
     );
     chai.assert.equal(apiName, TEAMS_GRAPH_API_NAMES.GET_API_KEY);
 
     apiName = WrappedAxiosClient.convertUrlToApiName(
       getResourceServiceEndpoint(ResourceServiceType.TeamsGraph) +
-        `/api/v1.0/apiSecretRegistrations/${fakeId}`,
+        `/v1.0/apiSecretRegistrations/${fakeId}`,
       "PATCH"
     );
     chai.assert.equal(apiName, TEAMS_GRAPH_API_NAMES.UPDATE_API_KEY);
 
     apiName = WrappedAxiosClient.convertUrlToApiName(
-      getResourceServiceEndpoint(ResourceServiceType.TeamsGraph) + `/api/v1.0/oAuthConfigurations`,
+      getResourceServiceEndpoint(ResourceServiceType.TeamsGraph) + `/v1.0/oAuthConfigurations`,
       "POST"
     );
     chai.assert.equal(apiName, TEAMS_GRAPH_API_NAMES.CREATE_OAUTH);
 
     apiName = WrappedAxiosClient.convertUrlToApiName(
       getResourceServiceEndpoint(ResourceServiceType.TeamsGraph) +
-        `/api/v1.0/oAuthConfigurations/${fakeId}`,
+        `/v1.0/oAuthConfigurations/${fakeId}`,
       "GET"
     );
     chai.assert.equal(apiName, TEAMS_GRAPH_API_NAMES.GET_OAUTH);
 
     apiName = WrappedAxiosClient.convertUrlToApiName(
       getResourceServiceEndpoint(ResourceServiceType.TeamsGraph) +
-        `/api/v1.0/oAuthConfigurations/${fakeId}`,
+        `/v1.0/oAuthConfigurations/${fakeId}`,
       "PATCH"
     );
     chai.assert.equal(apiName, TEAMS_GRAPH_API_NAMES.UPDATE_OAUTH);
