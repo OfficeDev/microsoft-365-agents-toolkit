@@ -29,6 +29,13 @@ export const rootNode = {
         icon: "$(teamsfx-custom-copilot)",
       },
       {
+        id: "blank-app-type",
+        label: "template.createProjectQuestion.projectType.blankApp.label",
+        detail: "template.createProjectQuestion.projectType.blankApp.detail",
+        groupName: "template.createProjectQuestion.projectType.createGroup.m365Apps",
+        icon: "$(file)",
+      },
+      {
         id: "graph-connector-type",
         label: "template.createProjectQuestion.createGraphConnector.label",
         detail: "template.createProjectQuestion.createGraphConnector.detail",
@@ -48,13 +55,6 @@ export const rootNode = {
         detail: "template.createProjectQuestion.projectType.officeAddin.detail",
         groupName: "template.createProjectQuestion.projectType.createGroup.m365Apps",
         icon: "$(microsoft365-agents-office)",
-      },
-      {
-        id: "blank-app-type",
-        label: "template.createProjectQuestion.projectType.blankApp.label",
-        detail: "template.createProjectQuestion.projectType.blankApp.detail",
-        groupName: "template.createProjectQuestion.projectType.createGroup.m365Apps",
-        icon: "$(file)",
       },
       {
         id: "start-with-github-copilot",
