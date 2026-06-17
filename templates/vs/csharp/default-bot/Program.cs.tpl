@@ -39,7 +39,7 @@ if (config.Teams.BotType == "UserAssignedMsi")
 }
 
 builder.Services.AddSingleton<Controller>();
-builder.AddTeams(appBuilder);
+builder.AddTeams(appBuilder, skipAuth: string.IsNullOrEmpty(config.Teams.ClientId));
 
 var app = builder.Build();
 app.UseTeams();
