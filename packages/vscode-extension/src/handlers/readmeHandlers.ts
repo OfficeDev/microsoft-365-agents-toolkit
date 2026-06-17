@@ -4,7 +4,7 @@
 import fs from "fs-extra";
 import * as vscode from "vscode";
 import { ok, FxError } from "@microsoft/teamsfx-api";
-import { Correlator } from "@microsoft/teamsfx-core";
+import { Correlator, featureFlagManager, FeatureFlags } from "@microsoft/teamsfx-core";
 import { WebviewPanel } from "../controls/webviewPanel";
 import { TreatmentVariableValue } from "../exp/treatmentVariables";
 import { isTeamsFxProject, isOfficeAddInProject } from "../globalVariables";
@@ -110,20 +110,30 @@ export async function openWorkspaceMCPConfigHandler(...args: unknown[]) {
     const workspacePath: string = workspaceFolder.uri.fsPath;
     const workspaceMCPConfigFile = `${workspacePath}/.vscode/mcp.json`;
     if (await fs.pathExists(workspaceMCPConfigFile)) {
-      const document = await vscode.workspace.openTextDocument(
-        vscode.Uri.file(workspaceMCPConfigFile)
-      );
+      // DT default (flag on): open the wired action manifest. Otherwise: open
+      // the local MCP config so the legacy "Fetch action from MCP" path can be
+      // exercised. The success/Provision notification is owned by
+      // showLocalDebugMessage in autoOpenHelper, not this handler.
+      let targetPath = workspaceMCPConfigFile;
+      if (featureFlagManager.getBooleanValue(FeatureFlags.MCPForDADT)) {
+        const aiPluginPath = `${workspacePath}/appPackage/ai-plugin.json`;
+        if (await fs.pathExists(aiPluginPath)) {
+          targetPath = aiPluginPath;
+        }
+      } else {
+        void vscode.window
+          .showInformationMessage(
+            localize("teamstoolkit.handlers.openWorkspaceMCPConfigNotification"),
+            "Fetch Action"
+          )
+          .then((selection) => {
+            if (selection === "Fetch Action") {
+              void vscode.commands.executeCommand("fx-extension.updateActionWithMCP");
+            }
+          });
+      }
+      const document = await vscode.workspace.openTextDocument(vscode.Uri.file(targetPath));
       await vscode.window.showTextDocument(document);
-      void vscode.window
-        .showInformationMessage(
-          localize("teamstoolkit.handlers.openWorkspaceMCPConfigNotification"),
-          "Fetch Action"
-        )
-        .then((selection) => {
-          if (selection === "Fetch Action") {
-            void vscode.commands.executeCommand("fx-extension.updateActionWithMCP");
-          }
-        });
     }
   }
   return ok<unknown, FxError>(null);

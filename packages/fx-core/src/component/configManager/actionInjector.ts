@@ -250,7 +250,12 @@ export class ActionInjector {
     mcpServerUrl: string,
     authorizationUrl?: string,
     tokenUrl?: string,
-    refreshUrl?: string
+    refreshUrl?: string,
+    credentialEnvNames?: {
+      clientIdEnvName: string;
+      clientSecretEnvName?: string;
+      scopeEnvName?: string;
+    }
   ): Promise<AuthActionInjectResult | undefined> {
     const ymlContent = await fs.readFile(ymlPath, "utf-8");
 
@@ -279,6 +284,25 @@ export class ActionInjector {
           (item: any) => item.get("uses") === "teamsApp/create"
         );
 
+        // DT mode injects explicit ${{...}} refs to credentials that the
+        // add-action flow persists to env files; legacy mode omits them and
+        // lets the oauth/register driver fall back to in-process bridge env
+        // vars (`oauth-client-id` etc.).
+        const credentialFields: Record<string, string> = {};
+        if (credentialEnvNames) {
+          if (authType === "oauth") {
+            credentialFields.clientId = `\${{${credentialEnvNames.clientIdEnvName}}}`;
+            if (credentialEnvNames.clientSecretEnvName) {
+              credentialFields.clientSecret = `\${{${credentialEnvNames.clientSecretEnvName}}}`;
+            }
+            if (credentialEnvNames.scopeEnvName) {
+              credentialFields.scope = `\${{${credentialEnvNames.scopeEnvName}}}`;
+            }
+          } else {
+            credentialFields.clientId = `\${{${credentialEnvNames.clientIdEnvName}}}`;
+          }
+        }
+
         const action: any = {
           uses: "oauth/register",
           with: {
@@ -296,6 +320,7 @@ export class ActionInjector {
                   identityProvider: MicrosoftEntraAuthType,
                 }),
             baseUrl: mcpServerUrl,
+            ...credentialFields,
           },
           writeToEnvironmentFile: {
             configurationId: registrationId,
@@ -316,6 +341,76 @@ export class ActionInjector {
     }
   }
 
+  /**
+   * Inject a `dcr/register` action for MCP `oauth-dynamic` flow. Idempotent on
+   * (action name + configurationId). Writes a single configurationId env var.
+   */
+  static async injectCreateDcrActionForMCP(
+    ymlPath: string,
+    authName: string,
+    registrationId: string,
+    mcpServerUrl: string,
+    wellKnownAuthorizationServer: string
+  ): Promise<AuthActionInjectResult | undefined> {
+    const ymlContent = await fs.readFile(ymlPath, "utf-8");
+
+    const document = parseDocument(ymlContent);
+    const provisionNode = document.get("provision") as any;
+    if (provisionNode) {
+      const hasDcrActionWithSameReferenceId = provisionNode.items.some(
+        (item: any) =>
+          (item.get("uses") as string) === "dcr/register" &&
+          !!item.get("with") &&
+          !!item.get("writeToEnvironmentFile") &&
+          (item.get("writeToEnvironmentFile").get("configurationId") as string) === registrationId
+      );
+      if (hasDcrActionWithSameReferenceId) {
+        return undefined;
+      }
+
+      provisionNode.items = provisionNode.items.filter((item: any) => {
+        const uses = item.get("uses");
+        return uses;
+      });
+
+      const teamsAppIdEnvName = ActionInjector.getTeamsAppIdEnvName(provisionNode);
+      if (teamsAppIdEnvName) {
+        const index: number = provisionNode.items.findIndex(
+          (item: any) => item.get("uses") === "teamsApp/create"
+        );
+
+        const action: any = {
+          uses: "dcr/register",
+          with: {
+            name: `${authName}`,
+            appId: `\${{${teamsAppIdEnvName}}}`,
+            applicableToApps: "SpecificApp",
+            targetAudience: "HomeTenant",
+            wellKnownAuthorizationServer: wellKnownAuthorizationServer,
+            targetUrlsShouldStartWith: [mcpServerUrl],
+          },
+          writeToEnvironmentFile: {
+            configurationId: registrationId,
+          },
+        };
+        provisionNode.items.splice(index + 1, 0, action);
+      } else {
+        throw new InjectOAuthActionFailedError();
+      }
+
+      // dcr/register requires yaml-schema v1.13+; upgrade if the template is older.
+      ActionInjector.ensureMinimumYamlVersion(document, "v1.13");
+
+      await fs.writeFile(ymlPath, document.toString(), "utf8");
+      return {
+        defaultRegistrationIdEnvName: registrationId,
+        registrationIdEnvName: registrationId,
+      };
+    } else {
+      throw new InjectOAuthActionFailedError();
+    }
+  }
+
   static findNextAvailableEnvName(baseEnvName: string, existingEnvNames: string[]): string {
     let suffix = 1;
     let envName = baseEnvName;
@@ -324,6 +419,34 @@ export class ActionInjector {
       suffix++;
     }
     return envName;
+  }
+
+  /**
+   * Ensure the parsed yml document's top-level `version` is at least `minVersion`.
+   * Supports `vX.Y` and `X.Y.Z` formats. No-op when current >= minVersion or
+   * when the version field is missing/unparseable.
+   */
+  static ensureMinimumYamlVersion(document: any, minVersion: string): void {
+    const current = document.get("version") as string | undefined;
+    if (!current) return;
+    const parse = (v: string): number[] | undefined => {
+      const m = /^v?(\d+(?:\.\d+){1,2})$/.exec(v);
+      if (!m) return undefined;
+      return m[1].split(".").map((n) => parseInt(n, 10));
+    };
+    const cur = parse(current);
+    const min = parse(minVersion);
+    if (!cur || !min) return;
+    const length = Math.max(cur.length, min.length);
+    for (let i = 0; i < length; i++) {
+      const a = cur[i] ?? 0;
+      const b = min[i] ?? 0;
+      if (a > b) return;
+      if (a < b) {
+        document.set("version", minVersion);
+        return;
+      }
+    }
   }
 }
 

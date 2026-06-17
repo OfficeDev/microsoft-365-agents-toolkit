@@ -1090,5 +1090,279 @@ describe("ActionInjector", () => {
       assert.isTrue(writtenContent.includes("validAction"));
       assert.isFalse(writtenContent.includes("invalidItem"));
     });
+
+    it("should emit credential env refs for oauth when credentialEnvNames provided", async () => {
+      const ymlPath = "path/to/yml";
+      const ymlContent = `
+        provision:
+          - uses: teamsApp/create
+            writeToEnvironmentFile:
+              teamsAppId: TEAMS_APP_ID
+      `;
+
+      sandbox.stub(fs, "readFile").resolves(ymlContent as any);
+      sandbox.stub(ActionInjector, "getTeamsAppIdEnvName").returns("TEAMS_APP_ID");
+
+      await ActionInjector.injectCreateOAuthActionForMCP(
+        ymlPath,
+        "oauth",
+        "testMCPAuth",
+        "MCP_OAUTH_REGISTRATION_ID",
+        "https://mcp.example.com",
+        "https://auth.example.com/oauth/authorize",
+        "https://auth.example.com/oauth/token",
+        undefined,
+        {
+          clientIdEnvName: "MCP_DA_OAUTH_CLIENT_ID_SERVER1",
+          clientSecretEnvName: "SECRET_MCP_DA_OAUTH_CLIENT_SECRET_SERVER1",
+          scopeEnvName: "MCP_DA_OAUTH_SCOPE_SERVER1",
+        }
+      );
+
+      const writtenContent: string = writeStub.args[0][1];
+      assert.isTrue(writtenContent.includes("${{MCP_DA_OAUTH_CLIENT_ID_SERVER1}}"));
+      assert.isTrue(writtenContent.includes("${{SECRET_MCP_DA_OAUTH_CLIENT_SECRET_SERVER1}}"));
+      assert.isTrue(writtenContent.includes("${{MCP_DA_OAUTH_SCOPE_SERVER1}}"));
+    });
+
+    it("should emit only client-id env ref for entra-sso when credentialEnvNames provided", async () => {
+      const ymlPath = "path/to/yml";
+      const ymlContent = `
+        provision:
+          - uses: teamsApp/create
+            writeToEnvironmentFile:
+              teamsAppId: TEAMS_APP_ID
+      `;
+
+      sandbox.stub(fs, "readFile").resolves(ymlContent as any);
+      sandbox.stub(ActionInjector, "getTeamsAppIdEnvName").returns("TEAMS_APP_ID");
+
+      await ActionInjector.injectCreateOAuthActionForMCP(
+        ymlPath,
+        "entra-sso",
+        "testEntraAuth",
+        "MCP_ENTRA_REGISTRATION_ID",
+        "https://mcp.example.com",
+        undefined,
+        undefined,
+        undefined,
+        {
+          clientIdEnvName: "MCP_DA_OAUTH_CLIENT_ID_SERVER1",
+        }
+      );
+
+      const writtenContent: string = writeStub.args[0][1];
+      assert.isTrue(writtenContent.includes("${{MCP_DA_OAUTH_CLIENT_ID_SERVER1}}"));
+      assert.isFalse(writtenContent.includes("clientSecret"));
+      assert.isFalse(writtenContent.includes("scope:"));
+    });
+  });
+
+  describe("injectCreateDcrActionForMCP", () => {
+    const sandbox = sinon.createSandbox();
+    let writeStub: sinon.SinonStub;
+
+    beforeEach(() => {
+      writeStub = sandbox.stub(fs, "writeFile").resolves();
+    });
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it("should inject dcr/register action successfully", async () => {
+      const ymlPath = "path/to/yml";
+      const authName = "testDcrAuth";
+      const registrationId = "MCP_DA_AUTH_ID_APIGITHUBC";
+      const mcpServerUrl = "https://api.githubcopilot.com/mcp/";
+      const wellKnownUrl = "https://auth.example.com/.well-known/oauth-authorization-server";
+
+      const ymlContent = `
+        provision:
+          - uses: teamsApp/create
+            with:
+              name: test
+            writeToEnvironmentFile:
+              teamsAppId: TEAMS_APP_ID
+      `;
+
+      sandbox.stub(fs, "readFile").resolves(ymlContent as any);
+      sandbox.stub(ActionInjector, "getTeamsAppIdEnvName").returns("TEAMS_APP_ID");
+
+      const result = await ActionInjector.injectCreateDcrActionForMCP(
+        ymlPath,
+        authName,
+        registrationId,
+        mcpServerUrl,
+        wellKnownUrl
+      );
+
+      assert.deepEqual(result, {
+        defaultRegistrationIdEnvName: registrationId,
+        registrationIdEnvName: registrationId,
+      });
+
+      const writtenContent = writeStub.args[0][1];
+      assert.isTrue(writtenContent.includes("dcr/register"));
+      assert.isTrue(writtenContent.includes(authName));
+      assert.isTrue(writtenContent.includes(registrationId));
+      assert.isTrue(writtenContent.includes(mcpServerUrl));
+      assert.isTrue(writtenContent.includes(wellKnownUrl));
+      assert.isTrue(writtenContent.includes("applicableToApps: SpecificApp"));
+      assert.isTrue(writtenContent.includes("targetAudience: HomeTenant"));
+    });
+
+    it("should be idempotent when configurationId already present", async () => {
+      const ymlPath = "path/to/yml";
+      const authName = "testDcrAuth";
+      const registrationId = "MCP_DA_AUTH_ID_APIGITHUBC";
+      const mcpServerUrl = "https://api.githubcopilot.com/mcp/";
+      const wellKnownUrl = "https://auth.example.com/.well-known/oauth-authorization-server";
+
+      const ymlContent = `
+        provision:
+          - uses: teamsApp/create
+            writeToEnvironmentFile:
+              teamsAppId: TEAMS_APP_ID
+          - uses: dcr/register
+            with:
+              name: testDcrAuth
+            writeToEnvironmentFile:
+              configurationId: MCP_DA_AUTH_ID_APIGITHUBC
+      `;
+
+      sandbox.stub(fs, "readFile").resolves(ymlContent as any);
+
+      const result = await ActionInjector.injectCreateDcrActionForMCP(
+        ymlPath,
+        authName,
+        registrationId,
+        mcpServerUrl,
+        wellKnownUrl
+      );
+
+      assert.isUndefined(result);
+      assert.equal(writeStub.callCount, 0);
+    });
+
+    it("should throw InjectOAuthActionFailedError when provision node is missing", async () => {
+      const ymlPath = "path/to/yml";
+      const ymlContent = "deploy:\n  - uses: noop\n";
+
+      sandbox.stub(fs, "readFile").resolves(ymlContent as any);
+
+      try {
+        await ActionInjector.injectCreateDcrActionForMCP(
+          ymlPath,
+          "name",
+          "REG_ID",
+          "https://mcp.example.com",
+          "https://auth.example.com/.well-known/oauth-authorization-server"
+        );
+        assert.fail("Expected error not thrown");
+      } catch (e) {
+        assert.equal((e as Error).name, "InjectOAuthActionFailedError");
+      }
+    });
+
+    it("should throw InjectOAuthActionFailedError when teamsApp/create env name is missing", async () => {
+      const ymlPath = "path/to/yml";
+      const ymlContent = `
+        provision:
+          - uses: someOther/action
+      `;
+
+      sandbox.stub(fs, "readFile").resolves(ymlContent as any);
+      sandbox.stub(ActionInjector, "getTeamsAppIdEnvName").returns(undefined);
+
+      try {
+        await ActionInjector.injectCreateDcrActionForMCP(
+          ymlPath,
+          "name",
+          "REG_ID",
+          "https://mcp.example.com",
+          "https://auth.example.com/.well-known/oauth-authorization-server"
+        );
+        assert.fail("Expected error not thrown");
+      } catch (e) {
+        assert.equal((e as Error).name, "InjectOAuthActionFailedError");
+      }
+    });
+
+    it("should bump yaml-schema version from v1.12 to v1.13 when injecting dcr/register", async () => {
+      const ymlPath = "path/to/yml";
+      const ymlContent = `# yaml-language-server: $schema=https://aka.ms/teams-toolkit/v1.12/yaml.schema.json
+version: v1.12
+provision:
+  - uses: teamsApp/create
+    writeToEnvironmentFile:
+      teamsAppId: TEAMS_APP_ID
+`;
+
+      sandbox.stub(fs, "readFile").resolves(ymlContent as any);
+      sandbox.stub(ActionInjector, "getTeamsAppIdEnvName").returns("TEAMS_APP_ID");
+
+      await ActionInjector.injectCreateDcrActionForMCP(
+        ymlPath,
+        "name",
+        "REG_ID",
+        "https://mcp.example.com",
+        "https://auth.example.com/.well-known/oauth-authorization-server"
+      );
+
+      const writtenContent: string = writeStub.args[0][1];
+      assert.isTrue(writtenContent.includes("version: v1.13"));
+      assert.isFalse(/^version: v1\.12$/m.test(writtenContent));
+    });
+
+    it("should leave yaml-schema version untouched when already >= v1.13", async () => {
+      const ymlPath = "path/to/yml";
+      const ymlContent = `version: v1.14
+provision:
+  - uses: teamsApp/create
+    writeToEnvironmentFile:
+      teamsAppId: TEAMS_APP_ID
+`;
+
+      sandbox.stub(fs, "readFile").resolves(ymlContent as any);
+      sandbox.stub(ActionInjector, "getTeamsAppIdEnvName").returns("TEAMS_APP_ID");
+
+      await ActionInjector.injectCreateDcrActionForMCP(
+        ymlPath,
+        "name",
+        "REG_ID",
+        "https://mcp.example.com",
+        "https://auth.example.com/.well-known/oauth-authorization-server"
+      );
+
+      const writtenContent: string = writeStub.args[0][1];
+      assert.isTrue(writtenContent.includes("version: v1.14"));
+      assert.isFalse(writtenContent.includes("version: v1.13"));
+    });
+
+    it("should leave an unparseable yaml-schema version untouched", async () => {
+      const ymlPath = "path/to/yml";
+      const ymlContent = `version: notAVersion
+provision:
+  - uses: teamsApp/create
+    writeToEnvironmentFile:
+      teamsAppId: TEAMS_APP_ID
+`;
+
+      sandbox.stub(fs, "readFile").resolves(ymlContent as any);
+      sandbox.stub(ActionInjector, "getTeamsAppIdEnvName").returns("TEAMS_APP_ID");
+
+      await ActionInjector.injectCreateDcrActionForMCP(
+        ymlPath,
+        "name",
+        "REG_ID",
+        "https://mcp.example.com",
+        "https://auth.example.com/.well-known/oauth-authorization-server"
+      );
+
+      const writtenContent: string = writeStub.args[0][1];
+      assert.isTrue(writtenContent.includes("version: notAVersion"));
+      assert.isTrue(writtenContent.includes("dcr/register"));
+    });
   });
 });

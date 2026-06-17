@@ -24,6 +24,7 @@ import * as activate from "../../activate";
 import { logger } from "../../commonlib/logger";
 import { commands } from "../../resource";
 import { TelemetryEvent, TelemetryProperty } from "../../telemetry/cliTelemetryEvents";
+import { gateMCPDAAuthTypeChoices } from "../common";
 import { createSampleCommand } from "./createSample";
 import * as listTemplates from "./listTemplates";
 
@@ -45,7 +46,7 @@ export function getCreateCommand(): CLICommand {
   return {
     name: "new",
     description: commands.create.description,
-    options: [...adjustOptions(CreateProjectOptions)],
+    options: [...gateMCPDAAuthTypeChoices(adjustOptions(CreateProjectOptions))],
     examples: [
       {
         command: `${process.env.TEAMSFX_CLI_BIN_NAME} new -c declarative-agent -n myagent -i false`,

@@ -160,15 +160,35 @@ export interface MCPAuthProbeResult {
 
 /**
  * Lightweight probe to check if an MCP server requires authentication.
- * Sends a GET request and checks for a 401 response + WWW-Authenticate header.
+ * Sends a POST `initialize` JSON-RPC request (matching the MCP streamable-http
+ * transport) and checks for a 401 response + WWW-Authenticate header. GET is
+ * not reliable: spec-compliant MCP servers (Figma, etc.) return 405 to GET and
+ * only emit the WWW-Authenticate challenge on POST.
+ *
  * Does NOT attempt to fetch tools via MCP protocol.
  *
  * @param serverUrl - The URL of the remote MCP server
  * @returns Whether auth is required and the resource_metadata URL if available
  */
 export async function probeMCPServerAuth(serverUrl: string): Promise<MCPAuthProbeResult> {
+  const initializeBody = {
+    jsonrpc: "2.0",
+    id: 1,
+    method: "initialize",
+    params: {
+      protocolVersion: "2025-03-26",
+      capabilities: {},
+      clientInfo: { name: "atk-probe", version: "1.0.0" },
+    },
+  };
   try {
-    await axios.get(serverUrl, { timeout: 10000 });
+    await axios.post(serverUrl, initializeBody, {
+      timeout: 10000,
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json, text/event-stream",
+      },
+    });
     return { requiresAuth: false };
   } catch (error: any) {
     if (error?.response?.status === 401 || error?.status === 401) {
@@ -190,6 +210,13 @@ export interface MCPOAuthMetadata {
   authorizationUrl: string;
   tokenUrl: string;
   refreshUrl?: string;
+  /**
+   * Resolved RFC 8414 well-known URL (the URL `authorization_endpoint` /
+   * `token_endpoint` were fetched from). Returned so callers that need the
+   * authorization-server metadata location — e.g. `dcr/register`'s
+   * `wellKnownAuthorizationServer` — do not have to repeat the probe.
+   */
+  wellKnownUrl: string;
 }
 
 /**
@@ -241,5 +268,5 @@ export async function resolveMCPOAuthMetadata(
     throw new Error(getLocalizedString("core.MCPForDA.authUrlNotFound"));
   }
 
-  return { authorizationUrl, tokenUrl, refreshUrl };
+  return { authorizationUrl, tokenUrl, refreshUrl, wellKnownUrl: resolvedWellKnownUrl };
 }
