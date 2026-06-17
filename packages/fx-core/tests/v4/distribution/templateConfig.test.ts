@@ -5,6 +5,7 @@ import { assert } from "chai";
 import {
   computeBundled,
   computeRange,
+  computeV4PublishVersion,
   computeV4TemplateConfig,
 } from "../../../src/v4/distribution/templateConfig";
 
@@ -18,6 +19,28 @@ describe("templateConfig (v4 build-time)", () => {
     });
   });
 
+  describe("computeV4PublishVersion", () => {
+    it("odd-minor preview → stamps the build date into the patch, drops the suffix", () => {
+      assert.strictEqual(computeV4PublishVersion("6.11.1-beta.2026061609.0"), "6.11.2026061609");
+    });
+
+    it("odd-minor without a date stamp → major.minor.patch", () => {
+      assert.strictEqual(computeV4PublishVersion("6.11.5"), "6.11.5");
+    });
+
+    it("even-minor stable → major.minor.patch as-is", () => {
+      assert.strictEqual(computeV4PublishVersion("6.10.3"), "6.10.3");
+    });
+
+    it("even-minor suffixed (preview minted on stable branch) → stripped (publish-time guard refuses it separately)", () => {
+      assert.strictEqual(computeV4PublishVersion("6.10.3-beta.2026061609.0"), "6.10.3");
+    });
+
+    it("throws on a non-SemVer version (no silent fallback)", () => {
+      assert.throws(() => computeV4PublishVersion("not-semver"), /not valid SemVer/);
+    });
+  });
+
   describe("computeRange", () => {
     it("keeps the previous range when the version still intersects it", () => {
       assert.strictEqual(computeRange("6.10.5", "~6.10"), "~6.10");
@@ -27,8 +50,8 @@ describe("templateConfig (v4 build-time)", () => {
       assert.strictEqual(computeRange("6.11.0", "~6.10"), "~6.11");
     });
 
-    it("derives ~major.minor from a prerelease's stable target", () => {
-      // templates has no odd/even-minor split, so the rc shares the stable range.
+    it("derives ~major.minor from a prerelease's minor", () => {
+      // Odd-minor prerelease lives on its own minor; range follows that minor.
       assert.strictEqual(computeRange("6.11.0-rc.0", "~6.10"), "~6.11");
     });
 
@@ -42,42 +65,42 @@ describe("templateConfig (v4 build-time)", () => {
   });
 
   describe("computeV4TemplateConfig", () => {
-    it("internal rc test build → bundled floor, range from stable target, exact localVersion", () => {
+    it("odd-minor preview shipping (goproduct=true) → online, clean date-stamped localVersion", () => {
       const config = computeV4TemplateConfig({
-        version: "6.11.0-rc.0",
+        version: "6.11.1-beta.2026061609.0",
+        goproduct: true,
+        previousRange: "~6.10",
+      });
+      assert.deepEqual(config, {
+        range: "~6.11",
+        bundled: false,
+        localVersion: "6.11.2026061609",
+      });
+    });
+
+    it("even-minor stable shipping (goproduct=true) → online, version as-is", () => {
+      const config = computeV4TemplateConfig({
+        version: "6.10.3",
+        goproduct: true,
+        previousRange: "~6.10",
+      });
+      assert.deepEqual(config, {
+        range: "~6.10",
+        bundled: false,
+        localVersion: "6.10.3",
+      });
+    });
+
+    it("internal test build (goproduct=false) → bundled floor regardless of suffix", () => {
+      const config = computeV4TemplateConfig({
+        version: "6.11.1-beta.2026061609.0",
         goproduct: false,
         previousRange: "~6.10",
       });
       assert.deepEqual(config, {
         range: "~6.11",
         bundled: true,
-        localVersion: "6.11.0-rc.0",
-      });
-    });
-
-    it("stable shipping build → online channel, widened range", () => {
-      const config = computeV4TemplateConfig({
-        version: "6.11.0",
-        goproduct: true,
-        previousRange: "~6.10",
-      });
-      assert.deepEqual(config, {
-        range: "~6.11",
-        bundled: false,
-        localVersion: "6.11.0",
-      });
-    });
-
-    it("prerelease shipped to marketplace pre-release channel → online (bundled=false)", () => {
-      const config = computeV4TemplateConfig({
-        version: "6.11.0-rc.0",
-        goproduct: true,
-        previousRange: "~6.11",
-      });
-      assert.deepEqual(config, {
-        range: "~6.11",
-        bundled: false,
-        localVersion: "6.11.0-rc.0",
+        localVersion: "6.11.2026061609",
       });
     });
 
