@@ -40,6 +40,13 @@
         "icon": "$(microsoft365-agents-office)"
       },
       {
+        "id": "blank-app-type",
+        "label": "template.createProjectQuestion.projectType.blankApp.label",
+        "detail": "template.createProjectQuestion.projectType.blankApp.detail",
+        "groupName": "template.createProjectQuestion.projectType.createGroup.m365Apps",
+        "icon": "$(file)"
+      },
+      {
         "id": "start-with-github-copilot",
         "label": "template.createProjectQuestion.projectType.copilotHelp.label",
         "detail": "template.createProjectQuestion.projectType.copilotHelp.detail",
@@ -447,6 +454,25 @@
       ],
       "condition": {
         "equals": "office-meta-os-type"
+      }
+    },
+    {
+      "data": {
+        "title": "template.createProjectQuestion.projectType.blankApp.title",
+        "name": "capabilities",
+        "type": "singleSelect",
+        "skipSingleOption": true,
+        "options": [
+          {
+            "id": "blank-app",
+            "label": "template.createProjectQuestion.projectType.blankApp.label",
+            "detail": "template.createProjectQuestion.projectType.blankApp.detail",
+            "data": "blank-app"
+          }
+        ]
+      },
+      "condition": {
+        "equals": "blank-app-type"
       }
     }
   ]

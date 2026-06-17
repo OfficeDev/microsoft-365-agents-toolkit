@@ -581,6 +581,17 @@ describe("ProjectTypeOptions", () => {
     const option = ProjectTypeOptions.officeAddin(Platform.CLI);
     assert.equal(option.id, ProjectTypeOptions.officeMetaOSOptionId);
   });
+  it("blankApp - VSC", () => {
+    const option = ProjectTypeOptions.blankApp(Platform.VSCode);
+    assert.equal(option.id, ProjectTypeOptions.blankAppOptionId);
+    assert.include(option.label, "$(file)");
+    assert.isDefined(option.detail);
+  });
+  it("blankApp - CLI", () => {
+    const option = ProjectTypeOptions.blankApp(Platform.CLI);
+    assert.equal(option.id, ProjectTypeOptions.blankAppOptionId);
+    assert.notInclude(option.label, "$(file)");
+  });
   it("start with github copilot", () => {
     sandbox.stub(featureFlagManager, "getBooleanValue").returns(false);
     const option = ProjectTypeOptions.startWithGithubCopilot();

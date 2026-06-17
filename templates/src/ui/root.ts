@@ -50,6 +50,13 @@ export const rootNode = {
         icon: "$(microsoft365-agents-office)",
       },
       {
+        id: "blank-app-type",
+        label: "template.createProjectQuestion.projectType.blankApp.label",
+        detail: "template.createProjectQuestion.projectType.blankApp.detail",
+        groupName: "template.createProjectQuestion.projectType.createGroup.m365Apps",
+        icon: "$(file)",
+      },
+      {
         id: "start-with-github-copilot",
         label: "template.createProjectQuestion.projectType.copilotHelp.label",
         detail: "template.createProjectQuestion.projectType.copilotHelp.detail",
@@ -65,5 +72,6 @@ export const rootNode = {
     { node: "graphConnectorNode", condition: { equals: "graph-connector-type" } },
     { node: "teamsNode", condition: { equals: "teams-agent-and-app-type" } },
     { node: "officeAddinNode", condition: { equals: "office-meta-os-type" } },
+    { node: "blankNode", condition: { equals: "blank-app-type" } },
   ],
 };
