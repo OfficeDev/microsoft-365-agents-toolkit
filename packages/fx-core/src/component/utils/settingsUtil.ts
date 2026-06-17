@@ -19,10 +19,20 @@ import { FileNotFoundError } from "../../error/common";
 import { pathUtils } from "./pathUtils";
 
 class SettingsUtils {
-  private isInTempDirectory(filePath: string): boolean {
+  private async isInTempDirectory(filePath: string): Promise<boolean> {
     const resolvedPath = path.resolve(filePath);
     const tempDir = path.resolve(os.tmpdir());
-    return resolvedPath.startsWith(tempDir + path.sep);
+
+    const realFilePath = await fs
+      .realpath(resolvedPath)
+      .catch(() => resolvedPath);
+    const realTempDir = await fs
+      .realpath(tempDir)
+      .catch(() => tempDir);
+
+    const normalizedFilePath = path.normalize(realFilePath);
+    const normalizedTempDir = path.normalize(realTempDir);
+    return normalizedFilePath.startsWith(normalizedTempDir + path.sep);
   }
 
   async readSettings(
@@ -45,7 +55,7 @@ class SettingsUtils {
       const projectId = uuid.v4();
       const projectIdField = appYaml.createPair("projectId", uuid.v4());
       appYaml.add(projectIdField);
-      if (!this.isInTempDirectory(projectYamlPath)) {
+      if (!(await this.isInTempDirectory(projectYamlPath))) {
         await fs.writeFile(projectYamlPath, appYaml.toString());
       }
       sendTelemetryEvent(Component.core, TelemetryEvent.FillProjectId, {
@@ -74,7 +84,7 @@ class SettingsUtils {
     const yamlFileContent: string = await fs.readFile(projectYamlPath, "utf8");
     const appYaml = parseDocument(yamlFileContent);
     appYaml.set("projectId", settings.trackingId);
-    if (!this.isInTempDirectory(projectYamlPath)) {
+    if (!(await this.isInTempDirectory(projectYamlPath))) {
       await fs.writeFile(projectYamlPath, appYaml.toString());
     }
     return ok(projectYamlPath);
