@@ -50,7 +50,8 @@ const credentialOptions = config.MicrosoftAppType === "UserAssignedMsi" ? { ...t
 
 const app = new App({
   ...credentialOptions,
-  storage
+  storage,
+  skipAuth: !process.env.CLIENT_ID,
 });
 
 

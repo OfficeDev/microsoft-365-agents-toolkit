@@ -39,6 +39,7 @@ import {
 import * as generatorHelper from "../../../src/component/generator/declarativeAgent/helper";
 import { TemplateNames } from "../../../src/component/generator/templates/templateNames";
 import * as utils from "../../../src/component/generator/utils";
+import { mcpAuthScaffolderDeps } from "../../../src/component/utils/mcpAuthScaffolder";
 import { ODRProvider, odrProviderDeps } from "../../../src/component/utils/odrProvider";
 import { ActionStartOptions, ApiAuthOptions, QuestionNames } from "../../../src/question";
 import {
@@ -1245,7 +1246,8 @@ describe("helper", async () => {
       }
     });
 
-    it("success: pre-fetch tool with OAuth auth and auth-type entraSSO", async () => {
+    it("success: pre-fetch tool with OAuth auth and auth-type entra-sso", async () => {
+      sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
       const existingPluginContent = {
         schema_version: "v1",
         name_for_human: "Test Plugin",
@@ -1284,31 +1286,39 @@ describe("helper", async () => {
         [QuestionNames.MCPForDAAvailableTools]: mockToolsDetail,
         [QuestionNames.MCPForDAPreFetchTools]: ["authenticatedTool"],
         [QuestionNames.MCPForDAAuth]: "OAuthPluginVault",
-        [QuestionNames.MCPForDAAuthType]: "entraSSO",
+        [QuestionNames.MCPForDAAuthType]: "entra-sso",
       };
 
       const res = await generatorHelper.generateForMCPForDA(testDestinationPath, inputs);
 
       assert.isTrue(res.isOk());
-      // writeJSON called twice: mcp-tools-1.json and ai-plugin.json
-      assert.isTrue(writeJSONStub.calledTwice);
+      // DT contract: writeJSON called only once (ai-plugin.json); no
+      // mcp-tools-1.json is emitted.
+      assert.isTrue(writeJSONStub.calledOnce);
 
-      const writtenContent = writeJSONStub.secondCall.args[1];
-      assert.equal(writtenContent.functions.length, 1);
-      assert.equal(writtenContent.functions[0].name, "authenticatedTool");
+      const writtenContent = writeJSONStub.firstCall.args[1];
+      // DT shape: tools are discovered at runtime, but `functions` is a
+      // schema-required field and must remain as an empty array.
+      assert.deepEqual(writtenContent.functions, []);
 
-      // Check runtime has auth configuration with correct registration ID
+      // Check runtime is RemoteMCPServer with dynamic discovery + URL-derived
+      // registration id (suffix = first 10 alphanumeric chars of hostname).
+      // Dynamic discovery is signalled by a spec carrying only `url` (no
+      // `mcp_tool_description`) per the v2.4 plugin schema.
       assert.equal(writtenContent.runtimes.length, 1);
+      assert.equal(writtenContent.runtimes[0].type, "RemoteMCPServer");
+      assert.deepEqual(writtenContent.runtimes[0].spec, { url: "https://secure.example.com/mcp" });
+      assert.deepEqual(writtenContent.runtimes[0].run_for_functions, ["*"]);
       assert.deepEqual(writtenContent.runtimes[0].auth, {
         type: "OAuthPluginVault",
-        reference_id: "${{MCP_DA_AUTH_ID_ACTION_1}}",
+        reference_id: "${{MCP_DA_AUTH_ID_SECUREEXAM}}",
       });
 
       // Verify ActionInjector wrote to yml — writeFile should be called with oauth/register
       assert.isTrue(writeFileStub.called);
       const ymlContent = writeFileStub.firstCall.args[1] as string;
       assert.include(ymlContent, "oauth/register");
-      assert.include(ymlContent, "MCP_DA_AUTH_ID_ACTION_1");
+      assert.include(ymlContent, "MCP_DA_AUTH_ID_SECUREEXAM");
     });
 
     it("success: no available tools leaves ai-plugin unchanged", async () => {
@@ -1479,6 +1489,7 @@ describe("helper", async () => {
     });
 
     it("success: OAuth auth-type resolves metadata and injects into yml", async () => {
+      sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
       const existingPluginContent = {
         schema_version: "v1",
         name_for_human: "Test Plugin",
@@ -1506,10 +1517,11 @@ describe("helper", async () => {
         );
       const writeFileStub = sandbox.stub(fs, "writeFile").resolves();
 
-      sandbox.stub(generatorHelper.declarativeAgentHelperDeps, "resolveMCPOAuthMetadata").resolves({
+      sandbox.stub(mcpAuthScaffolderDeps, "resolveMCPOAuthMetadata").resolves({
         authorizationUrl: "https://auth.example.com/authorize",
         tokenUrl: "https://auth.example.com/token",
         refreshUrl: "https://auth.example.com/token",
+        wellKnownUrl: "https://auth.example.com/.well-known/oauth-authorization-server",
       });
 
       const inputs: Inputs = {
@@ -1527,10 +1539,14 @@ describe("helper", async () => {
       const res = await generatorHelper.generateForMCPForDA(testDestinationPath, inputs);
 
       assert.isTrue(res.isOk());
-      const aiPluginContent = writeJSONStub.secondCall.args[1];
+      // DT contract: only ai-plugin.json is written.
+      assert.isTrue(writeJSONStub.calledOnce);
+      const aiPluginContent = writeJSONStub.firstCall.args[1];
+      assert.equal(aiPluginContent.runtimes[0].type, "RemoteMCPServer");
+      assert.deepEqual(aiPluginContent.runtimes[0].spec, { url: "https://secure.example.com/mcp" });
       assert.deepEqual(aiPluginContent.runtimes[0].auth, {
         type: "OAuthPluginVault",
-        reference_id: "${{MCP_DA_AUTH_ID_ACTION_1}}",
+        reference_id: "${{MCP_DA_AUTH_ID_SECUREEXAM}}",
       });
 
       // Verify yml injection includes oauth URLs
@@ -1806,7 +1822,7 @@ describe("helper", async () => {
       sandbox.stub(fs, "writeJSON").resolves();
 
       sandbox
-        .stub(generatorHelper.declarativeAgentHelperDeps, "resolveMCPOAuthMetadata")
+        .stub(mcpAuthScaffolderDeps, "resolveMCPOAuthMetadata")
         .rejects(new Error("metadata unavailable"));
 
       const inputs: Inputs = {
@@ -1866,6 +1882,234 @@ describe("helper", async () => {
       assert.deepEqual(inputs[QuestionNames.MCPForDAPreFetchTools], ["autoTool1", "autoTool2"]);
       // writeJSON called twice: mcp-tools-1.json + ai-plugin.json
       assert.isTrue(writeJSONStub.calledTwice);
+    });
+
+    it("DT auth: none auth type emits runtime.auth None", async () => {
+      sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
+      sandbox.stub(fs, "pathExists").resolves(true);
+      sandbox.stub(fs, "readJSON").resolves({ schema_version: "v1", functions: [], runtimes: [] });
+      const writeJSONStub = sandbox.stub(fs, "writeJSON").resolves();
+
+      const inputs: Inputs = {
+        platform: Platform.VSCode,
+        [QuestionNames.MCPForDAServerUrl]: "https://example.com/mcp",
+        [QuestionNames.MCPForDAAuthType]: "none",
+      };
+
+      const res = await generatorHelper.generateForMCPForDA(testDestinationPath, inputs);
+
+      assert.isTrue(res.isOk());
+      const aiPluginContent = writeJSONStub.firstCall.args[1];
+      assert.deepEqual(aiPluginContent.runtimes[0].auth, { type: "None" });
+      assert.deepEqual(aiPluginContent.runtimes[0].spec, { url: "https://example.com/mcp" });
+    });
+
+    it("DT auth: probes MCP server for auth metadata when none provided", async () => {
+      sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
+      sandbox.stub(fs, "pathExists").resolves(true);
+      sandbox.stub(fs, "readJSON").resolves({ schema_version: "v1", functions: [], runtimes: [] });
+      sandbox.stub(fs, "writeJSON").resolves();
+      sandbox
+        .stub(fs, "readFile")
+        .resolves(
+          "provision:\n  - uses: teamsApp/create\n    writeToEnvironmentFile:\n      teamsAppId: TEAMS_APP_ID\n" as any
+        );
+      sandbox.stub(fs, "writeFile").resolves();
+
+      sandbox.stub(generatorHelper.declarativeAgentHelperDeps, "probeMCPServerAuth").resolves({
+        requiresAuth: true,
+        authMetadataUrl: "https://auth.example.com/.well-known/oauth-authorization-server",
+      });
+      sandbox.stub(mcpAuthScaffolderDeps, "resolveMCPOAuthMetadata").resolves({
+        authorizationUrl: "https://auth.example.com/authorize",
+        tokenUrl: "https://auth.example.com/token",
+        refreshUrl: "https://auth.example.com/token",
+        wellKnownUrl: "https://auth.example.com/.well-known/oauth-authorization-server",
+      });
+
+      const inputs: Inputs = {
+        platform: Platform.VSCode,
+        [QuestionNames.MCPForDAServerUrl]: "https://secure.example.com/mcp",
+        [QuestionNames.MCPForDAAuthType]: "oauth",
+        // No MCPForDAAuthMetadataUrl -> probe runs
+      };
+
+      const res = await generatorHelper.generateForMCPForDA(testDestinationPath, inputs);
+
+      assert.isTrue(res.isOk());
+      assert.equal(
+        inputs[QuestionNames.MCPForDAAuthMetadataUrl],
+        "https://auth.example.com/.well-known/oauth-authorization-server"
+      );
+    });
+
+    it("flag OFF with auth type uses legacy static path (no DT)", async () => {
+      // With TEAMSFX_MCP_FOR_DA_DT off, the dispatcher must keep the legacy
+      // static-tools behavior even when an auth-type answer is present:
+      // mcp-tools-1.json is written alongside ai-plugin.json and `functions`
+      // is populated from the selected tools (no dynamic discovery).
+      sandbox.stub(featureFlagManager, "getBooleanValue").returns(false);
+      sandbox.stub(fs, "pathExists").resolves(true);
+      sandbox.stub(fs, "readJSON").resolves({
+        schema_version: "v1",
+        name_for_human: "Test Plugin",
+        functions: [],
+        runtimes: [],
+      });
+      const writeJSONStub = sandbox.stub(fs, "writeJSON").resolves();
+
+      const mockToolsDetail = [
+        {
+          name: "testServer_tool1",
+          description: "Tool 1 description",
+          inputSchema: { type: "object", properties: { q: { type: "string" } } },
+          tags: [],
+        },
+      ];
+
+      const inputs: Inputs = {
+        platform: Platform.CLI,
+        [QuestionNames.MCPForDAServerUrl]: "https://example.com/mcp",
+        [QuestionNames.MCPForDAServerName]: "testServer",
+        [QuestionNames.MCPForDAAvailableTools]: mockToolsDetail,
+        [QuestionNames.MCPForDAPreFetchTools]: ["tool1"],
+        [QuestionNames.MCPForDAAuthType]: "none",
+      };
+
+      const res = await generatorHelper.generateForMCPForDA(testDestinationPath, inputs);
+
+      assert.isTrue(res.isOk());
+      // Legacy static shape: both mcp-tools-1.json and ai-plugin.json written.
+      assert.isTrue(writeJSONStub.calledTwice);
+      const aiPluginContent = writeJSONStub.secondCall.args[1];
+      assert.equal(aiPluginContent.functions.length, 1);
+      assert.equal(aiPluginContent.functions[0].name, "tool1");
+      assert.equal(aiPluginContent.runtimes[0].spec.mcp_tool_description.file, "mcp-tools-1.json");
+      assert.deepEqual(aiPluginContent.runtimes[0].run_for_functions, ["tool1"]);
+    });
+
+    it("DT auth: flag ON persists credential env vars", async () => {
+      sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
+      sandbox.stub(fs, "pathExists").resolves(true);
+      sandbox.stub(fs, "readJSON").resolves({ schema_version: "v1", functions: [], runtimes: [] });
+      sandbox.stub(fs, "writeJSON").resolves();
+      sandbox
+        .stub(fs, "readFile")
+        .resolves(
+          "provision:\n  - uses: teamsApp/create\n    writeToEnvironmentFile:\n      teamsAppId: TEAMS_APP_ID\n" as any
+        );
+      sandbox.stub(fs, "writeFile").resolves();
+
+      const mcpToolFetcherModule = await import("../../../src/component/utils/mcpToolFetcher");
+      sandbox.stub(mcpToolFetcherModule, "resolveMCPOAuthMetadata").resolves({
+        authorizationUrl: "https://auth.example.com/authorize",
+        tokenUrl: "https://auth.example.com/token",
+        refreshUrl: "https://auth.example.com/token",
+        wellKnownUrl: "https://auth.example.com/.well-known/oauth-authorization-server",
+      });
+
+      const envUtilModule = await import("../../../src/component/utils/envUtil");
+      sandbox.stub(envUtilModule.envUtil, "listEnv").resolves(ok(["dev"]));
+      const writeEnvStub = sandbox.stub(envUtilModule.envUtil, "writeEnv").resolves(ok(undefined));
+
+      const inputs: Inputs = {
+        platform: Platform.VSCode,
+        [QuestionNames.MCPForDAServerUrl]: "https://secure.example.com/mcp",
+        [QuestionNames.MCPForDAAuthType]: "oauth",
+        [QuestionNames.MCPForDAAuthMetadataUrl]:
+          "https://auth.example.com/.well-known/oauth-authorization-server",
+        [QuestionNames.MCPForDAClientId]: "the-client-id",
+        [QuestionNames.MCPForDAClientSecret]: "the-client-secret",
+        [QuestionNames.MCPForDAScopes]: "scope-a",
+      };
+
+      const res = await generatorHelper.generateForMCPForDA(testDestinationPath, inputs);
+
+      assert.isTrue(res.isOk());
+      assert.isTrue(writeEnvStub.called);
+    });
+
+    it("DT auth: flag ON env persistence failure adds warning", async () => {
+      sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
+      sandbox.stub(fs, "pathExists").resolves(true);
+      sandbox.stub(fs, "readJSON").resolves({ schema_version: "v1", functions: [], runtimes: [] });
+      sandbox.stub(fs, "writeJSON").resolves();
+      sandbox
+        .stub(fs, "readFile")
+        .resolves(
+          "provision:\n  - uses: teamsApp/create\n    writeToEnvironmentFile:\n      teamsAppId: TEAMS_APP_ID\n" as any
+        );
+      sandbox.stub(fs, "writeFile").resolves();
+
+      const mcpToolFetcherModule = await import("../../../src/component/utils/mcpToolFetcher");
+      sandbox.stub(mcpToolFetcherModule, "resolveMCPOAuthMetadata").resolves({
+        authorizationUrl: "https://auth.example.com/authorize",
+        tokenUrl: "https://auth.example.com/token",
+        refreshUrl: "https://auth.example.com/token",
+        wellKnownUrl: "https://auth.example.com/.well-known/oauth-authorization-server",
+      });
+
+      const envUtilModule = await import("../../../src/component/utils/envUtil");
+      sandbox
+        .stub(envUtilModule.envUtil, "listEnv")
+        .resolves(err(new UserError("envUtil", "ListEnvError", "boom", "boom")));
+
+      const inputs: Inputs = {
+        platform: Platform.VSCode,
+        [QuestionNames.MCPForDAServerUrl]: "https://secure.example.com/mcp",
+        [QuestionNames.MCPForDAAuthType]: "oauth",
+        [QuestionNames.MCPForDAAuthMetadataUrl]:
+          "https://auth.example.com/.well-known/oauth-authorization-server",
+        [QuestionNames.MCPForDAClientId]: "the-client-id",
+        [QuestionNames.MCPForDAClientSecret]: "the-client-secret",
+      };
+
+      const res = await generatorHelper.generateForMCPForDA(testDestinationPath, inputs);
+
+      assert.isTrue(res.isOk());
+      if (res.isOk()) {
+        assert.isTrue(res.value.warnings!.some((w) => w.type === "mcpAuthEnvPersistError"));
+      }
+    });
+
+    it("DT auth: DCR well-known placeholder used adds warning", async () => {
+      sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
+      sandbox.stub(fs, "pathExists").resolves(true);
+      sandbox.stub(fs, "readJSON").resolves({ schema_version: "v1", functions: [], runtimes: [] });
+      sandbox.stub(fs, "writeJSON").resolves();
+      sandbox
+        .stub(fs, "readFile")
+        .resolves(
+          "provision:\n  - uses: teamsApp/create\n    writeToEnvironmentFile:\n      teamsAppId: TEAMS_APP_ID\n" as any
+        );
+      sandbox.stub(fs, "writeFile").resolves();
+      sandbox.stub(fs, "pathExistsSync").returns(true);
+
+      const mcpToolFetcherModule = await import("../../../src/component/utils/mcpToolFetcher");
+      // No wellKnownUrl in the resolved metadata -> oauth-dynamic injection
+      // falls back to the placeholder and the caller emits a warning.
+      sandbox.stub(mcpToolFetcherModule, "resolveMCPOAuthMetadata").resolves({
+        authorizationUrl: "https://auth.example.com/authorize",
+        tokenUrl: "https://auth.example.com/token",
+        refreshUrl: "https://auth.example.com/token",
+      } as any);
+
+      const inputs: Inputs = {
+        platform: Platform.VSCode,
+        [QuestionNames.MCPForDAServerUrl]: "https://secure.example.com/mcp",
+        [QuestionNames.MCPForDAAuthType]: "oauth-dynamic",
+        [QuestionNames.MCPForDAAuthMetadataUrl]:
+          "https://auth.example.com/.well-known/oauth-authorization-server",
+      };
+
+      const res = await generatorHelper.generateForMCPForDA(testDestinationPath, inputs);
+
+      assert.isTrue(res.isOk());
+      if (res.isOk()) {
+        assert.isTrue(
+          res.value.warnings!.some((w) => w.type === "mcpAuthDcrWellKnownUrlPlaceholder")
+        );
+      }
     });
   });
 

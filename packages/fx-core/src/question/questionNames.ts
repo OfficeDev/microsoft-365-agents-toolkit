@@ -159,6 +159,9 @@ export enum QuestionNames {
   MCPForDAAuthMetadataUrl = "mcp-da-auth-metadata-url",
   MCPForDAAuthWellKnownUrl = "mcp-da-auth-well-known-url",
   MCPForDAAuthType = "mcp-da-auth-type",
+  MCPForDAClientId = "mcp-da-client-id",
+  MCPForDAClientSecret = "mcp-da-client-secret",
+  MCPForDAScopes = "mcp-da-scopes",
   MCPToolsFilePath = "mcp-tools-file-path",
 
   SkillName = "skill-name",

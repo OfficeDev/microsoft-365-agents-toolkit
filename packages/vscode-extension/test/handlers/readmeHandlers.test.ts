@@ -1,12 +1,19 @@
 import * as vscode from "vscode";
 import fs from "fs-extra";
+import { featureFlagManager, FeatureFlags } from "@microsoft/teamsfx-core";
 import * as globalVariables from "../../src/globalVariables";
 import * as extTelemetryEvents from "../../src/telemetry/extTelemetryEvents";
 import { ExtTelemetry } from "../../src/telemetry/extTelemetry";
 import { PanelType } from "../../src/controls/PanelType";
 import { TreatmentVariableValue } from "../../src/exp/treatmentVariables";
 import { WebviewPanel } from "../../src/controls/webviewPanel";
-import { openReadMeHandler, openSampleReadmeHandler } from "../../src/handlers/readmeHandlers";
+import { vi, expect, assert } from "vitest";
+import { mockValue } from "../mocks/vitestMockUtils";
+import {
+  openReadMeHandler,
+  openSampleReadmeHandler,
+  openWorkspaceMCPConfigHandler,
+} from "../../src/handlers/readmeHandlers";
 import { vi, expect, assert } from "vitest";
 import { mockValue } from "../mocks/vitestMockUtils";
 
@@ -121,6 +128,96 @@ describe("readmeHandlers", () => {
       await openSampleReadmeHandler(["WalkThrough"]);
 
       assert.isTrue(executeCommandStub.calledOnce);
+    });
+  });
+
+  describe("openWorkspaceMCPConfigHandler", () => {
+    it("no workspace folder - returns ok without opening", async () => {
+      mockValue(vscode.workspace, "workspaceFolders", undefined);
+      const openTextDocumentStub = vi.spyOn(vscode.workspace, "openTextDocument");
+
+      const res = await openWorkspaceMCPConfigHandler();
+
+      assert.isTrue(res.isOk());
+      assert.isTrue(openTextDocumentStub.notCalled);
+    });
+
+    it("config file missing - returns ok without opening", async () => {
+      mockValue(vscode.workspace, "workspaceFolders", [{ uri: vscode.Uri.file("test") }]);
+      vi.spyOn(fs, "pathExists").mockResolvedValue(false);
+      const openTextDocumentStub = vi.spyOn(vscode.workspace, "openTextDocument");
+
+      const res = await openWorkspaceMCPConfigHandler();
+
+      assert.isTrue(res.isOk());
+      assert.isTrue(openTextDocumentStub.notCalled);
+    });
+
+    it("DT flag off - shows Fetch Action notification and opens mcp.json", async () => {
+      mockValue(vscode.workspace, "workspaceFolders", [{ uri: vscode.Uri.file("test") }]);
+      vi.spyOn(fs, "pathExists").mockResolvedValue(true);
+      vi.spyOn(featureFlagManager, "getBooleanValue").mockReturnValue(false);
+      const openTextDocumentStub = vi
+        .spyOn(vscode.workspace, "openTextDocument")
+        .mockResolvedValue({} as vscode.TextDocument);
+      vi.spyOn(vscode.window, "showTextDocument").mockResolvedValue(undefined as any);
+      const showMessageStub = vi
+        .spyOn(vscode.window, "showInformationMessage")
+        .mockResolvedValue("Fetch Action" as any);
+      const executeCommandStub = vi.spyOn(vscode.commands, "executeCommand");
+
+      const res = await openWorkspaceMCPConfigHandler();
+
+      assert.isTrue(res.isOk());
+      assert.isTrue(showMessageStub.calledOnce);
+      assert.isTrue(openTextDocumentStub.calledOnce);
+      // Fetch Action selection wires the updateActionWithMCP command.
+      await Promise.resolve();
+      expect(executeCommandStub).toHaveBeenCalledWith("fx-extension.updateActionWithMCP");
+    });
+
+    it("DT flag on - opens ai-plugin.json without Fetch Action notification", async () => {
+      mockValue(vscode.workspace, "workspaceFolders", [{ uri: vscode.Uri.file("test") }]);
+      vi.spyOn(fs, "pathExists").mockResolvedValue(true);
+      vi.spyOn(featureFlagManager, "getBooleanValue").mockImplementation(
+        (flag) => flag === FeatureFlags.MCPForDADT
+      );
+      const openTextDocumentStub = vi
+        .spyOn(vscode.workspace, "openTextDocument")
+        .mockResolvedValue({} as vscode.TextDocument);
+      vi.spyOn(vscode.window, "showTextDocument").mockResolvedValue(undefined as any);
+      const showMessageStub = vi
+        .spyOn(vscode.window, "showInformationMessage")
+        .mockResolvedValue(undefined);
+
+      const res = await openWorkspaceMCPConfigHandler();
+
+      assert.isTrue(res.isOk());
+      assert.isTrue(showMessageStub.notCalled);
+      assert.isTrue(openTextDocumentStub.calledOnce);
+      const openedUri = openTextDocumentStub.firstCall.args[0] as vscode.Uri;
+      assert.isTrue(openedUri.fsPath.endsWith("ai-plugin.json"));
+    });
+
+    it("DT flag on but ai-plugin.json missing - falls back to mcp.json", async () => {
+      mockValue(vscode.workspace, "workspaceFolders", [{ uri: vscode.Uri.file("test") }]);
+      vi.spyOn(fs, "pathExists").mockImplementation(async (p: string | Buffer | URL) =>
+        String(p).endsWith("mcp.json")
+      );
+      vi.spyOn(featureFlagManager, "getBooleanValue").mockImplementation(
+        (flag) => flag === FeatureFlags.MCPForDADT
+      );
+      const openTextDocumentStub = vi
+        .spyOn(vscode.workspace, "openTextDocument")
+        .mockResolvedValue({} as vscode.TextDocument);
+      vi.spyOn(vscode.window, "showTextDocument").mockResolvedValue(undefined as any);
+
+      const res = await openWorkspaceMCPConfigHandler();
+
+      assert.isTrue(res.isOk());
+      assert.isTrue(openTextDocumentStub.calledOnce);
+      const openedUri = openTextDocumentStub.firstCall.args[0] as vscode.Uri;
+      assert.isTrue(openedUri.fsPath.endsWith("mcp.json"));
     });
   });
 });

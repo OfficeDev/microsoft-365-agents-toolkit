@@ -1,4 +1,5 @@
 import { ok, TeamsAppManifest } from "@microsoft/teamsfx-api";
+import { featureFlagManager, FeatureFlags } from "@microsoft/teamsfx-core";
 import { manifestUtils, pluginManifestUtils } from "@microsoft/teamsfx-core";
 import * as globalState from "@microsoft/teamsfx-core";
 import * as apiSpec from "@microsoft/teamsfx-core/build/component/generator/openApiSpec/helper";
@@ -246,6 +247,33 @@ describe("autoOpenHelper", () => {
     await showLocalDebugMessage();
 
     assert.isTrue(showMessageStub.called);
+    assert.isFalse(executeCommandStub.called);
+  });
+
+  it("showLocalDebugMessage() - DA with MCP (DT flag on) shows scenario notification", async () => {
+    mockValue(vscode.workspace, "workspaceFolders", [{ uri: vscode.Uri.file("test") }]);
+    vi.spyOn(vscode.workspace, "openTextDocument");
+    mockValue(process, "platform", "win32");
+    // No local env (.local.yml / keyGen absent) so the else branch runs;
+    // the .vscode/mcp.json marker exists -> DT scenario notification.
+    vi.spyOn(fs, "pathExists").mockImplementation(async (p: string | Buffer | URL) =>
+      String(p).includes("mcp.json")
+    );
+    vi.spyOn(featureFlagManager, "getBooleanValue").mockImplementation(
+      (flag) => flag === FeatureFlags.MCPForDADT
+    );
+
+    await globalState.globalStateUpdate("ShowLocalDebugMessage", true);
+    vi.spyOn(ExtTelemetry, "sendTelemetryEvent");
+    mockValue(globalVariables, "workspaceUri", vscode.Uri.file("test"));
+    const showMessageStub = vi
+      .spyOn(vscode.window, "showInformationMessage")
+      .mockResolvedValue(undefined);
+    const executeCommandStub = vi.spyOn(vscode.commands, "executeCommand");
+
+    await showLocalDebugMessage();
+
+    assert.isTrue(showMessageStub.calledOnce);
     assert.isFalse(executeCommandStub.called);
   });
 

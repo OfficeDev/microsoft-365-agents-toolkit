@@ -180,8 +180,24 @@ export const CreateProjectOptions: CLICommandOption[] = [
   {
     name: "mcp-da-auth-type",
     type: "string",
-    description: "Authentication type for the MCP server (oauth or entraSSO).",
-    choices: ["oauth", "entraSSO"],
+    description: "Authentication type for the MCP server (oauth, entra-sso, or none).",
+    choices: ["oauth", "entra-sso", "none"],
+  },
+  {
+    name: "mcp-da-client-id",
+    type: "string",
+    description:
+      "OAuth client id for the MCP server (static OAuth), or the Entra application client id (Entra SSO).",
+  },
+  {
+    name: "mcp-da-client-secret",
+    type: "string",
+    description: "OAuth client secret for the MCP server. Required for static OAuth.",
+  },
+  {
+    name: "mcp-da-scopes",
+    type: "string",
+    description: "Space-separated OAuth scopes for the MCP server. Optional for static OAuth.",
   },
   {
     name: "folder",

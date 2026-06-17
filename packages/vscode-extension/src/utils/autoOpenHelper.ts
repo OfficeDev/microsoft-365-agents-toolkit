@@ -125,6 +125,13 @@ export async function showLocalDebugMessage() {
       }
     });
   } else {
+    // DA-with-MCP + dynamic tool discovery (flag on): swap the generic
+    // Provision notification for the scenario-specific one defined in
+    // SCN-DA-CREATE-WITH-MCP-SERVER §9. Marker file `.vscode/mcp.json` is only
+    // emitted by the DA-with-MCP scaffold.
+    const isDaWithMcpDt =
+      featureFlagManager.getBooleanValue(FeatureFlags.MCPForDADT) &&
+      (await fs.pathExists(path.join(globalVariables.workspaceUri!.fsPath, ".vscode", "mcp.json")));
     const provision = {
       title: localize("teamstoolkit.handlers.provisionTitle"),
       run: async (): Promise<void> => {
@@ -134,17 +141,22 @@ export async function showLocalDebugMessage() {
       },
     };
     ExtTelemetry.sendTelemetryEvent(TelemetryEvent.ShowProvisionNotification);
-    const message = isWindows
-      ? util.format(
-          localize("teamstoolkit.handlers.provisionDescription"),
-          appName,
-          openFolderCommand
-        )
-      : util.format(
-          localize("teamstoolkit.handlers.provisionDescription.fallback"),
-          appName,
-          globalVariables.workspaceUri?.fsPath
-        );
+    let message: string;
+    if (isDaWithMcpDt) {
+      message = localize("teamstoolkit.handlers.openWorkspaceMCPConfigNotification.dt");
+    } else {
+      message = isWindows
+        ? util.format(
+            localize("teamstoolkit.handlers.provisionDescription"),
+            appName,
+            openFolderCommand
+          )
+        : util.format(
+            localize("teamstoolkit.handlers.provisionDescription.fallback"),
+            appName,
+            globalVariables.workspaceUri?.fsPath
+          );
+    }
     void vscode.window.showInformationMessage(message, provision).then((selection) => {
       if (selection?.title === localize("teamstoolkit.handlers.provisionTitle")) {
         ExtTelemetry.sendTelemetryEvent(TelemetryEvent.ClickProvision);

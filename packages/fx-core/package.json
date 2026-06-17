@@ -25,7 +25,7 @@
     "precommit": "lint-staged",
     "install:tabs": "cd tabs && npm install",
     "installAll": "npm run install:tabs",
-    "checkUnusedStrings": "node ./scripts/find-unused-strings.js ./resource/package.nls.json ./src || exit 1",
+    "checkUnusedStrings": "node ./scripts/find-unused-strings.js ./resource/package.nls.json ./src ./templates/ui || exit 1",
     "clean:strings": "node ./scripts/delete-unused-strings.js ./resource/package.nls.json ./src",
     "gen:cli": "npx tsx ./src/question/generator.ts && npx prettier --write \"src/question/options/*.ts\" && npx prettier --write \"src/question/inputs/*.ts\"",
     "gen:template-info:vsc": "npx tsx ./scripts/generate-template-info.ts vscode ./resource/template-info/vsc.json"

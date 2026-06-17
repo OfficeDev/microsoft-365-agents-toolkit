@@ -22,14 +22,14 @@ Success means the developer can choose the Declarative Agent path, choose `Add a
 
 - Produces: a DA project folder with `appPackage/manifest.json`, a declarative agent manifest referencing the new MCP action, an action manifest (`ai-plugin.json`) wired to the MCP server URL, an `m365agents.yml` whose provisioning steps include the OAuth registration action when the authentication type requires it, and a `.vscode/mcp.json` with an entry for the MCP server URL so the developer can immediately exercise the server from Copilot Chat in VS Code.
 - For the `OAuth (with static registration)` authentication type, the project also contains environment files (`env/.env.dev` and `env/.env.dev.user`) populated with placeholders for the developer-provided client id, client secret, and optional scopes.
-- Does not include: a static MCP tools JSON file. Tool discovery is deferred to the agent host at runtime.
+- Does not include (when `TEAMSFX_MCP_FOR_DA_DT` is on): a static MCP tools JSON file &mdash; tool discovery is deferred to the agent host at runtime. When the flag is off, the create flow writes a static `mcp-tools-1.json` and populates `functions`, matching shipped behavior.
 - Companion redesign: `SCN-DA-ADD-MCP-ACTION-TO-DA` uses the same auth-type question tree for an already-existing DA project.
 
 ## Feature flags
 
 Two temporary flags scope incremental rollout of the new behavior on this page; both default **off**.
 
-- `TEAMSFX_MCP_FOR_DA_DT` &mdash; gates the credential-persistence subset of this scenario: the scaffold persists OAuth client id / scope / secret answers under project-standard UPPER_SNAKE names in `env/.env.<env>` and `env/.env.<env>.user`, and the `oauth/register` step in `m365agents.yml` references them via `${{...}}`. MCP-backed DA itself is now unconditionally available in the create flow (the old umbrella flag has been removed).
+- `TEAMSFX_MCP_FOR_DA_DT` &mdash; gates the Dynamic Tool Discovery runtime shape of this scenario. When **on**, the scaffold produces the dynamic shape described on this page (no static `mcp-tools-1.json`; the `ai-plugin.json` runtime `spec` carries only the MCP server `url` with no `mcp_tool_description` and `run_for_functions: ["*"]`; `functions` stays empty &mdash; tools are discovered by the agent host at runtime), and it persists OAuth client id / scope / secret answers under project-standard UPPER_SNAKE names in `env/.env.<env>` and `env/.env.<env>.user`, with the `oauth/register` step in `m365agents.yml` referencing them via `${{...}}`. When **off**, the create flow keeps the legacy static-tools behavior &mdash; it fetches/loads the MCP tool list, writes a static `mcp-tools-1.json`, and populates `functions` &mdash; matching shipped behavior.
 - `TEAMSFX_MCP_FOR_DA_DCR` &mdash; gates only the `OAuth (with dynamic registration)` auth-type option in step 6 and the matching `dcr/register` action in `m365agents.yml`. The option is shown &mdash; and the CLI value `oauth-dynamic` is accepted &mdash; only when **both** `TEAMSFX_MCP_FOR_DA_DT` and `TEAMSFX_MCP_FOR_DA_DCR` are `true`, because DCR scaffolding currently piggybacks on the DT-mode env-file plumbing.
 
 Both flags are intended to be temporary and removed once the rollout is complete.
@@ -56,7 +56,7 @@ Both flags are intended to be temporary and removed once the rollout is complete
 
   In **VS Code**, this pick (and all conditional follow-up fields) is gated on `TEAMSFX_MCP_FOR_DA_DT`: when the flag is **off**, the create flow skips the auth-type pick entirely and jumps straight to the project location step &mdash; matching shipped behavior, where auth-type is collected later by the fetch-mcp-tools CodeLens (`SCN-DA-FETCH-MCP-TOOLS`). In **CLI**, the pick is always reachable; non-interactive mode requires `--mcp-da-auth-type`.
 - App name and location: standard app-name input and project location picker.
-- Generated project (all auth types): the action manifest references the MCP server URL, the declarative agent manifest references the new action, `m365agents.yml` is generated with the standard DA provisioning steps, and `.vscode/mcp.json` contains an entry pointing at the MCP server URL so the developer can call the server from Copilot Chat in VS Code without further setup. When an auth step is injected, the `name:` of the `oauth/register` or `dcr/register` step in `m365agents.yml` matches the `namespace` written into `ai-plugin.json` (derived from the app name via `SafeProjectNameLowerCase`). The `id` of the action inside `declarativeAgent.json` stays at the template default `action_1` and is intentionally not aligned &mdash; it is a local identifier within the manifest, not a provisioning handle.
+- Generated project (all auth types): the action manifest references the MCP server URL, the declarative agent manifest references the new action, `m365agents.yml` is generated with the standard DA provisioning steps, and `.vscode/mcp.json` contains an entry pointing at the MCP server URL so the developer can call the server from Copilot Chat in VS Code without further setup. When an auth step is injected, the `name:` of the `oauth/register` or `dcr/register` step in `m365agents.yml` matches the `namespace` written into `ai-plugin.json`. The `namespace` is derived from the MCP server host (`deriveMCPNamespaceFromUrl` &mdash; alphanumeric, lowercased, truncated), not from the app name, so it stays aligned with the add-action flow and actions targeting different MCP servers get distinct namespaces. The `id` of the action inside `declarativeAgent.json` stays at the template default `action_1` and is intentionally not aligned &mdash; it is a local identifier within the manifest, not a provisioning handle.
 - Generated project (`OAuth (with static registration)`): in addition, `m365agents.yml` includes an `oauth/register` step, and `env/.env.dev` plus `env/.env.dev.user` contain placeholders for the client id, client secret, and scopes the developer entered. The secret is written into `env/.env.dev.user` and is not committed.
 - Generated project (`Entra SSO`): in addition, `m365agents.yml` references the developer-provided Entra application client id for the SSO action.
 - Generated project (`OAuth (with dynamic registration)`): in addition, `m365agents.yml` includes a `dcr/register` step (RFC 7591 Dynamic Client Registration). The scaffold probes the MCP server (HTTP `POST` of an MCP `initialize` JSON-RPC body) to auto-discover the well-known authorization-server URL via the `WWW-Authenticate` `resource_metadata` chain. The `m365agents.yml` schema `version:` is bumped from the template default `v1.12` to `v1.13` on `dcr/register` injection, because the DCR action requires schema v1.13+.
@@ -142,7 +142,7 @@ flowchart TD
   DcrGate -- Yes --> AuthSwitch{mcp-da-auth-type}
   AuthSwitch -- "oauth-dynamic / none" --> Generate
   AuthSwitch -- "oauth (static)" --> StaticFlags{Static-OAuth follow-up flags present?}
-  AuthSwitch -- entraSSO --> SsoFlags{Entra-SSO follow-up flags present?}
+  AuthSwitch -- entra-sso --> SsoFlags{Entra-SSO follow-up flags present?}
   StaticFlags -- No --> MissingStatic[Return validation error: missing client id or client secret]
   StaticFlags -- Yes --> Generate
   SsoFlags -- No --> MissingSso[Return validation error: missing Entra app client id]
@@ -171,8 +171,8 @@ Example non-interactive command (Entra SSO):
 
 ```bash
 atk new -c declarative-agent --with-plugin yes --api-plugin-type mcp --mcp-server-type remote \
-  --mcp-da-server-url <server-url> --mcp-da-auth-type entraSSO \
-  --mcp-da-entra-client-id <entra-app-client-id> \
+  --mcp-da-server-url <server-url> --mcp-da-auth-type entra-sso \
+  --mcp-da-client-id <entra-app-client-id> \
   -n <app-name> -f <folder> --interactive false
 ```
 
@@ -252,6 +252,6 @@ flowchart TD
 ## Validation notes
 
 - VS Code UI test intent should trace to `SCN-DA-CREATE-WITH-MCP-SERVER` and cover the new auth-type pick and each conditional follow-up path. The success state is a generated project whose manifest, action manifest, and yml all reference the MCP action; static-OAuth additionally verifies env file placeholders.
-- CLI E2E test intent should trace to `SCN-DA-CREATE-WITH-MCP-SERVER` for interactive and non-interactive `atk new` paths and cover each auth-type value (`oauth-dynamic`, `oauth`, `entraSSO`, `none`).
-- CLI non-interactive validation should cover missing `--mcp-da-server-url`, missing `--mcp-da-auth-type`, missing static-OAuth follow-up flags (`--mcp-da-client-id`, `--mcp-da-client-secret`), missing Entra-SSO `--mcp-da-entra-client-id`, invalid app name, and invalid or unavailable target folder.
+- CLI E2E test intent should trace to `SCN-DA-CREATE-WITH-MCP-SERVER` for interactive and non-interactive `atk new` paths and cover each auth-type value (`oauth-dynamic`, `oauth`, `entra-sso`, `none`).
+- CLI non-interactive validation should cover missing `--mcp-da-server-url`, missing `--mcp-da-auth-type`, missing static-OAuth follow-up flags (`--mcp-da-client-id`, `--mcp-da-client-secret`), missing Entra-SSO `--mcp-da-client-id`, invalid app name, and invalid or unavailable target folder.
 - The static MCP tools file flag (`--mcp-tools-file-path`) and the static "Select Operation(s) Copilot can interact with" pick are explicitly out of scope for this scenario in the new flow; tool discovery is dynamic at runtime.

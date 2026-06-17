@@ -5,12 +5,19 @@ import { AddPluginInputs, AddPluginOptions } from "@microsoft/teamsfx-core";
 import { getFxCore } from "../../activate";
 import { commands } from "../../resource";
 import { TelemetryEvent } from "../../telemetry/cliTelemetryEvents";
-import { ProjectFolderOption } from "../common";
+import {
+  gateMCPDAAuthTypeChoices,
+  gateMCPDACredentialOptions,
+  ProjectFolderOption,
+} from "../common";
 
 export const addPluginCommand: CLICommand = {
   name: "action",
   description: commands["add.action"].description,
-  options: [...AddPluginOptions, ProjectFolderOption],
+  options: [
+    ...gateMCPDACredentialOptions(gateMCPDAAuthTypeChoices(AddPluginOptions)),
+    ProjectFolderOption,
+  ],
   telemetry: {
     event: TelemetryEvent.AddCopilotPlugin,
   },

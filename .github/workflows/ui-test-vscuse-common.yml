@@ -28,6 +28,10 @@ on:
         required: false
         type: string
         default: "latest"
+      template_version:
+        required: false
+        type: string
+        default: ""
       email_receiver:
         required: false
         type: string
@@ -279,6 +283,28 @@ jobs:
           docker pull $VSCUSE_VSCODE_IMAGE
           echo "✅ Image pulled successfully!"
           docker images $VSCUSE_VSCODE_IMAGE
+
+      - name: Inject TEMPLATE_VERSION into config.yaml
+        env:
+          TEMPLATE_VERSION: ${{ inputs.template_version }}
+        run: |
+          cd packages/tests/vscuse/vscode-test-cases
+
+          if [ -n "$TEMPLATE_VERSION" ]; then
+            awk '
+              /^execution:/ && !inserted {
+                print "    TEMPLATE_VERSION: \"" ENVIRON["TEMPLATE_VERSION"] "\""
+                print ""
+                inserted = 1
+              }
+              { print }
+            ' config.yaml > config.yaml.tmp
+            mv config.yaml.tmp config.yaml
+
+            echo "Injected TEMPLATE_VERSION into VSCUSE config.yaml: $TEMPLATE_VERSION"
+          else
+            echo "TEMPLATE_VERSION not provided; TEMPLATE_VERSION won't be added to config.yaml"
+          fi
 
       - name: Run test
         run: |

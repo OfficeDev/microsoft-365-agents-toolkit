@@ -78,6 +78,9 @@ export enum TemplateNames {
   FoundryAgent = "foundry-agent-to-m365",
   FoundryProxyAgent = "foundry-proxy-agent",
 
+  // blank
+  BlankApp = "blank-app",
+
   // openplugin import — baseline files scaffolded by 'atk import openplugin'
   OpenPluginImport = "open-plugin-import",
 }
@@ -111,4 +114,7 @@ export enum TemplateAlias {
 
   // messaging extension
   DefaultMessageExtension = "message-extension",
+
+  // blank
+  BlankApp = "blank",
 }
