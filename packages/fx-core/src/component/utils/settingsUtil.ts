@@ -3,6 +3,8 @@
 
 import { err, FxError, ok, Result, Settings } from "@microsoft/teamsfx-api";
 import * as fs from "fs-extra";
+import * as os from "os";
+import * as path from "path";
 import * as uuid from "uuid";
 import { parseDocument } from "yaml";
 import { featureFlagManager, FeatureFlags } from "../../common/featureFlags";
@@ -17,6 +19,12 @@ import { FileNotFoundError } from "../../error/common";
 import { pathUtils } from "./pathUtils";
 
 class SettingsUtils {
+  private isInTempDirectory(filePath: string): boolean {
+    const resolvedPath = path.resolve(filePath);
+    const tempDir = path.resolve(os.tmpdir());
+    return resolvedPath.startsWith(tempDir + path.sep);
+  }
+
   async readSettings(
     projectPath: string,
     ensureTrackingId = true
@@ -37,7 +45,9 @@ class SettingsUtils {
       const projectId = uuid.v4();
       const projectIdField = appYaml.createPair("projectId", uuid.v4());
       appYaml.add(projectIdField);
-      await fs.writeFile(projectYamlPath, appYaml.toString()); // only write yaml file once instead of write yaml file after every command
+      if (!this.isInTempDirectory(projectYamlPath)) {
+        await fs.writeFile(projectYamlPath, appYaml.toString());
+      }
       sendTelemetryEvent(Component.core, TelemetryEvent.FillProjectId, {
         [TelemetryProperty.ProjectId]: projectId,
       });
@@ -64,7 +74,9 @@ class SettingsUtils {
     const yamlFileContent: string = await fs.readFile(projectYamlPath, "utf8");
     const appYaml = parseDocument(yamlFileContent);
     appYaml.set("projectId", settings.trackingId);
-    await fs.writeFile(projectYamlPath, appYaml.toString());
+    if (!this.isInTempDirectory(projectYamlPath)) {
+      await fs.writeFile(projectYamlPath, appYaml.toString());
+    }
     return ok(projectYamlPath);
   }
 }

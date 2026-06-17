@@ -23,6 +23,7 @@ describe("SettingsUtils", () => {
     tempDir = path.join(os.tmpdir(), `test-settings-${Date.now()}`);
     await fs.ensureDir(tempDir);
     envRestore = mockedEnv({});
+    sandbox.stub(os, "tmpdir").returns("/fake-temp-dir-for-test");
   });
 
   afterEach(async () => {
