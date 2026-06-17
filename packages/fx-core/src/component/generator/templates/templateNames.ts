@@ -25,6 +25,9 @@ export enum TemplateNames {
   TravelAgent = "travel-agent",
   FoundryProxyAgent = "foundry-proxy-agent",
 
+  // blank
+  BlankApp = "blank-app",
+
   // agent for Teams
   CustomCopilotBasic = "custom-copilot-basic",
   CustomCopilotRagCustomize = "custom-copilot-rag-customize",

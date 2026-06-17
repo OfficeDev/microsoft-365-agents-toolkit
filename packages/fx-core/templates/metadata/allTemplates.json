@@ -394,6 +394,14 @@
     "description": "Receive user input, process it, and send customized results"
   },
   {
+    "id": "blank-app",
+    "name": "blank-app",
+    "alias": "blank",
+    "language": "common",
+    "displayName": "Blank App",
+    "description": "Blank M365 app with minimal structure"
+  },
+  {
     "id": "office-addin-outlook-taskpane-ts",
     "name": "office-addin-outlook-taskpane",
     "language": "typescript",
