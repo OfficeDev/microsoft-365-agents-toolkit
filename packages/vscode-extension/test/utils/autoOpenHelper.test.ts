@@ -1,9 +1,14 @@
 import { ok, TeamsAppManifest } from "@microsoft/teamsfx-api";
-import { featureFlagManager, FeatureFlags } from "@microsoft/teamsfx-core";
-import { manifestUtils, pluginManifestUtils } from "@microsoft/teamsfx-core";
 import * as globalState from "@microsoft/teamsfx-core";
+import {
+  featureFlagManager,
+  FeatureFlags,
+  manifestUtils,
+  pluginManifestUtils,
+} from "@microsoft/teamsfx-core";
 import * as apiSpec from "@microsoft/teamsfx-core/build/component/generator/openApiSpec/helper";
 import fs from "fs-extra";
+import { assert, vi } from "vitest";
 import * as vscode from "vscode";
 import VscodeLogInstance from "../../src/commonlib/log";
 import * as runIconHandlers from "../../src/debug/runIconHandler";
@@ -11,12 +16,11 @@ import * as globalVariables from "../../src/globalVariables";
 import * as readmeHandlers from "../../src/handlers/readmeHandlers";
 import { ExtTelemetry } from "../../src/telemetry/extTelemetry";
 import * as appDefinitionUtils from "../../src/utils/appDefinitionUtils";
-import { vi, assert } from "vitest";
-import { mockValue } from "../mocks/vitestMockUtils";
 import {
   showLocalDebugMessage,
   ShowScaffoldingWarningSummary,
 } from "../../src/utils/autoOpenHelper";
+import { mockValue } from "../mocks/vitestMockUtils";
 
 describe("autoOpenHelper", () => {
   let inMemoryGlobalState: Map<string, any>;

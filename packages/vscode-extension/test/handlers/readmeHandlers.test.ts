@@ -1,20 +1,18 @@
-import * as vscode from "vscode";
-import fs from "fs-extra";
 import { featureFlagManager, FeatureFlags } from "@microsoft/teamsfx-core";
-import * as globalVariables from "../../src/globalVariables";
-import * as extTelemetryEvents from "../../src/telemetry/extTelemetryEvents";
-import { ExtTelemetry } from "../../src/telemetry/extTelemetry";
+import fs from "fs-extra";
+import { assert, expect, vi } from "vitest";
+import * as vscode from "vscode";
 import { PanelType } from "../../src/controls/PanelType";
-import { TreatmentVariableValue } from "../../src/exp/treatmentVariables";
 import { WebviewPanel } from "../../src/controls/webviewPanel";
-import { vi, expect, assert } from "vitest";
-import { mockValue } from "../mocks/vitestMockUtils";
+import { TreatmentVariableValue } from "../../src/exp/treatmentVariables";
+import * as globalVariables from "../../src/globalVariables";
 import {
   openReadMeHandler,
   openSampleReadmeHandler,
   openWorkspaceMCPConfigHandler,
 } from "../../src/handlers/readmeHandlers";
-import { vi, expect, assert } from "vitest";
+import { ExtTelemetry } from "../../src/telemetry/extTelemetry";
+import * as extTelemetryEvents from "../../src/telemetry/extTelemetryEvents";
 import { mockValue } from "../mocks/vitestMockUtils";
 
 describe("readmeHandlers", () => {

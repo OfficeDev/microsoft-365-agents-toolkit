@@ -9,6 +9,7 @@ import {
   ManifestTemplateFileName,
   Warning,
 } from "@microsoft/teamsfx-api";
+import * as teamsfxCore from "@microsoft/teamsfx-core";
 import {
   assembleError,
   featureFlagManager,
@@ -19,7 +20,6 @@ import {
   outputScaffoldingWarningMessage,
   pluginManifestUtils,
 } from "@microsoft/teamsfx-core";
-import * as teamsfxCore from "@microsoft/teamsfx-core";
 import fs from "fs-extra";
 import path from "path";
 import * as util from "util";

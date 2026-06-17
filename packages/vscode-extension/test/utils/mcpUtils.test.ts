@@ -1,15 +1,14 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { vi, describe, it, beforeEach, expect } from "vitest";
-import * as vscode from "vscode";
 import fs from "fs-extra";
-import { setupMCPServer } from "../../src/utils/mcpUtils";
-import { TelemetryEvent, TelemetryProperty } from "../../src/telemetry/extTelemetryEvents";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import * as vscode from "vscode";
 import { fsAdapter, pathAdapter } from "../../src/common/npmPackageDeps";
 import * as globalVariables from "../../src/globalVariables";
-import * as localizeUtils from "../../src/utils/localizeUtils";
 import { ExtTelemetry } from "../../src/telemetry/extTelemetry";
+import * as localizeUtils from "../../src/utils/localizeUtils";
+import { setupMCPServer } from "../../src/utils/mcpUtils";
 import { mockValue } from "../mocks/vitestMockUtils";
 
 vi.mock("vscode");
@@ -36,7 +35,9 @@ describe("mcpUtils", () => {
 
     it("should return early if no workspace folders", async () => {
       mockValue(globalVariables, "workspaceUri", undefined);
-      const showInformationMessageStub = vi.spyOn(vscode.window, "showInformationMessage");
+      const showInformationMessageStub = vi
+        .spyOn(vscode.window, "showInformationMessage")
+        .mockResolvedValue("Confirm" as any);
       const sendTelemetryEventStub = vi.spyOn(ExtTelemetry, "sendTelemetryEvent");
 
       await setupMCPServer();
@@ -71,6 +72,120 @@ describe("mcpUtils", () => {
 
       await setupMCPServer();
 
+      expect(sendTelemetryEventStub.called).to.be.true;
+    });
+
+    it("should return early when both files are already set up", async () => {
+      vi.spyOn(fsAdapter, "existsSync").mockReturnValue(true);
+      const getConfigurationStub = vi.spyOn(vscode.workspace, "getConfiguration");
+      getConfigurationStub.mockReturnValue({
+        get: vi.fn((key: string) =>
+          key === "servers"
+            ? {
+                m365agentstoolkit: {
+                  command: "npx",
+                  args: ["@microsoft/m365agentstoolkit-mcp@latest", "server", "start"],
+                },
+              }
+            : undefined
+        ),
+      } as any);
+
+      const showInformationMessageStub = vi.spyOn(vscode.window, "showInformationMessage");
+      const sendTelemetryEventStub = vi.spyOn(ExtTelemetry, "sendTelemetryEvent");
+
+      await setupMCPServer();
+
+      expect(showInformationMessageStub.called).to.be.false;
+      expect(sendTelemetryEventStub.called).to.be.false;
+    });
+
+    it("should update existing mcp.json when user confirms", async () => {
+      vi.spyOn(fsAdapter, "existsSync").mockReturnValue(true);
+      vi.spyOn(fsAdapter, "mkdirSync").mockImplementation(() => undefined);
+      vi.spyOn(fsAdapter, "readFileSync").mockReturnValue(
+        JSON.stringify({
+          servers: {
+            "other-server": { command: "other-command" },
+          },
+        })
+      );
+      const writeFileSyncStub = vi
+        .spyOn(fsAdapter, "writeFileSync")
+        .mockImplementation(() => undefined);
+
+      const getConfigurationStub = vi.spyOn(vscode.workspace, "getConfiguration");
+      getConfigurationStub.mockReturnValue({
+        get: vi.fn((key: string) =>
+          key === "servers"
+            ? {
+                "other-server": { command: "other-command" },
+              }
+            : undefined
+        ),
+      } as any);
+
+      const showInformationMessageStub = vi
+        .spyOn(vscode.window, "showInformationMessage")
+        .mockResolvedValue("Confirm" as any);
+      vi.spyOn(ExtTelemetry, "sendTelemetryEvent");
+      const sendTelemetryErrorEventStub = vi.spyOn(ExtTelemetry, "sendTelemetryErrorEvent");
+
+      await setupMCPServer();
+
+      expect(writeFileSyncStub.called).to.be.true;
+      expect(sendTelemetryErrorEventStub.called).to.be.false;
+      expect(showInformationMessageStub.called).to.be.true;
+    });
+
+    it("should initialize servers when existing mcp.json has no servers object", async () => {
+      vi.spyOn(fsAdapter, "existsSync").mockReturnValue(true);
+      vi.spyOn(fsAdapter, "readFileSync").mockReturnValue(JSON.stringify({}));
+      const writeFileSyncStub = vi
+        .spyOn(fsAdapter, "writeFileSync")
+        .mockImplementation(() => undefined);
+
+      const getConfigurationStub = vi.spyOn(vscode.workspace, "getConfiguration");
+      getConfigurationStub.mockReturnValue({
+        get: vi.fn((key: string) =>
+          key === "servers"
+            ? {
+                "other-server": { command: "other-command" },
+              }
+            : undefined
+        ),
+      } as any);
+
+      vi.spyOn(vscode.window, "showInformationMessage").mockResolvedValue("Confirm" as any);
+      vi.spyOn(ExtTelemetry, "sendTelemetryEvent");
+
+      await setupMCPServer();
+
+      expect(writeFileSyncStub.called).to.be.true;
+      const writtenConfig = JSON.parse(writeFileSyncStub.mock.calls[0][1] as string);
+      expect(writtenConfig.servers).to.have.property("M365AgentsToolkit MCP Server");
+    });
+
+    it("should continue when reading mcp configuration throws", async () => {
+      vi.spyOn(fsAdapter, "existsSync").mockReturnValue(true);
+      vi.spyOn(fsAdapter, "readFileSync").mockReturnValue(
+        JSON.stringify({
+          servers: {
+            "other-server": { command: "other-command" },
+          },
+        })
+      );
+      const getConfigurationStub = vi.spyOn(vscode.workspace, "getConfiguration");
+      getConfigurationStub.mockImplementation(() => {
+        throw new Error("bad config");
+      });
+
+      const showInformationMessageStub = vi.spyOn(vscode.window, "showInformationMessage");
+      const sendTelemetryEventStub = vi.spyOn(ExtTelemetry, "sendTelemetryEvent");
+
+      await setupMCPServer();
+
+      expect(showInformationMessageStub.called).to.be.true;
       expect(sendTelemetryEventStub.called).to.be.true;
     });
 
