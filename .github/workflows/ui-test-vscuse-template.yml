@@ -17,6 +17,10 @@ on:
         required: false
         type: string
         default: "latest"
+      TEMPLATE_VERSION:
+        description: "Template version to inject into packages/tests/vscuse/vscode-test-cases/config.yaml"
+        required: false
+        type: string
       email-receiver:
         description: "email notification receiver"
         required: false
@@ -48,6 +52,7 @@ jobs:
       test_plan: ${{ github.event.inputs.test_plan }}
       image_tag: ${{ github.event.inputs.image_tag }}
       vscuse_version: ${{ github.event.inputs.vscuse_version }}
+      TEMPLATE_VERSION: ${{ github.event.inputs.TEMPLATE_VERSION }}
       email_receiver: ${{ github.event.inputs.email-receiver }}
       max_retries: ${{ fromJson(github.event.inputs.max_retries || '7') }}
       schedule_trigger: ${{ github.event.inputs.schedule_trigger == 'true' }}

@@ -28,6 +28,10 @@ on:
         required: false
         type: string
         default: "latest"
+      TEMPLATE_VERSION:
+        required: false
+        type: string
+        default: ""
       email_receiver:
         required: false
         type: string
@@ -280,10 +284,40 @@ jobs:
           echo "✅ Image pulled successfully!"
           docker images $VSCUSE_VSCODE_IMAGE
 
+      - name: Inject TEMPLATE_VERSION into config.yaml
+        env:
+          INPUT_TEMPLATE_VERSION: ${{ inputs.TEMPLATE_VERSION }}
+        run: |
+          cd packages/tests/vscuse/vscode-test-cases
+
+          if [ -n "$INPUT_TEMPLATE_VERSION" ]; then
+            awk '
+              /^execution:/ && !inserted {
+                print "TEMPLATE_VERSION: \"" ENVIRON["INPUT_TEMPLATE_VERSION"] "\"  # Version of the template used in the image, e.g. 0.0.0-rc"
+                print ""
+                inserted = 1
+              }
+              { print }
+            ' config.yaml > config.yaml.tmp
+            mv config.yaml.tmp config.yaml
+
+            echo "Injected TEMPLATE_VERSION into config.yaml: $INPUT_TEMPLATE_VERSION"
+            grep -n "TEMPLATE_VERSION" config.yaml
+          else
+            echo "TEMPLATE_VERSION not provided; leaving config.yaml unchanged"
+          fi
+
       - name: Run test
+        env:
+          INPUT_TEMPLATE_VERSION: ${{ inputs.TEMPLATE_VERSION }}
         run: |
           echo "🚀 Running test plan: ${{ matrix.test_plan }}"
           echo "Using image tag: ${{ inputs.image_tag }}"
+          if [ -n "$INPUT_TEMPLATE_VERSION" ]; then
+            echo "Using TEMPLATE_VERSION: $INPUT_TEMPLATE_VERSION"
+          else
+            echo "Using TEMPLATE_VERSION: <not set>"
+          fi
           echo "Test execution started at: $(date)"
 
           set -o pipefail
