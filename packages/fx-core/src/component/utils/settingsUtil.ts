@@ -23,23 +23,19 @@ class SettingsUtils {
     const resolvedPath = path.resolve(filePath);
     const tempDir = path.resolve(os.tmpdir());
 
-    const realFilePath = await fs
-      .realpath(resolvedPath)
+    const realFilePath = await fs.realpath(resolvedPath).catch(() => resolvedPath);
+    const realTempDir = await fs.realpath(tempDir).catch(() => tempDir);
+
+    const normalizedFilePath = path.normalize(realFilePath);
+    const normalizedTempDir = path.normalize(realTempDir);
+    return normalizedFilePath.startsWith(normalizedTempDir + path.sep);
+  }
+
   private isPathWithinDirectory(baseDir: string, targetPath: string): boolean {
     const resolvedBase = path.resolve(baseDir);
     const resolvedTarget = path.resolve(targetPath);
     const relative = path.relative(resolvedBase, resolvedTarget);
     return relative !== "" && !relative.startsWith("..") && !path.isAbsolute(relative);
-  }
-
-      .catch(() => resolvedPath);
-    const realTempDir = await fs
-      .realpath(tempDir)
-      .catch(() => tempDir);
-
-    const normalizedFilePath = path.normalize(realFilePath);
-    const normalizedTempDir = path.normalize(realTempDir);
-    return normalizedFilePath.startsWith(normalizedTempDir + path.sep);
   }
 
   async readSettings(
@@ -52,10 +48,13 @@ class SettingsUtils {
     } else {
       projectYamlPath = pathUtils.getYmlFilePath(projectPath, "dev");
     }
-      if (
-        !this.isInTempDirectory(projectYamlPath) &&
-        this.isPathWithinDirectory(projectPath, projectYamlPath)
-      ) {
+    if (
+      projectYamlPath &&
+      !(await this.isInTempDirectory(projectYamlPath)) &&
+      this.isPathWithinDirectory(projectPath, projectYamlPath)
+    ) {
+      // projectYamlPath is within project directory and not in temp directory
+    }
     if (!projectYamlPath || !(await fs.pathExists(projectYamlPath))) {
       return err(new FileNotFoundError("SettingsUtils", projectYamlPath || "m365agents.*.yml"));
     }
