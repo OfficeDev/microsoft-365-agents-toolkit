@@ -85,6 +85,54 @@ outcome and telemetry; it is never written back into committed config.
 | AC-19 | L1 | `bundled=false`, a version is picked from the tag-list, but `port.packages(...)` (download) rejects | resolve | returns `err(FxError)` (an existing FxError is preserved; otherwise wrapped as `TemplateDownloadFailed`); the rejection never escapes as a thrown promise — the neverthrow contract holds for the download path too |
 
 
+## Transitional local resolution — `resolveLocalTemplateSource` (INV-T2)
+
+> **Scope — transitional.** Added by the [ADR-0006](../../../02-architecture/adr/ADR-0006-template-distribution-channel.md)
+> "selector/content consistency during the metadata-cache phase" follow-up.
+> Deleted together with that phase once `selector.json` drives metadata
+> distribution.
+
+`resolveTemplateSource` (above) may go to the network when `bundled=false`. On
+the **create / modify path** the engine resolves the content package and the
+selector/metadata from two different gates at two moments in one invocation,
+which re-opens the cluster-C split-brain (questions from the bundled floor,
+content from a newer online version). `resolveLocalTemplateSource` is the
+no-network sibling the create/modify chokepoint calls instead, so the content
+resolves to the same local source the selector/metadata gate sees and the
+scaffold never blocks on a download (the online fetch is confined to the
+background cache-warmer `fetchOnlineTemplateMetadata`, which serves the *next*
+invocation — one-invocation-deferred adoption, INV-T1/INV-T2).
+
+It is **synchronous and total** (no `tagList`/`packages` faces are touched, no
+expected failure) and returns `max(cached-satisfying-range, floor)`:
+
+1. `TEMPLATE_VERSION=local` → bundled floor (`origin=bundled`), mirroring
+   `resolveTemplateSource` AC-02.
+2. otherwise → the highest cached version satisfying `range` if it strictly
+   beats the floor (`origin=cache`); a tie or empty/out-of-range cache resolves
+   the floor (`origin=bundled`) — the same `max(cache, floor)` selection as the
+   offline fallback, but with `origin=bundled` (not `bundled-fallback`) and **no**
+   "channel unreachable" warning, because local-first is deliberate, not a
+   degraded fallback.
+
+| ID | Tier | Given | When | Then |
+|----|------|-------|------|------|
+| AC-T1 | L1 | `port.env("TEMPLATE_VERSION")="local"`, cache holds `6.10.5` (> floor) | resolve local | `origin=bundled`, `version`=floor; `port.httpCalls===0`, no download |
+| AC-T2 | L1 | no `TEMPLATE_VERSION`, cache empty, floor `6.10.1` satisfies `~6.10` | resolve local | `origin=bundled`, `version=6.10.1`; `port.httpCalls===0` |
+| AC-T3 | L1 | no `TEMPLATE_VERSION`, cache holds `6.10.5` (digest `D5`, > floor) satisfying `~6.10` | resolve local | `origin=cache`, `version=6.10.5`, `digest=D5`; `port.httpCalls===0`, no download |
+| AC-T4 | L1 | cache holds only `6.9.0` (does **not** satisfy `~6.10`), floor `6.10.1` | resolve local | `origin=bundled`, `version=6.10.1` — out-of-range cache entry ignored (INV-5) |
+| AC-T5 | L1 | cache holds `6.10.1` equal to the floor `6.10.1` | resolve local | `origin=bundled` (tie goes to the floor, decision #2); `port.httpCalls===0` |
+| AC-T6 | L1 | any of the above | resolve local | the result never has the offline `warning` set (local-first is not a degraded fallback) |
+| AC-T7 | L1 | identical `(range, port state)` | resolve local twice | both return the identical `{origin, version, digest}` (INV-6) |
+
+The v3→v4 content chokepoint (`v4TemplateBridge.resolveChannelPackageBytes`)
+calls `resolveLocalTemplateSource` rather than `resolveTemplateSource`, so a
+create/modify run reads only local bytes (`max(cache, floor)`) and stays off the
+network; closing the residual mid-invocation race (a background fetch landing
+between the selector read and the content read) requires the resolve-once
+snapshot tracked separately in ADR-0006 (CP2/CP3).
+
+
 ## Flow
 
 ```mermaid
