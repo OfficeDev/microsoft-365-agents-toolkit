@@ -144,6 +144,19 @@ describe("Global Variables", () => {
       const res = globalVariables.checkIsMetaOSAddinProject("abc");
       expect(res).equals(true);
     });
+
+    it("should check isManifestOnlyOfficeAddinProject when isOfficeAddInProject is true", () => {
+      const isManifestOnlyOfficeAddinProjectSpy = vi
+        .spyOn(teamsfxCore, "isManifestOnlyOfficeAddinProject")
+        .mockReturnValue(true);
+
+      const result = globalVariables.checkIsMetaOSAddinProject("abc");
+
+      // Result depends on manifest check, not isManifestOnlyOfficeAddinProject
+      expect(result).equals(false);
+      // isManifestOnlyOfficeAddinProject should not be called by checkIsMetaOSAddinProject
+      expect(isManifestOnlyOfficeAddinProjectSpy).not.toHaveBeenCalled();
+    });
   });
 
   describe("checkIsSensitivityLabelSet", () => {

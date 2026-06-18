@@ -395,5 +395,18 @@ describe("SharedOpts", () => {
         targetEnvName: "dev1",
       });
     });
+
+    it("addWebpart throws when core does not have addWebpart method", async () => {
+      const coreWithoutAddWebpart = { ...new MockCore() };
+      delete (coreWithoutAddWebpart as any).addWebpart;
+      mockValue(globalVariables, "core", coreWithoutAddWebpart);
+      const sendTelemetryErrorEvent = vi.spyOn(ExtTelemetry, "sendTelemetryErrorEvent");
+
+      const result = await runCommand(Stage.addWebpart);
+
+      expect(result.isErr()).to.be.true;
+      expect(result.isErr() && result.error).to.have.property("name");
+      expect(sendTelemetryErrorEvent).toHaveBeenCalledTimes(1);
+    });
   });
 });
