@@ -6,10 +6,15 @@
  *
  * Unlike the v3 per-language zips (common/js/ts/python.zip), the v4 channel
  * ships ONE `templates.zip` (ADR-0006 / scaffolding.create.proposal.md). This
- * script bundles the existing VSC template content under `<lang>/<scenario>/`
- * paths into a single zip. The v4 `<templateId>` authoring layout is a later
- * concern (the consume operation); this script only produces the distribution
- * artifact the floor + `templates-v4@` channel ship.
+ * script bundles two things into that single zip:
+ *   1. the existing VSC template content under `<lang>/<scenario>/` paths
+ *      (the v3 mirror, consumed by the transitional `{language, scenario}`
+ *      locator), and
+ *   2. the v4 authored packages under `v4/<kind>/<templateId>/`
+ *      (descriptor/questions/pipeline JSON + a self-contained `content/`),
+ *      consumed by the `{templateId}` locator once it ships.
+ * v3 and v4 coexist; nothing here is stitched or synthesized — every byte is
+ * authored (scaffolding.create.proposal.md §3 "authored, not generated").
  *
  * Outputs (both picked up by the `distribute` step → packages/fx-core/templates/v4/):
  *   - build/v4/templates.zip  — the full package
@@ -28,7 +33,7 @@
  */
 
 const AdmZip = require("adm-zip");
-const { readdirSync, mkdirSync, writeFileSync } = require("node:fs");
+const { readdirSync, mkdirSync, writeFileSync, existsSync } = require("node:fs");
 const path = require("path");
 const semver = require("semver");
 
@@ -67,6 +72,16 @@ LANGUAGES.forEach((lang) => {
     zip.addLocalFolder(path.join(langPath, scenario), path.posix.join(lang, scenario));
   });
 });
+
+// v4 authored packages (templates/v4/{create,modify}/...) ship self-contained:
+// each package carries its own descriptor/questions/pipeline JSON AND a complete
+// content/ copied from v3 during the v3↔v4 coexistence window. Build only zips
+// the authored bytes verbatim under the `v4/` prefix — no stitching, no
+// synthesis (scaffolding.create.proposal.md §3 "authored, not generated").
+const v4SourcePath = path.join(__dirname, "..", "v4");
+if (existsSync(v4SourcePath)) {
+  zip.addLocalFolder(v4SourcePath, "v4");
+}
 
 console.log(`Generating v4 templates.zip (version ${version})`);
 zip.writeZip(path.join(BUILD_PATH, "templates.zip"));
