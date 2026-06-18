@@ -108,7 +108,7 @@ export function getCreateCommand(): CLICommand {
       const isTdp = isTdpTemplate(inputs);
       const res = isTdp
         ? await core.createProjectFromTdp(inputs)
-        : await core.createProject(inputs);
+        : await core.createProjectFrontDoor(inputs);
       assign(ctx.telemetryProperties, {
         [TelemetryProperty.NewProjectId]: inputs.projectId,
         [TelemetryProperty.IsCreatingM365]: inputs.isM365 + "",

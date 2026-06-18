@@ -73,7 +73,7 @@ export async function runCommand(
       case Stage.create: {
         inputs.projectId = inputs.projectId ?? uuid.v4();
         inputs["mcp-da-available-tools"] = vscode.lm.tools;
-        const tmpResult = await core.createProject(inputs);
+        const tmpResult = await core.createProjectFrontDoor(inputs);
         if (tmpResult.isErr()) {
           result = err(tmpResult.error);
         } else {
