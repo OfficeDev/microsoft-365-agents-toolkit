@@ -4,6 +4,7 @@
 import { FxError, SystemError } from "@microsoft/teamsfx-api";
 import AdmZip from "adm-zip";
 import { Result, err, ok } from "neverthrow";
+import { TemplateFileEntry, TemplateLocator } from "../model/dataModel";
 
 /**
  * The v4 template-package consume operation: open resolved package bytes and
@@ -17,27 +18,6 @@ import { Result, err, ok } from "neverthrow";
  */
 
 const SOURCE = "Scaffold";
-
-/**
- * Names which template inside the package to open. The boundary
- * (open → locate → hand back entries) is permanent; this locator shape is
- * transitional — `{ language, scenario }` matches the package's current
- * `<language>/<scenario>/` layout and becomes `{ templateId }` when the
- * proposal §3 authoring layout ships. Only the resolved prefix changes; the
- * open/entry contract and every AC hold (INV-1).
- */
-export interface TemplateLocator {
-  language: string;
-  scenario: string;
-}
-
-/** One file from the located template, rooted at the template's content. */
-export interface TemplateFileEntry {
-  /** Path relative to the located template's content root, forward-slash normalized. */
-  path: string;
-  /** The file's raw bytes, verbatim — unrendered, `.tpl` suffix intact. */
-  data: Buffer;
-}
 
 /** The `<language>/<scenario>/` prefix this locator resolves to (trailing slash = boundary). */
 function locatorPrefix(locator: TemplateLocator): string {

@@ -80,6 +80,13 @@ export interface ResolveTemplateSourceInput {
   port: TemplateSourcePort;
 }
 
+/** Inputs for the no-network local-first resolver (ADR-0006 INV-T2 follow-up). */
+export interface ResolveLocalTemplateSourceInput {
+  /** SemVer range the build is permitted to resolve within. */
+  range: string;
+  port: TemplateSourcePort;
+}
+
 /** sha256 content hash of a package's bytes, prefixed `sha256:`. */
 export function computeDigest(bytes: Buffer): string {
   return "sha256:" + crypto.createHash("sha256").update(bytes).digest("hex");
@@ -107,6 +114,52 @@ export async function resolveTemplateSource(
     return ok(floorSource(port.floor)); // AC-01, AC-12 (never sniff package.json#version)
   }
   return resolveOnline(range, port);
+}
+
+/**
+ * Resolve `(range, port)` to exactly one LOCAL `TemplateSource` WITHOUT touching
+ * the network — the create/modify path's prefer-local rule (ADR-0006
+ * transitional follow-up, INV-T1/INV-T2). Synchronous and total: it reads only
+ * `port.env`, `port.cache`, and `port.floor`, never `tagList`/`packages`, and
+ * has no expected-failure path, so it returns a `TemplateSource` directly rather
+ * than a `Result`.
+ *
+ * Returns `max(cached-satisfying-range, floor)`:
+ *   - `TEMPLATE_VERSION=local` -> the bundled floor (mirrors `resolveTemplateSource` AC-02);
+ *   - otherwise -> the highest cached version satisfying `range` if it strictly
+ *     beats the floor (`origin=cache`), else the floor (`origin=bundled`).
+ *
+ * Unlike `offlineFallback`, the floor case keeps `origin=bundled` (not
+ * `bundled-fallback`) and sets no warning: local-first is deliberate, not a
+ * degraded fallback from a failed online attempt. The online resolve
+ * (`resolveTemplateSource(bundled=false)`) is confined to the background
+ * cache-warmer (`fetchOnlineTemplateMetadata`), so the first question and the
+ * scaffold both stay off the network and resolve to the SAME local source
+ * within one invocation. Transitional — removed once `selector.json` drives
+ * metadata distribution.
+ */
+export function resolveLocalTemplateSource(
+  input: ResolveLocalTemplateSourceInput
+): TemplateSource {
+  const { range, port } = input;
+  if (port.env("TEMPLATE_VERSION") === "local") {
+    return floorSource(port.floor); // AC-T1
+  }
+  const highestCached = highestCachedAboveFloor(range, port);
+  if (highestCached) {
+    const cached = port.cache.get(highestCached);
+    /* istanbul ignore else -- highestCached is drawn from cache.keys(); a miss
+       means the cache mutated mid-resolution, so we degrade to the floor. */
+    if (cached) {
+      return {
+        origin: "cache",
+        version: highestCached,
+        digest: cached.digest,
+        location: cacheLocation(highestCached),
+      }; // AC-T3
+    }
+  }
+  return floorSource(port.floor); // AC-T2, AC-T4, AC-T5
 }
 
 function floorSource(floor: BundledFloor): TemplateSource {
@@ -276,14 +329,27 @@ async function fetchVerify(
   }); // AC-04
 }
 
-/** Reached when the channel is unreachable: max(highest cached satisfying range, floor). */
-function offlineFallback(range: string, port: TemplateSourcePort): TemplateSource {
+/**
+ * The highest cached version satisfying `range` that strictly beats the floor,
+ * or `undefined` when the floor is the best local candidate. Shared by the
+ * unreachable-channel fallback and the transitional local-first resolver — one
+ * `max(cache, floor)` selection so the two can never drift (decision #2: a tie
+ * goes to the floor).
+ */
+function highestCachedAboveFloor(range: string, port: TemplateSourcePort): string | undefined {
   const cachedSatisfying = port.cache.keys().filter((v) => semver.satisfies(v, range));
   const highestCached = semver.maxSatisfying(cachedSatisfying, range);
   const floorSatisfies = semver.satisfies(port.floor.version, range);
-
-  // Cache wins only when strictly higher than the floor; a tie goes to the floor (decision #2).
   if (highestCached && (!floorSatisfies || semver.gt(highestCached, port.floor.version))) {
+    return highestCached;
+  }
+  return undefined;
+}
+
+/** Reached when the channel is unreachable: max(highest cached satisfying range, floor). */
+function offlineFallback(range: string, port: TemplateSourcePort): TemplateSource {
+  const highestCached = highestCachedAboveFloor(range, port);
+  if (highestCached) {
     const cached = port.cache.get(highestCached);
     /* istanbul ignore else -- highestCached is drawn from cache.keys(); a miss
        means the cache mutated mid-resolution, so we degrade to the floor. */
