@@ -1,31 +1,23 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
-import {
-  err,
-  FxError,
-  ok,
-  Result,
-  SingleSelectConfig,
-  Stage,
-  UserError,
-} from "@microsoft/teamsfx-api";
-import * as systemEnvUtils from "../utils/systemEnvUtils";
-import { ExtTelemetry } from "../telemetry/extTelemetry";
-import { TelemetryEvent } from "../telemetry/extTelemetryEvents";
-import path from "path";
-import * as fs from "fs-extra";
-import { QuestionNames, ODRProvider, ODRTool } from "@microsoft/teamsfx-core";
-import * as vscode from "vscode";
-import axios from "axios";
+import { err, FxError, Result, SingleSelectConfig, Stage, UserError } from "@microsoft/teamsfx-api";
+import { ODRProvider, ODRTool, QuestionNames } from "@microsoft/teamsfx-core";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
 import type { Tool } from "@modelcontextprotocol/sdk/types.js";
-import * as sharedOpts from "./sharedOpts";
-import { VS_CODE_UI } from "../qm/vsc_ui";
+import axios from "axios";
+import * as fs from "fs-extra";
 import * as parser from "jsonc-parser";
-import { getDefaultString, localize } from "../utils/localizeUtils";
+import path from "path";
+import * as vscode from "vscode";
 import { ExtensionErrors } from "../error/error";
+import { VS_CODE_UI } from "../qm/vsc_ui";
+import { ExtTelemetry } from "../telemetry/extTelemetry";
+import { TelemetryEvent } from "../telemetry/extTelemetryEvents";
+import { getDefaultString, localize } from "../utils/localizeUtils";
+import * as systemEnvUtils from "../utils/systemEnvUtils";
 import { getTriggerFromProperty } from "../utils/telemetryUtils";
+import * as sharedOpts from "./sharedOpts";
 
 /**
  * Sanitize MCP server name to match VS Code's tool prefix generation logic.

@@ -1,9 +1,9 @@
 import { err, ok, UserError } from "@microsoft/teamsfx-api";
 import { ProgressHandler } from "@microsoft/vscode-ui";
+import { assert, vi } from "vitest";
 import * as vscode from "vscode";
 import VsCodeLogInstance from "../../src/commonlib/log";
 import * as errorCommon from "../../src/error/common";
-import { vi, assert } from "vitest";
 import {
   migrateTeamsManifestHandler,
   migrateTeamsTabAppHandler,

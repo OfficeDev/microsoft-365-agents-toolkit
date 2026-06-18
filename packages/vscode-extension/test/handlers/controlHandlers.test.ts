@@ -1,14 +1,12 @@
 import { ok, TeamsAppManifest } from "@microsoft/teamsfx-api";
-import * as projectSettingsHelper from "@microsoft/teamsfx-core/build/common/projectSettingsHelper";
+import * as teamsfxCore from "@microsoft/teamsfx-core";
 import fs from "fs-extra";
 import * as path from "path";
+import { assert, expect, vi } from "vitest";
 import * as vscode from "vscode";
 import { PanelType } from "../../src/controls/PanelType";
 import { WebviewPanel } from "../../src/controls/webviewPanel";
 import * as globalVariables from "../../src/globalVariables";
-import { vi, expect, assert } from "vitest";
-import { mockValue } from "../mocks/vitestMockUtils";
-import * as commonUtils from "../../src/utils/commonUtils";
 import {
   openFolderHandler,
   openLifecycleTreeview,
@@ -18,18 +16,19 @@ import {
   selectWalkthrough,
 } from "../../src/handlers/controlHandlers";
 import { ExtTelemetry } from "../../src/telemetry/extTelemetry";
-
-vi.mock("@microsoft/teamsfx-core", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("@microsoft/teamsfx-core")>();
-  return { ...actual };
-});
 import {
   TelemetryEvent,
   TelemetryProperty,
   TelemetryUpdateAppReason,
 } from "../../src/telemetry/extTelemetryEvents";
+import * as commonUtils from "../../src/utils/commonUtils";
 import { getDefaultString } from "../../src/utils/localizeUtils";
-import * as teamsfxCore from "@microsoft/teamsfx-core";
+import { mockValue } from "../mocks/vitestMockUtils";
+
+vi.mock("@microsoft/teamsfx-core", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@microsoft/teamsfx-core")>();
+  return { ...actual };
+});
 
 describe("Control Handlers", () => {
   describe("openWelcomeHandler", () => {

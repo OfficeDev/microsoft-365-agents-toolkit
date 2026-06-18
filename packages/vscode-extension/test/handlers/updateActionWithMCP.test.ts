@@ -1,23 +1,23 @@
-import { vi, expect, assert } from "vitest";
+import { assert, expect, vi } from "vitest";
 import { mockValue } from "../mocks/vitestMockUtils";
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
-import * as vscode from "vscode";
-import fs from "fs-extra";
-import * as path from "path";
+import { err, Inputs, ok, Platform, Stage, UserError } from "@microsoft/teamsfx-api";
 import axios from "axios";
+import fs from "fs-extra";
 import * as parser from "jsonc-parser";
-import { Stage, err, ok, UserError, Inputs, Platform } from "@microsoft/teamsfx-api";
+import * as path from "path";
+import * as vscode from "vscode";
 
-import { updateActionWithMCP } from "../../src/handlers/updateActionWithMCP";
-import { ExtTelemetry } from "../../src/telemetry/extTelemetry";
-import * as vscUI from "../../src/qm/vsc_ui";
-import { QuestionNames, ODRProvider } from "@microsoft/teamsfx-core";
+import { ODRProvider, QuestionNames } from "@microsoft/teamsfx-core";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
-import { MockCore } from "../mocks/mockCore";
 import * as globalVariables from "../../src/globalVariables";
-import * as systemEnvUtils from "../../src/utils/systemEnvUtils";
 import * as sharedOpts from "../../src/handlers/sharedOpts";
+import { updateActionWithMCP } from "../../src/handlers/updateActionWithMCP";
+import * as vscUI from "../../src/qm/vsc_ui";
+import { ExtTelemetry } from "../../src/telemetry/extTelemetry";
+import * as systemEnvUtils from "../../src/utils/systemEnvUtils";
+import { MockCore } from "../mocks/mockCore";
 
 describe("updateActionWithMCP", () => {
   const mockProjectPath = "/mock/project/path";

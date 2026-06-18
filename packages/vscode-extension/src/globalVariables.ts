@@ -5,16 +5,16 @@ import fs from "fs-extra";
 import path from "path";
 import * as vscode from "vscode";
 
-import { UserState } from "./constants";
-import {
-  FxCore,
-  isValidProject,
-  isValidOfficeAddInProject,
-  isManifestOnlyOfficeAddinProject,
-  manifestUtils,
-  copilotGptManifestUtils,
-} from "@microsoft/teamsfx-core";
 import { TeamsAppManifest, Tools } from "@microsoft/teamsfx-api";
+import {
+  copilotGptManifestUtils,
+  FxCore,
+  isManifestOnlyOfficeAddinProject,
+  isValidOfficeAddInProject,
+  isValidProject,
+  manifestUtils,
+} from "@microsoft/teamsfx-core";
+import { UserState } from "./constants";
 
 /**
  * Common variables used throughout the extension. They must be initialized in the activate() method of extension.ts

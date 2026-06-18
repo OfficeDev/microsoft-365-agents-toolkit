@@ -3,7 +3,6 @@
 
 import { FxError, Result, ok } from "@microsoft/teamsfx-api";
 import * as teamsfxCore from "@microsoft/teamsfx-core";
-import fs from "fs-extra";
 import path from "path";
 import * as vscode from "vscode";
 import { PanelType } from "../controls/PanelType";
@@ -17,8 +16,8 @@ import {
   TelemetryUpdateAppReason,
 } from "../telemetry/extTelemetryEvents";
 import * as commonUtils from "../utils/commonUtils";
-import { getTriggerFromProperty } from "../utils/telemetryUtils";
 import { getDefaultString } from "../utils/localizeUtils";
+import { getTriggerFromProperty } from "../utils/telemetryUtils";
 import { getBuildIntelligentAppsWalkthroughID } from "./walkthrough";
 
 export async function openLifecycleTreeview(args?: any[]) {

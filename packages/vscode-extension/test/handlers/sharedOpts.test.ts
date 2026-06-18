@@ -1,5 +1,3 @@
-import { vi, expect, assert } from "vitest";
-import { mockValue } from "../mocks/vitestMockUtils";
 import {
   err,
   FxError,
@@ -12,15 +10,17 @@ import {
 } from "@microsoft/teamsfx-api";
 import { UserCancelError, VersionState } from "@microsoft/teamsfx-core";
 import * as uuid from "uuid";
+import { assert, expect, vi } from "vitest";
 import * as vscode from "vscode";
 import { RecommendedOperations } from "../../src/debug/common/debugConstants";
 import * as globalVariables from "../../src/globalVariables";
 import { processResult, runCommand } from "../../src/handlers/sharedOpts";
 import { ExtTelemetry } from "../../src/telemetry/extTelemetry";
-import { TelemetryEvent } from "../../src/telemetry/extTelemetryEvents";
+import { TelemetryEvent, TelemetryProperty } from "../../src/telemetry/extTelemetryEvents";
 import * as systemEnvUtils from "../../src/utils/systemEnvUtils";
 import * as telemetryUtils from "../../src/utils/telemetryUtils";
 import { MockCore } from "../mocks/mockCore";
+import { mockValue } from "../mocks/vitestMockUtils";
 
 describe("SharedOpts", () => {
   describe("runCommand()", function () {
@@ -139,6 +139,28 @@ describe("SharedOpts", () => {
       expect(projectVersionCheck).toHaveBeenCalledTimes(1);
       assert.equal(projectVersionCheck.args[0][0].ignoreEnvInfo, true);
       expect(deployArtifacts).toHaveBeenCalledTimes(1);
+    });
+
+    it("version check error should stop stage execution", async () => {
+      const mockCore = new MockCore();
+      const versionError = new UserError("test", "versionCheck", "version check failed");
+      const projectVersionCheck = vi
+        .spyOn(mockCore, "projectVersionCheck")
+        .mockResolvedValue(err(versionError));
+      const deployArtifacts = vi.spyOn(mockCore, "deployArtifacts");
+      mockValue(globalVariables, "core", mockCore);
+
+      const result = await runCommand(Stage.deploy, {
+        platform: Platform.VSCode,
+        projectPath: "test-project",
+      } as Inputs);
+
+      assert.isTrue(result.isErr());
+      if (result.isErr()) {
+        assert.equal(result.error, versionError);
+      }
+      expect(projectVersionCheck).toHaveBeenCalledTimes(1);
+      expect(deployArtifacts).not.toHaveBeenCalled();
     });
 
     it("deployTeamsManifest", async () => {
@@ -305,6 +327,55 @@ describe("SharedOpts", () => {
     beforeEach(() => {
       vi.spyOn(ExtTelemetry, "sendTelemetryEvent");
       vi.spyOn(ExtTelemetry, "sendTelemetryErrorEvent");
+    });
+
+    it("CreateProject includes M365 telemetry", async () => {
+      const sendTelemetryEvent = vi.spyOn(ExtTelemetry, "sendTelemetryEvent");
+
+      await processResult(TelemetryEvent.CreateProject, ok(null), {
+        platform: Platform.VSCode,
+        projectId: "project-id",
+        isM365: true,
+      });
+
+      expect(sendTelemetryEvent).toHaveBeenCalledWith(
+        TelemetryEvent.CreateProject,
+        expect.objectContaining({
+          [TelemetryProperty.NewProjectId]: "project-id",
+          [TelemetryProperty.IsCreatingM365]: "true",
+        })
+      );
+    });
+
+    it("Deploy remaps to DeployAadManifest when aad manifest is included", async () => {
+      const sendTelemetryErrorEvent = vi.spyOn(ExtTelemetry, "sendTelemetryErrorEvent");
+      const deployError = new UserError("test", "deploy", "deploy failed");
+
+      await processResult(TelemetryEvent.Deploy, err(deployError), {
+        platform: Platform.VSCode,
+        env: "dev",
+        "include-aad-manifest": "yes",
+      } as Inputs);
+
+      expect(sendTelemetryErrorEvent).toHaveBeenCalledWith(
+        TelemetryEvent.DeployAadManifest,
+        deployError,
+        expect.any(Object)
+      );
+    });
+
+    it("login failure shows login failed message", async () => {
+      const showErrorMessage = vi
+        .spyOn(vscode.window, "showErrorMessage")
+        .mockResolvedValue(undefined);
+
+      await processResult(
+        TelemetryEvent.Deploy,
+        err(new UserError("test", "login", "Cannot get user login information")),
+        { platform: Platform.VSCode } as Inputs
+      );
+
+      expect(showErrorMessage).toHaveBeenCalledTimes(1);
     });
 
     it("UserCancelError", async () => {

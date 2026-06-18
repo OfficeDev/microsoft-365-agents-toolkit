@@ -1,9 +1,8 @@
-import { ExtTelemetry } from "../../src/telemetry/extTelemetry";
+import { assert, expect, vi } from "vitest";
 import * as vscode from "vscode";
 import * as globalVariables from "../../src/globalVariables";
-import * as projectSettingsHelper from "@microsoft/teamsfx-core/build/common/projectSettingsHelper";
+import { ExtTelemetry } from "../../src/telemetry/extTelemetry";
 import TreeViewManagerInstance from "../../src/treeview/treeViewManager";
-import { vi, expect, assert } from "vitest";
 
 vi.mock("@microsoft/teamsfx-core/build/common/projectSettingsHelper", async (importOriginal) => {
   const actual =
@@ -14,16 +13,16 @@ vi.mock("@microsoft/teamsfx-core/build/common/projectSettingsHelper", async (imp
 });
 
 import * as teamsfxCore from "@microsoft/teamsfx-core";
-vi.mock("@microsoft/teamsfx-core", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("@microsoft/teamsfx-core")>();
-  return { ...actual };
-});
 import {
   addFileSystemWatcher,
   fileSystemWatcherOps,
   refreshSPFxTreeOnFileChanged,
   sendSDKVersionTelemetry,
 } from "../../src/utils/fileSystemWatcher";
+vi.mock("@microsoft/teamsfx-core", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@microsoft/teamsfx-core")>();
+  return { ...actual };
+});
 
 const fileSystemWatcherDeps = fileSystemWatcherOps;
 

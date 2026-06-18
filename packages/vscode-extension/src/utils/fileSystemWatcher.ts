@@ -1,10 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import * as vscode from "vscode";
-import fs from "fs-extra";
 import { isValidProject } from "@microsoft/teamsfx-core";
-import { initializeGlobalVariables, context } from "../globalVariables";
+import fs from "fs-extra";
+import * as vscode from "vscode";
+import { context, initializeGlobalVariables } from "../globalVariables";
 import { ExtTelemetry } from "../telemetry/extTelemetry";
 import { TelemetryEvent, TelemetryProperty } from "../telemetry/extTelemetryEvents";
 import TreeViewManagerInstance from "../treeview/treeViewManager";

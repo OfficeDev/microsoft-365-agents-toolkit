@@ -1,14 +1,13 @@
 import fs from "fs-extra";
 import path from "path";
+import { assert, expect, vi } from "vitest";
 import { ExtensionContext, Uri } from "vscode";
-import { vi, expect, assert } from "vitest";
 import { mockValue } from "../mocks/vitestMockUtils";
 
-import * as globalVariables from "../../src/globalVariables";
 import { err, ok, SystemError, TeamsAppManifest } from "@microsoft/teamsfx-api";
-import { manifestUtils, copilotGptManifestUtils } from "@microsoft/teamsfx-core";
-import * as projectSettingsHelper from "@microsoft/teamsfx-core/build/common/projectSettingsHelper";
 import * as teamsfxCore from "@microsoft/teamsfx-core";
+import { copilotGptManifestUtils, manifestUtils } from "@microsoft/teamsfx-core";
+import * as globalVariables from "../../src/globalVariables";
 
 vi.mock("@microsoft/teamsfx-core", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@microsoft/teamsfx-core")>();
@@ -298,6 +297,32 @@ describe("Global Variables", () => {
       });
       const result = globalVariables.checkIsSPFx("/some/dir");
       expect(result).to.be.false;
+    });
+
+    it("returns false when recursion exceeds max depth", () => {
+      vi.spyOn(fs, "readdirSync").mockReturnValue(["subdir"] as any);
+      vi.spyOn(fs, "lstatSync").mockReturnValue({ isDirectory: () => true } as any);
+
+      const result = globalVariables.checkIsSPFx("/some/dir");
+
+      expect(result).to.be.false;
+    });
+  });
+
+  describe("remaining setters", () => {
+    it("updates tools, core, diagnosticCollection and flags", () => {
+      const tools = {} as any;
+      const core = {} as any;
+      const diagnosticCollection = {} as any;
+
+      globalVariables.setTools(tools);
+      globalVariables.setCore(core);
+      globalVariables.setDiagnosticCollection(diagnosticCollection);
+      globalVariables.setDeleteAadInProgress(true);
+      globalVariables.setOutputTroubleshootNotificationCount(3);
+
+      expect(globalVariables.deleteAadInProgress).to.equal(true);
+      expect(globalVariables.outputTroubleshootNotificationCount).to.equal(3);
     });
   });
 });

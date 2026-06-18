@@ -1,17 +1,14 @@
 import { err, ok, SystemError, UserError } from "@microsoft/teamsfx-api";
-import { vi, expect, assert } from "vitest";
-import { mockValue } from "../mocks/vitestMockUtils";
 import {
   AppDefinition,
-  FeatureFlagName,
-  FeatureFlags,
   featureFlagManager,
   teamsDevPortalClient,
   UnhandledError,
   UserCancelError,
 } from "@microsoft/teamsfx-core";
-import * as projectSettingsHelper from "@microsoft/teamsfx-core/build/common/projectSettingsHelper";
 import { ProgressHandler } from "@microsoft/vscode-ui";
+import { assert, expect, vi } from "vitest";
+import { mockValue } from "../mocks/vitestMockUtils";
 
 vi.mock("@microsoft/teamsfx-core/build/common/projectSettingsHelper", async (importOriginal) => {
   const actual =
@@ -22,44 +19,42 @@ vi.mock("@microsoft/teamsfx-core/build/common/projectSettingsHelper", async (imp
 });
 
 import * as teamsfxCore from "@microsoft/teamsfx-core";
-vi.mock("@microsoft/teamsfx-core", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("@microsoft/teamsfx-core")>();
-  return { ...actual };
-});
+import * as globalState from "@microsoft/teamsfx-core/build/common/globalState";
+import { RestoreFn } from "mocked-env";
 import * as vscode from "vscode";
+import M365TokenInstance from "../../src/commonlib/m365Login";
 import * as globalVariables from "../../src/globalVariables";
 import * as copilotHandler from "../../src/handlers/copilotChatHandlers";
 import {
   addAuthActionHandler,
+  addKnowledgeHandler,
   addPluginHandler,
+  addSkillHandler,
   addWebpartHandler,
   copilotPluginAddAPIHandler,
   createNewProjectHandler,
   deployHandler,
+  m365PreAuthHandler,
+  metaOSExtendToDAHandler,
   provisionHandler,
   publishHandler,
-  scaffoldFromDeveloperPortalHandler,
-  addKnowledgeHandler,
-  addSkillHandler,
-  shareHandler,
-  setSensitivityLabelHandler,
-  m365PreAuthHandler,
-  shareRemoveHandler,
   regeneratePluginHandler,
-  metaOSExtendToDAHandler,
+  scaffoldFromDeveloperPortalHandler,
+  setSensitivityLabelHandler,
+  shareHandler,
+  shareRemoveHandler,
 } from "../../src/handlers/lifecycleHandlers";
 import * as shared from "../../src/handlers/sharedOpts";
 import * as vsc_ui from "../../src/qm/vsc_ui";
 import { ExtTelemetry } from "../../src/telemetry/extTelemetry";
 import envTreeProviderInstance from "../../src/treeview/environmentTreeViewProvider";
 import * as workspaceUtils from "../../src/utils/workspaceUtils";
-import M365TokenInstance from "../../src/commonlib/m365Login";
 import { MockCore } from "../mocks/mockCore";
-import * as globalState from "@microsoft/teamsfx-core/build/common/globalState";
-import mockedEnv, { RestoreFn } from "mocked-env";
-import VsCodeLogInstance from "../../src/commonlib/log";
 import { MockTools } from "../mocks/mockTools";
-import { shareRemoveCommand } from "../../../cli/src/commands/models/shareRemove";
+vi.mock("@microsoft/teamsfx-core", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@microsoft/teamsfx-core")>();
+  return { ...actual };
+});
 
 describe("Lifecycle handlers", () => {
   beforeEach(() => {

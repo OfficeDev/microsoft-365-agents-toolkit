@@ -1,12 +1,27 @@
-import * as vscode from "vscode";
 import path from "path";
+import { assert, vi } from "vitest";
+import * as vscode from "vscode";
 import * as globalVariables from "../../src/globalVariables";
-import { vi, assert } from "vitest";
-import { mockValue } from "../mocks/vitestMockUtils";
 import * as fileSystemWatcher from "../../src/utils/fileSystemWatcher";
-import * as projectSettingsHelper from "@microsoft/teamsfx-core/build/common/projectSettingsHelper";
+import { mockValue } from "../mocks/vitestMockUtils";
 
+import { ok, signedIn, signedOut } from "@microsoft/teamsfx-api";
 import * as teamsfxCore from "@microsoft/teamsfx-core";
+import { FxCore, GraphScopes, featureFlagManager } from "@microsoft/teamsfx-core";
+import envTreeProviderInstance from "../../src//treeview/environmentTreeViewProvider";
+import commandController from "../../src/commandController";
+import { AzureAccountManager } from "../../src/commonlib/azureLogin";
+import M365TokenInstance from "../../src/commonlib/m365Login";
+import {
+  activate,
+  refreshEnvTreeOnEnvFileChanged,
+  refreshEnvTreeOnFilesNameChanged,
+  refreshEnvTreeOnProjectSettingFileChanged,
+} from "../../src/handlers/activate";
+import { ExtTelemetry } from "../../src/telemetry/extTelemetry";
+import accountTreeViewProviderInstance from "../../src/treeview/account/accountTreeViewProvider";
+import TreeViewManagerInstance from "../../src/treeview/treeViewManager";
+import { MockCore } from "../mocks/mockCore";
 
 vi.mock("@microsoft/teamsfx-core/build/common/projectSettingsHelper", async (importOriginal) => {
   const actual =
@@ -25,23 +40,6 @@ vi.mock("../../src/utils/fileSystemWatcher", async (importOriginal) => {
   const actual = await importOriginal<typeof import("../../src/utils/fileSystemWatcher")>();
   return { ...actual };
 });
-import {
-  activate,
-  refreshEnvTreeOnEnvFileChanged,
-  refreshEnvTreeOnFilesNameChanged,
-  refreshEnvTreeOnProjectSettingFileChanged,
-} from "../../src/handlers/activate";
-import { ok, signedIn, signedOut } from "@microsoft/teamsfx-api";
-import { FxCore, GraphScopes } from "@microsoft/teamsfx-core";
-import { FeatureFlags, featureFlagManager } from "@microsoft/teamsfx-core";
-import commandController from "../../src/commandController";
-import { AzureAccountManager } from "../../src/commonlib/azureLogin";
-import { ExtTelemetry } from "../../src/telemetry/extTelemetry";
-import accountTreeViewProviderInstance from "../../src/treeview/account/accountTreeViewProvider";
-import envTreeProviderInstance from "../../src//treeview/environmentTreeViewProvider";
-import TreeViewManagerInstance from "../../src/treeview/treeViewManager";
-import M365TokenInstance from "../../src/commonlib/m365Login";
-import { MockCore } from "../mocks/mockCore";
 
 describe("Activate", function () {
   describe("activate()", function () {
