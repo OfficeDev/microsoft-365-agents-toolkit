@@ -217,7 +217,9 @@
         "dhash:349:203:0:10:c8c84823a32a2421"
       ],
       "postconditions": [],
-      "tags": [],
+      "tags": [
+        "ocr:true"
+      ],
       "screenshot": "step_3d56209d",
       "created_at": "2026-01-21T03:10:10.278098",
       "plan_id": "plan_004c8b8e"
