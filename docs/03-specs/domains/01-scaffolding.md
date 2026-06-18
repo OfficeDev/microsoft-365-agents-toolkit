@@ -73,6 +73,7 @@ format and the orthogonal-cuts rationale.
 
 | Scenario | Spec | Template | Summary |
 |----------|------|----------|---------|
+| Create DA (No Action) | [`scenarios/da/create-no-action.md`](../scenarios/da/create-no-action.md) | `da/no-action` (create) | Render the basic DA project (`declarativeAgent.json`, `manifest.json`, `m365agents.yml`) with no action or auth wiring. Pure render: the `default` pipeline carries only a `require-empty-target` guard and no post-render steps. |
 | Create DA with MCP Server | [`scenarios/da/create-mcp-server.md`](../scenarios/da/create-mcp-server.md) | `da/mcp-server` (create) | Render the full DA project (`ai-plugin.json` URL-derived namespace, `m365agents.yml`, `.vscode/mcp.json`, …) then wire MCP auth via the `default` pipeline's `mcp-auth/*` steps. |
 | Add MCP Server Action | [`scenarios/da/add-mcp-server.md`](../scenarios/da/add-mcp-server.md) | `add-mcp-server` (modify) | Render only `ai-plugin-<NS>.json` into an existing DA project, register it in the existing `declarativeAgent.json`, and reuse the same shared `mcp-auth/*` auth steps (no drift with create). |
 | Create DA with API Plugin from Scratch | [`scenarios/da/create-api-plugin-from-scratch.md`](../scenarios/da/create-api-plugin-from-scratch.md) | `da/api-plugin-from-scratch` (create) | Render the no-auth `new API` sample backend and pre-baked API plugin action for TypeScript / JavaScript. |

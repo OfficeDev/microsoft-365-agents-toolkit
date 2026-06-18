@@ -1,5 +1,7 @@
 # Scaffolding subsystem — v4 create flow proposal
 
+> **Expires-when:** ADR-0014 – ADR-0019 all `Accepted` (already met as of 2026-06-08).
+
 - **Status:** Decomposed — superseded by **ADR-0014 … ADR-0019** (all `Accepted`
   2026-06-08). This file is now a short navigation pointer.
 - **Date:** 2026-05-28 (decomposed 2026-06-08)
@@ -12,7 +14,7 @@
 
 > **What happened to the body.** This proposal carried the full v4 create-flow
 > design (former §§1–15) through 2026-06-08, validated against the two on-disk
-> worked examples under `templates/v4/{create,modify}/`. It has now been
+> worked examples under `v4/{create,modify}/`. It has now been
 > **decomposed** into six focused, `Accepted`, immutable ADRs and their derived
 > specs under [`docs/03-specs/`](../03-specs/README.md). The full prose is in
 > git history; the **binding contract** is the ADRs and specs. This file remains

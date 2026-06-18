@@ -4,7 +4,7 @@
 - **Date:** 2026-05-28 (Accepted 2026-06-05)
 - **Source:** [`scaffolding.create.proposal.md` §14](../scaffolding.create.proposal.md#14-adrs-this-proposal-will-be-decomposed-into)
   (decomposes §§3, 5). Validated against the on-disk layout under
-  `templates/v4/{create,modify}/<id>/` and `templates/v4/{create,modify}/selector.json`.
+  `v4/{create,modify}/<id>/` and `v4/{create,modify}/selector.json`.
 
 ## Context
 
@@ -18,9 +18,9 @@ shippable independently of the engine." §3 fixes the on-disk shape; §5 fixes h
 the selector indexes it.
 
 The two shipped scenarios materialize that shape:
-`templates/v4/create/da/mcp-server/` and `templates/v4/modify/add-mcp-server/`,
+`v4/create/da/mcp-server/` and `v4/modify/add-mcp-server/`,
 each a self-contained four-file package, with a per-kind `selector.json` and a
-shared `templates/v4/schema/`.
+shared `v4/schema/`.
 
 ## Options considered
 

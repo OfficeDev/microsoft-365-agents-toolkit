@@ -4,9 +4,9 @@
 - **Date:** 2026-05-28 (Accepted 2026-06-08)
 - **Source:** [`scaffolding.create.proposal.md` §14](../scaffolding.create.proposal.md#14-adrs-this-proposal-will-be-decomposed-into)
   (decomposes §§3, 3.1, 3.1.0, 3.1.2, 3.2, 3.5, 4, 4.2, 4.3, 6; invariants 1–4,
-  8–11). Validated against `templates/v4/create/da/mcp-server/{descriptor,questions}.json`,
-  `templates/v4/modify/add-mcp-server/{descriptor,questions}.json`, and
-  `templates/v4/schema/{descriptor,question}.schema.json`.
+  8–11). Validated against `v4/create/da/mcp-server/{descriptor,questions}.json`,
+  `v4/modify/add-mcp-server/{descriptor,questions}.json`, and
+  `v4/schema/{descriptor,question}.schema.json`.
 
 ## Context
 

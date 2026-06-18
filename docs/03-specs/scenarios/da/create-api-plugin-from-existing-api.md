@@ -1,6 +1,6 @@
-# Scenario - Create Declarative Agent with API Plugin from Existing OpenAPI (`da/api-plugin-from-existing-api`)
+# Scenario — Create Declarative Agent with API Plugin from Existing OpenAPI (`da/api-plugin-from-existing-api`)
 
-- **Status:** Accepted (Decision source [ADR-0016 §5](../../../02-architecture/adr/ADR-0016-declarative-template-format.md) + [ADR-0018](../../../02-architecture/adr/ADR-0018-scaffold-runtime-test-pyramid.md)) - ready for scenario-tier (T3) tests
+- **Status:** Accepted (Decision source [ADR-0016 §5](../../../02-architecture/adr/ADR-0016-declarative-template-format.md) + [ADR-0018](../../../02-architecture/adr/ADR-0018-scaffold-runtime-test-pyramid.md)) — ready for scenario-tier (T3) tests
 - **Domain:** [`01-scaffolding`](../../domains/01-scaffolding.md)
 - **Scenario ID:** `SCN-DA-CREATE-API-PLUGIN-FROM-EXISTING-API` (the declarative
   agent with an API plugin action generated from a user-supplied OpenAPI

@@ -4,8 +4,8 @@
 - **Date:** 2026-05-28 (Accepted 2026-06-08)
 - **Source:** [`scaffolding.create.proposal.md` §14](../scaffolding.create.proposal.md#14-adrs-this-proposal-will-be-decomposed-into)
   (decomposes §§3.3, 3.3.1; invariants 5–7). Validated against
-  `templates/v4/create/da/mcp-server/pipeline.json` and
-  `templates/v4/modify/add-mcp-server/pipeline.json`.
+  `v4/create/da/mcp-server/pipeline.json` and
+  `v4/modify/add-mcp-server/pipeline.json`.
 
 ## Context
 
