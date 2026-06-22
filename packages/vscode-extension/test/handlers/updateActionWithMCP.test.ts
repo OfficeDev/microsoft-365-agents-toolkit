@@ -1,28 +1,25 @@
+import { assert, expect, vi } from "vitest";
+import { mockValue } from "../mocks/vitestMockUtils";
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
-
-import * as sinon from "sinon";
-import * as chai from "chai";
-import * as vscode from "vscode";
-import fs from "fs-extra";
-import * as path from "path";
+import { err, Inputs, ok, Platform, Stage, UserError } from "@microsoft/teamsfx-api";
 import axios from "axios";
+import fs from "fs-extra";
 import * as parser from "jsonc-parser";
-import { Stage, err, ok, UserError, Inputs, Platform } from "@microsoft/teamsfx-api";
+import * as path from "path";
+import * as vscode from "vscode";
 
-import { updateActionWithMCP } from "../../src/handlers/updateActionWithMCP";
-import * as systemEnvUtils from "../../src/utils/systemEnvUtils";
-import * as sharedOpts from "../../src/handlers/sharedOpts";
-import { ExtTelemetry } from "../../src/telemetry/extTelemetry";
-import * as vscUI from "../../src/qm/vsc_ui";
-import { QuestionNames, ODRProvider } from "@microsoft/teamsfx-core";
+import { ODRProvider, QuestionNames } from "@microsoft/teamsfx-core";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
-import { MockCore } from "../mocks/mockCore";
 import * as globalVariables from "../../src/globalVariables";
+import * as sharedOpts from "../../src/handlers/sharedOpts";
+import { updateActionWithMCP } from "../../src/handlers/updateActionWithMCP";
+import * as vscUI from "../../src/qm/vsc_ui";
+import { ExtTelemetry } from "../../src/telemetry/extTelemetry";
+import * as systemEnvUtils from "../../src/utils/systemEnvUtils";
+import { MockCore } from "../mocks/mockCore";
 
 describe("updateActionWithMCP", () => {
-  const sandbox = sinon.createSandbox();
-
   const mockProjectPath = "/mock/project/path";
 
   beforeEach(() => {
@@ -30,15 +27,11 @@ describe("updateActionWithMCP", () => {
       projectPath: mockProjectPath,
       platform: Platform.VSCode,
     };
-    sandbox.stub(systemEnvUtils, "getSystemInputs").returns(mockInputs);
-    sandbox.stub(vscode.window, "showErrorMessage");
-    sandbox.stub(globalVariables, "core").value(new MockCore());
-    sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
-    sandbox.stub(ExtTelemetry, "sendTelemetryErrorEvent");
-  });
-
-  afterEach(() => {
-    sandbox.restore();
+    vi.spyOn(systemEnvUtils, "getSystemInputs").mockReturnValue(mockInputs);
+    vi.spyOn(vscode.window, "showErrorMessage").mockResolvedValue(undefined);
+    mockValue(globalVariables, "core", new MockCore());
+    vi.spyOn(ExtTelemetry, "sendTelemetryEvent");
+    vi.spyOn(ExtTelemetry, "sendTelemetryErrorEvent");
   });
 
   describe("sanitizeMCPName", () => {
@@ -46,14 +39,14 @@ describe("updateActionWithMCP", () => {
       // Test with args containing serverName with special characters
       const args = [{ serverName: "test-server@123!#$", serverConfig: { url: "http://test.com" } }];
 
-      sandbox.stub(fs, "pathExistsSync").returns(false);
-      sandbox.stub(sharedOpts, "runCommand").resolves(ok(undefined));
+      vi.spyOn(fs, "pathExistsSync").mockReturnValue(false);
+      vi.spyOn(sharedOpts, "runCommand").mockResolvedValue(ok(undefined));
       Object.defineProperty(vscode.lm, "tools", { value: [], configurable: true });
 
       const result = await updateActionWithMCP(args);
 
       // The function should still process even with empty tools (will show error)
-      chai.assert.isTrue(result.isErr());
+      assert.isTrue(result.isErr());
     });
 
     it("should limit MCP name to 13 characters", async () => {
@@ -64,14 +57,14 @@ describe("updateActionWithMCP", () => {
         },
       ];
 
-      sandbox.stub(fs, "pathExistsSync").returns(false);
-      sandbox.stub(sharedOpts, "runCommand").resolves(ok(undefined));
+      vi.spyOn(fs, "pathExistsSync").mockReturnValue(false);
+      vi.spyOn(sharedOpts, "runCommand").mockResolvedValue(ok(undefined));
       Object.defineProperty(vscode.lm, "tools", { value: [], configurable: true });
 
       await updateActionWithMCP(args);
 
       // Verify the sanitized name was used (indirectly through no errors about invalid names)
-      chai.assert.isTrue(true); // If we reach here, sanitization worked
+      assert.isTrue(true); // If we reach here, sanitization worked
     });
   });
 
@@ -94,13 +87,13 @@ describe("updateActionWithMCP", () => {
       ];
 
       Object.defineProperty(vscode.lm, "tools", { value: mockTools, configurable: true });
-      sandbox.stub(axios, "get").resolves({ status: 200 });
-      const runCommandStub = sandbox.stub(sharedOpts, "runCommand").resolves(ok(undefined));
+      vi.spyOn(axios, "get").mockResolvedValue({ status: 200 });
+      const runCommandStub = vi.spyOn(sharedOpts, "runCommand").mockResolvedValue(ok(undefined));
 
       const result = await updateActionWithMCP(args);
 
-      chai.assert.isTrue(result.isOk());
-      sinon.assert.calledWith(runCommandStub, Stage.updateActionWithMCP, sinon.match.any);
+      assert.isTrue(result.isOk());
+      expect(runCommandStub).toHaveBeenCalledWith(Stage.updateActionWithMCP, expect.anything());
     });
 
     it("should return error when server name is provided but URL is missing", async () => {
@@ -108,7 +101,7 @@ describe("updateActionWithMCP", () => {
 
       const result = await updateActionWithMCP(args);
 
-      chai.assert.isTrue(result.isErr());
+      assert.isTrue(result.isErr());
     });
 
     it("should return error when URL is provided but server name is missing", async () => {
@@ -116,7 +109,7 @@ describe("updateActionWithMCP", () => {
 
       const result = await updateActionWithMCP(args);
 
-      chai.assert.isTrue(result.isErr());
+      assert.isTrue(result.isErr());
     });
   });
 
@@ -125,45 +118,47 @@ describe("updateActionWithMCP", () => {
       const emptyInputs: Inputs = {
         platform: Platform.VSCode,
       };
-      sandbox.restore();
-      sandbox.stub(systemEnvUtils, "getSystemInputs").returns(emptyInputs);
-      sandbox.stub(vscode.window, "showErrorMessage");
-      sandbox.stub(ExtTelemetry, "sendTelemetryEvent");
-      sandbox.stub(ExtTelemetry, "sendTelemetryErrorEvent");
+      vi.restoreAllMocks();
+      vi.spyOn(systemEnvUtils, "getSystemInputs").mockReturnValue(emptyInputs);
+      vi.spyOn(vscode.window, "showErrorMessage");
+      vi.spyOn(ExtTelemetry, "sendTelemetryEvent");
+      vi.spyOn(ExtTelemetry, "sendTelemetryErrorEvent");
 
       const result = await updateActionWithMCP();
 
-      chai.assert.isTrue(result.isErr());
+      assert.isTrue(result.isErr());
     });
 
     it("should return error when MCP file does not exist", async () => {
-      sandbox.stub(fs, "pathExistsSync").returns(false);
+      vi.spyOn(fs, "pathExistsSync").mockReturnValue(false);
 
       const result = await updateActionWithMCP();
 
-      chai.assert.isTrue(result.isErr());
+      assert.isTrue(result.isErr());
     });
 
     it("should return error when MCP file has invalid content", async () => {
       const expectedPath = path.join(mockProjectPath, ".vscode", "mcp.json");
-      sandbox.stub(fs, "readFileSync").withArgs(expectedPath, "utf-8").returns("{}");
-      sandbox.stub(fs, "pathExistsSync").withArgs(expectedPath).returns(true);
-      sandbox.stub(parser, "parse").returns({});
+      vi.spyOn(fs, "readFileSync").withArgs(expectedPath, "utf-8").mockReturnValue("{}");
+      vi.spyOn(fs, "pathExistsSync").withArgs(expectedPath).mockReturnValue(true);
+      vi.spyOn(parser, "parse").mockReturnValue({});
 
       const result = await updateActionWithMCP();
 
-      chai.assert.isTrue(result.isErr());
+      assert.isTrue(result.isErr());
     });
 
     it("should return error when no MCP servers found", async () => {
       const expectedPath = path.join(mockProjectPath, ".vscode", "mcp.json");
-      sandbox.stub(fs, "pathExistsSync").withArgs(expectedPath).returns(true);
-      sandbox.stub(fs, "readFileSync").withArgs(expectedPath, "utf-8").returns('{"servers":{}}');
-      sandbox.stub(parser, "parse").returns({ servers: {} });
+      vi.spyOn(fs, "pathExistsSync").withArgs(expectedPath).mockReturnValue(true);
+      vi.spyOn(fs, "readFileSync")
+        .withArgs(expectedPath, "utf-8")
+        .mockReturnValue('{"servers":{}}');
+      vi.spyOn(parser, "parse").mockReturnValue({ servers: {} });
 
       const result = await updateActionWithMCP();
 
-      chai.assert.isTrue(result.isErr());
+      assert.isTrue(result.isErr());
     });
 
     it("should process single MCP server automatically", async () => {
@@ -182,20 +177,19 @@ describe("updateActionWithMCP", () => {
       ];
 
       const expectedPath = path.join(mockProjectPath, ".vscode", "mcp.json");
-      sandbox.stub(fs, "pathExistsSync").withArgs(expectedPath).returns(true);
-      sandbox
-        .stub(fs, "readFileSync")
+      vi.spyOn(fs, "pathExistsSync").withArgs(expectedPath).mockReturnValue(true);
+      vi.spyOn(fs, "readFileSync")
         .withArgs(expectedPath, "utf-8")
-        .returns(JSON.stringify(mcpContent));
-      sandbox.stub(parser, "parse").returns(mcpContent);
+        .mockReturnValue(JSON.stringify(mcpContent));
+      vi.spyOn(parser, "parse").mockReturnValue(mcpContent);
       Object.defineProperty(vscode.lm, "tools", { value: mockTools, configurable: true });
-      sandbox.stub(axios, "get").resolves({ status: 200 });
-      const runCommandStub = sandbox.stub(sharedOpts, "runCommand").resolves(ok(undefined));
+      vi.spyOn(axios, "get").mockResolvedValue({ status: 200 });
+      const runCommandStub = vi.spyOn(sharedOpts, "runCommand").mockResolvedValue(ok(undefined));
 
       const result = await updateActionWithMCP();
 
-      chai.assert.isTrue(result.isOk());
-      sinon.assert.calledOnce(runCommandStub);
+      assert.isTrue(result.isOk());
+      expect(runCommandStub).toHaveBeenCalledTimes(1);
     });
 
     it("should handle ODR server with command but no args", async () => {
@@ -226,21 +220,21 @@ describe("updateActionWithMCP", () => {
         },
       ];
 
-      sandbox.stub(ODRProvider, "listServers").resolves(mockODRServers);
-      sandbox.stub(ODRProvider, "getToolsForODRServer").resolves(mockODRTools);
-      sandbox.stub(ODRProvider, "isODRServer").returns(true);
-      const runCommandStub = sandbox.stub(sharedOpts, "runCommand").resolves(ok(undefined));
+      vi.spyOn(ODRProvider, "listServers").mockResolvedValue(mockODRServers);
+      vi.spyOn(ODRProvider, "getToolsForODRServer").mockResolvedValue(mockODRTools);
+      vi.spyOn(ODRProvider, "isODRServer").mockReturnValue(true);
+      const runCommandStub = vi.spyOn(sharedOpts, "runCommand").mockResolvedValue(ok(undefined));
 
       const result = await updateActionWithMCP(args);
 
-      chai.assert.isTrue(result.isOk());
+      assert.isTrue(result.isOk());
       const calledInputs = runCommandStub.getCall(0).args[1] as Inputs;
-      chai.assert.equal(
+      assert.equal(
         calledInputs[QuestionNames.MCPLocalServerIdentifier],
         "my-server-identifier-noargs"
       );
-      chai.assert.equal(calledInputs[QuestionNames.MCPForDAAvailableTools].length, 1);
-      chai.assert.equal(calledInputs[QuestionNames.MCPForDAAvailableTools][0].name, "tool1");
+      assert.equal(calledInputs[QuestionNames.MCPForDAAvailableTools].length, 1);
+      assert.equal(calledInputs[QuestionNames.MCPForDAAvailableTools][0].name, "tool1");
     });
 
     it("should process single local MCP server automatically (non-ODR)", async () => {
@@ -263,21 +257,20 @@ describe("updateActionWithMCP", () => {
       ];
 
       const expectedPath = path.join(mockProjectPath, ".vscode", "mcp.json");
-      sandbox.stub(fs, "pathExistsSync").withArgs(expectedPath).returns(true);
-      sandbox
-        .stub(fs, "readFileSync")
+      vi.spyOn(fs, "pathExistsSync").withArgs(expectedPath).mockReturnValue(true);
+      vi.spyOn(fs, "readFileSync")
         .withArgs(expectedPath, "utf-8")
-        .returns(JSON.stringify(mcpContent));
-      sandbox.stub(parser, "parse").returns(mcpContent);
-      sandbox.stub(vscode.lm, "tools").value(mockTools);
-      const runCommandStub = sandbox.stub(sharedOpts, "runCommand").resolves(ok(undefined));
+        .mockReturnValue(JSON.stringify(mcpContent));
+      vi.spyOn(parser, "parse").mockReturnValue(mcpContent);
+      mockValue(vscode.lm, "tools", mockTools);
+      const runCommandStub = vi.spyOn(sharedOpts, "runCommand").mockResolvedValue(ok(undefined));
 
       const result = await updateActionWithMCP();
 
-      chai.assert.isTrue(result.isOk());
-      sinon.assert.calledOnce(runCommandStub);
+      assert.isTrue(result.isOk());
+      expect(runCommandStub).toHaveBeenCalledTimes(1);
       const calledInputs = runCommandStub.getCall(0).args[1] as Inputs;
-      chai.assert.equal(calledInputs[QuestionNames.MCPLocalServerIdentifier], "local-server");
+      assert.equal(calledInputs[QuestionNames.MCPLocalServerIdentifier], "local-server");
     });
 
     it("should process single local MCP server automatically (ODR)", async () => {
@@ -312,25 +305,24 @@ describe("updateActionWithMCP", () => {
       ];
 
       const expectedPath = path.join(mockProjectPath, ".vscode", "mcp.json");
-      sandbox.stub(fs, "pathExistsSync").withArgs(expectedPath).returns(true);
-      sandbox
-        .stub(fs, "readFileSync")
+      vi.spyOn(fs, "pathExistsSync").withArgs(expectedPath).mockReturnValue(true);
+      vi.spyOn(fs, "readFileSync")
         .withArgs(expectedPath, "utf-8")
-        .returns(JSON.stringify(mcpContent));
-      sandbox.stub(parser, "parse").returns(mcpContent);
-      sandbox.stub(ODRProvider, "listServers").resolves(mockODRServers);
-      sandbox.stub(ODRProvider, "getToolsForODRServer").resolves(mockODRTools);
-      sandbox.stub(ODRProvider, "isODRServer").returns(true);
-      const runCommandStub = sandbox.stub(sharedOpts, "runCommand").resolves(ok(undefined));
+        .mockReturnValue(JSON.stringify(mcpContent));
+      vi.spyOn(parser, "parse").mockReturnValue(mcpContent);
+      vi.spyOn(ODRProvider, "listServers").mockResolvedValue(mockODRServers);
+      vi.spyOn(ODRProvider, "getToolsForODRServer").mockResolvedValue(mockODRTools);
+      vi.spyOn(ODRProvider, "isODRServer").mockReturnValue(true);
+      const runCommandStub = vi.spyOn(sharedOpts, "runCommand").mockResolvedValue(ok(undefined));
 
       const result = await updateActionWithMCP();
 
-      chai.assert.isTrue(result.isOk());
-      sinon.assert.calledOnce(runCommandStub);
+      assert.isTrue(result.isOk());
+      expect(runCommandStub).toHaveBeenCalledTimes(1);
       const calledInputs = runCommandStub.getCall(0).args[1] as Inputs;
-      chai.assert.equal(calledInputs[QuestionNames.MCPLocalServerIdentifier], "my-mcp-server-id");
-      chai.assert.equal(calledInputs[QuestionNames.MCPForDAAvailableTools].length, 1);
-      chai.assert.equal(calledInputs[QuestionNames.MCPForDAAvailableTools][0].name, "tool1");
+      assert.equal(calledInputs[QuestionNames.MCPLocalServerIdentifier], "my-mcp-server-id");
+      assert.equal(calledInputs[QuestionNames.MCPForDAAvailableTools].length, 1);
+      assert.equal(calledInputs[QuestionNames.MCPForDAAvailableTools][0].name, "tool1");
     });
 
     it("should show selection UI for multiple MCP servers", async () => {
@@ -350,23 +342,24 @@ describe("updateActionWithMCP", () => {
       ];
 
       const expectedPath = path.join(mockProjectPath, ".vscode", "mcp.json");
-      sandbox.stub(fs, "pathExistsSync").withArgs(expectedPath).returns(true);
-      sandbox
-        .stub(fs, "readFileSync")
+      vi.spyOn(fs, "pathExistsSync").withArgs(expectedPath).mockReturnValue(true);
+      vi.spyOn(fs, "readFileSync")
         .withArgs(expectedPath, "utf-8")
-        .returns(JSON.stringify(mcpContent));
-      sandbox.stub(parser, "parse").returns(mcpContent);
+        .mockReturnValue(JSON.stringify(mcpContent));
+      vi.spyOn(parser, "parse").mockReturnValue(mcpContent);
       Object.defineProperty(vscode.lm, "tools", { value: mockTools, configurable: true });
-      sandbox.stub(axios, "get").resolves({ status: 200 });
-      sandbox.stub(vscUI, "VS_CODE_UI").value({
-        selectOption: sandbox.stub().resolves(ok({ type: "success", result: "remote-server" })),
+      vi.spyOn(axios, "get").mockResolvedValue({ status: 200 });
+      vi.spyOn(vscUI, "VS_CODE_UI").value({
+        selectOption: vi
+          .spyOn()
+          .mockResolvedValue(ok({ type: "success", result: "remote-server" })),
       });
-      const runCommandStub = sandbox.stub(sharedOpts, "runCommand").resolves(ok(undefined));
+      const runCommandStub = vi.spyOn(sharedOpts, "runCommand").mockResolvedValue(ok(undefined));
 
       const result = await updateActionWithMCP();
 
-      chai.assert.isTrue(result.isOk());
-      sinon.assert.calledOnce(runCommandStub);
+      assert.isTrue(result.isOk());
+      expect(runCommandStub).toHaveBeenCalledTimes(1);
     });
 
     it("should show selection UI for multiple MCP servers including local", async () => {
@@ -390,25 +383,24 @@ describe("updateActionWithMCP", () => {
       ];
 
       const expectedPath = path.join(mockProjectPath, ".vscode", "mcp.json");
-      sandbox.stub(fs, "pathExistsSync").withArgs(expectedPath).returns(true);
-      sandbox
-        .stub(fs, "readFileSync")
+      vi.spyOn(fs, "pathExistsSync").withArgs(expectedPath).mockReturnValue(true);
+      vi.spyOn(fs, "readFileSync")
         .withArgs(expectedPath, "utf-8")
-        .returns(JSON.stringify(mcpContent));
-      sandbox.stub(parser, "parse").returns(mcpContent);
-      sandbox.stub(ODRProvider, "listServers").resolves([]);
+        .mockReturnValue(JSON.stringify(mcpContent));
+      vi.spyOn(parser, "parse").mockReturnValue(mcpContent);
+      vi.spyOn(ODRProvider, "listServers").mockResolvedValue([]);
       Object.defineProperty(vscode.lm, "tools", { value: mockTools, configurable: true });
-      sandbox.stub(vscUI, "VS_CODE_UI").value({
-        selectOption: sandbox.stub().resolves(ok({ type: "success", result: "local-server" })),
+      vi.spyOn(vscUI, "VS_CODE_UI").value({
+        selectOption: vi.fn().mockResolvedValue(ok({ type: "success", result: "local-server" })),
       });
-      const runCommandStub = sandbox.stub(sharedOpts, "runCommand").resolves(ok(undefined));
+      const runCommandStub = vi.spyOn(sharedOpts, "runCommand").mockResolvedValue(ok(undefined));
 
       const result = await updateActionWithMCP();
 
-      chai.assert.isTrue(result.isOk());
-      sinon.assert.calledOnce(runCommandStub);
+      assert.isTrue(result.isOk());
+      expect(runCommandStub).toHaveBeenCalledTimes(1);
       const calledInputs = runCommandStub.getCall(0).args[1] as Inputs;
-      chai.assert.equal(calledInputs[QuestionNames.MCPLocalServerIdentifier], "local-server");
+      assert.equal(calledInputs[QuestionNames.MCPLocalServerIdentifier], "local-server");
     });
 
     it("should return error when user cancels server selection", async () => {
@@ -420,21 +412,20 @@ describe("updateActionWithMCP", () => {
       };
 
       const expectedPath = path.join(mockProjectPath, ".vscode", "mcp.json");
-      sandbox.stub(fs, "pathExistsSync").withArgs(expectedPath).returns(true);
-      sandbox
-        .stub(fs, "readFileSync")
+      vi.spyOn(fs, "pathExistsSync").withArgs(expectedPath).mockReturnValue(true);
+      vi.spyOn(fs, "readFileSync")
         .withArgs(expectedPath, "utf-8")
-        .returns(JSON.stringify(mcpContent));
-      sandbox.stub(parser, "parse").returns(mcpContent);
-      sandbox.stub(vscUI, "VS_CODE_UI").value({
-        selectOption: sandbox
-          .stub()
-          .resolves(err(new UserError("test", "UserCancel", "User cancelled"))),
+        .mockReturnValue(JSON.stringify(mcpContent));
+      vi.spyOn(parser, "parse").mockReturnValue(mcpContent);
+      vi.spyOn(vscUI, "VS_CODE_UI").value({
+        selectOption: vi
+          .spyOn()
+          .mockResolvedValue(err(new UserError("test", "UserCancel", "User cancelled"))),
       });
 
       const result = await updateActionWithMCP();
 
-      chai.assert.isTrue(result.isErr());
+      assert.isTrue(result.isErr());
     });
 
     it("should construct detail correctly for local server in selection UI", async () => {
@@ -458,31 +449,30 @@ describe("updateActionWithMCP", () => {
       ];
 
       const expectedPath = path.join(mockProjectPath, ".vscode", "mcp.json");
-      sandbox.stub(fs, "pathExistsSync").withArgs(expectedPath).returns(true);
-      sandbox
-        .stub(fs, "readFileSync")
+      vi.spyOn(fs, "pathExistsSync").withArgs(expectedPath).mockReturnValue(true);
+      vi.spyOn(fs, "readFileSync")
         .withArgs(expectedPath, "utf-8")
-        .returns(JSON.stringify(mcpContent));
-      sandbox.stub(parser, "parse").returns(mcpContent);
+        .mockReturnValue(JSON.stringify(mcpContent));
+      vi.spyOn(parser, "parse").mockReturnValue(mcpContent);
       Object.defineProperty(vscode.lm, "tools", { value: mockTools, configurable: true });
-      sandbox.stub(axios, "get").resolves({ status: 200 });
+      vi.spyOn(axios, "get").mockResolvedValue({ status: 200 });
 
       let capturedOptions: any;
-      sandbox.stub(vscUI, "VS_CODE_UI").value({
-        selectOption: sandbox.stub().callsFake((config: any) => {
+      vi.spyOn(vscUI, "VS_CODE_UI").value({
+        selectOption: vi.fn().mockImplementation((config: any) => {
           capturedOptions = config.options;
           return Promise.resolve(ok({ type: "success", result: "remote-server" }));
         }),
       });
-      sandbox.stub(sharedOpts, "runCommand").resolves(ok(undefined));
+      vi.spyOn(sharedOpts, "runCommand").mockResolvedValue(ok(undefined));
 
       await updateActionWithMCP();
 
       const localServerOption = capturedOptions.find((opt: any) => opt.id === "local-server");
-      chai.assert.equal(localServerOption.detail, "node server.js arg1");
+      assert.equal(localServerOption.detail, "node server.js arg1");
 
       const remoteServerOption = capturedOptions.find((opt: any) => opt.id === "remote-server");
-      chai.assert.equal(remoteServerOption.detail, "http://remote.com");
+      assert.equal(remoteServerOption.detail, "http://remote.com");
     });
   });
 
@@ -490,11 +480,11 @@ describe("updateActionWithMCP", () => {
     it("should return error when no tools are found for MCP server", async () => {
       const args = [{ serverName: "testServer", serverConfig: { url: "http://test.com" } }];
 
-      sandbox.stub(vscode.lm, "tools").value([]); // No tools found
+      mockValue(vscode.lm, "tools", []); // No tools found
 
       const result = await updateActionWithMCP(args);
 
-      chai.assert.isTrue(result.isErr());
+      assert.isTrue(result.isErr());
     });
 
     it("should filter and transform tools correctly", async () => {
@@ -520,21 +510,21 @@ describe("updateActionWithMCP", () => {
         },
       ];
 
-      sandbox.stub(vscode.lm, "tools").value(mockTools);
-      sandbox.stub(axios, "get").resolves({ status: 200 });
-      const runCommandStub = sandbox.stub(sharedOpts, "runCommand").resolves(ok(undefined));
+      mockValue(vscode.lm, "tools", mockTools);
+      vi.spyOn(axios, "get").mockResolvedValue({ status: 200 });
+      const runCommandStub = vi.spyOn(sharedOpts, "runCommand").mockResolvedValue(ok(undefined));
 
       const result = await updateActionWithMCP(args);
 
-      chai.assert.isTrue(result.isOk());
+      assert.isTrue(result.isOk());
 
       // Verify runCommand was called with correct inputs
       const calledInputs = runCommandStub.getCall(0).args[1] as Inputs;
       const tools = calledInputs[QuestionNames.MCPForDAAvailableTools];
 
-      chai.assert.equal(tools.length, 2);
-      chai.assert.equal(tools[0].name, "getTodos");
-      chai.assert.equal(tools[1].name, "createTodo");
+      assert.equal(tools.length, 2);
+      assert.equal(tools[0].name, "getTodos");
+      assert.equal(tools[1].name, "createTodo");
     });
   });
 
@@ -545,14 +535,14 @@ describe("updateActionWithMCP", () => {
         { name: "mcp_testserver_tool1", description: "Test", inputSchema: {}, tags: [] },
       ];
 
-      sandbox.stub(vscode.lm, "tools").value(mockTools);
-      sandbox.stub(axios, "get").resolves({ status: 200 });
-      const runCommandStub = sandbox.stub(sharedOpts, "runCommand").resolves(ok(undefined));
+      mockValue(vscode.lm, "tools", mockTools);
+      vi.spyOn(axios, "get").mockResolvedValue({ status: 200 });
+      const runCommandStub = vi.spyOn(sharedOpts, "runCommand").mockResolvedValue(ok(undefined));
 
       await updateActionWithMCP(args);
 
       const calledInputs = runCommandStub.getCall(0).args[1] as Inputs;
-      chai.assert.equal(calledInputs[QuestionNames.MCPForDAAuth], "NoneAuth");
+      assert.equal(calledInputs[QuestionNames.MCPForDAAuth], "NoneAuth");
     });
 
     it("should handle OAuth authentication (401 response)", async () => {
@@ -569,20 +559,19 @@ describe("updateActionWithMCP", () => {
         },
       };
 
-      sandbox.stub(vscode.lm, "tools").value(mockTools);
-      sandbox
-        .stub(axios, "get")
+      mockValue(vscode.lm, "tools", mockTools);
+      vi.spyOn(axios, "get")
         .onFirstCall()
         .throws(axiosError)
         .onSecondCall()
-        .resolves({ status: 200 });
-      const runCommandStub = sandbox.stub(sharedOpts, "runCommand").resolves(ok(undefined));
+        .mockResolvedValue({ status: 200 });
+      const runCommandStub = vi.spyOn(sharedOpts, "runCommand").mockResolvedValue(ok(undefined));
 
       await updateActionWithMCP(args);
 
       const calledInputs = runCommandStub.getCall(0).args[1] as Inputs;
-      chai.assert.equal(calledInputs[QuestionNames.MCPForDAAuth], "OAuthPluginVault");
-      chai.assert.equal(
+      assert.equal(calledInputs[QuestionNames.MCPForDAAuth], "OAuthPluginVault");
+      assert.equal(
         calledInputs[QuestionNames.MCPForDAAuthMetadataUrl],
         "http://test.com/.well-known/oauth"
       );
@@ -600,19 +589,19 @@ describe("updateActionWithMCP", () => {
         },
       };
 
-      sandbox.stub(vscode.lm, "tools").value(mockTools);
-      const axiosStub = sandbox.stub(axios, "get");
+      mockValue(vscode.lm, "tools", mockTools);
+      const axiosStub = vi.spyOn(axios, "get");
       axiosStub.withArgs("https://api.test.com/v1").throws(axiosError);
       axiosStub
         .withArgs("https://api.test.com/.well-known/oauth-authorization-server")
-        .resolves({ status: 200 }); // well-known URL response
-      const runCommandStub = sandbox.stub(sharedOpts, "runCommand").resolves(ok(undefined));
+        .mockResolvedValue({ status: 200 }); // well-known URL response
+      const runCommandStub = vi.spyOn(sharedOpts, "runCommand").mockResolvedValue(ok(undefined));
 
       await updateActionWithMCP(args);
 
       const calledInputs = runCommandStub.getCall(0).args[1] as Inputs;
-      chai.assert.equal(calledInputs[QuestionNames.MCPForDAAuth], "OAuthPluginVault");
-      chai.assert.equal(
+      assert.equal(calledInputs[QuestionNames.MCPForDAAuth], "OAuthPluginVault");
+      assert.equal(
         calledInputs[QuestionNames.MCPForDAAuthWellKnownUrl],
         "https://api.test.com/.well-known/oauth-authorization-server"
       );
@@ -625,14 +614,14 @@ describe("updateActionWithMCP", () => {
       ];
       const networkError = new Error("Network error");
 
-      sandbox.stub(vscode.lm, "tools").value(mockTools);
-      sandbox.stub(axios, "get").throws(networkError);
-      const runCommandStub = sandbox.stub(sharedOpts, "runCommand").resolves(ok(undefined));
+      mockValue(vscode.lm, "tools", mockTools);
+      vi.spyOn(axios, "get").throws(networkError);
+      const runCommandStub = vi.spyOn(sharedOpts, "runCommand").mockResolvedValue(ok(undefined));
 
       await updateActionWithMCP(args);
 
       const calledInputs = runCommandStub.getCall(0).args[1] as Inputs;
-      chai.assert.equal(calledInputs[QuestionNames.MCPForDAAuth], "NoneAuth");
+      assert.equal(calledInputs[QuestionNames.MCPForDAAuth], "NoneAuth");
     });
   });
 
@@ -643,17 +632,17 @@ describe("updateActionWithMCP", () => {
         { name: "mcp_testserver_tool1", description: "Test", inputSchema: {}, tags: [] },
       ];
 
-      sandbox.stub(vscode.lm, "tools").value(mockTools);
-      sandbox.stub(axios, "get").resolves({ status: 200 });
-      const runCommandStub = sandbox.stub(sharedOpts, "runCommand").resolves(ok(undefined));
+      mockValue(vscode.lm, "tools", mockTools);
+      vi.spyOn(axios, "get").mockResolvedValue({ status: 200 });
+      const runCommandStub = vi.spyOn(sharedOpts, "runCommand").mockResolvedValue(ok(undefined));
 
       await updateActionWithMCP(args);
 
       const calledInputs = runCommandStub.getCall(0).args[1] as Inputs;
-      chai.assert.equal(calledInputs[QuestionNames.MCPForDAServerUrl], "http://test.com");
-      chai.assert.equal(calledInputs[QuestionNames.MCPForDAServerName], "testserver");
-      chai.assert.isArray(calledInputs[QuestionNames.MCPForDAAvailableTools]);
-      chai.assert.equal(calledInputs[QuestionNames.MCPForDAAuth], "NoneAuth");
+      assert.equal(calledInputs[QuestionNames.MCPForDAServerUrl], "http://test.com");
+      assert.equal(calledInputs[QuestionNames.MCPForDAServerName], "testserver");
+      assert.isArray(calledInputs[QuestionNames.MCPForDAAvailableTools]);
+      assert.equal(calledInputs[QuestionNames.MCPForDAAuth], "NoneAuth");
     });
 
     it("should propagate runCommand errors", async () => {
@@ -663,14 +652,14 @@ describe("updateActionWithMCP", () => {
       ];
       const runCommandError = new UserError("test", "RunCommandError", "Run command failed");
 
-      sandbox.stub(vscode.lm, "tools").value(mockTools);
-      sandbox.stub(axios, "get").resolves({ status: 200 });
-      sandbox.stub(sharedOpts, "runCommand").resolves(err(runCommandError));
+      mockValue(vscode.lm, "tools", mockTools);
+      vi.spyOn(axios, "get").mockResolvedValue({ status: 200 });
+      vi.spyOn(sharedOpts, "runCommand").mockResolvedValue(err(runCommandError));
 
       const result = await updateActionWithMCP(args);
 
-      chai.assert.isTrue(result.isErr());
-      chai.assert.equal(result._unsafeUnwrapErr().message, "Run command failed");
+      assert.isTrue(result.isErr());
+      assert.equal(result._unsafeUnwrapErr().message, "Run command failed");
     });
   });
 
@@ -693,18 +682,17 @@ describe("updateActionWithMCP", () => {
       ];
 
       const expectedPath = path.join(mockProjectPath, ".vscode", "mcp.json");
-      sandbox.stub(fs, "pathExistsSync").withArgs(expectedPath).returns(true);
-      sandbox
-        .stub(fs, "readFileSync")
+      vi.spyOn(fs, "pathExistsSync").withArgs(expectedPath).mockReturnValue(true);
+      vi.spyOn(fs, "readFileSync")
         .withArgs(expectedPath, "utf-8")
-        .returns(JSON.stringify(mcpContent));
-      sandbox.stub(parser, "parse").returns(mcpContent);
-      sandbox.stub(ODRProvider, "listServers").resolves([]);
+        .mockReturnValue(JSON.stringify(mcpContent));
+      vi.spyOn(parser, "parse").mockReturnValue(mcpContent);
+      vi.spyOn(ODRProvider, "listServers").mockResolvedValue([]);
       Object.defineProperty(vscode.lm, "tools", { value: mockTools, configurable: true });
 
       const result = await updateActionWithMCP();
 
-      chai.assert.isTrue(result.isErr());
+      assert.isTrue(result.isErr());
     });
 
     it("should handle server config with empty args for detail fallback", async () => {
@@ -728,28 +716,27 @@ describe("updateActionWithMCP", () => {
       ];
 
       const expectedPath = path.join(mockProjectPath, ".vscode", "mcp.json");
-      sandbox.stub(fs, "pathExistsSync").withArgs(expectedPath).returns(true);
-      sandbox
-        .stub(fs, "readFileSync")
+      vi.spyOn(fs, "pathExistsSync").withArgs(expectedPath).mockReturnValue(true);
+      vi.spyOn(fs, "readFileSync")
         .withArgs(expectedPath, "utf-8")
-        .returns(JSON.stringify(mcpContent));
-      sandbox.stub(parser, "parse").returns(mcpContent);
+        .mockReturnValue(JSON.stringify(mcpContent));
+      vi.spyOn(parser, "parse").mockReturnValue(mcpContent);
       Object.defineProperty(vscode.lm, "tools", { value: mockTools, configurable: true });
-      sandbox.stub(axios, "get").resolves({ status: 200 });
+      vi.spyOn(axios, "get").mockResolvedValue({ status: 200 });
 
       let capturedOptions: any;
-      sandbox.stub(vscUI, "VS_CODE_UI").value({
-        selectOption: sandbox.stub().callsFake((config: any) => {
+      vi.spyOn(vscUI, "VS_CODE_UI").value({
+        selectOption: vi.fn().mockImplementation((config: any) => {
           capturedOptions = config.options;
           return Promise.resolve(ok({ type: "success", result: "remote-server" }));
         }),
       });
-      sandbox.stub(sharedOpts, "runCommand").resolves(ok(undefined));
+      vi.spyOn(sharedOpts, "runCommand").mockResolvedValue(ok(undefined));
 
       await updateActionWithMCP();
 
       const localServerOption = capturedOptions.find((opt: any) => opt.id === "local-server");
-      chai.assert.equal(localServerOption.detail, "python");
+      assert.equal(localServerOption.detail, "python");
     });
 
     it("should handle remote server config with empty url", async () => {
@@ -771,46 +758,45 @@ describe("updateActionWithMCP", () => {
       ];
 
       const expectedPath = path.join(mockProjectPath, ".vscode", "mcp.json");
-      sandbox.stub(fs, "pathExistsSync").withArgs(expectedPath).returns(true);
-      sandbox
-        .stub(fs, "readFileSync")
+      vi.spyOn(fs, "pathExistsSync").withArgs(expectedPath).mockReturnValue(true);
+      vi.spyOn(fs, "readFileSync")
         .withArgs(expectedPath, "utf-8")
-        .returns(JSON.stringify(mcpContent));
-      sandbox.stub(parser, "parse").returns(mcpContent);
+        .mockReturnValue(JSON.stringify(mcpContent));
+      vi.spyOn(parser, "parse").mockReturnValue(mcpContent);
       Object.defineProperty(vscode.lm, "tools", { value: mockTools, configurable: true });
-      sandbox.stub(axios, "get").resolves({ status: 200 });
+      vi.spyOn(axios, "get").mockResolvedValue({ status: 200 });
 
       let capturedOptions: any;
-      sandbox.stub(vscUI, "VS_CODE_UI").value({
-        selectOption: sandbox.stub().callsFake((config: any) => {
+      vi.spyOn(vscUI, "VS_CODE_UI").value({
+        selectOption: vi.fn().mockImplementation((config: any) => {
           capturedOptions = config.options;
           return Promise.resolve(ok({ type: "success", result: "remote-server" }));
         }),
       });
-      sandbox.stub(sharedOpts, "runCommand").resolves(ok(undefined));
+      vi.spyOn(sharedOpts, "runCommand").mockResolvedValue(ok(undefined));
 
       await updateActionWithMCP();
 
       const remoteServer2Option = capturedOptions.find((opt: any) => opt.id === "remote-server2");
-      chai.assert.equal(remoteServer2Option.detail, "");
+      assert.equal(remoteServer2Option.detail, "");
     });
 
     it("should handle undefined args", async () => {
       const expectedPath = path.join(mockProjectPath, ".vscode", "mcp.json");
-      sandbox.stub(fs, "pathExistsSync").withArgs(expectedPath).returns(false);
+      vi.spyOn(fs, "pathExistsSync").withArgs(expectedPath).mockReturnValue(false);
 
       const result = await updateActionWithMCP(undefined);
 
-      chai.assert.isTrue(result.isErr());
+      assert.isTrue(result.isErr());
     });
 
     it("should handle empty args array", async () => {
       const expectedPath = path.join(mockProjectPath, ".vscode", "mcp.json");
-      sandbox.stub(fs, "pathExistsSync").withArgs(expectedPath).returns(false);
+      vi.spyOn(fs, "pathExistsSync").withArgs(expectedPath).mockReturnValue(false);
 
       const result = await updateActionWithMCP([]);
 
-      chai.assert.isTrue(result.isErr());
+      assert.isTrue(result.isErr());
     });
 
     it("should handle tools with missing name parts", async () => {
@@ -824,15 +810,15 @@ describe("updateActionWithMCP", () => {
         { name: "mcp_testserver_tool1", description: "Test", inputSchema: {}, tags: [] },
       ];
 
-      sandbox.stub(vscode.lm, "tools").value(mockTools);
-      sandbox.stub(axios, "get").resolves({ status: 200 });
-      const runCommandStub = sandbox.stub(sharedOpts, "runCommand").resolves(ok(undefined));
+      mockValue(vscode.lm, "tools", mockTools);
+      vi.spyOn(axios, "get").mockResolvedValue({ status: 200 });
+      const runCommandStub = vi.spyOn(sharedOpts, "runCommand").mockResolvedValue(ok(undefined));
 
       const result = await updateActionWithMCP(args);
 
-      chai.assert.isTrue(result.isOk());
+      assert.isTrue(result.isOk());
       const calledInputs = runCommandStub.getCall(0).args[1] as Inputs;
-      chai.assert.isUndefined(calledInputs[QuestionNames.MCPLocalServerIdentifier]);
+      assert.isUndefined(calledInputs[QuestionNames.MCPLocalServerIdentifier]);
     });
 
     it("should handle local MCP with stdio type (non-ODR)", async () => {
@@ -846,15 +832,15 @@ describe("updateActionWithMCP", () => {
         { name: "mcp_localserver_tool1", description: "Test", inputSchema: {}, tags: [] },
       ];
 
-      sandbox.stub(vscode.lm, "tools").value(mockTools);
-      sandbox.stub(ODRProvider, "listServers").resolves([]);
-      const runCommandStub = sandbox.stub(sharedOpts, "runCommand").resolves(ok(undefined));
+      mockValue(vscode.lm, "tools", mockTools);
+      vi.spyOn(ODRProvider, "listServers").mockResolvedValue([]);
+      const runCommandStub = vi.spyOn(sharedOpts, "runCommand").mockResolvedValue(ok(undefined));
 
       const result = await updateActionWithMCP(args);
 
-      chai.assert.isTrue(result.isOk());
+      assert.isTrue(result.isOk());
       const calledInputs = runCommandStub.getCall(0).args[1] as Inputs;
-      chai.assert.equal(calledInputs[QuestionNames.MCPLocalServerIdentifier], "localServer");
+      assert.equal(calledInputs[QuestionNames.MCPLocalServerIdentifier], "localServer");
     });
 
     it("should handle local MCP with stdio type (ODR)", async () => {
@@ -879,21 +865,18 @@ describe("updateActionWithMCP", () => {
         },
       ];
 
-      sandbox.stub(ODRProvider, "listServers").resolves(mockODRServers);
-      sandbox.stub(ODRProvider, "getToolsForODRServer").resolves(mockODRTools);
-      sandbox.stub(ODRProvider, "isODRServer").returns(true);
-      const runCommandStub = sandbox.stub(sharedOpts, "runCommand").resolves(ok(undefined));
+      vi.spyOn(ODRProvider, "listServers").mockResolvedValue(mockODRServers);
+      vi.spyOn(ODRProvider, "getToolsForODRServer").mockResolvedValue(mockODRTools);
+      vi.spyOn(ODRProvider, "isODRServer").mockReturnValue(true);
+      const runCommandStub = vi.spyOn(sharedOpts, "runCommand").mockResolvedValue(ok(undefined));
 
       const result = await updateActionWithMCP(args);
 
-      chai.assert.isTrue(result.isOk());
+      assert.isTrue(result.isOk());
       const calledInputs = runCommandStub.getCall(0).args[1] as Inputs;
-      chai.assert.equal(
-        calledInputs[QuestionNames.MCPLocalServerIdentifier],
-        "my-server-identifier"
-      );
-      chai.assert.equal(calledInputs[QuestionNames.MCPForDAAvailableTools].length, 1);
-      chai.assert.equal(calledInputs[QuestionNames.MCPForDAAvailableTools][0].name, "tool1");
+      assert.equal(calledInputs[QuestionNames.MCPLocalServerIdentifier], "my-server-identifier");
+      assert.equal(calledInputs[QuestionNames.MCPForDAAvailableTools].length, 1);
+      assert.equal(calledInputs[QuestionNames.MCPForDAAvailableTools][0].name, "tool1");
     });
 
     it("should set mcp-type to local for stdio servers", async () => {
@@ -907,14 +890,15 @@ describe("updateActionWithMCP", () => {
         { name: "mcp_localserver_tool1", description: "Test", inputSchema: {}, tags: [] },
       ];
 
-      sandbox.stub(vscode.lm, "tools").value(mockTools);
-      sandbox.stub(ODRProvider, "listServers").resolves([]);
-      sandbox.stub(sharedOpts, "runCommand").resolves(ok(undefined));
+      mockValue(vscode.lm, "tools", mockTools);
+      vi.spyOn(ODRProvider, "listServers").mockResolvedValue([]);
+      vi.spyOn(sharedOpts, "runCommand").mockResolvedValue(ok(undefined));
 
       await updateActionWithMCP(args);
 
-      const telemetryCall = (ExtTelemetry.sendTelemetryEvent as sinon.SinonStub).lastCall;
-      chai.assert.equal(telemetryCall.args[1]["mcp-type"], "local");
+      const telemetryCall = (ExtTelemetry.sendTelemetryEvent as ReturnType<typeof vi.spyOn>)
+        .lastCall;
+      assert.equal(telemetryCall.args[1]["mcp-type"], "local");
     });
 
     it("should set mcp-type to remote for non-stdio servers", async () => {
@@ -923,14 +907,15 @@ describe("updateActionWithMCP", () => {
         { name: "mcp_remoteserver_tool1", description: "Test", inputSchema: {}, tags: [] },
       ];
 
-      sandbox.stub(vscode.lm, "tools").value(mockTools);
-      sandbox.stub(axios, "get").resolves({ status: 200 });
-      sandbox.stub(sharedOpts, "runCommand").resolves(ok(undefined));
+      mockValue(vscode.lm, "tools", mockTools);
+      vi.spyOn(axios, "get").mockResolvedValue({ status: 200 });
+      vi.spyOn(sharedOpts, "runCommand").mockResolvedValue(ok(undefined));
 
       await updateActionWithMCP(args);
 
-      const telemetryCall = (ExtTelemetry.sendTelemetryEvent as sinon.SinonStub).lastCall;
-      chai.assert.equal(telemetryCall.args[1]["mcp-type"], "remote");
+      const telemetryCall = (ExtTelemetry.sendTelemetryEvent as ReturnType<typeof vi.spyOn>)
+        .lastCall;
+      assert.equal(telemetryCall.args[1]["mcp-type"], "remote");
     });
 
     it("should send telemetry with local mcp-type on error", async () => {
@@ -945,14 +930,15 @@ describe("updateActionWithMCP", () => {
       ];
       const runCommandError = new UserError("test", "RunCommandError", "Run command failed");
 
-      sandbox.stub(vscode.lm, "tools").value(mockTools);
-      sandbox.stub(ODRProvider, "listServers").resolves([]);
-      sandbox.stub(sharedOpts, "runCommand").resolves(err(runCommandError));
+      mockValue(vscode.lm, "tools", mockTools);
+      vi.spyOn(ODRProvider, "listServers").mockResolvedValue([]);
+      vi.spyOn(sharedOpts, "runCommand").mockResolvedValue(err(runCommandError));
 
       await updateActionWithMCP(args);
 
-      const telemetryCall = (ExtTelemetry.sendTelemetryErrorEvent as sinon.SinonStub).lastCall;
-      chai.assert.equal(telemetryCall.args[2]["mcp-type"], "local");
+      const telemetryCall = (ExtTelemetry.sendTelemetryErrorEvent as ReturnType<typeof vi.spyOn>)
+        .lastCall;
+      assert.equal(telemetryCall.args[2]["mcp-type"], "local");
     });
 
     it("should handle 401 error with no response headers", async () => {
@@ -965,18 +951,18 @@ describe("updateActionWithMCP", () => {
         response: {},
       };
 
-      sandbox.stub(vscode.lm, "tools").value(mockTools);
-      const axiosStub = sandbox.stub(axios, "get");
+      mockValue(vscode.lm, "tools", mockTools);
+      const axiosStub = vi.spyOn(axios, "get");
       axiosStub.withArgs("http://test.com").throws(axiosError);
       axiosStub
         .withArgs("http://test.com/.well-known/oauth-authorization-server")
-        .resolves({ status: 200 });
-      const runCommandStub = sandbox.stub(sharedOpts, "runCommand").resolves(ok(undefined));
+        .mockResolvedValue({ status: 200 });
+      const runCommandStub = vi.spyOn(sharedOpts, "runCommand").mockResolvedValue(ok(undefined));
 
       await updateActionWithMCP(args);
 
       const calledInputs = runCommandStub.getCall(0).args[1] as Inputs;
-      chai.assert.equal(calledInputs[QuestionNames.MCPForDAAuth], "OAuthPluginVault");
+      assert.equal(calledInputs[QuestionNames.MCPForDAAuth], "OAuthPluginVault");
     });
 
     it("should parse www-authenticate header with match", async () => {
@@ -993,14 +979,14 @@ describe("updateActionWithMCP", () => {
         },
       };
 
-      sandbox.stub(vscode.lm, "tools").value(mockTools);
-      sandbox.stub(axios, "get").onFirstCall().throws(axiosError);
-      const runCommandStub = sandbox.stub(sharedOpts, "runCommand").resolves(ok(undefined));
+      mockValue(vscode.lm, "tools", mockTools);
+      vi.spyOn(axios, "get").onFirstCall().throws(axiosError);
+      const runCommandStub = vi.spyOn(sharedOpts, "runCommand").mockResolvedValue(ok(undefined));
 
       await updateActionWithMCP(args);
 
       const calledInputs = runCommandStub.getCall(0).args[1] as Inputs;
-      chai.assert.equal(
+      assert.equal(
         calledInputs[QuestionNames.MCPForDAAuthMetadataUrl],
         "http://auth.test.com/metadata"
       );
@@ -1017,17 +1003,17 @@ describe("updateActionWithMCP", () => {
         { name: "mcp_localserver_tool1", description: "Test", inputSchema: {}, tags: [] },
       ];
 
-      sandbox.stub(vscode.lm, "tools").value(mockTools);
-      sandbox.stub(ODRProvider, "listServers").resolves([]);
-      const axiosStub = sandbox.stub(axios, "get");
-      const runCommandStub = sandbox.stub(sharedOpts, "runCommand").resolves(ok(undefined));
+      mockValue(vscode.lm, "tools", mockTools);
+      vi.spyOn(ODRProvider, "listServers").mockResolvedValue([]);
+      const axiosStub = vi.spyOn(axios, "get");
+      const runCommandStub = vi.spyOn(sharedOpts, "runCommand").mockResolvedValue(ok(undefined));
 
       await updateActionWithMCP(args);
 
       // Axios should not be called for local MCP
-      chai.assert.isFalse(axiosStub.called);
+      assert.isFalse(axiosStub.called);
       const calledInputs = runCommandStub.getCall(0).args[1] as Inputs;
-      chai.assert.equal(calledInputs[QuestionNames.MCPForDAAuth], "NoneAuth");
+      assert.equal(calledInputs[QuestionNames.MCPForDAAuth], "NoneAuth");
     });
 
     it("should return original server name when serverConfig type is not stdio", async () => {
@@ -1041,15 +1027,15 @@ describe("updateActionWithMCP", () => {
         { name: "mcp_remoteserver_tool1", description: "Test", inputSchema: {}, tags: [] },
       ];
 
-      sandbox.stub(vscode.lm, "tools").value(mockTools);
-      sandbox.stub(axios, "get").resolves({ status: 200 });
-      const runCommandStub = sandbox.stub(sharedOpts, "runCommand").resolves(ok(undefined));
+      mockValue(vscode.lm, "tools", mockTools);
+      vi.spyOn(axios, "get").mockResolvedValue({ status: 200 });
+      const runCommandStub = vi.spyOn(sharedOpts, "runCommand").mockResolvedValue(ok(undefined));
 
       const result = await updateActionWithMCP(args);
 
-      chai.assert.isTrue(result.isOk());
+      assert.isTrue(result.isOk());
       const calledInputs = runCommandStub.getCall(0).args[1] as Inputs;
-      chai.assert.isUndefined(calledInputs[QuestionNames.MCPLocalServerIdentifier]);
+      assert.isUndefined(calledInputs[QuestionNames.MCPLocalServerIdentifier]);
     });
 
     it("should construct detail with command only when args is undefined", async () => {
@@ -1067,28 +1053,27 @@ describe("updateActionWithMCP", () => {
       ];
 
       const expectedPath = path.join(mockProjectPath, ".vscode", "mcp.json");
-      sandbox.stub(fs, "pathExistsSync").withArgs(expectedPath).returns(true);
-      sandbox
-        .stub(fs, "readFileSync")
+      vi.spyOn(fs, "pathExistsSync").withArgs(expectedPath).mockReturnValue(true);
+      vi.spyOn(fs, "readFileSync")
         .withArgs(expectedPath, "utf-8")
-        .returns(JSON.stringify(mcpContent));
-      sandbox.stub(parser, "parse").returns(mcpContent);
+        .mockReturnValue(JSON.stringify(mcpContent));
+      vi.spyOn(parser, "parse").mockReturnValue(mcpContent);
       Object.defineProperty(vscode.lm, "tools", { value: mockTools, configurable: true });
-      sandbox.stub(axios, "get").resolves({ status: 200 });
+      vi.spyOn(axios, "get").mockResolvedValue({ status: 200 });
 
       let capturedOptions: any;
-      sandbox.stub(vscUI, "VS_CODE_UI").value({
-        selectOption: sandbox.stub().callsFake((config: any) => {
+      vi.spyOn(vscUI, "VS_CODE_UI").value({
+        selectOption: vi.fn().mockImplementation((config: any) => {
           capturedOptions = config.options;
           return Promise.resolve(ok({ type: "success", result: "test-server" }));
         }),
       });
-      sandbox.stub(sharedOpts, "runCommand").resolves(ok(undefined));
+      vi.spyOn(sharedOpts, "runCommand").mockResolvedValue(ok(undefined));
 
       await updateActionWithMCP();
 
       const server2Option = capturedOptions.find((opt: any) => opt.id === "test-server2");
-      chai.assert.equal(server2Option.detail, "node");
+      assert.equal(server2Option.detail, "node");
     });
   });
 
@@ -1099,21 +1084,21 @@ describe("updateActionWithMCP", () => {
         { name: "mcp_testserver_tool1", description: "Test tool", inputSchema: {}, tags: [] },
       ];
 
-      sandbox.stub(vscode.lm, "tools").value(mockTools);
+      mockValue(vscode.lm, "tools", mockTools);
       Object.defineProperty(vscode.lm, "startMcpGateway", {
-        value: sandbox.stub().resolves(undefined),
+        value: vi.fn().mockResolvedValue(undefined),
         configurable: true,
       });
-      sandbox.stub(axios, "get").resolves({ status: 200 });
-      const runCommandStub = sandbox.stub(sharedOpts, "runCommand").resolves(ok(undefined));
+      vi.spyOn(axios, "get").mockResolvedValue({ status: 200 });
+      const runCommandStub = vi.spyOn(sharedOpts, "runCommand").mockResolvedValue(ok(undefined));
 
       const result = await updateActionWithMCP(args);
 
-      chai.assert.isTrue(result.isOk());
+      assert.isTrue(result.isOk());
       const calledInputs = runCommandStub.getCall(0).args[1] as Inputs;
       const tools = calledInputs[QuestionNames.MCPForDAAvailableTools];
-      chai.assert.equal(tools.length, 1);
-      chai.assert.equal(tools[0].name, "tool1");
+      assert.equal(tools.length, 1);
+      assert.equal(tools[0].name, "tool1");
     });
 
     it("should fall back to selectedTools when startMcpGateway throws", async () => {
@@ -1122,21 +1107,21 @@ describe("updateActionWithMCP", () => {
         { name: "mcp_testserver_tool1", description: "Test tool", inputSchema: {}, tags: [] },
       ];
 
-      sandbox.stub(vscode.lm, "tools").value(mockTools);
+      mockValue(vscode.lm, "tools", mockTools);
       Object.defineProperty(vscode.lm, "startMcpGateway", {
-        value: sandbox.stub().rejects(new Error("Not supported")),
+        value: vi.fn().mockRejectedValue(new Error("Not supported")),
         configurable: true,
       });
-      sandbox.stub(axios, "get").resolves({ status: 200 });
-      const runCommandStub = sandbox.stub(sharedOpts, "runCommand").resolves(ok(undefined));
+      vi.spyOn(axios, "get").mockResolvedValue({ status: 200 });
+      const runCommandStub = vi.spyOn(sharedOpts, "runCommand").mockResolvedValue(ok(undefined));
 
       const result = await updateActionWithMCP(args);
 
-      chai.assert.isTrue(result.isOk());
+      assert.isTrue(result.isOk());
       const calledInputs = runCommandStub.getCall(0).args[1] as Inputs;
       const tools = calledInputs[QuestionNames.MCPForDAAvailableTools];
-      chai.assert.equal(tools.length, 1);
-      chai.assert.equal(tools[0].name, "tool1");
+      assert.equal(tools.length, 1);
+      assert.equal(tools[0].name, "tool1");
     });
 
     it("should use gateway tools when gateway succeeds and tools match", async () => {
@@ -1146,41 +1131,41 @@ describe("updateActionWithMCP", () => {
         { name: "mcp_testserver_tool2", description: "Test tool 2", inputSchema: {}, tags: [] },
       ];
 
-      sandbox.stub(vscode.lm, "tools").value(mockTools);
+      mockValue(vscode.lm, "tools", mockTools);
       const mockGateway = {
         servers: [{ label: "testServer", address: { toString: () => "http://localhost:12345" } }],
-        dispose: sandbox.stub(),
+        dispose: vi.fn(),
       };
       Object.defineProperty(vscode.lm, "startMcpGateway", {
-        value: sandbox.stub().resolves(mockGateway),
+        value: vi.fn().mockResolvedValue(mockGateway),
         configurable: true,
       });
-      const connectStub = sandbox.stub(Client.prototype, "connect").resolves();
-      const listToolsStub = sandbox.stub(Client.prototype, "listTools").resolves({
+      const connectStub = vi.spyOn(Client.prototype, "connect").mockResolvedValue();
+      const listToolsStub = vi.spyOn(Client.prototype, "listTools").mockResolvedValue({
         tools: [
           { name: "tool1", description: "Test tool 1", inputSchema: { type: "object" as const } },
           { name: "tool2", description: "Test tool 2", inputSchema: { type: "object" as const } },
           { name: "tool3", description: "Other tool", inputSchema: { type: "object" as const } },
         ],
       });
-      const closeStub = sandbox.stub(Client.prototype, "close").resolves();
-      sandbox.stub(axios, "get").resolves({ status: 200 });
-      const runCommandStub = sandbox.stub(sharedOpts, "runCommand").resolves(ok(undefined));
+      const closeStub = vi.spyOn(Client.prototype, "close").mockResolvedValue();
+      vi.spyOn(axios, "get").mockResolvedValue({ status: 200 });
+      const runCommandStub = vi.spyOn(sharedOpts, "runCommand").mockResolvedValue(ok(undefined));
 
       const result = await updateActionWithMCP(args);
 
-      chai.assert.isTrue(result.isOk());
-      sinon.assert.calledOnce(connectStub);
-      sinon.assert.calledOnce(listToolsStub);
-      sinon.assert.calledOnce(closeStub);
-      sinon.assert.calledOnce(mockGateway.dispose as sinon.SinonStub);
+      assert.isTrue(result.isOk());
+      expect(connectStub).toHaveBeenCalledTimes(1);
+      expect(listToolsStub).toHaveBeenCalledTimes(1);
+      expect(closeStub).toHaveBeenCalledTimes(1);
+      expect(mockGateway.dispose as ReturnType<typeof vi.spyOn>).toHaveBeenCalledTimes(1);
       const calledInputs = runCommandStub.getCall(0).args[1] as Inputs;
       const tools = calledInputs[QuestionNames.MCPForDAAvailableTools];
       // The gateway's tool list is authoritative; all server tools are returned as-is.
-      chai.assert.equal(tools.length, 3);
-      chai.assert.equal(tools[0].name, "tool1");
-      chai.assert.equal(tools[1].name, "tool2");
-      chai.assert.equal(tools[2].name, "tool3");
+      assert.equal(tools.length, 3);
+      assert.equal(tools[0].name, "tool1");
+      assert.equal(tools[1].name, "tool2");
+      assert.equal(tools[2].name, "tool3");
     });
 
     it("should use gateway tools even when vscode.lm.tools is empty (macOS regression)", async () => {
@@ -1188,39 +1173,39 @@ describe("updateActionWithMCP", () => {
 
       // On macOS the MCP server's tools are not surfaced in vscode.lm.tools, so the
       // selectedTools filter is empty. The gateway result must still be used.
-      sandbox.stub(vscode.lm, "tools").value([]);
+      mockValue(vscode.lm, "tools", []);
       const mockGateway = {
         servers: [{ label: "testServer", address: { toString: () => "http://localhost:12345" } }],
-        dispose: sandbox.stub(),
+        dispose: vi.fn(),
       };
       Object.defineProperty(vscode.lm, "startMcpGateway", {
-        value: sandbox.stub().resolves(mockGateway),
+        value: vi.fn().mockResolvedValue(mockGateway),
         configurable: true,
       });
-      const connectStub = sandbox.stub(Client.prototype, "connect").resolves();
-      const listToolsStub = sandbox.stub(Client.prototype, "listTools").resolves({
+      const connectStub = vi.spyOn(Client.prototype, "connect").mockResolvedValue();
+      const listToolsStub = vi.spyOn(Client.prototype, "listTools").mockResolvedValue({
         tools: [
           { name: "tool1", description: "Test tool 1", inputSchema: { type: "object" as const } },
           // tool2 has no description, exercising the `description ?? ""` dedup key path.
           { name: "tool2", inputSchema: { type: "object" as const } },
         ],
       });
-      const closeStub = sandbox.stub(Client.prototype, "close").resolves();
-      sandbox.stub(axios, "get").resolves({ status: 200 });
-      const runCommandStub = sandbox.stub(sharedOpts, "runCommand").resolves(ok(undefined));
+      const closeStub = vi.spyOn(Client.prototype, "close").mockResolvedValue();
+      vi.spyOn(axios, "get").mockResolvedValue({ status: 200 });
+      const runCommandStub = vi.spyOn(sharedOpts, "runCommand").mockResolvedValue(ok(undefined));
 
       const result = await updateActionWithMCP(args);
 
-      chai.assert.isTrue(result.isOk());
-      sinon.assert.calledOnce(connectStub);
-      sinon.assert.calledOnce(listToolsStub);
-      sinon.assert.calledOnce(closeStub);
-      sinon.assert.calledOnce(mockGateway.dispose as sinon.SinonStub);
+      assert.isTrue(result.isOk());
+      expect(connectStub).toHaveBeenCalledTimes(1);
+      expect(listToolsStub).toHaveBeenCalledTimes(1);
+      expect(closeStub).toHaveBeenCalledTimes(1);
+      expect(mockGateway.dispose as ReturnType<typeof vi.spyOn>).toHaveBeenCalledTimes(1);
       const calledInputs = runCommandStub.getCall(0).args[1] as Inputs;
       const tools = calledInputs[QuestionNames.MCPForDAAvailableTools];
-      chai.assert.equal(tools.length, 2);
-      chai.assert.equal(tools[0].name, "tool1");
-      chai.assert.equal(tools[1].name, "tool2");
+      assert.equal(tools.length, 2);
+      assert.equal(tools[0].name, "tool1");
+      assert.equal(tools[1].name, "tool2");
     });
 
     it("should fall back to selectedTools when client.connect throws", async () => {
@@ -1229,30 +1214,30 @@ describe("updateActionWithMCP", () => {
         { name: "mcp_testserver_tool1", description: "Test tool", inputSchema: {}, tags: [] },
       ];
 
-      sandbox.stub(vscode.lm, "tools").value(mockTools);
+      mockValue(vscode.lm, "tools", mockTools);
       const mockGateway = {
         servers: [{ label: "testServer", address: { toString: () => "http://localhost:12345" } }],
-        dispose: sandbox.stub(),
+        dispose: vi.fn(),
       };
       Object.defineProperty(vscode.lm, "startMcpGateway", {
-        value: sandbox.stub().resolves(mockGateway),
+        value: vi.fn().mockResolvedValue(mockGateway),
         configurable: true,
       });
-      sandbox.stub(Client.prototype, "connect").rejects(new Error("Connection failed"));
-      const closeStub = sandbox.stub(Client.prototype, "close").resolves();
-      sandbox.stub(axios, "get").resolves({ status: 200 });
-      const runCommandStub = sandbox.stub(sharedOpts, "runCommand").resolves(ok(undefined));
+      vi.spyOn(Client.prototype, "connect").mockRejectedValue(new Error("Connection failed"));
+      const closeStub = vi.spyOn(Client.prototype, "close").mockResolvedValue();
+      vi.spyOn(axios, "get").mockResolvedValue({ status: 200 });
+      const runCommandStub = vi.spyOn(sharedOpts, "runCommand").mockResolvedValue(ok(undefined));
 
       const result = await updateActionWithMCP(args);
 
-      chai.assert.isTrue(result.isOk());
+      assert.isTrue(result.isOk());
       // finally block should still call close and dispose
-      sinon.assert.calledOnce(closeStub);
-      sinon.assert.calledOnce(mockGateway.dispose as sinon.SinonStub);
+      expect(closeStub).toHaveBeenCalledTimes(1);
+      expect(mockGateway.dispose as ReturnType<typeof vi.spyOn>).toHaveBeenCalledTimes(1);
       const calledInputs = runCommandStub.getCall(0).args[1] as Inputs;
       const tools = calledInputs[QuestionNames.MCPForDAAvailableTools];
-      chai.assert.equal(tools.length, 1);
-      chai.assert.equal(tools[0].name, "tool1");
+      assert.equal(tools.length, 1);
+      assert.equal(tools[0].name, "tool1");
     });
 
     it("should deduplicate gateway tools with same name and description", async () => {
@@ -1261,33 +1246,33 @@ describe("updateActionWithMCP", () => {
         { name: "mcp_testserver_tool1", description: "Dup tool", inputSchema: {}, tags: [] },
       ];
 
-      sandbox.stub(vscode.lm, "tools").value(mockTools);
+      mockValue(vscode.lm, "tools", mockTools);
       const mockGateway = {
         servers: [{ label: "testServer", address: { toString: () => "http://localhost:12345" } }],
-        dispose: sandbox.stub(),
+        dispose: vi.fn(),
       };
       Object.defineProperty(vscode.lm, "startMcpGateway", {
-        value: sandbox.stub().resolves(mockGateway),
+        value: vi.fn().mockResolvedValue(mockGateway),
         configurable: true,
       });
-      sandbox.stub(Client.prototype, "connect").resolves();
-      sandbox.stub(Client.prototype, "listTools").resolves({
+      vi.spyOn(Client.prototype, "connect").mockResolvedValue();
+      vi.spyOn(Client.prototype, "listTools").mockResolvedValue({
         tools: [
           { name: "tool1", description: "Dup tool", inputSchema: { type: "object" as const } },
           { name: "tool1", description: "Dup tool", inputSchema: { type: "object" as const } },
         ],
       });
-      sandbox.stub(Client.prototype, "close").resolves();
-      sandbox.stub(axios, "get").resolves({ status: 200 });
-      const runCommandStub = sandbox.stub(sharedOpts, "runCommand").resolves(ok(undefined));
+      vi.spyOn(Client.prototype, "close").mockResolvedValue();
+      vi.spyOn(axios, "get").mockResolvedValue({ status: 200 });
+      const runCommandStub = vi.spyOn(sharedOpts, "runCommand").mockResolvedValue(ok(undefined));
 
       const result = await updateActionWithMCP(args);
 
-      chai.assert.isTrue(result.isOk());
+      assert.isTrue(result.isOk());
       const calledInputs = runCommandStub.getCall(0).args[1] as Inputs;
       const tools = calledInputs[QuestionNames.MCPForDAAvailableTools];
       // Only first match should be kept due to dedup
-      chai.assert.equal(tools.length, 1);
+      assert.equal(tools.length, 1);
     });
 
     it("should fall back to selectedTools when gateway returns an empty tool list", async () => {
@@ -1296,34 +1281,34 @@ describe("updateActionWithMCP", () => {
         { name: "mcp_testserver_tool1", description: "Fallback tool", inputSchema: {}, tags: [] },
       ];
 
-      sandbox.stub(vscode.lm, "tools").value(mockTools);
+      mockValue(vscode.lm, "tools", mockTools);
       const mockGateway = {
         servers: [{ label: "testServer", address: { toString: () => "http://localhost:12345" } }],
-        dispose: sandbox.stub(),
+        dispose: vi.fn(),
       };
       Object.defineProperty(vscode.lm, "startMcpGateway", {
-        value: sandbox.stub().resolves(mockGateway),
+        value: vi.fn().mockResolvedValue(mockGateway),
         configurable: true,
       });
-      sandbox.stub(Client.prototype, "connect").resolves();
-      const listToolsStub = sandbox.stub(Client.prototype, "listTools").resolves({
+      vi.spyOn(Client.prototype, "connect").mockResolvedValue();
+      const listToolsStub = vi.spyOn(Client.prototype, "listTools").mockResolvedValue({
         tools: [],
       });
-      const closeStub = sandbox.stub(Client.prototype, "close").resolves();
-      sandbox.stub(axios, "get").resolves({ status: 200 });
-      const runCommandStub = sandbox.stub(sharedOpts, "runCommand").resolves(ok(undefined));
+      const closeStub = vi.spyOn(Client.prototype, "close").mockResolvedValue();
+      vi.spyOn(axios, "get").mockResolvedValue({ status: 200 });
+      const runCommandStub = vi.spyOn(sharedOpts, "runCommand").mockResolvedValue(ok(undefined));
 
       const result = await updateActionWithMCP(args);
 
-      chai.assert.isTrue(result.isOk());
-      sinon.assert.calledOnce(listToolsStub);
-      sinon.assert.calledOnce(closeStub);
-      sinon.assert.calledOnce(mockGateway.dispose as sinon.SinonStub);
+      assert.isTrue(result.isOk());
+      expect(listToolsStub).toHaveBeenCalledTimes(1);
+      expect(closeStub).toHaveBeenCalledTimes(1);
+      expect(mockGateway.dispose as ReturnType<typeof vi.spyOn>).toHaveBeenCalledTimes(1);
       const calledInputs = runCommandStub.getCall(0).args[1] as Inputs;
       const tools = calledInputs[QuestionNames.MCPForDAAvailableTools];
       // Empty gateway result falls back to the vscode.lm.tools-derived list.
-      chai.assert.equal(tools.length, 1);
-      chai.assert.equal(tools[0].name, "tool1");
+      assert.equal(tools.length, 1);
+      assert.equal(tools[0].name, "tool1");
     });
 
     it("should include gateway tools even when absent from vscode.lm.tools", async () => {
@@ -1332,17 +1317,17 @@ describe("updateActionWithMCP", () => {
         { name: "mcp_testserver_tool1", description: "Tool A", inputSchema: {}, tags: [] },
       ];
 
-      sandbox.stub(vscode.lm, "tools").value(mockTools);
+      mockValue(vscode.lm, "tools", mockTools);
       const mockGateway = {
         servers: [{ label: "testServer", address: { toString: () => "http://localhost:12345" } }],
-        dispose: sandbox.stub(),
+        dispose: vi.fn(),
       };
       Object.defineProperty(vscode.lm, "startMcpGateway", {
-        value: sandbox.stub().resolves(mockGateway),
+        value: vi.fn().mockResolvedValue(mockGateway),
         configurable: true,
       });
-      sandbox.stub(Client.prototype, "connect").resolves();
-      sandbox.stub(Client.prototype, "listTools").resolves({
+      vi.spyOn(Client.prototype, "connect").mockResolvedValue();
+      vi.spyOn(Client.prototype, "listTools").mockResolvedValue({
         tools: [
           {
             name: "unknownTool",
@@ -1351,19 +1336,19 @@ describe("updateActionWithMCP", () => {
           },
         ],
       });
-      sandbox.stub(Client.prototype, "close").resolves();
-      sandbox.stub(axios, "get").resolves({ status: 200 });
-      const runCommandStub = sandbox.stub(sharedOpts, "runCommand").resolves(ok(undefined));
+      vi.spyOn(Client.prototype, "close").mockResolvedValue();
+      vi.spyOn(axios, "get").mockResolvedValue({ status: 200 });
+      const runCommandStub = vi.spyOn(sharedOpts, "runCommand").mockResolvedValue(ok(undefined));
 
       const result = await updateActionWithMCP(args);
 
       // The gateway list is authoritative, so the tool is included even though it is
       // not present in vscode.lm.tools.
-      chai.assert.isTrue(result.isOk());
+      assert.isTrue(result.isOk());
       const calledInputs = runCommandStub.getCall(0).args[1] as Inputs;
       const tools = calledInputs[QuestionNames.MCPForDAAvailableTools];
-      chai.assert.equal(tools.length, 1);
-      chai.assert.equal(tools[0].name, "unknownTool");
+      assert.equal(tools.length, 1);
+      assert.equal(tools[0].name, "unknownTool");
     });
 
     it("should fall back to old gateway address API when servers property is absent", async () => {
@@ -1372,33 +1357,33 @@ describe("updateActionWithMCP", () => {
         { name: "mcp_testserver_tool1", description: "Test tool 1", inputSchema: {}, tags: [] },
       ];
 
-      sandbox.stub(vscode.lm, "tools").value(mockTools);
+      mockValue(vscode.lm, "tools", mockTools);
       const mockGateway = {
         address: { toString: () => "http://localhost:12345" },
-        dispose: sandbox.stub(),
+        dispose: vi.fn(),
       };
       Object.defineProperty(vscode.lm, "startMcpGateway", {
-        value: sandbox.stub().resolves(mockGateway),
+        value: vi.fn().mockResolvedValue(mockGateway),
         configurable: true,
       });
-      sandbox.stub(Client.prototype, "connect").resolves();
-      sandbox.stub(Client.prototype, "listTools").resolves({
+      vi.spyOn(Client.prototype, "connect").mockResolvedValue();
+      vi.spyOn(Client.prototype, "listTools").mockResolvedValue({
         tools: [
           { name: "tool1", description: "Test tool 1", inputSchema: { type: "object" as const } },
         ],
       });
-      sandbox.stub(Client.prototype, "close").resolves();
-      sandbox.stub(axios, "get").resolves({ status: 200 });
-      const runCommandStub = sandbox.stub(sharedOpts, "runCommand").resolves(ok(undefined));
+      vi.spyOn(Client.prototype, "close").mockResolvedValue();
+      vi.spyOn(axios, "get").mockResolvedValue({ status: 200 });
+      const runCommandStub = vi.spyOn(sharedOpts, "runCommand").mockResolvedValue(ok(undefined));
 
       const result = await updateActionWithMCP(args);
 
-      chai.assert.isTrue(result.isOk());
-      sinon.assert.calledOnce(mockGateway.dispose as sinon.SinonStub);
+      assert.isTrue(result.isOk());
+      expect(mockGateway.dispose as ReturnType<typeof vi.spyOn>).toHaveBeenCalledTimes(1);
       const calledInputs = runCommandStub.getCall(0).args[1] as Inputs;
       const tools = calledInputs[QuestionNames.MCPForDAAvailableTools];
-      chai.assert.equal(tools.length, 1);
-      chai.assert.equal(tools[0].name, "tool1");
+      assert.equal(tools.length, 1);
+      assert.equal(tools[0].name, "tool1");
     });
 
     it("should fall back to selectedTools when no matching server found in gateway", async () => {
@@ -1407,26 +1392,26 @@ describe("updateActionWithMCP", () => {
         { name: "mcp_testserver_tool1", description: "Test tool", inputSchema: {}, tags: [] },
       ];
 
-      sandbox.stub(vscode.lm, "tools").value(mockTools);
+      mockValue(vscode.lm, "tools", mockTools);
       const mockGateway = {
         servers: [{ label: "otherServer", address: { toString: () => "http://localhost:12345" } }],
-        dispose: sandbox.stub(),
+        dispose: vi.fn(),
       };
       Object.defineProperty(vscode.lm, "startMcpGateway", {
-        value: sandbox.stub().resolves(mockGateway),
+        value: vi.fn().mockResolvedValue(mockGateway),
         configurable: true,
       });
-      sandbox.stub(axios, "get").resolves({ status: 200 });
-      const runCommandStub = sandbox.stub(sharedOpts, "runCommand").resolves(ok(undefined));
+      vi.spyOn(axios, "get").mockResolvedValue({ status: 200 });
+      const runCommandStub = vi.spyOn(sharedOpts, "runCommand").mockResolvedValue(ok(undefined));
 
       const result = await updateActionWithMCP(args);
 
-      chai.assert.isTrue(result.isOk());
-      sinon.assert.calledOnce(mockGateway.dispose as sinon.SinonStub);
+      assert.isTrue(result.isOk());
+      expect(mockGateway.dispose as ReturnType<typeof vi.spyOn>).toHaveBeenCalledTimes(1);
       const calledInputs = runCommandStub.getCall(0).args[1] as Inputs;
       const tools = calledInputs[QuestionNames.MCPForDAAvailableTools];
-      chai.assert.equal(tools.length, 1);
-      chai.assert.equal(tools[0].name, "tool1");
+      assert.equal(tools.length, 1);
+      assert.equal(tools[0].name, "tool1");
     });
   });
 
@@ -1440,19 +1425,19 @@ describe("updateActionWithMCP", () => {
       ];
       const mockODRTools = [{ name: "tool1", description: "Test", inputSchema: {} }];
 
-      const isODRStub = sandbox.stub(ODRProvider, "isODRServer");
-      isODRStub.onFirstCall().returns(true); // extractLocalServerIdentifier
-      isODRStub.onSecondCall().returns(true); // main function ODR check
-      sandbox.stub(ODRProvider, "listServers").rejects(new Error("ODR unavailable"));
-      sandbox.stub(ODRProvider, "getToolsForODRServer").resolves(mockODRTools);
-      const runCommandStub = sandbox.stub(sharedOpts, "runCommand").resolves(ok(undefined));
+      const isODRStub = vi.spyOn(ODRProvider, "isODRServer");
+      isODRStub.onFirstCall().mockReturnValue(true); // extractLocalServerIdentifier
+      isODRStub.onSecondCall().mockReturnValue(true); // main function ODR check
+      vi.spyOn(ODRProvider, "listServers").mockRejectedValue(new Error("ODR unavailable"));
+      vi.spyOn(ODRProvider, "getToolsForODRServer").mockResolvedValue(mockODRTools);
+      const runCommandStub = vi.spyOn(sharedOpts, "runCommand").mockResolvedValue(ok(undefined));
 
       const result = await updateActionWithMCP(args);
 
-      chai.assert.isTrue(result.isOk());
+      assert.isTrue(result.isOk());
       const calledInputs = runCommandStub.getCall(0).args[1] as Inputs;
       // Should fall back to original serverName
-      chai.assert.equal(calledInputs[QuestionNames.MCPLocalServerIdentifier], "odrServer");
+      assert.equal(calledInputs[QuestionNames.MCPLocalServerIdentifier], "odrServer");
     });
 
     it("should return original name when no ODR server matches by command and args", async () => {
@@ -1477,19 +1462,19 @@ describe("updateActionWithMCP", () => {
         },
       ];
 
-      const isODRStub = sandbox.stub(ODRProvider, "isODRServer");
-      isODRStub.onFirstCall().returns(true); // extractLocalServerIdentifier
-      isODRStub.onSecondCall().returns(true); // main function ODR check
-      sandbox.stub(ODRProvider, "listServers").resolves(mockODRServers);
-      sandbox.stub(ODRProvider, "getToolsForODRServer").resolves(mockODRTools);
-      const runCommandStub = sandbox.stub(sharedOpts, "runCommand").resolves(ok(undefined));
+      const isODRStub = vi.spyOn(ODRProvider, "isODRServer");
+      isODRStub.onFirstCall().mockReturnValue(true); // extractLocalServerIdentifier
+      isODRStub.onSecondCall().mockReturnValue(true); // main function ODR check
+      vi.spyOn(ODRProvider, "listServers").mockResolvedValue(mockODRServers);
+      vi.spyOn(ODRProvider, "getToolsForODRServer").mockResolvedValue(mockODRTools);
+      const runCommandStub = vi.spyOn(sharedOpts, "runCommand").mockResolvedValue(ok(undefined));
 
       const result = await updateActionWithMCP(args);
 
-      chai.assert.isTrue(result.isOk());
+      assert.isTrue(result.isOk());
       const calledInputs = runCommandStub.getCall(0).args[1] as Inputs;
       // Should fall back to original serverName since args don't match
-      chai.assert.equal(calledInputs[QuestionNames.MCPLocalServerIdentifier], "odrServer");
+      assert.equal(calledInputs[QuestionNames.MCPLocalServerIdentifier], "odrServer");
     });
 
     it("should return original name for non-ODR local server in extractLocalServerIdentifier", async () => {
@@ -1503,15 +1488,15 @@ describe("updateActionWithMCP", () => {
         { name: "mcp_mylocalserver_tool1", description: "Test", inputSchema: {}, tags: [] },
       ];
 
-      sandbox.stub(ODRProvider, "isODRServer").returns(false);
-      sandbox.stub(vscode.lm, "tools").value(mockTools);
-      const runCommandStub = sandbox.stub(sharedOpts, "runCommand").resolves(ok(undefined));
+      vi.spyOn(ODRProvider, "isODRServer").mockReturnValue(false);
+      mockValue(vscode.lm, "tools", mockTools);
+      const runCommandStub = vi.spyOn(sharedOpts, "runCommand").mockResolvedValue(ok(undefined));
 
       const result = await updateActionWithMCP(args);
 
-      chai.assert.isTrue(result.isOk());
+      assert.isTrue(result.isOk());
       const calledInputs = runCommandStub.getCall(0).args[1] as Inputs;
-      chai.assert.equal(calledInputs[QuestionNames.MCPLocalServerIdentifier], "myLocalServer");
+      assert.equal(calledInputs[QuestionNames.MCPLocalServerIdentifier], "myLocalServer");
     });
   });
 });

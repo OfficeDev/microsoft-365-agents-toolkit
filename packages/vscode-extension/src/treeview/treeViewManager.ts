@@ -11,7 +11,7 @@ import {
   isSPFxProject,
   workspaceUri,
 } from "../globalVariables";
-import { hasAdaptiveCardInWorkspace } from "../utils/commonUtils";
+import * as commonUtils from "../utils/commonUtils";
 import { localize } from "../utils/localizeUtils";
 import accountTreeViewProviderInstance from "./account/accountTreeViewProvider";
 import { CommandsTreeViewProvider } from "./commandsTreeViewProvider";
@@ -94,7 +94,7 @@ class TreeViewManager {
       }
       utilityTreeviewProvider.refresh();
     }
-    if (await hasAdaptiveCardInWorkspace()) {
+    if (await commonUtils.hasAdaptiveCardInWorkspace()) {
       // after "Preview Your Teams App" command, the adaptive card will be shown
       const utilityTreeviewProvider = this.getTreeView(
         "teamsfx-development"
