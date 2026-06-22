@@ -75,7 +75,9 @@
         "dhash:352:227:0:10:c0c88094b2717075"
       ],
       "postconditions": [],
-      "tags": [],
+      "tags": [
+        "ocr:true"
+      ],
       "screenshot": "step_a12d8897",
       "created_at": "2026-04-30T07:28:56.308167",
       "plan_id": "plan_866dc22b"

@@ -97,7 +97,9 @@
         "dhash:290:230:0:10:c0c9808694a46179"
       ],
       "postconditions": [],
-      "tags": [],
+      "tags": [
+        "ocr:true"
+      ],
       "screenshot": "step_c15bff46",
       "created_at": "2026-06-16T00:23:52.043661",
       "plan_id": "plan_52912e24"
