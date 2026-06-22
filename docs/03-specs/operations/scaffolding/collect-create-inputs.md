@@ -21,8 +21,7 @@ builds a `CollectInputsPort` whose prompt face is a thin adapter over the host's
 surface-neutral `UserInteraction`, and walks the questions into `Answers`.
 
 It is the half of the front-loaded create funnel that comes **after** the engine
-is decided. [`resolve-build-target`](resolve-build-target.md) /
-[`route-declarative-via-selector`](route-declarative-via-selector.md) pick the
+is decided. [`resolve-build-target`](resolve-build-target.md) picks the
 `templateId` and the `v4` engine (Q1 / principle 1); this operation then asks the
 v4 template's own follow-up questions through the v4 engine — never the v3
 question tree — so a v4 route's Q2 is authored once, in `questions.json`, and

@@ -2606,7 +2606,7 @@ describe("addPlugin", async () => {
     }
   });
 
-  it("from MCP (DT flag on): writes dynamic-discovery plugin and injects oauth action", async () => {
+  it("from MCP (DT flag on): scaffolds the v4 add-mcp-server modify package", async () => {
     const appName = await mockV3Project();
     const projectPath = path.join(os.tmpdir(), appName);
     const inputs: Inputs = {
@@ -2646,6 +2646,18 @@ describe("addPlugin", async () => {
     sandbox
       .stub(copilotGptManifestUtils, "addAction")
       .resolves(ok({} as DeclarativeCopilotManifestSchema));
+    const scaffoldV4Stub = sandbox
+      .stub(fxCoreDeclarativeAgentDeps, "scaffoldAddMcpServerFromV4")
+      .resolves(ok(undefined));
+    const modifyFrontDoorStub = sandbox
+      .stub(fxCoreDeclarativeAgentDeps, "modifyProjectFrontDoor")
+      .callsFake(async (_inputs, selectorPrefill, entryParams, deps) => {
+        return deps.scaffoldV4(
+          inputs,
+          { templateId: "add-mcp-server", engine: "v4", answers: selectorPrefill },
+          entryParams
+        );
+      });
 
     sandbox.stub(addPluginTools.ui, "showMessage").callsFake((level) => {
       if (level === "warn") return Promise.resolve(ok("Add"));
@@ -2679,16 +2691,28 @@ describe("addPlugin", async () => {
     const result = await core.addPlugin(inputs);
 
     assert.isTrue(result.isOk());
-    assert.isTrue(injectStub.calledOnce);
-    assert.isTrue(writeEnvStub.called);
-    // DT branch writes a RemoteMCPServer runtime with dynamic discovery and
-    // a namespace derived from the MCP server host (alphanumeric, lowercase).
-    // Dynamic discovery is signalled by a spec carrying only `url` (no
-    // `mcp_tool_description`) per the v2.4 plugin schema.
-    const pluginManifest = writeJSONStub.firstCall.args[1];
-    assert.equal(pluginManifest.namespace, "examplecom");
-    assert.deepEqual(pluginManifest.runtimes[0].spec, { url: "https://example.com/mcp" });
-    assert.deepEqual(pluginManifest.runtimes[0].run_for_functions, ["*"]);
+    assert.isTrue(modifyFrontDoorStub.calledOnce);
+    assert.deepEqual(modifyFrontDoorStub.firstCall.args[1], {
+      addCapability: "add-action",
+      actionSource: "mcp",
+    });
+    assert.deepInclude(modifyFrontDoorStub.firstCall.args[2], {
+      mcpServerUrl: "https://example.com/mcp",
+      teamsManifestPath: "manifest.json",
+      authType: "oauth",
+    });
+    assert.isTrue(scaffoldV4Stub.calledOnce);
+    assert.deepInclude(scaffoldV4Stub.firstCall.args[0], {
+      templateId: "add-mcp-server",
+      projectPath,
+      teamsManifestPath: "manifest.json",
+      appName: "My MCP App",
+      mcpServerUrl: "https://example.com/mcp",
+      authType: "oauth",
+    });
+    assert.isTrue(injectStub.notCalled);
+    assert.isTrue(writeEnvStub.notCalled);
+    assert.isTrue(writeJSONStub.notCalled);
 
     if (await fs.pathExists(projectPath)) {
       await fs.remove(projectPath);
@@ -2729,6 +2753,18 @@ describe("addPlugin", async () => {
     sandbox
       .stub(copilotGptManifestUtils, "addAction")
       .resolves(ok({} as DeclarativeCopilotManifestSchema));
+    const scaffoldV4Stub = sandbox
+      .stub(fxCoreDeclarativeAgentDeps, "scaffoldAddMcpServerFromV4")
+      .resolves(ok(undefined));
+    const modifyFrontDoorStub = sandbox
+      .stub(fxCoreDeclarativeAgentDeps, "modifyProjectFrontDoor")
+      .callsFake(async (_inputs, selectorPrefill, entryParams, deps) => {
+        return deps.scaffoldV4(
+          inputs,
+          { templateId: "add-mcp-server", engine: "v4", answers: selectorPrefill },
+          entryParams
+        );
+      });
 
     sandbox.stub(addPluginTools.ui, "showMessage").callsFake((level) => {
       if (level === "warn") return Promise.resolve(ok("Add"));
@@ -2748,8 +2784,15 @@ describe("addPlugin", async () => {
 
     assert.isTrue(result.isOk());
     assert.isTrue(injectStub.notCalled);
-    const pluginManifest = writeJSONStub.firstCall.args[1];
-    assert.deepEqual(pluginManifest.runtimes[0].auth, { type: "None" });
+    assert.isTrue(modifyFrontDoorStub.calledOnce);
+    assert.isTrue(scaffoldV4Stub.calledOnce);
+    assert.deepInclude(scaffoldV4Stub.firstCall.args[0], {
+      templateId: "add-mcp-server",
+      projectPath,
+      mcpServerUrl: "https://example.com/mcp",
+      authType: "none",
+    });
+    assert.isTrue(writeJSONStub.notCalled);
 
     if (await fs.pathExists(projectPath)) {
       await fs.remove(projectPath);

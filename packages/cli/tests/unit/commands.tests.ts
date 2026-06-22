@@ -3,6 +3,7 @@ import {
   CliQuestionName,
   CollaborationConstants,
   CollaborationStateResult,
+  FeatureFlags,
   FxCore,
   ListCollaboratorResult,
   PackageService,
@@ -214,6 +215,146 @@ describe("CLI commands", () => {
       const capabilityOption = command.options?.find((o) => o.name === CliQuestionName.Capability);
 
       assert.include((capabilityOption as any)?.choices, "api-plugin-from-scratch");
+    });
+
+    it("keeps the v3 create option surface when TEAMSFX_V4_ENABLED is on", async () => {
+      sandbox
+        .stub(featureFlagManager, "getBooleanValue")
+        .callsFake((flag) => flag.name === FeatureFlags.V4Enabled.name);
+      sandbox.stub(listTemplatesModule, "listAllTemplates").returns([
+        {
+          name: "copilot-gpt-basic",
+          alias: "declarative-agent",
+          displayName: "Declarative Agent",
+          description: "desc",
+          language: "common",
+        },
+      ] as any);
+
+      const command = getCreateCommand();
+      const projectType = command.options?.find((o) => o.name === "project-type");
+      const mcpServerUrl = command.options?.find((o) => o.name === "mcp-server-url");
+      const capability = command.options?.find((o) => o.name === CliQuestionName.Capability);
+      const mcpDaServerUrl = command.options?.find((o) => o.name === "mcp-da-server-url");
+      const addinProjectFolder = command.options?.find((o) => o.name === "addin-project-folder");
+
+      assert.isUndefined(projectType);
+      assert.isUndefined(mcpServerUrl);
+      assert.isDefined(capability);
+      assert.include((capability as any)?.choices, "declarative-agent");
+      assert.isTrue(capability?.required);
+      assert.isDefined(mcpDaServerUrl);
+      assert.isDefined(addinProjectFolder);
+    });
+
+    it("normalizes legacy create flags to neutral keys before calling the front door", async () => {
+      sandbox.stub(activate, "getFxCore").returns(new FxCore({} as any));
+      const createProjectFrontDoorStub = sandbox
+        .stub(FxCore.prototype, "createProjectFrontDoor")
+        .resolves(ok({ projectPath: "..." }));
+      sandbox.stub(featureFlagManager, "getBooleanValue").returns(false);
+      sandbox.stub(listTemplatesModule, "listAllTemplates").returns([] as any);
+
+      const ctx: CLIContext = {
+        command: { ...getCreateCommand(), fullName: "new" },
+        optionValues: {
+          nonInteractive: true,
+          "mcp-da-server-url": "https://example.com/mcp",
+          "mcp-da-auth-type": "none",
+          "api-auth": "none",
+          "api-operation": ["GET /repairs"],
+        },
+        globalOptionValues: {},
+        argumentValues: [],
+        telemetryProperties: {},
+      };
+
+      const res = await getCreateCommand().handler!(ctx);
+
+      assert.isTrue(res.isOk());
+      const inputs = createProjectFrontDoorStub.firstCall.args[0] as any;
+      assert.equal(inputs.mcpServerUrl, "https://example.com/mcp");
+      assert.equal(inputs["mcp-da-server-url"], "https://example.com/mcp");
+      assert.equal(inputs.authType, "none");
+      assert.equal(inputs["mcp-da-auth-type"], "none");
+      assert.equal(inputs.apiAuth, "none");
+      assert.equal(inputs["api-auth"], "none");
+      assert.deepEqual(inputs.apiOperations, ["GET /repairs"]);
+      assert.deepEqual(inputs["api-operation"], ["GET /repairs"]);
+    });
+
+    it("normalizes legacy create route flags to v4 selector keys without pinning template-name", async () => {
+      sandbox.stub(activate, "getFxCore").returns(new FxCore({} as any));
+      const createProjectFrontDoorStub = sandbox
+        .stub(FxCore.prototype, "createProjectFrontDoor")
+        .resolves(ok({ projectPath: "..." }));
+      sandbox
+        .stub(featureFlagManager, "getBooleanValue")
+        .callsFake((flag) => flag.name === FeatureFlags.V4Enabled.name);
+      sandbox.stub(listTemplatesModule, "listAllTemplates").returns([
+        {
+          name: "copilot-gpt-basic",
+          alias: "declarative-agent",
+          displayName: "Declarative Agent",
+          description: "desc",
+          language: "common",
+        },
+      ] as any);
+
+      const ctx: CLIContext = {
+        command: { ...getCreateCommand(), fullName: "new" },
+        optionValues: {
+          capabilities: "declarative-agent",
+          "with-plugin": "yes",
+          "api-plugin-type": "api-spec",
+          nonInteractive: true,
+        },
+        globalOptionValues: {},
+        argumentValues: [],
+        telemetryProperties: {},
+      };
+
+      const res = await getCreateCommand().handler!(ctx);
+
+      assert.isTrue(res.isOk());
+      const inputs = createProjectFrontDoorStub.firstCall.args[0] as any;
+      assert.equal(inputs.projectType, "copilot-agent-type");
+      assert.equal(inputs.daTemplate, "add-action");
+      assert.equal(inputs.actionSource, "openapi");
+      assert.notProperty(inputs, "template-name");
+    });
+
+    it("normalizes legacy bearer-token API auth to the v4 api-key selector value", async () => {
+      sandbox.stub(activate, "getFxCore").returns(new FxCore({} as any));
+      const createProjectFrontDoorStub = sandbox
+        .stub(FxCore.prototype, "createProjectFrontDoor")
+        .resolves(ok({ projectPath: "..." }));
+      sandbox
+        .stub(featureFlagManager, "getBooleanValue")
+        .callsFake((flag) => flag.name === FeatureFlags.V4Enabled.name);
+      sandbox.stub(listTemplatesModule, "listAllTemplates").returns([] as any);
+
+      const ctx: CLIContext = {
+        command: { ...getCreateCommand(), fullName: "new" },
+        optionValues: {
+          capabilities: "declarative-agent",
+          "with-plugin": "yes",
+          "api-plugin-type": "new-api",
+          "api-auth": "bearer-token",
+          nonInteractive: true,
+        },
+        globalOptionValues: {},
+        argumentValues: [],
+        telemetryProperties: {},
+      };
+
+      const res = await getCreateCommand().handler!(ctx);
+
+      assert.isTrue(res.isOk());
+      const inputs = createProjectFrontDoorStub.firstCall.args[0] as any;
+      assert.equal(inputs.apiAuth, "api-key");
+      assert.equal(inputs["api-auth"], "bearer-token");
+      assert.notProperty(inputs, "template-name");
     });
 
     it("with-plugin=yes and api-plugin-type matches a sub-template → uses subTemplate name", async () => {
