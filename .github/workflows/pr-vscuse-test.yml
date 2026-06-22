@@ -614,10 +614,10 @@ jobs:
             // link straight to the real test report instead of the smoke wrapper.
             const extractUiTestUrl = async () => {
               try {
-                const { data: jobs } = await github.rest.actions.listJobsForWorkflowRun({
+                const jobs = await github.paginate(github.rest.actions.listJobsForWorkflowRun, {
                   owner, repo, run_id: runId, per_page: 100,
                 });
-                const uiJob = jobs.jobs.find(j => j.name === 'run-ui-test');
+                const uiJob = jobs.find(j => j.name === 'run-ui-test');
                 if (!uiJob) {
                   console.log('run-ui-test job not found on smoke pipeline.');
                   return '';
@@ -650,12 +650,15 @@ jobs:
               const idMatch = (uiUrl || '').match(/\/runs\/(\d+)/);
               if (!idMatch) return '';
               try {
-                const { data: uiJobs } = await github.rest.actions.listJobsForWorkflowRun({
+                // Paginate: a UI-test run has one matrix job per selected test plan and
+                // can exceed 100 jobs. The report job is near the end, so a single
+                // per_page=100 page would miss it and drop the report link.
+                const uiJobs = await github.paginate(github.rest.actions.listJobsForWorkflowRun, {
                   owner, repo, run_id: parseInt(idMatch[1]), per_page: 100,
                 });
                 // The report job is invoked via a reusable workflow, so its rendered
                 // name is typically "<caller_job> / report". Match the trailing token.
-                const reportJob = (uiJobs.jobs || []).find(j =>
+                const reportJob = uiJobs.find(j =>
                   /(^|\/\s*)report$/.test((j.name || '').trim())
                 );
                 if (!reportJob) { console.log('report job not found on UI test run.'); return ''; }
