@@ -889,7 +889,9 @@ jobs:
               repo: context.repo.repo,
               workflow_id: 'cd.yml',
               ref: 'dev',
-              inputs: {}
+              inputs: {
+                run_test_cases: 'true'
+              }
             });
 
             core.summary
