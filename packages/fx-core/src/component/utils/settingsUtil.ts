@@ -3,7 +3,6 @@
 
 import { err, FxError, ok, Result, Settings } from "@microsoft/teamsfx-api";
 import * as fs from "fs-extra";
-import * as os from "os";
 import * as path from "path";
 import * as uuid from "uuid";
 import { parseDocument } from "yaml";
@@ -19,14 +18,11 @@ import { FileNotFoundError } from "../../error/common";
 import { pathUtils } from "./pathUtils";
 
 class SettingsUtils {
-  private async isInTempDirectory(filePath: string): Promise<boolean> {
-    const resolvedPath = path.resolve(filePath);
-    const tempDir = path.resolve(os.tmpdir());
-    const realFilePath = await fs.realpath(resolvedPath).catch(() => resolvedPath);
-    const realTempDir = await fs.realpath(tempDir).catch(() => tempDir);
-    const normalizedFilePath = path.normalize(realFilePath);
-    const normalizedTempDir = path.normalize(realTempDir);
-    return normalizedFilePath.startsWith(normalizedTempDir + path.sep);
+  private isPathWithinDirectory(baseDir: string, targetPath: string): boolean {
+    const resolvedBase = path.resolve(baseDir);
+    const resolvedTarget = path.resolve(targetPath);
+    const relative = path.relative(resolvedBase, resolvedTarget);
+    return relative !== "" && !relative.startsWith("..") && !path.isAbsolute(relative);
   }
 
   async readSettings(
@@ -49,7 +45,7 @@ class SettingsUtils {
       const projectId = uuid.v4();
       const projectIdField = appYaml.createPair("projectId", uuid.v4());
       appYaml.add(projectIdField);
-      if (!(await this.isInTempDirectory(projectYamlPath))) {
+      if (this.isPathWithinDirectory(projectPath, projectYamlPath)) {
         await fs.writeFile(projectYamlPath, appYaml.toString());
       }
       sendTelemetryEvent(Component.core, TelemetryEvent.FillProjectId, {
@@ -79,7 +75,7 @@ class SettingsUtils {
     const yamlFileContent: string = await fs.readFile(projectYamlPath, "utf8");
     const appYaml = parseDocument(yamlFileContent);
     appYaml.set("projectId", settings.trackingId);
-    if (!(await this.isInTempDirectory(projectYamlPath))) {
+    if (this.isPathWithinDirectory(projectPath, projectYamlPath)) {
       await fs.writeFile(projectYamlPath, appYaml.toString());
     }
     return ok(projectYamlPath);

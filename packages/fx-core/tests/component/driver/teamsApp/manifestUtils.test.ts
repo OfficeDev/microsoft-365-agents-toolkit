@@ -11,7 +11,6 @@ import {
 import { assert } from "chai";
 import fs from "fs-extra";
 import mockedEnv, { RestoreFn } from "mocked-env";
-import * as os from "os";
 import path from "path";
 import * as sinon from "sinon";
 import {
@@ -522,14 +521,13 @@ describe("trimManifestShortName", () => {
     assert.isTrue(readJsonStub.notCalled);
     assert.isTrue(writeFileStub.notCalled);
   });
-  it("Skips temp directory paths", async () => {
+  it("Skips paths outside project directory", async () => {
     const teamsManifest = new TeamsAppManifest();
     teamsManifest.name.short = "shortname abcdefghijklmnopqrstuvwxyz${{APP_NAME_SUFFIX}}";
     const readJsonStub = sandbox.stub(fs, "readJson").resolves(teamsManifest);
     const writeFileStub = sandbox.stub(fs, "writeFile").resolves();
     sandbox.stub(fs, "pathExistsSync").returns(true);
-    const tempPath = path.join(os.tmpdir(), "test-project");
-    const res = await manifestUtils.trimManifestShortName(tempPath);
+    const res = await manifestUtils.trimManifestShortName("/some/other/path");
     assert.isTrue(res.isOk());
     assert.isTrue(readJsonStub.notCalled);
     assert.isTrue(writeFileStub.notCalled);

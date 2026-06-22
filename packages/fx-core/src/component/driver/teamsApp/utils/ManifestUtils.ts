@@ -17,7 +17,6 @@ import {
 import AdmZip from "adm-zip";
 import fs from "fs-extra";
 import { cloneDeep } from "lodash";
-import * as os from "os";
 import * as path from "path";
 import "reflect-metadata";
 import stripBom from "strip-bom";
@@ -464,9 +463,10 @@ export class ManifestUtils {
     maxLength = 25
   ): Promise<Result<undefined, FxError>> {
     const manifestPath = this.getTeamsAppManifestPath(projectPath);
+    const resolvedProjectPath = path.resolve(projectPath);
     const resolvedManifestPath = path.resolve(manifestPath);
-    const tempDir = path.resolve(os.tmpdir());
-    if (resolvedManifestPath.startsWith(tempDir + path.sep)) {
+    const relative = path.relative(resolvedProjectPath, resolvedManifestPath);
+    if (relative === "" || relative.startsWith("..") || path.isAbsolute(relative)) {
       return ok(undefined);
     }
     if (fs.pathExistsSync(manifestPath)) {
