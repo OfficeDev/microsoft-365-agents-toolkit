@@ -608,6 +608,7 @@
   "teamstoolkit.mcpUtils.setupMcpServer.successMessage": "Сервер MCP набора инструментов для создания агентов M365 настроен!",
   "teamstoolkit.mcpUtils.setupMcpServer.errorMessage": "Не удается настроить сервер MCP набора инструментов для создания агентов M365. Ошибка: %s",
   "teamstoolkit.handlers.openWorkspaceMCPConfigNotification": "Проект декларативного агента создан с оболочкой MCP. Теперь вы можете запустить сервер MCP из кнопки \"Пуск\" в CodeLens или настроить сервер MCP в файле .vscode/mcp.json.\nЧтобы получить инструменты с сервера MCP, выберите \"ATK: обновить действие с MCP\" в CodeLens или палитре команд.",
+  "teamstoolkit.handlers.openWorkspaceMCPConfigNotification.dt": "Declarative agent project successfully created with the MCP action already wired into the manifest. Tools are discovered from the MCP server at runtime (dynamic tool discovery) — provision and run the agent directly. If dynamic discovery doesn’t work for your server, you can fall back to baking tool definitions into ai-plugin.json via the CodeLens in .vscode/mcp.json.",
   "teamstoolkit.commands.updateActionWithMCP.title": "Получить действие из MCP",
   "teamstoolkit.MCP.FileNotFound": "Файл конфигурации MCP не найден в .vscode/mcp.json. Убедитесь, что сервер MCP настроен.",
   "teamstoolkit.MCP.ContentInvalid": "Содержимое файла конфигурации MCP недействительно. Проверьте правильность содержимого в .vscode/mcp.json.",
