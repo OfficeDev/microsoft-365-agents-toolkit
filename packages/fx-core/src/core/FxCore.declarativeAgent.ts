@@ -184,17 +184,24 @@ export class FxCoreDeclarativeAgentPart {
       return err(error);
     }
 
+    const pluginFunctions = Array.isArray(aiPluginContent.functions)
+      ? aiPluginContent.functions
+      : [];
+    const pluginRuntimes = Array.isArray(aiPluginContent.runtimes) ? aiPluginContent.runtimes : [];
+
     const toolsSelectedPrevious: string[] = [];
-    aiPluginContent.runtimes
+    pluginRuntimes
       .filter(
         (runtime: any) =>
-          (runtime.type === "RemoteMCPServer" && runtime.spec.url === mcpServerUrl) ||
+          (runtime.type === "RemoteMCPServer" && runtime.spec?.url === mcpServerUrl) ||
           runtime.type === "LocalPlugin"
       )
       .forEach((runtime: any) => {
-        toolsSelectedPrevious.push(...runtime.run_for_functions);
+        if (Array.isArray(runtime.run_for_functions)) {
+          toolsSelectedPrevious.push(...runtime.run_for_functions);
+        }
       });
-    aiPluginContent.functions = aiPluginContent.functions.filter(
+    aiPluginContent.functions = pluginFunctions.filter(
       (func: any) => !toolsSelectedPrevious.includes(func.name)
     );
     aiPluginContent.functions = [
@@ -221,14 +228,14 @@ export class FxCoreDeclarativeAgentPart {
         }),
     ];
 
-    const matchedRuntime = aiPluginContent.runtimes.find(
-      (runtime: any) => runtime.type === "RemoteMCPServer" && runtime.spec.url === mcpServerUrl
+    const matchedRuntime = pluginRuntimes.find(
+      (runtime: any) => runtime.type === "RemoteMCPServer" && runtime.spec?.url === mcpServerUrl
     );
 
-    aiPluginContent.runtimes = aiPluginContent.runtimes.filter(
+    aiPluginContent.runtimes = pluginRuntimes.filter(
       (runtime: any) =>
         (runtime.type !== "RemoteMCPServer" && runtime.type !== "LocalPlugin") ||
-        runtime.spec.url !== mcpServerUrl
+        runtime.spec?.url !== mcpServerUrl
     );
 
     if (inputs[QuestionNames.MCPLocalServerIdentifier] != null) {
