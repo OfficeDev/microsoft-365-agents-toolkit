@@ -2,15 +2,18 @@
 // Licensed under the MIT license.
 
 import path from "path";
-import { afterEach, beforeEach, expect } from "vitest";
+import { afterEach, beforeEach, expect, vi } from "vitest";
 import * as fetchHelper from "../../../src/common/fetchHelper";
 import { cpUtils } from "../../../src/component/deps-checker/util/cpUtils";
 import * as downloadHelper from "../../../src/component/deps-checker/util/downloadHelper";
 
-const originalExecuteCommand = cpUtils.executeCommand;
-const originalFetch = fetchHelper.default;
-const originalDownloadToTempFile = downloadHelper.downloadToTempFile;
-const originalUnzip = downloadHelper.unzip;
+// Store references to spies so tests can reconfigure them
+export const depsCheckerSpies = {
+  executeCommand: null as any,
+  fetch: null as any,
+  downloadToTempFile: null as any,
+  unzip: null as any,
+};
 
 function isDepsCheckerTestFile(): boolean {
   const testPath = expect.getState().testPath ?? "";
@@ -30,21 +33,21 @@ beforeEach(() => {
     return;
   }
 
-  cpUtils.executeCommand = (async () => {
-    throw createUnmockedDependencyError("cpUtils.executeCommand");
-  }) as typeof cpUtils.executeCommand;
+  depsCheckerSpies.executeCommand = vi
+    .spyOn(cpUtils, "executeCommand")
+    .mockRejectedValue(createUnmockedDependencyError("cpUtils.executeCommand"));
 
-  fetchHelper.default = (async () => {
-    throw createUnmockedDependencyError("fetchHelper.default");
-  }) as typeof fetchHelper.default;
+  depsCheckerSpies.fetch = vi
+    .spyOn(fetchHelper, "default")
+    .mockRejectedValue(createUnmockedDependencyError("fetchHelper.default"));
 
-  downloadHelper.downloadToTempFile = (async () => {
-    throw createUnmockedDependencyError("downloadHelper.downloadToTempFile");
-  }) as typeof downloadHelper.downloadToTempFile;
+  depsCheckerSpies.downloadToTempFile = vi
+    .spyOn(downloadHelper, "downloadToTempFile")
+    .mockRejectedValue(createUnmockedDependencyError("downloadHelper.downloadToTempFile"));
 
-  downloadHelper.unzip = (async () => {
-    throw createUnmockedDependencyError("downloadHelper.unzip");
-  }) as typeof downloadHelper.unzip;
+  depsCheckerSpies.unzip = vi
+    .spyOn(downloadHelper, "unzip")
+    .mockRejectedValue(createUnmockedDependencyError("downloadHelper.unzip"));
 });
 
 afterEach(() => {
@@ -52,8 +55,5 @@ afterEach(() => {
     return;
   }
 
-  cpUtils.executeCommand = originalExecuteCommand;
-  fetchHelper.default = originalFetch;
-  downloadHelper.downloadToTempFile = originalDownloadToTempFile;
-  downloadHelper.unzip = originalUnzip;
+  vi.restoreAllMocks();
 });
