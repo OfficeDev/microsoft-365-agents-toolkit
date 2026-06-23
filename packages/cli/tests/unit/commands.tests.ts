@@ -324,6 +324,74 @@ describe("CLI commands", () => {
       assert.notProperty(inputs, "template-name");
     });
 
+    it("normalizes declarative agent without action to v4 selector keys", async () => {
+      sandbox.stub(activate, "getFxCore").returns(FxCore.prototype);
+      const createProjectFrontDoorStub = sandbox
+        .stub(FxCore.prototype, "createProjectFrontDoor")
+        .resolves(ok({ projectPath: "..." }));
+      sandbox
+        .stub(featureFlagManager, "getBooleanValue")
+        .callsFake((flag) => flag.name === FeatureFlags.V4Enabled.name);
+      sandbox.stub(listTemplatesModule, "listAllTemplates").returns([]);
+
+      const ctx: CLIContext = {
+        command: { ...getCreateCommand(), fullName: "new" },
+        optionValues: {
+          capabilities: "declarative-agent",
+          nonInteractive: true,
+        },
+        globalOptionValues: {},
+        argumentValues: [],
+        telemetryProperties: {},
+      };
+
+      const res = await getCreateCommand().handler!(ctx);
+
+      assert.isTrue(res.isOk());
+      const inputs = createProjectFrontDoorStub.firstCall.args[0];
+      assert.equal(inputs.projectType, "copilot-agent-type");
+      assert.equal(inputs.daTemplate, "no-action");
+      assert.notProperty(inputs, "template-name");
+    });
+
+    it("falls back to legacy create template-name when declarative agent route flags are unknown", async () => {
+      sandbox.stub(activate, "getFxCore").returns(FxCore.prototype);
+      const createProjectFrontDoorStub = sandbox
+        .stub(FxCore.prototype, "createProjectFrontDoor")
+        .resolves(ok({ projectPath: "..." }));
+      sandbox
+        .stub(featureFlagManager, "getBooleanValue")
+        .callsFake((flag) => flag.name === FeatureFlags.V4Enabled.name);
+      sandbox.stub(listTemplatesModule, "listAllTemplates").returns([
+        {
+          name: "copilot-gpt-basic",
+          alias: "declarative-agent",
+          displayName: "Declarative Agent",
+          description: "desc",
+          language: "common",
+        },
+      ]);
+
+      const ctx: CLIContext = {
+        command: { ...getCreateCommand(), fullName: "new" },
+        optionValues: {
+          capabilities: "declarative-agent",
+          "with-plugin": "unknown",
+          nonInteractive: true,
+        },
+        globalOptionValues: {},
+        argumentValues: [],
+        telemetryProperties: {},
+      };
+
+      const res = await getCreateCommand().handler!(ctx);
+
+      assert.isTrue(res.isOk());
+      const inputs = createProjectFrontDoorStub.firstCall.args[0];
+      assert.equal(inputs["template-name"], "copilot-gpt-basic");
+      assert.equal(inputs["programming-language"], "common");
+    });
+
     it("normalizes legacy bearer-token API auth to the v4 api-key selector value", async () => {
       sandbox.stub(activate, "getFxCore").returns(new FxCore({} as any));
       const createProjectFrontDoorStub = sandbox
