@@ -271,8 +271,7 @@
     {
       "when": "projectType=='graph-connector-type'",
       "templateId": "graph-connector",
-      "engine": "v3",
-      "v3Adapter": "DefaultTemplateGenerator"
+      "engine": "v4"
     },
     {
       "when": "projectType=='teams-agent-and-app-type' && teamsApp=='custom-copilot-basic'",
