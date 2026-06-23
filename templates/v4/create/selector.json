@@ -365,9 +365,8 @@
     },
     {
       "when": "projectType=='copilot-agent-type' && daTemplate=='typespec'",
-      "templateId": "declarative-agent-typespec",
-      "engine": "v3",
-      "v3Adapter": "DeclarativeAgentGenerator"
+      "templateId": "da/typespec",
+      "engine": "v4"
     },
     {
       "when": "projectType=='copilot-agent-type' && daTemplate=='skill' && featureFlag('TEAMSFX_AGENT_SKILLS')",

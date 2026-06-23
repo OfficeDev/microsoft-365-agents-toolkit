@@ -260,6 +260,21 @@ describe("runCreateSelector (walk-create-selector)", () => {
     assert.deepEqual(ui.selectNames, ["projectType", "daTemplate"]);
   });
 
+  it("WCS-18: copilot\u2192typespec resolves the v4 da/typespec route", async () => {
+    const picks = { projectType: "copilot-agent-type", daTemplate: "typespec" };
+    const ui = new ScriptedUI(picks);
+
+    const res = await runCreateSelector(buildFloor(), asUI(ui), "vscode");
+
+    assert.isTrue(res.isOk());
+    if (res.isOk()) {
+      assert.equal(res.value.templateId, "da/typespec");
+      assert.equal(res.value.engine, "v4");
+      assert.deepEqual(res.value.answers, picks);
+    }
+    assert.deepEqual(ui.selectNames, ["projectType", "daTemplate"]);
+  });
+
   it("WCS-14: each interactive prompt carries its 1-based step (no Back on the first)", async () => {
     const ui = new SequencedUI([
       { type: "success", result: "copilot-agent-type" }, // projectType
