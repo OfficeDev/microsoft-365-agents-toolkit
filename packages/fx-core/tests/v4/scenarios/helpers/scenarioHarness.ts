@@ -123,8 +123,12 @@ function loadContent(packageDir: string): TemplateFileEntry[] {
       if (fs.statSync(full).isDirectory()) {
         walk(full);
       } else {
+        const relativePath = path.relative(root, full).replace(/\\/g, "/");
+        if (isLocalUserEnvFile(relativePath)) {
+          continue;
+        }
         entries.push({
-          path: path.relative(root, full).replace(/\\/g, "/"),
+          path: relativePath,
           data: fs.readFileSync(full),
         });
       }
@@ -132,6 +136,10 @@ function loadContent(packageDir: string): TemplateFileEntry[] {
   };
   walk(root);
   return entries;
+}
+
+function isLocalUserEnvFile(filePath: string): boolean {
+  return /^(.+\/)?env\/\.env\..+\.user$/.test(filePath);
 }
 
 function unwrapOutcome(result: Awaited<ReturnType<typeof scaffold>>) {
