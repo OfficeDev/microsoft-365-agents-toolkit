@@ -39,7 +39,7 @@ import {
   declarativeAgentGeneratorDeps,
 } from "../../../src/component/generator/declarativeAgent/generator";
 import * as generatorHelper from "../../../src/component/generator/declarativeAgent/helper";
-import { declarativeAgentHelperDeps } from "../../../src/component/generator/declarativeAgent/helper";
+import * as oneDriveSharePointHandler from "../../../src/component/generator/declarativeAgent/oneDriveSharePointHandler";
 import { TemplateNames } from "../../../src/component/generator/templates/templateNames";
 import * as utils from "../../../src/component/generator/utils";
 import * as commonUtils from "../../../src/component/utils/common";
@@ -945,9 +945,9 @@ describe("helper", async () => {
     });
 
     it("error: createGraphClientWithToken fails propagates error", async () => {
-      sandbox
-        .stub(declarativeAgentHelperDeps, "createGraphClientWithToken")
-        .resolves(err(new UserError("source", "GetGraphTokenFailed", "msg", "msg")));
+      vi.spyOn(oneDriveSharePointHandler, "createGraphClientWithToken").mockResolvedValue(
+        err(new UserError("source", "GetGraphTokenFailed", "msg", "msg"))
+      );
 
       const res = await generatorHelper.getODSPItemInfo(
         context,
@@ -961,12 +961,12 @@ describe("helper", async () => {
 
     it("success: siteResult isOk returns site metadata", async () => {
       const fakeClient: any = {};
-      sandbox
-        .stub(declarativeAgentHelperDeps, "createGraphClientWithToken")
-        .resolves(ok(fakeClient));
-      sandbox
-        .stub(declarativeAgentHelperDeps, "getSharePointSiteByRelativePath")
-        .resolves(ok({ id: "site-id", name: "site-name", webId: "web-id", siteId: "s-id" }));
+      vi.spyOn(oneDriveSharePointHandler, "createGraphClientWithToken").mockResolvedValue(
+        ok(fakeClient)
+      );
+      vi.spyOn(oneDriveSharePointHandler, "getSharePointSiteByRelativePath").mockResolvedValue(
+        ok({ id: "site-id", name: "site-name", webId: "web-id", siteId: "s-id" })
+      );
 
       const res = await generatorHelper.getODSPItemInfo(
         context,
@@ -984,13 +984,13 @@ describe("helper", async () => {
 
     it("success: siteResult isErr falls through to getDriveItemInfo", async () => {
       const fakeClient: any = {};
-      sandbox
-        .stub(declarativeAgentHelperDeps, "createGraphClientWithToken")
-        .resolves(ok(fakeClient));
-      sandbox
-        .stub(declarativeAgentHelperDeps, "getSharePointSiteByRelativePath")
-        .resolves(err(new UserError("source", "GetSharePointSiteFailed", "msg", "msg")));
-      sandbox.stub(declarativeAgentHelperDeps, "getDriveItemInfo").resolves({
+      vi.spyOn(oneDriveSharePointHandler, "createGraphClientWithToken").mockResolvedValue(
+        ok(fakeClient)
+      );
+      vi.spyOn(oneDriveSharePointHandler, "getSharePointSiteByRelativePath").mockResolvedValue(
+        err(new UserError("source", "GetSharePointSiteFailed", "msg", "msg"))
+      );
+      vi.spyOn(oneDriveSharePointHandler, "getDriveItemInfo").mockResolvedValue({
         id: "item-id",
         name: "item-name",
         uniqueId: "unique-id",
@@ -1015,17 +1015,17 @@ describe("helper", async () => {
 
     it("error: axios error with 4xx status returns UserError", async () => {
       const fakeClient: any = {};
-      sandbox
-        .stub(declarativeAgentHelperDeps, "createGraphClientWithToken")
-        .resolves(ok(fakeClient));
-      sandbox
-        .stub(declarativeAgentHelperDeps, "getSharePointSiteByRelativePath")
-        .resolves(err(new UserError("source", "SiteFailed", "msg", "msg")));
+      vi.spyOn(oneDriveSharePointHandler, "createGraphClientWithToken").mockResolvedValue(
+        ok(fakeClient)
+      );
+      vi.spyOn(oneDriveSharePointHandler, "getSharePointSiteByRelativePath").mockResolvedValue(
+        err(new UserError("source", "SiteFailed", "msg", "msg"))
+      );
       const axiosErr: any = Object.assign(new Error("Not Found"), {
         isAxiosError: true,
         response: { status: 404 },
       });
-      sandbox.stub(declarativeAgentHelperDeps, "getDriveItemInfo").rejects(axiosErr);
+      vi.spyOn(oneDriveSharePointHandler, "getDriveItemInfo").mockRejectedValue(axiosErr);
       sandbox.stub(context.logProvider!, "error");
 
       const res = await generatorHelper.getODSPItemInfo(
@@ -1041,15 +1041,15 @@ describe("helper", async () => {
 
     it("error: non-axios error returns SystemError", async () => {
       const fakeClient: any = {};
-      sandbox
-        .stub(declarativeAgentHelperDeps, "createGraphClientWithToken")
-        .resolves(ok(fakeClient));
-      sandbox
-        .stub(declarativeAgentHelperDeps, "getSharePointSiteByRelativePath")
-        .resolves(err(new UserError("source", "SiteFailed", "msg", "msg")));
-      sandbox
-        .stub(declarativeAgentHelperDeps, "getDriveItemInfo")
-        .rejects(new Error("Unexpected network failure"));
+      vi.spyOn(oneDriveSharePointHandler, "createGraphClientWithToken").mockResolvedValue(
+        ok(fakeClient)
+      );
+      vi.spyOn(oneDriveSharePointHandler, "getSharePointSiteByRelativePath").mockResolvedValue(
+        err(new UserError("source", "SiteFailed", "msg", "msg"))
+      );
+      vi.spyOn(oneDriveSharePointHandler, "getDriveItemInfo").mockRejectedValue(
+        new Error("Unexpected network failure")
+      );
       sandbox.stub(context.logProvider!, "error");
 
       const res = await generatorHelper.getODSPItemInfo(

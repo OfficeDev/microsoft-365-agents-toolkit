@@ -2,7 +2,7 @@ import { assert } from "chai";
 import fs from "fs-extra";
 import * as sinon from "sinon";
 import { Container } from "typedi";
-import * as coordinatorDeps from "../../../src/component/coordinator";
+import { vi } from "vitest";
 
 import {
   err,
@@ -28,6 +28,7 @@ import {
 import { coordinator } from "../../../src/component/coordinator";
 import { DriverContext } from "../../../src/component/driver/interface/commonArgs";
 import { ExecutionResult as DriverExecutionResult } from "../../../src/component/driver/interface/stepDriver";
+import * as appStudio from "../../../src/component/driver/teamsApp/appStudio";
 import { CreateAppPackageDriver } from "../../../src/component/driver/teamsApp/createAppPackage";
 import { manifestUtils } from "../../../src/component/driver/teamsApp/utils/ManifestUtils";
 import { ValidateManifestDriver } from "../../../src/component/driver/teamsApp/validate";
@@ -67,6 +68,7 @@ describe("component coordinator test", () => {
   setTools(tools);
   afterEach(() => {
     sandbox.restore();
+    vi.restoreAllMocks();
   });
 
   beforeEach(() => {
@@ -537,9 +539,7 @@ describe("component coordinator test", () => {
       sandbox
         .stub(context.tokenProvider.m365TokenProvider, "getJsonObject")
         .resolves(ok({ unique_name: "test" }));
-      sandbox
-        .stub(coordinatorDeps.coordinatorDeps, "updateTeamsAppV3ForPublish")
-        .resolves(ok("appId"));
+      vi.spyOn(appStudio, "updateTeamsAppV3ForPublish").mockResolvedValue(ok("appId"));
       const openUrl = sandbox.stub(context.userInteraction, "openUrl").resolves(ok(true));
       const inputs: InputsWithProjectPath = {
         platform: Platform.VSCode,
@@ -558,9 +558,9 @@ describe("component coordinator test", () => {
         m365TokenProvider: new MockedM365Provider(),
         azureAccountProvider: new MockedAzureAccountProvider(),
       };
-      sandbox
-        .stub(coordinatorDeps.coordinatorDeps, "updateTeamsAppV3ForPublish")
-        .resolves(err(new UserError("source", "error", "", "")));
+      vi.spyOn(appStudio, "updateTeamsAppV3ForPublish").mockResolvedValue(
+        err(new UserError("source", "error", "", ""))
+      );
       const inputs: InputsWithProjectPath = {
         platform: Platform.VSCode,
         projectPath: "project-path",

@@ -46,14 +46,6 @@ import * as generatorUtils from "../utils";
 import * as oneDriveSharePointHandler from "./oneDriveSharePointHandler";
 import { ItemMetadata } from "./oneDriveSharePointHandler";
 
-export const declarativeAgentHelperDeps = {
-  setGeneralSensitivityLabel: generatorUtils.setGeneralSensitivityLabel,
-  createGraphClientWithToken: oneDriveSharePointHandler.createGraphClientWithToken,
-  getSharePointSiteByRelativePath: oneDriveSharePointHandler.getSharePointSiteByRelativePath,
-  encodeSharePointUrl: oneDriveSharePointHandler.encodeSharePointUrl,
-  getDriveItemInfo: oneDriveSharePointHandler.getDriveItemInfo,
-};
-
 // Non-translatable CLI command template used in warning messages
 const mcpAddActionHint =
   "atk add action --api-plugin-type mcp --mcp-da-server-url <server-url> --mcp-tools-file-path <path-to-tools-json> --interactive false";
@@ -376,23 +368,23 @@ export async function setGeneralSensitivityLabel(
   context: Context,
   manifestPath: string
 ): Promise<void> {
-  await declarativeAgentHelperDeps.setGeneralSensitivityLabel(context, manifestPath);
+  await generatorUtils.setGeneralSensitivityLabel(context, manifestPath);
 }
 
 export async function createGraphClientWithToken(context: Context) {
-  return declarativeAgentHelperDeps.createGraphClientWithToken(context);
+  return oneDriveSharePointHandler.createGraphClientWithToken(context);
 }
 
 export async function getSharePointSiteByRelativePath(graphClient: any, itemUrl: string) {
-  return declarativeAgentHelperDeps.getSharePointSiteByRelativePath(graphClient, itemUrl);
+  return oneDriveSharePointHandler.getSharePointSiteByRelativePath(graphClient, itemUrl);
 }
 
 export function encodeSharePointUrl(itemUrl: string): string {
-  return declarativeAgentHelperDeps.encodeSharePointUrl(itemUrl);
+  return oneDriveSharePointHandler.encodeSharePointUrl(itemUrl);
 }
 
 export async function getDriveItemInfo(graphClient: any, encodedUrl: string) {
-  return declarativeAgentHelperDeps.getDriveItemInfo(graphClient, encodedUrl);
+  return oneDriveSharePointHandler.getDriveItemInfo(graphClient, encodedUrl);
 }
 
 export async function getODSPItemInfo(
@@ -406,13 +398,13 @@ export async function getODSPItemInfo(
   }
 
   try {
-    const graphClientResult = await declarativeAgentHelperDeps.createGraphClientWithToken(context);
+    const graphClientResult = await oneDriveSharePointHandler.createGraphClientWithToken(context);
     if (graphClientResult.isErr()) {
       return err(graphClientResult.error);
     }
     const graphClient = graphClientResult.value;
 
-    const siteResult = await declarativeAgentHelperDeps.getSharePointSiteByRelativePath(
+    const siteResult = await oneDriveSharePointHandler.getSharePointSiteByRelativePath(
       graphClient,
       itemUrl
     );
@@ -428,8 +420,8 @@ export async function getODSPItemInfo(
       ]);
     }
 
-    const encodedUrl = declarativeAgentHelperDeps.encodeSharePointUrl(itemUrl);
-    const driveItem = await declarativeAgentHelperDeps.getDriveItemInfo(graphClient, encodedUrl);
+    const encodedUrl = oneDriveSharePointHandler.encodeSharePointUrl(itemUrl);
+    const driveItem = await oneDriveSharePointHandler.getDriveItemInfo(graphClient, encodedUrl);
 
     return ok([
       {

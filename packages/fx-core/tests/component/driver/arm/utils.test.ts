@@ -6,13 +6,12 @@ import { ok } from "@microsoft/teamsfx-api";
 import { assert } from "chai";
 import fs from "fs-extra";
 import { createSandbox } from "sinon";
+import { vi } from "vitest";
 import { ConstantString } from "../../../../src/common/constants";
 import { setTools } from "../../../../src/common/globalVars";
 import { ArmDeployImpl } from "../../../../src/component/driver/arm/deployImpl";
-import {
-  ArmErrorHandle,
-  armErrorHandleDeps,
-} from "../../../../src/component/driver/arm/util/handleError";
+import { ArmErrorHandle } from "../../../../src/component/driver/arm/util/handleError";
+import * as innerHandleError from "../../../../src/component/driver/arm/util/innerHandleError";
 import { convertOutputs, getFileExtension } from "../../../../src/component/driver/arm/util/util";
 import { getAbsolutePath } from "../../../../src/component/utils/common";
 import { cpUtils } from "../../../../src/component/utils/depsChecker/cpUtils";
@@ -42,6 +41,7 @@ describe("utils test", () => {
 
   afterEach(() => {
     sandbox.restore();
+    vi.restoreAllMocks();
   });
 
   it("getAbsolutePath empty", () => {
@@ -382,12 +382,13 @@ describe("getDeploymentError", () => {
 
   afterEach(() => {
     sandbox.restore();
+    vi.restoreAllMocks();
   });
 
   it("throw error", async () => {
-    sandbox
-      .stub(armErrorHandleDeps, "innerGetDeploymentError")
-      .throws({ code: ConstantString.DeploymentNotFound });
+    vi.spyOn(innerHandleError, "innerGetDeploymentError").mockRejectedValue({
+      code: ConstantString.DeploymentNotFound,
+    });
     try {
       await ArmErrorHandle.getDeploymentError(
         deployCtx,
@@ -401,9 +402,9 @@ describe("getDeploymentError", () => {
   });
 
   it("get error:empty", async () => {
-    sandbox
-      .stub(armErrorHandleDeps, "innerGetDeploymentError")
-      .throws({ code: ConstantString.DeploymentNotFound });
+    vi.spyOn(innerHandleError, "innerGetDeploymentError").mockRejectedValue({
+      code: ConstantString.DeploymentNotFound,
+    });
     const res = await ArmErrorHandle.getDeploymentError(
       deployCtx,
       deployCtx.resourceGroupName,
@@ -413,7 +414,7 @@ describe("getDeploymentError", () => {
   });
 
   it("timestamp is less than startTime", async () => {
-    sandbox.stub(armErrorHandleDeps, "innerGetDeploymentError").resolves({
+    vi.spyOn(innerHandleError, "innerGetDeploymentError").mockResolvedValue({
       properties: {
         timestamp: new Date(deployCtx.deploymentStartTime - 1000),
       },
@@ -427,7 +428,7 @@ describe("getDeploymentError", () => {
   });
 
   it("error is empty", async () => {
-    sandbox.stub(armErrorHandleDeps, "innerGetDeploymentError").resolves({
+    vi.spyOn(innerHandleError, "innerGetDeploymentError").mockResolvedValue({
       properties: {
         timestamp: new Date(),
       },
@@ -441,14 +442,14 @@ describe("getDeploymentError", () => {
   });
 
   it("error not empty", async () => {
-    sandbox.stub(armErrorHandleDeps, "innerGetDeploymentError").resolves({
+    vi.spyOn(innerHandleError, "innerGetDeploymentError").mockResolvedValue({
       properties: {
         error: {
           message: "mockMessage",
         },
       },
     } as any);
-    sandbox.stub(armErrorHandleDeps, "innerGetDeploymentOperations").resolves([
+    vi.spyOn(innerHandleError, "innerGetDeploymentOperations").mockResolvedValue([
       {
         properties: {
           targetResource: {
@@ -469,20 +470,16 @@ describe("getDeploymentError", () => {
   });
 
   it("error not empty and nested error", async () => {
-    // sandbox.stub(innerHandleError, "innerGetDeploymentError").onFirstCall
-    sandbox
-      .stub(armErrorHandleDeps, "innerGetDeploymentError")
-      .onFirstCall()
-      .resolves({
+    vi.spyOn(innerHandleError, "innerGetDeploymentError")
+      .mockResolvedValueOnce({
         properties: {
           error: {
             message: "mockMessage",
           },
         },
       } as any)
-      .onSecondCall()
-      .throws({ code: ConstantString.DeploymentNotFound });
-    sandbox.stub(armErrorHandleDeps, "innerGetDeploymentOperations").resolves([
+      .mockRejectedValueOnce({ code: ConstantString.DeploymentNotFound });
+    vi.spyOn(innerHandleError, "innerGetDeploymentOperations").mockResolvedValue([
       {
         id: "mockId",
         properties: {

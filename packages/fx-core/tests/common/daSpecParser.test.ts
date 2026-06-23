@@ -16,6 +16,7 @@ import crypto from "crypto";
 import * as fs from "fs-extra";
 import * as os from "os";
 import * as path from "path";
+import tmp from "tmp";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import * as daSpecParser from "../../src/common/daSpecParser";
 import { featureFlagManager, FeatureFlags } from "../../src/common/featureFlags";
@@ -886,6 +887,216 @@ describe("daSpecParser", () => {
       assert.equal(result.status, ValidationStatus.Valid);
       assert.isTrue(result.warnings.length === 1);
       assert.isTrue(result.warnings[0].type === WarningType.OpenAPI31ConvertTo30);
+    });
+  });
+
+  describe("generatePlugin with KiotaNPMIntegration enabled", () => {
+    const tempDirs: string[] = [];
+
+    afterEach(async () => {
+      for (const dir of tempDirs.splice(0)) {
+        await fs.remove(dir);
+      }
+    });
+
+    it("should collect warnings and write generated plugin files", async () => {
+      const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "da-generate-plugin-"));
+      tempDirs.push(tempRoot);
+
+      const tmpDir = path.join(tempRoot, "kiota-work");
+      const specPath = path.join(tempRoot, "spec.yaml");
+      const teamsManifestPath = path.join(tempRoot, "manifest.json");
+      const outputDir = path.join(tempRoot, "appPackage");
+      const outputAPISpecPath = path.join(outputDir, "openapi.json");
+      const outputAIPluginPath = path.join(outputDir, "ai-plugin.json");
+      const generatedPluginDir = path.join(tempRoot, "generated", "plugin");
+      const generatedSpecPath = path.join(generatedPluginDir, "openapi.yaml");
+      const generatedPluginPath = path.join(generatedPluginDir, "ai-plugin.json");
+      const generatedPluginManifest = {
+        runtimes: [{ spec: { url: "placeholder.yaml" } }],
+        functions: [{ name: "create_resource", description: "Create resource" }],
+      };
+
+      await fs.ensureDir(outputDir);
+      await fs.ensureDir(generatedPluginDir);
+      await fs.ensureDir(path.join(tmpDir, ".kiota", "documents", "testapp"));
+      await fs.writeFile(specPath, "openapi: 3.0.0", "utf8");
+      await fs.writeJson(teamsManifestPath, { name: { short: "Test App" } });
+      await fs.writeFile(generatedSpecPath, "openapi: 3.0.0", "utf8");
+      await fs.writeJson(generatedPluginPath, generatedPluginManifest);
+      await fs.writeFile(
+        path.join(tmpDir, ".kiota", "documents", "testapp", "openapi.json"),
+        "{}",
+        "utf8"
+      );
+
+      vi.spyOn(tmp, "dirSync").mockReturnValue({
+        name: tmpDir,
+        removeCallback: vi.fn(),
+      } as any);
+      vi.spyOn(kiotaClient, "listAPITreeInfo").mockResolvedValue({
+        rootNode: {
+          isOperation: false,
+          path: "api",
+          segment: "",
+          children: [
+            {
+              isOperation: true,
+              path: "api/missing-id#GET",
+              segment: "GET",
+              selected: true,
+              servers: ["https://api.example.com"],
+              children: [],
+            },
+            {
+              isOperation: true,
+              path: "api/resource#POST",
+              segment: "POST",
+              operationId: "create-resource",
+              selected: true,
+              servers: ["https://api.example.com"],
+              security: [{ basic_auth: [] }],
+              children: [],
+            },
+          ],
+        } as KiotaOpenApiNode,
+        servers: ["https://api.example.com"],
+        security: [],
+        securitySchemes: {
+          basic_auth: { type: "http", scheme: "basic", referenceId: "" } as any,
+        },
+        logs: [],
+        specVersion: OpenApiSpecVersion.V3_0,
+      });
+      vi.spyOn(kiotaClient, "kiotageneratePlugin").mockResolvedValue({
+        openAPISpec: generatedSpecPath,
+        aiPlugin: generatedPluginPath,
+        logs: [],
+      } as any);
+
+      const result = await daSpecParser.generatePlugin(
+        specPath,
+        teamsManifestPath,
+        outputAPISpecPath,
+        outputAIPluginPath,
+        ["GET /api/missing-id", "POST /api/resource"],
+        AdaptiveCardUpdateStrategy.KeepExisting
+      );
+
+      assert.isTrue(result.allSuccess);
+      assert.sameMembers(
+        result.warnings.map((warning) => warning.type),
+        [
+          WarningType.OperationIdMissing,
+          WarningType.OperationIdContainsSpecialCharacters,
+          WarningType.UnsupportedAuthType,
+        ]
+      );
+      expect(kiotaClient.kiotageneratePlugin).toHaveBeenCalledOnce();
+
+      assert.isTrue(await fs.pathExists(path.join(outputDir, "openapi.yaml")));
+      assert.isTrue(await fs.pathExists(path.join(outputDir, "openapi.yaml.original")));
+
+      const writtenPlugin = await fs.readJson(outputAIPluginPath);
+      assert.equal(writtenPlugin.runtimes[0].spec.url, "openapi.yaml");
+    });
+
+    it("should merge functions and runtimes when updating an existing plugin", async () => {
+      const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "da-generate-plugin-"));
+      tempDirs.push(tempRoot);
+
+      const tmpDir = path.join(tempRoot, "kiota-work");
+      const specPath = path.join(tempRoot, "spec.yaml");
+      const teamsManifestPath = path.join(tempRoot, "manifest.json");
+      const outputAIPluginPath = path.join(tempRoot, "appPackage", "ai-plugin.json");
+      const outputAPISpecPath = path.join(tempRoot, "specs", "openapi.yaml");
+      const generatedPluginDir = path.join(tempRoot, "generated", "plugin");
+      const generatedPluginPath = path.join(generatedPluginDir, "ai-plugin.json");
+      const generatedSpecPath = path.join(generatedPluginDir, "openapi.yaml");
+      const normalizedSpecPath = "../specs/openapi.yaml";
+      const generatedPluginManifest = {
+        runtimes: [{ spec: { url: "generated.yaml" }, run_for_functions: ["newFunction"] }],
+        functions: [{ name: "newFunction", description: "New function" }],
+      };
+      const existingPluginManifest = {
+        runtimes: [
+          { spec: { url: normalizedSpecPath }, run_for_functions: ["oldFunction"] },
+          { spec: { url: "other.yaml" }, run_for_functions: ["keepFunction"] },
+        ],
+        functions: [
+          { name: "oldFunction", description: "Old function" },
+          { name: "keepFunction", description: "Keep function" },
+        ],
+      };
+
+      await fs.ensureDir(path.dirname(outputAIPluginPath));
+      await fs.ensureDir(path.dirname(outputAPISpecPath));
+      await fs.ensureDir(generatedPluginDir);
+      await fs.ensureDir(path.join(generatedPluginDir, "adaptiveCards"));
+      await fs.writeFile(specPath, "openapi: 3.0.0", "utf8");
+      await fs.writeJson(teamsManifestPath, { name: { short: "Test App" } });
+      await fs.writeFile(generatedSpecPath, "openapi: 3.0.0", "utf8");
+      await fs.writeJson(generatedPluginPath, generatedPluginManifest);
+      await fs.writeJson(outputAIPluginPath, existingPluginManifest);
+      await fs.writeJson(path.join(generatedPluginDir, "adaptiveCards", "card.json"), {
+        type: "AdaptiveCard",
+        body: [],
+      });
+
+      vi.spyOn(tmp, "dirSync").mockReturnValue({
+        name: tmpDir,
+        removeCallback: vi.fn(),
+      } as any);
+      vi.spyOn(kiotaClient, "listAPITreeInfo").mockResolvedValue({
+        rootNode: {
+          isOperation: true,
+          path: "api/resource#GET",
+          segment: "GET",
+          operationId: "getResource",
+          selected: true,
+          children: [],
+        } as KiotaOpenApiNode,
+        servers: ["https://api.example.com"],
+        security: [],
+        securitySchemes: {},
+        logs: [],
+        specVersion: OpenApiSpecVersion.V3_0,
+      });
+      vi.spyOn(kiotaClient, "kiotageneratePlugin").mockResolvedValue({
+        openAPISpec: generatedSpecPath,
+        aiPlugin: generatedPluginPath,
+        logs: [],
+      } as any);
+
+      const result = await daSpecParser.generatePlugin(
+        specPath,
+        teamsManifestPath,
+        outputAPISpecPath,
+        outputAIPluginPath,
+        ["GET /api/resource"],
+        AdaptiveCardUpdateStrategy.KeepExisting,
+        undefined,
+        true
+      );
+
+      assert.isTrue(result.allSuccess);
+      assert.deepEqual(result.warnings, []);
+      assert.isTrue(
+        await fs.pathExists(
+          path.join(path.dirname(outputAIPluginPath), "adaptiveCards", "card.json")
+        )
+      );
+
+      const mergedManifest = await fs.readJson(outputAIPluginPath);
+      assert.sameMembers(
+        mergedManifest.functions.map((func: { name: string }) => func.name),
+        ["keepFunction", "newFunction"]
+      );
+      assert.sameMembers(
+        mergedManifest.runtimes.map((runtime: { spec: { url: string } }) => runtime.spec.url),
+        ["other.yaml", normalizedSpecPath]
+      );
+      assert.equal(mergedManifest.runtimes[1].run_for_functions[0], "newFunction");
     });
   });
 
@@ -1906,6 +2117,278 @@ describe("daSpecParser", () => {
       assert.equal(fn.capabilities.response_semantics.data_path, "$.items");
     });
 
+    it("propagates x-ai-capabilities.confirmation without response_semantics", async () => {
+      const specPath = await writeSpec(
+        [
+          "openapi: 3.0.0",
+          "info: { title: t, version: '1' }",
+          "paths:",
+          "  /items:",
+          "    post:",
+          "      operationId: createItem",
+          "      x-ai-capabilities:",
+          "        confirmation:",
+          "          type: AdaptiveCard",
+          "          title: Create Item",
+          "          body: Confirm creation",
+          "      responses: { '200': { description: ok } }",
+          "",
+        ].join("\n")
+      );
+      const manifestPath = await writeManifest({
+        schema_version: "v2.4",
+        functions: [{ name: "createItem", description: "" }],
+      });
+
+      await daSpecParser.patchOpenApiExtensionsIntoPluginManifest(specPath, manifestPath);
+
+      const fn = (await fs.readJson(manifestPath)).functions[0];
+      assert.isDefined(fn.capabilities.confirmation);
+      assert.equal(fn.capabilities.confirmation.type, "AdaptiveCard");
+      assert.equal(fn.capabilities.confirmation.title, "Create Item");
+    });
+
+    it("does not overwrite existing confirmation with x-ai-capabilities", async () => {
+      const specPath = await writeSpec(
+        [
+          "openapi: 3.0.0",
+          "info: { title: t, version: '1' }",
+          "paths:",
+          "  /items:",
+          "    post:",
+          "      operationId: createItem",
+          "      x-ai-capabilities:",
+          "        confirmation:",
+          "          type: AdaptiveCard",
+          "          title: New Title",
+          "      responses: { '200': { description: ok } }",
+          "",
+        ].join("\n")
+      );
+      const existing = {
+        schema_version: "v2.4",
+        functions: [
+          {
+            name: "createItem",
+            description: "",
+            capabilities: {
+              confirmation: {
+                type: "AdaptiveCard",
+                title: "Existing Title",
+              },
+            },
+          },
+        ],
+      };
+      const manifestPath = await writeManifest(existing);
+
+      await daSpecParser.patchOpenApiExtensionsIntoPluginManifest(specPath, manifestPath);
+
+      const fn = (await fs.readJson(manifestPath)).functions[0];
+      assert.equal(fn.capabilities.confirmation.title, "Existing Title");
+    });
+
+    it("sets isNonConsequential when isConsequential is true in confirmation", async () => {
+      const specPath = await writeSpec(
+        [
+          "openapi: 3.0.0",
+          "info: { title: t, version: '1' }",
+          "paths:",
+          "  /items:",
+          "    patch:",
+          "      operationId: updateItems",
+          "      x-openai-isConsequential: true",
+          "      x-ai-capabilities:",
+          "        confirmation:",
+          "          type: AdaptiveCard",
+          "          title: Update Item",
+          "      responses: { '200': { description: ok } }",
+          "",
+        ].join("\n")
+      );
+      const manifestPath = await writeManifest({
+        schema_version: "v2.4",
+        functions: [
+          {
+            name: "updateItems",
+            description: "",
+            capabilities: {
+              confirmation: {
+                type: "AdaptiveCard",
+                title: "Update Item",
+              },
+            },
+          },
+        ],
+      });
+
+      await daSpecParser.patchOpenApiExtensionsIntoPluginManifest(specPath, manifestPath);
+
+      const fn = (await fs.readJson(manifestPath)).functions[0];
+      assert.strictEqual(fn.capabilities.confirmation.isNonConsequential, false);
+    });
+
+    it("handles operation without function match in manifest", async () => {
+      const specPath = await writeSpec(
+        [
+          "openapi: 3.0.0",
+          "info: { title: t, version: '1' }",
+          "paths:",
+          "  /items:",
+          "    get:",
+          "      operationId: getItems",
+          "      x-ai-adaptive-card:",
+          "        data_path: $.value",
+          "        file: adaptiveCards/get.json",
+          "      responses: { '200': { description: ok } }",
+          "",
+        ].join("\n")
+      );
+      const cardsDir = path.join(tmpDir, "adaptiveCards");
+      await fs.ensureDir(cardsDir);
+      const card = { type: "AdaptiveCard", body: [] };
+      await fs.writeJson(path.join(cardsDir, "get.json"), card);
+
+      const before = {
+        schema_version: "v2.4",
+        functions: [{ name: "differentFunction", description: "" }],
+      };
+      const manifestPath = await writeManifest(before);
+
+      await daSpecParser.patchOpenApiExtensionsIntoPluginManifest(specPath, manifestPath);
+
+      const after = await fs.readJson(manifestPath);
+      assert.deepEqual(after, before);
+    });
+
+    it("handles multiple functions where only some match", async () => {
+      const specPath = await writeSpec(
+        [
+          "openapi: 3.0.0",
+          "info: { title: t, version: '1' }",
+          "paths:",
+          "  /items:",
+          "    get:",
+          "      operationId: getItems",
+          "      x-ai-adaptive-card:",
+          "        data_path: $.value",
+          "        file: adaptiveCards/get.json",
+          "    post:",
+          "      operationId: createItem",
+          "      x-ai-adaptive-card:",
+          "        data_path: $.item",
+          "        file: adaptiveCards/create.json",
+          "      responses: { '200': { description: ok } }",
+          "",
+        ].join("\n")
+      );
+      const cardsDir = path.join(tmpDir, "adaptiveCards");
+      await fs.ensureDir(cardsDir);
+      await fs.writeJson(path.join(cardsDir, "get.json"), { type: "AdaptiveCard", body: [] });
+      await fs.writeJson(path.join(cardsDir, "create.json"), { type: "AdaptiveCard", body: [] });
+
+      const manifestPath = await writeManifest({
+        schema_version: "v2.4",
+        functions: [
+          { name: "getItems", description: "" },
+          { name: "createItem", description: "" },
+          { name: "otherFunction", description: "" },
+        ],
+      });
+
+      await daSpecParser.patchOpenApiExtensionsIntoPluginManifest(specPath, manifestPath);
+
+      const after = await fs.readJson(manifestPath);
+      assert.isDefined(after.functions[0].capabilities?.response_semantics);
+      assert.isDefined(after.functions[1].capabilities?.response_semantics);
+      assert.isUndefined(after.functions[2].capabilities?.response_semantics);
+    });
+
+    it("handles empty x-ai-capabilities object", async () => {
+      const specPath = await writeSpec(
+        [
+          "openapi: 3.0.0",
+          "info: { title: t, version: '1' }",
+          "paths:",
+          "  /items:",
+          "    get:",
+          "      operationId: getItems",
+          "      x-ai-capabilities: {}",
+          "      responses: { '200': { description: ok } }",
+          "",
+        ].join("\n")
+      );
+      const before = {
+        schema_version: "v2.4",
+        functions: [{ name: "getItems", description: "" }],
+      };
+      const manifestPath = await writeManifest(before);
+
+      await daSpecParser.patchOpenApiExtensionsIntoPluginManifest(specPath, manifestPath);
+
+      const after = await fs.readJson(manifestPath);
+      assert.deepEqual(after, before);
+    });
+
+    it("handles x-ai-adaptive-card with only data_path", async () => {
+      const specPath = await writeSpec(
+        [
+          "openapi: 3.0.0",
+          "info: { title: t, version: '1' }",
+          "paths:",
+          "  /items:",
+          "    get:",
+          "      operationId: getItems",
+          "      x-ai-adaptive-card:",
+          "        data_path: $.items",
+          "      responses: { '200': { description: ok } }",
+          "",
+        ].join("\n")
+      );
+      const manifestPath = await writeManifest({
+        schema_version: "v2.4",
+        functions: [{ name: "getItems", description: "" }],
+      });
+
+      await daSpecParser.patchOpenApiExtensionsIntoPluginManifest(specPath, manifestPath);
+
+      const fn = (await fs.readJson(manifestPath)).functions[0];
+      assert.equal(fn.capabilities.response_semantics.data_path, "$.items");
+      assert.isUndefined(fn.capabilities.response_semantics.static_template);
+    });
+
+    it("handles x-ai-adaptive-card with only file", async () => {
+      const specPath = await writeSpec(
+        [
+          "openapi: 3.0.0",
+          "info: { title: t, version: '1' }",
+          "paths:",
+          "  /items:",
+          "    get:",
+          "      operationId: getItems",
+          "      x-ai-adaptive-card:",
+          "        file: adaptiveCards/get.json",
+          "      responses: { '200': { description: ok } }",
+          "",
+        ].join("\n")
+      );
+      const cardsDir = path.join(tmpDir, "adaptiveCards");
+      await fs.ensureDir(cardsDir);
+      const card = { type: "AdaptiveCard", body: [] };
+      await fs.writeJson(path.join(cardsDir, "get.json"), card);
+
+      const manifestPath = await writeManifest({
+        schema_version: "v2.4",
+        functions: [{ name: "getItems", description: "" }],
+      });
+
+      await daSpecParser.patchOpenApiExtensionsIntoPluginManifest(specPath, manifestPath);
+
+      const fn = (await fs.readJson(manifestPath)).functions[0];
+      assert.deepEqual(fn.capabilities.response_semantics.static_template, card);
+      assert.isUndefined(fn.capabilities.response_semantics.data_path);
+    });
+
     it("fills missing data_path on an existing response_semantics with a placeholder", async () => {
       // response_semantics exists with the Kiota `{ file }` placeholder but
       // without a data_path; the patcher should backfill data_path from the
@@ -1997,6 +2480,432 @@ describe("daSpecParser", () => {
       const fn = (await fs.readJson(manifestPath)).functions[0];
       assert.equal(fn.capabilities.response_semantics.data_path, "$.value");
       assert.deepEqual(fn.capabilities.response_semantics.static_template, realCard);
+    });
+  });
+
+  describe("parseAndUpdatePluginManifestForKiota", () => {
+    let tmpDir: string;
+
+    beforeEach(async () => {
+      vi.restoreAllMocks();
+      tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "parse-manifest-test-"));
+    });
+
+    afterEach(async () => {
+      try {
+        await fs.remove(tmpDir);
+      } catch {
+        // Ignore cleanup errors on Windows when files are still locked.
+      }
+    });
+
+    async function writeManifest(manifest: any): Promise<string> {
+      const p = path.join(tmpDir, "plugin-manifest.json");
+      await fs.writeJson(p, manifest, { spaces: 2 });
+      return p;
+    }
+
+    it("should extract auth data from valid reference_id format", async () => {
+      const manifest = {
+        schema_version: "v2.4",
+        runtimes: [
+          {
+            spec: { url: "openapi.yaml" },
+            auth: {
+              type: "ApiKeyPluginVault",
+              reference_id: "{ API_KEY_AUTH_VAULT_ID }",
+            },
+          },
+        ],
+      };
+      const manifestPath = await writeManifest(manifest);
+
+      const result = await daSpecParser.parseAndUpdatePluginManifestForKiota(manifestPath, false);
+
+      assert.equal(result.length, 1);
+      assert.equal(result[0].authName, "API_KEY_AUTH");
+      assert.equal(result[0].authType, "apiKey");
+      // registrationId should be the new reference ID (authName.toUpperCase() + "_VAULT_ID")
+      assert.isTrue(result[0].registrationId.startsWith("API_KEY_AUTH_"));
+      assert.equal(result[0].specPath, "openapi.yaml");
+    });
+
+    it("should handle oauth2 auth type", async () => {
+      const manifest = {
+        schema_version: "v2.4",
+        runtimes: [
+          {
+            spec: { url: "api-spec.yaml" },
+            auth: {
+              type: "OAuthPluginVault",
+              reference_id: "{ OAUTH_FLOW_AUTH_VAULT_ID }",
+            },
+          },
+        ],
+      };
+      const manifestPath = await writeManifest(manifest);
+
+      const result = await daSpecParser.parseAndUpdatePluginManifestForKiota(manifestPath, false);
+
+      assert.equal(result.length, 1);
+      assert.equal(result[0].authType, "oauth2");
+      assert.equal(result[0].authName, "OAUTH_FLOW_AUTH");
+    });
+
+    it("should handle multiple runtimes with different auth types", async () => {
+      const manifest = {
+        schema_version: "v2.4",
+        runtimes: [
+          {
+            spec: { url: "spec1.yaml" },
+            auth: {
+              type: "ApiKeyPluginVault",
+              reference_id: "{ API_KEY_ID_VAULT_ID }",
+            },
+          },
+          {
+            spec: { url: "spec2.yaml" },
+            auth: {
+              type: "OAuthPluginVault",
+              reference_id: "{ OAUTH_ID_VAULT_ID }",
+            },
+          },
+        ],
+      };
+      const manifestPath = await writeManifest(manifest);
+
+      const result = await daSpecParser.parseAndUpdatePluginManifestForKiota(manifestPath, false);
+
+      assert.equal(result.length, 2);
+      assert.equal(result[0].authType, "apiKey");
+      assert.equal(result[0].authName, "API_KEY_ID");
+      assert.equal(result[1].authType, "oauth2");
+      assert.equal(result[1].authName, "OAUTH_ID");
+    });
+
+    it("should skip runtimes without auth information", async () => {
+      const manifest = {
+        schema_version: "v2.4",
+        runtimes: [
+          {
+            spec: { url: "spec1.yaml" },
+            auth: {
+              type: "None",
+              reference_id: "none",
+            },
+          },
+          {
+            spec: { url: "spec2.yaml" },
+            auth: {
+              type: "ApiKeyPluginVault",
+              reference_id: "{ API_KEY_VAULT_ID }",
+            },
+          },
+        ],
+      };
+      const manifestPath = await writeManifest(manifest);
+
+      const result = await daSpecParser.parseAndUpdatePluginManifestForKiota(manifestPath, false);
+
+      assert.equal(result.length, 1);
+      assert.equal(result[0].authName, "API_KEY");
+    });
+
+    it("should skip runtimes with undefined auth", async () => {
+      const manifest = {
+        schema_version: "v2.4",
+        runtimes: [
+          {
+            spec: { url: "spec1.yaml" },
+          },
+          {
+            spec: { url: "spec2.yaml" },
+            auth: {
+              type: "ApiKeyPluginVault",
+              reference_id: "{ API_KEY_VAULT_ID }",
+            },
+          },
+        ],
+      };
+      const manifestPath = await writeManifest(manifest);
+
+      const result = await daSpecParser.parseAndUpdatePluginManifestForKiota(manifestPath, false);
+
+      assert.equal(result.length, 1);
+      assert.equal(result[0].authName, "API_KEY");
+    });
+
+    it("should skip invalid reference_id format", async () => {
+      const manifest = {
+        schema_version: "v2.4",
+        runtimes: [
+          {
+            spec: { url: "spec1.yaml" },
+            auth: {
+              type: "ApiKeyPluginVault",
+              reference_id: "INVALID_FORMAT_WITHOUT_BRACES",
+            },
+          },
+          {
+            spec: { url: "spec2.yaml" },
+            auth: {
+              type: "ApiKeyPluginVault",
+              reference_id: "{ VALID_ID_VAULT_ID }",
+            },
+          },
+        ],
+      };
+      const manifestPath = await writeManifest(manifest);
+
+      const result = await daSpecParser.parseAndUpdatePluginManifestForKiota(manifestPath, false);
+
+      assert.equal(result.length, 1);
+      assert.equal(result[0].authName, "VALID_ID");
+    });
+
+    it("should handle reference_id with various whitespace", async () => {
+      const manifest = {
+        schema_version: "v2.4",
+        runtimes: [
+          {
+            spec: { url: "spec.yaml" },
+            auth: {
+              type: "ApiKeyPluginVault",
+              reference_id: "{  API_KEY_WITH_SPACES_VAULT_ID  }",
+            },
+          },
+        ],
+      };
+      const manifestPath = await writeManifest(manifest);
+
+      const result = await daSpecParser.parseAndUpdatePluginManifestForKiota(manifestPath, false);
+
+      assert.equal(result.length, 1);
+      assert.equal(result[0].authName, "API_KEY_WITH_SPACES");
+    });
+
+    it("should update placeholder when updatePlaceholder is true", async () => {
+      const manifest = {
+        schema_version: "v2.4",
+        runtimes: [
+          {
+            spec: { url: "openapi.yaml" },
+            auth: {
+              type: "ApiKeyPluginVault",
+              reference_id: "{ API_KEY_AUTH_VAULT_ID }",
+            },
+          },
+        ],
+      };
+      const manifestPath = await writeManifest(manifest);
+
+      const result = await daSpecParser.parseAndUpdatePluginManifestForKiota(manifestPath, true);
+
+      assert.equal(result.length, 1);
+      assert.isTrue(result[0].registrationId.startsWith("API_KEY_AUTH_"));
+
+      const updatedManifest = await fs.readJson(manifestPath);
+      assert.isTrue(updatedManifest.runtimes[0].auth.reference_id.startsWith("${{"));
+      assert.isTrue(updatedManifest.runtimes[0].auth.reference_id.endsWith("}}"));
+    });
+
+    it("should not write file when updatePlaceholder is false", async () => {
+      const manifest = {
+        schema_version: "v2.4",
+        runtimes: [
+          {
+            spec: { url: "openapi.yaml" },
+            auth: {
+              type: "ApiKeyPluginVault",
+              reference_id: "{ API_KEY_AUTH_VAULT_ID }",
+            },
+          },
+        ],
+      };
+      const manifestPath = await writeManifest(manifest);
+      const originalContent = await fs.readJson(manifestPath);
+
+      await daSpecParser.parseAndUpdatePluginManifestForKiota(manifestPath, false);
+
+      const afterContent = await fs.readJson(manifestPath);
+      assert.deepEqual(
+        afterContent.runtimes[0].auth.reference_id,
+        originalContent.runtimes[0].auth.reference_id
+      );
+    });
+
+    it("should return empty array when no runtimes", async () => {
+      const manifest = {
+        schema_version: "v2.4",
+        runtimes: [],
+      };
+      const manifestPath = await writeManifest(manifest);
+
+      const result = await daSpecParser.parseAndUpdatePluginManifestForKiota(manifestPath, false);
+
+      assert.equal(result.length, 0);
+    });
+
+    it("should return empty array when runtimes is undefined", async () => {
+      const manifest = {
+        schema_version: "v2.4",
+      };
+      const manifestPath = await writeManifest(manifest);
+
+      const result = await daSpecParser.parseAndUpdatePluginManifestForKiota(manifestPath, false);
+
+      assert.equal(result.length, 0);
+    });
+
+    it("should correctly parse auth name with underscores", async () => {
+      const manifest = {
+        schema_version: "v2.4",
+        runtimes: [
+          {
+            spec: { url: "spec.yaml" },
+            auth: {
+              type: "ApiKeyPluginVault",
+              reference_id: "{ MULTI_PART_AUTH_NAME_VAULT_ID }",
+            },
+          },
+        ],
+      };
+      const manifestPath = await writeManifest(manifest);
+
+      const result = await daSpecParser.parseAndUpdatePluginManifestForKiota(manifestPath, false);
+
+      assert.equal(result.length, 1);
+      assert.equal(result[0].authName, "MULTI_PART_AUTH_NAME");
+      assert.isTrue(result[0].registrationId.startsWith("MULTI_PART_AUTH_NAME_"));
+    });
+
+    it("should handle edge case with single word auth name", async () => {
+      const manifest = {
+        schema_version: "v2.4",
+        runtimes: [
+          {
+            spec: { url: "spec.yaml" },
+            auth: {
+              type: "ApiKeyPluginVault",
+              reference_id: "{ AUTH_VAULT_ID }",
+            },
+          },
+        ],
+      };
+      const manifestPath = await writeManifest(manifest);
+
+      const result = await daSpecParser.parseAndUpdatePluginManifestForKiota(manifestPath, false);
+
+      assert.equal(result.length, 1);
+      assert.equal(result[0].authName, "AUTH");
+    });
+
+    it("should update multiple runtimes when updatePlaceholder is true", async () => {
+      const manifest = {
+        schema_version: "v2.4",
+        runtimes: [
+          {
+            spec: { url: "spec1.yaml" },
+            auth: {
+              type: "ApiKeyPluginVault",
+              reference_id: "{ APIKEY_AUTH_VAULT_ID }",
+            },
+          },
+          {
+            spec: { url: "spec2.yaml" },
+            auth: {
+              type: "OAuthPluginVault",
+              reference_id: "{ OAUTH_AUTH_VAULT_ID }",
+            },
+          },
+        ],
+      };
+      const manifestPath = await writeManifest(manifest);
+
+      const result = await daSpecParser.parseAndUpdatePluginManifestForKiota(manifestPath, true);
+
+      assert.equal(result.length, 2);
+
+      const updatedManifest = await fs.readJson(manifestPath);
+      assert.isTrue(updatedManifest.runtimes[0].auth.reference_id.startsWith("${{"));
+      assert.isTrue(updatedManifest.runtimes[0].auth.reference_id.endsWith("}}"));
+      assert.isTrue(updatedManifest.runtimes[1].auth.reference_id.startsWith("${{"));
+      assert.isTrue(updatedManifest.runtimes[1].auth.reference_id.endsWith("}}"));
+    });
+
+    it("should handle auth type other than ApiKeyPluginVault and OAuthPluginVault", async () => {
+      const manifest = {
+        schema_version: "v2.4",
+        runtimes: [
+          {
+            spec: { url: "spec.yaml" },
+            auth: {
+              type: "UnknownAuthType",
+              reference_id: "{ UNKNOWN_AUTH_VAULT_ID }",
+            },
+          },
+        ],
+      };
+      const manifestPath = await writeManifest(manifest);
+
+      const result = await daSpecParser.parseAndUpdatePluginManifestForKiota(manifestPath, false);
+
+      assert.equal(result.length, 1);
+      assert.equal(result[0].authType, "oauth2");
+      assert.equal(result[0].authName, "UNKNOWN_AUTH");
+    });
+
+    it("should preserve other manifest properties when updating", async () => {
+      const manifest = {
+        schema_version: "v2.4",
+        name: "Test Plugin",
+        description: "Test Description",
+        runtimes: [
+          {
+            spec: { url: "openapi.yaml" },
+            auth: {
+              type: "ApiKeyPluginVault",
+              reference_id: "{ API_KEY_AUTH_VAULT_ID }",
+            },
+          },
+        ],
+        functions: [
+          {
+            name: "testFunc",
+            description: "Test function",
+          },
+        ],
+      };
+      const manifestPath = await writeManifest(manifest);
+
+      await daSpecParser.parseAndUpdatePluginManifestForKiota(manifestPath, true);
+
+      const updatedManifest = await fs.readJson(manifestPath);
+      assert.equal(updatedManifest.name, "Test Plugin");
+      assert.equal(updatedManifest.description, "Test Description");
+      assert.equal(updatedManifest.functions.length, 1);
+      assert.equal(updatedManifest.functions[0].name, "testFunc");
+    });
+
+    it("should correctly determine spec path from runtime", async () => {
+      const manifest = {
+        schema_version: "v2.4",
+        runtimes: [
+          {
+            spec: { url: "../../specs/complex/openapi.yaml" },
+            auth: {
+              type: "ApiKeyPluginVault",
+              reference_id: "{ API_KEY_AUTH_VAULT_ID }",
+            },
+          },
+        ],
+      };
+      const manifestPath = await writeManifest(manifest);
+
+      const result = await daSpecParser.parseAndUpdatePluginManifestForKiota(manifestPath, false);
+
+      assert.equal(result.length, 1);
+      assert.equal(result[0].specPath, "../../specs/complex/openapi.yaml");
     });
   });
 });

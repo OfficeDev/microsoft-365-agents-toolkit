@@ -6,10 +6,9 @@
 import * as appService from "@azure/arm-appservice";
 import { expect } from "chai";
 import * as sinon from "sinon";
-import {
-  AzureStaticWebAppGetDeploymentTokenDriver,
-  azureStaticWebAppGetTokenDeps,
-} from "../../../../../src/component/driver/deploy/azure/azureStaticWebAppGetDeploymentTokenDriver";
+import { vi } from "vitest";
+import { AzureStaticWebAppGetDeploymentTokenDriver } from "../../../../../src/component/driver/deploy/azure/azureStaticWebAppGetDeploymentTokenDriver";
+import * as azureResourceOperation from "../../../../../src/component/utils/azureResourceOperation";
 
 describe("AzureStaticWebAppGetDeploymentTokenDriver", () => {
   let driver: AzureStaticWebAppGetDeploymentTokenDriver;
@@ -18,15 +17,18 @@ describe("AzureStaticWebAppGetDeploymentTokenDriver", () => {
   beforeEach(() => {
     driver = new AzureStaticWebAppGetDeploymentTokenDriver();
     clientStub = sinon.createStubInstance(appService.WebSiteManagementClient);
-    sinon.stub(azureStaticWebAppGetTokenDeps, "createWebSiteManagementClient").returns(clientStub);
+    sinon
+      .stub(AzureStaticWebAppGetDeploymentTokenDriver, "createWebSiteManagementClient")
+      .returns(clientStub as any);
     clientStub.staticSites = {
       listStaticSiteSecrets: () => {},
     } as any;
-    sinon.stub(azureStaticWebAppGetTokenDeps, "getAzureAccountCredential").resolves({} as any);
+    vi.spyOn(azureResourceOperation, "getAzureAccountCredential").mockResolvedValue({} as any);
   });
 
   afterEach(() => {
     sinon.restore();
+    vi.restoreAllMocks();
   });
 
   it("should get deployment token", async () => {
@@ -48,9 +50,14 @@ describe("AzureStaticWebAppGetDeploymentTokenDriver", () => {
     );
   });
 
-  it("azureStaticWebAppGetTokenDeps should create management client", async () => {
-    (azureStaticWebAppGetTokenDeps.createWebSiteManagementClient as sinon.SinonStub).restore();
-    const client = azureStaticWebAppGetTokenDeps.createWebSiteManagementClient({} as any, "sub-id");
+  it("createWebSiteManagementClient should create management client", async () => {
+    (
+      AzureStaticWebAppGetDeploymentTokenDriver.createWebSiteManagementClient as sinon.SinonStub
+    ).restore();
+    const client = AzureStaticWebAppGetDeploymentTokenDriver.createWebSiteManagementClient(
+      {} as any,
+      "sub-id"
+    );
     expect(client).to.be.instanceOf(appService.WebSiteManagementClient);
   });
 

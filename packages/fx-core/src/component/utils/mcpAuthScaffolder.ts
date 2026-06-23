@@ -12,7 +12,7 @@ import { resolveMCPOAuthMetadata } from "./mcpToolFetcher";
  * Indirection seam for the `mcpToolFetcher` functions this scaffolder calls, so
  * unit tests can stub them on a plain object. Sinon cannot reliably stub a
  * module's named export under the vitest module transform; stubbing a property
- * on this object always works (mirrors `declarativeAgentHelperDeps`).
+ * on this object always works.
  */
 
 /**

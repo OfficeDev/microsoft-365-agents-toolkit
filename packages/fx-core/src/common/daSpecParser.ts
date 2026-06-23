@@ -449,21 +449,26 @@ export async function parseAndUpdatePluginManifestForKiota(
       const auth = (runtime as RuntimeObjectOpenapi).auth!;
       if (
         auth.reference_id &&
-        auth.reference_id.match(/^{\s*([a-zA-Z_][a-zA-Z0-9_]*)\s*}/g) &&
+        auth.reference_id.match(/^{\s*([a-zA-Z_][a-zA-Z0-9_]*)\s*}$/) &&
         auth.type !== "None"
       ) {
-        const registrationId = auth.reference_id.replace(/[{}]/g, "");
-        const parts = registrationId.split("_");
-        const authName = parts.slice(0, -2).join("_");
-        const newReferenceId = authName.toUpperCase() + "_" + ConstantString.RegistrationIdPostfix;
-        authData.push({
-          authName: authName,
-          authType: auth.type === "ApiKeyPluginVault" ? "apiKey" : "oauth2",
-          registrationId: newReferenceId,
-          specPath: runtime.spec.url as string,
-        });
-        if (updatePlaceholder) {
-          auth.reference_id = `\$\{\{${newReferenceId}\}\}`;
+        // Extract the identifier from the reference_id pattern { IDENTIFIER }
+        const match = auth.reference_id.match(/^{\s*([a-zA-Z_][a-zA-Z0-9_]*)\s*}$/);
+        if (match && match[1]) {
+          const registrationId = match[1].trim();
+          const parts = registrationId.split("_");
+          const authName = parts.slice(0, -2).join("_");
+          const newReferenceId =
+            authName.toUpperCase() + "_" + ConstantString.RegistrationIdPostfix;
+          authData.push({
+            authName: authName,
+            authType: auth.type === "ApiKeyPluginVault" ? "apiKey" : "oauth2",
+            registrationId: newReferenceId,
+            specPath: runtime.spec.url as string,
+          });
+          if (updatePlaceholder) {
+            auth.reference_id = `\$\{\{${newReferenceId}\}\}`;
+          }
         }
       }
     }
