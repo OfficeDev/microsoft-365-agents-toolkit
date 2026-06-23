@@ -1735,33 +1735,31 @@ describe("updateActionWithMCP", async () => {
     };
     assert.isTrue(conditionFunc(inputsVSCode));
 
-    // Test static options - by default oauth-dynamic is hidden behind the DCR flag.
+    // Test static options - by default oauth-dynamic is surfaced first.
     const staticOptions = (authTypeNode?.data as any)?.staticOptions;
     assert.isArray(staticOptions);
     assert.deepEqual(
       staticOptions.map((opt: any) => opt.id),
-      ["oauth", "entra-sso"]
+      ["oauth-dynamic", "oauth", "entra-sso"]
     );
-    assert.isUndefined(staticOptions?.find((opt: any) => opt.id === "oauth-dynamic"));
-    assert.equal((authTypeNode?.data as any)?.default, "oauth");
+    assert.equal((authTypeNode?.data as any)?.default, "oauth-dynamic");
 
-    // When TEAMSFX_MCP_FOR_DA_DCR is enabled, the dynamic-registration option is
-    // surfaced first.
+    // When TEAMSFX_MCP_FOR_DA_DCR is disabled, the dynamic-registration option is hidden.
     const flagSandbox = sinon.createSandbox();
     try {
       flagSandbox.stub(featureFlagManager, "getBooleanValue").callsFake((flag) => {
-        return flag === FeatureFlags.MCPForDADCR;
+        return flag !== FeatureFlags.MCPForDADCR;
       });
       const optionsWithFlags = (questionNodes.updateActionWithMCP().children?.[2]?.data as any)
         ?.staticOptions;
       assert.isArray(optionsWithFlags);
       assert.deepEqual(
         optionsWithFlags.map((opt: any) => opt.id),
-        ["oauth-dynamic", "oauth", "entra-sso"]
+        ["oauth", "entra-sso"]
       );
       assert.equal(
         (questionNodes.updateActionWithMCP().children?.[2]?.data as any)?.default,
-        "oauth-dynamic"
+        "oauth"
       );
     } finally {
       flagSandbox.restore();

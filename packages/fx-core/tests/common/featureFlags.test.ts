@@ -33,6 +33,20 @@ describe("FeatureFlagManager", () => {
     const stringRes = featureFlagManager.getStringValue(FeatureFlags.CLIDotNet);
     chai.assert.equal(stringRes, "false");
   });
+  it("MCPForDADCR defaults to true", async () => {
+    mockedEnvRestore = mockedEnv({ [FeatureFlags.MCPForDADCR.name]: undefined });
+    const booleanRes = featureFlagManager.getBooleanValue(FeatureFlags.MCPForDADCR);
+    chai.assert.isTrue(booleanRes);
+    const stringRes = featureFlagManager.getStringValue(FeatureFlags.MCPForDADCR);
+    chai.assert.equal(stringRes, "true");
+  });
+  it("MCPForDADCR can be disabled by environment variable", async () => {
+    mockedEnvRestore = mockedEnv({ TEAMSFX_MCP_FOR_DA_DCR: "false" });
+    const booleanRes = featureFlagManager.getBooleanValue(FeatureFlags.MCPForDADCR);
+    chai.assert.isFalse(booleanRes);
+    const stringRes = featureFlagManager.getStringValue(FeatureFlags.MCPForDADCR);
+    chai.assert.equal(stringRes, "false");
+  });
   it("list", async () => {
     const list = featureFlagManager.list();
     chai.assert.deepEqual(list, Object.values(FeatureFlags));
