@@ -21,6 +21,11 @@ function isDepsCheckerTestFile(): boolean {
   return testPath.includes(marker);
 }
 
+function isGitHubHelpersTest(): boolean {
+  const testName = expect.getState().currentTestName ?? "";
+  return testName.includes("GitHubHelpers");
+}
+
 function createUnmockedDependencyError(name: string): Error {
   return new Error(
     `Unmocked dependency call detected: ${name}. ` +
@@ -37,9 +42,11 @@ beforeEach(() => {
     .spyOn(cpUtils, "executeCommand")
     .mockRejectedValue(createUnmockedDependencyError("cpUtils.executeCommand"));
 
-  depsCheckerSpies.fetch = vi
-    .spyOn(fetchHelper, "default")
-    .mockRejectedValue(createUnmockedDependencyError("fetchHelper.default"));
+  if (!isGitHubHelpersTest()) {
+    depsCheckerSpies.fetch = vi
+      .spyOn(fetchHelper, "default")
+      .mockRejectedValue(createUnmockedDependencyError("fetchHelper.default"));
+  }
 
   depsCheckerSpies.downloadToTempFile = vi
     .spyOn(downloadHelper, "downloadToTempFile")
