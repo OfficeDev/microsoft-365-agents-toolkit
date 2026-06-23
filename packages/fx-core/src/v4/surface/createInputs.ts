@@ -143,9 +143,53 @@ const uriValidator: Validator = (value: string): string | undefined => {
   }
 };
 
+/** The graph connector display name cannot be empty. */
+const graphConnectorNameValidator: Validator = (value: string): string | undefined => {
+  return value.trim().length > 0 ? undefined : "must not be empty";
+};
+
+/** The Microsoft Graph external connection id rules mirrored from the v3 question. */
+const graphConnectorConnectionIdValidator: Validator = (value: string): string | undefined => {
+  const trimmed = value.trim();
+  if (trimmed.length < 3) {
+    return "must be at least 3 characters";
+  }
+  if (trimmed.length > 32) {
+    return "must be at most 32 characters";
+  }
+  if (!/^[a-zA-Z0-9]+$/.test(trimmed)) {
+    return "must contain only alphanumeric characters";
+  }
+  const reservedPrefixes = [
+    "Microsoft",
+    "None",
+    "Directory",
+    "Exchange",
+    "ExchangeArchive",
+    "LinkedIn",
+    "Mailbox",
+    "OneDriveBusiness",
+    "SharePoint",
+    "Teams",
+    "Yammer",
+    "Connectors",
+    "TaskFabric",
+    "PowerBI",
+    "Assistant",
+    "TopicEngine",
+    "MSFT_All_Connectors",
+  ];
+  const matchedPrefix = reservedPrefixes.find((prefix) =>
+    trimmed.toLowerCase().startsWith(prefix.toLowerCase())
+  );
+  return matchedPrefix === undefined ? undefined : `must not begin with '${matchedPrefix}'`;
+};
+
 /** Engine-registered validator registry. */
 const validators: Record<string, Validator> = {
   uri: uriValidator,
+  graphConnectorName: graphConnectorNameValidator,
+  graphConnectorConnectionId: graphConnectorConnectionIdValidator,
 };
 
 function isRecord(value: unknown): value is Record<string, unknown> {

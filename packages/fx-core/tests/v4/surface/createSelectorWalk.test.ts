@@ -275,6 +275,21 @@ describe("runCreateSelector (walk-create-selector)", () => {
     assert.deepEqual(ui.selectNames, ["projectType", "daTemplate"]);
   });
 
+  it("WCS-19: copilot\u2192graph-connector resolves the v4 da/graph-connector route", async () => {
+    const picks = { projectType: "copilot-agent-type", daTemplate: "graph-connector" };
+    const ui = new ScriptedUI(picks);
+
+    const res = await runCreateSelector(buildFloor(), asUI(ui), "vscode");
+
+    assert.isTrue(res.isOk());
+    if (res.isOk()) {
+      assert.equal(res.value.templateId, "da/graph-connector");
+      assert.equal(res.value.engine, "v4");
+      assert.deepEqual(res.value.answers, picks);
+    }
+    assert.deepEqual(ui.selectNames, ["projectType", "daTemplate"]);
+  });
+
   it("WCS-14: each interactive prompt carries its 1-based step (no Back on the first)", async () => {
     const ui = new SequencedUI([
       { type: "success", result: "copilot-agent-type" }, // projectType
