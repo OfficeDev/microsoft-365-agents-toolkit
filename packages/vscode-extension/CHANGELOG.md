@@ -2,6 +2,26 @@
 > Note: This changelog only includes the changes for the stable versions of Microsoft 365 Agents Toolkit (evolved from Teams Toolkit). For the changelog of pre-released versions, please refer to the [Microsoft 365 Agents Toolkit Pre-release Changelog](https://github.com/OfficeDev/TeamsFx/blob/dev/packages/vscode-extension/PRERELEASE.md).
 
 
+## 6.10.2 - June 23, 2026
+
+### New Features
+
+#### Built-in agent evaluation datasets and guidance in Declarative Agent templates
+[description]: Declarative Agent templates now include a ready-to-use evals/prompts.json sample dataset and a new "Evaluating Agents" section in each template’s README. This streamlines getting started with agent quality measurement using the Copilot Eval CLI and provides environment variable placeholders to configure credentials and API keys. After provisioning your project, you can run evaluations directly from your VS Code terminal with the `runevals` command to benchmark and iterate on your agent behavior. The included sample prompts help you quickly validate common scenarios, while the documentation explains how to customize datasets and interpret results. This makes it easier to adopt a repeatable evaluation workflow and share consistent test cases across your team.
+
+### Enhancement
+
+#### Smarter port conflict resolution during local runs
+[description]: Local run and debugging now handle port conflicts more reliably with a redesigned process termination flow. The extension more accurately detects which process is blocking the port and safely terminates the correct one, reducing false positives and minimizing interruptions. You’ll see clearer guidance when a port is already in use, making it easier to resolve conflicts and get back to testing faster. This enhancement improves stability across platforms and helps avoid time-consuming manual troubleshooting. Simply start your agent as usual—ATK will automatically check for conflicts and guide you through resolution.
+
+### Bug Fix
+- Add a trailing newline to repair.yml.tpl for better compatibility with YAML tooling, [PR #15962](https://github.com/OfficeDev/microsoft-365-agents-toolkit/pull/15962)
+- Clarified evaluation guidance in Declarative Agent template READMEs—require provisioning before running evals and corrected env-values link; reverted earlier TENANT_ID placeholder change on this branch, [PR #16011](https://github.com/OfficeDev/microsoft-365-agents-toolkit/pull/16011)
+- "Fetch action from MCP" now works on macOS by using MCP gateway tools directly when listing available tools, improving reliability and removing dependency on the VS Code LM registry, [PR #16104](https://github.com/OfficeDev/microsoft-365-agents-toolkit/pull/16104)
+- Python templates now set skip_auth for Agents Playground when credentials aren’t configured, preventing 401 "Authentication not configured" errors during local debugging, [PR #16122](https://github.com/OfficeDev/microsoft-365-agents-toolkit/pull/16122)
+- JavaScript/TypeScript templates updated to avoid 401 errors in Agents Playground debugging by aligning authentication behavior, [PR #16168](https://github.com/OfficeDev/microsoft-365-agents-toolkit/pull/16168)
+
+
 ## 6.10.2 - June 9, 2026
 
 This is a hotfix version.
