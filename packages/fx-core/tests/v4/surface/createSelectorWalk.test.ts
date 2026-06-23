@@ -240,7 +240,7 @@ describe("runCreateSelector (walk-create-selector)", () => {
     assert.notInclude(offered, "skill");
   });
 
-  it("WCS-13: copilot\u2192skill with TEAMSFX_AGENT_SKILLS on resolves the v3 declarative-agent-with-skill route", async () => {
+  it("WCS-13: copilot\u2192skill with TEAMSFX_AGENT_SKILLS on resolves the v4 da/skill route", async () => {
     const picks = { projectType: "copilot-agent-type", daTemplate: "skill" };
     const ui = new ScriptedUI(picks);
 
@@ -250,8 +250,8 @@ describe("runCreateSelector (walk-create-selector)", () => {
 
     assert.isTrue(res.isOk());
     if (res.isOk()) {
-      assert.equal(res.value.templateId, "declarative-agent-with-skill");
-      assert.equal(res.value.engine, "v3");
+      assert.equal(res.value.templateId, "da/skill");
+      assert.equal(res.value.engine, "v4");
       assert.deepEqual(res.value.answers, picks);
     }
     // The skill option is offered (its featureFlag condition holds) and ends the walk
