@@ -2,11 +2,17 @@
 // Licensed under the MIT license.
 
 import { assert } from "chai";
-import * as fs from "fs";
-import * as path from "path";
-import { TemplateFileEntry } from "../../../src/v4/model/dataModel";
 import { createInMemoryRuntime } from "../../../src/v4/runtime/inMemoryRuntime";
-import { ScaffoldRequest, scaffold } from "../../../src/v4/runtime/scaffold";
+import { scaffold } from "../../../src/v4/runtime/scaffold";
+import {
+  isRecord,
+  isRecordArray,
+  loadV4Package,
+  readJsonObject,
+  recordProperty,
+  runV4Package,
+  text,
+} from "./helpers/scenarioHarness";
 
 /**
  * T3 scenario tier: the `modify/add-mcp-server` package applied to an existing
@@ -14,8 +20,6 @@ import { ScaffoldRequest, scaffold } from "../../../src/v4/runtime/scaffold";
  *
  * Spec: docs/03-specs/scenarios/da/add-mcp-server.md (SCN-ADD-MCP-01..09)
  */
-
-const PKG_DIR = path.resolve(__dirname, "../../../../../templates/v4/modify/add-mcp-server");
 
 const MCP_SERVER_URL = "https://api.github.com/mcp";
 const NAMESPACE = "apigithubc";
@@ -27,52 +31,9 @@ const ENV_PATH = "env/.env.dev";
 const AUTH_REF = "${{MCP_DA_AUTH_ID_APIGITHUBC}}";
 const AUTH_ENV_VAR = "MCP_DA_AUTH_ID_APIGITHUBC";
 
-const descriptor: unknown = JSON.parse(
-  fs.readFileSync(path.join(PKG_DIR, "descriptor.json"), "utf8")
-);
-const pipeline: unknown = JSON.parse(fs.readFileSync(path.join(PKG_DIR, "pipeline.json"), "utf8"));
-
-function loadContent(): TemplateFileEntry[] {
-  const root = path.join(PKG_DIR, "content");
-  const entries: TemplateFileEntry[] = [];
-  const walk = (dir: string): void => {
-    for (const name of fs.readdirSync(dir)) {
-      const full = path.join(dir, name);
-      if (fs.statSync(full).isDirectory()) {
-        walk(full);
-      } else {
-        entries.push({
-          path: path.relative(root, full).replace(/\\/g, "/"),
-          data: fs.readFileSync(full),
-        });
-      }
-    }
-  };
-  walk(root);
-  return entries;
-}
-
-const content = loadContent();
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
-}
-
-function isRecordArray(value: unknown): value is Record<string, unknown>[] {
-  return Array.isArray(value) && value.every(isRecord);
-}
-
-function text(files: Map<string, Buffer>, filePath: string): string {
-  const buf = files.get(filePath);
-  assert.isDefined(buf, `expected '${filePath}' to exist`);
-  return (buf ?? Buffer.from("", "utf8")).toString("utf8");
-}
-
-function readJsonObject(files: Map<string, Buffer>, filePath: string): Record<string, unknown> {
-  const parsed: unknown = JSON.parse(text(files, filePath));
-  assert.isTrue(isRecord(parsed));
-  return parsed;
-}
+const templatePackage = loadV4Package("modify", "add-mcp-server");
+const descriptor = templatePackage.descriptor;
+const questions = templatePackage.questions;
 
 function actions(manifest: Record<string, unknown>): Record<string, unknown>[] {
   const value = manifest.actions;
@@ -92,6 +53,13 @@ function auth(runtime: Record<string, unknown>): Record<string, unknown> {
   return value;
 }
 
+function questionItems(value: unknown): Record<string, unknown>[] {
+  assert.isTrue(isRecord(value));
+  const items = value.questions;
+  assert.isTrue(isRecordArray(items));
+  return items;
+}
+
 interface RunOptions {
   authType?: string;
 }
@@ -101,38 +69,22 @@ async function run(options: RunOptions = {}): Promise<{
   outcome: Awaited<ReturnType<typeof unwrapOutcome>>;
 }> {
   const authType = options.authType ?? "none";
-  const runtime = createInMemoryRuntime();
-  runtime.files.set(
-    TEAMS_MANIFEST_PATH,
-    Buffer.from(
-      JSON.stringify({
+  return runV4Package(templatePackage, {
+    answers: { mcpServerUrl: MCP_SERVER_URL, teamsManifestPath: TEAMS_MANIFEST_PATH, authType },
+    callerFloor: { appName: "Existing Agent", language: "common" },
+    existing: [TEAMS_MANIFEST_PATH, DA_MANIFEST_PATH, YML_PATH, ENV_PATH],
+    seedFiles: {
+      [TEAMS_MANIFEST_PATH]: JSON.stringify({
         copilotAgents: {
           declarativeAgents: [{ id: "declarativeAgent", file: "declarativeAgent.json" }],
         },
       }),
-      "utf8"
-    )
-  );
-  runtime.files.set(
-    DA_MANIFEST_PATH,
-    Buffer.from(JSON.stringify({ name: "Existing Agent" }), "utf8")
-  );
-  runtime.files.set(YML_PATH, Buffer.from(["version: v1.12", "provision:"].join("\n"), "utf8"));
-  runtime.files.set(ENV_PATH, Buffer.from("TEAMSFX_ENV=dev\n", "utf8"));
-
-  const request: ScaffoldRequest = {
-    descriptor,
-    pipeline,
-    content,
-    answers: { mcpServerUrl: MCP_SERVER_URL, teamsManifestPath: TEAMS_MANIFEST_PATH, authType },
-    callerFloor: { appName: "Existing Agent", language: "common" },
-    targetDir: {
-      path: "/project",
-      existing: [TEAMS_MANIFEST_PATH, DA_MANIFEST_PATH, YML_PATH, ENV_PATH],
+      [DA_MANIFEST_PATH]: JSON.stringify({ name: "Existing Agent" }),
+      [YML_PATH]: ["version: v1.12", "provision:"].join("\n"),
+      [ENV_PATH]: "TEAMSFX_ENV=dev\n",
     },
-  };
-  const result = await scaffold(request, runtime);
-  return { files: runtime.files, outcome: unwrapOutcome(result) };
+    targetPath: "/project",
+  });
 }
 
 function unwrapOutcome(result: Awaited<ReturnType<typeof scaffold>>) {
@@ -146,16 +98,24 @@ describe("SCN-DA-ADD-MCP-ACTION-TO-DA (v4, T3 InMemoryRuntime)", () => {
     assert.deepStrictEqual(outcome.written, [PLUGIN_PATH]);
   });
 
-  it("SCN-ADD-MCP-02/03: renders namespace and RemoteMCPServer dynamic discovery", async () => {
+  it("SCN-ADD-MCP-02: renders a URL-derived namespace and dynamic plugin filename", async () => {
     const { files } = await run();
     const plugin = readJsonObject(files, PLUGIN_PATH);
     assert.strictEqual(plugin.namespace, NAMESPACE);
+    assert.isTrue(files.has(PLUGIN_PATH));
+    assert.isFalse(files.has("appPackage/ai-plugin.json"));
+  });
+
+  it("SCN-ADD-MCP-03: renders the RemoteMCPServer dynamic discovery runtime", async () => {
+    const { files } = await run();
+    const plugin = readJsonObject(files, PLUGIN_PATH);
     const runtime = runtimes(plugin)[0];
     assert.strictEqual(runtime.type, "RemoteMCPServer");
     const spec = runtime.spec;
     assert.isTrue(isRecord(spec));
     assert.strictEqual(spec.url, MCP_SERVER_URL);
     assert.strictEqual(spec.enable_dynamic_discovery, true);
+    assert.deepStrictEqual(runtime.run_for_functions, ["*"]);
   });
 
   it("SCN-ADD-MCP-04: registers the rendered plugin in the existing DA manifest", async () => {
@@ -191,6 +151,19 @@ describe("SCN-DA-ADD-MCP-ACTION-TO-DA (v4, T3 InMemoryRuntime)", () => {
     assert.notInclude(text(files, ENV_PATH), "MCP_DA_AUTH_ID_");
   });
 
+  it("SCN-ADD-MCP-09: entry params skip the prefilled URL and carry the selected Teams manifest path", async () => {
+    assert.isTrue(isRecord(descriptor));
+    const entry = recordProperty(descriptor, "entry");
+    assert.deepStrictEqual(entry.params, ["mcpServerUrl", "teamsManifestPath"]);
+
+    const mcpServerUrlQuestion = questionItems(questions).find(
+      (question) => question.name === "mcpServerUrl"
+    );
+    assert.isDefined(mcpServerUrlQuestion);
+    const condition = recordProperty(mcpServerUrlQuestion ?? {}, "condition");
+    assert.strictEqual(condition.expr, "mcpServerUrl == null");
+  });
+
   it("SCN-ADD-MCP-05: a same-URL re-run skips render collision and does not duplicate the action", async () => {
     const first = await run();
     const runtime = createInMemoryRuntime();
@@ -200,8 +173,8 @@ describe("SCN-DA-ADD-MCP-ACTION-TO-DA (v4, T3 InMemoryRuntime)", () => {
     const result = await scaffold(
       {
         descriptor,
-        pipeline,
-        content,
+        pipeline: templatePackage.pipeline,
+        content: templatePackage.content,
         answers: {
           mcpServerUrl: MCP_SERVER_URL,
           teamsManifestPath: TEAMS_MANIFEST_PATH,

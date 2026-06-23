@@ -2,65 +2,43 @@
 // Licensed under the MIT license.
 
 import { assert } from "chai";
-import * as fs from "fs";
-import * as path from "path";
 import { UserError } from "@microsoft/teamsfx-api";
-import { TemplateFileEntry } from "../../../src/v4/model/dataModel";
 import { REQUIRE_EMPTY_TARGET } from "../../../src/v4/pipeline/runScaffoldPipeline";
 import { createInMemoryRuntime } from "../../../src/v4/runtime/inMemoryRuntime";
 import { ScaffoldRequest, scaffold } from "../../../src/v4/runtime/scaffold";
+import {
+  loadV4Package,
+  readJsonObject,
+  recordArrayProperty,
+  recordProperty,
+  runV4Package,
+  text,
+  V4ScenarioOutcome,
+} from "./helpers/scenarioHarness";
 
 /**
  * T3 scenario tier (ADR-0018): the whole `da/mcp-server` create package
  * scaffolded under `InMemoryRuntime`, asserting the vertical contract.
  *
- * Spec: docs/03-specs/scenarios/da/create-mcp-server.md (SCN-CREATE-MCP-01..10)
+ * Spec: docs/03-specs/scenarios/da/create-mcp-server.md (SCN-CREATE-MCP-01..14)
  *
  * Each `it("SCN-CREATE-MCP-0X")` maps 1:1 to a scenario AC row. The package's
  * real authored files are loaded from disk (the distribution chain's output
  * shape), then composed; no v3 symbol participates.
  */
 
-const PKG_DIR = path.resolve(__dirname, "../../../../../templates/v4/create/da/mcp-server");
-
 const MCP_SERVER_URL = "https://api.github.com/mcp"; // namespace derives to apigithubc
 const NAMESPACE = "apigithubc";
 const AUTH_REF = "${{MCP_DA_AUTH_ID_APIGITHUBC}}";
 const AUTH_ENV_VAR = "MCP_DA_AUTH_ID_APIGITHUBC";
+
+const templatePackage = loadV4Package("create", "da/mcp-server");
 
 /** A provider-style local catalog: each identity id → its stdio launch spec. */
 const LOCAL_CATALOG = JSON.stringify({
   ghmcp: { command: "npx", args: ["-y", "@github/github-mcp-server"] },
   filesystem: { command: "uvx", args: ["mcp-server-filesystem", "/data"] },
 });
-
-const descriptor: unknown = JSON.parse(
-  fs.readFileSync(path.join(PKG_DIR, "descriptor.json"), "utf8")
-);
-const pipeline: unknown = JSON.parse(fs.readFileSync(path.join(PKG_DIR, "pipeline.json"), "utf8"));
-
-/** Load the package's `content/**` as the opened-entry list (forward-slash paths, raw bytes). */
-function loadContent(): TemplateFileEntry[] {
-  const root = path.join(PKG_DIR, "content");
-  const entries: TemplateFileEntry[] = [];
-  const walk = (dir: string): void => {
-    for (const name of fs.readdirSync(dir)) {
-      const full = path.join(dir, name);
-      if (fs.statSync(full).isDirectory()) {
-        walk(full);
-      } else {
-        entries.push({
-          path: path.relative(root, full).replace(/\\/g, "/"),
-          data: fs.readFileSync(full),
-        });
-      }
-    }
-  };
-  walk(root);
-  return entries;
-}
-
-const content = loadContent();
 
 interface RunOptions {
   authType?: string;
@@ -73,8 +51,7 @@ interface RunOptions {
 /** Scaffold the package with the given auth type against a fresh in-memory runtime. */
 async function run(
   options: RunOptions = {}
-): Promise<{ files: Map<string, Buffer>; outcome: ReturnType<typeof unwrapOutcome> }> {
-  const runtime = createInMemoryRuntime();
+): Promise<{ files: Map<string, Buffer>; outcome: V4ScenarioOutcome }> {
   const answers: ScaffoldRequest["answers"] =
     options.mcpServerType === "local"
       ? {
@@ -88,33 +65,11 @@ async function run(
           mcpServerUrl: MCP_SERVER_URL,
           authType: options.authType ?? "none",
         };
-  const request: ScaffoldRequest = {
-    descriptor,
-    pipeline,
-    content,
+  return runV4Package(templatePackage, {
     answers,
     callerFloor: { appName: "MyMcpAgent", language: "common" },
-    targetDir: { path: "/out", existing: options.existing ?? [] },
-  };
-  const result = await scaffold(request, runtime);
-  return { files: runtime.files, outcome: unwrapOutcome(result) };
-}
-
-/** Narrow a successful scaffold result to its outcome (failing the test otherwise). */
-function unwrapOutcome(result: Awaited<ReturnType<typeof scaffold>>) {
-  assert.isTrue(result.isOk(), result.isErr() ? result.error.message : "expected ok");
-  return result._unsafeUnwrap();
-}
-
-function text(files: Map<string, Buffer>, filePath: string): string {
-  const buf = files.get(filePath);
-  assert.isDefined(buf, `expected '${filePath}' to be written`);
-  return (buf ?? Buffer.from("")).toString("utf8");
-}
-
-/** Parse a written JSON file (returns `any` — a test navigating rendered output). */
-function readJson(files: Map<string, Buffer>, filePath: string): any {
-  return JSON.parse(text(files, filePath));
+    existing: options.existing,
+  });
 }
 
 describe("SCN-DA-CREATE-WITH-MCP-SERVER (v4, T3 InMemoryRuntime)", () => {
@@ -134,38 +89,45 @@ describe("SCN-DA-CREATE-WITH-MCP-SERVER (v4, T3 InMemoryRuntime)", () => {
     }
     // the remote MCP server is keyed by the URL-derived namespace (not an empty
     // dangling `{{ServerName}}`), typed http and pointing at the server URL.
-    const mcp = readJson(files, ".vscode/mcp.json");
-    assert.deepStrictEqual(mcp.servers[NAMESPACE], { type: "http", url: MCP_SERVER_URL });
+    const mcp = readJsonObject(files, ".vscode/mcp.json");
+    const servers = recordProperty(mcp, "servers");
+    assert.deepStrictEqual(servers[NAMESPACE], { type: "http", url: MCP_SERVER_URL });
   });
 
   it("SCN-CREATE-MCP-02: ai-plugin.json namespace is URL-derived, never action_1", async () => {
     const { files } = await run();
-    const plugin = readJson(files, "appPackage/ai-plugin.json");
+    const plugin = readJsonObject(files, "appPackage/ai-plugin.json");
     assert.strictEqual(plugin.namespace, NAMESPACE);
     assert.notStrictEqual(plugin.namespace, "action_1");
   });
 
   it("SCN-CREATE-MCP-03: the RemoteMCPServer runtime is rendered with dynamic discovery", async () => {
     const { files } = await run();
-    const runtime = readJson(files, "appPackage/ai-plugin.json").runtimes[0];
+    const plugin = readJsonObject(files, "appPackage/ai-plugin.json");
+    const runtime = recordArrayProperty(plugin, "runtimes")[0];
+    const spec = recordProperty(runtime, "spec");
     assert.strictEqual(runtime.type, "RemoteMCPServer");
-    assert.strictEqual(runtime.spec.url, MCP_SERVER_URL);
-    assert.strictEqual(runtime.spec.enable_dynamic_discovery, true);
+    assert.strictEqual(spec.url, MCP_SERVER_URL);
+    assert.strictEqual(spec.enable_dynamic_discovery, true);
     assert.deepStrictEqual(runtime.run_for_functions, ["*"]);
   });
 
   it("SCN-CREATE-MCP-04: authType=none renders auth None and skips inject-yml-action", async () => {
     const { files, outcome } = await run({ authType: "none" });
-    const runtime = readJson(files, "appPackage/ai-plugin.json").runtimes[0];
-    assert.strictEqual(runtime.auth.type, "None");
+    const plugin = readJsonObject(files, "appPackage/ai-plugin.json");
+    const runtime = recordArrayProperty(plugin, "runtimes")[0];
+    const auth = recordProperty(runtime, "auth");
+    assert.strictEqual(auth.type, "None");
     assert.include(outcome.stepsSkipped, "mcp-auth/inject-yml-action");
   });
 
   it("SCN-CREATE-MCP-05: authType=oauth renders OAuthPluginVault and injects oauth/register", async () => {
     const { files, outcome } = await run({ authType: "oauth" });
-    const runtime = readJson(files, "appPackage/ai-plugin.json").runtimes[0];
-    assert.strictEqual(runtime.auth.type, "OAuthPluginVault");
-    assert.strictEqual(runtime.auth.reference_id, AUTH_REF);
+    const plugin = readJsonObject(files, "appPackage/ai-plugin.json");
+    const runtime = recordArrayProperty(plugin, "runtimes")[0];
+    const auth = recordProperty(runtime, "auth");
+    assert.strictEqual(auth.type, "OAuthPluginVault");
+    assert.strictEqual(auth.reference_id, AUTH_REF);
     assert.include(outcome.stepsRun, "mcp-auth/inject-yml-action");
     assert.include(text(files, "m365agents.yml"), "oauth/register");
   });
@@ -195,9 +157,9 @@ describe("SCN-DA-CREATE-WITH-MCP-SERVER (v4, T3 InMemoryRuntime)", () => {
   it("SCN-CREATE-MCP-09: a non-empty target fails require-empty-target first and writes nothing", async () => {
     const runtime = createInMemoryRuntime();
     const request: ScaffoldRequest = {
-      descriptor,
-      pipeline,
-      content,
+      descriptor: templatePackage.descriptor,
+      pipeline: templatePackage.pipeline,
+      content: templatePackage.content,
       answers: { mcpServerType: "remote", mcpServerUrl: MCP_SERVER_URL, authType: "none" },
       callerFloor: { appName: "MyMcpAgent", language: "common" },
       targetDir: { path: "/out", existing: ["appPackage/manifest.json"] },
@@ -214,10 +176,14 @@ describe("SCN-DA-CREATE-WITH-MCP-SERVER (v4, T3 InMemoryRuntime)", () => {
     const first = await run({ authType: "oauth" });
     const second = await run({ authType: "oauth" });
     assert.deepStrictEqual(first.outcome.written, second.outcome.written);
-    const a = readJson(first.files, "appPackage/ai-plugin.json");
-    const b = readJson(second.files, "appPackage/ai-plugin.json");
+    const a = readJsonObject(first.files, "appPackage/ai-plugin.json");
+    const b = readJsonObject(second.files, "appPackage/ai-plugin.json");
+    const aRuntime = recordArrayProperty(a, "runtimes")[0];
+    const bRuntime = recordArrayProperty(b, "runtimes")[0];
+    const aAuth = recordProperty(aRuntime, "auth");
+    const bAuth = recordProperty(bRuntime, "auth");
     assert.strictEqual(a.namespace, b.namespace);
-    assert.strictEqual(a.runtimes[0].auth.reference_id, b.runtimes[0].auth.reference_id);
+    assert.strictEqual(aAuth.reference_id, bAuth.reference_id);
   });
 
   it("SCN-CREATE-MCP-11: a local server is materialized as a stdio entry, overwriting the remote stub", async () => {
@@ -226,14 +192,15 @@ describe("SCN-DA-CREATE-WITH-MCP-SERVER (v4, T3 InMemoryRuntime)", () => {
       selectedLocalServers: ["ghmcp"],
       localServerCatalog: LOCAL_CATALOG,
     });
-    const mcp = readJson(files, ".vscode/mcp.json");
-    assert.deepStrictEqual(mcp.servers.ghmcp, {
+    const mcp = readJsonObject(files, ".vscode/mcp.json");
+    const servers = recordProperty(mcp, "servers");
+    assert.deepStrictEqual(servers.ghmcp, {
       type: "stdio",
       command: "npx",
       args: ["-y", "@github/github-mcp-server"],
     });
     // the render-phase remote stub key is gone — the step replaced the file
-    assert.deepStrictEqual(Object.keys(mcp.servers), ["ghmcp"]);
+    assert.deepStrictEqual(Object.keys(servers), ["ghmcp"]);
   });
 
   it("SCN-CREATE-MCP-12: multiple selected local servers each become their own stdio entry", async () => {
@@ -242,11 +209,13 @@ describe("SCN-DA-CREATE-WITH-MCP-SERVER (v4, T3 InMemoryRuntime)", () => {
       selectedLocalServers: ["ghmcp", "filesystem"],
       localServerCatalog: LOCAL_CATALOG,
     });
-    const mcp = readJson(files, ".vscode/mcp.json");
-    assert.deepStrictEqual(Object.keys(mcp.servers).sort(), ["filesystem", "ghmcp"]);
-    assert.strictEqual(mcp.servers.filesystem.type, "stdio");
-    assert.strictEqual(mcp.servers.filesystem.command, "uvx");
-    assert.deepStrictEqual(mcp.servers.filesystem.args, ["mcp-server-filesystem", "/data"]);
+    const mcp = readJsonObject(files, ".vscode/mcp.json");
+    const servers = recordProperty(mcp, "servers");
+    const filesystem = recordProperty(servers, "filesystem");
+    assert.deepStrictEqual(Object.keys(servers).sort(), ["filesystem", "ghmcp"]);
+    assert.strictEqual(filesystem.type, "stdio");
+    assert.strictEqual(filesystem.command, "uvx");
+    assert.deepStrictEqual(filesystem.args, ["mcp-server-filesystem", "/data"]);
   });
 
   it("SCN-CREATE-MCP-13: the local branch leaves ai-plugin runtimes empty and skips the auth steps", async () => {
@@ -255,8 +224,8 @@ describe("SCN-DA-CREATE-WITH-MCP-SERVER (v4, T3 InMemoryRuntime)", () => {
       selectedLocalServers: ["ghmcp"],
       localServerCatalog: LOCAL_CATALOG,
     });
-    const plugin = readJson(files, "appPackage/ai-plugin.json");
-    assert.deepStrictEqual(plugin.runtimes, []);
+    const plugin = readJsonObject(files, "appPackage/ai-plugin.json");
+    assert.deepStrictEqual(recordArrayProperty(plugin, "runtimes"), []);
     assert.include(outcome.stepsSkipped, "mcp-auth/inject-yml-action");
     assert.include(outcome.stepsSkipped, "mcp-auth/persist-credential-env");
     assert.notInclude(text(files, "env/.env.dev"), "MCP_DA_AUTH_ID_");

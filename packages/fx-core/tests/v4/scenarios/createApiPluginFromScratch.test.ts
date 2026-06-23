@@ -2,13 +2,19 @@
 // Licensed under the MIT license.
 
 import { assert } from "chai";
-import * as fs from "fs";
-import * as path from "path";
 import { UserError } from "@microsoft/teamsfx-api";
-import { TemplateFileEntry } from "../../../src/v4/model/dataModel";
 import { REQUIRE_EMPTY_TARGET } from "../../../src/v4/pipeline/runScaffoldPipeline";
 import { createInMemoryRuntime } from "../../../src/v4/runtime/inMemoryRuntime";
 import { ScaffoldRequest, scaffold } from "../../../src/v4/runtime/scaffold";
+import {
+  loadV4Package,
+  readJsonObject,
+  recordArrayProperty,
+  recordProperty,
+  runV4Package,
+  text,
+  V4ScenarioOutcome,
+} from "./helpers/scenarioHarness";
 
 /**
  * T3 scenario tier (ADR-0018): the whole `da/api-plugin-from-scratch` create
@@ -27,11 +33,6 @@ import { ScaffoldRequest, scaffold } from "../../../src/v4/runtime/scaffold";
  * path), so — like basic DA — the only pipeline step is `require-empty-target`.
  * No v3 symbol participates.
  */
-
-const PKG_DIR = path.resolve(
-  __dirname,
-  "../../../../../templates/v4/create/da/api-plugin-from-scratch"
-);
 
 /** The TypeScript backend file set a scaffold writes (`.tpl` stripped, language prefix stripped). */
 const EXPECTED_TS_FILES = [
@@ -72,33 +73,7 @@ const EXPECTED_JS_FILES = EXPECTED_TS_FILES.filter(
   (f) => f !== "tsconfig.json" && f !== "src/functions/repairs.ts"
 ).concat("src/functions/repairs.js");
 
-const descriptor: unknown = JSON.parse(
-  fs.readFileSync(path.join(PKG_DIR, "descriptor.json"), "utf8")
-);
-const pipeline: unknown = JSON.parse(fs.readFileSync(path.join(PKG_DIR, "pipeline.json"), "utf8"));
-
-/** Load the package's `content/**` as the opened-entry list (forward-slash paths, raw bytes). */
-function loadContent(): TemplateFileEntry[] {
-  const root = path.join(PKG_DIR, "content");
-  const entries: TemplateFileEntry[] = [];
-  const walk = (dir: string): void => {
-    for (const name of fs.readdirSync(dir)) {
-      const full = path.join(dir, name);
-      if (fs.statSync(full).isDirectory()) {
-        walk(full);
-      } else {
-        entries.push({
-          path: path.relative(root, full).replace(/\\/g, "/"),
-          data: fs.readFileSync(full),
-        });
-      }
-    }
-  };
-  walk(root);
-  return entries;
-}
-
-const content = loadContent();
+const templatePackage = loadV4Package("create", "da/api-plugin-from-scratch");
 
 interface RunOptions {
   existing?: string[];
@@ -108,35 +83,12 @@ interface RunOptions {
 async function run(
   language: string,
   options: RunOptions = {}
-): Promise<{ files: Map<string, Buffer>; outcome: ReturnType<typeof unwrapOutcome> }> {
-  const runtime = createInMemoryRuntime();
-  const request: ScaffoldRequest = {
-    descriptor,
-    pipeline,
-    content,
+): Promise<{ files: Map<string, Buffer>; outcome: V4ScenarioOutcome }> {
+  return runV4Package(templatePackage, {
     answers: {},
     callerFloor: { appName: "MyAgent", language },
-    targetDir: { path: "/out", existing: options.existing ?? [] },
-  };
-  const result = await scaffold(request, runtime);
-  return { files: runtime.files, outcome: unwrapOutcome(result) };
-}
-
-/** Narrow a successful scaffold result to its outcome (failing the test otherwise). */
-function unwrapOutcome(result: Awaited<ReturnType<typeof scaffold>>) {
-  assert.isTrue(result.isOk(), result.isErr() ? result.error.message : "expected ok");
-  return result._unsafeUnwrap();
-}
-
-function text(files: Map<string, Buffer>, filePath: string): string {
-  const buf = files.get(filePath);
-  assert.isDefined(buf, `expected '${filePath}' to be written`);
-  return (buf ?? Buffer.from("")).toString("utf8");
-}
-
-/** Parse a written JSON file (returns `any` — a test navigating rendered output). */
-function readJson(files: Map<string, Buffer>, filePath: string): any {
-  return JSON.parse(text(files, filePath));
+    existing: options.existing,
+  });
 }
 
 describe("SCN-DA-CREATE-API-PLUGIN-FROM-SCRATCH (v4, T3 InMemoryRuntime)", () => {
@@ -148,35 +100,41 @@ describe("SCN-DA-CREATE-API-PLUGIN-FROM-SCRATCH (v4, T3 InMemoryRuntime)", () =>
 
   it("SCN-CREATE-APIPLUGIN-02: repairDeclarativeAgent.json wires the pre-baked action and omits the sensitivity label", async () => {
     const { files } = await run("typescript");
-    const agent = readJson(files, "appPackage/repairDeclarativeAgent.json");
+    const agent = readJsonObject(files, "appPackage/repairDeclarativeAgent.json");
+    const actions = recordArrayProperty(agent, "actions");
     assert.strictEqual(agent.name, "MyAgent${{APP_NAME_SUFFIX}}");
     assert.strictEqual(agent.instructions, "$[file('instruction.txt')]");
-    assert.lengthOf(agent.actions, 1);
-    assert.deepStrictEqual(agent.actions[0], { id: "repairPlugin", file: "ai-plugin.json" });
+    assert.lengthOf(actions, 1);
+    assert.deepStrictEqual(actions[0], { id: "repairPlugin", file: "ai-plugin.json" });
     // the sensitivity-label feature is off by default, so the section is omitted.
     assert.notProperty(agent, "sensitivity_label");
   });
 
   it("SCN-CREATE-APIPLUGIN-03: ai-plugin.json is the no-auth OpenApi runtime over the bundled spec", async () => {
     const { files } = await run("typescript");
-    const plugin = readJson(files, "appPackage/ai-plugin.json");
+    const plugin = readJsonObject(files, "appPackage/ai-plugin.json");
+    const runtimes = recordArrayProperty(plugin, "runtimes");
     assert.strictEqual(plugin.namespace, "repairs");
     assert.strictEqual(plugin.name_for_human, "MyAgent${{APP_NAME_SUFFIX}}");
-    assert.lengthOf(plugin.runtimes, 1);
-    const runtime = plugin.runtimes[0];
+    assert.lengthOf(runtimes, 1);
+    const runtime = runtimes[0];
+    const auth = recordProperty(runtime, "auth");
+    const spec = recordProperty(runtime, "spec");
     assert.strictEqual(runtime.type, "OpenApi");
-    assert.strictEqual(runtime.auth.type, "None");
-    assert.strictEqual(runtime.spec.url, "apiSpecificationFile/repair.yml");
+    assert.strictEqual(auth.type, "None");
+    assert.strictEqual(spec.url, "apiSpecificationFile/repair.yml");
   });
 
   it("SCN-CREATE-APIPLUGIN-04: manifest.json wires the single declarative agent and preserves the env refs", async () => {
     const { files } = await run("typescript");
-    const manifest = readJson(files, "appPackage/manifest.json");
+    const manifest = readJsonObject(files, "appPackage/manifest.json");
+    const name = recordProperty(manifest, "name");
+    const copilotAgents = recordProperty(manifest, "copilotAgents");
+    const agents = recordArrayProperty(copilotAgents, "declarativeAgents");
     assert.strictEqual(manifest.manifestVersion, "1.28");
     // the env-var refs survive render verbatim (provision resolves them later).
     assert.strictEqual(manifest.id, "${{TEAMS_APP_ID}}");
-    assert.strictEqual(manifest.name.short, "MyAgent${{APP_NAME_SUFFIX}}");
-    const agents = manifest.copilotAgents.declarativeAgents;
+    assert.strictEqual(name.short, "MyAgent${{APP_NAME_SUFFIX}}");
     assert.lengthOf(agents, 1);
     assert.deepStrictEqual(agents[0], {
       id: "repairDeclarativeAgent",
@@ -197,7 +155,7 @@ describe("SCN-DA-CREATE-API-PLUGIN-FROM-SCRATCH (v4, T3 InMemoryRuntime)", () =>
     assert.isTrue(files.has("tsconfig.json"));
     assert.isFalse(files.has("src/functions/repairs.js"));
     // the derived package.json name proves the SafeProjectNameLowerCase producer.
-    assert.strictEqual(readJson(files, "package.json").name, "myagent");
+    assert.strictEqual(readJsonObject(files, "package.json").name, "myagent");
   });
 
   it("SCN-CREATE-APIPLUGIN-06: language 'javascript' writes the javascript subtree with the same rendered shapes", async () => {
@@ -207,12 +165,16 @@ describe("SCN-DA-CREATE-API-PLUGIN-FROM-SCRATCH (v4, T3 InMemoryRuntime)", () =>
     assert.isFalse(files.has("tsconfig.json"));
     assert.isFalse(files.has("src/functions/repairs.ts"));
     // the rendered agent / plugin / manifest shapes hold identically for JS.
-    assert.deepStrictEqual(readJson(files, "appPackage/repairDeclarativeAgent.json").actions[0], {
+    const agent = readJsonObject(files, "appPackage/repairDeclarativeAgent.json");
+    const plugin = readJsonObject(files, "appPackage/ai-plugin.json");
+    const runtime = recordArrayProperty(plugin, "runtimes")[0];
+    const auth = recordProperty(runtime, "auth");
+    assert.deepStrictEqual(recordArrayProperty(agent, "actions")[0], {
       id: "repairPlugin",
       file: "ai-plugin.json",
     });
-    assert.strictEqual(readJson(files, "appPackage/ai-plugin.json").runtimes[0].auth.type, "None");
-    assert.strictEqual(readJson(files, "package.json").name, "myagent");
+    assert.strictEqual(auth.type, "None");
+    assert.strictEqual(readJsonObject(files, "package.json").name, "myagent");
   });
 
   it("SCN-CREATE-APIPLUGIN-07: the only pipeline step is require-empty-target; no post-render injection runs", async () => {
@@ -224,9 +186,9 @@ describe("SCN-DA-CREATE-API-PLUGIN-FROM-SCRATCH (v4, T3 InMemoryRuntime)", () =>
   it("SCN-CREATE-APIPLUGIN-08: a non-empty target fails require-empty-target first and writes nothing", async () => {
     const runtime = createInMemoryRuntime();
     const request: ScaffoldRequest = {
-      descriptor,
-      pipeline,
-      content,
+      descriptor: templatePackage.descriptor,
+      pipeline: templatePackage.pipeline,
+      content: templatePackage.content,
       answers: {},
       callerFloor: { appName: "MyAgent", language: "typescript" },
       targetDir: { path: "/out", existing: ["appPackage/manifest.json"] },
@@ -244,8 +206,8 @@ describe("SCN-DA-CREATE-API-PLUGIN-FROM-SCRATCH (v4, T3 InMemoryRuntime)", () =>
     const second = await run("typescript");
     assert.deepStrictEqual([...first.outcome.written].sort(), [...second.outcome.written].sort());
     assert.strictEqual(
-      readJson(first.files, "appPackage/repairDeclarativeAgent.json").name,
-      readJson(second.files, "appPackage/repairDeclarativeAgent.json").name
+      readJsonObject(first.files, "appPackage/repairDeclarativeAgent.json").name,
+      readJsonObject(second.files, "appPackage/repairDeclarativeAgent.json").name
     );
   });
 });

@@ -102,7 +102,7 @@ re-points.
 the existing L1/L2/L3 *runtime* tags, and AC-derived integration coverage, not
 per-file line execution, is the unit-of-measure the gate exists to defend.
 
-Three purpose tiers:
+Three primary purpose tiers, plus one migration-specific subtype:
 
 - **operation-integration** (AC-derived) — the primary protected tier. One test
   per acceptance-criterion row, run through the operation's injected port with
@@ -112,10 +112,15 @@ Three purpose tiers:
   never to chase a line number.
 - **scenario / CLI-E2E / UI** (L2/L3) — protect cross-component and surface
   behavior; documented now, progressively gated later.
+- **compatibility** — an AC-derived subtype used when a spec promises migration,
+  v3/v4, or old/new parity. It protects the promise with a normalized diff so
+  intentional differences are explicit and accidental drift is visible.
 
 Decision rule for a contributor facing an uncovered line:
 
 - Uncovered **behavior** → add its operation-integration test (AC row).
+- Uncovered **migration or parity promise** → add its compatibility diff test
+  (AC row).
 - Uncovered **complex pure logic** → optionally add a file-unit test.
 - Uncovered **thin adapter / glue / barrel** → cover it with *one* real
   integration test across the real boundary (temp dir; stub only at the network
