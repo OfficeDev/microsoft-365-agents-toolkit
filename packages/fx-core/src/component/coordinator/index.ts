@@ -66,6 +66,10 @@ import { pathUtils } from "../utils/pathUtils";
 import { settingsUtil } from "../utils/settingsUtil";
 import { SummaryReporter } from "./summary";
 
+export const coordinatorDeps = {
+  updateTeamsAppV3ForPublish,
+};
+
 const M365Actions = [
   "botAadApp/create",
   "teamsApp/create",
@@ -77,10 +81,6 @@ const M365Actions = [
 ];
 const AzureActions = ["arm/deploy"];
 const needTenantCheckActions = ["botAadApp/create", "aadApp/create", "botFramework/create"];
-
-export const coordinatorDeps = {
-  updateTeamsAppV3ForPublish,
-};
 
 class Coordinator {
   @hooks([

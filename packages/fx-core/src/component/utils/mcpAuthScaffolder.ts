@@ -14,15 +14,16 @@ import { resolveMCPOAuthMetadata } from "./mcpToolFetcher";
  * module's named export under the vitest module transform; stubbing a property
  * on this object always works (mirrors `declarativeAgentHelperDeps`).
  */
-export const mcpAuthScaffolderDeps = {
-  resolveMCPOAuthMetadata,
-};
 
 /**
  * Resolved authorization-server endpoints relevant to the MCP scaffolder.
  * `wellKnownUrl` is what `oauth-dynamic` (`dcr/register`) uses for
  * `wellKnownAuthorizationServer`; static `oauth` ignores it.
  */
+export const mcpAuthScaffolderDeps = {
+  resolveMCPOAuthMetadata,
+};
+
 export interface ResolvedMCPAuthEndpoints {
   authorizationUrl?: string;
   tokenUrl?: string;

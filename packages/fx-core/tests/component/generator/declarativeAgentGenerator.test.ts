@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
+import * as mcpAuthScaffolderDeps from "../../../src/component/utils/mcpAuthScaffolder";
 /**
  * @author yuqzho@microsoft.com
  */
@@ -26,6 +27,7 @@ import fs from "fs-extra";
 import { RestoreFn } from "mocked-env";
 import path from "path";
 import sinon from "sinon";
+import { vi } from "vitest";
 import { GraphClient } from "../../../src/client/graphClient";
 import { featureFlagManager } from "../../../src/common/featureFlags";
 import { createContext, setTools } from "../../../src/common/globalVars";
@@ -37,9 +39,11 @@ import {
   declarativeAgentGeneratorDeps,
 } from "../../../src/component/generator/declarativeAgent/generator";
 import * as generatorHelper from "../../../src/component/generator/declarativeAgent/helper";
+import { declarativeAgentHelperDeps } from "../../../src/component/generator/declarativeAgent/helper";
 import { TemplateNames } from "../../../src/component/generator/templates/templateNames";
 import * as utils from "../../../src/component/generator/utils";
-import { mcpAuthScaffolderDeps } from "../../../src/component/utils/mcpAuthScaffolder";
+import * as commonUtils from "../../../src/component/utils/common";
+import * as mcpToolFetcher from "../../../src/component/utils/mcpToolFetcher";
 import { ODRProvider, odrProviderDeps } from "../../../src/component/utils/odrProvider";
 import { ActionStartOptions, ApiAuthOptions, QuestionNames } from "../../../src/question";
 import {
@@ -58,6 +62,7 @@ describe("copilotExtension", async () => {
   const sandbox = sinon.createSandbox();
   afterEach(() => {
     sandbox.restore();
+    vi.restoreAllMocks();
     if (mockedEnvRestore) {
       mockedEnvRestore();
     }
@@ -711,9 +716,7 @@ describe("helper", async () => {
       sandbox.stub(fs, "copyFile").resolves();
       sandbox.stub(fs, "writeFile").resolves();
       sandbox.stub(fs, "readFile").resolves();
-      sandbox
-        .stub(generatorHelper.declarativeAgentHelperDeps, "getEnvironmentVariables")
-        .returns([]);
+      vi.spyOn(commonUtils, "getEnvironmentVariables").mockReturnValue([]);
       const res = await generatorHelper.addExistingPlugin(
         "test.json",
         "originalManifest.json",
@@ -738,9 +741,7 @@ describe("helper", async () => {
       const getApiSpecPath = sandbox
         .stub(pluginManifestUtils, "getDefaultNextAvailableApiSpecPath")
         .resolves("nextApiSpec.json");
-      sandbox
-        .stub(generatorHelper.declarativeAgentHelperDeps, "getEnvironmentVariables")
-        .returns([]);
+      sandbox.stub(commonUtils, "getEnvironmentVariables").returns([]);
       sandbox
         .stub(copilotGptManifestUtils, "getDefaultNextAvailablePluginManifestPath")
         .resolves("nextPluginManifest.json");
@@ -774,9 +775,7 @@ describe("helper", async () => {
       const getApiSpecPath = sandbox
         .stub(pluginManifestUtils, "getDefaultNextAvailableApiSpecPath")
         .resolves("nextApiSpec.json");
-      sandbox
-        .stub(generatorHelper.declarativeAgentHelperDeps, "getEnvironmentVariables")
-        .returns(["TEST_ENV"]);
+      vi.spyOn(commonUtils, "getEnvironmentVariables").mockReturnValue(["TEST_ENV"]);
       sandbox
         .stub(copilotGptManifestUtils, "getDefaultNextAvailablePluginManifestPath")
         .resolves("nextPluginManifest.json");
@@ -813,9 +812,7 @@ describe("helper", async () => {
       const getApiSpecPath = sandbox
         .stub(pluginManifestUtils, "getDefaultNextAvailableApiSpecPath")
         .resolves("nextApiSpec.json");
-      sandbox
-        .stub(generatorHelper.declarativeAgentHelperDeps, "getEnvironmentVariables")
-        .returns(["TEST_ENV"]);
+      vi.spyOn(commonUtils, "getEnvironmentVariables").mockReturnValue(["TEST_ENV"]);
       sandbox
         .stub(copilotGptManifestUtils, "getDefaultNextAvailablePluginManifestPath")
         .resolves("nextPluginManifest.json");
@@ -949,7 +946,7 @@ describe("helper", async () => {
 
     it("error: createGraphClientWithToken fails propagates error", async () => {
       sandbox
-        .stub(generatorHelper.declarativeAgentHelperDeps, "createGraphClientWithToken")
+        .stub(declarativeAgentHelperDeps, "createGraphClientWithToken")
         .resolves(err(new UserError("source", "GetGraphTokenFailed", "msg", "msg")));
 
       const res = await generatorHelper.getODSPItemInfo(
@@ -965,10 +962,10 @@ describe("helper", async () => {
     it("success: siteResult isOk returns site metadata", async () => {
       const fakeClient: any = {};
       sandbox
-        .stub(generatorHelper.declarativeAgentHelperDeps, "createGraphClientWithToken")
+        .stub(declarativeAgentHelperDeps, "createGraphClientWithToken")
         .resolves(ok(fakeClient));
       sandbox
-        .stub(generatorHelper.declarativeAgentHelperDeps, "getSharePointSiteByRelativePath")
+        .stub(declarativeAgentHelperDeps, "getSharePointSiteByRelativePath")
         .resolves(ok({ id: "site-id", name: "site-name", webId: "web-id", siteId: "s-id" }));
 
       const res = await generatorHelper.getODSPItemInfo(
@@ -988,12 +985,12 @@ describe("helper", async () => {
     it("success: siteResult isErr falls through to getDriveItemInfo", async () => {
       const fakeClient: any = {};
       sandbox
-        .stub(generatorHelper.declarativeAgentHelperDeps, "createGraphClientWithToken")
+        .stub(declarativeAgentHelperDeps, "createGraphClientWithToken")
         .resolves(ok(fakeClient));
       sandbox
-        .stub(generatorHelper.declarativeAgentHelperDeps, "getSharePointSiteByRelativePath")
+        .stub(declarativeAgentHelperDeps, "getSharePointSiteByRelativePath")
         .resolves(err(new UserError("source", "GetSharePointSiteFailed", "msg", "msg")));
-      sandbox.stub(generatorHelper.declarativeAgentHelperDeps, "getDriveItemInfo").resolves({
+      sandbox.stub(declarativeAgentHelperDeps, "getDriveItemInfo").resolves({
         id: "item-id",
         name: "item-name",
         uniqueId: "unique-id",
@@ -1019,18 +1016,16 @@ describe("helper", async () => {
     it("error: axios error with 4xx status returns UserError", async () => {
       const fakeClient: any = {};
       sandbox
-        .stub(generatorHelper.declarativeAgentHelperDeps, "createGraphClientWithToken")
+        .stub(declarativeAgentHelperDeps, "createGraphClientWithToken")
         .resolves(ok(fakeClient));
       sandbox
-        .stub(generatorHelper.declarativeAgentHelperDeps, "getSharePointSiteByRelativePath")
+        .stub(declarativeAgentHelperDeps, "getSharePointSiteByRelativePath")
         .resolves(err(new UserError("source", "SiteFailed", "msg", "msg")));
       const axiosErr: any = Object.assign(new Error("Not Found"), {
         isAxiosError: true,
         response: { status: 404 },
       });
-      sandbox
-        .stub(generatorHelper.declarativeAgentHelperDeps, "getDriveItemInfo")
-        .rejects(axiosErr);
+      sandbox.stub(declarativeAgentHelperDeps, "getDriveItemInfo").rejects(axiosErr);
       sandbox.stub(context.logProvider!, "error");
 
       const res = await generatorHelper.getODSPItemInfo(
@@ -1047,13 +1042,13 @@ describe("helper", async () => {
     it("error: non-axios error returns SystemError", async () => {
       const fakeClient: any = {};
       sandbox
-        .stub(generatorHelper.declarativeAgentHelperDeps, "createGraphClientWithToken")
+        .stub(declarativeAgentHelperDeps, "createGraphClientWithToken")
         .resolves(ok(fakeClient));
       sandbox
-        .stub(generatorHelper.declarativeAgentHelperDeps, "getSharePointSiteByRelativePath")
+        .stub(declarativeAgentHelperDeps, "getSharePointSiteByRelativePath")
         .resolves(err(new UserError("source", "SiteFailed", "msg", "msg")));
       sandbox
-        .stub(generatorHelper.declarativeAgentHelperDeps, "getDriveItemInfo")
+        .stub(declarativeAgentHelperDeps, "getDriveItemInfo")
         .rejects(new Error("Unexpected network failure"));
       sandbox.stub(context.logProvider!, "error");
 
@@ -1108,7 +1103,7 @@ describe("helper", async () => {
         [QuestionNames.MCPForDAServerName]: "testServer",
       };
 
-      sandbox.stub(generatorHelper.declarativeAgentHelperDeps, "fetchMCPTools").resolves({
+      sandbox.stub(mcpToolFetcher, "fetchMCPTools").resolves({
         requiresAuth: false,
         tools: [],
       });
@@ -1341,9 +1336,10 @@ describe("helper", async () => {
       };
 
       // Mock fetchMCPTools to return empty
-      sandbox
-        .stub(generatorHelper.declarativeAgentHelperDeps, "fetchMCPTools")
-        .resolves({ requiresAuth: false, tools: [] });
+      vi.spyOn(mcpToolFetcher, "fetchMCPTools").mockResolvedValue({
+        requiresAuth: false,
+        tools: [],
+      });
 
       const res = await generatorHelper.generateForMCPForDA(testDestinationPath, inputs);
 
@@ -1371,7 +1367,6 @@ describe("helper", async () => {
         [QuestionNames.MCPForDAServerName]: "testServer",
         [QuestionNames.MCPForDAAvailableTools]: [{ name: "tool1" }],
         // Missing MCPForDAPreFetchTools
-        [QuestionNames.MCPForDAAuth]: "NoneAuth",
       };
 
       const res = await generatorHelper.generateForMCPForDA(testDestinationPath, inputs);
@@ -1422,7 +1417,6 @@ describe("helper", async () => {
         [QuestionNames.MCPForDAServerName]: "serverA",
         [QuestionNames.MCPForDAAvailableTools]: mockToolsDetail,
         [QuestionNames.MCPForDAPreFetchTools]: ["toolX", "toolZ"],
-        [QuestionNames.MCPForDAAuth]: "NoneAuth",
       };
 
       const res = await generatorHelper.generateForMCPForDA(testDestinationPath, inputs);
@@ -1469,7 +1463,6 @@ describe("helper", async () => {
         [QuestionNames.MCPForDAServerName]: "testServer",
         [QuestionNames.MCPForDAAvailableTools]: mockToolsDetail,
         [QuestionNames.MCPForDAPreFetchTools]: ["minimalTool"],
-        [QuestionNames.MCPForDAAuth]: "NoneAuth",
       };
 
       const res = await generatorHelper.generateForMCPForDA(testDestinationPath, inputs);
@@ -1517,12 +1510,14 @@ describe("helper", async () => {
         );
       const writeFileStub = sandbox.stub(fs, "writeFile").resolves();
 
-      sandbox.stub(mcpAuthScaffolderDeps, "resolveMCPOAuthMetadata").resolves({
-        authorizationUrl: "https://auth.example.com/authorize",
-        tokenUrl: "https://auth.example.com/token",
-        refreshUrl: "https://auth.example.com/token",
-        wellKnownUrl: "https://auth.example.com/.well-known/oauth-authorization-server",
-      });
+      sandbox
+        .stub(mcpAuthScaffolderDeps.mcpAuthScaffolderDeps, "resolveMCPOAuthMetadata")
+        .resolves({
+          authorizationUrl: "https://auth.example.com/authorize",
+          tokenUrl: "https://auth.example.com/token",
+          refreshUrl: "https://auth.example.com/token",
+          wellKnownUrl: "https://auth.example.com/.well-known/oauth-authorization-server",
+        });
 
       const inputs: Inputs = {
         platform: Platform.CLI,
@@ -1568,11 +1563,11 @@ describe("helper", async () => {
       sandbox.stub(fs, "readJSON").resolves(existingPluginContent);
       const writeJSONStub = sandbox.stub(fs, "writeJSON").resolves();
 
-      sandbox.stub(generatorHelper.declarativeAgentHelperDeps, "readMCPToolsFromFile").resolves([
+      vi.spyOn(mcpToolFetcher, "readMCPToolsFromFile").mockResolvedValue([
         { name: "fileTool1", description: "File Tool 1", inputSchema: { type: "object" } },
         { name: "fileTool2", description: "File Tool 2", inputSchema: { type: "object" } },
       ]);
-      sandbox.stub(generatorHelper.declarativeAgentHelperDeps, "probeMCPServerAuth").resolves({
+      vi.spyOn(mcpToolFetcher, "probeMCPServerAuth").mockResolvedValue({
         requiresAuth: false,
       });
 
@@ -1580,7 +1575,6 @@ describe("helper", async () => {
         platform: Platform.CLI,
         [QuestionNames.MCPForDAServerUrl]: "https://example.com/mcp",
         [QuestionNames.MCPToolsFilePath]: "/tmp/tools.json",
-        [QuestionNames.MCPForDAAuth]: "NoneAuth",
       };
 
       const res = await generatorHelper.generateForMCPForDA(testDestinationPath, inputs);
@@ -1604,7 +1598,7 @@ describe("helper", async () => {
       sandbox.stub(fs, "readJSON").resolves(existingPluginContent);
       const writeJSONStub = sandbox.stub(fs, "writeJSON").resolves();
 
-      sandbox.stub(generatorHelper.declarativeAgentHelperDeps, "fetchMCPTools").resolves({
+      vi.spyOn(mcpToolFetcher, "fetchMCPTools").mockResolvedValue({
         requiresAuth: true,
         tools: [],
         authMetadataUrl: "https://example.com/.well-known/oauth-authorization-server",
@@ -1613,7 +1607,6 @@ describe("helper", async () => {
       const inputs: Inputs = {
         platform: Platform.CLI,
         [QuestionNames.MCPForDAServerUrl]: "https://example.com/mcp",
-        [QuestionNames.MCPForDAAuth]: "NoneAuth",
       };
 
       const res = await generatorHelper.generateForMCPForDA(testDestinationPath, inputs);
@@ -1642,14 +1635,11 @@ describe("helper", async () => {
       sandbox.stub(fs, "readJSON").resolves(existingPluginContent);
       const writeJSONStub = sandbox.stub(fs, "writeJSON").resolves();
 
-      sandbox
-        .stub(generatorHelper.declarativeAgentHelperDeps, "fetchMCPTools")
-        .rejects(new Error("Network error"));
+      vi.spyOn(mcpToolFetcher, "fetchMCPTools").mockRejectedValue(new Error("Network error"));
 
       const inputs: Inputs = {
         platform: Platform.CLI,
         [QuestionNames.MCPForDAServerUrl]: "https://example.com/mcp",
-        [QuestionNames.MCPForDAAuth]: "NoneAuth",
       };
 
       const res = await generatorHelper.generateForMCPForDA(testDestinationPath, inputs);
@@ -1672,19 +1662,17 @@ describe("helper", async () => {
       sandbox.stub(fs, "readJSON").resolves(existingPluginContent);
       sandbox.stub(fs, "writeJSON").resolves();
 
-      sandbox
-        .stub(generatorHelper.declarativeAgentHelperDeps, "readMCPToolsFromFile")
-        .rejects(new Error("bad json"));
-      sandbox
-        .stub(generatorHelper.declarativeAgentHelperDeps, "fetchMCPTools")
-        .resolves({ requiresAuth: false, tools: [] });
+      vi.spyOn(mcpToolFetcher, "readMCPToolsFromFile").mockRejectedValue(new Error("bad json"));
+      vi.spyOn(mcpToolFetcher, "fetchMCPTools").mockResolvedValue({
+        requiresAuth: false,
+        tools: [],
+      });
 
       const inputs: Inputs = {
         platform: Platform.CLI,
         [QuestionNames.MCPForDAServerUrl]: "https://example.com/mcp",
         [QuestionNames.MCPForDAServerName]: "testServer",
         [QuestionNames.MCPToolsFilePath]: "/tmp/bad-tools.json",
-        [QuestionNames.MCPForDAAuth]: "NoneAuth",
       };
 
       const res = await generatorHelper.generateForMCPForDA(testDestinationPath, inputs);
@@ -1706,7 +1694,7 @@ describe("helper", async () => {
       sandbox.stub(fs, "readJSON").resolves(existingPluginContent);
       sandbox.stub(fs, "writeJSON").resolves();
 
-      sandbox.stub(generatorHelper.declarativeAgentHelperDeps, "probeMCPServerAuth").resolves({
+      vi.spyOn(mcpToolFetcher, "probeMCPServerAuth").mockResolvedValue({
         requiresAuth: true,
       });
 
@@ -1741,7 +1729,7 @@ describe("helper", async () => {
       sandbox.stub(fs, "readJSON").resolves(existingPluginContent);
       sandbox.stub(fs, "writeJSON").resolves();
 
-      sandbox.stub(generatorHelper.declarativeAgentHelperDeps, "probeMCPServerAuth").resolves({
+      vi.spyOn(mcpToolFetcher, "probeMCPServerAuth").mockResolvedValue({
         requiresAuth: true,
         authMetadataUrl: "https://auth.example.com/.well-known/oauth",
       });
@@ -1776,9 +1764,7 @@ describe("helper", async () => {
       sandbox.stub(fs, "readJSON").resolves(existingPluginContent);
       sandbox.stub(fs, "writeJSON").resolves();
 
-      sandbox
-        .stub(generatorHelper.declarativeAgentHelperDeps, "probeMCPServerAuth")
-        .rejects(new Error("network error"));
+      vi.spyOn(mcpToolFetcher, "probeMCPServerAuth").mockRejectedValue(new Error("network error"));
 
       const inputs: Inputs = {
         platform: Platform.CLI,
@@ -1822,7 +1808,7 @@ describe("helper", async () => {
       sandbox.stub(fs, "writeJSON").resolves();
 
       sandbox
-        .stub(mcpAuthScaffolderDeps, "resolveMCPOAuthMetadata")
+        .stub(mcpAuthScaffolderDeps.mcpAuthScaffolderDeps, "resolveMCPOAuthMetadata")
         .rejects(new Error("metadata unavailable"));
 
       const inputs: Inputs = {
@@ -1856,7 +1842,7 @@ describe("helper", async () => {
       sandbox.stub(fs, "readJSON").resolves(existingPluginContent);
       const writeJSONStub = sandbox.stub(fs, "writeJSON").resolves();
 
-      sandbox.stub(generatorHelper.declarativeAgentHelperDeps, "fetchMCPTools").resolves({
+      vi.spyOn(mcpToolFetcher, "fetchMCPTools").mockResolvedValue({
         requiresAuth: false,
         tools: [
           { name: "autoTool1", description: "Auto Tool 1", inputSchema: { type: "object" } },
@@ -1916,16 +1902,18 @@ describe("helper", async () => {
         );
       sandbox.stub(fs, "writeFile").resolves();
 
-      sandbox.stub(generatorHelper.declarativeAgentHelperDeps, "probeMCPServerAuth").resolves({
+      vi.spyOn(mcpToolFetcher, "probeMCPServerAuth").mockResolvedValue({
         requiresAuth: true,
         authMetadataUrl: "https://auth.example.com/.well-known/oauth-authorization-server",
       });
-      sandbox.stub(mcpAuthScaffolderDeps, "resolveMCPOAuthMetadata").resolves({
-        authorizationUrl: "https://auth.example.com/authorize",
-        tokenUrl: "https://auth.example.com/token",
-        refreshUrl: "https://auth.example.com/token",
-        wellKnownUrl: "https://auth.example.com/.well-known/oauth-authorization-server",
-      });
+      sandbox
+        .stub(mcpAuthScaffolderDeps.mcpAuthScaffolderDeps, "resolveMCPOAuthMetadata")
+        .resolves({
+          authorizationUrl: "https://auth.example.com/authorize",
+          tokenUrl: "https://auth.example.com/token",
+          refreshUrl: "https://auth.example.com/token",
+          wellKnownUrl: "https://auth.example.com/.well-known/oauth-authorization-server",
+        });
 
       const inputs: Inputs = {
         platform: Platform.VSCode,
@@ -2132,7 +2120,6 @@ describe("helper", async () => {
         [QuestionNames.AppName]: "TestApp",
         [QuestionNames.TemplateName]: TemplateNames.DeclarativeAgentWithActionFromMCP,
         [QuestionNames.MCPForDAServerUrl]: "https://example.com/mcp",
-        [QuestionNames.MCPForDAAuth]: "NoneAuth",
       };
 
       const res = await generator.post(context, inputs, destinationPath);

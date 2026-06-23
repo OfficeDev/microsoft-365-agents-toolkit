@@ -3,13 +3,14 @@
 
 import path from "path";
 import { afterEach, beforeEach, expect } from "vitest";
-import { testToolCheckerDeps } from "../../../src/component/deps-checker/internal/testToolChecker";
+import * as fetchHelper from "../../../src/common/fetchHelper";
 import { cpUtils } from "../../../src/component/deps-checker/util/cpUtils";
+import * as downloadHelper from "../../../src/component/deps-checker/util/downloadHelper";
 
 const originalExecuteCommand = cpUtils.executeCommand;
-const originalFetch = testToolCheckerDeps.fetch;
-const originalDownloadToTempFile = testToolCheckerDeps.downloadToTempFile;
-const originalUnzip = testToolCheckerDeps.unzip;
+const originalFetch = fetchHelper.default;
+const originalDownloadToTempFile = downloadHelper.downloadToTempFile;
+const originalUnzip = downloadHelper.unzip;
 
 function isDepsCheckerTestFile(): boolean {
   const testPath = expect.getState().testPath ?? "";
@@ -33,17 +34,17 @@ beforeEach(() => {
     throw createUnmockedDependencyError("cpUtils.executeCommand");
   }) as typeof cpUtils.executeCommand;
 
-  testToolCheckerDeps.fetch = (async () => {
-    throw createUnmockedDependencyError("testToolCheckerDeps.fetch");
-  }) as typeof testToolCheckerDeps.fetch;
+  fetchHelper.default = (async () => {
+    throw createUnmockedDependencyError("fetchHelper.default");
+  }) as typeof fetchHelper.default;
 
-  testToolCheckerDeps.downloadToTempFile = (async () => {
-    throw createUnmockedDependencyError("testToolCheckerDeps.downloadToTempFile");
-  }) as typeof testToolCheckerDeps.downloadToTempFile;
+  downloadHelper.downloadToTempFile = (async () => {
+    throw createUnmockedDependencyError("downloadHelper.downloadToTempFile");
+  }) as typeof downloadHelper.downloadToTempFile;
 
-  testToolCheckerDeps.unzip = (async () => {
-    throw createUnmockedDependencyError("testToolCheckerDeps.unzip");
-  }) as typeof testToolCheckerDeps.unzip;
+  downloadHelper.unzip = (async () => {
+    throw createUnmockedDependencyError("downloadHelper.unzip");
+  }) as typeof downloadHelper.unzip;
 });
 
 afterEach(() => {
@@ -52,7 +53,7 @@ afterEach(() => {
   }
 
   cpUtils.executeCommand = originalExecuteCommand;
-  testToolCheckerDeps.fetch = originalFetch;
-  testToolCheckerDeps.downloadToTempFile = originalDownloadToTempFile;
-  testToolCheckerDeps.unzip = originalUnzip;
+  fetchHelper.default = originalFetch;
+  downloadHelper.downloadToTempFile = originalDownloadToTempFile;
+  downloadHelper.unzip = originalUnzip;
 });

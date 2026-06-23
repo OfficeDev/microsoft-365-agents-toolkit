@@ -2,6 +2,7 @@ import { assert } from "chai";
 import fs from "fs-extra";
 import * as sinon from "sinon";
 import { Container } from "typedi";
+import * as coordinatorDeps from "../../../src/component/coordinator";
 
 import {
   err,
@@ -24,7 +25,7 @@ import {
   ExecutionResult,
   ProjectModel,
 } from "../../../src/component/configManager/interface";
-import { coordinator, coordinatorDeps } from "../../../src/component/coordinator";
+import { coordinator } from "../../../src/component/coordinator";
 import { DriverContext } from "../../../src/component/driver/interface/commonArgs";
 import { ExecutionResult as DriverExecutionResult } from "../../../src/component/driver/interface/stepDriver";
 import { CreateAppPackageDriver } from "../../../src/component/driver/teamsApp/createAppPackage";
@@ -536,7 +537,9 @@ describe("component coordinator test", () => {
       sandbox
         .stub(context.tokenProvider.m365TokenProvider, "getJsonObject")
         .resolves(ok({ unique_name: "test" }));
-      sandbox.stub(coordinatorDeps, "updateTeamsAppV3ForPublish").resolves(ok("appId"));
+      sandbox
+        .stub(coordinatorDeps.coordinatorDeps, "updateTeamsAppV3ForPublish")
+        .resolves(ok("appId"));
       const openUrl = sandbox.stub(context.userInteraction, "openUrl").resolves(ok(true));
       const inputs: InputsWithProjectPath = {
         platform: Platform.VSCode,
@@ -556,7 +559,7 @@ describe("component coordinator test", () => {
         azureAccountProvider: new MockedAzureAccountProvider(),
       };
       sandbox
-        .stub(coordinatorDeps, "updateTeamsAppV3ForPublish")
+        .stub(coordinatorDeps.coordinatorDeps, "updateTeamsAppV3ForPublish")
         .resolves(err(new UserError("source", "error", "", "")));
       const inputs: InputsWithProjectPath = {
         platform: Platform.VSCode,

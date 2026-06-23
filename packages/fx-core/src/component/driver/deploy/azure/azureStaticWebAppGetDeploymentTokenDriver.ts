@@ -19,11 +19,13 @@ import { addStartAndEndTelemetry } from "../../middleware/addStartAndEndTelemetr
 
 const ACTION_NAME = "azureStaticWebApps/getDeploymentToken";
 
+const createWebSiteManagementClient = (credential: any, subscriptionId: string) =>
+  new WebSiteManagementClient(credential, subscriptionId);
+
 export const azureStaticWebAppGetTokenDeps = {
+  createWebSiteManagementClient,
   getAzureAccountCredential,
   parseAzureResourceId,
-  createWebSiteManagementClient: (credential: any, subscriptionId: string) =>
-    new WebSiteManagementClient(credential, subscriptionId),
 };
 
 @Service(ACTION_NAME)

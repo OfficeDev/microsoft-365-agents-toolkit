@@ -21,11 +21,11 @@ import {
 import fs from "fs-extra";
 import * as path from "path";
 import { listAPIInfo } from "../common/daSpecParser";
+import { FeatureFlags, featureFlagManager } from "../common/featureFlags";
 import { ErrorContextMW, TOOLS, createContext } from "../common/globalVars";
 import { getDefaultString, getLocalizedString } from "../common/localizeUtils";
 import { TelemetryEvent } from "../common/telemetry";
 import { MetadataV3, MetadataV4 } from "../common/versionMetadata";
-import { featureFlagManager, FeatureFlags } from "../common/featureFlags";
 import { LocalMcpPrefix } from "../component/constants";
 import { AppStudioError } from "../component/driver/teamsApp/errors";
 import { AppStudioResultFactory } from "../component/driver/teamsApp/results";
@@ -33,26 +33,22 @@ import { copilotGptManifestUtils } from "../component/driver/teamsApp/utils/Copi
 import { manifestUtils } from "../component/driver/teamsApp/utils/ManifestUtils";
 import { pluginManifestUtils } from "../component/driver/teamsApp/utils/PluginManifestUtils";
 import { normalizePath } from "../component/driver/teamsApp/utils/utils";
+import * as declarativeAgentHelperModule from "../component/generator/declarativeAgent/helper";
 import {
-  addExistingPlugin,
-  createNewActionPluginManifest,
   deriveMCPNamespaceFromUrl,
   deriveMCPRegistrationIdFromUrl,
   deriveMCPServerNameFromUrl,
 } from "../component/generator/declarativeAgent/helper";
-import {
-  generateFromApiSpec,
-  generateScaffoldingSummary,
-  getParserOptions,
-} from "../component/generator/openApiSpec/helper";
+import * as openApiSpecHelperModule from "../component/generator/openApiSpec/helper";
+import { getParserOptions } from "../component/generator/openApiSpec/helper";
 import { QuestionMW } from "../component/middleware/questionMW";
 import { outputScaffoldingWarningMessage } from "../component/utils/common";
 import {
+  ResolvedMCPAuthEndpoints,
   deriveMCPManifestOAuth,
   injectMCPAuthActionToYml,
   persistMCPAuthCredentialEnvVars,
   resolveMCPAuthEndpoints,
-  ResolvedMCPAuthEndpoints,
 } from "../component/utils/mcpAuthScaffolder";
 import { pathUtils } from "../component/utils/pathUtils";
 import { UserCancelError } from "../error/common";
@@ -64,14 +60,6 @@ import { ErrorHandlerMW } from "./middleware/errorHandler";
 // Non-translatable CLI command template used in warning messages
 const mcpAddActionHint =
   "atk add action --api-plugin-type mcp --mcp-da-server-url <server-url> --mcp-tools-file-path <path-to-tools-json> --interactive false";
-
-export const fxCoreDeclarativeAgentDeps = {
-  addExistingPlugin,
-  createNewActionPluginManifest,
-  deriveMCPServerNameFromUrl,
-  generateFromApiSpec,
-  generateScaffoldingSummary,
-};
 
 export class FxCoreDeclarativeAgentPart {
   @hooks([
@@ -123,7 +111,7 @@ export class FxCoreDeclarativeAgentPart {
         AppPackageFolderName,
         declarativeAgentRelativePath
       );
-      const createRes = await fxCoreDeclarativeAgentDeps.createNewActionPluginManifest(
+      const createRes = await declarativeAgentHelperModule.createNewActionPluginManifest(
         projectPath,
         desiredFileName,
         declarativeAgentManifestPath
@@ -513,7 +501,7 @@ export class FxCoreDeclarativeAgentPart {
         path.join(appPackageFolder, DefaultApiSpecFolderName)
       );
 
-      const generateRes = await fxCoreDeclarativeAgentDeps.generateFromApiSpec(
+      const generateRes = await openApiSpecHelperModule.generateFromApiSpec(
         specParser,
         teamsManifestPath,
         inputs,
@@ -532,7 +520,7 @@ export class FxCoreDeclarativeAgentPart {
 
       const warnings = generateRes.value.warnings;
       if (warnings && warnings.length > 0) {
-        const warnSummary = await fxCoreDeclarativeAgentDeps.generateScaffoldingSummary(
+        const warnSummary = await openApiSpecHelperModule.generateScaffoldingSummary(
           warnings,
           manifestRes.value,
           path.relative(inputs.projectPath, destinationApiSpecPath),
@@ -891,7 +879,7 @@ export class FxCoreDeclarativeAgentPart {
         }
       }
     } else {
-      const addPluginRes = await fxCoreDeclarativeAgentDeps.addExistingPlugin(
+      const addPluginRes = await declarativeAgentHelperModule.addExistingPlugin(
         declarativeCopilotManifestPath,
         inputs[QuestionNames.PluginManifestFilePath].trim(),
         inputs[QuestionNames.PluginOpenApiSpecFilePath].trim(),
@@ -958,7 +946,7 @@ export class FxCoreDeclarativeAgentPart {
 
     // Derive a server entry name from the URL host using the same logic as the
     // "DA with MCP" scaffolding template variable `ServerName`.
-    const serverName = fxCoreDeclarativeAgentDeps.deriveMCPServerNameFromUrl(mcpServerUrl);
+    const serverName = deriveMCPServerNameFromUrl(mcpServerUrl);
 
     const mcpConfigDir = path.join(projectPath, ".vscode");
     const mcpConfigPath = path.join(mcpConfigDir, "mcp.json");

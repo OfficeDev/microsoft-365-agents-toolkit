@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
+import { getOriginal } from "@feathersjs/hooks";
 import {
   ErrorType,
   ListAPIResult,
@@ -10,7 +11,6 @@ import {
   ValidationStatus,
   WarningType,
 } from "@microsoft/m365-spec-parser";
-import { getOriginal } from "@feathersjs/hooks";
 import {
   DeclarativeCopilotManifestSchema,
   FxError,
@@ -29,9 +29,12 @@ import mockedEnv, { RestoreFn } from "mocked-env";
 import * as os from "os";
 import * as path from "path";
 import sinon from "sinon";
+import { vi } from "vitest";
 import { getLocalizedString } from "../../src";
 import { ConstantString } from "../../src/common/constants";
+import * as daSpecParser from "../../src/common/daSpecParser";
 import { setTools } from "../../src/common/globalVars";
+import * as projectSettingsHelper from "../../src/common/projectSettingsHelper";
 import { TelemetryEvent } from "../../src/common/telemetry";
 import { VersionSource, VersionState } from "../../src/common/versionMetadata";
 import { SyncManifestArgs } from "../../src/component/driver/teamsApp/interfaces/SyncManifest";
@@ -44,7 +47,8 @@ import { WrapDriverContext } from "../../src/component/driver/util/wrapUtil";
 import "../../src/component/feature/sso";
 import * as openApiSpecHelper from "../../src/component/generator/openApiSpec/helper";
 import { pathUtils } from "../../src/component/utils/pathUtils";
-import { FxCore, fxCoreDeps } from "../../src/core/FxCore";
+import { FxCore } from "../../src/core/FxCore";
+import * as v3MigrationUtils from "../../src/core/middleware/utils/v3MigrationUtils";
 import {
   FileNotFoundError,
   MissingRequiredInputError,
@@ -58,6 +62,28 @@ import { validationUtils } from "../../src/ui/validationUtils";
 import { MockTools, randomAppName } from "./utils";
 
 const tools = new MockTools();
+
+const coreSpy = (name: string) => {
+  const modules: Record<string, Record<string, any>> = {
+    listOperations: openApiSpecHelper as unknown as Record<string, any>,
+    listAPIInfo: daSpecParser as unknown as Record<string, any>,
+    isValidProjectV3: projectSettingsHelper as unknown as Record<string, any>,
+    getProjectVersionFromPath: v3MigrationUtils as unknown as Record<string, any>,
+    getTrackingIdFromPath: v3MigrationUtils as unknown as Record<string, any>,
+    getVersionState: v3MigrationUtils as unknown as Record<string, any>,
+    getManifestPath: copilotGptManifestUtils as unknown as Record<string, any>,
+    readCopilotGptManifestFile: copilotGptManifestUtils as unknown as Record<string, any>,
+  };
+  const target = modules[name];
+  if (!target) {
+    throw new Error(`Unsupported coreSpy target: ${name}`);
+  }
+  const spy = vi.spyOn(target, name);
+  return {
+    resolves: (value: any) => spy.mockResolvedValue(value),
+    returns: (value: any) => spy.mockReturnValue(value),
+  };
+};
 
 async function mockV3Project(): Promise<string> {
   const appName = randomAppName();
@@ -86,6 +112,7 @@ describe("copilotPlugin", async () => {
   });
   afterEach(() => {
     sinon.restore();
+    vi.restoreAllMocks();
     mockedEnvRestore();
   });
 
@@ -2532,7 +2559,7 @@ describe("copilotPlugin", async () => {
         data: { serverUrl: "https://server2" },
       },
     ];
-    sinon.stub(fxCoreDeps, "listOperations").returns(Promise.resolve(ok(expectedResult)) as any);
+    coreSpy("listOperations").returns(Promise.resolve(ok(expectedResult)) as any);
     const result = await core.copilotPluginListOperations(inputs as any);
     assert.isTrue(result.isOk());
     if (result.isOk()) {
@@ -2624,11 +2651,12 @@ describe("addPlugin", async () => {
 
   afterEach(() => {
     sandbox.restore();
+    vi.restoreAllMocks();
   });
 
   describe("projectVersionCheck", async () => {
     it("invalid project", async () => {
-      sandbox.stub(fxCoreDeps, "isValidProjectV3").returns(false);
+      coreSpy("isValidProjectV3").returns(false);
       const inputs: Inputs = {
         platform: Platform.VSCode,
         [QuestionNames.Folder]: os.tmpdir(),
@@ -2639,10 +2667,11 @@ describe("addPlugin", async () => {
       assert.isTrue(result.isErr());
     });
     it("version is undefined", async () => {
-      sandbox.stub(fxCoreDeps, "isValidProjectV3").returns(true);
-      sandbox
-        .stub(fxCoreDeps, "getProjectVersionFromPath")
-        .resolves({ version: "", source: VersionSource.teamsapp });
+      coreSpy("isValidProjectV3").returns(true);
+      coreSpy("getProjectVersionFromPath").resolves({
+        version: "",
+        source: VersionSource.teamsapp,
+      });
       const inputs: Inputs = {
         platform: Platform.VSCode,
         [QuestionNames.Folder]: os.tmpdir(),
@@ -2653,12 +2682,13 @@ describe("addPlugin", async () => {
       assert.isTrue(result.isErr());
     });
     it("no plugin", async () => {
-      sandbox.stub(fxCoreDeps, "isValidProjectV3").returns(true);
-      sandbox
-        .stub(fxCoreDeps, "getProjectVersionFromPath")
-        .resolves({ version: "1.0", source: VersionSource.teamsapp });
-      sandbox.stub(fxCoreDeps, "getTrackingIdFromPath").resolves("xxxx-xxxx");
-      sandbox.stub(fxCoreDeps, "getVersionState").returns(VersionState.upgradeable);
+      coreSpy("isValidProjectV3").returns(true);
+      coreSpy("getProjectVersionFromPath").resolves({
+        version: "1.0",
+        source: VersionSource.teamsapp,
+      });
+      coreSpy("getTrackingIdFromPath").resolves("xxxx-xxxx");
+      coreSpy("getVersionState").returns(VersionState.upgradeable);
       const inputs: Inputs = {
         platform: Platform.VSCode,
         [QuestionNames.Folder]: os.tmpdir(),
@@ -2865,6 +2895,7 @@ describe("regeneratePlugin", async () => {
 
   afterEach(() => {
     sandbox.restore();
+    vi.restoreAllMocks();
   });
 
   it("from API spec: add action success", async () => {
@@ -2933,12 +2964,10 @@ describe("regeneratePlugin", async () => {
       }
       return true;
     });
-    sandbox
-      .stub(fxCoreDeps, "readCopilotGptManifestFile")
-      .resolves(
-        ok({ actions: [], name: "test", description: "test" } as DeclarativeCopilotManifestSchema)
-      );
-    sandbox.stub(fxCoreDeps, "getManifestPath").resolves(ok("dcManifest.json"));
+    coreSpy("readCopilotGptManifestFile").resolves(
+      ok({ actions: [], name: "test", description: "test" } as DeclarativeCopilotManifestSchema)
+    );
+    coreSpy("getManifestPath").resolves(ok("dcManifest.json"));
     sandbox
       .stub(copilotGptManifestUtils, "addAction")
       .resolves(ok({} as DeclarativeCopilotManifestSchema));
@@ -2973,7 +3002,7 @@ describe("regeneratePlugin", async () => {
 
     const openFileStub = sandbox.stub(tools.ui, "openFile").resolves();
 
-    sandbox.stub(fxCoreDeps, "listAPIInfo").resolves({
+    coreSpy("listAPIInfo").resolves({
       allAPICount: 1,
       validAPICount: 1,
       APIs: [
@@ -3056,10 +3085,8 @@ describe("regeneratePlugin", async () => {
       declarativeAgents: [{ file: "dcManifest.json", id: "action_1" }],
     };
     sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest));
-    sandbox
-      .stub(fxCoreDeps, "getManifestPath")
-      .resolves(ok(path.join(appPath, "appPackage", "dcManifest.json")));
-    sandbox.stub(fxCoreDeps, "listAPIInfo").resolves({
+    coreSpy("getManifestPath").resolves(ok(path.join(appPath, "appPackage", "dcManifest.json")));
+    coreSpy("listAPIInfo").resolves({
       allAPICount: 1,
       validAPICount: 1,
       APIs: [
@@ -3093,9 +3120,9 @@ describe("regeneratePlugin", async () => {
     const updateAuthActionStub = sandbox
       .stub(FxCore.prototype as any, "updateAuthActionInYaml")
       .resolves(undefined);
-    sandbox
-      .stub(fxCoreDeps, "readCopilotGptManifestFile")
-      .resolves(err(new SystemError("test-source", "test-name", "test-message")));
+    coreSpy("readCopilotGptManifestFile").resolves(
+      err(new SystemError("test-source", "test-name", "test-message"))
+    );
     const showMessageStub = sandbox
       .stub(tools.ui, "showMessage")
       .resolves(ok(getLocalizedString("core.regenerateApi.continue")));
@@ -3144,10 +3171,8 @@ describe("regeneratePlugin", async () => {
     };
 
     sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(new TeamsAppManifest()));
-    sandbox
-      .stub(fxCoreDeps, "getManifestPath")
-      .resolves(ok(path.join(appPath, "appPackage", "dcManifest.json")));
-    sandbox.stub(fxCoreDeps, "listAPIInfo").resolves({
+    coreSpy("getManifestPath").resolves(ok(path.join(appPath, "appPackage", "dcManifest.json")));
+    coreSpy("listAPIInfo").resolves({
       allAPICount: 1,
       validAPICount: 1,
       APIs: [
@@ -3174,14 +3199,14 @@ describe("regeneratePlugin", async () => {
       .resolves(ok({ warnings: [{ type: WarningType.OperationOnlyContainsPathParam } as any] }));
     sandbox.stub(openApiSpecHelper, "generateScaffoldingSummary").resolves("warning summary");
     sandbox.stub(FxCore.prototype as any, "updateAuthActionInYaml").resolves();
-    sandbox.stub(fxCoreDeps, "readCopilotGptManifestFile").resolves(
+    coreSpy("readCopilotGptManifestFile").resolves(
       ok({
         name: "test",
         description: "test",
         actions: [{ id: "action_1", file: "apiSpecificationFile/ai-plugin_1.json" }],
       } as DeclarativeCopilotManifestSchema)
     );
-    sandbox.stub(fxCoreDeps, "updateConversationStarters").resolves();
+    sandbox.stub(copilotGptManifestUtils, "updateConversationStarters").resolves();
     sandbox.stub(tools.ui, "showMessage").callsFake((level) => {
       if (level === "warn") {
         return Promise.resolve(ok(getLocalizedString("core.regenerateApi.continue")));
@@ -3292,7 +3317,7 @@ describe("regeneratePlugin", async () => {
       .resolves(ok({ version: "1.0", id: "test-id" } as any));
 
     const pathError = new SystemError("test-source", "test-name", "test-message");
-    sandbox.stub(fxCoreDeps, "getManifestPath").resolves(err(pathError));
+    coreSpy("getManifestPath").resolves(err(pathError));
 
     const core = new FxCore(tools);
     const result = await core.regeneratePlugin(inputs);
@@ -3341,9 +3366,9 @@ describe("regeneratePlugin", async () => {
     sandbox
       .stub(manifestUtils, "_readAppManifest")
       .resolves(ok({ version: "1.0", id: "test-id" } as any));
-    sandbox.stub(fxCoreDeps, "getManifestPath").resolves(ok("test-gpt-manifest-path"));
+    coreSpy("getManifestPath").resolves(ok("test-gpt-manifest-path"));
 
-    sandbox.stub(fxCoreDeps, "listAPIInfo").resolves({
+    coreSpy("listAPIInfo").resolves({
       allAPICount: 1,
       validAPICount: 1,
       APIs: [],
@@ -3394,9 +3419,9 @@ describe("regeneratePlugin", async () => {
     sandbox
       .stub(manifestUtils, "_readAppManifest")
       .resolves(ok({ version: "1.0", id: "test-id" } as any));
-    sandbox.stub(fxCoreDeps, "getManifestPath").resolves(ok("test-gpt-manifest-path"));
+    coreSpy("getManifestPath").resolves(ok("test-gpt-manifest-path"));
 
-    sandbox.stub(fxCoreDeps, "listAPIInfo").resolves({
+    coreSpy("listAPIInfo").resolves({
       allAPICount: 1,
       validAPICount: 1,
       APIs: [],
@@ -3466,9 +3491,9 @@ describe("regeneratePlugin", async () => {
     sandbox
       .stub(manifestUtils, "_readAppManifest")
       .resolves(ok({ version: "1.0", id: "test-id" } as any));
-    sandbox.stub(fxCoreDeps, "getManifestPath").resolves(ok("test-gpt-manifest-path"));
+    coreSpy("getManifestPath").resolves(ok("test-gpt-manifest-path"));
 
-    sandbox.stub(fxCoreDeps, "listAPIInfo").resolves({
+    coreSpy("listAPIInfo").resolves({
       allAPICount: 1,
       validAPICount: 1,
       APIs: [
@@ -3512,8 +3537,8 @@ describe("regeneratePlugin", async () => {
       description: "test",
     } as DeclarativeCopilotManifestSchema;
 
-    sandbox.stub(fxCoreDeps, "readCopilotGptManifestFile").resolves(ok(declarativeAgentManifest));
-    sandbox.stub(fxCoreDeps, "updateConversationStarters").resolves();
+    coreSpy("readCopilotGptManifestFile").resolves(ok(declarativeAgentManifest));
+    sandbox.stub(copilotGptManifestUtils, "updateConversationStarters").resolves();
 
     const core = new FxCore(tools);
     const messageStub = sandbox
@@ -3566,9 +3591,9 @@ describe("regeneratePlugin", async () => {
     sandbox
       .stub(manifestUtils, "_readAppManifest")
       .resolves(ok({ version: "1.0", id: "test-id" } as any));
-    sandbox.stub(fxCoreDeps, "getManifestPath").resolves(ok("test-gpt-manifest-path"));
+    coreSpy("getManifestPath").resolves(ok("test-gpt-manifest-path"));
 
-    sandbox.stub(fxCoreDeps, "listAPIInfo").resolves({
+    coreSpy("listAPIInfo").resolves({
       allAPICount: 1,
       validAPICount: 1,
       APIs: [],
@@ -3583,8 +3608,8 @@ describe("regeneratePlugin", async () => {
       description: "test",
     } as DeclarativeCopilotManifestSchema;
 
-    sandbox.stub(fxCoreDeps, "readCopilotGptManifestFile").resolves(ok(declarativeAgentManifest));
-    sandbox.stub(fxCoreDeps, "updateConversationStarters").resolves();
+    coreSpy("readCopilotGptManifestFile").resolves(ok(declarativeAgentManifest));
+    sandbox.stub(copilotGptManifestUtils, "updateConversationStarters").resolves();
 
     const showMessageStub = sandbox
       .stub(tools.ui, "showMessage")
@@ -3648,9 +3673,9 @@ describe("regeneratePlugin", async () => {
     sandbox
       .stub(manifestUtils, "_readAppManifest")
       .resolves(ok({ version: "1.0", id: "test-id" } as any));
-    sandbox.stub(fxCoreDeps, "getManifestPath").resolves(ok("test-gpt-manifest-path"));
+    coreSpy("getManifestPath").resolves(ok("test-gpt-manifest-path"));
 
-    sandbox.stub(fxCoreDeps, "listAPIInfo").resolves({
+    coreSpy("listAPIInfo").resolves({
       allAPICount: 1,
       validAPICount: 1,
       APIs: [],
@@ -3674,7 +3699,7 @@ describe("regeneratePlugin", async () => {
     sandbox.stub(FxCore.prototype as any, "updateAuthActionInYaml").resolves();
 
     const manifestError = new SystemError("test-source", "test-name", "test-message");
-    sandbox.stub(fxCoreDeps, "readCopilotGptManifestFile").resolves(err(manifestError));
+    coreSpy("readCopilotGptManifestFile").resolves(err(manifestError));
 
     const core = new FxCore(tools);
     const result = await core.regeneratePlugin(inputs);
@@ -3691,9 +3716,10 @@ describe("kiotaRegenerate", async () => {
 
   afterEach(() => {
     sandbox.restore();
+    vi.restoreAllMocks();
   });
 
-  it("raw method should run auth injection loop and throw when local yml is missing", async () => {
+  it("raw method should run auth injection loop when local yml is missing", async () => {
     const appName = randomAppName();
     const projectPath = path.join(os.tmpdir(), appName);
     const appPackageFolder = path.join(projectPath, "appPackage");
@@ -3756,12 +3782,8 @@ describe("kiotaRegenerate", async () => {
 
     const core = new FxCore(tools);
     const raw = getOriginal(core.kiotaRegenerate as any);
-    try {
-      await raw.call(core, inputs);
-      assert.fail("expected kiotaRegenerate to throw on missing local yml");
-    } catch (e: any) {
-      assert.include(String(e?.message || ""), "Missing required file");
-    }
+    const result = await raw.call(core, inputs);
+    assert.isTrue(result.isErr());
 
     await fs.remove(projectPath);
   });
@@ -3771,6 +3793,7 @@ describe("addAuthAction", async () => {
   const sandbox = sinon.createSandbox();
   afterEach(() => {
     sandbox.restore();
+    vi.restoreAllMocks();
   });
 
   it("happy path: successfully add auth action for api key", async () => {

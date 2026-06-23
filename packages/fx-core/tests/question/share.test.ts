@@ -12,10 +12,12 @@ import {
 } from "@microsoft/teamsfx-api";
 import { assert } from "chai";
 import * as sinon from "sinon";
+import { beforeEach, describe, it, vi } from "vitest";
 import * as teamsDevPortalClientModule from "../../src/client/teamsDevPortalClient";
 import { TOOLS, setTools } from "../../src/common/globalVars";
 import { AppUser } from "../../src/component/driver/teamsApp/interfaces/appdefinitions/appUser";
 import * as collaborator from "../../src/core/collaborator";
+import * as shareUtils from "../../src/component/driver/share/utils";
 import { InputValidationError } from "../../src/error/common";
 import { QuestionNames } from "../../src/question/constants";
 import {
@@ -25,7 +27,6 @@ import {
   removeSharedAccessNode,
   selectUsersToRemoveSharedAccess,
   shareNode,
-  shareQuestionDeps,
 } from "../../src/question/share";
 import { MockTools } from "../core/utils";
 
@@ -197,9 +198,9 @@ describe("selectUsersToRemoveSharedAccess", () => {
     sandbox.stub(TOOLS.tokenProvider.m365TokenProvider, "getAccessToken").resolves(ok("token"));
 
     // Mock parseShareAppActionYamlConfig to return error
-    sandbox
-      .stub(shareQuestionDeps, "parseShareAppActionYamlConfig")
-      .resolves(err(mockError as FxError));
+    vi.spyOn(shareUtils, "parseShareAppActionYamlConfig").mockResolvedValueOnce(
+      err(mockError as FxError)
+    );
 
     try {
       await dynamicOptions({ projectPath: "path/to/project" } as unknown as Inputs);
@@ -217,9 +218,9 @@ describe("selectUsersToRemoveSharedAccess", () => {
     sandbox.stub(TOOLS.tokenProvider.m365TokenProvider, "getAccessToken").resolves(ok("token"));
 
     // Mock parseShareAppActionYamlConfig
-    sandbox
-      .stub(shareQuestionDeps, "parseShareAppActionYamlConfig")
-      .resolves(ok({ teamsappId: "mockAppId", titleId: "mockTitleId", appId: "mockAppId" }));
+    vi.spyOn(shareUtils, "parseShareAppActionYamlConfig").mockResolvedValueOnce(
+      ok({ teamsappId: "mockAppId", titleId: "mockTitleId", appId: "mockAppId" })
+    );
 
     // Mock teamsDevPortalClient instance
     sandbox.stub(teamsDevPortalClientModule, "teamsDevPortalClient").value({
@@ -243,9 +244,9 @@ describe("selectUsersToRemoveSharedAccess", () => {
     sandbox.stub(TOOLS.tokenProvider.m365TokenProvider, "getAccessToken").resolves(ok("token"));
 
     // Mock parseShareAppActionYamlConfig
-    sandbox
-      .stub(shareQuestionDeps, "parseShareAppActionYamlConfig")
-      .resolves(ok({ teamsappId: "mockAppId", titleId: "mockTitleId", appId: "mockAppId" }));
+    vi.spyOn(shareUtils, "parseShareAppActionYamlConfig").mockResolvedValueOnce(
+      ok({ teamsappId: "mockAppId", titleId: "mockTitleId", appId: "mockAppId" })
+    );
 
     // Mock teamsDevPortalClient instance
     sandbox.stub(teamsDevPortalClientModule, "teamsDevPortalClient").value({
@@ -277,9 +278,9 @@ describe("selectUsersToRemoveSharedAccess", () => {
     sandbox.stub(TOOLS.tokenProvider.m365TokenProvider, "getAccessToken").resolves(ok("token"));
 
     // Mock parseShareAppActionYamlConfig
-    sandbox
-      .stub(shareQuestionDeps, "parseShareAppActionYamlConfig")
-      .resolves(ok({ teamsappId: "mockAppId", titleId: "mockTitleId", appId: "mockAppId" }));
+    vi.spyOn(shareUtils, "parseShareAppActionYamlConfig").mockResolvedValueOnce(
+      ok({ teamsappId: "mockAppId", titleId: "mockTitleId", appId: "mockAppId" })
+    );
 
     // Mock app users including current user
     const mockUsers = [
@@ -326,10 +327,10 @@ describe("selectUsersToRemoveSharedAccess", () => {
   });
 });
 
-describe("shareQuestionDeps", () => {
-  it("should execute dependency wrapper and surface parser error", async () => {
+describe("parseShareAppActionYamlConfig", () => {
+  it("should surface parser error when config file is missing", async () => {
     try {
-      await shareQuestionDeps.parseShareAppActionYamlConfig("path/to/project");
+      await shareUtils.parseShareAppActionYamlConfig("path/to/project");
       assert.fail("Expected function to throw");
     } catch (error) {
       assert.include((error as Error).message, "Missing required file");

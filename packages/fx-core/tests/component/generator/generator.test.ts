@@ -52,7 +52,7 @@ import {
   runWithLimitedConcurrency,
   simplifyAxiosError,
 } from "../../../src/component/generator/utils";
-import * as v4TemplateBridge from "../../../src/component/generator/v4TemplateBridge";
+import { v4TemplateBridgeDeps } from "../../../src/component/generator/v4TemplateBridge";
 import { ActionContext } from "../../../src/component/middleware/actionExecutionMW";
 import { ProgrammingLanguage, QuestionNames } from "../../../src/question";
 import {
@@ -903,11 +903,9 @@ describe("render template", () => {
       }
       const actionContext: ActionContext = { telemetryProps: {} };
       process.env[FeatureFlags.V4Enabled.name] = "true";
-      sandbox
-        .stub(v4TemplateBridge.v4TemplateBridgeDeps, "createTemplateSourcePort")
-        .returns({} as any);
-      sandbox.stub(v4TemplateBridge.v4TemplateBridgeDeps, "loadBundledFloor").returns({} as any);
-      sandbox.stub(v4TemplateBridge.v4TemplateBridgeDeps, "resolveTemplateSource").resolves(
+      sandbox.stub(v4TemplateBridgeDeps, "createTemplateSourcePort").returns({} as any);
+      sandbox.stub(v4TemplateBridgeDeps, "loadBundledFloor").returns({} as any);
+      sandbox.stub(v4TemplateBridgeDeps, "resolveTemplateSource").resolves(
         ok({
           origin: "bundled",
           version: "6.10.1",
@@ -917,10 +915,10 @@ describe("render template", () => {
         })
       );
       sandbox
-        .stub(v4TemplateBridge.v4TemplateBridgeDeps, "loadResolvedPackage")
+        .stub(v4TemplateBridgeDeps, "loadResolvedPackage")
         .returns(ok(Buffer.from("zip-bytes")));
       sandbox
-        .stub(v4TemplateBridge.v4TemplateBridgeDeps, "openTemplatePackage")
+        .stub(v4TemplateBridgeDeps, "openTemplatePackage")
         .returns(ok([{ path: "manifest.json", data: Buffer.from('{"a":1}') }]));
       context.templateVariables = Generator.getDefaultVariables("test");
 

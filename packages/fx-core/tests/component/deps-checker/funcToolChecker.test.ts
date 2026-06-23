@@ -12,13 +12,16 @@ import * as fs from "fs-extra";
 import * as path from "path";
 import * as sinon from "sinon";
 import * as uuid from "uuid";
+import { vi } from "vitest";
 import { v3DefaultHelpLink } from "../../../src/component/deps-checker/constant/helpLink";
-import {
-  FuncToolChecker,
-  funcToolCheckerDeps,
-} from "../../../src/component/deps-checker/internal/funcToolChecker";
+import { FuncToolChecker } from "../../../src/component/deps-checker/internal/funcToolChecker";
 import { DebugLogger, cpUtils } from "../../../src/component/deps-checker/util/cpUtils";
 import { DepsCheckerError, NodejsNotFoundError } from "../../../src/error";
+
+// Mock os module
+vi.mock("os");
+
+import * as os from "os";
 
 describe("Func Tools Checker Test", () => {
   const sandbox = sinon.createSandbox();
@@ -28,6 +31,7 @@ describe("Func Tools Checker Test", () => {
 
   afterEach(async () => {
     sandbox.restore();
+    vi.clearAllMocks();
     if (testPath) {
       await fs.remove(testPath);
     }
@@ -967,9 +971,8 @@ describe("Func Tools Checker Test", () => {
       }
     }
 
-    funcToolCheckerDeps.homedir = () => homeDir;
-    funcToolCheckerDeps.isWindows = () => osType === "Windows_NT";
-    funcToolCheckerDeps.isLinux = () => osType === "Linux";
+    vi.mocked(os.homedir).mockReturnValue(homeDir);
+    vi.mocked(os.type).mockReturnValue(osType);
     const module = { FuncToolChecker };
 
     sandbox

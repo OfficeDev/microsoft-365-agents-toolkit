@@ -7,6 +7,8 @@
 
 import * as chai from "chai";
 import fse from "fs-extra";
+import os from "os";
+import path from "path";
 import * as sinon from "sinon";
 import {
   HelperMethods,
@@ -20,7 +22,7 @@ describe("Generator related Utils", function () {
       isDirectory: boolean;
       entryName: string;
       getData() {
-        return undefined;
+        return this.isDirectory ? (undefined as any) : Buffer.from("content");
       }
       constructor(isDir: boolean, entryName: string) {
         this.isDirectory = isDir;
@@ -44,12 +46,12 @@ describe("Generator related Utils", function () {
 
     it("happy path", async () => {
       sandbox.stub(helperMethodsDeps, "fetchZipFromUrl").resolves(new MockAdmZip() as any);
-      const stub1 = sandbox.stub(fse, "ensureDir").resolves();
-      const stub2 = sandbox.stub(fse, "writeFile").resolves();
-      const res = await HelperMethods.fetchAndUnzip("test", "url", "dest");
+      const tempDir = await fse.mkdtemp(path.join(os.tmpdir(), "gen-utils-"));
+      const res = await HelperMethods.fetchAndUnzip("test", "url", tempDir);
       chai.assert.isTrue(res.isOk());
-      chai.assert.isTrue(stub1.calledOnce);
-      chai.assert.isTrue(stub2.calledOnce);
+      const writtenFilePath = path.join(tempDir, "subdir", "file");
+      chai.assert.isTrue(await fse.pathExists(writtenFilePath));
+      await fse.remove(tempDir);
     });
 
     it("fail case: fetch zip throw error", async () => {

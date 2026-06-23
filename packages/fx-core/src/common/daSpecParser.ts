@@ -55,19 +55,6 @@ const daProjectConfig: ParseOptions = {
   allowResponseSemantics: true,
 };
 
-export const daSpecParserDeps = {
-  listAPITreeInfo: kiotaClient.listAPITreeInfo,
-  kiotageneratePlugin: kiotaClient.kiotageneratePlugin,
-  tmpDirSync: tmp.dirSync,
-  readJSON: fs.readJSON,
-  writeJson: fs.writeJson,
-  copy: fs.copy,
-  pathExists: fs.pathExists,
-  readdir: fs.readdir,
-  pathRelative: path.relative,
-  parseAndUpdatePluginManifestForKiota: parseAndUpdatePluginManifestForKiota,
-};
-
 export async function generatePlugin(
   specPath: string,
   teamsManifestPath: string,
@@ -84,9 +71,9 @@ export async function generatePlugin(
 
   if (featureFlagManager.getBooleanValue(FeatureFlags.KiotaNPMIntegration)) {
     const warnings: WarningResult[] = [];
-    const tmpWorkingDir = daSpecParserDeps.tmpDirSync({ unsafeCleanup: true });
+    const tmpWorkingDir = tmp.dirSync({ unsafeCleanup: true });
     const tmpOutputDir = path.join(tmpWorkingDir.name, "plugin");
-    const manifest: TeamsAppManifest = await daSpecParserDeps.readJSON(teamsManifestPath);
+    const manifest: TeamsAppManifest = await fs.readJSON(teamsManifestPath);
 
     const namespace = removeEnvsAndSpecialCharaters(manifest.name.short);
     const includePatterns: string[] = [];
@@ -95,7 +82,7 @@ export async function generatePlugin(
       includePatterns.push(`${path}#${method}`);
     }
 
-    const treeInfo = await daSpecParserDeps.listAPITreeInfo(specPath, includePatterns);
+    const treeInfo = await kiotaClient.listAPITreeInfo(specPath, includePatterns);
 
     const operationInfos: ListAPIInfo[] = extractOperations(treeInfo);
 
@@ -138,7 +125,7 @@ export async function generatePlugin(
       // TODO: add logs when kiota update the spec version, wait for kiota api
     }
 
-    const kiotaGenerateResult = await daSpecParserDeps.kiotageneratePlugin(
+    const kiotaGenerateResult = await kiotaClient.kiotageneratePlugin(
       specPath,
       tmpOutputDir,
       namespace,
@@ -162,41 +149,36 @@ export async function generatePlugin(
       outputAPISpecPath = outputSpecWithoutExt + ".yaml";
     }
 
-    await daSpecParserDeps.copy(apiSpecPath, outputAPISpecPath);
+    await fs.copy(apiSpecPath, outputAPISpecPath);
 
     const adaptiveCardsFolder = path.join(path.dirname(apiSpecPath), "adaptiveCards");
     const destAdaptiveCardsFolder = path.join(path.dirname(outputAIPluginPath), "adaptiveCards");
 
-    if (await daSpecParserDeps.pathExists(adaptiveCardsFolder)) {
-      await daSpecParserDeps.copy(adaptiveCardsFolder, destAdaptiveCardsFolder, {
+    if (await fs.pathExists(adaptiveCardsFolder)) {
+      await fs.copy(adaptiveCardsFolder, destAdaptiveCardsFolder, {
         overwrite: !updateExistingPlugin,
         errorOnExist: false,
       });
     }
 
-    const relativePath = daSpecParserDeps.pathRelative(
-      path.dirname(outputAIPluginPath),
-      outputAPISpecPath
-    );
+    const relativePath = path.relative(path.dirname(outputAIPluginPath), outputAPISpecPath);
     const normalizedPath = relativePath.replace(/\\/g, "/");
-    const generatedPluginManifest = (await daSpecParserDeps.readJSON(
-      pluginPath
-    )) as PluginManifestSchema;
+    const generatedPluginManifest = (await fs.readJSON(pluginPath)) as PluginManifestSchema;
 
     if (!updateExistingPlugin) {
       const originalSpecFolder = path.join(tmpWorkingDir.name, `.kiota/documents/${namespace}/`);
-      const files = await daSpecParserDeps.readdir(originalSpecFolder);
+      const files = await fs.readdir(originalSpecFolder);
       const originalSpecFilename = files[0];
       const originalSpecFile = path.join(originalSpecFolder, originalSpecFilename);
 
       const outputOriginalSpecPath = outputAPISpecPath + ".original";
-      await daSpecParserDeps.copy(originalSpecFile, outputOriginalSpecPath);
+      await fs.copy(originalSpecFile, outputOriginalSpecPath);
       generatedPluginManifest.runtimes?.forEach((runtime) => {
         (runtime as RuntimeObjectOpenapi).spec.url = normalizedPath;
       });
-      await daSpecParserDeps.writeJson(outputAIPluginPath, generatedPluginManifest, { spaces: 4 });
+      await fs.writeJson(outputAIPluginPath, generatedPluginManifest, { spaces: 4 });
     } else {
-      const existingPluginManifest = (await daSpecParserDeps.readJSON(
+      const existingPluginManifest = (await fs.readJSON(
         outputAIPluginPath
       )) as PluginManifestSchema;
 
@@ -224,10 +206,10 @@ export async function generatePlugin(
         existingPluginManifest.runtimes?.push(runtime);
       }
 
-      await daSpecParserDeps.writeJson(outputAIPluginPath, existingPluginManifest, { spaces: 4 });
+      await fs.writeJson(outputAIPluginPath, existingPluginManifest, { spaces: 4 });
     }
 
-    await daSpecParserDeps.parseAndUpdatePluginManifestForKiota(outputAIPluginPath, true);
+    await parseAndUpdatePluginManifestForKiota(outputAIPluginPath, true);
     return {
       allSuccess: true,
       warnings: warnings,
@@ -506,7 +488,7 @@ export async function listAPIInfo(
   const allowOauth2 = platform !== Platform.VS;
 
   if (featureFlagManager.getBooleanValue(FeatureFlags.KiotaNPMIntegration)) {
-    const treeInfo = await daSpecParserDeps.listAPITreeInfo(specPath);
+    const treeInfo = await kiotaClient.listAPITreeInfo(specPath);
 
     const operations: ListAPIInfo[] = extractOperations(treeInfo);
 
