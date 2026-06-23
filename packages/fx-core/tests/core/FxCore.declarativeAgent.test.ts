@@ -259,6 +259,70 @@ describe("updateActionWithMCP", () => {
     assert.equal(mcpRuntime.spec.mcp_tool_description.file, "existing-mcp-tools.json");
   });
 
+  it("should update DT runtime when functions are omitted and run_for_functions is wildcard", async () => {
+    const core = new FxCore(tools);
+    const inputs: Inputs = {
+      projectPath,
+      platform: Platform.VSCode,
+      [QuestionNames.PluginManifestFilePath]: pluginManifestPath,
+      [QuestionNames.MCPForDAServerUrl]: mcpServerUrl,
+      [QuestionNames.MCPForDAServerName]: serverName,
+      [QuestionNames.MCPForDAAuth]: "None",
+      [QuestionNames.MCPForDAAvailableTools]: [
+        {
+          name: "newTool",
+          description: "New tool description",
+          inputSchema: {
+            type: "object",
+            properties: { param1: { type: "string" } },
+            required: ["param1"],
+          },
+        },
+      ],
+      [QuestionNames.MCPForDAPreFetchTools]: ["newTool"],
+      ignoreLockByUT: true,
+    };
+
+    const existingPlugin = {
+      runtimes: [
+        {
+          type: "RemoteMCPServer",
+          spec: {
+            url: mcpServerUrl,
+          },
+          run_for_functions: ["*"],
+        },
+      ],
+    };
+
+    let writtenPluginData: any;
+    sandbox.stub(fs, "pathExists").callsFake(async (filePath: string) => {
+      return !filePath.includes("mcp-tools");
+    });
+    sandbox.stub(fs, "readJSON").resolves(existingPlugin);
+    sandbox.stub(fs, "writeJSON").callsFake((filePath: string, data) => {
+      if (!filePath.includes("mcp-tools")) {
+        writtenPluginData = data;
+      }
+      return Promise.resolve();
+    });
+    sandbox.stub(pathUtils, "getYmlFilePath").returns("/test/project/teamsapp.yml");
+
+    sandbox.stub(tools.ui, "showMessage").resolves(ok("OK"));
+    sandbox.stub(tools.ui, "openFile").resolves();
+
+    const result = await core.updateActionWithMCP(inputs);
+
+    assert.isTrue(result.isOk());
+    assert.deepEqual(writtenPluginData.functions, [
+      {
+        name: "newTool",
+        description: "New tool description",
+      },
+    ]);
+    assert.deepEqual(writtenPluginData.runtimes[0].run_for_functions, ["newTool"]);
+  });
+
   it("should successfully update action with OAuth authentication", async () => {
     const core = new FxCore(tools);
     const inputs: Inputs = {

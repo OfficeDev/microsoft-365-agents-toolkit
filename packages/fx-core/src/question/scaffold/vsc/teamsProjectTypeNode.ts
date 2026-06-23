@@ -817,7 +817,9 @@ export function updateActionWithMCP(): IQTreeNode {
           name: QuestionNames.MCPForDAAuthType,
           title: getLocalizedString("core.createProjectQuestion.mcpForDa.AuthType.title"),
           staticOptions: MCPForDAFetchAuthTypeStaticOptions(),
-          default: "oauth",
+          default: featureFlagManager.getBooleanValue(FeatureFlags.MCPForDADCR)
+            ? "oauth-dynamic"
+            : "oauth",
         },
         children: MCPForDAAuthCredentialNodes(),
       },

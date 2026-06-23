@@ -1759,6 +1759,10 @@ describe("updateActionWithMCP", async () => {
         optionsWithFlags.map((opt: any) => opt.id),
         ["oauth-dynamic", "oauth", "entra-sso"]
       );
+      assert.equal(
+        (questionNodes.updateActionWithMCP().children?.[2]?.data as any)?.default,
+        "oauth-dynamic"
+      );
     } finally {
       flagSandbox.restore();
     }
