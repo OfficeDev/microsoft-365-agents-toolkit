@@ -9,7 +9,7 @@
       "precondition_retry_interval": 2,
       "step_retry_count": 0
     },
-    "total_steps": 31,
+    "total_steps": 30,
     "created_at": "2026-01-06T02:01:16.119023",
     "name": "Feature: UI Layout & Create Project Questions",
     "description": {
@@ -32,7 +32,7 @@
       "step_179ff717",
       "step_e5c7e8aa",
       "step_61ee9d59",
-      "step_98e1650f",
+      "plan_r_0624_024810",
       "step_18eec105",
       "step_3b65d9b9",
       "step_91e5b84d",
@@ -305,34 +305,6 @@
       "tags": [],
       "screenshot": null,
       "created_at": "2026-01-06T09:55:51.032498",
-      "plan_id": "plan_47e4bf4e"
-    },
-    {
-      "step_id": "step_98e1650f",
-      "agent": "interaction",
-      "tool": "click",
-      "parameters": {
-        "button": "left",
-        "x": 421,
-        "y": 176
-      },
-      "description": "Click the \"Teams Agents and Apps - Apps for Microsoft 365\" option in the \"New Project\" dialog within the Microsoft 365 Agents Toolkit extension in Visual Studio Code.",
-      "content_refs": [],
-      "timeout": 30,
-      "retry_count": 0,
-      "continue_on_error": "false",
-      "depends_on": [],
-      "preconditions": [
-        "dhash:421:176:16:5:984c32a09232ccc0",
-        "dhash:421:176:96:5:1411d86424b64940",
-        "dhash:421:176:0:10:6869602626222421"
-      ],
-      "postconditions": [],
-      "tags": [
-        "ocr:true"
-      ],
-      "screenshot": "step_98e1650f",
-      "created_at": "2026-01-06T09:55:51.041855",
       "plan_id": "plan_47e4bf4e"
     },
     {
