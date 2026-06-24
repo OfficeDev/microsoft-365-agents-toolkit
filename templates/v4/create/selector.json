@@ -44,7 +44,7 @@
     {
       "name": "daTemplate",
       "type": "singleSelect",
-      "title": "Create Declarative Agent",
+      "title": "Declarative Agent",
       "placeholder": "Add an action to your declarative agent",
       "keyPrefix": "template.createProjectQuestion.declarativeCopilot",
       "condition": { "expr": "projectType == 'copilot-agent-type'" },
@@ -359,21 +359,18 @@
     },
     {
       "when": "projectType=='copilot-agent-type' && daTemplate=='graph-connector'",
-      "templateId": "declarative-agent-with-graph-connector",
-      "engine": "v3",
-      "v3Adapter": "DeclarativeAgentGenerator"
+      "templateId": "da/graph-connector",
+      "engine": "v4"
     },
     {
       "when": "projectType=='copilot-agent-type' && daTemplate=='typespec'",
-      "templateId": "declarative-agent-typespec",
-      "engine": "v3",
-      "v3Adapter": "DeclarativeAgentGenerator"
+      "templateId": "da/typespec",
+      "engine": "v4"
     },
     {
       "when": "projectType=='copilot-agent-type' && daTemplate=='skill' && featureFlag('TEAMSFX_AGENT_SKILLS')",
-      "templateId": "declarative-agent-with-skill",
-      "engine": "v3",
-      "v3Adapter": "DeclarativeAgentGenerator"
+      "templateId": "da/skill",
+      "engine": "v4"
     },
     {
       "when": "projectType=='copilot-agent-type' && daTemplate=='add-action' && actionSource=='new-api' && apiAuth=='none'",
