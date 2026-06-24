@@ -29,7 +29,7 @@ manifest, registers it in the existing DA manifest, shares the create
 `mcp-auth/*` steps, and no-ops an identical re-run. The DT-on `addPlugin` MCP
 path now resolves `templates/v4/modify/selector.json` and dispatches the matched
 v4 target through the generic modify front door, threading the existing project
-root, selected Teams manifest path, pre-filled MCP URL, app name, and auth type.
+root, pre-filled MCP URL, app name, and auth type.
 The remaining product-flow work is:
 
 - Reuse the generic modify front door from the other modify surfaces (`add
@@ -51,7 +51,7 @@ The remaining product-flow work is:
 | SCN-ADD-MCP-06 | L1 | `authType=oauth` | render + steps | plugin `auth.type == "OAuthPluginVault"`, `reference_id == mcpAuthRef(mcpServerUrl)`; `mcp-auth/inject-yml-action` injects the `oauth/register` action into the existing `m365agents.yml` — the **same shared step as create** (no drift) |
 | SCN-ADD-MCP-07 | L1 | `authType` ∈ {`oauth`, `entra-sso`} | persist step | `mcp-auth/persist-credential-env` writes `MCP_DA_AUTH_ID_<NS>` |
 | SCN-ADD-MCP-08 | L1 | `authType=none` | steps | plugin `auth.type == "None"`; both `mcp-auth/inject-yml-action` and `mcp-auth/persist-credential-env` are skipped |
-| SCN-ADD-MCP-09 | L1 | `entry.params == ["mcpServerUrl", "teamsManifestPath"]` (CLI / pre-filled URL plus selected Teams manifest path) | scaffold | the `mcpServerUrl` question is skipped (when-skip on `mcpServerUrl == null`), and the product entry can pass the selected Teams manifest path instead of assuming `appPackage/manifest.json` |
+| SCN-ADD-MCP-09 | L1 | `entry.params == ["mcpServerUrl"]` (CLI / pre-filled URL) | scaffold | the `mcpServerUrl` question is skipped (when-skip on `mcpServerUrl == null`) |
 
 ## Composed operations
 

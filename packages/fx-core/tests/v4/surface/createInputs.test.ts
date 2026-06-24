@@ -43,7 +43,6 @@ const OPENAPI_DA: DeclarativeLocator = {
   kind: "create",
   templateId: "da/api-plugin-from-existing-api",
 };
-const GRAPH_CONNECTOR_DA: DeclarativeLocator = { kind: "create", templateId: "da/graph-connector" };
 const OPENAPI_SPEC = path.resolve(__dirname, "../scenarios/fixtures/repairs-openapi.yaml");
 
 function buildFloor(): Buffer {
@@ -185,47 +184,6 @@ describe("runCreateInputs (collect-create-inputs)", () => {
     assert.deepEqual(ui.textNames, []);
     assert.deepEqual(ui.multiNames, ["apiOperations"]);
     assert.strictEqual(ui.lastMultiConfig?.options[0].id, "GET /repairs");
-  });
-
-  it("CCI-18: graph connector Q2 asks connector name and connection id", async () => {
-    const ui = new ScriptedUserInteraction({
-      text: {
-        graphConnectorName: "GitHub Issues",
-        graphConnectorConnectionId: "githubissues",
-      },
-    });
-
-    const res = await runCreateInputs(buildFloor(), GRAPH_CONNECTOR_DA, {}, asUI(ui), {
-      flagReader: () => false,
-    });
-
-    assert.isTrue(res.isOk());
-    if (res.isOk()) {
-      assert.deepEqual(res.value, {
-        graphConnectorName: "GitHub Issues",
-        graphConnectorConnectionId: "githubissues",
-      });
-    }
-    assert.deepEqual(ui.textNames, ["graphConnectorName", "graphConnectorConnectionId"]);
-  });
-
-  it("CCI-19: graph connector connection id rejects reserved Microsoft Graph prefixes", async () => {
-    const ui = new ScriptedUserInteraction({
-      text: {
-        graphConnectorName: "GitHub Issues",
-        graphConnectorConnectionId: "MicrosoftFoo",
-      },
-    });
-
-    const res = await runCreateInputs(buildFloor(), GRAPH_CONNECTOR_DA, {}, asUI(ui), {
-      flagReader: () => false,
-    });
-
-    assert.isTrue(res.isErr());
-    if (res.isErr()) {
-      assert.instanceOf(res.error, UserError);
-      assert.strictEqual(res.error.name, INPUT_VALIDATION_FAILED);
-    }
   });
 
   it("CCI-02: provider [remote,local] prompts mcpServerType; local pick skips url, asks authType", async () => {

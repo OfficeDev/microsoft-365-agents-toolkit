@@ -240,7 +240,7 @@ describe("runCreateSelector (walk-create-selector)", () => {
     assert.notInclude(offered, "skill");
   });
 
-  it("WCS-13: copilot\u2192skill with TEAMSFX_AGENT_SKILLS on resolves the v4 da/skill route", async () => {
+  it("WCS-13: copilot\u2192skill with TEAMSFX_AGENT_SKILLS on resolves the v3 fallback route", async () => {
     const picks = { projectType: "copilot-agent-type", daTemplate: "skill" };
     const ui = new ScriptedUI(picks);
 
@@ -250,8 +250,8 @@ describe("runCreateSelector (walk-create-selector)", () => {
 
     assert.isTrue(res.isOk());
     if (res.isOk()) {
-      assert.equal(res.value.templateId, "da/skill");
-      assert.equal(res.value.engine, "v4");
+      assert.equal(res.value.templateId, "declarative-agent-with-skill");
+      assert.equal(res.value.engine, "v3");
       assert.deepEqual(res.value.answers, picks);
     }
     // The skill option is offered (its featureFlag condition holds) and ends the walk
@@ -260,7 +260,7 @@ describe("runCreateSelector (walk-create-selector)", () => {
     assert.deepEqual(ui.selectNames, ["projectType", "daTemplate"]);
   });
 
-  it("WCS-18: copilot\u2192typespec resolves the v4 da/typespec route", async () => {
+  it("WCS-18: copilot\u2192typespec resolves the v3 fallback route", async () => {
     const picks = { projectType: "copilot-agent-type", daTemplate: "typespec" };
     const ui = new ScriptedUI(picks);
 
@@ -268,14 +268,14 @@ describe("runCreateSelector (walk-create-selector)", () => {
 
     assert.isTrue(res.isOk());
     if (res.isOk()) {
-      assert.equal(res.value.templateId, "da/typespec");
-      assert.equal(res.value.engine, "v4");
+      assert.equal(res.value.templateId, "declarative-agent-typespec");
+      assert.equal(res.value.engine, "v3");
       assert.deepEqual(res.value.answers, picks);
     }
     assert.deepEqual(ui.selectNames, ["projectType", "daTemplate"]);
   });
 
-  it("WCS-19: copilot\u2192graph-connector resolves the v4 da/graph-connector route", async () => {
+  it("WCS-19: copilot\u2192graph-connector resolves the v3 fallback route", async () => {
     const picks = { projectType: "copilot-agent-type", daTemplate: "graph-connector" };
     const ui = new ScriptedUI(picks);
 
@@ -283,8 +283,8 @@ describe("runCreateSelector (walk-create-selector)", () => {
 
     assert.isTrue(res.isOk());
     if (res.isOk()) {
-      assert.equal(res.value.templateId, "da/graph-connector");
-      assert.equal(res.value.engine, "v4");
+      assert.equal(res.value.templateId, "declarative-agent-with-graph-connector");
+      assert.equal(res.value.engine, "v3");
       assert.deepEqual(res.value.answers, picks);
     }
     assert.deepEqual(ui.selectNames, ["projectType", "daTemplate"]);
