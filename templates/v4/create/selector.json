@@ -336,8 +336,7 @@
     {
       "when": "projectType=='office-meta-os-type' && officeAddinCapability=='office-da-meta-os' && daMetaOsCapability=='declarative-agent-meta-os-new-project'",
       "templateId": "declarative-agent-meta-os-new-project",
-      "engine": "v3",
-      "v3Adapter": "OfficeAddinGeneratorNew"
+      "engine": "v4"
     },
     {
       "when": "projectType=='office-meta-os-type' && officeAddinCapability=='office-da-meta-os' && daMetaOsCapability=='declarative-agent-meta-os-upgrade-project'",
@@ -399,8 +398,7 @@
     {
       "when": "projectType=='copilot-agent-type' && daTemplate=='add-action' && actionSource=='da-meta-os'",
       "templateId": "declarative-agent-meta-os-new-project",
-      "engine": "v3",
-      "v3Adapter": "OfficeAddinGeneratorNew"
+      "engine": "v4"
     },
     {
       "when": "projectType=='copilot-agent-type' && daTemplate=='add-action' && actionSource=='mcp' && !featureFlag('TEAMSFX_MCP_FOR_DA_DT')",
