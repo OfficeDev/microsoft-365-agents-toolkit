@@ -39,7 +39,7 @@ provision:
     with:
       # Relative path to this file. This is the path for built zip file.
       appPackagePath: ./appPackage/build/appPackage.${{TEAMSFX_ENV}}.zip
-      
+
   # Extend your app to Outlook and the Microsoft 365 app
   - uses: teamsApp/extendToM365
     with:

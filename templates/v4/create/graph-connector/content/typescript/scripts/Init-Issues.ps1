@@ -1,4 +1,4 @@
-# Get the content of the file init.json and convert it to a PowerShell object 
+# Get the content of the file init.json and convert it to a PowerShell object
 
 Push-Location -Path $PSScriptRoot
 $InitializationData = Get-Content -Path issues.json | ConvertFrom-Json
@@ -17,7 +17,7 @@ $Issues | ForEach-Object {
     if($AssigneesCount) {
         $Assignees = (Get-Random -InputObject $Users -Count $AssigneesCount) | ForEach-Object { $Assignees += $_.username }
     }
-    
+
     Start-Sleep -Seconds 5 #Avoiding "GraphQL: was submitted too quickly (createIssue)"
     gh issue create --repo $Repo.name --title $_.Title --body $_.Description --assignee ($Assignees -Join ',')
 }
