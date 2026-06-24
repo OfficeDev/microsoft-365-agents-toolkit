@@ -50,6 +50,13 @@ function injectUnderProvision(yml: string, block: string): string {
   return lines.join("\n");
 }
 
+function containsRegistrationAction(yml: string, authType: string, serverUrl: string): boolean {
+  return (
+    yml.includes(`- uses: ${authActionUses(authType)}`) &&
+    yml.includes(`registrationId: ${registrationId(serverUrl)}`)
+  );
+}
+
 /** True if the dotenv content already declares `name=…` (idempotency guard). */
 function containsEnvVar(envContent: string, name: string): boolean {
   return envContent.split("\n").some((line) => line.startsWith(name + "="));
@@ -85,6 +92,10 @@ export const mcpAuthInjectYmlAction: RegisteredStep = {
         )
       );
     }
+    const yml = current.toString("utf8");
+    if (containsRegistrationAction(yml, authType, serverUrl)) {
+      return ok(undefined);
+    }
     const block = [
       `  - uses: ${authActionUses(authType)}`,
       `    with:`,
@@ -92,7 +103,7 @@ export const mcpAuthInjectYmlAction: RegisteredStep = {
       `    writeToEnvironmentFile:`,
       `      registrationId: ${registrationId(serverUrl)}`,
     ].join("\n");
-    const injected = injectUnderProvision(current.toString("utf8"), block);
+    const injected = injectUnderProvision(yml, block);
     ctx.write(ymlPath, Buffer.from(injected, "utf8"));
     return ok(undefined);
   },

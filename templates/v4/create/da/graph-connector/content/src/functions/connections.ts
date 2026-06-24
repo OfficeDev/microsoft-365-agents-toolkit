@@ -130,14 +130,16 @@ export async function retractConnection(
   }
 
   fullCrawlInProgress = false;
-  retractInProgress = false;
+  retractInProgress = true;
 
-  // Deletes the connection
-  const initialTimestamp = Date.now();
-  await deleteConnection(config, initialTimestamp);
-  await saveLastCrawl(new Date(0));
-
-  retractInProgress = false;
+  try {
+    // Deletes the connection
+    const initialTimestamp = Date.now();
+    await deleteConnection(config, initialTimestamp);
+    await saveLastCrawl(new Date(0));
+  } finally {
+    retractInProgress = false;
+  }
 
   return null;
 }

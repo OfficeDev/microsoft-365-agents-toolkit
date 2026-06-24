@@ -10,7 +10,7 @@ import { selectLanguageContent } from "../../../src/v4/runtime/selectLanguageCon
  * to the active language subtree (ADR-0016 §5).
  *
  * Spec: docs/03-specs/operations/scaffolding/select-language-content.md
- * (SLC-01..05). Each `it` maps 1:1 to an AC row.
+ * (SLC-01..05). AC-mapped tests use the SLC-* prefix; extra invariant checks are unprefixed.
  *
  * v4-owned (INV-7): imports no v3 symbol.
  */
@@ -38,7 +38,7 @@ describe("v4 runtime — selectLanguageContent (SLC)", () => {
     assert.deepStrictEqual(result, content);
   });
 
-  it("SLC-02: a descriptor with no declared languages defaults to ['common'] — returned unchanged", () => {
+  it("a descriptor with no declared languages defaults to ['common'] — returned unchanged", () => {
     const content = [entry("appPackage/manifest.json.tpl")];
     const result = selectLanguageContent({}, content, "typescript");
     assert.deepStrictEqual(result, content);
@@ -74,7 +74,7 @@ describe("v4 runtime — selectLanguageContent (SLC)", () => {
     assert.deepStrictEqual(paths(result), ["package.json.tpl", "src/functions/repairs.js"]);
   });
 
-  it("SLC-04: the stripped entries keep their original bytes", () => {
+  it("the stripped entries keep their original bytes", () => {
     const content = [entry("typescript/a.txt"), entry("javascript/a.txt")];
     const result = selectLanguageContent(
       { languages: ["typescript", "javascript"] },

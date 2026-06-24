@@ -6,7 +6,7 @@
       "step": "da-action/register-plugin-manifest",
       "comment": "Mutation of the EXISTING declarativeAgent.json: registers the just-rendered plugin manifest as an action (local action id, intentionally not aligned to provisioning per §13.1). The DA manifest path is NOT hardcoded: the step DERIVES it at runtime by reading the Teams app manifest's declarativeAgents[0].file (same getManifestPath contract the shipped core.addPlugin / updateActionWithMCP use), so projects that renamed or relocated the DA manifest (or use the legacy copilotExtensions.declarativeCopilots[0].file shape) still resolve correctly -- a fixed 'appPackage/declarativeAgent.json' would only ever match the default template layout. teamsManifestPath defaults to appPackage/manifest.json and is overridable to match the user-selectable ManifestPath in the CLI add flow. Desired-state / upsert by pluginManifestPath so re-runs are no-ops.",
       "with": {
-        "teamsManifestPath": "{{teamsManifestPath}}",
+        "teamsManifestPath": "{{#teamsManifestPath}}{{teamsManifestPath}}{{/teamsManifestPath}}{{^teamsManifestPath}}appPackage/manifest.json{{/teamsManifestPath}}",
         "pluginManifestPath": "appPackage/ai-plugin-{{MCPNamespace}}.json"
       }
     },

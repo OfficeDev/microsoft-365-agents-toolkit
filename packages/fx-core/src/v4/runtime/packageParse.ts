@@ -95,21 +95,6 @@ export function parseDeclaredKeys(descriptor: unknown): string[] {
   return Object.keys(properties);
 }
 
-/** Coerce a `with` block to `StepParams` (string | boolean values only). */
-function toStepParams(raw: unknown): StepParams | undefined {
-  if (!isRecord(raw)) {
-    return undefined;
-  }
-  const params: StepParams = {};
-  for (const [key, value] of Object.entries(raw)) {
-    if (typeof value !== "string" && typeof value !== "boolean") {
-      return undefined;
-    }
-    params[key] = value;
-  }
-  return params;
-}
-
 function toStringArray(raw: unknown): string[] | undefined {
   if (!Array.isArray(raw)) {
     return undefined;
@@ -122,6 +107,26 @@ function toStringArray(raw: unknown): string[] | undefined {
     out.push(value);
   }
   return out;
+}
+
+/** Coerce a `with` block to `StepParams` (string | boolean | string[] values only). */
+function toStepParams(raw: unknown): StepParams | undefined {
+  if (!isRecord(raw)) {
+    return undefined;
+  }
+  const params: StepParams = {};
+  for (const [key, value] of Object.entries(raw)) {
+    if (typeof value === "string" || typeof value === "boolean") {
+      params[key] = value;
+      continue;
+    }
+    const stringArray = toStringArray(value);
+    if (stringArray === undefined) {
+      return undefined;
+    }
+    params[key] = stringArray;
+  }
+  return params;
 }
 
 function toPipelineStep(item: unknown): PipelineStep | undefined {

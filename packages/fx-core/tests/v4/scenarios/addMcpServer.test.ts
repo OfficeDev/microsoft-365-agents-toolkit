@@ -62,6 +62,7 @@ function questionItems(value: unknown): Record<string, unknown>[] {
 
 interface RunOptions {
   authType?: string;
+  teamsManifestPath?: string;
 }
 
 async function run(options: RunOptions = {}): Promise<{
@@ -69,8 +70,9 @@ async function run(options: RunOptions = {}): Promise<{
   outcome: Awaited<ReturnType<typeof unwrapOutcome>>;
 }> {
   const authType = options.authType ?? "none";
+  const teamsManifestPath = options.teamsManifestPath ?? TEAMS_MANIFEST_PATH;
   return runV4Package(templatePackage, {
-    answers: { mcpServerUrl: MCP_SERVER_URL, teamsManifestPath: TEAMS_MANIFEST_PATH, authType },
+    answers: { mcpServerUrl: MCP_SERVER_URL, teamsManifestPath, authType },
     callerFloor: { appName: "Existing Agent", language: "common" },
     existing: [TEAMS_MANIFEST_PATH, DA_MANIFEST_PATH, YML_PATH, ENV_PATH],
     seedFiles: {
@@ -164,8 +166,8 @@ describe("SCN-DA-ADD-MCP-ACTION-TO-DA (v4, T3 InMemoryRuntime)", () => {
     assert.strictEqual(condition.expr, "mcpServerUrl == null");
   });
 
-  it("SCN-ADD-MCP-05: a same-URL re-run skips render collision and does not duplicate the action", async () => {
-    const first = await run();
+  it("SCN-ADD-MCP-05: a same-URL re-run skips render collision and does not duplicate actions or auth", async () => {
+    const first = await run({ authType: "oauth" });
     const runtime = createInMemoryRuntime();
     for (const [filePath, body] of first.files.entries()) {
       runtime.files.set(filePath, body);
@@ -177,8 +179,7 @@ describe("SCN-DA-ADD-MCP-ACTION-TO-DA (v4, T3 InMemoryRuntime)", () => {
         content: templatePackage.content,
         answers: {
           mcpServerUrl: MCP_SERVER_URL,
-          teamsManifestPath: TEAMS_MANIFEST_PATH,
-          authType: "none",
+          authType: "oauth",
         },
         callerFloor: { appName: "Existing Agent", language: "common" },
         targetDir: {
@@ -197,5 +198,11 @@ describe("SCN-DA-ADD-MCP-ACTION-TO-DA (v4, T3 InMemoryRuntime)", () => {
     );
     const daManifest = readJsonObject(runtime.files, DA_MANIFEST_PATH);
     assert.lengthOf(actions(daManifest), 1);
+    const yml = text(runtime.files, YML_PATH);
+    assert.strictEqual(yml.match(/oauth\/register/g)?.length, 1);
+    assert.strictEqual(
+      text(runtime.files, ENV_PATH).match(/MCP_DA_AUTH_ID_APIGITHUBC=/g)?.length,
+      1
+    );
   });
 });

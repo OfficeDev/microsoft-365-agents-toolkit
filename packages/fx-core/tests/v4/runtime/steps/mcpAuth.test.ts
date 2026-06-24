@@ -90,6 +90,18 @@ describe("mcp-auth steps (v4)", () => {
       assert.include(text(files, "m365agents.yml"), "- uses: microsoftEntra/register");
     });
 
+    it("is idempotent — a re-run does not duplicate the registration action", async () => {
+      const yml = ["version: v1.12", "provision:", "  - uses: teamsApp/create"].join("\n");
+      const { ctx, files } = makeCtx({ "m365agents.yml": yml });
+      const params = { ymlPath: "m365agents.yml", authType: "oauth", mcpServerUrl: SERVER_URL };
+
+      await mcpAuthInjectYmlAction.apply(params, ctx);
+      await mcpAuthInjectYmlAction.apply(params, ctx);
+
+      const occurrences = text(files, "m365agents.yml").match(/oauth\/register/g);
+      assert.strictEqual(occurrences?.length, 1);
+    });
+
     it("errors when the yml was not produced by the render phase", async () => {
       const { ctx } = makeCtx();
       const res = await mcpAuthInjectYmlAction.apply(
