@@ -30,7 +30,7 @@ Build Microsoft 365 agents and Teams apps using the ATK CLI.
    - If errors appear, read logs, diagnose, fix, restart
    - Use a **NEW terminal** to launch Agents Playground or open Teams sideloading URL
 
-6. **Monitor App Logs:** Periodically check background terminal output for runtime errors. If the app crashes, read the error, fix the root cause, and restart.
+6. **Monitor App Logs — verify once, don't poll forever:** After starting a long-running service, check its background output **once** to confirm it started (e.g. "listening on port"). Once startup is confirmed, report status and finish — do NOT keep re-reading background logs in a loop, since the service runs indefinitely and continuous polling prevents the turn from completing. Re-check logs only when the user reports a problem; if the app crashed, read the error, fix the root cause, and restart.
 
 7. **Telemetry Tagging:** Before running any `atk` CLI commands, set the session environment variable so all CLI invocations are tagged as skill-initiated:
    ```bash

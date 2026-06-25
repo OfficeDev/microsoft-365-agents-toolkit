@@ -36,9 +36,15 @@ npm run dev:teamsfx:playground  # For ATK projects
 
 # 3. Use a NEW/separate terminal to start Agents Playground
 agentsplayground -e http://localhost:3978/api/messages -c msteams
+
+# 4. Verify ONCE that both services are up, then report and finish
+curl -s -o /dev/null -w "%{http_code}" http://localhost:3978/api/messages   # bot service
+curl -s -o /dev/null -w "%{http_code}" http://localhost:56150               # playground UI
 ```
 
 **Note:** The bot service start command keeps running and will not return to the prompt. This is expected — the server must stay running. Always start the service in a background terminal, then verify it started by checking the output for "listening on port" or "server started". Use a **new terminal** for Agents Playground.
+
+**Verify once, then conclude.** After both the bot endpoint and the Playground URL respond, report the URLs to the user and end your turn. Do **not** keep polling background output in a loop — the servers are meant to run indefinitely, so repeatedly reading their logs only blocks the session from completing. Re-check logs only if the user reports a problem.
 
 ## CLI Options
 
