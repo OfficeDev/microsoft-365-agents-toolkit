@@ -21,6 +21,7 @@ import {
 } from "./steps/mcpAuth";
 import { STEP_MATERIALIZE_LOCAL_SERVERS, mcpLocalMaterializeServers } from "./steps/mcpLocal";
 import { STEP_GENERATE_OPENAPI_PLUGIN_FILES, openApiGeneratePluginFiles } from "./steps/openApi";
+import { STEP_UNIFY_PROJECT_ID, metaOsUnifyProjectId } from "./steps/metaOs";
 
 /** Shared v4 pipeline registry and port factory. See ADR-0017 for whitelist rules. */
 
@@ -34,6 +35,7 @@ export const STEP_REGISTRY = new Map<string, RegisteredStep>([
   [STEP_PERSIST_CREDENTIAL_ENV, mcpAuthPersistCredentialEnv],
   [STEP_MATERIALIZE_LOCAL_SERVERS, mcpLocalMaterializeServers],
   [STEP_GENERATE_OPENAPI_PLUGIN_FILES, openApiGeneratePluginFiles],
+  [STEP_UNIFY_PROJECT_ID, metaOsUnifyProjectId],
 ]);
 
 /** No-op wrapper for create flows that do not mutate a manifest. */
