@@ -75,6 +75,25 @@ describe("mcpToolFetcher", () => {
       assert.equal(result.authMetadataUrl, "https://example.com/.well-known/oauth");
     });
 
+    it("should extract authMetadataUrl from resource_metadata_uri on 401", async () => {
+      sandbox.stub(axios, "get").rejects({
+        response: {
+          status: 401,
+          headers: {
+            "www-authenticate":
+              'Bearer realm="MCP Server", resource_metadata_uri="https://api.analytics.lseg.com/.well-known/oauth-protected-resource/lfa/mcp"',
+          },
+        },
+      });
+
+      const result = await fetchMCPTools("https://api.analytics.lseg.com/lfa/mcp");
+      assert.isTrue(result.requiresAuth);
+      assert.equal(
+        result.authMetadataUrl,
+        "https://api.analytics.lseg.com/.well-known/oauth-protected-resource/lfa/mcp"
+      );
+    });
+
     it("should return empty tools when MCP SDK import fails", async () => {
       // Simulate non-401 error from initial GET
       sandbox.stub(axios, "get").rejects(new Error("Connection refused"));
@@ -242,6 +261,25 @@ describe("mcpToolFetcher", () => {
       const result = await probeMCPServerAuth("https://secure.example.com/mcp");
       assert.isTrue(result.requiresAuth);
       assert.equal(result.authMetadataUrl, "https://secure.example.com/.well-known/oauth");
+    });
+
+    it("should extract authMetadataUrl from resource_metadata_uri header", async () => {
+      sandbox.stub(axios, "post").rejects({
+        response: {
+          status: 401,
+          headers: {
+            "www-authenticate":
+              'Bearer realm="MCP Server", resource_metadata_uri="https://api.analytics.lseg.com/.well-known/oauth-protected-resource/lfa/mcp"',
+          },
+        },
+      });
+
+      const result = await probeMCPServerAuth("https://api.analytics.lseg.com/lfa/mcp");
+      assert.isTrue(result.requiresAuth);
+      assert.equal(
+        result.authMetadataUrl,
+        "https://api.analytics.lseg.com/.well-known/oauth-protected-resource/lfa/mcp"
+      );
     });
 
     it("should return requiresAuth=false on non-401 errors", async () => {

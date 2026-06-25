@@ -19,6 +19,11 @@ export interface MCPFetchResult {
   authMetadataUrl?: string;
 }
 
+function extractAuthMetadataUrl(wwwAuthenticate?: string): string | undefined {
+  const match = wwwAuthenticate?.match(/\bresource_metadata(?:_uri)?\s*=\s*"([^"]+)"/i);
+  return match?.[1];
+}
+
 /**
  * Fetch MCP tool definitions from a remote MCP server using the MCP JSON-RPC protocol.
  * Uses StreamableHTTP transport via the @modelcontextprotocol/sdk.
@@ -35,12 +40,7 @@ export async function fetchMCPTools(serverUrl: string): Promise<MCPFetchResult> 
     if (error?.response?.status === 401 || error?.status === 401) {
       // Auth required — try to extract OAuth metadata
       const wwwAuth = error?.response?.headers?.["www-authenticate"];
-      if (wwwAuth) {
-        const match = wwwAuth.match(/resource_metadata=\s*"([^"]+)"/);
-        if (match) {
-          authMetadataUrl = match[1];
-        }
-      }
+      authMetadataUrl = extractAuthMetadataUrl(wwwAuth);
       return { requiresAuth: true, tools: [], authMetadataUrl };
     }
     // For non-401 errors, try fetching tools anyway via MCP protocol
@@ -168,7 +168,7 @@ export interface MCPAuthProbeResult {
  * Does NOT attempt to fetch tools via MCP protocol.
  *
  * @param serverUrl - The URL of the remote MCP server
- * @returns Whether auth is required and the resource_metadata URL if available
+ * @returns Whether auth is required and the resource_metadata/resource_metadata_uri URL if available
  */
 export async function probeMCPServerAuth(serverUrl: string): Promise<MCPAuthProbeResult> {
   const initializeBody = {
@@ -193,13 +193,7 @@ export async function probeMCPServerAuth(serverUrl: string): Promise<MCPAuthProb
   } catch (error: any) {
     if (error?.response?.status === 401 || error?.status === 401) {
       const wwwAuth = error?.response?.headers?.["www-authenticate"];
-      let authMetadataUrl: string | undefined;
-      if (wwwAuth) {
-        const match = wwwAuth.match(/resource_metadata=\s*"([^"]+)"/);
-        if (match) {
-          authMetadataUrl = match[1];
-        }
-      }
+      const authMetadataUrl = extractAuthMetadataUrl(wwwAuth);
       return { requiresAuth: true, authMetadataUrl };
     }
     return { requiresAuth: false };
