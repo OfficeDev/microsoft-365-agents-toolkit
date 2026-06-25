@@ -33,58 +33,6 @@
       ]
     },
     {
-      "label": "Debug: Excel Desktop",
-      "type": "npm",
-      "script": "start:desktop:excel",
-      "presentation": {
-        "clear": true,
-        "panel": "dedicated"
-      },
-      "problemMatcher": [],
-      "dependsOn": [
-        "Install"
-      ]
-    },
-    {
-      "label": "Debug: Outlook Desktop",
-      "type": "npm",
-      "script": "start:desktop:outlook",
-      "presentation": {
-        "clear": true,
-        "panel": "dedicated"
-      },
-      "problemMatcher": [],
-      "dependsOn": [
-        "Install"
-      ]
-    },
-    {
-      "label": "Debug: PowerPoint Desktop",
-      "type": "npm",
-      "script": "start:desktop:powerpoint",
-      "presentation": {
-        "clear": true,
-        "panel": "dedicated"
-      },
-      "problemMatcher": [],
-      "dependsOn": [
-        "Install"
-      ]
-    },
-    {
-      "label": "Debug: Word Desktop",
-      "type": "npm",
-      "script": "start:desktop:word",
-      "presentation": {
-        "clear": true,
-        "panel": "dedicated"
-      },
-      "problemMatcher": [],
-      "dependsOn": [
-        "Install"
-      ]
-    },
-    {
       "label": "Dev Server",
       "type": "npm",
       "script": "dev-server",
