@@ -41,10 +41,10 @@ import {
   err,
   ok,
 } from "@microsoft/teamsfx-api";
+import AdmZip from "adm-zip";
 import { DotenvParseOutput } from "dotenv";
 import fs from "fs-extra";
 import * as jsonschema from "jsonschema";
-import AdmZip from "adm-zip";
 import * as os from "os";
 import * as path from "path";
 import "reflect-metadata";
@@ -138,7 +138,6 @@ import {
   getParserOptions,
 } from "../component/generator/openApiSpec/helper";
 import { useLocalTemplate } from "../component/generator/templateHelper";
-import { TemplateNames } from "../component/generator/templates/templateNames";
 import {
   fetchZipFromUrl,
   getTemplateLatestVersion,
@@ -2154,31 +2153,6 @@ export class FxCore extends FxCoreOpenPluginPart {
     }
 
     return ok(undefined);
-  }
-
-  /**
-   * MetaOS Extend To DA
-   */
-  @hooks([
-    ErrorContextMW({ component: "FxCore", stage: Stage.metaOSExtendToDA }),
-    ErrorHandlerMW,
-    QuestionMW("metaOSExtendToDA"),
-  ])
-  async metaOSExtendToDA(
-    inputs: Inputs,
-    workDir: string
-  ): Promise<Result<undefined | any, FxError>> {
-    const context = createContext();
-
-    inputs[QuestionNames.Scratch] = ScratchOptions.yes().id;
-    inputs[QuestionNames.TemplateName] = TemplateNames.DeclarativeAgentMetaOSUpgradeProject;
-    inputs[QuestionNames.OfficeAddinFolder] = workDir;
-
-    const res = await coordinator.create(context, inputs);
-    if (res.isOk()) {
-      inputs.projectPath = res.value.projectPath;
-    }
-    return res;
   }
 
   /**

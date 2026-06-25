@@ -5,12 +5,7 @@ import * as vscode from "vscode";
 import { TreeCategory } from "@microsoft/teamsfx-api";
 import { featureFlagManager, FeatureFlags, manifestUtils } from "@microsoft/teamsfx-core";
 
-import {
-  isDeclarativeCopilotApp,
-  isMetaOSAddinProject,
-  isSPFxProject,
-  workspaceUri,
-} from "../globalVariables";
+import { isDeclarativeCopilotApp, isSPFxProject, workspaceUri } from "../globalVariables";
 import * as commonUtils from "../utils/commonUtils";
 import { localize } from "../utils/localizeUtils";
 import accountTreeViewProviderInstance from "./account/accountTreeViewProvider";
@@ -210,19 +205,6 @@ class TreeViewManager {
         "createProject",
         { name: "new-folder", custom: false }
       ),
-      ...(isMetaOSAddinProject &&
-      !isDeclarativeCopilotApp &&
-      featureFlagManager.getBooleanValue(FeatureFlags.DAMetaOS)
-        ? [
-            new TreeViewCommand(
-              localize("teamstoolkit.commandsTreeViewProvider.metaOS.convert.title"),
-              localize("teamstoolkit.commandsTreeViewProvider.metaOS.convert.description"),
-              "fx-extension.metaOSExtendToDA",
-              undefined,
-              { name: "teamsfx-agent", custom: false }
-            ),
-          ]
-        : []),
       new TreeViewCommand(
         localize("teamstoolkit.commandsTreeViewProvider.samplesTitle"),
         localize("teamstoolkit.commandsTreeViewProvider.samplesDescription"),

@@ -538,30 +538,6 @@ describe("OfficeAddinGeneratorNew", () => {
       }
     });
 
-    it(`should return specific template for MetaOS DA Support`, async () => {
-      const inputs: Inputs = {
-        platform: Platform.VSCode,
-        [QuestionNames.TemplateName]: TemplateNames.DeclarativeAgentMetaOSNewProject,
-      };
-
-      const res = await generator.getTemplateInfos(context, inputs, "path");
-      chai.assert.isTrue(res.isOk());
-    });
-
-    it("getTemplateInfos: DeclarativeAgentMetaOSNewProject should return empty array", async () => {
-      const inputs: Inputs = {
-        platform: Platform.VSCode,
-        projectPath: "./",
-      };
-      inputs[QuestionNames.TemplateName] = TemplateNames.DeclarativeAgentMetaOSUpgradeProject;
-      const result = await generator.getTemplateInfos(context, inputs, "destinationPath");
-      chai.assert.isTrue(result.isOk());
-      if (result.isOk()) {
-        // Should return empty array because upgrade doesn't need scaffolding
-        chai.assert.equal(result.value.length, 0);
-      }
-    });
-
     it(`should return office-addin-config template outlookAddin`, async () => {
       sandbox.stub(OfficeAddinGenerator, "doScaffolding").resolves(ok(undefined));
       const inputs: Inputs = {
@@ -646,41 +622,6 @@ describe("OfficeAddinGeneratorNew", () => {
       const res = await generator.post(context, inputs, "./");
       chai.assert.isTrue(res.isOk());
       chai.assert.isTrue(reset.calledTwice);
-    });
-    it(`da: upgrade`, async () => {
-      sandbox.stub(MetaOSHelper, "copyExistMetaOSProject").resolves();
-      sandbox.stub(MetaOSHelper, "extendToDA").resolves();
-      sandbox.stub(MetaOSHelper, "unifyProjectID").resolves();
-      const inputs: Inputs = {
-        platform: Platform.VSCode,
-        [QuestionNames.TemplateName]: TemplateNames.DeclarativeAgentMetaOSUpgradeProject,
-        [QuestionNames.OfficeAddinFolder]: "testfolder",
-        [QuestionNames.AppName]: "testapp",
-      };
-      const res = await generator.post(context, inputs, "path");
-      chai.assert.isTrue(res.isOk());
-    });
-    it(`da: upgrade error`, async () => {
-      sandbox.stub(MetaOSHelper, "copyExistMetaOSProject").rejects(new Error("error"));
-      const inputs: Inputs = {
-        platform: Platform.VSCode,
-        [QuestionNames.TemplateName]: TemplateNames.DeclarativeAgentMetaOSUpgradeProject,
-        [QuestionNames.OfficeAddinFolder]: "testfolder",
-        [QuestionNames.AppName]: "testapp",
-      };
-      const res = await generator.post(context, inputs, "path");
-      chai.assert.isTrue(res.isErr());
-    });
-    it(`da: create new`, async () => {
-      sandbox.stub(MetaOSHelper, "unifyProjectID").resolves();
-      const inputs: Inputs = {
-        platform: Platform.VSCode,
-        [QuestionNames.TemplateName]: TemplateNames.DeclarativeAgentMetaOSNewProject,
-        [QuestionNames.OfficeAddinFolder]: "testfolder",
-        [QuestionNames.AppName]: "testapp",
-      };
-      const res = await generator.post(context, inputs, "path");
-      chai.assert.isTrue(res.isOk());
     });
     it(`not import`, async () => {
       const reset = sandbox.stub(envUtil, "resetEnv").resolves();

@@ -29,13 +29,6 @@ export class MockCore {
     return ok({ projectPath: "" });
   }
 
-  async metaOSExtendToDA(
-    inputs: Inputs,
-    workDir: string
-  ): Promise<Result<undefined | any, FxError>> {
-    return ok(undefined);
-  }
-
   async provisionResources(inputs: Inputs): Promise<Result<undefined, FxError>> {
     return ok(undefined);
   }

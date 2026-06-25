@@ -59,15 +59,6 @@ describe("SharedOpts", () => {
       assert.isTrue(sendTelemetryEvent.args[0][1]!["new-project-id"] != undefined);
     });
 
-    it("metaOSExtendToDA", async () => {
-      mockValue(globalVariables, "core", new MockCore());
-      mockValue(globalVariables, "workspaceUri", vscode.Uri.file("path"));
-      const metaOSExtendToDA = vi.spyOn(globalVariables.core, "metaOSExtendToDA");
-
-      await runCommand(Stage.metaOSExtendToDA);
-      expect(metaOSExtendToDA).toHaveBeenCalledTimes(1);
-    });
-
     it("provisionResources", async () => {
       mockValue(globalVariables, "core", new MockCore());
       const provisionResources = vi.spyOn(globalVariables.core, "provisionResources");
