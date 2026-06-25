@@ -29,12 +29,17 @@ const DT = "TEAMSFX_MCP_FOR_DA_DT";
 const SELECTOR_PATH = path.resolve(__dirname, "../../../../../templates/v4/create/selector.json");
 
 const CURRENT_CREATE_V4_TEMPLATE_IDS = [
+  "declarative-agent-meta-os-new-project",
+  "graph-connector",
   "da/api-plugin-from-existing-api",
   "da/api-plugin-from-scratch",
   "da/api-plugin-from-scratch-bearer",
   "da/api-plugin-from-scratch-oauth",
+  "da/graph-connector",
   "da/mcp-server",
   "da/no-action",
+  "da/skill",
+  "da/typespec",
 ];
 
 interface PortOpts {
@@ -187,7 +192,7 @@ describe("v4/buildTarget/parseSelector", () => {
     assert.strictEqual(offBt.engine, "v3");
     assert.strictEqual(offBt.templateId, "declarative-agent-with-action-from-mcp");
 
-    // a sibling dimension resolves to its own v3 route, unaffected by the flag.
+    // a sibling top-level dimension resolves to its own v4 route, unaffected by the flag.
     const gcPort = makePort({
       v4: CURRENT_CREATE_V4_TEMPLATE_IDS,
     });
@@ -199,7 +204,7 @@ describe("v4/buildTarget/parseSelector", () => {
     );
     assert.isTrue(gc.isOk());
     const gcBt = gc._unsafeUnwrap();
-    assert.strictEqual(gcBt.engine, "v3");
+    assert.strictEqual(gcBt.engine, "v4");
     assert.strictEqual(gcBt.templateId, "graph-connector");
   });
 });

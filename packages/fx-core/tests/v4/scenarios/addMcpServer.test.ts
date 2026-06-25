@@ -153,10 +153,10 @@ describe("SCN-DA-ADD-MCP-ACTION-TO-DA (v4, T3 InMemoryRuntime)", () => {
     assert.notInclude(text(files, ENV_PATH), "MCP_DA_AUTH_ID_");
   });
 
-  it("SCN-ADD-MCP-09: entry params skip the prefilled URL", async () => {
+  it("SCN-ADD-MCP-09: entry params skip the prefilled URL and selected manifest path", async () => {
     assert.isTrue(isRecord(descriptor));
     const entry = recordProperty(descriptor, "entry");
-    assert.deepStrictEqual(entry.params, ["mcpServerUrl"]);
+    assert.deepStrictEqual(entry.params, ["mcpServerUrl", "teamsManifestPath"]);
 
     const mcpServerUrlQuestion = questionItems(questions).find(
       (question) => question.name === "mcpServerUrl"
