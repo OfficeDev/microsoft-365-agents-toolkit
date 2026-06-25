@@ -1,6 +1,6 @@
 {
-    "version": "0.0.0-rc",
-    "localVersion": "6.10.3-rc.1",
+    "version": "~6.10",
+    "localVersion": "6.10.3",
     "tagPrefix": "templates@",
     "v4tagPrefix": "templates-v4@",
     "vstagPrefix": "templates-vs@",
