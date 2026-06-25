@@ -1,0 +1,263 @@
+# ADR-0014 — Dispatcher + BuildTarget resolution as the scaffolding front stage
+
+- **Status:** Accepted (Amended 2026-06-15 — see Amendments 1–2)
+- **Date:** 2026-05-28 (Accepted 2026-06-05; Amended 2026-06-15)
+- **Source:** [`scaffolding.create.proposal.md` §14](../scaffolding.create.proposal.md#14-adrs-this-proposal-will-be-decomposed-into)
+  (decomposes §§5, 5.1, 5.3, 9, 9.1, 10; invariants 12, 17). Validated against
+  the on-disk `templates/v4/create/selector.json` and
+  `templates/v4/modify/selector.json` plus `templates/v4/schema/selector.schema.json`.
+
+## Context
+
+This is an **internal** decision (composition pattern + module boundary), not
+one forced by an external tool. The v3 create flow resolves "which starter,
+which language, which generator" through `templateNames.ts` +
+`question/create.ts` + per-capability `generator/*.ts` + `onDidSelection`
+branches — routing is code, scattered, and an AI agent editing it can reach the
+engine by accident (`scaffolding.current-state.md`).
+
+The proposal's §§5/9 replace that with a single **front stage** that resolves a
+**BuildTarget** (`{ templateId, language? }`) before any generator runs, fed by
+a per-kind declarative `selector.json`. The two shipped selectors
+(`create/selector.json`, `modify/selector.json`) are the ground truth this ADR
+ratifies: routing is data under [`selector.schema.json`](../../../templates/v4/schema/selector.schema.json),
+and v3 and v4 coexist behind it.
+
+## Options considered
+
+- **A — Keep code-based routing (`templateNames` + `onDidSelection`).** Zero
+  migration, but the current-state pain (engine-reachable-by-accident,
+  untestable routing) persists and AI edits stay unsafe.
+- **B — One global selector tree for both create and modify.** Fewer files, but
+  conflates two disjoint `templateId` namespaces and breaks the per-kind
+  overlap check; modify's increment tree and create's project-type tree have no
+  shared root.
+- **C — Per-kind declarative `selector.json` resolving a BuildTarget, four
+  route engines, v3/v4 coexistence (chosen).** Routing is data; each kind owns
+  its tree; the engine carries no per-option side-effect `if`.
+
+## Decision
+
+1. **The dispatcher front stage resolves a `templateId` — and only a
+   `templateId`** — from three sources (§9): (A) an interactive `selector.json`
+   route, (B) an external direct `templateId` (`atk add action
+   --api-plugin-type mcp`, CodeLens), (C) a non-interactive batch-flag route
+   fed to the same §5.3 route predicate. **(Amended 2026-06-15 — Amendment 1:
+   sources A and C are unified into one prefill-aware `walk` source. Amendment 2:
+   source B (`direct`) is also withdrawn — `atk add` / CodeLens / modify are
+   pre-filled walks over the kind's `selector.json` — leaving a single `walk`
+   source; the route predicate and the `templateId`-only output are unchanged.)**
+   **`dispatch` keys off `templateId` only** — it never reads `descriptor.languages` and never branches on
+   language (the v3/v4 registry choice is a function of `templateId` alone).
+
+   `language` is a **separate BuildTarget axis**, not part of route resolution.
+   It is resolved by the stage that already holds the chosen template's
+   `descriptor` (descriptor-bound, not dispatcher-bound), anywhere inside the
+   window **[templateId/descriptor resolved] .. [before `content/{language}/`
+   render]**: its legal values are bounded by `descriptor.languages`, it is
+   auto-skipped when that lists a single language (both MCP scenarios:
+   `"languages": ["common"]`), and the exact prompt position inside the window
+   (immediately after routing, or deferred past Q2) is a surface/UX choice, not
+   an engine contract. The resulting `BuildTarget = { templateId, language? }`
+   feeds the rest of the flow (Q2 → pipeline / v3 generator), which is identical
+   regardless of source. This keeps `resolveBuildTarget` a pure route
+   resolver — a caller-supplied `language` (Source B/C) rides along untouched;
+   only the interactive surface prompts for it, and only after a descriptor is
+   in hand. **(Amended 2026-06-15 — Amendment 2: `language` leaves `BuildTarget`
+   entirely and is resolved as the Q0 `language` question (ADR-0016 decision 5)
+   in the collect-inputs walk; `resolveBuildTarget` no longer reads
+   `descriptor.languages` and binds no language axis.)**
+
+2. **Each `selector.json` route declares its `engine`** — the closed set is
+   `{ v4, v3, v3-core-method, surface-action }` (invariant 12,
+   `selector.schema.json`):
+   - `v4` → load `templates/v4/<kind>/<templateId>/{descriptor,questions,pipeline}`
+     and run the v4 path (e.g. `da/mcp-server`).
+   - `v3` → the composition-root glue (§5.1) calls the named `v3Adapter`
+     generator with collected Q1 inputs; the v4 engine is not involved.
+   - `v3-core-method` → the modify seam: the route names a shipped `coreMethod`
+     (e.g. `addPlugin`), invoked with Q1 inputs. Used where the post-create path
+     is a core method/driver, not an `IGenerator`. The `modify` selector's
+     non-DT MCP route (`add-action ∧ mcp ∧ ¬DT → addPlugin`) uses it.
+   - `surface-action` → scaffolds nothing; names an `action` the surface maps to
+     a command (the declarative form of today's `start-with-github-copilot`
+     special case).
+
+3. **v3 and v4 are two separate worlds joined only at the composition root**
+   (§5.1, §10). The v3 generator registry and v3 core-method registry are
+   **frozen** allow-lists; v4 routing is **descriptor-derived** (§5.3) — the
+   create selector's routable v4 ids are exactly the `templates/v4/create/*`
+   descriptors, not a hand-maintained index. Templates migrate v3→v4 one route
+   at a time by flipping a single route's `engine`.
+
+4. **CLI keeps back-compat aliases** (§9.1): `--template-id` is the v4 primitive
+   (Source B); `--capability` / `--language` remain as aliases the dispatcher
+   resolves into a BuildTarget, so existing scripts keep working. **(Amended
+   2026-06-15 — Amendment 2: with the `direct` source gone, the `--template-id`
+   primitive is withdrawn; the CLI's primary flags are the neutral dimension
+   flags derived from `selector.json` (`derive-cli-options`), and `--capability`
+   / `--language` remain as aliases onto those dimensions.)**
+
+## Consequences
+
+- **New constraint (invariant 12):** every `routes[].engine` must be one of the
+  four values, with the engine-specific required key present (`templateId` /
+  `v3Adapter` / `coreMethod` / `action`) and the other branches' keys forbidden.
+  Enforced by `selector.schema.json` + a loader check.
+- **New constraint (invariant 17):** v4 routing ids must resolve to an existing
+  `templates/v4/<kind>/<id>/descriptor.json`; a route to a missing descriptor is
+  a build failure (routing is derived, not hand-listed).
+- **Per-kind overlap check:** `create/` and `modify/` each own a
+  `selector.json`; the §5 enumerable-route overlap check runs per-kind over
+  disjoint `templateId` namespaces.
+- **Shares one hand-off with [ADR-0006](ADR-0006-template-distribution-channel.md)**
+  (`(package-source, package-version)` + `descriptor.minEngineVersion`) and one
+  with [ADR-0015](ADR-0015-templates-version-artifact-shape.md) (the
+  `templateId → on-disk package` locator). It does **not** decide the
+  distribution channel.
+- **Reversible while `Proposed`:** ratification (flip to `Accepted`) is the
+  owner's call; until then the route-engine set and source model may still
+  change. The two shipped selectors are the conformance fixtures.
+
+## Derived specs
+
+- [`resolve-build-target`](../../03-specs/operations/scaffolding/resolve-build-target.md)
+  — the operation spec that turns this decision into an AC-tabled behavioral
+  contract (route resolution → `templateId`, dispatch; **per Amendment 2 the
+  `language` axis moved to
+  [`collect-create-inputs`](../../03-specs/operations/scaffolding/collect-create-inputs.md)**,
+  the Q0 `language` question bound against
+  [ADR-0016](ADR-0016-declarative-template-format.md) decision 5).
+
+## Amendment 1 — Unify the interactive + non-interactive sources (2026-06-15)
+
+- **Status:** Accepted (in-place amendment; the Decision above is otherwise
+  unchanged).
+- **Scope:** Decision 1's *source model* only. `dispatch` keying off
+  `templateId` (Decision 1), the closed `engine` set (Decision 2), v3/v4
+  coexistence (Decision 3), the CLI back-compat aliases (Decision 4), and the
+  descriptor-bound `language` axis are all untouched.
+
+### Why
+
+The original three sources split the *interactive* walk (A) and the
+*non-interactive* batch (C) into two code paths even though both end in the
+identical §5.3 route predicate. The "a pre-filled answer is used as-is, never
+prompted" rule already governs Q2 ([`collect-create-inputs`](../../03-specs/operations/scaffolding/collect-create-inputs.md)
+INPUT-12) and the v3 question visitor; modeling A and C as two sources just
+duplicated that rule at Q1.
+
+### Decision
+
+`resolveBuildTarget` takes **two** sources, not three:
+
+- **`walk`** — the prefill-aware Q1 walk. For each gated question (its
+  `condition` evaluated over the answers collected so far): a **pre-filled**
+  answer is used as-is and the prompt is skipped; otherwise, when
+  **interactive**, the answer is prompted; otherwise (**non-interactive**, no
+  pre-fill) it is an explicit `UserError` naming the missing required dimension
+  (never a silent `no-matching-route`). The old interactive source is `walk`
+  with no pre-fill; the old batch source is `walk` with the dimension flags
+  pre-filled and `interactive=false`.
+- **`direct`** — unchanged (Source B): a caller-supplied `templateId` skips the
+  selector entirely.
+
+The `language` axis follows the same rule: a multi-language template with no
+caller `language` is prompted when interactive, and an explicit `UserError` when
+not — it no longer assumes a prompt is reachable.
+
+### CLI vocabulary
+
+The pre-fill keys are the selector's own neutral dimension names (`projectType`
+/ `daTemplate` / `actionSource` / …). The CLI's primary flags are derived from
+`selector.json` (the new
+[`derive-cli-options`](../../03-specs/operations/scaffolding/derive-cli-options.md)
+spec), and the Decision 4 `--capability` / `--language` aliases resolve onto
+those neutral dimensions. There is still no second (CLI-side) routing table.
+
+### Derived-spec impact
+
+[`resolve-build-target`](../../03-specs/operations/scaffolding/resolve-build-target.md)
+(the `ResolveEntry` shape, the `walk` AC rows, INV-3),
+[`walk-create-selector`](../../03-specs/operations/scaffolding/walk-create-selector.md)
+(the `prefilled` + `interactive` inputs and the missing-dimension AC), and the
+new `derive-cli-options` realize this amendment. No other ADR-0014 consequence
+changes.
+
+## Amendment 2 — Collapse to a single `walk` source; `language` moves to collect-inputs (2026-06-15)
+
+- **Status:** Accepted (in-place amendment; supersedes the `direct` source
+  retained in Amendment 1 and the dispatcher-bound `language` axis in Decision 1).
+- **Scope:** Decision 1's *source model* and *`language` placement* only.
+  Dispatch keying off `templateId` (Decision 1), the closed `engine` set
+  (Decision 2), and v3/v4 coexistence (Decision 3) are untouched. Decision 4's
+  `--template-id` primitive is withdrawn (it was the CLI face of the removed
+  `direct` source); its `--capability` / `--language` aliases and the neutral
+  dimension flags (`derive-cli-options`) remain.
+
+### Why
+
+Amendment 1 reduced three sources to two (`walk` + `direct`). The remaining
+`direct` source — a caller handing a bare `templateId` — has **no live
+producer**: every realistic entry (create, `atk add`, CodeLens, modify) holds
+**dimensions**, not a `templateId`, and the per-kind `selector.json` routes
+those dimensions to the `templateId`. The two shipped selectors prove it —
+`create/selector.json` and `modify/selector.json` each carry the kind's
+dimension tree (e.g. modify's `addCapability` → `actionSource` → `add-mcp-server`).
+`atk add action --api-plugin-type mcp` is therefore a **pre-filled walk over the
+modify selector**, not a `direct` `templateId`. The only literal-`templateId`
+entry was CLI `--template-id`, which `derive-cli-options` removes in favour of
+neutral dimension flags.
+
+Symmetrically, `language` was resolved **inside** `resolveBuildTarget` (the
+post-dispatch language bind) even though Decision 1 already declared it
+descriptor-bound and free to resolve "anywhere in the window … past Q2." Its
+legal values are exactly `descriptor.languages` — i.e. it is the **options
+source for the Q0 `language` question** collect-inputs already owns (ADR-0016
+decision 5, INPUT-13; auto-skipped when that lists a single language — both MCP
+scenarios are `["common"]`). Resolving it at Q1 forced `resolveBuildTarget` to
+read `descriptorLanguages` and own a prompt that is really collect-inputs' job.
+
+### Decision
+
+`resolveBuildTarget` takes **one** source, not two:
+
+- **`walk`** (the only source) — the prefill-aware Q1 walk over the kind's
+  `selector.json` (create / modify), exactly as Amendment 1 defines it. It
+  outputs `{ templateId, engine }` plus the walked dimension `answers`; a caller
+  that already knows the answer simply pre-fills the dimensions (used-as-is,
+  never prompted) — the one mechanism for `atk add` / CodeLens / a CLI batch.
+  There is no `direct` entry and no registry-only dispatch path; the route
+  declares the `engine`. (A future API that truly holds a bare `templateId` can
+  dispatch by registry in a thin helper *outside* `resolveBuildTarget`, never as
+  a second entry into it.)
+
+- **`language` moves to collect-inputs.** It is no longer a `BuildTarget` field.
+  After routing yields a `templateId`, the chosen package's
+  `descriptor.languages` is the option range of the Q0 `language` question
+  (ADR-0016 decision 5) in the collect-inputs walk — pre-filled
+  (`--language` / caller) ⇒ used as-is and bounds-checked, single-language ⇒
+  auto-skipped, multi-language interactive ⇒ prompted, multi-language
+  non-interactive without a value ⇒ the same missing-dimension `UserError` the
+  walk raises for any required dimension. `BuildTarget` is now
+  `{ templateId, engine, answers? }`; the scaffolder reads `language` from the
+  collected answers.
+
+The resolver is now a pure router, and exactly **one** prefill-aware walk
+primitive is shared by Q1 (selector) and Q2/Q3 (collect-inputs, including the
+language question).
+
+### Derived-spec impact
+
+[`resolve-build-target`](../../03-specs/operations/scaffolding/resolve-build-target.md)
+(drop the `direct` half of `ResolveEntry` → a single walk input; remove the
+`language` / language-bind AC rows and the `descriptorLanguages` port face),
+[`collect-create-inputs`](../../03-specs/operations/scaffolding/collect-create-inputs.md)
+(already owns the Q0 `language` question — ADR-0016 decision 5 — that now binds
+the whole language axis: options from `descriptor.languages`, `skipSingleOption`,
+the missing-dimension rule),
+[`walk-create-selector`](../../03-specs/operations/scaffolding/walk-create-selector.md)
+(the same walk now also drives `modify`), and
+[`derive-cli-options`](../../03-specs/operations/scaffolding/derive-cli-options.md)
+(the `--template-id` primitive is gone; the language flag stays the generic
+`programming-language` option, DCO-03). No other ADR-0014 consequence changes.

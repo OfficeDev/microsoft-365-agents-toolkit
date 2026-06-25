@@ -56,6 +56,8 @@ jobs:
     outputs:
       markdown-check-result: ${{ steps.markdown-check.outcome }}
       markdown-check-samples-result: ${{ steps.markdown-check-samples.outcome }}
+      extension-version: ${{ steps.version-change.outputs.EXTENSION_VERSION }}
+      vsix-version: ${{ steps.version-change.outputs.VSIX_VERSION }}
     env:
       CI: true
       PREID: ${{ github.event.inputs.preid }}
@@ -230,6 +232,10 @@ jobs:
           echo "CHANGED=$(git tag --points-at HEAD | xargs)" >> $GITHUB_OUTPUT
           echo "TEMPLATE_VERSION=$(git tag --points-at HEAD | grep templates)" >> $GITHUB_OUTPUT
           echo "EXTENSION_VERSION=$(git tag --points-at HEAD | grep ms-teams-vscode-extension@)" >> $GITHUB_OUTPUT
+          # Final vsix version from package.json (after vsc-version.sh rewrites the
+          # preview/beta lerna version to its timestamped form). Use THIS for the
+          # release pipeline trigger, not the intermediate lerna tag version.
+          echo "VSIX_VERSION=$(jq -r .version ./packages/vscode-extension/package.json)" >> $GITHUB_OUTPUT
           git tag --points-at HEAD | grep templates | grep rc | xargs -r git push -d origin
 
       # v4 channel (isolated from the v3 steps above). The v4 distribution config
@@ -583,3 +589,62 @@ jobs:
             -f run_id=${{ github.run_id }} \
             -f tag=${{ inputs.series == '' && 'latest' || inputs.series }} \
             -f run_test_cases=${{ github.event_name == 'schedule' || inputs.run_test_cases }}
+
+  trigger-sync-release-runs:
+    needs: cd
+    if: ${{ success() && startsWith(github.ref, 'refs/heads/release/') && github.event.inputs.preid != 'alpha' }}
+    runs-on: ubuntu-latest
+    steps:
+      - id: generate-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ vars.APP_GITHUB_APP_ID }}
+          private-key: ${{ secrets.APP_GITHUB_APP_PRIVATE_KEY }}
+          owner: OfficeDev
+          repositories: microsoft-365-agents-toolkit-test
+
+      - name: Derive release inputs
+        id: derive
+        env:
+          EXTENSION_VERSION: ${{ needs.cd.outputs.extension-version }}
+          VSIX_VERSION: ${{ needs.cd.outputs.vsix-version }}
+          SERIES: ${{ inputs.series }}
+        run: |
+          # EXTENSION_VERSION is the lerna git tag (e.g. ms-teams-vscode-extension@6.11.0-beta.2026061712);
+          # empty when no extension was released. VSIX_VERSION is the FINAL packaged
+          # version from package.json (e.g. 6.11.2026061712 after vsc-version.sh) — use
+          # that for the pipeline, not the intermediate lerna tag.
+          if [ -z "$EXTENSION_VERSION" ]; then
+            echo "No extension version released; skipping sync dispatch."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          # Sidecar requires series (used as docker image tag for ui-test correlation).
+          if [ -z "$SERIES" ]; then
+            echo "No series provided; skipping sync dispatch."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          minor="$(echo "$VSIX_VERSION" | cut -d. -f2)"
+          if [ $(( minor % 2 )) -eq 1 ]; then
+            release_type=prerelease
+          else
+            release_type=stablerelease
+          fi
+          echo "skip=false" >> "$GITHUB_OUTPUT"
+          echo "release_version=$VSIX_VERSION" >> "$GITHUB_OUTPUT"
+          echo "release_type=$release_type" >> "$GITHUB_OUTPUT"
+
+      - name: Trigger Sync Release Runs Workflow
+        if: ${{ steps.derive.outputs.skip == 'false' }}
+        env:
+          GH_TOKEN: ${{ steps.generate-token.outputs.token }}
+        run: |
+          gh workflow run sync-release-runs.yml \
+            --repo OfficeDev/microsoft-365-agents-toolkit-test \
+            --ref main \
+            -f release_type=${{ steps.derive.outputs.release_type }} \
+            -f release_version=${{ steps.derive.outputs.release_version }} \
+            -f series=${{ inputs.series }} \
+            -f cd_run_id=${{ github.run_id }} \
+            -f commit=${{ github.sha }}

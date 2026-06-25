@@ -259,6 +259,70 @@ describe("updateActionWithMCP", () => {
     assert.equal(mcpRuntime.spec.mcp_tool_description.file, "existing-mcp-tools.json");
   });
 
+  it("should update DT runtime when functions are omitted and run_for_functions is wildcard", async () => {
+    const core = new FxCore(tools);
+    const inputs: Inputs = {
+      projectPath,
+      platform: Platform.VSCode,
+      [QuestionNames.PluginManifestFilePath]: pluginManifestPath,
+      [QuestionNames.MCPForDAServerUrl]: mcpServerUrl,
+      [QuestionNames.MCPForDAServerName]: serverName,
+      [QuestionNames.MCPForDAAuth]: "None",
+      [QuestionNames.MCPForDAAvailableTools]: [
+        {
+          name: "newTool",
+          description: "New tool description",
+          inputSchema: {
+            type: "object",
+            properties: { param1: { type: "string" } },
+            required: ["param1"],
+          },
+        },
+      ],
+      [QuestionNames.MCPForDAPreFetchTools]: ["newTool"],
+      ignoreLockByUT: true,
+    };
+
+    const existingPlugin = {
+      runtimes: [
+        {
+          type: "RemoteMCPServer",
+          spec: {
+            url: mcpServerUrl,
+          },
+          run_for_functions: ["*"],
+        },
+      ],
+    };
+
+    let writtenPluginData: any;
+    sandbox.stub(fs, "pathExists").callsFake(async (filePath: string) => {
+      return !filePath.includes("mcp-tools");
+    });
+    sandbox.stub(fs, "readJSON").resolves(existingPlugin);
+    sandbox.stub(fs, "writeJSON").callsFake((filePath: string, data) => {
+      if (!filePath.includes("mcp-tools")) {
+        writtenPluginData = data;
+      }
+      return Promise.resolve();
+    });
+    sandbox.stub(pathUtils, "getYmlFilePath").returns("/test/project/teamsapp.yml");
+
+    sandbox.stub(tools.ui, "showMessage").resolves(ok("OK"));
+    sandbox.stub(tools.ui, "openFile").resolves();
+
+    const result = await core.updateActionWithMCP(inputs);
+
+    assert.isTrue(result.isOk());
+    assert.deepEqual(writtenPluginData.functions, [
+      {
+        name: "newTool",
+        description: "New tool description",
+      },
+    ]);
+    assert.deepEqual(writtenPluginData.runtimes[0].run_for_functions, ["newTool"]);
+  });
+
   it("should successfully update action with OAuth authentication", async () => {
     const core = new FxCore(tools);
     const inputs: Inputs = {
@@ -395,6 +459,88 @@ describe("updateActionWithMCP", () => {
     assert.isTrue(writeJSONStub.calledTwice); // mcp-tools.json and ai-plugin.json
     assert.isTrue(showMessageStub.calledOnce);
     assert.isTrue(openFileStub.calledOnce);
+  });
+
+  it("should inject DCR action when updating action with OAuth dynamic registration", async () => {
+    const core = new FxCore(tools);
+    const inputs: Inputs = {
+      projectPath,
+      platform: Platform.VSCode,
+      [QuestionNames.PluginManifestFilePath]: pluginManifestPath,
+      [QuestionNames.MCPForDAServerUrl]: mcpServerUrl,
+      [QuestionNames.MCPForDAServerName]: serverName,
+      [QuestionNames.MCPForDAAuth]: "OAuthPluginVault",
+      [QuestionNames.MCPForDAAuthType]: "oauth-dynamic",
+      [QuestionNames.MCPForDAAuthWellKnownUrl]:
+        "https://example.com/.well-known/oauth-authorization-server",
+      [QuestionNames.MCPForDAAvailableTools]: [
+        {
+          name: "testTool",
+          description: "Test tool description",
+          inputSchema: {
+            type: "object",
+            properties: { param1: { type: "string" } },
+            required: ["param1"],
+          },
+        },
+      ],
+      [QuestionNames.MCPForDAPreFetchTools]: ["testTool"],
+      ignoreLockByUT: true,
+    };
+
+    const existingPlugin = {
+      functions: [],
+      runtimes: [],
+    };
+
+    sandbox.stub(fs, "pathExists").callsFake(async (filePath: string) => {
+      return !filePath.includes("mcp-tools");
+    });
+    sandbox.stub(fs, "readJSON").resolves(existingPlugin);
+    let writtenPluginData: any;
+    sandbox.stub(fs, "writeJSON").callsFake((filePath: string, data) => {
+      if (!filePath.includes("mcp-tools")) {
+        writtenPluginData = data;
+      }
+      return Promise.resolve();
+    });
+    sandbox.stub(pathUtils, "getYmlFilePath").returns("/test/project/m365agents.yml");
+    sandbox.stub(featureFlagManager, "getBooleanValue").callsFake((flag) => {
+      return flag === FeatureFlags.MCPForDADCR;
+    });
+    sandbox.stub(axios, "get").resolves({
+      status: 200,
+      data: {
+        authorization_endpoint: "https://example.com/oauth/authorize",
+        token_endpoint: "https://example.com/oauth/token",
+      },
+    });
+    const injectDcrStub = sandbox.stub(ActionInjector, "injectCreateDcrActionForMCP").resolves();
+    const injectOAuthStub = sandbox
+      .stub(ActionInjector, "injectCreateOAuthActionForMCP")
+      .resolves();
+
+    sandbox.stub(tools.ui, "showMessage").resolves(ok("OK"));
+    sandbox.stub(tools.ui, "openFile").resolves();
+
+    const result = await core.updateActionWithMCP(inputs);
+
+    if (result.isErr()) {
+      assert.fail(result.error.message);
+    }
+    assert.deepEqual(writtenPluginData.runtimes[0].auth, {
+      type: "OAuthPluginVault",
+      reference_id: `\${{MCP_DA_AUTH_ID_${serverName.toUpperCase()}}}`,
+    });
+    assert.isTrue(injectOAuthStub.notCalled);
+    assert.isTrue(injectDcrStub.calledOnce);
+    assert.deepEqual(injectDcrStub.firstCall.args, [
+      "/test/project/m365agents.yml",
+      serverName,
+      `MCP_DA_AUTH_ID_${serverName.toUpperCase()}`,
+      mcpServerUrl,
+      "https://example.com/.well-known/oauth-authorization-server",
+    ]);
   });
 
   it("should return error when plugin manifest file does not exist", async () => {
