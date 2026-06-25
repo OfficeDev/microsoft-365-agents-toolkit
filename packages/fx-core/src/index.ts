@@ -135,3 +135,4 @@ export {
 export { isTdpTemplate } from "./question/scaffold/vsc/createFromTdpNode";
 export { ProjectTypeOptions } from "./question/scaffold/vsc/ProjectTypeOptions";
 export { ShareOperationOption } from "./question/share";
+export { deriveCreateOptionsFromBundledFloor } from "./v4/surface/deriveCreateOptions";

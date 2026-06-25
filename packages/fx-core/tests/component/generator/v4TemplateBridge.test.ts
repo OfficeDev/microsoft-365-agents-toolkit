@@ -2,6 +2,7 @@
 // Licensed under the MIT license.
 
 import { Platform, SystemError } from "@microsoft/teamsfx-api";
+import AdmZip from "adm-zip";
 import chai, { assert } from "chai";
 import chaiAsPromised from "chai-as-promised";
 import fs from "fs-extra";
@@ -17,6 +18,7 @@ import {
 } from "../../../src/component/generator/utils";
 import {
   renderTemplateEntries,
+  scaffoldDeclarativeFromV4Channel,
   scaffoldFromV4Channel,
   v4TemplateBridgeDeps,
 } from "../../../src/component/generator/v4TemplateBridge";
@@ -227,7 +229,7 @@ describe("v4TemplateBridge.scaffoldFromV4Channel", () => {
   it("resolves, reads, renders and records source telemetry on the happy path", async () => {
     const ctx = makeContext("declarative-agent-basic", tmpDir, {});
     const entries: TemplateFileEntry[] = [{ path: "manifest.json", data: Buffer.from('{"a":1}') }];
-    sandbox.stub(v4TemplateBridgeDeps, "resolveTemplateSource").resolves(ok(source));
+    sandbox.stub(v4TemplateBridgeDeps, "resolveLocalTemplateSource").returns(source);
     sandbox.stub(v4TemplateBridgeDeps, "loadResolvedPackage").returns(ok(Buffer.from("zip-bytes")));
     sandbox.stub(v4TemplateBridgeDeps, "openTemplatePackage").returns(ok(entries));
     const telemetryProps: Record<string, string> = {};
@@ -245,19 +247,27 @@ describe("v4TemplateBridge.scaffoldFromV4Channel", () => {
     assert.strictEqual(telemetryProps[TelemetryProperty.TemplatePackageDigest], "sha256:abc");
   });
 
-  it("throws and records no source telemetry when resolution fails", async () => {
+  it("resolves content through the synchronous local resolver, never the online channel (ADR-0006 INV-T2)", async () => {
     const ctx = makeContext("declarative-agent-basic", tmpDir, {});
-    const resolveError = new SystemError("v4", "ResolveFailed", "no tag");
-    sandbox.stub(v4TemplateBridgeDeps, "resolveTemplateSource").resolves(err(resolveError));
-    const telemetryProps: Record<string, string> = {};
+    const entries: TemplateFileEntry[] = [{ path: "manifest.json", data: Buffer.from("{}") }];
+    const resolveLocal = sandbox
+      .stub(v4TemplateBridgeDeps, "resolveLocalTemplateSource")
+      .returns(source);
+    sandbox.stub(v4TemplateBridgeDeps, "loadResolvedPackage").returns(ok(Buffer.from("zip")));
+    sandbox.stub(v4TemplateBridgeDeps, "openTemplatePackage").returns(ok(entries));
 
-    await assert.isRejected(scaffoldFromV4Channel(ctx, locator, telemetryProps), "no tag");
-    assert.isUndefined(telemetryProps[TelemetryProperty.TemplatePackageSource]);
+    await scaffoldFromV4Channel(ctx, locator, {});
+
+    // The create path resolves LOCAL-only: one synchronous call asking for just
+    // `{ range, port }` — it never passes `bundled` and never reaches the online
+    // resolver, so the scaffold stays off the network.
+    assert.isTrue(resolveLocal.calledOnce);
+    assert.deepEqual(Object.keys(resolveLocal.firstCall.args[0]).sort(), ["port", "range"]);
   });
 
   it("throws but still records source telemetry when reading the package fails", async () => {
     const ctx = makeContext("declarative-agent-basic", tmpDir, {});
-    sandbox.stub(v4TemplateBridgeDeps, "resolveTemplateSource").resolves(ok(source));
+    sandbox.stub(v4TemplateBridgeDeps, "resolveLocalTemplateSource").returns(source);
     sandbox
       .stub(v4TemplateBridgeDeps, "loadResolvedPackage")
       .returns(err(new SystemError("v4", "DigestMismatch", "bad digest")));
@@ -270,12 +280,146 @@ describe("v4TemplateBridge.scaffoldFromV4Channel", () => {
 
   it("throws when the package cannot be opened", async () => {
     const ctx = makeContext("declarative-agent-basic", tmpDir, {});
-    sandbox.stub(v4TemplateBridgeDeps, "resolveTemplateSource").resolves(ok(source));
+    sandbox.stub(v4TemplateBridgeDeps, "resolveLocalTemplateSource").returns(source);
     sandbox.stub(v4TemplateBridgeDeps, "loadResolvedPackage").returns(ok(Buffer.from("zip")));
     sandbox
       .stub(v4TemplateBridgeDeps, "openTemplatePackage")
       .returns(err(new SystemError("v4", "OpenFailed", "corrupt zip")));
 
     await assert.isRejected(scaffoldFromV4Channel(ctx, locator, {}), "corrupt zip");
+  });
+});
+
+describe("v4TemplateBridge.scaffoldDeclarativeFromV4Channel", () => {
+  const sandbox = createSandbox();
+  let tmpDir: string;
+  const locator = { kind: "create", templateId: "da/mcp-server" };
+  const source: TemplateSource = {
+    origin: "bundled",
+    version: "6.10.1",
+    digest: "sha256:abc",
+    location: "/floor/templates.zip",
+  };
+  // The real authored declarative package, zipped under the channel's v4 subtree
+  // exactly as `generateV4Zip.js` bundles it, so the bridge exercises the
+  // production distribution → declarative-engine path against the live template.
+  const PKG_DIR = path.resolve(__dirname, "../../../../../templates/v4/create/da/mcp-server");
+
+  function channelBytes(): Buffer {
+    const zip = new AdmZip();
+    zip.addLocalFolder(PKG_DIR, "v4/create/da/mcp-server");
+    return zip.toBuffer();
+  }
+
+  beforeEach(async () => {
+    tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "v4decl-"));
+    sandbox.stub(v4TemplateBridgeDeps, "createTemplateSourcePort").returns({} as any);
+    sandbox.stub(v4TemplateBridgeDeps, "loadBundledFloor").returns({} as any);
+  });
+
+  afterEach(async () => {
+    sandbox.restore();
+    await fs.remove(tmpDir);
+  });
+
+  it("resolves through the channel and runs the declarative engine onto disk (no auth)", async () => {
+    const ctx = makeContext("da-mcp", tmpDir, {});
+    sandbox.stub(v4TemplateBridgeDeps, "resolveLocalTemplateSource").returns(source);
+    sandbox.stub(v4TemplateBridgeDeps, "loadResolvedPackage").returns(ok(channelBytes()));
+    const telemetryProps: Record<string, string> = {};
+
+    const result = await scaffoldDeclarativeFromV4Channel(
+      ctx,
+      locator,
+      { mcpServerType: "remote", mcpServerUrl: "https://api.github.com/mcp", authType: "none" },
+      { appName: "MyMcpAgent", language: "common" },
+      telemetryProps
+    );
+
+    assert.deepEqual(result, source);
+    // the engine (not the v3 render path) writes the package: the `.tpl` suffix
+    // is stripped, the namespace expr is evaluated, and the caller floor's
+    // `appName` flows into the body.
+    const body = (await fs.readFile(path.join(tmpDir, "appPackage", "ai-plugin.json"))).toString();
+    assert.include(body, '"namespace": "apigithubc"');
+    assert.include(body, '"name_for_human": "MyMcpAgent"');
+    assert.include(body, '"type": "None"');
+    assert.include(ctx.outputs ?? [], "appPackage/ai-plugin.json");
+    assert.strictEqual(telemetryProps[TelemetryProperty.TemplatePackageSource], "bundled");
+    assert.strictEqual(telemetryProps[TelemetryProperty.TemplatePackageVersion], "6.10.1");
+  });
+
+  it("threads the answers into the engine (oauth selects the vault auth block)", async () => {
+    const ctx = makeContext("da-mcp", tmpDir, {});
+    sandbox.stub(v4TemplateBridgeDeps, "resolveLocalTemplateSource").returns(source);
+    sandbox.stub(v4TemplateBridgeDeps, "loadResolvedPackage").returns(ok(channelBytes()));
+
+    await scaffoldDeclarativeFromV4Channel(
+      ctx,
+      locator,
+      {
+        mcpServerType: "remote",
+        mcpServerUrl: "https://api.github.com/mcp",
+        authType: "oauth",
+        oauthClientId: "cid",
+        oauthClientSecret: "secret",
+      },
+      { appName: "MyMcpAgent", language: "common" },
+      {}
+    );
+
+    const body = (await fs.readFile(path.join(tmpDir, "appPackage", "ai-plugin.json"))).toString();
+    assert.include(body, '"type": "OAuthPluginVault"');
+    assert.notInclude(body, '"type": "None"');
+  });
+
+  it("runs the entra-sso pipeline steps onto disk (yml register action + env credential ref)", async () => {
+    const ctx = makeContext("da-mcp", tmpDir, {});
+    sandbox.stub(v4TemplateBridgeDeps, "resolveLocalTemplateSource").returns(source);
+    sandbox.stub(v4TemplateBridgeDeps, "loadResolvedPackage").returns(ok(channelBytes()));
+
+    await scaffoldDeclarativeFromV4Channel(
+      ctx,
+      locator,
+      {
+        mcpServerType: "remote",
+        mcpServerUrl: "https://api.github.com/mcp",
+        authType: "entra-sso",
+        entraClientId: "eid",
+      },
+      { appName: "MyMcpAgent", language: "common" },
+      {}
+    );
+
+    // the plugin manifest carries the vault auth block with the url-derived ref
+    const body = (await fs.readFile(path.join(tmpDir, "appPackage", "ai-plugin.json"))).toString();
+    assert.include(body, '"type": "OAuthPluginVault"');
+    assert.include(body, "MCP_DA_AUTH_ID_APIGITHUBC");
+    // the inject-yml-action step welded the Entra register action into the yml
+    const yml = (await fs.readFile(path.join(tmpDir, "m365agents.yml"))).toString();
+    assert.include(yml, "microsoftEntra/register");
+    assert.include(yml, "MCP_DA_AUTH_ID_APIGITHUBC");
+    // the persist-credential-env step seeded the credential ref into the env file
+    const env = (await fs.readFile(path.join(tmpDir, "env", ".env.dev"))).toString();
+    assert.include(env, "MCP_DA_AUTH_ID_APIGITHUBC");
+  });
+
+  it("throws but still records source telemetry when the template id is absent", async () => {
+    const ctx = makeContext("da-mcp", tmpDir, {});
+    sandbox.stub(v4TemplateBridgeDeps, "resolveLocalTemplateSource").returns(source);
+    sandbox.stub(v4TemplateBridgeDeps, "loadResolvedPackage").returns(ok(channelBytes()));
+    const telemetryProps: Record<string, string> = {};
+
+    await assert.isRejected(
+      scaffoldDeclarativeFromV4Channel(
+        ctx,
+        { kind: "create", templateId: "da/does-not-exist" },
+        { mcpServerType: "remote", mcpServerUrl: "https://api.github.com/mcp", authType: "none" },
+        { appName: "MyMcpAgent", language: "common" },
+        telemetryProps
+      )
+    );
+    assert.strictEqual(telemetryProps[TelemetryProperty.TemplatePackageVersion], "6.10.1");
+    assert.isUndefined(ctx.outputs);
   });
 });

@@ -7,7 +7,11 @@ import * as fs from "fs-extra";
 import os from "os";
 import * as path from "path";
 import sinon from "sinon";
-import { BundledFloor, computeDigest } from "../../../src/v4/distribution/templateSource";
+import {
+  BundledFloor,
+  computeDigest,
+  TemplateSource,
+} from "../../../src/v4/distribution/templateSource";
 import {
   V4_TAG_PREFIX,
   ZIP_EXT,
@@ -17,7 +21,6 @@ import {
   parseTagList,
   templateZipUrl,
 } from "../../../src/v4/distribution/templateSourcePort";
-import { TemplateSource } from "../../../src/v4/distribution/templateSource";
 
 describe("templateSourcePort pure helpers (v4)", () => {
   describe("parseTagList (NDJSON, decision #7)", () => {

@@ -188,6 +188,8 @@ import { ShareOperationOption, ShareScopeOption } from "../question/share";
 import { CallbackRegistry, CoreCallbackFunc } from "./callback";
 import * as collaboratorCore from "./collaborator";
 import { CollaborationUtil } from "./collaborator";
+import { applyV3PreFill, collectCreateFloor, scaffoldV4 } from "./createFrontDoorAdapters";
+import { createProjectFrontDoor as runCreateFrontDoor } from "./createProjectFrontDoor";
 import { LocalCrypto } from "./crypto";
 import { environmentNameManager } from "./environmentName";
 import { FxCoreOpenPluginPart } from "./FxCore.openPlugin";
@@ -263,6 +265,31 @@ export class FxCore extends FxCoreOpenPluginPart {
       inputs.projectPath = res.value.projectPath;
     }
     return res;
+  }
+
+  /**
+   * The create front door (operation `dispatch-create-by-engine`): the single
+   * entry the create surfaces call in place of `createProject`. Behind
+   * `TEAMSFX_V4_ENABLED` it runs the v4 create selector (Q1) and dispatches the
+   * resolved `BuildTarget` by engine; flag off it is a pure pass-through to the
+   * unmodified `createProject`, so v3 behavior is byte-identical.
+   *
+   * It drives its own questions (the v4 selector + the template's Q2 + the v4
+   * create floor, or the v3 `QuestionMW` reached through `createProject`), so it
+   * carries no `QuestionMW`. `FxCore` is the composition root that supplies the
+   * four real seams; the orchestrator stays pure and injectable.
+   */
+  @hooks([
+    ErrorContextMW({ component: "FxCore", stage: "createProjectFrontDoor", reset: true }),
+    ErrorHandlerMW,
+  ])
+  async createProjectFrontDoor(inputs: Inputs): Promise<Result<CreateProjectResult, FxError>> {
+    return runCreateFrontDoor(inputs, {
+      createV3: (i) => this.createProject(i),
+      scaffoldV4,
+      collectCreateFloor,
+      applyV3PreFill,
+    });
   }
 
   @hooks([

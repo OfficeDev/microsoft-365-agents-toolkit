@@ -1,6 +1,8 @@
 # Scenario — Add MCP Server Action to Declarative Agent (`add-mcp-server`)
 
-- **Status:** Accepted (Decision source [ADR-0018](../../../02-architecture/adr/ADR-0018-scaffold-runtime-test-pyramid.md) Accepted 2026-06-08) — ready for scenario-tier (T3) tests
+- **Status:** Accepted design; implementation incomplete — the authored modify
+  package, runtime step, selector walk, generic modify front door, and DT-on
+  `addPlugin` dispatch exist, but broader modify surfaces are not wired yet.
 - **Domain:** [`01-scaffolding`](../../domains/01-scaffolding.md)
 - **Scenario ID:** `SCN-DA-ADD-MCP-ACTION-TO-DA` (mirrors product scenario
   [`add-mcp-action-to-da.md`](../../../01-product/scenarios/da/add-mcp-action-to-da.md))
@@ -19,6 +21,24 @@ these AC rows source the ADR-0018 **T3** assertions, run with the template
 applied to an in-memory existing project under `InMemoryRuntime` (every row
 **L1**).
 
+## Current Implementation Gaps
+
+The authored `templates/v4/modify/add-mcp-server` package is present, and the
+runtime slice is covered under `InMemoryRuntime`: it renders the dynamic plugin
+manifest, registers it in the existing DA manifest, shares the create
+`mcp-auth/*` steps, and no-ops an identical re-run. The DT-on `addPlugin` MCP
+path now resolves `templates/v4/modify/selector.json` and dispatches the matched
+v4 target through the generic modify front door, threading the existing project
+root, pre-filled MCP URL, app name, and auth type.
+The remaining product-flow work is:
+
+- Reuse the generic modify front door from the other modify surfaces (`add
+  knowledge`, `add auth`, future modify commands) instead of routing them
+  directly through legacy handlers.
+- Add L1 entry-path tests for those surface routes, including the DT-off
+  `v3-core-method: addPlugin` route when that path moves behind the generic
+  selector entry.
+
 ## Acceptance Criteria
 
 | ID | Tier | Given | When | Then |
@@ -27,7 +47,7 @@ applied to an in-memory existing project under `InMemoryRuntime` (every row
 | SCN-ADD-MCP-02 | L1 | rendered plugin manifest | URL-derived | `namespace == mcpNamespace(mcpServerUrl)` and the filename is `ai-plugin-<NS>.json` (filesystem-safe host), avoiding collision with any existing `ai-plugin.json` |
 | SCN-ADD-MCP-03 | L1 | rendered plugin runtime | always | `runtimes[0].type == "RemoteMCPServer"`, `spec.url == mcpServerUrl`, `spec.enable_dynamic_discovery == true`, `run_for_functions == ["*"]` |
 | SCN-ADD-MCP-04 | L1 | `da-action/register-plugin-manifest` step | always | registers the rendered plugin as an action in the **existing** `declarativeAgent.json`; the DA-manifest path is **derived** from the Teams manifest's `declarativeAgents[0].file` (not hardcoded); `teamsManifestPath` defaults to `appPackage/manifest.json`; `pluginManifestPath == appPackage/ai-plugin-<NS>.json` |
-| SCN-ADD-MCP-05 | L1 | same URL re-run | upsert | `da-action/register-plugin-manifest` is a no-op (desired-state by `pluginManifestPath`); a same-host re-add collapses to the same path, backstopped by the render-phase skip + warning |
+| SCN-ADD-MCP-05 | L1 | same URL re-run | upsert | `da-action/register-plugin-manifest` is a no-op (desired-state by `pluginManifestPath`); a same-host re-add collapses to the same path, backstopped by the render-phase skip + warning; shared MCP auth steps do not duplicate the registration action or env var |
 | SCN-ADD-MCP-06 | L1 | `authType=oauth` | render + steps | plugin `auth.type == "OAuthPluginVault"`, `reference_id == mcpAuthRef(mcpServerUrl)`; `mcp-auth/inject-yml-action` injects the `oauth/register` action into the existing `m365agents.yml` — the **same shared step as create** (no drift) |
 | SCN-ADD-MCP-07 | L1 | `authType` ∈ {`oauth`, `entra-sso`} | persist step | `mcp-auth/persist-credential-env` writes `MCP_DA_AUTH_ID_<NS>` |
 | SCN-ADD-MCP-08 | L1 | `authType=none` | steps | plugin `auth.type == "None"`; both `mcp-auth/inject-yml-action` and `mcp-auth/persist-credential-env` are skipped |
