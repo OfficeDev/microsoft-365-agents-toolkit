@@ -50,23 +50,12 @@ and v3 and v4 coexist behind it.
    **`dispatch` keys off `templateId` only** — it never reads `descriptor.languages` and never branches on
    language (the v3/v4 registry choice is a function of `templateId` alone).
 
-   `language` is a **separate BuildTarget axis**, not part of route resolution.
-   It is resolved by the stage that already holds the chosen template's
-   `descriptor` (descriptor-bound, not dispatcher-bound), anywhere inside the
-   window **[templateId/descriptor resolved] .. [before `content/{language}/`
-   render]**: its legal values are bounded by `descriptor.languages`, it is
-   auto-skipped when that lists a single language (both MCP scenarios:
-   `"languages": ["common"]`), and the exact prompt position inside the window
-   (immediately after routing, or deferred past Q2) is a surface/UX choice, not
-   an engine contract. The resulting `BuildTarget = { templateId, language? }`
-   feeds the rest of the flow (Q2 → pipeline / v3 generator), which is identical
-   regardless of source. This keeps `resolveBuildTarget` a pure route
-   resolver — a caller-supplied `language` (Source B/C) rides along untouched;
-   only the interactive surface prompts for it, and only after a descriptor is
-   in hand. **(Amended 2026-06-15 — Amendment 2: `language` leaves `BuildTarget`
-   entirely and is resolved as the Q0 `language` question (ADR-0016 decision 5)
-   in the collect-inputs walk; `resolveBuildTarget` no longer reads
-   `descriptor.languages` and binds no language axis.)**
+  `language` is **not** part of route resolution or `BuildTarget`. It is
+  resolved after the template is chosen, as the Q0 `language` question
+  (ADR-0016 decision 5) in the collect-inputs walk; `resolveBuildTarget` no
+  longer reads `descriptor.languages` and binds no language axis. The resulting
+  `BuildTarget = { templateId, engine, answers }` feeds the rest of the flow
+  (Q2 → pipeline / v3 generator), which is identical regardless of source.
 
 2. **Each `selector.json` route declares its `engine`** — the closed set is
    `{ v4, v3, v3-core-method, surface-action }` (invariant 12,

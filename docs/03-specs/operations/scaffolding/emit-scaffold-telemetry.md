@@ -1,6 +1,7 @@
 # Operation — `emit-scaffold-telemetry`
 
-- **Status:** Accepted (Decision source ADR-0019 Accepted 2026-06-08) — ready for tests
+- **Status:** Accepted design; implementation not started — no `scaffold-v4-*`
+  telemetry emitter exists yet.
 - **Domain:** [`01-scaffolding`](../../domains/01-scaffolding.md)
 - **Decision source:** [ADR-0019](../../../02-architecture/adr/ADR-0019-dual-stream-scaffold-telemetry.md)
   (the `descriptor-spec` / `requires-network` fields are read from the resolved

@@ -2,6 +2,7 @@
 // Licensed under the MIT license.
 import {
   ConditionFunc,
+  ConfigFolderName,
   Inputs,
   LocalFunc,
   OptionItem,
@@ -39,6 +40,7 @@ import {
   scaffoldQuestionForVSCode,
 } from "../../src/question/scaffold/vsc/createRootNode";
 import { daProjectTypeNode } from "../../src/question/scaffold/vsc/daProjectTypeNode";
+import * as templateHelper from "../../src/component/generator/templateHelper";
 import {
   getRootProjectTypeNode,
   getTdpProjectTypeNode,
@@ -46,7 +48,7 @@ import {
 
 import { AppPackageFolderName } from "@microsoft/teamsfx-api";
 import fs from "fs-extra";
-import * as templateHelper from "../../src/component/generator/templateHelper";
+import path from "path";
 import {
   BotCapabilityOptions,
   CustomCopilotRagOptions,
@@ -1421,6 +1423,43 @@ describe("rootNode", () => {
 
     const readPath = readFileSyncStub.firstCall.args[0] as string;
     assert.notInclude(readPath, `.fx`);
+  });
+
+  it("ignores a downloaded ~/.fx/ui cache and loads bundled when v4 is enabled (regression: action question asked twice)", () => {
+    // Regression for the v4 double-ask. Once a v4 download lands, the marker
+    // template-version-v4.txt exists and the old logic read ~/.fx/ui/wizardNode.json.
+    // A cache that drifts from this fx-core (its action node no longer named
+    // QuestionNames.ActionType) defeats the front-door pre-fill, so the "add an
+    // action" question is asked a second time. The v4 channel must always pin the
+    // UI tree to the bundled artifact, even when every cached path exists.
+    sandbox.stub(templateHelper, "useLocalTemplate").returns(false);
+    sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
+    sandbox.stub(fs, "pathExistsSync").returns(true);
+    const readFileSyncStub = sandbox
+      .stub(fs, "readFileSync")
+      .returns(JSON.stringify({ data: { type: "group", name: "root" } }));
+
+    getRootProjectTypeNode(Platform.VSCode);
+
+    const readPath = String(readFileSyncStub.firstCall.args[0]);
+    assert.notInclude(readPath, `.${String(ConfigFolderName)}`);
+    assert.include(readPath, path.join("ui", "wizardNode.json"));
+  });
+
+  it("uses the ~/.fx/ui cache on the v3 channel when the cached file exists", () => {
+    // Guards that the fix does not change v3 behavior: with v4 disabled and a
+    // published (non-local) template version, the downloaded cache is still used.
+    sandbox.stub(templateHelper, "useLocalTemplate").returns(false);
+    sandbox.stub(featureFlagManager, "getBooleanValue").returns(false);
+    sandbox.stub(fs, "pathExistsSync").returns(true);
+    const readFileSyncStub = sandbox
+      .stub(fs, "readFileSync")
+      .returns(JSON.stringify({ data: { type: "group", name: "root" } }));
+
+    getRootProjectTypeNode(Platform.VSCode);
+
+    const readPath = String(readFileSyncStub.firstCall.args[0]);
+    assert.include(readPath, path.join(`.${String(ConfigFolderName)}`, "ui", "wizardNode.json"));
   });
 });
 

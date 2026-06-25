@@ -3,6 +3,7 @@ import { assert } from "chai";
 import path from "path";
 import sinon, { createSandbox } from "sinon";
 import { createContext, setTools } from "../../../src/common/globalVars";
+import { featureFlagManager, FeatureFlags } from "../../../src/common/featureFlags";
 import { DefaultTemplateGenerator } from "../../../src/component/generator/defaultGenerator";
 import { Generator } from "../../../src/component/generator/generator";
 import { Generators } from "../../../src/component/generator/generatorProvider";
@@ -71,5 +72,28 @@ describe("TemplateGenerator", () => {
         inputs?.[QuestionNames.ProgrammingLanguage] || ProgrammingLanguage.JS
       );
     });
+  });
+
+  it("keeps Platform.VS on the v3 channel when TEAMSFX_V4_ENABLED is on", async () => {
+    const realGetBooleanValue = featureFlagManager.getBooleanValue.bind(featureFlagManager);
+    sandbox
+      .stub(featureFlagManager, "getBooleanValue")
+      .callsFake((f) => f.name === FeatureFlags.V4Enabled.name || realGetBooleanValue(f));
+    inputs = {
+      ...inputs,
+      [QuestionNames.Capabilities]: TabCapabilityOptions.nonSsoTab().id,
+      [QuestionNames.ProgrammingLanguage]: ProgrammingLanguage.CSharp,
+      [QuestionNames.TemplateName]: TemplateNames.TabSSR,
+      targetFramework: "net8.0",
+    } as Inputs;
+
+    const res = await Generators.find((g) => g.activate(ctx, inputs))?.run(
+      ctx,
+      inputs,
+      destinationPath
+    );
+
+    assert.isTrue(res?.isOk());
+    assert.isTrue((Generator.generate as sinon.SinonStub).called);
   });
 });
