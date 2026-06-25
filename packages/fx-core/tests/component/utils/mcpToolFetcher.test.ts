@@ -411,6 +411,38 @@ describe("mcpToolFetcher", () => {
       );
     });
 
+    it("should not append a trailing slash for a host-only issuer (e.g. Notion)", async () => {
+      const getStub = sandbox.stub(axios, "get");
+      // Resource metadata returns a host-only issuer (no path); new URL().pathname is "/".
+      getStub.onFirstCall().resolves({
+        status: 200,
+        data: {
+          authorization_servers: ["https://mcp.notion.com"],
+        },
+      });
+      getStub.onSecondCall().resolves({
+        data: {
+          authorization_endpoint: "https://mcp.notion.com/authorize",
+          token_endpoint: "https://mcp.notion.com/token",
+        },
+      });
+
+      const result = await resolveMCPOAuthMetadata(
+        "https://mcp.notion.com/.well-known/oauth-protected-resource/mcp"
+      );
+
+      // Must NOT have a trailing slash — Notion returns 404 for ".../oauth-authorization-server/".
+      const wellKnownCallUrl = getStub.secondCall.args[0];
+      assert.equal(
+        wellKnownCallUrl,
+        "https://mcp.notion.com/.well-known/oauth-authorization-server"
+      );
+      assert.equal(
+        result.wellKnownUrl,
+        "https://mcp.notion.com/.well-known/oauth-authorization-server"
+      );
+    });
+
     it("should throw when only token_endpoint is present (missing authorization_endpoint)", async () => {
       sandbox.stub(axios, "get").resolves({
         data: {

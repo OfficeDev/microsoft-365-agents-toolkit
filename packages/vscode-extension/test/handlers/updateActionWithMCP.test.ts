@@ -10,6 +10,7 @@ import * as path from "path";
 import * as vscode from "vscode";
 
 import { ODRProvider, QuestionNames } from "@microsoft/teamsfx-core";
+import * as teamsfxCore from "@microsoft/teamsfx-core";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import * as globalVariables from "../../src/globalVariables";
 import * as sharedOpts from "../../src/handlers/sharedOpts";
@@ -32,6 +33,8 @@ describe("updateActionWithMCP", () => {
     mockValue(globalVariables, "core", new MockCore());
     vi.spyOn(ExtTelemetry, "sendTelemetryEvent");
     vi.spyOn(ExtTelemetry, "sendTelemetryErrorEvent");
+    // Default: remote MCP servers require no auth unless a test overrides this.
+    vi.spyOn(teamsfxCore, "probeMCPServerAuth").mockResolvedValue({ requiresAuth: false });
   });
 
   describe("sanitizeMCPName", () => {
@@ -550,21 +553,11 @@ describe("updateActionWithMCP", () => {
       const mockTools = [
         { name: "mcp_testserver_tool1", description: "Test", inputSchema: {}, tags: [] },
       ];
-      const axiosError = {
-        status: 401,
-        response: {
-          headers: {
-            "www-authenticate": 'Bearer resource_metadata="http://test.com/.well-known/oauth"',
-          },
-        },
-      };
-
       mockValue(vscode.lm, "tools", mockTools);
-      vi.spyOn(axios, "get")
-        .onFirstCall()
-        .throws(axiosError)
-        .onSecondCall()
-        .mockResolvedValue({ status: 200 });
+      vi.spyOn(teamsfxCore, "probeMCPServerAuth").mockResolvedValue({
+        requiresAuth: true,
+        authMetadataUrl: "http://test.com/.well-known/oauth",
+      });
       const runCommandStub = vi.spyOn(sharedOpts, "runCommand").mockResolvedValue(ok(undefined));
 
       await updateActionWithMCP(args);
@@ -582,16 +575,9 @@ describe("updateActionWithMCP", () => {
       const mockTools = [
         { name: "mcp_testserver_tool1", description: "Test", inputSchema: {}, tags: [] },
       ];
-      const axiosError = {
-        status: 401,
-        response: {
-          headers: {}, // No www-authenticate header
-        },
-      };
-
       mockValue(vscode.lm, "tools", mockTools);
+      vi.spyOn(teamsfxCore, "probeMCPServerAuth").mockResolvedValue({ requiresAuth: true });
       const axiosStub = vi.spyOn(axios, "get");
-      axiosStub.withArgs("https://api.test.com/v1").throws(axiosError);
       axiosStub
         .withArgs("https://api.test.com/.well-known/oauth-authorization-server")
         .mockResolvedValue({ status: 200 }); // well-known URL response
@@ -946,14 +932,9 @@ describe("updateActionWithMCP", () => {
       const mockTools = [
         { name: "mcp_testserver_tool1", description: "Test", inputSchema: {}, tags: [] },
       ];
-      const axiosError = {
-        status: 401,
-        response: {},
-      };
-
       mockValue(vscode.lm, "tools", mockTools);
+      vi.spyOn(teamsfxCore, "probeMCPServerAuth").mockResolvedValue({ requiresAuth: true });
       const axiosStub = vi.spyOn(axios, "get");
-      axiosStub.withArgs("http://test.com").throws(axiosError);
       axiosStub
         .withArgs("http://test.com/.well-known/oauth-authorization-server")
         .mockResolvedValue({ status: 200 });
@@ -970,17 +951,11 @@ describe("updateActionWithMCP", () => {
       const mockTools = [
         { name: "mcp_testserver_tool1", description: "Test", inputSchema: {}, tags: [] },
       ];
-      const axiosError = {
-        status: 401,
-        response: {
-          headers: {
-            "www-authenticate": 'Bearer resource_metadata="http://auth.test.com/metadata"',
-          },
-        },
-      };
-
       mockValue(vscode.lm, "tools", mockTools);
-      vi.spyOn(axios, "get").onFirstCall().throws(axiosError);
+      vi.spyOn(teamsfxCore, "probeMCPServerAuth").mockResolvedValue({
+        requiresAuth: true,
+        authMetadataUrl: "http://auth.test.com/metadata",
+      });
       const runCommandStub = vi.spyOn(sharedOpts, "runCommand").mockResolvedValue(ok(undefined));
 
       await updateActionWithMCP(args);
