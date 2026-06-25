@@ -49,7 +49,7 @@ export function getTemplateReplaceMap(inputs: Inputs): { [key: string]: string }
     }
   }
 
-  return {
+  const replaceMap: { [key: string]: string } = {
     appName: appName,
     ProjectName: appName,
     SolutionName: solutionName,
@@ -85,4 +85,15 @@ export function getTemplateReplaceMap(inputs: Inputs): { [key: string]: string }
     SandBoxedTeam: featureFlagManager.getBooleanValue(FeatureFlags.SandBoxedTeam) ? "true" : "",
     pathDelimiter: os.platform() === "win32" ? ";" : ":",
   };
+
+  // Auto-inject custom inputs from wizard JSON "customInputs" node.
+  // These are stored by constructNode's customInputs handler in inputs._customInputs.
+  // Template files can reference them as {{customInputName}}.
+  if (inputs._customInputs && typeof inputs._customInputs === "object") {
+    for (const [key, value] of Object.entries(inputs._customInputs)) {
+      replaceMap[key] = (value as string) ?? "";
+    }
+  }
+
+  return replaceMap;
 }
