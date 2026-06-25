@@ -221,4 +221,23 @@ describe("modifyProjectFrontDoor", () => {
       assert.equal(res.error.name, "SelectorFailed");
     }
   });
+
+  it("MDE-05: floor read exceptions are returned as SystemError results", async () => {
+    const res = await modifyProjectFrontDoor(
+      { platform: Platform.VSCode },
+      {},
+      {},
+      deps({
+        readFloorBytes: () => {
+          throw new Error("missing templates.zip");
+        },
+      })
+    );
+
+    assert.isTrue(res.isErr());
+    if (res.isErr()) {
+      assert.instanceOf(res.error, SystemError);
+      assert.equal(res.error.name, "ModifyTemplatePackageReadFailed");
+    }
+  });
 });

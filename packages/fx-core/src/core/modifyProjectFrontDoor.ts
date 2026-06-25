@@ -61,6 +61,17 @@ function unsupportedModifyTarget(target: BuildTarget): SystemError {
   });
 }
 
+function floorReadError(error: unknown): SystemError {
+  if (error instanceof SystemError) {
+    return error;
+  }
+  return new SystemError({
+    source: SOURCE,
+    name: "ModifyTemplatePackageReadFailed",
+    message: "Failed to read the bundled modify template package.",
+  });
+}
+
 export async function modifyProjectFrontDoor(
   inputs: Inputs,
   selectorPrefill: Record<string, string>,
@@ -69,7 +80,12 @@ export async function modifyProjectFrontDoor(
 ): Promise<Result<undefined, FxError>> {
   const flagReader = deps.flagReader ?? defaultFlagReader;
   const ui = deps.ui ?? TOOLS.ui;
-  const floorBytes = (deps.readFloorBytes ?? readBundledFloorBytes)();
+  let floorBytes: Buffer;
+  try {
+    floorBytes = (deps.readFloorBytes ?? readBundledFloorBytes)();
+  } catch (error) {
+    return err(floorReadError(error));
+  }
   const surface = surfaceOf(inputs.platform);
   const runSelector = deps.runSelector ?? runModifySelector;
   const target = await runSelector(floorBytes, ui, surface, {

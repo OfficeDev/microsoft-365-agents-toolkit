@@ -124,4 +124,44 @@ describe("scaffoldFromPackageDir (v4 product front-door)", () => {
     const paths = (loaded?.content ?? []).map((entry) => entry.path);
     assert.include(paths, "appPackage/ai-plugin.json.tpl");
   });
+
+  it("ORCH-07: scaffold exceptions are returned as SystemError results", async () => {
+    const packageDir = path.join(tempDir, "package");
+    fs.ensureDirSync(path.join(packageDir, "content"));
+    fs.writeFileSync(path.join(packageDir, "descriptor.json"), "{}");
+    fs.writeFileSync(
+      path.join(packageDir, "pipeline.json"),
+      JSON.stringify({
+        pipeline: "default",
+        steps: [
+          {
+            step: "mcp-local/materialize-servers",
+            with: {
+              target: "../outside.txt",
+              selected: "{{selectedLocalServers}}",
+              catalog: "{{localServerCatalog}}",
+            },
+          },
+        ],
+      })
+    );
+
+    const result = await scaffoldFromPackageDir(
+      packageDir,
+      {
+        selectedLocalServers: ["local"],
+        localServerCatalog: JSON.stringify({ local: { command: "node", args: [] } }),
+      },
+      FLOOR,
+      {
+        path: tempDir,
+        existing: [],
+      }
+    );
+
+    assert.isTrue(result.isErr(), "expected scaffold exception to be captured");
+    const error = result.isErr() ? result.error : undefined;
+    assert.instanceOf(error, SystemError);
+    assert.strictEqual(error?.name, "ScaffoldPathEscape");
+  });
 });
