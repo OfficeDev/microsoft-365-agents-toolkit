@@ -55,6 +55,7 @@ jobs:
           AZURE_ACCOUNT_PASSWORD: ${{ secrets.TEST_ACCOUNT_PASSWORD }}
           AZURE_TENANT_ID: ${{ vars.TEST_TENANT_CLEAN_TENANT_ID }}
           AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+          COPILOT_ALLOW_ALL_TOOLS: "1" 
         run: waza run -o evals/results/latest.json
 
       - name: Fetch baseline.json from PR target branch
