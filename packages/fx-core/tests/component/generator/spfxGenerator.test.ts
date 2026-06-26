@@ -43,13 +43,11 @@ describe("SPFxGenerator", function () {
     vi.spyOn(Utils, "configure");
 
     const manifestId = uuid.v4();
-    vi
-      .spyOn(fs, "readFile")
-      .mockResolvedValue(
-        Buffer.from(
-          `{"id": "${manifestId}", "preconfiguredEntries": [{"title": {"default": "helloworld"}}]}`
-        )
-      );
+    vi.spyOn(fs, "readFile").mockResolvedValue(
+      Buffer.from(
+        `{"id": "${manifestId}", "preconfiguredEntries": [{"title": {"default": "helloworld"}}]}`
+      )
+    );
     vi.spyOn(fs, "writeFile").mockResolvedValue();
     vi.spyOn(fs, "rename").mockResolvedValue();
     vi.spyOn(fs, "copyFile").mockResolvedValue();
@@ -226,7 +224,9 @@ describe("SPFxGenerator", function () {
     vi.spyOn(YoChecker.prototype, "isLatestInstalled").mockResolvedValue(true);
     vi.spyOn(cpUtils, "executeCommand").mockResolvedValue("succeed");
     vi.spyOn(GeneratorChecker.prototype, "isLatestInstalled").mockResolvedValue(false);
-    const yoInstaller = vi.spyOn(YoChecker.prototype, "ensureDependency").mockResolvedValue(ok(true));
+    const yoInstaller = vi
+      .spyOn(YoChecker.prototype, "ensureDependency")
+      .mockResolvedValue(ok(true));
     const generatorInstaller = vi
       .spyOn(GeneratorChecker.prototype, "ensureDependency")
       .mockResolvedValue(ok(true));
@@ -255,7 +255,9 @@ describe("SPFxGenerator", function () {
     vi.spyOn(YoChecker.prototype, "isLatestInstalled").mockResolvedValue(false);
     vi.spyOn(GeneratorChecker.prototype, "isLatestInstalled").mockResolvedValue(true);
     vi.spyOn(cpUtils, "executeCommand").mockResolvedValue("succeed");
-    const yoInstaller = vi.spyOn(YoChecker.prototype, "ensureDependency").mockResolvedValue(ok(true));
+    const yoInstaller = vi
+      .spyOn(YoChecker.prototype, "ensureDependency")
+      .mockResolvedValue(ok(true));
     const generatorInstaller = vi
       .spyOn(GeneratorChecker.prototype, "ensureDependency")
       .mockResolvedValue(ok(true));
@@ -284,9 +286,9 @@ describe("SPFxGenerator", function () {
     vi.spyOn(YoChecker.prototype, "isLatestInstalled").mockResolvedValue(true);
     vi.spyOn(GeneratorChecker.prototype, "isLatestInstalled").mockResolvedValue(false);
     vi.spyOn(YoChecker.prototype, "ensureDependency").mockResolvedValue(ok(true));
-    vi
-      .spyOn(GeneratorChecker.prototype, "ensureDependency")
-      .mockResolvedValue(err(new SystemError("source", "name", "msg", "msg")));
+    vi.spyOn(GeneratorChecker.prototype, "ensureDependency").mockResolvedValue(
+      err(new SystemError("source", "name", "msg", "msg"))
+    );
 
     const result = await SPFxGenerator.generate(context, inputs, testFolder);
 
@@ -306,9 +308,9 @@ describe("SPFxGenerator", function () {
     };
     vi.spyOn(YoChecker.prototype, "isLatestInstalled").mockResolvedValue(false);
     vi.spyOn(GeneratorChecker.prototype, "isLatestInstalled").mockResolvedValue(true);
-    vi
-      .spyOn(YoChecker.prototype, "ensureDependency")
-      .mockResolvedValue(err(new SystemError("source", "name", "msg", "msg")));
+    vi.spyOn(YoChecker.prototype, "ensureDependency").mockResolvedValue(
+      err(new SystemError("source", "name", "msg", "msg"))
+    );
 
     const result = await SPFxGenerator.generate(context, inputs, testFolder);
 
@@ -328,7 +330,9 @@ describe("SPFxGenerator", function () {
     };
     vi.spyOn(YoChecker.prototype, "isLatestInstalled").mockResolvedValue(true);
     vi.spyOn(GeneratorChecker.prototype, "isLatestInstalled").mockResolvedValue(true);
-    vi.spyOn(cpUtils, "executeCommand").mockImplementation(() => { throw new Error("errorMessage"); });
+    vi.spyOn(cpUtils, "executeCommand").mockImplementation(() => {
+      throw new Error("errorMessage");
+    });
     vi.spyOn(Generator, "generateTemplate" as any).mockResolvedValue(ok(undefined));
 
     const result = await SPFxGenerator.generate(context, inputs, testFolder);
@@ -346,9 +350,13 @@ describe("SPFxGenerator", function () {
     };
     vi.spyOn(YoChecker.prototype, "isLatestInstalled").mockResolvedValue(false);
     vi.spyOn(GeneratorChecker.prototype, "isLatestInstalled").mockResolvedValue(true);
-    vi.spyOn(cpUtils, "executeCommand").mockImplementation(() => { throw new Error("errorMessage"); });
+    vi.spyOn(cpUtils, "executeCommand").mockImplementation(() => {
+      throw new Error("errorMessage");
+    });
     vi.spyOn(Generator, "generateTemplate" as any).mockResolvedValue(ok(undefined));
-    vi.spyOn(YoChecker.prototype, "ensureDependency").mockImplementation(() => { throw new Error("unknown"); });
+    vi.spyOn(YoChecker.prototype, "ensureDependency").mockImplementation(() => {
+      throw new Error("unknown");
+    });
 
     const result = await SPFxGenerator.generate(context, inputs, testFolder);
 
@@ -477,7 +485,9 @@ describe("SPFxGenerator", function () {
 
     vi.spyOn(fs, "pathExists").mockResolvedValue(true);
     vi.spyOn(fs, "readdir").mockResolvedValue([]);
-    vi.spyOn(fs, "copy").mockImplementation(() => { throw "Failed to copy"; });
+    vi.spyOn(fs, "copy").mockImplementation(() => {
+      throw "Failed to copy";
+    });
 
     const result = await SPFxGenerator.generate(context, inputs, testFolder);
 
@@ -513,9 +523,9 @@ describe("SPFxGenerator", function () {
     } as any);
     vi.spyOn(fs, "copy").mockResolvedValue();
     vi.spyOn(Generator, "generateTemplate" as any).mockResolvedValue(ok(undefined));
-    vi
-      .spyOn(ManifestUtils.prototype, "_readAppManifest")
-      .mockImplementation(() => { throw "Failed to read manifest"; });
+    vi.spyOn(ManifestUtils.prototype, "_readAppManifest").mockImplementation(() => {
+      throw "Failed to read manifest";
+    });
 
     const result = await SPFxGenerator.generate(context, inputs, testFolder);
 
@@ -809,11 +819,17 @@ describe("SPFxGenerator", function () {
         stage: Stage.addWebpart,
       };
 
-      vi.spyOn(GeneratorChecker.prototype, "findGloballyInstalledVersion").mockResolvedValue("1.17.4");
-      vi.spyOn(GeneratorChecker.prototype, "findLocalInstalledVersion").mockResolvedValue(undefined);
+      vi.spyOn(GeneratorChecker.prototype, "findGloballyInstalledVersion").mockResolvedValue(
+        "1.17.4"
+      );
+      vi.spyOn(GeneratorChecker.prototype, "findLocalInstalledVersion").mockResolvedValue(
+        undefined
+      );
       vi.spyOn(fs, "pathExists").mockResolvedValue(true);
       vi.spyOn(cpUtils, "executeCommand").mockResolvedValue("succeed");
-      const yoInstaller = vi.spyOn(YoChecker.prototype, "ensureDependency").mockResolvedValue(ok(true));
+      const yoInstaller = vi
+        .spyOn(YoChecker.prototype, "ensureDependency")
+        .mockResolvedValue(ok(true));
       const generatorInstaller = vi
         .spyOn(GeneratorChecker.prototype, "ensureDependency")
         .mockResolvedValue(ok(true));
@@ -839,11 +855,17 @@ describe("SPFxGenerator", function () {
         stage: Stage.addWebpart,
       };
 
-      vi.spyOn(GeneratorChecker.prototype, "findGloballyInstalledVersion").mockResolvedValue("1.21.0");
-      vi.spyOn(GeneratorChecker.prototype, "findLocalInstalledVersion").mockResolvedValue(undefined);
+      vi.spyOn(GeneratorChecker.prototype, "findGloballyInstalledVersion").mockResolvedValue(
+        "1.21.0"
+      );
+      vi.spyOn(GeneratorChecker.prototype, "findLocalInstalledVersion").mockResolvedValue(
+        undefined
+      );
       vi.spyOn(fs, "pathExists").mockResolvedValue(true);
       vi.spyOn(cpUtils, "executeCommand").mockResolvedValue("succeed");
-      const yoInstaller = vi.spyOn(YoChecker.prototype, "ensureDependency").mockResolvedValue(ok(true));
+      const yoInstaller = vi
+        .spyOn(YoChecker.prototype, "ensureDependency")
+        .mockResolvedValue(ok(true));
       const generatorInstaller = vi
         .spyOn(GeneratorChecker.prototype, "ensureDependency")
         .mockResolvedValue(ok(true));
@@ -871,14 +893,18 @@ describe("SPFxGenerator", function () {
         stage: Stage.addWebpart,
       };
 
-      vi.spyOn(GeneratorChecker.prototype, "findGloballyInstalledVersion").mockResolvedValue(undefined);
+      vi.spyOn(GeneratorChecker.prototype, "findGloballyInstalledVersion").mockResolvedValue(
+        undefined
+      );
       vi.spyOn(GeneratorChecker.prototype, "findLocalInstalledVersion").mockResolvedValue("1.17.4");
       const localYoChecker = vi
         .spyOn(YoChecker.prototype, "findLocalInstalledVersion")
         .mockResolvedValue("4.3.1");
       vi.spyOn(fs, "pathExists").mockResolvedValue(true);
       vi.spyOn(cpUtils, "executeCommand").mockResolvedValue("succeed");
-      const yoInstaller = vi.spyOn(YoChecker.prototype, "ensureDependency").mockResolvedValue(ok(true));
+      const yoInstaller = vi
+        .spyOn(YoChecker.prototype, "ensureDependency")
+        .mockResolvedValue(ok(true));
       const generatorInstaller = vi
         .spyOn(GeneratorChecker.prototype, "ensureDependency")
         .mockResolvedValue(ok(true));
@@ -906,14 +932,20 @@ describe("SPFxGenerator", function () {
         stage: Stage.addWebpart,
       };
 
-      vi.spyOn(GeneratorChecker.prototype, "findGloballyInstalledVersion").mockResolvedValue("1.17.0");
-      vi.spyOn(GeneratorChecker.prototype, "findLocalInstalledVersion").mockResolvedValue(undefined);
+      vi.spyOn(GeneratorChecker.prototype, "findGloballyInstalledVersion").mockResolvedValue(
+        "1.17.0"
+      );
+      vi.spyOn(GeneratorChecker.prototype, "findLocalInstalledVersion").mockResolvedValue(
+        undefined
+      );
       const localYoChecker = vi
         .spyOn(YoChecker.prototype, "findLocalInstalledVersion")
         .mockResolvedValue(undefined);
       vi.spyOn(fs, "pathExists").mockResolvedValue(true);
       vi.spyOn(cpUtils, "executeCommand").mockResolvedValue("succeed");
-      const yoInstaller = vi.spyOn(YoChecker.prototype, "ensureDependency").mockResolvedValue(ok(true));
+      const yoInstaller = vi
+        .spyOn(YoChecker.prototype, "ensureDependency")
+        .mockResolvedValue(ok(true));
       const generatorInstaller = vi
         .spyOn(GeneratorChecker.prototype, "ensureDependency")
         .mockResolvedValue(ok(true));
@@ -945,14 +977,18 @@ describe("SPFxGenerator", function () {
         stage: Stage.addWebpart,
       };
 
-      vi.spyOn(GeneratorChecker.prototype, "findGloballyInstalledVersion").mockResolvedValue("1.17.0");
+      vi.spyOn(GeneratorChecker.prototype, "findGloballyInstalledVersion").mockResolvedValue(
+        "1.17.0"
+      );
       vi.spyOn(GeneratorChecker.prototype, "findLocalInstalledVersion").mockResolvedValue("1.16.1");
       const localYoChecker = vi
         .spyOn(YoChecker.prototype, "findLocalInstalledVersion")
         .mockResolvedValue("4.3.1");
       vi.spyOn(fs, "pathExists").mockResolvedValue(true);
       vi.spyOn(cpUtils, "executeCommand").mockResolvedValue("succeed");
-      const yoInstaller = vi.spyOn(YoChecker.prototype, "ensureDependency").mockResolvedValue(ok(true));
+      const yoInstaller = vi
+        .spyOn(YoChecker.prototype, "ensureDependency")
+        .mockResolvedValue(ok(true));
       const generatorInstaller = vi
         .spyOn(GeneratorChecker.prototype, "ensureDependency")
         .mockResolvedValue(ok(true));
@@ -981,21 +1017,29 @@ describe("SPFxGenerator", function () {
         stage: Stage.addWebpart,
       };
 
-      vi.spyOn(GeneratorChecker.prototype, "findGloballyInstalledVersion").mockResolvedValue("1.17.0");
+      vi.spyOn(GeneratorChecker.prototype, "findGloballyInstalledVersion").mockResolvedValue(
+        "1.17.0"
+      );
       vi.spyOn(GeneratorChecker.prototype, "findLocalInstalledVersion").mockResolvedValue("1.18.2");
       const localYoChecker = vi
         .spyOn(YoChecker.prototype, "findLocalInstalledVersion")
         .mockResolvedValue("4.3.1");
       vi.spyOn(fs, "pathExists").mockResolvedValue(true);
       vi.spyOn(cpUtils, "executeCommand").mockResolvedValue("succeed");
-      const yoInstaller = vi.spyOn(YoChecker.prototype, "ensureDependency").mockResolvedValue(ok(true));
+      const yoInstaller = vi
+        .spyOn(YoChecker.prototype, "ensureDependency")
+        .mockResolvedValue(ok(true));
       const generatorInstaller = vi
         .spyOn(GeneratorChecker.prototype, "ensureDependency")
         .mockResolvedValue(ok(true));
       const userConfirm = vi
         .spyOn(context.userInteraction, "showMessage")
-        .mockResolvedValueOnce(ok(getLocalizedString("plugins.spfx.addWebPart.versionMismatch.help")))
-        .mockResolvedValueOnce(ok(getLocalizedString("plugins.spfx.addWebPart.versionMismatch.continue")));
+        .mockResolvedValueOnce(
+          ok(getLocalizedString("plugins.spfx.addWebPart.versionMismatch.help"))
+        )
+        .mockResolvedValueOnce(
+          ok(getLocalizedString("plugins.spfx.addWebPart.versionMismatch.continue"))
+        );
       const openUrl = vi.spyOn(context.userInteraction, "openUrl").mockResolvedValue(ok(true));
 
       const result = await SPFxGenerator.doYeomanScaffold(context, inputs, testFolder);
@@ -1020,14 +1064,18 @@ describe("SPFxGenerator", function () {
         stage: Stage.addWebpart,
       };
 
-      vi.spyOn(GeneratorChecker.prototype, "findGloballyInstalledVersion").mockResolvedValue("1.17.0");
+      vi.spyOn(GeneratorChecker.prototype, "findGloballyInstalledVersion").mockResolvedValue(
+        "1.17.0"
+      );
       vi.spyOn(GeneratorChecker.prototype, "findLocalInstalledVersion").mockResolvedValue("1.16.1");
       const localYoChecker = vi
         .spyOn(YoChecker.prototype, "findLocalInstalledVersion")
         .mockResolvedValue("4.3.1");
       vi.spyOn(fs, "pathExists").mockResolvedValue(true);
       vi.spyOn(cpUtils, "executeCommand").mockResolvedValue("succeed");
-      const yoInstaller = vi.spyOn(YoChecker.prototype, "ensureDependency").mockResolvedValue(ok(true));
+      const yoInstaller = vi
+        .spyOn(YoChecker.prototype, "ensureDependency")
+        .mockResolvedValue(ok(true));
       const generatorInstaller = vi
         .spyOn(GeneratorChecker.prototype, "ensureDependency")
         .mockResolvedValue(ok(true));
@@ -1056,14 +1104,18 @@ describe("SPFxGenerator", function () {
         stage: Stage.addWebpart,
       };
 
-      vi.spyOn(GeneratorChecker.prototype, "findGloballyInstalledVersion").mockResolvedValue("1.17.0");
+      vi.spyOn(GeneratorChecker.prototype, "findGloballyInstalledVersion").mockResolvedValue(
+        "1.17.0"
+      );
       vi.spyOn(GeneratorChecker.prototype, "findLocalInstalledVersion").mockResolvedValue("1.16.1");
       const localYoChecker = vi
         .spyOn(YoChecker.prototype, "findLocalInstalledVersion")
         .mockResolvedValue("4.3.1");
       vi.spyOn(fs, "pathExists").mockResolvedValue(true);
       vi.spyOn(cpUtils, "executeCommand").mockResolvedValue("succeed");
-      const yoInstaller = vi.spyOn(YoChecker.prototype, "ensureDependency").mockResolvedValue(ok(true));
+      const yoInstaller = vi
+        .spyOn(YoChecker.prototype, "ensureDependency")
+        .mockResolvedValue(ok(true));
       const generatorInstaller = vi
         .spyOn(GeneratorChecker.prototype, "ensureDependency")
         .mockResolvedValue(ok(true));
@@ -1092,14 +1144,18 @@ describe("SPFxGenerator", function () {
         stage: Stage.addWebpart,
       };
 
-      vi.spyOn(GeneratorChecker.prototype, "findGloballyInstalledVersion").mockResolvedValue("1.17.0");
+      vi.spyOn(GeneratorChecker.prototype, "findGloballyInstalledVersion").mockResolvedValue(
+        "1.17.0"
+      );
       vi.spyOn(GeneratorChecker.prototype, "findLocalInstalledVersion").mockResolvedValue("1.18.2");
       const localYoChecker = vi
         .spyOn(YoChecker.prototype, "findLocalInstalledVersion")
         .mockResolvedValue("4.3.1");
       vi.spyOn(fs, "pathExists").mockResolvedValue(true);
       vi.spyOn(cpUtils, "executeCommand").mockResolvedValue("succeed");
-      const yoInstaller = vi.spyOn(YoChecker.prototype, "ensureDependency").mockResolvedValue(ok(true));
+      const yoInstaller = vi
+        .spyOn(YoChecker.prototype, "ensureDependency")
+        .mockResolvedValue(ok(true));
       const generatorInstaller = vi
         .spyOn(GeneratorChecker.prototype, "ensureDependency")
         .mockResolvedValue(ok(true));
@@ -1132,8 +1188,12 @@ describe("SPFxGenerator", function () {
         stage: Stage.addWebpart,
       };
 
-      vi.spyOn(GeneratorChecker.prototype, "findGloballyInstalledVersion").mockResolvedValue("1.17.0");
-      vi.spyOn(GeneratorChecker.prototype, "findLocalInstalledVersion").mockResolvedValue(undefined);
+      vi.spyOn(GeneratorChecker.prototype, "findGloballyInstalledVersion").mockResolvedValue(
+        "1.17.0"
+      );
+      vi.spyOn(GeneratorChecker.prototype, "findLocalInstalledVersion").mockResolvedValue(
+        undefined
+      );
       const localYoChecker = vi
         .spyOn(YoChecker.prototype, "findLocalInstalledVersion")
         .mockResolvedValue(undefined);
@@ -1166,7 +1226,9 @@ describe("SPFxGenerator", function () {
         stage: Stage.addWebpart,
       };
 
-      vi.spyOn(GeneratorChecker.prototype, "findGloballyInstalledVersion").mockResolvedValue("1.17.0");
+      vi.spyOn(GeneratorChecker.prototype, "findGloballyInstalledVersion").mockResolvedValue(
+        "1.17.0"
+      );
       vi.spyOn(GeneratorChecker.prototype, "findLocalInstalledVersion").mockResolvedValue("1.16.1");
       const localYoChecker = vi
         .spyOn(YoChecker.prototype, "findLocalInstalledVersion")

@@ -32,34 +32,35 @@ describe("certificate", () => {
     beforeEach(() => {
       files = {};
       vi.restoreAllMocks();
-      vi
-        .spyOn(LocalCertificateManager.prototype, "generateCertificate")
-        .mockImplementation(async (certFile: string, keyFile: string) => {
+      vi.spyOn(LocalCertificateManager.prototype, "generateCertificate").mockImplementation(
+        async (certFile: string, keyFile: string) => {
           files[path.resolve(certFile)] = lightweightCertPair.certPem;
           files[path.resolve(keyFile)] = lightweightCertPair.keyPem;
           return lightweightCertPair.thumbprint;
-        });
+        }
+      );
       vi.spyOn(localCertificateManagerDeps, "ensureDir").mockImplementation(async (dir: string) => {
         return Promise.resolve();
       });
-      vi.spyOn(localCertificateManagerDeps, "pathExists").mockImplementation(async (file: string) => {
-        return Promise.resolve(files[path.resolve(file)] !== undefined);
-      });
-      vi
-        .spyOn(localCertificateManagerDeps, "readFile")
-        .mockImplementation(async (file: fs.PathLike | number, options?: any) => {
+      vi.spyOn(localCertificateManagerDeps, "pathExists").mockImplementation(
+        async (file: string) => {
+          return Promise.resolve(files[path.resolve(file)] !== undefined);
+        }
+      );
+      vi.spyOn(localCertificateManagerDeps, "readFile").mockImplementation(
+        async (file: fs.PathLike | number, options?: any) => {
           return Promise.resolve(files[path.resolve(file as string)]);
-        });
-      vi
-        .spyOn(localCertificateManagerDeps, "writeFile")
-        .mockImplementation(async (file: fs.PathLike | number, data: any, options?: any) => {
+        }
+      );
+      vi.spyOn(localCertificateManagerDeps, "writeFile").mockImplementation(
+        async (file: fs.PathLike | number, data: any, options?: any) => {
           files[path.resolve(file as string)] = data;
           return Promise.resolve();
-        });
+        }
+      );
       vi.spyOn(localCertificateManagerDeps, "homedir").mockImplementation(() => fakeHomeDir);
-      vi
-        .spyOn(localCertificateManagerDeps, "execPowerShell")
-        .mockImplementation(async (command: string) => {
+      vi.spyOn(localCertificateManagerDeps, "execPowerShell").mockImplementation(
+        async (command: string) => {
           if (command.startsWith("Get-ChildItem")) {
             // Command: `Get-ChildItem -Path Cert:\\CurrentUser\\Root | Where-Object { $_.Thumbprint -match '${thumbprint}' }`
             return command.split("'")[1];
@@ -69,7 +70,8 @@ describe("certificate", () => {
           } else {
             return "";
           }
-        });
+        }
+      );
       certManager = new LocalCertificateManager();
     });
 
@@ -161,45 +163,49 @@ describe("certificate", () => {
     beforeEach(() => {
       files = {};
       vi.restoreAllMocks();
-      vi
-        .spyOn(LocalCertificateManager.prototype, "generateCertificate")
-        .mockImplementation(async (certFile: string, keyFile: string) => {
+      vi.spyOn(LocalCertificateManager.prototype, "generateCertificate").mockImplementation(
+        async (certFile: string, keyFile: string) => {
           files[path.resolve(certFile)] = lightweightCertPair.certPem;
           files[path.resolve(keyFile)] = lightweightCertPair.keyPem;
           return lightweightCertPair.thumbprint;
-        });
+        }
+      );
       vi.spyOn(localCertificateManagerDeps, "osType").mockReturnValue("Windows_NT");
       vi.spyOn(localCertificateManagerDeps, "ensureDir").mockResolvedValue();
-      vi.spyOn(localCertificateManagerDeps, "pathExists").mockImplementation(async (file: string) => {
-        return Promise.resolve(files[path.resolve(file)] !== undefined);
-      });
-      vi
-        .spyOn(localCertificateManagerDeps, "readFile")
-        .mockImplementation(async (file: fs.PathLike | number, options?: any) => {
+      vi.spyOn(localCertificateManagerDeps, "pathExists").mockImplementation(
+        async (file: string) => {
+          return Promise.resolve(files[path.resolve(file)] !== undefined);
+        }
+      );
+      vi.spyOn(localCertificateManagerDeps, "readFile").mockImplementation(
+        async (file: fs.PathLike | number, options?: any) => {
           return Promise.resolve(files[path.resolve(file as string)]);
-        });
-      vi
-        .spyOn(localCertificateManagerDeps, "writeFile")
-        .mockImplementation(async (file: fs.PathLike | number, data: any, options?: any) => {
+        }
+      );
+      vi.spyOn(localCertificateManagerDeps, "writeFile").mockImplementation(
+        async (file: fs.PathLike | number, data: any, options?: any) => {
           files[path.resolve(file as string)] = data;
           return Promise.resolve();
-        });
+        }
+      );
       vi.spyOn(localCertificateManagerDeps, "homedir").mockImplementation(() => fakeHomeDir);
       vi.spyOn(localCertificateManagerDeps, "execPowerShell").mockRejectedValue();
-      vi.spyOn(localCertificateManagerDeps, "execShell").mockImplementation(async (command: string) => {
-        if (command.startsWith("certutil -user -verifystore")) {
-          // Command: `certutil -user -verifystore root ${thumbprint}`
-          return "Not Found";
-        } else if (command.startsWith("certutil -user -addstore")) {
-          // Command: `certutil -user -addstore root "${localCert.certPath}"`
-          return "addstore";
-        } else if (command.startsWith("certutil -user -repairstore")) {
-          // Command: `certutil -user -repairstore root ${thumbprint} "${certInfPath}"`
-          return "repairstore";
-        } else {
-          return "";
+      vi.spyOn(localCertificateManagerDeps, "execShell").mockImplementation(
+        async (command: string) => {
+          if (command.startsWith("certutil -user -verifystore")) {
+            // Command: `certutil -user -verifystore root ${thumbprint}`
+            return "Not Found";
+          } else if (command.startsWith("certutil -user -addstore")) {
+            // Command: `certutil -user -addstore root "${localCert.certPath}"`
+            return "addstore";
+          } else if (command.startsWith("certutil -user -repairstore")) {
+            // Command: `certutil -user -repairstore root ${thumbprint} "${certInfPath}"`
+            return "repairstore";
+          } else {
+            return "";
+          }
         }
-      });
+      );
       certManager = new LocalCertificateManager();
     });
 
@@ -300,9 +306,8 @@ describe("certificate", () => {
     });
 
     it("trustCertificateWindows", async () => {
-      vi
-        .spyOn(localCertificateManagerDeps, "execPowerShell")
-        .mockImplementation(async (command: string) => {
+      vi.spyOn(localCertificateManagerDeps, "execPowerShell").mockImplementation(
+        async (command: string) => {
           if (command.startsWith("(Get-ChildItem")) {
             // Command: `(Get-ChildItem -Path Cert:\\CurrentUser\\Root\\${thumbprint}).FriendlyName='${friendlyName}'`
             return "friendlyname";
@@ -312,7 +317,8 @@ describe("certificate", () => {
           } else {
             return "";
           }
-        });
+        }
+      );
       const certManager = new LocalCertificateManager();
       await (certManager as any).trustCertificateWindows(
         {
@@ -345,9 +351,10 @@ describe("certificate", () => {
       const privateKey = pki.privateKeyFromPem(lightweightCertPair.keyPem);
       const publicKey = pki.certificateFromPem(lightweightCertPair.certPem).publicKey;
 
-      vi
-        .spyOn(pki.rsa, "generateKeyPair")
-        .mockReturnValue({ privateKey, publicKey } as unknown as pki.rsa.KeyPair);
+      vi.spyOn(pki.rsa, "generateKeyPair").mockReturnValue({
+        privateKey,
+        publicKey,
+      } as unknown as pki.rsa.KeyPair);
       const writeFileStub = vi.spyOn(localCertificateManagerDeps, "writeFile").mockResolvedValue();
 
       const certManager = new LocalCertificateManager();
@@ -374,8 +381,12 @@ describe("certificate", () => {
 
     it("trustCertificate on Darwin should run add-trusted-cert", async () => {
       vi.spyOn(localCertificateManagerDeps, "osType").mockReturnValue("Darwin");
-      vi.spyOn(LocalCertificateManager.prototype as any, "waitForUserConfirm").mockResolvedValue(true);
-      const execShellStub = vi.spyOn(localCertificateManagerDeps, "execShell").mockResolvedValue("ok");
+      vi.spyOn(LocalCertificateManager.prototype as any, "waitForUserConfirm").mockResolvedValue(
+        true
+      );
+      const execShellStub = vi
+        .spyOn(localCertificateManagerDeps, "execShell")
+        .mockResolvedValue("ok");
 
       const certManager = new LocalCertificateManager();
       const cert = {
@@ -408,11 +419,14 @@ describe("setupCertificate check only", () => {
     vi.spyOn(localCertificateManagerDeps, "pathExists").mockResolvedValue(true);
     vi.spyOn(localCertificateManagerDeps, "readFile").mockResolvedValue("aaa" as any);
     const certManager = new LocalCertificateManager();
-    vi
-      .spyOn(LocalCertificateManager.prototype, "verifyCertificateContent")
-      .mockReturnValue(["test", true]);
+    vi.spyOn(LocalCertificateManager.prototype, "verifyCertificateContent").mockReturnValue([
+      "test",
+      true,
+    ]);
     vi.spyOn(LocalCertificateManager.prototype, "generateCertificate").mockResolvedValue("test");
-    vi.spyOn(LocalCertificateManager.prototype, "verifyCertificateInStore").mockResolvedValue(false);
+    vi.spyOn(LocalCertificateManager.prototype, "verifyCertificateInStore").mockResolvedValue(
+      false
+    );
     const res = await certManager.setupCertificate(true, true);
     chai.assert.isTrue(res.found);
     chai.assert.isFalse(res.alreadyTrusted);

@@ -181,9 +181,9 @@ describe("CustomEngineAgentWithExistingApiSpecGenerator", async () => {
         },
       };
       const context = createContext();
-      vi
-        .spyOn(customEngineAgentGeneratorDeps, "generateFilesFromApiSpec")
-        .mockRejectedValue(new Error("test"));
+      vi.spyOn(customEngineAgentGeneratorDeps, "generateFilesFromApiSpec").mockRejectedValue(
+        new Error("test")
+      );
       const assembleErrorStub = vi
         .spyOn(customEngineAgentGeneratorDeps, "assembleError")
         .mockReturnValue(new SystemError("ut", "test", "", ""));
@@ -212,7 +212,9 @@ describe("CustomEngineAgentWithExistingApiSpecGenerator", async () => {
       };
       const context = createContext();
       const specError = new SpecParserError("test", ErrorType.Unknown);
-      vi.spyOn(customEngineAgentGeneratorDeps, "generateFilesFromApiSpec").mockRejectedValue(specError);
+      vi.spyOn(customEngineAgentGeneratorDeps, "generateFilesFromApiSpec").mockRejectedValue(
+        specError
+      );
       const convertStub = vi
         .spyOn(customEngineAgentGeneratorDeps, "convertSpecParserErrorToFxError")
         .mockReturnValue(new SystemError("ut", "spec-parser", "", ""));

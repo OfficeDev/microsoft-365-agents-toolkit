@@ -86,9 +86,9 @@ describe("TdpGenerator", function () {
         projectPath: ".",
         teamsAppFromTdp: {},
       };
-      vi
-        .spyOn(developerPortalScaffoldUtils, "updateFilesForTdp")
-        .mockResolvedValue(err(new UserCancelError()));
+      vi.spyOn(developerPortalScaffoldUtils, "updateFilesForTdp").mockResolvedValue(
+        err(new UserCancelError())
+      );
       const context = createContext();
       const generator = new TdpGenerator();
       const res = await generator.post(context, inputs, ".");

@@ -100,9 +100,9 @@ describe("teamsApp/validateWithTestCases", async () => {
       return archivedFile;
     });
     vi.spyOn(metadataUtil, "parseManifest");
-    vi
-      .spyOn(mockedDriverContext.m365TokenProvider, "getAccessToken")
-      .mockResolvedValue(err(new SystemError({})));
+    vi.spyOn(mockedDriverContext.m365TokenProvider, "getAccessToken").mockResolvedValue(
+      err(new SystemError({}))
+    );
 
     const result = (await teamsAppDriver.execute(args, mockedDriverContext)).result;
     chai.assert(result.isErr());
@@ -138,9 +138,9 @@ describe("teamsApp/validateWithTestCases", async () => {
     const invalidValidationResultResponse: AsyncAppValidationResultsResponse = <
       AsyncAppValidationResultsResponse
     >invalidValidationResultResponseJson;
-    vi
-      .spyOn(teamsDevPortalClient, "getAppValidationById")
-      .mockResolvedValue(invalidValidationResultResponse);
+    vi.spyOn(teamsDevPortalClient, "getAppValidationById").mockResolvedValue(
+      invalidValidationResultResponse
+    );
     await teamsAppDriver.runningBackgroundJob(
       args,
       mockedDriverContext,
@@ -177,9 +177,9 @@ describe("teamsApp/validateWithTestCases", async () => {
     const invalidValidationResultResponse: AsyncAppValidationResultsResponse = <
       AsyncAppValidationResultsResponse
     >invalidValidationResultResponseJson;
-    vi
-      .spyOn(teamsDevPortalClient, "getAppValidationById")
-      .mockResolvedValue(invalidValidationResultResponse);
+    vi.spyOn(teamsDevPortalClient, "getAppValidationById").mockResolvedValue(
+      invalidValidationResultResponse
+    );
     await teamsAppDriver.runningBackgroundJob(
       args,
       mockedDriverContext,
@@ -331,8 +331,12 @@ describe("teamsApp/validateWithTestCases", async () => {
         },
       ],
     });
-    vi.spyOn(teamsDevPortalClient, "submitAppValidationRequest").mockImplementation(() => { throw "should not be called"; });
-    vi.spyOn(teamsDevPortalClient, "getAppValidationById").mockImplementation(() => { throw "should not be called"; });
+    vi.spyOn(teamsDevPortalClient, "submitAppValidationRequest").mockImplementation(() => {
+      throw "should not be called";
+    });
+    vi.spyOn(teamsDevPortalClient, "getAppValidationById").mockImplementation(() => {
+      throw "should not be called";
+    });
 
     const args: ValidateWithTestCasesArgs = {
       appPackagePath: "fakepath",
@@ -376,8 +380,12 @@ describe("teamsApp/validateWithTestCases", async () => {
         },
       ],
     });
-    vi.spyOn(teamsDevPortalClient, "submitAppValidationRequest").mockImplementation(() => { throw "should not be called"; });
-    vi.spyOn(teamsDevPortalClient, "getAppValidationById").mockImplementation(() => { throw "should not be called"; });
+    vi.spyOn(teamsDevPortalClient, "submitAppValidationRequest").mockImplementation(() => {
+      throw "should not be called";
+    });
+    vi.spyOn(teamsDevPortalClient, "getAppValidationById").mockImplementation(() => {
+      throw "should not be called";
+    });
 
     const args: ValidateWithTestCasesArgs = {
       appPackagePath: "fakepath",
@@ -425,8 +433,12 @@ describe("teamsApp/validateWithTestCases", async () => {
         },
       ],
     });
-    vi.spyOn(teamsDevPortalClient, "submitAppValidationRequest").mockImplementation(() => { throw "should not be called"; });
-    vi.spyOn(teamsDevPortalClient, "getAppValidationById").mockImplementation(() => { throw "should not be called"; });
+    vi.spyOn(teamsDevPortalClient, "submitAppValidationRequest").mockImplementation(() => {
+      throw "should not be called";
+    });
+    vi.spyOn(teamsDevPortalClient, "getAppValidationById").mockImplementation(() => {
+      throw "should not be called";
+    });
 
     const args: ValidateWithTestCasesArgs = {
       appPackagePath: "fakepath",
@@ -746,9 +758,9 @@ describe("teamsApp/validateWithTestCases", async () => {
   });
 
   it("CLI - failed", async () => {
-    vi
-      .spyOn(ValidateWithTestCasesDriver.prototype, "validate")
-      .mockResolvedValue(err(new UserCancelError()));
+    vi.spyOn(ValidateWithTestCasesDriver.prototype, "validate").mockResolvedValue(
+      err(new UserCancelError())
+    );
     const result = await teamsappMgr.validateTeamsApp({
       projectPath: "xxx",
       platform: Platform.CLI,

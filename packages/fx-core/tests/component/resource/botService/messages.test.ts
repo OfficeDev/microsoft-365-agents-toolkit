@@ -12,21 +12,31 @@ describe("Test Messages", () => {
     const sth = "sth";
     const messages = Messages.SomethingIsMissing(sth);
     chai.expect(messages[0]).to.be.equals(getDefaultString("plugins.bot.SomethingIsMissing", sth));
-    chai.expect(messages[1]).to.be.equals(getLocalizedString("plugins.bot.SomethingIsMissing", sth));
+    chai
+      .expect(messages[1])
+      .to.be.equals(getLocalizedString("plugins.bot.SomethingIsMissing", sth));
   });
 
   it("FailToProvisionSomeResource", () => {
     const resource = "webapp";
     const messages = Messages.FailToProvisionSomeResource(resource);
-    chai.expect(messages[0]).to.be.equals(getDefaultString("plugins.bot.FailedToProvision", resource));
-    chai.expect(messages[1]).to.be.equals(getLocalizedString("plugins.bot.FailedToProvision", resource));
+    chai
+      .expect(messages[0])
+      .to.be.equals(getDefaultString("plugins.bot.FailedToProvision", resource));
+    chai
+      .expect(messages[1])
+      .to.be.equals(getLocalizedString("plugins.bot.FailedToProvision", resource));
   });
 
   it("FailToUpdateConfigs", () => {
     const sth = "sth";
     const messages = Messages.FailToUpdateConfigs(sth);
-    chai.expect(messages[0]).to.be.equals(getDefaultString("plugins.bot.FailedToUpdateConfigs", sth));
-    chai.expect(messages[1]).to.be.equals(getLocalizedString("plugins.bot.FailedToUpdateConfigs", sth));
+    chai
+      .expect(messages[0])
+      .to.be.equals(getDefaultString("plugins.bot.FailedToUpdateConfigs", sth));
+    chai
+      .expect(messages[1])
+      .to.be.equals(getLocalizedString("plugins.bot.FailedToUpdateConfigs", sth));
   });
 
   it("BotResourceExist", () => {

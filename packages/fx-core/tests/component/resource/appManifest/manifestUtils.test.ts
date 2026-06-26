@@ -108,7 +108,9 @@ describe("getManifest V3", () => {
     envInfo.envName = "dev";
     manifest.name.short = "${{MY_APP_NAME}}";
     vi.spyOn(fs, "pathExists").mockResolvedValue(true);
-    vi.spyOn(AppManifestUtils, "readTeamsManifest").mockImplementation(() => { throw new Error(); });
+    vi.spyOn(AppManifestUtils, "readTeamsManifest").mockImplementation(() => {
+      throw new Error();
+    });
     const res = await manifestUtils.getManifestV3("", context);
     chai.assert.isTrue(res.isErr() && res.error instanceof JSONSyntaxError);
   });

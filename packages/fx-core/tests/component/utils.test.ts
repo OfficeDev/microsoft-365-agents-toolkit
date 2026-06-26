@@ -35,7 +35,9 @@ describe("resetEnvInfoWhenSwitchM365", () => {
       platform: Platform.VSCode,
     };
     const ctx = createDriverContext(inputs);
-    vi.spyOn(ctx.ui!, "showMessage").mockResolvedValue(ok(getLocalizedString("core.option.deploy")));
+    vi.spyOn(ctx.ui!, "showMessage").mockResolvedValue(
+      ok(getLocalizedString("core.option.deploy"))
+    );
     const res = await deployUtils.askForDeployConsentV3(ctx);
     assert.isTrue(res.isOk());
   });
@@ -196,34 +198,34 @@ describe("TeamsFxTelemetryReporter", () => {
     });
 
     it("should set component property if component name exists", () => {
-      vi
-        .spyOn(mockedTelemetryReporter, "sendTelemetryEvent")
-        .mockImplementation((eventName, properties) => {
+      vi.spyOn(mockedTelemetryReporter, "sendTelemetryEvent").mockImplementation(
+        (eventName, properties) => {
           chai.expect(properties).has.property("component", "test");
           reporterCalled = true;
-        });
+        }
+      );
 
       teamsFxTelemetryReporter.sendStartEvent({ eventName: "test", componentName: "test" });
     });
 
     it("should not set component property if component name does not exist", () => {
-      vi
-        .spyOn(mockedTelemetryReporter, "sendTelemetryEvent")
-        .mockImplementation((eventName, properties) => {
+      vi.spyOn(mockedTelemetryReporter, "sendTelemetryEvent").mockImplementation(
+        (eventName, properties) => {
           chai.expect(properties).to.be.undefined;
           reporterCalled = true;
-        });
+        }
+      );
 
       teamsFxTelemetryReporter.sendStartEvent({ eventName: "test" });
     });
 
     it("should not overwrite user provided component property", () => {
-      vi
-        .spyOn(mockedTelemetryReporter, "sendTelemetryEvent")
-        .mockImplementation((eventName, properties) => {
+      vi.spyOn(mockedTelemetryReporter, "sendTelemetryEvent").mockImplementation(
+        (eventName, properties) => {
           chai.expect(properties).has.property("component", "mycomponent");
           reporterCalled = true;
-        });
+        }
+      );
 
       teamsFxTelemetryReporter.sendStartEvent({
         eventName: "test",
@@ -235,12 +237,12 @@ describe("TeamsFxTelemetryReporter", () => {
     });
 
     it("should pass measurements to telemetry reporter", () => {
-      vi
-        .spyOn(mockedTelemetryReporter, "sendTelemetryEvent")
-        .mockImplementation((eventName, properties, measurements) => {
+      vi.spyOn(mockedTelemetryReporter, "sendTelemetryEvent").mockImplementation(
+        (eventName, properties, measurements) => {
           chai.expect(measurements).has.property("duration", 100);
           reporterCalled = true;
-        });
+        }
+      );
 
       teamsFxTelemetryReporter.sendEndEvent({
         eventName: "test",
@@ -253,13 +255,13 @@ describe("TeamsFxTelemetryReporter", () => {
 
   describe("sendEndEvent", () => {
     it("should call sentTelemetryEvent when not provide FxError", () => {
-      vi
-        .spyOn(mockedTelemetryReporter, "sendTelemetryEvent")
-        .mockImplementation((eventName, properties, measurements) => {
+      vi.spyOn(mockedTelemetryReporter, "sendTelemetryEvent").mockImplementation(
+        (eventName, properties, measurements) => {
           chai.expect(eventName).to.equal("test");
           chai.expect(properties).has.property("success", "yes");
           reporterCalled = true;
-        });
+        }
+      );
 
       teamsFxTelemetryReporter.sendEndEvent({
         eventName: "test",
@@ -267,9 +269,8 @@ describe("TeamsFxTelemetryReporter", () => {
     });
 
     it("should call sendTelemetryErrorEvent when provide FxError ", () => {
-      vi
-        .spyOn(mockedTelemetryReporter, "sendTelemetryErrorEvent")
-        .mockImplementation((eventName, properties, measurements) => {
+      vi.spyOn(mockedTelemetryReporter, "sendTelemetryErrorEvent").mockImplementation(
+        (eventName, properties, measurements) => {
           chai.expect(eventName).to.equal("test");
           chai.expect(properties).include({
             success: "no",
@@ -277,7 +278,8 @@ describe("TeamsFxTelemetryReporter", () => {
             "error-type": "user",
           });
           reporterCalled = true;
-        });
+        }
+      );
 
       teamsFxTelemetryReporter.sendEndEvent(
         {
@@ -288,9 +290,8 @@ describe("TeamsFxTelemetryReporter", () => {
     });
 
     it("should not overwrite provided properties", () => {
-      vi
-        .spyOn(mockedTelemetryReporter, "sendTelemetryErrorEvent")
-        .mockImplementation((eventName, properties, measurements) => {
+      vi.spyOn(mockedTelemetryReporter, "sendTelemetryErrorEvent").mockImplementation(
+        (eventName, properties, measurements) => {
           chai.expect(eventName).to.equal("test");
           chai.expect(properties).include({
             success: "no",
@@ -299,7 +300,8 @@ describe("TeamsFxTelemetryReporter", () => {
             "my-property": "value",
           });
           reporterCalled = true;
-        });
+        }
+      );
 
       teamsFxTelemetryReporter.sendEndEvent(
         {
@@ -314,12 +316,12 @@ describe("TeamsFxTelemetryReporter", () => {
     });
 
     it("should merge provided errorProps", () => {
-      vi
-        .spyOn(mockedTelemetryReporter, "sendTelemetryErrorEvent")
-        .mockImplementation((eventName, properties, measurements, errorProps) => {
+      vi.spyOn(mockedTelemetryReporter, "sendTelemetryErrorEvent").mockImplementation(
+        (eventName, properties, measurements, errorProps) => {
           chai.expect(errorProps).include("test");
           reporterCalled = true;
-        });
+        }
+      );
 
       teamsFxTelemetryReporter.sendEndEvent(
         {
@@ -331,12 +333,12 @@ describe("TeamsFxTelemetryReporter", () => {
     });
 
     it("should set error type to system error when FxError is SystemError", () => {
-      vi
-        .spyOn(mockedTelemetryReporter, "sendTelemetryErrorEvent")
-        .mockImplementation((eventName, properties, measurements, errorProps) => {
+      vi.spyOn(mockedTelemetryReporter, "sendTelemetryErrorEvent").mockImplementation(
+        (eventName, properties, measurements, errorProps) => {
           chai.expect(properties).has.property("error-type", "system");
           reporterCalled = true;
-        });
+        }
+      );
 
       teamsFxTelemetryReporter.sendEndEvent(
         {
@@ -347,12 +349,12 @@ describe("TeamsFxTelemetryReporter", () => {
     });
 
     it("should set error type to user error when FxError is UserError", () => {
-      vi
-        .spyOn(mockedTelemetryReporter, "sendTelemetryErrorEvent")
-        .mockImplementation((eventName, properties, measurements, errorProps) => {
+      vi.spyOn(mockedTelemetryReporter, "sendTelemetryErrorEvent").mockImplementation(
+        (eventName, properties, measurements, errorProps) => {
           chai.expect(properties).has.property("error-type", "user");
           reporterCalled = true;
-        });
+        }
+      );
 
       teamsFxTelemetryReporter.sendEndEvent(
         {
@@ -363,23 +365,23 @@ describe("TeamsFxTelemetryReporter", () => {
     });
 
     it("should set component property if component name exists", () => {
-      vi
-        .spyOn(mockedTelemetryReporter, "sendTelemetryEvent")
-        .mockImplementation((eventName, properties) => {
+      vi.spyOn(mockedTelemetryReporter, "sendTelemetryEvent").mockImplementation(
+        (eventName, properties) => {
           chai.expect(properties).has.property("component", "test");
           reporterCalled = true;
-        });
+        }
+      );
 
       teamsFxTelemetryReporter.sendEndEvent({ eventName: "test", componentName: "test" });
     });
 
     it("should not set component property if component name does not exist", () => {
-      vi
-        .spyOn(mockedTelemetryReporter, "sendTelemetryEvent")
-        .mockImplementation((eventName, properties) => {
+      vi.spyOn(mockedTelemetryReporter, "sendTelemetryEvent").mockImplementation(
+        (eventName, properties) => {
           chai.expect(properties).not.has.property("component");
           reporterCalled = true;
-        });
+        }
+      );
 
       teamsFxTelemetryReporter.sendEndEvent({ eventName: "test" });
     });
@@ -403,12 +405,12 @@ describe("TeamsFxTelemetryReporter", () => {
     });
 
     it("should merge default component name if config does not have one", () => {
-      vi
-        .spyOn(mockedTelemetryReporter, "sendTelemetryEvent")
-        .mockImplementation((eventName, properties) => {
+      vi.spyOn(mockedTelemetryReporter, "sendTelemetryEvent").mockImplementation(
+        (eventName, properties) => {
           chai.expect(properties).has.property("component", "testcomponent");
           reporterCalled = true;
-        });
+        }
+      );
 
       const defaultConfig = {
         componentName: "testcomponent",
@@ -421,12 +423,12 @@ describe("TeamsFxTelemetryReporter", () => {
     });
 
     it("should not merge default component name if config already have component name", () => {
-      vi
-        .spyOn(mockedTelemetryReporter, "sendTelemetryEvent")
-        .mockImplementation((eventName, properties) => {
+      vi.spyOn(mockedTelemetryReporter, "sendTelemetryEvent").mockImplementation(
+        (eventName, properties) => {
           chai.expect(properties).has.property("component", "mycomponent");
           reporterCalled = true;
-        });
+        }
+      );
 
       const defaultConfig = {
         componentName: "testcomponent",
@@ -439,12 +441,12 @@ describe("TeamsFxTelemetryReporter", () => {
     });
 
     it("should not modify original config object when merge", () => {
-      vi
-        .spyOn(mockedTelemetryReporter, "sendTelemetryEvent")
-        .mockImplementation((eventName, properties) => {
+      vi.spyOn(mockedTelemetryReporter, "sendTelemetryEvent").mockImplementation(
+        (eventName, properties) => {
           chai.expect(properties).has.property("component", "testcomponent");
           reporterCalled = true;
-        });
+        }
+      );
 
       const defaultConfig = {
         componentName: "testcomponent",

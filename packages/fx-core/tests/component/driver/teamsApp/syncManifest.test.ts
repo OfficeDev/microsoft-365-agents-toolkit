@@ -44,9 +44,10 @@ describe("teamsApp/syncManifest", async () => {
       projectPath: "fakePath",
       env: "dev",
     };
-    vi
-      .spyOn(syncManifestDriver, "getTeamsAppIdAndManifestTemplatePath" as keyof SyncManifestDriver)
-      .mockResolvedValue(err(new Error("fake error")));
+    vi.spyOn(
+      syncManifestDriver,
+      "getTeamsAppIdAndManifestTemplatePath" as keyof SyncManifestDriver
+    ).mockResolvedValue(err(new Error("fake error")));
     const result = await syncManifestDriver.sync(args, mockedDriverContext);
     chai.assert.isTrue(result.isErr());
     if (result.isErr()) {
@@ -59,16 +60,17 @@ describe("teamsApp/syncManifest", async () => {
       projectPath: "fakePath",
       env: "dev",
     };
-    vi
-      .spyOn(syncManifestDriver, "getTeamsAppIdAndManifestTemplatePath" as keyof SyncManifestDriver)
-      .mockResolvedValue(
-        ok(
-          new Map([
-            ["teamsAppId", "mockedTeamsAppId"],
-            ["manifestTemplatePath", "mockedManifestTemplatePath"],
-          ])
-        )
-      );
+    vi.spyOn(
+      syncManifestDriver,
+      "getTeamsAppIdAndManifestTemplatePath" as keyof SyncManifestDriver
+    ).mockResolvedValue(
+      ok(
+        new Map([
+          ["teamsAppId", "mockedTeamsAppId"],
+          ["manifestTemplatePath", "mockedManifestTemplatePath"],
+        ])
+      )
+    );
     vi.mocked(appStudio.getAppPackage).mockResolvedValue(
       err(new UserError("source", "name", "", ""))
     );
@@ -84,16 +86,17 @@ describe("teamsApp/syncManifest", async () => {
       projectPath: "fakePath",
       env: "dev",
     };
-    vi
-      .spyOn(syncManifestDriver, "getTeamsAppIdAndManifestTemplatePath" as keyof SyncManifestDriver)
-      .mockResolvedValue(
-        ok(
-          new Map([
-            ["teamsAppId", "mockedTeamsAppId"],
-            ["manifestTemplatePath", "mockedManifestTemplatePath"],
-          ])
-        )
-      );
+    vi.spyOn(
+      syncManifestDriver,
+      "getTeamsAppIdAndManifestTemplatePath" as keyof SyncManifestDriver
+    ).mockResolvedValue(
+      ok(
+        new Map([
+          ["teamsAppId", "mockedTeamsAppId"],
+          ["manifestTemplatePath", "mockedManifestTemplatePath"],
+        ])
+      )
+    );
     vi.mocked(appStudio.getAppPackage).mockResolvedValue(ok({}));
     const result = await syncManifestDriver.sync(args, mockedDriverContext);
     chai.assert.isTrue(result.isErr());
@@ -107,16 +110,17 @@ describe("teamsApp/syncManifest", async () => {
       projectPath: "fakePath",
       env: "dev",
     };
-    vi
-      .spyOn(syncManifestDriver, "getTeamsAppIdAndManifestTemplatePath" as keyof SyncManifestDriver)
-      .mockResolvedValue(
-        ok(
-          new Map([
-            ["teamsAppId", "mockedTeamsAppId"],
-            ["manifestTemplatePath", "mockedManifestTemplatePath"],
-          ])
-        )
-      );
+    vi.spyOn(
+      syncManifestDriver,
+      "getTeamsAppIdAndManifestTemplatePath" as keyof SyncManifestDriver
+    ).mockResolvedValue(
+      ok(
+        new Map([
+          ["teamsAppId", "mockedTeamsAppId"],
+          ["manifestTemplatePath", "mockedManifestTemplatePath"],
+        ])
+      )
+    );
     vi.mocked(appStudio.getAppPackage).mockResolvedValue(
       ok({
         manifest: Buffer.from(JSON.stringify({})),
@@ -139,16 +143,17 @@ describe("teamsApp/syncManifest", async () => {
     };
     const teamsAppId = "mockedTeamsAppId";
     const manifestTemplatePath = "mockedManifestTemplatePath";
-    vi
-      .spyOn(syncManifestDriver, "getTeamsAppIdAndManifestTemplatePath" as keyof SyncManifestDriver)
-      .mockResolvedValue(
-        ok(
-          new Map([
-            ["teamsAppId", teamsAppId],
-            ["manifestTemplatePath", manifestTemplatePath],
-          ])
-        )
-      );
+    vi.spyOn(
+      syncManifestDriver,
+      "getTeamsAppIdAndManifestTemplatePath" as keyof SyncManifestDriver
+    ).mockResolvedValue(
+      ok(
+        new Map([
+          ["teamsAppId", teamsAppId],
+          ["manifestTemplatePath", manifestTemplatePath],
+        ])
+      )
+    );
     vi.mocked(appStudio.getAppPackage).mockResolvedValue(
       ok({
         manifest: Buffer.from(
@@ -166,8 +171,12 @@ describe("teamsApp/syncManifest", async () => {
         id: "1",
       } as TeamsAppManifest)
     );
-    vi.spyOn(envUtil, "readEnv").mockImplementation(() => { throw "error"; });
-    vi.spyOn(envUtil, "writeEnv").mockImplementation(() => { throw "error"; });
+    vi.spyOn(envUtil, "readEnv").mockImplementation(() => {
+      throw "error";
+    });
+    vi.spyOn(envUtil, "writeEnv").mockImplementation(() => {
+      throw "error";
+    });
     const result = await syncManifestDriver.sync(args, mockedDriverContext);
     chai.assert.isTrue(result.isOk());
     if (result.isOk()) {
@@ -182,16 +191,17 @@ describe("teamsApp/syncManifest", async () => {
     };
     const teamsAppId = "mockedTeamsAppId";
     const manifestTemplatePath = "mockedManifestTemplatePath";
-    vi
-      .spyOn(syncManifestDriver, "getTeamsAppIdAndManifestTemplatePath" as keyof SyncManifestDriver)
-      .mockResolvedValue(
-        ok(
-          new Map([
-            ["teamsAppId", teamsAppId],
-            ["manifestTemplatePath", manifestTemplatePath],
-          ])
-        )
-      );
+    vi.spyOn(
+      syncManifestDriver,
+      "getTeamsAppIdAndManifestTemplatePath" as keyof SyncManifestDriver
+    ).mockResolvedValue(
+      ok(
+        new Map([
+          ["teamsAppId", teamsAppId],
+          ["manifestTemplatePath", manifestTemplatePath],
+        ])
+      )
+    );
     vi.mocked(appStudio.getAppPackage).mockResolvedValue(
       ok({
         manifest: Buffer.from(
@@ -209,8 +219,12 @@ describe("teamsApp/syncManifest", async () => {
         version: "1.0",
       } as TeamsAppManifest)
     );
-    vi.spyOn(envUtil, "readEnv").mockImplementation(() => { throw "error"; });
-    vi.spyOn(envUtil, "writeEnv").mockImplementation(() => { throw "error"; });
+    vi.spyOn(envUtil, "readEnv").mockImplementation(() => {
+      throw "error";
+    });
+    vi.spyOn(envUtil, "writeEnv").mockImplementation(() => {
+      throw "error";
+    });
     const result = await syncManifestDriver.sync(args, mockedDriverContext);
     chai.assert.isTrue(result.isOk());
     if (result.isOk()) {
@@ -225,16 +239,17 @@ describe("teamsApp/syncManifest", async () => {
     };
     const teamsAppId = "mockedTeamsAppId";
     const manifestTemplatePath = "mockedManifestTemplatePath";
-    vi
-      .spyOn(syncManifestDriver, "getTeamsAppIdAndManifestTemplatePath" as keyof SyncManifestDriver)
-      .mockResolvedValue(
-        ok(
-          new Map([
-            ["teamsAppId", teamsAppId],
-            ["manifestTemplatePath", manifestTemplatePath],
-          ])
-        )
-      );
+    vi.spyOn(
+      syncManifestDriver,
+      "getTeamsAppIdAndManifestTemplatePath" as keyof SyncManifestDriver
+    ).mockResolvedValue(
+      ok(
+        new Map([
+          ["teamsAppId", teamsAppId],
+          ["manifestTemplatePath", manifestTemplatePath],
+        ])
+      )
+    );
     vi.mocked(appStudio.getAppPackage).mockResolvedValue(
       ok({
         manifest: Buffer.from(
@@ -251,27 +266,25 @@ describe("teamsApp/syncManifest", async () => {
         TEAMS_APP_ID: "2",
       } as DotenvOutput)
     );
-    vi
-      .spyOn(envUtil, "writeEnv")
-      .mockImplementation(
-        (
-          projectPath: string,
-          env: string,
-          newEnv: DotenvOutput
-        ): Promise<Result<undefined, FxError>> => {
-          if (
-            projectPath === args.projectPath &&
-            env === args.env &&
-            JSON.stringify(newEnv) === JSON.stringify({ TEAMS_APP_ID: "11" })
-          ) {
-            return Promise.resolve(ok(undefined));
-          } else {
-            return Promise.resolve(
-              err(new UserError("ut", "Invalid parameters passed to writeEnv", "", ""))
-            );
-          }
+    vi.spyOn(envUtil, "writeEnv").mockImplementation(
+      (
+        projectPath: string,
+        env: string,
+        newEnv: DotenvOutput
+      ): Promise<Result<undefined, FxError>> => {
+        if (
+          projectPath === args.projectPath &&
+          env === args.env &&
+          JSON.stringify(newEnv) === JSON.stringify({ TEAMS_APP_ID: "11" })
+        ) {
+          return Promise.resolve(ok(undefined));
+        } else {
+          return Promise.resolve(
+            err(new UserError("ut", "Invalid parameters passed to writeEnv", "", ""))
+          );
         }
-      );
+      }
+    );
 
     vi.spyOn(manifestUtils, "_readAppManifest").mockResolvedValue(
       ok({
@@ -292,16 +305,17 @@ describe("teamsApp/syncManifest", async () => {
     };
     const teamsAppId = "mockedTeamsAppId";
     const manifestTemplatePath = "mockedManifestTemplatePath";
-    vi
-      .spyOn(syncManifestDriver, "getTeamsAppIdAndManifestTemplatePath" as keyof SyncManifestDriver)
-      .mockResolvedValue(
-        ok(
-          new Map([
-            ["teamsAppId", teamsAppId],
-            ["manifestTemplatePath", manifestTemplatePath],
-          ])
-        )
-      );
+    vi.spyOn(
+      syncManifestDriver,
+      "getTeamsAppIdAndManifestTemplatePath" as keyof SyncManifestDriver
+    ).mockResolvedValue(
+      ok(
+        new Map([
+          ["teamsAppId", teamsAppId],
+          ["manifestTemplatePath", manifestTemplatePath],
+        ])
+      )
+    );
     vi.mocked(appStudio.getAppPackage).mockResolvedValue(
       ok({
         manifest: Buffer.from(
@@ -314,8 +328,12 @@ describe("teamsApp/syncManifest", async () => {
     );
     vi.spyOn(fs, "mkdir").mockResolvedValue();
     vi.spyOn(fs, "writeFile").mockResolvedValue();
-    vi.spyOn(envUtil, "readEnv").mockImplementation(() => { throw "error"; });
-    vi.spyOn(envUtil, "writeEnv").mockImplementation(() => { throw "error"; });
+    vi.spyOn(envUtil, "readEnv").mockImplementation(() => {
+      throw "error";
+    });
+    vi.spyOn(envUtil, "writeEnv").mockImplementation(() => {
+      throw "error";
+    });
     vi.spyOn(manifestUtils, "_readAppManifest").mockResolvedValue(
       ok({
         id: "${{TEAMS_APP_ID}}",
@@ -336,16 +354,17 @@ describe("teamsApp/syncManifest", async () => {
     };
     const teamsAppId = "mockedTeamsAppId";
     const manifestTemplatePath = "mockedManifestTemplatePath";
-    vi
-      .spyOn(syncManifestDriver, "getTeamsAppIdAndManifestTemplatePath" as keyof SyncManifestDriver)
-      .mockResolvedValue(
-        ok(
-          new Map([
-            ["teamsAppId", teamsAppId],
-            ["manifestTemplatePath", manifestTemplatePath],
-          ])
-        )
-      );
+    vi.spyOn(
+      syncManifestDriver,
+      "getTeamsAppIdAndManifestTemplatePath" as keyof SyncManifestDriver
+    ).mockResolvedValue(
+      ok(
+        new Map([
+          ["teamsAppId", teamsAppId],
+          ["manifestTemplatePath", manifestTemplatePath],
+        ])
+      )
+    );
     vi.mocked(appStudio.getAppPackage).mockResolvedValue(
       ok({
         manifest: Buffer.from(
@@ -358,8 +377,12 @@ describe("teamsApp/syncManifest", async () => {
     );
     vi.spyOn(fs, "mkdir").mockResolvedValue();
     vi.spyOn(fs, "writeFile").mockResolvedValue();
-    vi.spyOn(envUtil, "readEnv").mockImplementation(() => { throw "error"; });
-    vi.spyOn(envUtil, "writeEnv").mockImplementation(() => { throw "error"; });
+    vi.spyOn(envUtil, "readEnv").mockImplementation(() => {
+      throw "error";
+    });
+    vi.spyOn(envUtil, "writeEnv").mockImplementation(() => {
+      throw "error";
+    });
     vi.spyOn(manifestUtils, "_readAppManifest").mockResolvedValue(
       ok({
         id: "111",
@@ -380,16 +403,17 @@ describe("teamsApp/syncManifest", async () => {
     };
     const teamsAppId = "mockedTeamsAppId";
     const manifestTemplatePath = "mockedManifestTemplatePath";
-    vi
-      .spyOn(syncManifestDriver, "getTeamsAppIdAndManifestTemplatePath" as keyof SyncManifestDriver)
-      .mockResolvedValue(
-        ok(
-          new Map([
-            ["teamsAppId", teamsAppId],
-            ["manifestTemplatePath", manifestTemplatePath],
-          ])
-        )
-      );
+    vi.spyOn(
+      syncManifestDriver,
+      "getTeamsAppIdAndManifestTemplatePath" as keyof SyncManifestDriver
+    ).mockResolvedValue(
+      ok(
+        new Map([
+          ["teamsAppId", teamsAppId],
+          ["manifestTemplatePath", manifestTemplatePath],
+        ])
+      )
+    );
     vi.mocked(appStudio.getAppPackage).mockResolvedValue(
       ok({
         manifest: Buffer.from(
@@ -401,8 +425,12 @@ describe("teamsApp/syncManifest", async () => {
     );
     vi.spyOn(fs, "mkdir").mockResolvedValue();
     vi.spyOn(fs, "writeFile").mockResolvedValue();
-    vi.spyOn(envUtil, "readEnv").mockImplementation(() => { throw "error"; });
-    vi.spyOn(envUtil, "writeEnv").mockImplementation(() => { throw "error"; });
+    vi.spyOn(envUtil, "readEnv").mockImplementation(() => {
+      throw "error";
+    });
+    vi.spyOn(envUtil, "writeEnv").mockImplementation(() => {
+      throw "error";
+    });
     vi.spyOn(manifestUtils, "_readAppManifest").mockResolvedValue(
       ok({
         id: "app-${{TEAMS_APP_ID}}",
@@ -422,16 +450,17 @@ describe("teamsApp/syncManifest", async () => {
     };
     const teamsAppId = "mockedTeamsAppId";
     const manifestTemplatePath = "mockedManifestTemplatePath";
-    vi
-      .spyOn(syncManifestDriver, "getTeamsAppIdAndManifestTemplatePath" as keyof SyncManifestDriver)
-      .mockResolvedValue(
-        ok(
-          new Map([
-            ["teamsAppId", teamsAppId],
-            ["manifestTemplatePath", manifestTemplatePath],
-          ])
-        )
-      );
+    vi.spyOn(
+      syncManifestDriver,
+      "getTeamsAppIdAndManifestTemplatePath" as keyof SyncManifestDriver
+    ).mockResolvedValue(
+      ok(
+        new Map([
+          ["teamsAppId", teamsAppId],
+          ["manifestTemplatePath", manifestTemplatePath],
+        ])
+      )
+    );
     vi.mocked(appStudio.getAppPackage).mockResolvedValue(
       ok({
         manifest: Buffer.from(
@@ -443,8 +472,12 @@ describe("teamsApp/syncManifest", async () => {
     );
     vi.spyOn(fs, "mkdir").mockResolvedValue();
     vi.spyOn(fs, "writeFile").mockResolvedValue();
-    vi.spyOn(envUtil, "readEnv").mockImplementation(() => { throw "error"; });
-    vi.spyOn(envUtil, "writeEnv").mockImplementation(() => { throw "error"; });
+    vi.spyOn(envUtil, "readEnv").mockImplementation(() => {
+      throw "error";
+    });
+    vi.spyOn(envUtil, "writeEnv").mockImplementation(() => {
+      throw "error";
+    });
     vi.spyOn(manifestUtils, "_readAppManifest").mockResolvedValue(
       ok({
         id: "app-${{TEAMS_APP_ID}}-${{TEAMS_APP_ID}}",
@@ -464,16 +497,17 @@ describe("teamsApp/syncManifest", async () => {
     };
     const teamsAppId = "mockedTeamsAppId";
     const manifestTemplatePath = "mockedManifestTemplatePath";
-    vi
-      .spyOn(syncManifestDriver, "getTeamsAppIdAndManifestTemplatePath" as keyof SyncManifestDriver)
-      .mockResolvedValue(
-        ok(
-          new Map([
-            ["teamsAppId", teamsAppId],
-            ["manifestTemplatePath", manifestTemplatePath],
-          ])
-        )
-      );
+    vi.spyOn(
+      syncManifestDriver,
+      "getTeamsAppIdAndManifestTemplatePath" as keyof SyncManifestDriver
+    ).mockResolvedValue(
+      ok(
+        new Map([
+          ["teamsAppId", teamsAppId],
+          ["manifestTemplatePath", manifestTemplatePath],
+        ])
+      )
+    );
     vi.mocked(appStudio.getAppPackage).mockResolvedValue(
       ok({
         manifest: Buffer.from(
@@ -485,8 +519,12 @@ describe("teamsApp/syncManifest", async () => {
     );
     vi.spyOn(fs, "mkdir").mockResolvedValue();
     vi.spyOn(fs, "writeFile").mockResolvedValue();
-    vi.spyOn(envUtil, "readEnv").mockImplementation(() => { throw "error"; });
-    vi.spyOn(envUtil, "writeEnv").mockImplementation(() => { throw "error"; });
+    vi.spyOn(envUtil, "readEnv").mockImplementation(() => {
+      throw "error";
+    });
+    vi.spyOn(envUtil, "writeEnv").mockImplementation(() => {
+      throw "error";
+    });
     vi.spyOn(manifestUtils, "_readAppManifest").mockResolvedValue(
       ok({
         id: "1",
@@ -506,16 +544,17 @@ describe("teamsApp/syncManifest", async () => {
     };
     const teamsAppId = "mockedTeamsAppId";
     const manifestTemplatePath = "mockedManifestTemplatePath";
-    vi
-      .spyOn(syncManifestDriver, "getTeamsAppIdAndManifestTemplatePath" as keyof SyncManifestDriver)
-      .mockResolvedValue(
-        ok(
-          new Map([
-            ["teamsAppId", teamsAppId],
-            ["manifestTemplatePath", manifestTemplatePath],
-          ])
-        )
-      );
+    vi.spyOn(
+      syncManifestDriver,
+      "getTeamsAppIdAndManifestTemplatePath" as keyof SyncManifestDriver
+    ).mockResolvedValue(
+      ok(
+        new Map([
+          ["teamsAppId", teamsAppId],
+          ["manifestTemplatePath", manifestTemplatePath],
+        ])
+      )
+    );
     vi.mocked(appStudio.getAppPackage).mockResolvedValue(
       ok({
         manifest: Buffer.from(
@@ -532,7 +571,9 @@ describe("teamsApp/syncManifest", async () => {
         TEAMS_APP_ID: "1",
       } as DotenvOutput)
     );
-    vi.spyOn(envUtil, "writeEnv").mockImplementation(() => { throw "error"; });
+    vi.spyOn(envUtil, "writeEnv").mockImplementation(() => {
+      throw "error";
+    });
     vi.spyOn(manifestUtils, "_readAppManifest").mockResolvedValue(
       ok({
         id: "${{TEAMS_APP_ID}}",
@@ -552,16 +593,17 @@ describe("teamsApp/syncManifest", async () => {
     };
     const teamsAppId = "mockedTeamsAppId";
     const manifestTemplatePath = "mockedManifestTemplatePath";
-    vi
-      .spyOn(syncManifestDriver, "getTeamsAppIdAndManifestTemplatePath" as keyof SyncManifestDriver)
-      .mockResolvedValue(
-        ok(
-          new Map([
-            ["teamsAppId", teamsAppId],
-            ["manifestTemplatePath", manifestTemplatePath],
-          ])
-        )
-      );
+    vi.spyOn(
+      syncManifestDriver,
+      "getTeamsAppIdAndManifestTemplatePath" as keyof SyncManifestDriver
+    ).mockResolvedValue(
+      ok(
+        new Map([
+          ["teamsAppId", teamsAppId],
+          ["manifestTemplatePath", manifestTemplatePath],
+        ])
+      )
+    );
     vi.mocked(appStudio.getAppPackage).mockResolvedValue(
       ok({
         manifest: Buffer.from(
@@ -579,7 +621,9 @@ describe("teamsApp/syncManifest", async () => {
         TEAMS_APP_ID: "1",
       } as DotenvOutput)
     );
-    vi.spyOn(envUtil, "writeEnv").mockImplementation(() => { throw "error"; });
+    vi.spyOn(envUtil, "writeEnv").mockImplementation(() => {
+      throw "error";
+    });
     vi.spyOn(manifestUtils, "_readAppManifest").mockResolvedValue(
       ok({
         id: "${{TEAMS_APP_ID}}",
@@ -600,16 +644,17 @@ describe("teamsApp/syncManifest", async () => {
     };
     const teamsAppId = "mockedTeamsAppId";
     const manifestTemplatePath = "mockedManifestTemplatePath";
-    vi
-      .spyOn(syncManifestDriver, "getTeamsAppIdAndManifestTemplatePath" as keyof SyncManifestDriver)
-      .mockResolvedValue(
-        ok(
-          new Map([
-            ["teamsAppId", teamsAppId],
-            ["manifestTemplatePath", manifestTemplatePath],
-          ])
-        )
-      );
+    vi.spyOn(
+      syncManifestDriver,
+      "getTeamsAppIdAndManifestTemplatePath" as keyof SyncManifestDriver
+    ).mockResolvedValue(
+      ok(
+        new Map([
+          ["teamsAppId", teamsAppId],
+          ["manifestTemplatePath", manifestTemplatePath],
+        ])
+      )
+    );
     vi.mocked(appStudio.getAppPackage).mockResolvedValue(
       ok({
         manifest: Buffer.from(
@@ -622,7 +667,9 @@ describe("teamsApp/syncManifest", async () => {
     vi.spyOn(fs, "mkdir").mockResolvedValue();
     vi.spyOn(fs, "writeFile").mockResolvedValue();
     vi.spyOn(envUtil, "readEnv").mockResolvedValue(err(new UserError("ut", "error", "", "")));
-    vi.spyOn(envUtil, "writeEnv").mockImplementation(() => { throw "error"; });
+    vi.spyOn(envUtil, "writeEnv").mockImplementation(() => {
+      throw "error";
+    });
     vi.spyOn(manifestUtils, "_readAppManifest").mockResolvedValue(
       ok({
         id: "${{TEAMS_APP_ID}}",
@@ -640,12 +687,22 @@ describe("teamsApp/syncManifest", async () => {
       projectPath: "fakePath",
       env: "dev",
     };
-    vi.spyOn(appStudio, "getAppPackage").mockImplementation(() => { throw "error"; });
-    vi.spyOn(fs, "mkdir").mockImplementation(() => { throw "error"; });
-    vi.spyOn(fs, "writeFile").mockImplementation(() => { throw "error"; });
+    vi.spyOn(appStudio, "getAppPackage").mockImplementation(() => {
+      throw "error";
+    });
+    vi.spyOn(fs, "mkdir").mockImplementation(() => {
+      throw "error";
+    });
+    vi.spyOn(fs, "writeFile").mockImplementation(() => {
+      throw "error";
+    });
     vi.spyOn(envUtil, "readEnv").mockResolvedValue(err(new UserError("ut", "error", "", "")));
-    vi.spyOn(envUtil, "writeEnv").mockImplementation(() => { throw "error"; });
-    vi.spyOn(manifestUtils, "_readAppManifest").mockImplementation(() => { throw "error"; });
+    vi.spyOn(envUtil, "writeEnv").mockImplementation(() => {
+      throw "error";
+    });
+    vi.spyOn(manifestUtils, "_readAppManifest").mockImplementation(() => {
+      throw "error";
+    });
     const result = await syncManifestDriver.sync(args, mockedDriverContext);
     chai.assert.isTrue(result.isErr());
     if (result.isErr()) {
@@ -660,16 +717,17 @@ describe("teamsApp/syncManifest", async () => {
     };
     const teamsAppId = "mockedTeamsAppId";
     const manifestTemplatePath = "mockedManifestTemplatePath";
-    vi
-      .spyOn(syncManifestDriver, "getTeamsAppIdAndManifestTemplatePath" as keyof SyncManifestDriver)
-      .mockResolvedValue(
-        ok(
-          new Map([
-            ["teamsAppId", teamsAppId],
-            ["manifestTemplatePath", manifestTemplatePath],
-          ])
-        )
-      );
+    vi.spyOn(
+      syncManifestDriver,
+      "getTeamsAppIdAndManifestTemplatePath" as keyof SyncManifestDriver
+    ).mockResolvedValue(
+      ok(
+        new Map([
+          ["teamsAppId", teamsAppId],
+          ["manifestTemplatePath", manifestTemplatePath],
+        ])
+      )
+    );
     vi.mocked(appStudio.getAppPackage).mockResolvedValue(
       ok({
         manifest: Buffer.from(
@@ -751,27 +809,25 @@ describe("teamsApp/syncManifest", async () => {
         TEAMS_APP_ID: "1",
       } as DotenvOutput)
     );
-    vi
-      .spyOn(envUtil, "writeEnv")
-      .mockImplementation(
-        (
-          projectPath: string,
-          env: string,
-          newEnv: DotenvOutput
-        ): Promise<Result<undefined, FxError>> => {
-          if (
-            projectPath === args.projectPath &&
-            env === args.env &&
-            JSON.stringify(newEnv) === JSON.stringify({ VERSION: "2.0" })
-          ) {
-            return Promise.resolve(ok(undefined));
-          } else {
-            return Promise.resolve(
-              err(new UserError("ut", "Invalid parameters passed to writeEnv", "", ""))
-            );
-          }
+    vi.spyOn(envUtil, "writeEnv").mockImplementation(
+      (
+        projectPath: string,
+        env: string,
+        newEnv: DotenvOutput
+      ): Promise<Result<undefined, FxError>> => {
+        if (
+          projectPath === args.projectPath &&
+          env === args.env &&
+          JSON.stringify(newEnv) === JSON.stringify({ VERSION: "2.0" })
+        ) {
+          return Promise.resolve(ok(undefined));
+        } else {
+          return Promise.resolve(
+            err(new UserError("ut", "Invalid parameters passed to writeEnv", "", ""))
+          );
         }
-      );
+      }
+    );
 
     vi.spyOn(manifestUtils, "_readAppManifest").mockResolvedValue(
       ok({
@@ -837,27 +893,25 @@ describe("teamsApp/syncManifest", async () => {
         VERSION: "1.0",
       } as DotenvOutput)
     );
-    vi
-      .spyOn(envUtil, "writeEnv")
-      .mockImplementation(
-        (
-          projectPath: string,
-          env: string,
-          newEnv: DotenvOutput
-        ): Promise<Result<undefined, FxError>> => {
-          if (
-            projectPath === args.projectPath &&
-            env === args.env &&
-            JSON.stringify(newEnv) === JSON.stringify({ VERSION: "2.0" })
-          ) {
-            return Promise.resolve(ok(undefined));
-          } else {
-            return Promise.resolve(
-              err(new UserError("ut", "Invalid parameters passed to writeEnv", "", ""))
-            );
-          }
+    vi.spyOn(envUtil, "writeEnv").mockImplementation(
+      (
+        projectPath: string,
+        env: string,
+        newEnv: DotenvOutput
+      ): Promise<Result<undefined, FxError>> => {
+        if (
+          projectPath === args.projectPath &&
+          env === args.env &&
+          JSON.stringify(newEnv) === JSON.stringify({ VERSION: "2.0" })
+        ) {
+          return Promise.resolve(ok(undefined));
+        } else {
+          return Promise.resolve(
+            err(new UserError("ut", "Invalid parameters passed to writeEnv", "", ""))
+          );
         }
-      );
+      }
+    );
 
     vi.spyOn(manifestUtils, "_readAppManifest").mockResolvedValue(
       ok({

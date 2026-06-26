@@ -89,7 +89,9 @@ describe("DeclarativeAgentWithExistingApiSpecGenerator", async () => {
       inputs.apiAuthData = [
         { serverUrl: "https://test.com", authName: "test", authType: "apiKey" },
       ];
-      vi.spyOn(JSON, "parse").mockImplementation(() => { throw new Error(); });
+      vi.spyOn(JSON, "parse").mockImplementation(() => {
+        throw new Error();
+      });
       const res = await generator.getTemplateInfos(context, inputs, ".", { telemetryProps: {} });
       assert.isTrue(res.isOk());
       if (res.isOk()) {
@@ -154,9 +156,11 @@ describe("DeclarativeAgentWithExistingApiSpecGenerator", async () => {
       };
       const context = createContext();
       vi.spyOn(featureFlagManager, "getBooleanValue").mockReturnValue(false);
-      vi
-        .spyOn(SpecParser.prototype, "validate")
-        .mockResolvedValue({ status: ValidationStatus.Valid, errors: [], warnings: [] });
+      vi.spyOn(SpecParser.prototype, "validate").mockResolvedValue({
+        status: ValidationStatus.Valid,
+        errors: [],
+        warnings: [],
+      });
       vi.spyOn(fs, "ensureDir").mockResolvedValue();
       vi.spyOn(manifestUtils, "_readAppManifest").mockResolvedValue(ok(teamsManifest));
       const generateBasedOnSpec = vi
@@ -205,9 +209,11 @@ describe("DeclarativeAgentWithExistingApiSpecGenerator", async () => {
       const context = createContext();
 
       vi.spyOn(featureFlagManager, "getBooleanValue").mockReturnValue(false);
-      vi
-        .spyOn(SpecParser.prototype, "validate")
-        .mockResolvedValue({ status: ValidationStatus.Valid, errors: [], warnings: [] });
+      vi.spyOn(SpecParser.prototype, "validate").mockResolvedValue({
+        status: ValidationStatus.Valid,
+        errors: [],
+        warnings: [],
+      });
       vi.spyOn(fs, "ensureDir").mockResolvedValue();
       vi.spyOn(manifestUtils, "_readAppManifest").mockResolvedValue(ok(teamsManifest));
       vi.spyOn(copilotGptManifestUtils, "updateDeclarativeAgentManifest").mockResolvedValue(ok(""));
@@ -241,12 +247,16 @@ describe("DeclarativeAgentWithExistingApiSpecGenerator", async () => {
       };
       const context = createContext();
       vi.spyOn(featureFlagManager, "getBooleanValue").mockReturnValue(false);
-      vi
-        .spyOn(SpecParser.prototype, "validate")
-        .mockResolvedValue({ status: ValidationStatus.Valid, errors: [], warnings: [] });
+      vi.spyOn(SpecParser.prototype, "validate").mockResolvedValue({
+        status: ValidationStatus.Valid,
+        errors: [],
+        warnings: [],
+      });
       vi.spyOn(fs, "ensureDir").mockResolvedValue();
       vi.spyOn(manifestUtils, "_readAppManifest").mockResolvedValue(ok(teamsManifest));
-      const addAction = vi.spyOn(copilotGptManifestUtils, "addAction").mockResolvedValue(ok({} as any));
+      const addAction = vi
+        .spyOn(copilotGptManifestUtils, "addAction")
+        .mockResolvedValue(ok({} as any));
       const generateBasedOnSpec = vi
         .spyOn(SpecParser.prototype, "generateForCopilot")
         .mockResolvedValue({ allSuccess: true, warnings: [] });
@@ -279,9 +289,11 @@ describe("DeclarativeAgentWithExistingApiSpecGenerator", async () => {
       };
       const context = createContext();
       vi.spyOn(featureFlagManager, "getBooleanValue").mockReturnValue(false);
-      vi
-        .spyOn(SpecParser.prototype, "validate")
-        .mockResolvedValue({ status: ValidationStatus.Valid, errors: [], warnings: [] });
+      vi.spyOn(SpecParser.prototype, "validate").mockResolvedValue({
+        status: ValidationStatus.Valid,
+        errors: [],
+        warnings: [],
+      });
       vi.spyOn(fs, "ensureDir").mockResolvedValue();
       vi.spyOn(manifestUtils, "_readAppManifest").mockResolvedValue(ok(teamsManifest));
       const addAction = vi
@@ -318,9 +330,11 @@ describe("DeclarativeAgentWithExistingApiSpecGenerator", async () => {
       };
       const context = createContext();
       vi.spyOn(featureFlagManager, "getBooleanValue").mockReturnValue(false);
-      vi
-        .spyOn(SpecParser.prototype, "validate")
-        .mockResolvedValue({ status: ValidationStatus.Valid, errors: [], warnings: [] });
+      vi.spyOn(SpecParser.prototype, "validate").mockResolvedValue({
+        status: ValidationStatus.Valid,
+        errors: [],
+        warnings: [],
+      });
       vi.spyOn(fs, "ensureDir").mockResolvedValue();
       vi.spyOn(manifestUtils, "_readAppManifest").mockResolvedValue(ok(teamsManifest));
       const generateBasedOnSpec = vi
@@ -353,9 +367,11 @@ describe("DeclarativeAgentWithExistingApiSpecGenerator", async () => {
       };
       const context = createContext();
       vi.spyOn(featureFlagManager, "getBooleanValue").mockReturnValue(false);
-      vi
-        .spyOn(SpecParser.prototype, "validate")
-        .mockResolvedValue({ status: ValidationStatus.Valid, errors: [], warnings: [] });
+      vi.spyOn(SpecParser.prototype, "validate").mockResolvedValue({
+        status: ValidationStatus.Valid,
+        errors: [],
+        warnings: [],
+      });
       vi.spyOn(fs, "ensureDir").mockResolvedValue();
       vi.spyOn(manifestUtils, "_readAppManifest").mockResolvedValue(ok(teamsManifest));
       const generateBasedOnSpec = vi
@@ -388,9 +404,11 @@ describe("DeclarativeAgentWithExistingApiSpecGenerator", async () => {
       };
       const context = createContext();
       vi.spyOn(featureFlagManager, "getBooleanValue").mockReturnValue(false);
-      vi
-        .spyOn(SpecParser.prototype, "validate")
-        .mockResolvedValue({ status: ValidationStatus.Valid, errors: [], warnings: [] });
+      vi.spyOn(SpecParser.prototype, "validate").mockResolvedValue({
+        status: ValidationStatus.Valid,
+        errors: [],
+        warnings: [],
+      });
       vi.spyOn(fs, "ensureDir").mockImplementation((path) => {
         if (path.includes(EmbeddedKnowledgeLocalDirectoryName)) {
           throw new Error("fail");

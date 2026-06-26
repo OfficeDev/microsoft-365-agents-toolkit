@@ -135,9 +135,9 @@ describe("envUtils", () => {
 
   describe("pathUtils.getEnvFolderPath", () => {
     it("happy path", async () => {
-      vi
-        .spyOn(fs, "readFile")
-        .mockResolvedValue("version: 1.0.0\nenvironmentFolderPath: /home/envs" as any);
+      vi.spyOn(fs, "readFile").mockResolvedValue(
+        "version: 1.0.0\nenvironmentFolderPath: /home/envs" as any
+      );
       vi.spyOn(fs, "pathExists").mockResolvedValue(true);
       vi.spyOn(pathUtils, "getYmlFilePath").mockReturnValue("./xxx");
       const res = await pathUtils.getEnvFolderPath(".");
@@ -155,9 +155,9 @@ describe("envUtils", () => {
     });
     it("returns undefined value", async () => {
       vi.spyOn(pathUtils, "getYmlFilePath").mockReturnValue("./m365agents.yml");
-      vi
-        .spyOn(fs, "readFile")
-        .mockResolvedValue("version: 1.0.0\nenvironmentFolderPath: /home/envs" as any);
+      vi.spyOn(fs, "readFile").mockResolvedValue(
+        "version: 1.0.0\nenvironmentFolderPath: /home/envs" as any
+      );
       vi.spyOn(fs, "pathExists").mockResolvedValue(false);
       const res = await pathUtils.getEnvFolderPath("");
       assert.isTrue(res.isOk());
@@ -170,9 +170,9 @@ describe("envUtils", () => {
   describe("pathUtils.getEnvFilePath", () => {
     it("happy path", async () => {
       vi.spyOn(pathUtils, "getYmlFilePath").mockReturnValue("./xxx");
-      vi
-        .spyOn(fs, "readFile")
-        .mockResolvedValue("version: 1.0.0\nenvironmentFolderPath: /home/envs" as any);
+      vi.spyOn(fs, "readFile").mockResolvedValue(
+        "version: 1.0.0\nenvironmentFolderPath: /home/envs" as any
+      );
       vi.spyOn(fs, "pathExists").mockResolvedValue(true);
       const res = await pathUtils.getEnvFilePath(".", "dev");
       assert.isTrue(res.isOk());
@@ -209,9 +209,10 @@ describe("envUtils", () => {
       const encRes = await cryptoProvider.encrypt(decrypted);
       if (encRes.isErr()) throw encRes.error;
       const encrypted = encRes.value;
-      vi
-        .spyOn(fs, "readFile")
-        .mockResolvedValueOnce("TEAMSFX_ENV=env\nTEAMS_APP_ID=testappid\nTAB_ENDPOINT=testendpoint" as any)
+      vi.spyOn(fs, "readFile")
+        .mockResolvedValueOnce(
+          "TEAMSFX_ENV=env\nTEAMS_APP_ID=testappid\nTAB_ENDPOINT=testendpoint" as any
+        )
         .mockResolvedValueOnce(("SECRET_ABC=" + encrypted) as any);
       vi.spyOn(fs, "pathExists").mockResolvedValue(true);
       vi.spyOn(settingsUtil, "readSettings").mockResolvedValue(ok(mockSettings));
@@ -267,9 +268,9 @@ describe("envUtils", () => {
       vi.spyOn(pathUtils, "getEnvFilePath").mockResolvedValue(ok(".env.dev"));
       vi.spyOn(fs, "readFile").mockResolvedValue("SECRET_ABC=AAA" as any);
       vi.spyOn(fs, "pathExists").mockResolvedValue(true);
-      vi
-        .spyOn(settingsUtil, "readSettings")
-        .mockResolvedValue(err(new UserError({ source: "test", name: "TestError", message: "message" })));
+      vi.spyOn(settingsUtil, "readSettings").mockResolvedValue(
+        err(new UserError({ source: "test", name: "TestError", message: "message" }))
+      );
       const res = await envUtil.readEnv(".", "dev");
       assert.isTrue(res.isErr());
     });
@@ -296,10 +297,12 @@ describe("envUtils", () => {
     it("happy path", async () => {
       vi.spyOn(pathUtils, "getEnvFilePath").mockResolvedValue(ok(".env.dev"));
       let value = "";
-      vi.spyOn(fs, "writeFile").mockImplementation(async (file: fs.PathLike | number, data: any) => {
-        value = data as string;
-        return Promise.resolve();
-      });
+      vi.spyOn(fs, "writeFile").mockImplementation(
+        async (file: fs.PathLike | number, data: any) => {
+          value = data as string;
+          return Promise.resolve();
+        }
+      );
       vi.spyOn(settingsUtil, "readSettings").mockResolvedValue(ok(mockSettings));
       const res = await envUtil.writeEnv(".", "dev", { SECRET_ABC: decrypted });
       assert.isTrue(res.isOk());
@@ -331,9 +334,9 @@ describe("envUtils", () => {
     });
     it("write failed", async () => {
       vi.spyOn(pathUtils, "getEnvFilePath").mockResolvedValue(ok(".env.dev"));
-      vi
-        .spyOn(settingsUtil, "readSettings")
-        .mockResolvedValue(err(new UserError({ source: "test", name: "TestError", message: "message" })));
+      vi.spyOn(settingsUtil, "readSettings").mockResolvedValue(
+        err(new UserError({ source: "test", name: "TestError", message: "message" }))
+      );
       const res = await envUtil.writeEnv(".", "dev", { SECRET_ABC: decrypted });
       assert.isTrue(res.isErr());
     });
@@ -352,9 +355,12 @@ describe("envUtils", () => {
 
     it("remote env only", async () => {
       vi.spyOn(pathUtils, "getEnvFolderPath").mockResolvedValue(ok("teamsfx"));
-      vi
-        .spyOn(fs, "readdir")
-        .mockResolvedValue([".env.dev", ".env.prod", ".env.local", ".env.testtool"] as any);
+      vi.spyOn(fs, "readdir").mockResolvedValue([
+        ".env.dev",
+        ".env.prod",
+        ".env.local",
+        ".env.testtool",
+      ] as any);
       const res = await envUtil.listEnv(".", true);
       assert.isTrue(res.isOk());
       if (res.isOk()) {
@@ -448,17 +454,23 @@ describe("envUtils", () => {
     });
     it("environmentManager.getExistingNonRemoteEnvs with testtool env", async () => {
       vi.spyOn(pathUtils, "getEnvFolderPath").mockResolvedValue(ok("teamsfx"));
-      vi
-        .spyOn(fs, "readdir")
-        .mockResolvedValue([".env.dev", ".env.prod", ".env.local", ".env.testtool"] as any);
+      vi.spyOn(fs, "readdir").mockResolvedValue([
+        ".env.dev",
+        ".env.prod",
+        ".env.local",
+        ".env.testtool",
+      ] as any);
       const res = await environmentManager.getExistingNonRemoteEnvs(".");
       assert.deepEqual(res, ["testtool", "local"]);
     });
     it("environmentManager.getExistingNonRemoteEnvs with playground env", async () => {
       vi.spyOn(pathUtils, "getEnvFolderPath").mockResolvedValue(ok("teamsfx"));
-      vi
-        .spyOn(fs, "readdir")
-        .mockResolvedValue([".env.dev", ".env.prod", ".env.local", ".env.playground"] as any);
+      vi.spyOn(fs, "readdir").mockResolvedValue([
+        ".env.dev",
+        ".env.prod",
+        ".env.local",
+        ".env.playground",
+      ] as any);
       const res = await environmentManager.getExistingNonRemoteEnvs(".");
       assert.deepEqual(res, ["playground", "local"]);
     });
@@ -477,17 +489,17 @@ describe("envUtils", () => {
 
   describe("EnvLoaderMW", () => {
     it("Enables local env when manifest is Declarative Agent", async () => {
-      vi
-        .spyOn(manifestUtils, "readAppManifest")
-        .mockResolvedValue(ok({ copilotAgents: { declarativeAgents: [{}] } } as any));
+      vi.spyOn(manifestUtils, "readAppManifest").mockResolvedValue(
+        ok({ copilotAgents: { declarativeAgents: [{}] } } as any)
+      );
       vi.spyOn(projectTypeChecker, "IsDeclarativeAgentManifest").mockReturnValue(true);
       let capturedRemoteOnly: boolean | undefined;
-      vi
-        .spyOn(envUtil, "listEnv")
-        .mockImplementation(async (projectPath: string, remoteOnly?: boolean) => {
+      vi.spyOn(envUtil, "listEnv").mockImplementation(
+        async (projectPath: string, remoteOnly?: boolean) => {
           capturedRemoteOnly = remoteOnly;
           return ok([]);
-        });
+        }
+      );
       vi.spyOn(TOOLS.ui, "selectOption").mockImplementation(async (config: any) => {
         if (typeof config.options === "function") {
           await config.options();
@@ -516,12 +528,12 @@ describe("envUtils", () => {
       vi.spyOn(manifestUtils, "readAppManifest").mockResolvedValue(ok({} as any));
       vi.spyOn(projectTypeChecker, "IsDeclarativeAgentManifest").mockReturnValue(false);
       let capturedRemoteOnly: boolean | undefined;
-      vi
-        .spyOn(envUtil, "listEnv")
-        .mockImplementation(async (projectPath: string, remoteOnly?: boolean) => {
+      vi.spyOn(envUtil, "listEnv").mockImplementation(
+        async (projectPath: string, remoteOnly?: boolean) => {
           capturedRemoteOnly = remoteOnly;
           return ok([]);
-        });
+        }
+      );
       vi.spyOn(TOOLS.ui, "selectOption").mockImplementation(async (config: any) => {
         if (typeof config.options === "function") {
           await config.options();
@@ -556,8 +568,7 @@ describe("envUtils", () => {
       if (process.env.SECRET_ABC || process.env.SECRET_ABC === undefined) {
         delete process.env.SECRET_ABC;
       }
-      vi
-        .spyOn(dotenvUtil, "deserialize")
+      vi.spyOn(dotenvUtil, "deserialize")
         .mockReturnValueOnce({
           lines: [],
           obj: {},
@@ -765,9 +776,9 @@ describe("envUtils", () => {
       vi.spyOn(fs, "pathExists").mockResolvedValue(true);
       vi.spyOn(fs, "readFile").mockResolvedValue(("SECRET_ABC=" + encrypted) as any);
       vi.spyOn(settingsUtil, "readSettings").mockResolvedValue(ok(mockSettings));
-      vi
-        .spyOn(envUtil, "readEnv")
-        .mockResolvedValue(err(new UserError({ source: "test", name: "TestError", message: "message" })));
+      vi.spyOn(envUtil, "readEnv").mockResolvedValue(
+        err(new UserError({ source: "test", name: "TestError", message: "message" }))
+      );
       class MyClass {
         async myMethod(inputs: Inputs): Promise<Result<any, FxError>> {
           return ok(undefined);
@@ -816,10 +827,12 @@ describe("envUtils", () => {
     it("EnvWriterMW success", async () => {
       vi.spyOn(pathUtils, "getEnvFolderPath").mockResolvedValue(ok("teamsfx"));
       let value = "";
-      vi.spyOn(fs, "writeFile").mockImplementation(async (file: fs.PathLike | number, data: any) => {
-        value = data as string;
-        return Promise.resolve();
-      });
+      vi.spyOn(fs, "writeFile").mockImplementation(
+        async (file: fs.PathLike | number, data: any) => {
+          value = data as string;
+          return Promise.resolve();
+        }
+      );
       vi.spyOn(settingsUtil, "readSettings").mockResolvedValue(ok(mockSettings));
       const envs = { SECRET_ABC: decrypted };
       class MyClass {
@@ -848,9 +861,9 @@ describe("envUtils", () => {
     });
 
     it("EnvWriterMW fail with envUtil Error", async () => {
-      vi
-        .spyOn(envUtil, "writeEnv")
-        .mockResolvedValue(err(new UserError({ source: "test", name: "TestError", message: "message" })));
+      vi.spyOn(envUtil, "writeEnv").mockResolvedValue(
+        err(new UserError({ source: "test", name: "TestError", message: "message" }))
+      );
       vi.spyOn(settingsUtil, "readSettings").mockResolvedValue(ok(mockSettings));
       const envs = { SECRET_ABC: decrypted };
       class MyClass {

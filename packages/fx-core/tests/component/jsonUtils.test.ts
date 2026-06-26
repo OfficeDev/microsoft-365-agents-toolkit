@@ -40,9 +40,9 @@ describe("JSONUtils", () => {
     assert.isTrue(res.isOk());
   });
   it("readJSONFile syntax error", async () => {
-    vi
-      .spyOn(fs, "readJSON")
-      .mockRejectedValue(new SyntaxError("Unexpected token } in JSON at position 7"));
+    vi.spyOn(fs, "readJSON").mockRejectedValue(
+      new SyntaxError("Unexpected token } in JSON at position 7")
+    );
     const res = await jsonUtils.readJSONFile("xxx");
     assert.isTrue(res.isErr());
     if (res.isErr()) {

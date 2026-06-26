@@ -114,21 +114,20 @@ describe("openPlugin.importOpenPlugin", () => {
     const manifest = (await fs.readJSON(
       path.join(outDir, "appPackage", "manifest.json")
     )) as Record<string, any>;
-    chai.expect(manifest.agentSkills).to.deep.equal([
-      { folder: "./skills/alpha-skill" },
-      { folder: "./skills/beta-skill" },
-    ]);
+    chai
+      .expect(manifest.agentSkills)
+      .to.deep.equal([{ folder: "./skills/alpha-skill" }, { folder: "./skills/beta-skill" }]);
     chai.expect(manifest.agentConnectors).to.have.length(1);
     chai.expect(manifest.agentConnectors[0]).to.include({
       id: "web",
       displayName: "web MCP Server",
     });
-    chai.expect(manifest.agentConnectors[0].toolSource.remoteMcpServer.mcpServerUrl).to.equal(
-      "https://web.example.com/api"
-    );
-    chai.expect(manifest.agentConnectors[0].toolSource.remoteMcpServer.authorization.type).to.equal(
-      "OAuthPluginVault"
-    );
+    chai
+      .expect(manifest.agentConnectors[0].toolSource.remoteMcpServer.mcpServerUrl)
+      .to.equal("https://web.example.com/api");
+    chai
+      .expect(manifest.agentConnectors[0].toolSource.remoteMcpServer.authorization.type)
+      .to.equal("OAuthPluginVault");
   });
 
   it("surfaces a warning for stdio MCP servers", async () => {
@@ -227,15 +226,21 @@ describe("openPlugin.importOpenPlugin", () => {
     });
     if (res.isErr()) throw new Error(res.error.message);
     const colorBuf = await fs.readFile(path.join(outDir, "appPackage", "color.png"));
-    chai.expect(
-      colorBuf.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]))
-    ).to.equal(true);
+    chai
+      .expect(
+        colorBuf
+          .subarray(0, 8)
+          .equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]))
+      )
+      .to.equal(true);
     const outlineBuf = await fs.readFile(path.join(outDir, "appPackage", "outline.png"));
-    chai.expect(
-      outlineBuf
-        .subarray(0, 8)
-        .equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]))
-    ).to.equal(true);
+    chai
+      .expect(
+        outlineBuf
+          .subarray(0, 8)
+          .equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]))
+      )
+      .to.equal(true);
   });
 
   it("uses cwd-based default output when --output is not provided", async () => {

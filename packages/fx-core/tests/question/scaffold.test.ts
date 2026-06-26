@@ -853,9 +853,9 @@ describe("MCPToolsFileNode", () => {
   });
   it("validFunc returns error message when readMCPToolsFromFile throws", async () => {
     vi.spyOn(teamsProjectTypeDeps, "pathExists").mockResolvedValue(true);
-    vi
-      .spyOn(teamsProjectTypeDeps, "readMCPToolsFromFile")
-      .mockRejectedValue(new Error("bad json format"));
+    vi.spyOn(teamsProjectTypeDeps, "readMCPToolsFromFile").mockRejectedValue(
+      new Error("bad json format")
+    );
     const node = MCPToolsFileNode();
     const data = node.data as any;
     const validFunc = data.additionalValidationOnAccept.validFunc;
@@ -946,7 +946,10 @@ describe("MCPForDAServerUrlNode", () => {
     assert.isTrue(fetchStub.mock.calls.length === 0);
   });
   it("validFunc sets auth inputs when requiresAuth=true and no authMetadataUrl", async () => {
-    vi.spyOn(teamsProjectTypeDeps, "fetchMCPTools").mockResolvedValue({ requiresAuth: true, tools: [] });
+    vi.spyOn(teamsProjectTypeDeps, "fetchMCPTools").mockResolvedValue({
+      requiresAuth: true,
+      tools: [],
+    });
     const node = MCPForDAServerUrlNode();
     const data = node.data as any;
     const validFunc = data.additionalValidationOnAccept.validFunc;
@@ -977,9 +980,10 @@ describe("MCPForDAServerUrlNode", () => {
   });
   it("validFunc sets tools, tool mode, and NoneAuth when tools are returned", async () => {
     const mockTools = [{ name: "t1" }, { name: "t2" }];
-    vi
-      .spyOn(teamsProjectTypeDeps, "fetchMCPTools")
-      .mockResolvedValue({ requiresAuth: false, tools: mockTools as any });
+    vi.spyOn(teamsProjectTypeDeps, "fetchMCPTools").mockResolvedValue({
+      requiresAuth: false,
+      tools: mockTools as any,
+    });
     const node = MCPForDAServerUrlNode();
     const data = node.data as any;
     const validFunc = data.additionalValidationOnAccept.validFunc;
@@ -990,9 +994,10 @@ describe("MCPForDAServerUrlNode", () => {
     assert.equal(inputs[QuestionNames.MCPForDAAuth], "NoneAuth");
   });
   it("validFunc sets empty tools and NoneAuth when no tools and no auth", async () => {
-    vi
-      .spyOn(teamsProjectTypeDeps, "fetchMCPTools")
-      .mockResolvedValue({ requiresAuth: false, tools: [] });
+    vi.spyOn(teamsProjectTypeDeps, "fetchMCPTools").mockResolvedValue({
+      requiresAuth: false,
+      tools: [],
+    });
     const node = MCPForDAServerUrlNode();
     const data = node.data as any;
     const validFunc = data.additionalValidationOnAccept.validFunc;

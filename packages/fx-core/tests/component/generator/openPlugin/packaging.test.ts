@@ -104,14 +104,16 @@ describe("openPlugin → teamsApp/zipAppPackage end-to-end", () => {
     chai.expect(entries).to.include("manifest.json");
     chai.expect(entries).to.include("color.png");
     chai.expect(entries).to.include("outline.png");
-    chai.expect(
-      entries.some((e) => e === "skills/hello/SKILL.md" || e === "skills\\hello\\SKILL.md")
-    ).to.equal(true);
-    chai.expect(
-      entries.some(
-        (e) => e === "skills/hello/nested/helper.md" || e === "skills\\hello\\nested\\helper.md"
+    chai
+      .expect(entries.some((e) => e === "skills/hello/SKILL.md" || e === "skills\\hello\\SKILL.md"))
+      .to.equal(true);
+    chai
+      .expect(
+        entries.some(
+          (e) => e === "skills/hello/nested/helper.md" || e === "skills\\hello\\nested\\helper.md"
+        )
       )
-    ).to.equal(true);
+      .to.equal(true);
   });
 
   it("zips skill folders even when TEAMSFX_AGENT_SKILLS is off (Teams manifest agentSkills is unconditional)", async () => {
@@ -144,9 +146,11 @@ describe("openPlugin → teamsApp/zipAppPackage end-to-end", () => {
 
       const zip = new AdmZip(args.outputZipPath);
       const entries = zip.getEntries().map((e) => e.entryName);
-      chai.expect(
-        entries.some((e) => e === "skills/hello/SKILL.md" || e === "skills\\hello\\SKILL.md")
-      ).to.equal(true);
+      chai
+        .expect(
+          entries.some((e) => e === "skills/hello/SKILL.md" || e === "skills\\hello\\SKILL.md")
+        )
+        .to.equal(true);
     } finally {
       featureFlagManager.setBooleanValue(FeatureFlags.AgentSkillsManifest, wasEnabled);
     }

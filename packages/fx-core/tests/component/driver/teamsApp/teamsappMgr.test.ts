@@ -30,9 +30,9 @@ describe("TeamsAppMgr", async () => {
   });
   describe("ensureAppPackageFile", async () => {
     it("sucess", async () => {
-      vi
-        .spyOn(teamsappMgr, "packageTeamsApp")
-        .mockResolvedValue(ok({ manifestPath: "", outputJsonPath: "", outputZipPath: "" }));
+      vi.spyOn(teamsappMgr, "packageTeamsApp").mockResolvedValue(
+        ok({ manifestPath: "", outputJsonPath: "", outputZipPath: "" })
+      );
       vi.spyOn(fs, "pathExists").mockResolvedValue(true);
       const result = await teamsappMgr.ensureAppPackageFile({
         projectPath: "",
@@ -41,9 +41,9 @@ describe("TeamsAppMgr", async () => {
       chai.assert(result.isOk());
     });
     it("file not found", async () => {
-      vi
-        .spyOn(teamsappMgr, "packageTeamsApp")
-        .mockResolvedValue(ok({ manifestPath: "", outputJsonPath: "", outputZipPath: "" }));
+      vi.spyOn(teamsappMgr, "packageTeamsApp").mockResolvedValue(
+        ok({ manifestPath: "", outputJsonPath: "", outputZipPath: "" })
+      );
       vi.spyOn(fs, "pathExists").mockResolvedValue(false);
       const result = await teamsappMgr.ensureAppPackageFile({
         projectPath: "",
@@ -243,9 +243,10 @@ describe("TeamsAppMgr", async () => {
       vi.spyOn(fs, "pathExists").mockResolvedValue(true);
       vi.spyOn(teamsappMgr, "checkAndTryToLoadEnv").mockResolvedValue(ok("dev"));
       vi.spyOn(teamsAppMgrDeps, "runForTypeSpecProject").mockResolvedValue();
-      vi
-        .spyOn(CreateAppPackageDriver.prototype, "execute")
-        .mockResolvedValue({ result: err(new UserCancelError()), summaries: [] });
+      vi.spyOn(CreateAppPackageDriver.prototype, "execute").mockResolvedValue({
+        result: err(new UserCancelError()),
+        summaries: [],
+      });
       const result = await teamsappMgr.packageTeamsApp({
         projectPath: "xxx",
         platform: Platform.CLI,
@@ -257,9 +258,10 @@ describe("TeamsAppMgr", async () => {
       vi.spyOn(fs, "pathExists").mockResolvedValue(true);
       vi.spyOn(teamsappMgr, "checkAndTryToLoadEnv").mockResolvedValue(ok(undefined));
       vi.spyOn(teamsAppMgrDeps, "runForTypeSpecProject").mockResolvedValue();
-      vi
-        .spyOn(CreateAppPackageDriver.prototype, "execute")
-        .mockResolvedValue({ result: ok(new Map()), summaries: [] });
+      vi.spyOn(CreateAppPackageDriver.prototype, "execute").mockResolvedValue({
+        result: ok(new Map()),
+        summaries: [],
+      });
       const result = await teamsappMgr.packageTeamsApp({
         projectPath: "xxx",
         platform: Platform.CLI,
@@ -293,9 +295,10 @@ describe("TeamsAppMgr", async () => {
     it("input manifest file, run driver fail", async () => {
       vi.spyOn(fs, "pathExists").mockResolvedValue(true);
       vi.spyOn(teamsappMgr, "checkAndTryToLoadEnv").mockResolvedValue(ok(undefined));
-      vi
-        .spyOn(ValidateManifestDriver.prototype, "execute")
-        .mockResolvedValue({ result: err(new UserCancelError()), summaries: [] });
+      vi.spyOn(ValidateManifestDriver.prototype, "execute").mockResolvedValue({
+        result: err(new UserCancelError()),
+        summaries: [],
+      });
       const result = await teamsappMgr.validateTeamsApp({
         projectPath: "xxx",
         platform: Platform.CLI,
@@ -306,9 +309,10 @@ describe("TeamsAppMgr", async () => {
     it("input manifest file, run driver success", async () => {
       vi.spyOn(fs, "pathExists").mockResolvedValue(true);
       vi.spyOn(teamsappMgr, "checkAndTryToLoadEnv").mockResolvedValue(ok(undefined));
-      vi
-        .spyOn(ValidateManifestDriver.prototype, "execute")
-        .mockResolvedValue({ result: ok(new Map()), summaries: [] });
+      vi.spyOn(ValidateManifestDriver.prototype, "execute").mockResolvedValue({
+        result: ok(new Map()),
+        summaries: [],
+      });
       const result = await teamsappMgr.validateTeamsApp({
         projectPath: "xxx",
         platform: Platform.CLI,
@@ -317,9 +321,10 @@ describe("TeamsAppMgr", async () => {
       chai.assert(result.isOk());
     });
     it("input package file, run driver success", async () => {
-      vi
-        .spyOn(ValidateAppPackageDriver.prototype, "execute")
-        .mockResolvedValue({ result: ok(new Map()), summaries: [] });
+      vi.spyOn(ValidateAppPackageDriver.prototype, "execute").mockResolvedValue({
+        result: ok(new Map()),
+        summaries: [],
+      });
       const result = await teamsappMgr.validateTeamsApp({
         projectPath: "xxx",
         platform: Platform.CLI,
@@ -328,9 +333,10 @@ describe("TeamsAppMgr", async () => {
       chai.assert(result.isOk());
     });
     it("input package file, run driver fail", async () => {
-      vi
-        .spyOn(ValidateAppPackageDriver.prototype, "execute")
-        .mockResolvedValue({ result: err(new UserCancelError()), summaries: [] });
+      vi.spyOn(ValidateAppPackageDriver.prototype, "execute").mockResolvedValue({
+        result: err(new UserCancelError()),
+        summaries: [],
+      });
       const result = await teamsappMgr.validateTeamsApp({
         projectPath: "xxx",
         platform: Platform.CLI,
@@ -354,9 +360,10 @@ describe("TeamsAppMgr", async () => {
 
     it("ValidateAppPackageDriver fail", async () => {
       vi.spyOn(teamsappMgr, "ensureAppPackageFile").mockResolvedValue(ok(undefined));
-      vi
-        .spyOn(ValidateAppPackageDriver.prototype, "execute")
-        .mockResolvedValue({ result: err(new UserCancelError()), summaries: [] });
+      vi.spyOn(ValidateAppPackageDriver.prototype, "execute").mockResolvedValue({
+        result: err(new UserCancelError()),
+        summaries: [],
+      });
       const result = await teamsappMgr.updateTeamsApp({
         projectPath: "xxx",
         platform: Platform.CLI,
@@ -366,12 +373,14 @@ describe("TeamsAppMgr", async () => {
 
     it("ConfigureTeamsAppDriver fail", async () => {
       vi.spyOn(teamsappMgr, "ensureAppPackageFile").mockResolvedValue(ok(undefined));
-      vi
-        .spyOn(ValidateAppPackageDriver.prototype, "execute")
-        .mockResolvedValue({ result: ok(new Map()), summaries: [] });
-      vi
-        .spyOn(ConfigureTeamsAppDriver.prototype, "execute")
-        .mockResolvedValue({ result: err(new UserCancelError()), summaries: [] });
+      vi.spyOn(ValidateAppPackageDriver.prototype, "execute").mockResolvedValue({
+        result: ok(new Map()),
+        summaries: [],
+      });
+      vi.spyOn(ConfigureTeamsAppDriver.prototype, "execute").mockResolvedValue({
+        result: err(new UserCancelError()),
+        summaries: [],
+      });
       const result = await teamsappMgr.updateTeamsApp({
         projectPath: "xxx",
         platform: Platform.CLI,
@@ -380,17 +389,19 @@ describe("TeamsAppMgr", async () => {
     });
 
     it("readManifestFromZip fail", async () => {
-      vi
-        .spyOn(TOOLS.tokenProvider.m365TokenProvider, "getJsonObject")
-        .mockResolvedValue(ok({ scope: [] }));
+      vi.spyOn(TOOLS.tokenProvider.m365TokenProvider, "getJsonObject").mockResolvedValue(
+        ok({ scope: [] })
+      );
       vi.spyOn(teamsappMgr, "ensureAppPackageFile").mockResolvedValue(ok(undefined));
       vi.spyOn(teamsappMgr, "readManifestFromZip").mockResolvedValue(err(new UserCancelError()));
-      vi
-        .spyOn(ValidateAppPackageDriver.prototype, "execute")
-        .mockResolvedValue({ result: ok(new Map()), summaries: [] });
-      vi
-        .spyOn(ConfigureTeamsAppDriver.prototype, "execute")
-        .mockResolvedValue({ result: ok(new Map()), summaries: [] });
+      vi.spyOn(ValidateAppPackageDriver.prototype, "execute").mockResolvedValue({
+        result: ok(new Map()),
+        summaries: [],
+      });
+      vi.spyOn(ConfigureTeamsAppDriver.prototype, "execute").mockResolvedValue({
+        result: ok(new Map()),
+        summaries: [],
+      });
       const result = await teamsappMgr.updateTeamsApp({
         projectPath: "xxx",
         platform: Platform.CLI,
@@ -399,17 +410,19 @@ describe("TeamsAppMgr", async () => {
     });
 
     it("success", async () => {
-      vi
-        .spyOn(TOOLS.tokenProvider.m365TokenProvider, "getJsonObject")
-        .mockResolvedValue(ok({ scope: [] }));
+      vi.spyOn(TOOLS.tokenProvider.m365TokenProvider, "getJsonObject").mockResolvedValue(
+        ok({ scope: [] })
+      );
       vi.spyOn(teamsappMgr, "ensureAppPackageFile").mockResolvedValue(ok(undefined));
       vi.spyOn(teamsappMgr, "readManifestFromZip").mockResolvedValue(ok(new TeamsAppManifest()));
-      vi
-        .spyOn(ValidateAppPackageDriver.prototype, "execute")
-        .mockResolvedValue({ result: ok(new Map()), summaries: [] });
-      vi
-        .spyOn(ConfigureTeamsAppDriver.prototype, "execute")
-        .mockResolvedValue({ result: ok(new Map()), summaries: [] });
+      vi.spyOn(ValidateAppPackageDriver.prototype, "execute").mockResolvedValue({
+        result: ok(new Map()),
+        summaries: [],
+      });
+      vi.spyOn(ConfigureTeamsAppDriver.prototype, "execute").mockResolvedValue({
+        result: ok(new Map()),
+        summaries: [],
+      });
       const result = await teamsappMgr.updateTeamsApp({
         projectPath: "xxx",
         platform: Platform.CLI,
@@ -432,9 +445,10 @@ describe("TeamsAppMgr", async () => {
 
     it("ValidateAppPackageDriver fail", async () => {
       vi.spyOn(teamsappMgr, "ensureAppPackageFile").mockResolvedValue(ok(undefined));
-      vi
-        .spyOn(ValidateAppPackageDriver.prototype, "execute")
-        .mockResolvedValue({ result: err(new UserCancelError()), summaries: [] });
+      vi.spyOn(ValidateAppPackageDriver.prototype, "execute").mockResolvedValue({
+        result: err(new UserCancelError()),
+        summaries: [],
+      });
       const result = await teamsappMgr.publishTeamsApp({
         projectPath: "xxx",
         platform: Platform.CLI,
@@ -444,12 +458,14 @@ describe("TeamsAppMgr", async () => {
 
     it("PublishAppPackageDriver fail", async () => {
       vi.spyOn(teamsappMgr, "ensureAppPackageFile").mockResolvedValue(ok(undefined));
-      vi
-        .spyOn(ValidateAppPackageDriver.prototype, "execute")
-        .mockResolvedValue({ result: ok(new Map()), summaries: [] });
-      vi
-        .spyOn(PublishAppPackageDriver.prototype, "execute")
-        .mockResolvedValue({ result: err(new UserCancelError()), summaries: [] });
+      vi.spyOn(ValidateAppPackageDriver.prototype, "execute").mockResolvedValue({
+        result: ok(new Map()),
+        summaries: [],
+      });
+      vi.spyOn(PublishAppPackageDriver.prototype, "execute").mockResolvedValue({
+        result: err(new UserCancelError()),
+        summaries: [],
+      });
       const result = await teamsappMgr.publishTeamsApp({
         projectPath: "xxx",
         platform: Platform.CLI,
@@ -459,12 +475,14 @@ describe("TeamsAppMgr", async () => {
     it("success", async () => {
       vi.spyOn(teamsappMgr, "ensureAppPackageFile").mockResolvedValue(ok(undefined));
       vi.spyOn(teamsappMgr, "readManifestFromZip").mockResolvedValue(ok(new TeamsAppManifest()));
-      vi
-        .spyOn(ValidateAppPackageDriver.prototype, "execute")
-        .mockResolvedValue({ result: ok(new Map()), summaries: [] });
-      vi
-        .spyOn(PublishAppPackageDriver.prototype, "execute")
-        .mockResolvedValue({ result: ok(new Map()), summaries: [] });
+      vi.spyOn(ValidateAppPackageDriver.prototype, "execute").mockResolvedValue({
+        result: ok(new Map()),
+        summaries: [],
+      });
+      vi.spyOn(PublishAppPackageDriver.prototype, "execute").mockResolvedValue({
+        result: ok(new Map()),
+        summaries: [],
+      });
       const result = await teamsappMgr.publishTeamsApp({
         projectPath: "xxx",
         platform: Platform.CLI,

@@ -73,10 +73,9 @@ describe("openPlugin.mapToTtkProject", () => {
       baseParsed({ skills: ["alpha", "beta"], skillsRoot: "/tmp/plugin/skills" }),
       baseInputs()
     );
-    chai.expect(manifest.agentSkills).to.deep.equal([
-      { folder: "./skills/alpha" },
-      { folder: "./skills/beta" },
-    ]);
+    chai
+      .expect(manifest.agentSkills)
+      .to.deep.equal([{ folder: "./skills/alpha" }, { folder: "./skills/beta" }]);
   });
 
   it("emits agentConnectors for http servers with OAuthPluginVault under Auto", () => {
@@ -153,9 +152,9 @@ describe("openPlugin.mapToTtkProject", () => {
     for (let i = 0; i < 11; i++) {
       mcpServers[`svc-${i}`] = { url: `https://svc-${i}.example.com` };
     }
-    chai.expect(() => mapToTtkProject(baseParsed({ mcpServers }), baseInputs())).to.throw(
-      /caps agentConnectors at 10/
-    );
+    chai
+      .expect(() => mapToTtkProject(baseParsed({ mcpServers }), baseInputs()))
+      .to.throw(/caps agentConnectors at 10/);
   });
 
   it("does not emit contactInfo (not in devPreview schema)", () => {
@@ -186,15 +185,15 @@ describe("openPlugin.mapToTtkProject", () => {
   });
 
   it("throws when privacyUrl is missing", () => {
-    chai.expect(() => mapToTtkProject(baseParsed(), baseInputs({ privacyUrl: "" }))).to.throw(
-      /privacyUrl/
-    );
+    chai
+      .expect(() => mapToTtkProject(baseParsed(), baseInputs({ privacyUrl: "" })))
+      .to.throw(/privacyUrl/);
   });
 
   it("throws when termsUrl is missing", () => {
-    chai.expect(() => mapToTtkProject(baseParsed(), baseInputs({ termsUrl: "" }))).to.throw(
-      /termsOfUseUrl/
-    );
+    chai
+      .expect(() => mapToTtkProject(baseParsed(), baseInputs({ termsUrl: "" })))
+      .to.throw(/termsOfUseUrl/);
   });
 
   it("copies commands folder when present", () => {

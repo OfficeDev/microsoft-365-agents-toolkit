@@ -55,7 +55,9 @@ describe("SSO can add in VS V3 project", () => {
     vi.spyOn(fs, "pathExists").mockResolvedValueOnce(true).mockResolvedValueOnce(false);
     vi.spyOn(fs, "ensureDir").mockRejectedValue(new Error("errorMessage"));
     vi.spyOn(fs, "remove").mockResolvedValue();
-    vi.spyOn(templateUtils, "unzip").mockImplementation(() => { throw new Error("errorMessage"); });
+    vi.spyOn(templateUtils, "unzip").mockImplementation(() => {
+      throw new Error("errorMessage");
+    });
     const ssoRes = await component.add(context, inputs);
     assert.isTrue(ssoRes.isErr() && ssoRes.error.name === "FailedToCreateAuthFiles");
   });

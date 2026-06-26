@@ -144,27 +144,35 @@ describe("openPlugin fixture conversion (Contoso Helper)", () => {
 
     // 4. outline.png was generated (real PNG signature, non-trivial size).
     const outlineBytes = await fs.readFile(path.join(outDir, "appPackage", "outline.png"));
-    chai.expect(
-      outlineBytes
-        .subarray(0, 8)
-        .equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]))
-    ).to.equal(true);
+    chai
+      .expect(
+        outlineBytes
+          .subarray(0, 8)
+          .equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]))
+      )
+      .to.equal(true);
     chai.expect(outlineBytes.length).to.be.greaterThan(32);
 
     // 5. Warnings: stdio MCP skipped, unmapped Open Plugin fields surfaced.
     const warnings = res.value.warnings;
-    chai.expect(
-      warnings.some((w) => w.includes("stdio-only") && w.includes("no URL")),
-      "expected stdio MCP warning"
-    ).to.equal(true);
-    chai.expect(
-      warnings.some((w) => w.includes("'agents'") && w.includes("not supported")),
-      "expected agents-field warning"
-    ).to.equal(true);
-    chai.expect(
-      warnings.some((w) => w.includes("'hooks'") && w.includes("not supported")),
-      "expected hooks-field warning"
-    ).to.equal(true);
+    chai
+      .expect(
+        warnings.some((w) => w.includes("stdio-only") && w.includes("no URL")),
+        "expected stdio MCP warning"
+      )
+      .to.equal(true);
+    chai
+      .expect(
+        warnings.some((w) => w.includes("'agents'") && w.includes("not supported")),
+        "expected agents-field warning"
+      )
+      .to.equal(true);
+    chai
+      .expect(
+        warnings.some((w) => w.includes("'hooks'") && w.includes("not supported")),
+        "expected hooks-field warning"
+      )
+      .to.equal(true);
 
     // 6. Renders the appName into m365agents.yml and README.
     const yml = await fs.readFile(path.join(outDir, "m365agents.yml"), "utf8");

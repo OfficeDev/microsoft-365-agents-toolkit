@@ -147,7 +147,9 @@ describe("openPlugin.exportOpenPlugin", () => {
       manifestKind: "claude-plugin",
     });
     if (res.isErr()) throw new Error(res.error.message);
-    chai.expect(await fs.pathExists(path.join(outDir, ".claude-plugin", "plugin.json"))).to.equal(true);
+    chai
+      .expect(await fs.pathExists(path.join(outDir, ".claude-plugin", "plugin.json")))
+      .to.equal(true);
     chai.expect(await fs.pathExists(path.join(outDir, ".plugin", "plugin.json"))).to.equal(false);
   });
 
@@ -158,7 +160,9 @@ describe("openPlugin.exportOpenPlugin", () => {
       manifestKind: "cursor-plugin",
     });
     if (res.isErr()) throw new Error(res.error.message);
-    chai.expect(await fs.pathExists(path.join(outDir, ".cursor-plugin", "plugin.json"))).to.equal(true);
+    chai
+      .expect(await fs.pathExists(path.join(outDir, ".cursor-plugin", "plugin.json")))
+      .to.equal(true);
   });
 
   it("returns ManifestNotFound when appPackage/manifest.json is missing", async () => {

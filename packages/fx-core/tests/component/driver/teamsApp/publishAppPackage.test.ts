@@ -142,7 +142,9 @@ describe("teamsApp/publishAppPackage", async () => {
     });
 
     const tokenError = new UserCancelError();
-    vi.spyOn(mockedDriverContext.m365TokenProvider, "getAccessToken").mockResolvedValue(err(tokenError));
+    vi.spyOn(mockedDriverContext.m365TokenProvider, "getAccessToken").mockResolvedValue(
+      err(tokenError)
+    );
 
     const result = (await teamsAppDriver.execute(args, mockedDriverContext)).result;
     chai.assert.isTrue(result.isErr());
@@ -167,7 +169,9 @@ describe("teamsApp/publishAppPackage", async () => {
     });
 
     vi.spyOn(GraphClient.prototype, "getStagedApp").mockResolvedValue(undefined);
-    vi.spyOn(GraphClient.prototype, "publishTeamsApp").mockRejectedValue(new Error("publish failed"));
+    vi.spyOn(GraphClient.prototype, "publishTeamsApp").mockRejectedValue(
+      new Error("publish failed")
+    );
 
     const result = (await teamsAppDriver.execute(args, mockedDriverContext)).result;
     chai.assert.isTrue(result.isErr());

@@ -104,9 +104,9 @@ describe("combined generator", async () => {
 
       vi.spyOn(fs, "copySync").mockReturnValue();
       vi.spyOn(fs, "removeSync").mockReturnValue();
-      vi
-        .spyOn(developerPortalScaffoldUtils, "updateFilesForTdp")
-        .mockResolvedValue(err(new UserError("fakeSource", "fakeError", "fakeError")));
+      vi.spyOn(developerPortalScaffoldUtils, "updateFilesForTdp").mockResolvedValue(
+        err(new UserError("fakeSource", "fakeError", "fakeError"))
+      );
 
       const res = await generator.post(context, inputs, "");
       assert.isTrue(res.isErr() && res.error.name === "fakeError");

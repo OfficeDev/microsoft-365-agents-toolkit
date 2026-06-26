@@ -37,13 +37,13 @@ describe("openPlugin.parseAuthor", () => {
   });
 
   it("parses object form", () => {
-    chai.expect(
-      parseAuthor({ name: "Jane", email: "jane@example.com", url: "https://example.com" })
-    ).to.deep.equal({
-      name: "Jane",
-      email: "jane@example.com",
-      url: "https://example.com",
-    });
+    chai
+      .expect(parseAuthor({ name: "Jane", email: "jane@example.com", url: "https://example.com" }))
+      .to.deep.equal({
+        name: "Jane",
+        email: "jane@example.com",
+        url: "https://example.com",
+      });
   });
 
   it("ignores non-string fields on object form", () => {

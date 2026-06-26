@@ -267,12 +267,12 @@ describe("copilotExtension", async () => {
       };
 
       vi.spyOn(declarativeAgentGeneratorDeps, "setGeneralSensitivityLabel").mockResolvedValue();
-      vi
-        .spyOn(copilotGptManifestUtils, "getManifestPath")
-        .mockResolvedValue(ok("declarativeAgent.json"));
-      vi
-        .spyOn(declarativeAgentGeneratorDeps, "addExistingPlugin")
-        .mockResolvedValue(ok({ destinationPluginManifestPath: "test.json", warnings: [] }));
+      vi.spyOn(copilotGptManifestUtils, "getManifestPath").mockResolvedValue(
+        ok("declarativeAgent.json")
+      );
+      vi.spyOn(declarativeAgentGeneratorDeps, "addExistingPlugin").mockResolvedValue(
+        ok({ destinationPluginManifestPath: "test.json", warnings: [] })
+      );
 
       let res = await generator.post(context, inputs, "");
       assert.isTrue(res.isOk());
@@ -300,9 +300,9 @@ describe("copilotExtension", async () => {
       // mock sensitivity label feature flag
       vi.spyOn(featureFlagManager, "getBooleanValue").mockReturnValue(true);
       vi.spyOn(declarativeAgentGeneratorDeps, "setGeneralSensitivityLabel").mockResolvedValue();
-      vi
-        .spyOn(copilotGptManifestUtils, "getManifestPath")
-        .mockResolvedValue(ok("declarativeAgent.json"));
+      vi.spyOn(copilotGptManifestUtils, "getManifestPath").mockResolvedValue(
+        ok("declarativeAgent.json")
+      );
       vi.spyOn(declarativeAgentGeneratorDeps, "addExistingPlugin").mockResolvedValue(
         ok({
           destinationPluginManifestPath: "test.json",
@@ -332,9 +332,9 @@ describe("copilotExtension", async () => {
         [QuestionNames.AppName]: "app",
       };
 
-      vi
-        .spyOn(copilotGptManifestUtils, "getManifestPath")
-        .mockResolvedValue(err(new UserError("fakeError", "fakeError", "fakeError", "fakeError")));
+      vi.spyOn(copilotGptManifestUtils, "getManifestPath").mockResolvedValue(
+        err(new UserError("fakeError", "fakeError", "fakeError", "fakeError"))
+      );
 
       const res = await generator.post(context, inputs, "");
       assert.isTrue(res.isOk());
@@ -350,9 +350,9 @@ describe("copilotExtension", async () => {
         [QuestionNames.AppName]: "app",
       };
 
-      vi
-        .spyOn(copilotGptManifestUtils, "getManifestPath")
-        .mockResolvedValue(err(new UserError("fakeError", "fakeError", "fakeError", "fakeError")));
+      vi.spyOn(copilotGptManifestUtils, "getManifestPath").mockResolvedValue(
+        err(new UserError("fakeError", "fakeError", "fakeError", "fakeError"))
+      );
 
       const res = await generator.post(context, inputs, "");
       assert.isTrue(res.isErr() && res.error.name === "fakeError");
@@ -369,12 +369,12 @@ describe("copilotExtension", async () => {
         [QuestionNames.TemplateName]: TemplateNames.DeclarativeAgentWithExistingAction,
       };
 
-      vi
-        .spyOn(copilotGptManifestUtils, "getManifestPath")
-        .mockResolvedValue(ok("declarativeAgent.json"));
-      vi
-        .spyOn(declarativeAgentGeneratorDeps, "addExistingPlugin")
-        .mockResolvedValue(err(new UserError("fakeError", "fakeError", "fakeError", "fakeError")));
+      vi.spyOn(copilotGptManifestUtils, "getManifestPath").mockResolvedValue(
+        ok("declarativeAgent.json")
+      );
+      vi.spyOn(declarativeAgentGeneratorDeps, "addExistingPlugin").mockResolvedValue(
+        err(new UserError("fakeError", "fakeError", "fakeError", "fakeError"))
+      );
 
       const res = await generator.post(context, inputs, "");
       assert.isTrue(res.isErr() && res.error.name === "fakeError");
@@ -428,7 +428,9 @@ describe("copilotExtension", async () => {
       };
 
       vi.spyOn(featureFlagManager, "getBooleanValue").mockReturnValue(true);
-      vi.spyOn(fs, "ensureDir").mockImplementation(() => { throw "error"; });
+      vi.spyOn(fs, "ensureDir").mockImplementation(() => {
+        throw "error";
+      });
 
       const res = await generator.post(context, inputs, "");
       assert.isTrue(res.isOk());
@@ -446,7 +448,9 @@ describe("copilotExtension", async () => {
       };
 
       vi.spyOn(featureFlagManager, "getBooleanValue").mockReturnValue(false);
-      vi.spyOn(fs, "ensureDir").mockImplementation(() => { throw "error"; });
+      vi.spyOn(fs, "ensureDir").mockImplementation(() => {
+        throw "error";
+      });
 
       const res = await generator.post(context, inputs, "");
       assert.isTrue(res.isOk());
@@ -464,9 +468,9 @@ describe("copilotExtension", async () => {
       };
 
       vi.spyOn(featureFlagManager, "getBooleanValue").mockReturnValue(false);
-      vi
-        .spyOn(copilotGptManifestUtils, "getManifestPath")
-        .mockResolvedValue(ok("declarativeAgent.json"));
+      vi.spyOn(copilotGptManifestUtils, "getManifestPath").mockResolvedValue(
+        ok("declarativeAgent.json")
+      );
       vi.spyOn(developerPortalScaffoldUtils, "updateFilesForTdp").mockResolvedValue(ok(undefined));
 
       const res = await generator.post(context, inputs, "");
@@ -485,12 +489,12 @@ describe("copilotExtension", async () => {
       };
 
       vi.spyOn(featureFlagManager, "getBooleanValue").mockReturnValue(false);
-      vi
-        .spyOn(copilotGptManifestUtils, "getManifestPath")
-        .mockResolvedValue(ok("declarativeAgent.json"));
-      vi
-        .spyOn(developerPortalScaffoldUtils, "updateFilesForTdp")
-        .mockResolvedValue(err(new UserError("fakeSource", "fakeError", "fakeError")));
+      vi.spyOn(copilotGptManifestUtils, "getManifestPath").mockResolvedValue(
+        ok("declarativeAgent.json")
+      );
+      vi.spyOn(developerPortalScaffoldUtils, "updateFilesForTdp").mockResolvedValue(
+        err(new UserError("fakeSource", "fakeError", "fakeError"))
+      );
 
       const res = await generator.post(context, inputs, "");
       assert.isTrue(res.isErr() && res.error.name === "fakeError");
@@ -511,11 +515,13 @@ describe("copilotExtension", async () => {
             token: "fake-token",
           })
         );
-      const getLabelStub = vi.spyOn(GraphClient.prototype, "getGeneralSentivityLabel").mockResolvedValue(
-        ok({
-          id: "label-id",
-        })
-      );
+      const getLabelStub = vi
+        .spyOn(GraphClient.prototype, "getGeneralSentivityLabel")
+        .mockResolvedValue(
+          ok({
+            id: "label-id",
+          })
+        );
       const DAManifest = {
         name: "test",
         description: "test description",
@@ -547,9 +553,9 @@ describe("copilotExtension", async () => {
 
     it("token provider error", async () => {
       const infoStub = vi.spyOn(context.logProvider, "info");
-      vi
-        .spyOn(context.tokenProvider!.m365TokenProvider, "getStatus")
-        .mockResolvedValue(err(new UserError("source", "name", "message")));
+      vi.spyOn(context.tokenProvider!.m365TokenProvider, "getStatus").mockResolvedValue(
+        err(new UserError("source", "name", "message"))
+      );
 
       await utils.setGeneralSensitivityLabel(context, manifestPath);
 
@@ -577,7 +583,10 @@ describe("copilotExtension", async () => {
     it("not signed in  - no logger", async () => {
       const contextWithoutProvider = createContext() as any;
       const infoStub = vi.spyOn(contextWithoutProvider.logProvider, "info");
-      vi.spyOn(contextWithoutProvider.tokenProvider!.m365TokenProvider, "getStatus").mockResolvedValue(
+      vi.spyOn(
+        contextWithoutProvider.tokenProvider!.m365TokenProvider,
+        "getStatus"
+      ).mockResolvedValue(
         ok({
           status: signedOut,
           token: undefined,
@@ -609,9 +618,9 @@ describe("copilotExtension", async () => {
           token: "fake-token",
         })
       );
-      vi
-        .spyOn(GraphClient.prototype, "getGeneralSentivityLabel")
-        .mockResolvedValue(err(new UserError("source", "name", "message")));
+      vi.spyOn(GraphClient.prototype, "getGeneralSentivityLabel").mockResolvedValue(
+        err(new UserError("source", "name", "message"))
+      );
 
       await utils.setGeneralSensitivityLabel(context, manifestPath);
 
@@ -631,12 +640,12 @@ describe("copilotExtension", async () => {
           token: "fake-token",
         })
       );
-      vi
-        .spyOn(GraphClient.prototype, "getGeneralSentivityLabel")
-        .mockResolvedValue(ok({ id: "label-id" }));
-      vi
-        .spyOn(copilotGptManifestUtils, "readDeclarativeAgentManifestFile")
-        .mockResolvedValue(err(new UserError("source", "name", "message")));
+      vi.spyOn(GraphClient.prototype, "getGeneralSentivityLabel").mockResolvedValue(
+        ok({ id: "label-id" })
+      );
+      vi.spyOn(copilotGptManifestUtils, "readDeclarativeAgentManifestFile").mockResolvedValue(
+        err(new UserError("source", "name", "message"))
+      );
 
       await utils.setGeneralSensitivityLabel(context, manifestPath);
 
@@ -656,18 +665,18 @@ describe("copilotExtension", async () => {
           token: "fake-token",
         })
       );
-      vi
-        .spyOn(GraphClient.prototype, "getGeneralSentivityLabel")
-        .mockResolvedValue(ok({ id: "label-id" }));
+      vi.spyOn(GraphClient.prototype, "getGeneralSentivityLabel").mockResolvedValue(
+        ok({ id: "label-id" })
+      );
       vi.spyOn(copilotGptManifestUtils, "readDeclarativeAgentManifestFile").mockResolvedValue(
         ok({
           name: "test",
           description: "test description",
         } as any)
       );
-      vi
-        .spyOn(copilotGptManifestUtils, "writeDeclarativeAgentManifestFile")
-        .mockResolvedValue(err(new UserError("source", "name", "message")));
+      vi.spyOn(copilotGptManifestUtils, "writeDeclarativeAgentManifestFile").mockResolvedValue(
+        err(new UserError("source", "name", "message"))
+      );
 
       await utils.setGeneralSensitivityLabel(context, manifestPath);
 
@@ -706,9 +715,10 @@ describe("helper", async () => {
       const getApiSpecPath = vi
         .spyOn(pluginManifestUtils, "getDefaultNextAvailableApiSpecPath")
         .mockResolvedValue("nextApiSpec.json");
-      vi
-        .spyOn(copilotGptManifestUtils, "getDefaultNextAvailablePluginManifestPath")
-        .mockResolvedValue("nextPluginManifest.json");
+      vi.spyOn(
+        copilotGptManifestUtils,
+        "getDefaultNextAvailablePluginManifestPath"
+      ).mockResolvedValue("nextPluginManifest.json");
       vi.spyOn(fs, "pathExists").mockResolvedValue(true);
       vi.spyOn(fs, "ensureFile").mockResolvedValue();
       vi.spyOn(fs, "copyFile").mockResolvedValue();
@@ -740,9 +750,10 @@ describe("helper", async () => {
         .spyOn(pluginManifestUtils, "getDefaultNextAvailableApiSpecPath")
         .mockResolvedValue("nextApiSpec.json");
       vi.spyOn(commonUtils, "getEnvironmentVariables").mockReturnValue([]);
-      vi
-        .spyOn(copilotGptManifestUtils, "getDefaultNextAvailablePluginManifestPath")
-        .mockResolvedValue("nextPluginManifest.json");
+      vi.spyOn(
+        copilotGptManifestUtils,
+        "getDefaultNextAvailablePluginManifestPath"
+      ).mockResolvedValue("nextPluginManifest.json");
       vi.spyOn(fs, "pathExists").mockResolvedValue(false);
       vi.spyOn(path, "relative").mockReturnValue("test");
       vi.spyOn(fs, "ensureFile").mockResolvedValue();
@@ -774,9 +785,10 @@ describe("helper", async () => {
         .spyOn(pluginManifestUtils, "getDefaultNextAvailableApiSpecPath")
         .mockResolvedValue("nextApiSpec.json");
       vi.spyOn(commonUtils, "getEnvironmentVariables").mockReturnValue(["TEST_ENV"]);
-      vi
-        .spyOn(copilotGptManifestUtils, "getDefaultNextAvailablePluginManifestPath")
-        .mockResolvedValue("nextPluginManifest.json");
+      vi.spyOn(
+        copilotGptManifestUtils,
+        "getDefaultNextAvailablePluginManifestPath"
+      ).mockResolvedValue("nextPluginManifest.json");
       vi.spyOn(fs, "pathExists").mockResolvedValue(false);
       vi.spyOn(path, "relative").mockReturnValue("test");
       vi.spyOn(fs, "ensureFile").mockResolvedValue();
@@ -811,15 +823,18 @@ describe("helper", async () => {
         .spyOn(pluginManifestUtils, "getDefaultNextAvailableApiSpecPath")
         .mockResolvedValue("nextApiSpec.json");
       vi.spyOn(commonUtils, "getEnvironmentVariables").mockReturnValue(["TEST_ENV"]);
-      vi
-        .spyOn(copilotGptManifestUtils, "getDefaultNextAvailablePluginManifestPath")
-        .mockResolvedValue("nextPluginManifest.json");
+      vi.spyOn(
+        copilotGptManifestUtils,
+        "getDefaultNextAvailablePluginManifestPath"
+      ).mockResolvedValue("nextPluginManifest.json");
       vi.spyOn(fs, "pathExists").mockResolvedValue(false);
       vi.spyOn(path, "relative").mockReturnValue("test");
       vi.spyOn(fs, "ensureFile").mockResolvedValue();
       vi.spyOn(fs, "copyFile").mockResolvedValue();
       vi.spyOn(fs, "writeFile").mockResolvedValue();
-      vi.spyOn(fs, "readFile").mockImplementation(() => { throw new Error(); });
+      vi.spyOn(fs, "readFile").mockImplementation(() => {
+        throw new Error();
+      });
       const res = await generatorHelper.addExistingPlugin(
         "test.json",
         "originalManifest.json",
@@ -836,9 +851,9 @@ describe("helper", async () => {
     });
 
     it("error: readPluginManifestFile Error", async () => {
-      vi
-        .spyOn(pluginManifestUtils, "readPluginManifestFile")
-        .mockResolvedValue(err(new UserError("fakeError", "fakeError", "fakeError", "fakeError")));
+      vi.spyOn(pluginManifestUtils, "readPluginManifestFile").mockResolvedValue(
+        err(new UserError("fakeError", "fakeError", "fakeError", "fakeError"))
+      );
 
       const res = await generatorHelper.addExistingPlugin(
         "test.json",
@@ -859,15 +874,16 @@ describe("helper", async () => {
           runtimes: [{ type: "OpenApi", spec: { url: "test.json" } }],
         } as any)
       );
-      vi
-        .spyOn(copilotGptManifestUtils, "addAction")
-        .mockResolvedValue(err(new UserError("fakeError", "fakeError", "fakeError", "fakeError")));
+      vi.spyOn(copilotGptManifestUtils, "addAction").mockResolvedValue(
+        err(new UserError("fakeError", "fakeError", "fakeError", "fakeError"))
+      );
       const getApiSpecPath = vi
         .spyOn(pluginManifestUtils, "getDefaultNextAvailableApiSpecPath")
         .mockResolvedValue("nextApiSpec.json");
-      vi
-        .spyOn(copilotGptManifestUtils, "getDefaultNextAvailablePluginManifestPath")
-        .mockResolvedValue("nextPluginManifest.json");
+      vi.spyOn(
+        copilotGptManifestUtils,
+        "getDefaultNextAvailablePluginManifestPath"
+      ).mockResolvedValue("nextPluginManifest.json");
       vi.spyOn(fs, "pathExists").mockResolvedValue(true);
       vi.spyOn(fs, "ensureFile").mockResolvedValue();
       vi.spyOn(fs, "copyFile").mockResolvedValue();
@@ -1073,9 +1089,9 @@ describe("helper", async () => {
         [QuestionNames.AppName]: "app",
       };
       vi.spyOn(featureFlagManager, "getBooleanValue").mockReturnValue(false);
-      vi
-        .spyOn(copilotGptManifestUtils, "getManifestPath")
-        .mockResolvedValue(ok("declarativeAgent.json"));
+      vi.spyOn(copilotGptManifestUtils, "getManifestPath").mockResolvedValue(
+        ok("declarativeAgent.json")
+      );
       const mcpStub = vi
         .spyOn(declarativeAgentGeneratorDeps, "generateForMCPForDA")
         .mockResolvedValue(ok({ warnings: [] }));
@@ -1290,11 +1306,9 @@ describe("helper", async () => {
       vi.spyOn(fs, "readJSON").mockResolvedValue(existingPluginContent);
       const writeJSONStub = vi.spyOn(fs, "writeJSON").mockResolvedValue();
       // Stub readFile/writeFile for ActionInjector yml writing
-      vi
-        .spyOn(fs, "readFile")
-        .mockResolvedValue(
-          "provision:\n  - uses: teamsApp/create\n    with:\n      name: test\n    writeToEnvironmentFile:\n      teamsAppId: TEAMS_APP_ID\n" as any
-        );
+      vi.spyOn(fs, "readFile").mockResolvedValue(
+        "provision:\n  - uses: teamsApp/create\n    with:\n      name: test\n    writeToEnvironmentFile:\n      teamsAppId: TEAMS_APP_ID\n" as any
+      );
       const writeFileStub = vi.spyOn(fs, "writeFile").mockResolvedValue();
 
       const inputs: Inputs = {
@@ -1526,21 +1540,20 @@ describe("helper", async () => {
       vi.spyOn(fs, "pathExistsSync").mockReturnValue(true);
       vi.spyOn(fs, "readJSON").mockResolvedValue(existingPluginContent);
       const writeJSONStub = vi.spyOn(fs, "writeJSON").mockResolvedValue();
-      vi
-        .spyOn(fs, "readFile")
-        .mockResolvedValue(
-          "provision:\n  - uses: teamsApp/create\n    with:\n      name: test\n    writeToEnvironmentFile:\n      teamsAppId: TEAMS_APP_ID\n" as any
-        );
+      vi.spyOn(fs, "readFile").mockResolvedValue(
+        "provision:\n  - uses: teamsApp/create\n    with:\n      name: test\n    writeToEnvironmentFile:\n      teamsAppId: TEAMS_APP_ID\n" as any
+      );
       const writeFileStub = vi.spyOn(fs, "writeFile").mockResolvedValue();
 
-      vi
-        .spyOn(mcpAuthScaffolderDeps.mcpAuthScaffolderDeps, "resolveMCPOAuthMetadata")
-        .mockResolvedValue({
-          authorizationUrl: "https://auth.example.com/authorize",
-          tokenUrl: "https://auth.example.com/token",
-          refreshUrl: "https://auth.example.com/token",
-          wellKnownUrl: "https://auth.example.com/.well-known/oauth-authorization-server",
-        });
+      vi.spyOn(
+        mcpAuthScaffolderDeps.mcpAuthScaffolderDeps,
+        "resolveMCPOAuthMetadata"
+      ).mockResolvedValue({
+        authorizationUrl: "https://auth.example.com/authorize",
+        tokenUrl: "https://auth.example.com/token",
+        refreshUrl: "https://auth.example.com/token",
+        wellKnownUrl: "https://auth.example.com/.well-known/oauth-authorization-server",
+      });
 
       const inputs: Inputs = {
         platform: Platform.CLI,
@@ -1830,9 +1843,10 @@ describe("helper", async () => {
       vi.spyOn(fs, "readJSON").mockResolvedValue(existingPluginContent);
       vi.spyOn(fs, "writeJSON").mockResolvedValue();
 
-      vi
-        .spyOn(mcpAuthScaffolderDeps.mcpAuthScaffolderDeps, "resolveMCPOAuthMetadata")
-        .mockRejectedValue(new Error("metadata unavailable"));
+      vi.spyOn(
+        mcpAuthScaffolderDeps.mcpAuthScaffolderDeps,
+        "resolveMCPOAuthMetadata"
+      ).mockRejectedValue(new Error("metadata unavailable"));
 
       const inputs: Inputs = {
         platform: Platform.CLI,
@@ -1896,7 +1910,11 @@ describe("helper", async () => {
     it("DT auth: none auth type emits runtime.auth None", async () => {
       vi.spyOn(featureFlagManager, "getBooleanValue").mockReturnValue(true);
       vi.spyOn(fs, "pathExists").mockResolvedValue(true);
-      vi.spyOn(fs, "readJSON").mockResolvedValue({ schema_version: "v1", functions: [], runtimes: [] });
+      vi.spyOn(fs, "readJSON").mockResolvedValue({
+        schema_version: "v1",
+        functions: [],
+        runtimes: [],
+      });
       const writeJSONStub = vi.spyOn(fs, "writeJSON").mockResolvedValue();
 
       const inputs: Inputs = {
@@ -1916,27 +1934,30 @@ describe("helper", async () => {
     it("DT auth: probes MCP server for auth metadata when none provided", async () => {
       vi.spyOn(featureFlagManager, "getBooleanValue").mockReturnValue(true);
       vi.spyOn(fs, "pathExists").mockResolvedValue(true);
-      vi.spyOn(fs, "readJSON").mockResolvedValue({ schema_version: "v1", functions: [], runtimes: [] });
+      vi.spyOn(fs, "readJSON").mockResolvedValue({
+        schema_version: "v1",
+        functions: [],
+        runtimes: [],
+      });
       vi.spyOn(fs, "writeJSON").mockResolvedValue();
-      vi
-        .spyOn(fs, "readFile")
-        .mockResolvedValue(
-          "provision:\n  - uses: teamsApp/create\n    writeToEnvironmentFile:\n      teamsAppId: TEAMS_APP_ID\n" as any
-        );
+      vi.spyOn(fs, "readFile").mockResolvedValue(
+        "provision:\n  - uses: teamsApp/create\n    writeToEnvironmentFile:\n      teamsAppId: TEAMS_APP_ID\n" as any
+      );
       vi.spyOn(fs, "writeFile").mockResolvedValue();
 
       vi.spyOn(mcpToolFetcher, "probeMCPServerAuth").mockResolvedValue({
         requiresAuth: true,
         authMetadataUrl: "https://auth.example.com/.well-known/oauth-authorization-server",
       });
-      vi
-        .spyOn(mcpAuthScaffolderDeps.mcpAuthScaffolderDeps, "resolveMCPOAuthMetadata")
-        .mockResolvedValue({
-          authorizationUrl: "https://auth.example.com/authorize",
-          tokenUrl: "https://auth.example.com/token",
-          refreshUrl: "https://auth.example.com/token",
-          wellKnownUrl: "https://auth.example.com/.well-known/oauth-authorization-server",
-        });
+      vi.spyOn(
+        mcpAuthScaffolderDeps.mcpAuthScaffolderDeps,
+        "resolveMCPOAuthMetadata"
+      ).mockResolvedValue({
+        authorizationUrl: "https://auth.example.com/authorize",
+        tokenUrl: "https://auth.example.com/token",
+        refreshUrl: "https://auth.example.com/token",
+        wellKnownUrl: "https://auth.example.com/.well-known/oauth-authorization-server",
+      });
 
       const inputs: Inputs = {
         platform: Platform.VSCode,
@@ -2002,13 +2023,15 @@ describe("helper", async () => {
     it("DT auth: flag ON persists credential env vars", async () => {
       vi.spyOn(featureFlagManager, "getBooleanValue").mockReturnValue(true);
       vi.spyOn(fs, "pathExists").mockResolvedValue(true);
-      vi.spyOn(fs, "readJSON").mockResolvedValue({ schema_version: "v1", functions: [], runtimes: [] });
+      vi.spyOn(fs, "readJSON").mockResolvedValue({
+        schema_version: "v1",
+        functions: [],
+        runtimes: [],
+      });
       vi.spyOn(fs, "writeJSON").mockResolvedValue();
-      vi
-        .spyOn(fs, "readFile")
-        .mockResolvedValue(
-          "provision:\n  - uses: teamsApp/create\n    writeToEnvironmentFile:\n      teamsAppId: TEAMS_APP_ID\n" as any
-        );
+      vi.spyOn(fs, "readFile").mockResolvedValue(
+        "provision:\n  - uses: teamsApp/create\n    writeToEnvironmentFile:\n      teamsAppId: TEAMS_APP_ID\n" as any
+      );
       vi.spyOn(fs, "writeFile").mockResolvedValue();
 
       const mcpToolFetcherModule = await import("../../../src/component/utils/mcpToolFetcher");
@@ -2021,7 +2044,9 @@ describe("helper", async () => {
 
       const envUtilModule = await import("../../../src/component/utils/envUtil");
       vi.spyOn(envUtilModule.envUtil, "listEnv").mockResolvedValue(ok(["dev"]));
-      const writeEnvStub = vi.spyOn(envUtilModule.envUtil, "writeEnv").mockResolvedValue(ok(undefined));
+      const writeEnvStub = vi
+        .spyOn(envUtilModule.envUtil, "writeEnv")
+        .mockResolvedValue(ok(undefined));
 
       const inputs: Inputs = {
         platform: Platform.VSCode,
@@ -2043,13 +2068,15 @@ describe("helper", async () => {
     it("DT auth: flag ON env persistence failure adds warning", async () => {
       vi.spyOn(featureFlagManager, "getBooleanValue").mockReturnValue(true);
       vi.spyOn(fs, "pathExists").mockResolvedValue(true);
-      vi.spyOn(fs, "readJSON").mockResolvedValue({ schema_version: "v1", functions: [], runtimes: [] });
+      vi.spyOn(fs, "readJSON").mockResolvedValue({
+        schema_version: "v1",
+        functions: [],
+        runtimes: [],
+      });
       vi.spyOn(fs, "writeJSON").mockResolvedValue();
-      vi
-        .spyOn(fs, "readFile")
-        .mockResolvedValue(
-          "provision:\n  - uses: teamsApp/create\n    writeToEnvironmentFile:\n      teamsAppId: TEAMS_APP_ID\n" as any
-        );
+      vi.spyOn(fs, "readFile").mockResolvedValue(
+        "provision:\n  - uses: teamsApp/create\n    writeToEnvironmentFile:\n      teamsAppId: TEAMS_APP_ID\n" as any
+      );
       vi.spyOn(fs, "writeFile").mockResolvedValue();
 
       const mcpToolFetcherModule = await import("../../../src/component/utils/mcpToolFetcher");
@@ -2061,9 +2088,9 @@ describe("helper", async () => {
       });
 
       const envUtilModule = await import("../../../src/component/utils/envUtil");
-      vi
-        .spyOn(envUtilModule.envUtil, "listEnv")
-        .mockResolvedValue(err(new UserError("envUtil", "ListEnvError", "boom", "boom")));
+      vi.spyOn(envUtilModule.envUtil, "listEnv").mockResolvedValue(
+        err(new UserError("envUtil", "ListEnvError", "boom", "boom"))
+      );
 
       const inputs: Inputs = {
         platform: Platform.VSCode,
@@ -2086,13 +2113,15 @@ describe("helper", async () => {
     it("DT auth: DCR well-known placeholder used adds warning", async () => {
       vi.spyOn(featureFlagManager, "getBooleanValue").mockReturnValue(true);
       vi.spyOn(fs, "pathExists").mockResolvedValue(true);
-      vi.spyOn(fs, "readJSON").mockResolvedValue({ schema_version: "v1", functions: [], runtimes: [] });
+      vi.spyOn(fs, "readJSON").mockResolvedValue({
+        schema_version: "v1",
+        functions: [],
+        runtimes: [],
+      });
       vi.spyOn(fs, "writeJSON").mockResolvedValue();
-      vi
-        .spyOn(fs, "readFile")
-        .mockResolvedValue(
-          "provision:\n  - uses: teamsApp/create\n    writeToEnvironmentFile:\n      teamsAppId: TEAMS_APP_ID\n" as any
-        );
+      vi.spyOn(fs, "readFile").mockResolvedValue(
+        "provision:\n  - uses: teamsApp/create\n    writeToEnvironmentFile:\n      teamsAppId: TEAMS_APP_ID\n" as any
+      );
       vi.spyOn(fs, "writeFile").mockResolvedValue();
       vi.spyOn(fs, "pathExistsSync").mockReturnValue(true);
 
@@ -2130,9 +2159,9 @@ describe("helper", async () => {
       const context = createContext();
       const destinationPath = "/test/destination";
 
-      vi
-        .spyOn(copilotGptManifestUtils, "getManifestPath")
-        .mockResolvedValue(ok("/test/destination/appPackage/da.json"));
+      vi.spyOn(copilotGptManifestUtils, "getManifestPath").mockResolvedValue(
+        ok("/test/destination/appPackage/da.json")
+      );
       const generateStub = vi
         .spyOn(declarativeAgentGeneratorDeps, "generateForMCPForDA")
         .mockResolvedValue(ok({ warnings: [] }));
@@ -3008,9 +3037,10 @@ describe("createNewActionPluginManifest", () => {
   });
 
   it("creates a new manifest, registers the action, and returns the path", async () => {
-    vi
-      .spyOn(copilotGptManifestUtils, "getDefaultNextAvailablePluginManifestPath")
-      .mockResolvedValue("/proj/appPackage/ai-plugin.json");
+    vi.spyOn(
+      copilotGptManifestUtils,
+      "getDefaultNextAvailablePluginManifestPath"
+    ).mockResolvedValue("/proj/appPackage/ai-plugin.json");
     const ensureFileStub = vi.spyOn(fs, "ensureFile").mockResolvedValue();
     const writeJSONStub = vi.spyOn(fs, "writeJSON").mockResolvedValue();
     const addActionStub = vi
@@ -3060,14 +3090,15 @@ describe("createNewActionPluginManifest", () => {
   });
 
   it("returns err when addAction fails", async () => {
-    vi
-      .spyOn(copilotGptManifestUtils, "getDefaultNextAvailablePluginManifestPath")
-      .mockResolvedValue("/proj/appPackage/ai-plugin.json");
+    vi.spyOn(
+      copilotGptManifestUtils,
+      "getDefaultNextAvailablePluginManifestPath"
+    ).mockResolvedValue("/proj/appPackage/ai-plugin.json");
     vi.spyOn(fs, "ensureFile").mockResolvedValue();
     vi.spyOn(fs, "writeJSON").mockResolvedValue();
-    vi
-      .spyOn(copilotGptManifestUtils, "addAction")
-      .mockResolvedValue(err(new SystemError("test", "addActionFailed", "msg", "msg")));
+    vi.spyOn(copilotGptManifestUtils, "addAction").mockResolvedValue(
+      err(new SystemError("test", "addActionFailed", "msg", "msg"))
+    );
 
     const res = await generatorHelper.createNewActionPluginManifest(
       "/proj",
@@ -3078,9 +3109,10 @@ describe("createNewActionPluginManifest", () => {
   });
 
   it("derives a sanitized namespace from project folder name", async () => {
-    vi
-      .spyOn(copilotGptManifestUtils, "getDefaultNextAvailablePluginManifestPath")
-      .mockResolvedValue("/proj/appPackage/ai-plugin.json");
+    vi.spyOn(
+      copilotGptManifestUtils,
+      "getDefaultNextAvailablePluginManifestPath"
+    ).mockResolvedValue("/proj/appPackage/ai-plugin.json");
     vi.spyOn(fs, "ensureFile").mockResolvedValue();
     const writeJSONStub = vi.spyOn(fs, "writeJSON").mockResolvedValue();
     vi.spyOn(copilotGptManifestUtils, "addAction").mockResolvedValue(ok({} as any));

@@ -143,14 +143,18 @@ describe("utils", () => {
   });
 
   it("findLatestVersion: exeute commmand error with undefined logger", async () => {
-    vi.spyOn(cpUtils, "executeCommand").mockImplementation(() => { throw "run command error"; });
+    vi.spyOn(cpUtils, "executeCommand").mockImplementation(() => {
+      throw "run command error";
+    });
 
     const res = await Utils.findLatestVersion(undefined, "name", 0);
     chai.expect(res).to.be.undefined;
   });
 
   it("findGloballyInstalledVersion: exeute commmand error with undefined logger", async () => {
-    vi.spyOn(cpUtils, "executeCommand").mockImplementation(() => { throw "run command error"; });
+    vi.spyOn(cpUtils, "executeCommand").mockImplementation(() => {
+      throw "run command error";
+    });
     let error = undefined;
 
     try {
@@ -162,7 +166,9 @@ describe("utils", () => {
   });
 
   it("findGloballyInstalledVersion: exeute commmand error but not throw error", async () => {
-    vi.spyOn(cpUtils, "executeCommand").mockImplementation(() => { throw "run command error"; });
+    vi.spyOn(cpUtils, "executeCommand").mockImplementation(() => {
+      throw "run command error";
+    });
 
     const res = await Utils.findGloballyInstalledVersion(undefined, "name", 0, false);
 
@@ -176,9 +182,9 @@ describe("utils", () => {
       [QuestionNames.SPFxFolder]: "c:\\test",
       [QuestionNames.SPFxSolution]: "import",
     };
-    vi
-      .spyOn(fs, "readJson")
-      .mockResolvedValue({ "@microsoft/generator-sharepoint": { solutionName: "fakedSolutionName" } });
+    vi.spyOn(fs, "readJson").mockResolvedValue({
+      "@microsoft/generator-sharepoint": { solutionName: "fakedSolutionName" },
+    });
     vi.spyOn(fs, "pathExists").mockResolvedValue(true);
 
     const defaultName = await (appNameQuestion() as any).default(inputs);
