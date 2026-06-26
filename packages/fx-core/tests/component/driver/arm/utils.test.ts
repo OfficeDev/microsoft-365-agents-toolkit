@@ -3,10 +3,8 @@
 
 import { ResourceManagementClient } from "@azure/arm-resources";
 import { ok } from "@microsoft/teamsfx-api";
-import { assert } from "chai";
 import fs from "fs-extra";
-import { createSandbox } from "sinon";
-import { vi } from "vitest";
+import { assert, vi } from "vitest";
 import { ConstantString } from "../../../../src/common/constants";
 import { setTools } from "../../../../src/common/globalVars";
 import { ArmDeployImpl } from "../../../../src/component/driver/arm/deployImpl";
@@ -33,14 +31,12 @@ import {
 } from "../../../core/utils";
 
 describe("utils test", () => {
-  const sandbox = createSandbox();
   const tools = new MockTools();
   setTools(tools);
 
   beforeEach(() => {});
 
   afterEach(() => {
-    sandbox.restore();
     vi.restoreAllMocks();
   });
 
@@ -97,7 +93,6 @@ describe("utils test", () => {
 });
 
 describe("arm deploy error handle test", () => {
-  const sandbox = createSandbox();
   const tools = new MockTools();
   setTools(tools);
   const mockedDriverContext: any = {
@@ -112,7 +107,7 @@ describe("arm deploy error handle test", () => {
   beforeEach(() => {});
 
   afterEach(() => {
-    sandbox.restore();
+    vi.restoreAllMocks();
   });
 
   it("handleArmDeploymentError case 1", async () => {
@@ -196,7 +191,7 @@ describe("arm deploy error handle test", () => {
 
   it("handleArmDeploymentError case 2: no deploymentError", async () => {
     const client = new ResourceManagementClient(new MyTokenCredential(), "id");
-    sandbox.stub(client.deployments, "get").resolves({});
+    vi.spyOn(client.deployments, "get").mockResolvedValue({} as any);
     const mockError = {
       code: "OtherCode",
       message:
@@ -216,7 +211,7 @@ describe("arm deploy error handle test", () => {
 
   it("handleArmDeploymentError case 3: getDeploymentError without subErrors", async () => {
     const client = new ResourceManagementClient(new MyTokenCredential(), "id");
-    sandbox.stub(ArmErrorHandle, "wrapGetDeploymentError").resolves(
+    vi.spyOn(ArmErrorHandle, "wrapGetDeploymentError").mockResolvedValue(
       ok({
         error: {
           code: "MockError",
@@ -242,9 +237,9 @@ describe("arm deploy error handle test", () => {
 
   it("handleArmDeploymentError case 4: getDeploymentError with subErrors", async () => {
     const client = new ResourceManagementClient(new MyTokenCredential(), "id");
-    sandbox
-      .stub(ArmErrorHandle, "wrapGetDeploymentError")
-      .resolves(ok({ subErrors: { module1: "value1" } }));
+    vi.spyOn(ArmErrorHandle, "wrapGetDeploymentError").mockResolvedValue(
+      ok({ subErrors: { module1: "value1" } })
+    );
     const mockError = {
       code: "RawMockError",
       message: "RawMockErrorMessasge",
@@ -263,9 +258,9 @@ describe("arm deploy error handle test", () => {
 
   it("handleArmDeploymentError case 5: getDeploymentError throws error", async () => {
     const client = new ResourceManagementClient(new MyTokenCredential(), "id");
-    sandbox
-      .stub(ArmErrorHandle, "getDeploymentError")
-      .throws({ code: "GetDeploymentError", message: "GetDeploymentErrorMessage" });
+    vi.spyOn(ArmErrorHandle, "getDeploymentError").mockImplementation(async () => {
+      throw { code: "GetDeploymentError", message: "GetDeploymentErrorMessage" };
+    });
     const mockError = {
       code: "RawMockError",
       message: "RawMockErrorMessasge",
@@ -290,9 +285,9 @@ describe("arm deploy error handle test", () => {
       templates: [],
     } as any;
     const impl = new ArmDeployImpl(deployArgs, mockedDriverContext);
-    sandbox
-      .stub(impl, "getDeployTemplate")
-      .throws(new CompileBicepError(".", new Error("compile error")));
+    vi.spyOn(impl, "getDeployTemplate").mockImplementation(async () => {
+      throw new CompileBicepError(".", new Error("compile error"));
+    });
     mockedDriverContext.createProgressBar = () => {};
     const res = await impl.deployTemplate({
       path: "",
@@ -333,7 +328,7 @@ describe("arm deploy error handle test", () => {
       }
     }
     `;
-    sandbox.stub(fs, "readFile").resolves(parameterContents as any);
+    vi.spyOn(fs, "readFile").mockResolvedValue(parameterContents as any);
     mockedDriverContext.createProgressBar = () => {};
     const res = await impl.deployTemplate({
       path: "",
@@ -357,7 +352,9 @@ describe("arm deploy error handle test", () => {
       templates: [],
     } as any;
     mockedDriverContext.createProgressBar = () => {};
-    sandbox.stub(cpUtils, "executeCommand").throws(new Error("compile error"));
+    vi.spyOn(cpUtils, "executeCommand").mockImplementation(async () => {
+      throw new Error("compile error");
+    });
     const impl = new ArmDeployImpl(deployArgs, mockedDriverContext);
     try {
       await impl.compileBicepToJson("");
@@ -369,7 +366,6 @@ describe("arm deploy error handle test", () => {
 });
 
 describe("getDeploymentError", () => {
-  const sandbox = createSandbox();
   const tools = new MockTools();
   setTools(tools);
   const deployCtx = {
@@ -381,7 +377,6 @@ describe("getDeploymentError", () => {
   beforeEach(() => {});
 
   afterEach(() => {
-    sandbox.restore();
     vi.restoreAllMocks();
   });
 
@@ -504,12 +499,10 @@ describe("getDeploymentError", () => {
 });
 
 describe("formattedDeploymentError Status", () => {
-  const mocker = createSandbox();
-
   beforeEach(async () => {});
 
   afterEach(async () => {
-    mocker.restore();
+    vi.restoreAllMocks();
   });
 
   it("formattedDeploymentError OK", async () => {

@@ -1,10 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import chai from "chai";
 import * as fs from "fs-extra";
-import * as sinon from "sinon";
-import { vi } from "vitest";
+import { chai, vi } from "vitest";
 import { M365TitleAcquireDriver } from "../../../../src/component/driver/m365/acquire";
 import { PackageService } from "../../../../src/component/m365/packageService";
 import {
@@ -27,7 +25,7 @@ describe("teamsApp/extendToM365", async () => {
   };
 
   afterEach(() => {
-    sinon.restore();
+    vi.restoreAllMocks();
     vi.clearAllMocks();
   });
 
@@ -127,7 +125,9 @@ describe("teamsApp/extendToM365", async () => {
       ["appId", "MY_APP_ID"],
     ]);
 
-    sinon.stub(PackageService.prototype, "sideLoading").throws(new Error("test error"));
+    vi.spyOn(PackageService.prototype, "sideLoading").mockImplementation(() => {
+      throw new Error("test error");
+    });
     vi.mocked(fs.pathExists).mockResolvedValue(true);
 
     const result = await acquireDriver.execute(args, mockedDriverContext, outputEnvVarNames);
@@ -149,7 +149,7 @@ describe("teamsApp/extendToM365", async () => {
     const mockError = new FileNotFoundError("test", "test-file-path");
     (mockError as any).displayMessage = undefined;
 
-    sinon.stub(PackageService.prototype, "sideLoading").rejects(mockError);
+    vi.spyOn(PackageService.prototype, "sideLoading").mockRejectedValue(mockError);
     vi.mocked(fs.pathExists).mockResolvedValue(true);
 
     const result = await acquireDriver.execute(args, mockedDriverContext, outputEnvVarNames);
@@ -168,9 +168,11 @@ describe("teamsApp/extendToM365", async () => {
       ["appId", "MY_APP_ID"],
     ]);
 
-    sinon
-      .stub(PackageService.prototype, "sideLoading")
-      .resolves(["test-title-id", "test-app-id", ""]);
+    vi.spyOn(PackageService.prototype, "sideLoading").mockResolvedValue([
+      "test-title-id",
+      "test-app-id",
+      "",
+    ]);
     vi.mocked(fs.pathExists).mockResolvedValue(true);
 
     const result = await acquireDriver.execute(args, mockedDriverContext, outputEnvVarNames);
@@ -207,9 +209,11 @@ describe("teamsApp/extendToM365", async () => {
       ["appId", "MY_APP_ID"],
     ]);
 
-    sinon
-      .stub(PackageService.prototype, "sideLoading")
-      .resolves(["test-title-id", "test-app-id", "https://example.com/sharelink"]);
+    vi.spyOn(PackageService.prototype, "sideLoading").mockResolvedValue([
+      "test-title-id",
+      "test-app-id",
+      "https://example.com/sharelink",
+    ]);
     vi.mocked(fs.pathExists).mockResolvedValue(true);
 
     const result = await acquireDriver.execute(args, mockedDriverContext, outputEnvVarNames);
@@ -228,9 +232,11 @@ describe("teamsApp/extendToM365", async () => {
       ["appId", "MY_APP_ID"],
     ]);
 
-    sinon
-      .stub(PackageService.prototype, "sideLoading")
-      .resolves(["test-title-id", "test-app-id", "https://example.com/sharelink"]);
+    vi.spyOn(PackageService.prototype, "sideLoading").mockResolvedValue([
+      "test-title-id",
+      "test-app-id",
+      "https://example.com/sharelink",
+    ]);
     vi.mocked(fs.pathExists).mockResolvedValue(true);
 
     const result = await acquireDriver.execute(args, mockedDriverContext, outputEnvVarNames);
@@ -249,9 +255,11 @@ describe("teamsApp/extendToM365", async () => {
       ["shareLink", "MY_SHARE_LINK"],
     ]);
 
-    sinon
-      .stub(PackageService.prototype, "sideLoading")
-      .resolves(["test-title-id", "test-app-id", "https://example.com/sharelink"]);
+    vi.spyOn(PackageService.prototype, "sideLoading").mockResolvedValue([
+      "test-title-id",
+      "test-app-id",
+      "https://example.com/sharelink",
+    ]);
     vi.mocked(fs.pathExists).mockResolvedValue(true);
 
     const result = await acquireDriver.execute(args, mockedDriverContext, outputEnvVarNames);
@@ -273,9 +281,11 @@ describe("teamsApp/extendToM365", async () => {
       ["appId", "MY_APP_ID"],
     ]);
 
-    sinon
-      .stub(PackageService.prototype, "sideLoading")
-      .resolves(["test-title-id", "test-app-id", "https://example.com/sharelink"]);
+    vi.spyOn(PackageService.prototype, "sideLoading").mockResolvedValue([
+      "test-title-id",
+      "test-app-id",
+      "https://example.com/sharelink",
+    ]);
     vi.mocked(fs.pathExists).mockResolvedValue(true);
 
     const result = await acquireDriver.execute(args, mockedDriverContext, outputEnvVarNames);
@@ -297,9 +307,11 @@ describe("teamsApp/extendToM365", async () => {
       ["shareLink", "MY_SHARE_LINK"],
     ]);
 
-    sinon
-      .stub(PackageService.prototype, "sideLoading")
-      .resolves(["test-title-id", "test-app-id", "https://example.com/sharelink"]);
+    vi.spyOn(PackageService.prototype, "sideLoading").mockResolvedValue([
+      "test-title-id",
+      "test-app-id",
+      "https://example.com/sharelink",
+    ]);
     vi.mocked(fs.pathExists).mockResolvedValue(true);
 
     const result = await acquireDriver.execute(args, mockedDriverContext, outputEnvVarNames);
@@ -322,9 +334,11 @@ describe("teamsApp/extendToM365", async () => {
       ["shareLink", "MY_SHARE_LINK"],
     ]);
 
-    sinon
-      .stub(PackageService.prototype, "sideLoading")
-      .resolves(["test-title-id", "test-app-id", ""]);
+    vi.spyOn(PackageService.prototype, "sideLoading").mockResolvedValue([
+      "test-title-id",
+      "test-app-id",
+      "",
+    ]);
     vi.mocked(fs.pathExists).mockResolvedValue(true);
 
     const result = await acquireDriver.execute(args, mockedDriverContext, outputEnvVarNames);

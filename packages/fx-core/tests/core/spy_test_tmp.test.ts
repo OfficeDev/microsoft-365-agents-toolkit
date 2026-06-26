@@ -1,4 +1,4 @@
-import { vi } from "vitest";
+import { expect, vi } from "vitest";
 import * as generatorUtils from "../../src/component/generator/utils";
 describe("spy test", () => {
   it("can spy on fetchZipFromUrl", async () => {

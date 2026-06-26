@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { assert } from "chai";
 import { renderMustache } from "../../../src/v4/runtime/renderMustache";
+import { assert } from "vitest";
 
 /**
  * Tests for the single v4 Mustache surface.

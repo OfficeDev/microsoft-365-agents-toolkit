@@ -5,11 +5,10 @@
  * @author huajiezhang@microsoft.com
  */
 
-import * as chai from "chai";
 import fse from "fs-extra";
 import os from "os";
 import path from "path";
-import * as sinon from "sinon";
+import { chai, vi } from "vitest";
 import {
   HelperMethods,
   helperMethodsDeps,
@@ -17,7 +16,7 @@ import {
 
 describe("Generator related Utils", function () {
   describe("fetchAndUnzip", async () => {
-    const sandbox = sinon.createSandbox();
+    const sandbox = vi;
     class ZipEntry {
       isDirectory: boolean;
       entryName: string;
@@ -41,11 +40,11 @@ describe("Generator related Utils", function () {
     }
 
     afterEach(() => {
-      sandbox.restore();
+      vi.restoreAllMocks();
     });
 
     it("happy path", async () => {
-      sandbox.stub(helperMethodsDeps, "fetchZipFromUrl").resolves(new MockAdmZip() as any);
+      vi.spyOn(helperMethodsDeps, "fetchZipFromUrl").mockResolvedValue(new MockAdmZip() as any);
       const tempDir = await fse.mkdtemp(path.join(os.tmpdir(), "gen-utils-"));
       const res = await HelperMethods.fetchAndUnzip("test", "url", tempDir);
       chai.assert.isTrue(res.isOk());
@@ -55,20 +54,20 @@ describe("Generator related Utils", function () {
     });
 
     it("fail case: fetch zip throw error", async () => {
-      sandbox.stub(helperMethodsDeps, "fetchZipFromUrl").rejects(new Error());
+      vi.spyOn(helperMethodsDeps, "fetchZipFromUrl").mockRejectedValue(new Error());
       const res = await HelperMethods.fetchAndUnzip("test", "url", "dest");
       chai.assert.isTrue(res.isErr());
     });
 
     it("fail case: fetch zip returns undefined", async () => {
-      sandbox.stub(helperMethodsDeps, "fetchZipFromUrl").resolves(undefined);
+      vi.spyOn(helperMethodsDeps, "fetchZipFromUrl").mockResolvedValue(undefined);
       const res = await HelperMethods.fetchAndUnzip("test", "url", "dest");
       chai.assert.isTrue(res.isErr());
     });
 
     it("fail case: ensureDir throws error", async () => {
-      sandbox.stub(helperMethodsDeps, "fetchZipFromUrl").resolves(new MockAdmZip() as any);
-      sandbox.stub(fse, "ensureDir").rejects(new Error());
+      vi.spyOn(helperMethodsDeps, "fetchZipFromUrl").mockResolvedValue(new MockAdmZip() as any);
+      vi.spyOn(fse, "ensureDir").mockRejectedValue(new Error());
       const res = await HelperMethods.fetchAndUnzip("test", "url", "dest");
       chai.assert.isTrue(res.isErr());
     });

@@ -1,8 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { assert } from "chai";
-import { afterEach } from "vitest";
+import { afterEach, assert } from "vitest";
 import { dictMatcher } from "../../src/common/secretmasker/dict";
 import { secretMasker } from "../../src/common/secretmasker/masker";
 

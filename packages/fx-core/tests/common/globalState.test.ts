@@ -1,10 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { assert } from "chai";
 import fs from "fs-extra";
 import properLock from "proper-lockfile";
-import { vi } from "vitest";
+import { assert, vi } from "vitest";
 import { globalStateGet, globalStateUpdate } from "../../src/common/globalState";
 
 describe("Global State Get/Update", () => {

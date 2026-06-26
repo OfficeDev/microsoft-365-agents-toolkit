@@ -3,11 +3,11 @@
 
 import { CreateProjectResult, FxError, Inputs, Platform, UserError } from "@microsoft/teamsfx-api";
 import { UserInteraction } from "@microsoft/teamsfx-api";
-import { assert } from "chai";
 import { Result, err, ok } from "neverthrow";
 import { Answers, BuildTarget, DeclarativeLocator } from "../../src/v4";
 import { CreateFrontDoorDeps, createProjectFrontDoor } from "../../src/core/createProjectFrontDoor";
 import { FeatureFlags } from "../../src/common/featureFlags";
+import { assert } from "vitest";
 
 /**
  * Tests for docs/03-specs/operations/scaffolding/dispatch-create-by-engine.md.

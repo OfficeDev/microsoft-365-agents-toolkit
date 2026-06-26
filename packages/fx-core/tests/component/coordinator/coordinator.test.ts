@@ -1,8 +1,6 @@
-import { assert } from "chai";
 import fs from "fs-extra";
-import * as sinon from "sinon";
 import { Container } from "typedi";
-import { vi } from "vitest";
+import { assert, vi } from "vitest";
 
 import {
   err,
@@ -63,16 +61,16 @@ const versionInfo: VersionInfo = {
 };
 const V3Version = MetadataV3.projectVersion;
 describe("component coordinator test", () => {
-  const sandbox = sinon.createSandbox();
+  const sandbox = vi;
   const tools = new MockTools();
   setTools(tools);
   afterEach(() => {
-    sandbox.restore();
+    vi.restoreAllMocks();
     vi.restoreAllMocks();
   });
 
   beforeEach(() => {
-    sandbox.stub(v3MigrationUtils, "getProjectVersion").resolves(versionInfo);
+    vi.spyOn(v3MigrationUtils, "getProjectVersion").mockResolvedValue(versionInfo);
   });
 
   describe("convertExecuteResult", () => {
@@ -153,12 +151,12 @@ describe("component coordinator test", () => {
         resolveDriverInstances: mockedResolveDriverInstances,
       },
     };
-    sandbox.stub(metadataUtil, "parse").resolves(ok(mockProjectModel));
-    sandbox.stub(envUtil, "listEnv").resolves(ok(["dev", "prod"]));
-    sandbox.stub(envUtil, "readEnv").resolves(ok({}));
-    sandbox.stub(envUtil, "writeEnv").resolves(ok(undefined));
-    sandbox.stub(pathUtils, "getEnvFilePath").resolves(ok("."));
-    sandbox.stub(fs, "pathExistsSync").returns(true);
+    vi.spyOn(metadataUtil, "parse").mockResolvedValue(ok(mockProjectModel));
+    vi.spyOn(envUtil, "listEnv").mockResolvedValue(ok(["dev", "prod"]));
+    vi.spyOn(envUtil, "readEnv").mockResolvedValue(ok({}));
+    vi.spyOn(envUtil, "writeEnv").mockResolvedValue(ok(undefined));
+    vi.spyOn(pathUtils, "getEnvFilePath").mockResolvedValue(ok("."));
+    vi.spyOn(fs, "pathExistsSync").mockReturnValue(true);
     const inputs: Inputs = {
       platform: Platform.VSCode,
       projectPath: ".",
@@ -196,32 +194,37 @@ describe("component coordinator test", () => {
         resolveDriverInstances: mockedResolveDriverInstances,
       },
     };
-    sandbox.stub(metadataUtil, "parse").resolves(ok(mockProjectModel));
-    sandbox.stub(envUtil, "readEnv").resolves(ok({}));
-    sandbox.stub(envUtil, "writeEnv").resolves(ok(undefined));
-    sandbox.stub(pathUtils, "getEnvFilePath").resolves(ok("."));
-    sandbox.stub(fs, "pathExistsSync").returns(true);
-    sandbox.stub(process, "env").value({ TEAMS_APP_ID: "faked_id" });
-    const inputs: Inputs = {
-      platform: Platform.VSCode,
-      projectPath: ".",
-      env: "local",
-      ignoreLockByUT: true,
-    };
-    const fxCore = new FxCore(tools);
-    const res = await fxCore.preCheckYmlAndEnvForVS(inputs);
-    assert.isTrue(res.isOk());
+    vi.spyOn(metadataUtil, "parse").mockResolvedValue(ok(mockProjectModel));
+    vi.spyOn(envUtil, "readEnv").mockResolvedValue(ok({}));
+    vi.spyOn(envUtil, "writeEnv").mockResolvedValue(ok(undefined));
+    vi.spyOn(pathUtils, "getEnvFilePath").mockResolvedValue(ok("."));
+    vi.spyOn(fs, "pathExistsSync").mockReturnValue(true);
+    const originalProcessEnv = process.env;
+    process.env = { TEAMS_APP_ID: "faked_id" } as any;
+    try {
+      const inputs: Inputs = {
+        platform: Platform.VSCode,
+        projectPath: ".",
+        env: "local",
+        ignoreLockByUT: true,
+      };
+      const fxCore = new FxCore(tools);
+      const res = await fxCore.preCheckYmlAndEnvForVS(inputs);
+      assert.isTrue(res.isOk());
+    } finally {
+      process.env = originalProcessEnv;
+    }
   });
 
   it("preCheckYmlAndEnvForVS - happy pass with empty provision actions", async () => {
     const mockProjectModel: ProjectModel = {
       version: "1.0.0",
     };
-    sandbox.stub(metadataUtil, "parse").resolves(ok(mockProjectModel));
-    sandbox.stub(envUtil, "readEnv").resolves(ok({}));
-    sandbox.stub(envUtil, "writeEnv").resolves(ok(undefined));
-    sandbox.stub(pathUtils, "getEnvFilePath").resolves(ok("."));
-    sandbox.stub(fs, "pathExistsSync").returns(true);
+    vi.spyOn(metadataUtil, "parse").mockResolvedValue(ok(mockProjectModel));
+    vi.spyOn(envUtil, "readEnv").mockResolvedValue(ok({}));
+    vi.spyOn(envUtil, "writeEnv").mockResolvedValue(ok(undefined));
+    vi.spyOn(pathUtils, "getEnvFilePath").mockResolvedValue(ok("."));
+    vi.spyOn(fs, "pathExistsSync").mockReturnValue(true);
     const inputs: Inputs = {
       platform: Platform.VSCode,
       projectPath: ".",
@@ -253,11 +256,11 @@ describe("component coordinator test", () => {
         resolveDriverInstances: mockedResolveDriverInstances,
       },
     };
-    sandbox.stub(metadataUtil, "parse").resolves(ok(mockProjectModel));
-    sandbox.stub(envUtil, "readEnv").resolves(ok({}));
-    sandbox.stub(envUtil, "writeEnv").resolves(ok(undefined));
-    sandbox.stub(pathUtils, "getEnvFilePath").resolves(ok("."));
-    sandbox.stub(fs, "pathExistsSync").returns(true);
+    vi.spyOn(metadataUtil, "parse").mockResolvedValue(ok(mockProjectModel));
+    vi.spyOn(envUtil, "readEnv").mockResolvedValue(ok({}));
+    vi.spyOn(envUtil, "writeEnv").mockResolvedValue(ok(undefined));
+    vi.spyOn(pathUtils, "getEnvFilePath").mockResolvedValue(ok("."));
+    vi.spyOn(fs, "pathExistsSync").mockReturnValue(true);
     const inputs: Inputs = {
       platform: Platform.VSCode,
       projectPath: ".",
@@ -270,11 +273,11 @@ describe("component coordinator test", () => {
   });
 
   it("fail to get project model in preCheckYmlAndEnvForVS", async () => {
-    sandbox.stub(metadataUtil, "parse").resolves(err(new UserError({})));
-    sandbox.stub(envUtil, "readEnv").resolves(ok({}));
-    sandbox.stub(envUtil, "writeEnv").resolves(ok(undefined));
-    sandbox.stub(pathUtils, "getEnvFilePath").resolves(ok("."));
-    sandbox.stub(fs, "pathExistsSync").returns(true);
+    vi.spyOn(metadataUtil, "parse").mockResolvedValue(err(new UserError({})));
+    vi.spyOn(envUtil, "readEnv").mockResolvedValue(ok({}));
+    vi.spyOn(envUtil, "writeEnv").mockResolvedValue(ok(undefined));
+    vi.spyOn(pathUtils, "getEnvFilePath").mockResolvedValue(ok("."));
+    vi.spyOn(fs, "pathExistsSync").mockReturnValue(true);
     const inputs: Inputs = {
       platform: Platform.VSCode,
       projectPath: ".",
@@ -308,11 +311,11 @@ describe("component coordinator test", () => {
         resolveDriverInstances: mockedResolveDriverInstances,
       },
     };
-    sandbox.stub(metadataUtil, "parse").resolves(ok(mockProjectModel));
-    sandbox.stub(envUtil, "readEnv").resolves(ok({}));
-    sandbox.stub(envUtil, "writeEnv").resolves(ok(undefined));
-    sandbox.stub(pathUtils, "getEnvFilePath").resolves(ok("."));
-    sandbox.stub(fs, "pathExistsSync").returns(true);
+    vi.spyOn(metadataUtil, "parse").mockResolvedValue(ok(mockProjectModel));
+    vi.spyOn(envUtil, "readEnv").mockResolvedValue(ok({}));
+    vi.spyOn(envUtil, "writeEnv").mockResolvedValue(ok(undefined));
+    vi.spyOn(pathUtils, "getEnvFilePath").mockResolvedValue(ok("."));
+    vi.spyOn(fs, "pathExistsSync").mockReturnValue(true);
     const inputs: Inputs = {
       platform: Platform.VSCode,
       projectPath: ".",
@@ -345,11 +348,11 @@ describe("component coordinator test", () => {
         resolveDriverInstances: mockedResolveDriverInstances,
       },
     };
-    sandbox.stub(metadataUtil, "parse").resolves(ok(mockProjectModel));
-    sandbox.stub(envUtil, "readEnv").resolves(ok({}));
-    sandbox.stub(envUtil, "writeEnv").resolves(ok(undefined));
-    sandbox.stub(pathUtils, "getEnvFilePath").resolves(ok("."));
-    sandbox.stub(fs, "pathExistsSync").returns(true);
+    vi.spyOn(metadataUtil, "parse").mockResolvedValue(ok(mockProjectModel));
+    vi.spyOn(envUtil, "readEnv").mockResolvedValue(ok({}));
+    vi.spyOn(envUtil, "writeEnv").mockResolvedValue(ok(undefined));
+    vi.spyOn(pathUtils, "getEnvFilePath").mockResolvedValue(ok("."));
+    vi.spyOn(fs, "pathExistsSync").mockReturnValue(true);
     const inputs: Inputs = {
       platform: Platform.VSCode,
       projectPath: ".",
@@ -362,10 +365,10 @@ describe("component coordinator test", () => {
   });
 
   it("executeUserTaskNew", async () => {
-    sandbox.stub(envUtil, "listEnv").resolves(ok(["dev"]));
-    sandbox.stub(envUtil, "readEnv").resolves(ok({}));
-    sandbox.stub(envUtil, "writeEnv").resolves(ok(undefined));
-    sandbox.stub(manifestUtils, "getTeamsAppManifestPath").resolves("");
+    vi.spyOn(envUtil, "listEnv").mockResolvedValue(ok(["dev"]));
+    vi.spyOn(envUtil, "readEnv").mockResolvedValue(ok({}));
+    vi.spyOn(envUtil, "writeEnv").mockResolvedValue(ok(undefined));
+    vi.spyOn(manifestUtils, "getTeamsAppManifestPath").mockResolvedValue("");
     const driver1: ValidateManifestDriver = Container.get("teamsApp/validateManifest");
     const driver2: CreateAppPackageDriver = Container.get("teamsApp/zipAppPackage");
     const driver3: ValidateAppPackageDriver = Container.get("teamsApp/validateAppPackage");
@@ -373,9 +376,9 @@ describe("component coordinator test", () => {
       summaries: [],
       result: ok(new Map()),
     };
-    sandbox.stub(driver1, "execute").resolves(mockRes);
-    sandbox.stub(driver2, "execute").resolves(mockRes);
-    sandbox.stub(driver3, "execute").resolves(mockRes);
+    vi.spyOn(driver1, "execute").mockResolvedValue(mockRes);
+    vi.spyOn(driver2, "execute").mockResolvedValue(mockRes);
+    vi.spyOn(driver3, "execute").mockResolvedValue(mockRes);
     const inputs: Inputs = {
       platform: Platform.VSCode,
       projectPath: ".",
@@ -413,8 +416,8 @@ describe("component coordinator test", () => {
 
   describe("getDotEnvs error", () => {
     it("getDotEnvs success", async () => {
-      sandbox.stub(envUtil, "listEnv").resolves(ok(["dev1", "dev2"]));
-      sandbox.stub(envUtil, "readEnv").resolves(ok({ k1: "v1" }));
+      vi.spyOn(envUtil, "listEnv").mockResolvedValue(ok(["dev1", "dev2"]));
+      vi.spyOn(envUtil, "readEnv").mockResolvedValue(ok({ k1: "v1" }));
       const inputs: InputsWithProjectPath = {
         platform: Platform.VSCode,
         projectPath: ".",
@@ -427,7 +430,7 @@ describe("component coordinator test", () => {
       }
     });
     it("getDotEnvs error 1", async () => {
-      sandbox.stub(envUtil, "listEnv").resolves(err(new UserError({})));
+      vi.spyOn(envUtil, "listEnv").mockResolvedValue(err(new UserError({})));
       const inputs: InputsWithProjectPath = {
         platform: Platform.VSCode,
         projectPath: ".",
@@ -437,8 +440,8 @@ describe("component coordinator test", () => {
       assert.isTrue(res.isErr());
     });
     it("getDotEnvs error 2", async () => {
-      sandbox.stub(envUtil, "listEnv").resolves(ok(["dev1", "dev2"]));
-      sandbox.stub(envUtil, "readEnv").resolves(err(new UserError({})));
+      vi.spyOn(envUtil, "listEnv").mockResolvedValue(ok(["dev1", "dev2"]));
+      vi.spyOn(envUtil, "readEnv").mockResolvedValue(err(new UserError({})));
       const inputs: InputsWithProjectPath = {
         platform: Platform.VSCode,
         projectPath: ".",
@@ -450,7 +453,7 @@ describe("component coordinator test", () => {
   });
 
   it("getSelectedEnv", async () => {
-    sandbox.stub(envUtil, "readEnv").resolves(ok({}));
+    vi.spyOn(envUtil, "readEnv").mockResolvedValue(ok({}));
     const inputs: InputsWithProjectPath = {
       platform: Platform.VSCode,
       projectPath: ".",
@@ -463,10 +466,10 @@ describe("component coordinator test", () => {
 
   describe("encrypt/decrypt", () => {
     afterEach(() => {
-      sandbox.restore();
+      vi.restoreAllMocks();
     });
     it("error", async () => {
-      sandbox.stub(settingsUtil, "readSettings").resolves(err(new UserError({})));
+      vi.spyOn(settingsUtil, "readSettings").mockResolvedValue(err(new UserError({})));
       const inputs: InputsWithProjectPath = {
         platform: Platform.VSCode,
         projectPath: ".",
@@ -479,9 +482,9 @@ describe("component coordinator test", () => {
       assert.isTrue(res2.isErr());
     });
     it("happy path", async () => {
-      sandbox
-        .stub(settingsUtil, "readSettings")
-        .resolves(ok({ version: "1", trackingId: "mockid" }));
+      vi.spyOn(settingsUtil, "readSettings").mockResolvedValue(
+        ok({ version: "1", trackingId: "mockid" })
+      );
       const inputs: InputsWithProjectPath = {
         platform: Platform.VSCode,
         projectPath: ".",
@@ -502,7 +505,7 @@ describe("component coordinator test", () => {
 
   describe("publishInDeveloperPortal", () => {
     afterEach(() => {
-      sandbox.restore();
+      vi.restoreAllMocks();
     });
     it("missing token provider", async () => {
       const context = createContext();
@@ -536,11 +539,11 @@ describe("component coordinator test", () => {
         m365TokenProvider: new MockedM365Provider(),
         azureAccountProvider: new MockedAzureAccountProvider(),
       };
-      sandbox
-        .stub(context.tokenProvider.m365TokenProvider, "getJsonObject")
-        .resolves(ok({ unique_name: "test" }));
+      vi.spyOn(context.tokenProvider.m365TokenProvider, "getJsonObject").mockResolvedValue(
+        ok({ unique_name: "test" })
+      );
       vi.spyOn(appStudio, "updateTeamsAppV3ForPublish").mockResolvedValue(ok("appId"));
-      const openUrl = sandbox.stub(context.userInteraction, "openUrl").resolves(ok(true));
+      const openUrl = vi.spyOn(context.userInteraction, "openUrl").mockResolvedValue(ok(true));
       const inputs: InputsWithProjectPath = {
         platform: Platform.VSCode,
         projectPath: "project-path",
@@ -549,7 +552,7 @@ describe("component coordinator test", () => {
 
       const res = await coordinator.publishInDeveloperPortal(context, inputs);
       assert.isTrue(res.isOk());
-      assert.isTrue(openUrl.calledOnce);
+      assert.isTrue(openUrl.mock.calls.length === 1);
     });
 
     it("update manifest error", async () => {
@@ -575,7 +578,7 @@ describe("component coordinator test", () => {
     });
 
     it("ensureTeamsFxInCsproj  no .csproj found", async () => {
-      sandbox.stub(fs, "readdir").resolves([] as any);
+      vi.spyOn(fs, "readdir").mockResolvedValue([] as any);
       const res = await coordinator.ensureTeamsFxInCsproj(".");
       assert.isTrue(res.isOk());
     });
@@ -587,8 +590,8 @@ describe("component coordinator test", () => {
           <ProjectCapability Include="TeamsFx"/>
         </ItemGroup>
       </Project>`;
-      sandbox.stub(fs, "readdir").resolves(["test.csproj"] as any);
-      sandbox.stub(fs, "readFile").resolves(xml as any);
+      vi.spyOn(fs, "readdir").mockResolvedValue(["test.csproj"] as any);
+      vi.spyOn(fs, "readFile").mockResolvedValue(xml as any);
       const res = await coordinator.ensureTeamsFxInCsproj(".");
       assert.isTrue(res.isOk());
     });
@@ -597,9 +600,9 @@ describe("component coordinator test", () => {
       const xml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
       <Project Sdk="Microsoft.NET.Sdk">
       </Project>`;
-      sandbox.stub(fs, "readdir").resolves(["test.csproj"] as any);
-      sandbox.stub(fs, "readFile").resolves(xml as any);
-      sandbox.stub(fs, "writeFile").resolves();
+      vi.spyOn(fs, "readdir").mockResolvedValue(["test.csproj"] as any);
+      vi.spyOn(fs, "readFile").mockResolvedValue(xml as any);
+      vi.spyOn(fs, "writeFile").mockResolvedValue();
       const res = await coordinator.ensureTeamsFxInCsproj(".");
       assert.isTrue(res.isOk());
     });

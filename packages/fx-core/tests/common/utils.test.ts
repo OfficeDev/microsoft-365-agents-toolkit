@@ -1,6 +1,5 @@
-import chai from "chai";
 import fs from "fs-extra";
-import { afterEach, beforeEach } from "vitest";
+import { afterEach, beforeEach, chai } from "vitest";
 import { jsonUtils } from "../../src/common/jsonUtils";
 import { convertToAlphanumericOnly } from "../../src/common/stringUtils";
 import {

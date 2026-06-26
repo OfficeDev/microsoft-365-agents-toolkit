@@ -1,12 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import * as chai from "chai";
-import chaiAsPromised from "chai-as-promised";
 import mockedEnv, { RestoreFn } from "mocked-env";
 
 import { FeatureFlags, featureFlagManager } from "../../src/common/featureFlags";
-chai.use(chaiAsPromised);
+import { chai } from "vitest";
 
 describe("FeatureFlagManager", () => {
   let mockedEnvRestore: RestoreFn = () => {};

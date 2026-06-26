@@ -13,9 +13,8 @@ import {
   Platform,
   Result,
 } from "@microsoft/teamsfx-api";
-import { assert } from "chai";
 import fs from "fs-extra";
-import sinon from "sinon";
+import { assert, vi } from "vitest";
 import { FxCore, pathUtils, UserCancelError } from "../../src";
 import { featureFlagManager } from "../../src/common/featureFlags";
 import { setTools } from "../../src/common/globalVars";
@@ -23,12 +22,11 @@ import { coordinator } from "../../src/component/coordinator";
 import { MockTools } from "./utils";
 
 describe("FxCore.createProject", () => {
-  const sandbox = sinon.createSandbox();
   const tools = new MockTools();
   setTools(tools);
   beforeEach(() => {});
   afterEach(() => {
-    sandbox.restore();
+    vi.restoreAllMocks();
   });
 
   it("happy path", async () => {
@@ -63,38 +61,37 @@ describe("FxCore.createProject", () => {
 });
 
 describe("FxCore.createProjectFrontDoor", () => {
-  const sandbox = sinon.createSandbox();
   const tools = new MockTools();
   setTools(tools);
   afterEach(() => {
-    sandbox.restore();
+    vi.restoreAllMocks();
   });
 
   it("flag off is a pure pass-through to createProject", async () => {
     // V4 disabled ⇒ the front door must not walk the selector; it hands the
     // unmodified inputs straight to createProject (INV-1, byte-identical v3).
-    sandbox.stub(featureFlagManager, "getBooleanValue").returns(false);
+    vi.spyOn(featureFlagManager, "getBooleanValue").mockReturnValue(false);
     const core = new FxCore(tools);
-    const passThrough = sandbox
-      .stub(core, "createProject")
-      .resolves(ok({ projectPath: "/out/MyApp" }));
+    const passThrough = vi
+      .spyOn(core, "createProject")
+      .mockResolvedValue(ok({ projectPath: "/out/MyApp" }));
     const inputs: Inputs = { platform: Platform.VSCode };
 
     const res = await core.createProjectFrontDoor(inputs);
 
     assert.isTrue(res.isOk());
     assert.equal(res._unsafeUnwrap().projectPath, "/out/MyApp");
-    assert.isTrue(passThrough.calledOnceWithExactly(inputs));
+    assert.equal(passThrough.mock.calls.length, 1);
+    assert.deepEqual(passThrough.mock.calls[0], [inputs]);
   });
 });
 
 describe("createProjectFromTdp", () => {
-  const sandbox = sinon.createSandbox();
   const tools = new MockTools();
   setTools(tools);
   beforeEach(() => {});
   afterEach(() => {
-    sandbox.restore();
+    vi.restoreAllMocks();
   });
 
   it("TDP input error", async () => {
@@ -109,12 +106,11 @@ describe("createProjectFromTdp", () => {
 });
 
 describe("FxCore.createProjectByCustomizedGenerator", () => {
-  const sandbox = sinon.createSandbox();
   const tools = new MockTools();
   setTools(tools);
   beforeEach(() => {});
   afterEach(() => {
-    sandbox.restore();
+    vi.restoreAllMocks();
   });
 
   class MyGenerator implements IGenerator {
@@ -130,9 +126,9 @@ describe("FxCore.createProjectByCustomizedGenerator", () => {
 
   it("happy path", async () => {
     const myGenerator = new MyGenerator();
-    sandbox.stub(coordinator, "ensureTrackingId").resolves(ok("mock-id"));
-    sandbox.stub(fs, "pathExists").resolves(ok("mock-id"));
-    sandbox.stub(pathUtils, "getYmlFilePath").returns("m365agents.yml");
+    vi.spyOn(coordinator, "ensureTrackingId").mockResolvedValue(ok("mock-id"));
+    vi.spyOn(fs, "pathExists").mockResolvedValue(ok("mock-id") as any);
+    vi.spyOn(pathUtils, "getYmlFilePath").mockReturnValue("m365agents.yml");
     const inputs: CreateProjectInputs = {
       platform: Platform.VSCode,
       folder: ".",
@@ -181,7 +177,7 @@ describe("FxCore.createProjectByCustomizedGenerator", () => {
 
   it("generator error", async () => {
     const myGenerator = new MyGenerator();
-    sandbox.stub(myGenerator, "run").resolves(err(new UserCancelError()));
+    vi.spyOn(myGenerator, "run").mockResolvedValue(err(new UserCancelError()));
     const inputs: CreateProjectInputs = {
       platform: Platform.VSCode,
       folder: ".",
@@ -194,8 +190,8 @@ describe("FxCore.createProjectByCustomizedGenerator", () => {
 
   it("ensureTrackingId error", async () => {
     const myGenerator = new MyGenerator();
-    sandbox.stub(coordinator, "ensureTrackingId").resolves(err(new UserCancelError()));
-    sandbox.stub(fs, "pathExists").resolves(ok("mock-id"));
+    vi.spyOn(coordinator, "ensureTrackingId").mockResolvedValue(err(new UserCancelError()));
+    vi.spyOn(fs, "pathExists").mockResolvedValue(ok("mock-id") as any);
     const inputs: CreateProjectInputs = {
       platform: Platform.VSCode,
       folder: ".",

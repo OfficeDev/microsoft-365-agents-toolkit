@@ -1,13 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { assert } from "chai";
 import * as fs from "fs-extra";
 import * as os from "os";
 import * as path from "path";
 import { SystemError } from "@microsoft/teamsfx-api";
 import { loadPackageDir } from "../../../src/v4/distribution/packageDir";
 import { scaffoldFromPackageDir } from "../../../src/v4/runtime/scaffoldFromPackageDir";
+import { assert } from "vitest";
 
 /**
  * The product front-door for the on-disk declarative path: load a template

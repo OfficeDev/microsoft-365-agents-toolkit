@@ -2,10 +2,10 @@
 // Licensed under the MIT license.
 
 import { CLICommandOption } from "@microsoft/teamsfx-api";
-import { assert } from "chai";
 import AdmZip from "adm-zip";
 import path from "path";
 import { deriveCreateOptions } from "../../../src/v4/surface/deriveCreateOptions";
+import { assert } from "vitest";
 
 /**
  * Tests for docs/03-specs/operations/scaffolding/derive-cli-options.md.

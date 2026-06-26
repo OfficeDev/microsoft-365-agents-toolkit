@@ -2,11 +2,11 @@
 // Licensed under the MIT license.
 
 import { SystemError } from "@microsoft/teamsfx-api";
-import { assert } from "chai";
 import AdmZip from "adm-zip";
 import path from "path";
 import { openCreateSelector } from "../../../src/v4/distribution/createSelector";
 import { SelectorRoute } from "../../../src/v4/buildTarget/resolveBuildTarget";
+import { assert } from "vitest";
 
 /** The loose authoring tree the shipped `templates.zip` is built from. */
 const TEMPLATES_V4_DIR = path.resolve(__dirname, "../../../../../templates/v4");

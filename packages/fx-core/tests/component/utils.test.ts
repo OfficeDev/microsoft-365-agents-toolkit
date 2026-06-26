@@ -8,9 +8,7 @@ import {
   UserError,
   ok,
 } from "@microsoft/teamsfx-api";
-import { assert, expect } from "chai";
 import mockedEnv, { RestoreFn } from "mocked-env";
-import sinon from "sinon";
 import { getLocalizedString } from "../../src/common/localizeUtils";
 import { deployUtils } from "../../src/component/deployUtils";
 import { createDriverContext } from "../../src/component/driver/util/utils";
@@ -20,13 +18,14 @@ import { setTools } from "../../src/common/globalVars";
 import { MockTools } from "../core/utils";
 import { MockedTelemetryReporter } from "../plugins/solution/util";
 import { resolveString } from "../../src/component/configManager/lifecycle";
+import { assert, chai, vi } from "vitest";
 
 describe("resetEnvInfoWhenSwitchM365", () => {
-  const sandbox = sinon.createSandbox();
+  const sandbox = vi;
   const tools = new MockTools();
   setTools(tools);
   afterEach(() => {
-    sandbox.restore();
+    vi.restoreAllMocks();
   });
 
   it("askForDeployConsentV3 confirm", async () => {
@@ -36,7 +35,7 @@ describe("resetEnvInfoWhenSwitchM365", () => {
       platform: Platform.VSCode,
     };
     const ctx = createDriverContext(inputs);
-    sandbox.stub(ctx.ui!, "showMessage").resolves(ok(getLocalizedString("core.option.deploy")));
+    vi.spyOn(ctx.ui!, "showMessage").mockResolvedValue(ok(getLocalizedString("core.option.deploy")));
     const res = await deployUtils.askForDeployConsentV3(ctx);
     assert.isTrue(res.isOk());
   });
@@ -47,7 +46,7 @@ describe("resetEnvInfoWhenSwitchM365", () => {
       platform: Platform.VSCode,
     };
     const ctx = createDriverContext(inputs);
-    sandbox.stub(ctx.ui!, "showMessage").resolves(ok(undefined));
+    vi.spyOn(ctx.ui!, "showMessage").mockResolvedValue(ok(undefined));
     const res = await deployUtils.askForDeployConsentV3(ctx);
     assert.isTrue(res.isErr());
   });
@@ -73,7 +72,7 @@ describe("expandEnvironmentVariable", () => {
 
     const result = expandEnvironmentVariable(template);
 
-    expect(result).to.equal("ENV_A value:A" + "ENV_B value:B");
+    chai.expect(result).to.equal("ENV_A value:A" + "ENV_B value:B");
   });
 
   it("should not expand placeholder when specified environment variable not exist", () => {
@@ -83,7 +82,7 @@ describe("expandEnvironmentVariable", () => {
 
     const result = expandEnvironmentVariable(template);
 
-    expect(result).to.equal("ENV_A value:A" + "ENV_B value:${{ENV_B}}");
+    chai.expect(result).to.equal("ENV_A value:A" + "ENV_B value:${{ENV_B}}");
   });
 
   it("should not modify original string", () => {
@@ -94,7 +93,7 @@ describe("expandEnvironmentVariable", () => {
 
     expandEnvironmentVariable(template);
 
-    expect(template).to.equal("ENV_A value:${{ENV_A}}" + "ENV_B value:${{ENV_B}}");
+    chai.expect(template).to.equal("ENV_A value:${{ENV_A}}" + "ENV_B value:${{ENV_B}}");
   });
 
   it("should do nothing with non valid placeholder", () => {
@@ -102,7 +101,7 @@ describe("expandEnvironmentVariable", () => {
 
     const result = expandEnvironmentVariable(template);
 
-    expect(result).to.equal("placeholder:${{}}");
+    chai.expect(result).to.equal("placeholder:${{}}");
   });
 
   it("should allow leading and trailing whitespaces in environment variable name", () => {
@@ -114,7 +113,7 @@ describe("expandEnvironmentVariable", () => {
 
     const result = expandEnvironmentVariable(template);
 
-    expect(result).to.equal("placeholder: A");
+    chai.expect(result).to.equal("placeholder: A");
   });
 
   it("should allow leading empty string for app name suffix", () => {
@@ -123,7 +122,7 @@ describe("expandEnvironmentVariable", () => {
       APP_NAME_SUFFIX: "",
     });
     const result = expandEnvironmentVariable(template);
-    expect(result).to.equal("myapp");
+    chai.expect(result).to.equal("myapp");
   });
   it("should replace for none-empty app name suffix", () => {
     const template = "myapp${{ APP_NAME_SUFFIX }}";
@@ -131,7 +130,7 @@ describe("expandEnvironmentVariable", () => {
       APP_NAME_SUFFIX: "abc",
     });
     const result = expandEnvironmentVariable(template);
-    expect(result).to.equal("myappabc");
+    chai.expect(result).to.equal("myappabc");
   });
   it("resolveString for empty APP_NAME_SUFFIX", () => {
     const template = "myapp${{ APP_NAME_SUFFIX }}";
@@ -141,7 +140,7 @@ describe("expandEnvironmentVariable", () => {
     const resolved: string[] = [];
     const unresolved: string[] = [];
     resolveString(template, resolved, unresolved);
-    expect(resolved.length).to.equal(1);
+    chai.expect(resolved.length).to.equal(1);
   });
   it("resolveString for undefined APP_NAME_SUFFIX", () => {
     const template = "myapp${{ APP_NAME_SUFFIX }}";
@@ -151,7 +150,7 @@ describe("expandEnvironmentVariable", () => {
     const resolved: string[] = [];
     const unresolved: string[] = [];
     resolveString(template, resolved, unresolved);
-    expect(unresolved.length).to.equal(1);
+    chai.expect(unresolved.length).to.equal(1);
   });
   it("resolveString for none empty APP_NAME_SUFFIX", () => {
     const template = "myapp${{ APP_NAME_SUFFIX }}";
@@ -161,14 +160,14 @@ describe("expandEnvironmentVariable", () => {
     const resolved: string[] = [];
     const unresolved: string[] = [];
     const result = resolveString(template, resolved, unresolved);
-    expect(result).to.equal("myappabc");
-    expect(resolved.length).to.equal(1);
+    chai.expect(result).to.equal("myappabc");
+    chai.expect(resolved.length).to.equal(1);
   });
 
   it("support input envs", () => {
     const template = "myapp${{ APP_NAME_SUFFIX }}";
     const result = expandEnvironmentVariable(template, { APP_NAME_SUFFIX: "abc" });
-    expect(result).to.equal("myappabc");
+    chai.expect(result).to.equal("myappabc");
   });
 });
 
@@ -182,14 +181,14 @@ describe("TeamsFxTelemetryReporter", () => {
   });
 
   afterEach(() => {
-    sinon.restore();
-    expect(reporterCalled).to.be.true; // Because TeamsFxTelemetryReport ignores all exceptions which include test failures, please check your test case to find actual errors.
+    vi.restoreAllMocks();
+    chai.expect(reporterCalled).to.be.true; // Because TeamsFxTelemetryReport ignores all exceptions which include test failures, please check your test case to find actual errors.
   });
 
   describe("sendStartEvent", () => {
     it("should append -start to event name", () => {
-      sinon.stub(mockedTelemetryReporter, "sendTelemetryEvent").callsFake((eventName) => {
-        expect(eventName).to.equal("test-start");
+      vi.spyOn(mockedTelemetryReporter, "sendTelemetryEvent").mockImplementation((eventName) => {
+        chai.expect(eventName).to.equal("test-start");
         reporterCalled = true;
       });
 
@@ -197,10 +196,10 @@ describe("TeamsFxTelemetryReporter", () => {
     });
 
     it("should set component property if component name exists", () => {
-      sinon
-        .stub(mockedTelemetryReporter, "sendTelemetryEvent")
-        .callsFake((eventName, properties) => {
-          expect(properties).has.property("component", "test");
+      vi
+        .spyOn(mockedTelemetryReporter, "sendTelemetryEvent")
+        .mockImplementation((eventName, properties) => {
+          chai.expect(properties).has.property("component", "test");
           reporterCalled = true;
         });
 
@@ -208,10 +207,10 @@ describe("TeamsFxTelemetryReporter", () => {
     });
 
     it("should not set component property if component name does not exist", () => {
-      sinon
-        .stub(mockedTelemetryReporter, "sendTelemetryEvent")
-        .callsFake((eventName, properties) => {
-          expect(properties).to.be.undefined;
+      vi
+        .spyOn(mockedTelemetryReporter, "sendTelemetryEvent")
+        .mockImplementation((eventName, properties) => {
+          chai.expect(properties).to.be.undefined;
           reporterCalled = true;
         });
 
@@ -219,10 +218,10 @@ describe("TeamsFxTelemetryReporter", () => {
     });
 
     it("should not overwrite user provided component property", () => {
-      sinon
-        .stub(mockedTelemetryReporter, "sendTelemetryEvent")
-        .callsFake((eventName, properties) => {
-          expect(properties).has.property("component", "mycomponent");
+      vi
+        .spyOn(mockedTelemetryReporter, "sendTelemetryEvent")
+        .mockImplementation((eventName, properties) => {
+          chai.expect(properties).has.property("component", "mycomponent");
           reporterCalled = true;
         });
 
@@ -236,10 +235,10 @@ describe("TeamsFxTelemetryReporter", () => {
     });
 
     it("should pass measurements to telemetry reporter", () => {
-      sinon
-        .stub(mockedTelemetryReporter, "sendTelemetryEvent")
-        .callsFake((eventName, properties, measurements) => {
-          expect(measurements).has.property("duration", 100);
+      vi
+        .spyOn(mockedTelemetryReporter, "sendTelemetryEvent")
+        .mockImplementation((eventName, properties, measurements) => {
+          chai.expect(measurements).has.property("duration", 100);
           reporterCalled = true;
         });
 
@@ -254,11 +253,11 @@ describe("TeamsFxTelemetryReporter", () => {
 
   describe("sendEndEvent", () => {
     it("should call sentTelemetryEvent when not provide FxError", () => {
-      sinon
-        .stub(mockedTelemetryReporter, "sendTelemetryEvent")
-        .callsFake((eventName, properties, measurements) => {
-          expect(eventName).to.equal("test");
-          expect(properties).has.property("success", "yes");
+      vi
+        .spyOn(mockedTelemetryReporter, "sendTelemetryEvent")
+        .mockImplementation((eventName, properties, measurements) => {
+          chai.expect(eventName).to.equal("test");
+          chai.expect(properties).has.property("success", "yes");
           reporterCalled = true;
         });
 
@@ -268,11 +267,11 @@ describe("TeamsFxTelemetryReporter", () => {
     });
 
     it("should call sendTelemetryErrorEvent when provide FxError ", () => {
-      sinon
-        .stub(mockedTelemetryReporter, "sendTelemetryErrorEvent")
-        .callsFake((eventName, properties, measurements) => {
-          expect(eventName).to.equal("test");
-          expect(properties).include({
+      vi
+        .spyOn(mockedTelemetryReporter, "sendTelemetryErrorEvent")
+        .mockImplementation((eventName, properties, measurements) => {
+          chai.expect(eventName).to.equal("test");
+          chai.expect(properties).include({
             success: "no",
             "error-code": "source.name",
             "error-type": "user",
@@ -289,11 +288,11 @@ describe("TeamsFxTelemetryReporter", () => {
     });
 
     it("should not overwrite provided properties", () => {
-      sinon
-        .stub(mockedTelemetryReporter, "sendTelemetryErrorEvent")
-        .callsFake((eventName, properties, measurements) => {
-          expect(eventName).to.equal("test");
-          expect(properties).include({
+      vi
+        .spyOn(mockedTelemetryReporter, "sendTelemetryErrorEvent")
+        .mockImplementation((eventName, properties, measurements) => {
+          chai.expect(eventName).to.equal("test");
+          chai.expect(properties).include({
             success: "no",
             "error-code": "my error code",
             "error-type": "user",
@@ -315,10 +314,10 @@ describe("TeamsFxTelemetryReporter", () => {
     });
 
     it("should merge provided errorProps", () => {
-      sinon
-        .stub(mockedTelemetryReporter, "sendTelemetryErrorEvent")
-        .callsFake((eventName, properties, measurements, errorProps) => {
-          expect(errorProps).include("test");
+      vi
+        .spyOn(mockedTelemetryReporter, "sendTelemetryErrorEvent")
+        .mockImplementation((eventName, properties, measurements, errorProps) => {
+          chai.expect(errorProps).include("test");
           reporterCalled = true;
         });
 
@@ -332,10 +331,10 @@ describe("TeamsFxTelemetryReporter", () => {
     });
 
     it("should set error type to system error when FxError is SystemError", () => {
-      sinon
-        .stub(mockedTelemetryReporter, "sendTelemetryErrorEvent")
-        .callsFake((eventName, properties, measurements, errorProps) => {
-          expect(properties).has.property("error-type", "system");
+      vi
+        .spyOn(mockedTelemetryReporter, "sendTelemetryErrorEvent")
+        .mockImplementation((eventName, properties, measurements, errorProps) => {
+          chai.expect(properties).has.property("error-type", "system");
           reporterCalled = true;
         });
 
@@ -348,10 +347,10 @@ describe("TeamsFxTelemetryReporter", () => {
     });
 
     it("should set error type to user error when FxError is UserError", () => {
-      sinon
-        .stub(mockedTelemetryReporter, "sendTelemetryErrorEvent")
-        .callsFake((eventName, properties, measurements, errorProps) => {
-          expect(properties).has.property("error-type", "user");
+      vi
+        .spyOn(mockedTelemetryReporter, "sendTelemetryErrorEvent")
+        .mockImplementation((eventName, properties, measurements, errorProps) => {
+          chai.expect(properties).has.property("error-type", "user");
           reporterCalled = true;
         });
 
@@ -364,10 +363,10 @@ describe("TeamsFxTelemetryReporter", () => {
     });
 
     it("should set component property if component name exists", () => {
-      sinon
-        .stub(mockedTelemetryReporter, "sendTelemetryEvent")
-        .callsFake((eventName, properties) => {
-          expect(properties).has.property("component", "test");
+      vi
+        .spyOn(mockedTelemetryReporter, "sendTelemetryEvent")
+        .mockImplementation((eventName, properties) => {
+          chai.expect(properties).has.property("component", "test");
           reporterCalled = true;
         });
 
@@ -375,10 +374,10 @@ describe("TeamsFxTelemetryReporter", () => {
     });
 
     it("should not set component property if component name does not exist", () => {
-      sinon
-        .stub(mockedTelemetryReporter, "sendTelemetryEvent")
-        .callsFake((eventName, properties) => {
-          expect(properties).not.has.property("component");
+      vi
+        .spyOn(mockedTelemetryReporter, "sendTelemetryEvent")
+        .mockImplementation((eventName, properties) => {
+          chai.expect(properties).not.has.property("component");
           reporterCalled = true;
         });
 
@@ -388,8 +387,8 @@ describe("TeamsFxTelemetryReporter", () => {
 
   describe("defulatConfig", () => {
     it("should merge default event name if exist", () => {
-      sinon.stub(mockedTelemetryReporter, "sendTelemetryEvent").callsFake((eventName) => {
-        expect(eventName).to.equal("base-event-name-test");
+      vi.spyOn(mockedTelemetryReporter, "sendTelemetryEvent").mockImplementation((eventName) => {
+        chai.expect(eventName).to.equal("base-event-name-test");
         reporterCalled = true;
       });
 
@@ -404,10 +403,10 @@ describe("TeamsFxTelemetryReporter", () => {
     });
 
     it("should merge default component name if config does not have one", () => {
-      sinon
-        .stub(mockedTelemetryReporter, "sendTelemetryEvent")
-        .callsFake((eventName, properties) => {
-          expect(properties).has.property("component", "testcomponent");
+      vi
+        .spyOn(mockedTelemetryReporter, "sendTelemetryEvent")
+        .mockImplementation((eventName, properties) => {
+          chai.expect(properties).has.property("component", "testcomponent");
           reporterCalled = true;
         });
 
@@ -422,10 +421,10 @@ describe("TeamsFxTelemetryReporter", () => {
     });
 
     it("should not merge default component name if config already have component name", () => {
-      sinon
-        .stub(mockedTelemetryReporter, "sendTelemetryEvent")
-        .callsFake((eventName, properties) => {
-          expect(properties).has.property("component", "mycomponent");
+      vi
+        .spyOn(mockedTelemetryReporter, "sendTelemetryEvent")
+        .mockImplementation((eventName, properties) => {
+          chai.expect(properties).has.property("component", "mycomponent");
           reporterCalled = true;
         });
 
@@ -440,10 +439,10 @@ describe("TeamsFxTelemetryReporter", () => {
     });
 
     it("should not modify original config object when merge", () => {
-      sinon
-        .stub(mockedTelemetryReporter, "sendTelemetryEvent")
-        .callsFake((eventName, properties) => {
-          expect(properties).has.property("component", "testcomponent");
+      vi
+        .spyOn(mockedTelemetryReporter, "sendTelemetryEvent")
+        .mockImplementation((eventName, properties) => {
+          chai.expect(properties).has.property("component", "testcomponent");
           reporterCalled = true;
         });
 
@@ -459,7 +458,7 @@ describe("TeamsFxTelemetryReporter", () => {
       );
       teamsFxTelemetryReporter.sendEndEvent(config);
 
-      expect(config).not.has.property("component");
+      chai.expect(config).not.has.property("component");
     });
   });
 });

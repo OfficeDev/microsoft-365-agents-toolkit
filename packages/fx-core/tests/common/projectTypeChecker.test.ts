@@ -1,11 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import * as chai from "chai";
-import { assert } from "chai";
 import fs from "fs-extra";
 import path from "path";
-import { vi } from "vitest";
+import { assert, chai, vi } from "vitest";
 import { IsDeclarativeAgentManifest } from "../../build/common/projectTypeChecker";
 import {
   ProjectTypeResult,

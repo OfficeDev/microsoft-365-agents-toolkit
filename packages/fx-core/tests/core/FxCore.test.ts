@@ -16,7 +16,6 @@ import {
   err,
   ok,
 } from "@microsoft/teamsfx-api";
-import { assert, expect } from "chai";
 import fs from "fs-extra";
 import mockedEnv from "mocked-env";
 import * as os from "os";
@@ -75,6 +74,7 @@ import { QuestionNames, ScratchOptions, UninstallInputs, questionNodes } from ".
 import { HubOptions } from "../../src/question/constants";
 import { validationUtils } from "../../src/ui/validationUtils";
 import { MockTools, randomAppName } from "./utils";
+import { assert, chai, vi } from "vitest";
 
 const tools = new MockTools();
 
@@ -1671,7 +1671,7 @@ describe("Core basic APIs", () => {
     const core = new FxCore(tools);
     const ctx: CoreHookContext = { arguments: [], envVars: { testKey: "oldValue" } };
     core.resetEnvVar("testKey", ctx);
-    expect(ctx.envVars).to.deep.equal({ testKey: "" });
+    chai.expect(ctx.envVars).to.deep.equal({ testKey: "" });
   });
   it("reset env var - undefine ctx", async () => {
     const core = new FxCore(tools);
@@ -1683,19 +1683,19 @@ describe("Core basic APIs", () => {
     const core = new FxCore(tools);
     const ctx: CoreHookContext = { arguments: [], envVars: undefined };
     core.resetEnvVar("testKey", ctx, false);
-    expect(ctx.envVars).to.deep.equal({ testKey: "" });
+    chai.expect(ctx.envVars).to.deep.equal({ testKey: "" });
   });
   it("reset env var - skipIfNotExist is true", async () => {
     const core = new FxCore(tools);
     const ctx: CoreHookContext = { arguments: [], envVars: { existingKey: "value" } };
     core.resetEnvVar("testKey", ctx);
-    expect(ctx.envVars).to.deep.equal({ existingKey: "value" });
+    chai.expect(ctx.envVars).to.deep.equal({ existingKey: "value" });
   });
   it("reset env var - skipIfNotExist is false", async () => {
     const core = new FxCore(tools);
     const ctx: CoreHookContext = { arguments: [], envVars: { existingKey: "value" } };
     core.resetEnvVar("testKey", ctx, false);
-    expect(ctx.envVars).to.deep.equal({ existingKey: "value", testKey: "" });
+    chai.expect(ctx.envVars).to.deep.equal({ existingKey: "value", testKey: "" });
   });
   it("provisionResources", async () => {
     const core = new FxCore(tools);

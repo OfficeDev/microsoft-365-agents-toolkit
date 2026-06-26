@@ -1,12 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { assert } from "chai";
 import * as path from "path";
 import { UserError } from "@microsoft/teamsfx-api";
 import { REQUIRE_EMPTY_TARGET } from "../../../src/v4/pipeline/runScaffoldPipeline";
 import { createInMemoryRuntime } from "../../../src/v4/runtime/inMemoryRuntime";
 import { ScaffoldRequest, scaffold } from "../../../src/v4/runtime/scaffold";
+import { assert } from "vitest";
 import {
   loadV4Package,
   readJsonObject,

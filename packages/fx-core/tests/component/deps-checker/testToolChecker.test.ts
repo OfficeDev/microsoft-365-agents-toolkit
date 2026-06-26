@@ -1,14 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { expect } from "chai";
 import cp from "child_process";
 import fs from "fs-extra";
 import mockfs from "mock-fs";
 import * as os from "os";
 import * as path from "path";
 import * as url from "url";
-import { vi } from "vitest";
+import { chai, vi } from "vitest";
 import { TelemetryProperties } from "../../../src/component/deps-checker/constant/telemetry";
 import { TestToolReleaseType } from "../../../src/component/deps-checker/depsChecker";
 import {
@@ -213,16 +212,18 @@ describe("Test Tool Checker Test (npm version)", () => {
       const status = await checker.resolve({ releaseType, projectPath, symlinkDir, versionRange });
 
       // Assert
-      expect(status.isInstalled).to.be.true;
-      expect(status.details.binFolders).not.empty;
-      expect(status.error).to.be.undefined;
-      expect(envStatus.installed).to.be.true;
-      expect(writtenFiles.map((f) => path.resolve(f))).to.include(
-        path.resolve(path.join(projectPath, "devTools", ".playground.installInfo.json"))
-      );
-      expect(status.telemetryProperties?.[TelemetryProperties.InstallTestToolReleaseType]).to.eq(
-        TestToolReleaseType.Npm
-      );
+      chai.expect(status.isInstalled).to.be.true;
+      chai.expect(status.details.binFolders).not.empty;
+      chai.expect(status.error).to.be.undefined;
+      chai.expect(envStatus.installed).to.be.true;
+      chai
+        .expect(writtenFiles.map((f) => path.resolve(f)))
+        .to.include(
+          path.resolve(path.join(projectPath, "devTools", ".playground.installInfo.json"))
+        );
+      chai
+        .expect(status.telemetryProperties?.[TelemetryProperties.InstallTestToolReleaseType])
+        .to.eq(TestToolReleaseType.Npm);
     });
   });
 
@@ -244,13 +245,13 @@ describe("Test Tool Checker Test (npm version)", () => {
       const status = await checker.resolve({ releaseType, projectPath, symlinkDir, versionRange });
 
       // Assert
-      expect(status.isInstalled).to.be.true;
-      expect(status.details.binFolders).not.empty;
-      expect(status.error).to.be.undefined;
-      expect(envStatus.installed).to.be.false;
-      expect(status.telemetryProperties?.[TelemetryProperties.InstallTestToolReleaseType]).to.eq(
-        TestToolReleaseType.Npm
-      );
+      chai.expect(status.isInstalled).to.be.true;
+      chai.expect(status.details.binFolders).not.empty;
+      chai.expect(status.error).to.be.undefined;
+      chai.expect(envStatus.installed).to.be.false;
+      chai
+        .expect(status.telemetryProperties?.[TelemetryProperties.InstallTestToolReleaseType])
+        .to.eq(TestToolReleaseType.Npm);
     });
 
     it("Already installed in home", async () => {
@@ -290,14 +291,14 @@ describe("Test Tool Checker Test (npm version)", () => {
       const status = await checker.resolve({ releaseType, projectPath, symlinkDir, versionRange });
 
       // Assert
-      expect(status.isInstalled).to.be.true;
-      expect(status.details.binFolders).not.empty;
-      expect(status.error).to.be.undefined;
-      expect(npmInstalled).to.be.false;
-      expect(status.details.binFolders).not.empty;
-      expect(status.telemetryProperties?.[TelemetryProperties.InstallTestToolReleaseType]).to.eq(
-        TestToolReleaseType.Npm
-      );
+      chai.expect(status.isInstalled).to.be.true;
+      chai.expect(status.details.binFolders).not.empty;
+      chai.expect(status.error).to.be.undefined;
+      chai.expect(npmInstalled).to.be.false;
+      chai.expect(status.details.binFolders).not.empty;
+      chai
+        .expect(status.telemetryProperties?.[TelemetryProperties.InstallTestToolReleaseType])
+        .to.eq(TestToolReleaseType.Npm);
     });
 
     it("Already installed in home multiple versions, should use more recent version", async () => {
@@ -347,13 +348,13 @@ describe("Test Tool Checker Test (npm version)", () => {
       const status = await checker.resolve({ releaseType, projectPath, symlinkDir, versionRange });
 
       // Assert
-      expect(status.isInstalled).to.be.true;
-      expect(status.details.binFolders).not.empty;
-      expect(status.error).to.be.undefined;
-      expect(status.details.binFolders).not.empty;
-      expect(status.telemetryProperties?.[TelemetryProperties.InstallTestToolReleaseType]).to.eq(
-        TestToolReleaseType.Npm
-      );
+      chai.expect(status.isInstalled).to.be.true;
+      chai.expect(status.details.binFolders).not.empty;
+      chai.expect(status.error).to.be.undefined;
+      chai.expect(status.details.binFolders).not.empty;
+      chai
+        .expect(status.telemetryProperties?.[TelemetryProperties.InstallTestToolReleaseType])
+        .to.eq(TestToolReleaseType.Npm);
     });
 
     it("Already installed globally. Should not check for update", async () => {
@@ -395,14 +396,14 @@ describe("Test Tool Checker Test (npm version)", () => {
       const status = await checker.resolve({ releaseType, projectPath, symlinkDir, versionRange });
 
       // Assert
-      expect(status.isInstalled).to.be.true;
-      expect(status.details.binFolders).to.be.empty;
-      expect(status.error).to.be.undefined;
-      expect(createSymlinkStub.mock.calls.length === 0).to.be.true;
-      expect(checkedUpdate).to.be.false;
-      expect(status.telemetryProperties?.[TelemetryProperties.InstallTestToolReleaseType]).to.eq(
-        TestToolReleaseType.Npm
-      );
+      chai.expect(status.isInstalled).to.be.true;
+      chai.expect(status.details.binFolders).to.be.empty;
+      chai.expect(status.error).to.be.undefined;
+      chai.expect(createSymlinkStub.mock.calls.length === 0).to.be.true;
+      chai.expect(checkedUpdate).to.be.false;
+      chai
+        .expect(status.telemetryProperties?.[TelemetryProperties.InstallTestToolReleaseType])
+        .to.eq(TestToolReleaseType.Npm);
     });
   });
 
@@ -423,13 +424,13 @@ describe("Test Tool Checker Test (npm version)", () => {
       const status = await checker.resolve({ releaseType, projectPath, symlinkDir, versionRange });
 
       // Assert
-      expect(status.isInstalled).to.be.true;
-      expect(status.details.binFolders).not.empty;
-      expect(status.error).to.be.undefined;
-      expect(envStatus.installed).to.be.true;
-      expect(status.telemetryProperties?.[TelemetryProperties.InstallTestToolReleaseType]).to.eq(
-        TestToolReleaseType.Npm
-      );
+      chai.expect(status.isInstalled).to.be.true;
+      chai.expect(status.details.binFolders).not.empty;
+      chai.expect(status.error).to.be.undefined;
+      chai.expect(envStatus.installed).to.be.true;
+      chai
+        .expect(status.telemetryProperties?.[TelemetryProperties.InstallTestToolReleaseType])
+        .to.eq(TestToolReleaseType.Npm);
     });
     it("Already installed in home, but version not match", async () => {
       const checker = new TestToolChecker();
@@ -479,14 +480,14 @@ describe("Test Tool Checker Test (npm version)", () => {
       const status = await checker.resolve({ releaseType, projectPath, symlinkDir, versionRange });
 
       // Assert
-      expect(status.isInstalled).to.be.true;
-      expect(status.details.binFolders).not.empty;
-      expect(status.error).to.be.undefined;
-      expect(npmInstalled).to.be.true;
-      expect(status.details.binFolders).not.empty;
-      expect(status.telemetryProperties?.[TelemetryProperties.InstallTestToolReleaseType]).to.eq(
-        TestToolReleaseType.Npm
-      );
+      chai.expect(status.isInstalled).to.be.true;
+      chai.expect(status.details.binFolders).not.empty;
+      chai.expect(status.error).to.be.undefined;
+      chai.expect(npmInstalled).to.be.true;
+      chai.expect(status.details.binFolders).not.empty;
+      chai
+        .expect(status.telemetryProperties?.[TelemetryProperties.InstallTestToolReleaseType])
+        .to.eq(TestToolReleaseType.Npm);
     });
   });
 
@@ -512,12 +513,12 @@ describe("Test Tool Checker Test (npm version)", () => {
       const status = await checker.resolve({ releaseType, projectPath, symlinkDir, versionRange });
 
       // Assert
-      expect(status.isInstalled).to.be.false;
-      expect(status.details.binFolders).to.be.empty;
-      expect(status.error).instanceOf(NodejsNotFoundError);
-      expect(status.telemetryProperties?.[TelemetryProperties.InstallTestToolReleaseType]).to.eq(
-        TestToolReleaseType.Npm
-      );
+      chai.expect(status.isInstalled).to.be.false;
+      chai.expect(status.details.binFolders).to.be.empty;
+      chai.expect(status.error).instanceOf(NodejsNotFoundError);
+      chai
+        .expect(status.telemetryProperties?.[TelemetryProperties.InstallTestToolReleaseType])
+        .to.eq(TestToolReleaseType.Npm);
     });
 
     it("Special characters in tgz path", async () => {
@@ -540,20 +541,22 @@ describe("Test Tool Checker Test (npm version)", () => {
       const status = await checker.resolve({ releaseType, projectPath, symlinkDir, versionRange });
 
       // Assert
-      expect(envStatus.npmInstallArgs).not.undefined;
+      chai.expect(envStatus.npmInstallArgs).not.undefined;
       const fileArg = envStatus.npmInstallArgs?.filter((arg) =>
         arg.includes("microsoft-teams-app-test-tool")
       )?.[0];
-      expect(fileArg).not.empty;
+      chai.expect(fileArg).not.empty;
       let parsed: url.URL | undefined;
-      expect(() => {
-        parsed = new url.URL(fileArg!);
-      }).not.throw();
-      expect(parsed).not.undefined;
-      expect(parsed?.protocol).equals("file:");
-      expect(status.telemetryProperties?.[TelemetryProperties.InstallTestToolReleaseType]).to.eq(
-        TestToolReleaseType.Npm
-      );
+      chai
+        .expect(() => {
+          parsed = new url.URL(fileArg!);
+        })
+        .not.throw();
+      chai.expect(parsed).not.undefined;
+      chai.expect(parsed?.protocol).equals("file:");
+      chai
+        .expect(status.telemetryProperties?.[TelemetryProperties.InstallTestToolReleaseType])
+        .to.eq(TestToolReleaseType.Npm);
     });
 
     it("Install timeout", async () => {
@@ -596,12 +599,12 @@ describe("Test Tool Checker Test (npm version)", () => {
       const status = await checker.resolve({ releaseType, projectPath, symlinkDir, versionRange });
 
       // Assert
-      expect(status.isInstalled).to.be.false;
-      expect(status.details.binFolders).to.be.empty;
-      expect(status.error).instanceOf(NodejsNotFoundError);
-      expect(status.telemetryProperties?.[TelemetryProperties.InstallTestToolReleaseType]).to.eq(
-        TestToolReleaseType.Npm
-      );
+      chai.expect(status.isInstalled).to.be.false;
+      chai.expect(status.details.binFolders).to.be.empty;
+      chai.expect(status.error).instanceOf(NodejsNotFoundError);
+      chai
+        .expect(status.telemetryProperties?.[TelemetryProperties.InstallTestToolReleaseType])
+        .to.eq(TestToolReleaseType.Npm);
     });
   });
 
@@ -634,14 +637,14 @@ describe("Test Tool Checker Test (npm version)", () => {
       // Act
       const status = await checker.resolve({ releaseType, projectPath, symlinkDir, versionRange });
       // Assert
-      expect(status.isInstalled).to.be.true;
-      expect(status.details.binFolders).not.empty;
-      expect(status.error).to.be.undefined;
-      expect(npmInstalled).to.be.false;
-      expect(checkedUpdate).to.be.true;
-      expect(status.telemetryProperties?.[TelemetryProperties.InstallTestToolReleaseType]).to.eq(
-        TestToolReleaseType.Npm
-      );
+      chai.expect(status.isInstalled).to.be.true;
+      chai.expect(status.details.binFolders).not.empty;
+      chai.expect(status.error).to.be.undefined;
+      chai.expect(npmInstalled).to.be.false;
+      chai.expect(checkedUpdate).to.be.true;
+      chai
+        .expect(status.telemetryProperties?.[TelemetryProperties.InstallTestToolReleaseType])
+        .to.eq(TestToolReleaseType.Npm);
     });
     it("Already installed, symlink created, needs to check update but has more recent versions", async () => {
       const checker = new TestToolChecker();
@@ -678,15 +681,15 @@ describe("Test Tool Checker Test (npm version)", () => {
       // Act
       const status = await checker.resolve({ releaseType, projectPath, symlinkDir, versionRange });
       // Assert
-      expect(status.isInstalled).to.be.true;
-      expect(status.details.binFolders).not.empty;
-      expect(status.error).to.be.undefined;
-      expect(status.details.installVersion).to.eq("1.2.4");
-      expect(npmInstalled).to.be.true;
-      expect(checkedUpdate).to.be.true;
-      expect(status.telemetryProperties?.[TelemetryProperties.InstallTestToolReleaseType]).to.eq(
-        TestToolReleaseType.Npm
-      );
+      chai.expect(status.isInstalled).to.be.true;
+      chai.expect(status.details.binFolders).not.empty;
+      chai.expect(status.error).to.be.undefined;
+      chai.expect(status.details.installVersion).to.eq("1.2.4");
+      chai.expect(npmInstalled).to.be.true;
+      chai.expect(checkedUpdate).to.be.true;
+      chai
+        .expect(status.telemetryProperties?.[TelemetryProperties.InstallTestToolReleaseType])
+        .to.eq(TestToolReleaseType.Npm);
     });
     it("Already installed, symlink created, needs to check update but has multiple recent versions, should use latest", async () => {
       const checker = new TestToolChecker();
@@ -722,15 +725,15 @@ describe("Test Tool Checker Test (npm version)", () => {
       // Act
       const status = await checker.resolve({ releaseType, projectPath, symlinkDir, versionRange });
       // Assert
-      expect(status.isInstalled).to.be.true;
-      expect(status.details.binFolders).not.empty;
-      expect(status.error).to.be.undefined;
-      expect(status.details.installVersion).to.eq("1.2.3");
-      expect(npmInstalled).to.be.false;
-      expect(checkedUpdate).to.be.true;
-      expect(status.telemetryProperties?.[TelemetryProperties.InstallTestToolReleaseType]).to.eq(
-        TestToolReleaseType.Npm
-      );
+      chai.expect(status.isInstalled).to.be.true;
+      chai.expect(status.details.binFolders).not.empty;
+      chai.expect(status.error).to.be.undefined;
+      chai.expect(status.details.installVersion).to.eq("1.2.3");
+      chai.expect(npmInstalled).to.be.false;
+      chai.expect(checkedUpdate).to.be.true;
+      chai
+        .expect(status.telemetryProperties?.[TelemetryProperties.InstallTestToolReleaseType])
+        .to.eq(TestToolReleaseType.Npm);
     });
     it("Already installed, symlink created, needs to check update but has multiple recent versions, should use latest", async () => {
       const checker = new TestToolChecker();
@@ -766,15 +769,15 @@ describe("Test Tool Checker Test (npm version)", () => {
       // Act
       const status = await checker.resolve({ releaseType, projectPath, symlinkDir, versionRange });
       // Assert
-      expect(status.isInstalled).to.be.true;
-      expect(status.details.binFolders).not.empty;
-      expect(status.error).to.be.undefined;
-      expect(status.details.installVersion).to.eq("1.2.5");
-      expect(npmInstalled).to.be.true;
-      expect(checkedUpdate).to.be.true;
-      expect(status.telemetryProperties?.[TelemetryProperties.InstallTestToolReleaseType]).to.eq(
-        TestToolReleaseType.Npm
-      );
+      chai.expect(status.isInstalled).to.be.true;
+      chai.expect(status.details.binFolders).not.empty;
+      chai.expect(status.error).to.be.undefined;
+      chai.expect(status.details.installVersion).to.eq("1.2.5");
+      chai.expect(npmInstalled).to.be.true;
+      chai.expect(checkedUpdate).to.be.true;
+      chai
+        .expect(status.telemetryProperties?.[TelemetryProperties.InstallTestToolReleaseType])
+        .to.eq(TestToolReleaseType.Npm);
     });
     it("Already installed, symlink created, needs to check update but update failed", async () => {
       const checker = new TestToolChecker();
@@ -817,15 +820,15 @@ describe("Test Tool Checker Test (npm version)", () => {
       // Act
       const status = await checker.resolve({ releaseType, projectPath, symlinkDir, versionRange });
       // Assert
-      expect(status.isInstalled).to.be.true;
-      expect(status.details.binFolders).not.empty;
-      expect(status.details.installVersion).to.eq("1.2.3");
-      expect(status.error).to.be.undefined;
-      expect(npmInstalled).to.be.true;
-      expect(checkedUpdate).to.be.true;
-      expect(status.telemetryProperties?.[TelemetryProperties.InstallTestToolReleaseType]).to.eq(
-        TestToolReleaseType.Npm
-      );
+      chai.expect(status.isInstalled).to.be.true;
+      chai.expect(status.details.binFolders).not.empty;
+      chai.expect(status.details.installVersion).to.eq("1.2.3");
+      chai.expect(status.error).to.be.undefined;
+      chai.expect(npmInstalled).to.be.true;
+      chai.expect(checkedUpdate).to.be.true;
+      chai
+        .expect(status.telemetryProperties?.[TelemetryProperties.InstallTestToolReleaseType])
+        .to.eq(TestToolReleaseType.Npm);
     });
     it("Already installed, symlink created, but skip update", async () => {
       const checker = new TestToolChecker();
@@ -860,15 +863,15 @@ describe("Test Tool Checker Test (npm version)", () => {
         versionRange,
       });
       // Assert
-      expect(status.isInstalled).to.be.true;
-      expect(status.details.binFolders).not.empty;
-      expect(status.error).to.be.undefined;
-      expect(npmInstalled).to.be.false;
-      expect(checkedUpdate).to.be.true;
-      expect(status.details.installVersion).to.eq("1.2.3");
-      expect(status.telemetryProperties?.[TelemetryProperties.InstallTestToolReleaseType]).to.eq(
-        TestToolReleaseType.Npm
-      );
+      chai.expect(status.isInstalled).to.be.true;
+      chai.expect(status.details.binFolders).not.empty;
+      chai.expect(status.error).to.be.undefined;
+      chai.expect(npmInstalled).to.be.false;
+      chai.expect(checkedUpdate).to.be.true;
+      chai.expect(status.details.installVersion).to.eq("1.2.3");
+      chai
+        .expect(status.telemetryProperties?.[TelemetryProperties.InstallTestToolReleaseType])
+        .to.eq(TestToolReleaseType.Npm);
     });
   });
 
@@ -886,13 +889,13 @@ describe("Test Tool Checker Test (npm version)", () => {
         versionRange,
       });
       // Assert
-      expect(status.isInstalled).to.be.false;
-      expect(status.details.binFolders).be.empty;
-      expect(status.error).not.undefined;
-      expect(status.error?.message).match(/node/i);
-      expect(status.telemetryProperties?.[TelemetryProperties.InstallTestToolReleaseType]).to.eq(
-        TestToolReleaseType.Npm
-      );
+      chai.expect(status.isInstalled).to.be.false;
+      chai.expect(status.details.binFolders).be.empty;
+      chai.expect(status.error).not.undefined;
+      chai.expect(status.error?.message).match(/node/i);
+      chai
+        .expect(status.telemetryProperties?.[TelemetryProperties.InstallTestToolReleaseType])
+        .to.eq(TestToolReleaseType.Npm);
     });
     it("Npm not found", async () => {
       const checker = new TestToolChecker();
@@ -908,13 +911,13 @@ describe("Test Tool Checker Test (npm version)", () => {
         versionRange,
       });
       // Assert
-      expect(status.isInstalled).to.be.false;
-      expect(status.details.binFolders).be.empty;
-      expect(status.error).not.undefined;
-      expect(status.error?.message).match(/npm/i);
-      expect(status.telemetryProperties?.[TelemetryProperties.InstallTestToolReleaseType]).to.eq(
-        TestToolReleaseType.Npm
-      );
+      chai.expect(status.isInstalled).to.be.false;
+      chai.expect(status.details.binFolders).be.empty;
+      chai.expect(status.error).not.undefined;
+      chai.expect(status.error?.message).match(/npm/i);
+      chai
+        .expect(status.telemetryProperties?.[TelemetryProperties.InstallTestToolReleaseType])
+        .to.eq(TestToolReleaseType.Npm);
     });
   });
 });
@@ -977,13 +980,13 @@ describe("Test Tool Checker Test (npm version)", () => {
         const status = await checker.resolve({ releaseType, projectPath, versionRange });
 
         // Assert
-        expect(installStub.mock.calls.length === 1).to.be.true;
-        expect(status.isInstalled).to.be.true;
-        expect(status.details.binFolders).not.empty;
-        expect(status.error).to.be.undefined;
-        expect(status.telemetryProperties?.[TelemetryProperties.InstallTestToolReleaseType]).to.eq(
-          TestToolReleaseType.Binary
-        );
+        chai.expect(installStub.mock.calls.length === 1).to.be.true;
+        chai.expect(status.isInstalled).to.be.true;
+        chai.expect(status.details.binFolders).not.empty;
+        chai.expect(status.error).to.be.undefined;
+        chai
+          .expect(status.telemetryProperties?.[TelemetryProperties.InstallTestToolReleaseType])
+          .to.eq(TestToolReleaseType.Binary);
       });
     });
 
@@ -1006,12 +1009,12 @@ describe("Test Tool Checker Test (npm version)", () => {
         const status = await checker.resolve({ releaseType, projectPath, versionRange });
 
         // Assert
-        expect(status.isInstalled).to.be.true;
-        expect(status.details.binFolders).not.empty;
-        expect(status.error).to.be.undefined;
-        expect(status.telemetryProperties?.[TelemetryProperties.InstallTestToolReleaseType]).to.eq(
-          TestToolReleaseType.Binary
-        );
+        chai.expect(status.isInstalled).to.be.true;
+        chai.expect(status.details.binFolders).not.empty;
+        chai.expect(status.error).to.be.undefined;
+        chai
+          .expect(status.telemetryProperties?.[TelemetryProperties.InstallTestToolReleaseType])
+          .to.eq(TestToolReleaseType.Binary);
       });
 
       it("Already installed in home multiple versions, should use more recent version", async () => {
@@ -1033,12 +1036,12 @@ describe("Test Tool Checker Test (npm version)", () => {
         const status = await checker.resolve({ releaseType, projectPath, versionRange });
 
         // Assert
-        expect(status.isInstalled).to.be.true;
-        expect(status.details.binFolders).not.empty;
-        expect(status.error).to.be.undefined;
-        expect(status.telemetryProperties?.[TelemetryProperties.InstallTestToolReleaseType]).to.eq(
-          TestToolReleaseType.Binary
-        );
+        chai.expect(status.isInstalled).to.be.true;
+        chai.expect(status.details.binFolders).not.empty;
+        chai.expect(status.error).to.be.undefined;
+        chai
+          .expect(status.telemetryProperties?.[TelemetryProperties.InstallTestToolReleaseType])
+          .to.eq(TestToolReleaseType.Binary);
       });
 
       it("Already installed globally. Should not check for update", async () => {
@@ -1067,14 +1070,14 @@ describe("Test Tool Checker Test (npm version)", () => {
         const status = await checker.resolve({ releaseType, projectPath, versionRange });
 
         // Assert
-        expect(status.isInstalled).to.be.true;
-        expect(status.details.binFolders).to.be.empty;
-        expect(status.details.installVersion).to.eq("1.2.3");
-        expect(status.error).to.be.undefined;
-        expect(status.telemetryProperties?.[TelemetryProperties.InstallTestToolReleaseType]).to.eq(
-          TestToolReleaseType.Binary
-        );
-        expect(listGitHubReleasesStub.mock.calls.length === 0).true;
+        chai.expect(status.isInstalled).to.be.true;
+        chai.expect(status.details.binFolders).to.be.empty;
+        chai.expect(status.details.installVersion).to.eq("1.2.3");
+        chai.expect(status.error).to.be.undefined;
+        chai
+          .expect(status.telemetryProperties?.[TelemetryProperties.InstallTestToolReleaseType])
+          .to.eq(TestToolReleaseType.Binary);
+        chai.expect(listGitHubReleasesStub.mock.calls.length === 0).true;
       });
     });
 
@@ -1097,12 +1100,12 @@ describe("Test Tool Checker Test (npm version)", () => {
         const status = await checker.resolve({ releaseType, projectPath, versionRange });
 
         // Assert
-        expect(status.isInstalled).to.be.true;
-        expect(status.details.binFolders).not.empty;
-        expect(status.error).to.be.undefined;
-        expect(status.telemetryProperties?.[TelemetryProperties.InstallTestToolReleaseType]).to.eq(
-          TestToolReleaseType.Binary
-        );
+        chai.expect(status.isInstalled).to.be.true;
+        chai.expect(status.details.binFolders).not.empty;
+        chai.expect(status.error).to.be.undefined;
+        chai
+          .expect(status.telemetryProperties?.[TelemetryProperties.InstallTestToolReleaseType])
+          .to.eq(TestToolReleaseType.Binary);
       });
       it("Already installed old version, multiple new versions", async () => {
         const checker = new TestToolChecker();
@@ -1123,12 +1126,12 @@ describe("Test Tool Checker Test (npm version)", () => {
         const status = await checker.resolve({ releaseType, projectPath, versionRange });
 
         // Assert
-        expect(status.isInstalled).to.be.true;
-        expect(status.details.binFolders).not.empty;
-        expect(status.error).to.be.undefined;
-        expect(status.telemetryProperties?.[TelemetryProperties.InstallTestToolReleaseType]).to.eq(
-          TestToolReleaseType.Binary
-        );
+        chai.expect(status.isInstalled).to.be.true;
+        chai.expect(status.details.binFolders).not.empty;
+        chai.expect(status.error).to.be.undefined;
+        chai
+          .expect(status.telemetryProperties?.[TelemetryProperties.InstallTestToolReleaseType])
+          .to.eq(TestToolReleaseType.Binary);
       });
     });
 
@@ -1148,11 +1151,11 @@ describe("Test Tool Checker Test (npm version)", () => {
         const status = await checker.resolve({ releaseType, projectPath, versionRange });
 
         // Assert
-        expect(status.isInstalled).to.be.false;
-        expect(status.error).not.empty;
-        expect(status.telemetryProperties?.[TelemetryProperties.InstallTestToolReleaseType]).to.eq(
-          TestToolReleaseType.Binary
-        );
+        chai.expect(status.isInstalled).to.be.false;
+        chai.expect(status.error).not.empty;
+        chai
+          .expect(status.telemetryProperties?.[TelemetryProperties.InstallTestToolReleaseType])
+          .to.eq(TestToolReleaseType.Binary);
       });
     });
   }
@@ -1183,7 +1186,7 @@ describe("GitHubHelpers", () => {
       return { json: async () => releases, status: 200 } as any;
     });
     const releases = await GitHubHelpers.listGitHubReleases();
-    expect(releases).to.deep.eq([
+    chai.expect(releases).to.deep.eq([
       { version: "1.0.0", url: "https://example0.com" },
       { version: "1.0.1", url: "https://example1.com" },
     ]);
@@ -1208,7 +1211,7 @@ describe("GitHubHelpers", () => {
       return { json: async () => releases, status: 200 } as any;
     });
     const releases = await GitHubHelpers.listGitHubReleases();
-    expect(releases).to.deep.eq([]);
+    chai.expect(releases).to.deep.eq([]);
   });
   it("ignores releases that doesn't have assets", async () => {
     vi.spyOn(globalThis, "fetch").mockImplementation(async () => {
@@ -1221,6 +1224,6 @@ describe("GitHubHelpers", () => {
       return { json: async () => releases, status: 200 } as any;
     });
     const releases = await GitHubHelpers.listGitHubReleases();
-    expect(releases).to.deep.eq([]);
+    chai.expect(releases).to.deep.eq([]);
   });
 });

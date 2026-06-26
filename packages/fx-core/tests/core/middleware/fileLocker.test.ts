@@ -1,7 +1,6 @@
-import { assert } from "chai";
 import * as fs from "fs-extra";
 import path from "path";
-import { describe, it, beforeEach, afterEach, vi, expect } from "vitest";
+import { afterEach, assert, beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("proper-lockfile");
 vi.mock("../../../src/common/utils");

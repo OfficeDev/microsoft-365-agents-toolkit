@@ -3,12 +3,10 @@
 
 import { err, ok, Platform, TeamsAppManifest } from "@microsoft/teamsfx-api";
 import AdmZip from "adm-zip";
-import chai from "chai";
 import fs from "fs-extra";
 import mockedEnv from "mocked-env";
-import * as sinon from "sinon";
 import { v4 as uuid } from "uuid";
-import { vi } from "vitest";
+import { chai, expect, vi } from "vitest";
 import { GraphClient } from "../../../../src/client/graphClient";
 import { teamsDevPortalClient } from "../../../../src/client/teamsDevPortalClient";
 import { SovereignCloudEnvironment } from "../../../../src/common/accountUtils";
@@ -42,7 +40,7 @@ describe("teamsApp/publishAppPackage", async () => {
   };
 
   afterEach(() => {
-    sinon.restore();
+    vi.restoreAllMocks();
     vi.restoreAllMocks();
     restoreEnv?.();
     restoreEnv = undefined;
@@ -52,8 +50,8 @@ describe("teamsApp/publishAppPackage", async () => {
     restoreEnv = mockedEnv({
       [FeatureFlagName.SovereignCloudEnvironment]: SovereignCloudEnvironment.GCCH,
     });
-    const publishTeamsAppSpy = sinon.spy(teamsDevPortalClient, "publishTeamsApp");
-    const pathExistsStub = sinon.stub(fs, "pathExists");
+    const publishTeamsAppSpy = vi.spyOn(teamsDevPortalClient, "publishTeamsApp");
+    const pathExistsStub = vi.spyOn(fs, "pathExists");
 
     const args: PublishAppPackageArgs = {
       appPackagePath: "fakepath",
@@ -61,16 +59,16 @@ describe("teamsApp/publishAppPackage", async () => {
 
     const result = (await teamsAppDriver.execute(args, mockedDriverContext)).result;
     chai.assert(result.isOk());
-    sinon.assert.notCalled(publishTeamsAppSpy);
-    sinon.assert.notCalled(pathExistsStub);
+    expect(publishTeamsAppSpy).not.toHaveBeenCalled();
+    expect(pathExistsStub).not.toHaveBeenCalled();
   });
 
   it("skip publish in DoD", async () => {
     restoreEnv = mockedEnv({
       [FeatureFlagName.SovereignCloudEnvironment]: SovereignCloudEnvironment.DOD,
     });
-    const publishTeamsAppSpy = sinon.spy(teamsDevPortalClient, "publishTeamsApp");
-    const pathExistsStub = sinon.stub(fs, "pathExists");
+    const publishTeamsAppSpy = vi.spyOn(teamsDevPortalClient, "publishTeamsApp");
+    const pathExistsStub = vi.spyOn(fs, "pathExists");
 
     const args: PublishAppPackageArgs = {
       appPackagePath: "fakepath",
@@ -78,8 +76,8 @@ describe("teamsApp/publishAppPackage", async () => {
 
     const result = (await teamsAppDriver.execute(args, mockedDriverContext)).result;
     chai.assert(result.isOk());
-    sinon.assert.notCalled(publishTeamsAppSpy);
-    sinon.assert.notCalled(pathExistsStub);
+    expect(publishTeamsAppSpy).not.toHaveBeenCalled();
+    expect(pathExistsStub).not.toHaveBeenCalled();
   });
 
   it("should throw error if file not exists", async () => {
@@ -111,8 +109,8 @@ describe("teamsApp/publishAppPackage", async () => {
       appPackagePath: "fakepath",
     };
 
-    sinon.stub(fs, "pathExists").resolves(true);
-    sinon.stub(fs, "readFile").callsFake(async () => {
+    vi.spyOn(fs, "pathExists").mockResolvedValue(true);
+    vi.spyOn(fs, "readFile").mockImplementation(async () => {
       const zip = new AdmZip();
       zip.addFile(Constants.MANIFEST_FILE, Buffer.from(JSON.stringify(new TeamsAppManifest())));
       zip.addFile("color.png", Buffer.from(""));
@@ -121,8 +119,8 @@ describe("teamsApp/publishAppPackage", async () => {
       const archivedFile = zip.toBuffer();
       return archivedFile;
     });
-    sinon.stub(GraphClient.prototype, "getStagedApp").resolves(undefined);
-    sinon.stub(GraphClient.prototype, "publishTeamsApp").resolves(uuid());
+    vi.spyOn(GraphClient.prototype, "getStagedApp").mockResolvedValue(undefined);
+    vi.spyOn(GraphClient.prototype, "publishTeamsApp").mockResolvedValue(uuid());
 
     const result = await teamsAppDriver.execute(args, mockedDriverContext);
     chai.assert.isTrue(result.result.isOk());
@@ -133,8 +131,8 @@ describe("teamsApp/publishAppPackage", async () => {
       appPackagePath: "fakepath",
     };
 
-    sinon.stub(fs, "pathExists").resolves(true);
-    sinon.stub(fs, "readFile").callsFake(async () => {
+    vi.spyOn(fs, "pathExists").mockResolvedValue(true);
+    vi.spyOn(fs, "readFile").mockImplementation(async () => {
       const zip = new AdmZip();
       const manifest = new TeamsAppManifest();
       manifest.id = uuid();
@@ -144,7 +142,7 @@ describe("teamsApp/publishAppPackage", async () => {
     });
 
     const tokenError = new UserCancelError();
-    sinon.stub(mockedDriverContext.m365TokenProvider, "getAccessToken").resolves(err(tokenError));
+    vi.spyOn(mockedDriverContext.m365TokenProvider, "getAccessToken").mockResolvedValue(err(tokenError));
 
     const result = (await teamsAppDriver.execute(args, mockedDriverContext)).result;
     chai.assert.isTrue(result.isErr());
@@ -158,8 +156,8 @@ describe("teamsApp/publishAppPackage", async () => {
       appPackagePath: "fakepath",
     };
 
-    sinon.stub(fs, "pathExists").resolves(true);
-    sinon.stub(fs, "readFile").callsFake(async () => {
+    vi.spyOn(fs, "pathExists").mockResolvedValue(true);
+    vi.spyOn(fs, "readFile").mockImplementation(async () => {
       const zip = new AdmZip();
       const manifest = new TeamsAppManifest();
       manifest.id = uuid();
@@ -168,8 +166,8 @@ describe("teamsApp/publishAppPackage", async () => {
       return zip.toBuffer();
     });
 
-    sinon.stub(GraphClient.prototype, "getStagedApp").resolves(undefined);
-    sinon.stub(GraphClient.prototype, "publishTeamsApp").rejects(new Error("publish failed"));
+    vi.spyOn(GraphClient.prototype, "getStagedApp").mockResolvedValue(undefined);
+    vi.spyOn(GraphClient.prototype, "publishTeamsApp").mockRejectedValue(new Error("publish failed"));
 
     const result = (await teamsAppDriver.execute(args, mockedDriverContext)).result;
     chai.assert.isTrue(result.isErr());
@@ -183,8 +181,8 @@ describe("teamsApp/publishAppPackage", async () => {
       appPackagePath: "fakepath",
     };
 
-    sinon.stub(fs, "pathExists").resolves(true);
-    sinon.stub(fs, "readFile").callsFake(async () => {
+    vi.spyOn(fs, "pathExists").mockResolvedValue(true);
+    vi.spyOn(fs, "readFile").mockImplementation(async () => {
       const zip = new AdmZip();
       zip.addFile(Constants.MANIFEST_FILE, Buffer.from(JSON.stringify(new TeamsAppManifest())));
       zip.addFile("color.png", Buffer.from(""));
@@ -193,8 +191,8 @@ describe("teamsApp/publishAppPackage", async () => {
       const archivedFile = zip.toBuffer();
       return archivedFile;
     });
-    sinon.stub(GraphClient.prototype, "getStagedApp").resolves(state);
-    sinon.stub(mockedDriverContext.ui, "showMessage").resolves(ok("Cancel"));
+    vi.spyOn(GraphClient.prototype, "getStagedApp").mockResolvedValue(state);
+    vi.spyOn(mockedDriverContext.ui, "showMessage").mockResolvedValue(ok("Cancel"));
 
     const result = (await teamsAppDriver.execute(args, mockedDriverContext)).result;
     chai.assert.isTrue(result.isErr());
@@ -210,8 +208,8 @@ describe("teamsApp/publishAppPackage", async () => {
 
     mockedDriverContext.platform = Platform.CLI;
 
-    sinon.stub(fs, "pathExists").resolves(true);
-    sinon.stub(fs, "readFile").callsFake(async () => {
+    vi.spyOn(fs, "pathExists").mockResolvedValue(true);
+    vi.spyOn(fs, "readFile").mockImplementation(async () => {
       const zip = new AdmZip();
       zip.addFile(Constants.MANIFEST_FILE, Buffer.from(JSON.stringify(new TeamsAppManifest())));
       zip.addFile("color.png", Buffer.from(""));
@@ -220,9 +218,9 @@ describe("teamsApp/publishAppPackage", async () => {
       const archivedFile = zip.toBuffer();
       return archivedFile;
     });
-    sinon.stub(GraphClient.prototype, "getStagedApp").resolves(state);
-    sinon.stub(GraphClient.prototype, "publishTeamsAppUpdate").resolves(uuid());
-    sinon.stub(mockedDriverContext.ui, "showMessage").resolves(ok("Confirm"));
+    vi.spyOn(GraphClient.prototype, "getStagedApp").mockResolvedValue(state);
+    vi.spyOn(GraphClient.prototype, "publishTeamsAppUpdate").mockResolvedValue(uuid());
+    vi.spyOn(mockedDriverContext.ui, "showMessage").mockResolvedValue(ok("Confirm"));
 
     const result = (await teamsAppDriver.execute(args, mockedDriverContext)).result;
     chai.assert.isTrue(result.isOk());
@@ -234,15 +232,15 @@ describe("teamsApp/publishAppPackage", async () => {
         appPackagePath: "fakepath",
       };
 
-      sinon.stub(fs, "pathExists").resolves(true);
-      sinon.stub(fs, "readFile").callsFake(async () => {
+      vi.spyOn(fs, "pathExists").mockResolvedValue(true);
+      vi.spyOn(fs, "readFile").mockImplementation(async () => {
         const zip = new AdmZip();
         const manifest = new TeamsAppManifest();
         zip.addFile(Constants.MANIFEST_FILE, Buffer.from(JSON.stringify(manifest)));
         return zip.toBuffer();
       });
-      sinon.stub(GraphClient.prototype, "getStagedApp").resolves(undefined);
-      sinon.stub(GraphClient.prototype, "publishTeamsApp").resolves(uuid());
+      vi.spyOn(GraphClient.prototype, "getStagedApp").mockResolvedValue(undefined);
+      vi.spyOn(GraphClient.prototype, "publishTeamsApp").mockResolvedValue(uuid());
 
       const result = await teamsAppDriver.execute(args, mockedDriverContext);
       chai.assert.isTrue(result.result.isOk());
@@ -253,8 +251,8 @@ describe("teamsApp/publishAppPackage", async () => {
         appPackagePath: "fakepath",
       };
 
-      sinon.stub(fs, "pathExists").resolves(true);
-      sinon.stub(fs, "readFile").callsFake(async () => {
+      vi.spyOn(fs, "pathExists").mockResolvedValue(true);
+      vi.spyOn(fs, "readFile").mockImplementation(async () => {
         const zip = new AdmZip();
         const manifest: any = new TeamsAppManifest();
         manifest.copilotAgents = {
@@ -272,8 +270,8 @@ describe("teamsApp/publishAppPackage", async () => {
         );
         return zip.toBuffer();
       });
-      sinon.stub(GraphClient.prototype, "getStagedApp").resolves(undefined);
-      sinon.stub(GraphClient.prototype, "publishTeamsApp").resolves(uuid());
+      vi.spyOn(GraphClient.prototype, "getStagedApp").mockResolvedValue(undefined);
+      vi.spyOn(GraphClient.prototype, "publishTeamsApp").mockResolvedValue(uuid());
 
       const result = await teamsAppDriver.execute(args, mockedDriverContext);
       chai.assert.isTrue(result.result.isOk());
@@ -284,8 +282,8 @@ describe("teamsApp/publishAppPackage", async () => {
         appPackagePath: "fakepath",
       };
 
-      sinon.stub(fs, "pathExists").resolves(true);
-      sinon.stub(fs, "readFile").callsFake(async () => {
+      vi.spyOn(fs, "pathExists").mockResolvedValue(true);
+      vi.spyOn(fs, "readFile").mockImplementation(async () => {
         const zip = new AdmZip();
         const manifest: any = new TeamsAppManifest();
         manifest.copilotAgents = {
@@ -313,8 +311,8 @@ describe("teamsApp/publishAppPackage", async () => {
         );
         return zip.toBuffer();
       });
-      sinon.stub(GraphClient.prototype, "getStagedApp").resolves(undefined);
-      sinon.stub(GraphClient.prototype, "publishTeamsApp").resolves(uuid());
+      vi.spyOn(GraphClient.prototype, "getStagedApp").mockResolvedValue(undefined);
+      vi.spyOn(GraphClient.prototype, "publishTeamsApp").mockResolvedValue(uuid());
 
       const result = await teamsAppDriver.execute(args, mockedDriverContext);
       chai.assert.isTrue(result.result.isOk());
@@ -325,8 +323,8 @@ describe("teamsApp/publishAppPackage", async () => {
         appPackagePath: "fakepath",
       };
 
-      sinon.stub(fs, "pathExists").resolves(true);
-      sinon.stub(fs, "readFile").callsFake(async () => {
+      vi.spyOn(fs, "pathExists").mockResolvedValue(true);
+      vi.spyOn(fs, "readFile").mockImplementation(async () => {
         const zip = new AdmZip();
         const manifest: any = new TeamsAppManifest();
         manifest.copilotAgents = {
@@ -360,8 +358,8 @@ describe("teamsApp/publishAppPackage", async () => {
         );
         return zip.toBuffer();
       });
-      sinon.stub(GraphClient.prototype, "getStagedApp").resolves(undefined);
-      sinon.stub(GraphClient.prototype, "publishTeamsApp").resolves(uuid());
+      vi.spyOn(GraphClient.prototype, "getStagedApp").mockResolvedValue(undefined);
+      vi.spyOn(GraphClient.prototype, "publishTeamsApp").mockResolvedValue(uuid());
 
       const result = await teamsAppDriver.execute(args, mockedDriverContext);
       chai.assert.isTrue(result.result.isOk());
@@ -372,8 +370,8 @@ describe("teamsApp/publishAppPackage", async () => {
         appPackagePath: "fakepath",
       };
 
-      sinon.stub(fs, "pathExists").resolves(true);
-      sinon.stub(fs, "readFile").callsFake(async () => {
+      vi.spyOn(fs, "pathExists").mockResolvedValue(true);
+      vi.spyOn(fs, "readFile").mockImplementation(async () => {
         const zip = new AdmZip();
         const manifest: any = new TeamsAppManifest();
         manifest.copilotAgents = {
@@ -407,8 +405,8 @@ describe("teamsApp/publishAppPackage", async () => {
         );
         return zip.toBuffer();
       });
-      sinon.stub(GraphClient.prototype, "getStagedApp").resolves(undefined);
-      sinon.stub(GraphClient.prototype, "publishTeamsApp").resolves(uuid());
+      vi.spyOn(GraphClient.prototype, "getStagedApp").mockResolvedValue(undefined);
+      vi.spyOn(GraphClient.prototype, "publishTeamsApp").mockResolvedValue(uuid());
 
       const result = await teamsAppDriver.execute(args, mockedDriverContext);
       chai.assert.isTrue(result.result.isOk());
@@ -419,8 +417,8 @@ describe("teamsApp/publishAppPackage", async () => {
         appPackagePath: "fakepath",
       };
 
-      sinon.stub(fs, "pathExists").resolves(true);
-      sinon.stub(fs, "readFile").callsFake(async () => {
+      vi.spyOn(fs, "pathExists").mockResolvedValue(true);
+      vi.spyOn(fs, "readFile").mockImplementation(async () => {
         const zip = new AdmZip();
         const manifest: any = new TeamsAppManifest();
         manifest.copilotAgents = {
@@ -454,9 +452,9 @@ describe("teamsApp/publishAppPackage", async () => {
         );
         return zip.toBuffer();
       });
-      sinon.stub(ODRProvider, "listServers").resolves([]);
-      sinon.stub(GraphClient.prototype, "getStagedApp").resolves(undefined);
-      sinon.stub(GraphClient.prototype, "publishTeamsApp").resolves(uuid());
+      vi.spyOn(ODRProvider, "listServers").mockResolvedValue([]);
+      vi.spyOn(GraphClient.prototype, "getStagedApp").mockResolvedValue(undefined);
+      vi.spyOn(GraphClient.prototype, "publishTeamsApp").mockResolvedValue(uuid());
 
       const result = await teamsAppDriver.execute(args, mockedDriverContext);
       chai.assert.isTrue(result.result.isOk());
@@ -467,8 +465,8 @@ describe("teamsApp/publishAppPackage", async () => {
         appPackagePath: "fakepath",
       };
 
-      sinon.stub(fs, "pathExists").resolves(true);
-      sinon.stub(fs, "readFile").callsFake(async () => {
+      vi.spyOn(fs, "pathExists").mockResolvedValue(true);
+      vi.spyOn(fs, "readFile").mockImplementation(async () => {
         const zip = new AdmZip();
         const manifest: any = new TeamsAppManifest();
         manifest.copilotAgents = {
@@ -502,7 +500,7 @@ describe("teamsApp/publishAppPackage", async () => {
         );
         return zip.toBuffer();
       });
-      sinon.stub(ODRProvider, "listServers").resolves([
+      vi.spyOn(ODRProvider, "listServers").mockResolvedValue([
         {
           name: "test-server",
           display_name: "Test Server",
@@ -516,8 +514,8 @@ describe("teamsApp/publishAppPackage", async () => {
         },
       ]);
       vi.spyOn(McpCertVerification, "verifyLocalMCPPluginCerts").mockResolvedValue(true);
-      sinon.stub(GraphClient.prototype, "getStagedApp").resolves(undefined);
-      sinon.stub(GraphClient.prototype, "publishTeamsApp").resolves(uuid());
+      vi.spyOn(GraphClient.prototype, "getStagedApp").mockResolvedValue(undefined);
+      vi.spyOn(GraphClient.prototype, "publishTeamsApp").mockResolvedValue(uuid());
 
       const result = await teamsAppDriver.execute(args, mockedDriverContext);
       chai.assert.isTrue(result.result.isOk());
@@ -528,8 +526,8 @@ describe("teamsApp/publishAppPackage", async () => {
         appPackagePath: "fakepath",
       };
 
-      sinon.stub(fs, "pathExists").resolves(true);
-      sinon.stub(fs, "readFile").callsFake(async () => {
+      vi.spyOn(fs, "pathExists").mockResolvedValue(true);
+      vi.spyOn(fs, "readFile").mockImplementation(async () => {
         const zip = new AdmZip();
         const manifest: any = new TeamsAppManifest();
         manifest.copilotAgents = {
@@ -563,7 +561,7 @@ describe("teamsApp/publishAppPackage", async () => {
         );
         return zip.toBuffer();
       });
-      sinon.stub(ODRProvider, "listServers").resolves([
+      vi.spyOn(ODRProvider, "listServers").mockResolvedValue([
         {
           name: "test-server",
           display_name: "Test Server",
@@ -590,8 +588,8 @@ describe("teamsApp/publishAppPackage", async () => {
         appPackagePath: "fakepath",
       };
 
-      sinon.stub(fs, "pathExists").resolves(true);
-      sinon.stub(fs, "readFile").callsFake(async () => {
+      vi.spyOn(fs, "pathExists").mockResolvedValue(true);
+      vi.spyOn(fs, "readFile").mockImplementation(async () => {
         const zip = new AdmZip();
         const manifest: any = new TeamsAppManifest();
         manifest.copilotAgents = {
@@ -625,7 +623,7 @@ describe("teamsApp/publishAppPackage", async () => {
         );
         return zip.toBuffer();
       });
-      sinon.stub(ODRProvider, "listServers").resolves([
+      vi.spyOn(ODRProvider, "listServers").mockResolvedValue([
         {
           name: "test-server",
           display_name: "Test Server",
@@ -652,8 +650,8 @@ describe("teamsApp/publishAppPackage", async () => {
         appPackagePath: "fakepath",
       };
 
-      sinon.stub(fs, "pathExists").resolves(true);
-      sinon.stub(fs, "readFile").callsFake(async () => {
+      vi.spyOn(fs, "pathExists").mockResolvedValue(true);
+      vi.spyOn(fs, "readFile").mockImplementation(async () => {
         const zip = new AdmZip();
         const manifest: any = new TeamsAppManifest();
         manifest.copilotExtensions = {
@@ -705,7 +703,7 @@ describe("teamsApp/publishAppPackage", async () => {
         );
         return zip.toBuffer();
       });
-      sinon.stub(ODRProvider, "listServers").resolves([
+      vi.spyOn(ODRProvider, "listServers").mockResolvedValue([
         {
           name: "test-server",
           display_name: "Test Server",
@@ -719,8 +717,8 @@ describe("teamsApp/publishAppPackage", async () => {
         },
       ]);
       vi.spyOn(McpCertVerification, "verifyLocalMCPPluginCerts").mockResolvedValue(true);
-      sinon.stub(GraphClient.prototype, "getStagedApp").resolves(undefined);
-      sinon.stub(GraphClient.prototype, "publishTeamsApp").resolves(uuid());
+      vi.spyOn(GraphClient.prototype, "getStagedApp").mockResolvedValue(undefined);
+      vi.spyOn(GraphClient.prototype, "publishTeamsApp").mockResolvedValue(uuid());
 
       const result = await teamsAppDriver.execute(args, mockedDriverContext);
       chai.assert.isTrue(result.result.isOk());
@@ -729,18 +727,18 @@ describe("teamsApp/publishAppPackage", async () => {
 
   // eslint-disable-next-line no-secrets/no-secrets
   describe("verifyPackageFamilyCertIsValid", () => {
-    let execStub: sinon.SinonStub;
+    let execStub: any;
 
     beforeEach(() => {
-      execStub = sinon.stub(McpCertVerification.mcpCertDeps, "exec");
+      execStub = vi.spyOn(McpCertVerification.mcpCertDeps, "exec");
     });
 
     afterEach(() => {
-      sinon.restore();
+      vi.restoreAllMocks();
     });
 
     it("should return true when package has valid certificate (Store signature)", async () => {
-      execStub.callsFake(
+      execStub.mockImplementation(
         (
           command: string,
           callback: (error: Error | null, result: { stdout: string; stderr: string }) => void
@@ -757,7 +755,7 @@ describe("teamsApp/publishAppPackage", async () => {
     });
 
     it("should return true when package has System signature", async () => {
-      execStub.callsFake(
+      execStub.mockImplementation(
         (
           command: string,
           callback: (error: Error | null, result: { stdout: string; stderr: string }) => void
@@ -774,7 +772,7 @@ describe("teamsApp/publishAppPackage", async () => {
     });
 
     it("should return false when package has Developer signature (self-signed)", async () => {
-      execStub.callsFake(
+      execStub.mockImplementation(
         (
           command: string,
           callback: (error: Error | null, result: { stdout: string; stderr: string }) => void
@@ -791,7 +789,7 @@ describe("teamsApp/publishAppPackage", async () => {
     });
 
     it("should return false when package has developer in mixed case", async () => {
-      execStub.callsFake(
+      execStub.mockImplementation(
         (
           command: string,
           callback: (error: Error | null, result: { stdout: string; stderr: string }) => void
@@ -808,7 +806,7 @@ describe("teamsApp/publishAppPackage", async () => {
     });
 
     it("should return false when stdout is empty", async () => {
-      execStub.callsFake(
+      execStub.mockImplementation(
         (
           command: string,
           callback: (error: Error | null, result: { stdout: string; stderr: string }) => void
@@ -825,7 +823,7 @@ describe("teamsApp/publishAppPackage", async () => {
     });
 
     it("should return false when stdout is null", async () => {
-      execStub.callsFake(
+      execStub.mockImplementation(
         (
           command: string,
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -843,7 +841,7 @@ describe("teamsApp/publishAppPackage", async () => {
     });
 
     it("should return false when stdout is undefined", async () => {
-      execStub.callsFake(
+      execStub.mockImplementation(
         (
           command: string,
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -861,7 +859,7 @@ describe("teamsApp/publishAppPackage", async () => {
     });
 
     it("should return false when PowerShell command fails", async () => {
-      execStub.callsFake(
+      execStub.mockImplementation(
         (
           command: string,
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -876,7 +874,7 @@ describe("teamsApp/publishAppPackage", async () => {
     });
 
     it("should return false when package not found", async () => {
-      execStub.callsFake(
+      execStub.mockImplementation(
         (
           command: string,
           callback: (error: Error | null, result: { stdout: string; stderr: string }) => void
@@ -895,7 +893,7 @@ describe("teamsApp/publishAppPackage", async () => {
     });
 
     it("should return true when package has Enterprise signature", async () => {
-      execStub.callsFake(
+      execStub.mockImplementation(
         (
           command: string,
           callback: (error: Error | null, result: { stdout: string; stderr: string }) => void
@@ -912,7 +910,7 @@ describe("teamsApp/publishAppPackage", async () => {
     });
 
     it("should handle stdout with extra whitespace", async () => {
-      execStub.callsFake(
+      execStub.mockImplementation(
         (
           command: string,
           callback: (error: Error | null, result: { stdout: string; stderr: string }) => void
@@ -930,7 +928,7 @@ describe("teamsApp/publishAppPackage", async () => {
 
     it("should correctly use the package name in PowerShell command", async () => {
       const packageName = "MyApp_abc123xyz";
-      execStub.callsFake(
+      execStub.mockImplementation(
         (
           command: string,
           callback: (error: Error | null, result: { stdout: string; stderr: string }) => void
@@ -944,11 +942,11 @@ describe("teamsApp/publishAppPackage", async () => {
       );
 
       await McpCertVerification.verifyPackageFamilyCertIsValid(packageName);
-      chai.assert.isTrue(execStub.calledOnce);
+      chai.assert.isTrue(execStub.mock.calls.length === 1);
     });
 
     it("should handle timeout errors gracefully", async () => {
-      execStub.callsFake(
+      execStub.mockImplementation(
         (
           command: string,
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -965,7 +963,7 @@ describe("teamsApp/publishAppPackage", async () => {
     });
 
     it("should return false when stdout contains developer anywhere in text", async () => {
-      execStub.callsFake(
+      execStub.mockImplementation(
         (
           command: string,
           callback: (error: Error | null, result: { stdout: string; stderr: string }) => void
@@ -983,7 +981,7 @@ describe("teamsApp/publishAppPackage", async () => {
     });
 
     it("should handle PowerShell access denied errors", async () => {
-      execStub.callsFake(
+      execStub.mockImplementation(
         (
           command: string,
           // eslint-disable-next-line @typescript-eslint/no-explicit-any

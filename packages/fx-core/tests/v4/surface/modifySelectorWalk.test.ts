@@ -8,11 +8,11 @@ import {
   UserError,
   UserInteraction,
 } from "@microsoft/teamsfx-api";
-import { assert } from "chai";
 import AdmZip from "adm-zip";
 import path from "path";
 import { Result, err, ok } from "neverthrow";
 import { runModifySelector } from "../../../src/v4/surface/modifySelectorWalk";
+import { assert } from "vitest";
 
 const TEMPLATES_V4_DIR = path.resolve(__dirname, "../../../../../templates/v4");
 const DT = "TEAMSFX_MCP_FOR_DA_DT";

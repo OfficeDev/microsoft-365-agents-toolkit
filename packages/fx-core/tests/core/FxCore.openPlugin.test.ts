@@ -2,8 +2,7 @@
 // Licensed under the MIT license.
 
 import { err, ok, UserError } from "@microsoft/teamsfx-api";
-import { assert } from "chai";
-import { describe, it, beforeEach, afterEach, vi, expect } from "vitest";
+import { afterEach, assert, beforeEach, describe, expect, it, vi } from "vitest";
 import { featureFlagManager, FeatureFlags } from "../../src/common/featureFlags";
 import { setTools } from "../../src/common/globalVars";
 import { FxCore } from "../../src/core/FxCore";

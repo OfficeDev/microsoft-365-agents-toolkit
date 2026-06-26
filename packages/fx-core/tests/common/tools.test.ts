@@ -3,12 +3,10 @@
 
 import { err, ok, UserError } from "@microsoft/teamsfx-api";
 import axios from "axios";
-import * as chai from "chai";
-import chaiAsPromised from "chai-as-promised";
 import fs from "fs-extra";
 import mockFs from "mock-fs";
 import * as path from "path";
-import { afterEach, beforeEach, vi } from "vitest";
+import { afterEach, beforeEach, chai, vi } from "vitest";
 import { pathUtils } from "../../src";
 import { GraphClient } from "../../src/client/graphClient";
 import { teamsDevPortalClient } from "../../src/client/teamsDevPortalClient";
@@ -34,8 +32,6 @@ import { isUserCancelError } from "../../src/error/common";
 import { MockedM365Provider, MockLogProvider, MockTools } from "../core/utils";
 
 vi.mock("../../src/common/projectTypeChecker");
-
-chai.use(chaiAsPromised);
 
 describe("tools", () => {
   describe("getSideloadingStatus()", () => {

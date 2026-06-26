@@ -1,6 +1,5 @@
 import axios from "axios";
-import * as chai from "chai";
-import { vi } from "vitest";
+import { chai, vi } from "vitest";
 
 import { err } from "@microsoft/teamsfx-api";
 
