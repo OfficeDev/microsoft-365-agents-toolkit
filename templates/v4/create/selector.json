@@ -228,6 +228,24 @@
           "detail": "Upgrade an add-in project to the latest app manifest and project structure",
           "keyPrefix": "template.importOfficeAddin" }
       ]
+    },
+    {
+      "name": "daMetaOsCapability",
+      "type": "singleSelect",
+      "title": "Declarative Agent in MetaOS Capabilities",
+      "placeholder": "Select a capability",
+      "keyPrefix": "template.createProjectQuestion.DAMetaOS.capability",
+      "condition": { "expr": "officeAddinCapability == 'office-da-meta-os'" },
+      "staticOptions": [
+        { "id": "declarative-agent-meta-os-new-project",
+          "label": "New Declarative Agent with Office Add-in Actions",
+          "detail": "Build a new Declarative Agent with Office add-in actions",
+          "keyPrefix": "template.createProjectQuestion.DAMetaOS.capability.newProject" },
+        { "id": "declarative-agent-meta-os-upgrade-project",
+          "label": "Extend an existing Office Add-in",
+          "detail": "Extend an add-in project to the declarative agent with add-in actions",
+          "keyPrefix": "template.createProjectQuestion.DAMetaOS.capability.upgradeProject" }
+      ]
     }
   ],
 
@@ -314,6 +332,11 @@
       "templateId": "office-addin-excel-cfshortcut",
       "engine": "v3",
       "v3Adapter": "OfficeAddinGeneratorNew"
+    },
+    {
+      "when": "projectType=='office-meta-os-type' && officeAddinCapability=='office-da-meta-os' && daMetaOsCapability=='declarative-agent-meta-os-new-project'",
+      "templateId": "declarative-agent-meta-os-new-project",
+      "engine": "v4"
     },
     {
       "when": "projectType=='office-meta-os-type' && officeAddinCapability=='office-da-meta-os' && daMetaOsCapability=='declarative-agent-meta-os-upgrade-project'",
