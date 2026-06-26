@@ -1108,6 +1108,15 @@ describe("updateActionWithMCP", () => {
     const inputs: Inputs = { platform: Platform.CLI, [QuestionNames.MCPForDAAuth]: "NoneAuth" };
     assert.isFalse(condition(inputs));
   });
+  it("child[2] (auth type) has no credential follow-up questions", () => {
+    // The fetch-from-MCP flow only collects the auth type; client id / secret /
+    // scopes are not asked here because the backend never persists them and
+    // secret collection is deferred to the provision oauth/register driver.
+    const node = updateActionWithMCP();
+    const child2 = node.children![2];
+    assert.equal((child2.data as any).name, QuestionNames.MCPForDAAuthType);
+    assert.deepEqual(child2.children ?? [], []);
+  });
 });
 
 describe("languageNode", () => {
