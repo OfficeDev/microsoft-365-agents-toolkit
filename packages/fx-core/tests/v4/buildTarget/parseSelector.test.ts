@@ -30,6 +30,7 @@ const SELECTOR_PATH = path.resolve(__dirname, "../../../../../templates/v4/creat
 
 const CURRENT_CREATE_V4_TEMPLATE_IDS = [
   "declarative-agent-meta-os-new-project",
+  "declarative-agent-meta-os-upgrade-project",
   "graph-connector",
   "da/api-plugin-from-existing-api",
   "da/api-plugin-from-scratch",
@@ -37,6 +38,7 @@ const CURRENT_CREATE_V4_TEMPLATE_IDS = [
   "da/api-plugin-from-scratch-oauth",
   "da/graph-connector",
   "da/mcp-server",
+  "da/mcp-server-static",
   "da/no-action",
   "da/skill",
   "da/typespec",
@@ -181,7 +183,7 @@ describe("v4/buildTarget/parseSelector", () => {
     assert.strictEqual(onBt.engine, "v4");
     assert.strictEqual(onBt.templateId, "da/mcp-server");
 
-    // DT off → the preceding v3 route wins, the old MCP template id.
+    // DT off → the v4 static MCP route wins, producing the legacy static-tools output shape.
     const offPort = makePort({
       flags: { [DT]: false },
       v4: CURRENT_CREATE_V4_TEMPLATE_IDS,
@@ -189,8 +191,8 @@ describe("v4/buildTarget/parseSelector", () => {
     const off = await resolveBuildTarget(selector, mcpFlags, false, offPort);
     assert.isTrue(off.isOk());
     const offBt = off._unsafeUnwrap();
-    assert.strictEqual(offBt.engine, "v3");
-    assert.strictEqual(offBt.templateId, "declarative-agent-with-action-from-mcp");
+    assert.strictEqual(offBt.engine, "v4");
+    assert.strictEqual(offBt.templateId, "da/mcp-server-static");
 
     // a sibling top-level dimension resolves to its own v4 route, unaffected by the flag.
     const gcPort = makePort({

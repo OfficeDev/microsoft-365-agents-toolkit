@@ -128,27 +128,56 @@ describe("v4/validation/validateTemplatePackage", () => {
     assert.isTrue(res.isOk());
   });
 
-  it("AC-06: modify package with no content/ folder (content() undefined) is valid", () => {
-    const parts = validParts();
-    parts.descriptor = {
-      id: "mod",
-      name: "Mod",
+  it("AC-06: create and modify packages with no content/ folder (content() undefined) are valid", () => {
+    const createParts = validParts();
+    createParts.descriptor = {
+      id: "pipeline-only",
+      name: "Pipeline Only",
       languages: ["common"],
       minEngineVersion: "5.20.0",
       optionsSchema: { type: "object", properties: {} },
       replaceMap: [],
     };
-    parts.content = undefined;
-    parts.selectorCreate = { questions: [], routes: [] };
-    parts.presentCreate = [];
-    parts.selectorModify = {
+    createParts.content = undefined;
+    createParts.selectorCreate = {
       questions: [],
-      routes: [{ when: "true", engine: "v4", templateId: "mod" }],
+      routes: [{ when: "true", engine: "v4", templateId: "pipeline-only" }],
     };
-    parts.presentModify = ["mod"];
-    const res = validateTemplatePackage("modify", "mod", "load", makePort(parts));
-    assert.isTrue(res.isOk());
-    assert.deepEqual(res._unsafeUnwrap().contentFiles, []);
+    createParts.presentCreate = ["pipeline-only"];
+    const createRes = validateTemplatePackage(
+      "create",
+      "pipeline-only",
+      "load",
+      makePort(createParts)
+    );
+    assert.isTrue(createRes.isOk());
+    assert.deepEqual(createRes._unsafeUnwrap().contentFiles, []);
+
+    const modifyParts = validParts();
+    modifyParts.descriptor = {
+      id: "pipeline-only-modify",
+      name: "Pipeline Only Modify",
+      languages: ["common"],
+      minEngineVersion: "5.20.0",
+      optionsSchema: { type: "object", properties: {} },
+      replaceMap: [],
+    };
+    modifyParts.content = undefined;
+    modifyParts.selectorCreate = { questions: [], routes: [] };
+    modifyParts.presentCreate = [];
+    modifyParts.selectorModify = {
+      questions: [],
+      routes: [{ when: "true", engine: "v4", templateId: "pipeline-only-modify" }],
+    };
+    modifyParts.presentModify = ["pipeline-only-modify"];
+    const modifyRes = validateTemplatePackage(
+      "modify",
+      "pipeline-only-modify",
+      "load",
+      makePort(modifyParts)
+    );
+    assert.isTrue(modifyRes.isOk());
+    assert.deepEqual(modifyRes._unsafeUnwrap().contentFiles, []);
   });
 
   it("AC-07: any file under content/ is renderable content - no marker-file exemption", () => {

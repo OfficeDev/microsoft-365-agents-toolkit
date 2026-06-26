@@ -133,6 +133,10 @@ function neutralAnswersFromInputs(inputs: Inputs): Answers {
       answers[key] = value;
     }
   }
+  const officeAddinFolder = inputs[QuestionNames.OfficeAddinFolder];
+  if (typeof officeAddinFolder === "string" && answers.officeAddinFolder === undefined) {
+    answers.officeAddinFolder = officeAddinFolder;
+  }
   return answers;
 }
 

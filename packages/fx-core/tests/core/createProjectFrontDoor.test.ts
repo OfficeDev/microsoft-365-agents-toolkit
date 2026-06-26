@@ -8,6 +8,7 @@ import { Result, err, ok } from "neverthrow";
 import { Answers, BuildTarget, DeclarativeLocator } from "../../src/v4";
 import { CreateFrontDoorDeps, createProjectFrontDoor } from "../../src/core/createProjectFrontDoor";
 import { FeatureFlags } from "../../src/common/featureFlags";
+import { QuestionNames } from "../../src/question/questionNames";
 
 /**
  * Tests for docs/03-specs/operations/scaffolding/dispatch-create-by-engine.md.
@@ -32,9 +33,9 @@ const V3_TARGET: BuildTarget = {
     teamsOtherAppType: "default-bot",
   },
 };
-const V3_MCP_TWIN_TARGET: BuildTarget = {
-  templateId: "declarative-agent-with-action-from-mcp",
-  engine: "v3",
+const STATIC_MCP_TARGET: BuildTarget = {
+  templateId: "da/mcp-server-static",
+  engine: "v4",
   answers: { projectType: "copilot-agent-type", daTemplate: "add-action", actionSource: "mcp" },
 };
 const SURFACE_ACTION_TARGET: BuildTarget = {
@@ -271,22 +272,27 @@ describe("createProjectFrontDoor (dispatch-create-by-engine)", () => {
     assert.strictEqual(createV3.calls[0][0], inputs);
   });
 
-  it("DCE-05: DT-off DA+MCP resolves the v3 twin, then pre-fills and delegates to createV3", async () => {
-    const prefill = recorder((_i: Inputs, _t: BuildTarget) => undefined);
-    const createV3 = recorder((_inputs: Inputs) => okResult("/v3"));
+  it("DCE-05: DT-off DA+MCP resolves the v4 static route and bypasses createV3", async () => {
+    const scaffoldV4 = recorder((_i: Inputs, _t: BuildTarget, _a: Answers) =>
+      okResult("/v4-static")
+    );
+    const runInputs = recorder((_floor: Buffer, _locator: DeclarativeLocator) =>
+      Promise.resolve(ok<Answers, FxError>({ selectedMcpTools: ["search"] }))
+    );
 
     const res = await createProjectFrontDoor(
       baseInputs(),
       deps({
-        createV3: createV3.fn,
-        applyV3PreFill: prefill.fn,
-        runSelector: () => okTarget(V3_MCP_TWIN_TARGET),
+        scaffoldV4: scaffoldV4.fn,
+        runInputs: runInputs.fn,
+        collectCreateFloor: okFloor,
+        runSelector: () => okTarget(STATIC_MCP_TARGET),
       })
     );
 
     assert.isTrue(res.isOk());
-    assert.deepEqual(prefill.calls[0][1], V3_MCP_TWIN_TARGET);
-    assert.equal(createV3.calls.length, 1);
+    assert.deepEqual(runInputs.calls[0][1], { kind: "create", templateId: "da/mcp-server-static" });
+    assert.deepEqual(scaffoldV4.calls[0][1], STATIC_MCP_TARGET);
   });
 
   it("DCE-06: a surface-action returns shouldInvokeTeamsAgent and scaffolds nothing", async () => {
@@ -459,6 +465,41 @@ describe("createProjectFrontDoor (dispatch-create-by-engine)", () => {
       actionSource: "mcp",
       mcpServerUrl: "https://api.example/mcp",
       authType: "none",
+    });
+  });
+
+  it("DCE-17b: Office Add-in folder input is passed to the v4 input walk under its neutral key", async () => {
+    const target: BuildTarget = {
+      templateId: "declarative-agent-meta-os-upgrade-project",
+      engine: "v4",
+      answers: {
+        projectType: "office-meta-os-type",
+        officeAddinCapability: "office-da-meta-os",
+        daMetaOsCapability: "declarative-agent-meta-os-upgrade-project",
+      },
+    };
+    const runInputs = inputsRecorder({});
+    const inputs: Inputs = {
+      platform: Platform.CLI,
+      [QuestionNames.OfficeAddinFolder]: "C:/src/addin",
+    };
+
+    const res = await createProjectFrontDoor(
+      inputs,
+      deps({
+        runSelector: selectorRecorder(target).fn,
+        runInputs: runInputs.fn,
+        collectCreateFloor: okFloor,
+        scaffoldV4: okScaffold,
+      })
+    );
+
+    assert.isTrue(res.isOk());
+    assert.deepEqual(runInputs.calls[0][2], {
+      projectType: "office-meta-os-type",
+      officeAddinCapability: "office-da-meta-os",
+      daMetaOsCapability: "declarative-agent-meta-os-upgrade-project",
+      officeAddinFolder: "C:/src/addin",
     });
   });
 

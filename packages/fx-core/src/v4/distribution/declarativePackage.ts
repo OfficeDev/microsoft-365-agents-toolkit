@@ -107,16 +107,6 @@ export function openDeclarativePackage(
   if (pipelineRaw === undefined) {
     return err(missingFile(`${root}pipeline.json`));
   }
-  if (content.length === 0) {
-    return err(
-      new SystemError({
-        source: SOURCE,
-        name: "PackageContentMissing",
-        message: `The template package "${root}" has no "content" entries.`,
-      })
-    );
-  }
-
   const descriptor = parseEntryJson(descriptorRaw, `${root}descriptor.json`);
   if (descriptor.isErr()) {
     return err(descriptor.error);

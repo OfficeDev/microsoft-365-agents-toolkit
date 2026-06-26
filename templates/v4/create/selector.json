@@ -341,8 +341,7 @@
     {
       "when": "projectType=='office-meta-os-type' && officeAddinCapability=='office-da-meta-os' && daMetaOsCapability=='declarative-agent-meta-os-upgrade-project'",
       "templateId": "declarative-agent-meta-os-upgrade-project",
-      "engine": "v3",
-      "v3Adapter": "OfficeAddinGeneratorNew"
+      "engine": "v4"
     },
     {
       "when": "projectType=='office-meta-os-type' && officeAddinCapability=='office-addin-config'",
@@ -402,9 +401,8 @@
     },
     {
       "when": "projectType=='copilot-agent-type' && daTemplate=='add-action' && actionSource=='mcp' && !featureFlag('TEAMSFX_MCP_FOR_DA_DT')",
-      "templateId": "declarative-agent-with-action-from-mcp",
-      "engine": "v3",
-      "v3Adapter": "DeclarativeAgentGenerator"
+      "templateId": "da/mcp-server-static",
+      "engine": "v4"
     },
     {
       "when": "projectType=='copilot-agent-type' && daTemplate=='add-action' && actionSource=='mcp' && featureFlag('TEAMSFX_MCP_FOR_DA_DT')",

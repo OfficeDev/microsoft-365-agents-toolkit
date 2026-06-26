@@ -117,6 +117,9 @@ function readOptionalJsonFile(filePath: string): unknown {
 function loadContent(packageDir: string): TemplateFileEntry[] {
   const root = path.join(packageDir, "content");
   const entries: TemplateFileEntry[] = [];
+  if (!fs.existsSync(root)) {
+    return entries;
+  }
   const walk = (dir: string): void => {
     for (const name of fs.readdirSync(dir)) {
       const full = path.join(dir, name);

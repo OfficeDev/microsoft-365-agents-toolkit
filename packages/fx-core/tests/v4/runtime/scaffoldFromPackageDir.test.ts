@@ -103,14 +103,12 @@ describe("scaffoldFromPackageDir (v4 product front-door)", () => {
     assert.strictEqual(error?.name, "PackageFileInvalid");
   });
 
-  it("ORCH-05: loadPackageDir surfaces a missing content directory as a SystemError", () => {
+  it("ORCH-05: loadPackageDir treats a missing content directory as pipeline-only content", () => {
     fs.writeFileSync(path.join(tempDir, "descriptor.json"), "{}");
     fs.writeFileSync(path.join(tempDir, "pipeline.json"), "{}");
     const result = loadPackageDir(tempDir); // descriptor + pipeline ok, no content/
-    assert.isTrue(result.isErr(), "expected an error for a package with no content dir");
-    const error = result.isErr() ? result.error : undefined;
-    assert.instanceOf(error, SystemError);
-    assert.strictEqual(error?.name, "PackageContentMissing");
+    assert.isTrue(result.isOk(), result.isErr() ? result.error.message : "expected ok");
+    assert.deepEqual(result._unsafeUnwrap().content, []);
   });
 
   it("ORCH-06: loadPackageDir returns the parsed descriptor/pipeline and raw content entries", () => {
