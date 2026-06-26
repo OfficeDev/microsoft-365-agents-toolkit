@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 import { err, FxError, Result, SingleSelectConfig, Stage, UserError } from "@microsoft/teamsfx-api";
-import { ODRProvider, ODRTool, QuestionNames } from "@microsoft/teamsfx-core";
+import { ODRProvider, ODRTool, probeMCPServerAuth, QuestionNames } from "@microsoft/teamsfx-core";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
 import type { Tool } from "@modelcontextprotocol/sdk/types.js";
@@ -310,19 +310,13 @@ export async function updateActionWithMCP(args?: any[]): Promise<Result<any, FxE
   let oauthMetadataUrl = undefined;
 
   if (!isLocalMCP && server) {
-    try {
-      await axios.get(server);
-    } catch (error) {
-      if (error.status == 401) {
-        auth = "OAuthPluginVault";
-        const errorDetails = error.response?.headers?.["www-authenticate"];
-        if (errorDetails) {
-          const match = errorDetails.match(/resource_metadata=\s*"([^"]+)"/);
-          if (match) {
-            oauthMetadataUrl = match[1];
-          }
-        }
-      }
+    // Probe with a POST `initialize` request. A plain GET is unreliable: spec-compliant
+    // MCP servers (e.g. Figma) return 405 to GET and only emit the 401 + WWW-Authenticate
+    // challenge on POST, so GET-based detection would miss their auth requirement.
+    const authProbe = await probeMCPServerAuth(server);
+    if (authProbe.requiresAuth) {
+      auth = "OAuthPluginVault";
+      oauthMetadataUrl = authProbe.authMetadataUrl;
     }
     if (auth === "OAuthPluginVault" && !oauthMetadataUrl) {
       const originalURL = new URL(server);
