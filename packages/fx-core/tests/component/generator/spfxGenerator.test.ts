@@ -574,7 +574,7 @@ describe("SPFxGenerator", function () {
     const writeAppManifestStub = vi
       .spyOn(ManifestUtils.prototype, "_writeAppManifest")
       .mockResolvedValue();
-    const writeEnvStub = vi.spyOn(envUtil, "writeEnv");
+    const writeEnvStub = vi.spyOn(envUtil, "writeEnv").mockResolvedValue(ok(undefined));
     vi.spyOn(fs, "copy").mockResolvedValue();
 
     const result = await SPFxGenerator.generate(context, inputs, testFolder);
@@ -659,7 +659,7 @@ describe("SPFxGenerator", function () {
     const writeAppManifestStub = vi
       .spyOn(ManifestUtils.prototype, "_writeAppManifest")
       .mockResolvedValue();
-    const writeEnvStub = vi.spyOn(envUtil, "writeEnv");
+    const writeEnvStub = vi.spyOn(envUtil, "writeEnv").mockResolvedValue(ok(undefined));
     vi.spyOn(fs, "copy").mockResolvedValue();
 
     const result = await SPFxGenerator.generate(context, inputs, testFolder);
@@ -709,7 +709,7 @@ describe("SPFxGenerator", function () {
     const writeAppManifestStub = vi
       .spyOn(ManifestUtils.prototype, "_writeAppManifest")
       .mockResolvedValue();
-    const writeEnvStub = vi.spyOn(envUtil, "writeEnv");
+    const writeEnvStub = vi.spyOn(envUtil, "writeEnv").mockResolvedValue(ok(undefined));
     vi.spyOn(fs, "copy").mockResolvedValue();
     vi.spyOn(SPFxGenerator, "getSolutionVersion").mockResolvedValue("1.21.0");
     if (context) {
