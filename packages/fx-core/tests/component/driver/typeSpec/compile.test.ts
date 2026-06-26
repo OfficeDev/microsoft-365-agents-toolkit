@@ -13,11 +13,12 @@ import chaiAsPromised from "chai-as-promised";
 import fs from "fs-extra";
 import mockedEnv, { RestoreFn } from "mocked-env";
 import * as sinon from "sinon";
-import {
-  typeSpecCompileDeps,
-  TypeSpecCompileDriver,
-} from "../../../../src/component/driver/typeSpec/compile";
+import { vi } from "vitest";
+import * as daSpecParser from "../../../../src/common/daSpecParser";
+import * as kiotaClient from "../../../../src/common/kiotaClient";
+import { TypeSpecCompileDriver } from "../../../../src/component/driver/typeSpec/compile";
 import { TypeSpecCompileArgs } from "../../../../src/component/driver/typeSpec/interface/typeSpecCompileArgs";
+import * as openApiSpecHelper from "../../../../src/component/generator/openApiSpec/helper";
 import { MockedM365Provider, MockLogProvider, MockTools } from "../../../core/utils";
 import { MockedUserInteraction } from "../../../plugins/solution/util";
 
@@ -75,6 +76,7 @@ describe("typeSpecCompilt", async () => {
   afterEach(() => {
     mockedDriverContext.platform = Platform.VSCode;
     sandbox.restore();
+    vi.restoreAllMocks();
     if (envRestore) {
       envRestore();
     }
@@ -132,7 +134,7 @@ describe("typeSpecCompilt", async () => {
       const dataToWrite = JSON.stringify(data);
       expect(dataToWrite.includes("declarativeAgent.json")).to.be.true;
     });
-    sandbox.stub(typeSpecCompileDeps, "parseAndUpdatePluginManifestForKiota").resolves([
+    vi.spyOn(daSpecParser, "parseAndUpdatePluginManifestForKiota").mockResolvedValue([
       {
         authName: "mockedAuthName",
         specPath: "mockedSpecPath",
@@ -140,8 +142,8 @@ describe("typeSpecCompilt", async () => {
         authType: "apiKey",
       },
     ]);
-    sandbox.stub(typeSpecCompileDeps, "injectAuthAction").resolves(undefined);
-    sandbox.stub(typeSpecCompileDeps, "kiotageneratePlugin").resolves({
+    vi.spyOn(openApiSpecHelper, "injectAuthAction").mockResolvedValue(undefined);
+    vi.spyOn(kiotaClient, "kiotageneratePlugin").mockResolvedValue({
       aiPlugin: "mocked-ai-plugin",
       openAPISpec: "mocked-openapi-spec",
       isSuccess: true,
@@ -203,7 +205,7 @@ describe("typeSpecCompilt", async () => {
       const dataToWrite = JSON.stringify(data);
       expect(dataToWrite.includes("declarativeAgent.json")).to.be.true;
     });
-    sandbox.stub(typeSpecCompileDeps, "parseAndUpdatePluginManifestForKiota").resolves([
+    vi.spyOn(daSpecParser, "parseAndUpdatePluginManifestForKiota").mockResolvedValue([
       {
         authName: "mockedAuthName",
         specPath: "mockedSpecPath",
@@ -211,8 +213,8 @@ describe("typeSpecCompilt", async () => {
         authType: "oauth2",
       },
     ]);
-    sandbox.stub(typeSpecCompileDeps, "injectAuthAction").resolves(undefined);
-    sandbox.stub(typeSpecCompileDeps, "kiotageneratePlugin").resolves({
+    vi.spyOn(openApiSpecHelper, "injectAuthAction").mockResolvedValue(undefined);
+    vi.spyOn(kiotaClient, "kiotageneratePlugin").mockResolvedValue({
       aiPlugin: "mocked-ai-plugin",
       openAPISpec: "mocked-openapi-spec",
       isSuccess: true,
@@ -274,7 +276,7 @@ describe("typeSpecCompilt", async () => {
       const dataToWrite = JSON.stringify(data);
       expect(dataToWrite.includes("declarativeAgent.json")).to.be.true;
     });
-    sandbox.stub(typeSpecCompileDeps, "parseAndUpdatePluginManifestForKiota").resolves([
+    vi.spyOn(daSpecParser, "parseAndUpdatePluginManifestForKiota").mockResolvedValue([
       {
         authName: "mockedAuthName",
         specPath: "mockedSpecPath",
@@ -282,11 +284,11 @@ describe("typeSpecCompilt", async () => {
         authType: "apiKey",
       },
     ]);
-    sandbox.stub(typeSpecCompileDeps, "injectAuthAction").resolves({
+    vi.spyOn(openApiSpecHelper, "injectAuthAction").mockResolvedValue({
       defaultRegistrationIdEnvName: "mockedDefaultRegistrationIdEnvName",
       registrationIdEnvName: "mockedRegistrationIdEnvName",
     });
-    sandbox.stub(typeSpecCompileDeps, "kiotageneratePlugin").resolves({
+    vi.spyOn(kiotaClient, "kiotageneratePlugin").mockResolvedValue({
       aiPlugin: "mocked-ai-plugin",
       openAPISpec: "mocked-openapi-spec",
       isSuccess: true,
@@ -333,7 +335,7 @@ describe("typeSpecCompilt", async () => {
       expect(dataToWrite.includes("declarativeAgent.json")).to.be.true;
     });
     mockedDriverContext.platform = Platform.CLI;
-    sandbox.stub(typeSpecCompileDeps, "kiotageneratePlugin").resolves({
+    vi.spyOn(kiotaClient, "kiotageneratePlugin").mockResolvedValue({
       aiPlugin: "mocked-ai-plugin",
       openAPISpec: "mocked-openapi-spec",
       isSuccess: true,
@@ -384,7 +386,7 @@ describe("typeSpecCompilt", async () => {
       const dataToWrite = JSON.stringify(data);
       expect(dataToWrite.includes("declarativeAgent.json")).to.be.true;
     });
-    sandbox.stub(typeSpecCompileDeps, "kiotageneratePlugin").resolves({
+    vi.spyOn(kiotaClient, "kiotageneratePlugin").mockResolvedValue({
       aiPlugin: "mocked-ai-plugin",
       openAPISpec: "mocked-openapi-spec",
       isSuccess: true,

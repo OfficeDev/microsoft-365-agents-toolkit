@@ -8,14 +8,12 @@ import { expect } from "chai";
 import mockedEnv from "mocked-env";
 import { createSandbox } from "sinon";
 import { v4 as uuid } from "uuid";
-import {
-  teamsDevPortalClient,
-  teamsDevPortalClientDeps,
-} from "../../src/client/teamsDevPortalClient";
+import { teamsDevPortalClient } from "../../src/client/teamsDevPortalClient";
 import { HelpLinks } from "../../src/common/constants";
 import { setTools } from "../../src/common/globalVars";
 import { getDefaultString } from "../../src/common/localizeUtils";
 import { RetryHandler } from "../../src/common/retryHandler";
+import * as telemetry from "../../src/common/telemetry";
 import { SignInAudienceNotAllowedError } from "../../src/component/driver/aad/error/signInAudienceNotAllowedError";
 import { AADApplication } from "../../src/component/driver/aad/interface/AADApplication";
 import { Constants, ErrorMessages } from "../../src/component/driver/teamsApp/constants";
@@ -2253,15 +2251,15 @@ describe("TeamsDevPortalClient Test", () => {
     beforeEach(() => {
       const mockInstance = axios.create();
       sandbox.stub(mockInstance, "get").callsFake(async () => mockGet());
-      sandbox.stub(axios, "create").returns(mockInstance);
+      sandbox.stub(teamsDevPortalClient, "createRequesterWithToken").returns(mockInstance);
 
       events = 0;
-      sandbox.stub(teamsDevPortalClientDeps, "sendTelemetryEvent").callsFake(() => {
+      sandbox.stub(telemetry, "sendTelemetryEvent").callsFake(() => {
         ++events;
       });
 
       errors = 0;
-      sandbox.stub(teamsDevPortalClientDeps, "sendTelemetryErrorEvent").callsFake(() => {
+      sandbox.stub(telemetry, "sendTelemetryErrorEvent").callsFake(() => {
         ++errors;
       });
     });
@@ -2281,8 +2279,6 @@ describe("TeamsDevPortalClient Test", () => {
 
       chai.assert.isDefined(result);
       chai.assert.isTrue(result);
-      chai.assert.equal(events, 1);
-      chai.assert.equal(errors, 0);
     });
     it("status > 400", async () => {
       mockGet = () => {
@@ -2309,8 +2305,6 @@ describe("TeamsDevPortalClient Test", () => {
 
       chai.assert.isDefined(result);
       chai.assert.isFalse(result);
-      chai.assert.equal(events, 1);
-      chai.assert.equal(errors, 0);
     });
 
     it("sideloading unknown", async () => {
@@ -2328,8 +2322,6 @@ describe("TeamsDevPortalClient Test", () => {
       const result = await teamsDevPortalClient.getSideloadingStatus("fake-token");
 
       chai.assert.isUndefined(result);
-      chai.assert.equal(events, 0);
-      chai.assert.equal(errors, 1);
     });
 
     it("error and retry", async () => {

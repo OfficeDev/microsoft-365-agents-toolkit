@@ -10,7 +10,8 @@ import * as sinon from "sinon";
 import stream, { Readable } from "stream";
 import { getLocalizedString } from "../../../../src/common/localizeUtils";
 import { NodeChecker } from "../../../../src/component/deps-checker/internal/nodeChecker";
-import { httpClient, httpClientDeps } from "../../../../src/component/driver/devTool/httpClient";
+import * as httpClientDeps from "../../../../src/component/driver/devTool/httpClient";
+import { httpClient } from "../../../../src/component/driver/devTool/httpClient";
 import {
   NodeDownloadMirror,
   nodejsInstaller,
@@ -45,7 +46,9 @@ describe("NodeJS Installer", () => {
 
     describe("get", () => {
       it("fetch return 500", async () => {
-        sandbox.stub(httpClientDeps, "fetch").resolves({ ok: false, status: 500 } as any);
+        sandbox
+          .stub(httpClientDeps.httpClientDeps, "fetch")
+          .resolves({ ok: false, status: 500 } as any);
         try {
           await httpClient.get("https://test.com");
         } catch (e: any) {
@@ -58,7 +61,7 @@ describe("NodeJS Installer", () => {
         const fakeResponse = createMockResponse(Readable.from(buffer), 200, {
           "content-type": "application/json",
         });
-        sandbox.stub(httpClientDeps, "fetch").resolves(fakeResponse);
+        sandbox.stub(httpClientDeps.httpClientDeps, "fetch").resolves(fakeResponse);
         const result = await httpClient.get("https://test.com", { progress: () => {} });
         assert.equal(result.toString(), "chunk1");
       });
@@ -66,7 +69,7 @@ describe("NodeJS Installer", () => {
       it("should pass AbortSignal to fetch", async () => {
         const buffer = Buffer.from("data");
         const fakeResponse = createMockResponse(Readable.from(buffer), 200);
-        const stub = sandbox.stub(httpClientDeps, "fetch").resolves(fakeResponse);
+        const stub = sandbox.stub(httpClientDeps.httpClientDeps, "fetch").resolves(fakeResponse);
         await httpClient.get("https://test.com", { timeout: 5000 });
         assert.isTrue(stub.calledOnce);
         const init = stub.firstCall.args[1] as any;
@@ -75,16 +78,18 @@ describe("NodeJS Installer", () => {
       });
 
       it("should abort on timeout", async () => {
-        const stub = sandbox.stub(httpClientDeps, "fetch").callsFake(async (_url, init) => {
-          // Wait longer than the timeout
-          await new Promise((resolve, reject) => {
-            (init as any).signal.addEventListener("abort", () =>
-              reject(new Error("The operation was aborted"))
-            );
-            setTimeout(resolve, 5000);
+        const stub = sandbox
+          .stub(httpClientDeps.httpClientDeps, "fetch")
+          .callsFake(async (_url, init) => {
+            // Wait longer than the timeout
+            await new Promise((resolve, reject) => {
+              (init as any).signal.addEventListener("abort", () =>
+                reject(new Error("The operation was aborted"))
+              );
+              setTimeout(resolve, 5000);
+            });
+            return createMockResponse(undefined, 200);
           });
-          return createMockResponse(undefined, 200);
-        });
         try {
           await httpClient.get("https://test.com", { timeout: 50 });
           assert.fail("Expected abort error");
@@ -102,7 +107,9 @@ describe("NodeJS Installer", () => {
 
     describe("headTime", () => {
       it("fetch return 500", async () => {
-        sandbox.stub(httpClientDeps, "fetch").resolves({ ok: false, status: 500 } as any);
+        sandbox
+          .stub(httpClientDeps.httpClientDeps, "fetch")
+          .resolves({ ok: false, status: 500 } as any);
         try {
           await httpClient.headTime("https://test.com");
         } catch (e: any) {
@@ -114,14 +121,14 @@ describe("NodeJS Installer", () => {
         const fakeResponse = createMockResponse(undefined, 200, {
           "content-type": "application/json",
         });
-        sandbox.stub(httpClientDeps, "fetch").resolves(fakeResponse);
+        sandbox.stub(httpClientDeps.httpClientDeps, "fetch").resolves(fakeResponse);
         const result = await httpClient.headTime("https://test.com");
         assert.isDefined(result);
       });
 
       it("should pass AbortSignal to fetch for HEAD requests", async () => {
         const fakeResponse = createMockResponse(undefined, 200);
-        const stub = sandbox.stub(httpClientDeps, "fetch").resolves(fakeResponse);
+        const stub = sandbox.stub(httpClientDeps.httpClientDeps, "fetch").resolves(fakeResponse);
         await httpClient.headTime("https://test.com", { timeout: 5000 });
         assert.isTrue(stub.calledOnce);
         const init = stub.firstCall.args[1] as any;
@@ -278,7 +285,7 @@ describe("NodeJS Installer", () => {
         "content-type": "application/json",
         "content-length": `${buffer.length}`,
       });
-      sandbox.stub(httpClientDeps, "fetch").resolves(fakeResponse);
+      sandbox.stub(httpClientDeps.httpClientDeps, "fetch").resolves(fakeResponse);
       const binRes = await nodejsInstaller.fetchBinary("test url", 1000, (process: string) => {});
       assert.isTrue(binRes.isOk());
       if (binRes.isOk()) {

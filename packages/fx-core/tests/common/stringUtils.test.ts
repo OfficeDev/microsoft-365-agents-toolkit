@@ -2,7 +2,8 @@
 // Licensed under the MIT license.
 
 import { assert } from "chai";
-import sinon from "sinon";
+import { afterEach } from "vitest";
+import { getLocalizedString } from "../../src/common/localizeUtils";
 import {
   getResourceGroupNameFromResourceId,
   loadingDefaultPlaceholder,
@@ -10,13 +11,11 @@ import {
   maskSecret,
   maskSecretFromEnv,
 } from "../../src/common/stringUtils";
-import { getLocalizedString } from "../../src/common/localizeUtils";
 import { FailedToParseResourceIdError } from "../../src/error";
 
 describe("stringUtils", () => {
-  const sandbox = sinon.createSandbox();
   afterEach(async () => {
-    sandbox.restore();
+    // Cleanup if needed
   });
   describe("maskSecret", () => {
     it("happy path", async () => {

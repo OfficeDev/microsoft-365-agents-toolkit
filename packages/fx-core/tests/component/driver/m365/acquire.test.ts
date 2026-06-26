@@ -2,11 +2,10 @@
 // Licensed under the MIT license.
 
 import chai from "chai";
+import * as fs from "fs-extra";
 import * as sinon from "sinon";
-import {
-  M365TitleAcquireDriver,
-  m365AcquireDeps,
-} from "../../../../src/component/driver/m365/acquire";
+import { vi } from "vitest";
+import { M365TitleAcquireDriver } from "../../../../src/component/driver/m365/acquire";
 import { PackageService } from "../../../../src/component/m365/packageService";
 import {
   FileNotFoundError,
@@ -15,6 +14,8 @@ import {
 } from "../../../../src/error/common";
 import { MockedM365Provider } from "../../../core/utils";
 import { MockedLogProvider, MockedUserInteraction } from "../../../plugins/solution/util";
+
+vi.mock("fs-extra");
 
 describe("teamsApp/extendToM365", async () => {
   const acquireDriver = new M365TitleAcquireDriver();
@@ -27,6 +28,7 @@ describe("teamsApp/extendToM365", async () => {
 
   afterEach(() => {
     sinon.restore();
+    vi.clearAllMocks();
   });
 
   it("run: happy path", async () => {
@@ -126,7 +128,7 @@ describe("teamsApp/extendToM365", async () => {
     ]);
 
     sinon.stub(PackageService.prototype, "sideLoading").throws(new Error("test error"));
-    sinon.stub(m365AcquireDeps, "pathExists").resolves(true);
+    vi.mocked(fs.pathExists).mockResolvedValue(true);
 
     const result = await acquireDriver.execute(args, mockedDriverContext, outputEnvVarNames);
     chai.assert(result.result.isErr());
@@ -148,7 +150,7 @@ describe("teamsApp/extendToM365", async () => {
     (mockError as any).displayMessage = undefined;
 
     sinon.stub(PackageService.prototype, "sideLoading").rejects(mockError);
-    sinon.stub(m365AcquireDeps, "pathExists").resolves(true);
+    vi.mocked(fs.pathExists).mockResolvedValue(true);
 
     const result = await acquireDriver.execute(args, mockedDriverContext, outputEnvVarNames);
     chai.assert(result.result.isErr());
@@ -169,7 +171,7 @@ describe("teamsApp/extendToM365", async () => {
     sinon
       .stub(PackageService.prototype, "sideLoading")
       .resolves(["test-title-id", "test-app-id", ""]);
-    sinon.stub(m365AcquireDeps, "pathExists").resolves(true);
+    vi.mocked(fs.pathExists).mockResolvedValue(true);
 
     const result = await acquireDriver.execute(args, mockedDriverContext, outputEnvVarNames);
     chai.assert.isTrue(result.result.isOk());
@@ -208,7 +210,7 @@ describe("teamsApp/extendToM365", async () => {
     sinon
       .stub(PackageService.prototype, "sideLoading")
       .resolves(["test-title-id", "test-app-id", "https://example.com/sharelink"]);
-    sinon.stub(m365AcquireDeps, "pathExists").resolves(true);
+    vi.mocked(fs.pathExists).mockResolvedValue(true);
 
     const result = await acquireDriver.execute(args, mockedDriverContext, outputEnvVarNames);
     chai.assert.isTrue(result.result.isOk());
@@ -229,7 +231,7 @@ describe("teamsApp/extendToM365", async () => {
     sinon
       .stub(PackageService.prototype, "sideLoading")
       .resolves(["test-title-id", "test-app-id", "https://example.com/sharelink"]);
-    sinon.stub(m365AcquireDeps, "pathExists").resolves(true);
+    vi.mocked(fs.pathExists).mockResolvedValue(true);
 
     const result = await acquireDriver.execute(args, mockedDriverContext, outputEnvVarNames);
     chai.assert.isTrue(result.result.isOk());
@@ -250,7 +252,7 @@ describe("teamsApp/extendToM365", async () => {
     sinon
       .stub(PackageService.prototype, "sideLoading")
       .resolves(["test-title-id", "test-app-id", "https://example.com/sharelink"]);
-    sinon.stub(m365AcquireDeps, "pathExists").resolves(true);
+    vi.mocked(fs.pathExists).mockResolvedValue(true);
 
     const result = await acquireDriver.execute(args, mockedDriverContext, outputEnvVarNames);
     chai.assert.isTrue(result.result.isOk());
@@ -274,7 +276,7 @@ describe("teamsApp/extendToM365", async () => {
     sinon
       .stub(PackageService.prototype, "sideLoading")
       .resolves(["test-title-id", "test-app-id", "https://example.com/sharelink"]);
-    sinon.stub(m365AcquireDeps, "pathExists").resolves(true);
+    vi.mocked(fs.pathExists).mockResolvedValue(true);
 
     const result = await acquireDriver.execute(args, mockedDriverContext, outputEnvVarNames);
     chai.assert.isTrue(result.result.isOk());
@@ -298,7 +300,7 @@ describe("teamsApp/extendToM365", async () => {
     sinon
       .stub(PackageService.prototype, "sideLoading")
       .resolves(["test-title-id", "test-app-id", "https://example.com/sharelink"]);
-    sinon.stub(m365AcquireDeps, "pathExists").resolves(true);
+    vi.mocked(fs.pathExists).mockResolvedValue(true);
 
     const result = await acquireDriver.execute(args, mockedDriverContext, outputEnvVarNames);
     chai.assert.isTrue(result.result.isOk());
@@ -323,7 +325,7 @@ describe("teamsApp/extendToM365", async () => {
     sinon
       .stub(PackageService.prototype, "sideLoading")
       .resolves(["test-title-id", "test-app-id", ""]);
-    sinon.stub(m365AcquireDeps, "pathExists").resolves(true);
+    vi.mocked(fs.pathExists).mockResolvedValue(true);
 
     const result = await acquireDriver.execute(args, mockedDriverContext, outputEnvVarNames);
     chai.assert.isTrue(result.result.isOk());

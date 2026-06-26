@@ -7,6 +7,7 @@ import child_process from "child_process";
 import fs from "fs-extra";
 import os from "os";
 import * as sinon from "sinon";
+import { vi } from "vitest";
 import * as tools from "../../../../src/common/utils";
 import {
   convertScriptErrorToFxError,
@@ -15,9 +16,8 @@ import {
   getStderrHandler,
   parseSetOutputCommand,
   scriptDriver,
-  scriptDriverDeps,
 } from "../../../../src/component/driver/script/scriptDriver";
-import { DefaultEncoding, getSystemEncoding } from "../../../../src/component/utils/charsetUtils";
+import * as charsetUtils from "../../../../src/component/utils/charsetUtils";
 import { UserCancelError } from "../../../../src/error";
 import { ScriptExecutionError, ScriptTimeoutError } from "../../../../src/error/script";
 import {
@@ -35,6 +35,7 @@ describe("Script Driver test", () => {
   });
   afterEach(async () => {
     sandbox.restore();
+    vi.restoreAllMocks();
   });
   it("ui not provided - execute success: set-output and append to file", async () => {
     const appendFileSyncStub = sandbox.stub(fs, "appendFileSync");
@@ -91,7 +92,7 @@ describe("Script Driver test", () => {
   });
   it("ui not provided - execute failed: child_process.exec return error", async () => {
     const error = new Error("test error");
-    sandbox.stub(scriptDriverDeps, "getSystemEncoding").resolves("utf-8");
+    vi.spyOn(charsetUtils, "getSystemEncoding").mockResolvedValue("utf-8");
     sandbox.stub(child_process, "exec").yields(error);
     const args = {
       workingDirectory: "./",
@@ -191,9 +192,10 @@ describe("executeCommand", () => {
   const sandbox = sinon.createSandbox();
   afterEach(() => {
     sandbox.restore();
+    vi.restoreAllMocks();
   });
   it("dotnet command", async () => {
-    sandbox.stub(scriptDriverDeps, "getSystemEncoding").resolves("utf-8");
+    vi.spyOn(charsetUtils, "getSystemEncoding").mockResolvedValue("utf-8");
     const stub = sandbox.stub(child_process, "exec").returns({} as any);
     stub.yields(null);
     await executeCommand(
@@ -239,33 +241,33 @@ describe("getSystemEncoding", () => {
     sandbox.restore();
   });
   it("should return a string", async () => {
-    const result = await getSystemEncoding();
+    const result = await charsetUtils.getSystemEncoding();
     assert.isTrue(typeof result === "string");
   });
   it("should return default encoding on other platform", async () => {
     sandbox.stub(os, "platform").returns("netbsd");
-    const result = await getSystemEncoding();
+    const result = await charsetUtils.getSystemEncoding();
     assert.equal(result, "utf-8");
   });
 
   it("should return gb2312 on win32 platform", async () => {
     sandbox.stub(os, "platform").returns("win32");
     sandbox.stub(child_process, "exec").callsArgWith(2, null, "Active code page: 936");
-    const result = await getSystemEncoding();
+    const result = await charsetUtils.getSystemEncoding();
     assert.equal(result, "gb2312");
   });
 
   it("should return utf-8 on linux platform", async () => {
     sandbox.stub(os, "platform").returns("linux");
     sandbox.stub(child_process, "exec").callsArgWith(2, null, "UTF-8");
-    const result = await getSystemEncoding();
+    const result = await charsetUtils.getSystemEncoding();
     assert.equal(result, "utf-8");
   });
 
   it("should return utf-8 on darwin platform", async () => {
     sandbox.stub(os, "platform").returns("darwin");
     sandbox.stub(child_process, "exec").callsArgWith(2, null, "zh_CN.UTF-8");
-    const result = await getSystemEncoding();
+    const result = await charsetUtils.getSystemEncoding();
     assert.equal(result, "utf-8");
   });
 
@@ -273,27 +275,27 @@ describe("getSystemEncoding", () => {
     sandbox.stub(os, "platform").returns("win32");
     const error = new Error("test error");
     sandbox.stub(child_process, "exec").callsArgWith(2, error, "");
-    const result = await getSystemEncoding();
-    assert.equal(result, DefaultEncoding);
+    const result = await charsetUtils.getSystemEncoding();
+    assert.equal(result, charsetUtils.DefaultEncoding);
   });
 
   it("should return default encoding when Error happens on linux platform", async () => {
     sandbox.stub(os, "platform").returns("linux");
     const error = new Error("test error");
     sandbox.stub(child_process, "exec").callsArgWith(2, error, "");
-    const result = await getSystemEncoding();
-    assert.equal(result, DefaultEncoding);
+    const result = await charsetUtils.getSystemEncoding();
+    assert.equal(result, charsetUtils.DefaultEncoding);
   });
 
   it("should return default encoding when Error happens on darwin platform", async () => {
     sandbox.stub(os, "platform").returns("darwin");
     const error = new Error("test error");
     sandbox.stub(child_process, "exec").callsArgWith(2, error, "");
-    const result = await getSystemEncoding();
-    assert.equal(result, DefaultEncoding);
+    const result = await charsetUtils.getSystemEncoding();
+    assert.equal(result, charsetUtils.DefaultEncoding);
   });
   it("should return utf8 for azure cli", async () => {
-    const result = await getSystemEncoding("@azure/static-web-apps-cli");
+    const result = await charsetUtils.getSystemEncoding("@azure/static-web-apps-cli");
     assert.equal(result, "utf8");
   });
 });

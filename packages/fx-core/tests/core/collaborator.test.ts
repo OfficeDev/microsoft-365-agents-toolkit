@@ -16,6 +16,7 @@ import mockedEnv from "mocked-env";
 import os from "os";
 import * as path from "path";
 import sinon from "sinon";
+import { beforeEach, describe, it, vi } from "vitest";
 import { CollaborationState } from "../../src/common/permissionInterface";
 import { SolutionError } from "../../src/component/constants";
 import {
@@ -27,10 +28,10 @@ import {
   CollaborationConstants,
   CollaborationUtil,
   checkPermission,
-  collaboratorDeps,
   grantPermission,
   listCollaborator,
 } from "../../src/core/collaborator";
+import * as shareUtils from "../../src/component/driver/share/utils";
 import { QuestionNames } from "../../src/question/constants";
 import { MockedV2Context } from "../plugins/solution/util";
 import { MockedAzureAccountProvider, MockedM365Provider, randomAppName } from "./utils";
@@ -184,9 +185,9 @@ describe("Collaborator APIs for V3", () => {
         })
       );
       const expectedTitleId = "test-agent-title";
-      sandbox
-        .stub(collaboratorDeps, "parseShareAppActionYamlConfig")
-        .resolves(ok({ titleId: expectedTitleId, teamsappId: "", appId: "" }));
+      vi.spyOn(shareUtils, "parseShareAppActionYamlConfig").mockResolvedValueOnce(
+        ok({ titleId: expectedTitleId, teamsappId: "", appId: "" })
+      );
       sandbox.stub(AgentCollaboration.prototype, "listCollaborator").resolves(
         ok([
           {
@@ -212,9 +213,9 @@ describe("Collaborator APIs for V3", () => {
         })
       );
       inputs[QuestionNames.collaborationAppType] = [CollaborationConstants.AgentOptionId];
-      sandbox
-        .stub(collaboratorDeps, "parseShareAppActionYamlConfig")
-        .resolves(err(new UserError("source", "name", "Failed to parse config")));
+      vi.spyOn(shareUtils, "parseShareAppActionYamlConfig").mockResolvedValueOnce(
+        err(new UserError("source", "name", "Failed to parse config"))
+      );
       const result = await listCollaborator(ctx, inputs, tokenProvider);
       assert.isTrue(result.isErr());
     });
@@ -240,9 +241,9 @@ describe("Collaborator APIs for V3", () => {
         ])
       );
       const expectedTitleId = "test-agent-title";
-      sandbox
-        .stub(collaboratorDeps, "parseShareAppActionYamlConfig")
-        .resolves(ok({ titleId: expectedTitleId, teamsappId: "", appId: "" }));
+      vi.spyOn(shareUtils, "parseShareAppActionYamlConfig").mockResolvedValueOnce(
+        ok({ titleId: expectedTitleId, teamsappId: "", appId: "" })
+      );
       sandbox.stub(AgentCollaboration.prototype, "listCollaborator").resolves(
         ok([
           {
@@ -267,9 +268,9 @@ describe("Collaborator APIs for V3", () => {
         })
       );
       inputs[QuestionNames.collaborationAppType] = [CollaborationConstants.AgentOptionId];
-      sandbox
-        .stub(collaboratorDeps, "parseShareAppActionYamlConfig")
-        .resolves(err(new UserError("source", "name", "Failed to parse agent config")));
+      vi.spyOn(shareUtils, "parseShareAppActionYamlConfig").mockResolvedValueOnce(
+        err(new UserError("source", "name", "Failed to parse agent config"))
+      );
       const result = await listCollaborator(ctx, inputs, tokenProvider);
       assert.isTrue(result.isErr());
     });
@@ -285,9 +286,9 @@ describe("Collaborator APIs for V3", () => {
       );
       inputs[QuestionNames.collaborationAppType] = [CollaborationConstants.AgentOptionId];
       const expectedTitleId = "test-agent-title";
-      sandbox
-        .stub(collaboratorDeps, "parseShareAppActionYamlConfig")
-        .resolves(ok({ titleId: expectedTitleId, teamsappId: "", appId: "" }));
+      vi.spyOn(shareUtils, "parseShareAppActionYamlConfig").mockResolvedValueOnce(
+        ok({ titleId: expectedTitleId, teamsappId: "", appId: "" })
+      );
       sandbox
         .stub(AgentCollaboration.prototype, "listCollaborator")
         .resolves(err(new UserError("source", "name", "Failed to list agent collaborators")));
@@ -615,9 +616,9 @@ describe("Collaborator APIs for V3", () => {
       inputs.platform = Platform.CLI;
       inputs[QuestionNames.collaborationAppType] = [CollaborationConstants.AgentOptionId];
 
-      sandbox
-        .stub(collaboratorDeps, "parseShareAppActionYamlConfig")
-        .resolves(ok({ titleId: expectedTitleId, teamsappId: "", appId: "" }));
+      vi.spyOn(shareUtils, "parseShareAppActionYamlConfig").mockResolvedValueOnce(
+        ok({ titleId: expectedTitleId, teamsappId: "", appId: "" })
+      );
       sandbox.stub(AgentCollaboration.prototype, "grantPermission").resolves(
         ok([
           {
@@ -661,9 +662,9 @@ describe("Collaborator APIs for V3", () => {
       inputs.email = "your_collaborator@yourcompany.com";
       inputs[QuestionNames.collaborationAppType] = [CollaborationConstants.AgentOptionId];
 
-      sandbox
-        .stub(collaboratorDeps, "parseShareAppActionYamlConfig")
-        .resolves(err(new UserError("source", "name", "Failed to parse agent config")));
+      vi.spyOn(shareUtils, "parseShareAppActionYamlConfig").mockResolvedValueOnce(
+        err(new UserError("source", "name", "Failed to parse agent config"))
+      );
 
       const result = await grantPermission(ctx, inputs, tokenProvider);
       assert.isTrue(result.isErr());

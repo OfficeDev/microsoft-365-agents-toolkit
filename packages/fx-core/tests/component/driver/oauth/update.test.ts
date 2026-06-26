@@ -7,11 +7,13 @@ import * as chai from "chai";
 import chaiAsPromised from "chai-as-promised";
 import { RestoreFn } from "mocked-env";
 import * as sinon from "sinon";
+import { vi } from "vitest";
 import { featureFlagManager, FeatureFlags } from "../../../../src";
 import { teamsGraphClient } from "../../../../src/client/teamsGraphClient";
 import { setTools } from "../../../../src/common/globalVars";
 import { UpdateOauthArgs } from "../../../../src/component/driver/oauth/interface/updateOauthArgs";
-import { oauthUpdateDeps, UpdateOauthDriver } from "../../../../src/component/driver/oauth/update";
+import { UpdateOauthDriver } from "../../../../src/component/driver/oauth/update";
+import * as oauthUtility from "../../../../src/component/driver/oauth/utility/utility";
 import {
   OauthRegistrationAppType,
   OauthRegistrationTargetAudience,
@@ -45,6 +47,7 @@ describe("UpdateOauthDriver", () => {
 
   afterEach(() => {
     sinon.restore();
+    vi.clearAllMocks();
     if (envRestore) {
       envRestore();
       envRestore = undefined;
@@ -959,7 +962,7 @@ describe("UpdateOauthDriver", () => {
       identityProvider: "Custom",
       configurationId: "mockedRegistrationId",
     };
-    sinon.stub(oauthUpdateDeps, "getAuthInfo").resolves({} as any);
+    vi.spyOn(oauthUtility, "getAuthInfo").mockResolvedValue({} as any);
     sinon.stub(teamsGraphClient, "getOauthRegistrationById").resolves(
       ok({
         identityProvider: "Custom",
@@ -980,7 +983,7 @@ describe("UpdateOauthDriver", () => {
       applicableToApps: "SpecificApp",
       configurationId: "mockedRegistrationId",
     };
-    sinon.stub(oauthUpdateDeps, "getAuthInfo").resolves({} as any);
+    vi.spyOn(oauthUtility, "getAuthInfo").mockResolvedValue({} as any);
     sinon.stub(teamsGraphClient, "getOauthRegistrationById").resolves(ok({}) as any);
 
     const result = await updateOauthDriver.execute(args, mockedDriverContext);
@@ -1004,7 +1007,7 @@ describe("UpdateOauthDriver", () => {
       clientSecret: 123,
       configurationId: "mockedRegistrationId",
     };
-    sinon.stub(oauthUpdateDeps, "getAuthInfo").resolves({} as any);
+    vi.spyOn(oauthUtility, "getAuthInfo").mockResolvedValue({} as any);
     sinon.stub(teamsGraphClient, "getOauthRegistrationById").resolves(
       ok({
         identityProvider: "Custom",

@@ -40,7 +40,7 @@ describe("Test", () => {
 
   it("should throw error when EBUSY", async () => {
     const err = new EError(new Error("EBUSY"));
-    sandbox.stub(fileOperationDeps, "existsSync").returns(true);
+    sandbox.stub(fileOperationDeps, "existsSync").returns(true as any);
     sandbox.stub(fileOperationDeps, "remove").rejects(err);
     await zipFolderAsync(tmp, tmpFile, ignore()).catch((e) => {
       chai.expect(e instanceof CacheFileInUse).to.equal(true);
@@ -48,7 +48,7 @@ describe("Test", () => {
   });
 
   it("should throw error when Other error", async () => {
-    sandbox.stub(fileOperationDeps, "existsSync").returns(true);
+    sandbox.stub(fileOperationDeps, "existsSync").returns(true as any);
     sandbox.stub(fileOperationDeps, "remove").rejects(new Error("Other"));
     await zipFolderAsync(tmp, tmpFile, ignore()).catch((e) => {
       chai.expect(e.message).to.equal("Other");
@@ -72,13 +72,11 @@ describe("Test", () => {
     });
   });
 
-  it("fileOperationDeps.writeZip should reject on callback error", async () => {
-    const fakeZip = {
-      writeZip: (_cache: string, cb: (err?: Error) => void) => cb(new Error("zip-failed")),
-    } as any;
+  it("write zip callback error (non-ERR_OUT_OF_RANGE) should not throw ZipFileError", async () => {
+    sandbox.stub(fileOperationDeps, "writeZip").rejects(new Error("zip-failed"));
+    const readStreamStub = sandbox.stub(fileOperationDeps, "createReadStream").returns({} as any);
 
-    await fileOperationDeps.writeZip(fakeZip, path.join(tmp, "tmp.zip")).catch((e: Error) => {
-      chai.expect(e.message).to.equal("zip-failed");
-    });
+    const res = await zipFolderAsync(tmp, path.join(tmp, "tmp.zip"), ignore());
+    chai.expect(res).to.equal(readStreamStub.firstCall.returnValue);
   });
 });

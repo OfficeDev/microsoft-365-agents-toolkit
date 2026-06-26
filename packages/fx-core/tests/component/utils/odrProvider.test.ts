@@ -3,8 +3,9 @@
 
 import { assert } from "chai";
 import * as sinon from "sinon";
-import { ODRProvider, odrProviderDeps } from "../../../src/component/utils/odrProvider";
+import { ODRProvider } from "../../../src/component/utils/odrProvider";
 
+import * as odrProviderDeps from "../../../src/component/utils/odrProvider";
 describe("ODRProvider", () => {
   const sandbox = sinon.createSandbox();
 

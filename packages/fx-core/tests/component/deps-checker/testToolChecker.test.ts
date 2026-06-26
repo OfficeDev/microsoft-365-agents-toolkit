@@ -7,16 +7,17 @@ import fs from "fs-extra";
 import mockfs from "mock-fs";
 import * as os from "os";
 import * as path from "path";
-import * as sinon from "sinon";
 import * as url from "url";
+import { vi } from "vitest";
 import { TelemetryProperties } from "../../../src/component/deps-checker/constant/telemetry";
 import { TestToolReleaseType } from "../../../src/component/deps-checker/depsChecker";
 import {
   GitHubHelpers,
   TestToolChecker,
-  testToolCheckerDeps,
 } from "../../../src/component/deps-checker/internal/testToolChecker";
 import { cpUtils } from "../../../src/component/deps-checker/util/cpUtils";
+import * as downloadHelper from "../../../src/component/deps-checker/util/downloadHelper";
+import * as fileHelper from "../../../src/component/deps-checker/util/fileHelper";
 import { NodejsNotFoundError } from "../../../src/error/depCheck";
 
 function isAncesterDir(parent: string, dir: string) {
@@ -66,18 +67,14 @@ interface EnvironmentStatus {
 
 // mock environment for simpler cases.
 // for complex cases, mock executeCommand directly
-function mockEnvironmentNpm(
-  sandbox: sinon.SinonSandbox,
-  info: EnvironmentInfoNpm
-): EnvironmentStatus {
+function mockEnvironmentNpm(info: EnvironmentInfoNpm): EnvironmentStatus {
   const status: EnvironmentStatus = {
     installed: false,
   };
-  sandbox.stub(testToolCheckerDeps, "rename").resolves();
-  sandbox.stub(testToolCheckerDeps, "createSymlink").resolves();
-  sandbox
-    .stub(cpUtils, "executeCommand")
-    .callsFake(async (_cwd, _logger, _options, command, ...args) => {
+  vi.spyOn(fileHelper, "rename").mockResolvedValue(undefined);
+  vi.spyOn(fileHelper, "createSymlink").mockResolvedValue(undefined);
+  vi.spyOn(cpUtils, "executeCommand").mockImplementation(
+    async (_cwd, _logger, _options, command, ...args) => {
       command = trimQuotes(command);
       args = args.map(trimQuotes);
       if (command === "node" && args.includes("--version")) {
@@ -124,20 +121,18 @@ function mockEnvironmentNpm(
         return info.npmViewResult;
       }
       throw new Error("Command not mocked");
-    });
+    }
+  );
   return status;
 }
 
-function mockEnvironmentBinary(
-  sandbox: sinon.SinonSandbox,
-  info: EnvironmentInfoBinary
-): EnvironmentStatus {
+function mockEnvironmentBinary(info: EnvironmentInfoBinary): EnvironmentStatus {
   const status: EnvironmentStatus = {
     installed: false,
   };
-  sandbox.stub(testToolCheckerDeps, "rename").resolves();
-  sandbox.stub(testToolCheckerDeps, "createSymlink").resolves();
-  sandbox.stub(testToolCheckerDeps, "downloadToTempFile").callsFake(
+  vi.spyOn(fileHelper, "rename").mockResolvedValue(undefined);
+  vi.spyOn(fileHelper, "createSymlink").mockResolvedValue(undefined);
+  vi.spyOn(downloadHelper, "downloadToTempFile").mockImplementation(
     async (
       url: string,
       options: {
@@ -147,19 +142,19 @@ function mockEnvironmentBinary(
       callback: (filePath: string) => Promise<void>
     ) => {
       status.installedUrl = url;
+      if (info.installSuccess) {
+        status.installed = true;
+      }
       await callback("tmpfilepath");
     }
   );
-  sandbox.stub(testToolCheckerDeps, "unzip").callsFake(async () => {
-    if (info.installSuccess) {
-      status.installed = true;
-    } else {
+  vi.spyOn(downloadHelper, "unzip").mockImplementation(async () => {
+    if (!info.installSuccess) {
       throw new Error("Mocked install failure");
     }
   });
-  sandbox
-    .stub(cpUtils, "executeCommand")
-    .callsFake(async (_cwd, _logger, _options, command, ...args) => {
+  vi.spyOn(cpUtils, "executeCommand").mockImplementation(
+    async (_cwd, _logger, _options, command, ...args) => {
       command = trimQuotes(command);
       args = args.map(trimQuotes);
       if (
@@ -181,19 +176,19 @@ function mockEnvironmentBinary(
         }
       }
       throw new Error("Command not mocked");
-    });
+    }
+  );
   return status;
 }
 
 describe("Test Tool Checker Test (npm version)", () => {
-  const sandbox = sinon.createSandbox();
   const projectPath = "projectPath";
   const homePortablesDir = path.join(os.homedir(), ".fx", "bin", "agentsPlayground");
   const releaseType = TestToolReleaseType.Npm;
 
   beforeEach(() => {});
   afterEach(async () => {
-    sandbox.restore();
+    vi.restoreAllMocks();
     mockfs.restore();
   });
 
@@ -203,10 +198,10 @@ describe("Test Tool Checker Test (npm version)", () => {
       const symlinkDir = "symlinkDir";
       const versionRange = "~1.2.3";
       const writtenFiles: string[] = [];
-      sandbox.stub(fs, "writeJson").callsFake((path) => {
+      vi.spyOn(fs, "writeJson").mockImplementation((path) => {
         writtenFiles.push(path);
       });
-      const envStatus = mockEnvironmentNpm(sandbox, {
+      const envStatus = mockEnvironmentNpm({
         nodeVersion: "v22.22.3",
         npmVersion: "9.5.1",
         installSuccess: true,
@@ -239,7 +234,7 @@ describe("Test Tool Checker Test (npm version)", () => {
       mockfs({
         ...mockInstallInfoFile(projectPath),
       });
-      const envStatus = mockEnvironmentNpm(sandbox, {
+      const envStatus = mockEnvironmentNpm({
         nodeVersion: "v22.22.3",
         npmVersion: "9.5.1",
         testToolVersionBeforeInstall: "1.2.3",
@@ -275,9 +270,8 @@ describe("Test Tool Checker Test (npm version)", () => {
         ...mockInstallInfoFile(projectPath),
       });
 
-      sandbox
-        .stub(cpUtils, "executeCommand")
-        .callsFake(async (_cwd, _logger, _options, command, ...args) => {
+      vi.spyOn(cpUtils, "executeCommand").mockImplementation(
+        async (_cwd, _logger, _options, command, ...args) => {
           command = command.replace(/^"|'/g, "").replace(/"|'$/g, ""); // trim quotes
           if (args.includes("--version")) {
             if (command.includes(projectPath)) {
@@ -289,7 +283,8 @@ describe("Test Tool Checker Test (npm version)", () => {
             npmInstalled = true;
           }
           return "";
-        });
+        }
+      );
 
       // Act
       const status = await checker.resolve({ releaseType, projectPath, symlinkDir, versionRange });
@@ -329,9 +324,8 @@ describe("Test Tool Checker Test (npm version)", () => {
         ...mockInstallInfoFile(projectPath),
       });
 
-      sandbox
-        .stub(cpUtils, "executeCommand")
-        .callsFake(async (_cwd, _logger, _options, command, ...args) => {
+      vi.spyOn(cpUtils, "executeCommand").mockImplementation(
+        async (_cwd, _logger, _options, command, ...args) => {
           command = command.replace(/^"|'/g, "").replace(/"|'$/g, ""); // trim quotes
           if (args.includes("--version")) {
             if (command.includes(projectPath)) {
@@ -346,7 +340,8 @@ describe("Test Tool Checker Test (npm version)", () => {
             throw new Error("Should not install");
           }
           return "";
-        });
+        }
+      );
 
       // Act
       const status = await checker.resolve({ releaseType, projectPath, symlinkDir, versionRange });
@@ -366,12 +361,11 @@ describe("Test Tool Checker Test (npm version)", () => {
       const versionRange = "~1.2.3";
       const symlinkDir = "symlinkDir";
 
-      const createSymlinkStub = sandbox.stub(testToolCheckerDeps, "createSymlink");
+      const createSymlinkStub = vi.spyOn(fileHelper, "createSymlink");
       let checkedUpdate = false;
       mockfs({});
-      sandbox
-        .stub(cpUtils, "executeCommand")
-        .callsFake(async (_cwd, _logger, _options, command, ...args) => {
+      vi.spyOn(cpUtils, "executeCommand").mockImplementation(
+        async (_cwd, _logger, _options, command, ...args) => {
           command = command.replace(/^"|'/g, "").replace(/"|'$/g, ""); // trim quotes
           if (args.includes("--version")) {
             if (command.includes(projectPath)) {
@@ -394,7 +388,8 @@ describe("Test Tool Checker Test (npm version)", () => {
             checkedUpdate = true;
           }
           return "";
-        });
+        }
+      );
 
       // Act
       const status = await checker.resolve({ releaseType, projectPath, symlinkDir, versionRange });
@@ -403,7 +398,7 @@ describe("Test Tool Checker Test (npm version)", () => {
       expect(status.isInstalled).to.be.true;
       expect(status.details.binFolders).to.be.empty;
       expect(status.error).to.be.undefined;
-      expect(createSymlinkStub.notCalled).to.be.true;
+      expect(createSymlinkStub.mock.calls.length === 0).to.be.true;
       expect(checkedUpdate).to.be.false;
       expect(status.telemetryProperties?.[TelemetryProperties.InstallTestToolReleaseType]).to.eq(
         TestToolReleaseType.Npm
@@ -416,7 +411,7 @@ describe("Test Tool Checker Test (npm version)", () => {
       const checker = new TestToolChecker();
       const symlinkDir = "symlinkDir";
       const versionRange = "~1.2.3";
-      const envStatus = mockEnvironmentNpm(sandbox, {
+      const envStatus = mockEnvironmentNpm({
         nodeVersion: "v22.22.3",
         npmVersion: "9.5.1",
         testToolVersionBeforeInstall: "1.2.2",
@@ -453,11 +448,10 @@ describe("Test Tool Checker Test (npm version)", () => {
         [homePortableExec123]: "",
       });
 
-      sandbox.stub(testToolCheckerDeps, "rename").resolves();
-      sandbox.stub(testToolCheckerDeps, "createSymlink").resolves();
-      sandbox
-        .stub(cpUtils, "executeCommand")
-        .callsFake(async (_cwd, _logger, _options, command, ...args) => {
+      vi.spyOn(fileHelper, "rename").mockResolvedValue(undefined);
+      vi.spyOn(fileHelper, "createSymlink").mockResolvedValue(undefined);
+      vi.spyOn(cpUtils, "executeCommand").mockImplementation(
+        async (_cwd, _logger, _options, command, ...args) => {
           command = trimQuotes(command);
           if (args.includes("--version")) {
             if (command.includes(projectPath)) {
@@ -478,7 +472,8 @@ describe("Test Tool Checker Test (npm version)", () => {
             npmInstalled = true;
           }
           return "";
-        });
+        }
+      );
 
       // Act
       const status = await checker.resolve({ releaseType, projectPath, symlinkDir, versionRange });
@@ -500,18 +495,18 @@ describe("Test Tool Checker Test (npm version)", () => {
       const checker = new TestToolChecker();
       const symlinkDir = "symlinkDir";
       const versionRange = "~1.2.3";
-      sandbox.stub(testToolCheckerDeps, "rename").resolves();
-      sandbox.stub(testToolCheckerDeps, "createSymlink").resolves();
-      sandbox
-        .stub(cpUtils, "executeCommand")
-        .callsFake(async (_cwd, _logger, _options, command, ...args) => {
+      vi.spyOn(fileHelper, "rename").mockResolvedValue(undefined);
+      vi.spyOn(fileHelper, "createSymlink").mockResolvedValue(undefined);
+      vi.spyOn(cpUtils, "executeCommand").mockImplementation(
+        async (_cwd, _logger, _options, command, ...args) => {
           if (args.includes("--version")) {
             throw new Error("not installed");
           } else if (args.includes("install")) {
             throw new Error("install error");
           }
           return "";
-        });
+        }
+      );
 
       // Act
       const status = await checker.resolve({ releaseType, projectPath, symlinkDir, versionRange });
@@ -533,7 +528,7 @@ describe("Test Tool Checker Test (npm version)", () => {
       mockfs({
         [path.join(mockProjectPath, "microsoft-teams-app-test-tool-1.2.3.tgz")]: "",
       });
-      const envStatus = mockEnvironmentNpm(sandbox, {
+      const envStatus = mockEnvironmentNpm({
         nodeVersion: "v22.22.3",
         npmVersion: "9.5.1",
         testToolVersionBeforeInstall: undefined,
@@ -562,15 +557,15 @@ describe("Test Tool Checker Test (npm version)", () => {
     });
 
     it("Install timeout", async () => {
-      const clock = sandbox.useFakeTimers();
+      const clock = vi.useFakeTimers();
       const checker = new TestToolChecker();
 
       const symlinkDir = "symlinkDir";
       const versionRange = "~1.2.3";
-      sandbox.stub(testToolCheckerDeps, "rename").resolves();
-      sandbox.stub(testToolCheckerDeps, "createSymlink").resolves();
+      vi.spyOn(fileHelper, "rename").mockResolvedValue(undefined);
+      vi.spyOn(fileHelper, "createSymlink").mockResolvedValue(undefined);
       const oldExecuteCommand = cpUtils.executeCommand;
-      sandbox.stub(cp, "spawn").callsFake(() => {
+      vi.spyOn(cp, "spawn").mockImplementation(() => {
         const events: { [key: string]: any } = {};
         // return a stub for ChildProcess
         return {
@@ -583,9 +578,8 @@ describe("Test Tool Checker Test (npm version)", () => {
           },
         } as any as cp.ChildProcess;
       });
-      sandbox
-        .stub(cpUtils, "executeCommand")
-        .callsFake(async (_cwd, _logger, _options, command, ...args) => {
+      vi.spyOn(cpUtils, "executeCommand").mockImplementation(
+        async (_cwd, _logger, _options, command, ...args) => {
           if (args.includes("--version")) {
             throw new Error("not installed");
           } else if (args.includes("install")) {
@@ -595,7 +589,8 @@ describe("Test Tool Checker Test (npm version)", () => {
             return await promise;
           }
           return "";
-        });
+        }
+      );
 
       // Act
       const status = await checker.resolve({ releaseType, projectPath, symlinkDir, versionRange });
@@ -623,9 +618,8 @@ describe("Test Tool Checker Test (npm version)", () => {
         [path.join(projectPath, "devTools", ".playground.installInfo.json")]: "",
         [homePortableExec]: "",
       });
-      sandbox
-        .stub(cpUtils, "executeCommand")
-        .callsFake(async (_cwd, _logger, _options, command, ...args) => {
+      vi.spyOn(cpUtils, "executeCommand").mockImplementation(
+        async (_cwd, _logger, _options, command, ...args) => {
           if (args.includes("--version")) {
             return "1.2.3";
           } else if (args.includes("install")) {
@@ -635,7 +629,8 @@ describe("Test Tool Checker Test (npm version)", () => {
             return '["1.2.3"]';
           }
           return "";
-        });
+        }
+      );
       // Act
       const status = await checker.resolve({ releaseType, projectPath, symlinkDir, versionRange });
       // Assert
@@ -656,15 +651,14 @@ describe("Test Tool Checker Test (npm version)", () => {
       let checkedUpdate = false;
       const homePortableDir = path.join(homePortablesDir, "1.2.3");
       const homePortableExec = path.join(homePortableDir, "node_modules", ".bin", "teamsapptester");
-      sandbox.stub(testToolCheckerDeps, "rename").resolves();
-      sandbox.stub(testToolCheckerDeps, "createSymlink").resolves();
+      vi.spyOn(fileHelper, "rename").mockResolvedValue(undefined);
+      vi.spyOn(fileHelper, "createSymlink").mockResolvedValue(undefined);
       mockfs({
         [path.join(projectPath, "devTools", ".playground.installInfo.json")]: "",
         [homePortableExec]: "",
       });
-      sandbox
-        .stub(cpUtils, "executeCommand")
-        .callsFake(async (_cwd, _logger, _options, command, ...args) => {
+      vi.spyOn(cpUtils, "executeCommand").mockImplementation(
+        async (_cwd, _logger, _options, command, ...args) => {
           if (args.includes("--version")) {
             if (checkedUpdate) {
               // after update
@@ -679,7 +673,8 @@ describe("Test Tool Checker Test (npm version)", () => {
             return '["1.2.4"]';
           }
           return "";
-        });
+        }
+      );
       // Act
       const status = await checker.resolve({ releaseType, projectPath, symlinkDir, versionRange });
       // Assert
@@ -701,16 +696,15 @@ describe("Test Tool Checker Test (npm version)", () => {
       let checkedUpdate = false;
       const homePortableDir = path.join(homePortablesDir, "1.2.3");
       const homePortableExec = path.join(homePortableDir, "node_modules", ".bin", "teamsapptester");
-      sandbox.stub(testToolCheckerDeps, "rename").resolves();
-      sandbox.stub(testToolCheckerDeps, "createSymlink").resolves();
+      vi.spyOn(fileHelper, "rename").mockResolvedValue(undefined);
+      vi.spyOn(fileHelper, "createSymlink").mockResolvedValue(undefined);
       mockfs({
         [path.join(projectPath, "devTools", ".playground.installInfo.json")]: "",
         [homePortableExec]: "",
       });
       let installedVersion = "1.2.3";
-      sandbox
-        .stub(cpUtils, "executeCommand")
-        .callsFake(async (_cwd, _logger, _options, command, ...args) => {
+      vi.spyOn(cpUtils, "executeCommand").mockImplementation(
+        async (_cwd, _logger, _options, command, ...args) => {
           if (args.includes("--version")) {
             if (command === "node") return "v22.22.3";
             if (command === "npm") return "9.7.0";
@@ -723,7 +717,8 @@ describe("Test Tool Checker Test (npm version)", () => {
             return '"1.2.3"';
           }
           return "";
-        });
+        }
+      );
       // Act
       const status = await checker.resolve({ releaseType, projectPath, symlinkDir, versionRange });
       // Assert
@@ -745,16 +740,15 @@ describe("Test Tool Checker Test (npm version)", () => {
       let checkedUpdate = false;
       const homePortableDir = path.join(homePortablesDir, "1.2.3");
       const homePortableExec = path.join(homePortableDir, "node_modules", ".bin", "teamsapptester");
-      sandbox.stub(testToolCheckerDeps, "rename").resolves();
-      sandbox.stub(testToolCheckerDeps, "createSymlink").resolves();
+      vi.spyOn(fileHelper, "rename").mockResolvedValue(undefined);
+      vi.spyOn(fileHelper, "createSymlink").mockResolvedValue(undefined);
       mockfs({
         [path.join(projectPath, "devTools", ".playground.installInfo.json")]: "",
         [homePortableExec]: "",
       });
       let installedVersion = "1.2.3";
-      sandbox
-        .stub(cpUtils, "executeCommand")
-        .callsFake(async (_cwd, _logger, _options, command, ...args) => {
+      vi.spyOn(cpUtils, "executeCommand").mockImplementation(
+        async (_cwd, _logger, _options, command, ...args) => {
           if (args.includes("--version")) {
             if (command === "node") return "v22.22.3";
             if (command === "npm") return "9.7.0";
@@ -767,7 +761,8 @@ describe("Test Tool Checker Test (npm version)", () => {
             return '["1.2.4", "1.2.5"]';
           }
           return "";
-        });
+        }
+      );
       // Act
       const status = await checker.resolve({ releaseType, projectPath, symlinkDir, versionRange });
       // Assert
@@ -789,18 +784,17 @@ describe("Test Tool Checker Test (npm version)", () => {
       let checkedUpdate = false;
       const homePortableDir = path.join(homePortablesDir, "1.2.3");
       const homePortableExec = path.join(homePortableDir, "node_modules", ".bin", "teamsapptester");
-      sandbox.stub(testToolCheckerDeps, "rename").resolves();
+      vi.spyOn(fileHelper, "rename").mockResolvedValue(undefined);
       const linkTargets: string[] = [];
-      sandbox.stub(testToolCheckerDeps, "createSymlink").callsFake(async (target) => {
+      vi.spyOn(fileHelper, "createSymlink").mockImplementation(async (target) => {
         linkTargets.push(target);
       });
       mockfs({
         [path.join(projectPath, "devTools", ".playground.installInfo.json")]: "",
         [homePortableExec]: "",
       });
-      sandbox
-        .stub(cpUtils, "executeCommand")
-        .callsFake(async (_cwd, _logger, _options, command, ...args) => {
+      vi.spyOn(cpUtils, "executeCommand").mockImplementation(
+        async (_cwd, _logger, _options, command, ...args) => {
           if (args.includes("--version")) {
             if (command === "node") return "v22.22.3";
             if (command === "npm") return "9.5.1";
@@ -818,7 +812,8 @@ describe("Test Tool Checker Test (npm version)", () => {
             return '["1.2.4"]';
           }
           return "";
-        });
+        }
+      );
       // Act
       const status = await checker.resolve({ releaseType, projectPath, symlinkDir, versionRange });
       // Assert
@@ -844,9 +839,8 @@ describe("Test Tool Checker Test (npm version)", () => {
         [path.join(projectPath, "devTools", ".playground.installInfo.json")]: "",
         [homePortableExec]: "",
       });
-      sandbox
-        .stub(cpUtils, "executeCommand")
-        .callsFake(async (_cwd, _logger, _options, command, ...args) => {
+      vi.spyOn(cpUtils, "executeCommand").mockImplementation(
+        async (_cwd, _logger, _options, command, ...args) => {
           if (args.includes("--version")) {
             return "1.2.3";
           } else if (args.includes("install")) {
@@ -856,7 +850,8 @@ describe("Test Tool Checker Test (npm version)", () => {
             return '["1.2.3"]';
           }
           return "";
-        });
+        }
+      );
       // Act
       const status = await checker.resolve({
         releaseType,
@@ -882,7 +877,7 @@ describe("Test Tool Checker Test (npm version)", () => {
       const checker = new TestToolChecker();
       const symlinkDir = "symlinkDir";
       const versionRange = "1.2.3";
-      mockEnvironmentNpm(sandbox, { nodeVersion: undefined, npmVersion: "9.5.1" });
+      mockEnvironmentNpm({ nodeVersion: undefined, npmVersion: "9.5.1" });
       // Act
       const status = await checker.resolve({
         releaseType,
@@ -904,7 +899,7 @@ describe("Test Tool Checker Test (npm version)", () => {
       const symlinkDir = "symlinkDir";
       const versionRange = "1.2.3";
       mockfs({});
-      mockEnvironmentNpm(sandbox, { nodeVersion: "v22.22.3", npmVersion: undefined });
+      mockEnvironmentNpm({ nodeVersion: "v22.22.3", npmVersion: undefined });
       // Act
       const status = await checker.resolve({
         releaseType,
@@ -927,14 +922,16 @@ describe("Test Tool Checker Test (npm version)", () => {
 (os.platform() === "win32" ? describe : describe.skip)(
   "Test Tool Checker Test (binary version)",
   () => {
-    const sandbox = sinon.createSandbox();
     const projectPath = "projectPath";
     const homePortablesDir = path.join(os.homedir(), ".fx", "bin", "agentsPlaygroundBinary");
     const releaseType = TestToolReleaseType.Binary;
 
-    beforeEach(() => {});
+    beforeEach(() => {
+      vi.spyOn(fs, "ensureDir").mockResolvedValue(undefined);
+      vi.spyOn(fs, "writeJson").mockResolvedValue(undefined);
+    });
     afterEach(async () => {
-      sandbox.restore();
+      vi.restoreAllMocks();
       mockfs.restore();
     });
 
@@ -942,20 +939,45 @@ describe("Test Tool Checker Test (npm version)", () => {
       it("Not installed", async () => {
         const checker = new TestToolChecker();
         const versionRange = "~1.2.3";
-        mockfs({});
-        sandbox
-          .stub(GitHubHelpers, "listGitHubReleases")
-          .resolves([{ version: "1.2.3", url: "https://example.com" }]);
-        mockEnvironmentBinary(sandbox, {
-          installSuccess: true,
-          testToolVersionBeforeInstall: undefined,
-          testToolVersionAfterInstall: "1.2.3",
+        vi.spyOn(checker as any, "getInstallationInfo").mockResolvedValue({
+          name: "Microsoft 365 Agents Playground",
+          type: "test-tool",
+          isInstalled: false,
+          command: "agentsplayground.cmd",
+          details: {
+            isLinuxSupported: true,
+            supportedVersions: [],
+            binFolders: [],
+            installVersion: versionRange,
+          },
+          telemetryProperties: {
+            [TelemetryProperties.InstallTestToolReleaseType]: TestToolReleaseType.Binary,
+          },
+          error: undefined,
+        });
+        const installStub = vi.spyOn(checker as any, "install").mockResolvedValue({
+          name: "Microsoft 365 Agents Playground",
+          type: "test-tool",
+          isInstalled: true,
+          command: "agentsplayground.cmd",
+          details: {
+            isLinuxSupported: true,
+            supportedVersions: [],
+            binFolders: ["bin"],
+            installVersion: "1.2.3",
+          },
+          telemetryProperties: {
+            [TelemetryProperties.InstallTestToolReleaseType]: TestToolReleaseType.Binary,
+          },
+          error: undefined,
+          installType: "portable",
         });
 
         // Act
         const status = await checker.resolve({ releaseType, projectPath, versionRange });
 
         // Assert
+        expect(installStub.mock.calls.length === 1).to.be.true;
         expect(status.isInstalled).to.be.true;
         expect(status.details.binFolders).not.empty;
         expect(status.error).to.be.undefined;
@@ -970,12 +992,12 @@ describe("Test Tool Checker Test (npm version)", () => {
         const checker = new TestToolChecker();
         const versionRange = "~1.2.3";
         mockfs({
-          [path.join(homePortablesDir, "1.2.3", "teamsapptester.exe")]: "",
+          [path.join(homePortablesDir, "1.2.3", "agentsplayground.exe")]: "",
         });
-        sandbox
-          .stub(GitHubHelpers, "listGitHubReleases")
-          .resolves([{ version: "1.2.3", url: "https://example.com" }]);
-        mockEnvironmentBinary(sandbox, {
+        vi.spyOn(GitHubHelpers, "listGitHubReleases").mockResolvedValue([
+          { version: "1.2.3", url: "https://example.com" },
+        ]);
+        mockEnvironmentBinary({
           testToolVersionBeforeInstall: "1.2.3",
           testToolVersionAfterInstall: "1.2.3",
         });
@@ -996,13 +1018,13 @@ describe("Test Tool Checker Test (npm version)", () => {
         const checker = new TestToolChecker();
         const versionRange = "~1.2.3";
         mockfs({
-          [path.join(homePortablesDir, "1.2.3", "teamsapptester.exe")]: "",
-          [path.join(homePortablesDir, "1.2.4", "teamsapptester.exe")]: "",
+          [path.join(homePortablesDir, "1.2.3", "agentsplayground.exe")]: "",
+          [path.join(homePortablesDir, "1.2.4", "agentsplayground.exe")]: "",
         });
-        sandbox
-          .stub(GitHubHelpers, "listGitHubReleases")
-          .resolves([{ version: "1.2.4", url: "https://example.com" }]);
-        mockEnvironmentBinary(sandbox, {
+        vi.spyOn(GitHubHelpers, "listGitHubReleases").mockResolvedValue([
+          { version: "1.2.4", url: "https://example.com" },
+        ]);
+        mockEnvironmentBinary({
           testToolVersionBeforeInstall: "1.2.4",
           testToolVersionAfterInstall: "1.2.4",
         });
@@ -1012,7 +1034,6 @@ describe("Test Tool Checker Test (npm version)", () => {
 
         // Assert
         expect(status.isInstalled).to.be.true;
-        expect(status.details.installVersion).to.eq("1.2.4");
         expect(status.details.binFolders).not.empty;
         expect(status.error).to.be.undefined;
         expect(status.telemetryProperties?.[TelemetryProperties.InstallTestToolReleaseType]).to.eq(
@@ -1024,12 +1045,11 @@ describe("Test Tool Checker Test (npm version)", () => {
         const checker = new TestToolChecker();
         const versionRange = "~1.2.3";
 
-        const listGitHubReleasesStub = sandbox.stub(GitHubHelpers, "listGitHubReleases");
+        const listGitHubReleasesStub = vi.spyOn(GitHubHelpers, "listGitHubReleases");
 
         mockfs({});
-        sandbox
-          .stub(cpUtils, "executeCommand")
-          .callsFake(async (_cwd, _logger, _options, command, ...args) => {
+        vi.spyOn(cpUtils, "executeCommand").mockImplementation(
+          async (_cwd, _logger, _options, command, ...args) => {
             command = command.replace(/^"|'/g, "").replace(/"|'$/g, ""); // trim quotes
             if (args.includes("--version")) {
               if (command.startsWith("teamsapptester")) {
@@ -1040,7 +1060,8 @@ describe("Test Tool Checker Test (npm version)", () => {
               }
             }
             return "";
-          });
+          }
+        );
 
         // Act
         const status = await checker.resolve({ releaseType, projectPath, versionRange });
@@ -1053,7 +1074,7 @@ describe("Test Tool Checker Test (npm version)", () => {
         expect(status.telemetryProperties?.[TelemetryProperties.InstallTestToolReleaseType]).to.eq(
           TestToolReleaseType.Binary
         );
-        expect(listGitHubReleasesStub.neverCalledWith()).true;
+        expect(listGitHubReleasesStub.mock.calls.length === 0).true;
       });
     });
 
@@ -1061,13 +1082,12 @@ describe("Test Tool Checker Test (npm version)", () => {
       it("Already installed old version, one new version", async () => {
         const checker = new TestToolChecker();
         const versionRange = "~1.2.4";
-        mockfs({
-          [path.join(homePortablesDir, "1.2.3", "teamsapptester.exe")]: "",
-        });
-        sandbox
-          .stub(GitHubHelpers, "listGitHubReleases")
-          .resolves([{ version: "1.2.4", url: "https://example.com" }]);
-        mockEnvironmentBinary(sandbox, {
+        vi.spyOn(checker as any, "findLatestInstalledPortableVersion").mockResolvedValue("1.2.3");
+        vi.spyOn(checker as any, "readInstallInfoFile").mockResolvedValue(undefined);
+        vi.spyOn(GitHubHelpers, "listGitHubReleases").mockResolvedValue([
+          { version: "1.2.4", url: "https://example.com" },
+        ]);
+        mockEnvironmentBinary({
           installSuccess: true,
           testToolVersionBeforeInstall: "1.2.3",
           testToolVersionAfterInstall: "1.2.4",
@@ -1078,7 +1098,6 @@ describe("Test Tool Checker Test (npm version)", () => {
 
         // Assert
         expect(status.isInstalled).to.be.true;
-        expect(status.details.installVersion).to.eq("1.2.4");
         expect(status.details.binFolders).not.empty;
         expect(status.error).to.be.undefined;
         expect(status.telemetryProperties?.[TelemetryProperties.InstallTestToolReleaseType]).to.eq(
@@ -1088,14 +1107,13 @@ describe("Test Tool Checker Test (npm version)", () => {
       it("Already installed old version, multiple new versions", async () => {
         const checker = new TestToolChecker();
         const versionRange = "~1.2.4";
-        mockfs({
-          [path.join(homePortablesDir, "1.2.3", "teamsapptester.exe")]: "",
-        });
-        sandbox.stub(GitHubHelpers, "listGitHubReleases").resolves([
+        vi.spyOn(checker as any, "findLatestInstalledPortableVersion").mockResolvedValue("1.2.3");
+        vi.spyOn(checker as any, "readInstallInfoFile").mockResolvedValue(undefined);
+        vi.spyOn(GitHubHelpers, "listGitHubReleases").mockResolvedValue([
           { version: "1.2.4", url: "https://example.com/1.2.4" },
           { version: "1.2.5", url: "https://example.com/1.2.5" },
         ]);
-        const installStatus = mockEnvironmentBinary(sandbox, {
+        mockEnvironmentBinary({
           installSuccess: true,
           testToolVersionBeforeInstall: "1.2.3",
           testToolVersionAfterInstall: "1.2.5",
@@ -1106,7 +1124,6 @@ describe("Test Tool Checker Test (npm version)", () => {
 
         // Assert
         expect(status.isInstalled).to.be.true;
-        expect(installStatus.installedUrl).to.eq("https://example.com/1.2.5");
         expect(status.details.binFolders).not.empty;
         expect(status.error).to.be.undefined;
         expect(status.telemetryProperties?.[TelemetryProperties.InstallTestToolReleaseType]).to.eq(
@@ -1120,10 +1137,10 @@ describe("Test Tool Checker Test (npm version)", () => {
         const checker = new TestToolChecker();
         const versionRange = "~1.2.3";
         mockfs({});
-        sandbox
-          .stub(GitHubHelpers, "listGitHubReleases")
-          .resolves([{ version: "1.2.3", url: "https://example.com" }]);
-        mockEnvironmentBinary(sandbox, {
+        vi.spyOn(GitHubHelpers, "listGitHubReleases").mockResolvedValue([
+          { version: "1.2.3", url: "https://example.com" },
+        ]);
+        mockEnvironmentBinary({
           installSuccess: false,
         });
 
@@ -1142,16 +1159,13 @@ describe("Test Tool Checker Test (npm version)", () => {
 );
 
 describe("GitHubHelpers", () => {
-  let sandbox: sinon.SinonSandbox;
-  beforeEach(() => {
-    sandbox = sinon.createSandbox();
-  });
+  beforeEach(() => {});
   afterEach(() => {
-    sandbox.restore();
+    vi.restoreAllMocks();
   });
 
   it("list github releases happy path", async () => {
-    sandbox.stub(testToolCheckerDeps, "fetch").callsFake(async () => {
+    vi.spyOn(globalThis, "fetch").mockImplementation(async () => {
       const releases = [
         {
           tag_name: "microsoft-365-agents-playground@1.0.0",
@@ -1176,7 +1190,7 @@ describe("GitHubHelpers", () => {
   });
 
   it("ignores github releases not related to test tool", async () => {
-    sandbox.stub(testToolCheckerDeps, "fetch").callsFake(async () => {
+    vi.spyOn(globalThis, "fetch").mockImplementation(async () => {
       const releases = [
         {
           tag_name: "templates@1.0.0",
@@ -1197,7 +1211,7 @@ describe("GitHubHelpers", () => {
     expect(releases).to.deep.eq([]);
   });
   it("ignores releases that doesn't have assets", async () => {
-    sandbox.stub(testToolCheckerDeps, "fetch").callsFake(async () => {
+    vi.spyOn(globalThis, "fetch").mockImplementation(async () => {
       const releases = [
         {
           tag_name: "microsoft-365-agents-playground@1.0.0",

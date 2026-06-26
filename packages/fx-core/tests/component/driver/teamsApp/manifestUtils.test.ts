@@ -13,6 +13,7 @@ import fs from "fs-extra";
 import mockedEnv, { RestoreFn } from "mocked-env";
 import path from "path";
 import * as sinon from "sinon";
+import { vi } from "vitest";
 import {
   getBotsTplBasedOnVersion,
   getBotsTplExistingAppBasedOnVersion,
@@ -25,9 +26,9 @@ import { AppStudioError } from "../../../../src/component/driver/teamsApp/errors
 import {
   manifestUtils,
   ManifestUtils,
-  manifestUtilsDeps,
   SharePointAppId,
 } from "../../../../src/component/driver/teamsApp/utils/ManifestUtils";
+import * as envFunctionUtils from "../../../../src/component/utils/envFunctionUtils";
 import { FileNotFoundError, JSONSyntaxError, ReadFileError } from "../../../../src/error";
 
 const latestManifestVersion = "1.17";
@@ -532,6 +533,7 @@ describe("resolveLocFile", () => {
       mockedEnvRestore();
     }
     sandbox.restore();
+    vi.restoreAllMocks();
   });
 
   it("returns error when loc file doesn't exist", async () => {
@@ -628,7 +630,7 @@ describe("resolveLocFile", () => {
     );
 
     const expansionError = new UserError("source", "name", "message");
-    sandbox.stub(manifestUtilsDeps, "expandVariableWithFunction").resolves(err(expansionError));
+    vi.spyOn(envFunctionUtils, "expandVariableWithFunction").mockResolvedValue(err(expansionError));
 
     const context: any = {
       platform: Platform.VSCode,
