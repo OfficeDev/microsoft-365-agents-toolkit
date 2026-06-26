@@ -21,6 +21,7 @@
   "replaceMap": [
     { "var": "DeclarativeCopilot", "const": "true" },
     { "var": "MCPForDAServerUrl", "from": "mcpServerUrl" },
-    { "var": "MCPNamespace", "expr": "mcpNamespace(mcpServerUrl)" }
+    { "var": "MCPNamespace", "expr": "safeProjectNameLowerCase(appName)" },
+    { "var": "MCPServerName", "expr": "mcpNamespace(mcpServerUrl)" }
   ]
 }

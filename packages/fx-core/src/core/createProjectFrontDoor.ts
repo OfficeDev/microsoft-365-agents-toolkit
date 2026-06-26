@@ -7,6 +7,7 @@ import {
   Inputs,
   Platform,
   SystemError,
+  UserError,
   UserInteraction,
 } from "@microsoft/teamsfx-api";
 import fs from "fs-extra";
@@ -21,6 +22,7 @@ import {
   runCreateInputs,
   runCreateSelector,
 } from "../v4";
+import { parseMcpStaticToolsJson } from "../v4/mcp/mcpStaticTools";
 import { FeatureFlags, featureFlagManager } from "../common/featureFlags";
 import { TOOLS } from "../common/globalVars";
 import { QuestionNames } from "../question/questionNames";
@@ -55,6 +57,7 @@ const SOURCE = "Scaffold";
 
 /** The only shipped create `surface-action`: open GitHub Copilot Chat (the v3 `startWithGithubCopilot` shape). */
 const OPEN_GITHUB_COPILOT_CHAT = "open-github-copilot-chat";
+const STATIC_MCP_TEMPLATE_ID = "da/mcp-server-static";
 const NON_V4_INPUT_KEYS: ReadonlySet<string> = new Set([
   "capabilities",
   "folder",
@@ -138,6 +141,48 @@ function neutralAnswersFromInputs(inputs: Inputs): Answers {
     answers.officeAddinFolder = officeAddinFolder;
   }
   return answers;
+}
+
+function addLegacyStaticMcpInputs(
+  target: BuildTarget,
+  inputs: Inputs,
+  entryParams: Answers
+): Result<Answers, FxError> {
+  if (target.templateId !== STATIC_MCP_TEMPLATE_ID) {
+    return ok(entryParams);
+  }
+
+  const toolsFilePath = inputs[QuestionNames.MCPToolsFilePath];
+  if (typeof toolsFilePath !== "string" || toolsFilePath.length === 0) {
+    return ok(entryParams);
+  }
+
+  let toolsJson: string;
+  try {
+    toolsJson = fs.readFileSync(toolsFilePath, "utf8");
+  } catch {
+    return err(
+      new UserError({
+        source: SOURCE,
+        name: "McpToolsFileReadFailed",
+        message: "Failed to read the MCP tools file.",
+      })
+    );
+  }
+
+  const parsed = parseMcpStaticToolsJson(toolsJson);
+  if (!parsed.ok) {
+    return err(new UserError({ source: SOURCE, name: parsed.code, message: parsed.message }));
+  }
+
+  return ok({
+    ...entryParams,
+    mcpToolsJson:
+      typeof entryParams.mcpToolsJson === "string" ? entryParams.mcpToolsJson : toolsJson,
+    selectedMcpTools: Array.isArray(entryParams.selectedMcpTools)
+      ? entryParams.selectedMcpTools
+      : parsed.tools.map((tool) => tool.name),
+  });
 }
 
 function selectorPrefillFromInputs(inputs: Inputs): Record<string, string> {
@@ -247,7 +292,11 @@ export async function createProjectFrontDoor(
         ...(target.value.answers ?? {}),
         ...neutralAnswersFromInputs(inputs),
       };
-      const answers = await runInputs(floorBytes, locator, entryParams, ui, {
+      const bridgedEntryParams = addLegacyStaticMcpInputs(target.value, inputs, entryParams);
+      if (bridgedEntryParams.isErr()) {
+        return err(bridgedEntryParams.error);
+      }
+      const answers = await runInputs(floorBytes, locator, bridgedEntryParams.value, ui, {
         flagReader,
         surface,
       });

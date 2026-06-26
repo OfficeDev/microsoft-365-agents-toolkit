@@ -4,7 +4,10 @@
 import { CreateProjectResult, FxError, Inputs, Platform, UserError } from "@microsoft/teamsfx-api";
 import { UserInteraction } from "@microsoft/teamsfx-api";
 import { assert } from "chai";
+import fs from "fs-extra";
 import { Result, err, ok } from "neverthrow";
+import os from "os";
+import path from "path";
 import { Answers, BuildTarget, DeclarativeLocator } from "../../src/v4";
 import { CreateFrontDoorDeps, createProjectFrontDoor } from "../../src/core/createProjectFrontDoor";
 import { FeatureFlags } from "../../src/common/featureFlags";
@@ -466,6 +469,58 @@ describe("createProjectFrontDoor (dispatch-create-by-engine)", () => {
       mcpServerUrl: "https://api.example/mcp",
       authType: "none",
     });
+  });
+
+  it("DCE-18: legacy CLI MCP tools file is bridged into static v4 MCP Q2 params", async () => {
+    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "atk-mcp-tools-"));
+    const toolsPath = path.join(tempDir, "mcp-tools.json");
+    fs.writeJsonSync(toolsPath, {
+      tools: [
+        {
+          name: "searchFlights",
+          description: "Search available flights",
+          inputSchema: { type: "object", properties: {} },
+        },
+      ],
+    });
+    const runInputs = inputsRecorder({});
+    const inputs: Inputs = {
+      platform: Platform.CLI,
+      nonInteractive: true,
+      mcpServerUrl: "https://api.example/mcp",
+      authType: "none",
+      [QuestionNames.MCPToolsFilePath]: toolsPath,
+    };
+
+    try {
+      const res = await createProjectFrontDoor(
+        inputs,
+        deps({
+          runSelector: selectorRecorder(STATIC_MCP_TARGET).fn,
+          runInputs: runInputs.fn,
+          collectCreateFloor: okFloor,
+          scaffoldV4: okScaffold,
+        })
+      );
+
+      assert.isTrue(res.isOk());
+      const mcpToolsJson = runInputs.calls[0][2].mcpToolsJson;
+      if (typeof mcpToolsJson !== "string") {
+        assert.fail("Expected mcpToolsJson to be bridged as a string.");
+      }
+      assert.deepEqual(JSON.parse(mcpToolsJson), {
+        tools: [
+          {
+            name: "searchFlights",
+            description: "Search available flights",
+            inputSchema: { type: "object", properties: {} },
+          },
+        ],
+      });
+      assert.deepEqual(runInputs.calls[0][2].selectedMcpTools, ["searchFlights"]);
+    } finally {
+      fs.removeSync(tempDir);
+    }
   });
 
   it("DCE-17b: Office Add-in folder input is passed to the v4 input walk under its neutral key", async () => {

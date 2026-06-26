@@ -1,6 +1,6 @@
 {
   "servers": {
-    "{{MCPNamespace}}": {
+    "{{MCPServerName}}": {
       "type": "http",
       "url": "{{MCPForDAServerUrl}}"
     }
