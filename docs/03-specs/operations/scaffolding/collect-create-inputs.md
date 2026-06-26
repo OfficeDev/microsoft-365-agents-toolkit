@@ -21,8 +21,7 @@ builds a `CollectInputsPort` whose prompt face is a thin adapter over the host's
 surface-neutral `UserInteraction`, and walks the questions into `Answers`.
 
 It is the half of the front-loaded create funnel that comes **after** the engine
-is decided. [`resolve-build-target`](resolve-build-target.md) /
-[`route-declarative-via-selector`](route-declarative-via-selector.md) pick the
+is decided. [`resolve-build-target`](resolve-build-target.md) picks the
 `templateId` and the `v4` engine (Q1 / principle 1); this operation then asks the
 v4 template's own follow-up questions through the v4 engine — never the v3
 question tree — so a v4 route's Q2 is authored once, in `questions.json`, and
@@ -96,6 +95,9 @@ CI-testable with no external process.
 | CCI-14 | L1 | a descriptor language list containing `csharp`, `surface="vscode"` (the VS Code extension) | `gateLanguagesBySurface(languages, surface, flagReader)` | `csharp` is dropped regardless of `TEAMSFX_CLI_DOTNET` — the VS Code extension never scaffolds C# (mirrors v3, whose template metadata carries no `csharp`) |
 | CCI-15 | L1 | a language list containing `csharp`, `surface="cli"` / `"vs"` | `gateLanguagesBySurface(...)` | `csharp` is kept only when `flagReader("TEAMSFX_CLI_DOTNET")` is true (mirrors v3 CLI `listTemplates` / `create`); with the flag off it is dropped |
 | CCI-16 | L1 | a language list with no `csharp` (e.g. `["typescript","javascript"]` / `["common"]`) | `gateLanguagesBySurface(...)` | the list passes through unchanged, order preserved — the gate only ever removes `csharp` |
+| CCI-18 | L1 | the real shipped `da/graph-connector` (in-memory floor), a scripted UI answering connector name + connection id | `runCreateInputs` | `ok(Answers)` with `graphConnectorName` and `graphConnectorConnectionId`; both validators are wired into the port |
+| CCI-19 | L1 | the same template, a scripted UI returning a reserved Microsoft Graph external connection id prefix | `runCreateInputs` | `err` `UserError` named `INPUT_VALIDATION_FAILED` — the graph connector connection-id validator is wired into the port |
+| CCI-20 | L1 | the real shipped standalone `graph-connector` (in-memory floor), a scripted UI answering connector name + connection id | `runCreateInputs` | `ok(Answers)` with `language="typescript"`, `graphConnectorName`, and `graphConnectorConnectionId`; the TypeScript-only package owns its Q2 questions instead of falling back to v3 |
 
 ## Flow
 

@@ -3,6 +3,7 @@
       "javascript",
       "javascriptreact",
       "typescript"
-    ]
+    ],
+    "debug.hideSlowPreLaunchWarning": true
   }
   

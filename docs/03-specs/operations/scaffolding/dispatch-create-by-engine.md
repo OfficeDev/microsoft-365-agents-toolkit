@@ -11,8 +11,8 @@
   the `BuildTarget`), [`collect-create-inputs`](collect-create-inputs.md) (the v4
   Q2), [`resolve-build-target`](resolve-build-target.md) (the engine/templateId
   contract the walk wires)
-- **Supersedes:** [`route-declarative-via-selector`](route-declarative-via-selector.md)
-  (`resolveMcpDaRouting`) — the post-Q1 batch shim is replaced by a generic
+- **Supersedes:** the deleted `route-declarative-via-selector` /
+  `resolveMcpDaRouting` shim — the post-Q1 batch shim is replaced by a generic
   selector Q1 that produces `engine`/`templateId` for **every** create kind, not
   just the DA+MCP case
 - **PRD/scenario:** [`scenarios/da/create-mcp-server`](../../scenarios/da/create-mcp-server.md)
@@ -23,7 +23,7 @@ Wire the front-loaded create funnel into the **live** `FxCore.createProject` and
 route the flow by the resolved `engine`. Behind `TEAMSFX_V4_ENABLED`, the create
 flow's **Q1 is the selector walk** ([`walk-create-selector`](walk-create-selector.md)),
 not the v3 question tree (principle 1); the resulting `BuildTarget`
-(`{ templateId, engine, language?, answers }`) is then dispatched:
+(`{ templateId, engine, answers }`) is then dispatched:
 
 - **`engine: "v4"`** → run the template's own Q2 via
   [`collect-create-inputs`](collect-create-inputs.md), **collect the create floor**
@@ -215,20 +215,21 @@ flowchart TD
   v3 `createProject` body to also branch on engine — entanglement); the selector
   as the first v3 `IQTreeNode` (it is an imperative `UserInteraction` walk, not a
   tree node); dispatching in the `createProject` body (too late for the CLI
-  answer-collection phase). **Surface wiring:** the three create call sites
-  (vscode / cli / server) switch to `createProjectFrontDoor`; flag-off keeps their
-  behavior identical (L3-documented).
+  answer-collection phase). **Surface wiring:** current product wiring has VS
+  Code and CLI call `createProjectFrontDoor`; the server / Visual Studio entry
+  still calls `createProject` directly.
 - **Increment scope (option B — incremental by engine).** The dispatch covers all
-  three engines from day one, but today the only `engine:"v4"` route is
-  `da/mcp-server`; every other capability rides the `engine:"v3"` coexistence
-  seam. Porting a capability to v4 (an authored package + flipping its selector
-  route's `engine`) moves it from the v3 branch to the v4 branch with **no**
-  change to this operation — that is the per-capability increment (S4).
-- **What this deletes.** Landing this supersedes
-  [`route-declarative-via-selector`](route-declarative-via-selector.md)
-  (`resolveMcpDaRouting`): the DA+MCP case now flows through the generic selector
-  Q1 → `engine:"v4"` → declarative scaffold, so the post-Q1 batch shim is removed
-  rather than extended.
+  three engines from day one. Current `engine:"v4"` create routes include the
+  native Declarative Agent no-action, MCP-server, new-API, API-key, OAuth/Entra,
+  and existing-OpenAPI packages; remaining capabilities ride the `engine:"v3"`
+  coexistence seam. Porting another capability to v4 (an authored package +
+  flipping its selector route's `engine`) moves it from the v3 branch to the v4
+  branch with **no** change to this operation — that is the per-capability
+  increment (S4).
+- **What this deletes.** Landing this supersedes the deleted
+  `route-declarative-via-selector` / `resolveMcpDaRouting` shim: the DA+MCP case
+  now flows through the generic selector Q1 → `engine:"v4"` → declarative
+  scaffold, so the post-Q1 batch shim is removed rather than extended.
 - **Amendment (2026-06-15) — the v4 path collects its own create floor (INV-9).**
   The front door carries no `QuestionMW`, and neither Q1 (the selector) nor Q2
   (`runCreateInputs`) asks `folder` / `app-name`, so the first v4 route to reach

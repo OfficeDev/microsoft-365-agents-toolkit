@@ -17,6 +17,7 @@ import { assert } from "chai";
 import fs from "fs-extra";
 import sinon from "sinon";
 import { FxCore, pathUtils, UserCancelError } from "../../src";
+import { featureFlagManager } from "../../src/common/featureFlags";
 import { setTools } from "../../src/common/globalVars";
 import { coordinator } from "../../src/component/coordinator";
 import { MockTools } from "./utils";
@@ -58,6 +59,32 @@ describe("FxCore.createProject", () => {
   it("coordinator error", async () => {
     const core = new FxCore(tools);
     assert.isFunction(core.createProject);
+  });
+});
+
+describe("FxCore.createProjectFrontDoor", () => {
+  const sandbox = sinon.createSandbox();
+  const tools = new MockTools();
+  setTools(tools);
+  afterEach(() => {
+    sandbox.restore();
+  });
+
+  it("flag off is a pure pass-through to createProject", async () => {
+    // V4 disabled ⇒ the front door must not walk the selector; it hands the
+    // unmodified inputs straight to createProject (INV-1, byte-identical v3).
+    sandbox.stub(featureFlagManager, "getBooleanValue").returns(false);
+    const core = new FxCore(tools);
+    const passThrough = sandbox
+      .stub(core, "createProject")
+      .resolves(ok({ projectPath: "/out/MyApp" }));
+    const inputs: Inputs = { platform: Platform.VSCode };
+
+    const res = await core.createProjectFrontDoor(inputs);
+
+    assert.isTrue(res.isOk());
+    assert.equal(res._unsafeUnwrap().projectPath, "/out/MyApp");
+    assert.isTrue(passThrough.calledOnceWithExactly(inputs));
   });
 });
 

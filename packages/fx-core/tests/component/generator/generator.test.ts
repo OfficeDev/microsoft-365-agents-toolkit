@@ -907,15 +907,13 @@ describe("render template", () => {
         .stub(v4TemplateBridge.v4TemplateBridgeDeps, "createTemplateSourcePort")
         .returns({} as any);
       sandbox.stub(v4TemplateBridge.v4TemplateBridgeDeps, "loadBundledFloor").returns({} as any);
-      sandbox.stub(v4TemplateBridge.v4TemplateBridgeDeps, "resolveTemplateSource").resolves(
-        ok({
-          origin: "bundled",
-          version: "6.10.1",
-          digest: "sha256:abc",
-          location: "/floor/templates.zip",
-          warning: "resolved from floor",
-        })
-      );
+      sandbox.stub(v4TemplateBridge.v4TemplateBridgeDeps, "resolveLocalTemplateSource").returns({
+        origin: "bundled",
+        version: "6.10.1",
+        digest: "sha256:abc",
+        location: "/floor/templates.zip",
+        warning: "resolved from floor",
+      });
       sandbox
         .stub(v4TemplateBridge.v4TemplateBridgeDeps, "loadResolvedPackage")
         .returns(ok(Buffer.from("zip-bytes")));
