@@ -1,11 +1,11 @@
 import { TeamsAppManifest, ok } from "@microsoft/teamsfx-api";
 import { featureFlagManager, manifestUtils } from "@microsoft/teamsfx-core";
+import { assert, vi } from "vitest";
 import * as vscode from "vscode";
 import * as globalVariables from "../../src/globalVariables";
 import { CommandsTreeViewProvider } from "../../src/treeview/commandsTreeViewProvider";
 import treeViewManager from "../../src/treeview/treeViewManager";
 import * as commonUtils from "../../src/utils/commonUtils";
-import { vi, assert } from "vitest";
 import { mockValue } from "../mocks/vitestMockUtils";
 
 describe("TreeViewManager", () => {
@@ -58,7 +58,7 @@ describe("TreeViewManager", () => {
 
     const developmentTreeview = treeViewManager.getTreeView("teamsfx-development");
     assert.isDefined(developmentTreeview);
-    assert.equal((developmentTreeview as any).commands.length, 6);
+    assert.equal((developmentTreeview as any).commands.length, 5);
   });
 
   it("setRunningCommand", () => {

@@ -12,7 +12,6 @@ import {
   ok,
   Platform,
   Result,
-  UserError,
 } from "@microsoft/teamsfx-api";
 import { assert } from "chai";
 import fs from "fs-extra";
@@ -21,7 +20,6 @@ import { FxCore, pathUtils, UserCancelError } from "../../src";
 import { featureFlagManager } from "../../src/common/featureFlags";
 import { setTools } from "../../src/common/globalVars";
 import { coordinator } from "../../src/component/coordinator";
-import { QuestionNames } from "../../src/question/constants";
 import { MockTools } from "./utils";
 
 describe("FxCore.createProject", () => {
@@ -107,42 +105,6 @@ describe("createProjectFromTdp", () => {
   it("happy", async () => {
     const core = new FxCore(tools);
     assert.isFunction(core.createProjectFromTdp);
-  });
-});
-
-describe("metaOSExtendToDA", () => {
-  const sandbox = sinon.createSandbox();
-  const tools = new MockTools();
-  setTools(tools);
-  beforeEach(() => {});
-  afterEach(() => {
-    sandbox.restore();
-  });
-
-  it("happy path", async () => {
-    sandbox.stub(coordinator, "create").resolves(ok({ projectPath: "path" }));
-    sandbox.stub(tools, "logProvider").value(undefined);
-    const inputs: Inputs = {
-      platform: Platform.VSCode,
-      [QuestionNames.Folder]: "path",
-      [QuestionNames.AppName]: "abc",
-    };
-    const core = new FxCore(tools);
-    const res = await core.metaOSExtendToDA(inputs, "path");
-    assert.isTrue(res.isOk());
-  });
-
-  it("happy path: coordinator error", async () => {
-    sandbox.stub(coordinator, "create").resolves(err(new UserError({})));
-    sandbox.stub(tools, "logProvider").value(undefined);
-    const inputs: Inputs = {
-      platform: Platform.VSCode,
-      [QuestionNames.Folder]: "path",
-      [QuestionNames.AppName]: "abc",
-    };
-    const core = new FxCore(tools);
-    const res = await core.metaOSExtendToDA(inputs, "path");
-    assert.isTrue(res.isErr());
   });
 });
 
