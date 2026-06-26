@@ -35,7 +35,6 @@ import {
   createNewProjectHandler,
   deployHandler,
   m365PreAuthHandler,
-  metaOSExtendToDAHandler,
   provisionHandler,
   publishHandler,
   regeneratePluginHandler,
@@ -135,28 +134,6 @@ describe("Lifecycle handlers", () => {
       const res = await createNewProjectHandler({ teamsAppFromTdp: true }, {});
       assert.isTrue(res.isOk());
       assert.isTrue(openFolder.calledOnce);
-    });
-
-    it("metaOSExtendToDAHandler", async () => {
-      vi.spyOn(teamsfxCore, "isValidOfficeAddInProject").mockReturnValue(false);
-      const openFolder = vi.spyOn(workspaceUtils, "openFolder").mockResolvedValue();
-      vi.spyOn(shared, "runCommand").mockResolvedValue(
-        ok({
-          projectPath: "abc",
-        })
-      );
-      const res = await metaOSExtendToDAHandler();
-      assert.isTrue(res.isOk());
-      assert.isTrue(openFolder.calledOnce);
-    });
-
-    it("metaOSExtendToDAHandler failed", async () => {
-      vi.spyOn(teamsfxCore, "isValidOfficeAddInProject").mockReturnValue(false);
-      vi.spyOn(shared, "runCommand").mockResolvedValue(
-        err(new UserError("test", "name", "message"))
-      );
-      const res = await metaOSExtendToDAHandler();
-      assert.isTrue(res.isErr());
     });
   });
 

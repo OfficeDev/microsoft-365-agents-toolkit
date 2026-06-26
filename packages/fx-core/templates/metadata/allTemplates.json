@@ -112,20 +112,6 @@
     "description": "Declarative Agent with action from an existing API specification"
   },
   {
-    "id": "declarative-agent-meta-os-new-project",
-    "name": "declarative-agent-meta-os-new-project",
-    "language": "common",
-    "displayName": "Declarative Agent for MetaOS (New Project)",
-    "description": "Declarative Agent for MetaOS - new project"
-  },
-  {
-    "id": "declarative-agent-meta-os-upgrade-project",
-    "name": "declarative-agent-meta-os-upgrade-project",
-    "language": "common",
-    "displayName": "Declarative Agent for MetaOS (Upgrade Project)",
-    "description": "Declarative Agent for MetaOS - upgrade existing project"
-  },
-  {
     "id": "declarative-agent-with-action-from-mcp",
     "name": "declarative-agent-with-action-from-mcp",
     "language": "common",

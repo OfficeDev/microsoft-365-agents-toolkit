@@ -51,8 +51,6 @@ import {
   apiOperationQuestion,
   apiPluginStartQuestion,
   apiSpecLocationQuestion,
-  appNameQuestion,
-  folderQuestion,
   oneDriveSharePointItemConfirmQuestion,
   oneDriveSharePointItemQuestion,
   pluginManifestQuestion,
@@ -768,22 +766,6 @@ export function addPluginQuestionNode(): IQTreeNode {
             inputs.platform === Platform.CLI
           );
         },
-      },
-    ],
-  };
-}
-
-export function metaOSExtendToDAQuestionNode(): IQTreeNode {
-  return {
-    data: {
-      type: "group",
-    },
-    children: [
-      {
-        data: folderQuestion(),
-      },
-      {
-        data: appNameQuestion(),
       },
     ],
   };
