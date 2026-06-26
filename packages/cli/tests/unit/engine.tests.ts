@@ -10,6 +10,8 @@ import {
 } from "@microsoft/teamsfx-api";
 import {
   FxCore,
+  featureFlagManager,
+  FeatureFlags,
   IncompatibleProjectError,
   InputValidationError,
   MissingEnvironmentVariablesError,
@@ -31,6 +33,7 @@ import {
 } from "../../src/commands/models";
 import { getCreateCommand } from "../../src/commands/models/create";
 import { createSampleCommand } from "../../src/commands/models/createSample";
+import * as listTemplatesModule from "../../src/commands/models/listTemplates";
 import { rootCommand } from "../../src/commands/models/root";
 import { logger } from "../../src/commonlib/logger";
 import { CliTelemetryReporter } from "../../src/commonlib/telemetry";
@@ -224,6 +227,39 @@ describe("CLI Engine", () => {
       const result = engine.parseArgs(ctx, rootCommand, ["--option1=a,b,c"]);
       assert.isTrue(result.isOk());
       assert.deepEqual(ctx.optionValues["option1"], ["a", "b", "c"]);
+    });
+    it("rejects v4 primary create flags because atk new keeps the v3 option surface", async () => {
+      sandbox
+        .stub(featureFlagManager, "getBooleanValue")
+        .callsFake((flag) => flag.name === FeatureFlags.V4Enabled.name);
+      sandbox.stub(listTemplatesModule, "listAllTemplates").returns([] as any);
+      const command: CLIFoundCommand = { ...getCreateCommand(), fullName: "new" };
+      const ctx: CLIContext = {
+        command,
+        optionValues: {},
+        globalOptionValues: {},
+        argumentValues: [],
+        telemetryProperties: {},
+      };
+
+      const parseResult = engine.parseArgs(ctx, rootCommand, [
+        "--project-type",
+        "copilot-agent-type",
+        "--da-template",
+        "add-action",
+        "--action-source",
+        "mcp",
+        "--app-name",
+        "myagent",
+        "--interactive",
+        "false",
+      ]);
+
+      assert.isTrue(parseResult.isErr());
+      assert.isUndefined(ctx.optionValues.projectType);
+      assert.isUndefined(ctx.optionValues.daTemplate);
+      assert.isUndefined(ctx.optionValues.actionSource);
+      assert.isUndefined(ctx.optionValues.capabilities);
     });
     it("array type argument", async () => {
       const command: CLIFoundCommand = {

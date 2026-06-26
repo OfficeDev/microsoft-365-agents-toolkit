@@ -17,6 +17,7 @@ import { assert } from "chai";
 import fs from "fs-extra";
 import * as os from "os";
 import * as path from "path";
+import { createSandbox } from "sinon";
 import { FxCore, getLocalizedString } from "../../src";
 import { FeatureFlags, featureFlagManager } from "../../src/common/featureFlags";
 import { setTools } from "../../src/common/globalVars";
@@ -37,6 +38,7 @@ import { MockTools, randomAppName } from "./utils";
 
 describe("updateActionWithMCP", () => {
   const tools = new MockTools();
+  const sandbox = createSandbox();
   const projectPath = "/test/project";
   const pluginManifestPath = "/test/project/ai-plugin.json";
   const mcpServerUrl = "https://example.com/mcp";
@@ -47,6 +49,7 @@ describe("updateActionWithMCP", () => {
   });
 
   afterEach(() => {
+    sandbox.restore();
     vi.restoreAllMocks();
   });
 
@@ -256,6 +259,70 @@ describe("updateActionWithMCP", () => {
     assert.equal(mcpRuntime.spec.mcp_tool_description.file, "existing-mcp-tools.json");
   });
 
+  it("should update DT runtime when functions are omitted and run_for_functions is wildcard", async () => {
+    const core = new FxCore(tools);
+    const inputs: Inputs = {
+      projectPath,
+      platform: Platform.VSCode,
+      [QuestionNames.PluginManifestFilePath]: pluginManifestPath,
+      [QuestionNames.MCPForDAServerUrl]: mcpServerUrl,
+      [QuestionNames.MCPForDAServerName]: serverName,
+      [QuestionNames.MCPForDAAuth]: "None",
+      [QuestionNames.MCPForDAAvailableTools]: [
+        {
+          name: "newTool",
+          description: "New tool description",
+          inputSchema: {
+            type: "object",
+            properties: { param1: { type: "string" } },
+            required: ["param1"],
+          },
+        },
+      ],
+      [QuestionNames.MCPForDAPreFetchTools]: ["newTool"],
+      ignoreLockByUT: true,
+    };
+
+    const existingPlugin = {
+      runtimes: [
+        {
+          type: "RemoteMCPServer",
+          spec: {
+            url: mcpServerUrl,
+          },
+          run_for_functions: ["*"],
+        },
+      ],
+    };
+
+    let writtenPluginData: any;
+    sandbox.stub(fs, "pathExists").callsFake(async (filePath: string) => {
+      return !filePath.includes("mcp-tools");
+    });
+    sandbox.stub(fs, "readJSON").resolves(existingPlugin);
+    sandbox.stub(fs, "writeJSON").callsFake((filePath: string, data) => {
+      if (!filePath.includes("mcp-tools")) {
+        writtenPluginData = data;
+      }
+      return Promise.resolve();
+    });
+    sandbox.stub(pathUtils, "getYmlFilePath").returns("/test/project/teamsapp.yml");
+
+    sandbox.stub(tools.ui, "showMessage").resolves(ok("OK"));
+    sandbox.stub(tools.ui, "openFile").resolves();
+
+    const result = await core.updateActionWithMCP(inputs);
+
+    assert.isTrue(result.isOk());
+    assert.deepEqual(writtenPluginData.functions, [
+      {
+        name: "newTool",
+        description: "New tool description",
+      },
+    ]);
+    assert.deepEqual(writtenPluginData.runtimes[0].run_for_functions, ["newTool"]);
+  });
+
   it("should successfully update action with OAuth authentication", async () => {
     const core = new FxCore(tools);
     const inputs: Inputs = {
@@ -389,6 +456,88 @@ describe("updateActionWithMCP", () => {
     assert.isTrue(writeJSONStub.mock.calls.length === 2); // mcp-tools.json and ai-plugin.json
     assert.isTrue(showMessageStub.mock.calls.length === 1);
     assert.isTrue(openFileStub.mock.calls.length === 1);
+  });
+
+  it("should inject DCR action when updating action with OAuth dynamic registration", async () => {
+    const core = new FxCore(tools);
+    const inputs: Inputs = {
+      projectPath,
+      platform: Platform.VSCode,
+      [QuestionNames.PluginManifestFilePath]: pluginManifestPath,
+      [QuestionNames.MCPForDAServerUrl]: mcpServerUrl,
+      [QuestionNames.MCPForDAServerName]: serverName,
+      [QuestionNames.MCPForDAAuth]: "OAuthPluginVault",
+      [QuestionNames.MCPForDAAuthType]: "oauth-dynamic",
+      [QuestionNames.MCPForDAAuthWellKnownUrl]:
+        "https://example.com/.well-known/oauth-authorization-server",
+      [QuestionNames.MCPForDAAvailableTools]: [
+        {
+          name: "testTool",
+          description: "Test tool description",
+          inputSchema: {
+            type: "object",
+            properties: { param1: { type: "string" } },
+            required: ["param1"],
+          },
+        },
+      ],
+      [QuestionNames.MCPForDAPreFetchTools]: ["testTool"],
+      ignoreLockByUT: true,
+    };
+
+    const existingPlugin = {
+      functions: [],
+      runtimes: [],
+    };
+
+    sandbox.stub(fs, "pathExists").callsFake(async (filePath: string) => {
+      return !filePath.includes("mcp-tools");
+    });
+    sandbox.stub(fs, "readJSON").resolves(existingPlugin);
+    let writtenPluginData: any;
+    sandbox.stub(fs, "writeJSON").callsFake((filePath: string, data) => {
+      if (!filePath.includes("mcp-tools")) {
+        writtenPluginData = data;
+      }
+      return Promise.resolve();
+    });
+    sandbox.stub(pathUtils, "getYmlFilePath").returns("/test/project/m365agents.yml");
+    sandbox.stub(featureFlagManager, "getBooleanValue").callsFake((flag) => {
+      return flag === FeatureFlags.MCPForDADCR;
+    });
+    sandbox.stub(axios, "get").resolves({
+      status: 200,
+      data: {
+        authorization_endpoint: "https://example.com/oauth/authorize",
+        token_endpoint: "https://example.com/oauth/token",
+      },
+    });
+    const injectDcrStub = sandbox.stub(ActionInjector, "injectCreateDcrActionForMCP").resolves();
+    const injectOAuthStub = sandbox
+      .stub(ActionInjector, "injectCreateOAuthActionForMCP")
+      .resolves();
+
+    sandbox.stub(tools.ui, "showMessage").resolves(ok("OK"));
+    sandbox.stub(tools.ui, "openFile").resolves();
+
+    const result = await core.updateActionWithMCP(inputs);
+
+    if (result.isErr()) {
+      assert.fail(result.error.message);
+    }
+    assert.deepEqual(writtenPluginData.runtimes[0].auth, {
+      type: "OAuthPluginVault",
+      reference_id: `\${{MCP_DA_AUTH_ID_${serverName.toUpperCase()}}}`,
+    });
+    assert.isTrue(injectOAuthStub.notCalled);
+    assert.isTrue(injectDcrStub.calledOnce);
+    assert.deepEqual(injectDcrStub.firstCall.args, [
+      "/test/project/m365agents.yml",
+      serverName,
+      `MCP_DA_AUTH_ID_${serverName.toUpperCase()}`,
+      mcpServerUrl,
+      "https://example.com/.well-known/oauth-authorization-server",
+    ]);
   });
 
   it("should return error when plugin manifest file does not exist", async () => {
@@ -2572,7 +2721,7 @@ describe("addPlugin", async () => {
     }
   });
 
-  it("from MCP (DT flag on): writes dynamic-discovery plugin and injects oauth action", async () => {
+  it("from MCP (DT flag on): scaffolds the v4 add-mcp-server modify package", async () => {
     const appName = await mockV3Project();
     const projectPath = path.join(os.tmpdir(), appName);
     const inputs: Inputs = {
@@ -2613,6 +2762,19 @@ describe("addPlugin", async () => {
     vi.spyOn(copilotGptManifestUtils, "addAction").mockResolvedValue(
       ok({} as DeclarativeCopilotManifestSchema)
     );
+    const declarativeAgentModule = await import("../../src/core/FxCore.declarativeAgent");
+    const scaffoldV4Stub = vi
+      .spyOn(declarativeAgentModule.fxCoreDeclarativeAgentDeps, "scaffoldAddMcpServerFromV4")
+      .mockResolvedValue(ok(undefined));
+    const modifyFrontDoorStub = vi
+      .spyOn(declarativeAgentModule.fxCoreDeclarativeAgentDeps, "modifyProjectFrontDoor")
+      .mockImplementation(async (_inputs, selectorPrefill, entryParams, deps) => {
+        return deps.scaffoldV4(
+          inputs,
+          { templateId: "add-mcp-server", engine: "v4", answers: selectorPrefill },
+          entryParams
+        );
+      });
 
     vi.spyOn(addPluginTools.ui, "showMessage").mockImplementation((level) => {
       if (level === "warn") return Promise.resolve(ok("Add"));
@@ -2649,16 +2811,28 @@ describe("addPlugin", async () => {
     const result = await core.addPlugin(inputs);
 
     assert.isTrue(result.isOk());
-    assert.isTrue(injectStub.mock.calls.length === 1);
-    assert.isTrue(writeEnvStub.mock.calls.length > 0);
-    // DT branch writes a RemoteMCPServer runtime with dynamic discovery and
-    // a namespace derived from the MCP server host (alphanumeric, lowercase).
-    // Dynamic discovery is signalled by a spec carrying only `url` (no
-    // `mcp_tool_description`) per the v2.4 plugin schema.
-    const pluginManifest = writeJSONStub.mock.calls[0][1];
-    assert.equal(pluginManifest.namespace, "examplecom");
-    assert.deepEqual(pluginManifest.runtimes[0].spec, { url: "https://example.com/mcp" });
-    assert.deepEqual(pluginManifest.runtimes[0].run_for_functions, ["*"]);
+    assert.isTrue(modifyFrontDoorStub.mock.calls.length === 1);
+    assert.deepEqual(modifyFrontDoorStub.mock.calls[0][1], {
+      addCapability: "add-action",
+      actionSource: "mcp",
+    });
+    assert.deepInclude(modifyFrontDoorStub.mock.calls[0][2], {
+      mcpServerUrl: "https://example.com/mcp",
+      teamsManifestPath: "manifest.json",
+      authType: "oauth",
+    });
+    assert.isTrue(scaffoldV4Stub.mock.calls.length === 1);
+    assert.deepInclude(scaffoldV4Stub.mock.calls[0][0], {
+      templateId: "add-mcp-server",
+      projectPath,
+      teamsManifestPath: "manifest.json",
+      appName: "My MCP App",
+      mcpServerUrl: "https://example.com/mcp",
+      authType: "oauth",
+    });
+    assert.isTrue(injectStub.mock.calls.length === 0);
+    assert.isTrue(writeEnvStub.mock.calls.length === 0);
+    assert.isTrue(writeJSONStub.mock.calls.length === 0);
 
     if (await fs.pathExists(projectPath)) {
       await fs.remove(projectPath);
@@ -2700,6 +2874,19 @@ describe("addPlugin", async () => {
     vi.spyOn(copilotGptManifestUtils, "addAction").mockResolvedValue(
       ok({} as DeclarativeCopilotManifestSchema)
     );
+    const declarativeAgentModule = await import("../../src/core/FxCore.declarativeAgent");
+    const scaffoldV4Stub = vi
+      .spyOn(declarativeAgentModule.fxCoreDeclarativeAgentDeps, "scaffoldAddMcpServerFromV4")
+      .mockResolvedValue(ok(undefined));
+    const modifyFrontDoorStub = vi
+      .spyOn(declarativeAgentModule.fxCoreDeclarativeAgentDeps, "modifyProjectFrontDoor")
+      .mockImplementation(async (_inputs, selectorPrefill, entryParams, deps) => {
+        return deps.scaffoldV4(
+          inputs,
+          { templateId: "add-mcp-server", engine: "v4", answers: selectorPrefill },
+          entryParams
+        );
+      });
 
     vi.spyOn(addPluginTools.ui, "showMessage").mockImplementation((level) => {
       if (level === "warn") return Promise.resolve(ok("Add"));
@@ -2719,8 +2906,15 @@ describe("addPlugin", async () => {
 
     assert.isTrue(result.isOk());
     assert.isTrue(injectStub.mock.calls.length === 0);
-    const pluginManifest = writeJSONStub.mock.calls[0][1];
-    assert.deepEqual(pluginManifest.runtimes[0].auth, { type: "None" });
+    assert.isTrue(modifyFrontDoorStub.mock.calls.length === 1);
+    assert.isTrue(scaffoldV4Stub.mock.calls.length === 1);
+    assert.deepInclude(scaffoldV4Stub.mock.calls[0][0], {
+      templateId: "add-mcp-server",
+      projectPath,
+      mcpServerUrl: "https://example.com/mcp",
+      authType: "none",
+    });
+    assert.isTrue(writeJSONStub.mock.calls.length === 0);
 
     if (await fs.pathExists(projectPath)) {
       await fs.remove(projectPath);

@@ -142,7 +142,6 @@ import {
   getParserOptions,
 } from "../component/generator/openApiSpec/helper";
 import * as templateHelper from "../component/generator/templateHelper";
-import { TemplateNames } from "../component/generator/templates/templateNames";
 import * as generatorUtils from "../component/generator/utils";
 import { resolveV4MetadataSource } from "../component/generator/v4MetadataSource";
 import { LaunchHelper } from "../component/m365/launchHelper";
@@ -187,6 +186,8 @@ import { ShareOperationOption, ShareScopeOption } from "../question/share";
 import { CallbackRegistry, CoreCallbackFunc } from "./callback";
 import * as collaboratorCore from "./collaborator";
 import { CollaborationUtil } from "./collaborator";
+import { applyV3PreFill, collectCreateFloor, scaffoldV4 } from "./createFrontDoorAdapters";
+import { createProjectFrontDoor as runCreateFrontDoor } from "./createProjectFrontDoor";
 import { LocalCrypto } from "./crypto";
 import { environmentNameManager } from "./environmentName";
 import { FxCoreOpenPluginPart } from "./FxCore.openPlugin";
@@ -252,6 +253,31 @@ export class FxCore extends FxCoreOpenPluginPart {
       inputs.projectPath = res.value.projectPath;
     }
     return res;
+  }
+
+  /**
+   * The create front door (operation `dispatch-create-by-engine`): the single
+   * entry the create surfaces call in place of `createProject`. Behind
+   * `TEAMSFX_V4_ENABLED` it runs the v4 create selector (Q1) and dispatches the
+   * resolved `BuildTarget` by engine; flag off it is a pure pass-through to the
+   * unmodified `createProject`, so v3 behavior is byte-identical.
+   *
+   * It drives its own questions (the v4 selector + the template's Q2 + the v4
+   * create floor, or the v3 `QuestionMW` reached through `createProject`), so it
+   * carries no `QuestionMW`. `FxCore` is the composition root that supplies the
+   * four real seams; the orchestrator stays pure and injectable.
+   */
+  @hooks([
+    ErrorContextMW({ component: "FxCore", stage: "createProjectFrontDoor", reset: true }),
+    ErrorHandlerMW,
+  ])
+  async createProjectFrontDoor(inputs: Inputs): Promise<Result<CreateProjectResult, FxError>> {
+    return runCreateFrontDoor(inputs, {
+      createV3: (i) => this.createProject(i),
+      scaffoldV4,
+      collectCreateFloor,
+      applyV3PreFill,
+    });
   }
 
   @hooks([
@@ -2146,31 +2172,6 @@ export class FxCore extends FxCoreOpenPluginPart {
     }
 
     return ok(undefined);
-  }
-
-  /**
-   * MetaOS Extend To DA
-   */
-  @hooks([
-    ErrorContextMW({ component: "FxCore", stage: Stage.metaOSExtendToDA }),
-    ErrorHandlerMW,
-    QuestionMW("metaOSExtendToDA"),
-  ])
-  async metaOSExtendToDA(
-    inputs: Inputs,
-    workDir: string
-  ): Promise<Result<undefined | any, FxError>> {
-    const context = createContext();
-
-    inputs[QuestionNames.Scratch] = ScratchOptions.yes().id;
-    inputs[QuestionNames.TemplateName] = TemplateNames.DeclarativeAgentMetaOSUpgradeProject;
-    inputs[QuestionNames.OfficeAddinFolder] = workDir;
-
-    const res = await coordinator.create(context, inputs);
-    if (res.isOk()) {
-      inputs.projectPath = res.value.projectPath;
-    }
-    return res;
   }
 
   /**

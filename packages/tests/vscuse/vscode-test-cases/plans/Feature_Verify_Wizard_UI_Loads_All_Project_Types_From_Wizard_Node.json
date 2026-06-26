@@ -9,7 +9,7 @@
       "precondition_retry_interval": 2,
       "step_retry_timeout": 0
     },
-    "total_steps": 23,
+    "total_steps": 22,
     "created_at": "2026-06-01T01:59:19.909528",
     "name": "Feature Verify Wizard UI Loads All Project Types From Wizard Node",
     "description": {
@@ -29,7 +29,7 @@
       "step_2a36b80f",
       "step_f7b63663",
       "step_4c45cf70",
-      "step_e0c916fc",
+      "plan_r_0624_024810",
       "step_b601ae6e",
       "step_6961ad46",
       "step_2b58b65d",
@@ -256,32 +256,6 @@
       "tags": [],
       "screenshot": "step_4c45cf70",
       "created_at": "2026-06-01T02:22:35.189079",
-      "plan_id": "plan_5015aa7b"
-    },
-    {
-      "step_id": "step_e0c916fc",
-      "agent": "interaction",
-      "tool": "click",
-      "parameters": {
-        "button": "left",
-        "x": 333,
-        "y": 220
-      },
-      "description": "Click the \"Teams Agent and Apps\" dropdown option in the New Project selection dialog within Visual Studio Code, under the Microsoft 365 Agents Toolkit extension interface.",
-      "content_refs": [],
-      "timeout": 30,
-      "retry_count": 0,
-      "continue_on_error": "false",
-      "depends_on": [],
-      "preconditions": [
-        "dhash:333:220:16:5:aea6b44b34483424",
-        "dhash:333:220:96:5:2932b7c5121a8584",
-        "dhash:333:220:0:10:c0c8809292b17075"
-      ],
-      "postconditions": [],
-      "tags": [],
-      "screenshot": "step_e0c916fc",
-      "created_at": "2026-06-01T02:22:35.199069",
       "plan_id": "plan_5015aa7b"
     },
     {

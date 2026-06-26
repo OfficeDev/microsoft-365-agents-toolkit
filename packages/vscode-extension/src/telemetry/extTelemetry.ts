@@ -1,14 +1,14 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import * as vscode from "vscode";
 import { FxError, Stage } from "@microsoft/teamsfx-api";
 import * as teamsfxCore from "@microsoft/teamsfx-core";
+import * as vscode from "vscode";
 import * as extensionPackage from "../../package.json";
-import { VSCodeTelemetryReporter } from "./vscodeTelemetryReporter";
 import * as globalVariables from "../globalVariables";
 import * as telemetryUtilsModule from "../utils/telemetryUtils";
 import { TelemetryComponentType, TelemetryEvent, TelemetryProperty } from "./extTelemetryEvents";
+import { VSCodeTelemetryReporter } from "./vscodeTelemetryReporter";
 
 const TelemetryCacheKey = "TelemetryEvents";
 
@@ -82,8 +82,6 @@ export namespace ExtTelemetry {
         return TelemetryEvent.AddPlugin;
       case Stage.RegeneratePlugin:
         return TelemetryEvent.RegenerateAction;
-      case Stage.metaOSExtendToDA:
-        return TelemetryEvent.MetaOSExtendToDA;
       case Stage.addAuthAction:
         return TelemetryEvent.AddAuthAction;
       case Stage.addKnowledge:

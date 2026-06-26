@@ -7,7 +7,7 @@
   "scripts": {
     "lint:staged": "lint-staged",
     "lint": "eslint \"src/**/*.ts\" \"tests/**/*.ts\"",
-    "test:unit": "vitest run --config vitest.config.ts --coverage --maxWorkers=75%",
+    "test:unit": "vitest run --coverage --config vitest.config.ts --maxWorkers=75%",
     "test:unit:fast": "vitest run --config vitest.config.ts --maxWorkers=75% --reporter=dot",
     "test:unit:changed": "vitest run --config vitest.config.ts --maxWorkers=75% --changed",
     "test:unit:log": "vitest run --coverage --config vitest.config.ts --maxWorkers=75% > unit-test.log 2>&1",

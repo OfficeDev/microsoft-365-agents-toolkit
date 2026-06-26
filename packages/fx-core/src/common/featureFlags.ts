@@ -129,7 +129,7 @@ export class FeatureFlags {
   };
   static readonly MCPForDADCR = {
     name: FeatureFlagName.MCPForDADCR,
-    defaultValue: "false",
+    defaultValue: "true",
   };
   static readonly GenerateConfigFiles = {
     name: FeatureFlagName.GenerateConfigFiles,

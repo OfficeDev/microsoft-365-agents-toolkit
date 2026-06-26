@@ -1064,6 +1064,31 @@ describe("helper", async () => {
     });
   });
 
+  describe("MCP-DA post scaffolding", () => {
+    it("runs generateForMCPForDA in post for the MCP-DA template", async () => {
+      const generator = new DeclarativeAgentGenerator();
+      const context = createContext();
+      const inputs: Inputs = {
+        platform: Platform.VSCode,
+        projectPath: "./",
+        [QuestionNames.TemplateName]: TemplateNames.DeclarativeAgentWithActionFromMCP,
+        [QuestionNames.AppName]: "app",
+      };
+      sandbox.stub(featureFlagManager, "getBooleanValue").returns(false);
+      sandbox
+        .stub(copilotGptManifestUtils, "getManifestPath")
+        .resolves(ok("declarativeAgent.json"));
+      const mcpStub = sandbox
+        .stub(declarativeAgentGeneratorDeps, "generateForMCPForDA")
+        .resolves(ok({ warnings: [] }));
+
+      const res = await generator.post(context, inputs, "");
+
+      assert.isTrue(res.isOk());
+      assert.isTrue(mcpStub.calledOnce);
+    });
+  });
+
   describe("generateForMCPForDA", () => {
     const testDestinationPath = "/test/destination";
     const testAiPluginPath = path.join(testDestinationPath, "appPackage", "ai-plugin.json");
