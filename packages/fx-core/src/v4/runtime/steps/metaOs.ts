@@ -24,8 +24,6 @@ const PACKAGE_JSON_PATH = "package.json";
 const COMMANDS_PATH = "src/commands/commands.ts";
 const DEFAULT_MANIFEST_ID = "${{TEAMS_APP_ID}}";
 const DEFAULT_DA_ID = "declarativeAgentAlc";
-const DEFAULT_DA_FILENAME = "declarativeAgent.json";
-const DEFAULT_ACTION_FILENAME = "alchemy-plugin.json";
 const DEFAULT_COMMAND_FILE_NAME = "commands.js";
 const OFFICE_ADDIN_DEBUGGING_VERSION = "6.0.6";
 
