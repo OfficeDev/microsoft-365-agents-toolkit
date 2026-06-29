@@ -11,7 +11,7 @@ const SOURCE = "Scaffold";
 /** Package namespace. */
 export type PackageKind = "create" | "modify";
 
-/** Validation mode; only `load` compares this engine against `minEngineVersion`. */
+/** Validation mode; retained for signature parity. The engine gate is disabled. */
 export type ValidateMode = "build" | "load";
 
 /** One content file's path plus extracted `{{token}}` names. */
@@ -112,33 +112,11 @@ function v4RouteIds(selectorData: unknown): string[] {
   return ids;
 }
 
-/** Compare `major.minor.patch` numerically: <0 / 0 / >0. */
-function compareSemver(a: string, b: string): number {
-  const pa = parseSemver(a);
-  const pb = parseSemver(b);
-  for (let i = 0; i < 3; i++) {
-    if (pa[i] !== pb[i]) {
-      return pa[i] < pb[i] ? -1 : 1;
-    }
-  }
-  return 0;
-}
-
-function parseSemver(v: string): number[] {
-  const parts = v.split(".");
-  const nums: number[] = [];
-  for (let i = 0; i < 3; i++) {
-    const n = Number.parseInt(parts[i] ?? "0", 10);
-    nums.push(Number.isNaN(n) ? 0 : n);
-  }
-  return nums;
-}
-
 /** Validate one `<kind>/<id>` package before any content is rendered. */
 export function validateTemplatePackage(
   kind: PackageKind,
   id: string,
-  mode: ValidateMode,
+  _mode: ValidateMode,
   port: TemplatePackagePort
 ): Result<ValidatedPackage, FxError> {
   const pkg = `${kind}/${id}`;
@@ -282,14 +260,8 @@ export function validateTemplatePackage(
     );
   }
 
-  if (mode === "load" && compareSemver(port.engineVersion(), minEngineVersion) < 0) {
-    return err(
-      userError(
-        VALIDATE_ENGINE_TOO_OLD,
-        `${pkg}: requires engine ${minEngineVersion}, but this engine is ${port.engineVersion()}; upgrade the engine (no silent fallback)`
-      )
-    );
-  }
-
+  // The engine-version reverse gate is disabled: minEngineVersion is still
+  // mandatory (recorded for telemetry) but never blocks load, so v4 packages
+  // run regardless of the engine SemVer.
   return ok({ descriptor, minEngineVersion, contentFiles });
 }

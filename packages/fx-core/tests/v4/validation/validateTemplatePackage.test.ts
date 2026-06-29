@@ -7,7 +7,6 @@ import {
   ContentFile,
   TemplatePackagePort,
   VALIDATE_DANGLING_ROUTE,
-  VALIDATE_ENGINE_TOO_OLD,
   VALIDATE_KIND_OVERLAP,
   VALIDATE_MIN_ENGINE_MISSING,
   VALIDATE_PLACEHOLDER_DRIFT,
@@ -346,7 +345,7 @@ describe("v4/validation/validateTemplatePackage", () => {
     assert.isTrue(res.isOk());
   });
 
-  it("AC-18: load, engine 6.11.0 < minEngineVersion 6.11.3 -> UserError (upgrade engine)", () => {
+  it("AC-18: engine gate disabled - engine 6.11.0 < minEngineVersion 6.11.3 still ok", () => {
     const parts = validParts();
     parts.engineVersion = "6.11.0";
     parts.descriptor = {
@@ -358,14 +357,10 @@ describe("v4/validation/validateTemplatePackage", () => {
       replaceMap: [{ var: "MCPNamespace", const: "ns" }],
     };
     const res = validateTemplatePackage("create", "mcp-server", "load", makePort(parts));
-    assert.isTrue(res.isErr());
-    const e = res._unsafeUnwrapErr();
-    assert.instanceOf(e, UserError);
-    assert.equal(e.name, VALIDATE_ENGINE_TOO_OLD);
-    assert.include(e.message, "6.11.3");
+    assert.isTrue(res.isOk());
   });
 
-  it("AC-19: per-package gate separates siblings in one artifact (mcp-server ok, foo too-old)", () => {
+  it("AC-19: engine gate disabled - siblings both ok regardless of minEngineVersion", () => {
     const okParts = validParts();
     okParts.engineVersion = "6.11.0";
 
@@ -389,8 +384,7 @@ describe("v4/validation/validateTemplatePackage", () => {
     const resOk = validateTemplatePackage("create", "mcp-server", "load", makePort(okParts));
     const resFoo = validateTemplatePackage("create", "foo", "load", makePort(foo));
     assert.isTrue(resOk.isOk());
-    assert.isTrue(resFoo.isErr());
-    assert.equal(resFoo._unsafeUnwrapErr().name, VALIDATE_ENGINE_TOO_OLD);
+    assert.isTrue(resFoo.isOk());
   });
 
   it("AC-20: a malformed package fails identically under build and load", () => {
