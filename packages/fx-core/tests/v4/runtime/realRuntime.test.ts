@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { assert } from "chai";
 import * as fs from "fs-extra";
 import * as os from "os";
 import * as path from "path";
@@ -10,6 +9,7 @@ import { TemplateFileEntry } from "../../../src/v4/model/dataModel";
 import { REQUIRE_EMPTY_TARGET } from "../../../src/v4/pipeline/runScaffoldPipeline";
 import { createRealRuntime } from "../../../src/v4/runtime/realRuntime";
 import { ScaffoldRequest, scaffold } from "../../../src/v4/runtime/scaffold";
+import { assert } from "vitest";
 
 /**
  * The on-disk `ScaffoldRuntime` face (ADR-0018): the same `da/mcp-server` create

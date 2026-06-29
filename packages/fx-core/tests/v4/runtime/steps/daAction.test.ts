@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { assert } from "chai";
 import { SystemError } from "@microsoft/teamsfx-api";
 import {
   STEP_REGISTER_PLUGIN_MANIFEST,
@@ -9,6 +8,7 @@ import {
 } from "../../../../src/v4/runtime/steps/daAction";
 import { StepContext } from "../../../../src/v4/pipeline/runScaffoldPipeline";
 import { STEP_REGISTRY } from "../../../../src/v4/runtime/runtimeRegistry";
+import { assert } from "vitest";
 
 /** A minimal in-memory `StepContext` whose read/write share one file map. */
 function makeCtx(initial: Record<string, string> = {}): {

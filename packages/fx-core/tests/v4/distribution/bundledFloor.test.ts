@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { assert } from "chai";
 import * as fs from "fs-extra";
 import * as os from "os";
 import * as path from "path";
@@ -11,6 +10,7 @@ import {
   loadBundledFloor,
 } from "../../../src/v4/distribution/bundledFloor";
 import { computeDigest } from "../../../src/v4/distribution/templateSource";
+import { assert } from "vitest";
 
 describe("bundledFloor (v4)", () => {
   describe("bundledFloorFrom (pure)", () => {
@@ -54,18 +54,18 @@ describe("bundledFloor (v4)", () => {
     });
 
     it("throws BundledFloorMissing when the manifest is absent", () => {
-      assert.throws(() => loadBundledFloor(dir), /BundledFloorMissing|manifest is missing/);
+      expect(() => loadBundledFloor(dir)).toThrow(/BundledFloorMissing|manifest is missing/);
     });
 
     it("throws BundledFloorMissing when the package zip is absent", () => {
       fs.writeJsonSync(path.join(dir, "floor.json"), { version: "6.11.0" });
-      assert.throws(() => loadBundledFloor(dir), /BundledFloorMissing|package is missing/);
+      expect(() => loadBundledFloor(dir)).toThrow(/BundledFloorMissing|package is missing/);
     });
 
     it("throws BundledFloorMalformed when version is missing", () => {
       fs.writeJsonSync(path.join(dir, "floor.json"), { notVersion: "x" });
       fs.writeFileSync(path.join(dir, "templates.zip"), Buffer.from("z"));
-      assert.throws(() => loadBundledFloor(dir), /BundledFloorMalformed|no string "version"/);
+      expect(() => loadBundledFloor(dir)).toThrow(/BundledFloorMalformed|no string "version"/);
     });
   });
 });

@@ -60,9 +60,6 @@ import { AppStudioResultFactory } from "../results";
 import { getResolvedManifest } from "./utils";
 
 export const SharePointAppId = "00000003-0000-0ff1-ce00-000000000000";
-export const manifestUtilsDeps = {
-  expandVariableWithFunction,
-};
 
 export interface ManifestCommonProperties {
   /**
@@ -495,7 +492,7 @@ export class ManifestUtils {
     let resolvedLocFileString = locFileString;
 
     if (context) {
-      const processedFunctionRes = await manifestUtilsDeps.expandVariableWithFunction(
+      const processedFunctionRes = await expandVariableWithFunction(
         locFileString,
         context,
         undefined,

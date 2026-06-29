@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { assert } from "chai";
 import { UserError } from "@microsoft/teamsfx-api";
+import { assert } from "vitest";
 import {
   ContentFile,
   TemplatePackagePort,

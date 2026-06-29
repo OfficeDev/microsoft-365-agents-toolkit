@@ -1,10 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { assert } from "chai";
 import * as fs from "fs";
 import * as path from "path";
 import { UserError } from "@microsoft/teamsfx-api";
+import { assert } from "vitest";
 import {
   BUILD_TARGET_MALFORMED_SELECTOR,
   parseSelectorSpec,

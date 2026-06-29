@@ -10,11 +10,11 @@ import {
   UserError,
   UserInteraction,
 } from "@microsoft/teamsfx-api";
-import { assert } from "chai";
 import AdmZip from "adm-zip";
 import path from "path";
 import { Result, err, ok } from "neverthrow";
 import { openCreateSelectorPresentation } from "../../../src/v4/distribution/createSelector";
+import { assert } from "vitest";
 import {
   resolveCreateTargetByTemplateId,
   runCreateSelector,

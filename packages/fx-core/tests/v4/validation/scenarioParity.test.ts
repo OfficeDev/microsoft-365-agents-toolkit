@@ -1,9 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { assert } from "chai";
 import * as fs from "fs";
 import * as path from "path";
+import { assert } from "vitest";
 
 type TemplateKind = "create" | "modify";
 

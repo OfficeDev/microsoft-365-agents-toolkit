@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { assert } from "chai";
 import { evaluateExpression } from "../../../src/v4/expression/evaluateExpression";
+import { assert } from "vitest";
 import {
   createExpressionPort,
   deriveMcpServerName,

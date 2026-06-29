@@ -3,11 +3,11 @@
 
 import { CreateProjectResult, FxError, Inputs, Platform, UserError } from "@microsoft/teamsfx-api";
 import { UserInteraction } from "@microsoft/teamsfx-api";
-import { assert } from "chai";
 import fs from "fs-extra";
 import { Result, err, ok } from "neverthrow";
 import os from "os";
 import path from "path";
+import { assert } from "vitest";
 import { Answers, BuildTarget, DeclarativeLocator } from "../../src/v4";
 import { CreateFrontDoorDeps, createProjectFrontDoor } from "../../src/core/createProjectFrontDoor";
 import { FeatureFlags } from "../../src/common/featureFlags";

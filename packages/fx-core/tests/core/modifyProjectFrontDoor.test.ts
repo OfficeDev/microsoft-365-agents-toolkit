@@ -2,10 +2,10 @@
 // Licensed under the MIT license.
 
 import { FxError, Inputs, Platform, SystemError, UserInteraction } from "@microsoft/teamsfx-api";
-import { assert } from "chai";
 import { Result, err, ok } from "neverthrow";
 import { Answers, BuildTarget, DeclarativeLocator } from "../../src/v4";
 import { ModifyFrontDoorDeps, modifyProjectFrontDoor } from "../../src/core/modifyProjectFrontDoor";
+import { assert } from "vitest";
 
 const EMPTY_FLOOR = Buffer.alloc(0);
 
