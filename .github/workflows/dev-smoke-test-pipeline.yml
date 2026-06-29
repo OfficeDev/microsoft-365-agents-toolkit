@@ -225,12 +225,13 @@ jobs:
           script: |
             const owner = context.repo.owner;
             const repo = context.repo.repo;
+            const sourceBranch = '${{ github.head_ref || github.ref_name }}';
 
             await github.rest.actions.createWorkflowDispatch({
               owner,
               repo,
               workflow_id: 'ui-test-vscuse-template.yml',
-              ref: 'dev',
+              ref: sourceBranch,
               inputs: {
                 image_tag: '${{ needs.run-cd.outputs.tag_name }}',
                 'email-receiver': '${{ inputs.email }}',
@@ -245,7 +246,7 @@ jobs:
               owner,
               repo,
               workflow_id: 'ui-test-vscuse-template.yml',
-              branch: 'dev',
+              branch: sourceBranch,
               per_page: 5
             });
 
