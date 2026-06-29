@@ -12,16 +12,14 @@ import {
   Result,
   SettingsFolderName,
 } from "@microsoft/teamsfx-api";
-import { assert, expect } from "chai";
 import fs from "fs-extra";
 import * as os from "os";
 import * as path from "path";
-import * as sinon from "sinon";
-import { vi } from "vitest";
-import { CallbackRegistry } from "../../../src/core/callback";
-import { ConcurrentLockerMW, getLockFolder } from "../../../src/core/middleware/concurrentLocker";
+import { assert, chai, vi } from "vitest";
 import * as projectSettingsHelper from "../../../src/common/projectSettingsHelper";
 import * as commonUtils from "../../../src/common/utils";
+import { CallbackRegistry } from "../../../src/core/callback";
+import { ConcurrentLockerMW, getLockFolder } from "../../../src/core/middleware/concurrentLocker";
 import { CoreSource, NoProjectOpenedError } from "../../../src/error";
 import {
   ConcurrentError,
@@ -33,7 +31,7 @@ import { randomAppName } from "../utils";
 
 describe("Middleware - ConcurrentLockerMW", () => {
   afterEach(() => {
-    sinon.restore();
+    vi.restoreAllMocks();
   });
 
   it("check lock file existence", async () => {
@@ -203,8 +201,8 @@ describe("Middleware - ConcurrentLockerMW", () => {
       await fs.ensureDir(inputs.projectPath);
       await fs.ensureDir(path.join(inputs.projectPath, `.${ConfigFolderName}`));
       await my.myMethod(inputs);
-      expect(d).eql(1);
-      expect(functionName).eql("myMethod");
+      chai.expect(d).eql(1);
+      chai.expect(functionName).eql("myMethod");
     } finally {
       await fs.remove(inputs.projectPath!);
     }

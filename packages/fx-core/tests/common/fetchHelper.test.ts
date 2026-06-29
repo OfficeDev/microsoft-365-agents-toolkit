@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
-import { assert } from "chai";
-import { vi } from "vitest";
+import { assert, vi } from "vitest";
 import * as fetchHelper from "../../src/common/fetchHelper";
 
 describe("fetchHelper", () => {

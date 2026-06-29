@@ -1,6 +1,5 @@
-import * as chai from "chai";
 import mockFs from "mock-fs";
-import { vi } from "vitest";
+import { chai, vi } from "vitest";
 import * as projectSettingsHelper from "../../src/common/projectSettingsHelper";
 import { OfficeManifestType } from "../../src/common/projectSettingsHelper";
 

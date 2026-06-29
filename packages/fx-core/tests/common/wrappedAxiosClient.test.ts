@@ -2,9 +2,8 @@
 // Licensed under the MIT license.
 
 import axios, { AxiosInstance } from "axios";
-import * as chai from "chai";
 import { v4 as uuid } from "uuid";
-import { afterEach, beforeEach, vi } from "vitest";
+import { afterEach, beforeEach, chai, expect, vi } from "vitest";
 import { TEAMS_GRAPH_API_NAMES } from "../../src/client/teamsGraphClient";
 import { getResourceServiceEndpoint, ResourceServiceType } from "../../src/common/constants";
 import { setTools } from "../../src/common/globalVars";

@@ -1,32 +1,44 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { assert } from "chai";
 import * as fs from "fs-extra";
 import mockedEnv, { RestoreFn } from "mocked-env";
 import os from "os";
 import path from "path";
-import { createSandbox, SinonSandbox } from "sinon";
+import { assert, vi } from "vitest";
 import { featureFlagManager, FeatureFlags } from "../../../src/common/featureFlags";
 import { globalVars } from "../../../src/common/globalVars";
 import * as telemetryModule from "../../../src/common/telemetry";
 import * as pathUtils from "../../../src/component/utils/pathUtils";
 import { settingsUtil } from "../../../src/component/utils/settingsUtil";
 
+function stubGetBooleanValue(generateConfigFiles: boolean) {
+  vi.spyOn(featureFlagManager, "getBooleanValue").mockImplementation((flag: any) =>
+    flag === FeatureFlags.GenerateConfigFiles ? generateConfigFiles : false
+  );
+}
+
+function stubPathUtils(getYmlFilePath?: string, getAvailableYmlFilePath?: string) {
+  vi.spyOn(pathUtils.pathUtils, "getYmlFilePath").mockReturnValue(getYmlFilePath as any);
+  vi.spyOn(pathUtils.pathUtils, "getAvailableYmlFilePath").mockReturnValue(
+    getAvailableYmlFilePath as any
+  );
+}
+
 describe("SettingsUtils", () => {
-  let sandbox: SinonSandbox;
+  let sandbox: any;
   let tempDir: string;
   let envRestore: RestoreFn;
 
   beforeEach(async () => {
-    sandbox = createSandbox();
+    sandbox = vi;
     tempDir = path.join(os.tmpdir(), `test-settings-${Date.now()}`);
     await fs.ensureDir(tempDir);
     envRestore = mockedEnv({});
   });
 
   afterEach(async () => {
-    sandbox.restore();
+    vi.restoreAllMocks();
     envRestore();
     await fs.remove(tempDir);
   });
@@ -34,10 +46,7 @@ describe("SettingsUtils", () => {
   describe("readSettings", () => {
     describe("when GenerateConfigFiles is false (default)", () => {
       beforeEach(() => {
-        sandbox
-          .stub(featureFlagManager, "getBooleanValue")
-          .withArgs(FeatureFlags.GenerateConfigFiles)
-          .returns(false);
+        stubGetBooleanValue(false);
       });
 
       it("should use getYmlFilePath when GenerateConfigFiles is false", async () => {
@@ -45,10 +54,7 @@ describe("SettingsUtils", () => {
         const ymlPath = path.join(projectPath, "m365agents.dev.yml");
         await fs.writeFile(ymlPath, "projectId: test-id\nversion: 1.0");
 
-        sandbox.stub(pathUtils, "pathUtils").value({
-          getYmlFilePath: sandbox.stub().returns(ymlPath),
-          getAvailableYmlFilePath: sandbox.stub(),
-        });
+        stubPathUtils(ymlPath);
 
         const result = await settingsUtil.readSettings(projectPath, false);
 
@@ -61,10 +67,7 @@ describe("SettingsUtils", () => {
 
       it("should return error when yaml file not found", async () => {
         const projectPath = tempDir;
-        sandbox.stub(pathUtils, "pathUtils").value({
-          getYmlFilePath: sandbox.stub().returns(undefined),
-          getAvailableYmlFilePath: sandbox.stub(),
-        });
+        stubPathUtils(undefined);
 
         const result = await settingsUtil.readSettings(projectPath, false);
 
@@ -76,11 +79,8 @@ describe("SettingsUtils", () => {
         const ymlPath = path.join(projectPath, "m365agents.dev.yml");
         await fs.writeFile(ymlPath, "version: 1.0");
 
-        sandbox.stub(pathUtils, "pathUtils").value({
-          getYmlFilePath: sandbox.stub().returns(ymlPath),
-          getAvailableYmlFilePath: sandbox.stub(),
-        });
-        sandbox.stub(telemetryModule, "sendTelemetryEvent").resolves();
+        stubPathUtils(ymlPath);
+        vi.spyOn(telemetryModule, "sendTelemetryEvent").mockResolvedValue();
 
         const result = await settingsUtil.readSettings(projectPath, true);
 
@@ -94,10 +94,7 @@ describe("SettingsUtils", () => {
         const ymlPath = path.join(projectPath, "m365agents.dev.yml");
         await fs.writeFile(ymlPath, "version: 1.0");
 
-        sandbox.stub(pathUtils, "pathUtils").value({
-          getYmlFilePath: sandbox.stub().returns(ymlPath),
-          getAvailableYmlFilePath: sandbox.stub(),
-        });
+        stubPathUtils(ymlPath);
 
         const result = await settingsUtil.readSettings(projectPath, false);
 
@@ -112,10 +109,7 @@ describe("SettingsUtils", () => {
         const ymlPath = path.join(projectPath, "m365agents.dev.yml");
         await fs.writeFile(ymlPath, `projectId: ${testId}\nversion: 1.0`);
 
-        sandbox.stub(pathUtils, "pathUtils").value({
-          getYmlFilePath: sandbox.stub().returns(ymlPath),
-          getAvailableYmlFilePath: sandbox.stub(),
-        });
+        stubPathUtils(ymlPath);
 
         await settingsUtil.readSettings(projectPath, false);
 
@@ -125,10 +119,7 @@ describe("SettingsUtils", () => {
 
     describe("when GenerateConfigFiles is true", () => {
       beforeEach(() => {
-        sandbox
-          .stub(featureFlagManager, "getBooleanValue")
-          .withArgs(FeatureFlags.GenerateConfigFiles)
-          .returns(true);
+        stubGetBooleanValue(true);
       });
 
       it("should use getAvailableYmlFilePath when GenerateConfigFiles is true", async () => {
@@ -136,10 +127,7 @@ describe("SettingsUtils", () => {
         const ymlPath = path.join(projectPath, "m365agents.local.yml");
         await fs.writeFile(ymlPath, "projectId: test-id\nversion: 1.0");
 
-        sandbox.stub(pathUtils, "pathUtils").value({
-          getYmlFilePath: sandbox.stub(),
-          getAvailableYmlFilePath: sandbox.stub().returns(ymlPath),
-        });
+        stubPathUtils(undefined, ymlPath);
 
         const result = await settingsUtil.readSettings(projectPath, false);
 
@@ -153,10 +141,7 @@ describe("SettingsUtils", () => {
       it("should return error when getAvailableYmlFilePath returns undefined", async () => {
         const projectPath = tempDir;
 
-        sandbox.stub(pathUtils, "pathUtils").value({
-          getYmlFilePath: sandbox.stub(),
-          getAvailableYmlFilePath: sandbox.stub().returns(undefined),
-        });
+        stubPathUtils(undefined, undefined);
 
         const result = await settingsUtil.readSettings(projectPath, false);
 
@@ -168,11 +153,8 @@ describe("SettingsUtils", () => {
         const ymlPath = path.join(projectPath, "m365agents.playground.yml");
         await fs.writeFile(ymlPath, "version: 1.0");
 
-        sandbox.stub(pathUtils, "pathUtils").value({
-          getYmlFilePath: sandbox.stub().returns(ymlPath),
-          getAvailableYmlFilePath: sandbox.stub().returns(ymlPath),
-        });
-        sandbox.stub(telemetryModule, "sendTelemetryEvent").resolves();
+        stubPathUtils(ymlPath, ymlPath);
+        vi.spyOn(telemetryModule, "sendTelemetryEvent").mockResolvedValue();
 
         const result = await settingsUtil.readSettings(projectPath, true);
 
@@ -188,10 +170,7 @@ describe("SettingsUtils", () => {
         const version = "2.0";
         await fs.writeFile(ymlPath, `projectId: ${testId}\nversion: ${version}`);
 
-        sandbox.stub(pathUtils, "pathUtils").value({
-          getYmlFilePath: sandbox.stub(),
-          getAvailableYmlFilePath: sandbox.stub().returns(ymlPath),
-        });
+        stubPathUtils(undefined, ymlPath);
 
         const result = await settingsUtil.readSettings(projectPath, false);
 
@@ -209,10 +188,7 @@ describe("SettingsUtils", () => {
         const testId = "available-tracking-id";
         await fs.writeFile(ymlPath, `projectId: ${testId}\nversion: 1.0`);
 
-        sandbox.stub(pathUtils, "pathUtils").value({
-          getYmlFilePath: sandbox.stub(),
-          getAvailableYmlFilePath: sandbox.stub().returns(ymlPath),
-        });
+        stubPathUtils(undefined, ymlPath);
 
         await settingsUtil.readSettings(projectPath, false);
 
@@ -224,10 +200,7 @@ describe("SettingsUtils", () => {
   describe("writeSettings", () => {
     describe("when GenerateConfigFiles is false (default)", () => {
       beforeEach(() => {
-        sandbox
-          .stub(featureFlagManager, "getBooleanValue")
-          .withArgs(FeatureFlags.GenerateConfigFiles)
-          .returns(false);
+        stubGetBooleanValue(false);
       });
 
       it("should use getYmlFilePath when GenerateConfigFiles is false", async () => {
@@ -235,10 +208,7 @@ describe("SettingsUtils", () => {
         const ymlPath = path.join(projectPath, "m365agents.dev.yml");
         await fs.writeFile(ymlPath, "projectId: old-id\nversion: 1.0");
 
-        sandbox.stub(pathUtils, "pathUtils").value({
-          getYmlFilePath: sandbox.stub().returns(ymlPath),
-          getAvailableYmlFilePath: sandbox.stub(),
-        });
+        stubPathUtils(ymlPath);
 
         const result = await settingsUtil.writeSettings(projectPath, {
           trackingId: "new-id",
@@ -253,10 +223,7 @@ describe("SettingsUtils", () => {
       it("should return error when yaml file not found", async () => {
         const projectPath = tempDir;
 
-        sandbox.stub(pathUtils, "pathUtils").value({
-          getYmlFilePath: sandbox.stub().returns(undefined),
-          getAvailableYmlFilePath: sandbox.stub(),
-        });
+        stubPathUtils(undefined);
 
         const result = await settingsUtil.writeSettings(projectPath, {
           trackingId: "test-id",
@@ -273,10 +240,7 @@ describe("SettingsUtils", () => {
         const newId = "new-tracking-id";
         await fs.writeFile(ymlPath, `projectId: ${oldId}\nversion: 1.0`);
 
-        sandbox.stub(pathUtils, "pathUtils").value({
-          getYmlFilePath: sandbox.stub().returns(ymlPath),
-          getAvailableYmlFilePath: sandbox.stub(),
-        });
+        stubPathUtils(ymlPath);
 
         await settingsUtil.writeSettings(projectPath, {
           trackingId: newId,
@@ -291,10 +255,7 @@ describe("SettingsUtils", () => {
 
     describe("when GenerateConfigFiles is true", () => {
       beforeEach(() => {
-        sandbox
-          .stub(featureFlagManager, "getBooleanValue")
-          .withArgs(FeatureFlags.GenerateConfigFiles)
-          .returns(true);
+        stubGetBooleanValue(true);
       });
 
       it("should use getAvailableYmlFilePath when GenerateConfigFiles is true", async () => {
@@ -302,10 +263,7 @@ describe("SettingsUtils", () => {
         const ymlPath = path.join(projectPath, "m365agents.local.yml");
         await fs.writeFile(ymlPath, "projectId: old-id\nversion: 1.0");
 
-        sandbox.stub(pathUtils, "pathUtils").value({
-          getYmlFilePath: sandbox.stub(),
-          getAvailableYmlFilePath: sandbox.stub().returns(ymlPath),
-        });
+        stubPathUtils(undefined, ymlPath);
 
         const result = await settingsUtil.writeSettings(projectPath, {
           trackingId: "new-id",
@@ -320,10 +278,7 @@ describe("SettingsUtils", () => {
       it("should return error when getAvailableYmlFilePath returns undefined", async () => {
         const projectPath = tempDir;
 
-        sandbox.stub(pathUtils, "pathUtils").value({
-          getYmlFilePath: sandbox.stub(),
-          getAvailableYmlFilePath: sandbox.stub().returns(undefined),
-        });
+        stubPathUtils(undefined, undefined);
 
         const result = await settingsUtil.writeSettings(projectPath, {
           trackingId: "test-id",
@@ -340,10 +295,7 @@ describe("SettingsUtils", () => {
         const newId = "new-available-id";
         await fs.writeFile(ymlPath, `projectId: ${oldId}\nversion: 2.0`);
 
-        sandbox.stub(pathUtils, "pathUtils").value({
-          getYmlFilePath: sandbox.stub(),
-          getAvailableYmlFilePath: sandbox.stub().returns(ymlPath),
-        });
+        stubPathUtils(undefined, ymlPath);
 
         await settingsUtil.writeSettings(projectPath, {
           trackingId: newId,
@@ -360,10 +312,7 @@ describe("SettingsUtils", () => {
         const ymlPath = path.join(projectPath, "m365agents.local.yml");
         await fs.writeFile(ymlPath, "projectId: test-id\nversion: 1.0");
 
-        sandbox.stub(pathUtils, "pathUtils").value({
-          getYmlFilePath: sandbox.stub(),
-          getAvailableYmlFilePath: sandbox.stub().returns(ymlPath),
-        });
+        stubPathUtils(undefined, ymlPath);
 
         const result = await settingsUtil.writeSettings(projectPath, {
           trackingId: "updated-id",
@@ -385,10 +334,7 @@ appName: TestApp
 description: Test Description`;
         await fs.writeFile(ymlPath, originalContent);
 
-        sandbox.stub(pathUtils, "pathUtils").value({
-          getYmlFilePath: sandbox.stub(),
-          getAvailableYmlFilePath: sandbox.stub().returns(ymlPath),
-        });
+        stubPathUtils(undefined, ymlPath);
 
         await settingsUtil.writeSettings(projectPath, {
           trackingId: "new-id",

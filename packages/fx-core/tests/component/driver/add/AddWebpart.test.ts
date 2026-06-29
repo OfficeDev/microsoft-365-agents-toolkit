@@ -1,10 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 import { Context, err, Inputs, ok, Platform } from "@microsoft/teamsfx-api";
-import chai from "chai";
-import sinon from "sinon";
 import * as uuid from "uuid";
-import { vi } from "vitest";
+import { chai, vi } from "vitest";
 
 import * as fs from "fs-extra";
 import { setTools } from "../../../../src/common/globalVars";
@@ -39,7 +37,7 @@ describe("Add web part driver", async () => {
   };
 
   afterEach(() => {
-    sinon.restore();
+    vi.restoreAllMocks();
     vi.clearAllMocks();
   });
 

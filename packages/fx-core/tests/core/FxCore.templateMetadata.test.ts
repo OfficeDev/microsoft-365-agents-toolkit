@@ -2,12 +2,11 @@
 // Licensed under the MIT license.
 
 import AdmZip from "adm-zip";
-import { assert } from "chai";
 import fs from "fs-extra";
 import { RestoreFn } from "mocked-env";
 import * as os from "os";
 import * as path from "path";
-import { beforeEach, describe, it, vi } from "vitest";
+import { assert, beforeEach, chai, describe, it, vi } from "vitest";
 import { FxCore } from "../../src";
 import { featureFlagManager } from "../../src/common/featureFlags";
 import { setTools } from "../../src/common/globalVars";

@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { assert } from "chai";
 import { FxError, SystemError, UserError } from "@microsoft/teamsfx-api";
 import { Result, err, ok } from "neverthrow";
 import {
@@ -11,6 +10,7 @@ import {
   evaluateExpression,
 } from "../../../src/v4/expression/evaluateExpression";
 import { RenderVars, TemplateFileEntry } from "../../../src/v4/model/dataModel";
+import { assert } from "vitest";
 import {
   ManifestWrapper,
   PIPELINE_CROSS_STEP_REFERENCE,

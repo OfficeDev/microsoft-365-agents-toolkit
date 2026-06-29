@@ -1,9 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { assert } from "chai";
 import { TemplateFileEntry } from "../../../src/v4/model/dataModel";
 import { selectLanguageContent } from "../../../src/v4/runtime/selectLanguageContent";
+import { assert } from "vitest";
 
 /**
  * Tests for `select-language-content` — narrowing a package's flat `content/**`

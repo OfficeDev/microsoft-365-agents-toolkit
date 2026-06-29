@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { assert } from "chai";
 import { SystemError } from "@microsoft/teamsfx-api";
 import {
   STEP_INJECT_YML_ACTION,
@@ -10,6 +9,7 @@ import {
   mcpAuthPersistCredentialEnv,
 } from "../../../../src/v4/runtime/steps/mcpAuth";
 import { StepContext } from "../../../../src/v4/pipeline/runScaffoldPipeline";
+import { assert } from "vitest";
 
 /** A minimal in-memory `StepContext` whose read/write share one file map. */
 function makeCtx(initial: Record<string, string> = {}): {

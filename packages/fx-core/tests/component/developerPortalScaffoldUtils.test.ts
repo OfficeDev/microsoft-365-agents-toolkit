@@ -2,12 +2,10 @@
  * @author Yuqi Zhou <yuqzho@microsoft.com>
  */
 import { err, Inputs, ok, Platform, TeamsAppManifest, UserError } from "@microsoft/teamsfx-api";
-import chai from "chai";
 import fs from "fs-extra";
 import { merge } from "lodash";
 import path from "path";
-import * as sinon from "sinon";
-import { vi } from "vitest";
+import { chai, vi } from "vitest";
 import { createContext, setTools } from "../../src/common/globalVars";
 import * as tdpUtils from "../../src/component/developerPortalScaffoldUtils";
 import {
@@ -45,10 +43,10 @@ vi.mock("../../src/component/driver/teamsApp/appStudio");
 describe("developPortalScaffoldUtils", () => {
   setTools(new MockTools());
   describe("updateFilesForTdp", () => {
-    const sandbox = sinon.createSandbox();
+    const sandbox = vi;
 
     afterEach(() => {
-      sandbox.restore();
+      vi.restoreAllMocks();
       vi.clearAllMocks();
     });
     it("missing project path", async () => {
@@ -184,9 +182,9 @@ describe("developPortalScaffoldUtils", () => {
           languages: { zh: Buffer.from(JSON.stringify({})) },
         })
       );
-      sandbox
-        .stub(manifestUtils, "_readAppManifest")
-        .resolves(ok(undefined as unknown as TeamsAppManifest));
+      vi.spyOn(manifestUtils, "_readAppManifest").mockResolvedValue(
+        ok(undefined as unknown as TeamsAppManifest)
+      );
       const res = await developerPortalScaffoldUtils.updateFilesForTdp(ctx, appDefinition, inputs);
 
       chai.assert.isTrue(res.isErr());
@@ -286,8 +284,8 @@ describe("developPortalScaffoldUtils", () => {
       let updateOutline = false;
       let updatedManifestData = "";
 
-      sandbox.stub(pathUtils, "getEnvFilePath").resolves(ok("fake env path"));
-      sandbox.stub(fs, "pathExists").resolves(true);
+      vi.spyOn(pathUtils, "getEnvFilePath").mockResolvedValue(ok("fake env path"));
+      vi.spyOn(fs, "pathExists").mockResolvedValue(true);
       vi.mocked(appStudio.getAppPackage).mockResolvedValue(
         ok({
           manifest: Buffer.from(JSON.stringify(manifest)),
@@ -295,7 +293,7 @@ describe("developPortalScaffoldUtils", () => {
           languages: { zh: Buffer.from(JSON.stringify({})) },
         })
       );
-      sandbox.stub(fs, "writeFile").callsFake((file: number | fs.PathLike, data: any) => {
+      vi.spyOn(fs, "writeFile").mockImplementation((file: number | fs.PathLike, data: any) => {
         if (file === path.join(ctx.projectPath!, "appPackage", "color.png")) {
           updateColor = true;
         } else if (file === path.join(ctx.projectPath!, "appPackage", "outline.png")) {
@@ -311,13 +309,13 @@ describe("developPortalScaffoldUtils", () => {
       });
 
       const originalEnvs: DotenvOutput = {};
-      sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifestTemplate));
-      sandbox
-        .stub(envUtil, "writeEnv")
-        .callsFake(async (projectPath: string, env: string, envs: DotenvOutput) => {
+      vi.spyOn(manifestUtils, "_readAppManifest").mockResolvedValue(ok(manifestTemplate));
+      vi.spyOn(envUtil, "writeEnv").mockImplementation(
+        async (projectPath: string, env: string, envs: DotenvOutput) => {
           merge(originalEnvs, envs);
           return ok(undefined);
-        });
+        }
+      );
       const res = await developerPortalScaffoldUtils.updateFilesForTdp(ctx, appDefinition, inputs);
 
       chai.assert.isTrue(res.isOk());
@@ -406,8 +404,8 @@ describe("developPortalScaffoldUtils", () => {
       let updateColor = false;
       let updateOutline = false;
       let updatedManifestData = "";
-      sandbox.stub(pathUtils, "getEnvFilePath").resolves(ok("fake env path"));
-      sandbox.stub(fs, "pathExists").resolves(true);
+      vi.spyOn(pathUtils, "getEnvFilePath").mockResolvedValue(ok("fake env path"));
+      vi.spyOn(fs, "pathExists").mockResolvedValue(true);
       vi.mocked(appStudio.getAppPackage).mockResolvedValue(
         ok({
           manifest: Buffer.from(JSON.stringify(manifest)),
@@ -415,7 +413,7 @@ describe("developPortalScaffoldUtils", () => {
           languages: { zh: Buffer.from(JSON.stringify({})) },
         })
       );
-      sandbox.stub(fs, "writeFile").callsFake((file: number | fs.PathLike, data: any) => {
+      vi.spyOn(fs, "writeFile").mockImplementation((file: number | fs.PathLike, data: any) => {
         if (file === path.join(ctx.projectPath!, "appPackage", "color.png")) {
           updateColor = true;
         } else if (file === path.join(ctx.projectPath!, "appPackage", "outline.png")) {
@@ -430,8 +428,8 @@ describe("developPortalScaffoldUtils", () => {
         }
       });
 
-      sandbox.stub(envUtil, "writeEnv").resolves(ok(undefined));
-      sandbox.stub(manifestUtils, "_readAppManifest").resolves(
+      vi.spyOn(envUtil, "writeEnv").mockResolvedValue(ok(undefined));
+      vi.spyOn(manifestUtils, "_readAppManifest").mockResolvedValue(
         ok({
           manifestVersion: "version",
           id: "mock-app-id",
@@ -558,8 +556,8 @@ describe("developPortalScaffoldUtils", () => {
       let updateColor = false;
       let updateOutline = false;
       let updatedManifestData = "";
-      sandbox.stub(pathUtils, "getEnvFilePath").resolves(ok("fake env path"));
-      sandbox.stub(fs, "pathExists").resolves(true);
+      vi.spyOn(pathUtils, "getEnvFilePath").mockResolvedValue(ok("fake env path"));
+      vi.spyOn(fs, "pathExists").mockResolvedValue(true);
       vi.mocked(appStudio.getAppPackage).mockResolvedValue(
         ok({
           manifest: Buffer.from(JSON.stringify(manifest)),
@@ -567,7 +565,7 @@ describe("developPortalScaffoldUtils", () => {
           languages: { zh: Buffer.from(JSON.stringify({})) },
         })
       );
-      sandbox.stub(fs, "writeFile").callsFake((file: number | fs.PathLike, data: any) => {
+      vi.spyOn(fs, "writeFile").mockImplementation((file: number | fs.PathLike, data: any) => {
         if (file === path.join(ctx.projectPath!, "appPackage", "color.png")) {
           updateColor = true;
         } else if (file === path.join(ctx.projectPath!, "appPackage", "outline.png")) {
@@ -582,8 +580,8 @@ describe("developPortalScaffoldUtils", () => {
         }
       });
 
-      sandbox.stub(envUtil, "writeEnv").resolves(ok(undefined));
-      sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(existingManifest));
+      vi.spyOn(envUtil, "writeEnv").mockResolvedValue(ok(undefined));
+      vi.spyOn(manifestUtils, "_readAppManifest").mockResolvedValue(ok(existingManifest));
       const res = await developerPortalScaffoldUtils.updateFilesForTdp(ctx, appDefinition, inputs);
 
       chai.assert.isTrue(res.isOk());
@@ -694,8 +692,8 @@ describe("developPortalScaffoldUtils", () => {
       let updateColor = false;
       let updateOutline = false;
       let updatedManifestData = "";
-      sandbox.stub(pathUtils, "getEnvFilePath").resolves(ok("fake env path"));
-      sandbox.stub(fs, "pathExists").resolves(true);
+      vi.spyOn(pathUtils, "getEnvFilePath").mockResolvedValue(ok("fake env path"));
+      vi.spyOn(fs, "pathExists").mockResolvedValue(true);
       vi.mocked(appStudio.getAppPackage).mockResolvedValue(
         ok({
           manifest: Buffer.from(JSON.stringify(manifest)),
@@ -703,7 +701,7 @@ describe("developPortalScaffoldUtils", () => {
           languages: { zh: Buffer.from(JSON.stringify({})) },
         })
       );
-      sandbox.stub(fs, "writeFile").callsFake((file: number | fs.PathLike, data: any) => {
+      vi.spyOn(fs, "writeFile").mockImplementation((file: number | fs.PathLike, data: any) => {
         if (file === path.join(ctx.projectPath!, "appPackage", "color.png")) {
           updateColor = true;
         } else if (file === path.join(ctx.projectPath!, "appPackage", "outline.png")) {
@@ -718,8 +716,8 @@ describe("developPortalScaffoldUtils", () => {
         }
       });
 
-      sandbox.stub(envUtil, "writeEnv").resolves(ok(undefined));
-      sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(existingManifest));
+      vi.spyOn(envUtil, "writeEnv").mockResolvedValue(ok(undefined));
+      vi.spyOn(manifestUtils, "_readAppManifest").mockResolvedValue(ok(existingManifest));
       const res = await developerPortalScaffoldUtils.updateFilesForTdp(ctx, appDefinition, inputs);
 
       chai.assert.isTrue(res.isOk());
@@ -833,8 +831,8 @@ describe("developPortalScaffoldUtils", () => {
       let updateColor = false;
       let updateOutline = false;
       let updatedManifestData = "";
-      sandbox.stub(pathUtils, "getEnvFilePath").resolves(ok("fake env path"));
-      sandbox.stub(fs, "pathExists").resolves(true);
+      vi.spyOn(pathUtils, "getEnvFilePath").mockResolvedValue(ok("fake env path"));
+      vi.spyOn(fs, "pathExists").mockResolvedValue(true);
       vi.mocked(appStudio.getAppPackage).mockResolvedValue(
         ok({
           manifest: Buffer.from(JSON.stringify(manifest)),
@@ -842,7 +840,7 @@ describe("developPortalScaffoldUtils", () => {
           languages: { zh: Buffer.from(JSON.stringify({})) },
         })
       );
-      sandbox.stub(fs, "writeFile").callsFake((file: number | fs.PathLike, data: any) => {
+      vi.spyOn(fs, "writeFile").mockImplementation((file: number | fs.PathLike, data: any) => {
         if (file === path.join(ctx.projectPath!, "appPackage", "color.png")) {
           updateColor = true;
         } else if (file === path.join(ctx.projectPath!, "appPackage", "outline.png")) {
@@ -857,8 +855,8 @@ describe("developPortalScaffoldUtils", () => {
         }
       });
 
-      sandbox.stub(envUtil, "writeEnv").resolves(ok(undefined));
-      sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(existingManifest));
+      vi.spyOn(envUtil, "writeEnv").mockResolvedValue(ok(undefined));
+      vi.spyOn(manifestUtils, "_readAppManifest").mockResolvedValue(ok(existingManifest));
       const res = await developerPortalScaffoldUtils.updateFilesForTdp(ctx, appDefinition, inputs);
 
       chai.assert.isTrue(res.isOk());
@@ -945,8 +943,8 @@ describe("developPortalScaffoldUtils", () => {
       let updateColor = false;
       let updateOutline = false;
       let updatedManifestData = "";
-      sandbox.stub(pathUtils, "getEnvFilePath").resolves(ok("fake env path"));
-      sandbox.stub(fs, "pathExists").resolves(true);
+      vi.spyOn(pathUtils, "getEnvFilePath").mockResolvedValue(ok("fake env path"));
+      vi.spyOn(fs, "pathExists").mockResolvedValue(true);
       vi.mocked(appStudio.getAppPackage).mockResolvedValue(
         ok({
           manifest: Buffer.from(
@@ -970,7 +968,7 @@ describe("developPortalScaffoldUtils", () => {
           languages: { zh: Buffer.from(JSON.stringify({})) },
         })
       );
-      sandbox.stub(fs, "writeFile").callsFake((file: number | fs.PathLike, data: any) => {
+      vi.spyOn(fs, "writeFile").mockImplementation((file: number | fs.PathLike, data: any) => {
         if (file === path.join(ctx.projectPath!, "appPackage", "color.png")) {
           updateColor = true;
         } else if (file === path.join(ctx.projectPath!, "appPackage", "outline.png")) {
@@ -985,8 +983,8 @@ describe("developPortalScaffoldUtils", () => {
         }
       });
 
-      sandbox.stub(envUtil, "writeEnv").resolves(ok(undefined));
-      sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(existingManifest));
+      vi.spyOn(envUtil, "writeEnv").mockResolvedValue(ok(undefined));
+      vi.spyOn(manifestUtils, "_readAppManifest").mockResolvedValue(ok(existingManifest));
       const res = await developerPortalScaffoldUtils.updateFilesForTdp(ctx, appDefinition, inputs);
 
       chai.assert.isTrue(res.isOk());
@@ -1083,8 +1081,8 @@ describe("developPortalScaffoldUtils", () => {
       let updateColor = false;
       let updateOutline = false;
       let updatedManifestData = "";
-      sandbox.stub(pathUtils, "getEnvFilePath").resolves(ok("fake env path"));
-      sandbox.stub(fs, "pathExists").resolves(true);
+      vi.spyOn(pathUtils, "getEnvFilePath").mockResolvedValue(ok("fake env path"));
+      vi.spyOn(fs, "pathExists").mockResolvedValue(true);
       vi.mocked(appStudio.getAppPackage).mockResolvedValue(
         ok({
           manifest: Buffer.from(JSON.stringify(manifest)),
@@ -1092,8 +1090,8 @@ describe("developPortalScaffoldUtils", () => {
           languages: { zh: Buffer.from(JSON.stringify({})) },
         })
       );
-      sandbox.stub(envUtil, "writeEnv").resolves(ok(undefined));
-      sandbox.stub(fs, "writeFile").callsFake((file: number | fs.PathLike, data: any) => {
+      vi.spyOn(envUtil, "writeEnv").mockResolvedValue(ok(undefined));
+      vi.spyOn(fs, "writeFile").mockImplementation((file: number | fs.PathLike, data: any) => {
         if (file === path.join(ctx.projectPath!, "appPackage", "color.png")) {
           updateColor = true;
         } else if (file === path.join(ctx.projectPath!, "appPackage", "outline.png")) {
@@ -1108,7 +1106,9 @@ describe("developPortalScaffoldUtils", () => {
         }
       });
 
-      sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest as TeamsAppManifest));
+      vi.spyOn(manifestUtils, "_readAppManifest").mockResolvedValue(
+        ok(manifest as TeamsAppManifest)
+      );
 
       const res = await developerPortalScaffoldUtils.updateFilesForTdp(ctx, appDefinition, inputs);
 
@@ -1207,8 +1207,8 @@ describe("developPortalScaffoldUtils", () => {
       let updateColor = false;
       let updateOutline = false;
       let updatedManifestData = "";
-      sandbox.stub(pathUtils, "getEnvFilePath").resolves(ok("fake env path"));
-      sandbox.stub(fs, "pathExists").resolves(true);
+      vi.spyOn(pathUtils, "getEnvFilePath").mockResolvedValue(ok("fake env path"));
+      vi.spyOn(fs, "pathExists").mockResolvedValue(true);
       vi.mocked(appStudio.getAppPackage).mockResolvedValue(
         ok({
           manifest: Buffer.from(JSON.stringify(manifest)),
@@ -1216,8 +1216,8 @@ describe("developPortalScaffoldUtils", () => {
           languages: { zh: Buffer.from(JSON.stringify({})) },
         })
       );
-      sandbox.stub(envUtil, "writeEnv").resolves(ok(undefined));
-      sandbox.stub(fs, "writeFile").callsFake((file: number | fs.PathLike, data: any) => {
+      vi.spyOn(envUtil, "writeEnv").mockResolvedValue(ok(undefined));
+      vi.spyOn(fs, "writeFile").mockImplementation((file: number | fs.PathLike, data: any) => {
         if (file === path.join(ctx.projectPath!, "appPackage", "color.png")) {
           updateColor = true;
         } else if (file === path.join(ctx.projectPath!, "appPackage", "outline.png")) {
@@ -1232,7 +1232,9 @@ describe("developPortalScaffoldUtils", () => {
         }
       });
 
-      sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifest as TeamsAppManifest));
+      vi.spyOn(manifestUtils, "_readAppManifest").mockResolvedValue(
+        ok(manifest as TeamsAppManifest)
+      );
 
       const res = await developerPortalScaffoldUtils.updateFilesForTdp(ctx, appDefinition, inputs);
 
@@ -1312,9 +1314,11 @@ describe("developPortalScaffoldUtils", () => {
         })
       );
 
-      sandbox.stub(envUtil, "writeEnv").resolves(ok(undefined));
+      vi.spyOn(envUtil, "writeEnv").mockResolvedValue(ok(undefined));
 
-      sandbox.stub(manifestUtils, "_readAppManifest").resolves(err(new UserError("", "", "", "")));
+      vi.spyOn(manifestUtils, "_readAppManifest").mockResolvedValue(
+        err(new UserError("", "", "", ""))
+      );
       const res = await developerPortalScaffoldUtils.updateFilesForTdp(ctx, appDefinition, inputs);
 
       chai.assert.isTrue(res.isErr());
@@ -1371,8 +1375,8 @@ describe("developPortalScaffoldUtils", () => {
 
       let updatedManifestData = "";
 
-      sandbox.stub(pathUtils, "getEnvFilePath").resolves(ok("fake env path"));
-      sandbox.stub(fs, "pathExists").resolves(true);
+      vi.spyOn(pathUtils, "getEnvFilePath").mockResolvedValue(ok("fake env path"));
+      vi.spyOn(fs, "pathExists").mockResolvedValue(true);
       vi.mocked(appStudio.getAppPackage).mockResolvedValue(
         ok({
           manifest: Buffer.from(JSON.stringify(manifest)),
@@ -1380,14 +1384,14 @@ describe("developPortalScaffoldUtils", () => {
           languages: {},
         })
       );
-      sandbox.stub(fs, "writeFile").callsFake((file: number | fs.PathLike, data: any) => {
+      vi.spyOn(fs, "writeFile").mockImplementation((file: number | fs.PathLike, data: any) => {
         if (file === path.join(ctx.projectPath!, "appPackage", "manifest.json")) {
           updatedManifestData = data;
         }
       });
 
-      sandbox.stub(envUtil, "writeEnv").resolves(ok(undefined));
-      sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifestTemplate));
+      vi.spyOn(envUtil, "writeEnv").mockResolvedValue(ok(undefined));
+      vi.spyOn(manifestUtils, "_readAppManifest").mockResolvedValue(ok(manifestTemplate));
 
       const res = await developerPortalScaffoldUtils.updateFilesForTdp(ctx, appDefinition, inputs);
 
@@ -1447,8 +1451,8 @@ describe("developPortalScaffoldUtils", () => {
 
       let updatedManifestData = "";
 
-      sandbox.stub(pathUtils, "getEnvFilePath").resolves(ok("fake env path"));
-      sandbox.stub(fs, "pathExists").resolves(true);
+      vi.spyOn(pathUtils, "getEnvFilePath").mockResolvedValue(ok("fake env path"));
+      vi.spyOn(fs, "pathExists").mockResolvedValue(true);
       vi.mocked(appStudio.getAppPackage).mockResolvedValue(
         ok({
           manifest: Buffer.from(JSON.stringify(manifest)),
@@ -1456,14 +1460,14 @@ describe("developPortalScaffoldUtils", () => {
           languages: {},
         })
       );
-      sandbox.stub(fs, "writeFile").callsFake((file: number | fs.PathLike, data: any) => {
+      vi.spyOn(fs, "writeFile").mockImplementation((file: number | fs.PathLike, data: any) => {
         if (file === path.join(ctx.projectPath!, "appPackage", "manifest.json")) {
           updatedManifestData = data;
         }
       });
 
-      sandbox.stub(envUtil, "writeEnv").resolves(ok(undefined));
-      sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifestTemplate));
+      vi.spyOn(envUtil, "writeEnv").mockResolvedValue(ok(undefined));
+      vi.spyOn(manifestUtils, "_readAppManifest").mockResolvedValue(ok(manifestTemplate));
 
       const res = await developerPortalScaffoldUtils.updateFilesForTdp(ctx, appDefinition, inputs);
 
@@ -1523,8 +1527,8 @@ describe("developPortalScaffoldUtils", () => {
 
       let updatedManifestData = "";
 
-      sandbox.stub(pathUtils, "getEnvFilePath").resolves(ok("fake env path"));
-      sandbox.stub(fs, "pathExists").resolves(true);
+      vi.spyOn(pathUtils, "getEnvFilePath").mockResolvedValue(ok("fake env path"));
+      vi.spyOn(fs, "pathExists").mockResolvedValue(true);
       vi.mocked(appStudio.getAppPackage).mockResolvedValue(
         ok({
           manifest: Buffer.from(JSON.stringify(manifest)),
@@ -1532,14 +1536,14 @@ describe("developPortalScaffoldUtils", () => {
           languages: {},
         })
       );
-      sandbox.stub(fs, "writeFile").callsFake((file: number | fs.PathLike, data: any) => {
+      vi.spyOn(fs, "writeFile").mockImplementation((file: number | fs.PathLike, data: any) => {
         if (file === path.join(ctx.projectPath!, "appPackage", "manifest.json")) {
           updatedManifestData = data;
         }
       });
 
-      sandbox.stub(envUtil, "writeEnv").resolves(ok(undefined));
-      sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifestTemplate));
+      vi.spyOn(envUtil, "writeEnv").mockResolvedValue(ok(undefined));
+      vi.spyOn(manifestUtils, "_readAppManifest").mockResolvedValue(ok(manifestTemplate));
 
       const res = await developerPortalScaffoldUtils.updateFilesForTdp(ctx, appDefinition, inputs);
 
@@ -1599,8 +1603,8 @@ describe("developPortalScaffoldUtils", () => {
 
       let updatedManifestData = "";
 
-      sandbox.stub(pathUtils, "getEnvFilePath").resolves(ok("fake env path"));
-      sandbox.stub(fs, "pathExists").resolves(true);
+      vi.spyOn(pathUtils, "getEnvFilePath").mockResolvedValue(ok("fake env path"));
+      vi.spyOn(fs, "pathExists").mockResolvedValue(true);
       vi.mocked(appStudio.getAppPackage).mockResolvedValue(
         ok({
           manifest: Buffer.from(JSON.stringify(manifest)),
@@ -1608,14 +1612,14 @@ describe("developPortalScaffoldUtils", () => {
           languages: {},
         })
       );
-      sandbox.stub(fs, "writeFile").callsFake((file: number | fs.PathLike, data: any) => {
+      vi.spyOn(fs, "writeFile").mockImplementation((file: number | fs.PathLike, data: any) => {
         if (file === path.join(ctx.projectPath!, "appPackage", "manifest.json")) {
           updatedManifestData = data;
         }
       });
 
-      sandbox.stub(envUtil, "writeEnv").resolves(ok(undefined));
-      sandbox.stub(manifestUtils, "_readAppManifest").resolves(ok(manifestTemplate));
+      vi.spyOn(envUtil, "writeEnv").mockResolvedValue(ok(undefined));
+      vi.spyOn(manifestUtils, "_readAppManifest").mockResolvedValue(ok(manifestTemplate));
 
       const res = await developerPortalScaffoldUtils.updateFilesForTdp(ctx, appDefinition, inputs);
 
@@ -1728,66 +1732,69 @@ describe("developPortalScaffoldUtils", () => {
   });
 
   describe("updateEnv", () => {
-    const sandbox = sinon.createSandbox();
+    const sandbox = vi;
 
     afterEach(() => {
-      sandbox.restore();
+      vi.restoreAllMocks();
     });
 
     it("writes to .env.local when it exists", async () => {
-      sandbox.stub(pathUtils, "getEnvFilePath").resolves(ok("path/to/.env.local"));
-      sandbox.stub(fs, "pathExists").resolves(true);
+      vi.spyOn(pathUtils, "getEnvFilePath").mockResolvedValue(ok("path/to/.env.local"));
+      vi.spyOn(fs, "pathExists").mockResolvedValue(true);
 
-      const writeEnvStub = sandbox.stub(envUtil, "writeEnv").resolves(ok(undefined));
+      const writeEnvStub = vi.spyOn(envUtil, "writeEnv").mockResolvedValue(ok(undefined));
 
       // Use the private method for testing
       const result = await tdpUtils.updateEnv("mock-app-id", "project-path");
 
       chai.assert.isTrue(result.isOk());
-      chai.assert.isTrue(
-        writeEnvStub.calledOnceWith("project-path", "local", {
-          TEAMS_APP_ID: "mock-app-id",
-        })
-      );
+      chai.assert.equal(writeEnvStub.mock.calls.length, 1);
+      chai.assert.deepEqual(writeEnvStub.mock.calls[0], [
+        "project-path",
+        "local",
+        { TEAMS_APP_ID: "mock-app-id" },
+      ]);
     });
 
     it("writes to .env.dev when cannot find env path", async () => {
-      sandbox.stub(pathUtils, "getEnvFilePath").resolves(ok(undefined));
-      sandbox.stub(fs, "pathExists").resolves(true);
+      vi.spyOn(pathUtils, "getEnvFilePath").mockResolvedValue(ok(undefined));
+      vi.spyOn(fs, "pathExists").mockResolvedValue(true);
 
-      const writeEnvStub = sandbox.stub(envUtil, "writeEnv").resolves(ok(undefined));
+      const writeEnvStub = vi.spyOn(envUtil, "writeEnv").mockResolvedValue(ok(undefined));
 
       // Use the private method for testing
       const result = await tdpUtils.updateEnv("mock-app-id", "project-path");
 
       chai.assert.isTrue(result.isOk());
-      chai.assert.isTrue(
-        writeEnvStub.calledOnceWith("project-path", "dev", {
-          TEAMS_APP_ID: "mock-app-id",
-        })
-      );
+      chai.assert.equal(writeEnvStub.mock.calls.length, 1);
+      chai.assert.deepEqual(writeEnvStub.mock.calls[0], [
+        "project-path",
+        "dev",
+        { TEAMS_APP_ID: "mock-app-id" },
+      ]);
     });
 
     it("writes to .env.dev when .env.local doesn't exist", async () => {
-      sandbox.stub(pathUtils, "getEnvFilePath").resolves(ok("path/to/.env.local"));
-      sandbox.stub(fs, "pathExists").resolves(false);
+      vi.spyOn(pathUtils, "getEnvFilePath").mockResolvedValue(ok("path/to/.env.local"));
+      vi.spyOn(fs, "pathExists").mockResolvedValue(false);
 
-      const writeEnvStub = sandbox.stub(envUtil, "writeEnv").resolves(ok(undefined));
+      const writeEnvStub = vi.spyOn(envUtil, "writeEnv").mockResolvedValue(ok(undefined));
 
       // Use the private method for testing
       const result = await tdpUtils.updateEnv("mock-app-id", "project-path");
 
       chai.assert.isTrue(result.isOk());
-      chai.assert.isTrue(
-        writeEnvStub.calledOnceWith("project-path", "dev", {
-          TEAMS_APP_ID: "mock-app-id",
-        })
-      );
+      chai.assert.equal(writeEnvStub.mock.calls.length, 1);
+      chai.assert.deepEqual(writeEnvStub.mock.calls[0], [
+        "project-path",
+        "dev",
+        { TEAMS_APP_ID: "mock-app-id" },
+      ]);
     });
 
     it("returns error when getEnvFilePath fails", async () => {
       const error = new UserError("source", "name", "msg", "msg");
-      sandbox.stub(pathUtils, "getEnvFilePath").resolves(err(error));
+      vi.spyOn(pathUtils, "getEnvFilePath").mockResolvedValue(err(error));
 
       // Use the private method for testing
       const result = await tdpUtils.updateEnv("mock-app-id", "project-path");
@@ -1803,11 +1810,11 @@ describe("developPortalScaffoldUtils", () => {
       // that the binding fixes the "this.getEnvFolderPath is not a function" error.
       // Without the .bind() fix, this would fail when getEnvFilePath tries to call this.getEnvFolderPath
 
-      sandbox.stub(pathUtils, "getYmlFilePath").returns("mock-yml-path");
+      vi.spyOn(pathUtils, "getYmlFilePath").mockReturnValue("mock-yml-path");
 
-      sandbox.stub(fs, "readFile").resolves("environmentFolderPath: ./env" as any);
+      vi.spyOn(fs, "readFile").mockResolvedValue("environmentFolderPath: ./env" as any);
 
-      sandbox.stub(fs, "pathExists").resolves(true);
+      vi.spyOn(fs, "pathExists").mockResolvedValue(true);
 
       const result = await pathUtils.getEnvFilePath("test-project-path", "local");
 

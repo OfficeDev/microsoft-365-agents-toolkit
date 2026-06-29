@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { assert } from "chai";
 import { parsePipeline } from "../../../src/v4/runtime/packageParse";
+import { assert } from "vitest";
 
 describe("v4 runtime — packageParse", () => {
   it("parsePipeline accepts literal string[] step parameters", () => {

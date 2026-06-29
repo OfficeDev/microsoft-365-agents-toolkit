@@ -13,7 +13,6 @@ import {
   ok,
 } from "@microsoft/teamsfx-api";
 import axios from "axios";
-import { assert } from "chai";
 import fs from "fs-extra";
 import mockedEnv from "mocked-env";
 import * as os from "os";
@@ -29,6 +28,7 @@ import { QuestionNames } from "../../src/question";
 import { KnowledgeSearchTypeOptions, KnowledgeSourceOptions } from "../../src/question/constants";
 import { validationUtils } from "../../src/ui/validationUtils";
 import { MockTools, MockUserInteraction, randomAppName } from "./utils";
+import { assert, vi } from "vitest";
 
 const tools = new MockTools();
 

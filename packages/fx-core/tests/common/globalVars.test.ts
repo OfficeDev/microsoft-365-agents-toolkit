@@ -2,8 +2,7 @@
 // Licensed under the MIT license.
 
 import { hooks } from "@feathersjs/hooks";
-import { assert } from "chai";
-import { vi } from "vitest";
+import { assert, vi } from "vitest";
 import { ErrorContextMW, globalVars, setErrorContext, setTools } from "../../src/common/globalVars";
 import "../../src/component/feature/sso";
 import { MockTools } from "../core/utils";

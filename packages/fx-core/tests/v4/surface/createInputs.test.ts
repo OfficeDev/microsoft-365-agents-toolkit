@@ -14,7 +14,6 @@ import {
   UserError,
   UserInteraction,
 } from "@microsoft/teamsfx-api";
-import { assert } from "chai";
 import AdmZip from "adm-zip";
 import path from "path";
 import { Result, err, ok } from "neverthrow";
@@ -26,6 +25,7 @@ import { openCreateQuestions } from "../../../src/v4/distribution/createQuestion
 import { DeclarativeLocator } from "../../../src/v4/model/dataModel";
 import { createUiPromptUI } from "../../../src/v4/surface/uiPromptUI";
 import { gateLanguagesBySurface, runCreateInputs } from "../../../src/v4/surface/createInputs";
+import { assert } from "vitest";
 
 /**
  * Tests for docs/03-specs/operations/scaffolding/collect-create-inputs.md.

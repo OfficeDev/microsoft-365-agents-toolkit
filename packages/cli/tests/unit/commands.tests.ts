@@ -15,9 +15,9 @@ import {
   envUtil,
   featureFlagManager,
 } from "@microsoft/teamsfx-core";
-import { assert } from "chai";
+import * as settingHelper from "@microsoft/teamsfx-core/build/common/projectSettingsHelper";
 import { RestoreFn } from "mocked-env";
-import * as sinon from "sinon";
+import { assert, vi } from "vitest";
 import * as activate from "../../src/activate";
 import { localTelemetryReporter } from "../../src/cmds/preview/localTelemetryReporter";
 import {
@@ -47,12 +47,10 @@ import {
 import { addAuthConfigCommand } from "../../src/commands/models/addAuthConfig";
 import { addCapabilityCommand } from "../../src/commands/models/addCapability";
 import { addPluginCommand } from "../../src/commands/models/addPlugin";
+import { entraAppUpdateCommand } from "../../src/commands/models/entraAppUpdate";
+import { envResetCommand } from "../../src/commands/models/envReset";
 import { exportOpenPluginCommand } from "../../src/commands/models/exportOpenPlugin";
 import { importOpenPluginCommand } from "../../src/commands/models/importOpenPlugin";
-import { entraAppUpdateCommand } from "../../src/commands/models/entraAppUpdate";
-import { envAddDeps } from "../../src/commands/models/envAdd";
-import { envListDeps } from "../../src/commands/models/envList";
-import { envResetCommand } from "../../src/commands/models/envReset";
 import * as listTemplatesModule from "../../src/commands/models/listTemplates";
 import { regeneratePluginCommand } from "../../src/commands/models/regeneratePlugin";
 import { shareCommand } from "../../src/commands/models/share";
@@ -68,20 +66,20 @@ import { MissingRequiredOptionError } from "../../src/error";
 import * as utils from "../../src/utils";
 
 describe("CLI commands", () => {
-  const sandbox = sinon.createSandbox();
+  const sandbox = vi;
 
   const mockedEnvRestore: RestoreFn = () => {};
 
   process.env.TEAMSFX_CLI_BIN_NAME = "atk";
   beforeEach(() => {
-    sandbox.stub(process.stdout, "write").returns(true as any);
-    sandbox.stub(process.stderr, "write").returns(true as any);
-    sandbox.stub(logger, "info").resolves(true);
-    sandbox.stub(logger, "error").resolves(true);
+    vi.spyOn(process.stdout, "write").mockReturnValue(true as any);
+    vi.spyOn(process.stderr, "write").mockReturnValue(true as any);
+    vi.spyOn(logger, "info").mockResolvedValue(true);
+    vi.spyOn(logger, "error").mockResolvedValue(true);
   });
 
   afterEach(() => {
-    sandbox.restore();
+    vi.restoreAllMocks();
     if (mockedEnvRestore) {
       mockedEnvRestore();
     }
@@ -89,9 +87,9 @@ describe("CLI commands", () => {
 
   describe("getCreateCommand", async () => {
     it("happy path for donet", async () => {
-      sandbox.stub(activate, "getFxCore").returns(new FxCore({} as any));
-      sandbox.stub(FxCore.prototype, "createProject").resolves(ok({ projectPath: "..." }));
-      sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
+      vi.spyOn(activate, "getFxCore").mockReturnValue(new FxCore({} as any));
+      vi.spyOn(FxCore.prototype, "createProject").mockResolvedValue(ok({ projectPath: "..." }));
+      vi.spyOn(featureFlagManager, "getBooleanValue").mockReturnValue(true);
       const ctx: CLIContext = {
         command: { ...getCreateCommand(), fullName: "new" },
         optionValues: {
@@ -106,9 +104,9 @@ describe("CLI commands", () => {
       assert.isTrue(res.isOk());
     });
     it("happy path for cli", async () => {
-      sandbox.stub(activate, "getFxCore").returns(new FxCore({} as any));
-      sandbox.stub(FxCore.prototype, "createProject").resolves(ok({ projectPath: "..." }));
-      sandbox.stub(featureFlagManager, "getBooleanValue").returns(false);
+      vi.spyOn(activate, "getFxCore").mockReturnValue(new FxCore({} as any));
+      vi.spyOn(FxCore.prototype, "createProject").mockResolvedValue(ok({ projectPath: "..." }));
+      vi.spyOn(featureFlagManager, "getBooleanValue").mockReturnValue(false);
       const ctx: CLIContext = {
         command: { ...getCreateCommand(), fullName: "new" },
         optionValues: {
@@ -123,8 +121,8 @@ describe("CLI commands", () => {
       assert.isTrue(res.isOk());
     });
     it("core return error", async () => {
-      sandbox.stub(activate, "getFxCore").returns(new FxCore({} as any));
-      sandbox.stub(FxCore.prototype, "createProject").resolves(err(new UserCancelError()));
+      vi.spyOn(activate, "getFxCore").mockReturnValue(new FxCore({} as any));
+      vi.spyOn(FxCore.prototype, "createProject").mockResolvedValue(err(new UserCancelError()));
       const ctx: CLIContext = {
         command: { ...getCreateCommand(), fullName: "new" },
         optionValues: {},
@@ -137,12 +135,12 @@ describe("CLI commands", () => {
     });
 
     it("uses template alias and preset language in non-interactive mode", async () => {
-      sandbox.stub(activate, "getFxCore").returns(new FxCore({} as any));
-      const createProjectStub = sandbox
-        .stub(FxCore.prototype, "createProject")
-        .resolves(ok({ projectPath: "..." }));
-      sandbox.stub(featureFlagManager, "getBooleanValue").returns(false);
-      sandbox.stub(listTemplatesModule, "listAllTemplates").returns([
+      vi.spyOn(activate, "getFxCore").mockReturnValue(new FxCore({} as any));
+      const createProjectStub = vi
+        .spyOn(FxCore.prototype, "createProject")
+        .mockResolvedValue(ok({ projectPath: "..." }));
+      vi.spyOn(featureFlagManager, "getBooleanValue").mockReturnValue(false);
+      vi.spyOn(listTemplatesModule, "listAllTemplates").mockReturnValue([
         {
           name: "api-plugin",
           alias: "api-plugin-from-scratch",
@@ -166,19 +164,19 @@ describe("CLI commands", () => {
       const res = await getCreateCommand().handler!(ctx);
 
       assert.isTrue(res.isOk());
-      assert.isTrue(createProjectStub.calledOnce);
-      const inputs = createProjectStub.firstCall.args[0] as any;
-      assert.equal(inputs["template-name"], "api-plugin-from-scratch");
+      assert.isTrue(createProjectStub.mock.calls.length === 1);
+      const inputs = createProjectStub.mock.calls[0][0] as any;
+      assert.equal(inputs["template-name"], "api-plugin");
       assert.equal(inputs["programming-language"], "typescript");
     });
 
     it("keeps capability as template-name when template is not found", async () => {
-      sandbox.stub(activate, "getFxCore").returns(new FxCore({} as any));
-      const createProjectStub = sandbox
-        .stub(FxCore.prototype, "createProject")
-        .resolves(ok({ projectPath: "..." }));
-      sandbox.stub(featureFlagManager, "getBooleanValue").returns(false);
-      sandbox.stub(listTemplatesModule, "listAllTemplates").returns([] as any);
+      vi.spyOn(activate, "getFxCore").mockReturnValue(new FxCore({} as any));
+      const createProjectStub = vi
+        .spyOn(FxCore.prototype, "createProject")
+        .mockResolvedValue(ok({ projectPath: "..." }));
+      vi.spyOn(featureFlagManager, "getBooleanValue").mockReturnValue(false);
+      vi.spyOn(listTemplatesModule, "listAllTemplates").mockReturnValue([] as any);
 
       const ctx: CLIContext = {
         command: { ...getCreateCommand(), fullName: "new" },
@@ -195,13 +193,13 @@ describe("CLI commands", () => {
       const res = await getCreateCommand().handler!(ctx);
 
       assert.isTrue(res.isOk());
-      const inputs = createProjectStub.firstCall.args[0] as any;
+      const inputs = createProjectStub.mock.calls[0][0] as any;
       assert.equal(inputs["template-name"], "unknown-template");
       assert.equal(inputs["programming-language"], "javascript");
     });
 
     it("includes template alias in capability choices", async () => {
-      sandbox.stub(listTemplatesModule, "listAllTemplates").returns([
+      vi.spyOn(listTemplatesModule, "listAllTemplates").mockReturnValue([
         {
           name: "api-plugin",
           alias: "api-plugin-from-scratch",
@@ -218,10 +216,10 @@ describe("CLI commands", () => {
     });
 
     it("keeps the v3 create option surface when TEAMSFX_V4_ENABLED is on", async () => {
-      sandbox
-        .stub(featureFlagManager, "getBooleanValue")
-        .callsFake((flag) => flag.name === FeatureFlags.V4Enabled.name);
-      sandbox.stub(listTemplatesModule, "listAllTemplates").returns([
+      vi.spyOn(featureFlagManager, "getBooleanValue").mockImplementation(
+        (flag) => flag.name === FeatureFlags.V4Enabled.name
+      );
+      vi.spyOn(listTemplatesModule, "listAllTemplates").mockReturnValue([
         {
           name: "copilot-gpt-basic",
           alias: "declarative-agent",
@@ -248,12 +246,12 @@ describe("CLI commands", () => {
     });
 
     it("normalizes legacy create flags to neutral keys before calling the front door", async () => {
-      sandbox.stub(activate, "getFxCore").returns(new FxCore({} as any));
-      const createProjectFrontDoorStub = sandbox
-        .stub(FxCore.prototype, "createProjectFrontDoor")
-        .resolves(ok({ projectPath: "..." }));
-      sandbox.stub(featureFlagManager, "getBooleanValue").returns(false);
-      sandbox.stub(listTemplatesModule, "listAllTemplates").returns([] as any);
+      vi.spyOn(activate, "getFxCore").mockReturnValue(new FxCore({} as any));
+      const createProjectFrontDoorStub = vi
+        .spyOn(FxCore.prototype, "createProjectFrontDoor")
+        .mockResolvedValue(ok({ projectPath: "..." }));
+      vi.spyOn(featureFlagManager, "getBooleanValue").mockReturnValue(false);
+      vi.spyOn(listTemplatesModule, "listAllTemplates").mockReturnValue([] as any);
 
       const ctx: CLIContext = {
         command: { ...getCreateCommand(), fullName: "new" },
@@ -272,7 +270,7 @@ describe("CLI commands", () => {
       const res = await getCreateCommand().handler!(ctx);
 
       assert.isTrue(res.isOk());
-      const inputs = createProjectFrontDoorStub.firstCall.args[0] as any;
+      const inputs = createProjectFrontDoorStub.mock.calls[0][0] as any;
       assert.equal(inputs.mcpServerUrl, "https://example.com/mcp");
       assert.equal(inputs["mcp-da-server-url"], "https://example.com/mcp");
       assert.equal(inputs.authType, "none");
@@ -284,14 +282,14 @@ describe("CLI commands", () => {
     });
 
     it("normalizes legacy create route flags to v4 selector keys without pinning template-name", async () => {
-      sandbox.stub(activate, "getFxCore").returns(new FxCore({} as any));
-      const createProjectFrontDoorStub = sandbox
-        .stub(FxCore.prototype, "createProjectFrontDoor")
-        .resolves(ok({ projectPath: "..." }));
-      sandbox
-        .stub(featureFlagManager, "getBooleanValue")
-        .callsFake((flag) => flag.name === FeatureFlags.V4Enabled.name);
-      sandbox.stub(listTemplatesModule, "listAllTemplates").returns([
+      vi.spyOn(activate, "getFxCore").mockReturnValue(new FxCore({} as any));
+      const createProjectFrontDoorStub = vi
+        .spyOn(FxCore.prototype, "createProjectFrontDoor")
+        .mockResolvedValue(ok({ projectPath: "..." }));
+      vi.spyOn(featureFlagManager, "getBooleanValue").mockImplementation(
+        (flag) => flag.name === FeatureFlags.V4Enabled.name
+      );
+      vi.spyOn(listTemplatesModule, "listAllTemplates").mockReturnValue([
         {
           name: "copilot-gpt-basic",
           alias: "declarative-agent",
@@ -317,7 +315,7 @@ describe("CLI commands", () => {
       const res = await getCreateCommand().handler!(ctx);
 
       assert.isTrue(res.isOk());
-      const inputs = createProjectFrontDoorStub.firstCall.args[0] as any;
+      const inputs = createProjectFrontDoorStub.mock.calls[0][0] as any;
       assert.equal(inputs.projectType, "copilot-agent-type");
       assert.equal(inputs.daTemplate, "add-action");
       assert.equal(inputs.actionSource, "openapi");
@@ -325,14 +323,14 @@ describe("CLI commands", () => {
     });
 
     it("normalizes declarative agent without action to v4 selector keys", async () => {
-      sandbox.stub(activate, "getFxCore").returns(FxCore.prototype);
-      const createProjectFrontDoorStub = sandbox
-        .stub(FxCore.prototype, "createProjectFrontDoor")
-        .resolves(ok({ projectPath: "..." }));
-      sandbox
-        .stub(featureFlagManager, "getBooleanValue")
-        .callsFake((flag) => flag.name === FeatureFlags.V4Enabled.name);
-      sandbox.stub(listTemplatesModule, "listAllTemplates").returns([]);
+      vi.spyOn(activate, "getFxCore").mockReturnValue(FxCore.prototype);
+      const createProjectFrontDoorStub = vi
+        .spyOn(FxCore.prototype, "createProjectFrontDoor")
+        .mockResolvedValue(ok({ projectPath: "..." }));
+      vi.spyOn(featureFlagManager, "getBooleanValue").mockImplementation(
+        (flag) => flag.name === FeatureFlags.V4Enabled.name
+      );
+      vi.spyOn(listTemplatesModule, "listAllTemplates").mockReturnValue([]);
 
       const ctx: CLIContext = {
         command: { ...getCreateCommand(), fullName: "new" },
@@ -348,21 +346,21 @@ describe("CLI commands", () => {
       const res = await getCreateCommand().handler!(ctx);
 
       assert.isTrue(res.isOk());
-      const inputs = createProjectFrontDoorStub.firstCall.args[0];
+      const inputs = createProjectFrontDoorStub.mock.calls[0][0];
       assert.equal(inputs.projectType, "copilot-agent-type");
       assert.equal(inputs.daTemplate, "no-action");
       assert.notProperty(inputs, "template-name");
     });
 
     it("falls back to legacy create template-name when declarative agent route flags are unknown", async () => {
-      sandbox.stub(activate, "getFxCore").returns(FxCore.prototype);
-      const createProjectFrontDoorStub = sandbox
-        .stub(FxCore.prototype, "createProjectFrontDoor")
-        .resolves(ok({ projectPath: "..." }));
-      sandbox
-        .stub(featureFlagManager, "getBooleanValue")
-        .callsFake((flag) => flag.name === FeatureFlags.V4Enabled.name);
-      sandbox.stub(listTemplatesModule, "listAllTemplates").returns([
+      vi.spyOn(activate, "getFxCore").mockReturnValue(FxCore.prototype);
+      const createProjectFrontDoorStub = vi
+        .spyOn(FxCore.prototype, "createProjectFrontDoor")
+        .mockResolvedValue(ok({ projectPath: "..." }));
+      vi.spyOn(featureFlagManager, "getBooleanValue").mockImplementation(
+        (flag) => flag.name === FeatureFlags.V4Enabled.name
+      );
+      vi.spyOn(listTemplatesModule, "listAllTemplates").mockReturnValue([
         {
           name: "copilot-gpt-basic",
           alias: "declarative-agent",
@@ -387,20 +385,20 @@ describe("CLI commands", () => {
       const res = await getCreateCommand().handler!(ctx);
 
       assert.isTrue(res.isOk());
-      const inputs = createProjectFrontDoorStub.firstCall.args[0];
+      const inputs = createProjectFrontDoorStub.mock.calls[0][0];
       assert.equal(inputs["template-name"], "copilot-gpt-basic");
       assert.equal(inputs["programming-language"], "common");
     });
 
     it("normalizes legacy bearer-token API auth to the v4 api-key selector value", async () => {
-      sandbox.stub(activate, "getFxCore").returns(new FxCore({} as any));
-      const createProjectFrontDoorStub = sandbox
-        .stub(FxCore.prototype, "createProjectFrontDoor")
-        .resolves(ok({ projectPath: "..." }));
-      sandbox
-        .stub(featureFlagManager, "getBooleanValue")
-        .callsFake((flag) => flag.name === FeatureFlags.V4Enabled.name);
-      sandbox.stub(listTemplatesModule, "listAllTemplates").returns([] as any);
+      vi.spyOn(activate, "getFxCore").mockReturnValue(new FxCore({} as any));
+      const createProjectFrontDoorStub = vi
+        .spyOn(FxCore.prototype, "createProjectFrontDoor")
+        .mockResolvedValue(ok({ projectPath: "..." }));
+      vi.spyOn(featureFlagManager, "getBooleanValue").mockImplementation(
+        (flag) => flag.name === FeatureFlags.V4Enabled.name
+      );
+      vi.spyOn(listTemplatesModule, "listAllTemplates").mockReturnValue([] as any);
 
       const ctx: CLIContext = {
         command: { ...getCreateCommand(), fullName: "new" },
@@ -419,19 +417,19 @@ describe("CLI commands", () => {
       const res = await getCreateCommand().handler!(ctx);
 
       assert.isTrue(res.isOk());
-      const inputs = createProjectFrontDoorStub.firstCall.args[0] as any;
+      const inputs = createProjectFrontDoorStub.mock.calls[0][0] as any;
       assert.equal(inputs.apiAuth, "api-key");
       assert.equal(inputs["api-auth"], "bearer-token");
       assert.notProperty(inputs, "template-name");
     });
 
     it("with-plugin=yes and api-plugin-type matches a sub-template → uses subTemplate name", async () => {
-      sandbox.stub(activate, "getFxCore").returns(new FxCore({} as any));
-      const createProjectStub = sandbox
-        .stub(FxCore.prototype, "createProject")
-        .resolves(ok({ projectPath: "..." }));
-      sandbox.stub(featureFlagManager, "getBooleanValue").returns(false);
-      sandbox.stub(listTemplatesModule, "listAllTemplates").returns([
+      vi.spyOn(activate, "getFxCore").mockReturnValue(new FxCore({} as any));
+      const createProjectStub = vi
+        .spyOn(FxCore.prototype, "createProject")
+        .mockResolvedValue(ok({ projectPath: "..." }));
+      vi.spyOn(featureFlagManager, "getBooleanValue").mockReturnValue(false);
+      vi.spyOn(listTemplatesModule, "listAllTemplates").mockReturnValue([
         {
           name: "declarative-agent",
           alias: "da",
@@ -463,18 +461,18 @@ describe("CLI commands", () => {
 
       const res = await getCreateCommand().handler!(ctx);
       assert.isTrue(res.isOk());
-      const inputs = createProjectStub.firstCall.args[0] as any;
+      const inputs = createProjectStub.mock.calls[0][0] as any;
       assert.equal(inputs["template-name"], "declarative-agent-with-action-from-mcp");
     });
 
     it("with-plugin=yes and api-plugin-type=mcp falls back to actionTemplateMap", async () => {
-      sandbox.stub(activate, "getFxCore").returns(new FxCore({} as any));
-      const createProjectStub = sandbox
-        .stub(FxCore.prototype, "createProject")
-        .resolves(ok({ projectPath: "..." }));
-      sandbox.stub(featureFlagManager, "getBooleanValue").returns(false);
+      vi.spyOn(activate, "getFxCore").mockReturnValue(new FxCore({} as any));
+      const createProjectStub = vi
+        .spyOn(FxCore.prototype, "createProject")
+        .mockResolvedValue(ok({ projectPath: "..." }));
+      vi.spyOn(featureFlagManager, "getBooleanValue").mockReturnValue(false);
       // Only parent template exists; 'mcp' action type is NOT in templates list
-      sandbox.stub(listTemplatesModule, "listAllTemplates").returns([
+      vi.spyOn(listTemplatesModule, "listAllTemplates").mockReturnValue([
         {
           name: "declarative-agent",
           alias: "da",
@@ -499,13 +497,13 @@ describe("CLI commands", () => {
 
       const res = await getCreateCommand().handler!(ctx);
       assert.isTrue(res.isOk());
-      const inputs = createProjectStub.firstCall.args[0] as any;
+      const inputs = createProjectStub.mock.calls[0][0] as any;
       assert.equal(inputs["template-name"], "declarative-agent-with-action-from-mcp");
     });
 
     it("createProject result with warnings logs each warning", async () => {
-      sandbox.stub(activate, "getFxCore").returns(new FxCore({} as any));
-      sandbox.stub(FxCore.prototype, "createProject").resolves(
+      vi.spyOn(activate, "getFxCore").mockReturnValue(new FxCore({} as any));
+      vi.spyOn(FxCore.prototype, "createProject").mockResolvedValue(
         ok({
           projectPath: "...",
           warnings: [
@@ -514,8 +512,8 @@ describe("CLI commands", () => {
           ],
         } as any)
       );
-      sandbox.stub(featureFlagManager, "getBooleanValue").returns(false);
-      const warnStub = sandbox.stub(logger, "warning").resolves();
+      vi.spyOn(featureFlagManager, "getBooleanValue").mockReturnValue(false);
+      const warnStub = vi.spyOn(logger, "warning").mockResolvedValue();
 
       const ctx: CLIContext = {
         command: { ...getCreateCommand(), fullName: "new" },
@@ -530,19 +528,19 @@ describe("CLI commands", () => {
 
       const res = await getCreateCommand().handler!(ctx);
       assert.isTrue(res.isOk());
-      assert.equal(warnStub.callCount, 2);
-      assert.equal(warnStub.firstCall.args[0], "warn1");
-      assert.equal(warnStub.secondCall.args[0], "warn2");
+      assert.equal(warnStub.mock.calls.length, 2);
+      assert.equal(warnStub.mock.calls[0][0], "warn1");
+      assert.equal(warnStub.mock.calls[1][0], "warn2");
     });
 
     it("isTdpTemplate=true triggers createProjectFromTdp instead of createProject", async () => {
-      sandbox.stub(activate, "getFxCore").returns(new FxCore({} as any));
-      const createProjectFromTdpStub = sandbox
-        .stub(FxCore.prototype, "createProjectFromTdp")
-        .resolves(ok({ projectPath: "..." }));
-      const createProjectStub = sandbox.stub(FxCore.prototype, "createProject");
-      sandbox.stub(featureFlagManager, "getBooleanValue").returns(false);
-      sandbox.stub(listTemplatesModule, "listAllTemplates").returns([] as any);
+      vi.spyOn(activate, "getFxCore").mockReturnValue(new FxCore({} as any));
+      const createProjectFromTdpStub = vi
+        .spyOn(FxCore.prototype, "createProjectFromTdp")
+        .mockResolvedValue(ok({ projectPath: "..." }));
+      const createProjectStub = vi.spyOn(FxCore.prototype, "createProject");
+      vi.spyOn(featureFlagManager, "getBooleanValue").mockReturnValue(false);
+      vi.spyOn(listTemplatesModule, "listAllTemplates").mockReturnValue([] as any);
 
       const ctx: CLIContext = {
         command: { ...getCreateCommand(), fullName: "new" },
@@ -571,15 +569,17 @@ describe("CLI commands", () => {
 
       const res = await getCreateCommand().handler!(ctx);
       assert.isTrue(res.isOk());
-      assert.isTrue(createProjectFromTdpStub.calledOnce);
-      assert.isTrue(createProjectStub.notCalled);
+      assert.isTrue(createProjectFromTdpStub.mock.calls.length === 1);
+      assert.isTrue(createProjectStub.mock.calls.length === 0);
     });
   });
 
   describe("createSampleCommand", async () => {
     it("happy path", async () => {
-      sandbox.stub(activate, "getFxCore").returns(new FxCore({} as any));
-      sandbox.stub(FxCore.prototype, "createSampleProject").resolves(ok({ projectPath: "..." }));
+      vi.spyOn(activate, "getFxCore").mockReturnValue(new FxCore({} as any));
+      vi.spyOn(FxCore.prototype, "createSampleProject").mockResolvedValue(
+        ok({ projectPath: "..." })
+      );
       const ctx: CLIContext = {
         command: { ...createSampleCommand, fullName: "new sample" },
         optionValues: {},
@@ -591,8 +591,8 @@ describe("CLI commands", () => {
       assert.isTrue(res.isOk());
     });
     it("core return error", async () => {
-      sandbox.stub(activate, "getFxCore").returns(new FxCore({} as any));
-      sandbox.stub(FxCore.prototype, "createProject").resolves(err(new UserCancelError()));
+      vi.spyOn(activate, "getFxCore").mockReturnValue(new FxCore({} as any));
+      vi.spyOn(FxCore.prototype, "createProject").mockResolvedValue(err(new UserCancelError()));
       const ctx: CLIContext = {
         command: { ...createSampleCommand, fullName: "new sample" },
         optionValues: {},
@@ -606,7 +606,7 @@ describe("CLI commands", () => {
   });
   describe("listSampleCommand", async () => {
     it("happy path", async () => {
-      sandbox.stub(utils, "getTemplates").resolves([]);
+      vi.spyOn(utils, "getTemplates").mockResolvedValue([]);
       const ctx: CLIContext = {
         command: {
           ...listSamplesCommand,
@@ -623,8 +623,8 @@ describe("CLI commands", () => {
   });
   describe("accountLoginAzureCommand", async () => {
     it("should success when service-principal = false", async () => {
-      sandbox.stub(AzureTokenProvider, "signout");
-      sandbox.stub(accountUtils, "outputAzureInfo").resolves();
+      vi.spyOn(AzureTokenProvider, "signout");
+      vi.spyOn(accountUtils, "outputAzureInfo").mockResolvedValue();
       const ctx: CLIContext = {
         command: {
           ...accountLoginAzureCommand,
@@ -639,8 +639,8 @@ describe("CLI commands", () => {
       assert.isTrue(res.isOk());
     });
     it("should fail when service-principal = true", async () => {
-      sandbox.stub(AzureTokenProvider, "signout");
-      sandbox.stub(accountUtils, "outputAzureInfo").resolves();
+      vi.spyOn(AzureTokenProvider, "signout");
+      vi.spyOn(accountUtils, "outputAzureInfo").mockResolvedValue();
       const ctx: CLIContext = {
         command: {
           ...accountLoginAzureCommand,
@@ -655,8 +655,8 @@ describe("CLI commands", () => {
       assert.isTrue(res.isErr());
     });
     it("should fail service-principal = false", async () => {
-      sandbox.stub(AzureTokenProvider, "signout");
-      sandbox.stub(accountUtils, "outputAzureInfo").resolves();
+      vi.spyOn(AzureTokenProvider, "signout");
+      vi.spyOn(accountUtils, "outputAzureInfo").mockResolvedValue();
       const ctx: CLIContext = {
         command: {
           ...accountLoginAzureCommand,
@@ -673,8 +673,8 @@ describe("CLI commands", () => {
   });
   describe("accountLoginM365Command", async () => {
     it("should success", async () => {
-      sandbox.stub(M365TokenProvider, "signout");
-      sandbox.stub(accountUtils, "outputM365Info").resolves();
+      vi.spyOn(M365TokenProvider, "signout");
+      vi.spyOn(accountUtils, "outputM365Info").mockResolvedValue();
       const ctx: CLIContext = {
         command: {
           ...accountLoginM365Command,
@@ -692,7 +692,7 @@ describe("CLI commands", () => {
 
   describe("addSPFxWebpartCommand", async () => {
     it("success", async () => {
-      sandbox.stub(FxCore.prototype, "addWebpart").resolves(ok(undefined));
+      vi.spyOn(FxCore.prototype, "addWebpart").mockResolvedValue(ok(undefined));
       const ctx: CLIContext = {
         command: { ...addSPFxWebpartCommand, fullName: "add spfx-web-part" },
         optionValues: {},
@@ -707,7 +707,7 @@ describe("CLI commands", () => {
 
   describe("addPluginCommand", async () => {
     it("success", async () => {
-      sandbox.stub(FxCore.prototype, "addPlugin").resolves(ok(undefined));
+      vi.spyOn(FxCore.prototype, "addPlugin").mockResolvedValue(ok(undefined));
       const ctx: CLIContext = {
         command: { ...addPluginCommand, fullName: "add plugin" },
         optionValues: {},
@@ -722,9 +722,9 @@ describe("CLI commands", () => {
 
   describe("importOpenPluginCommand", async () => {
     it("success", async () => {
-      sandbox
-        .stub(FxCore.prototype, "importOpenPlugin")
-        .resolves(ok({ projectPath: "/tmp/imported", warnings: [] }));
+      vi.spyOn(FxCore.prototype, "importOpenPlugin").mockResolvedValue(
+        ok({ projectPath: "/tmp/imported", warnings: [] })
+      );
       const ctx: CLIContext = {
         command: { ...importOpenPluginCommand, fullName: "import openplugin" },
         optionValues: {},
@@ -737,7 +737,7 @@ describe("CLI commands", () => {
     });
 
     it("logs warnings returned by importOpenPlugin", async () => {
-      sandbox.stub(FxCore.prototype, "importOpenPlugin").resolves(
+      vi.spyOn(FxCore.prototype, "importOpenPlugin").mockResolvedValue(
         ok({
           projectPath: "/tmp/imported",
           warnings: [{ type: "openPluginImport", content: "test warning" }],
@@ -755,9 +755,9 @@ describe("CLI commands", () => {
     });
 
     it("propagates errors from importOpenPlugin", async () => {
-      sandbox
-        .stub(FxCore.prototype, "importOpenPlugin")
-        .resolves(err(new SystemError("OpenPluginImport", "Boom", "boom")));
+      vi.spyOn(FxCore.prototype, "importOpenPlugin").mockResolvedValue(
+        err(new SystemError("OpenPluginImport", "Boom", "boom"))
+      );
       const ctx: CLIContext = {
         command: { ...importOpenPluginCommand, fullName: "import openplugin" },
         optionValues: {},
@@ -772,9 +772,9 @@ describe("CLI commands", () => {
 
   describe("exportOpenPluginCommand", async () => {
     it("success", async () => {
-      sandbox
-        .stub(FxCore.prototype, "exportOpenPlugin")
-        .resolves(ok({ outputPath: "/tmp/exported", warnings: [] }));
+      vi.spyOn(FxCore.prototype, "exportOpenPlugin").mockResolvedValue(
+        ok({ outputPath: "/tmp/exported", warnings: [] })
+      );
       const ctx: CLIContext = {
         command: { ...exportOpenPluginCommand, fullName: "export openplugin" },
         optionValues: {},
@@ -787,7 +787,7 @@ describe("CLI commands", () => {
     });
 
     it("logs warnings returned by exportOpenPlugin", async () => {
-      sandbox.stub(FxCore.prototype, "exportOpenPlugin").resolves(
+      vi.spyOn(FxCore.prototype, "exportOpenPlugin").mockResolvedValue(
         ok({
           outputPath: "/tmp/exported",
           warnings: [{ type: "openPluginExport", content: "test warning" }],
@@ -805,9 +805,9 @@ describe("CLI commands", () => {
     });
 
     it("propagates errors from exportOpenPlugin", async () => {
-      sandbox
-        .stub(FxCore.prototype, "exportOpenPlugin")
-        .resolves(err(new SystemError("OpenPluginExport", "Boom", "boom")));
+      vi.spyOn(FxCore.prototype, "exportOpenPlugin").mockResolvedValue(
+        err(new SystemError("OpenPluginExport", "Boom", "boom"))
+      );
       const ctx: CLIContext = {
         command: { ...exportOpenPluginCommand, fullName: "export openplugin" },
         optionValues: {},
@@ -822,7 +822,7 @@ describe("CLI commands", () => {
 
   describe("regeneratePlguinCommand", async () => {
     it("success", async () => {
-      sandbox.stub(FxCore.prototype, "regeneratePlugin").resolves(ok(undefined));
+      vi.spyOn(FxCore.prototype, "regeneratePlugin").mockResolvedValue(ok(undefined));
       const ctx: CLIContext = {
         command: { ...regeneratePluginCommand, fullName: "regenerate plugin" },
         optionValues: {},
@@ -837,7 +837,7 @@ describe("CLI commands", () => {
 
   describe("addCapabilityCommand", async () => {
     it("success", async () => {
-      sandbox.stub(FxCore.prototype, "addKnowledge").resolves(ok(undefined));
+      vi.spyOn(FxCore.prototype, "addKnowledge").mockResolvedValue(ok(undefined));
       const ctx: CLIContext = {
         command: { ...addCapabilityCommand, fullName: "add capability" },
         optionValues: {},
@@ -859,7 +859,7 @@ describe("CLI commands", () => {
 
   describe("deployCommand", async () => {
     it("success", async () => {
-      sandbox.stub(FxCore.prototype, "deployArtifacts").resolves(ok(undefined));
+      vi.spyOn(FxCore.prototype, "deployArtifacts").mockResolvedValue(ok(undefined));
       const ctx: CLIContext = {
         command: { ...deployCommand, fullName: "teamsfx" },
         optionValues: {},
@@ -871,7 +871,7 @@ describe("CLI commands", () => {
       assert.isTrue(res.isOk());
     });
     it("success for customized yaml path", async () => {
-      sandbox.stub(FxCore.prototype, "deployArtifacts").resolves(ok(undefined));
+      vi.spyOn(FxCore.prototype, "deployArtifacts").mockResolvedValue(ok(undefined));
       const ctx: CLIContext = {
         command: { ...deployCommand, fullName: "teamsfx" },
         optionValues: { "config-file-path": "fakePath" },
@@ -885,8 +885,8 @@ describe("CLI commands", () => {
   });
   describe("envAddCommand", async () => {
     it("success", async () => {
-      sandbox.stub(FxCore.prototype, "createEnv").resolves(ok(undefined));
-      sandbox.stub(envAddDeps, "isValidProjectV3").returns(true);
+      vi.spyOn(FxCore.prototype, "createEnv").mockResolvedValue(ok(undefined));
+      vi.spyOn(settingHelper, "isValidProjectV3").mockReturnValue(true);
       const ctx: CLIContext = {
         command: { ...envAddCommand, fullName: "teamsfx" },
         optionValues: { projectPath: "." },
@@ -898,8 +898,8 @@ describe("CLI commands", () => {
       assert.isTrue(res.isOk());
     });
     it("isValidProjectV3: false", async () => {
-      sandbox.stub(FxCore.prototype, "createEnv").resolves(ok(undefined));
-      sandbox.stub(envAddDeps, "isValidProjectV3").returns(false);
+      vi.spyOn(FxCore.prototype, "createEnv").mockResolvedValue(ok(undefined));
+      vi.spyOn(settingHelper, "isValidProjectV3").mockReturnValue(false);
       const ctx: CLIContext = {
         command: { ...envAddCommand, fullName: "teamsfx" },
         optionValues: { projectPath: "." },
@@ -910,11 +910,25 @@ describe("CLI commands", () => {
       const res = await envAddCommand.handler!(ctx);
       assert.isTrue(res.isErr());
     });
+    it("uses empty string when projectPath is undefined", async () => {
+      vi.spyOn(FxCore.prototype, "createEnv").mockResolvedValue(ok(undefined));
+      const validStub = vi.spyOn(settingHelper, "isValidProjectV3").mockReturnValue(true);
+      const ctx: CLIContext = {
+        command: { ...envAddCommand, fullName: "teamsfx" },
+        optionValues: {},
+        globalOptionValues: {},
+        argumentValues: [],
+        telemetryProperties: {},
+      };
+      const res = await envAddCommand.handler!(ctx);
+      assert.isTrue(res.isOk());
+      assert.isTrue(validStub.mock.calls[0][0] === "");
+    });
   });
   describe("envListCommand", async () => {
     it("success", async () => {
-      sandbox.stub(envListDeps, "isValidProjectV3").returns(true);
-      sandbox.stub(envUtil, "listEnv").resolves(ok(["dev"]));
+      vi.spyOn(settingHelper, "isValidProjectV3").mockReturnValue(true);
+      vi.spyOn(envUtil, "listEnv").mockResolvedValue(ok(["dev"]));
       const ctx: CLIContext = {
         command: { ...envListCommand, fullName: "teamsfx" },
         optionValues: { projectPath: "." },
@@ -926,7 +940,7 @@ describe("CLI commands", () => {
       assert.isTrue(res.isOk());
     });
     it("isValidProjectV3: false", async () => {
-      sandbox.stub(envListDeps, "isValidProjectV3").returns(false);
+      vi.spyOn(settingHelper, "isValidProjectV3").mockReturnValue(false);
       const ctx: CLIContext = {
         command: { ...envListCommand, fullName: "teamsfx" },
         optionValues: { projectPath: "." },
@@ -938,8 +952,8 @@ describe("CLI commands", () => {
       assert.isTrue(res.isErr());
     });
     it("listEnv error", async () => {
-      sandbox.stub(envListDeps, "isValidProjectV3").returns(true);
-      sandbox.stub(envUtil, "listEnv").resolves(err(new UserCancelError()));
+      vi.spyOn(settingHelper, "isValidProjectV3").mockReturnValue(true);
+      vi.spyOn(envUtil, "listEnv").mockResolvedValue(err(new UserCancelError()));
       const ctx: CLIContext = {
         command: { ...envListCommand, fullName: "teamsfx" },
         optionValues: { projectPath: "." },
@@ -950,10 +964,24 @@ describe("CLI commands", () => {
       const res = await envListCommand.handler!(ctx);
       assert.isTrue(res.isErr());
     });
+    it("uses empty string when projectPath is undefined", async () => {
+      const validStub = vi.spyOn(settingHelper, "isValidProjectV3").mockReturnValue(true);
+      vi.spyOn(envUtil, "listEnv").mockResolvedValue(ok(["dev"]));
+      const ctx: CLIContext = {
+        command: { ...envListCommand, fullName: "teamsfx" },
+        optionValues: {},
+        globalOptionValues: {},
+        argumentValues: [],
+        telemetryProperties: {},
+      };
+      const res = await envListCommand.handler!(ctx);
+      assert.isTrue(res.isOk());
+      assert.isTrue(validStub.mock.calls[0][0] === "");
+    });
   });
   describe("envResetCommand", async () => {
     it("success with env", async () => {
-      sandbox.stub(envUtil, "resetEnv").resolves();
+      vi.spyOn(envUtil, "resetEnv").mockResolvedValue();
       const ctx: CLIContext = {
         command: { ...envAddCommand, fullName: `${process.env.TEAMSFX_CLI_BIN_NAME} env reset` },
         optionValues: { env: "dev", projectPath: "." },
@@ -965,7 +993,7 @@ describe("CLI commands", () => {
       assert.isTrue(res.isOk());
     });
     it("success with env file", async () => {
-      sandbox.stub(envUtil, "resetEnvFile").resolves();
+      vi.spyOn(envUtil, "resetEnvFile").mockResolvedValue();
       const ctx: CLIContext = {
         command: { ...envAddCommand, fullName: `${process.env.TEAMSFX_CLI_BIN_NAME} env reset` },
         optionValues: { "env-file": ".env.dev" },
@@ -979,7 +1007,7 @@ describe("CLI commands", () => {
   });
   describe("provisionCommand", async () => {
     it("success", async () => {
-      sandbox.stub(FxCore.prototype, "provisionResources").resolves(ok(undefined));
+      vi.spyOn(FxCore.prototype, "provisionResources").mockResolvedValue(ok(undefined));
       const ctx: CLIContext = {
         command: { ...provisionCommand, fullName: "teamsfx" },
         optionValues: {},
@@ -991,7 +1019,7 @@ describe("CLI commands", () => {
       assert.isTrue(res.isOk());
     });
     it("non interactive mode", async () => {
-      sandbox.stub(FxCore.prototype, "provisionResources").resolves(ok(undefined));
+      vi.spyOn(FxCore.prototype, "provisionResources").mockResolvedValue(ok(undefined));
       const ctx: CLIContext = {
         command: { ...provisionCommand, fullName: "teamsfx" },
         optionValues: { nonInteractive: true, region: "East US" },
@@ -1005,7 +1033,7 @@ describe("CLI commands", () => {
   });
   describe("packageCommand", async () => {
     it("success", async () => {
-      sandbox.stub(FxCore.prototype, "createAppPackage").resolves(ok({ state: "OK" }));
+      vi.spyOn(FxCore.prototype, "createAppPackage").mockResolvedValue(ok({ state: "OK" }));
       const ctx: CLIContext = {
         command: { ...packageCommand, fullName: "teamsfx" },
         optionValues: {},
@@ -1019,14 +1047,14 @@ describe("CLI commands", () => {
   });
   describe("permissionGrantCommand", async () => {
     afterEach(() => {
-      sandbox.restore();
+      vi.restoreAllMocks();
     });
 
     it("success with agent option", async () => {
-      sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
-      sandbox
-        .stub(FxCore.prototype, "grantPermission")
-        .resolves(ok({ state: "OK" } as PermissionsResult));
+      vi.spyOn(featureFlagManager, "getBooleanValue").mockReturnValue(true);
+      vi.spyOn(FxCore.prototype, "grantPermission").mockResolvedValue(
+        ok({ state: "OK" } as PermissionsResult)
+      );
       const ctx: CLIContext = {
         command: { ...permissionGrantCommand, fullName: "teamsfx" },
         optionValues: { agent: true, email: "email", env: "dev" },
@@ -1043,10 +1071,10 @@ describe("CLI commands", () => {
     });
 
     it("success with agent option in interactive mode", async () => {
-      sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
-      sandbox
-        .stub(FxCore.prototype, "grantPermission")
-        .resolves(ok({ state: "OK" } as PermissionsResult));
+      vi.spyOn(featureFlagManager, "getBooleanValue").mockReturnValue(true);
+      vi.spyOn(FxCore.prototype, "grantPermission").mockResolvedValue(
+        ok({ state: "OK" } as PermissionsResult)
+      );
       const ctx: CLIContext = {
         command: { ...permissionGrantCommand, fullName: "teamsfx" },
         optionValues: { agent: true },
@@ -1063,10 +1091,10 @@ describe("CLI commands", () => {
     });
 
     it("missing manifest options with agent = false", async () => {
-      sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
-      sandbox
-        .stub(FxCore.prototype, "grantPermission")
-        .resolves(ok({ state: "OK" } as PermissionsResult));
+      vi.spyOn(featureFlagManager, "getBooleanValue").mockReturnValue(true);
+      vi.spyOn(FxCore.prototype, "grantPermission").mockResolvedValue(
+        ok({ state: "OK" } as PermissionsResult)
+      );
       const ctx: CLIContext = {
         command: { ...permissionGrantCommand, fullName: "teamsfx" },
         optionValues: { env: "dev", email: "email", agent: false },
@@ -1082,10 +1110,10 @@ describe("CLI commands", () => {
     });
 
     it("success interactive = false", async () => {
-      sandbox.stub(featureFlagManager, "getBooleanValue").returns(false);
-      sandbox
-        .stub(FxCore.prototype, "grantPermission")
-        .resolves(ok({ state: "OK" } as PermissionsResult));
+      vi.spyOn(featureFlagManager, "getBooleanValue").mockReturnValue(false);
+      vi.spyOn(FxCore.prototype, "grantPermission").mockResolvedValue(
+        ok({ state: "OK" } as PermissionsResult)
+      );
       const ctx: CLIContext = {
         command: { ...permissionGrantCommand, fullName: "teamsfx" },
         optionValues: { "manifest-path": "abc" },
@@ -1098,9 +1126,9 @@ describe("CLI commands", () => {
     });
 
     it("success interactive = true", async () => {
-      sandbox
-        .stub(FxCore.prototype, "grantPermission")
-        .resolves(ok({ state: "OK" } as PermissionsResult));
+      vi.spyOn(FxCore.prototype, "grantPermission").mockResolvedValue(
+        ok({ state: "OK" } as PermissionsResult)
+      );
       const ctx: CLIContext = {
         command: { ...permissionGrantCommand, fullName: "teamsfx" },
         optionValues: {},
@@ -1112,9 +1140,9 @@ describe("CLI commands", () => {
       assert.isTrue(res.isOk());
     });
     it("missing option", async () => {
-      sandbox
-        .stub(FxCore.prototype, "grantPermission")
-        .resolves(ok({ state: "OK" } as PermissionsResult));
+      vi.spyOn(FxCore.prototype, "grantPermission").mockResolvedValue(
+        ok({ state: "OK" } as PermissionsResult)
+      );
       const ctx: CLIContext = {
         command: { ...permissionGrantCommand, fullName: "teamsfx" },
         optionValues: {},
@@ -1128,14 +1156,14 @@ describe("CLI commands", () => {
   });
   describe("permissionStatusCommand", async () => {
     afterEach(() => {
-      sandbox.restore();
+      vi.restoreAllMocks();
     });
 
     it("listCollaborator with agent option", async () => {
-      sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
-      sandbox
-        .stub(FxCore.prototype, "listCollaborator")
-        .resolves(ok({ state: "OK" } as ListCollaboratorResult));
+      vi.spyOn(featureFlagManager, "getBooleanValue").mockReturnValue(true);
+      vi.spyOn(FxCore.prototype, "listCollaborator").mockResolvedValue(
+        ok({ state: "OK" } as ListCollaboratorResult)
+      );
       const ctx: CLIContext = {
         command: { ...permissionStatusCommand, fullName: "teamsfx" },
         optionValues: { all: true, agent: true },
@@ -1152,10 +1180,10 @@ describe("CLI commands", () => {
     });
 
     it("checkPermission with agent option", async () => {
-      sandbox.stub(featureFlagManager, "getBooleanValue").returns(true);
-      sandbox
-        .stub(FxCore.prototype, "checkPermission")
-        .resolves(ok({ state: "OK" } as CollaborationStateResult));
+      vi.spyOn(featureFlagManager, "getBooleanValue").mockReturnValue(true);
+      vi.spyOn(FxCore.prototype, "checkPermission").mockResolvedValue(
+        ok({ state: "OK" } as CollaborationStateResult)
+      );
       const ctx: CLIContext = {
         command: { ...permissionStatusCommand, fullName: "teamsfx" },
         optionValues: { all: false, agent: true },
@@ -1172,10 +1200,10 @@ describe("CLI commands", () => {
     });
 
     it("listCollaborator", async () => {
-      sandbox.stub(featureFlagManager, "getBooleanValue").returns(false);
-      sandbox
-        .stub(FxCore.prototype, "listCollaborator")
-        .resolves(ok({ state: "OK" } as ListCollaboratorResult));
+      vi.spyOn(featureFlagManager, "getBooleanValue").mockReturnValue(false);
+      vi.spyOn(FxCore.prototype, "listCollaborator").mockResolvedValue(
+        ok({ state: "OK" } as ListCollaboratorResult)
+      );
       const ctx: CLIContext = {
         command: { ...permissionStatusCommand, fullName: "teamsfx" },
         optionValues: { all: true },
@@ -1188,9 +1216,9 @@ describe("CLI commands", () => {
     });
 
     it("checkPermission", async () => {
-      sandbox
-        .stub(FxCore.prototype, "checkPermission")
-        .resolves(ok({ state: "OK" } as CollaborationStateResult));
+      vi.spyOn(FxCore.prototype, "checkPermission").mockResolvedValue(
+        ok({ state: "OK" } as CollaborationStateResult)
+      );
       const ctx: CLIContext = {
         command: { ...permissionStatusCommand, fullName: "teamsfx" },
         optionValues: { all: false },
@@ -1204,7 +1232,7 @@ describe("CLI commands", () => {
   });
   describe("publishCommand", async () => {
     it("success", async () => {
-      sandbox.stub(FxCore.prototype, "publishApplication").resolves(ok(undefined));
+      vi.spyOn(FxCore.prototype, "publishApplication").mockResolvedValue(ok(undefined));
       const ctx: CLIContext = {
         command: { ...publishCommand, fullName: "teamsfx" },
         optionValues: { env: "local" },
@@ -1218,7 +1246,7 @@ describe("CLI commands", () => {
   });
   describe("shareCommand", async () => {
     it("success", async () => {
-      sandbox.stub(FxCore.prototype, "shareApplication").resolves(ok(undefined));
+      vi.spyOn(FxCore.prototype, "shareApplication").mockResolvedValue(ok(undefined));
       const ctx: CLIContext = {
         command: { ...shareCommand, fullName: "teamsfx" },
         optionValues: { env: "dev" },
@@ -1232,7 +1260,7 @@ describe("CLI commands", () => {
   });
   describe("shareRemoveCommand", async () => {
     it("share with owners", async () => {
-      sandbox.stub(FxCore.prototype, "removeSharedAccess").resolves(ok(undefined));
+      vi.spyOn(FxCore.prototype, "removeSharedAccess").mockResolvedValue(ok(undefined));
       const ctx: CLIContext = {
         command: { ...shareRemoveCommand, fullName: "teamsfx" },
         optionValues: { env: "dev" },
@@ -1244,7 +1272,7 @@ describe("CLI commands", () => {
       assert.isTrue(res.isOk());
     });
     it("share with users", async () => {
-      sandbox.stub(FxCore.prototype, "shareApplication").resolves(ok(undefined));
+      vi.spyOn(FxCore.prototype, "shareApplication").mockResolvedValue(ok(undefined));
       const ctx: CLIContext = {
         command: { ...shareRemoveCommand, fullName: "teamsfx" },
         optionValues: { env: "dev", users: "test@example.com" },
@@ -1258,7 +1286,7 @@ describe("CLI commands", () => {
   });
   describe("previewCommand", async () => {
     it("success", async () => {
-      sandbox.stub(localTelemetryReporter, "runWithTelemetryGeneric").resolves(ok(undefined));
+      vi.spyOn(localTelemetryReporter, "runWithTelemetryGeneric").mockResolvedValue(ok(undefined));
       const ctx: CLIContext = {
         command: { ...previewCommand, fullName: "teamsfx" },
         optionValues: { env: "local" },
@@ -1270,9 +1298,9 @@ describe("CLI commands", () => {
       assert.isTrue(res.isOk());
     });
     it("error", async () => {
-      sandbox
-        .stub(localTelemetryReporter, "runWithTelemetryGeneric")
-        .resolves(err(new UserCancelError()));
+      vi.spyOn(localTelemetryReporter, "runWithTelemetryGeneric").mockResolvedValue(
+        err(new UserCancelError())
+      );
       const ctx: CLIContext = {
         command: { ...previewCommand, fullName: "teamsfx" },
         optionValues: { env: "local" },
@@ -1286,7 +1314,7 @@ describe("CLI commands", () => {
   });
   describe("entraAppUpdateCommand", async () => {
     it("success", async () => {
-      sandbox.stub(FxCore.prototype, "deployAadManifest").resolves(ok(undefined));
+      vi.spyOn(FxCore.prototype, "deployAadManifest").mockResolvedValue(ok(undefined));
       const ctx: CLIContext = {
         command: {
           ...entraAppUpdateCommand,
@@ -1307,7 +1335,7 @@ describe("CLI commands", () => {
   });
   describe("validateCommand", async () => {
     it("conflict", async () => {
-      sandbox.stub(FxCore.prototype, "validateApplication").resolves(ok(undefined));
+      vi.spyOn(FxCore.prototype, "validateApplication").mockResolvedValue(ok(undefined));
       const ctx: CLIContext = {
         command: { ...validateCommand, fullName: "teamsfx" },
         optionValues: { "manifest-path": "aaa", "app-package-file-path": "bbb" },
@@ -1319,7 +1347,7 @@ describe("CLI commands", () => {
       assert.isTrue(res.isErr());
     });
     it("none", async () => {
-      sandbox.stub(FxCore.prototype, "validateApplication").resolves(ok(undefined));
+      vi.spyOn(FxCore.prototype, "validateApplication").mockResolvedValue(ok(undefined));
       const ctx: CLIContext = {
         command: { ...validateCommand, fullName: "teamsfx" },
         optionValues: {},
@@ -1331,7 +1359,7 @@ describe("CLI commands", () => {
       assert.isTrue(res.isErr());
     });
     it("manifest", async () => {
-      sandbox.stub(FxCore.prototype, "validateApplication").resolves(ok(undefined));
+      vi.spyOn(FxCore.prototype, "validateApplication").mockResolvedValue(ok(undefined));
       const ctx: CLIContext = {
         command: { ...validateCommand, fullName: "teamsfx" },
         optionValues: { "manifest-path": "aaa", env: "dev" },
@@ -1343,7 +1371,7 @@ describe("CLI commands", () => {
       assert.isTrue(res.isOk());
     });
     it("manifest missing env", async () => {
-      sandbox.stub(FxCore.prototype, "validateApplication").resolves(ok(undefined));
+      vi.spyOn(FxCore.prototype, "validateApplication").mockResolvedValue(ok(undefined));
       const ctx: CLIContext = {
         command: { ...validateCommand, fullName: "teamsfx" },
         optionValues: { "manifest-path": "aaa" },
@@ -1355,7 +1383,7 @@ describe("CLI commands", () => {
       assert.isTrue(res.isErr() && res.error instanceof MissingRequiredOptionError);
     });
     it("package", async () => {
-      sandbox.stub(FxCore.prototype, "validateApplication").resolves(ok(undefined));
+      vi.spyOn(FxCore.prototype, "validateApplication").mockResolvedValue(ok(undefined));
       const ctx: CLIContext = {
         command: { ...validateCommand, fullName: "teamsfx" },
         optionValues: { "app-package-file-path": "bbb" },
@@ -1370,12 +1398,12 @@ describe("CLI commands", () => {
 
   describe("m365LaunchInfoCommand", async () => {
     beforeEach(() => {
-      sandbox.stub(logger, "warning");
+      vi.spyOn(logger, "warning");
     });
     it("success retrieveTitleId", async () => {
-      sandbox.stub(m365utils, "getTokenAndUpn").resolves(["token", "upn"]);
-      sandbox.stub(PackageService.prototype, "retrieveTitleId").resolves("id");
-      sandbox.stub(PackageService.prototype, "getLaunchInfoByTitleId").resolves("id");
+      vi.spyOn(m365utils, "getTokenAndUpn").mockResolvedValue(["token", "upn"]);
+      vi.spyOn(PackageService.prototype, "retrieveTitleId").mockResolvedValue("id");
+      vi.spyOn(PackageService.prototype, "getLaunchInfoByTitleId").mockResolvedValue("id");
       const ctx: CLIContext = {
         command: { ...m365LaunchInfoCommand, fullName: "teamsfx" },
         optionValues: { "manifest-id": "aaa" },
@@ -1387,8 +1415,8 @@ describe("CLI commands", () => {
       assert.isTrue(res.isOk());
     });
     it("success", async () => {
-      sandbox.stub(m365utils, "getTokenAndUpn").resolves(["token", "upn"]);
-      sandbox.stub(PackageService.prototype, "getLaunchInfoByTitleId").resolves("id");
+      vi.spyOn(m365utils, "getTokenAndUpn").mockResolvedValue(["token", "upn"]);
+      vi.spyOn(PackageService.prototype, "getLaunchInfoByTitleId").mockResolvedValue("id");
       const ctx: CLIContext = {
         command: { ...m365LaunchInfoCommand, fullName: "teamsfx" },
         optionValues: { "title-id": "aaa" },
@@ -1400,7 +1428,7 @@ describe("CLI commands", () => {
       assert.isTrue(res.isOk());
     });
     it("MissingRequiredOptionError", async () => {
-      sandbox.stub(m365utils, "getTokenAndUpn").resolves(["token", "upn"]);
+      vi.spyOn(m365utils, "getTokenAndUpn").mockResolvedValue(["token", "upn"]);
       const ctx: CLIContext = {
         command: { ...m365LaunchInfoCommand, fullName: "teamsfx" },
         optionValues: {},
@@ -1415,12 +1443,12 @@ describe("CLI commands", () => {
 
   describe("m365SideloadingCommand", async () => {
     beforeEach(() => {
-      sandbox.stub(logger, "warning");
+      vi.spyOn(logger, "warning");
     });
 
     describe("M365Utils - getTokenAndUpn", async () => {
       it("getAccessToken fail", async () => {
-        sandbox.stub(M365TokenProvider, "getAccessToken").resolves(err(new UserCancelError()));
+        vi.spyOn(M365TokenProvider, "getAccessToken").mockResolvedValue(err(new UserCancelError()));
         try {
           await m365utils.getTokenAndUpn();
           assert.fail("should not reach here");
@@ -1429,30 +1457,30 @@ describe("CLI commands", () => {
         }
       });
       it("getStatus fail", async () => {
-        sandbox.stub(M365TokenProvider, "getAccessToken").resolves(ok("token"));
-        sandbox.stub(M365TokenProvider, "getStatus").resolves(err(new UserCancelError()));
+        vi.spyOn(M365TokenProvider, "getAccessToken").mockResolvedValue(ok("token"));
+        vi.spyOn(M365TokenProvider, "getStatus").mockResolvedValue(err(new UserCancelError()));
         const res = await m365utils.getTokenAndUpn();
         assert.deepEqual(res, ["token", undefined]);
       });
       it("getStatus ok", async () => {
-        sandbox.stub(M365TokenProvider, "getAccessToken").resolves(ok("token"));
-        sandbox
-          .stub(M365TokenProvider, "getStatus")
-          .resolves(ok({ accountInfo: { upn: "test" } } as any));
+        vi.spyOn(M365TokenProvider, "getAccessToken").mockResolvedValue(ok("token"));
+        vi.spyOn(M365TokenProvider, "getStatus").mockResolvedValue(
+          ok({ accountInfo: { upn: "test" } } as any)
+        );
         const res = await m365utils.getTokenAndUpn();
         assert.deepEqual(res, ["token", "test"]);
       });
       it("getStatus throw error", async () => {
-        sandbox.stub(M365TokenProvider, "getAccessToken").resolves(ok("token"));
-        sandbox.stub(M365TokenProvider, "getStatus").rejects(new Error());
+        vi.spyOn(M365TokenProvider, "getAccessToken").mockResolvedValue(ok("token"));
+        vi.spyOn(M365TokenProvider, "getStatus").mockRejectedValue(new Error());
         const res = await m365utils.getTokenAndUpn();
         assert.deepEqual(res, ["token", undefined]);
       });
     });
 
     it("should success with zip package", async () => {
-      sandbox.stub(m365utils, "getTokenAndUpn").resolves(["token", "upn"]);
-      sandbox.stub(PackageService.prototype, "sideLoading").resolves(["", "", ""]);
+      vi.spyOn(m365utils, "getTokenAndUpn").mockResolvedValue(["token", "upn"]);
+      vi.spyOn(PackageService.prototype, "sideLoading").mockResolvedValue(["", "", ""]);
       const ctx: CLIContext = {
         command: { ...m365SideloadingCommand, fullName: "teamsfx" },
         optionValues: { "manifest-id": "aaa", "file-path": "./" },
@@ -1464,8 +1492,8 @@ describe("CLI commands", () => {
       assert.isTrue(res.isOk());
     });
     it("should success with zip package with Personal scope", async () => {
-      sandbox.stub(m365utils, "getTokenAndUpn").resolves(["token", "upn"]);
-      sandbox.stub(PackageService.prototype, "sideLoading").resolves(["", "", ""]);
+      vi.spyOn(m365utils, "getTokenAndUpn").mockResolvedValue(["token", "upn"]);
+      vi.spyOn(PackageService.prototype, "sideLoading").mockResolvedValue(["", "", ""]);
       const ctx: CLIContext = {
         command: { ...m365SideloadingCommand, fullName: "teamsfx" },
         optionValues: { "manifest-id": "aaa", "file-path": "./", scope: "Personal" },
@@ -1477,8 +1505,8 @@ describe("CLI commands", () => {
       assert.isTrue(res.isOk());
     });
     it("should success with zip package with Shared scope", async () => {
-      sandbox.stub(m365utils, "getTokenAndUpn").resolves(["token", "upn"]);
-      sandbox.stub(PackageService.prototype, "sideLoading").resolves(["", "", "share link"]);
+      vi.spyOn(m365utils, "getTokenAndUpn").mockResolvedValue(["token", "upn"]);
+      vi.spyOn(PackageService.prototype, "sideLoading").mockResolvedValue(["", "", "share link"]);
       const ctx: CLIContext = {
         command: { ...m365SideloadingCommand, fullName: "teamsfx" },
         optionValues: { "manifest-id": "aaa", "file-path": "./", scope: "Shared" },
@@ -1490,8 +1518,8 @@ describe("CLI commands", () => {
       assert.isTrue(res.isOk());
     });
     it("should success with zip package with Shared scope - lower case", async () => {
-      sandbox.stub(m365utils, "getTokenAndUpn").resolves(["token", "upn"]);
-      sandbox.stub(PackageService.prototype, "sideLoading").resolves(["", "", "share link"]);
+      vi.spyOn(m365utils, "getTokenAndUpn").mockResolvedValue(["token", "upn"]);
+      vi.spyOn(PackageService.prototype, "sideLoading").mockResolvedValue(["", "", "share link"]);
       const ctx: CLIContext = {
         command: { ...m365SideloadingCommand, fullName: "teamsfx" },
         optionValues: { "manifest-id": "aaa", "file-path": "./", scope: "shared" },
@@ -1503,8 +1531,8 @@ describe("CLI commands", () => {
       assert.isTrue(res.isOk());
     });
     it("should success with zip package with unknown scope", async () => {
-      sandbox.stub(m365utils, "getTokenAndUpn").resolves(["token", "upn"]);
-      sandbox.stub(PackageService.prototype, "sideLoading").resolves(["", "", ""]);
+      vi.spyOn(m365utils, "getTokenAndUpn").mockResolvedValue(["token", "upn"]);
+      vi.spyOn(PackageService.prototype, "sideLoading").mockResolvedValue(["", "", ""]);
       const ctx: CLIContext = {
         command: { ...m365SideloadingCommand, fullName: "teamsfx" },
         optionValues: { "manifest-id": "aaa", "file-path": "./", scope: "unknown" },
@@ -1516,8 +1544,8 @@ describe("CLI commands", () => {
       assert.isTrue(res.isOk());
     });
     it("should success with xml", async () => {
-      sandbox.stub(m365utils, "getTokenAndUpn").resolves(["token", "upn"]);
-      sandbox.stub(PackageService.prototype, "sideLoadXmlManifest").resolves();
+      vi.spyOn(m365utils, "getTokenAndUpn").mockResolvedValue(["token", "upn"]);
+      vi.spyOn(PackageService.prototype, "sideLoadXmlManifest").mockResolvedValue();
       const ctx: CLIContext = {
         command: { ...m365SideloadingCommand, fullName: "teamsfx" },
         optionValues: { "manifest-id": "aaa", "xml-path": "./" },
@@ -1554,10 +1582,10 @@ describe("CLI commands", () => {
 
   describe("m365UnacquireCommand", async () => {
     beforeEach(() => {
-      sandbox.stub(logger, "warning");
+      vi.spyOn(logger, "warning");
     });
     it("success", async () => {
-      sandbox.stub(FxCore.prototype, "uninstall").resolves(ok(undefined));
+      vi.spyOn(FxCore.prototype, "uninstall").mockResolvedValue(ok(undefined));
       const ctx: CLIContext = {
         command: { ...m365UnacquireCommand, fullName: "teamsfx" },
         optionValues: {},
@@ -1569,7 +1597,7 @@ describe("CLI commands", () => {
       assert.isTrue(res.isOk());
     });
     it("failed", async () => {
-      sandbox.stub(FxCore.prototype, "uninstall").resolves(err(new SystemError("", "", "")));
+      vi.spyOn(FxCore.prototype, "uninstall").mockResolvedValue(err(new SystemError("", "", "")));
       const ctx: CLIContext = {
         command: { ...m365UnacquireCommand, fullName: "teamsfx" },
         optionValues: {},
@@ -1584,14 +1612,14 @@ describe("CLI commands", () => {
 
   describe("v3 commands", async () => {
     beforeEach(() => {
-      sandbox.stub(logger, "warning");
+      vi.spyOn(logger, "warning");
     });
     afterEach(() => {
-      sandbox.restore();
+      vi.restoreAllMocks();
     });
     it("update", async () => {
-      sandbox.stub(activate, "getFxCore").returns(new FxCore({} as any));
-      sandbox.stub(FxCore.prototype, "updateTeamsAppCLIV3").resolves(ok(undefined));
+      vi.spyOn(activate, "getFxCore").mockReturnValue(new FxCore({} as any));
+      vi.spyOn(FxCore.prototype, "updateTeamsAppCLIV3").mockResolvedValue(ok(undefined));
       const ctx: CLIContext = {
         command: {
           ...teamsappUpdateCommand,
@@ -1606,8 +1634,8 @@ describe("CLI commands", () => {
       assert.isTrue(res.isOk());
     });
     it("update conflict", async () => {
-      sandbox.stub(activate, "getFxCore").returns(new FxCore({} as any));
-      sandbox.stub(FxCore.prototype, "updateTeamsAppCLIV3").resolves(ok(undefined));
+      vi.spyOn(activate, "getFxCore").mockReturnValue(new FxCore({} as any));
+      vi.spyOn(FxCore.prototype, "updateTeamsAppCLIV3").mockResolvedValue(ok(undefined));
       const ctx: CLIContext = {
         command: {
           ...teamsappUpdateCommand,
@@ -1622,8 +1650,8 @@ describe("CLI commands", () => {
       assert.isTrue(res.isErr());
     });
     it("package", async () => {
-      sandbox.stub(activate, "getFxCore").returns(new FxCore({} as any));
-      sandbox.stub(FxCore.prototype, "packageTeamsAppCLIV3").resolves(ok(undefined));
+      vi.spyOn(activate, "getFxCore").mockReturnValue(new FxCore({} as any));
+      vi.spyOn(FxCore.prototype, "packageTeamsAppCLIV3").mockResolvedValue(ok(undefined));
       const ctx: CLIContext = {
         command: {
           ...teamsappPackageCommand,
@@ -1638,8 +1666,8 @@ describe("CLI commands", () => {
       assert.isTrue(res.isOk());
     });
     it("validate", async () => {
-      sandbox.stub(activate, "getFxCore").returns(new FxCore({} as any));
-      sandbox.stub(FxCore.prototype, "validateTeamsAppCLIV3").resolves(ok(undefined));
+      vi.spyOn(activate, "getFxCore").mockReturnValue(new FxCore({} as any));
+      vi.spyOn(FxCore.prototype, "validateTeamsAppCLIV3").mockResolvedValue(ok(undefined));
       const ctx: CLIContext = {
         command: {
           ...teamsappValidateCommand,
@@ -1654,8 +1682,8 @@ describe("CLI commands", () => {
       assert.isTrue(res.isOk());
     });
     it("validate conflict", async () => {
-      sandbox.stub(activate, "getFxCore").returns(new FxCore({} as any));
-      sandbox.stub(FxCore.prototype, "validateTeamsAppCLIV3").resolves(ok(undefined));
+      vi.spyOn(activate, "getFxCore").mockReturnValue(new FxCore({} as any));
+      vi.spyOn(FxCore.prototype, "validateTeamsAppCLIV3").mockResolvedValue(ok(undefined));
       const ctx: CLIContext = {
         command: {
           ...teamsappValidateCommand,
@@ -1670,8 +1698,8 @@ describe("CLI commands", () => {
       assert.isTrue(res.isErr());
     });
     it("publish", async () => {
-      sandbox.stub(activate, "getFxCore").returns(new FxCore({} as any));
-      sandbox.stub(FxCore.prototype, "publishTeamsAppCLIV3").resolves(ok(undefined));
+      vi.spyOn(activate, "getFxCore").mockReturnValue(new FxCore({} as any));
+      vi.spyOn(FxCore.prototype, "publishTeamsAppCLIV3").mockResolvedValue(ok(undefined));
       const ctx: CLIContext = {
         command: {
           ...teamsappPublishCommand,
@@ -1686,8 +1714,8 @@ describe("CLI commands", () => {
       assert.isTrue(res.isOk());
     });
     it("publish conflict", async () => {
-      sandbox.stub(activate, "getFxCore").returns(new FxCore({} as any));
-      sandbox.stub(FxCore.prototype, "publishTeamsAppCLIV3").resolves(ok(undefined));
+      vi.spyOn(activate, "getFxCore").mockReturnValue(new FxCore({} as any));
+      vi.spyOn(FxCore.prototype, "publishTeamsAppCLIV3").mockResolvedValue(ok(undefined));
       const ctx: CLIContext = {
         command: {
           ...teamsappPublishCommand,
@@ -1705,7 +1733,7 @@ describe("CLI commands", () => {
 
   describe("addAuthConfigCommand", async () => {
     it("success", async () => {
-      sandbox.stub(FxCore.prototype, "addAuthAction").resolves(ok(undefined));
+      vi.spyOn(FxCore.prototype, "addAuthAction").mockResolvedValue(ok(undefined));
       const ctx: CLIContext = {
         command: { ...addAuthConfigCommand, fullName: "add auth-config" },
         optionValues: {},

@@ -1,12 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { assert } from "chai";
 import * as fs from "fs";
 import * as path from "path";
 import { TemplateFileEntry } from "../../../../src/v4/model/dataModel";
 import { createInMemoryRuntime } from "../../../../src/v4/runtime/inMemoryRuntime";
 import { ScaffoldRequest, scaffold } from "../../../../src/v4/runtime/scaffold";
+import { assert } from "vitest";
 
 export type V4TemplateKind = "create" | "modify";
 

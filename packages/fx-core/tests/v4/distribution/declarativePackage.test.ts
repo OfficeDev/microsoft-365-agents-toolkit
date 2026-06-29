@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { assert } from "chai";
 import AdmZip from "adm-zip";
 import * as fs from "fs-extra";
 import * as os from "os";
@@ -11,6 +10,7 @@ import { loadPackageDir } from "../../../src/v4/distribution/packageDir";
 import { openDeclarativePackage } from "../../../src/v4/distribution/declarativePackage";
 import { createRealRuntime } from "../../../src/v4/runtime/realRuntime";
 import { scaffold } from "../../../src/v4/runtime/scaffold";
+import { assert } from "vitest";
 
 /**
  * The zip-bytes declarative reader: pull one authored package's

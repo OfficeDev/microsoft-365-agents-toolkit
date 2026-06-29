@@ -1,8 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { assert } from "chai";
-import { afterEach } from "vitest";
+import { afterEach, assert } from "vitest";
 import { getLocalizedString } from "../../src/common/localizeUtils";
 import {
   getResourceGroupNameFromResourceId,

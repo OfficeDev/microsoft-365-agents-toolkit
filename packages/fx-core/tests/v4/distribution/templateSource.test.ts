@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { assert } from "chai";
 import { SystemError, UserError } from "@microsoft/teamsfx-api";
+import { assert } from "vitest";
 import {
   BundledFloor,
   CachedPackage,

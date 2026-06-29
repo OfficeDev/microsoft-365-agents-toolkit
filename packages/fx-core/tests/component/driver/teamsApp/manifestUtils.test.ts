@@ -8,12 +8,10 @@ import {
   TeamsAppManifest,
   UserError,
 } from "@microsoft/teamsfx-api";
-import { assert } from "chai";
 import fs from "fs-extra";
 import mockedEnv, { RestoreFn } from "mocked-env";
 import path from "path";
-import * as sinon from "sinon";
-import { vi } from "vitest";
+import { assert, vi } from "vitest";
 import {
   getBotsTplBasedOnVersion,
   getBotsTplExistingAppBasedOnVersion,
@@ -42,12 +40,12 @@ describe("ManifestUtils", () => {
   });
 
   afterEach(() => {
-    sinon.restore();
+    vi.restoreAllMocks();
   });
 
   it("should add a staticTab capability", async () => {
     mockInputManifestFile(manifestUtils, latestManifestVersion);
-    sinon.stub(fs, "writeFile").callsFake((path: any, data: string) => {
+    vi.spyOn(fs, "writeFile").mockImplementation((path: any, data: string) => {
       const writtenManifest = JSON.parse(data) as TeamsAppManifest;
       assert.isArray(writtenManifest.staticTabs);
       assert.isNotEmpty(writtenManifest.staticTabs);
@@ -64,7 +62,7 @@ describe("ManifestUtils", () => {
   });
   it("should add a configurable tabs capability", async () => {
     mockInputManifestFile(manifestUtils, latestManifestVersion);
-    sinon.stub(fs, "writeFile").callsFake((path: any, data: string) => {
+    vi.spyOn(fs, "writeFile").mockImplementation((path: any, data: string) => {
       const writtenManifest = JSON.parse(data) as TeamsAppManifest;
       assert.isArray(writtenManifest.configurableTabs);
       assert.isNotEmpty(writtenManifest.configurableTabs);
@@ -99,7 +97,7 @@ describe("ManifestUtils", () => {
   });
   it("should add a configurable tabs capability - existing app", async () => {
     mockInputManifestFile(manifestUtils, latestManifestVersion);
-    sinon.stub(fs, "writeFile").callsFake((path: any, data: string) => {
+    vi.spyOn(fs, "writeFile").mockImplementation((path: any, data: string) => {
       const writtenManifest = JSON.parse(data) as TeamsAppManifest;
       assert.isArray(writtenManifest.configurableTabs);
       assert.isNotEmpty(writtenManifest.configurableTabs);
@@ -120,7 +118,7 @@ describe("ManifestUtils", () => {
   });
   it("should add a configurable tabs capability - old version", async () => {
     mockInputManifestFile(manifestUtils, oldManifestVersion);
-    sinon.stub(fs, "writeFile").callsFake((path: any, data: string) => {
+    vi.spyOn(fs, "writeFile").mockImplementation((path: any, data: string) => {
       const writtenManifest = JSON.parse(data) as TeamsAppManifest;
       assert.isArray(writtenManifest.configurableTabs);
       assert.isNotEmpty(writtenManifest.configurableTabs);
@@ -141,7 +139,7 @@ describe("ManifestUtils", () => {
   });
   it("should add a bot capability", async () => {
     mockInputManifestFile(manifestUtils, latestManifestVersion);
-    sinon.stub(fs, "writeFile").callsFake((path: any, data: string) => {
+    vi.spyOn(fs, "writeFile").mockImplementation((path: any, data: string) => {
       const writtenManifest = JSON.parse(data) as TeamsAppManifest;
       assert.isArray(writtenManifest.bots);
       assert.isNotEmpty(writtenManifest.bots);
@@ -166,7 +164,7 @@ describe("ManifestUtils", () => {
       botId: "test",
       scopes: ["personal"],
     };
-    sinon.stub(fs, "writeFile").callsFake((path: any, data: string) => {
+    vi.spyOn(fs, "writeFile").mockImplementation((path: any, data: string) => {
       const writtenManifest = JSON.parse(data) as TeamsAppManifest;
       assert.isArray(writtenManifest.bots);
       assert.isNotEmpty(writtenManifest.bots);
@@ -184,7 +182,7 @@ describe("ManifestUtils", () => {
   });
   it("should add a bot capability - existing app", async () => {
     mockInputManifestFile(manifestUtils, latestManifestVersion);
-    sinon.stub(fs, "writeFile").callsFake((path: any, data: string) => {
+    vi.spyOn(fs, "writeFile").mockImplementation((path: any, data: string) => {
       const writtenManifest = JSON.parse(data) as TeamsAppManifest;
       assert.isArray(writtenManifest.bots);
       assert.isNotEmpty(writtenManifest.bots);
@@ -205,7 +203,7 @@ describe("ManifestUtils", () => {
   });
   it("should add a bot capability - command bot", async () => {
     mockInputManifestFile(manifestUtils, latestManifestVersion);
-    sinon.stub(fs, "writeFile").callsFake((path: any, data: string) => {
+    vi.spyOn(fs, "writeFile").mockImplementation((path: any, data: string) => {
       const writtenManifest = JSON.parse(data) as TeamsAppManifest;
       assert.isArray(writtenManifest.bots);
       assert.isNotEmpty(writtenManifest.bots);
@@ -232,7 +230,7 @@ describe("ManifestUtils", () => {
   });
   it("should add a bot capability - notification bot", async () => {
     mockInputManifestFile(manifestUtils, latestManifestVersion);
-    sinon.stub(fs, "writeFile").callsFake((path: any, data: string) => {
+    vi.spyOn(fs, "writeFile").mockImplementation((path: any, data: string) => {
       const writtenManifest = JSON.parse(data) as TeamsAppManifest;
       assert.isArray(writtenManifest.bots);
       assert.isNotEmpty(writtenManifest.bots);
@@ -267,14 +265,14 @@ describe("ManifestUtils", () => {
         ],
       },
     };
-    sinon.stub(manifestUtils, "_readAppManifest").resolves(ok(mockManifest as any));
-    sinon.stub(fs, "pathExists").resolves(true);
+    vi.spyOn(manifestUtils, "_readAppManifest").mockResolvedValue(ok(mockManifest as any));
+    vi.spyOn(fs, "pathExists").mockResolvedValue(true);
     const res = await manifestUtils.getPluginFilePath(mockManifest as any, "fake");
     assert.isTrue(res.isOk());
   });
   it("getPluginFilePath error 1", async () => {
     const mockManifest = {};
-    sinon.stub(manifestUtils, "_readAppManifest").resolves(ok(mockManifest as any));
+    vi.spyOn(manifestUtils, "_readAppManifest").mockResolvedValue(ok(mockManifest as any));
     const res = await manifestUtils.getPluginFilePath(mockManifest as any, "fake");
     assert.isTrue(res.isErr());
     if (res.isErr()) {
@@ -285,7 +283,7 @@ describe("ManifestUtils", () => {
     const mockManifest = {
       copilotAgents: {},
     };
-    sinon.stub(manifestUtils, "_readAppManifest").resolves(ok(mockManifest as any));
+    vi.spyOn(manifestUtils, "_readAppManifest").mockResolvedValue(ok(mockManifest as any));
     const res = await manifestUtils.getPluginFilePath(mockManifest as any, "fake");
     assert.isTrue(res.isErr());
     if (res.isErr()) {
@@ -298,7 +296,7 @@ describe("ManifestUtils", () => {
         plugins: [],
       },
     };
-    sinon.stub(manifestUtils, "_readAppManifest").resolves(ok(mockManifest as any));
+    vi.spyOn(manifestUtils, "_readAppManifest").mockResolvedValue(ok(mockManifest as any));
     const res = await manifestUtils.getPluginFilePath(mockManifest as any, "fake");
     assert.isTrue(res.isErr());
     if (res.isErr()) {
@@ -311,7 +309,7 @@ describe("ManifestUtils", () => {
         plugins: [undefined],
       },
     };
-    sinon.stub(manifestUtils, "_readAppManifest").resolves(ok(mockManifest as any));
+    vi.spyOn(manifestUtils, "_readAppManifest").mockResolvedValue(ok(mockManifest as any));
     const res = await manifestUtils.getPluginFilePath(mockManifest as any, "fake");
     assert.isTrue(res.isErr());
     if (res.isErr()) {
@@ -322,7 +320,7 @@ describe("ManifestUtils", () => {
     const mockManifest = {
       copilotExtensions: {},
     };
-    sinon.stub(manifestUtils, "_readAppManifest").resolves(ok(mockManifest as any));
+    vi.spyOn(manifestUtils, "_readAppManifest").mockResolvedValue(ok(mockManifest as any));
     const res = await manifestUtils.getPluginFilePath(mockManifest as any, "fake");
     assert.isTrue(res.isErr());
     if (res.isErr()) {
@@ -335,7 +333,7 @@ describe("ManifestUtils", () => {
         plugins: [],
       },
     };
-    sinon.stub(manifestUtils, "_readAppManifest").resolves(ok(mockManifest as any));
+    vi.spyOn(manifestUtils, "_readAppManifest").mockResolvedValue(ok(mockManifest as any));
     const res = await manifestUtils.getPluginFilePath(mockManifest as any, "fake");
     assert.isTrue(res.isErr());
     if (res.isErr()) {
@@ -365,7 +363,7 @@ function mockInputManifestFile(manifestUtils: ManifestUtils, manifestVersion: st
     },
     accentColor: "#FFFFFF",
   };
-  sinon.stub(manifestUtils, "_readAppManifest").resolves(ok(mockManifest));
+  vi.spyOn(manifestUtils, "_readAppManifest").mockResolvedValue(ok(mockManifest));
 }
 
 function mockInputManifestFileExceedLimit(manifestUtils: ManifestUtils, manifestVersion: string) {
@@ -395,45 +393,47 @@ function mockInputManifestFileExceedLimit(manifestUtils: ManifestUtils, manifest
       },
     ],
   };
-  sinon.stub(manifestUtils, "_readAppManifest").resolves(ok(mockManifest));
+  vi.spyOn(manifestUtils, "_readAppManifest").mockResolvedValue(ok(mockManifest));
 }
 
 describe("readAppManifestSync", () => {
-  const sandbox = sinon.createSandbox();
+  const sandbox = vi;
 
   afterEach(() => {
-    sandbox.restore();
+    vi.restoreAllMocks();
   });
 
   it("Success", () => {
     const teamsManifest = new TeamsAppManifest();
-    sandbox.stub(fs, "existsSync").callsFake(() => {
+    vi.spyOn(fs, "existsSync").mockImplementation(() => {
       return true;
     });
-    sandbox.stub(fs, "readFileSync").returns(JSON.stringify(teamsManifest));
+    vi.spyOn(fs, "readFileSync").mockReturnValue(JSON.stringify(teamsManifest));
 
     const res = manifestUtils.readAppManifestSync("projectPath");
     assert.isTrue(res.isOk());
   });
 
   it("Return false if cannot find the manifest", () => {
-    sandbox.stub(fs, "existsSync").returns(false);
+    vi.spyOn(fs, "existsSync").mockReturnValue(false);
 
     const res = manifestUtils.readAppManifestSync("projectPath");
     assert.isTrue(res.isErr() && res.error instanceof FileNotFoundError);
   });
 
   it("Return false if pasring json failed", () => {
-    sandbox.stub(fs, "existsSync").returns(true);
-    sandbox.stub(fs, "readFileSync").returns("");
+    vi.spyOn(fs, "existsSync").mockReturnValue(true);
+    vi.spyOn(fs, "readFileSync").mockReturnValue("");
 
     const res = manifestUtils.readAppManifestSync("projectPath");
     assert.isTrue(res.isErr() && res.error instanceof JSONSyntaxError);
   });
 
   it("Return false if read file failed", () => {
-    sandbox.stub(fs, "existsSync").returns(true);
-    sandbox.stub(fs, "readFileSync").throws("error");
+    vi.spyOn(fs, "existsSync").mockReturnValue(true);
+    vi.spyOn(fs, "readFileSync").mockImplementation(() => {
+      throw "error";
+    });
 
     const res = manifestUtils.readAppManifestSync("projectPath");
     assert.isTrue(res.isErr() && res.error instanceof ReadFileError);
@@ -441,21 +441,21 @@ describe("readAppManifestSync", () => {
 });
 
 describe("getTeamsAppManifestPath", () => {
-  const sandbox = sinon.createSandbox();
+  const sandbox = vi;
   const projectPath = "projectPath";
 
   afterEach(() => {
-    sandbox.restore();
+    vi.restoreAllMocks();
   });
 
   it("return manifest path under appManifest", () => {
-    sandbox.stub(fs, "existsSync").returns(true);
+    vi.spyOn(fs, "existsSync").mockReturnValue(true);
     const res = manifestUtils.getTeamsAppManifestPath(projectPath);
     assert.equal(res, path.join(projectPath, "appManifest", "manifest.json"));
   });
 
   it("return manifest path under root directory", () => {
-    sandbox.stub(fs, "existsSync").callsFake((inputPath) => {
+    vi.spyOn(fs, "existsSync").mockImplementation((inputPath) => {
       if (inputPath === path.join(projectPath, "appManifest", "manifest.json")) {
         return false;
       }
@@ -466,25 +466,25 @@ describe("getTeamsAppManifestPath", () => {
   });
 
   it("return manifest path under appPackage", () => {
-    sandbox.stub(fs, "existsSync").returns(false);
+    vi.spyOn(fs, "existsSync").mockReturnValue(false);
     const res = manifestUtils.getTeamsAppManifestPath(projectPath);
     assert.equal(res, path.join(projectPath, "appPackage", "manifest.json"));
   });
 });
 
 describe("trimManifestShortName", () => {
-  const sandbox = sinon.createSandbox();
+  const sandbox = vi;
 
   afterEach(() => {
-    sandbox.restore();
+    vi.restoreAllMocks();
   });
 
   it("Success", async () => {
     const teamsManifest = new TeamsAppManifest();
     teamsManifest.name.short = "shortname abcdefghijklmn123456${{APP_NAME_SUFFIX}}";
-    sandbox.stub(fs, "readJson").resolves(teamsManifest);
-    sandbox.stub(fs, "writeFile").resolves();
-    sandbox.stub(fs, "pathExistsSync").returns(true);
+    vi.spyOn(fs, "readJson").mockResolvedValue(teamsManifest);
+    vi.spyOn(fs, "writeFile").mockResolvedValue();
+    vi.spyOn(fs, "pathExistsSync").mockReturnValue(true);
     const res = await manifestUtils.trimManifestShortName("projectPath");
     assert.isTrue(res.isOk());
     assert.equal(teamsManifest.name.short, "shortnameabcdefghijklmn12${{APP_NAME_SUFFIX}}");
@@ -492,9 +492,9 @@ describe("trimManifestShortName", () => {
   it("Success no suffix", async () => {
     const teamsManifest = new TeamsAppManifest();
     teamsManifest.name.short = "shortname abcdefghijklmn123456";
-    sandbox.stub(fs, "readJson").resolves(teamsManifest);
-    sandbox.stub(fs, "writeFile").resolves();
-    sandbox.stub(fs, "pathExistsSync").returns(true);
+    vi.spyOn(fs, "readJson").mockResolvedValue(teamsManifest);
+    vi.spyOn(fs, "writeFile").mockResolvedValue();
+    vi.spyOn(fs, "pathExistsSync").mockReturnValue(true);
     const res = await manifestUtils.trimManifestShortName("projectPath");
     assert.isTrue(res.isOk());
     assert.equal(teamsManifest.name.short, "shortnameabcdefghijklmn12");
@@ -502,42 +502,42 @@ describe("trimManifestShortName", () => {
   it("No need to trim", async () => {
     const teamsManifest = new TeamsAppManifest();
     teamsManifest.name.short = "shortname abcdefghijklmn${{APP_NAME_SUFFIX}}";
-    const readJsonStub = sandbox.stub(fs, "readJson").resolves(teamsManifest);
-    const writeFileStub = sandbox.stub(fs, "writeFile").resolves();
-    sandbox.stub(fs, "pathExistsSync").returns(true);
+    const readJsonStub = vi.spyOn(fs, "readJson").mockResolvedValue(teamsManifest);
+    const writeFileStub = vi.spyOn(fs, "writeFile").mockResolvedValue();
+    vi.spyOn(fs, "pathExistsSync").mockReturnValue(true);
     const res = await manifestUtils.trimManifestShortName("projectPath");
     assert.isTrue(res.isOk());
-    assert.isTrue(readJsonStub.calledOnce);
-    assert.isTrue(writeFileStub.notCalled);
+    assert.isTrue(readJsonStub.mock.calls.length === 1);
+    assert.isTrue(writeFileStub.mock.calls.length === 0);
     assert.equal(teamsManifest.name.short, "shortname abcdefghijklmn${{APP_NAME_SUFFIX}}");
   });
   it("No manifest", async () => {
     const teamsManifest = new TeamsAppManifest();
     teamsManifest.name.short = "shortname abcdefghijklmn${{APP_NAME_SUFFIX}}";
-    const readJsonStub = sandbox.stub(fs, "readJson").resolves(teamsManifest);
-    const writeFileStub = sandbox.stub(fs, "writeFile").resolves();
-    sandbox.stub(fs, "pathExistsSync").returns(false);
+    const readJsonStub = vi.spyOn(fs, "readJson").mockResolvedValue(teamsManifest);
+    const writeFileStub = vi.spyOn(fs, "writeFile").mockResolvedValue();
+    vi.spyOn(fs, "pathExistsSync").mockReturnValue(false);
     const res = await manifestUtils.trimManifestShortName("projectPath");
     assert.isTrue(res.isOk());
-    assert.isTrue(readJsonStub.notCalled);
-    assert.isTrue(writeFileStub.notCalled);
+    assert.isTrue(readJsonStub.mock.calls.length === 0);
+    assert.isTrue(writeFileStub.mock.calls.length === 0);
   });
 });
 
 describe("resolveLocFile", () => {
-  const sandbox = sinon.createSandbox();
+  const sandbox = vi;
   let mockedEnvRestore: RestoreFn;
 
   afterEach(() => {
     if (mockedEnvRestore) {
       mockedEnvRestore();
     }
-    sandbox.restore();
+    vi.restoreAllMocks();
     vi.restoreAllMocks();
   });
 
   it("returns error when loc file doesn't exist", async () => {
-    sandbox.stub(fs, "pathExists").resolves(false);
+    vi.spyOn(fs, "pathExists").mockResolvedValue(false);
 
     const locFile = await manifestUtils.resolveLocFile("loc_file_path");
 
@@ -548,10 +548,10 @@ describe("resolveLocFile", () => {
   });
 
   it("returns error when there're unresolved env variables", async () => {
-    sandbox.stub(fs, "pathExists").resolves(true);
+    vi.spyOn(fs, "pathExists").mockResolvedValue(true);
     const fakedLocManifest = new TeamsAppManifest();
     fakedLocManifest.name.short = "shortname ${{APP_NAME_SUFFIX}}";
-    sandbox.stub(fs, "readFile").resolves(JSON.stringify(fakedLocManifest) as any);
+    vi.spyOn(fs, "readFile").mockResolvedValue(JSON.stringify(fakedLocManifest) as any);
 
     const locFile = await manifestUtils.resolveLocFile("loc_file_path");
 
@@ -562,13 +562,13 @@ describe("resolveLocFile", () => {
   });
 
   it("happy pass", async () => {
-    sandbox.stub(fs, "pathExists").resolves(true);
+    vi.spyOn(fs, "pathExists").mockResolvedValue(true);
     const fakedLocManifest = new TeamsAppManifest();
     fakedLocManifest.name.short = "shortname ${{APP_NAME_SUFFIX}}";
     mockedEnvRestore = mockedEnv({
       ["APP_NAME_SUFFIX"]: "- hello world",
     });
-    sandbox.stub(fs, "readFile").resolves(JSON.stringify(fakedLocManifest) as any);
+    vi.spyOn(fs, "readFile").mockResolvedValue(JSON.stringify(fakedLocManifest) as any);
 
     const locFile = await manifestUtils.resolveLocFile("loc_file_path");
 
@@ -582,10 +582,10 @@ describe("resolveLocFile", () => {
   });
 
   it("resolves $[file(...)] when context is provided", async () => {
-    sandbox.stub(fs, "pathExists").callsFake(async (filePath) => {
+    vi.spyOn(fs, "pathExists").mockImplementation(async (filePath) => {
       return filePath === "loc_file_path" || filePath === "instruction.txt";
     });
-    sandbox.stub(fs, "readFile").callsFake(((filePath: number | fs.PathLike) => {
+    vi.spyOn(fs, "readFile").mockImplementation(((filePath: number | fs.PathLike) => {
       if (filePath === "loc_file_path") {
         return Promise.resolve(
           JSON.stringify({
@@ -620,8 +620,8 @@ describe("resolveLocFile", () => {
   });
 
   it("returns expansion error when $[file(...)] resolution fails", async () => {
-    sandbox.stub(fs, "pathExists").resolves(true);
-    sandbox.stub(fs, "readFile").resolves(
+    vi.spyOn(fs, "pathExists").mockResolvedValue(true);
+    vi.spyOn(fs, "readFile").mockResolvedValue(
       JSON.stringify({
         name: {
           short: "$[file('instruction.txt')]",
@@ -717,9 +717,9 @@ describe("parseCommonTelemetryProperties", () => {
 });
 
 describe("parseCommonProperties", () => {
-  const sandbox = sinon.createSandbox();
+  const sandbox = vi;
   afterEach(() => {
-    sandbox.restore();
+    vi.restoreAllMocks();
   });
   it("happy", async () => {
     const manifest: any = {

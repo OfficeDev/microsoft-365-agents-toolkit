@@ -13,11 +13,10 @@ import {
   ok,
 } from "@microsoft/teamsfx-api";
 import axios from "axios";
-import { assert } from "chai";
 import fs from "fs-extra";
 import * as os from "os";
 import * as path from "path";
-import { createSandbox } from "sinon";
+import { assert, vi } from "vitest";
 import { FxCore, getLocalizedString } from "../../src";
 import { FeatureFlags, featureFlagManager } from "../../src/common/featureFlags";
 import { setTools } from "../../src/common/globalVars";
@@ -38,7 +37,6 @@ import { MockTools, randomAppName } from "./utils";
 
 describe("updateActionWithMCP", () => {
   const tools = new MockTools();
-  const sandbox = createSandbox();
   const projectPath = "/test/project";
   const pluginManifestPath = "/test/project/ai-plugin.json";
   const mcpServerUrl = "https://example.com/mcp";
@@ -49,7 +47,6 @@ describe("updateActionWithMCP", () => {
   });
 
   afterEach(() => {
-    sandbox.restore();
     vi.restoreAllMocks();
   });
 
@@ -296,20 +293,20 @@ describe("updateActionWithMCP", () => {
     };
 
     let writtenPluginData: any;
-    sandbox.stub(fs, "pathExists").callsFake(async (filePath: string) => {
+    vi.spyOn(fs, "pathExists").mockImplementation(async (filePath: string) => {
       return !filePath.includes("mcp-tools");
     });
-    sandbox.stub(fs, "readJSON").resolves(existingPlugin);
-    sandbox.stub(fs, "writeJSON").callsFake((filePath: string, data) => {
+    vi.spyOn(fs, "readJSON").mockResolvedValue(existingPlugin);
+    vi.spyOn(fs, "writeJSON").mockImplementation((filePath: string, data) => {
       if (!filePath.includes("mcp-tools")) {
         writtenPluginData = data;
       }
       return Promise.resolve();
     });
-    sandbox.stub(pathUtils, "getYmlFilePath").returns("/test/project/teamsapp.yml");
+    vi.spyOn(pathUtils, "getYmlFilePath").mockReturnValue("/test/project/teamsapp.yml");
 
-    sandbox.stub(tools.ui, "showMessage").resolves(ok("OK"));
-    sandbox.stub(tools.ui, "openFile").resolves();
+    vi.spyOn(tools.ui, "showMessage").mockResolvedValue(ok("OK"));
+    vi.spyOn(tools.ui, "openFile").mockResolvedValue();
 
     const result = await core.updateActionWithMCP(inputs);
 
@@ -490,35 +487,37 @@ describe("updateActionWithMCP", () => {
       runtimes: [],
     };
 
-    sandbox.stub(fs, "pathExists").callsFake(async (filePath: string) => {
+    vi.spyOn(fs, "pathExists").mockImplementation(async (filePath: string) => {
       return !filePath.includes("mcp-tools");
     });
-    sandbox.stub(fs, "readJSON").resolves(existingPlugin);
+    vi.spyOn(fs, "readJSON").mockResolvedValue(existingPlugin);
     let writtenPluginData: any;
-    sandbox.stub(fs, "writeJSON").callsFake((filePath: string, data) => {
+    vi.spyOn(fs, "writeJSON").mockImplementation((filePath: string, data) => {
       if (!filePath.includes("mcp-tools")) {
         writtenPluginData = data;
       }
       return Promise.resolve();
     });
-    sandbox.stub(pathUtils, "getYmlFilePath").returns("/test/project/m365agents.yml");
-    sandbox.stub(featureFlagManager, "getBooleanValue").callsFake((flag) => {
+    vi.spyOn(pathUtils, "getYmlFilePath").mockReturnValue("/test/project/m365agents.yml");
+    vi.spyOn(featureFlagManager, "getBooleanValue").mockImplementation((flag) => {
       return flag === FeatureFlags.MCPForDADCR;
     });
-    sandbox.stub(axios, "get").resolves({
+    vi.spyOn(axios, "get").mockResolvedValue({
       status: 200,
       data: {
         authorization_endpoint: "https://example.com/oauth/authorize",
         token_endpoint: "https://example.com/oauth/token",
       },
     });
-    const injectDcrStub = sandbox.stub(ActionInjector, "injectCreateDcrActionForMCP").resolves();
-    const injectOAuthStub = sandbox
-      .stub(ActionInjector, "injectCreateOAuthActionForMCP")
-      .resolves();
+    const injectDcrStub = vi
+      .spyOn(ActionInjector, "injectCreateDcrActionForMCP")
+      .mockResolvedValue();
+    const injectOAuthStub = vi
+      .spyOn(ActionInjector, "injectCreateOAuthActionForMCP")
+      .mockResolvedValue();
 
-    sandbox.stub(tools.ui, "showMessage").resolves(ok("OK"));
-    sandbox.stub(tools.ui, "openFile").resolves();
+    vi.spyOn(tools.ui, "showMessage").mockResolvedValue(ok("OK"));
+    vi.spyOn(tools.ui, "openFile").mockResolvedValue();
 
     const result = await core.updateActionWithMCP(inputs);
 
@@ -529,9 +528,9 @@ describe("updateActionWithMCP", () => {
       type: "OAuthPluginVault",
       reference_id: `\${{MCP_DA_AUTH_ID_${serverName.toUpperCase()}}}`,
     });
-    assert.isTrue(injectOAuthStub.notCalled);
-    assert.isTrue(injectDcrStub.calledOnce);
-    assert.deepEqual(injectDcrStub.firstCall.args, [
+    assert.equal(injectOAuthStub.mock.calls.length, 0);
+    assert.equal(injectDcrStub.mock.calls.length, 1);
+    assert.deepEqual(injectDcrStub.mock.calls[0], [
       "/test/project/m365agents.yml",
       serverName,
       `MCP_DA_AUTH_ID_${serverName.toUpperCase()}`,

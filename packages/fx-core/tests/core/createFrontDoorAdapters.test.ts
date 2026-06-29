@@ -2,20 +2,19 @@
 // Licensed under the MIT license.
 
 import { Inputs, Platform, UserError, err, ok } from "@microsoft/teamsfx-api";
-import { assert } from "chai";
 import fs from "fs-extra";
 import path from "path";
-import sinon from "sinon";
+import { assert, vi } from "vitest";
 
 import { setTools } from "../../src/common/globalVars";
 import { coordinator } from "../../src/component/coordinator";
+import { pathUtils } from "../../src/component/utils/pathUtils";
 import {
   applyV3PreFill,
   collectCreateFloor,
   scaffoldV4,
   scaffoldV4Deps,
 } from "../../src/core/createFrontDoorAdapters";
-import { pathUtils } from "../../src/component/utils/pathUtils";
 import { QuestionNames } from "../../src/question/constants";
 import { BuildTarget, TemplateSource } from "../../src/v4";
 import { MockTools } from "./utils";
@@ -28,12 +27,11 @@ const TEMPLATE_SOURCE: TemplateSource = {
 };
 
 describe("createFrontDoorAdapters", () => {
-  const sandbox = sinon.createSandbox();
   const tools = new MockTools();
   setTools(tools);
 
   afterEach(() => {
-    sandbox.restore();
+    vi.restoreAllMocks();
   });
 
   describe("applyV3PreFill", () => {
@@ -356,11 +354,11 @@ describe("createFrontDoorAdapters", () => {
     });
 
     it("scaffolds the located package and returns the project path", async () => {
-      const channel = sandbox
-        .stub(scaffoldV4Deps, "scaffoldDeclarativeFromV4Channel")
-        .resolves(TEMPLATE_SOURCE);
+      const channel = vi
+        .spyOn(scaffoldV4Deps, "scaffoldDeclarativeFromV4Channel")
+        .mockResolvedValue(TEMPLATE_SOURCE);
       // No teamsapp.yml ⇒ ensureTrackingId is skipped.
-      sandbox.stub(pathUtils, "getYmlFilePath").returns(undefined);
+      vi.spyOn(pathUtils, "getYmlFilePath").mockReturnValue(undefined);
       const inputs: Inputs = {
         platform: Platform.VSCode,
         [QuestionNames.Folder]: "/tmp",
@@ -371,17 +369,19 @@ describe("createFrontDoorAdapters", () => {
 
       assert.isTrue(res.isOk());
       assert.equal(res._unsafeUnwrap().projectPath, path.join(path.resolve("/tmp"), "MyApp"));
-      const call = channel.getCall(0);
-      assert.deepEqual(call.args[1], { kind: "create", templateId: "da/mcp-server" });
-      assert.deepEqual(call.args[2], { mcpServerType: "remote" });
-      assert.deepEqual(call.args[3], { appName: "MyApp", language: "common" });
+      const firstCall = channel.mock.calls[0];
+      assert.deepEqual(firstCall[1], { kind: "create", templateId: "da/mcp-server" });
+      assert.deepEqual(firstCall[2], { mcpServerType: "remote" });
+      assert.deepEqual(firstCall[3], { appName: "MyApp", language: "common" });
     });
 
     it("ensures the tracking id when the scaffold wrote a teamsapp.yml", async () => {
-      sandbox.stub(scaffoldV4Deps, "scaffoldDeclarativeFromV4Channel").resolves(TEMPLATE_SOURCE);
-      sandbox.stub(pathUtils, "getYmlFilePath").returns("/tmp/MyApp/teamsapp.yml");
-      sandbox.stub(fs, "pathExists").resolves(true);
-      const ensure = sandbox.stub(coordinator, "ensureTrackingId").resolves(ok("tracking-id"));
+      vi.spyOn(scaffoldV4Deps, "scaffoldDeclarativeFromV4Channel").mockResolvedValue(
+        TEMPLATE_SOURCE
+      );
+      vi.spyOn(pathUtils, "getYmlFilePath").mockReturnValue("/tmp/MyApp/teamsapp.yml");
+      vi.spyOn(fs, "pathExists").mockResolvedValue(true);
+      const ensure = vi.spyOn(coordinator, "ensureTrackingId").mockResolvedValue(ok("tracking-id"));
       const inputs: Inputs = {
         platform: Platform.VSCode,
         [QuestionNames.Folder]: "/tmp",
@@ -392,14 +392,14 @@ describe("createFrontDoorAdapters", () => {
 
       assert.isTrue(res.isOk());
       assert.equal(res._unsafeUnwrap().projectId, "tracking-id");
-      assert.isTrue(ensure.calledOnce);
+      assert.equal(ensure.mock.calls.length, 1);
     });
 
     it("defaults the caller-floor language to common when the target has none", async () => {
-      const channel = sandbox
-        .stub(scaffoldV4Deps, "scaffoldDeclarativeFromV4Channel")
-        .resolves(TEMPLATE_SOURCE);
-      sandbox.stub(pathUtils, "getYmlFilePath").returns(undefined);
+      const channel = vi
+        .spyOn(scaffoldV4Deps, "scaffoldDeclarativeFromV4Channel")
+        .mockResolvedValue(TEMPLATE_SOURCE);
+      vi.spyOn(pathUtils, "getYmlFilePath").mockReturnValue(undefined);
       const inputs: Inputs = {
         platform: Platform.VSCode,
         [QuestionNames.Folder]: "/tmp",
@@ -409,13 +409,13 @@ describe("createFrontDoorAdapters", () => {
       const res = await scaffoldV4(inputs, { templateId: "da/mcp-server", engine: "v4" }, {});
 
       assert.isTrue(res.isOk());
-      assert.deepEqual(channel.getCall(0).args[3], { appName: "MyApp", language: "common" });
+      assert.deepEqual(channel.mock.calls[0][3], { appName: "MyApp", language: "common" });
     });
 
     it("surfaces a channel failure as an error", async () => {
-      sandbox
-        .stub(scaffoldV4Deps, "scaffoldDeclarativeFromV4Channel")
-        .rejects(new Error("channel boom"));
+      vi.spyOn(scaffoldV4Deps, "scaffoldDeclarativeFromV4Channel").mockRejectedValue(
+        new Error("channel boom")
+      );
       const inputs: Inputs = {
         platform: Platform.VSCode,
         [QuestionNames.Folder]: "/tmp",
@@ -432,7 +432,7 @@ describe("createFrontDoorAdapters", () => {
     it("skips the floor when folder + app-name are already preset (asks no UI)", async () => {
       // a preset app-name is validated (pattern + path-not-exists) but never re-asked;
       // MockTools UI throws if prompted, so an ok proves the preset-skip path.
-      sandbox.stub(fs, "pathExists").resolves(false);
+      vi.spyOn(fs, "pathExists").mockResolvedValue(false);
       const inputs: Inputs = {
         platform: Platform.VSCode,
         [QuestionNames.Folder]: "/tmp",
@@ -461,9 +461,13 @@ describe("createFrontDoorAdapters", () => {
       // VS Code interactive, no preset floor ⇒ the floor questions are asked and the
       // answers land on the same inputs bag scaffoldV4 then reads (the bug this fixes:
       // without it the v4 path reached scaffoldV4 with folder undefined).
-      sandbox.stub(fs, "pathExists").resolves(false);
-      sandbox.stub(tools.ui, "selectFolder").resolves(ok({ type: "success", result: "/picked" }));
-      sandbox.stub(tools.ui, "inputText").resolves(ok({ type: "success", result: "PickedApp" }));
+      vi.spyOn(fs, "pathExists").mockResolvedValue(false);
+      vi.spyOn(tools.ui, "selectFolder").mockResolvedValue(
+        ok({ type: "success", result: "/picked" })
+      );
+      vi.spyOn(tools.ui, "inputText").mockResolvedValue(
+        ok({ type: "success", result: "PickedApp" })
+      );
       const inputs: Inputs = { platform: Platform.VSCode };
 
       const res = await collectCreateFloor(inputs, tools.ui);
@@ -475,7 +479,7 @@ describe("createFrontDoorAdapters", () => {
 
     it("propagates a cancellation from the interactive floor prompt", async () => {
       const cancel = new UserError({ source: "Test", name: "UserCancelError", message: "cancel" });
-      sandbox.stub(tools.ui, "selectFolder").resolves(err(cancel));
+      vi.spyOn(tools.ui, "selectFolder").mockResolvedValue(err(cancel));
       const inputs: Inputs = { platform: Platform.VSCode };
 
       const res = await collectCreateFloor(inputs, tools.ui);

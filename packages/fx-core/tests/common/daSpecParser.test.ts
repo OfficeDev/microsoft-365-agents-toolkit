@@ -11,13 +11,12 @@ import {
   WarningType,
 } from "@microsoft/m365-spec-parser";
 import { Platform } from "@microsoft/teamsfx-api";
-import { assert } from "chai";
 import crypto from "crypto";
 import * as fs from "fs-extra";
 import * as os from "os";
 import * as path from "path";
 import tmp from "tmp";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, assert, beforeEach, describe, expect, it, vi } from "vitest";
 import * as daSpecParser from "../../src/common/daSpecParser";
 import { featureFlagManager, FeatureFlags } from "../../src/common/featureFlags";
 import * as kiotaClient from "../../src/common/kiotaClient";
@@ -1656,7 +1655,7 @@ describe("daSpecParser", () => {
     let tmpDir: string;
 
     beforeEach(async () => {
-      // The outer describe sets up sinon stubs we don't need here; restore so
+      // The outer describe sets up mocks we don't need here; restore so
       // real fs / yaml are exercised.
       vi.restoreAllMocks();
       tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "kiota-15731-test-"));
