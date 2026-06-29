@@ -39,21 +39,21 @@ const semver = require("semver");
 
 // Mirror of packages/fx-core/src/v4/distribution/templateConfig.ts
 // `computeV4PublishVersion` (canonical, unit-tested). Kept inline so the
-// templates build needs no fx-core build output. Odd minor (prerelease) stamps
-// the build date into the patch (6.11.<date>, read from the -beta.<date> preid);
-// even minor (stable) uses major.minor.patch as-is. Keep in sync with canonical.
+// templates build needs no fx-core build output. A preview (-beta.<date>
+// suffix) targets the odd-minor line, date-stamped patch (6.11.<date>) — an
+// even-minor stable base bumps to the next odd minor, like the VSIX; stable
+// (no date) is as-is. Keep in sync with canonical.
 function computeV4PublishVersion(rawVersion) {
   const parsed = semver.parse(rawVersion);
   if (parsed === null) {
     throw new Error(`Cannot compute v4 publish version: "${rawVersion}" is not valid SemVer.`);
   }
-  if (parsed.minor % 2 === 1) {
-    const dateStamp = parsed.prerelease.find(
-      (segment) => typeof segment === "number" && segment >= 1000000000
-    );
-    if (dateStamp !== undefined) {
-      return `${parsed.major}.${parsed.minor}.${dateStamp}`;
-    }
+  const dateStamp = parsed.prerelease.find(
+    (segment) => typeof segment === "number" && segment >= 1000000000
+  );
+  if (dateStamp !== undefined) {
+    const minor = parsed.minor % 2 === 0 ? parsed.minor + 1 : parsed.minor;
+    return `${parsed.major}.${minor}.${dateStamp}`;
   }
   return `${parsed.major}.${parsed.minor}.${parsed.patch}`;
 }
