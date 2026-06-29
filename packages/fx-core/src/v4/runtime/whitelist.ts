@@ -2,6 +2,7 @@
 // Licensed under the MIT license.
 
 import { ExpressionRuntimePort, WhitelistFn } from "../expression/evaluateExpression";
+import * as path from "path";
 
 /** Closed v4 render-context function whitelist. See build-render-context spec. */
 
@@ -31,11 +32,15 @@ export const mcpAuthRef: WhitelistFn = (url: string): string =>
 export const safeProjectNameLowerCase: WhitelistFn = (appName: string): string =>
   appName.replace(/[^0-9a-zA-Z]/g, "").toLowerCase();
 
+/** Whitelist fn `pathDelimiter()` for PATH-like launch configuration values. */
+export const pathDelimiter: WhitelistFn = (): string => path.delimiter;
+
 /** The closed function whitelist; an author cannot extend it (ADR-0016 decision 3). */
 const WHITELIST = new Map<string, WhitelistFn>([
   ["mcpNamespace", mcpNamespace],
   ["mcpAuthRef", mcpAuthRef],
   ["safeProjectNameLowerCase", safeProjectNameLowerCase],
+  ["pathDelimiter", pathDelimiter],
 ]);
 
 /** Default feature-flag reader: an env-backed truthy check (`"true"` / `"1"`). */

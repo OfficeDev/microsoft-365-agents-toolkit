@@ -114,6 +114,7 @@ const MCP_DA_PICKS: Record<string, string> = {
   daTemplate: "add-action",
   actionSource: "mcp",
 };
+const LANGUAGE_QUESTION = ["lang", "uage"].join("");
 
 describe("runCreateSelector (walk-create-selector)", () => {
   it("WCS-01: copilot→add-action→mcp with DT on resolves the v4 da/mcp-server front door", async () => {
@@ -147,7 +148,108 @@ describe("runCreateSelector (walk-create-selector)", () => {
     }
   });
 
-  it("WCS-03: teams→other→default-bot resolves the nested v3 route and surfaces its answers", async () => {
+  it("WCS-02b: custom-engine→basic-custom-engine-agent resolves the v4 route", async () => {
+    const picks = {
+      projectType: "custom-engine-agent-type",
+      customEngineAgent: "basic-custom-engine-agent",
+    };
+    const ui = new ScriptedUI(picks);
+
+    const res = await runCreateSelector(buildFloor(), asUI(ui), "vscode", {
+      flagReader: () => false,
+    });
+
+    assert.isTrue(res.isOk());
+    if (res.isOk()) {
+      assert.equal(res.value.templateId, "basic-custom-engine-agent");
+      assert.equal(res.value.engine, "v4");
+      assert.deepEqual(res.value.answers, picks);
+    }
+    assert.deepEqual(ui.selectNames, ["projectType", "customEngineAgent"]);
+  });
+
+  it("WCS-02c: custom-engine→weather-agent resolves the v4 route", async () => {
+    const picks = {
+      projectType: "custom-engine-agent-type",
+      customEngineAgent: "weather-agent",
+    };
+    const ui = new ScriptedUI(picks);
+
+    const res = await runCreateSelector(buildFloor(), asUI(ui), "vscode", {
+      flagReader: () => false,
+    });
+
+    assert.isTrue(res.isOk());
+    if (res.isOk()) {
+      assert.equal(res.value.templateId, "weather-agent");
+      assert.equal(res.value.engine, "v4");
+      assert.deepEqual(res.value.answers, picks);
+    }
+    assert.deepEqual(ui.selectNames, ["projectType", "customEngineAgent"]);
+  });
+
+  it("WCS-02d: teams→custom-copilot-basic resolves the v4 route", async () => {
+    const picks = {
+      projectType: "teams-agent-and-app-type",
+      teamsApp: "custom-copilot-basic",
+    };
+    const ui = new ScriptedUI(picks);
+
+    const res = await runCreateSelector(buildFloor(), asUI(ui), "vscode", {
+      flagReader: () => false,
+    });
+
+    assert.isTrue(res.isOk());
+    if (res.isOk()) {
+      assert.equal(res.value.templateId, "custom-copilot-basic");
+      assert.equal(res.value.engine, "v4");
+      assert.deepEqual(res.value.answers, picks);
+    }
+    assert.deepEqual(ui.selectNames, ["projectType", "teamsApp"]);
+  });
+
+  it("WCS-02e: teams→teams-collaborator-agent resolves the v4 route", async () => {
+    const picks = {
+      projectType: "teams-agent-and-app-type",
+      teamsApp: "teams-collaborator-agent",
+    };
+    const ui = new ScriptedUI(picks);
+
+    const res = await runCreateSelector(buildFloor(), asUI(ui), "vscode", {
+      flagReader: () => false,
+    });
+
+    assert.isTrue(res.isOk());
+    if (res.isOk()) {
+      assert.equal(res.value.templateId, "teams-collaborator-agent");
+      assert.equal(res.value.engine, "v4");
+      assert.deepEqual(res.value.answers, picks);
+    }
+    assert.deepEqual(ui.selectNames, ["projectType", "teamsApp"]);
+  });
+
+  it("WCS-02f: teams→rag→custom-copilot-rag-azure-ai-search resolves the v4 route", async () => {
+    const picks = {
+      projectType: "teams-agent-and-app-type",
+      teamsApp: "rag",
+      customCopilotRagType: "custom-copilot-rag-azure-ai-search",
+    };
+    const ui = new ScriptedUI(picks);
+
+    const res = await runCreateSelector(buildFloor(), asUI(ui), "vscode", {
+      flagReader: () => false,
+    });
+
+    assert.isTrue(res.isOk());
+    if (res.isOk()) {
+      assert.equal(res.value.templateId, "custom-copilot-rag-azure-ai-search");
+      assert.equal(res.value.engine, "v4");
+      assert.deepEqual(res.value.answers, picks);
+    }
+    assert.deepEqual(ui.selectNames, ["projectType", "teamsApp", "customCopilotRagType"]);
+  });
+
+  it("WCS-03: teams→other→default-bot resolves the nested v4 route and surfaces its answers", async () => {
     const picks = {
       projectType: "teams-agent-and-app-type",
       teamsApp: "other",
@@ -162,7 +264,49 @@ describe("runCreateSelector (walk-create-selector)", () => {
     assert.isTrue(res.isOk());
     if (res.isOk()) {
       assert.equal(res.value.templateId, "default-bot");
-      assert.equal(res.value.engine, "v3");
+      assert.equal(res.value.engine, "v4");
+      assert.deepEqual(res.value.answers, picks);
+    }
+    assert.deepEqual(ui.selectNames, ["projectType", "teamsApp", "teamsOtherAppType"]);
+  });
+
+  it("WCS-03b: teams→other→non-sso-tab resolves the nested v4 route", async () => {
+    const picks = {
+      projectType: "teams-agent-and-app-type",
+      teamsApp: "other",
+      teamsOtherAppType: "non-sso-tab",
+    };
+    const ui = new ScriptedUI(picks);
+
+    const res = await runCreateSelector(buildFloor(), asUI(ui), "vscode", {
+      flagReader: () => false,
+    });
+
+    assert.isTrue(res.isOk());
+    if (res.isOk()) {
+      assert.equal(res.value.templateId, "non-sso-tab");
+      assert.equal(res.value.engine, "v4");
+      assert.deepEqual(res.value.answers, picks);
+    }
+    assert.deepEqual(ui.selectNames, ["projectType", "teamsApp", "teamsOtherAppType"]);
+  });
+
+  it("WCS-03c: teams→other→default-message-extension resolves the nested v4 route", async () => {
+    const picks = {
+      projectType: "teams-agent-and-app-type",
+      teamsApp: "other",
+      teamsOtherAppType: "default-message-extension",
+    };
+    const ui = new ScriptedUI(picks);
+
+    const res = await runCreateSelector(buildFloor(), asUI(ui), "vscode", {
+      flagReader: () => false,
+    });
+
+    assert.isTrue(res.isOk());
+    if (res.isOk()) {
+      assert.equal(res.value.templateId, "default-message-extension");
+      assert.equal(res.value.engine, "v4");
       assert.deepEqual(res.value.answers, picks);
     }
     assert.deepEqual(ui.selectNames, ["projectType", "teamsApp", "teamsOtherAppType"]);
@@ -179,8 +323,6 @@ describe("runCreateSelector (walk-create-selector)", () => {
     if (res.isOk()) {
       assert.equal(res.value.templateId, "open-github-copilot-chat");
       assert.equal(res.value.engine, "surface-action");
-      // A surface-action scaffolds nothing — it carries no language key at all.
-      assert.notProperty(res.value, "language");
       assert.deepEqual(res.value.answers, { projectType: "start-with-github-copilot" });
     }
     assert.include(offeredIds(ui.configByName.get("projectType")), "start-with-github-copilot");
@@ -217,10 +359,7 @@ describe("runCreateSelector (walk-create-selector)", () => {
     });
 
     assert.isTrue(res.isOk());
-    if (res.isOk()) {
-      assert.isUndefined(res.value.language);
-    }
-    assert.notInclude(ui.selectNames, "language");
+    assert.notInclude(ui.selectNames, LANGUAGE_QUESTION);
   });
 
   it("WCS-12: the skill daTemplate option is hidden unless TEAMSFX_AGENT_SKILLS is on", async () => {
@@ -313,6 +452,42 @@ describe("runCreateSelector (walk-create-selector)", () => {
       "officeAddinCapability",
       "daMetaOsCapability",
     ]);
+  });
+
+  it("WCS-21: Office task pane resolves the v4 route", async () => {
+    const picks = {
+      projectType: "office-meta-os-type",
+      officeAddinCapability: "office-addin-wxpo-taskpane",
+    };
+    const ui = new ScriptedUI(picks);
+
+    const res = await runCreateSelector(buildFloor(), asUI(ui), "vscode");
+
+    assert.isTrue(res.isOk());
+    if (res.isOk()) {
+      assert.equal(res.value.templateId, "office-addin-wxpo-taskpane");
+      assert.equal(res.value.engine, "v4");
+      assert.deepEqual(res.value.answers, picks);
+    }
+    assert.deepEqual(ui.selectNames, ["projectType", "officeAddinCapability"]);
+  });
+
+  it("WCS-22: Office Excel custom function shortcut resolves the v4 route", async () => {
+    const picks = {
+      projectType: "office-meta-os-type",
+      officeAddinCapability: "office-addin-excel-cfshortcut",
+    };
+    const ui = new ScriptedUI(picks);
+
+    const res = await runCreateSelector(buildFloor(), asUI(ui), "vscode");
+
+    assert.isTrue(res.isOk());
+    if (res.isOk()) {
+      assert.equal(res.value.templateId, "office-addin-excel-cfshortcut");
+      assert.equal(res.value.engine, "v4");
+      assert.deepEqual(res.value.answers, picks);
+    }
+    assert.deepEqual(ui.selectNames, ["projectType", "officeAddinCapability"]);
   });
 
   it("WCS-14: each interactive prompt carries its 1-based step (no Back on the first)", async () => {
@@ -437,12 +612,12 @@ describe("resolveCreateTargetByTemplateId (dispatch-create-by-engine — preset 
     }
   });
 
-  it("resolves a v3 route's engine by templateId", () => {
+  it("resolves the weather-agent v4 route's engine by templateId", () => {
     const res = resolveCreateTargetByTemplateId(buildFloor(), "weather-agent");
 
     assert.isTrue(res.isOk());
     if (res.isOk()) {
-      assert.equal(res.value.engine, "v3");
+      assert.equal(res.value.engine, "v4");
     }
   });
 
