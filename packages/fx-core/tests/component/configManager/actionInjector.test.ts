@@ -1203,7 +1203,7 @@ describe("ActionInjector", () => {
       assert.isTrue(writtenContent.includes(registrationId));
       assert.isTrue(writtenContent.includes(mcpServerUrl));
       assert.isTrue(writtenContent.includes(wellKnownUrl));
-      assert.isTrue(writtenContent.includes("applicableToApps: SpecificApp"));
+      assert.isTrue(writtenContent.includes("applicableToApps: AnyApp"));
       assert.isTrue(writtenContent.includes("targetAudience: HomeTenant"));
     });
 
