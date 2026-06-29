@@ -259,14 +259,12 @@
     {
       "when": "projectType=='custom-engine-agent-type' && customEngineAgent=='basic-custom-engine-agent'",
       "templateId": "basic-custom-engine-agent",
-      "engine": "v3",
-      "v3Adapter": "DefaultTemplateGenerator"
+      "engine": "v4"
     },
     {
       "when": "projectType=='custom-engine-agent-type' && customEngineAgent=='weather-agent'",
       "templateId": "weather-agent",
-      "engine": "v3",
-      "v3Adapter": "DefaultTemplateGenerator"
+      "engine": "v4"
     },
     {
       "when": "projectType=='graph-connector-type'",
@@ -276,20 +274,17 @@
     {
       "when": "projectType=='teams-agent-and-app-type' && teamsApp=='custom-copilot-basic'",
       "templateId": "custom-copilot-basic",
-      "engine": "v3",
-      "v3Adapter": "DefaultTemplateGenerator"
+      "engine": "v4"
     },
     {
       "when": "projectType=='teams-agent-and-app-type' && teamsApp=='rag' && customCopilotRagType=='custom-copilot-rag-customize'",
       "templateId": "custom-copilot-rag-customize",
-      "engine": "v3",
-      "v3Adapter": "DefaultTemplateGenerator"
+      "engine": "v4"
     },
     {
       "when": "projectType=='teams-agent-and-app-type' && teamsApp=='rag' && customCopilotRagType=='custom-copilot-rag-azure-ai-search'",
       "templateId": "custom-copilot-rag-azure-ai-search",
-      "engine": "v3",
-      "v3Adapter": "DefaultTemplateGenerator"
+      "engine": "v4"
     },
     {
       "when": "projectType=='teams-agent-and-app-type' && teamsApp=='rag' && customCopilotRagType=='custom-copilot-rag-custom-api'",
@@ -300,38 +295,32 @@
     {
       "when": "projectType=='teams-agent-and-app-type' && teamsApp=='teams-collaborator-agent'",
       "templateId": "teams-collaborator-agent",
-      "engine": "v3",
-      "v3Adapter": "DefaultTemplateGenerator"
+      "engine": "v4"
     },
     {
       "when": "projectType=='teams-agent-and-app-type' && teamsApp=='other' && teamsOtherAppType=='non-sso-tab'",
       "templateId": "non-sso-tab",
-      "engine": "v3",
-      "v3Adapter": "DefaultTemplateGenerator"
+      "engine": "v4"
     },
     {
       "when": "projectType=='teams-agent-and-app-type' && teamsApp=='other' && teamsOtherAppType=='default-message-extension'",
       "templateId": "default-message-extension",
-      "engine": "v3",
-      "v3Adapter": "DefaultTemplateGenerator"
+      "engine": "v4"
     },
     {
       "when": "projectType=='teams-agent-and-app-type' && teamsApp=='other' && teamsOtherAppType=='default-bot'",
       "templateId": "default-bot",
-      "engine": "v3",
-      "v3Adapter": "DefaultTemplateGenerator"
+      "engine": "v4"
     },
     {
       "when": "projectType=='office-meta-os-type' && officeAddinCapability=='office-addin-wxpo-taskpane'",
       "templateId": "office-addin-wxpo-taskpane",
-      "engine": "v3",
-      "v3Adapter": "OfficeAddinGeneratorNew"
+      "engine": "v4"
     },
     {
       "when": "projectType=='office-meta-os-type' && officeAddinCapability=='office-addin-excel-cfshortcut'",
       "templateId": "office-addin-excel-cfshortcut",
-      "engine": "v3",
-      "v3Adapter": "OfficeAddinGeneratorNew"
+      "engine": "v4"
     },
     {
       "when": "projectType=='office-meta-os-type' && officeAddinCapability=='office-da-meta-os' && daMetaOsCapability=='declarative-agent-meta-os-new-project'",

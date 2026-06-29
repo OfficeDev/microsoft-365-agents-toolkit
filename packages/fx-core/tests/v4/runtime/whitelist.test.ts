@@ -8,6 +8,7 @@ import {
   deriveMcpServerName,
   mcpAuthRef,
   mcpNamespace,
+  pathDelimiter,
   safeProjectNameLowerCase,
 } from "../../../src/v4/runtime/whitelist";
 
@@ -64,12 +65,19 @@ describe("v4 runtime — whitelist functions + ExpressionRuntimePort", () => {
     });
   });
 
+  describe("pathDelimiter", () => {
+    it("SCN-CREATE-MESSAGE-EXTENSION-03: returns the host PATH delimiter", () => {
+      assert.strictEqual(pathDelimiter(), process.platform === "win32" ? ";" : ":");
+    });
+  });
+
   describe("createExpressionPort", () => {
     it("exposes the whitelisted functions and nothing else", () => {
       const port = createExpressionPort();
       assert.isFunction(port.functions("mcpNamespace"));
       assert.isFunction(port.functions("mcpAuthRef"));
       assert.isFunction(port.functions("safeProjectNameLowerCase"));
+      assert.isFunction(port.functions("pathDelimiter"));
       assert.isUndefined(port.functions("notWhitelisted"));
     });
 
@@ -115,6 +123,15 @@ describe("v4 runtime — whitelist functions + ExpressionRuntimePort", () => {
       assert.isTrue(result.isOk());
       if (result.isOk()) {
         assert.strictEqual(result.value, "myagent");
+      }
+    });
+
+    it("SCN-CREATE-MESSAGE-EXTENSION-03: the evaluator resolves `pathDelimiter()` through the port", () => {
+      const port = createExpressionPort();
+      const result = evaluateExpression({ expr: "pathDelimiter()" }, {}, port);
+      assert.isTrue(result.isOk());
+      if (result.isOk()) {
+        assert.strictEqual(result.value, process.platform === "win32" ? ";" : ":");
       }
     });
   });
