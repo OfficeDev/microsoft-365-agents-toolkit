@@ -241,13 +241,13 @@ jobs:
         run: |
           npm install -g @microsoft/m365agentstoolkit-cli@${{ github.event.inputs.cli-version }}
 
-      - name: install cli for schedule
-        if: ${{  github.event_name == 'schedule' || github.event_name == 'pull_request' || ( github.event.ref == 'refs/heads/dev' && github.event_name == 'workflow_dispatch' && github.event.inputs.cli-version == '' ) }}
+      - name: install published cli
+        if: ${{  github.event_name == 'schedule' || ( github.event.ref == 'refs/heads/dev' && github.event_name == 'workflow_dispatch' && github.event.inputs.cli-version == '' ) }}
         run: |
           npm install -g @microsoft/m365agentstoolkit-cli@alpha
       
-      - name: link cli for workflow_dispatch
-        if: ${{  github.event_name == 'workflow_dispatch' && github.event.ref != 'refs/heads/dev' && github.event.inputs.cli-version == '' }}
+      - name: link cli for pull_request or workflow_dispatch
+        if: ${{  github.event_name == 'pull_request' || ( github.event_name == 'workflow_dispatch' && github.event.ref != 'refs/heads/dev' && github.event.inputs.cli-version == '' ) }}
         run: |
           pnpm link --global
 
