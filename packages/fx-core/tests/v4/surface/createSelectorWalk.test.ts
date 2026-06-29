@@ -133,7 +133,7 @@ describe("runCreateSelector (walk-create-selector)", () => {
     assert.deepEqual(ui.selectNames, ["projectType", "daTemplate", "actionSource"]);
   });
 
-  it("WCS-02: the same picks with DT off resolve the v3 mcp twin route", async () => {
+  it("WCS-02: the same picks with DT off resolve the v4 static MCP route", async () => {
     const ui = new ScriptedUI(MCP_DA_PICKS);
 
     const res = await runCreateSelector(buildFloor(), asUI(ui), "vscode", {
@@ -142,8 +142,8 @@ describe("runCreateSelector (walk-create-selector)", () => {
 
     assert.isTrue(res.isOk());
     if (res.isOk()) {
-      assert.equal(res.value.templateId, "declarative-agent-with-action-from-mcp");
-      assert.equal(res.value.engine, "v3");
+      assert.equal(res.value.templateId, "da/mcp-server-static");
+      assert.equal(res.value.engine, "v4");
     }
   });
 
@@ -288,6 +288,31 @@ describe("runCreateSelector (walk-create-selector)", () => {
       assert.deepEqual(res.value.answers, picks);
     }
     assert.deepEqual(ui.selectNames, ["projectType", "daTemplate"]);
+  });
+
+  it("WCS-20: Office DA MetaOS upgrade resolves the v4 pipeline-only route", async () => {
+    const picks = {
+      projectType: "office-meta-os-type",
+      officeAddinCapability: "office-da-meta-os",
+      daMetaOsCapability: "declarative-agent-meta-os-upgrade-project",
+    };
+    const ui = new ScriptedUI(picks);
+
+    const res = await runCreateSelector(buildFloor(), asUI(ui), "vscode", {
+      flagReader: flagsOn("TEAMSFX_DA_METAOS"),
+    });
+
+    assert.isTrue(res.isOk());
+    if (res.isOk()) {
+      assert.equal(res.value.templateId, "declarative-agent-meta-os-upgrade-project");
+      assert.equal(res.value.engine, "v4");
+      assert.deepEqual(res.value.answers, picks);
+    }
+    assert.deepEqual(ui.selectNames, [
+      "projectType",
+      "officeAddinCapability",
+      "daMetaOsCapability",
+    ]);
   });
 
   it("WCS-14: each interactive prompt carries its 1-based step (no Back on the first)", async () => {

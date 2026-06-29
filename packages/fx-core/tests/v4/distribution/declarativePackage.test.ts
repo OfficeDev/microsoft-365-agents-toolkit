@@ -94,6 +94,35 @@ describe("openDeclarativePackage (v4, zip declarative-subtree reader)", () => {
     assert.strictEqual(error.name, "PackageFileMissing");
   });
 
+  it("DECL-03b: opens a pipeline-only package with no content entries", () => {
+    const zip = new AdmZip();
+    zip.addFile(
+      "v4/create/pipeline-only/descriptor.json",
+      Buffer.from(
+        JSON.stringify({
+          id: "pipeline-only",
+          name: "Pipeline Only",
+          languages: ["common"],
+          minEngineVersion: "5.20.0",
+          optionsSchema: { type: "object", properties: {} },
+          replaceMap: [],
+        })
+      )
+    );
+    zip.addFile(
+      "v4/create/pipeline-only/pipeline.json",
+      Buffer.from(JSON.stringify({ pipeline: "default", steps: [] }))
+    );
+
+    const result = openDeclarativePackage(zip.toBuffer(), {
+      kind: "create",
+      templateId: "pipeline-only",
+    });
+
+    assert.isTrue(result.isOk(), result.isErr() ? result.error.message : "expected ok");
+    assert.deepEqual(result._unsafeUnwrap().content, []);
+  });
+
   it("DECL-04: invalid archive bytes are a SystemError", () => {
     const result = openDeclarativePackage(Buffer.from("not a zip at all"), LOCATOR);
     assert.isTrue(result.isErr(), "expected an error for non-zip bytes");

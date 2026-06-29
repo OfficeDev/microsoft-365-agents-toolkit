@@ -11,13 +11,13 @@ import { TemplateFileEntry } from "../model/dataModel";
 
 const SOURCE = "Scaffold";
 
-/** A parsed declarative package: shape files plus raw content. */
+/** A parsed declarative package: shape files plus optional raw content. */
 export interface LoadedPackage {
   /** The package's parsed `descriptor.json` (its `replaceMap` drives the render vars). */
   descriptor: unknown;
   /** The package's parsed `pipeline.json`. */
   pipeline: unknown;
-  /** The opened `content/**` entries (raw bytes, `.tpl` suffix intact, sorted). */
+  /** The opened `content/**` entries (raw bytes, `.tpl` suffix intact, sorted); empty for pipeline-only packages. */
   content: TemplateFileEntry[];
 }
 
@@ -64,22 +64,36 @@ function walkContent(root: string, dir: string, out: TemplateFileEntry[]): void 
   }
 }
 
-/** Load `content/**` as deterministically ordered raw entries. */
+/** Load optional `content/**` as deterministically ordered raw entries. */
 function loadContent(contentRoot: string): Result<TemplateFileEntry[], FxError> {
   const entries: TemplateFileEntry[] = [];
   try {
     walkContent(contentRoot, contentRoot, entries);
-  } catch {
+  } catch (error) {
+    if (isMissingContentRoot(error, contentRoot)) {
+      return ok([]);
+    }
     return err(
       new SystemError({
         source: SOURCE,
-        name: "PackageContentMissing",
+        name: "PackageContentReadFailed",
         message: `The template package's "content" directory could not be read.`,
       })
     );
   }
   entries.sort((a, b) => (a.path < b.path ? -1 : a.path > b.path ? 1 : 0));
   return ok(entries);
+}
+
+function hasCodeAndPath(error: unknown): error is { code: unknown; path?: unknown } {
+  return typeof error === "object" && error !== null && "code" in error;
+}
+
+function isMissingContentRoot(error: unknown, contentRoot: string): boolean {
+  if (!hasCodeAndPath(error) || error.code !== "ENOENT" || typeof error.path !== "string") {
+    return false;
+  }
+  return path.resolve(error.path) === path.resolve(contentRoot);
 }
 
 /** Load a declarative template package from its authored directory. */

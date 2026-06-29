@@ -39,6 +39,10 @@ import { assert } from "vitest";
 
 const TEMPLATES_V4_DIR = path.resolve(__dirname, "../../../../../templates/v4");
 const MCP_DA: DeclarativeLocator = { kind: "create", templateId: "da/mcp-server" };
+const STATIC_MCP_DA: DeclarativeLocator = {
+  kind: "create",
+  templateId: "da/mcp-server-static",
+};
 const OPENAPI_DA: DeclarativeLocator = {
   kind: "create",
   templateId: "da/api-plugin-from-existing-api",
@@ -184,6 +188,63 @@ describe("runCreateInputs (collect-create-inputs)", () => {
     assert.deepEqual(ui.textNames, []);
     assert.deepEqual(ui.multiNames, ["apiOperations"]);
     assert.strictEqual(ui.lastMultiConfig?.options[0].id, "GET /repairs");
+  });
+
+  it("lists static MCP tools from the provided tools JSON", async () => {
+    const toolsJson = JSON.stringify({
+      tools: [
+        { name: "searchFlights", description: "Search available flights" },
+        { name: "bookFlight" },
+      ],
+    });
+    const ui = new ScriptedUserInteraction({
+      multi: { selectedMcpTools: ["searchFlights"] },
+    });
+
+    const res = await runCreateInputs(
+      buildFloor(),
+      STATIC_MCP_DA,
+      { mcpServerUrl: "https://api.example.com/mcp", mcpToolsJson: toolsJson },
+      asUI(ui),
+      { flagReader: () => false }
+    );
+
+    assert.isTrue(res.isOk(), res.isErr() ? res.error.message : "expected ok");
+    assert.deepEqual(res._unsafeUnwrap().selectedMcpTools, ["searchFlights"]);
+    assert.deepEqual(ui.multiNames, ["selectedMcpTools"]);
+    assert.strictEqual(ui.lastMultiConfig?.options[0].id, "searchFlights");
+    assert.strictEqual(ui.lastMultiConfig?.options[0].detail, "Search available flights");
+    assert.strictEqual(ui.lastMultiConfig?.options[1].id, "bookFlight");
+  });
+
+  it("surfaces a UserError when static MCP tools JSON is missing", async () => {
+    const ui = new ScriptedUserInteraction({});
+
+    const res = await runCreateInputs(
+      buildFloor(),
+      STATIC_MCP_DA,
+      { mcpServerUrl: "https://api.example.com/mcp", mcpToolsJson: "   " },
+      asUI(ui),
+      { flagReader: () => false }
+    );
+
+    assert.isTrue(res.isErr(), "expected missing tools JSON to fail");
+    assert.strictEqual(res._unsafeUnwrapErr().name, "McpToolsJsonMissing");
+  });
+
+  it("surfaces parser errors from static MCP tools JSON", async () => {
+    const ui = new ScriptedUserInteraction({});
+
+    const res = await runCreateInputs(
+      buildFloor(),
+      STATIC_MCP_DA,
+      { mcpServerUrl: "https://api.example.com/mcp", mcpToolsJson: "not json" },
+      asUI(ui),
+      { flagReader: () => false }
+    );
+
+    assert.isTrue(res.isErr(), "expected invalid tools JSON to fail");
+    assert.strictEqual(res._unsafeUnwrapErr().name, "McpStaticToolsParse");
   });
 
   it("CCI-02: provider [remote,local] prompts mcpServerType; local pick skips url, asks authType", async () => {
