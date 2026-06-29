@@ -1,0 +1,73 @@
+name: Test v4 template channel
+run-name: test-v4-${{ inputs.rawVersion }}
+
+# Manual: build templates from a branch/sha and publish ONE v4 package to the
+# real channel (templates-v4@<ver> + template-v4-tag-list) so dev can test v4.
+# Safe because v4 is not enabled in prod yet. No version mint, no npm/vsix/v3.
+on:
+  workflow_dispatch:
+    inputs:
+      rawVersion:
+        description: "Raw templates version to mint from (even-minor preview bumps to 6.11.<date>)."
+        required: true
+        default: "6.11.0-beta.2026062908.0"
+      ref:
+        description: "Branch/sha to build template content from."
+        required: true
+        default: ""
+      production:
+        description: "true = online channel config; false = bundled floor."
+        required: true
+        default: "true"
+
+permissions:
+  contents: write
+
+jobs:
+  test-publish:
+    runs-on: ubuntu-latest
+    steps:
+      - id: generate-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ vars.APP_GITHUB_APP_ID }}
+          private-key: ${{ secrets.APP_GITHUB_APP_PRIVATE_KEY }}
+
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          token: ${{ steps.generate-token.outputs.token }}
+          ref: ${{ github.event.inputs.ref }}
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 22
+      - uses: pnpm/action-setup@v4
+
+      - name: Setup project
+        run: npm run setup
+
+      - name: Pin templates version
+        run: |
+          jq --arg v "${{ github.event.inputs.rawVersion }}" '.version=$v' \
+            templates/package.json > templates/tmp.json
+          mv templates/tmp.json templates/package.json
+
+      - name: Build templates (v4 zip + metadata)
+        run: cd templates && npm run build
+
+      - name: Sync v4 template config
+        env:
+          PRODUCTION: ${{ github.event.inputs.production }}
+        run: node .github/scripts/v4/sync-v4-template-config.js
+
+      - name: Publish to v4 channel
+        env:
+          GH_TOKEN: ${{ steps.generate-token.outputs.token }}
+        run: |
+          bash .github/scripts/v4/publish-v4-channel.sh \
+            "templates@${{ github.event.inputs.rawVersion }}" \
+            "${{ github.workspace }}/templates/build/v4/templates.zip" \
+            "${{ runner.temp }}" \
+            "${{ github.sha }}" \
+            "${{ github.workspace }}/templates/build/metadata.zip"
