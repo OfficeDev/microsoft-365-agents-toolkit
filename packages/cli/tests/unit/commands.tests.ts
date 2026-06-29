@@ -910,6 +910,20 @@ describe("CLI commands", () => {
       const res = await envAddCommand.handler!(ctx);
       assert.isTrue(res.isErr());
     });
+    it("uses empty string when projectPath is undefined", async () => {
+      vi.spyOn(FxCore.prototype, "createEnv").mockResolvedValue(ok(undefined));
+      const validStub = vi.spyOn(settingHelper, "isValidProjectV3").mockReturnValue(true);
+      const ctx: CLIContext = {
+        command: { ...envAddCommand, fullName: "teamsfx" },
+        optionValues: {},
+        globalOptionValues: {},
+        argumentValues: [],
+        telemetryProperties: {},
+      };
+      const res = await envAddCommand.handler!(ctx);
+      assert.isTrue(res.isOk());
+      assert.isTrue(validStub.mock.calls[0][0] === "");
+    });
   });
   describe("envListCommand", async () => {
     it("success", async () => {
@@ -949,6 +963,20 @@ describe("CLI commands", () => {
       };
       const res = await envListCommand.handler!(ctx);
       assert.isTrue(res.isErr());
+    });
+    it("uses empty string when projectPath is undefined", async () => {
+      const validStub = vi.spyOn(settingHelper, "isValidProjectV3").mockReturnValue(true);
+      vi.spyOn(envUtil, "listEnv").mockResolvedValue(ok(["dev"]));
+      const ctx: CLIContext = {
+        command: { ...envListCommand, fullName: "teamsfx" },
+        optionValues: {},
+        globalOptionValues: {},
+        argumentValues: [],
+        telemetryProperties: {},
+      };
+      const res = await envListCommand.handler!(ctx);
+      assert.isTrue(res.isOk());
+      assert.isTrue(validStub.mock.calls[0][0] === "");
     });
   });
   describe("envResetCommand", async () => {
