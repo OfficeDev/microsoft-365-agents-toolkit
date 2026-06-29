@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { FxError, SystemError, UserInteraction } from "@microsoft/teamsfx-api";
+import { FxError, SystemError, UserError, UserInteraction } from "@microsoft/teamsfx-api";
 import {
   ListAPIInfo,
   ParseOptions,
@@ -21,6 +21,7 @@ import {
 import { openCreateQuestions } from "../distribution/createQuestions";
 import { openDeclarativePackage } from "../distribution/declarativePackage";
 import { evaluateExpression } from "../expression/evaluateExpression";
+import { parseMcpStaticToolsJson } from "../mcp/mcpStaticTools";
 import { Answers, DeclarativeLocator } from "../model/dataModel";
 import { parseDeclaredKeys } from "../runtime/packageParse";
 import { createExpressionPort } from "../runtime/whitelist";
@@ -127,9 +128,34 @@ const openApiOperationsProvider: OptionsProvider = {
   },
 };
 
+const mcpToolsProvider: OptionsProvider = {
+  fetch(params) {
+    const toolsJson = params.toolsJson?.trim();
+    if (!toolsJson) {
+      throw new UserError({
+        source: "Scaffold",
+        name: "McpToolsJsonMissing",
+        message: "MCP tools JSON is required before listing tools.",
+      });
+    }
+    const parsed = parseMcpStaticToolsJson(toolsJson);
+    if (!parsed.ok) {
+      throw new UserError({ source: "Scaffold", name: parsed.code, message: parsed.message });
+    }
+    return {
+      options: parsed.tools.map((tool) => ({
+        id: tool.name,
+        label: tool.name,
+        detail: tool.description,
+      })),
+    };
+  },
+};
+
 /** Default `optionsFrom` provider registry. */
 const defaultProviders: Record<string, OptionsProvider> = {
   "mcp.serverTypes": remoteOnlyServerTypes,
+  "mcp.tools": mcpToolsProvider,
   "openapi.operations": openApiOperationsProvider,
 };
 
