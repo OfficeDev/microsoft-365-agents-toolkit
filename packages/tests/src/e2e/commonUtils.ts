@@ -63,7 +63,14 @@ export function getAppNamePrefix(): string {
 }
 
 export function getUniqueAppName(): string {
-  return getAppNamePrefix() + Date.now().toString() + uuidv4().slice(0, 2);
+  // Cap at the 30-char app-name limit; the `fxE2E<runId>` prefix is preserved
+  // (only the trailing timestamp/uuid is trimmed) so prefix-based cleanup still
+  // matches. Date.now() growing to 14 digits could push the raw name to 31.
+  return (
+    getAppNamePrefix() +
+    Date.now().toString() +
+    uuidv4().slice(0, 2)
+  ).slice(0, 30);
 }
 
 export function convertToAlphanumericOnly(appName: string): string {
