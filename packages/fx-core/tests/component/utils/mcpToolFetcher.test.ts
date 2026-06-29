@@ -38,8 +38,6 @@ vi.mock("@modelcontextprotocol/sdk/client/sse.js", () => ({
 }));
 
 describe("mcpToolFetcher", () => {
-  const sandbox = vi;
-
   afterEach(() => {
     vi.restoreAllMocks();
   });
@@ -410,15 +408,15 @@ describe("mcpToolFetcher", () => {
     });
 
     it("should not append a trailing slash for a host-only issuer (e.g. Notion)", async () => {
-      const getStub = sandbox.stub(axios, "get");
+      const getStub = vi.spyOn(axios, "get");
       // Resource metadata returns a host-only issuer (no path); new URL().pathname is "/".
-      getStub.onFirstCall().resolves({
+      getStub.mockResolvedValueOnce({
         status: 200,
         data: {
           authorization_servers: ["https://mcp.notion.com"],
         },
       });
-      getStub.onSecondCall().resolves({
+      getStub.mockResolvedValueOnce({
         data: {
           authorization_endpoint: "https://mcp.notion.com/authorize",
           token_endpoint: "https://mcp.notion.com/token",
@@ -430,7 +428,7 @@ describe("mcpToolFetcher", () => {
       );
 
       // Must NOT have a trailing slash — Notion returns 404 for ".../oauth-authorization-server/".
-      const wellKnownCallUrl = getStub.secondCall.args[0];
+      const wellKnownCallUrl = getStub.mock.calls[1][0];
       assert.equal(
         wellKnownCallUrl,
         "https://mcp.notion.com/.well-known/oauth-authorization-server"

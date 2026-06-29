@@ -1114,6 +1114,12 @@ describe("updateActionWithMCP", () => {
     const inputs: Inputs = { platform: Platform.CLI, [QuestionNames.MCPForDAAuth]: "NoneAuth" };
     assert.isFalse(condition(inputs));
   });
+  it("child[2] (auth type) has no credential follow-up questions", () => {
+    const node = updateActionWithMCP();
+    const child2 = node.children![2];
+    assert.equal((child2.data as any).name, QuestionNames.MCPForDAAuthType);
+    assert.deepEqual(child2.children ?? [], []);
+  });
 });
 
 describe("languageNode", () => {

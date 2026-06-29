@@ -821,7 +821,7 @@ export function updateActionWithMCP(): IQTreeNode {
             ? "oauth-dynamic"
             : "oauth",
         },
-        children: MCPForDAAuthCredentialNodes(),
+        children: [],
       },
     ],
   };
