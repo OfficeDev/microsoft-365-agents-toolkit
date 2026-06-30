@@ -261,6 +261,9 @@ describe("CLI commands", () => {
           "mcp-da-auth-type": "none",
           "api-auth": "none",
           "api-operation": ["GET /repairs"],
+          "azure-openai-key": "fake-key",
+          "azure-openai-endpoint": "https://test.com",
+          "azure-openai-deployment-name": "fake-deployment",
         },
         globalOptionValues: {},
         argumentValues: [],
@@ -279,6 +282,12 @@ describe("CLI commands", () => {
       assert.equal(inputs["api-auth"], "none");
       assert.deepEqual(inputs.apiOperations, ["GET /repairs"]);
       assert.deepEqual(inputs["api-operation"], ["GET /repairs"]);
+      assert.equal(inputs.azureOpenAIKey, "fake-key");
+      assert.equal(inputs["azure-openai-key"], "fake-key");
+      assert.equal(inputs.azureOpenAIEndpoint, "https://test.com");
+      assert.equal(inputs["azure-openai-endpoint"], "https://test.com");
+      assert.equal(inputs.azureOpenAIDeploymentName, "fake-deployment");
+      assert.equal(inputs["azure-openai-deployment-name"], "fake-deployment");
     });
 
     it("normalizes legacy create route flags to v4 selector keys without pinning template-name", async () => {

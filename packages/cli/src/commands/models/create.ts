@@ -35,6 +35,9 @@ const CREATE_INPUT_ALIASES: ReadonlyArray<readonly [string, string]> = [
   ["api-operation", "apiOperations"],
   ["mcp-da-server-url", "mcpServerUrl"],
   ["mcp-da-auth-type", "authType"],
+  ["azure-openai-key", "azureOpenAIKey"],
+  ["azure-openai-endpoint", "azureOpenAIEndpoint"],
+  ["azure-openai-deployment-name", "azureOpenAIDeploymentName"],
 ];
 
 const DECLARATIVE_AGENT_CAPABILITY = "declarative-agent";

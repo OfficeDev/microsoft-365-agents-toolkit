@@ -4,7 +4,9 @@
 import { UserError } from "@microsoft/teamsfx-api";
 import { assert } from "vitest";
 import { REQUIRE_EMPTY_TARGET } from "../../../src/v4/pipeline/runScaffoldPipeline";
+import { buildRenderContext } from "../../../src/v4/renderContext/buildRenderContext";
 import { createInMemoryRuntime } from "../../../src/v4/runtime/inMemoryRuntime";
+import { parseDeclaredKeys, parseReplaceMap } from "../../../src/v4/runtime/packageParse";
 import { scaffold } from "../../../src/v4/runtime/scaffold";
 import {
   loadV4Package,
@@ -53,6 +55,31 @@ describe("SCN-TEAMS-CREATE-TEAMS-COLLABORATOR-AGENT (v4, T3 InMemoryRuntime)", (
   it("SCN-CREATE-COLLABORATOR-03: only require-empty-target runs", async () => {
     const { outcome } = await run("typescript");
     assert.deepStrictEqual(outcome.stepsRun, ["require-empty-target"]);
+  });
+
+  it("SCN-CREATE-COLLABORATOR-03b: Azure OpenAI CLI inputs render into env variables", () => {
+    const replaceMap = parseReplaceMap(templatePackage.descriptor);
+    assert.isTrue(replaceMap.isOk());
+
+    const runtime = createInMemoryRuntime();
+    const renderContext = buildRenderContext(
+      replaceMap._unsafeUnwrap(),
+      {
+        azureOpenAIKey: "fake-key",
+        azureOpenAIEndpoint: "https://test.com",
+        azureOpenAIDeploymentName: "fake-deployment",
+      },
+      { appName, language: "typescript" },
+      runtime.exprPort,
+      parseDeclaredKeys(templatePackage.descriptor)
+    );
+
+    assert.isTrue(renderContext.isOk());
+    const vars = renderContext._unsafeUnwrap();
+    assert.strictEqual(vars.azureOpenAIKey, "fake-key");
+    assert.strictEqual(vars.originalAzureOpenAIKey, "fake-key");
+    assert.strictEqual(vars.azureOpenAIEndpoint, "https://test.com");
+    assert.strictEqual(vars.azureOpenAIDeploymentName, "fake-deployment");
   });
 
   it("SCN-CREATE-COLLABORATOR-04: a non-empty target fails require-empty-target first", async () => {
