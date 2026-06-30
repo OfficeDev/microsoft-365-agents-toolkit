@@ -400,6 +400,19 @@ describe("runCreateSelector (walk-create-selector)", () => {
     assert.notInclude(offered, "skill");
   });
 
+  it("WCS-22: DA add-action no longer offers the Office Add-in Action source", async () => {
+    const ui = new ScriptedUI(MCP_DA_PICKS);
+
+    const res = await runCreateSelector(buildFloor(), asUI(ui), "vscode", {
+      flagReader: flagsOn("TEAMSFX_DA_METAOS", "TEAMSFX_MCP_FOR_DA_DT"),
+    });
+
+    assert.isTrue(res.isOk());
+    const offered = offeredIds(ui.configByName.get("actionSource"));
+    assert.include(offered, "mcp");
+    assert.notInclude(offered, "da-meta-os");
+  });
+
   it("WCS-13: copilot\u2192skill with TEAMSFX_AGENT_SKILLS on resolves the v4 route", async () => {
     const picks = { projectType: "copilot-agent-type", daTemplate: "skill" };
     const ui = new ScriptedUI(picks);

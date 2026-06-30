@@ -54,7 +54,6 @@ const DA_TEMPLATE_BY_WITH_PLUGIN: Readonly<Record<string, string>> = {
 const ACTION_SOURCE_BY_ACTION_TYPE: Readonly<Record<string, string>> = {
   "new-api": NEW_API_ACTION_SOURCE,
   "api-spec": "openapi",
-  "da-meta-os": "da-meta-os",
   mcp: "mcp",
 };
 

@@ -181,7 +181,6 @@ const WITH_PLUGIN_BY_DA_TEMPLATE: Record<string, string> = {
 const ACTION_TYPE_BY_ACTION_SOURCE: Record<string, string> = {
   "new-api": "new-api",
   openapi: "api-spec",
-  "da-meta-os": "da-meta-os",
   mcp: "mcp",
 };
 
@@ -203,7 +202,6 @@ const OFFICE_CAPABILITY_BY_ADDIN_CAPABILITY: Record<string, string> = {
 
 /** Office-addin selector `daMetaOsCapability` → the v3 `da-meta-os-capability` answer. */
 const DA_META_OS_CAPABILITY_BY_SELECTOR: Record<string, string> = {
-  "declarative-agent-meta-os-new-project": "da-meta-os-new-project",
   "declarative-agent-meta-os-upgrade-project": "da-meta-os-upgrade-existing-project",
 };
 

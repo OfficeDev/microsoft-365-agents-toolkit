@@ -34,7 +34,6 @@ const CURRENT_CREATE_V4_TEMPLATE_IDS = [
   "custom-copilot-rag-azure-ai-search",
   "custom-copilot-rag-custom-api",
   "custom-copilot-rag-customize",
-  "declarative-agent-meta-os-new-project",
   "declarative-agent-meta-os-upgrade-project",
   "default-bot",
   "default-message-extension",
