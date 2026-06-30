@@ -538,6 +538,57 @@ describe("createProjectFrontDoor (dispatch-create-by-engine)", () => {
     }
   });
 
+  it("DCE-18b: legacy CLI MCP server URL is fetched into static v4 MCP Q2 params", async () => {
+    const runInputs = inputsRecorder({});
+    const fetchMcpTools = recorder((serverUrl: string) =>
+      Promise.resolve({
+        requiresAuth: false,
+        tools: [
+          {
+            name: "microsoft_docs_search",
+            description: `Search official docs from ${serverUrl}`,
+            inputSchema: { type: "object", properties: {} },
+          },
+        ],
+      })
+    );
+    const inputs: Inputs = {
+      platform: Platform.CLI,
+      nonInteractive: true,
+      [QuestionNames.MCPForDAServerUrl]: "https://learn.microsoft.com/api/mcp",
+      authType: "none",
+    };
+
+    const res = await createProjectFrontDoor(
+      inputs,
+      deps({
+        runSelector: selectorRecorder(STATIC_MCP_TARGET).fn,
+        runInputs: runInputs.fn,
+        collectCreateFloor: okFloor,
+        scaffoldV4: okScaffold,
+        fetchMcpTools: fetchMcpTools.fn,
+      })
+    );
+
+    assert.isTrue(res.isOk());
+    assert.deepEqual(fetchMcpTools.calls, [["https://learn.microsoft.com/api/mcp"]]);
+    const mcpToolsJson = runInputs.calls[0][2].mcpToolsJson;
+    if (typeof mcpToolsJson !== "string") {
+      assert.fail("Expected mcpToolsJson to be fetched and bridged as a string.");
+    }
+    assert.equal(runInputs.calls[0][2].mcpServerUrl, "https://learn.microsoft.com/api/mcp");
+    assert.deepEqual(JSON.parse(mcpToolsJson), {
+      tools: [
+        {
+          name: "microsoft_docs_search",
+          description: "Search official docs from https://learn.microsoft.com/api/mcp",
+          inputSchema: { type: "object", properties: {} },
+        },
+      ],
+    });
+    assert.deepEqual(runInputs.calls[0][2].selectedMcpTools, ["microsoft_docs_search"]);
+  });
+
   it("DCE-17b: Office Add-in folder input is passed to the v4 input walk under its neutral key", async () => {
     const target: BuildTarget = {
       templateId: "declarative-agent-meta-os-upgrade-project",
