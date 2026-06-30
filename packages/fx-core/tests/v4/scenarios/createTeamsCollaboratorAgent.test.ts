@@ -60,11 +60,11 @@ describe("SCN-TEAMS-CREATE-TEAMS-COLLABORATOR-AGENT (v4, T3 InMemoryRuntime)", (
     assert.strictEqual(dependencies["@microsoft/teams.ai"], "2.0.12");
     assert.strictEqual(dependencies["@microsoft/teams.api"], "2.0.12");
     assert.strictEqual(dependencies["@microsoft/teams.apps"], "2.0.12");
-    assert.strictEqual(dependencies["@microsoft/teams.cards"], "2.0.12");
     assert.strictEqual(dependencies["@microsoft/teams.common"], "2.0.12");
     assert.strictEqual(dependencies["@microsoft/teams.dev"], "2.0.12");
-    assert.strictEqual(dependencies["@microsoft/teams.graph"], "2.0.12");
     assert.strictEqual(dependencies["@microsoft/teams.openai"], "2.0.12");
+    assert.strictEqual(dependencies["@microsoft/teams.cards"], undefined);
+    assert.strictEqual(dependencies["@microsoft/teams.graph"], undefined);
   });
 
   it("SCN-CREATE-COLLABORATOR-03: only require-empty-target runs", async () => {
