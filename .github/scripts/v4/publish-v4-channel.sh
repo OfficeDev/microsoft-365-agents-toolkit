@@ -42,6 +42,10 @@ RAW_VERSION="${TEMPLATE_TAG#templates@}"
 # the VSIX vsc-version.sh mints; a stable version is already clean.
 CONFIG_FILE="packages/fx-core/src/common/templates-config.json"
 VERSION="$(node -p "(require('./$CONFIG_FILE').v4 || {}).localVersion || '$RAW_VERSION'")"
+if [[ "$VERSION" == *-* || "$VERSION" == *+* ]]; then
+  echo "v4 publish version must be clean, got '$VERSION'." >&2
+  exit 1
+fi
 
 TAG="templates-v4@$VERSION"
 NDJSON="$TMP/template-v4-tags.ndjson"

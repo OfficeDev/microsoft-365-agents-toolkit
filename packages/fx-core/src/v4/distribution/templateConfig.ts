@@ -51,9 +51,12 @@ export function computeV4PublishVersion(version: string): string {
   if (parsed === null) {
     throw new Error(`Cannot compute v4 publish version: "${version}" is not valid SemVer.`);
   }
-  const dateStamp = parsed.prerelease.find(
-    (segment): segment is number => typeof segment === "number" && segment >= 1_000_000_000
-  );
+  const dateStamp =
+    parsed.prerelease[0] === "beta"
+      ? parsed.prerelease.find(
+          (segment): segment is number => typeof segment === "number" && segment >= 1_000_000_000
+        )
+      : undefined;
   if (dateStamp !== undefined) {
     const minor = parsed.minor % 2 === 0 ? parsed.minor + 1 : parsed.minor;
     return `${parsed.major}.${minor}.${dateStamp}`;

@@ -36,6 +36,10 @@ describe("templateConfig (v4 build-time)", () => {
       assert.strictEqual(computeV4PublishVersion("6.10.4-beta.2026062608.0"), "6.11.2026062608");
     });
 
+    it("non-beta prerelease with a large numeric segment → major.minor.patch", () => {
+      assert.strictEqual(computeV4PublishVersion("6.10.4-rc.2026062608.0"), "6.10.4");
+    });
+
     it("throws on a non-SemVer version (no silent fallback)", () => {
       expect(() => computeV4PublishVersion("not-semver")).toThrow(/not valid SemVer/);
     });
