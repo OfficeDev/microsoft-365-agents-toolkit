@@ -2,11 +2,13 @@
 // Licensed under the MIT license.
 
 import { Inputs, Platform, UserError, err, ok } from "@microsoft/teamsfx-api";
-import fs from "fs-extra";
+import * as fs from "fs-extra";
+import os from "os";
 import path from "path";
 import { assert, vi } from "vitest";
 
 import { setTools } from "../../src/common/globalVars";
+import { TelemetryEvent, TelemetryProperty, TelemetrySuccess } from "../../src/common/telemetry";
 import { coordinator } from "../../src/component/coordinator";
 import { pathUtils } from "../../src/component/utils/pathUtils";
 import {
@@ -25,6 +27,12 @@ const TEMPLATE_SOURCE: TemplateSource = {
   digest: "sha256:test",
   location: "test",
 };
+
+let tempFolderIndex = 0;
+function tempFolder(): string {
+  tempFolderIndex += 1;
+  return path.join(os.tmpdir(), "create-front-door-adapters", `${process.pid}-${tempFolderIndex}`);
+}
 
 describe("createFrontDoorAdapters", () => {
   const tools = new MockTools();
@@ -375,24 +383,104 @@ describe("createFrontDoorAdapters", () => {
       assert.deepEqual(firstCall[3], { appName: "MyApp", language: "common" });
     });
 
-    it("ensures the tracking id when the scaffold wrote a teamsapp.yml", async () => {
-      vi.spyOn(scaffoldV4Deps, "scaffoldDeclarativeFromV4Channel").mockResolvedValue(
-        TEMPLATE_SOURCE
+    it("DCE-21: emits v3-compatible generate-template telemetry when v4 scaffold succeeds", async () => {
+      vi.spyOn(scaffoldV4Deps, "scaffoldDeclarativeFromV4Channel").mockImplementation(
+        async (_context, _locator, _answers, _callerFloor, telemetryProps) => {
+          Object.assign(telemetryProps ?? {}, {
+            [TelemetryProperty.TemplatePackageSource]: TEMPLATE_SOURCE.origin,
+            [TelemetryProperty.TemplatePackageVersion]: TEMPLATE_SOURCE.version,
+            [TelemetryProperty.TemplatePackageDigest]: TEMPLATE_SOURCE.digest,
+          });
+          return TEMPLATE_SOURCE;
+        }
       );
-      vi.spyOn(pathUtils, "getYmlFilePath").mockReturnValue("/tmp/MyApp/teamsapp.yml");
-      vi.spyOn(fs, "pathExists").mockResolvedValue(true);
-      const ensure = vi.spyOn(coordinator, "ensureTrackingId").mockResolvedValue(ok("tracking-id"));
+      vi.spyOn(pathUtils, "getYmlFilePath").mockReturnValue(undefined);
+      const sendTelemetry = vi.spyOn(tools.telemetryReporter, "sendTelemetryEvent");
       const inputs: Inputs = {
         platform: Platform.VSCode,
         [QuestionNames.Folder]: "/tmp",
         [QuestionNames.AppName]: "MyApp",
+        [QuestionNames.TemplateName]: "declarative-agent-with-action-from-mcp",
+      };
+
+      const res = await scaffoldV4(inputs, v4Target, { language: "typescript" });
+
+      assert.isTrue(res.isOk());
+      assert.equal(sendTelemetry.mock.calls.length, 1);
+      assert.equal(sendTelemetry.mock.calls[0][0], TelemetryEvent.GenerateTemplate);
+      assert.equal(
+        sendTelemetry.mock.calls[0][1]?.[TelemetryProperty.TemplateName],
+        "declarative-agent-with-action-from-mcp-ts"
+      );
+      assert.equal(
+        sendTelemetry.mock.calls[0][1]?.[TelemetryProperty.Success],
+        TelemetrySuccess.Yes
+      );
+      assert.equal(
+        sendTelemetry.mock.calls[0][1]?.[TelemetryProperty.TemplatePackageSource],
+        "bundled"
+      );
+      assert.equal(
+        sendTelemetry.mock.calls[0][1]?.[TelemetryProperty.TemplatePackageVersion],
+        "1.0.0"
+      );
+      assert.equal(
+        sendTelemetry.mock.calls[0][1]?.[TelemetryProperty.TemplatePackageDigest],
+        "sha256:test"
+      );
+    });
+
+    it("DCE-21: emits generate-template error telemetry when v4 scaffold fails", async () => {
+      vi.spyOn(scaffoldV4Deps, "scaffoldDeclarativeFromV4Channel").mockRejectedValue(
+        new Error("channel boom")
+      );
+      const sendTelemetryError = vi.spyOn(tools.telemetryReporter, "sendTelemetryErrorEvent");
+      const inputs: Inputs = {
+        platform: Platform.VSCode,
+        [QuestionNames.Folder]: "/tmp",
+        [QuestionNames.AppName]: "MyApp",
+        [QuestionNames.TemplateName]: "declarative-agent-with-action-from-mcp",
       };
 
       const res = await scaffoldV4(inputs, v4Target, {});
 
-      assert.isTrue(res.isOk());
-      assert.equal(res._unsafeUnwrap().projectId, "tracking-id");
-      assert.equal(ensure.mock.calls.length, 1);
+      assert.isTrue(res.isErr());
+      assert.equal(sendTelemetryError.mock.calls.length, 1);
+      assert.equal(sendTelemetryError.mock.calls[0][0], TelemetryEvent.GenerateTemplate);
+      assert.equal(
+        sendTelemetryError.mock.calls[0][1]?.[TelemetryProperty.TemplateName],
+        "declarative-agent-with-action-from-mcp-common"
+      );
+      assert.equal(
+        sendTelemetryError.mock.calls[0][1]?.[TelemetryProperty.Success],
+        TelemetrySuccess.No
+      );
+    });
+
+    it("ensures the tracking id when the scaffold wrote a teamsapp.yml", async () => {
+      vi.spyOn(scaffoldV4Deps, "scaffoldDeclarativeFromV4Channel").mockResolvedValue(
+        TEMPLATE_SOURCE
+      );
+      const folder = tempFolder();
+      const ymlPath = path.join(folder, "MyApp", "teamsapp.yml");
+      await fs.ensureFile(ymlPath);
+      vi.spyOn(pathUtils, "getYmlFilePath").mockReturnValue(ymlPath);
+      const ensure = vi.spyOn(coordinator, "ensureTrackingId").mockResolvedValue(ok("tracking-id"));
+      const inputs: Inputs = {
+        platform: Platform.VSCode,
+        [QuestionNames.Folder]: folder,
+        [QuestionNames.AppName]: "MyApp",
+      };
+
+      try {
+        const res = await scaffoldV4(inputs, v4Target, {});
+
+        assert.isTrue(res.isOk());
+        assert.equal(res._unsafeUnwrap().projectId, "tracking-id");
+        assert.equal(ensure.mock.calls.length, 1);
+      } finally {
+        await fs.remove(folder);
+      }
     });
 
     it("defaults the caller-floor language to common when the target has none", async () => {
@@ -432,10 +520,9 @@ describe("createFrontDoorAdapters", () => {
     it("skips the floor when folder + app-name are already preset (asks no UI)", async () => {
       // a preset app-name is validated (pattern + path-not-exists) but never re-asked;
       // MockTools UI throws if prompted, so an ok proves the preset-skip path.
-      vi.spyOn(fs, "pathExists").mockResolvedValue(false);
       const inputs: Inputs = {
         platform: Platform.VSCode,
-        [QuestionNames.Folder]: "/tmp",
+        [QuestionNames.Folder]: tempFolder(),
         [QuestionNames.AppName]: "MyApp",
       };
 
@@ -444,26 +531,49 @@ describe("createFrontDoorAdapters", () => {
       assert.isTrue(res.isOk());
     });
 
-    it("short-circuits on a preset template-name (the CLI non-interactive contract)", async () => {
-      // template-name preset ⇒ traverse returns before any question, so an absent
-      // folder/app-name is taken from the CLI options downstream, never prompted.
+    it("does not short-circuit on a preset template-name in interactive v4 floor collection", async () => {
+      const pickedFolder = tempFolder();
+      vi.spyOn(tools.ui, "selectFolder").mockResolvedValue(
+        ok({ type: "success", result: pickedFolder })
+      );
+      vi.spyOn(tools.ui, "inputText").mockResolvedValue(
+        ok({ type: "success", result: "PickedApp" })
+      );
       const inputs: Inputs = {
-        platform: Platform.CLI,
+        platform: Platform.VSCode,
         [QuestionNames.TemplateName]: "da/mcp-server",
       };
 
       const res = await collectCreateFloor(inputs, tools.ui);
 
       assert.isTrue(res.isOk());
+      assert.equal(inputs[QuestionNames.Folder], pickedFolder);
+      assert.equal(inputs[QuestionNames.AppName], "PickedApp");
+    });
+
+    it("uses the folder default and fails on missing app-name in non-interactive mode", async () => {
+      const inputs: Inputs = {
+        platform: Platform.CLI,
+        nonInteractive: true,
+        [QuestionNames.TemplateName]: "da/mcp-server",
+      };
+
+      const res = await collectCreateFloor(inputs, tools.ui);
+
+      assert.isTrue(res.isErr());
+      if (res.isErr()) {
+        assert.equal(res.error.name, "MissingRequiredInputError");
+      }
+      assert.equal(inputs[QuestionNames.Folder], "./");
     });
 
     it("prompts an interactive surface and writes the answers back to inputs", async () => {
       // VS Code interactive, no preset floor ⇒ the floor questions are asked and the
       // answers land on the same inputs bag scaffoldV4 then reads (the bug this fixes:
       // without it the v4 path reached scaffoldV4 with folder undefined).
-      vi.spyOn(fs, "pathExists").mockResolvedValue(false);
+      const pickedFolder = tempFolder();
       vi.spyOn(tools.ui, "selectFolder").mockResolvedValue(
-        ok({ type: "success", result: "/picked" })
+        ok({ type: "success", result: pickedFolder })
       );
       vi.spyOn(tools.ui, "inputText").mockResolvedValue(
         ok({ type: "success", result: "PickedApp" })
@@ -473,7 +583,7 @@ describe("createFrontDoorAdapters", () => {
       const res = await collectCreateFloor(inputs, tools.ui);
 
       assert.isTrue(res.isOk());
-      assert.equal(inputs[QuestionNames.Folder], "/picked");
+      assert.equal(inputs[QuestionNames.Folder], pickedFolder);
       assert.equal(inputs[QuestionNames.AppName], "PickedApp");
     });
 

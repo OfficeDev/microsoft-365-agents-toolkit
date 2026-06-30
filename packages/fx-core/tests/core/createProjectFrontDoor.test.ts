@@ -1,8 +1,14 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { CreateProjectResult, FxError, Inputs, Platform, UserError } from "@microsoft/teamsfx-api";
-import { UserInteraction } from "@microsoft/teamsfx-api";
+import {
+  CreateProjectResult,
+  FxError,
+  Inputs,
+  Platform,
+  UserError,
+  UserInteraction,
+} from "@microsoft/teamsfx-api";
 import fs from "fs-extra";
 import { Result, err, ok } from "neverthrow";
 import os from "os";
@@ -574,6 +580,7 @@ describe("createProjectFrontDoor (dispatch-create-by-engine)", () => {
     );
     const collectFloor = recorder((_i: Inputs, _ui: UserInteraction) => {
       order.push("floor");
+      assert.equal(_i["template-name"], "declarative-agent-with-action-from-mcp");
       return okFloor();
     });
     const scaffoldV4 = recorder((_i: Inputs, _t: BuildTarget, _a: Answers) => {
@@ -596,6 +603,7 @@ describe("createProjectFrontDoor (dispatch-create-by-engine)", () => {
     assert.deepEqual(order, ["q2", "floor", "scaffold"]); // floor sits between Q2 and the scaffold
     // the floor mutates the same inputs bag scaffoldV4 then scaffolds from.
     assert.strictEqual(collectFloor.calls[0][0], scaffoldV4.calls[0][0]);
+    assert.equal(scaffoldV4.calls[0][0]["template-name"], "declarative-agent-with-action-from-mcp");
   });
 
   it("DCE-15: a create-floor cancellation propagates and does not scaffold", async () => {
@@ -652,12 +660,13 @@ describe("createProjectFrontDoor (dispatch-create-by-engine)", () => {
     }
   });
 
-  it("propagates a Q2 error and does not scaffold", async () => {
+  it("DCE-19: a v4 target maps its template id to the v3 telemetry template before Q2", async () => {
     const q2Failed = new UserError({ source: "Test", name: "Q2Failed", message: "bad inputs" });
     const scaffoldV4 = recorder((_i: Inputs, _t: BuildTarget, _a: Answers) => okResult("/v4"));
+    const inputs = baseInputs();
 
     const res = await createProjectFrontDoor(
-      baseInputs(),
+      inputs,
       deps({
         scaffoldV4: scaffoldV4.fn,
         runSelector: () => okTarget(V4_TARGET),
@@ -670,6 +679,24 @@ describe("createProjectFrontDoor (dispatch-create-by-engine)", () => {
       assert.equal(res.error.name, "Q2Failed");
     }
     assert.equal(scaffoldV4.calls.length, 0);
+    assert.equal(inputs["template-name"], "declarative-agent-with-action-from-mcp");
+  });
+
+  it("DCE-20: an unmapped v4 telemetry template id falls back to itself", async () => {
+    const q2Failed = new UserError({ source: "Test", name: "Q2Failed", message: "bad inputs" });
+    const target: BuildTarget = { templateId: "future/v4-template", engine: "v4", answers: {} };
+    const inputs = baseInputs();
+
+    const res = await createProjectFrontDoor(
+      inputs,
+      deps({
+        runSelector: () => okTarget(target),
+        runInputs: () => Promise.resolve(err(q2Failed)),
+      })
+    );
+
+    assert.isTrue(res.isErr());
+    assert.equal(inputs["template-name"], "future/v4-template");
   });
 
   it("fails loudly on an unsupported create engine (v3-core-method)", async () => {
