@@ -289,8 +289,7 @@
     {
       "when": "projectType=='teams-agent-and-app-type' && teamsApp=='rag' && customCopilotRagType=='custom-copilot-rag-custom-api'",
       "templateId": "custom-copilot-rag-custom-api",
-      "engine": "v3",
-      "v3Adapter": "CustomEngineAgentWithExistingApiSpecGenerator"
+      "engine": "v4"
     },
     {
       "when": "projectType=='teams-agent-and-app-type' && teamsApp=='teams-collaborator-agent'",
@@ -335,8 +334,7 @@
     {
       "when": "projectType=='office-meta-os-type' && officeAddinCapability=='office-addin-config'",
       "templateId": "office-addin-config",
-      "engine": "v3",
-      "v3Adapter": "OfficeAddinGeneratorNew"
+      "engine": "v4"
     },
     {
       "when": "projectType=='copilot-agent-type' && daTemplate=='no-action'",

@@ -140,6 +140,10 @@ function neutralAnswersFromInputs(inputs: Inputs): Answers {
   if (typeof officeAddinFolder === "string" && answers.officeAddinFolder === undefined) {
     answers.officeAddinFolder = officeAddinFolder;
   }
+  const officeAddinManifest = inputs[QuestionNames.OfficeAddinManifest];
+  if (typeof officeAddinManifest === "string" && answers.officeAddinManifest === undefined) {
+    answers.officeAddinManifest = officeAddinManifest;
+  }
   return answers;
 }
 

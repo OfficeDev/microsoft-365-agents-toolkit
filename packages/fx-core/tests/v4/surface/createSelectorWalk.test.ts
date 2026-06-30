@@ -249,6 +249,27 @@ describe("runCreateSelector (walk-create-selector)", () => {
     assert.deepEqual(ui.selectNames, ["projectType", "teamsApp", "customCopilotRagType"]);
   });
 
+  it("WCS-02g: teams→rag→custom-copilot-rag-custom-api resolves the v4 route", async () => {
+    const picks = {
+      projectType: "teams-agent-and-app-type",
+      teamsApp: "rag",
+      customCopilotRagType: "custom-copilot-rag-custom-api",
+    };
+    const ui = new ScriptedUI(picks);
+
+    const res = await runCreateSelector(buildFloor(), asUI(ui), "vscode", {
+      flagReader: () => false,
+    });
+
+    assert.isTrue(res.isOk());
+    if (res.isOk()) {
+      assert.equal(res.value.templateId, "custom-copilot-rag-custom-api");
+      assert.equal(res.value.engine, "v4");
+      assert.deepEqual(res.value.answers, picks);
+    }
+    assert.deepEqual(ui.selectNames, ["projectType", "teamsApp", "customCopilotRagType"]);
+  });
+
   it("WCS-03: teams→other→default-bot resolves the nested v4 route and surfaces its answers", async () => {
     const picks = {
       projectType: "teams-agent-and-app-type",
@@ -484,6 +505,24 @@ describe("runCreateSelector (walk-create-selector)", () => {
     assert.isTrue(res.isOk());
     if (res.isOk()) {
       assert.equal(res.value.templateId, "office-addin-excel-cfshortcut");
+      assert.equal(res.value.engine, "v4");
+      assert.deepEqual(res.value.answers, picks);
+    }
+    assert.deepEqual(ui.selectNames, ["projectType", "officeAddinCapability"]);
+  });
+
+  it("WCS-22b: Office Add-in common configuration resolves the v4 route", async () => {
+    const picks = {
+      projectType: "office-meta-os-type",
+      officeAddinCapability: "office-addin-config",
+    };
+    const ui = new ScriptedUI(picks);
+
+    const res = await runCreateSelector(buildFloor(), asUI(ui), "vscode");
+
+    assert.isTrue(res.isOk());
+    if (res.isOk()) {
+      assert.equal(res.value.templateId, "office-addin-config");
       assert.equal(res.value.engine, "v4");
       assert.deepEqual(res.value.answers, picks);
     }

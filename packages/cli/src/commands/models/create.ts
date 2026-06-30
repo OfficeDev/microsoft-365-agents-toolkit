@@ -33,6 +33,7 @@ const CREATE_INPUT_ALIASES: ReadonlyArray<readonly [string, string]> = [
   ["api-auth", "apiAuth"],
   ["openapi-spec-location", "apiSpecLocation"],
   ["api-operation", "apiOperations"],
+  ["addin-project-manifest", "officeAddinManifest"],
   ["mcp-da-server-url", "mcpServerUrl"],
   ["mcp-da-auth-type", "authType"],
 ];
@@ -115,6 +116,11 @@ const MIGRATION_CREATE_OPTIONS: CLICommandOption[] = [
     name: "addin-project-folder",
     type: "string",
     description: "Existing Office Add-in project folder.",
+  },
+  {
+    name: "addin-project-manifest",
+    type: "string",
+    description: "Existing Office Add-in manifest file.",
   },
 ];
 
