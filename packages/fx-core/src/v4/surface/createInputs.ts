@@ -26,6 +26,7 @@ import { Answers, DeclarativeLocator } from "../model/dataModel";
 import { parseDeclaredKeys } from "../runtime/packageParse";
 import { createExpressionPort } from "../runtime/whitelist";
 import { createUiPromptUI } from "./uiPromptUI";
+import { readBooleanFeatureFlag } from "../../common/featureFlags";
 
 /** Live create-path surface wiring for `collect-inputs`. See collect-create-inputs spec. */
 
@@ -243,7 +244,7 @@ const CSHARP_LANGUAGE = "csharp";
 
 /** The default env-backed feature-flag reader (a flag is on iff its env var is exactly `"true"`). */
 function envFlagReader(name: string): boolean {
-  return process.env[name] === "true";
+  return readBooleanFeatureFlag(name);
 }
 
 /** Gate `csharp` by surface and the .NET flag; other languages pass through. */

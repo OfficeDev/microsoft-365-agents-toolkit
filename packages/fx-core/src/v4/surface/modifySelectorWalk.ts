@@ -18,6 +18,7 @@ import {
 import { openModifySelector, openModifySelectorPresentation } from "../distribution/createSelector";
 import { openDeclarativePackage } from "../distribution/declarativePackage";
 import { ExpressionRuntimePort, Scope, evaluateExpression } from "../expression/evaluateExpression";
+import { readBooleanFeatureFlag } from "../../common/featureFlags";
 
 const SOURCE = "Scaffold";
 
@@ -28,7 +29,7 @@ export interface ModifySelectorDeps {
 }
 
 function envFlagReader(name: string): boolean {
-  return process.env[name] === "true";
+  return readBooleanFeatureFlag(name);
 }
 
 function toFxError(e: unknown): FxError {

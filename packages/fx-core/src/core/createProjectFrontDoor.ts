@@ -23,7 +23,7 @@ import {
   runCreateSelector,
 } from "../v4";
 import { parseMcpStaticToolsJson } from "../v4/mcp/mcpStaticTools";
-import { FeatureFlags, featureFlagManager } from "../common/featureFlags";
+import { FeatureFlags, readBooleanFeatureFlag } from "../common/featureFlags";
 import { TOOLS } from "../common/globalVars";
 import { QuestionNames } from "../question/questionNames";
 
@@ -84,7 +84,8 @@ export interface CreateFrontDoorDeps {
   scaffoldV4: (
     inputs: Inputs,
     target: BuildTarget,
-    answers: Answers
+    answers: Answers,
+    flagReader: (name: string) => boolean
   ) => Promise<Result<CreateProjectResult, FxError>>;
   /**
    * The engine=v4 create-floor collection: ask `folder` + `app-name`. The v4 path
@@ -112,7 +113,7 @@ export interface CreateFrontDoorDeps {
 
 /** The default `featureFlagManager`-backed reader (a flag is on per its env var / VS Code setting). */
 function defaultFlagReader(name: string): boolean {
-  return featureFlagManager.getBooleanValue({ name, defaultValue: "false" });
+  return readBooleanFeatureFlag(name);
 }
 
 /** Read the shipped bundled-floor channel zip (the default `readFloorBytes`). */
@@ -311,7 +312,7 @@ export async function createProjectFrontDoor(
       if (floorRes.isErr()) {
         return err(floorRes.error);
       }
-      return deps.scaffoldV4(inputs, target.value, answers.value);
+      return deps.scaffoldV4(inputs, target.value, answers.value, flagReader);
     }
     case "v3-core-method":
       // The shipped create selector carries no v3-core-method route; fail loudly

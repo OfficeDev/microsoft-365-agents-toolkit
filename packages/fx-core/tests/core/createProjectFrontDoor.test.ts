@@ -83,7 +83,8 @@ const okFloor = (): Promise<Result<undefined, FxError>> => Promise.resolve(ok(un
 const okScaffold = (
   _inputs: Inputs,
   _target: BuildTarget,
-  _answers: Answers
+  _answers: Answers,
+  _flagReader?: (name: string) => boolean
 ): Promise<Result<CreateProjectResult, FxError>> => okResult("/v4");
 
 /** A typed `runCreateSelector` stub that records its `(floor, ui, surface, deps)` args. */
@@ -129,7 +130,8 @@ const failCreateV3 = (_inputs: Inputs): Promise<Result<CreateProjectResult, FxEr
 const failScaffoldV4 = (
   _inputs: Inputs,
   _target: BuildTarget,
-  _answers: Answers
+  _answers: Answers,
+  _flagReader?: (name: string) => boolean
 ): Promise<Result<CreateProjectResult, FxError>> => {
   throw new Error("scaffoldV4 must not run on this path");
 };
@@ -203,8 +205,12 @@ describe("createProjectFrontDoor (dispatch-create-by-engine)", () => {
     };
     const createV3 = recorder((_inputs: Inputs) => okResult("/v3"));
     const runInputs = inputsRecorder(q2);
-    const scaffoldV4 = recorder((_i: Inputs, _t: BuildTarget, _a: Answers) => okResult("/v4"));
+    const scaffoldV4 = recorder(
+      (_i: Inputs, _t: BuildTarget, _a: Answers, _flagReader: (name: string) => boolean) =>
+        okResult("/v4")
+    );
     const runSelector = selectorRecorder(V4_TARGET);
+    const flagReader = (name: string): boolean => name === FeatureFlags.V4Enabled.name;
 
     const res = await createProjectFrontDoor(
       baseInputs(),
@@ -214,6 +220,7 @@ describe("createProjectFrontDoor (dispatch-create-by-engine)", () => {
         runSelector: runSelector.fn,
         runInputs: runInputs.fn,
         collectCreateFloor: okFloor,
+        flagReader,
       })
     );
 
@@ -225,6 +232,7 @@ describe("createProjectFrontDoor (dispatch-create-by-engine)", () => {
     assert.equal(runInputs.calls[0][4]?.surface, "vscode"); // host platform → inputs surface (gates csharp)
     assert.deepEqual(scaffoldV4.calls[0][1], V4_TARGET);
     assert.deepEqual(scaffoldV4.calls[0][2], q2);
+    assert.strictEqual(scaffoldV4.calls[0][3], flagReader);
   });
 
   it("DCE-03: the Q2 answers reach scaffoldV4 under the create locator", async () => {
@@ -234,7 +242,10 @@ describe("createProjectFrontDoor (dispatch-create-by-engine)", () => {
       authType: "none",
     };
     const runInputs = inputsRecorder(q2);
-    const scaffoldV4 = recorder((_i: Inputs, _t: BuildTarget, _a: Answers) => okResult("/v4"));
+    const scaffoldV4 = recorder(
+      (_i: Inputs, _t: BuildTarget, _a: Answers, _flagReader: (name: string) => boolean) =>
+        okResult("/v4")
+    );
 
     const res = await createProjectFrontDoor(
       baseInputs(),
@@ -276,8 +287,9 @@ describe("createProjectFrontDoor (dispatch-create-by-engine)", () => {
   });
 
   it("DCE-05: DT-off DA+MCP resolves the v4 static route and bypasses createV3", async () => {
-    const scaffoldV4 = recorder((_i: Inputs, _t: BuildTarget, _a: Answers) =>
-      okResult("/v4-static")
+    const scaffoldV4 = recorder(
+      (_i: Inputs, _t: BuildTarget, _a: Answers, _flagReader: (name: string) => boolean) =>
+        okResult("/v4-static")
     );
     const runInputs = recorder((_floor: Buffer, _locator: DeclarativeLocator) =>
       Promise.resolve(ok<Answers, FxError>({ selectedMcpTools: ["search"] }))
@@ -382,7 +394,10 @@ describe("createProjectFrontDoor (dispatch-create-by-engine)", () => {
       answers: {},
     });
     const runInputs = inputsRecorder(q2);
-    const scaffoldV4 = recorder((_i: Inputs, _t: BuildTarget, _a: Answers) => okResult("/v4"));
+    const scaffoldV4 = recorder(
+      (_i: Inputs, _t: BuildTarget, _a: Answers, _flagReader: (name: string) => boolean) =>
+        okResult("/v4")
+    );
 
     const res = await createProjectFrontDoor(
       presetInputs("da/mcp-server"),
@@ -576,10 +591,12 @@ describe("createProjectFrontDoor (dispatch-create-by-engine)", () => {
       order.push("floor");
       return okFloor();
     });
-    const scaffoldV4 = recorder((_i: Inputs, _t: BuildTarget, _a: Answers) => {
-      order.push("scaffold");
-      return okResult("/v4");
-    });
+    const scaffoldV4 = recorder(
+      (_i: Inputs, _t: BuildTarget, _a: Answers, _flagReader: (name: string) => boolean) => {
+        order.push("scaffold");
+        return okResult("/v4");
+      }
+    );
 
     const res = await createProjectFrontDoor(
       baseInputs(),
@@ -600,7 +617,10 @@ describe("createProjectFrontDoor (dispatch-create-by-engine)", () => {
 
   it("DCE-15: a create-floor cancellation propagates and does not scaffold", async () => {
     const cancel = new UserError({ source: "Test", name: "UserCancelError", message: "cancel" });
-    const scaffoldV4 = recorder((_i: Inputs, _t: BuildTarget, _a: Answers) => okResult("/v4"));
+    const scaffoldV4 = recorder(
+      (_i: Inputs, _t: BuildTarget, _a: Answers, _flagReader: (name: string) => boolean) =>
+        okResult("/v4")
+    );
 
     const res = await createProjectFrontDoor(
       baseInputs(),
@@ -629,20 +649,22 @@ describe("createProjectFrontDoor (dispatch-create-by-engine)", () => {
     assert.equal(vs.calls[0][2], "vs");
   });
 
-  it("defaults the flag reader to featureFlagManager (V4 off ⇒ pass-through)", async () => {
+  it("defaults the flag reader to featureFlagManager (V4 on ⇒ selector)", async () => {
     const saved = process.env[FeatureFlags.V4Enabled.name];
     delete process.env[FeatureFlags.V4Enabled.name];
     try {
       const createV3 = recorder((_inputs: Inputs) => okResult("/v3"));
+      const runSelector = selectorRecorder(SURFACE_ACTION_TARGET);
 
       const res = await createProjectFrontDoor(
         baseInputs(),
-        // no flagReader override → the real featureFlagManager default reads V4 off.
-        deps({ createV3: createV3.fn, flagReader: undefined, runSelector: failRunSelector })
+        // no flagReader override → the real featureFlagManager default reads V4 on.
+        deps({ createV3: createV3.fn, flagReader: undefined, runSelector: runSelector.fn })
       );
 
       assert.isTrue(res.isOk());
-      assert.equal(createV3.calls.length, 1);
+      assert.equal(runSelector.calls.length, 1);
+      assert.equal(createV3.calls.length, 0);
     } finally {
       if (saved === undefined) {
         delete process.env[FeatureFlags.V4Enabled.name];
@@ -654,7 +676,10 @@ describe("createProjectFrontDoor (dispatch-create-by-engine)", () => {
 
   it("propagates a Q2 error and does not scaffold", async () => {
     const q2Failed = new UserError({ source: "Test", name: "Q2Failed", message: "bad inputs" });
-    const scaffoldV4 = recorder((_i: Inputs, _t: BuildTarget, _a: Answers) => okResult("/v4"));
+    const scaffoldV4 = recorder(
+      (_i: Inputs, _t: BuildTarget, _a: Answers, _flagReader: (name: string) => boolean) =>
+        okResult("/v4")
+    );
 
     const res = await createProjectFrontDoor(
       baseInputs(),
