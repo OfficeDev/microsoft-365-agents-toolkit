@@ -52,7 +52,7 @@ describe("SCN-TEAMS-CREATE-TEAMS-COLLABORATOR-AGENT (v4, T3 InMemoryRuntime)", (
     assert.strictEqual(name.short, "My Collaborator Agent${{APP_NAME_SUFFIX}}");
   });
 
-  it("SCN-CREATE-COLLABORATOR-02b: Teams SDK peer packages are pinned to one version", async () => {
+  it("SCN-CREATE-COLLABORATOR-SDK: Teams SDK peer packages are pinned to one version", async () => {
     const { files } = await run("typescript");
     const pkg = readJsonObject(files, "package.json");
     const dependencies = recordProperty(pkg, "dependencies");
@@ -72,7 +72,7 @@ describe("SCN-TEAMS-CREATE-TEAMS-COLLABORATOR-AGENT (v4, T3 InMemoryRuntime)", (
     assert.deepStrictEqual(outcome.stepsRun, ["require-empty-target"]);
   });
 
-  it("SCN-CREATE-COLLABORATOR-03b: Azure OpenAI CLI inputs render into env variables", () => {
+  it("SCN-CREATE-COLLABORATOR-AOAI: Azure OpenAI CLI inputs render into env variables", () => {
     const replaceMap = parseReplaceMap(templatePackage.descriptor);
     assert.isTrue(replaceMap.isOk());
 
