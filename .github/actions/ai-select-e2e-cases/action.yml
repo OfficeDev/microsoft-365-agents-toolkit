@@ -61,6 +61,10 @@ runs:
         cases_json=$(echo "$all_cases" | jq -Rsc '[split("\n") | .[] | select(.!="")]')
         echo "all_cases_json=$cases_json" >> "$GITHUB_OUTPUT"
 
+        # Write to temp files to avoid ARG_MAX limits in subsequent bash steps
+        echo "$all_cases" > /tmp/available_cases.txt
+        echo "$cases_json" > /tmp/available_cases_json.txt
+
     # 2. Get PR changed files
     - name: Get PR changed files
       id: changed-files
@@ -86,6 +90,8 @@ runs:
             page++;
           }
           const fileList = files.map(f => `${f.status.padEnd(9)} ${f.filename}`).join('\n');
+          // Write to a temp file to avoid ARG_MAX limits when the PR has many changed files
+          require('fs').writeFileSync('/tmp/pr_changed_files.txt', fileList);
           core.setOutput('files', fileList);
           console.log(`Changed files (${files.length}):\n${fileList}`);
 
@@ -143,10 +149,12 @@ runs:
       shell: bash
       env:
         COPILOT_GITHUB_TOKEN: ${{ inputs.copilot-token }}
-        CHANGED_FILES: ${{ steps.changed-files.outputs.files }}
-        AVAILABLE_CASES: ${{ steps.list-cases.outputs.all_cases }}
       run: |
         set -euo pipefail
+
+        # Read large data from temp files to avoid ARG_MAX/E2BIG errors
+        CHANGED_FILES=$(cat /tmp/pr_changed_files.txt 2>/dev/null || echo "")
+        AVAILABLE_CASES=$(cat /tmp/available_cases.txt 2>/dev/null || echo "")
 
         SYSTEM_PROMPT='You are a test case selector for the Microsoft 365 Agents Toolkit (ATK) repository. Given a list of changed files in a PR and all available e2e test cases, select the most relevant test cases to run.
 
@@ -172,11 +180,10 @@ runs:
 
         Output ONLY a JSON object: {"cases": ["./path/to/test.tests.ts", ...], "reason": "one sentence explaining selection"}'
 
-        USER_PROMPT=$(printf '%s\n\nChanged files:\n%s\n\nAvailable test cases:\n%s\n\nOutput JSON only.' \
-          "$SYSTEM_PROMPT" "$CHANGED_FILES" "$AVAILABLE_CASES")
-
         echo "Running Copilot CLI for e2e test case selection..."
-        copilot --yolo --model claude-sonnet-4.6 --reasoning-effort high -p "$USER_PROMPT" > /tmp/copilot_e2e_output.txt 2>&1 || true
+        printf '%s\n\nChanged files:\n%s\n\nAvailable test cases:\n%s\n\nOutput JSON only.' \
+          "$SYSTEM_PROMPT" "$CHANGED_FILES" "$AVAILABLE_CASES" > /tmp/copilot_user_prompt.txt
+        copilot --yolo --model claude-sonnet-4.6 --reasoning-effort high -p "$(cat /tmp/copilot_user_prompt.txt)" > /tmp/copilot_e2e_output.txt 2>&1 || true
         echo "--- Copilot output ---"
         cat /tmp/copilot_e2e_output.txt || true
 
@@ -217,7 +224,6 @@ runs:
       id: merge
       shell: bash
       env:
-        ALL_CASES_JSON: ${{ steps.list-cases.outputs.all_cases_json }}
         AI_CASES: ${{ steps.ai-select.outputs.ai_cases }}
         AI_REASON: ${{ steps.ai-select.outputs.ai_reason }}
         AI_SUCCESS: ${{ steps.ai-select.outputs.ai_success }}
@@ -225,6 +231,9 @@ runs:
         RUN_ALL: ${{ steps.comment-override.outputs.run_all }}
       run: |
         set -euo pipefail
+
+        # Read all_cases_json from temp file to avoid ARG_MAX limits
+        ALL_CASES_JSON=$(cat /tmp/available_cases_json.txt 2>/dev/null || echo "[]")
 
         if [ "$RUN_ALL" == "true" ]; then
           echo "cases=$ALL_CASES_JSON" >> "$GITHUB_OUTPUT"
@@ -237,32 +246,36 @@ runs:
         ai_success="${AI_SUCCESS:-false}"
         extra_cases="${EXTRA_CASES:-[]}"
 
-        # Merge AI + extra cases
-        merged=$(python3 -c "
-        import json, sys
-        ai = json.loads('$ai_cases') if '$ai_cases' else []
-        extra = json.loads('$extra_cases') if '$extra_cases' else []
-        all_available = json.loads('''$ALL_CASES_JSON''')
-        ai_success = '$ai_success' == 'true'
+        # Merge AI + extra cases — write python script to a temp file to avoid shell quoting issues
+        cat > /tmp/merge_cases.py << 'PYEOF'
+import json, sys, os
 
-        combined = list(dict.fromkeys(ai + extra))
+ai = json.loads(os.environ.get('PY_AI_CASES', '[]') or '[]')
+extra = json.loads(os.environ.get('PY_EXTRA_CASES', '[]') or '[]')
+all_available = json.loads(open('/tmp/available_cases_json.txt').read())
+ai_success = os.environ.get('PY_AI_SUCCESS', 'false') == 'true'
 
-        # Validate: only keep cases that exist in available list
-        valid = [c for c in combined if c in all_available]
-        invalid = [c for c in combined if c not in all_available]
-        if invalid:
-            print(f'Warning: skipping invalid cases: {invalid}', file=sys.stderr)
+combined = list(dict.fromkeys(ai + extra))
 
-        # If AI succeeded but returned empty, that means no tests needed (e.g. docs-only PR)
-        # Only fall back to all cases if AI actually failed to produce output
-        if not valid and not ai_success:
-            print('Fallback: AI failed, running all cases as safety net', file=sys.stderr)
-            valid = all_available
-        elif not valid and ai_success:
-            print('AI determined no tests needed for this change', file=sys.stderr)
+# Validate: only keep cases that exist in available list
+valid = [c for c in combined if c in all_available]
+invalid = [c for c in combined if c not in all_available]
+if invalid:
+    print(f'Warning: skipping invalid cases: {invalid}', file=sys.stderr)
 
-        print(json.dumps(valid))
-        " 2>&1)
+# If AI succeeded but returned empty, that means no tests needed (e.g. docs-only PR)
+# Only fall back to all cases if AI actually failed to produce output
+if not valid and not ai_success:
+    print('Fallback: AI failed, running all cases as safety net', file=sys.stderr)
+    valid = all_available
+elif not valid and ai_success:
+    print('AI determined no tests needed for this change', file=sys.stderr)
+
+print(json.dumps(valid))
+PYEOF
+
+        merged=$(PY_AI_CASES="$ai_cases" PY_EXTRA_CASES="$extra_cases" PY_AI_SUCCESS="$ai_success" \
+          python3 /tmp/merge_cases.py 2>&1)
 
         # Extract warnings (stderr lines) vs result (last line = json)
         warnings=$(echo "$merged" | head -n -1 || true)
