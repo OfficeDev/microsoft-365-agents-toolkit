@@ -1,0 +1,30 @@
+{
+  "$schema": "../../schema/descriptor.schema.json",
+  "id": "weather-agent",
+  "name": "Weather Agent",
+  "languages": ["typescript", "javascript", "python"],
+  "minEngineVersion": "5.20.0",
+  "spec": "docs/03-specs/scenarios/teams/create-weather-agent.md",
+  "requiresNetwork": false,
+
+  "optionsSchema": {
+    "type": "object",
+    "properties": {},
+    "additionalProperties": false
+  },
+
+  "replaceMap": [
+    { "var": "SafeProjectNameLowerCase", "expr": "safeProjectNameLowerCase(appName)" },
+    { "var": "SandBoxedTeam", "when": "featureFlag('TEAMSFX_SANDBOXED_TEAM')", "value": "true" },
+    { "var": "CEAEnabled", "when": "featureFlag('TEAMSFX_CEA_ENABLED')", "value": "true" },
+    { "var": "pathDelimiter", "expr": "pathDelimiter()" },
+    { "var": "useOpenAI", "const": "" },
+    { "var": "useAzureOpenAI", "const": "true" },
+    { "var": "openAIKey", "const": "" },
+    { "var": "originalOpenAIKey", "const": "" },
+    { "var": "azureOpenAIKey", "const": "" },
+    { "var": "originalAzureOpenAIKey", "const": "" },
+    { "var": "azureOpenAIEndpoint", "const": "" },
+    { "var": "azureOpenAIDeploymentName", "const": "" }
+  ]
+}

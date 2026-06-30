@@ -7,19 +7,7 @@ import * as path from "path";
 import { getTemplatesFolder } from "../../folder";
 import { BundledFloor, computeDigest } from "./templateSource";
 
-/**
- * The bundled floor: the v4 template package baked into the engine so the
- * scaffold never depends on the network being reachable (offline-by-default).
- *
- * The build step drops two files under `<floor dir>`:
- *   - `floor.json`    → `{ "version": "<semver>" }` (the baked version)
- *   - `templates.zip` → the package bytes
- *
- * The digest is NOT baked: it is computed from the bytes at load time so
- * `computeDigest` stays the single authority (spec decision #6 / INV-3).
- *
- * Spec: docs/03-specs/operations/scaffolding/resolve-template-source.md
- */
+/** Bundled v4 template floor for offline-by-default resolution. */
 
 const SOURCE = "Scaffold";
 
@@ -45,11 +33,7 @@ function isFloorManifest(value: unknown): value is FloorManifest {
   );
 }
 
-/**
- * Load the floor baked under `floorDir` (defaults to {@link bundledFloorDir}).
- * Missing/malformed bake artifacts are a hard error — a build without a floor
- * cannot scaffold offline, so we refuse rather than silently degrade.
- */
+/** Load the baked floor; missing or malformed artifacts are hard errors. */
 export function loadBundledFloor(floorDir: string = bundledFloorDir()): BundledFloor {
   const manifestPath = path.join(floorDir, "floor.json");
   const zipPath = path.join(floorDir, "templates.zip");

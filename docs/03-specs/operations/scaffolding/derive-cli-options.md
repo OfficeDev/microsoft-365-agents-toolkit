@@ -1,6 +1,8 @@
 # Operation — `derive-cli-options`
 
-- **Status:** Accepted (design-first; derives from ADR-0014 Decision 4 + Amendments 1–2, 2026-06-15) — ready for tests
+- **Status:** Helper implemented, CLI wiring deferred for migration phase — the
+  CLI keeps the v3 public option surface while `TEAMSFX_V4_ENABLED` routes
+  internally through the v4 front door/template floor.
 - **Domain:** [`01-scaffolding`](../../domains/01-scaffolding.md)
 - **Decision source:** [ADR-0014](../../../02-architecture/adr/ADR-0014-dispatcher-buildtarget-resolution.md)
   (Decision 4 — the CLI back-compat aliases; Amendment 1 — the neutral Q1
@@ -13,9 +15,10 @@
   [`collect-create-inputs`](collect-create-inputs.md) (the Q2 `questions.json`
   this flattens), and [`walk-create-selector`](walk-create-selector.md) (the live
   Q1 walk the flags pre-fill)
-- **PRD/scenario:** none required — internal CLI surface mechanism; the only
-  user-visible change is the flag *names* (the selector's neutral dimensions
-  replace the v3 capability vocabulary, which survives as back-compat aliases).
+- **PRD/scenario:** none required — internal CLI surface mechanism. During the
+  current migration phase there is no user-visible CLI flag rename: v3 flags
+  remain the public contract, and legacy keys are adapted to v4-neutral keys
+  internally.
 
 ## Purpose
 
@@ -26,38 +29,35 @@ flag parser's schema — from the three create question stages, producing a
 - **Q1** — the v4 `selector.json` routing dimensions (`projectType`,
   `daTemplate`, `actionSource`, …): the neutral vocabulary the prefill-aware
   `walk` reads.
-- **Q2** — every create template's `questions.json`, flattened into the union of
-  their questions (the `--help` shows all; the runtime takes the resolved
-  template's subset).
+- **Q2** — every migrated v4 create package's `questions.json`, flattened into
+  the union of their questions (the `--help` shows all migrated v4 Q2 options;
+  the runtime takes the resolved template's subset).
 - **Q3** — the generic create questions (`app-name` / `folder` /
   `programming-language`) appended to every create flow.
 
-This **replaces** the hand-written, v3-question-tree-generated
-`CreateProjectOptions` and **removes** the CLI `actionTemplateMap` short-circuit
-(proposal §9): the CLI no longer carries a second routing table mapping v3
-capability flags onto a `template-name`. Its primary flags are the selector's
-own neutral dimensions, fed to the `walk` as `prefilled`
-(resolve-build-target INV-3 — there is one route evaluator, no CLI-side table).
+During the current migration phase, `getCreateCommand().options` does **not**
+wire this derived set into the public `atk new --help`/parser surface. The CLI
+continues to expose the v3 `CreateProjectOptions` contract (`--capability`,
+`--api-plugin-type`, `--mcp-da-server-url`, and related flags), then adapts those
+legacy keys to v4-neutral keys before calling the create front door. This avoids
+shipping two public flag vocabularies at the same time.
 
-The v3 capability flags (`--capability`, `--api-plugin-type`, …) survive only as
-explicit back-compat **aliases** (ADR-0014 Decision 4); they are a small,
-hand-maintained set merged onto the derived options, **not** produced by this
-operation (see Notes).
+The derived option set remains a pure helper and regression-tested design asset
+for the future v4 CLI surface, not the active migration-phase public contract.
 
 ## Inputs
 
 | Input | Type | Origin |
 |-------|------|--------|
-| `floorBytes` | `Buffer` (injected) | the bundled-floor channel zip carrying `v4/create/selector.json` (Q1) and every `v4/create/<id>/questions.json` (Q2); injectable so the derivation is CI-testable from an in-memory floor with no built artifact |
+| `floorBytes` | `Buffer` (injected) | the bundled-floor channel zip carrying `v4/create/selector.json` (Q1) and migrated `v4/create/<id>/questions.json` files (Q2); injectable so the derivation is CI-testable from an in-memory floor with no built artifact |
 | `genericOptions` | `CLICommandOption[]` | the stable Q3 set (`app-name` `-n`, `folder` `-f`, `programming-language`), owned by the surface composition root — appended unchanged |
-| `deps` | `{ kebab?, locales? }` (injected, defaulted) | the flag-name caser (default: camelCase → kebab) + an optional English-fallback label source; no feature-flag reader (derivation is flag-state-independent, INV-1) |
 
 The derivation declares no `UserInteraction` and no `featureFlagManager`: it is a
 pure read of the floor's authored question metadata. It does **not** open the
 template package's `content/**` or `pipeline.json` — only the `selector.json`
 (via `openCreateSelectorPresentation`, walk-create-selector boundary 1) and each
-template's `questions.json` (via `openCreateQuestions`, collect-create-inputs
-AC-09).
+migrated v4 package's `questions.json` (via `openCreateQuestions`,
+collect-create-inputs AC-09).
 
 ## Outputs
 
@@ -87,15 +87,15 @@ A `CLICommandOption[]` — one option per distinct question across Q1 ∪ Q2 ∪
 | DCO-06 | L1 | a `multiSelect` Q2 question (e.g. a future `selectedLocalServers`) | derive | its option `type` is `"array"`; a `text` question (`mcpServerUrl`) is `"string"` with no `choices`; a `singleSelect` is `"string"` with `choices` |
 | DCO-07 | L1 | an `optionsFrom`-backed question (`mcpServerType`, `optionsFrom:"mcp.serverTypes"`) | derive | the option carries **no** static `choices` and sets `skipValidation:true` (the legal set is resolved at runtime by the provider, not knowable at `--help` time) |
 | DCO-08 | L1 | identical `floorBytes` + `genericOptions` | derive twice | the two `CLICommandOption[]` are identical (a pure function of the floor + the generic set; **no** feature-flag or environment read) |
-| DCO-09 | L1 | the derived option set wired into `getCreateCommand().options` | inspect | there is **no** `actionTemplateMap` and **no** code path presetting `Inputs["template-name"]` from a capability flag — the CLI's create routing is the selector `walk` alone (proposal §9 deletion; regression lock) |
+| DCO-09 | L1 | `getCreateCommand().options` with `TEAMSFX_V4_ENABLED=true` during migration | inspect | v4-derived primary options (`--project-type`, `--mcp-server-url`, etc.) are **not** present; v3 public options (`--capability`, `--api-plugin-type`, `--mcp-da-server-url`, etc.) remain the only accepted create flags; legacy keys are normalized to v4-neutral keys before the front door runs |
 | DCO-10 | L1 | a derived Q1 dimension option | inspect | `required` is `false` even for a dimension that is mandatory under some `projectType` — conditional requiredness is enforced at runtime by the `walk` (resolve-build-target AC-03b / AC-16a), never by a static `required:true` that would reject valid sibling paths |
-| DCO-11 | L1 | the **real shipped** floor + the real `genericOptions` | derive | the option set covers every selector dimension and every shipped template's Q2 ∪ Q3, with stable kebab names — a regression lock on the `--help` surface (the flag list is derived from the selector + templates, not hand-listed) |
+| DCO-11 | L1 | the **real shipped** floor + the real `genericOptions` | derive | the option set covers every selector dimension and every migrated v4 package's Q2 ∪ Q3, with stable kebab names — a regression lock on the `--help` surface (the flag list is derived from the selector + templates, not hand-listed) |
 
 ## Flow
 
 ```mermaid
 flowchart TD
-  start(["deriveCreateOptions(floor, genericOptions, deps)"]) --> q1["openCreateSelectorPresentation(floor)\n→ Q1 dimensions + staticOptions"]
+  start(["deriveCreateOptions(floor, genericOptions)"]) --> q1["openCreateSelectorPresentation(floor)\n→ Q1 dimensions + staticOptions"]
   start --> q2["openCreateQuestions(floor, every create templateId)\n→ Q2 questions per template"]
   q1 --> mapQ1["map each dimension → CLICommandOption\n(name=kebab, questionName=name, choices=ids)"]
   q2 --> union["flatten Q2 across templates\n(merge same-named, union choices)"]
@@ -120,12 +120,10 @@ This operation does **not**:
 - Read or honor feature flags. `--help` is a stable document: every authored
   `staticOptions` id is listed; runtime visibility filtering is the `walk`'s
   prompt-face concern (walk-create-selector INV-4).
-- Maintain the v3 back-compat aliases. Those are a separate hand-listed set
-  (Decision 4) merged by the surface; this operation produces only the
-  derived-from-floor primary options.
-- Translate any flag into v3 vocabulary. There is no `actionTemplateMap`
-  (INV-2); the v3 hand-off pre-fills v3 inputs in `applyV3PreFill`, downstream of
-  the `walk`, not in the CLI option layer.
+- Maintain or retire the v3 public option surface. During migration, the CLI
+  still accepts legacy flags and normalizes them to neutral keys before handing
+  inputs to the create front door. Final replacement of the v3 public surface by
+  derived v4 flags is a later product decision.
 
 ## Invariants
 
@@ -133,10 +131,11 @@ This operation does **not**:
   only the floor's authored question metadata + the generic set; it makes no
   feature-flag, environment, or `UserInteraction` call, so `--help` is a pure,
   deterministic function of the shipped templates (DCO-08).
-- **INV-2 — One routing table.** The CLI exposes the selector's neutral
-  dimensions and nothing maps them onto a `template-name`; the
-  `actionTemplateMap` short-circuit is deleted (proposal §9, resolve-build-target
-  INV-3, DCO-09).
+- **INV-2 — Migration keeps one public CLI vocabulary.** The public CLI help
+  surface remains the v3 option vocabulary during migration. The derived v4
+  option set is not merged into `atk new` until the product explicitly chooses
+  to ship a v4 CLI surface. Legacy v3 keys are normalized to v4-neutral keys at
+  the CLI/front-door boundary.
 - **INV-3 — Neutral key, kebab flag.** Every derived option's `questionName` is
   the verbatim selector/question `name`, so a parsed flag lands on the exact
   `Inputs` key the `walk` `prefilled` / the Q2 `entryParams` read; the
@@ -160,15 +159,13 @@ This operation does **not**:
   `CreateProjectOptions` had. The runtime narrows to the resolved template's Q2
   via `collect-create-inputs`; a flag that names another template's Q2 question
   is simply unused (the v3 behavior).
-- **v3 back-compat aliases (ADR-0014 Decision 4).** `--capability`,
-  `--api-plugin-type`, `--with-plugin`, and friends remain as a small,
-  hand-maintained alias set the surface merges onto the derived options so
-  existing scripts keep working. An alias is resolved into a `BuildTarget` by the
-  dispatcher — either via the `direct` source (`--template-id`) or by mapping the
-  legacy flag onto the neutral dimension(s) the `walk` reads — **not** by this
-  operation and **not** by a CLI routing table. Keeping the alias set tiny and
-  explicit (rather than re-deriving it) avoids reintroducing the deleted
-  `actionTemplateMap`.
+- **v3 public surface during migration (ADR-0014 Decision 4).** `--capability`,
+  `--api-plugin-type`, `--with-plugin`, and friends remain the public CLI
+  contract so existing scripts keep working. Legacy keys are normalized onto the
+  neutral v4 keys where names differ (for example `mcp-da-server-url` →
+  `mcpServerUrl`, `api-auth` → `apiAuth`). The legacy `template-name` preset
+  bridge remains only for old `--capability` flows during migration; it does not
+  make v3 questions part of v4 Q2.
 - **The language axis.** `programming-language` (Q3, the v3 generic axis:
   `js`/`ts`/`csharp`/`python`) feeds `Inputs.programming-language`, which the
   `walk`'s `bindLanguage` consumes as the caller `language` (resolve-build-target

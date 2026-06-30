@@ -32,31 +32,20 @@ SHA="${4:?Need the commit sha to anchor the release.}"
 METADATA_ZIP="${5:-}"
 
 RAW_VERSION="${TEMPLATE_TAG#templates@}"
-RAW_MINOR="$(echo "$RAW_VERSION" | cut -d. -f2)"
 
 # Clean-version invariant. The v4 channel only ever holds clean versions that a
-# `~major.minor` range can resolve, keyed on the minted version's odd/even minor:
-#   - ODD minor  = prerelease line (6.11.x): published under a clean, date-stamped
-#     version (6.11.<date>) computed by computeV4PublishVersion and recorded as
-#     templates-config.json v4.localVersion by the preceding "sync v4 template
-#     config" step. We reuse that single source of truth here.
-#   - EVEN minor = stable line (6.10.x): already clean, published as-is.
-# An EVEN-minor version that still carries a prerelease suffix means a preview
-# lane was minted on a stable branch (the exact 6.10.3-beta.<date> misfire) —
-# refuse it, since stripping the suffix would collide with the real stable 6.10.3.
-case "$RAW_VERSION" in
-  *-*)
-    if [ $((RAW_MINOR % 2)) -eq 0 ]; then
-      echo "Refusing v4 channel publish: '$RAW_VERSION' is a prerelease-suffixed even-minor (stable) version — a preview lane minted on a stable branch." >&2
-      exit 1
-    fi
-    ;;
-esac
-
-# Reuse the clean publish version the sync step already computed (single source
-# of truth), falling back to the raw version for an even-minor stable release.
+# `~major.minor` range can resolve. The clean publish version was computed by
+# computeV4PublishVersion and recorded as templates-config.json v4.localVersion
+# by the preceding "sync v4 template config" step; we reuse that single source
+# of truth. A preview (-beta.<date> suffix) maps to the odd-minor line
+# (6.11.<date>) — bumped from an even-minor stable base when needed, mirroring
+# the VSIX vsc-version.sh mints; a stable version is already clean.
 CONFIG_FILE="packages/fx-core/src/common/templates-config.json"
 VERSION="$(node -p "(require('./$CONFIG_FILE').v4 || {}).localVersion || '$RAW_VERSION'")"
+if [[ "$VERSION" == *-* || "$VERSION" == *+* ]]; then
+  echo "v4 publish version must be clean, got '$VERSION'." >&2
+  exit 1
+fi
 
 TAG="templates-v4@$VERSION"
 NDJSON="$TMP/template-v4-tags.ndjson"
