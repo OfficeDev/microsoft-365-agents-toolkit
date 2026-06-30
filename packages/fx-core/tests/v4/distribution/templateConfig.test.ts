@@ -32,8 +32,12 @@ describe("templateConfig (v4 build-time)", () => {
       assert.strictEqual(computeV4PublishVersion("6.10.3"), "6.10.3");
     });
 
-    it("even-minor suffixed (preview minted on stable branch) → stripped (publish-time guard refuses it separately)", () => {
-      assert.strictEqual(computeV4PublishVersion("6.10.3-beta.2026061609.0"), "6.10.3");
+    it("even-minor preview (lerna keeps the stable minor) → bumps to the next odd minor, date-stamped, like the VSIX", () => {
+      assert.strictEqual(computeV4PublishVersion("6.10.4-beta.2026062608.0"), "6.11.2026062608");
+    });
+
+    it("non-beta prerelease with a large numeric segment → major.minor.patch", () => {
+      assert.strictEqual(computeV4PublishVersion("6.10.4-rc.2026062608.0"), "6.10.4");
     });
 
     it("throws on a non-SemVer version (no silent fallback)", () => {
@@ -101,6 +105,19 @@ describe("templateConfig (v4 build-time)", () => {
         range: "~6.11",
         bundled: true,
         localVersion: "6.11.2026061609",
+      });
+    });
+
+    it("even-minor preview shipping (goproduct=true) → bumps to ~6.11 and 6.11.<date>, matching the VSIX", () => {
+      const config = computeV4TemplateConfig({
+        version: "6.10.4-beta.2026062608.0",
+        goproduct: true,
+        previousRange: "~6.10",
+      });
+      assert.deepEqual(config, {
+        range: "~6.11",
+        bundled: false,
+        localVersion: "6.11.2026062608",
       });
     });
 
