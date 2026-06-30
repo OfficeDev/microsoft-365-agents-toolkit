@@ -45,10 +45,21 @@ on:
         type: boolean
         default: false
         description: "[Dev/Testing only] Skip branch validation."
+      skipdockerbuild:
+        type: boolean
+        default: false
+        description: "Skip triggering the VscUse ATK docker build after CD (e.g. when the caller builds its own image)."
 
 permissions:
   actions: write
   contents: write
+
+# Production CD runs (dev / release/*) use a unique group so concurrency is a no-op and
+# real releases / nightly are never cancelled or queued. Other refs (feature/PR branches
+# used by the smoke pipeline) are grouped per-branch so a re-dispatch cancels the stale run.
+concurrency:
+  group: ${{ format('cd-{0}', (github.ref == 'refs/heads/dev' || startsWith(github.ref, 'refs/heads/release/')) && github.run_id || github.ref_name) }}
+  cancel-in-progress: true
 
 jobs:
   cd:
@@ -576,7 +587,7 @@ jobs:
 
   trigger-docker-build:
     needs: cd
-    if: ${{ success() }}
+    if: ${{ success() && !inputs.skipdockerbuild }}
     runs-on: ubuntu-latest
     steps:
       - name: Trigger Docker Build Workflow
