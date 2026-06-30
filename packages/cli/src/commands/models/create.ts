@@ -228,6 +228,10 @@ function normalizeLegacyCreateRouteInputs(inputs: CreateProjectInputs): boolean 
   if (routeAnswers === undefined) {
     return stringInput(inputs, "projectType") !== undefined;
   }
+  const withPlugin = stringInput(inputs, "with-plugin");
+  if (routeAnswers.daTemplate === "no-action" && withPlugin !== undefined && withPlugin !== "no") {
+    return normalizeDeclarativeAgentRouteInputs(inputs);
+  }
 
   applyRouteAnswers(inputs, routeAnswers);
   if (routeAnswers.actionSource === NEW_API_ACTION_SOURCE) {

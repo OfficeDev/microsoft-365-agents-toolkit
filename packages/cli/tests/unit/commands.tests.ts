@@ -322,6 +322,41 @@ describe("CLI commands", () => {
       assert.notProperty(inputs, "template-name");
     });
 
+    it("normalizes copilot-gpt-basic with MCP plugin flags to the v4 MCP route", async () => {
+      vi.spyOn(activate, "getFxCore").mockReturnValue(new FxCore({} as any));
+      const createProjectFrontDoorStub = vi
+        .spyOn(FxCore.prototype, "createProjectFrontDoor")
+        .mockResolvedValue(ok({ projectPath: "..." }));
+      vi.spyOn(featureFlagManager, "getBooleanValue").mockImplementation(
+        (flag) => flag.name === FeatureFlags.V4Enabled.name
+      );
+      vi.spyOn(listTemplatesModule, "listAllTemplates").mockReturnValue([] as any);
+
+      const ctx: CLIContext = {
+        command: { ...getCreateCommand(), fullName: "new" },
+        optionValues: {
+          capabilities: "copilot-gpt-basic",
+          "with-plugin": "yes",
+          "api-plugin-type": "mcp",
+          "mcp-da-server-url": "https://learn.microsoft.com/api/mcp",
+          nonInteractive: true,
+        },
+        globalOptionValues: {},
+        argumentValues: [],
+        telemetryProperties: {},
+      };
+
+      const res = await getCreateCommand().handler!(ctx);
+
+      assert.isTrue(res.isOk());
+      const inputs = createProjectFrontDoorStub.mock.calls[0][0] as any;
+      assert.equal(inputs.projectType, "copilot-agent-type");
+      assert.equal(inputs.daTemplate, "add-action");
+      assert.equal(inputs.actionSource, "mcp");
+      assert.equal(inputs.mcpServerUrl, "https://learn.microsoft.com/api/mcp");
+      assert.notProperty(inputs, "template-name");
+    });
+
     it("normalizes declarative agent without action to v4 selector keys", async () => {
       vi.spyOn(activate, "getFxCore").mockReturnValue(FxCore.prototype);
       const createProjectFrontDoorStub = vi
