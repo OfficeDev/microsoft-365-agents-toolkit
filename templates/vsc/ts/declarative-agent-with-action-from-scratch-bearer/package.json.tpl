@@ -22,7 +22,7 @@
         "env-cmd": "^10.1.0",
         "ts-node": "^10.4.0",
         "@types/node": "^22.0.0",
-        "typescript": "^4.1.6"
+        "typescript": "~5.8.3"
     },
     "main": "dist/src/functions/*.js"
 }

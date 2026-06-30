@@ -25,7 +25,7 @@
         "@types/node": "^22.0.0",
         "env-cmd": "^10.1.0",
         "rimraf": "^5.0.7",
-        "typescript": "^4.1.6"
+        "typescript": "~5.8.3"
     },
     "main": "dist/src/functions/*.js"
 }
