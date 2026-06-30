@@ -52,6 +52,21 @@ describe("SCN-TEAMS-CREATE-TEAMS-COLLABORATOR-AGENT (v4, T3 InMemoryRuntime)", (
     assert.strictEqual(name.short, "My Collaborator Agent${{APP_NAME_SUFFIX}}");
   });
 
+  it("SCN-CREATE-COLLABORATOR-02b: Teams SDK peer packages are pinned to one version", async () => {
+    const { files } = await run("typescript");
+    const pkg = readJsonObject(files, "package.json");
+    const dependencies = recordProperty(pkg, "dependencies");
+
+    assert.strictEqual(dependencies["@microsoft/teams.ai"], "2.0.0-preview.5");
+    assert.strictEqual(dependencies["@microsoft/teams.api"], "2.0.0-preview.5");
+    assert.strictEqual(dependencies["@microsoft/teams.apps"], "2.0.0-preview.5");
+    assert.strictEqual(dependencies["@microsoft/teams.cards"], "2.0.0-preview.5");
+    assert.strictEqual(dependencies["@microsoft/teams.common"], "2.0.0-preview.5");
+    assert.strictEqual(dependencies["@microsoft/teams.dev"], "2.0.0-preview.5");
+    assert.strictEqual(dependencies["@microsoft/teams.graph"], "2.0.0-preview.5");
+    assert.strictEqual(dependencies["@microsoft/teams.openai"], "2.0.0-preview.5");
+  });
+
   it("SCN-CREATE-COLLABORATOR-03: only require-empty-target runs", async () => {
     const { outcome } = await run("typescript");
     assert.deepStrictEqual(outcome.stepsRun, ["require-empty-target"]);
