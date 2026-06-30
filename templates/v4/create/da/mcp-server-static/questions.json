@@ -1,0 +1,29 @@
+{
+  "$schema": "../../../schema/question.schema.json",
+  "questions": [
+    {
+      "name": "mcpServerUrl",
+      "type": "text",
+      "title": "MCP Server URL",
+      "keyPrefix": "template.daMcpServer.mcpServerUrl",
+      "validation": "uri"
+    },
+    {
+      "name": "mcpToolsJson",
+      "type": "text",
+      "title": "MCP Tools JSON",
+      "prompt": "Paste the MCP tools JSON returned by the server tools/list response.",
+      "cliDescription": "MCP tools JSON returned by the server tools/list response."
+    },
+    {
+      "name": "selectedMcpTools",
+      "type": "multiSelect",
+      "title": "MCP Tools",
+      "optionsFrom": "mcp.tools",
+      "optionsFromParams": {
+        "toolsJson": { "expr": "mcpToolsJson" }
+      },
+      "cliDescription": "MCP tools to include in the action."
+    }
+  ]
+}

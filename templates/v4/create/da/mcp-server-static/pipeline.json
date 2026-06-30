@@ -1,0 +1,20 @@
+{
+  "pipeline": "default",
+  "comment": "Render produces the base DA project files. The static MCP step then materializes selected tools into appPackage/mcp-tools-1.json and rewrites appPackage/ai-plugin.json to the legacy static RemoteMCPServer runtime shape. This route is selected when TEAMSFX_MCP_FOR_DA_DT is off, so it must not fall back to the v3 generator.",
+  "steps": [
+    {
+      "step": "require-empty-target",
+      "comment": "Guards the create contract before render so a non-empty target writes nothing."
+    },
+    {
+      "step": "mcp-static/materialize-tools",
+      "with": {
+        "pluginPath": "appPackage/ai-plugin.json",
+        "toolsPath": "appPackage/mcp-tools-1.json",
+        "mcpServerUrl": "{{MCPForDAServerUrl}}",
+        "toolsJson": "{{mcpToolsJson}}",
+        "selected": "{{selectedMcpTools}}"
+      }
+    }
+  ]
+}

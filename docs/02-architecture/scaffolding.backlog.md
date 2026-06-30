@@ -30,7 +30,7 @@
 ADR.** A modify template is the same four-file package (`descriptor` /
 `questions` / `pipeline` / optional `content`) under `templates/v4/modify/<id>/`,
 resolved by the same dispatcher into the same
-`BuildTarget = { templateId, language? }` ([ADR-0014](adr/ADR-0014-dispatcher-buildtarget-resolution.md)),
+`BuildTarget = { templateId, engine, answers }` ([ADR-0014](adr/ADR-0014-dispatcher-buildtarget-resolution.md)),
 run by the same two-phase executor (`render new files → post-render steps`,
 [ADR-0017](adr/ADR-0017-named-pipeline-step-whitelist.md)). `kind` is only a
 routing / telemetry label: it selects which per-kind `selector.json` runs (Q1)

@@ -12,8 +12,8 @@ import {
 } from "@microsoft/teamsfx-api";
 import * as fs from "fs-extra";
 import path from "path";
-import { getLocalizedString } from "../../../common/localizeUtils";
 import { featureFlagManager, FeatureFlags } from "../../../common/featureFlags";
+import { getLocalizedString } from "../../../common/localizeUtils";
 import { fetchMCPTools, readMCPToolsFromFile } from "../../../component/utils/mcpToolFetcher";
 import { ODRProvider, ODRServer } from "../../../component/utils/odrProvider";
 import {
@@ -40,10 +40,10 @@ import {
 import { getRootProjectTypeNode } from "./rootNode";
 
 export const teamsProjectTypeDeps = {
-  fetchMCPTools,
-  readMCPToolsFromFile,
   pathExists: fs.pathExists,
   readJSON: fs.readJSON,
+  fetchMCPTools,
+  readMCPToolsFromFile,
 };
 
 /**

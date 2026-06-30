@@ -86,7 +86,7 @@ On `err`:
 | AC-03 | L1 | `pipeline.json` absent | validate | `UserError` naming `pipeline.json` as required |
 | AC-04 | L1 | `questions.json` = `{ "questions": [] }` | validate | `ok` — required-but-empty is valid; there is no "file optional, fall back to defaults" branch |
 | AC-05 | L1 | `pipeline.json` = `{ "pipeline": "default", "steps": [] }` | validate | `ok` — required-but-empty is valid |
-| AC-06 | L1 | a `modify` package that adds no files and ships **no** `content/` folder (`port.content()` is `undefined`) | validate | `ok` — `content/` is optional; emptiness is absence |
+| AC-06 | L1 | a package that adds no files and ships **no** `content/` folder (`port.content()` is `undefined`) | validate | `ok` — `content/` is optional for every package kind; emptiness is absence |
 | AC-07 | L1 | a package whose `content/` exists and contains any file (including a would-be "marker") | validate | that file is treated as renderable content (placeholder accounting AC-11 applies to it); there is **no** marker-file exemption — emptiness must be expressed by omitting `content/`, not by a placeholder file |
 | AC-08 | L1 | `descriptor.json` fails `schemas.descriptor` (e.g. unknown top-level key under `additionalProperties:false`, or missing `optionsSchema`) | validate | `UserError` naming the descriptor + the failing rule |
 | AC-09 | L1 | `questions.json` fails `schemas.question` | validate | `UserError` naming `questions.json` + the failing rule |

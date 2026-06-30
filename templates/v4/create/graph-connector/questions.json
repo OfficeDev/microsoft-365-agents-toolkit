@@ -1,0 +1,20 @@
+{
+  "questions": [
+    {
+      "name": "graphConnectorName",
+      "type": "text",
+      "title": "Copilot connector name",
+      "placeholder": "GitHub Issues",
+      "cliDescription": "a name for Copilot connector",
+      "validation": "graphConnectorName"
+    },
+    {
+      "name": "graphConnectorConnectionId",
+      "type": "text",
+      "title": "Copilot connector connection id",
+      "placeholder": "githubissues",
+      "cliDescription": "a connection id for Copilot connector",
+      "validation": "graphConnectorConnectionId"
+    }
+  ]
+}

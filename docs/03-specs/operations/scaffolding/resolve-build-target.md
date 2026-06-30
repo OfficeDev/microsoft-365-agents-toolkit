@@ -226,6 +226,6 @@ This operation does **not**:
   channel `templates.zip` and hands the parsed JSON to `parseSelectorSpec`. The
   zip-read faults (corrupt archive, missing entry, non-JSON) are `SystemError`s
   (packaging faults), while structural validity stays `parseSelectorSpec`'s
-  contract (AC-20). It is v4-owned (INV-7) — the floor read that lets a v3
-  surface route through the shipped selector with no hand-coded template-id
-  table (the `route-declarative-via-selector` consumer).
+  contract (AC-20). It is v4-owned (INV-7) — the floor read that lets the create
+  front door route through the shipped selector with no hand-coded template-id
+  table.

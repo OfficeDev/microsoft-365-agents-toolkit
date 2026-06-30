@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { assert } from "chai";
+import { assert } from "vitest";
 import {
   computeBundled,
   computeRange,
@@ -37,7 +37,7 @@ describe("templateConfig (v4 build-time)", () => {
     });
 
     it("throws on a non-SemVer version (no silent fallback)", () => {
-      assert.throws(() => computeV4PublishVersion("not-semver"), /not valid SemVer/);
+      expect(() => computeV4PublishVersion("not-semver")).toThrow(/not valid SemVer/);
     });
   });
 
@@ -60,7 +60,7 @@ describe("templateConfig (v4 build-time)", () => {
     });
 
     it("throws on a non-SemVer version (no silent fallback)", () => {
-      assert.throws(() => computeRange("not-semver", "~6.10"), /not valid SemVer/);
+      expect(() => computeRange("not-semver", "~6.10")).toThrow(/not valid SemVer/);
     });
   });
 

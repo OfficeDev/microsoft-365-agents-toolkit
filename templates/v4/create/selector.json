@@ -44,7 +44,7 @@
     {
       "name": "daTemplate",
       "type": "singleSelect",
-      "title": "Create Declarative Agent",
+      "title": "Declarative Agent",
       "placeholder": "Add an action to your declarative agent",
       "keyPrefix": "template.createProjectQuestion.declarativeCopilot",
       "condition": { "expr": "projectType == 'copilot-agent-type'" },
@@ -259,38 +259,32 @@
     {
       "when": "projectType=='custom-engine-agent-type' && customEngineAgent=='basic-custom-engine-agent'",
       "templateId": "basic-custom-engine-agent",
-      "engine": "v3",
-      "v3Adapter": "DefaultTemplateGenerator"
+      "engine": "v4"
     },
     {
       "when": "projectType=='custom-engine-agent-type' && customEngineAgent=='weather-agent'",
       "templateId": "weather-agent",
-      "engine": "v3",
-      "v3Adapter": "DefaultTemplateGenerator"
+      "engine": "v4"
     },
     {
       "when": "projectType=='graph-connector-type'",
       "templateId": "graph-connector",
-      "engine": "v3",
-      "v3Adapter": "DefaultTemplateGenerator"
+      "engine": "v4"
     },
     {
       "when": "projectType=='teams-agent-and-app-type' && teamsApp=='custom-copilot-basic'",
       "templateId": "custom-copilot-basic",
-      "engine": "v3",
-      "v3Adapter": "DefaultTemplateGenerator"
+      "engine": "v4"
     },
     {
       "when": "projectType=='teams-agent-and-app-type' && teamsApp=='rag' && customCopilotRagType=='custom-copilot-rag-customize'",
       "templateId": "custom-copilot-rag-customize",
-      "engine": "v3",
-      "v3Adapter": "DefaultTemplateGenerator"
+      "engine": "v4"
     },
     {
       "when": "projectType=='teams-agent-and-app-type' && teamsApp=='rag' && customCopilotRagType=='custom-copilot-rag-azure-ai-search'",
       "templateId": "custom-copilot-rag-azure-ai-search",
-      "engine": "v3",
-      "v3Adapter": "DefaultTemplateGenerator"
+      "engine": "v4"
     },
     {
       "when": "projectType=='teams-agent-and-app-type' && teamsApp=='rag' && customCopilotRagType=='custom-copilot-rag-custom-api'",
@@ -301,50 +295,42 @@
     {
       "when": "projectType=='teams-agent-and-app-type' && teamsApp=='teams-collaborator-agent'",
       "templateId": "teams-collaborator-agent",
-      "engine": "v3",
-      "v3Adapter": "DefaultTemplateGenerator"
+      "engine": "v4"
     },
     {
       "when": "projectType=='teams-agent-and-app-type' && teamsApp=='other' && teamsOtherAppType=='non-sso-tab'",
       "templateId": "non-sso-tab",
-      "engine": "v3",
-      "v3Adapter": "DefaultTemplateGenerator"
+      "engine": "v4"
     },
     {
       "when": "projectType=='teams-agent-and-app-type' && teamsApp=='other' && teamsOtherAppType=='default-message-extension'",
       "templateId": "default-message-extension",
-      "engine": "v3",
-      "v3Adapter": "DefaultTemplateGenerator"
+      "engine": "v4"
     },
     {
       "when": "projectType=='teams-agent-and-app-type' && teamsApp=='other' && teamsOtherAppType=='default-bot'",
       "templateId": "default-bot",
-      "engine": "v3",
-      "v3Adapter": "DefaultTemplateGenerator"
+      "engine": "v4"
     },
     {
       "when": "projectType=='office-meta-os-type' && officeAddinCapability=='office-addin-wxpo-taskpane'",
       "templateId": "office-addin-wxpo-taskpane",
-      "engine": "v3",
-      "v3Adapter": "OfficeAddinGeneratorNew"
+      "engine": "v4"
     },
     {
       "when": "projectType=='office-meta-os-type' && officeAddinCapability=='office-addin-excel-cfshortcut'",
       "templateId": "office-addin-excel-cfshortcut",
-      "engine": "v3",
-      "v3Adapter": "OfficeAddinGeneratorNew"
+      "engine": "v4"
     },
     {
       "when": "projectType=='office-meta-os-type' && officeAddinCapability=='office-da-meta-os' && daMetaOsCapability=='declarative-agent-meta-os-new-project'",
       "templateId": "declarative-agent-meta-os-new-project",
-      "engine": "v3",
-      "v3Adapter": "OfficeAddinGeneratorNew"
+      "engine": "v4"
     },
     {
       "when": "projectType=='office-meta-os-type' && officeAddinCapability=='office-da-meta-os' && daMetaOsCapability=='declarative-agent-meta-os-upgrade-project'",
       "templateId": "declarative-agent-meta-os-upgrade-project",
-      "engine": "v3",
-      "v3Adapter": "OfficeAddinGeneratorNew"
+      "engine": "v4"
     },
     {
       "when": "projectType=='office-meta-os-type' && officeAddinCapability=='office-addin-config'",
@@ -359,21 +345,18 @@
     },
     {
       "when": "projectType=='copilot-agent-type' && daTemplate=='graph-connector'",
-      "templateId": "declarative-agent-with-graph-connector",
-      "engine": "v3",
-      "v3Adapter": "DeclarativeAgentGenerator"
+      "templateId": "da/graph-connector",
+      "engine": "v4"
     },
     {
       "when": "projectType=='copilot-agent-type' && daTemplate=='typespec'",
-      "templateId": "declarative-agent-typespec",
-      "engine": "v3",
-      "v3Adapter": "DeclarativeAgentGenerator"
+      "templateId": "da/typespec",
+      "engine": "v4"
     },
     {
       "when": "projectType=='copilot-agent-type' && daTemplate=='skill' && featureFlag('TEAMSFX_AGENT_SKILLS')",
-      "templateId": "declarative-agent-with-skill",
-      "engine": "v3",
-      "v3Adapter": "DeclarativeAgentGenerator"
+      "templateId": "da/skill",
+      "engine": "v4"
     },
     {
       "when": "projectType=='copilot-agent-type' && daTemplate=='add-action' && actionSource=='new-api' && apiAuth=='none'",
@@ -401,16 +384,9 @@
       "engine": "v4"
     },
     {
-      "when": "projectType=='copilot-agent-type' && daTemplate=='add-action' && actionSource=='da-meta-os'",
-      "templateId": "declarative-agent-meta-os-new-project",
-      "engine": "v3",
-      "v3Adapter": "OfficeAddinGeneratorNew"
-    },
-    {
       "when": "projectType=='copilot-agent-type' && daTemplate=='add-action' && actionSource=='mcp' && !featureFlag('TEAMSFX_MCP_FOR_DA_DT')",
-      "templateId": "declarative-agent-with-action-from-mcp",
-      "engine": "v3",
-      "v3Adapter": "DeclarativeAgentGenerator"
+      "templateId": "da/mcp-server-static",
+      "engine": "v4"
     },
     {
       "when": "projectType=='copilot-agent-type' && daTemplate=='add-action' && actionSource=='mcp' && featureFlag('TEAMSFX_MCP_FOR_DA_DT')",
