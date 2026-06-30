@@ -29,6 +29,7 @@ interface MockParserOperation {
 interface MockSpecParserState {
   filteredSpec: unknown;
   listOperations: MockParserOperation[];
+  pluginManifest: unknown;
   pluginConversationStarters: Record<string, unknown>[];
   validationStatus: string;
 }
@@ -36,6 +37,7 @@ interface MockSpecParserState {
 const mockSpecParserState = vi.hoisted<MockSpecParserState>(() => ({
   filteredSpec: undefined,
   listOperations: [],
+  pluginManifest: undefined,
   pluginConversationStarters: [{ text: "Find pets" }],
   validationStatus: "Ok",
 }));
@@ -66,10 +68,15 @@ vi.mock("@microsoft/m365-spec-parser", () => {
     ): Promise<void> {
       const fs = await import("fs-extra");
       await fs.writeFile(apiSpecPath, "openapi: 3.0.0\n");
-      await fs.writeJson(pluginPath, {
+      const pluginManifest = mockSpecParserState.pluginManifest ?? {
         functions: [{ name: "getPets", description: "Get pets" }],
         capabilities: { conversation_starters: mockSpecParserState.pluginConversationStarters },
-      });
+      };
+      if (typeof pluginManifest === "string") {
+        await fs.writeFile(pluginPath, pluginManifest);
+      } else {
+        await fs.writeJson(pluginPath, pluginManifest);
+      }
     }
   }
 
@@ -185,6 +192,7 @@ beforeEach(() => {
       auth: { name: "petKey", authScheme: { type: "apiKey", in: "header" } },
     },
   ];
+  mockSpecParserState.pluginManifest = undefined;
   mockSpecParserState.pluginConversationStarters = [{ text: "Find pets" }];
   mockSpecParserState.validationStatus = "Ok";
 });
@@ -264,6 +272,87 @@ describe("OpenAPI runtime steps (v4)", () => {
     assert.include(text(files, "m365agents.yml"), "uses: apiKey/register");
     assert.include(text(files, "m365agents.yml"), "registrationId: PETKEY_REGISTRATION_ID");
     assert.include(text(files, "m365agents.local.yml"), "uses: apiKey/register");
+  });
+
+  it("returns parse and shape errors for invalid generated OpenAPI JSON artifacts", async () => {
+    const malformedAgent = await openApiGeneratePluginFiles.apply(
+      { apiSpecLocation: "openapi.yml", apiOperations: ["GET /pets"] },
+      makeCtx({
+        "appPackage/manifest.json": JSON.stringify({ name: "manifest" }),
+        "appPackage/declarativeAgent.json": "{",
+      }).ctx
+    );
+    assert.isTrue(malformedAgent.isErr());
+    assert.strictEqual(malformedAgent._unsafeUnwrapErr().name, "OpenApiDeclarativeAgentParse");
+
+    mockSpecParserState.pluginManifest = [];
+    const nonObjectPlugin = await openApiGeneratePluginFiles.apply(
+      { apiSpecLocation: "openapi.yml", apiOperations: ["GET /pets"] },
+      makeCtx({
+        "appPackage/manifest.json": JSON.stringify({ name: "manifest" }),
+        "appPackage/declarativeAgent.json": JSON.stringify({ name: "Agent" }),
+      }).ctx
+    );
+    assert.isTrue(nonObjectPlugin.isErr());
+    assert.strictEqual(nonObjectPlugin._unsafeUnwrapErr().name, "OpenApiPluginManifestShape");
+  });
+
+  it("falls back to operation summaries when plugin conversation starters are absent", async () => {
+    mockSpecParserState.pluginManifest = {
+      functions: [{}, { name: 1 }, { name: "getPets" }],
+      capabilities: { conversation_starters: "none" },
+    };
+    mockSpecParserState.listOperations = [
+      { api: "GET /ignored", isValid: false, operationId: "ignored", summary: "Ignored" },
+      { api: "GET /missing", isValid: true, summary: "Missing id" },
+      {
+        api: "GET /pets",
+        isValid: true,
+        operationId: "getPets",
+        description: "Fallback pets",
+      },
+    ];
+    const { ctx, files } = makeCtx({
+      "appPackage/manifest.json": JSON.stringify({ name: "manifest" }),
+      "appPackage/declarativeAgent.json": JSON.stringify({ name: "Agent" }),
+    });
+
+    const result = await openApiGeneratePluginFiles.apply(
+      { apiSpecLocation: "openapi.yml", apiOperations: ["GET /pets"] },
+      ctx
+    );
+
+    assert.isTrue(result.isOk(), result.isErr() ? result.error.message : "expected ok");
+    const agent = readJsonObject(files, "appPackage/declarativeAgent.json");
+    if (!isRecordArray(agent.conversation_starters)) {
+      assert.fail("declarative agent should contain conversation starters");
+    }
+    assert.deepInclude(agent.conversation_starters, { text: "Fallback pets" });
+  });
+
+  it("injects OAuth registration yaml for OAuth-protected OpenAPI operations", async () => {
+    mockSpecParserState.listOperations = [
+      {
+        api: "GET /pets",
+        isValid: true,
+        server: "https://api.example.com",
+        auth: { name: "petOAuth", authScheme: { type: "oauth2" } },
+      },
+    ];
+    const { ctx, files } = makeCtx({
+      "appPackage/manifest.json": JSON.stringify({ name: "manifest" }),
+      "appPackage/declarativeAgent.json": JSON.stringify({ name: "Agent" }),
+      "m365agents.yml": "provision:",
+    });
+
+    const result = await openApiGeneratePluginFiles.apply(
+      { apiSpecLocation: "openapi.yml", apiOperations: ["GET /pets"] },
+      ctx
+    );
+
+    assert.isTrue(result.isOk(), result.isErr() ? result.error.message : "expected ok");
+    assert.include(text(files, "m365agents.yml"), "uses: oauth/register");
+    assert.include(text(files, "m365agents.yml"), "configurationId: PETOAUTH_REGISTRATION_ID");
   });
 
   it("returns UserError when selected authenticated OpenAPI operations span servers", async () => {
@@ -385,5 +474,24 @@ describe("OpenAPI runtime steps (v4)", () => {
     );
     assert.isTrue(missingSpec.isErr());
     assert.strictEqual(missingSpec._unsafeUnwrapErr().name, "OpenApiTeamsAiFilteredSpecMissing");
+  });
+
+  it("returns a Teams AI error when the filtered spec has no operation ids", async () => {
+    mockSpecParserState.filteredSpec = { paths: { "/pets": { get: { summary: "No id" } } } };
+    const result = await openApiGenerateTeamsAiCustomApiFiles.apply(
+      {
+        apiSpecLocation: "openapi.yaml",
+        apiOperations: ["GET /pets"],
+        language: ProgrammingLanguage.JS,
+      },
+      makeCtx({
+        "appPackage/manifest.json": JSON.stringify({ bots: [{}] }),
+        "src/app/app.js": "// Replace with function definition code\n",
+        "src/app/handlers.js": "{{OPENAPI_SPEC_PATH}}\n// Replace with function handler code\n",
+      }).ctx
+    );
+
+    assert.isTrue(result.isErr());
+    assert.strictEqual(result._unsafeUnwrapErr().name, "OpenApiTeamsAiOperationsMissing");
   });
 });
