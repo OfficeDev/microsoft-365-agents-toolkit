@@ -589,6 +589,59 @@ describe("createProjectFrontDoor (dispatch-create-by-engine)", () => {
     assert.deepEqual(runInputs.calls[0][2].selectedMcpTools, ["microsoft_docs_search"]);
   });
 
+  it("DCE-18c: legacy CLI MCP tools file read failure is returned before Q2", async () => {
+    const runInputs = inputsRecorder({});
+    const inputs: Inputs = {
+      platform: Platform.CLI,
+      nonInteractive: true,
+      [QuestionNames.MCPToolsFilePath]: path.join(os.tmpdir(), "missing-mcp-tools.json"),
+    };
+
+    const res = await createProjectFrontDoor(
+      inputs,
+      deps({
+        runSelector: selectorRecorder(STATIC_MCP_TARGET).fn,
+        runInputs: runInputs.fn,
+        collectCreateFloor: okFloor,
+        scaffoldV4: okScaffold,
+      })
+    );
+
+    assert.isTrue(res.isErr());
+    if (res.isErr()) {
+      assert.equal(res.error.name, "McpToolsFileReadFailed");
+    }
+    assert.equal(runInputs.calls.length, 0);
+  });
+
+  it("DCE-18d: legacy CLI MCP fetch requiring auth leaves entry params unchanged", async () => {
+    const runInputs = inputsRecorder({});
+    const fetchMcpTools = recorder((_serverUrl: string) =>
+      Promise.resolve({ requiresAuth: true, tools: [] })
+    );
+    const inputs: Inputs = {
+      platform: Platform.CLI,
+      nonInteractive: true,
+      [QuestionNames.MCPForDAServerUrl]: "https://secure.example.com/mcp",
+    };
+
+    const res = await createProjectFrontDoor(
+      inputs,
+      deps({
+        runSelector: selectorRecorder(STATIC_MCP_TARGET).fn,
+        runInputs: runInputs.fn,
+        collectCreateFloor: okFloor,
+        scaffoldV4: okScaffold,
+        fetchMcpTools: fetchMcpTools.fn,
+      })
+    );
+
+    assert.isTrue(res.isOk());
+    assert.deepEqual(fetchMcpTools.calls, [["https://secure.example.com/mcp"]]);
+    assert.notProperty(runInputs.calls[0][2], "mcpToolsJson");
+    assert.notProperty(runInputs.calls[0][2], "selectedMcpTools");
+  });
+
   it("DCE-17b: Office Add-in folder input is passed to the v4 input walk under its neutral key", async () => {
     const target: BuildTarget = {
       templateId: "declarative-agent-meta-os-upgrade-project",
