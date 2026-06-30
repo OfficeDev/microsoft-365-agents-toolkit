@@ -57,9 +57,9 @@ export function getTestFolder(): string {
 
 export const BASE_APP_NAME_PREFIX = "fxE2E";
 const maxTeamsAppNameLength = 30;
-const defaultAppNameSuffixLength = 3;
+const maxAppNameSuffixLength = "sandbox".length;
 export const MAX_APP_NAME_LENGTH =
-  maxTeamsAppNameLength - defaultAppNameSuffixLength;
+  maxTeamsAppNameLength - maxAppNameSuffixLength;
 
 const uniqueAppNameTimestampLength = 13;
 const uniqueAppNameRandomLength = 2;
