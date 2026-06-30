@@ -246,36 +246,33 @@ runs:
         ai_success="${AI_SUCCESS:-false}"
         extra_cases="${EXTRA_CASES:-[]}"
 
-        # Merge AI + extra cases — write python script to a temp file to avoid shell quoting issues
-        cat > /tmp/merge_cases.py << 'PYEOF'
-import json, sys, os
+        # Merge AI + extra cases
+        merged=$(PY_AI_CASES="$ai_cases" PY_EXTRA_CASES="$extra_cases" PY_AI_SUCCESS="$ai_success" python3 -c "
+        import json, os, sys
 
-ai = json.loads(os.environ.get('PY_AI_CASES', '[]') or '[]')
-extra = json.loads(os.environ.get('PY_EXTRA_CASES', '[]') or '[]')
-all_available = json.loads(open('/tmp/available_cases_json.txt').read())
-ai_success = os.environ.get('PY_AI_SUCCESS', 'false') == 'true'
+        ai = json.loads(os.environ.get('PY_AI_CASES', '[]') or '[]')
+        extra = json.loads(os.environ.get('PY_EXTRA_CASES', '[]') or '[]')
+        all_available = json.loads(open('/tmp/available_cases_json.txt').read())
+        ai_success = os.environ.get('PY_AI_SUCCESS', 'false') == 'true'
 
-combined = list(dict.fromkeys(ai + extra))
+        combined = list(dict.fromkeys(ai + extra))
 
-# Validate: only keep cases that exist in available list
-valid = [c for c in combined if c in all_available]
-invalid = [c for c in combined if c not in all_available]
-if invalid:
-    print(f'Warning: skipping invalid cases: {invalid}', file=sys.stderr)
+        # Validate: only keep cases that exist in available list
+        valid = [c for c in combined if c in all_available]
+        invalid = [c for c in combined if c not in all_available]
+        if invalid:
+            print(f'Warning: skipping invalid cases: {invalid}', file=sys.stderr)
 
-# If AI succeeded but returned empty, that means no tests needed (e.g. docs-only PR)
-# Only fall back to all cases if AI actually failed to produce output
-if not valid and not ai_success:
-    print('Fallback: AI failed, running all cases as safety net', file=sys.stderr)
-    valid = all_available
-elif not valid and ai_success:
-    print('AI determined no tests needed for this change', file=sys.stderr)
+        # If AI succeeded but returned empty, that means no tests needed (e.g. docs-only PR)
+        # Only fall back to all cases if AI actually failed to produce output
+        if not valid and not ai_success:
+            print('Fallback: AI failed, running all cases as safety net', file=sys.stderr)
+            valid = all_available
+        elif not valid and ai_success:
+            print('AI determined no tests needed for this change', file=sys.stderr)
 
-print(json.dumps(valid))
-PYEOF
-
-        merged=$(PY_AI_CASES="$ai_cases" PY_EXTRA_CASES="$extra_cases" PY_AI_SUCCESS="$ai_success" \
-          python3 /tmp/merge_cases.py 2>&1)
+        print(json.dumps(valid))
+        " 2>&1)
 
         # Extract warnings (stderr lines) vs result (last line = json)
         warnings=$(echo "$merged" | head -n -1 || true)
