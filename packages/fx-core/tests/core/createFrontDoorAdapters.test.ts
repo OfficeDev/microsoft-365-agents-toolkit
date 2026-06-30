@@ -133,10 +133,10 @@ describe("createFrontDoorAdapters", () => {
       assert.isUndefined(inputs[QuestionNames.ApiAuth]);
     });
 
-    it("maps the da-meta-os action source onto the v3 da-meta-os id", () => {
+    it("does not map the removed da-meta-os action source", () => {
       const inputs: Inputs = { platform: Platform.VSCode };
       const target: BuildTarget = {
-        templateId: "declarative-agent-meta-os-new-project",
+        templateId: "declarative-agent-with-action-from-mcp",
         engine: "v3",
         answers: {
           projectType: "copilot-agent-type",
@@ -148,7 +148,7 @@ describe("createFrontDoorAdapters", () => {
       applyV3PreFill(inputs, target);
 
       assert.equal(inputs[QuestionNames.WithPlugin], "yes");
-      assert.equal(inputs[QuestionNames.ActionType], "da-meta-os");
+      assert.isUndefined(inputs[QuestionNames.ActionType]);
       assert.isUndefined(inputs[QuestionNames.ApiAuth]);
     });
 
@@ -286,20 +286,20 @@ describe("createFrontDoorAdapters", () => {
       assert.equal(config[QuestionNames.Capabilities], "office-addin-import");
     });
 
-    it("maps the office DA-meta-os capability and its sub-capability onto the renamed v3 ids", () => {
+    it("maps the office DA-meta-os upgrade capability onto the renamed v3 ids", () => {
       const inputs: Inputs = { platform: Platform.VSCode };
       applyV3PreFill(inputs, {
-        templateId: "declarative-agent-meta-os-new-project",
+        templateId: "declarative-agent-meta-os-upgrade-project",
         engine: "v3",
         answers: {
           projectType: "office-meta-os-type",
           officeAddinCapability: "office-da-meta-os",
-          daMetaOsCapability: "declarative-agent-meta-os-new-project",
+          daMetaOsCapability: "declarative-agent-meta-os-upgrade-project",
         },
       });
 
       assert.equal(inputs[QuestionNames.Capabilities], "office-da-meta-os");
-      assert.equal(inputs[QuestionNames.DAMetaOSCapability], "da-meta-os-new-project");
+      assert.equal(inputs[QuestionNames.DAMetaOSCapability], "da-meta-os-upgrade-existing-project");
     });
 
     it("sets only projectType for graph-connector (no capability dimension — safe re-ask)", () => {
