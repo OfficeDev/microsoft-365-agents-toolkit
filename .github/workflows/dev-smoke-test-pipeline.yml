@@ -13,6 +13,12 @@ on:
         type: string
         default: ""
 
+# Cancel an in-progress smoke run (and let its children cancel too) when a newer
+# run starts for the same branch. Distinct branches (different PRs) never collide.
+concurrency:
+  group: dev-smoke-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
+
 jobs:
   run-cd:
     runs-on: ubuntu-latest
@@ -54,7 +60,8 @@ jobs:
               inputs: {
                 preid: 'alpha',
                 skipmarkdowncheck: 'true',
-                SkipBranchCheck: 'true'
+                SkipBranchCheck: 'true',
+                skipdockerbuild: 'true'
               }
             });
 
@@ -134,7 +141,8 @@ jobs:
               ref: 'dev',
               inputs: {
                 tag: '${{ needs.run-cd.outputs.tag_name }}',
-                run_id: '${{ needs.run-cd.outputs.run_id }}'
+                run_id: '${{ needs.run-cd.outputs.run_id }}',
+                source_ref: '${{ github.head_ref || github.ref_name }}'
               }
             });
 
