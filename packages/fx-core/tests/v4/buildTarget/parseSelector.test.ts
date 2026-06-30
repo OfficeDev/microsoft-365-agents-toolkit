@@ -29,8 +29,14 @@ const DT = "TEAMSFX_MCP_FOR_DA_DT";
 const SELECTOR_PATH = path.resolve(__dirname, "../../../../../templates/v4/create/selector.json");
 
 const CURRENT_CREATE_V4_TEMPLATE_IDS = [
+  "basic-custom-engine-agent",
+  "custom-copilot-basic",
+  "custom-copilot-rag-azure-ai-search",
+  "custom-copilot-rag-customize",
   "declarative-agent-meta-os-new-project",
   "declarative-agent-meta-os-upgrade-project",
+  "default-bot",
+  "default-message-extension",
   "graph-connector",
   "da/api-plugin-from-existing-api",
   "da/api-plugin-from-scratch",
@@ -42,6 +48,11 @@ const CURRENT_CREATE_V4_TEMPLATE_IDS = [
   "da/no-action",
   "da/skill",
   "da/typespec",
+  "non-sso-tab",
+  "office-addin-excel-cfshortcut",
+  "office-addin-wxpo-taskpane",
+  "teams-collaborator-agent",
+  "weather-agent",
 ];
 
 interface PortOpts {
