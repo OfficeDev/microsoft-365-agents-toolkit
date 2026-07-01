@@ -43,6 +43,10 @@ const STATIC_MCP_DA: DeclarativeLocator = {
   kind: "create",
   templateId: "da/mcp-server-static",
 };
+const LANGUAGE_DA: DeclarativeLocator = {
+  kind: "create",
+  templateId: "test/language-axis",
+};
 const OPENAPI_DA: DeclarativeLocator = {
   kind: "create",
   templateId: "da/api-plugin-from-existing-api",
@@ -52,6 +56,18 @@ const OPENAPI_SPEC = path.resolve(__dirname, "../scenarios/fixtures/repairs-open
 function buildFloor(): Buffer {
   const zip = new AdmZip();
   zip.addLocalFolder(TEMPLATES_V4_DIR, "v4");
+  return zip.toBuffer();
+}
+
+function buildLanguageFloor(): Buffer {
+  const zip = new AdmZip();
+  const root = "v4/create/test/language-axis";
+  zip.addFile(
+    `${root}/descriptor.json`,
+    Buffer.from(JSON.stringify({ id: "test/language-axis", languages: ["typescript", "csharp"] }))
+  );
+  zip.addFile(`${root}/questions.json`, Buffer.from(JSON.stringify({ questions: [] })));
+  zip.addFile(`${root}/pipeline.json`, Buffer.from("{}"));
   return zip.toBuffer();
 }
 
@@ -318,6 +334,30 @@ describe("runCreateInputs (collect-create-inputs)", () => {
       assert.notProperty(res.value, "language");
     }
     assert.notInclude(ui.selectNames, "language");
+  });
+
+  it("uses the default env flag reader to keep csharp on CLI when .NET is enabled", async () => {
+    const saved = process.env.TEAMSFX_CLI_DOTNET;
+    process.env.TEAMSFX_CLI_DOTNET = "true";
+    const ui = new ScriptedUserInteraction({ select: { language: "csharp" } });
+
+    try {
+      const res = await runCreateInputs(buildLanguageFloor(), LANGUAGE_DA, {}, asUI(ui), {
+        surface: "cli",
+      });
+
+      assert.isTrue(res.isOk(), res.isErr() ? `${res.error.name}: ${res.error.message}` : "ok");
+      if (res.isOk()) {
+        assert.equal(res.value.language, "csharp");
+      }
+      assert.deepEqual(ui.selectNames, ["language"]);
+    } finally {
+      if (saved === undefined) {
+        delete process.env.TEAMSFX_CLI_DOTNET;
+      } else {
+        process.env.TEAMSFX_CLI_DOTNET = saved;
+      }
+    }
   });
 });
 

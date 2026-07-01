@@ -18,6 +18,7 @@ import {
 import { openCreateSelector, openCreateSelectorPresentation } from "../distribution/createSelector";
 import { openDeclarativePackage } from "../distribution/declarativePackage";
 import { ExpressionRuntimePort, Scope, evaluateExpression } from "../expression/evaluateExpression";
+import { readBooleanFeatureFlag } from "../../common/featureFlags";
 
 /** Live Q1 create-selector prompt face. See walk-create-selector spec. */
 
@@ -35,7 +36,7 @@ export interface CreateSelectorDeps {
 
 /** The default env-backed feature-flag reader (a flag is on iff its env var is exactly `"true"`). */
 function envFlagReader(name: string): boolean {
-  return process.env[name] === "true";
+  return readBooleanFeatureFlag(name);
 }
 
 /** Convert a thrown prompt failure back to an `FxError` for the `Result` boundary. */
@@ -115,10 +116,10 @@ function buildPort(
     v4Registry(templateId: string): boolean {
       return openDeclarativePackage(floorBytes, { kind: "create", templateId }).isOk();
     },
-    v3Registry(_templateId: string): boolean {
+    v3Registry(): boolean {
       return false;
     },
-    v3CoreMethodRegistry(_coreMethod: string): boolean {
+    v3CoreMethodRegistry(): boolean {
       return false;
     },
   };

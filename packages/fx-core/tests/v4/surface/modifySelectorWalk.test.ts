@@ -70,6 +70,28 @@ describe("runModifySelector", () => {
     assert.deepEqual(ui.selectNames, ["addCapability", "actionSource"]);
   });
 
+  it("uses the default env flag reader when no flagReader override is provided", async () => {
+    const saved = process.env[DT];
+    process.env[DT] = "true";
+    const ui = new ScriptedUI(MCP_ADD_ACTION_PICKS);
+
+    try {
+      const res = await runModifySelector(buildFloor(), asUI(ui), "vscode");
+
+      assert.isTrue(res.isOk());
+      if (res.isOk()) {
+        assert.equal(res.value.templateId, "add-mcp-server");
+        assert.equal(res.value.engine, "v4");
+      }
+    } finally {
+      if (saved === undefined) {
+        delete process.env[DT];
+      } else {
+        process.env[DT] = saved;
+      }
+    }
+  });
+
   it("WMS-02: add-action→mcp with DT off resolves the v3 addPlugin core method", async () => {
     const ui = new ScriptedUI(MCP_ADD_ACTION_PICKS);
 

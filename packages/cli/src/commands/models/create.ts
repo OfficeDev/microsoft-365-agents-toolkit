@@ -36,6 +36,9 @@ const CREATE_INPUT_ALIASES: ReadonlyArray<readonly [string, string]> = [
   ["addin-project-manifest", "officeAddinManifest"],
   ["mcp-da-server-url", "mcpServerUrl"],
   ["mcp-da-auth-type", "authType"],
+  ["azure-openai-key", "azureOpenAIKey"],
+  ["azure-openai-endpoint", "azureOpenAIEndpoint"],
+  ["azure-openai-deployment-name", "azureOpenAIDeploymentName"],
 ];
 
 const DECLARATIVE_AGENT_CAPABILITY = "declarative-agent";
@@ -232,6 +235,10 @@ function normalizeLegacyCreateRouteInputs(inputs: CreateProjectInputs): boolean 
   const routeAnswers = DA_TEMPLATE_ROUTE_BY_CAPABILITY[capability];
   if (routeAnswers === undefined) {
     return stringInput(inputs, "projectType") !== undefined;
+  }
+  const withPlugin = stringInput(inputs, "with-plugin");
+  if (routeAnswers.daTemplate === "no-action" && withPlugin !== undefined && withPlugin !== "no") {
+    return normalizeDeclarativeAgentRouteInputs(inputs);
   }
 
   applyRouteAnswers(inputs, routeAnswers);

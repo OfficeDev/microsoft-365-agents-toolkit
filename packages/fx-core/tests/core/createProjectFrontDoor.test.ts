@@ -90,7 +90,8 @@ const okFloor = (): Promise<Result<undefined, FxError>> => Promise.resolve(ok(un
 const okScaffold = (
   _inputs: Inputs,
   _target: BuildTarget,
-  _answers: Answers
+  _answers: Answers,
+  _flagReader?: (name: string) => boolean
 ): Promise<Result<CreateProjectResult, FxError>> => okResult("/v4");
 
 /** A typed `runCreateSelector` stub that records its `(floor, ui, surface, deps)` args. */
@@ -136,7 +137,8 @@ const failCreateV3 = (_inputs: Inputs): Promise<Result<CreateProjectResult, FxEr
 const failScaffoldV4 = (
   _inputs: Inputs,
   _target: BuildTarget,
-  _answers: Answers
+  _answers: Answers,
+  _flagReader?: (name: string) => boolean
 ): Promise<Result<CreateProjectResult, FxError>> => {
   throw new Error("scaffoldV4 must not run on this path");
 };
@@ -210,8 +212,12 @@ describe("createProjectFrontDoor (dispatch-create-by-engine)", () => {
     };
     const createV3 = recorder((_inputs: Inputs) => okResult("/v3"));
     const runInputs = inputsRecorder(q2);
-    const scaffoldV4 = recorder((_i: Inputs, _t: BuildTarget, _a: Answers) => okResult("/v4"));
+    const scaffoldV4 = recorder(
+      (_i: Inputs, _t: BuildTarget, _a: Answers, _flagReader: (name: string) => boolean) =>
+        okResult("/v4")
+    );
     const runSelector = selectorRecorder(V4_TARGET);
+    const flagReader = (name: string): boolean => name === FeatureFlags.V4Enabled.name;
 
     const res = await createProjectFrontDoor(
       baseInputs(),
@@ -221,6 +227,7 @@ describe("createProjectFrontDoor (dispatch-create-by-engine)", () => {
         runSelector: runSelector.fn,
         runInputs: runInputs.fn,
         collectCreateFloor: okFloor,
+        flagReader,
       })
     );
 
@@ -232,6 +239,7 @@ describe("createProjectFrontDoor (dispatch-create-by-engine)", () => {
     assert.equal(runInputs.calls[0][4]?.surface, "vscode"); // host platform → inputs surface (gates csharp)
     assert.deepEqual(scaffoldV4.calls[0][1], V4_TARGET);
     assert.deepEqual(scaffoldV4.calls[0][2], q2);
+    assert.strictEqual(scaffoldV4.calls[0][3], flagReader);
   });
 
   it("DCE-03: the Q2 answers reach scaffoldV4 under the create locator", async () => {
@@ -241,7 +249,10 @@ describe("createProjectFrontDoor (dispatch-create-by-engine)", () => {
       authType: "none",
     };
     const runInputs = inputsRecorder(q2);
-    const scaffoldV4 = recorder((_i: Inputs, _t: BuildTarget, _a: Answers) => okResult("/v4"));
+    const scaffoldV4 = recorder(
+      (_i: Inputs, _t: BuildTarget, _a: Answers, _flagReader: (name: string) => boolean) =>
+        okResult("/v4")
+    );
 
     const res = await createProjectFrontDoor(
       baseInputs(),
@@ -283,8 +294,9 @@ describe("createProjectFrontDoor (dispatch-create-by-engine)", () => {
   });
 
   it("DCE-05: DT-off DA+MCP resolves the v4 static route and bypasses createV3", async () => {
-    const scaffoldV4 = recorder((_i: Inputs, _t: BuildTarget, _a: Answers) =>
-      okResult("/v4-static")
+    const scaffoldV4 = recorder(
+      (_i: Inputs, _t: BuildTarget, _a: Answers, _flagReader: (name: string) => boolean) =>
+        okResult("/v4-static")
     );
     const runInputs = recorder((_floor: Buffer, _locator: DeclarativeLocator) =>
       Promise.resolve(ok<Answers, FxError>({ selectedMcpTools: ["search"] }))
@@ -389,7 +401,10 @@ describe("createProjectFrontDoor (dispatch-create-by-engine)", () => {
       answers: {},
     });
     const runInputs = inputsRecorder(q2);
-    const scaffoldV4 = recorder((_i: Inputs, _t: BuildTarget, _a: Answers) => okResult("/v4"));
+    const scaffoldV4 = recorder(
+      (_i: Inputs, _t: BuildTarget, _a: Answers, _flagReader: (name: string) => boolean) =>
+        okResult("/v4")
+    );
 
     const res = await createProjectFrontDoor(
       presetInputs("da/mcp-server"),
@@ -554,7 +569,59 @@ describe("createProjectFrontDoor (dispatch-create-by-engine)", () => {
     }
   });
 
-  it("returns an error before Q2 when a legacy static MCP tools file cannot be read", async () => {
+  it("DCE-18b: legacy CLI MCP server URL is fetched into static v4 MCP Q2 params", async () => {
+    const runInputs = inputsRecorder({});
+    const fetchMcpTools = recorder((serverUrl: string) =>
+      Promise.resolve({
+        requiresAuth: false,
+        tools: [
+          {
+            name: "microsoft_docs_search",
+            description: `Search official docs from ${serverUrl}`,
+            inputSchema: { type: "object", properties: {} },
+          },
+        ],
+      })
+    );
+    const inputs: Inputs = {
+      platform: Platform.CLI,
+      nonInteractive: true,
+      [QuestionNames.MCPForDAServerUrl]: "https://learn.microsoft.com/api/mcp",
+      authType: "none",
+    };
+
+    const res = await createProjectFrontDoor(
+      inputs,
+      deps({
+        runSelector: selectorRecorder(STATIC_MCP_TARGET).fn,
+        runInputs: runInputs.fn,
+        collectCreateFloor: okFloor,
+        scaffoldV4: okScaffold,
+        fetchMcpTools: fetchMcpTools.fn,
+      })
+    );
+
+    assert.isTrue(res.isOk());
+    assert.deepEqual(fetchMcpTools.calls, [["https://learn.microsoft.com/api/mcp"]]);
+    const mcpToolsJson = runInputs.calls[0][2].mcpToolsJson;
+    if (typeof mcpToolsJson !== "string") {
+      assert.fail("Expected mcpToolsJson to be fetched and bridged as a string.");
+    }
+    assert.equal(runInputs.calls[0][2].mcpServerUrl, "https://learn.microsoft.com/api/mcp");
+    assert.deepEqual(JSON.parse(mcpToolsJson), {
+      tools: [
+        {
+          name: "microsoft_docs_search",
+          description: "Search official docs from https://learn.microsoft.com/api/mcp",
+          inputSchema: { type: "object", properties: {} },
+        },
+      ],
+    });
+    assert.deepEqual(runInputs.calls[0][2].selectedMcpTools, ["microsoft_docs_search"]);
+  });
+
+  it("DCE-18c: legacy CLI MCP tools file read failure is returned before Q2", async () => {
+    const runInputs = inputsRecorder({});
     const inputs: Inputs = {
       platform: Platform.CLI,
       nonInteractive: true,
@@ -565,7 +632,9 @@ describe("createProjectFrontDoor (dispatch-create-by-engine)", () => {
       inputs,
       deps({
         runSelector: selectorRecorder(STATIC_MCP_TARGET).fn,
-        runInputs: failRunInputs,
+        runInputs: runInputs.fn,
+        collectCreateFloor: okFloor,
+        scaffoldV4: okScaffold,
       })
     );
 
@@ -573,6 +642,7 @@ describe("createProjectFrontDoor (dispatch-create-by-engine)", () => {
     if (res.isErr()) {
       assert.equal(res.error.name, "McpToolsFileReadFailed");
     }
+    assert.equal(runInputs.calls.length, 0);
   });
 
   it("returns an error before Q2 when a legacy static MCP tools file is invalid", async () => {
@@ -598,6 +668,34 @@ describe("createProjectFrontDoor (dispatch-create-by-engine)", () => {
     } finally {
       fs.removeSync(tempDir);
     }
+  });
+
+  it("DCE-18d: legacy CLI MCP fetch requiring auth leaves entry params unchanged", async () => {
+    const runInputs = inputsRecorder({});
+    const fetchMcpTools = recorder((_serverUrl: string) =>
+      Promise.resolve({ requiresAuth: true, tools: [] })
+    );
+    const inputs: Inputs = {
+      platform: Platform.CLI,
+      nonInteractive: true,
+      [QuestionNames.MCPForDAServerUrl]: "https://secure.example.com/mcp",
+    };
+
+    const res = await createProjectFrontDoor(
+      inputs,
+      deps({
+        runSelector: selectorRecorder(STATIC_MCP_TARGET).fn,
+        runInputs: runInputs.fn,
+        collectCreateFloor: okFloor,
+        scaffoldV4: okScaffold,
+        fetchMcpTools: fetchMcpTools.fn,
+      })
+    );
+
+    assert.isTrue(res.isOk());
+    assert.deepEqual(fetchMcpTools.calls, [["https://secure.example.com/mcp"]]);
+    assert.notProperty(runInputs.calls[0][2], "mcpToolsJson");
+    assert.notProperty(runInputs.calls[0][2], "selectedMcpTools");
   });
 
   it("DCE-17b: Office Add-in folder input is passed to the v4 input walk under its neutral key", async () => {
@@ -654,10 +752,12 @@ describe("createProjectFrontDoor (dispatch-create-by-engine)", () => {
       assert.equal(_i["template-name"], "declarative-agent-with-action-from-mcp");
       return okFloor();
     });
-    const scaffoldV4 = recorder((_i: Inputs, _t: BuildTarget, _a: Answers) => {
-      order.push("scaffold");
-      return okResult("/v4");
-    });
+    const scaffoldV4 = recorder(
+      (_i: Inputs, _t: BuildTarget, _a: Answers, _flagReader: (name: string) => boolean) => {
+        order.push("scaffold");
+        return okResult("/v4");
+      }
+    );
 
     const res = await createProjectFrontDoor(
       baseInputs(),
@@ -679,7 +779,10 @@ describe("createProjectFrontDoor (dispatch-create-by-engine)", () => {
 
   it("DCE-15: a create-floor cancellation propagates and does not scaffold", async () => {
     const cancel = new UserError({ source: "Test", name: "UserCancelError", message: "cancel" });
-    const scaffoldV4 = recorder((_i: Inputs, _t: BuildTarget, _a: Answers) => okResult("/v4"));
+    const scaffoldV4 = recorder(
+      (_i: Inputs, _t: BuildTarget, _a: Answers, _flagReader: (name: string) => boolean) =>
+        okResult("/v4")
+    );
 
     const res = await createProjectFrontDoor(
       baseInputs(),
@@ -708,20 +811,22 @@ describe("createProjectFrontDoor (dispatch-create-by-engine)", () => {
     assert.equal(vs.calls[0][2], "vs");
   });
 
-  it("defaults the flag reader to featureFlagManager (V4 off ⇒ pass-through)", async () => {
+  it("defaults the flag reader to featureFlagManager (V4 on ⇒ selector)", async () => {
     const saved = process.env[FeatureFlags.V4Enabled.name];
     delete process.env[FeatureFlags.V4Enabled.name];
     try {
       const createV3 = recorder((_inputs: Inputs) => okResult("/v3"));
+      const runSelector = selectorRecorder(SURFACE_ACTION_TARGET);
 
       const res = await createProjectFrontDoor(
         baseInputs(),
-        // no flagReader override → the real featureFlagManager default reads V4 off.
-        deps({ createV3: createV3.fn, flagReader: undefined, runSelector: failRunSelector })
+        // no flagReader override → the real featureFlagManager default reads V4 on.
+        deps({ createV3: createV3.fn, flagReader: undefined, runSelector: runSelector.fn })
       );
 
       assert.isTrue(res.isOk());
-      assert.equal(createV3.calls.length, 1);
+      assert.equal(runSelector.calls.length, 1);
+      assert.equal(createV3.calls.length, 0);
     } finally {
       if (saved === undefined) {
         delete process.env[FeatureFlags.V4Enabled.name];

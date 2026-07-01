@@ -23,10 +23,11 @@ import {
   runCreateSelector,
 } from "../v4";
 import { parseMcpStaticToolsJson } from "../v4/mcp/mcpStaticTools";
-import { FeatureFlags, featureFlagManager } from "../common/featureFlags";
+import { FeatureFlags, readBooleanFeatureFlag } from "../common/featureFlags";
 import { TOOLS } from "../common/globalVars";
 import { TemplateNames } from "../component/generator/templates/templateNames";
 import { QuestionNames } from "../question/questionNames";
+import { fetchMCPTools, MCPFetchResult } from "../component/utils/mcpToolFetcher";
 
 /**
  * Operation `dispatch-create-by-engine` — the create front door.
@@ -112,7 +113,8 @@ export interface CreateFrontDoorDeps {
   scaffoldV4: (
     inputs: Inputs,
     target: BuildTarget,
-    answers: Answers
+    answers: Answers,
+    flagReader: (name: string) => boolean
   ) => Promise<Result<CreateProjectResult, FxError>>;
   /**
    * The engine=v4 create-floor collection: ask `folder` + `app-name`. The v4 path
@@ -136,11 +138,13 @@ export interface CreateFrontDoorDeps {
   resolveByTemplateId?: typeof resolveCreateTargetByTemplateId;
   /** The Q2 inputs walk (default: the real `runCreateInputs`). */
   runInputs?: typeof runCreateInputs;
+  /** Fetch MCP tools for the legacy static-MCP server-url-only CLI path. */
+  fetchMcpTools?: (serverUrl: string) => Promise<MCPFetchResult>;
 }
 
 /** The default `featureFlagManager`-backed reader (a flag is on per its env var / VS Code setting). */
 function defaultFlagReader(name: string): boolean {
-  return featureFlagManager.getBooleanValue({ name, defaultValue: "false" });
+  return readBooleanFeatureFlag(name);
 }
 
 /** Read the shipped bundled-floor channel zip (the default `readFloorBytes`). */
@@ -175,31 +179,41 @@ function neutralAnswersFromInputs(inputs: Inputs): Answers {
   return answers;
 }
 
-function addLegacyStaticMcpInputs(
+async function addLegacyStaticMcpInputs(
   target: BuildTarget,
   inputs: Inputs,
-  entryParams: Answers
-): Result<Answers, FxError> {
+  entryParams: Answers,
+  fetchTools: (serverUrl: string) => Promise<MCPFetchResult>
+): Promise<Result<Answers, FxError>> {
   if (target.templateId !== STATIC_MCP_TEMPLATE_ID) {
     return ok(entryParams);
   }
 
   const toolsFilePath = inputs[QuestionNames.MCPToolsFilePath];
-  if (typeof toolsFilePath !== "string" || toolsFilePath.length === 0) {
-    return ok(entryParams);
+  const mcpServerUrl = inputs[QuestionNames.MCPForDAServerUrl] ?? entryParams.mcpServerUrl;
+  let toolsJson: string | undefined;
+  if (typeof toolsFilePath === "string" && toolsFilePath.length > 0) {
+    try {
+      toolsJson = fs.readFileSync(toolsFilePath, "utf8");
+    } catch {
+      return err(
+        new UserError({
+          source: SOURCE,
+          name: "McpToolsFileReadFailed",
+          message: "Failed to read the MCP tools file.",
+        })
+      );
+    }
+  } else if (typeof mcpServerUrl === "string" && mcpServerUrl.length > 0) {
+    const fetchResult = await fetchTools(mcpServerUrl);
+    if (fetchResult.requiresAuth || fetchResult.tools.length === 0) {
+      return ok(entryParams);
+    }
+    toolsJson = JSON.stringify({ tools: fetchResult.tools });
   }
 
-  let toolsJson: string;
-  try {
-    toolsJson = fs.readFileSync(toolsFilePath, "utf8");
-  } catch {
-    return err(
-      new UserError({
-        source: SOURCE,
-        name: "McpToolsFileReadFailed",
-        message: "Failed to read the MCP tools file.",
-      })
-    );
+  if (toolsJson === undefined) {
+    return ok(entryParams);
   }
 
   const parsed = parseMcpStaticToolsJson(toolsJson);
@@ -209,6 +223,7 @@ function addLegacyStaticMcpInputs(
 
   return ok({
     ...entryParams,
+    ...(typeof mcpServerUrl === "string" ? { mcpServerUrl } : {}),
     mcpToolsJson:
       typeof entryParams.mcpToolsJson === "string" ? entryParams.mcpToolsJson : toolsJson,
     selectedMcpTools: Array.isArray(entryParams.selectedMcpTools)
@@ -329,7 +344,12 @@ export async function createProjectFrontDoor(
         ...(target.value.answers ?? {}),
         ...neutralAnswersFromInputs(inputs),
       };
-      const bridgedEntryParams = addLegacyStaticMcpInputs(target.value, inputs, entryParams);
+      const bridgedEntryParams = await addLegacyStaticMcpInputs(
+        target.value,
+        inputs,
+        entryParams,
+        deps.fetchMcpTools ?? fetchMCPTools
+      );
       if (bridgedEntryParams.isErr()) {
         return err(bridgedEntryParams.error);
       }
@@ -348,7 +368,7 @@ export async function createProjectFrontDoor(
       if (floorRes.isErr()) {
         return err(floorRes.error);
       }
-      return deps.scaffoldV4(inputs, target.value, answers.value);
+      return deps.scaffoldV4(inputs, target.value, answers.value, flagReader);
     }
     case "v3-core-method":
       // The shipped create selector carries no v3-core-method route; fail loudly

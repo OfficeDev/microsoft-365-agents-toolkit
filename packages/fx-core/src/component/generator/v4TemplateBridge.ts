@@ -211,7 +211,8 @@ export async function scaffoldDeclarativeFromV4Channel(
   locator: DeclarativeLocator,
   answers: Answers,
   callerFloor: CallerFloor,
-  telemetryProps?: Record<string, string>
+  telemetryProps?: Record<string, string>,
+  flagReader?: (name: string) => boolean
 ): Promise<TemplateSource> {
   const { source, bytes } = resolveChannelPackageBytes(context, telemetryProps);
 
@@ -230,7 +231,7 @@ export async function scaffoldDeclarativeFromV4Channel(
       callerFloor,
       targetDir: { path: context.destination, existing },
     },
-    createRealRuntime(context.destination)
+    createRealRuntime(context.destination, flagReader)
   );
   if (result.isErr()) {
     throw result.error;

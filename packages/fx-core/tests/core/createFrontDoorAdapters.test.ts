@@ -402,8 +402,9 @@ describe("createFrontDoorAdapters", () => {
         [QuestionNames.Folder]: "/tmp",
         [QuestionNames.AppName]: "MyApp",
       };
+      const flagReader = (name: string): boolean => name === "TEAMSFX_TEST_FLAG";
 
-      const res = await scaffoldV4(inputs, v4Target, { mcpServerType: "remote" });
+      const res = await scaffoldV4(inputs, v4Target, { mcpServerType: "remote" }, flagReader);
 
       assert.isTrue(res.isOk());
       assert.equal(res._unsafeUnwrap().projectPath, path.join(path.resolve("/tmp"), "MyApp"));
@@ -411,6 +412,7 @@ describe("createFrontDoorAdapters", () => {
       assert.deepEqual(firstCall[1], { kind: "create", templateId: "da/mcp-server" });
       assert.deepEqual(firstCall[2], { mcpServerType: "remote" });
       assert.deepEqual(firstCall[3], { appName: "MyApp", language: "common" });
+      assert.strictEqual(firstCall[5], flagReader);
     });
 
     it("DCE-21: emits v3-compatible generate-template telemetry when v4 scaffold succeeds", async () => {

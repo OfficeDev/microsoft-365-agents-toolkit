@@ -85,7 +85,8 @@ export const scaffoldV4Deps = {
 export async function scaffoldV4(
   inputs: Inputs,
   target: BuildTarget,
-  answers: Answers
+  answers: Answers,
+  flagReader?: (name: string) => boolean
 ): Promise<Result<CreateProjectResult, FxError>> {
   const folderInput = inputs[QuestionNames.Folder];
   if (!folderInput) {
@@ -125,7 +126,8 @@ export async function scaffoldV4(
       locator,
       answers,
       callerFloor,
-      telemetryProps
+      telemetryProps,
+      flagReader
     );
     if (source.warning) {
       TOOLS.logProvider.warning(source.warning);
