@@ -342,7 +342,7 @@
       "parameters": {
         "button": "left",
         "x": 345,
-        "y": 70
+        "y": 125
       },
       "description": "Click the \"OAuth (with static registration)\" option in the \"Select Authentication Type\" dropdown within Visual Studio Code.",
       "content_refs": [],
@@ -648,7 +648,7 @@
       "parameters": {
         "text": "read:user"
       },
-      "description": "Type 'read:user' into the “Scope(s) for OAuth registration” input field at the top of the Visual Studio Code window.",
+      "description": "Type 'read:user' into the \u201cScope(s) for OAuth registration\u201d input field at the top of the Visual Studio Code window.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
