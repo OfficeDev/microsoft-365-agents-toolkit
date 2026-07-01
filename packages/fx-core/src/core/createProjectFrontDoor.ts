@@ -7,7 +7,6 @@ import {
   Inputs,
   Platform,
   SystemError,
-  UserError,
   UserInteraction,
 } from "@microsoft/teamsfx-api";
 import fs from "fs-extra";
@@ -25,13 +24,11 @@ import {
   runCreateSelector,
   templateSourceFromArtifactSnapshot,
 } from "../v4";
-import { parseMcpStaticToolsJson } from "../v4/mcp/mcpStaticTools";
 import { FeatureFlags, readBooleanFeatureFlag } from "../common/featureFlags";
 import { TOOLS } from "../common/globalVars";
 import { TemplateNames } from "../component/generator/templates/templateNames";
 import type { ResolvedV4ChannelPackage } from "../component/generator/v4TemplateBridge";
 import { QuestionNames } from "../question/questionNames";
-import { fetchMCPTools, MCPFetchResult } from "../component/utils/mcpToolFetcher";
 
 /**
  * Operation `dispatch-create-by-engine` — the create front door.
@@ -43,9 +40,8 @@ import { fetchMCPTools, MCPFetchResult } from "../component/utils/mcpToolFetcher
  * Behind `TEAMSFX_V4_ENABLED`, the v4 create selector is the live Q1 front door
  * and the resolved `BuildTarget` is dispatched by its `engine` (INV-3):
  *   - `v4`             → run the template's own Q2 (`runCreateInputs`) over the
- *                        same floor, collect the create floor (`folder`/`app-name`,
- *                        the step the v3 `QuestionMW` owns), then `scaffoldV4` the
- *                        authored package;
+ *                        same floor, with the create floor appended to the same
+ *                        walk, then `scaffoldV4` the authored package;
  *   - `v3`             → translate the Q1 picks onto the v3 `QuestionNames.*`
  *                        (`applyV3PreFill`, INV-5) and hand off to `createV3`,
  *                        whose `QuestionMW` then skips Q1 and asks only Q2;
@@ -63,7 +59,6 @@ const SOURCE = "Scaffold";
 
 /** The only shipped create `surface-action`: open GitHub Copilot Chat (the v3 `startWithGithubCopilot` shape). */
 const OPEN_GITHUB_COPILOT_CHAT = "open-github-copilot-chat";
-const STATIC_MCP_TEMPLATE_ID = "da/mcp-server-static";
 const V4_TO_V3_TEMPLATE_ID: Readonly<Record<string, string>> = {
   "basic-custom-engine-agent": TemplateNames.BasicCustomEngineAgent,
   "weather-agent": TemplateNames.WeatherAgent,
@@ -106,7 +101,7 @@ const NON_V4_INPUT_KEYS: ReadonlySet<string> = new Set([
  * The create front door's injected seams. `createV3` is required — it is both the
  * flag-off pass-through and the engine=v3 hand-off, and injecting it (rather than
  * importing `FxCore`) keeps this seam free of an import cycle. `scaffoldV4`,
- * `collectCreateFloor`, and `applyV3PreFill` are the flag-on hand-offs the
+ * `runInputs`, and `applyV3PreFill` are the flag-on hand-offs the
  * composition root (`FxCore`) supplies. The remaining members default to the real
  * wiring, so a production caller passes only the four handlers.
  */
@@ -121,13 +116,7 @@ export interface CreateFrontDoorDeps {
     flagReader: (name: string) => boolean,
     resolvedPackage?: ResolvedV4ChannelPackage
   ) => Promise<Result<CreateProjectResult, FxError>>;
-  /**
-   * The engine=v4 create-floor collection: ask `folder` + `app-name`. The v4 path
-   * carries no `QuestionMW`, so the front door collects the floor itself — the same
-   * step `createProject`'s `QuestionMW` runs (last) for v3. Interactive surfaces are
-   * prompted; a non-interactive surface (a CLI preset `template-name` / `-f` / `-n`)
-   * is skipped exactly as v3 is.
-   */
+  /** Legacy create-floor seam retained for existing composition wiring; v4 now appends floor questions inside `runInputs`. */
   collectCreateFloor: (inputs: Inputs, ui: UserInteraction) => Promise<Result<undefined, FxError>>;
   /** The engine=v3 adapter: translate the Q1 dimension picks onto the v3 `QuestionNames.*` (INV-5). */
   applyV3PreFill: (inputs: Inputs, target: BuildTarget) => void;
@@ -151,8 +140,6 @@ export interface CreateFrontDoorDeps {
   resolveByTemplateId?: typeof resolveCreateTargetByTemplateId;
   /** The Q2 inputs walk (default: the real `runCreateInputs`). */
   runInputs?: typeof runCreateInputs;
-  /** Fetch MCP tools for the legacy static-MCP server-url-only CLI path. */
-  fetchMcpTools?: (serverUrl: string) => Promise<MCPFetchResult>;
 }
 
 /** The default `featureFlagManager`-backed reader (a flag is on per its env var / VS Code setting). */
@@ -199,59 +186,6 @@ function neutralAnswersFromInputs(inputs: Inputs): Answers {
   return answers;
 }
 
-async function addLegacyStaticMcpInputs(
-  target: BuildTarget,
-  inputs: Inputs,
-  entryParams: Answers,
-  fetchTools: (serverUrl: string) => Promise<MCPFetchResult>
-): Promise<Result<Answers, FxError>> {
-  if (target.templateId !== STATIC_MCP_TEMPLATE_ID) {
-    return ok(entryParams);
-  }
-
-  const toolsFilePath = inputs[QuestionNames.MCPToolsFilePath];
-  const mcpServerUrl = inputs[QuestionNames.MCPForDAServerUrl] ?? entryParams.mcpServerUrl;
-  let toolsJson: string | undefined;
-  if (typeof toolsFilePath === "string" && toolsFilePath.length > 0) {
-    try {
-      toolsJson = fs.readFileSync(toolsFilePath, "utf8");
-    } catch {
-      return err(
-        new UserError({
-          source: SOURCE,
-          name: "McpToolsFileReadFailed",
-          message: "Failed to read the MCP tools file.",
-        })
-      );
-    }
-  } else if (typeof mcpServerUrl === "string" && mcpServerUrl.length > 0) {
-    const fetchResult = await fetchTools(mcpServerUrl);
-    if (fetchResult.requiresAuth || fetchResult.tools.length === 0) {
-      return ok(entryParams);
-    }
-    toolsJson = JSON.stringify({ tools: fetchResult.tools });
-  }
-
-  if (toolsJson === undefined) {
-    return ok(entryParams);
-  }
-
-  const parsed = parseMcpStaticToolsJson(toolsJson);
-  if (!parsed.ok) {
-    return err(new UserError({ source: SOURCE, name: parsed.code, message: parsed.message }));
-  }
-
-  return ok({
-    ...entryParams,
-    ...(typeof mcpServerUrl === "string" ? { mcpServerUrl } : {}),
-    mcpToolsJson:
-      typeof entryParams.mcpToolsJson === "string" ? entryParams.mcpToolsJson : toolsJson,
-    selectedMcpTools: Array.isArray(entryParams.selectedMcpTools)
-      ? entryParams.selectedMcpTools
-      : parsed.tools.map((tool) => tool.name),
-  });
-}
-
 function selectorPrefillFromInputs(inputs: Inputs): Record<string, string> {
   const answers: Record<string, string> = {};
   for (const [key, value] of Object.entries(neutralAnswersFromInputs(inputs))) {
@@ -264,6 +198,17 @@ function selectorPrefillFromInputs(inputs: Inputs): Record<string, string> {
 
 function templateNameForV4(target: BuildTarget): string {
   return V4_TO_V3_TEMPLATE_ID[target.templateId] ?? target.templateId;
+}
+
+function applyV4CreateFloorAnswers(inputs: Inputs, answers: Answers): void {
+  const folder = answers[QuestionNames.Folder];
+  if (typeof folder === "string") {
+    inputs[QuestionNames.Folder] = folder;
+  }
+  const appName = answers[QuestionNames.AppName];
+  if (typeof appName === "string") {
+    inputs[QuestionNames.AppName] = appName;
+  }
 }
 
 /** Map the host `Platform` onto the selector's `surface` axis (drives option `condition`s). */
@@ -407,15 +352,6 @@ export async function createProjectFrontDoor(
         ...(target.value.answers ?? {}),
         ...neutralAnswersFromInputs(inputs),
       };
-      const bridgedEntryParams = await addLegacyStaticMcpInputs(
-        target.value,
-        inputs,
-        entryParams,
-        deps.fetchMcpTools ?? fetchMCPTools
-      );
-      if (bridgedEntryParams.isErr()) {
-        return err(bridgedEntryParams.error);
-      }
       let inputBytes: Buffer;
       if (snapshot === undefined) {
         if (floorBytes === undefined) {
@@ -429,21 +365,15 @@ export async function createProjectFrontDoor(
         }
         inputBytes = metadataBytes.value;
       }
-      const answers = await runInputs(inputBytes, locator, bridgedEntryParams.value, ui, {
+      const answers = await runInputs(inputBytes, locator, entryParams, ui, {
         flagReader,
         surface,
+        inputs,
       });
       if (answers.isErr()) {
         return err(answers.error);
       }
-      // The v4 path carries no QuestionMW (createProject's, which asks the v3 tree's
-      // folder/app-name last), so collect the create floor here — interactive
-      // surfaces are prompted; a non-interactive surface fails through the same
-      // required-input validation without depending on the v3 question visitor.
-      const floorRes = await deps.collectCreateFloor(inputs, ui);
-      if (floorRes.isErr()) {
-        return err(floorRes.error);
-      }
+      applyV4CreateFloorAnswers(inputs, answers.value);
       if (snapshot !== undefined) {
         const fullBytes = await readSnapshotBytes(snapshot, "templates");
         if (fullBytes.isErr()) {

@@ -156,7 +156,21 @@ describe("runCreateSelector (walk-create-selector)", () => {
     assert.deepEqual(ui.selectNames, ["projectType", "daTemplate", "actionSource"]);
   });
 
-  it("WCS-02: the same picks with DT off resolve the v4 static MCP route", async () => {
+  it("WCS-02: CLI DA+MCP with DT off resolves the v4 static MCP route", async () => {
+    const ui = new ScriptedUI(MCP_DA_PICKS);
+
+    const res = await runCreateSelector(buildFloor(), asUI(ui), "cli", {
+      flagReader: () => false,
+    });
+
+    assert.isTrue(res.isOk());
+    if (res.isOk()) {
+      assert.equal(res.value.templateId, "da/mcp-server-static");
+      assert.equal(res.value.engine, "v4");
+    }
+  });
+
+  it("WCS-02b: VS Code DA+MCP with DT off resolves the v4 static MCP route", async () => {
     const ui = new ScriptedUI(MCP_DA_PICKS);
 
     const res = await runCreateSelector(buildFloor(), asUI(ui), "vscode", {
@@ -170,7 +184,7 @@ describe("runCreateSelector (walk-create-selector)", () => {
     }
   });
 
-  it("WCS-02b: custom-engine→basic-custom-engine-agent resolves the v4 route", async () => {
+  it("WCS-02c: custom-engine→basic-custom-engine-agent resolves the v4 route", async () => {
     const picks = {
       projectType: "custom-engine-agent-type",
       customEngineAgent: "basic-custom-engine-agent",

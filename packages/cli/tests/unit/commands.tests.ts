@@ -258,6 +258,7 @@ describe("CLI commands", () => {
         optionValues: {
           nonInteractive: true,
           "mcp-da-server-url": "https://example.com/mcp",
+          "mcp-tools-file-path": "C:/tools/mcp-tools.json",
           "mcp-da-auth-type": "none",
           "api-auth": "none",
           "api-operation": ["GET /repairs"],
@@ -276,6 +277,8 @@ describe("CLI commands", () => {
       const inputs = createProjectFrontDoorStub.mock.calls[0][0] as any;
       assert.equal(inputs.mcpServerUrl, "https://example.com/mcp");
       assert.equal(inputs["mcp-da-server-url"], "https://example.com/mcp");
+      assert.equal(inputs.mcpToolsFilePath, "C:/tools/mcp-tools.json");
+      assert.equal(inputs["mcp-tools-file-path"], "C:/tools/mcp-tools.json");
       assert.equal(inputs.authType, "none");
       assert.equal(inputs["mcp-da-auth-type"], "none");
       assert.equal(inputs.apiAuth, "none");
