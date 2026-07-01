@@ -74,6 +74,9 @@ describe(`${STEP_MATERIALIZE_STATIC_MCP_TOOLS} (v4)`, () => {
       "missing string parameter 'mcpServerUrl'"
     );
     assert.isUndefined(mcpStaticMaterializeTools.validateParams(validParams({}, ["toolsJson"])));
+    assert.isUndefined(
+      mcpStaticMaterializeTools.validateParams(validParams({ selected: "{{selectedMcpTools}}" }))
+    );
     assert.strictEqual(
       mcpStaticMaterializeTools.validateParams(validParams({ selected: true })),
       "missing string[] parameter 'selected'"
@@ -194,6 +197,34 @@ describe(`${STEP_MATERIALIZE_STATIC_MCP_TOOLS} (v4)`, () => {
 
     const result = await mcpStaticMaterializeTools.apply(
       validParams({ toolsJson: "", selected: "" }),
+      ctx
+    );
+
+    assert.isTrue(result.isOk(), result.isErr() ? result.error.message : "expected ok");
+    const plugin = JSON.parse(files.get("appPackage/ai-plugin.json")?.toString("utf8") ?? "{}");
+    assert.deepEqual(plugin.functions, [
+      { name: "searchFlights", description: "Search flights" },
+      { name: "bookFlight", description: "Book flights" },
+    ]);
+    assert.deepEqual(plugin.runtimes[0].run_for_functions, ["searchFlights", "bookFlight"]);
+  });
+
+  it("writes all fetched tools when optional params resolve to unresolved tokens", async () => {
+    const { ctx, files } = makeCtx({ "appPackage/ai-plugin.json": "{}" });
+    mcpStaticDeps.fetchTools = async () => ({
+      requiresAuth: false,
+      tools: [
+        { name: "searchFlights", description: "Search flights", inputSchema: {} },
+        { name: "bookFlight", description: "Book flights", inputSchema: {} },
+      ],
+    });
+
+    const result = await mcpStaticMaterializeTools.apply(
+      validParams({
+        toolsJson: "{{mcpToolsJson}}",
+        toolsFilePath: "{{mcpToolsFilePath}}",
+        selected: "{{selectedMcpTools}}",
+      }),
       ctx
     );
 

@@ -28,6 +28,18 @@ function stringParam(params: StepParams, key: string): string | undefined {
   return typeof value === "string" ? value : undefined;
 }
 
+function isUnresolvedToken(value: string): boolean {
+  return /^\{\{[A-Za-z_][A-Za-z0-9_.]*\}\}$/.test(value);
+}
+
+function optionalStringParam(params: StepParams, key: string): string | undefined {
+  const value = stringParam(params, key);
+  if (value === undefined || value === "" || isUnresolvedToken(value)) {
+    return undefined;
+  }
+  return value;
+}
+
 function stringArrayParam(params: StepParams, key: string): string[] | undefined {
   const value = params[key];
   if (!Array.isArray(value) || !value.every((item) => typeof item === "string")) {
@@ -38,10 +50,23 @@ function stringArrayParam(params: StepParams, key: string): string[] | undefined
 
 function optionalStringArrayParam(params: StepParams, key: string): string[] | undefined {
   const value = params[key];
-  if (value === undefined || value === "") {
+  if (
+    value === undefined ||
+    value === "" ||
+    (typeof value === "string" && isUnresolvedToken(value))
+  ) {
     return undefined;
   }
   return stringArrayParam(params, key);
+}
+
+function hasOptionalArrayParamValue(params: StepParams, key: string): boolean {
+  const value = params[key];
+  return !(
+    value === undefined ||
+    value === "" ||
+    (typeof value === "string" && isUnresolvedToken(value))
+  );
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -77,12 +102,12 @@ async function resolveToolsJson(
   resolved: StepParams,
   serverUrl: string
 ): Promise<Result<string, FxError>> {
-  const toolsJson = stringParam(resolved, "toolsJson")?.trim();
+  const toolsJson = optionalStringParam(resolved, "toolsJson")?.trim();
   if (toolsJson) {
     return ok(toolsJson);
   }
 
-  const toolsFilePath = stringParam(resolved, "toolsFilePath")?.trim();
+  const toolsFilePath = optionalStringParam(resolved, "toolsFilePath")?.trim();
   if (toolsFilePath) {
     try {
       return ok(fs.readFileSync(toolsFilePath, "utf8"));
@@ -165,8 +190,7 @@ export const mcpStaticMaterializeTools: RegisteredStep = {
       return "missing string parameter 'mcpServerUrl'";
     }
     if (
-      resolved.selected !== undefined &&
-      resolved.selected !== "" &&
+      hasOptionalArrayParamValue(resolved, "selected") &&
       stringArrayParam(resolved, "selected") === undefined
     ) {
       return "missing string[] parameter 'selected'";
@@ -178,7 +202,7 @@ export const mcpStaticMaterializeTools: RegisteredStep = {
     const toolsPath = stringParam(resolved, "toolsPath");
     const mcpServerUrl = stringParam(resolved, "mcpServerUrl");
     const selected = optionalStringArrayParam(resolved, "selected");
-    if (resolved.selected !== undefined && resolved.selected !== "" && selected === undefined) {
+    if (hasOptionalArrayParamValue(resolved, "selected") && selected === undefined) {
       return err(
         systemError("McpStaticParams", "resolved parameters are not all of the expected type")
       );
