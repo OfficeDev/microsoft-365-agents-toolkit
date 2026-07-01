@@ -45,7 +45,7 @@
       "step_2c108401"
     ],
     "tags": [],
-    "updated_at": "2026-07-01T14:12:30.000000"
+    "updated_at": "2026-07-01T14:16:35.515000"
   },
   "steps": [
     {
@@ -329,7 +329,7 @@
       "agent": "assertion",
       "tool": "",
       "parameters": {},
-      "description": "@assertion \"Task pane\", \"Custom Function and Shortcut\", \"Create Declarative Agent with Office Add-in Action\" and \"Upgrade an Existing Office Add-in\" exist.",
+      "description": "@assertion \"Task pane\", \"Custom Function and Shortcut\" and \"Upgrade an Existing Office Add-in\" exist.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
