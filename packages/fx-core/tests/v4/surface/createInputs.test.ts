@@ -8,6 +8,9 @@ import {
   MultiSelectConfig,
   MultiSelectResult,
   OptionItem as SurfaceOptionItem,
+  Platform,
+  SelectFolderConfig,
+  SelectFolderResult,
   SingleSelectConfig,
   SingleSelectResult,
   SystemError,
@@ -123,6 +126,7 @@ const localMcpServers = [
 interface Script {
   select?: Record<string, string>;
   text?: Record<string, string>;
+  folder?: Record<string, string>;
   multi?: Record<string, string[]>;
   back?: string[];
 }
@@ -141,9 +145,11 @@ class ScriptedUserInteraction {
   promptNames: string[] = [];
   selectNames: string[] = [];
   textNames: string[] = [];
+  folderNames: string[] = [];
   multiNames: string[] = [];
   lastSelectConfig?: SingleSelectConfig;
   lastInputConfig?: InputTextConfig;
+  lastFolderConfig?: SelectFolderConfig;
   lastMultiConfig?: MultiSelectConfig;
   constructor(private readonly script: Script) {}
 
@@ -174,6 +180,21 @@ class ScriptedUserInteraction {
       return Promise.resolve(err(noAnswer(config.name)));
     }
     const result: InputTextResult = { type: "success", result: answer };
+    return Promise.resolve(ok(result));
+  }
+
+  selectFolder(config: SelectFolderConfig): Promise<Result<SelectFolderResult, FxError>> {
+    this.promptNames.push(config.name);
+    this.folderNames.push(config.name);
+    this.lastFolderConfig = config;
+    if (this.script.back?.includes(config.name) === true) {
+      return Promise.resolve(ok({ type: "back" }));
+    }
+    const answer = this.script.folder?.[config.name];
+    if (answer === undefined) {
+      return Promise.resolve(err(noAnswer(config.name)));
+    }
+    const result: SelectFolderResult = { type: "success", result: answer };
     return Promise.resolve(ok(result));
   }
 
@@ -392,6 +413,30 @@ describe("runCreateInputs (collect-create-inputs)", () => {
     }
     assert.deepEqual(ui.selectNames, ["llmService"]);
     assert.deepEqual(ui.textNames, ["openAIKey"]);
+  });
+
+  it("collects Basic Custom Engine Agent Q2 and create floor in one walk", async () => {
+    const ui = new ScriptedUserInteraction({
+      select: { llmService: "llm-service-openai", language: "typescript" },
+      text: { openAIKey: "fake-openai-key", "app-name": "MyAgent" },
+      folder: { folder: "C:/src" },
+    });
+
+    const res = await runCreateInputs(buildFloor(), BASIC_CUSTOM_ENGINE_AGENT, {}, asUI(ui), {
+      flagReader: () => false,
+      inputs: { platform: Platform.VSCode },
+      surface: "vscode",
+    });
+
+    assert.isTrue(res.isOk(), res.isErr() ? res.error.message : "expected ok");
+    if (res.isOk()) {
+      assert.equal(res.value.llmService, "llm-service-openai");
+      assert.equal(res.value.openAIKey, "fake-openai-key");
+      assert.equal(res.value.folder, "C:/src");
+      assert.equal(res.value["app-name"], "MyAgent");
+      assert.equal(res.value.language, "typescript");
+    }
+    assert.deepEqual(ui.promptNames, ["llmService", "openAIKey", "language", "folder", "app-name"]);
   });
 
   it("collects Weather Agent Azure OpenAI service answers", async () => {

@@ -40,9 +40,8 @@ import { QuestionNames } from "../question/questionNames";
  * Behind `TEAMSFX_V4_ENABLED`, the v4 create selector is the live Q1 front door
  * and the resolved `BuildTarget` is dispatched by its `engine` (INV-3):
  *   - `v4`             → run the template's own Q2 (`runCreateInputs`) over the
- *                        same floor, collect the create floor (`folder`/`app-name`,
- *                        the step the v3 `QuestionMW` owns), then `scaffoldV4` the
- *                        authored package;
+ *                        same floor, with the create floor appended to the same
+ *                        walk, then `scaffoldV4` the authored package;
  *   - `v3`             → translate the Q1 picks onto the v3 `QuestionNames.*`
  *                        (`applyV3PreFill`, INV-5) and hand off to `createV3`,
  *                        whose `QuestionMW` then skips Q1 and asks only Q2;
@@ -102,7 +101,7 @@ const NON_V4_INPUT_KEYS: ReadonlySet<string> = new Set([
  * The create front door's injected seams. `createV3` is required — it is both the
  * flag-off pass-through and the engine=v3 hand-off, and injecting it (rather than
  * importing `FxCore`) keeps this seam free of an import cycle. `scaffoldV4`,
- * `collectCreateFloor`, and `applyV3PreFill` are the flag-on hand-offs the
+ * `runInputs`, and `applyV3PreFill` are the flag-on hand-offs the
  * composition root (`FxCore`) supplies. The remaining members default to the real
  * wiring, so a production caller passes only the four handlers.
  */
@@ -117,13 +116,7 @@ export interface CreateFrontDoorDeps {
     flagReader: (name: string) => boolean,
     resolvedPackage?: ResolvedV4ChannelPackage
   ) => Promise<Result<CreateProjectResult, FxError>>;
-  /**
-   * The engine=v4 create-floor collection: ask `folder` + `app-name`. The v4 path
-   * carries no `QuestionMW`, so the front door collects the floor itself — the same
-   * step `createProject`'s `QuestionMW` runs (last) for v3. Interactive surfaces are
-   * prompted; a non-interactive surface (a CLI preset `template-name` / `-f` / `-n`)
-   * is skipped exactly as v3 is.
-   */
+  /** Legacy create-floor seam retained for existing composition wiring; v4 now appends floor questions inside `runInputs`. */
   collectCreateFloor: (inputs: Inputs, ui: UserInteraction) => Promise<Result<undefined, FxError>>;
   /** The engine=v3 adapter: translate the Q1 dimension picks onto the v3 `QuestionNames.*` (INV-5). */
   applyV3PreFill: (inputs: Inputs, target: BuildTarget) => void;
@@ -205,6 +198,17 @@ function selectorPrefillFromInputs(inputs: Inputs): Record<string, string> {
 
 function templateNameForV4(target: BuildTarget): string {
   return V4_TO_V3_TEMPLATE_ID[target.templateId] ?? target.templateId;
+}
+
+function applyV4CreateFloorAnswers(inputs: Inputs, answers: Answers): void {
+  const folder = answers[QuestionNames.Folder];
+  if (typeof folder === "string") {
+    inputs[QuestionNames.Folder] = folder;
+  }
+  const appName = answers[QuestionNames.AppName];
+  if (typeof appName === "string") {
+    inputs[QuestionNames.AppName] = appName;
+  }
 }
 
 /** Map the host `Platform` onto the selector's `surface` axis (drives option `condition`s). */
@@ -364,18 +368,12 @@ export async function createProjectFrontDoor(
       const answers = await runInputs(inputBytes, locator, entryParams, ui, {
         flagReader,
         surface,
+        inputs,
       });
       if (answers.isErr()) {
         return err(answers.error);
       }
-      // The v4 path carries no QuestionMW (createProject's, which asks the v3 tree's
-      // folder/app-name last), so collect the create floor here — interactive
-      // surfaces are prompted; a non-interactive surface fails through the same
-      // required-input validation without depending on the v3 question visitor.
-      const floorRes = await deps.collectCreateFloor(inputs, ui);
-      if (floorRes.isErr()) {
-        return err(floorRes.error);
-      }
+      applyV4CreateFloorAnswers(inputs, answers.value);
       if (snapshot !== undefined) {
         const fullBytes = await readSnapshotBytes(snapshot, "templates");
         if (fullBytes.isErr()) {

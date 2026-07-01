@@ -1,7 +1,14 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { FxError, SystemError, UserError, UserInteraction } from "@microsoft/teamsfx-api";
+import {
+  FuncValidation,
+  FxError,
+  Inputs,
+  SystemError,
+  UserError,
+  UserInteraction,
+} from "@microsoft/teamsfx-api";
 import {
   ListAPIInfo,
   ParseOptions,
@@ -11,7 +18,7 @@ import {
   ValidationStatus,
 } from "@microsoft/m365-spec-parser";
 import fs from "fs-extra";
-import { Result, err } from "neverthrow";
+import { Result, err, ok } from "neverthrow";
 import { MCPFetchResult, fetchMCPTools } from "../../component/utils/mcpToolFetcher";
 import { ODRProvider, type ODRServer } from "../../component/utils/odrProvider";
 import { readBooleanFeatureFlag } from "../../common/featureFlags";
@@ -19,10 +26,12 @@ import {
   CollectInputsPort,
   OptionsProvider,
   OptionsSchema,
+  QuestionSpec,
   Validator,
   collectInputs,
 } from "../collectInputs/collectInputs";
-import { openCreateQuestions } from "../distribution/createQuestions";
+import { InputValidationError, MissingRequiredInputError } from "../../error/common";
+import { QuestionNames, appNameQuestion, folderQuestion } from "../../question";
 import { openDeclarativePackageMetadata } from "../distribution/declarativePackage";
 import { evaluateExpression } from "../expression/evaluateExpression";
 import { parseMcpStaticToolsJson } from "../mcp/mcpStaticTools";
@@ -35,6 +44,12 @@ import { createUiPromptUI } from "./uiPromptUI";
 
 const remoteMcpServerType = { id: "remote", label: "Remote" };
 const localMcpServerType = { id: "local", label: "Local" };
+const LANGUAGE_LABELS: Record<string, string> = {
+  javascript: "JavaScript",
+  typescript: "TypeScript",
+  csharp: "C#",
+  python: "Python",
+};
 
 function createLocalServerCache(
   listLocalMcpServers: () => Promise<ODRServer[]>
@@ -322,6 +337,148 @@ const validators: Record<string, Validator> = {
   graphConnectorConnectionId: graphConnectorConnectionIdValidator,
 };
 
+interface CreateFloorTail {
+  questions: QuestionSpec[];
+  answers: Answers;
+  validators: Record<string, Validator>;
+}
+
+function isFuncValidation(value: unknown): value is FuncValidation<string> {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    typeof Reflect.get(value, "validFunc") === "function"
+  );
+}
+
+function getStringValidationFunc(
+  validation: FuncValidation<string> | object | undefined
+): FuncValidation<string>["validFunc"] | undefined {
+  return isFuncValidation(validation) ? validation.validFunc : undefined;
+}
+
+async function resolveStringValue(
+  value:
+    | string
+    | ((inputs: Inputs) => string | undefined | Promise<string | undefined>)
+    | undefined,
+  inputs: Inputs
+): Promise<string | undefined> {
+  return typeof value === "function" ? await value(inputs) : value;
+}
+
+async function createFloorTail(
+  inputs: Inputs | undefined,
+  languages: string[]
+): Promise<Result<CreateFloorTail, FxError>> {
+  const questions: QuestionSpec[] = [];
+  const answers: Answers = {};
+
+  if (languages.length > 1) {
+    questions.push({
+      name: "language",
+      type: "singleSelect",
+      title: "Programming Language",
+      staticOptions: languages.map((language) => ({
+        id: language,
+        label: LANGUAGE_LABELS[language] ?? language,
+      })),
+    });
+  } else if (languages.length === 1 && languages[0] !== "common") {
+    answers.language = languages[0];
+  }
+
+  if (inputs === undefined) {
+    return ok({ questions, answers, validators: {} });
+  }
+
+  const folder = folderQuestion();
+  const appName = appNameQuestion();
+
+  const existingFolder = inputs[QuestionNames.Folder];
+  if (typeof existingFolder === "string") {
+    answers[QuestionNames.Folder] = existingFolder;
+  } else {
+    const defaultFolder = await resolveStringValue(folder.default, inputs);
+    if (inputs.nonInteractive) {
+      if (defaultFolder !== undefined) {
+        answers[QuestionNames.Folder] = defaultFolder;
+      }
+    } else {
+      questions.push({
+        name: folder.name,
+        type: "folder",
+        title: (await resolveStringValue(folder.title, inputs)) ?? folder.name,
+        placeholder: await resolveStringValue(folder.placeholder, inputs),
+        prompt: await resolveStringValue(folder.prompt, inputs),
+        default: defaultFolder,
+      });
+    }
+  }
+
+  const existingAppName = inputs[QuestionNames.AppName];
+  if (typeof existingAppName === "string") {
+    answers[QuestionNames.AppName] = existingAppName;
+  } else {
+    const defaultAppName = await resolveStringValue(appName.default, inputs);
+    if (inputs.nonInteractive) {
+      if (defaultAppName === undefined) {
+        return err(new MissingRequiredInputError(QuestionNames.AppName, "createFrontDoor"));
+      }
+      answers[QuestionNames.AppName] = defaultAppName;
+    } else {
+      questions.push({
+        name: appName.name,
+        type: "text",
+        title: (await resolveStringValue(appName.title, inputs)) ?? appName.name,
+        placeholder: await resolveStringValue(appName.placeholder, inputs),
+        prompt: await resolveStringValue(appName.prompt, inputs),
+        default: defaultAppName,
+        validation: "appName",
+      });
+    }
+  }
+
+  const validateAppName = getStringValidationFunc(appName.validation);
+  const floorValidators: Record<string, Validator> = {};
+  if (validateAppName !== undefined) {
+    floorValidators.appName = async (value, currentAnswers) => {
+      const validationInputs: Inputs = { ...inputs };
+      const folderAnswer = currentAnswers[QuestionNames.Folder];
+      if (typeof folderAnswer === "string") {
+        validationInputs[QuestionNames.Folder] = folderAnswer;
+      }
+      return validateAppName(value, validationInputs);
+    };
+  }
+
+  return ok({ questions, answers, validators: floorValidators });
+}
+
+async function validateCreateFloorAnswers(
+  inputs: Inputs,
+  answers: Answers
+): Promise<Result<undefined, FxError>> {
+  const appName = answers[QuestionNames.AppName];
+  if (typeof appName !== "string") {
+    return err(new MissingRequiredInputError(QuestionNames.AppName, "createFrontDoor"));
+  }
+  const validateAppName = getStringValidationFunc(appNameQuestion().validation);
+  if (validateAppName === undefined) {
+    return ok(undefined);
+  }
+  const validationInputs: Inputs = { ...inputs };
+  const folderAnswer = answers[QuestionNames.Folder];
+  if (typeof folderAnswer === "string") {
+    validationInputs[QuestionNames.Folder] = folderAnswer;
+  }
+  const message = await validateAppName(appName, validationInputs);
+  if (message !== undefined) {
+    return err(new InputValidationError(QuestionNames.AppName, message, "createFrontDoor"));
+  }
+  return ok(undefined);
+}
+
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
@@ -377,6 +534,8 @@ export interface CreateInputsDeps {
   flagReader?: (name: string) => boolean;
   /** The host surface (`vscode` / `cli` / `vs`) — gates the `csharp` language axis (default `vscode`). */
   surface?: string;
+  /** Full create inputs when the create floor (`folder` / `app-name`) should be appended after Q2. */
+  inputs?: Inputs;
   /** Fetch static MCP tools when CLI did not provide a tools file path. */
   fetchMcpTools?: (serverUrl: string) => Promise<MCPFetchResult>;
   /** List available local MCP servers for the dynamic MCP create flow. */
@@ -411,18 +570,34 @@ export async function runCreateInputs(
   };
   const expressionPort = createExpressionPort(deps.flagReader);
   const surface = deps.surface ?? "vscode";
+  const floorTail = await createFloorTail(deps.inputs, languages);
+  if (floorTail.isErr()) {
+    return err(floorTail.error);
+  }
+  const validatorRegistry = { ...validators, ...floorTail.value.validators };
   const port: CollectInputsPort = {
     ui: createUiPromptUI(ui),
     optionsProvider: (providerId) => providers[providerId],
-    validator: (name) => validators[name],
+    validator: (name) => validatorRegistry[name],
     evaluate: (node, scope) => evaluateExpression(node, scope, expressionPort),
   };
 
-  return collectInputs(
-    opened.value.questions,
+  const answers = await collectInputs(
+    [...opened.value.questions, ...floorTail.value.questions],
     declaredOptionsSchema(descriptor),
-    { ...entryParams, surface },
+    { ...entryParams, ...floorTail.value.answers, surface },
     languages,
-    port
+    port,
+    { appendLanguage: false }
   );
+  if (answers.isErr()) {
+    return err(answers.error);
+  }
+  if (deps.inputs !== undefined) {
+    const validation = await validateCreateFloorAnswers(deps.inputs, answers.value);
+    if (validation.isErr()) {
+      return err(validation.error);
+    }
+  }
+  return answers;
 }

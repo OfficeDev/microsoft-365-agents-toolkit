@@ -89,6 +89,14 @@ const okResult = (projectPath: string): Promise<Result<CreateProjectResult, FxEr
   Promise.resolve(ok({ projectPath }));
 const okAnswers = (answers: Answers): Promise<Result<Answers, FxError>> =>
   Promise.resolve(ok(answers));
+const okArtifactSnapshot = (
+  snapshot: TemplateArtifactSnapshot
+): Promise<Result<TemplateArtifactSnapshot, FxError>> => {
+  const result: Result<TemplateArtifactSnapshot, FxError> = ok<TemplateArtifactSnapshot, FxError>(
+    snapshot
+  );
+  return Promise.resolve(result);
+};
 const okTarget = (target: BuildTarget): Promise<Result<BuildTarget, FxError>> =>
   Promise.resolve(ok(target));
 const okFloor = (): Promise<Result<undefined, FxError>> => Promise.resolve(ok(undefined));
@@ -157,7 +165,8 @@ function artifactSnapshotRecorder(bytesByKind: Record<TemplateArtifactKind, Buff
       },
       bytes(kind: TemplateArtifactKind): Promise<Result<Buffer, FxError>> {
         calls.push(kind);
-        return Promise.resolve(ok(bytesByKind[kind]));
+        const result: Result<Buffer, FxError> = ok<Buffer, FxError>(bytesByKind[kind]);
+        return Promise.resolve(result);
       },
     },
   };
@@ -344,9 +353,13 @@ describe("createProjectFrontDoor (dispatch-create-by-engine)", () => {
       metadata: metadataBytes,
       templates: templatesBytes,
     });
-    const resolveArtifactSnapshot = recorder((_kind: TemplateArtifactKind) =>
-      Promise.resolve(ok(artifactSnapshot.snapshot))
-    );
+    const resolveArtifactSnapshotCalls: TemplateArtifactKind[] = [];
+    const resolveArtifactSnapshot = async (
+      kind: TemplateArtifactKind
+    ): Promise<Result<TemplateArtifactSnapshot, FxError>> => {
+      resolveArtifactSnapshotCalls.push(kind);
+      return await okArtifactSnapshot(artifactSnapshot.snapshot);
+    };
     const runSelector = selectorRecorder(V4_TARGET);
     const runInputs = inputsRecorder({ authType: "none" });
     const scaffoldV4 = recorder(
@@ -362,7 +375,7 @@ describe("createProjectFrontDoor (dispatch-create-by-engine)", () => {
     const res = await createProjectFrontDoor(
       baseInputs(),
       deps({
-        resolveArtifactSnapshot: resolveArtifactSnapshot.fn,
+        resolveArtifactSnapshot,
         v4Registry: () => true,
         runSelector: runSelector.fn,
         runInputs: runInputs.fn,
@@ -372,7 +385,7 @@ describe("createProjectFrontDoor (dispatch-create-by-engine)", () => {
     );
 
     assert.isTrue(res.isOk());
-    assert.deepEqual(resolveArtifactSnapshot.calls, [["create-selector"]]);
+    assert.deepEqual(resolveArtifactSnapshotCalls, ["create-selector"]);
     assert.deepEqual(artifactSnapshot.calls, ["create-selector", "metadata", "templates"]);
     assert.strictEqual(runSelector.calls[0][0], selectorBytes);
     assert.strictEqual(runInputs.calls[0][0], metadataBytes);
@@ -650,9 +663,13 @@ describe("createProjectFrontDoor (dispatch-create-by-engine)", () => {
       metadata: Buffer.from("metadata-zip"),
       templates: Buffer.from("templates-zip"),
     });
-    const resolveArtifactSnapshot = recorder((_kind: TemplateArtifactKind) =>
-      Promise.resolve(ok(artifactSnapshot.snapshot))
-    );
+    const resolveArtifactSnapshotCalls: TemplateArtifactKind[] = [];
+    const resolveArtifactSnapshot = async (
+      kind: TemplateArtifactKind
+    ): Promise<Result<TemplateArtifactSnapshot, FxError>> => {
+      resolveArtifactSnapshotCalls.push(kind);
+      return await okArtifactSnapshot(artifactSnapshot.snapshot);
+    };
     const resolveByTemplateId = resolveByTemplateIdRecorder({
       templateId: "da/mcp-server",
       engine: "v4",
@@ -663,7 +680,7 @@ describe("createProjectFrontDoor (dispatch-create-by-engine)", () => {
     const res = await createProjectFrontDoor(
       presetInputs("da/mcp-server"),
       deps({
-        resolveArtifactSnapshot: resolveArtifactSnapshot.fn,
+        resolveArtifactSnapshot,
         resolveByTemplateId: resolveByTemplateId.fn,
         runInputs: runInputs.fn,
         collectCreateFloor: okFloor,
@@ -672,7 +689,7 @@ describe("createProjectFrontDoor (dispatch-create-by-engine)", () => {
     );
 
     assert.isTrue(res.isOk());
-    assert.deepEqual(resolveArtifactSnapshot.calls, [["templates"]]);
+    assert.deepEqual(resolveArtifactSnapshotCalls, ["templates"]);
     assert.strictEqual(resolveByTemplateId.calls[0][0].toString(), "templates-zip");
     assert.deepEqual(artifactSnapshot.calls, ["templates", "metadata", "templates"]);
   });
@@ -872,25 +889,25 @@ describe("createProjectFrontDoor (dispatch-create-by-engine)", () => {
     });
   });
 
-  it("DCE-14: engine v4 collects the create floor after Q2 and before scaffoldV4", async () => {
+  it("DCE-14: engine v4 collects Q2+Q3 in one input walk before scaffoldV4", async () => {
     const order: string[] = [];
+    const q2AndFloor: Answers = {
+      authType: "none",
+      [QuestionNames.Folder]: "C:/src",
+      [QuestionNames.AppName]: "MyAgent",
+    };
     const runInputs = recorder(
       (
         _floor: Buffer,
         _locator: DeclarativeLocator,
         _entry: Answers,
         _ui: UserInteraction,
-        _deps?: { flagReader?: (name: string) => boolean }
+        _deps?: { flagReader?: (name: string) => boolean; inputs?: Inputs }
       ): Promise<Result<Answers, FxError>> => {
-        order.push("q2");
-        return okAnswers({});
+        order.push("q2+q3");
+        return okAnswers(q2AndFloor);
       }
     );
-    const collectFloor = recorder((_i: Inputs, _ui: UserInteraction) => {
-      order.push("floor");
-      assert.equal(_i["template-name"], "declarative-agent-with-action-from-mcp");
-      return okFloor();
-    });
     const scaffoldV4 = recorder(
       (_i: Inputs, _t: BuildTarget, _a: Answers, _flagReader: (name: string) => boolean) => {
         order.push("scaffold");
@@ -904,19 +921,19 @@ describe("createProjectFrontDoor (dispatch-create-by-engine)", () => {
         scaffoldV4: scaffoldV4.fn,
         runSelector: () => okTarget(V4_TARGET),
         runInputs: runInputs.fn,
-        collectCreateFloor: collectFloor.fn,
       })
     );
 
     assert.isTrue(res.isOk());
-    assert.equal(collectFloor.calls.length, 1);
-    assert.deepEqual(order, ["q2", "floor", "scaffold"]); // floor sits between Q2 and the scaffold
-    // the floor mutates the same inputs bag scaffoldV4 then scaffolds from.
-    assert.strictEqual(collectFloor.calls[0][0], scaffoldV4.calls[0][0]);
+    assert.deepEqual(order, ["q2+q3", "scaffold"]);
+    assert.strictEqual(runInputs.calls[0][4]?.inputs, scaffoldV4.calls[0][0]);
+    assert.equal(scaffoldV4.calls[0][0][QuestionNames.Folder], "C:/src");
+    assert.equal(scaffoldV4.calls[0][0][QuestionNames.AppName], "MyAgent");
+    assert.deepEqual(scaffoldV4.calls[0][2], q2AndFloor);
     assert.equal(scaffoldV4.calls[0][0]["template-name"], "declarative-agent-with-action-from-mcp");
   });
 
-  it("DCE-15: a create-floor cancellation propagates and does not scaffold", async () => {
+  it("DCE-15: a Q2+Q3 input cancellation propagates and does not scaffold", async () => {
     const cancel = new UserError({ source: "Test", name: "UserCancelError", message: "cancel" });
     const scaffoldV4 = recorder(
       (_i: Inputs, _t: BuildTarget, _a: Answers, _flagReader: (name: string) => boolean) =>
@@ -928,8 +945,7 @@ describe("createProjectFrontDoor (dispatch-create-by-engine)", () => {
       deps({
         scaffoldV4: scaffoldV4.fn,
         runSelector: () => okTarget(V4_TARGET),
-        runInputs: () => okAnswers({}),
-        collectCreateFloor: () => Promise.resolve(err(cancel)),
+        runInputs: () => Promise.resolve(err(cancel)),
       })
     );
 
