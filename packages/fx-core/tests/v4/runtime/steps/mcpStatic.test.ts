@@ -7,8 +7,8 @@ import {
   mcpStaticDeps,
   mcpStaticMaterializeTools,
 } from "../../../../src/v4/runtime/steps/mcpStatic";
-import { StepContext } from "../../../../src/v4/pipeline/runScaffoldPipeline";
-import fs from "fs-extra";
+import { StepContext, StepParams } from "../../../../src/v4/pipeline/runScaffoldPipeline";
+import fs, { removeSync, writeJsonSync } from "fs-extra";
 import os from "os";
 import path from "path";
 import { assert, afterEach } from "vitest";
@@ -33,8 +33,8 @@ function makeCtx(initial: Record<string, string> = {}): {
   };
 }
 
-function validParams(overrides: Record<string, unknown> = {}): Record<string, unknown> {
-  return {
+function validParams(overrides: Partial<StepParams> = {}, omitted: string[] = []): StepParams {
+  const params: StepParams = {
     pluginPath: "appPackage/ai-plugin.json",
     toolsPath: "appPackage/mcp-tools-1.json",
     mcpServerUrl: "https://api.example.com/mcp",
@@ -47,6 +47,10 @@ function validParams(overrides: Record<string, unknown> = {}): Record<string, un
     selected: ["searchFlights"],
     ...overrides,
   };
+  for (const key of omitted) {
+    delete params[key];
+  }
+  return params;
 }
 
 describe(`${STEP_MATERIALIZE_STATIC_MCP_TOOLS} (v4)`, () => {
@@ -58,22 +62,20 @@ describe(`${STEP_MATERIALIZE_STATIC_MCP_TOOLS} (v4)`, () => {
 
   it("validateParams reports missing or invalid parameters", () => {
     assert.strictEqual(
-      mcpStaticMaterializeTools.validateParams(validParams({ pluginPath: undefined })),
+      mcpStaticMaterializeTools.validateParams(validParams({}, ["pluginPath"])),
       "missing string parameter 'pluginPath'"
     );
     assert.strictEqual(
-      mcpStaticMaterializeTools.validateParams(validParams({ toolsPath: undefined })),
+      mcpStaticMaterializeTools.validateParams(validParams({}, ["toolsPath"])),
       "missing string parameter 'toolsPath'"
     );
     assert.strictEqual(
-      mcpStaticMaterializeTools.validateParams(validParams({ mcpServerUrl: undefined })),
+      mcpStaticMaterializeTools.validateParams(validParams({}, ["mcpServerUrl"])),
       "missing string parameter 'mcpServerUrl'"
     );
-    assert.isUndefined(
-      mcpStaticMaterializeTools.validateParams(validParams({ toolsJson: undefined }))
-    );
+    assert.isUndefined(mcpStaticMaterializeTools.validateParams(validParams({}, ["toolsJson"])));
     assert.strictEqual(
-      mcpStaticMaterializeTools.validateParams(validParams({ selected: ["ok", 1] })),
+      mcpStaticMaterializeTools.validateParams(validParams({ selected: true })),
       "missing string[] parameter 'selected'"
     );
   });
@@ -158,7 +160,7 @@ describe(`${STEP_MATERIALIZE_STATIC_MCP_TOOLS} (v4)`, () => {
   it("writes selected tools from a tools file path", async () => {
     const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "atk-mcp-tools-"));
     const toolsFilePath = path.join(tempDir, "mcp-tools.json");
-    fs.writeJsonSync(toolsFilePath, {
+    writeJsonSync(toolsFilePath, {
       tools: [
         { name: "searchFlights", description: "Search flights" },
         { name: "bookFlight", description: "Book flights" },
@@ -176,8 +178,32 @@ describe(`${STEP_MATERIALIZE_STATIC_MCP_TOOLS} (v4)`, () => {
       const tools = JSON.parse(files.get("appPackage/mcp-tools-1.json")?.toString("utf8") ?? "{}");
       assert.deepEqual(tools.tools, [{ name: "searchFlights", description: "Search flights" }]);
     } finally {
-      fs.removeSync(tempDir);
+      removeSync(tempDir);
     }
+  });
+
+  it("writes all fetched tools when no selection is provided", async () => {
+    const { ctx, files } = makeCtx({ "appPackage/ai-plugin.json": "{}" });
+    mcpStaticDeps.fetchTools = async () => ({
+      requiresAuth: false,
+      tools: [
+        { name: "searchFlights", description: "Search flights", inputSchema: {} },
+        { name: "bookFlight", description: "Book flights", inputSchema: {} },
+      ],
+    });
+
+    const result = await mcpStaticMaterializeTools.apply(
+      validParams({ toolsJson: "", selected: "" }),
+      ctx
+    );
+
+    assert.isTrue(result.isOk(), result.isErr() ? result.error.message : "expected ok");
+    const plugin = JSON.parse(files.get("appPackage/ai-plugin.json")?.toString("utf8") ?? "{}");
+    assert.deepEqual(plugin.functions, [
+      { name: "searchFlights", description: "Search flights" },
+      { name: "bookFlight", description: "Book flights" },
+    ]);
+    assert.deepEqual(plugin.runtimes[0].run_for_functions, ["searchFlights", "bookFlight"]);
   });
 
   it("returns a UserError when the tools file path cannot be read", async () => {

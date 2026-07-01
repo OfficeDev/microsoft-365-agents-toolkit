@@ -581,11 +581,17 @@ export async function runCreateInputs(
     validator: (name) => validatorRegistry[name],
     evaluate: (node, scope) => evaluateExpression(node, scope, expressionPort),
   };
+  const initialAnswers = {
+    ...entryParams,
+    ...floorTail.value.answers,
+    surface,
+    nonInteractive: deps.inputs?.nonInteractive === true ? "true" : "false",
+  };
 
   const answers = await collectInputs(
     [...opened.value.questions, ...floorTail.value.questions],
     declaredOptionsSchema(descriptor),
-    { ...entryParams, ...floorTail.value.answers, surface },
+    initialAnswers,
     languages,
     port,
     { appendLanguage: false }
@@ -593,6 +599,7 @@ export async function runCreateInputs(
   if (answers.isErr()) {
     return err(answers.error);
   }
+  delete answers.value.nonInteractive;
   if (deps.inputs !== undefined) {
     const validation = await validateCreateFloorAnswers(deps.inputs, answers.value);
     if (validation.isErr()) {

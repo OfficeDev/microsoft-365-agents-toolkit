@@ -36,6 +36,14 @@ function stringArrayParam(params: StepParams, key: string): string[] | undefined
   return value;
 }
 
+function optionalStringArrayParam(params: StepParams, key: string): string[] | undefined {
+  const value = params[key];
+  if (value === undefined || value === "") {
+    return undefined;
+  }
+  return stringArrayParam(params, key);
+}
+
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
@@ -156,7 +164,11 @@ export const mcpStaticMaterializeTools: RegisteredStep = {
     if (stringParam(resolved, "mcpServerUrl") === undefined) {
       return "missing string parameter 'mcpServerUrl'";
     }
-    if (stringArrayParam(resolved, "selected") === undefined) {
+    if (
+      resolved.selected !== undefined &&
+      resolved.selected !== "" &&
+      stringArrayParam(resolved, "selected") === undefined
+    ) {
       return "missing string[] parameter 'selected'";
     }
     return undefined;
@@ -165,13 +177,13 @@ export const mcpStaticMaterializeTools: RegisteredStep = {
     const pluginPath = stringParam(resolved, "pluginPath");
     const toolsPath = stringParam(resolved, "toolsPath");
     const mcpServerUrl = stringParam(resolved, "mcpServerUrl");
-    const selected = stringArrayParam(resolved, "selected");
-    if (
-      pluginPath === undefined ||
-      toolsPath === undefined ||
-      mcpServerUrl === undefined ||
-      selected === undefined
-    ) {
+    const selected = optionalStringArrayParam(resolved, "selected");
+    if (resolved.selected !== undefined && resolved.selected !== "" && selected === undefined) {
+      return err(
+        systemError("McpStaticParams", "resolved parameters are not all of the expected type")
+      );
+    }
+    if (pluginPath === undefined || toolsPath === undefined || mcpServerUrl === undefined) {
       return err(
         systemError("McpStaticParams", "resolved parameters are not all of the expected type")
       );
@@ -186,7 +198,10 @@ export const mcpStaticMaterializeTools: RegisteredStep = {
     if (!parsedTools.ok) {
       return err(systemError(parsedTools.code, parsedTools.message));
     }
-    const selectedTools = selectMcpStaticTools(parsedTools.tools, selected);
+    const selectedTools = selectMcpStaticTools(
+      parsedTools.tools,
+      selected ?? parsedTools.tools.map((tool) => tool.name)
+    );
     if (!selectedTools.ok) {
       return err(systemError(selectedTools.code, selectedTools.message));
     }

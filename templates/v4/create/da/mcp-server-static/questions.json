@@ -15,7 +15,7 @@
       "prompt": "Enter the path to a JSON file containing MCP tool definitions.",
       "cliDescription": "Path to a JSON file containing MCP tool definitions.",
       "optional": true,
-      "condition": { "expr": "surface == 'cli' && mcpToolsJson == null" }
+      "condition": { "expr": "surface == 'cli' && nonInteractive != 'true' && mcpToolsJson == null" }
     },
     {
       "name": "selectedMcpTools",
@@ -28,7 +28,7 @@
         "serverUrl": { "expr": "mcpServerUrl" }
       },
       "cliDescription": "MCP tools to include in the action.",
-      "condition": { "expr": "surface == 'cli'" }
+      "condition": { "expr": "surface == 'cli' && nonInteractive != 'true'" }
     }
   ]
 }

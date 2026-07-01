@@ -439,6 +439,47 @@ describe("runCreateInputs (collect-create-inputs)", () => {
     assert.deepEqual(ui.promptNames, ["llmService", "openAIKey", "language", "folder", "app-name"]);
   });
 
+  it("uses create floor defaults without prompts in non-interactive mode", async () => {
+    const ui = new ScriptedUserInteraction({
+      select: { llmService: "llm-service-openai", language: "typescript" },
+      text: { openAIKey: "fake-openai-key" },
+    });
+
+    const res = await runCreateInputs(buildFloor(), BASIC_CUSTOM_ENGINE_AGENT, {}, asUI(ui), {
+      surface: "cli",
+      flagReader: () => false,
+      inputs: {
+        platform: Platform.CLI,
+        nonInteractive: true,
+        teamsAppFromTdp: { appName: "My Agent" },
+      },
+    });
+
+    assert.isTrue(res.isOk(), res.isErr() ? res.error.message : "expected ok");
+    if (res.isOk()) {
+      assert.equal(res.value.folder, "./");
+      assert.equal(res.value["app-name"], "MyAgent");
+    }
+    assert.notInclude(ui.promptNames, "folder");
+    assert.notInclude(ui.promptNames, "app-name");
+  });
+
+  it("fails non-interactive create floor when app name has no default", async () => {
+    const ui = new ScriptedUserInteraction({
+      select: { llmService: "llm-service-openai", language: "typescript" },
+      text: { openAIKey: "fake-openai-key" },
+    });
+
+    const res = await runCreateInputs(buildFloor(), BASIC_CUSTOM_ENGINE_AGENT, {}, asUI(ui), {
+      surface: "cli",
+      flagReader: () => false,
+      inputs: { platform: Platform.CLI, nonInteractive: true },
+    });
+
+    assert.isTrue(res.isErr(), "expected missing app-name default to fail");
+    assert.equal(res._unsafeUnwrapErr().name, "MissingRequiredInputError");
+  });
+
   it("collects Weather Agent Azure OpenAI service answers", async () => {
     const ui = new ScriptedUserInteraction({
       select: { llmService: "llm-service-azure-openai" },
@@ -635,6 +676,40 @@ describe("runCreateInputs (collect-create-inputs)", () => {
     assert.deepEqual(ui.multiNames, ["selectedMcpTools"]);
     assert.strictEqual(multiOptionAt(ui.lastMultiConfig, 0).id, "searchFlights");
     assert.deepEqual(res._unsafeUnwrap().selectedMcpTools, ["searchFlights"]);
+  });
+
+  it("skips static MCP tool prompts in non-interactive CLI create", async () => {
+    const ui = new ScriptedUserInteraction({});
+    let fetchCalled = false;
+
+    const res = await runCreateInputs(
+      buildFloor(),
+      STATIC_MCP_DA,
+      { mcpServerUrl: "https://api.example.com/mcp" },
+      asUI(ui),
+      {
+        surface: "cli",
+        inputs: { nonInteractive: true, folder: "C:/src", "app-name": "MyAgent" },
+        flagReader: () => false,
+        fetchMcpTools: async () => {
+          fetchCalled = true;
+          return {
+            requiresAuth: false,
+            tools: [
+              { name: "searchFlights", description: "Search flights", inputSchema: {} },
+              { name: "bookFlight", description: "Book flights", inputSchema: {} },
+            ],
+          };
+        },
+      }
+    );
+
+    assert.isTrue(res.isOk(), res.isErr() ? res.error.message : "expected ok");
+    assert.deepEqual(ui.textNames, []);
+    assert.deepEqual(ui.multiNames, []);
+    assert.isFalse(fetchCalled);
+    assert.notProperty(res._unsafeUnwrap(), "selectedMcpTools");
+    assert.notProperty(res._unsafeUnwrap(), "mcpToolsJson");
   });
 
   it("fails when static MCP tool auto-fetch requires auth", async () => {
@@ -975,6 +1050,32 @@ describe("createUiPromptUI (collect-create-inputs)", () => {
     assert.deepEqual(ui.textNames, ["freeText"]);
   });
 
+  it("maps a folder question to selectFolder and returns the path", async () => {
+    const ui = new ScriptedUserInteraction({ folder: { folder: "C:/src" } });
+    const prompt = createUiPromptUI(asUI(ui));
+
+    const res = await prompt.ask(
+      {
+        name: "folder",
+        type: "folder",
+        title: "Workspace Folder",
+        placeholder: "Pick a folder",
+        prompt: "Choose where to create the project.",
+        default: "C:/default",
+      },
+      undefined,
+      3
+    );
+
+    assert.isTrue(res.isOk());
+    if (res.isOk()) {
+      assert.deepEqual(res.value, { kind: "value", value: "C:/src" });
+    }
+    assert.deepEqual(ui.folderNames, ["folder"]);
+    assert.equal(ui.lastFolderConfig?.default, "C:/default");
+    assert.equal(ui.lastFolderConfig?.step, 3);
+  });
+
   it("CCI-08: askMulti maps a multiSelect to selectOptions and returns the ids", async () => {
     const ui = new ScriptedUserInteraction({ multi: { servers: ["alpha", "beta"] } });
     const prompt = createUiPromptUI(asUI(ui));
@@ -1012,6 +1113,18 @@ describe("createUiPromptUI (collect-create-inputs)", () => {
     const prompt = createUiPromptUI(asUI(ui));
 
     const res = await prompt.ask({ name: "freeText", type: "text", title: "Enter" }, undefined);
+
+    assert.isTrue(res.isOk());
+    if (res.isOk()) {
+      assert.deepEqual(res.value, { kind: "back" });
+    }
+  });
+
+  it("ask projects a host back on a folder question to { kind: 'back' }", async () => {
+    const ui = new ScriptedUserInteraction({ back: ["folder"] });
+    const prompt = createUiPromptUI(asUI(ui));
+
+    const res = await prompt.ask({ name: "folder", type: "folder", title: "Folder" }, undefined);
 
     assert.isTrue(res.isOk());
     if (res.isOk()) {
