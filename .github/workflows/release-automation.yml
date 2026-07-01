@@ -69,7 +69,7 @@ jobs:
         with:
           app-id: ${{ env.APP_GITHUB_APP_ID }}
           private-key: ${{ env.APP_GITHUB_APP_PRIVATE_KEY }}
-          owner: ${{ github.repository_owner }}
+          owner: microsoft
           repositories: |
             Microsoft-365-Agents-Toolkit-Release-Schedule
 
