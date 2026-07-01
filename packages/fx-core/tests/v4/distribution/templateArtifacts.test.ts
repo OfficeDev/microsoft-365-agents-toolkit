@@ -139,6 +139,17 @@ describe("templateArtifacts (v4 staged artifacts)", () => {
     expect(() => parseArtifactTagList(ndjson)).toThrow(/Malformed/);
   });
 
+  it("AC-SA-02c: rejects invalid JSON and malformed artifact references", () => {
+    expect(() => parseArtifactTagList("not-json")).toThrow(/not valid JSON/);
+
+    const wrongFile = tagEntry("6.11.0");
+    wrongFile.artifacts.metadata.file = "metadata.zip";
+    expect(() => parseArtifactTagList(JSON.stringify(wrongFile))).toThrow(/Malformed/);
+
+    const missingArtifacts = JSON.stringify({ version: "6.11.0", artifacts: {} });
+    expect(() => parseArtifactTagList(missingArtifacts)).toThrow(/Malformed/);
+  });
+
   it("AC-SA-03: builds artifact URLs and cache paths from known artifact kinds", () => {
     const ref = tagEntry("6.11.0").artifacts.metadata;
 
@@ -309,6 +320,38 @@ describe("templateArtifacts (v4 staged artifacts)", () => {
     assert.deepEqual(port.deleted, []);
   });
 
+  it("AC-SA-08c: reports pinned version, download, and digest errors", async () => {
+    const missingPinned = await resolveTemplateArtifactSnapshot({
+      range: "^6.11.0",
+      bundled: false,
+      requiredKind: "metadata",
+      port: new FakeArtifactPort({
+        env: { TEMPLATE_VERSION: "6.11.9" },
+        tags: [tagEntry("6.11.0")],
+      }),
+    });
+    assert.strictEqual(missingPinned._unsafeUnwrapErr().name, "TemplatePinnedVersionNotFound");
+
+    const downloadFailure = await resolveTemplateArtifactSnapshot({
+      range: "^6.11.0",
+      bundled: false,
+      requiredKind: "metadata",
+      port: new FakeArtifactPort({ tags: [tagEntry("6.11.0")] }),
+    });
+    assert.strictEqual(downloadFailure._unsafeUnwrapErr().name, "TemplateDownloadFailed");
+
+    const digestFailure = await resolveTemplateArtifactSnapshot({
+      range: "^6.11.0",
+      bundled: false,
+      requiredKind: "metadata",
+      port: new FakeArtifactPort({
+        tags: [tagEntry("6.11.0", { metadata: "sha256:expected" })],
+        served: { "6.11.0": servedArtifacts({ metadata: Buffer.from("actual") }) },
+      }),
+    });
+    assert.strictEqual(digestFailure._unsafeUnwrapErr().name, "TemplateDigestMismatch");
+  });
+
   it("AC-SA-09: returns the bundled snapshot when bundled=true or TEMPLATE_VERSION=local", async () => {
     const bundled = bundledArtifacts("6.10.5");
     const bundledPort = new FakeArtifactPort({ tags: [tagEntry("6.11.0")], bundled });
@@ -337,6 +380,28 @@ describe("templateArtifacts (v4 staged artifacts)", () => {
     assert.strictEqual(localPort.tagListCalls, 0);
   });
 
+  it("AC-SA-09b: reads bundled artifact bytes and reports unreadable bundled files", async () => {
+    const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "v4-bundled-bytes-"));
+    const selectorPath = path.join(tmp, "create-selector.json");
+    fs.writeFileSync(selectorPath, "selector-bytes");
+    const bundled = bundledArtifacts("6.10.5");
+    bundled.locations["create-selector"] = selectorPath;
+    const readable = await resolveTemplateArtifactSnapshot({
+      range: "^6.10.0",
+      bundled: true,
+      requiredKind: "create-selector",
+      port: new FakeArtifactPort({ bundled }),
+    });
+
+    const bytes = await readable._unsafeUnwrap().bytes("create-selector");
+    assert.strictEqual(bytes._unsafeUnwrap().toString(), "selector-bytes");
+
+    bundled.locations["modify-selector"] = path.join(tmp, "missing.json");
+    const missing = await readable._unsafeUnwrap().bytes("modify-selector");
+    assert.strictEqual(missing._unsafeUnwrapErr().name, "BundledArtifactUnreadable");
+    fs.removeSync(tmp);
+  });
+
   it("AC-SA-10: non-interactive direct resolution downloads templates.zip only", async () => {
     const bytes = bytesFor("templates", "6.11.0");
     const port = new FakeArtifactPort({
@@ -353,6 +418,39 @@ describe("templateArtifacts (v4 staged artifacts)", () => {
 
     assert.isTrue(result.isOk());
     assert.deepEqual(port.downloads, [{ version: "6.11.0", kind: "templates" }]);
+  });
+
+  it("AC-SA-10b: one snapshot lazily downloads later artifact kinds against the same version", async () => {
+    const selectorBytes = bytesFor("create-selector", "6.11.0");
+    const metadataBytes = bytesFor("metadata", "6.11.0");
+    const port = new FakeArtifactPort({
+      tags: [
+        tagEntry("6.11.0", {
+          "create-selector": computeArtifactDigest(selectorBytes),
+          metadata: computeArtifactDigest(metadataBytes),
+        }),
+      ],
+      served: {
+        "6.11.0": servedArtifacts({
+          "create-selector": selectorBytes,
+          metadata: metadataBytes,
+        }),
+      },
+    });
+
+    const result = await resolveTemplateArtifactSnapshot({
+      range: "^6.11.0",
+      bundled: false,
+      requiredKind: "create-selector",
+      port,
+    });
+    const metadata = await result._unsafeUnwrap().bytes("metadata");
+
+    assert.strictEqual(metadata._unsafeUnwrap().toString(), metadataBytes.toString());
+    assert.deepEqual(port.downloads, [
+      { version: "6.11.0", kind: "create-selector" },
+      { version: "6.11.0", kind: "metadata" },
+    ]);
   });
 
   it("AC-SA-15: falls back to bundled floor when the ranged tag list is unreachable", async () => {
@@ -524,6 +622,22 @@ describe("createTemplateArtifactPort (v4 staged artifacts, real fs)", () => {
     assert.isFalse(fs.existsSync(artifactCacheFile("6.11.0", "metadata")));
     assert.isTrue(fs.existsSync(artifactCacheFile("6.10.9", "metadata")));
     assert.isTrue(fs.existsSync(artifactCacheFile("6.11.2", "metadata")));
+  });
+
+  it("AC-SA-14b: cache get warms pre-existing disk artifacts and skips unrelated or incomplete entries", () => {
+    const artifactPath = artifactCacheFile("6.11.0", "metadata");
+    fs.ensureDirSync(path.dirname(artifactPath));
+    fs.writeFileSync(artifactPath, "metadata-from-disk");
+    fs.ensureDirSync(path.join(tmpHome, ".fx", "templates-cache", "not-v4@6.11.0"));
+    fs.ensureDirSync(path.dirname(artifactCacheFile("6.11.1", "metadata")));
+
+    const port = createTemplateArtifactPort(config, bundledArtifacts("6.10.0"));
+    const cached = port.cache.get("6.11.0", "metadata");
+
+    assert.strictEqual(cached?.bytes.toString(), "metadata-from-disk");
+    assert.strictEqual(cached?.digest, computeArtifactDigest(Buffer.from("metadata-from-disk")));
+    assert.isUndefined(port.cache.get("6.11.1", "metadata"));
+    assert.deepEqual(port.cache.keys("metadata"), ["6.11.0"]);
   });
 });
 
