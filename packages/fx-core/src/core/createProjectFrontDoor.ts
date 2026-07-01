@@ -60,6 +60,21 @@ const SOURCE = "Scaffold";
 const OPEN_GITHUB_COPILOT_CHAT = "open-github-copilot-chat";
 const STATIC_MCP_TEMPLATE_ID = "da/mcp-server-static";
 const V4_TO_V3_TEMPLATE_ID: Readonly<Record<string, string>> = {
+  "basic-custom-engine-agent": TemplateNames.BasicCustomEngineAgent,
+  "weather-agent": TemplateNames.WeatherAgent,
+  "graph-connector": TemplateNames.GraphConnector,
+  "custom-copilot-basic": TemplateNames.CustomCopilotBasic,
+  "custom-copilot-rag-customize": TemplateNames.CustomCopilotRagCustomize,
+  "custom-copilot-rag-azure-ai-search": TemplateNames.CustomCopilotRagAzureAISearch,
+  "custom-copilot-rag-custom-api": TemplateNames.CustomCopilotRagCustomApi,
+  "teams-collaborator-agent": TemplateNames.TeamsCollaboratorAgent,
+  "non-sso-tab": TemplateNames.Tab,
+  "default-message-extension": TemplateNames.DefaultMessageExtension,
+  "default-bot": TemplateNames.DefaultBot,
+  "office-addin-wxpo-taskpane": TemplateNames.WXPTaskpane,
+  "office-addin-excel-cfshortcut": TemplateNames.ExcelCFShortcut,
+  "declarative-agent-meta-os-upgrade-project": "declarative-agent-meta-os-upgrade-project",
+  "office-addin-config": TemplateNames.OfficeAddinCommon,
   "da/no-action": TemplateNames.DeclarativeAgentBasic,
   "da/graph-connector": TemplateNames.DeclarativeAgentWithGraphConnector,
   "da/typespec": TemplateNames.DeclarativeAgentWithTypeSpec,

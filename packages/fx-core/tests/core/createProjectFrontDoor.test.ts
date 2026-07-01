@@ -18,6 +18,7 @@ import { Answers, BuildTarget, DeclarativeLocator } from "../../src/v4";
 import { CreateFrontDoorDeps, createProjectFrontDoor } from "../../src/core/createProjectFrontDoor";
 import { FeatureFlags } from "../../src/common/featureFlags";
 import { QuestionNames } from "../../src/question/questionNames";
+import { TemplateNames } from "../../src/component/generator/templates/templateNames";
 
 /**
  * Tests for docs/03-specs/operations/scaffolding/dispatch-create-by-engine.md.
@@ -662,24 +663,63 @@ describe("createProjectFrontDoor (dispatch-create-by-engine)", () => {
 
   it("DCE-19: a v4 target maps its template id to the v3 telemetry template before Q2", async () => {
     const q2Failed = new UserError({ source: "Test", name: "Q2Failed", message: "bad inputs" });
-    const scaffoldV4 = recorder((_i: Inputs, _t: BuildTarget, _a: Answers) => okResult("/v4"));
-    const inputs = baseInputs();
+    const expectedMappings: ReadonlyArray<readonly [string, string]> = [
+      ["basic-custom-engine-agent", TemplateNames.BasicCustomEngineAgent],
+      ["weather-agent", TemplateNames.WeatherAgent],
+      ["graph-connector", TemplateNames.GraphConnector],
+      ["custom-copilot-basic", TemplateNames.CustomCopilotBasic],
+      ["custom-copilot-rag-customize", TemplateNames.CustomCopilotRagCustomize],
+      ["custom-copilot-rag-azure-ai-search", TemplateNames.CustomCopilotRagAzureAISearch],
+      ["custom-copilot-rag-custom-api", TemplateNames.CustomCopilotRagCustomApi],
+      ["teams-collaborator-agent", TemplateNames.TeamsCollaboratorAgent],
+      ["non-sso-tab", TemplateNames.Tab],
+      ["default-message-extension", TemplateNames.DefaultMessageExtension],
+      ["default-bot", TemplateNames.DefaultBot],
+      ["office-addin-wxpo-taskpane", TemplateNames.WXPTaskpane],
+      ["office-addin-excel-cfshortcut", TemplateNames.ExcelCFShortcut],
+      ["declarative-agent-meta-os-upgrade-project", "declarative-agent-meta-os-upgrade-project"],
+      ["office-addin-config", TemplateNames.OfficeAddinCommon],
+      ["da/no-action", TemplateNames.DeclarativeAgentBasic],
+      ["da/graph-connector", TemplateNames.DeclarativeAgentWithGraphConnector],
+      ["da/typespec", TemplateNames.DeclarativeAgentWithTypeSpec],
+      ["da/skill", TemplateNames.DeclarativeAgentWithSkill],
+      ["da/api-plugin-from-scratch", TemplateNames.DeclarativeAgentWithActionFromScratch],
+      [
+        "da/api-plugin-from-scratch-bearer",
+        TemplateNames.DeclarativeAgentWithActionFromScratchBearer,
+      ],
+      [
+        "da/api-plugin-from-scratch-oauth",
+        TemplateNames.DeclarativeAgentWithActionFromScratchOAuth,
+      ],
+      [
+        "da/api-plugin-from-existing-api",
+        TemplateNames.DeclarativeAgentWithActionFromExistingApiSpec,
+      ],
+      ["da/mcp-server-static", TemplateNames.DeclarativeAgentWithActionFromMCP],
+      ["da/mcp-server", TemplateNames.DeclarativeAgentWithActionFromMCP],
+    ];
 
-    const res = await createProjectFrontDoor(
-      inputs,
-      deps({
-        scaffoldV4: scaffoldV4.fn,
-        runSelector: () => okTarget(V4_TARGET),
-        runInputs: () => Promise.resolve(err(q2Failed)),
-      })
-    );
+    for (const [templateId, expectedTemplateName] of expectedMappings) {
+      const scaffoldV4 = recorder((_i: Inputs, _t: BuildTarget, _a: Answers) => okResult("/v4"));
+      const inputs = baseInputs();
 
-    assert.isTrue(res.isErr());
-    if (res.isErr()) {
-      assert.equal(res.error.name, "Q2Failed");
+      const res = await createProjectFrontDoor(
+        inputs,
+        deps({
+          scaffoldV4: scaffoldV4.fn,
+          runSelector: () => okTarget({ templateId, engine: "v4", answers: {} }),
+          runInputs: () => Promise.resolve(err(q2Failed)),
+        })
+      );
+
+      assert.isTrue(res.isErr());
+      if (res.isErr()) {
+        assert.equal(res.error.name, "Q2Failed");
+      }
+      assert.equal(scaffoldV4.calls.length, 0);
+      assert.equal(inputs["template-name"], expectedTemplateName, templateId);
     }
-    assert.equal(scaffoldV4.calls.length, 0);
-    assert.equal(inputs["template-name"], "declarative-agent-with-action-from-mcp");
   });
 
   it("DCE-20: an unmapped v4 telemetry template id falls back to itself", async () => {
