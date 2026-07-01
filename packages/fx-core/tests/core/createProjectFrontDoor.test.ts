@@ -10,10 +10,7 @@ import {
   UserError,
   UserInteraction,
 } from "@microsoft/teamsfx-api";
-import fs from "fs-extra";
 import { Result, err, ok } from "neverthrow";
-import os from "os";
-import path from "path";
 import { assert } from "vitest";
 import {
   Answers,
@@ -807,77 +804,19 @@ describe("createProjectFrontDoor (dispatch-create-by-engine)", () => {
     assert.equal(runInputs.calls[0][2].officeAddinManifest, "manifest.json");
   });
 
-  it("DCE-18: legacy CLI MCP tools file is bridged into static v4 MCP Q2 params", async () => {
-    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "atk-mcp-tools-"));
-    const toolsPath = path.join(tempDir, "mcp-tools.json");
-    fs.writeJsonSync(toolsPath, {
-      tools: [
-        {
-          name: "searchFlights",
-          description: "Search available flights",
-          inputSchema: { type: "object", properties: {} },
-        },
-      ],
-    });
+  it("DCE-18: CLI static MCP neutral params are passed through to Q2", async () => {
     const runInputs = inputsRecorder({});
+    const toolsJson = JSON.stringify({
+      tools: [{ name: "searchFlights", description: "Search available flights" }],
+    });
     const inputs: Inputs = {
       platform: Platform.CLI,
       nonInteractive: true,
       mcpServerUrl: "https://api.example/mcp",
       authType: "none",
-      [QuestionNames.MCPToolsFilePath]: toolsPath,
-    };
-
-    try {
-      const res = await createProjectFrontDoor(
-        inputs,
-        deps({
-          runSelector: selectorRecorder(STATIC_MCP_TARGET).fn,
-          runInputs: runInputs.fn,
-          collectCreateFloor: okFloor,
-          scaffoldV4: okScaffold,
-        })
-      );
-
-      assert.isTrue(res.isOk());
-      const mcpToolsJson = runInputs.calls[0][2].mcpToolsJson;
-      if (typeof mcpToolsJson !== "string") {
-        assert.fail("Expected mcpToolsJson to be bridged as a string.");
-      }
-      assert.deepEqual(JSON.parse(mcpToolsJson), {
-        tools: [
-          {
-            name: "searchFlights",
-            description: "Search available flights",
-            inputSchema: { type: "object", properties: {} },
-          },
-        ],
-      });
-      assert.deepEqual(runInputs.calls[0][2].selectedMcpTools, ["searchFlights"]);
-    } finally {
-      fs.removeSync(tempDir);
-    }
-  });
-
-  it("DCE-18b: legacy CLI MCP server URL is fetched into static v4 MCP Q2 params", async () => {
-    const runInputs = inputsRecorder({});
-    const fetchMcpTools = recorder((serverUrl: string) =>
-      Promise.resolve({
-        requiresAuth: false,
-        tools: [
-          {
-            name: "microsoft_docs_search",
-            description: `Search official docs from ${serverUrl}`,
-            inputSchema: { type: "object", properties: {} },
-          },
-        ],
-      })
-    );
-    const inputs: Inputs = {
-      platform: Platform.CLI,
-      nonInteractive: true,
-      [QuestionNames.MCPForDAServerUrl]: "https://learn.microsoft.com/api/mcp",
-      authType: "none",
+      mcpToolsFilePath: "C:/tools/mcp-tools.json",
+      mcpToolsJson: toolsJson,
+      selectedMcpTools: ["searchFlights"],
     };
 
     const res = await createProjectFrontDoor(
@@ -887,105 +826,15 @@ describe("createProjectFrontDoor (dispatch-create-by-engine)", () => {
         runInputs: runInputs.fn,
         collectCreateFloor: okFloor,
         scaffoldV4: okScaffold,
-        fetchMcpTools: fetchMcpTools.fn,
       })
     );
 
     assert.isTrue(res.isOk());
-    assert.deepEqual(fetchMcpTools.calls, [["https://learn.microsoft.com/api/mcp"]]);
-    const mcpToolsJson = runInputs.calls[0][2].mcpToolsJson;
-    if (typeof mcpToolsJson !== "string") {
-      assert.fail("Expected mcpToolsJson to be fetched and bridged as a string.");
-    }
-    assert.equal(runInputs.calls[0][2].mcpServerUrl, "https://learn.microsoft.com/api/mcp");
-    assert.deepEqual(JSON.parse(mcpToolsJson), {
-      tools: [
-        {
-          name: "microsoft_docs_search",
-          description: "Search official docs from https://learn.microsoft.com/api/mcp",
-          inputSchema: { type: "object", properties: {} },
-        },
-      ],
-    });
-    assert.deepEqual(runInputs.calls[0][2].selectedMcpTools, ["microsoft_docs_search"]);
-  });
-
-  it("DCE-18c: legacy CLI MCP tools file read failure is returned before Q2", async () => {
-    const runInputs = inputsRecorder({});
-    const inputs: Inputs = {
-      platform: Platform.CLI,
-      nonInteractive: true,
-      [QuestionNames.MCPToolsFilePath]: path.join(os.tmpdir(), "missing-mcp-tools.json"),
-    };
-
-    const res = await createProjectFrontDoor(
-      inputs,
-      deps({
-        runSelector: selectorRecorder(STATIC_MCP_TARGET).fn,
-        runInputs: runInputs.fn,
-        collectCreateFloor: okFloor,
-        scaffoldV4: okScaffold,
-      })
-    );
-
-    assert.isTrue(res.isErr());
-    if (res.isErr()) {
-      assert.equal(res.error.name, "McpToolsFileReadFailed");
-    }
-    assert.equal(runInputs.calls.length, 0);
-  });
-
-  it("returns an error before Q2 when a legacy static MCP tools file is invalid", async () => {
-    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "atk-mcp-tools-"));
-    const toolsPath = path.join(tempDir, "mcp-tools.json");
-    fs.writeFileSync(toolsPath, "{ invalid json", "utf8");
-    const inputs: Inputs = {
-      platform: Platform.CLI,
-      nonInteractive: true,
-      [QuestionNames.MCPToolsFilePath]: toolsPath,
-    };
-
-    try {
-      const res = await createProjectFrontDoor(
-        inputs,
-        deps({
-          runSelector: selectorRecorder(STATIC_MCP_TARGET).fn,
-          runInputs: failRunInputs,
-        })
-      );
-
-      assert.isTrue(res.isErr());
-    } finally {
-      fs.removeSync(tempDir);
-    }
-  });
-
-  it("DCE-18d: legacy CLI MCP fetch requiring auth leaves entry params unchanged", async () => {
-    const runInputs = inputsRecorder({});
-    const fetchMcpTools = recorder((_serverUrl: string) =>
-      Promise.resolve({ requiresAuth: true, tools: [] })
-    );
-    const inputs: Inputs = {
-      platform: Platform.CLI,
-      nonInteractive: true,
-      [QuestionNames.MCPForDAServerUrl]: "https://secure.example.com/mcp",
-    };
-
-    const res = await createProjectFrontDoor(
-      inputs,
-      deps({
-        runSelector: selectorRecorder(STATIC_MCP_TARGET).fn,
-        runInputs: runInputs.fn,
-        collectCreateFloor: okFloor,
-        scaffoldV4: okScaffold,
-        fetchMcpTools: fetchMcpTools.fn,
-      })
-    );
-
-    assert.isTrue(res.isOk());
-    assert.deepEqual(fetchMcpTools.calls, [["https://secure.example.com/mcp"]]);
-    assert.notProperty(runInputs.calls[0][2], "mcpToolsJson");
-    assert.notProperty(runInputs.calls[0][2], "selectedMcpTools");
+    assert.equal(runInputs.calls[0][2].mcpServerUrl, "https://api.example/mcp");
+    assert.equal(runInputs.calls[0][2].authType, "none");
+    assert.equal(runInputs.calls[0][2].mcpToolsFilePath, "C:/tools/mcp-tools.json");
+    assert.equal(runInputs.calls[0][2].mcpToolsJson, toolsJson);
+    assert.deepEqual(runInputs.calls[0][2].selectedMcpTools, ["searchFlights"]);
   });
 
   it("DCE-17b: Office Add-in folder input is passed to the v4 input walk under its neutral key", async () => {

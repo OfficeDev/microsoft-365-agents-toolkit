@@ -7,7 +7,6 @@ import {
   Inputs,
   Platform,
   SystemError,
-  UserError,
   UserInteraction,
 } from "@microsoft/teamsfx-api";
 import fs from "fs-extra";
@@ -25,13 +24,11 @@ import {
   runCreateSelector,
   templateSourceFromArtifactSnapshot,
 } from "../v4";
-import { parseMcpStaticToolsJson } from "../v4/mcp/mcpStaticTools";
 import { FeatureFlags, readBooleanFeatureFlag } from "../common/featureFlags";
 import { TOOLS } from "../common/globalVars";
 import { TemplateNames } from "../component/generator/templates/templateNames";
 import type { ResolvedV4ChannelPackage } from "../component/generator/v4TemplateBridge";
 import { QuestionNames } from "../question/questionNames";
-import { fetchMCPTools, MCPFetchResult } from "../component/utils/mcpToolFetcher";
 
 /**
  * Operation `dispatch-create-by-engine` — the create front door.
@@ -63,7 +60,6 @@ const SOURCE = "Scaffold";
 
 /** The only shipped create `surface-action`: open GitHub Copilot Chat (the v3 `startWithGithubCopilot` shape). */
 const OPEN_GITHUB_COPILOT_CHAT = "open-github-copilot-chat";
-const STATIC_MCP_TEMPLATE_ID = "da/mcp-server-static";
 const V4_TO_V3_TEMPLATE_ID: Readonly<Record<string, string>> = {
   "basic-custom-engine-agent": TemplateNames.BasicCustomEngineAgent,
   "weather-agent": TemplateNames.WeatherAgent,
@@ -151,8 +147,6 @@ export interface CreateFrontDoorDeps {
   resolveByTemplateId?: typeof resolveCreateTargetByTemplateId;
   /** The Q2 inputs walk (default: the real `runCreateInputs`). */
   runInputs?: typeof runCreateInputs;
-  /** Fetch MCP tools for the legacy static-MCP server-url-only CLI path. */
-  fetchMcpTools?: (serverUrl: string) => Promise<MCPFetchResult>;
 }
 
 /** The default `featureFlagManager`-backed reader (a flag is on per its env var / VS Code setting). */
@@ -197,59 +191,6 @@ function neutralAnswersFromInputs(inputs: Inputs): Answers {
     answers.officeAddinManifest = officeAddinManifest;
   }
   return answers;
-}
-
-async function addLegacyStaticMcpInputs(
-  target: BuildTarget,
-  inputs: Inputs,
-  entryParams: Answers,
-  fetchTools: (serverUrl: string) => Promise<MCPFetchResult>
-): Promise<Result<Answers, FxError>> {
-  if (target.templateId !== STATIC_MCP_TEMPLATE_ID) {
-    return ok(entryParams);
-  }
-
-  const toolsFilePath = inputs[QuestionNames.MCPToolsFilePath];
-  const mcpServerUrl = inputs[QuestionNames.MCPForDAServerUrl] ?? entryParams.mcpServerUrl;
-  let toolsJson: string | undefined;
-  if (typeof toolsFilePath === "string" && toolsFilePath.length > 0) {
-    try {
-      toolsJson = fs.readFileSync(toolsFilePath, "utf8");
-    } catch {
-      return err(
-        new UserError({
-          source: SOURCE,
-          name: "McpToolsFileReadFailed",
-          message: "Failed to read the MCP tools file.",
-        })
-      );
-    }
-  } else if (typeof mcpServerUrl === "string" && mcpServerUrl.length > 0) {
-    const fetchResult = await fetchTools(mcpServerUrl);
-    if (fetchResult.requiresAuth || fetchResult.tools.length === 0) {
-      return ok(entryParams);
-    }
-    toolsJson = JSON.stringify({ tools: fetchResult.tools });
-  }
-
-  if (toolsJson === undefined) {
-    return ok(entryParams);
-  }
-
-  const parsed = parseMcpStaticToolsJson(toolsJson);
-  if (!parsed.ok) {
-    return err(new UserError({ source: SOURCE, name: parsed.code, message: parsed.message }));
-  }
-
-  return ok({
-    ...entryParams,
-    ...(typeof mcpServerUrl === "string" ? { mcpServerUrl } : {}),
-    mcpToolsJson:
-      typeof entryParams.mcpToolsJson === "string" ? entryParams.mcpToolsJson : toolsJson,
-    selectedMcpTools: Array.isArray(entryParams.selectedMcpTools)
-      ? entryParams.selectedMcpTools
-      : parsed.tools.map((tool) => tool.name),
-  });
 }
 
 function selectorPrefillFromInputs(inputs: Inputs): Record<string, string> {
@@ -407,15 +348,6 @@ export async function createProjectFrontDoor(
         ...(target.value.answers ?? {}),
         ...neutralAnswersFromInputs(inputs),
       };
-      const bridgedEntryParams = await addLegacyStaticMcpInputs(
-        target.value,
-        inputs,
-        entryParams,
-        deps.fetchMcpTools ?? fetchMCPTools
-      );
-      if (bridgedEntryParams.isErr()) {
-        return err(bridgedEntryParams.error);
-      }
       let inputBytes: Buffer;
       if (snapshot === undefined) {
         if (floorBytes === undefined) {
@@ -429,7 +361,7 @@ export async function createProjectFrontDoor(
         }
         inputBytes = metadataBytes.value;
       }
-      const answers = await runInputs(inputBytes, locator, bridgedEntryParams.value, ui, {
+      const answers = await runInputs(inputBytes, locator, entryParams, ui, {
         flagReader,
         surface,
       });

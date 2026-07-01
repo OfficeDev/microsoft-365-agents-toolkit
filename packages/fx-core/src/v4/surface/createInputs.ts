@@ -10,7 +10,11 @@ import {
   Utils,
   ValidationStatus,
 } from "@microsoft/m365-spec-parser";
+import fs from "fs-extra";
 import { Result, err } from "neverthrow";
+import { MCPFetchResult, fetchMCPTools } from "../../component/utils/mcpToolFetcher";
+import { ODRProvider, type ODRServer } from "../../component/utils/odrProvider";
+import { readBooleanFeatureFlag } from "../../common/featureFlags";
 import {
   CollectInputsPort,
   OptionsProvider,
@@ -26,16 +30,55 @@ import { Answers, DeclarativeLocator } from "../model/dataModel";
 import { parseDeclaredKeys } from "../runtime/packageParse";
 import { createExpressionPort } from "../runtime/whitelist";
 import { createUiPromptUI } from "./uiPromptUI";
-import { readBooleanFeatureFlag } from "../../common/featureFlags";
 
 /** Live create-path surface wiring for `collect-inputs`. See collect-create-inputs spec. */
 
-/** Default `mcp.serverTypes` provider; live local detection is injected later. */
-const remoteOnlyServerTypes: OptionsProvider = {
-  fetch() {
-    return { options: [{ id: "remote", label: "Remote" }] };
-  },
-};
+const remoteMcpServerType = { id: "remote", label: "Remote" };
+const localMcpServerType = { id: "local", label: "Local" };
+
+function createLocalServerCache(
+  listLocalMcpServers: () => Promise<ODRServer[]>
+): () => Promise<ODRServer[]> {
+  let cached: Promise<ODRServer[]> | undefined;
+  return () => {
+    if (cached === undefined) {
+      cached = listLocalMcpServers();
+    }
+    return cached;
+  };
+}
+
+function createMcpServerTypesProvider(localServers: () => Promise<ODRServer[]>): OptionsProvider {
+  return {
+    async fetch() {
+      const servers = await localServers();
+      return {
+        options:
+          servers.length > 0 ? [remoteMcpServerType, localMcpServerType] : [remoteMcpServerType],
+      };
+    },
+  };
+}
+
+function localServerDetail(server: ODRServer): string {
+  const toolsDetail = `${server.tools.length} tools available`;
+  return server.description ? `${server.description} (${toolsDetail})` : toolsDetail;
+}
+
+function createLocalMcpServersProvider(localServers: () => Promise<ODRServer[]>): OptionsProvider {
+  return {
+    async fetch() {
+      const servers = await localServers();
+      return {
+        options: servers.map((server) => ({
+          id: server.name,
+          label: server.display_name || server.name,
+          detail: localServerDetail(server),
+        })),
+      };
+    },
+  };
+}
 
 const openApiMethods = [
   "get",
@@ -129,36 +172,96 @@ const openApiOperationsProvider: OptionsProvider = {
   },
 };
 
-const mcpToolsProvider: OptionsProvider = {
-  fetch(params) {
-    const toolsJson = params.toolsJson?.trim();
-    if (!toolsJson) {
-      throw new UserError({
-        source: "Scaffold",
-        name: "McpToolsJsonMissing",
-        message: "MCP tools JSON is required before listing tools.",
-      });
-    }
-    const parsed = parseMcpStaticToolsJson(toolsJson);
-    if (!parsed.ok) {
-      throw new UserError({ source: "Scaffold", name: parsed.code, message: parsed.message });
-    }
-    return {
-      options: parsed.tools.map((tool) => ({
-        id: tool.name,
-        label: tool.name,
-        detail: tool.description,
-      })),
-    };
-  },
-};
+function mcpToolsJsonFromFetchResult(
+  serverUrl: string | undefined,
+  result: MCPFetchResult
+): string {
+  if (result.requiresAuth) {
+    throw new UserError({
+      source: "Scaffold",
+      name: "McpAuthRequired",
+      message: `The MCP server${serverUrl ? ` at ${serverUrl}` : ""} requires authentication.`,
+    });
+  }
+  if (result.tools.length === 0) {
+    throw new UserError({
+      source: "Scaffold",
+      name: "McpToolsNotFound",
+      message: `No tools were discovered from the MCP server${serverUrl ? ` at ${serverUrl}` : ""}.`,
+    });
+  }
+  return JSON.stringify({ tools: result.tools });
+}
+
+function createMcpToolsProvider(
+  fetchTools: (serverUrl: string) => Promise<MCPFetchResult>
+): OptionsProvider {
+  return {
+    async fetch(params) {
+      let toolsJson = params.toolsJson?.trim();
+      const toolsFilePath = params.toolsFilePath?.trim();
+      if (!toolsJson && toolsFilePath) {
+        try {
+          toolsJson = fs.readFileSync(toolsFilePath, "utf8");
+        } catch {
+          throw new UserError({
+            source: "Scaffold",
+            name: "McpToolsFileReadFailed",
+            message: "Failed to read the MCP tools file.",
+          });
+        }
+      }
+      const serverUrl = params.serverUrl?.trim();
+      if (!toolsJson && serverUrl) {
+        try {
+          toolsJson = mcpToolsJsonFromFetchResult(serverUrl, await fetchTools(serverUrl));
+        } catch (error) {
+          if (error instanceof UserError) {
+            throw error;
+          }
+          throw new UserError({
+            source: "Scaffold",
+            name: "McpToolsFetchFailed",
+            message: `Failed to fetch tools from the MCP server at ${serverUrl}.`,
+          });
+        }
+      }
+      if (!toolsJson) {
+        throw new UserError({
+          source: "Scaffold",
+          name: "McpToolsJsonMissing",
+          message: "MCP tools JSON is required before listing tools.",
+        });
+      }
+      const parsed = parseMcpStaticToolsJson(toolsJson);
+      if (!parsed.ok) {
+        throw new UserError({ source: "Scaffold", name: parsed.code, message: parsed.message });
+      }
+      return {
+        options: parsed.tools.map((tool) => ({
+          id: tool.name,
+          label: tool.name,
+          detail: tool.description,
+        })),
+        derived: { toolsJson },
+      };
+    },
+  };
+}
 
 /** Default `optionsFrom` provider registry. */
-const defaultProviders: Record<string, OptionsProvider> = {
-  "mcp.serverTypes": remoteOnlyServerTypes,
-  "mcp.tools": mcpToolsProvider,
-  "openapi.operations": openApiOperationsProvider,
-};
+function createDefaultProviders(
+  fetchTools: (serverUrl: string) => Promise<MCPFetchResult>,
+  listLocalMcpServers: () => Promise<ODRServer[]>
+): Record<string, OptionsProvider> {
+  const localServers = createLocalServerCache(listLocalMcpServers);
+  return {
+    "mcp.serverTypes": createMcpServerTypesProvider(localServers),
+    "mcp.localServers": createLocalMcpServersProvider(localServers),
+    "mcp.tools": createMcpToolsProvider(fetchTools),
+    "openapi.operations": openApiOperationsProvider,
+  };
+}
 
 /** The `"uri"` validator: a value that does not parse as a URL is user-fixable. */
 const uriValidator: Validator = (value: string): string | undefined => {
@@ -274,6 +377,10 @@ export interface CreateInputsDeps {
   flagReader?: (name: string) => boolean;
   /** The host surface (`vscode` / `cli` / `vs`) — gates the `csharp` language axis (default `vscode`). */
   surface?: string;
+  /** Fetch static MCP tools when CLI did not provide a tools file path. */
+  fetchMcpTools?: (serverUrl: string) => Promise<MCPFetchResult>;
+  /** List available local MCP servers for the dynamic MCP create flow. */
+  listLocalMcpServers?: () => Promise<ODRServer[]>;
 }
 
 /** Run one create template's Q2 over the host surface. */
@@ -295,8 +402,15 @@ export async function runCreateInputs(
     deps.flagReader ?? envFlagReader
   );
 
-  const providers = { ...defaultProviders, ...(deps.optionsProvider ?? {}) };
+  const providers = {
+    ...createDefaultProviders(
+      deps.fetchMcpTools ?? fetchMCPTools,
+      deps.listLocalMcpServers ?? ODRProvider.listServers
+    ),
+    ...(deps.optionsProvider ?? {}),
+  };
   const expressionPort = createExpressionPort(deps.flagReader);
+  const surface = deps.surface ?? "vscode";
   const port: CollectInputsPort = {
     ui: createUiPromptUI(ui),
     optionsProvider: (providerId) => providers[providerId],
@@ -307,7 +421,7 @@ export async function runCreateInputs(
   return collectInputs(
     opened.value.questions,
     declaredOptionsSchema(descriptor),
-    entryParams,
+    { ...entryParams, surface },
     languages,
     port
   );

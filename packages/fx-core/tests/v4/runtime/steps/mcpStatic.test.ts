@@ -4,10 +4,14 @@
 import { SystemError } from "@microsoft/teamsfx-api";
 import {
   STEP_MATERIALIZE_STATIC_MCP_TOOLS,
+  mcpStaticDeps,
   mcpStaticMaterializeTools,
 } from "../../../../src/v4/runtime/steps/mcpStatic";
 import { StepContext } from "../../../../src/v4/pipeline/runScaffoldPipeline";
-import { assert } from "vitest";
+import fs from "fs-extra";
+import os from "os";
+import path from "path";
+import { assert, afterEach } from "vitest";
 
 function makeCtx(initial: Record<string, string> = {}): {
   ctx: StepContext;
@@ -46,6 +50,12 @@ function validParams(overrides: Record<string, unknown> = {}): Record<string, un
 }
 
 describe(`${STEP_MATERIALIZE_STATIC_MCP_TOOLS} (v4)`, () => {
+  afterEach(() => {
+    mcpStaticDeps.fetchTools = async () => {
+      throw new Error("unexpected fetch");
+    };
+  });
+
   it("validateParams reports missing or invalid parameters", () => {
     assert.strictEqual(
       mcpStaticMaterializeTools.validateParams(validParams({ pluginPath: undefined })),
@@ -59,9 +69,8 @@ describe(`${STEP_MATERIALIZE_STATIC_MCP_TOOLS} (v4)`, () => {
       mcpStaticMaterializeTools.validateParams(validParams({ mcpServerUrl: undefined })),
       "missing string parameter 'mcpServerUrl'"
     );
-    assert.strictEqual(
-      mcpStaticMaterializeTools.validateParams(validParams({ toolsJson: undefined })),
-      "missing string parameter 'toolsJson'"
+    assert.isUndefined(
+      mcpStaticMaterializeTools.validateParams(validParams({ toolsJson: undefined }))
     );
     assert.strictEqual(
       mcpStaticMaterializeTools.validateParams(validParams({ selected: ["ok", 1] })),
@@ -69,26 +78,29 @@ describe(`${STEP_MATERIALIZE_STATIC_MCP_TOOLS} (v4)`, () => {
     );
   });
 
-  it("returns a parameter SystemError when apply receives invalid resolved params", () => {
+  it("returns a parameter SystemError when apply receives invalid resolved params", async () => {
     const { ctx } = makeCtx();
-    const result = mcpStaticMaterializeTools.apply(validParams({ selected: "searchFlights" }), ctx);
+    const result = await mcpStaticMaterializeTools.apply(
+      validParams({ selected: "searchFlights" }),
+      ctx
+    );
 
     assert.isTrue(result.isErr());
     assert.instanceOf(result._unsafeUnwrapErr(), SystemError);
     assert.strictEqual(result._unsafeUnwrapErr().name, "McpStaticParams");
   });
 
-  it("returns tool parser and selection errors as SystemError results", () => {
+  it("returns tool parser and selection errors as SystemError results", async () => {
     const { ctx } = makeCtx({ "appPackage/ai-plugin.json": "{}" });
 
-    const parseResult = mcpStaticMaterializeTools.apply(
+    const parseResult = await mcpStaticMaterializeTools.apply(
       validParams({ toolsJson: "not json" }),
       ctx
     );
     assert.isTrue(parseResult.isErr());
     assert.strictEqual(parseResult._unsafeUnwrapErr().name, "McpStaticToolsParse");
 
-    const missingSelection = mcpStaticMaterializeTools.apply(
+    const missingSelection = await mcpStaticMaterializeTools.apply(
       validParams({ selected: ["missingTool"] }),
       ctx
     );
@@ -96,19 +108,19 @@ describe(`${STEP_MATERIALIZE_STATIC_MCP_TOOLS} (v4)`, () => {
     assert.strictEqual(missingSelection._unsafeUnwrapErr().name, "McpStaticToolMissing");
   });
 
-  it("returns plugin read and parse errors as SystemError results", () => {
-    const missing = mcpStaticMaterializeTools.apply(validParams(), makeCtx().ctx);
+  it("returns plugin read and parse errors as SystemError results", async () => {
+    const missing = await mcpStaticMaterializeTools.apply(validParams(), makeCtx().ctx);
     assert.isTrue(missing.isErr());
     assert.strictEqual(missing._unsafeUnwrapErr().name, "McpStaticPluginMissing");
 
-    const invalidJson = mcpStaticMaterializeTools.apply(
+    const invalidJson = await mcpStaticMaterializeTools.apply(
       validParams(),
       makeCtx({ "appPackage/ai-plugin.json": "not json" }).ctx
     );
     assert.isTrue(invalidJson.isErr());
     assert.strictEqual(invalidJson._unsafeUnwrapErr().name, "McpStaticPluginParse");
 
-    const invalidShape = mcpStaticMaterializeTools.apply(
+    const invalidShape = await mcpStaticMaterializeTools.apply(
       validParams(),
       makeCtx({ "appPackage/ai-plugin.json": "[]" }).ctx
     );
@@ -116,10 +128,10 @@ describe(`${STEP_MATERIALIZE_STATIC_MCP_TOOLS} (v4)`, () => {
     assert.strictEqual(invalidShape._unsafeUnwrapErr().name, "McpStaticPluginShape");
   });
 
-  it("writes selected tools and RemoteMCPServer runtime metadata", () => {
+  it("writes selected tools and RemoteMCPServer runtime metadata", async () => {
     const { ctx, files } = makeCtx({ "appPackage/ai-plugin.json": "{}" });
 
-    const result = mcpStaticMaterializeTools.apply(
+    const result = await mcpStaticMaterializeTools.apply(
       validParams({ toolsPath: "nested/appPackage/mcp-tools-1.json" }),
       ctx
     );
@@ -141,5 +153,71 @@ describe(`${STEP_MATERIALIZE_STATIC_MCP_TOOLS} (v4)`, () => {
       files.get("nested/appPackage/mcp-tools-1.json")?.toString("utf8") ?? "{}"
     );
     assert.deepEqual(tools.tools, [{ name: "searchFlights", description: "Search flights" }]);
+  });
+
+  it("writes selected tools from a tools file path", async () => {
+    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "atk-mcp-tools-"));
+    const toolsFilePath = path.join(tempDir, "mcp-tools.json");
+    fs.writeJsonSync(toolsFilePath, {
+      tools: [
+        { name: "searchFlights", description: "Search flights" },
+        { name: "bookFlight", description: "Book flights" },
+      ],
+    });
+    const { ctx, files } = makeCtx({ "appPackage/ai-plugin.json": "{}" });
+
+    try {
+      const result = await mcpStaticMaterializeTools.apply(
+        validParams({ toolsJson: "", toolsFilePath }),
+        ctx
+      );
+
+      assert.isTrue(result.isOk(), result.isErr() ? result.error.message : "expected ok");
+      const tools = JSON.parse(files.get("appPackage/mcp-tools-1.json")?.toString("utf8") ?? "{}");
+      assert.deepEqual(tools.tools, [{ name: "searchFlights", description: "Search flights" }]);
+    } finally {
+      fs.removeSync(tempDir);
+    }
+  });
+
+  it("returns a UserError when the tools file path cannot be read", async () => {
+    const { ctx } = makeCtx({ "appPackage/ai-plugin.json": "{}" });
+
+    const result = await mcpStaticMaterializeTools.apply(
+      validParams({
+        toolsJson: "",
+        toolsFilePath: path.join(os.tmpdir(), "missing-mcp-tools.json"),
+      }),
+      ctx
+    );
+
+    assert.isTrue(result.isErr());
+    assert.strictEqual(result._unsafeUnwrapErr().name, "McpToolsFileReadFailed");
+  });
+
+  it("returns a UserError when fetched tools require auth or are empty", async () => {
+    const { ctx } = makeCtx({ "appPackage/ai-plugin.json": "{}" });
+    mcpStaticDeps.fetchTools = async () => ({ requiresAuth: true, tools: [] });
+
+    const authRequired = await mcpStaticMaterializeTools.apply(validParams({ toolsJson: "" }), ctx);
+    assert.isTrue(authRequired.isErr());
+    assert.strictEqual(authRequired._unsafeUnwrapErr().name, "McpAuthRequired");
+
+    mcpStaticDeps.fetchTools = async () => ({ requiresAuth: false, tools: [] });
+    const emptyTools = await mcpStaticMaterializeTools.apply(validParams({ toolsJson: "" }), ctx);
+    assert.isTrue(emptyTools.isErr());
+    assert.strictEqual(emptyTools._unsafeUnwrapErr().name, "McpToolsNotFound");
+  });
+
+  it("returns a UserError when fetching tools fails unexpectedly", async () => {
+    const { ctx } = makeCtx({ "appPackage/ai-plugin.json": "{}" });
+    mcpStaticDeps.fetchTools = async () => {
+      throw new Error("network down");
+    };
+
+    const result = await mcpStaticMaterializeTools.apply(validParams({ toolsJson: "" }), ctx);
+
+    assert.isTrue(result.isErr());
+    assert.strictEqual(result._unsafeUnwrapErr().name, "McpToolsFetchFailed");
   });
 });

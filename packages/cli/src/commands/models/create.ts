@@ -35,6 +35,7 @@ const CREATE_INPUT_ALIASES: ReadonlyArray<readonly [string, string]> = [
   ["api-operation", "apiOperations"],
   ["addin-project-manifest", "officeAddinManifest"],
   ["mcp-da-server-url", "mcpServerUrl"],
+  ["mcp-tools-file-path", "mcpToolsFilePath"],
   ["mcp-da-auth-type", "authType"],
   ["azure-openai-key", "azureOpenAIKey"],
   ["azure-openai-endpoint", "azureOpenAIEndpoint"],

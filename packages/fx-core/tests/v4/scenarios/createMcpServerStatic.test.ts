@@ -19,7 +19,7 @@ import {
  * T3 scenario tier for the DT-off v4 static MCP create package.
  *
  * Spec: docs/03-specs/scenarios/da/create-mcp-server-static.md
- * (SCN-CREATE-MCP-STATIC-01..04)
+ * (SCN-CREATE-MCP-STATIC-01..07)
  */
 
 const MCP_SERVER_URL = "https://api.github.com/mcp";
@@ -45,6 +45,7 @@ async function run(
 ): Promise<{ files: Map<string, Buffer>; outcome: V4ScenarioOutcome }> {
   return runV4Package(templatePackage, {
     answers: {
+      surface: "cli",
       mcpServerUrl: MCP_SERVER_URL,
       mcpToolsJson: MCP_TOOLS_JSON,
       selectedMcpTools,
@@ -99,6 +100,7 @@ describe("SCN-DA-CREATE-WITH-MCP-SERVER-STATIC (v4, T3 InMemoryRuntime)", () => 
       pipeline: templatePackage.pipeline,
       content: templatePackage.content,
       answers: {
+        surface: "cli",
         mcpServerUrl: MCP_SERVER_URL,
         mcpToolsJson: MCP_TOOLS_JSON,
         selectedMcpTools: ["search"],
@@ -112,5 +114,22 @@ describe("SCN-DA-CREATE-WITH-MCP-SERVER-STATIC (v4, T3 InMemoryRuntime)", () => 
     assert.instanceOf(error, UserError);
     assert.strictEqual(error.name, REQUIRE_EMPTY_TARGET);
     assert.strictEqual(runtime.files.size, 0);
+  });
+
+  it("SCN-CREATE-MCP-STATIC-05: VS Code create skips static MCP tool materialization", async () => {
+    const { files, outcome } = await runV4Package(templatePackage, {
+      answers: {
+        surface: "vscode",
+        mcpServerUrl: MCP_SERVER_URL,
+      },
+      callerFloor: { appName: "MyStaticMcpAgent", language: "common" },
+    });
+
+    assert.include(outcome.written, "appPackage/ai-plugin.json");
+    assert.notInclude(outcome.stepsRun, "mcp-static/materialize-tools");
+    assert.isFalse(files.has("appPackage/mcp-tools-1.json"));
+    const plugin = readJsonObject(files, "appPackage/ai-plugin.json");
+    assert.deepStrictEqual(recordArrayProperty(plugin, "functions"), []);
+    assert.deepStrictEqual(recordArrayProperty(plugin, "runtimes"), []);
   });
 });
