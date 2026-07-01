@@ -480,6 +480,45 @@ describe("runCreateInputs (collect-create-inputs)", () => {
     assert.equal(res._unsafeUnwrapErr().name, "MissingRequiredInputError");
   });
 
+  it("surfaces create floor folder prompt errors", async () => {
+    const ui = new ScriptedUserInteraction({
+      select: { llmService: "llm-service-openai", language: "typescript" },
+      text: { openAIKey: "fake-openai-key", "app-name": "MyAgent" },
+    });
+
+    const res = await runCreateInputs(buildFloor(), BASIC_CUSTOM_ENGINE_AGENT, {}, asUI(ui), {
+      flagReader: () => false,
+      inputs: { platform: Platform.VSCode },
+      surface: "vscode",
+    });
+
+    assert.isTrue(res.isErr(), "expected missing scripted folder answer to fail");
+    assert.equal(res._unsafeUnwrapErr().name, "NoScriptedAnswer");
+    assert.deepEqual(ui.folderNames, ["folder"]);
+  });
+
+  it("validates preset create floor app name after collecting Q2", async () => {
+    const ui = new ScriptedUserInteraction({
+      select: { llmService: "llm-service-openai" },
+      text: { openAIKey: "fake-openai-key" },
+    });
+
+    const res = await runCreateInputs(
+      buildFloor(),
+      BASIC_CUSTOM_ENGINE_AGENT,
+      { language: "typescript" },
+      asUI(ui),
+      {
+        flagReader: () => false,
+        inputs: { platform: Platform.CLI, folder: "C:/src", "app-name": "!" },
+        surface: "cli",
+      }
+    );
+
+    assert.isTrue(res.isErr(), "expected invalid preset app name to fail");
+    assert.equal(res._unsafeUnwrapErr().name, "InputValidationError");
+  });
+
   it("collects Weather Agent Azure OpenAI service answers", async () => {
     const ui = new ScriptedUserInteraction({
       select: { llmService: "llm-service-azure-openai" },
@@ -729,6 +768,25 @@ describe("runCreateInputs (collect-create-inputs)", () => {
 
     assert.isTrue(res.isErr(), "expected auth-required fetch to fail");
     assert.strictEqual(res._unsafeUnwrapErr().name, "McpAuthRequired");
+  });
+
+  it("fails when static MCP tool auto-fetch returns no tools", async () => {
+    const ui = new ScriptedUserInteraction({ text: { mcpToolsFilePath: "" } });
+
+    const res = await runCreateInputs(
+      buildFloor(),
+      STATIC_MCP_DA,
+      { mcpServerUrl: "https://api.example.com/mcp" },
+      asUI(ui),
+      {
+        surface: "cli",
+        flagReader: () => false,
+        fetchMcpTools: async () => ({ requiresAuth: false, tools: [] }),
+      }
+    );
+
+    assert.isTrue(res.isErr(), "expected empty tool fetch to fail");
+    assert.strictEqual(res._unsafeUnwrapErr().name, "McpToolsNotFound");
   });
 
   it("surfaces a UserError when the static MCP tools file cannot be read", async () => {

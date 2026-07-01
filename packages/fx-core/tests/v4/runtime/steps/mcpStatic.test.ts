@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { SystemError } from "@microsoft/teamsfx-api";
+import { SystemError, UserError } from "@microsoft/teamsfx-api";
 import {
   STEP_MATERIALIZE_STATIC_MCP_TOOLS,
   mcpStaticDeps,
@@ -245,5 +245,17 @@ describe(`${STEP_MATERIALIZE_STATIC_MCP_TOOLS} (v4)`, () => {
 
     assert.isTrue(result.isErr());
     assert.strictEqual(result._unsafeUnwrapErr().name, "McpToolsFetchFailed");
+  });
+
+  it("returns FxError thrown while fetching tools", async () => {
+    const { ctx } = makeCtx({ "appPackage/ai-plugin.json": "{}" });
+    mcpStaticDeps.fetchTools = async () => {
+      throw new UserError({ source: "Test", name: "McpFetchUserError", message: "failed" });
+    };
+
+    const result = await mcpStaticMaterializeTools.apply(validParams({ toolsJson: "" }), ctx);
+
+    assert.isTrue(result.isErr());
+    assert.strictEqual(result._unsafeUnwrapErr().name, "McpFetchUserError");
   });
 });
