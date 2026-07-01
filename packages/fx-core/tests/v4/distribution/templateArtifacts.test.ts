@@ -141,6 +141,10 @@ describe("templateArtifacts (v4 staged artifacts)", () => {
 
   it("AC-SA-02c: rejects invalid JSON and malformed artifact references", () => {
     expect(() => parseArtifactTagList("not-json")).toThrow(/not valid JSON/);
+    expect(() =>
+      parseArtifactTagList("\r\n  \n" + JSON.stringify(tagEntry("6.11.0")))
+    ).not.toThrow();
+    expect(() => parseArtifactTagList("null")).toThrow(/Malformed/);
 
     const wrongFile = tagEntry("6.11.0");
     wrongFile.artifacts.metadata.file = "metadata.zip";
@@ -350,6 +354,54 @@ describe("templateArtifacts (v4 staged artifacts)", () => {
       }),
     });
     assert.strictEqual(digestFailure._unsafeUnwrapErr().name, "TemplateDigestMismatch");
+
+    const rangeMismatch = await resolveTemplateArtifactSnapshot({
+      range: "^7.0.0",
+      bundled: false,
+      requiredKind: "metadata",
+      port: new FakeArtifactPort({ tags: [tagEntry("6.11.0")] }),
+    });
+    assert.strictEqual(rangeMismatch._unsafeUnwrapErr().name, "TemplateVersionMismatch");
+  });
+
+  it("AC-SA-08d: propagates artifact download and cache write SystemErrors unchanged", async () => {
+    const downloadError = new SystemError({
+      source: "Test",
+      name: "DownloadSystemError",
+      message: "download failed",
+    });
+    const downloadPort = new FakeArtifactPort({ tags: [tagEntry("6.11.0")] });
+    downloadPort.download = () => Promise.reject(downloadError);
+
+    const downloadResult = await resolveTemplateArtifactSnapshot({
+      range: "^6.11.0",
+      bundled: false,
+      requiredKind: "metadata",
+      port: downloadPort,
+    });
+    assert.strictEqual(downloadResult._unsafeUnwrapErr(), downloadError);
+
+    const bytes = bytesFor("metadata", "6.11.0");
+    const cacheError = new SystemError({
+      source: "Test",
+      name: "CacheSystemError",
+      message: "cache failed",
+    });
+    const cachePort = new FakeArtifactPort({
+      tags: [tagEntry("6.11.0", { metadata: computeArtifactDigest(bytes) })],
+      served: { "6.11.0": servedArtifacts({ metadata: bytes }) },
+    });
+    cachePort.cache.put = () => {
+      throw cacheError;
+    };
+
+    const cacheResult = await resolveTemplateArtifactSnapshot({
+      range: "^6.11.0",
+      bundled: false,
+      requiredKind: "metadata",
+      port: cachePort,
+    });
+    assert.strictEqual(cacheResult._unsafeUnwrapErr(), cacheError);
   });
 
   it("AC-SA-09: returns the bundled snapshot when bundled=true or TEMPLATE_VERSION=local", async () => {
@@ -453,6 +505,59 @@ describe("templateArtifacts (v4 staged artifacts)", () => {
     ]);
   });
 
+  it("AC-SA-10c: lazy artifact reads return download and missing-cache errors", async () => {
+    const selectorBytes = bytesFor("create-selector", "6.11.0");
+    const metadataBytes = bytesFor("metadata", "6.11.0");
+    const downloadPort = new FakeArtifactPort({
+      tags: [
+        tagEntry("6.11.0", {
+          "create-selector": computeArtifactDigest(selectorBytes),
+          metadata: computeArtifactDigest(metadataBytes),
+        }),
+      ],
+      served: { "6.11.0": servedArtifacts({ "create-selector": selectorBytes }) },
+    });
+    const snapshotResult = await resolveTemplateArtifactSnapshot({
+      range: "^6.11.0",
+      bundled: false,
+      requiredKind: "create-selector",
+      port: downloadPort,
+    });
+
+    const lazyDownload = await snapshotResult._unsafeUnwrap().bytes("metadata");
+    assert.strictEqual(lazyDownload._unsafeUnwrapErr().name, "TemplateDownloadFailed");
+
+    const missingCachePort = new FakeArtifactPort({
+      tags: [
+        tagEntry("6.11.0", {
+          "create-selector": computeArtifactDigest(selectorBytes),
+          metadata: computeArtifactDigest(metadataBytes),
+        }),
+      ],
+      served: {
+        "6.11.0": servedArtifacts({
+          "create-selector": selectorBytes,
+          metadata: metadataBytes,
+        }),
+      },
+    });
+    const originalPut = missingCachePort.cache.put;
+    missingCachePort.cache.put = (version, kind, digest, bytes): void => {
+      if (kind !== "metadata") {
+        originalPut(version, kind, digest, bytes);
+      }
+    };
+    const missingCacheSnapshot = await resolveTemplateArtifactSnapshot({
+      range: "^6.11.0",
+      bundled: false,
+      requiredKind: "create-selector",
+      port: missingCachePort,
+    });
+
+    const missingCache = await missingCacheSnapshot._unsafeUnwrap().bytes("metadata");
+    assert.strictEqual(missingCache._unsafeUnwrapErr().name, "TemplateArtifactNotCached");
+  });
+
   it("AC-SA-15: falls back to bundled floor when the ranged tag list is unreachable", async () => {
     const port = new FakeArtifactPort({
       tagListError: new Error("offline"),
@@ -490,6 +595,45 @@ describe("templateArtifacts (v4 staged artifacts)", () => {
     assert.strictEqual(result._unsafeUnwrap().version, "6.10.6");
     const bytes = await result._unsafeUnwrap().bytes("metadata");
     assert.strictEqual(bytes._unsafeUnwrap().toString(), bytesFor("metadata", "6.10.6").toString());
+
+    port.cache.delete("6.10.6", "metadata");
+    const missing = await result._unsafeUnwrap().bytes("metadata");
+    assert.strictEqual(missing._unsafeUnwrapErr().name, "TemplateArtifactNotCached");
+  });
+
+  it("AC-SA-16b: reports mismatch when no fallback cache or bundled floor satisfies the range", async () => {
+    const port = new FakeArtifactPort({
+      tagListError: new Error("offline"),
+      bundled: bundledArtifacts("6.10.0"),
+    });
+
+    const result = await resolveTemplateArtifactSnapshot({
+      range: "^7.0.0",
+      bundled: false,
+      requiredKind: "metadata",
+      port,
+    });
+
+    assert.strictEqual(result._unsafeUnwrapErr().name, "TemplateVersionMismatch");
+  });
+
+  it("AC-SA-16c: pinned non-semver cache does not run line-based GC", async () => {
+    const bytes = bytesFor("metadata", "not-semver");
+    const port = new FakeArtifactPort({
+      env: { TEMPLATE_VERSION: "not-semver" },
+      tags: [tagEntry("not-semver", { metadata: computeArtifactDigest(bytes) })],
+      served: { "not-semver": servedArtifacts({ metadata: bytes }) },
+    });
+
+    const result = await resolveTemplateArtifactSnapshot({
+      range: "^6.11.0",
+      bundled: false,
+      requiredKind: "metadata",
+      port,
+    });
+
+    assert.isTrue(result.isOk());
+    assert.deepEqual(port.deleted, []);
   });
 
   it("AC-SA-17: does not fall back when a pinned version cannot read the tag list", async () => {
@@ -638,6 +782,12 @@ describe("createTemplateArtifactPort (v4 staged artifacts, real fs)", () => {
     assert.strictEqual(cached?.digest, computeArtifactDigest(Buffer.from("metadata-from-disk")));
     assert.isUndefined(port.cache.get("6.11.1", "metadata"));
     assert.deepEqual(port.cache.keys("metadata"), ["6.11.0"]);
+  });
+
+  it("AC-SA-14c: cache warm treats a missing cache root as empty", () => {
+    const port = createTemplateArtifactPort(config, bundledArtifacts("6.10.0"));
+
+    assert.deepEqual(port.cache.keys("metadata"), []);
   });
 });
 

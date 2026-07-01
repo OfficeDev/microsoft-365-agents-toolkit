@@ -100,5 +100,16 @@ describe("bundledFloor (v4)", () => {
       fs.writeFileSync(path.join(dir, "templates.zip"), Buffer.from("z"));
       expect(() => loadBundledFloor(dir)).toThrow(/BundledFloorMalformed|no string "version"/);
     });
+
+    it("throws BundledTemplateArtifactMissing when a staged artifact is absent", () => {
+      fs.writeJsonSync(path.join(dir, "floor.json"), { version: "6.11.0" });
+      fs.writeFileSync(path.join(dir, "modify-selector.json"), Buffer.from("modify-selector"));
+      fs.writeFileSync(path.join(dir, "templates-metadata.zip"), Buffer.from("metadata"));
+      fs.writeFileSync(path.join(dir, "templates.zip"), Buffer.from("templates"));
+
+      expect(() => loadBundledTemplateArtifacts(dir)).toThrow(
+        /BundledTemplateArtifactMissing|missing or unreadable/
+      );
+    });
   });
 });

@@ -6,6 +6,7 @@ import {
   FxError,
   Inputs,
   Platform,
+  SystemError,
   UserError,
   UserInteraction,
 } from "@microsoft/teamsfx-api";
@@ -381,6 +382,89 @@ describe("createProjectFrontDoor (dispatch-create-by-engine)", () => {
     assert.strictEqual(scaffoldV4.calls[0][4]?.bytes, templatesBytes);
   });
 
+  it("returns staged artifact resolver and selector-byte errors before dispatching create", async () => {
+    const artifactError = new SystemError({
+      source: "Test",
+      name: "ArtifactResolveFailed",
+      message: "artifact failed",
+    });
+    const selectorError = new SystemError({
+      source: "Test",
+      name: "SelectorBytesFailed",
+      message: "selector bytes failed",
+    });
+    const selectorSnapshot = artifactSnapshotRecorder({
+      "create-selector": Buffer.from("selector-json"),
+      "modify-selector": Buffer.from("modify-selector-json"),
+      metadata: Buffer.from("metadata-zip"),
+      templates: Buffer.from("templates-zip"),
+    });
+    selectorSnapshot.snapshot.bytes = (kind: TemplateArtifactKind) =>
+      Promise.resolve(kind === "create-selector" ? err(selectorError) : ok(Buffer.from(kind)));
+
+    const resolverResult = await createProjectFrontDoor(
+      baseInputs(),
+      deps({ resolveArtifactSnapshot: () => Promise.resolve(err(artifactError)) })
+    );
+    const selectorResult = await createProjectFrontDoor(
+      baseInputs(),
+      deps({ artifactSnapshot: selectorSnapshot.snapshot })
+    );
+
+    assert.strictEqual(resolverResult._unsafeUnwrapErr(), artifactError);
+    assert.strictEqual(selectorResult._unsafeUnwrapErr(), selectorError);
+  });
+
+  it("returns staged metadata and template bytes errors before v4 scaffold", async () => {
+    const metadataError = new SystemError({
+      source: "Test",
+      name: "MetadataBytesFailed",
+      message: "metadata failed",
+    });
+    const templatesError = new SystemError({
+      source: "Test",
+      name: "TemplatesBytesFailed",
+      message: "templates failed",
+    });
+    const metadataSnapshot = artifactSnapshotRecorder({
+      "create-selector": Buffer.from("selector-json"),
+      "modify-selector": Buffer.from("modify-selector-json"),
+      metadata: Buffer.from("metadata-zip"),
+      templates: Buffer.from("templates-zip"),
+    });
+    metadataSnapshot.snapshot.bytes = (kind: TemplateArtifactKind) =>
+      Promise.resolve(kind === "metadata" ? err(metadataError) : ok(Buffer.from(kind)));
+    const templatesSnapshot = artifactSnapshotRecorder({
+      "create-selector": Buffer.from("selector-json"),
+      "modify-selector": Buffer.from("modify-selector-json"),
+      metadata: Buffer.from("metadata-zip"),
+      templates: Buffer.from("templates-zip"),
+    });
+    templatesSnapshot.snapshot.bytes = (kind: TemplateArtifactKind) =>
+      Promise.resolve(kind === "templates" ? err(templatesError) : ok(Buffer.from(kind)));
+
+    const metadataResult = await createProjectFrontDoor(
+      baseInputs(),
+      deps({
+        artifactSnapshot: metadataSnapshot.snapshot,
+        runSelector: selectorRecorder(V4_TARGET).fn,
+        runInputs: failRunInputs,
+      })
+    );
+    const templatesResult = await createProjectFrontDoor(
+      baseInputs(),
+      deps({
+        artifactSnapshot: templatesSnapshot.snapshot,
+        runSelector: selectorRecorder(V4_TARGET).fn,
+        runInputs: inputsRecorder({}).fn,
+        collectCreateFloor: okFloor,
+      })
+    );
+
+    assert.strictEqual(metadataResult._unsafeUnwrapErr(), metadataError);
+    assert.strictEqual(templatesResult._unsafeUnwrapErr(), templatesError);
+  });
+
   it("DCE-03: the Q2 answers reach scaffoldV4 under the create locator", async () => {
     const q2: Answers = {
       mcpServerType: "remote",
@@ -594,6 +678,39 @@ describe("createProjectFrontDoor (dispatch-create-by-engine)", () => {
     assert.deepEqual(resolveArtifactSnapshot.calls, [["templates"]]);
     assert.strictEqual(resolveByTemplateId.calls[0][0].toString(), "templates-zip");
     assert.deepEqual(artifactSnapshot.calls, ["templates", "metadata", "templates"]);
+  });
+
+  it("returns preset staged artifact resolver and template-byte errors before resolving by template id", async () => {
+    const resolverError = new SystemError({
+      source: "Test",
+      name: "PresetArtifactResolveFailed",
+      message: "artifact failed",
+    });
+    const templatesError = new SystemError({
+      source: "Test",
+      name: "PresetTemplatesBytesFailed",
+      message: "templates failed",
+    });
+    const snapshot = artifactSnapshotRecorder({
+      "create-selector": Buffer.from("selector-json"),
+      "modify-selector": Buffer.from("modify-selector-json"),
+      metadata: Buffer.from("metadata-zip"),
+      templates: Buffer.from("templates-zip"),
+    });
+    snapshot.snapshot.bytes = (kind: TemplateArtifactKind) =>
+      Promise.resolve(kind === "templates" ? err(templatesError) : ok(Buffer.from(kind)));
+
+    const resolverResult = await createProjectFrontDoor(
+      presetInputs("da/mcp-server"),
+      deps({ resolveArtifactSnapshot: () => Promise.resolve(err(resolverError)) })
+    );
+    const templatesResult = await createProjectFrontDoor(
+      presetInputs("da/mcp-server"),
+      deps({ artifactSnapshot: snapshot.snapshot })
+    );
+
+    assert.strictEqual(resolverResult._unsafeUnwrapErr(), resolverError);
+    assert.strictEqual(templatesResult._unsafeUnwrapErr(), templatesError);
   });
 
   it("DCE-13: a non-interactive walk (no preset template-name) threads interactive:false into runSelector", async () => {

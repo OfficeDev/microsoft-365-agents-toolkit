@@ -43,6 +43,13 @@ describe("openCreateSelector (resolve-build-target AC-22)", () => {
     }
   });
 
+  it("AC-23: invalid raw selector JSON returns PackageFileInvalid", () => {
+    const result = openSelectorFromJsonBytes(Buffer.from("{"), "create");
+
+    assert.isTrue(result.isErr());
+    assert.strictEqual(result._unsafeUnwrapErr().name, "PackageFileInvalid");
+  });
+
   it("AC-23: reads selector presentation from raw selector bytes", () => {
     const bytes = fs.readFileSync(path.join(TEMPLATES_V4_DIR, "modify", "selector.json"));
 

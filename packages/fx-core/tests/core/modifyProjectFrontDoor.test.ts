@@ -330,6 +330,79 @@ describe("modifyProjectFrontDoor", () => {
     assert.strictEqual(res._unsafeUnwrapErr().name, "ArtifactResolveFailed");
   });
 
+  it("MDE-01e: modify returns staged selector, metadata, and template byte errors", async () => {
+    const selectorError = new SystemError({
+      source: "Test",
+      name: "SelectorBytesFailed",
+      message: "selector failed",
+    });
+    const metadataError = new SystemError({
+      source: "Test",
+      name: "MetadataBytesFailed",
+      message: "metadata failed",
+    });
+    const templatesError = new SystemError({
+      source: "Test",
+      name: "TemplatesBytesFailed",
+      message: "templates failed",
+    });
+    const selectorSnapshot = artifactSnapshotRecorder({
+      "create-selector": Buffer.from("create-selector-json"),
+      "modify-selector": Buffer.from("modify-selector-json"),
+      metadata: Buffer.from("metadata-zip"),
+      templates: Buffer.from("templates-zip"),
+    });
+    selectorSnapshot.snapshot.bytes = (kind: TemplateArtifactKind) =>
+      Promise.resolve(kind === "modify-selector" ? err(selectorError) : ok(Buffer.from(kind)));
+    const metadataSnapshot = artifactSnapshotRecorder({
+      "create-selector": Buffer.from("create-selector-json"),
+      "modify-selector": Buffer.from("modify-selector-json"),
+      metadata: Buffer.from("metadata-zip"),
+      templates: Buffer.from("templates-zip"),
+    });
+    metadataSnapshot.snapshot.bytes = (kind: TemplateArtifactKind) =>
+      Promise.resolve(kind === "metadata" ? err(metadataError) : ok(Buffer.from(kind)));
+    const templatesSnapshot = artifactSnapshotRecorder({
+      "create-selector": Buffer.from("create-selector-json"),
+      "modify-selector": Buffer.from("modify-selector-json"),
+      metadata: Buffer.from("metadata-zip"),
+      templates: Buffer.from("templates-zip"),
+    });
+    templatesSnapshot.snapshot.bytes = (kind: TemplateArtifactKind) =>
+      Promise.resolve(kind === "templates" ? err(templatesError) : ok(Buffer.from(kind)));
+
+    const selectorResult = await modifyProjectFrontDoor(
+      { platform: Platform.VSCode },
+      {},
+      {},
+      deps({ artifactSnapshot: selectorSnapshot.snapshot })
+    );
+    const metadataResult = await modifyProjectFrontDoor(
+      { platform: Platform.VSCode },
+      {},
+      {},
+      deps({
+        artifactSnapshot: metadataSnapshot.snapshot,
+        runSelector: selectorRecorder(V4_TARGET).fn,
+        runInputs: failRunInputs,
+      })
+    );
+    const templatesResult = await modifyProjectFrontDoor(
+      { platform: Platform.VSCode },
+      {},
+      {},
+      deps({
+        artifactSnapshot: templatesSnapshot.snapshot,
+        runSelector: selectorRecorder(V4_TARGET).fn,
+        runInputs: inputsRecorder({}).fn,
+      })
+    );
+
+    assert.strictEqual(selectorResult._unsafeUnwrapErr(), selectorError);
+    assert.strictEqual(metadataResult._unsafeUnwrapErr(), metadataError);
+    assert.strictEqual(templatesResult._unsafeUnwrapErr(), templatesError);
+  });
+
   it("MDE-02: engine v3-core-method dispatches to the core-method handler without v4 Q2", async () => {
     const runSelector = selectorRecorder(V3_CORE_TARGET);
     const coreMethod = recorder((_inputs: Inputs, _target: BuildTarget) => {
