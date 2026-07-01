@@ -522,6 +522,17 @@ describe("trimManifestShortName", () => {
     assert.isTrue(readJsonStub.mock.calls.length === 0);
     assert.isTrue(writeFileStub.mock.calls.length === 0);
   });
+  it("Skips paths outside project directory", async () => {
+    const teamsManifest = new TeamsAppManifest();
+    teamsManifest.name.short = "shortname abcdefghijklmnopqrstuvwxyz${{APP_NAME_SUFFIX}}";
+    const readJsonStub = sandbox.stub(fs, "readJson").resolves(teamsManifest);
+    const writeFileStub = sandbox.stub(fs, "writeFile").resolves();
+    sandbox.stub(fs, "pathExistsSync").returns(true);
+    const res = await manifestUtils.trimManifestShortName("/some/other/path");
+    assert.isTrue(res.isOk());
+    assert.isTrue(readJsonStub.notCalled);
+    assert.isTrue(writeFileStub.notCalled);
+  });
 });
 
 describe("resolveLocFile", () => {

@@ -460,6 +460,12 @@ export class ManifestUtils {
     maxLength = 25
   ): Promise<Result<undefined, FxError>> {
     const manifestPath = this.getTeamsAppManifestPath(projectPath);
+    const resolvedProjectPath = path.resolve(projectPath);
+    const resolvedManifestPath = path.resolve(manifestPath);
+    const relative = path.relative(resolvedProjectPath, resolvedManifestPath);
+    if (relative === "" || relative.startsWith("..") || path.isAbsolute(relative)) {
+      return ok(undefined);
+    }
     if (fs.pathExistsSync(manifestPath)) {
       const manifest = (await fs.readJson(manifestPath)) as TeamsAppManifest;
       const shortName = manifest.name.short;

@@ -3,6 +3,7 @@
 
 import { err, FxError, ok, Result, Settings } from "@microsoft/teamsfx-api";
 import * as fs from "fs-extra";
+import * as path from "path";
 import * as uuid from "uuid";
 import { parseDocument } from "yaml";
 import { featureFlagManager, FeatureFlags } from "../../common/featureFlags";
@@ -17,6 +18,13 @@ import { FileNotFoundError } from "../../error/common";
 import { pathUtils } from "./pathUtils";
 
 class SettingsUtils {
+  private isPathWithinDirectory(baseDir: string, targetPath: string): boolean {
+    const resolvedBase = path.resolve(baseDir);
+    const resolvedTarget = path.resolve(targetPath);
+    const relative = path.relative(resolvedBase, resolvedTarget);
+    return relative !== "" && !relative.startsWith("..") && !path.isAbsolute(relative);
+  }
+
   async readSettings(
     projectPath: string,
     ensureTrackingId = true
@@ -37,7 +45,9 @@ class SettingsUtils {
       const projectId = uuid.v4();
       const projectIdField = appYaml.createPair("projectId", uuid.v4());
       appYaml.add(projectIdField);
-      await fs.writeFile(projectYamlPath, appYaml.toString()); // only write yaml file once instead of write yaml file after every command
+      if (this.isPathWithinDirectory(projectPath, projectYamlPath)) {
+        await fs.writeFile(projectYamlPath, appYaml.toString());
+      }
       sendTelemetryEvent(Component.core, TelemetryEvent.FillProjectId, {
         [TelemetryProperty.ProjectId]: projectId,
       });
@@ -50,6 +60,7 @@ class SettingsUtils {
     globalVars.trackingId = projectSettings.trackingId; // set trackingId to globalVars
     return ok(projectSettings);
   }
+
   async writeSettings(projectPath: string, settings: Settings): Promise<Result<string, FxError>> {
     let projectYamlPath: string | undefined;
     if (featureFlagManager.getBooleanValue(FeatureFlags.GenerateConfigFiles)) {
@@ -64,7 +75,9 @@ class SettingsUtils {
     const yamlFileContent: string = await fs.readFile(projectYamlPath, "utf8");
     const appYaml = parseDocument(yamlFileContent);
     appYaml.set("projectId", settings.trackingId);
-    await fs.writeFile(projectYamlPath, appYaml.toString());
+    if (this.isPathWithinDirectory(projectPath, projectYamlPath)) {
+      await fs.writeFile(projectYamlPath, appYaml.toString());
+    }
     return ok(projectYamlPath);
   }
 }
