@@ -336,6 +336,51 @@ describe("createProjectFrontDoor (dispatch-create-by-engine)", () => {
     });
   });
 
+  it("DCE-02c: interactive v4 resolves one staged artifact snapshot before walking Q1", async () => {
+    const selectorBytes = Buffer.from("selector-json");
+    const metadataBytes = Buffer.from("metadata-zip");
+    const templatesBytes = Buffer.from("templates-zip");
+    const artifactSnapshot = artifactSnapshotRecorder({
+      "create-selector": selectorBytes,
+      "modify-selector": Buffer.from("modify-selector-json"),
+      metadata: metadataBytes,
+      templates: templatesBytes,
+    });
+    const resolveArtifactSnapshot = recorder((_kind: TemplateArtifactKind) =>
+      Promise.resolve(ok(artifactSnapshot.snapshot))
+    );
+    const runSelector = selectorRecorder(V4_TARGET);
+    const runInputs = inputsRecorder({ authType: "none" });
+    const scaffoldV4 = recorder(
+      (
+        _i: Inputs,
+        _t: BuildTarget,
+        _a: Answers,
+        _flagReader: (name: string) => boolean,
+        _resolvedPackage?: ResolvedV4ChannelPackage
+      ) => okResult("/v4")
+    );
+
+    const res = await createProjectFrontDoor(
+      baseInputs(),
+      deps({
+        resolveArtifactSnapshot: resolveArtifactSnapshot.fn,
+        v4Registry: () => true,
+        runSelector: runSelector.fn,
+        runInputs: runInputs.fn,
+        scaffoldV4: scaffoldV4.fn,
+        collectCreateFloor: okFloor,
+      })
+    );
+
+    assert.isTrue(res.isOk());
+    assert.deepEqual(resolveArtifactSnapshot.calls, [["create-selector"]]);
+    assert.deepEqual(artifactSnapshot.calls, ["create-selector", "metadata", "templates"]);
+    assert.strictEqual(runSelector.calls[0][0], selectorBytes);
+    assert.strictEqual(runInputs.calls[0][0], metadataBytes);
+    assert.strictEqual(scaffoldV4.calls[0][4]?.bytes, templatesBytes);
+  });
+
   it("DCE-03: the Q2 answers reach scaffoldV4 under the create locator", async () => {
     const q2: Answers = {
       mcpServerType: "remote",
@@ -515,6 +560,40 @@ describe("createProjectFrontDoor (dispatch-create-by-engine)", () => {
     assert.equal(runInputs.calls.length, 1);
     assert.equal(scaffoldV4.calls.length, 1);
     assert.deepEqual(runInputs.calls[0][1], { kind: "create", templateId: "da/mcp-server" });
+  });
+
+  it("DCE-11b: preset v4 resolves templates artifact before resolving by template id", async () => {
+    const artifactSnapshot = artifactSnapshotRecorder({
+      "create-selector": Buffer.from("selector-json"),
+      "modify-selector": Buffer.from("modify-selector-json"),
+      metadata: Buffer.from("metadata-zip"),
+      templates: Buffer.from("templates-zip"),
+    });
+    const resolveArtifactSnapshot = recorder((_kind: TemplateArtifactKind) =>
+      Promise.resolve(ok(artifactSnapshot.snapshot))
+    );
+    const resolveByTemplateId = resolveByTemplateIdRecorder({
+      templateId: "da/mcp-server",
+      engine: "v4",
+      answers: {},
+    });
+    const runInputs = inputsRecorder({});
+
+    const res = await createProjectFrontDoor(
+      presetInputs("da/mcp-server"),
+      deps({
+        resolveArtifactSnapshot: resolveArtifactSnapshot.fn,
+        resolveByTemplateId: resolveByTemplateId.fn,
+        runInputs: runInputs.fn,
+        collectCreateFloor: okFloor,
+        scaffoldV4: okScaffold,
+      })
+    );
+
+    assert.isTrue(res.isOk());
+    assert.deepEqual(resolveArtifactSnapshot.calls, [["templates"]]);
+    assert.strictEqual(resolveByTemplateId.calls[0][0].toString(), "templates-zip");
+    assert.deepEqual(artifactSnapshot.calls, ["templates", "metadata", "templates"]);
   });
 
   it("DCE-13: a non-interactive walk (no preset template-name) threads interactive:false into runSelector", async () => {

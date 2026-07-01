@@ -264,6 +264,72 @@ describe("modifyProjectFrontDoor", () => {
     });
   });
 
+  it("MDE-01c: modify resolves one staged artifact snapshot before walking Q1", async () => {
+    const selectorBytes = Buffer.from("modify-selector-json");
+    const metadataBytes = Buffer.from("metadata-zip");
+    const templatesBytes = Buffer.from("templates-zip");
+    const artifactSnapshot = artifactSnapshotRecorder({
+      "create-selector": Buffer.from("create-selector-json"),
+      "modify-selector": selectorBytes,
+      metadata: metadataBytes,
+      templates: templatesBytes,
+    });
+    const resolveArtifactSnapshot = recorder((_kind: TemplateArtifactKind) =>
+      Promise.resolve(ok(artifactSnapshot.snapshot))
+    );
+    const runSelector = selectorRecorder(V4_TARGET);
+    const runInputs = inputsRecorder({ authType: "none" });
+    const scaffoldV4 = recorder((_inputs: Inputs, _target: BuildTarget, _answers: Answers) => {
+      void _inputs;
+      void _target;
+      void _answers;
+      return okUndefined();
+    });
+
+    const res = await modifyProjectFrontDoor(
+      { platform: Platform.VSCode },
+      { addCapability: "add-action", actionSource: "mcp" },
+      {},
+      deps({
+        resolveArtifactSnapshot: resolveArtifactSnapshot.fn,
+        v4Registry: () => true,
+        runSelector: runSelector.fn,
+        runInputs: runInputs.fn,
+        scaffoldV4: scaffoldV4.fn,
+      })
+    );
+
+    assert.isTrue(res.isOk());
+    assert.deepEqual(resolveArtifactSnapshot.calls, [["modify-selector"]]);
+    assert.deepEqual(artifactSnapshot.calls, ["modify-selector", "metadata", "templates"]);
+    assert.strictEqual(runSelector.calls[0][0], selectorBytes);
+    assert.strictEqual(runInputs.calls[0][0], metadataBytes);
+    assert.strictEqual(scaffoldV4.calls[0][3]?.bytes, templatesBytes);
+  });
+
+  it("MDE-01d: modify returns staged artifact resolution errors before reading bundled floor", async () => {
+    const artifactError = new SystemError({
+      source: "Test",
+      name: "ArtifactResolveFailed",
+      message: "artifact failed",
+    });
+
+    const res = await modifyProjectFrontDoor(
+      { platform: Platform.VSCode },
+      {},
+      {},
+      deps({
+        resolveArtifactSnapshot: () => Promise.resolve(err(artifactError)),
+        readFloorBytes: () => {
+          throw new Error("readFloorBytes must not run");
+        },
+      })
+    );
+
+    assert.isTrue(res.isErr());
+    assert.strictEqual(res._unsafeUnwrapErr().name, "ArtifactResolveFailed");
+  });
+
   it("MDE-02: engine v3-core-method dispatches to the core-method handler without v4 Q2", async () => {
     const runSelector = selectorRecorder(V3_CORE_TARGET);
     const coreMethod = recorder((_inputs: Inputs, _target: BuildTarget) => {
