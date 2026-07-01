@@ -5,7 +5,7 @@
     "execution_context": {
       "delay_between_steps": 0.5,
       "stop_on_error": true,
-      "precondition_wait_timeout": 60,
+      "precondition_wait_timeout": 120,
       "precondition_retry_interval": 2,
       "step_retry_count": 0
     },
@@ -29,7 +29,7 @@
       "plan_r_1021_081410",
       "step_94025678",
       "step_5b9f6257",
-      "group__login_github",
+      "group__webpage_login_account",
       "plan_26ac4c4e",
       "step_4b860701",
       "step_35164443",
@@ -59,7 +59,7 @@
       "step_5b6d6181"
     ],
     "tags": [],
-    "updated_at": "2026-07-01T06:54:06.000000"
+    "updated_at": "2026-07-01T06:56:08.170000"
   },
   "steps": [
     {
