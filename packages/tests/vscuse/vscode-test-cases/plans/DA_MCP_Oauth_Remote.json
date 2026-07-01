@@ -59,7 +59,7 @@
       "step_5b6d6181"
     ],
     "tags": [],
-    "updated_at": "2026-07-01T06:56:08.170000"
+    "updated_at": "2026-07-01T06:58:29.006000"
   },
   "steps": [
     {
@@ -195,15 +195,11 @@
       },
       "description": "Click the \"Allow\" button in the GitHub authentication prompt for the MCP Server Definition within Visual Studio Code.",
       "content_refs": [],
-      "timeout": 30,
+      "timeout": 60,
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [],
-      "preconditions": [
-        "dhash:464:94:16:5:10accc569692b245",
-        "dhash:464:94:96:5:00021827039484b3",
-        "dhash:464:94:0:10:d2b12d2121213a1c"
-      ],
+      "preconditions": [],
       "postconditions": [],
       "tags": [],
       "screenshot": "step_5b9f6257",
