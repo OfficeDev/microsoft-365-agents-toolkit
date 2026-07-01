@@ -1,8 +1,14 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { CreateProjectResult, FxError, Inputs, Platform, UserError } from "@microsoft/teamsfx-api";
-import { UserInteraction } from "@microsoft/teamsfx-api";
+import {
+  CreateProjectResult,
+  FxError,
+  Inputs,
+  Platform,
+  UserError,
+  UserInteraction,
+} from "@microsoft/teamsfx-api";
 import fs from "fs-extra";
 import { Result, err, ok } from "neverthrow";
 import os from "os";
@@ -12,6 +18,7 @@ import { Answers, BuildTarget, DeclarativeLocator } from "../../src/v4";
 import { CreateFrontDoorDeps, createProjectFrontDoor } from "../../src/core/createProjectFrontDoor";
 import { FeatureFlags } from "../../src/common/featureFlags";
 import { QuestionNames } from "../../src/question/questionNames";
+import { TemplateNames } from "../../src/component/generator/templates/templateNames";
 
 /**
  * Tests for docs/03-specs/operations/scaffolding/dispatch-create-by-engine.md.
@@ -486,6 +493,30 @@ describe("createProjectFrontDoor (dispatch-create-by-engine)", () => {
     });
   });
 
+  it("passes neutral array inputs and office manifest aliases to the v4 input walk", async () => {
+    const runInputs = inputsRecorder({});
+    const inputs: Inputs = {
+      platform: Platform.CLI,
+      nonInteractive: true,
+      apiPermissions: ["User.Read", "Calendars.Read"],
+      [QuestionNames.OfficeAddinManifest]: "manifest.json",
+    };
+
+    const res = await createProjectFrontDoor(
+      inputs,
+      deps({
+        runSelector: selectorRecorder(V4_TARGET).fn,
+        runInputs: runInputs.fn,
+        collectCreateFloor: okFloor,
+        scaffoldV4: okScaffold,
+      })
+    );
+
+    assert.isTrue(res.isOk());
+    assert.deepEqual(runInputs.calls[0][2].apiPermissions, ["User.Read", "Calendars.Read"]);
+    assert.equal(runInputs.calls[0][2].officeAddinManifest, "manifest.json");
+  });
+
   it("DCE-18: legacy CLI MCP tools file is bridged into static v4 MCP Q2 params", async () => {
     const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "atk-mcp-tools-"));
     const toolsPath = path.join(tempDir, "mcp-tools.json");
@@ -614,6 +645,31 @@ describe("createProjectFrontDoor (dispatch-create-by-engine)", () => {
     assert.equal(runInputs.calls.length, 0);
   });
 
+  it("returns an error before Q2 when a legacy static MCP tools file is invalid", async () => {
+    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "atk-mcp-tools-"));
+    const toolsPath = path.join(tempDir, "mcp-tools.json");
+    fs.writeFileSync(toolsPath, "{ invalid json", "utf8");
+    const inputs: Inputs = {
+      platform: Platform.CLI,
+      nonInteractive: true,
+      [QuestionNames.MCPToolsFilePath]: toolsPath,
+    };
+
+    try {
+      const res = await createProjectFrontDoor(
+        inputs,
+        deps({
+          runSelector: selectorRecorder(STATIC_MCP_TARGET).fn,
+          runInputs: failRunInputs,
+        })
+      );
+
+      assert.isTrue(res.isErr());
+    } finally {
+      fs.removeSync(tempDir);
+    }
+  });
+
   it("DCE-18d: legacy CLI MCP fetch requiring auth leaves entry params unchanged", async () => {
     const runInputs = inputsRecorder({});
     const fetchMcpTools = recorder((_serverUrl: string) =>
@@ -693,6 +749,7 @@ describe("createProjectFrontDoor (dispatch-create-by-engine)", () => {
     );
     const collectFloor = recorder((_i: Inputs, _ui: UserInteraction) => {
       order.push("floor");
+      assert.equal(_i["template-name"], "declarative-agent-with-action-from-mcp");
       return okFloor();
     });
     const scaffoldV4 = recorder(
@@ -717,6 +774,7 @@ describe("createProjectFrontDoor (dispatch-create-by-engine)", () => {
     assert.deepEqual(order, ["q2", "floor", "scaffold"]); // floor sits between Q2 and the scaffold
     // the floor mutates the same inputs bag scaffoldV4 then scaffolds from.
     assert.strictEqual(collectFloor.calls[0][0], scaffoldV4.calls[0][0]);
+    assert.equal(scaffoldV4.calls[0][0]["template-name"], "declarative-agent-with-action-from-mcp");
   });
 
   it("DCE-15: a create-floor cancellation propagates and does not scaffold", async () => {
@@ -778,27 +836,82 @@ describe("createProjectFrontDoor (dispatch-create-by-engine)", () => {
     }
   });
 
-  it("propagates a Q2 error and does not scaffold", async () => {
+  it("DCE-19: a v4 target maps its template id to the v3 telemetry template before Q2", async () => {
     const q2Failed = new UserError({ source: "Test", name: "Q2Failed", message: "bad inputs" });
-    const scaffoldV4 = recorder(
-      (_i: Inputs, _t: BuildTarget, _a: Answers, _flagReader: (name: string) => boolean) =>
-        okResult("/v4")
-    );
+    const expectedMappings: ReadonlyArray<readonly [string, string]> = [
+      ["basic-custom-engine-agent", TemplateNames.BasicCustomEngineAgent],
+      ["weather-agent", TemplateNames.WeatherAgent],
+      ["graph-connector", TemplateNames.GraphConnector],
+      ["custom-copilot-basic", TemplateNames.CustomCopilotBasic],
+      ["custom-copilot-rag-customize", TemplateNames.CustomCopilotRagCustomize],
+      ["custom-copilot-rag-azure-ai-search", TemplateNames.CustomCopilotRagAzureAISearch],
+      ["custom-copilot-rag-custom-api", TemplateNames.CustomCopilotRagCustomApi],
+      ["teams-collaborator-agent", TemplateNames.TeamsCollaboratorAgent],
+      ["non-sso-tab", TemplateNames.Tab],
+      ["default-message-extension", TemplateNames.DefaultMessageExtension],
+      ["default-bot", TemplateNames.DefaultBot],
+      ["office-addin-wxpo-taskpane", TemplateNames.WXPTaskpane],
+      ["office-addin-excel-cfshortcut", TemplateNames.ExcelCFShortcut],
+      ["declarative-agent-meta-os-upgrade-project", "declarative-agent-meta-os-upgrade-project"],
+      ["office-addin-config", TemplateNames.OfficeAddinCommon],
+      ["da/no-action", TemplateNames.DeclarativeAgentBasic],
+      ["da/graph-connector", TemplateNames.DeclarativeAgentWithGraphConnector],
+      ["da/typespec", TemplateNames.DeclarativeAgentWithTypeSpec],
+      ["da/skill", TemplateNames.DeclarativeAgentWithSkill],
+      ["da/api-plugin-from-scratch", TemplateNames.DeclarativeAgentWithActionFromScratch],
+      [
+        "da/api-plugin-from-scratch-bearer",
+        TemplateNames.DeclarativeAgentWithActionFromScratchBearer,
+      ],
+      [
+        "da/api-plugin-from-scratch-oauth",
+        TemplateNames.DeclarativeAgentWithActionFromScratchOAuth,
+      ],
+      [
+        "da/api-plugin-from-existing-api",
+        TemplateNames.DeclarativeAgentWithActionFromExistingApiSpec,
+      ],
+      ["da/mcp-server-static", TemplateNames.DeclarativeAgentWithActionFromMCP],
+      ["da/mcp-server", TemplateNames.DeclarativeAgentWithActionFromMCP],
+    ];
+
+    for (const [templateId, expectedTemplateName] of expectedMappings) {
+      const scaffoldV4 = recorder((_i: Inputs, _t: BuildTarget, _a: Answers) => okResult("/v4"));
+      const inputs = baseInputs();
+
+      const res = await createProjectFrontDoor(
+        inputs,
+        deps({
+          scaffoldV4: scaffoldV4.fn,
+          runSelector: () => okTarget({ templateId, engine: "v4", answers: {} }),
+          runInputs: () => Promise.resolve(err(q2Failed)),
+        })
+      );
+
+      assert.isTrue(res.isErr());
+      if (res.isErr()) {
+        assert.equal(res.error.name, "Q2Failed");
+      }
+      assert.equal(scaffoldV4.calls.length, 0);
+      assert.equal(inputs["template-name"], expectedTemplateName, templateId);
+    }
+  });
+
+  it("DCE-20: an unmapped v4 telemetry template id falls back to itself", async () => {
+    const q2Failed = new UserError({ source: "Test", name: "Q2Failed", message: "bad inputs" });
+    const target: BuildTarget = { templateId: "future/v4-template", engine: "v4", answers: {} };
+    const inputs = baseInputs();
 
     const res = await createProjectFrontDoor(
-      baseInputs(),
+      inputs,
       deps({
-        scaffoldV4: scaffoldV4.fn,
-        runSelector: () => okTarget(V4_TARGET),
+        runSelector: () => okTarget(target),
         runInputs: () => Promise.resolve(err(q2Failed)),
       })
     );
 
     assert.isTrue(res.isErr());
-    if (res.isErr()) {
-      assert.equal(res.error.name, "Q2Failed");
-    }
-    assert.equal(scaffoldV4.calls.length, 0);
+    assert.equal(inputs["template-name"], "future/v4-template");
   });
 
   it("fails loudly on an unsupported create engine (v3-core-method)", async () => {

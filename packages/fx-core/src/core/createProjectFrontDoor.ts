@@ -25,6 +25,7 @@ import {
 import { parseMcpStaticToolsJson } from "../v4/mcp/mcpStaticTools";
 import { FeatureFlags, readBooleanFeatureFlag } from "../common/featureFlags";
 import { TOOLS } from "../common/globalVars";
+import { TemplateNames } from "../component/generator/templates/templateNames";
 import { QuestionNames } from "../question/questionNames";
 import { fetchMCPTools, MCPFetchResult } from "../component/utils/mcpToolFetcher";
 
@@ -59,6 +60,33 @@ const SOURCE = "Scaffold";
 /** The only shipped create `surface-action`: open GitHub Copilot Chat (the v3 `startWithGithubCopilot` shape). */
 const OPEN_GITHUB_COPILOT_CHAT = "open-github-copilot-chat";
 const STATIC_MCP_TEMPLATE_ID = "da/mcp-server-static";
+const V4_TO_V3_TEMPLATE_ID: Readonly<Record<string, string>> = {
+  "basic-custom-engine-agent": TemplateNames.BasicCustomEngineAgent,
+  "weather-agent": TemplateNames.WeatherAgent,
+  "graph-connector": TemplateNames.GraphConnector,
+  "custom-copilot-basic": TemplateNames.CustomCopilotBasic,
+  "custom-copilot-rag-customize": TemplateNames.CustomCopilotRagCustomize,
+  "custom-copilot-rag-azure-ai-search": TemplateNames.CustomCopilotRagAzureAISearch,
+  "custom-copilot-rag-custom-api": TemplateNames.CustomCopilotRagCustomApi,
+  "teams-collaborator-agent": TemplateNames.TeamsCollaboratorAgent,
+  "non-sso-tab": TemplateNames.Tab,
+  "default-message-extension": TemplateNames.DefaultMessageExtension,
+  "default-bot": TemplateNames.DefaultBot,
+  "office-addin-wxpo-taskpane": TemplateNames.WXPTaskpane,
+  "office-addin-excel-cfshortcut": TemplateNames.ExcelCFShortcut,
+  "declarative-agent-meta-os-upgrade-project": "declarative-agent-meta-os-upgrade-project",
+  "office-addin-config": TemplateNames.OfficeAddinCommon,
+  "da/no-action": TemplateNames.DeclarativeAgentBasic,
+  "da/graph-connector": TemplateNames.DeclarativeAgentWithGraphConnector,
+  "da/typespec": TemplateNames.DeclarativeAgentWithTypeSpec,
+  "da/skill": TemplateNames.DeclarativeAgentWithSkill,
+  "da/api-plugin-from-scratch": TemplateNames.DeclarativeAgentWithActionFromScratch,
+  "da/api-plugin-from-scratch-bearer": TemplateNames.DeclarativeAgentWithActionFromScratchBearer,
+  "da/api-plugin-from-scratch-oauth": TemplateNames.DeclarativeAgentWithActionFromScratchOAuth,
+  "da/api-plugin-from-existing-api": TemplateNames.DeclarativeAgentWithActionFromExistingApiSpec,
+  "da/mcp-server-static": TemplateNames.DeclarativeAgentWithActionFromMCP,
+  "da/mcp-server": TemplateNames.DeclarativeAgentWithActionFromMCP,
+};
 const NON_V4_INPUT_KEYS: ReadonlySet<string> = new Set([
   "capabilities",
   "folder",
@@ -144,6 +172,10 @@ function neutralAnswersFromInputs(inputs: Inputs): Answers {
   if (typeof officeAddinFolder === "string" && answers.officeAddinFolder === undefined) {
     answers.officeAddinFolder = officeAddinFolder;
   }
+  const officeAddinManifest = inputs[QuestionNames.OfficeAddinManifest];
+  if (typeof officeAddinManifest === "string" && answers.officeAddinManifest === undefined) {
+    answers.officeAddinManifest = officeAddinManifest;
+  }
   return answers;
 }
 
@@ -208,6 +240,10 @@ function selectorPrefillFromInputs(inputs: Inputs): Record<string, string> {
     }
   }
   return answers;
+}
+
+function templateNameForV4(target: BuildTarget): string {
+  return V4_TO_V3_TEMPLATE_ID[target.templateId] ?? target.templateId;
 }
 
 /** Map the host `Platform` onto the selector's `surface` axis (drives option `condition`s). */
@@ -300,6 +336,7 @@ export async function createProjectFrontDoor(
       }
       return deps.createV3(inputs);
     case "v4": {
+      inputs[QuestionNames.TemplateName] = templateNameForV4(target.value);
       const runInputs = deps.runInputs ?? runCreateInputs;
       const locator: DeclarativeLocator = { kind: "create", templateId: target.value.templateId };
       // Q2: the template's own inputs, over the same floor.
@@ -325,8 +362,8 @@ export async function createProjectFrontDoor(
       }
       // The v4 path carries no QuestionMW (createProject's, which asks the v3 tree's
       // folder/app-name last), so collect the create floor here — interactive
-      // surfaces are prompted; a non-interactive surface (CLI preset / -f / -n) is
-      // skipped (the traverse short-circuit + questionVisitor preset-skip mirror v3).
+      // surfaces are prompted; a non-interactive surface fails through the same
+      // required-input validation without depending on the v3 question visitor.
       const floorRes = await deps.collectCreateFloor(inputs, ui);
       if (floorRes.isErr()) {
         return err(floorRes.error);
