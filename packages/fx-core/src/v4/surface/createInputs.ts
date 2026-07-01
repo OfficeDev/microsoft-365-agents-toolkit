@@ -19,7 +19,7 @@ import {
   collectInputs,
 } from "../collectInputs/collectInputs";
 import { openCreateQuestions } from "../distribution/createQuestions";
-import { openDeclarativePackage } from "../distribution/declarativePackage";
+import { openDeclarativePackageMetadata } from "../distribution/declarativePackage";
 import { evaluateExpression } from "../expression/evaluateExpression";
 import { parseMcpStaticToolsJson } from "../mcp/mcpStaticTools";
 import { Answers, DeclarativeLocator } from "../model/dataModel";
@@ -284,12 +284,7 @@ export async function runCreateInputs(
   ui: UserInteraction,
   deps: CreateInputsDeps = {}
 ): Promise<Result<Answers, FxError>> {
-  const questions = openCreateQuestions(floorBytes, locator);
-  if (questions.isErr()) {
-    return err(questions.error);
-  }
-
-  const opened = openDeclarativePackage(floorBytes, locator);
+  const opened = openDeclarativePackageMetadata(floorBytes, locator);
   if (opened.isErr()) {
     return err(opened.error);
   }
@@ -310,7 +305,7 @@ export async function runCreateInputs(
   };
 
   return collectInputs(
-    questions.value,
+    opened.value.questions,
     declaredOptionsSchema(descriptor),
     entryParams,
     languages,

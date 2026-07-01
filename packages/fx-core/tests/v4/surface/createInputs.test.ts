@@ -22,6 +22,7 @@ import {
   OptionsProvider,
 } from "../../../src/v4/collectInputs/collectInputs";
 import { openCreateQuestions } from "../../../src/v4/distribution/createQuestions";
+import { openDeclarativePackageMetadata } from "../../../src/v4/distribution/declarativePackage";
 import { DeclarativeLocator } from "../../../src/v4/model/dataModel";
 import { createUiPromptUI } from "../../../src/v4/surface/uiPromptUI";
 import { gateLanguagesBySurface, runCreateInputs } from "../../../src/v4/surface/createInputs";
@@ -157,6 +158,21 @@ function asUI(scripted: ScriptedUserInteraction): UserInteraction {
 }
 
 describe("runCreateInputs (collect-create-inputs)", () => {
+  it("CCI-00: metadata-only bytes drive Q2 language gating without content", async () => {
+    const ui = new ScriptedUserInteraction({});
+
+    const res = await runCreateInputs(buildLanguageFloor(), LANGUAGE_DA, {}, asUI(ui), {
+      flagReader: () => true,
+      surface: "vscode",
+    });
+
+    assert.isTrue(res.isOk(), res.isErr() ? `${res.error.name}: ${res.error.message}` : "ok");
+    if (res.isOk()) {
+      assert.deepEqual(res.value, { language: "typescript" });
+    }
+    assert.deepEqual(ui.selectNames, []);
+  });
+
   it("CCI-01: remote-only provider auto-skips mcpServerType, asks url + authType=none", async () => {
     const ui = new ScriptedUserInteraction({
       text: { mcpServerUrl: "https://api.example.com/mcp" },
@@ -511,6 +527,19 @@ describe("createUiPromptUI (collect-create-inputs)", () => {
 });
 
 describe("openCreateQuestions (collect-create-inputs)", () => {
+  it("CCI-09b: metadata-only package reader returns descriptor/questions/pipeline and no content", () => {
+    const res = openDeclarativePackageMetadata(buildLanguageFloor(), LANGUAGE_DA);
+
+    assert.isTrue(res.isOk());
+    if (res.isOk()) {
+      assert.deepEqual(
+        res.value.questions.map((question) => question.name),
+        []
+      );
+      assert.notProperty(res.value, "content");
+    }
+  });
+
   it("CCI-09: reads the three authored da/mcp-server questions from the floor", () => {
     const res = openCreateQuestions(buildFloor(), MCP_DA);
 

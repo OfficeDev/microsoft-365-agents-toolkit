@@ -17,15 +17,19 @@ import {
   Answers,
   BuildTarget,
   DeclarativeLocator,
+  TemplateArtifactKind,
+  TemplateArtifactSnapshot,
   bundledFloorDir,
   resolveCreateTargetByTemplateId,
   runCreateInputs,
   runCreateSelector,
+  templateSourceFromArtifactSnapshot,
 } from "../v4";
 import { parseMcpStaticToolsJson } from "../v4/mcp/mcpStaticTools";
 import { FeatureFlags, readBooleanFeatureFlag } from "../common/featureFlags";
 import { TOOLS } from "../common/globalVars";
 import { TemplateNames } from "../component/generator/templates/templateNames";
+import type { ResolvedV4ChannelPackage } from "../component/generator/v4TemplateBridge";
 import { QuestionNames } from "../question/questionNames";
 import { fetchMCPTools, MCPFetchResult } from "../component/utils/mcpToolFetcher";
 
@@ -114,7 +118,8 @@ export interface CreateFrontDoorDeps {
     inputs: Inputs,
     target: BuildTarget,
     answers: Answers,
-    flagReader: (name: string) => boolean
+    flagReader: (name: string) => boolean,
+    resolvedPackage?: ResolvedV4ChannelPackage
   ) => Promise<Result<CreateProjectResult, FxError>>;
   /**
    * The engine=v4 create-floor collection: ask `folder` + `app-name`. The v4 path
@@ -130,6 +135,14 @@ export interface CreateFrontDoorDeps {
   flagReader?: (name: string) => boolean;
   /** The bundled-floor channel-zip reader (default: the shipped `templates.zip`; injectable for tests, INV-6). */
   readFloorBytes?: () => Buffer;
+  /** Per-invocation staged artifact snapshot. When supplied, Q1/Q2/full staging read from this snapshot. */
+  artifactSnapshot?: TemplateArtifactSnapshot;
+  /** Resolves a per-invocation staged artifact snapshot after the v4 flag is known to be on. */
+  resolveArtifactSnapshot?: (
+    requiredKind: TemplateArtifactKind
+  ) => Promise<Result<TemplateArtifactSnapshot, FxError>>;
+  /** Membership test supplied with selector-only artifacts. */
+  v4Registry?: (templateId: string) => boolean;
   /** The host surface (default: `TOOLS.ui`). */
   ui?: UserInteraction;
   /** The Q1 selector walk (default: the real `runCreateSelector`). */
@@ -150,6 +163,13 @@ function defaultFlagReader(name: string): boolean {
 /** Read the shipped bundled-floor channel zip (the default `readFloorBytes`). */
 function readBundledFloorBytes(): Buffer {
   return fs.readFileSync(path.join(bundledFloorDir(), "templates.zip"));
+}
+
+function readSnapshotBytes(
+  snapshot: TemplateArtifactSnapshot,
+  kind: TemplateArtifactKind
+): Promise<Result<Buffer, FxError>> {
+  return snapshot.bytes(kind);
 }
 
 function isV4NeutralInput(key: string, value: unknown): value is string | string[] {
@@ -295,7 +315,8 @@ export async function createProjectFrontDoor(
 
   const ui = deps.ui ?? TOOLS.ui;
   const surface = surfaceOf(inputs.platform);
-  const floorBytes = (deps.readFloorBytes ?? readBundledFloorBytes)();
+  let snapshot = deps.artifactSnapshot;
+  let floorBytes: Buffer | undefined;
   const interactive = !inputs.nonInteractive;
 
   // A surface that already resolved the leaf template — the CLI in non-interactive
@@ -308,15 +329,57 @@ export async function createProjectFrontDoor(
   const presetTemplateId = inputs[QuestionNames.TemplateName];
   let target: Result<BuildTarget, FxError>;
   if (presetTemplateId) {
+    if (snapshot === undefined && deps.resolveArtifactSnapshot !== undefined) {
+      const resolved = await deps.resolveArtifactSnapshot("templates");
+      if (resolved.isErr()) {
+        return err(resolved.error);
+      }
+      snapshot = resolved.value;
+    }
+    if (snapshot === undefined) {
+      floorBytes = (deps.readFloorBytes ?? readBundledFloorBytes)();
+    } else {
+      const fullBytes = await readSnapshotBytes(snapshot, "templates");
+      if (fullBytes.isErr()) {
+        return err(fullBytes.error);
+      }
+      floorBytes = fullBytes.value;
+    }
     const resolveByTemplateId = deps.resolveByTemplateId ?? resolveCreateTargetByTemplateId;
     target = resolveByTemplateId(floorBytes, presetTemplateId);
   } else {
+    if (snapshot === undefined && deps.resolveArtifactSnapshot !== undefined) {
+      const resolved = await deps.resolveArtifactSnapshot("create-selector");
+      if (resolved.isErr()) {
+        return err(resolved.error);
+      }
+      snapshot = resolved.value;
+    }
+    let selectorBytes: Buffer;
+    if (snapshot === undefined) {
+      floorBytes = (deps.readFloorBytes ?? readBundledFloorBytes)();
+      selectorBytes = floorBytes;
+    } else {
+      const selector = await readSnapshotBytes(snapshot, "create-selector");
+      if (selector.isErr()) {
+        return err(selector.error);
+      }
+      selectorBytes = selector.value;
+    }
     const runSelector = deps.runSelector ?? runCreateSelector;
-    target = await runSelector(floorBytes, ui, surface, {
+    const selectorDeps = {
       flagReader,
       interactive,
       prefilled: selectorPrefillFromInputs(inputs),
-    });
+    };
+    target =
+      snapshot === undefined
+        ? await runSelector(selectorBytes, ui, surface, selectorDeps)
+        : await runSelector(selectorBytes, ui, surface, {
+            ...selectorDeps,
+            selectorBytesKind: "json",
+            v4Registry: deps.v4Registry,
+          });
   }
   if (target.isErr()) {
     return err(target.error);
@@ -353,7 +416,20 @@ export async function createProjectFrontDoor(
       if (bridgedEntryParams.isErr()) {
         return err(bridgedEntryParams.error);
       }
-      const answers = await runInputs(floorBytes, locator, bridgedEntryParams.value, ui, {
+      let inputBytes: Buffer;
+      if (snapshot === undefined) {
+        if (floorBytes === undefined) {
+          floorBytes = (deps.readFloorBytes ?? readBundledFloorBytes)();
+        }
+        inputBytes = floorBytes;
+      } else {
+        const metadataBytes = await readSnapshotBytes(snapshot, "metadata");
+        if (metadataBytes.isErr()) {
+          return err(metadataBytes.error);
+        }
+        inputBytes = metadataBytes.value;
+      }
+      const answers = await runInputs(inputBytes, locator, bridgedEntryParams.value, ui, {
         flagReader,
         surface,
       });
@@ -367,6 +443,16 @@ export async function createProjectFrontDoor(
       const floorRes = await deps.collectCreateFloor(inputs, ui);
       if (floorRes.isErr()) {
         return err(floorRes.error);
+      }
+      if (snapshot !== undefined) {
+        const fullBytes = await readSnapshotBytes(snapshot, "templates");
+        if (fullBytes.isErr()) {
+          return err(fullBytes.error);
+        }
+        return deps.scaffoldV4(inputs, target.value, answers.value, flagReader, {
+          source: templateSourceFromArtifactSnapshot(snapshot),
+          bytes: fullBytes.value,
+        });
       }
       return deps.scaffoldV4(inputs, target.value, answers.value, flagReader);
     }

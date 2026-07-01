@@ -14,7 +14,14 @@ import { Result, err, ok } from "neverthrow";
 import os from "os";
 import path from "path";
 import { assert } from "vitest";
-import { Answers, BuildTarget, DeclarativeLocator } from "../../src/v4";
+import {
+  Answers,
+  BuildTarget,
+  DeclarativeLocator,
+  TemplateArtifactKind,
+  TemplateArtifactSnapshot,
+} from "../../src/v4";
+import type { ResolvedV4ChannelPackage } from "../../src/component/generator/v4TemplateBridge";
 import { CreateFrontDoorDeps, createProjectFrontDoor } from "../../src/core/createProjectFrontDoor";
 import { FeatureFlags } from "../../src/common/featureFlags";
 import { QuestionNames } from "../../src/question/questionNames";
@@ -91,7 +98,8 @@ const okScaffold = (
   _inputs: Inputs,
   _target: BuildTarget,
   _answers: Answers,
-  _flagReader?: (name: string) => boolean
+  _flagReader?: (name: string) => boolean,
+  _resolvedPackage?: ResolvedV4ChannelPackage
 ): Promise<Result<CreateProjectResult, FxError>> => okResult("/v4");
 
 /** A typed `runCreateSelector` stub that records its `(floor, ui, surface, deps)` args. */
@@ -105,6 +113,8 @@ function selectorRecorder(target: BuildTarget) {
         flagReader?: (name: string) => boolean;
         interactive?: boolean;
         prefilled?: Record<string, string>;
+        selectorBytesKind?: "zip" | "json";
+        v4Registry?: (templateId: string) => boolean;
       }
     ): Promise<Result<BuildTarget, FxError>> => okTarget(target)
   );
@@ -123,6 +133,38 @@ function inputsRecorder(answers: Answers) {
   );
 }
 
+function artifactSnapshotRecorder(bytesByKind: Record<TemplateArtifactKind, Buffer>): {
+  snapshot: TemplateArtifactSnapshot;
+  calls: TemplateArtifactKind[];
+} {
+  const calls: TemplateArtifactKind[] = [];
+  return {
+    calls,
+    snapshot: {
+      version: "6.11.0",
+      origin: "online",
+      artifacts: {
+        "create-selector": {
+          kind: "create-selector",
+          file: "create-selector.json",
+          digest: "sha256:create",
+        },
+        "modify-selector": {
+          kind: "modify-selector",
+          file: "modify-selector.json",
+          digest: "sha256:modify",
+        },
+        metadata: { kind: "metadata", file: "templates-metadata.zip", digest: "sha256:metadata" },
+        templates: { kind: "templates", file: "templates.zip", digest: "sha256:templates" },
+      },
+      bytes(kind: TemplateArtifactKind): Promise<Result<Buffer, FxError>> {
+        calls.push(kind);
+        return Promise.resolve(ok(bytesByKind[kind]));
+      },
+    },
+  };
+}
+
 /** A typed `resolveCreateTargetByTemplateId` stub that records its `(floor, templateId)` args. */
 function resolveByTemplateIdRecorder(target: BuildTarget) {
   return recorder(
@@ -138,7 +180,8 @@ const failScaffoldV4 = (
   _inputs: Inputs,
   _target: BuildTarget,
   _answers: Answers,
-  _flagReader?: (name: string) => boolean
+  _flagReader?: (name: string) => boolean,
+  _resolvedPackage?: ResolvedV4ChannelPackage
 ): Promise<Result<CreateProjectResult, FxError>> => {
   throw new Error("scaffoldV4 must not run on this path");
 };
@@ -240,6 +283,57 @@ describe("createProjectFrontDoor (dispatch-create-by-engine)", () => {
     assert.deepEqual(scaffoldV4.calls[0][1], V4_TARGET);
     assert.deepEqual(scaffoldV4.calls[0][2], q2);
     assert.strictEqual(scaffoldV4.calls[0][3], flagReader);
+  });
+
+  it("DCE-02b: interactive v4 uses one staged snapshot for selector, metadata, and templates", async () => {
+    const selectorBytes = Buffer.from("selector-json");
+    const metadataBytes = Buffer.from("metadata-zip");
+    const templatesBytes = Buffer.from("templates-zip");
+    const artifactSnapshot = artifactSnapshotRecorder({
+      "create-selector": selectorBytes,
+      "modify-selector": Buffer.from("modify-selector-json"),
+      metadata: metadataBytes,
+      templates: templatesBytes,
+    });
+    const runSelector = selectorRecorder(V4_TARGET);
+    const runInputs = inputsRecorder({ authType: "none" });
+    const scaffoldV4 = recorder(
+      (
+        _i: Inputs,
+        _t: BuildTarget,
+        _a: Answers,
+        _flagReader: (name: string) => boolean,
+        _resolvedPackage?: ResolvedV4ChannelPackage
+      ) => okResult("/v4")
+    );
+
+    const res = await createProjectFrontDoor(
+      baseInputs(),
+      deps({
+        artifactSnapshot: artifactSnapshot.snapshot,
+        v4Registry: () => true,
+        runSelector: runSelector.fn,
+        runInputs: runInputs.fn,
+        scaffoldV4: scaffoldV4.fn,
+        collectCreateFloor: okFloor,
+      })
+    );
+
+    assert.isTrue(res.isOk());
+    assert.deepEqual(artifactSnapshot.calls, ["create-selector", "metadata", "templates"]);
+    assert.strictEqual(runSelector.calls[0][0], selectorBytes);
+    assert.strictEqual(runSelector.calls[0][3]?.selectorBytesKind, "json");
+    assert.strictEqual(runSelector.calls[0][3]?.v4Registry?.("da/mcp-server"), true);
+    assert.strictEqual(runInputs.calls[0][0], metadataBytes);
+    assert.deepEqual(scaffoldV4.calls[0][4], {
+      source: {
+        origin: "online",
+        version: "6.11.0",
+        digest: "sha256:templates",
+        location: "templates.zip",
+      },
+      bytes: templatesBytes,
+    });
   });
 
   it("DCE-03: the Q2 answers reach scaffoldV4 under the create locator", async () => {
