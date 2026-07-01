@@ -45,7 +45,7 @@
       "step_2c108401"
     ],
     "tags": [],
-    "updated_at": "2026-06-01T02:43:30.740856"
+    "updated_at": "2026-07-01T09:13:33.572000"
   },
   "steps": [
     {
@@ -308,8 +308,8 @@
       "tool": "click",
       "parameters": {
         "button": "left",
-        "x": 326,
-        "y": 259
+        "x": 290,
+        "y": 298
       },
       "description": "Click the \"Office Add-in\" option in the \"New Project\" dropdown menu within the Microsoft 365 Agents Toolkit interface, as indicated by the red crosshair.",
       "content_refs": [],
