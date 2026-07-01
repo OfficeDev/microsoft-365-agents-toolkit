@@ -30,6 +30,7 @@
       "step_94025678",
       "step_5b9f6257",
       "group__webpage_login_account",
+      "group_sso_login_consent",
       "plan_26ac4c4e",
       "step_4b860701",
       "step_35164443",
@@ -59,7 +60,7 @@
       "step_5b6d6181"
     ],
     "tags": [],
-    "updated_at": "2026-07-01T06:58:29.006000"
+    "updated_at": "2026-07-01T07:00:52.719000"
   },
   "steps": [
     {
