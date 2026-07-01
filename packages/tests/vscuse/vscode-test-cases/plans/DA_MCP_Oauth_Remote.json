@@ -29,6 +29,7 @@
       "plan_r_1021_081410",
       "step_94025678",
       "step_5b9f6257",
+      "group__login_github",
       "plan_26ac4c4e",
       "step_4b860701",
       "step_35164443",
@@ -58,7 +59,7 @@
       "step_5b6d6181"
     ],
     "tags": [],
-    "updated_at": "2026-06-29T03:25:40.465092"
+    "updated_at": "2026-07-01T06:54:06.000000"
   },
   "steps": [
     {
@@ -648,7 +649,7 @@
       "parameters": {
         "text": "read:user"
       },
-      "description": "Type 'read:user' into the “Scope(s) for OAuth registration” input field at the top of the Visual Studio Code window.",
+      "description": "Type 'read:user' into the \u201cScope(s) for OAuth registration\u201d input field at the top of the Visual Studio Code window.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
