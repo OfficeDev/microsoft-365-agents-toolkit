@@ -11,6 +11,7 @@ import {
   UserInteraction,
 } from "@microsoft/teamsfx-api";
 import AdmZip from "adm-zip";
+import fs from "fs-extra";
 import path from "path";
 import { Result, err, ok } from "neverthrow";
 import { openCreateSelectorPresentation } from "../../../src/v4/distribution/createSelector";
@@ -117,6 +118,27 @@ const MCP_DA_PICKS: Record<string, string> = {
 const LANGUAGE_QUESTION = ["lang", "uage"].join("");
 
 describe("runCreateSelector (walk-create-selector)", () => {
+  it("WCS-00: selector-only Q1 can resolve from the selector's own v4 routes", async () => {
+    const selectorBytes = fs.readFileSync(path.join(TEMPLATES_V4_DIR, "create", "selector.json"));
+    const picks = {
+      projectType: "custom-engine-agent-type",
+      customEngineAgent: "weather-agent",
+    };
+    const ui = new ScriptedUI(picks);
+
+    const res = await runCreateSelector(selectorBytes, asUI(ui), "vscode", {
+      flagReader: () => false,
+      selectorBytesKind: "json",
+    });
+
+    assert.isTrue(res.isOk());
+    if (res.isOk()) {
+      assert.equal(res.value.templateId, "weather-agent");
+      assert.equal(res.value.engine, "v4");
+      assert.deepEqual(res.value.answers, picks);
+    }
+  });
+
   it("WCS-01: copilot→add-action→mcp with DT on resolves the v4 da/mcp-server front door", async () => {
     const ui = new ScriptedUI(MCP_DA_PICKS);
 

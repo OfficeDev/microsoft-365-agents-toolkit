@@ -36,7 +36,10 @@ import { coordinator } from "../component/coordinator";
 import { templateDefaultOnActionError } from "../component/generator/generator";
 import { GeneratorContext } from "../component/generator/generatorAction";
 import { convertToLangKey } from "../component/generator/utils";
-import { scaffoldDeclarativeFromV4Channel } from "../component/generator/v4TemplateBridge";
+import {
+  ResolvedV4ChannelPackage,
+  scaffoldDeclarativeFromV4Channel,
+} from "../component/generator/v4TemplateBridge";
 import { sendErrorEvent, sendSuccessEvent } from "../component/telemetry";
 import { pathUtils } from "../component/utils/pathUtils";
 import { InputValidationError, MissingRequiredInputError, assembleError } from "../error/common";
@@ -86,7 +89,8 @@ export async function scaffoldV4(
   inputs: Inputs,
   target: BuildTarget,
   answers: Answers,
-  flagReader?: (name: string) => boolean
+  flagReader?: (name: string) => boolean,
+  resolvedPackage?: ResolvedV4ChannelPackage
 ): Promise<Result<CreateProjectResult, FxError>> {
   const folderInput = inputs[QuestionNames.Folder];
   if (!folderInput) {
@@ -127,7 +131,8 @@ export async function scaffoldV4(
       answers,
       callerFloor,
       telemetryProps,
-      flagReader
+      flagReader,
+      resolvedPackage
     );
     if (source.warning) {
       TOOLS.logProvider.warning(source.warning);

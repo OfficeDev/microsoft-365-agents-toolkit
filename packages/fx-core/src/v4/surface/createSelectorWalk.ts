@@ -14,8 +14,14 @@ import {
   RouteQuestion,
   RouteResolverPort,
   resolveBuildTarget,
+  v4RouteRegistryFromSelector,
 } from "../buildTarget/resolveBuildTarget";
-import { openCreateSelector, openCreateSelectorPresentation } from "../distribution/createSelector";
+import {
+  openCreateSelector,
+  openCreateSelectorPresentation,
+  openSelectorFromJsonBytes,
+  openSelectorPresentationFromJsonBytes,
+} from "../distribution/createSelector";
 import { openDeclarativePackage } from "../distribution/declarativePackage";
 import { ExpressionRuntimePort, Scope, evaluateExpression } from "../expression/evaluateExpression";
 import { readBooleanFeatureFlag } from "../../common/featureFlags";
@@ -28,6 +34,10 @@ const SOURCE = "Scaffold";
 export interface CreateSelectorDeps {
   /** The feature-flag reader (default: env-backed); v4 imports no `featureFlagManager`. */
   flagReader?: (name: string) => boolean;
+  /** Selector bytes shape. Defaults to the full package zip for current callers. */
+  selectorBytesKind?: "zip" | "json";
+  /** Membership test supplied by a staged artifact snapshot or metadata index. */
+  v4Registry?: (templateId: string) => boolean;
   /** Q1 answers known up front. */
   prefilled?: Record<string, string>;
   /** Whether unfilled required dimensions may be prompted. */
@@ -54,7 +64,8 @@ function buildPort(
   presentation: SelectorPresentation,
   ui: UserInteraction,
   surface: string,
-  flagReader: (name: string) => boolean
+  flagReader: (name: string) => boolean,
+  v4Registry: ((templateId: string) => boolean) | undefined
 ): RouteResolverPort {
   const exprPort: ExpressionRuntimePort = { functions: () => undefined, flags: flagReader };
   const byName = new Map<string, PresentationQuestion>(
@@ -114,6 +125,9 @@ function buildPort(
     prompt,
     featureFlag: flagReader,
     v4Registry(templateId: string): boolean {
+      if (v4Registry !== undefined) {
+        return v4Registry(templateId);
+      }
       return openDeclarativePackage(floorBytes, { kind: "create", templateId }).isOk();
     },
     v3Registry(): boolean {
@@ -133,17 +147,32 @@ export async function runCreateSelector(
   deps: CreateSelectorDeps = {}
 ): Promise<Result<BuildTarget, FxError>> {
   const flagReader = deps.flagReader ?? envFlagReader;
+  const selectorBytesKind = deps.selectorBytesKind ?? "zip";
   const prefilled = deps.prefilled ?? {};
   const interactive = deps.interactive ?? true;
-  const spec = openCreateSelector(floorBytes);
+  const spec =
+    selectorBytesKind === "json"
+      ? openSelectorFromJsonBytes(floorBytes, "create")
+      : openCreateSelector(floorBytes);
   if (spec.isErr()) {
     return err(spec.error);
   }
-  const presentation = openCreateSelectorPresentation(floorBytes);
+  const presentation =
+    selectorBytesKind === "json"
+      ? openSelectorPresentationFromJsonBytes(floorBytes, "create")
+      : openCreateSelectorPresentation(floorBytes);
   if (presentation.isErr()) {
     return err(presentation.error);
   }
-  const port = buildPort(floorBytes, presentation.value, ui, surface, flagReader);
+  const port = buildPort(
+    floorBytes,
+    presentation.value,
+    ui,
+    surface,
+    flagReader,
+    deps.v4Registry ??
+      (selectorBytesKind === "json" ? v4RouteRegistryFromSelector(spec.value) : undefined)
+  );
   try {
     return await resolveBuildTarget(spec.value, prefilled, interactive, port);
   } catch (e) {
