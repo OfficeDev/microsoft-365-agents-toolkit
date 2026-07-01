@@ -269,6 +269,18 @@ describe("createFrontDoorAdapters", () => {
       assert.equal(inputs["teams-other-app-type"], "default-bot");
     });
 
+    it("leaves teams Q2 unfilled when the teams app selector id is unknown", () => {
+      const inputs: Inputs = { platform: Platform.VSCode };
+      applyV3PreFill(inputs, {
+        templateId: "future-teams-template",
+        engine: "v3",
+        answers: { projectType: "teams-agent-and-app-type", teamsApp: "future-teams-template" },
+      });
+
+      assert.equal(inputs[QuestionNames.ProjectType], "teams-agent-and-app-type");
+      assert.isUndefined(inputs[QuestionNames.TeamsAppType]);
+    });
+
     it("maps the office-addin taskpane and config capabilities onto the renamed v3 ids", () => {
       const taskpane: Inputs = { platform: Platform.VSCode };
       applyV3PreFill(taskpane, {
@@ -308,6 +320,21 @@ describe("createFrontDoorAdapters", () => {
 
       assert.equal(inputs[QuestionNames.Capabilities], "office-da-meta-os");
       assert.equal(inputs[QuestionNames.DAMetaOSCapability], "da-meta-os-upgrade-existing-project");
+    });
+
+    it("leaves office Q2 unfilled when the office capability selector id is unknown", () => {
+      const inputs: Inputs = { platform: Platform.VSCode };
+      applyV3PreFill(inputs, {
+        templateId: "future-office-template",
+        engine: "v3",
+        answers: {
+          projectType: "office-meta-os-type",
+          officeAddinCapability: "future-office-template",
+        },
+      });
+
+      assert.equal(inputs[QuestionNames.ProjectType], "office-meta-os-type");
+      assert.isUndefined(inputs[QuestionNames.Capabilities]);
     });
 
     it("sets only projectType for graph-connector (no capability dimension — safe re-ask)", () => {
@@ -353,12 +380,15 @@ describe("createFrontDoorAdapters", () => {
       const inputs: Inputs = {
         platform: Platform.VSCode,
         [QuestionNames.Folder]: "/tmp",
-        [QuestionNames.AppName]: "invalid name!",
+        [QuestionNames.AppName]: "Bad/Name",
       };
 
       const res = await scaffoldV4(inputs, v4Target, {});
 
       assert.isTrue(res.isErr());
+      if (res.isErr()) {
+        assert.equal(res.error.name, "InputValidationError");
+      }
     });
 
     it("scaffolds the located package and returns the project path", async () => {
@@ -500,6 +530,54 @@ describe("createFrontDoorAdapters", () => {
       assert.deepEqual(channel.mock.calls[0][3], { appName: "MyApp", language: "common" });
     });
 
+    it("logs a warning when template source resolution returns one", async () => {
+      vi.spyOn(scaffoldV4Deps, "scaffoldDeclarativeFromV4Channel").mockResolvedValue({
+        ...TEMPLATE_SOURCE,
+        warning: "Using bundled template fallback.",
+      });
+      vi.spyOn(pathUtils, "getYmlFilePath").mockReturnValue(undefined);
+      const warning = vi.spyOn(tools.logProvider, "warning");
+      const inputs: Inputs = {
+        platform: Platform.VSCode,
+        [QuestionNames.Folder]: "/tmp",
+        [QuestionNames.AppName]: "MyApp",
+      };
+
+      const res = await scaffoldV4(inputs, v4Target, {});
+
+      assert.isTrue(res.isOk());
+      assert.equal(warning.mock.calls[0][0], "Using bundled template fallback.");
+    });
+
+    it("returns the tracking id error when ensureTrackingId fails", async () => {
+      vi.spyOn(scaffoldV4Deps, "scaffoldDeclarativeFromV4Channel").mockResolvedValue(
+        TEMPLATE_SOURCE
+      );
+      const folder = tempFolder();
+      const ymlPath = path.join(folder, "MyApp", "teamsapp.yml");
+      await fs.ensureFile(ymlPath);
+      vi.spyOn(pathUtils, "getYmlFilePath").mockReturnValue(ymlPath);
+      vi.spyOn(coordinator, "ensureTrackingId").mockResolvedValue(
+        err(new UserError({ source: "Test", name: "TrackingIdFailed", message: "failed" }))
+      );
+      const inputs: Inputs = {
+        platform: Platform.VSCode,
+        [QuestionNames.Folder]: folder,
+        [QuestionNames.AppName]: "MyApp",
+      };
+
+      try {
+        const res = await scaffoldV4(inputs, v4Target, {});
+
+        assert.isTrue(res.isErr());
+        if (res.isErr()) {
+          assert.equal(res.error.name, "TrackingIdFailed");
+        }
+      } finally {
+        await fs.remove(folder);
+      }
+    });
+
     it("surfaces a channel failure as an error", async () => {
       vi.spyOn(scaffoldV4Deps, "scaffoldDeclarativeFromV4Channel").mockRejectedValue(
         new Error("channel boom")
@@ -529,6 +607,35 @@ describe("createFrontDoorAdapters", () => {
       const res = await collectCreateFloor(inputs, tools.ui);
 
       assert.isTrue(res.isOk());
+    });
+
+    it("validates a preset app-name and returns the validation error", async () => {
+      const inputs: Inputs = {
+        platform: Platform.VSCode,
+        [QuestionNames.Folder]: tempFolder(),
+        [QuestionNames.AppName]: "Bad/Name",
+      };
+
+      const res = await collectCreateFloor(inputs, tools.ui);
+
+      assert.isTrue(res.isErr());
+      if (res.isErr()) {
+        assert.equal(res.error.name, "InputValidationError");
+      }
+    });
+
+    it("uses the app-name default in non-interactive mode when one is available", async () => {
+      const inputs: Inputs = {
+        platform: Platform.CLI,
+        nonInteractive: true,
+        teamsAppFromTdp: { appName: "Default App" },
+      };
+
+      const res = await collectCreateFloor(inputs, tools.ui);
+
+      assert.isTrue(res.isOk());
+      assert.equal(inputs[QuestionNames.Folder], "./");
+      assert.equal(inputs[QuestionNames.AppName], "DefaultApp");
     });
 
     it("does not short-circuit on a preset template-name in interactive v4 floor collection", async () => {
@@ -590,6 +697,22 @@ describe("createFrontDoorAdapters", () => {
     it("propagates a cancellation from the interactive floor prompt", async () => {
       const cancel = new UserError({ source: "Test", name: "UserCancelError", message: "cancel" });
       vi.spyOn(tools.ui, "selectFolder").mockResolvedValue(err(cancel));
+      const inputs: Inputs = { platform: Platform.VSCode };
+
+      const res = await collectCreateFloor(inputs, tools.ui);
+
+      assert.isTrue(res.isErr());
+      if (res.isErr()) {
+        assert.equal(res.error.name, "UserCancelError");
+      }
+    });
+
+    it("propagates a cancellation from the interactive app-name prompt", async () => {
+      const cancel = new UserError({ source: "Test", name: "UserCancelError", message: "cancel" });
+      vi.spyOn(tools.ui, "selectFolder").mockResolvedValue(
+        ok({ type: "success", result: tempFolder() })
+      );
+      vi.spyOn(tools.ui, "inputText").mockResolvedValue(err(cancel));
       const inputs: Inputs = { platform: Platform.VSCode };
 
       const res = await collectCreateFloor(inputs, tools.ui);

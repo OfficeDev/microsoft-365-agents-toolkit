@@ -478,6 +478,30 @@ describe("createProjectFrontDoor (dispatch-create-by-engine)", () => {
     });
   });
 
+  it("passes neutral array inputs and office manifest aliases to the v4 input walk", async () => {
+    const runInputs = inputsRecorder({});
+    const inputs: Inputs = {
+      platform: Platform.CLI,
+      nonInteractive: true,
+      apiPermissions: ["User.Read", "Calendars.Read"],
+      [QuestionNames.OfficeAddinManifest]: "manifest.json",
+    };
+
+    const res = await createProjectFrontDoor(
+      inputs,
+      deps({
+        runSelector: selectorRecorder(V4_TARGET).fn,
+        runInputs: runInputs.fn,
+        collectCreateFloor: okFloor,
+        scaffoldV4: okScaffold,
+      })
+    );
+
+    assert.isTrue(res.isOk());
+    assert.deepEqual(runInputs.calls[0][2].apiPermissions, ["User.Read", "Calendars.Read"]);
+    assert.equal(runInputs.calls[0][2].officeAddinManifest, "manifest.json");
+  });
+
   it("DCE-18: legacy CLI MCP tools file is bridged into static v4 MCP Q2 params", async () => {
     const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "atk-mcp-tools-"));
     const toolsPath = path.join(tempDir, "mcp-tools.json");
@@ -525,6 +549,52 @@ describe("createProjectFrontDoor (dispatch-create-by-engine)", () => {
         ],
       });
       assert.deepEqual(runInputs.calls[0][2].selectedMcpTools, ["searchFlights"]);
+    } finally {
+      fs.removeSync(tempDir);
+    }
+  });
+
+  it("returns an error before Q2 when a legacy static MCP tools file cannot be read", async () => {
+    const inputs: Inputs = {
+      platform: Platform.CLI,
+      nonInteractive: true,
+      [QuestionNames.MCPToolsFilePath]: path.join(os.tmpdir(), "missing-mcp-tools.json"),
+    };
+
+    const res = await createProjectFrontDoor(
+      inputs,
+      deps({
+        runSelector: selectorRecorder(STATIC_MCP_TARGET).fn,
+        runInputs: failRunInputs,
+      })
+    );
+
+    assert.isTrue(res.isErr());
+    if (res.isErr()) {
+      assert.equal(res.error.name, "McpToolsFileReadFailed");
+    }
+  });
+
+  it("returns an error before Q2 when a legacy static MCP tools file is invalid", async () => {
+    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "atk-mcp-tools-"));
+    const toolsPath = path.join(tempDir, "mcp-tools.json");
+    fs.writeFileSync(toolsPath, "{ invalid json", "utf8");
+    const inputs: Inputs = {
+      platform: Platform.CLI,
+      nonInteractive: true,
+      [QuestionNames.MCPToolsFilePath]: toolsPath,
+    };
+
+    try {
+      const res = await createProjectFrontDoor(
+        inputs,
+        deps({
+          runSelector: selectorRecorder(STATIC_MCP_TARGET).fn,
+          runInputs: failRunInputs,
+        })
+      );
+
+      assert.isTrue(res.isErr());
     } finally {
       fs.removeSync(tempDir);
     }
