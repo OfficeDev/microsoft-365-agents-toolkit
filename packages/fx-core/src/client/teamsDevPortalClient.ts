@@ -4,7 +4,8 @@
 import { hooks } from "@feathersjs/hooks";
 import { SystemError } from "@microsoft/teamsfx-api";
 import axios, { AxiosInstance, AxiosResponse } from "axios";
-import { getResourceServiceEndpoint, HelpLinks, ResourceServiceType } from "../common/constants";
+import FormData from "form-data";
+import { getResourceServiceEndpoint, ResourceServiceType } from "../common/constants";
 import { ErrorContextMW, TOOLS } from "../common/globalVars";
 import { getDefaultString, getLocalizedString } from "../common/localizeUtils";
 import { RetryHandler } from "../common/retryHandler";
@@ -34,7 +35,6 @@ import { IPublishingAppDenition } from "../component/driver/teamsApp/interfaces/
 import { IValidationResult } from "../component/driver/teamsApp/interfaces/appdefinitions/IValidationResult";
 import { AppDefinition } from "../component/driver/teamsApp/interfaces/appdefinitions/appDefinition";
 import { AppUser } from "../component/driver/teamsApp/interfaces/appdefinitions/appUser";
-import { manifestUtils } from "../component/driver/teamsApp/utils/ManifestUtils";
 import {
   BotChannelType,
   IBotRegistration,
@@ -58,8 +58,42 @@ import {
 } from "../error/teamsApp";
 import { IAADDefinition } from "./interfaces/aad/IAADDefinition";
 
+interface AppUserPayload {
+  aadId: string;
+  tenantId: string;
+  role: "Owner" | "Member" | string;
+}
+
+interface AppResponse {
+  appId: string;
+  appProfile: {
+    appAccessControl?: { appUsers?: AppUserPayload[]; users?: AppUserPayload[] } | AppUserPayload[];
+    appMetadata?: Record<string, any>;
+    appDetails?: {
+      applicationManifest?: Record<string, any>;
+      firstPartySettings?: Record<string, any>;
+    };
+  };
+}
+
+interface PagedResponse<T> {
+  items: T[];
+  continuationToken?: string;
+}
+
+const DEFAULT_MANIFEST_VERSION = "1.15";
+const DEFAULT_COLOR_ICON = "default-app-icons/images/color.png";
+const DEFAULT_OUTLINE_ICON = "default-app-icons/images/outline.png";
+
+const newDeveloperPortalEndpoints: Record<string, string> = {
+  apac: "https://dev.teams.microsoft.com/cosmicprodapac",
+  amer: "https://dev.teams.microsoft.com/cosmicprodamer",
+  emea: "https://dev.teams.microsoft.com/cosmicprodemea",
+};
+
 export class TeamsDevPortalClient {
   regionEndpoint?: string;
+  private readonly appEtags = new Map<string, string>();
 
   setRegionEndpoint(regionEndpoint: string): void {
     this.regionEndpoint = regionEndpoint;
@@ -78,7 +112,23 @@ export class TeamsDevPortalClient {
     requester.defaults.headers.common["Authorization"] = `Bearer ${authSvcToken}`;
     requester.defaults.headers.common["Client-Source"] = "teamstoolkit";
     const response = await RetryHandler.Retry(() => requester.post("/v1.0/users/region"));
-    this.regionEndpoint = response?.data?.regionGtms?.teamsDevPortal as string;
+    const regionGtms = response?.data?.regionGtms;
+    this.regionEndpoint = this.resolveRegionEndpoint(
+      regionGtms?.teamsDeveloperPortal,
+      regionGtms?.teamsDevPortal
+    );
+  }
+
+  private resolveRegionEndpoint(teamsDeveloperPortal?: string, teamsDevPortal?: string): string {
+    if (teamsDeveloperPortal?.startsWith("https://")) {
+      return teamsDeveloperPortal;
+    }
+
+    // Remove this fallback once AuthSvc returns teamsDeveloperPortal for every region.
+    const oldEndpointRegion = Object.keys(newDeveloperPortalEndpoints).find((region) =>
+      teamsDevPortal?.match(new RegExp(`/${region}(?:/api)?/?$`, "i"))
+    );
+    return newDeveloperPortalEndpoints[oldEndpointRegion ?? "amer"];
   }
 
   getEndpoint(): string {
@@ -99,185 +149,171 @@ export class TeamsDevPortalClient {
     return instance;
   }
 
-  /**
-   * Import an app registration in app studio with the given archived file and returns the app definition.
-   * @param {string}  token - access token
-   * @param {Buffer}  file - Zip file with manifest.json and two icons
-   * @param {boolean} overwrite - whether to overrite the app if it already exists
-   * @returns {Promise<AppDefinition>}
-   */
   @hooks([ErrorContextMW({ source: "Teams", component: "TeamsDevPortalClient" })])
-  async importApp(token: string, file: Buffer, overwrite = false): Promise<AppDefinition> {
+  async createApp(token: string, name: string): Promise<AppDefinition> {
+    const requester = this.createRequesterWithToken(token);
     try {
-      const requester = this.createRequesterWithToken(token);
-      TOOLS.logProvider.debug(
-        `Sent API Request: ${this.getEndpoint()}/api/appdefinitions/v2/import`
-      );
       const response = await RetryHandler.Retry(() =>
-        requester.post(`/api/appdefinitions/v2/import`, file, {
-          headers: { "Content-Type": "application/zip" },
-          params: {
-            overwriteIfAppAlreadyExists: overwrite,
+        requester.post(`/v1.0/apps`, {
+          appDetails: {
+            applicationManifest: {
+              manifestVersion: DEFAULT_MANIFEST_VERSION,
+              name: { short: name },
+              icons: {
+                color: DEFAULT_COLOR_ICON,
+                outline: DEFAULT_OUTLINE_ICON,
+              },
+            },
           },
         })
       );
-
-      if (response && response.data) {
-        const app = <AppDefinition>response.data;
-        TOOLS.logProvider.debug(`Received data from Developer Portal: ${JSON.stringify(app)}`);
-        return app;
-      } else {
-        throw this.wrapException(
-          new Error("cannot create teams app"),
-          APP_STUDIO_API_NAMES.CREATE_APP
-        );
+      if (!response?.data) {
+        throw new Error("Cannot create Teams app");
       }
-    } catch (e: any) {
-      if (e.response?.status === 409) {
-        throw this.wrapException(
-          e,
-          APP_STUDIO_API_NAMES.CREATE_APP,
-          AppStudioError.TeamsAppCreateConflictError.name,
-          AppStudioError.TeamsAppCreateConflictError.message()[0],
-          AppStudioError.TeamsAppCreateConflictError.message()[1],
-          true,
-          HelpLinks.SwitchTenant
-        );
-      }
-      // Corner case: The provided app ID conflict with an existing published app
-      // See Developer Portal PR: 507264
-      if (
-        e.response?.status == 422 &&
-        e.response?.data.includes("App already exists and published")
-      ) {
-        throw this.wrapException(
-          e,
-          APP_STUDIO_API_NAMES.CREATE_APP,
-          AppStudioError.TeamsAppCreateConflictWithPublishedAppError.name,
-          AppStudioError.TeamsAppCreateConflictWithPublishedAppError.message()[0],
-          AppStudioError.TeamsAppCreateConflictWithPublishedAppError.message()[1],
-          true
-        );
-      }
-      // Corner case: App Id must be a GUID
-      if (
-        e.response?.status === HttpStatusCode.BAD_REQUEST &&
-        e.response?.data.includes("App Id must be a GUID")
-      ) {
-        const manifest = manifestUtils.extractManifestFromArchivedFile(file);
-        if (manifest.isErr()) {
-          throw manifest.error;
-        } else {
-          const teamsAppId = manifest.value.id;
-          throw this.wrapException(
-            e,
-            APP_STUDIO_API_NAMES.CREATE_APP,
-            AppStudioError.InvalidTeamsAppIdError.name,
-            AppStudioError.InvalidTeamsAppIdError.message(teamsAppId)[0],
-            AppStudioError.InvalidTeamsAppIdError.message(teamsAppId)[1],
-            true
-          );
-        }
-      }
+      return this.toAppDefinition(response.data as AppResponse);
+    } catch (e) {
       throw this.wrapException(e, APP_STUDIO_API_NAMES.CREATE_APP);
     }
   }
 
   @hooks([ErrorContextMW({ source: "Teams", component: "TeamsDevPortalClient" })])
+  async updateApp(token: string, appId: string, file: Buffer): Promise<AppDefinition> {
+    try {
+      const requester = this.createRequesterWithToken(token);
+      const response = await RetryHandler.Retry(() => {
+        const content = this.createAppPackageForm(file);
+        return requester.put(`/v1.0/apps/${appId}/apppackage`, content, {
+          headers: content.getHeaders(),
+        });
+      });
+
+      if (!response?.data) {
+        throw new Error(`Cannot update the app with app ID ${appId}`);
+      }
+      return this.toAppDefinition(response.data as AppResponse);
+    } catch (e) {
+      throw this.wrapException(e, APP_STUDIO_API_NAMES.UPDATE_APP);
+    }
+  }
+
+  private createAppPackageForm(file: Buffer): FormData {
+    const content = new FormData();
+    content.append("AppPackageZip", file, {
+      filename: "appPackage.zip",
+      contentType: "application/zip",
+    });
+    return content;
+  }
+
+  @hooks([ErrorContextMW({ source: "Teams", component: "TeamsDevPortalClient" })])
   async listApps(token: string): Promise<AppDefinition[]> {
-    if (!this.regionEndpoint) throw new Error("Failed to get region");
     let requester: AxiosInstance;
     try {
       requester = this.createRequesterWithToken(token);
-      TOOLS.logProvider.debug(`Sent API Request: GET ${this.regionEndpoint}/api/appdefinitions`);
-      const response = await RetryHandler.Retry(() => requester.get(`/api/appdefinitions`));
-      const apps = <AppDefinition[]>response?.data;
-      if (apps) {
-        return apps;
-      } else {
-        TOOLS.logProvider.error("Cannot get the app definitions");
-      }
+      TOOLS.logProvider.debug(`Sent API Request: GET ${this.getEndpoint()}/v1.0/apps`);
+      const apps: AppDefinition[] = [];
+      let continuationToken: string | undefined;
+      do {
+        const response = await RetryHandler.Retry(() =>
+          requester.get(`/v1.0/apps`, {
+            params: { pageSize: 100 },
+            headers: continuationToken ? { "x-ms-continuation": continuationToken } : undefined,
+          })
+        );
+        const page = response?.data as PagedResponse<Record<string, any>> | undefined;
+        if (!page?.items) {
+          throw new Error("Cannot get the app definitions");
+        }
+        apps.push(
+          ...page.items.map((app) => {
+            const externalId = app.appExternalId ?? app.appId;
+            return {
+              teamsAppId: externalId,
+              appId: app.appId,
+              appName: app.appName,
+              version: app.appVersion,
+              updatedAt: app.updatedAt,
+            };
+          })
+        );
+        continuationToken = page.continuationToken;
+      } while (continuationToken);
+      return apps;
     } catch (e) {
       throw this.wrapException(e, APP_STUDIO_API_NAMES.LIST_APPS);
     }
-    throw this.wrapException(
-      new Error("cannot get the app definitions"),
-      APP_STUDIO_API_NAMES.LIST_APPS
-    );
   }
   @hooks([ErrorContextMW({ source: "Teams", component: "TeamsDevPortalClient" })])
-  async deleteApp(appStudioToken: string, teamsAppId: string): Promise<boolean> {
+  async deleteApp(appStudioToken: string, appId: string): Promise<boolean> {
     if (!this.regionEndpoint) throw new Error("Failed to get region");
     let requester: AxiosInstance;
     try {
       requester = this.createRequesterWithToken(appStudioToken);
-      TOOLS.logProvider.debug(
-        `Sent API Request: DELETE ${this.getEndpoint()}/api/appdefinitions/${teamsAppId}`
-      );
-      const response = await RetryHandler.Retry(() =>
-        requester.delete(`/api/appdefinitions/${teamsAppId}`)
-      );
-      if (response && response.data) {
-        const success = <boolean>response.data;
-        if (success) {
-          return success;
-        } else {
-          TOOLS.logProvider?.error("Cannot get the app definitions");
-        }
+      TOOLS.logProvider.debug(`Sent API Request: DELETE ${this.getEndpoint()}/v1.0/apps/${appId}`);
+      const response = await RetryHandler.Retry(() => requester.delete(`/v1.0/apps/${appId}`));
+      if (response?.status === 204) {
+        return true;
       }
     } catch (e) {
       throw this.wrapException(e, APP_STUDIO_API_NAMES.DELETE_APP);
     }
     throw this.wrapException(
-      new Error("cannot delete the app: " + teamsAppId),
+      new Error("cannot delete the app: " + appId),
       APP_STUDIO_API_NAMES.DELETE_APP
     );
   }
   @hooks([ErrorContextMW({ source: "Teams", component: "TeamsDevPortalClient" })])
-  async getApp(token: string, teamsAppId: string): Promise<AppDefinition> {
-    let requester: AxiosInstance;
+  async getApp(token: string, appId: string): Promise<AppDefinition> {
     try {
-      requester = this.createRequesterWithToken(token);
-      TOOLS.logProvider.debug(
-        `Sent API Request: GET ${this.getEndpoint()}/api/appdefinitions/${teamsAppId}`
-      );
-      const response = await RetryHandler.Retry(() =>
-        requester.get(`/api/appdefinitions/${teamsAppId}`)
-      );
-      if (response && response.data) {
-        const app = <AppDefinition>response.data;
-        if (app && app.teamsAppId && app.teamsAppId === teamsAppId) {
+      let response: AxiosResponse<AppResponse>;
+      try {
+        response = await this.getAppResponse(token, appId);
+      } catch (error) {
+        if (error?.response?.status !== HttpStatusCode.NOTFOUND) {
+          throw error;
+        }
+        const resolvedAppId = await this.resolveLegacyAppId(token, appId);
+        if (resolvedAppId === appId) {
+          throw error;
+        }
+        response = await this.getAppResponse(token, resolvedAppId);
+      }
+      if (response.data) {
+        const etag = response.headers?.etag as string | undefined;
+        if (etag) {
+          this.appEtags.set(appId, etag);
+        }
+        const app = this.toAppDefinition(response.data);
+        if (app && (app.appId === appId || app.teamsAppId === appId)) {
           return app;
         } else {
-          TOOLS.logProvider?.error(
-            `teamsAppId mismatch. Input: ${teamsAppId}. Got: ${app.teamsAppId as string}`
-          );
+          TOOLS.logProvider?.error(`appId mismatch. Input: ${appId}. Got: ${app.appId as string}`);
         }
       }
     } catch (e) {
       throw this.wrapException(e, APP_STUDIO_API_NAMES.GET_APP);
     }
     throw this.wrapException(
-      new Error(`cannot get the app definition with app ID ${teamsAppId}`),
+      new Error(`cannot get the app definition with app ID ${appId}`),
       APP_STUDIO_API_NAMES.GET_APP
     );
   }
   @hooks([ErrorContextMW({ source: "Teams", component: "TeamsDevPortalClient" })])
-  async getBotId(token: string, teamsAppId: string): Promise<string | undefined> {
-    const app = await this.getApp(token, teamsAppId);
+  async getBotId(token: string, appId: string): Promise<string | undefined> {
+    const app = await this.getApp(token, appId);
     if (app?.bots?.length && app.bots.length > 0) {
       return app.bots[0].botId;
     }
-    TOOLS.logProvider?.error(`botId not found. Input: ${teamsAppId}`);
+    TOOLS.logProvider?.error(`botId not found. Input: ${appId}`);
     return undefined;
   }
   @hooks([ErrorContextMW({ source: "Teams", component: "TeamsDevPortalClient" })])
-  async getAppPackage(token: string, teamsAppId: string): Promise<any> {
-    TOOLS.logProvider?.info("Downloading app package for app " + teamsAppId);
+  async getAppPackage(token: string, appId: string): Promise<any> {
+    TOOLS.logProvider?.info("Downloading app package for app " + appId);
     const requester = this.createRequesterWithToken(token);
     try {
       const response = await RetryHandler.Retry(() =>
-        requester.get(`/api/appdefinitions/${teamsAppId}/manifest`)
+        requester.get(`/v1.0/apps/${appId}/appPackage`, { responseType: "arraybuffer" })
       );
 
       if (response && response.data) {
@@ -285,7 +321,7 @@ export class TeamsDevPortalClient {
         return response.data;
       } else {
         throw this.wrapException(
-          new Error(getLocalizedString("plugins.appstudio.emptyAppPackage", teamsAppId)),
+          new Error(getLocalizedString("plugins.appstudio.emptyAppPackage", appId)),
           APP_STUDIO_API_NAMES.GET_APP_PACKAGE
         );
       }
@@ -296,23 +332,16 @@ export class TeamsDevPortalClient {
 
   /**
    * Check if app exists in the user's organization by the Teams app id
-   * @param teamsAppId
+   * @param appId
    * @param token
    * @param logProvider
    * @returns
    */
   @hooks([ErrorContextMW({ source: "Teams", component: "TeamsDevPortalClient" })])
-  async checkExistsInTenant(token: string, teamsAppId: string): Promise<boolean> {
-    const requester = this.createRequesterWithToken(token);
+  async checkExistsInTenant(token: string, appId: string): Promise<boolean> {
     try {
-      const response = await RetryHandler.Retry(() =>
-        requester.get(`/api/appdefinitions/manifest/${teamsAppId}`)
-      );
-      if (response && response.data) {
-        return <boolean>response.data;
-      } else {
-        return false;
-      }
+      const response = await this.getAppResponse(token, appId);
+      return (response.data as unknown) !== false;
     } catch (e) {
       return false;
     }
@@ -492,16 +521,16 @@ export class TeamsDevPortalClient {
   }
 
   @hooks([ErrorContextMW({ source: "Teams", component: "TeamsDevPortalClient" })])
-  async getUserList(token: string, teamsAppId: string): Promise<AppUser[] | undefined> {
-    const app = await this.getApp(token, teamsAppId);
+  async getUserList(token: string, appId: string): Promise<AppUser[] | undefined> {
+    const app = await this.getApp(token, appId);
     return app.userList;
   }
 
   @hooks([ErrorContextMW({ source: "Teams", component: "TeamsDevPortalClient" })])
-  async checkPermission(token: string, teamsAppId: string, userObjectId: string): Promise<string> {
+  async checkPermission(token: string, appId: string, userObjectId: string): Promise<string> {
     let userList;
     try {
-      userList = await this.getUserList(token, teamsAppId);
+      userList = await this.getUserList(token, appId);
     } catch (error) {
       return Constants.PERMISSIONS.noPermission;
     }
@@ -519,34 +548,36 @@ export class TeamsDevPortalClient {
   }
 
   @hooks([ErrorContextMW({ source: "Teams", component: "TeamsDevPortalClient" })])
-  async removePermission(token: string, teamsAppId: string, userToRemove: AppUser): Promise<void> {
-    const app = await this.getApp(token, teamsAppId);
+  async removePermission(token: string, appId: string, userToRemove: AppUser): Promise<void> {
+    const app = await this.getApp(token, appId);
+    const resolvedAppId = app.appId ?? appId;
     if (!this.checkUser(app, userToRemove)) {
       return;
     }
-    app.userList = app.userList?.filter((user: AppUser) => user["aadId"] !== userToRemove.aadId);
+    const appUsers = (app.userList ?? []).map((user) => this.toAppUserPayload(user));
+    const updatedUsers = appUsers.filter((user) => user.aadId !== userToRemove.aadId);
     let requester: AxiosInstance;
     try {
       TOOLS.logProvider.debug(
         getLocalizedString(
           "core.common.SendingApiRequest",
-          `${this.getEndpoint()}/api/appdefinitions/{teamsAppId}/owner`,
-          JSON.stringify(app)
+          `${this.getEndpoint()}/v1.0/apps/{appId}/owners`,
+          JSON.stringify({ appUsers: updatedUsers })
         )
       );
       requester = this.createRequesterWithToken(token);
       const response = await RetryHandler.Retry(() =>
-        requester.post(`/api/appdefinitions/${teamsAppId}/owner`, app)
+        requester.post(
+          `/v1.0/apps/${resolvedAppId}/owners`,
+          { appUsers: updatedUsers },
+          { headers: { "If-Match": this.appEtags.get(appId) ?? "*" } }
+        )
       );
       TOOLS.logProvider.debug(
         getLocalizedString("core.common.ReceiveApiResponse", JSON.stringify(response?.data))
       );
-      if (
-        !response ||
-        !response.data ||
-        this.checkUser(response.data as AppDefinition, userToRemove)
-      ) {
-        throw new Error("Response is empty or user is not removed.");
+      if (!response) {
+        throw new Error("Response is empty.");
       }
     } catch (err) {
       throw this.wrapException(err, APP_STUDIO_API_NAMES.UPDATE_OWNER);
@@ -554,29 +585,35 @@ export class TeamsDevPortalClient {
   }
 
   @hooks([ErrorContextMW({ source: "Teams", component: "TeamsDevPortalClient" })])
-  async grantPermission(token: string, teamsAppId: string, newUser: AppUser): Promise<void> {
-    const app = await this.getApp(token, teamsAppId);
+  async grantPermission(token: string, appId: string, newUser: AppUser): Promise<void> {
+    const app = await this.getApp(token, appId);
+    const resolvedAppId = app.appId ?? appId;
     if (this.checkUser(app, newUser)) {
       return;
     }
-    app.userList?.push(newUser);
+    const appUsers = (app.userList ?? []).map((user) => this.toAppUserPayload(user));
+    const updatedUsers = [...appUsers, this.toAppUserPayload(newUser)];
     let requester: AxiosInstance;
     try {
       TOOLS.logProvider.debug(
         getLocalizedString(
           "core.common.SendingApiRequest",
-          `${this.getEndpoint()}/api/appdefinitions/{teamsAppId}/owner`,
-          JSON.stringify(app)
+          `${this.getEndpoint()}/v1.0/apps/{appId}/owners`,
+          JSON.stringify({ appUsers: updatedUsers })
         )
       );
       requester = this.createRequesterWithToken(token);
       const response = await RetryHandler.Retry(() =>
-        requester.post(`/api/appdefinitions/${teamsAppId}/owner`, app)
+        requester.post(
+          `/v1.0/apps/${resolvedAppId}/owners`,
+          { appUsers: updatedUsers },
+          { headers: { "If-Match": this.appEtags.get(appId) ?? "*" } }
+        )
       );
       TOOLS.logProvider.debug(
         getLocalizedString("core.common.ReceiveApiResponse", JSON.stringify(response?.data))
       );
-      if (!response || !response.data || !this.checkUser(response.data as AppDefinition, newUser)) {
+      if (!response) {
         throw new Error(ErrorMessages.GrantPermissionFailed);
       }
     } catch (err) {
@@ -597,12 +634,17 @@ export class TeamsDevPortalClient {
   ): Promise<IValidationResult> {
     const requester = this.createRequesterWithToken(token);
     try {
-      const response = await RetryHandler.Retry(() =>
-        requester.post("/api/appdefinitions/partnerCenterAppPackageValidation", file, {
-          headers: { "Content-Type": "application/zip" },
+      const response = await RetryHandler.Retry(() => {
+        const content = new FormData();
+        content.append("appPackage", file, {
+          filename: "appPackage.zip",
+          contentType: "application/zip",
+        });
+        return requester.post("/v1.0/appvalidation/apppackage/validate", content, {
+          headers: content.getHeaders(),
           signal,
-        })
-      );
+        });
+      });
       return response?.data;
     } catch (e) {
       throw this.wrapException(e, APP_STUDIO_API_NAMES.VALIDATE_APP_PACKAGE);
@@ -620,7 +662,7 @@ export class TeamsDevPortalClient {
 
   /**
    * Submit App Validation Request (In-App) for which App Definitions are stored at TDP.
-   * @param teamsAppId
+   * @param appId
    * @param token
    * @param timeoutSeconds
    * @returns
@@ -628,14 +670,15 @@ export class TeamsDevPortalClient {
   @hooks([ErrorContextMW({ source: "Teams", component: "TeamsDevPortalClient" })])
   async submitAppValidationRequest(
     token: string,
-    teamsAppId: string
+    appId: string
   ): Promise<AsyncAppValidationResponse> {
     const requester = this.createRequesterWithToken(token);
     try {
       const response = await RetryHandler.Retry(() =>
-        requester.post(`/api/v1.0/appvalidations/appdefinition/validate`, {
-          AppEnvironmentId: null,
-          appDefinitionId: teamsAppId,
+        requester.post(`/v1.0/appvalidation/validate`, {
+          appId,
+          appEnvironmentId: null,
+          testSuites: null,
         })
       );
       return <AsyncAppValidationResponse>response?.data;
@@ -650,14 +693,39 @@ export class TeamsDevPortalClient {
   @hooks([ErrorContextMW({ source: "Teams", component: "TeamsDevPortalClient" })])
   async getAppValidationRequestList(
     token: string,
-    teamsAppId: string
+    appId: string
   ): Promise<AsyncAppValidationDetailsResponse> {
     const requester = this.createRequesterWithToken(token);
     try {
-      const response = await RetryHandler.Retry(() =>
-        requester.get(`/api/v1.0/appvalidations/appdefinitions/${teamsAppId}`)
-      );
-      return <AsyncAppValidationDetailsResponse>response?.data;
+      const items: Record<string, any>[] = [];
+      let continuationToken: string | undefined;
+      do {
+        const response = await RetryHandler.Retry(() =>
+          requester.get(`/v1.0/appValidations/apps/${appId}`, {
+            params: { pageSize: 100 },
+            headers: continuationToken ? { "x-ms-continuation": continuationToken } : undefined,
+          })
+        );
+        const page = response?.data as PagedResponse<Record<string, any>> | undefined;
+        if (!page?.items) {
+          throw new Error("Cannot get app validation requests");
+        }
+        items.push(...page.items);
+        continuationToken =
+          page.continuationToken ??
+          (response?.headers?.["x-continuation-token"] as string | undefined);
+      } while (continuationToken);
+      return {
+        appValidations: items.map((item) => ({
+          id: item.appValidationId,
+          appId: item.appId,
+          appVersion: item.appVersion,
+          manifestVersion: item.manifestVersion,
+          status: item.status,
+          createdAt: item.submittedDate,
+          updatedAt: item.completedDate,
+        })),
+      };
     } catch (e) {
       throw this.wrapException(e, APP_STUDIO_API_NAMES.GET_APP_VALIDATION_REQUESTS);
     }
@@ -677,7 +745,7 @@ export class TeamsDevPortalClient {
     const requester = this.createRequesterWithToken(token);
     try {
       const response = await RetryHandler.Retry(() =>
-        requester.get(`/api/v1.0/appvalidations/${appValidationId}`)
+        requester.get(`/v1.0/appValidations/${appValidationId}`)
       );
       return <AsyncAppValidationResultsResponse>response?.data;
     } catch (e) {
@@ -866,7 +934,9 @@ export class TeamsDevPortalClient {
   async getBotRegistration(token: string, botId: string): Promise<IBotRegistration | undefined> {
     const requester = this.createRequesterWithToken(token);
     try {
-      const response = await RetryHandler.Retry(() => requester.get(`/api/botframework/${botId}`));
+      const response = await RetryHandler.Retry(() =>
+        requester.get(`/v1.0/botregistrations/${botId}`)
+      );
       if (isHappyResponse(response)) {
         return <IBotRegistration>response!.data; // response cannot be undefined as it's checked in isHappyResponse.
       } else {
@@ -887,7 +957,7 @@ export class TeamsDevPortalClient {
   async listBots(token: string): Promise<IBotRegistration[] | undefined> {
     const requester = this.createRequesterWithToken(token);
     try {
-      const response = await RetryHandler.Retry(() => requester.get("/api/botframework"));
+      const response = await RetryHandler.Retry(() => requester.get("/v1.0/botregistrations"));
       if (isHappyResponse(response)) {
         return <IBotRegistration[]>response!.data; // response cannot be undefined as it's checked in isHappyResponse.
       } else {
@@ -908,7 +978,7 @@ export class TeamsDevPortalClient {
   async deleteBot(token: string, botId: string): Promise<void> {
     const requester = this.createRequesterWithToken(token);
     try {
-      await RetryHandler.Retry(() => requester.delete(`/api/botframework/${botId}`));
+      await RetryHandler.Retry(() => requester.delete(`/v1.0/botregistrations/${botId}`));
     } catch (e) {
       this.handleBotFrameworkError(e, APP_STUDIO_API_NAMES.DELETE_BOT);
     }
@@ -930,7 +1000,7 @@ export class TeamsDevPortalClient {
     const requester = this.createRequesterWithToken(token);
     try {
       const response = await RetryHandler.Retry(() =>
-        requester.post(`/api/botframework`, registration)
+        requester.post(`/v1.0/botregistrations`, registration)
       );
       if (!isHappyResponse(response)) {
         throw new ProvisionError(CommonStrings.APP_STUDIO_BOT_REGISTRATION);
@@ -959,7 +1029,7 @@ export class TeamsDevPortalClient {
     const requester = this.createRequesterWithToken(token);
     try {
       const response = await RetryHandler.Retry(() =>
-        requester.post(`/api/botframework/${botReg.botId!}`, botReg)
+        requester.put(`/v1.0/botregistrations/${botReg.botId!}`, botReg)
       );
       if (!isHappyResponse(response)) {
         throw new ConfigUpdatingError(ConfigNames.MESSAGE_ENDPOINT);
@@ -1010,6 +1080,103 @@ export class TeamsDevPortalClient {
       new Error(`Failed to create AAD app: ${displayName}`),
       APP_STUDIO_API_NAMES.CREATE_AAD_APP
     );
+  }
+
+  private async getAppResponse(token: string, appId: string): Promise<AxiosResponse<AppResponse>> {
+    const requester = this.createRequesterWithToken(token);
+    TOOLS.logProvider.debug(`Sent API Request: GET ${this.getEndpoint()}/v1.0/apps/${appId}`);
+    const response = await RetryHandler.Retry(() => requester.get(`/v1.0/apps/${appId}`));
+    if (!response) {
+      throw new Error(`Cannot get the app with app ID ${appId}`);
+    }
+    return response;
+  }
+
+  private async resolveLegacyAppId(token: string, appId: string): Promise<string> {
+    const app = (await this.listApps(token)).find((item) => item.teamsAppId === appId);
+    return app?.appId ?? appId;
+  }
+
+  private getAppUsers(app: AppResponse): AppUserPayload[] {
+    const accessControl = app.appProfile?.appAccessControl;
+    if (Array.isArray(accessControl)) {
+      return accessControl;
+    }
+    return accessControl?.appUsers ?? accessControl?.users ?? [];
+  }
+
+  private toAppUserPayload(user: AppUser): AppUserPayload {
+    return {
+      aadId: user.aadId,
+      tenantId: user.tenantId,
+      role: user.isAdministrator ? "Owner" : "Member",
+    };
+  }
+
+  private toAppUser(user: AppUserPayload): AppUser {
+    return {
+      aadId: user.aadId,
+      tenantId: user.tenantId,
+      role: user.role,
+      displayName: "",
+      userPrincipalName: "",
+      isAdministrator: user.role === "Owner",
+    };
+  }
+
+  private toAppDefinition(app: AppResponse): AppDefinition {
+    if ((app as unknown as AppDefinition).teamsAppId) {
+      return app as unknown as AppDefinition;
+    }
+    const metadata = app.appProfile?.appMetadata ?? {};
+    const manifest = app.appProfile?.appDetails?.applicationManifest ?? {};
+    const teamsAppId = manifest.id ?? app.appId;
+    const appUsers = this.getAppUsers(app);
+    const owner = appUsers.find((user) => user.aadId === metadata.ownerAadId) ?? appUsers[0];
+    return {
+      teamsAppId,
+      appId: app.appId,
+      tenantId: owner?.tenantId,
+      ownerAadId: metadata.ownerAadId,
+      userList: appUsers.map((user) => this.toAppUser(user)),
+      createdAt: metadata.createdAt,
+      updatedAt: metadata.updatedAt,
+      appName: manifest.name?.short,
+      version: manifest.version,
+      manifestVersion: manifest.manifestVersion,
+      packageName: manifest.packageName,
+      shortName: manifest.name?.short,
+      longName: manifest.name?.full,
+      developerName: manifest.developer?.name,
+      websiteUrl: manifest.developer?.websiteUrl,
+      privacyUrl: manifest.developer?.privacyUrl,
+      termsOfUseUrl: manifest.developer?.termsOfUseUrl,
+      mpnId: manifest.developer?.mpnId,
+      shortDescription: manifest.description?.short,
+      longDescription: manifest.description?.full,
+      colorIcon: manifest.icons?.color,
+      outlineIcon: manifest.icons?.outline,
+      accentColor: manifest.accentColor,
+      configurableTabs: manifest.configurableTabs,
+      staticTabs: manifest.staticTabs,
+      bots: manifest.bots,
+      connectors: manifest.connectors,
+      messagingExtensions: manifest.composeExtensions,
+      validDomains: manifest.validDomains,
+      webApplicationInfoId: manifest.webApplicationInfo?.id,
+      webApplicationInfoResource: manifest.webApplicationInfo?.resource,
+      devicePermissions: manifest.devicePermissions,
+      showLoadingIndicator: manifest.showLoadingIndicator,
+      isFullScreen: manifest.isFullScreen,
+      defaultInstallScope: manifest.defaultInstallScope,
+      defaultGroupCapability: manifest.defaultGroupCapability,
+      configurableProperties: manifest.configurableProperties,
+      meetingExtensionDefinition: manifest.meetingExtensionDefinition,
+      activities: manifest.activities,
+      authorization: manifest.authorization,
+      localizationInfo: manifest.localizationInfo,
+      supportsChannelFeatures: manifest.supportsChannelFeatures,
+    };
   }
 
   handleBotFrameworkError(e: any, apiName: string): void | undefined {
