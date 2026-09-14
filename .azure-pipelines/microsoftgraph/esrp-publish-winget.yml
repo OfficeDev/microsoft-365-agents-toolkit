@@ -74,14 +74,25 @@ extends:
                     'User-Agent'           = 'atk-esrp-winget-publish'
                   }
 
+                  $tagPrefix = 'microsoft-365-agents-playground@'
                   $tag = $env:GITHUB_RELEASE_TAG
                   if (-not $tag) {
-                    $tag = $env:BUILD_SOURCEBRANCH -replace '^refs/tags/', ''
-                    Write-Host "No githubReleaseTag parameter; using triggering tag '$tag'."
+                    $tag = $env:BUILD_SOURCEBRANCH
+                    Write-Host "No githubReleaseTag parameter; using triggering ref '$tag'."
                   }
-                  $tagPrefix = 'microsoft-365-agents-playground@'
+                  $tag = [uri]::UnescapeDataString($tag.Trim()) -replace '^refs/tags/', ''
+                  if ([uri]::IsWellFormedUriString($tag, [UriKind]::Absolute)) {
+                    $releaseUri = [uri]$tag
+                    if ($releaseUri.Host -cne 'github.com' -or $releaseUri.AbsolutePath -notmatch '/releases/tag/([^/]+)$') {
+                      throw "Expected a GitHub release URL for $(githubRepo), but received '$tag'."
+                    }
+                    $tag = [uri]::UnescapeDataString($Matches[1])
+                  }
+                  if (-not $tag.StartsWith($tagPrefix, [StringComparison]::Ordinal)) {
+                    $tag = "$tagPrefix$tag"
+                  }
                   if (-not $tag.StartsWith($tagPrefix, [StringComparison]::Ordinal) -or $tag.Length -eq $tagPrefix.Length) {
-                    throw "Expected a release tag beginning with '$tagPrefix'."
+                    throw "Expected an Agents Playground release tag or version. Resolved value: '$tag'."
                   }
                   $version = $tag.Substring($tagPrefix.Length)
                   if ($version -notmatch '^[0-9A-Za-z][0-9A-Za-z.+-]*$') {
