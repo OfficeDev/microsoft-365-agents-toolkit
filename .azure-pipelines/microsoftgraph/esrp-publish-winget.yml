@@ -210,7 +210,7 @@ extends:
                   signcertname: 'ATK-ESRP-CERT'
                   clientid: '62d1b680-312a-4484-9737-fc13f2f7e6f3'
                   intent: 'Winget'
-                  contenttype: 'Manifest'
+                  contenttype: 'WingetExternal'
                   contentsource: 'Folder'
                   folderlocation: '$(wingetManifestsDir)'
                   waitforreleasecompletion: true
