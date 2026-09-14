@@ -5,6 +5,7 @@ import { FxError, SystemError } from "@microsoft/teamsfx-api";
 import AdmZip from "adm-zip";
 import { Result, err, ok } from "neverthrow";
 import { QuestionSpec } from "../collectInputs/collectInputs";
+import { isExpressionNode } from "../expression/evaluateExpression";
 
 /**
  * Resolve shared question fragments. A `questions` array may contain
@@ -37,13 +38,103 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
+function isString(value: unknown): value is string {
+  return typeof value === "string";
+}
+
+function isStringArray(value: unknown): value is string[] {
+  return Array.isArray(value) && value.every(isString);
+}
+
+function optionalFields(
+  record: Record<string, unknown>,
+  keys: string[],
+  check: (value: unknown) => boolean
+): boolean {
+  return keys.every((key) => record[key] === undefined || check(record[key]));
+}
+
+function isValidation(value: unknown): boolean {
+  return (
+    isString(value) ||
+    (isRecord(value) &&
+      isString(value.use) &&
+      optionalFields(
+        value,
+        ["params"],
+        (params) => isRecord(params) && Object.values(params).every(isString)
+      ))
+  );
+}
+
+function isOption(value: unknown): boolean {
+  return (
+    isRecord(value) &&
+    isString(value.id) &&
+    optionalFields(
+      value,
+      ["label", "description", "detail", "iconPath", "groupName", "keyPrefix"],
+      isString
+    ) &&
+    optionalFields(value, ["condition"], isExpressionNode)
+  );
+}
+
+function isInputBox(value: unknown): boolean {
+  return (
+    isRecord(value) &&
+    isString(value.name) &&
+    optionalFields(value, ["title", "placeholder", "prompt", "default", "keyPrefix"], isString) &&
+    optionalFields(value, ["step"], (step) => typeof step === "number" && Number.isFinite(step)) &&
+    optionalFields(value, ["validation"], isValidation)
+  );
+}
+
 /** A single native question, narrowed without an unchecked cast. */
 function isQuestionSpec(value: unknown): value is QuestionSpec {
   return (
     isRecord(value) &&
     typeof value.name === "string" &&
     typeof value.type === "string" &&
-    QUESTION_TYPES.has(value.type)
+    QUESTION_TYPES.has(value.type) &&
+    optionalFields(
+      value,
+      [
+        "title",
+        "cliDescription",
+        "cliShortName",
+        "placeholder",
+        "prompt",
+        "optionsFrom",
+        "keyPrefix",
+      ],
+      isString
+    ) &&
+    optionalFields(value, ["default"], (answer) => isString(answer) || isStringArray(answer)) &&
+    optionalFields(
+      value,
+      ["password", "skipSingleOption", "optional"],
+      (flag) => typeof flag === "boolean"
+    ) &&
+    optionalFields(
+      value,
+      ["filters"],
+      (filters) => isRecord(filters) && Object.values(filters).every(isStringArray)
+    ) &&
+    optionalFields(
+      value,
+      ["staticOptions"],
+      (options) => Array.isArray(options) && options.every(isOption)
+    ) &&
+    optionalFields(value, ["inputOptionItem"], isOption) &&
+    optionalFields(value, ["inputBoxConfig"], isInputBox) &&
+    optionalFields(value, ["validation"], isValidation) &&
+    optionalFields(value, ["condition"], isExpressionNode) &&
+    optionalFields(
+      value,
+      ["optionsFromParams"],
+      (params) => isRecord(params) && Object.values(params).every(isExpressionNode)
+    )
   );
 }
 
