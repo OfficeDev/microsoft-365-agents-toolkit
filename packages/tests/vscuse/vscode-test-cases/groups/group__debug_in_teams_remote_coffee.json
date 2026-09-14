@@ -172,8 +172,8 @@
       "tool": "click",
       "parameters": {
         "button": "left",
-        "x": 307,
-        "y": 221
+        "x": 252,
+        "y": 218
       },
       "description": "Click the \"Add\" or \"Open\" button in the \"Coffee Agent\" pop-up within the Microsoft Teams web application interface to launch the app.",
       "content_refs": [],
@@ -181,11 +181,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [],
-      "preconditions": [
-        "dhash:307:221:16:5:a69696a683986180",
-        "dhash:307:221:96:5:4e004f61710c2e0e",
-        "dhash:307:221:0:10:20b4b0f0e8f8e0f4"
-      ],
+      "preconditions": [],
       "postconditions": [],
       "tags": [
         "force_run:true"
@@ -247,7 +243,7 @@
       "agent": "assertion",
       "tool": "",
       "parameters": {},
-      "description": "@assertion there's ${{var:app_name}}dev exist.",
+      "description": "@assertion there's CoffeeAgentdev exist.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
