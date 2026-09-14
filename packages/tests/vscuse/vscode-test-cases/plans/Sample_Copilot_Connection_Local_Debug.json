@@ -9,7 +9,7 @@
       "precondition_retry_interval": 2,
       "step_retry_timeout": 0
     },
-    "total_steps": 19,
+    "total_steps": 23,
     "created_at": "2026-05-14T01:57:51.379181",
     "name": "Sample Copilot Connection Local Debug",
     "description": {
@@ -35,8 +35,12 @@
       "step_e6f65939",
       "step_160facb6",
       "step_11e4ca89",
-      "step_19e4652a",
-      "step_1852dd3d",
+      "step_5e462c1a",
+      "step_46eb37d8",
+      "step_98fba04c",
+      "step_23d511aa",
+      "step_f3d089dc",
+      "step_96cb45e1",
       "step_f6f51246",
       "step_b391f22e",
       "step_868e410e",
@@ -141,7 +145,7 @@
       "agent": "assertion",
       "tool": "",
       "parameters": {},
-      "description": "@assertion the page title contains 'Copilot connector app'",
+      "description": "@assertion the README preview title contains 'Getting Started with Copilot connector App'",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -215,7 +219,7 @@
         "x": 294,
         "y": 21
       },
-      "description": "Click the “+\"  browser tab in Microsoft Teams  to open the new page",
+      "description": "Click the \u201c+\" browser tab in Microsoft Teams to open the new page",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -340,16 +344,16 @@
         "x": 141,
         "y": 19
       },
-      "description": "Click the browser tab titled \"graph-connector-applocal | Microsoft Teams\" (teams.cloud.microsoft) at coordinates (141, 19) to switch context.",
+      "description": "Click the Microsoft Teams browser tab containing the graph-connector-applocal app details page to switch back from the localhost certificate tab.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [],
       "preconditions": [
-        "dhash:141:19:16:5:404689c3d657e31c",
-        "dhash:141:19:96:5:a85135a44100c995",
-        "dhash:141:19:0:10:74c8768e6c948080"
+        "dhash:141:19:16:5:3843565356565351",
+        "dhash:141:19:96:5:804a2424ca00cfcf",
+        "dhash:141:19:0:10:7020282e32233eb0"
       ],
       "postconditions": [],
       "tags": [],
@@ -358,55 +362,131 @@
       "plan_id": "plan_a0fbdb40"
     },
     {
-      "step_id": "step_19e4652a",
-      "agent": "interaction",
-      "tool": "click",
-      "parameters": {
-        "button": "left",
-        "x": 997,
-        "y": 198
-      },
-      "description": "Click the \"...\" (more options) button in the top-right of the Microsoft Teams web interface to open its dropdown menu.",
+      "step_id": "step_5e462c1a",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the app details popup is visible with its primary action button below the app name.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [],
-      "preconditions": [
-        "dhash:997:198:16:5:0112a88269696916",
-        "dhash:997:198:96:5:c62a400626000200",
-        "dhash:997:198:0:10:18b836412c4c5040"
-      ],
+      "preconditions": [],
       "postconditions": [],
-      "tags": [],
-      "screenshot": "step_19e4652a",
-      "created_at": "2026-05-14T01:57:51.476482",
+      "tags": [
+        "step_retry_timeout: 180"
+      ],
+      "screenshot": null,
+      "created_at": "2026-09-13T02:50:08.439000",
       "plan_id": "plan_a0fbdb40"
     },
     {
-      "step_id": "step_1852dd3d",
+      "step_id": "step_46eb37d8",
       "agent": "interaction",
       "tool": "click",
       "parameters": {
         "button": "left",
-        "x": 961,
-        "y": 238
+        "x": 288,
+        "y": 214
       },
-      "description": "Click the \"Reload app\" option in the dropdown menu within the Microsoft Teams web application interface.",
+      "description": "Click the visible blue \"Add\" or \"Open\" button in the Microsoft Teams app details dialog.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [],
-      "preconditions": [
-        "dhash:961:238:16:5:98e618092d2d09c9",
-        "dhash:961:238:96:5:010112b6a6004f45",
-        "dhash:961:238:0:10:18b833432c4c5040"
-      ],
+      "preconditions": [],
       "postconditions": [],
-      "tags": [],
-      "screenshot": "step_1852dd3d",
-      "created_at": "2026-05-14T01:57:51.482736",
+      "tags": [
+        "ocr:true"
+      ],
+      "screenshot": "",
+      "created_at": "2026-09-13T02:50:08.439001",
+      "plan_id": "plan_a0fbdb40"
+    },
+    {
+      "step_id": "step_98fba04c",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the dialog opened from the app details popup is visible with its blue \"Open\" button.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "step_retry_timeout: 180"
+      ],
+      "screenshot": null,
+      "created_at": "2026-09-13T02:50:08.439002",
+      "plan_id": "plan_a0fbdb40"
+    },
+    {
+      "step_id": "step_23d511aa",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 533,
+        "y": 508
+      },
+      "description": "Click the blue \"Open\" button in the \"Added successfully!\" or \"Let's go\" dialog for the app in Microsoft Teams.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "ocr:true"
+      ],
+      "screenshot": "",
+      "created_at": "2026-09-13T02:50:08.439003",
+      "plan_id": "plan_a0fbdb40"
+    },
+    {
+      "step_id": "step_f3d089dc",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the Microsoft Teams tab page for the graph-connector-applocal sample is open.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "step_retry_timeout: 180"
+      ],
+      "screenshot": null,
+      "created_at": "2026-09-13T02:50:08.439004",
+      "plan_id": "plan_a0fbdb40"
+    },
+    {
+      "step_id": "step_96cb45e1",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion Google Chrome is displaying a teams.cloud.microsoft permission prompt that asks to access other apps and services on this device and its \"Allow\" button is available.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "step_retry_timeout: 120"
+      ],
+      "screenshot": null,
+      "created_at": "2026-09-13T02:50:08.439005",
       "plan_id": "plan_a0fbdb40"
     },
     {
@@ -425,12 +505,14 @@
       "continue_on_error": "false",
       "depends_on": [],
       "preconditions": [
-        "dhash:373:240:16:5:a1ae4e465292b329",
-        "dhash:373:240:96:5:3900c9c7c3c90000",
-        "dhash:373:240:0:10:38e8948080808080"
+        "dhash:373:240:16:5:2b5626aa4b4b9995",
+        "dhash:373:240:96:5:0000c9c7c3c90000",
+        "dhash:373:240:0:10:38e8908080808080"
       ],
       "postconditions": [],
-      "tags": [],
+      "tags": [
+        "ocr:true"
+      ],
       "screenshot": "step_f6f51246",
       "created_at": "2026-05-14T01:57:51.489880",
       "plan_id": "plan_a0fbdb40"
@@ -501,7 +583,8 @@
       "preconditions": [],
       "postconditions": [],
       "tags": [
-        "delay:3"
+        "delay:3",
+        "step_retry_timeout: 180"
       ],
       "screenshot": null,
       "created_at": "2026-05-14T01:57:51.509892",
