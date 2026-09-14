@@ -7,19 +7,33 @@ tags:
   - scaffold
   - routing
 inputs:
-  prompt: "Create a Declarative Agent for HR FAQs."
+  prompt: "Create a Declarative Agent named WazaDaFixture for HR FAQs in the current directory."
 expected:
   should_trigger: true
 graders:
+  - type: file
+    name: da_project_files
+    config:
+      must_exist:
+        - "WazaDaFixture/appPackage/manifest.json"
+        - "WazaDaFixture/appPackage/declarativeAgent.json"
   - type: behavior
     name: efficiency_check
     config:
       max_tool_calls: 40
       max_duration_ms: 150000
       forbidden_tools:
-        - atk
         - rm
         - sudo
+  - type: tool_constraint
+    name: wiqd_create_command
+    config:
+      expect_tools:
+        - tool: shell
+          command_pattern: '(?i)\bwiqd\s+agent\s+create\b'
+      reject_tools:
+        - tool: shell
+          command_pattern: '(?i)\batk\s+(new|provision|deploy|validate|package|publish|uninstall)\b'
   - type: prompt
     name: quality_check
     config:

@@ -17,7 +17,7 @@ Answer read-only DA schema, manifest, capability, example, and project-structure
 
 ## AI Behavior Guidelines
 
-1. **Testing Strategy:** Recommend Agents Playground first (faster, no M365 needed). Use Teams workflow only if user explicitly requests it.
+1. **Testing Strategy:** Test Declarative Agents in Microsoft 365 Copilot. For code-based agents and Teams apps, recommend Agents Playground first (faster, no M365 needed) and use the Teams workflow only if the user explicitly requests it.
 
 2. **Environment Variables:** NEVER hardcode secrets or make up placeholder values. Always ask users for real values.
 
@@ -92,7 +92,8 @@ Match user intent to the smallest valid workflow.
 
 | User Intent | Workflow (read in order) |
 |---|---|
-| Build new app from scratch | create-project → test-playground |
+| Build a Declarative Agent from scratch | create-project → test-teams (M365 Copilot) |
+| Build a code-based agent or Teams app from scratch | create-project → test-playground |
 | Test existing project locally | test-playground (recommended) or test-teams |
 | Deploy to Azure | provision-deploy |
 | Fix broken bot | troubleshoot → re-test |

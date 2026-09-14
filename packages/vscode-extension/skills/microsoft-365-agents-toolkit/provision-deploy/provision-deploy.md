@@ -84,9 +84,9 @@ For custom engine agents using Azure OpenAI, add env vars to the YAML and set th
 
 ## Expert Deep Dives
 
-> **Applies to all ATK projects** — the lifecycle/environments/publish experts cover the YAML-driven `atk provision/deploy/publish` flow used by every template (declarative agents, API plugins, Copilot connectors, Teams bots, tabs).
+> **Applies to non-DA ATK projects and hybrid backend compute** — the lifecycle/environments/publish experts cover the YAML-driven `atk provision/deploy/publish` flow. Use [declarative-agent-lifecycle.md](../toolkit/declarative-agent-lifecycle.md) for the DA manifest lifecycle.
 >
-> The **azure-bot-deploy** expert applies only to projects that deploy code to Azure (Teams bots, custom engine agents, RAG agents, message extensions). Declarative agents and pure-API-plugin projects don't deploy compute and can ignore it.
+> The **azure-bot-deploy** expert applies only to projects that deploy code to Azure (Teams bots, custom engine agents, RAG agents, message extensions, or a hybrid DA's separate backend). Pure declarative agents and pure-API-plugin projects don't deploy compute and can ignore it.
 
 | Topic | Expert |
 |---|---|

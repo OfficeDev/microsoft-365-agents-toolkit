@@ -2,7 +2,9 @@
 
 Test your agent in the actual Microsoft Teams environment. Requires M365 account and HTTPS endpoint.
 
-**Use this when user explicitly asks to run on Teams.** For quick local testing, recommend [Agents Playground](../test-playground/test-playground.md) first.
+For a Declarative Agent, skip the bot workflow and use [Quick Start (Declarative Agents — No Backend)](#quick-start-declarative-agents--no-backend). Test the provisioned agent in Microsoft 365 Copilot, not Agents Playground.
+
+For code-based agents and Teams apps, use this workflow when the user explicitly asks to run on Teams. For quick local testing, recommend [Agents Playground](../test-playground/test-playground.md) first.
 
 ## Requirements
 

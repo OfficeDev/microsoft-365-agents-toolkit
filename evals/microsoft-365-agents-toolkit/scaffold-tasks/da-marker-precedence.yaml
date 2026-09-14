@@ -17,15 +17,30 @@ inputs:
 expected:
   should_trigger: true
 graders:
+  - type: file
+    name: da_package
+    config:
+      must_exist:
+        - "declarative-agent/appPackage/build/appPackage.zip"
   - type: behavior
     name: efficiency_check
     config:
       max_tool_calls: 20
       max_duration_ms: 120000
       forbidden_tools:
-        - atk
         - rm
         - sudo
+  - type: tool_constraint
+    name: wiqd_lifecycle_commands
+    config:
+      expect_tools:
+        - tool: shell
+          command_pattern: '(?i)\bwiqd\s+agent\s+validate\b'
+        - tool: shell
+          command_pattern: '(?i)\bwiqd\s+agent\s+package\b'
+      reject_tools:
+        - tool: shell
+          command_pattern: '(?i)\batk\s+(provision|deploy|validate|package|publish|uninstall)\b'
   - type: prompt
     name: quality_check
     config:

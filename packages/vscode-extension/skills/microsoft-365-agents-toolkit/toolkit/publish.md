@@ -2,7 +2,7 @@
 
 ## purpose
 
-Publishing workflow for M365 agents — from local sideloading through org catalog distribution to public Teams Store / Microsoft AppSource submission. Applies to Teams apps, declarative agents, message extensions, and Copilot connectors; the org-catalog and Store stages are the same for all of them.
+Publishing workflow for non-DA M365 apps — from local sideloading through org catalog distribution to public Teams Store / Microsoft AppSource submission. For a Declarative Agent, use the WIQD validation, packaging, provisioning, and publishing commands in [declarative-agent-lifecycle.md](declarative-agent-lifecycle.md). The general org-catalog and Store requirements below still apply, but do not run the ATK commands against a DA manifest.
 
 ## rules
 

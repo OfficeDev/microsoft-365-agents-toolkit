@@ -8,9 +8,9 @@ edit copies downstream; open a PR upstream instead.
 
 # M365 Agents Toolkit — Toolchain Knowledge
 
-Reference material for the **toolchain** itself: the `atk` CLI, the `m365agents.yml` lifecycle, environment files, project templates, manifests, the Agents Playground, and publishing.
+Reference material for the **toolchain** itself: the `atk` CLI, the `m365agents.yml` lifecycle, environment files, project templates, manifests, the Agents Playground, and publishing. Declarative Agent manifest lifecycle operations use WIQD; see [declarative-agent-lifecycle.md](declarative-agent-lifecycle.md).
 
-This content is **capability-agnostic** — it applies to every project type the toolkit supports: Teams bots, declarative agents, API plugins, Copilot connectors, Office add-ins, custom engine agents, RAG agents, message extensions, tabs.
+ATK lifecycle content applies to non-DA projects and to a hybrid DA's separate backend compute. Read-only manifest reference content can also answer DA schema questions without requiring WIQD setup.
 
 For SDK code patterns (handlers, AI prompts, Adaptive Cards, MCP, OAuth, etc.), see the sibling [../experts/](../experts/) folder. For Slack-vs-Teams platform comparison, see [../docs/](../docs/).
 
@@ -18,6 +18,7 @@ For SDK code patterns (handlers, AI prompts, Adaptive Cards, MCP, OAuth, etc.), 
 
 | File | Scope |
 |---|---|
+| [declarative-agent-lifecycle.md](declarative-agent-lifecycle.md) | WIQD lifecycle for Declarative Agent creation, actions, validation, packaging, provisioning, sharing, publishing, and deletion |
 | [templates.md](templates.md) | Full `atk new -c` capability catalog: declarative agents (8 variants), Copilot connectors, Office add-ins, Teams bots/tabs/message extensions, custom engine agents, RAG agents |
 | [commands.md](commands.md) | `atk` CLI reference outside the lifecycle: `add action`, `add auth-config`, `regenerate action`, `share`, `collaborator`, `env`, `install/uninstall`, `upgrade`, `doctor` |
 | [lifecycle-cli.md](lifecycle-cli.md) | Lifecycle CLI commands (`provision`, `deploy`, `package`, `validate`, `preview`) and the full `m365agents.yml` action catalog |
@@ -30,7 +31,7 @@ For SDK code patterns (handlers, AI prompts, Adaptive Cards, MCP, OAuth, etc.), 
 
 | Capability | Templates | What applies from this folder |
 |---|---|---|
-| **Declarative agents** | `declarative-agent`, `declarative-agent-action*`, `declarative-agent-with-*`, `declarative-agent-meta-os-*`, `declarative-agent-typespec` | All except `playground.md` (DAs run in M365 Copilot, not Playground). Sideload via `M365_APP_ID`. |
+| **Declarative agents** | Legacy ATK template IDs are recognition metadata only | `declarative-agent-lifecycle.md` for WIQD operations; `manifest-and-yaml.md` for read-only manifest questions. DAs run in M365 Copilot, not Playground. |
 | **API plugins** | `declarative-agent-action-from-existing-api`, `add action` | All. Use `commands.md` for `atk add action` and `manifest-and-yaml.md` for OpenAPI integration. |
 | **Copilot connectors** | `copilot-connector` | `templates.md`, `commands.md`, `lifecycle-cli.md`, `environments.md`. |
 | **Custom engine agents** | `basic-custom-engine-agent`, `weather-agent`, `foundry-agent-to-m365`, `coffee-agent`, `data-analyst-agent-v2` | All. Compute deploy via `lifecycle-cli.md` (`arm/deploy` + `azureAppService/zipDeploy`). |
