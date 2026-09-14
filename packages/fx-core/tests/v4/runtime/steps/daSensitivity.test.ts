@@ -101,6 +101,9 @@ describe(STEP_SET_SENSITIVITY_LABEL, () => {
         read: (): Buffer | undefined => {
           throw new Error("read failed at C:\\secret\\project");
         },
+        writeNew: (): boolean => {
+          throw new Error("unexpected render");
+        },
         write: (): void => undefined,
       },
       () => Promise.resolve(ok(undefined)),
@@ -135,6 +138,9 @@ describe(STEP_SET_SENSITIVITY_LABEL, () => {
       createExpressionPort(),
       {
         read: (): Buffer | undefined => undefined,
+        writeNew: (): boolean => {
+          throw new Error("unexpected render");
+        },
         write: (): void => undefined,
       },
       () => Promise.resolve(ok(undefined)),
@@ -166,6 +172,9 @@ describe(STEP_SET_SENSITIVITY_LABEL, () => {
       createExpressionPort(),
       {
         read: (): Buffer => Buffer.from("{"),
+        writeNew: (): boolean => {
+          throw new Error("unexpected render");
+        },
         write: (): void => undefined,
       },
       () => Promise.resolve(ok(undefined)),
@@ -207,6 +216,9 @@ describe(STEP_SET_SENSITIVITY_LABEL, () => {
               instructions: "Test instructions",
             })
           ),
+        writeNew: (): boolean => {
+          throw new Error("unexpected render");
+        },
         write: (): void => {
           throw new Error("write failed at C:\\secret\\project");
         },

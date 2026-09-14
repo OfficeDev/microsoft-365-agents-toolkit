@@ -6,7 +6,6 @@ import {
   ConstantString,
   GenerateResult,
   ListAPIInfo,
-  ParseOptions,
   ProjectType,
   SpecParser,
   SpecParserError,
@@ -171,15 +170,6 @@ function updateAuthYml(
   return ok(undefined);
 }
 
-function openApiParseOptions(): ParseOptions {
-  // Reuse the v3 Copilot parser options (single source of truth) instead of a v4 copy.
-  return getParserOptions(ProjectType.Copilot, true);
-}
-
-function teamsAiParseOptions(): ParseOptions {
-  return getParserOptions(ProjectType.TeamsAi);
-}
-
 function languageParam(params: StepParams): ProgrammingLanguage | undefined {
   const language = stringParam(params, "language");
   switch (language) {
@@ -306,7 +296,7 @@ export const openApiGeneratePluginFiles: RegisteredStep = defineStep({
         ),
       async (tempRoot) => {
         const temp = await writeTempBaseFiles(tempRoot, manifest.value, agent.value);
-        const parser = new SpecParser(apiSpecLocation, openApiParseOptions());
+        const parser = new SpecParser(apiSpecLocation, getParserOptions(ProjectType.Copilot, true));
         const listed = await parser.list();
         const selectedOperations = listed.APIs.filter((operation) =>
           apiOperations.includes(operation.api)
@@ -428,7 +418,7 @@ export const openApiGenerateTeamsAiCustomApiFiles: RegisteredStep = defineStep({
         const tempApiSpecPath = path.join(tempRoot, apiSpecPath);
         await fs.ensureDir(path.dirname(tempApiSpecPath));
 
-        const parser = new SpecParser(apiSpecLocation, teamsAiParseOptions());
+        const parser = new SpecParser(apiSpecLocation, getParserOptions(ProjectType.TeamsAi));
         const validation = await parser.validate();
         if (validation.status === ValidationStatus.Error) {
           return err(

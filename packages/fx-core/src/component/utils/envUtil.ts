@@ -163,11 +163,19 @@ class EnvUtil {
   async writeEnv(
     projectPath: string,
     env: string,
-    envs: DotenvOutput
+    envs: DotenvOutput,
+    validatePath?: (filePath: string) => void
   ): Promise<Result<undefined, FxError>> {
+    if (validatePath) {
+      const envPath = await pathUtils.getEnvFilePath(projectPath, env, validatePath);
+      if (envPath.isErr()) return err(envPath.error);
+      const filePath = envPath.value || path.resolve(projectPath, "env", `.env.${env || "dev"}`);
+      validatePath(filePath);
+      validatePath(filePath + ".user");
+    }
     envs.TEAMSFX_ENV = env;
     //encrypt
-    const settingsRes = await settingsUtil.readSettings(projectPath);
+    const settingsRes = await settingsUtil.readSettings(projectPath, true, validatePath);
     if (settingsRes.isErr()) {
       return err(settingsRes.error);
     }

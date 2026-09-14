@@ -166,12 +166,31 @@ render bindings without mutating answers or overriding an explicit source.
 | CLEAN-06 | L1 | compatibility | required | input walk + scaffold | Search and select operations | Preserve question/CLI names and generated artifacts using the provider-derived source, without a surface repair; legacy bindings generate byte-identical files and leave answers unchanged. |
 | CLEAN-07 | L1 | compatibility | required | metadata loading | New metadata and packages without overrides | Enforce the 6.12.0 floor for new presentation and consumption of the new derived source, without raising the old operation-listing floor; default old presentation and migrated template localization are explicit. |
 
+### OpenAPI parser policy (ADR-0026)
+
+Template metadata chooses a domain provider: `openapi.operations` preserves
+Copilot listing, while `openapi.teamsAiOperations` uses the same parser options as
+`openapi/generate-teams-ai-custom-api-files`. Both share a domain-owned listing
+implementation. A provider-specific derived source uses that provider's full
+namespace. The new provider and Custom API descriptor require engine `6.13.0`;
+old engine builds must reject the newer package before prompting or rendering.
+No generic surface or walker branches on a template ID.
+
+| ID | Runtime | Purpose | Gate | Harness | Given / When | Then |
+| --- | --- | --- | --- | --- | --- | --- |
+| API-01 | L1 | operation-integration | required | local OpenAPI documents and real parsers | HTTP and HTTPS documents are listed through both provider bindings | Teams AI listing rejects documents its generation parser rejects, accepts a valid HTTPS operation, and Copilot behavior remains unchanged. |
+| API-02 | L1 | compatibility | required | literal declarations, package validation and actual create walk | The new provider is referenced by an old-floor package or loaded by a 6.12.0 engine; a current create walk opens a newer-floor package | Reject through the existing version gate before prompts or provider calls; accept at 6.13.0; existing provider IDs, floors and output contracts remain unchanged. |
+| API-03 | L1 | operation-integration | required | Custom API questions with default registry | The shipped Custom API question selects its operations | It uses the Teams AI provider without engine/template-ID special cases; returned source metadata uses the declared namespace. |
+
 ## Flow
 
 ```mermaid
 flowchart TD
-  start(["runCreateInputs(package bytes, locator, entryParams, ui, deps)"]) --> q["openCreateQuestions(package bytes, locator)"]
-  start --> d["openDeclarativePackage(package bytes, locator) → descriptor"]
+  start(["runCreateInputs(package bytes, locator, entryParams, ui, deps)"]) --> metadata["openDeclarativePackageMetadata: parse descriptor + questions"]
+  metadata --> version{"create input entry: minimum engine version supported?"}
+  version -->|no| upgrade["upgrade error before prompts or provider calls"]
+  version -->|yes| q["parsed questions"]
+  version -->|yes| d["parsed descriptor"]
   d --> os["optionsSchema (parsed from descriptor)"]
   d --> languages["create.languages resolves presentation + availability"]
   q --> compose["compose input questions\ntemplate questions + resolved language options + common floor"]
@@ -182,6 +201,10 @@ flowchart TD
   ci --> wb["write floor subset back to Inputs\n(folder, app-name, language)"]
   wb --> out(["ok(Answers) | UserError | SystemError"])
 ```
+
+The execution-version check belongs to the create-input entry, not the metadata
+reader: static catalog inspection may read newer-floor packages without running
+their prompts or providers.
 
 ## Invariants
 

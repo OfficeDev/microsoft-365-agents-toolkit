@@ -29,6 +29,7 @@ import { Result, err, ok } from "neverthrow";
 import { INPUT_VALIDATION_FAILED } from "../../../src/v4/collectInputs/collectInputs";
 import { openCreateQuestions } from "../../../src/v4/distribution/createQuestions";
 import { openDeclarativePackageMetadata } from "../../../src/v4/distribution/declarativePackage";
+import { CURRENT_V4_ENGINE_VERSION } from "../../../src/v4/engineVersion";
 import { DeclarativeLocator } from "../../../src/v4/model/dataModel";
 import { createUiPromptUI } from "../../../src/v4/surface/uiPromptUI";
 import {
@@ -105,13 +106,14 @@ function buildFloor(): Buffer {
 function buildLanguageFloor(
   languages = ["typescript", "csharp"],
   languageOptions?: unknown[],
-  templateId = "test/language-axis"
+  templateId = "test/language-axis",
+  minEngineVersion = CURRENT_V4_ENGINE_VERSION
 ): Buffer {
   const zip = new AdmZip();
   const root = `v4/create/${templateId}`;
   zip.addFile(
     `${root}/descriptor.json`,
-    Buffer.from(JSON.stringify({ id: templateId, languages, languageOptions }))
+    Buffer.from(JSON.stringify({ id: templateId, languages, languageOptions, minEngineVersion }))
   );
   zip.addFile(`${root}/questions.json`, Buffer.from(JSON.stringify({ questions: [] })));
   zip.addFile(`${root}/pipeline.json`, Buffer.from("{}"));
@@ -420,6 +422,65 @@ function optionId(option: string | SurfaceOptionItem): string {
 }
 
 describe("runCreateInputs (collect-create-inputs)", () => {
+  it.each([LANGUAGE_DA, RAG_CUSTOM_API])(
+    "API-02: rejects a newer engine requirement before prompts or provider fetch for $templateId",
+    async (locator) => {
+      const ui = new ScriptedUserInteraction({});
+      const fetch = vi.fn(() => ({
+        options: [
+          { id: "typescript", label: "TypeScript" },
+          { id: "javascript", label: "JavaScript" },
+        ],
+      }));
+      const result = await runCreateInputsWalk(
+        buildLanguageFloor(["typescript", "javascript"], undefined, locator.templateId, "6.14.0"),
+        locator,
+        {},
+        asUI(ui),
+        { optionsProvider: { "create.languages": { fetch } } }
+      );
+
+      assert.isTrue(result.isErr());
+      if (result.isErr()) {
+        assert.instanceOf(result.error, UserError);
+        assert.equal(result.error.name, "TemplatePackageEngineTooOld");
+        assert.include(result.error.message, "requires engine 6.14.0");
+        assert.include(result.error.message, `this engine is ${CURRENT_V4_ENGINE_VERSION}`);
+        assert.include(result.error.message, "upgrade the engine");
+      }
+      assert.deepEqual(ui.promptNames, []);
+      assert.equal(fetch.mock.calls.length, 0);
+    }
+  );
+
+  it("API-03: shipped Custom API questions select the Teams AI default provider and source namespace", async () => {
+    const questions = openCreateQuestions(buildFloor(), RAG_CUSTOM_API)._unsafeUnwrap();
+    assert.equal(
+      questions.find((question) => question.name === "apiOperations")?.optionsFrom,
+      "openapi.teamsAiOperations"
+    );
+    const ui = new ScriptedUserInteraction({ multi: { apiOperations: ["GET /repairs"] } });
+    const result = await runCreateInputs(
+      buildFloor(),
+      RAG_CUSTOM_API,
+      {
+        apiSpecLocation: OPENAPI_SPEC,
+        llmService: "llm-service-openai",
+        openAIKey: "",
+        language: "typescript",
+      },
+      asUI(ui),
+      { flagReader: () => false }
+    );
+    assert.isTrue(result.isOk(), result.isErr() ? result.error.message : "");
+    const answers = result._unsafeUnwrap();
+    assert.deepEqual(answers.apiOperations, ["GET /repairs"]);
+    assert.equal(answers["derived.openapi.teamsAiOperations.apiSpecLocation"], OPENAPI_SPEC);
+    assert.notProperty(answers, "derived.openapi.operations.apiSpecLocation");
+    assert.deepEqual(ui.multiNames, ["apiOperations"]);
+    assert.equal(multiOptionAt(ui.lastMultiConfig, 0).id, "GET /repairs");
+  });
+
   it("CLEAN-06: generic input composition does not synthesize capability-specific aliases", async () => {
     const result = await runCreateInputs(
       buildLanguageFloor(["common"]),

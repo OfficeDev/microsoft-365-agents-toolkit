@@ -66,6 +66,24 @@ const daMcpServerReplaceMap: ReplaceMapEntry[] = [
 ];
 
 describe("buildRenderContext (v4)", () => {
+  it("INPUT-39: exact from preserves scalar/list bindings and declared absent values", () => {
+    const result = buildRenderContext(
+      [
+        { var: "Context", from: "derived.catalog.remote.context" },
+        { var: "Selection", from: "ordinary.selection" },
+        { var: "Absent", from: "ordinary.absent" },
+      ],
+      { "derived.catalog.remote.context": "value", "ordinary.selection": ["one", "two"] },
+      {},
+      new FakePort(),
+      ["ordinary.absent"]
+    );
+    const vars = result._unsafeUnwrap();
+    assert.equal(vars.Context, "value");
+    assert.deepEqual(vars.Selection, ["one", "two"]);
+    assert.equal(vars.Absent, "");
+  });
+
   it("RCTX-01: a {const} entry puts the literal value", () => {
     const res = buildRenderContext(
       [{ var: "DeclarativeCopilot", const: "true" }],

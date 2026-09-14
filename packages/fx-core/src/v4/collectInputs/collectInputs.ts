@@ -107,6 +107,7 @@ export type Asked<T> = { kind: "value"; value: T } | { kind: "skip"; value: T } 
 export interface WalkHistoryEntry {
   pos: number;
   answers: Answers;
+  resolvedProviders?: string[];
 }
 
 /** The resumable walk's outcome: a completed answer set, or a `back` handed to the caller. */
@@ -204,7 +205,7 @@ export async function walkInputs(
   // Cache providers by normalized params for a single run.
   const providerCache = new Map<string, Promise<ResolvedOptions>>();
   // Providers resolve in declaration order; forward `derived.*` refs are rejected.
-  const resolvedProviders = new Set<string>();
+  let resolvedProviders = new Set<string>();
 
   // Back history snapshots only prompted steps; skipped and pre-filled steps are crossed over.
   const history: WalkHistoryEntry[] =
@@ -221,6 +222,7 @@ export async function walkInputs(
         : err(walkCancelled());
     }
     answers = { ...restore.answers };
+    resolvedProviders = new Set(restore.resolvedProviders);
     pos = restore.pos;
   } else {
     // Pre-filled entry params must be visible to question conditions.
@@ -289,11 +291,17 @@ export async function walkInputs(
         }
         return err(walkCancelled());
       }
-      answers = restore.answers;
+      answers = { ...restore.answers };
+      resolvedProviders = new Set(restore.resolvedProviders);
       pos = restore.pos;
       continue;
     }
     const value = asked.value.value;
+    const snapshot: WalkHistoryEntry = {
+      pos,
+      answers: { ...answers },
+      resolvedProviders: [...resolvedProviders],
+    };
     const accepted = await acceptAnswer(
       q,
       value,
@@ -310,7 +318,7 @@ export async function walkInputs(
     // A surface auto-skip (skipSingleOption) records the answer but is not a back-stop,
     // so `back` at a later prompt crosses over it (matching a static skipSingleOption skip).
     if (asked.value.kind === "value") {
-      history.push({ pos, answers: { ...answers } });
+      history.push(snapshot);
     }
     answers[q.name] = value;
     pos++;
@@ -626,15 +634,25 @@ function resolveParams(
     return ok(params);
   }
   for (const [key, node] of Object.entries(optionsFromParams)) {
-    if ("from" in node && node.from.startsWith("derived.")) {
-      const producer = node.from.split(".")[1];
-      if (!resolvedProviders.has(producer)) {
-        return err(
-          systemError(
-            INPUT_FORWARD_DERIVED_REFERENCE,
-            `param '${key}' references '${node.from}' before provider '${producer}' resolves`
-          )
+    const nodes = [node];
+    for (const current of nodes) {
+      if ("anyOf" in current) {
+        nodes.push(...current.anyOf);
+      }
+      if ("from" in current && current.from.startsWith("derived.")) {
+        const available = [...resolvedProviders].some((providerId) =>
+          port
+            .optionsProvider(providerId)
+            ?.derivedSchema?.some((output) => current.from === `derived.${providerId}.${output}`)
         );
+        if (!available || typeof scope[current.from] !== "string") {
+          return err(
+            systemError(
+              INPUT_FORWARD_DERIVED_REFERENCE,
+              `param '${key}' references unavailable or undeclared derived output '${current.from}'`
+            )
+          );
+        }
       }
     }
     const r = port.evaluate(node, scope);

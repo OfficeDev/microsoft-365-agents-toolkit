@@ -211,13 +211,23 @@ export async function scaffoldFromV4Channel(
 async function listExistingRelativeFiles(dest: string): Promise<string[]> {
   const results: string[] = [];
   const walk = async (dir: string): Promise<void> => {
-    const names = await fs.readdir(dir).catch(() => undefined);
+    const names = await fs.readdir(dir).catch((error: unknown) => {
+      if (
+        typeof error === "object" &&
+        error !== null &&
+        "code" in error &&
+        error.code === "ENOENT"
+      ) {
+        return undefined;
+      }
+      throw error;
+    });
     if (!names) {
       return; // the directory (or a subdirectory) does not exist — nothing existing
     }
     for (const name of names) {
       const full = path.join(dir, name);
-      const stat = await fs.stat(full);
+      const stat = await fs.lstat(full);
       if (stat.isDirectory()) {
         await walk(full);
       } else {

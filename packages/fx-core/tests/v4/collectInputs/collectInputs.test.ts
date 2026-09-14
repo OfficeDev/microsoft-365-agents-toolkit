@@ -5,6 +5,7 @@ import { FxError, SystemError, UserError } from "@microsoft/teamsfx-api";
 import { Result, err, ok } from "neverthrow";
 import { assert } from "vitest";
 import {
+  ConditionNode,
   ExpressionRuntimePort,
   WhitelistFn,
   evaluateExpression,
@@ -243,6 +244,439 @@ function makePort(opts: {
 }
 
 describe("collectInputs (v4)", () => {
+  for (const providerId of ["catalog", "catalog.remote"]) {
+    it(`INPUT-37: structured references consume accepted ${providerId} outputs`, async () => {
+      const producer = new FakeProvider(
+        { options: [{ id: "one" }], derived: { context: "exact value" } },
+        ["context"]
+      );
+      const consumer = new FakeProvider({ options: [{ id: "two" }] });
+      const result = await collectInputs(
+        [
+          { name: "producer", type: "singleSelect", optionsFrom: providerId },
+          {
+            name: "consumer",
+            type: "singleSelect",
+            optionsFrom: "consumer",
+            optionsFromParams: {
+              context: { from: `derived.${providerId}.context` },
+              singleton: { anyOf: [{ from: `derived.${providerId}.context` }] },
+              nested: {
+                anyOf: [{ anyOf: [{ anyOf: [{ from: `derived.${providerId}.context` }] }] }],
+              },
+            },
+          },
+        ],
+        {},
+        {},
+        makePort({
+          ui: new ScriptedUI({ producer: "one", consumer: "two" }),
+          providers: { [providerId]: producer, consumer },
+        })
+      );
+      assert.equal(result._unsafeUnwrap().consumer, "two");
+      assert.deepEqual(consumer.lastParams, {
+        context: "exact value",
+        singleton: "exact value",
+        nested: "exact value",
+      });
+    });
+  }
+
+  for (const nesting of ["singleton", "deep", "deep-short-circuit"]) {
+    for (const reference of [
+      "derived.unknown.context",
+      "derived.catalog.remote.context",
+      "derived.catalog.undeclared",
+    ]) {
+      for (const prefilled of [false, true]) {
+        it(`INPUT-37: ${nesting} anyOf rejects ${reference} with ${prefilled ? "forged" : "absent"} answers`, async () => {
+          const producer = new FakeProvider(
+            { options: [{ id: "one" }], derived: { context: "accepted" } },
+            ["context"]
+          );
+          const future = new FakeProvider(
+            { options: [{ id: "one" }], derived: { context: "future" } },
+            ["context"]
+          );
+          const consumer = new FakeProvider({ options: [{ id: "two" }] });
+          const node: ConditionNode =
+            nesting === "singleton"
+              ? { anyOf: [{ from: reference }] }
+              : { anyOf: [{ anyOf: [{ anyOf: [{ from: reference }] }] }] };
+          if (nesting === "deep-short-circuit") {
+            node.anyOf.unshift({ equals: { producer: "one" } });
+          }
+          const result = await collectInputs(
+            [
+              { name: "producer", type: "singleSelect", optionsFrom: "catalog" },
+              {
+                name: "consumer",
+                type: "singleSelect",
+                optionsFrom: "consumer",
+                optionsFromParams: { context: node },
+              },
+              { name: "future", type: "singleSelect", optionsFrom: "catalog.remote" },
+            ],
+            {},
+            prefilled ? { [reference]: "forged" } : {},
+            makePort({
+              ui: new ScriptedUI({ producer: "one", consumer: "two", future: "one" }),
+              providers: { catalog: producer, "catalog.remote": future, consumer },
+            })
+          );
+          assert.equal(consumer.fetchCount, 0);
+          assert.equal(future.fetchCount, 0);
+          assert.equal(result._unsafeUnwrapErr().name, INPUT_FORWARD_DERIVED_REFERENCE);
+        });
+      }
+    }
+  }
+
+  for (const reference of ["derived.unknown.context", "derived.catalog.undeclared"]) {
+    it(`INPUT-37: rejects ${reference} despite a matching prefill`, async () => {
+      const producer = new FakeProvider(
+        { options: [{ id: "one" }], derived: { context: "accepted" } },
+        ["context"]
+      );
+      const consumer = new FakeProvider({ options: [{ id: "two" }] });
+      const result = await collectInputs(
+        [
+          { name: "producer", type: "singleSelect", optionsFrom: "catalog" },
+          {
+            name: "consumer",
+            type: "singleSelect",
+            optionsFrom: "consumer",
+            optionsFromParams: { context: { from: reference } },
+          },
+        ],
+        {},
+        { [reference]: "forged" },
+        makePort({
+          ui: new ScriptedUI({ producer: "one", consumer: "two" }),
+          providers: { catalog: producer, consumer },
+        })
+      );
+      assert.equal(result._unsafeUnwrapErr().name, INPUT_FORWARD_DERIVED_REFERENCE);
+      assert.equal(consumer.fetchCount, 0);
+    });
+  }
+
+  it("INPUT-37: a resolved prefix provider and prefill cannot authorize a future dotted provider", async () => {
+    const prefix = new FakeProvider({ options: [{ id: "one" }] });
+    const producer = new FakeProvider(
+      { options: [{ id: "one" }], derived: { context: "accepted" } },
+      ["context"]
+    );
+    const consumer = new FakeProvider({ options: [{ id: "two" }] });
+    const result = await collectInputs(
+      [
+        { name: "prefix", type: "singleSelect", optionsFrom: "catalog" },
+        {
+          name: "consumer",
+          type: "singleSelect",
+          optionsFrom: "consumer",
+          optionsFromParams: { context: { from: "derived.catalog.remote.context" } },
+        },
+        { name: "producer", type: "singleSelect", optionsFrom: "catalog.remote" },
+      ],
+      {},
+      { "derived.catalog.remote.context": "forged" },
+      makePort({
+        ui: new ScriptedUI({ prefix: "one", consumer: "two", producer: "one" }),
+        providers: { catalog: prefix, "catalog.remote": producer, consumer },
+      })
+    );
+    assert.equal(result._unsafeUnwrapErr().name, INPUT_FORWARD_DERIVED_REFERENCE);
+    assert.equal(producer.fetchCount, 0);
+    assert.equal(consumer.fetchCount, 0);
+  });
+
+  it("INPUT-37: a declared output missing from a resumed snapshot is unavailable", async () => {
+    const questions: QuestionSpec[] = [
+      { name: "producer", type: "singleSelect", optionsFrom: "catalog" },
+      {
+        name: "consumer",
+        type: "singleSelect",
+        optionsFrom: "consumer",
+        optionsFromParams: { context: { from: "derived.catalog.context" } },
+      },
+    ];
+    const producer = new FakeProvider(
+      { options: [{ id: "one" }], derived: { context: "accepted" } },
+      ["context"]
+    );
+    const consumer = new FakeProvider({ options: [{ id: "two" }] });
+    const port = makePort({
+      ui: new ScriptedUI({ producer: "one", consumer: "two" }),
+      providers: { catalog: producer, consumer },
+    });
+    const first = (await walkInputs(questions, {}, {}, port))._unsafeUnwrap();
+    if (first.kind !== "done") assert.fail("expected completed walk");
+    const history = first.history.map((entry) => {
+      const answers = { ...entry.answers };
+      delete answers["derived.catalog.context"];
+      return { ...entry, answers };
+    });
+    const resumed = await walkInputs(
+      questions,
+      { properties: { "derived.catalog.context": {} } },
+      {},
+      port,
+      { resume: { history } }
+    );
+    assert.equal(resumed._unsafeUnwrapErr().name, INPUT_FORWARD_DERIVED_REFERENCE);
+    assert.equal(consumer.fetchCount, 1);
+  });
+
+  it("INPUT-38: Back snapshots precede a provider's own derived merge and retain the per-walk cache", async () => {
+    const provider = new FakeProvider(
+      { options: [{ id: "one" }], derived: { context: "accepted" } },
+      ["context"]
+    );
+    const observed: (string | string[] | undefined)[] = [];
+    const ui = new SequencedPromptUI([
+      { kind: "value", value: "one" },
+      { kind: "back" },
+      { kind: "value", value: "one" },
+      { kind: "value", value: "done" },
+    ]);
+    const result = await walkInputs(
+      [
+        { name: "producer", type: "singleSelect", optionsFrom: "catalog", validation: "observe" },
+        { name: "finish", type: "text" },
+      ],
+      {},
+      {},
+      makePort({
+        ui,
+        providers: { catalog: provider },
+        validators: {
+          observe: (_value, answers) => {
+            observed.push(answers["derived.catalog.context"]);
+            return undefined;
+          },
+        },
+      })
+    );
+    const outcome = result._unsafeUnwrap();
+    if (outcome.kind !== "done") assert.fail("expected completed walk");
+    assert.deepEqual(observed, [undefined, undefined]);
+    assert.notProperty(outcome.history[0].answers, "derived.catalog.context");
+    assert.deepEqual(outcome.history[0].resolvedProviders, []);
+    assert.deepEqual(outcome.history[1].resolvedProviders, ["catalog"]);
+    assert.equal(outcome.answers["derived.catalog.context"], "accepted");
+    assert.equal(provider.fetchCount, 1);
+  });
+
+  it("INPUT-38: Back recomputes changed params but reuses identical params within one walk", async () => {
+    const fetched: string[] = [];
+    const provider: OptionsProvider = {
+      derivedSchema: ["context"],
+      fetch: (params) => {
+        fetched.push(params.source);
+        return { options: [{ id: "one" }], derived: { context: params.source } };
+      },
+    };
+    const ui = new SequencedPromptUI([
+      { kind: "value", value: "old" },
+      { kind: "skip", value: "one" },
+      { kind: "back" },
+      { kind: "value", value: "old" },
+      { kind: "skip", value: "one" },
+      { kind: "back" },
+      { kind: "value", value: "new" },
+      { kind: "skip", value: "one" },
+      { kind: "value", value: "done" },
+    ]);
+    const result = await walkInputs(
+      [
+        { name: "source", type: "text" },
+        {
+          name: "producer",
+          type: "singleSelect",
+          optionsFrom: "catalog.remote",
+          optionsFromParams: { source: { from: "source" } },
+        },
+        { name: "finish", type: "text" },
+      ],
+      {},
+      {},
+      makePort({ ui, providers: { "catalog.remote": provider } })
+    );
+    const outcome = result._unsafeUnwrap();
+    if (outcome.kind !== "done") assert.fail("expected completed walk");
+    assert.deepEqual(fetched, ["old", "new"]);
+    assert.equal(outcome.answers["derived.catalog.remote.context"], "new");
+    assert.notProperty(outcome.history[0].answers, "derived.catalog.remote.context");
+    assert.deepEqual(outcome.history[0].resolvedProviders, []);
+    assert.deepEqual(outcome.history[1].resolvedProviders, ["catalog.remote"]);
+    assert.equal(outcome.promptCount, 2);
+  });
+
+  for (const consumerEnabled of [false, true]) {
+    it(`INPUT-38: Back conditionally omits a former producer (consumer enabled: ${consumerEnabled})`, async () => {
+      const producer = new FakeProvider(
+        { options: [{ id: "one" }], derived: { context: "accepted" } },
+        ["context"]
+      );
+      const consumer = new FakeProvider({ options: [{ id: "two" }] });
+      const ui = new SequencedPromptUI([
+        { kind: "value", value: "on" },
+        { kind: "skip", value: "one" },
+        { kind: "back" },
+        { kind: "value", value: "off" },
+        { kind: "value", value: "done" },
+      ]);
+      const result = await walkInputs(
+        [
+          { name: "mode", type: "text" },
+          {
+            name: "producer",
+            type: "singleSelect",
+            optionsFrom: "catalog",
+            condition: { equals: { mode: "on" } },
+          },
+          {
+            name: "consumer",
+            type: "singleSelect",
+            condition: { expr: "mode == 'off' && featureFlag('CONSUME')" },
+            optionsFrom: "consumer",
+            optionsFromParams: { context: { from: "derived.catalog.context" } },
+          },
+          { name: "finish", type: "text" },
+        ],
+        {},
+        {},
+        makePort({
+          ui,
+          providers: { catalog: producer, consumer },
+          exprPort: new ExprPort({ CONSUME: consumerEnabled }),
+        })
+      );
+      if (consumerEnabled) {
+        assert.equal(result._unsafeUnwrapErr().name, INPUT_FORWARD_DERIVED_REFERENCE);
+      } else {
+        const outcome = result._unsafeUnwrap();
+        if (outcome.kind !== "done") assert.fail("expected completed walk");
+        assert.deepEqual(outcome.answers, { mode: "off", finish: "done" });
+        assert.notProperty(outcome.history[1].answers, "derived.catalog.context");
+        assert.deepEqual(outcome.history[1].resolvedProviders, []);
+      }
+      assert.equal(producer.fetchCount, 1);
+      assert.equal(consumer.fetchCount, 0);
+      assert.deepEqual(
+        ui.calls.map((call) => call.name),
+        consumerEnabled
+          ? ["mode", "producer", "finish", "mode"]
+          : ["mode", "producer", "finish", "mode", "finish"]
+      );
+    });
+  }
+
+  it("INPUT-38/INPUT-39: resume retains earlier outputs, then Back recomputes from changed params", async () => {
+    const producerParams: string[] = [];
+    const consumerParams: string[] = [];
+    const producer: OptionsProvider = {
+      derivedSchema: ["context"],
+      fetch: (params) => {
+        producerParams.push(params.source);
+        return { options: [{ id: "one" }], derived: { context: params.source } };
+      },
+    };
+    const consumer: OptionsProvider = {
+      derivedSchema: ["result"],
+      fetch: (params) => {
+        consumerParams.push(params.context);
+        return { options: [{ id: "two" }], derived: { result: params.context } };
+      },
+    };
+    const questions: QuestionSpec[] = [
+      { name: "source", type: "text" },
+      {
+        name: "producer",
+        type: "singleSelect",
+        optionsFrom: "catalog.remote",
+        optionsFromParams: { source: { from: "source" } },
+      },
+      {
+        name: "consumer",
+        type: "singleSelect",
+        optionsFrom: "consumer",
+        optionsFromParams: { context: { from: "derived.catalog.remote.context" } },
+      },
+    ];
+    const providers = { "catalog.remote": producer, consumer };
+    const first = (
+      await walkInputs(
+        questions,
+        {},
+        {},
+        makePort({
+          ui: new ScriptedUI({ source: "old", producer: "one", consumer: "two" }),
+          providers,
+        })
+      )
+    )._unsafeUnwrap();
+    if (first.kind !== "done") assert.fail("expected completed walk");
+    assert.deepEqual(
+      first.history.map((entry) => entry.resolvedProviders),
+      [[], [], ["catalog.remote"]]
+    );
+    const retained = (
+      await walkInputs(
+        questions,
+        {},
+        {},
+        makePort({
+          ui: new ScriptedUI({ consumer: "two" }),
+          providers,
+        }),
+        { resume: { history: first.history } }
+      )
+    )._unsafeUnwrap();
+    if (retained.kind !== "done") assert.fail("expected completed resume");
+    assert.equal(retained.answers["derived.consumer.result"], "old");
+    assert.deepEqual(
+      retained.history.map((entry) => entry.resolvedProviders),
+      [[], [], ["catalog.remote"]]
+    );
+    assert.deepEqual(producerParams, ["old"]);
+    assert.deepEqual(consumerParams, ["old", "old"]);
+    const ui = new SequencedPromptUI([
+      { kind: "back" },
+      { kind: "back" },
+      { kind: "value", value: "new" },
+      { kind: "value", value: "one" },
+      { kind: "value", value: "two" },
+    ]);
+    const resumed = (
+      await walkInputs(questions, {}, {}, makePort({ ui, providers }), {
+        resume: { history: retained.history },
+      })
+    )._unsafeUnwrap();
+    if (resumed.kind !== "done") assert.fail("expected completed resume");
+    assert.equal(resumed.answers["derived.catalog.remote.context"], "new");
+    assert.equal(resumed.answers["derived.consumer.result"], "new");
+    assert.notProperty(resumed.history[1].answers, "derived.catalog.remote.context");
+    assert.notProperty(resumed.history[2].answers, "derived.consumer.result");
+    assert.deepEqual(
+      resumed.history.map((entry) => entry.resolvedProviders),
+      [[], [], ["catalog.remote"]]
+    );
+    assert.equal(retained.answers["derived.consumer.result"], "old");
+    assert.deepEqual(
+      retained.history.map((entry) => entry.resolvedProviders),
+      [[], [], ["catalog.remote"]]
+    );
+    assert.deepEqual(producerParams, ["old", "new"]);
+    assert.deepEqual(consumerParams, ["old", "old", "new"]);
+    assert.deepEqual(
+      ui.calls.map((call) => call.name),
+      ["consumer", "producer", "source", "producer", "consumer"]
+    );
+  });
+
   for (const type of ["singleSelect", "multiSelect"] satisfies QuestionSpec["type"][]) {
     for (const mode of ["prefill", "default", "prompt"]) {
       it(`INPUT-35: ${type} ${mode} shares derived merging and membership validation`, async () => {

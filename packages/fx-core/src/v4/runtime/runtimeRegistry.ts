@@ -82,6 +82,7 @@ export const STEP_REGISTRY = createStepRegistry();
 
 /** Runtime-specific file sink injected behind the shared pipeline port. */
 export interface FileSink {
+  writeNew(path: string, data: Buffer): boolean;
   /** Persist `data` at `path` (a target-relative, forward-slash path). */
   write(path: string, data: Buffer): void;
   /** Read back a previously written file, or `undefined` when absent (EAFP). */
@@ -125,6 +126,7 @@ export function buildPipelinePort(
     render: (mustache: string, renderVars: RenderVars): Result<string, FxError> =>
       renderMustache(mustache, renderVars),
     warn: warningSink,
+    writeNew: (path: string, data: Buffer): boolean => sink.writeNew(path, data),
     write: (path: string, data: Buffer): void => sink.write(path, data),
     writeEnvironment: environmentWriter,
     read: (path: string): Buffer | undefined => sink.read(path),

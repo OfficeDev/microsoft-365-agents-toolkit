@@ -4,6 +4,10 @@
 import { UserError } from "@microsoft/teamsfx-api";
 import { assert } from "vitest";
 import {
+  templateCapabilityFloor,
+  templateCapabilityOutputs,
+} from "../../../src/v4/validation/capabilityCatalog";
+import {
   ContentFile,
   TemplatePackagePort,
   VALIDATE_DANGLING_ROUTE,
@@ -112,6 +116,80 @@ function makePort(p: PackageParts): TemplatePackagePort {
 }
 
 describe("v4/validation/validateTemplatePackage", () => {
+  for (const contract of [
+    {
+      provider: "openapi.teamsAiOperations",
+      floor: "6.12.0",
+      engine: "6.13.0",
+      output: false,
+      error: "TemplatePackageCapabilityFloor",
+    },
+    {
+      provider: "openapi.teamsAiOperations",
+      floor: "6.13.0",
+      engine: "6.12.0",
+      output: false,
+      error: VALIDATE_ENGINE_TOO_OLD,
+    },
+    {
+      provider: "openapi.teamsAiOperations",
+      floor: "6.13.0",
+      engine: "6.13.0",
+      output: true,
+      error: undefined,
+    },
+    {
+      provider: "openapi.operations",
+      floor: "5.20.0",
+      engine: "5.20.0",
+      output: false,
+      error: undefined,
+    },
+    {
+      provider: "openapi.operations",
+      floor: "6.12.0",
+      engine: "6.12.0",
+      output: true,
+      error: undefined,
+    },
+    {
+      provider: "openapi.operations",
+      floor: "5.20.0",
+      engine: "6.13.0",
+      output: true,
+      error: "TemplatePackageCapabilityFloor",
+    },
+  ]) {
+    it(`API-02: ${contract.provider} floor=${contract.floor} engine=${contract.engine} output=${contract.output}`, () => {
+      const parts = validParts();
+      parts.engineVersion = contract.engine;
+      parts.descriptor = {
+        id: "mcp-server",
+        languages: ["common"],
+        minEngineVersion: contract.floor,
+        optionsSchema: { type: "object", properties: { apiOperations: {} } },
+        replaceMap: [
+          contract.output
+            ? { var: "MCPNamespace", from: `derived.${contract.provider}.apiSpecLocation` }
+            : { var: "MCPNamespace", const: "ns" },
+        ],
+      };
+      parts.questions = {
+        questions: [{ name: "apiOperations", type: "multiSelect", optionsFrom: contract.provider }],
+      };
+      const result = validateTemplatePackage("create", "mcp-server", "load", {
+        ...makePort(parts),
+        capabilityFloor: templateCapabilityFloor,
+        capabilityOutputs: templateCapabilityOutputs,
+      });
+      if (contract.error === undefined) {
+        assert.isTrue(result.isOk(), result.isErr() ? result.error.message : "");
+      } else {
+        assert.equal(result._unsafeUnwrapErr().name, contract.error);
+      }
+    });
+  }
+
   for (const languageOptions of [[{ id: "python" }, { id: "python" }], [{ id: "javascript" }]]) {
     it(`CLEAN-02: package validation rejects invalid presentation ${JSON.stringify(languageOptions)}`, () => {
       const parts = validParts();

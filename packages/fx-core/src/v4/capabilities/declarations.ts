@@ -45,6 +45,11 @@ export const capabilityDeclarations = {
       since: "5.20.0",
       outputs: [{ name: "apiSpecLocation", since: "6.12.0" }],
     },
+    openApiTeamsAiOperations: {
+      id: "openapi.teamsAiOperations",
+      since: "6.13.0",
+      outputs: [{ name: "apiSpecLocation", since: "6.13.0" }],
+    },
   },
   validator: {
     uri: { id: "uri", since: "5.20.0" },

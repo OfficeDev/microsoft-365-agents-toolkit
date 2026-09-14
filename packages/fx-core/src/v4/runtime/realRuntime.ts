@@ -2,8 +2,9 @@
 // Licensed under the MIT license.
 
 import { SystemError, Warning } from "@microsoft/teamsfx-api";
-import * as fs from "fs-extra";
+import fs from "fs-extra";
 import * as path from "path";
+import { getLocalizedString } from "../../common/localizeUtils";
 import { envUtil } from "../../component/utils/envUtil";
 import { ExpressionRuntimePort } from "../expression/evaluateExpression";
 import { createExpressionPort } from "./whitelist";
@@ -28,6 +29,24 @@ function containedPath(rootDir: string, entryPath: string): string {
       name: SCAFFOLD_PATH_ESCAPE,
       message: `The scaffold tried to write outside the output directory: "${entryPath}".`,
     });
+  }
+  let componentPath = base;
+  for (const component of rel.split(path.sep)) {
+    componentPath = path.join(componentPath, component);
+    try {
+      if (fs.lstatSync(componentPath).isSymbolicLink()) {
+        throw new SystemError({
+          source: SOURCE,
+          name: SCAFFOLD_PATH_ESCAPE,
+          message: getLocalizedString("core.openPluginExport.invalidOutputPath"),
+        });
+      }
+    } catch (error) {
+      if (isFileNotFound(error)) {
+        break;
+      }
+      throw error;
+    }
   }
   return out;
 }
@@ -57,6 +76,19 @@ export function createRealRuntime(
 ): RealRuntime {
   const exprPort: ExpressionRuntimePort = createExpressionPort(flagReader);
   const sink: FileSink = {
+    writeNew: (entryPath: string, data: Buffer): boolean => {
+      const target = containedPath(rootDir, entryPath);
+      fs.ensureDirSync(path.dirname(target));
+      try {
+        fs.writeFileSync(target, data, { flag: "wx" });
+        return true;
+      } catch (error) {
+        if (hasCode(error) && error.code === "EEXIST") {
+          return false;
+        }
+        throw error;
+      }
+    },
     write: (entryPath: string, data: Buffer): void => {
       const target = containedPath(rootDir, entryPath);
       fs.ensureDirSync(path.dirname(target));
@@ -77,7 +109,13 @@ export function createRealRuntime(
   const port = buildPipelinePort(
     exprPort,
     sink,
-    (environment, values) => envUtil.writeEnv(rootDir, environment, { ...values }),
+    (environment, values) =>
+      envUtil.writeEnv(rootDir, environment, { ...values }, (filePath) => {
+        const absolutePath = path.resolve(filePath);
+        if (absolutePath !== path.resolve(rootDir)) {
+          containedPath(rootDir, absolutePath);
+        }
+      }),
     stepRegistry,
     warningSink
   );

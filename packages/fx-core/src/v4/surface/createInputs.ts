@@ -14,6 +14,7 @@ import {
   walkInputs,
 } from "../collectInputs/collectInputs";
 import { openDeclarativePackageMetadata } from "../distribution/declarativePackage";
+import { CURRENT_V4_ENGINE_VERSION } from "../engineVersion";
 import { evaluateExpression } from "../expression/evaluateExpression";
 import { Answers, DeclarativeLocator } from "../model/dataModel";
 import { createDefaultCreateOptionsProviders } from "../providers/createOptionsProviders";
@@ -23,6 +24,7 @@ import {
 } from "../providers/createLanguageOptionsProvider";
 import { parseDeclaredKeys } from "../runtime/packageParse";
 import { createExpressionPort } from "../runtime/whitelist";
+import { validateMinEngineVersion } from "../validation/validateTemplatePackage";
 import { createDefaultCreateInputValidators } from "../validators/createInputValidators";
 import { createFloorTail, validateCreateFloorAnswers } from "./createFloorTail";
 import { createUiPromptUI } from "./uiPromptUI";
@@ -86,6 +88,16 @@ export async function runCreateInputsWalk(
   const opened = openDeclarativePackageMetadata(floorBytes, locator);
   if (opened.isErr()) {
     return err(opened.error);
+  }
+  const version = validateMinEngineVersion(
+    locator.kind,
+    locator.templateId,
+    opened.value.descriptor,
+    CURRENT_V4_ENGINE_VERSION,
+    (name, message) => new UserError({ source: "Scaffold", name, message })
+  );
+  if (version.isErr()) {
+    return err(version.error);
   }
   const descriptor = opened.value.descriptor;
   const surface = deps.surface ?? "vscode";

@@ -121,6 +121,7 @@ export interface PipelineRuntimePort {
   evalWhen(expr: string, renderVars: RenderVars): Result<boolean, FxError>;
   render(mustache: string, renderVars: RenderVars): Result<string, FxError>;
   warn?(warning: Warning): void;
+  writeNew(path: string, data: Buffer): boolean;
   write(path: string, data: Buffer): void;
   writeEnvironment(
     environment: string,
@@ -274,6 +275,11 @@ export async function runScaffoldPipeline(
   const written: string[] = [];
   const filtered: string[] = [];
   const skipped: SkippedFile[] = [];
+  const recordSkipped = (writePath: string): void => {
+    const warning = skipWarning(writePath);
+    skipped.push({ path: writePath, warning });
+    port.warn?.({ type: EXISTING_FILE_SKIPPED_WARNING, content: warning });
+  };
   for (const entry of content) {
     if (entry.path.endsWith(TPL_SUFFIX)) {
       const renderedPath = port.render(entry.path.slice(0, -TPL_SUFFIX.length), renderVars);
@@ -290,17 +296,18 @@ export async function runScaffoldPipeline(
         continue;
       }
       if (targetDir.existing.includes(writePath)) {
-        const warning = skipWarning(writePath);
-        skipped.push({ path: writePath, warning });
-        port.warn?.({ type: EXISTING_FILE_SKIPPED_WARNING, content: warning });
+        recordSkipped(writePath);
         continue;
       }
       const renderedBody = port.render(entry.data.toString("utf8"), renderVars); // AC-18
       if (renderedBody.isErr()) {
         return err(renderedBody.error);
       }
-      port.write(writePath, Buffer.from(renderedBody.value, "utf8"));
-      written.push(writePath);
+      if (port.writeNew(writePath, Buffer.from(renderedBody.value, "utf8"))) {
+        written.push(writePath);
+      } else {
+        recordSkipped(writePath);
+      }
     } else {
       const writePath = normalizedPath(entry.path);
       const omitted = matchesActiveFilter(writePath, pipeline.render?.filters, renderVars, port);
@@ -312,13 +319,14 @@ export async function runScaffoldPipeline(
         continue;
       }
       if (targetDir.existing.includes(writePath)) {
-        const warning = skipWarning(writePath);
-        skipped.push({ path: writePath, warning });
-        port.warn?.({ type: EXISTING_FILE_SKIPPED_WARNING, content: warning });
+        recordSkipped(writePath);
         continue;
       }
-      port.write(writePath, entry.data);
-      written.push(writePath);
+      if (port.writeNew(writePath, entry.data)) {
+        written.push(writePath);
+      } else {
+        recordSkipped(writePath);
+      }
     }
   }
 

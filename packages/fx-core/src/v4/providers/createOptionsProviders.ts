@@ -98,11 +98,6 @@ export function createLocalMcpServersProvider(
   };
 }
 
-function openApiParseOptions(): ParseOptions {
-  // Reuse the v3 Copilot parser options (single source of truth) instead of a v4 copy.
-  return getParserOptions(ProjectType.Copilot, true);
-}
-
 function operationDetail(operation: ListAPIInfo): string {
   if (!operation.auth) {
     return "No authentication";
@@ -133,57 +128,73 @@ function sortOperations(operations: ListAPIInfo[]): ListAPIInfo[] {
   });
 }
 
-export const openApiOperationsProvider: OptionsProvider = {
-  derivedSchema: capabilityDeclarations.provider.openApiOperations.outputs.map(
-    (output) => output.name
-  ),
-  async fetch(params) {
-    const apiSpecLocation = params.apiSpecLocation?.trim();
-    if (!apiSpecLocation) {
-      throw new SystemError({
-        source: "Scaffold",
-        name: "OpenApiMissingSpecLocation",
-        message: "OpenAPI operations cannot be listed without an API spec location.",
-      });
-    }
-    const parser = new SpecParser(apiSpecLocation, openApiParseOptions());
-    const validation = await parser.validate();
-    if (validation.status === ValidationStatus.Error) {
-      throw new UserError({
-        source: "Scaffold",
-        name: "OpenApiSpecInvalid",
-        message: "The OpenAPI description document is invalid or contains no supported operations.",
-      });
-    }
-    let listed: Awaited<ReturnType<SpecParser["list"]>>;
-    try {
-      listed = await parser.list();
-    } catch {
-      throw new UserError({
-        source: "Scaffold",
-        name: "OpenApiSpecInvalid",
-        message: "The OpenAPI description document is invalid or contains no supported operations.",
-      });
-    }
-    const operations = sortOperations(listed.APIs).filter((operation) => operation.isValid);
-    if (operations.length === 0) {
-      throw new UserError({
-        source: "Scaffold",
-        name: "OpenApiSpecInvalid",
-        message: "The OpenAPI description document is invalid or contains no supported operations.",
-      });
-    }
-    return {
-      options: operations.map((operation) => ({
-        id: operation.api,
-        label: operation.api,
-        groupName: operation.api.toUpperCase().split(" ")[0],
-        detail: operationDetail(operation),
-      })),
-      derived: { apiSpecLocation },
-    };
-  },
-};
+function createOpenApiOperationsProvider(
+  parseOptions: () => ParseOptions,
+  derivedSchema: string[]
+): OptionsProvider {
+  return {
+    derivedSchema,
+    async fetch(params) {
+      const apiSpecLocation = params.apiSpecLocation?.trim();
+      if (!apiSpecLocation) {
+        throw new SystemError({
+          source: "Scaffold",
+          name: "OpenApiMissingSpecLocation",
+          message: "OpenAPI operations cannot be listed without an API spec location.",
+        });
+      }
+      const parser = new SpecParser(apiSpecLocation, parseOptions());
+      const validation = await parser.validate();
+      if (validation.status === ValidationStatus.Error) {
+        throw new UserError({
+          source: "Scaffold",
+          name: "OpenApiSpecInvalid",
+          message:
+            "The OpenAPI description document is invalid or contains no supported operations.",
+        });
+      }
+      let listed: Awaited<ReturnType<SpecParser["list"]>>;
+      try {
+        listed = await parser.list();
+      } catch {
+        throw new UserError({
+          source: "Scaffold",
+          name: "OpenApiSpecInvalid",
+          message:
+            "The OpenAPI description document is invalid or contains no supported operations.",
+        });
+      }
+      const operations = sortOperations(listed.APIs).filter((operation) => operation.isValid);
+      if (operations.length === 0) {
+        throw new UserError({
+          source: "Scaffold",
+          name: "OpenApiSpecInvalid",
+          message:
+            "The OpenAPI description document is invalid or contains no supported operations.",
+        });
+      }
+      return {
+        options: operations.map((operation) => ({
+          id: operation.api,
+          label: operation.api,
+          groupName: operation.api.toUpperCase().split(" ")[0],
+          detail: operationDetail(operation),
+        })),
+        derived: { apiSpecLocation },
+      };
+    },
+  };
+}
+
+export const openApiOperationsProvider = createOpenApiOperationsProvider(
+  () => getParserOptions(ProjectType.Copilot, true),
+  capabilityDeclarations.provider.openApiOperations.outputs.map((output) => output.name)
+);
+
+export const openApiTeamsAiOperationsProvider = createOpenApiOperationsProvider(
+  () => getParserOptions(ProjectType.TeamsAi),
+  capabilityDeclarations.provider.openApiTeamsAiOperations.outputs.map((output) => output.name)
+);
 
 export function createOpenApiSearchProvider(
   searchApiSpec: (query: string) => Promise<SearchOpenAPISpecResult[]>
@@ -312,5 +323,6 @@ export function createDefaultCreateOptionsProviders(
     [capabilityDeclarations.provider.mcpTools.id]: createMcpToolsProvider(fetchTools),
     [capabilityDeclarations.provider.openApiSearch.id]: createOpenApiSearchProvider(searchApiSpec),
     [capabilityDeclarations.provider.openApiOperations.id]: openApiOperationsProvider,
+    [capabilityDeclarations.provider.openApiTeamsAiOperations.id]: openApiTeamsAiOperationsProvider,
   };
 }

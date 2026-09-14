@@ -324,6 +324,7 @@ describe("da-action steps (v4)", () => {
       const port = buildPipelinePort(
         runtime.exprPort,
         {
+          writeNew: runtime.port.writeNew,
           read: (filePath): Buffer | undefined => {
             if (filePath === "appPackage/manifest.json") {
               return Buffer.from(

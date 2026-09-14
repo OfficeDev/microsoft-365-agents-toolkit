@@ -10,10 +10,11 @@ import {
   evaluateExpression,
 } from "../../../src/v4/expression/evaluateExpression";
 import { RenderVars, TemplateFileEntry } from "../../../src/v4/model/dataModel";
-import { assert } from "vitest";
+import { assert, expect } from "vitest";
 import { defineStep } from "../../../src/v4/pipeline/defineStep";
 import { PACKAGE_PARSE_ERROR, prepareTemplate } from "../../../src/v4/runtime/packageParse";
 import { scaffold, scaffoldPrepared } from "../../../src/v4/runtime/scaffold";
+import { createInMemoryRuntime } from "../../../src/v4/runtime/inMemoryRuntime";
 import { DaManifestService } from "../../../src/v4/runtime/services/daManifestService";
 import { createDaActionRegisterPluginManifestStep } from "../../../src/v4/runtime/steps/daAction";
 import {
@@ -143,6 +144,11 @@ function makePort(opts: { pipelines?: string[]; steps?: Record<string, Registere
     },
     render: (mustache, vars) => renderMustache(mustache, vars),
     warn: (warning) => warnings.push(warning.content),
+    writeNew: (path, data) => {
+      if (writes.has(path)) return false;
+      writes.set(path, data);
+      return true;
+    },
     write: (path, data) => {
       writes.set(path, data);
     },
@@ -164,6 +170,78 @@ function target(existing: string[] = []): TargetDir {
 }
 
 describe("runScaffoldPipeline (v4)", () => {
+  it("IO-02: the in-memory sink preserves distinct case-sensitive keys", async () => {
+    const runtime = createInMemoryRuntime();
+    const outcome = (
+      await runScaffoldPipeline(
+        { pipeline: "default", steps: [] },
+        [entry("CONFIG.json", "upper"), entry("config.json.tpl", "lower")],
+        {},
+        target(),
+        runtime.port
+      )
+    )._unsafeUnwrap();
+    assert.equal(runtime.files.get("CONFIG.json")?.toString(), "upper");
+    assert.equal(runtime.files.get("config.json")?.toString(), "lower");
+    assert.deepEqual(outcome.written, ["CONFIG.json", "config.json"]);
+    assert.isEmpty(outcome.skipped);
+  });
+
+  it.each([false, true])(
+    "IO-02: preserves first output bytes and allows a named step rewrite=%s",
+    async (rewrite) => {
+      const step = new FakeStep({
+        run: (_params, ctx) => {
+          assert.equal(ctx.read("same.txt")?.toString(), "first");
+          assert.notProperty(ctx, "writeNew");
+          ctx.write("same.txt", Buffer.from("step"));
+          return ok(undefined);
+        },
+      });
+      const runtime = createInMemoryRuntime(undefined, new Map([["rewrite", step]]));
+      const outcome = (
+        await runScaffoldPipeline(
+          { pipeline: "default", steps: rewrite ? [{ step: "rewrite" }] : [] },
+          [entry("same.txt", "first"), entry("same.txt.tpl", "second"), entry("same.txt", "third")],
+          {},
+          target(),
+          runtime.port
+        )
+      )._unsafeUnwrap();
+      assert.equal(runtime.files.get("same.txt")?.toString(), rewrite ? "step" : "first");
+      assert.deepEqual(outcome.written, ["same.txt"]);
+      assert.deepEqual(
+        outcome.skipped.map((file) => file.path),
+        ["same.txt", "same.txt"]
+      );
+      assert.deepEqual(
+        runtime.warnings.map((warning) => warning.content),
+        outcome.skipped.map((file) => file.warning)
+      );
+      assert.deepEqual(outcome.stepsRun, rewrite ? ["rewrite"] : []);
+    }
+  );
+
+  it.each(["file.txt", "file.txt.tpl"])(
+    "IO-01: propagates unexpected writeNew errors for %s",
+    async (entryPath) => {
+      const runtime = createInMemoryRuntime();
+      const failure = new Error("exclusive create failed");
+      runtime.port.writeNew = () => {
+        throw failure;
+      };
+      await expect(
+        runScaffoldPipeline(
+          { pipeline: "default", steps: [] },
+          [entry(entryPath, "bytes")],
+          {},
+          target(),
+          runtime.port
+        )
+      ).rejects.toBe(failure);
+    }
+  );
+
   for (const when of [false, true, 0, null, [], {}]) {
     it(`AC-28: rejects malformed step guard ${JSON.stringify(when)} before any side effects`, async () => {
       const step = new FakeStep();

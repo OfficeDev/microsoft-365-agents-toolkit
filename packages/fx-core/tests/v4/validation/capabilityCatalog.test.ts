@@ -2,6 +2,7 @@
 // Licensed under the MIT license.
 
 import { assert } from "vitest";
+import { CURRENT_V4_ENGINE_VERSION } from "../../../src/v4/engineVersion";
 import { createDefaultCreateOptionsProviders } from "../../../src/v4/providers/createOptionsProviders";
 import { STEP_REGISTRY } from "../../../src/v4/runtime/runtimeRegistry";
 import {
@@ -24,7 +25,7 @@ async function loadDeclarations() {
 }
 
 describe("v4/validation/capabilityCatalog", () => {
-  it("OWN-03: declarations pin literal capability identities, versions and outputs", async () => {
+  it("API-02/OWN-03: declarations pin literal capability identities, versions and outputs", async () => {
     const { capabilityDeclarations } = await loadDeclarations();
 
     assert.deepEqual(capabilityDeclarations, {
@@ -62,6 +63,11 @@ describe("v4/validation/capabilityCatalog", () => {
           id: "openapi.operations",
           since: "5.20.0",
           outputs: [{ name: "apiSpecLocation", since: "6.12.0" }],
+        },
+        openApiTeamsAiOperations: {
+          id: "openapi.teamsAiOperations",
+          since: "6.13.0",
+          outputs: [{ name: "apiSpecLocation", since: "6.13.0" }],
         },
       },
       validator: {
@@ -145,6 +151,18 @@ describe("v4/validation/capabilityCatalog", () => {
       assert.isUndefined(templateCapabilityFloor(kind, "toString"));
       assert.deepEqual(templateCapabilityOutputs(kind, "unknown"), []);
     }
+  });
+
+  it("API-02: Teams AI listing and source start at engine 6.13 independently of template versions", () => {
+    assert.equal(CURRENT_V4_ENGINE_VERSION, "6.13.0");
+    assert.equal(templateCapabilityFloor("provider", "openapi.teamsAiOperations"), "6.13.0");
+    assert.equal(
+      templateCapabilityFloor("provider", "openapi.teamsAiOperations", "apiSpecLocation"),
+      "6.13.0"
+    );
+    assert.deepEqual(templateCapabilityOutputs("provider", "openapi.teamsAiOperations"), [
+      "apiSpecLocation",
+    ]);
   });
 
   it("AC-23/24: every runtime step has exactly one source-owned capability floor", () => {
