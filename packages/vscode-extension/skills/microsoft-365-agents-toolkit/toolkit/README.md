@@ -32,7 +32,7 @@ For SDK code patterns (handlers, AI prompts, Adaptive Cards, MCP, OAuth, etc.), 
 | Capability | Templates | What applies from this folder |
 |---|---|---|
 | **Declarative agents** | Legacy ATK template IDs are recognition metadata only | `declarative-agent-lifecycle.md` for WIQD operations; `manifest-and-yaml.md` for read-only manifest questions. DAs run in M365 Copilot, not Playground. |
-| **API plugins** | `declarative-agent-action-from-existing-api`, `add action` | All. Use `commands.md` for `atk add action` and `manifest-and-yaml.md` for OpenAPI integration. |
+| **API plugins** | `declarative-agent-action-from-existing-api`, `add action` | For actions attached to a DA, use `declarative-agent-lifecycle.md` and WIQD. Use `manifest-and-yaml.md` for read-only OpenAPI and manifest reference. |
 | **Copilot connectors** | `copilot-connector` | `templates.md`, `commands.md`, `lifecycle-cli.md`, `environments.md`. |
 | **Custom engine agents** | `basic-custom-engine-agent`, `weather-agent`, `foundry-agent-to-m365`, `coffee-agent`, `data-analyst-agent-v2` | All. Compute deploy via `lifecycle-cli.md` (`arm/deploy` + `azureAppService/zipDeploy`). |
 | **Teams bots / tabs / message extensions** | `bot`, `tab`, `message-extension`, `teams-agent*`, `teams-collaborator-agent`, `bot-sso` | All. Pair with [../experts/teams/](../experts/teams/) for SDK code patterns. |

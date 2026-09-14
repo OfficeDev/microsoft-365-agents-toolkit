@@ -31,19 +31,19 @@ For the lifecycle YAML structure (provision/deploy/publish stages, action orderi
 
 ## Schema Versions Used by Templates
 
-These are the versions written by current templates in this repo. WIQD owns DA lifecycle execution; use the schema version in the current WIQD project when editing an existing DA.
+The DA rows below are the versions written by current v4 DA templates in this repo. WIQD owns DA lifecycle execution; use the schema version in the current WIQD project when editing an existing DA.
 
 | File | Field | Value |
 |------|-------|-------|
-| `appPackage/manifest.json` | `$schema` | `https://developer.microsoft.com/en-us/json-schemas/teams/v1.26/MicrosoftTeams.schema.json` |
-| `appPackage/manifest.json` | `manifestVersion` | `1.26` |
+| `appPackage/manifest.json` | `$schema` | `https://developer.microsoft.com/en-us/json-schemas/teams/v1.30/MicrosoftTeams.schema.json` |
+| `appPackage/manifest.json` | `manifestVersion` | `1.30` |
 | `appPackage/declarativeAgent.json` | `$schema` | `https://developer.microsoft.com/json-schemas/copilot/declarative-agent/v1.8/schema.json` |
 | `appPackage/declarativeAgent.json` | `version` | `v1.8` |
 | `m365agents.yml` / `m365agents.local.yml` / `m365agents.playground.yml` | `version` | `v1.11` (TS/Python templates) — some C# templates still ship `v1.9` |
 
 **Notes:**
 
-- The Teams `manifestVersion: 1.26` schema is also offered as `vDevPreview` (3 templates use it for early-access features). Stick with `1.26` unless a feature you need only exists in `vDevPreview`.
+- Keep the schema version already used by an existing project unless the required feature needs a newer schema.
 - The `declarativeAgent.json` `version` field is the **schema** version (e.g., `"v1.8"`), not your app version. The app version still lives in `manifest.json`'s top-level `version` field.
 
 ```jsonc

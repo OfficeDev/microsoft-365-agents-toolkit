@@ -1,5 +1,7 @@
 # Environments and `.localConfigs`
 
+> **Declarative Agents:** Use [declarative-agent-lifecycle.md](declarative-agent-lifecycle.md) for WIQD environment and lifecycle commands. The ATK commands below apply only to non-DA projects and to a hybrid DA's separate backend compute; do not fall back to ATK for DA lifecycle operations.
+
 ## purpose
 
 Multi-environment management with environment files, `${{VAR}}` variable resolution, the `SECRET_` prefix convention, and the `.localConfigs` runtime-config flow for Agents Toolkit projects.
