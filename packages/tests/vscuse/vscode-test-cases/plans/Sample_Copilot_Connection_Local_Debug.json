@@ -141,7 +141,7 @@
       "agent": "assertion",
       "tool": "",
       "parameters": {},
-      "description": "@assertion the page title contains 'Copilot connector app'",
+      "description": "@assertion the VS Code workspace title contains 'copilot-connector-app'",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -215,7 +215,7 @@
         "x": 294,
         "y": 21
       },
-      "description": "Click the “+\"  browser tab in Microsoft Teams  to open the new page",
+      "description": "Click the \u201c+\"  browser tab in Microsoft Teams  to open the new page",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
