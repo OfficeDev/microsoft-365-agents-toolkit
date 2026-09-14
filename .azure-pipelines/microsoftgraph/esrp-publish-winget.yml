@@ -79,10 +79,14 @@ extends:
                     $tag = $env:BUILD_SOURCEBRANCH -replace '^refs/tags/', ''
                     Write-Host "No githubReleaseTag parameter; using triggering tag '$tag'."
                   }
-                  if ($tag -notmatch '^microsoft-365-agents-playground@(?<version>(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*))$') {
-                    throw 'Expected a stable release tag in the form microsoft-365-agents-playground@<major>.<minor>.<patch>.'
+                  $tagPrefix = 'microsoft-365-agents-playground@'
+                  if (-not $tag.StartsWith($tagPrefix, [StringComparison]::Ordinal) -or $tag.Length -eq $tagPrefix.Length) {
+                    throw "Expected a release tag beginning with '$tagPrefix'."
                   }
-                  $version = $Matches.version
+                  $version = $tag.Substring($tagPrefix.Length)
+                  if ($version -notmatch '^[0-9A-Za-z][0-9A-Za-z.+-]*$') {
+                    throw "Release tag '$tag' contains an invalid WinGet package version."
+                  }
                   $assetName = 'agentsplayground-win32-x64.zip'
                   $releaseUrl = "https://api.github.com/repos/$(githubRepo)/releases/tags/$([uri]::EscapeDataString($tag))"
                   $installerUrl = "https://github.com/$(githubRepo)/releases/download/$tag/$assetName"
