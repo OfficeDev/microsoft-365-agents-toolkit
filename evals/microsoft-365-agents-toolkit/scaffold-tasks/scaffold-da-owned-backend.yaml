@@ -1,25 +1,25 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/microsoft/waza/main/schemas/task.schema.json
 
-id: scaffold-hybrid-da-template
-name: Scaffold Hybrid Declarative Agent with ATK
+id: scaffold-da-owned-backend
+name: Scaffold Declarative Agent with Project-Owned Backend Using ATK
 description: User wants a Declarative Agent with new backend source code
 tags:
   - scaffold
   - routing
-  - hybrid
+  - project-owned-backend
 inputs:
-  prompt: "Create a TypeScript Declarative Agent named HybridDaFixture with a new API action and scaffold the API backend source code for me. Then validate and package the project."
+  prompt: "Create a TypeScript Declarative Agent named OwnedBackendDaFixture with a new API action and scaffold the API backend source code for me. Then validate and package the project."
 expected:
   should_trigger: true
 graders:
   - type: file
-    name: hybrid_da_project_files
+    name: owned_backend_da_project_files
     config:
       must_exist:
-        - "HybridDaFixture/m365agents.yml"
-        - "HybridDaFixture/appPackage/manifest.json"
-        - "HybridDaFixture/src/functions/repairs.ts"
-        - "HybridDaFixture/infra/azure.bicep"
+        - "OwnedBackendDaFixture/m365agents.yml"
+        - "OwnedBackendDaFixture/appPackage/manifest.json"
+        - "OwnedBackendDaFixture/src/functions/repairs.ts"
+        - "OwnedBackendDaFixture/infra/azure.bicep"
   - type: behavior
     name: efficiency_check
     config:
@@ -29,7 +29,7 @@ graders:
         - rm
         - sudo
   - type: tool_constraint
-    name: atk_hybrid_create_command
+    name: atk_owned_backend_create_command
     config:
       expect_tools:
         - tool: shell
@@ -48,8 +48,8 @@ graders:
         Review the agent's response. Check that it:
         1. Uses `atk new -c declarative-agent-action -l typescript` because the request requires new backend source code.
         2. Successfully scaffolds the DA manifest, API backend source, infrastructure, and ATK lifecycle configuration.
-        3. Classifies the project as hybrid from its project-owned backend source and backend deployment lifecycle.
-        4. Uses ATK to validate and package the hybrid project and does not switch it to WIQD.
+        3. Selects ATK because the project has project-owned backend source and backend deployment lifecycle actions.
+        4. Uses ATK to validate and package the project and does not switch it to WIQD.
 
         If all criteria are met, call set_waza_grade_pass.
         Otherwise, call set_waza_grade_fail with your reasoning.

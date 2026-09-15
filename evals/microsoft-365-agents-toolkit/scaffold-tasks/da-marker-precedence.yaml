@@ -1,7 +1,7 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/microsoft/waza/main/schemas/task.schema.json
 
 id: da-marker-precedence
-name: Backend Source Without Deployment Is Non-Hybrid
+name: Backend Source Without Deployment Uses WIQD
 description: Existing DA has backend source and build configuration but no backend deployment lifecycle
 tags:
   - declarative-agent
@@ -43,7 +43,7 @@ graders:
     config:
       prompt: |
         Review the agent's response. Check that it:
-        1. Classifies the project as non-hybrid because backend source and build configuration exist but the lifecycle has no action that provisions or deploys that backend.
+        1. Selects WIQD because backend source and build configuration exist but the lifecycle has no action that provisions or deploys that backend.
         2. Uses WIQD validate and package commands even though backend source and `m365agents.yml` exist.
         3. Does not infer lifecycle routing from the scaffold CLI or use ATK lifecycle commands.
 

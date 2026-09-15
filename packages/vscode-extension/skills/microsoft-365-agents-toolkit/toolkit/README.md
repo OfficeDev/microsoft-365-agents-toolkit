@@ -18,7 +18,7 @@ For SDK code patterns (handlers, AI prompts, Adaptive Cards, MCP, OAuth, etc.), 
 
 | File | Scope |
 |---|---|
-| [declarative-agent-lifecycle.md](declarative-agent-lifecycle.md) | Structural routing for all DAs and WIQD lifecycle commands for non-hybrid DAs |
+| [declarative-agent-lifecycle.md](declarative-agent-lifecycle.md) | Structural routing for all DAs and WIQD lifecycle commands for DAs without project-owned backend deployment |
 | [templates.md](templates.md) | Full `atk new -c` capability catalog: declarative agents (8 variants), Copilot connectors, Office add-ins, Teams bots/tabs/message extensions, custom engine agents, RAG agents |
 | [commands.md](commands.md) | `atk` CLI reference outside the lifecycle: `add action`, `add auth-config`, `regenerate action`, `share`, `collaborator`, `env`, `install/uninstall`, `upgrade`, `doctor` |
 | [lifecycle-cli.md](lifecycle-cli.md) | Lifecycle CLI commands (`provision`, `deploy`, `package`, `validate`, `preview`) and the full `m365agents.yml` action catalog |
@@ -31,8 +31,8 @@ For SDK code patterns (handlers, AI prompts, Adaptive Cards, MCP, OAuth, etc.), 
 
 | Capability | Templates | What applies from this folder |
 |---|---|---|
-| **Declarative agents** | `declarative-agent` for legacy recognition; `declarative-agent-action*` and `declarative-agent-with-graph-connector` for hybrid scaffolds | `declarative-agent-lifecycle.md` for structural routing; `manifest-and-yaml.md` for read-only manifest questions. DAs run in M365 Copilot, not Playground. |
-| **API plugins** | `declarative-agent-action*`, `declarative-agent-action-from-existing-api`, `add action` | Use ATK for a project-owned backend scaffold and the hybrid project's full lifecycle. Use WIQD when the DA attaches an existing OpenAPI API or remote MCP server. |
+| **Declarative agents** | `declarative-agent` for legacy recognition; `declarative-agent-action*` and `declarative-agent-with-graph-connector` for project-owned backend scaffolds | `declarative-agent-lifecycle.md` for structural routing; `manifest-and-yaml.md` for read-only manifest questions. DAs run in M365 Copilot, not Playground. |
+| **API plugins** | `declarative-agent-action*`, `declarative-agent-action-from-existing-api`, `add action` | Use ATK for a project-owned backend scaffold and the project's full lifecycle. Use WIQD when the DA attaches an existing OpenAPI API or remote MCP server. |
 | **Standalone Copilot connector backend** | `copilot-connector` | ATK `templates.md`, `commands.md`, `lifecycle-cli.md`, and `environments.md`. A DA that only references an existing Connector connection follows `declarative-agent-lifecycle.md`. |
 | **Custom engine agents** | `basic-custom-engine-agent`, `weather-agent`, `foundry-agent-to-m365`, `coffee-agent`, `data-analyst-agent-v2` | All. Compute deploy via `lifecycle-cli.md` (`arm/deploy` + `azureAppService/zipDeploy`). |
 | **Teams bots / tabs / message extensions** | `bot`, `tab`, `message-extension`, `teams-agent*`, `teams-collaborator-agent`, `bot-sso` | All. Pair with [../experts/teams/](../experts/teams/) for SDK code patterns. |

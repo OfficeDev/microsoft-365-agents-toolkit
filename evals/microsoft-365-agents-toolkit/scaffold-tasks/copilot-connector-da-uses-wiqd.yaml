@@ -44,7 +44,7 @@ graders:
         Review the agent's response. Check that it:
         1. Recognizes that WIQD supports Declarative Agents referencing an existing Copilot Connector connection.
         2. Uses WIQD to validate and package the project.
-        3. Does not classify the project as hybrid merely because it references a Copilot Connector connection.
+        3. Does not select ATK merely because the project references a Copilot Connector connection.
         4. Does not use ATK lifecycle commands.
 
         If all criteria are met, call set_waza_grade_pass.

@@ -16,7 +16,6 @@ Scaffold a new Microsoft 365 agent or Teams app from an ATK template.
 | Connect existing MCP Server to Copilot | WIQD | `wiqd agent create` then `wiqd agent add action` |
 | Declarative Agent using an existing Copilot Connector connection | WIQD | `wiqd agent create` |
 | Declarative Agent with a new project-owned Copilot Connector backend | ATK | `declarative-agent-with-graph-connector` |
-| Declarative Agent for MetaOS | ATK | `declarative-agent-meta-os-new-project` |
 | Declarative Agent from TypeSpec | ATK | `declarative-agent-typespec` |
 
 ### Other Agents and Apps
@@ -47,18 +46,24 @@ See [../toolkit/templates.md](../toolkit/templates.md) for the complete template
 For a pure Declarative Agent or a DA that uses an existing OpenAPI, MCP, or Copilot Connector backend, use WIQD and then follow [declarative-agent-lifecycle.md](../toolkit/declarative-agent-lifecycle.md) for actions and lifecycle operations:
 
 ```bash
+wiqd --version
+```
+
+If WIQD is unavailable, stop and direct the user to the [official WIQD installation guide](https://microsoft.github.io/wiqd/getting-started/installation/) before continuing. Do not use ATK as a fallback.
+
+```bash
 wiqd agent create --name <project-name> --output <parent-folder>
 ```
 
-For a hybrid DA that needs project-owned API backend source code and deployment, use the ATK from-scratch template. The resulting project uses ATK for its complete lifecycle:
+For a DA that needs project-owned API backend source code and deployment, use the ATK from-scratch template. The resulting project uses ATK for its complete lifecycle:
 
 ```bash
 atk new -c declarative-agent-action -l <typescript|javascript|csharp> -n <project-name> -f <parent-folder> -i false
 ```
 
-Use `declarative-agent-action-bearer` or `declarative-agent-action-oauth` when the new backend requires that authentication model. Detect the hybrid from its local backend source plus backend deployment actions, not from whether the user invoked WIQD or ATK. Do not switch a hybrid project to WIQD lifecycle commands.
+Use `declarative-agent-action-bearer` or `declarative-agent-action-oauth` when the new backend requires that authentication model. Select ATK from the local backend source plus backend deployment actions, not from whether the user invoked WIQD or ATK. Do not switch this project to WIQD lifecycle commands.
 
-Use `declarative-agent-with-graph-connector` when the project must scaffold and deploy a new Copilot Connector ingestion backend. That generated backend makes the project hybrid; merely referencing an existing Connector connection does not.
+Use `declarative-agent-with-graph-connector` when the project must scaffold and deploy a new Copilot Connector ingestion backend. That project-owned deployment selects ATK; merely referencing an existing Connector connection does not.
 
 For all other ATK entries, create templates in the current directory with this flow:
 
@@ -146,7 +151,7 @@ List all samples with `atk list samples`.
 
 Once the project is created:
 - For a DA without project-owned backend deployment → continue with [declarative-agent-lifecycle.md](../toolkit/declarative-agent-lifecycle.md)
-- For a hybrid DA with project-owned backend source and deployment → keep its complete lifecycle on ATK; use [../provision-deploy/provision-deploy.md](../provision-deploy/provision-deploy.md)
+- For a DA with project-owned backend source and deployment → keep its complete lifecycle on ATK; use [../provision-deploy/provision-deploy.md](../provision-deploy/provision-deploy.md)
 - For other projects, to test locally → see [../test-playground/test-playground.md](../test-playground/test-playground.md)
 - To understand project files → see [../toolkit/manifest-and-yaml.md](../toolkit/manifest-and-yaml.md)
 
@@ -154,7 +159,7 @@ Once the project is created:
 
 > **Applies to: code-based Teams bots/agents only** (templates: `bot`, `teams-agent*`, `basic-custom-engine-agent`, `weather-agent`, `coffee-agent`, `bot-sso`, `msgext-*`, `tab*`).
 >
-> Does **not** apply to pure DAs, existing-API/MCP actions, DAs that only reference existing Copilot Connector connections, or other templates without application source code. Hybrid DA projects contain project-owned backend source and deployment actions; keep their complete lifecycle on ATK and follow the generated project instructions.
+> Does **not** apply to pure DAs, existing-API/MCP actions, DAs that only reference existing Copilot Connector connections, or other templates without application source code. DA projects with project-owned backend source and deployment actions keep their complete lifecycle on ATK and follow the generated project instructions.
 
 For deeper guidance on what `atk new` produces and how to extend it, consult the Teams expert micro-files:
 

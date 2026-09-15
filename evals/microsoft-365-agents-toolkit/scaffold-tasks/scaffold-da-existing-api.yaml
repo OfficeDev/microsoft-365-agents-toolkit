@@ -47,7 +47,7 @@ graders:
         1. Creates the DA with WIQD because the OpenAPI backend already exists.
         2. Adds `GET /repairs` with `wiqd agent add action --openapi-spec`.
         3. Does not scaffold backend source code or use an ATK lifecycle command.
-        4. Keeps the non-hybrid DA on WIQD because the existing external API is not project-owned backend compute.
+        4. Keeps the DA on WIQD because the existing external API is not project-owned backend compute.
 
         If all criteria are met, call set_waza_grade_pass.
         Otherwise, call set_waza_grade_fail with your reasoning.

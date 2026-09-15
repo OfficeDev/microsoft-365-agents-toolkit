@@ -49,7 +49,7 @@ atk deploy --env local -i false
 # Open: https://teams.microsoft.com/l/app/${{TEAMS_APP_ID}}?installAppPackage=true&webjoin=true&appTenantId=${{TENANT_ID}}&login_hint=${{USER_EMAIL}}
 ```
 
-## Quick Start (Non-Hybrid Declarative Agents)
+## Quick Start (WIQD Declarative Agents)
 
 ```bash
 # Validate, package, and provision the DA; an existing action backend keeps its own deployment lifecycle
@@ -58,7 +58,7 @@ wiqd agent package --path <project> --env local
 wiqd agent provision --path <project> --env local
 ```
 
-Then open Microsoft 365 Copilot and find the agent in the app list. For other non-hybrid DA lifecycle operations, follow [declarative-agent-lifecycle.md](../toolkit/declarative-agent-lifecycle.md). Keep a hybrid DA with project-owned backend deployment on its ATK lifecycle.
+Then open Microsoft 365 Copilot and find the agent in the app list. For other WIQD-routed DA lifecycle operations, follow [declarative-agent-lifecycle.md](../toolkit/declarative-agent-lifecycle.md). Keep a DA with project-owned backend deployment on its ATK lifecycle.
 
 ## Opening in Different Hosts
 

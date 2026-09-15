@@ -2,7 +2,7 @@
 
 ## purpose
 
-Publishing workflow for non-DA M365 apps and DAs routed to ATK by the [structural routing gate](declarative-agent-lifecycle.md#structural-routing-gate). For non-hybrid DA publishing, follow that lifecycle reference instead.
+Publishing workflow for non-DA M365 apps and DAs routed to ATK by the [structural routing gate](declarative-agent-lifecycle.md#structural-routing-gate). For DAs routed to WIQD, follow that lifecycle reference instead.
 
 ## rules
 

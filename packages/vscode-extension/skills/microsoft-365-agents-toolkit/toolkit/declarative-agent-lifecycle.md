@@ -2,20 +2,20 @@
 
 Use WIQD for the complete lifecycle of pure DAs and DAs that attach existing OpenAPI, remote MCP, or Copilot Connector backends. Do not fall back to ATK when a WIQD lifecycle command fails.
 
-Use ATK instead for the complete lifecycle of a hybrid DA: a DA that contains project-owned backend source code and lifecycle actions that provision or deploy that backend. The `declarative-agent-action*` templates create this shape. Do not switch it to WIQD.
+Use ATK instead for the complete lifecycle of a DA that contains project-owned backend source code and lifecycle actions that provision or deploy that backend. The `declarative-agent-action*` templates create this shape. Do not switch it to WIQD.
 
-Also preserve ATK for specialized DA capabilities that WIQD does not expose, including MetaOS and TypeSpec projects. These are explicit capability exceptions, not evidence that every ATK-scaffolded DA is hybrid. WIQD supports referencing existing Copilot Connector connections, while a project that builds and deploys its own Connector backend is hybrid and remains on ATK.
+Also preserve ATK for TypeSpec DA projects, which WIQD does not expose. This explicit exception is not evidence that every ATK-scaffolded DA owns backend deployment. WIQD supports referencing existing Copilot Connector connections, while a project that builds and deploys its own Connector backend remains on ATK.
 
 ## Structural Routing Gate
 
 Before any lifecycle command, inspect the project capability and structure. Creator identity is not a reliable signal because WIQD delegates operations to ATK/fx-core.
 
 1. Confirm the Teams app manifest contains `copilotAgents.declarativeAgents`.
-2. Preserve ATK when the project explicitly identifies an ATK-only specialized capability such as MetaOS or TypeSpec.
+2. Preserve ATK when the project explicitly identifies a TypeSpec DA capability.
 3. Otherwise, check for project-owned backend source, such as `src/functions`, together with its build configuration.
 4. Check `m365agents*.yml` for lifecycle actions that provision or deploy that backend, such as `arm/deploy`, `azureFunctions/zipDeploy`, or `azureAppService/zipDeploy`.
 
-Only classify the project as hybrid when both project-owned backend source and corresponding backend deployment lifecycle are present. A DA action or plugin that points to an existing OpenAPI service or remote MCP server is non-hybrid. `m365agents.yml` alone does not make a DA hybrid. If an unusual project does not provide enough evidence, ask whether the backend is owned and deployed by this project before running lifecycle commands.
+Select ATK based on backend ownership only when both project-owned backend source and corresponding backend deployment lifecycle are present. A DA action or plugin that points to an existing OpenAPI service or remote MCP server stays on WIQD. `m365agents.yml` alone does not select ATK. If an unusual project does not provide enough evidence, ask whether the backend is owned and deployed by this project before running lifecycle commands.
 
 ## Detect a Declarative Agent
 
@@ -29,7 +29,7 @@ The presence of `m365agents.yml` does not make a project non-DA. Check the DA ma
 
 ## Read-Only Reference Requests
 
-Answer questions about DA schemas, manifest fields, capabilities, examples, or project structure from the local references without requiring WIQD installation or authentication. Require WIQD only when executing a non-hybrid DA lifecycle operation.
+Answer questions about DA schemas, manifest fields, capabilities, examples, or project structure from the local references without requiring WIQD installation or authentication. Require WIQD only when executing a DA lifecycle operation routed to WIQD.
 
 ## WIQD Setup
 
@@ -39,13 +39,9 @@ Before the first DA lifecycle command, run:
 wiqd --version
 ```
 
-If WIQD is unavailable, tell the user to install or enable it and stop the DA lifecycle workflow. Do not use ATK as a fallback.
-
-PowerShell installation:
-
-```powershell
-iex "& { $(irm 'https://aka.ms/wiqd/install.ps1') }"
-```
+If WIQD is unavailable, stop the DA lifecycle workflow and direct the user to the
+[official WIQD installation guide](https://microsoft.github.io/wiqd/getting-started/installation/)
+for the current installation instructions. Do not duplicate platform-specific installer commands or use ATK as a fallback.
 
 Use these diagnostics when needed:
 
@@ -59,7 +55,7 @@ Do not require login until the requested operation needs Microsoft 365 access.
 
 ## Lifecycle Commands
 
-Use this mapping for pure DAs and DAs backed by existing OpenAPI, remote MCP, or Copilot Connector services. Do not apply it to hybrid or ATK-only specialized DAs.
+Use this mapping for pure DAs and DAs backed by existing OpenAPI, remote MCP, or Copilot Connector services. Do not apply it to DAs with project-owned backend deployment or TypeSpec DAs.
 
 | DA intent or former ATK command | WIQD command                                                                                         |
 | ------------------------------- | ---------------------------------------------------------------------------------------------------- |
@@ -136,16 +132,16 @@ wiqd agent add action \
 
 For static OAuth, require a real client ID and client secret; scopes are optional and must come from the user or provider documentation. For Entra SSO, require a real client ID. Never invent client IDs, client secrets, or scopes.
 
-## Hybrid DA and Backend Projects
+## DA Backend Routing
 
 Classify the project by structure, then keep one toolchain for its complete lifecycle:
 
-| Scenario | Classification | Lifecycle |
+| Scenario | Routing basis | Lifecycle |
 | --- | --- | --- |
-| Pure DA | Non-hybrid | WIQD |
-| DA that references an existing Copilot Connector connection | Non-hybrid | WIQD |
-| DA that attaches an existing OpenAPI API or remote MCP server | Non-hybrid | WIQD for the DA; the existing backend keeps its own deployment toolchain |
-| DA with project-owned backend source and corresponding backend deployment actions, including a new Connector ingestion backend | Hybrid | ATK for the DA manifest, backend, provisioning, deployment, packaging, publishing, and deletion |
-| MetaOS or TypeSpec DA | ATK-only specialized capability | Follow the generated ATK lifecycle |
+| Pure DA | No project-owned backend deployment | WIQD |
+| DA that references an existing Copilot Connector connection | Existing connection | WIQD |
+| DA that attaches an existing OpenAPI API or remote MCP server | Existing external backend | WIQD for the DA; the existing backend keeps its own deployment toolchain |
+| DA with project-owned backend source and corresponding backend deployment actions, including a new Connector ingestion backend | Project-owned backend deployment | ATK for the DA manifest, backend, provisioning, deployment, packaging, publishing, and deletion |
+| TypeSpec DA | Explicit TypeSpec capability | Follow the generated ATK lifecycle |
 
 Do not switch tools after a lifecycle failure. Apply the structural routing gate above to every existing project.
