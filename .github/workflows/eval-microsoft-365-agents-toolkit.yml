@@ -12,6 +12,56 @@ permissions:
   contents: read
 
 jobs:
+  validate-evals:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout evaluation definitions
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+          path: eval-source
+          ref: ${{ github.event_name == 'pull_request_target' && github.event.pull_request.head.sha || github.sha }}
+          repository: ${{ github.event_name == 'pull_request_target' && github.event.pull_request.head.repo.full_name || github.repository }}
+          sparse-checkout: evals/microsoft-365-agents-toolkit
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install schema validator
+        working-directory: ${{ runner.temp }}
+        run: python -m pip install check-jsonschema==0.38.0
+
+      - name: Validate evaluation schemas
+        working-directory: ${{ runner.temp }}
+        run: |
+          eval_root="$GITHUB_WORKSPACE/eval-source/evals/microsoft-365-agents-toolkit"
+          if find "$eval_root" -type l -print -quit | grep -q .; then
+            echo "Symbolic links are not allowed in evaluation definitions."
+            exit 1
+          fi
+
+          python -m check_jsonschema \
+            --schemafile https://raw.githubusercontent.com/microsoft/waza/main/schemas/eval.schema.json \
+            "$eval_root/eval.yaml"
+
+          mapfile -d '' task_files < <(find \
+            "$eval_root" \
+            -type f \
+            -path '*-tasks/*' \
+            \( -name '*.yaml' -o -name '*.yml' \) \
+            -print0)
+          if [ "${#task_files[@]}" -eq 0 ]; then
+            echo "No evaluation task files found."
+            exit 1
+          fi
+          python -m check_jsonschema \
+            --schemafile https://raw.githubusercontent.com/microsoft/waza/main/schemas/task.schema.json \
+            "${task_files[@]}"
+
   evaluate:
     if: ${{ !endsWith(github.actor, '[bot]') }}
     runs-on: ubuntu-latest

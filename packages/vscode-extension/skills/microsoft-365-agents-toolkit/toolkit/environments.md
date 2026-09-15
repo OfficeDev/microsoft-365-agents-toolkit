@@ -1,5 +1,7 @@
 # Environments and `.localConfigs`
 
+> **Declarative Agents:** Apply the [structural routing gate](declarative-agent-lifecycle.md#structural-routing-gate). The ATK guidance below applies only when that gate selects ATK.
+
 ## purpose
 
 Multi-environment management with environment files, `${{VAR}}` variable resolution, the `SECRET_` prefix convention, and the `.localConfigs` runtime-config flow for Agents Toolkit projects.

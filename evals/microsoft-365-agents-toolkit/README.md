@@ -31,12 +31,28 @@ evals/microsoft-365-agents-toolkit/
 To run the evaluation locally, you need:
 1. Required environment variables (see setup.sh)
 2. Installed tooling: `waza` CLI
-3. Proper authentication set up
+3. For Declarative Agent execution tasks, WIQD installed with its EULA accepted interactively
+4. Proper authentication set up for tasks that access Microsoft 365 or Azure
+
+Confirm WIQD is installed and its EULA has been accepted before running Declarative Agent execution tasks:
+
+```bash
+wiqd --version
+```
+
+For tasks that access Microsoft 365, also verify WIQD authentication:
+
+```bash
+wiqd auth status
+wiqd doctor
+```
+
+If WIQD is missing or its EULA has not been accepted, `setup.sh` emits a warning. Non-DA tasks can continue, but DA execution tasks will not pass. Read-only DA schema tasks do not require WIQD.
 
 ```bash
 cd evals/microsoft-365-agents-toolkit
 bash setup.sh
-waza eval run eval.yaml
+waza run eval.yaml
 ```
 
 ### Via GitHub Actions
@@ -55,6 +71,8 @@ Required secrets in the repository:
 - `AZURE_ACCOUNT_PASSWORD` - Azure account password
 - `AZURE_TENANT_ID` - Azure tenant ID
 - `AZURE_SUBSCRIPTION_ID` - Azure subscription ID
+
+The schema-validation job runs on a fresh GitHub-hosted runner and does not require WIQD. Behavioral DA execution requires an environment where WIQD has already been initialized. WIQD does not currently provide a supported non-interactive EULA acceptance flow, so a fresh GitHub-hosted runner cannot bootstrap this prerequisite. Do not bypass or automate EULA acceptance; use a preconfigured runner when that becomes available and track the CI bootstrap dependency separately.
 
 ## Skill Location
 

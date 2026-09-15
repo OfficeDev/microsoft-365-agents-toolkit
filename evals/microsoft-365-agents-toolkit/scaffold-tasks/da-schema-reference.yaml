@@ -1,0 +1,39 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/microsoft/waza/main/schemas/task.schema.json
+
+id: da-schema-reference
+name: Answer DA Schema Question Without WIQD Setup
+description: User asks a read-only Declarative Agent schema question
+tags:
+  - declarative-agent
+  - reference
+inputs:
+  prompt: "Which field in a Declarative Agent manifest registers the declarativeAgent.json file?"
+expected:
+  should_trigger: true
+graders:
+  - type: behavior
+    name: efficiency_check
+    config:
+      max_tool_calls: 8
+      max_duration_ms: 30000
+      forbidden_tools:
+        - rm
+        - sudo
+  - type: tool_constraint
+    name: no_lifecycle_setup
+    config:
+      reject_tools:
+        - tool: shell
+          command_pattern: '(?i)\b(atk|wiqd|npm)\b'
+  - type: prompt
+    name: quality_check
+    config:
+      prompt: |
+        Review the agent's response. Check that it:
+        1. Answers that `manifest.json` registers the file through `copilotAgents.declarativeAgents` entries containing `id` and `file`.
+        2. Does not require WIQD installation, authentication, or a lifecycle command for this read-only question.
+
+        If all criteria are met, call set_waza_grade_pass.
+        Otherwise, call set_waza_grade_fail with your reasoning.
+      model: "gpt-5.4"
+      continue_session: true

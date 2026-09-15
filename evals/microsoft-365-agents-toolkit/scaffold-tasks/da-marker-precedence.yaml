@@ -1,0 +1,53 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/microsoft/waza/main/schemas/task.schema.json
+
+id: da-marker-precedence
+name: Backend Source Without Deployment Uses WIQD
+description: Existing DA has backend source and build configuration but no backend deployment lifecycle
+tags:
+  - declarative-agent
+  - routing
+inputs:
+  prompt: "Validate and package this existing Declarative Agent project."
+  files:
+    - path: declarative-agent/appPackage/manifest.json
+    - path: declarative-agent/appPackage/declarativeAgent.json
+    - path: declarative-agent/appPackage/color.png
+    - path: declarative-agent/appPackage/outline.png
+    - path: declarative-agent/m365agents.yml
+    - path: declarative-agent/package.json
+    - path: declarative-agent/src/functions/repairs.ts
+expected:
+  should_trigger: true
+graders:
+  - type: behavior
+    name: efficiency_check
+    config:
+      max_tool_calls: 35
+      max_duration_ms: 120000
+      forbidden_tools:
+        - rm
+        - sudo
+  - type: tool_constraint
+    name: wiqd_lifecycle_commands
+    config:
+      expect_tools:
+        - tool: shell
+          command_pattern: '(?i)\bwiqd\s+agent\s+validate\b'
+        - tool: shell
+          command_pattern: '(?i)\bwiqd\s+agent\s+package\b'
+      reject_tools:
+        - tool: shell
+          command_pattern: '(?i)\batk\s+(?:validate|package|provision|deploy|publish|uninstall)\b'
+  - type: prompt
+    name: quality_check
+    config:
+      prompt: |
+        Review the agent's response. Check that it:
+        1. Selects WIQD because backend source and build configuration exist but the lifecycle has no action that provisions or deploys that backend.
+        2. Uses WIQD validate and package commands even though backend source and `m365agents.yml` exist.
+        3. Does not infer lifecycle routing from the scaffold CLI or use ATK lifecycle commands.
+
+        If all criteria are met, call set_waza_grade_pass.
+        Otherwise, call set_waza_grade_fail with your reasoning.
+      model: "gpt-5.4"
+      continue_session: true
