@@ -63,7 +63,8 @@ Use this mapping for pure DAs and DAs backed by existing OpenAPI, remote MCP, or
 | `atk validate`                  | `wiqd agent validate --path <project> --env <env>`                                                   |
 | `atk package`                   | `wiqd agent package --path <project> --env <env>`                                                    |
 | `atk provision`                 | `wiqd agent provision --path <project> --env <env>`                                                  |
-| `atk share`                     | `wiqd agent share --path <project> --env <env> --scope users --email <comma-separated-emails>`       |
+| Share tenant-wide               | `wiqd agent share --path <project> --env <env> --scope tenant`                                       |
+| Share with users                | `wiqd agent share --path <project> --env <env> --scope users --email <comma-separated-emails>`       |
 | Remove sharing                  | `wiqd agent share remove --path <project> --env <env> --users <comma-separated-emails>`               |
 | `atk publish`                   | `wiqd agent publish --path <project> --env <env>`                                                    |
 | `atk uninstall`                 | `wiqd agent delete --path <project> --env <env>`                                                     |

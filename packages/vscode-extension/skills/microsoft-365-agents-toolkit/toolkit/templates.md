@@ -25,7 +25,7 @@ For entries routed to ATK, use `atk new -c <capability>`. The DA routing excepti
 | `basic-custom-engine-agent` | Basic Custom Engine Agent |
 | `weather-agent` | Weather Agent |
 | `foundry-agent-to-m365` | Foundry Agent to M365 |
-| `copilot-connector` | Standalone project-owned Copilot Connector backend |
+| `copilot-connector` | Copilot Connector |
 | `teams-agent` | General Teams Agent |
 | `teams-agent-rag-customize` | Teams Agent with Data from Customized Source |
 | `teams-agent-rag-azure-ai-search` | Teams Agent with Data from Azure AI Search |
