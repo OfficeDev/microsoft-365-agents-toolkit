@@ -5,6 +5,7 @@ import { HookContext, Middleware, NextFunction } from "@feathersjs/hooks/lib";
 import { Inputs, err } from "@microsoft/teamsfx-api";
 import { throwIfAborted } from "../../common/cancellation";
 import { TOOLS } from "../../common/globalVars";
+import { DriverContext } from "../driver/interface/commonArgs";
 import { QuestionNodes, questionNodes } from "../../question";
 import { traverse } from "../../ui/visitor";
 
@@ -14,6 +15,8 @@ export function QuestionMW(key: keyof QuestionNodes, fromAction = false): Middle
     throwIfAborted(inputs);
     if (fromAction) {
       inputs.outputEnvVarNames = ctx.arguments[2];
+      const driverContext = ctx.arguments[1] as DriverContext;
+      inputs.nonInteractive = driverContext.nonInteractive;
     }
     const node = questionNodes[key](inputs.platform);
     const askQuestionRes = await traverse(node, inputs, TOOLS.ui, TOOLS.telemetryReporter);

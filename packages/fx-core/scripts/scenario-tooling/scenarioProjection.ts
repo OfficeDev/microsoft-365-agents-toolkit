@@ -6,7 +6,7 @@ import path from "path";
 import { Platform } from "@microsoft/teamsfx-api";
 import { QuestionNames } from "../../src/question";
 import { PresentationQuestion } from "../../src/v4/buildTarget/parseSelector";
-import { QuestionSpec } from "../../src/v4/collectInputs/collectInputs";
+import { OptionItem, QuestionSpec } from "../../src/v4/collectInputs/collectInputs";
 import {
   ConditionNode,
   NULL_VALUE,
@@ -17,6 +17,10 @@ import {
 import { ScaffoldCatalog } from "../../src/v4/inspection/scaffoldCatalog";
 import { createFloorTail } from "../../src/v4/surface/createFloorTail";
 import { gateLanguagesBySurface } from "../../src/v4/surface/createInputs";
+import {
+  createLanguageOptionsProvider,
+  resolveLanguageOptions,
+} from "../../src/v4/providers/createLanguageOptionsProvider";
 import {
   ScaffoldFingerprints,
   ScenarioCatalog,
@@ -496,25 +500,41 @@ async function composeReviewContextTails(
       if (projection.catalog.kind !== "create") {
         return projection;
       }
-      const languages = Array.from(
-        new Set(
-          projection.catalog.templates.flatMap((template) =>
-            descriptorLanguages(template.descriptor)
-          )
-        )
-      );
-      const gatedLanguages = gateLanguagesBySurface(
-        languages.length > 0 ? languages : ["common"],
-        projection.context.surface,
-        featureFlagReader(projection, relativePath, diagnostics)
-      );
+      const options = new Map<string, OptionItem>();
+      for (const template of projection.catalog.templates) {
+        const languages = await resolveLanguageOptions(
+          createLanguageOptionsProvider({
+            descriptor: template.descriptor,
+            surface: projection.context.surface,
+            flagReader: featureFlagReader(projection, relativePath, diagnostics),
+          })
+        );
+        if (languages.isErr()) {
+          diagnostics.push(
+            diagnostic(
+              "error",
+              "ReviewContextFloorCompositionFailed",
+              relativePath,
+              languages.error.message
+            )
+          );
+          return projection;
+        }
+        for (const option of languages.value) {
+          if (!options.has(option.id)) {
+            options.set(option.id, option);
+          }
+        }
+      }
       const platform =
         projection.context.surface === "cli"
           ? Platform.CLI
           : projection.context.surface === "vs"
             ? Platform.VS
             : Platform.VSCode;
-      const floor = await createFloorTail({ nonInteractive: false, platform }, gatedLanguages);
+      const floor = await createFloorTail({ nonInteractive: false, platform }, [
+        ...options.values(),
+      ]);
       if (floor.isErr()) {
         diagnostics.push(
           diagnostic(

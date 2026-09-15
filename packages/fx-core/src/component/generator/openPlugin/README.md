@@ -171,4 +171,4 @@ openPlugin/
 | Flag                               | Default | Purpose                                                                                                                                            |
 | ---------------------------------- | ------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `TEAMSFX_OPENPLUGIN_IMPORT_EXPORT` | `true`  | Gates registration of the import/export commands (both spellings).                                                                                 |
-| `TEAMSFX_AGENT_SKILLS`             | `false` | Gates `createAppPackage` folder walk for the DA-level `agent_skills` property. Top-level Teams manifest `agentSkills` is packaged unconditionally. |
+| `ATK_FRONTIER`                     | `false` | Gates `createAppPackage` folder walk for the DA-level `agent_skills` property. Top-level Teams manifest `agentSkills` is packaged unconditionally. |

@@ -4,6 +4,11 @@
 import m365Provider from "@microsoft/m365agentstoolkit-cli/src/commonlib/m365LoginUserPassword";
 import { AppStudioScopes, GraphScopes } from "@microsoft/teamsfx-core";
 import axios, { AxiosInstance } from "axios";
+import {
+  getBotRegistrationApiPath,
+  getTeamsAppApiPath,
+  isUsingNewDeveloperPortalApis,
+} from "../../commonlib/developerPortalApi";
 
 async function createRequester(): Promise<AxiosInstance> {
   const appStudioTokenRes = await m365Provider.getAccessToken({
@@ -103,7 +108,7 @@ export async function deleteBot(botId: string) {
   const requester = await createRequester();
   for (let retries = 3; retries > 0; --retries) {
     try {
-      const response = await requester.delete(`/api/botframework/${botId}`);
+      const response = await requester.delete(getBotRegistrationApiPath(botId));
       if (response.status >= 200 && response.status < 300) {
         console.log("Successfully deleted bot");
         return;
@@ -118,7 +123,7 @@ export async function getBot(botId: string): Promise<any> {
   const requester = await createRequester();
   for (let retries = 3; retries > 0; --retries) {
     try {
-      const response = await requester.get(`/api/botframework/${botId}`);
+      const response = await requester.get(getBotRegistrationApiPath(botId));
       if (response.status >= 200 && response.status < 300) {
         console.log("Successfully got bot");
         return response.data;
@@ -134,9 +139,8 @@ export async function deleteTeamsApp(teamsAppId: string) {
   const requester = await createRequester();
   for (let retries = 3; retries > 0; --retries) {
     try {
-      const response = await requester.delete(
-        `/api/appdefinitions/${teamsAppId}`,
-      );
+      const path = await getTeamsAppApiPath(requester, teamsAppId);
+      const response = await requester.delete(path);
       if (response.status >= 200 && response.status < 300) {
         console.log("Successfully deleted Teams app");
         return;
@@ -151,10 +155,16 @@ export async function getTeamsApp(teamsAppId: string): Promise<any> {
   const requester = await createRequester();
   for (let retries = 3; retries > 0; --retries) {
     try {
-      const response = await requester.get(`/api/appdefinitions/${teamsAppId}`);
+      const path = await getTeamsAppApiPath(requester, teamsAppId);
+      const response = await requester.get(path);
       if (response.status >= 200 && response.status < 300) {
         console.log("Successfully got Teams app");
-        return response.data;
+        return isUsingNewDeveloperPortalApis()
+          ? {
+              ...response.data,
+              teamsAppId: response.data.appExternalId ?? teamsAppId,
+            }
+          : response.data;
       }
     } catch (e) {
       console.log(`Failed to get Teams app, error: ${e}`);

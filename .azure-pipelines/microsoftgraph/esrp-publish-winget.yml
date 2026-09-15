@@ -1,0 +1,206 @@
+name: winget_esrp_$(SourceBranchName)_$(Date:yyyyMMdd)$(Rev:.r)
+
+# GitHub-backed Azure Pipelines triggers run when the release tag is pushed,
+# which can happen before GitHub finishes publishing the release assets. The
+# release step waits for the Windows archive before generating the manifests.
+trigger:
+  branches:
+    exclude:
+      - '*'
+  tags:
+    include:
+      - 'microsoft-365-agents-playground@*'
+
+pr: none
+
+parameters:
+  # Empty on a tag-triggered run = derive the tag from Build.SourceBranch.
+  # Empty on a manual run = skip the publish stage.
+  - name: githubReleaseTag
+    type: string
+    default: ''
+
+variables:
+  - name: githubRepo
+    value: 'OfficeDev/microsoft-365-agents-toolkit'
+  - name: wingetManifestsDir
+    value: '$(Build.SourcesDirectory)/winget-manifests'
+
+resources:
+  repositories:
+    - repository: 1ESPipelineTemplates
+      type: git
+      name: 1ESPipelineTemplates/1ESPipelineTemplates
+      ref: refs/tags/release
+
+extends:
+  template: v1/1ES.Official.PipelineTemplate.yml@1ESPipelineTemplates
+  parameters:
+    sdl:
+      sourceAnalysisPool:
+        name: Azure-Pipelines-1ESPT-ExDShared
+        os: windows
+        image: windows-latest
+      # No .config/tsaoptions.json exists in this repo yet.
+      tsa:
+        enabled: false
+
+    stages:
+      - stage: publish_winget
+        displayName: Publish Agents Playground through ESRP WinGet
+        condition: >-
+          or(
+            ${{ ne(parameters.githubReleaseTag, '') }},
+            startsWith(variables['Build.SourceBranch'], 'refs/tags/microsoft-365-agents-playground@')
+          )
+        jobs:
+          - job: release
+            displayName: Publish Agents Playground WinGet manifests
+            pool:
+              name: Azure-Pipelines-1ESPT-ExDShared
+              os: windows
+              image: windows-latest
+            templateContext:
+              type: releaseJob
+              isProduction: true
+            steps:
+              - checkout: none
+
+              - pwsh: |
+                  $ErrorActionPreference = 'Stop'
+                  $headers = @{
+                    Accept                 = 'application/vnd.github+json'
+                    'X-GitHub-Api-Version' = '2022-11-28'
+                    'User-Agent'           = 'atk-esrp-winget-publish'
+                  }
+
+                  $tag = $env:GITHUB_RELEASE_TAG
+                  if (-not $tag) {
+                    $tag = $env:BUILD_SOURCEBRANCH -replace '^refs/tags/', ''
+                    Write-Host "No githubReleaseTag parameter; using triggering tag '$tag'."
+                  }
+                  if ($tag -notmatch '^microsoft-365-agents-playground@(?<version>(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*))$') {
+                    throw 'Expected a stable release tag in the form microsoft-365-agents-playground@<major>.<minor>.<patch>.'
+                  }
+                  $version = $Matches.version
+                  $assetName = 'agentsplayground-win32-x64.zip'
+                  $releaseUrl = "https://api.github.com/repos/$(githubRepo)/releases/tags/$([uri]::EscapeDataString($tag))"
+                  $installerUrl = "https://github.com/$(githubRepo)/releases/download/$tag/$assetName"
+                  $deadline = [DateTime]::UtcNow.AddMinutes(10)
+
+                  do {
+                    $release = $null
+                    try {
+                      $release = Invoke-RestMethod -Uri $releaseUrl -Headers $headers -TimeoutSec 30
+                    } catch {
+                      if ($null -eq $_.Exception.Response -or [int]$_.Exception.Response.StatusCode -ne 404) { throw }
+                    }
+
+                    $assets = @($release.assets | Where-Object { $_.name -ceq $assetName })
+                    if ($null -ne $release -and -not $release.draft -and $release.tag_name -ceq $tag -and $assets.Count -eq 1) {
+                      break
+                    }
+                    if ([DateTime]::UtcNow -ge $deadline) {
+                      throw "Timed out waiting for GitHub release '$tag' and asset '$assetName'."
+                    }
+                    Write-Host "Waiting for GitHub to publish '$assetName' on release '$tag'."
+                    Start-Sleep -Seconds 15
+                  } while ($true)
+
+                  if ($assets[0].size -le 0) {
+                    throw 'The GitHub release must be published with a non-empty Windows archive.'
+                  }
+
+                  $archivePath = Join-Path $env:AGENT_TEMPDIRECTORY $assetName
+                  Invoke-WebRequest -Uri $installerUrl -OutFile $archivePath -TimeoutSec 120
+                  if ((Get-Item $archivePath).Length -ne $assets[0].size) {
+                    throw "Downloaded archive size does not match the GitHub release asset '$assetName'."
+                  }
+                  $installerSha256 = (Get-FileHash $archivePath -Algorithm SHA256).Hash
+
+                  $manifestDir = '$(wingetManifestsDir)'
+                  New-Item -ItemType Directory -Path $manifestDir -ErrorAction Stop | Out-Null
+
+                  @"
+                  # yaml-language-server: `$schema=https://aka.ms/winget-manifest.version.1.10.0.schema.json
+
+                  PackageIdentifier: Microsoft.M365AgentsPlayground
+                  PackageVersion: $version
+                  DefaultLocale: en-US
+                  ManifestType: version
+                  ManifestVersion: 1.10.0
+                  "@ | Set-Content -Path (Join-Path $manifestDir 'Microsoft.M365AgentsPlayground.yaml') -Encoding utf8NoBOM
+
+                  @"
+                  # yaml-language-server: `$schema=https://aka.ms/winget-manifest.installer.1.10.0.schema.json
+
+                  PackageIdentifier: Microsoft.M365AgentsPlayground
+                  PackageVersion: $version
+                  InstallerLocale: en-US
+                  InstallerType: zip
+                  NestedInstallerType: portable
+                  NestedInstallerFiles:
+                  - RelativeFilePath: agentsplayground.exe
+                    PortableCommandAlias: agentsplayground
+                  UpgradeBehavior: install
+                  Commands:
+                  - agentsplayground
+                  Installers:
+                  - Architecture: x64
+                    InstallerUrl: $installerUrl
+                    InstallerSha256: $installerSha256
+                  ManifestType: installer
+                  ManifestVersion: 1.10.0
+                  "@ | Set-Content -Path (Join-Path $manifestDir 'Microsoft.M365AgentsPlayground.installer.yaml') -Encoding utf8NoBOM
+
+                  @"
+                  # yaml-language-server: `$schema=https://aka.ms/winget-manifest.defaultLocale.1.10.0.schema.json
+
+                  PackageIdentifier: Microsoft.M365AgentsPlayground
+                  PackageVersion: $version
+                  PackageLocale: en-US
+                  Publisher: Microsoft Corporation
+                  Author: Microsoft Corporation
+                  PackageName: Microsoft 365 Agents Playground
+                  PackageUrl: https://learn.microsoft.com/microsoftteams/platform/toolkit/debug-your-agents-playground
+                  License: Microsoft Pre-Release Software License
+                  Copyright: Copyright (c) Microsoft Corporation
+                  ShortDescription: Debug, test and iterate agent/bot application locally.
+                  Description: Helps developers to debug, test and iterate on the app design of a agent/bot application in a web-based chat environment that emulates the behavior, look and feel of different channels.
+                  Moniker: agentsplayground
+                  Tags:
+                  - agent
+                  - bot
+                  - chat
+                  - debug
+                  - development
+                  - pre-release
+                  ManifestType: defaultLocale
+                  ManifestVersion: 1.10.0
+                  "@ | Set-Content -Path (Join-Path $manifestDir 'Microsoft.M365AgentsPlayground.locale.en-US.yaml') -Encoding utf8NoBOM
+
+                  Write-Host "Generated WinGet manifests for Microsoft.M365AgentsPlayground $version."
+                env:
+                  GITHUB_RELEASE_TAG: ${{ parameters.githubReleaseTag }}
+                displayName: Generate Agents Playground WinGet manifests
+
+              - task: EsrpRelease@12
+                displayName: Publish Agents Playground through ESRP WinGet
+                inputs:
+                  connectedservicename: 'ATK ESRP Connection'
+                  # The service connection uses a federated credential to let the
+                  # onboarded managed identity authenticate without stored secrets.
+                  usemanagedidentity: true
+                  keyvaultname: 'ATK-ESRP-KEY-VAULT'
+                  signcertname: 'ATK-ESRP-CERT'
+                  clientid: '62d1b680-312a-4484-9737-fc13f2f7e6f3'
+                  intent: 'Winget'
+                  contenttype: 'Winget'
+                  contentsource: 'Folder'
+                  folderlocation: '$(wingetManifestsDir)'
+                  waitforreleasecompletion: true
+                  owners: 'alicewan@microsoft.com'
+                  approvers: 'alicewan@microsoft.com'
+                  serviceendpointurl: 'https://api.esrp.microsoft.com'
+                  mainpublisher: 'ESRPRELPACMAN'
+                  domaintenantid: '975f013f-7f24-47e8-a7d3-abc4752bf346'

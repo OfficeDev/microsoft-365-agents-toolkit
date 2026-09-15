@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
+import openApiAssets from "./assets/openApiCustomApi.json";
+import { renderFragment } from "../renderFragment";
 import {
   AdaptiveCardGenerator,
   ConstantString,
@@ -76,10 +78,7 @@ async function updateInstructions(
   }
   const emptyArgs = `{ "path": null, "body": null, "query": null }`;
   const description = spec.info.description ? `. ${spec.info.description}` : ".";
-  const prompt =
-    `The following is a conversation with an AI assistant.\n` +
-    `The assistant can help to call APIs for the open api spec file${description}\n` +
-    `If the API doesn't require parameters, invoke it with default JSON object ${emptyArgs}.\n\n`;
+  const prompt = renderFragment(openApiAssets.instructions, { description, emptyArgs });
   await fs.writeFile(path.join(appFolder, "instructions.txt"), prompt, "utf8");
 }
 
@@ -236,125 +235,15 @@ async function updateFunctions(operations: SpecOperation[], appFolder: string): 
 }
 
 const functionDefinitionCode = {
-  javascript: `.function(
-      functionDefs.{{operationId}}.name,
-      functionDefs.{{operationId}}.description,
-      functionDefs.{{operationId}}.parameters,
-      async (parameter) => {
-        const result = await functionHandlers.{{operationId}}Handler(parameter);
-        if(result) {
-          await send(result);
-          return "result showed";
-        } else {
-          return "no result";
-        }
-      }
-  )`,
-  typescript: `.function(
-      functionDefs.{{operationId}}.name,
-      functionDefs.{{operationId}}.description,
-      functionDefs.{{operationId}}.parameters,
-      async (parameter) => {
-        const result = await functionHandlers.{{operationId}}Handler(parameter);
-        if(result) {
-          await send(result);
-          return "result showed";
-        } else {
-          return "no result";
-        }
-      }
-  )`,
-  python: `.with_function(
-      Function(
-            name=function_defs["{{operationId}}"]["name"],
-            description=function_defs["{{operationId}}"]["description"],
-            parameter_schema=function_defs["{{operationId}}"]["parameters"],
-            handler=make_handler({{operationId}}, ctx)
-      )
-    )`,
+  javascript: openApiAssets.functionDefinitionCode.javascript.join("\n"),
+  typescript: openApiAssets.functionDefinitionCode.typescript.join("\n"),
+  python: openApiAssets.functionDefinitionCode.python.join("\n"),
 };
 
 const functionHandlerCode = {
-  javascript: `const {{operationId}}Handler = async (
-  parameters
-) => {
-  const client = await api.getClient();
-  // Add authentication configuration for the client
-  const apiPath = client.paths["{{pathUrl}}"];
-  if (apiPath && apiPath.{{method}}) {
-    const result = await apiPath.{{method}}(parameters.path, parameters.body, {
-      params: parameters.query,
-    });
-    if (!result || !result.data) {
-      throw new Error("Get empty result from api call.");
-    }
-    const cardName = "{{operationId}}".replace(/[^a-zA-Z0-9]/g, "_");
-    const cardTemplatePath = path.join(__dirname, '../adaptiveCards', cardName + '.json');
-    if (await fs.exists(cardTemplatePath)){
-      const card = generateAdaptiveCard(cardTemplatePath, result);
-      return card;
-    } else {
-      return JSON.stringify(result.data);
-    }
-  } else {
-    return "";
-  }
-
-};
-
-module.exports = { {{operationId}}Handler };`,
-  typescript: `export const {{operationId}}Handler = async (
-  parameter: any
-) => {
-  const client = await api.getClient();
-  // Add authentication configuration for the client
-  const apiPath = client.paths["{{pathUrl}}"];
-  if (apiPath && apiPath.{{method}}) {
-    const result = await apiPath.{{method}}(parameter.path, parameter.body, {
-      params: parameter.query,
-    });
-    if (!result || !result.data) {
-      throw new Error("Get empty result from api call.");
-    }
-    const cardName = "{{operationId}}".replace(/[^a-zA-Z0-9]/g, "_");
-    const cardTemplatePath = path.join(__dirname, '../adaptiveCards', cardName + '.json');
-    if (await fs.exists(cardTemplatePath)){
-      const card = generateAdaptiveCard(cardTemplatePath, result);
-      return card;
-    } else {
-      return JSON.stringify(result.data);
-    }
-  } else {
-    return "";
-  }
-    
-};`,
-  python: `async def {{operationId}}(
-  parameters,
-):
-  path = getattr(parameters, "path", {})
-  body = getattr(parameters, "body", None)
-  query = getattr(parameters, "query", {}) or {}
-  resp = client.{{operationId}}(**path, json=body, _headers={}, _params=query, _cookies={})
-
-  if resp.status_code != 200:
-    return resp.reason
-  else:
-    card_template_path = os.path.join(current_dir, 'adaptiveCards/{{operationId}}.json')
-    if not os.path.exists(card_template_path):
-      json_resoponse_str = resp.text
-      return json_resoponse_str
-    else:
-      with open(card_template_path) as card_template_file:
-        adaptive_card_template = card_template_file.read()
-
-      renderer = AdaptiveCardRenderer(adaptive_card_template)
-
-      json_resoponse_str = resp.text
-      rendered_card_str = renderer.render(json_resoponse_str)
-      rendered_card_json = json.loads(rendered_card_str)
-      return AdaptiveCard.model_validate(rendered_card_json)
-  `,
+  javascript: openApiAssets.functionHandlerCode.javascript.join("\n"),
+  typescript: openApiAssets.functionHandlerCode.typescript.join("\n"),
+  python: openApiAssets.functionHandlerCode.python.join("\n"),
 };
 
 function renderCode(template: string, item: SpecOperation): string {

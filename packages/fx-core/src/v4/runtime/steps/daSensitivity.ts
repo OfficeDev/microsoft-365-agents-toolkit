@@ -3,12 +3,15 @@
 
 import { FxError, SystemError } from "@microsoft/teamsfx-api";
 import { Result, err, ok } from "neverthrow";
-import { RegisteredStep, StepContext, StepParams } from "../../pipeline/runScaffoldPipeline";
+import { capabilityDeclarations } from "../../capabilities/declarations";
+import { RegisteredStep, StepParams } from "../../pipeline/runScaffoldPipeline";
+import { defineStep } from "../../pipeline/defineStep";
+import { DaManifestService, daManifestService } from "../services/daManifestService";
 
 const SOURCE = "Scaffold";
 
 /** Engine step name `da/set-sensitivity-label`. */
-export const STEP_SET_SENSITIVITY_LABEL = "da/set-sensitivity-label";
+export const STEP_SET_SENSITIVITY_LABEL = capabilityDeclarations.step.setSensitivityLabel.id;
 
 function systemError(name: string, message: string): SystemError {
   return new SystemError({ source: SOURCE, name, message });
@@ -31,29 +34,25 @@ export const NOOP_GENERAL_SENSITIVITY_LABEL_SERVICE: GeneralSensitivityLabelServ
 
 /** Bind the General-label lookup dependency into its registered step. */
 export function createDaSetSensitivityLabelStep(
-  generalSensitivityLabel: GeneralSensitivityLabelService
+  generalSensitivityLabel: GeneralSensitivityLabelService,
+  manifests: DaManifestService = daManifestService
 ): RegisteredStep {
-  return {
-    validateParams(resolved: StepParams): string | undefined {
-      return manifestPath(resolved) === undefined
-        ? "missing non-empty string parameter 'manifestPath'"
-        : undefined;
-    },
-    async apply(resolved: StepParams, ctx: StepContext): Promise<Result<void, FxError>> {
+  return defineStep({
+    parse(resolved): Result<string, string> {
       const path = manifestPath(resolved);
-      if (path === undefined) {
-        return err(
-          systemError("DaSensitivityLabelParams", "resolved manifestPath is not a non-empty string")
-        );
-      }
-
+      return path === undefined
+        ? err("missing non-empty string parameter 'manifestPath'")
+        : ok(path);
+    },
+    invalidParams: () =>
+      systemError("DaSensitivityLabelParams", "resolved manifestPath is not a non-empty string"),
+    async apply(path, ctx): Promise<Result<void, FxError>> {
       const id = await generalSensitivityLabel.resolveId();
       if (id === undefined) {
         return ok(undefined);
       }
 
-      const wrapper = ctx.manifestWrapper("declarativeAgent");
-      if (wrapper.setSensitivityLabel === undefined) {
+      if (manifests.setSensitivityLabel === undefined) {
         return err(
           systemError(
             "DaSensitivityLabelWrapperMissing",
@@ -61,9 +60,9 @@ export function createDaSetSensitivityLabelStep(
           )
         );
       }
-      return wrapper.setSensitivityLabel(path, id);
+      return manifests.setSensitivityLabel(ctx, path, id);
     },
-  };
+  });
 }
 
 /** Default step binding for offline runtimes and compatibility consumers. */

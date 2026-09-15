@@ -400,7 +400,7 @@ export class CreateAppPackageDriver implements StepDriver {
           }
         }
         // Add agent skill directories (support both agent_skills and x-agent_skills)
-        if (featureFlagManager.getBooleanValue(FeatureFlags.AgentSkillsManifest)) {
+        if (featureFlagManager.getBooleanValue(FeatureFlags.Frontier)) {
           const agentSkills =
             getCopilotGptRes.value.agent_skills ||
             (getCopilotGptRes.value as any)["x-agent_skills"];

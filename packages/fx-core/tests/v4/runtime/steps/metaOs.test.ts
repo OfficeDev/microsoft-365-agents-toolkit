@@ -13,8 +13,7 @@ import {
   metaOsUpgradeExistingProject,
 } from "../../../../src/v4/runtime/steps/metaOs";
 import { StepContext } from "../../../../src/v4/pipeline/runScaffoldPipeline";
-import { NOOP_MANIFEST_WRAPPER } from "../../../../src/v4/runtime/runtimeRegistry";
-import { assert } from "vitest";
+import { assert, expect } from "vitest";
 
 function makeCtx(initial: Record<string, string> = {}): {
   ctx: StepContext;
@@ -32,7 +31,6 @@ function makeCtx(initial: Record<string, string> = {}): {
         files.set(filePath, data);
       },
       writeEnvironment: () => Promise.resolve(ok(undefined)),
-      manifestWrapper: () => NOOP_MANIFEST_WRAPPER,
     },
   };
 }
@@ -153,6 +151,32 @@ describe("metaOs steps (v4)", () => {
 
     afterEach(() => {
       fs.removeSync(tempDir);
+    });
+
+    it("AC-30: preserves MetaOS generated manifest and command bytes", () => {
+      const { ctx, files } = makeCtx({
+        "appPackage/manifest.json": JSON.stringify(baseManifest()),
+        "src/commands/commands.ts": "export const marker = true;\n",
+        "package.json": "{}",
+      });
+      const result = metaOsUpgradeExistingProject.apply(
+        { sourceFolder: tempDir, appName: 'My "Addin" & tools' },
+        ctx
+      );
+      assert.isTrue(result.isOk(), result.isErr() ? result.error.message : "expected ok");
+      expect({
+        agent: text(files, "appPackage/declarativeAgent.json"),
+        plugin: text(files, "appPackage/alchemy-plugin.json"),
+        commands: text(files, "src/commands/commands.ts"),
+        package: text(files, "package.json"),
+      }).toMatchSnapshot();
+    });
+
+    it("AC-30: ships MetaOS static content as imported data", async () => {
+      const asset = await import("../../../../src/v4/runtime/steps/assets/metaOs.json");
+      assert.isObject(asset.default.agent);
+      assert.isObject(asset.default.plugin);
+      assert.isArray(asset.default.commandHandlerCode);
     });
 
     it("validateParams reports missing parameters", () => {

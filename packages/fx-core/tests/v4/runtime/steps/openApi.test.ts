@@ -9,7 +9,7 @@ import { SystemError, UserError } from "@microsoft/teamsfx-api";
 import { ok } from "neverthrow";
 import { featureFlagManager } from "../../../../src/common/featureFlags";
 import { StepContext } from "../../../../src/v4/pipeline/runScaffoldPipeline";
-import { NOOP_MANIFEST_WRAPPER, STEP_REGISTRY } from "../../../../src/v4/runtime/runtimeRegistry";
+import { STEP_REGISTRY } from "../../../../src/v4/runtime/runtimeRegistry";
 import {
   STEP_GENERATE_OPENAPI_PLUGIN_FILES,
   STEP_GENERATE_TEAMS_AI_CUSTOM_API_FILES,
@@ -19,6 +19,7 @@ import {
 import { generateTeamsAiCustomApiFiles } from "../../../../src/v4/runtime/steps/openApiCustomApi";
 import { ProgrammingLanguage } from "../../../../src/question/constants";
 import { assert, beforeEach, expect, vi } from "vitest";
+import { isMap, isSeq, parseDocument } from "yaml";
 
 interface MockParserOperation {
   api: string;
@@ -204,7 +205,6 @@ function makeCtx(initial: Record<string, string> = {}): {
         files.set(filePath, data);
       },
       writeEnvironment: () => Promise.resolve(ok(undefined)),
-      manifestWrapper: () => NOOP_MANIFEST_WRAPPER,
     },
   };
 }
@@ -313,6 +313,144 @@ beforeEach(() => {
 });
 
 describe("OpenAPI runtime steps (v4)", () => {
+  it.each([
+    { marker: "  # Renamed packaging comment\n", anchor: true },
+    { marker: "", anchor: true },
+    { marker: "", anchor: false },
+  ])("AC-31: inserts auth in provision independent of comments: %j", async ({ marker, anchor }) => {
+    const yaml =
+      "# Project settings\nversion: v1.12\nprovision:\n  - uses: teamsApp/create\n" +
+      marker +
+      (anchor ? "  - uses: teamsApp/zipAppPackage\n" : "") +
+      "deploy:\n  # Keep deploy here\n  - uses: cli/runNpmCommand\n    with:\n      args: build\n      env:\n        ID: 9007199254740993\n";
+    const { ctx, files } = makeCtx({
+      "appPackage/manifest.json": JSON.stringify({ name: "manifest" }),
+      "appPackage/declarativeAgent.json": JSON.stringify({ name: "Agent" }),
+      "m365agents.yml": yaml,
+      "m365agents.local.yml": yaml,
+    });
+    const result = await openApiGeneratePluginFiles.apply(
+      { apiSpecLocation: SPEC_PATH, apiOperations: ["GET /pets"] },
+      ctx
+    );
+    assert.isTrue(result.isOk(), result.isErr() ? result.error.message : "expected ok");
+    for (const file of ["m365agents.yml", "m365agents.local.yml"]) {
+      const output = text(files, file);
+      const document = parseDocument(output, { intAsBigInt: true });
+      assert.isEmpty(document.errors);
+      const provision = document.get("provision", true);
+      assert.isTrue(isSeq(provision));
+      if (!isSeq(provision)) assert.fail("Expected provision sequence");
+      const actions = provision.items.map((item) => (isMap(item) ? item.get("uses") : undefined));
+      assert.deepEqual(actions, [
+        "teamsApp/create",
+        "apiKey/register",
+        ...(anchor ? ["teamsApp/zipAppPackage"] : []),
+      ]);
+      assert.deepEqual(document.toJS().deploy, [
+        {
+          uses: "cli/runNpmCommand",
+          with: { args: "build", env: { ID: BigInt("9007199254740993") } },
+        },
+      ]);
+      assert.include(output, "ID: 9007199254740993");
+      assert.include(output, "# Project settings");
+      assert.include(output, "# Keep deploy here");
+      if (marker) assert.include(output, marker.trim());
+    }
+  });
+
+  it("AC-31: treats auth names containing YAML syntax as scalar values", async () => {
+    const authName = 'pet: key # "quoted"\nother: value';
+    const operation = mockSpecParserState.listOperations[0];
+    operation.auth = { name: authName, authScheme: { type: "oauth2" } };
+    const { ctx, files } = makeCtx({
+      "appPackage/manifest.json": JSON.stringify({ name: "manifest" }),
+      "appPackage/declarativeAgent.json": JSON.stringify({ name: "Agent" }),
+      "m365agents.yml": "provision: []\n",
+    });
+    const result = await openApiGeneratePluginFiles.apply(
+      { apiSpecLocation: SPEC_PATH, apiOperations: ["GET /pets"] },
+      ctx
+    );
+    assert.isTrue(result.isOk(), result.isErr() ? result.error.message : "expected ok");
+    const document = parseDocument(text(files, "m365agents.yml"));
+    assert.isEmpty(document.errors);
+    assert.strictEqual(document.getIn(["provision", 0, "with", "name"]), authName);
+    assert.strictEqual(document.getIn(["provision", 0, "with", "appId"]), "${{TEAMS_APP_ID}}");
+    assert.strictEqual(document.getIn(["provision", 0, "with", "flow"]), "authorizationCode");
+  });
+
+  it.each(["provision: [", "deploy: []\n", "provision: {}\n", "provision: null\n"])(
+    "AC-31: rejects malformed auth YAML without rewriting it: %s",
+    async (yaml) => {
+      const { ctx, files } = makeCtx({
+        "appPackage/manifest.json": JSON.stringify({ name: "manifest" }),
+        "appPackage/declarativeAgent.json": JSON.stringify({ name: "Agent" }),
+        "m365agents.yml": yaml,
+      });
+      const result = await openApiGeneratePluginFiles.apply(
+        { apiSpecLocation: SPEC_PATH, apiOperations: ["GET /pets"] },
+        ctx
+      );
+      assert.isTrue(result.isErr());
+      assert.strictEqual(result._unsafeUnwrapErr().name, "OpenApiAuthYamlInvalid");
+      assert.strictEqual(text(files, "m365agents.yml"), yaml);
+    }
+  );
+
+  it("AC-31: leaves YAML bytes unchanged when no auth registration is needed", async () => {
+    mockSpecParserState.listOperations[0].auth = undefined;
+    const yaml = "# no auth\nprovision: []\n\ndeploy: []\n";
+    const { ctx, files } = makeCtx({
+      "appPackage/manifest.json": JSON.stringify({ name: "manifest" }),
+      "appPackage/declarativeAgent.json": JSON.stringify({ name: "Agent" }),
+      "m365agents.yml": yaml,
+    });
+    const result = await openApiGeneratePluginFiles.apply(
+      { apiSpecLocation: SPEC_PATH, apiOperations: ["GET /pets"] },
+      ctx
+    );
+    assert.isTrue(result.isOk(), result.isErr() ? result.error.message : "expected ok");
+    assert.strictEqual(text(files, "m365agents.yml"), yaml);
+  });
+
+  it.each([ProgrammingLanguage.TS, ProgrammingLanguage.JS, ProgrammingLanguage.PY])(
+    "AC-30: preserves OpenAPI generated bytes for %s",
+    async (language) => {
+      const extension = language === ProgrammingLanguage.JS ? "js" : "ts";
+      const appPath =
+        language === ProgrammingLanguage.PY ? "src/app.py" : `src/app/app.${extension}`;
+      const handlersPath =
+        language === ProgrammingLanguage.PY ? "src/handlers.py" : `src/app/handlers.${extension}`;
+      const { ctx, files } = makeCtx({
+        "appPackage/manifest.json": JSON.stringify({ bots: [{ commandLists: [] }] }),
+        [appPath]:
+          "// Replace with function definition code\n//Replace with functions to be imported\n",
+        [handlersPath]: "// Replace with function handler code\n{{OPENAPI_SPEC_PATH}}",
+      });
+      const result = await openApiGenerateTeamsAiCustomApiFiles.apply(
+        { apiSpecLocation: SPEC_PATH, apiOperations: ["GET /pets"], language },
+        ctx
+      );
+      assert.isTrue(result.isOk(), result.isErr() ? result.error.message : "expected ok");
+      expect(
+        Object.fromEntries(
+          [...files]
+            .sort(([left], [right]) => left.localeCompare(right))
+            .map(([name, bytes]) => [name, bytes.toString("utf8")])
+        )
+      ).toMatchSnapshot();
+    }
+  );
+
+  it("AC-30: ships OpenAPI source fragments as imported data", async () => {
+    const asset = await import("../../../../src/v4/runtime/steps/assets/openApiCustomApi.json");
+    assert.hasAllKeys(asset.default.functionDefinitionCode, ["typescript", "javascript", "python"]);
+    assert.hasAllKeys(asset.default.functionHandlerCode, ["typescript", "javascript", "python"]);
+    assert.isArray(asset.default.instructions);
+  });
+
   it("registers both OpenAPI steps", () => {
     assert.strictEqual(
       STEP_REGISTRY.get(STEP_GENERATE_OPENAPI_PLUGIN_FILES),
@@ -520,8 +658,9 @@ describe("OpenAPI runtime steps (v4)", () => {
     const { ctx, files } = makeCtx({
       "appPackage/manifest.json": JSON.stringify({ name: "manifest" }),
       "appPackage/declarativeAgent.json": JSON.stringify({ name: "Agent" }),
-      "m365agents.yml": "provision:\n  # Build app package with latest env value\n",
-      "m365agents.local.yml": "provision:\n",
+      "m365agents.yml":
+        "provision:\n  # Build app package with latest env value\n  - uses: teamsApp/zipAppPackage\n",
+      "m365agents.local.yml": "provision: []\n",
     });
 
     const result = await openApiGeneratePluginFiles.apply(
@@ -734,7 +873,7 @@ describe("OpenAPI runtime steps (v4)", () => {
     const { ctx, files } = makeCtx({
       "appPackage/manifest.json": JSON.stringify({ name: "manifest" }),
       "appPackage/declarativeAgent.json": JSON.stringify({ name: "Agent" }),
-      "m365agents.yml": "provision:",
+      "m365agents.yml": "provision: []\n",
     });
 
     const result = await openApiGeneratePluginFiles.apply(

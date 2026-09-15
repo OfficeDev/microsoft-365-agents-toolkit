@@ -6,7 +6,7 @@ import AdmZip from "adm-zip";
 import { Result, err, ok } from "neverthrow";
 import { QuestionSpec } from "../collectInputs/collectInputs";
 import { DeclarativeLocator, TemplateFileEntry } from "../model/dataModel";
-import { LoadedPackage } from "./packageDir";
+import { PreparedLoadedPackage, prepareLoadedPackage } from "./packageDir";
 import { resolveQuestions, zipFragmentReader } from "./questionFragments";
 
 /** Open one declarative package subtree from channel zip bytes. See open-template-package spec. */
@@ -127,7 +127,7 @@ export interface LoadedPackageMetadata {
 export function openDeclarativePackage(
   bytes: Buffer,
   locator: DeclarativeLocator
-): Result<LoadedPackage, FxError> {
+): Result<PreparedLoadedPackage, FxError> {
   const zip = openZip(bytes);
   if (zip.isErr()) {
     return err(zip.error);
@@ -153,7 +153,7 @@ export function openDeclarativePackage(
     return err(pipeline.error);
   }
 
-  return ok({
+  return prepareLoadedPackage({
     descriptor: descriptor.value,
     pipeline: pipeline.value,
     content: entries.value.content,

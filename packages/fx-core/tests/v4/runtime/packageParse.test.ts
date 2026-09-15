@@ -1,10 +1,41 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { parsePipeline } from "../../../src/v4/runtime/packageParse";
+import { parsePipeline, prepareTemplate } from "../../../src/v4/runtime/packageParse";
 import { assert } from "vitest";
 
 describe("v4 runtime — packageParse", () => {
+  it("AC-28: prepares typed render inputs and rejects malformed package data", () => {
+    const prepared = prepareTemplate({
+      descriptor: {
+        id: "synthetic",
+        minEngineVersion: "6.12.0",
+        languages: ["typescript"],
+        replaceMap: [{ var: "Title", from: "title" }],
+        optionsSchema: { properties: { title: { type: "string" } } },
+      },
+      pipeline: { pipeline: "default", steps: [] },
+      content: [],
+    })._unsafeUnwrap();
+    assert.deepEqual(prepared.descriptor, {
+      id: "synthetic",
+      minEngineVersion: "6.12.0",
+      languages: ["typescript"],
+      replaceMap: [{ var: "Title", from: "title" }],
+      declaredKeys: ["title"],
+    });
+    assert.deepEqual(prepared.pipeline, { pipeline: "default", steps: [] });
+    for (const raw of [
+      { descriptor: { replaceMap: false }, pipeline: { pipeline: "default", steps: [] } },
+      { descriptor: {}, pipeline: { pipeline: "default", steps: false } },
+    ]) {
+      assert.equal(
+        prepareTemplate({ ...raw, content: [] })._unsafeUnwrapErr().name,
+        "TemplatePackageParseError"
+      );
+    }
+  });
+
   it("parsePipeline accepts render filters", () => {
     const res = parsePipeline({
       pipeline: "default",

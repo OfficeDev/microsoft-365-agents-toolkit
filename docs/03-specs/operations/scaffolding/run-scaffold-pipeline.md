@@ -52,20 +52,31 @@ step phase.
 | `targetDir`  | the project output path + its current file set                                               | the create entry (ADR-0014)                                                                                       |
 | `port`       | narrow `PipelineRuntimePort`                                                                 | injected; an in-memory fake in tests                                                                              |
 
+### Domain service ownership
+
+[ADR-0025](../../../02-architecture/adr/ADR-0025-scaffold-extension-ownership.md)
+refines the dependency boundary: DA manifest operations are provided by a
+domain service injected into DA step factories, not by the generic pipeline
+port or `StepContext`. The service receives the current step's `read`/`write`
+context and uses the manifest package wrappers. References to `manifestWrapper`
+in the compatibility ACs below describe this wrapper-routing guarantee, not a
+method on the generic context. OWN-01/02 in ADR-0025 cover service injection and
+per-runtime isolation. No domain dependency is discovered by the executor.
+
 This operation does **not** depend on the full `ScaffoldRuntime`
 (`{ fs, http, archive, clock, binaryCache }`, proposal §8). It declares the
 narrow `PipelineRuntimePort` it actually uses (interface-segregation), which the
-full runtime composes later:
+  full runtime composes later:
 
 | Port face          | Shape                                          | Responsibility                                                                                                                                                                                                                                                 |
 | ------------------ | ---------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `stepRegistry`     | `(stepName) => Step \| undefined`              | the engine's whitelist of registered steps, each carrying its `paramsSchema` (decision 2)                                                                                                                                                                      |
 | `pipelineRegistry` | `(pipelineName) => Orchestration \| undefined` | the engine's whitelist of named pipelines (`default \| openapi \| typespec \| officeAddin \| spfx`)                                                                                                                                                            |
 | `evalWhen`         | `(expr, renderVars) => boolean`                | the shared closed-expression evaluator (ADR-0016 §4.3)                                                                                                                                                                                                         |
-| `renderValue`      | `(mustache, renderVars) => string`             | the same Mustache surface `content/**` uses, applied to `with` values                                                                                                                                                                                          |
-| `manifestWrapper`  | `(kind) => Wrapper`                            | the `packages/manifest` wrapper a manifest step MUST route through (decision 3)                                                                                                                                                                                |
-| `fs`               | `{ exists; render; write }`                    | the render-phase file sink (existence-keyed, never overwrites)                                                                                                                                                                                                 |
-| `read`             | `(path) => Buffer \| undefined`                | the read-modify-write face a **non-manifest** step uses to rewrite a render-phase file (e.g. `mcp-auth/inject-yml-action` appending to `m365agents.yml`); `undefined` if the path is absent. Manifest mutation still routes through `manifestWrapper` (INV-3)  |
+| `render`           | `(mustache, renderVars) => Result<string, FxError>` | shared Mustache rendering for template paths, file bodies and `with` values |
+| `writeNew`         | `(path, data) => boolean`                      | exclusive render-phase creation; true when created, false on collision, never overwrites |
+| `write`            | `(path, data) => void`                         | intentional named-step mutation under the runtime path policy |
+| `read`             | `(path) => Buffer \| undefined`                | per-invocation file reads for steps and injected domain services; `undefined` if absent. Manifest services still parse and mutate through the manifest package wrappers (INV-3), not raw JSON. |
 | `writeEnvironment` | `(env, values) => Result<void, FxError>`       | the runtime-owned environment writer used by named credential steps; the real runtime delegates to the shared env utility so `SECRET_*` values are encrypted into the user env, while in-memory tests expose a separate secret sink rather than ordinary files |
 
 ## Outputs
@@ -123,8 +134,54 @@ On `err`:
 | AC-25 | L1   | `renderVars` contains the flat provider-derived key `derived.mcp.serverTypes.catalog`, and a body or step `with` contains `{{derived.mcp.serverTypes.catalog}}`                                                     | render                                           | the token resolves from that exact flat key and inserts its scalar value verbatim; dots in the reserved provider namespace are **not** interpreted as nested-object traversal                                                                                                                                                                                                    |
 | AC-26 | L1   | a `.tpl` body contains a scoped environment reference such as `${{local:TEAMS_APP_ID}}` or `${{sandbox:CHANNEL_WEB_URL}}`                                                                                           | run render phase                                 | the reference is preserved verbatim for the downstream toolkit environment resolver; the Mustache surface never consumes the scoped name or reduces the reference to `$`                                                                                                                                                                                                         |
 | AC-27 | L1   | `mcp-auth/persist-credential-env` receives a regular client id and a `SECRET_*` client secret                                                                                                                       | apply through `StepContext.writeEnvironment`     | the runtime environment writer receives both values; the regular value is observable in the normal env file, the plaintext secret is observable only in the injected secret sink (or encrypted user env in the real runtime), and the pipeline executor never routes either value through hidden MCP-specific logic                                                              |
+| AC-28 | L1 | Raw descriptor and pipeline data | prepare the execution plan | Render bindings, declared keys, language metadata and pipeline are parsed once; malformed render bindings or pipeline return the existing parse error. Runtime L1, purpose operation-integration, gate required, harness synthetic package and in-memory runtime. |
+| AC-29 | L1 | A registered typed step parser and domain apply function | run an active step | The parser runs once on resolved params and its exact typed value reaches apply; invalid params never apply, skipped steps never parse, and legacy steps remain compatible. Runtime L1, purpose operation-integration, gate required, harness synthetic registry and in-memory pipeline. |
+| AC-30 | L1 | Office expression fragments and dynamic OpenAPI/MetaOS generation inputs | generate from engine-owned static assets | Existing generated code, manifests, and expression output remain byte-compatible; assets ship through static imports and domain code owns dynamic binding. Purpose compatibility, gate required, harness frozen output fixtures and existing step/scenario tests. See [ADR-0024](../../../02-architecture/adr/ADR-0024-scaffold-domain-assets.md). |
+| AC-31 | L1 | OpenAPI registrations and YAML with renamed/absent marker comments, a provision sequence and sibling lifecycle sections | inject registration actions | Insert before the first teamsApp/zipAppPackage action or at the end of provision; preserve unrelated actions, sections, comments and scalar values. Reject invalid YAML or malformed provision without writing that file; no registrations leaves bytes unchanged. Purpose operation-integration, gate required, harness named OpenAPI step and YAML document assertions. |
+
+### File I/O boundary refinements (2026-09-14)
+
+The approved follow-up review requires the runtime, not domain steps or template
+branches, to enforce these existing containment and new-files-only guarantees.
+No new PRD or scenario flow is needed: this repairs file safety during the
+existing create/modify operations. `writeNew(path, data)` is a render-only port
+operation returning `true` when a file was created and `false` on an existing
+destination. Intentional step mutation continues through `write`.
+
+| ID | Tier | Given / When | Then | Purpose / Gate / Harness |
+| --- | --- | --- | --- | --- |
+| IO-01 | L1 | A rendered file collides with an existing file, including a case alias on a case-insensitive filesystem or a file created after the initial snapshot | Exclusive render creation preserves the existing bytes and reports the usual skipped-file warning; case-sensitive filesystems retain distinct names | operation-integration / required / real temporary filesystem |
+| IO-02 | L1 | Two entries resolve to the same output path in one run | The first render creates the file, the second skips with the existing-file warning; a later named step may still intentionally rewrite it | operation-integration / required / pipeline and in-memory runtime |
+| IO-03 | L1 | A read, write or exclusive creation traverses a symlink/junction below the selected output root, including a linked final file | Reject before accessing the linked target; normal nested files still work. The selected root itself may be an existing directory alias | operation-integration / required / temporary filesystem and links |
+| IO-04 | L1 | The production bridge enumerates an existing project containing a directory link or link cycle | Record the link as an existing entry without following it; propagate non-ENOENT enumeration errors rather than treating unreadable directories as empty | operation-integration / required / bridge with temporary filesystem |
+
+The runtime owns filesystem identity and exclusive creation; the executor must
+not lowercase names or infer filesystem case sensitivity. The in-memory runtime
+enforces exact-key create-only behavior. Linked paths below the root are rejected
+conservatively, including inward links. This does not claim isolation from a
+hostile process concurrently replacing path components, hard-link sandboxing,
+or transaction/rollback guarantees. Ordinary filesystem failures retain the
+existing runtime error propagation boundary.
+
+```mermaid
+flowchart LR
+  render[Render bytes] --> create[Runtime writeNew]
+  create --> created[Created: record written]
+  create --> exists[Exists: skip and warn]
+  step[Named step mutation] --> write[Runtime write]
+  create --> guard[Reject linked path components]
+  write --> guard
+  read[Runtime read] --> guard
+```
 
 ## Flow
+
+The raw scaffold entry prepares a typed plan and delegates to the same execution
+path used by package loaders. Step preparation remains in the ordered post-render
+phase; these contracts do not add preflight or rollback semantics.
+AC-28 includes malformed `steps[].when` values: a present non-string guard is a
+package parse error before rendering, never silently removed to make a step
+unconditional. Step and render-filter guards share this parsing rule.
 
 ```mermaid
 flowchart TD
@@ -133,9 +190,12 @@ flowchart TD
   pl -->|yes| render[render phase: for each content file]
   render --> filter{active render filter matches path?}
   filter -->|yes| omitted[record in filtered, do not render body/write]
-  filter -->|no| exists{target path exists?}
+  filter -->|no| exists{path in existing snapshot?}
   exists -->|yes| skip[skip + warning, record in skipped]
-  exists -->|no| write[render .tpl / copy others, record in written]
+  exists -->|no| create[render .tpl / copy others, runtime writeNew]
+  create --> created{created?}
+  created -->|no| skip
+  created -->|yes| write[record in written]
   omitted --> nextFile{more files?}
   skip --> nextFile{more files?}
   write --> nextFile
@@ -145,7 +205,7 @@ flowchart TD
   known -->|no| errStep([SystemError: unknown step])
   known -->|yes| when{evalWhen true?}
   when -->|no| skipStep[record in stepsSkipped]
-  when -->|yes| resolve[renderValue each with.* over renderVars]
+  when -->|yes| resolve[render each with.* over renderVars]
   resolve --> valid{resolved with ⊨ paramsSchema?}
   valid -->|no| errParams([SystemError: with violates paramsSchema])
   valid -->|yes| apply[apply via manifestWrapper / fallback]

@@ -41,6 +41,10 @@ decision. The format for a new ADR is defined inline below under
 | ADR-0020 | [MCP server URL validity: when to check, and whether to block](ADR-0020-mcp-server-url-validity.md) | Accepted | [`mcp-remote-servers.md` §3](../external-dependencies/mcp-remote-servers.md#3-open-questions) |
 | ADR-0021 | [Parent window for the WAM broker sign-in dialog](ADR-0021-wam-broker-dialog-parent-window.md) | Proposed | [gim-home/wiqd#1884](https://github.com/gim-home/wiqd/issues/1884) |
 | ADR-0022 | [Ownership of host-agnostic manifest-template resolution](ADR-0022-manifest-template-resolution-ownership.md) | Accepted | Internal concern — cross-host `file()`/`${{ENV}}` resolver reuse in PR #16525 |
+| ADR-0023 | [Create input policy ownership](ADR-0023-create-input-policy-ownership.md) | Accepted | Keep template presentation and capability-specific derivation out of the generic create engine; partially supersedes ADR-0016. |
+| ADR-0024 | [Scaffold domain assets and expression ownership](ADR-0024-scaffold-domain-assets.md) | Accepted | Separate expression registration, externalize generation fragments, and replace comment-based OpenAPI YAML insertion. |
+| ADR-0025 | [Scaffolding extension ownership](ADR-0025-scaffold-extension-ownership.md) | Accepted | Inject DA services into domain steps, share pure capability declarations and selector presentation; refines ADR-0017's manifest injection boundary. |
+| ADR-0026 | [Scaffold I/O and provider contracts](ADR-0026-scaffold-io-and-provider-contracts.md) | Accepted | Repair file containment and collision handling, structured derived references, and OpenAPI listing/generation policy alignment. |
 
 > **Reading order vs. numeric order.** The Index is in **numeric order** —
 > the immutable, reservation-ordered ADR id is the anchor for every forward

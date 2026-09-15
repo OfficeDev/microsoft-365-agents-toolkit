@@ -3,7 +3,10 @@
   "id": "custom-copilot-rag-custom-api",
   "name": "Teams Agent with Data from Custom API using OpenAPI Spec",
   "languages": ["typescript", "javascript", "python"],
-  "minEngineVersion": "5.20.0",
+  "languageOptions": [
+    { "id": "python", "description": "core.createProjectQuestion.option.description.preview" }
+  ],
+  "minEngineVersion": "6.13.0",
   "spec": "docs/03-specs/scenarios/teams/create-custom-copilot-rag-custom-api.md",
   "requiresNetwork": false,
 

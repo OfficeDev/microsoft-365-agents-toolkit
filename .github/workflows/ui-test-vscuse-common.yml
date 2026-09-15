@@ -168,6 +168,7 @@ jobs:
       # M365 account for testing (comma-separated list from GitHub variable)
       M365_USERNAMES: ${{ vars.M365_USERNAMES }}
       M365_ACCOUNT_PASSWORD: ${{ secrets.TEST_TENANT_M365_ACCOUNT_PASSWORD }}
+      AZURE_NO_SUB_ACCOUNT_NAME: ${{ vars.AZURE_NO_SUB_ACCOUNT_NAME }}
       # The test account for Copilot features
       M365_ACCOUNT_NAME_EnableCopilotAccess: ${{ secrets.TEST_TENANT_M365_ACCOUNT_NAME }}
       M365_ACCOUNT_PASSWORD_EnableCopilotAccess: ${{ secrets.TEST_TENANT_M365_ACCOUNT_PASSWORD }}
@@ -336,6 +337,15 @@ jobs:
           else
             echo "TEMPLATE_VERSION not provided; TEMPLATE_VERSION won't be added to config.yaml"
           fi
+
+      - name: Validate no-subscription fixture contract
+        if: ${{ matrix.test_plan == 'feature-sign-in-no-subscription' }}
+        run: |
+          if [ -z "$AZURE_NO_SUB_ACCOUNT_NAME" ] || [ -z "$M365_ACCOUNT_PASSWORD" ]; then
+            echo "Configure AZURE_NO_SUB_ACCOUNT_NAME and the shared M365_ACCOUNT_PASSWORD for this case."
+            exit 1
+          fi
+          python packages/tests/vscuse/vscode-test-cases/engine/no-subscription-fixture.test.py
 
       - name: Run test
         env:

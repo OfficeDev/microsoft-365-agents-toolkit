@@ -2,11 +2,12 @@
 // Licensed under the MIT license.
 
 import { SystemError, UserError } from "@microsoft/teamsfx-api";
-import { SpecParser, Utils, ValidationStatus } from "@microsoft/m365-spec-parser";
-import fs from "fs-extra";
+import { ProjectType, SpecParser, Utils, ValidationStatus } from "@microsoft/m365-spec-parser";
+import fs, { mkdtemp, remove, writeJson } from "fs-extra";
 import os from "os";
 import path from "path";
 import { assert, afterEach, vi } from "vitest";
+import { getParserOptions } from "../../../src/common/openApiParserOptions";
 import {
   createDefaultCreateOptionsProviders,
   createLocalMcpServersProvider,
@@ -17,6 +18,80 @@ import {
 } from "../../../src/v4/providers/createOptionsProviders";
 
 describe("create options providers (collect-create-inputs INV-9)", () => {
+  for (const protocol of ["http", "https"]) {
+    for (const operationId of ["listItems", undefined]) {
+      it(`API-01: ${protocol} listing agrees with Teams AI policy, missingId=${operationId === undefined}, without changing Copilot`, async () => {
+        const directory = await mkdtemp(path.join(os.tmpdir(), "openapi-policy-"));
+        const source = path.join(directory, "openapi.json");
+        try {
+          await writeJson(source, {
+            openapi: "3.0.0",
+            info: { title: "Items", version: "1.0.0" },
+            servers: [{ url: `${protocol}://example.com` }],
+            paths: {
+              "/items": {
+                get: {
+                  operationId,
+                  summary: "List items",
+                  responses: { "200": { description: "Items" } },
+                },
+              },
+            },
+          });
+          const copilot = await openApiOperationsProvider.fetch({ apiSpecLocation: source });
+          assert.deepEqual(
+            copilot.options.map((option) => option.id),
+            ["GET /items"]
+          );
+          assert.deepEqual(copilot.derived, { apiSpecLocation: source });
+          const generationParser = new SpecParser(source, getParserOptions(ProjectType.TeamsAi));
+          const validation = await generationParser.validate();
+          assert.equal(validation.status === ValidationStatus.Error, protocol === "http");
+          const provider = createDefaultCreateOptionsProviders(
+            async () => ({ requiresAuth: false, tools: [] }),
+            async () => []
+          )["openapi.teamsAiOperations"];
+          assert.isDefined(provider);
+          assert.deepEqual(provider.derivedSchema, ["apiSpecLocation"]);
+          if (protocol === "http") {
+            const error = await captureError(async () =>
+              provider.fetch({ apiSpecLocation: source })
+            );
+            assert.instanceOf(error, UserError);
+            assert.equal(error instanceof UserError && error.name, "OpenApiSpecInvalid");
+          } else {
+            const listed = await provider.fetch({ apiSpecLocation: source });
+            assert.deepEqual(
+              listed.options.map((option) => option.id),
+              ["GET /items"]
+            );
+            assert.deepEqual(listed.derived, { apiSpecLocation: source });
+            const generatedOperations = await generationParser.list();
+            assert.deepEqual(
+              generatedOperations.APIs.filter((operation) => operation.isValid).map(
+                (operation) => operation.api
+              ),
+              listed.options.map((option) => option.id)
+            );
+          }
+        } finally {
+          await remove(directory);
+        }
+      });
+    }
+  }
+
+  it("CLEAN-05: OpenAPI operation listing declares and returns its canonical source", async () => {
+    const source = path.resolve(__dirname, "../scenarios/fixtures/repairs-openapi.yaml");
+    const result = await openApiOperationsProvider.fetch({ apiSpecLocation: source });
+    assert.deepEqual(openApiOperationsProvider.derivedSchema, ["apiSpecLocation"]);
+    assert.deepEqual(result.derived, { apiSpecLocation: source });
+    assert.include(
+      result.options.map((option) => option.id),
+      "GET /repairs"
+    );
+  });
+
   const toolsJson = JSON.stringify({
     tools: [
       { name: "searchFlights", description: "Search flights", inputSchema: { type: "object" } },
@@ -44,11 +119,13 @@ describe("create options providers (collect-create-inputs INV-9)", () => {
     );
 
     assert.sameMembers(Object.keys(providers), [
+      "create.languages",
       "mcp.serverTypes",
       "mcp.localServers",
       "mcp.tools",
       "openapi.search",
       "openapi.operations",
+      "openapi.teamsAiOperations",
     ]);
   });
 

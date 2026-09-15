@@ -76,7 +76,7 @@
         { "id": "skill",
           "label": "Add an Agent Skill",
           "detail": "Create a declarative agent with an agent skill",
-          "condition": { "featureFlag": "TEAMSFX_AGENT_SKILLS" },
+          "condition": { "featureFlag": "ATK_FRONTIER" },
           "keyPrefix": "template.createProjectQuestion.addSkill" },
         { "id": "typespec",
           "label": "Start with TypeSpec for Microsoft 365 Copilot",
@@ -349,7 +349,7 @@
       "engine": "v4"
     },
     {
-      "when": "projectType=='copilot-agent-type' && daTemplate=='skill' && featureFlag('TEAMSFX_AGENT_SKILLS')",
+      "when": "projectType=='copilot-agent-type' && daTemplate=='skill' && featureFlag('ATK_FRONTIER')",
       "templateId": "da/skill",
       "engine": "v4"
     },

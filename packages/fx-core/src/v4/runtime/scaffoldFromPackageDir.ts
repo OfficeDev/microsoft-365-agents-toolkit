@@ -7,7 +7,7 @@ import { Answers, CallerFloor } from "../model/dataModel";
 import { ScaffoldOutcome, TargetDir } from "../pipeline/runScaffoldPipeline";
 import { loadPackageDir } from "../distribution/packageDir";
 import { createRealRuntime } from "./realRuntime";
-import { scaffold } from "./scaffold";
+import { scaffoldPrepared } from "./scaffold";
 
 const SOURCE = "Scaffold";
 
@@ -36,11 +36,9 @@ export async function scaffoldFromPackageDir(
   }
   try {
     const runtime = createRealRuntime(targetDir.path, flagReader);
-    return await scaffold(
+    return await scaffoldPrepared(
+      loaded.value.template,
       {
-        descriptor: loaded.value.descriptor,
-        pipeline: loaded.value.pipeline,
-        content: loaded.value.content,
         answers,
         callerFloor,
         targetDir,

@@ -4,9 +4,12 @@
 import { APIPluginManifestWrapper, FxError, SystemError, UserError } from "@microsoft/teamsfx-api";
 import fs from "fs-extra";
 import { Result, err, ok } from "neverthrow";
+import { capabilityDeclarations } from "../../capabilities/declarations";
 import { MCPFetchResult, fetchMCPTools } from "../../../common/mcpToolFetcher";
 import { parseMcpStaticToolsJson, selectMcpStaticTools } from "../../mcp/mcpStaticTools";
 import { RegisteredStep, StepContext, StepParams } from "../../pipeline/runScaffoldPipeline";
+import { defineStep } from "../../pipeline/defineStep";
+import { stringParam, stringArrayParam } from "../../pipeline/stepParams";
 
 /** Materialize static MCP tools and plugin runtime metadata. */
 
@@ -17,15 +20,20 @@ export const mcpStaticDeps = {
 };
 
 /** Engine step name `mcp-static/materialize-tools`. */
-export const STEP_MATERIALIZE_STATIC_MCP_TOOLS = "mcp-static/materialize-tools";
+export const STEP_MATERIALIZE_STATIC_MCP_TOOLS =
+  capabilityDeclarations.step.materializeStaticMcpTools.id;
 
 function systemError(name: string, message: string): SystemError {
   return new SystemError({ source: SOURCE, name, message });
 }
 
-function stringParam(params: StepParams, key: string): string | undefined {
-  const value = params[key];
-  return typeof value === "string" ? value : undefined;
+interface StaticMcpParams {
+  pluginPath: string;
+  toolsPath: string;
+  mcpServerUrl: string;
+  selected?: string[];
+  toolsJson?: string;
+  toolsFilePath?: string;
 }
 
 function isUnresolvedToken(value: string): boolean {
@@ -35,14 +43,6 @@ function isUnresolvedToken(value: string): boolean {
 function optionalStringParam(params: StepParams, key: string): string | undefined {
   const value = stringParam(params, key);
   if (value === undefined || value === "" || isUnresolvedToken(value)) {
-    return undefined;
-  }
-  return value;
-}
-
-function stringArrayParam(params: StepParams, key: string): string[] | undefined {
-  const value = params[key];
-  if (!Array.isArray(value) || !value.every((item) => typeof item === "string")) {
     return undefined;
   }
   return value;
@@ -95,15 +95,15 @@ function mcpToolsJsonFromFetchResult(
 }
 
 async function resolveToolsJson(
-  resolved: StepParams,
+  resolved: StaticMcpParams,
   serverUrl: string
 ): Promise<Result<string, FxError>> {
-  const toolsJson = optionalStringParam(resolved, "toolsJson")?.trim();
+  const toolsJson = resolved.toolsJson?.trim();
   if (toolsJson) {
     return ok(toolsJson);
   }
 
-  const toolsFilePath = optionalStringParam(resolved, "toolsFilePath")?.trim();
+  const toolsFilePath = resolved.toolsFilePath?.trim();
   if (toolsFilePath) {
     try {
       return ok(fs.readFileSync(toolsFilePath, "utf8"));
@@ -157,41 +157,37 @@ function fileName(filePath: string): string {
 }
 
 /** Registered step for writing `mcp-tools-1.json` and static RemoteMCPServer metadata. */
-export const mcpStaticMaterializeTools: RegisteredStep = {
-  validateParams(resolved: StepParams): string | undefined {
-    if (stringParam(resolved, "pluginPath") === undefined) {
-      return "missing string parameter 'pluginPath'";
-    }
-    if (stringParam(resolved, "toolsPath") === undefined) {
-      return "missing string parameter 'toolsPath'";
-    }
-    if (stringParam(resolved, "mcpServerUrl") === undefined) {
-      return "missing string parameter 'mcpServerUrl'";
-    }
-    if (
-      hasOptionalArrayParamValue(resolved, "selected") &&
-      stringArrayParam(resolved, "selected") === undefined
-    ) {
-      return "missing string[] parameter 'selected'";
-    }
-    return undefined;
-  },
-  async apply(resolved: StepParams, ctx: StepContext): Promise<Result<void, FxError>> {
+export const mcpStaticMaterializeTools: RegisteredStep = defineStep({
+  parse(resolved): Result<StaticMcpParams, string> {
     const pluginPath = stringParam(resolved, "pluginPath");
+    if (pluginPath === undefined) {
+      return err("missing string parameter 'pluginPath'");
+    }
     const toolsPath = stringParam(resolved, "toolsPath");
+    if (toolsPath === undefined) {
+      return err("missing string parameter 'toolsPath'");
+    }
     const mcpServerUrl = stringParam(resolved, "mcpServerUrl");
+    if (mcpServerUrl === undefined) {
+      return err("missing string parameter 'mcpServerUrl'");
+    }
     const selected = optionalStringArrayParam(resolved, "selected");
     if (hasOptionalArrayParamValue(resolved, "selected") && selected === undefined) {
-      return err(
-        systemError("McpStaticParams", "resolved parameters are not all of the expected type")
-      );
+      return err("missing string[] parameter 'selected'");
     }
-    if (pluginPath === undefined || toolsPath === undefined || mcpServerUrl === undefined) {
-      return err(
-        systemError("McpStaticParams", "resolved parameters are not all of the expected type")
-      );
-    }
-
+    return ok({
+      pluginPath,
+      toolsPath,
+      mcpServerUrl,
+      selected,
+      toolsJson: optionalStringParam(resolved, "toolsJson"),
+      toolsFilePath: optionalStringParam(resolved, "toolsFilePath"),
+    });
+  },
+  invalidParams: () =>
+    systemError("McpStaticParams", "resolved parameters are not all of the expected type"),
+  async apply(resolved, ctx): Promise<Result<void, FxError>> {
+    const { pluginPath, toolsPath, mcpServerUrl, selected } = resolved;
     const toolsJson = await resolveToolsJson(resolved, mcpServerUrl);
     if (toolsJson.isErr()) {
       return err(toolsJson.error);
@@ -242,4 +238,4 @@ export const mcpStaticMaterializeTools: RegisteredStep = {
     );
     return ok(undefined);
   },
-};
+});

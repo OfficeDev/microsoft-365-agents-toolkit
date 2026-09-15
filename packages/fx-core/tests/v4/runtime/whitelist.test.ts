@@ -2,7 +2,7 @@
 // Licensed under the MIT license.
 
 import { evaluateExpression } from "../../../src/v4/expression/evaluateExpression";
-import { assert } from "vitest";
+import { assert, expect } from "vitest";
 import { FeatureFlagName } from "../../../src/common/featureFlags";
 import {
   contains,
@@ -127,6 +127,29 @@ describe("v4 runtime — whitelist functions + ExpressionRuntimePort", () => {
   });
 
   describe("office add-in debug launch surface", () => {
+    it("AC-30: preserves Office fragment bytes for every host subset", () => {
+      const hosts = ["word", "excel", "powerpoint", "outlook"];
+      const output = Array.from({ length: 16 }, (_, mask) => {
+        const selected = hosts.filter((_, index) => (mask & (1 << index)) !== 0).join(",");
+        return {
+          selected,
+          configurations: officeAddinLaunchConfigurations(selected),
+          compounds: officeAddinLaunchCompounds(selected),
+          scripts: officeAddinDebugScripts(selected),
+          scopes: officeAddinManifestScopes(selected),
+          debugApp: officeAddinDebugApp(selected),
+        };
+      });
+      expect(output).toMatchSnapshot();
+    });
+
+    it("AC-30: ships Office static fragments as imported data", async () => {
+      const asset = await import("../../../src/v4/runtime/functions/assets/officeAddin.json");
+      assert.isArray(asset.default.launchConfigurations);
+      assert.isArray(asset.default.launchCompounds);
+      assert.isArray(asset.default.debugScripts);
+    });
+
     it("renders a valid launch.json for a host subset with only the selected hosts", () => {
       const csv = "excel,outlook";
       const launch = `{
@@ -182,6 +205,31 @@ describe("v4 runtime — whitelist functions + ExpressionRuntimePort", () => {
   });
 
   describe("createExpressionPort", () => {
+    it("RCTX-14: registers domain-owned functions through compatible exports", async () => {
+      const generic = await import("../../../src/v4/runtime/functions/generic");
+      const mcp = await import("../../../src/v4/runtime/functions/mcp");
+      const office = await import("../../../src/v4/runtime/functions/officeAddin");
+      const port = createExpressionPort();
+      for (const [name, implementation] of Object.entries({
+        contains: generic.contains,
+        pathDelimiter: generic.pathDelimiter,
+        safeProjectNameLowerCase: generic.safeProjectNameLowerCase,
+        mcpNamespace: mcp.mcpNamespace,
+        mcpAuthRef: mcp.mcpAuthRef,
+        officeAddinManifestScope: office.officeAddinManifestScope,
+        officeAddinManifestScopes: office.officeAddinManifestScopes,
+        officeAddinLaunchConfigurations: office.officeAddinLaunchConfigurations,
+        officeAddinLaunchCompounds: office.officeAddinLaunchCompounds,
+        officeAddinDebugScripts: office.officeAddinDebugScripts,
+        officeAddinDebugApp: office.officeAddinDebugApp,
+      })) {
+        assert.strictEqual(port.functions(name), implementation, name);
+      }
+      assert.strictEqual(deriveMcpServerName, mcp.deriveMcpServerName);
+      assert.strictEqual(officeAddinLaunchConfigurations, office.officeAddinLaunchConfigurations);
+      assert.isUndefined(port.functions("parseCsv"));
+    });
+
     it("exposes the whitelisted functions and nothing else", () => {
       const port = createExpressionPort();
       assert.isFunction(port.functions("mcpNamespace"));

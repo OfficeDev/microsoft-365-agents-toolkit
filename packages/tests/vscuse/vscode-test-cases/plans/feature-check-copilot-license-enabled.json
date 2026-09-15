@@ -1,0 +1,640 @@
+{
+  "plan_metadata": {
+    "version": "1.1",
+    "plan_id": "plan_5c36c1a6e1ef",
+    "execution_context": {
+      "delay_between_steps": 1,
+      "stop_on_error": true,
+      "precondition_wait_timeout": 30,
+      "precondition_retry_interval": 1
+    },
+    "total_steps": 40,
+    "name": "feature-check-copilot-license-enabled",
+    "description": {
+      "owner": "",
+      "workitem": "28202384",
+      "other": ""
+    },
+    "execution_order": [
+      "step_closeWelcomeOverlay_assertVisible_cfc37cadd_1_1",
+      "step_closeWelcomeOverlay_close_cfc37cadd_1_1",
+      "step_closeWelcomeOverlay_assertReady_cfc37cadd_1_1",
+      "step_executeCommand_open_cfc37cadd_1_2",
+      "step_executeCommand_assertPalette_cfc37cadd_1_2",
+      "step_executeCommand_filter_cfc37cadd_1_2",
+      "step_executeCommand_assertCommand_cfc37cadd_1_2",
+      "step_executeCommand_execute_cfc37cadd_1_2",
+      "step_copilotLicense_assertPicker_cfc37cadd_1_3",
+      "step_copilotLicense_filter_cfc37cadd_1_3",
+      "step_copilotLicense_assertSelected_cfc37cadd_1_3",
+      "step_copilotLicense_open_cfc37cadd_1_3",
+      "step_copilotLicense_assertWalkthrough_cfc37cadd_1_3",
+      "step_copilotLicense_expand_cfc37cadd_1_3",
+      "step_copilotLicense_assertButton_cfc37cadd_1_3",
+      "step_copilotLicense_checkSignedOut_cfc37cadd_1_3",
+      "step_copilotLicense_openNotificationCommand_cfc37cadd_1_3",
+      "step_copilotLicense_assertNotificationPalette_cfc37cadd_1_3",
+      "step_copilotLicense_filterNotificationCommand_cfc37cadd_1_3",
+      "step_copilotLicense_assertNotificationCommand_cfc37cadd_1_3",
+      "step_copilotLicense_showNotifications_cfc37cadd_1_3",
+      "step_copilotLicense_assertNotification_cfc37cadd_1_3",
+      "step_copilotLicense_focusNotificationSignIn_cfc37cadd_1_3",
+      "step_copilotLicense_assertNotificationSignIn_cfc37cadd_1_3",
+      "step_copilotLicense_activateNotificationSignIn_cfc37cadd_1_3",
+      "step_copilotLicense_assertSignIn_cfc37cadd_1_3",
+      "step_copilotLicense_signIn_cfc37cadd_1_3",
+      "step_copilotLicense_assertEmail_cfc37cadd_1_3",
+      "step_copilotLicense_typeAccount_cfc37cadd_1_3",
+      "step_copilotLicense_next_cfc37cadd_1_3",
+      "step_copilotLicense_assertPassword_cfc37cadd_1_3",
+      "step_copilotLicense_typePassword_cfc37cadd_1_3",
+      "step_copilotLicense_submit_cfc37cadd_1_3",
+      "step_copilotLicense_assertCallback_cfc37cadd_1_3",
+      "step_copilotLicense_closeBrowser_cfc37cadd_1_3",
+      "step_copilotLicense_closeNotifications_cfc37cadd_1_3",
+      "step_copilotLicense_reexpand_cfc37cadd_1_3",
+      "step_copilotLicense_assertReopened_cfc37cadd_1_3",
+      "step_copilotLicense_checkSignedIn_cfc37cadd_1_3",
+      "step_copilotLicense_assertEnabled_cfc37cadd_1_3"
+    ],
+    "tags": [
+      "case_id:feature-check-copilot-license-enabled",
+      "scenario_id:SCN-CHECK-COPILOT-LICENSE-ENABLED",
+      "template_id:none",
+      "gate:pr"
+    ]
+  },
+  "steps": [
+    {
+      "step_id": "step_closeWelcomeOverlay_assertVisible_cfc37cadd_1_1",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the startup \"Welcome to VS Code\" sign-in overlay is visible and its Close button is available.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:initialization",
+        "initialization:closeWelcomeOverlay",
+        "step_retry_timeout: 30"
+      ]
+    },
+    {
+      "step_id": "step_closeWelcomeOverlay_close_cfc37cadd_1_1",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 952,
+        "y": 128
+      },
+      "description": "Click the Close button on the startup Welcome sign-in overlay.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_closeWelcomeOverlay_assertVisible_cfc37cadd_1_1"
+      ],
+      "preconditions": [
+        "dhash:952:128:16:5:255266345964665b",
+        "dhash:952:128:96:5:16100c10100c1404",
+        "dhash:952:128:0:10:2592eae0f08e8621"
+      ],
+      "postconditions": [],
+      "tags": [
+        "component:initialization",
+        "initialization:closeWelcomeOverlay",
+        "force_run:true"
+      ]
+    },
+    {
+      "step_id": "step_closeWelcomeOverlay_assertReady_cfc37cadd_1_1",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the startup sign-in overlay is no longer visible and the VS Code workbench is ready.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_closeWelcomeOverlay_close_cfc37cadd_1_1"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:initialization",
+        "initialization:closeWelcomeOverlay",
+        "step_retry_timeout: 30"
+      ]
+    },
+    {
+      "step_id": "step_executeCommand_open_cfc37cadd_1_2",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "f1"
+      },
+      "description": "Press the F1 key to open the Command Palette in Visual Studio Code.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_closeWelcomeOverlay_assertReady_cfc37cadd_1_1"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:command-palette",
+        "action:execute-command"
+      ]
+    },
+    {
+      "step_id": "step_executeCommand_assertPalette_cfc37cadd_1_2",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the Visual Studio Code Command Palette is visible with a > character in its input box and is ready to accept a command search.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_executeCommand_open_cfc37cadd_1_2"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:command-palette",
+        "action:execute-command",
+        "step_retry_timeout: 30"
+      ]
+    },
+    {
+      "step_id": "step_executeCommand_filter_cfc37cadd_1_2",
+      "agent": "interaction",
+      "tool": "type_text",
+      "parameters": {
+        "text": "Welcome: Open Walkthrough..."
+      },
+      "description": "Type the resolved command title into the active Command Palette.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_executeCommand_assertPalette_cfc37cadd_1_2"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:command-palette",
+        "action:execute-command"
+      ]
+    },
+    {
+      "step_id": "step_executeCommand_assertCommand_cfc37cadd_1_2",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the Command Palette input box reads >Welcome: Open Walkthrough... and the highlighted command listed under it is titled Welcome: Open Walkthrough....",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_executeCommand_filter_cfc37cadd_1_2"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:command-palette",
+        "action:execute-command",
+        "step_retry_timeout: 30"
+      ]
+    },
+    {
+      "step_id": "step_executeCommand_execute_cfc37cadd_1_2",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "enter"
+      },
+      "description": "Press Enter to execute the selected Command Palette command.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_executeCommand_assertCommand_cfc37cadd_1_2"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:command-palette",
+        "action:execute-command"
+      ]
+    },
+    {
+      "step_id": "step_copilotLicense_assertPicker_cfc37cadd_1_3",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the Select a walkthrough to open quick pick is visible.",
+      "tags": [
+        "step_retry_timeout: 60"
+      ],
+      "depends_on": [
+        "step_executeCommand_execute_cfc37cadd_1_2"
+      ]
+    },
+    {
+      "step_id": "step_copilotLicense_filter_cfc37cadd_1_3",
+      "agent": "interaction",
+      "tool": "type_text",
+      "parameters": {
+        "text": "Build a Declarative Agent"
+      },
+      "description": "Filter the walkthrough picker for Build a Declarative Agent."
+    },
+    {
+      "step_id": "step_copilotLicense_assertSelected_cfc37cadd_1_3",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion Build a Declarative Agent is the highlighted selectable walkthrough result.",
+      "tags": [
+        "step_retry_timeout: 60"
+      ]
+    },
+    {
+      "step_id": "step_copilotLicense_open_cfc37cadd_1_3",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "enter"
+      },
+      "description": "Open the highlighted Build a Declarative Agent walkthrough."
+    },
+    {
+      "step_id": "step_copilotLicense_assertWalkthrough_cfc37cadd_1_3",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the Build a Declarative Agent walkthrough displays Set up your environment.",
+      "tags": [
+        "step_retry_timeout: 60"
+      ]
+    },
+    {
+      "step_id": "step_copilotLicense_expand_cfc37cadd_1_3",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 512,
+        "y": 431
+      },
+      "description": "Click Set up your environment in the Build a Declarative Agent walkthrough.",
+      "preconditions": [
+        "dhash:512:431:16:5:d2d46667c4d328a0",
+        "dhash:512:431:96:5:0000a4595128d59a",
+        "dhash:512:431:0:10:24b0949490b17075"
+      ],
+      "tags": [
+        "ocr:true"
+      ]
+    },
+    {
+      "step_id": "step_copilotLicense_assertButton_cfc37cadd_1_3",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the expanded Set up your environment section contains a Check Copilot License button.",
+      "tags": [
+        "step_retry_timeout: 60"
+      ]
+    },
+    {
+      "step_id": "step_copilotLicense_checkSignedOut_cfc37cadd_1_3",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 516,
+        "y": 447
+      },
+      "description": "Click the Check Copilot License button in Set up your environment.",
+      "preconditions": [
+        "dhash:516:447:16:5:2493f3ec6b936ad2",
+        "dhash:516:447:96:5:75622a1d99660000",
+        "dhash:516:447:0:10:24b0949090b17075"
+      ],
+      "tags": [
+        "ocr:true"
+      ]
+    },
+    {
+      "step_id": "step_copilotLicense_openNotificationCommand_cfc37cadd_1_3",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "f1"
+      },
+      "description": "Open the command palette to show the persistent notification center."
+    },
+    {
+      "step_id": "step_copilotLicense_assertNotificationPalette_cfc37cadd_1_3",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the VS Code command palette is open with its command input focused.",
+      "tags": [
+        "step_retry_timeout: 60"
+      ]
+    },
+    {
+      "step_id": "step_copilotLicense_filterNotificationCommand_cfc37cadd_1_3",
+      "agent": "interaction",
+      "tool": "type_text",
+      "parameters": {
+        "text": "Notifications: Show Notifications"
+      },
+      "description": "Filter for Notifications: Show Notifications."
+    },
+    {
+      "step_id": "step_copilotLicense_assertNotificationCommand_cfc37cadd_1_3",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion Notifications: Show Notifications is the highlighted selectable command palette result.",
+      "tags": [
+        "step_retry_timeout: 60"
+      ]
+    },
+    {
+      "step_id": "step_copilotLicense_showNotifications_cfc37cadd_1_3",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "enter"
+      },
+      "description": "Open the notification center using the highlighted command."
+    },
+    {
+      "step_id": "step_copilotLicense_assertNotification_cfc37cadd_1_3",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the selected notification says You need to sign in your Microsoft 365 account, identifies Microsoft 365 Agents Toolkit as its source, and contains a Sign in button.",
+      "tags": [
+        "step_retry_timeout: 60"
+      ]
+    },
+    {
+      "step_id": "step_copilotLicense_focusNotificationSignIn_cfc37cadd_1_3",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "tab"
+      },
+      "description": "Focus the Sign in action of the selected Microsoft 365 notification."
+    },
+    {
+      "step_id": "step_copilotLicense_assertNotificationSignIn_cfc37cadd_1_3",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the Sign in button inside the You need to sign in your Microsoft 365 account notification has the keyboard focus outline.",
+      "tags": [
+        "step_retry_timeout: 60"
+      ]
+    },
+    {
+      "step_id": "step_copilotLicense_activateNotificationSignIn_cfc37cadd_1_3",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "enter"
+      },
+      "description": "Activate the focused Sign in action in the Microsoft 365 notification."
+    },
+    {
+      "step_id": "step_copilotLicense_assertSignIn_cfc37cadd_1_3",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the Microsoft 365 account dialog says Microsoft 365 Agents Toolkit needs a Microsoft 365 account with custom app upload permission, and shows Create a Microsoft 365 developer sandbox, Cancel, and Sign in buttons.",
+      "tags": [
+        "step_retry_timeout: 60"
+      ]
+    },
+    {
+      "step_id": "step_copilotLicense_signIn_cfc37cadd_1_3",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 703,
+        "y": 100
+      },
+      "description": "Click the rightmost Sign in button in the Microsoft 365 account dialog at the top, beside Cancel and Create a Microsoft 365 developer sandbox.",
+      "preconditions": [
+        "dhash:703:100:16:5:0000000000000000",
+        "dhash:703:100:96:5:00000042b2474971",
+        "dhash:703:100:0:10:9cb89590b0717d7f"
+      ],
+      "tags": [
+        "ocr:true",
+        "precondition_wait_timeout: 1"
+      ]
+    },
+    {
+      "step_id": "step_copilotLicense_assertEmail_cfc37cadd_1_3",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the Microsoft account sign-in page is open in the browser with a focused email address input and a Next button.",
+      "tags": [
+        "step_retry_timeout: 60"
+      ]
+    },
+    {
+      "step_id": "step_copilotLicense_typeAccount_cfc37cadd_1_3",
+      "agent": "interaction",
+      "tool": "type_text",
+      "parameters": {
+        "text": "${{env:M365_ACCOUNT_NAME_EnableCopilotAccess}}"
+      },
+      "description": "Enter the dedicated Copilot-enabled account into the Microsoft sign-in email input.",
+      "preconditions": [
+        "dhash:512:384:0:20:1b28f0d9c7e6dae4"
+      ],
+      "tags": [
+        "delay:5",
+        "precondition_wait_timeout: 60"
+      ]
+    },
+    {
+      "step_id": "step_copilotLicense_next_cfc37cadd_1_3",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 633,
+        "y": 486
+      },
+      "description": "Click Next on the Microsoft sign-in page after entering the dedicated account.",
+      "preconditions": [
+        "dhash:633:486:16:5:92aa29a3b24db200",
+        "dhash:633:486:96:5:000004b0300c0000",
+        "dhash:633:486:0:10:1b28f0cbc6e6dae4"
+      ],
+      "tags": [
+        "ocr:true"
+      ]
+    },
+    {
+      "step_id": "step_copilotLicense_assertPassword_cfc37cadd_1_3",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the Microsoft sign-in password page is open for ${{env:M365_ACCOUNT_NAME_EnableCopilotAccess}} and the password input is focused.",
+      "tags": [
+        "step_retry_timeout: 60"
+      ]
+    },
+    {
+      "step_id": "step_copilotLicense_typePassword_cfc37cadd_1_3",
+      "agent": "interaction",
+      "tool": "type_text",
+      "parameters": {
+        "text": "${{secret:M365_ACCOUNT_PASSWORD_EnableCopilotAccess}}"
+      },
+      "description": "Enter the protected password into the focused Microsoft password input.",
+      "preconditions": [
+        "dhash:512:384:0:20:1b08f0d9d1e6e6e4"
+      ],
+      "tags": [
+        "delay:3",
+        "precondition_wait_timeout: 60"
+      ]
+    },
+    {
+      "step_id": "step_copilotLicense_submit_cfc37cadd_1_3",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "enter"
+      },
+      "description": "Submit the Microsoft password form.",
+      "preconditions": [
+        "dhash:512:384:0:20:1b08f0d9d1e6e6e4"
+      ]
+    },
+    {
+      "step_id": "step_copilotLicense_assertCallback_cfc37cadd_1_3",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the Visual Studio Code M365 sign-in callback page displays You are signed in now and can close this page.",
+      "tags": [
+        "step_retry_timeout: 120"
+      ]
+    },
+    {
+      "step_id": "step_copilotLicense_closeBrowser_cfc37cadd_1_3",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 254,
+        "y": 19
+      },
+      "description": "Close the successfully completed M365 sign-in browser tab using its X button.",
+      "preconditions": [
+        "dhash:254:19:16:5:01a1424249420221",
+        "dhash:254:19:96:5:9144640100000004",
+        "dhash:254:19:0:10:9391610169414141"
+      ],
+      "tags": [
+        "delay:3"
+      ]
+    },
+    {
+      "step_id": "step_copilotLicense_closeNotifications_cfc37cadd_1_3",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "esc"
+      },
+      "description": "Close the notification center after returning to VS Code."
+    },
+    {
+      "step_id": "step_copilotLicense_reexpand_cfc37cadd_1_3",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 512,
+        "y": 431
+      },
+      "description": "Click Set up your environment in the walkthrough to return from the automatically selected Build a declarative agent step.",
+      "preconditions": [
+        "dhash:512:431:16:5:d2d46667c4d328a0",
+        "dhash:512:431:96:5:0000a4595128d59a",
+        "dhash:512:431:0:10:24b0949490b17075"
+      ],
+      "tags": [
+        "ocr:true"
+      ]
+    },
+    {
+      "step_id": "step_copilotLicense_assertReopened_cfc37cadd_1_3",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion Check Copilot License is visible inside the expanded Set up your environment section.",
+      "tags": [
+        "step_retry_timeout: 60"
+      ]
+    },
+    {
+      "step_id": "step_copilotLicense_checkSignedIn_cfc37cadd_1_3",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 540,
+        "y": 446
+      },
+      "description": "Click Check Copilot License in Set up your environment for the signed-in account.",
+      "preconditions": [
+        "dhash:540:446:16:5:e829abaaaa2bd42b",
+        "dhash:540:446:96:5:929a8572629400d2",
+        "dhash:540:446:0:10:23b89490b0717d7f"
+      ],
+      "tags": [
+        "ocr:true"
+      ]
+    },
+    {
+      "step_id": "step_copilotLicense_assertEnabled_cfc37cadd_1_3",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion Your Microsoft 365 account has Copilot access enabled is visible in the Toolkit Output panel.",
+      "tags": [
+        "step_retry_timeout: 120"
+      ]
+    }
+  ],
+  "screenshots": {}
+}

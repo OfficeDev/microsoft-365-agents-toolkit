@@ -26,6 +26,7 @@ function composeCase({ compileStep, expandedCase, sourcePath }) {
       caseId: expandedCase.caseId,
       definition: step.definition,
       featureFlags: expandedCase.featureFlags,
+      isLastStep: step === expandedCase.steps.at(-1),
       occurrence: step.occurrence,
       stepName: step.stepName,
     });

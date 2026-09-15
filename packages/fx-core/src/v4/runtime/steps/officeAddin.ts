@@ -6,14 +6,18 @@ import * as fs from "fs-extra";
 import * as officeAddinProject from "office-addin-project";
 import * as path from "path";
 import { Result, err, ok } from "neverthrow";
-import { RegisteredStep, StepContext, StepParams } from "../../pipeline/runScaffoldPipeline";
+import { capabilityDeclarations } from "../../capabilities/declarations";
+import { RegisteredStep, StepContext } from "../../pipeline/runScaffoldPipeline";
+import { defineStep } from "../../pipeline/defineStep";
+import { stringParam } from "../../pipeline/stepParams";
 import { withTempDirectory } from "../withTempDirectory";
 
 /** Office Add-in post-render import steps. */
 
 const SOURCE = "Scaffold";
 
-export const STEP_IMPORT_EXISTING_OFFICE_ADDIN_PROJECT = "officeaddin/import-existing-project";
+export const STEP_IMPORT_EXISTING_OFFICE_ADDIN_PROJECT =
+  capabilityDeclarations.step.importExistingOfficeAddinProject.id;
 
 const RENDERED_CONFIG_FILES = [
   ".gitignore",
@@ -30,11 +34,6 @@ function systemError(name: string, message: string): SystemError {
 
 function userError(name: string, message: string): UserError {
   return new UserError({ source: SOURCE, name, message });
-}
-
-function stringParam(params: StepParams, key: string): string | undefined {
-  const value = params[key];
-  return typeof value === "string" ? value : undefined;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -178,24 +177,21 @@ async function importExistingOfficeAddinProject(
   );
 }
 
-export const officeAddinImportExistingProject: RegisteredStep = {
-  validateParams(resolved: StepParams): string | undefined {
-    if (stringParam(resolved, "sourceFolder") === undefined) {
-      return "missing string parameter 'sourceFolder'";
-    }
-    if (stringParam(resolved, "manifestPath") === undefined) {
-      return "missing string parameter 'manifestPath'";
-    }
-    return undefined;
-  },
-
-  async apply(resolved: StepParams, ctx: StepContext): Promise<Result<void, FxError>> {
+export const officeAddinImportExistingProject: RegisteredStep = defineStep({
+  parse(resolved): Result<{ sourceFolder: string; manifestPath: string }, string> {
     const sourceFolder = stringParam(resolved, "sourceFolder");
-    const manifestPath = stringParam(resolved, "manifestPath");
-    if (sourceFolder === undefined || manifestPath === undefined) {
-      // eslint-disable-next-line no-secrets/no-secrets
-      return err(systemError("OfficeAddinImportParams", "resolved parameters are not all valid"));
+    if (sourceFolder === undefined) {
+      return err("missing string parameter 'sourceFolder'");
     }
+    const manifestPath = stringParam(resolved, "manifestPath");
+    if (manifestPath === undefined) {
+      return err("missing string parameter 'manifestPath'");
+    }
+    return ok({ sourceFolder, manifestPath });
+  },
+  invalidParams: () =>
+    systemError("OfficeAddinImportParams", "resolved parameters are not all valid"),
+  async apply({ sourceFolder, manifestPath }, ctx): Promise<Result<void, FxError>> {
     return importExistingOfficeAddinProject(ctx, sourceFolder, manifestPath);
   },
-};
+});

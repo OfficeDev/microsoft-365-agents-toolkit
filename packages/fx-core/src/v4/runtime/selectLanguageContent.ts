@@ -31,8 +31,16 @@ export function selectLanguageContent(
   content: TemplateFileEntry[],
   language: string
 ): TemplateFileEntry[] {
+  return selectLanguageFiles(descriptorLanguages(descriptor), content, language);
+}
+
+export function selectLanguageFiles(
+  languages: string[],
+  content: TemplateFileEntry[],
+  language: string
+): TemplateFileEntry[] {
   // A `["common"]` package is never partitioned, regardless of the requested language.
-  if (descriptorLanguages(descriptor).includes(COMMON_LANGUAGE)) {
+  if (languages.includes(COMMON_LANGUAGE)) {
     return content;
   }
   // A partitioned package keeps only the selected language subtree.

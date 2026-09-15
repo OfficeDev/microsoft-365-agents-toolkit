@@ -15,11 +15,13 @@ import fs from "fs-extra";
 import path from "path";
 import { Result, err, ok } from "neverthrow";
 import { openCreateSelectorPresentation } from "../../../src/v4/distribution/createSelector";
-import { assert } from "vitest";
+import { assert, vi } from "vitest";
 import {
   resolveCreateTargetByTemplateId,
   runCreateSelector,
 } from "../../../src/v4/surface/createSelectorWalk";
+import { runModifySelector } from "../../../src/v4/surface/modifySelectorWalk";
+import * as localizeUtils from "../../../src/common/localizeUtils";
 import { getLocalizedString } from "../../../src/common/localizeUtils";
 
 /**
@@ -143,6 +145,315 @@ const MINIMAL_SELECTOR = {
   ],
   routes: [{ when: "projectType=='minimal'", engine: "v4", templateId: "minimal" }],
 };
+
+describe.each([
+  { kind: "create", run: runCreateSelector, failureName: "CreateSelectorWalkFailed" },
+  { kind: "modify", run: runModifySelector, failureName: "ModifySelectorWalkFailed" },
+])("$kind selector presentation", ({ run, failureName }) => {
+  it("OWN-05: resolves identical localization, feature labels, icons and visibility", async () => {
+    const translations: Record<string, string> = {
+      "selector.question.title": "Localized title",
+      "selector.question.placeholder": "Localized placeholder",
+      "selector.option.label": "Localized label",
+      "selector.option.detail": "Localized detail",
+      "selector.option.groupName": "Localized group",
+      "literal.detail": "Localized raw key",
+    };
+    const localize = vi
+      .spyOn(localizeUtils, "getLocalizedString")
+      .mockImplementation((key) => translations[key] ?? "");
+    const featureLabel = vi
+      .spyOn(localizeUtils, "getFeatureFlaggedLabel")
+      .mockImplementation((label, flag) => `${label} [${flag}]`);
+    const selectorBytes = Buffer.from(
+      JSON.stringify({
+        questions: [
+          {
+            name: "projectType",
+            type: "singleSelect",
+            keyPrefix: "selector.question",
+            title: "Authored title",
+            placeholder: "Authored placeholder",
+            staticOptions: [
+              {
+                id: "localized",
+                keyPrefix: "selector.option",
+                label: "Authored label",
+                detail: "Authored detail",
+                groupName: "Authored group",
+                iconPath: "star",
+                condition: {
+                  expr: "featureFlag('FIRST') && featureFlag('SECOND') && featureFlag('FIRST')",
+                },
+              },
+              {
+                id: "minimal",
+                keyPrefix: "missing",
+                label: "Minimal",
+                detail: "literal.detail",
+                groupName: "Fallback group",
+              },
+              { id: "vscode", label: "VS Code", condition: { expr: "surface == 'vscode'" } },
+              { id: "hidden", label: "Hidden", condition: { expr: "featureFlag('OFF')" } },
+            ],
+          },
+        ],
+        routes: MINIMAL_SELECTOR.routes,
+      })
+    );
+    try {
+      for (const { surface, enabled } of [
+        { surface: "vscode", enabled: true },
+        { surface: "cli", enabled: true },
+        { surface: "vscode", enabled: false },
+      ]) {
+        featureLabel.mockClear();
+        const ui = new ScriptedUI({ projectType: "minimal" });
+        const result = await run(selectorBytes, asUI(ui), surface, {
+          selectorBytesKind: "json",
+          flagReader: flagsOn(...(enabled ? ["FIRST", "SECOND"] : [])),
+        });
+        assert.isTrue(result.isOk());
+        assert.deepEqual(ui.configByName.get("projectType"), {
+          name: "projectType",
+          title: "Localized title",
+          placeholder: "Localized placeholder",
+          step: 1,
+          returnObject: false,
+          options: [
+            ...(enabled
+              ? [
+                  {
+                    id: "localized",
+                    label: "$(star) Localized label [FIRST] [SECOND]",
+                    detail: "Localized detail",
+                    groupName: "Localized group",
+                  },
+                ]
+              : []),
+            {
+              id: "minimal",
+              label: "Minimal",
+              detail: "Localized raw key",
+              groupName: "Fallback group",
+            },
+            ...(surface === "vscode"
+              ? [{ id: "vscode", label: "VS Code", detail: undefined, groupName: undefined }]
+              : []),
+          ],
+        });
+        assert.deepEqual(
+          featureLabel.mock.calls,
+          enabled
+            ? [
+                ["Localized label", "FIRST"],
+                ["Localized label [FIRST]", "SECOND"],
+              ]
+            : []
+        );
+      }
+    } finally {
+      featureLabel.mockRestore();
+      localize.mockRestore();
+    }
+  });
+
+  it("OWN-05: retains literal and question-name fallbacks when localization is absent", async () => {
+    const localize = vi.spyOn(localizeUtils, "getLocalizedString").mockReturnValue("");
+    try {
+      for (const title of ["Authored title", undefined]) {
+        const ui = new ScriptedUI({ projectType: "minimal" });
+        const selector = {
+          questions: [
+            {
+              ...MINIMAL_SELECTOR.questions[0],
+              keyPrefix: "missing",
+              title,
+              placeholder: "Authored placeholder",
+            },
+          ],
+          routes: MINIMAL_SELECTOR.routes,
+        };
+        const result = await run(Buffer.from(JSON.stringify(selector)), asUI(ui), "vscode", {
+          selectorBytesKind: "json",
+          flagReader: flagsOn(),
+        });
+        assert.isTrue(result.isOk());
+        assert.equal(ui.configByName.get("projectType")?.title, title ?? "projectType");
+        assert.equal(ui.configByName.get("projectType")?.placeholder, "Authored placeholder");
+        assert.equal(
+          offeredOption(ui.configByName.get("projectType"), "minimal")?.label,
+          "Minimal"
+        );
+      }
+    } finally {
+      localize.mockRestore();
+    }
+  });
+
+  it("OWN-05: propagates expression and feature-reference errors without prompting", async () => {
+    for (const [expr, errorName] of [
+      ["unknown == 'yes'", "ExprUndeclaredIdentifier"],
+      ["featureFlag('FIRST'", "ExprParseError"],
+    ]) {
+      const ui = new ScriptedUI({});
+      const selector = {
+        questions: [
+          {
+            ...MINIMAL_SELECTOR.questions[0],
+            staticOptions: [{ id: "minimal", label: "Minimal", condition: { expr } }],
+          },
+        ],
+        routes: MINIMAL_SELECTOR.routes,
+      };
+      const result = await run(Buffer.from(JSON.stringify(selector)), asUI(ui), "vscode", {
+        selectorBytesKind: "json",
+        flagReader: flagsOn(),
+      });
+      assert.isTrue(result.isErr());
+      if (result.isErr()) {
+        assert.equal(result.error.name, errorName);
+      }
+      assert.isEmpty(ui.selectNames);
+    }
+  });
+
+  it("OWN-06: preserves cancellation, FxError identity and entry-specific thrown-error conversion", async () => {
+    const ui = new ScriptedUI({});
+    const select = vi.spyOn(ui, "selectOption");
+    try {
+      for (const failure of [
+        new UserError({ source: "Test", name: "UserCancelError", message: "cancelled" }),
+        new SystemError({ source: "Test", name: "PromptFailed", message: "prompt failed" }),
+        new Error("unexpected prompt failure"),
+        "non-error rejection",
+      ]) {
+        if (failure instanceof UserError || failure instanceof SystemError) {
+          select.mockResolvedValue(err(failure));
+        } else {
+          select.mockRejectedValue(failure);
+        }
+        const result = await run(
+          Buffer.from(JSON.stringify(MINIMAL_SELECTOR)),
+          asUI(ui),
+          "vscode",
+          {
+            selectorBytesKind: "json",
+            flagReader: flagsOn(),
+          }
+        );
+        assert.isTrue(result.isErr());
+        if (result.isErr()) {
+          if (failure instanceof UserError || failure instanceof SystemError) {
+            assert.strictEqual(result.error, failure);
+          } else {
+            assert.instanceOf(result.error, SystemError);
+            assert.equal(result.error.name, failureName);
+            assert.equal(
+              result.error.message,
+              failure instanceof Error ? failure.message : failure
+            );
+          }
+        }
+      }
+    } finally {
+      select.mockRestore();
+    }
+  });
+
+  it("OWN-06: retains object selection, empty-result conversion and first-question Back cancellation", async () => {
+    const ui = new ScriptedUI({});
+    const select = vi.spyOn(ui, "selectOption");
+    const responses: SingleSelectResult[] = [
+      { type: "success", result: { id: "minimal", label: "Minimal" } },
+      { type: "success" },
+      { type: "back" },
+    ];
+    try {
+      for (const response of responses) {
+        select.mockResolvedValue(ok(response));
+        const result = await run(
+          Buffer.from(JSON.stringify(MINIMAL_SELECTOR)),
+          asUI(ui),
+          "vscode",
+          {
+            selectorBytesKind: "json",
+            flagReader: flagsOn(),
+          }
+        );
+        if (response.result !== undefined) {
+          assert.isTrue(result.isOk());
+          if (result.isOk()) assert.equal(result.value.templateId, "minimal");
+        } else {
+          assert.isTrue(result.isErr());
+          if (result.isErr()) {
+            assert.equal(
+              result.error.name,
+              response.type === "back" ? "BuildTargetWalkCancelled" : "BuildTargetNoMatchingRoute"
+            );
+          }
+        }
+      }
+    } finally {
+      select.mockRestore();
+    }
+  });
+
+  it("OWN-06: Back re-asks the previous selector dimension with the same steps", async () => {
+    const selector = {
+      questions: [
+        MINIMAL_SELECTOR.questions[0],
+        { name: "choice", type: "singleSelect", staticOptions: [{ id: "yes", label: "Yes" }] },
+      ],
+      routes: [
+        { when: "projectType=='minimal' && choice=='yes'", engine: "v4", templateId: "minimal" },
+      ],
+    };
+    const ui = new SequencedUI([
+      { type: "success", result: "minimal" },
+      { type: "back" },
+      { type: "success", result: "minimal" },
+      { type: "success", result: "yes" },
+    ]);
+    const result = await run(Buffer.from(JSON.stringify(selector)), asUI(ui), "vscode", {
+      selectorBytesKind: "json",
+      flagReader: flagsOn(),
+    });
+    assert.isTrue(result.isOk());
+    if (result.isOk())
+      assert.deepEqual(result.value.answers, { projectType: "minimal", choice: "yes" });
+    assert.deepEqual(ui.calls, [
+      { name: "projectType", step: 1 },
+      { name: "choice", step: 2 },
+      { name: "projectType", step: 1 },
+      { name: "choice", step: 2 },
+    ]);
+  });
+
+  it("OWN-06: noninteractive resolution never prompts, including missing dimensions", async () => {
+    const ui = new ScriptedUI({});
+    const prefills: Record<string, string>[] = [{ projectType: "minimal" }, {}];
+    for (const prefilled of prefills) {
+      const result = await run(Buffer.from(JSON.stringify(MINIMAL_SELECTOR)), asUI(ui), "cli", {
+        selectorBytesKind: "json",
+        flagReader: flagsOn(),
+        interactive: false,
+        prefilled,
+      });
+      if (prefilled.projectType !== undefined) {
+        assert.isTrue(result.isOk());
+        if (result.isOk()) {
+          assert.equal(result.value.templateId, "minimal");
+          assert.deepEqual(result.value.answers, prefilled);
+        }
+      } else {
+        assert.isTrue(result.isErr());
+        if (result.isErr()) assert.equal(result.error.name, "BuildTargetMissingDimension");
+      }
+    }
+    assert.isEmpty(ui.selectNames);
+  });
+});
 
 describe("runCreateSelector (walk-create-selector)", () => {
   it("WCS-00: selector project type options preserve authored icons", async () => {
@@ -300,6 +611,32 @@ describe("runCreateSelector (walk-create-selector)", () => {
     assert.isTrue(res.isErr());
     if (res.isErr()) {
       assert.equal(res.error.name, "ExprUndeclaredIdentifier");
+    }
+  });
+
+  it("WCS-00: returns feature flag reference errors from selector JSON", async () => {
+    const ui = new ScriptedUI({ projectType: "minimal" });
+    const selector = {
+      questions: [
+        {
+          name: "projectType",
+          type: "singleSelect",
+          staticOptions: [
+            { id: "minimal", label: "Minimal", condition: { expr: "featureFlag('A'" } },
+          ],
+        },
+      ],
+      routes: [{ when: "projectType=='minimal'", engine: "v4", templateId: "minimal" }],
+    };
+
+    const res = await runCreateSelector(Buffer.from(JSON.stringify(selector)), asUI(ui), "vscode", {
+      selectorBytesKind: "json",
+      flagReader: () => false,
+    });
+
+    assert.isTrue(res.isErr());
+    if (res.isErr()) {
+      assert.equal(res.error.name, "ExprParseError");
     }
   });
 
@@ -654,7 +991,7 @@ describe("runCreateSelector (walk-create-selector)", () => {
     assert.notInclude(ui.selectNames, LANGUAGE_QUESTION);
   });
 
-  it("WCS-12: the skill daTemplate option is hidden unless TEAMSFX_AGENT_SKILLS is on", async () => {
+  it("WCS-12: the skill daTemplate option is hidden unless ATK_FRONTIER is on", async () => {
     const ui = new ScriptedUI({
       projectType: "copilot-agent-type",
       daTemplate: "no-action",
@@ -684,12 +1021,12 @@ describe("runCreateSelector (walk-create-selector)", () => {
     assert.notInclude(offered, "da-meta-os");
   });
 
-  it("WCS-13: copilot\u2192skill with TEAMSFX_AGENT_SKILLS on resolves the v4 route", async () => {
+  it("WCS-13: copilot\u2192skill with ATK_FRONTIER on resolves the v4 route", async () => {
     const picks = { projectType: "copilot-agent-type", daTemplate: "skill" };
     const ui = new ScriptedUI(picks);
 
     const res = await runCreateSelector(buildFloor(), asUI(ui), "vscode", {
-      flagReader: flagsOn("TEAMSFX_AGENT_SKILLS"),
+      flagReader: flagsOn("ATK_FRONTIER"),
     });
 
     assert.isTrue(res.isOk());
@@ -702,6 +1039,27 @@ describe("runCreateSelector (walk-create-selector)", () => {
     // (no actionSource follow-up \u2014 that is add-action only).
     assert.include(offeredIds(ui.configByName.get("daTemplate")), "skill");
     assert.deepEqual(ui.selectNames, ["projectType", "daTemplate"]);
+  });
+
+  it("WCS-13b: adds Frontier suffix only to ATK_FRONTIER-controlled options", async () => {
+    const ui = new ScriptedUI({
+      projectType: "copilot-agent-type",
+      daTemplate: "no-action",
+    });
+
+    const res = await runCreateSelector(buildFloor(), asUI(ui), "vscode", {
+      flagReader: flagsOn("ATK_FRONTIER"),
+    });
+
+    assert.isTrue(res.isOk());
+    assert.equal(
+      offeredOption(ui.configByName.get("daTemplate"), "skill")?.label,
+      `${getLocalizedString("template.createProjectQuestion.addSkill.label")} (Frontier)`
+    );
+    assert.equal(
+      offeredOption(ui.configByName.get("daTemplate"), "no-action")?.label,
+      getLocalizedString("template.createProjectQuestion.noPlugin.label")
+    );
   });
 
   it("WCS-18: copilot\u2192typespec resolves the v4 route", async () => {
@@ -944,7 +1302,7 @@ describe("runCreateSelector (walk-create-selector)", () => {
     }
   });
 
-  it("WCS-24: resuming a completed Q1 walk re-asks its last dimension with the history intact", async () => {
+  it("OWN-06 / WCS-24: resuming a completed Q1 walk re-asks its last dimension with the history intact", async () => {
     // First, walk Q1 to a done target and capture its history + promptCount.
     const firstUi = new SequencedUI([
       { type: "success", result: "copilot-agent-type" }, // projectType (step 1)

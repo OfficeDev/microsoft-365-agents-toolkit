@@ -116,7 +116,7 @@ describe("openPlugin → teamsApp/zipAppPackage end-to-end", () => {
       .to.equal(true);
   });
 
-  it("zips skill folders even when TEAMSFX_AGENT_SKILLS is off (Teams manifest agentSkills is unconditional)", async () => {
+  it("zips skill folders even when ATK_FRONTIER is off (Teams manifest agentSkills is unconditional)", async () => {
     const convertRes = await importOpenPlugin({
       path: pluginDir,
       output: projectDir,
@@ -125,8 +125,8 @@ describe("openPlugin → teamsApp/zipAppPackage end-to-end", () => {
     });
     if (convertRes.isErr()) throw new Error(convertRes.error.message);
 
-    const wasEnabled = featureFlagManager.getBooleanValue(FeatureFlags.AgentSkillsManifest);
-    featureFlagManager.setBooleanValue(FeatureFlags.AgentSkillsManifest, false);
+    const wasEnabled = featureFlagManager.getBooleanValue(FeatureFlags.Frontier);
+    featureFlagManager.setBooleanValue(FeatureFlags.Frontier, false);
     try {
       const args: CreateAppPackageArgs = {
         manifestPath: path.join(projectDir, "appPackage", "manifest.json"),
@@ -152,7 +152,7 @@ describe("openPlugin → teamsApp/zipAppPackage end-to-end", () => {
         )
         .to.equal(true);
     } finally {
-      featureFlagManager.setBooleanValue(FeatureFlags.AgentSkillsManifest, wasEnabled);
+      featureFlagManager.setBooleanValue(FeatureFlags.Frontier, wasEnabled);
     }
   });
 

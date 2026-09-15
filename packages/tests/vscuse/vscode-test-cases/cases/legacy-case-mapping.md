@@ -7,7 +7,7 @@ that no longer exists wherever the status is **Full**.
 ## Status
 
 - **Full**: the generated case covers the legacy scenario intent with semantic steps and file
-  checks, and the legacy plan has been removed.
+  checks where it creates a project, and the legacy plan has been removed.
 - **Partial**: the generated case covers the legacy scaffold and lifecycle but stops short of part of
   the legacy flow, such as its chat validation or its negative input path, so the legacy plan is kept
   until that gap closes.
@@ -38,6 +38,51 @@ and VCB-156.
   Until then, the generated case intentionally stops after validating and packaging the TypeSpec
   source. Its all-zero UUID only satisfies package-time manifest substitution and must never be
   treated as a runtime OAuth configuration ID.
+
+## Verified Feature Retirement
+
+- OpenAI Search: clean atk07 replay `exec_20260907_163259` passed 126/126 steps,
+  with 0 errors and CLI exit 0. VCB-192 covers its independent deferred-key
+  path and retirement.
+- Second-F5: clean atk07 replay `exec_20260908_105124` passed 104/104 steps,
+  with 0 errors and CLI exit 0, including browser close, stopped-debug assertion,
+  relaunch, and `you said: test`. VCB-193's same-profile authentication reuse and
+  the clarified stopped-debug assertion are included with VCB-194's retirement.
+- Tenant mismatch Cancel: independent atk07 replay `exec_20260908_170453`
+  passed 116/116 steps with 0 errors and CLI exit 0. The real second-tenant
+  warning, silent cancellation, and stopped-debug outcome all passed.
+- Tenant mismatch Continue: independent atk07 replay `exec_20260908_172808`
+  passed 136/136 steps with 0 errors and CLI exit 0. It restored the original
+  account, reopened Teams, and verified `you said: test`. Both branches used
+  the user-configured second-tenant fixture through `MS_AZURE_ACCOUNT_NAME`
+  and `MS_AZURE_ACCOUNT_PASSWORD`; issuer checks and actual sign-in established
+  the prerequisite. Earlier atk06 callback failures are historical setup
+  evidence, not a machine-only waiver. VCB-197 retires the different-account
+  legacy only after these two independent passes.
+- Azure sign-in without subscriptions: clean atk07 replay `exec_20260909_103157`
+  passed 53/53 steps with 0 errors and CLI exit 0 in 522.90 seconds. The same
+  dedicated user authenticated against its home tenant, received an empty ARM
+  subscription list, signed in through Toolkit, and appeared in Accounts.
+  VCB-198 through VCB-200 preserve the independent No Action DA setup and retire
+  the legacy after UI authoring and clean replay. CI receives the dedicated
+  username through `vars.AZURE_NO_SUB_ACCOUNT_NAME` and reuses the existing
+  shared M365 password; the GitHub variable must be configured separately.
+- Copilot license: clean atk07 replay `exec_20260909_122145` passed 40/40 steps
+  with 0 errors and CLI exit 0 in 476.94 seconds, after a complete 40/40 UI replay.
+  The project-independent walkthrough opens the persistent M365 notification,
+  completes the separate account dialog and dedicated-account browser sign-in,
+  verifies the successful callback, and asserts live Copilot access enabled in
+  Toolkit Output. VCB-201 and VCB-202 retain work item `28202384` and reuse the
+  existing CI Copilot-specific credentials. The original eight feature cases
+  are now replaced; ordinary template plans are unchanged.
+- These runs used `ghcr.io/officedev/vscuse-atk-vscode:20260830`, revision
+  `7411a9010693b4c608c139d0fcce5694229ffc42`, digest
+  `sha256:88bf523f36d2292cc6e8ae9f5ba4cc4f6c7d6b47b3d1cf36158330fae0e06366`.
+  They used the approved npm/PyPI proxies and a local vscuse 0.2.67 CodeAgent
+  patch that executes authored scripts literally and checks execution results.
+  This is not validation of the current-dev VSIX or an unpatched CI runner.
+  Private logs and HTML reports remain under `.local/test-reports/` and are not
+  committed.
 
 ## Mapping
 
@@ -192,6 +237,14 @@ and VCB-156.
 | `custom-copilot-rag-custom-api.yml`                | `rag-custom-api-py-azure-openai-local-teams`             | `custom-copilot-rag-custom-api--rag-custom-api-py-azure-openai-local-teams.json`               | `Teams_Agent_With_Data_Custom_API_Azure_OpenAI_py_Local_Debug.json`         | Full   | Custom API data source from an OpenAPI document, Azure OpenAI, Python, virtual environment creation, local Teams launch, and an error-free reply check in place of the legacy reply wording.                                                                                                                                     |
 | `custom-copilot-rag-custom-api.yml`                | `rag-custom-api-py-openai-local-teams`                   | `custom-copilot-rag-custom-api--rag-custom-api-py-openai-local-teams.json`                     | `Teams_Agent_With_Data_Custom_API_OpenAI_py_Local_Debug.json`               | Full   | Custom API data source from an OpenAPI document, OpenAI, Python, virtual environment creation, local Teams launch, and a reply check, which is the whole of what the legacy OpenAI plan asserted.                                                                                                                                |
 | `custom-copilot-rag-custom-api.yml`                | `feature-local-debug-custom-api-without-openai-key`      | `feature-local-debug-custom-api-without-openai-key.json`                                       | `Feature_LocalDebug_Custom_API_without_OpenAI_Keys.json`                    | Full   | Python Custom API scaffold without an OpenAI key, generated config validation, compatible model and local endpoint, virtual environment creation, protected key entry at local Teams launch, and an error-free reply; see VCB-183.                                                                                               |
+| `custom-copilot-rag-custom-api.yml` | `feature-local-debug-custom-api-without-azure-openai-keys` | `feature-local-debug-custom-api-without-azure-openai-keys.json` | `Feature_LocalDebug_Custom_API_without_AzureOpenAI_Keys.json` | Full | Python Custom API scaffold with deferred Azure key, current artifacts and installed requirements, explicit endpoint, protected runtime key and deployment entry, and complete error-free Teams chat. Retired after clean atk07 replay; see VCB-187 through VCB-190. |
+| `custom-copilot-rag-azure-ai-search.yml` | `feature-local-debug-ai-search-without-azure-openai-keys` | `feature-local-debug-ai-search-without-azure-openai-keys.json` | `Feature_LocalDebug_AI_Search_without_AzureOpenAI_Keys.json` | Full | Python Search scaffold with deferred Azure key, current artifacts and installed requirements, explicit endpoints, protected key/deployment/embedding/Search-key runtime entry, and complete error-free Teams chat. Retired after clean atk07 replay (131/131); see VCB-187 through VCB-189 and VCB-192. |
+| `custom-copilot-rag-azure-ai-search.yml` | `feature-local-debug-ai-search-without-openai-keys` | `feature-local-debug-ai-search-without-openai-keys.json` | `Feature_LocalDebug_AI_Search_without_OpenAI_Keys.json` | Full | Python Search with deferred OpenAI key, installed requirements, Azure OpenAI-compatible v1 endpoint, protected runtime OpenAI/Search keys, and complete error-free Teams chat. Retired after independent clean atk07 replay (126/126); see VCB-187, VCB-188, and VCB-192. |
+| `feature-local-debug-second-f5.yml` | `feature-local-debug-second-f5` | `feature-local-debug-second-f5.json` | `Feature_LocalDebug_Second_Press_F5_for_Bot.json` | Full | Independent JavaScript Simple Bot, work item 9795544, first local Chrome launch, browser close, stopped-debug assertion, same-profile relaunch, and test echo. Retired with its relaunch repair after clean atk07 replay (104/104); see VCB-191, VCB-193, and VCB-194. |
+| `feature-local-debug-tenant-mismatch.yml` | `feature-local-debug-tenant-mismatch-cancel` | `feature-local-debug-tenant-mismatch-cancel.json` | `Feature_Simple_Bot_ts_Local_Debug_With_Different_Account.json` | Full | Independent TypeScript Simple Bot, work item 33849529, first local launch, browser close, real cross-tenant account switch, mismatch warning, Cancel, and no active debug session. Clean atk07 replay passed 116/116; see VCB-195 through VCB-197. |
+| `feature-local-debug-tenant-mismatch.yml` | `feature-local-debug-tenant-mismatch-continue` | `feature-local-debug-tenant-mismatch-continue.json` | `Feature_Simple_Bot_ts_Local_Debug_With_Different_Account.json` | Full | Independent TypeScript Simple Bot, work item 33849529, first local launch, browser close, real cross-tenant account switch, mismatch warning, Continue, original-account recovery, Teams reopening, and test echo. Clean atk07 replay passed 136/136; see VCB-195 through VCB-197. |
+| `feature-sign-in-no-subscription.yml` | `feature-sign-in-no-subscription` | `feature-sign-in-no-subscription.json` | `Feature_Sign_In_No_Subscription.json` | Full | Independent No Action DA, work item 36090032, generated file checks, same-user authenticated empty ARM subscription list, Azure browser sign-in, and Accounts visibility. Clean atk07 replay passed 53/53; dedicated CI username and shared password injection are covered by VCB-198 through VCB-200. |
+| `feature-check-copilot-license-enabled.yml` | `feature-check-copilot-license-enabled` | `feature-check-copilot-license-enabled.json` | `Feature_Check_Copilot_License_Enabled.json` | Full | Project-independent Build a Declarative Agent walkthrough, work item 28202384, guarded M365 notification and account dialog, dedicated-account sign-in, successful callback, and live Copilot access enabled output. Full UI and clean atk07 CLI both passed 40/40; see VCB-201 and VCB-202. |
 | `custom-copilot-rag-custom-api.yml`                | `rag-custom-api-ts-azure-openai-remote-teams`            | `custom-copilot-rag-custom-api--rag-custom-api-ts-azure-openai-remote-teams.json`              | `Teams_Agent_With_Data_Custom_API_Azure_OpenAI_ts_Remote_Debug.json`        | Full   | Custom API data source from an OpenAPI document, Azure OpenAI, TypeScript, provision, deploy, remote Teams launch, and the legacy repairs prompt with an error-free reply check.                                                                                                                                                 |
 | `custom-copilot-rag-custom-api.yml`                | `rag-custom-api-js-azure-openai-remote-teams`            | `custom-copilot-rag-custom-api--rag-custom-api-js-azure-openai-remote-teams.json`              | `Teams_Agent_With_Data_Custom_API_Azure_OpenAI_js_Remote_Debug.json`        | Full   | Custom API data source from an OpenAPI document, Azure OpenAI, JavaScript, provision, deploy, remote Teams launch, and the legacy repairs prompt with an error-free reply check.                                                                                                                                                 |
 | `custom-copilot-rag-custom-api.yml`                | `rag-custom-api-py-azure-openai-remote-teams`            | `custom-copilot-rag-custom-api--rag-custom-api-py-azure-openai-remote-teams.json`              | `Teams_Agent_With_Data_Custom_API_Azure_OpenAI_py_Remote_Debug.json`        | Full   | Custom API data source from an OpenAPI document, Azure OpenAI, Python, virtual environment creation, provision, deploy, remote Teams launch, and the legacy repairs prompt with an error-free reply check.                                                                                                                       |
@@ -222,7 +275,7 @@ and VCB-156.
 | `feature-da-no-action-add-action.yml`              | `feature-da-no-action-oauth-auth-remote-preview`         | `feature-da-no-action-oauth-auth-remote-preview.json`                                          | `Feature_DA_No_Action_Add_OAuth_Auth_Configurations.json`                   | Full   | No-action DA scaffold, pinned GitHub OpenAPI action addition, coordinate-free OAuth configuration with disabled PKCE, generated OAuth/plugin/workflow checks, protected client credentials, remote Copilot launch, retained repository prompt, action approval, and exact GitHub `Sign in` assertion; see VCB-170.               |
 | `feature-da-no-action-add-action.yml`              | `feature-da-no-action-pkce-oauth-auth-remote-preview`    | `feature-da-no-action-pkce-oauth-auth-remote-preview.json`                                     | `Feature_DA_No_Action_Add_PKCE_OAuth_Auth_Configurations.json`              | Full   | No-action DA scaffold, pinned PKCE OpenAPI action addition, coordinate-free OAuth configuration with PKCE enabled, generated workflow checks, protected client-ID-only provision, remote Copilot launch, action approval, and sign-in assertion; see VCB-181.                                                                    |
 | `feature-da-regenerate-action.yml`                 | `da-regenerate-list-repairs`                             | `da-api-plugin-from-existing-api--da-regenerate-list-repairs.json`                             | `DA_Regenrate_Action.json`                                                  | Full   | Existing-API DA scaffold from a pinned no-auth OpenAPI revision followed by coordinate-free `listRepairs` regeneration and plugin verification; see VCB-151, VCB-154, and VCB-158.                                                                                                                                               |
-| `feature-open-developer-portal-publish.yml`        | `simple-bot-ts-publish-developer-portal`                 | `default-bot--simple-bot-ts-publish-developer-portal.json`                                     | `Featrue_Open_DeveloperPortal_Publish.json`                                 | Full   | TypeScript Simple Bot local Teams launch, local package build, and recorded Developer Portal publish ending in `Status Submitted`; see VCB-152 through VCB-154.                                                                                                                                                                  |
+| `feature-open-developer-portal-publish.yml`        | `feature-simple-bot-ts-publish-developer-portal`         | `feature-simple-bot-ts-publish-developer-portal.json`                                         | `Featrue_Open_DeveloperPortal_Publish.json`, `Feature_Open_DeveloperPortal_Publish.json` | Full   | TypeScript Simple Bot local Teams launch, local package build, and Developer Portal publish ending in `Status Submitted`; see VCB-152 through VCB-154 and VCB-186. Both legacy spellings are retired after the atk07 replacement replay passed 121/121 steps. |
 | `feature-da-legacy-share-error.yml`                | `da-legacy-share-error`                                  | `da-no-action--da-legacy-share-error.json`                                                     | `DA_Error_Message_of_Legacy_Projects.json`                                  | Full   | No-action DA scaffold, controlled workflow downgrade to v1.9, and coordinate-free Share prompt flow asserting the unsupported-workflow-version error; historical extension installation and restart are intentionally outside this contract; see VCB-162.                                                                        |
 | `teams-collaborator-agent.yml`                     | `collaborator-ts-azure-openai-local-teams`               | `teams-collaborator-agent--collaborator-ts-azure-openai-local-teams.json`                      | `Teams_Collaborator_Agent_local_debug.json`                                 | Full   | Teams Collaborator Agent, Azure OpenAI, TypeScript, local Teams launch, and an action-item chat validation asserting a reply instead of the legacy model-authored wording.                                                                                                                                                       |
 | `teams-collaborator-agent.yml`                     | `collaborator-ts-azure-openai-playground`                | `teams-collaborator-agent--collaborator-ts-azure-openai-playground.json`                       | `Teams_Collaborator_Agent_debug_in_playground.json`                         | Full   | Teams Collaborator Agent, Azure OpenAI, TypeScript, Agents Playground launch, and the legacy collaborator at-mention with a visible reply assertion.                                                                                                                                                                             |

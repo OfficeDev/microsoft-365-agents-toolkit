@@ -29,6 +29,7 @@ import { Result, err, ok } from "neverthrow";
 import { INPUT_VALIDATION_FAILED } from "../../../src/v4/collectInputs/collectInputs";
 import { openCreateQuestions } from "../../../src/v4/distribution/createQuestions";
 import { openDeclarativePackageMetadata } from "../../../src/v4/distribution/declarativePackage";
+import { CURRENT_V4_ENGINE_VERSION } from "../../../src/v4/engineVersion";
 import { DeclarativeLocator } from "../../../src/v4/model/dataModel";
 import { createUiPromptUI } from "../../../src/v4/surface/uiPromptUI";
 import {
@@ -102,12 +103,17 @@ function buildFloor(): Buffer {
   return Buffer.from(cachedFloor);
 }
 
-function buildLanguageFloor(languages = ["typescript", "csharp"]): Buffer {
+function buildLanguageFloor(
+  languages = ["typescript", "csharp"],
+  languageOptions?: unknown[],
+  templateId = "test/language-axis",
+  minEngineVersion = CURRENT_V4_ENGINE_VERSION
+): Buffer {
   const zip = new AdmZip();
-  const root = "v4/create/test/language-axis";
+  const root = `v4/create/${templateId}`;
   zip.addFile(
     `${root}/descriptor.json`,
-    Buffer.from(JSON.stringify({ id: "test/language-axis", languages }))
+    Buffer.from(JSON.stringify({ id: templateId, languages, languageOptions, minEngineVersion }))
   );
   zip.addFile(`${root}/questions.json`, Buffer.from(JSON.stringify({ questions: [] })));
   zip.addFile(`${root}/pipeline.json`, Buffer.from("{}"));
@@ -416,6 +422,79 @@ function optionId(option: string | SurfaceOptionItem): string {
 }
 
 describe("runCreateInputs (collect-create-inputs)", () => {
+  it.each([LANGUAGE_DA, RAG_CUSTOM_API])(
+    "API-02: rejects a newer engine requirement before prompts or provider fetch for $templateId",
+    async (locator) => {
+      const ui = new ScriptedUserInteraction({});
+      const fetch = vi.fn(() => ({
+        options: [
+          { id: "typescript", label: "TypeScript" },
+          { id: "javascript", label: "JavaScript" },
+        ],
+      }));
+      const result = await runCreateInputsWalk(
+        buildLanguageFloor(["typescript", "javascript"], undefined, locator.templateId, "6.14.0"),
+        locator,
+        {},
+        asUI(ui),
+        { optionsProvider: { "create.languages": { fetch } } }
+      );
+
+      assert.isTrue(result.isErr());
+      if (result.isErr()) {
+        assert.instanceOf(result.error, UserError);
+        assert.equal(result.error.name, "TemplatePackageEngineTooOld");
+        assert.include(result.error.message, "requires engine 6.14.0");
+        assert.include(result.error.message, `this engine is ${CURRENT_V4_ENGINE_VERSION}`);
+        assert.include(result.error.message, "upgrade the engine");
+      }
+      assert.deepEqual(ui.promptNames, []);
+      assert.equal(fetch.mock.calls.length, 0);
+    }
+  );
+
+  it("API-03: shipped Custom API questions select the Teams AI default provider and source namespace", async () => {
+    const questions = openCreateQuestions(buildFloor(), RAG_CUSTOM_API)._unsafeUnwrap();
+    assert.equal(
+      questions.find((question) => question.name === "apiOperations")?.optionsFrom,
+      "openapi.teamsAiOperations"
+    );
+    const ui = new ScriptedUserInteraction({ multi: { apiOperations: ["GET /repairs"] } });
+    const result = await runCreateInputs(
+      buildFloor(),
+      RAG_CUSTOM_API,
+      {
+        apiSpecLocation: OPENAPI_SPEC,
+        llmService: "llm-service-openai",
+        openAIKey: "",
+        language: "typescript",
+      },
+      asUI(ui),
+      { flagReader: () => false }
+    );
+    assert.isTrue(result.isOk(), result.isErr() ? result.error.message : "");
+    const answers = result._unsafeUnwrap();
+    assert.deepEqual(answers.apiOperations, ["GET /repairs"]);
+    assert.equal(answers["derived.openapi.teamsAiOperations.apiSpecLocation"], OPENAPI_SPEC);
+    assert.notProperty(answers, "derived.openapi.operations.apiSpecLocation");
+    assert.deepEqual(ui.multiNames, ["apiOperations"]);
+    assert.equal(multiOptionAt(ui.lastMultiConfig, 0).id, "GET /repairs");
+  });
+
+  it("CLEAN-06: generic input composition does not synthesize capability-specific aliases", async () => {
+    const result = await runCreateInputs(
+      buildLanguageFloor(["common"]),
+      LANGUAGE_DA,
+      { selectOpenApiSpec: "an-unrelated-answer" },
+      asUI(new ScriptedUserInteraction({})),
+      { flagReader: () => false }
+    );
+    assert.deepEqual(result._unsafeUnwrap(), {
+      selectOpenApiSpec: "an-unrelated-answer",
+      surface: "vscode",
+    });
+  });
+
   it("CCI-00: metadata-only bytes drive Q2 language gating without content", async () => {
     const ui = new ScriptedUserInteraction({});
 
@@ -431,7 +510,7 @@ describe("runCreateInputs (collect-create-inputs)", () => {
     assert.deepEqual(ui.selectNames, []);
   });
 
-  it("CCI-25: threads baseStep + backable so Q2's first prompt shows Back and a back returns a typed outcome", async () => {
+  it("CLEAN-04/CCI-25: threads baseStep + backable so Q2's first prompt shows Back and a back returns a typed outcome", async () => {
     const ui = new ScriptedUserInteraction({ back: ["llmService"] });
     const res = await runCreateInputsWalk(buildFloor(), CUSTOM_COPILOT_BASIC, {}, asUI(ui), {
       flagReader: () => false,
@@ -491,6 +570,40 @@ describe("runCreateInputs (collect-create-inputs)", () => {
     }
     // mcpServerUrl is the first *visible* prompt, at baseStep + 1 = 4 (the skip left no step).
     assert.strictEqual(ui.lastInputConfig?.step, 4);
+  });
+
+  it("CLEAN-01: arbitrary template metadata controls localized language presentation", async () => {
+    const ui = new ScriptedUserInteraction({ select: { language: "python" } });
+    const result = await runCreateInputs(
+      buildLanguageFloor(
+        ["typescript", "python"],
+        [
+          {
+            id: "python",
+            description: "core.createProjectQuestion.option.description.preview",
+          },
+        ]
+      ),
+      LANGUAGE_DA,
+      {},
+      asUI(ui),
+      { flagReader: () => false }
+    );
+    assert.isTrue(result.isOk());
+    assert.equal(selectOptionAt(ui.lastSelectConfig, 1).description, "Preview");
+  });
+
+  it("CLEAN-07: known template IDs without metadata have default presentation", async () => {
+    const ui = new ScriptedUserInteraction({ select: { language: "python" } });
+    const result = await runCreateInputs(
+      buildLanguageFloor(["typescript", "python"], undefined, CUSTOM_COPILOT_BASIC.templateId),
+      CUSTOM_COPILOT_BASIC,
+      {},
+      asUI(ui),
+      { flagReader: () => false }
+    );
+    assert.isTrue(result.isOk());
+    assert.isUndefined(selectOptionAt(ui.lastSelectConfig, 1).description);
   });
 
   it("CCI-17: VS Code Teams Agents and Apps Python language option carries the v3 Preview description", async () => {
@@ -633,6 +746,7 @@ describe("runCreateInputs (collect-create-inputs)", () => {
       assert.deepEqual(res.value, {
         surface: "vscode",
         apiSpecLocation: OPENAPI_SPEC,
+        "derived.openapi.operations.apiSpecLocation": OPENAPI_SPEC,
         apiOperations: ["GET /repairs"],
       });
     }
@@ -698,7 +812,7 @@ describe("runCreateInputs (collect-create-inputs)", () => {
     });
   });
 
-  it("collects DA OpenAPI operations from a searched OpenAPI document", async () => {
+  it("CLEAN-06: collects searched OpenAPI operations without a surface answer repair", async () => {
     const ui = new ScriptedUserInteraction({
       select: { openApiSpecType: "search-api", selectOpenApiSpec: OPENAPI_SPEC },
       text: { searchOpenApiSpecQuery: "repairs" },
@@ -724,7 +838,8 @@ describe("runCreateInputs (collect-create-inputs)", () => {
       assert.equal(res.value.openApiSpecType, "search-api");
       assert.equal(res.value.searchOpenApiSpecQuery, "repairs");
       assert.equal(res.value.selectOpenApiSpec, OPENAPI_SPEC);
-      assert.equal(res.value.apiSpecLocation, OPENAPI_SPEC);
+      assert.isUndefined(res.value.apiSpecLocation);
+      assert.equal(res.value["derived.openapi.operations.apiSpecLocation"], OPENAPI_SPEC);
       assert.deepEqual(res.value.apiOperations, ["GET /repairs"]);
     }
     assert.deepEqual(ui.promptNames, [

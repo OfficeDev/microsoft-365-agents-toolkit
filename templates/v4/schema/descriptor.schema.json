@@ -30,6 +30,24 @@
       },
       "description": "Closed set of language variants the template offers (proposal §3.1.0). 'common' is the reserved single-member value for language-agnostic templates and makes Q0 auto-skip the language prompt."
     },
+    "languageOptions": {
+      "type": "array",
+      "description": "Optional presentation overrides for declared languages (ADR-0023). IDs must be unique and belong to languages. Requires engine 6.12.0.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "enum": ["typescript", "javascript", "python", "csharp", "common"]
+          },
+          "label": { "type": "string" },
+          "description": { "type": "string" },
+          "keyPrefix": { "type": "string" }
+        }
+      }
+    },
     "minEngineVersion": {
       "type": "string",
       "description": "Engine <-> package compatibility gate (proposal §5.2). An older fx-core meeting a higher minEngineVersion raises an explicit upgrade error (no silent fallback)."
@@ -82,41 +100,45 @@
         {
           "comment": "{const}: literal value.",
           "required": ["const"],
-          "not": { "anyOf": [
-            { "required": ["from"] },
-            { "required": ["when"] },
-            { "required": ["value"] },
-            { "required": ["expr"] }
-          ] }
+          "not": {
+            "anyOf": [
+              { "required": ["from"] },
+              { "required": ["when"] },
+              { "required": ["value"] },
+              { "required": ["expr"] }
+            ]
+          }
         },
         {
           "comment": "{from}: copy an option value verbatim.",
           "required": ["from"],
-          "not": { "anyOf": [
-            { "required": ["const"] },
-            { "required": ["when"] },
-            { "required": ["value"] },
-            { "required": ["expr"] }
-          ] }
+          "not": {
+            "anyOf": [
+              { "required": ["const"] },
+              { "required": ["when"] },
+              { "required": ["value"] },
+              { "required": ["expr"] }
+            ]
+          }
         },
         {
           "comment": "{when,value}: conditional literal.",
           "required": ["when", "value"],
-          "not": { "anyOf": [
-            { "required": ["const"] },
-            { "required": ["from"] },
-            { "required": ["expr"] }
-          ] }
+          "not": {
+            "anyOf": [{ "required": ["const"] }, { "required": ["from"] }, { "required": ["expr"] }]
+          }
         },
         {
           "comment": "{expr}: whitelist-function expression.",
           "required": ["expr"],
-          "not": { "anyOf": [
-            { "required": ["const"] },
-            { "required": ["from"] },
-            { "required": ["when"] },
-            { "required": ["value"] }
-          ] }
+          "not": {
+            "anyOf": [
+              { "required": ["const"] },
+              { "required": ["from"] },
+              { "required": ["when"] },
+              { "required": ["value"] }
+            ]
+          }
         }
       ]
     }

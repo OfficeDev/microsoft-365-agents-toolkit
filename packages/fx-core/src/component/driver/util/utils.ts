@@ -47,6 +47,7 @@ export function createDriverContext(inputs: Inputs): DriverContext {
     telemetryReporter: TOOLS.telemetryReporter,
     projectPath: inputs.projectPath!,
     platform: inputs.platform,
+    nonInteractive: inputs.nonInteractive,
   };
   return driverContext;
 }

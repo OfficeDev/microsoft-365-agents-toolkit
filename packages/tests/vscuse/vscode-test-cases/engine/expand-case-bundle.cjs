@@ -48,7 +48,22 @@ function expandCaseBundle({ bundle, sourcePath }) {
     const scaffolds = steps.filter(
       ({ definition }) => definition.type === "scaffold",
     );
-    if (scaffolds.length !== 1) {
+    const hasLicenseCheck = steps.some(
+      ({ definition }) => definition.type === "checkCopilotLicense",
+    );
+    const standaloneLicenseCheck =
+      hasLicenseCheck && steps.length === 1 && sourceTemplate === undefined;
+    if (hasLicenseCheck && !standaloneLicenseCheck) {
+      diagnostics.push(
+        createDiagnostic(
+          "VCB_LICENSE_CASE_INVALID",
+          sourcePath,
+          `$.cases[${caseIndex}].steps`,
+          "The project-independent license check must be the only operation in a source without scaffolds.",
+        ),
+      );
+    }
+    if (!standaloneLicenseCheck && scaffolds.length !== 1) {
       diagnostics.push(
         createDiagnostic(
           "VCB_CASE_SCAFFOLD_COUNT",
@@ -68,7 +83,9 @@ function expandCaseBundle({ bundle, sourcePath }) {
       scenarioId: caseDefinition.scenarioId,
       workItemIds: structuredClone(caseDefinition.workItemIds),
       steps,
-      templateId: scaffolds[0]?.definition.with.template,
+      templateId: standaloneLicenseCheck
+        ? "none"
+        : scaffolds[0]?.definition.with.template,
     });
   }
 

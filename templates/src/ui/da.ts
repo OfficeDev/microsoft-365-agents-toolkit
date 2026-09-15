@@ -51,7 +51,7 @@ export const daNode = {
             label: "template.createProjectQuestion.addSkill.label",
             detail: "template.createProjectQuestion.addSkill.detail",
             data: "declarative-agent-with-skill",
-            featureFlag: "TEAMSFX_AGENT_SKILLS",
+            featureFlag: "ATK_FRONTIER",
           },
           {
             id: "type-spec",

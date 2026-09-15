@@ -4,6 +4,7 @@
 import mockedEnv, { RestoreFn } from "mocked-env";
 
 import { FeatureFlags, featureFlagManager } from "../../src/common/featureFlags";
+import { getFeatureFlaggedLabel } from "../../src/common/localizeUtils";
 import { chai } from "vitest";
 
 describe("FeatureFlagManager", () => {
@@ -58,6 +59,18 @@ describe("FeatureFlagManager", () => {
     chai.assert.isFalse(booleanRes);
     const stringRes = featureFlagManager.getStringValue(FeatureFlags.V4Enabled);
     chai.assert.equal(stringRes, "false");
+  });
+  it("Frontier uses ATK_FRONTIER and defaults to false", async () => {
+    mockedEnvRestore = mockedEnv({ ATK_FRONTIER: undefined });
+    chai.assert.equal(FeatureFlags.Frontier.name, "ATK_FRONTIER");
+    chai.assert.isFalse(featureFlagManager.getBooleanValue(FeatureFlags.Frontier));
+  });
+  it("decorates only Frontier feature labels", () => {
+    chai.assert.equal(
+      getFeatureFlaggedLabel("Add Skill", FeatureFlags.Frontier.name),
+      "Add Skill (Frontier)"
+    );
+    chai.assert.equal(getFeatureFlaggedLabel("Add Skill", "OTHER_FLAG"), "Add Skill");
   });
   it("list", async () => {
     const list = featureFlagManager.list();

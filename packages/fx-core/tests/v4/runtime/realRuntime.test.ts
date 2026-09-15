@@ -1,16 +1,20 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import * as fs from "fs-extra";
+import fs from "fs-extra";
 import * as os from "os";
 import * as path from "path";
 import { UserError } from "@microsoft/teamsfx-api";
 import { TemplateFileEntry } from "../../../src/v4/model/dataModel";
-import { REQUIRE_EMPTY_TARGET } from "../../../src/v4/pipeline/runScaffoldPipeline";
+import {
+  EXISTING_FILE_SKIPPED_WARNING,
+  REQUIRE_EMPTY_TARGET,
+  runScaffoldPipeline,
+} from "../../../src/v4/pipeline/runScaffoldPipeline";
 import { createRealRuntime } from "../../../src/v4/runtime/realRuntime";
 import { ScaffoldRequest, scaffold } from "../../../src/v4/runtime/scaffold";
 import { mcpAuthScaffoldDeps } from "../../../src/v4/mcp/mcpAuthScaffold";
-import { afterEach, assert, beforeEach, vi } from "vitest";
+import { afterEach, assert, beforeEach, expect, vi } from "vitest";
 
 /**
  * The on-disk `ScaffoldRuntime` face (ADR-0018): the same `da/mcp-server` create
@@ -134,6 +138,290 @@ describe("createRealRuntime (v4, on-disk ScaffoldRuntime)", () => {
   function diskText(rel: string): string {
     return fs.readFileSync(diskPath(rel), "utf8");
   }
+
+  it.each(["late.txt", "late.txt.tpl"])(
+    "IO-01: preserves a file created after the snapshot for %s",
+    async (entryPath) => {
+      const warnings: string[] = [];
+      const runtime = createRealRuntime(tempDir, undefined, undefined, (warning) => {
+        assert.equal(warning.type, EXISTING_FILE_SKIPPED_WARNING);
+        warnings.push(warning.content);
+      });
+      const targetDir = { path: tempDir, existing: [] };
+      fs.writeFileSync(diskPath("late.txt"), "original");
+      const outcome = (
+        await runScaffoldPipeline(
+          { pipeline: "default", steps: [] },
+          [{ path: entryPath, data: Buffer.from("replacement") }],
+          {},
+          targetDir,
+          runtime.port
+        )
+      )._unsafeUnwrap();
+      assert.equal(diskText("late.txt"), "original");
+      assert.deepEqual(outcome.written, []);
+      assert.deepEqual(
+        outcome.skipped.map((file) => file.path),
+        ["late.txt"]
+      );
+      assert.deepEqual(
+        warnings,
+        outcome.skipped.map((file) => file.warning)
+      );
+    }
+  );
+
+  it("IO-01: delegates case-alias collisions to the actual filesystem", async () => {
+    fs.writeFileSync(diskPath("CONFIG.json"), "original");
+    const aliases = fs.existsSync(diskPath("config.json"));
+    if (aliases) {
+      assert.equal(
+        fs.statSync(diskPath("CONFIG.json")).ino,
+        fs.statSync(diskPath("config.json")).ino
+      );
+    }
+    const outcome = (
+      await runScaffoldPipeline(
+        { pipeline: "default", steps: [] },
+        [{ path: "config.json.tpl", data: Buffer.from("new bytes") }],
+        {},
+        { path: tempDir, existing: ["CONFIG.json"] },
+        createRealRuntime(tempDir).port
+      )
+    )._unsafeUnwrap();
+    assert.equal(diskText("CONFIG.json"), "original");
+    assert.equal(diskText("config.json"), aliases ? "original" : "new bytes");
+    assert.deepEqual(outcome.written, aliases ? [] : ["config.json"]);
+    assert.deepEqual(
+      outcome.skipped.map((file) => file.path),
+      aliases ? ["config.json"] : []
+    );
+  });
+
+  it("IO-01: exclusive creation preserves bytes while ordinary writes still replace them", () => {
+    const { port } = createRealRuntime(tempDir);
+    assert.isTrue(port.writeNew("nested/file.txt", Buffer.from("first")));
+    assert.isFalse(port.writeNew("nested/file.txt", Buffer.from("second")));
+    assert.equal(port.read("nested/file.txt")?.toString(), "first");
+    port.write("nested/file.txt", Buffer.from("step"));
+    assert.equal(port.read("nested/file.txt")?.toString(), "step");
+    assert.isUndefined(port.read("missing/child.txt"));
+  });
+
+  it.each(["EACCES", "EIO"])(
+    "IO-01: writeNew propagates %s instead of reporting a collision",
+    (code) => {
+      const failure = Object.assign(new Error("write failed"), { code });
+      const { port } = createRealRuntime(tempDir);
+      vi.spyOn(fs, "writeFileSync").mockImplementationOnce(() => {
+        throw failure;
+      });
+      expect(() => port.writeNew("file.txt", Buffer.from("bytes"))).toThrow(failure);
+    }
+  );
+
+  it.each(["EACCES", "ENOTDIR"])("IO-03: propagates lstat %s before any I/O", (code) => {
+    const failure = Object.assign(new Error("access denied"), { code });
+    const { port } = createRealRuntime(tempDir);
+    vi.spyOn(fs, "lstatSync").mockImplementation(() => {
+      throw failure;
+    });
+    for (const operation of [
+      () => port.read("file.txt"),
+      () => port.write("file.txt", Buffer.from("bytes")),
+      () => port.writeNew("file.txt", Buffer.from("bytes")),
+    ]) {
+      expect(operation).toThrow(failure);
+    }
+  });
+
+  it("IO-03: rejects lexical escapes", () => {
+    const { port } = createRealRuntime(tempDir);
+    for (const entryPath of [".", "../outside.txt", "nested/../../outside.txt"]) {
+      expect(() => port.read(entryPath)).toThrowError(
+        expect.objectContaining({ name: "ScaffoldPathEscape" })
+      );
+    }
+  });
+
+  it.each(["read", "write", "writeNew"])(
+    "IO-03: rejects %s through a directory link below the root",
+    (operation) => {
+      const outside = fs.mkdtempSync(path.join(os.tmpdir(), "atk-v4-outside-"));
+      const link = diskPath("linked");
+      try {
+        fs.writeFileSync(path.join(outside, "keep.txt"), "original");
+        fs.symlinkSync(outside, link, "junction");
+        const runtime = createRealRuntime(tempDir);
+        expect(() => {
+          if (operation === "read") {
+            runtime.port.read("linked/keep.txt");
+          } else if (operation === "write") {
+            runtime.port.write("linked/keep.txt", Buffer.from("changed"));
+          } else {
+            runtime.port.writeNew("linked/new.txt", Buffer.from("changed"));
+          }
+        }).toThrowError(expect.objectContaining({ name: "ScaffoldPathEscape" }));
+        assert.strictEqual(fs.readFileSync(path.join(outside, "keep.txt"), "utf8"), "original");
+        assert.isFalse(fs.existsSync(path.join(outside, "new.txt")));
+      } finally {
+        fs.removeSync(link);
+        fs.removeSync(outside);
+      }
+    }
+  );
+
+  it.each(["inward", "dangling"])("IO-03: rejects %s directory links", (kind) => {
+    const target = diskPath("nested");
+    if (kind === "inward") {
+      fs.ensureDirSync(target);
+      fs.writeFileSync(path.join(target, "file.txt"), "original");
+    }
+    const link = diskPath("linked");
+    fs.symlinkSync(target, link, "junction");
+    try {
+      const { port } = createRealRuntime(tempDir);
+      for (const operation of [
+        () => port.read("linked/file.txt"),
+        () => port.write("linked/file.txt", Buffer.from("changed")),
+        () => port.writeNew("linked/new.txt", Buffer.from("changed")),
+      ]) {
+        expect(operation).toThrowError(expect.objectContaining({ name: "ScaffoldPathEscape" }));
+      }
+      if (kind === "inward") assert.equal(diskText("nested/file.txt"), "original");
+    } finally {
+      fs.removeSync(link);
+    }
+  });
+
+  it.for([false, true])("IO-03: rejects final file links, dangling=%s", (dangling, context) => {
+    const target = diskPath("target.txt");
+    if (!dangling) fs.writeFileSync(target, "original");
+    const link = diskPath("linked.txt");
+    try {
+      fs.symlinkSync(target, link, "file");
+    } catch (error) {
+      if (
+        process.platform === "win32" &&
+        error instanceof Error &&
+        "code" in error &&
+        error.code === "EPERM"
+      ) {
+        context.skip("Windows file symlinks require Developer Mode or symbolic-link privilege");
+        return;
+      }
+      throw error;
+    }
+    try {
+      const { port } = createRealRuntime(tempDir);
+      for (const operation of [
+        () => port.read("linked.txt"),
+        () => port.write("linked.txt", Buffer.from("changed")),
+        () => port.writeNew("linked.txt", Buffer.from("changed")),
+      ]) {
+        expect(operation).toThrowError(expect.objectContaining({ name: "ScaffoldPathEscape" }));
+      }
+      if (!dangling) assert.equal(diskText("target.txt"), "original");
+    } finally {
+      fs.unlinkSync(link);
+    }
+  });
+
+  it("IO-03: trusts a selected root directory alias", () => {
+    const physical = diskPath("physical");
+    const alias = diskPath("alias");
+    fs.ensureDirSync(physical);
+    fs.symlinkSync(physical, alias, "junction");
+    try {
+      const { port } = createRealRuntime(alias);
+      assert.isTrue(port.writeNew("nested/file.txt", Buffer.from("first")));
+      port.write("nested/file.txt", Buffer.from("step"));
+      assert.equal(port.read("nested/file.txt")?.toString(), "step");
+      assert.equal(diskText("physical/nested/file.txt"), "step");
+    } finally {
+      fs.removeSync(alias);
+    }
+  });
+
+  it.each(["env", "custom-env"])(
+    "IO-03: guards writeEnvironment through %s directory links",
+    async (folder) => {
+      const outside = fs.mkdtempSync(path.join(os.tmpdir(), "atk-v4-env-"));
+      const link = diskPath(folder);
+      const yaml = `version: 1.9.0\nenvironmentFolderPath: ./${folder}\n`;
+      fs.writeFileSync(diskPath("m365agents.yml"), yaml);
+      fs.symlinkSync(outside, link, "junction");
+      try {
+        await expect(
+          createRealRuntime(tempDir).port.writeEnvironment("dev", { CLIENT_ID: "new" })
+        ).rejects.toMatchObject({ name: "ScaffoldPathEscape" });
+        assert.deepEqual(fs.readdirSync(outside), []);
+        assert.equal(diskText("m365agents.yml"), yaml);
+      } finally {
+        fs.removeSync(link);
+        fs.removeSync(outside);
+      }
+    }
+  );
+
+  it.for(["env/.env.dev", "env/.env.dev.user", "m365agents.yml"])(
+    "IO-03: guards writeEnvironment against targeted file link %s",
+    async (entryPath, context) => {
+      const target = diskPath("target.txt");
+      const original = entryPath === "m365agents.yml" ? "version: 1.9.0\n" : "VALUE=original\n";
+      fs.writeFileSync(target, original);
+      fs.ensureDirSync(diskPath("env"));
+      if (entryPath !== "m365agents.yml")
+        fs.writeFileSync(diskPath("m365agents.yml"), "version: 1.9.0\n");
+      const link = diskPath(entryPath);
+      try {
+        fs.symlinkSync(target, link, "file");
+      } catch (error) {
+        if (
+          process.platform === "win32" &&
+          error instanceof Error &&
+          "code" in error &&
+          error.code === "EPERM"
+        ) {
+          context.skip("Windows file symlinks require Developer Mode or symbolic-link privilege");
+          return;
+        }
+        throw error;
+      }
+      try {
+        await expect(
+          createRealRuntime(tempDir).port.writeEnvironment("dev", {
+            CLIENT_ID: "new",
+            SECRET_TOKEN: "test-secret",
+          })
+        ).rejects.toMatchObject({ name: "ScaffoldPathEscape" });
+        assert.equal(diskText("target.txt"), original);
+      } finally {
+        fs.unlinkSync(link);
+      }
+    }
+  );
+
+  it.each(["env/.env.dev", "env/.env.dev.user", "custom-env"])(
+    "IO-03: rejects final env junctions and a dangling custom env directory: %s",
+    async (entryPath) => {
+      const link = diskPath(entryPath);
+      const destination = diskPath("destination");
+      fs.ensureDirSync(path.dirname(link));
+      if (entryPath !== "custom-env") fs.ensureDirSync(destination);
+      const yaml = `version: 1.9.0\nenvironmentFolderPath: ./${entryPath === "custom-env" ? "custom-env" : "env"}\n`;
+      fs.writeFileSync(diskPath("m365agents.yml"), yaml);
+      fs.symlinkSync(destination, link, "junction");
+      try {
+        await expect(
+          createRealRuntime(tempDir).port.writeEnvironment("dev", { CLIENT_ID: "new" })
+        ).rejects.toMatchObject({ name: "ScaffoldPathEscape" });
+        assert.equal(diskText("m365agents.yml"), yaml);
+      } finally {
+        fs.removeSync(link);
+      }
+    }
+  );
 
   it("ON-DISK-01: materializes the package onto a real directory, `.tpl` stripped", async () => {
     const result = await run();

@@ -47,6 +47,7 @@ import {
 import { addAuthConfigCommand } from "../../src/commands/models/addAuthConfig";
 import { addCapabilityCommand } from "../../src/commands/models/addCapability";
 import { addPluginCommand } from "../../src/commands/models/addPlugin";
+import { addSkillCommand } from "../../src/commands/models/addSkill";
 import { entraAppUpdateCommand } from "../../src/commands/models/entraAppUpdate";
 import { envResetCommand } from "../../src/commands/models/envReset";
 import { exportOpenPluginCommand } from "../../src/commands/models/exportOpenPlugin";
@@ -1002,9 +1003,23 @@ describe("CLI commands", () => {
   });
 
   describe("getAddCommand", async () => {
-    it("customize GPT is enabled", async () => {
+    it("excludes Add Skill when Frontier is disabled", async () => {
+      vi.spyOn(featureFlagManager, "getBooleanValue").mockReturnValue(false);
+
       const commands = addCommand();
+
       assert.isTrue(commands.commands?.length === 4);
+      assert.notInclude(commands.commands, addSkillCommand);
+    });
+
+    it("includes Add Skill when Frontier is enabled", async () => {
+      vi.spyOn(featureFlagManager, "getBooleanValue").mockImplementation(
+        (flag) => flag === FeatureFlags.Frontier
+      );
+
+      const commands = addCommand();
+
+      assert.include(commands.commands, addSkillCommand);
     });
   });
 

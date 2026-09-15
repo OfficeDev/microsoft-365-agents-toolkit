@@ -29,7 +29,7 @@ describe("addSkill", () => {
     setTools(tools);
     vi.spyOn(validationUtils, "validateInputs").mockResolvedValue(undefined);
     vi.spyOn(featureFlagManager, "getBooleanValue").mockImplementation((flag: any) => {
-      if (flag.name === FeatureFlagName.AgentSkillsManifest) return true;
+      if (flag.name === FeatureFlagName.Frontier) return true;
       return false;
     });
   });
@@ -64,7 +64,7 @@ describe("addSkill", () => {
     };
   }
 
-  it("returns AgentSkillsDisabled error when TEAMSFX_AGENT_SKILLS is off", async () => {
+  it("returns AgentSkillsDisabled error when ATK_FRONTIER is off", async () => {
     vi.restoreAllMocks();
     setTools(tools);
     vi.spyOn(validationUtils, "validateInputs").mockResolvedValue(undefined);

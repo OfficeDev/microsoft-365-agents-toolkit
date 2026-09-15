@@ -1369,7 +1369,7 @@ coordinates, omit required prompt guards, or silently choose a nearby component.
 | VCB-162 | Given a checked `da/no-action` project, workflow version `v1.9`, Microsoft 365 login, and specified-users `share` with an environment-backed email, compilation verifies the top-level version mutation, verifies the Command Palette lists `Microsoft 365 Agents: Remove access to the shared app` first and `Microsoft 365 Agents: Share` second, selects Share, completes the coordinate-free Share questions, selects `dev` from the following environment prompt, and asserts the unsupported-version notification. The manual case authors the four `da/no-action` scaffold answers in prompt order, replaces `DA_Error_Message_of_Legacy_Projects.json`, and preserves the VSIX-to-engine compatibility contract without installing historical extension versions.                                                                                                                                                               |
 | VCB-163 | Given the invalid-character app-name attempt has returned through Workspace Folder and the overlength attempt begins, its opening visual assertion describes only the currently visible Application Name prompt and readiness for text input; it does not require the current screenshot to prove the preceding invalid-character correction history.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
 | VCB-164 | Given the retained `Feature_DA_Add_Action_From_OpenAPI_Spec.json` plan, one generated `da/no-action` case adds the same immutable OpenAPI document twice, checks `action_1` and `action_2` plus both generated plugin and OpenAPI files, writes `AGENT_SCOPE=personal` through the `projectEnvironment` operation, and provisions successfully after Microsoft 365 login. The case preserves work item `29293016` without adding an unrelated engine capability. `Feature_DA_Advanced_Personal_Scope_Provision_with_Copilot_License.json` is retired as duplicate coverage because its only assertion, `AGENT_SCOPE=personal`, is covered by this generated case and it does not validate Copilot-license behavior.                                                                                                                                                                                                                     |
-| VCB-165 | Given a checked `da/typespec` project with a configured GitHub issues action, `packageApp` for `dev` runs before login or provision, selects `manifest.json` with the retained coordinates and `dhash:` guards, filters `dev` without coordinates, and asserts package success. It does not repeat `npm run generate:env -- ${{TEAMSFX_ENV}}`, which the workflow runs. An independent case preserves work item `33517192`, then logs in, provisions, opens remote Copilot, validates a stable GitHub issues reply, and replaces `Feature_DA_Package_TypeSpec_Template_With_Action.json`. Default-bot local package behavior is unchanged.                                                                                                                                                                                                                                                                                              |
+| VCB-165 | Given a checked `da/typespec` project with a configured GitHub issues action, `packageApp` for `dev` runs before login or provision, first generates the dev environment as required by VCB-203, selects `manifest.json` with the retained coordinates and `dhash:` guards, filters `dev` without coordinates, and asserts package success. Standalone packaging cannot rely on the later provision workflow to generate `env.tsp`. An independent case preserves work item `33517192`, then logs in, provisions, opens remote Copilot, validates a stable GitHub issues reply, and replaces `Feature_DA_Package_TypeSpec_Template_With_Action.json`. Default-bot local package behavior is unchanged.                                                                                                                                                                                                                                  |
 | VCB-166 | Given a checked `da/no-action` project with one action from the immutable API-key fixture, `addApiAuthConfiguration` accepts only `api-key`, `Header`, auth name `apiKey`, and key name `X-API-KEY`; it drives every prompt without coordinates, asserts the exact success notification, and enables API-key provision only after configuration. An independent case preserves work item `31543255`, verifies the OpenAPI scheme, `ApiKeyPluginVault` runtime, and both `apiKey/register` workflows, then logs in and provisions before replacing `Feature_DA_No_Action_Add_ApiKey_Auth_Configurations.json`. Existing scaffold-auth flows are unchanged.                                                                                                                                                                                                                                                                               |
 | VCB-167 | Given a checked `da/no-action` project with an action from the immutable bearer fixture, `addApiAuthConfiguration` accepts only `bearer-token` and auth name `apiKey`, rejecting location and key-name inputs. It selects `API Key (Bearer Token Auth)` coordinate-free, asserts exact success, and enables API-key provision. A case preserves work item `31043015`, verifies the HTTP bearer scheme, `ApiKeyPluginVault`, and both `apiKey/register` workflows, then logs in and provisions with an environment-backed secret before replacing `Feature_DA_No_Action_Add_Bearer_Auth_Configurations.json`. API-key behavior is unchanged.                                                                                                                                                                                                                                                                                             |
 | VCB-168 | Given a checked `da/no-action` project with an action from the immutable Entra fixture, `addApiAuthConfiguration` accepts only `microsoft-entra`, auth name `aadAuthCode`, and the retained scope. It selects `Microsoft Entra` coordinate-free, types the scope, opens Notification Center, and asserts its collapsed Entra warning and complete success notification. Provision accepts only an environment-backed Entra client ID after configuration. A case preserves work item `31538607`, verifies tenant-based OAuth URLs, `OAuthPluginVault`, and both `oauth/register` workflows with `identityProvider: MicrosoftEntra`, then logs in, provisions, opens remote Copilot, submits the retained repair prompt, approves the action, and asserts `Sign in` before replacing `Feature_DA_No_Action_Add_Microsoft_Entra_Auth_Configurations.json`. Existing auth variants are unchanged.                                          |
@@ -1390,6 +1390,214 @@ coordinates, omit required prompt guards, or silently choose a nearby component.
 | VCB-183 | Given a Python Custom API project on the OpenAI branch, its `openAIKey` scaffold answer may explicitly defer the secret by submitting the otherwise required prompt empty. Before local Teams launch, the case redirects `OPENAI_BASE_URL` to the Azure OpenAI compatible endpoint and replaces the unsupported model; its local target requires one secret-backed `openAIKey` runtime input, enters that value into the visible `OpenAI Key` prompt immediately after profile selection, then continues through the existing Teams browser lifecycle and stable error-free chat check. A generated case preserves work items `31256782` and `33502084` and replaces `Feature_LocalDebug_Custom_API_without_OpenAI_Keys.json`; empty secrets on other scaffold questions, runtime input on other templates or profiles, literals, missing deferred state, and extra fields fail before plan output.                                     |
 | VCB-184 | Given the three generated cases migrated by VCB-181 through VCB-183, the ARM JSON case skips the environment picker because its single `dev` environment is selected automatically, the PKCE OAuth case uses the workflow-provided `EXISTING_GITHUB_OAUTH_CLIENT_ID` fixture, and the deferred Custom API OpenAI-key prompt retains the legacy 180-second retry window while local provisioning completes. No case relies on the undefined `EXISTING_OAUTH_CLIENT_ID`, and the ordinary text-input retry contract remains unchanged.                                                                                                                                                                                                                                                                                                                                                                                                    |
 | VCB-185 | Given a checked `da/no-action` project, MCP `addDaAction` accepts either `none` with an HTTPS URL or `oauth` with the URL, environment-backed client ID, secret-backed client secret, and non-empty scopes. It emits coordinate-free source, URL, auth, and conditional credential questions; repeated adds stay ordered. A generated `feature-` case preserves work item `37636970`, adds both actions to one DA, checks their dynamic manifests, DA references, and OAuth wiring, then replaces `Feature_DA_Add_MCP_Server.json`. It relies on default dynamic tool discovery without declaring `TEAMSFX_MCP_FOR_DA_DT`; invalid variants fail before output.                                                                                                                                                                                                                                                                         |
+| VCB-186 | Given the existing Developer Portal publishing recipe, its generated case is named `feature-simple-bot-ts-publish-developer-portal` so the feature suite selects it. It preserves work item `16727621`, local packaging, and the `Status Submitted` assertion. After a clean replay, it replaces the correctly spelled `Feature_Open_DeveloperPortal_Publish.json` as well as the already retired misspelled `Featrue_Open_DeveloperPortal_Publish.json`; the old template-prefixed generated descriptor is removed by generation.                                                                                                                                                                                                                                                                                                                                                                                                      |
+| VCB-187 | Python Custom API and Azure AI Search may defer the selected LLM key during scaffold, then supply the exact template-owned runtime fields at local Teams launch under the contract below. Three independent feature cases preserve work items `31256782` and `33502084`, use valid credentials and stable chat checks, and retire their legacy counterparts only after clean replay. Existing Custom API/OpenAI coverage is unchanged; the Search fake-key/raw-401 check is not retained as live-service coverage.                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| VCB-188 | `pythonEnvironment` accepts explicit `readiness: installedRequirements`. After recorded environment creation it checks active requirement versions using the project's `.venv` Python and runs `pip check`; missing packages, mismatched versions and broken dependencies fail. Only the three VCB-187 replacements opt in; default notification-based plans are unchanged. Invalid readiness values are rejected.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| VCB-189 | Deferred Azure OpenAI feature replacements explicitly configure `AZURE_OPENAI_ENDPOINT` through `localEnvironment` before local launch, matching the runner's inherited endpoint. Targets request only the missing key and deployment, plus Search embedding deployment and key where applicable; authored runtime endpoints are rejected. Both independent Azure feature plans omit the nonexistent endpoint prompt.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| VCB-190 | The independently executable `feature-local-debug-custom-api-without-azure-openai-keys` replacement retains work items `31256782` and `33502084`, deferred Azure key/deployment entry and complete error-free Teams chat coverage. Following verified replay, `Feature_LocalDebug_Custom_API_without_AzureOpenAI_Keys.json` is retired and mapped to this feature; the two unverified Search legacy plans remain active.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| VCB-191 | A local Chrome Simple Bot case that reached Teams chat readiness may use `closeDebugBrowser` with no inputs. It closes the recorded browser window, verifies VS Code has no active debug session, and invalidates target/chat readiness before another target. Unsupported templates, profiles, missing readiness, and extra inputs fail before output. A separate JavaScript feature case preserves work item `9795544`, creates its own project, closes and relaunches the browser, then verifies the `test` echo. Its legacy remains until live validation.                                                                                                                                                                                                                                                                                                                                                                          |
+| VCB-192 | Each deferred Search feature retains work items `31256782` and `33502084`, its own generated `feature-` filename, protected runtime credentials, and complete error-free Teams chat. After an independently verified clean replay, its corresponding legacy plan is removed and mapped to that feature. Azure OpenAI and OpenAI-compatible replay results are not interchangeable; only verified branches may be retired.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| VCB-193 | After `closeDebugBrowser`, relaunching the same local Chrome Simple Bot profile reuses its authenticated browser session and does not emit another password sign-in. The first target still signs in, and a different target retains its own authentication. The second target still asserts Teams app details readiness and opens the app before checking the echo. Ordinary single-launch plans are unchanged.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| VCB-194 | After verified clean replay, `Feature_LocalDebug_Second_Press_F5_for_Bot.json` is removed and mapped to `feature-local-debug-second-f5`. The independent JavaScript replacement retains work item `9795544`, feature routing, browser close, stopped-debug assertion, a second local Chrome launch, and the `test` echo. Unverified account and license legacy cases remain active.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+
+### Tenant Mismatch Migration
+
+The existing work item `33849529` supplies the approved interaction contract;
+this migration changes test composition, not product UX. Two independent
+TypeScript Simple Bot cases own scaffold, initial local launch, browser close,
+account switch, and their respective Cancel or Continue outcome. No product
+PRD or scenario change is required.
+
+<!-- prettier-ignore -->
+| ID | Runtime | Purpose | Gate | Harness | Expected result |
+| --- | --- | --- | --- | --- | --- |
+| VCB-195 | L1 | scenario | per-PR | Node case compiler | `switchM365Account` accepts only environment-backed `account` and secret-backed `password`, after a checked TypeScript Simple Bot's authenticated local Chrome session has been closed. The next matching `target` requires `tenantMismatch: cancel` or `continue`. Cancel asserts the mismatch dialog, cancels launch and leaves target/chat readiness unset; Continue signs out, reauthenticates the original account and retains launch/open/chat checks. Missing, extra, literal, repeated or out-of-order inputs fail before output. Ordinary login and target flows are unchanged. |
+| VCB-196 | L1 / L3 | compatibility | per-PR / retirement | Node case compiler / vscuse UI and clean CLI | Independent `feature-local-debug-tenant-mismatch-cancel` and `feature-local-debug-tenant-mismatch-continue` cases preserve work item `33849529`. Both use a real second-tenant account, not mutated project tenant IDs. Continue requires the bot echo after recovery; Cancel requires the cancelled-operation outcome and no active debug toolbar. The legacy different-account plan remains until both branches have independently verified clean replay. |
+| VCB-197 | L1 / L3 | compatibility | per-PR / retirement | Node case compiler / clean vscuse CLI | After both VCB-196 branches pass independent clean replay, remove `Feature_Simple_Bot_ts_Local_Debug_With_Different_Account.json` and map it as Full to both generated feature plans. Preserve their independent setup and distinct Cancel/Continue outcomes. The unverified Copilot-license and no-subscription legacy cases remain active; ordinary template plans are unchanged. |
+
+VCB-197 completes VCB-196's conditional retention and supersedes VCB-194's
+temporary retention of the different-account legacy. Independent CLI evidence
+and runtime limitations are recorded in the generated-to-legacy case mapping.
+
+The fixture owner must verify that the main and alternate account domains
+resolve to different tenant issuers and that both accounts can authenticate.
+The alternate fixture uses the existing `MS_AZURE_ACCOUNT_NAME` and
+`MS_AZURE_ACCOUNT_PASSWORD` expressions for compatibility with the legacy plan;
+it signs in to Microsoft 365, not Azure. Presence of these variables alone does
+not prove cross-tenant coverage. Local validation uses atk07 as the main account
+and the user-configured cross-tenant account as the alternate fixture.
+Do not persist resolved credentials or tenant IDs in cases or components.
+
+Cancel closes the mismatch dialog and returns to the project without starting
+reauthentication or opening Teams. Verify this visible outcome and the absence
+of the debug control strip; do not require a cancellation notification. The
+terminal's `The task is canceled` message belongs to Ctrl+C, not this dialog.
+
+```mermaid
+flowchart TD
+  A[Own TypeScript Simple Bot and successful local launch] --> B[Close Teams Chrome and verify debug stopped]
+  B --> C[Sign out and sign in to a different tenant]
+  C --> D[Start the same local Chrome profile]
+  D --> E[Assert environment mismatch dialog]
+  E --> F[Cancel]
+  F --> G[Assert cancellation and no debug session]
+  E --> H[Continue]
+  H --> I[Sign out and reauthenticate original account]
+  I --> J[Open Teams app and verify echo]
+```
+
+VCB-194 has required L1 migration compatibility coverage in the Node engine
+tests and L3 clean CLI evidence. It completes VCB-191's conditional legacy
+retention; the VCB-193 relaunch repair must accompany retirement.
+
+VCB-193 has required L1 scenario coverage in the Node engine tests and L3
+same-project close/relaunch evidence through a clean vscuse CLI replay.
+
+VCB-192 has required L1 migration compatibility coverage in the Node engine
+tests and L3 full-workflow evidence through clean vscuse CLI replay. It supersedes
+VCB-190's temporary retention of Search legacy plans one verified branch at a time.
+
+VCB-191 has required L1 scenario and invalid-state coverage in the Node engine
+tests and L3 browser-close/relaunch coverage through vscuse. The default-bot
+Chrome launch cascades termination to its attached service and its compound
+declares `stopAll: true`. The stopped-session assertion precedes the second
+launch; this is not concurrent-debug protection coverage.
+
+VCB-187's deferred-credential contract is limited to Python Custom API and Azure
+AI Search using the selected OpenAI or Azure OpenAI service. A deferred Azure key
+skips scaffold endpoint/deployment answers. Local Teams targets require an exact
+runtime-input set: OpenAI key, or Azure key/deployment; Search additionally
+requires its key and, for Azure OpenAI, embedding deployment. Keys use secret
+expressions and other values use environment expressions. Search recipes configure
+their endpoint before launch using `localEnvironment`; the shared runner already
+injects it, so no runtime endpoint prompt is expected. The Azure OpenAI endpoint
+is likewise explicitly configured before launch (VCB-189): the runner injects
+it from its own Azure OpenAI configuration, and the legacy Custom API plan only
+fills the missing key and deployment. Compiler-owned prompts
+follow template field order after profile selection. Unsupported templates,
+languages, services, profiles, missing/extra fields, literals, and contradictory
+scaffold answers fail before output.
+
+VCB-187's feature checks target the current Python Teams SDK artifacts:
+`src/app.py`, the selected service's config keys, Python requirements, and
+the template-specific API specification or Search data source. They verify
+the `v1.12` workflow and local environment writer, without requiring a legacy
+`src/bot.py`, prompt config, or the conditional Copilot extension action.
+Ordinary template-case coverage is unchanged by this migration.
+
+VCB-188 has required L1 scenario coverage in the Node engine tests. Real container
+script checks additionally verify a successfully installed project and isolated
+missing-package, version-mismatch, and broken-dependency failures.
+
+### Azure Sign-in Without Subscriptions Migration
+
+Work item `36090032` and the approved migration request define an existing
+behavior: an account with no accessible Azure subscriptions can still sign in
+to Toolkit. This changes test coverage, not product UX; no PRD change is needed.
+The independent case owns a No Action Declarative Agent project and Azure login.
+It does not provision resources or require Microsoft 365/Copilot licenses.
+
+<!-- prettier-ignore -->
+| ID | Runtime | Purpose | Gate | Harness | Expected result |
+| --- | --- | --- | --- | --- | --- |
+| VCB-198 | L1 / L3 | scenario | per-PR / retirement | Node case compiler / vscuse UI and clean CLI | Azure `login` with `subscriptions: none` accepts only `AZURE_NO_SUB_ACCOUNT_NAME` and the existing `M365_ACCOUNT_PASSWORD` expressions, after a checked `da/no-action` scaffold and before any other login. It emits a fixture check followed by Azure browser login and the account-visible assertion. The fixture authenticates the named user against its home tenant and successfully queries ARM for zero accessible subscriptions; authentication, HTTP, malformed-response and nonempty-list failures stop the case without printing credentials or tokens. Unsupported accounts, passwords, subscriptions values, extra inputs and ordering fail before output. Ordinary Azure and M365 login plans are unchanged. |
+| VCB-199 | L1 / L3 | compatibility | per-PR / retirement | Node case compiler and workflow contract / vscuse | `feature-sign-in-no-subscription` preserves work item `36090032` and independent scaffold/check/login setup. The shared workflow supplies `AZURE_NO_SUB_ACCOUNT_NAME` from `vars.AZURE_NO_SUB_ACCOUNT_NAME`; password resolution continues to use `secrets.TEST_TENANT_M365_ACCOUNT_PASSWORD` through `M365_ACCOUNT_PASSWORD`. The feature is included in feature-case discovery. Keep the legacy until the new case passes UI authoring and independent clean CLI replay. |
+| VCB-200 | L1 / L3 | compatibility | per-PR / retirement | Node case compiler / clean vscuse CLI | After VCB-199 passes UI authoring and independent clean replay, remove only `Feature_Sign_In_No_Subscription.json` and map it as Full to `feature-sign-in-no-subscription.json`. Preserve work item `36090032`, its own scaffold/file checks, same-user zero-subscription fixture and Azure account-visible outcome. The Copilot-license legacy remains active and ordinary template plans are unchanged. |
+
+VCB-200 completes VCB-199's conditional retention and supersedes VCB-194 and
+VCB-197 only for retaining the no-subscription legacy. It does not retire the
+Copilot-license case or waive live fixture and browser-login validation.
+
+The tenant administrator owns this dedicated user and its zero-subscription
+permissions, including group-inherited access. Configure the non-secret GitHub
+variable `AZURE_NO_SUB_ACCOUNT_NAME` in the `engineering` environment (or a
+visible repository scope) before CI execution. Local validation uses the same
+variable from the atk07 profile. Do not hardcode the account in tracked files or
+overwrite the randomized `M365_ACCOUNT_NAME` pool. The fixture uses the same
+user/password as browser login, never a service principal or cached admin login.
+An unsupported password grant is a fixture/setup failure, not zero subscriptions;
+do not relax tenant security policy to bypass it.
+
+The Accounts tree does not display subscription children. A visible account is
+login evidence only; it cannot replace the successful zero-subscription query.
+Do not require the subscription-selection error dialog in this login-only case.
+
+Run `python packages/tests/vscuse/vscode-test-cases/engine/no-subscription-fixture.test.py`
+after generation to exercise the emitted script with network substitutes. The
+shared workflow runs this VCB-198 regression gate only for this case, after
+checking that the dedicated username and shared password are present. It covers
+empty and nonempty pages, identity mismatch, malformed responses, HTTP/network
+errors, unsafe continuation URLs and credential/token redaction.
+
+```mermaid
+flowchart TD
+  A[Own No Action DA scaffold and file checks] --> B[Authenticate dedicated fixture user]
+  B --> C[Query ARM subscriptions in the user home tenant]
+  C -->|Successful empty list| D[Sign in to Azure in Toolkit]
+  C -->|Error or nonempty list| E[Stop as fixture failure]
+  D --> F[Assert dedicated account visible in Accounts]
+```
+
+### Project-Independent Copilot License Migration
+
+Work item `28202384` and the approved final legacy migration preserve the
+existing Build a Declarative Agent walkthrough's Check Copilot License flow.
+No product or PRD change is needed. This is a managed-integration account case,
+not a scaffold case: the tenant administrator owns the enabled-account fixture.
+The product's live Copilot access query and successful Output message establish
+the enabled prerequisite; account presence alone does not establish entitlement.
+
+<!-- prettier-ignore -->
+| ID | Runtime | Purpose | Gate | Harness | Expected result |
+| --- | --- | --- | --- | --- | --- |
+| VCB-201 | L1 / L3 | scenario | per-PR / retirement | Node case compiler / vscuse UI and clean CLI | A case containing only `checkCopilotLicense` may omit scaffold, carries `template_id:none`, and uses only `account: ${{env:M365_ACCOUNT_NAME_EnableCopilotAccess}}` and `password: ${{secret:M365_ACCOUNT_PASSWORD_EnableCopilotAccess}}`. It starts from a fresh workbench without a project or login, opens the Build a Declarative Agent walkthrough, activates Check Copilot License in Set up your environment, authenticates that account, and asserts `Your Microsoft 365 account has Copilot access enabled` in Toolkit Output. No Azure login, project creation or license mutation occurs. Mixed/repeated operations, unsupported credentials and extra fields fail before output. All other cases retain the exactly-one-scaffold and immediate-file-check rules. |
+| VCB-202 | L1 / L3 | compatibility | per-PR / retirement | Node compiler and workflow contract / clean vscuse CLI | `feature-check-copilot-license-enabled` preserves work item `28202384` and feature-suite routing. CI continues to provide the existing Copilot-specific username/password variables. Keep `Feature_Check_Copilot_License_Enabled.json` until the replacement passes UI authoring and clean CLI replay, then remove it and record the Full mapping. Ordinary template plans and the previously verified feature replacements are unchanged. |
+
+VCB-201 is a closed exception to VCB-13's scaffold requirement, not general
+support for arbitrary project-free operations. A standalone license case has no
+template, generated app name, file checks, or lifecycle state to share. VCB-202
+supersedes the Copilot-license retention clauses of VCB-194, VCB-197 and VCB-200
+only after successful live replay. Missing credentials, authentication errors,
+disabled access or unavailable services block retirement; do not change tenant
+policy or weaken the success assertion. No Graph license-administration scope
+or extra password variable is needed.
+
+The signed-out walkthrough action first raises a non-modal Toolkit notification.
+The recorded adapter opens the persistent notification center, verifies the
+Microsoft 365 notification and focused Sign in action, then activates it with
+the keyboard. The subsequent account dialog is a separate required state, not
+an alternative to that notification. Before entering credentials, the adapter
+verifies the Microsoft email page and the dedicated account on the password
+page. It waits for the successful browser callback before closing the browser,
+closes the notification center, and reopens Set up your environment because
+sign-in advances the walkthrough selection. Email input semantics must not
+depend on Microsoft's changing placeholder wording.
+
+```mermaid
+flowchart TD
+  A[Fresh workbench, no project or account] --> B[Open Build a Declarative Agent walkthrough]
+  B --> C[Set up your environment: Check Copilot License]
+  C --> D[Sign in with dedicated enabled-account fixture]
+  D --> E[Toolkit queries live Copilot access]
+  E -->|Enabled| F[Assert success in Toolkit Output]
+  E -->|Disabled, auth or service failure| G[Stop; retain legacy]
+```
+
+### TypeSpec package preparation correction (VCB-203)
+
+The original [package-with-action testcase (ADO 33517192)](https://github.com/OfficeDev/microsoft-365-agents-toolkit-test/issues/214)
+explicitly runs `npm run generate:env` before Zip App Package. VCB-165's former claim
+that the workflow runs this prerequisite did not apply to standalone packaging:
+only provisioning runs that workflow. VCB-203 supersedes that omission.
+
+| ID      | Acceptance criterion                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| VCB-203 | For `packageApp` on `da/typespec` with the configured `github-issues` action and environment `dev`, emit guarded integrated-terminal steps that run `npm run generate:env -- dev` in the generated project, assert a success-only completion marker, and close the terminal before invoking Zip App Package. Preserve packaging before login/provision. Do not add this preparation to OAuth package fixtures, provision-only TypeSpec cases, or default-bot packaging. |
+
+Required L1 coverage: Node case-engine tests verify the command, ordering,
+success marker, and unaffected variants. L3 verification: run the regenerated
+`feature-da-typespec-package-action-remote-preview` plan from a clean container.
+This is test preparation, not a change to the product packaging contract.
 
 ## Boundary
 

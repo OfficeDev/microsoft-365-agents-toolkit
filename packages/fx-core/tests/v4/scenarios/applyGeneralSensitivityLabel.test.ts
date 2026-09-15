@@ -5,6 +5,7 @@ import { ScaffoldRequest, scaffold } from "../../../src/v4/runtime/scaffold";
 import { createInMemoryRuntime } from "../../../src/v4/runtime/inMemoryRuntime";
 import { createStepRegistry } from "../../../src/v4/runtime/runtimeRegistry";
 import { assert } from "vitest";
+import { gte } from "semver";
 import {
   isRecord,
   loadV4Package,
@@ -110,7 +111,7 @@ describe("SCN-DA-SENSITIVITY-LABEL (v4)", () => {
     for (const [templateId, manifestPath] of Object.entries(routes)) {
       const descriptor = loadV4Package("create", templateId).descriptor;
       assert.isTrue(isRecord(descriptor), templateId);
-      assert.strictEqual(descriptor.minEngineVersion, "6.11.0", templateId);
+      assert.isTrue(gte(String(descriptor.minEngineVersion), "6.11.0"), templateId);
       const steps = pipelineSteps(templateId);
       const matches = steps.filter((step) => step.step === STEP_SET_SENSITIVITY_LABEL);
       assert.lengthOf(matches, 1, templateId);

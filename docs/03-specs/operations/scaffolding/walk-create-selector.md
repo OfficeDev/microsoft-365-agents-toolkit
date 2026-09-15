@@ -79,6 +79,12 @@ the same shared `localizePrefixedText` the Q2 + common-floor bridge uses
 ([`collect-create-inputs`](collect-create-inputs.md)), so Q1 and Q2/Q3 share one
 localization mechanism.
 
+The create and modify entry points share this presentation implementation, per
+[ADR-0025](../../../02-architecture/adr/ADR-0025-scaffold-extension-ownership.md)
+OWN-05/06. Both consume localization keys, feature labels, icons and option
+visibility. Package-kind lookup, create resume/history and each entry point's
+return/error contract remain separate; this does not introduce another walk.
+
 ## Inputs
 
 | Input | Type | Origin |
@@ -127,8 +133,9 @@ localization mechanism.
 | WCS-09 | L1 | the real shipped floor, `interactive=true`, `prefilled={ projectType:"copilot-agent-type" }`, a scripted UI picking `daTemplate=add-action` → `actionSource=mcp` (flag on) | `runCreateSelector` | `projectType` is **not** prompted (taken from `prefilled`); only `daTemplate` + `actionSource` reach `ui.selectOption`; `ok` `{ templateId:"da/mcp-server", engine:"v4" }` with all three picks in `answers` |
 | WCS-10 | L1 | the floor, `interactive=false`, `prefilled={ projectType:"copilot-agent-type", daTemplate:"add-action", actionSource:"mcp" }` (flag on), a UI that throws if called | `runCreateSelector` | **no** `ui.selectOption` call; `ok` `{ templateId:"da/mcp-server", engine:"v4" }` — the non-interactive batch resolves purely from `prefilled` |
 | WCS-11 | L1 | the floor, `interactive=false`, `prefilled={ projectType:"copilot-agent-type" }` (missing `daTemplate` / `actionSource`), a UI that throws if called | `runCreateSelector` | `err` — a `UserError` naming the missing required dimension; **no** `ui.selectOption` call, **no** silent route coercion (resolve-build-target AC-03b) |
-| WCS-12 | L1 | the real shipped floor, `surface="vscode"`, `flagReader(TEAMSFX_AGENT_SKILLS)=false`, a scripted UI reaching `daTemplate` (after `projectType=copilot-agent-type`) | `runCreateSelector` (prompt face) | `ui.selectOption` is offered the `daTemplate` options **without** `skill` — the option-level `featureFlag('TEAMSFX_AGENT_SKILLS')` condition filters it; the always-on options (e.g. `no-action`) remain |
-| WCS-13 | L1 | the floor, `flagReader(TEAMSFX_AGENT_SKILLS)=true`, a scripted UI picking `projectType=copilot-agent-type` → `daTemplate=skill` | `runCreateSelector` | the `skill` option **is offered**; `ok` `BuildTarget` `{ templateId:"da/skill", engine:"v4" }`; the walk ends at `daTemplate` (no `actionSource` — that is `add-action` only) and `answers` carry both picks; the route's `featureFlag('TEAMSFX_AGENT_SKILLS')` gate is honored |
+| WCS-12 | L1 | the real shipped floor, `surface="vscode"`, `flagReader(ATK_FRONTIER)=false`, a scripted UI reaching `daTemplate` (after `projectType=copilot-agent-type`) | `runCreateSelector` (prompt face) | `ui.selectOption` is offered the `daTemplate` options **without** `skill` — the option-level `featureFlag('ATK_FRONTIER')` condition filters it; the always-on options (e.g. `no-action`) remain |
+| WCS-13 | L1 | the floor, `flagReader(ATK_FRONTIER)=true`, a scripted UI picking `projectType=copilot-agent-type` → `daTemplate=skill` | `runCreateSelector` | the `skill` option **is offered**; `ok` `BuildTarget` `{ templateId:"da/skill", engine:"v4" }`; the walk ends at `daTemplate` (no `actionSource` — that is `add-action` only) and `answers` carry both picks; the route's `featureFlag('ATK_FRONTIER')` gate is honored |
+| WCS-13b | L1 | the floor, `flagReader(ATK_FRONTIER)=true`, and an option whose condition references `ATK_FRONTIER` | `runCreateSelector` (prompt face) | the option's localized label has the ` (Frontier)` suffix; options not controlled by `ATK_FRONTIER` retain their localized base labels, so removing the condition also removes the suffix |
 | WCS-23 | L1 | the real shipped floor, `surface="vscode"`, a scripted UI picking `projectType=copilot-agent-type` → `daTemplate=no-action` | `runCreateSelector` (prompt face) | the `projectType` prompt localizes its `title` and each option's `label` / `detail` via `<keyPrefix>.{title\|label\|detail}` from the NLS bundle — e.g. `blank-app-type` renders its NLS label (which differs from the authored literal `"Blank App"`) with the authored icon preserved — falling back to the authored literal when no key is registered |
 | WCS-18 | L1 | the floor, a scripted UI picking `projectType=copilot-agent-type` → `daTemplate=typespec` | `runCreateSelector` | `ok` `BuildTarget` `{ templateId:"da/typespec", engine:"v4" }`; the walk ends at `daTemplate` and `answers` carry both picks |
 | WCS-19 | L1 | the floor, a scripted UI picking `projectType=copilot-agent-type` → `daTemplate=graph-connector` | `runCreateSelector` | `ok` `BuildTarget` `{ templateId:"da/graph-connector", engine:"v4" }`; the walk ends at `daTemplate` and `answers` carry both picks |

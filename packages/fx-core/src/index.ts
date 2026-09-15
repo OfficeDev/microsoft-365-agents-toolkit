@@ -17,7 +17,7 @@ import { installGlobalProxyInterceptor } from "./common/httpProxy";
 installGlobalProxyInterceptor();
 
 export { GraphClient } from "./client/graphClient";
-export { teamsDevPortalClient } from "./client/teamsDevPortalClient";
+export { teamsDevPortalClient } from "./client/teamsDevPortalClientProvider";
 export {
   getDefaultAuthorityUrl,
   getEntraEndpoint,
@@ -45,7 +45,11 @@ export {
 } from "./common/featureFlags";
 export { globalStateGet, globalStateUpdate } from "./common/globalState";
 export { AadSet } from "./common/globalVars";
-export { getDefaultString, getLocalizedString } from "./common/localizeUtils";
+export {
+  getDefaultString,
+  getFeatureFlaggedLabel,
+  getLocalizedString,
+} from "./common/localizeUtils";
 export * from "./common/permissionInterface";
 export * from "./common/projectSettingsHelper";
 export {

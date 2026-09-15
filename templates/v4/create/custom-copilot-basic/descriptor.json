@@ -3,7 +3,10 @@
   "id": "custom-copilot-basic",
   "name": "General Teams Agent",
   "languages": ["typescript", "javascript", "python"],
-  "minEngineVersion": "5.20.0",
+  "languageOptions": [
+    { "id": "python", "description": "core.createProjectQuestion.option.description.preview" }
+  ],
+  "minEngineVersion": "6.12.0",
   "spec": "docs/03-specs/scenarios/teams/create-custom-copilot-basic.md",
   "requiresNetwork": false,
 

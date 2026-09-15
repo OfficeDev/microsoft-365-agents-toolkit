@@ -202,6 +202,12 @@ This operation does **not**:
   provider, and validator has one engine introduction version. A package that
   references it declares an equal-or-higher `minEngineVersion`; artifact release
   versions never stand in for this capability floor.
+  [ADR-0025](../../../02-architecture/adr/ADR-0025-scaffold-extension-ownership.md)
+  OWN-03/04 require one dependency-free declaration source for capability IDs,
+  versions and derived outputs, consumed by both validation and runtime bindings.
+  An output-specific introduction version is checked only when consumed; this
+  does not raise the provider's own introduction version or import runtime
+  implementations into build validation.
 - **INV-11 — Archive roots are complete and paths are relative.** Archive
   discovery considers every package-owned metadata/content entry, not only
   descriptors; every discovered root satisfies INV-1, both selectors are

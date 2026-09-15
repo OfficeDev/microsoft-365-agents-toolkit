@@ -9,10 +9,10 @@ import {
 } from "../../../src/v4/surface/createFloorTail";
 
 describe("create floor tail (collect-create-inputs CCI-21/23)", () => {
-  it("CCI-21/23: composes language plus prefilled folder and app-name as one tail", async () => {
+  it("CLEAN-04/CCI-21/23: composes language plus prefilled folder and app-name as one tail", async () => {
     const floor = await createFloorTail(
       { platform: Platform.VSCode, folder: "C:/src", "app-name": "MyAgent" },
-      ["typescript", "javascript"]
+      [{ id: "typescript" }, { id: "javascript" }]
     );
 
     assert.isTrue(floor.isOk(), floor.isErr() ? floor.error.message : "expected ok");
@@ -29,10 +29,13 @@ describe("create floor tail (collect-create-inputs CCI-21/23)", () => {
     }
   });
 
-  it("CCI-21: returns only caller-owned language answers when no common floor inputs exist", async () => {
-    const common = await createFloorTail(undefined, ["common"]);
-    const singleLanguage = await createFloorTail(undefined, ["python"]);
-    const multipleLanguages = await createFloorTail(undefined, ["typescript", "csharp"]);
+  it("CLEAN-04/CCI-21: returns only caller-owned language answers when no common floor inputs exist", async () => {
+    const common = await createFloorTail(undefined, [{ id: "common" }]);
+    const singleLanguage = await createFloorTail(undefined, [{ id: "python" }]);
+    const multipleLanguages = await createFloorTail(undefined, [
+      { id: "typescript", label: "TypeScript" },
+      { id: "csharp", label: "C#" },
+    ]);
 
     assert.isTrue(common.isOk());
     assert.deepEqual(common._unsafeUnwrap().answers, {});
@@ -58,7 +61,7 @@ describe("create floor tail (collect-create-inputs CCI-21/23)", () => {
 
   it("CCI-23: non-interactive floor uses default folder and requires an app name", async () => {
     const missingAppName = await createFloorTail({ platform: Platform.CLI, nonInteractive: true }, [
-      "typescript",
+      { id: "typescript" },
     ]);
 
     assert.isTrue(missingAppName.isErr());
@@ -70,7 +73,7 @@ describe("create floor tail (collect-create-inputs CCI-21/23)", () => {
         nonInteractive: true,
         teamsAppFromTdp: { appName: "My Agent!" },
       },
-      ["typescript"]
+      [{ id: "typescript" }]
     );
 
     assert.isTrue(fromTdp.isOk(), fromTdp.isErr() ? fromTdp.error.message : "expected ok");
@@ -83,7 +86,7 @@ describe("create floor tail (collect-create-inputs CCI-21/23)", () => {
   });
 
   it("CCI-23: interactive floor asks missing common questions and wires app-name validation", async () => {
-    const floor = await createFloorTail({ platform: Platform.VSCode }, ["typescript"]);
+    const floor = await createFloorTail({ platform: Platform.VSCode }, [{ id: "typescript" }]);
 
     assert.isTrue(floor.isOk(), floor.isErr() ? floor.error.message : "expected ok");
     const value = floor._unsafeUnwrap();

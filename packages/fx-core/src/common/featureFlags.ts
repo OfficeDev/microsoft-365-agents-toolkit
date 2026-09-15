@@ -26,7 +26,7 @@ export class FeatureFlagName {
   static readonly SensitivityLabelEnabled = "TEAMSFX_SENSITIVITY_LABEL";
   static readonly CFShortcutMetaOS = "TEAMSFX_CF_SHORTCUT_METAOS";
   static readonly OpenPluginImportExport = "TEAMSFX_OPENPLUGIN_IMPORT_EXPORT";
-  static readonly AgentSkillsManifest = "TEAMSFX_AGENT_SKILLS";
+  static readonly Frontier = "ATK_FRONTIER";
   static readonly BrokerAuth = "TEAMSFX_BROKER_AUTH";
   // Dynamic Tool Discovery for MCP-backed Declarative Agents: drops static MCP tool fetching at
   // scaffold time, absorbs the fetch-mcp-tools CodeLens flow into the create/add-action flows,
@@ -45,6 +45,7 @@ export class FeatureFlagName {
   // Global switch for the v4 architecture (currently routes scaffold template
   // resolution through the v4 distribution channel).
   static readonly V4Enabled = "TEAMSFX_V4_ENABLED";
+  static readonly NewDeveloperPortalApis = "TEAMSFX_NEW_DP_APIS";
 }
 
 export interface FeatureFlag {
@@ -106,8 +107,8 @@ export class FeatureFlags {
     name: FeatureFlagName.OpenPluginImportExport,
     defaultValue: "true",
   };
-  static readonly AgentSkillsManifest = {
-    name: FeatureFlagName.AgentSkillsManifest,
+  static readonly Frontier = {
+    name: FeatureFlagName.Frontier,
     defaultValue: "false",
   };
   static readonly BrokerAuth = {
@@ -116,6 +117,10 @@ export class FeatureFlags {
   };
   static readonly V4Enabled = {
     name: FeatureFlagName.V4Enabled,
+    defaultValue: "false",
+  };
+  static readonly NewDeveloperPortalApis = {
+    name: FeatureFlagName.NewDeveloperPortalApis,
     defaultValue: "false",
   };
   static readonly MCPForDADT = {

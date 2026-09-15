@@ -3,15 +3,9 @@
 
 import { FxError, SystemError, UserError, UserInteraction } from "@microsoft/teamsfx-api";
 import { Result, err } from "neverthrow";
-import {
-  PresentationOption,
-  PresentationQuestion,
-  SelectorPresentation,
-} from "../buildTarget/parseSelector";
+import { SelectorPresentation } from "../buildTarget/parseSelector";
 import {
   BuildTarget,
-  PromptResult,
-  RouteQuestion,
   RouteResolverPort,
   resolveBuildTarget,
   v4RouteRegistryFromSelector,
@@ -23,8 +17,8 @@ import {
   openSelectorPresentationFromJsonBytes,
 } from "../distribution/createSelector";
 import { openDeclarativePackage } from "../distribution/declarativePackage";
-import { ExpressionRuntimePort, Scope, evaluateExpression } from "../expression/evaluateExpression";
 import { readBooleanFeatureFlag } from "../../common/featureFlags";
+import { createSelectorPrompt } from "./selectorPresentation";
 
 const SOURCE = "Scaffold";
 
@@ -56,62 +50,8 @@ function buildPort(
   flagReader: (name: string) => boolean,
   v4Registry: ((templateId: string) => boolean) | undefined
 ): RouteResolverPort {
-  const exprPort: ExpressionRuntimePort = { functions: () => undefined, flags: flagReader };
-  const byName = new Map<string, PresentationQuestion>(
-    presentation.questions.map((question) => [question.name, question])
-  );
-
-  async function prompt(question: RouteQuestion, step: number): Promise<PromptResult> {
-    const pq = byName.get(question.name);
-    if (pq === undefined) {
-      throw new SystemError({
-        source: SOURCE,
-        name: "MissingSelectorPresentation",
-        message: `The selector has no presentation for question '${question.name}'.`,
-      });
-    }
-    const scope: Scope = { surface };
-    const visible: PresentationOption[] = [];
-    for (const option of pq.staticOptions) {
-      if (option.condition !== undefined) {
-        const gate = evaluateExpression(option.condition, scope, exprPort);
-        if (gate.isErr()) {
-          throw gate.error;
-        }
-        if (gate.value !== true) {
-          continue;
-        }
-      }
-      visible.push(option);
-    }
-    const selected = await ui.selectOption({
-      name: pq.name,
-      title: pq.title ?? pq.name,
-      placeholder: pq.placeholder,
-      step,
-      options: visible.map((option) => ({
-        id: option.id,
-        label: option.label,
-        detail: option.detail,
-        groupName: option.groupName,
-      })),
-      returnObject: false,
-    });
-    if (selected.isErr()) {
-      throw selected.error;
-    }
-    if (selected.value.type === "back") {
-      return { kind: "back" };
-    }
-    const result = selected.value.result;
-    if (typeof result === "string") {
-      return { kind: "value", value: result };
-    }
-    return { kind: "value", value: result === undefined ? "" : result.id };
-  }
-
   return {
-    prompt,
+    prompt: createSelectorPrompt(presentation, ui, surface, flagReader),
     featureFlag: flagReader,
     v4Registry(templateId: string): boolean {
       if (v4Registry !== undefined) {

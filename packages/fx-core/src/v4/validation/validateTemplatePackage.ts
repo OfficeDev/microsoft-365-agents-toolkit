@@ -5,6 +5,8 @@ import type { FxError } from "@microsoft/teamsfx-api";
 import { err, ok } from "neverthrow";
 import type { Result } from "neverthrow";
 import semver from "semver";
+import type { CapabilityKind } from "../capabilities/declarations";
+import { readDescriptorLanguages } from "../distribution/descriptorLanguages";
 
 /** Pure v4 template-package validation gate. See validate-template-package spec and ADR-0015. */
 
@@ -29,7 +31,7 @@ export interface ContentFile {
 export type SchemaValidator = (data: unknown) => string | undefined;
 
 /** Template-visible extension-point categories with source-owned introduction versions. */
-export type CapabilityKind = "step" | "provider" | "validator";
+export type { CapabilityKind } from "../capabilities/declarations";
 
 /** Narrow validation port; schema, package, and engine-context data stay injected. */
 export interface TemplatePackagePort {
@@ -53,7 +55,7 @@ export interface TemplatePackagePort {
     selector: SchemaValidator;
   };
   /** The engine introduction version for a named capability; `undefined` means unknown. */
-  capabilityFloor(kind: CapabilityKind, id: string): string | undefined;
+  capabilityFloor(kind: CapabilityKind, id: string, output?: string): string | undefined;
   /** Output names a capability may add to the render context. */
   capabilityOutputs(kind: CapabilityKind, id: string): string[];
   /** The consuming engine's SemVer (the `load`-mode reverse gate). */
@@ -165,8 +167,15 @@ function validatorReference(validation: unknown): CapabilityReference | undefine
   return id === undefined ? undefined : { kind: "validator", id };
 }
 
-function capabilityReferences(questions: unknown, pipeline: unknown): CapabilityReference[] {
+function capabilityReferences(
+  descriptor: Record<string, unknown>,
+  questions: unknown,
+  pipeline: unknown
+): CapabilityReference[] {
   const references: CapabilityReference[] = [];
+  if (descriptor.languageOptions !== undefined) {
+    references.push({ kind: "provider", id: "create.languages" });
+  }
   if (isRecord(questions)) {
     for (const question of getArray(questions, "questions") ?? []) {
       if (!isRecord(question)) {
@@ -308,6 +317,10 @@ export function validateTemplatePackage(
       userError(VALIDATE_SCHEMA, `${pkg}: descriptor.json failed schema validation: ${dSchemaErr}`)
     );
   }
+  const languageData = readDescriptorLanguages(descriptor);
+  if ("error" in languageData) {
+    return err(userError(VALIDATE_SCHEMA, `${pkg}: ${languageData.error}`));
+  }
   const qSchemaErr = port.schemas.question(questions);
   if (qSchemaErr !== undefined) {
     return err(
@@ -341,7 +354,14 @@ export function validateTemplatePackage(
     return err(validMinimum.error);
   }
   const derivedVars: string[] = [];
-  for (const reference of capabilityReferences(questions, pipeline)) {
+  const consumedSources = new Set([
+    ...pipelinePlaceholderReferences(pipeline),
+    ...(port.content() ?? []).flatMap((file) => file.placeholders),
+    ...(getArray(descriptor, "replaceMap") ?? []).flatMap((entry) =>
+      isRecord(entry) && typeof entry.from === "string" ? [entry.from] : []
+    ),
+  ]);
+  for (const reference of capabilityReferences(descriptor, questions, pipeline)) {
     const floor = port.capabilityFloor(reference.kind, reference.id);
     if (floor === undefined) {
       return err(
@@ -361,7 +381,21 @@ export function validateTemplatePackage(
     }
     if (reference.kind === "provider") {
       for (const output of port.capabilityOutputs(reference.kind, reference.id)) {
-        derivedVars.push(`derived.${reference.id}.${output}`);
+        const key = `derived.${reference.id}.${output}`;
+        derivedVars.push(key);
+        const outputFloor = port.capabilityFloor(reference.kind, reference.id, output);
+        if (
+          consumedSources.has(key) &&
+          outputFloor !== undefined &&
+          semver.lt(minEngineVersion, outputFloor)
+        ) {
+          return err(
+            userError(
+              VALIDATE_CAPABILITY_FLOOR,
+              `${pkg}: '${key}' requires minEngineVersion ${outputFloor}, but descriptor.json declares ${minEngineVersion}`
+            )
+          );
+        }
       }
     }
   }

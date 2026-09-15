@@ -27,6 +27,22 @@ interface ExtensionManifest {
 }
 
 describe("package contributions", () => {
+  it("labels the Frontier-gated Add Skill command", () => {
+    const manifest: ExtensionManifest = fs.readJsonSync(
+      path.resolve(__dirname, "../../package.json")
+    );
+
+    expect(
+      manifest.contributes.commands.find((command) => command.command === "fx-extension.addSkill")
+    ).toEqual({
+      command: "fx-extension.addSkill",
+      title: "%teamstoolkit.commandsTreeViewProvider.addSkillFrontierTitle%",
+      category: "Microsoft 365 Agents",
+      enablement:
+        "fx-extension.isTeamsFx && isWorkspaceTrusted && !fx-extension.commandLocked && fx-extension.isDeclarativeCopilotApp && fx-extension.isAgentSkillsEnabled",
+    });
+  });
+
   it("AC-01: exposes Share in the command palette only for declarative agent projects", () => {
     const manifest: ExtensionManifest = fs.readJsonSync(
       path.resolve(__dirname, "../../package.json")

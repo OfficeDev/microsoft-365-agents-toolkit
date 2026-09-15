@@ -20,6 +20,7 @@ export function generateDriverContext(ctx: Context, inputs: InputsWithProjectPat
     telemetryReporter: ctx.telemetryReporter,
     projectPath: inputs.projectPath,
     platform: inputs.platform,
+    nonInteractive: inputs.nonInteractive,
   };
 }
 

@@ -16,7 +16,7 @@ import {
   TemplateLocator,
   TemplateSource,
   createRealRuntime,
-  scaffold,
+  scaffoldPrepared,
 } from "../../v4";
 import * as bundledFloorMod from "../../v4/distribution/bundledFloor";
 import * as templatePackageMod from "../../v4/distribution/templatePackage";
@@ -211,13 +211,23 @@ export async function scaffoldFromV4Channel(
 async function listExistingRelativeFiles(dest: string): Promise<string[]> {
   const results: string[] = [];
   const walk = async (dir: string): Promise<void> => {
-    const names = await fs.readdir(dir).catch(() => undefined);
+    const names = await fs.readdir(dir).catch((error: unknown) => {
+      if (
+        typeof error === "object" &&
+        error !== null &&
+        "code" in error &&
+        error.code === "ENOENT"
+      ) {
+        return undefined;
+      }
+      throw error;
+    });
     if (!names) {
       return; // the directory (or a subdirectory) does not exist — nothing existing
     }
     for (const name of names) {
       const full = path.join(dir, name);
-      const stat = await fs.stat(full);
+      const stat = await fs.lstat(full);
       if (stat.isDirectory()) {
         await walk(full);
       } else {
@@ -271,11 +281,9 @@ export async function scaffoldDeclarativeFromV4Channel(
   // caller can put them on `CreateProjectResult.warnings` — that is what feeds the scaffolding
   // summary and the surfaces' post-create notifications.
   const warnings: Warning[] = [];
-  const result = await scaffold(
+  const result = await scaffoldPrepared(
+    loaded.value.template,
     {
-      descriptor: loaded.value.descriptor,
-      pipeline: loaded.value.pipeline,
-      content: loaded.value.content,
       answers,
       callerFloor,
       targetDir: { path: context.destination, existing },

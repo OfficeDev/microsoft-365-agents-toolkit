@@ -193,6 +193,7 @@
   "teamstoolkit.commandsTreeViewProvider.regenerateActionDescription": "Regenerate action in declarative agent",
   "teamstoolkit.commandsTreeViewProvider.addPlugin.running": "Adding action...",
   "teamstoolkit.commandsTreeViewProvider.addSkillTitle": "Add Skill",
+  "teamstoolkit.commandsTreeViewProvider.addSkillFrontierTitle": "Add Skill (Frontier)",
   "teamstoolkit.commandsTreeViewProvider.addSkillDescription": "Add skill in declarative agent",
   "teamstoolkit.commandsTreeViewProvider.addSkill.running": "Adding skill...",
   "teamstoolkit.commandsTreeViewProvider.addSkill.blockTooltip": "Unable to run command when adding a skill. Try again after adding completes.",

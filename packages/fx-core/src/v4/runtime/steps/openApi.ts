@@ -6,7 +6,6 @@ import {
   ConstantString,
   GenerateResult,
   ListAPIInfo,
-  ParseOptions,
   ProjectType,
   SpecParser,
   SpecParserError,
@@ -36,16 +35,22 @@ import { getParserOptions } from "../../../common/openApiParserOptions";
 import { isValidHttpUrl } from "../../../common/stringUtils";
 import { isJsonSpecFile } from "../../../common/utils";
 import { ProgrammingLanguage } from "../../../question/constants";
+import { capabilityDeclarations } from "../../capabilities/declarations";
 import { RegisteredStep, StepContext, StepParams } from "../../pipeline/runScaffoldPipeline";
+import { defineStep } from "../../pipeline/defineStep";
+import { stringParam, stringArrayParam } from "../../pipeline/stepParams";
 import { withTempDirectory } from "../withTempDirectory";
 import { generateTeamsAiCustomApiFiles } from "./openApiCustomApi";
+import { AuthRegistration, injectOpenApiAuthActions } from "./openApiAuth";
 
 /** Generate API plugin files through spec-parser, then copy artifacts back via `ctx.write`. */
 
 const SOURCE = "Scaffold";
 
-export const STEP_GENERATE_OPENAPI_PLUGIN_FILES = "openapi/generate-plugin-files";
-export const STEP_GENERATE_TEAMS_AI_CUSTOM_API_FILES = "openapi/generate-teams-ai-custom-api-files";
+export const STEP_GENERATE_OPENAPI_PLUGIN_FILES =
+  capabilityDeclarations.step.generateOpenApiPluginFiles.id;
+export const STEP_GENERATE_TEAMS_AI_CUSTOM_API_FILES =
+  capabilityDeclarations.step.generateTeamsAiCustomApiFiles.id;
 
 const MANIFEST_PATH = `${AppPackageFolderName}/${ManifestTemplateFileName}`;
 const AGENT_PATH = `${AppPackageFolderName}/declarativeAgent.json`;
@@ -63,27 +68,8 @@ interface TeamsAiLanguageFiles {
   handlerPath: string;
 }
 
-interface AuthRegistration {
-  authName: string;
-  authType: "apiKey" | "oauth2";
-  registrationIdEnvName: string;
-}
-
 function systemError(name: string, message: string): SystemError {
   return new SystemError({ source: SOURCE, name, message });
-}
-
-function stringParam(params: StepParams, key: string): string | undefined {
-  const value = params[key];
-  return typeof value === "string" ? value : undefined;
-}
-
-function stringArrayParam(params: StepParams, key: string): string[] | undefined {
-  const value = params[key];
-  if (!Array.isArray(value) || !value.every((item) => typeof item === "string")) {
-    return undefined;
-  }
-  return value;
 }
 
 function readRequired(ctx: StepContext, filePath: string): Result<Buffer, FxError> {
@@ -165,75 +151,23 @@ function conversationStarterText(operation: ListAPIInfo): string | undefined {
   return text || undefined;
 }
 
-function authActionBlock(registration: AuthRegistration): string {
-  if (registration.authType === "apiKey") {
-    return [
-      "  # Register API KEY",
-      "  - uses: apiKey/register",
-      "    with:",
-      "      # Name of the API Key",
-      `      name: ${registration.authName}`,
-      "      # app ID",
-      "      appId: ${{TEAMS_APP_ID}}",
-      "      # Path to OpenAPI description document",
-      `      apiSpecPath: ./${API_SPEC_PATH}`,
-      "    # Write the registration information of API Key into environment file for",
-      "    # the specified environment variable(s).",
-      "    writeToEnvironmentFile:",
-      `      registrationId: ${registration.registrationIdEnvName}`,
-    ].join("\n");
-  }
-  return [
-    "  - uses: oauth/register",
-    "    with:",
-    `      name: ${registration.authName}`,
-    "      flow: authorizationCode",
-    "      # app ID",
-    "      appId: ${{TEAMS_APP_ID}}",
-    "      # Path to OpenAPI description document",
-    `      apiSpecPath: ./${API_SPEC_PATH}`,
-    "      # Use below property to change token exchange behaviour, BasicAuthorizationHeader: token exchange is done via HTTP headers. PostRequestBody: token exchange is done via request body",
-    "      # tokenExchangeMethodType: BasicAuthorizationHeader",
-    "      # Uncomment below property to use proof key for code exchange (PKCE)",
-    "      # isPKCEEnabled: true",
-    "    writeToEnvironmentFile:",
-    `      configurationId: ${registration.registrationIdEnvName}`,
-  ].join("\n");
-}
-
-function injectAuthActions(yml: string, registrations: AuthRegistration[]): string {
-  if (registrations.length === 0) {
-    return yml;
-  }
-  const marker = "  # Build app package with latest env value";
-  const block = registrations.map(authActionBlock).join("\n\n") + "\n\n";
-  const index = yml.indexOf(marker);
-  if (index === -1) {
-    return yml + (yml.endsWith("\n") ? "" : "\n") + block;
-  }
-  return yml.slice(0, index) + block + yml.slice(index);
-}
-
 function updateAuthYml(
   ctx: StepContext,
   filePath: string,
   registrations: AuthRegistration[]
-): void {
+): Result<void, FxError> {
   const current = ctx.read(filePath);
   if (current === undefined) {
-    return;
+    return ok(undefined);
   }
-  const updated = injectAuthActions(current.toString("utf8"), registrations);
-  ctx.write(filePath, Buffer.from(updated, "utf8"));
-}
-
-function openApiParseOptions(): ParseOptions {
-  // Reuse the v3 Copilot parser options (single source of truth) instead of a v4 copy.
-  return getParserOptions(ProjectType.Copilot, true);
-}
-
-function teamsAiParseOptions(): ParseOptions {
-  return getParserOptions(ProjectType.TeamsAi);
+  const updated = injectOpenApiAuthActions(
+    current.toString("utf8"),
+    registrations,
+    `./${API_SPEC_PATH}`
+  );
+  if (updated.isErr()) return err(updated.error);
+  ctx.write(filePath, Buffer.from(updated.value, "utf8"));
+  return ok(undefined);
 }
 
 function languageParam(params: StepParams): ProgrammingLanguage | undefined {
@@ -320,24 +254,21 @@ async function readOriginalOpenApiSpec(apiSpecLocation: string): Promise<Buffer>
   return await fs.readFile(apiSpecLocation);
 }
 
-export const openApiGeneratePluginFiles: RegisteredStep = {
-  validateParams(resolved: StepParams): string | undefined {
-    if (stringParam(resolved, "apiSpecLocation") === undefined) {
-      return "missing string parameter 'apiSpecLocation'";
-    }
-    if (stringArrayParam(resolved, "apiOperations") === undefined) {
-      return "missing string[] parameter 'apiOperations'";
-    }
-    return undefined;
-  },
+function parseOpenApiParams(
+  resolved: StepParams
+): Result<{ apiSpecLocation: string; apiOperations: string[] }, string> {
+  const apiSpecLocation = stringParam(resolved, "apiSpecLocation");
+  if (apiSpecLocation === undefined) return err("missing string parameter 'apiSpecLocation'");
+  const apiOperations = stringArrayParam(resolved, "apiOperations");
+  if (apiOperations === undefined) return err("missing string[] parameter 'apiOperations'");
+  return ok({ apiSpecLocation, apiOperations });
+}
 
-  async apply(resolved: StepParams, ctx: StepContext): Promise<Result<void, FxError>> {
-    const apiSpecLocation = stringParam(resolved, "apiSpecLocation");
-    const apiOperations = stringArrayParam(resolved, "apiOperations");
-    if (apiSpecLocation === undefined || apiOperations === undefined) {
-      return err(systemError("OpenApiGenerateParams", "resolved parameters are not all valid"));
-    }
-
+export const openApiGeneratePluginFiles: RegisteredStep = defineStep({
+  parse: parseOpenApiParams,
+  invalidParams: () =>
+    systemError("OpenApiGenerateParams", "resolved parameters are not all valid"),
+  async apply({ apiSpecLocation, apiOperations }, ctx): Promise<Result<void, FxError>> {
     const manifest = readRequired(ctx, MANIFEST_PATH);
     if (manifest.isErr()) {
       return err(manifest.error);
@@ -365,7 +296,7 @@ export const openApiGeneratePluginFiles: RegisteredStep = {
         ),
       async (tempRoot) => {
         const temp = await writeTempBaseFiles(tempRoot, manifest.value, agent.value);
-        const parser = new SpecParser(apiSpecLocation, openApiParseOptions());
+        const parser = new SpecParser(apiSpecLocation, getParserOptions(ProjectType.Copilot, true));
         const listed = await parser.list();
         const selectedOperations = listed.APIs.filter((operation) =>
           apiOperations.includes(operation.api)
@@ -444,36 +375,26 @@ export const openApiGeneratePluginFiles: RegisteredStep = {
           // The Kiota branch already emits the unfiltered document beside the generated spec.
           ctx.write(ORIGINAL_API_SPEC_PATH, await readOriginalOpenApiSpec(apiSpecLocation));
         }
-        updateAuthYml(ctx, M365_AGENTS_YML, registrations.value);
-        updateAuthYml(ctx, M365_AGENTS_LOCAL_YML, registrations.value);
+        for (const filePath of [M365_AGENTS_YML, M365_AGENTS_LOCAL_YML]) {
+          const updated = updateAuthYml(ctx, filePath, registrations.value);
+          if (updated.isErr()) return err(updated.error);
+        }
         return ok(undefined);
       }
     );
   },
-};
+});
 
-export const openApiGenerateTeamsAiCustomApiFiles: RegisteredStep = {
-  validateParams(resolved: StepParams): string | undefined {
-    if (stringParam(resolved, "apiSpecLocation") === undefined) {
-      return "missing string parameter 'apiSpecLocation'";
-    }
-    if (stringArrayParam(resolved, "apiOperations") === undefined) {
-      return "missing string[] parameter 'apiOperations'";
-    }
-    if (languageParam(resolved) === undefined) {
-      return "missing supported language parameter 'language'";
-    }
-    return undefined;
-  },
-
-  async apply(resolved: StepParams, ctx: StepContext): Promise<Result<void, FxError>> {
-    const apiSpecLocation = stringParam(resolved, "apiSpecLocation");
-    const apiOperations = stringArrayParam(resolved, "apiOperations");
+export const openApiGenerateTeamsAiCustomApiFiles: RegisteredStep = defineStep({
+  parse(resolved) {
+    const params = parseOpenApiParams(resolved);
+    if (params.isErr()) return err(params.error);
     const language = languageParam(resolved);
-    if (apiSpecLocation === undefined || apiOperations === undefined || language === undefined) {
-      return err(systemError("OpenApiTeamsAiParams", "resolved parameters are not all valid"));
-    }
-
+    if (language === undefined) return err("missing supported language parameter 'language'");
+    return ok({ ...params.value, language });
+  },
+  invalidParams: () => systemError("OpenApiTeamsAiParams", "resolved parameters are not all valid"),
+  async apply({ apiSpecLocation, apiOperations, language }, ctx): Promise<Result<void, FxError>> {
     return withTempDirectory(
       "m365atk-openapi-teams-ai-",
       (phase, error) =>
@@ -497,7 +418,7 @@ export const openApiGenerateTeamsAiCustomApiFiles: RegisteredStep = {
         const tempApiSpecPath = path.join(tempRoot, apiSpecPath);
         await fs.ensureDir(path.dirname(tempApiSpecPath));
 
-        const parser = new SpecParser(apiSpecLocation, teamsAiParseOptions());
+        const parser = new SpecParser(apiSpecLocation, getParserOptions(ProjectType.TeamsAi));
         const validation = await parser.validate();
         if (validation.status === ValidationStatus.Error) {
           return err(
@@ -541,4 +462,4 @@ export const openApiGenerateTeamsAiCustomApiFiles: RegisteredStep = {
       }
     );
   },
-};
+});

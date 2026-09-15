@@ -21,7 +21,7 @@ This is the vertical contract for the native v4 declarative-agent-with-skill cre
 
 ## Composed operations
 
-- [`resolve-build-target`](../../operations/scaffolding/resolve-build-target.md) - routes the `daTemplate == 'skill'` pick to the `da/skill` v4 package when `TEAMSFX_AGENT_SKILLS` is on.
+- [`resolve-build-target`](../../operations/scaffolding/resolve-build-target.md) - routes the `daTemplate == 'skill'` pick to the `da/skill` v4 package when `ATK_FRONTIER` is on.
 - [`resolve-template-source`](../../operations/scaffolding/resolve-template-source.md), [`open-template-package`](../../operations/scaffolding/open-template-package.md), and [`validate-template-package`](../../operations/scaffolding/validate-template-package.md) - open and validate the package.
 - [`build-render-context`](../../operations/scaffolding/build-render-context.md) - derives the render-var map.
 - [`run-scaffold-pipeline`](../../operations/scaffolding/run-scaffold-pipeline.md) - runs `require-empty-target`, renders files, and skips the feature-gated sensitivity step in this scenario's baseline.

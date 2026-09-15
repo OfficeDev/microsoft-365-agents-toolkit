@@ -11,7 +11,6 @@ import {
 } from "../../../../src/v4/runtime/steps/mcpAuth";
 import { StepContext } from "../../../../src/v4/pipeline/runScaffoldPipeline";
 import { mcpAuthScaffoldDeps } from "../../../../src/v4/mcp/mcpAuthScaffold";
-import { NOOP_MANIFEST_WRAPPER } from "../../../../src/v4/runtime/runtimeRegistry";
 import { createInMemoryRuntime } from "../../../../src/v4/runtime/inMemoryRuntime";
 import { afterEach, assert, beforeEach, vi } from "vitest";
 
@@ -32,7 +31,6 @@ function makeCtx(initial: Record<string, string> = {}): {
       read: runtime.port.read,
       write: runtime.port.write,
       writeEnvironment: runtime.port.writeEnvironment,
-      manifestWrapper: () => NOOP_MANIFEST_WRAPPER,
     },
     { warn: (warning: Warning) => warnings.push(warning) }
   );

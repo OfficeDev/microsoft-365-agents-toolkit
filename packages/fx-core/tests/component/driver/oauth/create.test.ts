@@ -691,7 +691,7 @@ describe("CreateOauthDriver", () => {
     }
   });
 
-  it("provision handoff: missing Custom OAuth credentials are prompted and consumed", async () => {
+  it("provision handoff: interactive Custom OAuth prompts for a missing scope", async () => {
     envRestore = mockedEnv({
       [QuestionNames.OauthClientId]: undefined,
       [QuestionNames.OauthClientSecret]: undefined,
@@ -734,7 +734,123 @@ describe("CreateOauthDriver", () => {
       QuestionNames.OauthClientSecret,
       QuestionNames.OAuthScope,
     ]);
-    expect(confirm).toHaveBeenCalledOnce();
+    expect(confirm.mock.calls).to.have.length(1);
+  });
+
+  it("provision handoff: non-interactive Custom OAuth preserves an omitted scope", async () => {
+    envRestore = mockedEnv({
+      [QuestionNames.OauthClientId]: undefined,
+      [QuestionNames.OauthClientSecret]: undefined,
+      [QuestionNames.OAuthScope]: undefined,
+      [outputKeys.configurationId]: undefined,
+    });
+    const { promptNames, confirm } = setProvisionQuestionAnswers({});
+    vi.spyOn(teamsGraphClient, "createOauthRegistration").mockImplementation(
+      async (_token, oauthRegistration) => {
+        expect(oauthRegistration.clientId).to.equal("suppliedClientId");
+        expect(oauthRegistration.clientSecret).to.equal("suppliedClientSecret");
+        expect(oauthRegistration.scopes).to.be.empty;
+        return {
+          configurationRegistrationId: { oAuthConfigId: "mockedRegistrationId" },
+          resourceIdentifierUri: "mockedResourceIdentifierUri",
+        };
+      }
+    );
+
+    const args: CreateOauthArgs = {
+      name: "test",
+      appId: "mockedAppId",
+      clientId: "suppliedClientId",
+      clientSecret: "suppliedClientSecret",
+      flow: "authorizationCode",
+      identityProvider: "Custom",
+      isPKCEEnabled: false,
+      baseUrl: "https://test",
+      authorizationUrl: "https://auth.example.com/authorize",
+      tokenUrl: "https://auth.example.com/token",
+    };
+    const result = await createOauthDriver.execute(
+      args,
+      { ...mockedDriverContext, nonInteractive: true },
+      outputEnvVarNames
+    );
+
+    expect(result.result.isOk()).to.be.true;
+    expect(promptNames).to.be.empty;
+    expect(confirm.mock.calls).to.be.empty;
+  });
+
+  it("provision handoff: non-interactive Custom OAuth preserves an explicit scope", async () => {
+    envRestore = mockedEnv({
+      [QuestionNames.OauthClientId]: undefined,
+      [QuestionNames.OauthClientSecret]: undefined,
+      [QuestionNames.OAuthScope]: undefined,
+      [outputKeys.configurationId]: undefined,
+    });
+    const { promptNames, confirm } = setProvisionQuestionAnswers({});
+    vi.spyOn(teamsGraphClient, "createOauthRegistration").mockImplementation(
+      async (_token, oauthRegistration) => {
+        expect(oauthRegistration.scopes).to.deep.equal(["scope.read"]);
+        return {
+          configurationRegistrationId: { oAuthConfigId: "mockedRegistrationId" },
+          resourceIdentifierUri: "mockedResourceIdentifierUri",
+        };
+      }
+    );
+
+    const args: CreateOauthArgs = {
+      name: "test",
+      appId: "mockedAppId",
+      clientId: "suppliedClientId",
+      clientSecret: "suppliedClientSecret",
+      scope: "scope.read",
+      flow: "authorizationCode",
+      identityProvider: "Custom",
+      isPKCEEnabled: false,
+      baseUrl: "https://test",
+      authorizationUrl: "https://auth.example.com/authorize",
+      tokenUrl: "https://auth.example.com/token",
+    };
+    const result = await createOauthDriver.execute(
+      args,
+      { ...mockedDriverContext, nonInteractive: true },
+      outputEnvVarNames
+    );
+
+    expect(result.result.isOk()).to.be.true;
+    expect(promptNames).to.be.empty;
+    expect(confirm.mock.calls).to.be.empty;
+  });
+
+  it("provision handoff: non-interactive Custom OAuth does not prompt for a missing client id", async () => {
+    envRestore = mockedEnv({
+      [QuestionNames.OauthClientId]: undefined,
+      [QuestionNames.OauthClientSecret]: undefined,
+      [QuestionNames.OAuthScope]: undefined,
+      [outputKeys.configurationId]: undefined,
+    });
+    const { promptNames, confirm } = setProvisionQuestionAnswers({});
+
+    const args: CreateOauthArgs = {
+      name: "test",
+      appId: "mockedAppId",
+      clientSecret: "suppliedClientSecret",
+      flow: "authorizationCode",
+      identityProvider: "Custom",
+      isPKCEEnabled: false,
+      baseUrl: "https://test",
+      authorizationUrl: "https://auth.example.com/authorize",
+      tokenUrl: "https://auth.example.com/token",
+    };
+    const result = await createOauthDriver.execute(
+      args,
+      { ...mockedDriverContext, nonInteractive: true },
+      outputEnvVarNames
+    );
+
+    expect(result.result.isErr()).to.be.true;
+    expect(promptNames).to.be.empty;
+    expect(confirm.mock.calls).to.be.empty;
   });
 
   it("provision handoff: missing Entra client id is the only prompted credential", async () => {
@@ -771,7 +887,7 @@ describe("CreateOauthDriver", () => {
 
     expect(result.result.isOk()).to.be.true;
     expect(promptNames).to.deep.equal([QuestionNames.OauthClientId]);
-    expect(confirm).not.toHaveBeenCalled();
+    expect(confirm.mock.calls).to.be.empty;
   });
 
   it("happy path: read clientSecret from input and refreshurl from spec", async () => {

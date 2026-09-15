@@ -1,7 +1,7 @@
 version: 1
 
 cases:
-  - id: simple-bot-ts-publish-developer-portal
+  - id: feature-simple-bot-ts-publish-developer-portal
     scenarioId: SCN-PUBLISH-DEVELOPER-PORTAL
     workItemIds: [16727621]
     steps:

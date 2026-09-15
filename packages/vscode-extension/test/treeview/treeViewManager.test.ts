@@ -1,5 +1,5 @@
 import { TeamsAppManifest, ok } from "@microsoft/teamsfx-api";
-import { featureFlagManager, manifestUtils } from "@microsoft/teamsfx-core";
+import { featureFlagManager, FeatureFlags, manifestUtils } from "@microsoft/teamsfx-core";
 import { assert, vi } from "vitest";
 import * as vscode from "vscode";
 import * as globalVariables from "../../src/globalVariables";
@@ -173,5 +173,27 @@ describe("TreeViewManager", () => {
     const developmentTreeview = treeViewManager.getTreeView("teamsfx-development");
     assert.isDefined(developmentTreeview);
     assert.equal((developmentTreeview as any).commands.length, 9);
+  });
+
+  it.each([true, false])("shows Add Skill when Frontier is %s", (enabled) => {
+    vi.spyOn(featureFlagManager, "getBooleanValue").mockImplementation(
+      (flag) => flag === FeatureFlags.Frontier && enabled
+    );
+    mockValue(globalVariables, "isDeclarativeCopilotApp", true);
+
+    treeViewManager.registerTreeViews({
+      subscriptions: [],
+    } as unknown as vscode.ExtensionContext);
+
+    const developmentTreeview = treeViewManager.getTreeView(
+      "teamsfx-development"
+    ) as CommandsTreeViewProvider;
+    const addSkill = developmentTreeview
+      .getCommands()
+      .find((command) => command.commandId === "fx-extension.addSkill");
+    assert.equal(addSkill !== undefined, enabled);
+    if (enabled) {
+      assert.equal(addSkill.label, "Add Skill (Frontier)");
+    }
   });
 });

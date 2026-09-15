@@ -2,6 +2,7 @@
 // Licensed under the MIT license.
 
 import { SystemError, UserError } from "@microsoft/teamsfx-api";
+import { spawnSync } from "child_process";
 import * as path from "path";
 import AdmZip from "adm-zip";
 import { assert } from "vitest";
@@ -62,6 +63,112 @@ function selectorOnlyArchive(): AdmZip {
 }
 
 describe("v4/validation/templateArchiveValidation", () => {
+  it("AC-29: validates source archives before product API build output exists", () => {
+    const templatesRoot = path.dirname(V4_ROOT);
+    const child = spawnSync(
+      process.execPath,
+      [
+        "--no-preserve-symlinks",
+        "--eval",
+        `
+          const assert = require("node:assert/strict");
+          const fs = require("node:fs");
+          const bytes = fs.readFileSync(0);
+          const Module = require("node:module");
+          const sourceRequire = Module.createRequire(require("node:path").resolve("../packages/fx-core/src/v4/validation/templateArchiveValidation.ts"));
+          const resolution = () => {
+            const semver = sourceRequire.resolve("semver");
+            const semverRequire = Module.createRequire(semver);
+            const lru = semverRequire.resolve("lru-cache");
+            return { semver, realSemver: fs.realpathSync.native(semver), lru,
+              semverVersion: semverRequire("./package.json").version,
+              lruVersion: semverRequire("lru-cache/package.json").version };
+          };
+          const nativeResolution = resolution();
+          require("tsx/cjs");
+          const resolveFilename = Module._resolveFilename;
+          const loadedModules = [];
+          Module._resolveFilename = function(request, ...args) {
+            assert.ok(!request.startsWith("@microsoft/teamsfx-api"),
+              "Build validation must not load product API: " + request);
+            const resolved = resolveFilename.call(this, request, ...args);
+            if (request === "semver" || request === "lru-cache") {
+              loadedModules.push({ request, parent: args[0]?.filename, resolved });
+            }
+            return resolved;
+          };
+          try {
+          assert.throws(() => require.resolve("@microsoft/teamsfx-api"), /must not load product API/);
+          const { validateDeclarativeTemplateArchive, validateDeclarativePackageArchive } =
+            require("../packages/fx-core/src/v4/validation/templateArchiveValidation.ts");
+          const { CURRENT_V4_ENGINE_VERSION } = require("../packages/fx-core/src/v4/engineVersion.ts");
+          const failure = Object.assign(new Error("caller-owned"), { source: "TemplatesBuild" });
+          const errors = { user: () => failure, system: () => failure };
+          const archive = validateDeclarativeTemplateArchive(bytes, "build", CURRENT_V4_ENGINE_VERSION, errors);
+          assert.ok(archive.isOk());
+          const opened = validateDeclarativePackageArchive(bytes,
+            { kind: "create", templateId: "da/mcp-server" }, "load", CURRENT_V4_ENGINE_VERSION, errors);
+          assert.ok(opened.isOk());
+          assert.equal(opened.value.template.descriptor.id, "da/mcp-server");
+          assert.equal(opened.value.template.content, opened.value.content);
+          const invalid = validateDeclarativeTemplateArchive(Buffer.from("invalid"), "build", CURRENT_V4_ENGINE_VERSION, errors);
+          assert.equal(invalid.error, failure);
+          const { prepareTemplate, PACKAGE_PARSE_ERROR } = require("../packages/fx-core/src/v4/validation/packageParse.ts");
+          const parseError = (name, message) => {
+            assert.equal(name, PACKAGE_PARSE_ERROR);
+            assert.ok(message.length > 0);
+            return failure;
+          };
+          for (const raw of [
+            { descriptor: [], pipeline: {} },
+            { descriptor: {}, pipeline: {} },
+            { descriptor: { languageOptions: false }, pipeline: { pipeline: "default", steps: [] } },
+          ]) {
+            assert.equal(prepareTemplate({ ...raw, content: [] }, parseError).error, failure);
+          }
+          console.log("validated without product API build output");
+          } catch (error) {
+            console.error(JSON.stringify({ nativeResolution, loadedModules }));
+            console.error(String(error.stack ?? error.message).replaceAll("    at ", "    frame: "));
+            process.exitCode = 1;
+          }
+        `,
+      ],
+      {
+        cwd: templatesRoot,
+        input: fullArchive(),
+        encoding: "utf8",
+        timeout: 60000,
+        env: {
+          ...process.env,
+          NODE_OPTIONS: "--preserve-symlinks",
+          NODE_PATH: path.resolve(templatesRoot, "../node_modules/.pnpm/node_modules"),
+        },
+      }
+    );
+    assert.equal(child.status, 0, child.stderr || child.error?.message);
+    assert.include(child.stdout, "validated without product API build output");
+  });
+
+  it("CLEAN-07: consuming the new OpenAPI output requires its introduction version", () => {
+    const zip = new AdmZip(fullArchive());
+    const descriptorPath = "v4/create/da/api-plugin-from-existing-api/descriptor.json";
+    const descriptor: unknown = JSON.parse(zip.readAsText(descriptorPath));
+    if (!isRecord(descriptor)) {
+      assert.fail("expected descriptor");
+    }
+    descriptor.minEngineVersion = "6.11.0";
+    zip.updateFile(descriptorPath, Buffer.from(JSON.stringify(descriptor)));
+    const result = validateDeclarativePackageArchive(
+      zip.toBuffer(),
+      { kind: "create", templateId: "da/api-plugin-from-existing-api" },
+      "load",
+      "6.11.0",
+      runtimeErrors
+    );
+    assert.equal(result._unsafeUnwrapErr().name, "TemplatePackageCapabilityFloor");
+  });
+
   it("validates the complete archive and opens one package from the same final bytes", () => {
     const bytes = fullArchive();
 

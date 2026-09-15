@@ -87,8 +87,7 @@ export function evaluateExpression(
 ): Result<EvalValue, FxError> {
   // Keep internal parser throws behind the public Result contract.
   try {
-    const expr = desugarToExpr(node);
-    const ast = parse(tokenize(expr));
+    const ast = parseExpressionNode(node);
     const value = evalAst(ast, scope, port);
     // In value context, declared-but-unanswered ids render as empty strings.
     return ok(value === NULL_VALUE ? "" : value);
@@ -114,30 +113,33 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
-/** Lower each sugar form to the single `expr` grammar. */
-function desugarToExpr(node: ExpressionNode): string {
+/** Lower authored nodes to the shared AST without tokenizing exact references. */
+function parseExpressionNode(node: ExpressionNode): Ast {
   if ("expr" in node) {
-    return node.expr;
+    return parse(tokenize(node.expr));
   }
   if ("from" in node) {
-    return node.from; // value context: a verbatim identifier copy
+    return { k: "ident", v: node.from };
   }
   if ("featureFlag" in node) {
-    return `featureFlag('${node.featureFlag}')`;
+    return parse(tokenize(`featureFlag('${node.featureFlag}')`));
   }
   if ("capability" in node) {
-    return `capability == '${node.capability}'`;
+    return parse(tokenize(`capability == '${node.capability}'`));
   }
   if ("equals" in node) {
     const [key, value] = Object.entries(node.equals)[0];
-    return `${key} == '${value}'`;
+    return parse(tokenize(`${key} == '${value}'`));
   }
   if ("enum" in node) {
     const [key, values] = Object.entries(node.enum)[0];
-    return values.map((v) => `${key} == '${v}'`).join(" || ");
+    return parse(tokenize(values.map((value) => `${key} == '${value}'`).join(" || ")));
   }
-  // anyOf
-  return node.anyOf.map((c) => `(${desugarToExpr(c)})`).join(" || ");
+  const [first, ...rest] = node.anyOf.map(parseExpressionNode);
+  if (first === undefined) {
+    throw new EvalError(EXPR_PARSE_ERROR, "unexpected end of expression");
+  }
+  return rest.reduce<Ast>((left, right) => ({ k: "or", left, right }), first);
 }
 
 type Token =
@@ -227,7 +229,7 @@ export function collectFeatureFlagReferences(
 ): Result<ReadonlySet<string>, FxError> {
   try {
     const references = new Set<string>();
-    collectFeatureFlagReferencesFromAst(parse(tokenize(desugarToExpr(node))), references);
+    collectFeatureFlagReferencesFromAst(parseExpressionNode(node), references);
     return ok(references);
   } catch (e) {
     const name = e instanceof EvalError ? e.code : EXPR_PARSE_ERROR;

@@ -12,8 +12,9 @@ import {
   TargetDir,
   runScaffoldPipeline,
 } from "../pipeline/runScaffoldPipeline";
-import { parseDeclaredKeys, parsePipeline, parseReplaceMap } from "./packageParse";
-import { COMMON_LANGUAGE, selectLanguageContent } from "./selectLanguageContent";
+import { PreparedTemplate, prepareTemplate } from "./packageParse";
+import { COMMON_LANGUAGE, selectLanguageFiles } from "./selectLanguageContent";
+import { applyLegacyRenderBindings } from "./compatibility";
 
 /** v4 scaffold composition over an injected runtime. See create-mcp-server spec. */
 
@@ -46,33 +47,44 @@ export async function scaffold(
   request: ScaffoldRequest,
   runtime: ScaffoldRuntime
 ): Promise<Result<ScaffoldOutcome, FxError>> {
-  const replaceMap = parseReplaceMap(request.descriptor);
-  if (replaceMap.isErr()) {
-    return err(replaceMap.error);
+  const template = prepareTemplate(request);
+  if (template.isErr()) {
+    return err(template.error);
   }
-  const pipeline = parsePipeline(request.pipeline);
-  if (pipeline.isErr()) {
-    return err(pipeline.error);
-  }
+  return scaffoldPrepared(template.value, request, runtime);
+}
 
+export async function scaffoldPrepared(
+  template: PreparedTemplate,
+  request: Pick<ScaffoldRequest, "answers" | "callerFloor" | "targetDir">,
+  runtime: ScaffoldRuntime
+): Promise<Result<ScaffoldOutcome, FxError>> {
   // Declared option ids let skipped answers render as empty instead of undeclared.
-  const declaredKeys = parseDeclaredKeys(request.descriptor);
   const baseVars = buildRenderContext(
-    replaceMap.value,
+    template.descriptor.replaceMap,
     request.answers,
     request.callerFloor,
     runtime.exprPort,
-    declaredKeys
+    template.descriptor.declaredKeys
   );
   if (baseVars.isErr()) {
     return err(baseVars.error);
   }
   // Overlay caller floor last so render can resolve floor tokens such as `{{appName}}`.
-  const renderVars = { ...baseVars.value, ...request.callerFloor };
+  const renderVars = {
+    ...applyLegacyRenderBindings(template.descriptor, template.pipeline, baseVars.value),
+    ...request.callerFloor,
+  };
 
   // Select the active language subtree before render.
   const language = request.callerFloor.language || COMMON_LANGUAGE;
-  const content = selectLanguageContent(request.descriptor, request.content, language);
+  const content = selectLanguageFiles(template.descriptor.languages, template.content, language);
 
-  return runScaffoldPipeline(pipeline.value, content, renderVars, request.targetDir, runtime.port);
+  return runScaffoldPipeline(
+    template.pipeline,
+    content,
+    renderVars,
+    request.targetDir,
+    runtime.port
+  );
 }

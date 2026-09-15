@@ -167,6 +167,24 @@ describe("inspectScaffoldCatalog", () => {
     assert.deepEqual(catalog.externalRoutes, [externalRoute]);
   });
 
+  it("ISC-01: projects metadata requiring a newer engine without an execution gate", () => {
+    const route = { when: "projectType == 'alpha'", engine: "v4", templateId: "alpha" };
+    const descriptor = { id: "alpha", languages: ["ts"], minEngineVersion: "999.0.0" };
+    const questions = [{ name: "endpoint", type: "text" }];
+    const pipeline = { pipeline: "default", steps: [] };
+    const bytes = buildMetadataArchive(
+      { questions: [], routes: [route] },
+      { alpha: { descriptor, questions: { questions }, pipeline } }
+    );
+
+    const result = inspectScaffoldCatalog(sourceFrom(bytes), "create");
+
+    assert.isTrue(result.isOk(), result.isErr() ? result.error.message : "expected ok");
+    assert.deepEqual(result._unsafeUnwrap().templates, [
+      { templateId: "alpha", routes: [route], descriptor, questions, pipeline },
+    ]);
+  });
+
   it("ISC-02: expands nested shared question fragments through the package loader", () => {
     const bytes = buildMetadataArchive(
       {

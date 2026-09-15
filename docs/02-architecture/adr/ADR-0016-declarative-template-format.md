@@ -1,6 +1,7 @@
 # ADR-0016 — Declarative descriptor + questions + replaceMap format
 
 - **Status:** Accepted
+- **Partial supersession:** [ADR-0023](ADR-0023-create-input-policy-ownership.md) extends decision 1 with optional language presentation metadata and specifies create-input policy ownership.
 - **Date:** 2026-05-28 (Accepted 2026-06-08)
 - **Source:** [`scaffolding.create.proposal.md` §14](../scaffolding.create.proposal.md#14-adrs-this-proposal-will-be-decomposed-into)
   (decomposes §§3, 3.1, 3.1.0, 3.1.2, 3.2, 3.5, 4, 4.2, 4.3, 6; invariants 1–4,

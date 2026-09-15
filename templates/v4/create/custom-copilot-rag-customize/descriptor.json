@@ -3,7 +3,10 @@
   "id": "custom-copilot-rag-customize",
   "name": "Teams Agent with Data from Customized Source",
   "languages": ["typescript", "javascript", "python"],
-  "minEngineVersion": "5.20.0",
+  "languageOptions": [
+    { "id": "python", "description": "core.createProjectQuestion.option.description.preview" }
+  ],
+  "minEngineVersion": "6.12.0",
   "spec": "docs/03-specs/scenarios/teams/create-custom-copilot-rag-customize.md",
   "requiresNetwork": false,
 

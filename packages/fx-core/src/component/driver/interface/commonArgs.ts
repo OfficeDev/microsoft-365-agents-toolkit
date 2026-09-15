@@ -21,6 +21,7 @@ export interface DriverContext {
   telemetryReporter?: TelemetryReporter;
   projectPath: string;
   platform: Platform;
+  nonInteractive?: boolean;
 }
 
 export type AzureResourceInfo = {

@@ -2728,7 +2728,7 @@ describe("teamsApp/createAppPackage", async () => {
       return resolved;
     });
     vi.spyOn(featureFlagManager, "getBooleanValue").mockImplementation((flag: any) => {
-      if (flag.name === "TEAMSFX_AGENT_SKILLS") return true;
+      if (flag.name === "ATK_FRONTIER") return true;
       return false;
     });
     const result = (await teamsAppDriver.execute(args, mockedDriverContext)).result;
@@ -3877,7 +3877,7 @@ describe("teamsApp/createAppPackage", async () => {
 
     beforeEach(() => {
       vi.spyOn(featureFlagManager, "getBooleanValue").mockImplementation((flag: any) => {
-        if (flag.name === FeatureFlagName.AgentSkillsManifest) return true;
+        if (flag.name === FeatureFlagName.Frontier) return true;
         return false;
       });
     });
@@ -4296,7 +4296,7 @@ describe("teamsApp/createAppPackage", async () => {
       } as any;
 
       vi.spyOn(featureFlagManager, "getBooleanValue").mockImplementation((flag: any) => {
-        if (flag.name === FeatureFlagName.AgentSkillsManifest) return true;
+        if (flag.name === FeatureFlagName.Frontier) return true;
         return false;
       });
       vi.spyOn(manifestUtils, "getManifestV3").mockResolvedValue(ok(manifest));
