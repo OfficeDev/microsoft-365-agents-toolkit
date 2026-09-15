@@ -1,6 +1,6 @@
 # ATK CLI Commands Reference
 
-These commands apply to non-Declarative-Agent ATK projects. For DA lifecycle and action commands, use [declarative-agent-lifecycle.md](declarative-agent-lifecycle.md).
+These commands apply to non-DA ATK projects and DAs routed to ATK by the [structural routing gate](declarative-agent-lifecycle.md#structural-routing-gate).
 
 ## Package and Validate
 

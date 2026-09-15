@@ -1,28 +1,27 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/microsoft/waza/main/schemas/task.schema.json
 
-id: da-marker-precedence
-name: Backend Source Without Deployment Is Non-Hybrid
-description: Existing DA has backend source and build configuration but no backend deployment lifecycle
+id: copilot-connector-da-uses-wiqd
+name: Copilot Connector Declarative Agent Uses WIQD
+description: Existing Declarative Agent references a Copilot Connector connection supported by WIQD
 tags:
   - declarative-agent
   - routing
+  - copilot-connector
 inputs:
-  prompt: "Validate and package this existing Declarative Agent project."
+  prompt: "This existing Declarative Agent references an existing Copilot Connector connection and does not own or deploy the Connector backend. Validate and package it."
   files:
     - path: declarative-agent/appPackage/manifest.json
     - path: declarative-agent/appPackage/declarativeAgent.json
     - path: declarative-agent/appPackage/color.png
     - path: declarative-agent/appPackage/outline.png
     - path: declarative-agent/m365agents.yml
-    - path: declarative-agent/package.json
-    - path: declarative-agent/src/functions/repairs.ts
 expected:
   should_trigger: true
 graders:
   - type: behavior
     name: efficiency_check
     config:
-      max_tool_calls: 35
+      max_tool_calls: 30
       max_duration_ms: 120000
       forbidden_tools:
         - rm
@@ -43,9 +42,10 @@ graders:
     config:
       prompt: |
         Review the agent's response. Check that it:
-        1. Classifies the project as non-hybrid because backend source and build configuration exist but the lifecycle has no action that provisions or deploys that backend.
-        2. Uses WIQD validate and package commands even though backend source and `m365agents.yml` exist.
-        3. Does not infer lifecycle routing from the scaffold CLI or use ATK lifecycle commands.
+        1. Recognizes that WIQD supports Declarative Agents referencing an existing Copilot Connector connection.
+        2. Uses WIQD to validate and package the project.
+        3. Does not classify the project as hybrid merely because it references a Copilot Connector connection.
+        4. Does not use ATK lifecycle commands.
 
         If all criteria are met, call set_waza_grade_pass.
         Otherwise, call set_waza_grade_fail with your reasoning.

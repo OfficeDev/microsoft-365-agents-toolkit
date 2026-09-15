@@ -2,7 +2,7 @@
 
 ## purpose
 
-Publishing workflow for non-DA M365 apps — from local sideloading through org catalog distribution to public Teams Store / Microsoft AppSource submission. For a Declarative Agent, use the WIQD validation, packaging, provisioning, and publishing commands in [declarative-agent-lifecycle.md](declarative-agent-lifecycle.md). The general org-catalog and Store requirements below still apply, but do not run the ATK commands against a DA manifest.
+Publishing workflow for non-DA M365 apps and DAs routed to ATK by the [structural routing gate](declarative-agent-lifecycle.md#structural-routing-gate). For non-hybrid DA publishing, follow that lifecycle reference instead.
 
 ## rules
 

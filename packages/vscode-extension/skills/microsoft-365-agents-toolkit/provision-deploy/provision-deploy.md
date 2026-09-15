@@ -2,7 +2,7 @@
 
 Provision Azure and M365 resources, then deploy your agent to the cloud.
 
-For a Declarative Agent, follow [declarative-agent-lifecycle.md](../toolkit/declarative-agent-lifecycle.md). Use this ATK workflow only for non-DA projects or a hybrid DA's separate backend compute; a pure DA has no compute to deploy.
+For a Declarative Agent, apply the [structural routing gate](../toolkit/declarative-agent-lifecycle.md#structural-routing-gate). This ATK workflow applies only when that gate classifies the project as hybrid.
 
 ## Local Provisioning (for Teams testing)
 
@@ -84,9 +84,9 @@ For custom engine agents using Azure OpenAI, add env vars to the YAML and set th
 
 ## Expert Deep Dives
 
-> **Applies to non-DA ATK projects and hybrid backend compute** — the lifecycle/environments/publish experts cover the YAML-driven `atk provision/deploy/publish` flow. Use [declarative-agent-lifecycle.md](../toolkit/declarative-agent-lifecycle.md) for the DA manifest lifecycle.
+> **Applies to non-DA ATK projects and DAs classified as hybrid by the [structural routing gate](../toolkit/declarative-agent-lifecycle.md#structural-routing-gate)** — the lifecycle/environments/publish experts cover the YAML-driven `atk provision/deploy/publish` flow.
 >
-> The **azure-bot-deploy** expert applies only to projects that deploy code to Azure (Teams bots, custom engine agents, RAG agents, message extensions, or a hybrid DA's separate backend). Pure declarative agents and pure-API-plugin projects don't deploy compute and can ignore it.
+> The **azure-bot-deploy** expert applies only to projects that deploy code to Azure (Teams bots, custom engine agents, RAG agents, message extensions, or a hybrid DA with project-owned backend compute). Pure declarative agents and DAs backed by existing external APIs don't deploy compute and can ignore it.
 
 | Topic | Expert |
 |---|---|

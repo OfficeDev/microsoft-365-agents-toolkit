@@ -2,7 +2,7 @@
 
 Consolidated troubleshooting for ATK projects — provisioning, runtime, Playground, and Teams issues.
 
-For Declarative Agent lifecycle failures, use `wiqd doctor`, `wiqd auth status`, and [declarative-agent-lifecycle.md](../toolkit/declarative-agent-lifecycle.md); do not fall back to ATK. Schema questions do not require WIQD.
+For non-hybrid Declarative Agent lifecycle failures, use `wiqd doctor`, `wiqd auth status`, and [declarative-agent-lifecycle.md](../toolkit/declarative-agent-lifecycle.md); do not fall back to ATK. Hybrid, MetaOS, and TypeSpec DA projects remain on ATK. Schema questions do not require WIQD.
 
 ## Error Code Quick Reference
 

@@ -1,6 +1,6 @@
 # Environments and `.localConfigs`
 
-> **Declarative Agents:** Use [declarative-agent-lifecycle.md](declarative-agent-lifecycle.md) for WIQD environment and lifecycle commands. The ATK commands below apply only to non-DA projects and to a hybrid DA's separate backend compute; do not fall back to ATK for DA lifecycle operations.
+> **Declarative Agents:** Apply the [structural routing gate](declarative-agent-lifecycle.md#structural-routing-gate). The ATK guidance below applies only when that gate selects ATK.
 
 ## purpose
 

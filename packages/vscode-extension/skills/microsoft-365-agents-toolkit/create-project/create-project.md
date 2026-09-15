@@ -4,17 +4,25 @@ Scaffold a new Microsoft 365 agent or Teams app from an ATK template.
 
 ## Template Selection Guide
 
+### Declarative Agents
+
+| User Wants | Lifecycle Route | Capability or Command |
+| --- | --- | --- |
+| Extend M365 Copilot with custom instructions | WIQD | `wiqd agent create` |
+| Declarative Agent with new API backend source code | ATK | `declarative-agent-action` |
+| Declarative Agent with new API backend and Bearer Token | ATK | `declarative-agent-action-bearer` |
+| Declarative Agent with new API backend and OAuth | ATK | `declarative-agent-action-oauth` |
+| Declarative Agent with existing OpenAPI spec | WIQD | `wiqd agent create` then `wiqd agent add action` |
+| Connect existing MCP Server to Copilot | WIQD | `wiqd agent create` then `wiqd agent add action` |
+| Declarative Agent using an existing Copilot Connector connection | WIQD | `wiqd agent create` |
+| Declarative Agent with a new project-owned Copilot Connector backend | ATK | `declarative-agent-with-graph-connector` |
+| Declarative Agent for MetaOS | ATK | `declarative-agent-meta-os-new-project` |
+| Declarative Agent from TypeSpec | ATK | `declarative-agent-typespec` |
+
+### Other Agents and Apps
+
 | User Wants | Capability |
 |------------|------------|
-| Extend M365 Copilot with custom instructions | `declarative-agent` |
-| Declarative Agent with new API | `declarative-agent-action` |
-| Declarative Agent with new API (Bearer Token) | `declarative-agent-action-bearer` |
-| Declarative Agent with new API (OAuth) | `declarative-agent-action-oauth` |
-| Declarative Agent with existing OpenAPI spec | `declarative-agent-action-from-existing-api` |
-| Connect MCP Server to Copilot | `declarative-agent-with-action-from-mcp` |
-| Declarative Agent with Copilot Connector | `declarative-agent-with-graph-connector` |
-| Declarative Agent for MetaOS | `declarative-agent-meta-os-new-project` |
-| Declarative Agent from TypeSpec | `declarative-agent-typespec` |
 | Agent with custom LLM (Azure OpenAI, etc.) | `basic-custom-engine-agent` |
 | Weather forecast agent | `weather-agent` |
 | Agent using Azure AI Foundry | `foundry-agent-to-m365` |
@@ -36,13 +44,23 @@ See [../toolkit/templates.md](../toolkit/templates.md) for the complete template
 
 ## Creating Projects
 
-For a Declarative Agent entry in the selection guide, use WIQD and then follow [declarative-agent-lifecycle.md](../toolkit/declarative-agent-lifecycle.md) for actions and lifecycle operations:
+For a pure Declarative Agent or a DA that uses an existing OpenAPI, MCP, or Copilot Connector backend, use WIQD and then follow [declarative-agent-lifecycle.md](../toolkit/declarative-agent-lifecycle.md) for actions and lifecycle operations:
 
 ```bash
 wiqd agent create --name <project-name> --output <parent-folder>
 ```
 
-For all other entries, create templates in the current directory with this flow:
+For a hybrid DA that needs project-owned API backend source code and deployment, use the ATK from-scratch template. The resulting project uses ATK for its complete lifecycle:
+
+```bash
+atk new -c declarative-agent-action -l <typescript|javascript|csharp> -n <project-name> -f <parent-folder> -i false
+```
+
+Use `declarative-agent-action-bearer` or `declarative-agent-action-oauth` when the new backend requires that authentication model. Detect the hybrid from its local backend source plus backend deployment actions, not from whether the user invoked WIQD or ATK. Do not switch a hybrid project to WIQD lifecycle commands.
+
+Use `declarative-agent-with-graph-connector` when the project must scaffold and deploy a new Copilot Connector ingestion backend. That generated backend makes the project hybrid; merely referencing an existing Connector connection does not.
+
+For all other ATK entries, create templates in the current directory with this flow:
 
 ```bash
 # 1) Scaffold into a temporary parent folder
@@ -127,7 +145,8 @@ List all samples with `atk list samples`.
 ## After Scaffolding
 
 Once the project is created:
-- For a DA → continue with [declarative-agent-lifecycle.md](../toolkit/declarative-agent-lifecycle.md)
+- For a DA without project-owned backend deployment → continue with [declarative-agent-lifecycle.md](../toolkit/declarative-agent-lifecycle.md)
+- For a hybrid DA with project-owned backend source and deployment → keep its complete lifecycle on ATK; use [../provision-deploy/provision-deploy.md](../provision-deploy/provision-deploy.md)
 - For other projects, to test locally → see [../test-playground/test-playground.md](../test-playground/test-playground.md)
 - To understand project files → see [../toolkit/manifest-and-yaml.md](../toolkit/manifest-and-yaml.md)
 
@@ -135,7 +154,7 @@ Once the project is created:
 
 > **Applies to: code-based Teams bots/agents only** (templates: `bot`, `teams-agent*`, `basic-custom-engine-agent`, `weather-agent`, `coffee-agent`, `bot-sso`, `msgext-*`, `tab*`).
 >
-> Does **not** apply to declarative agents, API plugins, Copilot connectors, or `declarative-agent-*` / `copilot-connector` templates — those have no source code to scaffold against. For those, follow the in-template instructions and the [Microsoft 365 Copilot extensibility docs](https://learn.microsoft.com/microsoft-365-copilot/extensibility/) directly.
+> Does **not** apply to pure DAs, existing-API/MCP actions, DAs that only reference existing Copilot Connector connections, or other templates without application source code. Hybrid DA projects contain project-owned backend source and deployment actions; keep their complete lifecycle on ATK and follow the generated project instructions.
 
 For deeper guidance on what `atk new` produces and how to extend it, consult the Teams expert micro-files:
 

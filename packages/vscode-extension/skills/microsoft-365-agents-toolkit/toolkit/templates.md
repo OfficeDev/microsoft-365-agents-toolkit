@@ -1,6 +1,6 @@
 # Agent Templates Reference
 
-Declarative Agent entries below are recognition metadata. Use WIQD, not `atk new`, to create a DA.
+Use WIQD for pure DAs and DAs that attach existing OpenAPI, remote MCP, or Copilot Connector backends. Use ATK templates when the project must scaffold and deploy its own backend source code; use ATK for the complete lifecycle of those structurally identified hybrid projects.
 
 ## Contents
 - CLI Capabilities (all atk new -c options)
@@ -13,24 +13,24 @@ Declarative Agent entries below are recognition metadata. Use WIQD, not `atk new
 
 ## CLI Capabilities (atk new -c)
 
-For non-DA entries, use `atk new -c <capability>`. Available capabilities:
+For entries routed to ATK, use `atk new -c <capability>`. The DA routing exceptions are described below.
 
 | Capability | Description |
 |------------|-------------|
-| `declarative-agent` | Declarative Agent |
-| `declarative-agent-action` | Declarative Agent with Action from Scratch |
-| `declarative-agent-action-bearer` | Declarative Agent with Action from Scratch (Bearer Token) |
-| `declarative-agent-action-oauth` | Declarative Agent with Action from Scratch (OAuth) |
-| `declarative-agent-action-from-existing-api` | Declarative Agent with Action from Existing API |
-| `declarative-agent-with-action-from-mcp` | Declarative Agent with Action from MCP Server |
-| `declarative-agent-with-graph-connector` | Declarative Agent with Copilot Connector |
+| `declarative-agent` | Declarative Agent (route new projects to WIQD) |
+| `declarative-agent-action` | Hybrid Declarative Agent with project-owned Action from Scratch |
+| `declarative-agent-action-bearer` | Hybrid Declarative Agent with project-owned Action from Scratch (Bearer Token) |
+| `declarative-agent-action-oauth` | Hybrid Declarative Agent with project-owned Action from Scratch (OAuth) |
+| `declarative-agent-action-from-existing-api` | Legacy recognition for a DA with an existing API; route new projects to WIQD |
+| `declarative-agent-with-action-from-mcp` | Legacy recognition for a DA with an existing MCP Server; route new projects to WIQD |
+| `declarative-agent-with-graph-connector` | Hybrid DA with a new project-owned Copilot Connector backend |
 | `declarative-agent-meta-os-new-project` | Declarative Agent for MetaOS (New Project) |
 | `declarative-agent-meta-os-upgrade-project` | Declarative Agent for MetaOS (Upgrade Project) |
 | `declarative-agent-typespec` | Declarative Agent from TypeSpec |
 | `basic-custom-engine-agent` | Basic Custom Engine Agent |
 | `weather-agent` | Weather Agent |
 | `foundry-agent-to-m365` | Foundry Agent to M365 |
-| `copilot-connector` | Copilot Connector |
+| `copilot-connector` | Standalone project-owned Copilot Connector backend |
 | `teams-agent` | General Teams Agent |
 | `teams-agent-rag-customize` | Teams Agent with Data from Customized Source |
 | `teams-agent-rag-azure-ai-search` | Teams Agent with Data from Azure AI Search |
@@ -50,11 +50,23 @@ For non-DA entries, use `atk new -c <capability>`. Available capabilities:
 
 ### Creating a Declarative Agent
 
+For a pure DA or a DA that uses an existing OpenAPI, MCP, or Copilot Connector backend:
+
 ```bash
 wiqd agent create --name <name> --output <parent-folder>
 ```
 
-Add actions and continue the lifecycle with [declarative-agent-lifecycle.md](declarative-agent-lifecycle.md). Deploy any separate API or MCP backend compute with ATK or Azure tooling.
+Add existing OpenAPI or MCP actions and continue the lifecycle with [declarative-agent-lifecycle.md](declarative-agent-lifecycle.md).
+
+For a hybrid DA with new backend source code:
+
+```bash
+atk new -c declarative-agent-action -l <typescript|javascript|csharp> -n <name> -f <parent-folder> -i false
+```
+
+Choose `declarative-agent-action-bearer` or `declarative-agent-action-oauth` for a new backend that requires that authentication model. Because these projects contain backend source and backend deployment actions, keep the generated DA manifest, backend, and all lifecycle operations on ATK. This structural classification does not depend on which wrapper invoked fx-core.
+
+Use `declarative-agent-with-graph-connector` for a DA that scaffolds and deploys a new Connector ingestion backend. It is hybrid for the same structural reason. A DA that only references an existing Connector connection stays on WIQD.
 
 ## Custom Engine Agents (M365 SDK-based)
 

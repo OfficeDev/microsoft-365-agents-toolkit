@@ -2,7 +2,7 @@
 
 Test your agent in the actual Microsoft Teams environment. Requires M365 account and HTTPS endpoint.
 
-For a Declarative Agent, skip the bot workflow and use [Quick Start (Declarative Agents — No Backend)](#quick-start-declarative-agents--no-backend). Test the provisioned agent in Microsoft 365 Copilot, not Agents Playground.
+For a Declarative Agent, apply the [structural routing gate](../toolkit/declarative-agent-lifecycle.md#structural-routing-gate), then use the selected lifecycle. Test either DA type in Microsoft 365 Copilot, not Agents Playground.
 
 For code-based agents and Teams apps, use this workflow when the user explicitly asks to run on Teams. For quick local testing, recommend [Agents Playground](../test-playground/test-playground.md) first.
 
@@ -49,16 +49,16 @@ atk deploy --env local -i false
 # Open: https://teams.microsoft.com/l/app/${{TEAMS_APP_ID}}?installAppPackage=true&webjoin=true&appTenantId=${{TENANT_ID}}&login_hint=${{USER_EMAIL}}
 ```
 
-## Quick Start (Declarative Agents — No Backend)
+## Quick Start (Non-Hybrid Declarative Agents)
 
 ```bash
-# Validate, package, and provision the DA; there is no compute deployment
+# Validate, package, and provision the DA; an existing action backend keeps its own deployment lifecycle
 wiqd agent validate --path <project> --env local
 wiqd agent package --path <project> --env local
 wiqd agent provision --path <project> --env local
 ```
 
-Then open Microsoft 365 Copilot and find the agent in the app list. For other DA lifecycle operations, follow [declarative-agent-lifecycle.md](../toolkit/declarative-agent-lifecycle.md).
+Then open Microsoft 365 Copilot and find the agent in the app list. For other non-hybrid DA lifecycle operations, follow [declarative-agent-lifecycle.md](../toolkit/declarative-agent-lifecycle.md). Keep a hybrid DA with project-owned backend deployment on its ATK lifecycle.
 
 ## Opening in Different Hosts
 

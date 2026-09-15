@@ -4,7 +4,7 @@
 
 M365 Agents Toolkit lifecycle configuration (`m365agents.yml`) and full `atk` CLI command reference for provisioning, deploying, and managing M365 agents (declarative agents, custom engine agents, Teams bots/tabs/message extensions, Copilot connectors, Office add-ins).
 
-For a Declarative Agent manifest lifecycle, use [declarative-agent-lifecycle.md](declarative-agent-lifecycle.md). The presence of `m365agents.yml` does not override DA markers. In a hybrid DA project, this ATK reference applies only to backend compute.
+For a Declarative Agent, use the [structural routing gate](declarative-agent-lifecycle.md#structural-routing-gate). This reference applies to the complete lifecycle only when that gate selects ATK.
 
 ## rules
 

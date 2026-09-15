@@ -7,7 +7,7 @@ tags:
   - scaffold
   - routing
 inputs:
-  prompt: "Create a Declarative Agent named WazaDaFixture for HR FAQs in the current directory."
+  prompt: "Create a Declarative Agent named WazaDaFixture for HR FAQs under the current directory, keeping the generated WazaDaFixture project folder."
 expected:
   should_trigger: true
 graders:

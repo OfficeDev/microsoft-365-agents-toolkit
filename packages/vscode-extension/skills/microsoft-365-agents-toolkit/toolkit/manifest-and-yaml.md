@@ -2,7 +2,7 @@
 
 Reference for `appPackage/` files (manifest, declarative agent definition) and the field-by-field reference for `m365agents.yml` actions.
 
-Use this file directly for read-only schema and manifest questions without requiring WIQD installation or login. For DA lifecycle execution, use [declarative-agent-lifecycle.md](declarative-agent-lifecycle.md). The ATK YAML and `.localConfigs` guidance applies to non-DA projects and backend compute.
+Use this file directly for read-only schema and manifest questions without requiring WIQD installation or login. Before DA lifecycle execution, apply the [structural routing gate](declarative-agent-lifecycle.md#structural-routing-gate).
 
 For environment files, `${{VAR}}` resolution, `.localConfigs` flow, and the env-var catalog, see [environments.md](environments.md).
 For the lifecycle YAML structure (provision/deploy/publish stages, action ordering, full anatomy), see [lifecycle-cli.md](lifecycle-cli.md).
@@ -31,26 +31,26 @@ For the lifecycle YAML structure (provision/deploy/publish stages, action orderi
 
 ## Schema Versions Used by Templates
 
-The DA rows below are the versions written by current v4 DA templates in this repo. WIQD owns DA lifecycle execution; use the schema version in the current WIQD project when editing an existing DA.
+These are the canonical versions written by the current `atk new` templates (verified against `templates/**` in this repo). Use these in any hand-authored or hand-edited file unless you have a specific reason to pin an older one.
 
 | File | Field | Value |
 |------|-------|-------|
-| `appPackage/manifest.json` | `$schema` | `https://developer.microsoft.com/en-us/json-schemas/teams/v1.30/MicrosoftTeams.schema.json` |
-| `appPackage/manifest.json` | `manifestVersion` | `1.30` |
-| `appPackage/declarativeAgent.json` | `$schema` | `https://developer.microsoft.com/json-schemas/copilot/declarative-agent/v1.8/schema.json` |
-| `appPackage/declarativeAgent.json` | `version` | `v1.8` |
+| `appPackage/manifest.json` | `$schema` | `https://developer.microsoft.com/en-us/json-schemas/teams/v1.26/MicrosoftTeams.schema.json` |
+| `appPackage/manifest.json` | `manifestVersion` | `1.26` |
+| `appPackage/declarativeAgent.json` | `$schema` | `https://developer.microsoft.com/json-schemas/copilot/declarative-agent/v1.7/schema.json` |
+| `appPackage/declarativeAgent.json` | `version` | `v1.7` |
 | `m365agents.yml` / `m365agents.local.yml` / `m365agents.playground.yml` | `version` | `v1.11` (TS/Python templates) — some C# templates still ship `v1.9` |
 
 **Notes:**
 
-- Keep the schema version already used by an existing project unless the required feature needs a newer schema.
-- The `declarativeAgent.json` `version` field is the **schema** version (e.g., `"v1.8"`), not your app version. The app version still lives in `manifest.json`'s top-level `version` field.
+- The Teams `manifestVersion: 1.26` schema is also offered as `vDevPreview` (3 templates use it for early-access features). Stick with `1.26` unless a feature you need only exists in `vDevPreview`.
+- The `declarativeAgent.json` `version` field is the **schema** version (e.g., `"v1.7"`), not your app version. The app version still lives in `manifest.json`'s top-level `version` field.
 
 ```jsonc
-// appPackage/declarativeAgent.json — minimal v1.8 example
+// appPackage/declarativeAgent.json — minimal v1.7 example
 {
-  "$schema": "https://developer.microsoft.com/json-schemas/copilot/declarative-agent/v1.8/schema.json",
-  "version": "v1.8",
+  "$schema": "https://developer.microsoft.com/json-schemas/copilot/declarative-agent/v1.7/schema.json",
+  "version": "v1.7",
   "name": "My Agent",
   "description": "Helps with X",
   "instructions": "You are a helpful assistant that..."
@@ -68,7 +68,7 @@ These field names are verified against official ATK templates. Wrong field names
 | `aadApp/create` writeToEnvironmentFile | `clientId`, `clientSecret`, `objectId` → `BOT_OBJECT_ID` | Writing objectId to `AAD_APP_OBJECT_ID` (wrong — use `BOT_OBJECT_ID` in local templates) |
 | `botFramework/create` | `botId`, `name`, `messagingEndpoint`, `channels`; optional: `description` | Only `messagingEndpoint` is strictly required by the driver; `description` defaults to `""` if omitted. Templates ship `description: ""` explicitly for clarity. |
 | `botAadApp/create` | `name` | Only available in cloud (`m365agents.yml`), not used in local templates |
-| `teamsApp/extendToM365` | `appPackagePath` | Legacy ATK DA templates use this action to write `M365_APP_ID`; use WIQD for current DA provisioning |
+| `teamsApp/extendToM365` | `appPackagePath` | Legacy ATK DA templates use this action to write `M365_APP_ID`; use the structural routing gate before provisioning a DA |
 
 ## signInAudience and Tenant Configuration
 

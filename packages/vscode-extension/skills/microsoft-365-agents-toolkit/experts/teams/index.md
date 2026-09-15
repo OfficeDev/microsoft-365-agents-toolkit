@@ -154,7 +154,7 @@ Note: C# has SDK support for Teams only (Tier 3). For the Slack side, route to `
 
 ### Toolkit: Lifecycle & CLI
 
-If DA markers are present, do not load this ATK lifecycle cluster for DA manifest operations. Use `../../toolkit/declarative-agent-lifecycle.md`. For a hybrid DA, load this cluster only for separate backend compute.
+If DA markers are present, apply the [structural routing gate](../../toolkit/declarative-agent-lifecycle.md#structural-routing-gate) before loading this cluster.
 
 When: `m365agents.yml`, `atk` CLI, `atk provision`, `atk deploy`, `atk publish`, `atk new`, lifecycle hooks, CI/CD pipeline, built-in actions, `uses:`, `runs:`, `arm/deploy`, `azureAppService/deploy`, `teamsApp/create`, `writeToEnvironmentFile`
 Read:
