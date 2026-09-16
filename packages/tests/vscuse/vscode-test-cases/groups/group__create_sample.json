@@ -9,7 +9,7 @@
       "precondition_retry_interval": 2,
       "step_retry_timeout": 0.0
     },
-    "total_steps": 4,
+    "total_steps": 5,
     "created_at": "2026-05-09T06:20:50.407273",
     "name": "group: create sample",
     "description": {
@@ -19,6 +19,7 @@
     },
     "generated_at": "2026-05-09T06:20:50.407273",
     "execution_order": [
+      "step_b9c31a72",
       "step_e44f410f",
       "step_fd39b907",
       "step_a7f414d1",
@@ -27,9 +28,29 @@
     "tags": [
       "group"
     ],
-    "updated_at": "2026-05-09T06:34:14.849915"
+    "updated_at": "2026-09-16T02:46:05.331000"
   },
   "steps": [
+    {
+      "step_id": "step_b9c31a72",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the active prompt titled Workspace Folder is visible and the option Default folder is focused.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "step_retry_timeout: 30"
+      ],
+      "screenshot": null,
+      "created_at": "2026-09-16T02:46:05.331000",
+      "plan_id": "plan_r_1111_043711"
+    },
     {
       "step_id": "step_e44f410f",
       "agent": "interaction",
