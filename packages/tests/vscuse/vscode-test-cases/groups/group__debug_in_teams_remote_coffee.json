@@ -8,7 +8,7 @@
       "precondition_wait_timeout": 60,
       "precondition_retry_interval": 2
     },
-    "total_steps": 8,
+    "total_steps": 10,
     "created_at": "2026-06-11T03:17:04.362054",
     "name": "group  debug in teams remote coffee",
     "description": {
@@ -26,6 +26,8 @@
       "plan_r_0430_071628",
       "step_0dbb3854",
       "step_400e7d18",
+      "step_6a48c7d2",
+      "step_5c2e9f11",
       "step_f1eb963b"
     ],
     "tags": [
@@ -186,6 +188,50 @@
       ],
       "screenshot": "step_400e7d18",
       "created_at": "2026-06-11T03:17:04.411903",
+      "plan_id": "plan_61729b9a"
+    },
+    {
+      "step_id": "step_6a48c7d2",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion there's an \"Added successfully!\" or \"Let's go\" dialog with a blue \"Open\" button exist.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "step_retry_timeout: 180"
+      ],
+      "screenshot": null,
+      "created_at": "2026-09-16T03:23:05.573000",
+      "plan_id": "plan_61729b9a"
+    },
+    {
+      "step_id": "step_5c2e9f11",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 529,
+        "y": 506
+      },
+      "description": "Click the blue \"Open\" button in the \"Added successfully!\" or \"Let's go\" dialog for CoffeeAgentdev in Microsoft Teams.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "ocr:true"
+      ],
+      "screenshot": "",
+      "created_at": "2026-09-16T03:23:05.573000",
       "plan_id": "plan_61729b9a"
     },
     {
