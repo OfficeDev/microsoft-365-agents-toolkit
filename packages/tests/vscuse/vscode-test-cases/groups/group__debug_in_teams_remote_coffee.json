@@ -33,7 +33,7 @@
     "tags": [
       "group"
     ],
-    "updated_at": "2026-06-11T05:45:01.704594"
+    "updated_at": "2026-09-16T03:44:02.631000"
   },
   "steps": [
     {
@@ -195,7 +195,7 @@
       "agent": "assertion",
       "tool": "",
       "parameters": {},
-      "description": "@assertion there's an \"Added successfully!\" or \"Let's go\" dialog with a blue \"Open\" button exist.",
+      "description": "@assertion the \"CoffeeAgentdev\" app details dialog is still visible with its blue \"Open\" button.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -216,10 +216,10 @@
       "tool": "click",
       "parameters": {
         "button": "left",
-        "x": 529,
-        "y": 506
+        "x": 252,
+        "y": 218
       },
-      "description": "Click the blue \"Open\" button in the \"Added successfully!\" or \"Let's go\" dialog for CoffeeAgentdev in Microsoft Teams.",
+      "description": "Click the blue \"Open\" button again in the \"CoffeeAgentdev\" app details dialog because the first click left the dialog open.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
