@@ -33,7 +33,7 @@
     "tags": [
       "group"
     ],
-    "updated_at": "2026-09-16T04:05:08.943000"
+    "updated_at": "2026-09-16T04:24:15.386000"
   },
   "steps": [
     {
@@ -213,13 +213,11 @@
     {
       "step_id": "step_5c2e9f11",
       "agent": "interaction",
-      "tool": "click",
+      "tool": "key_press",
       "parameters": {
-        "button": "left",
-        "x": 252,
-        "y": 218
+        "key": "enter"
       },
-      "description": "Click the blue \"Open\" button again in the \"CoffeeAgentdev\" app details dialog because the first click left the dialog open.",
+      "description": "Press Enter to activate the focused \"Open\" button in the \"CoffeeAgentdev\" app details dialog after the pointer click left the dialog open.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
