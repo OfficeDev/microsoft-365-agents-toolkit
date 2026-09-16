@@ -33,7 +33,7 @@
     "tags": [
       "group"
     ],
-    "updated_at": "2026-09-16T03:44:02.631000"
+    "updated_at": "2026-09-16T04:05:08.943000"
   },
   "steps": [
     {
@@ -228,7 +228,7 @@
       "preconditions": [],
       "postconditions": [],
       "tags": [
-        "ocr:true"
+        "force_run:true"
       ],
       "screenshot": "",
       "created_at": "2026-09-16T03:23:05.573000",
