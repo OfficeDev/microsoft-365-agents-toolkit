@@ -33,13 +33,11 @@
     {
       "step_id": "step_e44f410f",
       "agent": "interaction",
-      "tool": "click",
+      "tool": "key_press",
       "parameters": {
-        "button": "left",
-        "x": 499,
-        "y": 66
+        "key": "enter"
       },
-      "description": "Click the \"Default folder\" field in the \"Workspace Folder\" dialog of Visual Studio Code to select or modify the project location.",
+      "description": "Press Enter to confirm the focused \"Default folder\" option in the \"Workspace Folder\" dialog.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
