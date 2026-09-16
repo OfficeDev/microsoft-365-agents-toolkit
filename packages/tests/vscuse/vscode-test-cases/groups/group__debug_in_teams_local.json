@@ -8,7 +8,7 @@
       "precondition_wait_timeout": 60,
       "precondition_retry_interval": 2
     },
-    "total_steps": 13,
+    "total_steps": 17,
     "created_at": "2026-06-05T07:17:53.766103",
     "name": "group: debug_in_teams_local",
     "description": {
@@ -28,14 +28,18 @@
       "step_a527f679",
       "step_7f03643c",
       "step_afa29596",
-      "step_31620d1e",
-      "step_7f090e7d",
-      "step_22db8609"
+      "step_3c7a2e91",
+      "step_742f5c18",
+      "step_c12e8a74",
+      "step_91b0dce3",
+      "step_67da40be",
+      "step_f4a21d68",
+      "step_2be730c9"
     ],
     "tags": [
       "group"
     ],
-    "updated_at": "2026-06-05T09:08:12.655697"
+    "updated_at": "2026-09-13T03:09:08.148000"
   },
   "steps": [
     {
@@ -252,7 +256,7 @@
       "agent": "assertion",
       "tool": "",
       "parameters": {},
-      "description": "@assertion there's \"Add\" or \"Open\" blue button exist.",
+      "description": "@assertion the signed-in Microsoft Teams web app is visible, either on the target app details page or an existing chat.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -268,37 +272,135 @@
       "plan_id": "plan_r_0930_083113"
     },
     {
-      "step_id": "step_31620d1e",
+      "step_id": "step_3c7a2e91",
       "agent": "interaction",
       "tool": "click",
       "parameters": {
         "button": "left",
-        "x": 288,
-        "y": 214
+        "x": 1004,
+        "y": 19
       },
-      "description": "Click the \"Open\" or \"Add\" button on the app details popup for the ${{var:app_name}}local app within the Microsoft Teams interface.",
+      "description": "Close the authenticated Microsoft Teams Chrome debug window so Visual Studio Code regains focus before relaunching the app details deep link.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [],
-      "preconditions": [
-        "dhash:288:214:16:5:05100a0511030b12",
-        "dhash:288:214:96:5:2616011c1c01005b",
-        "dhash:288:214:0:10:00b4b0d8f8fcf0d8"
-      ],
+      "preconditions": [],
       "postconditions": [],
-      "tags": [],
-      "screenshot": "step_31620d1e",
-      "created_at": "2026-06-05T09:07:45.996452",
+      "tags": [
+        "delay:3"
+      ],
+      "screenshot": "",
+      "created_at": "2026-09-13T03:09:08.148001",
       "plan_id": "plan_r_0930_083113"
     },
     {
-      "step_id": "step_7f090e7d",
+      "step_id": "step_742f5c18",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "f1"
+      },
+      "description": "Press F1 in Visual Studio Code to open the command palette after closing the authenticated Chrome debug window.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "",
+      "created_at": "2026-09-13T03:09:08.148002",
+      "plan_id": "plan_r_0930_083113"
+    },
+    {
+      "step_id": "step_c12e8a74",
+      "agent": "interaction",
+      "tool": "type_text",
+      "parameters": {
+        "text": "Debug: Select and Start Debugging"
+      },
+      "description": "Type 'Debug: Select and Start Debugging' into the Visual Studio Code command palette.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "",
+      "created_at": "2026-09-13T03:09:08.148003",
+      "plan_id": "plan_r_0930_083113"
+    },
+    {
+      "step_id": "step_91b0dce3",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "enter"
+      },
+      "description": "Press Enter to select \"Debug: Select and Start Debugging\" from the Visual Studio Code command palette.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "",
+      "created_at": "2026-09-13T03:09:08.148004",
+      "plan_id": "plan_r_0930_083113"
+    },
+    {
+      "step_id": "step_67da40be",
+      "agent": "interaction",
+      "tool": "type_text",
+      "parameters": {
+        "text": "Debug in Teams (Chrome)"
+      },
+      "description": "Type 'Debug in Teams (Chrome)' into the Visual Studio Code launch configuration dropdown.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "",
+      "created_at": "2026-09-13T03:09:08.148005",
+      "plan_id": "plan_r_0930_083113"
+    },
+    {
+      "step_id": "step_f4a21d68",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "enter"
+      },
+      "description": "Press Enter to relaunch \"Debug in Teams (Chrome)\" with the authenticated Microsoft Teams session.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "",
+      "created_at": "2026-09-13T03:09:08.148006",
+      "plan_id": "plan_r_0930_083113"
+    },
+    {
+      "step_id": "step_2be730c9",
       "agent": "assertion",
       "tool": "",
       "parameters": {},
-      "description": "@assertion there's \"open\" blue button exist.",
+      "description": "@assertion the Microsoft Teams app details page for the graph-connector-applocal sample is visible.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -310,35 +412,7 @@
         "step_retry_timeout: 180"
       ],
       "screenshot": null,
-      "created_at": "2026-06-05T09:07:46.005866",
-      "plan_id": "plan_r_0930_083113"
-    },
-    {
-      "step_id": "step_22db8609",
-      "agent": "interaction",
-      "tool": "click",
-      "parameters": {
-        "button": "left",
-        "x": 533,
-        "y": 508
-      },
-      "description": "Click the \"Open\" button in the \"Let's go\" or \"Added successfully!\" dialog for the ${{var:app_name}}local app within Microsoft Teams web interface.",
-      "content_refs": [],
-      "timeout": 30,
-      "retry_count": 0,
-      "continue_on_error": "false",
-      "depends_on": [],
-      "preconditions": [
-        "dhash:533:508:16:5:00987494ca4acacc",
-        "dhash:533:508:96:5:000058a48598e36b",
-        "dhash:533:508:0:10:1669696969696979"
-      ],
-      "postconditions": [],
-      "tags": [
-        "precondition_wait_timeout: 120"
-      ],
-      "screenshot": "step_22db8609",
-      "created_at": "2026-06-05T09:07:46.013714",
+      "created_at": "2026-09-13T03:09:08.148007",
       "plan_id": "plan_r_0930_083113"
     }
   ],
