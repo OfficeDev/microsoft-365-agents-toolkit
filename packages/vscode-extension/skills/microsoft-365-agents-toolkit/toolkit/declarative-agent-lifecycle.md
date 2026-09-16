@@ -15,7 +15,7 @@ Before any lifecycle command, inspect the project capability and structure. Crea
 3. Otherwise, check for project-owned backend source, such as `src/functions`, together with its build configuration.
 4. Check `m365agents*.yml` for lifecycle actions that provision or deploy that backend, such as `arm/deploy`, `azureFunctions/zipDeploy`, or `azureAppService/zipDeploy`.
 
-Select ATK based on backend ownership only when both project-owned backend source and corresponding backend deployment lifecycle are present. A DA action or plugin that points to an existing OpenAPI service or remote MCP server stays on WIQD. `m365agents.yml` alone does not select ATK. If an unusual project does not provide enough evidence, ask whether the backend is owned and deployed by this project before running lifecycle commands.
+Treat steps 3 and 4 as one atomic condition: select ATK only when both are true. If backend source or build configuration exists but no lifecycle action provisions or deploys that backend, select WIQD. Do not run ATK validation or packaging based on source files, build configuration, or `m365agents.yml` alone. A DA action or plugin that points to an existing OpenAPI service or remote MCP server also stays on WIQD. If an unusual project does not provide enough evidence, ask whether the backend is owned and deployed by this project before running lifecycle commands.
 
 ## Detect a Declarative Agent
 
@@ -57,20 +57,20 @@ Do not require login until the requested operation needs Microsoft 365 access.
 
 Use this mapping for pure DAs and DAs backed by existing OpenAPI, remote MCP, or Copilot Connector services. Do not apply it to DAs with project-owned backend deployment or TypeSpec DAs.
 
-| DA intent or former ATK command | WIQD command                                                                                         |
-| ------------------------------- | ---------------------------------------------------------------------------------------------------- |
-| `atk new`                       | `wiqd agent create --name <name> --output <parent>`                                                  |
-| `atk validate`                  | `wiqd agent validate --path <project> --env <env>`                                                   |
-| `atk package`                   | `wiqd agent package --path <project> --env <env>`                                                    |
-| `atk provision`                 | `wiqd agent provision --path <project> --env <env>`                                                  |
-| Share tenant-wide               | `wiqd agent share --path <project> --env <env> --scope tenant`                                       |
-| Share with users                | `wiqd agent share --path <project> --env <env> --scope users --email <comma-separated-emails>`       |
-| Remove sharing                  | `wiqd agent share remove --path <project> --env <env> --users <comma-separated-emails>`               |
-| `atk publish`                   | `wiqd agent publish --path <project> --env <env>`                                                    |
-| `atk uninstall`                 | `wiqd agent delete --path <project> --env <env>`                                                     |
-| `atk auth list`                 | `wiqd auth status`                                                                                   |
-| `atk auth login m365`           | `wiqd auth login --interactive`                                                                      |
-| `atk doctor`                    | `wiqd doctor`                                                                                        |
+| DA intent or former ATK command | WIQD command                                                                                   |
+| ------------------------------- | ---------------------------------------------------------------------------------------------- |
+| `atk new`                       | `wiqd agent create --name <name> --output <parent>`                                            |
+| `atk validate`                  | `wiqd agent validate --path <project> --env <env>`                                             |
+| `atk package`                   | `wiqd agent package --path <project> --env <env>`                                              |
+| `atk provision`                 | `wiqd agent provision --path <project> --env <env>`                                            |
+| Share tenant-wide               | `wiqd agent share --path <project> --env <env> --scope tenant`                                 |
+| Share with users                | `wiqd agent share --path <project> --env <env> --scope users --email <comma-separated-emails>` |
+| Remove sharing                  | `wiqd agent share remove --path <project> --env <env> --users <comma-separated-emails>`        |
+| `atk publish`                   | `wiqd agent publish --path <project> --env <env>`                                              |
+| `atk uninstall`                 | `wiqd agent delete --path <project> --env <env>`                                               |
+| `atk auth list`                 | `wiqd auth status`                                                                             |
+| `atk auth login m365`           | `wiqd auth login --interactive`                                                                |
+| `atk doctor`                    | `wiqd doctor`                                                                                  |
 
 Do not execute `wiqd agent publish` unless the user explicitly asks to publish and confirms the target.
 
@@ -137,12 +137,12 @@ For static OAuth, require a real client ID and client secret; scopes are optiona
 
 Classify the project by structure, then keep one toolchain for its complete lifecycle:
 
-| Scenario | Routing basis | Lifecycle |
-| --- | --- | --- |
-| Pure DA | No project-owned backend deployment | WIQD |
-| DA that references an existing Copilot Connector connection | Existing connection | WIQD |
-| DA that attaches an existing OpenAPI API or remote MCP server | Existing external backend | WIQD for the DA; the existing backend keeps its own deployment toolchain |
-| DA with project-owned backend source and corresponding backend deployment actions, including a new Connector ingestion backend | Project-owned backend deployment | ATK for the DA manifest, backend, provisioning, deployment, packaging, publishing, and deletion |
-| TypeSpec DA | Explicit TypeSpec capability | Follow the generated ATK lifecycle |
+| Scenario                                                                                                                       | Routing basis                       | Lifecycle                                                                                       |
+| ------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------- | ----------------------------------------------------------------------------------------------- |
+| Pure DA                                                                                                                        | No project-owned backend deployment | WIQD                                                                                            |
+| DA that references an existing Copilot Connector connection                                                                    | Existing connection                 | WIQD                                                                                            |
+| DA that attaches an existing OpenAPI API or remote MCP server                                                                  | Existing external backend           | WIQD for the DA; the existing backend keeps its own deployment toolchain                        |
+| DA with project-owned backend source and corresponding backend deployment actions, including a new Connector ingestion backend | Project-owned backend deployment    | ATK for the DA manifest, backend, provisioning, deployment, packaging, publishing, and deletion |
+| TypeSpec DA                                                                                                                    | Explicit TypeSpec capability        | Follow the generated ATK lifecycle                                                              |
 
 Do not switch tools after a lifecycle failure. Apply the structural routing gate above to every existing project.

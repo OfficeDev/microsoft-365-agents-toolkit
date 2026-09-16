@@ -13,7 +13,12 @@ Treat a request or project as a DA when the user explicitly says Declarative Age
 
 Determine DA routing from project structure, not from which CLI created it. WIQD delegates scaffolding and lifecycle work to ATK/fx-core, so creator identity is not a reliable project-type signal.
 
-Route a DA to ATK for backend ownership only when it has project-owned backend source code and its lifecycle configuration provisions or deploys that backend. A DA action that calls an existing OpenAPI service or remote MCP server does not meet this condition. The presence of `m365agents.yml`, a DA action, or an API plugin alone is insufficient.
+For an existing DA lifecycle request, default to WIQD. Route it to ATK for backend ownership if and only if both of these conditions are true:
+
+1. The project contains project-owned backend source code and its build configuration.
+2. Its lifecycle contains an action that provisions or deploys that backend.
+
+If the second condition is absent, use WIQD even when `src/functions`, `package.json`, `m365agents.yml`, a DA action, or an API plugin is present. A DA action that calls an existing OpenAPI service or remote MCP server does not meet the ATK condition.
 
 Use ATK for a TypeSpec DA project or for a DA with project-owned backend source and corresponding backend deployment actions. Use WIQD for pure DAs and DAs that use existing OpenAPI, remote MCP, or Copilot Connector backends. Referencing an existing Copilot Connector connection does not select ATK; owning and deploying the connector implementation does. If the structure is incomplete or unusual, inspect the backend source and lifecycle deployment actions; ask whether the backend is owned and deployed by this project only when that cannot be determined. Do not switch tools as a runtime fallback. If WIQD is required but unavailable, provide its installation guidance and stop.
 
@@ -57,28 +62,29 @@ atk --version  # Must be > 1.1.5-beta
 ```
 
 If ATK is not found or version is too old:
+
 ```bash
 npm i -g @microsoft/m365agentstoolkit-cli@beta
 ```
 
 ## CLI Global Options
 
-| Option | Meaning | Recommendation |
-| --- | --- | --- |
-| `-i` | Interactive mode | Always use `-i false` in automation to avoid hanging |
-| `-f` | Project folder | Default to be current directory, used when specifying a custom folder. When scaffolding a new project, this is the parent folder where the project folder will be created under. |
-| `-h` | Command help | Use `atk <command> -h` for quick syntax checks |
+| Option | Meaning          | Recommendation                                                                                                                                                                   |
+| ------ | ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `-i`   | Interactive mode | Always use `-i false` in automation to avoid hanging                                                                                                                             |
+| `-f`   | Project folder   | Default to be current directory, used when specifying a custom folder. When scaffolding a new project, this is the parent folder where the project folder will be created under. |
+| `-h`   | Command help     | Use `atk <command> -h` for quick syntax checks                                                                                                                                   |
 
 ## Sub-Skills
 
-| Sub-Skill | When to Use | Reference |
-|-----------|-------------|-----------|
-| **create-project** | Scaffold new project from template, choose template, `atk new` | [create-project/create-project.md](create-project/create-project.md) |
-| **test-playground** | Test locally with Agents Playground, `agentsplayground`, quick testing | [test-playground/test-playground.md](test-playground/test-playground.md) |
-| **test-teams** | Run on Teams, devtunnel, sideload, Teams testing, test in Copilot | [test-teams/test-teams.md](test-teams/test-teams.md) |
-| **provision-deploy** | Provision Azure resources, deploy to cloud, `atk provision`, `atk deploy` | [provision-deploy/provision-deploy.md](provision-deploy/provision-deploy.md) |
-| **troubleshoot** | Fix errors, 401, port conflicts, YAML errors, stale bots | [troubleshoot/troubleshoot.md](troubleshoot/troubleshoot.md) |
-| **slack-to-teams** | Migrate Slack bot to Teams, cross-platform bridging, Block Kit to Adaptive Cards | [slack-to-teams/SKILL.md](slack-to-teams/SKILL.md) |
+| Sub-Skill            | When to Use                                                                      | Reference                                                                    |
+| -------------------- | -------------------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
+| **create-project**   | Scaffold new project from template, choose template, `atk new`                   | [create-project/create-project.md](create-project/create-project.md)         |
+| **test-playground**  | Test locally with Agents Playground, `agentsplayground`, quick testing           | [test-playground/test-playground.md](test-playground/test-playground.md)     |
+| **test-teams**       | Run on Teams, devtunnel, sideload, Teams testing, test in Copilot                | [test-teams/test-teams.md](test-teams/test-teams.md)                         |
+| **provision-deploy** | Provision Azure resources, deploy to cloud, `atk provision`, `atk deploy`        | [provision-deploy/provision-deploy.md](provision-deploy/provision-deploy.md) |
+| **troubleshoot**     | Fix errors, 401, port conflicts, YAML errors, stale bots                         | [troubleshoot/troubleshoot.md](troubleshoot/troubleshoot.md)                 |
+| **slack-to-teams**   | Migrate Slack bot to Teams, cross-platform bridging, Block Kit to Adaptive Cards | [slack-to-teams/SKILL.md](slack-to-teams/SKILL.md)                           |
 
 > **MANDATORY:** Before executing any workflow, read the corresponding sub-skill document.
 
@@ -94,16 +100,16 @@ npm i -g @microsoft/m365agentstoolkit-cli@beta
 
 Match user intent to the smallest valid workflow.
 
-| User Intent | Workflow (read in order) |
-|---|---|
-| Build a pure DA or attach an existing API/MCP/Copilot Connector backend | create-project (WIQD) → test-teams (M365 Copilot) |
+| User Intent                                                                                    | Workflow (read in order)                                            |
+| ---------------------------------------------------------------------------------------------- | ------------------------------------------------------------------- |
+| Build a pure DA or attach an existing API/MCP/Copilot Connector backend                        | create-project (WIQD) → test-teams (M365 Copilot)                   |
 | Build a DA with project-owned backend source and deployment, including a new Connector backend | create-project (ATK) → provision-deploy → test-teams (M365 Copilot) |
-| Build a TypeSpec DA | create-project (ATK) → follow generated ATK lifecycle |
-| Build a code-based agent or Teams app from scratch | create-project → test-playground |
-| Test existing project locally | test-playground (recommended) or test-teams |
-| Deploy to Azure | provision-deploy |
-| Fix broken bot | troubleshoot → re-test |
-| Migrate Slack bot to Teams | slack-to-teams |
+| Build a TypeSpec DA                                                                            | create-project (ATK) → follow generated ATK lifecycle               |
+| Build a code-based agent or Teams app from scratch                                             | create-project → test-playground                                    |
+| Test existing project locally                                                                  | test-playground (recommended) or test-teams                         |
+| Deploy to Azure                                                                                | provision-deploy                                                    |
+| Fix broken bot                                                                                 | troubleshoot → re-test                                              |
+| Migrate Slack bot to Teams                                                                     | slack-to-teams                                                      |
 
 > **MANDATORY:** Before executing any slack-to-teams workflow, read [slack-to-teams/SKILL.md](slack-to-teams/SKILL.md) first. The sub-skill contains a routed expert system with 100+ micro-expert files for cross-platform bot development.
 
