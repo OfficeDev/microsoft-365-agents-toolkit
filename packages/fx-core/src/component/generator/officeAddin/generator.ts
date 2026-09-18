@@ -6,6 +6,7 @@
  */
 
 import {
+  AppManifestUtils,
   Context,
   err,
   FxError,
@@ -21,7 +22,7 @@ import fse from "fs-extra";
 import * as officeAddinProject from "office-addin-project";
 import path from "path";
 import { getLocalizedString } from "../../../common/localizeUtils";
-import { getUuid } from "../../../common/stringUtils";
+import { convertToAlphanumericOnly, getUuid } from "../../../common/stringUtils";
 import { assembleError } from "../../../error";
 import { ProgrammingLanguage, QuestionNames } from "../../../question/constants";
 import { ActionContext } from "../../middleware/actionExecutionMW";
@@ -111,6 +112,17 @@ export class OfficeAddinGenerator {
           getLocalizedString("core.generator.officeAddin.importProject.updateManifest")
         );
         await HelperMethods.updateManifest(destinationPath, manifestFile);
+        if (inputs[QuestionNames.TemplateName] === TemplateNames.OfficeAddinCommon) {
+          const appName: string = inputs[QuestionNames.AppName];
+          const manifest = await AppManifestUtils.readTeamsManifest(manifestFile);
+          manifest.name = { short: appName, full: `Full name for ${appName}` };
+          await AppManifestUtils.writeTeamsManifest(manifestFile, manifest);
+
+          const packageJsonPath = path.join(addinRoot, "package.json");
+          const packageJson = await fse.readJson(packageJsonPath);
+          packageJson.name = convertToAlphanumericOnly(appName).toLocaleLowerCase();
+          await fse.writeJson(packageJsonPath, packageJson, { spaces: 2 });
+        }
       }
       process.chdir(workingDir);
       await importProgress.end(true, true);
