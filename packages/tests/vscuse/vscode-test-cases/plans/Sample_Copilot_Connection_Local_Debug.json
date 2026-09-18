@@ -9,7 +9,7 @@
       "precondition_retry_interval": 2,
       "step_retry_timeout": 0
     },
-    "total_steps": 19,
+    "total_steps": 25,
     "created_at": "2026-05-14T01:57:51.379181",
     "name": "Sample Copilot Connection Local Debug",
     "description": {
@@ -29,6 +29,12 @@
       "step_89397c8d",
       "plan_r_1021_081410",
       "plan_r_0930_083113",
+      "step_71d6b20f",
+      "step_a420e8d1",
+      "step_104acb92",
+      "step_ca985f01",
+      "step_d4c618e7",
+      "step_f2739a64",
       "step_50da4a23",
       "step_5ab83154",
       "step_d8fdbc89",
@@ -121,7 +127,7 @@
       "agent": "assertion",
       "tool": "",
       "parameters": {},
-      "description": "@assertion 'Preview README.MD' is visible",
+      "description": "@assertion 'Preview README.md' is visible",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -141,7 +147,7 @@
       "agent": "assertion",
       "tool": "",
       "parameters": {},
-      "description": "@assertion the page title contains 'Copilot connector app'",
+      "description": "@assertion the page title contains 'Copilot connector App'",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -207,6 +213,136 @@
       "plan_id": "plan_a0fbdb40"
     },
     {
+      "step_id": "step_71d6b20f",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 1005,
+        "y": 19
+      },
+      "description": "Close the Microsoft Teams browser window after sign-in returned to an unrelated existing chat.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "delay:3"
+      ],
+      "screenshot": "",
+      "created_at": "2026-09-18T02:53:09.800000",
+      "plan_id": "plan_a0fbdb40"
+    },
+    {
+      "step_id": "step_a420e8d1",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "f5"
+      },
+      "description": "Press F5 in Visual Studio Code to relaunch the selected \"Debug in Teams (Chrome)\" configuration now that Microsoft 365 sign-in is complete.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "",
+      "created_at": "2026-09-18T02:53:09.800000",
+      "plan_id": "plan_a0fbdb40"
+    },
+    {
+      "step_id": "step_104acb92",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion either an \"Add\" or \"Open\" blue button for the \"graph-connector-applocal\" app is visible, or the \"graph-connector-applocal\" Teams app tab is already open; an unrelated existing chat does not satisfy this assertion.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "step_retry_timeout: 180"
+      ],
+      "screenshot": null,
+      "created_at": "2026-09-18T02:53:09.800000",
+      "plan_id": "plan_a0fbdb40"
+    },
+    {
+      "step_id": "step_ca985f01",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 288,
+        "y": 214
+      },
+      "description": "Click the \"Open\" or \"Add\" button on the app details popup for \"graph-connector-applocal\", or click the non-interactive app header area if that app tab is already open.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "",
+      "created_at": "2026-09-18T02:53:09.800000",
+      "plan_id": "plan_a0fbdb40"
+    },
+    {
+      "step_id": "step_d4c618e7",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion either an \"Open\" blue button for the \"graph-connector-applocal\" app is visible, or the \"graph-connector-applocal\" Teams app tab is already open; an unrelated existing chat does not satisfy this assertion.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "step_retry_timeout: 180"
+      ],
+      "screenshot": null,
+      "created_at": "2026-09-18T02:53:09.800000",
+      "plan_id": "plan_a0fbdb40"
+    },
+    {
+      "step_id": "step_f2739a64",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 533,
+        "y": 508
+      },
+      "description": "Click the \"Open\" button in the \"Let's go\" or \"Added successfully!\" dialog for \"graph-connector-applocal\", or click a non-interactive area if that app tab is already open.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "precondition_wait_timeout: 120"
+      ],
+      "screenshot": "",
+      "created_at": "2026-09-18T02:53:09.800000",
+      "plan_id": "plan_a0fbdb40"
+    },
+    {
       "step_id": "step_50da4a23",
       "agent": "interaction",
       "tool": "click",
@@ -215,7 +351,7 @@
         "x": 294,
         "y": 21
       },
-      "description": "Click the “+\"  browser tab in Microsoft Teams  to open the new page",
+      "description": "Click the \u201c+\"  browser tab in Microsoft Teams  to open the new page",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -347,9 +483,9 @@
       "continue_on_error": "false",
       "depends_on": [],
       "preconditions": [
-        "dhash:141:19:16:5:404689c3d657e31c",
-        "dhash:141:19:96:5:a85135a44100c995",
-        "dhash:141:19:0:10:74c8768e6c948080"
+        "dhash:141:19:16:5:00013cc1d7564359",
+        "dhash:141:19:96:5:a85235b44a00cfcf",
+        "dhash:141:19:0:10:7488968e6c948080"
       ],
       "postconditions": [],
       "tags": [],
