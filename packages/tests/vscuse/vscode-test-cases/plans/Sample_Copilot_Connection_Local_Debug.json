@@ -121,7 +121,7 @@
       "agent": "assertion",
       "tool": "",
       "parameters": {},
-      "description": "@assertion 'Preview README.MD' is visible",
+      "description": "@assertion 'Preview README.md' is visible",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
