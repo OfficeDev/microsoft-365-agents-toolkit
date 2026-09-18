@@ -53,10 +53,10 @@
     },
     {
       "step_id": "step_82e9023a",
-      "agent": "code",
+      "agent": "assertion",
       "tool": "",
       "parameters": {},
-      "description": "@code there's drop list shows includes ${{env:RESOURCE_GROUP_REGION}}.",
+      "description": "@assertion the active \"Location for the new resource group\" prompt displays at least one selectable region option.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -76,15 +76,13 @@
       "parameters": {
         "key": "enter"
       },
-      "description": "Press the Enter key to select ${{env:RESOURCE_GROUP_REGION}} from the region dropdown in the \"Location for the new resource group\" input field within the Visual Studio Code interface.",
+      "description": "Press Enter to select the filtered ${{env:RESOURCE_GROUP_REGION}} option, or the highlighted recommended region when the variable is empty, from the \"Location for the new resource group\" dropdown in Visual Studio Code.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [],
-      "preconditions": [
-        "dhash:512:384:0:20:d094222323222421"
-      ],
+      "preconditions": [],
       "postconditions": [],
       "tags": [],
       "screenshot": "step_a6c809b9",
