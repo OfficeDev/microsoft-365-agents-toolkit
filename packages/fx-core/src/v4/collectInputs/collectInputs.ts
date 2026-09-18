@@ -244,6 +244,12 @@ export async function walkInputs(
     }
 
     const prefilledValue = answers[q.name];
+    if (prefilledValue !== undefined && questionNameCounts.get(q.name) === 1) {
+      const shape = validateAnswerShape(q, prefilledValue);
+      if (shape.isErr()) {
+        return err(shape.error);
+      }
+    }
     if (typeof prefilledValue === "string" && questionNameCounts.get(q.name) === 1) {
       const validation = await validateScalarAnswer(q, prefilledValue, answers, port);
       if (validation.isErr()) {
@@ -436,6 +442,10 @@ async function acceptAnswer(
   port: CollectInputsPort,
   scalarAlreadyValidated: boolean
 ): Promise<Result<void, FxError>> {
+  const shape = validateAnswerShape(question, value);
+  if (shape.isErr()) {
+    return err(shape.error);
+  }
   if (typeof value === "string" && !scalarAlreadyValidated) {
     const validation = await validateScalarAnswer(question, value, answers, port);
     if (validation.isErr()) {
@@ -533,14 +543,10 @@ function resolveVisibleStaticOptions(
   return ok(visible);
 }
 
-function validateOptionAnswer(
+function validateAnswerShape(
   question: QuestionSpec,
-  value: string | string[],
-  options: OptionItem[]
+  value: string | string[]
 ): Result<void, FxError> {
-  if (question.type !== "singleSelect" && question.type !== "multiSelect") {
-    return ok(undefined);
-  }
   const hasExpectedShape =
     question.type === "multiSelect" ? Array.isArray(value) : typeof value === "string";
   if (!hasExpectedShape) {
@@ -551,6 +557,17 @@ function validateOptionAnswer(
         message: `'${question.name}' has an invalid answer type.`,
       })
     );
+  }
+  return ok(undefined);
+}
+
+function validateOptionAnswer(
+  question: QuestionSpec,
+  value: string | string[],
+  options: OptionItem[]
+): Result<void, FxError> {
+  if (question.type !== "singleSelect" && question.type !== "multiSelect") {
+    return ok(undefined);
   }
   const optionIds = new Set(options.map((option) => option.id));
   const values = Array.isArray(value) ? value : [value];
