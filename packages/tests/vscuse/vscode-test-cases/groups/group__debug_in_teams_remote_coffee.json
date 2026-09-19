@@ -170,10 +170,10 @@
       "tool": "click",
       "parameters": {
         "button": "left",
-        "x": 511,
-        "y": 510
+        "x": 307,
+        "y": 221
       },
-      "description": "Click the \"Open\" button in the \"CoffeeAgentdev\" app details pop-up within the Microsoft Teams web application interface to launch the app.",
+      "description": "Click the \"Open\" button in the \"Coffee Agent\" app details pop-up within the Microsoft Teams web application interface to launch the app.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -193,7 +193,7 @@
       "agent": "assertion",
       "tool": "",
       "parameters": {},
-      "description": "@assertion the \"CoffeeAgentdev\" app chat is open and the \"Type a message\" input is visible.",
+      "description": "@assertion the \"Coffee Agent\" app chat is open and the \"Type a message\" input is visible.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
