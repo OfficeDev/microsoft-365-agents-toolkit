@@ -137,9 +137,10 @@ describe("CodeFlowLogin.loginWithBroker", function () {
   it("should replace accountName placeholder with M365 in loopback template for m365 account", async () => {
     const { codeFlowLogin, getCapturedRequest } = setupLogin("appStudio");
 
-    await codeFlowLogin.loginWithBroker(["scope1"]);
+    await codeFlowLogin.login(["scope1"]);
     const req = getCapturedRequest();
 
+    expect(req.responseMode).to.equal("form_post");
     expect(req.successTemplate).to.include("M365 - Sign In");
     expect(req.successTemplate).to.not.include("$" + "{accountName}");
     expect(req.errorTemplate).to.include("M365 - Sign In");

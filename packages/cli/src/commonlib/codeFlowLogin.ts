@@ -5,6 +5,7 @@ import {
   AccountInfo,
   AuthorizationUrlRequest,
   Configuration,
+  InteractiveRequest,
   PublicClientApplication,
   SilentFlowRequest,
 } from "@azure/msal-node";
@@ -324,9 +325,10 @@ export class CodeFlowLogin {
         displayName
       );
     }
-    const interactiveRequest = {
+    const interactiveRequest: InteractiveRequest = {
       scopes: scopes,
       authority: authority,
+      responseMode: "form_post",
       prompt: "select_account",
       claims: claim,
       // Parents the native WAM dialog. Without it MSAL passes a NULL owner and the dialog can
