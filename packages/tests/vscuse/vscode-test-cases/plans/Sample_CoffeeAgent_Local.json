@@ -36,7 +36,7 @@
       "plan_1036a28e"
     ],
     "tags": [],
-    "updated_at": "2026-09-20T02:48:12.998000"
+    "updated_at": "2026-09-20T03:08:00.921000"
   },
   "steps": [
     {
@@ -70,7 +70,7 @@
         "x": 766,
         "y": 293
       },
-      "description": "Click the \"Create\" button for the \"Coffee Agent\" sample in the \"Featured samples\" section within the Microsoft 365 Agents Toolkit extension pane in Visual Studio Code.And input ${{var:app_name:vscuse_app_#####}} into the run time variable.",
+      "description": "Click the \"Create\" button for the \"Coffee Agent\" sample in the \"Featured samples\" section within the Microsoft 365 Agents Toolkit extension pane in Visual Studio Code.And input ${{var:app_name:coffee-agent}} into the run time variable.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
