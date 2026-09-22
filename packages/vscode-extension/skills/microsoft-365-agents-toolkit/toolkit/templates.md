@@ -1,7 +1,9 @@
 # Agent Templates Reference
 
+Use WIQD for pure DAs and DAs that attach existing OpenAPI, remote MCP, or Copilot Connector backends. Use ATK templates when the project must scaffold and deploy its own backend source code; use ATK for the complete lifecycle of those projects.
+
 ## Contents
-- CLI Capabilities (all atk new -c options)
+- CLI Capabilities (ATK-routed options)
 - Declarative Agents (creating, options)
 - Custom Engine Agents (creating, languages)
 - Teams Agents (creating, languages)
@@ -11,19 +13,14 @@
 
 ## CLI Capabilities (atk new -c)
 
-Use `atk new -c <capability>` to create projects. Available capabilities:
+For entries routed to ATK, use `atk new -c <capability>`. The DA routing exceptions are described below.
 
 | Capability | Description |
 |------------|-------------|
-| `declarative-agent` | Declarative Agent |
-| `declarative-agent-action` | Declarative Agent with Action from Scratch |
-| `declarative-agent-action-bearer` | Declarative Agent with Action from Scratch (Bearer Token) |
-| `declarative-agent-action-oauth` | Declarative Agent with Action from Scratch (OAuth) |
-| `declarative-agent-action-from-existing-api` | Declarative Agent with Action from Existing API |
-| `declarative-agent-with-action-from-mcp` | Declarative Agent with Action from MCP Server |
-| `declarative-agent-with-graph-connector` | Declarative Agent with Copilot Connector |
-| `declarative-agent-meta-os-new-project` | Declarative Agent for MetaOS (New Project) |
-| `declarative-agent-meta-os-upgrade-project` | Declarative Agent for MetaOS (Upgrade Project) |
+| `declarative-agent-action` | Declarative Agent with project-owned Action from Scratch |
+| `declarative-agent-action-bearer` | Declarative Agent with project-owned Action from Scratch (Bearer Token) |
+| `declarative-agent-action-oauth` | Declarative Agent with project-owned Action from Scratch (OAuth) |
+| `declarative-agent-with-graph-connector` | DA with a new project-owned Copilot Connector backend |
 | `declarative-agent-typespec` | Declarative Agent from TypeSpec |
 | `basic-custom-engine-agent` | Basic Custom Engine Agent |
 | `weather-agent` | Weather Agent |
@@ -48,33 +45,23 @@ Use `atk new -c <capability>` to create projects. Available capabilities:
 
 ### Creating a Declarative Agent
 
+For a pure DA or a DA that uses an existing OpenAPI, MCP, or Copilot Connector backend:
+
 ```bash
-# Basic declarative agent (no backend service needed)
-atk new -c declarative-agent -n myagent -i false
-
-# Declarative agent with new API plugin (creates backend)
-atk new -c declarative-agent-action -l typescript -n myagent -i false
-
-# Declarative agent with existing OpenAPI spec (requires -a and -o with operation IDs)
-# First inspect the OpenAPI spec to find operation IDs, then pass them:
-atk new -c declarative-agent-action-from-existing-api -n myagent -a <openapi-spec-url-or-path> -o "GET /repairs" -o "POST /repairs" -i false
-
-# Declarative agent with MCP Server
-atk new -c declarative-agent-with-action-from-mcp -n myagent -i false
+wiqd agent create --name <name> --output <parent-folder>
 ```
 
-**Important Notes:**
-- Basic declarative agents (`declarative-agent`) do NOT require a programming language
-- `declarative-agent-action`: Use `-l typescript/javascript/csharp` (creates new backend API)
-- `declarative-agent-action-from-existing-api`: Requires `-a` (OpenAPI spec) and `-o` (operation IDs from the spec, e.g., `"GET /repairs"`)
+Add existing OpenAPI or MCP actions and continue the lifecycle with [declarative-agent-lifecycle.md](declarative-agent-lifecycle.md).
 
-### Declarative Agent Options
+For a DA with new project-owned backend source code and deployment:
 
-| Option | Values | Description |
-|--------|--------|-------------|
-| `--openapi-spec-location -a` | file path or URL | **Required for existing API**: OpenAPI spec location |
-| `--api-operation -o` | operation IDs (e.g., `"GET /path"`) | **Required for existing API**: Actual operation IDs from OpenAPI spec. Use multiple `-o` for multiple operations |
-| `--api-auth` | `none`, `api-key`, `bearer-token`, `oauth` | API authentication type |
+```bash
+atk new -c declarative-agent-action -l <typescript|javascript|csharp> -n <name> -f <parent-folder> -i false
+```
+
+Choose `declarative-agent-action-bearer` or `declarative-agent-action-oauth` for a new backend that requires that authentication model. Because these projects contain backend source and backend deployment actions, keep the generated DA manifest, backend, and all lifecycle operations on ATK. This structural classification does not depend on which wrapper invoked fx-core.
+
+Use `declarative-agent-with-graph-connector` for a DA that scaffolds and deploys a new Connector ingestion backend. Its project-owned backend deployment selects ATK. A DA that only references an existing Connector connection stays on WIQD.
 
 ## Custom Engine Agents (M365 SDK-based)
 
@@ -178,7 +165,6 @@ atk new -c office-addin-sso-naa -l typescript -n myaddin -i false
 1. **Use non-interactive mode** - Always use `-i false` for scripted creation
 
 2. **Match language to capability**:
-   - Basic declarative agents (`declarative-agent`): NO language flag needed
    - API plugin agents (`declarative-agent-action`): `-l typescript/javascript/csharp`
    - Custom Engine agents: `-l typescript/javascript/python`
    - Teams agents: `-l typescript/javascript/csharp/python`

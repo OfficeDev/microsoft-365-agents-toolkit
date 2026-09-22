@@ -30,7 +30,8 @@ graders:
       prompt: |
         Review the agent's response. Check that the response is:
         1. Successfully created a bot app.
-        2. Recommand local debugging as next step.
+        2. Uses ATK, not WIQD, to scaffold the Teams bot.
+        3. Recommand local debugging as next step.
 
         If all criteria are met, call set_waza_grade_pass.
         Otherwise, call set_waza_grade_fail with your reasoning.

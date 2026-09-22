@@ -2,6 +2,8 @@
 
 Reference for `appPackage/` files (manifest, declarative agent definition) and the field-by-field reference for `m365agents.yml` actions.
 
+Use this file directly for read-only schema and manifest questions without requiring WIQD installation or login. Before DA lifecycle execution, apply the [structural routing gate](declarative-agent-lifecycle.md#structural-routing-gate).
+
 For environment files, `${{VAR}}` resolution, `.localConfigs` flow, and the env-var catalog, see [environments.md](environments.md).
 For the lifecycle YAML structure (provision/deploy/publish stages, action ordering, full anatomy), see [lifecycle-cli.md](lifecycle-cli.md).
 
@@ -66,7 +68,7 @@ These field names are verified against official ATK templates. Wrong field names
 | `aadApp/create` writeToEnvironmentFile | `clientId`, `clientSecret`, `objectId` → `BOT_OBJECT_ID` | Writing objectId to `AAD_APP_OBJECT_ID` (wrong — use `BOT_OBJECT_ID` in local templates) |
 | `botFramework/create` | `botId`, `name`, `messagingEndpoint`, `channels`; optional: `description` | Only `messagingEndpoint` is strictly required by the driver; `description` defaults to `""` if omitted. Templates ship `description: ""` explicitly for clarity. |
 | `botAadApp/create` | `name` | Only available in cloud (`m365agents.yml`), not used in local templates |
-| `teamsApp/extendToM365` | `appPackagePath` | Required for declarative agents to surface in M365 Copilot — writes `M365_APP_ID` to env file |
+| `teamsApp/extendToM365` | `appPackagePath` | Legacy ATK DA templates use this action to write `M365_APP_ID`; use the structural routing gate before provisioning a DA |
 
 ## signInAudience and Tenant Configuration
 

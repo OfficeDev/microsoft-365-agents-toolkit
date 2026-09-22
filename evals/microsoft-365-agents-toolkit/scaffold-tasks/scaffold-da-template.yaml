@@ -1,38 +1,47 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/microsoft/waza/main/schemas/task.schema.json
 
 id: scaffold-da-template
-name: Scaffold Declarative Agent
-description: User wants to create a Declarative Agent
+name: Create Declarative Agent with WIQD
+description: User wants to create a Declarative Agent with WIQD
 tags:
   - scaffold
-  - happy path
+  - routing
 inputs:
-  prompt: "I want to build a simple declarative agent working on Microsoft 365 Copilot"
+  prompt: "Create a Declarative Agent named WazaDaFixture for HR FAQs under the current directory, keeping the generated WazaDaFixture project folder."
 expected:
   should_trigger: true
 graders:
   - type: file
-    name: atk_configs
+    name: da_project_files
     config:
       must_exist:
-        - "appPackage/declarativeAgent.json"
-        - "appPackage/instruction.txt"
-        - "m365agents.yml"
+        - "WazaDaFixture/appPackage/manifest.json"
+        - "WazaDaFixture/appPackage/declarativeAgent.json"
   - type: behavior
     name: efficiency_check
     config:
-      max_tool_calls: 15
+      max_tool_calls: 40
       max_duration_ms: 150000
       forbidden_tools:
         - rm
         - sudo
+  - type: tool_constraint
+    name: wiqd_create_command
+    config:
+      expect_tools:
+        - tool: shell
+          command_pattern: '(?i)\bwiqd\s+agent\s+create\b'
+      reject_tools:
+        - tool: shell
+          command_pattern: '(?i)\batk\s+(new|provision|deploy|validate|package|publish|uninstall)\b'
   - type: prompt
     name: quality_check
     config:
       prompt: |
         Review the agent's response. Check that the response is:
-        1. Successfully created an declarative agent.
-        2. Recommand testing in Microsoft 365 Copilot as next step.
+        1. Uses `wiqd agent create --name <name> --output <parent>` to create the Declarative Agent.
+        2. Does not run `atk new` or another ATK lifecycle command for the Declarative Agent.
+        3. If WIQD is unavailable, gives installation guidance and stops instead of falling back to ATK.
 
         If all criteria are met, call set_waza_grade_pass.
         Otherwise, call set_waza_grade_fail with your reasoning.

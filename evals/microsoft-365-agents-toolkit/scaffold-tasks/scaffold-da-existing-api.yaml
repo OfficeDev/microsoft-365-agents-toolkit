@@ -1,0 +1,55 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/microsoft/waza/main/schemas/task.schema.json
+
+id: scaffold-da-existing-api
+name: Create WIQD Declarative Agent with Existing API
+description: User wants a DA action backed by an existing OpenAPI API
+tags:
+  - scaffold
+  - routing
+  - existing-backend
+inputs:
+  prompt: "Create a Declarative Agent named ExistingApiDa for the existing OpenAPI API in existing-api/openapi.yaml and add its GET /repairs operation. Do not scaffold new backend source code."
+  files:
+    - path: existing-api/openapi.yaml
+expected:
+  should_trigger: true
+graders:
+  - type: file
+    name: da_project_files
+    config:
+      must_exist:
+        - "ExistingApiDa/appPackage/manifest.json"
+        - "ExistingApiDa/appPackage/declarativeAgent.json"
+  - type: behavior
+    name: efficiency_check
+    config:
+      max_tool_calls: 40
+      max_duration_ms: 180000
+      forbidden_tools:
+        - rm
+        - sudo
+  - type: tool_constraint
+    name: wiqd_existing_api_commands
+    config:
+      expect_tools:
+        - tool: shell
+          command_pattern: '(?i)\bwiqd\s+agent\s+create\b'
+        - tool: shell
+          command_pattern: '(?i)\bwiqd\s+agent\s+add\s+action\b[^\r\n]*--openapi-spec\b'
+      reject_tools:
+        - tool: shell
+          command_pattern: '(?i)\batk\s+(?:new|validate|package|provision|deploy|publish|uninstall)\b'
+  - type: prompt
+    name: quality_check
+    config:
+      prompt: |
+        Review the agent's response. Check that it:
+        1. Creates the DA with WIQD because the OpenAPI backend already exists.
+        2. Adds `GET /repairs` with `wiqd agent add action --openapi-spec`.
+        3. Does not scaffold backend source code or use an ATK lifecycle command.
+        4. Keeps the DA on WIQD because the existing external API is not project-owned backend compute.
+
+        If all criteria are met, call set_waza_grade_pass.
+        Otherwise, call set_waza_grade_fail with your reasoning.
+      model: "gpt-5.4"
+      continue_session: true

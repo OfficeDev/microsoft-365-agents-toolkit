@@ -7,6 +7,16 @@ fi
 
 export CI_ENABLED="${CI_ENABLED:-true}"
 
+if command -v wiqd >/dev/null 2>&1 && wiqd --version >/dev/null 2>&1; then
+	echo "WIQD is available for Declarative Agent execution tasks."
+else
+	cat >&2 <<'EOF'
+WIQD is unavailable or its EULA has not been accepted. Declarative Agent
+execution tasks require WIQD to be installed and initialized interactively;
+they will not pass in this environment. Other evaluation tasks can continue.
+EOF
+fi
+
 # Values are injected by CI (for GitHub Actions, use repository secrets).
 required_vars=(
 	M365_ACCOUNT_NAME

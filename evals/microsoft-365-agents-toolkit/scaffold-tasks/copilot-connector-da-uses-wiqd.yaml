@@ -1,0 +1,53 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/microsoft/waza/main/schemas/task.schema.json
+
+id: copilot-connector-da-uses-wiqd
+name: Copilot Connector Declarative Agent Uses WIQD
+description: Existing Declarative Agent references a Copilot Connector connection supported by WIQD
+tags:
+  - declarative-agent
+  - routing
+  - copilot-connector
+inputs:
+  prompt: "This existing Declarative Agent references an existing Copilot Connector connection and does not own or deploy the Connector backend. Validate and package it."
+  files:
+    - path: declarative-agent/appPackage/manifest.json
+    - path: declarative-agent/appPackage/declarativeAgent.json
+    - path: declarative-agent/appPackage/color.png
+    - path: declarative-agent/appPackage/outline.png
+    - path: declarative-agent/m365agents.yml
+expected:
+  should_trigger: true
+graders:
+  - type: behavior
+    name: efficiency_check
+    config:
+      max_tool_calls: 30
+      max_duration_ms: 120000
+      forbidden_tools:
+        - rm
+        - sudo
+  - type: tool_constraint
+    name: wiqd_lifecycle_commands
+    config:
+      expect_tools:
+        - tool: shell
+          command_pattern: '(?i)\bwiqd\s+agent\s+validate\b'
+        - tool: shell
+          command_pattern: '(?i)\bwiqd\s+agent\s+package\b'
+      reject_tools:
+        - tool: shell
+          command_pattern: '(?i)\batk\s+(?:validate|package|provision|deploy|publish|uninstall)\b'
+  - type: prompt
+    name: quality_check
+    config:
+      prompt: |
+        Review the agent's response. Check that it:
+        1. Recognizes that WIQD supports Declarative Agents referencing an existing Copilot Connector connection.
+        2. Uses WIQD to validate and package the project.
+        3. Does not select ATK merely because the project references a Copilot Connector connection.
+        4. Does not use ATK lifecycle commands.
+
+        If all criteria are met, call set_waza_grade_pass.
+        Otherwise, call set_waza_grade_fail with your reasoning.
+      model: "gpt-5.4"
+      continue_session: true

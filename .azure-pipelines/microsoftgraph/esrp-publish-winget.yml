@@ -74,15 +74,30 @@ extends:
                     'User-Agent'           = 'atk-esrp-winget-publish'
                   }
 
+                  $tagPrefix = 'microsoft-365-agents-playground@'
                   $tag = $env:GITHUB_RELEASE_TAG
                   if (-not $tag) {
-                    $tag = $env:BUILD_SOURCEBRANCH -replace '^refs/tags/', ''
-                    Write-Host "No githubReleaseTag parameter; using triggering tag '$tag'."
+                    $tag = $env:BUILD_SOURCEBRANCH
+                    Write-Host "No githubReleaseTag parameter; using triggering ref '$tag'."
                   }
-                  if ($tag -notmatch '^microsoft-365-agents-playground@(?<version>(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*))$') {
-                    throw 'Expected a stable release tag in the form microsoft-365-agents-playground@<major>.<minor>.<patch>.'
+                  $tag = [uri]::UnescapeDataString($tag.Trim()) -replace '^refs/tags/', ''
+                  if ([uri]::IsWellFormedUriString($tag, [UriKind]::Absolute)) {
+                    $releaseUri = [uri]$tag
+                    if ($releaseUri.Host -cne 'github.com' -or $releaseUri.AbsolutePath -notmatch '/releases/tag/([^/]+)$') {
+                      throw "Expected a GitHub release URL for $(githubRepo), but received '$tag'."
+                    }
+                    $tag = [uri]::UnescapeDataString($Matches[1])
                   }
-                  $version = $Matches.version
+                  if (-not $tag.StartsWith($tagPrefix, [StringComparison]::Ordinal)) {
+                    $tag = "$tagPrefix$tag"
+                  }
+                  if (-not $tag.StartsWith($tagPrefix, [StringComparison]::Ordinal) -or $tag.Length -eq $tagPrefix.Length) {
+                    throw "Expected an Agents Playground release tag or version. Resolved value: '$tag'."
+                  }
+                  $version = $tag.Substring($tagPrefix.Length)
+                  if ($version -notmatch '^[0-9A-Za-z][0-9A-Za-z.+-]*$') {
+                    throw "Release tag '$tag' contains an invalid WinGet package version."
+                  }
                   $assetName = 'agentsplayground-win32-x64.zip'
                   $releaseUrl = "https://api.github.com/repos/$(githubRepo)/releases/tags/$([uri]::EscapeDataString($tag))"
                   $installerUrl = "https://github.com/$(githubRepo)/releases/download/$tag/$assetName"
@@ -195,7 +210,7 @@ extends:
                   signcertname: 'ATK-ESRP-CERT'
                   clientid: '62d1b680-312a-4484-9737-fc13f2f7e6f3'
                   intent: 'Winget'
-                  contenttype: 'Winget'
+                  contenttype: 'WingetExternal'
                   contentsource: 'Folder'
                   folderlocation: '$(wingetManifestsDir)'
                   waitforreleasecompletion: true

@@ -84,12 +84,13 @@ jobs:
         with:
           range: "e2e"
 
-      - name: List cases for schedule or pull request
+      # Sample E2E tests are deprecated from daily runs; keep workflow_dispatch support.
+      - name: List cases for schedule
         id: schedule-cases
         if: ${{  github.event_name == 'schedule' }}
         working-directory: packages/tests/src/e2e
         run: |
-          cases=`find . -wholename "*.tests.ts" | grep -v "FoundryProxyAgent" | jq -Rsc '[split("\n") | .[]| select(.!="")]'`
+          cases=`find . -wholename "*.tests.ts" | grep -vE "/samples/|FoundryProxyAgent" | jq -Rsc '[split("\n") | .[]| select(.!="")]'`
           echo "cases=$cases" >> $GITHUB_OUTPUT
 
       - name: AI-select cases for pull request
