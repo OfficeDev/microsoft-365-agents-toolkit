@@ -1,6 +1,6 @@
 import "./proxy";
 import { ManagedIdentityCredential } from "@azure/identity";
-import { cardAttachment, TokenCredentials } from "@microsoft/teams.api";
+import { cardAttachment } from "@microsoft/teams.api";
 import { App } from "@microsoft/teams.apps";
 import { IAdaptiveCard } from "@microsoft/teams.cards";
 import { ConsoleLogger } from "@microsoft/teams.common/logging";
@@ -28,8 +28,8 @@ const createTokenFactory = () => {
   };
 };
 
-// Configure authentication using TokenCredentials
-const tokenCredentials: TokenCredentials = {
+// Configure authentication using managed identity credentials
+const tokenCredentials = {
   clientId: process.env.CLIENT_ID || "",
   token: createTokenFactory(),
 };
