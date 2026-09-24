@@ -8,7 +8,7 @@
       "precondition_wait_timeout": 60,
       "precondition_retry_interval": 2
     },
-    "total_steps": 14,
+    "total_steps": 21,
     "created_at": "2026-06-05T07:17:53.908458",
     "name": "group  debug in teams local coffee",
     "description": {
@@ -27,6 +27,13 @@
       "step_e3561e6d",
       "step_81cb2ebd",
       "step_838bf4eb",
+      "step_relaunch_close_browser",
+      "step_relaunch_assert_debug_stopped",
+      "step_relaunch_open_palette",
+      "step_relaunch_type_debug_command",
+      "step_relaunch_select_debug_command",
+      "step_relaunch_type_chrome",
+      "step_relaunch_select_chrome",
       "step_1c297818",
       "step_f727fd6b",
       "step_d46b3587",
@@ -36,7 +43,7 @@
     "tags": [
       "group"
     ],
-    "updated_at": "2026-06-05T09:05:05.969470"
+    "updated_at": "2026-09-09T02:18:35.036000"
   },
   "steps": [
     {
@@ -248,6 +255,150 @@
       "tags": [],
       "screenshot": "step_838bf4eb",
       "created_at": "2026-06-05T09:04:45.487577",
+      "plan_id": "plan_acd389bc"
+    },
+    {
+      "step_id": "step_relaunch_close_browser",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 1004,
+        "y": 19
+      },
+      "description": "Close the Microsoft Teams Chrome window after authentication consumed the initial app launch deep link.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "delay: 5"
+      ],
+      "screenshot": null,
+      "created_at": "2026-09-09T02:18:35.036000",
+      "plan_id": "plan_acd389bc"
+    },
+    {
+      "step_id": "step_relaunch_assert_debug_stopped",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion Visual Studio Code is visible and the Teams Chrome window is no longer in front. The floating debug control strip near the top of the editor is absent.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "step_retry_timeout: 60"
+      ],
+      "screenshot": null,
+      "created_at": "2026-09-09T02:18:35.036000",
+      "plan_id": "plan_acd389bc"
+    },
+    {
+      "step_id": "step_relaunch_open_palette",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "f1"
+      },
+      "description": "Press F1 to reopen the Visual Studio Code Command Palette after Teams authentication completes.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": null,
+      "created_at": "2026-09-09T02:18:35.036000",
+      "plan_id": "plan_acd389bc"
+    },
+    {
+      "step_id": "step_relaunch_type_debug_command",
+      "agent": "interaction",
+      "tool": "type_text",
+      "parameters": {
+        "text": "Debug:Select and Start Debugging"
+      },
+      "description": "Type \"Debug: Select and Start Debugging\" into the Visual Studio Code Command Palette.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": null,
+      "created_at": "2026-09-09T02:18:35.036000",
+      "plan_id": "plan_acd389bc"
+    },
+    {
+      "step_id": "step_relaunch_select_debug_command",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "enter"
+      },
+      "description": "Press Enter to execute the selected \"Debug: Select and Start Debugging\" command.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": null,
+      "created_at": "2026-09-09T02:18:35.036000",
+      "plan_id": "plan_acd389bc"
+    },
+    {
+      "step_id": "step_relaunch_type_chrome",
+      "agent": "interaction",
+      "tool": "type_text",
+      "parameters": {
+        "text": "Debug(Chrome)"
+      },
+      "description": "Type \"Debug(Chrome)\" into the debugging configuration picker.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": null,
+      "created_at": "2026-09-09T02:18:35.036000",
+      "plan_id": "plan_acd389bc"
+    },
+    {
+      "step_id": "step_relaunch_select_chrome",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "enter"
+      },
+      "description": "Press Enter to relaunch the Coffee Agent in Teams using the authenticated Chrome session.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": null,
+      "created_at": "2026-09-09T02:18:35.036000",
       "plan_id": "plan_acd389bc"
     },
     {
