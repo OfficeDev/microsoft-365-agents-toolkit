@@ -172,20 +172,16 @@
       "tool": "click",
       "parameters": {
         "button": "left",
-        "x": 307,
-        "y": 221
+        "x": 252,
+        "y": 218
       },
-      "description": "Click the \"Add\" or \"Open\" button in the \"Coffee Agent\" pop-up within the Microsoft Teams web application interface to launch the app.",
+      "description": "Click the \"Open\" button in the \"CoffeeAgentdev\" app details pop-up within the Microsoft Teams web application interface to launch the installed app.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [],
-      "preconditions": [
-        "dhash:307:221:16:5:a69696a683986180",
-        "dhash:307:221:96:5:4e004f61710c2e0e",
-        "dhash:307:221:0:10:20b4b0f0e8f8e0f4"
-      ],
+      "preconditions": [],
       "postconditions": [],
       "tags": [
         "force_run:true"
@@ -199,7 +195,7 @@
       "agent": "assertion",
       "tool": "",
       "parameters": {},
-      "description": "@assertion there's \"Open\" blue button exist.",
+      "description": "@assertion the \"Open\" button exists in the \"Let's go\" dialog for \"CoffeeAgentdev\".",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -211,7 +207,7 @@
         "step_retry_timeout: 180"
       ],
       "screenshot": null,
-      "created_at": "2026-06-11T03:17:04.422925",
+      "created_at": "2026-06-11T03:17:04.423632",
       "plan_id": "plan_61729b9a"
     },
     {
@@ -220,26 +216,22 @@
       "tool": "click",
       "parameters": {
         "button": "left",
-        "x": 529,
-        "y": 506
+        "x": 512,
+        "y": 510
       },
-      "description": "Click the \"Open\" button in the pop-up dialog for the  app on the Microsoft Teams web interface.",
+      "description": "Click the \"Open\" button in the \"Let's go\" dialog for the \"CoffeeAgentdev\" app in Microsoft Teams.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [],
-      "preconditions": [
-        "dhash:529:506:16:5:0000a25da1929292",
-        "dhash:529:506:96:5:000058a4c4580040",
-        "dhash:529:506:0:10:3669696969697979"
-      ],
+      "preconditions": [],
       "postconditions": [],
       "tags": [
-        "precondition_wait_timeout: 200"
+        "force_run:true"
       ],
       "screenshot": "step_496b1568",
-      "created_at": "2026-06-11T03:17:04.428967",
+      "created_at": "2026-06-11T03:17:04.423632",
       "plan_id": "plan_61729b9a"
     },
     {
@@ -247,7 +239,7 @@
       "agent": "assertion",
       "tool": "",
       "parameters": {},
-      "description": "@assertion there's ${{var:app_name}}dev exist.",
+      "description": "@assertion the \"CoffeeAgentdev\" app chat is open and the \"Type a message\" input is visible.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
