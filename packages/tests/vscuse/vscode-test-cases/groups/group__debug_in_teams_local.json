@@ -8,7 +8,7 @@
       "precondition_wait_timeout": 60,
       "precondition_retry_interval": 2
     },
-    "total_steps": 13,
+    "total_steps": 15,
     "created_at": "2026-06-05T07:17:53.766103",
     "name": "group: debug_in_teams_local",
     "description": {
@@ -27,6 +27,8 @@
       "step_abda900e",
       "step_a527f679",
       "step_7f03643c",
+      "step_4dc094a1",
+      "step_6317ea32",
       "step_afa29596",
       "step_31620d1e",
       "step_7f090e7d",
@@ -35,7 +37,7 @@
     "tags": [
       "group"
     ],
-    "updated_at": "2026-06-05T09:08:12.655697"
+    "updated_at": "2026-09-19T02:22:59.881000"
   },
   "steps": [
     {
@@ -245,6 +247,46 @@
       "tags": [],
       "screenshot": "step_7f03643c",
       "created_at": "2026-06-05T09:07:45.979439",
+      "plan_id": "plan_r_0930_083113"
+    },
+    {
+      "step_id": "step_4dc094a1",
+      "agent": "interaction",
+      "tool": "keyboard_shortcut",
+      "parameters": {
+        "keys": "alt+tab"
+      },
+      "description": "Switch back to Visual Studio Code after browser sign-in completes and Teams opens without restoring the app launch.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": null,
+      "created_at": "2026-09-19T02:22:59.881000",
+      "plan_id": "plan_r_0930_083113"
+    },
+    {
+      "step_id": "step_6317ea32",
+      "agent": "interaction",
+      "tool": "keyboard_shortcut",
+      "parameters": {
+        "keys": "ctrl+shift+f5"
+      },
+      "description": "Restart the active \"Debug in Teams (Chrome)\" session so the Teams app launch is retried with the authenticated browser session.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": null,
+      "created_at": "2026-09-19T02:22:59.881000",
       "plan_id": "plan_r_0930_083113"
     },
     {
