@@ -147,7 +147,7 @@
       "agent": "assertion",
       "tool": "",
       "parameters": {},
-      "description": "@assertion the page title contains 'Copilot connector app'",
+      "description": "@assertion the README preview contains the heading 'Getting Started with Copilot connector App'",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
