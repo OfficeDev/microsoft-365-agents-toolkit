@@ -100,7 +100,7 @@
       "agent": "code",
       "tool": "",
       "parameters": {
-        "sample": "=== Generated Script ===\nLanguage: python\n\n```python\nimport sys\nimport ruamel.yaml\nimport os\n\nfile_path = '/home/vscode/AgentsToolkitProjects/da-ristorante-api/m365agents.local.yml'\nif not os.path.isfile(file_path):\n    print(f'File not found: {file_path}')\n    sys.exit(1)\n\nyaml = ruamel.yaml.YAML()\nyaml.preserve_quotes = True\n\ndef update_version(data):\n    if isinstance(data, dict):\n        for key, value in data.items():\n            if key == 'version' and str(value) == '~4.0.5530':\n                data[key] = '^4.0.5530'\n            else:\n                update_version(value)\n    elif isinstance(data, list):\n        for item in data:\n            update_version(item)\n\nwith open(file_path, 'r') as f:\n    data = yaml.load(f)\n    \nupdate_version(data)\n\nwith open(file_path, 'w') as f:\n    yaml.dump(data, f)\nprint('Version updated if found.')\n```\n\n=== Execution Results ===\nExit Code: 0\n\n=== STDOUT ===\nVersion updated if found.\n\n✓ Script executed successfully"
+        "sample": "=== Generated Script ===\nLanguage: python\n\n```python\nimport sys\nimport ruamel.yaml\nimport os\n\nfile_path = '/home/vscode/AgentsToolkitProjects/da-ristorante-api/m365agents.local.yml'\nif not os.path.isfile(file_path):\n    print(f'File not found: {file_path}')\n    sys.exit(1)\n\nyaml = ruamel.yaml.YAML()\nyaml.preserve_quotes = True\n\ndef update_version(data):\n    if isinstance(data, dict):\n        for key, value in data.items():\n            if key == 'version' and str(value) == '~4.0.5530':\n                data[key] = '^4.0.5530'\n            else:\n                update_version(value)\n    elif isinstance(data, list):\n        for item in data:\n            update_version(item)\n\nwith open(file_path, 'r') as f:\n    data = yaml.load(f)\n    \nupdate_version(data)\n\nwith open(file_path, 'w') as f:\n    yaml.dump(data, f)\nprint('Version updated if found.')\n```\n\n=== Execution Results ===\nExit Code: 0\n\n=== STDOUT ===\nVersion updated if found.\n\n\u2713 Script executed successfully"
       },
       "description": "@code open yaml file `/home/vscode/AgentsToolkitProjects/da-ristorante-api/m365agents.local.yml`, Update the YAML file.\nReplace:\nversion: \"~4.0.5530\"\nWith:\nversion: \"^4.0.5530\"\nPreserve all formatting.",
       "content_refs": [],
@@ -120,7 +120,7 @@
       "agent": "code",
       "tool": "",
       "parameters": {
-        "sample": "=== Generated Script ===\nLanguage: python\n\n```python\nimport json\nimport os\n\ninput_path = '/home/vscode/AgentsToolkitProjects/da-ristorante-api/.vscode/launch.json'\nbackup_path = input_path + '.bak'\n\n# Verify file exists\nif not os.path.isfile(input_path):\n    print(f'File not found: {input_path}')\n    exit(1)\n\n# Read file as text (preserving formatting)\nwith open(input_path, 'r', encoding='utf-8') as f:\n    content = f.read()\n\n# Make the replacement\nold_url = 'https://www.office.com/chat?auth=2'\nnew_url = ('https://m365.cloud.microsoft/chat/entity1-d870f6cd-4aa5-4d42-9626-ab690c041429/'\n           '${local:agent-hint}?auth=2&developerMode=Basic')\n\nif old_url not in content:\n    print('No replacement made: old URL not found.')\nelse:\n    # Backup original file\n    with open(backup_path, 'w', encoding='utf-8') as bf:\n        bf.write(content)\n    # Write updated content\n    updated = content.replace(old_url, new_url)\n    with open(input_path, 'w', encoding='utf-8') as of:\n        of.write(updated)\n    print('Replacement successful.')\n    print(f'Backup saved to {backup_path}')\n```\n\n=== Execution Results ===\nExit Code: 0\n\n=== STDOUT ===\nReplacement successful.\nBackup saved to /home/vscode/AgentsToolkitProjects/da-ristorante-api/.vscode/launch.json.bak\n\n✓ Script executed successfully"
+        "sample": "=== Generated Script ===\nLanguage: python\n\n```python\nimport json\nimport os\n\ninput_path = '/home/vscode/AgentsToolkitProjects/da-ristorante-api/.vscode/launch.json'\nbackup_path = input_path + '.bak'\n\n# Verify file exists\nif not os.path.isfile(input_path):\n    print(f'File not found: {input_path}')\n    exit(1)\n\n# Read file as text (preserving formatting)\nwith open(input_path, 'r', encoding='utf-8') as f:\n    content = f.read()\n\n# Make the replacement\nold_url = 'https://www.office.com/chat?auth=2'\nnew_url = ('https://m365.cloud.microsoft/chat/entity1-d870f6cd-4aa5-4d42-9626-ab690c041429/'\n           '${local:agent-hint}?auth=2&developerMode=Basic')\n\nif old_url not in content:\n    print('No replacement made: old URL not found.')\nelse:\n    # Backup original file\n    with open(backup_path, 'w', encoding='utf-8') as bf:\n        bf.write(content)\n    # Write updated content\n    updated = content.replace(old_url, new_url)\n    with open(input_path, 'w', encoding='utf-8') as of:\n        of.write(updated)\n    print('Replacement successful.')\n    print(f'Backup saved to {backup_path}')\n```\n\n=== Execution Results ===\nExit Code: 0\n\n=== STDOUT ===\nReplacement successful.\nBackup saved to /home/vscode/AgentsToolkitProjects/da-ristorante-api/.vscode/launch.json.bak\n\n\u2713 Script executed successfully"
       },
       "description": "@code open json file `/home/vscode/AgentsToolkitProjects/da-ristorante-api/.vscode/launch.json`, Update the json file.\nReplace all places:\n`https://www.office.com/chat?auth=2`\nWith:\n`https://m365.cloud.microsoft/chat/entity1-d870f6cd-4aa5-4d42-9626-ab690c041429/${local:agent-hint}?auth=2&developerMode=Basic`\nPreserve all formatting.",
       "content_refs": [],
@@ -152,8 +152,8 @@
       "depends_on": [],
       "preconditions": [
         "dhash:607:277:16:5:0000000000000000",
-        "dhash:607:277:96:5:0000000000000080",
-        "dhash:607:277:0:10:b28c2a2323232c2e"
+        "dhash:607:277:96:5:00000000000080e0",
+        "dhash:607:277:0:10:a492222322232c2e"
       ],
       "postconditions": [],
       "tags": [],
@@ -357,18 +357,18 @@
       "parameters": {
         "button": "left",
         "x": 327,
-        "y": 402
+        "y": 500
       },
-      "description": "Click on the \"Message Copilot\" input box in the Il Ristorante chat interface within the M365 Copilot web application, positioning the cursor to start a new message.",
+      "description": "Click on the \"Message Il Ristorante\" input box in the Il Ristorante chat interface within the M365 Copilot web application, positioning the cursor to start a new message.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [],
       "preconditions": [
-        "dhash:327:402:16:5:00000164e6622a6a",
-        "dhash:327:402:96:5:0021802124000020",
-        "dhash:327:402:0:10:34b8e6e6f8d2e2e4"
+        "dhash:327:500:16:5:10011c9b93d45759",
+        "dhash:327:500:96:5:0040a04d49204200",
+        "dhash:327:500:0:10:136080909ad4c2e2"
       ],
       "postconditions": [],
       "tags": [
@@ -393,7 +393,9 @@
       "continue_on_error": "false",
       "depends_on": [],
       "preconditions": [
-        "dhash:512:384:0:20:34b8e6e6f8c2e2e4"
+        "dhash:512:384:16:5:0000000000000000",
+        "dhash:512:384:96:5:0000000000008080",
+        "dhash:512:384:0:10:136080909ad4c2e2"
       ],
       "postconditions": [],
       "tags": [],
@@ -415,7 +417,9 @@
       "continue_on_error": "false",
       "depends_on": [],
       "preconditions": [
-        "dhash:512:384:0:20:34b8e6e6f8c2e2e4"
+        "dhash:512:384:16:5:0000000000000000",
+        "dhash:512:384:96:5:0000000000008080",
+        "dhash:512:384:0:10:1360809098dcc2c2"
       ],
       "postconditions": [],
       "tags": [],

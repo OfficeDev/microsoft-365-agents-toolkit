@@ -82,8 +82,8 @@
       "tool": "click",
       "parameters": {
         "button": "left",
-        "x": 330,
-        "y": 348
+        "x": 333,
+        "y": 330
       },
       "description": "Click the blue \"Allow\" button in the vsucse_app_XACUc chat response within the M365 Copilot web application to grant access to the Repair Service.",
       "content_refs": [],
@@ -91,11 +91,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [],
-      "preconditions": [
-        "dhash:330:348:16:5:8073ca898db69608",
-        "dhash:330:348:96:5:0c151f233317c002",
-        "dhash:330:348:0:10:15f0d397f0c0f8f6"
-      ],
+      "preconditions": [],
       "postconditions": [],
       "tags": [
         "force_run:true"
