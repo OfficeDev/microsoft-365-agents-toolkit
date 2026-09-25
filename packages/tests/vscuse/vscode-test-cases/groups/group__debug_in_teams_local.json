@@ -8,7 +8,7 @@
       "precondition_wait_timeout": 60,
       "precondition_retry_interval": 2
     },
-    "total_steps": 13,
+    "total_steps": 18,
     "created_at": "2026-06-05T07:17:53.766103",
     "name": "group: debug_in_teams_local",
     "description": {
@@ -27,6 +27,11 @@
       "step_abda900e",
       "step_a527f679",
       "step_7f03643c",
+      "step_91c7e4a2",
+      "step_3f6b8d10",
+      "step_c2a5e907",
+      "step_6d4f1a83",
+      "step_8e2c7b54",
       "step_afa29596",
       "step_31620d1e",
       "step_7f090e7d",
@@ -35,7 +40,7 @@
     "tags": [
       "group"
     ],
-    "updated_at": "2026-06-05T09:08:12.655697"
+    "updated_at": "2026-09-24T03:59:59.171000"
   },
   "steps": [
     {
@@ -248,11 +253,111 @@
       "plan_id": "plan_r_0930_083113"
     },
     {
+      "step_id": "step_91c7e4a2",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion Microsoft Teams has finished loading after sign-in, showing either the app details popup for ${{var:app_name}}local or the Teams Chat interface.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "step_retry_timeout: 120"
+      ],
+      "screenshot": null,
+      "created_at": "2026-09-24T03:59:59.171000",
+      "plan_id": "plan_r_0930_083113"
+    },
+    {
+      "step_id": "step_3f6b8d10",
+      "agent": "interaction",
+      "tool": "keyboard_shortcut",
+      "parameters": {
+        "keys": "alt+tab"
+      },
+      "description": "Press Alt+Tab to switch from the authenticated Microsoft Teams browser window back to Visual Studio Code.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "",
+      "created_at": "2026-09-24T03:59:59.171000",
+      "plan_id": "plan_r_0930_083113"
+    },
+    {
+      "step_id": "step_c2a5e907",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "f1"
+      },
+      "description": "Press F1 in Visual Studio Code to open the Command Palette for the active debug session.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "",
+      "created_at": "2026-09-24T03:59:59.171000",
+      "plan_id": "plan_r_0930_083113"
+    },
+    {
+      "step_id": "step_6d4f1a83",
+      "agent": "interaction",
+      "tool": "type_text",
+      "parameters": {
+        "text": "Debug: Restart"
+      },
+      "description": "Type 'Debug: Restart' into the Visual Studio Code Command Palette to restart the active Teams debug session without starting a duplicate session.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "",
+      "created_at": "2026-09-24T03:59:59.171000",
+      "plan_id": "plan_r_0930_083113"
+    },
+    {
+      "step_id": "step_8e2c7b54",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "enter"
+      },
+      "description": "Press Enter to run 'Debug: Restart' and reopen the generated Teams app deep link in the authenticated browser session.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "",
+      "created_at": "2026-09-24T03:59:59.171000",
+      "plan_id": "plan_r_0930_083113"
+    },
+    {
       "step_id": "step_afa29596",
       "agent": "assertion",
       "tool": "",
       "parameters": {},
-      "description": "@assertion there's \"Add\" or \"Open\" blue button exist.",
+      "description": "@assertion the Microsoft Teams app details popup for ${{var:app_name}}local shows a blue \"Add\" or \"Open\" button.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
