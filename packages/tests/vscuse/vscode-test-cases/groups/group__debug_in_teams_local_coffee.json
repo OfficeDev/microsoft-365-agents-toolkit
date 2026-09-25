@@ -8,7 +8,7 @@
       "precondition_wait_timeout": 60,
       "precondition_retry_interval": 2
     },
-    "total_steps": 20,
+    "total_steps": 21,
     "created_at": "2026-06-05T07:17:53.908458",
     "name": "group  debug in teams local coffee",
     "description": {
@@ -28,6 +28,7 @@
       "step_81cb2ebd",
       "step_838bf4eb",
       "step_retry_close_browser",
+      "step_retry_stop_debug_session",
       "step_retry_open_debug_palette",
       "step_retry_type_debug_command",
       "step_retry_select_debug_command",
@@ -42,7 +43,7 @@
     "tags": [
       "group"
     ],
-    "updated_at": "2026-09-25T02:15:23.890000"
+    "updated_at": "2026-09-25T02:29:06.486000"
   },
   "steps": [
     {
@@ -278,6 +279,28 @@
       ],
       "screenshot": "",
       "created_at": "2026-09-25T02:15:23.890000",
+      "plan_id": "plan_acd389bc"
+    },
+    {
+      "step_id": "step_retry_stop_debug_session",
+      "agent": "interaction",
+      "tool": "keyboard_shortcut",
+      "parameters": {
+        "keys": "shift+f5"
+      },
+      "description": "Stop the original Debug (Chrome) session after browser authentication so the authenticated relaunch starts a fresh Teams deep link.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "delay:5"
+      ],
+      "screenshot": null,
+      "created_at": "2026-09-25T02:29:06.486000",
       "plan_id": "plan_acd389bc"
     },
     {
