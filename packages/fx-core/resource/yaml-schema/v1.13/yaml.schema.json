@@ -1969,7 +1969,7 @@
             },
             "appId": {
               "type": "string",
-              "description": "The Teams app id associated with this configuration. Only takes effect when applicableToApps is SpecificApp."
+              "description": "The Microsoft 365 app ID (MOSAppId), not the Teams manifest ID or Microsoft Entra client ID. Required only when applicableToApps is SpecificApp; ignored for AnyApp. For declarative agents, use the appId returned by copilotAgent/publish for the intended publication scope."
             },
             "wellKnownAuthorizationServer": {
               "type": "string",
@@ -1982,7 +1982,7 @@
             },
             "applicableToApps": {
               "type": "string",
-              "description": "Which app can use this DCR configuration. Default is \"AnyApp\".",
+              "description": "Which app can use this DCR configuration. Default is \"AnyApp\". Keep AnyApp during declarative agent creation and sideloading because the Microsoft 365 app ID can change. To restrict usage after publishing, use SpecificApp with that publication's Microsoft 365 app ID.",
               "enum": ["SpecificApp", "AnyApp"]
             },
             "targetAudience": {
@@ -1999,7 +1999,7 @@
           "required": ["configurationId"],
           "properties": {
             "configurationId": {
-              "description": "Required. The configuration id of the created DCR registration.",
+              "description": "Required. The configuration id of the created DCR registration. If the mapped environment variable already has a value, dcr/register skips registration and does not update the existing configuration. To change the app binding, create a new registration, update the plugin's auth.reference_id, and rebuild and republish the app package.",
               "$ref": "#/definitions/envVarName"
             }
           }
