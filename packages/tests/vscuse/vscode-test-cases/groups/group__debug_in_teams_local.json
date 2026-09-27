@@ -8,7 +8,7 @@
       "precondition_wait_timeout": 60,
       "precondition_retry_interval": 2
     },
-    "total_steps": 17,
+    "total_steps": 13,
     "created_at": "2026-06-05T07:17:53.766103",
     "name": "group: debug_in_teams_local",
     "description": {
@@ -23,10 +23,6 @@
       "step_b7215b6f",
       "step_72fe8763",
       "step_a1111d2c",
-      "step_1637fda9",
-      "step_abda900e",
-      "step_a527f679",
-      "step_7f03643c",
       "step_31f9a6c2",
       "step_764db193",
       "step_912af406",
@@ -39,7 +35,7 @@
     "tags": [
       "group"
     ],
-    "updated_at": "2026-09-27T03:02:42.666000"
+    "updated_at": "2026-09-27T03:50:16.198000"
   },
   "steps": [
     {
@@ -150,104 +146,6 @@
       "tags": [],
       "screenshot": "step_a1111d2c",
       "created_at": "2026-06-05T09:07:45.944817",
-      "plan_id": "plan_r_0930_083113"
-    },
-    {
-      "step_id": "step_1637fda9",
-      "agent": "interaction",
-      "tool": "click",
-      "parameters": {
-        "button": "left",
-        "x": 394,
-        "y": 395
-      },
-      "description": "Click on the \"Password\" input field in the Microsoft login dialog to focus and enable password entry.",
-      "content_refs": [],
-      "timeout": 30,
-      "retry_count": 0,
-      "continue_on_error": "false",
-      "depends_on": [],
-      "preconditions": [
-        "dhash:394:395:16:5:00000a05038b0f8f",
-        "dhash:394:395:96:5:3075c500d8d80000"
-      ],
-      "postconditions": [],
-      "tags": [
-        "precondition_wait_timeout:450",
-        "delay:30"
-      ],
-      "screenshot": "step_1637fda9",
-      "created_at": "2026-06-05T09:07:45.952825",
-      "plan_id": "plan_r_0930_083113"
-    },
-    {
-      "step_id": "step_abda900e",
-      "agent": "interaction",
-      "tool": "type_text",
-      "parameters": {
-        "text": "${{secret:M365_ACCOUNT_PASSWORD}}"
-      },
-      "description": "Type ${{secret:M365_ACCOUNT_PASSWORD}} into the 'Password' field on the Microsoft login page for user ${{env:M365_ACCOUNT_NAME}}.",
-      "content_refs": [],
-      "timeout": 30,
-      "retry_count": 0,
-      "continue_on_error": "false",
-      "depends_on": [],
-      "preconditions": [],
-      "postconditions": [],
-      "tags": [],
-      "screenshot": "step_abda900e",
-      "created_at": "2026-06-05T09:07:45.962908",
-      "plan_id": "plan_r_0930_083113"
-    },
-    {
-      "step_id": "step_a527f679",
-      "agent": "interaction",
-      "tool": "key_press",
-      "parameters": {
-        "key": "enter"
-      },
-      "description": "Press the \"Enter\" key to submit the login password in the Microsoft sign-in page form after entering the \"Enter password\" field.",
-      "content_refs": [],
-      "timeout": 30,
-      "retry_count": 0,
-      "continue_on_error": "false",
-      "depends_on": [],
-      "preconditions": [
-        "dhash:512:384:0:20:1c0cf0d9d1e6e6e4"
-      ],
-      "postconditions": [],
-      "tags": [
-        "delay: 3"
-      ],
-      "screenshot": "step_a527f679",
-      "created_at": "2026-06-05T09:07:45.970401",
-      "plan_id": "plan_r_0930_083113"
-    },
-    {
-      "step_id": "step_7f03643c",
-      "agent": "interaction",
-      "tool": "click",
-      "parameters": {
-        "button": "left",
-        "x": 618,
-        "y": 531
-      },
-      "description": "Click the \"Yes\" button on the \"Stay signed in?\" prompt within the Microsoft login interface to confirm staying signed in.",
-      "content_refs": [],
-      "timeout": 30,
-      "retry_count": 0,
-      "continue_on_error": "false",
-      "depends_on": [],
-      "preconditions": [
-        "dhash:618:531:16:5:2d12291523171402",
-        "dhash:618:531:96:5:004452584c020000",
-        "dhash:618:531:0:10:1c0cf0d9d9e6e6e4"
-      ],
-      "postconditions": [],
-      "tags": [],
-      "screenshot": "step_7f03643c",
-      "created_at": "2026-06-05T09:07:45.979439",
       "plan_id": "plan_r_0930_083113"
     },
     {
