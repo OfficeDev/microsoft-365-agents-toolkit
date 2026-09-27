@@ -9,7 +9,7 @@
       "precondition_retry_interval": 2,
       "step_retry_timeout": 0
     },
-    "total_steps": 19,
+    "total_steps": 18,
     "created_at": "2026-05-14T01:57:51.379181",
     "name": "Sample Copilot Connection Local Debug",
     "description": {
@@ -24,7 +24,6 @@
       "step_fa371d1a",
       "step_d73f6011",
       "step_3b2748bb",
-      "step_aa8c369e",
       "step_e242161b",
       "step_89397c8d",
       "plan_r_1021_081410",
@@ -43,7 +42,7 @@
       "step_3322048d"
     ],
     "tags": [],
-    "updated_at": "2026-05-14T02:01:07.095639"
+    "updated_at": "2026-09-27T03:18:13.348000"
   },
   "steps": [
     {
@@ -51,9 +50,9 @@
       "agent": "interaction",
       "tool": "type_text",
       "parameters": {
-        "text": "${{var:app_name:copilot-connection-app}}"
+        "text": "${{var:app_name:copilot-connector-app}}"
       },
-      "description": "Type text 'copilot connection app' in the search bar located at the top of the 'Samples' tab within the Microsoft 365 Agents Toolkit interface. And input ${{var:app_name:copilot-connection-app}} into the run time variable.",
+      "description": "Type text 'copilot connector app' in the search bar located at the top of the 'Samples' tab within the Microsoft 365 Agents Toolkit interface. And input ${{var:app_name:copilot-connector-app}} into the run time variable.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -77,17 +76,13 @@
         "x": 776,
         "y": 340
       },
-      "description": "Click the \"Create\" button for the \"Copilot connect...\" sample in the \"Samples\" panel of the Microsoft 365 Agents Toolkit extension within Visual Studio Code, as indicated by the blue button at the red crosshair position.",
+      "description": "Click the \"Create\" button for the \"Copilot connect...\" sample when the Samples panel is visible; if the generated README is already open, keep the existing project open.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [],
-      "preconditions": [
-        "dhash:776:340:16:5:e9326c4a5b4cb30c",
-        "dhash:776:340:96:5:6844c67878c66878",
-        "dhash:776:340:0:10:64a4a4b4bc644365"
-      ],
+      "preconditions": [],
       "postconditions": [],
       "tags": [],
       "screenshot": "step_fa371d1a",
@@ -101,17 +96,17 @@
       "parameters": {
         "key": "enter"
       },
-      "description": "Press the \"Enter\" key to confirm the selection of the default folder path in the \"Workspace Folder\" dialog within the Microsoft 365 Agents Toolkit interface.",
+      "description": "Press the \"Enter\" key to confirm the default folder when the Workspace Folder dialog is open; if the generated README is already open, leave it unchanged.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [],
-      "preconditions": [
-        "dhash:512:384:0:20:60a4a4b476766449"
-      ],
+      "preconditions": [],
       "postconditions": [],
-      "tags": [],
+      "tags": [
+        "delay:3"
+      ],
       "screenshot": "step_d73f6011",
       "created_at": "2026-05-14T01:57:51.403823",
       "plan_id": "plan_a0fbdb40"
@@ -134,24 +129,6 @@
       ],
       "screenshot": null,
       "created_at": "2026-05-14T01:57:51.412000",
-      "plan_id": "plan_a0fbdb40"
-    },
-    {
-      "step_id": "step_aa8c369e",
-      "agent": "assertion",
-      "tool": "",
-      "parameters": {},
-      "description": "@assertion the page title contains 'Copilot connector app'",
-      "content_refs": [],
-      "timeout": 30,
-      "retry_count": 0,
-      "continue_on_error": "false",
-      "depends_on": [],
-      "preconditions": [],
-      "postconditions": [],
-      "tags": [],
-      "screenshot": null,
-      "created_at": "2026-05-14T01:57:51.419429",
       "plan_id": "plan_a0fbdb40"
     },
     {
@@ -215,7 +192,7 @@
         "x": 294,
         "y": 21
       },
-      "description": "Click the “+\"  browser tab in Microsoft Teams  to open the new page",
+      "description": "Click the \u201c+\" browser tab in Microsoft Teams to open the new page",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
