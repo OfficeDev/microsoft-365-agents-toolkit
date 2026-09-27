@@ -9,7 +9,7 @@
       "precondition_retry_interval": 2,
       "step_retry_timeout": 0
     },
-    "total_steps": 19,
+    "total_steps": 18,
     "created_at": "2026-05-14T01:57:51.379181",
     "name": "Sample Copilot Connection Local Debug",
     "description": {
@@ -24,7 +24,6 @@
       "step_fa371d1a",
       "step_d73f6011",
       "step_3b2748bb",
-      "step_aa8c369e",
       "step_e242161b",
       "step_89397c8d",
       "plan_r_1021_081410",
@@ -43,7 +42,7 @@
       "step_3322048d"
     ],
     "tags": [],
-    "updated_at": "2026-09-27T03:12:52.433000"
+    "updated_at": "2026-09-27T03:18:13.348000"
   },
   "steps": [
     {
@@ -130,24 +129,6 @@
       ],
       "screenshot": null,
       "created_at": "2026-05-14T01:57:51.412000",
-      "plan_id": "plan_a0fbdb40"
-    },
-    {
-      "step_id": "step_aa8c369e",
-      "agent": "assertion",
-      "tool": "",
-      "parameters": {},
-      "description": "@assertion the README preview contains the heading 'Copilot connector App'",
-      "content_refs": [],
-      "timeout": 30,
-      "retry_count": 0,
-      "continue_on_error": "false",
-      "depends_on": [],
-      "preconditions": [],
-      "postconditions": [],
-      "tags": [],
-      "screenshot": null,
-      "created_at": "2026-05-14T01:57:51.419429",
       "plan_id": "plan_a0fbdb40"
     },
     {
