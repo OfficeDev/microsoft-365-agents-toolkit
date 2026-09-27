@@ -8,7 +8,7 @@
       "precondition_wait_timeout": 60,
       "precondition_retry_interval": 2
     },
-    "total_steps": 19,
+    "total_steps": 20,
     "created_at": "2026-06-05T07:17:53.766103",
     "name": "group: debug_in_teams_local",
     "description": {
@@ -33,6 +33,7 @@
       "step_4ab906ef",
       "step_79d13c52",
       "step_b62f084d",
+      "step_c284109e",
       "step_afa29596",
       "step_31620d1e",
       "step_7f090e7d",
@@ -373,6 +374,30 @@
       "tags": [],
       "screenshot": "",
       "created_at": "2026-09-27T02:26:17.496000",
+      "plan_id": "plan_r_0930_083113"
+    },
+    {
+      "step_id": "step_c284109e",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 460,
+        "y": 94
+      },
+      "description": "Click \"Yes\" in the prompt stating that \"Attach to Backend\" is already running to allow the authenticated debug relaunch to continue.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "delay:3"
+      ],
+      "screenshot": "",
+      "created_at": "2026-09-27T02:45:47.585000",
       "plan_id": "plan_r_0930_083113"
     },
     {
