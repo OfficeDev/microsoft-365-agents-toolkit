@@ -8,7 +8,7 @@
       "precondition_wait_timeout": 60,
       "precondition_retry_interval": 2
     },
-    "total_steps": 20,
+    "total_steps": 17,
     "created_at": "2026-06-05T07:17:53.766103",
     "name": "group: debug_in_teams_local",
     "description": {
@@ -27,13 +27,10 @@
       "step_abda900e",
       "step_a527f679",
       "step_7f03643c",
-      "step_8f4c1e2a",
-      "step_6d92a7b4",
-      "step_0c7e53d1",
-      "step_4ab906ef",
-      "step_79d13c52",
-      "step_b62f084d",
-      "step_c284109e",
+      "step_31f9a6c2",
+      "step_764db193",
+      "step_912af406",
+      "step_5e83c7da",
       "step_afa29596",
       "step_31620d1e",
       "step_7f090e7d",
@@ -42,7 +39,7 @@
     "tags": [
       "group"
     ],
-    "updated_at": "2026-06-05T09:08:12.655697"
+    "updated_at": "2026-09-27T03:02:42.666000"
   },
   "steps": [
     {
@@ -255,35 +252,33 @@
       "plan_id": "plan_r_0930_083113"
     },
     {
-      "step_id": "step_8f4c1e2a",
+      "step_id": "step_31f9a6c2",
+      "agent": "code",
+      "tool": "",
+      "parameters": {},
+      "description": "@code get the non-empty TEAMS_APP_ID value from the most recently modified file matching \"/home/vscode/AgentsToolkitProjects/*/env/.env.local\" and return only the value",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "store_fact:local_teams_app_id"
+      ],
+      "screenshot": null,
+      "created_at": "2026-09-27T03:02:42.662000",
+      "plan_id": "plan_r_0930_083113"
+    },
+    {
+      "step_id": "step_764db193",
       "agent": "interaction",
       "tool": "keyboard_shortcut",
       "parameters": {
-        "keys": "alt+tab"
+        "keys": "ctrl+l"
       },
-      "description": "Return to Visual Studio Code after completing browser sign-in because the initial authentication redirect opened the existing Teams chat instead of preserving the app debug deep link.",
-      "content_refs": [],
-      "timeout": 30,
-      "retry_count": 0,
-      "continue_on_error": "false",
-      "depends_on": [],
-      "preconditions": [],
-      "postconditions": [],
-      "tags": [
-        "delay:15"
-      ],
-      "screenshot": "",
-      "created_at": "2026-09-27T02:26:17.491000",
-      "plan_id": "plan_r_0930_083113"
-    },
-    {
-      "step_id": "step_6d92a7b4",
-      "agent": "interaction",
-      "tool": "key_press",
-      "parameters": {
-        "key": "f1"
-      },
-      "description": "Open the Visual Studio Code Command Palette to relaunch the app now that browser authentication is complete.",
+      "description": "Focus the Chrome address bar after Microsoft Teams authentication completes.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -293,17 +288,17 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "",
-      "created_at": "2026-09-27T02:26:17.492000",
+      "created_at": "2026-09-27T03:02:42.663000",
       "plan_id": "plan_r_0930_083113"
     },
     {
-      "step_id": "step_0c7e53d1",
+      "step_id": "step_912af406",
       "agent": "interaction",
       "tool": "type_text",
       "parameters": {
-        "text": "Debug: Select and Start Debugging"
+        "text": "https://teams.microsoft.com/l/app/${{fact:local_teams_app_id}}?installAppPackage=true"
       },
-      "description": "Type 'Debug: Select and Start Debugging' into the Command Palette for the authenticated relaunch.",
+      "description": "Enter the authenticated Microsoft Teams install deep link for the locally provisioned app.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -313,17 +308,17 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "",
-      "created_at": "2026-09-27T02:26:17.493000",
+      "created_at": "2026-09-27T03:02:42.664000",
       "plan_id": "plan_r_0930_083113"
     },
     {
-      "step_id": "step_4ab906ef",
+      "step_id": "step_5e83c7da",
       "agent": "interaction",
       "tool": "key_press",
       "parameters": {
         "key": "enter"
       },
-      "description": "Select 'Debug: Select and Start Debugging' for the authenticated relaunch.",
+      "description": "Navigate to the authenticated Microsoft Teams install deep link for the locally provisioned app.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -333,71 +328,7 @@
       "postconditions": [],
       "tags": [],
       "screenshot": "",
-      "created_at": "2026-09-27T02:26:17.494000",
-      "plan_id": "plan_r_0930_083113"
-    },
-    {
-      "step_id": "step_79d13c52",
-      "agent": "interaction",
-      "tool": "type_text",
-      "parameters": {
-        "text": "Debug in Teams (Chrome)"
-      },
-      "description": "Type 'Debug in Teams (Chrome)' into the launch configuration picker for the authenticated relaunch.",
-      "content_refs": [],
-      "timeout": 30,
-      "retry_count": 0,
-      "continue_on_error": "false",
-      "depends_on": [],
-      "preconditions": [],
-      "postconditions": [],
-      "tags": [],
-      "screenshot": "",
-      "created_at": "2026-09-27T02:26:17.495000",
-      "plan_id": "plan_r_0930_083113"
-    },
-    {
-      "step_id": "step_b62f084d",
-      "agent": "interaction",
-      "tool": "key_press",
-      "parameters": {
-        "key": "enter"
-      },
-      "description": "Start 'Debug in Teams (Chrome)' again so the authenticated browser opens the app details deep link.",
-      "content_refs": [],
-      "timeout": 30,
-      "retry_count": 0,
-      "continue_on_error": "false",
-      "depends_on": [],
-      "preconditions": [],
-      "postconditions": [],
-      "tags": [],
-      "screenshot": "",
-      "created_at": "2026-09-27T02:26:17.496000",
-      "plan_id": "plan_r_0930_083113"
-    },
-    {
-      "step_id": "step_c284109e",
-      "agent": "interaction",
-      "tool": "click",
-      "parameters": {
-        "button": "left",
-        "x": 460,
-        "y": 94
-      },
-      "description": "Click \"Yes\" in the prompt stating that \"Attach to Backend\" is already running to allow the authenticated debug relaunch to continue.",
-      "content_refs": [],
-      "timeout": 30,
-      "retry_count": 0,
-      "continue_on_error": "false",
-      "depends_on": [],
-      "preconditions": [],
-      "postconditions": [],
-      "tags": [
-        "delay:3"
-      ],
-      "screenshot": "",
-      "created_at": "2026-09-27T02:45:47.585000",
+      "created_at": "2026-09-27T03:02:42.665000",
       "plan_id": "plan_r_0930_083113"
     },
     {
