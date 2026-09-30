@@ -908,6 +908,9 @@ importers:
       ajv-formats:
         specifier: ^3.0.1
         version: 3.0.1(ajv@8.18.0)
+      fs-extra:
+        specifier: ^9.1.0
+        version: 9.1.0
       node-fetch:
         specifier: ^3.3.2
         version: 3.3.2
@@ -960,9 +963,6 @@ importers:
       eslint-plugin-prettier:
         specifier: ^5.5.0
         version: 5.5.0(eslint-config-prettier@10.1.0)(eslint@9.0.0)(prettier@3.9.4)
-      fs-extra:
-        specifier: ^9.1.0
-        version: 9.1.0
       globals:
         specifier: ^16.2.0
         version: 16.2.0
