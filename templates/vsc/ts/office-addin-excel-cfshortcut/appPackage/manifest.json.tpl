@@ -91,7 +91,6 @@
                                     }
                                 ],
                                 "result": {
-                                    "type": "number",
                                     "dimensionality": "scalar"
                                 }
                             },
@@ -102,7 +101,7 @@
                                 "parameters": [],
                                 "stream": true,
                                 "result": {
-                                    "type": "string"
+                                    "dimensionality": "scalar"
                                 }
                             },
                             {
@@ -118,7 +117,7 @@
                                 ],
                                 "stream": true,
                                 "result": {
-                                    "type": "number"
+                                    "dimensionality": "scalar"
                                 }
                             }
                         ],
