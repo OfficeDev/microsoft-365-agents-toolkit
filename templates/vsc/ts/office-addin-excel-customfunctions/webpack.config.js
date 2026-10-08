@@ -94,7 +94,7 @@ module.exports = async (env, options) => {
       static: {
         directory: path.join(__dirname, "dist"),
         publicPath: "/public",
-      },      
+      },
       headers: {
         "Access-Control-Allow-Origin": "*",
       },
