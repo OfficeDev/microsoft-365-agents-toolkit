@@ -460,7 +460,7 @@ export class ActionInjector {
     authName: string,
     registrationId: string,
     mcpServerUrl: string,
-    wellKnownAuthorizationServer: string
+    _wellKnownAuthorizationServer?: string
   ): Promise<AuthActionInjectResult | undefined> {
     const ymlContent = await fs.readFile(ymlPath, "utf-8");
 
@@ -496,7 +496,7 @@ export class ActionInjector {
             appId: `\${{${teamsAppIdEnvName}}}`,
             applicableToApps: "AnyApp",
             targetAudience: "HomeTenant",
-            wellKnownAuthorizationServer: wellKnownAuthorizationServer,
+            mcpResourceUrl: mcpServerUrl,
             targetUrlsShouldStartWith: [mcpServerUrl],
           },
           writeToEnvironmentFile: {

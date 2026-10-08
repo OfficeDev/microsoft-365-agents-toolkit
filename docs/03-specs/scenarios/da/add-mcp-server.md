@@ -72,6 +72,7 @@ knowledge`, `add auth`, future modify commands) instead of routing them
 | SCN-ADD-MCP-17 | L1   | identical MCP add inputs with `TEAMSFX_V4_ENABLED` off and on                                                                       | compare outputs      | both paths collect and forward the same applicable credentials and use the same URL-derived namespace, registration ID, credential environment names, and equivalent auth registration actions                                                                                                                                   |
 | SCN-ADD-MCP-18 | L1   | non-interactive MCP add with `authType=oauth` or `authType=entra-sso` and omitted static credentials                                | add action           | add always uses environment-backed credential ownership: OAuth emits client-ID and client-secret references and persists matching empty regular/encrypted placeholders to every existing standard environment; Entra does the same for client ID only; scope remains conditional on supplied input; v4 off and on are equivalent |
 | SCN-ADD-MCP-19 | L1   | non-interactive MCP add with `authType=bearer-token` and omitted API key                                                            | add action           | add remains environment-backed: `apiKey/register` emits `primaryClientSecret: ${{SECRET_MCP_DA_API_KEY_<NS>}}` and persists a matching empty encrypted placeholder to every existing standard environment; v4 off and on are equivalent                                                                                          |
+| SCN-ADD-MCP-20 | L1   | `authType=oauth-dynamic`                                                                                                            | scaffold             | Main and existing local YAML use the endpoint-based v1.13 handoff from [register-dcr](../../operations/auth/register-dcr.md) (DCR-07), without well-known placeholders, resource overrides or local authorization metadata discovery; the plugin retains its OAuth vault reference.                                              |
 
 ## Executable validation
 
@@ -87,7 +88,7 @@ knowledge`, `add auth`, future modify commands) instead of routing them
   `scaffold` entry under `InMemoryRuntime`.
   [`addMcpServerEntry.test.ts`](../../../../packages/fx-core/tests/v4/scenarios/addMcpServerEntry.test.ts)
   calls the production `core.addPlugin` entry and its legacy question adapter.
-- **Traceability:** nineteen L1 tests map 1:1 to SCN-ADD-MCP-01..19.
+- **Traceability:** twenty L1 tests map 1:1 to SCN-ADD-MCP-01..20.
   They cover the dynamic plugin filename and runtime, DA-manifest registration,
   all retained auth wiring, pre-filled entry parameters, credential persistence,
   same-desired-state idempotency, real modify-front-door dispatch, and the

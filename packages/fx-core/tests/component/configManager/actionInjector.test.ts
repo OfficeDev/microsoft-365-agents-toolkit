@@ -1386,7 +1386,7 @@ describe("ActionInjector", () => {
       vi.restoreAllMocks();
     });
 
-    it("should inject dcr/register action successfully", async () => {
+    it("DCR-07: injects the MCP endpoint without pinning the authorization server", async () => {
       const ymlPath = "path/to/yml";
       const authName = "testDcrAuth";
       const registrationId = "MCP_DA_AUTH_ID_APIGITHUBC";
@@ -1423,7 +1423,9 @@ describe("ActionInjector", () => {
       assert.isTrue(writtenContent.includes(authName));
       assert.isTrue(writtenContent.includes(registrationId));
       assert.isTrue(writtenContent.includes(mcpServerUrl));
-      assert.isTrue(writtenContent.includes(wellKnownUrl));
+      assert.include(writtenContent, `mcpResourceUrl: ${mcpServerUrl}`);
+      assert.notInclude(writtenContent, "wellKnownAuthorizationServer:");
+      assert.notInclude(writtenContent, "resource:");
       assert.isTrue(writtenContent.includes("applicableToApps: AnyApp"));
       assert.isTrue(writtenContent.includes("targetAudience: HomeTenant"));
     });
