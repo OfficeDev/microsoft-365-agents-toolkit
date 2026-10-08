@@ -3,7 +3,7 @@
 ## Metadata
 
 - Created: 2026-07-20T09:29:44Z
-- Last updated: 2026-07-29T00:00:00Z
+- Last updated: 2026-10-08T00:00:00Z
 - Status: approved
 - PM owner: summzhan
 - Engineer owner: HuihuiWu-Microsoft, Alive-Fish
@@ -58,8 +58,8 @@ While `TEAMSFX_MCP_FOR_DA_DT` still exists, setting it to `false` selects the co
 - Static OAuth: immediately after auth selection, the flow asks for a required OAuth client ID, a required masked client secret, and optional space-separated scopes, in that order.
 - Entra SSO: immediately after auth selection, the flow asks only for a required Microsoft Entra Application (Client) ID.
 - Dynamic OAuth and None: the flow asks no client ID, client secret, or scopes question and continues to project location and application name.
-- Dynamic OAuth: scaffolding injects `dcr/register`. If authorization discovery cannot be resolved, the generated action contains the documented well-known URL placeholder and the developer receives a warning to repair it before provision.
-- Static OAuth: scaffolding injects `oauth/register`. If the server advertises no OAuth endpoints, the generated action contains authorization and token URL placeholders and the developer receives the same repair warning.
+- Dynamic OAuth: scaffolding injects `dcr/register` using the actual MCP endpoint. TGS discovers authorization metadata and the OAuth resource indicator during provision; creation requires no well-known URL placeholder or manual repair warning. Existing projects may continue using the legacy well-known parameter.
+- Static OAuth: scaffolding injects `oauth/register`. If the server advertises no OAuth endpoints, the generated action contains authorization and token URL placeholders and the developer receives a repair warning.
 - Validation: an empty required credential, a server URL that is not an absolute `http(s)` address or that answers 404 to the MCP `initialize` request, an invalid app name or location, an unsupported auth value, or a missing required non-interactive input keeps the flow recoverable and does not accept partial output.
 - Cancellation: cancelling before generation leaves no partially scaffolded project and persists no credential value.
 
@@ -78,7 +78,7 @@ While `TEAMSFX_MCP_FOR_DA_DT` still exists, setting it to `false` selects the co
 
 - The guided flow shows the DA template choices, MCP source, conditional local selection or remote URL, auth type, required credential follow-ups, project location, and app name.
 - The client secret is masked while entered and is never included in generated review artifacts, warnings, or logs.
-- Dynamic OAuth discovery fallback produces a warning identifying the manual repair needed before provision.
+- Dynamic OAuth does not emit authorization-discovery or well-known-placeholder warnings during creation; registration failures are reported during provision.
 - A server URL that answers the `initialize` request like something other than an MCP endpoint, without answering 404, produces an advisory warning after scaffolding. Generation still succeeds.
 - Successful generation opens or reports the generated project through the normal surface behavior.
 
@@ -100,7 +100,7 @@ While `TEAMSFX_MCP_FOR_DA_DT` still exists, setting it to `false` selects the co
 
 - Local selection reads the discovered local MCP server catalog.
 - Entering the remote URL sends an unauthenticated MCP `initialize` request to it to establish whether an MCP endpoint is there.
-- Remote auth wiring may probe authorization discovery endpoints while generating the lifecycle action. OAuth configuration creation and DCR execution occur during provision, not scaffolding.
+- Static OAuth wiring may probe authorization discovery endpoints while generating the lifecycle action. Dynamic OAuth delegates this discovery to TGS. OAuth configuration creation and DCR execution occur during provision, not scaffolding.
 
 ## Flow
 

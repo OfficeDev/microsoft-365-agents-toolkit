@@ -337,12 +337,18 @@ describe("SCN-DA-CREATE-WITH-MCP-SERVER (v4, T3 InMemoryRuntime)", () => {
     assert.strictEqual(secrets.size, 0);
   });
 
-  it("SCN-CREATE-MCP-18: dynamic registration writes no static credential values or refs", async () => {
+  it("SCN-CREATE-MCP-18 / DCR-07: dynamic registration uses the MCP endpoint without static credentials", async () => {
     const { files, secrets, outcome } = await run({ authType: "oauth-dynamic" });
     const yml = text(files, "m365agents.yml");
     const env = text(files, "env/.env.dev");
 
     assert.include(yml, "uses: dcr/register");
+    assert.include(yml, "version: v1.13");
+    assert.include(yml, `mcpResourceUrl: ${MCP_SERVER_URL}`);
+    assert.notInclude(yml, "wellKnownAuthorizationServer:");
+    assert.notInclude(yml, "resource:");
+    assert.notInclude(yml, "PLEASE_FILL_IN");
+    assert.strictEqual(vi.mocked(mcpAuthScaffoldDeps.probeMCPServerAuth).mock.calls.length, 0);
     assert.notInclude(yml, "clientId:");
     assert.notInclude(yml, "clientSecret:");
     assert.notInclude(yml, "MCP_DA_OAUTH_");

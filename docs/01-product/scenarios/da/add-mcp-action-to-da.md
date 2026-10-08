@@ -3,7 +3,7 @@
 ## Metadata
 
 - Created: 2026-05-20T00:00:00Z
-- Last updated: 2026-07-29T00:00:00Z
+- Last updated: 2026-10-08T00:00:00Z
 - Status: implemented
 - PM owner: summzhan
 - Engineer owner: HuihuiWu-Microsoft, Alive-Fish
@@ -54,7 +54,7 @@ When `TEAMSFX_MCP_FOR_DA_DT=false`, VS Code keeps the compatibility handoff: it 
 - Server URL: the developer enters a remote MCP server URL unless the surface already supplied it. The URL is checked as it is entered, by the same rule as create: a value that is not an absolute `http(s)` address, or one the server answers with 404 to an MCP `initialize` request, is rejected on the question.
 - Authentication: `OAuth (with static registration)`, `Entra SSO`, and `None` are available on the dynamic path. `OAuth (with dynamic registration)` is available only when DT and DCR are both true.
 - Static OAuth and Entra SSO: both v3 and v4 ask for the required client ID, the OAuth client secret, and optional OAuth scopes during add, then persist environment references.
-- Dynamic OAuth: add injects `dcr/register`. Unresolved authorization discovery produces a warning and a well-known URL placeholder that must be repaired before provision.
+- Dynamic OAuth: add injects `dcr/register` using the actual MCP endpoint. TGS discovers authorization metadata and the OAuth resource indicator during provision; add requires no well-known URL placeholder or manual repair warning. Existing legacy registrations are not rewritten.
 - DT-off compatibility: VS Code stages the server in `.vscode/mcp.json` and hands off to `SCN-DA-FETCH-MCP-TOOLS` instead of writing the action inline.
 - Confirmation: VS Code dynamic mode writes after the final required answer. CLI interactive retains the standard modification confirmation; cancellation writes nothing.
 - Idempotent re-run: adding the same URL and auth mode does not duplicate the action, lifecycle registration, or environment placeholder.
@@ -75,7 +75,7 @@ When `TEAMSFX_MCP_FOR_DA_DT=false`, VS Code keeps the compatibility handoff: it 
 
 - The dynamic flow asks for action source, conditional MCP server URL, authentication type, and the same conditional credential follow-ups for static OAuth and Entra SSO with v4 on or off.
 - VS Code reports that the action was added after successful inline mutation. CLI uses its normal success output after confirmation or non-interactive completion.
-- Dynamic OAuth discovery fallback warns that the generated well-known URL placeholder must be repaired before provision.
+- Dynamic OAuth does not emit authorization-discovery or well-known-placeholder warnings during add; registration failures are reported during provision.
 - Add has no scaffolding summary, so a lifecycle action left holding auth placeholders is raised as a warning notification naming the file to repair.
 
 ### Error and recovery messages
@@ -93,7 +93,7 @@ When `TEAMSFX_MCP_FOR_DA_DT=false`, VS Code keeps the compatibility handoff: it 
 
 - Dynamic add does not fetch MCP tools.
 - Entering the server URL sends an unauthenticated MCP `initialize` request to it to establish whether an MCP endpoint is there.
-- Auth wiring may probe authorization discovery endpoints. OAuth configuration creation and DCR execution occur during provision.
+- Static OAuth wiring may probe authorization discovery endpoints. Dynamic OAuth delegates this discovery to TGS. OAuth configuration creation and DCR execution occur during provision.
 - DT-off Fetch Tools may contact the selected MCP server when the developer invokes that follow-up scenario.
 
 ## Flow

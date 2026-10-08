@@ -15,9 +15,6 @@ const SUPPORTED_AUTH_TYPES = new Set([
   "bearer-token",
 ]);
 
-export const MCP_DCR_WELL_KNOWN_URL_PLACEHOLDER =
-  "<PLEASE_FILL_IN_WELL_KNOWN_AUTHORIZATION_SERVER_URL>";
-
 /**
  * Placeholders for a static `oauth` action whose authorization / token URLs could not be
  * discovered. `identityProvider: Custom` is unusable without both, and omitting the fields
@@ -153,11 +150,7 @@ function oauthAction(args: MCPAuthActionArgs, appIdEnvName: string): Record<stri
   };
 }
 
-function dcrAction(
-  args: MCPAuthActionArgs,
-  appIdEnvName: string,
-  wellKnownUrl: string
-): Record<string, unknown> {
+function dcrAction(args: MCPAuthActionArgs, appIdEnvName: string): Record<string, unknown> {
   return {
     uses: "dcr/register",
     with: {
@@ -165,7 +158,7 @@ function dcrAction(
       appId: `\${{${appIdEnvName}}}`,
       applicableToApps: "AnyApp",
       targetAudience: "HomeTenant",
-      wellKnownAuthorizationServer: wellKnownUrl,
+      mcpResourceUrl: args.mcpServerUrl,
       targetUrlsShouldStartWith: [args.mcpServerUrl],
     },
     writeToEnvironmentFile: { configurationId: args.registrationId },
@@ -232,16 +225,11 @@ export function injectMcpAuthActionYaml(
     return failure("The rendered m365agents.yml does not expose a Teams app id.");
   }
 
-  const placeholderUsed = args.authType === "oauth-dynamic" && !args.endpoints.wellKnownUrl;
   const oauthUrlPlaceholderUsed =
     args.authType === "oauth" && (!args.endpoints.authorizationUrl || !args.endpoints.tokenUrl);
   const action =
     args.authType === "oauth-dynamic"
-      ? dcrAction(
-          args,
-          appIdEnvName,
-          args.endpoints.wellKnownUrl ?? MCP_DCR_WELL_KNOWN_URL_PLACEHOLDER
-        )
+      ? dcrAction(args, appIdEnvName)
       : args.authType === "bearer-token"
         ? apiKeyAction(args, appIdEnvName)
         : oauthAction(args, appIdEnvName);
@@ -256,7 +244,7 @@ export function injectMcpAuthActionYaml(
 
   return ok({
     yaml: document.toString(),
-    wellKnownUrlPlaceholderUsed: placeholderUsed,
+    wellKnownUrlPlaceholderUsed: false,
     oauthUrlPlaceholderUsed,
   });
 }

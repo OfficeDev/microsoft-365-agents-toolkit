@@ -458,7 +458,7 @@ describe("updateActionWithMCP", () => {
     assert.isTrue(openFileStub.mock.calls.length === 1);
   });
 
-  it("should inject DCR action when updating action with OAuth dynamic registration", async () => {
+  it("DCR-07: injects endpoint-based DCR when updating an MCP action", async () => {
     const core = new FxCore(tools);
     const inputs: Inputs = {
       projectPath,
@@ -538,7 +538,6 @@ describe("updateActionWithMCP", () => {
       serverName,
       `MCP_DA_AUTH_ID_${serverName.toUpperCase()}`,
       mcpServerUrl,
-      "https://example.com/.well-known/oauth-authorization-server",
     ]);
   });
 

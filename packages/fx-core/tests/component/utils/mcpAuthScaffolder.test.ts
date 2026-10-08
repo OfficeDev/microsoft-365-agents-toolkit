@@ -10,7 +10,6 @@ import {
   deriveMCPManifestOAuth,
   injectMCPAuthActionToYml,
   isMCPScaffoldWarning,
-  MCP_DCR_WELL_KNOWN_URL_PLACEHOLDER,
   MCP_OAUTH_AUTHORIZATION_URL_PLACEHOLDER,
   MCP_OAUTH_TOKEN_URL_PLACEHOLDER,
   mcpAuthScaffolderDeps,
@@ -121,7 +120,7 @@ describe("mcpAuthScaffolder", () => {
       );
     });
 
-    it("resolves endpoints for oauth-dynamic via well-known url", async () => {
+    it("DCR-07: delegates dynamic OAuth metadata discovery to TGS", async () => {
       const stub = vi.spyOn(mcpAuthScaffolderDeps, "resolveMCPOAuthMetadata").mockResolvedValue({
         authorizationUrl: "https://auth/authorize",
         tokenUrl: "https://auth/token",
@@ -134,12 +133,8 @@ describe("mcpAuthScaffolder", () => {
           "https://auth/.well-known/oauth-authorization-server",
       };
       const result = await resolveMCPAuthEndpoints("oauth-dynamic", inputs);
-      assert.equal(result.wellKnownUrl, "https://auth/.well-known/oauth-authorization-server");
-      expect(stub).toHaveBeenCalledExactlyOnceWith(
-        undefined,
-        "https://auth/.well-known/oauth-authorization-server",
-        undefined
-      );
+      assert.deepEqual(result, {});
+      expect(stub).not.toHaveBeenCalled();
     });
   });
 
@@ -166,7 +161,7 @@ describe("mcpAuthScaffolder", () => {
       assert.isTrue(oauthStub.mock.calls.length === 0);
     });
 
-    it("injects DCR action with resolved well-known url", async () => {
+    it("DCR-07: injects DCR using the MCP endpoint even when metadata is available", async () => {
       const dcrStub = vi.spyOn(ActionInjector, "injectCreateDcrActionForMCP").mockResolvedValue();
       const result = await injectMCPAuthActionToYml({
         ...baseArgs,
@@ -178,8 +173,7 @@ describe("mcpAuthScaffolder", () => {
         baseArgs.ymlPath,
         baseArgs.authName,
         baseArgs.registrationId,
-        baseArgs.mcpServerUrl,
-        "https://auth/.well-known/oauth-authorization-server"
+        baseArgs.mcpServerUrl
       );
     });
 
@@ -254,15 +248,20 @@ describe("mcpAuthScaffolder", () => {
       );
     });
 
-    it("injects DCR action with placeholder when well-known url is missing", async () => {
+    it("DCR-07: injects DCR without placeholders when metadata is missing", async () => {
       const dcrStub = vi.spyOn(ActionInjector, "injectCreateDcrActionForMCP").mockResolvedValue();
       const result = await injectMCPAuthActionToYml({
         ...baseArgs,
         authType: "oauth-dynamic",
         endpoints: {},
       });
-      assert.deepEqual(result, { wellKnownUrlPlaceholderUsed: true });
-      assert.equal(dcrStub.mock.calls[0][4], MCP_DCR_WELL_KNOWN_URL_PLACEHOLDER);
+      assert.deepEqual(result, {});
+      expect(dcrStub).toHaveBeenCalledExactlyOnceWith(
+        baseArgs.ymlPath,
+        baseArgs.authName,
+        baseArgs.registrationId,
+        baseArgs.mcpServerUrl
+      );
     });
 
     it("injects OAuth action with placeholders when the endpoints are missing", async () => {

@@ -203,11 +203,11 @@ describe("mcp-auth steps (v4)", () => {
       assert.include(warnings[1].content, "tokenUrl");
     });
 
-    it("warns when oauth-dynamic requires manual replacement of the well-known URL", async () => {
+    it("DCR-07: leaves dynamic OAuth discovery to TGS without placeholder warnings", async () => {
       vi.mocked(mcpAuthScaffoldDeps.probeMCPServerAuth).mockRejectedValue(
         new Error("metadata unavailable")
       );
-      const { ctx, warnings } = makeCtx({ "m365agents.yml": PROVISION_YML });
+      const { ctx, files, warnings } = makeCtx({ "m365agents.yml": PROVISION_YML });
 
       const res = await mcpAuthInjectYmlAction.apply(
         { ymlPath: "m365agents.yml", authType: "oauth-dynamic", mcpServerUrl: SERVER_URL },
@@ -215,10 +215,10 @@ describe("mcp-auth steps (v4)", () => {
       );
 
       assert.isTrue(res.isOk(), res.isErr() ? res.error.message : "expected ok");
-      assert.lengthOf(warnings, 2);
-      assert.include(warnings[0].content, "metadata unavailable");
-      assert.strictEqual(warnings[1].type, "mcpAuthDcrWellKnownUrlPlaceholder");
-      assert.include(warnings[1].content, "wellKnownAuthorizationServer");
+      assert.isEmpty(warnings);
+      assert.include(text(files, "m365agents.yml"), `mcpResourceUrl: ${SERVER_URL}`);
+      assert.notInclude(text(files, "m365agents.yml"), "wellKnownAuthorizationServer:");
+      assert.strictEqual(vi.mocked(mcpAuthScaffoldDeps.probeMCPServerAuth).mock.calls.length, 0);
     });
 
     it("warns when the server URL answered like something that is not an MCP endpoint", async () => {

@@ -56,6 +56,12 @@ Provision.
 | SCN-CREATE-MCP-17 | L1   | `authType=entra-sso` and required `entraClientId`                                                                               | scaffold              | `oauth/register` with `identityProvider: MicrosoftEntra` references only `MCP_DA_OAUTH_CLIENT_ID_<NS>`; the regular environment contains that value and `MCP_DA_AUTH_ID_<NS>=`; no client-secret or scope reference/value is written                                                                                          |
 | SCN-CREATE-MCP-18 | L1   | `authType=oauth-dynamic`, `authType=none`, or `mcpServerType=local`                                                             | scaffold              | no static client id, client secret, scope value, or credential environment reference is written; dynamic registration retains `dcr/register`, while `none` and local retain their existing no-auth behavior                                                                                                                   |
 
+For SCN-CREATE-MCP-18, dynamic registration emits `mcpResourceUrl` and a single
+MCP target URL under YAML v1.13, with no legacy well-known or resource override
+and no well-known-placeholder warning. The service handoff is owned by
+[`register-dcr`](../../operations/auth/register-dcr.md) (DCR-07); TGS performs
+metadata discovery during provision.
+
 The template schema limits `authType` to `none`, `oauth`, `entra-sso`, and
 `oauth-dynamic`. The auth action also defensively rejects unknown values with
 `McpAuthInjectFailed`; that extension-point guard is covered at file-unit tier,
