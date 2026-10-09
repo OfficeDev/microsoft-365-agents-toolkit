@@ -92,7 +92,7 @@
       "agent": "code",
       "tool": "",
       "parameters": {},
-      "description": "@code run \"npm install\" at #text:/home/vscode/AgentsToolkitProjects/${{var:app_name}}",
+      "description": "@code run \"npm install && sed -i 's|https://teams.microsoft.com|https://teams.cloud.microsoft|g' .vscode/launch.json\" at #text:/home/vscode/AgentsToolkitProjects/${{var:app_name}}",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
