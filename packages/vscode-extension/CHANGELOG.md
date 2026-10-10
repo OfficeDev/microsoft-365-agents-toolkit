@@ -2,6 +2,49 @@
 > Note: This changelog only includes the changes for the stable versions of Microsoft 365 Agents Toolkit (evolved from Teams Toolkit). For the changelog of pre-released versions, please refer to the [Microsoft 365 Agents Toolkit Pre-release Changelog](https://github.com/OfficeDev/TeamsFx/blob/dev/packages/vscode-extension/PRERELEASE.md).
 
 
+## 6.18.0 - October 9, 2026
+
+### New Features
+
+#### Support bearer token authentication for MCP actions
+
+You can now add MCP actions that use bearer token authentication in both interactive and non-interactive flows. ATK scaffolds the required manifest authentication entries and provisioning actions for supported project types, while deferring secret collection until provisioning when you do not provide a token up front. This makes it easier to connect to MCP servers that rely on bearer tokens without manual manifest editing. If you use the ATK CLI or action-adding flows in the extension, bearer-token auth is now available as part of the add action experience.
+
+#### Provide API key values when adding actions
+
+When adding OpenAPI or MCP actions, you can now optionally provide the API key value during the add action flow instead of waiting until provisioning. ATK stores supplied values as encrypted local development secrets and wires them into the generated provision actions, while still preserving the existing provision-time prompt if you leave the value blank. Secret naming is also handled safely to avoid collisions in generated projects. This gives you a smoother setup experience in both the CLI and extension, especially when you already know the credentials you want to use.
+
+#### Configure credentials when adding actions or auth configurations
+
+ATK now lets you configure authentication credentials as part of Add Action and Add Auth Config flows, instead of collecting them only later during provision. This supports API key, bearer, OAuth, PKCE, and Microsoft Entra scenarios, and persists credentials across project environments with encryption to prevent plaintext leakage. If you prefer, you can still omit credentials and keep the existing provision-time collection behavior. In practice, this means less context switching and a more complete setup flow whether you work in VS Code or through the CLI.
+
+#### Add a Frontier setting in the VS Code extension
+
+The VS Code extension now includes a `M365AgentsToolkit.enableFrontier` user setting for turning on Frontier features directly from your editor settings. This replaces the previous internal flag naming and gives you a clearer, supported way to opt into experimental functionality. When enabled, the extension loads the setting during startup so Frontier-gated experiences are available right away. To use it, add `"M365AgentsToolkit.enableFrontier": true` to your VS Code settings.
+
+### Enhancement
+
+#### Add an agentplugin CLI alias and align with Agent Plugins v1.0
+
+The ATK CLI now supports `agentplugin` as an alias for the existing `openplugin` import and export commands, reflecting the renamed Agent Plugins specification. Existing scripts continue to work, but new workflows can use the updated command wording while benefiting from improved compatibility with Agent Plugins v1.0. Import remains tolerant of older plugin layouts with warnings, while export now emits the current 1.0.0 shape consistently. This also improves validation, path safety, MCP mapping, and round-trip preservation of supported metadata during conversion.
+
+#### Label experimental features with a Frontier suffix
+
+Features gated behind Frontier are now labeled more clearly in the product UI with a localized `(Frontier)` suffix. This helps you quickly recognize which capabilities are experimental when browsing scaffold options or using the VS Code development tree. The labeling is driven by shared feature-flag logic, so the suffix is automatically removed when a feature is no longer gated. For example, Add Skill now appears as `Add Skill (Frontier)` where applicable.
+
+#### Route declarative agent workflows to the updated experience
+
+For declarative agents, the VS Code extension now routes supported tasks—including creation, validation, packaging, provisioning, sharing, publishing, deletion, and action creation—to [Work IQ Dev Tools (WIQD)](https://microsoft.github.io/wiqd/), Microsoft's agentic experience for Microsoft 365 Copilot extensibility ([GitHub repository](https://github.com/microsoft/wiqd)). When WIQD is unavailable, ATK now stops and provides setup guidance instead of silently falling back, making behavior more predictable. Read-only questions such as schema, manifest, capability, examples, and project structure remain available locally without requiring WIQD. Other project types, including Custom Engine Agents, bots, tabs, message extensions, and supported non-DA flows, continue to use ATK routing as before.
+
+### Bug Fix
+- Fixed validation for API plugin v2.4 manifests so `runtime.spec` is correctly interpreted by runtime type, including MCP dynamic tool discovery scenarios, [PR #16665](https://github.com/OfficeDev/microsoft-365-agents-toolkit/pull/16665)
+- Hardened WebSocket handling and YAML parsing for improved security, [PR #16692](https://github.com/OfficeDev/microsoft-365-agents-toolkit/pull/16692)
+- Ensured environment files are generated before standalone packaging in TypeSpec projects that use a GitHub issues action, [PR #16711](https://github.com/OfficeDev/microsoft-365-agents-toolkit/pull/16711)
+- Fixed non-interactive mode propagation so lifecycle actions such as OAuth and API key registration no longer behave as interactive flows unexpectedly, [PR #16726](https://github.com/OfficeDev/microsoft-365-agents-toolkit/pull/16726)
+- Strengthened v4 scaffolding file I/O and provider contract enforcement to better protect existing files, validate references, and improve compatibility checks, [PR #16736](https://github.com/OfficeDev/microsoft-365-agents-toolkit/pull/16736)
+- Corrected credential typing in message extension templates to avoid TypeScript compatibility issues across Teams SDK versions, [PR #16764](https://github.com/OfficeDev/microsoft-365-agents-toolkit/pull/16764)
+
+
 ## 6.16.0 - September 1, 2026
 
 ### New Features
