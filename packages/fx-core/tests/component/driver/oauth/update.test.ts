@@ -13,6 +13,7 @@ import { UpdateOauthDriver } from "../../../../src/component/driver/oauth/update
 import * as oauthUtility from "../../../../src/component/driver/oauth/utility/utility";
 import {
   OauthRegistrationAppType,
+  OauthRegistrationSupportedAccountTypes,
   OauthRegistrationTargetAudience,
   TokenExchangeMethodType,
 } from "../../../../src/component/driver/teamsApp/interfaces/OauthRegistration";
@@ -1255,5 +1256,135 @@ describe("UpdateOauthDriver", () => {
       expect(result.result.value.size).to.equal(0);
       expect(result.summaries.length).to.equal(1);
     }
+  });
+
+  const supportedAccountTypeUpdateCases: {
+    id: string;
+    input: boolean | undefined;
+    current?: OauthRegistrationSupportedAccountTypes;
+    expected: OauthRegistrationSupportedAccountTypes | undefined;
+    shouldPatch: boolean;
+  }[] = [
+    {
+      id: "OAUTH-MSA-05",
+      input: undefined,
+      current: "Enterprise, Consumer",
+      expected: undefined,
+      shouldPatch: true,
+    },
+    {
+      id: "OAUTH-MSA-06",
+      input: true,
+      current: "Enterprise",
+      expected: "Enterprise, Consumer",
+      shouldPatch: true,
+    },
+    {
+      id: "OAUTH-MSA-07",
+      input: false,
+      current: undefined,
+      expected: undefined,
+      shouldPatch: false,
+    },
+  ];
+  for (const testCase of supportedAccountTypeUpdateCases) {
+    it(`${testCase.id}: preserves or updates supported account types`, async () => {
+      const confirmStub = vi.spyOn(mockedDriverContext.ui, "confirm");
+      vi.spyOn(teamsGraphClient, "getOauthRegistrationById").mockResolvedValue({
+        description: testCase.shouldPatch ? "old name" : "same name",
+        targetUrlsShouldStartWith: ["https://api.example.com"],
+        applicableToApps: OauthRegistrationAppType.AnyApp,
+        targetAudience: OauthRegistrationTargetAudience.AnyTenant,
+        clientId: "mockedClientId",
+        clientSecret: "mockedClientSecret",
+        authorizationEndpoint: "https://auth.example.com/authorize",
+        tokenExchangeEndpoint: "https://auth.example.com/token",
+        scopes: [],
+        isPKCEEnabled: false,
+        ...(testCase.current === undefined ? {} : { supportedAccountTypes: testCase.current }),
+      });
+      const updateStub = vi.spyOn(teamsGraphClient, "updateOauthRegistration").mockResolvedValue({
+        description: "new name",
+        targetUrlsShouldStartWith: ["https://api.example.com"],
+        applicableToApps: OauthRegistrationAppType.AnyApp,
+        targetAudience: OauthRegistrationTargetAudience.AnyTenant,
+        clientId: "mockedClientId",
+        clientSecret: "mockedClientSecret",
+        authorizationEndpoint: "https://auth.example.com/authorize",
+        tokenExchangeEndpoint: "https://auth.example.com/token",
+        scopes: [],
+      });
+      const args: UpdateOauthArgs = {
+        name: testCase.shouldPatch ? "new name" : "same name",
+        configurationId: "mockedRegistrationId",
+        baseUrl: "https://api.example.com",
+        authorizationUrl: "https://auth.example.com/authorize",
+        tokenUrl: "https://auth.example.com/token",
+        ...(testCase.input === undefined
+          ? {}
+          : { includePersonalMicrosoftAccounts: testCase.input }),
+      };
+
+      const result = await updateOauthDriver.execute(args, mockedDriverContext);
+
+      expect(result.result.isOk()).to.be.true;
+      if (!testCase.shouldPatch) {
+        expect(updateStub).not.toHaveBeenCalled();
+      } else {
+        expect(updateStub).toHaveBeenCalledOnce();
+        if (testCase.expected === undefined) {
+          expect(updateStub.mock.calls[0][1]).not.to.have.property("supportedAccountTypes");
+        } else {
+          expect(updateStub.mock.calls[0][1].supportedAccountTypes).to.equal(testCase.expected);
+        }
+        if (testCase.input === true) {
+          const confirmConfig = confirmStub.mock.calls[0][0];
+          expect(confirmConfig.title).to.include("includePersonalMicrosoftAccounts: false => true");
+        }
+      }
+    });
+  }
+
+  it("OAUTH-MSA-08: rejects a non-boolean personal account option before PATCH", async () => {
+    const updateStub = vi.spyOn(teamsGraphClient, "updateOauthRegistration");
+    const args: any = {
+      name: "same name",
+      configurationId: "mockedRegistrationId",
+      baseUrl: "https://api.example.com",
+      includePersonalMicrosoftAccounts: "true",
+    };
+
+    const result = await updateOauthDriver.execute(args, mockedDriverContext);
+
+    expect(result.result.isErr()).to.be.true;
+    expect(updateStub).not.toHaveBeenCalled();
+  });
+
+  it("OAUTH-MSA-08: rejects the parameter for Microsoft Entra before PATCH", async () => {
+    vi.spyOn(teamsGraphClient, "getOauthRegistrationById").mockResolvedValue({
+      description: "same name",
+      targetUrlsShouldStartWith: ["https://api.example.com"],
+      applicableToApps: OauthRegistrationAppType.AnyApp,
+      targetAudience: OauthRegistrationTargetAudience.AnyTenant,
+      clientId: "mockedClientId",
+      clientSecret: "",
+      scopes: [],
+      identityProvider: "MicrosoftEntra",
+      useSingleSignOn: true,
+    });
+    const updateStub = vi.spyOn(teamsGraphClient, "updateOauthRegistration");
+
+    const result = await updateOauthDriver.execute(
+      {
+        name: "same name",
+        configurationId: "mockedRegistrationId",
+        baseUrl: "https://api.example.com",
+        includePersonalMicrosoftAccounts: true,
+      },
+      mockedDriverContext
+    );
+
+    expect(result.result.isErr()).to.be.true;
+    expect(updateStub).not.toHaveBeenCalled();
   });
 });

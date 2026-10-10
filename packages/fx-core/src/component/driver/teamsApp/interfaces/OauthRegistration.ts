@@ -49,7 +49,11 @@ export interface OauthRegistration {
    * Whether SSO is enabled. Must be true for MicrosoftEntra identity provider.
    */
   useSingleSignOn?: boolean;
+
+  supportedAccountTypes?: OauthRegistrationSupportedAccountTypes;
 }
+
+export type OauthRegistrationSupportedAccountTypes = "Enterprise" | "Enterprise, Consumer";
 
 export enum TokenExchangeMethodType {
   BasicAuthorizationHeader = "BasicAuthorizationHeader",

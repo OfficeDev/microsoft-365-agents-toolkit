@@ -10,7 +10,7 @@
     "environmentFolderPath": {
       "type": "string",
       "description": "The folder path of .env files used for variables and different environments."
-      },
+    },
     "version": {
       "type": "string",
       "description": "The version of the yaml file schema",
@@ -22,7 +22,7 @@
       "additionalProperties": true,
       "properties": {
         "sampleTag": {
-          "type": ["number","string","boolean","object","array", "null", "integer"],
+          "type": ["number", "string", "boolean", "object", "array", "null", "integer"],
           "description": "A tag for the sample app used to track telemetry events sent by Microsoft 365 Agents Toolkit associated with that sample. Pattern: <sample-repo>:<sample-name>"
         }
       }
@@ -76,16 +76,16 @@
           { "$ref": "#/definitions/spfxDeploy" },
           { "$ref": "#/definitions/teamsAppCopyAppPackageToSPFx" },
           { "$ref": "#/definitions/script" },
-          { "$ref": "#/definitions/apiKeyRegister"},
-          { "$ref": "#/definitions/azureStaticWebAppGetDeploymentKey"},
-          { "$ref": "#/definitions/apiKeyUpdate"},
-          { "$ref": "#/definitions/oauthRegister"},
-          { "$ref": "#/definitions/oauthUpdate"},
-          { "$ref": "#/definitions/dcrRegister"},
-          { "$ref": "#/definitions/devChannelCreate"},
-          { "$ref": "#/definitions/devChannelInstallApp"},
-          { "$ref": "#/definitions/typeSpecCompile"},
-          { "$ref": "#/definitions/copilotAgentPublish"}
+          { "$ref": "#/definitions/apiKeyRegister" },
+          { "$ref": "#/definitions/azureStaticWebAppGetDeploymentKey" },
+          { "$ref": "#/definitions/apiKeyUpdate" },
+          { "$ref": "#/definitions/oauthRegister" },
+          { "$ref": "#/definitions/oauthUpdate" },
+          { "$ref": "#/definitions/dcrRegister" },
+          { "$ref": "#/definitions/devChannelCreate" },
+          { "$ref": "#/definitions/devChannelInstallApp" },
+          { "$ref": "#/definitions/typeSpecCompile" },
+          { "$ref": "#/definitions/copilotAgentPublish" }
         ]
       }
     },
@@ -115,7 +115,7 @@
     "aadAppCreateWithSecret": {
       "type": "object",
       "additionalProperties": false,
-      "allOf": [ { "$ref": "#/definitions/aadAppCreateBase" } ],
+      "allOf": [{ "$ref": "#/definitions/aadAppCreateBase" }],
       "required": ["with", "writeToEnvironmentFile"],
       "properties": {
         "name": {},
@@ -144,7 +144,12 @@
             "signInAudience": {
               "type": "string",
               "description": "Specifies what Microsoft accounts are supported for the current application.",
-              "enum": ["AzureADMyOrg", "AzureADMultipleOrgs", "AzureADandPersonalMicrosoftAccount", "PersonalMicrosoftAccount"]
+              "enum": [
+                "AzureADMyOrg",
+                "AzureADMultipleOrgs",
+                "AzureADandPersonalMicrosoftAccount",
+                "PersonalMicrosoftAccount"
+              ]
             },
             "serviceManagementReference": {
               "type": "string",
@@ -197,7 +202,7 @@
     },
     "aadAppCreateWithoutSecret": {
       "type": "object",
-      "allOf": [ { "$ref": "#/definitions/aadAppCreateBase" } ],
+      "allOf": [{ "$ref": "#/definitions/aadAppCreateBase" }],
       "required": ["with", "writeToEnvironmentFile"],
       "additionalProperties": false,
       "properties": {
@@ -227,7 +232,12 @@
             "signInAudience": {
               "type": "string",
               "description": "Specifies what Microsoft accounts are supported for the current application.",
-              "enum": ["AzureADMyOrg", "AzureADMultipleOrgs", "AzureADandPersonalMicrosoftAccount", "PersonalMicrosoftAccount"]
+              "enum": [
+                "AzureADMyOrg",
+                "AzureADMultipleOrgs",
+                "AzureADandPersonalMicrosoftAccount",
+                "PersonalMicrosoftAccount"
+              ]
             },
             "serviceManagementReference": {
               "type": "string",
@@ -1049,7 +1059,7 @@
               "$ref": "#/definitions/secretEnvVarName"
             }
           }
-        }        
+        }
       }
     },
     "botframeworkCreate": {
@@ -1104,7 +1114,10 @@
               "type": "array",
               "description": "the channel(s) to be enabled of the bot",
               "items": {
-                "oneOf": [{ "$ref": "#/definitions/MsTeamsChannel" }, { "$ref": "#/definitions/M365ExtensionsChannel" }]
+                "oneOf": [
+                  { "$ref": "#/definitions/MsTeamsChannel" },
+                  { "$ref": "#/definitions/M365ExtensionsChannel" }
+                ]
               }
             }
           }
@@ -1281,9 +1294,7 @@
               "type": "object",
               "description": "Install Azure Functions Core Tools. This will output environment variable specified by `funcPath` to current environment's .env file.",
               "additionalProperties": false,
-              "required": [
-                "version"
-              ],
+              "required": ["version"],
               "properties": {
                 "version": {
                   "oneOf": [
@@ -1557,7 +1568,7 @@
               "description": "redirect stdout and stderr to a file"
             }
           }
-        }        
+        }
       }
     },
     "relativePath": {
@@ -1841,6 +1852,10 @@
               "type": "string",
               "description": "Token exchange method type, can be BasicAuthorizationHeader or PostRequestBody. BasicAuthorizationHeader: token exchange via HTTP headers, PostRequestBody: token exchange via request body. Default is BasicAuthorizationHeader.",
               "enum": ["BasicAuthorizationHeader", "PostRequestBody"]
+            },
+            "includePersonalMicrosoftAccounts": {
+              "type": "boolean",
+              "description": "Whether to allow personal Microsoft accounts in addition to work or school accounts. Omit to preserve the existing behavior."
             }
           }
         },
@@ -1941,6 +1956,10 @@
               "type": "string",
               "description": "Token exchange method type, can be BasicAuthorizationHeader or PostRequestBody. BasicAuthorizationHeader: token exchange via HTTP headers, PostRequestBody: token exchange via request body. Default is BasicAuthorizationHeader.",
               "enum": ["BasicAuthorizationHeader", "PostRequestBody"]
+            },
+            "includePersonalMicrosoftAccounts": {
+              "type": "boolean",
+              "description": "Whether to allow personal Microsoft accounts in addition to work or school accounts. Omit to leave the existing service value unchanged."
             }
           }
         }
@@ -2006,6 +2025,10 @@
               "type": "string",
               "description": "Tenants permitted to use this configuration: HomeTenant (default) or AnyTenant.",
               "enum": ["HomeTenant", "AnyTenant"]
+            },
+            "includePersonalMicrosoftAccounts": {
+              "type": "boolean",
+              "description": "Whether to allow personal Microsoft accounts in addition to work or school accounts. Omit to preserve the existing behavior."
             }
           }
         },

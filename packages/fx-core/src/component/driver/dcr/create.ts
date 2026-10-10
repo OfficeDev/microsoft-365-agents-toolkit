@@ -24,6 +24,10 @@ import { CreateDcrArgs } from "./interface/createDcrArgs";
 import { CreateDcrOutputs, OutputKeys } from "./interface/createDcrOutputs";
 import { logMessageKeys } from "./utility/constants";
 import { validateUrl } from "../oauth/utility/utility";
+import {
+  mapPersonalMicrosoftAccountsOption,
+  validateSupportedAccountTypesCloud,
+} from "../oauth/utility/supportedAccountTypes";
 
 const actionName = "dcr/register"; // DO NOT MODIFY the name
 
@@ -46,6 +50,19 @@ export class CreateDcrDriver implements StepDriver {
 
       if (!outputEnvVarNames) {
         throw new OutputEnvironmentVariableUndefinedError(actionName);
+      }
+
+      const supportedAccountTypesResult = mapPersonalMicrosoftAccountsOption(
+        args.includePersonalMicrosoftAccounts,
+        actionName
+      );
+      if (supportedAccountTypesResult.isErr()) {
+        throw supportedAccountTypesResult.error;
+      }
+      const supportedAccountTypes = supportedAccountTypesResult.value;
+      const cloudValidation = validateSupportedAccountTypesCloud(supportedAccountTypes, actionName);
+      if (cloudValidation.isErr()) {
+        throw cloudValidation.error;
       }
 
       const state = loadStateFromEnv(outputEnvVarNames) as CreateDcrOutputs;
@@ -89,6 +106,7 @@ export class CreateDcrDriver implements StepDriver {
             ? { wellKnownAuthorizationServer: args.wellKnownAuthorizationServer }
             : {}),
           ...(args.resource !== undefined ? { resource: args.resource } : {}),
+          ...(supportedAccountTypes !== undefined ? { supportedAccountTypes } : {}),
         };
 
         const oauthRegistrationRes = await teamsGraphClient.createDcrRegistration(

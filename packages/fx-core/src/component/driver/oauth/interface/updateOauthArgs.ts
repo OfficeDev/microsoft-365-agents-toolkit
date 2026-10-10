@@ -19,4 +19,5 @@ export interface UpdateOauthArgs {
   scope?: string; // Scope(s) for Oauth, separated by a comma
   tokenUrl?: string; // Token url
   authorizationUrl?: string; // Authorization url
+  includePersonalMicrosoftAccounts?: boolean;
 }

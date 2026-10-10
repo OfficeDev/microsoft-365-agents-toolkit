@@ -1172,6 +1172,7 @@
   "core.createProjectQuestion.mcpForDa.EntraClientId.title": "Microsoft Entra Application (Client) ID",
   "core.createProjectQuestion.mcpForDa.EntraClientId.placeholder": "Enter the Application (client) ID of your Microsoft Entra app registration",
   "core.createProjectQuestion.mcpForDa.EntraClientId.required": "Microsoft Entra Application (Client) ID is required.",
+  "driver.oauth.error.supportedAccountTypesUnsupportedCloud": "Personal Microsoft accounts for OAuth configurations are not supported in Government Cloud.",
   "core.createProjectQuestion.mcpForDa.File.title": "Select the action manifest you want to update",
   "core.createProjectQuestion.mcpForDa.File.createNew.label": "Create a new ai-plugin.json",
   "core.createProjectQuestion.mcpForDa.File.createNew.title": "Name the new action manifest file",
