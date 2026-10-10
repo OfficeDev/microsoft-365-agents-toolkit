@@ -34,9 +34,9 @@
       "agent": "interaction",
       "tool": "type_text",
       "parameters": {
-        "text": "${{env:RESOURCE_GROUP_REGION}}"
+        "text": "Central US"
       },
-      "description": "Type #text:${{env:RESOURCE_GROUP_REGION}} into the \"Location for the new resource group\" input field within the Visual Studio Code extension interface for Microsoft 365 Agents, triggering a dropdown list of region options.",
+      "description": "Type \"Central US\" into the \"Location for the new resource group\" input field within the Visual Studio Code extension interface for Microsoft 365 Agents, filtering to the recommended default region.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -53,10 +53,10 @@
     },
     {
       "step_id": "step_82e9023a",
-      "agent": "code",
+      "agent": "assertion",
       "tool": "",
       "parameters": {},
-      "description": "@code there's drop list shows includes ${{env:RESOURCE_GROUP_REGION}}.",
+      "description": "@assertion the region dropdown includes \"Central US\".",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -76,7 +76,7 @@
       "parameters": {
         "key": "enter"
       },
-      "description": "Press the Enter key to select ${{env:RESOURCE_GROUP_REGION}} from the region dropdown in the \"Location for the new resource group\" input field within the Visual Studio Code interface.",
+      "description": "Press the Enter key to select \"Central US\" from the region dropdown in the \"Location for the new resource group\" input field within the Visual Studio Code interface.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
