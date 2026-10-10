@@ -14,6 +14,7 @@ import { addStartAndEndTelemetry } from "../middleware/addStartAndEndTelemetry";
 import {
   OauthRegistration,
   OauthRegistrationAppType,
+  OauthRegistrationSupportedAccountTypes,
   OauthRegistrationTargetAudience,
   TokenExchangeMethodType,
 } from "../teamsApp/interfaces/OauthRegistration";
@@ -22,6 +23,10 @@ import { OauthNameTooLongError } from "./error/oauthNameTooLong";
 import { UpdateOauthArgs } from "./interface/updateOauthArgs";
 import { logMessageKeys } from "./utility/constants";
 import { OauthInfo, getAuthInfo, validateSecret, validateUrl } from "./utility/utility";
+import {
+  normalizeSupportedAccountTypes,
+  validateSupportedAccountTypesCloud,
+} from "./utility/supportedAccountTypes";
 
 const actionName = "oauth/update"; // DO NOT MODIFY the name
 const helpLink = "https://aka.ms/teamsfx-actions/oauth-update";
@@ -48,6 +53,18 @@ export class UpdateOauthDriver implements StepDriver {
       if (invalidParameters.length > 0) {
         throw new InvalidActionInputError(actionName, invalidParameters, helpLink);
       }
+      const supportedAccountTypesResult = normalizeSupportedAccountTypes(
+        args.supportedAccountTypes,
+        actionName
+      );
+      if (supportedAccountTypesResult.isErr()) {
+        throw supportedAccountTypesResult.error;
+      }
+      const supportedAccountTypes = supportedAccountTypesResult.value;
+      const cloudValidation = validateSupportedAccountTypesCloud(supportedAccountTypes, actionName);
+      if (cloudValidation.isErr()) {
+        throw cloudValidation.error;
+      }
 
       const authInfo = await getAuthInfo(args, context, actionName);
 
@@ -65,6 +82,9 @@ export class UpdateOauthDriver implements StepDriver {
 
       const isCustomIdentityProvider =
         !getOauthRes.identityProvider || getOauthRes.identityProvider === "Custom";
+      if (!isCustomIdentityProvider && supportedAccountTypes !== undefined) {
+        throw new InvalidActionInputError(actionName, ["supportedAccountTypes"], helpLink);
+      }
 
       if (!getOauthRes.m365AppId && args.applicableToApps === "SpecificApp" && !args.appId) {
         invalidParameters.push("appId");
@@ -90,7 +110,12 @@ export class UpdateOauthDriver implements StepDriver {
         throw new OauthDisablePKCEError(actionName);
       }
 
-      const diffMsgs = this.compareOauthRegistration(getOauthRes, args, authInfo);
+      const diffMsgs = this.compareOauthRegistration(
+        getOauthRes,
+        args,
+        authInfo,
+        supportedAccountTypes
+      );
       // If there is no difference, skip the update
       if (!diffMsgs || diffMsgs.length === 0) {
         const summary = getLocalizedString(logMessageKeys.skipUpdateOauth);
@@ -123,7 +148,12 @@ export class UpdateOauthDriver implements StepDriver {
         }
       }
 
-      const oauth = this.mapArgsToOauthRegistration(args, authInfo, isCustomIdentityProvider);
+      const oauth = this.mapArgsToOauthRegistration(
+        args,
+        authInfo,
+        isCustomIdentityProvider,
+        supportedAccountTypes
+      );
       await teamsGraphClient.updateOauthRegistration(appStudioToken, oauth, args.configurationId);
 
       void context.ui!.showMessage(
@@ -232,10 +262,19 @@ export class UpdateOauthDriver implements StepDriver {
   private compareOauthRegistration(
     current: OauthRegistration,
     input: UpdateOauthArgs,
-    authInfo: OauthInfo
+    authInfo: OauthInfo,
+    supportedAccountTypes: OauthRegistrationSupportedAccountTypes | undefined
   ): string[] {
     const diffMsgs: string[] = [];
     const isMicrosoftEntra = current.identityProvider === "MicrosoftEntra";
+    if (
+      supportedAccountTypes !== undefined &&
+      (current.supportedAccountTypes ?? "Enterprise") !== supportedAccountTypes
+    ) {
+      diffMsgs.push(
+        `supportedAccountTypes: ${current.supportedAccountTypes ?? "Enterprise"} => ${supportedAccountTypes}`
+      );
+    }
     if (current.description !== input.name) {
       diffMsgs.push(`description: ${current.description as string} => ${input.name}`);
     }
@@ -371,7 +410,8 @@ export class UpdateOauthDriver implements StepDriver {
   private mapArgsToOauthRegistration(
     args: UpdateOauthArgs,
     authInfo: OauthInfo,
-    isCustomIdentityProvider: boolean
+    isCustomIdentityProvider: boolean,
+    supportedAccountTypes: OauthRegistrationSupportedAccountTypes | undefined
   ): OauthRegistration {
     const targetAudience = args.targetAudience
       ? (args.targetAudience as OauthRegistrationTargetAudience)
@@ -393,6 +433,7 @@ export class UpdateOauthDriver implements StepDriver {
       isPKCEEnabled: !!args.isPKCEEnabled,
       tokenExchangeMethodType: tokenExchangeMethodType,
       scopes: authInfo.scopes ?? [],
+      ...(supportedAccountTypes !== undefined ? { supportedAccountTypes } : {}),
     } as OauthRegistration;
 
     if (isCustomIdentityProvider) {

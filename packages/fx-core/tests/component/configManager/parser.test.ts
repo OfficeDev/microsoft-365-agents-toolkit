@@ -235,7 +235,7 @@ describe("v3 yaml parser", () => {
   });
 
   describe(`when parsing yml with dcr/register action`, () => {
-    for (const schemaVersion of ["v1.13", ""]) {
+    for (const schemaVersion of ["v1.13", "v1.14", ""]) {
       describe(`DCR-08: ${schemaVersion || "default"} schema`, () => {
         const schema = fs.readJSONSync(
           path.resolve(
@@ -263,7 +263,7 @@ describe("v3 yaml parser", () => {
           it(`accepts ${Object.keys(input).join(", ")}`, () => {
             assert.isTrue(
               validate({
-                version: "v1.13",
+                version: schemaVersion || "v1.14",
                 provision: [
                   {
                     uses: "dcr/register",
@@ -293,7 +293,7 @@ describe("v3 yaml parser", () => {
           it(`rejects unsupported shape ${index + 1}`, () => {
             assert.isFalse(
               validate({
-                version: "v1.13",
+                version: schemaVersion || "v1.14",
                 provision: [
                   {
                     uses: "dcr/register",
@@ -312,7 +312,7 @@ describe("v3 yaml parser", () => {
       const root = path.resolve(__dirname, "../../../resource/yaml-schema");
       assert.deepEqual(
         fs.readJSONSync(path.join(root, "yaml.schema.json")).definitions.dcrRegister,
-        fs.readJSONSync(path.join(root, "v1.13/yaml.schema.json")).definitions.dcrRegister
+        fs.readJSONSync(path.join(root, "v1.14/yaml.schema.json")).definitions.dcrRegister
       );
     });
 
@@ -343,6 +343,79 @@ describe("v3 yaml parser", () => {
       } finally {
         read.mockRestore();
       }
+    });
+
+    for (const supportedAccountTypes of [
+      "Enterprise",
+      "Enterprise, Consumer",
+      "Consumer, Enterprise",
+    ]) {
+      it(`OAUTH-MSA-02: v1.14 accepts ${supportedAccountTypes} for OAuth and DCR actions`, () => {
+        const schema = fs.readJSONSync(
+          path.resolve(__dirname, "../../../resource/yaml-schema/v1.14/yaml.schema.json")
+        );
+        const ajv = new Ajv({ allowUnionTypes: true });
+        ajv.addKeyword("deprecationMessage");
+        const validate = ajv.compile(schema);
+
+        assert.isTrue(
+          validate({
+            version: "v1.14",
+            provision: [
+              {
+                uses: "oauth/register",
+                with: { name: "test-oauth", flow: "authorizationCode", supportedAccountTypes },
+                writeToEnvironmentFile: { configurationId: "OAUTH_CONFIGURATION_ID" },
+              },
+              {
+                uses: "oauth/update",
+                with: {
+                  name: "test-oauth",
+                  configurationId: "existing-id",
+                  supportedAccountTypes,
+                },
+              },
+              {
+                uses: "dcr/register",
+                with: {
+                  name: "test-dcr",
+                  mcpResourceUrl: "https://mcp.example.com/mcp",
+                  targetUrlsShouldStartWith: ["https://mcp.example.com/mcp"],
+                  supportedAccountTypes,
+                },
+                writeToEnvironmentFile: { configurationId: "DCR_CONFIGURATION_ID" },
+              },
+            ],
+          }),
+          JSON.stringify(validate.errors)
+        );
+      });
+    }
+
+    it("OAUTH-MSA-03: v1.14 rejects consumer-only account types", () => {
+      const schema = fs.readJSONSync(
+        path.resolve(__dirname, "../../../resource/yaml-schema/v1.14/yaml.schema.json")
+      );
+      const ajv = new Ajv({ allowUnionTypes: true });
+      ajv.addKeyword("deprecationMessage");
+      const validate = ajv.compile(schema);
+
+      assert.isFalse(
+        validate({
+          version: "v1.14",
+          provision: [
+            {
+              uses: "oauth/register",
+              with: {
+                name: "test-oauth",
+                flow: "authorizationCode",
+                supportedAccountTypes: "Consumer",
+              },
+              writeToEnvironmentFile: { configurationId: "OAUTH_CONFIGURATION_ID" },
+            },
+          ],
+        })
+      );
     });
 
     it("should return ok for valid dcr/register", async () => {

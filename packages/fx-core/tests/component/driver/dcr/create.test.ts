@@ -496,4 +496,56 @@ describe("CreateDcrDriver", () => {
       expect(result.result.error.message).to.include("targetUrlsShouldStartWith");
     }
   });
+
+  for (const testCase of [
+    { id: "DCR-MSA-01", input: undefined, expected: undefined },
+    {
+      id: "DCR-MSA-02",
+      input: "Consumer, Enterprise",
+      expected: "Enterprise, Consumer",
+    },
+  ]) {
+    it(`${testCase.id}: maps the optional account types to the DCR payload`, async () => {
+      const createStub = vi
+        .spyOn(teamsGraphClient, "createDcrRegistration")
+        .mockResolvedValue(fakeCreateDcrResponse);
+      const args = {
+        name: "mcp-resource-test",
+        mcpResourceUrl: "https://mcp.example.com/mcp",
+        targetUrlsShouldStartWith: ["https://mcp.example.com/mcp"],
+        ...(testCase.input === undefined ? {} : { supportedAccountTypes: testCase.input }),
+      };
+
+      const result = await createDcrDriver.execute(args, mockedDriverContext, outputEnvVarNames);
+
+      expect(result.result.isOk()).to.be.true;
+      expect(createStub).toHaveBeenCalledOnce();
+      if (testCase.expected === undefined) {
+        expect(createStub.mock.calls[0][1]).not.to.have.property("supportedAccountTypes");
+      } else {
+        expect(createStub.mock.calls[0][1].supportedAccountTypes).to.equal(testCase.expected);
+      }
+    });
+  }
+
+  it("DCR-MSA-03: rejects the parameter outside Public cloud before POST", async () => {
+    envRestore = mockedEnv({
+      TEAMSFX_SOVEREIGN_CLOUD_ENVIRONMENT: "GCC H",
+    });
+    const createStub = vi.spyOn(teamsGraphClient, "createDcrRegistration");
+
+    const result = await createDcrDriver.execute(
+      {
+        name: "mcp-resource-test",
+        mcpResourceUrl: "https://mcp.example.com/mcp",
+        targetUrlsShouldStartWith: ["https://mcp.example.com/mcp"],
+        supportedAccountTypes: "Enterprise, Consumer",
+      },
+      mockedDriverContext,
+      outputEnvVarNames
+    );
+
+    expect(result.result.isErr()).to.be.true;
+    expect(createStub).not.toHaveBeenCalled();
+  });
 });

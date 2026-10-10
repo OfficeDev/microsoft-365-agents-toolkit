@@ -24,6 +24,10 @@ import { CreateDcrArgs } from "./interface/createDcrArgs";
 import { CreateDcrOutputs, OutputKeys } from "./interface/createDcrOutputs";
 import { logMessageKeys } from "./utility/constants";
 import { validateUrl } from "../oauth/utility/utility";
+import {
+  normalizeSupportedAccountTypes,
+  validateSupportedAccountTypesCloud,
+} from "../oauth/utility/supportedAccountTypes";
 
 const actionName = "dcr/register"; // DO NOT MODIFY the name
 
@@ -68,6 +72,21 @@ export class CreateDcrDriver implements StepDriver {
         const appStudioToken = appStudioTokenRes.value;
 
         this.validateArgs(args);
+        const supportedAccountTypesResult = normalizeSupportedAccountTypes(
+          args.supportedAccountTypes,
+          actionName
+        );
+        if (supportedAccountTypesResult.isErr()) {
+          throw supportedAccountTypesResult.error;
+        }
+        const supportedAccountTypes = supportedAccountTypesResult.value;
+        const cloudValidation = validateSupportedAccountTypesCloud(
+          supportedAccountTypes,
+          actionName
+        );
+        if (cloudValidation.isErr()) {
+          throw cloudValidation.error;
+        }
 
         const applicableToApps = args.applicableToApps
           ? (args.applicableToApps as OauthRegistrationAppType)
@@ -89,6 +108,7 @@ export class CreateDcrDriver implements StepDriver {
             ? { wellKnownAuthorizationServer: args.wellKnownAuthorizationServer }
             : {}),
           ...(args.resource !== undefined ? { resource: args.resource } : {}),
+          ...(supportedAccountTypes !== undefined ? { supportedAccountTypes } : {}),
         };
 
         const oauthRegistrationRes = await teamsGraphClient.createDcrRegistration(

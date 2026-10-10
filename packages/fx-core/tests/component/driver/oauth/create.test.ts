@@ -1825,4 +1825,83 @@ describe("CreateOauthDriver", () => {
       expect(result.result.error.message.includes("flow")).to.be.true;
     }
   });
+
+  for (const testCase of [
+    { id: "OAUTH-MSA-01", input: undefined, expected: undefined },
+    {
+      id: "OAUTH-MSA-02",
+      input: "Consumer, Enterprise",
+      expected: "Enterprise, Consumer",
+    },
+  ]) {
+    it(`${testCase.id}: maps the optional account types to the create payload`, async () => {
+      const createStub = vi.spyOn(teamsGraphClient, "createOauthRegistration").mockResolvedValue({
+        configurationRegistrationId: { oAuthConfigId: "mockedRegistrationId" },
+        resourceIdentifierUri: "mockedResourceIdentifierUri",
+      });
+      const args: CreateOauthArgs = {
+        name: "test",
+        appId: "mockedAppId",
+        flow: "authorizationCode",
+        clientId: "mockedClientId",
+        clientSecret: "mockedClientSecret",
+        baseUrl: "https://api.example.com",
+        authorizationUrl: "https://auth.example.com/authorize",
+        tokenUrl: "https://auth.example.com/token",
+        ...(testCase.input === undefined ? {} : { supportedAccountTypes: testCase.input }),
+      };
+
+      const result = await createOauthDriver.execute(args, mockedDriverContext, outputEnvVarNames);
+
+      expect(result.result.isOk()).to.be.true;
+      expect(createStub).toHaveBeenCalledOnce();
+      if (testCase.expected === undefined) {
+        expect(createStub.mock.calls[0][1]).not.to.have.property("supportedAccountTypes");
+      } else {
+        expect(createStub.mock.calls[0][1].supportedAccountTypes).to.equal(testCase.expected);
+      }
+    });
+  }
+
+  it("OAUTH-MSA-04: rejects the parameter for Microsoft Entra before POST", async () => {
+    const createStub = vi.spyOn(teamsGraphClient, "createOauthRegistration");
+    const result = await createOauthDriver.execute(
+      {
+        name: "test",
+        appId: "mockedAppId",
+        flow: "authorizationCode",
+        clientId: "mockedClientId",
+        baseUrl: "https://api.example.com",
+        identityProvider: "MicrosoftEntra",
+        supportedAccountTypes: "Enterprise, Consumer",
+      },
+      mockedDriverContext,
+      outputEnvVarNames
+    );
+
+    expect(result.result.isErr()).to.be.true;
+    expect(createStub).not.toHaveBeenCalled();
+  });
+
+  it("OAUTH-MSA-03: rejects malformed account types before POST", async () => {
+    const createStub = vi.spyOn(teamsGraphClient, "createOauthRegistration");
+    const result = await createOauthDriver.execute(
+      {
+        name: "test",
+        appId: "mockedAppId",
+        flow: "authorizationCode",
+        clientId: "mockedClientId",
+        clientSecret: "mockedClientSecret",
+        baseUrl: "https://api.example.com",
+        authorizationUrl: "https://auth.example.com/authorize",
+        tokenUrl: "https://auth.example.com/token",
+        supportedAccountTypes: "Consumer",
+      },
+      mockedDriverContext,
+      outputEnvVarNames
+    );
+
+    expect(result.result.isErr()).to.be.true;
+    expect(createStub).not.toHaveBeenCalled();
+  });
 });

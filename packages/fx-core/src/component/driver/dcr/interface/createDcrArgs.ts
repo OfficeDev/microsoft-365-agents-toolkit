@@ -10,4 +10,5 @@ export interface CreateDcrArgs {
   targetUrlsShouldStartWith: string[];
   applicableToApps?: string; // Which apps can use this config. Values: "SpecificApp" | "AnyApp". Default: "AnyApp".
   targetAudience?: string; // Which tenants can use this config. Values: "HomeTenant" | "AnyTenant". Default: "HomeTenant".
+  supportedAccountTypes?: string; // Microsoft account types allowed to use this OAuth configuration
 }
