@@ -22,7 +22,6 @@ const supportedVersions = [
   "v1.11",
   "v1.12",
   "v1.13",
-  "v1.14",
 ];
 
 export class Validator {

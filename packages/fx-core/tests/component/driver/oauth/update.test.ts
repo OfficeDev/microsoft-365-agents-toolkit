@@ -1260,7 +1260,7 @@ describe("UpdateOauthDriver", () => {
 
   const supportedAccountTypeUpdateCases: {
     id: string;
-    input: string | undefined;
+    input: boolean | undefined;
     current?: OauthRegistrationSupportedAccountTypes;
     expected: OauthRegistrationSupportedAccountTypes | undefined;
     shouldPatch: boolean;
@@ -1274,14 +1274,14 @@ describe("UpdateOauthDriver", () => {
     },
     {
       id: "OAUTH-MSA-06",
-      input: "Consumer, Enterprise",
+      input: true,
       current: "Enterprise",
       expected: "Enterprise, Consumer",
       shouldPatch: true,
     },
     {
       id: "OAUTH-MSA-07",
-      input: "Enterprise",
+      input: false,
       current: undefined,
       expected: undefined,
       shouldPatch: false,
@@ -1289,6 +1289,7 @@ describe("UpdateOauthDriver", () => {
   ];
   for (const testCase of supportedAccountTypeUpdateCases) {
     it(`${testCase.id}: preserves or updates supported account types`, async () => {
+      const confirmStub = vi.spyOn(mockedDriverContext.ui, "confirm");
       vi.spyOn(teamsGraphClient, "getOauthRegistrationById").mockResolvedValue({
         description: testCase.shouldPatch ? "old name" : "same name",
         targetUrlsShouldStartWith: ["https://api.example.com"],
@@ -1319,7 +1320,9 @@ describe("UpdateOauthDriver", () => {
         baseUrl: "https://api.example.com",
         authorizationUrl: "https://auth.example.com/authorize",
         tokenUrl: "https://auth.example.com/token",
-        ...(testCase.input === undefined ? {} : { supportedAccountTypes: testCase.input }),
+        ...(testCase.input === undefined
+          ? {}
+          : { includePersonalMicrosoftAccounts: testCase.input }),
       };
 
       const result = await updateOauthDriver.execute(args, mockedDriverContext);
@@ -1334,9 +1337,28 @@ describe("UpdateOauthDriver", () => {
         } else {
           expect(updateStub.mock.calls[0][1].supportedAccountTypes).to.equal(testCase.expected);
         }
+        if (testCase.input === true) {
+          const confirmConfig = confirmStub.mock.calls[0][0];
+          expect(confirmConfig.title).to.include("includePersonalMicrosoftAccounts: false => true");
+        }
       }
     });
   }
+
+  it("OAUTH-MSA-08: rejects a non-boolean personal account option before PATCH", async () => {
+    const updateStub = vi.spyOn(teamsGraphClient, "updateOauthRegistration");
+    const args: any = {
+      name: "same name",
+      configurationId: "mockedRegistrationId",
+      baseUrl: "https://api.example.com",
+      includePersonalMicrosoftAccounts: "true",
+    };
+
+    const result = await updateOauthDriver.execute(args, mockedDriverContext);
+
+    expect(result.result.isErr()).to.be.true;
+    expect(updateStub).not.toHaveBeenCalled();
+  });
 
   it("OAUTH-MSA-08: rejects the parameter for Microsoft Entra before PATCH", async () => {
     vi.spyOn(teamsGraphClient, "getOauthRegistrationById").mockResolvedValue({
@@ -1357,7 +1379,7 @@ describe("UpdateOauthDriver", () => {
         name: "same name",
         configurationId: "mockedRegistrationId",
         baseUrl: "https://api.example.com",
-        supportedAccountTypes: "Enterprise, Consumer",
+        includePersonalMicrosoftAccounts: true,
       },
       mockedDriverContext
     );

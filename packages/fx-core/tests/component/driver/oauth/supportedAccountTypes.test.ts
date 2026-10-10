@@ -4,23 +4,22 @@
 import { expect, vi } from "vitest";
 import { FeatureFlagName } from "../../../../src/common/featureFlags";
 import {
-  normalizeSupportedAccountTypes,
+  mapPersonalMicrosoftAccountsOption,
   validateSupportedAccountTypesCloud,
 } from "../../../../src/component/driver/oauth/utility/supportedAccountTypes";
 
-describe("supportedAccountTypes", () => {
+describe("personal Microsoft accounts option", () => {
   afterEach(() => {
     vi.unstubAllEnvs();
   });
 
   for (const testCase of [
     { input: undefined, expected: undefined },
-    { input: "Enterprise", expected: "Enterprise" },
-    { input: "Enterprise, Consumer", expected: "Enterprise, Consumer" },
-    { input: "Consumer, Enterprise", expected: "Enterprise, Consumer" },
+    { input: false, expected: "Enterprise" },
+    { input: true, expected: "Enterprise, Consumer" },
   ]) {
-    it(`OAUTH-MSA-02: normalizes ${String(testCase.input)}`, () => {
-      const result = normalizeSupportedAccountTypes(testCase.input, "oauth/register");
+    it(`OAUTH-MSA-02: maps ${String(testCase.input)} to the TGS contract`, () => {
+      const result = mapPersonalMicrosoftAccountsOption(testCase.input, "oauth/register");
 
       expect(result.isOk()).toBe(true);
       if (result.isOk()) {
@@ -29,16 +28,9 @@ describe("supportedAccountTypes", () => {
     });
   }
 
-  for (const input of [
-    "Consumer",
-    "",
-    "Enterprise, Enterprise",
-    "Enterprise, Unknown",
-    "Enterprise,, Consumer",
-    1,
-  ]) {
+  for (const input of ["true", 1, null, {}]) {
     it(`OAUTH-MSA-03: rejects ${JSON.stringify(input)}`, () => {
-      const result = normalizeSupportedAccountTypes(input, "oauth/register");
+      const result = mapPersonalMicrosoftAccountsOption(input, "oauth/register");
 
       expect(result.isErr()).toBe(true);
       if (result.isErr()) {

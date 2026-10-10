@@ -6,17 +6,15 @@
 
 ## Inputs
 
-`supportedAccountTypes` is optional:
+`includePersonalMicrosoftAccounts` is an optional boolean:
 
-| Value                  | Meaning                                                                  |
-| ---------------------- | ------------------------------------------------------------------------ |
-| omitted                | Preserve the existing request contract; do not send the property to TGS. |
-| `Enterprise`           | Allow work or school accounts only.                                      |
-| `Enterprise, Consumer` | Allow work or school accounts and personal Microsoft accounts.           |
+| Value   | Meaning                                                                                   |
+| ------- | ----------------------------------------------------------------------------------------- |
+| omitted | Preserve the existing request contract; do not send `supportedAccountTypes` to TGS.       |
+| `false` | Allow work or school accounts only; send `supportedAccountTypes: Enterprise` to TGS.      |
+| `true`  | Additionally allow personal Microsoft accounts; send the canonical combined value to TGS. |
 
-The runtime also accepts `Consumer, Enterprise` and normalizes it to
-`Enterprise, Consumer`. Consumer-only, empty, repeated, unknown, and
-non-string values are invalid.
+Non-boolean values are invalid.
 
 ## Flow
 
@@ -26,8 +24,8 @@ flowchart TD
   Present -- no --> Existing[Build the existing TGS payload]
   Present -- yes --> Eligible{Custom OAuth in Public cloud?}
   Eligible -- no --> Reject[Return a local user error]
-  Eligible -- yes --> Normalize[Validate and normalize account types]
-  Normalize --> Post[POST the TGS payload]
+  Eligible -- yes --> Map[Map the option to the TGS account-type contract]
+  Map --> Post[POST the TGS payload]
   Existing --> Post
 ```
 
@@ -46,9 +44,9 @@ flowchart TD
 
 ## Acceptance Criteria
 
-| ID           | Runtime | Purpose               | Gate     | Harness                               | Given / When                                                                              | Then                                                      |
-| ------------ | ------- | --------------------- | -------- | ------------------------------------- | ----------------------------------------------------------------------------------------- | --------------------------------------------------------- |
-| OAUTH-MSA-01 | L1      | operation-integration | required | OAuth driver with mocked TGS boundary | `supportedAccountTypes` is omitted                                                        | the property is omitted from the create payload           |
-| OAUTH-MSA-02 | L1      | operation-integration | required | OAuth driver with mocked TGS boundary | `Enterprise, Consumer` or the reversed order is supplied for Custom OAuth in Public cloud | TGS receives canonical `Enterprise, Consumer`             |
-| OAUTH-MSA-03 | L1      | operation-integration | required | OAuth driver with mocked TGS boundary | the value is consumer-only, malformed, unknown, repeated, or non-string                   | the driver returns an input error before POST             |
-| OAUTH-MSA-04 | L1      | operation-integration | required | OAuth driver with mocked TGS boundary | the field is supplied for Microsoft Entra or outside Public cloud                         | the driver returns an unsupported-input error before POST |
+| ID           | Runtime | Purpose               | Gate     | Harness                               | Given / When                                                       | Then                                                        |
+| ------------ | ------- | --------------------- | -------- | ------------------------------------- | ------------------------------------------------------------------ | ----------------------------------------------------------- |
+| OAUTH-MSA-01 | L1      | operation-integration | required | OAuth driver with mocked TGS boundary | `includePersonalMicrosoftAccounts` is omitted                      | `supportedAccountTypes` is omitted from the create payload  |
+| OAUTH-MSA-02 | L1      | operation-integration | required | OAuth driver with mocked TGS boundary | `true` or `false` is supplied for Custom OAuth in Public cloud     | TGS receives the corresponding canonical account-type value |
+| OAUTH-MSA-03 | L1      | operation-integration | required | OAuth driver with mocked TGS boundary | a non-boolean value is supplied                                    | the driver returns an input error before POST               |
+| OAUTH-MSA-04 | L1      | operation-integration | required | OAuth driver with mocked TGS boundary | the option is supplied for Microsoft Entra or outside Public cloud | the driver returns an unsupported-input error before POST   |

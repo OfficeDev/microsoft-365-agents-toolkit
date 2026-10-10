@@ -24,7 +24,7 @@ import { UpdateOauthArgs } from "./interface/updateOauthArgs";
 import { logMessageKeys } from "./utility/constants";
 import { OauthInfo, getAuthInfo, validateSecret, validateUrl } from "./utility/utility";
 import {
-  normalizeSupportedAccountTypes,
+  mapPersonalMicrosoftAccountsOption,
   validateSupportedAccountTypesCloud,
 } from "./utility/supportedAccountTypes";
 
@@ -53,8 +53,8 @@ export class UpdateOauthDriver implements StepDriver {
       if (invalidParameters.length > 0) {
         throw new InvalidActionInputError(actionName, invalidParameters, helpLink);
       }
-      const supportedAccountTypesResult = normalizeSupportedAccountTypes(
-        args.supportedAccountTypes,
+      const supportedAccountTypesResult = mapPersonalMicrosoftAccountsOption(
+        args.includePersonalMicrosoftAccounts,
         actionName
       );
       if (supportedAccountTypesResult.isErr()) {
@@ -83,7 +83,11 @@ export class UpdateOauthDriver implements StepDriver {
       const isCustomIdentityProvider =
         !getOauthRes.identityProvider || getOauthRes.identityProvider === "Custom";
       if (!isCustomIdentityProvider && supportedAccountTypes !== undefined) {
-        throw new InvalidActionInputError(actionName, ["supportedAccountTypes"], helpLink);
+        throw new InvalidActionInputError(
+          actionName,
+          ["includePersonalMicrosoftAccounts"],
+          helpLink
+        );
       }
 
       if (!getOauthRes.m365AppId && args.applicableToApps === "SpecificApp" && !args.appId) {
@@ -271,8 +275,11 @@ export class UpdateOauthDriver implements StepDriver {
       supportedAccountTypes !== undefined &&
       (current.supportedAccountTypes ?? "Enterprise") !== supportedAccountTypes
     ) {
+      const currentIncludesPersonalAccounts =
+        current.supportedAccountTypes === "Enterprise, Consumer";
+      const updatedIncludesPersonalAccounts = supportedAccountTypes === "Enterprise, Consumer";
       diffMsgs.push(
-        `supportedAccountTypes: ${current.supportedAccountTypes ?? "Enterprise"} => ${supportedAccountTypes}`
+        `includePersonalMicrosoftAccounts: ${currentIncludesPersonalAccounts} => ${updatedIncludesPersonalAccounts}`
       );
     }
     if (current.description !== input.name) {

@@ -14,7 +14,7 @@
     "version": {
       "type": "string",
       "description": "The version of the yaml file schema",
-      "const": "v1.14"
+      "const": "v1.13"
     },
     "additionalMetadata": {
       "type": "object",
@@ -1853,10 +1853,9 @@
               "description": "Token exchange method type, can be BasicAuthorizationHeader or PostRequestBody. BasicAuthorizationHeader: token exchange via HTTP headers, PostRequestBody: token exchange via request body. Default is BasicAuthorizationHeader.",
               "enum": ["BasicAuthorizationHeader", "PostRequestBody"]
             },
-            "supportedAccountTypes": {
-              "type": "string",
-              "description": "Microsoft account types allowed to use this OAuth configuration. Omit to preserve the existing behavior.",
-              "enum": ["Enterprise", "Enterprise, Consumer", "Consumer, Enterprise"]
+            "includePersonalMicrosoftAccounts": {
+              "type": "boolean",
+              "description": "Whether to allow personal Microsoft accounts in addition to work or school accounts. Omit to preserve the existing behavior."
             }
           }
         },
@@ -1958,10 +1957,9 @@
               "description": "Token exchange method type, can be BasicAuthorizationHeader or PostRequestBody. BasicAuthorizationHeader: token exchange via HTTP headers, PostRequestBody: token exchange via request body. Default is BasicAuthorizationHeader.",
               "enum": ["BasicAuthorizationHeader", "PostRequestBody"]
             },
-            "supportedAccountTypes": {
-              "type": "string",
-              "description": "Microsoft account types allowed to use this OAuth configuration. Omit to leave the existing service value unchanged.",
-              "enum": ["Enterprise", "Enterprise, Consumer", "Consumer, Enterprise"]
+            "includePersonalMicrosoftAccounts": {
+              "type": "boolean",
+              "description": "Whether to allow personal Microsoft accounts in addition to work or school accounts. Omit to leave the existing service value unchanged."
             }
           }
         }
@@ -2028,10 +2026,9 @@
               "description": "Tenants permitted to use this configuration: HomeTenant (default) or AnyTenant.",
               "enum": ["HomeTenant", "AnyTenant"]
             },
-            "supportedAccountTypes": {
-              "type": "string",
-              "description": "Microsoft account types allowed to use this OAuth configuration. Omit to preserve the existing behavior.",
-              "enum": ["Enterprise", "Enterprise, Consumer", "Consumer, Enterprise"]
+            "includePersonalMicrosoftAccounts": {
+              "type": "boolean",
+              "description": "Whether to allow personal Microsoft accounts in addition to work or school accounts. Omit to preserve the existing behavior."
             }
           }
         },

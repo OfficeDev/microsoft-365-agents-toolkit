@@ -33,7 +33,7 @@ The requester approved this compatibility boundary on 2026-10-08.
 | `targetUrlsShouldStartWith`              | Required array containing exactly one valid HTTPS URL for the MCP target. New scaffolds use the complete MCP endpoint. Do not describe this as an unrestricted multi-prefix outbound URL allowlist.                                                                                                                                     |
 | `applicableToApps`                       | Applications permitted to use the configuration: `AnyApp` (default) or `SpecificApp`.                                                                                                                                                                                                                                                   |
 | `targetAudience`                         | Tenants permitted to use the configuration: `HomeTenant` (default) or `AnyTenant`.                                                                                                                                                                                                                                                      |
-| `supportedAccountTypes`                  | Optional account-type contract. Omit it to preserve the existing TGS request. `Enterprise` permits work or school accounts only; `Enterprise, Consumer` additionally permits personal Microsoft accounts. The runtime normalizes the reversed order. Unsupported values and use outside Public cloud fail before POST.                  |
+| `includePersonalMicrosoftAccounts`       | Optional boolean. Omit it to preserve the existing TGS request. `false` sends `supportedAccountTypes: Enterprise`; `true` sends the canonical value that permits work or school and personal Microsoft accounts. Non-boolean values and use outside Public cloud fail before POST.                                                      |
 | `writeToEnvironmentFile.configurationId` | Required environment variable name to receive the returned `configurationRegistrationId.oAuthConfigId`, not an OAuth client ID or resource indicator. An existing nonempty value retains the current skip-create behavior.                                                                                                              |
 
 `authorizationServerUrl` and `cimdSupported` are not supported request fields
@@ -48,11 +48,11 @@ PRM, scopes, or resource indicators.
 
 ## Personal Account Acceptance Criteria
 
-| ID         | Runtime | Purpose               | Gate     | Harness                             | Given / When                                                   | Then                                                               |
-| ---------- | ------- | --------------------- | -------- | ----------------------------------- | -------------------------------------------------------------- | ------------------------------------------------------------------ |
-| DCR-MSA-01 | L1      | compatibility         | required | DCR driver with mocked TGS boundary | `supportedAccountTypes` is omitted                             | the property is omitted and the existing request body is unchanged |
-| DCR-MSA-02 | L1      | operation-integration | required | DCR driver with mocked TGS boundary | a supported value is supplied in Public cloud                  | TGS receives the canonical value                                   |
-| DCR-MSA-03 | L1      | operation-integration | required | DCR driver with mocked TGS boundary | an invalid value or any value outside Public cloud is supplied | the driver fails before POST                                       |
+| ID         | Runtime | Purpose               | Gate     | Harness                             | Given / When                                                      | Then                                                            |
+| ---------- | ------- | --------------------- | -------- | ----------------------------------- | ----------------------------------------------------------------- | --------------------------------------------------------------- |
+| DCR-MSA-01 | L1      | compatibility         | required | DCR driver with mocked TGS boundary | `includePersonalMicrosoftAccounts` is omitted                     | `supportedAccountTypes` is omitted and the request is unchanged |
+| DCR-MSA-02 | L1      | operation-integration | required | DCR driver with mocked TGS boundary | `true` or `false` is supplied in Public cloud                     | TGS receives the corresponding canonical account-type value     |
+| DCR-MSA-03 | L1      | operation-integration | required | DCR driver with mocked TGS boundary | a non-boolean value or any value outside Public cloud is supplied | the driver fails before POST                                    |
 
 ## Flow
 

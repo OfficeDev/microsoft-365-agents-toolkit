@@ -19,5 +19,5 @@ export interface UpdateOauthArgs {
   scope?: string; // Scope(s) for Oauth, separated by a comma
   tokenUrl?: string; // Token url
   authorizationUrl?: string; // Authorization url
-  supportedAccountTypes?: string; // Microsoft account types allowed to use this OAuth configuration
+  includePersonalMicrosoftAccounts?: boolean;
 }

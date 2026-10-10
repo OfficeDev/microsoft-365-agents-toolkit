@@ -1828,13 +1828,10 @@ describe("CreateOauthDriver", () => {
 
   for (const testCase of [
     { id: "OAUTH-MSA-01", input: undefined, expected: undefined },
-    {
-      id: "OAUTH-MSA-02",
-      input: "Consumer, Enterprise",
-      expected: "Enterprise, Consumer",
-    },
+    { id: "OAUTH-MSA-02", input: false, expected: "Enterprise" },
+    { id: "OAUTH-MSA-02", input: true, expected: "Enterprise, Consumer" },
   ]) {
-    it(`${testCase.id}: maps the optional account types to the create payload`, async () => {
+    it(`${testCase.id}: maps the personal account option to the create payload`, async () => {
       const createStub = vi.spyOn(teamsGraphClient, "createOauthRegistration").mockResolvedValue({
         configurationRegistrationId: { oAuthConfigId: "mockedRegistrationId" },
         resourceIdentifierUri: "mockedResourceIdentifierUri",
@@ -1848,7 +1845,9 @@ describe("CreateOauthDriver", () => {
         baseUrl: "https://api.example.com",
         authorizationUrl: "https://auth.example.com/authorize",
         tokenUrl: "https://auth.example.com/token",
-        ...(testCase.input === undefined ? {} : { supportedAccountTypes: testCase.input }),
+        ...(testCase.input === undefined
+          ? {}
+          : { includePersonalMicrosoftAccounts: testCase.input }),
       };
 
       const result = await createOauthDriver.execute(args, mockedDriverContext, outputEnvVarNames);
@@ -1873,7 +1872,7 @@ describe("CreateOauthDriver", () => {
         clientId: "mockedClientId",
         baseUrl: "https://api.example.com",
         identityProvider: "MicrosoftEntra",
-        supportedAccountTypes: "Enterprise, Consumer",
+        includePersonalMicrosoftAccounts: true,
       },
       mockedDriverContext,
       outputEnvVarNames
@@ -1883,7 +1882,7 @@ describe("CreateOauthDriver", () => {
     expect(createStub).not.toHaveBeenCalled();
   });
 
-  it("OAUTH-MSA-03: rejects malformed account types before POST", async () => {
+  it("OAUTH-MSA-03: rejects a non-boolean personal account option before POST", async () => {
     const createStub = vi.spyOn(teamsGraphClient, "createOauthRegistration");
     const result = await createOauthDriver.execute(
       {
@@ -1895,7 +1894,7 @@ describe("CreateOauthDriver", () => {
         baseUrl: "https://api.example.com",
         authorizationUrl: "https://auth.example.com/authorize",
         tokenUrl: "https://auth.example.com/token",
-        supportedAccountTypes: "Consumer",
+        includePersonalMicrosoftAccounts: "true",
       },
       mockedDriverContext,
       outputEnvVarNames
@@ -1903,5 +1902,23 @@ describe("CreateOauthDriver", () => {
 
     expect(result.result.isErr()).to.be.true;
     expect(createStub).not.toHaveBeenCalled();
+  });
+
+  it("OAUTH-MSA-03: validates the personal account option before an idempotent GET", async () => {
+    envRestore = mockedEnv({
+      [outputKeys.configurationId]: "existing-id",
+    });
+    const getStub = vi.spyOn(teamsGraphClient, "getOauthRegistrationById");
+    const args: any = {
+      name: "test",
+      appId: "mockedAppId",
+      flow: "authorizationCode",
+      includePersonalMicrosoftAccounts: "true",
+    };
+
+    const result = await createOauthDriver.execute(args, mockedDriverContext, outputEnvVarNames);
+
+    expect(result.result.isErr()).to.be.true;
+    expect(getStub).not.toHaveBeenCalled();
   });
 });

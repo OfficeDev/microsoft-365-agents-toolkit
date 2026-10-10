@@ -25,7 +25,7 @@ import { CreateDcrOutputs, OutputKeys } from "./interface/createDcrOutputs";
 import { logMessageKeys } from "./utility/constants";
 import { validateUrl } from "../oauth/utility/utility";
 import {
-  normalizeSupportedAccountTypes,
+  mapPersonalMicrosoftAccountsOption,
   validateSupportedAccountTypesCloud,
 } from "../oauth/utility/supportedAccountTypes";
 
@@ -52,6 +52,19 @@ export class CreateDcrDriver implements StepDriver {
         throw new OutputEnvironmentVariableUndefinedError(actionName);
       }
 
+      const supportedAccountTypesResult = mapPersonalMicrosoftAccountsOption(
+        args.includePersonalMicrosoftAccounts,
+        actionName
+      );
+      if (supportedAccountTypesResult.isErr()) {
+        throw supportedAccountTypesResult.error;
+      }
+      const supportedAccountTypes = supportedAccountTypesResult.value;
+      const cloudValidation = validateSupportedAccountTypesCloud(supportedAccountTypes, actionName);
+      if (cloudValidation.isErr()) {
+        throw cloudValidation.error;
+      }
+
       const state = loadStateFromEnv(outputEnvVarNames) as CreateDcrOutputs;
 
       if (state && state.configurationId) {
@@ -72,21 +85,6 @@ export class CreateDcrDriver implements StepDriver {
         const appStudioToken = appStudioTokenRes.value;
 
         this.validateArgs(args);
-        const supportedAccountTypesResult = normalizeSupportedAccountTypes(
-          args.supportedAccountTypes,
-          actionName
-        );
-        if (supportedAccountTypesResult.isErr()) {
-          throw supportedAccountTypesResult.error;
-        }
-        const supportedAccountTypes = supportedAccountTypesResult.value;
-        const cloudValidation = validateSupportedAccountTypesCloud(
-          supportedAccountTypes,
-          actionName
-        );
-        if (cloudValidation.isErr()) {
-          throw cloudValidation.error;
-        }
 
         const applicableToApps = args.applicableToApps
           ? (args.applicableToApps as OauthRegistrationAppType)

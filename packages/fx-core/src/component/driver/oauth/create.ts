@@ -29,7 +29,7 @@ import { defaultRedirectUri, logMessageKeys } from "./utility/constants";
 import { OauthInfo, getAuthInfo, validateSecret, validateUrl } from "./utility/utility";
 import { OauthIdentityProviderInvalid } from "./error/oauthIdentityProviderInvalid";
 import {
-  normalizeSupportedAccountTypes,
+  mapPersonalMicrosoftAccountsOption,
   validateSupportedAccountTypesCloud,
 } from "./utility/supportedAccountTypes";
 
@@ -56,6 +56,26 @@ export class CreateOauthDriver implements StepDriver {
 
       if (!outputEnvVarNames) {
         throw new OutputEnvironmentVariableUndefinedError(actionName);
+      }
+
+      const supportedAccountTypesResult = mapPersonalMicrosoftAccountsOption(
+        args.includePersonalMicrosoftAccounts,
+        actionName
+      );
+      if (supportedAccountTypesResult.isErr()) {
+        throw supportedAccountTypesResult.error;
+      }
+      const supportedAccountTypes = supportedAccountTypesResult.value;
+      const cloudValidation = validateSupportedAccountTypesCloud(supportedAccountTypes, actionName);
+      if (cloudValidation.isErr()) {
+        throw cloudValidation.error;
+      }
+      if (args.identityProvider === "MicrosoftEntra" && supportedAccountTypes !== undefined) {
+        throw new InvalidActionInputError(
+          actionName,
+          ["includePersonalMicrosoftAccounts"],
+          helpLink
+        );
       }
 
       const state = loadStateFromEnv(outputEnvVarNames) as CreateOauthOutputs;
@@ -100,24 +120,6 @@ export class CreateOauthDriver implements StepDriver {
         }
 
         this.validateArgs(args);
-        const supportedAccountTypesResult = normalizeSupportedAccountTypes(
-          args.supportedAccountTypes,
-          actionName
-        );
-        if (supportedAccountTypesResult.isErr()) {
-          throw supportedAccountTypesResult.error;
-        }
-        const supportedAccountTypes = supportedAccountTypesResult.value;
-        const cloudValidation = validateSupportedAccountTypesCloud(
-          supportedAccountTypes,
-          actionName
-        );
-        if (cloudValidation.isErr()) {
-          throw cloudValidation.error;
-        }
-        if (args.identityProvider === "MicrosoftEntra" && supportedAccountTypes !== undefined) {
-          throw new InvalidActionInputError(actionName, ["supportedAccountTypes"], helpLink);
-        }
 
         const authInfo = await getAuthInfo(args, context, actionName);
 

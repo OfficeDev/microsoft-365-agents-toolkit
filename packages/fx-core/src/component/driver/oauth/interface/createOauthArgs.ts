@@ -20,5 +20,5 @@ export interface CreateOauthArgs {
   scope?: string; // Scope(s) for Oauth, separated by a comma, optional for Custom Identity Provider, not needed for Microsoft Entra
   tokenUrl?: string; // Token url,  required for Custom Identity Provider, not needed for Microsoft Entra
   authorizationUrl?: string; // Authorization url, required for Custom Identity Provider, not needed for Microsoft Entra
-  supportedAccountTypes?: string; // Microsoft account types allowed to use this OAuth configuration
+  includePersonalMicrosoftAccounts?: boolean;
 }

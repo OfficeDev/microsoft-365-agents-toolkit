@@ -123,6 +123,22 @@ describe("CreateDcrDriver", () => {
     expect(stub.mock.calls.length > 0).to.be.false;
   });
 
+  it("DCR-MSA-03: validates the personal account option before an idempotent skip", async () => {
+    envRestore = mockedEnv({
+      [outputKeys.configurationId]: "existing-id",
+    });
+    const args: any = {
+      name: "cloudflare-radar-dcr",
+      mcpResourceUrl: "https://mcp.example.com/mcp",
+      targetUrlsShouldStartWith: ["https://mcp.example.com/mcp"],
+      includePersonalMicrosoftAccounts: "true",
+    };
+
+    const result = await createDcrDriver.execute(args, mockedDriverContext, outputEnvVarNames);
+
+    expect(result.result.isErr()).to.be.true;
+  });
+
   for (const discovery of [
     { id: "DCR-02", fields: { mcpResourceUrl: "https://mcp.example.com/mcp" } },
     {
@@ -499,13 +515,10 @@ describe("CreateDcrDriver", () => {
 
   for (const testCase of [
     { id: "DCR-MSA-01", input: undefined, expected: undefined },
-    {
-      id: "DCR-MSA-02",
-      input: "Consumer, Enterprise",
-      expected: "Enterprise, Consumer",
-    },
+    { id: "DCR-MSA-02", input: false, expected: "Enterprise" },
+    { id: "DCR-MSA-02", input: true, expected: "Enterprise, Consumer" },
   ]) {
-    it(`${testCase.id}: maps the optional account types to the DCR payload`, async () => {
+    it(`${testCase.id}: maps the personal account option to the DCR payload`, async () => {
       const createStub = vi
         .spyOn(teamsGraphClient, "createDcrRegistration")
         .mockResolvedValue(fakeCreateDcrResponse);
@@ -513,7 +526,9 @@ describe("CreateDcrDriver", () => {
         name: "mcp-resource-test",
         mcpResourceUrl: "https://mcp.example.com/mcp",
         targetUrlsShouldStartWith: ["https://mcp.example.com/mcp"],
-        ...(testCase.input === undefined ? {} : { supportedAccountTypes: testCase.input }),
+        ...(testCase.input === undefined
+          ? {}
+          : { includePersonalMicrosoftAccounts: testCase.input }),
       };
 
       const result = await createDcrDriver.execute(args, mockedDriverContext, outputEnvVarNames);
@@ -528,6 +543,21 @@ describe("CreateDcrDriver", () => {
     });
   }
 
+  it("DCR-MSA-03: rejects a non-boolean personal account option before POST", async () => {
+    const createStub = vi.spyOn(teamsGraphClient, "createDcrRegistration");
+    const args: any = {
+      name: "mcp-resource-test",
+      mcpResourceUrl: "https://mcp.example.com/mcp",
+      targetUrlsShouldStartWith: ["https://mcp.example.com/mcp"],
+      includePersonalMicrosoftAccounts: "true",
+    };
+
+    const result = await createDcrDriver.execute(args, mockedDriverContext, outputEnvVarNames);
+
+    expect(result.result.isErr()).to.be.true;
+    expect(createStub).not.toHaveBeenCalled();
+  });
+
   it("DCR-MSA-03: rejects the parameter outside Public cloud before POST", async () => {
     envRestore = mockedEnv({
       TEAMSFX_SOVEREIGN_CLOUD_ENVIRONMENT: "GCC H",
@@ -539,7 +569,7 @@ describe("CreateDcrDriver", () => {
         name: "mcp-resource-test",
         mcpResourceUrl: "https://mcp.example.com/mcp",
         targetUrlsShouldStartWith: ["https://mcp.example.com/mcp"],
-        supportedAccountTypes: "Enterprise, Consumer",
+        includePersonalMicrosoftAccounts: true,
       },
       mockedDriverContext,
       outputEnvVarNames

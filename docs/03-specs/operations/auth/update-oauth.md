@@ -6,13 +6,13 @@
 
 ## Inputs
 
-`supportedAccountTypes` has three update states:
+`includePersonalMicrosoftAccounts` has three update states:
 
-| Input                  | Update meaning                                                    |
-| ---------------------- | ----------------------------------------------------------------- |
-| omitted                | Do not modify the service value and omit the property from PATCH. |
-| `Enterprise`           | Explicitly disable personal Microsoft accounts.                   |
-| `Enterprise, Consumer` | Explicitly enable personal Microsoft accounts.                    |
+| Input   | Update meaning                                                                                      |
+| ------- | --------------------------------------------------------------------------------------------------- |
+| omitted | Do not modify the service value and omit `supportedAccountTypes` from PATCH.                        |
+| `false` | Explicitly disable personal Microsoft accounts by sending `supportedAccountTypes: Enterprise`.      |
+| `true`  | Explicitly enable personal Microsoft accounts by sending the canonical combined account-type value. |
 
 The parser and environment restrictions are the same as
 [`oauth/register`](./register-oauth.md).
@@ -45,9 +45,9 @@ flowchart TD
 
 ## Acceptance Criteria
 
-| ID           | Runtime | Purpose               | Gate     | Harness                                      | Given / When                                                                              | Then                                                                      |
-| ------------ | ------- | --------------------- | -------- | -------------------------------------------- | ----------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
-| OAUTH-MSA-05 | L1      | operation-integration | required | OAuth update driver with mocked TGS boundary | the parameter is omitted                                                                  | comparison and PATCH payload omit the property                            |
-| OAUTH-MSA-06 | L1      | operation-integration | required | OAuth update driver with mocked TGS boundary | the caller explicitly changes the value                                                   | the change appears in confirmation and PATCH receives the canonical value |
-| OAUTH-MSA-07 | L1      | compatibility         | required | OAuth update driver with mocked TGS boundary | the service omits the property and the caller supplies `Enterprise` with no other changes | the driver treats the values as equivalent and skips PATCH                |
-| OAUTH-MSA-08 | L1      | operation-integration | required | OAuth update driver with mocked TGS boundary | invalid, Microsoft Entra, or unsupported-cloud input is supplied                          | the driver fails before PATCH                                             |
+| ID           | Runtime | Purpose               | Gate     | Harness                                      | Given / When                                                                        | Then                                                                      |
+| ------------ | ------- | --------------------- | -------- | -------------------------------------------- | ----------------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| OAUTH-MSA-05 | L1      | operation-integration | required | OAuth update driver with mocked TGS boundary | the option is omitted                                                               | comparison and PATCH payload omit `supportedAccountTypes`                 |
+| OAUTH-MSA-06 | L1      | operation-integration | required | OAuth update driver with mocked TGS boundary | the caller explicitly changes the boolean option                                    | the change appears in confirmation and PATCH receives the canonical value |
+| OAUTH-MSA-07 | L1      | compatibility         | required | OAuth update driver with mocked TGS boundary | the service omits its property and the caller supplies `false` with no other change | the driver treats the values as equivalent and skips PATCH                |
+| OAUTH-MSA-08 | L1      | operation-integration | required | OAuth update driver with mocked TGS boundary | non-boolean, Microsoft Entra, or unsupported-cloud input is supplied                | the driver fails before PATCH                                             |
