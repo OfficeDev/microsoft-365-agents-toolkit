@@ -28,7 +28,7 @@ dependencies:
     version: 2.1.0(adaptive-expressions@4.22.3)
   markdown-it:
     specifier: ^14.3.0
-    version: 14.3.0
+    version: 14.3.2
   react:
     specifier: ^17.0.2
     version: 17.0.2
@@ -1857,8 +1857,8 @@ packages:
       semver: 6.3.1
     dev: true
 
-  /markdown-it@14.3.0:
-    resolution: {integrity: sha1-hUL6VQbjUw9+KwjcOIVjATXFYg4=, tarball: https://ms-feed-12.pkgs.visualstudio.com/1es-public/_packaging/npm-public/npm/registry/markdown-it/-/markdown-it-14.3.0.tgz}
+  /markdown-it@14.3.2:
+    resolution: {integrity: sha512-sHHjZ5fJKlgrG4qns2YwVcdNep35h5fERrfkD2YNsb9UFk0UIHarbiTaHKVMlPuWAoiilyK8Fv/jAm11slsY7Q==}
     hasBin: true
     dependencies:
       argparse: 2.0.1
