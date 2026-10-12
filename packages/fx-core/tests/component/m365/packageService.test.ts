@@ -66,7 +66,6 @@ describe("Package Service", () => {
 
   afterEach(() => {
     vi.restoreAllMocks();
-    delete process.env.TEAMSFX_RAI_VALIDATION_ENABLED;
     delete process.env.TEAMSFX_RAI_VALIDATION_FORCE_FAILED;
   });
 
@@ -489,7 +488,11 @@ describe("Package Service", () => {
     };
     axiosGetResponses["/builder/v1/users/packages/status/test-status-id-builder-api"] = {
       status: 200,
-      data: { titleId: "test-title-id", appId: "test-app-id" },
+      data: {
+        titleId: "test-title-id",
+        appId: "test-app-id",
+        validationInfo: { status: "successful" },
+      },
     };
 
     const postStub = vi.spyOn(testAxiosInstance, "post");
@@ -507,6 +510,7 @@ describe("Package Service", () => {
     chai.assert.isDefined(builderRequest);
     chai.assert.deepEqual(builderRequest?.[2]?.params, {
       scope: AppScope.Tenant,
+      isRAIValidationAsync: true,
     });
     chai.assert.equal(builderRequest?.[2]?.headers?.Authorization, "Bearer test-token");
     chai.assert.isFalse(postStub.mock.calls.some(([url]) => url === "/dev/v1/users/packages"));
@@ -524,7 +528,11 @@ describe("Package Service", () => {
     };
     axiosGetResponses["/builder/v1/users/packages/status/test-status-id-blocked"] = {
       status: 200,
-      data: { titleId: "test-title-id-blocked", appId: "test-app-id-blocked" },
+      data: {
+        titleId: "test-title-id-blocked",
+        appId: "test-app-id-blocked",
+        validationInfo: { status: "successful" },
+      },
     };
 
     const packageService = new PackageService("https://test-endpoint", logger);
@@ -560,7 +568,11 @@ describe("Package Service", () => {
     };
     axiosGetResponses["/builder/v1/users/packages/status/test-status-id-created"] = {
       status: 200,
-      data: { titleId: "test-title-id-created", appId: "test-app-id-created" },
+      data: {
+        titleId: "test-title-id-created",
+        appId: "test-app-id-created",
+        validationInfo: { status: "successful" },
+      },
     };
 
     const packageService = new PackageService("https://test-endpoint", logger);
@@ -579,17 +591,13 @@ describe("Package Service", () => {
     chai.assert.equal(result[1], "test-app-id-created");
   });
 
-  it("waits for RAI validation after upload", async () => {
-    setTools({
-      expServiceProvider: {
-        getTreatmentVariableAsync: vi.fn().mockResolvedValue(true),
-      },
-    } as any);
+  it("always enables and waits for RAI validation after upload", async () => {
     axiosPostResponses["/builder/v1/users/packages"] = {
       status: 200,
       data: { statusId: "test-status-id-builder-api" },
     };
     let statusCallCount = 0;
+    const postStub = vi.spyOn(testAxiosInstance, "post");
     const getStub = vi.spyOn(testAxiosInstance, "get").mockImplementation((url: string): any => {
       if (url === "/builder/v1/users/packages/status/test-status-id-builder-api") {
         statusCallCount++;
@@ -631,83 +639,17 @@ describe("Package Service", () => {
 
     chai.assert.deepEqual(result, ["test-title-id-builder-api", "test-app-id-builder-api", ""]);
     chai.assert.equal(statusCallCount, 3);
+    const uploadRequest = postStub.mock.calls.find(([url]) => url === "/builder/v1/users/packages");
+    expect(uploadRequest?.[2]?.params).toEqual({
+      scope: AppScope.Personal,
+      isRAIValidationAsync: true,
+    });
     const statusRequest = getStub.mock.calls.find(
       ([url]) => url === "/builder/v1/users/packages/status/test-status-id-builder-api"
     );
     expect(statusRequest?.[1]?.params).toEqual({ isRAIValidationAsync: true });
     expect(vi.mocked(commonUtils.waitSeconds)).toHaveBeenCalledTimes(2);
     expect(vi.mocked(commonUtils.waitSeconds)).toHaveBeenCalledWith(7);
-  });
-
-  it("uses environment override to enable RAI validation", async () => {
-    process.env.TEAMSFX_RAI_VALIDATION_ENABLED = "true";
-    const getTreatmentVariableAsync = vi.fn();
-    setTools({ expServiceProvider: { getTreatmentVariableAsync } } as any);
-    axiosGetResponses["/config/v1/environment"] = {
-      data: { titlesServiceUrl: "https://test-url" },
-    };
-    axiosPostResponses["/builder/v1/users/packages"] = {
-      data: { statusId: "test-status-id-builder-api" },
-    };
-    axiosGetResponses["/builder/v1/users/packages/status/test-status-id-builder-api"] = {
-      status: 200,
-      data: {
-        titleId: "test-title-id-builder-api",
-        appId: "test-app-id-builder-api",
-        validationInfo: { status: "successful" },
-      },
-    };
-    const postStub = vi.spyOn(testAxiosInstance, "post");
-    const getStub = vi.spyOn(testAxiosInstance, "get");
-
-    const packageService = new PackageService("https://test-endpoint", logger);
-    await packageService.sideLoadingV2("test-token", "test-path", AppScope.Personal);
-
-    expect(getTreatmentVariableAsync).not.toHaveBeenCalled();
-    expect(
-      postStub.mock.calls.find(([url]) => url === "/builder/v1/users/packages")?.[2]?.params
-    ).toEqual({
-      scope: AppScope.Personal,
-      isRAIValidationAsync: true,
-    });
-    expect(
-      getStub.mock.calls.find(
-        ([url]) => url === "/builder/v1/users/packages/status/test-status-id-builder-api"
-      )?.[1]?.params
-    ).toEqual({ isRAIValidationAsync: true });
-  });
-
-  it("uses environment override to disable RAI validation", async () => {
-    process.env.TEAMSFX_RAI_VALIDATION_ENABLED = "false";
-    const getTreatmentVariableAsync = vi.fn().mockResolvedValue(true);
-    setTools({ expServiceProvider: { getTreatmentVariableAsync } } as any);
-    axiosGetResponses["/config/v1/environment"] = {
-      data: { titlesServiceUrl: "https://test-url" },
-    };
-    axiosPostResponses["/builder/v1/users/packages"] = {
-      data: { statusId: "test-status-id-builder-api" },
-    };
-    axiosGetResponses["/builder/v1/users/packages/status/test-status-id-builder-api"] = {
-      status: 200,
-      data: { titleId: "test-title-id-builder-api", appId: "test-app-id-builder-api" },
-    };
-    const postStub = vi.spyOn(testAxiosInstance, "post");
-    const getStub = vi.spyOn(testAxiosInstance, "get");
-
-    const packageService = new PackageService("https://test-endpoint", logger);
-    await packageService.sideLoadingV2("test-token", "test-path", AppScope.Personal);
-
-    expect(getTreatmentVariableAsync).not.toHaveBeenCalled();
-    expect(
-      postStub.mock.calls.find(([url]) => url === "/builder/v1/users/packages")?.[2]?.params
-    ).toEqual({
-      scope: AppScope.Personal,
-    });
-    expect(
-      getStub.mock.calls.find(
-        ([url]) => url === "/builder/v1/users/packages/status/test-status-id-builder-api"
-      )?.[1]?.params
-    ).toBeUndefined();
   });
 
   it("surfaces RAI validation failure reasons", async () => {
@@ -756,7 +698,6 @@ describe("Package Service", () => {
   });
 
   it("waits for missing RAI validation information", async () => {
-    process.env.TEAMSFX_RAI_VALIDATION_ENABLED = "true";
     axiosPostResponses["/builder/v1/users/packages"] = {
       data: { statusId: "test-status-id-builder-api" },
     };
@@ -804,7 +745,6 @@ describe("Package Service", () => {
   });
 
   it("throws for successful RAI validation without app IDs", async () => {
-    process.env.TEAMSFX_RAI_VALIDATION_ENABLED = "true";
     axiosGetResponses["/config/v1/environment"] = {
       data: { titlesServiceUrl: "https://test-url" },
     };
@@ -823,7 +763,6 @@ describe("Package Service", () => {
   });
 
   it("throws for unexpected RAI validation status responses", async () => {
-    process.env.TEAMSFX_RAI_VALIDATION_ENABLED = "true";
     axiosGetResponses["/config/v1/environment"] = {
       data: { titlesServiceUrl: "https://test-url" },
     };
@@ -2141,7 +2080,11 @@ describe("Package Service", () => {
       }
       return Promise.resolve({
         status: 200,
-        data: { titleId: "retry-title-id", appId: "retry-app-id" },
+        data: {
+          titleId: "retry-title-id",
+          appId: "retry-app-id",
+          validationInfo: { status: "successful" },
+        },
       });
     });
     vi.spyOn(testAxiosInstance, "post").mockImplementation((url: string) => {
@@ -2190,7 +2133,11 @@ describe("Package Service", () => {
       if (url === "/builder/v1/users/packages/status/retry-builder-status-id") {
         return Promise.resolve({
           status: 200,
-          data: { titleId: "retry-builder-title-id", appId: "retry-builder-app-id" },
+          data: {
+            titleId: "retry-builder-title-id",
+            appId: "retry-builder-app-id",
+            validationInfo: { status: "successful" },
+          },
         });
       }
       return Promise.reject(new Error("unexpected get url"));
@@ -2294,7 +2241,11 @@ describe("Package Service", () => {
 
     axiosGetResponses["/builder/v1/users/packages/status/test-status-id-builder-api"] = {
       status: 200,
-      data: { titleId: "test-title-id", appId: "test-app-id" },
+      data: {
+        titleId: "test-title-id",
+        appId: "test-app-id",
+        validationInfo: { status: "successful" },
+      },
     };
 
     const packageService = new PackageService("https://test-endpoint", logger);
@@ -2316,7 +2267,11 @@ describe("Package Service", () => {
     };
     axiosGetResponses["/builder/v1/users/packages/status/test-status-id-builder-api"] = {
       status: 200,
-      data: { titleId: "test-title-id", appId: "test-app-id" },
+      data: {
+        titleId: "test-title-id",
+        appId: "test-app-id",
+        validationInfo: { status: "successful" },
+      },
     };
     axiosGetResponses["/marketplace/v1/users/titles/test-title-id/sharingInfo"] = {
       status: 200,
@@ -2345,7 +2300,11 @@ describe("Package Service", () => {
 
     axiosGetResponses["/builder/v1/users/packages/status/test-status-id-builder-api"] = {
       status: 200,
-      data: { titleId: "test-title-id", appId: "test-app-id" },
+      data: {
+        titleId: "test-title-id",
+        appId: "test-app-id",
+        validationInfo: { status: "successful" },
+      },
     };
 
     const packageService = new PackageService("https://test-endpoint", logger);
@@ -2368,7 +2327,11 @@ describe("Package Service", () => {
 
     axiosGetResponses["/builder/v1/users/packages/status/test-status-id-builder-api"] = {
       status: 200,
-      data: { titleId: "test-title-id", appId: "test-app-id" },
+      data: {
+        titleId: "test-title-id",
+        appId: "test-app-id",
+        validationInfo: { status: "successful" },
+      },
     };
 
     const packageService = new PackageService("https://test-endpoint", logger);
