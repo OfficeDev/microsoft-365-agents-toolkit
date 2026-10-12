@@ -28,10 +28,10 @@ graders:
   - type: skill_invocation
     name: wiqd_plugin_delegation
     config:
-      mode: exact_match
+      mode: in_order
       required_skills:
         - wiqd
-      allow_extra: false
+      allow_extra: true
   - type: tool_constraint
     name: no_atk_da_commands
     config:

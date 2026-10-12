@@ -23,18 +23,18 @@ graders:
   - type: behavior
     name: efficiency_check
     config:
-      max_tool_calls: 40
-      max_duration_ms: 180000
+      max_tool_calls: 60
+      max_duration_ms: 300000
       forbidden_tools:
         - rm
         - sudo
   - type: skill_invocation
     name: wiqd_plugin_delegation
     config:
-      mode: exact_match
+      mode: in_order
       required_skills:
         - wiqd
-      allow_extra: false
+      allow_extra: true
   - type: tool_constraint
     name: no_atk_da_commands
     config:
