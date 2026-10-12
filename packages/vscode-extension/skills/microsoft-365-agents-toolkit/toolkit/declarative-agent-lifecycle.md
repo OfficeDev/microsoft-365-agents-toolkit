@@ -8,8 +8,8 @@ Use ATK only when the request explicitly identifies the `declarative-agent-types
 
 Before selecting a lifecycle owner:
 
-1. Confirm the Teams app manifest contains `copilotAgents.declarativeAgents`.
-2. Before invoking any skill, inspect the existing project and select ATK when the request explicitly identifies the `declarative-agent-typespec` capability or the project contains any of these TypeSpec DA markers:
+1. Determine DA intent using the [detection criteria](#detect-a-declarative-agent). An explicit DA creation request does not require an existing project or manifest.
+2. Before invoking any skill for an existing project, inspect it and select ATK when the request explicitly identifies the `declarative-agent-typespec` capability or the project contains any of these TypeSpec DA markers:
    - A `typeSpec/compile` action in `m365agents.yml` or `m365agents.local.yml`.
    - A `tspconfig.yaml` entry for `@microsoft/typespec-m365-copilot`.
    - A `.tsp` source that imports `@microsoft/typespec-m365-copilot`.

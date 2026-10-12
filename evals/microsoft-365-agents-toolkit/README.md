@@ -18,7 +18,7 @@ evals/microsoft-365-agents-toolkit/
 ├── setup.sh                  # Setup script for CI environment
 ├── scaffold-tasks/           # Project creation test tasks
 ├── debug-tasks/              # Local debugging test tasks
-├── deploy-tasks/             # Azure deployment test tasks
+├── deploy-tasks/             # Credentialed Azure deployment tasks excluded from the automatic suite
 ├── negative-tasks/           # Negative trigger test tasks
 └── fixtures/                 # Test project files
     └── simple-bot/           # Sample bot project used in tests
@@ -72,6 +72,8 @@ Required secrets in the repository:
 - `AZURE_SUBSCRIPTION_ID` - Azure subscription ID
 
 Pull requests validate the changed evaluation schemas and run the PR skill against the evaluation harness from the base branch. Changes to evaluation task definitions run after they merge to `dev`, or when the workflow is manually dispatched. Any CLI or EULA prerequisite discovered after delegation is handled by the plugin rather than the Toolkit skill or evaluation setup.
+
+Tasks under `deploy-tasks/` are intentionally excluded from `eval.yaml`. They can create real Azure resources and must not run automatically or in parallel without deterministic resource naming and cleanup.
 
 ## Skill Location
 
