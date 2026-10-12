@@ -52,25 +52,25 @@ console.log("GH_APP_PRIVATE_KEY length:", process.env.GH_APP_PRIVATE_KEY ? proce
 
     const octokit = new Octokit({ auth: installationAuth.token });
 
-    console.log("📄 Fetching releases...");
-    const releases = await octokit.request("GET /repos/{owner}/{repo}/releases", {
-      owner,
-      repo,
-    });
+    console.log("📄 Fetching release...");
+    const response = await octokit.request(
+      targetTag === "latest"
+        ? "GET /repos/{owner}/{repo}/releases/latest"
+        : "GET /repos/{owner}/{repo}/releases/tags/{tag}",
+      targetTag === "latest" ? { owner, repo } : { owner, repo, tag: targetTag }
+    );
+    const release = response.data;
 
-    console.log(`🎯 Found ${releases.data.length} releases`);
-    for (const r of releases.data) {
-      console.log(`- tag: ${r.tag_name}, draft: ${r.draft}, prerelease: ${r.prerelease}`);
-    }
-
-    let release;
     if (targetTag === "latest") {
-      release = releases.data[0];
-      if (!release) throw new Error("No releases found");
+      if (!release || typeof release.tag_name !== "string" || !release.tag_name ||
+          release.draft !== false || release.prerelease !== false) {
+        throw new Error("Latest release must have a valid tag and must not be draft or prerelease");
+      }
       console.log(`✅ Using latest release: ${release.tag_name}`);
     } else {
-      release = releases.data.find(r => r.tag_name === targetTag);
-      if (!release) throw new Error(`Release with tag '${targetTag}' not found`);
+      if (!release || release.tag_name !== targetTag) {
+        throw new Error(`Release tag does not match requested tag '${targetTag}'`);
+      }
       console.log(`✅ Using specified release: ${release.tag_name}`);
     }
 
@@ -109,5 +109,4 @@ console.log("GH_APP_PRIVATE_KEY length:", process.env.GH_APP_PRIVATE_KEY ? proce
     process.exit(1);
   }
 })();
-
 
