@@ -17,6 +17,10 @@ on:
         required: false
         type: string
         default: "latest"
+      vscuse_sha256:
+        description: "Expected wheel SHA256 for isolated AAD prerelease validation"
+        required: false
+        type: string
       template_version:
         description: "Template version to inject into VSCUSE config.yaml. Version of the template used in the image, e.g. 0.0.0-rc."
         required: false
@@ -59,6 +63,7 @@ jobs:
       test_plan: ${{ github.event.inputs.test_plan }}
       image_tag: ${{ github.event.inputs.image_tag }}
       vscuse_version: ${{ github.event.inputs.vscuse_version }}
+      vscuse_sha256: ${{ github.event.inputs.vscuse_sha256 }}
       template_version: ${{ github.event.inputs.template_version }}
       email_receiver: ${{ github.event.inputs.email-receiver }}
       max_retries: ${{ fromJson(github.event.inputs.max_retries || '7') }}
@@ -73,7 +78,7 @@ jobs:
 
   trigger-ui-test-features:
     needs: run
-    if: ${{ always() && github.event.inputs.schedule_trigger == 'true' && needs.run.result != 'skipped' && needs.run.result != 'cancelled' && (needs.run.result == 'success' || github.run_attempt == fromJson(github.event.inputs.max_retries || '7')) }}
+    if: ${{ always() && github.ref != 'refs/heads/qfai/vscuse-aad-prerelease-validation' && github.event.inputs.schedule_trigger == 'true' && needs.run.result != 'skipped' && needs.run.result != 'cancelled' && (needs.run.result == 'success' || github.run_attempt == fromJson(github.event.inputs.max_retries || '7')) }}
     runs-on: ubuntu-latest
     permissions:
       actions: write

@@ -30,6 +30,10 @@ on:
         required: false
         type: string
         default: "latest"
+      vscuse_sha256:
+        required: false
+        type: string
+        default: ""
       template_version:
         required: false
         type: string
@@ -87,6 +91,19 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v5
+
+      - name: Guard isolated AAD validation inputs
+        if: ${{ github.ref == 'refs/heads/qfai/vscuse-aad-prerelease-validation' }}
+        env:
+          VSCUSE_VERSION: ${{ inputs.vscuse_version }}
+          VSCUSE_SHA256: ${{ inputs.vscuse_sha256 }}
+          TEST_PLAN: ${{ inputs.test_plan }}
+          IMAGE_TAG: ${{ inputs.image_tag }}
+          MAX_RETRIES: ${{ inputs.max_retries }}
+          SCHEDULE_TRIGGER: ${{ inputs.schedule_trigger }}
+          EMAIL_RECEIVER: ${{ inputs.email_receiver }}
+          TEMPLATE_VERSION: ${{ inputs.template_version }}
+        run: python .github/scripts/vscuse_aad_validation.py guard
 
       - name: Set email receiver
         id: set-email
@@ -257,7 +274,10 @@ jobs:
         shell: bash
 
       - name: Run download script
-        run: node download-vscuse-python.js "${{ inputs.vscuse_version }}" "${{ github.workspace }}/packages/tests/vscuse/vscode-test-cases"
+        env:
+          VSCUSE_VERSION: ${{ inputs.vscuse_version }}
+          VSCUSE_SHA256: ${{ inputs.vscuse_sha256 }}
+        run: node download-vscuse-python.js "$VSCUSE_VERSION" "$GITHUB_WORKSPACE/packages/tests/vscuse/vscode-test-cases"
         shell: bash
         working-directory: .github/actions/setup-vscuse-environment
 
@@ -271,6 +291,7 @@ jobs:
         shell: bash
 
       - name: Verify Azure Configuration
+        if: ${{ github.ref != 'refs/heads/qfai/vscuse-aad-prerelease-validation' }}
         run: |
           echo "Verifying Azure configuration..."
           if [ -z "$AZURE_OPENAI_ENDPOINT" ] || [ -z "$AZURE_OPENAI_API_KEY" ]; then
@@ -284,6 +305,20 @@ jobs:
           else
             echo "⚠️  Azure Service Principal not configured - M365 Toolkit authentication disabled"
           fi
+
+      - name: Verify installed prerelease and AAD data-plane access
+        if: ${{ github.ref == 'refs/heads/qfai/vscuse-aad-prerelease-validation' }}
+        timeout-minutes: 5
+        env:
+          VSCUSE_VERSION: ${{ inputs.vscuse_version }}
+          VSCUSE_AAD_CLIENT_ID: ${{ secrets.AZURE_SERVICE_PRINCIPAL_ID }}
+          VSCUSE_AAD_CLIENT_SECRET: ${{ secrets.AZURE_SERVICE_PRINCIPAL_SECRET }}
+          VSCUSE_AAD_TENANT_ID: ${{ secrets.TEST_TENANT_TENANT_ID }}
+        run: |
+          source packages/tests/vscuse/vscode-test-cases/.venv/bin/activate
+          python .github/scripts/vscuse_aad_preflight.py \
+            --config packages/tests/vscuse/vscode-test-cases/config.yaml \
+            --version "$VSCUSE_VERSION"
 
       - name: Set m365 account randomly
         run: |
@@ -315,6 +350,14 @@ jobs:
           docker pull $VSCUSE_VSCODE_IMAGE
           echo "✅ Image pulled successfully!"
           docker images $VSCUSE_VSCODE_IMAGE
+
+      - name: Verify validation image digest
+        if: ${{ github.ref == 'refs/heads/qfai/vscuse-aad-prerelease-validation' }}
+        run: |
+          expected=$(python .github/scripts/vscuse_aad_validation.py image-digest)
+          docker image inspect "$VSCUSE_VSCODE_IMAGE" \
+            --format '{{range .RepoDigests}}{{println .}}{{end}}' \
+            | grep -Fx "ghcr.io/officedev/vscuse-atk-vscode@$expected"
 
       - name: Inject TEMPLATE_VERSION into config.yaml
         env:
@@ -348,6 +391,7 @@ jobs:
           python packages/tests/vscuse/vscode-test-cases/engine/no-subscription-fixture.test.py
 
       - name: Run test
+        if: ${{ github.ref != 'refs/heads/qfai/vscuse-aad-prerelease-validation' }}
         env:
           TEST_PLAN: ${{ matrix.test_plan }}
         run: |
@@ -361,6 +405,24 @@ jobs:
           source .venv/bin/activate
           node ./engine/prepare-vscuse-config.cjs ./config.yaml "./plans/$TEST_PLAN.json" ./config.run.yaml
           vscuse execute --config-file ./config.run.yaml --groups-dir groups "./plans/$TEST_PLAN.json" 2>&1 | tee run_result.txt
+
+      - name: Run isolated AAD validation plan
+        if: ${{ github.ref == 'refs/heads/qfai/vscuse-aad-prerelease-validation' }}
+        env:
+          TEST_PLAN: ${{ matrix.test_plan }}
+          VSCUSE_VERSION: ${{ inputs.vscuse_version }}
+          VSCUSE_AAD_CLIENT_ID: ${{ secrets.AZURE_SERVICE_PRINCIPAL_ID }}
+          VSCUSE_AAD_CLIENT_SECRET: ${{ secrets.AZURE_SERVICE_PRINCIPAL_SECRET }}
+          VSCUSE_AAD_TENANT_ID: ${{ secrets.TEST_TENANT_TENANT_ID }}
+        run: |
+          set -o pipefail
+          cd packages/tests/vscuse/vscode-test-cases
+          source .venv/bin/activate
+          node ./engine/prepare-vscuse-config.cjs ./config.yaml "./plans/$TEST_PLAN.json" ./config.run.yaml
+          python "$GITHUB_WORKSPACE/.github/scripts/vscuse_aad_validation.py" prepare ./config.run.yaml ./config.aad.yaml
+          python "$GITHUB_WORKSPACE/.github/scripts/vscuse_aad_validation.py" run \
+            --config ./config.aad.yaml --plan "./plans/$TEST_PLAN.json" \
+            --version "$VSCUSE_VERSION" 2>&1 | tee run_result.txt
 
       - name: Extract errors from run result
         if: always()
@@ -465,7 +527,7 @@ jobs:
           if-no-files-found: ignore
 
       - name: Login to Azure
-        if: always()
+        if: ${{ always() && github.ref != 'refs/heads/qfai/vscuse-aad-prerelease-validation' }}
         uses: azure/login@v2
         with:
           client-id: ${{secrets.DEVOPS_CLIENT_ID}}
@@ -474,7 +536,7 @@ jobs:
           enable-AzPSSession: true
 
       - name: 🌐Upload files to Azure Blob Storage
-        if: always()
+        if: ${{ always() && github.ref != 'refs/heads/qfai/vscuse-aad-prerelease-validation' }}
         shell: pwsh
         run: |
           $guid = [guid]::NewGuid().ToString()
@@ -518,7 +580,7 @@ jobs:
     permissions:
       actions: write
     needs: main
-    if: ${{ (github.event_name == 'workflow_dispatch' || github.event_name == 'schedule' || inputs.schedule_trigger == true) && failure() && github.run_attempt < inputs.max_retries }}
+    if: ${{ github.ref != 'refs/heads/qfai/vscuse-aad-prerelease-validation' && (github.event_name == 'workflow_dispatch' || github.event_name == 'schedule' || inputs.schedule_trigger == true) && failure() && github.run_attempt < inputs.max_retries }}
     runs-on: ubuntu-latest
     env:
       MAX_RETRIES: ${{ inputs.max_retries }}
@@ -546,7 +608,7 @@ jobs:
             -d '{"ref":"${{ github.ref_name }}","inputs":{"run_id":"${{ github.run_id }}", "max_attempts":"${{ steps.calc-retries.outputs.max_retries }}"}}'
 
   report:
-    if: ${{ always() && (github.event_name == 'schedule' || inputs.schedule_trigger == true || needs.discover-test-plans.outputs.email-receiver != '') && (success() || github.run_attempt == inputs.max_retries) }}
+    if: ${{ always() && github.ref != 'refs/heads/qfai/vscuse-aad-prerelease-validation' && (github.event_name == 'schedule' || inputs.schedule_trigger == true || needs.discover-test-plans.outputs.email-receiver != '') && (success() || github.run_attempt == inputs.max_retries) }}
     needs: [discover-test-plans, main]
     environment: engineering
     permissions:
