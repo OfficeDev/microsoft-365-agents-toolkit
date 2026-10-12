@@ -13,7 +13,7 @@ config:
   model: claude-sonnet-4.6
   skill_directories:
     - "../../packages/vscode-extension/skills/microsoft-365-agents-toolkit"
-    - "../../.waza-skills/wiqd"
+    - "../../node_modules/.waza-skills/wiqd"
   required_skills:
     - microsoft-365-agents-toolkit
     - wiqd

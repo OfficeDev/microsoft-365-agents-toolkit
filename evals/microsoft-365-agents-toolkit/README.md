@@ -46,7 +46,7 @@ copilot plugin marketplace add microsoft/azure-skills
 copilot plugin install azure@azure-skills
 ```
 
-The setup hook copies the installed WIQD skill into the ignored `.waza-skills/` directory so Waza can validate and expose it through `skill_directories`. Azure skills remain available through their installed Copilot plugin because the WIQD workflow selects the appropriate `azure-*` capability dynamically. WIQD CLI installation and EULA acceptance are not evaluation setup steps; when the CLI is unavailable, the plugin uses its documented file-based fallback.
+The setup hook copies the installed WIQD skill into `node_modules/.waza-skills/`, which is already ignored by the repository, so Waza can validate and expose it through `skill_directories`. Azure skills remain available through their installed Copilot plugin because the WIQD workflow selects the appropriate `azure-*` capability dynamically. WIQD CLI installation and EULA acceptance are not evaluation setup steps; when the CLI is unavailable, the plugin uses its documented file-based fallback.
 
 ```bash
 cd evals/microsoft-365-agents-toolkit

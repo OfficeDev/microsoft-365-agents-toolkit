@@ -8,7 +8,7 @@ fi
 export CI_ENABLED="${CI_ENABLED:-true}"
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-skill_dependencies_dir="$repo_root/.waza-skills"
+skill_dependencies_dir="$repo_root/node_modules/.waza-skills"
 wiqd_live_skill_dir="$HOME/.wiqd/marketplace/wiqd/skills/wiqd"
 wiqd_installed_skill_dir="$HOME/.copilot/installed-plugins/wiqd/wiqd/skills/wiqd"
 azure_skills_dir="$HOME/.copilot/installed-plugins/azure-skills/azure/skills"
