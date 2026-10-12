@@ -8,11 +8,11 @@
 
 `includePersonalMicrosoftAccounts` is an optional boolean:
 
-| Value   | Meaning                                                                                   |
-| ------- | ----------------------------------------------------------------------------------------- |
-| omitted | Preserve the existing request contract; do not send `supportedAccountTypes` to TGS.       |
-| `false` | Allow work or school accounts only; send `supportedAccountTypes: Enterprise` to TGS.      |
-| `true`  | Additionally allow personal Microsoft accounts; send the canonical combined value to TGS. |
+| Value   | Meaning                                                                                                             |
+| ------- | ------------------------------------------------------------------------------------------------------------------- |
+| omitted | Do not send `supportedAccountTypes`; TGS defaults the configuration to work or school accounts only (`Enterprise`). |
+| `false` | Explicitly allow work or school accounts only by sending `supportedAccountTypes: Enterprise` to TGS.                |
+| `true`  | Additionally allow personal Microsoft accounts by sending the canonical combined account-type value to TGS.         |
 
 Non-boolean values are invalid.
 
@@ -39,6 +39,7 @@ flowchart TD
 ## Invariants
 
 - Omission produces the same TGS request body as before this feature.
+- TGS interprets an omitted `supportedAccountTypes` property as `Enterprise`, allowing work or school accounts only.
 - Invalid or unsupported input fails before any TGS mutation.
 - The service receives only canonical values.
 
