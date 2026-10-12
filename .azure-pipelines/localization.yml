@@ -67,6 +67,7 @@ extends:
           inputs:
             isCreatePrSelected: true
             repoType: gitHub
+            gitHubPatVariable: '$(OneLocBuildGitHubPatTest)'
             isShouldReusePrSelected: true
             isAutoCompletePrSelected: false
             packageSourceAuth: patAuth
