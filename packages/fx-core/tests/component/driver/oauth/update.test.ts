@@ -3,7 +3,7 @@
 
 import { SpecParser } from "@microsoft/m365-spec-parser";
 import { ConfirmConfig, err, ok, UserError } from "@microsoft/teamsfx-api";
-import { RestoreFn } from "mocked-env";
+import mockedEnv, { RestoreFn } from "mocked-env";
 import { chai, vi } from "vitest";
 import { featureFlagManager, FeatureFlags } from "../../../../src";
 import { teamsGraphClient } from "../../../../src/client/teamsGraphClient";
@@ -1264,6 +1264,7 @@ describe("UpdateOauthDriver", () => {
     current?: OauthRegistrationSupportedAccountTypes;
     expected: OauthRegistrationSupportedAccountTypes | undefined;
     shouldPatch: boolean;
+    expectedConfirmation?: string;
   }[] = [
     {
       id: "OAUTH-MSA-05",
@@ -1278,6 +1279,15 @@ describe("UpdateOauthDriver", () => {
       current: "Enterprise",
       expected: "Enterprise, Consumer",
       shouldPatch: true,
+      expectedConfirmation: "includePersonalMicrosoftAccounts: false => true",
+    },
+    {
+      id: "OAUTH-MSA-06",
+      input: false,
+      current: "Enterprise, Consumer",
+      expected: "Enterprise",
+      shouldPatch: true,
+      expectedConfirmation: "includePersonalMicrosoftAccounts: true => false",
     },
     {
       id: "OAUTH-MSA-07",
@@ -1337,9 +1347,9 @@ describe("UpdateOauthDriver", () => {
         } else {
           expect(updateStub.mock.calls[0][1].supportedAccountTypes).to.equal(testCase.expected);
         }
-        if (testCase.input === true) {
+        if (testCase.expectedConfirmation) {
           const confirmConfig = confirmStub.mock.calls[0][0];
-          expect(confirmConfig.title).to.include("includePersonalMicrosoftAccounts: false => true");
+          expect(confirmConfig.title).to.include(testCase.expectedConfirmation);
         }
       }
     });
@@ -1357,6 +1367,31 @@ describe("UpdateOauthDriver", () => {
     const result = await updateOauthDriver.execute(args, mockedDriverContext);
 
     expect(result.result.isErr()).to.be.true;
+    expect(updateStub).not.toHaveBeenCalled();
+  });
+
+  it("OAUTH-MSA-08: rejects the option outside Public cloud before PATCH", async () => {
+    envRestore = mockedEnv({
+      TEAMSFX_SOVEREIGN_CLOUD_ENVIRONMENT: "GCC H",
+    });
+    const getStub = vi.spyOn(teamsGraphClient, "getOauthRegistrationById");
+    const updateStub = vi.spyOn(teamsGraphClient, "updateOauthRegistration");
+
+    const result = await updateOauthDriver.execute(
+      {
+        name: "same name",
+        configurationId: "mockedRegistrationId",
+        baseUrl: "https://api.example.com",
+        includePersonalMicrosoftAccounts: true,
+      },
+      mockedDriverContext
+    );
+
+    expect(result.result.isErr()).to.be.true;
+    if (result.result.isErr()) {
+      expect(result.result.error.name).to.equal("OauthSupportedAccountTypesUnsupportedCloud");
+    }
+    expect(getStub).not.toHaveBeenCalled();
     expect(updateStub).not.toHaveBeenCalled();
   });
 

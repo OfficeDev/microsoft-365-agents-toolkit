@@ -1882,6 +1882,37 @@ describe("CreateOauthDriver", () => {
     expect(createStub).not.toHaveBeenCalled();
   });
 
+  it("OAUTH-MSA-04: rejects the option outside Public cloud before POST", async () => {
+    envRestore = mockedEnv({
+      TEAMSFX_SOVEREIGN_CLOUD_ENVIRONMENT: "GCC H",
+    });
+    const createStub = vi.spyOn(teamsGraphClient, "createOauthRegistration");
+    const getStub = vi.spyOn(teamsGraphClient, "getOauthRegistrationById");
+
+    const result = await createOauthDriver.execute(
+      {
+        name: "test",
+        appId: "mockedAppId",
+        flow: "authorizationCode",
+        clientId: "mockedClientId",
+        clientSecret: "mockedClientSecret",
+        baseUrl: "https://api.example.com",
+        authorizationUrl: "https://auth.example.com/authorize",
+        tokenUrl: "https://auth.example.com/token",
+        includePersonalMicrosoftAccounts: true,
+      },
+      mockedDriverContext,
+      outputEnvVarNames
+    );
+
+    expect(result.result.isErr()).to.be.true;
+    if (result.result.isErr()) {
+      expect(result.result.error.name).to.equal("OauthSupportedAccountTypesUnsupportedCloud");
+    }
+    expect(getStub).not.toHaveBeenCalled();
+    expect(createStub).not.toHaveBeenCalled();
+  });
+
   it("OAUTH-MSA-03: rejects a non-boolean personal account option before POST", async () => {
     const createStub = vi.spyOn(teamsGraphClient, "createOauthRegistration");
     const result = await createOauthDriver.execute(
