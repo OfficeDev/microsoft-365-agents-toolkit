@@ -1855,7 +1855,7 @@
             },
             "includePersonalMicrosoftAccounts": {
               "type": "boolean",
-              "description": "Whether to allow personal Microsoft accounts in addition to work or school accounts. If omitted, supportedAccountTypes is not sent and TGS defaults the configuration to work or school accounts only (Enterprise)."
+              "description": "Whether to allow personal Microsoft accounts in addition to work or school accounts. If omitted when registering, only work or school accounts are allowed."
             }
           }
         },
@@ -1959,7 +1959,7 @@
             },
             "includePersonalMicrosoftAccounts": {
               "type": "boolean",
-              "description": "Whether to allow personal Microsoft accounts in addition to work or school accounts. If omitted, supportedAccountTypes is not sent in the PATCH request and the existing service value remains unchanged."
+              "description": "Whether to allow personal Microsoft accounts in addition to work or school accounts. If omitted during an update, the existing account support remains unchanged."
             }
           }
         }
@@ -2028,7 +2028,7 @@
             },
             "includePersonalMicrosoftAccounts": {
               "type": "boolean",
-              "description": "Whether to allow personal Microsoft accounts in addition to work or school accounts. If omitted, supportedAccountTypes is not sent and TGS defaults the configuration to work or school accounts only (Enterprise)."
+              "description": "Whether to allow personal Microsoft accounts in addition to work or school accounts. If omitted when registering, only work or school accounts are allowed."
             }
           }
         },
