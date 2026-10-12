@@ -15,7 +15,6 @@ const repo = "vscuse-doc";
 // Get target tag and store path from command line arguments
 const targetTag = process.argv[2] || "latest";
 const expectedSha256 = process.env.VSCUSE_SHA256 || "";
-const candidateCommit = "e8f2e0ecbf52353584358907b8f6b83ec00c4359";
 
 // Handle the store path with proper quotation
 let storePath = process.argv[3] || ".";
@@ -69,9 +68,28 @@ console.log("GH_APP_PRIVATE_KEY length:", process.env.GH_APP_PRIVATE_KEY ? proce
         tag: targetTag,
       });
       release = result.data;
-      if (release.tag_name !== targetTag || !release.prerelease || release.draft ||
-          release.target_commitish !== candidateCommit) {
-        throw new Error("AAD validation requires the exact published prerelease and source commit");
+      if (release.tag_name !== targetTag || release.prerelease !== true || release.draft !== false) {
+        throw new Error("AAD validation requires the exact published prerelease");
+      }
+      if (typeof release.body !== "string") {
+        throw new Error("Missing official mirror provenance marker");
+      }
+      const markers = [...release.body.matchAll(/<!--\s*vscuse-mirror:([\s\S]*?)-->/g)];
+      if (markers.length !== 1) {
+        throw new Error("Expected exactly one official mirror provenance marker");
+      }
+      let provenance;
+      try {
+        provenance = JSON.parse(markers[0][1]);
+      } catch (error) {
+        if (!(error instanceof SyntaxError)) throw error;
+        throw new Error("Invalid official mirror provenance JSON");
+      }
+      // target_commitish belongs to the mirror repository, not the source repository.
+      if (provenance === null || typeof provenance !== "object" || Array.isArray(provenance) ||
+          provenance.source_release_id !== 410362563 ||
+          provenance.source_repo !== "1openwindow/vsc-use" || provenance.source_tag !== targetTag) {
+        throw new Error("Official mirror provenance does not match the approved source release");
       }
     } else {
       console.log("📄 Fetching releases...");

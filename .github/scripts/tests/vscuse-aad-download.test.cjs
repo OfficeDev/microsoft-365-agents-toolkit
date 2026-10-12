@@ -13,6 +13,12 @@ const source = fs.readFileSync(
 const branch = "refs/heads/qfai/vscuse-aad-prerelease-validation";
 const wheel = Buffer.from("synthetic-wheel-for-offline-tests");
 const digest = `sha256:${createHash("sha256").update(wheel).digest("hex")}`;
+const provenance = {
+  source_release_id: 410362563,
+  source_repo: "1openwindow/vsc-use",
+  source_tag: "v1.0.3rc1",
+};
+const marker = (value) => `<!-- vscuse-mirror:${JSON.stringify(value)} -->`;
 
 async function download({ ref = branch, tag = "v1.0.3rc1", release = {}, asset = {}, data = wheel, sha256 = digest.slice(7) } = {}) {
   const requests = [];
@@ -23,7 +29,8 @@ async function download({ ref = branch, tag = "v1.0.3rc1", release = {}, asset =
     tag_name: tag,
     prerelease: true,
     draft: false,
-    target_commitish: "e8f2e0ecbf52353584358907b8f6b83ec00c4359",
+    target_commitish: "main",
+    body: marker(provenance),
     assets: [{ id: 1, name: `vscuse-${tag.slice(1)}-py3-none-any.whl`, digest, ...asset }],
     ...release,
   };
@@ -75,10 +82,55 @@ test("latest and stable versions fail before download on the isolated branch", a
   }
 });
 
-test("draft, stable, mismatched or wrong-commit releases fail without writing a wheel", async () => {
-  for (const release of [{ draft: true }, { prerelease: false }, { tag_name: "v1.0.3rc2" }, { target_commitish: "main" }]) {
+test("draft, stable, malformed or mismatched releases fail without writing a wheel", async () => {
+  for (const release of [
+    { draft: true }, { draft: undefined }, { prerelease: false }, { prerelease: "true" },
+    { tag_name: "v1.0.3rc2" },
+  ]) {
     const result = await download({ release });
     assert.equal(result.exitCode, 1);
+    assert.equal(result.writes.length, 0);
+  }
+});
+
+test("mirror provenance is parsed as JSON regardless of property order or mirror commit", async () => {
+  const result = await download({ release: {
+    target_commitish: "a".repeat(40),
+    body: `Original notes\n${marker({
+      source_tag: provenance.source_tag,
+      source_repo: provenance.source_repo,
+      source_release_id: provenance.source_release_id,
+    })}\n`,
+  } });
+  assert.equal(result.exitCode, 0, result.errors.join("\n"));
+  assert.equal(result.writes.length, 1);
+  assert.ok(result.requests.every((request) => request.owner === "microsoft" && request.repo === "vscuse-doc"));
+});
+
+test("missing, duplicate and malformed mirror markers fail before asset download", async () => {
+  for (const body of [
+    null, undefined, "", "Original notes only", 42,
+    marker(provenance) + "\n" + marker(provenance),
+    "<!-- vscuse-mirror:invalid-json -->",
+    marker(null), marker([]), marker("text"), marker({}),
+  ]) {
+    const result = await download({ release: { body } });
+    assert.equal(result.exitCode, 1);
+    assert.equal(result.requests.length, 1);
+    assert.equal(result.writes.length, 0);
+  }
+});
+
+test("wrong source release, repo or tag fails even when wheel digest matches", async () => {
+  for (const change of [
+    { source_release_id: 410362564 },
+    { source_release_id: "410362563" },
+    { source_repo: "microsoft/vscuse-doc" },
+    { source_tag: "v1.0.3rc2" },
+  ]) {
+    const result = await download({ release: { body: marker({ ...provenance, ...change }) } });
+    assert.equal(result.exitCode, 1);
+    assert.equal(result.requests.length, 1);
     assert.equal(result.writes.length, 0);
   }
 });
