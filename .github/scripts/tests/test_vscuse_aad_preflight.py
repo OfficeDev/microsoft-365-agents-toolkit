@@ -189,11 +189,18 @@ class AadPreflightTests(unittest.TestCase):
         self.assertEqual(logging.root.manager.disable, previous)
         return code, stdout.getvalue(), stderr.getvalue()
 
-    def assert_failure(self, category, error_type="PreflightError", status=None, argv=None):
-        message = f"check={category} status=failed type={error_type}"
+    def assert_failure(self, category, error_type="PreflightError", status=None, argv=None,
+                       phase="credential_setup", passed=(), codes=()):
+        message = f"phase={phase} check={category} status=failed type={error_type}"
         if status is not None:
             message += f" http_status={status}"
-        self.assertEqual(self.invoke(argv), (1, "", message + "\n"))
+        if codes:
+            message += " aadsts_codes=" + ",".join(codes)
+        successes = "".join(
+            f"vscuse={VERSION} model=synthetic-deployment check={check} status=ok\n"
+            for check in passed
+        )
+        self.assertEqual(self.invoke(argv), (1, successes, message + "\n"))
 
     def assert_success(self, model="synthetic-deployment"):
         expected = "".join(
@@ -426,7 +433,7 @@ class AadPreflightTests(unittest.TestCase):
         for response in responses:
             with self.subTest(response=response), candidate() as stub:
                 stub.create_completion.return_value = response
-                self.assert_failure("openai_result")
+                self.assert_failure("openai_result", phase="openai")
                 stub.client.close.assert_awaited_once_with()
                 stub.ocr_constructor.assert_not_called()
                 stub.vision.analyze.assert_not_called()
@@ -440,7 +447,7 @@ class AadPreflightTests(unittest.TestCase):
         for result in results:
             with self.subTest(result=result), candidate() as stub:
                 stub.vision.analyze.return_value = result
-                self.assert_failure("vision_result")
+                self.assert_failure("vision_result", phase="vision", passed=("openai",))
                 stub.client.close.assert_awaited_once_with()
                 stub.ocr_client.close.assert_awaited_once_with()
                 stub.vision.close.assert_called_once_with()
@@ -458,7 +465,11 @@ class AadPreflightTests(unittest.TestCase):
                     "ocr_constructor": stub.ocr_constructor, "vision": stub.vision.analyze,
                 }[stage]
                 method.side_effect = FakeHttpError(SENSITIVE)
-                self.assert_failure("runtime", "FakeHttpError")
+                self.assert_failure(
+                    "runtime", "FakeHttpError",
+                    phase="openai" if stage in ("factory", "openai") else "vision",
+                    passed=() if stage in ("factory", "openai") else ("openai",),
+                )
                 self.assertEqual(stub.client.close.await_count, int(stage != "factory"))
                 self.assertEqual(stub.ocr_client.close.await_count, int(stage == "vision"))
                 self.assertEqual(stub.vision.close.call_count, int(stage == "vision"))
@@ -477,9 +488,9 @@ class AadPreflightTests(unittest.TestCase):
 
                     stub.ocr._initialize_client.side_effect = initialize
                     if raises:
-                        self.assert_failure("runtime", "FakeHttpError")
+                        self.assert_failure("runtime", "FakeHttpError", phase="vision", passed=("openai",))
                     else:
-                        self.assert_failure("ocr_initialization")
+                        self.assert_failure("ocr_initialization", phase="vision", passed=("openai",))
                     stub.client.close.assert_awaited_once_with()
                     self.assertEqual(stub.ocr_client.close.await_count, int(has_openai))
                     self.assertEqual(stub.vision.close.call_count, int(has_vision))
@@ -489,7 +500,9 @@ class AadPreflightTests(unittest.TestCase):
         for target in ("client", "ocr_client", "vision"):
             with self.subTest(target=target), candidate() as stub:
                 getattr(stub, target).close.side_effect = FakeHttpError(SENSITIVE)
-                self.assert_failure("runtime", "FakeHttpError")
+                self.assert_failure(
+                    "runtime", "FakeHttpError", phase="cleanup", passed=("openai", "vision")
+                )
                 stub.client.close.assert_awaited_once_with()
                 stub.ocr_client.close.assert_awaited_once_with()
                 stub.vision.close.assert_called_once_with()
@@ -547,7 +560,15 @@ class AadPreflightTests(unittest.TestCase):
                         "vision": stub.vision.analyze, "cleanup": stub.client.close,
                     }[stage]
                     method.side_effect = fail
-                self.assert_failure("runtime", "FakeHttpError", status=401)
+                phase = {
+                    "import": "credential_setup", "openai": "openai",
+                    "initialize": "vision", "vision": "vision", "cleanup": "cleanup",
+                }[stage]
+                passed = {
+                    "import": (), "openai": (), "initialize": ("openai",),
+                    "vision": ("openai",), "cleanup": ("openai", "vision"),
+                }[stage]
+                self.assert_failure("runtime", "FakeHttpError", status=401, phase=phase, passed=passed)
                 self.assertEqual(logging.root.manager.disable, logging.INFO)
 
     def test_success_hides_candidate_diagnostics_including_cleanup(self):
@@ -568,8 +589,58 @@ class AadPreflightTests(unittest.TestCase):
                         error.status_code = status
                     stub.create_completion.side_effect = error
                     expected = status if type(status) is int and 100 <= status <= 599 else None
-                    self.assert_failure("runtime", "FakeHttpError", status=expected)
+                    self.assert_failure("runtime", "FakeHttpError", status=expected, phase="openai")
                     stub.client.close.assert_awaited_once_with()
+
+    def test_only_numeric_aadsts_codes_escape_secret_bearing_authentication_errors(self):
+        for code in ("7000215", "7000222", "700016"):
+            for source in ("args", "message"):
+                with self.subTest(code=code, source=source), candidate() as stub:
+                    message = f"{SENSITIVE}; AADSTS{code}: invalid credentials; {SENSITIVE}"
+                    error = FakeHttpError(message if source == "args" else SENSITIVE)
+                    if source == "message":
+                        error.message = message
+                    stub.create_completion.side_effect = error
+                    self.assert_failure("runtime", "FakeHttpError", phase="openai", codes=(code,))
+
+    def test_aadsts_codes_from_cyclic_exception_chains_are_deduplicated(self):
+        with candidate() as stub:
+            error = FakeHttpError(SENSITIVE)
+            cause = RuntimeError(f"{SENSITIVE} AADSTS7000215: hidden")
+            context = ValueError(f"AADSTS7000222: {SENSITIVE}")
+            inner = RuntimeError(f"{SENSITIVE} AADSTS700016: hidden AADSTS7000215")
+            error.__cause__ = cause
+            error.__context__ = context
+            cause.inner_exception = inner
+            inner.__cause__ = error
+            stub.create_completion.side_effect = error
+            self.assert_failure(
+                "runtime", "FakeHttpError", phase="openai",
+                codes=("700016", "7000215", "7000222"),
+            )
+
+    def test_malformed_aadsts_tokens_and_response_bodies_are_not_logged(self):
+        with candidate() as stub:
+            error = FakeHttpError(
+                f"{SENSITIVE} AADSTSsecret AADSTS7000215secret AADSTS1234567890123456 "
+                "secretAADSTS700016 AADSTS7000222_secret AADSTS\u0667\u0660\u0660\u0660\u0661\u0666"
+            )
+            error.response = SimpleNamespace(
+                status_code=401, text=f"{SENSITIVE} AADSTS7000215", headers={"secret": SENSITIVE}
+            )
+            stub.create_completion.side_effect = error
+            self.assert_failure("runtime", "FakeHttpError", status=401, phase="openai")
+
+    def test_vision_authentication_failure_preserves_successful_openai_evidence(self):
+        with candidate() as stub:
+            error = FakeHttpError(SENSITIVE)
+            error.__cause__ = RuntimeError(f"AADSTS7000222: {SENSITIVE}")
+            stub.vision.analyze.side_effect = error
+            self.assert_failure(
+                "runtime", "FakeHttpError", phase="vision", passed=("openai",), codes=("7000222",),
+            )
+            stub.create_completion.assert_awaited_once()
+            stub.vision.analyze.assert_called_once()
 
     def test_argument_errors_never_echo_secret_arguments(self):
         arguments = [

@@ -496,7 +496,7 @@ jobs:
           fi
 
       - name: Encrypt and zip test report
-        if: always()
+        if: ${{ always() && (github.ref != 'refs/heads/qfai/vscuse-aad-prerelease-validation' || hashFiles('packages/tests/vscuse/vscode-test-cases/test_report/index.html') != '') }}
         run: |
           REPORT_DIR="packages/tests/vscuse/vscode-test-cases/test_report"
           ZIP_FILE="test-report-${{ matrix.test_plan }}-${{ github.run_number }}.zip"

@@ -4,6 +4,7 @@
 import argparse
 import asyncio
 from contextlib import AsyncExitStack, redirect_stderr, redirect_stdout
+from dataclasses import dataclass, field
 from importlib import metadata
 import io
 import logging
@@ -21,6 +22,32 @@ CREDENTIAL_NAMES = ("CLIENT_ID", "CLIENT_SECRET", "TENANT_ID")
 
 class PreflightError(RuntimeError):
     """Carries only a fixed, non-sensitive failure category."""
+
+
+@dataclass
+class SmokeProgress:
+    phase: str = "credential_setup"
+    successes: list[tuple[str, str]] = field(default_factory=list)
+
+
+def aadsts_codes(error):
+    """Extract only numeric AADSTS identifiers, never exception text or SDK bodies."""
+    codes = set()
+    seen = set()
+    pending = [error]
+    while pending:
+        current = pending.pop()
+        if id(current) in seen:
+            continue
+        seen.add(id(current))
+        for message in (*current.args, getattr(current, "message", None)):
+            if isinstance(message, str):
+                codes.update(re.findall(r"\bAADSTS([0-9]{4,10})\b", message))
+        for name in ("__cause__", "__context__", "inner_exception"):
+            nested = getattr(current, name, None)
+            if isinstance(nested, BaseException):
+                pending.append(nested)
+    return sorted(codes, key=int)
 
 
 class SafeArgumentParser(argparse.ArgumentParser):
@@ -63,7 +90,7 @@ def configure_aad_environment() -> dict[str, str]:
     return credentials
 
 
-async def run_smoke(config_path):
+async def run_smoke(config_path, progress):
     credentials = configure_aad_environment()
     # The candidate package's __init__ loads .env with override=True. Recheck
     # even when an older python-dotenv does not honor PYTHON_DOTENV_DISABLED.
@@ -111,6 +138,7 @@ async def run_smoke(config_path):
     from vscuse_v2.utils.azure_client import AzureOpenAIClientFactory
 
     async with AsyncExitStack() as cleanup:
+        progress.phase = "openai"
         client = await AzureOpenAIClientFactory.create_client()
         cleanup.push_async_callback(client.close)
         client.max_retries = 0
@@ -125,7 +153,9 @@ async def run_smoke(config_path):
         content = response.choices[0].message.content
         if not isinstance(content, str) or not content.strip():
             raise PreflightError("openai_result")
+        progress.successes.append(("openai", model))
 
+        progress.phase = "vision"
         ocr = OcrAgent()
 
         async def close_ocr():
@@ -163,6 +193,8 @@ async def run_smoke(config_path):
         )
         if not re.search(r"\bAAD\s+OK\b", text.upper()):
             raise PreflightError("vision_result")
+        progress.successes.append(("vision", model))
+        progress.phase = "cleanup"
     return model
 
 
@@ -172,6 +204,7 @@ def main(argv=None):
     parser.add_argument("--version", required=True, help="exact prerelease tag, e.g. v1.0.3rc1")
     parser.add_argument("--check-version", action="store_true", help="check metadata only; no live calls")
     previous_log_level = logging.root.manager.disable
+    progress = SmokeProgress()
     failure = None
     try:
         args = parser.parse_args(argv)
@@ -183,27 +216,30 @@ def main(argv=None):
         with redirect_stdout(io.StringIO()), redirect_stderr(io.StringIO()):
             try:
                 version = verify_version(args.version)
-                model = None if args.check_version else asyncio.run(run_smoke(args.config))
+                if not args.check_version:
+                    asyncio.run(run_smoke(args.config, progress))
             except Exception as error:
                 category = str(error) if isinstance(error, PreflightError) else "runtime"
                 status = getattr(error, "status_code", None)
                 if status is None:
                     status = getattr(getattr(error, "response", None), "status_code", None)
-                failure = f"check={category} status=failed type={type(error).__name__}"
+                failure = f"phase={progress.phase} check={category} status=failed type={type(error).__name__}"
                 if type(status) is int and 100 <= status <= 599:
                     failure += f" http_status={status}"
+                codes = aadsts_codes(error)
+                if codes:
+                    failure += " aadsts_codes=" + ",".join(codes)
     except PreflightError:
-        failure = "check=arguments status=failed type=PreflightError"
+        failure = "phase=credential_setup check=arguments status=failed type=PreflightError"
     finally:
         logging.disable(previous_log_level)
+    for check, model in progress.successes:
+        print(f"vscuse={version} model={model} check={check} status=ok", flush=True)
     if failure:
         print(failure, file=sys.stderr)
         return 1
     if args.check_version:
         print(f"vscuse={version} check=version status=ok")
-    else:
-        for check in ("openai", "vision"):
-            print(f"vscuse={version} model={model} check={check} status=ok")
     return 0
 
 

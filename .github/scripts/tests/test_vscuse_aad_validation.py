@@ -134,6 +134,11 @@ class ValidationTests(unittest.TestCase):
             self.assertIn(non_validation, steps[name]["if"])
         for name in ("rerun", "report"):
             self.assertIn(non_validation, common["jobs"][name]["if"])
+        self.assertEqual(
+            steps["Encrypt and zip test report"]["if"],
+            "${{ always() && (" + non_validation
+            + " || hashFiles('packages/tests/vscuse/vscode-test-cases/test_report/index.html') != '') }}",
+        )
         self.assertIn(non_validation, template["jobs"]["trigger-ui-test-features"]["if"])
         names = list(steps)
         self.assertLess(
