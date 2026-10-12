@@ -62,12 +62,11 @@ extends:
           displayName: NuGet Authenticate
           inputs:
             nuGetServiceConnections: OSSCG Feed - Microsoft approved OSS packages
-        - task: cesve.one-loc-build.one-loc-build.OneLocBuild@2
+        - task: cesve.one-loc-build.one-loc-build.OneLocBuild@3
           displayName: 'Localization Build: Localize/LocProject.json'
           inputs:
             isCreatePrSelected: true
             repoType: gitHub
-            gitHubPatVariable: '$(OneLocBuildGitHubPatTest)'
             isShouldReusePrSelected: true
             isAutoCompletePrSelected: false
             packageSourceAuth: patAuth
