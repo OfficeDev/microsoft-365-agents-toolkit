@@ -53,7 +53,13 @@ export interface OauthRegistration {
   supportedAccountTypes?: OauthRegistrationSupportedAccountTypes;
 }
 
-export type OauthRegistrationSupportedAccountTypes = "Enterprise" | "Enterprise, Consumer";
+export const OauthRegistrationSupportedAccountType = {
+  Enterprise: "Enterprise",
+  EnterpriseAndConsumer: "Enterprise, Consumer",
+} as const;
+
+export type OauthRegistrationSupportedAccountTypes =
+  (typeof OauthRegistrationSupportedAccountType)[keyof typeof OauthRegistrationSupportedAccountType];
 
 export enum TokenExchangeMethodType {
   BasicAuthorizationHeader = "BasicAuthorizationHeader",

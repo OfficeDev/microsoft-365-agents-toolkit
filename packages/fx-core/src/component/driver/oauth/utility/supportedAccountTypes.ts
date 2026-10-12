@@ -9,7 +9,10 @@ import {
 } from "../../../../common/accountUtils";
 import { getLocalizedString } from "../../../../common/localizeUtils";
 import { InvalidActionInputError } from "../../../../error/common";
-import { OauthRegistrationSupportedAccountTypes } from "../../teamsApp/interfaces/OauthRegistration";
+import {
+  OauthRegistrationSupportedAccountType,
+  OauthRegistrationSupportedAccountTypes,
+} from "../../teamsApp/interfaces/OauthRegistration";
 import { OauthSupportedAccountTypesUnsupportedCloudError } from "../error/oauthSupportedAccountTypesUnsupportedCloud";
 
 export function mapPersonalMicrosoftAccountsOption(
@@ -23,7 +26,11 @@ export function mapPersonalMicrosoftAccountsOption(
     return err(new InvalidActionInputError(actionName, ["includePersonalMicrosoftAccounts"]));
   }
 
-  return ok(input ? "Enterprise, Consumer" : "Enterprise");
+  return ok(
+    input
+      ? OauthRegistrationSupportedAccountType.EnterpriseAndConsumer
+      : OauthRegistrationSupportedAccountType.Enterprise
+  );
 }
 
 export function validateSupportedAccountTypesCloud(

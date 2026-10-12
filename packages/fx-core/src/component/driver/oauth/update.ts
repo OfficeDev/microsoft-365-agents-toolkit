@@ -14,6 +14,7 @@ import { addStartAndEndTelemetry } from "../middleware/addStartAndEndTelemetry";
 import {
   OauthRegistration,
   OauthRegistrationAppType,
+  OauthRegistrationSupportedAccountType,
   OauthRegistrationSupportedAccountTypes,
   OauthRegistrationTargetAudience,
   TokenExchangeMethodType,
@@ -273,11 +274,14 @@ export class UpdateOauthDriver implements StepDriver {
     const isMicrosoftEntra = current.identityProvider === "MicrosoftEntra";
     if (
       supportedAccountTypes !== undefined &&
-      (current.supportedAccountTypes ?? "Enterprise") !== supportedAccountTypes
+      (current.supportedAccountTypes ?? OauthRegistrationSupportedAccountType.Enterprise) !==
+        supportedAccountTypes
     ) {
       const currentIncludesPersonalAccounts =
-        current.supportedAccountTypes === "Enterprise, Consumer";
-      const updatedIncludesPersonalAccounts = supportedAccountTypes === "Enterprise, Consumer";
+        current.supportedAccountTypes ===
+        OauthRegistrationSupportedAccountType.EnterpriseAndConsumer;
+      const updatedIncludesPersonalAccounts =
+        supportedAccountTypes === OauthRegistrationSupportedAccountType.EnterpriseAndConsumer;
       diffMsgs.push(
         `includePersonalMicrosoftAccounts: ${currentIncludesPersonalAccounts} => ${updatedIncludesPersonalAccounts}`
       );
