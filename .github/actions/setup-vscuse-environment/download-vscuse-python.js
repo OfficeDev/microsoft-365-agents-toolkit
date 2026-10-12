@@ -8,9 +8,9 @@ import { Octokit } from "@octokit/core";
 const appId = process.env.GH_APP_ID;
 const privateKey = process.env.GH_APP_PRIVATE_KEY.replace(/\\n/g, "\n");
 const aadValidation = process.env.GITHUB_REF === "refs/heads/qfai/vscuse-aad-prerelease-validation";
-// Do not publish validation wheels to vscuse-doc: its daily consumer takes releases[0].
-const owner = aadValidation ? "1openwindow" : "microsoft";
-const repo = aadValidation ? "vsc-use" : "vscuse-doc";
+// Official prerelease sync must wait until the scheduled consumer safely resolves latest.
+const owner = "microsoft";
+const repo = "vscuse-doc";
 
 // Get target tag and store path from command line arguments
 const targetTag = process.argv[2] || "latest";
@@ -141,4 +141,3 @@ console.log("GH_APP_PRIVATE_KEY length:", process.env.GH_APP_PRIVATE_KEY ? proce
     process.exit(1);
   }
 })();
-

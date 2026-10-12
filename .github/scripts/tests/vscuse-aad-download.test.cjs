@@ -40,7 +40,6 @@ async function download({ ref = branch, tag = "v1.0.3rc1", release = {}, asset =
     createAppAuth: () => async () => ({ token: "fixture-token" }),
     fetch: async () => ({ json: async () => [
       { id: 1, account: { login: "microsoft" } },
-      { id: 2, account: { login: "1openwindow" } },
     ] }),
     Octokit: class {
       async request(route, args) {
@@ -57,11 +56,11 @@ async function download({ ref = branch, tag = "v1.0.3rc1", release = {}, asset =
   return { requests, writes, errors, exitCode };
 }
 
-test("isolated branch fetches the exact prerelease outside the daily feed and checks wheel digest", async () => {
+test("isolated branch fetches the exact official prerelease and checks wheel digest", async () => {
   const result = await download();
   assert.equal(result.exitCode, 0, result.errors.join("\n"));
   assert.equal(result.requests[0].route, "GET /repos/{owner}/{repo}/releases/tags/{tag}");
-  assert.ok(result.requests.every((request) => request.owner === "1openwindow" && request.repo === "vsc-use"));
+  assert.ok(result.requests.every((request) => request.owner === "microsoft" && request.repo === "vscuse-doc"));
   assert.equal(result.requests[0].tag, "v1.0.3rc1");
   assert.equal(result.writes.length, 1);
   assert.deepEqual(result.writes[0][1], wheel);
