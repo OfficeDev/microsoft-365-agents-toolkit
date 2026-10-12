@@ -28,14 +28,16 @@ graders:
       forbidden_tools:
         - rm
         - sudo
-  - type: tool_constraint
-    name: wiqd_existing_api_commands
+  - type: skill_invocation
+    name: wiqd_plugin_delegation
     config:
-      expect_tools:
-        - tool: shell
-          command_pattern: '(?i)\bwiqd\s+agent\s+create\b'
-        - tool: shell
-          command_pattern: '(?i)\bwiqd\s+agent\s+add\s+action\b[^\r\n]*--openapi-spec\b'
+      mode: exact_match
+      required_skills:
+        - wiqd
+      allow_extra: false
+  - type: tool_constraint
+    name: no_atk_da_commands
+    config:
       reject_tools:
         - tool: shell
           command_pattern: '(?i)\batk\s+(?:new|validate|package|provision|deploy|publish|uninstall)\b'
@@ -44,10 +46,10 @@ graders:
     config:
       prompt: |
         Review the agent's response. Check that it:
-        1. Creates the DA with WIQD because the OpenAPI backend already exists.
-        2. Adds `GET /repairs` with `wiqd agent add action --openapi-spec`.
+        1. Delegates the DA creation and existing OpenAPI action to the `wiqd` plugin because the backend already exists.
+        2. Preserves the user's selected `GET /repairs` operation in the delegated workflow.
         3. Does not scaffold backend source code or use an ATK lifecycle command.
-        4. Keeps the DA on WIQD because the existing external API is not project-owned backend compute.
+        4. Lets the WIQD plugin own its workflow and command details because every non-TypeSpec DA delegates to WIQD regardless of backend ownership.
 
         If all criteria are met, call set_waza_grade_pass.
         Otherwise, call set_waza_grade_fail with your reasoning.

@@ -1,6 +1,6 @@
 # ATK CLI Commands Reference
 
-These commands apply to non-DA ATK projects and DAs routed to ATK by the [structural routing gate](declarative-agent-lifecycle.md#structural-routing-gate).
+These commands apply to non-DA ATK projects and TypeSpec DAs selected by the [DA routing rule](declarative-agent-lifecycle.md#da-routing).
 
 ## Package and Validate
 

@@ -1,8 +1,8 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/microsoft/waza/main/schemas/task.schema.json
 
 id: da-marker-precedence
-name: Backend Source Without Deployment Uses WIQD
-description: Existing DA has backend source and build configuration but no backend deployment lifecycle
+name: Non-TypeSpec DA with Backend Files Uses WIQD
+description: Existing non-TypeSpec DA routes to WIQD regardless of backend source or lifecycle files
 tags:
   - declarative-agent
   - routing
@@ -27,14 +27,16 @@ graders:
       forbidden_tools:
         - rm
         - sudo
-  - type: tool_constraint
-    name: wiqd_lifecycle_commands
+  - type: skill_invocation
+    name: wiqd_plugin_delegation
     config:
-      expect_tools:
-        - tool: shell
-          command_pattern: '(?i)\bwiqd\s+agent\s+validate\b'
-        - tool: shell
-          command_pattern: '(?i)\bwiqd\s+agent\s+package\b'
+      mode: exact_match
+      required_skills:
+        - wiqd
+      allow_extra: false
+  - type: tool_constraint
+    name: no_atk_da_commands
+    config:
       reject_tools:
         - tool: shell
           command_pattern: '(?i)\batk\s+(?:validate|package|provision|deploy|publish|uninstall)\b'
@@ -43,9 +45,10 @@ graders:
     config:
       prompt: |
         Review the agent's response. Check that it:
-        1. Selects WIQD because backend source and build configuration exist but the lifecycle has no action that provisions or deploys that backend.
-        2. Uses WIQD validate and package commands even though backend source and `m365agents.yml` exist.
-        3. Does not infer lifecycle routing from the scaffold CLI or use ATK lifecycle commands.
+        1. Selects WIQD because this is a non-TypeSpec DA.
+        2. Delegates validation and packaging to the `wiqd` plugin even though backend source and `m365agents.yml` exist.
+        3. Does not treat backend source, infrastructure, or lifecycle deployment actions as an ATK routing signal.
+        4. Does not prescribe WIQD CLI commands outside the WIQD plugin.
 
         If all criteria are met, call set_waza_grade_pass.
         Otherwise, call set_waza_grade_fail with your reasoning.

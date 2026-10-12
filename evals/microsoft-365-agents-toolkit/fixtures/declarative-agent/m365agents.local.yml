@@ -1,0 +1,8 @@
+version: v1.11
+
+provision:
+  - uses: typeSpec/compile
+    with:
+      path: ./src/agent/main.tsp
+      manifestPath: ./appPackage/manifest.json
+      outputDir: ./appPackage/.generated

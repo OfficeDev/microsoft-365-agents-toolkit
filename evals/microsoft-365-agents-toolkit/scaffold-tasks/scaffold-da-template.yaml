@@ -21,16 +21,20 @@ graders:
     name: efficiency_check
     config:
       max_tool_calls: 40
-      max_duration_ms: 150000
+      max_duration_ms: 240000
       forbidden_tools:
         - rm
         - sudo
-  - type: tool_constraint
-    name: wiqd_create_command
+  - type: skill_invocation
+    name: wiqd_plugin_delegation
     config:
-      expect_tools:
-        - tool: shell
-          command_pattern: '(?i)\bwiqd\s+agent\s+create\b'
+      mode: exact_match
+      required_skills:
+        - wiqd
+      allow_extra: false
+  - type: tool_constraint
+    name: no_atk_da_commands
+    config:
       reject_tools:
         - tool: shell
           command_pattern: '(?i)\batk\s+(new|provision|deploy|validate|package|publish|uninstall)\b'
@@ -39,9 +43,9 @@ graders:
     config:
       prompt: |
         Review the agent's response. Check that the response is:
-        1. Uses `wiqd agent create --name <name> --output <parent>` to create the Declarative Agent.
-        2. Does not run `atk new` or another ATK lifecycle command for the Declarative Agent.
-        3. If WIQD is unavailable, gives installation guidance and stops instead of falling back to ATK.
+        1. Delegates creation of the Declarative Agent to the `wiqd` plugin.
+        2. Lets the WIQD plugin own its workflow, prerequisites, and implementation details instead of prescribing WIQD CLI commands.
+        3. Does not run `atk new` or another ATK lifecycle command for the Declarative Agent.
 
         If all criteria are met, call set_waza_grade_pass.
         Otherwise, call set_waza_grade_fail with your reasoning.

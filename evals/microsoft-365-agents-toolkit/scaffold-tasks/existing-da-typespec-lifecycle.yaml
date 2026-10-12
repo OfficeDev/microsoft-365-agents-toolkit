@@ -1,20 +1,21 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/microsoft/waza/main/schemas/task.schema.json
 
-id: copilot-connector-da-uses-wiqd
-name: Copilot Connector Declarative Agent Uses WIQD
-description: Existing Declarative Agent references a Copilot Connector connection supported by WIQD
+id: existing-da-typespec-lifecycle
+name: Validate and Package Existing TypeSpec Declarative Agent Using ATK
+description: Existing Declarative Agent contains a generated TypeSpec project marker
 tags:
   - declarative-agent
   - routing
-  - copilot-connector
+  - typespec
 inputs:
-  prompt: "This existing Declarative Agent references an existing Copilot Connector connection and does not own or deploy the Connector backend. Validate and package it."
+  prompt: "Validate and package this existing Declarative Agent project."
   files:
     - path: declarative-agent/appPackage/manifest.json
     - path: declarative-agent/appPackage/declarativeAgent.json
     - path: declarative-agent/appPackage/color.png
     - path: declarative-agent/appPackage/outline.png
     - path: declarative-agent/m365agents.yml
+    - path: declarative-agent/tspconfig.yaml
 expected:
   should_trigger: true
 graders:
@@ -27,25 +28,29 @@ graders:
         - rm
         - sudo
   - type: tool_constraint
-    name: wiqd_lifecycle_commands
+    name: atk_typespec_lifecycle_commands
     config:
       expect_tools:
         - tool: shell
-          command_pattern: '(?i)\bwiqd\s+agent\s+validate\b'
+          command_pattern: '(?i)\batk\s+validate\b'
         - tool: shell
-          command_pattern: '(?i)\bwiqd\s+agent\s+package\b'
+          command_pattern: '(?i)\batk\s+package\b'
       reject_tools:
         - tool: shell
-          command_pattern: '(?i)\batk\s+(?:validate|package|provision|deploy|publish|uninstall)\b'
+          command_pattern: '(?i)\bwiqd\s+agent\b'
+  - type: skill_invocation
+    name: no_wiqd_plugin_for_existing_typespec
+    config:
+      forbidden_skills:
+        - wiqd
   - type: prompt
     name: quality_check
     config:
       prompt: |
         Review the agent's response. Check that it:
-        1. Recognizes that WIQD supports Declarative Agents referencing an existing Copilot Connector connection.
-        2. Uses WIQD to validate and package the project.
-        3. Does not select ATK merely because the project references a Copilot Connector connection.
-        4. Does not use ATK lifecycle commands.
+        1. Recognizes the `@microsoft/typespec-m365-copilot` emitter in `tspconfig.yaml` as an existing TypeSpec DA marker.
+        2. Uses ATK to validate and package the existing TypeSpec DA.
+        3. Does not invoke the WIQD plugin.
 
         If all criteria are met, call set_waza_grade_pass.
         Otherwise, call set_waza_grade_fail with your reasoning.

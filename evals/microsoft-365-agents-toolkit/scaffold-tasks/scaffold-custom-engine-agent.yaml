@@ -24,6 +24,11 @@ graders:
       forbidden_tools:
         - rm
         - sudo
+  - type: skill_invocation
+    name: no_wiqd_plugin_for_custom_engine_agent
+    config:
+      forbidden_skills:
+        - wiqd
   - type: prompt
     name: quality_check
     config:
@@ -31,7 +36,7 @@ graders:
         Review the agent's response. Check that the response is:
         1. Successfully created a custom engine agent.
         2. Uses ATK to scaffold the Custom Engine Agent.
-        3. Does not route the Custom Engine Agent to WIQD.
+        3. Does not invoke the WIQD plugin for the Custom Engine Agent.
         4. Recommend testing in Playground as next step.
 
         If all criteria are met, call set_waza_grade_pass.

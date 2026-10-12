@@ -2,6 +2,13 @@ name: Evaluate Microsoft 365 Agents Toolkit Skill
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - dev
+    paths:
+      - "packages/vscode-extension/skills/microsoft-365-agents-toolkit/**"
+      - "evals/microsoft-365-agents-toolkit/**"
+      - ".github/workflows/eval-microsoft-365-agents-toolkit.yml"
   pull_request_target:
     paths:
       - "packages/vscode-extension/skills/microsoft-365-agents-toolkit/**"
@@ -105,6 +112,14 @@ jobs:
         run: |
           npm install -g @github/copilot
           copilot --version
+
+      - name: Install orchestration plugins
+        run: |
+          copilot plugin marketplace add microsoft/wiqd
+          copilot plugin install wiqd@wiqd
+          copilot plugin marketplace add microsoft/azure-skills
+          copilot plugin install azure@azure-skills
+          copilot plugin list
 
       - name: Install Waza
         run: curl -fsSL https://raw.githubusercontent.com/microsoft/waza/main/install.sh | bash

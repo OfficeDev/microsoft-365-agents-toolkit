@@ -1,0 +1,55 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/microsoft/waza/main/schemas/task.schema.json
+
+id: scaffold-da-typespec
+name: Scaffold TypeSpec Declarative Agent Using ATK
+description: User explicitly wants a TypeSpec Declarative Agent
+tags:
+  - scaffold
+  - routing
+  - typespec
+inputs:
+  prompt: "Create a TypeSpec Declarative Agent named TypeSpecDaFixture and keep the generated TypeSpecDaFixture project folder."
+expected:
+  should_trigger: true
+graders:
+  - type: file
+    name: typespec_da_project_files
+    config:
+      must_exist:
+        - "TypeSpecDaFixture/m365agents.yml"
+        - "TypeSpecDaFixture/appPackage/manifest.json"
+  - type: behavior
+    name: efficiency_check
+    config:
+      max_tool_calls: 30
+      max_duration_ms: 180000
+      forbidden_tools:
+        - rm
+        - sudo
+  - type: tool_constraint
+    name: atk_typespec_create_command
+    config:
+      expect_tools:
+        - tool: shell
+          command_pattern: '(?i)\batk\s+new\b[^\r\n]*\s-c\s+declarative-agent-typespec\b'
+      reject_tools:
+        - tool: shell
+          command_pattern: '(?i)\bwiqd\s+agent\b'
+  - type: skill_invocation
+    name: no_wiqd_plugin_for_typespec
+    config:
+      forbidden_skills:
+        - wiqd
+  - type: prompt
+    name: quality_check
+    config:
+      prompt: |
+        Review the agent's response. Check that it:
+        1. Recognizes the explicit TypeSpec request as the only DA route owned by ATK.
+        2. Uses `atk new -c declarative-agent-typespec` to create the project.
+        3. Does not invoke the WIQD plugin.
+
+        If all criteria are met, call set_waza_grade_pass.
+        Otherwise, call set_waza_grade_fail with your reasoning.
+      model: "gpt-5.4"
+      continue_session: true
