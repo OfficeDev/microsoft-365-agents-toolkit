@@ -42630,7 +42630,7 @@ SOFTWARE.
 
 ---------------------------------------------------------
 
-proxy-addr 2.0.7 - MIT
+proxy-addr 2.0.8 - MIT
 https://github.com/jshttp/proxy-addr#readme
 
 Copyright (c) 2014-2016 Douglas Christopher Wilson

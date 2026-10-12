@@ -1949,45 +1949,62 @@
     "dcrRegister": {
       "type": "object",
       "additionalProperties": false,
-      "description": "Create a Dynamic Client Registration (DCR) configuration.",
+      "description": "Create a Dynamic Client Registration (DCR) configuration through Teams Graph Service (TGS). Registration is skipped when the mapped configurationId environment variable already has a value.",
       "required": ["uses", "with", "writeToEnvironmentFile"],
       "properties": {
         "uses": {
           "type": "string",
-          "description": "Register a DCR configuration.",
+          "description": "Register an OAuth configuration using server-side Dynamic Client Registration.",
           "const": "dcr/register"
         },
         "with": {
           "type": "object",
           "additionalProperties": false,
-          "description": "Parameters for this action",
-          "required": ["name", "wellKnownAuthorizationServer"],
+          "description": "DCR registration parameters. Supply mcpResourceUrl for protected resource metadata discovery, wellKnownAuthorizationServer to pin authorization-server metadata, or both.",
+          "required": ["name", "targetUrlsShouldStartWith"],
+          "anyOf": [
+            { "required": ["mcpResourceUrl"] },
+            { "required": ["wellKnownAuthorizationServer"] }
+          ],
           "properties": {
             "name": {
               "type": "string",
-              "description": "The display name of the DCR configuration. Becomes the clientName sent during RFC 7591 registration. Max 128 characters."
+              "description": "Required client name sent to TGS as clientName for dynamic registration. Maximum 128 characters."
             },
             "appId": {
               "type": "string",
-              "description": "The Teams app id associated with this configuration. Only takes effect when applicableToApps is SpecificApp."
+              "description": "Microsoft 365 app ID. Required when applicableToApps is SpecificApp; ignored when applicableToApps is AnyApp."
+            },
+            "mcpResourceUrl": {
+              "type": "string",
+              "minLength": 1,
+              "description": "HTTPS URL of the actual MCP endpoint, including its path. Recommended for new configurations. TGS probes this endpoint and RFC 9728 well-known locations for protected resource metadata (PRM), then uses its first authorization_servers entry, resource and scopes_supported. This is not the PRM document URL and is not necessarily the OAuth resource indicator. Optional when wellKnownAuthorizationServer is supplied."
             },
             "wellKnownAuthorizationServer": {
               "type": "string",
-              "description": "URL to the authorization server's RFC 8414 metadata document. TGS fetches this to discover the registration_endpoint and performs the RFC 7591 exchange server-side."
+              "minLength": 1,
+              "description": "Legacy/pinning HTTPS URL of the authorization server's RFC 8414 metadata document. Optional when mcpResourceUrl is supplied. When present, this URL takes precedence for authorization-server metadata resolution. If mcpResourceUrl is also supplied, TGS still attempts best-effort PRM discovery for resource and scopes; failure of that enrichment does not fail registration."
+            },
+            "resource": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Optional explicit OAuth resource indicator: an absolute URI without a fragment. Overrides PRM's resource value. Normally omit this field and let PRM determine the resource; it is not inferred from mcpResourceUrl. TGS sends the selected resource in authorization, token and refresh-token requests."
             },
             "targetUrlsShouldStartWith": {
               "type": "array",
-              "description": "Outbound URL allowlist. TGS only allows this configuration to authorize calls whose destination URL starts with one of these prefixes.",
-              "items": { "type": "string" }
+              "description": "Required MCP target URL array. TGS requires exactly one valid HTTPS URL; omission, a string, an empty array or multiple entries is rejected. New configurations use the actual MCP endpoint. This field does not set the OAuth resource indicator.",
+              "minItems": 1,
+              "maxItems": 1,
+              "items": { "type": "string", "minLength": 1 }
             },
             "applicableToApps": {
               "type": "string",
-              "description": "Which app can use this DCR configuration. Default is \"AnyApp\".",
+              "description": "Applications permitted to use this configuration: AnyApp (default), or SpecificApp, which requires appId.",
               "enum": ["SpecificApp", "AnyApp"]
             },
             "targetAudience": {
               "type": "string",
-              "description": "Which tenant can use this DCR configuration. Default is \"HomeTenant\".",
+              "description": "Tenants permitted to use this configuration: HomeTenant (default) or AnyTenant.",
               "enum": ["HomeTenant", "AnyTenant"]
             }
           }
@@ -1999,7 +2016,7 @@
           "required": ["configurationId"],
           "properties": {
             "configurationId": {
-              "description": "Required. The configuration id of the created DCR registration.",
+              "description": "Required environment variable name receiving the returned configurationRegistrationId.oAuthConfigId. This is a configuration ID, not an OAuth client ID or resource indicator. An existing value causes this action to skip registration.",
               "$ref": "#/definitions/envVarName"
             }
           }

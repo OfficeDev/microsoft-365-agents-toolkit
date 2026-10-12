@@ -20,7 +20,6 @@ import stripBom from "strip-bom";
 import { getResourceServiceEndpoint, ResourceServiceType } from "../../common/constants";
 import { ErrorContextMW, TOOLS } from "../../common/globalVars";
 import { getDefaultString, getLocalizedString } from "../../common/localizeUtils";
-import { TreatmentVariables } from "../../common/treatmentVariables";
 import {
   Component,
   sendTelemetryErrorEvent,
@@ -255,22 +254,13 @@ export class PackageService {
       this.logger?.debug(`"Uploading package with sideLoading V2 in ${appScope} scope ..."`);
       const uploadHeaders = content.getHeaders();
       uploadHeaders["Authorization"] = `Bearer ${token}`;
-      const forceRaiValidationEnabled = process.env.TEAMSFX_RAI_VALIDATION_ENABLED;
-      const isRaiValidationEnabled =
-        forceRaiValidationEnabled === undefined
-          ? ((await TOOLS.expServiceProvider?.getTreatmentVariableAsync<boolean>(
-              TreatmentVariables.VSCodeConfig,
-              TreatmentVariables.RaiValidation,
-              true
-            )) ?? false)
-          : forceRaiValidationEnabled === "true" || forceRaiValidationEnabled === "1";
       const uploadResponse = await this.withNetworkRetry(() =>
         this.axiosInstance.post("/builder/v1/users/packages", content, {
           baseURL: serviceUrl,
           headers: uploadHeaders,
           params: {
             scope: appScope,
-            ...(isRaiValidationEnabled && { isRAIValidationAsync: true }),
+            isRAIValidationAsync: true,
           },
         })
       );
@@ -287,24 +277,11 @@ export class PackageService {
           {
             baseURL: serviceUrl,
             headers: { Authorization: `Bearer ${token}` },
-            ...(isRaiValidationEnabled && { params: { isRAIValidationAsync: true } }),
+            params: { isRAIValidationAsync: true },
           }
         );
         const resCode = statusResponse.status;
         this.logger?.debug(`Package status: ${resCode} ...`);
-
-        if (!isRaiValidationEnabled) {
-          if (resCode === 200) {
-            const titleId: string = statusResponse.data.titleId;
-            const appId: string = statusResponse.data.appId;
-            this.logger?.info(`TitleId: ${titleId}`);
-            this.logger?.info(`AppId: ${appId}`);
-            this.logger?.verbose("Sideloading done.");
-            return [titleId, appId];
-          }
-          await waitSeconds(7);
-          continue;
-        }
 
         const statusResult = statusResponse.data as BuilderPackageStatusResponse;
         const validationInfo = statusResult?.validationInfo;

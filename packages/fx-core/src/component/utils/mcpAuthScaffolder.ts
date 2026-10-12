@@ -17,8 +17,7 @@ import { resolveMCPOAuthMetadata } from "./mcpToolFetcher";
 
 /**
  * Resolved authorization-server endpoints relevant to the MCP scaffolder.
- * `wellKnownUrl` is what `oauth-dynamic` (`dcr/register`) uses for
- * `wellKnownAuthorizationServer`; static `oauth` ignores it.
+ * Dynamic registration delegates metadata discovery to TGS.
  */
 export const mcpAuthScaffolderDeps = {
   resolveMCPOAuthMetadata,
@@ -58,16 +57,15 @@ export function deriveMCPManifestOAuth(
 /**
  * Resolve OAuth endpoints based on the user's `mcp-da-auth-type` choice.
  *
- * - `oauth` and `oauth-dynamic`: probe `resource_metadata` /
+ * - `oauth`: probe `resource_metadata` /
  *   `.well-known/oauth-authorization-server` to discover authorization/token URLs.
- *   `oauth-dynamic` also needs the well-known URL itself for `dcr/register`.
- * - `entra-sso` and `none`: returns empty (no static endpoints to resolve).
+ * - Other auth types return empty (no static endpoints to resolve).
  */
 export async function resolveMCPAuthEndpoints(
   authType: string | undefined,
   inputs: Inputs
 ): Promise<ResolvedMCPAuthEndpoints> {
-  if (authType !== "oauth" && authType !== "oauth-dynamic") {
+  if (authType !== "oauth") {
     return {};
   }
   const metadata = await mcpAuthScaffolderDeps.resolveMCPOAuthMetadata(
@@ -84,20 +82,10 @@ export async function resolveMCPAuthEndpoints(
 }
 
 /**
- * Placeholder written to `wellKnownAuthorizationServer` when the
- * `oauth-dynamic` flow can't auto-discover the URL at scaffold time. The
- * developer must replace this before provisioning. Surfaced via the
- * `wellKnownUrlPlaceholderUsed` return flag so callers can emit a warning.
- */
-export const MCP_DCR_WELL_KNOWN_URL_PLACEHOLDER =
-  "<PLEASE_FILL_IN_WELL_KNOWN_AUTHORIZATION_SERVER_URL>";
-
-/**
  * Placeholders written to `oauth/register` when endpoint discovery can't produce the
  * authorization / token URLs for a static `oauth` (`identityProvider: Custom`) action.
  * Omitting the fields instead would hide the gap entirely — the action looks complete but
- * can never provision — so the placeholders make the missing values visible and editable,
- * mirroring the `dcr/register` contract above.
+ * can never provision — so the placeholders make the missing values visible and editable.
  */
 export const MCP_OAUTH_AUTHORIZATION_URL_PLACEHOLDER = "<PLEASE_FILL_IN_AUTHORIZATION_URL>";
 export const MCP_OAUTH_TOKEN_URL_PLACEHOLDER = "<PLEASE_FILL_IN_TOKEN_URL>";
@@ -124,8 +112,6 @@ export const MCP_AUTH_PLACEHOLDER_WARNING_TYPES = [
 ];
 
 export interface InjectMCPAuthActionResult {
-  /** True when `oauth-dynamic` was injected with the placeholder URL because
-   * `endpoints.wellKnownUrl` was missing. */
   wellKnownUrlPlaceholderUsed?: boolean;
   /** True when `oauth` was injected with placeholder authorization / token URLs
    * because endpoint discovery didn't return them. */
@@ -146,10 +132,7 @@ export interface InjectMCPAuthActionResult {
  * reference is emitted only when `scopes` is non-empty, matching the conditional
  * env-var write so provision never sees a dangling `${{...}}` reference.
  *
- * `oauth-dynamic` is always injected even when `endpoints.wellKnownUrl` is
- * missing — a placeholder string is written instead so the action shows up in
- * `m365agents.yml` for the developer to fix. The return flag tells the caller
- * to emit a visible warning.
+ * `oauth-dynamic` passes the MCP endpoint to TGS for metadata discovery during provision.
  */
 export async function injectMCPAuthActionToYml(args: {
   ymlPath: string;
@@ -177,16 +160,13 @@ export async function injectMCPAuthActionToYml(args: {
     return {};
   }
   if (args.authType === "oauth-dynamic") {
-    const placeholderUsed = !args.endpoints.wellKnownUrl;
-    const wellKnownUrl = args.endpoints.wellKnownUrl ?? MCP_DCR_WELL_KNOWN_URL_PLACEHOLDER;
     await ActionInjector.injectCreateDcrActionForMCP(
       args.ymlPath,
       args.authName,
       args.registrationId,
-      args.mcpServerUrl,
-      wellKnownUrl
+      args.mcpServerUrl
     );
-    return placeholderUsed ? { wellKnownUrlPlaceholderUsed: true } : {};
+    return {};
   }
   let credentialEnvNames:
     { clientIdEnvName: string; clientSecretEnvName?: string; scopeEnvName?: string } | undefined;

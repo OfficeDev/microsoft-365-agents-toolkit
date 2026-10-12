@@ -100,7 +100,7 @@ describe("v4 MCP auth YAML action", () => {
     });
   });
 
-  it("SCN-CREATE-MCP-17: injects DCR and raises the schema floor", () => {
+  it("DCR-07: injects endpoint-based DCR and raises the schema floor", () => {
     const result = injectMcpAuthActionYaml(BASE_YML, {
       ...BASE_ARGS,
       authType: "oauth-dynamic",
@@ -119,8 +119,7 @@ describe("v4 MCP auth YAML action", () => {
         appId: "${{TEAMS_APP_ID}}",
         applicableToApps: "AnyApp",
         targetAudience: "HomeTenant",
-        wellKnownAuthorizationServer:
-          "https://auth.example.com/.well-known/oauth-authorization-server",
+        mcpResourceUrl: "https://api.github.com/mcp",
         targetUrlsShouldStartWith: ["https://api.github.com/mcp"],
       },
       writeToEnvironmentFile: { configurationId: "MCP_DA_AUTH_ID_APIGITHUBC" },
@@ -226,7 +225,10 @@ describe("v4 MCP auth YAML action", () => {
 
       const output = parse(result._unsafeUnwrap().yaml);
       assert.strictEqual(output.version, version);
-      assert.isTrue(result._unsafeUnwrap().wellKnownUrlPlaceholderUsed);
+      assert.isFalse(result._unsafeUnwrap().wellKnownUrlPlaceholderUsed);
+      assert.strictEqual(output.provision[1].with.mcpResourceUrl, BASE_ARGS.mcpServerUrl);
+      assert.notProperty(output.provision[1].with, "wellKnownAuthorizationServer");
+      assert.notProperty(output.provision[1].with, "resource");
     }
   );
 
@@ -261,7 +263,7 @@ describe("v4 MCP auth YAML action", () => {
 
     const output = parse(result._unsafeUnwrap().yaml);
     assert.isUndefined(output.version);
-    assert.isTrue(result._unsafeUnwrap().wellKnownUrlPlaceholderUsed);
+    assert.isFalse(result._unsafeUnwrap().wellKnownUrlPlaceholderUsed);
   });
 
   it("SCN-CREATE-MCP-05: is idempotent by registration id", () => {

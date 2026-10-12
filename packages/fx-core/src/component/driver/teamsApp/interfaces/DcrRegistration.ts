@@ -9,7 +9,9 @@ export interface DcrRegistration {
   applicableToApps: OauthRegistrationAppType;
   targetAudience: OauthRegistrationTargetAudience;
   targetUrlsShouldStartWith: string[];
-  wellKnownAuthorizationServer: string;
+  mcpResourceUrl?: string;
+  wellKnownAuthorizationServer?: string;
+  resource?: string;
   // TODO: add this part back after TDP update
   // manageableByUsers: [
   //   {

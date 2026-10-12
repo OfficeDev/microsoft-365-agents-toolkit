@@ -169,6 +169,26 @@ describe("SCN-DA-ADD-MCP-ACTION-TO-DA (v4, T3 InMemoryRuntime)", () => {
     vi.restoreAllMocks();
   });
 
+  it("SCN-ADD-MCP-20 / DCR-07: adds endpoint-based DCR to both lifecycle files", async () => {
+    const { files } = await run({ authType: "oauth-dynamic" });
+
+    for (const ymlPath of [YML_PATH, LOCAL_YML_PATH]) {
+      const yml = text(files, ymlPath);
+      assert.include(yml, "version: v1.13");
+      assert.include(yml, "uses: dcr/register");
+      assert.include(yml, `mcpResourceUrl: ${MCP_SERVER_URL}`);
+      assert.include(yml, `configurationId: ${AUTH_ENV_VAR}`);
+      assert.notInclude(yml, "wellKnownAuthorizationServer:");
+      assert.notInclude(yml, "resource:");
+      assert.notInclude(yml, "PLEASE_FILL_IN");
+    }
+    assert.strictEqual(
+      auth(runtimes(readJsonObject(files, PLUGIN_PATH))[0]).reference_id,
+      AUTH_REF
+    );
+    assert.strictEqual(vi.mocked(mcpAuthScaffoldDeps.probeMCPServerAuth).mock.calls.length, 0);
+  });
+
   it("SCN-ADD-MCP-01: writes only the dynamic plugin manifest in the render phase", async () => {
     const { outcome } = await run();
     assert.deepStrictEqual(outcome.written, [PLUGIN_PATH]);

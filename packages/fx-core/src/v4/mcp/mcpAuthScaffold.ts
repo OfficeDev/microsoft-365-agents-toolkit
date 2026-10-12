@@ -58,18 +58,18 @@ function mcpAuthIdentifiers(mcpServerUrl: string): {
 }
 
 /**
- * Best-effort resolution of the authorization-server endpoints for `oauth` / `oauth-dynamic`,
+ * Best-effort resolution of the authorization-server endpoints for static `oauth`,
  * mirroring the v3 create flow: probe the server for its `resource_metadata`, then resolve the
  * well-known OAuth metadata. Any failure yields empty endpoints — the action is still injected and
- * the developer fills the URLs before provisioning, matching v3's best-effort behavior. `entra-sso`
- * and `none` need no endpoints (no network).
+ * the developer fills the URLs before provisioning, matching v3's best-effort behavior.
+ * Other auth types need no endpoints (no network); TGS owns dynamic registration discovery.
  */
 async function resolveEndpoints(
   authType: string,
   mcpServerUrl: string,
   warn?: (warning: Warning) => void
 ): Promise<ResolvedMCPAuthEndpoints> {
-  if (authType !== "oauth" && authType !== "oauth-dynamic") {
+  if (authType !== "oauth") {
     return {};
   }
   try {
@@ -146,7 +146,6 @@ export async function injectMcpAuthAction(
   }
   const identifiers = mcpAuthIdentifiers(args.mcpServerUrl);
   const endpoints = await resolveEndpoints(args.authType, args.mcpServerUrl, ctx.warn);
-  let wellKnownUrlPlaceholderUsed = false;
   let oauthUrlPlaceholderUsed = false;
   for (const ymlFile of ymlFiles) {
     const injectResult = injectMcpAuthActionYaml(ymlFile.content.toString("utf8"), {
@@ -176,15 +175,8 @@ export async function injectMcpAuthAction(
     if (injectResult.isErr()) {
       return err(injectResult.error);
     }
-    wellKnownUrlPlaceholderUsed ||= injectResult.value.wellKnownUrlPlaceholderUsed;
     oauthUrlPlaceholderUsed ||= injectResult.value.oauthUrlPlaceholderUsed;
     ctx.write(ymlFile.path, Buffer.from(injectResult.value.yaml, "utf8"));
-  }
-  if (wellKnownUrlPlaceholderUsed) {
-    ctx.warn?.({
-      type: "mcpAuthDcrWellKnownUrlPlaceholder",
-      content: getLocalizedString("core.MCPForDA.mcpAuthDcrPlaceholderWarning"),
-    });
   }
   if (oauthUrlPlaceholderUsed) {
     ctx.warn?.({

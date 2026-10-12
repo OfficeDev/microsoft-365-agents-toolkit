@@ -9,6 +9,7 @@ import path from "path";
 import { chai, vi } from "vitest";
 import { YamlParser } from "../../../src/component/configManager/parser";
 import fs from "fs-extra";
+import Ajv from "ajv";
 
 const assert: typeof chai.assert = chai.assert;
 
@@ -234,6 +235,116 @@ describe("v3 yaml parser", () => {
   });
 
   describe(`when parsing yml with dcr/register action`, () => {
+    for (const schemaVersion of ["v1.13", ""]) {
+      describe(`DCR-08: ${schemaVersion || "default"} schema`, () => {
+        const schema = fs.readJSONSync(
+          path.resolve(
+            __dirname,
+            "../../../resource/yaml-schema",
+            schemaVersion,
+            "yaml.schema.json"
+          )
+        );
+        const ajv = new Ajv({ allowUnionTypes: true });
+        ajv.addKeyword("deprecationMessage");
+        const validate = ajv.compile(schema);
+        const base = {
+          name: "test-dcr",
+          targetUrlsShouldStartWith: ["${{MCP_SERVER_URL}}"],
+        };
+        const legacy = { wellKnownAuthorizationServer: "${{AUTH_METADATA_URL}}" };
+        const endpoint = { mcpResourceUrl: "${{MCP_SERVER_URL}}" };
+        const validInputs = [
+          { ...base, ...legacy },
+          { ...base, ...endpoint },
+          { ...base, ...legacy, ...endpoint, resource: "${{OAUTH_RESOURCE}}" },
+        ];
+        for (const input of validInputs) {
+          it(`accepts ${Object.keys(input).join(", ")}`, () => {
+            assert.isTrue(
+              validate({
+                version: "v1.13",
+                provision: [
+                  {
+                    uses: "dcr/register",
+                    with: input,
+                    writeToEnvironmentFile: { configurationId: "DCR_REGISTRATION_ID" },
+                  },
+                ],
+              }),
+              JSON.stringify(validate.errors)
+            );
+          });
+        }
+        const invalidInputs = [
+          base,
+          { name: "test-dcr", ...legacy },
+          { ...base, ...legacy, targetUrlsShouldStartWith: [] },
+          {
+            ...base,
+            ...legacy,
+            targetUrlsShouldStartWith: ["https://one.example.com", "https://two.example.com"],
+          },
+          { ...base, ...legacy, targetUrlsShouldStartWith: "https://one.example.com" },
+          { ...base, ...endpoint, authorizationServerUrl: "https://auth.example.com" },
+          { ...base, ...endpoint, cimdSupported: false },
+        ];
+        for (const [index, input] of invalidInputs.entries()) {
+          it(`rejects unsupported shape ${index + 1}`, () => {
+            assert.isFalse(
+              validate({
+                version: "v1.13",
+                provision: [
+                  {
+                    uses: "dcr/register",
+                    with: input,
+                    writeToEnvironmentFile: { configurationId: "DCR_REGISTRATION_ID" },
+                  },
+                ],
+              })
+            );
+          });
+        }
+      });
+    }
+
+    it("DCR-08: keeps default and versioned DCR definitions identical", () => {
+      const root = path.resolve(__dirname, "../../../resource/yaml-schema");
+      assert.deepEqual(
+        fs.readJSONSync(path.join(root, "yaml.schema.json")).definitions.dcrRegister,
+        fs.readJSONSync(path.join(root, "v1.13/yaml.schema.json")).definitions.dcrRegister
+      );
+    });
+
+    it("DCR-08: parses endpoint-based YAML through the production parser", async () => {
+      const input = {
+        name: "test-dcr",
+        mcpResourceUrl: "https://mcp.example.com/mcp",
+        targetUrlsShouldStartWith: ["https://mcp.example.com/mcp"],
+      };
+      const read = vi.spyOn(fs, "readFile").mockResolvedValue(
+        JSON.stringify({
+          version: "v1.13",
+          provision: [
+            {
+              uses: "dcr/register",
+              with: input,
+              writeToEnvironmentFile: { configurationId: "DCR_REGISTRATION_ID" },
+            },
+          ],
+        })
+      );
+      try {
+        const result = await new YamlParser().parse("m365agents.yml", true);
+        assert.isTrue(result.isOk());
+        if (result.isOk()) {
+          assert.deepEqual(result.value.provision?.driverDefs[0].with, input);
+        }
+      } finally {
+        read.mockRestore();
+      }
+    });
+
     it("should return ok for valid dcr/register", async () => {
       const parser = new YamlParser();
       const result = await parser.parse(
