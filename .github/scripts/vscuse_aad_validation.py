@@ -4,13 +4,13 @@ import argparse
 import copy
 import os
 from pathlib import Path
-import re
 import subprocess
 import sys
 
 
 VALIDATION_REF = "refs/heads/qfai/vscuse-aad-prerelease-validation"
 RELEASE_TAG = "v1.0.3rc1"
+RELEASE_SHA256 = "ad3caa29dc1d3238310bf15f52d2e58f6627a9d4ad1d02f7024660dd17494f5f"
 SAFE_PLAN = "Feature_Validate_copilot_manifest"
 # Successful template run 38201441001, image pull in job 114655614516.
 IMAGE_TAG = "qinzhouxu-rai_20261012033454"
@@ -24,8 +24,8 @@ def validate_inputs(env):
         raise ValueError("AAD validation requires manual dispatch")
     if env.get("VSCUSE_VERSION") != RELEASE_TAG:
         raise ValueError("Explicit vscuse_version=v1.0.3rc1 is required; latest is forbidden")
-    if re.fullmatch(r"[a-f0-9]{64}", env.get("VSCUSE_SHA256", "")) is None:
-        raise ValueError("The release owner's expected wheel SHA256 is required")
+    if env.get("VSCUSE_SHA256") != RELEASE_SHA256:
+        raise ValueError("The release owner's exact candidate wheel SHA256 is required")
     if env.get("TEST_PLAN") != SAFE_PLAN:
         raise ValueError("Only the approved local-only DA plan is allowed")
     if env.get("IMAGE_TAG") != IMAGE_TAG:
