@@ -18,6 +18,17 @@ EXPECTED_TEXT = "AAD OK"
 REQUEST_TIMEOUT = 30
 KEY_VARIABLES = ("AZURE_OPENAI_API_KEY", "AZURE_VISION_KEY", "OPENAI_API_KEY")
 CREDENTIAL_NAMES = ("CLIENT_ID", "CLIENT_SECRET", "TENANT_ID")
+OPENAI_ERROR_CODES = frozenset({
+    "invalid_request_error", "BadRequest", "bad_request", "InvalidRequest",
+    "invalid_parameter", "invalid_value", "invalid_type", "unsupported_parameter",
+    "unsupported_value", "unsupported_operation", "OperationNotSupported",
+    "InvalidApiVersionParameter", "invalid_api_version", "context_length_exceeded",
+    "integer_below_min_value", "integer_above_max_value", "model_not_found", "content_filter",
+})
+OPENAI_ERROR_PARAMS = frozenset({
+    "max_completion_tokens", "max_tokens", "api-version", "api_version", "model", "messages",
+    "temperature", "top_p", "response_format", "stop", "tools", "tool_choice", "stream",
+})
 
 
 class PreflightError(RuntimeError):
@@ -48,6 +59,57 @@ def aadsts_codes(error):
             if isinstance(nested, BaseException):
                 pending.append(nested)
     return sorted(codes, key=int)
+
+
+def openai_error_details(error):
+    """Allow only known protocol identifiers and fixed request-constraint categories."""
+    details = []
+    code = getattr(error, "code", None)
+    for name, allowed in (("code", OPENAI_ERROR_CODES), ("param", OPENAI_ERROR_PARAMS)):
+        value = getattr(error, name, None)
+        if value is None:
+            continue
+        safe = value if isinstance(value, str) and len(value) <= 64 and value in allowed else "unrecognized"
+        details.append(f"api_{name}={safe}")
+
+    if code is not None and not (
+        isinstance(code, str) and code in ("", "invalid_request_error", "BadRequest", "bad_request", "InvalidRequest")
+    ):
+        return details
+    messages = [
+        value[:4096] for value in (*error.args, getattr(error, "message", None))
+        if isinstance(value, str)
+    ]
+    patterns = [
+        (
+            f"unsupported_{parameter}",
+            rf"\bunsupported (?:parameter|value):?\s*(?:['\"]{parameter}['\"]|{parameter}(?![\w.-]))"
+            rf"|(?<![\w.-]){parameter}(?![\w.-])['\"]?\s+(?:is\s+)?not supported\b",
+        )
+        for parameter in ("max_completion_tokens", "max_tokens")
+    ]
+    patterns.extend([
+        (
+            "unsupported_model_operation",
+            r"\boperation\b.{0,80}\b(?:not supported|does not work)\b.{0,80}\bmodel\b"
+            r"|\bmodel\b.{0,80}\bdoes not support\b.{0,80}\boperation\b",
+        ),
+        (
+            "unsupported_api_version",
+            r"\bapi[-_ ]version\b.{0,80}\b(?:not supported|unsupported)\b"
+            r"|\bunsupported api[-_ ]version\b",
+        ),
+        (
+            "max_token_range",
+            r"(?<![\w.-])max_(?:completion_)?tokens(?![\w.-]).{0,120}\b"
+            r"(?:out of range|below (?:the )?minimum|above (?:the )?maximum|must be (?:at least|between))\b",
+        ),
+    ])
+    for category, pattern in patterns:
+        if any(re.search(pattern, message, re.IGNORECASE) for message in messages):
+            details.append(f"request_constraint={category}")
+            break
+    return details
 
 
 class SafeArgumentParser(argparse.ArgumentParser):
@@ -229,6 +291,10 @@ def main(argv=None):
                 codes = aadsts_codes(error)
                 if codes:
                     failure += " aadsts_codes=" + ",".join(codes)
+                if progress.phase == "openai" and type(status) is int and status == 400:
+                    details = openai_error_details(error)
+                    if details:
+                        failure += " " + " ".join(details)
     except PreflightError:
         failure = "phase=credential_setup check=arguments status=failed type=PreflightError"
     finally:

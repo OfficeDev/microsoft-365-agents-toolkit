@@ -190,12 +190,14 @@ class AadPreflightTests(unittest.TestCase):
         return code, stdout.getvalue(), stderr.getvalue()
 
     def assert_failure(self, category, error_type="PreflightError", status=None, argv=None,
-                       phase="credential_setup", passed=(), codes=()):
+                       phase="credential_setup", passed=(), codes=(), api_details=()):
         message = f"phase={phase} check={category} status=failed type={error_type}"
         if status is not None:
             message += f" http_status={status}"
         if codes:
             message += " aadsts_codes=" + ",".join(codes)
+        if api_details:
+            message += " " + " ".join(api_details)
         successes = "".join(
             f"vscuse={VERSION} model=synthetic-deployment check={check} status=ok\n"
             for check in passed
@@ -641,6 +643,108 @@ class AadPreflightTests(unittest.TestCase):
             )
             stub.create_completion.assert_awaited_once()
             stub.vision.analyze.assert_called_once()
+
+    def test_openai_error_reports_only_known_structured_code_and_param(self):
+        for code, param in (
+            ("unsupported_parameter", "max_completion_tokens"),
+            ("unsupported_value", "max_tokens"),
+            ("OperationNotSupported", "model"),
+            ("InvalidApiVersionParameter", "api-version"),
+        ):
+            with self.subTest(code=code, param=param), candidate() as stub:
+                error = FakeHttpError(SENSITIVE)
+                error.status_code = 400
+                error.code, error.param = code, param
+                error.body = {"message": SENSITIVE, "headers": SENSITIVE}
+                stub.create_completion.side_effect = error
+                self.assert_failure(
+                    "runtime", "FakeHttpError", status=400, phase="openai",
+                    api_details=(f"api_code={code}", f"api_param={param}"),
+                )
+
+    def test_unsafe_structured_identifiers_are_replaced_with_fixed_markers(self):
+        for value in (
+            SENSITIVE, "secret-looking-identifier", "a" * 1000, 123, True, [],
+            "12345678-1234-1234-1234-123456789012", "max_tokens\nsecret",
+            "max_tokens.secret", "unsupported_parameter/secret", "\uff2d\uff21\uff38\uff3f\uff34\uff2f\uff2b\uff25\uff2e\uff33",
+        ):
+            with self.subTest(value=value), candidate() as stub:
+                error = FakeHttpError(SENSITIVE)
+                error.status_code = 400
+                error.code = error.param = value
+                stub.create_completion.side_effect = error
+                self.assert_failure(
+                    "runtime", "FakeHttpError", status=400, phase="openai",
+                    api_details=("api_code=unrecognized", "api_param=unrecognized"),
+                )
+
+    def test_generic_openai_error_emits_only_fixed_request_constraint_categories(self):
+        messages = (
+            ("Unsupported parameter: 'max_completion_tokens'.", "unsupported_max_completion_tokens"),
+            ("'max_tokens' is not supported with this model.", "unsupported_max_tokens"),
+            ("The chatCompletion operation does not work with the specified model.", "unsupported_model_operation"),
+            ("API version 2025-01-01-preview is not supported.", "unsupported_api_version"),
+            ("Invalid max_tokens: integer below minimum value.", "max_token_range"),
+        )
+        for text, expected in messages:
+            for code in (None, "invalid_request_error", "BadRequest"):
+                for source in ("args", "message"):
+                    with self.subTest(text=text, code=code, source=source), candidate() as stub:
+                        message = f"{SENSITIVE} {text} {SENSITIVE}"
+                        error = FakeHttpError(message if source == "args" else SENSITIVE)
+                        if source == "message":
+                            error.message = message
+                        error.status_code = 400
+                        error.code = code
+                        stub.create_completion.side_effect = error
+                        details = (() if code is None else (f"api_code={code}",))
+                        self.assert_failure(
+                            "runtime", "FakeHttpError", status=400, phase="openai",
+                            api_details=details + (f"request_constraint={expected}",),
+                        )
+
+    def test_request_constraint_matching_does_not_guess_from_unrelated_text_or_body(self):
+        for message in (
+            SENSITIVE, "max_tokens is supported", "max_tokens_secret is not supported",
+            "secret_max_completion_tokens is not supported", "This model works with the operation",
+            "Unsupported parameter: 'max_tokens.secret'.", "secret.max_tokens is not supported",
+        ):
+            with self.subTest(message=message), candidate() as stub:
+                error = FakeHttpError(message)
+                error.status_code = 400
+                error.body = {"code": "unsupported_parameter", "param": "max_tokens",
+                              "message": f"max_tokens is not supported {SENSITIVE}"}
+                error.response = SimpleNamespace(
+                    headers={"secret": SENSITIVE}, text=f"max_tokens is not supported {SENSITIVE}"
+                )
+                stub.create_completion.side_effect = error
+                self.assert_failure("runtime", "FakeHttpError", status=400, phase="openai")
+
+    def test_specific_code_does_not_trigger_message_inference(self):
+        with candidate() as stub:
+            error = FakeHttpError(f"max_tokens is not supported {SENSITIVE}")
+            error.status_code = 400
+            error.code = "unsupported_parameter"
+            stub.create_completion.side_effect = error
+            self.assert_failure(
+                "runtime", "FakeHttpError", status=400, phase="openai",
+                api_details=("api_code=unsupported_parameter",),
+            )
+
+    def test_openai_details_are_not_applied_to_other_phases_or_statuses(self):
+        for phase, status in (("vision", 400), ("openai", 401)):
+            with self.subTest(phase=phase, status=status), candidate() as stub:
+                error = FakeHttpError(f"max_tokens is not supported {SENSITIVE}")
+                error.status_code = status
+                error.code, error.param = "unsupported_parameter", "max_tokens"
+                if phase == "vision":
+                    stub.vision.analyze.side_effect = error
+                else:
+                    stub.create_completion.side_effect = error
+                self.assert_failure(
+                    "runtime", "FakeHttpError", status=status, phase=phase,
+                    passed=("openai",) if phase == "vision" else (),
+                )
 
     def test_argument_errors_never_echo_secret_arguments(self):
         arguments = [
