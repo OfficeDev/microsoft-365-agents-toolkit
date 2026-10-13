@@ -171,6 +171,7 @@ RUN mkdir -p /etc/opt/microsoft/edge/policies/managed && \
 
 RUN if [ "$(dpkg --print-architecture)" = "amd64" ]; then \
         test -x /usr/local/bin/chrome-wrapper && \
+    sed -i 's/--no-first-run/--no-first-run --test-type/' /usr/local/bin/chrome-wrapper && \
         sed -i 's|^Exec=/usr/bin/google-chrome-stable|Exec=/usr/local/bin/chrome-wrapper|' /usr/share/applications/google-chrome.desktop && \
         runuser -u vscode -- env HOME=/home/vscode XDG_CONFIG_HOME=/home/vscode/.config \
             xdg-mime default google-chrome.desktop x-scheme-handler/http x-scheme-handler/https; \

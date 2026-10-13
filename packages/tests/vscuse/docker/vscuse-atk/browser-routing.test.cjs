@@ -5,6 +5,15 @@ const test = require("node:test");
 
 const dockerfile = fs.readFileSync(path.join(__dirname, "Dockerfile"), "utf8");
 
+test("Chrome wrapper uses test mode without replacing the first-run flag", () => {
+  assert.ok(
+    dockerfile.includes(
+      "sed -i 's/--no-first-run/--no-first-run --test-type/' /usr/local/bin/chrome-wrapper",
+    ),
+    "Chrome test launches must suppress startup warning bars while retaining --no-first-run",
+  );
+});
+
 test("Chrome desktop actions launch the existing first-run-safe wrapper", () => {
   assert.ok(
     dockerfile.includes(

@@ -67,6 +67,10 @@ use the base image's `chrome-wrapper`, including its `--no-first-run` flag.
 Setting `BROWSER` alone is insufficient because `xdg-open` tries desktop URL
 associations first; those associations must not launch the unwrapped Chrome binary.
 
+The test image also adds `--test-type` to the Chrome wrapper to suppress startup
+warning bars that shift the page during UI tests. This keeps the existing container
+flags unchanged; it does not enable sandboxing or make those flags safe for regular browsing.
+
 ## Differences from Base Image
 
 | Feature         | Base Image | ATK Profile      |
