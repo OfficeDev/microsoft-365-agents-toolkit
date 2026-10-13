@@ -694,6 +694,24 @@ class AadPreflightTests(unittest.TestCase):
                     api_details=(f"api_code={code}", "api_param=unrecognized"),
                 )
 
+    def test_fixed_tenant_mismatch_code_does_not_expose_identifiers(self):
+        fixed_code = "Tenant provided in token does not match resource token"
+        for code, label in (
+            (fixed_code, "token_tenant_mismatch"),
+            (fixed_code + " " + SENSITIVE, "unrecognized"),
+            ("Token tenant 12345678-1234-1234-1234-123456789012 does not match", "unrecognized"),
+        ):
+            with self.subTest(code=code), candidate() as stub:
+                error = FakeHttpError(SENSITIVE)
+                error.status_code = 400
+                error.code = code
+                error.body = {"message": SENSITIVE}
+                stub.create_completion.side_effect = error
+                self.assert_failure(
+                    "runtime", "FakeHttpError", status=400, phase="openai",
+                    api_details=(f"api_code={label}",),
+                )
+
     def test_generic_openai_error_emits_only_fixed_request_constraint_categories(self):
         messages = (
             ("Unsupported parameter: 'max_completion_tokens'.", "unsupported_max_completion_tokens"),

@@ -30,6 +30,9 @@ OPENAI_ERROR_PARAMS = frozenset({
     "max_completion_tokens", "max_tokens", "api-version", "api_version", "model", "messages",
     "temperature", "top_p", "response_format", "stop", "tools", "tool_choice", "stream",
 })
+OPENAI_ERROR_CODE_LABELS = {
+    "Tenant provided in token does not match resource token": "token_tenant_mismatch",
+}
 
 
 class PreflightError(RuntimeError):
@@ -71,6 +74,8 @@ def openai_error_details(error):
         if value is None:
             continue
         safe = value if isinstance(value, str) and len(value) <= 64 and value in allowed else "unrecognized"
+        if name == "code" and isinstance(value, str) and len(value) <= 64:
+            safe = OPENAI_ERROR_CODE_LABELS.get(value, safe)
         details.append(f"api_{name}={safe}")
 
     if code is not None and not (
