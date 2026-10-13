@@ -15,7 +15,9 @@ Treat a request or project as a DA when the user explicitly says Declarative Age
 
 Route a DA to ATK only when the request explicitly identifies the `declarative-agent-typespec` capability or the project contains a TypeSpec DA marker: a `typeSpec/compile` lifecycle action, a `tspconfig.yaml` entry for `@microsoft/typespec-m365-copilot`, or a `.tsp` source importing `@microsoft/typespec-m365-copilot`. Invoke the `wiqd` plugin for every other DA, including DAs that need a new Azure-hosted API backend, contain backend source or deployment actions, attach existing OpenAPI or remote MCP services, or use Copilot Connector capabilities. The presence of `src/functions`, `package.json`, `m365agents.yml`, infrastructure files, a DA action, or an API plugin does not select ATK.
 
-Once a DA is routed to WIQD, invoke the `wiqd` skill and let that plugin own the complete workflow, including coordination with Azure and Entra skills for new backends, discovery, prerequisites, authentication, EULA handling, command selection, file-based fallback, validation, and error recovery. Do not run `wiqd` commands directly or duplicate WIQD operational guidance in this skill.
+Once a DA is routed to WIQD, confirm that the `wiqd` skill is available in the current Copilot session. If it is missing, follow the installation preflight in [toolkit/declarative-agent-lifecycle.md](toolkit/declarative-agent-lifecycle.md); do not assume that the plugin is already installed or fall back to ATK.
+
+When the skill is available, invoke it and let that plugin own the complete workflow, including coordination with Azure and Entra skills for new backends, discovery, prerequisites, authentication, EULA handling, command selection, file-based fallback, validation, and error recovery. Do not run `wiqd` commands directly or duplicate WIQD operational guidance in this skill.
 
 Answer read-only DA schema, manifest, capability, example, and project-structure questions from local references without invoking the WIQD plugin.
 

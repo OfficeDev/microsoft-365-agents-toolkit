@@ -13,7 +13,7 @@ Before selecting a lifecycle owner:
    - A `typeSpec/compile` action in `m365agents.yml` or `m365agents.local.yml`.
    - A `tspconfig.yaml` entry for `@microsoft/typespec-m365-copilot`.
    - A `.tsp` source that imports `@microsoft/typespec-m365-copilot`.
-3. Otherwise, invoke the WIQD plugin.
+3. Otherwise, verify that the `wiqd` skill is available in the current Copilot session. If it is missing, complete the [plugin installation preflight](#wiqd-plugin-installation-preflight). Invoke WIQD only when the skill is available.
 
 Backend source, build configuration, infrastructure, or lifecycle deployment actions do not create another ATK exception. For a new Azure-hosted OpenAPI backend, let the WIQD plugin coordinate the official Azure skill and, when required, the Entra skill.
 
@@ -48,6 +48,34 @@ Do not:
 - Preempt the plugin's workflow by editing DA project files before delegation.
 - Invoke ATK as a fallback when the plugin reports a failure.
 - Invoke the WIQD plugin for a read-only reference question that this skill can answer locally.
+
+## WIQD Plugin Installation Preflight
+
+Do not assume that the WIQD plugin is installed. When DA routing selects WIQD but the `wiqd` skill is not available in the current Copilot session:
+
+1. Explain that the WIQD plugin is required for every non-TypeSpec DA lifecycle workflow.
+2. Ask for the user's approval before modifying their global Copilot plugin installation.
+3. After approval, check whether the `wiqd` marketplace is already registered:
+
+   ```bash
+   copilot plugin marketplace list
+   ```
+
+4. If the `wiqd` marketplace is not registered, add it:
+
+   ```bash
+   copilot plugin marketplace add microsoft/wiqd
+   ```
+
+5. Install the plugin:
+
+   ```bash
+   copilot plugin install wiqd@wiqd
+   ```
+
+6. Tell the user to start a new Copilot session so skill discovery can load the newly installed `wiqd` skill, then repeat the original request. Stop the current DA workflow until the skill is available.
+
+If installation fails, surface the command error and keep the workflow stopped. Do not install or invoke the WIQD CLI as a substitute, edit DA files directly, or fall back to ATK. TypeSpec DA and read-only reference routing remain unchanged.
 
 ## Lifecycle Ownership
 
