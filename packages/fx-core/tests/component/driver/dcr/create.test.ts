@@ -193,14 +193,60 @@ describe("CreateDcrDriver", () => {
     });
   }
 
+  for (const discovery of [
+    {
+      name: "legacy",
+      fields: {
+        wellKnownAuthorizationServer:
+          "https://auth.example.com/.well-known/oauth-authorization-server",
+      },
+    },
+    { name: "endpoint", fields: { mcpResourceUrl: "https://mcp.example.com/mcp" } },
+  ]) {
+    for (const target of [
+      { name: "omitted", fields: {} },
+      { name: "empty", fields: { targetUrlsShouldStartWith: [] } },
+      {
+        name: "single",
+        fields: { targetUrlsShouldStartWith: ["https://mcp.example.com/mcp"] },
+      },
+      {
+        name: "multiple",
+        fields: {
+          targetUrlsShouldStartWith: ["https://one.example.com", "https://two.example.com"],
+        },
+      },
+    ]) {
+      it(`DCR-09: preserves ${target.name} targets with ${discovery.name} discovery`, async () => {
+        const stub = vi
+          .spyOn(teamsGraphClient, "createDcrRegistration")
+          .mockResolvedValue(fakeCreateDcrResponse);
+        const args = { name: "mcp-resource-test", ...discovery.fields, ...target.fields };
+
+        const result = await createDcrDriver.execute(args, mockedDriverContext, outputEnvVarNames);
+
+        expect(result.result.isOk()).to.be.true;
+        expect(stub).toHaveBeenCalledOnce();
+        expect(stub.mock.calls[0][1]).to.deep.equal({
+          clientName: args.name,
+          m365AppId: "",
+          applicableToApps: "AnyApp",
+          targetAudience: "HomeTenant",
+          ...discovery.fields,
+          targetUrlsShouldStartWith: target.fields.targetUrlsShouldStartWith ?? [],
+        });
+      });
+    }
+  }
+
   const invalidInputs: { field: string; value: unknown }[] = [
-    { field: "targetUrlsShouldStartWith", value: undefined },
-    { field: "targetUrlsShouldStartWith", value: [] },
     { field: "targetUrlsShouldStartWith", value: "https://mcp.example.com/mcp" },
     {
       field: "targetUrlsShouldStartWith",
-      value: ["https://one.example.com", "https://two.example.com"],
+      value: ["https://one.example.com", "http://two.example.com"],
     },
+    { field: "targetUrlsShouldStartWith", value: [123] },
+    { field: "targetUrlsShouldStartWith", value: [""] },
     { field: "targetUrlsShouldStartWith", value: ["http://mcp.example.com/mcp"] },
     { field: "mcpResourceUrl", value: "not-a-url" },
     { field: "mcpResourceUrl", value: "http://mcp.example.com/mcp" },

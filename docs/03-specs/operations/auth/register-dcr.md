@@ -16,10 +16,14 @@ Existing projects may continue supplying the legacy authorization-server
 metadata URL. Do not automatically migrate their YAML or replace an existing
 configuration registration.
 
-The validation policy rejects malformed target arrays locally in
-both modes. This changes acceptance of previously schema-valid inputs that
-TGS rejects, not the names or meaning of existing supported parameters.
-The requester approved this compatibility boundary on 2026-10-08.
+On 2026-10-13, the requester approved restoring ATK's historical target-array
+behavior in both discovery modes: omission sends an empty array, and empty
+arrays or multiple valid HTTPS URLs are forwarded unchanged. Supplied non-array
+values and invalid URL entries still fail locally. This supersedes the earlier
+decision to enforce target-array cardinality locally. The field description
+continues to document TGS's requirement for exactly one HTTPS target; accepting
+an input in ATK does not guarantee that TGS accepts it. New scaffolds still
+generate exactly one target URL.
 
 ## Inputs
 
@@ -28,8 +32,8 @@ The requester approved this compatibility boundary on 2026-10-08.
 | `name`                                   | Required DCR client name, sent to TGS as `clientName`; maximum 128 characters.                                                                                                                                                                                                                                                                                                       |
 | `appId`                                  | Microsoft 365 app ID, required when `applicableToApps` is `SpecificApp`. Sent as `m365AppId` in that mode; otherwise the existing empty-string behavior is preserved.                                                                                                                                                                                                                |
 | `mcpResourceUrl`                         | Actual HTTPS MCP endpoint that TGS can probe for protected resource metadata (PRM). This is not the PRM document URL and is not necessarily PRM's `resource` value. Preserve the complete endpoint, including its path. Supply this or `wellKnownAuthorizationServer`, or both. Recommended for new configurations.                                                                  |
-| `wellKnownAuthorizationServer`           | Supported legacy/pinning URL of the authorization server's RFC 8414 metadata document. When present, it controls authorization-server metadata resolution. With `mcpResourceUrl`, TGS still attempts best-effort PRM enrichment for resource and scopes. It need not match PRM's `authorization_servers`. Not emitted by new scaffolds.                                              |
-| `resource`                               | Optional explicit OAuth resource indicator. Overrides the resource obtained from PRM. Normally omitted so PRM remains authoritative; never synthesized from `mcpResourceUrl` or the target URL.                                                                                                                                                                                      |
+| `wellKnownAuthorizationServer`           | Supported URL of the authorization server's RFC 8414 metadata document; takes precedence for authorization-server resolution. A server can serve multiple resources, so its metadata alone cannot identify the intended resource. With `mcpResourceUrl`, TGS attempts best-effort PRM enrichment for resource and scopes. It need not match PRM's `authorization_servers`. Not emitted by new scaffolds. |
+| `resource`                               | Optional explicit OAuth resource indicator. Overrides PRM's resource. Omit when PRM provides the intended resource; otherwise supply it if the service requires a resource indicator. Never inferred from authorization-server metadata or copied from the MCP endpoint or target URL. |
 | `targetUrlsShouldStartWith`              | Required array containing exactly one valid HTTPS URL for the MCP target. New scaffolds use the complete MCP endpoint. Do not describe this as an unrestricted multi-prefix outbound URL allowlist.                                                                                                                                                                                  |
 | `applicableToApps`                       | Applications permitted to use the configuration: `AnyApp` (default) or `SpecificApp`.                                                                                                                                                                                                                                                                                                |
 | `targetAudience`                         | Tenants permitted to use the configuration: `HomeTenant` (default) or `AnyTenant`.                                                                                                                                                                                                                                                                                                   |
@@ -39,6 +43,15 @@ The requester approved this compatibility boundary on 2026-10-08.
 `authorizationServerUrl` and `cimdSupported` are not supported request fields
 and must not be added to the action or generated payload. An HTTP 200 response
 to a request containing an unknown property does not establish support for it.
+
+An authorization server can serve multiple resources, so its well-known
+metadata alone cannot identify the intended OAuth resource. Supply
+`mcpResourceUrl` so TGS can discover `resource` from PRM, or supply an explicit
+`resource` with `wellKnownAuthorizationServer` when no MCP endpoint is provided
+and the service requires a resource indicator. Omit the explicit value when PRM
+provides the intended resource. Neither the MCP endpoint URL nor the target URL
+is copied directly into the OAuth resource indicator. Legacy well-known-only
+configurations remain accepted and may have no resource indicator.
 
 ## Outputs
 
@@ -94,10 +107,11 @@ extended rather than creating parallel test infrastructure.
 | DCR-02 | L1      | operation-integration | required | Driver with TGS boundary fake                              | Valid MCP endpoint, no legacy well-known URL                                                               | Register with `mcpResourceUrl`; omit the legacy field rather than supplying a placeholder.                                                                                                                 |
 | DCR-03 | L1      | operation-integration | required | Driver with TGS boundary fake                              | Both discovery inputs supplied                                                                             | Preserve both values for TGS pinning and best-effort enrichment; do not rewrite or locally reconcile them.                                                                                                 |
 | DCR-04 | L1      | operation-integration | required | Driver with TGS boundary fake                              | Explicit resource differs from MCP endpoint, then override omitted                                         | Forward the explicit value unchanged in the first case; omit `resource` in the second. No unsupported fields are sent.                                                                                     |
-| DCR-05 | L1      | operation-integration | required | Driver validation tests                                    | Neither discovery input, invalid MCP endpoint, or missing/non-array/empty/multiple/non-HTTPS target values | Return a user-correctable input error without making the registration request. A valid single HTTPS target is accepted.                                                                                    |
+| DCR-05 | L1      | operation-integration | required | Driver validation tests                                    | Neither discovery input, invalid MCP endpoint, or supplied non-array/non-HTTPS target values | Return a user-correctable input error without making the registration request. Every supplied target entry is validated. |
 | DCR-06 | L1      | compatibility         | required | Existing DCR idempotency test                              | Configuration ID already exists in the mapped environment variable                                         | No POST, no replacement configuration and no new output values.                                                                                                                                            |
 | DCR-07 | L1      | scenario              | required | Existing V3 injection and V4 create/add scenario harnesses | New dynamic-OAuth scaffold, with or without locally discovered authorization metadata                      | YAML uses `mcpResourceUrl` and a single complete MCP target, is at least v1.13, omits well-known/resource overrides and emits no well-known-placeholder repair warning. Other auth modes remain unchanged. |
-| DCR-08 | L1      | compatibility         | required | Existing YAML parser/schema tests                          | Legacy, new and combined inputs under v1.13 and default schemas                                            | Both schemas accept supported forms, reject missing discovery inputs and invalid target-array cardinality, and carry equivalent corrected DCR field descriptions.                                          |
+| DCR-08 | L1      | compatibility         | required | Existing YAML parser/schema tests                          | Legacy, new and combined inputs under v1.13 and default schemas                                            | Both schemas accept optional target arrays without cardinality restrictions, reject missing discovery inputs and non-string target entries, and carry equivalent corrected DCR field descriptions. |
+| DCR-09 | L1      | compatibility         | required | DCR driver with mocked TGS boundary | Legacy or MCP-endpoint discovery with omitted, empty, single or multiple valid target URLs | Omission sends `[]`; supplied arrays are forwarded unchanged. ATK does not enforce TGS's single-target requirement locally. |
 
 Invalid explicitly supplied optional values must not silently select another
 discovery mode. URL checks must preserve the original accepted value rather

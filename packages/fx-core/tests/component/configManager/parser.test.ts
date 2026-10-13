@@ -258,9 +258,19 @@ describe("v3 yaml parser", () => {
           { ...base, ...legacy },
           { ...base, ...endpoint },
           { ...base, ...legacy, ...endpoint, resource: "${{OAUTH_RESOURCE}}" },
+          ...[legacy, endpoint].flatMap((discovery) => [
+            { name: base.name, ...discovery },
+            { ...base, ...discovery, targetUrlsShouldStartWith: [] },
+            {
+              ...base,
+              ...discovery,
+              targetUrlsShouldStartWith: ["https://one.example.com", "https://two.example.com"],
+            },
+            { ...base, ...discovery, targetUrlsShouldStartWith: [""] },
+          ]),
         ];
         for (const input of validInputs) {
-          it(`accepts ${Object.keys(input).join(", ")}`, () => {
+          it(`accepts ${JSON.stringify(input)}`, () => {
             assert.isTrue(
               validate({
                 version: schemaVersion || "v1.13",
@@ -278,14 +288,8 @@ describe("v3 yaml parser", () => {
         }
         const invalidInputs = [
           base,
-          { name: "test-dcr", ...legacy },
-          { ...base, ...legacy, targetUrlsShouldStartWith: [] },
-          {
-            ...base,
-            ...legacy,
-            targetUrlsShouldStartWith: ["https://one.example.com", "https://two.example.com"],
-          },
           { ...base, ...legacy, targetUrlsShouldStartWith: "https://one.example.com" },
+          { ...base, ...legacy, targetUrlsShouldStartWith: [123] },
           { ...base, ...endpoint, authorizationServerUrl: "https://auth.example.com" },
           { ...base, ...endpoint, cimdSupported: false },
         ];

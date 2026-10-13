@@ -1980,7 +1980,7 @@
           "type": "object",
           "additionalProperties": false,
           "description": "DCR registration parameters. Supply mcpResourceUrl for protected resource metadata discovery, wellKnownAuthorizationServer to pin authorization-server metadata, or both.",
-          "required": ["name", "targetUrlsShouldStartWith"],
+          "required": ["name"],
           "anyOf": [
             { "required": ["mcpResourceUrl"] },
             { "required": ["wellKnownAuthorizationServer"] }
@@ -1997,24 +1997,22 @@
             "mcpResourceUrl": {
               "type": "string",
               "minLength": 1,
-              "description": "HTTPS URL of the actual MCP endpoint, including its path. Recommended for new configurations. TGS probes this endpoint and RFC 9728 well-known locations for protected resource metadata (PRM), then uses its first authorization_servers entry, resource and scopes_supported. This is not the PRM document URL and is not necessarily the OAuth resource indicator. Optional when wellKnownAuthorizationServer is supplied."
+              "description": "HTTPS URL of the actual MCP endpoint, including its path. Recommended for new configurations. TGS probes this endpoint and RFC 9728 well-known locations for protected resource metadata (PRM) to discover resource and scopes_supported. Unless wellKnownAuthorizationServer is supplied, TGS uses PRM's first authorization_servers entry. This is not the PRM document URL; the OAuth resource indicator comes from PRM's resource, not directly from this endpoint URL. Optional when wellKnownAuthorizationServer is supplied."
             },
             "wellKnownAuthorizationServer": {
               "type": "string",
               "minLength": 1,
-              "description": "Legacy/pinning HTTPS URL of the authorization server's RFC 8414 metadata document. Optional when mcpResourceUrl is supplied. When present, this URL takes precedence for authorization-server metadata resolution. If mcpResourceUrl is also supplied, TGS still attempts best-effort PRM discovery for resource and scopes; failure of that enrichment does not fail registration."
+              "description": "HTTPS URL of the authorization server's RFC 8414 metadata document, supported for existing configurations and explicit authorization-server selection. Optional when mcpResourceUrl is supplied. When present, this URL takes precedence for authorization-server metadata resolution. An authorization server can serve multiple resources, so this metadata alone cannot identify the intended OAuth resource. Without mcpResourceUrl, supply resource explicitly if the service requires it. If mcpResourceUrl is also supplied, TGS attempts best-effort PRM discovery for resource and scopes; failure of that enrichment does not fail registration."
             },
             "resource": {
               "type": "string",
               "minLength": 1,
-              "description": "Optional explicit OAuth resource indicator: an absolute URI without a fragment. Overrides PRM's resource value. Normally omit this field and let PRM determine the resource; it is not inferred from mcpResourceUrl. TGS sends the selected resource in authorization, token and refresh-token requests."
+              "description": "Optional explicit OAuth resource indicator: an absolute URI without a fragment. Overrides PRM's resource value. Omit this field when mcpResourceUrl enables PRM discovery of the intended resource; otherwise supply it explicitly if the service requires a resource indicator. It is not inferred from authorization-server metadata or copied from the MCP endpoint or target URL. If neither an explicit value nor PRM supplies a resource, no resource indicator is sent. TGS sends the selected resource in authorization, token and refresh-token requests."
             },
             "targetUrlsShouldStartWith": {
               "type": "array",
               "description": "Required MCP target URL array. TGS requires exactly one valid HTTPS URL; omission, a string, an empty array or multiple entries is rejected. New configurations use the actual MCP endpoint. This field does not set the OAuth resource indicator.",
-              "minItems": 1,
-              "maxItems": 1,
-              "items": { "type": "string", "minLength": 1 }
+              "items": { "type": "string" }
             },
             "applicableToApps": {
               "type": "string",
