@@ -270,7 +270,7 @@ async def run_smoke(config_path, progress):
                 read_timeout=REQUEST_TIMEOUT,
                 retry_total=0,
                 logging_enable=False,
-                tracing_enable=False,
+                tracing_options={"enabled": False},
             )
         if result is None or not result.read or not result.read.blocks:
             raise PreflightError("vision_result")

@@ -428,7 +428,7 @@ class AadPreflightTests(unittest.TestCase):
             vision_request = {
                 "image_data": PNG_BYTES, "visual_features": [stub.read_feature],
                 "connection_timeout": 30, "read_timeout": 30, "retry_total": 0,
-                "logging_enable": False, "tracing_enable": False,
+                "logging_enable": False, "tracing_options": {"enabled": False},
             }
             self.assertEqual(stub.events.mock_calls, [
                 call.reset_config(), call.get_config(Path(CONFIG)),
