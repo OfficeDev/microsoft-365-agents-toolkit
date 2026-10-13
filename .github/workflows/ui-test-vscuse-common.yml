@@ -311,9 +311,9 @@ jobs:
         timeout-minutes: 5
         env:
           VSCUSE_VERSION: ${{ inputs.vscuse_version }}
-          VSCUSE_AAD_CLIENT_ID: ${{ secrets.AZURE_SERVICE_PRINCIPAL_ID }}
-          VSCUSE_AAD_CLIENT_SECRET: ${{ secrets.AZURE_SERVICE_PRINCIPAL_SECRET }}
-          VSCUSE_AAD_TENANT_ID: ${{ secrets.TEST_TENANT_TENANT_ID }}
+          VSCUSE_AAD_CLIENT_ID: ${{ vars.TEST_TENANT_CLEAN_CLIENT_ID }}
+          VSCUSE_AAD_CLIENT_SECRET: ${{ secrets.TEST_TENANT_CLEAN_CLIENT_SECRET }}
+          VSCUSE_AAD_TENANT_ID: ${{ vars.TEST_TENANT_CLEAN_TENANT_ID }}
         run: |
           source packages/tests/vscuse/vscode-test-cases/.venv/bin/activate
           python .github/scripts/vscuse_aad_preflight.py \
@@ -411,9 +411,9 @@ jobs:
         env:
           TEST_PLAN: ${{ matrix.test_plan }}
           VSCUSE_VERSION: ${{ inputs.vscuse_version }}
-          VSCUSE_AAD_CLIENT_ID: ${{ secrets.AZURE_SERVICE_PRINCIPAL_ID }}
-          VSCUSE_AAD_CLIENT_SECRET: ${{ secrets.AZURE_SERVICE_PRINCIPAL_SECRET }}
-          VSCUSE_AAD_TENANT_ID: ${{ secrets.TEST_TENANT_TENANT_ID }}
+          VSCUSE_AAD_CLIENT_ID: ${{ vars.TEST_TENANT_CLEAN_CLIENT_ID }}
+          VSCUSE_AAD_CLIENT_SECRET: ${{ secrets.TEST_TENANT_CLEAN_CLIENT_SECRET }}
+          VSCUSE_AAD_TENANT_ID: ${{ vars.TEST_TENANT_CLEAN_TENANT_ID }}
         run: |
           set -o pipefail
           cd packages/tests/vscuse/vscode-test-cases

@@ -151,15 +151,15 @@ class ValidationTests(unittest.TestCase):
         for name in ("Verify installed prerelease and AAD data-plane access", "Run isolated AAD validation plan"):
             self.assertEqual(
                 steps[name]["env"]["VSCUSE_AAD_CLIENT_ID"],
-                "${{ secrets.AZURE_SERVICE_PRINCIPAL_ID }}",
+                "${{ vars.TEST_TENANT_CLEAN_CLIENT_ID }}",
             )
             self.assertEqual(
                 steps[name]["env"]["VSCUSE_AAD_CLIENT_SECRET"],
-                "${{ secrets.AZURE_SERVICE_PRINCIPAL_SECRET }}",
+                "${{ secrets.TEST_TENANT_CLEAN_CLIENT_SECRET }}",
             )
             self.assertEqual(
                 steps[name]["env"]["VSCUSE_AAD_TENANT_ID"],
-                "${{ secrets.TEST_TENANT_TENANT_ID }}",
+                "${{ vars.TEST_TENANT_CLEAN_TENANT_ID }}",
             )
 
 
