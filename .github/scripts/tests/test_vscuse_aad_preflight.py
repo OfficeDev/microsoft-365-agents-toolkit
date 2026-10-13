@@ -678,6 +678,22 @@ class AadPreflightTests(unittest.TestCase):
                     api_details=("api_code=unrecognized", "api_param=unrecognized"),
                 )
 
+    def test_known_token_tenant_and_audience_codes_are_safe(self):
+        for code in (
+            "InvalidAuthenticationToken", "InvalidAuthenticationTokenTenant",
+            "InvalidAuthenticationTokenAudience",
+        ):
+            with self.subTest(code=code), candidate() as stub:
+                error = FakeHttpError(SENSITIVE)
+                error.status_code = 400
+                error.code = code
+                error.param = "12345678-1234-1234-1234-123456789012"
+                stub.create_completion.side_effect = error
+                self.assert_failure(
+                    "runtime", "FakeHttpError", status=400, phase="openai",
+                    api_details=(f"api_code={code}", "api_param=unrecognized"),
+                )
+
     def test_generic_openai_error_emits_only_fixed_request_constraint_categories(self):
         messages = (
             ("Unsupported parameter: 'max_completion_tokens'.", "unsupported_max_completion_tokens"),
@@ -685,6 +701,10 @@ class AadPreflightTests(unittest.TestCase):
             ("The chatCompletion operation does not work with the specified model.", "unsupported_model_operation"),
             ("API version 2025-01-01-preview is not supported.", "unsupported_api_version"),
             ("Invalid max_tokens: integer below minimum value.", "max_token_range"),
+            ("The access token is from the wrong issuer.", "authentication_token_tenant_mismatch"),
+            ("Token tenant does not match the resource tenant.", "authentication_token_tenant_mismatch"),
+            ("Access token validation failure. Invalid audience.", "authentication_token_audience_mismatch"),
+            ("Token requested for the wrong resource.", "authentication_token_audience_mismatch"),
         )
         for text, expected in messages:
             for code in (None, "invalid_request_error", "BadRequest"):
@@ -708,6 +728,7 @@ class AadPreflightTests(unittest.TestCase):
             SENSITIVE, "max_tokens is supported", "max_tokens_secret is not supported",
             "secret_max_completion_tokens is not supported", "This model works with the operation",
             "Unsupported parameter: 'max_tokens.secret'.", "secret.max_tokens is not supported",
+            "Token tenant matches the resource tenant.", "Access token audience is valid.",
         ):
             with self.subTest(message=message), candidate() as stub:
                 error = FakeHttpError(message)

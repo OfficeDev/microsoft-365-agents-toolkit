@@ -24,6 +24,7 @@ OPENAI_ERROR_CODES = frozenset({
     "unsupported_value", "unsupported_operation", "OperationNotSupported",
     "InvalidApiVersionParameter", "invalid_api_version", "context_length_exceeded",
     "integer_below_min_value", "integer_above_max_value", "model_not_found", "content_filter",
+    "InvalidAuthenticationToken", "InvalidAuthenticationTokenTenant", "InvalidAuthenticationTokenAudience",
 })
 OPENAI_ERROR_PARAMS = frozenset({
     "max_completion_tokens", "max_tokens", "api-version", "api_version", "model", "messages",
@@ -103,6 +104,16 @@ def openai_error_details(error):
             "max_token_range",
             r"(?<![\w.-])max_(?:completion_)?tokens(?![\w.-]).{0,120}\b"
             r"(?:out of range|below (?:the )?minimum|above (?:the )?maximum|must be (?:at least|between))\b",
+        ),
+        (
+            "authentication_token_tenant_mismatch",
+            r"\btoken\b.{0,80}\b(?:wrong|invalid|incorrect) (?:issuer|tenant)\b"
+            r"|\btoken (?:issuer|tenant)\b.{0,80}\b(?:does not match|mismatch)\b",
+        ),
+        (
+            "authentication_token_audience_mismatch",
+            r"\btoken\b.{0,80}\b(?:wrong|invalid|incorrect) (?:audience|resource)\b"
+            r"|\btoken audience\b.{0,80}\b(?:does not match|mismatch)\b",
         ),
     ])
     for category, pattern in patterns:
