@@ -322,6 +322,93 @@ class AadPreflightTests(unittest.TestCase):
             self.assert_success()
             self.assertEqual(os.environ["VSCUSE_APP_AZURE_OPENAI_API_KEY"], "synthetic-app-key")
 
+    def test_explicit_environment_mode_keeps_existing_credential_contract(self):
+        with candidate({**ALIASES, "VSCUSE_AAD_CREDENTIAL": "EnvironmentCredential"}):
+            self.assert_success()
+            self.assertEqual(os.environ["AZURE_TOKEN_CREDENTIALS"], "EnvironmentCredential")
+
+    def test_cli_mode_needs_no_service_principal_aliases(self):
+        with candidate({"VSCUSE_AAD_CREDENTIAL": "AzureCliCredential"}) as stub:
+            self.assert_success()
+            for _, environment in stub.imports:
+                self.assertEqual(environment["AZURE_TOKEN_CREDENTIALS"], "AzureCliCredential")
+                self.assertTrue(all(f"AZURE_{name}" not in environment for name in MODULE.CREDENTIAL_NAMES))
+                self.assertTrue(all(name not in environment for name in ALIASES))
+            stub.factory.create_client.assert_awaited_once()
+            stub.vision.analyze.assert_called_once()
+
+    def test_cli_mode_strips_conflicting_credentials_and_preserves_application_alias(self):
+        conflicts = {
+            **ALIASES, **dict.fromkeys(API_KEYS, "synthetic-service-key"),
+            **{f"AZURE_{name}": "ambient-value" for name in MODULE.CREDENTIAL_NAMES},
+            "AZURE_TOKEN_CREDENTIALS": "EnvironmentCredential",
+        }
+        environment = {
+            **conflicts, "VSCUSE_AAD_CREDENTIAL": "AzureCliCredential",
+            "VSCUSE_APP_AZURE_OPENAI_API_KEY": "synthetic-app-key",
+        }
+        with candidate(environment):
+            self.assertEqual(MODULE.configure_aad_environment(), {})
+            self.assertTrue(all(name not in os.environ for name in conflicts if name != "AZURE_TOKEN_CREDENTIALS"))
+            self.assertEqual(os.environ["AZURE_TOKEN_CREDENTIALS"], "AzureCliCredential")
+            self.assertEqual(os.environ["VSCUSE_APP_AZURE_OPENAI_API_KEY"], "synthetic-app-key")
+            for name, value in {
+                "PYTHON_DOTENV_DISABLED": "1", "OPENAI_AGENTS_DISABLE_TRACING": "1",
+                "AZURE_TRACING_ENABLED": "false", "OTEL_SDK_DISABLED": "true",
+            }.items():
+                self.assertEqual(os.environ[name], value)
+
+    def test_invalid_credential_mode_fails_without_printing_mode_or_using_ambient_identity(self):
+        for mode in ("", "AzurePowerShellCredential", "default", "AzureCliCredential ", SENSITIVE):
+            with self.subTest(mode=mode), candidate({**ALIASES, "VSCUSE_AAD_CREDENTIAL": mode}) as stub:
+                self.assert_failure("credential_mode")
+                self.assertEqual(stub.imports, [])
+                stub.factory.create_client.assert_not_awaited()
+
+    def test_cli_mode_rejects_static_token_even_when_empty(self):
+        for value in ("", SENSITIVE):
+            with self.subTest(value=value), candidate({
+                "VSCUSE_AAD_CREDENTIAL": "AzureCliCredential", "AZURE_OPENAI_AD_TOKEN": value,
+            }) as stub:
+                self.assert_failure("static_token")
+                self.assertEqual(stub.imports, [])
+
+    def test_cli_mode_reenforces_environment_after_candidate_import(self):
+        with candidate({"VSCUSE_AAD_CREDENTIAL": "AzureCliCredential"}) as stub:
+            stub.on_root_import = lambda: os.environ.update({
+                **ALIASES, **dict.fromkeys(API_KEYS, "dotenv-key"),
+                **{f"AZURE_{name}": "dotenv-value" for name in MODULE.CREDENTIAL_NAMES},
+                "AZURE_TOKEN_CREDENTIALS": "EnvironmentCredential",
+            })
+            self.assert_success()
+            for _, environment in stub.imports:
+                self.assertEqual(environment["AZURE_TOKEN_CREDENTIALS"], "AzureCliCredential")
+                self.assertTrue(all(name not in environment for name in API_KEYS))
+                self.assertTrue(all(f"AZURE_{name}" not in environment for name in MODULE.CREDENTIAL_NAMES))
+                self.assertTrue(all(name not in environment for name in ALIASES))
+
+    def test_candidate_import_cannot_switch_credential_modes(self):
+        for initial, changed in (
+            ("AzureCliCredential", "EnvironmentCredential"),
+            ("EnvironmentCredential", "AzureCliCredential"),
+        ):
+            with self.subTest(initial=initial), candidate({
+                **ALIASES, "VSCUSE_AAD_CREDENTIAL": initial,
+            }) as stub:
+                stub.on_root_import = lambda: os.environ.update({
+                    **ALIASES, "VSCUSE_AAD_CREDENTIAL": changed,
+                })
+                self.assert_failure("credentials_changed")
+                stub.factory.create_client.assert_not_awaited()
+
+    def test_cli_authentication_failure_has_no_identity_fallback(self):
+        with candidate({"VSCUSE_AAD_CREDENTIAL": "AzureCliCredential"}) as stub:
+            stub.create_completion.side_effect = FakeHttpError(SENSITIVE)
+            self.assert_failure("runtime", "FakeHttpError", phase="openai")
+            self.assertEqual(os.environ["AZURE_TOKEN_CREDENTIALS"], "AzureCliCredential")
+            stub.factory.create_client.assert_awaited_once()
+            stub.vision.analyze.assert_not_called()
+
     def test_smoke_uses_candidate_factory_ocr_initialization_and_synthetic_image(self):
         with candidate({**ALIASES, **dict.fromkeys(API_KEYS, "synthetic-key")}) as stub:
             async def respond(**kwargs):

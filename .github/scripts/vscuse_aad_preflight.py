@@ -151,15 +151,23 @@ def configure_aad_environment() -> dict[str, str]:
         os.environ.pop(name, None)
     if "AZURE_OPENAI_AD_TOKEN" in os.environ:
         raise PreflightError("static_token")
+    mode = os.environ.get("VSCUSE_AAD_CREDENTIAL", "EnvironmentCredential")
+    if mode not in ("EnvironmentCredential", "AzureCliCredential"):
+        raise PreflightError("credential_mode")
     credentials = {}
-    for name in CREDENTIAL_NAMES:
-        value = os.environ.get(f"VSCUSE_AAD_{name}", "")
-        if not value.strip() or "${" in value:
-            raise PreflightError("credentials")
-        credentials[f"AZURE_{name}"] = value
+    if mode == "EnvironmentCredential":
+        for name in CREDENTIAL_NAMES:
+            value = os.environ.get(f"VSCUSE_AAD_{name}", "")
+            if not value.strip() or "${" in value:
+                raise PreflightError("credentials")
+            credentials[f"AZURE_{name}"] = value
+    else:
+        for name in CREDENTIAL_NAMES:
+            os.environ.pop(f"AZURE_{name}", None)
+            os.environ.pop(f"VSCUSE_AAD_{name}", None)
     os.environ.update(credentials)
     os.environ.update({
-        "AZURE_TOKEN_CREDENTIALS": "EnvironmentCredential",
+        "AZURE_TOKEN_CREDENTIALS": mode,
         "PYTHON_DOTENV_DISABLED": "1",
         "OPENAI_AGENTS_DISABLE_TRACING": "1",
         "AZURE_TRACING_ENABLED": "false",

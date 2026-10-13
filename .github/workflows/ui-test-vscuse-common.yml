@@ -306,14 +306,22 @@ jobs:
             echo "⚠️  Azure Service Principal not configured - M365 Toolkit authentication disabled"
           fi
 
+      - name: Login to Azure for isolated AAD validation
+        if: ${{ github.ref == 'refs/heads/qfai/vscuse-aad-prerelease-validation' }}
+        uses: azure/login@v2
+        env:
+          AZURE_CORE_OUTPUT: "none"
+        with:
+          client-id: ${{ secrets.DEVOPS_CLIENT_ID }}
+          tenant-id: ${{ secrets.DEVOPS_TENANT_ID }}
+          subscription-id: ${{ secrets.DEVOPS_SUB_ID }}
+
       - name: Verify installed prerelease and AAD data-plane access
         if: ${{ github.ref == 'refs/heads/qfai/vscuse-aad-prerelease-validation' }}
         timeout-minutes: 5
         env:
           VSCUSE_VERSION: ${{ inputs.vscuse_version }}
-          VSCUSE_AAD_CLIENT_ID: ${{ vars.TEST_TENANT_CLEAN_CLIENT_ID }}
-          VSCUSE_AAD_CLIENT_SECRET: ${{ secrets.TEST_TENANT_CLEAN_CLIENT_SECRET }}
-          VSCUSE_AAD_TENANT_ID: ${{ vars.TEST_TENANT_CLEAN_TENANT_ID }}
+          VSCUSE_AAD_CREDENTIAL: "AzureCliCredential"
         run: |
           source packages/tests/vscuse/vscode-test-cases/.venv/bin/activate
           python .github/scripts/vscuse_aad_preflight.py \
@@ -411,9 +419,7 @@ jobs:
         env:
           TEST_PLAN: ${{ matrix.test_plan }}
           VSCUSE_VERSION: ${{ inputs.vscuse_version }}
-          VSCUSE_AAD_CLIENT_ID: ${{ vars.TEST_TENANT_CLEAN_CLIENT_ID }}
-          VSCUSE_AAD_CLIENT_SECRET: ${{ secrets.TEST_TENANT_CLEAN_CLIENT_SECRET }}
-          VSCUSE_AAD_TENANT_ID: ${{ vars.TEST_TENANT_CLEAN_TENANT_ID }}
+          VSCUSE_AAD_CREDENTIAL: "AzureCliCredential"
         run: |
           set -o pipefail
           cd packages/tests/vscuse/vscode-test-cases

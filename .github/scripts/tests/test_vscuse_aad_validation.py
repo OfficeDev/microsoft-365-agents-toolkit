@@ -67,6 +67,11 @@ class ValidationTests(unittest.TestCase):
             "AZURE_OPENAI_API_KEY": "${VSCUSE_APP_AZURE_OPENAI_API_KEY}",
         }
         self.assertEqual(prepared["docker"]["environment"], expected)
+        for name in (
+            "AZURE_CLIENT_ID", "AZURE_CLIENT_SECRET", "AZURE_TENANT_ID", "AZURE_CONFIG_DIR",
+            "ACTIONS_ID_TOKEN_REQUEST_TOKEN", "ACTIONS_ID_TOKEN_REQUEST_URL", "VSCUSE_AAD_CREDENTIAL",
+        ):
+            self.assertNotIn(name, prepared["docker"]["environment"])
         self.assertEqual(prepared["m365"], original["m365"])
         self.assertEqual(validation.prepare_config(prepared), prepared)
         self.assertNotIn("literal-secret", yaml.safe_dump(prepared))
@@ -122,6 +127,7 @@ class ValidationTests(unittest.TestCase):
         branch_only = f"github.ref == '{validation.VALIDATION_REF}'"
         non_validation = f"github.ref != '{validation.VALIDATION_REF}'"
         for name in (
+            "Login to Azure for isolated AAD validation",
             "Verify installed prerelease and AAD data-plane access",
             "Verify validation image digest",
             "Run isolated AAD validation plan",
@@ -142,25 +148,42 @@ class ValidationTests(unittest.TestCase):
         self.assertIn(non_validation, template["jobs"]["trigger-ui-test-features"]["if"])
         names = list(steps)
         self.assertLess(
+            names.index("Login to Azure for isolated AAD validation"),
+            names.index("Verify installed prerelease and AAD data-plane access"),
+        )
+        self.assertLess(
             names.index("Verify installed prerelease and AAD data-plane access"),
             names.index("Set m365 account randomly"),
         )
         host_env = common["jobs"]["main"]["env"]
         self.assertNotIn("AZURE_CLIENT_ID", host_env)
         self.assertNotIn("AZURE_CLIENT_SECRET", host_env)
+        login = steps["Login to Azure for isolated AAD validation"]
+        self.assertEqual(login["uses"], "azure/login@v2")
+        self.assertEqual(login["with"], {
+            "client-id": "${{ secrets.DEVOPS_CLIENT_ID }}",
+            "tenant-id": "${{ secrets.DEVOPS_TENANT_ID }}",
+            "subscription-id": "${{ secrets.DEVOPS_SUB_ID }}",
+        })
+        self.assertEqual(login["env"], {"AZURE_CORE_OUTPUT": "none"})
+        self.assertEqual(common["jobs"]["main"]["permissions"]["id-token"], "write")
+        self.assertEqual(template["jobs"]["run"]["permissions"]["id-token"], "write")
+        self.assertEqual(common["jobs"]["main"]["environment"], "engineering")
+        self.assertNotIn("VSCUSE_AAD_CREDENTIAL", common_inputs)
+        self.assertNotIn("VSCUSE_AAD_CREDENTIAL", template_inputs)
+        self.assertEqual(steps["Login to Azure"]["with"], {
+            "client-id": "${{secrets.DEVOPS_CLIENT_ID}}",
+            "tenant-id": "${{secrets.DEVOPS_TENANT_ID}}",
+            "subscription-id": "${{secrets.DEVOPS_SUB_ID}}",
+            "enable-AzPSSession": True,
+        })
         for name in ("Verify installed prerelease and AAD data-plane access", "Run isolated AAD validation plan"):
             self.assertEqual(
-                steps[name]["env"]["VSCUSE_AAD_CLIENT_ID"],
-                "${{ vars.TEST_TENANT_CLEAN_CLIENT_ID }}",
+                steps[name]["env"]["VSCUSE_AAD_CREDENTIAL"], "AzureCliCredential",
             )
-            self.assertEqual(
-                steps[name]["env"]["VSCUSE_AAD_CLIENT_SECRET"],
-                "${{ secrets.TEST_TENANT_CLEAN_CLIENT_SECRET }}",
-            )
-            self.assertEqual(
-                steps[name]["env"]["VSCUSE_AAD_TENANT_ID"],
-                "${{ vars.TEST_TENANT_CLEAN_TENANT_ID }}",
-            )
+            for key in ("CLIENT_ID", "CLIENT_SECRET", "TENANT_ID"):
+                self.assertNotIn(f"VSCUSE_AAD_{key}", steps[name]["env"])
+                self.assertNotIn(f"AZURE_{key}", steps[name]["env"])
 
 
 if __name__ == "__main__":
