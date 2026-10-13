@@ -347,6 +347,14 @@ jobs:
           fi
           python packages/tests/vscuse/vscode-test-cases/engine/no-subscription-fixture.test.py
 
+      - name: Login to Azure for RC tests
+        if: ${{ github.ref == 'refs/heads/qfai/vscuse-rc-full-templates' }}
+        uses: azure/login@v2
+        with:
+          client-id: ${{secrets.DEVOPS_CLIENT_ID}}
+          tenant-id: ${{secrets.DEVOPS_TENANT_ID}}
+          subscription-id: ${{secrets.DEVOPS_SUB_ID}}
+
       - name: Run test
         env:
           TEST_PLAN: ${{ matrix.test_plan }}
