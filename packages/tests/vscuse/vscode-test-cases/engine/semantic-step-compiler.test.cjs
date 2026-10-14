@@ -825,6 +825,21 @@ test("VCB-85: existing API registration credentials are prompted only during pro
     }
     assert.match(
       plan.steps[targetSelectionIndex + 1].step_id,
+      /step_browserM365SignIn_assertPage/,
+      caseId,
+    );
+    assert.match(
+      plan.steps[targetSelectionIndex + 2].step_id,
+      /step_browserM365SignIn_focusAccount/,
+      caseId,
+    );
+    assert.equal(
+      plan.steps[targetSelectionIndex + 2].tags.includes("ocr:true"),
+      true,
+      caseId,
+    );
+    assert.match(
+      plan.steps[targetSelectionIndex + 3].step_id,
       /step_browserM365SignIn_assertAccount/,
       caseId,
     );
@@ -1269,7 +1284,7 @@ test("Copilot target authenticates the browser before readiness", async (context
   assert.doesNotMatch(readinessDescription, /is ready is ready/);
 });
 
-test("VCB-164: Chrome target enters the focused account without a coordinate click", async () => {
+test("VCB-164: Chrome target acquires input focus with OCR before account entry", async () => {
   const result = await compileFixture(
     "da-api-plugin-from-scratch-oauth.yml",
     (sourceText) => sourceText,
@@ -1282,25 +1297,63 @@ test("VCB-164: Chrome target enters the focused account without a coordinate cli
   );
   assert.notEqual(generated, undefined);
 
+  const pageAssertion = generated.plan.steps.find((step) =>
+    step.step_id.includes("browserM365SignIn_assertPage"),
+  );
+  const focusAccount = generated.plan.steps.find((step) =>
+    step.step_id.includes("browserM365SignIn_focusAccount"),
+  );
   const accountAssertion = generated.plan.steps.find((step) =>
     step.step_id.includes("browserM365SignIn_assertAccount"),
   );
   const accountEntry = generated.plan.steps.find((step) =>
     step.step_id.includes("browserM365SignIn_enterAccount"),
   );
+  const enteredAccountAssertion = generated.plan.steps.find((step) =>
+    step.step_id.includes("browserM365SignIn_assertEnteredAccount"),
+  );
+  const accountSubmit = generated.plan.steps.find((step) =>
+    step.step_id.includes("browserM365SignIn_submitAccount"),
+  );
 
+  assert.notEqual(pageAssertion, undefined);
+  assert.notEqual(focusAccount, undefined);
+  assert.equal(pageAssertion.agent, "assertion");
+  assert.doesNotMatch(pageAssertion.description, /focused/);
+  assert.equal(focusAccount.tool, "click");
+  assert.equal(focusAccount.tags.includes("ocr:true"), true);
+  assert.deepEqual(focusAccount.parameters, { button: "left", x: 512, y: 384 });
+  assert.deepEqual(focusAccount.preconditions, []);
+  assert.deepEqual(focusAccount.depends_on, [pageAssertion.step_id]);
+  assert.deepEqual(accountAssertion.depends_on, [focusAccount.step_id]);
   assert.equal(
     accountAssertion.description,
     "@assertion the Microsoft sign-in page is visible in Chrome with an email or username input that is focused.",
   );
-  assert.equal(
-    generated.plan.steps.some((step) =>
-      step.step_id.includes("browserM365SignIn_focusAccount"),
-    ),
-    false,
-  );
   assert.equal(accountEntry.tool, "type_text");
   assert.deepEqual(accountEntry.depends_on, [accountAssertion.step_id]);
+  assert.equal(enteredAccountAssertion.agent, "assertion");
+  assert.equal(
+    enteredAccountAssertion.description,
+    "@assertion the Microsoft sign-in page in Chrome shows ${{env:M365_ACCOUNT_NAME}} in the email or username input.",
+  );
+  assert.deepEqual(enteredAccountAssertion.depends_on, [accountEntry.step_id]);
+  assert.equal(accountSubmit.tool, "key_press");
+  assert.equal(accountSubmit.parameters.key, "enter");
+  assert.deepEqual(accountSubmit.depends_on, [enteredAccountAssertion.step_id]);
+  assert.deepEqual(
+    generated.plan.steps
+      .filter((step) => step.step_id.includes("browserM365SignIn"))
+      .slice(0, 6),
+    [
+      pageAssertion,
+      focusAccount,
+      accountAssertion,
+      accountEntry,
+      enteredAccountAssertion,
+      accountSubmit,
+    ],
+  );
 });
 
 test("VCB-84: target profile selection follows the explicit case declaration", async () => {

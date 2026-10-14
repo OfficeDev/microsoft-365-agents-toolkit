@@ -8,7 +8,7 @@
       "precondition_wait_timeout": 30,
       "precondition_retry_interval": 1
     },
-    "total_steps": 161,
+    "total_steps": 164,
     "name": "basic-cea-js-openai-remote-copilot",
     "description": {
       "owner": "",
@@ -162,8 +162,11 @@
       "step_filterOption_filter_ccb34ef44_9_2",
       "step_filterOption_assertOption_ccb34ef44_9_2",
       "step_filterOption_confirm_ccb34ef44_9_2",
+      "step_browserM365SignIn_assertPage_ccb34ef44_9_3",
+      "step_browserM365SignIn_focusAccount_ccb34ef44_9_3",
       "step_browserM365SignIn_assertAccount_ccb34ef44_9_3",
       "step_browserM365SignIn_enterAccount_ccb34ef44_9_3",
+      "step_browserM365SignIn_assertEnteredAccount_ccb34ef44_9_3",
       "step_browserM365SignIn_submitAccount_ccb34ef44_9_3",
       "step_browserM365SignIn_assertPassword_ccb34ef44_9_3",
       "step_browserM365SignIn_enterPassword_ccb34ef44_9_3",
@@ -3437,6 +3440,52 @@
       ]
     },
     {
+      "step_id": "step_browserM365SignIn_assertPage_ccb34ef44_9_3",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the Microsoft sign-in page is visible in Chrome with an email or username input and a Next button.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_filterOption_confirm_ccb34ef44_9_2"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:authentication",
+        "surface:browser",
+        "step_retry_timeout: 180"
+      ]
+    },
+    {
+      "step_id": "step_browserM365SignIn_focusAccount_ccb34ef44_9_3",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 512,
+        "y": 384
+      },
+      "description": "Click the \"Email, phone, or Skype\" input (also labelled \"Email or phone\") on the Microsoft sign-in page above Next, not the passkey suggestion.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_browserM365SignIn_assertPage_ccb34ef44_9_3"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:authentication",
+        "surface:browser",
+        "ocr:true"
+      ]
+    },
+    {
       "step_id": "step_browserM365SignIn_assertAccount_ccb34ef44_9_3",
       "agent": "assertion",
       "tool": "",
@@ -3447,7 +3496,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_filterOption_confirm_ccb34ef44_9_2"
+        "step_browserM365SignIn_focusAccount_ccb34ef44_9_3"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -3480,6 +3529,27 @@
       ]
     },
     {
+      "step_id": "step_browserM365SignIn_assertEnteredAccount_ccb34ef44_9_3",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the Microsoft sign-in page in Chrome shows ${{env:M365_ACCOUNT_NAME}} in the email or username input.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_browserM365SignIn_enterAccount_ccb34ef44_9_3"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:authentication",
+        "surface:browser",
+        "step_retry_timeout: 60"
+      ]
+    },
+    {
       "step_id": "step_browserM365SignIn_submitAccount_ccb34ef44_9_3",
       "agent": "interaction",
       "tool": "key_press",
@@ -3492,7 +3562,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_browserM365SignIn_enterAccount_ccb34ef44_9_3"
+        "step_browserM365SignIn_assertEnteredAccount_ccb34ef44_9_3"
       ],
       "preconditions": [],
       "postconditions": [],
