@@ -77,6 +77,17 @@ The image entrypoint mirrors a declared `TEAMSFX_CEA_ENABLED=true|false` test pr
 plan-scoped run config with `vscode-test-cases/engine/prepare-vscuse-config.cjs`; do not add the
 setting to the shared image settings.
 
+On AMD64, Chrome desktop actions and the `vscode` user's HTTP/HTTPS associations
+use the base image's `chrome-wrapper`, including its `--no-first-run` flag.
+Setting `BROWSER` alone is insufficient because `xdg-open` tries desktop URL
+associations first; those associations must not launch the unwrapped Chrome binary.
+
+The test image also adds `--test-type` to the Chrome wrapper to suppress startup
+warning bars that shift the page during UI tests. This keeps the existing container
+flags unchanged; it does not enable sandboxing or make those flags safe for regular
+browsing. Rebuild the image to consume these changes; updating a test plan does not
+modify an existing image's browser startup configuration.
+
 ## Differences from Base Image
 
 | Feature         | Base Image | ATK Profile      |
