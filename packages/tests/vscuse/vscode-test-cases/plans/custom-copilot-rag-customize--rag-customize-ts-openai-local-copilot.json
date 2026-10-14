@@ -8,7 +8,7 @@
       "precondition_wait_timeout": 30,
       "precondition_retry_interval": 1
     },
-    "total_steps": 100,
+    "total_steps": 102,
     "name": "rag-customize-ts-openai-local-copilot",
     "description": {
       "owner": "",
@@ -83,9 +83,13 @@
       "step_signInM365_assertOption_cd614cafe_6_2",
       "step_signInM365_selectOption_cd614cafe_6_2",
       "step_signInM365_confirmSignIn_cd614cafe_6_2",
+      "step_signInM365_assertAccount_cd614cafe_6_2",
       "step_signInM365_focusAccount_cd614cafe_6_2",
+      "step_signInM365_assertFocusedAccount_cd614cafe_6_2",
       "step_signInM365_typeAccount_cd614cafe_6_2",
+      "step_signInM365_assertEnteredAccount_cd614cafe_6_2",
       "step_signInM365_next_cd614cafe_6_2",
+      "step_signInM365_assertPassword_cd614cafe_6_2",
       "step_signInM365_typePassword_cd614cafe_6_2",
       "step_signInM365_submit_cd614cafe_6_2",
       "step_signInM365_closeBrowser_cd614cafe_6_2",
@@ -98,9 +102,7 @@
       "step_filterOption_filter_cd614cafe_7_2",
       "step_filterOption_assertOption_cd614cafe_7_2",
       "step_filterOption_confirm_cd614cafe_7_2",
-      "step_browserM365SignIn_refreshPage_cd614cafe_7_3",
       "step_browserM365SignIn_assertAccount_cd614cafe_7_3",
-      "step_browserM365SignIn_focusAccount_cd614cafe_7_3",
       "step_browserM365SignIn_enterAccount_cd614cafe_7_3",
       "step_browserM365SignIn_submitAccount_cd614cafe_7_3",
       "step_browserM365SignIn_assertPassword_cd614cafe_7_3",
@@ -1602,6 +1604,27 @@
       ]
     },
     {
+      "step_id": "step_signInM365_assertAccount_cd614cafe_6_2",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the Microsoft Sign in page is visible in Chrome with an email or username input and a Next button.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_signInM365_confirmSignIn_cd614cafe_6_2"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:authentication",
+        "account:m365",
+        "step_retry_timeout: 60"
+      ]
+    },
+    {
       "step_id": "step_signInM365_focusAccount_cd614cafe_6_2",
       "agent": "interaction",
       "tool": "click",
@@ -1610,24 +1633,41 @@
         "x": 369,
         "y": 350
       },
-      "description": "Click on the \"Email or phone\" input field in the Microsoft Sign-in form on the login.microsoftonline.com webpage to focus the cursor for credential entry.",
+      "description": "Click the email or username input above the Next button on the Microsoft Sign in page in Chrome, not the Use passkey from another device suggestion.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_signInM365_confirmSignIn_cd614cafe_6_2"
+        "step_signInM365_assertAccount_cd614cafe_6_2"
       ],
-      "preconditions": [
-        "dhash:369:350:16:5:2113d25252525221",
-        "dhash:369:350:96:5:0919006d19220812",
-        "dhash:369:350:0:10:1b88d0d1e5e6dae4"
-      ],
+      "preconditions": [],
       "postconditions": [],
       "tags": [
         "component:authentication",
         "account:m365",
-        "precondition_wait_timeout: 60"
+        "ocr:true"
+      ]
+    },
+    {
+      "step_id": "step_signInM365_assertFocusedAccount_cd614cafe_6_2",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the Microsoft Sign in page is visible in Chrome with an email or username input that is focused and a Next button.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_signInM365_focusAccount_cd614cafe_6_2"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:authentication",
+        "account:m365",
+        "step_retry_timeout: 60"
       ]
     },
     {
@@ -1643,16 +1683,35 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_signInM365_focusAccount_cd614cafe_6_2"
+        "step_signInM365_assertFocusedAccount_cd614cafe_6_2"
       ],
-      "preconditions": [
-        "dhash:512:384:0:20:1b28f0d9e7e6dae4"
-      ],
+      "preconditions": [],
       "postconditions": [],
       "tags": [
         "component:authentication",
         "account:m365",
         "delay: 3"
+      ]
+    },
+    {
+      "step_id": "step_signInM365_assertEnteredAccount_cd614cafe_6_2",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the Microsoft Sign in page in Chrome shows ${{env:M365_ACCOUNT_NAME}} in the account input and a Next button.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_signInM365_typeAccount_cd614cafe_6_2"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:authentication",
+        "account:m365",
+        "step_retry_timeout: 60"
       ]
     },
     {
@@ -1664,24 +1723,42 @@
         "x": 629,
         "y": 484
       },
-      "description": "Click the blue \"Next\" button on the Microsoft sign-in page, confirming the entered email address for login.",
+      "description": "Click the blue Next button on the Microsoft Sign in page in Chrome to continue with the entered account.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_signInM365_typeAccount_cd614cafe_6_2"
+        "step_signInM365_assertEnteredAccount_cd614cafe_6_2"
       ],
-      "preconditions": [
-        "dhash:629:484:16:5:23248c4b6c24d32c",
-        "dhash:629:484:96:5:00004eb131860000",
-        "dhash:629:484:0:10:1b28f0d9e7e6dae4"
-      ],
+      "preconditions": [],
       "postconditions": [],
       "tags": [
         "component:authentication",
         "account:m365",
-        "delay:3"
+        "delay:3",
+        "ocr:true"
+      ]
+    },
+    {
+      "step_id": "step_signInM365_assertPassword_cd614cafe_6_2",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the Microsoft Sign in page in Chrome shows ${{env:M365_ACCOUNT_NAME}} and a password input that is visible and focused.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_signInM365_next_cd614cafe_6_2"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:authentication",
+        "account:m365",
+        "step_retry_timeout: 120"
       ]
     },
     {
@@ -1697,11 +1774,9 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_signInM365_next_cd614cafe_6_2"
+        "step_signInM365_assertPassword_cd614cafe_6_2"
       ],
-      "preconditions": [
-        "dhash:512:384:0:20:1b08f0d9d1e6e6e4"
-      ],
+      "preconditions": [],
       "postconditions": [],
       "tags": [
         "component:authentication",
@@ -1724,9 +1799,7 @@
       "depends_on": [
         "step_signInM365_typePassword_cd614cafe_6_2"
       ],
-      "preconditions": [
-        "dhash:512:384:0:20:1b08f0d9d1e6e6e4"
-      ],
+      "preconditions": [],
       "postconditions": [],
       "tags": [
         "component:authentication",
@@ -1959,13 +2032,11 @@
       ]
     },
     {
-      "step_id": "step_browserM365SignIn_refreshPage_cd614cafe_7_3",
-      "agent": "interaction",
-      "tool": "key_press",
-      "parameters": {
-        "key": "f5"
-      },
-      "description": "Refresh the Microsoft sign-in page before checking for account entry.",
+      "step_id": "step_browserM365SignIn_assertAccount_cd614cafe_7_3",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the Microsoft sign-in page is visible in Chrome with an email or username input that is focused.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -1977,53 +2048,8 @@
       "postconditions": [],
       "tags": [
         "component:authentication",
-        "surface:browser"
-      ]
-    },
-    {
-      "step_id": "step_browserM365SignIn_assertAccount_cd614cafe_7_3",
-      "agent": "assertion",
-      "tool": "",
-      "parameters": {},
-      "description": "@assertion the Microsoft sign-in page is visible in Chrome with an email or username input.",
-      "content_refs": [],
-      "timeout": 30,
-      "retry_count": 0,
-      "continue_on_error": "false",
-      "depends_on": [
-        "step_browserM365SignIn_refreshPage_cd614cafe_7_3"
-      ],
-      "preconditions": [],
-      "postconditions": [],
-      "tags": [
-        "component:authentication",
         "surface:browser",
         "step_retry_timeout: 180"
-      ]
-    },
-    {
-      "step_id": "step_browserM365SignIn_focusAccount_cd614cafe_7_3",
-      "agent": "interaction",
-      "tool": "click",
-      "parameters": {
-        "button": "left",
-        "x": 512,
-        "y": 384
-      },
-      "description": "Click the \"Email, phone, or Skype\" input on the Microsoft sign-in page.",
-      "content_refs": [],
-      "timeout": 30,
-      "retry_count": 0,
-      "continue_on_error": "false",
-      "depends_on": [
-        "step_browserM365SignIn_assertAccount_cd614cafe_7_3"
-      ],
-      "preconditions": [],
-      "postconditions": [],
-      "tags": [
-        "component:authentication",
-        "surface:browser",
-        "ocr:true"
       ]
     },
     {
@@ -2039,7 +2065,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_browserM365SignIn_focusAccount_cd614cafe_7_3"
+        "step_browserM365SignIn_assertAccount_cd614cafe_7_3"
       ],
       "preconditions": [],
       "postconditions": [],

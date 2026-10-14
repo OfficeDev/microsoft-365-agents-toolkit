@@ -78,6 +78,21 @@
       "tags": ["component:authentication", "account:m365"]
     },
     {
+      "step_id": "step_signInM365FromPicker_assertAccountPicker_{{text:instanceSuffix}}",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the Microsoft Pick an account page is visible in Chrome with a Use another account option.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": ["step_signInM365FromPicker_confirmSignIn_{{text:instanceSuffix}}"],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": ["component:authentication", "account:m365", "step_retry_timeout: 60"]
+    },
+    {
       "step_id": "step_signInM365FromPicker_useAnotherAccount_{{text:instanceSuffix}}",
       "agent": "interaction",
       "tool": "click",
@@ -92,19 +107,30 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_signInM365FromPicker_confirmSignIn_{{text:instanceSuffix}}"
+        "step_signInM365FromPicker_assertAccountPicker_{{text:instanceSuffix}}"
       ],
-      "preconditions": [
-        "dhash:447:487:16:5:ac534b4aaaaa6a15",
-        "dhash:447:487:96:5:0100228d15a20000",
-        "dhash:447:487:0:10:1312e8d89ed6e6e4"
-      ],
+      "preconditions": [],
       "postconditions": [],
       "tags": [
         "component:authentication",
         "account:m365",
-        "precondition_wait_timeout: 60"
+        "ocr:true"
       ]
+    },
+    {
+      "step_id": "step_signInM365FromPicker_assertFocusedAccount_{{text:instanceSuffix}}",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the Microsoft Sign in page is visible in Chrome with an email or username input that is focused and a Next button.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": ["step_signInM365FromPicker_useAnotherAccount_{{text:instanceSuffix}}"],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": ["component:authentication", "account:m365", "step_retry_timeout: 60"]
     },
     {
       "step_id": "step_signInM365FromPicker_typeAccount_{{text:instanceSuffix}}",
@@ -119,11 +145,26 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_signInM365FromPicker_useAnotherAccount_{{text:instanceSuffix}}"
+        "step_signInM365FromPicker_assertFocusedAccount_{{text:instanceSuffix}}"
       ],
-      "preconditions": ["dhash:512:384:0:20:1392f8d8c6e6dae4"],
+      "preconditions": [],
       "postconditions": [],
       "tags": ["component:authentication", "account:m365", "delay: 3"]
+    },
+    {
+      "step_id": "step_signInM365FromPicker_assertEnteredAccount_{{text:instanceSuffix}}",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the Microsoft Sign in page in Chrome shows {{text:accountName}} in the account input and a Next button.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": ["step_signInM365FromPicker_typeAccount_{{text:instanceSuffix}}"],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": ["component:authentication", "account:m365", "step_retry_timeout: 60"]
     },
     {
       "step_id": "step_signInM365FromPicker_next_{{text:instanceSuffix}}",
@@ -134,21 +175,32 @@
         "x": 655,
         "y": 505
       },
-      "description": "Click the blue \"Next\" button on the Microsoft sign-in page, confirming the entered email address for login.",
+      "description": "Click the blue Next button on the Microsoft Sign in page in Chrome to continue with the entered account.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_signInM365FromPicker_typeAccount_{{text:instanceSuffix}}"
+        "step_signInM365FromPicker_assertEnteredAccount_{{text:instanceSuffix}}"
       ],
-      "preconditions": [
-        "dhash:655:505:16:5:0000000080400020",
-        "dhash:655:505:96:5:0000408bcb4b0000",
-        "dhash:655:505:0:10:1392f8d8c7e6dae4"
-      ],
+      "preconditions": [],
       "postconditions": [],
-      "tags": ["component:authentication", "account:m365", "delay:3"]
+      "tags": ["component:authentication", "account:m365", "delay:3", "ocr:true"]
+    },
+    {
+      "step_id": "step_signInM365FromPicker_assertPassword_{{text:instanceSuffix}}",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the Microsoft Sign in page in Chrome shows {{text:accountName}} and a password input that is visible and focused.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": ["step_signInM365FromPicker_next_{{text:instanceSuffix}}"],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": ["component:authentication", "account:m365", "step_retry_timeout: 120"]
     },
     {
       "step_id": "step_signInM365FromPicker_typePassword_{{text:instanceSuffix}}",
@@ -162,8 +214,8 @@
       "timeout": 30,
       "retry_count": 0,
       "continue_on_error": "false",
-      "depends_on": ["step_signInM365FromPicker_next_{{text:instanceSuffix}}"],
-      "preconditions": ["dhash:512:384:0:20:1392e8d8d9f6e6e4"],
+      "depends_on": ["step_signInM365FromPicker_assertPassword_{{text:instanceSuffix}}"],
+      "preconditions": [],
       "postconditions": [],
       "tags": ["component:authentication", "account:m365", "delay: 3"]
     },
@@ -182,7 +234,7 @@
       "depends_on": [
         "step_signInM365FromPicker_typePassword_{{text:instanceSuffix}}"
       ],
-      "preconditions": ["dhash:512:384:0:20:1392e8d8d9f6e6e4"],
+      "preconditions": [],
       "postconditions": [],
       "tags": ["component:authentication", "account:m365", "delay: 3"]
     },

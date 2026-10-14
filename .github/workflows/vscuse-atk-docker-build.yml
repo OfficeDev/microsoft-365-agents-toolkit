@@ -9,9 +9,9 @@ on:
         required: false
         default: 'latest'
       base_image_tag:
-        description: 'Tag of the base image (ghcr.io/microsoft/vscuse-base) to build from'
+        description: 'Optional base image tag override for validation; leave empty to use the pinned baseline'
         required: false
-        default: 'latest'
+        default: ''
       node_version:
         description: 'Override the Node.js version baked into the image.'
         required: false
@@ -35,6 +35,7 @@ on:
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: officedev/vscuse-atk-vscode
+  PINNED_BASE_IMAGE: ghcr.io/microsoft/vscuse-base@sha256:2db458897652e039d87f3bd28928c74003be4224d3ee49484b245f63e48f7977
 
 # When dispatched with a source_ref (smoke pipeline) group per-branch so a re-dispatch cancels
 # the stale build. Without it (CD / manual / release) the run_id keeps the group unique → no-op.
@@ -171,7 +172,7 @@ jobs:
           # platforms: linux/amd64,linux/arm64
           push: true
           build-args: |
-            BASE_IMAGE=ghcr.io/microsoft/vscuse-base:${{ github.event.inputs.base_image_tag || 'latest' }}
+            BASE_IMAGE=${{ github.event.inputs.base_image_tag && format('ghcr.io/microsoft/vscuse-base:{0}', github.event.inputs.base_image_tag) || env.PINNED_BASE_IMAGE }}
             NODE_VERSION=${{ github.event.inputs.node_version }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
