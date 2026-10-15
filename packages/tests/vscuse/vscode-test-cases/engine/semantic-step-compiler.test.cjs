@@ -6193,6 +6193,186 @@ test("VCB-163: the overlength entry assertion describes only the visible app-nam
   );
 });
 
+test("VCB-166: Web Search capabilities compile guarded URL and all-web flows", async () => {
+  const yaml = require("yaml");
+  for (const input of [
+    { capability: "webSearch", searchType: "url", url: "https://example.com" },
+    { capability: "webSearch", searchType: "all" },
+  ]) {
+    const result = await compileFixture("da-no-action.yml", (sourceText) => {
+      const source = yaml.parse(sourceText);
+      source.cases = [
+        {
+          ...source.cases[0],
+          steps: ["scaffold-da-no-action", "check-da-no-action", "web-search"],
+        },
+      ];
+      source.steps["web-search"] = { type: "addDaCapability", with: input };
+      return yaml.stringify(source);
+    });
+    assert.equal(result.ok, true, JSON.stringify(result.diagnostics));
+    const steps = result.value[0].plan.steps;
+    const commandIndex = steps.findIndex(
+      (step) => step.parameters.text === "Microsoft 365 Agents: Add Capability",
+    );
+    assert.ok(commandIndex >= 0);
+    assert.equal(
+      steps
+        .slice(commandIndex)
+        .some((step) => step.parameters.text === "Web Search"),
+      true,
+    );
+    assert.equal(
+      steps
+        .slice(commandIndex)
+        .some((step) => step.parameters.text === "https://example.com"),
+      input.searchType === "url",
+    );
+    assert.equal(
+      steps.slice(commandIndex).some((step) => step.parameters.keys === "f5"),
+      false,
+    );
+  }
+});
+
+test("VCB-166: Web Search rejects ambiguous or unsafe capability inputs", async () => {
+  const yaml = require("yaml");
+  for (const input of [
+    { capability: "webSearch", searchType: "url" },
+    { capability: "webSearch", searchType: "url", url: "http://example.com" },
+    {
+      capability: "webSearch",
+      searchType: "url",
+      url: "https://example.com\ncommand",
+    },
+    { capability: "webSearch", searchType: "all", url: "https://example.com" },
+    { capability: "webSearch", searchType: "unknown" },
+    { capability: "webSearch", searchType: "all", extra: true },
+  ]) {
+    const result = await compileFixture("da-no-action.yml", (sourceText) => {
+      const source = yaml.parse(sourceText);
+      source.cases = [
+        {
+          ...source.cases[0],
+          steps: ["scaffold-da-no-action", "check-da-no-action", "web-search"],
+        },
+      ];
+      source.steps["web-search"] = { type: "addDaCapability", with: input };
+      return yaml.stringify(source);
+    });
+    assert.equal(result.ok, false);
+    assert.equal(
+      result.diagnostics[0].code,
+      "VCB_ADD_DA_CAPABILITY_INPUT_INVALID",
+    );
+  }
+});
+
+test("VCB-166: Web Search case sources independently cover URL and all-web replacement", async () => {
+  const result = await compileFixture(
+    "feature-da-web-search.yml",
+    (sourceText) => sourceText,
+  );
+  assert.equal(result.ok, true, JSON.stringify(result.diagnostics));
+  assert.deepEqual(
+    result.value.map((generated) => generated.caseId),
+    ["feature-da-web-search-url", "feature-da-web-search-replace-all"],
+  );
+  for (const generated of result.value) {
+    assert.equal(generated.plan.plan_metadata.description.workitem, "31662789");
+    assert.equal(
+      generated.plan.plan_metadata.execution_order.some((step) =>
+        step.startsWith("plan_r_"),
+      ),
+      false,
+    );
+    assert.equal(
+      generated.plan.steps.filter(
+        (step) =>
+          step.parameters.text === "Microsoft 365 Agents: Create New Agent/App",
+      ).length,
+      1,
+    );
+  }
+  assert.equal(
+    result.value[0].plan.steps.filter((step) =>
+      step.step_id.includes("clickPrimaryAction_assertDialog"),
+    ).length,
+    1,
+  );
+  assert.equal(
+    result.value[1].plan.steps.filter((step) =>
+      step.step_id.includes("clickPrimaryAction_assertDialog"),
+    ).length,
+    3,
+  );
+  assert.equal(
+    result.value[1].plan.steps.some(
+      (step) => step.parameters.text === "Search all content on the web",
+    ),
+    true,
+  );
+});
+
+test("VCB-167: standalone README checks are retired while project readiness remains", async () => {
+  for (const relativePath of [
+    "cases/feature-readme-da.yml",
+    "cases/feature-readme-basic-cea.yml",
+    "cases/feature-readme-tab.yml",
+    "components/initialization/assert-readme-rendered.json.tpl",
+    "plans/feature-readme-da-no-action.json",
+    "plans/feature-readme-basic-cea-ts.json",
+    "plans/feature-readme-tab-ts.json",
+    "plans/Template_And_Sample_Readme_Verification.json",
+  ]) {
+    assert.equal(
+      fsSync.existsSync(path.join(casesDirectory, "..", relativePath)),
+      false,
+      relativePath,
+    );
+  }
+  const mapping = await fs.readFile(
+    path.join(casesDirectory, "legacy-case-mapping.md"),
+    "utf8",
+  );
+  assert.match(
+    mapping,
+    /\| `Template_And_Sample_Readme_Verification\.json`\s+\| Retired\s+\|[^\n]*scope decision/,
+  );
+  const result = await compileFixture("da-no-action.yml", (sourceText) => {
+    const yaml = require("yaml");
+    const source = yaml.parse(sourceText);
+    source.cases = [
+      {
+        ...source.cases[0],
+        steps: ["scaffold-da-no-action", "check-da-no-action"],
+      },
+    ];
+    return yaml.stringify(source);
+  });
+  assert.equal(result.ok, true, JSON.stringify(result.diagnostics));
+  assert.equal(
+    result.value[0].plan.steps.find((step) =>
+      step.step_id.includes("assertProjectWindowReady"),
+    ).description,
+    "@assertion the Preview README.md editor tab is open in Visual Studio Code.",
+  );
+  const unsupported = await compileFixture("da-no-action.yml", (sourceText) => {
+    const yaml = require("yaml");
+    const source = yaml.parse(sourceText);
+    source.cases = [
+      {
+        ...source.cases[0],
+        steps: ["scaffold-da-no-action", "check-da-no-action", "readme"],
+      },
+    ];
+    source.steps.readme = { type: "checks", with: [{ type: "readme" }] };
+    return yaml.stringify(source);
+  });
+  assert.equal(unsupported.ok, false);
+  assert.equal(unsupported.diagnostics[0].code, "VCB_CHECK_ADAPTER_UNKNOWN");
+});
+
 test("VCB-149: addDaCapability adds the recorded Copilot connector and rejects unsafe input", () => {
   const sourceText = `version: 1
 cases:

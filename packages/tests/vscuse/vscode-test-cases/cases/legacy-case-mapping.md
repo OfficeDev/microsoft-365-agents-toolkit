@@ -298,11 +298,17 @@ Weather Agent cases cover OpenAI on Teams and Playground and Copilot with Azure 
 | ------------------------------------------ | ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `Feature_Prompt_Use_Run_From_Package.json` | Retired | The plan only asserted the slow zip-deploy recommendation link after a timing-dependent Azure deployment. The threshold and link are covered by the fx-core unit test, while Azure E2E tests verify `WEBSITE_RUN_FROM_PACKAGE=1`. |
 
-## Retained Legacy Plans Not Mapped
+## Retired Legacy README Plans
+
+| Legacy plan | Status | Reason |
+| ----------- | ------ | ------ |
+| `Template_And_Sample_Readme_Verification.json` | Retired | Explicit scope decision: standalone README-rendering E2E checks are no longer required. This is not a claim of replacement coverage. Existing scaffold tests retain the README-preview project-window readiness guard; see VCB-167. |
+
+## Retained Legacy Plans With Coverage Gaps
 
 | Legacy plan                    | Status     | Blocker                                                                                                                                        |
 | ------------------------------ | ---------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-| `DA_No_Action_Web_Search.json` | Not Mapped | The first branch records `https://example.com`, but the ambiguous second branch omits its URL; an `all websites` value must not be fabricated. |
+| `DA_No_Action_Web_Search.json` | Partial | `feature-da-web-search.yml` independently covers the recorded `https://example.com` branch and the explicitly re-recorded all-web replacement, including removal of `sites`; see VCB-166. The old publish, app-version-update, and reprovision sequence is not yet migrated, so the legacy plan is retained. |
 
 ## Retired Legacy DA Plans
 

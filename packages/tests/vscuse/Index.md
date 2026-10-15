@@ -314,7 +314,6 @@ and can also be dispatched manually.
 
 | Test Plan                                 | Description                                |
 | ----------------------------------------- | ------------------------------------------ |
-| `Template_And_Sample_Readme_Verification` | Verify README in all templates and samples |
 
 ---
 

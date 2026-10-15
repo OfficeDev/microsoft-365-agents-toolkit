@@ -162,6 +162,8 @@
     "feature-da-no-action-pkce-oauth-auth-remote-preview.json",
     "feature-da-two-openapi-actions-personal-provision.json",
     "feature-da-typespec-package-action-remote-preview.json",
+    "feature-da-web-search-replace-all.json",
+    "feature-da-web-search-url.json",
     "feature-local-debug-ai-search-without-azure-openai-keys.json",
     "feature-local-debug-ai-search-without-openai-keys.json",
     "feature-local-debug-custom-api-without-azure-openai-keys.json",
