@@ -1162,6 +1162,7 @@
   "core.createProjectQuestion.mcpForDa.EntraClientId.title": "Идентификатор приложения Microsoft Entra (клиентский)",
   "core.createProjectQuestion.mcpForDa.EntraClientId.placeholder": "Введите идентификатор приложения (клиента) регистрации приложения в Microsoft Entra",
   "core.createProjectQuestion.mcpForDa.EntraClientId.required": "Требуется идентификатор приложения (клиента) Microsoft Entra.",
+  "driver.oauth.error.supportedAccountTypesUnsupportedCloud": "The includePersonalMicrosoftAccounts option is supported only in the Microsoft 365 commercial cloud environment.",
   "core.createProjectQuestion.mcpForDa.File.title": "Выберите манифест действия для обновления",
   "core.createProjectQuestion.mcpForDa.File.createNew.label": "Создать новый файл ai-plugin.json",
   "core.createProjectQuestion.mcpForDa.File.createNew.title": "Назовите новый файл манифеста действия",
