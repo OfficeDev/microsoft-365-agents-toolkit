@@ -1162,6 +1162,7 @@
   "core.createProjectQuestion.mcpForDa.EntraClientId.title": "Microsoft Entra 应用程序(客户端) ID",
   "core.createProjectQuestion.mcpForDa.EntraClientId.placeholder": "输入 Microsoft Entra 应用注册的应用程序(客户端) ID",
   "core.createProjectQuestion.mcpForDa.EntraClientId.required": "需要提供 Microsoft Entra 应用程序(客户端) ID。",
+  "driver.oauth.error.supportedAccountTypesUnsupportedCloud": "The includePersonalMicrosoftAccounts option is supported only in the Microsoft 365 commercial cloud environment.",
   "core.createProjectQuestion.mcpForDa.File.title": "选择要更新的操作清单",
   "core.createProjectQuestion.mcpForDa.File.createNew.label": "创建新的 ai-plugin.json 文件",
   "core.createProjectQuestion.mcpForDa.File.createNew.title": "请为新的操作清单文件命名",

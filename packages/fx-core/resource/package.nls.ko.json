@@ -1162,6 +1162,7 @@
   "core.createProjectQuestion.mcpForDa.EntraClientId.title": "Microsoft Entra 애플리케이션(클라이언트) ID",
   "core.createProjectQuestion.mcpForDa.EntraClientId.placeholder": "Microsoft Entra 앱 등록의 애플리케이션(클라이언트) ID 입력",
   "core.createProjectQuestion.mcpForDa.EntraClientId.required": "Microsoft Entra 애플리케이션(클라이언트) ID가 필요합니다.",
+  "driver.oauth.error.supportedAccountTypesUnsupportedCloud": "The includePersonalMicrosoftAccounts option is supported only in the Microsoft 365 commercial cloud environment.",
   "core.createProjectQuestion.mcpForDa.File.title": "업데이트할 작업 매니페스트 선택",
   "core.createProjectQuestion.mcpForDa.File.createNew.label": "새 ai-plugin.json 만들기",
   "core.createProjectQuestion.mcpForDa.File.createNew.title": "새 작업 매니페스트 파일 이름 지정",

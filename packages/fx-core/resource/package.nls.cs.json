@@ -1162,6 +1162,7 @@
   "core.createProjectQuestion.mcpForDa.EntraClientId.title": "ID aplikace (klienta) Microsoft Entra",
   "core.createProjectQuestion.mcpForDa.EntraClientId.placeholder": "Zadejte ID aplikace (klienta) registrace aplikace Microsoft Entra",
   "core.createProjectQuestion.mcpForDa.EntraClientId.required": "Vyžaduje se ID aplikace (klienta) Microsoft Entra.",
+  "driver.oauth.error.supportedAccountTypesUnsupportedCloud": "The includePersonalMicrosoftAccounts option is supported only in the Microsoft 365 commercial cloud environment.",
   "core.createProjectQuestion.mcpForDa.File.title": "Vyberte manifest akce, který chcete aktualizovat",
   "core.createProjectQuestion.mcpForDa.File.createNew.label": "Vytvoření nového souboru ai-plugin.json",
   "core.createProjectQuestion.mcpForDa.File.createNew.title": "Pojmenujte nový soubor manifestu akce",

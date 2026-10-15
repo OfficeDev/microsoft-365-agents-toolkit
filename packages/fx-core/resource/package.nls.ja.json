@@ -1162,6 +1162,7 @@
   "core.createProjectQuestion.mcpForDa.EntraClientId.title": "Microsoft Entra アプリケーション (クライアント) ID",
   "core.createProjectQuestion.mcpForDa.EntraClientId.placeholder": "Microsoft Entra アプリ登録のアプリケーション (クライアント) ID を入力する",
   "core.createProjectQuestion.mcpForDa.EntraClientId.required": "Microsoft Entra アプリケーション (クライアント) ID が必要です。",
+  "driver.oauth.error.supportedAccountTypesUnsupportedCloud": "The includePersonalMicrosoftAccounts option is supported only in the Microsoft 365 commercial cloud environment.",
   "core.createProjectQuestion.mcpForDa.File.title": "更新するアクション マニフェストを選択します",
   "core.createProjectQuestion.mcpForDa.File.createNew.label": "新しい ai-plugin.json を作成する",
   "core.createProjectQuestion.mcpForDa.File.createNew.title": "新しいアクション マニフェスト ファイルの名前を付ける",
