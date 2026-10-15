@@ -70,6 +70,65 @@ class FakePort implements ExpressionRuntimePort {
 }
 
 describe("evaluateExpression (v4)", () => {
+  it("EVAL-19: comparison keys retain raw identifier grammar and reserved null semantics", () => {
+    for (const node of [
+      { equals: { "derived.future.context": "forged" } },
+      { enum: { "derived.future.context": ["forged"] } },
+    ]) {
+      assert.strictEqual(
+        evaluateExpression(
+          node,
+          { "derived.future.context": "forged" },
+          new FakePort()
+        )._unsafeUnwrapErr().name,
+        EXPR_PARSE_ERROR
+      );
+    }
+    for (const node of [{ equals: { null: "" } }, { enum: { null: [""] } }]) {
+      assert.strictEqual(
+        evaluateExpression(node, { null: "" }, new FakePort())._unsafeUnwrap(),
+        false
+      );
+    }
+  });
+
+  for (const literal of ["O'Reilly", "path\\name", "no' || 'yes' == 'yes", ""]) {
+    it(`EVAL-19: structured comparisons preserve ${JSON.stringify(literal)}`, () => {
+      const nodes = [
+        { equals: { name: literal } },
+        { enum: { name: [literal, "other"] } },
+        { capability: literal },
+      ];
+      for (const node of nodes) {
+        assert.strictEqual(
+          evaluateExpression(
+            node,
+            { name: literal, capability: literal },
+            new FakePort()
+          )._unsafeUnwrap(),
+          true
+        );
+        assert.strictEqual(
+          evaluateExpression(
+            node,
+            { name: "different", capability: "different" },
+            new FakePort()
+          )._unsafeUnwrap(),
+          false
+        );
+      }
+    });
+
+    it(`EVAL-19: structured feature flags preserve ${JSON.stringify(literal)}`, () => {
+      const port = new FakePort({ flags: { [literal]: true } });
+      const node = { featureFlag: literal };
+
+      assert.strictEqual(evaluateExpression(node, {}, port)._unsafeUnwrap(), true);
+      assert.deepEqual(port.calls, [`flag:${literal}`]);
+      assert.deepEqual(collectFeatureFlagReferences(node)._unsafeUnwrap(), new Set([literal]));
+    });
+  }
+
   for (const key of [
     "derived.catalog.context",
     "derived.catalog.remote.context",
