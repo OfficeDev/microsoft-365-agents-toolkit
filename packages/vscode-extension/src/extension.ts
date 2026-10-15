@@ -115,7 +115,6 @@ import {
   addKnowledgeHandler,
   addPluginHandler,
   addSkillHandler,
-  addWebpartHandler,
   copilotPluginAddAPIHandler,
   createNewProjectHandler,
   deployHandler,
@@ -594,8 +593,6 @@ function registerInternalCommands(context: vscode.ExtensionContext) {
 function registerTreeViewCommandsInDevelopment(context: vscode.ExtensionContext) {
   // Open adaptive card
   registerInCommandController(context, "fx-extension.OpenAdaptiveCardExt", installAdaptiveCardExt);
-
-  registerInCommandController(context, "fx-extension.addWebpart", addWebpartHandler, "addWebpart");
 
   registerInCommandController(context, "fx-extension.addPlugin", addPluginHandler, "addPlugin");
 

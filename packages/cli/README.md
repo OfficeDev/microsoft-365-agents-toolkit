@@ -16,6 +16,13 @@ $ atk -h
 > [!NOTE]
 > Please refer to [Microsoft 365 Agents Toolkit CLI Documentation](https://aka.ms/teamsfx-toolkit-cli) for in-depth instructions.
 
+## SharePoint Framework projects
+
+SPFx project creation/import and `atk add spfx-web-part` (including the legacy
+`teamsapp` alias) are no longer supported. Use the SharePoint Framework tooling
+directly to create solutions and add web parts. Deployment and publishing of
+existing Toolkit SPFx projects remain unchanged.
+
 ## Feedback
 
 - Ask a question on [Stack Overflow](https://stackoverflow.com/questions/tagged/teams-toolkit)

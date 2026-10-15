@@ -9,7 +9,6 @@ import { DeclarativeAgentWithExistingApiSpecGenerator } from "./openApiSpec/decl
 import { MessageExtensionWithExistingApiSpecGenerator } from "./openApiSpec/messageExtensionGenerator";
 import { SsrTabGenerator } from "./other/ssrTabGenerator";
 import { TdpGenerator } from "./other/tdpGenerator";
-import { SPFxGeneratorImport, SPFxGeneratorNew } from "./spfx/spfxGenerator";
 
 // When multiple generators are activated, only the top one will be executed.
 export const Generators = [
@@ -18,8 +17,6 @@ export const Generators = [
   // Generators below does not have overlapping templates.
   new DefaultTemplateGenerator(),
   new OfficeAddinGeneratorNew(),
-  new SPFxGeneratorNew(),
-  new SPFxGeneratorImport(),
   new SsrTabGenerator(),
   new DeclarativeAgentWithExistingApiSpecGenerator(),
   new CustomEngineAgentWithExistingApiSpecGenerator(),

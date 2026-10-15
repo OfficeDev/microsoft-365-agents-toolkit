@@ -26,7 +26,6 @@ import { AppStudioScopes, ConstantString, ListSensitivityLabelScope } from "../c
 import { FeatureFlags, featureFlagManager } from "../common/featureFlags";
 import { TOOLS } from "../common/globalVars";
 import { getLocalizedString } from "../common/localizeUtils";
-import { Constants } from "../component/driver/add/utility/constants";
 import { manifestUtils } from "../component/driver/teamsApp/utils/ManifestUtils";
 import { envUtil } from "../component/utils/envUtil";
 import { environmentNameManager } from "../core/environmentName";
@@ -44,9 +43,6 @@ import {
   GCInputQuestion,
   GCItemQuestion,
   GCListQuestion,
-  SPFxFrameworkQuestion,
-  SPFxImportFolderQuestion,
-  SPFxWebpartNameQuestion,
   addKnowledgeStartQuestion,
   apiOperationQuestion,
   apiPluginStartQuestion,
@@ -178,65 +174,6 @@ function confirmCondition(inputs: Inputs, isLocal: boolean): boolean {
         isLocal ? "manifest.local.json" : "manifest.json"
       )
   );
-}
-
-async function spfxFrameworkExist(inputs: Inputs): Promise<boolean> {
-  if (inputs.platform === Platform.CLI_HELP) {
-    return false;
-  }
-
-  const yorcPath = path.join(inputs[QuestionNames.SPFxFolder], Constants.YO_RC_FILE);
-  if (!(await fs.pathExists(yorcPath))) {
-    return false;
-  }
-
-  const yorcJson = (await fs.readJson(yorcPath)) as Record<string, any>;
-  if (!yorcJson["@microsoft/generator-sharepoint"]) {
-    return false;
-  }
-
-  return yorcJson["@microsoft/generator-sharepoint"]["template"];
-}
-
-export function addWebPartQuestionNode(): IQTreeNode {
-  return {
-    data: SPFxImportFolderQuestion(true),
-    children: [
-      {
-        data: SPFxWebpartNameQuestion(),
-        children: [
-          {
-            data: SPFxFrameworkQuestion(),
-            condition: async (inputs: Inputs) => {
-              return !(await spfxFrameworkExist(inputs));
-            },
-          },
-          {
-            data: selectTeamsAppManifestQuestion(),
-            children: [
-              {
-                condition: (inputs: Inputs) => confirmCondition(inputs, false),
-                data: confirmManifestQuestion(true, false),
-                cliOptionDisabled: "self",
-                inputsDisabled: "self",
-              },
-              {
-                data: selectLocalTeamsAppManifestQuestion(),
-                children: [
-                  {
-                    condition: (inputs: Inputs) => confirmCondition(inputs, true),
-                    data: confirmManifestQuestion(true, true),
-                    cliOptionDisabled: "self",
-                    inputsDisabled: "self",
-                  },
-                ],
-              },
-            ],
-          },
-        ],
-      },
-    ],
-  };
 }
 
 export function selectTeamsAppManifestQuestion(): SingleFileQuestion {

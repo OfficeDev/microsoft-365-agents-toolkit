@@ -75,18 +75,6 @@ export class TabCapabilityOptions {
       ],
     };
   }
-
-  // TODO: need further sub-options to decide template name
-  static SPFxTab(): OptionItem {
-    return {
-      id: "tab-spfx",
-      label: getLocalizedString("core.TabSPFxOption.labelNew"),
-      description: getLocalizedString(
-        "core.createProjectQuestion.option.description.worksInOutlookM365"
-      ),
-      detail: getLocalizedString("core.TabSPFxOption.detailNew"),
-    };
-  }
 }
 
 export class TeamsAgentCapabilityOptions {

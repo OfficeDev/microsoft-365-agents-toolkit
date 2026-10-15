@@ -25,7 +25,6 @@ import {
   accountLoginM365Command,
   accountUtils,
   addCommand,
-  addSPFxWebpartCommand,
   createSampleCommand,
   deployCommand,
   envAddCommand,
@@ -814,18 +813,15 @@ describe("CLI commands", () => {
     });
   });
 
-  describe("addSPFxWebpartCommand", async () => {
-    it("success", async () => {
-      vi.spyOn(FxCore.prototype, "addWebpart").mockResolvedValue(ok(undefined));
-      const ctx: CLIContext = {
-        command: { ...addSPFxWebpartCommand, fullName: "add spfx-web-part" },
-        optionValues: {},
-        globalOptionValues: {},
-        argumentValues: [],
-        telemetryProperties: {},
-      };
-      const res = await addSPFxWebpartCommand.handler!(ctx);
-      assert.isTrue(res.isOk());
+  describe("SPFx retirement", () => {
+    it("RET-SPFX-01: removes only the retired SPFx add command", () => {
+      const names = addCommand().commands?.map((command) => command.name) ?? [];
+      assert.notInclude(names, "spfx-web-part");
+      assert.includeMembers(names, [
+        addPluginCommand.name,
+        addAuthConfigCommand.name,
+        addCapabilityCommand.name,
+      ]);
     });
   });
 
@@ -1008,7 +1004,7 @@ describe("CLI commands", () => {
 
       const commands = addCommand();
 
-      assert.isTrue(commands.commands?.length === 4);
+      assert.isTrue(commands.commands?.length === 3);
       assert.notInclude(commands.commands, addSkillCommand);
     });
 

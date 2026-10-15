@@ -6,7 +6,6 @@
  */
 import "./aad/create";
 import "./aad/update";
-import "./add/addWebPart";
 import "./apiKey/create";
 import "./apiKey/update";
 import "./arm/deploy";

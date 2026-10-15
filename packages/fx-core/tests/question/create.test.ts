@@ -28,7 +28,6 @@ import {
   ActionNotFoundError,
   DeclarativeAgentPathNotFoundError,
   EmptyOptionError,
-  FileNotFoundError,
   OriginalSpecNotFoundError,
   SpecNotFoundError,
   UserCancelError,
@@ -55,7 +54,6 @@ import {
   apiSpecUrlQuestion,
   appNameQuestion,
   folderQuestion,
-  getSolutionName,
   getTabWebsiteOptions,
   oneDriveSharePointItemQuestion,
   pluginManifestQuestion,
@@ -231,40 +229,6 @@ describe("scaffold question", () => {
       const defaultV = question.default(inputs);
       assert.equal(title, "Directory where the project folder will be created in");
       assert.equal(defaultV, "./");
-    });
-  });
-
-  describe("getSolutionName", () => {
-    const sandbox = vi;
-    afterEach(() => {
-      vi.restoreAllMocks();
-    });
-    it("happy path", async () => {
-      vi.spyOn(fs, "pathExists").mockResolvedValue(true);
-      vi.spyOn(fs, "readJson").mockResolvedValue({
-        "@microsoft/generator-sharepoint": {
-          solutionName: "testSolutionName",
-        },
-      });
-      const res = await getSolutionName("");
-      assert.equal(res, "testSolutionName");
-    });
-
-    it("FileNotFoundError", async () => {
-      vi.spyOn(fs, "pathExists").mockResolvedValue(false);
-      try {
-        await getSolutionName(".");
-        assert.fail("should throw");
-      } catch (e) {
-        assert.isTrue(e instanceof FileNotFoundError);
-      }
-    });
-
-    it("undefined", async () => {
-      vi.spyOn(fs, "pathExists").mockResolvedValue(true);
-      vi.spyOn(fs, "readJson").mockResolvedValue({});
-      const res = await getSolutionName("");
-      assert.isUndefined(res);
     });
   });
 

@@ -939,6 +939,7 @@
   "error.yaml.LifeCycleUndefinedError": "Lifecycle '%s' is undefined, yaml file: %s",
   "error.yaml.InvalidActionInputError": "The '%s' action cannot be completed as the following parameter(s): %s, are either missing or have an invalid value in the provided yaml file: %s. Ensure that the required parameters are provided and have valid values and try again.",
   "error.common.InstallSoftwareError": "Unable to install %s. You can install manually and restart Visual Studio Code if you are using the Toolkit in Visual Studio Code.",
+  "core.spfxGenerationNotSupported": "Creating or importing SharePoint Framework projects and adding web parts are no longer supported by Microsoft 365 Agents Toolkit. Use the SharePoint Framework tooling directly.",
   "error.common.VersionError": "Unable to find a version satisfying the version range %s.",
   "error.common.MissingEnvironmentVariablesError": "Missing environment variables '%s' for file: %s. Please edit the .env file '%s' or '%s', or adjust system environment variables. For new projects, run local debugging or provision a remote environment to set these variables.",
   "error.common.InvalidProjectError": "This command only works for project created by Microsoft 365 Agents Toolkit. 'm365agents.yml' or 'm365agents.local.yml' not found",
