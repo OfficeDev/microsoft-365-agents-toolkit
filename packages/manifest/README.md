@@ -82,6 +82,33 @@ const pluginJsonString = ApiPluginManifestConverter.manifestToJson(pluginManifes
 
 Note that the converts to/from JSON will throw runtime type check failures.
 
+Converter errors identify the failing property, including array indexes (for example,
+`agentConnectors[0].toolSource.remoteMcpServer.authorization.type`), and describe the
+expected type or allowed enum values without dumping the input values. An unsupported
+property means that the local manifest model does not recognize it; it does not establish
+whether a preview feature is supported by the service. Invalid JSON still throws a
+`SyntaxError`.
+
+The converter runtime is maintained in `converter-runtime.txt`. `npm run convert` uses
+that template for Teams, Declarative Agent, and API Plugin converters; do not edit the
+generated runtime helpers directly. This runtime performs type checks, not full JSON
+schema or service-side validation.
+
+TypeScript generation applies the package's Prettier configuration so regenerated
+converters pass the same formatting checks as handwritten code.
+
+The bundled Teams devPreview schema supports `openApiConnector` with
+`ConnectionVault` authorization, and `ConnectionVault` for remote and local MCP
+servers. Its `devPreview`, `m365DevPreview`, and `m365devpreview` version values all
+use the validating preview converter. The complete preview snapshot also includes
+local agent/tool references and other preview contract changes; stable schemas
+and `TeamsManifestLatest` are unchanged. Local support does not guarantee service
+availability.
+
+Use `AppManifestUtils.validateAgainstSchema` for JSON schema constraints such as
+the 128-character authorization `referenceId` limit and conditional required
+fields. Recognized Microsoft schema URLs resolve to the bundled schema first.
+
 ### Manifest utilities
 
 Validate manifest against schema: 
