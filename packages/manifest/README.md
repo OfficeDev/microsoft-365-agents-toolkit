@@ -94,6 +94,18 @@ that template for Teams, Declarative Agent, and API Plugin converters; do not ed
 generated runtime helpers directly. This runtime performs type checks, not full JSON
 schema or service-side validation.
 
+The bundled Teams devPreview schema supports `openApiConnector` with
+`ConnectionVault` authorization, and `ConnectionVault` for remote and local MCP
+servers. Its `devPreview`, `m365DevPreview`, and `m365devpreview` version values all
+use the validating preview converter. The complete preview snapshot also includes
+local agent/tool references and other preview contract changes; stable schemas
+and `TeamsManifestLatest` are unchanged. Local support does not guarantee service
+availability.
+
+Use `AppManifestUtils.validateAgainstSchema` for JSON schema constraints such as
+the 128-character authorization `referenceId` limit and conditional required
+fields. Recognized Microsoft schema URLs resolve to the bundled schema first.
+
 ### Manifest utilities
 
 Validate manifest against schema: 

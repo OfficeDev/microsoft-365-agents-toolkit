@@ -12,7 +12,7 @@ export interface TeamsManifestVDevPreview {
     /**
      * The version of the schema this manifest is using.
      */
-    manifestVersion: "devPreview";
+    manifestVersion: ManifestVersion;
     /**
      * The version of the app. Changes to your manifest should cause a version change. This
      * version string must follow the semver standard (http://semver.org).
@@ -149,20 +149,32 @@ export interface TeamsManifestVDevPreview {
     /**
      * The Intune-related properties for the app.
      */
-    intuneInfo?:    IntuneInfo;
-    copilotAgents?: CopilotAgents;
+    intuneInfo?:        IntuneInfo;
+    copilotExtensions?: CopilotExtensions;
+    copilotAgents?:     CopilotAgents;
     /**
      * An array of agentic user templates references.
      */
-    agenticUserTemplates?:   AgenticUserTemplateRef[];
+    agenticUserTemplates?: AgenticUserTemplateRef[];
+    /**
+     * An array of references to local agent declarations. A local agent runs on the user's
+     * device rather than as a cloud service. Each reference points to a separate
+     * localagent.json file in the app package that holds the definition. Currently, only one
+     * local agent per application is supported.
+     */
+    localAgents?: LocalAgentRef[];
+    /**
+     * An array of references to local tool declarations. A local tool runs as an executable on
+     * the user's device rather than as a cloud service. Each reference points to a separate
+     * localtool.json file in the app package that holds the definition. Currently, only one
+     * local tool per application is supported.
+     */
+    localTools?:             LocalToolRef[];
     elementRelationshipSet?: ElementRelationshipSet;
     /**
-     * Optional property containing background loading configuration. By opting into this
+     * Optional property containing background loading configuration. By opting in to this
      * performance enhancement, your app is eligible to be loaded in the background in any
-     * Microsoft 365 application host that supports this feature. Note that setting this
-     * property gives the host client permission to load the app in the background but does not
-     * guarantee the app will be preloaded at runtime. Whether an app is preloaded in the
-     * background will be dynamically determined based on usage and other criteria.
+     * Microsoft 365 application host that supports this feature.
      */
     backgroundLoadConfiguration?: BackgroundLoadConfiguration;
     /**
@@ -171,9 +183,15 @@ export interface TeamsManifestVDevPreview {
     agentConnectors?: AgentConnector[];
     /**
      * Agent skill declarations following the Agent Skills open standard (agentskills.io). Each
-     * entry references a SKILL.md folder.
+     * entry references a SKILL.md folder and optionally specifies discoverability settings.
+     * Skills declared here are externally discoverable.
      */
     agentSkills?: AgentSkill[];
+    /**
+     * Provides information about third-party software licenses required by the application.
+     * Each entry describes one license or license group. Maximum of 5 entries.
+     */
+    thirdPartyLicenses?: ThirdPartyLicense[];
 }
 
 export interface Activities {
@@ -182,9 +200,18 @@ export interface Activities {
      */
     activityTypes?: ActivityType[];
     /**
+     * Specify the group of activites that your app can post to a users activity feed
+     */
+    activityGroups?: ActivityGroup[];
+    /**
      * Specify the customized icons that your app can post to a users activity feed
      */
     activityIcons?: ActivityIcon[];
+}
+
+export interface ActivityGroup {
+    id:          string;
+    displayName: string;
 }
 
 export interface ActivityIcon {
@@ -199,9 +226,10 @@ export interface ActivityIcon {
 }
 
 export interface ActivityType {
-    type:         string;
-    description:  string;
-    templateText: string;
+    type:             string;
+    description:      string;
+    templateText:     string;
+    activityGroupId?: string;
     /**
      * An array containing valid icon IDs per activity type.
      */
@@ -236,36 +264,37 @@ export interface AgentConnector {
     description?: string;
     /**
      * Configuration details for connectors that provide tools for agents, either via a plugin,
-     * a remote MCP server or a local MCP server. One and only one of the above properties MUST
-     * be defined within a tool source object.
+     * a remote MCP server, a local MCP server or a connector described by an OpenAPI
+     * description. One and only one of the above properties MUST be defined within a tool
+     * source object.
      */
     toolSource?: ToolSource;
 }
 
 /**
  * Configuration details for connectors that provide tools for agents, either via a plugin,
- * a remote MCP server or a local MCP server. One and only one of the above properties MUST
- * be defined within a tool source object.
+ * a remote MCP server, a local MCP server or a connector described by an OpenAPI
+ * description. One and only one of the above properties MUST be defined within a tool
+ * source object.
  */
 export interface ToolSource {
     /**
-     * Configuration details for connectors that leverage a Plugin Manifest. Both the id and
-     * file properties must be provided.
+     * Configuration details for connectors that leverage a Plugin Manifest. Either both id and
+     * file properties must be provided (for external plugin reference), or only the description
+     * property must be provided (for inline plugin manifest).
      */
-    plugin?: Plugin;
-    /**
-     * Adds support for connectors that leverage a Remote MCP Server as the source of data.
-     */
+    plugin?:          Plugin;
     remoteMcpServer?: RemoteMCPServer;
+    localMcpServer?:  LocalMCPServer;
     /**
-     * Adds support for connectors that leverage a local MCP Server as the source of data.
+     * Adds support for connectors backed by an HTTP API described by an OpenAPI description,
+     * such as a Power Platform connector. The OpenAPI description is not carried in the app
+     * package; it is resolved at runtime from the connector identity supplied in the
+     * authorization referenceId.
      */
-    localMcpServer?: LocalMCPServer;
+    openApiConnector?: OpenAPIConnector;
 }
 
-/**
- * Adds support for connectors that leverage a local MCP Server as the source of data.
- */
 export interface LocalMCPServer {
     /**
      * The unique identifier of the local MCP Server deployed via some secure mechanism to the
@@ -280,7 +309,7 @@ export interface LocalMCPServer {
     /**
      * Authorization configuration for connecting to the local MCP server. The design mirrors
      * that of Plugin Manifests
-     * https://learn.microsoft.com/microsoft-365-copilot/extensibility/api-plugin-manifest-2.3
+     * https://spec-hub.azurewebsites.net/specifications/PluginManifest-2.3.html
      */
     authorization?: LocalMCPServerAuthorization;
 }
@@ -288,19 +317,20 @@ export interface LocalMCPServer {
 /**
  * Authorization configuration for connecting to the local MCP server. The design mirrors
  * that of Plugin Manifests
- * https://learn.microsoft.com/microsoft-365-copilot/extensibility/api-plugin-manifest-2.3
+ * https://spec-hub.azurewebsites.net/specifications/PluginManifest-2.3.html
  */
 export interface LocalMCPServerAuthorization {
     /**
      * The type of authorization required to invoke the MCP server. Supported values are: 'None'
      * (anonymous access), 'OAuthPluginVault' (OAuth flow with referenceId), 'ApiKeyPluginVault'
      * (API Key with referenceId), 'DynamicClientRegistration' (dynamic client registration with
-     * referenceId), 'AzureKeyVault' (Azure Key Vault integration).
+     * referenceId), 'AzureKeyVault' (Azure Key Vault URI with referenceId), 'ConnectionVault'
+     * (Power Platform connector-managed connection referenced by referenceId).
      */
-    type: AuthorizationType;
+    type: PurpleType;
     /**
-     * (maxLength: 128)    A reference identifier used when type is OAuthPluginVault,
-     * ApiKeyPluginVault, DynamicClientRegistration, or AzureKeyVault. The referenceId value is
+     * A reference identifier used when type is OAuthPluginVault, ApiKeyPluginVault,
+     * DynamicClientRegistration, AzureKeyVault, or ConnectionVault. The referenceId value is
      * acquired independently when providing the necessary authorization configuration values.
      * This mechanism exists to prevent the need for storing secret values in the plugin
      * manifest.
@@ -312,9 +342,10 @@ export interface LocalMCPServerAuthorization {
  * The type of authorization required to invoke the MCP server. Supported values are: 'None'
  * (anonymous access), 'OAuthPluginVault' (OAuth flow with referenceId), 'ApiKeyPluginVault'
  * (API Key with referenceId), 'DynamicClientRegistration' (dynamic client registration with
- * referenceId), 'AzureKeyVault' (Azure Key Vault integration).
+ * referenceId), 'AzureKeyVault' (Azure Key Vault URI with referenceId), 'ConnectionVault'
+ * (Power Platform connector-managed connection referenced by referenceId).
  */
-export type AuthorizationType = "None" | "OAuthPluginVault" | "ApiKeyPluginVault" | "DynamicClientRegistration" | "AzureKeyVault";
+export type PurpleType = "None" | "OAuthPluginVault" | "ApiKeyPluginVault" | "DynamicClientRegistration" | "AzureKeyVault" | "ConnectionVault";
 
 /**
  * Configuration for MCP tool descriptions by file reference. When this property is present
@@ -324,12 +355,50 @@ export interface LocalMCPServerMCPToolDescription {
     /**
      * The relative path to the MCP tool description file within the app package.
      */
-    file?: string;
+    file: string;
 }
 
 /**
- * Configuration details for connectors that leverage a Plugin Manifest. Both the id and
- * file properties must be provided.
+ * Adds support for connectors backed by an HTTP API described by an OpenAPI description,
+ * such as a Power Platform connector. The OpenAPI description is not carried in the app
+ * package; it is resolved at runtime from the connector identity supplied in the
+ * authorization referenceId.
+ */
+export interface OpenAPIConnector {
+    /**
+     * Authorization configuration for connecting to the connector backend.
+     */
+    authorization: OpenAPIConnectorAuthorization;
+}
+
+/**
+ * Authorization configuration for connecting to the connector backend.
+ */
+export interface OpenAPIConnectorAuthorization {
+    /**
+     * The type of authorization required to invoke the connector. Supported value:
+     * 'ConnectionVault' (connector-managed connection referenced by referenceId).
+     */
+    type: "ConnectionVault";
+    /**
+     * A reference identifier. For a Power Platform connector this is the connector logical
+     * name, which identifies the connector whose OpenAPI description is resolved at runtime.
+     * The referenceId value is acquired independently when providing the necessary
+     * authorization configuration values. This mechanism exists to prevent the need for storing
+     * secret values in the manifest.
+     */
+    referenceId: string;
+}
+
+/**
+ * The type of authorization required to invoke the connector. Supported value:
+ * 'ConnectionVault' (connector-managed connection referenced by referenceId).
+ */
+
+/**
+ * Configuration details for connectors that leverage a Plugin Manifest. Either both id and
+ * file properties must be provided (for external plugin reference), or only the description
+ * property must be provided (for inline plugin manifest).
  */
 export interface Plugin {
     /**
@@ -342,9 +411,6 @@ export interface Plugin {
     file: string;
 }
 
-/**
- * Adds support for connectors that leverage a Remote MCP Server as the source of data.
- */
 export interface RemoteMCPServer {
     /**
      * The URL of the remote MCP Server.
@@ -358,7 +424,7 @@ export interface RemoteMCPServer {
     /**
      * Authorization configuration for connecting to the remote MCP server. The design mirrors
      * that of Plugin Manifests
-     * https://learn.microsoft.com/microsoft-365-copilot/extensibility/api-plugin-manifest-2.3
+     * https://spec-hub.azurewebsites.net/specifications/PluginManifest-2.3.html
      */
     authorization?: RemoteMCPServerAuthorization;
 }
@@ -366,21 +432,23 @@ export interface RemoteMCPServer {
 /**
  * Authorization configuration for connecting to the remote MCP server. The design mirrors
  * that of Plugin Manifests
- * https://learn.microsoft.com/microsoft-365-copilot/extensibility/api-plugin-manifest-2.3
+ * https://spec-hub.azurewebsites.net/specifications/PluginManifest-2.3.html
  */
 export interface RemoteMCPServerAuthorization {
     /**
      * The type of authorization required to invoke the MCP server. Supported values are: 'None'
      * (anonymous access), 'OAuthPluginVault' (OAuth flow with referenceId), 'ApiKeyPluginVault'
      * (API Key with referenceId), 'DynamicClientRegistration' (dynamic client registration with
-     * referenceId), 'AzureKeyVault' (Azure Key Vault integration).
+     * referenceId), 'AzureKeyVault' (Azure Key Vault URI with referenceId), 'ConnectionVault'
+     * (Power Platform connector-managed connection referenced by referenceId).
      */
-    type: AuthorizationType;
+    type: PurpleType;
     /**
      * A reference identifier used when type is OAuthPluginVault, ApiKeyPluginVault,
-     * DynamicClientRegistration, or AzureKeyVault. The referenceId value is acquired
-     * independently when providing the necessary authorization configuration values. This
-     * mechanism exists to prevent the need for storing secret values in the plugin manifest.
+     * DynamicClientRegistration, AzureKeyVault, or ConnectionVault. The referenceId value is
+     * acquired independently when providing the necessary authorization configuration values.
+     * This mechanism exists to prevent the need for storing secret values in the plugin
+     * manifest.
      */
     referenceId?: string;
 }
@@ -393,18 +461,27 @@ export interface RemoteMCPServerMCPToolDescription {
     /**
      * The relative path to the MCP tool description file within the app package.
      */
-    file?: string;
+    file: string;
 }
 
 /**
- * An agent skill declaration. References a folder containing a SKILL.md file.
+ * An agent skill declaration. References a folder containing a SKILL.md file, with optional
+ * discoverability controls.
  */
 export interface AgentSkill {
     /**
      * Path to the folder within the app package that contains the SKILL.md file.
      */
     folder: string;
+    /**
+     * Specifies which scenarios this skill is discoverable in. If omitted, discoverable in all
+     * scenarios. Values reuse the existing manifest vocabulary for consistency with bots, tabs,
+     * and other elements.
+     */
+    scopes?: AgentSkillScope[];
 }
+
+export type AgentSkillScope = "team" | "groupChat";
 
 export interface AgenticUserTemplateRef {
     /**
@@ -423,58 +500,68 @@ export interface AgenticUserTemplateRef {
  */
 export interface TeamsManifestVDevPreviewAuthorization {
     /**
-     * List of permissions that the app needs to function.
+     * Specify Permissions which App lists for accessing Resource.
      */
     permissions?: Permissions;
 }
 
 /**
- * List of permissions that the app needs to function.
+ * Specify Permissions which App lists for accessing Resource.
  */
 export interface Permissions {
     /**
-     * Permissions that guard data access on a resource instance level.
+     * App's organization wide classic permissions provided by user.
+     */
+    orgWide?: OrgWide[];
+    /**
+     * App's resource specific permissions provided by user.
      */
     resourceSpecific?: ResourceSpecific[];
 }
 
-export interface ResourceSpecific {
+export interface OrgWide {
     /**
-     * The name of the resource-specific permission.
+     * The Permission name of app's permission node.
      */
     name: string;
     /**
-     * The type of the resource-specific permission.
+     * The Permission type of app's permission node.
      */
-    type: ResourceSpecificType;
+    type: OrgWideType;
 }
 
 /**
- * The type of the resource-specific permission.
+ * The Permission type of app's permission node.
  */
-export type ResourceSpecificType = "Application" | "Delegated";
+export type OrgWideType = "Application" | "Delegated";
+
+export interface ResourceSpecific {
+    /**
+     * The Permission name of app's permission node.
+     */
+    name: string;
+    /**
+     * The Permission type of app's permission node.
+     */
+    type: OrgWideType;
+}
 
 /**
- * Optional property containing background loading configuration. By opting into this
+ * Optional property containing background loading configuration. By opting in to this
  * performance enhancement, your app is eligible to be loaded in the background in any
- * Microsoft 365 application host that supports this feature. Note that setting this
- * property gives the host client permission to load the app in the background but does not
- * guarantee the app will be preloaded at runtime. Whether an app is preloaded in the
- * background will be dynamically determined based on usage and other criteria.
+ * Microsoft 365 application host that supports this feature.
  */
 export interface BackgroundLoadConfiguration {
     /**
      * Optional property within backgroundLoadConfiguration containing tab settings for
-     * background loading. Setting tabConfiguration indicates that the app supports background
-     * loading of tabs.
+     * background loading.
      */
     tabConfiguration?: TabConfiguration;
 }
 
 /**
  * Optional property within backgroundLoadConfiguration containing tab settings for
- * background loading. Setting tabConfiguration indicates that the app supports background
- * loading of tabs.
+ * background loading.
  */
 export interface TabConfiguration {
     /**
@@ -491,6 +578,12 @@ export interface Bot {
      */
     botId:          string;
     configuration?: Configuration;
+    /**
+     * Optional Boolean property that enables users to delete messages sent by bot when set to
+     * true. The default value is false, ensuring bot messages cannot be deleted by users unless
+     * explicitly opted in.
+     */
+    allowBotMessageDeleteByUser?: boolean;
     /**
      * This value describes whether or not the bot utilizes a user hint to add the bot to a
      * specific channel.
@@ -518,7 +611,7 @@ export interface Bot {
      */
     supportsVideo?: boolean;
     /**
-     * A property set by developers to opt-in to sessions.
+     * A property indicating whether users can see or organize the bot chat into sessions.
      */
     supportsSessions?: boolean;
     /**
@@ -540,14 +633,13 @@ export interface Bot {
      */
     commandLists?: CommandList[];
     /**
+     * Information about the registration of the bot, including partner source.
+     */
+    registrationInfo?: RegistrationInfo;
+    /**
      * The set of requirements for the bot.
      */
     requirementSet?: ElementRequirementSet;
-    /**
-     * System‑generated metadata. This information is maintained by Microsoft services and must
-     * not be modified manually.
-     */
-    registrationInfo?: RegistrationInfo;
 }
 
 export interface CommandList {
@@ -557,7 +649,9 @@ export interface CommandList {
      */
     triggers?: CommandListTrigger[];
     /**
-     * Specifies the scopes for which the command list is valid
+     * Specifies whether the bot offers an experience in the context of a channel in a team, in
+     * a group chat (groupChat), an experience scoped to an individual user alone (personal) OR
+     * within Copilot surfaces. These options are non-exclusive.
      */
     scopes:   CommandListScope[];
     commands: CommandListCommand[];
@@ -575,7 +669,7 @@ export interface CommandListCommand {
     /**
      * Type of the command. Default is basic
      */
-    type?: PurpleType;
+    type?: TentacledType;
     /**
      * The prompt text to be used by Teams when user initiates the command from one of the entry
      * points
@@ -586,96 +680,68 @@ export interface CommandListCommand {
 /**
  * Type of the command. Default is basic
  */
-export type PurpleType = "basic" | "prompt";
+export type TentacledType = "basic" | "prompt";
 
 export type CommandListScope = "team" | "personal" | "groupChat" | "copilot";
 
 export type CommandListTrigger = "mention" | "slash";
 
 export interface Configuration {
-    team?:      ConfigurationTeam;
-    groupChat?: ConfigurationGroupChat;
+    team?:      GroupChatClass;
+    groupChat?: GroupChatClass;
 }
 
-export interface ConfigurationGroupChat {
-    /**
-     * A boolean value that indicates if it should fetch bot config task module dynamically.
-     */
+export interface GroupChatClass {
     fetchTask?: boolean;
-    /**
-     * Task module to be launched when fetch task set to false.
-     */
-    taskInfo?: TaskInfo;
+    taskInfo?:  TaskInfo;
 }
 
-/**
- * Task module to be launched when fetch task set to false.
- */
 export interface TaskInfo {
     /**
-     * Initial dialog title.
+     * Initial dialog title
      */
     title?: string;
     /**
      * Dialog width - either a number in pixels or default layout such as 'large', 'medium', or
-     * 'small'.
+     * 'small'
      */
     width?: string;
     /**
      * Dialog height - either a number in pixels or default layout such as 'large', 'medium', or
-     * 'small'.
+     * 'small'
      */
     height?: string;
     /**
-     * Initial webview URL.
+     * Initial webview URL
      */
     url?: string;
 }
 
-export interface ConfigurationTeam {
-    /**
-     * A boolean value that indicates if it should fetch bot config task module dynamically.
-     */
-    fetchTask?: boolean;
-    /**
-     * Task module to be launched when fetch task set to false.
-     */
-    taskInfo?: TaskInfo;
-}
-
 /**
- * System‑generated metadata. This information is maintained by Microsoft services and must
- * not be modified manually.
+ * Information about the registration of the bot, including partner source.
  */
 export interface RegistrationInfo {
     /**
-     * The partner source through which the bot is registered. System‑generated metadata. This
-     * information is maintained by Microsoft services and must not be modified manually.
+     * The partner source through which the bot is registered.
      */
     source: Source;
     /**
      * A Power Platform environment that serves as a container for building apps under a
      * Microsoft 365 tenant and can only be accessed by users within that tenant.
-     * System‑generated metadata. This information is maintained by Microsoft services and must
-     * not be modified manually.
      */
     environment?: string;
     /**
-     * The Copilot Studio copilot schema name. System‑generated metadata. This information is
-     * maintained by Microsoft services and must not be modified manually.
+     * The Copilot Studio copilot schema name.
      */
     schemaName?: string;
     /**
-     * The core services cluster category for Copilot Studio copilots. System‑generated
-     * metadata. This information is maintained by Microsoft services and must not be modified
-     * manually.
+     * The core services cluster category for Copilot Studio copilots.
      */
     clusterCategory?: string;
 }
 
 /**
- * The partner source through which the bot is registered. System‑generated metadata. This
- * information is maintained by Microsoft services and must not be modified manually.
+ * The partner source through which the bot is registered.
  */
 export type Source = "standard" | "microsoftCopilotStudio" | "onedriveSharepoint";
 
@@ -750,12 +816,12 @@ export interface ComposeExtension {
  */
 export interface ComposeExtensionAuthorization {
     /**
-     * Enum of possible authorization types.
+     * Enum of possible authentication types.
      */
     authType?: AuthType;
     /**
-     * Object capturing details needed to do microsoftEntra auth flow. It will be only present
-     * when auth type is microsoftEntra.
+     * Object capturing details needed to do single aad auth flow. It will be only present when
+     * auth type is entraId.
      */
     microsoftEntraConfiguration?: MicrosoftEntraConfiguration;
     /**
@@ -782,13 +848,13 @@ export interface APISecretServiceAuthConfiguration {
 }
 
 /**
- * Enum of possible authorization types.
+ * Enum of possible authentication types.
  */
 export type AuthType = "none" | "apiSecretServiceAuth" | "microsoftEntra" | "oAuth2.0";
 
 /**
- * Object capturing details needed to do microsoftEntra auth flow. It will be only present
- * when auth type is microsoftEntra.
+ * Object capturing details needed to do single aad auth flow. It will be only present when
+ * auth type is entraId.
  */
 export interface MicrosoftEntraConfiguration {
     /**
@@ -817,7 +883,7 @@ export interface ComposeExtensionCommand {
     /**
      * Type of the command
      */
-    type?: FluffyType;
+    type?: StickyType;
     /**
      * Adding "slash" to the array makes the command appear in the / slash commands list in
      * group chat or channel. Note: "mention" is not a valid value for composeExtension command
@@ -826,9 +892,7 @@ export interface ComposeExtensionCommand {
     triggers?:      "slash"[];
     samplePrompts?: SamplePrompt[];
     /**
-     * A relative file path for api response rendering template file. The schema of the file can
-     * be referred to in this
-     * link:'https://developer.microsoft.com/json-schemas/teams/vDevPreview/MicrosoftTeams.ResponseRenderingTemplate.schema.json'.
+     * A relative file path for api response rendering template file.
      */
     apiResponseRenderingTemplateFile?: string;
     /**
@@ -853,13 +917,9 @@ export interface ComposeExtensionCommand {
      */
     fetchTask?:  boolean;
     parameters?: Parameter[];
+    taskInfo?:   TaskInfo;
     /**
-     * Task module to be launched when fetch task set to false.
-     */
-    taskInfo?: TaskInfo;
-    /**
-     * semantic description of the command. This is typically meant for consumption by the large
-     * language model.
+     * Semantic description for model.
      */
     semanticDescription?: string;
 }
@@ -876,10 +936,6 @@ export interface Parameter {
      */
     inputType?: InputType;
     /**
-     * Indicates whether this parameter is required or not. By default, it is not.
-     */
-    isRequired?: boolean;
-    /**
      * Title of the parameter.
      */
     title: string;
@@ -887,6 +943,10 @@ export interface Parameter {
      * Description of the parameter.
      */
     description?: string;
+    /**
+     * The value indicates if this parameter is a required field.
+     */
+    isRequired?: boolean;
     /**
      * Initial value for the parameter
      */
@@ -896,8 +956,7 @@ export interface Parameter {
      */
     choices?: Choice[];
     /**
-     * semantic description of the parameter. This is typically meant for consumption by the
-     * large language model.
+     * Semantic description for model.
      */
     semanticDescription?: string;
 }
@@ -928,7 +987,7 @@ export interface SamplePrompt {
 /**
  * Type of the command
  */
-export type FluffyType = "query" | "action";
+export type StickyType = "query" | "action";
 
 /**
  * Type of the compose extension.
@@ -940,31 +999,29 @@ export interface MessageHandler {
      * Type of the message handler
      */
     type:  "link";
-    value: ValueObject;
+    value: MessageHandlerValue;
 }
 
 /**
  * Type of the message handler
  */
 
-export interface ValueObject {
+export interface MessageHandlerValue {
     /**
      * A list of domains that the link message handler can register for, and when they are
      * matched the app will be invoked
      */
     domains?: string[];
     /**
-     * A boolean value that indicates whether the app's link message handler supports anonymous
-     * invoke flow. [Deprecated]. This property has been superceded by
-     * 'supportsAnonymizedPayloads'.
+     * A boolean that indicates whether the app's link message handler supports anonymous invoke
+     * flow.
      */
-    supportsAnonymousAccess?: boolean;
+    supportsAnonymousAccess?: boolean | null;
     /**
-     * A boolean value that indicates whether the app's link message handler supports anonymous
-     * invoke flow.
+     * A boolean that indicates whether the app's link message handler supports anonymous invoke
+     * flow.
      */
-    supportsAnonymizedPayloads?: boolean;
-    [property: string]: any;
+    supportsAnonymizedPayloads?: boolean | null;
 }
 
 export type ConfigurableProperty = "name" | "shortDescription" | "longDescription" | "smallImageUrl" | "largeImageUrl" | "accentColor" | "developerUrl" | "privacyUrl" | "termsOfUseUrl";
@@ -989,7 +1046,7 @@ export interface ConfigurableTab {
      * options are non-exclusive. Currently, configurable tabs are only supported in the teams
      * and groupchats scopes.
      */
-    scopes: ConfigurableTabScope[];
+    scopes: AgentSkillScope[];
     /**
      * The set of meetingSurfaceItem scopes that a tab belong to
      */
@@ -1012,11 +1069,9 @@ export interface ConfigurableTab {
     supportedSharePointHosts?: SupportedSharePointHost[];
 }
 
-export type ConfigurableTabContext = "personalTab" | "channelTab" | "privateChatTab" | "meetingChatTab" | "meetingDetailsTab" | "meetingSidePanel" | "meetingStage" | "callingSidePanel";
+export type ConfigurableTabContext = "personalTab" | "channelTab" | "privateChatTab" | "meetingChatTab" | "meetingDetailsTab" | "meetingSidePanel" | "meetingStage";
 
 export type MeetingSurface = "sidePanel" | "stage";
-
-export type ConfigurableTabScope = "team" | "groupChat";
 
 export type SupportedPlatform = "desktop" | "mobile" | "teamsMeetingDevices";
 
@@ -1042,6 +1097,11 @@ export interface Connector {
 
 export interface CopilotAgents {
     /**
+     * An array of plugin elements references. Currently, only one plugin per application is
+     * supported.
+     */
+    plugins?: PluginRef[];
+    /**
      * An array of declarative agent elements references. Currently, only one declarative agent
      * per application is supported.
      */
@@ -1066,9 +1126,11 @@ export interface CustomEngineAgent {
     type:        "bot";
     disclaimer?: Disclaimer;
     /**
-     * Possible values: 'agenticUserOnly', 'agentOnly'. 'agenticUserOnly' means the
-     * customEngineAgent must be hired and cannot be installed as a regular agent. 'agentOnly'
-     * means it supports being installed as a regular agent only (default).
+     * Possible values: 'agenticUserOnly', 'agentOnly', or 'agentOrAgenticUser'.
+     * 'agenticUserOnly' means the customEngineAgent must be hired and cannot be installed as a
+     * regular agent. 'agentOrAgenticUser' means the customEngineAgent supports both being
+     * installed as a regular agent and being hired. 'agentOnly' means it supports being
+     * installed as a regular agent only (default).
      */
     functionsAs?: FunctionsAs;
     /**
@@ -1087,14 +1149,18 @@ export interface Disclaimer {
 }
 
 /**
- * Possible values: 'agenticUserOnly', 'agentOnly'. 'agenticUserOnly' means the
- * customEngineAgent must be hired and cannot be installed as a regular agent. 'agentOnly'
- * means it supports being installed as a regular agent only (default).
+ * Possible values: 'agenticUserOnly', 'agentOnly', or 'agentOrAgenticUser'.
+ * 'agenticUserOnly' means the customEngineAgent must be hired and cannot be installed as a
+ * regular agent. 'agentOrAgenticUser' means the customEngineAgent supports both being
+ * installed as a regular agent and being hired. 'agentOnly' means it supports being
+ * installed as a regular agent only (default).
  */
-export type FunctionsAs = "agentOnly" | "agenticUserOnly";
+export type FunctionsAs = "agentOnly" | "agenticUserOnly" | "agentOrAgenticUser";
 
 /**
  * The type of the Custom Engine Agent. Currently only type bot is supported.
+ *
+ * The type of the Custom Engine Copilot. Currently only type bot is supported.
  *
  * The content of the dashboard card is sourced from a bot.
  */
@@ -1110,6 +1176,66 @@ export interface DeclarativeAgentRef {
     id: string;
     /**
      * Relative file path to this declarative agent element file in the application package.
+     */
+    file: string;
+}
+
+/**
+ * A reference to a plugin element. The element's definition is in a separate file.
+ */
+export interface PluginRef {
+    /**
+     * A unique identifier for this plugin element.
+     */
+    id: string;
+    /**
+     * Relative file path to this plugin element file in the application package.
+     */
+    file: string;
+}
+
+export interface CopilotExtensions {
+    /**
+     * An array of plugin elements references. Currently, only one plugin per application is
+     * supported.
+     */
+    plugins?: PluginRef[];
+    /**
+     * An array of declarative copilot elements references. Currently, only one declarative
+     * copilot per application is supported.
+     */
+    declarativeCopilots?: DeclarativeCopilotRef[];
+    /**
+     * An array of Custom Engine Copilots. Currently only one Custom Engine Copilot per
+     * application is supported.
+     */
+    customEngineCopilots?: CustomEngineCopilot[];
+}
+
+export interface CustomEngineCopilot {
+    /**
+     * The id of the Custom Engine Copilot. If it is of type bot, the id must match the id
+     * specified in a bot in the bots node and the referenced bot must have personal scope. The
+     * app short name and short description must also be defined.
+     */
+    id: string;
+    /**
+     * The type of the Custom Engine Copilot. Currently only type bot is supported.
+     */
+    type: "bot";
+}
+
+/**
+ * A reference to a declarative copilot element. The element's definition is in a separate
+ * file.
+ */
+export interface DeclarativeCopilotRef {
+    /**
+     * A unique identifier for this declarative copilot element.
+     */
+    id: string;
+    /**
+     * Relative file path to this declarative copilot element file in the application package.
      */
     file: string;
 }
@@ -1291,7 +1417,6 @@ export interface ContactInfo {
      * Support configuration.
      */
     defaultSupport: DefaultSupport;
-    [property: string]: any;
 }
 
 /**
@@ -1306,7 +1431,6 @@ export interface DefaultSupport {
      * Email address for email support.
      */
     emailsForEmailSupport: string[];
-    [property: string]: any;
 }
 
 export type DevicePermission = "geolocation" | "media" | "notifications" | "midi" | "openExternal";
@@ -1380,10 +1504,10 @@ export interface ElementExtension {
 }
 
 export interface ExtensionAlternateVersionsArray {
-    requirements?:  RequirementsExtensionElement;
-    prefer?:        Prefer;
-    hide?:          Hide;
-    alternateIcons: AlternateIcons;
+    requirements?:   RequirementsExtensionElement;
+    prefer?:         Prefer;
+    hide?:           Hide;
+    alternateIcons?: AlternateIcons;
 }
 
 export interface AlternateIcons {
@@ -1440,7 +1564,7 @@ export interface WindowsExtensions {
      */
     effect: Effect;
     /**
-     * Specifies the equivalent COM or VSTO add-ins
+     * Specifies the equivalent COM add-ins
      */
     comAddin?: WindowsExtensionsCOMAddin;
     /**
@@ -1464,12 +1588,11 @@ export interface AutomationAddin {
 }
 
 /**
- * Specifies the equivalent COM or VSTO add-ins
+ * Specifies the equivalent COM add-ins
  */
 export interface WindowsExtensionsCOMAddin {
     /**
-     * Specifies the program Ids of the equivalent COM add-ins and the names of equivalent VSTO
-     * add-ins
+     * Specifies the program Ids of the equivalent COM add-ins
      */
     progIds: string[];
 }
@@ -1504,6 +1627,9 @@ export interface PreferCOMAddin {
 }
 
 export interface ExtensionXllCustomFunctions {
+    /**
+     * File name for the XLL extension. Maximum length is 254 characters.
+     */
     fileName?: string;
     [property: string]: any;
 }
@@ -1518,7 +1644,8 @@ export interface ExtensionXllCustomFunctions {
 export interface RequirementsExtensionElement {
     capabilities?: Capability[];
     /**
-     * Identifies the scopes in which the add-in can run. For example, mail means Outlook.
+     * Identifies the scopes in which the add-in can run. Supported values: 'mail', 'workbook',
+     * 'document', 'presentation'.
      */
     scopes?: RequirementsScope[];
     /**
@@ -1585,7 +1712,8 @@ export type ExtensionContext = "mailRead" | "mailCompose" | "meetingDetailsOrgan
 export interface AppDeeplinkRequirements {
     capabilities?: Capability[];
     /**
-     * Identifies the scopes in which the add-in can run. For example, mail means Outlook.
+     * Identifies the scopes in which the add-in can run. Supported values: 'mail', 'workbook',
+     * 'document', 'presentation'.
      */
     scopes?: RequirementsScope[];
     /**
@@ -1598,7 +1726,7 @@ export interface ExtensionAutoRunEventsArray {
     requirements?: RequirementsExtensionElement;
     /**
      * Specifies the type of event. For supported types, please see:
-     * https://learn.microsoft.com/en-us/office/dev/add-ins/outlook/autolaunch?tabs=xmlmanifest#supported-events.
+     * https://review.learn.microsoft.com/en-us/office/dev/add-ins/outlook/autolaunch?tabs=xmlmanifest#supported-events.
      */
     events: Event[];
 }
@@ -1619,9 +1747,22 @@ export interface Event {
  * Configures how Outlook responds to the event.
  */
 export interface Options {
-    sendMode: SendMode;
+    /**
+     * Specifies the actions to take during a mail send event. The property may be omitted, but
+     * a literal null is not a valid value.
+     */
+    sendMode?: SendMode;
+    /**
+     * Specifies the internet header name used to identify a message during a decryption event.
+     * Follows email header name constraints.
+     */
+    headerName?: string;
 }
 
+/**
+ * Specifies the actions to take during a mail send event. The property may be omitted, but
+ * a literal null is not a valid value.
+ */
 export type SendMode = "promptUser" | "softBlock" | "block";
 
 /**
@@ -1629,11 +1770,21 @@ export type SendMode = "promptUser" | "softBlock" | "block";
  * PowerPoint documents.
  */
 export interface ExtensionContentRuntimeArray {
+    /**
+     * Specifies the Office requirement sets for content add-in runtime. If the user's Office
+     * version doesn't support the specified requirements, the component will not be available
+     * in that client.
+     */
     requirements?: ContentRuntimeRequirements;
     /**
      * A unique identifier for this runtime within the app. This is developer specified.
      */
-    id:   string;
+    id: string;
+    /**
+     * Specifies the location of code for this runtime. Depending on the runtime.type, add-ins
+     * use either a JavaScript file or an HTML page with an embedded <script> tag that specifies
+     * the URL of a JavaScript file.
+     */
     code: ExtensionRuntimeCode;
     /**
      * The desired height in pixels for the initial content placeholder. This value MUST be
@@ -1652,6 +1803,11 @@ export interface ExtensionContentRuntimeArray {
     disableSnapshot?: boolean;
 }
 
+/**
+ * Specifies the location of code for this runtime. Depending on the runtime.type, add-ins
+ * use either a JavaScript file or an HTML page with an embedded <script> tag that specifies
+ * the URL of a JavaScript file.
+ */
 export interface ExtensionRuntimeCode {
     /**
      * URL of the .html page to be loaded in browser-based runtimes.
@@ -1664,6 +1820,10 @@ export interface ExtensionRuntimeCode {
 }
 
 /**
+ * Specifies the Office requirement sets for content add-in runtime. If the user's Office
+ * version doesn't support the specified requirements, the component will not be available
+ * in that client.
+ *
  * Specifies limitations on which clients the add-in can be installed on, including
  * limitations on the Office host application, the form factors, and the requirement sets
  * that the client must support.
@@ -1673,7 +1833,8 @@ export interface ExtensionRuntimeCode {
 export interface ContentRuntimeRequirements {
     capabilities?: Capability[];
     /**
-     * Identifies the scopes in which the add-in can run. For example, mail means Outlook.
+     * Identifies the scopes in which the add-in can run. Supported values: 'mail', 'workbook',
+     * 'document', 'presentation'.
      */
     scopes?: RequirementsScope[];
     /**
@@ -1710,6 +1871,9 @@ export interface ExtensionMenuItem {
     controls:   ExtensionCommonCustomGroupControlsItem[];
 }
 
+/**
+ * The control type should be menu. Minimum size is 1.
+ */
 export interface ExtensionCommonCustomGroupControlsItem {
     /**
      * A unique identifier for this control within the app. Maximum length is 64 characters.
@@ -1718,7 +1882,7 @@ export interface ExtensionCommonCustomGroupControlsItem {
     /**
      * Defines the type of control whether button or menu.
      */
-    type: TentacledType;
+    type: IndigoType;
     /**
      * Id of an existing office control. Maximum length is 64 characters.
      */
@@ -1748,13 +1912,13 @@ export interface ExtensionCommonCustomGroupControlsItem {
      */
     enabled?: boolean;
     /**
-     * Controls whether the control is visible.
-     */
-    visible?: boolean;
-    /**
      * Configures the items for a menu control.
      */
     items?: ExtensionCommonCustomControlMenuItem[];
+    /**
+     * Controls whether the control is visible.
+     */
+    visible?: boolean;
     /**
      * KeyTip shortcut for keyboard navigation (1-3 uppercase alphanumeric characters)
      */
@@ -1809,7 +1973,7 @@ export interface ExtensionCommonSuperToolTip {
 /**
  * Defines the type of control whether button or menu.
  */
-export type TentacledType = "button" | "menu";
+export type IndigoType = "button" | "menu";
 
 /**
  * Use 'text' or 'cell' here for Office context menu. Use text if the context menu should
@@ -1829,7 +1993,8 @@ export type EntryPoint = "text" | "cell";
 export interface ContextMenuRequirements {
     capabilities?: Capability[];
     /**
-     * Identifies the scopes in which the add-in can run. For example, mail means Outlook.
+     * Identifies the scopes in which the add-in can run. Supported values: 'mail', 'workbook',
+     * 'document', 'presentation'.
      */
     scopes?: RequirementsScope[];
     /**
@@ -1840,6 +2005,7 @@ export interface ContextMenuRequirements {
 
 /**
  * Provides information used by the callout that appears when the add-in is installed.
+ * Minimum size is 1. Maximum size is 3.
  */
 export interface ExtensionGetStartedMessageArray {
     requirements?: GetStartedMessageRequirements;
@@ -1867,7 +2033,8 @@ export interface ExtensionGetStartedMessageArray {
 export interface GetStartedMessageRequirements {
     capabilities?: Capability[];
     /**
-     * Identifies the scopes in which the add-in can run. For example, mail means Outlook.
+     * Identifies the scopes in which the add-in can run. Supported values: 'mail', 'workbook',
+     * 'document', 'presentation'.
      */
     scopes?: RequirementsScope[];
     /**
@@ -1884,7 +2051,7 @@ export interface ExtensionKeyboardShortcut {
     /**
      * Array of mappings from actions to the key combinations that invoke the actions.
      */
-    shortcuts: ExtensionShortcut[];
+    shortcuts?: ExtensionShortcut[];
     /**
      * Specifies the full URLs for shortcuts mapping and localization resource files that don't
      * directly support the unified manifest.
@@ -1996,8 +2163,9 @@ export interface ExtensionRibbonsSpamPreProcessingDialog {
      */
     spamNeverShowAgainOption?: boolean;
     /**
-     * Specifies up to five options that a user can select from the preprocessing dialog to
-     * provide a reason for reporting a message.
+     * Specifies whether the bot offers an experience in the context of a channel in a team, in
+     * a 1:1 or group chat, or in an experience scoped to an individual user alone. These
+     * options are non-exclusive.
      */
     spamReportingOptions?: SpamReportingOptions;
     /**
@@ -2029,8 +2197,9 @@ export interface SpamMoreInfo {
 }
 
 /**
- * Specifies up to five options that a user can select from the preprocessing dialog to
- * provide a reason for reporting a message.
+ * Specifies whether the bot offers an experience in the context of a channel in a team, in
+ * a 1:1 or group chat, or in an experience scoped to an individual user alone. These
+ * options are non-exclusive.
  */
 export interface SpamReportingOptions {
     /**
@@ -2241,6 +2410,22 @@ export interface ExtensionRuntimesActionsItem {
      * message selected.
      */
     supportsNoItemContext?: boolean;
+    /**
+     * Configuration for the task pane opened by this action.
+     */
+    taskpane?: Taskpane;
+}
+
+/**
+ * Configuration for the task pane opened by this action.
+ */
+export interface Taskpane {
+    /**
+     * Specifies the preferred initial width of the task pane in CSS pixels. This value is
+     * treated as a hint and may be adjusted or ignored by the host. User-resized widths always
+     * take precedence. Must be a positive number.
+     */
+    preferredWidth?: number;
 }
 
 /**
@@ -2537,6 +2722,32 @@ export interface IntuneInfo {
     supportedMobileAppManagementVersion?: string;
 }
 
+export interface LocalAgentRef {
+    /**
+     * Unique identifier for this local agent reference. Must match the id declared in the
+     * referenced localagent.json manifest. Must contain only alphanumeric characters, dots,
+     * underscores, and hyphens.
+     */
+    id: string;
+    /**
+     * Relative file path to this local agent's localagent.json file in the application package.
+     */
+    file: string;
+}
+
+export interface LocalToolRef {
+    /**
+     * Unique identifier for this local tool reference. Must match the id declared in the
+     * referenced localtool.json manifest. Must contain only alphanumeric characters, dots,
+     * underscores, and hyphens.
+     */
+    id: string;
+    /**
+     * Relative file path to this local tool's localtool.json file in the application package.
+     */
+    file: string;
+}
+
 export interface LocalizationInfo {
     /**
      * The language tag of the strings in this top level manifest file.
@@ -2563,6 +2774,7 @@ export interface AdditionalLanguage {
 /**
  * The version of the schema this manifest is using.
  */
+export type ManifestVersion = "devPreview" | "m365DevPreview" | "m365devpreview";
 
 /**
  * Specify meeting extension definition.
@@ -2581,7 +2793,7 @@ export interface MeetingExtensionDefinition {
      */
     videoFilters?: VideoFilter[];
     /**
-     * A URL for configuring the video filters.
+     * The url which indicates video filters' video app configuration.
      */
     videoFiltersConfigurationUrl?: string;
     /**
@@ -2590,9 +2802,13 @@ export interface MeetingExtensionDefinition {
      */
     supportsStreaming?: boolean;
     /**
-     * A boolean value indicating whether this app supports access by anonymous guest users.
+     * A boolean value indicating whether this app allows management by anonymous users.
      */
-    supportsAnonymousGuestUsers?: boolean;
+    isAnonymousAccessAllowed?: boolean | null;
+    /**
+     * A boolean value indicating whether this app allows management by anonymous users.
+     */
+    supportsAnonymousGuestUsers?: boolean | null;
 }
 
 export interface Scene {
@@ -2628,7 +2844,7 @@ export interface VideoFilter {
      */
     id: string;
     /**
-     * Video filter's name.
+     * A/V filter's name.
      */
     name: string;
     /**
@@ -2645,7 +2861,7 @@ export interface NameClass {
     /**
      * The full name of the app, used if the full app name exceeds 30 characters.
      */
-    full: string;
+    full?: string;
     /**
      * An abbreviated name for the app.
      */
@@ -2662,10 +2878,10 @@ export interface ScopeConstraints {
     /**
      * A list of chat thread ids to which your app is restricted to
      */
-    groupChats?: GroupChatElement[];
+    groupChats?: GroupChat[];
 }
 
-export interface GroupChatElement {
+export interface GroupChat {
     /**
      * Chat's thread Id
      */
@@ -2693,11 +2909,6 @@ export interface StaticTab {
      */
     contentUrl?: string;
     /**
-     * The Microsoft App ID specified for the bot in the Bot Framework portal
-     * (https://dev.botframework.com/bots)
-     */
-    contentBotId?: string;
-    /**
      * The url to point at if a user opts to view in a browser.
      */
     websiteUrl?: string;
@@ -2707,10 +2918,14 @@ export interface StaticTab {
     searchUrl?: string;
     /**
      * Specifies whether the tab offers an experience in the context of a channel in a team, or
-     * an experience scoped to an individual user alone or a group chat. These options are
+     * an experience scoped to an individual user alone or group chat. These options are
      * non-exclusive. Currently static tabs are only supported in the 'personal' scope.
      */
     scopes: StaticTabScope[];
+    /**
+     * The set of meetingSurfaceItem scopes that a tab belongs to
+     */
+    meetingSurfaces?: MeetingSurface[];
     /**
      * The set of contextItem scopes that a tab belong to
      */
@@ -2746,6 +2961,26 @@ export type SupportedChannelType = "sharedChannels" | "privateChannels";
  * categorized by tiers.
  */
 export type SupportsChannelFeatures = "tier1" | "tier2";
+
+export interface ThirdPartyLicense {
+    /**
+     * The name or summary of the third-party license (for example, "MIT License" or "Apache
+     * 2.0"). Maximum length is 64 characters.
+     */
+    licenseName: string;
+    /**
+     * The HTTPS URL that directs users to third-party license information and, if applicable,
+     * purchase options for commercial components. Must use HTTPS. Maximum length is 2048
+     * characters.
+     */
+    licenseUrl: string;
+    /**
+     * A brief description of the third-party licenses required, including which components are
+     * open-source (with attribution requirements) and which require commercial purchase or
+     * licensing fees. Maximum length is 1024 characters.
+     */
+    licenseDescription: string;
+}
 
 /**
  * Specify your AAD App ID and Graph information to help users seamlessly sign into your AAD
@@ -2785,6 +3020,13 @@ export interface NestedAppAuthInfo {
      * https://learn.microsoft.com/en-us/entra/identity-platform/claims-challenge?tabs=dotnet#how-to-communicate-client-capabilities-to-microsoft-entra-id
      */
     claims?: string;
+    /**
+     * Optional Microsoft Entra ID application (client) ID to use for Nested App Authentication
+     * (NAA) for this specific manifest entry. If specified, this value overrides the client ID
+     * defined in webApplicationInfo.id. If omitted, webApplicationInfo.id is used as the
+     * default client ID.
+     */
+    clientId?: string;
 }
 
 // Converts JSON strings to/from your types
@@ -3021,16 +3263,25 @@ const typeMap: any = {
         { json: "extensions", js: "extensions", typ: u(undefined, a(r("ElementExtension"))) },
         { json: "dashboardCards", js: "dashboardCards", typ: u(undefined, a(r("DashboardCard"))) },
         { json: "intuneInfo", js: "intuneInfo", typ: u(undefined, r("IntuneInfo")) },
+        { json: "copilotExtensions", js: "copilotExtensions", typ: u(undefined, r("CopilotExtensions")) },
         { json: "copilotAgents", js: "copilotAgents", typ: u(undefined, r("CopilotAgents")) },
         { json: "agenticUserTemplates", js: "agenticUserTemplates", typ: u(undefined, a(r("AgenticUserTemplateRef"))) },
+        { json: "localAgents", js: "localAgents", typ: u(undefined, a(r("LocalAgentRef"))) },
+        { json: "localTools", js: "localTools", typ: u(undefined, a(r("LocalToolRef"))) },
         { json: "elementRelationshipSet", js: "elementRelationshipSet", typ: u(undefined, r("ElementRelationshipSet")) },
         { json: "backgroundLoadConfiguration", js: "backgroundLoadConfiguration", typ: u(undefined, r("BackgroundLoadConfiguration")) },
         { json: "agentConnectors", js: "agentConnectors", typ: u(undefined, a(r("AgentConnector"))) },
         { json: "agentSkills", js: "agentSkills", typ: u(undefined, a(r("AgentSkill"))) },
+        { json: "thirdPartyLicenses", js: "thirdPartyLicenses", typ: u(undefined, a(r("ThirdPartyLicense"))) },
     ], false),
     "Activities": o([
         { json: "activityTypes", js: "activityTypes", typ: u(undefined, a(r("ActivityType"))) },
+        { json: "activityGroups", js: "activityGroups", typ: u(undefined, a(r("ActivityGroup"))) },
         { json: "activityIcons", js: "activityIcons", typ: u(undefined, a(r("ActivityIcon"))) },
+    ], false),
+    "ActivityGroup": o([
+        { json: "id", js: "id", typ: "" },
+        { json: "displayName", js: "displayName", typ: "" },
     ], false),
     "ActivityIcon": o([
         { json: "id", js: "id", typ: "" },
@@ -3040,6 +3291,7 @@ const typeMap: any = {
         { json: "type", js: "type", typ: "" },
         { json: "description", js: "description", typ: "" },
         { json: "templateText", js: "templateText", typ: "" },
+        { json: "activityGroupId", js: "activityGroupId", typ: u(undefined, "") },
         { json: "allowedIconIds", js: "allowedIconIds", typ: u(undefined, a("")) },
     ], false),
     "AgentConnector": o([
@@ -3053,6 +3305,7 @@ const typeMap: any = {
         { json: "plugin", js: "plugin", typ: u(undefined, r("Plugin")) },
         { json: "remoteMcpServer", js: "remoteMcpServer", typ: u(undefined, r("RemoteMCPServer")) },
         { json: "localMcpServer", js: "localMcpServer", typ: u(undefined, r("LocalMCPServer")) },
+        { json: "openApiConnector", js: "openApiConnector", typ: u(undefined, r("OpenAPIConnector")) },
     ], false),
     "LocalMCPServer": o([
         { json: "mcpServerIdentifier", js: "mcpServerIdentifier", typ: "" },
@@ -3060,11 +3313,18 @@ const typeMap: any = {
         { json: "authorization", js: "authorization", typ: u(undefined, r("LocalMCPServerAuthorization")) },
     ], false),
     "LocalMCPServerAuthorization": o([
-        { json: "type", js: "type", typ: r("AuthorizationType") },
+        { json: "type", js: "type", typ: r("PurpleType") },
         { json: "referenceId", js: "referenceId", typ: u(undefined, "") },
     ], false),
     "LocalMCPServerMCPToolDescription": o([
-        { json: "file", js: "file", typ: u(undefined, "") },
+        { json: "file", js: "file", typ: "" },
+    ], false),
+    "OpenAPIConnector": o([
+        { json: "authorization", js: "authorization", typ: r("OpenAPIConnectorAuthorization") },
+    ], false),
+    "OpenAPIConnectorAuthorization": o([
+        { json: "type", js: "type", typ: r("FluffyType") },
+        { json: "referenceId", js: "referenceId", typ: "" },
     ], false),
     "Plugin": o([
         { json: "id", js: "id", typ: "" },
@@ -3076,14 +3336,15 @@ const typeMap: any = {
         { json: "authorization", js: "authorization", typ: u(undefined, r("RemoteMCPServerAuthorization")) },
     ], false),
     "RemoteMCPServerAuthorization": o([
-        { json: "type", js: "type", typ: r("AuthorizationType") },
+        { json: "type", js: "type", typ: r("PurpleType") },
         { json: "referenceId", js: "referenceId", typ: u(undefined, "") },
     ], false),
     "RemoteMCPServerMCPToolDescription": o([
-        { json: "file", js: "file", typ: u(undefined, "") },
+        { json: "file", js: "file", typ: "" },
     ], false),
     "AgentSkill": o([
         { json: "folder", js: "folder", typ: "" },
+        { json: "scopes", js: "scopes", typ: u(undefined, a(r("AgentSkillScope"))) },
     ], false),
     "AgenticUserTemplateRef": o([
         { json: "id", js: "id", typ: "" },
@@ -3093,11 +3354,16 @@ const typeMap: any = {
         { json: "permissions", js: "permissions", typ: u(undefined, r("Permissions")) },
     ], false),
     "Permissions": o([
+        { json: "orgWide", js: "orgWide", typ: u(undefined, a(r("OrgWide"))) },
         { json: "resourceSpecific", js: "resourceSpecific", typ: u(undefined, a(r("ResourceSpecific"))) },
+    ], false),
+    "OrgWide": o([
+        { json: "name", js: "name", typ: "" },
+        { json: "type", js: "type", typ: r("OrgWideType") },
     ], false),
     "ResourceSpecific": o([
         { json: "name", js: "name", typ: "" },
-        { json: "type", js: "type", typ: r("ResourceSpecificType") },
+        { json: "type", js: "type", typ: r("OrgWideType") },
     ], false),
     "BackgroundLoadConfiguration": o([
         { json: "tabConfiguration", js: "tabConfiguration", typ: u(undefined, r("TabConfiguration")) },
@@ -3108,6 +3374,7 @@ const typeMap: any = {
     "Bot": o([
         { json: "botId", js: "botId", typ: "" },
         { json: "configuration", js: "configuration", typ: u(undefined, r("Configuration")) },
+        { json: "allowBotMessageDeleteByUser", js: "allowBotMessageDeleteByUser", typ: u(undefined, true) },
         { json: "needsChannelSelector", js: "needsChannelSelector", typ: u(undefined, true) },
         { json: "isNotificationOnly", js: "isNotificationOnly", typ: u(undefined, true) },
         { json: "requiresSecurityEnabledGroup", js: "requiresSecurityEnabledGroup", typ: u(undefined, true) },
@@ -3118,8 +3385,8 @@ const typeMap: any = {
         { json: "scopes", js: "scopes", typ: a(r("CommandListScope")) },
         { json: "supportsTargetedMessages", js: "supportsTargetedMessages", typ: u(undefined, true) },
         { json: "commandLists", js: "commandLists", typ: u(undefined, a(r("CommandList"))) },
-        { json: "requirementSet", js: "requirementSet", typ: u(undefined, r("ElementRequirementSet")) },
         { json: "registrationInfo", js: "registrationInfo", typ: u(undefined, r("RegistrationInfo")) },
+        { json: "requirementSet", js: "requirementSet", typ: u(undefined, r("ElementRequirementSet")) },
     ], false),
     "CommandList": o([
         { json: "triggers", js: "triggers", typ: u(undefined, a(r("CommandListTrigger"))) },
@@ -3129,14 +3396,14 @@ const typeMap: any = {
     "CommandListCommand": o([
         { json: "title", js: "title", typ: "" },
         { json: "description", js: "description", typ: u(undefined, "") },
-        { json: "type", js: "type", typ: u(undefined, r("PurpleType")) },
+        { json: "type", js: "type", typ: u(undefined, r("TentacledType")) },
         { json: "prompt", js: "prompt", typ: u(undefined, "") },
     ], false),
     "Configuration": o([
-        { json: "team", js: "team", typ: u(undefined, r("ConfigurationTeam")) },
-        { json: "groupChat", js: "groupChat", typ: u(undefined, r("ConfigurationGroupChat")) },
+        { json: "team", js: "team", typ: u(undefined, r("GroupChatClass")) },
+        { json: "groupChat", js: "groupChat", typ: u(undefined, r("GroupChatClass")) },
     ], false),
-    "ConfigurationGroupChat": o([
+    "GroupChatClass": o([
         { json: "fetchTask", js: "fetchTask", typ: u(undefined, true) },
         { json: "taskInfo", js: "taskInfo", typ: u(undefined, r("TaskInfo")) },
     ], false),
@@ -3145,10 +3412,6 @@ const typeMap: any = {
         { json: "width", js: "width", typ: u(undefined, "") },
         { json: "height", js: "height", typ: u(undefined, "") },
         { json: "url", js: "url", typ: u(undefined, "") },
-    ], false),
-    "ConfigurationTeam": o([
-        { json: "fetchTask", js: "fetchTask", typ: u(undefined, true) },
-        { json: "taskInfo", js: "taskInfo", typ: u(undefined, r("TaskInfo")) },
     ], false),
     "RegistrationInfo": o([
         { json: "source", js: "source", typ: r("Source") },
@@ -3190,7 +3453,7 @@ const typeMap: any = {
     ], false),
     "ComposeExtensionCommand": o([
         { json: "id", js: "id", typ: "" },
-        { json: "type", js: "type", typ: u(undefined, r("FluffyType")) },
+        { json: "type", js: "type", typ: u(undefined, r("StickyType")) },
         { json: "triggers", js: "triggers", typ: u(undefined, a(r("CommandTrigger"))) },
         { json: "samplePrompts", js: "samplePrompts", typ: u(undefined, a(r("SamplePrompt"))) },
         { json: "apiResponseRenderingTemplateFile", js: "apiResponseRenderingTemplateFile", typ: u(undefined, "") },
@@ -3206,9 +3469,9 @@ const typeMap: any = {
     "Parameter": o([
         { json: "name", js: "name", typ: "" },
         { json: "inputType", js: "inputType", typ: u(undefined, r("InputType")) },
-        { json: "isRequired", js: "isRequired", typ: u(undefined, true) },
         { json: "title", js: "title", typ: "" },
         { json: "description", js: "description", typ: u(undefined, "") },
+        { json: "isRequired", js: "isRequired", typ: u(undefined, true) },
         { json: "value", js: "value", typ: u(undefined, "") },
         { json: "choices", js: "choices", typ: u(undefined, a(r("Choice"))) },
         { json: "semanticDescription", js: "semanticDescription", typ: u(undefined, "") },
@@ -3222,18 +3485,18 @@ const typeMap: any = {
     ], false),
     "MessageHandler": o([
         { json: "type", js: "type", typ: r("MessageHandlerType") },
-        { json: "value", js: "value", typ: r("ValueObject") },
+        { json: "value", js: "value", typ: r("MessageHandlerValue") },
     ], false),
-    "ValueObject": o([
+    "MessageHandlerValue": o([
         { json: "domains", js: "domains", typ: u(undefined, a("")) },
-        { json: "supportsAnonymousAccess", js: "supportsAnonymousAccess", typ: u(undefined, true) },
-        { json: "supportsAnonymizedPayloads", js: "supportsAnonymizedPayloads", typ: u(undefined, true) },
-    ], "any"),
+        { json: "supportsAnonymousAccess", js: "supportsAnonymousAccess", typ: u(undefined, u(true, null)) },
+        { json: "supportsAnonymizedPayloads", js: "supportsAnonymizedPayloads", typ: u(undefined, u(true, null)) },
+    ], false),
     "ConfigurableTab": o([
         { json: "id", js: "id", typ: u(undefined, "") },
         { json: "configurationUrl", js: "configurationUrl", typ: "" },
         { json: "canUpdateConfiguration", js: "canUpdateConfiguration", typ: u(undefined, true) },
-        { json: "scopes", js: "scopes", typ: a(r("ConfigurableTabScope")) },
+        { json: "scopes", js: "scopes", typ: a(r("AgentSkillScope")) },
         { json: "meetingSurfaces", js: "meetingSurfaces", typ: u(undefined, a(r("MeetingSurface"))) },
         { json: "context", js: "context", typ: u(undefined, a(r("ConfigurableTabContext"))) },
         { json: "supportedPlatform", js: "supportedPlatform", typ: u(undefined, a(r("SupportedPlatform"))) },
@@ -3246,6 +3509,7 @@ const typeMap: any = {
         { json: "scopes", js: "scopes", typ: a(r("ConnectorScope")) },
     ], false),
     "CopilotAgents": o([
+        { json: "plugins", js: "plugins", typ: u(undefined, a(r("PluginRef"))) },
         { json: "declarativeAgents", js: "declarativeAgents", typ: u(undefined, a(r("DeclarativeAgentRef"))) },
         { json: "customEngineAgents", js: "customEngineAgents", typ: u(undefined, a(r("CustomEngineAgent"))) },
     ], false),
@@ -3260,6 +3524,23 @@ const typeMap: any = {
         { json: "text", js: "text", typ: "" },
     ], "any"),
     "DeclarativeAgentRef": o([
+        { json: "id", js: "id", typ: "" },
+        { json: "file", js: "file", typ: "" },
+    ], false),
+    "PluginRef": o([
+        { json: "id", js: "id", typ: "" },
+        { json: "file", js: "file", typ: "" },
+    ], false),
+    "CopilotExtensions": o([
+        { json: "plugins", js: "plugins", typ: u(undefined, a(r("PluginRef"))) },
+        { json: "declarativeCopilots", js: "declarativeCopilots", typ: u(undefined, a(r("DeclarativeCopilotRef"))) },
+        { json: "customEngineCopilots", js: "customEngineCopilots", typ: u(undefined, a(r("CustomEngineCopilot"))) },
+    ], false),
+    "CustomEngineCopilot": o([
+        { json: "id", js: "id", typ: "" },
+        { json: "type", js: "type", typ: r("SourceTypeEnum") },
+    ], false),
+    "DeclarativeCopilotRef": o([
         { json: "id", js: "id", typ: "" },
         { json: "file", js: "file", typ: "" },
     ], false),
@@ -3307,11 +3588,11 @@ const typeMap: any = {
     ], false),
     "ContactInfo": o([
         { json: "defaultSupport", js: "defaultSupport", typ: r("DefaultSupport") },
-    ], "any"),
+    ], false),
     "DefaultSupport": o([
         { json: "userEmailsForChatSupport", js: "userEmailsForChatSupport", typ: a("") },
         { json: "emailsForEmailSupport", js: "emailsForEmailSupport", typ: a("") },
-    ], "any"),
+    ], false),
     "ElementRelationshipSet": o([
         { json: "oneWayDependencies", js: "oneWayDependencies", typ: u(undefined, a(r("OneWayDependency"))) },
         { json: "mutualDependencies", js: "mutualDependencies", typ: u(undefined, a(a(r("ElementReference")))) },
@@ -3342,7 +3623,7 @@ const typeMap: any = {
         { json: "requirements", js: "requirements", typ: u(undefined, r("RequirementsExtensionElement")) },
         { json: "prefer", js: "prefer", typ: u(undefined, r("Prefer")) },
         { json: "hide", js: "hide", typ: u(undefined, r("Hide")) },
-        { json: "alternateIcons", js: "alternateIcons", typ: r("AlternateIcons") },
+        { json: "alternateIcons", js: "alternateIcons", typ: u(undefined, r("AlternateIcons")) },
     ], false),
     "AlternateIcons": o([
         { json: "icon", js: "icon", typ: r("ExtensionCommonIcon") },
@@ -3421,7 +3702,8 @@ const typeMap: any = {
         { json: "options", js: "options", typ: u(undefined, r("Options")) },
     ], false),
     "Options": o([
-        { json: "sendMode", js: "sendMode", typ: r("SendMode") },
+        { json: "sendMode", js: "sendMode", typ: u(undefined, r("SendMode")) },
+        { json: "headerName", js: "headerName", typ: u(undefined, "") },
     ], false),
     "ExtensionContentRuntimeArray": o([
         { json: "requirements", js: "requirements", typ: u(undefined, r("ContentRuntimeRequirements")) },
@@ -3450,7 +3732,7 @@ const typeMap: any = {
     ], false),
     "ExtensionCommonCustomGroupControlsItem": o([
         { json: "id", js: "id", typ: "" },
-        { json: "type", js: "type", typ: r("TentacledType") },
+        { json: "type", js: "type", typ: r("IndigoType") },
         { json: "builtInControlId", js: "builtInControlId", typ: u(undefined, "") },
         { json: "label", js: "label", typ: "" },
         { json: "icons", js: "icons", typ: a(r("ExtensionCommonIcon")) },
@@ -3458,8 +3740,8 @@ const typeMap: any = {
         { json: "actionId", js: "actionId", typ: u(undefined, "") },
         { json: "overriddenByRibbonApi", js: "overriddenByRibbonApi", typ: u(undefined, true) },
         { json: "enabled", js: "enabled", typ: u(undefined, true) },
-        { json: "visible", js: "visible", typ: u(undefined, true) },
         { json: "items", js: "items", typ: u(undefined, a(r("ExtensionCommonCustomControlMenuItem"))) },
+        { json: "visible", js: "visible", typ: u(undefined, true) },
         { json: "keytip", js: "keytip", typ: u(undefined, "") },
     ], false),
     "ExtensionCommonCustomControlMenuItem": o([
@@ -3495,7 +3777,7 @@ const typeMap: any = {
     ], false),
     "ExtensionKeyboardShortcut": o([
         { json: "requirements", js: "requirements", typ: u(undefined, r("RequirementsExtensionElement")) },
-        { json: "shortcuts", js: "shortcuts", typ: a(r("ExtensionShortcut")) },
+        { json: "shortcuts", js: "shortcuts", typ: u(undefined, a(r("ExtensionShortcut"))) },
         { json: "keyMappingFiles", js: "keyMappingFiles", typ: u(undefined, r("KeyboardShortcutsMappingFiles")) },
     ], "any"),
     "KeyboardShortcutsMappingFiles": o([
@@ -3562,7 +3844,7 @@ const typeMap: any = {
     ], "any"),
     "ExtensionRibbonsCustomMobileControlButtonItem": o([
         { json: "id", js: "id", typ: "" },
-        { json: "type", js: "type", typ: r("StickyType") },
+        { json: "type", js: "type", typ: r("IndecentType") },
         { json: "label", js: "label", typ: "" },
         { json: "icons", js: "icons", typ: a(r("ExtensionCustomMobileIcon")) },
         { json: "actionId", js: "actionId", typ: "" },
@@ -3602,6 +3884,10 @@ const typeMap: any = {
         { json: "view", js: "view", typ: u(undefined, "") },
         { json: "multiselect", js: "multiselect", typ: u(undefined, true) },
         { json: "supportsNoItemContext", js: "supportsNoItemContext", typ: u(undefined, true) },
+        { json: "taskpane", js: "taskpane", typ: u(undefined, r("Taskpane")) },
+    ], false),
+    "Taskpane": o([
+        { json: "preferredWidth", js: "preferredWidth", typ: u(undefined, 3.14) },
     ], false),
     "ExtensionCustomFunctions": o([
         { json: "functions", js: "functions", typ: u(undefined, a(r("ExtensionFunction"))) },
@@ -3667,6 +3953,14 @@ const typeMap: any = {
     "IntuneInfo": o([
         { json: "supportedMobileAppManagementVersion", js: "supportedMobileAppManagementVersion", typ: u(undefined, "") },
     ], false),
+    "LocalAgentRef": o([
+        { json: "id", js: "id", typ: "" },
+        { json: "file", js: "file", typ: "" },
+    ], false),
+    "LocalToolRef": o([
+        { json: "id", js: "id", typ: "" },
+        { json: "file", js: "file", typ: "" },
+    ], false),
     "LocalizationInfo": o([
         { json: "defaultLanguageTag", js: "defaultLanguageTag", typ: "" },
         { json: "defaultLanguageFile", js: "defaultLanguageFile", typ: u(undefined, "") },
@@ -3682,7 +3976,8 @@ const typeMap: any = {
         { json: "videoFilters", js: "videoFilters", typ: u(undefined, a(r("VideoFilter"))) },
         { json: "videoFiltersConfigurationUrl", js: "videoFiltersConfigurationUrl", typ: u(undefined, "") },
         { json: "supportsStreaming", js: "supportsStreaming", typ: u(undefined, true) },
-        { json: "supportsAnonymousGuestUsers", js: "supportsAnonymousGuestUsers", typ: u(undefined, true) },
+        { json: "isAnonymousAccessAllowed", js: "isAnonymousAccessAllowed", typ: u(undefined, u(true, null)) },
+        { json: "supportsAnonymousGuestUsers", js: "supportsAnonymousGuestUsers", typ: u(undefined, u(true, null)) },
     ], false),
     "Scene": o([
         { json: "id", js: "id", typ: "" },
@@ -3699,14 +3994,14 @@ const typeMap: any = {
     ], false),
     "NameClass": o([
         { json: "short", js: "short", typ: "" },
-        { json: "full", js: "full", typ: "" },
+        { json: "full", js: "full", typ: u(undefined, "") },
         { json: "abbreviated", js: "abbreviated", typ: u(undefined, "") },
     ], false),
     "ScopeConstraints": o([
         { json: "teams", js: "teams", typ: u(undefined, a(r("TeamElement"))) },
-        { json: "groupChats", js: "groupChats", typ: u(undefined, a(r("GroupChatElement"))) },
+        { json: "groupChats", js: "groupChats", typ: u(undefined, a(r("GroupChat"))) },
     ], false),
-    "GroupChatElement": o([
+    "GroupChat": o([
         { json: "id", js: "id", typ: "" },
     ], false),
     "TeamElement": o([
@@ -3716,16 +4011,21 @@ const typeMap: any = {
         { json: "entityId", js: "entityId", typ: "" },
         { json: "name", js: "name", typ: u(undefined, "") },
         { json: "contentUrl", js: "contentUrl", typ: u(undefined, "") },
-        { json: "contentBotId", js: "contentBotId", typ: u(undefined, "") },
         { json: "websiteUrl", js: "websiteUrl", typ: u(undefined, "") },
         { json: "searchUrl", js: "searchUrl", typ: u(undefined, "") },
         { json: "scopes", js: "scopes", typ: a(r("StaticTabScope")) },
+        { json: "meetingSurfaces", js: "meetingSurfaces", typ: u(undefined, a(r("MeetingSurface"))) },
         { json: "context", js: "context", typ: u(undefined, a(r("StaticTabContext"))) },
         { json: "supportedPlatform", js: "supportedPlatform", typ: u(undefined, a(r("SupportedPlatform"))) },
         { json: "requirementSet", js: "requirementSet", typ: u(undefined, r("ElementRequirementSet")) },
     ], false),
     "SubscriptionOffer": o([
         { json: "offerId", js: "offerId", typ: "" },
+    ], false),
+    "ThirdPartyLicense": o([
+        { json: "licenseName", js: "licenseName", typ: "" },
+        { json: "licenseUrl", js: "licenseUrl", typ: "" },
+        { json: "licenseDescription", js: "licenseDescription", typ: "" },
     ], false),
     "WebApplicationInfo": o([
         { json: "id", js: "id", typ: "" },
@@ -3736,19 +4036,28 @@ const typeMap: any = {
         { json: "redirectUri", js: "redirectUri", typ: "" },
         { json: "scopes", js: "scopes", typ: a("") },
         { json: "claims", js: "claims", typ: u(undefined, "") },
+        { json: "clientId", js: "clientId", typ: u(undefined, "") },
     ], false),
-    "AuthorizationType": [
+    "PurpleType": [
         "ApiKeyPluginVault",
         "AzureKeyVault",
+        "ConnectionVault",
         "DynamicClientRegistration",
         "None",
         "OAuthPluginVault",
     ],
-    "ResourceSpecificType": [
+    "FluffyType": [
+        "ConnectionVault",
+    ],
+    "AgentSkillScope": [
+        "groupChat",
+        "team",
+    ],
+    "OrgWideType": [
         "Application",
         "Delegated",
     ],
-    "PurpleType": [
+    "TentacledType": [
         "basic",
         "prompt",
     ],
@@ -3796,7 +4105,7 @@ const typeMap: any = {
     "CommandTrigger": [
         "slash",
     ],
-    "FluffyType": [
+    "StickyType": [
         "action",
         "query",
     ],
@@ -3819,7 +4128,6 @@ const typeMap: any = {
         "termsOfUseUrl",
     ],
     "ConfigurableTabContext": [
-        "callingSidePanel",
         "channelTab",
         "meetingChatTab",
         "meetingDetailsTab",
@@ -3831,10 +4139,6 @@ const typeMap: any = {
     "MeetingSurface": [
         "sidePanel",
         "stage",
-    ],
-    "ConfigurableTabScope": [
-        "groupChat",
-        "team",
     ],
     "SupportedPlatform": [
         "desktop",
@@ -3850,6 +4154,7 @@ const typeMap: any = {
     ],
     "FunctionsAs": [
         "agentOnly",
+        "agentOrAgenticUser",
         "agenticUserOnly",
     ],
     "SourceTypeEnum": [
@@ -3916,7 +4221,7 @@ const typeMap: any = {
     "ItemType": [
         "menuItem",
     ],
-    "TentacledType": [
+    "IndigoType": [
         "button",
         "menu",
     ],
@@ -3931,7 +4236,7 @@ const typeMap: any = {
         "checkbox",
         "radio",
     ],
-    "StickyType": [
+    "IndecentType": [
         "mobileButton",
     ],
     "Align": [
@@ -3971,6 +4276,8 @@ const typeMap: any = {
     ],
     "ManifestVersion": [
         "devPreview",
+        "m365DevPreview",
+        "m365devpreview",
     ],
     "Permission": [
         "identity",

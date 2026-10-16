@@ -58,7 +58,7 @@ function conversionError(
 
 describe("Converter diagnostics", () => {
   it("reports the nested authorization enum instead of blaming the connector array", () => {
-    const error = conversionError(manifestWithConnectors([remoteConnector("ConnectionVault")]));
+    const error = conversionError(manifestWithConnectors([remoteConnector("UnsupportedAuth")]));
 
     assert.include(
       error.message,
@@ -72,7 +72,7 @@ describe("Converter diagnostics", () => {
 
   it("reports the index of the invalid element after a valid connector", () => {
     const error = conversionError(
-      manifestWithConnectors([remoteConnector("None"), remoteConnector("ConnectionVault")])
+      manifestWithConnectors([remoteConnector("None"), remoteConnector("UnsupportedAuth")])
     );
 
     assert.include(
@@ -88,7 +88,7 @@ describe("Converter diagnostics", () => {
           id: "test",
           displayName: "Test",
           toolSource: {
-            openApiConnector: {
+            unsupportedConnector: {
               authorization: { type: "ConnectionVault", referenceId: "private-reference" },
             },
           },
@@ -96,7 +96,7 @@ describe("Converter diagnostics", () => {
       ])
     );
 
-    assert.include(error.message, "agentConnectors[0].toolSource.openApiConnector");
+    assert.include(error.message, "agentConnectors[0].toolSource.unsupportedConnector");
     assert.include(error.message, "not supported");
     assert.notInclude(error.message, "private-reference");
     assert.notInclude(error.message, "ConnectionVault");
@@ -173,6 +173,7 @@ describe("Converter diagnostics", () => {
     [remoteConnector("ApiKeyPluginVault")],
     [remoteConnector("DynamicClientRegistration")],
     [remoteConnector("AzureKeyVault")],
+    [remoteConnector("ConnectionVault")],
   ]) {
     it(`preserves valid connector round trips: ${JSON.stringify(connectors)}`, () => {
       const json = manifestWithConnectors(connectors);

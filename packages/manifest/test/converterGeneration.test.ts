@@ -84,6 +84,20 @@ describe("Generated converter runtime", () => {
     assert.isAbove(converters, 0);
   });
 
+  it("keeps the complete preview model and type map in sync with its schema snapshot", async () => {
+    const root = path.join(__dirname, "..", "src");
+    const schema = fs.readFileSync(
+      path.join(root, "json-schemas", "teams", "vDevPreview", "MicrosoftTeams.schema.json"),
+      "utf8"
+    );
+    const { lines } = await quicktypeJSONSchema("typescript", "TeamsManifestVDevPreview", schema);
+    const source = fs.readFileSync(
+      path.join(root, "generated-types", "teams", "TeamsManifestVDevPreview.ts"),
+      "utf8"
+    );
+    assert.strictEqual(source, lines.join("\n"));
+  });
+
   for (const value of ["text", [], [{ enabled: true }]]) {
     it(`keeps successful union alternatives: ${JSON.stringify(value)}`, () => {
       const json = JSON.stringify({ value });

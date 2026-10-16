@@ -295,6 +295,14 @@ const TeamsManifestConverterMap: Converters = {
     TeamsManifestVDevPreview.Convert.toTeamsManifestVDevPreview,
     TeamsManifestVDevPreview.Convert.teamsManifestVDevPreviewToJson,
   ],
+  m365DevPreview: [
+    TeamsManifestVDevPreview.Convert.toTeamsManifestVDevPreview,
+    TeamsManifestVDevPreview.Convert.teamsManifestVDevPreviewToJson,
+  ],
+  m365devpreview: [
+    TeamsManifestVDevPreview.Convert.toTeamsManifestVDevPreview,
+    TeamsManifestVDevPreview.Convert.teamsManifestVDevPreviewToJson,
+  ],
 };
 const daConverterMap: Converters = {
   "v1.0": [
