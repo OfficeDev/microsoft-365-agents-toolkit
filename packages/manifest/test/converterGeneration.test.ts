@@ -6,6 +6,7 @@ import "mocha";
 import * as fs from "node:fs";
 import * as path from "node:path";
 import * as vm from "node:vm";
+import prettier = require("prettier");
 import * as ts from "typescript";
 import { quicktypeJSONSchema } from "../convert";
 
@@ -16,6 +17,7 @@ interface ProbeConverter {
 
 describe("Generated converter runtime", () => {
   let converter: ProbeConverter;
+  let generatedSource: string;
 
   before(async () => {
     const schema = {
@@ -50,7 +52,8 @@ describe("Generated converter runtime", () => {
       required: ["value"],
     };
     const { lines } = await quicktypeJSONSchema("typescript", "Probe", JSON.stringify(schema));
-    const { outputText, diagnostics } = ts.transpileModule(lines.join("\n"), {
+    generatedSource = lines.join("\n");
+    const { outputText, diagnostics } = ts.transpileModule(generatedSource, {
       compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 },
       reportDiagnostics: true,
     });
@@ -58,9 +61,19 @@ describe("Generated converter runtime", () => {
     converter = vm.runInNewContext(`${outputText}\nConvert;`, { exports: {}, Error, Date });
   });
 
+  it("emits TypeScript that passes the repository Prettier configuration", async () => {
+    const options = await prettier.resolveConfig(
+      path.join(__dirname, "..", "src", "generated-types", "index.ts")
+    );
+    assert.isTrue(await prettier.check(generatedSource, { ...options, parser: "typescript" }));
+  });
+
   it("keeps every checked-in converter runtime in sync with the generation template", () => {
     const root = path.join(__dirname, "..");
-    const template = fs.readFileSync(path.join(root, "converter-runtime.txt"), "utf8").trim();
+    const template = fs
+      .readFileSync(path.join(root, "converter-runtime.txt"), "utf8")
+      .replace(/\r\n?/g, "\n")
+      .trim();
     let converters = 0;
 
     function checkFolder(folder: string): void {

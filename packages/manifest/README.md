@@ -94,6 +94,9 @@ that template for Teams, Declarative Agent, and API Plugin converters; do not ed
 generated runtime helpers directly. This runtime performs type checks, not full JSON
 schema or service-side validation.
 
+TypeScript generation applies the package's Prettier configuration so regenerated
+converters pass the same formatting checks as handwritten code.
+
 The bundled Teams devPreview schema supports `openApiConnector` with
 `ConnectionVault` authorization, and `ConnectionVault` for remote and local MCP
 servers. Its `devPreview`, `m365DevPreview`, and `m365devpreview` version values all
