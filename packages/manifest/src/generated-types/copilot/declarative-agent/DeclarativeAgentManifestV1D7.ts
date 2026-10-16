@@ -697,25 +697,55 @@ export class Convert {
     }
 }
 
-function invalidValue(typ: any, val: any, key: any, parent: any = ''): never {
-    const prettyTyp = prettyTypeName(typ);
-    const parentText = parent ? ` on ${parent}` : '';
-    const keyText = key ? ` for key "${key}"` : '';
-    throw Error(`Invalid value${keyText}${parentText}. Expected ${prettyTyp} but got ${JSON.stringify(val)}`);
+class ManifestConversionError extends Error {
+    constructor(readonly path: readonly (string | number)[], message: string) {
+        super(message);
+        this.name = "ManifestConversionError";
+    }
+}
+
+function formatPath(path: readonly (string | number)[]): string {
+    return path.map((key, index) => {
+        if (typeof key === "number") return `[${key}]`;
+        if (!/^[A-Za-z_$][\w$]*$/.test(key)) return `[${JSON.stringify(key)}]`;
+        return `${index === 0 ? "" : "."}${key}`;
+    }).join("") || "<root>";
+}
+
+function invalidValue(typ: any, val: any, path: readonly (string | number)[]): never {
+    const location = formatPath(path);
+    if (typ === false) {
+        throw new ManifestConversionError(path, `Property "${location}" is not supported by the local manifest model.`);
+    }
+    const expected = prettyTypeName(typ);
+    if (val === undefined) {
+        throw new ManifestConversionError(path, `Missing required property "${location}". Expected ${expected}.`);
+    }
+    const actual = val === null ? "null" : Array.isArray(val) ? "array" : typeof val;
+    throw new ManifestConversionError(path, `Invalid value for key "${location}". Expected ${expected} but got ${actual}.`);
 }
 
 function prettyTypeName(typ: any): string {
+    if (typ === null) return "null";
+    if (typ === "any") return "any value";
+    if (typ === Date) return "Date";
     if (Array.isArray(typ)) {
         if (typ.length === 2 && typ[0] === undefined) {
             return `an optional ${prettyTypeName(typ[1])}`;
-        } else {
-            return `one of [${typ.map(a => { return prettyTypeName(a); }).join(", ")}]`;
         }
-    } else if (typeof typ === "object" && typ.literal !== undefined) {
-        return typ.literal;
-    } else {
-        return typeof typ;
+        return `one of [${typ.map(prettyTypeName).join(", ")}]`;
     }
+    if (typeof typ === "object") {
+        if (Object.prototype.hasOwnProperty.call(typ, "literal")) return JSON.stringify(typ.literal);
+        if (Object.prototype.hasOwnProperty.call(typ, "arrayItems")) return `array of ${prettyTypeName(typ.arrayItems)}`;
+        if (Object.prototype.hasOwnProperty.call(typ, "unionMembers")) return prettyTypeName(typ.unionMembers);
+        if (Object.prototype.hasOwnProperty.call(typ, "ref")) {
+            const referenced = typeMap[typ.ref];
+            return Array.isArray(referenced) ? prettyTypeName(referenced.map(l)) : typ.ref;
+        }
+        return "object";
+    }
+    return typeof typ;
 }
 
 function jsonToJSProps(typ: any): any {
@@ -736,59 +766,59 @@ function jsToJSONProps(typ: any): any {
     return typ.jsToJSON;
 }
 
-function transform(val: any, typ: any, getProps: any, key: any = '', parent: any = ''): any {
+function transform(val: any, typ: any, getProps: any, path: readonly (string | number)[] = []): any {
     function transformPrimitive(typ: string, val: any): any {
         if (typeof typ === typeof val) return val;
-        return invalidValue(typ, val, key, parent);
+        return invalidValue(typ, val, path);
     }
 
     function transformUnion(typs: any[], val: any): any {
-        // val must validate against one typ in typs
-        const l = typs.length;
-        for (let i = 0; i < l; i++) {
-            const typ = typs[i];
+        let deepestError: ManifestConversionError | undefined;
+        for (const member of typs) {
             try {
-                return transform(val, typ, getProps);
-            } catch (_) {}
+                return transform(val, member, getProps, path);
+            } catch (error) {
+                if (!(error instanceof ManifestConversionError)) throw error;
+                if (!deepestError || error.path.length > deepestError.path.length) {
+                    deepestError = error;
+                }
+            }
         }
-        return invalidValue(typs, val, key, parent);
+        // A failed optional/union wrapper must not hide an invalid nested property.
+        if (deepestError && deepestError.path.length > path.length) throw deepestError;
+        return invalidValue(u(...typs), val, path);
     }
 
     function transformEnum(cases: string[], val: any): any {
         if (cases.indexOf(val) !== -1) return val;
-        return invalidValue(cases.map(a => { return l(a); }), val, key, parent);
+        return invalidValue(cases.map(l), val, path);
     }
 
     function transformArray(typ: any, val: any): any {
-        // val must be an array with no invalid elements
-        if (!Array.isArray(val)) return invalidValue(l("array"), val, key, parent);
-        return val.map(el => transform(el, typ, getProps));
+        if (!Array.isArray(val)) return invalidValue(a(typ), val, path);
+        return val.map((el, index) => transform(el, typ, getProps, [...path, index]));
     }
 
     function transformDate(val: any): any {
-        if (val === null) {
-            return null;
-        }
+        if (val === null) return null;
         const d = new Date(val);
-        if (isNaN(d.valueOf())) {
-            return invalidValue(l("Date"), val, key, parent);
-        }
+        if (isNaN(d.valueOf())) return invalidValue(Date, val, path);
         return d;
     }
 
     function transformObject(props: { [k: string]: any }, additional: any, val: any): any {
         if (val === null || typeof val !== "object" || Array.isArray(val)) {
-            return invalidValue(l(ref || "object"), val, key, parent);
+            return invalidValue(ref ? r(ref) : { props: [] }, val, path);
         }
         const result: any = {};
         Object.getOwnPropertyNames(props).forEach(key => {
             const prop = props[key];
             const v = Object.prototype.hasOwnProperty.call(val, key) ? val[key] : undefined;
-            result[prop.key] = transform(v, prop.typ, getProps, key, ref);
+            result[prop.key] = transform(v, prop.typ, getProps, [...path, key]);
         });
         Object.getOwnPropertyNames(val).forEach(key => {
             if (!Object.prototype.hasOwnProperty.call(props, key)) {
-                result[key] = transform(val[key], additional, getProps, key, ref);
+                result[key] = transform(val[key], additional, getProps, [...path, key]);
             }
         });
         return result;
@@ -797,9 +827,9 @@ function transform(val: any, typ: any, getProps: any, key: any = '', parent: any
     if (typ === "any") return val;
     if (typ === null) {
         if (val === null) return val;
-        return invalidValue(typ, val, key, parent);
+        return invalidValue(typ, val, path);
     }
-    if (typ === false) return invalidValue(typ, val, key, parent);
+    if (typ === false) return invalidValue(typ, val, path);
     let ref: any = undefined;
     while (typeof typ === "object" && typ.ref !== undefined) {
         ref = typ.ref;
@@ -810,7 +840,7 @@ function transform(val: any, typ: any, getProps: any, key: any = '', parent: any
         return typ.hasOwnProperty("unionMembers") ? transformUnion(typ.unionMembers, val)
             : typ.hasOwnProperty("arrayItems")    ? transformArray(typ.arrayItems, val)
             : typ.hasOwnProperty("props")         ? transformObject(getProps(typ), typ.additional, val)
-            : invalidValue(typ, val, key, parent);
+            : invalidValue(typ, val, path);
     }
     // Numbers can be parsed by Date but shouldn't be.
     if (typ === Date && typeof val !== "number") return transformDate(val);

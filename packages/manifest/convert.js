@@ -5,11 +5,36 @@ const {
   FetchingJSONSchemaStore,
   tsFlowOptions,
   javaScriptOptions,
+  TypeScriptTargetLanguage,
+  TypeScriptRenderer,
+  getOptionValues,
 } = require("quicktype-core-jayzhang");
 const fs = require("fs-extra");
 const path = require("path");
 
 const manifestProjectFolder = __dirname;
+
+class ManifestTypeScriptRenderer extends TypeScriptRenderer {
+  emitConvertModuleHelpers() {
+    this.ensureBlankLine();
+    this.emitMultiline(
+      fs
+        .readFileSync(path.join(manifestProjectFolder, "converter-runtime.txt"), "utf8")
+        .replace(/\r\n?/g, "\n")
+    );
+    this.emitTypeMap();
+  }
+}
+
+class ManifestTypeScriptTargetLanguage extends TypeScriptTargetLanguage {
+  makeRenderer(renderContext, untypedOptionValues) {
+    return new ManifestTypeScriptRenderer(
+      this,
+      renderContext,
+      getOptionValues(tsFlowOptions, untypedOptionValues)
+    );
+  }
+}
 
 async function quicktypeJSONSchema(targetLanguage, typeName, jsonSchemaString) {
   const schemaInput = new JSONSchemaInput(new FetchingJSONSchemaStore());
@@ -24,7 +49,7 @@ async function quicktypeJSONSchema(targetLanguage, typeName, jsonSchemaString) {
 
   return await quicktype({
     inputData,
-    lang: targetLanguage,
+    lang: targetLanguage === "typescript" ? new ManifestTypeScriptTargetLanguage() : targetLanguage,
     allPropertiesOptional: false,
     alphabetizeProperties: false,
   });
@@ -115,6 +140,15 @@ async function generatePluginManifestTypeFiles() {
   }
 }
 
-generateTeamsManifestTypeFiles();
-generateDAManifestTypeFiles();
-generatePluginManifestTypeFiles();
+module.exports = { quicktypeJSONSchema };
+
+if (require.main === module) {
+  Promise.all([
+    generateTeamsManifestTypeFiles(),
+    generateDAManifestTypeFiles(),
+    generatePluginManifestTypeFiles(),
+  ]).catch((error) => {
+    console.error(error);
+    process.exitCode = 1;
+  });
+}
