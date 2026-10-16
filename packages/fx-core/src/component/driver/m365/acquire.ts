@@ -28,8 +28,9 @@ interface AcquireArgs {
 
 const createPackageService = (
   serviceEndpoint: string,
-  logProvider?: DriverContext["logProvider"]
-) => new PackageService(serviceEndpoint, logProvider);
+  logProvider?: DriverContext["logProvider"],
+  m365TokenProvider?: DriverContext["m365TokenProvider"]
+) => new PackageService(serviceEndpoint, logProvider, m365TokenProvider);
 
 export const actionName = "teamsApp/extendToM365";
 const helpLink = "https://aka.ms/teamsfx-actions/teamsapp-extendToM365";
@@ -93,7 +94,11 @@ export class M365TitleAcquireDriver implements StepDriver {
       // get sideloading service settings
       const sideloadingServiceEndpoint = getResourceServiceEndpoint(ResourceServiceType.MOS3);
 
-      const packageService = createPackageService(sideloadingServiceEndpoint, context.logProvider);
+      const packageService = createPackageService(
+        sideloadingServiceEndpoint,
+        context.logProvider,
+        context.m365TokenProvider
+      );
       const sideloadingTokenRes = await context.m365TokenProvider.getAccessToken({
         scopes: MosServiceScope(),
       });

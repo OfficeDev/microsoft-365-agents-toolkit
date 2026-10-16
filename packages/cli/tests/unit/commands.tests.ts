@@ -1653,6 +1653,28 @@ describe("CLI commands", () => {
       const res = await m365SideloadingCommand.handler!(ctx);
       assert.isTrue(res.isOk());
     });
+    it.each([false, true])(
+      "SCN-ISU-07 AC-14: forwards the CLI provider with interactive=%s",
+      async (interactive) => {
+        vi.spyOn(m365utils, "getTokenAndUpn").mockResolvedValue(["token", "upn"]);
+        const upload = vi
+          .spyOn(PackageService.prototype, "sideLoading")
+          .mockImplementation(async function (this: PackageService) {
+            assert.strictEqual(Reflect.get(this, "m365TokenProvider"), M365TokenProvider);
+            return ["", "", ""];
+          });
+        const ctx: CLIContext = {
+          command: { ...m365SideloadingCommand, fullName: "teamsfx" },
+          optionValues: { "file-path": "./agent.zip", scope: "Personal" },
+          globalOptionValues: { interactive },
+          argumentValues: [],
+          telemetryProperties: {},
+        };
+        const result = await m365SideloadingCommand.handler!(ctx);
+        assert.isTrue(result.isOk());
+        assert.isTrue(upload.mock.calls.length === 1);
+      }
+    );
     it("should success with zip package with Personal scope", async () => {
       vi.spyOn(m365utils, "getTokenAndUpn").mockResolvedValue(["token", "upn"]);
       vi.spyOn(PackageService.prototype, "sideLoading").mockResolvedValue(["", "", ""]);

@@ -27,6 +27,11 @@ export const MOS3ApiDefinitions: any = {
     method: "POST",
     path: /^\/builder\/v1\/users\/packages(\?|$)/,
   },
+  PostBuilderDirectory: {
+    key: "create_skill_directory",
+    method: "POST",
+    path: /^\/builder\/v1\/directories(\?|$)/,
+  },
   GetBuilderStatus: {
     key: "get_builder_status",
     method: "GET",
