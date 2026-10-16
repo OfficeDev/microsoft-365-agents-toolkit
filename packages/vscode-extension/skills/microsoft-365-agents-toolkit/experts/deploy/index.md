@@ -4,8 +4,6 @@
 
 Route deployment tasks to the correct cloud-specific expert. Handles the initial cloud provider interview, then loads the matching micro-expert for step-by-step provisioning and deployment.
 
-For a Declarative Agent, apply the [DA routing rule](../../toolkit/declarative-agent-lifecycle.md#da-routing) before loading this deployment cluster. Use this ATK deployment cluster only for TypeSpec DAs.
-
 ## interview
 
 ### Q1 — Cloud Provider
