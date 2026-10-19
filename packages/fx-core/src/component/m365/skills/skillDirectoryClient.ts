@@ -151,7 +151,12 @@ function failure(kind: "directoryFailed" | "copyNotSupported" | "invalidResponse
     copyNotSupported: "SkillUploadCopyNotSupported",
     invalidResponse: "SkillInvalidResponse",
   };
-  const key = `error.m365.skills.${kind}`;
+  const keys = {
+    directoryFailed: "error.m365.skills.directoryFailed",
+    copyNotSupported: "error.m365.skills.copyNotSupported",
+    invalidResponse: "error.m365.skills.invalidResponse",
+  };
+  const key = keys[kind];
   const options = {
     source: "M365",
     name: names[kind],
