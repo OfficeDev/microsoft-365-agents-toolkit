@@ -6,6 +6,8 @@ Microsoft 365 Agents Toolkit CLI is a text-based command line interface that can
 
 ## Getting Started
 
+Requires Node.js 20.19.0 or later in the 20.x series, or Node.js 22.12.0 or later, matching the core engine's runtime requirements.
+
 Let's start by installing `@microsoft/m365agentstoolkit-cli` from NPM and run `atk -h` to check all available commands:
 
 ```powershell

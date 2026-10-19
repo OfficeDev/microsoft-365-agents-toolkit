@@ -4,6 +4,9 @@
   "main": "build/index.js",
   "types": "build/index.d.ts",
   "license": "MIT",
+  "engines": {
+    "node": "^20.19.0 || >=22.12.0"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/OfficeDev/microsoft-365-agents-toolkit.git"
@@ -40,7 +43,7 @@
     "scenario:accept": "tsx ./scripts/scenario-tooling/scenarioCli.ts accept"
   },
   "dependencies": {
-    "@apidevtools/swagger-parser": "^10.1.0",
+    "@apidevtools/swagger-parser": "~13.0.0",
     "@azure/arm-appservice": "^13.0.0",
     "@azure/arm-resources": "~5.0.1",
     "@azure/arm-storage": "^17.2.1",
