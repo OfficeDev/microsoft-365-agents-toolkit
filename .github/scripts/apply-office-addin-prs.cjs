@@ -56,6 +56,50 @@ function branchName(id) {
   return `auto/office-addin-drift/${id}-${runId}`;
 }
 
+async function findOpenPr(id, base) {
+  const token = process.env.GH_TOKEN;
+  const repo = process.env.GITHUB_REPOSITORY;
+  const botLogin = process.env.PR_BOT_LOGIN;
+  for (const name of ["GH_TOKEN", "GITHUB_REPOSITORY", "PR_BOT_LOGIN"]) {
+    if (!process.env[name]) {
+      throw new Error(`${name} not set; cannot check for an existing sync PR.`);
+    }
+  }
+
+  const url = new URL(`https://api.github.com/repos/${repo}/pulls`);
+  url.searchParams.set("state", "open");
+  url.searchParams.set("base", base);
+  url.searchParams.set("per_page", "100");
+  for (let page = 1; ; page++) {
+    url.searchParams.set("page", String(page));
+    const response = await fetch(url, {
+      headers: {
+        Accept: "application/vnd.github+json",
+        Authorization: `Bearer ${token}`,
+        "User-Agent": "office-addin-drift-apply",
+      },
+      signal: AbortSignal.timeout(20000),
+    });
+    if (!response.ok) {
+      throw new Error(`Sync PR lookup failed for ${id}: HTTP ${response.status}.`);
+    }
+    const prs = await response.json();
+    if (!Array.isArray(prs)) {
+      throw new Error(`Sync PR lookup returned an invalid response for ${id}.`);
+    }
+    // Match existing run-specific branches without relying on editable PR titles.
+    const existing = prs.find((pr) =>
+      pr.state === "open" &&
+      pr.base?.ref === base &&
+      pr.user?.login === botLogin &&
+      pr.head?.repo?.full_name === repo &&
+      pr.head?.ref?.startsWith(`auto/office-addin-drift/${id}-`),
+    );
+    if (existing) return existing;
+    if (prs.length < 100) return null;
+  }
+}
+
 // Fetch upstream files from the PUBLIC raw endpoint (no auth → not subject to
 // the fine-grained-PAT policy that 403s Copilot's own GitHub tool). We list the
 // src/ tree via the public API, then pull each file's raw content.
@@ -292,8 +336,14 @@ async function main() {
   for (const row of updateRows) {
     console.log(`\n=== Processing ${row.id} ===`);
     try {
-      // Start each template from a clean base branch.
       const base = process.env.PR_BASE_BRANCH || "dev";
+      const existing = await findOpenPr(row.id, base);
+      if (existing) {
+        console.log(`Skipping ${row.id}: sync PR already open at ${existing.html_url}`);
+        continue;
+      }
+
+      // Start each template from a clean base branch.
       run(`git checkout ${base}`);
       run(`git reset --hard origin/${base}`);
 
@@ -309,6 +359,7 @@ async function main() {
       created.push({ id: row.id, url });
     } catch (error) {
       console.error(`Failed to create PR for ${row.id}: ${error.message}`);
+      process.exitCode = 1;
     }
   }
 
