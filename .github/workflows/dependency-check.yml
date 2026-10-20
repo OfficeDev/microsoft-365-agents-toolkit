@@ -14,16 +14,16 @@ jobs:
     steps:
       - name: Get TeamsFx Renovate App Token
         id: teamsfx-renovate
-        uses: getsentry/action-github-app-token@97c9e23528286821f97fba885c1b1123284b29cc # v2.0.0
+        uses: getsentry/action-github-app-token@5c1e90706fe007857338ac1bfbd7a4177db2f789 # v4.0.0
         with:
           app_id: ${{ secrets.RENOVATE_APP_ID }}
           private_key: ${{ secrets.RENOVATE_PRIVATE_KEY }}
 
       - name: Checkout
-        uses: actions/checkout@a37ce9120846195fa4ece8f58b268e6043cb2f26 # v3.7.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Self-hosted Renovate
-        uses: renovatebot/github-action@aa150c86873c3e1326734d9c1390064fbc646148 # v36.0.0
+        uses: renovatebot/github-action@f0f41e5f2e706165f6814b1d0f0d0e319de7d1d9 # v46.3.8
         with:
           token: "${{ steps.teamsfx-renovate.outputs.token }}"
           configurationFile: .github/renovate.json
