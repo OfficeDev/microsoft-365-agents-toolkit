@@ -1594,6 +1594,69 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";core.addOpenApiActionQuestion.ApiKey.title" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[API Key (optional)]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Clé API (facultatif)]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.addOpenApiActionQuestion.IdentityProvider.description" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Identity provider for OpenAPI OAuth (optional; defaults to OAuth).]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Fournisseur d’identité pour OAuth OpenAPI (facultatif ; OAuth est utilisé par défaut).]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.addOpenApiActionQuestion.IdentityProvider.title" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Select the identity provider for OpenAPI OAuth]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Sélectionnez le fournisseur d’identité pour OpenAPI OAuth]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.addOpenApiActionQuestion.OAuthClientId.title" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[OpenAPI OAuth client ID (optional)]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[ID client OAuth OpenAPI (facultatif)]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.addOpenApiActionQuestion.OAuthClientSecret.title" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[OpenAPI OAuth client secret (optional)]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Clé secrète du client OAuth OpenAPI (facultative)]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.addOpenApiActionQuestion.OAuthPKCE.title" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Enable PKCE for OpenAPI OAuth?]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Voulez-vous activer PKCE pour OAuth OpenAPI ?]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.addOpenApiActionQuestion.OAuthScopes.title" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[OpenAPI OAuth scopes (optional)]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Étendues OAuth OpenAPI (facultatif)]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";core.addPlugin.success" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[API plugin "%s" added to the project successfully. View plugin manifest in "%s".]]></Val>
@@ -1665,10 +1728,13 @@
       </Item>
       <Item ItemId=";core.addSkill.featureFlagDisabled" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Agent skills are not enabled. Set the environment variable TEAMSFX_AGENT_SKILLS=true to enable this preview feature.]]></Val>
+          <Val><![CDATA[Agent skills are not enabled. Set the environment variable ATK_FRONTIER=true to enable this preview feature.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Les compétences de l’agent ne sont pas activées. Définissez la variable d’environnement TEAMSFX_AGENT_SKILLS=true pour activer cette fonctionnalité en préversion.]]></Val>
+            <Val><![CDATA[Les compétences de l’agent ne sont pas activées. Définissez la variable d’environnement ATK_FRONTIER=true pour activer cette fonctionnalité d’évaluation.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Agent skills are not enabled. Set the environment variable TEAMSFX_AGENT_SKILLS=true to enable this preview feature.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -4006,6 +4072,42 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";core.createProjectQuestion.mcpForDa.ApiKey.placeholder" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Enter the API key sent as a bearer token]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Entrez la clé API envoyée en tant que jeton porteur]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.mcpForDa.ApiKey.required" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[API key is required.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Une clé API est obligatoire.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.mcpForDa.ApiKey.title" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[API Key]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Clé API]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.mcpForDa.Auth.BearerToken.Detail" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Send an API key as an HTTP Bearer token.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Envoyez une clé API en tant que jeton du porteur HTTP.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";core.createProjectQuestion.mcpForDa.Auth.EntraSSO" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Entra SSO]]></Val>
@@ -4621,6 +4723,33 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";core.envFunc.fileReferenceOutsideManifestDirectory.errorLog.local" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The file reference resolves outside the manifest directory.]A;Reference: %s]A;Resolved path: %s]A;Manifest directory: %s]A;Move the file into the manifest directory, then update the file reference in %s.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[La référence de fichier est résolue en dehors du répertoire du manifeste.]A;Référence : %s]A;Chemin résolu : %s]A;Répertoire du manifeste : %s]A;Déplacez le fichier dans le répertoire du manifeste, puis mettez à jour la référence du fichier dans %s.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.envFunc.fileReferenceOutsideManifestDirectory.errorMessage" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The file reference must point to a file inside the manifest directory.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[La référence de fichier doit pointer vers un fichier situé dans le répertoire du manifeste.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.envFunc.fileReferenceOutsideManifestDirectory.errorMessage.local" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The file reference "%s" resolves to "%s", outside the manifest directory "%s". Move the file into the manifest directory, then update the reference in %s.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Le "%s" de référence de fichier est résolu en "%s", en dehors du répertoire du manifeste "%s". Déplacez le fichier dans le répertoire manifeste, puis mettez à jour la référence dans %s.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";core.envFunc.invalidFunctionParameter.errorLog" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[The parameter "%s" of function "%s" is invalid. Please provide a valid file path wrapped by '' or an environment variable name in "${{}}" format.]]></Val>
@@ -4698,6 +4827,15 @@
           <Val><![CDATA[Check [Output panel]5D;(command:fx-extension.showOutputChannel) for details.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[Pour plus d’informations, consultez [Output panel]5D;(command :fx-extension.showOutputChannel).]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.featureFlaggedLabel.frontier" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[%s (Frontier)]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[%s (Frontière)]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4932,6 +5070,186 @@
           <Val><![CDATA[Content Add-in]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[Complément de contenu]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.openPluginExport.failed" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Failed to export the Agent Plugin.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Échec de l’exportation du plug-in d’agent.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.openPluginExport.invalidAgentPluginManifest" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The project cannot be exported as an Agent Plugins 1.0.0 manifest.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Le projet ne peut pas être exporté en tant que manifeste Agent Plugins 1.0.0.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.openPluginExport.invalidManifest" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The project manifest is invalid.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Le manifeste du projet n’est pas valide.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.openPluginExport.invalidMcpServerUrl" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The project contains an MCP server URL that cannot be exported.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Le projet contient une URL de serveur MCP qui ne peut pas être exportée.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.openPluginExport.invalidOutputPath" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The output path must not be a symbolic link or junction.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Le chemin de sortie ne doit pas être un lien symbolique ou une jonction.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.openPluginExport.invalidProjectPath" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The project path is invalid.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Le chemin d’accès au projet n’est pas valide.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.openPluginExport.invalidProjectStructure" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The project structure is invalid.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[La structure du projet n’est pas valide.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.openPluginExport.manifestNotFound" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[appPackage/manifest.json was not found in the project.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[appPackage/manifest.json est introuvable dans le projet.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.openPluginExport.missingProjectPath" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The --path option is required.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[L’option --path est obligatoire.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.openPluginExport.outputDirectoryNotEmpty" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The output directory is not empty. Choose a different --output path or empty the directory.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Le répertoire de sortie n’est pas vide. Choisissez un chemin de sortie différent ou videz le répertoire.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.openPluginImport.authFallback" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[OAuth metadata could not be resolved for MCP server '%s' after it confirmed authentication is required. Auto fell back to OAuthPluginVault. Verify the authentication type and register the generated reference ID before use.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Les métadonnées OAuth n’ont pas pu être résolues pour le serveur MCP '%s' après avoir confirmé que l’authentification était requise. Retour automatique à OAuthPluginVault. Vérifiez le type d’authentification et inscrivez l’ID de référence généré avant utilisation.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.openPluginImport.autoAuthNone" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Auto inferred authentication type None for MCP server '%s'. Verify this choice if individual tools require authentication or use an API key.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Type d’authentification automatiquement déduit : Aucun pour le serveur MCP « %s ». Vérifiez ce choix si certains outils nécessitent une authentification ou utilisent une clé API.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.openPluginImport.autoAuthOAuth" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Auto inferred OAuthPluginVault for MCP server '%s'. The generated reference ID is a placeholder and must be registered before use.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[OAuthPluginVault déduit automatiquement pour le serveur MCP '%s'. L’ID de référence généré est un espace réservé et doit être inscrit avant utilisation.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.openPluginImport.failed" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Failed to import the Agent Plugin.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Échec de l’importation du plug-in d’agent.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.openPluginImport.invalidManifest" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The mapped Teams manifest is invalid: %s]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Le manifeste Teams mappé n’est pas valide : %s]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.openPluginImport.invalidOutputPath" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The output path must not be a symbolic link or junction: %s.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Le chemin de sortie ne doit pas être un lien ou une jonction symbolique : %s.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.openPluginImport.invalidPlugin" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The Agent Plugin is invalid: %s]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Le plug-in d’agent n’est pas valide : %s]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.openPluginImport.missingPluginPath" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The --path option is required.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[L’option --path est obligatoire.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.openPluginImport.outputDirectoryNotEmpty" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The output directory is not empty: %s. Choose a different --output path or empty the directory.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Le répertoire de sortie n’est pas vide : %s. Choisissez un chemin de sortie différent ou videz le répertoire.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.openPluginImport.unresolvedMcpAuth" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to resolve authentication for MCP server '%s' while --default-auth-type is Auto. Specify None, OAuthPluginVault, or ApiKeyPluginVault explicitly.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Impossible de résoudre l’authentification pour le serveur MCP '%s' tant que --default-auth-type est Auto. Spécifiez None, OAuthPluginVault ou ApiKeyPluginVault explicitement.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -6228,6 +6546,33 @@
           <Val><![CDATA['%s' exists and was not overwritten. Delete or rename it to rebuild the file.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[« %s » existe et n’a pas été écrasé. Supprimez-le ou renommez-le pour recréer le fichier.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.v4.scaffold.languageOptionsFailed" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Failed to load language choices from the template package.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Échec du chargement des choix de langue à partir du package de modèles.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.v4.scaffold.languageOptionsInvalid" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The template package contains invalid language presentation metadata.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Le package de modèles contient des métadonnées de présentation de langue non valides.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.v4.scaffold.openApiAuthYamlInvalid" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Cannot add OpenAPI authentication actions. The project YAML must be valid and contain a provision action list.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Nous ne pouvons pas ajouter les actions d’authentification OpenAPI. Le fichier YAML du projet doit être valide et contenir une liste d’actions de provisionnement.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -7707,6 +8052,15 @@
           <Val><![CDATA[Turning off PKCE for OAuth2 is not supported in the oauth/update action.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[La désactivation de PKCE pour OAuth2 n’est pas prise en charge dans l’action oauth/update.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.oauth.error.supportedAccountTypesUnsupportedCloud" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The includePersonalMicrosoftAccounts option is supported only in the Microsoft 365 commercial cloud environment.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[L’option includePersonalMicrosoftAccounts est prise en charge uniquement dans l’environnement cloud commercial Microsoft 365.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9466,6 +9820,15 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";error.common.AmbiguousOpenApiAuthCredentialError" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[OpenAPI credentials cannot be mapped because the selected operations use multiple authentication registrations. Omit the scalar credentials or select operations that use one registration.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Les informations d’identification OpenAPI ne peuvent pas être mappées, car les opérations sélectionnées utilisent plusieurs inscriptions d’authentification. Omettez les informations d’identification scalaires ou sélectionnez des opérations qui utilisent une seule inscription.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";error.common.ConcurrentError" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Previous task is still running. Wait until your previous task is finished and try again.]]></Val>
@@ -9520,6 +9883,24 @@
           <Prev Cat="Text">
             <Val><![CDATA[A http server error happened while performing the %s task. Please try again later. The error response is: %s]]></Val>
           </Prev>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";error.common.InapplicableOpenApiAuthCredentialError" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The supplied OpenAPI credentials do not apply to the authentication type used by the selected operations. Omit the credentials or supply credentials for the discovered authentication type.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Les informations d’identification OpenAPI fournies ne s’appliquent pas au type d’authentification utilisé par les opérations sélectionnées. Omettez les informations d’identification ou fournissez des informations d’identification correspondant au type d’authentification détecté.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";error.common.IncompleteOpenApiOAuthCredentialError" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[OpenAPI OAuth client secret, scopes, and PKCE require --openapi-auth-client-id. Supply a client ID or omit the OAuth credential options to configure credentials during provision.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Le secret client OAuth OpenAPI, les étendues et PKCE nécessitent --openapi-auth-client-id. Fournissez un ID client ou omettez les options d’informations d’identification OAuth pour configurer les informations d’identification lors du provisionnement.]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -10270,6 +10651,15 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";error.m365.packageService.validationFailed" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The app package failed RAI validation. Resolve the following issues and try again:]A;%s]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Échec de la validation IAR du package d’application. Corrigez les problèmes suivants et réessayez :]A;%s]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";error.readDeclarativeAgentManifest.failed" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Unable to read declarative agent manifest file. Error: %s]]></Val>
@@ -10441,11 +10831,41 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";error.teamsApp.createAppPackage.fileSystemError.display" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The app package file operation failed for '%s'. File system error: %s.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[L’opération de fichier de package d’application a échoué pour '%s'. Erreur du système de fichiers : %s.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";error.teamsApp.createAppPackage.fileSystemError.telemetry" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The app package file operation failed. File system error: %s.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[L’opération sur le fichier du package d’application a échoué. Erreur du système de fichiers : %s.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";error.teamsApp.createAppPackage.invalidFile" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[%s is invalid, it should be in the same directory as manifest.json or a subdirectory of it.]]></Val>
+          <Val><![CDATA[A referenced file is invalid. It must be in the same directory as manifest.json or a subdirectory of it.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[%s n’est pas valide, il doit se trouver dans le même répertoire que manifest.json ou un sous-répertoire de celui-ci.]]></Val>
+            <Val><![CDATA[Un fichier référencé n’est pas valide. Il doit se trouver dans le même répertoire que manifest.json ou dans l’un de ses sous-répertoires.]]></Val>
+          </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[%s is invalid, it should be in the same directory as manifest.json or a subdirectory of it.]]></Val>
+          </Prev>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";error.teamsApp.createAppPackage.invalidFile.local" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The file reference "%s" resolves to "%s", outside the manifest directory "%s". Move the file into the manifest directory, then update this reference in the manifest that contains it.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[La référence de fichier "%s" résolue en "%s", en dehors du répertoire manifeste "%s". Déplacez le fichier dans le répertoire du manifeste, puis mettez à jour cette référence dans le manifeste qui le contient.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -10596,6 +11016,15 @@
           <Val><![CDATA[Field '%s' should have %s type, yaml file: %s]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[Le '%s' de champ doit avoir %s type, fichier yaml : %s]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";info.m365.packageService.raiValidationInProgress" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[RAI validation is in progress. Waiting for completion...]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[La validation DE LA VALIDATION est en cours. En attente d’achèvement...]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />

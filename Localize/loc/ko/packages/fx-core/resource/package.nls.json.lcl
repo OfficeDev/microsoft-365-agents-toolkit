@@ -652,9 +652,6 @@
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[%s HTTP %s를 사용하여 MCP 초기화 요청에 응답했으므로 MCP 서버 URL이 아닐 수 있습니다. 프로비전하기 전에 URL을 확인합니다.]]></Val>
           </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Unable to find the server metadata from property "authorization_servers" from repsonse of the Protected Resource Metadata of the MCP server.]]></Val>
-          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -1597,6 +1594,69 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";core.addOpenApiActionQuestion.ApiKey.title" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[API Key (optional)]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[API 키(선택 사항)]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.addOpenApiActionQuestion.IdentityProvider.description" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Identity provider for OpenAPI OAuth (optional; defaults to OAuth).]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[OpenAPI OAuth의 ID 공급자(선택 사항, 기본값은 OAuth)입니다.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.addOpenApiActionQuestion.IdentityProvider.title" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Select the identity provider for OpenAPI OAuth]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[OpenAPI OAuth의 ID 공급자 선택]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.addOpenApiActionQuestion.OAuthClientId.title" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[OpenAPI OAuth client ID (optional)]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[OpenAPI OAuth 클라이언트 ID(선택 사항)]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.addOpenApiActionQuestion.OAuthClientSecret.title" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[OpenAPI OAuth client secret (optional)]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[OpenAPI OAuth 클라이언트 암호(선택 사항)]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.addOpenApiActionQuestion.OAuthPKCE.title" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Enable PKCE for OpenAPI OAuth?]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[OpenAPI OAuth에 PKCE를 사용하도록 설정하시겠습니까?]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.addOpenApiActionQuestion.OAuthScopes.title" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[OpenAPI OAuth scopes (optional)]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[OpenAPI OAuth 범위(선택 사항)]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";core.addPlugin.success" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[API plugin "%s" added to the project successfully. View plugin manifest in "%s".]]></Val>
@@ -1668,10 +1728,13 @@
       </Item>
       <Item ItemId=";core.addSkill.featureFlagDisabled" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Agent skills are not enabled. Set the environment variable TEAMSFX_AGENT_SKILLS=true to enable this preview feature.]]></Val>
+          <Val><![CDATA[Agent skills are not enabled. Set the environment variable ATK_FRONTIER=true to enable this preview feature.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[에이전트 기술이 사용하도록 설정되어 있지 않습니다. 이 미리 보기 기능을 사용하려면 환경 변수 TEAMSFX_AGENT_SKILLS=true를 설정하세요.]]></Val>
+            <Val><![CDATA[에이전트 기술을 사용할 수 없습니다. 이 미리 보기 기능을 사용하려면 환경 변수 ATK_FRONTIER=true를 설정합니다.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Agent skills are not enabled. Set the environment variable TEAMSFX_AGENT_SKILLS=true to enable this preview feature.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -4009,6 +4072,42 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";core.createProjectQuestion.mcpForDa.ApiKey.placeholder" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Enter the API key sent as a bearer token]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[전달자 토큰으로 보낸 API 키 입력]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.mcpForDa.ApiKey.required" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[API key is required.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[API 키가 필요합니다.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.mcpForDa.ApiKey.title" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[API Key]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[API 키]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.mcpForDa.Auth.BearerToken.Detail" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Send an API key as an HTTP Bearer token.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[API 키를 HTTP 전달자 토큰으로 보냅니다.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";core.createProjectQuestion.mcpForDa.Auth.EntraSSO" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Entra SSO]]></Val>
@@ -4624,6 +4723,33 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";core.envFunc.fileReferenceOutsideManifestDirectory.errorLog.local" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The file reference resolves outside the manifest directory.]A;Reference: %s]A;Resolved path: %s]A;Manifest directory: %s]A;Move the file into the manifest directory, then update the file reference in %s.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[파일 참조가 매니페스트 디렉터리 외부에서 확인됩니다.]A;참조: %s]A;확인된 경로: %s]A;매니페스트 디렉터리: %s]A;파일을 매니페스트 디렉터리로 이동한 다음 %s에서 파일 참조를 업데이트합니다.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.envFunc.fileReferenceOutsideManifestDirectory.errorMessage" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The file reference must point to a file inside the manifest directory.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[파일 참조는 매니페스트 디렉터리 내부의 파일을 가리켜야 합니다.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.envFunc.fileReferenceOutsideManifestDirectory.errorMessage.local" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The file reference "%s" resolves to "%s", outside the manifest directory "%s". Move the file into the manifest directory, then update the reference in %s.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[파일 참조 "%s"가 매니페스트 디렉터리 "%s" 외부의 "%s"로 확인됩니다. 파일을 매니페스트 디렉터리로 이동한 다음 %s에서 참조를 업데이트합니다.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";core.envFunc.invalidFunctionParameter.errorLog" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[The parameter "%s" of function "%s" is invalid. Please provide a valid file path wrapped by '' or an environment variable name in "${{}}" format.]]></Val>
@@ -4701,6 +4827,15 @@
           <Val><![CDATA[Check [Output panel]5D;(command:fx-extension.showOutputChannel) for details.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[자세한 내용은 [Output panel]5D;(command:fx-extension.showOutputChannel)을 확인하세요.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.featureFlaggedLabel.frontier" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[%s (Frontier)]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[%s(Frontier)]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4935,6 +5070,186 @@
           <Val><![CDATA[Content Add-in]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[콘텐츠 추가 기능]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.openPluginExport.failed" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Failed to export the Agent Plugin.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[에이전트 플러그 인을 내보내지 못했습니다.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.openPluginExport.invalidAgentPluginManifest" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The project cannot be exported as an Agent Plugins 1.0.0 manifest.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[프로젝트를 에이전트 플러그 인 1.0.0 매니페스트로 내보낼 수 없습니다.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.openPluginExport.invalidManifest" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The project manifest is invalid.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[프로젝트 매니페스트가 잘못되었습니다.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.openPluginExport.invalidMcpServerUrl" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The project contains an MCP server URL that cannot be exported.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[프로젝트에 내보낼 수 없는 MCP 서버 URL이 포함되어 있습니다.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.openPluginExport.invalidOutputPath" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The output path must not be a symbolic link or junction.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[출력 경로는 바로 가기 링크 또는 접합이 아니어야 합니다.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.openPluginExport.invalidProjectPath" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The project path is invalid.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[프로젝트 경로가 잘못되었습니다.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.openPluginExport.invalidProjectStructure" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The project structure is invalid.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[프로젝트 구조가 잘못되었습니다.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.openPluginExport.manifestNotFound" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[appPackage/manifest.json was not found in the project.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[프로젝트에서 appPackage/manifest.json을 찾을 수 없습니다.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.openPluginExport.missingProjectPath" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The --path option is required.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[--path 옵션은 필수입니다.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.openPluginExport.outputDirectoryNotEmpty" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The output directory is not empty. Choose a different --output path or empty the directory.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[출력 디렉터리가 비어 있지 않습니다. 다른 --output 경로를 선택하거나 디렉터리를 비우세요.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.openPluginImport.authFallback" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[OAuth metadata could not be resolved for MCP server '%s' after it confirmed authentication is required. Auto fell back to OAuthPluginVault. Verify the authentication type and register the generated reference ID before use.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[인증이 필요한지 확인한 후 MCP 서버 '%s'에 대한 OAuth 메타데이터를 확인할 수 없습니다. 자동으로 OAuthPluginVault로 대체되었습니다. 인증 유형을 확인하고 생성된 참조 ID를 등록한 후 사용하십시오.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.openPluginImport.autoAuthNone" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Auto inferred authentication type None for MCP server '%s'. Verify this choice if individual tools require authentication or use an API key.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[MCP 서버 '%s'에 대한 자동 유추된 인증 유형 없음. 개별 도구에 인증이 필요하거나 API 키를 사용하는 경우 이 선택을 확인합니다.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.openPluginImport.autoAuthOAuth" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Auto inferred OAuthPluginVault for MCP server '%s'. The generated reference ID is a placeholder and must be registered before use.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[MCP 서버 '%s'에 대해 자동으로 유추된 OAuthPluginVault입니다. 생성된 참조 ID는 자리 표시자이며 사용하기 전에 등록해야 합니다.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.openPluginImport.failed" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Failed to import the Agent Plugin.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[에이전트 플러그 인을 가져오지 못했습니다.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.openPluginImport.invalidManifest" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The mapped Teams manifest is invalid: %s]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[매핑된 Teams 매니페스트가 잘못되었습니다. %s]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.openPluginImport.invalidOutputPath" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The output path must not be a symbolic link or junction: %s.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[출력 경로는 바로 가기 링크 또는 접합이 아니어야 합니다. %s.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.openPluginImport.invalidPlugin" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The Agent Plugin is invalid: %s]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[에이전트 플러그 인이 잘못되었습니다. %s]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.openPluginImport.missingPluginPath" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The --path option is required.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[--path 옵션은 필수입니다.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.openPluginImport.outputDirectoryNotEmpty" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The output directory is not empty: %s. Choose a different --output path or empty the directory.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[출력 디렉터리가 비어 있지 않습니다. %s. 다른 --output 경로를 선택하거나 디렉터리를 비우세요.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.openPluginImport.unresolvedMcpAuth" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to resolve authentication for MCP server '%s' while --default-auth-type is Auto. Specify None, OAuthPluginVault, or ApiKeyPluginVault explicitly.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[--default-auth-type이 Auto로 설정된 동안 MCP 서버 '%s'에 대한 인증을 확인할 수 없습니다. None, OAuthPluginVault 또는 ApiKeyPluginVault를 명시적으로 지정합니다.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -6231,6 +6546,33 @@
           <Val><![CDATA['%s' exists and was not overwritten. Delete or rename it to rebuild the file.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA['%s'이(가) 이미 있어 덮어쓰지 않았습니다. 파일을 다시 빌드하려면 삭제하거나 이름을 바꾸세요.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.v4.scaffold.languageOptionsFailed" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Failed to load language choices from the template package.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[템플릿 패키지에서 언어 선택 항목을 로드하지 못했습니다.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.v4.scaffold.languageOptionsInvalid" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The template package contains invalid language presentation metadata.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[템플릿 패키지에 잘못된 언어 프레젠테이션 메타데이터가 포함되어 있습니다.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.v4.scaffold.openApiAuthYamlInvalid" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Cannot add OpenAPI authentication actions. The project YAML must be valid and contain a provision action list.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[OpenAPI 인증 작업을 추가할 수 없습니다. 프로젝트 YAML은 유효해야 하며 프로비전 동작 목록을 포함해야 합니다.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -7710,6 +8052,15 @@
           <Val><![CDATA[Turning off PKCE for OAuth2 is not supported in the oauth/update action.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[oauth/update 작업에서는 OAuth2에 대해 PKCE를 끌 수 없습니다.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.oauth.error.supportedAccountTypesUnsupportedCloud" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The includePersonalMicrosoftAccounts option is supported only in the Microsoft 365 commercial cloud environment.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[includePersonalMicrosoftAccounts 옵션은 Microsoft 365 상용 클라우드 환경에서만 지원됩니다.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -9469,6 +9820,15 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";error.common.AmbiguousOpenApiAuthCredentialError" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[OpenAPI credentials cannot be mapped because the selected operations use multiple authentication registrations. Omit the scalar credentials or select operations that use one registration.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[선택한 작업에서 여러 인증 등록을 사용하므로 OpenAPI 자격 증명을 매핑할 수 없습니다. 스칼라 자격 증명을 생략하거나 하나의 등록을 사용하는 작업을 선택하십시오.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";error.common.ConcurrentError" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Previous task is still running. Wait until your previous task is finished and try again.]]></Val>
@@ -9523,6 +9883,24 @@
           <Prev Cat="Text">
             <Val><![CDATA[A http server error happened while performing the %s task. Please try again later. The error response is: %s]]></Val>
           </Prev>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";error.common.InapplicableOpenApiAuthCredentialError" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The supplied OpenAPI credentials do not apply to the authentication type used by the selected operations. Omit the credentials or supply credentials for the discovered authentication type.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[제공된 OpenAPI 자격 증명은 선택한 작업에 사용되는 인증 유형에 적용되지 않습니다. 자격 증명을 생략하거나 검색된 인증 유형에 대한 자격 증명을 제공하십시오.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";error.common.IncompleteOpenApiOAuthCredentialError" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[OpenAPI OAuth client secret, scopes, and PKCE require --openapi-auth-client-id. Supply a client ID or omit the OAuth credential options to configure credentials during provision.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[OpenAPI OAuth 클라이언트 암호, 범위 및 PKCE에는 --openapi-auth-client-id가 필요합니다. 클라이언트 ID를 제공하거나 OAuth 자격 증명 옵션을 생략하여 프로비전 중에 자격 증명을 구성하세요.]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -10273,6 +10651,15 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";error.m365.packageService.validationFailed" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The app package failed RAI validation. Resolve the following issues and try again:]A;%s]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[앱 패키지가 RAI 유효성 검사에 실패했습니다. 다음 문제를 해결하고 다시 시도하세요.]A;%s]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";error.readDeclarativeAgentManifest.failed" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Unable to read declarative agent manifest file. Error: %s]]></Val>
@@ -10444,11 +10831,41 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";error.teamsApp.createAppPackage.fileSystemError.display" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The app package file operation failed for '%s'. File system error: %s.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA['%s'에 대한 앱 패키지 파일 작업이 실패했습니다. 파일 시스템 오류: %s.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";error.teamsApp.createAppPackage.fileSystemError.telemetry" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The app package file operation failed. File system error: %s.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[앱 패키지 파일 작업이 실패했습니다. 파일 시스템 오류: %s.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";error.teamsApp.createAppPackage.invalidFile" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[%s is invalid, it should be in the same directory as manifest.json or a subdirectory of it.]]></Val>
+          <Val><![CDATA[A referenced file is invalid. It must be in the same directory as manifest.json or a subdirectory of it.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[%s 잘못되었습니다. manifest.json 또는 하위 디렉터리와 같은 디렉터리에 있어야 합니다.]]></Val>
+            <Val><![CDATA[참조된 파일이 잘못되었습니다. manifest.json과 같은 디렉터리나 그 하위 디렉터리에 있어야 합니다.]]></Val>
+          </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[%s is invalid, it should be in the same directory as manifest.json or a subdirectory of it.]]></Val>
+          </Prev>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";error.teamsApp.createAppPackage.invalidFile.local" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The file reference "%s" resolves to "%s", outside the manifest directory "%s". Move the file into the manifest directory, then update this reference in the manifest that contains it.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[파일 참조 "%s"가 매니페스트 디렉터리 "%s" 외부의 "%s"로 확인됩니다. 파일을 매니페스트 디렉터리로 이동한 다음 파일이 포함된 매니페스트에서 이 참조를 업데이트합니다.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -10599,6 +11016,15 @@
           <Val><![CDATA[Field '%s' should have %s type, yaml file: %s]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA['%s' 필드는 %s 형식이어야 합니다. yaml 파일: %s]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";info.m365.packageService.raiValidationInProgress" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[RAI validation is in progress. Waiting for completion...]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[RAI 유효성 검사가 진행 중입니다. 완료 대기 중...]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
