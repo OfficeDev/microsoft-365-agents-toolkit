@@ -16,6 +16,7 @@ This is the vertical contract for the native v4 blank app create package. The pa
 | SCN-CREATE-BLANK-03 | L1 | rendered `m365agents.yml` | render | the lifecycle skeleton preserves `version: v1.12`, renders the provision app name, and includes package validation/update/publish actions |
 | SCN-CREATE-BLANK-04 | L1 | empty target | scaffold | only the `require-empty-target` step runs; no post-render scaffold injection is run |
 | SCN-CREATE-BLANK-05 | L1 | non-empty target | scaffold | `require-empty-target` fails first with **`UserError`** and writes nothing |
+| SCN-CREATE-BLANK-06 | L1 | rendered local environment and lifecycle | render | `env/.env.local` sets `AGENT_SCOPE=shared`, and `m365agents.local.yml` forwards `${{AGENT_SCOPE}}` to `copilotAgent/publish` |
 
 ## Composed operations
 
