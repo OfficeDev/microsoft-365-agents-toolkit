@@ -20,6 +20,7 @@ export class FeatureFlagName {
   static readonly TelemetryTest = "TEAMSFX_TELEMETRY_TEST";
   static readonly DevTunnelTest = "TEAMSFX_DEV_TUNNEL_TEST";
   static readonly SyncManifest = "TEAMSFX_SYNC_MANIFEST";
+  static readonly IncrementalSkillUpload = "TEAMSFX_INCREMENTAL_SKILL_UPLOAD";
   static readonly KiotaNPMIntegration = "TEAMSFX_KIOTA_NPM_INTEGRATION";
   static readonly CEAEnabled = "TEAMSFX_CEA_ENABLED";
   static readonly SandBoxedTeam = "TEAMSFX_SANDBOXED_TEAM";
@@ -80,6 +81,10 @@ export class FeatureFlags {
   };
   static readonly SyncManifest = {
     name: FeatureFlagName.SyncManifest,
+    defaultValue: "false",
+  };
+  static readonly IncrementalSkillUpload = {
+    name: FeatureFlagName.IncrementalSkillUpload,
     defaultValue: "false",
   };
 

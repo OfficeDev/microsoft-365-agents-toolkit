@@ -101,8 +101,6 @@ import { UpdateAadAppArgs } from "../component/driver/aad/interface/updateAadApp
 import { UpdateAadAppDriver } from "../component/driver/aad/update";
 import { AadManifestHelper } from "../component/driver/aad/utility/aadManifestHelper";
 import { buildAadManifest as buildAadManifestInternal } from "../component/driver/aad/utility/buildAadManifest";
-import { AddWebPartDriver } from "../component/driver/add/addWebPart";
-import { AddWebPartArgs } from "../component/driver/add/interface/AddWebPartArgs";
 import { InstallAppToChannelDriver } from "../component/driver/devChannel/installApp";
 import { InstallAppArgs } from "../component/driver/devChannel/interfaces/InstallAppArgs";
 import "../component/driver/index";
@@ -178,7 +176,6 @@ import {
   KnowledgeSourceOptions,
   MAX_EMAIL_NUMBER,
   QuestionNames,
-  SPFxVersionOptionIds,
   ScratchOptions,
   TeamsAppValidationOptions,
 } from "../question/constants";
@@ -874,32 +871,21 @@ export class FxCore extends FxCoreOpenPluginPart {
     }
     return ok(undefined);
   }
-  /**
-   * none lifecycle command, v3 only
-   */
+  /** @deprecated SPFx generation is retired; retained only to reject legacy callers. */
   @hooks([
     ErrorContextMW({ component: "FxCore", stage: "addWebpart", reset: true }),
     ErrorHandlerMW,
-    QuestionMW("addWebpart"),
-    ConcurrentLockerMW,
   ])
-  async addWebpart(inputs: Inputs): Promise<Result<undefined, FxError>> {
-    setErrorContext({ component: "spfxAdd", method: "run" });
-    const driver: AddWebPartDriver = Container.get<AddWebPartDriver>("spfx/add");
-    const args: AddWebPartArgs = {
-      manifestPath: inputs[QuestionNames.ManifestPath],
-      localManifestPath: inputs[QuestionNames.LocalTeamsAppManifestFilePath],
-      spfxFolder: inputs[QuestionNames.SPFxFolder],
-      webpartName: inputs[QuestionNames.SPFxWebpartName],
-      framework: inputs[QuestionNames.SPFxFramework],
-      spfxPackage: SPFxVersionOptionIds.installLocally,
-    };
-    const Context: DriverContext = createDriverContext(inputs);
-    const res = await driver.run(args, Context);
-    if (res.isErr()) {
-      return err(res.error);
-    }
-    return ok(undefined);
+  addWebpart(_inputs: Inputs): Promise<Result<undefined, FxError>> {
+    return Promise.resolve(
+      err(
+        new UserError({
+          source: "FxCore",
+          name: "SPFxGenerationNotSupported",
+          message: getLocalizedString("core.spfxGenerationNotSupported"),
+        })
+      )
+    );
   }
   /**
    * lifecycle command: publish

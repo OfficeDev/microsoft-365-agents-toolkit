@@ -65,6 +65,15 @@ describe("FeatureFlagManager", () => {
     chai.assert.equal(FeatureFlags.Frontier.name, "ATK_FRONTIER");
     chai.assert.isFalse(featureFlagManager.getBooleanValue(FeatureFlags.Frontier));
   });
+  it("AC-01: incremental skill upload defaults off", () => {
+    mockedEnvRestore = mockedEnv({ TEAMSFX_INCREMENTAL_SKILL_UPLOAD: undefined });
+    chai.assert.equal(FeatureFlags.IncrementalSkillUpload.name, "TEAMSFX_INCREMENTAL_SKILL_UPLOAD");
+    chai.assert.isFalse(featureFlagManager.getBooleanValue(FeatureFlags.IncrementalSkillUpload));
+  });
+  it("AC-01: incremental skill upload is explicitly enabled", () => {
+    mockedEnvRestore = mockedEnv({ TEAMSFX_INCREMENTAL_SKILL_UPLOAD: "true" });
+    chai.assert.isTrue(featureFlagManager.getBooleanValue(FeatureFlags.IncrementalSkillUpload));
+  });
   it("decorates only Frontier feature labels", () => {
     chai.assert.equal(
       getFeatureFlaggedLabel("Add Skill", FeatureFlags.Frontier.name),

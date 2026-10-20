@@ -258,12 +258,22 @@ describe("v3 yaml parser", () => {
           { ...base, ...legacy },
           { ...base, ...endpoint },
           { ...base, ...legacy, ...endpoint, resource: "${{OAUTH_RESOURCE}}" },
+          ...[legacy, endpoint].flatMap((discovery) => [
+            { name: base.name, ...discovery },
+            { ...base, ...discovery, targetUrlsShouldStartWith: [] },
+            {
+              ...base,
+              ...discovery,
+              targetUrlsShouldStartWith: ["https://one.example.com", "https://two.example.com"],
+            },
+            { ...base, ...discovery, targetUrlsShouldStartWith: [""] },
+          ]),
         ];
         for (const input of validInputs) {
-          it(`accepts ${Object.keys(input).join(", ")}`, () => {
+          it(`accepts ${JSON.stringify(input)}`, () => {
             assert.isTrue(
               validate({
-                version: "v1.13",
+                version: schemaVersion || "v1.13",
                 provision: [
                   {
                     uses: "dcr/register",
@@ -278,14 +288,8 @@ describe("v3 yaml parser", () => {
         }
         const invalidInputs = [
           base,
-          { name: "test-dcr", ...legacy },
-          { ...base, ...legacy, targetUrlsShouldStartWith: [] },
-          {
-            ...base,
-            ...legacy,
-            targetUrlsShouldStartWith: ["https://one.example.com", "https://two.example.com"],
-          },
           { ...base, ...legacy, targetUrlsShouldStartWith: "https://one.example.com" },
+          { ...base, ...legacy, targetUrlsShouldStartWith: [123] },
           { ...base, ...endpoint, authorizationServerUrl: "https://auth.example.com" },
           { ...base, ...endpoint, cimdSupported: false },
         ];
@@ -293,7 +297,7 @@ describe("v3 yaml parser", () => {
           it(`rejects unsupported shape ${index + 1}`, () => {
             assert.isFalse(
               validate({
-                version: "v1.13",
+                version: schemaVersion || "v1.13",
                 provision: [
                   {
                     uses: "dcr/register",
@@ -343,6 +347,79 @@ describe("v3 yaml parser", () => {
       } finally {
         read.mockRestore();
       }
+    });
+
+    for (const includePersonalMicrosoftAccounts of [false, true]) {
+      it(`OAUTH-MSA-02: v1.13 accepts includePersonalMicrosoftAccounts=${includePersonalMicrosoftAccounts}`, () => {
+        const schema = fs.readJSONSync(
+          path.resolve(__dirname, "../../../resource/yaml-schema/v1.13/yaml.schema.json")
+        );
+        const ajv = new Ajv({ allowUnionTypes: true });
+        ajv.addKeyword("deprecationMessage");
+        const validate = ajv.compile(schema);
+
+        assert.isTrue(
+          validate({
+            version: "v1.13",
+            provision: [
+              {
+                uses: "oauth/register",
+                with: {
+                  name: "test-oauth",
+                  flow: "authorizationCode",
+                  includePersonalMicrosoftAccounts,
+                },
+                writeToEnvironmentFile: { configurationId: "OAUTH_CONFIGURATION_ID" },
+              },
+              {
+                uses: "oauth/update",
+                with: {
+                  name: "test-oauth",
+                  configurationId: "existing-id",
+                  includePersonalMicrosoftAccounts,
+                },
+              },
+              {
+                uses: "dcr/register",
+                with: {
+                  name: "test-dcr",
+                  mcpResourceUrl: "https://mcp.example.com/mcp",
+                  targetUrlsShouldStartWith: ["https://mcp.example.com/mcp"],
+                  includePersonalMicrosoftAccounts,
+                },
+                writeToEnvironmentFile: { configurationId: "DCR_CONFIGURATION_ID" },
+              },
+            ],
+          }),
+          JSON.stringify(validate.errors)
+        );
+      });
+    }
+
+    it("OAUTH-MSA-03: v1.13 rejects a non-boolean personal account option", () => {
+      const schema = fs.readJSONSync(
+        path.resolve(__dirname, "../../../resource/yaml-schema/v1.13/yaml.schema.json")
+      );
+      const ajv = new Ajv({ allowUnionTypes: true });
+      ajv.addKeyword("deprecationMessage");
+      const validate = ajv.compile(schema);
+
+      assert.isFalse(
+        validate({
+          version: "v1.13",
+          provision: [
+            {
+              uses: "oauth/register",
+              with: {
+                name: "test-oauth",
+                flow: "authorizationCode",
+                includePersonalMicrosoftAccounts: "true",
+              },
+              writeToEnvironmentFile: { configurationId: "OAUTH_CONFIGURATION_ID" },
+            },
+          ],
+        })
+      );
     });
 
     it("should return ok for valid dcr/register", async () => {

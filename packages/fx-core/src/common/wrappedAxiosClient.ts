@@ -3,6 +3,7 @@
 import axios, {
   AxiosError,
   AxiosInstance,
+  AxiosRequestConfig,
   AxiosResponse,
   CreateAxiosDefaults,
   InternalAxiosRequestConfig,
@@ -46,8 +47,12 @@ export class WrappedAxiosClient {
    * @param request
    */
   public static onRequest(request: InternalAxiosRequestConfig) {
+    const fullPath = this.getRequestUrl(request);
+    if (this.usesMetadataOnlyTelemetry(fullPath)) {
+      this.sendMetadataOnlyTelemetry(request);
+      return request;
+    }
     const method = request.method!;
-    const fullPath = `${request.baseURL ?? ""}${request.url ?? ""}`;
     const apiName = this.convertUrlToApiName(fullPath, method);
 
     const properties: { [key: string]: string } = {
@@ -67,8 +72,12 @@ export class WrappedAxiosClient {
    * @returns
    */
   public static onResponse(response: AxiosResponse) {
+    const fullPath = this.getRequestUrl(response.config);
+    if (this.usesMetadataOnlyTelemetry(fullPath)) {
+      this.sendMetadataOnlyTelemetry(response.config, { success: true, status: response.status });
+      return response;
+    }
     const method = response.request.method;
-    const fullPath = `${response.config.baseURL ?? ""}${response.config.url ?? ""}`;
     const apiName = this.convertUrlToApiName(fullPath, method);
 
     const properties: { [key: string]: string } = {
@@ -91,12 +100,20 @@ export class WrappedAxiosClient {
    * @returns
    */
   public static onRejected(error: AxiosError) {
+    const config = error?.config ?? error?.response?.config;
+    const fullPath = this.getRequestUrl(config);
+    if (this.usesMetadataOnlyTelemetry(fullPath)) {
+      this.sendMetadataOnlyTelemetry(config, {
+        success: false,
+        status: error?.response?.status,
+      });
+      return Promise.reject(error);
+    }
     // Telemetry must never throw, otherwise the synthetic error will mask the
     // real transport-level failure (TLS handshake, ECONNRESET on a kept-alive
     // socket, etc.) returned to the caller. See AB#37640864.
     try {
       const method = ((error.request?.method as string) ?? error.config?.method ?? "").toString();
-      const fullPath = `${error.config?.baseURL ?? ""}${error.config?.url ?? ""}`;
       const apiName = this.convertUrlToApiName(fullPath, method);
 
       let requestData: any;
@@ -169,6 +186,78 @@ export class WrappedAxiosClient {
     return Promise.reject(error);
   }
 
+  private static sendMetadataOnlyTelemetry(
+    config: AxiosRequestConfig | undefined,
+    outcome?: { success: boolean; status?: number }
+  ): void {
+    try {
+      const requestedMethod = config?.method?.toLowerCase() ?? "";
+      const method = ["get", "post", "put", "delete", "patch", "head", "options"].includes(
+        requestedMethod
+      )
+        ? requestedMethod
+        : "unknown";
+      const fullPath = this.getRequestUrl(config);
+      const apiName = this.convertUrlToApiName(fullPath, method);
+      const eventName = this.getEventName(fullPath);
+      const properties: Record<string, string> = { url: `<${apiName}-url>`, method };
+      if (outcome) {
+        properties[TelemetryProperty.Success] = outcome.success
+          ? TelemetrySuccess.Yes
+          : TelemetrySuccess.No;
+        properties["status-code"] = outcome.status?.toString() ?? "undefined";
+        if (outcome.success) TOOLS?.telemetryReporter?.sendTelemetryEvent(eventName, properties);
+        else TOOLS?.telemetryReporter?.sendTelemetryErrorEvent(eventName, properties);
+      } else {
+        TOOLS?.telemetryReporter?.sendTelemetryEvent(`${eventName}-start`, properties);
+      }
+    } catch {
+      // Telemetry must not replace an HTTP result or trigger an upload retry.
+    }
+  }
+
+  private static getRequestUrl(config?: AxiosRequestConfig): string {
+    return axios.getUri({ url: config?.url ?? "", baseURL: config?.baseURL });
+  }
+
+  private static usesMetadataOnlyTelemetry(fullPath: string): boolean {
+    const path = this.getApiPath(fullPath);
+    // Protect the entire route family so new/unrecognized operations cannot expose file data.
+    return (
+      path === undefined ||
+      /^\/builder\/v1\/directories(?:\/|$)/.test(path) ||
+      /^\/(?:v1\.0|beta)\/drives(?:\/|$)/.test(path)
+    );
+  }
+
+  private static getApiPath(url: string): string | undefined {
+    try {
+      return new URL(url).pathname;
+    } catch {
+      return undefined;
+    }
+  }
+
+  private static getGraphFileApiName(path: string | undefined, method: string): string | undefined {
+    if (!path) return undefined;
+    if (/^\/v1\.0\/drives\/[^/]+\/items\/[^/:]+\/children$/.test(path)) {
+      if (method === "GET") return GRAPH_API_NAMES.LIST_DRIVE_ITEMS;
+      if (method === "POST") return GRAPH_API_NAMES.CREATE_DRIVE_FOLDER;
+    }
+    if (method === "PUT") {
+      if (/^\/v1\.0\/drives\/[^/]+\/items\/[^/:]+:\/[^/]+:\/content$/.test(path)) {
+        return GRAPH_API_NAMES.UPLOAD_DRIVE_FILE;
+      }
+      if (/^\/v1\.0\/drives\/[^/]+\/items\/[^/:]+\/content$/.test(path)) {
+        return GRAPH_API_NAMES.UPDATE_DRIVE_FILE;
+      }
+    }
+    if (method === "DELETE" && /^\/v1\.0\/drives\/[^/]+\/items\/[^/:]+$/.test(path)) {
+      return GRAPH_API_NAMES.DELETE_DRIVE_ITEM;
+    }
+    return undefined;
+  }
+
   static convertMethodUrlToApiDefForMOS(method: string, url: string): MOS3Api | undefined {
     const upperMethod = (method ?? "").toUpperCase();
     for (const key of Object.keys(MOS3ApiDefinitions)) {
@@ -190,6 +279,13 @@ export class WrappedAxiosClient {
    */
   public static convertUrlToApiName(fullPath: string, method: string): string {
     const upperMethod = (method ?? "").toUpperCase();
+    if (this.usesMetadataOnlyTelemetry(fullPath)) {
+      const path = this.getApiPath(fullPath);
+      const mosApi = path ? this.convertMethodUrlToApiDefForMOS(method, path) : undefined;
+      return mosApi
+        ? `mos_${mosApi.key}`
+        : (this.getGraphFileApiName(path, upperMethod) ?? "unclassified-api");
+    }
 
     if (this.isTDPApi(fullPath)) {
       if (fullPath.match(new RegExp("/api/aadapp/v2"))) {
@@ -478,7 +574,8 @@ export class WrappedAxiosClient {
    * @returns
    */
   private static isGraphApi(baseUrl: string): boolean {
-    const regex = /(^https:\/\/)?([\w.-]+\.)?graph\.microsoft\.(com|us)(:\d+)?(\/|$)/i;
+    const regex =
+      /(^https:\/\/)?(([\w.-]+\.)?graph\.microsoft\.(com|us)|dod-graph\.microsoft\.us)(:\d+)?(\/|$)/i;
     const matches = regex.exec(baseUrl);
     return matches != null && matches.length > 0;
   }

@@ -1,0 +1,48 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/microsoft/waza/main/schemas/task.schema.json
+
+id: wiqd-plugin-installation
+name: Explain WIQD Plugin Installation
+description: User needs the WIQD plugin before starting a Declarative Agent lifecycle workflow
+tags:
+  - scaffold
+  - routing
+  - setup
+inputs:
+  prompt: "I want to create a non-TypeSpec Declarative Agent, but the WIQD plugin is not installed in my Copilot session. What should I do?"
+expected:
+  should_trigger: true
+graders:
+  - type: behavior
+    name: efficiency_check
+    config:
+      max_tool_calls: 8
+      max_duration_ms: 60000
+      forbidden_tools:
+        - rm
+        - sudo
+  - type: skill_invocation
+    name: no_unavailable_wiqd_invocation
+    config:
+      forbidden_skills:
+        - wiqd
+  - type: tool_constraint
+    name: no_atk_or_wiqd_cli_fallback
+    config:
+      reject_tools:
+        - tool: shell
+          command_pattern: '(?i)\b(atk\s+(new|provision|deploy|validate|package|publish)|wiqd\s+agent)\b'
+  - type: prompt
+    name: installation_guidance
+    config:
+      prompt: |
+        Review the agent's response. Check that it:
+        1. Explains that the WIQD plugin is required for the requested non-TypeSpec Declarative Agent workflow.
+        2. Asks for approval before modifying the user's global Copilot plugin installation.
+        3. Provides `copilot plugin marketplace add microsoft/wiqd` when the marketplace is not already registered and `copilot plugin install wiqd@wiqd` to install the plugin.
+        4. Tells the user to start a new Copilot session after installation and repeat the original request.
+        5. Does not invoke the unavailable WIQD skill, install or run the WIQD CLI directly, or fall back to an ATK lifecycle command.
+
+        If all criteria are met, call set_waza_grade_pass.
+        Otherwise, call set_waza_grade_fail with your reasoning.
+      model: "gpt-5.4"
+      continue_session: true

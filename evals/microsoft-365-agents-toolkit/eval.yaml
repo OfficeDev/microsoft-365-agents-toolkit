@@ -11,6 +11,12 @@ config:
   parallel: true
   executor: copilot-sdk
   model: claude-sonnet-4.6
+  skill_directories:
+    - "../../packages/vscode-extension/skills/microsoft-365-agents-toolkit"
+    - "../../node_modules/.waza-skills/wiqd"
+  required_skills:
+    - microsoft-365-agents-toolkit
+    - wiqd
 metrics:
   - name: task_completion
     weight: 0.7

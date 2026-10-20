@@ -41,12 +41,10 @@ page and ADR.
    decided in [ADR-0006](adr/ADR-0006-template-distribution-channel.md)
    (**`Accepted`**).
 
-2. **Produce an SPFx-toolchain-recognized solution.** For SharePoint
-   Framework scaffolds, the output must conform to the directory layout
-   in [`external-dependencies/spfx-tooling.md`](external-dependencies/spfx-tooling.md)
-   §1.2. The choice of *how* (current Yeoman path vs upstream-published
-   successor `@microsoft/spfx-cli` / `@microsoft/spfx-template-api`) is
-   tracked in [ADR-0009](adr/ADR-0009-spfx-scaffolding-tooling-path.md).
+2. **SPFx generation retired.** Creation, import, and add-web-part are no
+   longer scaffold capabilities. Existing-project deployment and publishing
+   remain supported; see the
+   [retirement contract](../03-specs/operations/product/retire-spfx-generation.md).
 
 3. **Produce DA and plugin manifests from TypeSpec sources.** For
    TypeSpec scaffolds, the subsystem (or the user-owned build step it
@@ -127,7 +125,7 @@ choice.
 
 Properties 2 and 3 today have known counterexamples (URL-fetched OpenAPI
 specs, scaffold-time Graph resolution, on-demand `npm install` for the
-SPFx Yeoman path, lazy Kiota binary extraction). Each counterexample is
+lazy Kiota binary extraction). Each counterexample is
 the trigger for one of the ADRs in §4.
 
 ## 4. Open structural questions

@@ -5,11 +5,38 @@ const {
   FetchingJSONSchemaStore,
   tsFlowOptions,
   javaScriptOptions,
+  TypeScriptTargetLanguage,
+  TypeScriptRenderer,
+  getOptionValues,
 } = require("quicktype-core-jayzhang");
 const fs = require("fs-extra");
 const path = require("path");
+const prettier = require("prettier");
 
 const manifestProjectFolder = __dirname;
+
+class ManifestTypeScriptRenderer extends TypeScriptRenderer {
+  emitConvertModuleHelpers() {
+    this.ensureBlankLine();
+    const template = fs
+      .readFileSync(path.join(manifestProjectFolder, "converter-runtime.txt"), "utf8")
+      .replace(/\r\n?/g, "\n");
+    for (const line of template.split("\n")) {
+      this.emitLine(line);
+    }
+    this.emitTypeMap();
+  }
+}
+
+class ManifestTypeScriptTargetLanguage extends TypeScriptTargetLanguage {
+  makeRenderer(renderContext, untypedOptionValues) {
+    return new ManifestTypeScriptRenderer(
+      this,
+      renderContext,
+      getOptionValues(tsFlowOptions, untypedOptionValues)
+    );
+  }
+}
 
 async function quicktypeJSONSchema(targetLanguage, typeName, jsonSchemaString) {
   const schemaInput = new JSONSchemaInput(new FetchingJSONSchemaStore());
@@ -22,12 +49,23 @@ async function quicktypeJSONSchema(targetLanguage, typeName, jsonSchemaString) {
   tsFlowOptions.preferConstValues.getValue = () => true;
   javaScriptOptions.jsonStringifySpaceNum.getValue = () => "4";
 
-  return await quicktype({
+  const result = await quicktype({
     inputData,
-    lang: targetLanguage,
+    lang: targetLanguage === "typescript" ? new ManifestTypeScriptTargetLanguage() : targetLanguage,
     allPropertiesOptional: false,
     alphabetizeProperties: false,
   });
+  if (targetLanguage !== "typescript") {
+    return result;
+  }
+  const options = await prettier.resolveConfig(
+    path.join(manifestProjectFolder, "src", "generated-types", "index.ts")
+  );
+  const source = await prettier.format(result.lines.join("\n"), {
+    ...options,
+    parser: "typescript",
+  });
+  return { ...result, lines: source.split("\n") };
 }
 
 async function convert(srcFolder, srcFileName, typeName, destFilePath) {
@@ -115,6 +153,15 @@ async function generatePluginManifestTypeFiles() {
   }
 }
 
-generateTeamsManifestTypeFiles();
-generateDAManifestTypeFiles();
-generatePluginManifestTypeFiles();
+module.exports = { quicktypeJSONSchema };
+
+if (require.main === module) {
+  Promise.all([
+    generateTeamsManifestTypeFiles(),
+    generateDAManifestTypeFiles(),
+    generatePluginManifestTypeFiles(),
+  ]).catch((error) => {
+    console.error(error);
+    process.exitCode = 1;
+  });
+}

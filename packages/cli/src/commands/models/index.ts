@@ -8,7 +8,6 @@ export * from "./accountLoginM365";
 export * from "./accountLogout";
 export * from "./accountShow";
 export * from "./add";
-export * from "./addSPFxWebpart";
 export * from "./export";
 export * from "./exportOpenPlugin";
 export * from "./import";

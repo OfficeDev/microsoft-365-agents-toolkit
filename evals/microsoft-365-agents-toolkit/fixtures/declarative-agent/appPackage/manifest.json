@@ -11,9 +11,16 @@
     "color": "color.png",
     "outline": "outline.png"
   },
+  "accentColor": "#FFFFFF",
   "description": {
     "short": "Tests DA lifecycle routing",
     "full": "Tests that DA markers take precedence over an m365agents.yml file."
+  },
+  "developer": {
+    "name": "DA routing fixture",
+    "websiteUrl": "https://example.com",
+    "privacyUrl": "https://example.com/privacy",
+    "termsOfUseUrl": "https://example.com/terms"
   },
   "copilotAgents": {
     "declarativeAgents": [

@@ -93,4 +93,10 @@ describe("SCN-TEAMS-CREATE-BLANK-APP (v4, T3 InMemoryRuntime)", () => {
     assert.strictEqual(error.name, REQUIRE_EMPTY_TARGET);
     assert.strictEqual(runtime.files.size, 0);
   });
+
+  it("SCN-CREATE-BLANK-06: local provision publishes with shared scope", async () => {
+    const { files } = await run();
+    assert.include(text(files, "env/.env.local"), "AGENT_SCOPE=shared");
+    assert.include(text(files, "m365agents.local.yml"), "scope: ${{AGENT_SCOPE}}");
+  });
 });

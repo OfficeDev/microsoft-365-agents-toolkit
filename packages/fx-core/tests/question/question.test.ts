@@ -39,7 +39,6 @@ import {
   GCInputQuestion,
   GCListQuestion,
   GCNameQuestion,
-  SPFxImportFolderQuestion,
   questionNodes,
 } from "../../src/question";
 import { selectAadAppManifestQuestionNode } from "../../src/question/collaborator";
@@ -96,56 +95,6 @@ describe("none scaffold questions", () => {
     vi.restoreAllMocks();
     mockedEnvRestore();
   });
-  describe("addWebpart", async () => {
-    it("happy path", async () => {
-      const inputs: Inputs = {
-        platform: Platform.VSCode,
-        projectPath: "./test",
-      };
-
-      const questionNames: string[] = [];
-      const visitor: QuestionTreeVisitor = async (
-        question: Question,
-        ui: UserInteraction,
-        inputs: Inputs,
-        step?: number,
-        totalSteps?: number
-      ) => {
-        questionNames.push(question.name);
-        await callFuncs(question, inputs);
-        if (QuestionNames.SPFxFolder) {
-          return ok({
-            type: "success",
-            result: ".",
-          });
-        } else if (QuestionNames.SPFxWebpartName) {
-          return ok({ type: "success", result: "test" });
-        } else if (question.name === QuestionNames.TeamsAppManifestFilePath) {
-          return ok({ type: "success", result: "teamsAppManifest" });
-        } else if (question.name === QuestionNames.ConfirmManifest) {
-          return ok({ type: "success", result: "manifest" });
-        } else if (question.name === QuestionNames.LocalTeamsAppManifestFilePath) {
-          return ok({ type: "success", result: "teamsAppManifest" });
-        } else if (question.name === QuestionNames.ConfirmLocalManifest) {
-          return ok({ type: "success", result: "manifest" });
-        }
-        return ok({ type: "success", result: undefined });
-      };
-      const node = questionNodes.addWebpart();
-
-      await traverse(node, inputs, ui, undefined, visitor);
-      assert.deepEqual(questionNames, [
-        QuestionNames.SPFxFolder,
-        QuestionNames.SPFxWebpartName,
-        QuestionNames.SPFxFramework,
-        QuestionNames.TeamsAppManifestFilePath,
-        QuestionNames.ConfirmManifest,
-        QuestionNames.LocalTeamsAppManifestFilePath,
-        QuestionNames.ConfirmLocalManifest,
-      ]);
-    });
-  });
-
   describe("selectTeamsAppManifest", async () => {
     it("happy path", async () => {
       const inputs: Inputs = {
@@ -253,13 +202,6 @@ describe("none scaffold questions", () => {
         QuestionNames.ConfirmManifest,
       ]);
     });
-  });
-  it("SPFxImportFolderQuestion", () => {
-    const projectDir = "\\test";
-
-    const res = (SPFxImportFolderQuestion(true) as any).default({ projectPath: projectDir });
-
-    assert.equal(path.resolve(res), path.resolve("\\test/src"));
   });
 });
 

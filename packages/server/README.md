@@ -2,6 +2,10 @@
 
 TeamsFx Server is a server which depends on JSON-RPC protocol and will be used by VS extension.
 
+## Requirements
+
+Requires Node.js 20.19.0 or later in the 20.x series, or Node.js 22.12.0 or later, matching the core engine's runtime requirements.
+
 ## Extensibility Model
 
 TeamsFx Server depends on [fx-core](/packages/fx-core) and [api](/packages/api) packages. [fx-core](/packages/fx-core) is designed to be extensible. See [EXTENSIBILITY.md](/packages/api/ETENSIBILITY.md) for more

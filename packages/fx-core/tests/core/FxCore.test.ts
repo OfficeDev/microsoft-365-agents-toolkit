@@ -45,7 +45,6 @@ import {
 import { YamlParser } from "../../src/component/configManager/parser";
 import { coordinator } from "../../src/component/coordinator";
 import { UpdateAadAppDriver } from "../../src/component/driver/aad/update";
-import { AddWebPartDriver } from "../../src/component/driver/add/addWebPart";
 import { InstallAppToChannelDriver } from "../../src/component/driver/devChannel/installApp";
 import { DriverContext } from "../../src/component/driver/interface/commonArgs";
 import * as shareUtils from "../../src/component/driver/share/utils";
@@ -168,115 +167,6 @@ describe("Core basic APIs", () => {
       runSpy.mock.calls[0][0].manifestPath,
       path.join(os.tmpdir(), appName, "aad.manifest.json")
     );
-    runSpy; // vi.restoreAllMocks() called in afterEach
-  });
-
-  it("add web part to SPFx", async () => {
-    const core = new FxCore(tools);
-    const appName = await mockV3Project();
-    const appPath = path.join(os.tmpdir(), appName);
-    const inputs: Inputs = {
-      platform: Platform.VSCode,
-      [QuestionNames.Folder]: os.tmpdir(),
-      "spfx-folder": ".\\src",
-      "manifest-path": path.join(appPath, "appPackage\\manifest.json"),
-      "local-manifest-path": path.join(appPath, "appPackage\\manifest.local.json"),
-      "spfx-webpart-name": "helloworld",
-      "spfx-install-latest-package": "true",
-      "spfx-load-package-version": "loaded",
-      stage: Stage.addWebpart,
-      projectPath: appPath,
-    };
-
-    const runSpy = vi.spyOn(AddWebPartDriver.prototype, "run");
-    await core.addWebpart(inputs);
-    chai.expect(runSpy.mock.calls).lengthOf(1);
-    runSpy; // vi.restoreAllMocks() called in afterEach
-  });
-
-  it("add web part to SPFx - CLI help", async () => {
-    const core = new FxCore(tools);
-    const appName = await mockV3Project();
-    const appPath = path.join(os.tmpdir(), appName);
-    const inputs: Inputs = {
-      platform: Platform.CLI_HELP,
-      [QuestionNames.Folder]: os.tmpdir(),
-      "spfx-folder": ".\\src",
-      "manifest-path": path.join(appPath, "appPackage\\manifest.json"),
-      "local-manifest-path": path.join(appPath, "appPackage\\manifest.local.json"),
-      "spfx-webpart-name": "helloworld",
-      "spfx-install-latest-package": "true",
-      "spfx-load-package-version": "loaded",
-      stage: Stage.addWebpart,
-      projectPath: appPath,
-    };
-
-    const runSpy = vi.spyOn(AddWebPartDriver.prototype, "run");
-    await core.addWebpart(inputs);
-    chai.expect(runSpy.mock.calls).lengthOf(1);
-    runSpy; // vi.restoreAllMocks() called in afterEach
-  });
-
-  it("add web part to SPFx with empty .yo-rc.json", async () => {
-    const core = new FxCore(tools);
-    const appName = await mockV3Project();
-    const appPath = path.join(os.tmpdir(), appName);
-    const inputs: Inputs = {
-      platform: Platform.VSCode,
-      [QuestionNames.Folder]: os.tmpdir(),
-      "spfx-folder": ".\\src",
-      "manifest-path": path.join(appPath, "appPackage\\manifest.json"),
-      "local-manifest-path": path.join(appPath, "appPackage\\manifest.local.json"),
-      "spfx-webpart-name": "helloworld",
-      "spfx-install-latest-package": "true",
-      "spfx-load-package-version": "loaded",
-      stage: Stage.addWebpart,
-      projectPath: appPath,
-    };
-    vi.spyOn(fs, "pathExists").mockImplementation(async (directory: string) => {
-      if (directory.includes(path.join("webparts", "helloworld"))) {
-        return false;
-      }
-      return true;
-    });
-    vi.spyOn(fs, "readJson").mockResolvedValue({});
-    const runSpy = vi.spyOn(AddWebPartDriver.prototype, "run");
-    await core.addWebpart(inputs);
-    chai.expect(runSpy.mock.calls).lengthOf(1);
-    runSpy; // vi.restoreAllMocks() called in afterEach
-  });
-
-  it("add web part to SPFx with framework", async () => {
-    const core = new FxCore(tools);
-    const appName = await mockV3Project();
-    const appPath = path.join(os.tmpdir(), appName);
-    const inputs: Inputs = {
-      platform: Platform.VSCode,
-      [QuestionNames.Folder]: os.tmpdir(),
-      "spfx-folder": ".\\src",
-      "manifest-path": path.join(appPath, "appPackage\\manifest.json"),
-      "local-manifest-path": path.join(appPath, "appPackage\\manifest.local.json"),
-      "spfx-webpart-name": "helloworld",
-      "spfx-install-latest-package": "true",
-      "spfx-load-package-version": "loaded",
-      stage: Stage.addWebpart,
-      projectPath: appPath,
-    };
-
-    vi.spyOn(fs, "pathExists").mockImplementation(async (directory: string) => {
-      if (directory.includes(path.join("webparts", "helloworld"))) {
-        return false;
-      }
-      return true;
-    });
-    vi.spyOn(fs, "readJson").mockResolvedValue({
-      "@microsoft/generator-sharepoint": {
-        template: "react",
-      },
-    });
-    const runSpy = vi.spyOn(AddWebPartDriver.prototype, "run");
-    await core.addWebpart(inputs);
-    chai.expect(runSpy.mock.calls).lengthOf(1);
     runSpy; // vi.restoreAllMocks() called in afterEach
   });
 

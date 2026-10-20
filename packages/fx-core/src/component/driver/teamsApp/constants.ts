@@ -355,6 +355,11 @@ export class GRAPH_API_NAMES {
   public static readonly PUBLISH_APP = "graph-publish-app";
   public static readonly GET_PUBLISHED_APP = "graph-get-published-app";
   public static readonly UPDATE_PUBLISHED_APP = "graph-update-published-app";
+  public static readonly LIST_DRIVE_ITEMS = "graph-list-drive-items";
+  public static readonly CREATE_DRIVE_FOLDER = "graph-create-drive-folder";
+  public static readonly UPLOAD_DRIVE_FILE = "graph-upload-drive-file";
+  public static readonly UPDATE_DRIVE_FILE = "graph-update-drive-file";
+  public static readonly DELETE_DRIVE_ITEM = "graph-delete-drive-item";
 }
 
 /**

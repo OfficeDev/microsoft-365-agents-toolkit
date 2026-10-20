@@ -37,14 +37,29 @@ The same override is exposed as the `node_version` input on the
 
 ## Extending from Base Image
 
-This profile extends the base image:
+The Dockerfile and CI workflow default to the same immutable Linux AMD64 base:
 
 ```dockerfile
-ARG BASE_IMAGE=ghcr.io/<your-github-username>/vscuse-base:latest
+ARG BASE_IMAGE=ghcr.io/microsoft/vscuse-base@sha256:2db458897652e039d87f3bd28928c74003be4224d3ee49484b245f63e48f7977
 FROM ${BASE_IMAGE}
-
-# ATK-specific tools are added here...
 ```
+
+This is the Chrome 155.0.8059.39 baseline used by the `20261013` ATK image. Dev CD
+and PR smoke builds use this same base, while installing their own VSIX artifacts.
+The workflow supplies the pinned build argument even when checking out a PR's
+older Dockerfile. Local builds use the Dockerfile's matching default.
+
+Keep this digest fixed until vulnerabilities in the pinned image require an
+update. Do not refresh it automatically from `latest` or on a periodic schedule.
+To remediate vulnerabilities, validate a replacement image's Chrome startup and
+login behavior, then update both the Dockerfile's `BASE_IMAGE` default and the
+workflow's `PINNED_BASE_IMAGE`, run the image regression tests, and rebuild the dev
+and PR images. Existing published tags are not changed by updating the pin.
+
+The optional workflow `base_image_tag` input is an explicit override for candidate
+validation; normal dev and PR builds leave it empty. Local candidate builds can
+override `BASE_IMAGE` with `--build-arg`. Pinning the base does not pin the
+ATK-specific packages installed in later layers or add vulnerability scanning.
 
 ## Configuration
 
@@ -61,6 +76,17 @@ The image entrypoint mirrors a declared `TEAMSFX_CEA_ENABLED=true|false` test pr
 `M365AgentsToolkit.enableLaunchAgentForTeamsInCopilot` before VS Code starts. Generate a
 plan-scoped run config with `vscode-test-cases/engine/prepare-vscuse-config.cjs`; do not add the
 setting to the shared image settings.
+
+On AMD64, Chrome desktop actions and the `vscode` user's HTTP/HTTPS associations
+use the base image's `chrome-wrapper`, including its `--no-first-run` flag.
+Setting `BROWSER` alone is insufficient because `xdg-open` tries desktop URL
+associations first; those associations must not launch the unwrapped Chrome binary.
+
+The test image also adds `--test-type` to the Chrome wrapper to suppress startup
+warning bars that shift the page during UI tests. This keeps the existing container
+flags unchanged; it does not enable sandboxing or make those flags safe for regular
+browsing. Rebuild the image to consume these changes; updating a test plan does not
+modify an existing image's browser startup configuration.
 
 ## Differences from Base Image
 

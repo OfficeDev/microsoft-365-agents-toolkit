@@ -1,6 +1,13 @@
 # SPFx scaffolding tooling
 
-External-dependency fact page. Captures the **non-negotiable** contract the
+SPFx creation, import, and add-web-part are retired. The toolkit no longer
+installs or invokes Yeoman or the SharePoint generator. The
+[retirement contract](../../03-specs/operations/product/retire-spfx-generation.md)
+owns the current product boundary. The generation facts and constraints
+below are historical; they do not impose a version floor on retained
+deployment/publishing paths.
+
+Historical external-dependency fact page. Captures the contract the
 Microsoft 365 Agents Toolkit binds to when it produces a SharePoint
 Framework (SPFx) solution. Every fact below is anchored in upstream
 SharePoint Framework releases or in current source — change the SPFx
@@ -16,7 +23,7 @@ in an ADR under [`../adr/`](../adr/README.md).
 
 ### 1.1 Toolchain packages
 
-The toolkit drives SPFx solution creation through two npm packages owned by
+Before retirement, the toolkit drove SPFx solution creation through two npm packages owned by
 the SharePoint team:
 
 | Package | Role |
@@ -26,7 +33,7 @@ the SharePoint team:
 
 Both are out-of-band installs from the toolkit's perspective: not declared
 as runtime dependencies of the toolkit's own `package.json`. The toolkit
-installs them on demand into a managed directory and then spawns `yo`.
+installed them on demand into a managed directory and then spawned `yo`.
 
 ### 1.2 Output solution shape
 
@@ -119,7 +126,8 @@ Rules a refactor must honor; each is a direct consequence of §1.
 
 ## 3. Open questions (candidates for ADRs)
 
-These are *not* facts — they are gaps the refactor needs to close.
+The tooling migration proposal is withdrawn following generation retirement.
+The original question is retained for historical context.
 
 - **Tooling path migration.** Given §1.4, when and how does the toolkit
   move off the Yeoman path? Options span "adopt `@microsoft/spfx-cli` /

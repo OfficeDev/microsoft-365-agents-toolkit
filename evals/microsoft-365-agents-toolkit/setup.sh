@@ -7,15 +7,29 @@ fi
 
 export CI_ENABLED="${CI_ENABLED:-true}"
 
-if command -v wiqd >/dev/null 2>&1 && wiqd --version >/dev/null 2>&1; then
-	echo "WIQD is available for Declarative Agent execution tasks."
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+skill_dependencies_dir="$repo_root/node_modules/.waza-skills"
+wiqd_live_skill_dir="$HOME/.wiqd/marketplace/wiqd/skills/wiqd"
+wiqd_installed_skill_dir="$HOME/.copilot/installed-plugins/wiqd/wiqd/skills/wiqd"
+azure_skills_dir="$HOME/.copilot/installed-plugins/azure-skills/azure/skills"
+
+if [ -d "$wiqd_live_skill_dir" ]; then
+	wiqd_skill_dir="$wiqd_live_skill_dir"
+elif [ -d "$wiqd_installed_skill_dir" ]; then
+	wiqd_skill_dir="$wiqd_installed_skill_dir"
 else
-	cat >&2 <<'EOF'
-WIQD is unavailable or its EULA has not been accepted. Declarative Agent
-execution tasks require WIQD to be installed and initialized interactively;
-they will not pass in this environment. Other evaluation tasks can continue.
-EOF
+	echo "Missing WIQD plugin skill directory." >&2
+	exit 1
 fi
+
+if [ ! -d "$azure_skills_dir" ]; then
+	echo "Missing Azure plugin skills directory: $azure_skills_dir" >&2
+	exit 1
+fi
+
+rm -rf "$skill_dependencies_dir"
+mkdir -p "$skill_dependencies_dir"
+cp -R "$wiqd_skill_dir" "$skill_dependencies_dir/"
 
 # Values are injected by CI (for GitHub Actions, use repository secrets).
 required_vars=(

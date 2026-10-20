@@ -4,7 +4,7 @@
 # Extends vscuse-base with .NET, Azure Functions, M365 CLI, Dev Tunnel, Edge
 # ============================================================================
 
-ARG BASE_IMAGE=ghcr.io/microsoft/vscuse-base:latest
+ARG BASE_IMAGE=ghcr.io/microsoft/vscuse-base@sha256:2db458897652e039d87f3bd28928c74003be4224d3ee49484b245f63e48f7977
 FROM ${BASE_IMAGE}
 
 # Override the Node.js version provided by the base image.
@@ -168,6 +168,14 @@ RUN mkdir -p /etc/opt/microsoft/edge/policies/managed && \
         "SyncDisabled": true \
     }' > /etc/opt/microsoft/edge/policies/managed/disable_features.json && \
     chmod 644 /etc/opt/microsoft/edge/policies/managed/disable_features.json
+
+RUN if [ "$(dpkg --print-architecture)" = "amd64" ]; then \
+        test -x /usr/local/bin/chrome-wrapper && \
+        sed -i 's/--no-first-run/--no-first-run --test-type/' /usr/local/bin/chrome-wrapper && \
+        sed -i 's|^Exec=/usr/bin/google-chrome-stable|Exec=/usr/local/bin/chrome-wrapper|' /usr/share/applications/google-chrome.desktop && \
+        runuser -u vscode -- env HOME=/home/vscode XDG_CONFIG_HOME=/home/vscode/.config \
+            xdg-mime default google-chrome.desktop x-scheme-handler/http x-scheme-handler/https; \
+    fi
 
 # Copy additional files for easy access
 COPY addtional-files/ /home/vscode/addtional-files/

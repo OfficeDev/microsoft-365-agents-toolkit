@@ -80,6 +80,21 @@
       ]
     },
     {
+      "step_id": "step_signInM365_assertAccount_{{text:instanceSuffix}}",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the Microsoft Sign in page is visible in Chrome with an email or username input and a Next button.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": ["step_signInM365_confirmSignIn_{{text:instanceSuffix}}"],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": ["component:authentication", "account:m365", "step_retry_timeout: 60"]
+    },
+    {
       "step_id": "step_signInM365_focusAccount_{{text:instanceSuffix}}",
       "agent": "interaction",
       "tool": "click",
@@ -88,23 +103,34 @@
         "x": 369,
         "y": 350
       },
-      "description": "Click on the \"Email or phone\" input field in the Microsoft Sign-in form on the login.microsoftonline.com webpage to focus the cursor for credential entry.",
+      "description": "Click the email or username input above the Next button on the Microsoft Sign in page in Chrome, not the Use passkey from another device suggestion.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
       "continue_on_error": "false",
-      "depends_on": ["step_signInM365_confirmSignIn_{{text:instanceSuffix}}"],
-      "preconditions": [
-        "dhash:369:350:16:5:2113d25252525221",
-        "dhash:369:350:96:5:0919006d19220812",
-        "dhash:369:350:0:10:1b88d0d1e5e6dae4"
-      ],
+      "depends_on": ["step_signInM365_assertAccount_{{text:instanceSuffix}}"],
+      "preconditions": [],
       "postconditions": [],
       "tags": [
         "component:authentication",
         "account:m365",
-        "precondition_wait_timeout: 60"
+        "ocr:true"
       ]
+    },
+    {
+      "step_id": "step_signInM365_assertFocusedAccount_{{text:instanceSuffix}}",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the Microsoft Sign in page is visible in Chrome with an email or username input that is focused and a Next button.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": ["step_signInM365_focusAccount_{{text:instanceSuffix}}"],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": ["component:authentication", "account:m365", "step_retry_timeout: 60"]
     },
     {
       "step_id": "step_signInM365_typeAccount_{{text:instanceSuffix}}",
@@ -118,14 +144,29 @@
       "timeout": 30,
       "retry_count": 0,
       "continue_on_error": "false",
-      "depends_on": ["step_signInM365_focusAccount_{{text:instanceSuffix}}"],
-      "preconditions": ["dhash:512:384:0:20:1b28f0d9e7e6dae4"],
+      "depends_on": ["step_signInM365_assertFocusedAccount_{{text:instanceSuffix}}"],
+      "preconditions": [],
       "postconditions": [],
       "tags": [
         "component:authentication",
         "account:m365",
         "delay: 3"
       ]
+    },
+    {
+      "step_id": "step_signInM365_assertEnteredAccount_{{text:instanceSuffix}}",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the Microsoft Sign in page in Chrome shows {{text:accountName}} in the account input and a Next button.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": ["step_signInM365_typeAccount_{{text:instanceSuffix}}"],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": ["component:authentication", "account:m365", "step_retry_timeout: 60"]
     },
     {
       "step_id": "step_signInM365_next_{{text:instanceSuffix}}",
@@ -136,23 +177,35 @@
         "x": 629,
         "y": 484
       },
-      "description": "Click the blue \"Next\" button on the Microsoft sign-in page, confirming the entered email address for login.",
+      "description": "Click the blue Next button on the Microsoft Sign in page in Chrome to continue with the entered account.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
       "continue_on_error": "false",
-      "depends_on": ["step_signInM365_typeAccount_{{text:instanceSuffix}}"],
-      "preconditions": [
-        "dhash:629:484:16:5:23248c4b6c24d32c",
-        "dhash:629:484:96:5:00004eb131860000",
-        "dhash:629:484:0:10:1b28f0d9e7e6dae4"
-      ],
+      "depends_on": ["step_signInM365_assertEnteredAccount_{{text:instanceSuffix}}"],
+      "preconditions": [],
       "postconditions": [],
       "tags": [
         "component:authentication",
         "account:m365",
-        "delay:3"
+        "delay:3",
+        "ocr:true"
       ]
+    },
+    {
+      "step_id": "step_signInM365_assertPassword_{{text:instanceSuffix}}",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the Microsoft Sign in page in Chrome shows {{text:accountName}} and a password input that is visible and focused.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": ["step_signInM365_next_{{text:instanceSuffix}}"],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": ["component:authentication", "account:m365", "step_retry_timeout: 120"]
     },
     {
       "step_id": "step_signInM365_typePassword_{{text:instanceSuffix}}",
@@ -166,8 +219,8 @@
       "timeout": 30,
       "retry_count": 0,
       "continue_on_error": "false",
-      "depends_on": ["step_signInM365_next_{{text:instanceSuffix}}"],
-      "preconditions": ["dhash:512:384:0:20:1b08f0d9d1e6e6e4"],
+      "depends_on": ["step_signInM365_assertPassword_{{text:instanceSuffix}}"],
+      "preconditions": [],
       "postconditions": [],
       "tags": [
         "component:authentication",
@@ -188,7 +241,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": ["step_signInM365_typePassword_{{text:instanceSuffix}}"],
-      "preconditions": ["dhash:512:384:0:20:1b08f0d9d1e6e6e4"],
+      "preconditions": [],
       "postconditions": [],
       "tags": [
         "component:authentication",

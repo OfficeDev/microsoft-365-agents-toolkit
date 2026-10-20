@@ -1,0 +1,136 @@
+name: Trigger samples CD
+
+on:
+  pull_request:
+    types: [closed]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  trigger-samples-cd:
+    if: ${{ github.run_attempt == 1 && github.event.pull_request.merged == true && github.event.pull_request.user.login == 'teamstoolkitworkflowapp[bot]' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Classify release PR
+        id: classify
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pullRequest = context.payload.pull_request;
+            const samplesFile = 'packages/fx-core/src/common/samples.ts';
+            const releaseBranchPattern = /^release\/(\d+)\.(\d+)$/;
+            const prereleaseTitlePattern =
+              /^chore: merge release\/(\d+)\.(\d+) into dev for (\d+)\.(\d+)\.(\d+)$/;
+
+            const prereleaseMatch = releaseBranchPattern.exec(pullRequest.head.ref);
+            const prereleaseTitleMatch = prereleaseTitlePattern.exec(pullRequest.title);
+            if (
+              pullRequest.base.ref === 'dev' &&
+              prereleaseMatch !== null &&
+              prereleaseTitleMatch !== null &&
+              prereleaseTitleMatch[1] === prereleaseMatch[1] &&
+              prereleaseTitleMatch[2] === prereleaseMatch[2] &&
+              prereleaseTitleMatch[3] === prereleaseMatch[1] &&
+              prereleaseTitleMatch[4] === prereleaseMatch[2] &&
+              Number(prereleaseMatch[2]) % 2 === 1
+            ) {
+              core.setOutput('should_dispatch', 'true');
+              core.setOutput('update_tag', 'no');
+              core.notice(`Odd-version prerelease ${prereleaseMatch[1]}.${prereleaseMatch[2]} merged into dev.`);
+              return;
+            }
+
+            if (!releaseBranchPattern.test(pullRequest.base.ref)) {
+              core.notice(`Skipping PR targeting ${pullRequest.base.ref}; it is not a release branch.`);
+              return;
+            }
+
+            const files = await github.paginate(github.rest.pulls.listFiles, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: pullRequest.number,
+              per_page: 100,
+            });
+            if (!files.some((file) => file.filename === samplesFile)) {
+              core.notice(`Skipping PR because ${samplesFile} was not changed.`);
+              return;
+            }
+
+            async function getSampleConfigTag(ref) {
+              const response = await github.rest.repos.getContent({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                path: samplesFile,
+                ref,
+              });
+              if (Array.isArray(response.data) || response.data.type !== 'file' || !response.data.content) {
+                throw new Error(`Unable to read ${samplesFile} at ${ref}.`);
+              }
+
+              const content = Buffer.from(response.data.content, 'base64').toString('utf8');
+              const match = content.match(
+                /export\s+const\s+SampleConfigTag\s*=\s*["'](v?\d+\.\d+\.\d+)["']/
+              );
+              if (match === null) {
+                throw new Error(`Unable to find SampleConfigTag in ${samplesFile} at ${ref}.`);
+              }
+              return match[1];
+            }
+
+            function parseVersion(version) {
+              const match = /^v?(\d+)\.(\d+)\.(\d+)$/.exec(version);
+              if (match === null) {
+                throw new Error(`SampleConfigTag '${version}' is not a semantic version.`);
+              }
+              return match.slice(1).map(Number);
+            }
+
+            function isHigherVersion(candidate, current) {
+              for (let index = 0; index < candidate.length; index += 1) {
+                if (candidate[index] !== current[index]) {
+                  return candidate[index] > current[index];
+                }
+              }
+              return false;
+            }
+
+            const previousTag = await getSampleConfigTag(pullRequest.base.sha);
+            const nextTag = await getSampleConfigTag(pullRequest.head.sha);
+            if (!isHigherVersion(parseVersion(nextTag), parseVersion(previousTag))) {
+              core.notice(`Skipping PR because SampleConfigTag did not increase (${previousTag} -> ${nextTag}).`);
+              return;
+            }
+
+            core.setOutput('should_dispatch', 'true');
+            core.setOutput('update_tag', 'yes');
+            core.notice(`SampleConfigTag increased from ${previousTag} to ${nextTag}.`);
+
+      - name: Generate samples repository token
+        if: ${{ steps.classify.outputs.should_dispatch == 'true' }}
+        id: generate-samples-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ vars.APP_GITHUB_APP_ID }}
+          private-key: ${{ secrets.APP_GITHUB_APP_PRIVATE_KEY }}
+          owner: OfficeDev
+          repositories: microsoft-365-agents-toolkit-samples
+
+      - name: Trigger samples CD on main
+        if: ${{ steps.classify.outputs.should_dispatch == 'true' }}
+        uses: actions/github-script@v7
+        env:
+          UPDATE_TAG: ${{ steps.classify.outputs.update_tag }}
+        with:
+          github-token: ${{ steps.generate-samples-token.outputs.token }}
+          script: |
+            await github.rest.actions.createWorkflowDispatch({
+              owner: 'OfficeDev',
+              repo: 'microsoft-365-agents-toolkit-samples',
+              workflow_id: 'cd.yml',
+              ref: 'main',
+              inputs: {
+                'update-tag': process.env.UPDATE_TAG,
+              },
+            });

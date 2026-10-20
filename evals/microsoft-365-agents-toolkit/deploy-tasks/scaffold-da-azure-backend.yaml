@@ -1,0 +1,59 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/microsoft/waza/main/schemas/task.schema.json
+
+id: scaffold-da-azure-backend
+name: Scaffold Declarative Agent with Azure Backend Using WIQD
+description: User wants a Declarative Agent with a new Azure-hosted OpenAPI backend
+tags:
+  - scaffold
+  - routing
+  - azure-backend
+inputs:
+  prompt: "Create a Declarative Agent named AzureBackendDaFixture with a new anonymous Azure-hosted OpenAPI backend in a sibling AzureBackendDaFixture-api workspace. The API should provide GET /repairs. Then validate and package the agent."
+expected:
+  should_trigger: true
+graders:
+  - type: file
+    name: azure_backend_da_project_files
+    config:
+      must_exist:
+        - "AzureBackendDaFixture/appPackage/manifest.json"
+        - "AzureBackendDaFixture/appPackage/declarativeAgent.json"
+        - "AzureBackendDaFixture-api"
+  - type: behavior
+    name: efficiency_check
+    config:
+      max_tool_calls: 60
+      max_duration_ms: 350000
+      forbidden_tools:
+        - rm
+        - sudo
+  - type: skill_invocation
+    name: wiqd_plugin_delegation
+    config:
+      mode: in_order
+      required_skills:
+        - wiqd
+      allow_extra: true
+  - type: tool_constraint
+    name: azure_skill_without_atk_da_commands
+    config:
+      expect_tools:
+        - tool: skill
+          skill_pattern: '(?i)^azure(?:-|$)'
+      reject_tools:
+        - tool: shell
+          command_pattern: '(?i)\batk\s+(?:new|validate|package|provision|deploy|publish|uninstall)\b'
+  - type: prompt
+    name: quality_check
+    config:
+      prompt: |
+        Review the agent's response. Check that it:
+        1. Delegates the complete non-TypeSpec DA journey to the `wiqd` plugin.
+        2. Lets WIQD coordinate the official Azure skill for the new anonymous OpenAPI backend instead of using an ATK DA template.
+        3. Keeps the agent and server workspaces separate and attaches the deployed GET /repairs operation to the agent.
+        4. Does not use ATK lifecycle commands for the DA, validation, or packaging.
+
+        If all criteria are met, call set_waza_grade_pass.
+        Otherwise, call set_waza_grade_fail with your reasoning.
+      model: "gpt-5.4"
+      continue_session: true

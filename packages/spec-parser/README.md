@@ -2,6 +2,10 @@
 
 The M365 Spec Parser package is designed to parse OpenAPI specification files to generate resources for M365 applications.
 
+## Requirements
+
+For Node.js, requires version 20.19.0 or later in the 20.x series, or version 22.12.0 or later, matching the OpenAPI parser dependency's runtime requirements.
+
 ## Sample Usage
 
 ### For NodeJS environment

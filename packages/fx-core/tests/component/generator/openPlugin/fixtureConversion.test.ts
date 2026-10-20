@@ -120,6 +120,8 @@ describe("openPlugin fixture conversion (Contoso Helper)", () => {
       ".vscode/settings.json",
       ".vscode/extensions.json",
       "env/.env.dev",
+      "env/.env.local",
+      "m365agents.local.yml",
       "m365agents.yml",
       "README.md",
     ];

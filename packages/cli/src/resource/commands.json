@@ -65,9 +65,6 @@
   "export.openplugin": {
     "description": "Export a Microsoft 365 Agents Toolkit project to an Agent Plugins v1.0.0 directory (agent-plugins.org). Round-trips losslessly with 'atk import agentplugin'. Alias: 'agentplugin'."
   },
-  "add.spfx-web-part": {
-    "description": "Auto-hosted SPFx web part tightly integrated with Microsoft 365."
-  },
   "add.action": {
     "description": "An action to extend Copilot using your APIs."
   },

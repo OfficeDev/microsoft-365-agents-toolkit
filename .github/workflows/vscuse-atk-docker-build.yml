@@ -9,9 +9,9 @@ on:
         required: false
         default: 'latest'
       base_image_tag:
-        description: 'Tag of the base image (ghcr.io/microsoft/vscuse-base) to build from'
+        description: 'Optional base image tag override for validation; leave empty to use the pinned baseline'
         required: false
-        default: 'latest'
+        default: ''
       node_version:
         description: 'Override the Node.js version baked into the image.'
         required: false
@@ -35,6 +35,7 @@ on:
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: officedev/vscuse-atk-vscode
+  PINNED_BASE_IMAGE: ghcr.io/microsoft/vscuse-base@sha256:2db458897652e039d87f3bd28928c74003be4224d3ee49484b245f63e48f7977
 
 # When dispatched with a source_ref (smoke pipeline) group per-branch so a re-dispatch cancels
 # the stale build. Without it (CD / manual / release) the run_id keeps the group unique → no-op.
@@ -64,7 +65,7 @@ jobs:
           df -h
 
       - name: Checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
           ref: ${{ github.event.inputs.source_ref || github.ref }}
 
@@ -141,10 +142,10 @@ jobs:
           rm -rf temp-release
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3.12.0
 
       - name: Log in to Container Registry
-        uses: docker/login-action@v3
+        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3.7.0
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
@@ -152,7 +153,7 @@ jobs:
 
       - name: Extract metadata
         id: meta
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@c299e40c65443455700f0fdfc63efafe5b349051 # v5.10.0
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
@@ -165,13 +166,13 @@ jobs:
 
       - name: Build and push Docker image
         id: build
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@ca052bb54ab0790a636c9b5f226502c73d547a25 # v5.4.0
         with:
           context: ./packages/tests/vscuse/docker/vscuse-atk
           # platforms: linux/amd64,linux/arm64
           push: true
           build-args: |
-            BASE_IMAGE=ghcr.io/microsoft/vscuse-base:${{ github.event.inputs.base_image_tag || 'latest' }}
+            BASE_IMAGE=${{ github.event.inputs.base_image_tag && format('ghcr.io/microsoft/vscuse-base:{0}', github.event.inputs.base_image_tag) || env.PINNED_BASE_IMAGE }}
             NODE_VERSION=${{ github.event.inputs.node_version }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}

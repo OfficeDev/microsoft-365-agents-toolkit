@@ -6,6 +6,7 @@ import {
   err,
   FxError,
   LogProvider,
+  M365TokenProvider,
   ok,
   Result,
   SystemError,
@@ -18,9 +19,9 @@ import fs from "fs-extra";
 import https from "https";
 import stripBom from "strip-bom";
 import { getResourceServiceEndpoint, ResourceServiceType } from "../../common/constants";
+import { FeatureFlags, featureFlagManager } from "../../common/featureFlags";
 import { ErrorContextMW, TOOLS } from "../../common/globalVars";
 import { getDefaultString, getLocalizedString } from "../../common/localizeUtils";
-import { TreatmentVariables } from "../../common/treatmentVariables";
 import {
   Component,
   sendTelemetryErrorEvent,
@@ -40,6 +41,8 @@ import {
   PackageValidationFailureReason,
 } from "./errors";
 import { M365AppDefinition, M365AppEntity } from "./interface";
+import { prepareIncrementalSkillUpload } from "./skills/incrementalSkillUpload";
+import { requestSkillOperation } from "./skills/skillRequest";
 
 const M365ErrorSource = "M365";
 const M365ErrorComponent = "PackageService";
@@ -97,7 +100,11 @@ export class PackageService {
     return PackageService.sharedInstance;
   }
 
-  public constructor(endpoint: string, logger?: LogProvider) {
+  public constructor(
+    endpoint: string,
+    logger?: LogProvider,
+    private readonly m365TokenProvider?: M365TokenProvider
+  ) {
     this.axiosInstance = WrappedAxiosClient.create({
       httpsAgent: new https.Agent({ keepAlive: true }),
     });
@@ -242,38 +249,48 @@ export class PackageService {
   @hooks([ErrorContextMW({ source: M365ErrorSource, component: M365ErrorComponent })])
   public async sideLoadingV2(
     token: string,
-    manifestPath: string,
+    packagePath: string,
     appScope: AppScope
   ): Promise<[string, string]> {
     try {
-      this.checkZip(manifestPath);
-      const data = await fs.readFile(manifestPath);
+      this.checkZip(packagePath);
+      let data = await fs.readFile(packagePath);
+      const serviceUrl = await this.getTitleServiceUrl(token);
+      let hasSkills = false;
+      if (featureFlagManager.getBooleanValue(FeatureFlags.IncrementalSkillUpload)) {
+        this.validatePackageSize(packagePath, data.byteLength);
+        const prepared = await prepareIncrementalSkillUpload(
+          data,
+          serviceUrl,
+          token,
+          this.m365TokenProvider,
+          this.logger
+        );
+        if (prepared.isErr()) throw prepared.error;
+        data = prepared.value.data;
+        hasSkills = prepared.value.hasSkills;
+      }
       const content = new FormData();
       content.append("package", data);
       content.append("info", JSON.stringify({ builderName: "TeamsToolKit" }));
-      const serviceUrl = await this.getTitleServiceUrl(token);
       this.logger?.debug(`"Uploading package with sideLoading V2 in ${appScope} scope ..."`);
       const uploadHeaders = content.getHeaders();
       uploadHeaders["Authorization"] = `Bearer ${token}`;
-      const forceRaiValidationEnabled = process.env.TEAMSFX_RAI_VALIDATION_ENABLED;
-      const isRaiValidationEnabled =
-        forceRaiValidationEnabled === undefined
-          ? ((await TOOLS.expServiceProvider?.getTreatmentVariableAsync<boolean>(
-              TreatmentVariables.VSCodeConfig,
-              TreatmentVariables.RaiValidation,
-              true
-            )) ?? false)
-          : forceRaiValidationEnabled === "true" || forceRaiValidationEnabled === "1";
-      const uploadResponse = await this.withNetworkRetry(() =>
+      const upload = () =>
         this.axiosInstance.post("/builder/v1/users/packages", content, {
           baseURL: serviceUrl,
           headers: uploadHeaders,
+          ...(hasSkills && { maxRedirects: 0 }),
           params: {
             scope: appScope,
-            ...(isRaiValidationEnabled && { isRAIValidationAsync: true }),
+            isRAIValidationAsync: true,
           },
-        })
-      );
+        });
+      const uploadResult = hasSkills
+        ? await requestSkillOperation(upload, "never")
+        : ok(await this.withNetworkRetry(upload));
+      if (uploadResult.isErr()) throw uploadResult.error;
+      const uploadResponse = uploadResult.value;
 
       const { statusId } = uploadResponse.data as BuilderPackageUploadResponse;
       if (!statusId) {
@@ -287,24 +304,11 @@ export class PackageService {
           {
             baseURL: serviceUrl,
             headers: { Authorization: `Bearer ${token}` },
-            ...(isRaiValidationEnabled && { params: { isRAIValidationAsync: true } }),
+            params: { isRAIValidationAsync: true },
           }
         );
         const resCode = statusResponse.status;
         this.logger?.debug(`Package status: ${resCode} ...`);
-
-        if (!isRaiValidationEnabled) {
-          if (resCode === 200) {
-            const titleId: string = statusResponse.data.titleId;
-            const appId: string = statusResponse.data.appId;
-            this.logger?.info(`TitleId: ${titleId}`);
-            this.logger?.info(`AppId: ${appId}`);
-            this.logger?.verbose("Sideloading done.");
-            return [titleId, appId];
-          }
-          await waitSeconds(7);
-          continue;
-        }
 
         const statusResult = statusResponse.data as BuilderPackageStatusResponse;
         const validationInfo = statusResult?.validationInfo;
@@ -931,10 +935,10 @@ export class PackageService {
     }
   }
 
-  private validatePackageSize(packagePath: string) {
-    const stats = fs.statSync(packagePath);
-    if (stats.size > MOS_MAX_PACKAGE_SIZE_BYTES) {
-      const actualMB = (stats.size / (1024 * 1024)).toFixed(2);
+  private validatePackageSize(packagePath: string, bytes?: number) {
+    const size = bytes ?? fs.statSync(packagePath).size;
+    if (size > MOS_MAX_PACKAGE_SIZE_BYTES) {
+      const actualMB = (size / (1024 * 1024)).toFixed(2);
       const maxMB = (MOS_MAX_PACKAGE_SIZE_BYTES / (1024 * 1024)).toFixed(2);
       throw new UserError({
         source: M365ErrorSource,
