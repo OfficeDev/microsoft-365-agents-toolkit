@@ -2,7 +2,6 @@
 // Licensed under the MIT license.
 export * from "./CreateProjectOptions";
 export * from "./CreateSampleProjectOptions";
-export * from "./SPFxAddWebpartOptions";
 export * from "./CreateEnvOptions";
 export * from "./SelectTeamsManifestOptions";
 export * from "./ValidateTeamsAppOptions";

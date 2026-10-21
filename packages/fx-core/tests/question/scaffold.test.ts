@@ -38,7 +38,6 @@ import {
   MeArchitectureOptions,
   MeCapabilityOptions,
   NotificationBotOptions,
-  TabCapabilityOptions,
   TeamsAgentCapabilityOptions,
 } from "../../src/question/scaffold/vsc/CapabilityOptions";
 import { ProjectTypeOptions } from "../../src/question/scaffold/vsc/ProjectTypeOptions";
@@ -940,35 +939,17 @@ describe("botProjectTypeNode", () => {
 });
 
 describe("tabProjectTypeNode", () => {
-  it("has correct condition and 4 staticOptions", () => {
+  it("RET-SPFX-03: preserves the three supported tab options and condition", () => {
     const node = tabProjectTypeNode();
     const condition = node.condition as { equals: string };
     assert.equal(condition.equals, TeamsProjectTypeOptions.tabOptionId);
     const data = node.data as SingleSelectQuestion;
-    assert.equal((data.staticOptions as OptionItem[]).length, 4);
+    assert.equal((data.staticOptions as OptionItem[]).length, 3);
     assert.equal(data.name, QuestionNames.Capabilities);
   });
-  it("has SPFx sub-tree child with SPFxTab condition", () => {
+  it("RET-SPFX-01: has no SPFx sub-tree", () => {
     const node = tabProjectTypeNode();
-    assert.equal(node.children?.length, 1);
-    const spfxChild = node.children![0];
-    const cond = spfxChild.condition as { equals: string };
-    assert.equal(cond.equals, TabCapabilityOptions.SPFxTab().id);
-  });
-  it("SPFx sub-tree contains new and import branches", () => {
-    const node = tabProjectTypeNode();
-    const spfxChild = node.children![0];
-    assert.isDefined(spfxChild.children);
-    const newBranch = spfxChild.children!.find(
-      (c) => (c.condition as { equals?: string })?.equals === "new"
-    );
-    assert.isDefined(newBranch);
-    const importBranch = spfxChild.children!.find(
-      (c) => (c.condition as { equals?: string })?.equals === "import"
-    );
-    assert.isDefined(importBranch);
-    // new branch should have 3 children (package, framework, webpart name)
-    assert.equal(newBranch!.children?.length, 3);
+    assert.isUndefined(node.children);
   });
 });
 

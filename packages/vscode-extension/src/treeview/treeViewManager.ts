@@ -11,7 +11,7 @@ import {
   manifestUtils,
 } from "@microsoft/teamsfx-core";
 
-import { isDeclarativeCopilotApp, isSPFxProject, workspaceUri } from "../globalVariables";
+import { isDeclarativeCopilotApp, workspaceUri } from "../globalVariables";
 import * as commonUtils from "../utils/commonUtils";
 import { localize } from "../utils/localizeUtils";
 import accountTreeViewProviderInstance from "./account/accountTreeViewProvider";
@@ -219,17 +219,6 @@ class TreeViewManager {
         { name: "library", custom: false },
         TreeCategory.GettingStarted
       ),
-      ...(isSPFxProject
-        ? [
-            new TreeViewCommand(
-              localize("teamstoolkit.commandsTreeViewProvider.addWebpartTitle"),
-              localize("teamstoolkit.commmands.addWebpart.description"),
-              "fx-extension.addWebpart",
-              "addWebpart",
-              { name: "teamsfx-add-feature", custom: false }
-            ),
-          ]
-        : []),
       ...(isDeclarativeCopilotApp
         ? [
             new TreeViewCommand(

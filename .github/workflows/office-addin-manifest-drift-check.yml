@@ -8,11 +8,16 @@ on:
         type: boolean
         default: false
       create_prs:
-        description: "After the report, open a separate PR per template Copilot judged UPDATE NEEDED (edits src + package.json.tpl)"
+        description: "Open a PR per template judged UPDATE NEEDED unless its bot sync PR is already open (edits src + package.json.tpl)"
         type: boolean
         default: false
   schedule:
     - cron: "23 6 * * *"
+
+# Keep the open-PR lookup and creation serialized across scheduled and manual runs.
+concurrency:
+  group: office-addin-manifest-drift-${{ github.ref }}
+  cancel-in-progress: false
 
 permissions:
   contents: write
@@ -178,6 +183,7 @@ jobs:
           GITHUB_REPOSITORY: ${{ github.repository }}
           GITHUB_SERVER_URL: ${{ github.server_url }}
           PR_BASE_BRANCH: ${{ github.ref_name }}
+          PR_BOT_LOGIN: ${{ steps.generate-token.outputs.app-slug }}[bot]
         run: |
           export COPILOT_GITHUB_TOKEN=$(python3 -c "import json,os; d=json.load(open(os.path.expanduser('~/.config/github-copilot/apps.json'))); print(list(d.values())[0]['oauth_token'])")
           node ./.github/scripts/apply-office-addin-prs.cjs

@@ -2102,6 +2102,26 @@ function createSemanticStepCompiler() {
 
   function compileAddDaCapability(state, definition) {
     const inputs = definition.with;
+    let webSearchUrl;
+    if (typeof inputs?.url === "string" && !/\s/.test(inputs.url)) {
+      try {
+        webSearchUrl = new URL(inputs.url);
+      } catch {}
+    }
+    const isUrlWebSearch =
+      isRecord(inputs) &&
+      hasOnlyFields(inputs, new Set(["capability", "searchType", "url"])) &&
+      inputs.capability === "webSearch" &&
+      inputs.searchType === "url" &&
+      webSearchUrl?.protocol === "https:" &&
+      webSearchUrl.username === "" &&
+      webSearchUrl.password === "";
+    const isAllWebSearch =
+      isRecord(inputs) &&
+      hasOnlyFields(inputs, new Set(["capability", "searchType"])) &&
+      inputs.capability === "webSearch" &&
+      inputs.searchType === "all";
+    const isWebSearch = isUrlWebSearch || isAllWebSearch;
     const isCopilotConnector =
       isRecord(inputs) &&
       hasOnlyFields(inputs, new Set(["capability", "connectionId"])) &&
@@ -2114,7 +2134,7 @@ function createSemanticStepCompiler() {
       inputs.capability === "embeddedKnowledge";
     if (
       state.template !== "da/no-action" ||
-      (!isCopilotConnector && !isEmbeddedKnowledge)
+      (!isCopilotConnector && !isEmbeddedKnowledge && !isWebSearch)
     ) {
       return failure(
         "VCB_ADD_DA_CAPABILITY_INPUT_INVALID",
@@ -2122,6 +2142,71 @@ function createSemanticStepCompiler() {
       );
     }
     const output = [];
+    if (isWebSearch) {
+      let error = append(
+        output,
+        render(state, "command-palette/execute-command.json.tpl", {
+          commandTitle: commandTitles.addDaCapability,
+        }),
+      );
+      if (error) return error;
+      for (const selection of [
+        { optionLabel: "Web Search", questionTitle: "Add Capability" },
+        {
+          optionLabel: isUrlWebSearch
+            ? "Search by URL"
+            : "Search all content on the web",
+          questionTitle: "Select Search Type",
+        },
+      ]) {
+        error = append(
+          output,
+          render(state, "quick-input/single-select.json.tpl", selection),
+        );
+        if (error) return error;
+      }
+      if (isUrlWebSearch) {
+        error = append(
+          output,
+          render(state, "quick-input/text.json.tpl", {
+            inputValue: inputs.url,
+            questionTitle: "Web Content",
+          }),
+        );
+        if (error) return error;
+      }
+      error = append(
+        output,
+        render(state, "quick-input/single-select.json.tpl", {
+          optionLabel: "manifest.json",
+          questionTitle: "Select Teams manifest.json File",
+        }),
+      );
+      if (error) return error;
+      error = append(
+        output,
+        render(state, "dialog/click-primary-action.json.tpl", {
+          actionLabel: "Add",
+          dialogTitle:
+            "the Microsoft 365 Agents Toolkit capability confirmation",
+        }),
+      );
+      if (error) return error;
+      if (state.completed.has("addDaCapability:webSearch")) {
+        error = append(
+          output,
+          render(state, "dialog/click-primary-action.json.tpl", {
+            actionLabel: "Add",
+            dialogTitle:
+              "the warning that adding new content overwrites the existing manifest file",
+          }),
+        );
+        if (error) return error;
+      }
+      state.completed.add("addDaCapability");
+      state.completed.add("addDaCapability:webSearch");
+      return { ok: true, value: output };
+    }
     if (isEmbeddedKnowledge) {
       let error = append(
         output,

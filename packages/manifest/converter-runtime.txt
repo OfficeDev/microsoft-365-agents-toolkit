@@ -1,0 +1,207 @@
+class ManifestConversionError extends Error {
+  constructor(
+    readonly path: readonly (string | number)[],
+    message: string
+  ) {
+    super(message);
+    this.name = "ManifestConversionError";
+  }
+}
+
+function formatPath(path: readonly (string | number)[]): string {
+  return (
+    path
+      .map((key, index) => {
+        if (typeof key === "number") return `[${key}]`;
+        if (!/^[A-Za-z_$][\w$]*$/.test(key)) return `[${JSON.stringify(key)}]`;
+        return `${index === 0 ? "" : "."}${key}`;
+      })
+      .join("") || "<root>"
+  );
+}
+
+function invalidValue(typ: any, val: any, path: readonly (string | number)[]): never {
+  const location = formatPath(path);
+  if (typ === false) {
+    throw new ManifestConversionError(
+      path,
+      `Property "${location}" is not supported by the local manifest model.`
+    );
+  }
+  const expected = prettyTypeName(typ);
+  if (val === undefined) {
+    throw new ManifestConversionError(
+      path,
+      `Missing required property "${location}". Expected ${expected}.`
+    );
+  }
+  const actual = val === null ? "null" : Array.isArray(val) ? "array" : typeof val;
+  throw new ManifestConversionError(
+    path,
+    `Invalid value for key "${location}". Expected ${expected} but got ${actual}.`
+  );
+}
+
+function prettyTypeName(typ: any): string {
+  if (typ === null) return "null";
+  if (typ === "any") return "any value";
+  if (typ === Date) return "Date";
+  if (Array.isArray(typ)) {
+    if (typ.length === 2 && typ[0] === undefined) {
+      return `an optional ${prettyTypeName(typ[1])}`;
+    }
+    return `one of [${typ.map(prettyTypeName).join(", ")}]`;
+  }
+  if (typeof typ === "object") {
+    if (Object.prototype.hasOwnProperty.call(typ, "literal")) return JSON.stringify(typ.literal);
+    if (Object.prototype.hasOwnProperty.call(typ, "arrayItems"))
+      return `array of ${prettyTypeName(typ.arrayItems)}`;
+    if (Object.prototype.hasOwnProperty.call(typ, "unionMembers"))
+      return prettyTypeName(typ.unionMembers);
+    if (Object.prototype.hasOwnProperty.call(typ, "ref")) {
+      const referenced = typeMap[typ.ref];
+      return Array.isArray(referenced) ? prettyTypeName(referenced.map(l)) : typ.ref;
+    }
+    return "object";
+  }
+  return typeof typ;
+}
+
+function jsonToJSProps(typ: any): any {
+  if (typ.jsonToJS === undefined) {
+    const map: any = {};
+    typ.props.forEach((p: any) => (map[p.json] = { key: p.js, typ: p.typ }));
+    typ.jsonToJS = map;
+  }
+  return typ.jsonToJS;
+}
+
+function jsToJSONProps(typ: any): any {
+  if (typ.jsToJSON === undefined) {
+    const map: any = {};
+    typ.props.forEach((p: any) => (map[p.js] = { key: p.json, typ: p.typ }));
+    typ.jsToJSON = map;
+  }
+  return typ.jsToJSON;
+}
+
+function transform(
+  val: any,
+  typ: any,
+  getProps: any,
+  path: readonly (string | number)[] = []
+): any {
+  function transformPrimitive(typ: string, val: any): any {
+    if (typeof typ === typeof val) return val;
+    return invalidValue(typ, val, path);
+  }
+
+  function transformUnion(typs: any[], val: any): any {
+    let deepestError: ManifestConversionError | undefined;
+    for (const member of typs) {
+      try {
+        return transform(val, member, getProps, path);
+      } catch (error) {
+        if (!(error instanceof ManifestConversionError)) throw error;
+        if (!deepestError || error.path.length > deepestError.path.length) {
+          deepestError = error;
+        }
+      }
+    }
+    // A failed optional/union wrapper must not hide an invalid nested property.
+    if (deepestError && deepestError.path.length > path.length) throw deepestError;
+    return invalidValue(u(...typs), val, path);
+  }
+
+  function transformEnum(cases: string[], val: any): any {
+    if (cases.indexOf(val) !== -1) return val;
+    return invalidValue(cases.map(l), val, path);
+  }
+
+  function transformArray(typ: any, val: any): any {
+    if (!Array.isArray(val)) return invalidValue(a(typ), val, path);
+    return val.map((el, index) => transform(el, typ, getProps, [...path, index]));
+  }
+
+  function transformDate(val: any): any {
+    if (val === null) return null;
+    const d = new Date(val);
+    if (isNaN(d.valueOf())) return invalidValue(Date, val, path);
+    return d;
+  }
+
+  function transformObject(props: { [k: string]: any }, additional: any, val: any): any {
+    if (val === null || typeof val !== "object" || Array.isArray(val)) {
+      return invalidValue(ref ? r(ref) : { props: [] }, val, path);
+    }
+    const result: any = {};
+    Object.getOwnPropertyNames(props).forEach((key) => {
+      const prop = props[key];
+      const v = Object.prototype.hasOwnProperty.call(val, key) ? val[key] : undefined;
+      result[prop.key] = transform(v, prop.typ, getProps, [...path, key]);
+    });
+    Object.getOwnPropertyNames(val).forEach((key) => {
+      if (!Object.prototype.hasOwnProperty.call(props, key)) {
+        result[key] = transform(val[key], additional, getProps, [...path, key]);
+      }
+    });
+    return result;
+  }
+
+  if (typ === "any") return val;
+  if (typ === null) {
+    if (val === null) return val;
+    return invalidValue(typ, val, path);
+  }
+  if (typ === false) return invalidValue(typ, val, path);
+  let ref: any = undefined;
+  while (typeof typ === "object" && typ.ref !== undefined) {
+    ref = typ.ref;
+    typ = typeMap[typ.ref];
+  }
+  if (Array.isArray(typ)) return transformEnum(typ, val);
+  if (typeof typ === "object") {
+    return typ.hasOwnProperty("unionMembers")
+      ? transformUnion(typ.unionMembers, val)
+      : typ.hasOwnProperty("arrayItems")
+        ? transformArray(typ.arrayItems, val)
+        : typ.hasOwnProperty("props")
+          ? transformObject(getProps(typ), typ.additional, val)
+          : invalidValue(typ, val, path);
+  }
+  // Numbers can be parsed by Date but shouldn't be.
+  if (typ === Date && typeof val !== "number") return transformDate(val);
+  return transformPrimitive(typ, val);
+}
+
+function cast<T>(val: any, typ: any): T {
+  return transform(val, typ, jsonToJSProps);
+}
+
+function uncast<T>(val: T, typ: any): any {
+  return transform(val, typ, jsToJSONProps);
+}
+
+function l(typ: any) {
+  return { literal: typ };
+}
+
+function a(typ: any) {
+  return { arrayItems: typ };
+}
+
+function u(...typs: any[]) {
+  return { unionMembers: typs };
+}
+
+function o(props: any[], additional: any) {
+  return { props, additional };
+}
+
+function m(additional: any) {
+  return { props: [], additional };
+}
+
+function r(name: string) {
+  return { ref: name };
+}

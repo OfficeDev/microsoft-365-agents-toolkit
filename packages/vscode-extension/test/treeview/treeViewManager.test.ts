@@ -75,7 +75,7 @@ describe("TreeViewManager", () => {
     assert.equal(setStatusStub.callCount, 2);
   });
 
-  it("updateDevelopmentTreeView", () => {
+  it("RET-SPFX-01: SPFx projects no longer expose add web part in the development tree", () => {
     mockValue(globalVariables, "isSPFxProject", false);
     vi.spyOn(featureFlagManager, "getBooleanValue").mockReturnValue(false);
     treeViewManager.registerTreeViews({
@@ -92,7 +92,11 @@ describe("TreeViewManager", () => {
     mockValue(globalVariables, "isSPFxProject", true);
     treeViewManager.updateDevelopmentTreeView();
 
-    assert.equal(commands.length, 5);
+    assert.equal(commands.length, 4);
+    assert.notInclude(
+      commands.map((command) => command.commandId),
+      "fx-extension.addWebpart"
+    );
   });
 
   it("updateTreeViewsByContent if remove project related commands", async () => {

@@ -27,7 +27,7 @@
   },
   "keywords": [],
   "engines": {
-    "node": ">=22",
+    "node": ">=22.12.0",
     "pnpm": ">=8"
   },
   "packageManager": "pnpm@8.6.12",

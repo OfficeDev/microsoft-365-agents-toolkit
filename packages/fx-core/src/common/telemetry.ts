@@ -178,6 +178,7 @@ export enum TelemetryEvent {
   AddAuthAction = "add-auth-action",
   ViewAgentManifestAfterAdded = "view-agent-manifest-after-added",
   MosSideloadEnd = "mos-sideload-end",
+  MosSkillSync = "mos-skill-sync",
 }
 
 export enum ProjectTypeProps {
