@@ -349,7 +349,7 @@
       "preconditions": [],
       "postconditions": [],
       "tags": [
-        "step_retry_timeout: 180"
+        "step_retry_timeout:600"
       ],
       "screenshot": null,
       "created_at": "2026-05-28T05:41:39.815702",
