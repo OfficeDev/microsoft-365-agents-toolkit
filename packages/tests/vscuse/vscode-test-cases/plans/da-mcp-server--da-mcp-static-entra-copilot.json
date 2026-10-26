@@ -152,7 +152,7 @@
       "step_allowCopilotAction_assertDismissed_cc3b3b580_7_4",
       "step_assertChatReplied_assert_cc3b3b580_7_5",
       "step_assertToolCalled_cc3b3b580_7_6",
-      "step_assertChatContains_assert_cc3b3b580_7_7",
+      "step_assertChatNonEmptyField_cc3b3b580_7_7",
       "step_assertChatContains_assert_cc3b3b580_7_8",
       "step_assertChatContains_assert_cc3b3b580_7_9",
       "step_sendCopilotMessage_assertInput_cc3b3b580_8_1",
@@ -3183,11 +3183,11 @@
       ]
     },
     {
-      "step_id": "step_assertChatContains_assert_cc3b3b580_7_7",
+      "step_id": "step_assertChatNonEmptyField_cc3b3b580_7_7",
       "agent": "assertion",
       "tool": "",
       "parameters": {},
-      "description": "@assertion the current assistant response contains \"\"tenant_id\": \"16801f2e-7163-4bd5-8542-f083fa59993c\"\".",
+      "description": "@assertion the current completed assistant tool result contains the field client_id with a non-empty string value. Missing, null, empty and whitespace-only values fail. Any non-empty identifier is acceptable; no specific literal value or JSON whitespace formatting is required. The field name in the user prompt or a tool description alone is not a result.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -3198,10 +3198,10 @@
       "preconditions": [],
       "postconditions": [],
       "tags": [
-        "component:browser",
+        "component:chat",
         "action:assert-chat-response",
-        "expectation:contains",
-        "step_retry_timeout: 120"
+        "expectation:non-empty-field",
+        "step_retry_timeout:120"
       ]
     },
     {
@@ -3209,13 +3209,13 @@
       "agent": "assertion",
       "tool": "",
       "parameters": {},
-      "description": "@assertion the current assistant response contains \"\"auth_method\": \"entra_user\"\".",
+      "description": "@assertion the current assistant response contains \"\"tenant_id\": \"16801f2e-7163-4bd5-8542-f083fa59993c\"\".",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_assertChatContains_assert_cc3b3b580_7_7"
+        "step_assertChatNonEmptyField_cc3b3b580_7_7"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -3231,7 +3231,7 @@
       "agent": "assertion",
       "tool": "",
       "parameters": {},
-      "description": "@assertion the current assistant response contains \"\"client_id\": \"${{env:MCP_AUTH_EXPECTED_JWT_CLIENT_ID}}\"\".",
+      "description": "@assertion the current assistant response contains \"\"auth_method\": \"entra_user\"\".",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,

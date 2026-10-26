@@ -3665,7 +3665,8 @@ function createSemanticStepCompiler() {
       expected.replied === true ||
       expected.contains !== undefined ||
       expected.notContains !== undefined ||
-      expected.toolCalled !== undefined
+      expected.toolCalled !== undefined ||
+      expected.nonEmptyFields !== undefined
     ) {
       error = append(output, render(state, replyComponent));
       if (error) return error;
@@ -3675,6 +3676,15 @@ function createSemanticStepCompiler() {
         output,
         render(state, "browser/chat/assert-tool-called.json.tpl", {
           expectedTool: expected.toolCalled,
+        }),
+      );
+      if (error) return error;
+    }
+    for (const fieldName of expected.nonEmptyFields ?? []) {
+      error = append(
+        output,
+        render(state, "browser/chat/assert-non-empty-field.json.tpl", {
+          fieldName,
         }),
       );
       if (error) return error;
@@ -3807,7 +3817,13 @@ function createSemanticStepCompiler() {
           ? new Set(["role", "name", "namePrefix"])
           : assertion.type === "page"
             ? new Set(["contains"])
-            : new Set(["replied", "contains", "notContains", "toolCalled"]);
+            : new Set([
+                "replied",
+                "contains",
+                "notContains",
+                "toolCalled",
+                "nonEmptyFields",
+              ]);
     if (!isRecord(expected) || !hasOnlyFields(expected, expectationFields)) {
       return failure(
         "VCB_CHECK_FIELD_UNKNOWN",
@@ -3844,6 +3860,16 @@ function createSemanticStepCompiler() {
         (assertion.type !== "chat" ||
           typeof expected.toolCalled !== "string" ||
           !/^[A-Za-z_][A-Za-z0-9_.-]*$/.test(expected.toolCalled))) ||
+      (expected.nonEmptyFields !== undefined &&
+        (!Array.isArray(expected.nonEmptyFields) ||
+          expected.nonEmptyFields.length === 0 ||
+          new Set(expected.nonEmptyFields).size !==
+            expected.nonEmptyFields.length ||
+          expected.nonEmptyFields.some(
+            (name) =>
+              typeof name !== "string" ||
+              !/^[A-Za-z_][A-Za-z0-9_]*$/.test(name),
+          ))) ||
       (assertion.allowAction !== undefined && assertion.allowAction !== true) ||
       (assertion.connectOAuth !== undefined && assertion.connectOAuth !== true)
     ) {

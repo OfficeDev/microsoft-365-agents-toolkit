@@ -456,6 +456,100 @@ test("VCB-179: MCP cases check fresh probe results without extra audit infrastru
   }
 });
 
+test("VCB-180: MCP client identity uses a non-empty result field, not a fixed JWT caller", async () => {
+  const result = await compileFixture("da-mcp-auth-modes.yml", (source) =>
+    source.includes("nonEmptyFields: [client_id]")
+      ? source
+      : source.replaceAll(
+          "          toolCalled: whoami",
+          "          toolCalled: whoami\n          nonEmptyFields: [client_id]",
+        ),
+  );
+  assert.equal(result.ok, true, JSON.stringify(result.diagnostics));
+  for (const { caseId, plan } of result.value) {
+    const fields = plan.steps.filter((step) =>
+      step.tags.includes("expectation:non-empty-field"),
+    );
+    assert.equal(fields.length, 1, caseId);
+    assert.ok(fields[0].description.includes("client_id"), caseId);
+    assert.ok(fields[0].description.includes("non-empty string"), caseId);
+    assert.ok(fields[0].description.includes("whitespace-only"), caseId);
+    assert.equal(fields[0].continue_on_error, "false", caseId);
+    assert.equal(
+      JSON.stringify(plan).includes("MCP_AUTH_EXPECTED_JWT_CLIENT_ID"),
+      false,
+      caseId,
+    );
+    assert.equal(JSON.stringify(plan).includes("ab3be6b7"), false, caseId);
+    assert.ok(
+      plan.steps.some((step) =>
+        step.description.includes(
+          '"tenant_id": "16801f2e-7163-4bd5-8542-f083fa59993c"',
+        ),
+      ),
+      caseId,
+    );
+    assert.ok(
+      plan.steps.some((step) => step.description.includes('"sum": 27')),
+      caseId,
+    );
+  }
+});
+
+test("VCB-180: field-only checks imply a completed reply and reject invalid field declarations", async () => {
+  const replaceCheck = (source, type, expected) =>
+    source.replace(
+      /  check-whoami-oauth:[\s\S]*?(?=\n  check-whoami:)/,
+      `  check-whoami-oauth:\n    type: checks\n    with:\n      - type: ${type}\n${type === "chat" ? "        send: Identify the current caller.\n" : ""}        expect:\n${expected}\n`,
+    );
+  const valid = await compileFixture("da-mcp-auth-modes.yml", (source) =>
+    replaceCheck(
+      source,
+      "chat",
+      "          nonEmptyFields: [client_id, tenant_id]",
+    ),
+  );
+  assert.equal(valid.ok, true, JSON.stringify(valid.diagnostics));
+  const plan = valid.value[0].plan;
+  const fields = plan.steps.filter((step) =>
+    step.tags.includes("expectation:non-empty-field"),
+  );
+  assert.equal(fields.length, 2);
+  const replyIndex = plan.steps.findIndex((step) =>
+    step.step_id.startsWith("step_assertChatReplied_"),
+  );
+  assert.ok(replyIndex >= 0 && replyIndex < plan.steps.indexOf(fields[0]));
+  assert.ok(fields[0].description.includes("client_id"));
+  assert.ok(fields[1].description.includes("tenant_id"));
+  for (const value of [
+    "[]",
+    "client_id",
+    "[42]",
+    '[""]',
+    '["../client_id"]',
+    "[client_id, client_id]",
+  ]) {
+    const invalid = await compileFixture("da-mcp-auth-modes.yml", (source) =>
+      replaceCheck(source, "chat", `          nonEmptyFields: ${value}`),
+    );
+    assert.equal(invalid.ok, false, value);
+    assert.equal(
+      invalid.diagnostics[0].code,
+      "VCB_CHECK_ASSERTION_INVALID",
+      value,
+    );
+  }
+  const invalid = await compileFixture("da-mcp-auth-modes.yml", (source) =>
+    replaceCheck(
+      source,
+      "browser",
+      "          role: button\n          name: Send\n          nonEmptyFields: [client_id]",
+    ),
+  );
+  assert.equal(invalid.ok, false);
+  assert.equal(invalid.diagnostics[0].code, "VCB_CHECK_FIELD_UNKNOWN");
+});
+
 test("VCB-128: numeric work item IDs remain distinct from scenario metadata", () => {
   const sourceText = `version: 1
 cases:

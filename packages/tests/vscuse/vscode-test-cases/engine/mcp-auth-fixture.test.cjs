@@ -73,17 +73,15 @@ test("MCP-AUTH-10: latest profiles isolate run ownership and credential exports"
   );
   for (const profile of profiles) {
     assert.match(profile.environment.MCP_AUTH_RUN_ID, /^[0-9a-f-]{36}$/);
+    assert.equal(
+      Object.hasOwn(profile.environment, "MCP_AUTH_EXPECTED_JWT_CLIENT_ID"),
+      false,
+    );
   }
   assert.equal(profiles[0].environment.DA_MCP_OAUTH_CLIENTID, client);
   assert.equal(profiles[2].environment.DA_MCP_ENTRA_SSO_CLIENTID, client);
   assert.ok(!Object.hasOwn(profiles[1].environment, "DA_MCP_OAUTH_CLIENTID"));
   assert.ok(!Object.hasOwn(profiles[1].environment, "MCP_AUTH_SSO_ID"));
-  assert.equal(profiles[0].environment.MCP_AUTH_EXPECTED_JWT_CLIENT_ID, client);
-  assert.equal(profiles[1].environment.MCP_AUTH_EXPECTED_JWT_CLIENT_ID, client);
-  assert.equal(
-    profiles[2].environment.MCP_AUTH_EXPECTED_JWT_CLIENT_ID,
-    "ab3be6b7-f5df-413d-ac2d-abf1e3fd9c0b",
-  );
   assert.deepEqual(
     profiles.map((profile) => profile.environment.MCP_AUTH_EXPECTED_FLOW),
     ["dcr_oauth", "dcr_oauth", "entra_sso"],
@@ -430,7 +428,6 @@ test("VCB-170: auth cases require visible invocation evidence for all three tool
   for (const item of result.value) {
     for (const [name, result] of [
       ["whoami", `"tenant_id": "${expectedTenant}"`],
-      ["whoami", '"client_id": "${{env:MCP_AUTH_EXPECTED_JWT_CLIENT_ID}}"'],
       ["auth_flow_probe", `"canary": "${expectedCanary}"`],
       ["auth_flow_probe", '"auth_flow": "${{env:MCP_AUTH_EXPECTED_FLOW}}"'],
       ["add", '"sum": 27'],

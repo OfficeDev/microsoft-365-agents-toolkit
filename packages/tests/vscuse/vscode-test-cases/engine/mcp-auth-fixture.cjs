@@ -3,8 +3,6 @@ const { randomUUID } = require("node:crypto");
 
 const expectedTenant = "16801f2e-7163-4bd5-8542-f083fa59993c";
 const expectedClient = "7c5898c1-99fb-4d83-8474-02bf7985096c";
-// Well-known Microsoft enterprise token-store caller, not the resource application's client ID.
-const enterpriseTokenStoreClient = "ab3be6b7-f5df-413d-ac2d-abf1e3fd9c0b";
 const expectedCanary = "PURPLE-NARWHAL-7788";
 const modes = new Set(["static-oauth", "dcr", "entra-sso"]);
 
@@ -35,8 +33,6 @@ function buildMcpAuthProfile(mode, consumer, options = {}) {
     MCP_AUTH_ENDPOINT: endpoint,
     MCP_AUTH_EXPECTED_TENANT: tenant,
     MCP_AUTH_EXPECTED_CANARY: expectedCanary,
-    MCP_AUTH_EXPECTED_JWT_CLIENT_ID:
-      mode === "entra-sso" ? enterpriseTokenStoreClient : client,
     MCP_AUTH_EXPECTED_FLOW: mode === "entra-sso" ? "entra_sso" : "dcr_oauth",
     MCP_AUTH_RUN_ID: randomUUID(),
   };

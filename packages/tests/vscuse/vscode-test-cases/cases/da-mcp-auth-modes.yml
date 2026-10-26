@@ -180,10 +180,10 @@ steps:
         expect:
           replied: true
           toolCalled: whoami
+          nonEmptyFields: [client_id]
           contains:
             - '"tenant_id": "16801f2e-7163-4bd5-8542-f083fa59993c"'
             - '"auth_method": "entra_user"'
-            - '"client_id": "${{env:MCP_AUTH_EXPECTED_JWT_CLIENT_ID}}"'
 
   check-whoami:
     type: checks
@@ -194,10 +194,10 @@ steps:
         expect:
           replied: true
           toolCalled: whoami
+          nonEmptyFields: [client_id]
           contains:
             - '"tenant_id": "16801f2e-7163-4bd5-8542-f083fa59993c"'
             - '"auth_method": "entra_user"'
-            - '"client_id": "${{env:MCP_AUTH_EXPECTED_JWT_CLIENT_ID}}"'
 
   check-probe:
     type: checks

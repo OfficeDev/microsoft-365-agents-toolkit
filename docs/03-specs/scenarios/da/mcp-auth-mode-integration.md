@@ -63,13 +63,18 @@ with its actual registration and token process, including static Entra
 authorization versus facade DCR versus Entra SSO. Use fresh case state and
 redacted evidence; never archive tokens, credentials, or authorization codes.
 
-The UI checks also require the JWT caller returned by the authenticated `whoami`
-tool: the enterprise token-store caller for SSO, and the current resource
-application for the fixture's static/facade flows. This is an assertion-only
-identity, not a DCR registration input. The probe's corresponding flow label is
-checked in addition, never instead of the signed-token identity and real tool
-activity. Static OAuth and DCR intentionally share that downstream caller/label;
-their registration and authorization/token evidence must still distinguish them.
+The authenticated `whoami` result must contain a non-empty `client_id`; the UI
+test does not prescribe a Microsoft broker or downstream JWT caller GUID.
+`MCP_AUTH_EXPECTED_JWT_CLIENT_ID` is not required or generated. The caller can
+differ from the resource application and from the facade's dynamically
+registered OAuth client. Static OAuth and DCR can share a downstream caller and
+probe label; their actual registration and authorization/token paths must still
+distinguish them. The exact tenant, `entra_user`, canary and arithmetic checks
+remain unchanged.
+
+`MCP_AUTH_RUN_ID` is generated with a new UUID for every profile/run. It binds
+fixture preparation and ownership-safe teardown, not the remote authentication
+protocol. It is not a pre-registered ID or a manually configured GitHub variable.
 
 Health checks, probe classification, fake tokens, and mocked responses cannot
 qualify a case as a live end-to-end pass. The L1 tests cover only registration
@@ -308,3 +313,8 @@ Absent-ID and invalid-ID behavior remains covered by registration-boundary and
 fixture regressions; these runs do not claim live coverage for those variants.
 The invalid-ID variant is an expected failure of the positive SSO plan, not a
 separately passing negative UI plan.
+
+The later non-empty `client_id` assertion removes the fixed JWT-caller
+expectation without changing registration or authentication. Compiler/profile
+regressions cover this follow-up; the archived UI runs above precede it and are
+not presented as reruns of the updated assertion.
