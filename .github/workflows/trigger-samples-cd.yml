@@ -15,7 +15,7 @@ jobs:
     steps:
       - name: Classify release PR
         id: classify
-        uses: actions/github-script@v7
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7.1.0
         with:
           script: |
             const pullRequest = context.payload.pull_request;
@@ -110,7 +110,7 @@ jobs:
       - name: Generate samples repository token
         if: ${{ steps.classify.outputs.should_dispatch == 'true' }}
         id: generate-samples-token
-        uses: actions/create-github-app-token@v2
+        uses: actions/create-github-app-token@fee1f7d63c2ff003460e3d139729b119787bc349 # v2.2.2
         with:
           app-id: ${{ vars.APP_GITHUB_APP_ID }}
           private-key: ${{ secrets.APP_GITHUB_APP_PRIVATE_KEY }}
@@ -119,7 +119,7 @@ jobs:
 
       - name: Trigger samples CD on main
         if: ${{ steps.classify.outputs.should_dispatch == 'true' }}
-        uses: actions/github-script@v7
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7.1.0
         env:
           UPDATE_TAG: ${{ steps.classify.outputs.update_tag }}
         with:
