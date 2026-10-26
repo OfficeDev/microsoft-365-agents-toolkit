@@ -718,10 +718,19 @@ The MCP identity result requires a non-empty `client_id`, not a specific
 Microsoft broker or downstream JWT caller GUID. `MCP_AUTH_EXPECTED_JWT_CLIENT_ID`
 is neither exported by the profile nor required by the plan. The fixed tenant,
 Entra user authentication, canary, and arithmetic checks remain exact.
-`MCP_AUTH_RUN_ID` is different: the profile generates a new UUID for each run
-before preparation. It binds the ready marker and resource-ownership record,
-not an OAuth client, registration, JWT claim or remote-tool response. Never
-configure a shared constant run ID or infer authentication mode from it.
+`MCP_AUTH_RUN_ID` is different: the exact preparation script generates a new UUID
+inside the test and persists it in both the project's environment and ownership
+record. The ready line displays the current project and generated UUID after
+successful preparation. Neither the profile nor the plan requires an external
+run ID, so vscuse's startup validation must not list it as a required variable.
+It is not an OAuth client, registration, JWT claim or remote-tool response.
+Never configure a shared constant run ID or infer authentication mode from it.
+
+Teardown compares the ownership record with the run ID persisted by that
+project's setup. An explicitly provided run ID remains an additional boundary:
+a different ID skips the resources rather than falling back to the project ID.
+Absent or mismatched ownership never delegates generic cleanup. The selected
+MCP mode also protects direct shared-identity cleanup before any run ID exists.
 
 The Playground message component is not reachable until a compatible target adapter can produce
 `chat-ready`; that future adapter may reuse `assert-ready.json.tpl`. The recorded Copilot remote
@@ -1279,6 +1288,7 @@ coordinates, omit required prompt guards, or silently choose a nearby component.
 | VCB-178 | A completed Copilot response containing returned tool-specific result data, including inline JSON, satisfies the invocation assertion without a separate execution marker or debugger info. Reject prompts, descriptions, refusals, pending calls and promises without results; retain every expected result assertion.                                                                                               |
 | VCB-179 | The three independent MCP cases use ordinary chat result assertions without developer-mode commands, runtime audit collectors or witness tabs. Request and check fresh server-generated probe_id and server_time alongside canary and auth_flow without putting expected answers in prompts; preserve registration isolation and product-default feature flags.                                                       |
 | VCB-180 | Chat nonEmptyFields compiles one value-shape assertion per unique flat field, implies a completed response and rejects invalid lists/names or non-chat use. All MCP modes require a non-empty client_id without exporting or referencing a fixed JWT-caller expectation; preserve exact business-result checks and per-run UUID ownership.                                                                            |
+| VCB-181 | MCP preparation generates and persists its own UUID without an external MCP_AUTH_RUN_ID dependency. The plan requires a completed project-bound ready line with the generated UUID. Teardown accepts matching project-owned run metadata, rejects absent/mismatched identities and explicit foreign IDs, and keeps shared-identity guards active for MCP modes even before setup succeeds.                            |
 | VCB-173 | A prepared static-OAuth/DCR MCP chat check with `connectOAuth: true` emits the recorded Sign in interaction after sending and before tool/result assertions. Only DCR emits the facade's explicit dynamic-client consent. Reject unsupported hosts, unprepared/SSO modes, non-true values and a duplicate `allowAction` setting. Preserve ordinary capability-consent behavior and all real tool-result requirements. |
 | VCB-177 | Remote-MCP authentication messages request only asserted identity/probe fields from the actual tools, without leaking expected tenant, client, canary or arithmetic answers into prompts. Preserve all three explicit invocation checks and all exact expected result values.                                                                                                                                         |
 | VCB-176 | Clear scaffold notifications before native-terminal MCP preparation so a successful current-run ready marker cannot be covered by the creation toast. Retain the full run-ID proof and fail-closed preparation gate; do not accept a bare marker as success.                                                                                                                                                          |

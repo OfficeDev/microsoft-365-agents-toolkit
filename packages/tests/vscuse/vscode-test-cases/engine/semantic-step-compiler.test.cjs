@@ -79,7 +79,7 @@ test("VCB-171: generated MCP fixtures reserve run ownership before mutating regi
     assert.ok(step, caseId);
     const encoded = step.parameters.text.match(/SCRIPT_B64="([^"]+)"/)[1];
     const script = Buffer.from(encoded, "base64").toString("utf8");
-    assert.ok(script.includes('os.environ.get("MCP_AUTH_RUN_ID"'), caseId);
+    assert.ok(script.includes("run_id = str(uuid.uuid4())"), caseId);
     assert.ok(script.includes('"ownership.json").open("x"'), caseId);
     assert.ok(
       script.indexOf('"ownership.json").open("x"') <
@@ -119,7 +119,13 @@ test("VCB-172: MCP setup is exact terminal input with a mandatory run-ready gate
     );
     assert.ok(ready, caseId);
     assert.equal(ready.continue_on_error, "false", caseId);
-    assert.ok(ready.description.includes("${{env:MCP_AUTH_RUN_ID}}"), caseId);
+    assert.ok(ready.description.includes("${{var:app_name}}"), caseId);
+    assert.ok(ready.description.includes("UUID"), caseId);
+    assert.equal(
+      JSON.stringify(plan).includes("${{env:MCP_AUTH_RUN_ID}}"),
+      false,
+      caseId,
+    );
     assert.ok(plan.steps.indexOf(ready) > plan.steps.indexOf(command), caseId);
     assert.equal(
       command.parameters.text.includes("VSCUSE_MCP_AUTH_FIXTURE_READY"),
@@ -309,7 +315,7 @@ test("VCB-176: MCP preparation clears scaffold notifications before its terminal
     const ready = plan.steps.find((step) =>
       step.tags.includes("assertion:mcp-fixture-ready"),
     );
-    assert.ok(ready.description.includes("${{env:MCP_AUTH_RUN_ID}}"), caseId);
+    assert.ok(ready.description.includes("${{var:app_name}}"), caseId);
     assert.equal(ready.continue_on_error, "false", caseId);
   }
 });
@@ -548,6 +554,45 @@ test("VCB-180: field-only checks imply a completed reply and reject invalid fiel
   );
   assert.equal(invalid.ok, false);
   assert.equal(invalid.diagnostics[0].code, "VCB_CHECK_FIELD_UNKNOWN");
+});
+
+test("VCB-181: run ownership is generated inside preparation, not required at plan startup", async () => {
+  const result = await compileFixture(
+    "da-mcp-auth-modes.yml",
+    (source) => source,
+  );
+  assert.equal(result.ok, true, JSON.stringify(result.diagnostics));
+  for (const { caseId, plan } of result.value) {
+    const command = plan.steps.find((step) =>
+      step.tags.includes("operation:mcp-auth-fixture"),
+    );
+    const script = Buffer.from(
+      command.parameters.text.match(/SCRIPT_B64="([^"]+)"/)[1],
+      "base64",
+    ).toString("utf8");
+    assert.ok(script.includes("run_id = str(uuid.uuid4())"), caseId);
+    assert.equal(
+      script.includes('os.environ.get("MCP_AUTH_RUN_ID"'),
+      false,
+      caseId,
+    );
+    assert.ok(
+      script.includes('set_project_env("MCP_AUTH_RUN_ID", run_id)'),
+      caseId,
+    );
+    assert.ok(script.includes('"runId": run_id'), caseId);
+    assert.ok(
+      script.includes(
+        'print("VSCUSE_MCP_AUTH_FIXTURE_READY", project.name, run_id)',
+      ),
+      caseId,
+    );
+    assert.equal(
+      JSON.stringify(plan).includes("${{env:MCP_AUTH_RUN_ID}}"),
+      false,
+      caseId,
+    );
+  }
 });
 
 test("VCB-128: numeric work item IDs remain distinct from scenario metadata", () => {

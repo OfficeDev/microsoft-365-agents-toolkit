@@ -21,6 +21,7 @@ describe("MCP authentication resource ownership", function () {
   let sandbox;
   let project;
   let previousRunId;
+  let previousMode;
   let deleted;
   let environment;
   let ownership;
@@ -29,6 +30,8 @@ describe("MCP authentication resource ownership", function () {
     sandbox = sinon.createSandbox();
     project = await fs.mkdtemp(path.join(os.tmpdir(), "mcp-owned-teardown-"));
     previousRunId = process.env.MCP_AUTH_RUN_ID;
+    previousMode = process.env.MCP_AUTH_MODE;
+    delete process.env.MCP_AUTH_MODE;
     process.env.MCP_AUTH_RUN_ID = "current-test-run";
     deleted = { aad: [], groups: [], teams: [], titles: [], registrations: [] };
     environment = {
@@ -119,6 +122,8 @@ describe("MCP authentication resource ownership", function () {
     sandbox.restore();
     if (previousRunId === undefined) delete process.env.MCP_AUTH_RUN_ID;
     else process.env.MCP_AUTH_RUN_ID = previousRunId;
+    if (previousMode === undefined) delete process.env.MCP_AUTH_MODE;
+    else process.env.MCP_AUTH_MODE = previousMode;
     await fs.remove(project);
   });
 
@@ -154,6 +159,49 @@ describe("MCP authentication resource ownership", function () {
       },
     };
   }
+
+  it("VCB-181: setup-owned run metadata permits safe cleanup without a startup run ID", async function () {
+    delete process.env.MCP_AUTH_RUN_ID;
+    environment.MCP_AUTH_RUN_ID = ownership.runId;
+    await saveFixture();
+    await clean();
+    assert.deepEqual(deleted.teams, ["new-teams-app"]);
+    assert.deepEqual(deleted.titles, ["new-title"]);
+    assert.deepEqual(deleted.aad, []);
+    assert.deepEqual(deleted.groups, []);
+  });
+
+  it("VCB-181: mismatched persisted run identity and explicit foreign IDs cannot delete resources", async function () {
+    delete process.env.MCP_AUTH_RUN_ID;
+    environment.MCP_AUTH_RUN_ID = "foreign-test-run";
+    await saveFixture();
+    await clean();
+    assert.deepEqual(deleted.teams, []);
+    assert.deepEqual(deleted.titles, []);
+    environment.MCP_AUTH_RUN_ID = ownership.runId;
+    await saveFixture();
+    await tryMcpAuthTeardown(
+      project,
+      permissiveOperations(),
+      "foreign-test-run",
+    );
+    assert.deepEqual(deleted.teams, []);
+    assert.deepEqual(deleted.registrations, []);
+  });
+
+  it("VCB-181: selected MCP mode protects shared identity helpers before a run ID exists", async function () {
+    delete process.env.MCP_AUTH_RUN_ID;
+    process.env.MCP_AUTH_MODE = "dcr";
+    const helper = new GraphApiCleanHelper("unit-test-token");
+    const request = sandbox.stub(helper, "execute").resolves({});
+    await helper.deleteAad("shared-aad");
+    await helper.deleteEnterpriseApplication("shared-sp");
+    await helper.deleteDeletedItem("shared-object");
+    assert.equal(request.called, false);
+    await fs.remove(path.join(project, ".auth-test", "ownership.json"));
+    await assert.rejects(clean(), /ownership/i);
+    assert.equal(AadManager.init.called, false);
+  });
 
   it("MCP-AUTH-11: protects shared AAD, SP, monitoring and supplied SSO even with direct-ID cleanup", async function () {
     await clean();

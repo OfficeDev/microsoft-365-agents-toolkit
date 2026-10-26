@@ -72,9 +72,15 @@ probe label; their actual registration and authorization/token paths must still
 distinguish them. The exact tenant, `entra_user`, canary and arithmetic checks
 remain unchanged.
 
-`MCP_AUTH_RUN_ID` is generated with a new UUID for every profile/run. It binds
-fixture preparation and ownership-safe teardown, not the remote authentication
-protocol. It is not a pre-registered ID or a manually configured GitHub variable.
+`MCP_AUTH_RUN_ID` is generated inside the test's preparation script and persisted
+in the project's environment and ownership record. It binds fixture preparation
+and ownership-safe teardown, not the remote authentication protocol. Neither the
+profile nor the generated plan requires it as a startup environment variable.
+The ready assertion checks the current project and generated UUID. Teardown
+compares the persisted identities, while an explicitly supplied foreign run ID
+still skips deletion. The MCP-mode guard protects shared identities before
+preparation has succeeded. No pre-registered or manually configured run ID is
+needed in GitHub.
 
 Health checks, probe classification, fake tokens, and mocked responses cannot
 qualify a case as a live end-to-end pass. The L1 tests cover only registration
@@ -318,3 +324,11 @@ The later non-empty `client_id` assertion removes the fixed JWT-caller
 expectation without changing registration or authentication. Compiler/profile
 regressions cover this follow-up; the archived UI runs above precede it and are
 not presented as reruns of the updated assertion.
+
+The internal run-ID follow-up was checked with the installed vscuse resolver:
+all three updated plans pass startup validation without `MCP_AUTH_RUN_ID`,
+whereas the preceding plans report it missing. All five exact preparation
+variants also ran without that environment variable, generated distinct UUIDs,
+persisted matching project/ownership identities, and rejected repeated setup
+without overwriting the existing ownership baseline. These are preflight/setup
+checks, not a new full live Copilot run.

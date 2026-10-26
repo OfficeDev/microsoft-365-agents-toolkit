@@ -41,8 +41,17 @@ export interface McpTeardownResult {
   retained: { kind: ResourceKind; id: string; reason: string }[];
 }
 
+function isMcpAuthRun(): boolean {
+  return (
+    !!process.env.MCP_AUTH_RUN_ID ||
+    ["static-oauth", "dcr", "entra-sso"].includes(
+      process.env.MCP_AUTH_MODE ?? "",
+    )
+  );
+}
+
 export function skipMcpSharedIdentityCleanup(): boolean {
-  if (!process.env.MCP_AUTH_RUN_ID) return false;
+  if (!isMcpAuthRun()) return false;
   console.info(
     "MCP teardown: skipping mini-managed AAD/SP/monitoring identity cleanup.",
   );
@@ -171,7 +180,7 @@ export async function tryMcpAuthTeardown(
     );
   } catch (error: unknown) {
     if (isRecord(error) && error.code === "ENOENT") {
-      if (runId || (await isMcpAuthProject(projectPath))) {
+      if (runId || isMcpAuthRun() || (await isMcpAuthProject(projectPath))) {
         throw new Error(
           "Missing ownership record for the MCP authentication run.",
         );
@@ -185,16 +194,17 @@ export async function tryMcpAuthTeardown(
     throw new Error("MCP ownership record belongs to a different project.");
   }
   const result: McpTeardownResult = { deleted: [], skipped: [], retained: [] };
-  if (!runId || ownership.runId !== runId) {
+  const environment = dotenv.parse(
+    await fs.readFile(path.join(projectPath, "env", ".env.dev")),
+  );
+  const expectedRunId = runId ?? environment.MCP_AUTH_RUN_ID;
+  if (!expectedRunId || ownership.runId !== expectedRunId) {
     result.skipped = ownership.resources.map(({ kind }) => ({
       kind,
       reason: "foreign-run",
     }));
     return result;
   }
-  const environment = dotenv.parse(
-    await fs.readFile(path.join(projectPath, "env", ".env.dev")),
-  );
   const ownsTeamsApp = ownership.resources.some(
     (resource) =>
       resource.kind === "teams-app" &&

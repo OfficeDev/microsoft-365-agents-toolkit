@@ -56,7 +56,7 @@ test("MCP-AUTH-10: every mode rejects a stale resource application identity", ()
   }
 });
 
-test("MCP-AUTH-10: latest profiles isolate run ownership and credential exports", () => {
+test("MCP-AUTH-10: latest profiles isolate credential exports without preset run IDs", () => {
   const credentials = {
     ENTRA_TENANT_ID: expectedTenant,
     ENTRA_CLIENT_ID: client,
@@ -66,13 +66,8 @@ test("MCP-AUTH-10: latest profiles isolate run ownership and credential exports"
   const profiles = ["static-oauth", "dcr", "entra-sso"].map((mode) =>
     buildMcpAuthProfile(mode, consumer(), { staticCredentials: credentials }),
   );
-  assert.equal(
-    new Set(profiles.map((profile) => profile.environment.MCP_AUTH_RUN_ID))
-      .size,
-    3,
-  );
   for (const profile of profiles) {
-    assert.match(profile.environment.MCP_AUTH_RUN_ID, /^[0-9a-f-]{36}$/);
+    assert.equal(Object.hasOwn(profile.environment, "MCP_AUTH_RUN_ID"), false);
     assert.equal(
       Object.hasOwn(profile.environment, "MCP_AUTH_EXPECTED_JWT_CLIENT_ID"),
       false,

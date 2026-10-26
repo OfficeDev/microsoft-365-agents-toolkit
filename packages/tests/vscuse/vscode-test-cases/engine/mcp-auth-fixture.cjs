@@ -1,5 +1,4 @@
 const { Buffer } = require("node:buffer");
-const { randomUUID } = require("node:crypto");
 
 const expectedTenant = "16801f2e-7163-4bd5-8542-f083fa59993c";
 const expectedClient = "7c5898c1-99fb-4d83-8474-02bf7985096c";
@@ -34,7 +33,6 @@ function buildMcpAuthProfile(mode, consumer, options = {}) {
     MCP_AUTH_EXPECTED_TENANT: tenant,
     MCP_AUTH_EXPECTED_CANARY: expectedCanary,
     MCP_AUTH_EXPECTED_FLOW: mode === "entra-sso" ? "entra_sso" : "dcr_oauth",
-    MCP_AUTH_RUN_ID: randomUUID(),
   };
   if (mode === "static-oauth") {
     const credentials = options.staticCredentials ?? {};
@@ -143,6 +141,7 @@ const commonScript = String.raw`import base64
 import json
 import os
 import re
+import uuid
 from pathlib import Path
 import yaml
 
@@ -252,6 +251,7 @@ if(!uri || !uri.startsWith('api://auth-') || !uri.endsWith('/'+client)) {
     body +
     String.raw`
 workflow_path.write_text(yaml.safe_dump(workflow, sort_keys=False), encoding="utf-8")
+set_project_env("MCP_AUTH_RUN_ID", run_id)
 assignments = {}
 for line in env_file.read_text(encoding="utf-8").splitlines():
     match = re.match(r"^\s*(?:export\s+)?([A-Z][A-Z0-9_]*)\s*=(.*)$", line)
@@ -280,9 +280,7 @@ json.dump(record, ownership_stream)
   return (
     commonScript +
     String.raw`
-run_id = os.environ.get("MCP_AUTH_RUN_ID", "")
-if not run_id:
-    raise AssertionError("MCP authentication run ownership is missing")
+run_id = str(uuid.uuid4())
 ownership_dir = project / ".auth-test"
 ownership_dir.mkdir(exist_ok=True)
 with (ownership_dir / "ownership.json").open("x", encoding="utf-8") as ownership_stream:
@@ -291,7 +289,7 @@ with (ownership_dir / "ownership.json").open("x", encoding="utf-8") as ownership
       .split("\n")
       .map((line) => `    ${line}`)
       .join("\n") +
-    '\nprint("VSCUSE_MCP_AUTH_FIXTURE_READY", run_id)\n'
+    '\nprint("VSCUSE_MCP_AUTH_FIXTURE_READY", project.name, run_id)\n'
   );
 }
 

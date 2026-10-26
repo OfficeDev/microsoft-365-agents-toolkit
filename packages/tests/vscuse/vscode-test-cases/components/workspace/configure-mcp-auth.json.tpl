@@ -30,7 +30,9 @@
       "timeout": 30,
       "retry_count": 0,
       "continue_on_error": "false",
-      "depends_on": ["step_configureMcpAuth_openTerminal_{{text:instanceSuffix}}"],
+      "depends_on": [
+        "step_configureMcpAuth_openTerminal_{{text:instanceSuffix}}"
+      ],
       "preconditions": [],
       "postconditions": [],
       "tags": ["component:workspace", "step_retry_timeout:30"]
@@ -47,7 +49,9 @@
       "timeout": 60,
       "retry_count": 0,
       "continue_on_error": "false",
-      "depends_on": ["step_configureMcpAuth_assertTerminal_{{text:instanceSuffix}}"],
+      "depends_on": [
+        "step_configureMcpAuth_assertTerminal_{{text:instanceSuffix}}"
+      ],
       "preconditions": [],
       "postconditions": [],
       "tags": [
@@ -66,7 +70,9 @@
       "timeout": 30,
       "retry_count": 0,
       "continue_on_error": "false",
-      "depends_on": ["step_configureMcpAuth_typeCommand_{{text:instanceSuffix}}"],
+      "depends_on": [
+        "step_configureMcpAuth_typeCommand_{{text:instanceSuffix}}"
+      ],
       "preconditions": [],
       "postconditions": [],
       "tags": ["component:workspace"]
@@ -76,15 +82,21 @@
       "agent": "assertion",
       "tool": "",
       "parameters": {},
-      "description": "@assertion the active integrated terminal displays the completed output line VSCUSE_MCP_AUTH_FIXTURE_READY ${{env:MCP_AUTH_RUN_ID}} after execution, with no Python traceback or execution error. A typed command, prior terminal output, or a different run ID is not success.",
+      "description": "@assertion the active integrated terminal displays a completed output line beginning VSCUSE_MCP_AUTH_FIXTURE_READY ${{var:app_name}} followed by the generated UUID after execution, with no Python traceback or execution error. A typed command, prior terminal output, a bare marker, or another project name is not success.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
       "continue_on_error": "false",
-      "depends_on": ["step_configureMcpAuth_runCommand_{{text:instanceSuffix}}"],
+      "depends_on": [
+        "step_configureMcpAuth_runCommand_{{text:instanceSuffix}}"
+      ],
       "preconditions": [],
       "postconditions": [],
-      "tags": ["component:workspace", "assertion:mcp-fixture-ready", "step_retry_timeout:60"]
+      "tags": [
+        "component:workspace",
+        "assertion:mcp-fixture-ready",
+        "step_retry_timeout:60"
+      ]
     },
     {
       "step_id": "step_configureMcpAuth_closeTerminal_{{text:instanceSuffix}}",
@@ -96,7 +108,9 @@
       "timeout": 30,
       "retry_count": 0,
       "continue_on_error": "false",
-      "depends_on": ["step_configureMcpAuth_assertReady_{{text:instanceSuffix}}"],
+      "depends_on": [
+        "step_configureMcpAuth_assertReady_{{text:instanceSuffix}}"
+      ],
       "preconditions": [],
       "postconditions": [],
       "tags": ["component:workspace"]
@@ -111,7 +125,9 @@
       "timeout": 30,
       "retry_count": 0,
       "continue_on_error": "false",
-      "depends_on": ["step_configureMcpAuth_closeTerminal_{{text:instanceSuffix}}"],
+      "depends_on": [
+        "step_configureMcpAuth_closeTerminal_{{text:instanceSuffix}}"
+      ],
       "preconditions": [],
       "postconditions": [],
       "tags": ["component:workspace", "step_retry_timeout:30"]
