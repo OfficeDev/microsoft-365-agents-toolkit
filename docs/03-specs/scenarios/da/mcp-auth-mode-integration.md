@@ -5,7 +5,7 @@
 - **Modes:** Static OAuth, DCR, and Microsoft Entra SSO, each with an independent project, environment mapping, registration state, and browser/token state.
 - **Execution target:** Microsoft 365 Copilot with the licensed atktesting08 account.
 - **Fixture:** The requester-owned remote MCP facade.
-- **Credential source:** An explicitly selected SSO-specific environment file. Do not fall back to the generic account profile when this file is unavailable.
+- **Credential source:** An explicitly selected SSO-specific environment file or the documented environment-backed MCP inputs. Do not silently substitute generic account-profile AAD credentials when a selected file is unavailable.
 - **Current resource identity:** atktesting08 tenant with client ID
   `7c5898c1-99fb-4d83-8474-02bf7985096c`, read from the latest consumer export.
   Reject a stale client identity rather than loading the previous application's credentials.
@@ -35,20 +35,21 @@ client ID conflicts with the supplied SSO client, must also fail.
 
 ## Acceptance Criteria
 
-| ID          | Runtime | Purpose               | Gate                    | Harness                                                              | Given / When                                                                                              | Then                                                                                                                                                                                               |
-| ----------- | ------- | --------------------- | ----------------------- | -------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| MCP-AUTH-01 | L1      | operation-integration | required                | Real OAuth driver with fake TGS HTTP                                 | SSO test ID is present but the static-OAuth case runs with its own empty output mapping                   | POST a separate Custom registration using Entra endpoints/static credentials; do not GET or reuse the SSO ID.                                                                                      |
-| MCP-AUTH-02 | L1      | operation-integration | required                | Real DCR driver with fake TGS HTTP                                   | SSO test ID is present but the DCR case runs with its own empty output mapping                            | POST a separate Dynamic configuration using the MCP facade; do not GET/reuse the SSO ID or send static credentials/Entra endpoints.                                                                |
-| MCP-AUTH-03 | L1      | operation-integration | required                | Real OAuth driver with fake TGS HTTP                                 | SSO supplies a valid matching MicrosoftEntra ID                                                           | GET the existing record, skip POST and creation-time Graph/configuration work, and leave existing resource URI/reference state unchanged.                                                          |
-| MCP-AUTH-04 | L1      | operation-integration | required                | Real OAuth driver with fake TGS HTTP                                 | SSO omits its optional registration ID                                                                    | Execute normal MicrosoftEntra registration with SSO enabled and AnyApp/HomeTenant, preserving the creation result mappings.                                                                        |
-| MCP-AUTH-05 | L1      | operation-integration | required                | Real OAuth driver with fake TGS HTTP                                 | Supplied SSO ID returns an error, another provider, or a conflicting client ID                            | Return an explicit error; no successful skip, no replacement POST and no configuration mutation.                                                                                                   |
-| MCP-AUTH-06 | L1      | compatibility         | required                | Independent mode fixtures and fake TGS HTTP                          | Each case creates/loads its own mode-specific output variables                                            | SSO reuse never populates static-OAuth/DCR outputs; fresh static/DCR registrations return distinct IDs; preserve legacy Custom reuse-error behavior outside SSO.                                   |
-| MCP-AUTH-07 | L1      | operation-integration | required                | Real drivers with failing token provider                             | Authentication fails in any mode                                                                          | Return the authentication error before HTTP registration or reuse; do not fall back to another mode.                                                                                               |
-| MCP-AUTH-08 | L3      | surface               | required-for-live-claim | Three independent Copilot UI executions plus real flow evidence      | Run all three modes against the dedicated fixture/account                                                 | Each returns the required tenant, canary and arithmetic result; actual registration/token evidence matches the selected mode.                                                                      |
-| MCP-AUTH-09 | L3      | surface               | required-for-live-claim | Copilot UI with isolated SSO present/absent/invalid fixtures         | Exercise all SSO ID variants                                                                              | Present ID skips creation only, absent ID retains full setup, invalid ID visibly fails; valid variants still obtain tokens and invoke MCP.                                                         |
-| MCP-AUTH-10 | L1      | compatibility         | required                | Mode profiles and prepared project fixtures                          | Load the latest consumer export for each mode                                                             | Validate the requested tenant/current client, resolve the endpoint at runtime, inject matching static credentials only for static OAuth, and give each run a distinct ownership ID.                |
-| MCP-AUTH-11 | L1      | operation-integration | required                | Real teardown coordinator with temporary projects and deletion ports | Teardown receives shared identity IDs, a reused/invalid SSO ID, foreign-run resources, or owned resources | Skip mini-managed AAD, SP, monitoring apps and supplied SSO records even with a direct-by-ID deletion port; delete only supported resources whose creation baseline belongs to this run.           |
-| MCP-AUTH-12 | L1/L3   | surface               | required                | Compiled terminal steps and real vscuse desktop                      | Prepare a new project or reject a broken fixture before provision                                         | Execute the exact supplied script, validate files and mode wiring, require a current-run success marker, and stop before cloud operations on failure; code-agent completion is not script success. |
+| ID          | Runtime | Purpose               | Gate                    | Harness                                                              | Given / When                                                                                              | Then                                                                                                                                                                                                                                 |
+| ----------- | ------- | --------------------- | ----------------------- | -------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| MCP-AUTH-01 | L1      | operation-integration | required                | Real OAuth driver with fake TGS HTTP                                 | SSO test ID is present but the static-OAuth case runs with its own empty output mapping                   | POST a separate Custom registration using Entra endpoints/static credentials; do not GET or reuse the SSO ID.                                                                                                                        |
+| MCP-AUTH-02 | L1      | operation-integration | required                | Real DCR driver with fake TGS HTTP                                   | SSO test ID is present but the DCR case runs with its own empty output mapping                            | POST a separate Dynamic configuration using the MCP facade; do not GET/reuse the SSO ID or send static credentials/Entra endpoints.                                                                                                  |
+| MCP-AUTH-03 | L1      | operation-integration | required                | Real OAuth driver with fake TGS HTTP                                 | SSO supplies a valid matching MicrosoftEntra ID                                                           | GET the existing record, skip POST and creation-time Graph/configuration work, and leave existing resource URI/reference state unchanged.                                                                                            |
+| MCP-AUTH-04 | L1      | operation-integration | required                | Real OAuth driver with fake TGS HTTP                                 | SSO omits its optional registration ID                                                                    | Execute normal MicrosoftEntra registration with SSO enabled and AnyApp/HomeTenant, preserving the creation result mappings.                                                                                                          |
+| MCP-AUTH-05 | L1      | operation-integration | required                | Real OAuth driver with fake TGS HTTP                                 | Supplied SSO ID returns an error, another provider, or a conflicting client ID                            | Return an explicit error; no successful skip, no replacement POST and no configuration mutation.                                                                                                                                     |
+| MCP-AUTH-06 | L1      | compatibility         | required                | Independent mode fixtures and fake TGS HTTP                          | Each case creates/loads its own mode-specific output variables                                            | SSO reuse never populates static-OAuth/DCR outputs; fresh static/DCR registrations return distinct IDs; preserve legacy Custom reuse-error behavior outside SSO.                                                                     |
+| MCP-AUTH-07 | L1      | operation-integration | required                | Real drivers with failing token provider                             | Authentication fails in any mode                                                                          | Return the authentication error before HTTP registration or reuse; do not fall back to another mode.                                                                                                                                 |
+| MCP-AUTH-08 | L3      | surface               | required-for-live-claim | Three independent Copilot UI executions plus real flow evidence      | Run all three modes against the dedicated fixture/account                                                 | Each returns the required tenant, canary and arithmetic result; actual registration/token evidence matches the selected mode.                                                                                                        |
+| MCP-AUTH-09 | L3      | surface               | required-for-live-claim | Copilot UI with isolated SSO present/absent/invalid fixtures         | Exercise all SSO ID variants                                                                              | Present ID skips creation only, absent ID retains full setup, invalid ID visibly fails; valid variants still obtain tokens and invoke MCP.                                                                                           |
+| MCP-AUTH-10 | L1      | compatibility         | required                | Mode profiles and prepared project fixtures                          | Load the latest consumer export for each mode                                                             | Validate the requested tenant/current client, resolve the endpoint at runtime, inject matching static credentials only for static OAuth, and give each run a distinct ownership ID.                                                  |
+| MCP-AUTH-11 | L1      | operation-integration | required                | Real teardown coordinator with temporary projects and deletion ports | Teardown receives shared identity IDs, a reused/invalid SSO ID, foreign-run resources, or owned resources | Skip mini-managed AAD, SP, monitoring apps and supplied SSO records even with a direct-by-ID deletion port; delete only supported resources whose creation baseline belongs to this run.                                             |
+| MCP-AUTH-12 | L1/L3   | surface               | required                | Compiled terminal steps and real vscuse desktop                      | Prepare a new project or reject a broken fixture before provision                                         | Execute the exact supplied script, validate files and mode wiring, require a current-run success marker, and stop before cloud operations on failure; code-agent completion is not script success.                                   |
+| MCP-AUTH-13 | L1      | compatibility         | required                | Environment-backed CI adapter and compiled workflow                  | Prepare a managed auth case from GitHub Variables and mode-specific Secrets                               | Derive static scope without separate configuration, preserve mode isolation/SSO reuse and full creation, use the dedicated licensed account, and provide host/container values before runner validation without local fixture files. |
 
 ## Live Result Oracle
 
@@ -128,11 +129,13 @@ flowchart TD
   for an authenticated MCP project fails closed rather than invoking generic
   identity or ambient-resource-group deletion.
 - Do not guess the dedicated environment filename or silently substitute the generic profile.
-- Use the mini project's secret-free `.generated/da-sso.atktesting08.env` as the
-  explicit consumer profile. Static OAuth additionally requires its matching
-  private Entra credential file, loaded only for that mode. Do not import local
-  HMAC/static bearer credentials or substitute the generic account profile's AAD
-  fixture.
+- For file-backed execution, use the mini project's secret-free
+  `.generated/da-sso.atktesting08.env` as the explicit consumer profile. Static
+  OAuth additionally requires its matching private Entra credential file,
+  loaded only for that mode. Alternatively, use the environment-backed inputs
+  below. A selected file that cannot be read fails; it never falls back to
+  unrelated account-profile credentials. Do not import local HMAC/static bearer
+  credentials or substitute the generic account profile's AAD fixture.
 - The consumer profile supplies the tenant/MCP/client identity. The `atk08`
   account profile supplies the licensed M365 account and runner infrastructure
   credentials, not the resource application's static credentials.
@@ -157,7 +160,8 @@ Each generated plan is flat and independently creates its own project. The
 refuses an existing vscuse container rather than inheriting another case's browser
 or token state. Use a current branch-specific local VSIX/image.
 
-Set the two local path variables below outside source control. The consumer
+For file-backed local execution, set the two path variables below outside source
+control. The consumer
 export is secret-free; the static credential file contains the matching Entra
 client secret and is used only by static OAuth:
 
@@ -172,6 +176,47 @@ client secret and is used only by static OAuth:
 .\packages\tests\vscuse\vscode-test-cases\run-mcp-auth-integration.ps1 `
   -Mode entra-sso -SsoEnvironmentFile $env:MCP_AUTH_CONSUMER_ENV_FILE
 ```
+
+When `-SsoEnvironmentFile` is omitted, the launcher uses the same environment
+input names as CI, after loading the selected local runner/account profile:
+`M365_TENANT_ID`, `MCP_AUTH_ENDPOINT`, the selected mode's `DA_MCP_*_CLIENTID`,
+and its mode-specific secrets. Static scope is derived as
+`api://<validated-client-id>/access_as_user`; do not separately configure
+`DA_MCP_OAUTH_SCOPE` or `ENTRA_API_SCOPE` for this fixture.
+
+### GitHub Actions Inputs
+
+The reusable vscuse workflow prepares only the three managed MCP cases through
+the environment-backed adapter before runner execution. It consumes these
+GitHub Variables:
+
+- `M365_TENANT_ID`
+- `MCP_AUTH_ENDPOINT`
+- `DA_MCP_OAUTH_CLIENTID` (static OAuth only)
+- `DA_MCP_ENTRA_SSO_CLIENTID` (SSO only)
+- `M365_ACCOUNT_NAME_ENABLECOPILOTACCESS` (the licensed atk08 account)
+
+The corresponding Secrets are:
+
+- `M365_ACCOUNT_PASSWORD_ENABLECOPILOTACCESS`
+- `DA_MCP_OAUTH_CLIENT_SECRET` (static OAuth only)
+- `ENTRA_SSO_REGISTRATION_ID` (optional; mapped to `MCP_AUTH_SSO_ID` only for SSO)
+
+With no SSO registration ID, full creation additionally needs the mini-owned
+manifest as Secret `MCP_AUTH_AAD_MANIFEST_B64`, plus Variables
+`MCP_AUTH_AAD_APP_OBJECT_ID`, `MCP_AUTH_AAD_ACCESS_AS_USER_PERMISSION_ID`, and
+`ENTRA_SSO_APPLICATION_ID_URI`. These preserve the existing identity settings;
+missing creation prerequisites fail preparation rather than creating against
+guessed settings or skipping authentication.
+
+CI derives the selected mode, flow expectation, static resource scope,
+authorization/token endpoints and SSO protection metadata. It masks sensitive
+runtime values, publishes them through `GITHUB_ENV` and supplies only that
+mode's authentication inputs to Docker. No local environment/credential files,
+fixed run ID or expected JWT caller ID are needed. The original generic-plan
+configuration and random-account path remain unchanged for non-MCP cases.
+CI retains the workflow's selected template routing; local execution uses local
+templates. Neither path overrides the three product feature defaults.
 
 For the SSO group, `-SsoVariant absent` deliberately exercises creation/configuration
 even when the consumer export contains a shared ID. `-SsoVariant invalid` supplies

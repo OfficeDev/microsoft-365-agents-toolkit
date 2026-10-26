@@ -732,6 +732,28 @@ a different ID skips the resources rather than falling back to the project ID.
 Absent or mismatched ownership never delegates generic cleanup. The selected
 MCP mode also protects direct shared-identity cleanup before any run ID exists.
 
+CI reads `M365_TENANT_ID`, `DA_MCP_OAUTH_CLIENTID`,
+`DA_MCP_ENTRA_SSO_CLIENTID`, and `MCP_AUTH_ENDPOINT` from GitHub Variables.
+Passwords, the static OAuth client secret, and the optional
+`ENTRA_SSO_REGISTRATION_ID` remain Secrets. The three managed MCP cases use the
+configured Copilot-enabled atk08 account, not the generic random account pool.
+
+The environment-backed profile adapter prepares mode-scoped runner and Docker
+configuration before vscuse starts. Static OAuth derives the fixture's
+`api://<client-id>/access_as_user` scope from its validated resource client ID;
+neither `DA_MCP_OAUTH_SCOPE` nor a separately maintained scope is required.
+Only SSO reads the optional registration ID. Absent-ID creation still requires
+the mini-owned manifest and identity metadata so existing configuration is
+preserved; missing prerequisites fail explicitly. CI does not depend on local
+consumer/credential files or the ignored environment setup script.
+
+The prepared CI configuration preserves the caller's template routing and
+product-default feature flags. Only the local launcher selects local templates.
+CI publishes its scoped runtime values through `GITHUB_ENV`, masks sensitive
+values, clears foreign authentication state, and selects the prepared config
+only after successful MCP preparation. Non-MCP cases retain their generic
+configuration and random-account path.
+
 The Playground message component is not reachable until a compatible target adapter can produce
 `chat-ready`; that future adapter may reuse `assert-ready.json.tpl`. The recorded Copilot remote
 target converges to an already-active agent chat, so `open` for `kind: agent` and
@@ -1289,6 +1311,8 @@ coordinates, omit required prompt guards, or silently choose a nearby component.
 | VCB-179 | The three independent MCP cases use ordinary chat result assertions without developer-mode commands, runtime audit collectors or witness tabs. Request and check fresh server-generated probe_id and server_time alongside canary and auth_flow without putting expected answers in prompts; preserve registration isolation and product-default feature flags.                                                       |
 | VCB-180 | Chat nonEmptyFields compiles one value-shape assertion per unique flat field, implies a completed response and rejects invalid lists/names or non-chat use. All MCP modes require a non-empty client_id without exporting or referencing a fixed JWT-caller expectation; preserve exact business-result checks and per-run UUID ownership.                                                                            |
 | VCB-181 | MCP preparation generates and persists its own UUID without an external MCP_AUTH_RUN_ID dependency. The plan requires a completed project-bound ready line with the generated UUID. Teardown accepts matching project-owned run metadata, rejects absent/mismatched identities and explicit foreign IDs, and keeps shared-identity guards active for MCP modes even before setup succeeds.                            |
+| VCB-182 | Static OAuth derives its resource scope from the validated client ID; profiles, preparation scripts and plans never require DA_MCP_OAUTH_SCOPE or read an independent scope input. DCR and SSO remain isolated from static credentials and retain their registration flows.                                                                                                                                           |
+| VCB-183 | Environment-backed MCP CI preparation consumes public Variables and mode-specific Secrets, preserves optional SSO reuse/full creation, rejects missing or mismatched prerequisites, masks sensitive output and produces a scoped host/Docker config without local files or forced template/feature routing. Only the three MCP cases use it; generic cases remain unchanged.                                          |
 | VCB-173 | A prepared static-OAuth/DCR MCP chat check with `connectOAuth: true` emits the recorded Sign in interaction after sending and before tool/result assertions. Only DCR emits the facade's explicit dynamic-client consent. Reject unsupported hosts, unprepared/SSO modes, non-true values and a duplicate `allowAction` setting. Preserve ordinary capability-consent behavior and all real tool-result requirements. |
 | VCB-177 | Remote-MCP authentication messages request only asserted identity/probe fields from the actual tools, without leaking expected tenant, client, canary or arithmetic answers into prompts. Preserve all three explicit invocation checks and all exact expected result values.                                                                                                                                         |
 | VCB-176 | Clear scaffold notifications before native-terminal MCP preparation so a successful current-run ready marker cannot be covered by the creation toast. Retain the full run-ID proof and fail-closed preparation gate; do not accept a bare marker as success.                                                                                                                                                          |

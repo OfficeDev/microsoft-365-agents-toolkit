@@ -45,7 +45,6 @@ function buildMcpAuthProfile(mode, consumer, options = {}) {
     Object.assign(environment, {
       DA_MCP_OAUTH_CLIENTID: client,
       DA_MCP_OAUTH_CLIENT_SECRET: required(credentials, "ENTRA_CLIENT_SECRET"),
-      DA_MCP_OAUTH_SCOPE: required(credentials, "ENTRA_API_SCOPE"),
       MCP_AUTH_AUTHORIZATION_URL: `https://login.microsoftonline.com/${tenant}/oauth2/v2.0/authorize`,
       MCP_AUTH_TOKEN_URL: `https://login.microsoftonline.com/${tenant}/oauth2/v2.0/token`,
     });
@@ -195,7 +194,7 @@ if action["uses"] != "oauth/register" or inputs.get("identityProvider") != "Cust
 inputs["authorizationUrl"] = os.environ["MCP_AUTH_AUTHORIZATION_URL"]
 inputs["tokenUrl"] = os.environ["MCP_AUTH_TOKEN_URL"]
 inputs["refreshUrl"] = os.environ["MCP_AUTH_TOKEN_URL"]
-inputs["scope"] = os.environ["DA_MCP_OAUTH_SCOPE"]
+inputs["scope"] = "api://" + os.environ["DA_MCP_OAUTH_CLIENTID"] + "/access_as_user"
 inputs["baseUrl"] = endpoint
 set_project_env(output_key, "")
 `,
@@ -297,6 +296,7 @@ module.exports = {
   buildMcpAuthProfile,
   fixtureScript,
   expectedTenant,
+  expectedClient,
   expectedClient,
   expectedCanary,
 };

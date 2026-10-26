@@ -2,8 +2,7 @@ param(
   [Parameter(Mandatory)]
   [ValidateSet("static-oauth", "dcr", "entra-sso")]
   [string]$Mode,
-  [Parameter(Mandatory)]
-  [string]$SsoEnvironmentFile,
+  [string]$SsoEnvironmentFile = "",
   [string]$StaticCredentialFile = "",
   [ValidateSet("auto", "absent", "invalid")]
   [string]$SsoVariant = "auto",
@@ -23,9 +22,9 @@ try {
     throw "SSO registration variants are only supported by the SSO case."
   }
   . (Join-Path $repo "set-azure-env.ps1") -Env $AccountProfile *> $null
-  Get-ChildItem Env: |
-    Where-Object { $_.Name -match "^(MCP_AUTH_|DA_MCP_|ENTRA_SSO_|LOCAL_CLIENT_|STATIC_API_TOKENS$)" } |
-    ForEach-Object { [Environment]::SetEnvironmentVariable($_.Name, $null, "Process") }
+  if (-not $SsoEnvironmentFile -and $StaticCredentialFile) {
+    throw "File-based static credentials require the matching consumer environment file."
+  }
 
   $helper = Join-Path $PSScriptRoot "engine\prepare-mcp-auth-run.cjs"
   $profileArguments = ConvertTo-Json -InputObject @{
@@ -35,10 +34,13 @@ try {
     variant = $SsoVariant
   } -Compress
   $profileArgumentsBase64 = [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes($profileArguments))
-  $encodedProfile = & node -e 'const h=require(process.argv[1]);const a=JSON.parse(Buffer.from(process.argv[2],"base64"));const p=h.loadProfile(a.mode,a.ssoFile,a.staticFile,a.variant);process.stdout.write(JSON.stringify(p.environment));' $helper $profileArgumentsBase64
+  $encodedProfile = & node -e 'const h=require(process.argv[1]);const a=JSON.parse(Buffer.from(process.argv[2],"base64"));const p=a.ssoFile?h.loadProfile(a.mode,a.ssoFile,a.staticFile,a.variant):h.loadEnvironmentProfile(a.mode,process.env,a.variant);process.stdout.write(JSON.stringify(p.environment));' $helper $profileArgumentsBase64
   if ($LASTEXITCODE -ne 0) { throw "MCP fixture profile validation failed." }
   try { $environment = $encodedProfile | ConvertFrom-Json -AsHashtable }
   catch { throw "MCP fixture profile could not be decoded safely." }
+  Get-ChildItem Env: |
+    Where-Object { $_.Name -match "^(MCP_AUTH_|DA_MCP_|ENTRA_SSO_|LOCAL_CLIENT_|STATIC_API_TOKENS$)" } |
+    ForEach-Object { [Environment]::SetEnvironmentVariable($_.Name, $null, "Process") }
   foreach ($name in $environment.Keys) {
     [Environment]::SetEnvironmentVariable($name, [string]$environment[$name], "Process")
   }
@@ -75,7 +77,7 @@ try {
   $ssoIdPresent = $Mode -eq "entra-sso" -and -not [string]::IsNullOrEmpty([string]$environment["MCP_AUTH_SSO_ID"])
   & node -e 'const fs=require("fs"),h=require(process.argv[1]);const text=h.prepareMcpAuthRunConfig(fs.readFileSync(process.argv[2],"utf8"),fs.readFileSync(process.argv[3],"utf8"),process.argv[4],JSON.parse(process.argv[5]),JSON.parse(process.argv[7]));fs.writeFileSync(process.argv[6],text);' $helper (Join-Path $PSScriptRoot "config.yaml") $plan $Mode $names $config ($ssoIdPresent.ToString().ToLowerInvariant())
   if ($LASTEXITCODE -ne 0) { throw "Mode-scoped vscuse configuration failed." }
-  $secrets = @(Get-ChildItem Env: | Where-Object { $_.Name -match "SECRET|PASSWORD|(^|_)KEY$|TOKEN" } | ForEach-Object { $_.Value } | Where-Object { $_.Length -ge 4 })
+  $secrets = @(Get-ChildItem Env: | Where-Object { $_.Name -match "SECRET|PASSWORD|(^|_)KEY$|TOKEN|MCP_AUTH_SSO_ID|MCP_AUTH_SSO_PROTECTED_ID_B64|MCP_AUTH_AAD_MANIFEST_B64" } | ForEach-Object { $_.Value } | Where-Object { $_.Length -ge 4 })
   $secretVariants = @($secrets | ForEach-Object {
     $_
     [uri]::EscapeDataString($_)

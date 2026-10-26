@@ -78,7 +78,7 @@ steps:
           value: "${{secret:DA_MCP_OAUTH_CLIENT_SECRET}}"
         - question: mcp-da-scopes
           type: text
-          value: "${{env:DA_MCP_OAUTH_SCOPE}}"
+          value: "api://${{env:DA_MCP_OAUTH_CLIENTID}}/access_as_user"
         - question: workspaceFolder
           value: default
         - question: appName

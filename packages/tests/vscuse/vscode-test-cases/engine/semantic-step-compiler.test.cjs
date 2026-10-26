@@ -595,6 +595,31 @@ test("VCB-181: run ownership is generated inside preparation, not required at pl
   }
 });
 
+test("VCB-182: static MCP OAuth scope follows the selected client without a separate environment input", async () => {
+  const result = await compileFixture(
+    "da-mcp-auth-modes.yml",
+    (source) => source,
+  );
+  assert.equal(result.ok, true, JSON.stringify(result.diagnostics));
+  for (const { caseId, plan } of result.value) {
+    assert.equal(
+      JSON.stringify(plan).includes("${{env:DA_MCP_OAUTH_SCOPE}}"),
+      false,
+      caseId,
+    );
+    if (!caseId.includes("static-entra")) continue;
+    assert.ok(
+      plan.steps.some(
+        (step) =>
+          step.tool === "type_text" &&
+          step.parameters.text ===
+            "api://${{env:DA_MCP_OAUTH_CLIENTID}}/access_as_user",
+      ),
+      caseId,
+    );
+  }
+});
+
 test("VCB-128: numeric work item IDs remain distinct from scenario metadata", () => {
   const sourceText = `version: 1
 cases:

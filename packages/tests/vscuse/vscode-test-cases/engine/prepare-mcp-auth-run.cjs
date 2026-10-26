@@ -1,8 +1,12 @@
 const fs = require("node:fs");
 const path = require("node:path");
+const { randomUUID } = require("node:crypto");
 const dotenv = require("dotenv");
 const { parseDocument } = require("yaml");
-const { buildMcpAuthProfile } = require("./mcp-auth-fixture.cjs");
+const {
+  buildMcpAuthProfile,
+  expectedClient,
+} = require("./mcp-auth-fixture.cjs");
 const { prepareVscuseConfig } = require("./prepare-vscuse-config.cjs");
 
 function loadProfile(mode, ssoFile, staticFile, ssoVariant = "auto") {
@@ -35,6 +39,84 @@ function loadProfile(mode, ssoFile, staticFile, ssoVariant = "auto") {
   return buildMcpAuthProfile(mode, consumer, options);
 }
 
+function requiredEnvironment(environment, name) {
+  const value = environment[name];
+  if (typeof value !== "string" || value.trim().length === 0) {
+    throw new Error(`Missing MCP environment setting: ${name}`);
+  }
+  return value;
+}
+
+function loadEnvironmentProfile(mode, environment, ssoVariant = "auto") {
+  if (!["static-oauth", "dcr", "entra-sso"].includes(mode)) {
+    throw new Error("Unsupported MCP authentication mode");
+  }
+  const consumer = {
+    ENTRA_TENANT_ID: requiredEnvironment(environment, "M365_TENANT_ID"),
+    // Resource identity only, not a DCR client ID or credential.
+    ENTRA_CLIENT_ID: expectedClient,
+    MCP_ENDPOINT_URL: requiredEnvironment(environment, "MCP_AUTH_ENDPOINT"),
+  };
+  const options = { ssoVariant };
+  if (mode === "static-oauth") {
+    consumer.ENTRA_CLIENT_ID = requiredEnvironment(
+      environment,
+      "DA_MCP_OAUTH_CLIENTID",
+    );
+    options.staticCredentials = {
+      ENTRA_TENANT_ID: consumer.ENTRA_TENANT_ID,
+      ENTRA_CLIENT_ID: consumer.ENTRA_CLIENT_ID,
+      ENTRA_CLIENT_SECRET: requiredEnvironment(
+        environment,
+        "DA_MCP_OAUTH_CLIENT_SECRET",
+      ),
+    };
+  } else if (mode === "entra-sso") {
+    consumer.ENTRA_CLIENT_ID = requiredEnvironment(
+      environment,
+      "DA_MCP_ENTRA_SSO_CLIENTID",
+    );
+    consumer.ENTRA_SSO_REGISTRATION_ID = environment.MCP_AUTH_SSO_ID;
+    consumer.ENTRA_SSO_APPLICABLE_TO_APPS = "AnyApp";
+    consumer.ENTRA_SSO_TARGET_AUDIENCE = "HomeTenant";
+    if (
+      ssoVariant === "absent" ||
+      (ssoVariant === "auto" && !consumer.ENTRA_SSO_REGISTRATION_ID)
+    ) {
+      const encoded = environment.MCP_AUTH_AAD_MANIFEST_B64;
+      if (typeof encoded !== "string" || !encoded.trim()) {
+        throw new Error(
+          "SSO registration ID is absent. Supply MCP_AUTH_SSO_ID for reuse, " +
+            "or MCP_AUTH_AAD_MANIFEST_B64 and mini-owned metadata for full creation.",
+        );
+      }
+      try {
+        options.miniManifest = JSON.parse(
+          Buffer.from(encoded, "base64").toString("utf8"),
+        );
+      } catch {
+        throw new Error("Invalid MCP_AUTH_AAD_MANIFEST_B64");
+      }
+      options.miniEnvironment = {
+        AAD_APP_CLIENT_ID: consumer.ENTRA_CLIENT_ID,
+        AAD_APP_OBJECT_ID: requiredEnvironment(
+          environment,
+          "MCP_AUTH_AAD_APP_OBJECT_ID",
+        ),
+        AAD_APP_ACCESS_AS_USER_PERMISSION_ID: requiredEnvironment(
+          environment,
+          "MCP_AUTH_AAD_ACCESS_AS_USER_PERMISSION_ID",
+        ),
+      };
+      consumer.ENTRA_SSO_APPLICATION_ID_URI = requiredEnvironment(
+        environment,
+        "ENTRA_SSO_APPLICATION_ID_URI",
+      );
+    }
+  }
+  return buildMcpAuthProfile(mode, consumer, options);
+}
+
 function fixtureMode(plan) {
   const modes = new Set(
     plan.steps.flatMap((step) =>
@@ -54,6 +136,7 @@ function prepareMcpAuthRunConfig(
   mode,
   names,
   ssoIdPresent,
+  localTemplates = true,
 ) {
   if (fixtureMode(JSON.parse(planText)) !== mode) {
     throw new Error("MCP plan/profile mode mismatch");
@@ -93,8 +176,77 @@ function prepareMcpAuthRunConfig(
         : "${" + name + "}",
     );
   }
-  document.setIn(["docker", "environment", "TEMPLATE_VERSION"], "local");
+  if (localTemplates) {
+    document.setIn(["docker", "environment", "TEMPLATE_VERSION"], "local");
+  }
   return document.toString();
+}
+
+function prepareMcpAuthCiRun(configText, planText, environment) {
+  const mode = fixtureMode(JSON.parse(planText));
+  const profile = loadEnvironmentProfile(mode, environment);
+  const account = requiredEnvironment(environment, "M365_ACCOUNT_NAME").trim();
+  if (!/@atktesting08\.onmicrosoft\.com$/i.test(account)) {
+    throw new Error("MCP CI requires the licensed atktesting08 account");
+  }
+  const password = requiredEnvironment(environment, "M365_ACCOUNT_PASSWORD");
+  const cleared = Object.fromEntries(
+    Object.keys(environment)
+      .filter((name) =>
+        /^(MCP_AUTH_|DA_MCP_|ENTRA_SSO_|TEST_AAD_APP_)/.test(name),
+      )
+      .map((name) => [name, ""]),
+  );
+  const runtime = {
+    ...cleared,
+    ...profile.environment,
+    M365_ACCOUNT_NAME: account,
+    M365_ACCOUNT_PASSWORD: password,
+    M365_TENANT_ID: profile.environment.MCP_AUTH_EXPECTED_TENANT,
+  };
+  const prepared = prepareMcpAuthRunConfig(
+    configText,
+    planText,
+    mode,
+    Object.keys(profile.environment),
+    Boolean(profile.environment.MCP_AUTH_SSO_ID),
+    false,
+  );
+  return { mode, environment: runtime, configText: prepared };
+}
+
+function writeGithubEnvironment(environment, destination) {
+  const lines = [];
+  const masks = new Set();
+  for (const [name, value] of Object.entries(environment)) {
+    if (!/^[A-Z][A-Z0-9_]*$/.test(name) || typeof value !== "string") {
+      throw new Error("Invalid MCP GitHub environment entry");
+    }
+    if (
+      value &&
+      /PASSWORD|SECRET|SSO_ID|PROTECTED_ID_B64|AAD_MANIFEST_B64/.test(name)
+    ) {
+      for (const variant of [
+        value,
+        encodeURIComponent(value),
+        JSON.stringify(value).slice(1, -1),
+      ]) {
+        if (masks.has(variant)) continue;
+        masks.add(variant);
+        const masked = variant
+          .replaceAll("%", "%25")
+          .replaceAll("\r", "%0D")
+          .replaceAll("\n", "%0A");
+        process.stdout.write(`::add-mask::${masked}\n`);
+      }
+    }
+    let delimiter;
+    do {
+      delimiter = `MCP_${randomUUID()}`;
+    } while (value.split(/\r?\n/).includes(delimiter));
+    lines.push(`${name}<<${delimiter}\n${value}\n${delimiter}\n`);
+  }
+  fs.appendFileSync(destination, lines.join(""), "utf8");
 }
 
 function redact(text, secrets) {
@@ -115,4 +267,36 @@ function redact(text, secrets) {
     );
 }
 
-module.exports = { loadProfile, fixtureMode, prepareMcpAuthRunConfig, redact };
+module.exports = {
+  loadProfile,
+  loadEnvironmentProfile,
+  fixtureMode,
+  prepareMcpAuthRunConfig,
+  prepareMcpAuthCiRun,
+  redact,
+};
+
+if (require.main === module) {
+  try {
+    const args = process.argv.slice(2);
+    if (args.length !== 3) {
+      throw new Error(
+        "Usage: node prepare-mcp-auth-run.cjs <config> <plan> <output>",
+      );
+    }
+    const destination = requiredEnvironment(process.env, "GITHUB_ENV");
+    const result = prepareMcpAuthCiRun(
+      fs.readFileSync(args[0], "utf8"),
+      fs.readFileSync(args[1], "utf8"),
+      process.env,
+    );
+    writeGithubEnvironment(result.environment, destination);
+    fs.writeFileSync(args[2], result.configText, "utf8");
+    process.stdout.write(
+      `Prepared isolated MCP authentication profile: ${result.mode}\n`,
+    );
+  } catch (error) {
+    process.stderr.write(`${error.message}\n`);
+    process.exitCode = 1;
+  }
+}
