@@ -192,7 +192,7 @@
   "teamstoolkit.commandsTreeViewProvider.regenerateActionDescription": "Azione di rigenerazione nell'agente dichiarativo",
   "teamstoolkit.commandsTreeViewProvider.addPlugin.running": "Aggiunta dell'azione...",
   "teamstoolkit.commandsTreeViewProvider.addSkillTitle": "Aggiungi competenza",
-  "teamstoolkit.commandsTreeViewProvider.addSkillFrontierTitle": "Add Skill (Frontier)",
+  "teamstoolkit.commandsTreeViewProvider.addSkillFrontierTitle": "Aggiungi competenza (Frontier)",
   "teamstoolkit.commandsTreeViewProvider.addSkillDescription": "Aggiungi competenza nell'agente dichiarativo",
   "teamstoolkit.commandsTreeViewProvider.addSkill.running": "Aggiunta della competenza in corso...",
   "teamstoolkit.commandsTreeViewProvider.addSkill.blockTooltip": "Non è possibile eseguire il comando durante l'aggiunta di una competenza. Attendere il completamento dell'aggiunta e riprovare.",

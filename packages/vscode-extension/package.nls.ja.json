@@ -192,7 +192,7 @@
   "teamstoolkit.commandsTreeViewProvider.regenerateActionDescription": "宣言型エージェントでアクションを再生成します",
   "teamstoolkit.commandsTreeViewProvider.addPlugin.running": "アクションを追加しています...",
   "teamstoolkit.commandsTreeViewProvider.addSkillTitle": "スキルの追加",
-  "teamstoolkit.commandsTreeViewProvider.addSkillFrontierTitle": "Add Skill (Frontier)",
+  "teamstoolkit.commandsTreeViewProvider.addSkillFrontierTitle": "スキルの追加 (Frontier)",
   "teamstoolkit.commandsTreeViewProvider.addSkillDescription": "宣言型エージェントにスキルを追加する",
   "teamstoolkit.commandsTreeViewProvider.addSkill.running": "スキルを追加しています...",
   "teamstoolkit.commandsTreeViewProvider.addSkill.blockTooltip": "スキルの追加中はコマンドを実行できません。追加が完了してから、もう一度お試しください。",

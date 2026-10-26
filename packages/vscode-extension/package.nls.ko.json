@@ -192,7 +192,7 @@
   "teamstoolkit.commandsTreeViewProvider.regenerateActionDescription": "선언적 에이전트에서 작업 다시 생성",
   "teamstoolkit.commandsTreeViewProvider.addPlugin.running": "작업 추가 중...",
   "teamstoolkit.commandsTreeViewProvider.addSkillTitle": "기술 추가",
-  "teamstoolkit.commandsTreeViewProvider.addSkillFrontierTitle": "Add Skill (Frontier)",
+  "teamstoolkit.commandsTreeViewProvider.addSkillFrontierTitle": "기술 추가(프런티어)",
   "teamstoolkit.commandsTreeViewProvider.addSkillDescription": "선언적 에이전트에 기술 추가",
   "teamstoolkit.commandsTreeViewProvider.addSkill.running": "기술 추가 중...",
   "teamstoolkit.commandsTreeViewProvider.addSkill.blockTooltip": "기술을 추가할 때 명령을 실행할 수 없습니다. 추가가 완료된 후 다시 시도하세요.",

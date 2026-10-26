@@ -192,7 +192,7 @@
   "teamstoolkit.commandsTreeViewProvider.regenerateActionDescription": "Wygeneruj ponownie akcję w agencie deklaratywnym",
   "teamstoolkit.commandsTreeViewProvider.addPlugin.running": "Trwa dodawanie akcji...",
   "teamstoolkit.commandsTreeViewProvider.addSkillTitle": "Dodaj umiejętność",
-  "teamstoolkit.commandsTreeViewProvider.addSkillFrontierTitle": "Add Skill (Frontier)",
+  "teamstoolkit.commandsTreeViewProvider.addSkillFrontierTitle": "Dodaj umiejętność (granica)",
   "teamstoolkit.commandsTreeViewProvider.addSkillDescription": "Dodaj umiejętność w agencie deklaratywnym",
   "teamstoolkit.commandsTreeViewProvider.addSkill.running": "Trwa dodawanie umiejętności...",
   "teamstoolkit.commandsTreeViewProvider.addSkill.blockTooltip": "Nie można uruchomić polecenia podczas dodawania umiejętności. Spróbuj ponownie po zakończeniu dodawania.",
