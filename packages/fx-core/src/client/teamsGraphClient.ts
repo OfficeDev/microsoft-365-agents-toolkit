@@ -52,7 +52,7 @@ export class TeamsGraphClient {
     const requester = this.createRequesterWithToken(token);
     try {
       const response = await RetryHandler.Retry(() =>
-        requester.get(`/v1.0/oAuthConfigurations/${oauthRegistrationId}`)
+        requester.get(`/v1.0/oAuthConfigurations/${encodeURIComponent(oauthRegistrationId)}`)
       );
       return response?.data;
     } catch (e) {
@@ -106,6 +106,38 @@ export class TeamsGraphClient {
       return response?.data;
     } catch (e) {
       throw this.wrapException(e, TEAMS_GRAPH_API_NAMES.UPDATE_OAUTH);
+    }
+  }
+
+  @hooks([ErrorContextMW({ source: "TeamsGraph", component: "TeamsGraphClient" })])
+  async getDcrRegistrationById(token: string, configurationId: string): Promise<unknown> {
+    const requester = this.createRequesterWithToken(token);
+    try {
+      const response = await RetryHandler.Retry(() =>
+        requester.get<unknown>(`/v1.0/dynamicConfigurations/${encodeURIComponent(configurationId)}`)
+      );
+      return response?.data;
+    } catch (e) {
+      throw this.wrapException(e, TEAMS_GRAPH_API_NAMES.GET_DCR);
+    }
+  }
+
+  @hooks([ErrorContextMW({ source: "TeamsGraph", component: "TeamsGraphClient" })])
+  async updateDcrRegistration(
+    token: string,
+    changes: Partial<DcrRegistration>,
+    configurationId: string
+  ): Promise<void> {
+    const requester = this.createRequesterWithToken(token);
+    try {
+      await RetryHandler.Retry(() =>
+        requester.patch(
+          `/v1.0/dynamicConfigurations/${encodeURIComponent(configurationId)}`,
+          changes
+        )
+      );
+    } catch (e) {
+      throw this.wrapException(e, TEAMS_GRAPH_API_NAMES.UPDATE_DCR);
     }
   }
 

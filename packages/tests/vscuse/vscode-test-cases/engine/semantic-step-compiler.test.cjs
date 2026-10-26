@@ -22,6 +22,7 @@ const allowedEngineModules = new Set(
     "diagnostics.cjs",
     "expand-case-bundle.cjs",
     "load-case-sources.cjs",
+    "mcp-auth-fixture.cjs",
     "parse-case-bundle.cjs",
     "preflight-output-paths.cjs",
     "render-component.cjs",
@@ -64,6 +65,396 @@ async function compileFixture(fileName, transform) {
     sourceText: transform(sourceText),
   });
 }
+
+test("VCB-171: generated MCP fixtures reserve run ownership before mutating registration state", async () => {
+  const result = await compileFixture(
+    "da-mcp-auth-modes.yml",
+    (source) => source,
+  );
+  assert.equal(result.ok, true, JSON.stringify(result.diagnostics));
+  for (const { caseId, plan } of result.value) {
+    const step = plan.steps.find((item) =>
+      item.tags.includes("operation:mcp-auth-fixture"),
+    );
+    assert.ok(step, caseId);
+    const encoded = step.parameters.text.match(/SCRIPT_B64="([^"]+)"/)[1];
+    const script = Buffer.from(encoded, "base64").toString("utf8");
+    assert.ok(script.includes('os.environ.get("MCP_AUTH_RUN_ID"'), caseId);
+    assert.ok(script.includes('"ownership.json").open("x"'), caseId);
+    assert.ok(
+      script.indexOf('"ownership.json").open("x"') <
+        script.indexOf('assert_mode("'),
+      caseId,
+    );
+    assert.ok(script.includes('"existedBefore"'), caseId);
+    assert.ok(script.includes('"copilotAgent/publish"'), caseId);
+  }
+});
+
+test("VCB-172: MCP setup is exact terminal input with a mandatory run-ready gate", async () => {
+  const result = await compileFixture(
+    "da-mcp-auth-modes.yml",
+    (source) => source,
+  );
+  assert.equal(result.ok, true, JSON.stringify(result.diagnostics));
+  for (const { caseId, plan } of result.value) {
+    assert.equal(
+      plan.steps.some((step) => step.agent === "code"),
+      false,
+      caseId,
+    );
+    const command = plan.steps.find((step) =>
+      step.tags.includes("operation:mcp-auth-fixture"),
+    );
+    assert.equal(command.agent, "interaction", caseId);
+    assert.equal(command.tool, "type_text", caseId);
+    assert.ok(
+      command.parameters.text.includes(
+        'PROJECT_DIR="/home/vscode/AgentsToolkitProjects/${{var:app_name}}"',
+      ),
+      caseId,
+    );
+    const ready = plan.steps.find((step) =>
+      step.tags.includes("assertion:mcp-fixture-ready"),
+    );
+    assert.ok(ready, caseId);
+    assert.equal(ready.continue_on_error, "false", caseId);
+    assert.ok(ready.description.includes("${{env:MCP_AUTH_RUN_ID}}"), caseId);
+    assert.ok(plan.steps.indexOf(ready) > plan.steps.indexOf(command), caseId);
+    assert.equal(
+      command.parameters.text.includes("VSCUSE_MCP_AUTH_FIXTURE_READY"),
+      false,
+      caseId,
+    );
+  }
+});
+
+test("VCB-173: MCP OAuth connection is distinct from capability consent and SSO", async () => {
+  const result = await compileFixture(
+    "da-mcp-auth-modes.yml",
+    (source) => source,
+  );
+  assert.equal(result.ok, true, JSON.stringify(result.diagnostics));
+  for (const { caseId, plan } of result.value) {
+    const signIn = plan.steps.find((step) =>
+      step.tags.includes("action:connect-oauth"),
+    );
+    const consent = plan.steps.find((step) =>
+      step.tags.includes("action:authorize-mcp-client"),
+    );
+    assert.equal(Boolean(signIn), !caseId.includes("entra-sso"), caseId);
+    assert.equal(Boolean(consent), caseId.includes("dcr"), caseId);
+    assert.equal(
+      plan.steps.some((step) => step.tags.includes("action:allow")),
+      true,
+      caseId,
+    );
+    if (!signIn) continue;
+    assert.equal(signIn.tool, "click", caseId);
+    assert.ok(
+      signIn.preconditions.some((item) => item.startsWith("dhash:")),
+      caseId,
+    );
+    assert.ok(signIn.description.includes("${{var:app_name}}"), caseId);
+    assert.equal(signIn.continue_on_error, "false", caseId);
+    const sendIndex = plan.steps.findIndex((step) =>
+      step.description.includes("Press Enter to send the Copilot message"),
+    );
+    const resultIndex = plan.steps.findIndex((step) =>
+      step.tags.includes("assertion:tool-called"),
+    );
+    assert.ok(plan.steps.indexOf(signIn) > sendIndex, caseId);
+    assert.ok(plan.steps.indexOf(signIn) < resultIndex, caseId);
+    if (consent) {
+      assert.ok(
+        plan.steps.indexOf(consent) > plan.steps.indexOf(signIn),
+        caseId,
+      );
+      assert.ok(plan.steps.indexOf(consent) < resultIndex, caseId);
+      assert.ok(
+        consent.preconditions.some((item) => item.startsWith("dhash:")),
+        caseId,
+      );
+    }
+  }
+});
+
+test("VCB-173: OAuth connection rejects non-true settings and conflicting consent", async () => {
+  for (const value of ["false", '"dcr"']) {
+    const result = await compileFixture("da-mcp-auth-modes.yml", (source) =>
+      source.replace("connectOAuth: true", `connectOAuth: ${value}`),
+    );
+    assert.equal(result.ok, false, value);
+    assert.equal(
+      result.diagnostics[0].code,
+      "VCB_CHECK_ASSERTION_INVALID",
+      value,
+    );
+  }
+  for (const transform of [
+    (source) =>
+      source.replace(
+        "connectOAuth: true",
+        "connectOAuth: true\n        allowAction: true",
+      ),
+    (source) =>
+      source.replace(
+        "        check-whoami,\n",
+        "        check-whoami-oauth,\n",
+      ),
+  ]) {
+    const result = await compileFixture("da-mcp-auth-modes.yml", transform);
+    assert.equal(result.ok, false);
+    assert.equal(
+      result.diagnostics[0].code,
+      "VCB_CHAT_OAUTH_CONNECTION_UNKNOWN",
+    );
+  }
+  const unprepared = await compileFixture(
+    "da-api-plugin-from-existing-api.yml",
+    (source) => source.replace("allowAction: true", "connectOAuth: true"),
+  );
+  assert.equal(unprepared.ok, false);
+  assert.equal(
+    unprepared.diagnostics[0].code,
+    "VCB_CHAT_OAUTH_CONNECTION_UNKNOWN",
+  );
+});
+
+test("VCB-174: DCR selects the expected Microsoft account before returning to Copilot", async () => {
+  const result = await compileFixture(
+    "da-mcp-auth-modes.yml",
+    (source) => source,
+  );
+  assert.equal(result.ok, true, JSON.stringify(result.diagnostics));
+  for (const { caseId, plan } of result.value) {
+    const select = plan.steps.find((step) =>
+      step.tags.includes("action:select-microsoft-account"),
+    );
+    const returned = plan.steps.find((step) =>
+      step.tags.includes("assertion:copilot-oauth-return"),
+    );
+    assert.equal(Boolean(select), caseId.includes("dcr"), caseId);
+    assert.equal(Boolean(returned), !caseId.includes("entra-sso"), caseId);
+    if (!returned) continue;
+    assert.equal(returned.agent, "assertion", caseId);
+    assert.equal(returned.continue_on_error, "false", caseId);
+    assert.ok(returned.description.includes("${{var:app_name}}"), caseId);
+    const toolIndex = plan.steps.findIndex((step) =>
+      step.tags.includes("assertion:tool-called"),
+    );
+    assert.ok(plan.steps.indexOf(returned) < toolIndex, caseId);
+    if (!select) continue;
+    const consentIndex = plan.steps.findIndex((step) =>
+      step.tags.includes("action:authorize-mcp-client"),
+    );
+    assert.ok(plan.steps.indexOf(select) > consentIndex, caseId);
+    assert.ok(
+      plan.steps.indexOf(select) < plan.steps.indexOf(returned),
+      caseId,
+    );
+    assert.ok(
+      select.description.includes("${{env:M365_ACCOUNT_NAME}}"),
+      caseId,
+    );
+    assert.equal(select.continue_on_error, "false", caseId);
+  }
+});
+
+test("VCB-175: capability consent follows OAuth return and remains ordinary for SSO", async () => {
+  const result = await compileFixture(
+    "da-mcp-auth-modes.yml",
+    (source) => source,
+  );
+  assert.equal(result.ok, true, JSON.stringify(result.diagnostics));
+  for (const { caseId, plan } of result.value) {
+    const allows = plan.steps.filter((step) =>
+      step.tags.includes("action:allow"),
+    );
+    assert.equal(allows.length, 1, caseId);
+    const allowIndex = plan.steps.indexOf(allows[0]);
+    const toolIndex = plan.steps.findIndex((step) =>
+      step.tags.includes("assertion:tool-called"),
+    );
+    assert.ok(allowIndex < toolIndex, caseId);
+    if (caseId.includes("entra-sso")) continue;
+    const returnedIndex = plan.steps.findIndex((step) =>
+      step.tags.includes("assertion:copilot-oauth-return"),
+    );
+    const neutralizeIndex = plan.steps.findIndex((step) =>
+      step.tags.includes("action:clear-oauth-return-hover"),
+    );
+    assert.ok(returnedIndex < neutralizeIndex, caseId);
+    assert.ok(neutralizeIndex < allowIndex, caseId);
+    assert.equal(plan.steps[neutralizeIndex].tool, "key_press", caseId);
+    assert.equal(plan.steps[neutralizeIndex].parameters.key, "esc", caseId);
+  }
+});
+
+test("VCB-176: MCP preparation clears scaffold notifications before its terminal proof", async () => {
+  const result = await compileFixture(
+    "da-mcp-auth-modes.yml",
+    (source) => source,
+  );
+  assert.equal(result.ok, true, JSON.stringify(result.diagnostics));
+  for (const { caseId, plan } of result.value) {
+    const clearIndex = plan.steps.findIndex(
+      (step) =>
+        step.parameters.text === "Notifications: Clear All Notifications",
+    );
+    const prepareIndex = plan.steps.findIndex((step) =>
+      step.tags.includes("operation:mcp-auth-fixture"),
+    );
+    assert.ok(clearIndex >= 0 && clearIndex < prepareIndex, caseId);
+    const ready = plan.steps.find((step) =>
+      step.tags.includes("assertion:mcp-fixture-ready"),
+    );
+    assert.ok(ready.description.includes("${{env:MCP_AUTH_RUN_ID}}"), caseId);
+    assert.equal(ready.continue_on_error, "false", caseId);
+  }
+});
+
+test("VCB-177: authentication prompts project real tool results without leaking answers", async () => {
+  const result = await compileFixture(
+    "da-mcp-auth-modes.yml",
+    (source) => source,
+  );
+  assert.equal(result.ok, true, JSON.stringify(result.diagnostics));
+  for (const { caseId, plan } of result.value) {
+    const messages = plan.steps
+      .filter((step) =>
+        step.step_id.startsWith("step_sendCopilotMessage_type_"),
+      )
+      .map((step) => step.parameters.text);
+    assert.equal(messages.length, 3, caseId);
+    for (const field of [
+      "tenant_id",
+      "auth_method",
+      "client_id",
+      "only",
+      "actual result",
+    ]) {
+      assert.ok(messages[0].includes(field), `${caseId}: ${field}`);
+    }
+    for (const field of ["canary", "auth_flow", "only", "actual result"]) {
+      assert.ok(messages[1].includes(field), `${caseId}: ${field}`);
+    }
+    assert.equal(
+      messages.join("\n").includes("16801f2e-7163-4bd5-8542-f083fa59993c"),
+      false,
+      caseId,
+    );
+    assert.equal(
+      messages.join("\n").includes("7c5898c1-99fb-4d83-8474-02bf7985096c"),
+      false,
+      caseId,
+    );
+    assert.equal(
+      messages.join("\n").includes("PURPLE-NARWHAL-7788"),
+      false,
+      caseId,
+    );
+    assert.equal(messages[2].includes("27"), false, caseId);
+    assert.equal(
+      plan.steps.filter((step) => step.tags.includes("assertion:tool-called"))
+        .length,
+      3,
+      caseId,
+    );
+  }
+});
+
+test("VCB-178: returned tool results do not depend on upstream debugger UI", async () => {
+  const result = await compileFixture(
+    "da-mcp-auth-modes.yml",
+    (source) => source,
+  );
+  assert.equal(result.ok, true, JSON.stringify(result.diagnostics));
+  for (const { caseId, plan } of result.value) {
+    const proofs = plan.steps.filter((step) =>
+      step.tags.includes("assertion:tool-called"),
+    );
+    assert.equal(proofs.length, 3, caseId);
+    for (const [index, tool] of [
+      "whoami",
+      "auth_flow_probe",
+      "add",
+    ].entries()) {
+      const proof = proofs[index];
+      assert.ok(proof.description.includes(tool), caseId);
+      assert.ok(
+        proof.description.includes("Returned tool-specific result data"),
+        caseId,
+      );
+      assert.ok(proof.description.includes("inline JSON"), caseId);
+      assert.ok(proof.description.includes("Do not require"), caseId);
+      assert.ok(proof.description.includes("debugger information"), caseId);
+      assert.ok(
+        proof.description.includes("promise to call without a result"),
+        caseId,
+      );
+      assert.equal(proof.continue_on_error, "false", caseId);
+      assert.equal(
+        proof.description.includes(
+          "explicitly identify a completed invocation",
+        ),
+        false,
+        caseId,
+      );
+    }
+  }
+});
+
+test("VCB-179: MCP cases check fresh probe results without extra audit infrastructure", async () => {
+  const result = await compileFixture(
+    "da-mcp-auth-modes.yml",
+    (source) => source,
+  );
+  assert.equal(result.ok, true, JSON.stringify(result.diagnostics));
+  for (const { caseId, plan } of result.value) {
+    const message = plan.steps.find(
+      (step) =>
+        step.step_id.startsWith("step_sendCopilotMessage_type_") &&
+        step.parameters.text.includes("auth_flow_probe"),
+    );
+    for (const field of ["probe_id", "server_time", "fresh"]) {
+      assert.ok(message.parameters.text.includes(field), `${caseId}: ${field}`);
+    }
+    for (const field of ["probe_id", "server_time", "canary", "auth_flow"]) {
+      assert.ok(
+        plan.steps.some(
+          (step) =>
+            step.tags.includes("action:assert-chat-response") &&
+            step.description.includes(`"${field}"`),
+        ),
+        `${caseId}: ${field}`,
+      );
+    }
+    assert.equal(JSON.stringify(plan).includes("-developer on"), false, caseId);
+    assert.equal(
+      JSON.stringify(plan).includes("ATK_MCP_CALL_COMPLETED"),
+      false,
+      caseId,
+    );
+    assert.equal(
+      JSON.stringify(plan).includes("/.auth-test/audit/"),
+      false,
+      caseId,
+    );
+    assert.equal(
+      plan.steps.some((step) =>
+        step.tags.includes("assertion:mcp-audited-call"),
+      ),
+      false,
+      caseId,
+    );
+    assert.equal(
+      plan.steps.some((step) => step.agent === "code"),
+      false,
+      caseId,
+    );
+  }
+});
 
 test("VCB-128: numeric work item IDs remain distinct from scenario metadata", () => {
   const sourceText = `version: 1
@@ -185,7 +576,7 @@ test("VCB-34: semantic compiler does not read external template contracts", asyn
   }
 });
 
-test("VCB-34: default setup compiles the checked-in YAML sources into 170 plans", async (context) => {
+test("VCB-34: default setup compiles the checked-in YAML sources into 198 plans", async (context) => {
   const plansDirectory = await fs.mkdtemp(
     path.join(os.tmpdir(), "vscuse-generated-"),
   );
@@ -198,9 +589,9 @@ test("VCB-34: default setup compiles the checked-in YAML sources into 170 plans"
   });
 
   assert.equal(first.ok, true);
-  assert.equal(first.value.files.length, 170);
+  assert.equal(first.value.files.length, 198);
   const generatedFiles = first.value.files;
-  assert.equal(generatedFiles.length, 170);
+  assert.equal(generatedFiles.length, 198);
   assert.equal(
     generatedFiles.includes(
       "da-api-plugin-from-existing-api--da-api-plugin-from-existing-api-no-auth.json",

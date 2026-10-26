@@ -7,6 +7,8 @@
 ARG BASE_IMAGE=ghcr.io/microsoft/vscuse-base@sha256:2db458897652e039d87f3bd28928c74003be4224d3ee49484b245f63e48f7977
 FROM ${BASE_IMAGE}
 
+ARG NPM_CONFIG_REGISTRY=https://registry.npmjs.org/
+
 # Override the Node.js version provided by the base image.
 ARG NODE_VERSION=""
 RUN if [ -n "$NODE_VERSION" ]; then \

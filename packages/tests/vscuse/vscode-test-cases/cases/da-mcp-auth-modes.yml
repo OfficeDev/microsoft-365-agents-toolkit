@@ -1,0 +1,224 @@
+version: 1
+
+cases:
+  - id: da-mcp-static-entra-copilot
+    scenarioId: SCN-DA-CREATE-WITH-MCP-SERVER
+    workItemIds: [35613058]
+    gate: manual
+    steps:
+      [
+        scaffold-static,
+        configure-static,
+        login-m365,
+        provision,
+        preview-copilot,
+        open-agent,
+        check-whoami-oauth,
+        check-probe,
+        check-add,
+      ]
+
+  - id: da-mcp-dcr-copilot
+    scenarioId: SCN-DA-CREATE-WITH-MCP-SERVER
+    # Related DCR discovery/resource feature, not a fabricated test-case ID.
+    workItemIds: [7559991]
+    gate: manual
+    steps:
+      [
+        scaffold-dcr,
+        configure-dcr,
+        login-m365,
+        provision,
+        preview-copilot,
+        open-agent,
+        check-whoami-oauth,
+        check-probe,
+        check-add,
+      ]
+
+  - id: da-mcp-entra-sso-copilot
+    scenarioId: SCN-DA-CREATE-WITH-MCP-SERVER
+    workItemIds: [35613646]
+    gate: manual
+    steps:
+      [
+        scaffold-sso,
+        configure-sso,
+        login-m365,
+        provision,
+        preview-copilot,
+        open-agent,
+        check-whoami,
+        check-probe,
+        check-add,
+      ]
+
+steps:
+  scaffold-static:
+    type: scaffold
+    with:
+      template: da/mcp-server
+      answers:
+        - question: projectType
+          value: copilot-agent-type
+        - question: daTemplate
+          value: add-action
+        - question: actionSource
+          value: mcp
+        - question: mcpServerUrl
+          type: text
+          value: "${{env:MCP_AUTH_ENDPOINT}}"
+        - question: authType
+          value: oauth
+        - question: mcp-da-client-id
+          type: text
+          value: "${{env:DA_MCP_OAUTH_CLIENTID}}"
+        - question: mcp-da-client-secret
+          type: text
+          value: "${{secret:DA_MCP_OAUTH_CLIENT_SECRET}}"
+        - question: mcp-da-scopes
+          type: text
+          value: "${{env:DA_MCP_OAUTH_SCOPE}}"
+        - question: workspaceFolder
+          value: default
+        - question: appName
+          type: text
+          value: "${{var:app_name:vscuse_app_#####}}"
+
+  scaffold-dcr:
+    type: scaffold
+    with:
+      template: da/mcp-server
+      answers:
+        - question: projectType
+          value: copilot-agent-type
+        - question: daTemplate
+          value: add-action
+        - question: actionSource
+          value: mcp
+        - question: mcpServerUrl
+          type: text
+          value: "${{env:MCP_AUTH_ENDPOINT}}"
+        - question: authType
+          value: oauth-dynamic
+        - question: workspaceFolder
+          value: default
+        - question: appName
+          type: text
+          value: "${{var:app_name:vscuse_app_#####}}"
+
+  scaffold-sso:
+    type: scaffold
+    with:
+      template: da/mcp-server
+      answers:
+        - question: projectType
+          value: copilot-agent-type
+        - question: daTemplate
+          value: add-action
+        - question: actionSource
+          value: mcp
+        - question: mcpServerUrl
+          type: text
+          value: "${{env:MCP_AUTH_ENDPOINT}}"
+        - question: authType
+          value: entra-sso
+        - question: mcp-da-client-id
+          type: text
+          value: "${{env:DA_MCP_ENTRA_SSO_CLIENTID}}"
+        - question: workspaceFolder
+          value: default
+        - question: appName
+          type: text
+          value: "${{var:app_name:vscuse_app_#####}}"
+
+  configure-static:
+    type: configureMcpAuth
+    with:
+      mode: static-oauth
+
+  configure-dcr:
+    type: configureMcpAuth
+    with:
+      mode: dcr
+
+  configure-sso:
+    type: configureMcpAuth
+    with:
+      mode: entra-sso
+
+  login-m365:
+    type: login
+    with:
+      type: m365
+      account: "${{env:M365_ACCOUNT_NAME}}"
+      password: "${{secret:M365_ACCOUNT_PASSWORD}}"
+
+  provision:
+    type: provision
+    with:
+      environment: none
+
+  preview-copilot:
+    type: target
+    with:
+      profile: "Preview in Copilot (Chrome)"
+      profileSelection: first
+
+  open-agent:
+    type: open
+    with:
+      kind: agent
+      destination: chat
+
+  check-whoami-oauth:
+    type: checks
+    with:
+      - type: chat
+        send: Call the remote whoami tool. Show only tenant_id, auth_method, and client_id copied from its actual result as a short, pretty-printed JSON object. Do not infer or invent values.
+        connectOAuth: true
+        expect:
+          replied: true
+          toolCalled: whoami
+          contains:
+            - '"tenant_id": "16801f2e-7163-4bd5-8542-f083fa59993c"'
+            - '"auth_method": "entra_user"'
+            - '"client_id": "${{env:MCP_AUTH_EXPECTED_JWT_CLIENT_ID}}"'
+
+  check-whoami:
+    type: checks
+    with:
+      - type: chat
+        send: Call the remote whoami tool. Show only tenant_id, auth_method, and client_id copied from its actual result as a short, pretty-printed JSON object. Do not infer or invent values.
+        allowAction: true
+        expect:
+          replied: true
+          toolCalled: whoami
+          contains:
+            - '"tenant_id": "16801f2e-7163-4bd5-8542-f083fa59993c"'
+            - '"auth_method": "entra_user"'
+            - '"client_id": "${{env:MCP_AUTH_EXPECTED_JWT_CLIENT_ID}}"'
+
+  check-probe:
+    type: checks
+    with:
+      - type: chat
+        send: Call the remote auth_flow_probe tool now. Show only canary, auth_flow, a newly generated probe_id, and fresh server_time copied from its actual result as a short, pretty-printed JSON object. Do not infer, invent, or reuse earlier results.
+        expect:
+          replied: true
+          toolCalled: auth_flow_probe
+          contains:
+            - '"canary": "PURPLE-NARWHAL-7788"'
+            - '"auth_flow": "${{env:MCP_AUTH_EXPECTED_FLOW}}"'
+            - '"probe_id":'
+            - '"server_time":'
+
+  check-add:
+    type: checks
+    with:
+      - type: chat
+        send: Call the remote add tool with a=20 and b=7. Show the raw tool result rather than computing the answer yourself.
+        expect:
+          replied: true
+          toolCalled: add
+          contains: ['"sum": 27']

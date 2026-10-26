@@ -25,6 +25,7 @@ import "./file/createOrUpdateEnvironmentFile";
 import "./file/createOrUpdateJsonFile";
 import "./m365/acquire";
 import "./dcr/create";
+import "./dcr/update";
 import "./oauth/create";
 import "./oauth/update";
 import "./script/dotnetBuildDriver";
