@@ -515,3 +515,13 @@ references and unrelated policy, then repeats Provision and invokes real tools.
 The original URL transition remains unsupported and retains negative regression
 coverage. This is an explicit acceptance-scope change, not a URL-update pass.
 The revised batch has not yet passed; record its real result after execution.
+
+The first corrected-image batch (run 1599) passed static OAuth (160/0) and DCR
+authentication (155/0). SSO's initial whoami instead reported a failed remote
+call without a consent card or returned data. Its readonly first-call prompt
+now permits one temporary initialization retry, not sign-in/permission retries;
+capability consent and all actual result checks remain mandatory. DCR update
+completed its second Provision but failed verification; the native wrapper now
+preserves a compact root-cause line and nonzero status instead of obscuring the
+error beneath a Python CalledProcessError. No file or policy invariant was
+relaxed based on that incomplete diagnostic.

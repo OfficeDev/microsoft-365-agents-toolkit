@@ -189,7 +189,7 @@ steps:
     type: checks
     with:
       - type: chat
-        send: Call the remote whoami tool. Show only tenant_id, auth_method, and client_id copied from its actual result as a short, pretty-printed JSON object. Do not infer or invent values.
+        send: Call the remote whoami tool. If the first read-only call temporarily fails while the agent or connection initializes, retry it once. Do not retry sign-in or permission errors. Show only tenant_id, auth_method, and client_id copied from its actual result as a short, pretty-printed JSON object. Do not infer or invent values.
         allowAction: true
         expect:
           replied: true

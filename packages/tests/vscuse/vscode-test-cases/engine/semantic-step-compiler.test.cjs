@@ -136,6 +136,69 @@ test("VCB-191: the generated standalone update executes a real-endpoint policy t
   );
 });
 
+test("VCB-192: a failed serialized DCR stage reports a compact root cause and no ready marker", async () => {
+  const { dcrUpdateScript } = require("./dcr-update-fixture.cjs");
+  const script = dcrUpdateScript("prepare");
+  const program = Buffer.from(
+    script.match(/write_bytes\(base64\.b64decode\("([^"]+)"\)\)/)[1],
+    "base64",
+  ).toString("utf8");
+  const errors = [];
+  const messages = [];
+  const process = {
+    argv: ["node", "stage.cjs", "verify"],
+    cwd: () => "/fixture",
+  };
+  await require("node:vm").runInNewContext(program, {
+    require: () => {
+      throw new Error("root cause\nprivate diagnostic detail");
+    },
+    process,
+    console: {
+      error: (...args) => errors.push(args.join(" ")),
+      log: (...args) => messages.push(args.join(" ")),
+    },
+  });
+  assert.equal(process.exitCode, 1);
+  assert.deepEqual(errors, ["DCR update fixture failed: root cause"]);
+  assert.deepEqual(messages, []);
+});
+
+test("VCB-193: SSO bounds initialization retry without changing OAuth or accepting missing tool results", async () => {
+  const result = await compileFixture(
+    "da-mcp-auth-modes.yml",
+    (value) => value,
+  );
+  assert.equal(result.ok, true, JSON.stringify(result.diagnostics));
+  for (const { caseId, plan } of result.value) {
+    const request = plan.steps.find(
+      (step) =>
+        step.tool === "type_text" &&
+        step.parameters.text.startsWith("Call the remote whoami tool."),
+    );
+    assert.ok(request);
+    const sso = caseId === "da-mcp-entra-sso-copilot";
+    assert.equal(request.parameters.text.includes("retry it once"), sso);
+    if (sso) {
+      assert.ok(
+        request.parameters.text.includes(
+          "Do not retry sign-in or permission errors",
+        ),
+      );
+      assert.ok(
+        plan.steps.some((step) =>
+          step.step_id.startsWith("step_allowCopilotAction_assert_"),
+        ),
+      );
+    }
+    assert.equal(
+      plan.steps.filter((step) => step.tags.includes("assertion:tool-called"))
+        .length,
+      3,
+    );
+  }
+});
+
 test("VCB-184: update verification cannot precede the second Provision", async () => {
   const { parse, stringify } = require("yaml");
   const result = await compileFixture("da-mcp-dcr-update.yml", (source) => {

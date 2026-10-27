@@ -43,7 +43,7 @@ async function fixture(context) {
   );
   await fs.writeFile(
     path.join(project, "env", ".env.dev"),
-    `OWNED_DCR_ID=owned-id\nMCP_AUTH_RUN_ID=${runId}\n`,
+    `OWNED_DCR_ID=owned-id\nMCP_AUTH_RUN_ID=${runId}\nSECRET_FIXTURE_CREDENTIAL=must-not-be-persisted\n`,
   );
   await fs.writeFile(
     path.join(project, ".auth-test", "ownership.json"),
@@ -245,6 +245,56 @@ test("VCB-191: stale account-policy reads are bounded and unrelated changes fail
     /URL|policy|unchanged|invariant/i,
   );
   assert.equal(invalidReads, 1);
+});
+
+test("VCB-192: changed project files fail with a compact nonsecret component diagnostic", async (context) => {
+  const run = runtime();
+  for (const component of [
+    "environment",
+    "plugin",
+    "localMcp",
+    "registration",
+  ]) {
+    const f = await fixture(context);
+    await run("baseline", f.project, f.options);
+    await run("apply", f.project, f.options);
+    if (component === "registration") {
+      const file = path.join(f.project, "m365agents.yml");
+      const flow = yaml.load(await fs.readFile(file, "utf8"));
+      flow.provision[0].with.name = "Changed public name";
+      await fs.writeFile(file, yaml.dump(flow));
+    } else {
+      const file = {
+        environment: path.join(f.project, "env", ".env.dev"),
+        plugin: path.join(f.project, "appPackage", "ai-plugin.json"),
+        localMcp: path.join(f.project, ".vscode", "mcp.json"),
+      }[component];
+      await fs.appendFile(
+        file,
+        component === "environment" ? "\nDIAGNOSTIC_PUBLIC=changed\n" : "\n",
+      );
+    }
+    await assert.rejects(
+      run("verify", f.project, f.options),
+      (error) =>
+        error.message ===
+        (component === "environment"
+          ? "Project environment changed: DIAGNOSTIC_PUBLIC"
+          : `Project ${component} changed`),
+    );
+  }
+});
+
+test("VCB-192: formatting-only environment changes are identified without accepting them", async (context) => {
+  const f = await fixture(context);
+  const run = runtime();
+  await run("baseline", f.project, f.options);
+  await run("apply", f.project, f.options);
+  await fs.appendFile(path.join(f.project, "env", ".env.dev"), "\n");
+  await assert.rejects(
+    run("verify", f.project, f.options),
+    (error) => error.message === "Project environment changed: formatting only",
+  );
 });
 
 test("VCB-185 / DCR-UI-UPD-05: missing ownership, foreign IDs and read failures fail closed", async (context) => {

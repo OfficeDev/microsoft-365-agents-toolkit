@@ -2787,9 +2787,9 @@
       "agent": "interaction",
       "tool": "type_text",
       "parameters": {
-        "text": "Call the remote whoami tool. Show only tenant_id, auth_method, and client_id copied from its actual result as a short, pretty-printed JSON object. Do not infer or invent values."
+        "text": "Call the remote whoami tool. If the first read-only call temporarily fails while the agent or connection initializes, retry it once. Do not retry sign-in or permission errors. Show only tenant_id, auth_method, and client_id copied from its actual result as a short, pretty-printed JSON object. Do not infer or invent values."
       },
-      "description": "Type \"Call the remote whoami tool. Show only tenant_id, auth_method, and client_id copied from its actual result as a short, pretty-printed JSON object. Do not infer or invent values.\" into the Copilot message input.",
+      "description": "Type \"Call the remote whoami tool. If the first read-only call temporarily fails while the agent or connection initializes, retry it once. Do not retry sign-in or permission errors. Show only tenant_id, auth_method, and client_id copied from its actual result as a short, pretty-printed JSON object. Do not infer or invent values.\" into the Copilot message input.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,

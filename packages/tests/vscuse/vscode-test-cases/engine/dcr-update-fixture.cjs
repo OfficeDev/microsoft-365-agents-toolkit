@@ -108,6 +108,18 @@ async function runDcrUpdateStage(phase, projectPath, options = {}) {
     registration: hash(JSON.stringify(registration)),
   };
   const baselinePath = path.join(directory, "dcr-update-baseline.json");
+  const environmentStateHash = hash(
+    JSON.stringify(
+      Object.keys(env)
+        .sort()
+        .map((key) => [key, env[key]]),
+    ),
+  );
+  const publicEnvironment = Object.fromEntries(
+    Object.keys(env)
+      .filter((key) => !/SECRET|PASSWORD|TOKEN|KEY/i.test(key))
+      .map((key) => [key, hash(env[key])]),
+  );
   const policyNames = [
     "clientName",
     "m365AppId",
@@ -234,6 +246,8 @@ async function runDcrUpdateStage(phase, projectPath, options = {}) {
         supportedAccountTypes: snapshot.supportedAccountTypes,
         policy: policy(snapshot),
         fileHashes,
+        environmentStateHash,
+        publicEnvironment,
         auth: runtime.auth,
       }),
       { flag: "wx" },
@@ -248,21 +262,46 @@ async function runDcrUpdateStage(phase, projectPath, options = {}) {
       baseline.supportedAccountTypes === "Enterprise",
     "Baseline configuration identity mismatch",
   );
-  assert.deepEqual(
-    fileHashes,
-    baseline.fileHashes,
-    "Project environment, plugin, local MCP or registration changed",
-  );
+  if (fileHashes.environment !== baseline.fileHashes.environment) {
+    const changed = [
+      ...new Set([
+        ...Object.keys(publicEnvironment),
+        ...Object.keys(baseline.publicEnvironment),
+      ]),
+    ]
+      .filter(
+        (key) => publicEnvironment[key] !== baseline.publicEnvironment[key],
+      )
+      .sort();
+    const reason =
+      environmentStateHash === baseline.environmentStateHash
+        ? "formatting only"
+        : changed.join(", ") || "protected values";
+    assert.fail("Project environment changed: " + reason);
+  }
+  for (const component of Object.keys(fileHashes)) {
+    assert.ok(
+      fileHashes[component] === baseline.fileHashes[component],
+      `Project ${component} changed`,
+    );
+  }
   assert.deepEqual(
     runtime.auth,
     baseline.auth,
     "Plugin authentication reference changed",
   );
-  assert.deepEqual(
-    policy(snapshot),
-    baseline.policy,
-    "Unrelated DCR policy changed",
-  );
+  const assertPolicyUnchanged = (value) => {
+    const current = policy(value);
+    const changed = policyNames.filter(
+      (name) =>
+        JSON.stringify(current[name]) !== JSON.stringify(baseline.policy[name]),
+    );
+    assert.ok(
+      changed.length === 0,
+      "Unrelated DCR policy changed: " + changed.join(", "),
+    );
+  };
+  assertPolicyUnchanged(snapshot);
   if (phase === "apply") {
     assert.equal(
       snapshot.supportedAccountTypes,
@@ -304,11 +343,7 @@ async function runDcrUpdateStage(phase, projectPath, options = {}) {
   ) {
     await sleep(1000);
     snapshot = await readValidSnapshot();
-    assert.deepEqual(
-      policy(snapshot),
-      baseline.policy,
-      "Unrelated DCR policy changed",
-    );
+    assertPolicyUnchanged(snapshot);
   }
   assert.equal(
     snapshot.supportedAccountTypes,
@@ -338,7 +373,10 @@ function dcrUpdateScript(phase) {
   }
   const program = `(${runDcrUpdateStage.toString()})(process.argv[2], process.cwd()).then(id => {
 console.log("VSCUSE_DCR_UPDATE_READY", require("node:path").basename(process.cwd()), process.argv[2], id);
-}).catch(error => { console.error("DCR update fixture failed:", error.message); process.exitCode = 1; });`;
+}).catch(error => {
+console.error("DCR update fixture failed:", String(error?.message ?? error).split("\\n")[0]);
+process.exitCode = 1;
+});`;
   if (phase === "prepare") {
     return (
       fixtureScript("dcr") +
@@ -351,7 +389,8 @@ console.log("VSCUSE_DCR_UPDATE_READY", require("node:path").basename(process.cwd
   return (
     `import os, subprocess\nfrom pathlib import Path\n` +
     `project = Path(os.environ["PROJECT_DIR"]).resolve()\n` +
-    `subprocess.run(["node", str(project / ".auth-test" / "dcr-update.cjs"), "${phase}"], cwd=project, check=True)\n`
+    `completed = subprocess.run(["node", str(project / ".auth-test" / "dcr-update.cjs"), "${phase}"], cwd=project, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)\n` +
+    `print(completed.stdout, end="", flush=True)\nraise SystemExit(completed.returncode)\n`
   );
 }
 
