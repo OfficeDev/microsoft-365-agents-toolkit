@@ -41,7 +41,7 @@ provision:
       # Microsoft 365 Agents Toolkit will download this bicep CLI version from github for you,
       # will use bicep CLI in PATH if you remove this config.
       bicepCliVersion: v0.9.1
-  
+
   # Register API KEY
   - uses: apiKey/register
     with:
@@ -70,7 +70,7 @@ provision:
   - uses: teamsApp/validateAppPackage
     with:
       # Relative path to this file. This is the path for built zip file.
-      appPackagePath: ./appPackage/build/appPackage.${{TEAMSFX_ENV}}.zip     
+      appPackagePath: ./appPackage/build/appPackage.${{TEAMSFX_ENV}}.zip
 
   # Apply the Teams app manifest to an existing Teams app in
   # Developer Portal.
