@@ -1,33 +1,31 @@
-# Scenario Validation - Independent DCR URL Update
+# Scenario Validation - Independent DCR Policy Update
 
 - **Source:** Requester-approved chat design, 2026-10-27.
 - **Product design:** Unchanged. Exercise the existing opt-in
   [DCR update operation](../../operations/auth/update-dcr.md), not a new command.
 - **Case:** `da-mcp-dcr-update-copilot`, manual gate, independently executable.
 - **Automation:** Full E2E for registration, UI-triggered update and Copilot.
-- **Current result:** Blocked, not a live update pass. Real-service verification
-  on 2026-10-27 established the correct read/update route but also confirmed
-  that the required URL transition is rejected by the service.
+- **Scope revision:** The requester prioritized making the four cases executable
+  on 2026-10-27. The positive case now updates a verified writable account
+  policy. The original URL-transition requirement remains unsupported; the
+  historical URL runs below and immutable-URL negative regression are retained.
+- **Current result:** Awaiting a clean real UI run of the revised policy case.
 - **Start:** A clean VS Code workspace and a licensed test M365 account.
-- **Infrastructure:** Only the existing real MCP endpoint B is required.
-  A is the fixed reserved placeholder `https://example.invalid/mcp`; no service
-  or tunnel is deployed for A. Scaffold at B to retain the real Dynamic-auth
-  choice, then prepare the initial project with MCP and target URLs at A.
-  Initial registration supplies B's real authorization-server metadata URL and
-  resource from B's PRM. This uses registration's explicit well-known precedence
-  and best-effort PRM enrichment, rather than pretending A provides metadata.
-  Registration acceptance must be observed in the real UI run.
+- **Infrastructure:** Only the existing real MCP endpoint is required.
+  Scaffold and register at that endpoint with personal-account support explicitly
+  disabled. Use normal product discovery and retain the same endpoint throughout;
+  no placeholder, public mock service, tunnel or fabricated metadata is used.
 
 ## Flow
 
 ```mermaid
 flowchart TD
-  Start[Independent project scaffolded at B] --> Prepare[Fixed placeholder A and real discovery metadata]
-  Prepare --> Register[VS Code Provision registers DCR at A]
+  Start[Independent project at the real endpoint] --> Prepare[Explicit enterprise-only registration]
+  Prepare --> Register[VS Code Provision registers its own DCR]
   Register --> Baseline[Read real configuration and save safe baseline]
-  Baseline --> Edit[Add dcr/update and change plugin endpoint to B]
+  Baseline --> Edit[Add sparse dcr/update enabling personal accounts]
   Edit --> Update[VS Code Provision executes real update]
-  Update --> Readback[Read same ID and compare URL and policy fields]
+  Update --> Readback[Read changed account policy and unchanged ID/URLs/references]
   Readback --> Repeat[Repeat Provision and verify stable state]
   Repeat --> Copilot[Preview same agent and authenticate]
   Copilot --> Tools[Verify actual identity, fresh probe and addition results]
@@ -40,14 +38,14 @@ replacement, seed another case's outputs, or simulate a successful service read.
 
 ## Acceptance Criteria
 
-| ID            | Runtime | Purpose               | Gate                    | Harness                                            | Then                                                                                                                                                                                                                                |
-| ------------- | ------- | --------------------- | ----------------------- | -------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| DCR-UI-UPD-01 | L1      | compatibility         | required                | Real case compiler                                 | One new standalone manual case owns scaffold, registration, baseline, edit, second Provision, readback, repeat Provision and actual tool checks; no feature flag overrides or business-case dependencies.                           |
-| DCR-UI-UPD-02 | L1      | operation-integration | required                | Temporary workspace and read-only service boundary | Baseline requires project-owned fresh DCR metadata, a nonempty ID, the fixed placeholder A, real endpoint B and a real matching snapshot; reserve baseline exclusively and persist no credentials.                                  |
-| DCR-UI-UPD-03 | L1      | operation-integration | required                | Real workspace mutation                            | Add exactly one sparse dcr/update with the original ID reference and endpoint B plus target B; retain dcr/register at A; change plugin and local MCP URLs to B without changing authentication references or environment bytes.     |
-| DCR-UI-UPD-04 | L1      | operation-integration | required                | Read-only service boundary and temporary project   | Verify B, original ID, app binding, name, tenant/account policy, environment hash and plugin reference; reject missing, malformed, unchanged or foreign readback. Do not require discovery-derived credentials to remain unchanged. |
-| DCR-UI-UPD-05 | L1      | operation-integration | required                | Real fixture entry point                           | Read/authentication errors fail explicitly before a ready marker; no mutation API or replacement registration fallback exists. No-op verification requires a prior successful update checkpoint.                                    |
-| DCR-UI-UPD-06 | L3      | surface               | required-for-live-claim | Clean vscuse CLI with real TGS and Copilot         | Register A, update to B through VS Code, read back persistence, repeat Provision and invoke real whoami, auth_flow_probe and add tools with the original configuration reference.                                                   |
+| ID            | Runtime | Purpose               | Gate                    | Harness                                            | Then                                                                                                                                                                                                                            |
+| ------------- | ------- | --------------------- | ----------------------- | -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| DCR-UI-UPD-01 | L1      | compatibility         | required                | Real case compiler                                 | One new standalone manual case owns scaffold, registration, baseline, edit, second Provision, readback, repeat Provision and actual tool checks; no feature flag overrides or business-case dependencies.                       |
+| DCR-UI-UPD-02 | L1      | operation-integration | required                | Temporary workspace and read-only service boundary | Baseline requires project-owned fresh DCR metadata, a nonempty ID, the real endpoint and explicit Enterprise account policy; reserve baseline exclusively and persist no credentials.                                           |
+| DCR-UI-UPD-03 | L1      | operation-integration | required                | Real workspace mutation                            | Add exactly one sparse dcr/update with the original ID reference and includePersonalMicrosoftAccounts:true. Retain the original registration and all plugin/local MCP/environment bytes.                                        |
+| DCR-UI-UPD-04 | L1      | operation-integration | required                | Read-only service boundary and temporary project   | Require persisted Enterprise, Consumer account policy and unchanged ID, URLs, unrelated policy and references. Retry only bounded stale policy reads; reject failed, malformed, foreign or unrelated changed state immediately. |
+| DCR-UI-UPD-05 | L1      | operation-integration | required                | Real fixture entry point                           | Read/authentication errors fail explicitly before a ready marker; no mutation API or replacement registration fallback exists. No-op verification requires a prior successful update checkpoint.                                |
+| DCR-UI-UPD-06 | L3      | surface               | required-for-live-claim | Clean vscuse CLI with real TGS and Copilot         | Register the real endpoint, enable personal accounts through VS Code, read back persistence, repeat Provision and invoke real whoami, auth_flow_probe and add tools with the original configuration reference.                  |
 
 ## Invariants
 
@@ -58,10 +56,11 @@ replacement, seed another case's outputs, or simulate a successful service read.
 - Use exact terminal execution and a project/phase/UUID-bound completion marker,
   not CodeAgent sample execution.
 - A ready marker is printed only after the stage completes successfully.
-- Real discovery metadata is read from B; missing, malformed or non-DCR-capable
-  metadata fails preparation. Never fetch discovery from A or invent metadata.
+- Product registration discovers metadata from the real endpoint; do not
+  substitute metadata or simulate a successful registration.
 - No initial-endpoint variable, workflow input, public mock service or tunnel.
-- Omitted policy inputs remain unchanged. Discovery-derived state may change.
+- Only supportedAccountTypes changes. URL/discovery inputs and unrelated policy
+  remain unchanged; URL-update rejection retains separate negative coverage.
 - Tool-specific returned data is enough; debugger cards are not required.
 - Service-contract failures remain failures, not successful fallback coverage.
 
@@ -71,8 +70,8 @@ Use only the existing tenant, real MCP endpoint and licensed M365 account inputs
 The local launcher selects this case with `-Mode dcr -DcrUpdate`. In GitHub,
 select `da-mcp-server--da-mcp-dcr-update-copilot` as the test plan; no additional
 Variable, Secret, initial-endpoint input or manually maintained process is needed.
-Both MCP and target URL fields still change from A to B; this is not reduced to
-a target-policy-only update.
+The positive case exercises the supported account-policy update. It does not
+claim that MCP or target URLs changed, or that a personal account signed in.
 
 Existing fail-closed MCP ownership teardown applies. Remove only supported
 project-owned resources. Explicitly retain
@@ -80,12 +79,12 @@ registrations for which the service offers no supported delete operation.
 
 ## Validation boundary
 
-The case tests URL changes, reference stability and post-update usability, not
-every writable field or actual personal-account sign-in. The approved URL
-transition is currently outside the verified service's writable field set.
-Keep this manual case as the explicit unmet requirement; do not silently replace
-it with policy-update coverage. Generated-plan or fixture tests alone do not
-count as a live pass.
+The case tests a real account-policy change, reference stability and post-update
+usability, not every writable field or actual personal-account sign-in.
+The original URL transition is outside the verified service's writable field
+set and remains an unmet requirement. This scope change is explicit, not a
+claim that policy coverage proves URL updates. Generated-plan or fixture tests
+alone do not count as a live pass.
 
 ## Previous tunnel-based execution evidence - 2026-10-27
 

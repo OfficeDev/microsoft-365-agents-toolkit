@@ -6,7 +6,6 @@ const path = require("node:path");
 const test = require("node:test");
 const yaml = require("js-yaml");
 
-const initial = "https://example.invalid/mcp";
 const endpoint = "https://real.example.test/mcp";
 const runId = "00000000-0000-4000-8000-000000000001";
 
@@ -26,8 +25,9 @@ async function fixture(context) {
     uses: "dcr/register",
     with: {
       name: "Owned DCR",
-      mcpResourceUrl: initial,
-      targetUrlsShouldStartWith: [initial],
+      mcpResourceUrl: endpoint,
+      targetUrlsShouldStartWith: [endpoint],
+      includePersonalMicrosoftAccounts: false,
       wellKnownAuthorizationServer:
         "https://real.example.test/.well-known/oauth-authorization-server",
       resource: "urn:fixture:dcr-update",
@@ -67,7 +67,7 @@ async function fixture(context) {
       runtimes: [
         {
           type: "RemoteMCPServer",
-          spec: { url: initial },
+          spec: { url: endpoint },
           auth: { type: "OAuthPluginVault", reference_id: "${{OWNED_DCR_ID}}" },
         },
       ],
@@ -76,7 +76,7 @@ async function fixture(context) {
   await fs.writeFile(
     path.join(project, ".vscode", "mcp.json"),
     JSON.stringify({
-      servers: { owned: { type: "http", url: initial } },
+      servers: { owned: { type: "http", url: endpoint } },
     }),
   );
   let state = {
@@ -87,8 +87,8 @@ async function fixture(context) {
     applicableToApps: "AnyApp",
     targetAudience: "HomeTenant",
     supportedAccountTypes: "Enterprise",
-    mcpResourceUrl: initial,
-    targetUrlsShouldStartWith: [initial],
+    mcpResourceUrl: endpoint,
+    targetUrlsShouldStartWith: [endpoint],
     wellKnownAuthorizationServer:
       "https://real.example.test/.well-known/oauth-authorization-server",
     resource: "urn:fixture:dcr-update",
@@ -97,6 +97,7 @@ async function fixture(context) {
   const options = {
     load: require,
     endpoint,
+    sleep: async () => {},
     readSnapshot: async (id) => {
       assert.equal(id, "owned-id");
       return state;
@@ -129,11 +130,19 @@ test("VCB-185 / DCR-UI-UPD-02: baseline is exclusive, project-owned and credenti
   );
 });
 
-test("VCB-185 / DCR-UI-UPD-03: edits only owned URL wiring and adds a sparse update", async (context) => {
+test("VCB-191 / DCR-UI-UPD-03: adds only the supported policy update without rewriting references", async (context) => {
   const run = runtime();
   const f = await fixture(context);
   const env = await fs.readFile(
     path.join(f.project, "env", ".env.dev"),
+    "utf8",
+  );
+  const pluginBefore = await fs.readFile(
+    path.join(f.project, "appPackage", "ai-plugin.json"),
+    "utf8",
+  );
+  const localBefore = await fs.readFile(
+    path.join(f.project, ".vscode", "mcp.json"),
     "utf8",
   );
   await run("baseline", f.project, f.options);
@@ -146,8 +155,7 @@ test("VCB-185 / DCR-UI-UPD-03: edits only owned URL wiring and adds a sparse upd
     uses: "dcr/update",
     with: {
       configurationId: "${{OWNED_DCR_ID}}",
-      mcpResourceUrl: endpoint,
-      targetUrlsShouldStartWith: [endpoint],
+      includePersonalMicrosoftAccounts: true,
     },
   });
   const plugin = JSON.parse(
@@ -166,23 +174,34 @@ test("VCB-185 / DCR-UI-UPD-03: edits only owned URL wiring and adds a sparse upd
     await fs.readFile(path.join(f.project, ".vscode", "mcp.json"), "utf8"),
   );
   assert.equal(mcp.servers.owned.url, endpoint);
+  assert.equal(
+    await fs.readFile(
+      path.join(f.project, "appPackage", "ai-plugin.json"),
+      "utf8",
+    ),
+    pluginBefore,
+  );
+  assert.equal(
+    await fs.readFile(path.join(f.project, ".vscode", "mcp.json"), "utf8"),
+    localBefore,
+  );
 });
 
-test("VCB-185 / DCR-UI-UPD-04: only persisted URL changes pass verification", async (context) => {
+test("VCB-191 / DCR-UI-UPD-04: only persisted account-policy changes pass verification", async (context) => {
   const run = runtime();
   const f = await fixture(context);
   await run("baseline", f.project, f.options);
   await run("apply", f.project, f.options);
   await assert.rejects(
     run("verify", f.project, f.options),
-    /endpoint|URL|persist/i,
+    /policy|account|persist/i,
   );
   f.setState({
     ...f.state(),
-    mcpResourceUrl: endpoint,
-    targetUrlsShouldStartWith: [endpoint],
+    supportedAccountTypes: "Enterprise, Consumer",
     clientSecret: "rediscovered-secret",
   });
+  await assert.rejects(run("noop", f.project, f.options), /ENOENT|checkpoint/i);
   await run("verify", f.project, f.options);
   await run("noop", f.project, f.options);
   f.setState({ ...f.state(), targetAudience: "AnyTenant" });
@@ -190,6 +209,42 @@ test("VCB-185 / DCR-UI-UPD-04: only persisted URL changes pass verification", as
     run("noop", f.project, f.options),
     /policy|targetAudience/i,
   );
+});
+
+test("VCB-191: stale account-policy reads are bounded and unrelated changes fail immediately", async (context) => {
+  const run = runtime();
+  const f = await fixture(context);
+  await run("baseline", f.project, f.options);
+  await run("apply", f.project, f.options);
+  let reads = 0;
+  await run("verify", f.project, {
+    ...f.options,
+    readSnapshot: async () => {
+      reads++;
+      return reads < 3
+        ? f.state()
+        : { ...f.state(), supportedAccountTypes: "Enterprise, Consumer" };
+    },
+  });
+  assert.equal(reads, 3);
+  const other = await fixture(context);
+  await run("baseline", other.project, other.options);
+  await run("apply", other.project, other.options);
+  let invalidReads = 0;
+  await assert.rejects(
+    run("verify", other.project, {
+      ...other.options,
+      readSnapshot: async () => {
+        invalidReads++;
+        return {
+          ...other.state(),
+          mcpResourceUrl: "https://foreign.example.test/mcp",
+        };
+      },
+    }),
+    /URL|policy|unchanged|invariant/i,
+  );
+  assert.equal(invalidReads, 1);
 });
 
 test("VCB-185 / DCR-UI-UPD-05: missing ownership, foreign IDs and read failures fail closed", async (context) => {
@@ -315,17 +370,15 @@ test("VCB-186: DCR profile does not read or export an initial endpoint setting",
   );
 });
 
-test("VCB-187: fixed placeholder preparation uses real discovery rather than a hosted mock", () => {
-  const {
-    dcrUpdateScript,
-    fixedInitialEndpoint,
-  } = require("./dcr-update-fixture.cjs");
-  assert.equal(fixedInitialEndpoint, initial);
+test("VCB-191: preparation keeps the real endpoint and explicitly disables personal accounts", () => {
+  const { dcrUpdateScript } = require("./dcr-update-fixture.cjs");
   const script = dcrUpdateScript("prepare");
   assert.ok(!script.includes("MCP_AUTH_INITIAL_ENDPOINT"));
-  assert.ok(script.includes("wellKnownAuthorizationServer"));
-  assert.ok(script.includes('["resource"]'));
-  assert.ok(script.includes("registration_endpoint"));
+  assert.ok(!script.includes("example.invalid"));
+  assert.ok(
+    script.includes('inputs["includePersonalMicrosoftAccounts"] = False'),
+  );
+  assert.ok(!script.includes("urllib.request"));
 });
 
 test("VCB-186: standalone update CI routing needs no new input or hosted service", async () => {

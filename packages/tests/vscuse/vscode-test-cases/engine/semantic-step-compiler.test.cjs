@@ -104,6 +104,38 @@ test("VCB-184 / DCR-UI-UPD-01: standalone DCR update owns three provisions and g
   }
 });
 
+test("VCB-191: the generated standalone update executes a real-endpoint policy transition", async () => {
+  const result = await compileFixture(
+    "da-mcp-dcr-update.yml",
+    (value) => value,
+  );
+  assert.equal(result.ok, true, JSON.stringify(result.diagnostics));
+  const { plan } = result.value[0];
+  const prepare = plan.steps.find(
+    (step) =>
+      step.tool === "type_text" &&
+      step.tags.includes("dcr_update_phase:prepare"),
+  );
+  const encoded = prepare.parameters.text.match(/SCRIPT_B64="([^"]+)"/)[1];
+  const script = Buffer.from(encoded, "base64").toString("utf8");
+  assert.ok(
+    script.includes('inputs["includePersonalMicrosoftAccounts"] = False'),
+  );
+  assert.ok(!script.includes("example.invalid"));
+  const program = Buffer.from(
+    script.match(/write_bytes\(base64\.b64decode\("([^"]+)"\)\)/)[1],
+    "base64",
+  ).toString("utf8");
+  assert.ok(program.includes("includePersonalMicrosoftAccounts: true"));
+  assert.ok(program.includes("Enterprise, Consumer"));
+  assert.ok(!program.includes("fixedInitialEndpoint"));
+  assert.equal(
+    plan.steps.filter((step) => step.tags.includes("assertion:tool-called"))
+      .length,
+    3,
+  );
+});
+
 test("VCB-184: update verification cannot precede the second Provision", async () => {
   const { parse, stringify } = require("yaml");
   const result = await compileFixture("da-mcp-dcr-update.yml", (source) => {

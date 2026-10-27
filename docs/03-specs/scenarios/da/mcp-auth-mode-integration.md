@@ -504,3 +504,14 @@ also passed 334 affected core tests, 41 fixture/CI compatibility tests, and
 plan regeneration. The complete generated-case engine retained exactly the
 same eight pre-existing failures (270/278 passed); no baseline assertions were
 removed or weakened.
+
+## Unified four-case validation scope
+
+The next four-case batch uses one corrected product image and one current plan
+source, rather than combining the historical passes above. Its independent
+`da-mcp-dcr-update-copilot` case now exercises the service-supported
+Enterprise-to-Enterprise, Consumer policy transition with unchanged ID, URLs,
+references and unrelated policy, then repeats Provision and invokes real tools.
+The original URL transition remains unsupported and retains negative regression
+coverage. This is an explicit acceptance-scope change, not a URL-update pass.
+The revised batch has not yet passed; record its real result after execution.

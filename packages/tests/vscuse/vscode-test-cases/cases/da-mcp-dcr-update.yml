@@ -3,6 +3,7 @@ version: 1
 cases:
   - id: da-mcp-dcr-update-copilot
     scenarioId: SCN-DA-CREATE-WITH-MCP-SERVER
+    # Positive update uses a verified writable account policy; URL updates are service-immutable.
     # Existing DCR discovery feature; not a fabricated work item for #16840.
     workItemIds: [7559991]
     gate: manual

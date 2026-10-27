@@ -9,7 +9,7 @@
 - **Design assumption:** All writable DCR registration fields support an in-place update with the same configuration ID. This is an approved design assumption, not a verified service capability.
 
 **Live validation update (2026-10-27):** The
-[independent URL-update UI case](../../scenarios/da/dcr-update-ui.md#fixed-placeholder-execution-evidence---2026-10-27)
+[historical URL-update UI attempt](../../scenarios/da/dcr-update-ui.md#fixed-placeholder-execution-evidence---2026-10-27)
 completed registration using a fixed placeholder and real discovery metadata,
 without an initial-URL setting or tunnel. Its authenticated baseline read on the
 provisional GET route returned HTTP 404. An isolated real-service probe then
@@ -37,6 +37,13 @@ enterprise-only policy was restored and confirmed by bounded readback.
 Configuration ID and unrelated fields remained unchanged throughout; sensitive
 fields were compared in memory, not logged. This is live driver verification,
 not an end-to-end URL-update UI pass.
+
+The standalone positive UI case now targets that verified writable account
+policy: register the real endpoint with personal accounts disabled, enable them
+through Provision, read back persistence, repeat Provision and invoke real
+tools while retaining the ID and all URL/reference wiring. This is an explicit
+test-scope revision, not service support for the original URL transition.
+The immutable-URL error regression and historical failed runs remain separate.
 
 ## Requirement Decisions
 
