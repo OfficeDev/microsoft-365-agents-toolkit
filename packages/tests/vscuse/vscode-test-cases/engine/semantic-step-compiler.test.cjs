@@ -120,6 +120,60 @@ test("VCB-184: update verification cannot precede the second Provision", async (
   );
 });
 
+test("VCB-184: every DCR update stage clears notifications before its terminal opens", async () => {
+  const result = await compileFixture(
+    "da-mcp-dcr-update.yml",
+    (value) => value,
+  );
+  assert.equal(result.ok, true, JSON.stringify(result.diagnostics));
+  const { plan } = result.value[0];
+  const opens = plan.steps.filter((step) =>
+    step.step_id.startsWith("step_dcrUpdate_openTerminal_"),
+  );
+  assert.equal(opens.length, 5);
+  for (const step of opens) {
+    const previousText = plan.steps
+      .slice(0, plan.steps.indexOf(step))
+      .filter((item) => item.tool === "type_text")
+      .at(-1);
+    assert.equal(
+      previousText.parameters.text,
+      "Notifications: Clear All Notifications",
+    );
+  }
+});
+
+test("VCB-189: DCR sends a fresh tool request after OAuth instead of waiting on the stale turn", async () => {
+  const result = await compileFixture(
+    "da-mcp-auth-modes.yml",
+    (value) => value,
+  );
+  assert.equal(result.ok, true, JSON.stringify(result.diagnostics));
+  const { plan } = result.value.find(
+    (item) => item.caseId === "da-mcp-dcr-copilot",
+  );
+  const requests = plan.steps
+    .map((step, index) => ({ step, index }))
+    .filter(
+      ({ step }) =>
+        step.tool === "type_text" &&
+        step.parameters.text.startsWith("Call the remote whoami tool."),
+    );
+  assert.equal(requests.length, 2);
+  assert.equal(
+    requests[0].step.parameters.text,
+    requests[1].step.parameters.text,
+  );
+  const returned = plan.steps.findIndex((step) =>
+    step.step_id.startsWith("step_assertCopilotOAuthReturn_"),
+  );
+  const consent = plan.steps.findIndex((step) =>
+    step.step_id.startsWith("step_allowCopilotAction_assert_"),
+  );
+  assert.ok(requests[0].index < returned && returned < requests[1].index);
+  assert.ok(requests[1].index < consent);
+});
+
 test("VCB-171: generated MCP fixtures reserve run ownership before mutating registration state", async () => {
   const result = await compileFixture(
     "da-mcp-auth-modes.yml",
@@ -386,7 +440,10 @@ test("VCB-177: authentication prompts project real tool results without leaking 
         step.step_id.startsWith("step_sendCopilotMessage_type_"),
       )
       .map((step) => step.parameters.text);
-    assert.equal(messages.length, 3, caseId);
+    const resumesDcr = caseId === "da-mcp-dcr-copilot";
+    assert.equal(messages.length, resumesDcr ? 4 : 3, caseId);
+    if (resumesDcr) assert.equal(messages[0], messages[1], caseId);
+    const toolMessages = resumesDcr ? messages.slice(1) : messages;
     for (const field of [
       "tenant_id",
       "auth_method",
@@ -394,10 +451,10 @@ test("VCB-177: authentication prompts project real tool results without leaking 
       "only",
       "actual result",
     ]) {
-      assert.ok(messages[0].includes(field), `${caseId}: ${field}`);
+      assert.ok(toolMessages[0].includes(field), `${caseId}: ${field}`);
     }
     for (const field of ["canary", "auth_flow", "only", "actual result"]) {
-      assert.ok(messages[1].includes(field), `${caseId}: ${field}`);
+      assert.ok(toolMessages[1].includes(field), `${caseId}: ${field}`);
     }
     assert.equal(
       messages.join("\n").includes("16801f2e-7163-4bd5-8542-f083fa59993c"),
@@ -414,7 +471,7 @@ test("VCB-177: authentication prompts project real tool results without leaking 
       false,
       caseId,
     );
-    assert.equal(messages[2].includes("27"), false, caseId);
+    assert.equal(toolMessages[2].includes("27"), false, caseId);
     assert.equal(
       plan.steps.filter((step) => step.tags.includes("assertion:tool-called"))
         .length,

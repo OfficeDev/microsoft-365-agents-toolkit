@@ -2001,12 +2001,24 @@ function createSemanticStepCompiler() {
       state.completed.add("mcp-auth-fixture");
       state.requiresInitialFileCheck = false;
     }
-    return render(state, "workspace/dcr-update-stage.json.tpl", {
-      scriptBase64: Buffer.from(dcrUpdateScript(phase), "utf8").toString(
-        "base64",
-      ),
-      phase,
-    });
+    const output = [];
+    let error = append(
+      output,
+      render(state, "command-palette/execute-command.json.tpl", {
+        commandTitle: commandTitles.clearNotifications,
+      }),
+    );
+    if (error) return error;
+    error = append(
+      output,
+      render(state, "workspace/dcr-update-stage.json.tpl", {
+        scriptBase64: Buffer.from(dcrUpdateScript(phase), "utf8").toString(
+          "base64",
+        ),
+        phase,
+      }),
+    );
+    return error ?? { ok: true, value: output };
   }
 
   function compileConfigureArmJsonTemplates(state, definition) {
@@ -3684,6 +3696,13 @@ function createSemanticStepCompiler() {
         }),
       );
       if (error) return error;
+      if (state.mcpAuthType === "oauth-dynamic") {
+        error = append(
+          output,
+          render(state, sendComponent, { message: assertion.send }),
+        );
+        if (error) return error;
+      }
     }
     if (assertion.allowAction === true || assertion.connectOAuth === true) {
       if (state.profile.host !== "copilot") {

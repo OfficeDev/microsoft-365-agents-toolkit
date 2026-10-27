@@ -8,7 +8,7 @@
       "precondition_wait_timeout": 30,
       "precondition_retry_interval": 1
     },
-    "total_steps": 151,
+    "total_steps": 155,
     "name": "da-mcp-dcr-copilot",
     "description": {
       "owner": "",
@@ -142,14 +142,18 @@
       "step_selectSignedInMicrosoftAccount_select_c81a54377_7_4",
       "step_assertCopilotOAuthReturn_c81a54377_7_5",
       "step_assertCopilotOAuthReturn_clearHover_c81a54377_7_5",
-      "step_allowCopilotAction_assert_c81a54377_7_6",
-      "step_allowCopilotAction_click_c81a54377_7_6",
-      "step_allowCopilotAction_assertDismissed_c81a54377_7_6",
-      "step_assertChatReplied_assert_c81a54377_7_7",
-      "step_assertToolCalled_c81a54377_7_8",
-      "step_assertChatNonEmptyField_c81a54377_7_9",
-      "step_assertChatContains_assert_c81a54377_7_10",
+      "step_sendCopilotMessage_assertInput_c81a54377_7_6",
+      "step_sendCopilotMessage_focusInput_c81a54377_7_6",
+      "step_sendCopilotMessage_type_c81a54377_7_6",
+      "step_sendCopilotMessage_send_c81a54377_7_6",
+      "step_allowCopilotAction_assert_c81a54377_7_7",
+      "step_allowCopilotAction_click_c81a54377_7_7",
+      "step_allowCopilotAction_assertDismissed_c81a54377_7_7",
+      "step_assertChatReplied_assert_c81a54377_7_8",
+      "step_assertToolCalled_c81a54377_7_9",
+      "step_assertChatNonEmptyField_c81a54377_7_10",
       "step_assertChatContains_assert_c81a54377_7_11",
+      "step_assertChatContains_assert_c81a54377_7_12",
       "step_sendCopilotMessage_assertInput_c81a54377_8_1",
       "step_sendCopilotMessage_focusInput_c81a54377_8_1",
       "step_sendCopilotMessage_type_c81a54377_8_1",
@@ -2963,11 +2967,11 @@
       ]
     },
     {
-      "step_id": "step_allowCopilotAction_assert_c81a54377_7_6",
+      "step_id": "step_sendCopilotMessage_assertInput_c81a54377_7_6",
       "agent": "assertion",
       "tool": "",
       "parameters": {},
-      "description": "@assertion the Copilot action-consent Allow button is visible.",
+      "description": "@assertion the Microsoft 365 Copilot message input is visible in the open agent chat.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -2980,12 +2984,110 @@
       "tags": [
         "component:browser",
         "host_surface:copilot",
+        "entry_state:chat-ready",
+        "action:send-message",
+        "step_retry_timeout: 120"
+      ]
+    },
+    {
+      "step_id": "step_sendCopilotMessage_focusInput_c81a54377_7_6",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 416,
+        "y": 369
+      },
+      "description": "Click the \"Message\" input box in the Microsoft 365 Copilot web application.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_sendCopilotMessage_assertInput_c81a54377_7_6"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:browser",
+        "host_surface:copilot",
+        "entry_state:chat-ready",
+        "action:send-message",
+        "ocr:true"
+      ]
+    },
+    {
+      "step_id": "step_sendCopilotMessage_type_c81a54377_7_6",
+      "agent": "interaction",
+      "tool": "type_text",
+      "parameters": {
+        "text": "Call the remote whoami tool. Show only tenant_id, auth_method, and client_id copied from its actual result as a short, pretty-printed JSON object. Do not infer or invent values."
+      },
+      "description": "Type \"Call the remote whoami tool. Show only tenant_id, auth_method, and client_id copied from its actual result as a short, pretty-printed JSON object. Do not infer or invent values.\" into the Copilot message input.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_sendCopilotMessage_focusInput_c81a54377_7_6"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:browser",
+        "host_surface:copilot",
+        "entry_state:chat-ready",
+        "action:send-message"
+      ]
+    },
+    {
+      "step_id": "step_sendCopilotMessage_send_c81a54377_7_6",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "enter"
+      },
+      "description": "Press Enter to send the Copilot message.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_sendCopilotMessage_type_c81a54377_7_6"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:browser",
+        "host_surface:copilot",
+        "entry_state:chat-ready",
+        "action:send-message"
+      ]
+    },
+    {
+      "step_id": "step_allowCopilotAction_assert_c81a54377_7_7",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the Copilot action-consent Allow button is visible.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_sendCopilotMessage_send_c81a54377_7_6"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:browser",
+        "host_surface:copilot",
         "entry_state:action-consent",
         "step_retry_timeout: 30"
       ]
     },
     {
-      "step_id": "step_allowCopilotAction_click_c81a54377_7_6",
+      "step_id": "step_allowCopilotAction_click_c81a54377_7_7",
       "agent": "interaction",
       "tool": "click",
       "parameters": {
@@ -2999,7 +3101,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_allowCopilotAction_assert_c81a54377_7_6"
+        "step_allowCopilotAction_assert_c81a54377_7_7"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -3012,7 +3114,7 @@
       ]
     },
     {
-      "step_id": "step_allowCopilotAction_assertDismissed_c81a54377_7_6",
+      "step_id": "step_allowCopilotAction_assertDismissed_c81a54377_7_7",
       "agent": "assertion",
       "tool": "",
       "parameters": {},
@@ -3022,7 +3124,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_allowCopilotAction_click_c81a54377_7_6"
+        "step_allowCopilotAction_click_c81a54377_7_7"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -3034,7 +3136,7 @@
       ]
     },
     {
-      "step_id": "step_assertChatReplied_assert_c81a54377_7_7",
+      "step_id": "step_assertChatReplied_assert_c81a54377_7_8",
       "agent": "assertion",
       "tool": "",
       "parameters": {},
@@ -3044,7 +3146,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_allowCopilotAction_assertDismissed_c81a54377_7_6"
+        "step_allowCopilotAction_assertDismissed_c81a54377_7_7"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -3056,7 +3158,7 @@
       ]
     },
     {
-      "step_id": "step_assertToolCalled_c81a54377_7_8",
+      "step_id": "step_assertToolCalled_c81a54377_7_9",
       "agent": "assertion",
       "tool": "",
       "parameters": {},
@@ -3066,7 +3168,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_assertChatReplied_assert_c81a54377_7_7"
+        "step_assertChatReplied_assert_c81a54377_7_8"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -3077,7 +3179,7 @@
       ]
     },
     {
-      "step_id": "step_assertChatNonEmptyField_c81a54377_7_9",
+      "step_id": "step_assertChatNonEmptyField_c81a54377_7_10",
       "agent": "assertion",
       "tool": "",
       "parameters": {},
@@ -3087,7 +3189,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_assertToolCalled_c81a54377_7_8"
+        "step_assertToolCalled_c81a54377_7_9"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -3099,7 +3201,7 @@
       ]
     },
     {
-      "step_id": "step_assertChatContains_assert_c81a54377_7_10",
+      "step_id": "step_assertChatContains_assert_c81a54377_7_11",
       "agent": "assertion",
       "tool": "",
       "parameters": {},
@@ -3109,7 +3211,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_assertChatNonEmptyField_c81a54377_7_9"
+        "step_assertChatNonEmptyField_c81a54377_7_10"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -3121,7 +3223,7 @@
       ]
     },
     {
-      "step_id": "step_assertChatContains_assert_c81a54377_7_11",
+      "step_id": "step_assertChatContains_assert_c81a54377_7_12",
       "agent": "assertion",
       "tool": "",
       "parameters": {},
@@ -3131,7 +3233,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_assertChatContains_assert_c81a54377_7_10"
+        "step_assertChatContains_assert_c81a54377_7_11"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -3153,7 +3255,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_assertChatContains_assert_c81a54377_7_11"
+        "step_assertChatContains_assert_c81a54377_7_12"
       ],
       "preconditions": [],
       "postconditions": [],

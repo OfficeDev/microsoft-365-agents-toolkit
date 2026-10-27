@@ -8,7 +8,7 @@
       "precondition_wait_timeout": 30,
       "precondition_retry_interval": 1
     },
-    "total_steps": 206,
+    "total_steps": 235,
     "name": "da-mcp-dcr-update-copilot",
     "description": {
       "owner": "",
@@ -62,13 +62,18 @@
       "step_textInput_input_caceeb9ea_1_12",
       "step_textInput_confirm_caceeb9ea_1_12",
       "step_assertProjectWindowReady_assert_caceeb9ea_1_13",
-      "step_dcrUpdate_openTerminal_caceeb9ea_2_1",
-      "step_dcrUpdate_assertTerminal_caceeb9ea_2_1",
-      "step_dcrUpdate_typeCommand_caceeb9ea_2_1",
-      "step_dcrUpdate_runCommand_caceeb9ea_2_1",
-      "step_dcrUpdate_assertReady_caceeb9ea_2_1",
-      "step_dcrUpdate_closeTerminal_caceeb9ea_2_1",
-      "step_dcrUpdate_assertClosed_caceeb9ea_2_1",
+      "step_executeCommand_open_caceeb9ea_2_1",
+      "step_executeCommand_assertPalette_caceeb9ea_2_1",
+      "step_executeCommand_filter_caceeb9ea_2_1",
+      "step_executeCommand_assertCommand_caceeb9ea_2_1",
+      "step_executeCommand_execute_caceeb9ea_2_1",
+      "step_dcrUpdate_openTerminal_caceeb9ea_2_2",
+      "step_dcrUpdate_assertTerminal_caceeb9ea_2_2",
+      "step_dcrUpdate_typeCommand_caceeb9ea_2_2",
+      "step_dcrUpdate_runCommand_caceeb9ea_2_2",
+      "step_dcrUpdate_assertReady_caceeb9ea_2_2",
+      "step_dcrUpdate_closeTerminal_caceeb9ea_2_2",
+      "step_dcrUpdate_assertClosed_caceeb9ea_2_2",
       "step_executeCommand_open_caceeb9ea_3_1",
       "step_executeCommand_assertPalette_caceeb9ea_3_1",
       "step_executeCommand_filter_caceeb9ea_3_1",
@@ -104,20 +109,30 @@
       "step_executeCommand_assertCommand_caceeb9ea_4_3",
       "step_executeCommand_execute_caceeb9ea_4_3",
       "step_assertNotificationContains_assert_caceeb9ea_4_4",
-      "step_dcrUpdate_openTerminal_caceeb9ea_5_1",
-      "step_dcrUpdate_assertTerminal_caceeb9ea_5_1",
-      "step_dcrUpdate_typeCommand_caceeb9ea_5_1",
-      "step_dcrUpdate_runCommand_caceeb9ea_5_1",
-      "step_dcrUpdate_assertReady_caceeb9ea_5_1",
-      "step_dcrUpdate_closeTerminal_caceeb9ea_5_1",
-      "step_dcrUpdate_assertClosed_caceeb9ea_5_1",
-      "step_dcrUpdate_openTerminal_caceeb9ea_6_1",
-      "step_dcrUpdate_assertTerminal_caceeb9ea_6_1",
-      "step_dcrUpdate_typeCommand_caceeb9ea_6_1",
-      "step_dcrUpdate_runCommand_caceeb9ea_6_1",
-      "step_dcrUpdate_assertReady_caceeb9ea_6_1",
-      "step_dcrUpdate_closeTerminal_caceeb9ea_6_1",
-      "step_dcrUpdate_assertClosed_caceeb9ea_6_1",
+      "step_executeCommand_open_caceeb9ea_5_1",
+      "step_executeCommand_assertPalette_caceeb9ea_5_1",
+      "step_executeCommand_filter_caceeb9ea_5_1",
+      "step_executeCommand_assertCommand_caceeb9ea_5_1",
+      "step_executeCommand_execute_caceeb9ea_5_1",
+      "step_dcrUpdate_openTerminal_caceeb9ea_5_2",
+      "step_dcrUpdate_assertTerminal_caceeb9ea_5_2",
+      "step_dcrUpdate_typeCommand_caceeb9ea_5_2",
+      "step_dcrUpdate_runCommand_caceeb9ea_5_2",
+      "step_dcrUpdate_assertReady_caceeb9ea_5_2",
+      "step_dcrUpdate_closeTerminal_caceeb9ea_5_2",
+      "step_dcrUpdate_assertClosed_caceeb9ea_5_2",
+      "step_executeCommand_open_caceeb9ea_6_1",
+      "step_executeCommand_assertPalette_caceeb9ea_6_1",
+      "step_executeCommand_filter_caceeb9ea_6_1",
+      "step_executeCommand_assertCommand_caceeb9ea_6_1",
+      "step_executeCommand_execute_caceeb9ea_6_1",
+      "step_dcrUpdate_openTerminal_caceeb9ea_6_2",
+      "step_dcrUpdate_assertTerminal_caceeb9ea_6_2",
+      "step_dcrUpdate_typeCommand_caceeb9ea_6_2",
+      "step_dcrUpdate_runCommand_caceeb9ea_6_2",
+      "step_dcrUpdate_assertReady_caceeb9ea_6_2",
+      "step_dcrUpdate_closeTerminal_caceeb9ea_6_2",
+      "step_dcrUpdate_assertClosed_caceeb9ea_6_2",
       "step_executeCommand_open_caceeb9ea_7_1",
       "step_executeCommand_assertPalette_caceeb9ea_7_1",
       "step_executeCommand_filter_caceeb9ea_7_1",
@@ -134,13 +149,18 @@
       "step_executeCommand_assertCommand_caceeb9ea_7_3",
       "step_executeCommand_execute_caceeb9ea_7_3",
       "step_assertNotificationContains_assert_caceeb9ea_7_4",
-      "step_dcrUpdate_openTerminal_caceeb9ea_8_1",
-      "step_dcrUpdate_assertTerminal_caceeb9ea_8_1",
-      "step_dcrUpdate_typeCommand_caceeb9ea_8_1",
-      "step_dcrUpdate_runCommand_caceeb9ea_8_1",
-      "step_dcrUpdate_assertReady_caceeb9ea_8_1",
-      "step_dcrUpdate_closeTerminal_caceeb9ea_8_1",
-      "step_dcrUpdate_assertClosed_caceeb9ea_8_1",
+      "step_executeCommand_open_caceeb9ea_8_1",
+      "step_executeCommand_assertPalette_caceeb9ea_8_1",
+      "step_executeCommand_filter_caceeb9ea_8_1",
+      "step_executeCommand_assertCommand_caceeb9ea_8_1",
+      "step_executeCommand_execute_caceeb9ea_8_1",
+      "step_dcrUpdate_openTerminal_caceeb9ea_8_2",
+      "step_dcrUpdate_assertTerminal_caceeb9ea_8_2",
+      "step_dcrUpdate_typeCommand_caceeb9ea_8_2",
+      "step_dcrUpdate_runCommand_caceeb9ea_8_2",
+      "step_dcrUpdate_assertReady_caceeb9ea_8_2",
+      "step_dcrUpdate_closeTerminal_caceeb9ea_8_2",
+      "step_dcrUpdate_assertClosed_caceeb9ea_8_2",
       "step_executeCommand_open_caceeb9ea_9_1",
       "step_executeCommand_assertPalette_caceeb9ea_9_1",
       "step_executeCommand_filter_caceeb9ea_9_1",
@@ -157,13 +177,18 @@
       "step_executeCommand_assertCommand_caceeb9ea_9_3",
       "step_executeCommand_execute_caceeb9ea_9_3",
       "step_assertNotificationContains_assert_caceeb9ea_9_4",
-      "step_dcrUpdate_openTerminal_caceeb9ea_10_1",
-      "step_dcrUpdate_assertTerminal_caceeb9ea_10_1",
-      "step_dcrUpdate_typeCommand_caceeb9ea_10_1",
-      "step_dcrUpdate_runCommand_caceeb9ea_10_1",
-      "step_dcrUpdate_assertReady_caceeb9ea_10_1",
-      "step_dcrUpdate_closeTerminal_caceeb9ea_10_1",
-      "step_dcrUpdate_assertClosed_caceeb9ea_10_1",
+      "step_executeCommand_open_caceeb9ea_10_1",
+      "step_executeCommand_assertPalette_caceeb9ea_10_1",
+      "step_executeCommand_filter_caceeb9ea_10_1",
+      "step_executeCommand_assertCommand_caceeb9ea_10_1",
+      "step_executeCommand_execute_caceeb9ea_10_1",
+      "step_dcrUpdate_openTerminal_caceeb9ea_10_2",
+      "step_dcrUpdate_assertTerminal_caceeb9ea_10_2",
+      "step_dcrUpdate_typeCommand_caceeb9ea_10_2",
+      "step_dcrUpdate_runCommand_caceeb9ea_10_2",
+      "step_dcrUpdate_assertReady_caceeb9ea_10_2",
+      "step_dcrUpdate_closeTerminal_caceeb9ea_10_2",
+      "step_dcrUpdate_assertClosed_caceeb9ea_10_2",
       "step_executeCommand_open_caceeb9ea_11_1",
       "step_executeCommand_assertPalette_caceeb9ea_11_1",
       "step_executeCommand_filter_caceeb9ea_11_1",
@@ -197,31 +222,35 @@
       "step_selectSignedInMicrosoftAccount_select_caceeb9ea_13_4",
       "step_assertCopilotOAuthReturn_caceeb9ea_13_5",
       "step_assertCopilotOAuthReturn_clearHover_caceeb9ea_13_5",
-      "step_allowCopilotAction_assert_caceeb9ea_13_6",
-      "step_allowCopilotAction_click_caceeb9ea_13_6",
-      "step_allowCopilotAction_assertDismissed_caceeb9ea_13_6",
-      "step_assertChatReplied_assert_caceeb9ea_13_7",
-      "step_assertToolCalled_caceeb9ea_13_8",
-      "step_assertChatNonEmptyField_caceeb9ea_13_9",
-      "step_assertChatContains_assert_caceeb9ea_13_10",
+      "step_sendCopilotMessage_assertInput_caceeb9ea_13_6",
+      "step_sendCopilotMessage_focusInput_caceeb9ea_13_6",
+      "step_sendCopilotMessage_type_caceeb9ea_13_6",
+      "step_sendCopilotMessage_send_caceeb9ea_13_6",
+      "step_allowCopilotAction_assert_caceeb9ea_13_7",
+      "step_allowCopilotAction_click_caceeb9ea_13_7",
+      "step_allowCopilotAction_assertDismissed_caceeb9ea_13_7",
+      "step_assertChatReplied_assert_caceeb9ea_13_8",
+      "step_assertToolCalled_caceeb9ea_13_9",
+      "step_assertChatNonEmptyField_caceeb9ea_13_10",
       "step_assertChatContains_assert_caceeb9ea_13_11",
-      "step_sendCopilotMessage_assertInput_caceeb9ea_13_12",
-      "step_sendCopilotMessage_focusInput_caceeb9ea_13_12",
-      "step_sendCopilotMessage_type_caceeb9ea_13_12",
-      "step_sendCopilotMessage_send_caceeb9ea_13_12",
-      "step_assertChatReplied_assert_caceeb9ea_13_13",
-      "step_assertToolCalled_caceeb9ea_13_14",
-      "step_assertChatContains_assert_caceeb9ea_13_15",
+      "step_assertChatContains_assert_caceeb9ea_13_12",
+      "step_sendCopilotMessage_assertInput_caceeb9ea_13_13",
+      "step_sendCopilotMessage_focusInput_caceeb9ea_13_13",
+      "step_sendCopilotMessage_type_caceeb9ea_13_13",
+      "step_sendCopilotMessage_send_caceeb9ea_13_13",
+      "step_assertChatReplied_assert_caceeb9ea_13_14",
+      "step_assertToolCalled_caceeb9ea_13_15",
       "step_assertChatContains_assert_caceeb9ea_13_16",
       "step_assertChatContains_assert_caceeb9ea_13_17",
       "step_assertChatContains_assert_caceeb9ea_13_18",
-      "step_sendCopilotMessage_assertInput_caceeb9ea_13_19",
-      "step_sendCopilotMessage_focusInput_caceeb9ea_13_19",
-      "step_sendCopilotMessage_type_caceeb9ea_13_19",
-      "step_sendCopilotMessage_send_caceeb9ea_13_19",
-      "step_assertChatReplied_assert_caceeb9ea_13_20",
-      "step_assertToolCalled_caceeb9ea_13_21",
-      "step_assertChatContains_assert_caceeb9ea_13_22"
+      "step_assertChatContains_assert_caceeb9ea_13_19",
+      "step_sendCopilotMessage_assertInput_caceeb9ea_13_20",
+      "step_sendCopilotMessage_focusInput_caceeb9ea_13_20",
+      "step_sendCopilotMessage_type_caceeb9ea_13_20",
+      "step_sendCopilotMessage_send_caceeb9ea_13_20",
+      "step_assertChatReplied_assert_caceeb9ea_13_21",
+      "step_assertToolCalled_caceeb9ea_13_22",
+      "step_assertChatContains_assert_caceeb9ea_13_23"
     ],
     "tags": [
       "case_id:da-mcp-dcr-update-copilot",
@@ -1230,7 +1259,115 @@
       ]
     },
     {
-      "step_id": "step_dcrUpdate_openTerminal_caceeb9ea_2_1",
+      "step_id": "step_executeCommand_open_caceeb9ea_2_1",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "f1"
+      },
+      "description": "Press the F1 key to open the Command Palette in Visual Studio Code.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_assertProjectWindowReady_assert_caceeb9ea_1_13"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:command-palette",
+        "action:execute-command"
+      ]
+    },
+    {
+      "step_id": "step_executeCommand_assertPalette_caceeb9ea_2_1",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the Visual Studio Code Command Palette is visible with a > character in its input box and is ready to accept a command search.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_executeCommand_open_caceeb9ea_2_1"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:command-palette",
+        "action:execute-command",
+        "step_retry_timeout: 30"
+      ]
+    },
+    {
+      "step_id": "step_executeCommand_filter_caceeb9ea_2_1",
+      "agent": "interaction",
+      "tool": "type_text",
+      "parameters": {
+        "text": "Notifications: Clear All Notifications"
+      },
+      "description": "Type the resolved command title into the active Command Palette.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_executeCommand_assertPalette_caceeb9ea_2_1"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:command-palette",
+        "action:execute-command"
+      ]
+    },
+    {
+      "step_id": "step_executeCommand_assertCommand_caceeb9ea_2_1",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the Command Palette input box reads >Notifications: Clear All Notifications and the highlighted command listed under it is titled Notifications: Clear All Notifications.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_executeCommand_filter_caceeb9ea_2_1"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:command-palette",
+        "action:execute-command",
+        "step_retry_timeout: 30"
+      ]
+    },
+    {
+      "step_id": "step_executeCommand_execute_caceeb9ea_2_1",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "enter"
+      },
+      "description": "Press Enter to execute the selected Command Palette command.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_executeCommand_assertCommand_caceeb9ea_2_1"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:command-palette",
+        "action:execute-command"
+      ]
+    },
+    {
+      "step_id": "step_dcrUpdate_openTerminal_caceeb9ea_2_2",
       "agent": "interaction",
       "tool": "keyboard_shortcut",
       "parameters": {
@@ -1242,7 +1379,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_assertProjectWindowReady_assert_caceeb9ea_1_13"
+        "step_executeCommand_execute_caceeb9ea_2_1"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -1251,7 +1388,7 @@
       ]
     },
     {
-      "step_id": "step_dcrUpdate_assertTerminal_caceeb9ea_2_1",
+      "step_id": "step_dcrUpdate_assertTerminal_caceeb9ea_2_2",
       "agent": "assertion",
       "tool": "",
       "parameters": {},
@@ -1261,7 +1398,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_dcrUpdate_openTerminal_caceeb9ea_2_1"
+        "step_dcrUpdate_openTerminal_caceeb9ea_2_2"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -1271,7 +1408,7 @@
       ]
     },
     {
-      "step_id": "step_dcrUpdate_typeCommand_caceeb9ea_2_1",
+      "step_id": "step_dcrUpdate_typeCommand_caceeb9ea_2_2",
       "agent": "interaction",
       "tool": "type_text",
       "parameters": {
@@ -1283,7 +1420,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_dcrUpdate_assertTerminal_caceeb9ea_2_1"
+        "step_dcrUpdate_assertTerminal_caceeb9ea_2_2"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -1295,7 +1432,7 @@
       ]
     },
     {
-      "step_id": "step_dcrUpdate_runCommand_caceeb9ea_2_1",
+      "step_id": "step_dcrUpdate_runCommand_caceeb9ea_2_2",
       "agent": "interaction",
       "tool": "key_press",
       "parameters": {
@@ -1307,7 +1444,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_dcrUpdate_typeCommand_caceeb9ea_2_1"
+        "step_dcrUpdate_typeCommand_caceeb9ea_2_2"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -1316,7 +1453,7 @@
       ]
     },
     {
-      "step_id": "step_dcrUpdate_assertReady_caceeb9ea_2_1",
+      "step_id": "step_dcrUpdate_assertReady_caceeb9ea_2_2",
       "agent": "assertion",
       "tool": "",
       "parameters": {},
@@ -1326,7 +1463,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_dcrUpdate_runCommand_caceeb9ea_2_1"
+        "step_dcrUpdate_runCommand_caceeb9ea_2_2"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -1337,7 +1474,7 @@
       ]
     },
     {
-      "step_id": "step_dcrUpdate_closeTerminal_caceeb9ea_2_1",
+      "step_id": "step_dcrUpdate_closeTerminal_caceeb9ea_2_2",
       "agent": "interaction",
       "tool": "keyboard_shortcut",
       "parameters": {
@@ -1349,7 +1486,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_dcrUpdate_assertReady_caceeb9ea_2_1"
+        "step_dcrUpdate_assertReady_caceeb9ea_2_2"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -1358,7 +1495,7 @@
       ]
     },
     {
-      "step_id": "step_dcrUpdate_assertClosed_caceeb9ea_2_1",
+      "step_id": "step_dcrUpdate_assertClosed_caceeb9ea_2_2",
       "agent": "assertion",
       "tool": "",
       "parameters": {},
@@ -1368,7 +1505,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_dcrUpdate_closeTerminal_caceeb9ea_2_1"
+        "step_dcrUpdate_closeTerminal_caceeb9ea_2_2"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -1390,7 +1527,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_dcrUpdate_assertClosed_caceeb9ea_2_1"
+        "step_dcrUpdate_assertClosed_caceeb9ea_2_2"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -2164,7 +2301,115 @@
       ]
     },
     {
-      "step_id": "step_dcrUpdate_openTerminal_caceeb9ea_5_1",
+      "step_id": "step_executeCommand_open_caceeb9ea_5_1",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "f1"
+      },
+      "description": "Press the F1 key to open the Command Palette in Visual Studio Code.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_assertNotificationContains_assert_caceeb9ea_4_4"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:command-palette",
+        "action:execute-command"
+      ]
+    },
+    {
+      "step_id": "step_executeCommand_assertPalette_caceeb9ea_5_1",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the Visual Studio Code Command Palette is visible with a > character in its input box and is ready to accept a command search.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_executeCommand_open_caceeb9ea_5_1"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:command-palette",
+        "action:execute-command",
+        "step_retry_timeout: 30"
+      ]
+    },
+    {
+      "step_id": "step_executeCommand_filter_caceeb9ea_5_1",
+      "agent": "interaction",
+      "tool": "type_text",
+      "parameters": {
+        "text": "Notifications: Clear All Notifications"
+      },
+      "description": "Type the resolved command title into the active Command Palette.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_executeCommand_assertPalette_caceeb9ea_5_1"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:command-palette",
+        "action:execute-command"
+      ]
+    },
+    {
+      "step_id": "step_executeCommand_assertCommand_caceeb9ea_5_1",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the Command Palette input box reads >Notifications: Clear All Notifications and the highlighted command listed under it is titled Notifications: Clear All Notifications.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_executeCommand_filter_caceeb9ea_5_1"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:command-palette",
+        "action:execute-command",
+        "step_retry_timeout: 30"
+      ]
+    },
+    {
+      "step_id": "step_executeCommand_execute_caceeb9ea_5_1",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "enter"
+      },
+      "description": "Press Enter to execute the selected Command Palette command.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_executeCommand_assertCommand_caceeb9ea_5_1"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:command-palette",
+        "action:execute-command"
+      ]
+    },
+    {
+      "step_id": "step_dcrUpdate_openTerminal_caceeb9ea_5_2",
       "agent": "interaction",
       "tool": "keyboard_shortcut",
       "parameters": {
@@ -2176,7 +2421,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_assertNotificationContains_assert_caceeb9ea_4_4"
+        "step_executeCommand_execute_caceeb9ea_5_1"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -2185,7 +2430,7 @@
       ]
     },
     {
-      "step_id": "step_dcrUpdate_assertTerminal_caceeb9ea_5_1",
+      "step_id": "step_dcrUpdate_assertTerminal_caceeb9ea_5_2",
       "agent": "assertion",
       "tool": "",
       "parameters": {},
@@ -2195,7 +2440,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_dcrUpdate_openTerminal_caceeb9ea_5_1"
+        "step_dcrUpdate_openTerminal_caceeb9ea_5_2"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -2205,7 +2450,7 @@
       ]
     },
     {
-      "step_id": "step_dcrUpdate_typeCommand_caceeb9ea_5_1",
+      "step_id": "step_dcrUpdate_typeCommand_caceeb9ea_5_2",
       "agent": "interaction",
       "tool": "type_text",
       "parameters": {
@@ -2217,7 +2462,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_dcrUpdate_assertTerminal_caceeb9ea_5_1"
+        "step_dcrUpdate_assertTerminal_caceeb9ea_5_2"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -2229,7 +2474,7 @@
       ]
     },
     {
-      "step_id": "step_dcrUpdate_runCommand_caceeb9ea_5_1",
+      "step_id": "step_dcrUpdate_runCommand_caceeb9ea_5_2",
       "agent": "interaction",
       "tool": "key_press",
       "parameters": {
@@ -2241,7 +2486,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_dcrUpdate_typeCommand_caceeb9ea_5_1"
+        "step_dcrUpdate_typeCommand_caceeb9ea_5_2"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -2250,7 +2495,7 @@
       ]
     },
     {
-      "step_id": "step_dcrUpdate_assertReady_caceeb9ea_5_1",
+      "step_id": "step_dcrUpdate_assertReady_caceeb9ea_5_2",
       "agent": "assertion",
       "tool": "",
       "parameters": {},
@@ -2260,7 +2505,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_dcrUpdate_runCommand_caceeb9ea_5_1"
+        "step_dcrUpdate_runCommand_caceeb9ea_5_2"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -2271,7 +2516,7 @@
       ]
     },
     {
-      "step_id": "step_dcrUpdate_closeTerminal_caceeb9ea_5_1",
+      "step_id": "step_dcrUpdate_closeTerminal_caceeb9ea_5_2",
       "agent": "interaction",
       "tool": "keyboard_shortcut",
       "parameters": {
@@ -2283,7 +2528,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_dcrUpdate_assertReady_caceeb9ea_5_1"
+        "step_dcrUpdate_assertReady_caceeb9ea_5_2"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -2292,7 +2537,7 @@
       ]
     },
     {
-      "step_id": "step_dcrUpdate_assertClosed_caceeb9ea_5_1",
+      "step_id": "step_dcrUpdate_assertClosed_caceeb9ea_5_2",
       "agent": "assertion",
       "tool": "",
       "parameters": {},
@@ -2302,7 +2547,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_dcrUpdate_closeTerminal_caceeb9ea_5_1"
+        "step_dcrUpdate_closeTerminal_caceeb9ea_5_2"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -2312,7 +2557,115 @@
       ]
     },
     {
-      "step_id": "step_dcrUpdate_openTerminal_caceeb9ea_6_1",
+      "step_id": "step_executeCommand_open_caceeb9ea_6_1",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "f1"
+      },
+      "description": "Press the F1 key to open the Command Palette in Visual Studio Code.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_dcrUpdate_assertClosed_caceeb9ea_5_2"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:command-palette",
+        "action:execute-command"
+      ]
+    },
+    {
+      "step_id": "step_executeCommand_assertPalette_caceeb9ea_6_1",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the Visual Studio Code Command Palette is visible with a > character in its input box and is ready to accept a command search.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_executeCommand_open_caceeb9ea_6_1"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:command-palette",
+        "action:execute-command",
+        "step_retry_timeout: 30"
+      ]
+    },
+    {
+      "step_id": "step_executeCommand_filter_caceeb9ea_6_1",
+      "agent": "interaction",
+      "tool": "type_text",
+      "parameters": {
+        "text": "Notifications: Clear All Notifications"
+      },
+      "description": "Type the resolved command title into the active Command Palette.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_executeCommand_assertPalette_caceeb9ea_6_1"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:command-palette",
+        "action:execute-command"
+      ]
+    },
+    {
+      "step_id": "step_executeCommand_assertCommand_caceeb9ea_6_1",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the Command Palette input box reads >Notifications: Clear All Notifications and the highlighted command listed under it is titled Notifications: Clear All Notifications.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_executeCommand_filter_caceeb9ea_6_1"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:command-palette",
+        "action:execute-command",
+        "step_retry_timeout: 30"
+      ]
+    },
+    {
+      "step_id": "step_executeCommand_execute_caceeb9ea_6_1",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "enter"
+      },
+      "description": "Press Enter to execute the selected Command Palette command.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_executeCommand_assertCommand_caceeb9ea_6_1"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:command-palette",
+        "action:execute-command"
+      ]
+    },
+    {
+      "step_id": "step_dcrUpdate_openTerminal_caceeb9ea_6_2",
       "agent": "interaction",
       "tool": "keyboard_shortcut",
       "parameters": {
@@ -2324,7 +2677,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_dcrUpdate_assertClosed_caceeb9ea_5_1"
+        "step_executeCommand_execute_caceeb9ea_6_1"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -2333,7 +2686,7 @@
       ]
     },
     {
-      "step_id": "step_dcrUpdate_assertTerminal_caceeb9ea_6_1",
+      "step_id": "step_dcrUpdate_assertTerminal_caceeb9ea_6_2",
       "agent": "assertion",
       "tool": "",
       "parameters": {},
@@ -2343,7 +2696,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_dcrUpdate_openTerminal_caceeb9ea_6_1"
+        "step_dcrUpdate_openTerminal_caceeb9ea_6_2"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -2353,7 +2706,7 @@
       ]
     },
     {
-      "step_id": "step_dcrUpdate_typeCommand_caceeb9ea_6_1",
+      "step_id": "step_dcrUpdate_typeCommand_caceeb9ea_6_2",
       "agent": "interaction",
       "tool": "type_text",
       "parameters": {
@@ -2365,7 +2718,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_dcrUpdate_assertTerminal_caceeb9ea_6_1"
+        "step_dcrUpdate_assertTerminal_caceeb9ea_6_2"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -2377,7 +2730,7 @@
       ]
     },
     {
-      "step_id": "step_dcrUpdate_runCommand_caceeb9ea_6_1",
+      "step_id": "step_dcrUpdate_runCommand_caceeb9ea_6_2",
       "agent": "interaction",
       "tool": "key_press",
       "parameters": {
@@ -2389,7 +2742,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_dcrUpdate_typeCommand_caceeb9ea_6_1"
+        "step_dcrUpdate_typeCommand_caceeb9ea_6_2"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -2398,7 +2751,7 @@
       ]
     },
     {
-      "step_id": "step_dcrUpdate_assertReady_caceeb9ea_6_1",
+      "step_id": "step_dcrUpdate_assertReady_caceeb9ea_6_2",
       "agent": "assertion",
       "tool": "",
       "parameters": {},
@@ -2408,7 +2761,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_dcrUpdate_runCommand_caceeb9ea_6_1"
+        "step_dcrUpdate_runCommand_caceeb9ea_6_2"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -2419,7 +2772,7 @@
       ]
     },
     {
-      "step_id": "step_dcrUpdate_closeTerminal_caceeb9ea_6_1",
+      "step_id": "step_dcrUpdate_closeTerminal_caceeb9ea_6_2",
       "agent": "interaction",
       "tool": "keyboard_shortcut",
       "parameters": {
@@ -2431,7 +2784,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_dcrUpdate_assertReady_caceeb9ea_6_1"
+        "step_dcrUpdate_assertReady_caceeb9ea_6_2"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -2440,7 +2793,7 @@
       ]
     },
     {
-      "step_id": "step_dcrUpdate_assertClosed_caceeb9ea_6_1",
+      "step_id": "step_dcrUpdate_assertClosed_caceeb9ea_6_2",
       "agent": "assertion",
       "tool": "",
       "parameters": {},
@@ -2450,7 +2803,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_dcrUpdate_closeTerminal_caceeb9ea_6_1"
+        "step_dcrUpdate_closeTerminal_caceeb9ea_6_2"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -2472,7 +2825,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_dcrUpdate_assertClosed_caceeb9ea_6_1"
+        "step_dcrUpdate_assertClosed_caceeb9ea_6_2"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -2805,7 +3158,115 @@
       ]
     },
     {
-      "step_id": "step_dcrUpdate_openTerminal_caceeb9ea_8_1",
+      "step_id": "step_executeCommand_open_caceeb9ea_8_1",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "f1"
+      },
+      "description": "Press the F1 key to open the Command Palette in Visual Studio Code.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_assertNotificationContains_assert_caceeb9ea_7_4"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:command-palette",
+        "action:execute-command"
+      ]
+    },
+    {
+      "step_id": "step_executeCommand_assertPalette_caceeb9ea_8_1",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the Visual Studio Code Command Palette is visible with a > character in its input box and is ready to accept a command search.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_executeCommand_open_caceeb9ea_8_1"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:command-palette",
+        "action:execute-command",
+        "step_retry_timeout: 30"
+      ]
+    },
+    {
+      "step_id": "step_executeCommand_filter_caceeb9ea_8_1",
+      "agent": "interaction",
+      "tool": "type_text",
+      "parameters": {
+        "text": "Notifications: Clear All Notifications"
+      },
+      "description": "Type the resolved command title into the active Command Palette.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_executeCommand_assertPalette_caceeb9ea_8_1"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:command-palette",
+        "action:execute-command"
+      ]
+    },
+    {
+      "step_id": "step_executeCommand_assertCommand_caceeb9ea_8_1",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the Command Palette input box reads >Notifications: Clear All Notifications and the highlighted command listed under it is titled Notifications: Clear All Notifications.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_executeCommand_filter_caceeb9ea_8_1"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:command-palette",
+        "action:execute-command",
+        "step_retry_timeout: 30"
+      ]
+    },
+    {
+      "step_id": "step_executeCommand_execute_caceeb9ea_8_1",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "enter"
+      },
+      "description": "Press Enter to execute the selected Command Palette command.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_executeCommand_assertCommand_caceeb9ea_8_1"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:command-palette",
+        "action:execute-command"
+      ]
+    },
+    {
+      "step_id": "step_dcrUpdate_openTerminal_caceeb9ea_8_2",
       "agent": "interaction",
       "tool": "keyboard_shortcut",
       "parameters": {
@@ -2817,7 +3278,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_assertNotificationContains_assert_caceeb9ea_7_4"
+        "step_executeCommand_execute_caceeb9ea_8_1"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -2826,7 +3287,7 @@
       ]
     },
     {
-      "step_id": "step_dcrUpdate_assertTerminal_caceeb9ea_8_1",
+      "step_id": "step_dcrUpdate_assertTerminal_caceeb9ea_8_2",
       "agent": "assertion",
       "tool": "",
       "parameters": {},
@@ -2836,7 +3297,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_dcrUpdate_openTerminal_caceeb9ea_8_1"
+        "step_dcrUpdate_openTerminal_caceeb9ea_8_2"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -2846,7 +3307,7 @@
       ]
     },
     {
-      "step_id": "step_dcrUpdate_typeCommand_caceeb9ea_8_1",
+      "step_id": "step_dcrUpdate_typeCommand_caceeb9ea_8_2",
       "agent": "interaction",
       "tool": "type_text",
       "parameters": {
@@ -2858,7 +3319,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_dcrUpdate_assertTerminal_caceeb9ea_8_1"
+        "step_dcrUpdate_assertTerminal_caceeb9ea_8_2"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -2870,7 +3331,7 @@
       ]
     },
     {
-      "step_id": "step_dcrUpdate_runCommand_caceeb9ea_8_1",
+      "step_id": "step_dcrUpdate_runCommand_caceeb9ea_8_2",
       "agent": "interaction",
       "tool": "key_press",
       "parameters": {
@@ -2882,7 +3343,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_dcrUpdate_typeCommand_caceeb9ea_8_1"
+        "step_dcrUpdate_typeCommand_caceeb9ea_8_2"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -2891,7 +3352,7 @@
       ]
     },
     {
-      "step_id": "step_dcrUpdate_assertReady_caceeb9ea_8_1",
+      "step_id": "step_dcrUpdate_assertReady_caceeb9ea_8_2",
       "agent": "assertion",
       "tool": "",
       "parameters": {},
@@ -2901,7 +3362,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_dcrUpdate_runCommand_caceeb9ea_8_1"
+        "step_dcrUpdate_runCommand_caceeb9ea_8_2"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -2912,7 +3373,7 @@
       ]
     },
     {
-      "step_id": "step_dcrUpdate_closeTerminal_caceeb9ea_8_1",
+      "step_id": "step_dcrUpdate_closeTerminal_caceeb9ea_8_2",
       "agent": "interaction",
       "tool": "keyboard_shortcut",
       "parameters": {
@@ -2924,7 +3385,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_dcrUpdate_assertReady_caceeb9ea_8_1"
+        "step_dcrUpdate_assertReady_caceeb9ea_8_2"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -2933,7 +3394,7 @@
       ]
     },
     {
-      "step_id": "step_dcrUpdate_assertClosed_caceeb9ea_8_1",
+      "step_id": "step_dcrUpdate_assertClosed_caceeb9ea_8_2",
       "agent": "assertion",
       "tool": "",
       "parameters": {},
@@ -2943,7 +3404,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_dcrUpdate_closeTerminal_caceeb9ea_8_1"
+        "step_dcrUpdate_closeTerminal_caceeb9ea_8_2"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -2965,7 +3426,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_dcrUpdate_assertClosed_caceeb9ea_8_1"
+        "step_dcrUpdate_assertClosed_caceeb9ea_8_2"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -3298,7 +3759,115 @@
       ]
     },
     {
-      "step_id": "step_dcrUpdate_openTerminal_caceeb9ea_10_1",
+      "step_id": "step_executeCommand_open_caceeb9ea_10_1",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "f1"
+      },
+      "description": "Press the F1 key to open the Command Palette in Visual Studio Code.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_assertNotificationContains_assert_caceeb9ea_9_4"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:command-palette",
+        "action:execute-command"
+      ]
+    },
+    {
+      "step_id": "step_executeCommand_assertPalette_caceeb9ea_10_1",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the Visual Studio Code Command Palette is visible with a > character in its input box and is ready to accept a command search.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_executeCommand_open_caceeb9ea_10_1"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:command-palette",
+        "action:execute-command",
+        "step_retry_timeout: 30"
+      ]
+    },
+    {
+      "step_id": "step_executeCommand_filter_caceeb9ea_10_1",
+      "agent": "interaction",
+      "tool": "type_text",
+      "parameters": {
+        "text": "Notifications: Clear All Notifications"
+      },
+      "description": "Type the resolved command title into the active Command Palette.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_executeCommand_assertPalette_caceeb9ea_10_1"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:command-palette",
+        "action:execute-command"
+      ]
+    },
+    {
+      "step_id": "step_executeCommand_assertCommand_caceeb9ea_10_1",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the Command Palette input box reads >Notifications: Clear All Notifications and the highlighted command listed under it is titled Notifications: Clear All Notifications.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_executeCommand_filter_caceeb9ea_10_1"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:command-palette",
+        "action:execute-command",
+        "step_retry_timeout: 30"
+      ]
+    },
+    {
+      "step_id": "step_executeCommand_execute_caceeb9ea_10_1",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "enter"
+      },
+      "description": "Press Enter to execute the selected Command Palette command.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_executeCommand_assertCommand_caceeb9ea_10_1"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:command-palette",
+        "action:execute-command"
+      ]
+    },
+    {
+      "step_id": "step_dcrUpdate_openTerminal_caceeb9ea_10_2",
       "agent": "interaction",
       "tool": "keyboard_shortcut",
       "parameters": {
@@ -3310,7 +3879,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_assertNotificationContains_assert_caceeb9ea_9_4"
+        "step_executeCommand_execute_caceeb9ea_10_1"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -3319,7 +3888,7 @@
       ]
     },
     {
-      "step_id": "step_dcrUpdate_assertTerminal_caceeb9ea_10_1",
+      "step_id": "step_dcrUpdate_assertTerminal_caceeb9ea_10_2",
       "agent": "assertion",
       "tool": "",
       "parameters": {},
@@ -3329,7 +3898,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_dcrUpdate_openTerminal_caceeb9ea_10_1"
+        "step_dcrUpdate_openTerminal_caceeb9ea_10_2"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -3339,7 +3908,7 @@
       ]
     },
     {
-      "step_id": "step_dcrUpdate_typeCommand_caceeb9ea_10_1",
+      "step_id": "step_dcrUpdate_typeCommand_caceeb9ea_10_2",
       "agent": "interaction",
       "tool": "type_text",
       "parameters": {
@@ -3351,7 +3920,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_dcrUpdate_assertTerminal_caceeb9ea_10_1"
+        "step_dcrUpdate_assertTerminal_caceeb9ea_10_2"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -3363,7 +3932,7 @@
       ]
     },
     {
-      "step_id": "step_dcrUpdate_runCommand_caceeb9ea_10_1",
+      "step_id": "step_dcrUpdate_runCommand_caceeb9ea_10_2",
       "agent": "interaction",
       "tool": "key_press",
       "parameters": {
@@ -3375,7 +3944,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_dcrUpdate_typeCommand_caceeb9ea_10_1"
+        "step_dcrUpdate_typeCommand_caceeb9ea_10_2"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -3384,7 +3953,7 @@
       ]
     },
     {
-      "step_id": "step_dcrUpdate_assertReady_caceeb9ea_10_1",
+      "step_id": "step_dcrUpdate_assertReady_caceeb9ea_10_2",
       "agent": "assertion",
       "tool": "",
       "parameters": {},
@@ -3394,7 +3963,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_dcrUpdate_runCommand_caceeb9ea_10_1"
+        "step_dcrUpdate_runCommand_caceeb9ea_10_2"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -3405,7 +3974,7 @@
       ]
     },
     {
-      "step_id": "step_dcrUpdate_closeTerminal_caceeb9ea_10_1",
+      "step_id": "step_dcrUpdate_closeTerminal_caceeb9ea_10_2",
       "agent": "interaction",
       "tool": "keyboard_shortcut",
       "parameters": {
@@ -3417,7 +3986,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_dcrUpdate_assertReady_caceeb9ea_10_1"
+        "step_dcrUpdate_assertReady_caceeb9ea_10_2"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -3426,7 +3995,7 @@
       ]
     },
     {
-      "step_id": "step_dcrUpdate_assertClosed_caceeb9ea_10_1",
+      "step_id": "step_dcrUpdate_assertClosed_caceeb9ea_10_2",
       "agent": "assertion",
       "tool": "",
       "parameters": {},
@@ -3436,7 +4005,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_dcrUpdate_closeTerminal_caceeb9ea_10_1"
+        "step_dcrUpdate_closeTerminal_caceeb9ea_10_2"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -3458,7 +4027,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_dcrUpdate_assertClosed_caceeb9ea_10_1"
+        "step_dcrUpdate_assertClosed_caceeb9ea_10_2"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -4193,11 +4762,11 @@
       ]
     },
     {
-      "step_id": "step_allowCopilotAction_assert_caceeb9ea_13_6",
+      "step_id": "step_sendCopilotMessage_assertInput_caceeb9ea_13_6",
       "agent": "assertion",
       "tool": "",
       "parameters": {},
-      "description": "@assertion the Copilot action-consent Allow button is visible.",
+      "description": "@assertion the Microsoft 365 Copilot message input is visible in the open agent chat.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -4210,193 +4779,13 @@
       "tags": [
         "component:browser",
         "host_surface:copilot",
-        "entry_state:action-consent",
-        "step_retry_timeout: 30"
-      ]
-    },
-    {
-      "step_id": "step_allowCopilotAction_click_caceeb9ea_13_6",
-      "agent": "interaction",
-      "tool": "click",
-      "parameters": {
-        "button": "left",
-        "x": 333,
-        "y": 327
-      },
-      "description": "Click the \"Allow\" button in the Microsoft 365 Copilot chat interface to grant the agent access.",
-      "content_refs": [],
-      "timeout": 30,
-      "retry_count": 0,
-      "continue_on_error": "false",
-      "depends_on": [
-        "step_allowCopilotAction_assert_caceeb9ea_13_6"
-      ],
-      "preconditions": [],
-      "postconditions": [],
-      "tags": [
-        "component:browser",
-        "host_surface:copilot",
-        "entry_state:action-consent",
-        "action:allow",
-        "ocr:true"
-      ]
-    },
-    {
-      "step_id": "step_allowCopilotAction_assertDismissed_caceeb9ea_13_6",
-      "agent": "assertion",
-      "tool": "",
-      "parameters": {},
-      "description": "@assertion the Copilot action-consent Allow button is no longer visible.",
-      "content_refs": [],
-      "timeout": 30,
-      "retry_count": 0,
-      "continue_on_error": "false",
-      "depends_on": [
-        "step_allowCopilotAction_click_caceeb9ea_13_6"
-      ],
-      "preconditions": [],
-      "postconditions": [],
-      "tags": [
-        "component:browser",
-        "host_surface:copilot",
-        "exit_state:action-consent-dismissed",
-        "step_retry_timeout: 30"
-      ]
-    },
-    {
-      "step_id": "step_assertChatReplied_assert_caceeb9ea_13_7",
-      "agent": "assertion",
-      "tool": "",
-      "parameters": {},
-      "description": "@assertion the current assistant turn is complete and contains a non-empty response.",
-      "content_refs": [],
-      "timeout": 30,
-      "retry_count": 0,
-      "continue_on_error": "false",
-      "depends_on": [
-        "step_allowCopilotAction_assertDismissed_caceeb9ea_13_6"
-      ],
-      "preconditions": [],
-      "postconditions": [],
-      "tags": [
-        "component:browser",
-        "action:assert-chat-response",
-        "expectation:replied",
-        "step_retry_timeout: 120"
-      ]
-    },
-    {
-      "step_id": "step_assertToolCalled_caceeb9ea_13_8",
-      "agent": "assertion",
-      "tool": "",
-      "parameters": {},
-      "description": "@assertion the current completed assistant response contains a returned result for the requested remote tool whoami. Returned tool-specific result data, including inline JSON, is sufficient evidence. Do not require a separate tool execution marker, citation, trace panel, debugger information, or developer mode. A user prompt, tool description, refusal, loading state, or promise to call without a result does not satisfy this assertion.",
-      "content_refs": [],
-      "timeout": 60,
-      "retry_count": 0,
-      "continue_on_error": "false",
-      "depends_on": [
-        "step_assertChatReplied_assert_caceeb9ea_13_7"
-      ],
-      "preconditions": [],
-      "postconditions": [],
-      "tags": [
-        "component:chat",
-        "assertion:tool-called",
-        "step_retry_timeout:120"
-      ]
-    },
-    {
-      "step_id": "step_assertChatNonEmptyField_caceeb9ea_13_9",
-      "agent": "assertion",
-      "tool": "",
-      "parameters": {},
-      "description": "@assertion the current completed assistant tool result contains the field client_id with a non-empty string value. Missing, null, empty and whitespace-only values fail. Any non-empty identifier is acceptable; no specific literal value or JSON whitespace formatting is required. The field name in the user prompt or a tool description alone is not a result.",
-      "content_refs": [],
-      "timeout": 30,
-      "retry_count": 0,
-      "continue_on_error": "false",
-      "depends_on": [
-        "step_assertToolCalled_caceeb9ea_13_8"
-      ],
-      "preconditions": [],
-      "postconditions": [],
-      "tags": [
-        "component:chat",
-        "action:assert-chat-response",
-        "expectation:non-empty-field",
-        "step_retry_timeout:120"
-      ]
-    },
-    {
-      "step_id": "step_assertChatContains_assert_caceeb9ea_13_10",
-      "agent": "assertion",
-      "tool": "",
-      "parameters": {},
-      "description": "@assertion the current assistant response contains \"\"tenant_id\": \"${{env:MCP_AUTH_EXPECTED_TENANT}}\"\".",
-      "content_refs": [],
-      "timeout": 30,
-      "retry_count": 0,
-      "continue_on_error": "false",
-      "depends_on": [
-        "step_assertChatNonEmptyField_caceeb9ea_13_9"
-      ],
-      "preconditions": [],
-      "postconditions": [],
-      "tags": [
-        "component:browser",
-        "action:assert-chat-response",
-        "expectation:contains",
-        "step_retry_timeout: 120"
-      ]
-    },
-    {
-      "step_id": "step_assertChatContains_assert_caceeb9ea_13_11",
-      "agent": "assertion",
-      "tool": "",
-      "parameters": {},
-      "description": "@assertion the current assistant response contains \"\"auth_method\": \"entra_user\"\".",
-      "content_refs": [],
-      "timeout": 30,
-      "retry_count": 0,
-      "continue_on_error": "false",
-      "depends_on": [
-        "step_assertChatContains_assert_caceeb9ea_13_10"
-      ],
-      "preconditions": [],
-      "postconditions": [],
-      "tags": [
-        "component:browser",
-        "action:assert-chat-response",
-        "expectation:contains",
-        "step_retry_timeout: 120"
-      ]
-    },
-    {
-      "step_id": "step_sendCopilotMessage_assertInput_caceeb9ea_13_12",
-      "agent": "assertion",
-      "tool": "",
-      "parameters": {},
-      "description": "@assertion the Microsoft 365 Copilot message input is visible in the open agent chat.",
-      "content_refs": [],
-      "timeout": 30,
-      "retry_count": 0,
-      "continue_on_error": "false",
-      "depends_on": [
-        "step_assertChatContains_assert_caceeb9ea_13_11"
-      ],
-      "preconditions": [],
-      "postconditions": [],
-      "tags": [
-        "component:browser",
-        "host_surface:copilot",
         "entry_state:chat-ready",
         "action:send-message",
         "step_retry_timeout: 120"
       ]
     },
     {
-      "step_id": "step_sendCopilotMessage_focusInput_caceeb9ea_13_12",
+      "step_id": "step_sendCopilotMessage_focusInput_caceeb9ea_13_6",
       "agent": "interaction",
       "tool": "click",
       "parameters": {
@@ -4410,7 +4799,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_sendCopilotMessage_assertInput_caceeb9ea_13_12"
+        "step_sendCopilotMessage_assertInput_caceeb9ea_13_6"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -4423,19 +4812,19 @@
       ]
     },
     {
-      "step_id": "step_sendCopilotMessage_type_caceeb9ea_13_12",
+      "step_id": "step_sendCopilotMessage_type_caceeb9ea_13_6",
       "agent": "interaction",
       "tool": "type_text",
       "parameters": {
-        "text": "Call the remote auth_flow_probe tool now. Show only canary, auth_flow, a newly generated probe_id, and fresh server_time copied from its actual result as a short, pretty-printed JSON object. Do not infer, invent, or reuse earlier results."
+        "text": "Call the remote whoami tool. Show only tenant_id, auth_method, and client_id copied from its actual result as a short, pretty-printed JSON object. Do not infer or invent values."
       },
-      "description": "Type \"Call the remote auth_flow_probe tool now. Show only canary, auth_flow, a newly generated probe_id, and fresh server_time copied from its actual result as a short, pretty-printed JSON object. Do not infer, invent, or reuse earlier results.\" into the Copilot message input.",
+      "description": "Type \"Call the remote whoami tool. Show only tenant_id, auth_method, and client_id copied from its actual result as a short, pretty-printed JSON object. Do not infer or invent values.\" into the Copilot message input.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_sendCopilotMessage_focusInput_caceeb9ea_13_12"
+        "step_sendCopilotMessage_focusInput_caceeb9ea_13_6"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -4447,7 +4836,7 @@
       ]
     },
     {
-      "step_id": "step_sendCopilotMessage_send_caceeb9ea_13_12",
+      "step_id": "step_sendCopilotMessage_send_caceeb9ea_13_6",
       "agent": "interaction",
       "tool": "key_press",
       "parameters": {
@@ -4459,7 +4848,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_sendCopilotMessage_type_caceeb9ea_13_12"
+        "step_sendCopilotMessage_type_caceeb9ea_13_6"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -4471,7 +4860,78 @@
       ]
     },
     {
-      "step_id": "step_assertChatReplied_assert_caceeb9ea_13_13",
+      "step_id": "step_allowCopilotAction_assert_caceeb9ea_13_7",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the Copilot action-consent Allow button is visible.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_sendCopilotMessage_send_caceeb9ea_13_6"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:browser",
+        "host_surface:copilot",
+        "entry_state:action-consent",
+        "step_retry_timeout: 30"
+      ]
+    },
+    {
+      "step_id": "step_allowCopilotAction_click_caceeb9ea_13_7",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 333,
+        "y": 327
+      },
+      "description": "Click the \"Allow\" button in the Microsoft 365 Copilot chat interface to grant the agent access.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_allowCopilotAction_assert_caceeb9ea_13_7"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:browser",
+        "host_surface:copilot",
+        "entry_state:action-consent",
+        "action:allow",
+        "ocr:true"
+      ]
+    },
+    {
+      "step_id": "step_allowCopilotAction_assertDismissed_caceeb9ea_13_7",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the Copilot action-consent Allow button is no longer visible.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_allowCopilotAction_click_caceeb9ea_13_7"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:browser",
+        "host_surface:copilot",
+        "exit_state:action-consent-dismissed",
+        "step_retry_timeout: 30"
+      ]
+    },
+    {
+      "step_id": "step_assertChatReplied_assert_caceeb9ea_13_8",
       "agent": "assertion",
       "tool": "",
       "parameters": {},
@@ -4481,7 +4941,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_sendCopilotMessage_send_caceeb9ea_13_12"
+        "step_allowCopilotAction_assertDismissed_caceeb9ea_13_7"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -4493,17 +4953,17 @@
       ]
     },
     {
-      "step_id": "step_assertToolCalled_caceeb9ea_13_14",
+      "step_id": "step_assertToolCalled_caceeb9ea_13_9",
       "agent": "assertion",
       "tool": "",
       "parameters": {},
-      "description": "@assertion the current completed assistant response contains a returned result for the requested remote tool auth_flow_probe. Returned tool-specific result data, including inline JSON, is sufficient evidence. Do not require a separate tool execution marker, citation, trace panel, debugger information, or developer mode. A user prompt, tool description, refusal, loading state, or promise to call without a result does not satisfy this assertion.",
+      "description": "@assertion the current completed assistant response contains a returned result for the requested remote tool whoami. Returned tool-specific result data, including inline JSON, is sufficient evidence. Do not require a separate tool execution marker, citation, trace panel, debugger information, or developer mode. A user prompt, tool description, refusal, loading state, or promise to call without a result does not satisfy this assertion.",
       "content_refs": [],
       "timeout": 60,
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_assertChatReplied_assert_caceeb9ea_13_13"
+        "step_assertChatReplied_assert_caceeb9ea_13_8"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -4514,17 +4974,39 @@
       ]
     },
     {
-      "step_id": "step_assertChatContains_assert_caceeb9ea_13_15",
+      "step_id": "step_assertChatNonEmptyField_caceeb9ea_13_10",
       "agent": "assertion",
       "tool": "",
       "parameters": {},
-      "description": "@assertion the current assistant response contains \"\"canary\": \"PURPLE-NARWHAL-7788\"\".",
+      "description": "@assertion the current completed assistant tool result contains the field client_id with a non-empty string value. Missing, null, empty and whitespace-only values fail. Any non-empty identifier is acceptable; no specific literal value or JSON whitespace formatting is required. The field name in the user prompt or a tool description alone is not a result.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_assertToolCalled_caceeb9ea_13_14"
+        "step_assertToolCalled_caceeb9ea_13_9"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:chat",
+        "action:assert-chat-response",
+        "expectation:non-empty-field",
+        "step_retry_timeout:120"
+      ]
+    },
+    {
+      "step_id": "step_assertChatContains_assert_caceeb9ea_13_11",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the current assistant response contains \"\"tenant_id\": \"${{env:MCP_AUTH_EXPECTED_TENANT}}\"\".",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_assertChatNonEmptyField_caceeb9ea_13_10"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -4536,17 +5018,180 @@
       ]
     },
     {
-      "step_id": "step_assertChatContains_assert_caceeb9ea_13_16",
+      "step_id": "step_assertChatContains_assert_caceeb9ea_13_12",
       "agent": "assertion",
       "tool": "",
       "parameters": {},
-      "description": "@assertion the current assistant response contains \"\"auth_flow\": \"${{env:MCP_AUTH_EXPECTED_FLOW}}\"\".",
+      "description": "@assertion the current assistant response contains \"\"auth_method\": \"entra_user\"\".",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_assertChatContains_assert_caceeb9ea_13_15"
+        "step_assertChatContains_assert_caceeb9ea_13_11"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:browser",
+        "action:assert-chat-response",
+        "expectation:contains",
+        "step_retry_timeout: 120"
+      ]
+    },
+    {
+      "step_id": "step_sendCopilotMessage_assertInput_caceeb9ea_13_13",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the Microsoft 365 Copilot message input is visible in the open agent chat.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_assertChatContains_assert_caceeb9ea_13_12"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:browser",
+        "host_surface:copilot",
+        "entry_state:chat-ready",
+        "action:send-message",
+        "step_retry_timeout: 120"
+      ]
+    },
+    {
+      "step_id": "step_sendCopilotMessage_focusInput_caceeb9ea_13_13",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 416,
+        "y": 369
+      },
+      "description": "Click the \"Message\" input box in the Microsoft 365 Copilot web application.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_sendCopilotMessage_assertInput_caceeb9ea_13_13"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:browser",
+        "host_surface:copilot",
+        "entry_state:chat-ready",
+        "action:send-message",
+        "ocr:true"
+      ]
+    },
+    {
+      "step_id": "step_sendCopilotMessage_type_caceeb9ea_13_13",
+      "agent": "interaction",
+      "tool": "type_text",
+      "parameters": {
+        "text": "Call the remote auth_flow_probe tool now. Show only canary, auth_flow, a newly generated probe_id, and fresh server_time copied from its actual result as a short, pretty-printed JSON object. Do not infer, invent, or reuse earlier results."
+      },
+      "description": "Type \"Call the remote auth_flow_probe tool now. Show only canary, auth_flow, a newly generated probe_id, and fresh server_time copied from its actual result as a short, pretty-printed JSON object. Do not infer, invent, or reuse earlier results.\" into the Copilot message input.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_sendCopilotMessage_focusInput_caceeb9ea_13_13"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:browser",
+        "host_surface:copilot",
+        "entry_state:chat-ready",
+        "action:send-message"
+      ]
+    },
+    {
+      "step_id": "step_sendCopilotMessage_send_caceeb9ea_13_13",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "enter"
+      },
+      "description": "Press Enter to send the Copilot message.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_sendCopilotMessage_type_caceeb9ea_13_13"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:browser",
+        "host_surface:copilot",
+        "entry_state:chat-ready",
+        "action:send-message"
+      ]
+    },
+    {
+      "step_id": "step_assertChatReplied_assert_caceeb9ea_13_14",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the current assistant turn is complete and contains a non-empty response.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_sendCopilotMessage_send_caceeb9ea_13_13"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:browser",
+        "action:assert-chat-response",
+        "expectation:replied",
+        "step_retry_timeout: 120"
+      ]
+    },
+    {
+      "step_id": "step_assertToolCalled_caceeb9ea_13_15",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the current completed assistant response contains a returned result for the requested remote tool auth_flow_probe. Returned tool-specific result data, including inline JSON, is sufficient evidence. Do not require a separate tool execution marker, citation, trace panel, debugger information, or developer mode. A user prompt, tool description, refusal, loading state, or promise to call without a result does not satisfy this assertion.",
+      "content_refs": [],
+      "timeout": 60,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_assertChatReplied_assert_caceeb9ea_13_14"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:chat",
+        "assertion:tool-called",
+        "step_retry_timeout:120"
+      ]
+    },
+    {
+      "step_id": "step_assertChatContains_assert_caceeb9ea_13_16",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the current assistant response contains \"\"canary\": \"PURPLE-NARWHAL-7788\"\".",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_assertToolCalled_caceeb9ea_13_15"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -4562,7 +5207,7 @@
       "agent": "assertion",
       "tool": "",
       "parameters": {},
-      "description": "@assertion the current assistant response contains \"\"probe_id\":\".",
+      "description": "@assertion the current assistant response contains \"\"auth_flow\": \"${{env:MCP_AUTH_EXPECTED_FLOW}}\"\".",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -4584,7 +5229,7 @@
       "agent": "assertion",
       "tool": "",
       "parameters": {},
-      "description": "@assertion the current assistant response contains \"\"server_time\":\".",
+      "description": "@assertion the current assistant response contains \"\"probe_id\":\".",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -4602,7 +5247,29 @@
       ]
     },
     {
-      "step_id": "step_sendCopilotMessage_assertInput_caceeb9ea_13_19",
+      "step_id": "step_assertChatContains_assert_caceeb9ea_13_19",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the current assistant response contains \"\"server_time\":\".",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_assertChatContains_assert_caceeb9ea_13_18"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:browser",
+        "action:assert-chat-response",
+        "expectation:contains",
+        "step_retry_timeout: 120"
+      ]
+    },
+    {
+      "step_id": "step_sendCopilotMessage_assertInput_caceeb9ea_13_20",
       "agent": "assertion",
       "tool": "",
       "parameters": {},
@@ -4612,7 +5279,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_assertChatContains_assert_caceeb9ea_13_18"
+        "step_assertChatContains_assert_caceeb9ea_13_19"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -4625,7 +5292,7 @@
       ]
     },
     {
-      "step_id": "step_sendCopilotMessage_focusInput_caceeb9ea_13_19",
+      "step_id": "step_sendCopilotMessage_focusInput_caceeb9ea_13_20",
       "agent": "interaction",
       "tool": "click",
       "parameters": {
@@ -4639,7 +5306,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_sendCopilotMessage_assertInput_caceeb9ea_13_19"
+        "step_sendCopilotMessage_assertInput_caceeb9ea_13_20"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -4652,7 +5319,7 @@
       ]
     },
     {
-      "step_id": "step_sendCopilotMessage_type_caceeb9ea_13_19",
+      "step_id": "step_sendCopilotMessage_type_caceeb9ea_13_20",
       "agent": "interaction",
       "tool": "type_text",
       "parameters": {
@@ -4664,7 +5331,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_sendCopilotMessage_focusInput_caceeb9ea_13_19"
+        "step_sendCopilotMessage_focusInput_caceeb9ea_13_20"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -4676,7 +5343,7 @@
       ]
     },
     {
-      "step_id": "step_sendCopilotMessage_send_caceeb9ea_13_19",
+      "step_id": "step_sendCopilotMessage_send_caceeb9ea_13_20",
       "agent": "interaction",
       "tool": "key_press",
       "parameters": {
@@ -4688,7 +5355,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_sendCopilotMessage_type_caceeb9ea_13_19"
+        "step_sendCopilotMessage_type_caceeb9ea_13_20"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -4700,7 +5367,7 @@
       ]
     },
     {
-      "step_id": "step_assertChatReplied_assert_caceeb9ea_13_20",
+      "step_id": "step_assertChatReplied_assert_caceeb9ea_13_21",
       "agent": "assertion",
       "tool": "",
       "parameters": {},
@@ -4710,7 +5377,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_sendCopilotMessage_send_caceeb9ea_13_19"
+        "step_sendCopilotMessage_send_caceeb9ea_13_20"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -4722,7 +5389,7 @@
       ]
     },
     {
-      "step_id": "step_assertToolCalled_caceeb9ea_13_21",
+      "step_id": "step_assertToolCalled_caceeb9ea_13_22",
       "agent": "assertion",
       "tool": "",
       "parameters": {},
@@ -4732,7 +5399,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_assertChatReplied_assert_caceeb9ea_13_20"
+        "step_assertChatReplied_assert_caceeb9ea_13_21"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -4743,7 +5410,7 @@
       ]
     },
     {
-      "step_id": "step_assertChatContains_assert_caceeb9ea_13_22",
+      "step_id": "step_assertChatContains_assert_caceeb9ea_13_23",
       "agent": "assertion",
       "tool": "",
       "parameters": {},
@@ -4753,7 +5420,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_assertToolCalled_caceeb9ea_13_21"
+        "step_assertToolCalled_caceeb9ea_13_22"
       ],
       "preconditions": [],
       "postconditions": [],
