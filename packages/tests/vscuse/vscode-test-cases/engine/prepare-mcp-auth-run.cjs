@@ -9,7 +9,13 @@ const {
 } = require("./mcp-auth-fixture.cjs");
 const { prepareVscuseConfig } = require("./prepare-vscuse-config.cjs");
 
-function loadProfile(mode, ssoFile, staticFile, ssoVariant = "auto") {
+function loadProfile(
+  mode,
+  ssoFile,
+  staticFile,
+  ssoVariant = "auto",
+  initialEndpoint,
+) {
   const consumer = dotenv.parse(fs.readFileSync(ssoFile));
   const options = { ssoVariant };
   if (mode === "static-oauth") {
@@ -36,7 +42,30 @@ function loadProfile(mode, ssoFile, staticFile, ssoVariant = "auto") {
       fs.readFileSync(path.join(miniRoot, "aad.manifest.json"), "utf8"),
     );
   }
-  return buildMcpAuthProfile(mode, consumer, options);
+  return addInitialEndpoint(
+    buildMcpAuthProfile(mode, consumer, options),
+    mode,
+    initialEndpoint,
+  );
+}
+
+function addInitialEndpoint(profile, mode, initialEndpoint) {
+  if (mode === "dcr" && initialEndpoint) {
+    const initial = new URL(initialEndpoint);
+    if (
+      initial.protocol !== "https:" ||
+      initial.username ||
+      initial.password ||
+      initial.hash ||
+      initial.href === new URL(profile.environment.MCP_AUTH_ENDPOINT).href
+    ) {
+      throw new Error(
+        "DCR update requires a distinct credential-free initial HTTPS endpoint",
+      );
+    }
+    profile.environment.MCP_AUTH_INITIAL_ENDPOINT = initial.href;
+  }
+  return profile;
 }
 
 function requiredEnvironment(environment, name) {
@@ -114,7 +143,11 @@ function loadEnvironmentProfile(mode, environment, ssoVariant = "auto") {
       );
     }
   }
-  return buildMcpAuthProfile(mode, consumer, options);
+  return addInitialEndpoint(
+    buildMcpAuthProfile(mode, consumer, options),
+    mode,
+    mode === "dcr" ? environment.MCP_AUTH_INITIAL_ENDPOINT : undefined,
+  );
 }
 
 function fixtureMode(plan) {
@@ -147,6 +180,20 @@ function prepareMcpAuthRunConfig(
     );
   }
   const document = parseDocument(prepareVscuseConfig(configText, planText));
+  const isDcrUpdate = JSON.parse(planText).steps.some((step) =>
+    step.tags?.includes("operation:dcr-update-stage"),
+  );
+  if (
+    isDcrUpdate &&
+    (mode !== "dcr" || !names.includes("MCP_AUTH_INITIAL_ENDPOINT"))
+  ) {
+    throw new Error("DCR update requires MCP_AUTH_INITIAL_ENDPOINT");
+  }
+  if (isDcrUpdate) {
+    for (const name of ["M365_ACCOUNT_NAME", "M365_TENANT_ID"]) {
+      document.setIn(["docker", "environment", name], "${" + name + "}");
+    }
+  }
   const environment = document.getIn(["docker", "environment"], true);
   if (!environment?.items)
     throw new Error("Missing Docker environment mapping");
@@ -183,6 +230,13 @@ function prepareMcpAuthRunConfig(
 }
 
 function prepareMcpAuthCiRun(configText, planText, environment) {
+  if (
+    JSON.parse(planText).steps.some((step) =>
+      step.tags?.includes("operation:dcr-update-stage"),
+    )
+  ) {
+    requiredEnvironment(environment, "MCP_AUTH_INITIAL_ENDPOINT");
+  }
   const mode = fixtureMode(JSON.parse(planText));
   const profile = loadEnvironmentProfile(mode, environment);
   const account = requiredEnvironment(environment, "M365_ACCOUNT_NAME").trim();

@@ -1,0 +1,4769 @@
+{
+  "plan_metadata": {
+    "version": "1.1",
+    "plan_id": "plan_20b0127685f1",
+    "execution_context": {
+      "delay_between_steps": 1,
+      "stop_on_error": true,
+      "precondition_wait_timeout": 30,
+      "precondition_retry_interval": 1
+    },
+    "total_steps": 206,
+    "name": "da-mcp-dcr-update-copilot",
+    "description": {
+      "owner": "",
+      "workitem": "7559991",
+      "other": ""
+    },
+    "execution_order": [
+      "step_closeWelcomeOverlay_assertVisible_caceeb9ea_1_1",
+      "step_closeWelcomeOverlay_close_caceeb9ea_1_1",
+      "step_closeWelcomeOverlay_assertReady_caceeb9ea_1_1",
+      "step_executeCommand_open_caceeb9ea_1_2",
+      "step_executeCommand_assertPalette_caceeb9ea_1_2",
+      "step_executeCommand_filter_caceeb9ea_1_2",
+      "step_executeCommand_assertCommand_caceeb9ea_1_2",
+      "step_executeCommand_execute_caceeb9ea_1_2",
+      "step_assertToolkitViewSettled_assert_caceeb9ea_1_3",
+      "step_closeGetStartedEditor_assertActive_caceeb9ea_1_4",
+      "step_closeGetStartedEditor_close_caceeb9ea_1_4",
+      "step_closeGetStartedEditor_assertClosed_caceeb9ea_1_4",
+      "step_executeCommand_open_caceeb9ea_1_5",
+      "step_executeCommand_assertPalette_caceeb9ea_1_5",
+      "step_executeCommand_filter_caceeb9ea_1_5",
+      "step_executeCommand_assertCommand_caceeb9ea_1_5",
+      "step_executeCommand_execute_caceeb9ea_1_5",
+      "step_singleSelect_assertQuestion_caceeb9ea_1_6",
+      "step_singleSelect_assertOptionsLoaded_caceeb9ea_1_6",
+      "step_singleSelect_filter_caceeb9ea_1_6",
+      "step_singleSelect_assertOption_caceeb9ea_1_6",
+      "step_singleSelect_confirm_caceeb9ea_1_6",
+      "step_singleSelect_assertQuestion_caceeb9ea_1_7",
+      "step_singleSelect_assertOptionsLoaded_caceeb9ea_1_7",
+      "step_singleSelect_filter_caceeb9ea_1_7",
+      "step_singleSelect_assertOption_caceeb9ea_1_7",
+      "step_singleSelect_confirm_caceeb9ea_1_7",
+      "step_singleSelect_assertQuestion_caceeb9ea_1_8",
+      "step_singleSelect_assertOptionsLoaded_caceeb9ea_1_8",
+      "step_singleSelect_filter_caceeb9ea_1_8",
+      "step_singleSelect_assertOption_caceeb9ea_1_8",
+      "step_singleSelect_confirm_caceeb9ea_1_8",
+      "step_textInput_assertQuestion_caceeb9ea_1_9",
+      "step_textInput_input_caceeb9ea_1_9",
+      "step_textInput_confirm_caceeb9ea_1_9",
+      "step_singleSelect_assertQuestion_caceeb9ea_1_10",
+      "step_singleSelect_assertOptionsLoaded_caceeb9ea_1_10",
+      "step_singleSelect_filter_caceeb9ea_1_10",
+      "step_singleSelect_assertOption_caceeb9ea_1_10",
+      "step_singleSelect_confirm_caceeb9ea_1_10",
+      "step_confirmOption_assertPrompt_caceeb9ea_1_11",
+      "step_confirmOption_confirm_caceeb9ea_1_11",
+      "step_textInput_assertQuestion_caceeb9ea_1_12",
+      "step_textInput_input_caceeb9ea_1_12",
+      "step_textInput_confirm_caceeb9ea_1_12",
+      "step_assertProjectWindowReady_assert_caceeb9ea_1_13",
+      "step_dcrUpdate_openTerminal_caceeb9ea_2_1",
+      "step_dcrUpdate_assertTerminal_caceeb9ea_2_1",
+      "step_dcrUpdate_typeCommand_caceeb9ea_2_1",
+      "step_dcrUpdate_runCommand_caceeb9ea_2_1",
+      "step_dcrUpdate_assertReady_caceeb9ea_2_1",
+      "step_dcrUpdate_closeTerminal_caceeb9ea_2_1",
+      "step_dcrUpdate_assertClosed_caceeb9ea_2_1",
+      "step_executeCommand_open_caceeb9ea_3_1",
+      "step_executeCommand_assertPalette_caceeb9ea_3_1",
+      "step_executeCommand_filter_caceeb9ea_3_1",
+      "step_executeCommand_assertCommand_caceeb9ea_3_1",
+      "step_executeCommand_execute_caceeb9ea_3_1",
+      "step_signInM365_assertOption_caceeb9ea_3_2",
+      "step_signInM365_selectOption_caceeb9ea_3_2",
+      "step_signInM365_confirmSignIn_caceeb9ea_3_2",
+      "step_signInM365_assertAccount_caceeb9ea_3_2",
+      "step_signInM365_focusAccount_caceeb9ea_3_2",
+      "step_signInM365_assertFocusedAccount_caceeb9ea_3_2",
+      "step_signInM365_typeAccount_caceeb9ea_3_2",
+      "step_signInM365_assertEnteredAccount_caceeb9ea_3_2",
+      "step_signInM365_next_caceeb9ea_3_2",
+      "step_signInM365_assertPassword_caceeb9ea_3_2",
+      "step_signInM365_typePassword_caceeb9ea_3_2",
+      "step_signInM365_submit_caceeb9ea_3_2",
+      "step_signInM365_closeBrowser_caceeb9ea_3_2",
+      "step_signInM365_assertReady_caceeb9ea_3_2",
+      "step_executeCommand_open_caceeb9ea_4_1",
+      "step_executeCommand_assertPalette_caceeb9ea_4_1",
+      "step_executeCommand_filter_caceeb9ea_4_1",
+      "step_executeCommand_assertCommand_caceeb9ea_4_1",
+      "step_executeCommand_execute_caceeb9ea_4_1",
+      "step_executeCommand_open_caceeb9ea_4_2",
+      "step_executeCommand_assertPalette_caceeb9ea_4_2",
+      "step_executeCommand_filter_caceeb9ea_4_2",
+      "step_executeCommand_assertCommand_caceeb9ea_4_2",
+      "step_executeCommand_execute_caceeb9ea_4_2",
+      "step_executeCommand_open_caceeb9ea_4_3",
+      "step_executeCommand_assertPalette_caceeb9ea_4_3",
+      "step_executeCommand_filter_caceeb9ea_4_3",
+      "step_executeCommand_assertCommand_caceeb9ea_4_3",
+      "step_executeCommand_execute_caceeb9ea_4_3",
+      "step_assertNotificationContains_assert_caceeb9ea_4_4",
+      "step_dcrUpdate_openTerminal_caceeb9ea_5_1",
+      "step_dcrUpdate_assertTerminal_caceeb9ea_5_1",
+      "step_dcrUpdate_typeCommand_caceeb9ea_5_1",
+      "step_dcrUpdate_runCommand_caceeb9ea_5_1",
+      "step_dcrUpdate_assertReady_caceeb9ea_5_1",
+      "step_dcrUpdate_closeTerminal_caceeb9ea_5_1",
+      "step_dcrUpdate_assertClosed_caceeb9ea_5_1",
+      "step_dcrUpdate_openTerminal_caceeb9ea_6_1",
+      "step_dcrUpdate_assertTerminal_caceeb9ea_6_1",
+      "step_dcrUpdate_typeCommand_caceeb9ea_6_1",
+      "step_dcrUpdate_runCommand_caceeb9ea_6_1",
+      "step_dcrUpdate_assertReady_caceeb9ea_6_1",
+      "step_dcrUpdate_closeTerminal_caceeb9ea_6_1",
+      "step_dcrUpdate_assertClosed_caceeb9ea_6_1",
+      "step_executeCommand_open_caceeb9ea_7_1",
+      "step_executeCommand_assertPalette_caceeb9ea_7_1",
+      "step_executeCommand_filter_caceeb9ea_7_1",
+      "step_executeCommand_assertCommand_caceeb9ea_7_1",
+      "step_executeCommand_execute_caceeb9ea_7_1",
+      "step_executeCommand_open_caceeb9ea_7_2",
+      "step_executeCommand_assertPalette_caceeb9ea_7_2",
+      "step_executeCommand_filter_caceeb9ea_7_2",
+      "step_executeCommand_assertCommand_caceeb9ea_7_2",
+      "step_executeCommand_execute_caceeb9ea_7_2",
+      "step_executeCommand_open_caceeb9ea_7_3",
+      "step_executeCommand_assertPalette_caceeb9ea_7_3",
+      "step_executeCommand_filter_caceeb9ea_7_3",
+      "step_executeCommand_assertCommand_caceeb9ea_7_3",
+      "step_executeCommand_execute_caceeb9ea_7_3",
+      "step_assertNotificationContains_assert_caceeb9ea_7_4",
+      "step_dcrUpdate_openTerminal_caceeb9ea_8_1",
+      "step_dcrUpdate_assertTerminal_caceeb9ea_8_1",
+      "step_dcrUpdate_typeCommand_caceeb9ea_8_1",
+      "step_dcrUpdate_runCommand_caceeb9ea_8_1",
+      "step_dcrUpdate_assertReady_caceeb9ea_8_1",
+      "step_dcrUpdate_closeTerminal_caceeb9ea_8_1",
+      "step_dcrUpdate_assertClosed_caceeb9ea_8_1",
+      "step_executeCommand_open_caceeb9ea_9_1",
+      "step_executeCommand_assertPalette_caceeb9ea_9_1",
+      "step_executeCommand_filter_caceeb9ea_9_1",
+      "step_executeCommand_assertCommand_caceeb9ea_9_1",
+      "step_executeCommand_execute_caceeb9ea_9_1",
+      "step_executeCommand_open_caceeb9ea_9_2",
+      "step_executeCommand_assertPalette_caceeb9ea_9_2",
+      "step_executeCommand_filter_caceeb9ea_9_2",
+      "step_executeCommand_assertCommand_caceeb9ea_9_2",
+      "step_executeCommand_execute_caceeb9ea_9_2",
+      "step_executeCommand_open_caceeb9ea_9_3",
+      "step_executeCommand_assertPalette_caceeb9ea_9_3",
+      "step_executeCommand_filter_caceeb9ea_9_3",
+      "step_executeCommand_assertCommand_caceeb9ea_9_3",
+      "step_executeCommand_execute_caceeb9ea_9_3",
+      "step_assertNotificationContains_assert_caceeb9ea_9_4",
+      "step_dcrUpdate_openTerminal_caceeb9ea_10_1",
+      "step_dcrUpdate_assertTerminal_caceeb9ea_10_1",
+      "step_dcrUpdate_typeCommand_caceeb9ea_10_1",
+      "step_dcrUpdate_runCommand_caceeb9ea_10_1",
+      "step_dcrUpdate_assertReady_caceeb9ea_10_1",
+      "step_dcrUpdate_closeTerminal_caceeb9ea_10_1",
+      "step_dcrUpdate_assertClosed_caceeb9ea_10_1",
+      "step_executeCommand_open_caceeb9ea_11_1",
+      "step_executeCommand_assertPalette_caceeb9ea_11_1",
+      "step_executeCommand_filter_caceeb9ea_11_1",
+      "step_executeCommand_assertCommand_caceeb9ea_11_1",
+      "step_executeCommand_execute_caceeb9ea_11_1",
+      "step_filterOption_filter_caceeb9ea_11_2",
+      "step_filterOption_assertOption_caceeb9ea_11_2",
+      "step_filterOption_confirm_caceeb9ea_11_2",
+      "step_browserM365SignIn_assertPage_caceeb9ea_11_3",
+      "step_browserM365SignIn_focusAccount_caceeb9ea_11_3",
+      "step_browserM365SignIn_assertAccount_caceeb9ea_11_3",
+      "step_browserM365SignIn_enterAccount_caceeb9ea_11_3",
+      "step_browserM365SignIn_assertEnteredAccount_caceeb9ea_11_3",
+      "step_browserM365SignIn_submitAccount_caceeb9ea_11_3",
+      "step_browserM365SignIn_assertPassword_caceeb9ea_11_3",
+      "step_browserM365SignIn_enterPassword_caceeb9ea_11_3",
+      "step_browserM365SignIn_submitPassword_caceeb9ea_11_3",
+      "step_browserM365SignIn_assertStaySignedIn_caceeb9ea_11_3",
+      "step_browserM365SignIn_confirmStaySignedIn_caceeb9ea_11_3",
+      "step_assertReady_assertReady_caceeb9ea_11_4",
+      "step_zoomOut_zoomOut_caceeb9ea_11_5",
+      "step_sendCopilotMessage_assertInput_caceeb9ea_13_1",
+      "step_sendCopilotMessage_focusInput_caceeb9ea_13_1",
+      "step_sendCopilotMessage_type_caceeb9ea_13_1",
+      "step_sendCopilotMessage_send_caceeb9ea_13_1",
+      "step_connectCopilotOAuth_assert_caceeb9ea_13_2",
+      "step_connectCopilotOAuth_click_caceeb9ea_13_2",
+      "step_authorizeMcpClient_assert_caceeb9ea_13_3",
+      "step_authorizeMcpClient_allow_caceeb9ea_13_3",
+      "step_selectSignedInMicrosoftAccount_assert_caceeb9ea_13_4",
+      "step_selectSignedInMicrosoftAccount_select_caceeb9ea_13_4",
+      "step_assertCopilotOAuthReturn_caceeb9ea_13_5",
+      "step_assertCopilotOAuthReturn_clearHover_caceeb9ea_13_5",
+      "step_allowCopilotAction_assert_caceeb9ea_13_6",
+      "step_allowCopilotAction_click_caceeb9ea_13_6",
+      "step_allowCopilotAction_assertDismissed_caceeb9ea_13_6",
+      "step_assertChatReplied_assert_caceeb9ea_13_7",
+      "step_assertToolCalled_caceeb9ea_13_8",
+      "step_assertChatNonEmptyField_caceeb9ea_13_9",
+      "step_assertChatContains_assert_caceeb9ea_13_10",
+      "step_assertChatContains_assert_caceeb9ea_13_11",
+      "step_sendCopilotMessage_assertInput_caceeb9ea_13_12",
+      "step_sendCopilotMessage_focusInput_caceeb9ea_13_12",
+      "step_sendCopilotMessage_type_caceeb9ea_13_12",
+      "step_sendCopilotMessage_send_caceeb9ea_13_12",
+      "step_assertChatReplied_assert_caceeb9ea_13_13",
+      "step_assertToolCalled_caceeb9ea_13_14",
+      "step_assertChatContains_assert_caceeb9ea_13_15",
+      "step_assertChatContains_assert_caceeb9ea_13_16",
+      "step_assertChatContains_assert_caceeb9ea_13_17",
+      "step_assertChatContains_assert_caceeb9ea_13_18",
+      "step_sendCopilotMessage_assertInput_caceeb9ea_13_19",
+      "step_sendCopilotMessage_focusInput_caceeb9ea_13_19",
+      "step_sendCopilotMessage_type_caceeb9ea_13_19",
+      "step_sendCopilotMessage_send_caceeb9ea_13_19",
+      "step_assertChatReplied_assert_caceeb9ea_13_20",
+      "step_assertToolCalled_caceeb9ea_13_21",
+      "step_assertChatContains_assert_caceeb9ea_13_22"
+    ],
+    "tags": [
+      "case_id:da-mcp-dcr-update-copilot",
+      "scenario_id:SCN-DA-CREATE-WITH-MCP-SERVER",
+      "template_id:da/mcp-server",
+      "gate:manual"
+    ]
+  },
+  "steps": [
+    {
+      "step_id": "step_closeWelcomeOverlay_assertVisible_caceeb9ea_1_1",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the startup \"Welcome to VS Code\" sign-in overlay is visible and its Close button is available.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:initialization",
+        "initialization:closeWelcomeOverlay",
+        "step_retry_timeout: 30"
+      ]
+    },
+    {
+      "step_id": "step_closeWelcomeOverlay_close_caceeb9ea_1_1",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 952,
+        "y": 128
+      },
+      "description": "Click the Close button on the startup Welcome sign-in overlay.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_closeWelcomeOverlay_assertVisible_caceeb9ea_1_1"
+      ],
+      "preconditions": [
+        "dhash:952:128:16:5:255266345964665b",
+        "dhash:952:128:96:5:16100c10100c1404",
+        "dhash:952:128:0:10:2592eae0f08e8621"
+      ],
+      "postconditions": [],
+      "tags": [
+        "component:initialization",
+        "initialization:closeWelcomeOverlay",
+        "force_run:true"
+      ]
+    },
+    {
+      "step_id": "step_closeWelcomeOverlay_assertReady_caceeb9ea_1_1",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the startup sign-in overlay is no longer visible and the VS Code workbench is ready.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_closeWelcomeOverlay_close_caceeb9ea_1_1"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:initialization",
+        "initialization:closeWelcomeOverlay",
+        "step_retry_timeout: 30"
+      ]
+    },
+    {
+      "step_id": "step_executeCommand_open_caceeb9ea_1_2",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "f1"
+      },
+      "description": "Press the F1 key to open the Command Palette in Visual Studio Code.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_closeWelcomeOverlay_assertReady_caceeb9ea_1_1"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:command-palette",
+        "action:execute-command"
+      ]
+    },
+    {
+      "step_id": "step_executeCommand_assertPalette_caceeb9ea_1_2",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the Visual Studio Code Command Palette is visible with a > character in its input box and is ready to accept a command search.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_executeCommand_open_caceeb9ea_1_2"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:command-palette",
+        "action:execute-command",
+        "step_retry_timeout: 30"
+      ]
+    },
+    {
+      "step_id": "step_executeCommand_filter_caceeb9ea_1_2",
+      "agent": "interaction",
+      "tool": "type_text",
+      "parameters": {
+        "text": "Microsoft 365 Agents Toolkit: Focus on Microsoft 365 Agents Toolkit View"
+      },
+      "description": "Type the resolved command title into the active Command Palette.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_executeCommand_assertPalette_caceeb9ea_1_2"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:command-palette",
+        "action:execute-command"
+      ]
+    },
+    {
+      "step_id": "step_executeCommand_assertCommand_caceeb9ea_1_2",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the Command Palette input box reads >Microsoft 365 Agents Toolkit: Focus on Microsoft 365 Agents Toolkit View and the highlighted command listed under it is titled Microsoft 365 Agents Toolkit: Focus on Microsoft 365 Agents Toolkit View.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_executeCommand_filter_caceeb9ea_1_2"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:command-palette",
+        "action:execute-command",
+        "step_retry_timeout: 30"
+      ]
+    },
+    {
+      "step_id": "step_executeCommand_execute_caceeb9ea_1_2",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "enter"
+      },
+      "description": "Press Enter to execute the selected Command Palette command.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_executeCommand_assertCommand_caceeb9ea_1_2"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:command-palette",
+        "action:execute-command"
+      ]
+    },
+    {
+      "step_id": "step_assertToolkitViewSettled_assert_caceeb9ea_1_3",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the Microsoft 365 Agents Toolkit view is open in the side bar and an editor tab labeled Welcome showing the Build a Declarative Agent walkthrough is open in the editor area.",
+      "content_refs": [],
+      "timeout": 120,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_executeCommand_execute_caceeb9ea_1_2"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:initialization",
+        "initialization:assertToolkitViewSettled",
+        "step_retry_timeout: 120"
+      ]
+    },
+    {
+      "step_id": "step_closeGetStartedEditor_assertActive_caceeb9ea_1_4",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the editor tab labeled Welcome showing the Build a Declarative Agent walkthrough is the active editor tab in the Visual Studio Code editor area.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_assertToolkitViewSettled_assert_caceeb9ea_1_3"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:initialization",
+        "initialization:closeGetStartedEditor",
+        "step_retry_timeout: 30"
+      ]
+    },
+    {
+      "step_id": "step_closeGetStartedEditor_close_caceeb9ea_1_4",
+      "agent": "interaction",
+      "tool": "keyboard_shortcut",
+      "parameters": {
+        "keys": "ctrl+w"
+      },
+      "description": "Press Ctrl+W to close the Welcome editor tab.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_closeGetStartedEditor_assertActive_caceeb9ea_1_4"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:initialization",
+        "initialization:closeGetStartedEditor"
+      ]
+    },
+    {
+      "step_id": "step_closeGetStartedEditor_assertClosed_caceeb9ea_1_4",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion no editor tab is open in the Visual Studio Code editor area.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_closeGetStartedEditor_close_caceeb9ea_1_4"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:initialization",
+        "initialization:closeGetStartedEditor",
+        "step_retry_timeout: 30"
+      ]
+    },
+    {
+      "step_id": "step_executeCommand_open_caceeb9ea_1_5",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "f1"
+      },
+      "description": "Press the F1 key to open the Command Palette in Visual Studio Code.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_closeGetStartedEditor_assertClosed_caceeb9ea_1_4"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:command-palette",
+        "action:execute-command"
+      ]
+    },
+    {
+      "step_id": "step_executeCommand_assertPalette_caceeb9ea_1_5",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the Visual Studio Code Command Palette is visible with a > character in its input box and is ready to accept a command search.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_executeCommand_open_caceeb9ea_1_5"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:command-palette",
+        "action:execute-command",
+        "step_retry_timeout: 30"
+      ]
+    },
+    {
+      "step_id": "step_executeCommand_filter_caceeb9ea_1_5",
+      "agent": "interaction",
+      "tool": "type_text",
+      "parameters": {
+        "text": "Microsoft 365 Agents: Create New Agent/App"
+      },
+      "description": "Type the resolved command title into the active Command Palette.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_executeCommand_assertPalette_caceeb9ea_1_5"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:command-palette",
+        "action:execute-command"
+      ]
+    },
+    {
+      "step_id": "step_executeCommand_assertCommand_caceeb9ea_1_5",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the Command Palette input box reads >Microsoft 365 Agents: Create New Agent/App and the highlighted command listed under it is titled Microsoft 365 Agents: Create New Agent/App.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_executeCommand_filter_caceeb9ea_1_5"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:command-palette",
+        "action:execute-command",
+        "step_retry_timeout: 30"
+      ]
+    },
+    {
+      "step_id": "step_executeCommand_execute_caceeb9ea_1_5",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "enter"
+      },
+      "description": "Press Enter to execute the selected Command Palette command.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_executeCommand_assertCommand_caceeb9ea_1_5"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:command-palette",
+        "action:execute-command"
+      ]
+    },
+    {
+      "step_id": "step_singleSelect_assertQuestion_caceeb9ea_1_6",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the active prompt titled New Project is visible.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_executeCommand_execute_caceeb9ea_1_5"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:quick-input",
+        "answer_type:singleSelect",
+        "step_retry_timeout: 30"
+      ]
+    },
+    {
+      "step_id": "step_singleSelect_assertOptionsLoaded_caceeb9ea_1_6",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the prompt titled New Project has finished loading and lists at least one selectable option.",
+      "content_refs": [],
+      "timeout": 120,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_singleSelect_assertQuestion_caceeb9ea_1_6"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:quick-input",
+        "answer_type:singleSelect",
+        "step_retry_timeout: 120"
+      ]
+    },
+    {
+      "step_id": "step_singleSelect_filter_caceeb9ea_1_6",
+      "agent": "interaction",
+      "tool": "type_text",
+      "parameters": {
+        "text": "Declarative Agent"
+      },
+      "description": "Type the resolved option label Declarative Agent into the active single-select prompt.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_singleSelect_assertOptionsLoaded_caceeb9ea_1_6"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:quick-input",
+        "answer_type:singleSelect"
+      ]
+    },
+    {
+      "step_id": "step_singleSelect_assertOption_caceeb9ea_1_6",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the option Declarative Agent is visible and selectable in the filtered single-select prompt.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_singleSelect_filter_caceeb9ea_1_6"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:quick-input",
+        "answer_type:singleSelect",
+        "step_retry_timeout: 30"
+      ]
+    },
+    {
+      "step_id": "step_singleSelect_confirm_caceeb9ea_1_6",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "enter"
+      },
+      "description": "Press Enter to confirm the filtered single-select option.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_singleSelect_assertOption_caceeb9ea_1_6"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:quick-input",
+        "answer_type:singleSelect"
+      ]
+    },
+    {
+      "step_id": "step_singleSelect_assertQuestion_caceeb9ea_1_7",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the active prompt titled Create Declarative Agent is visible.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_singleSelect_confirm_caceeb9ea_1_6"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:quick-input",
+        "answer_type:singleSelect",
+        "step_retry_timeout: 30"
+      ]
+    },
+    {
+      "step_id": "step_singleSelect_assertOptionsLoaded_caceeb9ea_1_7",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the prompt titled Create Declarative Agent has finished loading and lists at least one selectable option.",
+      "content_refs": [],
+      "timeout": 120,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_singleSelect_assertQuestion_caceeb9ea_1_7"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:quick-input",
+        "answer_type:singleSelect",
+        "step_retry_timeout: 120"
+      ]
+    },
+    {
+      "step_id": "step_singleSelect_filter_caceeb9ea_1_7",
+      "agent": "interaction",
+      "tool": "type_text",
+      "parameters": {
+        "text": "Add an Action"
+      },
+      "description": "Type the resolved option label Add an Action into the active single-select prompt.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_singleSelect_assertOptionsLoaded_caceeb9ea_1_7"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:quick-input",
+        "answer_type:singleSelect"
+      ]
+    },
+    {
+      "step_id": "step_singleSelect_assertOption_caceeb9ea_1_7",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the option Add an Action is visible and selectable in the filtered single-select prompt.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_singleSelect_filter_caceeb9ea_1_7"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:quick-input",
+        "answer_type:singleSelect",
+        "step_retry_timeout: 30"
+      ]
+    },
+    {
+      "step_id": "step_singleSelect_confirm_caceeb9ea_1_7",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "enter"
+      },
+      "description": "Press Enter to confirm the filtered single-select option.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_singleSelect_assertOption_caceeb9ea_1_7"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:quick-input",
+        "answer_type:singleSelect"
+      ]
+    },
+    {
+      "step_id": "step_singleSelect_assertQuestion_caceeb9ea_1_8",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the active prompt titled Create an Action is visible.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_singleSelect_confirm_caceeb9ea_1_7"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:quick-input",
+        "answer_type:singleSelect",
+        "step_retry_timeout: 30"
+      ]
+    },
+    {
+      "step_id": "step_singleSelect_assertOptionsLoaded_caceeb9ea_1_8",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the prompt titled Create an Action has finished loading and lists at least one selectable option.",
+      "content_refs": [],
+      "timeout": 120,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_singleSelect_assertQuestion_caceeb9ea_1_8"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:quick-input",
+        "answer_type:singleSelect",
+        "step_retry_timeout: 120"
+      ]
+    },
+    {
+      "step_id": "step_singleSelect_filter_caceeb9ea_1_8",
+      "agent": "interaction",
+      "tool": "type_text",
+      "parameters": {
+        "text": "Start with a MCP server"
+      },
+      "description": "Type the resolved option label Start with a MCP server into the active single-select prompt.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_singleSelect_assertOptionsLoaded_caceeb9ea_1_8"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:quick-input",
+        "answer_type:singleSelect"
+      ]
+    },
+    {
+      "step_id": "step_singleSelect_assertOption_caceeb9ea_1_8",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the option Start with a MCP server is visible and selectable in the filtered single-select prompt.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_singleSelect_filter_caceeb9ea_1_8"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:quick-input",
+        "answer_type:singleSelect",
+        "step_retry_timeout: 30"
+      ]
+    },
+    {
+      "step_id": "step_singleSelect_confirm_caceeb9ea_1_8",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "enter"
+      },
+      "description": "Press Enter to confirm the filtered single-select option.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_singleSelect_assertOption_caceeb9ea_1_8"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:quick-input",
+        "answer_type:singleSelect"
+      ]
+    },
+    {
+      "step_id": "step_textInput_assertQuestion_caceeb9ea_1_9",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the active prompt titled MCP Server URL is visible.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_singleSelect_confirm_caceeb9ea_1_8"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:quick-input",
+        "answer_type:text",
+        "step_retry_timeout: 30"
+      ]
+    },
+    {
+      "step_id": "step_textInput_input_caceeb9ea_1_9",
+      "agent": "interaction",
+      "tool": "type_text",
+      "parameters": {
+        "text": "${{env:MCP_AUTH_INITIAL_ENDPOINT}}"
+      },
+      "description": "Type the authored value into the active text prompt.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_textInput_assertQuestion_caceeb9ea_1_9"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:quick-input",
+        "answer_type:text"
+      ]
+    },
+    {
+      "step_id": "step_textInput_confirm_caceeb9ea_1_9",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "enter"
+      },
+      "description": "Press Enter to submit the accepted text input.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_textInput_input_caceeb9ea_1_9"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:quick-input",
+        "answer_type:text"
+      ]
+    },
+    {
+      "step_id": "step_singleSelect_assertQuestion_caceeb9ea_1_10",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the active prompt titled Select Authentication Type is visible.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_textInput_confirm_caceeb9ea_1_9"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:quick-input",
+        "answer_type:singleSelect",
+        "step_retry_timeout: 30"
+      ]
+    },
+    {
+      "step_id": "step_singleSelect_assertOptionsLoaded_caceeb9ea_1_10",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the prompt titled Select Authentication Type has finished loading and lists at least one selectable option.",
+      "content_refs": [],
+      "timeout": 120,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_singleSelect_assertQuestion_caceeb9ea_1_10"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:quick-input",
+        "answer_type:singleSelect",
+        "step_retry_timeout: 120"
+      ]
+    },
+    {
+      "step_id": "step_singleSelect_filter_caceeb9ea_1_10",
+      "agent": "interaction",
+      "tool": "type_text",
+      "parameters": {
+        "text": "OAuth (with dynamic registration)"
+      },
+      "description": "Type the resolved option label OAuth (with dynamic registration) into the active single-select prompt.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_singleSelect_assertOptionsLoaded_caceeb9ea_1_10"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:quick-input",
+        "answer_type:singleSelect"
+      ]
+    },
+    {
+      "step_id": "step_singleSelect_assertOption_caceeb9ea_1_10",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the option OAuth (with dynamic registration) is visible and selectable in the filtered single-select prompt.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_singleSelect_filter_caceeb9ea_1_10"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:quick-input",
+        "answer_type:singleSelect",
+        "step_retry_timeout: 30"
+      ]
+    },
+    {
+      "step_id": "step_singleSelect_confirm_caceeb9ea_1_10",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "enter"
+      },
+      "description": "Press Enter to confirm the filtered single-select option.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_singleSelect_assertOption_caceeb9ea_1_10"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:quick-input",
+        "answer_type:singleSelect"
+      ]
+    },
+    {
+      "step_id": "step_confirmOption_assertPrompt_caceeb9ea_1_11",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the active prompt titled Workspace Folder is visible and the option Default folder is focused.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_singleSelect_confirm_caceeb9ea_1_10"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:quick-input",
+        "answer_type:singleSelect",
+        "interaction:key-press",
+        "step_retry_timeout: 30"
+      ]
+    },
+    {
+      "step_id": "step_confirmOption_confirm_caceeb9ea_1_11",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "enter"
+      },
+      "description": "Press Enter to confirm the Default folder option.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_confirmOption_assertPrompt_caceeb9ea_1_11"
+      ],
+      "preconditions": [
+        "dhash:364:74:16:5:08056a9a5d5516b6",
+        "dhash:364:74:96:5:44232286e2168e01",
+        "dhash:364:74:0:10:f0b09494b2717075"
+      ],
+      "postconditions": [],
+      "tags": [
+        "component:quick-input",
+        "answer_type:singleSelect",
+        "interaction:key-press"
+      ]
+    },
+    {
+      "step_id": "step_textInput_assertQuestion_caceeb9ea_1_12",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the active prompt titled Application Name is visible.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_confirmOption_confirm_caceeb9ea_1_11"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:quick-input",
+        "answer_type:text",
+        "step_retry_timeout: 30"
+      ]
+    },
+    {
+      "step_id": "step_textInput_input_caceeb9ea_1_12",
+      "agent": "interaction",
+      "tool": "type_text",
+      "parameters": {
+        "text": "${{var:app_name:vscuse_dcr_update_#####}}"
+      },
+      "description": "Type the authored value into the active text prompt.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_textInput_assertQuestion_caceeb9ea_1_12"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:quick-input",
+        "answer_type:text"
+      ]
+    },
+    {
+      "step_id": "step_textInput_confirm_caceeb9ea_1_12",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "enter"
+      },
+      "description": "Press Enter to submit the accepted text input.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_textInput_input_caceeb9ea_1_12"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:quick-input",
+        "answer_type:text"
+      ]
+    },
+    {
+      "step_id": "step_assertProjectWindowReady_assert_caceeb9ea_1_13",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the Preview README.md editor tab is open in Visual Studio Code.",
+      "content_refs": [],
+      "timeout": 60,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_textInput_confirm_caceeb9ea_1_12"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:initialization",
+        "initialization:assertProjectWindowReady",
+        "step_retry_timeout: 60"
+      ]
+    },
+    {
+      "step_id": "step_dcrUpdate_openTerminal_caceeb9ea_2_1",
+      "agent": "interaction",
+      "tool": "keyboard_shortcut",
+      "parameters": {
+        "keys": "ctrl+shift+~"
+      },
+      "description": "Open a fresh terminal for the DCR update prepare stage.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_assertProjectWindowReady_assert_caceeb9ea_1_13"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:workspace"
+      ]
+    },
+    {
+      "step_id": "step_dcrUpdate_assertTerminal_caceeb9ea_2_1",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion a new VS Code integrated terminal is visible and focused with a Bash shell prompt ready for input.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_dcrUpdate_openTerminal_caceeb9ea_2_1"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:workspace",
+        "step_retry_timeout:30"
+      ]
+    },
+    {
+      "step_id": "step_dcrUpdate_typeCommand_caceeb9ea_2_1",
+      "agent": "interaction",
+      "tool": "type_text",
+      "parameters": {
+        "text": "clear; PROJECT_DIR=\"/home/vscode/AgentsToolkitProjects/${{var:app_name}}\" SCRIPT_B64=\"aW1wb3J0IG9zCm9zLmVudmlyb25bIk1DUF9BVVRIX0VORFBPSU5UIl0gPSBvcy5lbnZpcm9uWyJNQ1BfQVVUSF9JTklUSUFMX0VORFBPSU5UIl0KaW1wb3J0IGJhc2U2NAppbXBvcnQganNvbgppbXBvcnQgb3MKaW1wb3J0IHJlCmltcG9ydCB1dWlkCmZyb20gcGF0aGxpYiBpbXBvcnQgUGF0aAppbXBvcnQgeWFtbAoKcHJvamVjdCA9IFBhdGgob3MuZW52aXJvblsiUFJPSkVDVF9ESVIiXSkucmVzb2x2ZSgpCndvcmtmbG93X3BhdGggPSBwcm9qZWN0IC8gIm0zNjVhZ2VudHMueW1sIgp3b3JrZmxvdyA9IHlhbWwuc2FmZV9sb2FkKHdvcmtmbG93X3BhdGgucmVhZF90ZXh0KGVuY29kaW5nPSJ1dGYtOCIpKQphY3Rpb25zID0gd29ya2Zsb3cuZ2V0KCJwcm92aXNpb24iLCBbXSkKcmVnaXN0cmF0aW9ucyA9IFthIGZvciBhIGluIGFjdGlvbnMgaWYgYS5nZXQoInVzZXMiKSBpbiAoIm9hdXRoL3JlZ2lzdGVyIiwgImRjci9yZWdpc3RlciIpXQppZiBsZW4ocmVnaXN0cmF0aW9ucykgIT0gMToKICAgIHJhaXNlIEFzc2VydGlvbkVycm9yKCJFeHBlY3RlZCBvbmUgaW5kZXBlbmRlbnQgTUNQIGF1dGhlbnRpY2F0aW9uIHJlZ2lzdHJhdGlvbiIpCmFjdGlvbiA9IHJlZ2lzdHJhdGlvbnNbMF0KaW5wdXRzID0gYWN0aW9uWyJ3aXRoIl0Kb3V0cHV0X2tleSA9IGFjdGlvblsid3JpdGVUb0Vudmlyb25tZW50RmlsZSJdWyJjb25maWd1cmF0aW9uSWQiXQppZiBub3QgaXNpbnN0YW5jZShvdXRwdXRfa2V5LCBzdHIpIG9yIG5vdCByZS5mdWxsbWF0Y2gociJbQS1aXVtBLVowLTlfXSoiLCBvdXRwdXRfa2V5KToKICAgIHJhaXNlIEFzc2VydGlvbkVycm9yKCJJbnZhbGlkIE1DUCByZWdpc3RyYXRpb24gb3V0cHV0IG1hcHBpbmciKQplbmRwb2ludCA9IG9zLmVudmlyb25bIk1DUF9BVVRIX0VORFBPSU5UIl0KcGx1Z2luID0ganNvbi5sb2FkcygocHJvamVjdCAvICJhcHBQYWNrYWdlIiAvICJhaS1wbHVnaW4uanNvbiIpLnJlYWRfdGV4dChlbmNvZGluZz0idXRmLTgiKSkKaWYgcGx1Z2luLmdldCgiZnVuY3Rpb25zIikgIT0gW10gb3IgbGVuKHBsdWdpbi5nZXQoInJ1bnRpbWVzIiwgW10pKSAhPSAxOgogICAgcmFpc2UgQXNzZXJ0aW9uRXJyb3IoIkV4cGVjdGVkIG9uZSBkeW5hbWljIE1DUCBydW50aW1lIHdpdGhvdXQgc3RhdGljIGZ1bmN0aW9ucyIpCnJ1bnRpbWUgPSBwbHVnaW5bInJ1bnRpbWVzIl1bMF0KaWYgKHJ1bnRpbWUuZ2V0KCJ0eXBlIikgIT0gIlJlbW90ZU1DUFNlcnZlciIgb3IgcnVudGltZS5nZXQoInNwZWMiLCB7fSkuZ2V0KCJ1cmwiKSAhPSBlbmRwb2ludAogICAgICAgIG9yIHJ1bnRpbWUuZ2V0KCJydW5fZm9yX2Z1bmN0aW9ucyIpICE9IFsiKiJdIG9yICJtY3BfdG9vbF9kZXNjcmlwdGlvbiIgaW4gcnVudGltZS5nZXQoInNwZWMiLCB7fSkpOgogICAgcmFpc2UgQXNzZXJ0aW9uRXJyb3IoIkdlbmVyYXRlZCBNQ1AgcnVudGltZSBkb2VzIG5vdCBtYXRjaCB0aGUgc2VsZWN0ZWQgZW5kcG9pbnQiKQppZiBydW50aW1lLmdldCgiYXV0aCIpICE9IHsidHlwZSI6ICJPQXV0aFBsdWdpblZhdWx0IiwgInJlZmVyZW5jZV9pZCI6ICIkIiArICJ7eyIgKyBvdXRwdXRfa2V5ICsgIn19In06CiAgICByYWlzZSBBc3NlcnRpb25FcnJvcigiTUNQIHJ1bnRpbWUgYW5kIHJlZ2lzdHJhdGlvbiBvdXRwdXQgcmVmZXJlbmNlIGRvIG5vdCBhZ3JlZSIpCmlmIChwcm9qZWN0IC8gImFwcFBhY2thZ2UiIC8gIm1jcC10b29scy0xLmpzb24iKS5leGlzdHMoKToKICAgIHJhaXNlIEFzc2VydGlvbkVycm9yKCJEeW5hbWljIE1DUCBwcm9qZWN0IGNvbnRhaW5zIGEgc3RhdGljIHRvb2xzIHNuYXBzaG90IikKZW52X2ZpbGUgPSBwcm9qZWN0IC8gImVudiIgLyAiLmVudi5kZXYiCmlmIG5vdCBlbnZfZmlsZS5pc19maWxlKCk6CiAgICByYWlzZSBBc3NlcnRpb25FcnJvcigiR2VuZXJhdGVkIHByb2plY3QgZW52aXJvbm1lbnQgaXMgbWlzc2luZyIpCgpkZWYgc2V0X3Byb2plY3RfZW52KG5hbWUsIHZhbHVlKToKICAgIGxpbmVzID0gZW52X2ZpbGUucmVhZF90ZXh0KGVuY29kaW5nPSJ1dGYtOCIpLnNwbGl0bGluZXMoKQogICAga2VwdCA9IFtsaW5lIGZvciBsaW5lIGluIGxpbmVzIGlmIG5vdCBsaW5lLnN0YXJ0c3dpdGgobmFtZSArICI9IildCiAgICBrZXB0LmFwcGVuZChuYW1lICsgIj0iICsganNvbi5kdW1wcyh2YWx1ZSkpCiAgICBlbnZfZmlsZS53cml0ZV90ZXh0KCJcbiIuam9pbihrZXB0KSArICJcbiIsIGVuY29kaW5nPSJ1dGYtOCIpCgpkZWYgYXNzZXJ0X21vZGUoZXhwZWN0ZWQpOgogICAgaWYgb3MuZW52aXJvbi5nZXQoIk1DUF9BVVRIX01PREUiKSAhPSBleHBlY3RlZDoKICAgICAgICByYWlzZSBBc3NlcnRpb25FcnJvcigiQXV0aGVudGljYXRpb24gcHJvZmlsZS9wbGFuIG1vZGUgbWlzbWF0Y2giKQoKc2hhcmVkX3JlZ2lzdHJhdGlvbl9pZCA9ICIiCgpydW5faWQgPSBzdHIodXVpZC51dWlkNCgpKQpvd25lcnNoaXBfZGlyID0gcHJvamVjdCAvICIuYXV0aC10ZXN0Igpvd25lcnNoaXBfZGlyLm1rZGlyKGV4aXN0X29rPVRydWUpCndpdGggKG93bmVyc2hpcF9kaXIgLyAib3duZXJzaGlwLmpzb24iKS5vcGVuKCJ4IiwgZW5jb2Rpbmc9InV0Zi04IikgYXMgb3duZXJzaGlwX3N0cmVhbToKICAgIGFzc2VydF9tb2RlKCJkY3IiKQogICAgaWYgYWN0aW9uWyJ1c2VzIl0gIT0gImRjci9yZWdpc3RlciIgb3IgaW5wdXRzLmdldCgibWNwUmVzb3VyY2VVcmwiKSAhPSBlbmRwb2ludDoKICAgICAgICByYWlzZSBBc3NlcnRpb25FcnJvcigiRXhwZWN0ZWQgTUNQLWZhY2FkZSBEQ1IgcmVnaXN0cmF0aW9uIikKICAgIGZvciBmb3JiaWRkZW4gaW4gKCJjbGllbnRJZCIsICJjbGllbnRTZWNyZXQiLCAiYXV0aG9yaXphdGlvblVybCIsICJ0b2tlblVybCIpOgogICAgICAgIGlmIGZvcmJpZGRlbiBpbiBpbnB1dHM6CiAgICAgICAgICAgIHJhaXNlIEFzc2VydGlvbkVycm9yKCJEQ1IgbXVzdCBub3QgdXNlIHN0YXRpYyBPQXV0aCBjcmVkZW50aWFscyBvciBlbmRwb2ludHMiKQogICAgc2V0X3Byb2plY3RfZW52KG91dHB1dF9rZXksICIiKQogICAgCiAgICB3b3JrZmxvd19wYXRoLndyaXRlX3RleHQoeWFtbC5zYWZlX2R1bXAod29ya2Zsb3csIHNvcnRfa2V5cz1GYWxzZSksIGVuY29kaW5nPSJ1dGYtOCIpCiAgICBzZXRfcHJvamVjdF9lbnYoIk1DUF9BVVRIX1JVTl9JRCIsIHJ1bl9pZCkKICAgIGFzc2lnbm1lbnRzID0ge30KICAgIGZvciBsaW5lIGluIGVudl9maWxlLnJlYWRfdGV4dChlbmNvZGluZz0idXRmLTgiKS5zcGxpdGxpbmVzKCk6CiAgICAgICAgbWF0Y2ggPSByZS5tYXRjaChyIl5ccyooPzpleHBvcnRccyspPyhbQS1aXVtBLVowLTlfXSopXHMqPSguKikkIiwgbGluZSkKICAgICAgICBpZiBtYXRjaDoKICAgICAgICAgICAgYXNzaWdubWVudHNbbWF0Y2guZ3JvdXAoMSldID0gbWF0Y2guZ3JvdXAoMikuc3RyaXAoKQogICAgCiAgICBkZWYgb3duZXJzaGlwKGtpbmQsIGtleSk6CiAgICAgICAgaWYgbm90IGlzaW5zdGFuY2Uoa2V5LCBzdHIpIG9yIG5vdCByZS5mdWxsbWF0Y2gociJbQS1aXVtBLVowLTlfXSoiLCBrZXkpOgogICAgICAgICAgICByYWlzZSBBc3NlcnRpb25FcnJvcigiSW52YWxpZCByZXNvdXJjZSBvd25lcnNoaXAgb3V0cHV0IG1hcHBpbmciKQogICAgICAgIHZhbHVlID0gYXNzaWdubWVudHMuZ2V0KGtleSwgIiIpCiAgICAgICAgcmV0dXJuIHsia2luZCI6IGtpbmQsICJlbnZLZXkiOiBrZXksICJleGlzdGVkQmVmb3JlIjogdmFsdWUgbm90IGluICgiIiwgJyIiJywgIicnIil9CiAgICAKICAgIHJlc291cmNlcyA9IFtvd25lcnNoaXAoImRjci1yZWdpc3RyYXRpb24iIGlmIGFjdGlvblsidXNlcyJdID09ICJkY3IvcmVnaXN0ZXIiIGVsc2UgIm9hdXRoLXJlZ2lzdHJhdGlvbiIsIG91dHB1dF9rZXkpXQogICAgZm9yIGl0ZW0gaW4gYWN0aW9uczoKICAgICAgICBvdXRwdXRzID0gaXRlbS5nZXQoIndyaXRlVG9FbnZpcm9ubWVudEZpbGUiLCB7fSkKICAgICAgICBpZiBpdGVtLmdldCgidXNlcyIpID09ICJ0ZWFtc0FwcC9jcmVhdGUiIGFuZCAidGVhbXNBcHBJZCIgaW4gb3V0cHV0czoKICAgICAgICAgICAgcmVzb3VyY2VzLmFwcGVuZChvd25lcnNoaXAoInRlYW1zLWFwcCIsIG91dHB1dHNbInRlYW1zQXBwSWQiXSkpCiAgICAgICAgaWYgaXRlbS5nZXQoInVzZXMiKSA9PSAiY29waWxvdEFnZW50L3B1Ymxpc2giIGFuZCAidGl0bGVJZCIgaW4gb3V0cHV0czoKICAgICAgICAgICAgcmVzb3VyY2VzLmFwcGVuZChvd25lcnNoaXAoIm0zNjUtdGl0bGUiLCBvdXRwdXRzWyJ0aXRsZUlkIl0pKQogICAgcmVjb3JkID0geyJ2ZXJzaW9uIjogMSwgInByb2plY3ROYW1lIjogcHJvamVjdC5uYW1lLCAicnVuSWQiOiBydW5faWQsCiAgICAgICAgICAgICAgIm1vZGUiOiBvcy5lbnZpcm9uWyJNQ1BfQVVUSF9NT0RFIl0sICJyZXNvdXJjZXMiOiByZXNvdXJjZXN9CiAgICBpZiBzaGFyZWRfcmVnaXN0cmF0aW9uX2lkOgogICAgICAgIHJlY29yZFsic2hhcmVkUmVnaXN0cmF0aW9uSWQiXSA9IHNoYXJlZF9yZWdpc3RyYXRpb25faWQKICAgIGpzb24uZHVtcChyZWNvcmQsIG93bmVyc2hpcF9zdHJlYW0pCiAgICAKcHJpbnQoIlZTQ1VTRV9NQ1BfQVVUSF9GSVhUVVJFX1JFQURZIiwgcHJvamVjdC5uYW1lLCBydW5faWQpCgppbXBvcnQgYmFzZTY0Cihwcm9qZWN0IC8gIi5hdXRoLXRlc3QiIC8gImRjci11cGRhdGUuY2pzIikud3JpdGVfYnl0ZXMoYmFzZTY0LmI2NGRlY29kZSgiS0dGemVXNWpJR1oxYm1OMGFXOXVJSEoxYmtSamNsVndaR0YwWlZOMFlXZGxLSEJvWVhObExDQndjbTlxWldOMFVHRjBhQ3dnYjNCMGFXOXVjeUE5SUh0OUtTQjdDaUFnWTI5dWMzUWdabk1nUFNCeVpYRjFhWEpsS0NKdWIyUmxPbVp6TDNCeWIyMXBjMlZ6SWlrN0NpQWdZMjl1YzNRZ2NHRjBhQ0E5SUhKbGNYVnBjbVVvSW01dlpHVTZjR0YwYUNJcE93b2dJR052Ym5OMElIc2dZM0psWVhSbFNHRnphQ0I5SUQwZ2NtVnhkV2x5WlNnaWJtOWtaVHBqY25sd2RHOGlLVHNLSUNCamIyNXpkQ0JoYzNObGNuUWdQU0J5WlhGMWFYSmxLQ0p1YjJSbE9tRnpjMlZ5ZEM5emRISnBZM1FpS1RzS0lDQmpiMjV6ZENCc2IyRmtJRDBLSUNBZ0lHOXdkR2x2Ym5NdWJHOWhaQ0EvUHdvZ0lDQWdjbVZ4ZFdseVpTZ2libTlrWlRwdGIyUjFiR1VpS1M1amNtVmhkR1ZTWlhGMWFYSmxLQW9nSUNBZ0lDQnlaWEYxYVhKbEtDSnViMlJsT21aeklpa3VjbVZoYkhCaGRHaFRlVzVqS0FvZ0lDQWdJQ0FnSUhKbGNYVnBjbVVvSW01dlpHVTZZMmhwYkdSZmNISnZZMlZ6Y3lJcENpQWdJQ0FnSUNBZ0lDQXVaWGhsWTBacGJHVlRlVzVqS0NKM2FHbGphQ0lzSUZzaVlYUnJJbDBzSUhzZ1pXNWpiMlJwYm1jNklDSjFkR1k0SWlCOUtRb2dJQ0FnSUNBZ0lDQWdMblJ5YVcwb0tTd0tJQ0FnSUNBZ0tTd0tJQ0FnSUNrN0NpQWdZMjl1YzNRZ2VXRnRiQ0E5SUd4dllXUW9JbXB6TFhsaGJXd2lLVHNLSUNCamIyNXpkQ0JrYjNSbGJuWWdQU0JzYjJGa0tDSmtiM1JsYm5ZaUtUc0tJQ0JqYjI1emRDQndjbTlxWldOMElEMGdjR0YwYUM1eVpYTnZiSFpsS0hCeWIycGxZM1JRWVhSb0tUc0tJQ0JqYjI1emRDQnBibWwwYVdGc0lEMEtJQ0FnSUc5d2RHbHZibk11YVc1cGRHbGhiRVZ1WkhCdmFXNTBJRDgvSUhCeWIyTmxjM011Wlc1MkxrMURVRjlCVlZSSVgwbE9TVlJKUVV4ZlJVNUVVRTlKVGxRN0NpQWdZMjl1YzNRZ1pXNWtjRzlwYm5RZ1BTQnZjSFJwYjI1ekxtVnVaSEJ2YVc1MElEOC9JSEJ5YjJObGMzTXVaVzUyTGsxRFVGOUJWVlJJWDBWT1JGQlBTVTVVT3dvZ0lHWnZjaUFvWTI5dWMzUWdkbUZzZFdVZ2IyWWdXMmx1YVhScFlXd3NJR1Z1WkhCdmFXNTBYU2tnZXdvZ0lDQWdZMjl1YzNRZ2RYSnNJRDBnYm1WM0lGVlNUQ2gyWVd4MVpTazdDaUFnSUNCaGMzTmxjblF1YjJzb0NpQWdJQ0FnSUhWeWJDNXdjbTkwYjJOdmJDQTlQVDBnSW1oMGRIQnpPaUlnSmlZZ0lYVnliQzUxYzJWeWJtRnRaU0FtSmlBaGRYSnNMbkJoYzNOM2IzSmtJQ1ltSUNGMWNtd3VhR0Z6YUN3S0lDQWdJQ0FnSWtSRFVpQjFjR1JoZEdVZ2NtVnhkV2x5WlhNZ1kzSmxaR1Z1ZEdsaGJDMW1jbVZsSUVoVVZGQlRJR1Z1WkhCdmFXNTBjeUlzQ2lBZ0lDQXBPd29nSUgwS0lDQmhjM05sY25RdWJtOTBSWEYxWVd3b2FXNXBkR2xoYkN3Z1pXNWtjRzlwYm5Rc0lDSkVRMUlnZFhCa1lYUmxJR1Z1WkhCdmFXNTBjeUJ0ZFhOMElHUnBabVpsY2lJcE93b2dJR052Ym5OMElHUnBjbVZqZEc5eWVTQTlJSEJoZEdndWFtOXBiaWh3Y205cVpXTjBMQ0FpTG1GMWRHZ3RkR1Z6ZENJcE93b2dJR052Ym5OMElISmxZV1JLYzI5dUlEMGdZWE41Ym1NZ0tHWnBiR1VwSUQwK0lFcFRUMDR1Y0dGeWMyVW9ZWGRoYVhRZ1puTXVjbVZoWkVacGJHVW9abWxzWlN3Z0luVjBaamdpS1NrN0NpQWdZMjl1YzNRZ2IzZHVaWEp6YUdsd0lEMGdZWGRoYVhRZ2NtVmhaRXB6YjI0b2NHRjBhQzVxYjJsdUtHUnBjbVZqZEc5eWVTd2dJbTkzYm1WeWMyaHBjQzVxYzI5dUlpa3BPd29nSUdOdmJuTjBJR1Z1ZGxSbGVIUWdQU0JoZDJGcGRDQm1jeTV5WldGa1JtbHNaU2dLSUNBZ0lIQmhkR2d1YW05cGJpaHdjbTlxWldOMExDQWlaVzUySWl3Z0lpNWxibll1WkdWMklpa3NDaUFnSUNBaWRYUm1PQ0lzQ2lBZ0tUc0tJQ0JqYjI1emRDQmxibllnUFNCa2IzUmxibll1Y0dGeWMyVW9aVzUyVkdWNGRDazdDaUFnWTI5dWMzUWdkMjl5YTJac2IzZFFZWFJvSUQwZ2NHRjBhQzVxYjJsdUtIQnliMnBsWTNRc0lDSnRNelkxWVdkbGJuUnpMbmx0YkNJcE93b2dJR052Ym5OMElIZHZjbXRtYkc5M0lEMGdlV0Z0YkM1c2IyRmtLR0YzWVdsMElHWnpMbkpsWVdSR2FXeGxLSGR2Y210bWJHOTNVR0YwYUN3Z0luVjBaamdpS1NrN0NpQWdZMjl1YzNRZ2NtVm5hWE4wY21GMGFXOXVjeUE5SUhkdmNtdG1iRzkzTG5CeWIzWnBjMmx2Ymk1bWFXeDBaWElvQ2lBZ0lDQW9hWFJsYlNrZ1BUNGdhWFJsYlM1MWMyVnpJRDA5UFNBaVpHTnlMM0psWjJsemRHVnlJaXdLSUNBcE93b2dJR0Z6YzJWeWRDNWxjWFZoYkNnS0lDQWdJSEpsWjJsemRISmhkR2x2Ym5NdWJHVnVaM1JvTEFvZ0lDQWdNU3dLSUNBZ0lDSkZlSEJsWTNSbFpDQnZibVVnYVc1a1pYQmxibVJsYm5RZ1JFTlNJSEpsWjJsemRISmhkR2x2YmlJc0NpQWdLVHNLSUNCamIyNXpkQ0J5WldkcGMzUnlZWFJwYjI0Z1BTQnlaV2RwYzNSeVlYUnBiMjV6V3pCZE93b2dJR052Ym5OMElHdGxlU0E5SUhKbFoybHpkSEpoZEdsdmJpNTNjbWwwWlZSdlJXNTJhWEp2Ym0xbGJuUkdhV3hsTG1OdmJtWnBaM1Z5WVhScGIyNUpaRHNLSUNCamIyNXpkQ0JwWkNBOUlHVnVkbHRyWlhsZE93b2dJR0Z6YzJWeWRDNXZheWdLSUNBZ0lHbGtJQ1ltQ2lBZ0lDQWdJRzkzYm1WeWMyaHBjQzV0YjJSbElEMDlQU0FpWkdOeUlpQW1KZ29nSUNBZ0lDQnZkMjVsY25Ob2FYQXVjSEp2YW1WamRFNWhiV1VnUFQwOUlIQmhkR2d1WW1GelpXNWhiV1VvY0hKdmFtVmpkQ2tnSmlZS0lDQWdJQ0FnYjNkdVpYSnphR2x3TG5KMWJrbGtJRDA5UFNCbGJuWXVUVU5RWDBGVlZFaGZVbFZPWDBsRUxBb2dJQ0FnSWtsdWRtRnNhV1FnY0hKdmFtVmpkQ0J2ZDI1bGNuTm9hWEFnYjNJZ1kyOXVabWxuZFhKaGRHbHZiaUJKUkNJc0NpQWdLVHNLSUNCaGMzTmxjblF1YjJzb0NpQWdJQ0J2ZDI1bGNuTm9hWEF1Y21WemIzVnlZMlZ6TG5OdmJXVW9DaUFnSUNBZ0lDaHBkR1Z0S1NBOVBnb2dJQ0FnSUNBZ0lHbDBaVzB1YTJsdVpDQTlQVDBnSW1SamNpMXlaV2RwYzNSeVlYUnBiMjRpSUNZbUNpQWdJQ0FnSUNBZ2FYUmxiUzVsYm5aTFpYa2dQVDA5SUd0bGVTQW1KZ29nSUNBZ0lDQWdJR2wwWlcwdVpYaHBjM1JsWkVKbFptOXlaU0E5UFQwZ1ptRnNjMlVzQ2lBZ0lDQXBMQW9nSUNBZ0lrUkRVaUJ5WldkcGMzUnlZWFJwYjI0Z2FYTWdibTkwSUc5M2JtVmtJaXdLSUNBcE93b2dJR052Ym5OMElIQnNkV2RwYmxCaGRHZ2dQU0J3WVhSb0xtcHZhVzRvY0hKdmFtVmpkQ3dnSW1Gd2NGQmhZMnRoWjJVaUxDQWlZV2t0Y0d4MVoybHVMbXB6YjI0aUtUc0tJQ0JqYjI1emRDQndiSFZuYVc0Z1BTQmhkMkZwZENCeVpXRmtTbk52Ymlod2JIVm5hVzVRWVhSb0tUc0tJQ0JoYzNObGNuUXVaWEYxWVd3b2NHeDFaMmx1TG5KMWJuUnBiV1Z6TG14bGJtZDBhQ3dnTVN3Z0lrVjRjR1ZqZEdWa0lHOXVaU0JOUTFBZ2NuVnVkR2x0WlNJcE93b2dJR052Ym5OMElISjFiblJwYldVZ1BTQndiSFZuYVc0dWNuVnVkR2x0WlhOYk1GMDdDaUFnWVhOelpYSjBMbVZ4ZFdGc0tISjFiblJwYldVdWRIbHdaU3dnSWxKbGJXOTBaVTFEVUZObGNuWmxjaUlwT3dvZ0lHRnpjMlZ5ZEM1a1pXVndSWEYxWVd3b0NpQWdJQ0J5ZFc1MGFXMWxMbUYxZEdnc0NpQWdJQ0I3SUhSNWNHVTZJQ0pQUVhWMGFGQnNkV2RwYmxaaGRXeDBJaXdnY21WbVpYSmxibU5sWDJsa09pQWlKSHQ3SWlBcklHdGxlU0FySUNKOWZTSWdmU3dLSUNBZ0lDSlBjbWxuYVc1aGJDQmpiMjVtYVdkMWNtRjBhVzl1SUhKbFptVnlaVzVqWlNCdGRYTjBJR0psSUhKbGRHRnBibVZrSWl3S0lDQXBPd29nSUdOdmJuTjBJR1Z1ZG1seWIyNXRaVzUwU0dGemFDQTlJR055WldGMFpVaGhjMmdvSW5Ob1lUSTFOaUlwTG5Wd1pHRjBaU2hsYm5aVVpYaDBLUzVrYVdkbGMzUW9JbWhsZUNJcE93b2dJR052Ym5OMElHSmhjMlZzYVc1bFVHRjBhQ0E5SUhCaGRHZ3VhbTlwYmloa2FYSmxZM1J2Y25rc0lDSmtZM0l0ZFhCa1lYUmxMV0poYzJWc2FXNWxMbXB6YjI0aUtUc0tJQ0JqYjI1emRDQndiMnhwWTNsT1lXMWxjeUE5SUZzS0lDQWdJQ0pqYkdsbGJuUk9ZVzFsSWl3S0lDQWdJQ0p0TXpZMVFYQndTV1FpTEFvZ0lDQWdJbUZ3Y0d4cFkyRmliR1ZVYjBGd2NITWlMQW9nSUNBZ0luUmhjbWRsZEVGMVpHbGxibU5sSWl3S0lDQWdJQ0p6ZFhCd2IzSjBaV1JCWTJOdmRXNTBWSGx3WlhNaUxBb2dJRjA3Q2lBZ1kyOXVjM1FnY0c5c2FXTjVJRDBnS0haaGJIVmxLU0E5UGdvZ0lDQWdUMkpxWldOMExtWnliMjFGYm5SeWFXVnpLQW9nSUNBZ0lDQndiMnhwWTNsT1lXMWxjd29nSUNBZ0lDQWdJQzVtYVd4MFpYSW9LRzVoYldVcElEMCtJRTlpYW1WamRDNW9ZWE5QZDI0b2RtRnNkV1VzSUc1aGJXVXBLUW9nSUNBZ0lDQWdJQzV0WVhBb0tHNWhiV1VwSUQwK0lGdHVZVzFsTENCMllXeDFaVnR1WVcxbFhWMHBMQW9nSUNBZ0tUc0tJQ0JqYjI1emRDQnlaV0ZrVTI1aGNITm9iM1FnUFFvZ0lDQWdiM0IwYVc5dWN5NXlaV0ZrVTI1aGNITm9iM1FnUHo4S0lDQWdJQ2hoYzNsdVl5QW9ZMjl1Wm1sbmRYSmhkR2x2Ymtsa0tTQTlQaUI3Q2lBZ0lDQWdJR052Ym5OMElIc2dVSFZpYkdsalEyeHBaVzUwUVhCd2JHbGpZWFJwYjI0Z2ZTQTlJR3h2WVdRb0lrQmhlblZ5WlM5dGMyRnNMVzV2WkdVaUtUc0tJQ0FnSUNBZ1kyOXVjM1FnWTI5eVpVVnVkSEo1SUQwZ2JHOWhaQzV5WlhOdmJIWmxLQ0pBYldsamNtOXpiMlowTDNSbFlXMXpabmd0WTI5eVpTSXBPd29nSUNBZ0lDQmpiMjV6ZENCamIyNXpkR0Z1ZEhNZ1BTQnNiMkZrS0FvZ0lDQWdJQ0FnSUhCaGRHZ3VhbTlwYmlod1lYUm9MbVJwY201aGJXVW9ZMjl5WlVWdWRISjVLU3dnSW1OdmJXMXZiaUlzSUNKamIyNXpkR0Z1ZEhNdWFuTWlLU3dLSUNBZ0lDQWdLVHNLSUNBZ0lDQWdMeThnVTJGdFpTQndkV0pzYVdNZ2RHVnpkQzlEVEVrZ2JHOW5hVzRnWTJ4cFpXNTBJR0Z6SUdOc2FTOWpiMjF0YjI1c2FXSXZiVE0yTlV4dloybHVMblJ6T3lCdWIzUWdZU0JFUTFJZ1kyeHBaVzUwTGdvZ0lDQWdJQ0JqYjI1emRDQmpiR2xsYm5RZ1BTQnVaWGNnVUhWaWJHbGpRMnhwWlc1MFFYQndiR2xqWVhScGIyNG9ld29nSUNBZ0lDQWdJR0YxZEdnNklIc0tJQ0FnSUNBZ0lDQWdJR05zYVdWdWRFbGtPaUFpTjJWaE4yTXlOR010WWpGbU5pMDBZVEl3TFRsa01URXRPV0ZsTVRKbE9XVTNZV013SWl3S0lDQWdJQ0FnSUNBZ0lHRjFkR2h2Y21sMGVUb0tJQ0FnSUNBZ0lDQWdJQ0FnSW1oMGRIQnpPaTh2Ykc5bmFXNHViV2xqY205emIyWjBiMjVzYVc1bExtTnZiUzhpSUNzZ2NISnZZMlZ6Y3k1bGJuWXVUVE0yTlY5VVJVNUJUbFJmU1VRc0NpQWdJQ0FnSUNBZ2ZTd0tJQ0FnSUNBZ2ZTazdDaUFnSUNBZ0lHeGxkQ0IwYjJ0bGJqc0tJQ0FnSUNBZ2RISjVJSHNLSUNBZ0lDQWdJQ0IwYjJ0bGJpQTlJR0YzWVdsMElHTnNhV1Z1ZEM1aFkzRjFhWEpsVkc5clpXNUNlVlZ6WlhKdVlXMWxVR0Z6YzNkdmNtUW9ld29nSUNBZ0lDQWdJQ0FnZFhObGNtNWhiV1U2SUhCeWIyTmxjM011Wlc1MkxrMHpOalZmUVVORFQxVk9WRjlPUVUxRkxBb2dJQ0FnSUNBZ0lDQWdjR0Z6YzNkdmNtUTZJSEJ5YjJObGMzTXVaVzUyTGswek5qVmZRVU5EVDFWT1ZGOVFRVk5UVjA5U1JDd0tJQ0FnSUNBZ0lDQWdJSE5qYjNCbGN6b2dZMjl1YzNSaGJuUnpMbFJsWVcxelIzSmhjR2hUWTI5d1pYTW9LU3dLSUNBZ0lDQWdJQ0I5S1RzS0lDQWdJQ0FnZlNCallYUmphQ0FvWlhKeWIzSXBJSHNLSUNBZ0lDQWdJQ0IwYUhKdmR5QnVaWGNnUlhKeWIzSW9DaUFnSUNBZ0lDQWdJQ0FpVkdWaGJYTWdSM0poY0dnZ2NtVmhaQ0JoZFhSb1pXNTBhV05oZEdsdmJpQm1ZV2xzWldRNklDSWdLeUJsY25KdmNpNWxjbkp2Y2tOdlpHVXNDaUFnSUNBZ0lDQWdLVHNLSUNBZ0lDQWdmUW9nSUNBZ0lDQmhjM05sY25RdWIyc29DaUFnSUNBZ0lDQWdkRzlyWlc0L0xtRmpZMlZ6YzFSdmEyVnVMQW9nSUNBZ0lDQWdJQ0pVWldGdGN5QkhjbUZ3YUNCeVpXRmtJR0YxZEdobGJuUnBZMkYwYVc5dUlISmxkSFZ5Ym1Wa0lHNXZJSFJ2YTJWdUlpd0tJQ0FnSUNBZ0tUc0tJQ0FnSUNBZ1kyOXVjM1FnWW1GelpTQTlJR052Ym5OMFlXNTBjeTVuWlhSU1pYTnZkWEpqWlZObGNuWnBZMlZGYm1Sd2IybHVkQ2dLSUNBZ0lDQWdJQ0JqYjI1emRHRnVkSE11VW1WemIzVnlZMlZUWlhKMmFXTmxWSGx3WlM1VVpXRnRjMGR5WVhCb0xBb2dJQ0FnSUNBcE93b2dJQ0FnSUNCamIyNXpkQ0J5WlhOd2IyNXpaU0E5SUdGM1lXbDBJR1psZEdOb0tBb2dJQ0FnSUNBZ0lHSmhjMlVnS3dvZ0lDQWdJQ0FnSUNBZ0lpOTJNUzR3TDJSNWJtRnRhV05EYjI1bWFXZDFjbUYwYVc5dWN5OGlJQ3NLSUNBZ0lDQWdJQ0FnSUdWdVkyOWtaVlZTU1VOdmJYQnZibVZ1ZENoamIyNW1hV2QxY21GMGFXOXVTV1FwTEFvZ0lDQWdJQ0FnSUhzS0lDQWdJQ0FnSUNBZ0lHaGxZV1JsY25NNklIc0tJQ0FnSUNBZ0lDQWdJQ0FnUVhWMGFHOXlhWHBoZEdsdmJqb2dJa0psWVhKbGNpQWlJQ3NnZEc5clpXNHVZV05qWlhOelZHOXJaVzRzQ2lBZ0lDQWdJQ0FnSUNBZ0lDSkRiR2xsYm5RdFUyOTFjbU5sSWpvZ0ltRm5aVzUwYzNSdmIyeHJhWFFpTEFvZ0lDQWdJQ0FnSUNBZ2ZTd0tJQ0FnSUNBZ0lDQWdJSE5wWjI1aGJEb2dRV0p2Y25SVGFXZHVZV3d1ZEdsdFpXOTFkQ2d6TURBd01Da3NDaUFnSUNBZ0lDQWdmU3dLSUNBZ0lDQWdLVHNLSUNBZ0lDQWdhV1lnS0NGeVpYTndiMjV6WlM1dmF5a0tJQ0FnSUNBZ0lDQjBhSEp2ZHlCdVpYY2dSWEp5YjNJb0lrUkRVaUJ5WldGa1ltRmpheUJtWVdsc1pXUTZJRWhVVkZBZ0lpQXJJSEpsYzNCdmJuTmxMbk4wWVhSMWN5azdDaUFnSUNBZ0lISmxkSFZ5YmlCeVpYTndiMjV6WlM1cWMyOXVLQ2s3Q2lBZ0lDQjlLVHNLSUNCamIyNXpkQ0J6Ym1Gd2MyaHZkQ0E5SUdGM1lXbDBJSEpsWVdSVGJtRndjMmh2ZENocFpDazdDaUFnWVhOelpYSjBMbTlyS0FvZ0lDQWdjMjVoY0hOb2IzUWdKaVlnZEhsd1pXOW1JSE51WVhCemFHOTBJRDA5UFNBaWIySnFaV04wSWlBbUppQWhRWEp5WVhrdWFYTkJjbkpoZVNoemJtRndjMmh2ZENrc0NpQWdJQ0FpU1c1MllXeHBaQ0JFUTFJZ1kyOXVabWxuZFhKaGRHbHZiaUJ5WldGa1ltRmpheUlzQ2lBZ0tUc0tJQ0JoYzNObGNuUXViMnNvQ2lBZ0lDQjBlWEJsYjJZZ2MyNWhjSE5vYjNRdVkyeHBaVzUwVG1GdFpTQTlQVDBnSW5OMGNtbHVaeUlnSmlZS0lDQWdJQ0FnYzI1aGNITm9iM1F1WTJ4cFpXNTBUbUZ0WlM1c1pXNW5kR2dnUGlBd0lDWW1DaUFnSUNBZ0lIUjVjR1Z2WmlCemJtRndjMmh2ZEM1dE16WTFRWEJ3U1dRZ1BUMDlJQ0p6ZEhKcGJtY2lJQ1ltQ2lBZ0lDQWdJRnNpUVc1NVFYQndJaXdnSWxOd1pXTnBabWxqUVhCd0lsMHVhVzVqYkhWa1pYTW9jMjVoY0hOb2IzUXVZWEJ3YkdsallXSnNaVlJ2UVhCd2N5a2dKaVlLSUNBZ0lDQWdXeUpJYjIxbFZHVnVZVzUwSWl3Z0lrRnVlVlJsYm1GdWRDSmRMbWx1WTJ4MVpHVnpLSE51WVhCemFHOTBMblJoY21kbGRFRjFaR2xsYm1ObEtTQW1KZ29nSUNBZ0lDQkJjbkpoZVM1cGMwRnljbUY1S0hOdVlYQnphRzkwTG5SaGNtZGxkRlZ5YkhOVGFHOTFiR1JUZEdGeWRGZHBkR2dwSUNZbUNpQWdJQ0FnSUhOdVlYQnphRzkwTG5SaGNtZGxkRlZ5YkhOVGFHOTFiR1JUZEdGeWRGZHBkR2d1WlhabGNua29DaUFnSUNBZ0lDQWdLSFpoYkhWbEtTQTlQaUIwZVhCbGIyWWdkbUZzZFdVZ1BUMDlJQ0p6ZEhKcGJtY2lMQW9nSUNBZ0lDQXBJQ1ltQ2lBZ0lDQWdJQ2h6Ym1Gd2MyaHZkQzV6ZFhCd2IzSjBaV1JCWTJOdmRXNTBWSGx3WlhNZ1BUMDlJSFZ1WkdWbWFXNWxaQ0I4ZkFvZ0lDQWdJQ0FnSUZzaVJXNTBaWEp3Y21selpTSXNJQ0pGYm5SbGNuQnlhWE5sTENCRGIyNXpkVzFsY2lKZExtbHVZMngxWkdWektBb2dJQ0FnSUNBZ0lDQWdjMjVoY0hOb2IzUXVjM1Z3Y0c5eWRHVmtRV05qYjNWdWRGUjVjR1Z6TEFvZ0lDQWdJQ0FnSUNrcExBb2dJQ0FnSWtsdWRtRnNhV1FnUkVOU0lHTnZibVpwWjNWeVlYUnBiMjRnY0c5c2FXTjVJSEpsWVdSaVlXTnJJaXdLSUNBcE93b2dJR0Z6YzJWeWRDNXZheWdLSUNBZ0lITnVZWEJ6YUc5MExtOUJkWFJvUTI5dVptbG5TV1FnUFQwOUlIVnVaR1ZtYVc1bFpDQjhmQ0J6Ym1Gd2MyaHZkQzV2UVhWMGFFTnZibVpwWjBsa0lEMDlQU0JwWkN3S0lDQWdJQ0pFUTFJZ1kyOXVabWxuZFhKaGRHbHZiaUJKUkNCdGFYTnRZWFJqYUNJc0NpQWdLVHNLSUNCaGMzTmxjblF1YjJzb0NpQWdJQ0J6Ym1Gd2MyaHZkQzVwWkdWdWRHbDBlVkJ5YjNacFpHVnlJRDA5UFNCMWJtUmxabWx1WldRZ2ZId0tJQ0FnSUNBZ2MyNWhjSE5vYjNRdWFXUmxiblJwZEhsUWNtOTJhV1JsY2lBOVBUMGdJa1I1Ym1GdGFXTWlMQW9nSUNBZ0lrUkRVaUJwWkdWdWRHbDBlU0J0YVhOdFlYUmphQ0lzQ2lBZ0tUc0tJQ0JwWmlBb2NHaGhjMlVnUFQwOUlDSmlZWE5sYkdsdVpTSXBJSHNLSUNBZ0lHRnpjMlZ5ZEM1bGNYVmhiQ2dLSUNBZ0lDQWdjMjVoY0hOb2IzUXViV053VW1WemIzVnlZMlZWY213c0NpQWdJQ0FnSUdsdWFYUnBZV3dzQ2lBZ0lDQWdJQ0pKYm1sMGFXRnNJR1Z1WkhCdmFXNTBJSGRoY3lCdWIzUWdjR1Z5YzJsemRHVmtJaXdLSUNBZ0lDazdDaUFnSUNCaGMzTmxjblF1WkdWbGNFVnhkV0ZzS0FvZ0lDQWdJQ0J6Ym1Gd2MyaHZkQzUwWVhKblpYUlZjbXh6VTJodmRXeGtVM1JoY25SWGFYUm9MQW9nSUNBZ0lDQmJhVzVwZEdsaGJGMHNDaUFnSUNBZ0lDSkpibWwwYVdGc0lIUmhjbWRsZENCVlVrd2diV2x6YldGMFkyZ2lMQW9nSUNBZ0tUc0tJQ0FnSUdGemMyVnlkQzVsY1hWaGJDaHlkVzUwYVcxbExuTndaV011ZFhKc0xDQnBibWwwYVdGc0xDQWlTVzVwZEdsaGJDQndiSFZuYVc0Z1ZWSk1JRzFwYzIxaGRHTm9JaWs3Q2lBZ0lDQmpiMjV6ZENCaVlYTmxiR2x1WlNBOUlIc0tJQ0FnSUNBZ1kyOXVabWxuZFhKaGRHbHZia2xrT2lCcFpDd0tJQ0FnSUNBZ2NuVnVTV1E2SUc5M2JtVnljMmhwY0M1eWRXNUpaQ3dLSUNBZ0lDQWdhVzVwZEdsaGJDd0tJQ0FnSUNBZ1pXNWtjRzlwYm5Rc0NpQWdJQ0FnSUhCdmJHbGplVG9nY0c5c2FXTjVLSE51WVhCemFHOTBLU3dLSUNBZ0lDQWdaVzUyYVhKdmJtMWxiblJJWVhOb0xBb2dJQ0FnSUNCaGRYUm9PaUJ5ZFc1MGFXMWxMbUYxZEdnc0NpQWdJQ0I5T3dvZ0lDQWdZWGRoYVhRZ1puTXVkM0pwZEdWR2FXeGxLR0poYzJWc2FXNWxVR0YwYUN3Z1NsTlBUaTV6ZEhKcGJtZHBabmtvWW1GelpXeHBibVVwTENCN0lHWnNZV2M2SUNKM2VDSWdmU2s3Q2lBZ0lDQnlaWFIxY200Z2IzZHVaWEp6YUdsd0xuSjFia2xrT3dvZ0lIMEtJQ0JqYjI1emRDQmlZWE5sYkdsdVpTQTlJR0YzWVdsMElISmxZV1JLYzI5dUtHSmhjMlZzYVc1bFVHRjBhQ2s3Q2lBZ1lYTnpaWEowTG05cktBb2dJQ0FnWW1GelpXeHBibVV1WTI5dVptbG5kWEpoZEdsdmJrbGtJRDA5UFNCcFpDQW1KZ29nSUNBZ0lDQmlZWE5sYkdsdVpTNXlkVzVKWkNBOVBUMGdiM2R1WlhKemFHbHdMbkoxYmtsa0lDWW1DaUFnSUNBZ0lHSmhjMlZzYVc1bExtbHVhWFJwWVd3Z1BUMDlJR2x1YVhScFlXd2dKaVlLSUNBZ0lDQWdZbUZ6Wld4cGJtVXVaVzVrY0c5cGJuUWdQVDA5SUdWdVpIQnZhVzUwTEFvZ0lDQWdJa0poYzJWc2FXNWxJR052Ym1acFozVnlZWFJwYjI0Z2FXUmxiblJwZEhrZ2JXbHpiV0YwWTJnaUxBb2dJQ2s3Q2lBZ1lYTnpaWEowTG1WeGRXRnNLQW9nSUNBZ1pXNTJhWEp2Ym0xbGJuUklZWE5vTEFvZ0lDQWdZbUZ6Wld4cGJtVXVaVzUyYVhKdmJtMWxiblJJWVhOb0xBb2dJQ0FnSWxCeWIycGxZM1FnWlc1MmFYSnZibTFsYm5RZ1kyaGhibWRsWkNJc0NpQWdLVHNLSUNCaGMzTmxjblF1WkdWbGNFVnhkV0ZzS0FvZ0lDQWdjblZ1ZEdsdFpTNWhkWFJvTEFvZ0lDQWdZbUZ6Wld4cGJtVXVZWFYwYUN3S0lDQWdJQ0pRYkhWbmFXNGdZWFYwYUdWdWRHbGpZWFJwYjI0Z2NtVm1aWEpsYm1ObElHTm9ZVzVuWldRaUxBb2dJQ2s3Q2lBZ1lYTnpaWEowTG1SbFpYQkZjWFZoYkNod2IyeHBZM2tvYzI1aGNITm9iM1FwTENCaVlYTmxiR2x1WlM1d2IyeHBZM2tzSUNKRVExSWdjRzlzYVdONUlHTm9ZVzVuWldRaUtUc0tJQ0JwWmlBb2NHaGhjMlVnUFQwOUlDSmhjSEJzZVNJcElIc0tJQ0FnSUdGemMyVnlkQzVsY1hWaGJDZ0tJQ0FnSUNBZ2MyNWhjSE5vYjNRdWJXTndVbVZ6YjNWeVkyVlZjbXdzQ2lBZ0lDQWdJR2x1YVhScFlXd3NDaUFnSUNBZ0lDSlRiM1Z5WTJVZ1pXNWtjRzlwYm5RZ2JtOGdiRzl1WjJWeUlHMWhkR05vWlhNZ1ltRnpaV3hwYm1VaUxBb2dJQ0FnS1RzS0lDQWdJR0Z6YzJWeWRDNWxjWFZoYkNoeWRXNTBhVzFsTG5Od1pXTXVkWEpzTENCcGJtbDBhV0ZzS1RzS0lDQWdJR0Z6YzJWeWRDNWxjWFZoYkNnS0lDQWdJQ0FnZDI5eWEyWnNiM2N1Y0hKdmRtbHphVzl1TG1acGJIUmxjaWdvYVhSbGJTa2dQVDRnYVhSbGJTNTFjMlZ6SUQwOVBTQWlaR055TDNWd1pHRjBaU0lwTG14bGJtZDBhQ3dLSUNBZ0lDQWdNQ3dLSUNBZ0lDQWdJbFZ3WkdGMFpTQmhZM1JwYjI0Z1lXeHlaV0ZrZVNCbGVHbHpkSE1pTEFvZ0lDQWdLVHNLSUNBZ0lHTnZibk4wSUd4dlkyRnNVR0YwYUNBOUlIQmhkR2d1YW05cGJpaHdjbTlxWldOMExDQWlMblp6WTI5a1pTSXNJQ0p0WTNBdWFuTnZiaUlwT3dvZ0lDQWdZMjl1YzNRZ2JHOWpZV3dnUFNCaGQyRnBkQ0J5WldGa1NuTnZiaWhzYjJOaGJGQmhkR2dwT3dvZ0lDQWdZMjl1YzNRZ2MyVnlkbVZ5Y3lBOUlFOWlhbVZqZEM1MllXeDFaWE1vYkc5allXd3VjMlZ5ZG1WeWN5a3VabWxzZEdWeUtBb2dJQ0FnSUNBb2MyVnlkbVZ5S1NBOVBpQnpaWEoyWlhJdWRYSnNJRDA5UFNCcGJtbDBhV0ZzTEFvZ0lDQWdLVHNLSUNBZ0lHRnpjMlZ5ZEM1bGNYVmhiQ2h6WlhKMlpYSnpMbXhsYm1kMGFDd2dNU3dnSWtWNGNHVmpkR1ZrSUc5dVpTQnRZWFJqYUdsdVp5QnNiMk5oYkNCTlExQWdWVkpNSWlrN0NpQWdJQ0IzYjNKclpteHZkeTV3Y205MmFYTnBiMjR1YzNCc2FXTmxLSGR2Y210bWJHOTNMbkJ5YjNacGMybHZiaTVwYm1SbGVFOW1LSEpsWjJsemRISmhkR2x2YmlrZ0t5QXhMQ0F3TENCN0NpQWdJQ0FnSUhWelpYTTZJQ0prWTNJdmRYQmtZWFJsSWl3S0lDQWdJQ0FnZDJsMGFEb2dld29nSUNBZ0lDQWdJR052Ym1acFozVnlZWFJwYjI1SlpEb2dJaVI3ZXlJZ0t5QnJaWGtnS3lBaWZYMGlMQW9nSUNBZ0lDQWdJRzFqY0ZKbGMyOTFjbU5sVlhKc09pQmxibVJ3YjJsdWRDd0tJQ0FnSUNBZ0lDQjBZWEpuWlhSVmNteHpVMmh2ZFd4a1UzUmhjblJYYVhSb09pQmJaVzVrY0c5cGJuUmRMQW9nSUNBZ0lDQjlMQW9nSUNBZ2ZTazdDaUFnSUNCeWRXNTBhVzFsTG5Od1pXTXVkWEpzSUQwZ1pXNWtjRzlwYm5RN0NpQWdJQ0J6WlhKMlpYSnpXekJkTG5WeWJDQTlJR1Z1WkhCdmFXNTBPd29nSUNBZ1lYZGhhWFFnWm5NdWQzSnBkR1ZHYVd4bEtIZHZjbXRtYkc5M1VHRjBhQ3dnZVdGdGJDNWtkVzF3S0hkdmNtdG1iRzkzTENCN0lHeHBibVZYYVdSMGFEb2dMVEVnZlNrcE93b2dJQ0FnWVhkaGFYUWdabk11ZDNKcGRHVkdhV3hsS0hCc2RXZHBibEJoZEdnc0lFcFRUMDR1YzNSeWFXNW5hV1o1S0hCc2RXZHBiaXdnYm5Wc2JDd2dNaWtnS3lBaVhHNGlLVHNLSUNBZ0lHRjNZV2wwSUdaekxuZHlhWFJsUm1sc1pTaHNiMk5oYkZCaGRHZ3NJRXBUVDA0dWMzUnlhVzVuYVdaNUtHeHZZMkZzTENCdWRXeHNMQ0F5S1NBcklDSmNiaUlwT3dvZ0lDQWdjbVYwZFhKdUlHOTNibVZ5YzJocGNDNXlkVzVKWkRzS0lDQjlDaUFnWVhOelpYSjBMbTlyS0hCb1lYTmxJRDA5UFNBaWRtVnlhV1o1SWlCOGZDQndhR0Z6WlNBOVBUMGdJbTV2YjNBaUxDQWlWVzVyYm05M2JpQkVRMUlnZFhCa1lYUmxJSE4wWVdkbElpazdDaUFnWVhOelpYSjBMbVZ4ZFdGc0tBb2dJQ0FnYzI1aGNITm9iM1F1YldOd1VtVnpiM1Z5WTJWVmNtd3NDaUFnSUNCbGJtUndiMmx1ZEN3S0lDQWdJQ0pWY0dSaGRHVmtJR1Z1WkhCdmFXNTBJSGRoY3lCdWIzUWdjR1Z5YzJsemRHVmtJaXdLSUNBcE93b2dJR0Z6YzJWeWRDNWtaV1Z3UlhGMVlXd29DaUFnSUNCemJtRndjMmh2ZEM1MFlYSm5aWFJWY214elUyaHZkV3hrVTNSaGNuUlhhWFJvTEFvZ0lDQWdXMlZ1WkhCdmFXNTBYU3dLSUNBZ0lDSlZjR1JoZEdWa0lIUmhjbWRsZENCVlVrd2diV2x6YldGMFkyZ2lMQW9nSUNrN0NpQWdZWE56WlhKMExtVnhkV0ZzS0hKMWJuUnBiV1V1YzNCbFl5NTFjbXdzSUdWdVpIQnZhVzUwTENBaVZYQmtZWFJsWkNCd2JIVm5hVzRnVlZKTUlHMXBjMjFoZEdOb0lpazdDaUFnWVhOelpYSjBMbVZ4ZFdGc0tBb2dJQ0FnY21WbmFYTjBjbUYwYVc5dUxuZHBkR2d1YldOd1VtVnpiM1Z5WTJWVmNtd3NDaUFnSUNCcGJtbDBhV0ZzTEFvZ0lDQWdJbEpsWjJsemRISmhkR2x2YmlCaVlYTmxiR2x1WlNCM1lYTWdjbVYzY21sMGRHVnVJaXdLSUNBcE93b2dJR052Ym5OMElIVndaR0YwWlhNZ1BTQjNiM0pyWm14dmR5NXdjbTkyYVhOcGIyNHVabWxzZEdWeUtBb2dJQ0FnS0dsMFpXMHBJRDArSUdsMFpXMHVkWE5sY3lBOVBUMGdJbVJqY2k5MWNHUmhkR1VpTEFvZ0lDazdDaUFnWVhOelpYSjBMbVZ4ZFdGc0tIVndaR0YwWlhNdWJHVnVaM1JvTENBeEtUc0tJQ0JoYzNObGNuUXVaR1ZsY0VWeGRXRnNLSFZ3WkdGMFpYTmJNRjB1ZDJsMGFDd2dld29nSUNBZ1kyOXVabWxuZFhKaGRHbHZia2xrT2lBaUpIdDdJaUFySUd0bGVTQXJJQ0o5ZlNJc0NpQWdJQ0J0WTNCU1pYTnZkWEpqWlZWeWJEb2daVzVrY0c5cGJuUXNDaUFnSUNCMFlYSm5aWFJWY214elUyaHZkV3hrVTNSaGNuUlhhWFJvT2lCYlpXNWtjRzlwYm5SZExBb2dJSDBwT3dvZ0lHTnZibk4wSUdOb1pXTnJjRzlwYm5RZ1BTQndZWFJvTG1wdmFXNG9aR2x5WldOMGIzSjVMQ0FpWkdOeUxYVndaR0YwWlMxMlpYSnBabWxsWkM1cWMyOXVJaWs3Q2lBZ2FXWWdLSEJvWVhObElEMDlQU0FpZG1WeWFXWjVJaWtnZXdvZ0lDQWdZWGRoYVhRZ1puTXVkM0pwZEdWR2FXeGxLQW9nSUNBZ0lDQmphR1ZqYTNCdmFXNTBMQW9nSUNBZ0lDQktVMDlPTG5OMGNtbHVaMmxtZVNoN0lHTnZibVpwWjNWeVlYUnBiMjVKWkRvZ2FXUXNJSEoxYmtsa09pQnZkMjVsY25Ob2FYQXVjblZ1U1dRZ2ZTa3NDaUFnSUNBZ0lIc2dabXhoWnpvZ0luZDRJaUI5TEFvZ0lDQWdLVHNLSUNCOUlHVnNjMlVnZXdvZ0lDQWdZWE56WlhKMExtUmxaWEJGY1hWaGJDZ0tJQ0FnSUNBZ1lYZGhhWFFnY21WaFpFcHpiMjRvWTJobFkydHdiMmx1ZENrc0NpQWdJQ0FnSUhzZ1kyOXVabWxuZFhKaGRHbHZia2xrT2lCcFpDd2djblZ1U1dRNklHOTNibVZ5YzJocGNDNXlkVzVKWkNCOUxBb2dJQ0FnSUNBaVRXbHpjMmx1WnlCemRXTmpaWE56Wm5Wc0lIVndaR0YwWlNCamFHVmphM0J2YVc1MElpd0tJQ0FnSUNrN0NpQWdmUW9nSUhKbGRIVnliaUJ2ZDI1bGNuTm9hWEF1Y25WdVNXUTdDbjBwS0hCeWIyTmxjM011WVhKbmRsc3lYU3dnY0hKdlkyVnpjeTVqZDJRb0tTa3VkR2hsYmlocFpDQTlQaUI3Q21OdmJuTnZiR1V1Ykc5bktDSldVME5WVTBWZlJFTlNYMVZRUkVGVVJWOVNSVUZFV1NJc0lISmxjWFZwY21Vb0ltNXZaR1U2Y0dGMGFDSXBMbUpoYzJWdVlXMWxLSEJ5YjJObGMzTXVZM2RrS0NrcExDQndjbTlqWlhOekxtRnlaM1piTWwwc0lHbGtLVHNLZlNrdVkyRjBZMmdvWlhKeWIzSWdQVDRnZXlCamIyNXpiMnhsTG1WeWNtOXlLQ0pFUTFJZ2RYQmtZWFJsSUdacGVIUjFjbVVnWm1GcGJHVmtPaUlzSUdWeWNtOXlMbTFsYzNOaFoyVXBPeUJ3Y205alpYTnpMbVY0YVhSRGIyUmxJRDBnTVRzZ2ZTazciKSkKcHJpbnQoIlZTQ1VTRV9EQ1JfVVBEQVRFX1JFQURZIiwgcHJvamVjdC5uYW1lLCAicHJlcGFyZSIsIHJ1bl9pZCkK\" python3 -c 'import base64,os;exec(base64.b64decode(os.environ[\"SCRIPT_B64\"]))'"
+      },
+      "description": "Type the exact DCR update prepare program. Helpers prepare files or read the service; only VS Code Provision performs the update.",
+      "content_refs": [],
+      "timeout": 60,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_dcrUpdate_assertTerminal_caceeb9ea_2_1"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:workspace",
+        "operation:dcr-update-stage",
+        "dcr_update_phase:prepare",
+        "mcp_auth_mode:dcr"
+      ]
+    },
+    {
+      "step_id": "step_dcrUpdate_runCommand_caceeb9ea_2_1",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "enter"
+      },
+      "description": "Execute the exact DCR update prepare stage.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_dcrUpdate_typeCommand_caceeb9ea_2_1"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:workspace"
+      ]
+    },
+    {
+      "step_id": "step_dcrUpdate_assertReady_caceeb9ea_2_1",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the active terminal displays a completed output line VSCUSE_DCR_UPDATE_READY ${{var:app_name}} prepare followed by the project ownership UUID. No traceback, failed read, authentication error or fixture error is present. A typed command, another phase or project, or prior output is not success.",
+      "content_refs": [],
+      "timeout": 120,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_dcrUpdate_runCommand_caceeb9ea_2_1"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:workspace",
+        "dcr_update_ready:prepare",
+        "step_retry_timeout:90"
+      ]
+    },
+    {
+      "step_id": "step_dcrUpdate_closeTerminal_caceeb9ea_2_1",
+      "agent": "interaction",
+      "tool": "keyboard_shortcut",
+      "parameters": {
+        "keys": "ctrl+`"
+      },
+      "description": "Close the verified DCR update terminal.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_dcrUpdate_assertReady_caceeb9ea_2_1"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:workspace"
+      ]
+    },
+    {
+      "step_id": "step_dcrUpdate_assertClosed_caceeb9ea_2_1",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the integrated terminal panel is no longer visible and the Visual Studio Code workbench is ready.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_dcrUpdate_closeTerminal_caceeb9ea_2_1"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:workspace",
+        "step_retry_timeout:30"
+      ]
+    },
+    {
+      "step_id": "step_executeCommand_open_caceeb9ea_3_1",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "f1"
+      },
+      "description": "Press the F1 key to open the Command Palette in Visual Studio Code.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_dcrUpdate_assertClosed_caceeb9ea_2_1"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:command-palette",
+        "action:execute-command"
+      ]
+    },
+    {
+      "step_id": "step_executeCommand_assertPalette_caceeb9ea_3_1",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the Visual Studio Code Command Palette is visible with a > character in its input box and is ready to accept a command search.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_executeCommand_open_caceeb9ea_3_1"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:command-palette",
+        "action:execute-command",
+        "step_retry_timeout: 30"
+      ]
+    },
+    {
+      "step_id": "step_executeCommand_filter_caceeb9ea_3_1",
+      "agent": "interaction",
+      "tool": "type_text",
+      "parameters": {
+        "text": "View: Show Microsoft 365 Agents Toolkit"
+      },
+      "description": "Type the resolved command title into the active Command Palette.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_executeCommand_assertPalette_caceeb9ea_3_1"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:command-palette",
+        "action:execute-command"
+      ]
+    },
+    {
+      "step_id": "step_executeCommand_assertCommand_caceeb9ea_3_1",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the Command Palette input box reads >View: Show Microsoft 365 Agents Toolkit and the highlighted command listed under it is titled View: Show Microsoft 365 Agents Toolkit.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_executeCommand_filter_caceeb9ea_3_1"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:command-palette",
+        "action:execute-command",
+        "step_retry_timeout: 30"
+      ]
+    },
+    {
+      "step_id": "step_executeCommand_execute_caceeb9ea_3_1",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "enter"
+      },
+      "description": "Press Enter to execute the selected Command Palette command.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_executeCommand_assertCommand_caceeb9ea_3_1"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:command-palette",
+        "action:execute-command"
+      ]
+    },
+    {
+      "step_id": "step_signInM365_assertOption_caceeb9ea_3_2",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the ACCOUNTS section of the side bar lists an entry whose label begins with Sign in to Microsoft.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_executeCommand_execute_caceeb9ea_3_1"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:authentication",
+        "account:m365",
+        "entry_state:toolkit-side-bar-visible",
+        "step_retry_timeout: 30"
+      ]
+    },
+    {
+      "step_id": "step_signInM365_selectOption_caceeb9ea_3_2",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 213,
+        "y": 102
+      },
+      "description": "Click the entry whose label begins with \"Sign in to Microsoft\" in the ACCOUNTS section of the side bar.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_signInM365_assertOption_caceeb9ea_3_2"
+      ],
+      "preconditions": [
+        "dhash:213:102:16:5:9c63d67674d4c718",
+        "dhash:213:102:96:5:8c512758d92c2cce",
+        "dhash:213:102:0:10:92c86223a3622421"
+      ],
+      "postconditions": [],
+      "tags": [
+        "component:authentication",
+        "account:m365"
+      ]
+    },
+    {
+      "step_id": "step_signInM365_confirmSignIn_caceeb9ea_3_2",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 762,
+        "y": 97
+      },
+      "description": "Click the \"Sign in\" button within the Microsoft 365 developer sandbox modal.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_signInM365_selectOption_caceeb9ea_3_2"
+      ],
+      "preconditions": [
+        "dhash:762:97:16:5:24b1a72ba9aba343",
+        "dhash:762:97:96:5:0008304b0f344900",
+        "dhash:762:97:0:10:9c68332223232421"
+      ],
+      "postconditions": [],
+      "tags": [
+        "component:authentication",
+        "account:m365"
+      ]
+    },
+    {
+      "step_id": "step_signInM365_assertAccount_caceeb9ea_3_2",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the Microsoft Sign in page is visible in Chrome with an email or username input and a Next button.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_signInM365_confirmSignIn_caceeb9ea_3_2"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:authentication",
+        "account:m365",
+        "step_retry_timeout: 60"
+      ]
+    },
+    {
+      "step_id": "step_signInM365_focusAccount_caceeb9ea_3_2",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 369,
+        "y": 350
+      },
+      "description": "Click the email or username input above the Next button on the Microsoft Sign in page in Chrome, not the Use passkey from another device suggestion.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_signInM365_assertAccount_caceeb9ea_3_2"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:authentication",
+        "account:m365",
+        "ocr:true"
+      ]
+    },
+    {
+      "step_id": "step_signInM365_assertFocusedAccount_caceeb9ea_3_2",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the Microsoft Sign in page is visible in Chrome with an email or username input that is focused and a Next button.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_signInM365_focusAccount_caceeb9ea_3_2"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:authentication",
+        "account:m365",
+        "step_retry_timeout: 60"
+      ]
+    },
+    {
+      "step_id": "step_signInM365_typeAccount_caceeb9ea_3_2",
+      "agent": "interaction",
+      "tool": "type_text",
+      "parameters": {
+        "text": "${{env:M365_ACCOUNT_NAME}}"
+      },
+      "description": "Enter the resolved Microsoft 365 account name into the email or username input field on the Microsoft Sign in page.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_signInM365_assertFocusedAccount_caceeb9ea_3_2"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:authentication",
+        "account:m365",
+        "delay: 3"
+      ]
+    },
+    {
+      "step_id": "step_signInM365_assertEnteredAccount_caceeb9ea_3_2",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the Microsoft Sign in page in Chrome shows ${{env:M365_ACCOUNT_NAME}} in the account input and a Next button.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_signInM365_typeAccount_caceeb9ea_3_2"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:authentication",
+        "account:m365",
+        "step_retry_timeout: 60"
+      ]
+    },
+    {
+      "step_id": "step_signInM365_next_caceeb9ea_3_2",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 629,
+        "y": 484
+      },
+      "description": "Click the blue Next button on the Microsoft Sign in page in Chrome to continue with the entered account.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_signInM365_assertEnteredAccount_caceeb9ea_3_2"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:authentication",
+        "account:m365",
+        "delay:3",
+        "ocr:true"
+      ]
+    },
+    {
+      "step_id": "step_signInM365_assertPassword_caceeb9ea_3_2",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the Microsoft Sign in page in Chrome shows ${{env:M365_ACCOUNT_NAME}} and a password input that is visible and focused.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_signInM365_next_caceeb9ea_3_2"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:authentication",
+        "account:m365",
+        "step_retry_timeout: 120"
+      ]
+    },
+    {
+      "step_id": "step_signInM365_typePassword_caceeb9ea_3_2",
+      "agent": "interaction",
+      "tool": "type_text",
+      "parameters": {
+        "text": "${{secret:M365_ACCOUNT_PASSWORD}}"
+      },
+      "description": "Type the resolved Microsoft 365 account password into the Password field on the Microsoft login page.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_signInM365_assertPassword_caceeb9ea_3_2"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:authentication",
+        "account:m365",
+        "delay: 3"
+      ]
+    },
+    {
+      "step_id": "step_signInM365_submit_caceeb9ea_3_2",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "enter"
+      },
+      "description": "Press Enter to submit the Microsoft 365 login form from the password entry screen.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_signInM365_typePassword_caceeb9ea_3_2"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:authentication",
+        "account:m365",
+        "delay: 3"
+      ]
+    },
+    {
+      "step_id": "step_signInM365_closeBrowser_caceeb9ea_3_2",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 1004,
+        "y": 19
+      },
+      "description": "Click the \"Close\" button (red cross icon) in the browser tab bar to close the \"M365 Account - Sign In\" page.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_signInM365_submit_caceeb9ea_3_2"
+      ],
+      "preconditions": [
+        "dhash:1004:19:16:5:aac833964c9633cc",
+        "dhash:1004:19:96:5:d2232323c200e6e6",
+        "dhash:1004:19:0:10:0b01410169414141"
+      ],
+      "postconditions": [],
+      "tags": [
+        "component:authentication",
+        "account:m365",
+        "delay: 3"
+      ]
+    },
+    {
+      "step_id": "step_signInM365_assertReady_caceeb9ea_3_2",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the \"ACCOUNTS\" section lists an entry whose label is ${{env:M365_ACCOUNT_NAME}} or that name cut short by the side bar with a trailing ellipsis.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_signInM365_closeBrowser_caceeb9ea_3_2"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:authentication",
+        "account:m365",
+        "readiness:account-visible",
+        "step_retry_timeout: 180"
+      ]
+    },
+    {
+      "step_id": "step_executeCommand_open_caceeb9ea_4_1",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "f1"
+      },
+      "description": "Press the F1 key to open the Command Palette in Visual Studio Code.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_signInM365_assertReady_caceeb9ea_3_2"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:command-palette",
+        "action:execute-command"
+      ]
+    },
+    {
+      "step_id": "step_executeCommand_assertPalette_caceeb9ea_4_1",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the Visual Studio Code Command Palette is visible with a > character in its input box and is ready to accept a command search.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_executeCommand_open_caceeb9ea_4_1"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:command-palette",
+        "action:execute-command",
+        "step_retry_timeout: 30"
+      ]
+    },
+    {
+      "step_id": "step_executeCommand_filter_caceeb9ea_4_1",
+      "agent": "interaction",
+      "tool": "type_text",
+      "parameters": {
+        "text": "Notifications: Clear All Notifications"
+      },
+      "description": "Type the resolved command title into the active Command Palette.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_executeCommand_assertPalette_caceeb9ea_4_1"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:command-palette",
+        "action:execute-command"
+      ]
+    },
+    {
+      "step_id": "step_executeCommand_assertCommand_caceeb9ea_4_1",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the Command Palette input box reads >Notifications: Clear All Notifications and the highlighted command listed under it is titled Notifications: Clear All Notifications.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_executeCommand_filter_caceeb9ea_4_1"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:command-palette",
+        "action:execute-command",
+        "step_retry_timeout: 30"
+      ]
+    },
+    {
+      "step_id": "step_executeCommand_execute_caceeb9ea_4_1",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "enter"
+      },
+      "description": "Press Enter to execute the selected Command Palette command.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_executeCommand_assertCommand_caceeb9ea_4_1"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:command-palette",
+        "action:execute-command"
+      ]
+    },
+    {
+      "step_id": "step_executeCommand_open_caceeb9ea_4_2",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "f1"
+      },
+      "description": "Press the F1 key to open the Command Palette in Visual Studio Code.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_executeCommand_execute_caceeb9ea_4_1"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:command-palette",
+        "action:execute-command"
+      ]
+    },
+    {
+      "step_id": "step_executeCommand_assertPalette_caceeb9ea_4_2",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the Visual Studio Code Command Palette is visible with a > character in its input box and is ready to accept a command search.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_executeCommand_open_caceeb9ea_4_2"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:command-palette",
+        "action:execute-command",
+        "step_retry_timeout: 30"
+      ]
+    },
+    {
+      "step_id": "step_executeCommand_filter_caceeb9ea_4_2",
+      "agent": "interaction",
+      "tool": "type_text",
+      "parameters": {
+        "text": "Notifications: Show Notifications"
+      },
+      "description": "Type the resolved command title into the active Command Palette.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_executeCommand_assertPalette_caceeb9ea_4_2"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:command-palette",
+        "action:execute-command"
+      ]
+    },
+    {
+      "step_id": "step_executeCommand_assertCommand_caceeb9ea_4_2",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the Command Palette input box reads >Notifications: Show Notifications and the highlighted command listed under it is titled Notifications: Show Notifications.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_executeCommand_filter_caceeb9ea_4_2"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:command-palette",
+        "action:execute-command",
+        "step_retry_timeout: 30"
+      ]
+    },
+    {
+      "step_id": "step_executeCommand_execute_caceeb9ea_4_2",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "enter"
+      },
+      "description": "Press Enter to execute the selected Command Palette command.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_executeCommand_assertCommand_caceeb9ea_4_2"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:command-palette",
+        "action:execute-command"
+      ]
+    },
+    {
+      "step_id": "step_executeCommand_open_caceeb9ea_4_3",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "f1"
+      },
+      "description": "Press the F1 key to open the Command Palette in Visual Studio Code.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_executeCommand_execute_caceeb9ea_4_2"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:command-palette",
+        "action:execute-command"
+      ]
+    },
+    {
+      "step_id": "step_executeCommand_assertPalette_caceeb9ea_4_3",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the Visual Studio Code Command Palette is visible with a > character in its input box and is ready to accept a command search.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_executeCommand_open_caceeb9ea_4_3"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:command-palette",
+        "action:execute-command",
+        "step_retry_timeout: 30"
+      ]
+    },
+    {
+      "step_id": "step_executeCommand_filter_caceeb9ea_4_3",
+      "agent": "interaction",
+      "tool": "type_text",
+      "parameters": {
+        "text": "Microsoft 365 Agents: Provision"
+      },
+      "description": "Type the resolved command title into the active Command Palette.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_executeCommand_assertPalette_caceeb9ea_4_3"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:command-palette",
+        "action:execute-command"
+      ]
+    },
+    {
+      "step_id": "step_executeCommand_assertCommand_caceeb9ea_4_3",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the Command Palette input box reads >Microsoft 365 Agents: Provision and the highlighted command listed under it is titled Microsoft 365 Agents: Provision.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_executeCommand_filter_caceeb9ea_4_3"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:command-palette",
+        "action:execute-command",
+        "step_retry_timeout: 30"
+      ]
+    },
+    {
+      "step_id": "step_executeCommand_execute_caceeb9ea_4_3",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "enter"
+      },
+      "description": "Press Enter to execute the selected Command Palette command.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_executeCommand_assertCommand_caceeb9ea_4_3"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:command-palette",
+        "action:execute-command"
+      ]
+    },
+    {
+      "step_id": "step_assertNotificationContains_assert_caceeb9ea_4_4",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion a visible Visual Studio Code notification contains the literal text provision stage executed successfully. A notification with different text, including an in-progress notification, does not satisfy this assertion.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_executeCommand_execute_caceeb9ea_4_3"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:notifications",
+        "action:assert-contains",
+        "step_retry_timeout: 900"
+      ]
+    },
+    {
+      "step_id": "step_dcrUpdate_openTerminal_caceeb9ea_5_1",
+      "agent": "interaction",
+      "tool": "keyboard_shortcut",
+      "parameters": {
+        "keys": "ctrl+shift+~"
+      },
+      "description": "Open a fresh terminal for the DCR update baseline stage.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_assertNotificationContains_assert_caceeb9ea_4_4"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:workspace"
+      ]
+    },
+    {
+      "step_id": "step_dcrUpdate_assertTerminal_caceeb9ea_5_1",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion a new VS Code integrated terminal is visible and focused with a Bash shell prompt ready for input.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_dcrUpdate_openTerminal_caceeb9ea_5_1"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:workspace",
+        "step_retry_timeout:30"
+      ]
+    },
+    {
+      "step_id": "step_dcrUpdate_typeCommand_caceeb9ea_5_1",
+      "agent": "interaction",
+      "tool": "type_text",
+      "parameters": {
+        "text": "clear; PROJECT_DIR=\"/home/vscode/AgentsToolkitProjects/${{var:app_name}}\" SCRIPT_B64=\"aW1wb3J0IG9zLCBzdWJwcm9jZXNzCmZyb20gcGF0aGxpYiBpbXBvcnQgUGF0aApwcm9qZWN0ID0gUGF0aChvcy5lbnZpcm9uWyJQUk9KRUNUX0RJUiJdKS5yZXNvbHZlKCkKc3VicHJvY2Vzcy5ydW4oWyJub2RlIiwgc3RyKHByb2plY3QgLyAiLmF1dGgtdGVzdCIgLyAiZGNyLXVwZGF0ZS5janMiKSwgImJhc2VsaW5lIl0sIGN3ZD1wcm9qZWN0LCBjaGVjaz1UcnVlKQo=\" python3 -c 'import base64,os;exec(base64.b64decode(os.environ[\"SCRIPT_B64\"]))'"
+      },
+      "description": "Type the exact DCR update baseline program. Helpers prepare files or read the service; only VS Code Provision performs the update.",
+      "content_refs": [],
+      "timeout": 60,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_dcrUpdate_assertTerminal_caceeb9ea_5_1"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:workspace",
+        "operation:dcr-update-stage",
+        "dcr_update_phase:baseline",
+        "mcp_auth_mode:dcr"
+      ]
+    },
+    {
+      "step_id": "step_dcrUpdate_runCommand_caceeb9ea_5_1",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "enter"
+      },
+      "description": "Execute the exact DCR update baseline stage.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_dcrUpdate_typeCommand_caceeb9ea_5_1"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:workspace"
+      ]
+    },
+    {
+      "step_id": "step_dcrUpdate_assertReady_caceeb9ea_5_1",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the active terminal displays a completed output line VSCUSE_DCR_UPDATE_READY ${{var:app_name}} baseline followed by the project ownership UUID. No traceback, failed read, authentication error or fixture error is present. A typed command, another phase or project, or prior output is not success.",
+      "content_refs": [],
+      "timeout": 120,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_dcrUpdate_runCommand_caceeb9ea_5_1"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:workspace",
+        "dcr_update_ready:baseline",
+        "step_retry_timeout:90"
+      ]
+    },
+    {
+      "step_id": "step_dcrUpdate_closeTerminal_caceeb9ea_5_1",
+      "agent": "interaction",
+      "tool": "keyboard_shortcut",
+      "parameters": {
+        "keys": "ctrl+`"
+      },
+      "description": "Close the verified DCR update terminal.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_dcrUpdate_assertReady_caceeb9ea_5_1"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:workspace"
+      ]
+    },
+    {
+      "step_id": "step_dcrUpdate_assertClosed_caceeb9ea_5_1",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the integrated terminal panel is no longer visible and the Visual Studio Code workbench is ready.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_dcrUpdate_closeTerminal_caceeb9ea_5_1"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:workspace",
+        "step_retry_timeout:30"
+      ]
+    },
+    {
+      "step_id": "step_dcrUpdate_openTerminal_caceeb9ea_6_1",
+      "agent": "interaction",
+      "tool": "keyboard_shortcut",
+      "parameters": {
+        "keys": "ctrl+shift+~"
+      },
+      "description": "Open a fresh terminal for the DCR update apply stage.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_dcrUpdate_assertClosed_caceeb9ea_5_1"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:workspace"
+      ]
+    },
+    {
+      "step_id": "step_dcrUpdate_assertTerminal_caceeb9ea_6_1",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion a new VS Code integrated terminal is visible and focused with a Bash shell prompt ready for input.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_dcrUpdate_openTerminal_caceeb9ea_6_1"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:workspace",
+        "step_retry_timeout:30"
+      ]
+    },
+    {
+      "step_id": "step_dcrUpdate_typeCommand_caceeb9ea_6_1",
+      "agent": "interaction",
+      "tool": "type_text",
+      "parameters": {
+        "text": "clear; PROJECT_DIR=\"/home/vscode/AgentsToolkitProjects/${{var:app_name}}\" SCRIPT_B64=\"aW1wb3J0IG9zLCBzdWJwcm9jZXNzCmZyb20gcGF0aGxpYiBpbXBvcnQgUGF0aApwcm9qZWN0ID0gUGF0aChvcy5lbnZpcm9uWyJQUk9KRUNUX0RJUiJdKS5yZXNvbHZlKCkKc3VicHJvY2Vzcy5ydW4oWyJub2RlIiwgc3RyKHByb2plY3QgLyAiLmF1dGgtdGVzdCIgLyAiZGNyLXVwZGF0ZS5janMiKSwgImFwcGx5Il0sIGN3ZD1wcm9qZWN0LCBjaGVjaz1UcnVlKQo=\" python3 -c 'import base64,os;exec(base64.b64decode(os.environ[\"SCRIPT_B64\"]))'"
+      },
+      "description": "Type the exact DCR update apply program. Helpers prepare files or read the service; only VS Code Provision performs the update.",
+      "content_refs": [],
+      "timeout": 60,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_dcrUpdate_assertTerminal_caceeb9ea_6_1"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:workspace",
+        "operation:dcr-update-stage",
+        "dcr_update_phase:apply",
+        "mcp_auth_mode:dcr"
+      ]
+    },
+    {
+      "step_id": "step_dcrUpdate_runCommand_caceeb9ea_6_1",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "enter"
+      },
+      "description": "Execute the exact DCR update apply stage.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_dcrUpdate_typeCommand_caceeb9ea_6_1"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:workspace"
+      ]
+    },
+    {
+      "step_id": "step_dcrUpdate_assertReady_caceeb9ea_6_1",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the active terminal displays a completed output line VSCUSE_DCR_UPDATE_READY ${{var:app_name}} apply followed by the project ownership UUID. No traceback, failed read, authentication error or fixture error is present. A typed command, another phase or project, or prior output is not success.",
+      "content_refs": [],
+      "timeout": 120,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_dcrUpdate_runCommand_caceeb9ea_6_1"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:workspace",
+        "dcr_update_ready:apply",
+        "step_retry_timeout:90"
+      ]
+    },
+    {
+      "step_id": "step_dcrUpdate_closeTerminal_caceeb9ea_6_1",
+      "agent": "interaction",
+      "tool": "keyboard_shortcut",
+      "parameters": {
+        "keys": "ctrl+`"
+      },
+      "description": "Close the verified DCR update terminal.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_dcrUpdate_assertReady_caceeb9ea_6_1"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:workspace"
+      ]
+    },
+    {
+      "step_id": "step_dcrUpdate_assertClosed_caceeb9ea_6_1",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the integrated terminal panel is no longer visible and the Visual Studio Code workbench is ready.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_dcrUpdate_closeTerminal_caceeb9ea_6_1"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:workspace",
+        "step_retry_timeout:30"
+      ]
+    },
+    {
+      "step_id": "step_executeCommand_open_caceeb9ea_7_1",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "f1"
+      },
+      "description": "Press the F1 key to open the Command Palette in Visual Studio Code.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_dcrUpdate_assertClosed_caceeb9ea_6_1"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:command-palette",
+        "action:execute-command"
+      ]
+    },
+    {
+      "step_id": "step_executeCommand_assertPalette_caceeb9ea_7_1",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the Visual Studio Code Command Palette is visible with a > character in its input box and is ready to accept a command search.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_executeCommand_open_caceeb9ea_7_1"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:command-palette",
+        "action:execute-command",
+        "step_retry_timeout: 30"
+      ]
+    },
+    {
+      "step_id": "step_executeCommand_filter_caceeb9ea_7_1",
+      "agent": "interaction",
+      "tool": "type_text",
+      "parameters": {
+        "text": "Notifications: Clear All Notifications"
+      },
+      "description": "Type the resolved command title into the active Command Palette.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_executeCommand_assertPalette_caceeb9ea_7_1"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:command-palette",
+        "action:execute-command"
+      ]
+    },
+    {
+      "step_id": "step_executeCommand_assertCommand_caceeb9ea_7_1",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the Command Palette input box reads >Notifications: Clear All Notifications and the highlighted command listed under it is titled Notifications: Clear All Notifications.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_executeCommand_filter_caceeb9ea_7_1"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:command-palette",
+        "action:execute-command",
+        "step_retry_timeout: 30"
+      ]
+    },
+    {
+      "step_id": "step_executeCommand_execute_caceeb9ea_7_1",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "enter"
+      },
+      "description": "Press Enter to execute the selected Command Palette command.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_executeCommand_assertCommand_caceeb9ea_7_1"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:command-palette",
+        "action:execute-command"
+      ]
+    },
+    {
+      "step_id": "step_executeCommand_open_caceeb9ea_7_2",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "f1"
+      },
+      "description": "Press the F1 key to open the Command Palette in Visual Studio Code.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_executeCommand_execute_caceeb9ea_7_1"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:command-palette",
+        "action:execute-command"
+      ]
+    },
+    {
+      "step_id": "step_executeCommand_assertPalette_caceeb9ea_7_2",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the Visual Studio Code Command Palette is visible with a > character in its input box and is ready to accept a command search.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_executeCommand_open_caceeb9ea_7_2"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:command-palette",
+        "action:execute-command",
+        "step_retry_timeout: 30"
+      ]
+    },
+    {
+      "step_id": "step_executeCommand_filter_caceeb9ea_7_2",
+      "agent": "interaction",
+      "tool": "type_text",
+      "parameters": {
+        "text": "Notifications: Show Notifications"
+      },
+      "description": "Type the resolved command title into the active Command Palette.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_executeCommand_assertPalette_caceeb9ea_7_2"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:command-palette",
+        "action:execute-command"
+      ]
+    },
+    {
+      "step_id": "step_executeCommand_assertCommand_caceeb9ea_7_2",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the Command Palette input box reads >Notifications: Show Notifications and the highlighted command listed under it is titled Notifications: Show Notifications.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_executeCommand_filter_caceeb9ea_7_2"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:command-palette",
+        "action:execute-command",
+        "step_retry_timeout: 30"
+      ]
+    },
+    {
+      "step_id": "step_executeCommand_execute_caceeb9ea_7_2",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "enter"
+      },
+      "description": "Press Enter to execute the selected Command Palette command.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_executeCommand_assertCommand_caceeb9ea_7_2"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:command-palette",
+        "action:execute-command"
+      ]
+    },
+    {
+      "step_id": "step_executeCommand_open_caceeb9ea_7_3",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "f1"
+      },
+      "description": "Press the F1 key to open the Command Palette in Visual Studio Code.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_executeCommand_execute_caceeb9ea_7_2"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:command-palette",
+        "action:execute-command"
+      ]
+    },
+    {
+      "step_id": "step_executeCommand_assertPalette_caceeb9ea_7_3",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the Visual Studio Code Command Palette is visible with a > character in its input box and is ready to accept a command search.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_executeCommand_open_caceeb9ea_7_3"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:command-palette",
+        "action:execute-command",
+        "step_retry_timeout: 30"
+      ]
+    },
+    {
+      "step_id": "step_executeCommand_filter_caceeb9ea_7_3",
+      "agent": "interaction",
+      "tool": "type_text",
+      "parameters": {
+        "text": "Microsoft 365 Agents: Provision"
+      },
+      "description": "Type the resolved command title into the active Command Palette.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_executeCommand_assertPalette_caceeb9ea_7_3"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:command-palette",
+        "action:execute-command"
+      ]
+    },
+    {
+      "step_id": "step_executeCommand_assertCommand_caceeb9ea_7_3",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the Command Palette input box reads >Microsoft 365 Agents: Provision and the highlighted command listed under it is titled Microsoft 365 Agents: Provision.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_executeCommand_filter_caceeb9ea_7_3"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:command-palette",
+        "action:execute-command",
+        "step_retry_timeout: 30"
+      ]
+    },
+    {
+      "step_id": "step_executeCommand_execute_caceeb9ea_7_3",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "enter"
+      },
+      "description": "Press Enter to execute the selected Command Palette command.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_executeCommand_assertCommand_caceeb9ea_7_3"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:command-palette",
+        "action:execute-command"
+      ]
+    },
+    {
+      "step_id": "step_assertNotificationContains_assert_caceeb9ea_7_4",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion a visible Visual Studio Code notification contains the literal text provision stage executed successfully. A notification with different text, including an in-progress notification, does not satisfy this assertion.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_executeCommand_execute_caceeb9ea_7_3"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:notifications",
+        "action:assert-contains",
+        "step_retry_timeout: 900"
+      ]
+    },
+    {
+      "step_id": "step_dcrUpdate_openTerminal_caceeb9ea_8_1",
+      "agent": "interaction",
+      "tool": "keyboard_shortcut",
+      "parameters": {
+        "keys": "ctrl+shift+~"
+      },
+      "description": "Open a fresh terminal for the DCR update verify stage.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_assertNotificationContains_assert_caceeb9ea_7_4"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:workspace"
+      ]
+    },
+    {
+      "step_id": "step_dcrUpdate_assertTerminal_caceeb9ea_8_1",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion a new VS Code integrated terminal is visible and focused with a Bash shell prompt ready for input.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_dcrUpdate_openTerminal_caceeb9ea_8_1"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:workspace",
+        "step_retry_timeout:30"
+      ]
+    },
+    {
+      "step_id": "step_dcrUpdate_typeCommand_caceeb9ea_8_1",
+      "agent": "interaction",
+      "tool": "type_text",
+      "parameters": {
+        "text": "clear; PROJECT_DIR=\"/home/vscode/AgentsToolkitProjects/${{var:app_name}}\" SCRIPT_B64=\"aW1wb3J0IG9zLCBzdWJwcm9jZXNzCmZyb20gcGF0aGxpYiBpbXBvcnQgUGF0aApwcm9qZWN0ID0gUGF0aChvcy5lbnZpcm9uWyJQUk9KRUNUX0RJUiJdKS5yZXNvbHZlKCkKc3VicHJvY2Vzcy5ydW4oWyJub2RlIiwgc3RyKHByb2plY3QgLyAiLmF1dGgtdGVzdCIgLyAiZGNyLXVwZGF0ZS5janMiKSwgInZlcmlmeSJdLCBjd2Q9cHJvamVjdCwgY2hlY2s9VHJ1ZSkK\" python3 -c 'import base64,os;exec(base64.b64decode(os.environ[\"SCRIPT_B64\"]))'"
+      },
+      "description": "Type the exact DCR update verify program. Helpers prepare files or read the service; only VS Code Provision performs the update.",
+      "content_refs": [],
+      "timeout": 60,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_dcrUpdate_assertTerminal_caceeb9ea_8_1"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:workspace",
+        "operation:dcr-update-stage",
+        "dcr_update_phase:verify",
+        "mcp_auth_mode:dcr"
+      ]
+    },
+    {
+      "step_id": "step_dcrUpdate_runCommand_caceeb9ea_8_1",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "enter"
+      },
+      "description": "Execute the exact DCR update verify stage.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_dcrUpdate_typeCommand_caceeb9ea_8_1"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:workspace"
+      ]
+    },
+    {
+      "step_id": "step_dcrUpdate_assertReady_caceeb9ea_8_1",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the active terminal displays a completed output line VSCUSE_DCR_UPDATE_READY ${{var:app_name}} verify followed by the project ownership UUID. No traceback, failed read, authentication error or fixture error is present. A typed command, another phase or project, or prior output is not success.",
+      "content_refs": [],
+      "timeout": 120,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_dcrUpdate_runCommand_caceeb9ea_8_1"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:workspace",
+        "dcr_update_ready:verify",
+        "step_retry_timeout:90"
+      ]
+    },
+    {
+      "step_id": "step_dcrUpdate_closeTerminal_caceeb9ea_8_1",
+      "agent": "interaction",
+      "tool": "keyboard_shortcut",
+      "parameters": {
+        "keys": "ctrl+`"
+      },
+      "description": "Close the verified DCR update terminal.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_dcrUpdate_assertReady_caceeb9ea_8_1"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:workspace"
+      ]
+    },
+    {
+      "step_id": "step_dcrUpdate_assertClosed_caceeb9ea_8_1",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the integrated terminal panel is no longer visible and the Visual Studio Code workbench is ready.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_dcrUpdate_closeTerminal_caceeb9ea_8_1"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:workspace",
+        "step_retry_timeout:30"
+      ]
+    },
+    {
+      "step_id": "step_executeCommand_open_caceeb9ea_9_1",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "f1"
+      },
+      "description": "Press the F1 key to open the Command Palette in Visual Studio Code.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_dcrUpdate_assertClosed_caceeb9ea_8_1"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:command-palette",
+        "action:execute-command"
+      ]
+    },
+    {
+      "step_id": "step_executeCommand_assertPalette_caceeb9ea_9_1",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the Visual Studio Code Command Palette is visible with a > character in its input box and is ready to accept a command search.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_executeCommand_open_caceeb9ea_9_1"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:command-palette",
+        "action:execute-command",
+        "step_retry_timeout: 30"
+      ]
+    },
+    {
+      "step_id": "step_executeCommand_filter_caceeb9ea_9_1",
+      "agent": "interaction",
+      "tool": "type_text",
+      "parameters": {
+        "text": "Notifications: Clear All Notifications"
+      },
+      "description": "Type the resolved command title into the active Command Palette.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_executeCommand_assertPalette_caceeb9ea_9_1"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:command-palette",
+        "action:execute-command"
+      ]
+    },
+    {
+      "step_id": "step_executeCommand_assertCommand_caceeb9ea_9_1",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the Command Palette input box reads >Notifications: Clear All Notifications and the highlighted command listed under it is titled Notifications: Clear All Notifications.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_executeCommand_filter_caceeb9ea_9_1"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:command-palette",
+        "action:execute-command",
+        "step_retry_timeout: 30"
+      ]
+    },
+    {
+      "step_id": "step_executeCommand_execute_caceeb9ea_9_1",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "enter"
+      },
+      "description": "Press Enter to execute the selected Command Palette command.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_executeCommand_assertCommand_caceeb9ea_9_1"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:command-palette",
+        "action:execute-command"
+      ]
+    },
+    {
+      "step_id": "step_executeCommand_open_caceeb9ea_9_2",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "f1"
+      },
+      "description": "Press the F1 key to open the Command Palette in Visual Studio Code.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_executeCommand_execute_caceeb9ea_9_1"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:command-palette",
+        "action:execute-command"
+      ]
+    },
+    {
+      "step_id": "step_executeCommand_assertPalette_caceeb9ea_9_2",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the Visual Studio Code Command Palette is visible with a > character in its input box and is ready to accept a command search.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_executeCommand_open_caceeb9ea_9_2"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:command-palette",
+        "action:execute-command",
+        "step_retry_timeout: 30"
+      ]
+    },
+    {
+      "step_id": "step_executeCommand_filter_caceeb9ea_9_2",
+      "agent": "interaction",
+      "tool": "type_text",
+      "parameters": {
+        "text": "Notifications: Show Notifications"
+      },
+      "description": "Type the resolved command title into the active Command Palette.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_executeCommand_assertPalette_caceeb9ea_9_2"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:command-palette",
+        "action:execute-command"
+      ]
+    },
+    {
+      "step_id": "step_executeCommand_assertCommand_caceeb9ea_9_2",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the Command Palette input box reads >Notifications: Show Notifications and the highlighted command listed under it is titled Notifications: Show Notifications.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_executeCommand_filter_caceeb9ea_9_2"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:command-palette",
+        "action:execute-command",
+        "step_retry_timeout: 30"
+      ]
+    },
+    {
+      "step_id": "step_executeCommand_execute_caceeb9ea_9_2",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "enter"
+      },
+      "description": "Press Enter to execute the selected Command Palette command.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_executeCommand_assertCommand_caceeb9ea_9_2"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:command-palette",
+        "action:execute-command"
+      ]
+    },
+    {
+      "step_id": "step_executeCommand_open_caceeb9ea_9_3",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "f1"
+      },
+      "description": "Press the F1 key to open the Command Palette in Visual Studio Code.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_executeCommand_execute_caceeb9ea_9_2"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:command-palette",
+        "action:execute-command"
+      ]
+    },
+    {
+      "step_id": "step_executeCommand_assertPalette_caceeb9ea_9_3",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the Visual Studio Code Command Palette is visible with a > character in its input box and is ready to accept a command search.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_executeCommand_open_caceeb9ea_9_3"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:command-palette",
+        "action:execute-command",
+        "step_retry_timeout: 30"
+      ]
+    },
+    {
+      "step_id": "step_executeCommand_filter_caceeb9ea_9_3",
+      "agent": "interaction",
+      "tool": "type_text",
+      "parameters": {
+        "text": "Microsoft 365 Agents: Provision"
+      },
+      "description": "Type the resolved command title into the active Command Palette.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_executeCommand_assertPalette_caceeb9ea_9_3"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:command-palette",
+        "action:execute-command"
+      ]
+    },
+    {
+      "step_id": "step_executeCommand_assertCommand_caceeb9ea_9_3",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the Command Palette input box reads >Microsoft 365 Agents: Provision and the highlighted command listed under it is titled Microsoft 365 Agents: Provision.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_executeCommand_filter_caceeb9ea_9_3"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:command-palette",
+        "action:execute-command",
+        "step_retry_timeout: 30"
+      ]
+    },
+    {
+      "step_id": "step_executeCommand_execute_caceeb9ea_9_3",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "enter"
+      },
+      "description": "Press Enter to execute the selected Command Palette command.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_executeCommand_assertCommand_caceeb9ea_9_3"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:command-palette",
+        "action:execute-command"
+      ]
+    },
+    {
+      "step_id": "step_assertNotificationContains_assert_caceeb9ea_9_4",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion a visible Visual Studio Code notification contains the literal text provision stage executed successfully. A notification with different text, including an in-progress notification, does not satisfy this assertion.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_executeCommand_execute_caceeb9ea_9_3"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:notifications",
+        "action:assert-contains",
+        "step_retry_timeout: 900"
+      ]
+    },
+    {
+      "step_id": "step_dcrUpdate_openTerminal_caceeb9ea_10_1",
+      "agent": "interaction",
+      "tool": "keyboard_shortcut",
+      "parameters": {
+        "keys": "ctrl+shift+~"
+      },
+      "description": "Open a fresh terminal for the DCR update noop stage.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_assertNotificationContains_assert_caceeb9ea_9_4"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:workspace"
+      ]
+    },
+    {
+      "step_id": "step_dcrUpdate_assertTerminal_caceeb9ea_10_1",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion a new VS Code integrated terminal is visible and focused with a Bash shell prompt ready for input.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_dcrUpdate_openTerminal_caceeb9ea_10_1"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:workspace",
+        "step_retry_timeout:30"
+      ]
+    },
+    {
+      "step_id": "step_dcrUpdate_typeCommand_caceeb9ea_10_1",
+      "agent": "interaction",
+      "tool": "type_text",
+      "parameters": {
+        "text": "clear; PROJECT_DIR=\"/home/vscode/AgentsToolkitProjects/${{var:app_name}}\" SCRIPT_B64=\"aW1wb3J0IG9zLCBzdWJwcm9jZXNzCmZyb20gcGF0aGxpYiBpbXBvcnQgUGF0aApwcm9qZWN0ID0gUGF0aChvcy5lbnZpcm9uWyJQUk9KRUNUX0RJUiJdKS5yZXNvbHZlKCkKc3VicHJvY2Vzcy5ydW4oWyJub2RlIiwgc3RyKHByb2plY3QgLyAiLmF1dGgtdGVzdCIgLyAiZGNyLXVwZGF0ZS5janMiKSwgIm5vb3AiXSwgY3dkPXByb2plY3QsIGNoZWNrPVRydWUpCg==\" python3 -c 'import base64,os;exec(base64.b64decode(os.environ[\"SCRIPT_B64\"]))'"
+      },
+      "description": "Type the exact DCR update noop program. Helpers prepare files or read the service; only VS Code Provision performs the update.",
+      "content_refs": [],
+      "timeout": 60,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_dcrUpdate_assertTerminal_caceeb9ea_10_1"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:workspace",
+        "operation:dcr-update-stage",
+        "dcr_update_phase:noop",
+        "mcp_auth_mode:dcr"
+      ]
+    },
+    {
+      "step_id": "step_dcrUpdate_runCommand_caceeb9ea_10_1",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "enter"
+      },
+      "description": "Execute the exact DCR update noop stage.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_dcrUpdate_typeCommand_caceeb9ea_10_1"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:workspace"
+      ]
+    },
+    {
+      "step_id": "step_dcrUpdate_assertReady_caceeb9ea_10_1",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the active terminal displays a completed output line VSCUSE_DCR_UPDATE_READY ${{var:app_name}} noop followed by the project ownership UUID. No traceback, failed read, authentication error or fixture error is present. A typed command, another phase or project, or prior output is not success.",
+      "content_refs": [],
+      "timeout": 120,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_dcrUpdate_runCommand_caceeb9ea_10_1"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:workspace",
+        "dcr_update_ready:noop",
+        "step_retry_timeout:90"
+      ]
+    },
+    {
+      "step_id": "step_dcrUpdate_closeTerminal_caceeb9ea_10_1",
+      "agent": "interaction",
+      "tool": "keyboard_shortcut",
+      "parameters": {
+        "keys": "ctrl+`"
+      },
+      "description": "Close the verified DCR update terminal.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_dcrUpdate_assertReady_caceeb9ea_10_1"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:workspace"
+      ]
+    },
+    {
+      "step_id": "step_dcrUpdate_assertClosed_caceeb9ea_10_1",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the integrated terminal panel is no longer visible and the Visual Studio Code workbench is ready.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_dcrUpdate_closeTerminal_caceeb9ea_10_1"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:workspace",
+        "step_retry_timeout:30"
+      ]
+    },
+    {
+      "step_id": "step_executeCommand_open_caceeb9ea_11_1",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "f1"
+      },
+      "description": "Press the F1 key to open the Command Palette in Visual Studio Code.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_dcrUpdate_assertClosed_caceeb9ea_10_1"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:command-palette",
+        "action:execute-command"
+      ]
+    },
+    {
+      "step_id": "step_executeCommand_assertPalette_caceeb9ea_11_1",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the Visual Studio Code Command Palette is visible with a > character in its input box and is ready to accept a command search.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_executeCommand_open_caceeb9ea_11_1"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:command-palette",
+        "action:execute-command",
+        "step_retry_timeout: 30"
+      ]
+    },
+    {
+      "step_id": "step_executeCommand_filter_caceeb9ea_11_1",
+      "agent": "interaction",
+      "tool": "type_text",
+      "parameters": {
+        "text": "Debug: Select and Start Debugging"
+      },
+      "description": "Type the resolved command title into the active Command Palette.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_executeCommand_assertPalette_caceeb9ea_11_1"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:command-palette",
+        "action:execute-command"
+      ]
+    },
+    {
+      "step_id": "step_executeCommand_assertCommand_caceeb9ea_11_1",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the Command Palette input box reads >Debug: Select and Start Debugging and the highlighted command listed under it is titled Debug: Select and Start Debugging.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_executeCommand_filter_caceeb9ea_11_1"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:command-palette",
+        "action:execute-command",
+        "step_retry_timeout: 30"
+      ]
+    },
+    {
+      "step_id": "step_executeCommand_execute_caceeb9ea_11_1",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "enter"
+      },
+      "description": "Press Enter to execute the selected Command Palette command.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_executeCommand_assertCommand_caceeb9ea_11_1"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:command-palette",
+        "action:execute-command"
+      ]
+    },
+    {
+      "step_id": "step_filterOption_filter_caceeb9ea_11_2",
+      "agent": "interaction",
+      "tool": "type_text",
+      "parameters": {
+        "text": "Preview in Copilot (Chrome)"
+      },
+      "description": "Type the resolved option label into the active option picker.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_executeCommand_execute_caceeb9ea_11_1"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:quick-input",
+        "answer_type:singleSelect"
+      ]
+    },
+    {
+      "step_id": "step_filterOption_assertOption_caceeb9ea_11_2",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the option Preview in Copilot (Chrome) is visible and selectable in the filtered option picker.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_filterOption_filter_caceeb9ea_11_2"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:quick-input",
+        "answer_type:singleSelect",
+        "step_retry_timeout: 30"
+      ]
+    },
+    {
+      "step_id": "step_filterOption_confirm_caceeb9ea_11_2",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "enter"
+      },
+      "description": "Press Enter to confirm the filtered option.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_filterOption_assertOption_caceeb9ea_11_2"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:quick-input",
+        "answer_type:singleSelect"
+      ]
+    },
+    {
+      "step_id": "step_browserM365SignIn_assertPage_caceeb9ea_11_3",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the Microsoft sign-in page is visible in Chrome with an email or username input and a Next button.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_filterOption_confirm_caceeb9ea_11_2"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:authentication",
+        "surface:browser",
+        "step_retry_timeout: 180"
+      ]
+    },
+    {
+      "step_id": "step_browserM365SignIn_focusAccount_caceeb9ea_11_3",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 512,
+        "y": 384
+      },
+      "description": "Click the \"Email, phone, or Skype\" input (also labelled \"Email or phone\") on the Microsoft sign-in page above Next, not the passkey suggestion.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_browserM365SignIn_assertPage_caceeb9ea_11_3"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:authentication",
+        "surface:browser",
+        "ocr:true"
+      ]
+    },
+    {
+      "step_id": "step_browserM365SignIn_assertAccount_caceeb9ea_11_3",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the Microsoft sign-in page is visible in Chrome with an email or username input that is focused.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_browserM365SignIn_focusAccount_caceeb9ea_11_3"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:authentication",
+        "surface:browser",
+        "step_retry_timeout: 180"
+      ]
+    },
+    {
+      "step_id": "step_browserM365SignIn_enterAccount_caceeb9ea_11_3",
+      "agent": "interaction",
+      "tool": "type_text",
+      "parameters": {
+        "text": "${{env:M365_ACCOUNT_NAME}}"
+      },
+      "description": "Enter the registered Microsoft 365 account in the browser sign-in form.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_browserM365SignIn_assertAccount_caceeb9ea_11_3"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:authentication",
+        "surface:browser"
+      ]
+    },
+    {
+      "step_id": "step_browserM365SignIn_assertEnteredAccount_caceeb9ea_11_3",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the Microsoft sign-in page in Chrome shows ${{env:M365_ACCOUNT_NAME}} in the email or username input.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_browserM365SignIn_enterAccount_caceeb9ea_11_3"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:authentication",
+        "surface:browser",
+        "step_retry_timeout: 60"
+      ]
+    },
+    {
+      "step_id": "step_browserM365SignIn_submitAccount_caceeb9ea_11_3",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "enter"
+      },
+      "description": "Press Enter to continue to password entry.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_browserM365SignIn_assertEnteredAccount_caceeb9ea_11_3"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:authentication",
+        "surface:browser"
+      ]
+    },
+    {
+      "step_id": "step_browserM365SignIn_assertPassword_caceeb9ea_11_3",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the Microsoft sign-in password input is visible and focused in Chrome.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_browserM365SignIn_submitAccount_caceeb9ea_11_3"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:authentication",
+        "surface:browser",
+        "step_retry_timeout: 120"
+      ]
+    },
+    {
+      "step_id": "step_browserM365SignIn_enterPassword_caceeb9ea_11_3",
+      "agent": "interaction",
+      "tool": "type_text",
+      "parameters": {
+        "text": "${{secret:M365_ACCOUNT_PASSWORD}}"
+      },
+      "description": "Enter the registered Microsoft 365 password in the browser sign-in form.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_browserM365SignIn_assertPassword_caceeb9ea_11_3"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:authentication",
+        "surface:browser"
+      ]
+    },
+    {
+      "step_id": "step_browserM365SignIn_submitPassword_caceeb9ea_11_3",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "enter"
+      },
+      "description": "Press Enter to submit the Microsoft 365 password.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_browserM365SignIn_enterPassword_caceeb9ea_11_3"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:authentication",
+        "surface:browser"
+      ]
+    },
+    {
+      "step_id": "step_browserM365SignIn_assertStaySignedIn_caceeb9ea_11_3",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the Microsoft Stay signed in question is visible with Yes focused.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_browserM365SignIn_submitPassword_caceeb9ea_11_3"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:authentication",
+        "surface:browser",
+        "step_retry_timeout: 120"
+      ]
+    },
+    {
+      "step_id": "step_browserM365SignIn_confirmStaySignedIn_caceeb9ea_11_3",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "enter"
+      },
+      "description": "Press Enter to confirm staying signed in.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_browserM365SignIn_assertStaySignedIn_caceeb9ea_11_3"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:authentication",
+        "surface:browser",
+        "delay: 30"
+      ]
+    },
+    {
+      "step_id": "step_assertReady_assertReady_caceeb9ea_11_4",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion Microsoft 365 Copilot shows an agent's chat open in the main section with a visible message input.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_browserM365SignIn_confirmStaySignedIn_caceeb9ea_11_3"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:browser",
+        "action:assert-ready",
+        "step_retry_timeout: 180"
+      ]
+    },
+    {
+      "step_id": "step_zoomOut_zoomOut_caceeb9ea_11_5",
+      "agent": "interaction",
+      "tool": "keyboard_shortcut",
+      "parameters": {
+        "keys": "ctrl+-"
+      },
+      "description": "Zoom the browser out once with Ctrl+- so the Microsoft 365 Copilot navigation rail stops covering the conversation column.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_assertReady_assertReady_caceeb9ea_11_4"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:browser",
+        "action:zoom-out"
+      ]
+    },
+    {
+      "step_id": "step_sendCopilotMessage_assertInput_caceeb9ea_13_1",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the Microsoft 365 Copilot message input is visible in the open agent chat.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_zoomOut_zoomOut_caceeb9ea_11_5"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:browser",
+        "host_surface:copilot",
+        "entry_state:chat-ready",
+        "action:send-message",
+        "step_retry_timeout: 120"
+      ]
+    },
+    {
+      "step_id": "step_sendCopilotMessage_focusInput_caceeb9ea_13_1",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 416,
+        "y": 369
+      },
+      "description": "Click the \"Message\" input box in the Microsoft 365 Copilot web application.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_sendCopilotMessage_assertInput_caceeb9ea_13_1"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:browser",
+        "host_surface:copilot",
+        "entry_state:chat-ready",
+        "action:send-message",
+        "ocr:true"
+      ]
+    },
+    {
+      "step_id": "step_sendCopilotMessage_type_caceeb9ea_13_1",
+      "agent": "interaction",
+      "tool": "type_text",
+      "parameters": {
+        "text": "Call the remote whoami tool. Show only tenant_id, auth_method, and client_id copied from its actual result as a short, pretty-printed JSON object. Do not infer or invent values."
+      },
+      "description": "Type \"Call the remote whoami tool. Show only tenant_id, auth_method, and client_id copied from its actual result as a short, pretty-printed JSON object. Do not infer or invent values.\" into the Copilot message input.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_sendCopilotMessage_focusInput_caceeb9ea_13_1"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:browser",
+        "host_surface:copilot",
+        "entry_state:chat-ready",
+        "action:send-message"
+      ]
+    },
+    {
+      "step_id": "step_sendCopilotMessage_send_caceeb9ea_13_1",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "enter"
+      },
+      "description": "Press Enter to send the Copilot message.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_sendCopilotMessage_type_caceeb9ea_13_1"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:browser",
+        "host_surface:copilot",
+        "entry_state:chat-ready",
+        "action:send-message"
+      ]
+    },
+    {
+      "step_id": "step_connectCopilotOAuth_assert_caceeb9ea_13_2",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the current Copilot turn requires authentication and shows an enabled Sign in to ${{var:app_name}} button alongside Cancel. This is the OAuth connection card, not an Allow capability-consent card.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_sendCopilotMessage_send_caceeb9ea_13_1"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:browser",
+        "host_surface:copilot",
+        "entry_state:oauth-connection",
+        "step_retry_timeout:120"
+      ]
+    },
+    {
+      "step_id": "step_connectCopilotOAuth_click_caceeb9ea_13_2",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 386,
+        "y": 367
+      },
+      "description": "Click the Sign in to ${{var:app_name}} button in the current Microsoft 365 Copilot turn to start the registered OAuth connection.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_connectCopilotOAuth_assert_caceeb9ea_13_2"
+      ],
+      "preconditions": [
+        "dhash:386:367:16:5:c913ceda925ac920",
+        "dhash:386:367:96:5:0000004444000400"
+      ],
+      "postconditions": [],
+      "tags": [
+        "component:browser",
+        "host_surface:copilot",
+        "action:connect-oauth",
+        "ocr:true",
+        "source_recording:r_1022_133108"
+      ]
+    },
+    {
+      "step_id": "step_authorizeMcpClient_assert_caceeb9ea_13_3",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the active authorization popup is on the facade hosting ${{env:MCP_AUTH_ENDPOINT}} and shows Authorize an MCP client, a Client ID, Callback destination https://teams.microsoft.com/api/platform/v1.0/oAuthRedirect, and an enabled Allow this client button. No invalid_client or authorization error is visible.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_connectCopilotOAuth_click_caceeb9ea_13_2"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:browser",
+        "entry_state:mcp-client-consent",
+        "step_retry_timeout:120"
+      ]
+    },
+    {
+      "step_id": "step_authorizeMcpClient_allow_caceeb9ea_13_3",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 62,
+        "y": 389
+      },
+      "description": "Click Allow this client on the facade's Authorize an MCP client page to approve this dynamically registered client's displayed permissions and callback, then continue to Microsoft Entra authorization.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_authorizeMcpClient_assert_caceeb9ea_13_3"
+      ],
+      "preconditions": [
+        "dhash:62:389:16:5:477655454644bb44",
+        "dhash:62:389:96:5:e9c9006969002900"
+      ],
+      "postconditions": [],
+      "tags": [
+        "component:browser",
+        "action:authorize-mcp-client",
+        "ocr:true",
+        "source_recording:r_1022_133108"
+      ]
+    },
+    {
+      "step_id": "step_selectSignedInMicrosoftAccount_assert_caceeb9ea_13_4",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the active Microsoft sign-in popup shows Pick an account. The Signed in row for ${{env:M365_ACCOUNT_NAME}} has keyboard focus, indicated by its dotted outline. Use another account is not focused.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_authorizeMcpClient_allow_caceeb9ea_13_3"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:authentication",
+        "entry_state:signed-in-account-picker",
+        "step_retry_timeout:120"
+      ]
+    },
+    {
+      "step_id": "step_selectSignedInMicrosoftAccount_select_caceeb9ea_13_4",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "enter"
+      },
+      "description": "Press Enter to select the focused signed-in Microsoft account ${{env:M365_ACCOUNT_NAME}} and complete this OAuth authorization, not another account.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_selectSignedInMicrosoftAccount_assert_caceeb9ea_13_4"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:authentication",
+        "action:select-microsoft-account",
+        "source_recording:r_1022_210211"
+      ]
+    },
+    {
+      "step_id": "step_assertCopilotOAuthReturn_caceeb9ea_13_5",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion Microsoft 365 Copilot is active again with the owned agent ${{var:app_name}} and its message composer visible. No external authentication popup, Microsoft account-picker page, or pending Sign in to ${{var:app_name}} card is visible. Popup closure alone does not establish a completed tool invocation.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_selectSignedInMicrosoftAccount_select_caceeb9ea_13_4"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:browser",
+        "host_surface:copilot",
+        "assertion:copilot-oauth-return",
+        "step_retry_timeout:120"
+      ]
+    },
+    {
+      "step_id": "step_assertCopilotOAuthReturn_clearHover_caceeb9ea_13_5",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "esc"
+      },
+      "description": "Press Escape in the active Copilot chat to dismiss the sidebar hover tooltip without dismissing the inline connection-consent card.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_assertCopilotOAuthReturn_caceeb9ea_13_5"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:browser",
+        "host_surface:copilot",
+        "action:clear-oauth-return-hover",
+        "source_recording:r_1022_220909"
+      ]
+    },
+    {
+      "step_id": "step_allowCopilotAction_assert_caceeb9ea_13_6",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the Copilot action-consent Allow button is visible.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_assertCopilotOAuthReturn_clearHover_caceeb9ea_13_5"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:browser",
+        "host_surface:copilot",
+        "entry_state:action-consent",
+        "step_retry_timeout: 30"
+      ]
+    },
+    {
+      "step_id": "step_allowCopilotAction_click_caceeb9ea_13_6",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 333,
+        "y": 327
+      },
+      "description": "Click the \"Allow\" button in the Microsoft 365 Copilot chat interface to grant the agent access.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_allowCopilotAction_assert_caceeb9ea_13_6"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:browser",
+        "host_surface:copilot",
+        "entry_state:action-consent",
+        "action:allow",
+        "ocr:true"
+      ]
+    },
+    {
+      "step_id": "step_allowCopilotAction_assertDismissed_caceeb9ea_13_6",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the Copilot action-consent Allow button is no longer visible.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_allowCopilotAction_click_caceeb9ea_13_6"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:browser",
+        "host_surface:copilot",
+        "exit_state:action-consent-dismissed",
+        "step_retry_timeout: 30"
+      ]
+    },
+    {
+      "step_id": "step_assertChatReplied_assert_caceeb9ea_13_7",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the current assistant turn is complete and contains a non-empty response.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_allowCopilotAction_assertDismissed_caceeb9ea_13_6"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:browser",
+        "action:assert-chat-response",
+        "expectation:replied",
+        "step_retry_timeout: 120"
+      ]
+    },
+    {
+      "step_id": "step_assertToolCalled_caceeb9ea_13_8",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the current completed assistant response contains a returned result for the requested remote tool whoami. Returned tool-specific result data, including inline JSON, is sufficient evidence. Do not require a separate tool execution marker, citation, trace panel, debugger information, or developer mode. A user prompt, tool description, refusal, loading state, or promise to call without a result does not satisfy this assertion.",
+      "content_refs": [],
+      "timeout": 60,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_assertChatReplied_assert_caceeb9ea_13_7"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:chat",
+        "assertion:tool-called",
+        "step_retry_timeout:120"
+      ]
+    },
+    {
+      "step_id": "step_assertChatNonEmptyField_caceeb9ea_13_9",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the current completed assistant tool result contains the field client_id with a non-empty string value. Missing, null, empty and whitespace-only values fail. Any non-empty identifier is acceptable; no specific literal value or JSON whitespace formatting is required. The field name in the user prompt or a tool description alone is not a result.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_assertToolCalled_caceeb9ea_13_8"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:chat",
+        "action:assert-chat-response",
+        "expectation:non-empty-field",
+        "step_retry_timeout:120"
+      ]
+    },
+    {
+      "step_id": "step_assertChatContains_assert_caceeb9ea_13_10",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the current assistant response contains \"\"tenant_id\": \"${{env:MCP_AUTH_EXPECTED_TENANT}}\"\".",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_assertChatNonEmptyField_caceeb9ea_13_9"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:browser",
+        "action:assert-chat-response",
+        "expectation:contains",
+        "step_retry_timeout: 120"
+      ]
+    },
+    {
+      "step_id": "step_assertChatContains_assert_caceeb9ea_13_11",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the current assistant response contains \"\"auth_method\": \"entra_user\"\".",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_assertChatContains_assert_caceeb9ea_13_10"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:browser",
+        "action:assert-chat-response",
+        "expectation:contains",
+        "step_retry_timeout: 120"
+      ]
+    },
+    {
+      "step_id": "step_sendCopilotMessage_assertInput_caceeb9ea_13_12",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the Microsoft 365 Copilot message input is visible in the open agent chat.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_assertChatContains_assert_caceeb9ea_13_11"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:browser",
+        "host_surface:copilot",
+        "entry_state:chat-ready",
+        "action:send-message",
+        "step_retry_timeout: 120"
+      ]
+    },
+    {
+      "step_id": "step_sendCopilotMessage_focusInput_caceeb9ea_13_12",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 416,
+        "y": 369
+      },
+      "description": "Click the \"Message\" input box in the Microsoft 365 Copilot web application.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_sendCopilotMessage_assertInput_caceeb9ea_13_12"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:browser",
+        "host_surface:copilot",
+        "entry_state:chat-ready",
+        "action:send-message",
+        "ocr:true"
+      ]
+    },
+    {
+      "step_id": "step_sendCopilotMessage_type_caceeb9ea_13_12",
+      "agent": "interaction",
+      "tool": "type_text",
+      "parameters": {
+        "text": "Call the remote auth_flow_probe tool now. Show only canary, auth_flow, a newly generated probe_id, and fresh server_time copied from its actual result as a short, pretty-printed JSON object. Do not infer, invent, or reuse earlier results."
+      },
+      "description": "Type \"Call the remote auth_flow_probe tool now. Show only canary, auth_flow, a newly generated probe_id, and fresh server_time copied from its actual result as a short, pretty-printed JSON object. Do not infer, invent, or reuse earlier results.\" into the Copilot message input.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_sendCopilotMessage_focusInput_caceeb9ea_13_12"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:browser",
+        "host_surface:copilot",
+        "entry_state:chat-ready",
+        "action:send-message"
+      ]
+    },
+    {
+      "step_id": "step_sendCopilotMessage_send_caceeb9ea_13_12",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "enter"
+      },
+      "description": "Press Enter to send the Copilot message.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_sendCopilotMessage_type_caceeb9ea_13_12"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:browser",
+        "host_surface:copilot",
+        "entry_state:chat-ready",
+        "action:send-message"
+      ]
+    },
+    {
+      "step_id": "step_assertChatReplied_assert_caceeb9ea_13_13",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the current assistant turn is complete and contains a non-empty response.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_sendCopilotMessage_send_caceeb9ea_13_12"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:browser",
+        "action:assert-chat-response",
+        "expectation:replied",
+        "step_retry_timeout: 120"
+      ]
+    },
+    {
+      "step_id": "step_assertToolCalled_caceeb9ea_13_14",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the current completed assistant response contains a returned result for the requested remote tool auth_flow_probe. Returned tool-specific result data, including inline JSON, is sufficient evidence. Do not require a separate tool execution marker, citation, trace panel, debugger information, or developer mode. A user prompt, tool description, refusal, loading state, or promise to call without a result does not satisfy this assertion.",
+      "content_refs": [],
+      "timeout": 60,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_assertChatReplied_assert_caceeb9ea_13_13"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:chat",
+        "assertion:tool-called",
+        "step_retry_timeout:120"
+      ]
+    },
+    {
+      "step_id": "step_assertChatContains_assert_caceeb9ea_13_15",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the current assistant response contains \"\"canary\": \"PURPLE-NARWHAL-7788\"\".",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_assertToolCalled_caceeb9ea_13_14"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:browser",
+        "action:assert-chat-response",
+        "expectation:contains",
+        "step_retry_timeout: 120"
+      ]
+    },
+    {
+      "step_id": "step_assertChatContains_assert_caceeb9ea_13_16",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the current assistant response contains \"\"auth_flow\": \"${{env:MCP_AUTH_EXPECTED_FLOW}}\"\".",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_assertChatContains_assert_caceeb9ea_13_15"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:browser",
+        "action:assert-chat-response",
+        "expectation:contains",
+        "step_retry_timeout: 120"
+      ]
+    },
+    {
+      "step_id": "step_assertChatContains_assert_caceeb9ea_13_17",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the current assistant response contains \"\"probe_id\":\".",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_assertChatContains_assert_caceeb9ea_13_16"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:browser",
+        "action:assert-chat-response",
+        "expectation:contains",
+        "step_retry_timeout: 120"
+      ]
+    },
+    {
+      "step_id": "step_assertChatContains_assert_caceeb9ea_13_18",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the current assistant response contains \"\"server_time\":\".",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_assertChatContains_assert_caceeb9ea_13_17"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:browser",
+        "action:assert-chat-response",
+        "expectation:contains",
+        "step_retry_timeout: 120"
+      ]
+    },
+    {
+      "step_id": "step_sendCopilotMessage_assertInput_caceeb9ea_13_19",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the Microsoft 365 Copilot message input is visible in the open agent chat.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_assertChatContains_assert_caceeb9ea_13_18"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:browser",
+        "host_surface:copilot",
+        "entry_state:chat-ready",
+        "action:send-message",
+        "step_retry_timeout: 120"
+      ]
+    },
+    {
+      "step_id": "step_sendCopilotMessage_focusInput_caceeb9ea_13_19",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 416,
+        "y": 369
+      },
+      "description": "Click the \"Message\" input box in the Microsoft 365 Copilot web application.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_sendCopilotMessage_assertInput_caceeb9ea_13_19"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:browser",
+        "host_surface:copilot",
+        "entry_state:chat-ready",
+        "action:send-message",
+        "ocr:true"
+      ]
+    },
+    {
+      "step_id": "step_sendCopilotMessage_type_caceeb9ea_13_19",
+      "agent": "interaction",
+      "tool": "type_text",
+      "parameters": {
+        "text": "Call the remote add tool with a=20 and b=7. Show the raw tool result rather than computing the answer yourself."
+      },
+      "description": "Type \"Call the remote add tool with a=20 and b=7. Show the raw tool result rather than computing the answer yourself.\" into the Copilot message input.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_sendCopilotMessage_focusInput_caceeb9ea_13_19"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:browser",
+        "host_surface:copilot",
+        "entry_state:chat-ready",
+        "action:send-message"
+      ]
+    },
+    {
+      "step_id": "step_sendCopilotMessage_send_caceeb9ea_13_19",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "enter"
+      },
+      "description": "Press Enter to send the Copilot message.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_sendCopilotMessage_type_caceeb9ea_13_19"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:browser",
+        "host_surface:copilot",
+        "entry_state:chat-ready",
+        "action:send-message"
+      ]
+    },
+    {
+      "step_id": "step_assertChatReplied_assert_caceeb9ea_13_20",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the current assistant turn is complete and contains a non-empty response.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_sendCopilotMessage_send_caceeb9ea_13_19"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:browser",
+        "action:assert-chat-response",
+        "expectation:replied",
+        "step_retry_timeout: 120"
+      ]
+    },
+    {
+      "step_id": "step_assertToolCalled_caceeb9ea_13_21",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the current completed assistant response contains a returned result for the requested remote tool add. Returned tool-specific result data, including inline JSON, is sufficient evidence. Do not require a separate tool execution marker, citation, trace panel, debugger information, or developer mode. A user prompt, tool description, refusal, loading state, or promise to call without a result does not satisfy this assertion.",
+      "content_refs": [],
+      "timeout": 60,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_assertChatReplied_assert_caceeb9ea_13_20"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:chat",
+        "assertion:tool-called",
+        "step_retry_timeout:120"
+      ]
+    },
+    {
+      "step_id": "step_assertChatContains_assert_caceeb9ea_13_22",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the current assistant response contains \"\"sum\": 27\".",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_assertToolCalled_caceeb9ea_13_21"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:browser",
+        "action:assert-chat-response",
+        "expectation:contains",
+        "step_retry_timeout: 120"
+      ]
+    }
+  ],
+  "screenshots": {}
+}

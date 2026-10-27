@@ -23,6 +23,7 @@ const allowedEngineModules = new Set(
     "expand-case-bundle.cjs",
     "load-case-sources.cjs",
     "mcp-auth-fixture.cjs",
+    "dcr-update-fixture.cjs",
     "parse-case-bundle.cjs",
     "preflight-output-paths.cjs",
     "render-component.cjs",
@@ -65,6 +66,58 @@ async function compileFixture(fileName, transform) {
     sourceText: transform(sourceText),
   });
 }
+
+test("VCB-184 / DCR-UI-UPD-01: standalone DCR update owns three provisions and gated stages", async () => {
+  const source = path.join(casesDirectory, "da-mcp-dcr-update.yml");
+  assert.ok(fsSync.existsSync(source), "Missing independent DCR update case");
+  const result = await compileFixture(
+    "da-mcp-dcr-update.yml",
+    (value) => value,
+  );
+  assert.equal(result.ok, true, JSON.stringify(result.diagnostics));
+  assert.equal(result.value.length, 1);
+  const { plan } = result.value[0];
+  assert.equal(
+    plan.steps.some((step) => step.agent === "code"),
+    false,
+  );
+  const phases = plan.steps
+    .filter((step) => step.tags.includes("operation:dcr-update-stage"))
+    .map(
+      (step) =>
+        step.tags
+          .find((tag) => tag.startsWith("dcr_update_phase:"))
+          .split(":")[1],
+    );
+  assert.deepEqual(phases, ["prepare", "baseline", "apply", "verify", "noop"]);
+  for (const phase of phases) {
+    assert.ok(
+      plan.steps.some((step) =>
+        step.tags.includes(`dcr_update_ready:${phase}`),
+      ),
+    );
+  }
+  assert.ok(!JSON.stringify(plan).includes("feature_flag:"));
+  for (const tool of ["whoami", "auth_flow_probe", "add"]) {
+    assert.ok(JSON.stringify(plan).includes(tool));
+  }
+});
+
+test("VCB-184: update verification cannot precede the second Provision", async () => {
+  const { parse, stringify } = require("yaml");
+  const result = await compileFixture("da-mcp-dcr-update.yml", (source) => {
+    const bundle = parse(source);
+    const steps = bundle.cases[0].steps;
+    steps.splice(steps.indexOf("apply") + 1, 1);
+    return stringify(bundle);
+  });
+  assert.equal(result.ok, false);
+  assert.ok(
+    result.diagnostics.some(
+      (item) => item.code === "VCB_DCR_UPDATE_STAGE_INVALID",
+    ),
+  );
+});
 
 test("VCB-171: generated MCP fixtures reserve run ownership before mutating registration state", async () => {
   const result = await compileFixture(
@@ -740,7 +793,7 @@ test("VCB-34: semantic compiler does not read external template contracts", asyn
   }
 });
 
-test("VCB-34: default setup compiles the checked-in YAML sources into 198 plans", async (context) => {
+test("VCB-34: default setup compiles the checked-in YAML sources into 199 plans", async (context) => {
   const plansDirectory = await fs.mkdtemp(
     path.join(os.tmpdir(), "vscuse-generated-"),
   );
@@ -753,9 +806,9 @@ test("VCB-34: default setup compiles the checked-in YAML sources into 198 plans"
   });
 
   assert.equal(first.ok, true);
-  assert.equal(first.value.files.length, 198);
+  assert.equal(first.value.files.length, 199);
   const generatedFiles = first.value.files;
-  assert.equal(generatedFiles.length, 198);
+  assert.equal(generatedFiles.length, 199);
   assert.equal(
     generatedFiles.includes(
       "da-api-plugin-from-existing-api--da-api-plugin-from-existing-api-no-auth.json",

@@ -33,6 +33,7 @@ const allowedStepTypes = new Set([
   "userEnvironment",
   "projectEnvironment",
   "configureMcpAuth",
+  "dcrUpdate",
   "removeWorkspaceFile",
   "configureArmJsonTemplates",
   "workflowVersion",

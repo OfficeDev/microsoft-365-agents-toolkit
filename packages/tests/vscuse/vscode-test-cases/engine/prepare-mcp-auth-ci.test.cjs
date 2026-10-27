@@ -403,7 +403,7 @@ test("VCB-183: workflow reads public vars and gates the prepared MCP config with
   assert.ok(random.if.includes("!contains"));
   const selected = JSON.parse(preparation.if.match(/fromJSON\('([^']+)'\)/)[1]);
   const skipped = JSON.parse(random.if.match(/fromJSON\('([^']+)'\)/)[1]);
-  assert.equal(selected.length, 3);
+  assert.equal(selected.length, 4);
   assert.deepEqual(skipped, selected);
   const execution = job.steps.find((step) => step.name === "Run test");
   assert.ok(execution.run.includes("steps.prepare-mcp-auth.outcome"));

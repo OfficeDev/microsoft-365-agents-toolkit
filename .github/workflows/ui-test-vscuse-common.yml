@@ -17,6 +17,11 @@ name: uitest-vscuse-common
 on:
   workflow_call:
     inputs:
+      mcp_initial_endpoint:
+        description: "Public HTTPS discovery mock for the standalone DCR update case."
+        required: false
+        type: string
+        default: ""
       # Pass-through user inputs from the caller's workflow_dispatch
       test_plan:
         required: false
@@ -287,7 +292,7 @@ jobs:
           fi
 
       - name: Set m365 account randomly
-        if: ${{ !contains(fromJSON('["da-mcp-server--da-mcp-static-entra-copilot","da-mcp-server--da-mcp-dcr-copilot","da-mcp-server--da-mcp-entra-sso-copilot"]'), matrix.test_plan) }}
+        if: ${{ !contains(fromJSON('["da-mcp-server--da-mcp-static-entra-copilot","da-mcp-server--da-mcp-dcr-copilot","da-mcp-server--da-mcp-entra-sso-copilot","da-mcp-server--da-mcp-dcr-update-copilot"]'), matrix.test_plan) }}
         run: |
           IFS=',' read -ra users <<< "$M365_USERNAMES"
           for i in "${!users[@]}"; do
@@ -342,12 +347,13 @@ jobs:
 
       - name: Prepare isolated MCP authentication fixture
         id: prepare-mcp-auth
-        if: ${{ contains(fromJSON('["da-mcp-server--da-mcp-static-entra-copilot","da-mcp-server--da-mcp-dcr-copilot","da-mcp-server--da-mcp-entra-sso-copilot"]'), matrix.test_plan) }}
+        if: ${{ contains(fromJSON('["da-mcp-server--da-mcp-static-entra-copilot","da-mcp-server--da-mcp-dcr-copilot","da-mcp-server--da-mcp-entra-sso-copilot","da-mcp-server--da-mcp-dcr-update-copilot"]'), matrix.test_plan) }}
         working-directory: packages/tests/vscuse/vscode-test-cases
         env:
           TEST_PLAN: ${{ matrix.test_plan }}
           M365_ACCOUNT_NAME: ${{ vars.M365_ACCOUNT_NAME_ENABLECOPILOTACCESS }}
           M365_ACCOUNT_PASSWORD: ${{ secrets.M365_ACCOUNT_PASSWORD_ENABLECOPILOTACCESS }}
+          MCP_AUTH_INITIAL_ENDPOINT: ${{ matrix.test_plan == 'da-mcp-server--da-mcp-dcr-update-copilot' && (inputs.mcp_initial_endpoint || vars.MCP_AUTH_INITIAL_ENDPOINT) || '' }}
           DA_MCP_OAUTH_CLIENT_SECRET: ${{ matrix.test_plan == 'da-mcp-server--da-mcp-static-entra-copilot' && secrets.DA_MCP_OAUTH_CLIENT_SECRET || '' }}
           MCP_AUTH_SSO_ID: ${{ matrix.test_plan == 'da-mcp-server--da-mcp-entra-sso-copilot' && secrets.ENTRA_SSO_REGISTRATION_ID || '' }}
           MCP_AUTH_AAD_MANIFEST_B64: ${{ matrix.test_plan == 'da-mcp-server--da-mcp-entra-sso-copilot' && secrets.MCP_AUTH_AAD_MANIFEST_B64 || '' }}

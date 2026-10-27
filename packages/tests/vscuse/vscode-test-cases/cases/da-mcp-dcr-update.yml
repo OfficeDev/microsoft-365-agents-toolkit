@@ -1,0 +1,116 @@
+version: 1
+
+cases:
+  - id: da-mcp-dcr-update-copilot
+    scenarioId: SCN-DA-CREATE-WITH-MCP-SERVER
+    # Existing DCR discovery feature; not a fabricated work item for #16840.
+    workItemIds: [7559991]
+    gate: manual
+    steps:
+      [
+        scaffold,
+        prepare,
+        login,
+        provision,
+        baseline,
+        apply,
+        provision,
+        verify,
+        provision,
+        noop,
+        preview,
+        open,
+        tools,
+      ]
+
+steps:
+  scaffold:
+    type: scaffold
+    with:
+      template: da/mcp-server
+      answers:
+        - question: projectType
+          value: copilot-agent-type
+        - question: daTemplate
+          value: add-action
+        - question: actionSource
+          value: mcp
+        - question: mcpServerUrl
+          type: text
+          value: "${{env:MCP_AUTH_INITIAL_ENDPOINT}}"
+        - question: authType
+          value: oauth-dynamic
+        - question: workspaceFolder
+          value: default
+        - question: appName
+          type: text
+          value: "${{var:app_name:vscuse_dcr_update_#####}}"
+  prepare:
+    type: dcrUpdate
+    with:
+      phase: prepare
+  login:
+    type: login
+    with:
+      type: m365
+      account: "${{env:M365_ACCOUNT_NAME}}"
+      password: "${{secret:M365_ACCOUNT_PASSWORD}}"
+  provision:
+    type: provision
+    with:
+      environment: none
+  baseline:
+    type: dcrUpdate
+    with:
+      phase: baseline
+  apply:
+    type: dcrUpdate
+    with:
+      phase: apply
+  verify:
+    type: dcrUpdate
+    with:
+      phase: verify
+  noop:
+    type: dcrUpdate
+    with:
+      phase: noop
+  preview:
+    type: target
+    with:
+      profile: "Preview in Copilot (Chrome)"
+      profileSelection: first
+  open:
+    type: open
+    with:
+      kind: agent
+      destination: chat
+  tools:
+    type: checks
+    with:
+      - type: chat
+        send: Call the remote whoami tool. Show only tenant_id, auth_method, and client_id copied from its actual result as a short, pretty-printed JSON object. Do not infer or invent values.
+        connectOAuth: true
+        expect:
+          replied: true
+          toolCalled: whoami
+          nonEmptyFields: [client_id]
+          contains:
+            - '"tenant_id": "${{env:MCP_AUTH_EXPECTED_TENANT}}"'
+            - '"auth_method": "entra_user"'
+      - type: chat
+        send: Call the remote auth_flow_probe tool now. Show only canary, auth_flow, a newly generated probe_id, and fresh server_time copied from its actual result as a short, pretty-printed JSON object. Do not infer, invent, or reuse earlier results.
+        expect:
+          replied: true
+          toolCalled: auth_flow_probe
+          contains:
+            - '"canary": "PURPLE-NARWHAL-7788"'
+            - '"auth_flow": "${{env:MCP_AUTH_EXPECTED_FLOW}}"'
+            - '"probe_id":'
+            - '"server_time":'
+      - type: chat
+        send: Call the remote add tool with a=20 and b=7. Show the raw tool result rather than computing the answer yourself.
+        expect:
+          replied: true
+          toolCalled: add
+          contains: ['"sum": 27']

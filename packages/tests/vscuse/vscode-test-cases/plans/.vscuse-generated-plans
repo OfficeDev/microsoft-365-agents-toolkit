@@ -124,6 +124,7 @@
     "da-api-plugin-from-scratch-oauth--da-api-plugin-from-scratch-oauth-ts-local-copilot.json",
     "da-api-plugin-from-scratch-oauth--da-api-plugin-from-scratch-oauth-ts-remote-copilot.json",
     "da-mcp-server--da-mcp-dcr-copilot.json",
+    "da-mcp-server--da-mcp-dcr-update-copilot.json",
     "da-mcp-server--da-mcp-entra-sso-copilot.json",
     "da-mcp-server--da-mcp-remote-entra-preview.json",
     "da-mcp-server--da-mcp-remote-none-preview.json",

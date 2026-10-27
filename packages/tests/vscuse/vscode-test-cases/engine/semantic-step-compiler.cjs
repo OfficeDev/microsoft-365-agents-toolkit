@@ -3,6 +3,7 @@ const path = require("node:path");
 
 const { renderComponent } = require("./render-component.cjs");
 const { fixtureScript } = require("./mcp-auth-fixture.cjs");
+const { dcrUpdateScript } = require("./dcr-update-fixture.cjs");
 
 const componentRoot = path.join(__dirname, "..", "components");
 const appNameExpressionPattern =
@@ -1969,8 +1970,42 @@ function createSemanticStepCompiler() {
         "The remove workspace file operation requires one project-relative path.",
       );
     }
+
     return render(state, "workspace/remove-file.json.tpl", {
       relativePath: inputs.path,
+    });
+  }
+
+  function compileDcrUpdate(state, definition) {
+    const phase = definition.with?.phase;
+    const phases = ["prepare", "baseline", "apply", "verify", "noop"];
+    const index = phases.indexOf(phase);
+    const previous = state.dcrUpdatePhase ?? -1;
+    const requiredProvisions = [0, 1, 1, 2, 3];
+    if (
+      state.template !== "da/mcp-server" ||
+      state.mcpAuthType !== "oauth-dynamic" ||
+      !isRecord(definition.with) ||
+      !hasOnlyFields(definition.with, new Set(["phase"])) ||
+      index !== previous + 1 ||
+      index < 0 ||
+      (state.dcrUpdateProvisions ?? 0) !== requiredProvisions[index]
+    ) {
+      return failure(
+        "VCB_DCR_UPDATE_STAGE_INVALID",
+        "DCR update stages require an independent ordered Dynamic MCP workflow.",
+      );
+    }
+    state.dcrUpdatePhase = index;
+    if (phase === "prepare") {
+      state.completed.add("mcp-auth-fixture");
+      state.requiresInitialFileCheck = false;
+    }
+    return render(state, "workspace/dcr-update-stage.json.tpl", {
+      scriptBase64: Buffer.from(dcrUpdateScript(phase), "utf8").toString(
+        "base64",
+      ),
+      phase,
     });
   }
 
@@ -3138,6 +3173,9 @@ function createSemanticStepCompiler() {
     );
     if (error) return error;
     state.completed.add(definition.type);
+    if (definition.type === "provision" && state.dcrUpdatePhase !== undefined) {
+      state.dcrUpdateProvisions = (state.dcrUpdateProvisions ?? 0) + 1;
+    }
     return { ok: true, value: output };
   }
 
@@ -3987,7 +4025,9 @@ function createSemanticStepCompiler() {
       definition.type !== "scaffold" &&
       definition.type !== "checks" &&
       !(
-        definition.type === "configureMcpAuth" &&
+        (definition.type === "configureMcpAuth" ||
+          (definition.type === "dcrUpdate" &&
+            definition.with?.phase === "prepare")) &&
         state.template === "da/mcp-server"
       ) &&
       state.requiresInitialFileCheck
@@ -4038,6 +4078,8 @@ function createSemanticStepCompiler() {
         return compileProjectEnvironment(state, definition);
       case "configureMcpAuth":
         return compileConfigureMcpAuth(state, definition);
+      case "dcrUpdate":
+        return compileDcrUpdate(state, definition);
       case "removeWorkspaceFile":
         return compileRemoveWorkspaceFile(state, definition);
       case "configureArmJsonTemplates":
