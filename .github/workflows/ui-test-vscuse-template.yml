@@ -21,10 +21,6 @@ on:
         description: "Template version to inject into VSCUSE config.yaml. Version of the template used in the image, e.g. 0.0.0-rc."
         required: false
         type: string
-      mcp_initial_endpoint:
-        description: "Public HTTPS mock MCP endpoint for da-mcp-dcr-update-copilot."
-        required: false
-        type: string
       email-receiver:
         description: "email notification receiver"
         required: false
@@ -64,7 +60,6 @@ jobs:
       image_tag: ${{ github.event.inputs.image_tag }}
       vscuse_version: ${{ github.event.inputs.vscuse_version }}
       template_version: ${{ github.event.inputs.template_version }}
-      mcp_initial_endpoint: ${{ github.event.inputs.mcp_initial_endpoint }}
       email_receiver: ${{ github.event.inputs.email-receiver }}
       max_retries: ${{ fromJson(github.event.inputs.max_retries || '7') }}
       schedule_trigger: ${{ github.event.inputs.schedule_trigger == 'true' }}

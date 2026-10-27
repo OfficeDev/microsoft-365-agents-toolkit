@@ -1,4 +1,5 @@
 const { fixtureScript } = require("./mcp-auth-fixture.cjs");
+const fixedInitialEndpoint = "https://example.invalid/mcp";
 
 async function runDcrUpdateStage(phase, projectPath, options = {}) {
   const fs = require("node:fs/promises");
@@ -17,8 +18,7 @@ async function runDcrUpdateStage(phase, projectPath, options = {}) {
   const yaml = load("js-yaml");
   const dotenv = load("dotenv");
   const project = path.resolve(projectPath);
-  const initial =
-    options.initialEndpoint ?? process.env.MCP_AUTH_INITIAL_ENDPOINT;
+  const initial = fixedInitialEndpoint;
   const endpoint = options.endpoint ?? process.env.MCP_AUTH_ENDPOINT;
   for (const value of [initial, endpoint]) {
     const url = new URL(value);
@@ -83,6 +83,8 @@ async function runDcrUpdateStage(phase, projectPath, options = {}) {
     "applicableToApps",
     "targetAudience",
     "supportedAccountTypes",
+    "wellKnownAuthorizationServer",
+    "resource",
   ];
   const policy = (value) =>
     Object.fromEntries(
@@ -155,6 +157,9 @@ async function runDcrUpdateStage(phase, projectPath, options = {}) {
       Array.isArray(snapshot.targetUrlsShouldStartWith) &&
       snapshot.targetUrlsShouldStartWith.every(
         (value) => typeof value === "string",
+      ) &&
+      ["mcpResourceUrl", "wellKnownAuthorizationServer", "resource"].every(
+        (name) => !(name in snapshot) || typeof snapshot[name] === "string",
       ) &&
       (snapshot.supportedAccountTypes === undefined ||
         ["Enterprise", "Enterprise, Consumer"].includes(
@@ -294,14 +299,66 @@ function dcrUpdateScript(phase) {
   if (!["prepare", "baseline", "apply", "verify", "noop"].includes(phase)) {
     throw new Error("Unknown DCR update phase");
   }
-  const program = `(${runDcrUpdateStage.toString()})(process.argv[2], process.cwd()).then(id => {
+  const program = `const fixedInitialEndpoint = ${JSON.stringify(fixedInitialEndpoint)};
+(${runDcrUpdateStage.toString()})(process.argv[2], process.cwd()).then(id => {
 console.log("VSCUSE_DCR_UPDATE_READY", require("node:path").basename(process.cwd()), process.argv[2], id);
 }).catch(error => { console.error("DCR update fixture failed:", error.message); process.exitCode = 1; });`;
   if (phase === "prepare") {
     return (
-      `import os\nos.environ["MCP_AUTH_ENDPOINT"] = os.environ["MCP_AUTH_INITIAL_ENDPOINT"]\n` +
+      String.raw`import json, os, urllib.parse, urllib.request
+
+def read_public_metadata(url):
+    with urllib.request.urlopen(url, timeout=30) as response:
+        value = json.load(response)
+    if not isinstance(value, dict):
+        raise AssertionError("Invalid public discovery metadata")
+    return value
+
+real_endpoint = urllib.parse.urlsplit(os.environ["MCP_AUTH_ENDPOINT"])
+if (real_endpoint.scheme != "https" or not real_endpoint.netloc
+        or real_endpoint.username or real_endpoint.password or real_endpoint.fragment):
+    raise AssertionError("Invalid real MCP endpoint")
+prm_url = urllib.parse.urlunsplit((real_endpoint.scheme, real_endpoint.netloc,
+    "/.well-known/oauth-protected-resource", "", ""))
+dcr_prm = read_public_metadata(prm_url)
+servers = dcr_prm.get("authorization_servers")
+if not isinstance(servers, list) or len(servers) != 1 or not isinstance(servers[0], str):
+    raise AssertionError("Expected one real authorization server")
+issuer = urllib.parse.urlsplit(servers[0])
+if (issuer.scheme != "https" or not issuer.netloc or issuer.username or issuer.password
+        or issuer.query or issuer.fragment):
+    raise AssertionError("Invalid real authorization server")
+dcr_well_known = urllib.parse.urlunsplit((issuer.scheme, issuer.netloc,
+    "/.well-known/oauth-authorization-server" + issuer.path.rstrip("/"), "", ""))
+authorization = read_public_metadata(dcr_well_known)
+registration_endpoint = authorization.get("registration_endpoint")
+if not isinstance(registration_endpoint, str):
+    raise AssertionError("Real authorization server does not support DCR")
+registration = urllib.parse.urlsplit(registration_endpoint)
+if registration.scheme != "https" or not registration.netloc or registration.username or registration.password:
+    raise AssertionError("Invalid real DCR registration endpoint")
+resource = dcr_prm.get("resource")
+if not isinstance(resource, str) or not urllib.parse.urlsplit(resource).scheme or "#" in resource:
+    raise AssertionError("Missing or invalid real OAuth resource")
+` +
       fixtureScript("dcr") +
-      `\nimport base64\n` +
+      `\nimport base64\ninitial = ${JSON.stringify(fixedInitialEndpoint)}\n` +
+      String.raw`inputs["mcpResourceUrl"] = initial
+inputs["targetUrlsShouldStartWith"] = [initial]
+inputs["wellKnownAuthorizationServer"] = dcr_well_known
+inputs["resource"] = dcr_prm["resource"]
+runtime["spec"]["url"] = initial
+local_path = project / ".vscode" / "mcp.json"
+local_mcp = json.loads(local_path.read_text(encoding="utf-8"))
+local_servers = [server for server in local_mcp["servers"].values()
+                 if server.get("url") == endpoint]
+if len(local_servers) != 1:
+    raise AssertionError("Expected one real local MCP URL before preparation")
+local_servers[0]["url"] = initial
+workflow_path.write_text(yaml.safe_dump(workflow, sort_keys=False), encoding="utf-8")
+(project / "appPackage" / "ai-plugin.json").write_text(json.dumps(plugin, indent=2) + "\n", encoding="utf-8")
+local_path.write_text(json.dumps(local_mcp, indent=2) + "\n", encoding="utf-8")
+` +
       `(project / ".auth-test" / "dcr-update.cjs").write_bytes(base64.b64decode("${Buffer.from(program).toString("base64")}"))\n` +
       `print("VSCUSE_DCR_UPDATE_READY", project.name, "prepare", run_id)\n`
     );
@@ -313,4 +370,4 @@ console.log("VSCUSE_DCR_UPDATE_READY", require("node:path").basename(process.cwd
   );
 }
 
-module.exports = { runDcrUpdateStage, dcrUpdateScript };
+module.exports = { runDcrUpdateStage, dcrUpdateScript, fixedInitialEndpoint };

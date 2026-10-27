@@ -98,6 +98,7 @@ test("VCB-184 / DCR-UI-UPD-01: standalone DCR update owns three provisions and g
     );
   }
   assert.ok(!JSON.stringify(plan).includes("feature_flag:"));
+  assert.ok(!JSON.stringify(plan).includes("MCP_AUTH_INITIAL_ENDPOINT"));
   for (const tool of ["whoami", "auth_flow_probe", "add"]) {
     assert.ok(JSON.stringify(plan).includes(tool));
   }

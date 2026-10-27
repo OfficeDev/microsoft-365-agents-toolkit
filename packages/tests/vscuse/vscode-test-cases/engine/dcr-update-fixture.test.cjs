@@ -6,7 +6,7 @@ const path = require("node:path");
 const test = require("node:test");
 const yaml = require("js-yaml");
 
-const initial = "https://mock.example.test/mcp";
+const initial = "https://example.invalid/mcp";
 const endpoint = "https://real.example.test/mcp";
 const runId = "00000000-0000-4000-8000-000000000001";
 
@@ -28,6 +28,9 @@ async function fixture(context) {
       name: "Owned DCR",
       mcpResourceUrl: initial,
       targetUrlsShouldStartWith: [initial],
+      wellKnownAuthorizationServer:
+        "https://real.example.test/.well-known/oauth-authorization-server",
+      resource: "urn:fixture:dcr-update",
     },
     writeToEnvironmentFile: { configurationId: "OWNED_DCR_ID" },
   };
@@ -86,11 +89,13 @@ async function fixture(context) {
     supportedAccountTypes: "Enterprise",
     mcpResourceUrl: initial,
     targetUrlsShouldStartWith: [initial],
+    wellKnownAuthorizationServer:
+      "https://real.example.test/.well-known/oauth-authorization-server",
+    resource: "urn:fixture:dcr-update",
     clientSecret: "must-not-be-persisted",
   };
   const options = {
     load: require,
-    initialEndpoint: initial,
     endpoint,
     readSnapshot: async (id) => {
       assert.equal(id, "owned-id");
@@ -215,68 +220,53 @@ test("VCB-185 / DCR-UI-UPD-05: missing ownership, foreign IDs and read failures 
 
 test("VCB-185: malformed policy readback cannot become a successful baseline", async (context) => {
   const run = runtime();
-  const f = await fixture(context);
-  f.setState({ ...f.state(), clientName: null });
-  await assert.rejects(
-    run("baseline", f.project, f.options),
-    /configuration|readback/i,
-  );
-});
-
-test("VCB-186: DCR profile alone accepts a distinct initial HTTPS endpoint", () => {
-  const { loadEnvironmentProfile } = require("./prepare-mcp-auth-run.cjs");
-  const environment = {
-    M365_TENANT_ID: "16801f2e-7163-4bd5-8542-f083fa59993c",
-    MCP_AUTH_ENDPOINT: endpoint,
-    MCP_AUTH_INITIAL_ENDPOINT: initial,
-  };
-  const profile = loadEnvironmentProfile("dcr", environment);
-  assert.equal(profile.environment.MCP_AUTH_INITIAL_ENDPOINT, initial);
   for (const invalid of [
-    endpoint,
-    "http://mock.example.test/mcp",
-    "https://user:pass@mock.example.test/mcp",
+    { clientName: null },
+    { resource: 42 },
+    { wellKnownAuthorizationServer: null },
   ]) {
-    assert.throws(() =>
-      loadEnvironmentProfile("dcr", {
-        ...environment,
-        MCP_AUTH_INITIAL_ENDPOINT: invalid,
-      }),
+    const f = await fixture(context);
+    f.setState({ ...f.state(), ...invalid });
+    await assert.rejects(
+      run("baseline", f.project, f.options),
+      /configuration|readback/i,
     );
   }
 });
 
-test("VCB-187: mock discovery is real-resource metadata without tokens or real tool results", async (context) => {
-  const file = path.join(__dirname, "dcr-update-mock.cjs");
-  assert.ok(fsSync.existsSync(file), "Missing controlled DCR update mock");
-  const { createDcrUpdateMock } = require(file);
-  const metadata = {
-    resource: endpoint,
-    authorization_servers: ["https://real.example.test"],
-    scopes_supported: ["access_as_user"],
+test("VCB-186: DCR profile does not read or export an initial endpoint setting", () => {
+  const { loadEnvironmentProfile } = require("./prepare-mcp-auth-run.cjs");
+  const environment = {
+    M365_TENANT_ID: "16801f2e-7163-4bd5-8542-f083fa59993c",
+    MCP_AUTH_ENDPOINT: endpoint,
   };
-  const server = createDcrUpdateMock(initial, metadata);
-  await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
-  context.after(() => new Promise((resolve) => server.close(resolve)));
-  const local = "http://127.0.0.1:" + server.address().port;
-  const response = await fetch(local + "/mcp", { method: "POST", body: "{}" });
-  assert.equal(response.status, 401);
-  assert.ok(
-    response.headers
-      .get("www-authenticate")
-      .includes(
-        "https://mock.example.test/.well-known/oauth-protected-resource",
-      ),
+  Object.defineProperty(environment, "MCP_AUTH_INITIAL_ENDPOINT", {
+    enumerable: true,
+    get() {
+      throw new Error("Initial endpoint must not be read");
+    },
+  });
+  const profile = loadEnvironmentProfile("dcr", environment);
+  assert.equal(
+    Object.hasOwn(profile.environment, "MCP_AUTH_INITIAL_ENDPOINT"),
+    false,
   );
-  const discovery = await fetch(
-    local + "/.well-known/oauth-protected-resource/mcp",
-  );
-  assert.deepEqual(await discovery.json(), metadata);
-  assert.ok(!(await response.text()).includes("PURPLE-NARWHAL-7788"));
-  assert.equal((await fetch(local + "/token", { method: "POST" })).status, 404);
 });
 
-test("VCB-186: standalone update CI routing requires the public mock endpoint", async () => {
+test("VCB-187: fixed placeholder preparation uses real discovery rather than a hosted mock", () => {
+  const {
+    dcrUpdateScript,
+    fixedInitialEndpoint,
+  } = require("./dcr-update-fixture.cjs");
+  assert.equal(fixedInitialEndpoint, initial);
+  const script = dcrUpdateScript("prepare");
+  assert.ok(!script.includes("MCP_AUTH_INITIAL_ENDPOINT"));
+  assert.ok(script.includes("wellKnownAuthorizationServer"));
+  assert.ok(script.includes('["resource"]'));
+  assert.ok(script.includes("registration_endpoint"));
+});
+
+test("VCB-186: standalone update CI routing needs no new input or hosted service", async () => {
   const { parse } = require("yaml");
   const { prepareMcpAuthCiRun } = require("./prepare-mcp-auth-run.cjs");
   const config = await fs.readFile(
@@ -292,17 +282,13 @@ test("VCB-186: standalone update CI routing requires the public mock endpoint", 
     M365_ACCOUNT_NAME: "licensed@atktesting08.onmicrosoft.com",
     M365_ACCOUNT_PASSWORD: "test-password",
   };
-  assert.throws(
-    () => prepareMcpAuthCiRun(config, plan, environment),
-    /MCP_AUTH_INITIAL_ENDPOINT/,
-  );
-  const prepared = prepareMcpAuthCiRun(config, plan, {
-    ...environment,
-    MCP_AUTH_INITIAL_ENDPOINT: initial,
-  });
+  const prepared = prepareMcpAuthCiRun(config, plan, environment);
   assert.equal(
-    parse(prepared.configText).docker.environment.MCP_AUTH_INITIAL_ENDPOINT,
-    "${MCP_AUTH_INITIAL_ENDPOINT}",
+    Object.hasOwn(
+      parse(prepared.configText).docker.environment,
+      "MCP_AUTH_INITIAL_ENDPOINT",
+    ),
+    false,
   );
   const workflow = await fs.readFile(
     path.join(
@@ -319,7 +305,7 @@ test("VCB-186: standalone update CI routing requires the public mock endpoint", 
     "utf8",
   );
   assert.ok(workflow.includes("da-mcp-server--da-mcp-dcr-update-copilot"));
-  assert.ok(workflow.includes("vars.MCP_AUTH_INITIAL_ENDPOINT"));
+  assert.ok(!workflow.includes("MCP_AUTH_INITIAL_ENDPOINT"));
   const caller = parse(
     await fs.readFile(
       path.join(
@@ -336,8 +322,11 @@ test("VCB-186: standalone update CI routing requires the public mock endpoint", 
       "utf8",
     ),
   );
-  assert.ok(caller.on.workflow_dispatch.inputs.mcp_initial_endpoint);
-  assert.ok(workflow.includes("inputs.mcp_initial_endpoint"));
+  assert.equal(
+    Object.hasOwn(caller.on.workflow_dispatch.inputs, "mcp_initial_endpoint"),
+    false,
+  );
+  assert.ok(!workflow.includes("inputs.mcp_initial_endpoint"));
   for (const name of ["M365_ACCOUNT_NAME", "M365_TENANT_ID"]) {
     assert.equal(
       parse(prepared.configText).docker.environment[name],

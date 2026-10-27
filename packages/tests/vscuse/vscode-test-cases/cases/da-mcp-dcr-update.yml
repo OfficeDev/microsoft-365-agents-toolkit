@@ -37,7 +37,7 @@ steps:
           value: mcp
         - question: mcpServerUrl
           type: text
-          value: "${{env:MCP_AUTH_INITIAL_ENDPOINT}}"
+          value: "${{env:MCP_AUTH_ENDPOINT}}"
         - question: authType
           value: oauth-dynamic
         - question: workspaceFolder

@@ -9,7 +9,6 @@ param(
   [string]$AccountProfile = "atk08",
   [string]$Image = "vscuse-atk-feat-16840-dcr-update:local",
   [switch]$DcrUpdate,
-  [string]$InitialEndpoint = "",
   [switch]$Author
 )
 
@@ -23,8 +22,8 @@ try {
   if ($Mode -ne "entra-sso" -and $SsoVariant -ne "auto") {
     throw "SSO registration variants are only supported by the SSO case."
   }
-  if ($DcrUpdate -and ($Mode -ne "dcr" -or [string]::IsNullOrWhiteSpace($InitialEndpoint))) {
-    throw "The independent DCR update case requires Mode dcr and InitialEndpoint."
+  if ($DcrUpdate -and $Mode -ne "dcr") {
+    throw "The independent DCR update case requires Mode dcr."
   }
   . (Join-Path $repo "set-azure-env.ps1") -Env $AccountProfile *> $null
   if (-not $SsoEnvironmentFile -and $StaticCredentialFile) {
@@ -37,10 +36,9 @@ try {
     ssoFile = $SsoEnvironmentFile
     staticFile = $StaticCredentialFile
     variant = $SsoVariant
-    initialEndpoint = $InitialEndpoint
   } -Compress
   $profileArgumentsBase64 = [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes($profileArguments))
-  $encodedProfile = & node -e 'const h=require(process.argv[1]);const a=JSON.parse(Buffer.from(process.argv[2],"base64"));if(a.initialEndpoint)process.env.MCP_AUTH_INITIAL_ENDPOINT=a.initialEndpoint;const p=a.ssoFile?h.loadProfile(a.mode,a.ssoFile,a.staticFile,a.variant,a.initialEndpoint):h.loadEnvironmentProfile(a.mode,process.env,a.variant);process.stdout.write(JSON.stringify(p.environment));' $helper $profileArgumentsBase64
+  $encodedProfile = & node -e 'const h=require(process.argv[1]);const a=JSON.parse(Buffer.from(process.argv[2],"base64"));const p=a.ssoFile?h.loadProfile(a.mode,a.ssoFile,a.staticFile,a.variant):h.loadEnvironmentProfile(a.mode,process.env,a.variant);process.stdout.write(JSON.stringify(p.environment));' $helper $profileArgumentsBase64
   if ($LASTEXITCODE -ne 0) { throw "MCP fixture profile validation failed." }
   try { $environment = $encodedProfile | ConvertFrom-Json -AsHashtable }
   catch { throw "MCP fixture profile could not be decoded safely." }
