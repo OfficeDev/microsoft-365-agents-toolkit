@@ -211,6 +211,23 @@ test("VCB-191 / DCR-UI-UPD-04: only persisted account-policy changes pass verifi
   );
 });
 
+test("VCB-199: policy update runs after normal app publication without reordering original actions", async (context) => {
+  const f = await fixture(context);
+  const file = path.join(f.project, "m365agents.yml");
+  const original = yaml.load(await fs.readFile(file, "utf8"));
+  original.provision.push(
+    { uses: "teamsApp/update", with: { appPackagePath: "app.zip" } },
+    { uses: "copilotAgent/publish", with: { appPackagePath: "app.zip" } },
+  );
+  await fs.writeFile(file, yaml.dump(original));
+  const run = runtime();
+  await run("baseline", f.project, f.options);
+  await run("apply", f.project, f.options);
+  const updated = yaml.load(await fs.readFile(file, "utf8"));
+  assert.equal(updated.provision.at(-1).uses, "dcr/update");
+  assert.deepEqual(updated.provision.slice(0, -1), original.provision);
+});
+
 test("VCB-191: stale account-policy reads are bounded and unrelated changes fail immediately", async (context) => {
   const run = runtime();
   const f = await fixture(context);

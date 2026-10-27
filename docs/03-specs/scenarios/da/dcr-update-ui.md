@@ -38,6 +38,9 @@ Only VS Code Provision performs registration and update. Fixture helpers may
 read the service, prepare project files and compare state; they must never
 POST, PATCH or DELETE a configuration. Do not clear the registered ID, create a
 replacement, seed another case's outputs, or simulate a successful service read.
+Append the desired policy update after the original app-package update and
+publication actions, leaving their order intact, so the policy update is the
+last configuration operation in the lifecycle.
 
 ## Acceptance Criteria
 

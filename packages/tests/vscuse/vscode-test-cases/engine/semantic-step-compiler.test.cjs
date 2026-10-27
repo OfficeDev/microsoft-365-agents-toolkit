@@ -263,6 +263,38 @@ test("VCB-198: MCP sign-in removes a passkey suggestion without bypassing the fo
   }
 });
 
+test("VCB-200: MCP probe and addition retries stay bounded and retain real results", async () => {
+  for (const file of ["da-mcp-auth-modes.yml", "da-mcp-dcr-update.yml"]) {
+    const result = await compileFixture(file, (value) => value);
+    assert.equal(result.ok, true, JSON.stringify(result.diagnostics));
+    for (const { caseId, plan } of result.value) {
+      for (const prefix of [
+        "Call the remote auth_flow_probe tool",
+        "Call the remote add tool",
+      ]) {
+        const request = plan.steps.find(
+          (step) =>
+            step.tool === "type_text" &&
+            step.parameters.text.startsWith(prefix),
+        );
+        assert.ok(request.parameters.text.includes("retry it once"), caseId);
+        assert.ok(
+          request.parameters.text.includes(
+            "Do not retry sign-in or permission errors",
+          ),
+          caseId,
+        );
+      }
+      assert.equal(
+        plan.steps.filter((step) => step.tags.includes("assertion:tool-called"))
+          .length,
+        3,
+        caseId,
+      );
+    }
+  }
+});
+
 test("VCB-184: update verification cannot precede the second Provision", async () => {
   const { parse, stringify } = require("yaml");
   const result = await compileFixture("da-mcp-dcr-update.yml", (source) => {

@@ -3323,9 +3323,9 @@
       "agent": "interaction",
       "tool": "type_text",
       "parameters": {
-        "text": "Call the remote auth_flow_probe tool now. Show only canary, auth_flow, a newly generated probe_id, and fresh server_time copied from its actual result as a short, pretty-printed JSON object. Do not infer, invent, or reuse earlier results."
+        "text": "Call the remote auth_flow_probe tool now. If the connected read-only tool interface is temporarily unavailable, retry it once. Do not retry sign-in or permission errors. Show only canary, auth_flow, a newly generated probe_id, and fresh server_time copied from its actual result as a short, pretty-printed JSON object. Do not infer, invent, or reuse earlier results."
       },
-      "description": "Type \"Call the remote auth_flow_probe tool now. Show only canary, auth_flow, a newly generated probe_id, and fresh server_time copied from its actual result as a short, pretty-printed JSON object. Do not infer, invent, or reuse earlier results.\" into the Copilot message input.",
+      "description": "Type \"Call the remote auth_flow_probe tool now. If the connected read-only tool interface is temporarily unavailable, retry it once. Do not retry sign-in or permission errors. Show only canary, auth_flow, a newly generated probe_id, and fresh server_time copied from its actual result as a short, pretty-printed JSON object. Do not infer, invent, or reuse earlier results.\" into the Copilot message input.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -3552,9 +3552,9 @@
       "agent": "interaction",
       "tool": "type_text",
       "parameters": {
-        "text": "Call the remote add tool with a=20 and b=7. Show the raw tool result rather than computing the answer yourself."
+        "text": "Call the remote add tool with a=20 and b=7. If the connected read-only tool interface is temporarily unavailable, retry it once. Do not retry sign-in or permission errors. Show the raw tool result rather than computing the answer yourself."
       },
-      "description": "Type \"Call the remote add tool with a=20 and b=7. Show the raw tool result rather than computing the answer yourself.\" into the Copilot message input.",
+      "description": "Type \"Call the remote add tool with a=20 and b=7. If the connected read-only tool interface is temporarily unavailable, retry it once. Do not retry sign-in or permission errors. Show the raw tool result rather than computing the answer yourself.\" into the Copilot message input.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,

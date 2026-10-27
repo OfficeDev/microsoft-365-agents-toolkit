@@ -100,7 +100,7 @@ steps:
             - '"tenant_id": "${{env:MCP_AUTH_EXPECTED_TENANT}}"'
             - '"auth_method": "entra_user"'
       - type: chat
-        send: Call the remote auth_flow_probe tool now. Show only canary, auth_flow, a newly generated probe_id, and fresh server_time copied from its actual result as a short, pretty-printed JSON object. Do not infer, invent, or reuse earlier results.
+        send: Call the remote auth_flow_probe tool now. If the connected read-only tool interface is temporarily unavailable, retry it once. Do not retry sign-in or permission errors. Show only canary, auth_flow, a newly generated probe_id, and fresh server_time copied from its actual result as a short, pretty-printed JSON object. Do not infer, invent, or reuse earlier results.
         expect:
           replied: true
           toolCalled: auth_flow_probe
@@ -110,7 +110,7 @@ steps:
             - '"probe_id":'
             - '"server_time":'
       - type: chat
-        send: Call the remote add tool with a=20 and b=7. Show the raw tool result rather than computing the answer yourself.
+        send: Call the remote add tool with a=20 and b=7. If the connected read-only tool interface is temporarily unavailable, retry it once. Do not retry sign-in or permission errors. Show the raw tool result rather than computing the answer yourself.
         expect:
           replied: true
           toolCalled: add

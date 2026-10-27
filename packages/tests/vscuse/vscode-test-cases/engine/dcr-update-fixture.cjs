@@ -313,7 +313,7 @@ async function runDcrUpdateStage(phase, projectPath, options = {}) {
       0,
       "Update action already exists",
     );
-    workflow.provision.splice(workflow.provision.indexOf(registration) + 1, 0, {
+    workflow.provision.push({
       uses: "dcr/update",
       with: {
         configurationId: "${{" + key + "}}",
