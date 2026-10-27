@@ -189,6 +189,12 @@ requiring three consecutive matching snapshots. Every read still validates
 identity, URLs and unrelated policy; read/authentication errors fail immediately,
 and an unchanged policy never produces a checkpoint or ready marker.
 
+The same bounded stable-readback rule applies after the repeat Provision.
+Run 1602 completed the first persisted-policy verification but then observed a
+stale Enterprise snapshot during one-shot repeat verification. Repeat checks
+now require the prior verified checkpoint first and then three stable matching
+reads; identity, URLs, unrelated policy and file bytes remain strict.
+
 [Run 40468750301, attempt 2](https://github.com/OfficeDev/microsoft-365-agents-toolkit/actions/runs/40468750301/attempts/2)
 still used committed source `565a14009240b33c01d5efb2e093298d61087a51` and image
 `feat-16840-dcr-update_20261027072235`, before these route corrections.

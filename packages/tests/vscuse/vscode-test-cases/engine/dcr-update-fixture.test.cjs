@@ -332,6 +332,28 @@ test("VCB-192: changed project files fail with a compact nonsecret component dia
   }
 });
 
+test("VCB-197: repeat verification waits for stable replicas but requires an existing checkpoint", async (context) => {
+  const run = runtime();
+  const f = await fixture(context);
+  await run("baseline", f.project, f.options);
+  await run("apply", f.project, f.options);
+  f.setState({ ...f.state(), supportedAccountTypes: "Enterprise, Consumer" });
+  await run("verify", f.project, f.options);
+  let reads = 0;
+  await run("noop", f.project, {
+    ...f.options,
+    readSnapshot: async () => {
+      reads++;
+      return reads <= 20
+        ? { ...f.state(), supportedAccountTypes: "Enterprise" }
+        : f.state();
+    },
+  });
+  assert.equal(reads, 23);
+  await fs.rm(path.join(f.project, ".auth-test", "dcr-update-verified.json"));
+  await assert.rejects(run("noop", f.project, f.options), /ENOENT|checkpoint/i);
+});
+
 test("VCB-192: formatting-only environment changes are identified without accepting them", async (context) => {
   const f = await fixture(context);
   const run = runtime();

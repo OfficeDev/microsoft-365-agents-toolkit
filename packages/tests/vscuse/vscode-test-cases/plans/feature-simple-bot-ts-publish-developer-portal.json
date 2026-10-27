@@ -8,7 +8,7 @@
       "precondition_wait_timeout": 30,
       "precondition_retry_interval": 1
     },
-    "total_steps": 125,
+    "total_steps": 126,
     "name": "feature-simple-bot-ts-publish-developer-portal",
     "description": {
       "owner": "",
@@ -72,6 +72,7 @@
       "step_signInM365_confirmSignIn_c63929ef2_3_2",
       "step_signInM365_assertAccount_c63929ef2_3_2",
       "step_signInM365_focusAccount_c63929ef2_3_2",
+      "step_signInM365_dismissPasskeySuggestion_c63929ef2_3_2",
       "step_signInM365_assertFocusedAccount_c63929ef2_3_2",
       "step_signInM365_typeAccount_c63929ef2_3_2",
       "step_signInM365_assertEnteredAccount_c63929ef2_3_2",
@@ -1385,6 +1386,29 @@
       ]
     },
     {
+      "step_id": "step_signInM365_dismissPasskeySuggestion_c63929ef2_3_2",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "esc"
+      },
+      "description": "Press Escape to dismiss Chrome's Use passkey from another device suggestion while keeping the Microsoft account input focused.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_signInM365_focusAccount_c63929ef2_3_2"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:authentication",
+        "account:m365",
+        "action:dismiss-passkey-suggestion"
+      ]
+    },
+    {
       "step_id": "step_signInM365_assertFocusedAccount_c63929ef2_3_2",
       "agent": "assertion",
       "tool": "",
@@ -1395,7 +1419,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_signInM365_focusAccount_c63929ef2_3_2"
+        "step_signInM365_dismissPasskeySuggestion_c63929ef2_3_2"
       ],
       "preconditions": [],
       "postconditions": [],

@@ -334,7 +334,15 @@ async function runDcrUpdateStage(phase, projectPath, options = {}) {
   const sleep =
     options.sleep ??
     ((ms) => new Promise((resolve) => setTimeout(resolve, ms)));
-  if (phase === "verify") {
+  const checkpoint = path.join(directory, "dcr-update-verified.json");
+  if (phase === "noop") {
+    assert.deepEqual(
+      await readJson(checkpoint),
+      { configurationId: id, runId: ownership.runId },
+      "Missing successful update checkpoint",
+    );
+  }
+  if (phase === "verify" || phase === "noop") {
     let consecutive = 0;
     for (let attempt = 0; attempt < 30; attempt++) {
       if (attempt > 0) {
@@ -355,18 +363,11 @@ async function runDcrUpdateStage(phase, projectPath, options = {}) {
     "Enterprise, Consumer",
     "Account-policy update was not persisted",
   );
-  const checkpoint = path.join(directory, "dcr-update-verified.json");
   if (phase === "verify") {
     await fs.writeFile(
       checkpoint,
       JSON.stringify({ configurationId: id, runId: ownership.runId }),
       { flag: "wx" },
-    );
-  } else {
-    assert.deepEqual(
-      await readJson(checkpoint),
-      { configurationId: id, runId: ownership.runId },
-      "Missing successful update checkpoint",
     );
   }
   return ownership.runId;
