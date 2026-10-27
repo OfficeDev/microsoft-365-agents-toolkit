@@ -129,7 +129,7 @@ async function runDcrUpdateStage(phase, projectPath, options = {}) {
       );
       const response = await fetch(
         base +
-          "/v1.0/dynamicConfigurations/" +
+          "/v1.0/oAuthConfigurations/" +
           encodeURIComponent(configurationId),
         {
           headers: {
@@ -171,11 +171,7 @@ async function runDcrUpdateStage(phase, projectPath, options = {}) {
     snapshot.oAuthConfigId === undefined || snapshot.oAuthConfigId === id,
     "DCR configuration ID mismatch",
   );
-  assert.ok(
-    snapshot.identityProvider === undefined ||
-      snapshot.identityProvider === "Dynamic",
-    "DCR identity mismatch",
-  );
+  assert.ok(snapshot.identityProvider === "Dynamic", "DCR identity mismatch");
   if (phase === "baseline") {
     assert.equal(
       snapshot.mcpResourceUrl,

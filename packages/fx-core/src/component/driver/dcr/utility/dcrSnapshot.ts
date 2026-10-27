@@ -30,7 +30,7 @@ export function isDcrSnapshot(input: unknown, configurationId: string): input is
   ) {
     return false;
   }
-  if ("identityProvider" in input && input.identityProvider !== "Dynamic") {
+  if (!("identityProvider" in input) || input.identityProvider !== "Dynamic") {
     return false;
   }
   if ("oAuthConfigId" in input && input.oAuthConfigId !== configurationId) {

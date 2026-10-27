@@ -114,7 +114,7 @@ export class TeamsGraphClient {
     const requester = this.createRequesterWithToken(token);
     try {
       const response = await RetryHandler.Retry(() =>
-        requester.get<unknown>(`/v1.0/dynamicConfigurations/${encodeURIComponent(configurationId)}`)
+        requester.get<unknown>(`/v1.0/oAuthConfigurations/${encodeURIComponent(configurationId)}`)
       );
       return response?.data;
     } catch (e) {
@@ -131,10 +131,7 @@ export class TeamsGraphClient {
     const requester = this.createRequesterWithToken(token);
     try {
       await RetryHandler.Retry(() =>
-        requester.patch(
-          `/v1.0/dynamicConfigurations/${encodeURIComponent(configurationId)}`,
-          changes
-        )
+        requester.patch(`/v1.0/oAuthConfigurations/${encodeURIComponent(configurationId)}`, changes)
       );
     } catch (e) {
       throw this.wrapException(e, TEAMS_GRAPH_API_NAMES.UPDATE_DCR);

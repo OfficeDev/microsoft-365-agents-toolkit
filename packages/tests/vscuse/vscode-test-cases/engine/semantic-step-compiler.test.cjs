@@ -174,6 +174,43 @@ test("VCB-189: DCR sends a fresh tool request after OAuth instead of waiting on 
   assert.ok(requests[1].index < consent);
 });
 
+test("VCB-190: static OAuth resumes the original tool request after the verified return", async () => {
+  const result = await compileFixture(
+    "da-mcp-auth-modes.yml",
+    (value) => value,
+  );
+  assert.equal(result.ok, true, JSON.stringify(result.diagnostics));
+  const { plan } = result.value.find(
+    (item) => item.caseId === "da-mcp-static-entra-copilot",
+  );
+  const requests = plan.steps
+    .map((step, index) => ({ step, index }))
+    .filter(
+      ({ step }) =>
+        step.tool === "type_text" &&
+        step.parameters.text.startsWith("Call the remote whoami tool."),
+    );
+  assert.equal(requests.length, 2);
+  assert.equal(
+    requests[0].step.parameters.text,
+    requests[1].step.parameters.text,
+  );
+  const returned = plan.steps.findIndex((step) =>
+    step.step_id.startsWith("step_assertCopilotOAuthReturn_"),
+  );
+  const consent = plan.steps.findIndex((step) =>
+    step.step_id.startsWith("step_allowCopilotAction_assert_"),
+  );
+  assert.ok(requests[0].index < returned && returned < requests[1].index);
+  assert.ok(requests[1].index < consent);
+  assert.equal(
+    plan.steps.some((step) =>
+      step.step_id.startsWith("step_authorizeMcpClient_"),
+    ),
+    false,
+  );
+});
+
 test("VCB-171: generated MCP fixtures reserve run ownership before mutating registration state", async () => {
   const result = await compileFixture(
     "da-mcp-auth-modes.yml",
@@ -440,10 +477,10 @@ test("VCB-177: authentication prompts project real tool results without leaking 
         step.step_id.startsWith("step_sendCopilotMessage_type_"),
       )
       .map((step) => step.parameters.text);
-    const resumesDcr = caseId === "da-mcp-dcr-copilot";
-    assert.equal(messages.length, resumesDcr ? 4 : 3, caseId);
-    if (resumesDcr) assert.equal(messages[0], messages[1], caseId);
-    const toolMessages = resumesDcr ? messages.slice(1) : messages;
+    const resumesOAuth = caseId !== "da-mcp-entra-sso-copilot";
+    assert.equal(messages.length, resumesOAuth ? 4 : 3, caseId);
+    if (resumesOAuth) assert.equal(messages[0], messages[1], caseId);
+    const toolMessages = resumesOAuth ? messages.slice(1) : messages;
     for (const field of [
       "tenant_id",
       "auth_method",

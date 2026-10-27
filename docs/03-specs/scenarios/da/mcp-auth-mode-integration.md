@@ -231,7 +231,10 @@ fragment, not `Allow` as an equivalent entry state. DCR then requires the facade
 `Authorize an MCP client` page and `Allow this client` consent before Entra
 authorization and selection of the expected signed-in M365 account. After
 returning to Copilot, the OAuth cases reuse the ordinary `Allow` capability-consent
-fragment. Static OAuth must not visit the facade consent page, and SSO retains
+fragment. Both resend the unchanged first tool request once after the verified
+OAuth return, before that consent fragment: the pre-authentication turn can
+already have finished with null fields. Static OAuth must not visit the facade
+consent page, and SSO retains
 ordinary capability consent without invoking the OAuth connection adapter.
 This first-use client authorization is
 unrelated to the removed provisioning-time DCR-update confirmation. Completing
@@ -377,3 +380,93 @@ variants also ran without that environment variable, generated distinct UUIDs,
 persisted matching project/ownership identities, and rejected repeated setup
 without overwriting the existing ownership baseline. These are preflight/setup
 checks, not a new full live Copilot run.
+
+## Four-case CI investigation - 2026-10-27
+
+Source [run 40457066135](https://github.com/OfficeDev/microsoft-365-agents-toolkit/actions/runs/40457066135)
+used commit `446a011bda9fe46352890a8481547ab6e88079c8` and the explicitly requested
+image `feat-16840-dcr-update_20261027050448`. OCI revision matches that commit;
+pulled digest is
+`sha256:00552ed2502ff91327f405dad02976558402f2334f971bc48a2d896abdb57807`.
+CI supplied no template override. The same image was pulled locally; no local
+template routing or feature flags were substituted.
+
+| Case         | Successful / errors | Observed failure                                                                                                                        | Classification                                                                                         |
+| ------------ | ------------------- | --------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| Static OAuth | 129 / 1             | Entra authorization returned to a Teams OAuth error page, not a ready Copilot conversation.                                             | Credential/setup failure confirmed by the protocol probe below.                                        |
+| Entra SSO    | 95 / 1              | Provision failed with the service's ConfigReadError while reading the supplied configuration.                                           | Supplied record is not readable by the CI account, not a missing tool/debugger assertion.              |
+| DCR OAuth    | 126 / 1             | The initial sign-in-triggering turn finished with null identity fields. After OAuth, the plan waited for an Allow card that was absent. | Connection continuation/consent state mismatch; post-connection authentication must still be verified. |
+| DCR update   | 50 / 1              | The ready output was present but its project/phase text was covered by the large scaffold-success notification.                         | Test-plan overlay flake, before Provision or any update.                                               |
+
+The update stage now clears notifications before opening its terminal, preserving
+the mandatory project/phase/UUID gate. The DCR connection now sends its original
+tool request again once after OAuth returns, before consent and result checks,
+so a stale null answer is not treated as the connected-session response. No
+business result or authentication error is accepted as success.
+
+### Credential evidence without exporting secrets
+
+[Read-only in-CI diagnostics](https://github.com/OfficeDev/microsoft-365-agents-toolkit/actions/runs/40466650607)
+used the same engineering environment, licensed account and existing Secrets,
+inside the same pinned image:
+
+- The static client's POST and Basic authentication both returned HTTP 401,
+  `invalid_client`, Entra error `7000215`. No token was issued. The Secret had
+  no outer quotes/whitespace and was not a GUID-shaped secret identifier.
+- Reading the supplied SSO ID returned HTTP 404, `NotFound` with inner
+  `ConfigReadError`. It had no outer quotes/whitespace or environment-assignment
+  prefix. This does not distinguish an absent/deleted ID from access-hidden
+  records; `AnyApp/HomeTenant` usage policy does not prove management-read access.
+- Local protocol diagnostics reproduced `7000215`. Read-only Graph metadata
+  confirmed the canonical resource URI, enabled access_as_user scope, Teams
+  callback presence and one active application credential. This does not
+  validate the configured Secret value; it must match that application.
+- Local OpenAI and Vision profile/runner credentials returned HTTP 401, and no
+  local SSO ID was configured. Local full UI execution was therefore not claimed.
+  Correct public client IDs and the licensed account do match CI.
+
+The manual diagnostic workflow prints only status/error codes and consistency
+flags. It neither exports tokens/credential values nor changes registrations,
+AAD applications, grants or permissions. Do not repair these failures by
+replacing a shared SSO record or rotating shared identities implicitly.
+
+### Revalidation and updated credentials
+
+The focused [exact-image revalidation](https://github.com/OfficeDev/microsoft-365-agents-toolkit/actions/runs/40466988242)
+was cancelled by the automatic branch smoke before completion. The subsequent
+[automatic run 40468750301](https://github.com/OfficeDev/microsoft-365-agents-toolkit/actions/runs/40468750301)
+used image `feat-16840-dcr-update_20261027072235`, revision
+`565a14009240b33c01d5efb2e093298d61087a51`, digest
+`sha256:31b171f9341ed2ed76b7f55f32902f17ef4f3f06d44641adde98a39b4ad48800`.
+It had no template override. DCR OAuth passed 155/155 after the fresh-request
+repair. This is not a pass against the originally requested `050448` image.
+The requester later cancelled [exact-image run 40472652713](https://github.com/OfficeDev/microsoft-365-agents-toolkit/actions/runs/40472652713)
+and reran only the failed jobs of run 40468750301.
+
+After both Secrets were updated, [read-only diagnostic 40475120601](https://github.com/OfficeDev/microsoft-365-agents-toolkit/actions/runs/40475120601)
+confirmed HTTP 200 and token issuance for both static client-auth methods.
+The supplied SSO configuration also returned 200, with provider and client
+consistency checks true. No Secret values were exported to the local machine.
+
+The requester's [attempt 2](https://github.com/OfficeDev/microsoft-365-agents-toolkit/actions/runs/40468750301/attempts/2)
+then completed:
+
+| Case         | Successful / errors | Outcome                                                                                                                                                                                                        |
+| ------------ | ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Entra SSO    | 146 / 0             | Real supplied-ID reuse, authentication and all tool assertions passed.                                                                                                                                         |
+| Static OAuth | 131 / 1             | Returned to Copilot after OAuth, but the original identity turn had finished with null fields and no Allow card. This is the same continuation drift already fixed for DCR, not another proven invalid Secret. |
+| DCR update   | 102 / 1             | Baseline still used the old dynamic-resource GET and returned 404; the uncommitted route correction was not in that run.                                                                                       |
+| DCR OAuth    | 155 / 0, attempt 1  | Already successful; it was not freshly rerun with the failed jobs.                                                                                                                                             |
+
+The static report screenshots confirm the owned Copilot chat with the null
+pre-authentication response, not an OAuth callback error. Static OAuth now uses
+the same post-return request continuation as DCR, with red-first ordering and
+prompt/isolation regressions. Consent, all three actual tool invocations and
+exact business-result checks remain required. This follow-up has no new clean
+static UI pass yet; the old result must not be relabelled as successful.
+
+The [independent URL-update scenario](./dcr-update-ui.md#route-correction-and-immutable-field-evidence---2026-10-27)
+records the separate product-route correction and the service's immutable-URL
+limitation. Corrected compiled-driver policy persistence/no-op/error/restoration
+checks passed on one owned record; neither those checks nor the successful SSO
+and DCR authentication runs establish an end-to-end URL-update pass.

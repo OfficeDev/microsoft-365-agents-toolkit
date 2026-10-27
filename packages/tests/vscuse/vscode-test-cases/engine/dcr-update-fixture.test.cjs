@@ -234,6 +234,68 @@ test("VCB-185: malformed policy readback cannot become a successful baseline", a
   }
 });
 
+test("VCB-185: the common OAuth read requires explicit Dynamic identity", async (context) => {
+  const run = runtime();
+  for (const identityProvider of [undefined, "Custom", "MicrosoftEntra"]) {
+    const f = await fixture(context);
+    f.setState({ ...f.state(), identityProvider });
+    await assert.rejects(run("baseline", f.project, f.options), /identity/i);
+  }
+});
+
+test("VCB-185: default readback uses the common OAuth resource without a mutation fallback", async (context) => {
+  const f = await fixture(context);
+  const coreEntry = path.join(f.project, "core", "index.js");
+  const constantsPath = path.join(
+    path.dirname(coreEntry),
+    "common",
+    "constants.js",
+  );
+  const load = (specifier) => {
+    if (specifier === "@azure/msal-node") {
+      return {
+        PublicClientApplication: class {
+          async acquireTokenByUsernamePassword() {
+            return { accessToken: "fixture-token" };
+          }
+        },
+      };
+    }
+    if (specifier === constantsPath) {
+      return {
+        TeamsGraphScopes: () => ["fixture-scope"],
+        ResourceServiceType: { TeamsGraph: "teams-graph" },
+        getResourceServiceEndpoint: () => "https://graph.example.test",
+      };
+    }
+    return require(specifier);
+  };
+  load.resolve = (specifier) =>
+    specifier === "@microsoft/teamsfx-core"
+      ? coreEntry
+      : require.resolve(specifier);
+  const originalFetch = global.fetch;
+  context.after(() => {
+    global.fetch = originalFetch;
+  });
+  let requests = 0;
+  global.fetch = async (url, options) => {
+    requests++;
+    assert.equal(
+      url,
+      "https://graph.example.test/v1.0/oAuthConfigurations/owned-id",
+    );
+    assert.equal(options.method, undefined);
+    return new Response(JSON.stringify(f.state()), { status: 200 });
+  };
+  await runtime()("baseline", f.project, {
+    ...f.options,
+    load,
+    readSnapshot: undefined,
+  });
+  assert.equal(requests, 1);
+});
+
 test("VCB-186: DCR profile does not read or export an initial endpoint setting", () => {
   const { loadEnvironmentProfile } = require("./prepare-mcp-auth-run.cjs");
   const environment = {

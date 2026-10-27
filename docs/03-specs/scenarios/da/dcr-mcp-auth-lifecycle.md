@@ -20,7 +20,7 @@ which also creates/publishes Microsoft 365 resources.
 
 The stateful HTTP fake provides a local persistence oracle. It proves intended
 requests, idempotency, state transitions, and untouched fields under the
-[provisional update contract](../../operations/auth/update-dcr.md#provisional-service-contract).
+[verified transport and remaining provisional contract](../../operations/auth/update-dcr.md#service-contract-and-remaining-provisional-assumptions).
 It is not evidence that the real TGS service supports that contract.
 
 ## Composed operations

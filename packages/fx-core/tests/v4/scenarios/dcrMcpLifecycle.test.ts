@@ -35,7 +35,7 @@ const MCP_URL =
   "https://ca-mcp-qetyc6ob.jollyfield-18c57c9a.eastus2.azurecontainerapps.io/mcp";
 const MCP_ORIGIN = new URL(MCP_URL).origin;
 const CONFIGURATION_ID = "test-dcr-configuration";
-const RESOURCE_PATH = `/v1.0/dynamicConfigurations/${CONFIGURATION_ID}`;
+const RESOURCE_PATH = `/v1.0/oAuthConfigurations/${CONFIGURATION_ID}`;
 const createPackage = loadV4Package("create", "da/mcp-server");
 const addPackage = loadV4Package("modify", "add-mcp-server");
 

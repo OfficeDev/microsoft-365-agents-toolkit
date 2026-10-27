@@ -1,6 +1,6 @@
 # Operation - Update DCR Configuration
 
-- **Status:** Implemented and locally validated against the provisional service contract below, as authorized by the requester on 2026-10-20. Live validation and upstream confirmation remain deferred. Local tests do not establish production service support.
+- **Status:** Production read/update routes and account-policy updates verified on an independently owned registration on 2026-10-27. The broader approved field set remains provisional: the service explicitly rejects URL/metadata-URL updates and its writable whitelist excludes name. Local tests do not establish support for those fields.
 - **Source:** [Issue #16840](https://github.com/OfficeDev/microsoft-365-agents-toolkit/issues/16840) and the requester's design decisions on 2026-10-20.
 - **Action:** `dcr/update`.
 - **Scope decision:** Opt-in fx-core action contract. Existing product create/add scenarios, generated templates, CLI options, and VS Code commands are unchanged. This operation does not introduce a new product interaction flow.
@@ -12,8 +12,31 @@
 [independent URL-update UI case](../../scenarios/da/dcr-update-ui.md#fixed-placeholder-execution-evidence---2026-10-27)
 completed registration using a fixed placeholder and real discovery metadata,
 without an initial-URL setting or tunnel. Its authenticated baseline read on the
-provisional GET route returned HTTP 404. No PATCH was attempted. This exposes a
-real read-contract/visibility blocker, not evidence that production updates work.
+provisional GET route returned HTTP 404. An isolated real-service probe then
+confirmed that both GET and PATCH use `/v1.0/oAuthConfigurations/{id}`, not
+`/v1.0/dynamicConfigurations/{id}`. Creation still uses the dynamic collection.
+The common read returns `identityProvider: Dynamic` and the DCR input fields.
+Missing or non-Dynamic identity must fail closed on that shared route.
+
+A sparse `supportedAccountTypes` PATCH returned 200 and persisted the account
+policy with the original ID, name and URLs. The original enterprise-only policy
+was restored and read back. URL updates instead returned HTTP 400 /
+`ConfigUpdateError`, explicitly listing the only writable properties:
+`m365AppId`, `manageableByUsers`, `targetAudience`, `supportedAccountTypes`,
+`applicableToApps`, `isPKCEEnabled`, and `resource`. In particular,
+`mcpResourceUrl`, `targetUrlsShouldStartWith`, `wellKnownAuthorizationServer`,
+and `clientName` are not writable under that contract. Changing the route does
+not make the approved URL-update acceptance executable. Keep that limitation
+visible; do not silently substitute another registration or a different test.
+
+The corrected, compiled product driver was subsequently exercised against that
+owned registration: enabling personal-account support persisted, repeating the
+same request sent no PATCH, and a URL update surfaced `ConfigUpdateError`
+without a success summary or replacement registration. The original
+enterprise-only policy was restored and confirmed by bounded readback.
+Configuration ID and unrelated fields remained unchanged throughout; sensitive
+fields were compared in memory, not logged. This is live driver verification,
+not an end-to-end URL-update UI pass.
 
 ## Requirement Decisions
 
@@ -183,7 +206,7 @@ available; logs and the execution summary remain available without a UI.
 - Does not accept static OAuth credentials or manually override discovered endpoints.
 - Does not perform client-side MCP/authorization discovery.
 - Does not introduce generic scalar-property deletion or guess server clear values.
-- Does not treat the provisional GET/PATCH routes as a verified service contract.
+- Does not treat locally accepted update fields as verified service capabilities.
 
 ## Invariants
 
@@ -198,9 +221,9 @@ available; logs and the execution summary remain available without a UI.
 5. An unknown/inaccessible target or service error never triggers registration or
    a success-shaped fallback.
 6. A successful action produces no environment/manifest changes.
-7. Validation of Dynamic identity and readback interpretation use explicit
-   provisional snapshot checks, not a cast or an assumption that missing data
-   means a default. Upstream confirmation is required before release.
+7. The shared OAuth read must explicitly identify the target as Dynamic.
+   Readback interpretation uses validated fields, not a cast or an assumption
+   that missing data means a default.
 
 ## Acceptance Criteria
 
@@ -251,7 +274,7 @@ Enable MSA without supplying or changing the name:
     includePersonalMicrosoftAccounts: true
 ```
 
-Explicitly change both MCP endpoint and target URL:
+Provisional URL-change input (rejected by the current production service):
 
 ```yaml
 - uses: dcr/update
@@ -262,7 +285,7 @@ Explicitly change both MCP endpoint and target URL:
       - https://example.com/new-mcp
 ```
 
-All supported inputs, without making optional inputs mandatory for other updates:
+The full approved input set (not all fields are production-writable):
 
 ```yaml
 - uses: dcr/update
@@ -280,22 +303,24 @@ All supported inputs, without making optional inputs mandatory for other updates
     includePersonalMicrosoftAccounts: true
 ```
 
-## Provisional Service Contract
+## Service Contract and Remaining Provisional Assumptions
 
 On 2026-10-20, the requester explicitly instructed implementation to continue
 without waiting for service confirmation and will contact upstream separately.
 Do not post further issue updates for contract confirmation.
 
-For implementation and local HTTP-boundary tests, use these explicit assumptions:
+Real-service probes on 2026-10-27 establish the transport contract:
 
-- `GET /v1.0/dynamicConfigurations/{configurationId}` returns a flat snapshot
+- `GET /v1.0/oAuthConfigurations/{configurationId}` returns a flat snapshot
   with the DCR registration fields, including `clientName`, `m365AppId`,
   `applicableToApps`, `targetAudience`, and `targetUrlsShouldStartWith`.
-- This dedicated route identifies a DCR configuration. Reject malformed snapshots,
-  an explicit non-Dynamic identity provider, and a conflicting returned
+- This route also contains non-DCR configurations. Require an explicit
+  `identityProvider: Dynamic`; reject malformed snapshots and a conflicting returned
   `oAuthConfigId`; do not cast unknown data into a valid configuration.
-- `PATCH` on that same resource accepts only changed registration properties and
-  preserves all omitted settings. Do not send a full OAuth registration object.
+- `PATCH` on that same resource accepts sparse policy changes. Do not send a
+  full OAuth registration object. The service rejects the URL/metadata/name
+  properties listed in the live-validation note above; the approved broad
+  update requirement is not fully supported.
 - An explicit transition to `AnyApp` clears the app binding with `m365AppId: ""`,
   matching the existing DCR registration representation for that mode.
 - The update returns HTTP success, with no response body required. A response
@@ -306,14 +331,14 @@ For implementation and local HTTP-boundary tests, use these explicit assumptions
 The transport assumptions are isolated in the Teams Graph client; field
 validation and sparse change planning are independent of the HTTP path.
 
-Before release, the requester/upstream must validate:
+Before releasing the broader field set, the requester/upstream must resolve:
 
-1. The read/update endpoints, methods, snapshot/request shapes, and Dynamic
-   identification assumption.
-2. DCR client-name and original discovery-input readback, sparse-update behavior,
-   and the app-binding removal representation.
+1. Service support for the approved name, MCP URL, target URL and metadata URL
+   updates, which the current service explicitly rejects.
+2. The remaining app-binding removal and discovery-change assumptions.
 3. Discovery-change effects, configuration-ID stability, authorization and cloud
    restrictions, and any concurrency/version requirements.
 
 Live validation must inspect persisted values and the retained configuration ID.
-No real cloud mutation is required or claimed by the local implementation tests.
+No real cloud mutation is required or claimed by the local implementation tests;
+the separate owned-record probes above are live-service evidence, not UI coverage.

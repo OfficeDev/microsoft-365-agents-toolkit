@@ -1,11 +1,6 @@
 name: Diagnose MCP authentication prerequisites
 
 on:
-  push:
-    branches: [feat/16840-dcr-update]
-    paths:
-      - ".github/workflows/ui-test-mcp-auth-diagnostics.yml"
-      - "packages/tests/vscuse/vscode-test-cases/engine/mcp-auth-diagnostics.cjs"
   workflow_dispatch:
     inputs:
       image_tag:
@@ -24,7 +19,7 @@ jobs:
     environment: engineering
     timeout-minutes: 15
     env:
-      IMAGE_TAG: ${{ inputs.image_tag || 'feat-16840-dcr-update_20261027050448' }}
+      IMAGE_TAG: ${{ inputs.image_tag }}
       M365_TENANT_ID: ${{ vars.M365_TENANT_ID }}
       M365_ACCOUNT_NAME: ${{ vars.M365_ACCOUNT_NAME_ENABLECOPILOTACCESS }}
       M365_ACCOUNT_PASSWORD: ${{ secrets.M365_ACCOUNT_PASSWORD_ENABLECOPILOTACCESS }}

@@ -19,7 +19,7 @@ import { MockedAzureAccountProvider, MockedM365Provider } from "../../../core/ut
 import { MockedLogProvider, MockedUserInteraction } from "../../../plugins/solution/util";
 
 const configurationId = "existing-dcr-id";
-const resourcePath = `/v1.0/dynamicConfigurations/${configurationId}`;
+const resourcePath = `/v1.0/oAuthConfigurations/${configurationId}`;
 
 function snapshot() {
   return {
@@ -44,7 +44,7 @@ function snapshot() {
   };
 }
 
-describe("dcr/update HTTP-boundary integration (provisional service contract)", () => {
+describe("dcr/update HTTP-boundary integration (verified routes, provisional broad field set)", () => {
   let http: MockAdapter;
   let context: DriverContext;
   let ui: MockedUserInteraction;
@@ -268,6 +268,7 @@ describe("dcr/update HTTP-boundary integration (provisional service contract)", 
     { ...snapshot(), targetUrlsShouldStartWith: "https://example.com" },
     { ...snapshot(), targetUrlsShouldStartWith: [42] },
     { ...snapshot(), applicableToApps: "Other" },
+    { ...snapshot(), identityProvider: undefined },
     { ...snapshot(), identityProvider: "Custom" },
     { ...snapshot(), identityProvider: "MicrosoftEntra" },
     { ...snapshot(), oAuthConfigId: "another-id" },
@@ -283,9 +284,17 @@ describe("dcr/update HTTP-boundary integration (provisional service contract)", 
     });
   }
 
-  it("DCR-UPD-19: accepts a valid snapshot from the dedicated route without optional identity/account fields", async () => {
+  it("DCR-UPD-19: rejects a shared-route snapshot with absent identity", async () => {
     const current: Partial<ReturnType<typeof snapshot>> = snapshot();
     delete current.identityProvider;
+    http.onGet(resourcePath).reply(200, current);
+    expect((await execute({ includePersonalMicrosoftAccounts: true })).result.isErr()).toBe(true);
+    expect(http.history.patch).toHaveLength(0);
+    expect(http.history.post).toHaveLength(0);
+  });
+
+  it("DCR-UPD-19: accepts an explicitly Dynamic snapshot without optional ID/account fields", async () => {
+    const current: Partial<ReturnType<typeof snapshot>> = snapshot();
     delete current.oAuthConfigId;
     delete current.supportedAccountTypes;
     http.onGet(resourcePath).reply(200, current);
@@ -380,6 +389,24 @@ describe("dcr/update HTTP-boundary integration (provisional service contract)", 
     expect(result.summaries).toEqual([]);
   });
 
+  it("DCR-UPD-21: preserves the real-service immutable-URL rejection without a success or replacement", async () => {
+    http.onPatch(resourcePath).reply(400, {
+      error: {
+        code: "BadRequest",
+        innerError: { code: "ConfigUpdateError" },
+        message:
+          "The following fields cannot be updated for dynamic configurations: mcpResourceUrl",
+      },
+    });
+    const result = await execute({ mcpResourceUrl: "https://new.example.com/mcp" });
+    expect(result.result.isErr()).toBe(true);
+    if (result.result.isErr()) {
+      expect(result.result.error.message).toContain("ConfigUpdateError");
+    }
+    expect(result.summaries).toEqual([]);
+    expectPatch({ mcpResourceUrl: "https://new.example.com/mcp" });
+  });
+
   it("DCR-UPD-22: ignores service-managed response state rather than echoing it into the request", async () => {
     http.onPatch(resourcePath).reply(200, { ...snapshot(), scopes: ["rediscovered-scope"] });
     expect((await execute({ mcpResourceUrl: "https://new.example.com/mcp" })).result.isOk()).toBe(
@@ -438,7 +465,7 @@ describe("dcr/update HTTP-boundary integration (provisional service contract)", 
 
   it("DCR-UPD-23: escapes the configuration ID as a single resource-path segment", async () => {
     const id = "id/with?reserved#characters";
-    const escaped = `/v1.0/dynamicConfigurations/${encodeURIComponent(id)}`;
+    const escaped = `/v1.0/oAuthConfigurations/${encodeURIComponent(id)}`;
     http.onGet(escaped).reply(200, { ...snapshot(), oAuthConfigId: id });
     http.onPatch(escaped).reply(204);
     expect((await execute({ configurationId: id, name: "Renamed" })).result.isOk()).toBe(true);

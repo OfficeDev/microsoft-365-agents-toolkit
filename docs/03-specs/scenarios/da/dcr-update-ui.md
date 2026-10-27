@@ -5,6 +5,9 @@
   [DCR update operation](../../operations/auth/update-dcr.md), not a new command.
 - **Case:** `da-mcp-dcr-update-copilot`, manual gate, independently executable.
 - **Automation:** Full E2E for registration, UI-triggered update and Copilot.
+- **Current result:** Blocked, not a live update pass. Real-service verification
+  on 2026-10-27 established the correct read/update route but also confirmed
+  that the required URL transition is rejected by the service.
 - **Start:** A clean VS Code workspace and a licensed test M365 account.
 - **Infrastructure:** Only the existing real MCP endpoint B is required.
   A is the fixed reserved placeholder `https://example.invalid/mcp`; no service
@@ -78,9 +81,11 @@ registrations for which the service offers no supported delete operation.
 ## Validation boundary
 
 The case tests URL changes, reference stability and post-update usability, not
-every writable field or actual personal-account sign-in. The update service
-contract remains provisional until this live case proves the corresponding
-operations. Generated-plan or fixture tests alone do not count as a live pass.
+every writable field or actual personal-account sign-in. The approved URL
+transition is currently outside the verified service's writable field set.
+Keep this manual case as the explicit unmet requirement; do not silently replace
+it with policy-update coverage. Generated-plan or fixture tests alone do not
+count as a live pass.
 
 ## Previous tunnel-based execution evidence - 2026-10-27
 
@@ -142,3 +147,32 @@ historical service-read evidence, not proof that the revised setup has passed.
 
 The initial-URL configuration and tunnel dependency are fixed. The separate
 service read-contract/visibility blocker remains explicit and is not bypassed.
+
+## Route correction and immutable-field evidence - 2026-10-27
+
+The earlier 404 was subsequently reproduced on a new independently owned DCR
+registration. Creation at `POST /v1.0/dynamicConfigurations` succeeded, while
+GET/PATCH on that collection's ID route returned 404 for the same ID and token.
+`GET /v1.0/oAuthConfigurations/{id}` instead returned the Dynamic record.
+This identifies a client-route bug, not just an unresolved visibility problem.
+The product client and read-only fixture now use the verified common OAuth
+resource and require explicit Dynamic identity before accepting its snapshot.
+Creation continues to use the dynamic collection.
+
+The corrected compiled product driver persisted a sparse account-policy update,
+performed no PATCH when repeated, and restored the original policy with the
+same ID and unrelated fields. However, a URL PATCH on the verified route
+returned HTTP 400 / `ConfigUpdateError`: `mcpResourceUrl`,
+`targetUrlsShouldStartWith` and `wellKnownAuthorizationServer` are immutable.
+The error explicitly limits updates to `m365AppId`, `manageableByUsers`,
+`targetAudience`, `supportedAccountTypes`, `applicableToApps`,
+`isPKCEEnabled` and `resource`.
+
+[Run 40468750301, attempt 2](https://github.com/OfficeDev/microsoft-365-agents-toolkit/actions/runs/40468750301/attempts/2)
+still used committed source `565a14009240b33c01d5efb2e093298d61087a51` and image
+`feat-16840-dcr-update_20261027072235`, before these route corrections.
+It completed 102 steps and failed once at the baseline read. It did not execute
+the URL update. The corrected compiled-driver checks are separate evidence and
+do not turn that UI run into a pass. A new product image is required to exercise
+the corrected client through VS Code, and the URL transition still requires
+upstream service support or an explicitly revised acceptance decision.

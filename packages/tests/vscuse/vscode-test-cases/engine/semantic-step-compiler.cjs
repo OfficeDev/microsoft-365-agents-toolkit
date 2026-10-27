@@ -3696,13 +3696,11 @@ function createSemanticStepCompiler() {
         }),
       );
       if (error) return error;
-      if (state.mcpAuthType === "oauth-dynamic") {
-        error = append(
-          output,
-          render(state, sendComponent, { message: assertion.send }),
-        );
-        if (error) return error;
-      }
+      error = append(
+        output,
+        render(state, sendComponent, { message: assertion.send }),
+      );
+      if (error) return error;
     }
     if (assertion.allowAction === true || assertion.connectOAuth === true) {
       if (state.profile.host !== "copilot") {
