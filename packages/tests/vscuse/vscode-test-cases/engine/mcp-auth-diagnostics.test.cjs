@@ -82,23 +82,36 @@ test("VCB-188: readable SSO records are checked without replacing or mutating th
     teamsGraphEndpoint: "https://teams.microsoft.com/api/platform",
     getM365Token: async () => "private-access-token",
     fetch: async (url, options) =>
-      options.method === "POST"
-        ? response(200, { access_token: "private-issued-token" })
-        : response(200, {
-            identityProvider: "MicrosoftEntra",
-            clientId: environment.DA_MCP_ENTRA_SSO_CLIENTID,
-            useSingleSignOn: true,
-            applicableToApps: "AnyApp",
-            scopes: [
-              `api://${environment.DA_MCP_ENTRA_SSO_CLIENTID}/access_as_user`,
+      url.startsWith("https://graph.microsoft.com/")
+        ? response(200, {
+            value: [
+              {
+                identifierUris: ["api://auth-private-example/client"],
+                api: {
+                  oauth2PermissionScopes: [
+                    { value: "access_as_user", isEnabled: true },
+                  ],
+                },
+              },
             ],
-            targetUrlsShouldStartWith: [environment.MCP_AUTH_ENDPOINT],
-          }),
+          })
+        : options.method === "POST"
+          ? response(200, { access_token: "private-issued-token" })
+          : response(200, {
+              identityProvider: "MicrosoftEntra",
+              clientId: environment.DA_MCP_ENTRA_SSO_CLIENTID,
+              useSingleSignOn: true,
+              applicableToApps: "AnyApp",
+              resourceIdentifierUri: "api://auth-private-example/client",
+              targetUrlsShouldStartWith: [environment.MCP_AUTH_ENDPOINT],
+            }),
   });
   assert.ok(results.every((item) => item.outcome === "accepted"));
   assert.equal(results[2].providerMatches, true);
   assert.equal(results[2].clientMatches, true);
   assert.equal(results[2].usageMatches, true);
+  assert.equal(results[3].nativeUriRegistered, true);
+  assert.ok(!JSON.stringify(results).includes("auth-private-example"));
   assert.ok(!JSON.stringify(results).includes("private-issued-token"));
 });
 
@@ -123,7 +136,6 @@ test("VCB-195: readable SSO identity does not hide unusable mode, scope or targe
   assert.equal(results[2].usageMatches, false);
   assert.equal(results[2].usesSingleSignOn, false);
   assert.equal(results[2].appliesToAnyApp, false);
-  assert.equal(results[2].scopeMatches, false);
   assert.equal(results[2].endpointMatches, false);
   for (const hidden of [
     "private-record-secret",
@@ -132,4 +144,30 @@ test("VCB-195: readable SSO identity does not hide unusable mode, scope or targe
   ]) {
     assert.ok(!JSON.stringify(results).includes(hidden));
   }
+});
+
+test("VCB-195: a native SSO resource URI missing from the AAD application is not usable", async () => {
+  const results = await diagnostics()(environment, {
+    teamsGraphEndpoint: "https://teams.microsoft.com/api/platform",
+    getM365Token: async () => "private-access-token",
+    fetch: async (url, options) =>
+      url.startsWith("https://graph.microsoft.com/")
+        ? response(200, {
+            value: [{ identifierUris: ["api://canonical-only"] }],
+          })
+        : options.method === "POST"
+          ? response(200, { access_token: "private-issued-token" })
+          : response(200, {
+              identityProvider: "MicrosoftEntra",
+              clientId: environment.DA_MCP_ENTRA_SSO_CLIENTID,
+              useSingleSignOn: true,
+              applicableToApps: "AnyApp",
+              resourceIdentifierUri: "api://auth-private-example/client",
+              targetUrlsShouldStartWith: [environment.MCP_AUTH_ENDPOINT],
+            }),
+  });
+  assert.equal(results[2].outcome, "accepted");
+  assert.equal(results[3].outcome, "rejected");
+  assert.equal(results[3].nativeUriRegistered, false);
+  assert.ok(!JSON.stringify(results).includes("auth-private-example"));
 });

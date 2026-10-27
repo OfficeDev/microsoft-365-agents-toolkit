@@ -102,16 +102,6 @@ async function diagnoseMcpAuthentication(environment, options) {
         response.ok && data.clientId === environment.DA_MCP_ENTRA_SSO_CLIENTID;
       const usesSingleSignOn = response.ok && data.useSingleSignOn === true;
       const appliesToAnyApp = response.ok && data.applicableToApps === "AnyApp";
-      const resource = "api://" + environment.DA_MCP_ENTRA_SSO_CLIENTID;
-      const scopeMatches =
-        response.ok &&
-        Array.isArray(data.scopes) &&
-        data.scopes.length > 0 &&
-        data.scopes.every((scope) =>
-          [resource + "/access_as_user", resource + "/.default"].includes(
-            scope,
-          ),
-        );
       const endpointMatches =
         response.ok &&
         typeof environment.MCP_AUTH_ENDPOINT === "string" &&
@@ -123,7 +113,7 @@ async function diagnoseMcpAuthentication(environment, options) {
             environment.MCP_AUTH_ENDPOINT.startsWith(prefix),
         );
       const usageMatches =
-        usesSingleSignOn && appliesToAnyApp && scopeMatches && endpointMatches;
+        usesSingleSignOn && appliesToAnyApp && endpointMatches;
       results.push({
         kind: "sso-read",
         status: response.status,
@@ -137,7 +127,9 @@ async function diagnoseMcpAuthentication(environment, options) {
         clientMatches,
         usesSingleSignOn,
         appliesToAnyApp,
-        scopeMatches,
+        scopeValueKind: Array.isArray(data.scopes)
+          ? "array"
+          : typeof data.scopes,
         endpointMatches,
         usageMatches,
         idHasOuterQuotes: /^["']|["']$/.test(id),
@@ -145,6 +137,71 @@ async function diagnoseMcpAuthentication(environment, options) {
         idContainsAssignment:
           /^(?:MCP_AUTH_SSO_ID|ENTRA_SSO_REGISTRATION_ID)\s*=/.test(id),
       });
+      if (providerMatches && clientMatches && usageMatches) {
+        try {
+          const graphToken = await options.getM365Token([
+            "https://graph.microsoft.com/.default",
+          ]);
+          const graphResponse = await request(
+            "https://graph.microsoft.com/v1.0/applications?$filter=appId%20eq%20%27" +
+              encodeURIComponent(environment.DA_MCP_ENTRA_SSO_CLIENTID) +
+              "%27&$select=identifierUris,api",
+            {
+              headers: { Authorization: "Bearer " + graphToken },
+              signal: AbortSignal.timeout(30000),
+            },
+          );
+          const graphData = await graphResponse.json();
+          const app =
+            Array.isArray(graphData.value) && graphData.value.length === 1
+              ? graphData.value[0]
+              : undefined;
+          const uris = Array.isArray(app?.identifierUris)
+            ? app.identifierUris
+            : [];
+          const resourceUri =
+            typeof data.resourceIdentifierUri === "string"
+              ? data.resourceIdentifierUri
+              : undefined;
+          const nativeUriRegistered =
+            resourceUri === undefined ? undefined : uris.includes(resourceUri);
+          results.push({
+            kind: "sso-aad-prerequisite",
+            status: graphResponse.status,
+            outcome:
+              !graphResponse.ok || !app
+                ? "rejected"
+                : resourceUri === undefined
+                  ? "indeterminate"
+                  : nativeUriRegistered
+                    ? "accepted"
+                    : "rejected",
+            nativeResourceUriReturned: resourceUri !== undefined,
+            nativeUriRegistered,
+            nativeIdentifierUriCount: uris.filter(
+              (uri) => typeof uri === "string" && uri.startsWith("api://auth-"),
+            ).length,
+            accessAsUserEnabled:
+              app?.api?.oauth2PermissionScopes?.some(
+                (scope) =>
+                  scope.value === "access_as_user" && scope.isEnabled === true,
+              ) ?? false,
+            uriFieldNames: Object.keys(data).filter((key) =>
+              /uri|resource/i.test(key),
+            ),
+          });
+        } catch (error) {
+          results.push({
+            kind: "sso-aad-prerequisite",
+            outcome: "error",
+            error:
+              safeCode(error.errorCode) ??
+              safeCode(error.code) ??
+              safeCode(error.name) ??
+              "GraphReadError",
+          });
+        }
+      }
     } catch (error) {
       results.push({
         kind: "sso-read",
@@ -184,7 +241,7 @@ if (require.main === module) {
       teamsGraphEndpoint: constants.getResourceServiceEndpoint(
         constants.ResourceServiceType.TeamsGraph,
       ),
-      getM365Token: async () => {
+      getM365Token: async (scopes = constants.TeamsGraphScopes()) => {
         const client = new PublicClientApplication({
           auth: {
             clientId: "7ea7c24c-b1f6-4a20-9d11-9ae12e9e7ac0",
@@ -195,16 +252,14 @@ if (require.main === module) {
         const result = await client.acquireTokenByUsernamePassword({
           username: process.env.M365_ACCOUNT_NAME,
           password: process.env.M365_ACCOUNT_PASSWORD,
-          scopes: constants.TeamsGraphScopes(),
+          scopes,
         });
         if (!result?.accessToken) throw new Error("MissingAccessToken");
         return result.accessToken;
       },
     });
     for (const result of results) console.log(JSON.stringify(result));
-    if (
-      results.some((result) => ["rejected", "error"].includes(result.outcome))
-    ) {
+    if (results.some((result) => result.outcome !== "accepted")) {
       process.exitCode = 1;
     }
   })().catch((error) => {
