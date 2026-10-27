@@ -3176,13 +3176,26 @@ function createSemanticStepCompiler() {
       error = append(output, render(state, component, confirmationValues));
       if (error) return error;
     }
-    error = append(
-      output,
-      render(state, "notifications/assert-contains.json.tpl", {
-        notificationText: recipe.successText,
-        retryTimeout: recipe.successTimeout,
-      }),
-    );
+    if (definition.type === "provision" && state.dcrUpdatePhase !== undefined) {
+      // The independent case adds one update to the generated six-action provision.
+      const count = state.dcrUpdatePhase < 2 ? 6 : 7;
+      error = append(
+        output,
+        render(state, "notifications/assert-lifecycle-completed.json.tpl", {
+          operationTitle: "Provision",
+          notificationText: `${count}/${count} actions in ${recipe.successText}`,
+          retryTimeout: recipe.successTimeout,
+        }),
+      );
+    } else {
+      error = append(
+        output,
+        render(state, "notifications/assert-contains.json.tpl", {
+          notificationText: recipe.successText,
+          retryTimeout: recipe.successTimeout,
+        }),
+      );
+    }
     if (error) return error;
     state.completed.add(definition.type);
     if (definition.type === "provision" && state.dcrUpdatePhase !== undefined) {

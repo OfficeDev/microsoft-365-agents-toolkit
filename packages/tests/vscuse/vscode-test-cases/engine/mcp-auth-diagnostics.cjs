@@ -100,14 +100,46 @@ async function diagnoseMcpAuthentication(environment, options) {
         response.ok && data.identityProvider === "MicrosoftEntra";
       const clientMatches =
         response.ok && data.clientId === environment.DA_MCP_ENTRA_SSO_CLIENTID;
+      const usesSingleSignOn = response.ok && data.useSingleSignOn === true;
+      const appliesToAnyApp = response.ok && data.applicableToApps === "AnyApp";
+      const resource = "api://" + environment.DA_MCP_ENTRA_SSO_CLIENTID;
+      const scopeMatches =
+        response.ok &&
+        Array.isArray(data.scopes) &&
+        data.scopes.length > 0 &&
+        data.scopes.every((scope) =>
+          [resource + "/access_as_user", resource + "/.default"].includes(
+            scope,
+          ),
+        );
+      const endpointMatches =
+        response.ok &&
+        typeof environment.MCP_AUTH_ENDPOINT === "string" &&
+        Array.isArray(data.targetUrlsShouldStartWith) &&
+        data.targetUrlsShouldStartWith.some(
+          (prefix) =>
+            typeof prefix === "string" &&
+            prefix.length > 0 &&
+            environment.MCP_AUTH_ENDPOINT.startsWith(prefix),
+        );
+      const usageMatches =
+        usesSingleSignOn && appliesToAnyApp && scopeMatches && endpointMatches;
       results.push({
         kind: "sso-read",
         status: response.status,
-        outcome: providerMatches && clientMatches ? "accepted" : "rejected",
+        outcome:
+          providerMatches && clientMatches && usageMatches
+            ? "accepted"
+            : "rejected",
         error: safeCode(data.error?.code),
         innerError: safeCode(data.error?.innerError?.code),
         providerMatches,
         clientMatches,
+        usesSingleSignOn,
+        appliesToAnyApp,
+        scopeMatches,
+        endpointMatches,
+        usageMatches,
         idHasOuterQuotes: /^["']|["']$/.test(id),
         idHasOuterWhitespace: id.trim() !== id,
         idContainsAssignment:

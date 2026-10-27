@@ -108,7 +108,7 @@
       "step_executeCommand_filter_caceeb9ea_4_3",
       "step_executeCommand_assertCommand_caceeb9ea_4_3",
       "step_executeCommand_execute_caceeb9ea_4_3",
-      "step_assertNotificationContains_assert_caceeb9ea_4_4",
+      "step_assertLifecycleCompleted_assert_caceeb9ea_4_4",
       "step_executeCommand_open_caceeb9ea_5_1",
       "step_executeCommand_assertPalette_caceeb9ea_5_1",
       "step_executeCommand_filter_caceeb9ea_5_1",
@@ -148,7 +148,7 @@
       "step_executeCommand_filter_caceeb9ea_7_3",
       "step_executeCommand_assertCommand_caceeb9ea_7_3",
       "step_executeCommand_execute_caceeb9ea_7_3",
-      "step_assertNotificationContains_assert_caceeb9ea_7_4",
+      "step_assertLifecycleCompleted_assert_caceeb9ea_7_4",
       "step_executeCommand_open_caceeb9ea_8_1",
       "step_executeCommand_assertPalette_caceeb9ea_8_1",
       "step_executeCommand_filter_caceeb9ea_8_1",
@@ -176,7 +176,7 @@
       "step_executeCommand_filter_caceeb9ea_9_3",
       "step_executeCommand_assertCommand_caceeb9ea_9_3",
       "step_executeCommand_execute_caceeb9ea_9_3",
-      "step_assertNotificationContains_assert_caceeb9ea_9_4",
+      "step_assertLifecycleCompleted_assert_caceeb9ea_9_4",
       "step_executeCommand_open_caceeb9ea_10_1",
       "step_executeCommand_assertPalette_caceeb9ea_10_1",
       "step_executeCommand_filter_caceeb9ea_10_1",
@@ -2280,11 +2280,11 @@
       ]
     },
     {
-      "step_id": "step_assertNotificationContains_assert_caceeb9ea_4_4",
+      "step_id": "step_assertLifecycleCompleted_assert_caceeb9ea_4_4",
       "agent": "assertion",
       "tool": "",
       "parameters": {},
-      "description": "@assertion a visible Visual Studio Code notification contains the literal text provision stage executed successfully. A notification with different text, including an in-progress notification, does not satisfy this assertion.",
+      "description": "@assertion the current Provision operation has finished successfully: a visible Visual Studio Code notification contains the literal text 6/6 actions in provision stage executed successfully, there is no active Provision progress notification, and there is no failure or cancellation notification for this operation. An older success while another Provision operation is still running does not satisfy this assertion.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -2296,7 +2296,8 @@
       "postconditions": [],
       "tags": [
         "component:notifications",
-        "action:assert-contains",
+        "entry_state:lifecycle-result-visible",
+        "assertion:lifecycle-completed",
         "step_retry_timeout: 900"
       ]
     },
@@ -2313,7 +2314,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_assertNotificationContains_assert_caceeb9ea_4_4"
+        "step_assertLifecycleCompleted_assert_caceeb9ea_4_4"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -3137,11 +3138,11 @@
       ]
     },
     {
-      "step_id": "step_assertNotificationContains_assert_caceeb9ea_7_4",
+      "step_id": "step_assertLifecycleCompleted_assert_caceeb9ea_7_4",
       "agent": "assertion",
       "tool": "",
       "parameters": {},
-      "description": "@assertion a visible Visual Studio Code notification contains the literal text provision stage executed successfully. A notification with different text, including an in-progress notification, does not satisfy this assertion.",
+      "description": "@assertion the current Provision operation has finished successfully: a visible Visual Studio Code notification contains the literal text 7/7 actions in provision stage executed successfully, there is no active Provision progress notification, and there is no failure or cancellation notification for this operation. An older success while another Provision operation is still running does not satisfy this assertion.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -3153,7 +3154,8 @@
       "postconditions": [],
       "tags": [
         "component:notifications",
-        "action:assert-contains",
+        "entry_state:lifecycle-result-visible",
+        "assertion:lifecycle-completed",
         "step_retry_timeout: 900"
       ]
     },
@@ -3170,7 +3172,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_assertNotificationContains_assert_caceeb9ea_7_4"
+        "step_assertLifecycleCompleted_assert_caceeb9ea_7_4"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -3738,11 +3740,11 @@
       ]
     },
     {
-      "step_id": "step_assertNotificationContains_assert_caceeb9ea_9_4",
+      "step_id": "step_assertLifecycleCompleted_assert_caceeb9ea_9_4",
       "agent": "assertion",
       "tool": "",
       "parameters": {},
-      "description": "@assertion a visible Visual Studio Code notification contains the literal text provision stage executed successfully. A notification with different text, including an in-progress notification, does not satisfy this assertion.",
+      "description": "@assertion the current Provision operation has finished successfully: a visible Visual Studio Code notification contains the literal text 7/7 actions in provision stage executed successfully, there is no active Provision progress notification, and there is no failure or cancellation notification for this operation. An older success while another Provision operation is still running does not satisfy this assertion.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -3754,7 +3756,8 @@
       "postconditions": [],
       "tags": [
         "component:notifications",
-        "action:assert-contains",
+        "entry_state:lifecycle-result-visible",
+        "assertion:lifecycle-completed",
         "step_retry_timeout: 900"
       ]
     },
@@ -3771,7 +3774,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_assertNotificationContains_assert_caceeb9ea_9_4"
+        "step_assertLifecycleCompleted_assert_caceeb9ea_9_4"
       ],
       "preconditions": [],
       "postconditions": [],

@@ -17,6 +17,7 @@ const environment = {
   MCP_AUTH_SSO_ID: "private/registration=id",
   M365_ACCOUNT_NAME: "licensed@atktesting08.onmicrosoft.com",
   M365_ACCOUNT_PASSWORD: "private-password",
+  MCP_AUTH_ENDPOINT: "https://mcp.example.test/mcp",
 };
 
 function response(status, body) {
@@ -86,10 +87,49 @@ test("VCB-188: readable SSO records are checked without replacing or mutating th
         : response(200, {
             identityProvider: "MicrosoftEntra",
             clientId: environment.DA_MCP_ENTRA_SSO_CLIENTID,
+            useSingleSignOn: true,
+            applicableToApps: "AnyApp",
+            scopes: [
+              `api://${environment.DA_MCP_ENTRA_SSO_CLIENTID}/access_as_user`,
+            ],
+            targetUrlsShouldStartWith: [environment.MCP_AUTH_ENDPOINT],
           }),
   });
   assert.ok(results.every((item) => item.outcome === "accepted"));
   assert.equal(results[2].providerMatches, true);
   assert.equal(results[2].clientMatches, true);
+  assert.equal(results[2].usageMatches, true);
   assert.ok(!JSON.stringify(results).includes("private-issued-token"));
+});
+
+test("VCB-195: readable SSO identity does not hide unusable mode, scope or target restrictions", async () => {
+  const results = await diagnostics()(environment, {
+    teamsGraphEndpoint: "https://teams.microsoft.com/api/platform",
+    getM365Token: async () => "private-access-token",
+    fetch: async (url, options) =>
+      options.method === "POST"
+        ? response(200, { access_token: "private-issued-token" })
+        : response(200, {
+            identityProvider: "MicrosoftEntra",
+            clientId: environment.DA_MCP_ENTRA_SSO_CLIENTID,
+            useSingleSignOn: false,
+            applicableToApps: "SpecificApp",
+            scopes: ["api://different-client/access_as_user"],
+            targetUrlsShouldStartWith: ["https://different.example.test/mcp"],
+            clientSecret: "private-record-secret",
+          }),
+  });
+  assert.equal(results[2].outcome, "rejected");
+  assert.equal(results[2].usageMatches, false);
+  assert.equal(results[2].usesSingleSignOn, false);
+  assert.equal(results[2].appliesToAnyApp, false);
+  assert.equal(results[2].scopeMatches, false);
+  assert.equal(results[2].endpointMatches, false);
+  for (const hidden of [
+    "private-record-secret",
+    "different-client",
+    "different.example.test",
+  ]) {
+    assert.ok(!JSON.stringify(results).includes(hidden));
+  }
 });

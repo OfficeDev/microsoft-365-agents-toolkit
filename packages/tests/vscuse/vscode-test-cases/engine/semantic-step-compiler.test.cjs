@@ -199,6 +199,29 @@ test("VCB-193: SSO bounds initialization retry without changing OAuth or accepti
   }
 });
 
+test("VCB-194: DCR waits for the current six/seven-action operation, not a stale success", async () => {
+  const result = await compileFixture(
+    "da-mcp-dcr-update.yml",
+    (value) => value,
+  );
+  assert.equal(result.ok, true, JSON.stringify(result.diagnostics));
+  const completions = result.value[0].plan.steps.filter((step) =>
+    step.tags.includes("assertion:lifecycle-completed"),
+  );
+  assert.equal(completions.length, 3);
+  for (const [index, count] of [6, 7, 7].entries()) {
+    assert.ok(
+      completions[index].description.includes(
+        `${count}/${count} actions in provision stage executed successfully`,
+      ),
+    );
+    assert.ok(
+      completions[index].description.includes("no active Provision progress"),
+    );
+    assert.ok(completions[index].description.includes("older success"));
+  }
+});
+
 test("VCB-184: update verification cannot precede the second Provision", async () => {
   const { parse, stringify } = require("yaml");
   const result = await compileFixture("da-mcp-dcr-update.yml", (source) => {

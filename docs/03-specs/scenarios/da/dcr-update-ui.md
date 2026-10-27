@@ -10,6 +10,9 @@
   policy. The original URL-transition requirement remains unsupported; the
   historical URL runs below and immutable-URL negative regression are retained.
 - **Current result:** Awaiting a clean real UI run of the revised policy case.
+- **Completion gate:** Initial Provision must finish 6/6 actions; subsequent
+  runs must finish 7/7 with no active Provision progress or failed/cancelled
+  operation. An old 6/6 notification cannot satisfy the updated workflow.
 - **Start:** A clean VS Code workspace and a licensed test M365 account.
 - **Infrastructure:** Only the existing real MCP endpoint is required.
   Scaffold and register at that endpoint with personal-account support explicitly
@@ -166,6 +169,16 @@ returned HTTP 400 / `ConfigUpdateError`: `mcpResourceUrl`,
 The error explicitly limits updates to `m365AppId`, `manageableByUsers`,
 `targetAudience`, `supportedAccountTypes`, `applicableToApps`,
 `isPKCEEnabled` and `resource`.
+
+The corrected-image policy attempts later exposed a separate UI-completion
+bug: the generic notification assertion accepted the old 6/6 completion while
+the new seven-action run was still at 3/7 updating DCR. The update driver also
+awaited a non-modal success notification; the real VS Code UI resolves dismissal
+as cancellation, so feedback could block or fail an already committed update.
+The driver now reports through normal lifecycle logs/summary without opening
+that step notification, and the case requires current 6/6 or 7/7 completion
+with no active progress. Readback checks are not weakened to accept the
+previously unchanged account policy.
 
 [Run 40468750301, attempt 2](https://github.com/OfficeDev/microsoft-365-agents-toolkit/actions/runs/40468750301/attempts/2)
 still used committed source `565a14009240b33c01d5efb2e093298d61087a51` and image

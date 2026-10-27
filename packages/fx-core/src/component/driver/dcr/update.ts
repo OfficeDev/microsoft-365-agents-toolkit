@@ -94,12 +94,6 @@ export class UpdateDcrDriver implements StepDriver {
       args.configurationId,
       fields
     );
-    if (context.ui) {
-      const notification = await context.ui.showMessage("info", summary, false);
-      if (notification.isErr()) {
-        return err(notification.error);
-      }
-    }
     return ok(summary);
   }
 

@@ -21,6 +21,7 @@ jobs:
     env:
       IMAGE_TAG: ${{ inputs.image_tag }}
       M365_TENANT_ID: ${{ vars.M365_TENANT_ID }}
+      MCP_AUTH_ENDPOINT: ${{ vars.MCP_AUTH_ENDPOINT }}
       M365_ACCOUNT_NAME: ${{ vars.M365_ACCOUNT_NAME_ENABLECOPILOTACCESS }}
       M365_ACCOUNT_PASSWORD: ${{ secrets.M365_ACCOUNT_PASSWORD_ENABLECOPILOTACCESS }}
       DA_MCP_OAUTH_CLIENTID: ${{ vars.DA_MCP_OAUTH_CLIENTID }}
@@ -43,7 +44,7 @@ jobs:
           docker pull "$IMAGE"
           docker run --rm --entrypoint node \
             -v "$GITHUB_WORKSPACE/packages/tests/vscuse/vscode-test-cases/engine/mcp-auth-diagnostics.cjs:/tmp/mcp-auth-diagnostics.cjs:ro" \
-            -e M365_TENANT_ID -e M365_ACCOUNT_NAME -e M365_ACCOUNT_PASSWORD \
+            -e M365_TENANT_ID -e M365_ACCOUNT_NAME -e M365_ACCOUNT_PASSWORD -e MCP_AUTH_ENDPOINT \
             -e DA_MCP_OAUTH_CLIENTID -e DA_MCP_OAUTH_CLIENT_SECRET \
             -e DA_MCP_ENTRA_SSO_CLIENTID -e MCP_AUTH_SSO_ID \
             "$IMAGE" /tmp/mcp-auth-diagnostics.cjs

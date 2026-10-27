@@ -316,15 +316,30 @@ describe("dcr/update HTTP-boundary integration (verified routes, provisional bro
     });
   }
 
-  it("DCR-UPD-20: updates and notifies with a UI that has no confirm method", async () => {
+  it("DCR-UPD-20: updates with a UI that has no confirm method without opening a step notification", async () => {
     if (!context.ui) throw new Error("Expected the test UI");
     context.ui.confirm = undefined;
     const notification = vi.spyOn(ui, "showMessage");
     const result = await execute({ name: "Renamed" });
     expect(result.result.isOk()).toBe(true);
     expectPatch({ clientName: "Renamed" });
-    expect(notification).toHaveBeenCalledOnce();
+    expect(notification).not.toHaveBeenCalled();
     expect(result.summaries.join()).toContain(configurationId);
+  });
+
+  it("DCR-UPD-27: a pending notification cannot block a committed update", async () => {
+    const notification = vi.spyOn(ui, "showMessage").mockReturnValue(new Promise<never>(() => {}));
+    const result = await Promise.race([
+      execute({ includePersonalMicrosoftAccounts: true }),
+      new Promise<undefined>((resolve) => setTimeout(() => resolve(undefined), 50)),
+    ]);
+    expect(result).not.toBeUndefined();
+    if (result !== undefined) {
+      expect(result.result.isOk()).toBe(true);
+      expect(result.summaries.join()).toContain("includePersonalMicrosoftAccounts");
+    }
+    expect(notification).not.toHaveBeenCalled();
+    expectPatch({ supportedAccountTypes: "Enterprise, Consumer" });
   });
 
   it("DCR-UPD-20: applies devtunnel changes without confirmation or exposing URL query values", async () => {
@@ -379,14 +394,13 @@ describe("dcr/update HTTP-boundary integration (verified routes, provisional bro
     expect(http.history.patch).toHaveLength(0);
   });
 
-  it("DCR-UPD-21: surfaces notification errors instead of silently discarding them", async () => {
+  it("DCR-UPD-27: notification cancellation cannot turn a committed update into failure", async () => {
     const error = new UserError("test", "NotificationFailed", "Notification failed");
     vi.spyOn(ui, "showMessage").mockResolvedValue(err(error));
     const result = await execute({ name: "Renamed" });
-    expect(result.result.isErr()).toBe(true);
-    if (result.result.isErr()) expect(result.result.error).toBe(error);
+    expect(result.result.isOk()).toBe(true);
     expectPatch({ clientName: "Renamed" });
-    expect(result.summaries).toEqual([]);
+    expect(result.summaries.join()).toContain(configurationId);
   });
 
   it("DCR-UPD-21: preserves the real-service immutable-URL rejection without a success or replacement", async () => {
