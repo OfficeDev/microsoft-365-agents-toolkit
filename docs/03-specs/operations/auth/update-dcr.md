@@ -9,10 +9,11 @@
 - **Design assumption:** All writable DCR registration fields support an in-place update with the same configuration ID. This is an approved design assumption, not a verified service capability.
 
 **Live validation update (2026-10-27):** The
-[independent URL-update UI case](../../scenarios/da/dcr-update-ui.md#previous-tunnel-based-execution-evidence---2026-10-27)
-completed registration but its authenticated baseline read on the provisional
-GET route returned HTTP 404. No PATCH was attempted. This exposes a real
-read-contract/visibility blocker, not evidence that production updates work.
+[independent URL-update UI case](../../scenarios/da/dcr-update-ui.md#fixed-placeholder-execution-evidence---2026-10-27)
+completed registration using a fixed placeholder and real discovery metadata,
+without an initial-URL setting or tunnel. Its authenticated baseline read on the
+provisional GET route returned HTTP 404. No PATCH was attempted. This exposes a
+real read-contract/visibility blocker, not evidence that production updates work.
 
 ## Requirement Decisions
 

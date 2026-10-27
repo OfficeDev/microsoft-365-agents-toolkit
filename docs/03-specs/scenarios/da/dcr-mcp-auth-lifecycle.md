@@ -70,6 +70,8 @@ own workspace, registration and live readback. Its 2026-10-27 CLI run completed
 registration but stopped at HTTP 404 on the provisional GET route
 (92 successful steps, 1 error), before applying an update. It does not replace
 the MSA-specific checks below or count as a live update pass.
+The revised fixed-placeholder setup also completed registration without a
+tunnel or extra initial-URL input, and reproduced the same readback blocker.
 
 The corresponding UI cases remain on hold, not skipped tests counted as passes:
 

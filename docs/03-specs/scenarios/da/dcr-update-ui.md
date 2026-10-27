@@ -117,3 +117,28 @@ historical service-read evidence, not proof that the revised setup has passed.
   existing OpenAI/Vision HTTP 401 credentials; CI used the repository credentials
   instead. Temporary local metadata/tunnel processes are stopped after the run.
   No unsupported DCR delete or shared identity cleanup is attempted.
+
+## Fixed-placeholder execution evidence - 2026-10-27
+
+- Source/test commit: `b8e928d6d3f484ab7c3f146d60c3e378e8652a2a`.
+- [Self-contained GitHub CLI run](https://github.com/OfficeDev/microsoft-365-agents-toolkit/actions/runs/40450557371)
+  and [UI report (organizational sign-in)](https://storproxy-app-voazuxhhvtgiq.azurewebsites.net/4489ee25-b947-423b-aa9d-23ae7f088d58/index.html).
+- Dispatched without any initial-endpoint argument or repository setting, and
+  without a public mock service, tunnel or local process. The product image and
+  digest are the same as the previous run.
+- **Fixed initial configuration accepted:** exact preparation completed using
+  real discovery metadata, and the first VS Code Provision completed all six
+  actions and returned a new project-owned DCR ID. Direct inspection of the
+  failure screenshot confirms `https://example.invalid/mcp` in the plugin and
+  the successful Provision notification.
+- **CLI result: 92 successful steps, 1 error.** The baseline read still returned
+  HTTP 404 on the provisional GET route. Apply, update and post-update tool
+  checks did not execute. Registration success does not prove the initial URL's
+  persisted readback or a successful update.
+- Another branch-level workflow dispatch subsequently cancelled the enclosing
+  workflow. The case CLI had already emitted its complete 92/1 result and error
+  reasoning, and its report artifacts were retained. Cancellation was not the
+  cause of the native terminal's HTTP 404.
+
+The initial-URL configuration and tunnel dependency are fixed. The separate
+service read-contract/visibility blocker remains explicit and is not bypassed.
