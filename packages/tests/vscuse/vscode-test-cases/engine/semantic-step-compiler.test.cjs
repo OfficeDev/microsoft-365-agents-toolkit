@@ -222,6 +222,18 @@ test("VCB-194: DCR waits for the current six/seven-action operation, not a stale
   }
 });
 
+test("VCB-196: the actual serialized DCR verifier requires stable readback rather than the old fifteen-second window", () => {
+  const { dcrUpdateScript } = require("./dcr-update-fixture.cjs");
+  const script = dcrUpdateScript("prepare");
+  const program = Buffer.from(
+    script.match(/write_bytes\(base64\.b64decode\("([^"]+)"\)\)/)[1],
+    "base64",
+  ).toString("utf8");
+  assert.ok(program.includes("consecutive >= 3"));
+  assert.ok(program.includes("attempt < 30"));
+  assert.ok(program.includes("sleep(2000)"));
+});
+
 test("VCB-184: update verification cannot precede the second Provision", async () => {
   const { parse, stringify } = require("yaml");
   const result = await compileFixture("da-mcp-dcr-update.yml", (source) => {

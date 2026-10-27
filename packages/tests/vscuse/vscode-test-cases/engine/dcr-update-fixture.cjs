@@ -334,16 +334,21 @@ async function runDcrUpdateStage(phase, projectPath, options = {}) {
   const sleep =
     options.sleep ??
     ((ms) => new Promise((resolve) => setTimeout(resolve, ms)));
-  for (
-    let attempt = 0;
-    phase === "verify" &&
-    snapshot.supportedAccountTypes === "Enterprise" &&
-    attempt < 14;
-    attempt++
-  ) {
-    await sleep(1000);
-    snapshot = await readValidSnapshot();
-    assertPolicyUnchanged(snapshot);
+  if (phase === "verify") {
+    let consecutive = 0;
+    for (let attempt = 0; attempt < 30; attempt++) {
+      if (attempt > 0) {
+        await sleep(2000);
+        snapshot = await readValidSnapshot();
+        assertPolicyUnchanged(snapshot);
+      }
+      consecutive =
+        snapshot.supportedAccountTypes === "Enterprise, Consumer"
+          ? consecutive + 1
+          : 0;
+      if (consecutive >= 3) break;
+    }
+    assert.ok(consecutive >= 3, "Account-policy update was not persisted");
   }
   assert.equal(
     snapshot.supportedAccountTypes,

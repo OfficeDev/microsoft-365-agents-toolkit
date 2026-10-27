@@ -180,6 +180,15 @@ that step notification, and the case requires current 6/6 or 7/7 completion
 with no active progress. Readback checks are not weakened to accept the
 previously unchanged account policy.
 
+A subsequent owned-record timing probe measured 31,999 ms for the enabled
+policy to reach three consecutive matching reads, and 29,831 ms for restoration.
+The former fifteen-read/one-second fixture window was therefore too short even
+after a successful PATCH. Verification now uses the same measured-service
+budget as the real compiled-driver probe: at most 30 reads, two seconds apart,
+requiring three consecutive matching snapshots. Every read still validates
+identity, URLs and unrelated policy; read/authentication errors fail immediately,
+and an unchanged policy never produces a checkpoint or ready marker.
+
 [Run 40468750301, attempt 2](https://github.com/OfficeDev/microsoft-365-agents-toolkit/actions/runs/40468750301/attempts/2)
 still used committed source `565a14009240b33c01d5efb2e093298d61087a51` and image
 `feat-16840-dcr-update_20261027072235`, before these route corrections.

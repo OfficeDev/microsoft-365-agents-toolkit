@@ -226,7 +226,7 @@ test("VCB-191: stale account-policy reads are bounded and unrelated changes fail
         : { ...f.state(), supportedAccountTypes: "Enterprise, Consumer" };
     },
   });
-  assert.equal(reads, 3);
+  assert.equal(reads, 5);
   const other = await fixture(context);
   await run("baseline", other.project, other.options);
   await run("apply", other.project, other.options);
@@ -245,6 +245,53 @@ test("VCB-191: stale account-policy reads are bounded and unrelated changes fail
     /URL|policy|unchanged|invariant/i,
   );
   assert.equal(invalidReads, 1);
+});
+
+test("VCB-196: measured thirty-second lag requires three stable reads within a bounded budget", async (context) => {
+  const run = runtime();
+  const f = await fixture(context);
+  await run("baseline", f.project, f.options);
+  await run("apply", f.project, f.options);
+  let reads = 0;
+  const waits = [];
+  await run("verify", f.project, {
+    ...f.options,
+    sleep: async (ms) => {
+      waits.push(ms);
+    },
+    readSnapshot: async () => {
+      reads++;
+      return reads <= 20
+        ? f.state()
+        : { ...f.state(), supportedAccountTypes: "Enterprise, Consumer" };
+    },
+  });
+  assert.equal(reads, 23);
+  assert.equal(waits.length, 22);
+  assert.ok(waits.every((ms) => ms === 2000));
+});
+
+test("VCB-196: permanently stale policy exhausts exactly thirty reads and creates no checkpoint", async (context) => {
+  const run = runtime();
+  const f = await fixture(context);
+  await run("baseline", f.project, f.options);
+  await run("apply", f.project, f.options);
+  let reads = 0;
+  await assert.rejects(
+    run("verify", f.project, {
+      ...f.options,
+      readSnapshot: async () => {
+        reads++;
+        return f.state();
+      },
+    }),
+    /not persisted/i,
+  );
+  assert.equal(reads, 30);
+  await assert.rejects(
+    fs.readFile(path.join(f.project, ".auth-test", "dcr-update-verified.json")),
+    /ENOENT/,
+  );
 });
 
 test("VCB-192: changed project files fail with a compact nonsecret component diagnostic", async (context) => {
