@@ -85,3 +85,36 @@ The case tests URL changes, reference stability and post-update usability, not
 every writable field or actual personal-account sign-in. The update service
 contract remains provisional until this live case proves the corresponding
 operations. Generated-plan or fixture tests alone do not count as a live pass.
+
+## Live execution evidence - 2026-10-27
+
+- Source/test commit: `0a79274d4679ec4f605f1fed4bc41b761b9d0af6`.
+- [Credentialed CI CLI run](https://github.com/OfficeDev/microsoft-365-agents-toolkit/actions/runs/40441467509)
+  and [published UI report](https://storproxy-app-voazuxhhvtgiq.azurewebsites.net/d35e448a-49d3-4f0c-80a2-1cc5774fb7ae/index.html).
+- Product image: `feat-16840-dcr-update_20261026043153`, OCI revision
+  `6de2c4b2d858bce37ea2862e0b4037a0427fe3f0`, pulled digest
+  `sha256:5e4ea85855c897e3110432c4ca51794547f98522bf97c6524401697efa0ef792`.
+  Product sources were unchanged from that revision; template routing was left
+  at the originating CI default and no product feature flags were forced.
+- **Result: 92 successful steps, 1 error.** Independent scaffold, exact
+  preparation, M365 login and first Provision completed. The baseline stage
+  obtained the project-owned configuration ID but its authenticated
+  `GET /v1.0/dynamicConfigurations/{id}` returned HTTP 404.
+- The ready assertion correctly rejected the failed read and traceback.
+  Apply, second/third Provision and post-update tool checks did not execute.
+  This is **not** a live DCR update pass. The provisional read contract or
+  record visibility must be established before update acceptance.
+- The query base and scopes were checked against the product client:
+  `https://teams.microsoft.com/api/platform` without a trailing slash and
+  `https://teamsgraph.teams.microsoft.com/.default`. No alternative-route
+  fallback, mock readback or replacement registration was added.
+- The signed-in account visible in the failure screenshot matches the configured
+  licensed account, and the configured tenant matches the requested tenant.
+  The decrypted CI failure screenshot was inspected directly and confirms the
+  native terminal's HTTP 404 and traceback, not merely a missing debugger card.
+  The published report proxy requires organizational sign-in; the encrypted
+  report is also retained in the GitHub run's artifacts.
+- Local authoring was independently blocked at its first visual assertion by
+  existing OpenAI/Vision HTTP 401 credentials; CI used the repository credentials
+  instead. Temporary local metadata/tunnel processes are stopped after the run.
+  No unsupported DCR delete or shared identity cleanup is attempted.

@@ -8,6 +8,12 @@
 - **Workflow validation:** [DCR MCP authentication lifecycle](../../scenarios/da/dcr-mcp-auth-lifecycle.md) composes real scaffold output with registration/update, retry, no-op and invalid-input recovery tests; UI execution status is recorded separately.
 - **Design assumption:** All writable DCR registration fields support an in-place update with the same configuration ID. This is an approved design assumption, not a verified service capability.
 
+**Live validation update (2026-10-27):** The
+[independent URL-update UI case](../../scenarios/da/dcr-update-ui.md#live-execution-evidence---2026-10-27)
+completed registration but its authenticated baseline read on the provisional
+GET route returned HTTP 404. No PATCH was attempted. This exposes a real
+read-contract/visibility blocker, not evidence that production updates work.
+
 ## Requirement Decisions
 
 The requester approved using the complete DCR registration input set rather than
