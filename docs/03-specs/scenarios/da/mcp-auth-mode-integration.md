@@ -463,10 +463,44 @@ pre-authentication response, not an OAuth callback error. Static OAuth now uses
 the same post-return request continuation as DCR, with red-first ordering and
 prompt/isolation regressions. Consent, all three actual tool invocations and
 exact business-result checks remain required. This follow-up has no new clean
-static UI pass yet; the old result must not be relabelled as successful.
+static UI pass in attempt 2; the old result must not be relabelled as successful.
+The separate corrected-plan revalidation is recorded below.
 
 The [independent URL-update scenario](./dcr-update-ui.md#route-correction-and-immutable-field-evidence---2026-10-27)
 records the separate product-route correction and the service's immutable-URL
 limitation. Corrected compiled-driver policy persistence/no-op/error/restoration
 checks passed on one owned record; neither those checks nor the successful SSO
 and DCR authentication runs establish an end-to-end URL-update pass.
+
+## Pinned-image static OAuth revalidation - 2026-10-27
+
+[Run 40483721225](https://github.com/OfficeDev/microsoft-365-agents-toolkit/actions/runs/40483721225)
+(workflow 1597, attempt 1) completed **160 successful steps, 0 errors** for
+`da-mcp-server--da-mcp-static-entra-copilot`. It used corrected plan/workflow
+source `4093aaa5eea223b8d78dee66a69f0245e275d21c`, vscuse `v0.2.67`, no template
+override, no forced product flags, and `max_retries=1`.
+
+The product image was exactly the requester's original
+`feat-16840-dcr-update_20261027050448`, revision
+`446a011bda9fe46352890a8481547ab6e88079c8`, digest
+`sha256:00552ed2502ff91327f405dad02976558402f2334f971bc48a2d896abdb57807`.
+The post-OAuth request continuation, capability consent, and all identity,
+fresh probe and arithmetic assertions passed in the clean CI CLI run. This
+verifies a plan-level repair against the pinned product, not a new-image pass.
+The encrypted report is retained as
+`test-report-da-mcp-server--da-mcp-static-entra-copilot-1597` in that run.
+
+The automatic new-source build chain was stopped after more than 25 minutes
+downloading Wine dependencies, before building the corrected product image.
+Only that newly triggered chain was cancelled; the requester's completed
+attempt 2 was not altered. The focused pinned-image run above avoided another
+competing dispatch. Consequently, the DCR client correction has real compiled
+driver verification but no corrected-image DCR UI claim.
+
+[Full Unit Test CI](https://github.com/OfficeDev/microsoft-365-agents-toolkit/actions/runs/40480216010)
+passed at source `4093aaa5eea223b8d78dee66a69f0245e275d21c`. Local validation
+also passed 334 affected core tests, 41 fixture/CI compatibility tests, and
+19 affected compiler tests, plus type-checking, formatting and deterministic
+plan regeneration. The complete generated-case engine retained exactly the
+same eight pre-existing failures (270/278 passed); no baseline assertions were
+removed or weakened.
