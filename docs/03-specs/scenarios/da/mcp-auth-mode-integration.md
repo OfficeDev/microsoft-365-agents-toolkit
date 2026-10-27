@@ -514,7 +514,7 @@ Enterprise-to-Enterprise, Consumer policy transition with unchanged ID, URLs,
 references and unrelated policy, then repeats Provision and invokes real tools.
 The original URL transition remains unsupported and retains negative regression
 coverage. This is an explicit acceptance-scope change, not a URL-update pass.
-The revised batch has not yet passed; record its real result after execution.
+The early revised batches failed; the final successful result is recorded below.
 
 The first corrected-image batch (run 1599) passed static OAuth (160/0) and DCR
 authentication (155/0). SSO's initial whoami instead reported a failed remote
@@ -525,3 +525,41 @@ completed its second Provision but failed verification; the native wrapper now
 preserves a compact root-cause line and nonzero status instead of obscuring the
 error beneath a Python CalledProcessError. No file or policy invariant was
 relaxed based on that incomplete diagnostic.
+
+## Successful four-case result - 2026-10-28
+
+[Run 40585000490 / workflow 1604](https://github.com/OfficeDev/microsoft-365-agents-toolkit/actions/runs/40585000490/attempts/2)
+completed successfully for all four requested cases, on one product image and
+one plan/workflow source `42cc4caee820cb9b1464ab0b49a55c3030a486e6`:
+
+| Case                          | Successful / errors | Attempt                               |
+| ----------------------------- | ------------------- | ------------------------------------- |
+| Static OAuth                  | 161 / 0             | 1, preserved by failed-job-only rerun |
+| DCR OAuth                     | 156 / 0             | 1, preserved by failed-job-only rerun |
+| Independent DCR policy update | 236 / 0             | 1, preserved by failed-job-only rerun |
+| Entra SSO                     | 147 / 0             | 2, the only case rerun                |
+
+SSO's first attempt returned temporary tool-interface unavailability before
+consent. Exactly one explicit failed-job-only rerun was used; no source,
+registration, tenant, permission or credential change was made between attempts.
+Do not present the result as all four cases passing first attempt, or as proof
+that upstream Copilot tool availability cannot flake.
+
+All cases used `feat-16840-dcr-update_20261027161823`, OCI source
+`4ef376bc93fa340619eb5808d5e197ae2ec07750`, digest
+`sha256:f22b237672a19184ffeb73b73d5a2c6e9741d5c1a29ba375876275097b7076ae`,
+vscuse `v0.2.67`, no template override and no forced product flags.
+This image includes the verified common DCR routes and nonblocking update
+feedback. Later plan-only changes preserve that product source.
+
+The [independent update evidence](./dcr-update-ui.md#successful-policy-update-ui-evidence---2026-10-28)
+covers real initial registration, sparse policy update, stable persisted reads,
+repeat Provision and all actual tools on the same ID. It does not claim that
+the service now supports URL changes.
+
+Final related validation retained 335 passing core tests, type-checking/linting,
+and deterministic generated plans. The complete generated-case engine passed
+286/294 with exactly the same eight pre-existing failures; none were weakened.
+Native SSO diagnostics also verified the registration-specific resource URI
+exists in the resource application's identifierUris with access_as_user enabled.
+Native MicrosoftEntra registration does not use Custom OAuth scope inputs.

@@ -9,7 +9,10 @@
   on 2026-10-27. The positive case now updates a verified writable account
   policy. The original URL-transition requirement remains unsupported; the
   historical URL runs below and immutable-URL negative regression are retained.
-- **Current result:** Awaiting a clean real UI run of the revised policy case.
+- **Current result:** Passed 236 steps, 0 errors in
+  [run 40585000490](https://github.com/OfficeDev/microsoft-365-agents-toolkit/actions/runs/40585000490),
+  workflow 1604, attempt 1 for this case. All four requested cases are green
+  after a single failed-job-only SSO rerun in attempt 2.
 - **Completion gate:** Initial Provision must finish 6/6 actions; subsequent
   runs must finish 7/7 with no active Provision progress or failed/cancelled
   operation. An old 6/6 notification cannot satisfy the updated workflow.
@@ -197,6 +200,32 @@ Run 1602 completed the first persisted-policy verification but then observed a
 stale Enterprise snapshot during one-shot repeat verification. Repeat checks
 now require the prior verified checkpoint first and then three stable matching
 reads; identity, URLs, unrelated policy and file bytes remain strict.
+
+## Successful policy-update UI evidence - 2026-10-28
+
+- Plan/workflow source: `42cc4caee820cb9b1464ab0b49a55c3030a486e6`.
+- Product image: `feat-16840-dcr-update_20261027161823`, OCI source
+  `4ef376bc93fa340619eb5808d5e197ae2ec07750`, digest
+  `sha256:f22b237672a19184ffeb73b73d5a2c6e9741d5c1a29ba375876275097b7076ae`.
+- Runner: `v0.2.67`; no template override or forced feature flags;
+  `max_retries=1`. This case passed in its first CLI attempt.
+- Initial Provision registered its own enterprise-only DCR at the real
+  endpoint. The fixture appended a sparse personal-account update after the
+  original app-package/publication actions without changing them.
+- Second Provision completed all seven actions. Readback required three
+  consecutive `Enterprise, Consumer` snapshots with the original ID, URLs,
+  authentication reference, environment/plugin/local-MCP bytes and unrelated
+  policy unchanged.
+- Third Provision completed, repeat verification retained the successful
+  checkpoint and again required stable real readback. The same agent then
+  authenticated and returned actual whoami, fresh auth_flow_probe and add
+  results. No debugger cards or simulated service responses were required.
+- Encrypted report:
+  `test-report-da-mcp-server--da-mcp-dcr-update-copilot-1604` in the run artifacts.
+
+This is a full real UI pass for account-policy update and post-update usability.
+It is not a successful URL transition or proof of actual personal-account
+sign-in; the original immutable-URL limitation remains explicit.
 
 [Run 40468750301, attempt 2](https://github.com/OfficeDev/microsoft-365-agents-toolkit/actions/runs/40468750301/attempts/2)
 still used committed source `565a14009240b33c01d5efb2e093298d61087a51` and image

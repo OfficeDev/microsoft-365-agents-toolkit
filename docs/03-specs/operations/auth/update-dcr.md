@@ -45,6 +45,13 @@ tools while retaining the ID and all URL/reference wiring. This is an explicit
 test-scope revision, not service support for the original URL transition.
 The immutable-URL error regression and historical failed runs remain separate.
 
+The revised positive case subsequently passed all 236 real UI steps in
+[run 40585000490](https://github.com/OfficeDev/microsoft-365-agents-toolkit/actions/runs/40585000490),
+including seven-action update completion, stable policy readback on the same
+ID, repeat Provision and actual Copilot tools. See the
+[policy-update UI evidence](../../scenarios/da/dcr-update-ui.md#successful-policy-update-ui-evidence---2026-10-28)
+for exact image/source provenance and the retained URL-support boundary.
+
 ## Requirement Decisions
 
 The requester approved using the complete DCR registration input set rather than
