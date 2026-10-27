@@ -1027,6 +1027,77 @@ describe("Package Service", () => {
     chai.assert.isTrue(actualError instanceof UserError);
   });
 
+  for (const data of [
+    { Error: { Message: "User does not have access to upload advanced Copilot apps." } },
+    { error: { message: "User does not have access to upload advanced Copilot apps." } },
+  ]) {
+    it(`AC-04: explains Advanced package uploads for ${Object.keys(data)[0]} policy errors`, async () => {
+      axiosGetResponses["/config/v1/environment"] = {
+        data: { titlesServiceUrl: "https://test-url" },
+      };
+      axiosPostResponses["/builder/v1/users/packages"] = Object.assign(new Error("Forbidden"), {
+        response: { status: 403, data, headers: { traceresponse: "policy-trace" } },
+      });
+      const packageService = new PackageService("https://test-endpoint", logger);
+      const error: unknown = await packageService
+        .publishAgent("test-token", "test-path", AppScope.Shared)
+        .catch((error: unknown) => error);
+      if (!(error instanceof UserError)) {
+        chai.assert.fail("Expected a user-fixable policy error");
+      }
+      for (const message of [error.message, error.displayMessage ?? ""]) {
+        chai.assert.include(message, "Advanced package uploads");
+        chai.assert.include(message, "All users");
+        chai.assert.include(message, "Specific users or groups");
+        chai.assert.include(message, "admin");
+        chai.assert.include(message, advancedDASettingUrl);
+      }
+    });
+  }
+
+  it("AC-05: a blocked shared upload never retries with a different scope or fetches a share link", async () => {
+    axiosGetResponses["/config/v1/environment"] = {
+      data: { titlesServiceUrl: "https://test-url" },
+    };
+    axiosPostResponses["/builder/v1/users/packages"] = Object.assign(new Error("Forbidden"), {
+      response: {
+        status: 403,
+        data: { Error: { Message: "User does not have access to upload advanced Copilot apps." } },
+        headers: {},
+      },
+    });
+    const post = vi.spyOn(testAxiosInstance, "post");
+    const packageService = new PackageService("https://test-endpoint", logger);
+    const shareLink = vi.spyOn(packageService, "getShareLink");
+    await expect(
+      packageService.publishAgent("test-token", "test-path", AppScope.Shared)
+    ).rejects.toBeInstanceOf(UserError);
+    expect(post).toHaveBeenCalledTimes(1);
+    expect(post).toHaveBeenCalledWith(
+      "/builder/v1/users/packages",
+      expect.anything(),
+      expect.objectContaining({ params: { scope: AppScope.Shared, isRAIValidationAsync: true } })
+    );
+    expect(shareLink).not.toHaveBeenCalled();
+  });
+
+  it("AC-04: unrelated lowercase 403 errors preserve the service failure", async () => {
+    axiosGetResponses["/config/v1/environment"] = {
+      data: { titlesServiceUrl: "https://test-url" },
+    };
+    axiosPostResponses["/builder/v1/users/packages"] = Object.assign(new Error("Forbidden"), {
+      response: {
+        status: 403,
+        data: { error: { code: "AccessDenied", message: "Unrelated denial" } },
+        headers: {},
+      },
+    });
+    const packageService = new PackageService("https://test-endpoint", logger);
+    await expect(
+      packageService.publishAgent("test-token", "test-path", AppScope.Shared)
+    ).rejects.toThrow("Unrelated denial");
+  });
+
   it("retrieveTitleId happy path", async () => {
     axiosGetResponses["/config/v1/environment"] = {
       data: {
@@ -2255,7 +2326,7 @@ describe("Package Service", () => {
     chai.assert.equal(result[2], "");
   });
 
-  it("publishAgent with Shared scope should get shareLink", async () => {
+  it("AC-06: publishAgent with Shared scope should get shareLink", async () => {
     axiosGetResponses["/config/v1/environment"] = {
       data: {
         titlesServiceUrl: "https://test-url",
@@ -2314,7 +2385,7 @@ describe("Package Service", () => {
     chai.assert.equal(result[2], "");
   });
 
-  it("publishAgent defaults to Personal scope", async () => {
+  it("AC-03: publishAgent defaults to Personal scope", async () => {
     axiosGetResponses["/config/v1/environment"] = {
       data: {
         titlesServiceUrl: "https://test-url",
@@ -2335,9 +2406,15 @@ describe("Package Service", () => {
     };
 
     const packageService = new PackageService("https://test-endpoint", logger);
+    const post = vi.spyOn(testAxiosInstance, "post");
     const result = await packageService.publishAgent("test-token", "test-path");
     chai.assert.equal(result[0], "test-title-id");
     chai.assert.equal(result[1], "test-app-id");
     chai.assert.equal(result[2], "");
+    expect(post).toHaveBeenCalledWith(
+      "/builder/v1/users/packages",
+      expect.anything(),
+      expect.objectContaining({ params: { scope: AppScope.Personal, isRAIValidationAsync: true } })
+    );
   });
 });

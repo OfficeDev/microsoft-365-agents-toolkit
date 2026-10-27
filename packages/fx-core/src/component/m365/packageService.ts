@@ -890,10 +890,10 @@ export class PackageService {
     const tracingId = (error.response.headers?.traceresponse ?? "") as string;
     const originalMessage = error.message as string;
     const innerError = error.response.data?.error ||
-      error.response.data.Error || { code: "", message: "" };
-    const finalMessage = `${originalMessage} (tracingId: ${tracingId}) ${
-      innerError.Code as string
-    }: ${innerError.Message as string} `;
+      error.response.data?.Error || { code: "", message: "" };
+    const innerCode = innerError.Code ?? innerError.code ?? "";
+    const innerMessage = innerError.Message ?? innerError.message ?? "";
+    const finalMessage = `${originalMessage} (tracingId: ${tracingId}) ${innerCode}: ${innerMessage} `;
 
     error.message = finalMessage;
 
@@ -907,16 +907,18 @@ export class PackageService {
       });
     } else if (
       error.response.status === 403 &&
-      error.response.data.Error.Message ==
-        "User does not have access to upload advanced Copilot apps."
+      innerMessage === "User does not have access to upload advanced Copilot apps."
     ) {
       error = new UserError({
         name: "PackageServiceError",
         error,
         source: M365ErrorSource,
-        message: getDefaultString("error.m365.SharedScopeAdvancedDADisabled", advancedDASettingUrl),
+        message: getDefaultString(
+          "error.m365.AdvancedPackageUploadsDisabled",
+          advancedDASettingUrl
+        ),
         displayMessage: getLocalizedString(
-          "error.m365.SharedScopeAdvancedDADisabled",
+          "error.m365.AdvancedPackageUploadsDisabled",
           advancedDASettingUrl
         ),
       });
