@@ -22,6 +22,27 @@ describe("DeclarativeAgentManifestWrapper - Agent Skills", () => {
   }
 
   describe("addSkill", () => {
+    it("SCN-CREATE-SKILL-10: limits v1.9 manifests to eight skills", () => {
+      const warning = sandbox.stub(console, "warn");
+      const agent = DeclarativeAgentManifestWrapper.fromJSON(
+        JSON.stringify({
+          version: "v1.9",
+          name: "Skill agent",
+          description: "A skill agent",
+        })
+      );
+
+      for (let index = 0; index < 8; index++) {
+        agent.addSkill(`skills/skill-${index}`);
+      }
+      assert.lengthOf(agent.skills, 8);
+
+      agent.addSkill("skills/overflow");
+      assert.lengthOf(agent.skills, 8);
+      assert.isTrue(warning.calledOnce);
+      assert.include(warning.firstCall.args[0], "Maximum 8");
+    });
+
     it("should add a skill with folder only", () => {
       const agent = createAgent();
 
