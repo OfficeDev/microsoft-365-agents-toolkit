@@ -104,7 +104,7 @@
       "parameters": {
         "button": "left",
         "x": 187,
-        "y": 312
+        "y": 299
       },
       "description": "Click the \"Create a New Agent/App\" button in the MICROSOFT 365 AGENTS TOOLKIT panel on the left side of the Visual Studio Code interface.",
       "content_refs": [],
@@ -112,11 +112,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [],
-      "preconditions": [
-        "dhash:187:312:16:5:3bc4b14410000000",
-        "dhash:187:312:96:5:4134cbc93248284b",
-        "dhash:187:312:0:10:2bb8949490b1787b"
-      ],
+      "preconditions": [],
       "postconditions": [],
       "tags": [],
       "screenshot": "step_7ba2dfdf",
