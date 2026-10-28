@@ -49,6 +49,7 @@ import { InstallAppToChannelDriver } from "../../src/component/driver/devChannel
 import { DriverContext } from "../../src/component/driver/interface/commonArgs";
 import * as shareUtils from "../../src/component/driver/share/utils";
 import { CreateAppPackageDriver } from "../../src/component/driver/teamsApp/createAppPackage";
+import { AppStudioError } from "../../src/component/driver/teamsApp/errors";
 import { copilotGptManifestUtils } from "../../src/component/driver/teamsApp/utils/CopilotGptManifestUtils";
 import { manifestUtils } from "../../src/component/driver/teamsApp/utils/ManifestUtils";
 import { ValidateManifestDriver } from "../../src/component/driver/teamsApp/validate";
@@ -2075,6 +2076,7 @@ describe("Teams app APIs", async () => {
 describe("previewWithManifest", () => {
   const tools = new MockTools();
   const core = new FxCore(tools);
+  const validTeamsAppId = "00000000-0000-4000-8000-000000000000";
 
   afterEach(() => {
     vi.restoreAllMocks();
@@ -2102,7 +2104,9 @@ describe("previewWithManifest", () => {
 
   it("getLaunchUrl error", async () => {
     const appName = await mockV3Project();
-    vi.spyOn(manifestUtils, "getManifestV3").mockResolvedValue(ok({} as TeamsManifest));
+    vi.spyOn(manifestUtils, "getManifestV3").mockResolvedValue(
+      ok({ id: validTeamsAppId } as TeamsManifest)
+    );
     vi.spyOn(LaunchHelper.prototype, "getLaunchUrl").mockResolvedValue(err({ foo: "bar" } as any));
     const inputs: Inputs = {
       [QuestionNames.M365Host]: HubOptions.teams().id,
@@ -2123,7 +2127,9 @@ describe("previewWithManifest", () => {
 
   it("happy path", async () => {
     const appName = await mockV3Project();
-    vi.spyOn(manifestUtils, "getManifestV3").mockResolvedValue(ok({} as TeamsManifest));
+    vi.spyOn(manifestUtils, "getManifestV3").mockResolvedValue(
+      ok({ id: validTeamsAppId } as TeamsManifest)
+    );
     vi.spyOn(LaunchHelper.prototype, "getLaunchUrl").mockResolvedValue(ok("test-url"));
     const inputs: Inputs = {
       [QuestionNames.M365Host]: HubOptions.teams().id,
@@ -2140,6 +2146,34 @@ describe("previewWithManifest", () => {
     const result = await core.previewWithManifest(inputs);
     assert.isTrue(result.isOk());
     assert.deepEqual((result as any).value, "test-url");
+  });
+
+  it("rejects an invalid Teams app id before constructing the launch URL", async () => {
+    const appName = await mockV3Project();
+    vi.spyOn(manifestUtils, "getManifestV3").mockResolvedValue(
+      ok({ id: "x&calc&" } as TeamsManifest)
+    );
+    const getLaunchUrlStub = vi.spyOn(LaunchHelper.prototype, "getLaunchUrl");
+    const inputs: Inputs = {
+      [QuestionNames.M365Host]: HubOptions.teams().id,
+      [QuestionNames.TeamsAppManifestFilePath]: path.join(
+        os.tmpdir(),
+        appName,
+        "appPackage",
+        "manifest.template.json"
+      ),
+      env: "dev",
+      platform: Platform.VSCode,
+      projectPath: path.join(os.tmpdir(), appName),
+    };
+
+    const result = await core.previewWithManifest(inputs);
+
+    assert.isTrue(result.isErr());
+    if (result.isErr()) {
+      assert.equal(result.error.name, AppStudioError.InvalidTeamsAppIdError.name);
+    }
+    assert.isFalse(getLaunchUrlStub.mock.calls.length > 0);
   });
 });
 

@@ -51,6 +51,7 @@ import * as path from "path";
 import "reflect-metadata";
 import { Container } from "typedi";
 import { pathToFileURL } from "url";
+import isUUID from "validator/lib/isUUID";
 import { teamsDevPortalClient } from "../client/teamsDevPortalClientProvider";
 import { ApiKeyParameters, AuthParameters } from "../common/authInterface";
 import { throwIfAborted } from "../common/cancellation";
@@ -1384,6 +1385,14 @@ export class FxCore extends FxCoreOpenPluginPart {
     }
 
     const teamsAppId = manifestRes.value.id;
+    if (!isUUID(teamsAppId)) {
+      return err(
+        AppStudioResultFactory.UserError(
+          AppStudioError.InvalidTeamsAppIdError.name,
+          AppStudioError.InvalidTeamsAppIdError.message(teamsAppId)
+        )
+      );
+    }
     const properties = manifestUtils.parseCommonProperties(manifestRes.value as TeamsAppManifest);
 
     const launchHelper = new LaunchHelper(TOOLS.tokenProvider.m365TokenProvider, TOOLS.logProvider);
