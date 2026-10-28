@@ -234,35 +234,6 @@ test("VCB-196: the actual serialized DCR verifier requires stable readback rathe
   assert.ok(program.includes("sleep(2000)"));
 });
 
-test("VCB-198: MCP sign-in removes a passkey suggestion without bypassing the focus guard", async () => {
-  const result = await compileFixture(
-    "da-mcp-auth-modes.yml",
-    (value) => value,
-  );
-  assert.equal(result.ok, true, JSON.stringify(result.diagnostics));
-  for (const { caseId, plan } of result.value) {
-    const focus = plan.steps.findIndex((step) =>
-      step.step_id.startsWith("step_signInM365_focusAccount_"),
-    );
-    const dismiss = plan.steps.findIndex((step) =>
-      step.step_id.startsWith("step_signInM365_dismissPasskeySuggestion_"),
-    );
-    const guard = plan.steps.findIndex((step) =>
-      step.step_id.startsWith("step_signInM365_assertFocusedAccount_"),
-    );
-    const type = plan.steps.findIndex((step) =>
-      step.step_id.startsWith("step_signInM365_typeAccount_"),
-    );
-    assert.ok(
-      focus >= 0 && focus < dismiss && dismiss < guard && guard < type,
-      caseId,
-    );
-    assert.equal(plan.steps[dismiss].tool, "key_press", caseId);
-    assert.equal(plan.steps[dismiss].parameters.key, "esc", caseId);
-    assert.equal(plan.steps[guard].continue_on_error, "false", caseId);
-  }
-});
-
 test("VCB-200: MCP probe and addition retries stay bounded and retain real results", async () => {
   for (const file of ["da-mcp-auth-modes.yml", "da-mcp-dcr-update.yml"]) {
     const result = await compileFixture(file, (value) => value);

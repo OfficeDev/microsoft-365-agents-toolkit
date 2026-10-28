@@ -57,16 +57,11 @@ describe("DCR update planning (supplementary file-unit coverage)", () => {
       }
     });
 
-    it("DCR-UPD-04: preserves every valid registration input without inserting fields", () => {
+    it("DCR-UPD-04: preserves every supported update input without inserting fields", () => {
       const input = {
         configurationId,
-        name: "n".repeat(128),
         appId: "existing-app",
-        mcpResourceUrl: "https://example.com/full/mcp/path",
-        wellKnownAuthorizationServer:
-          "https://login.example.com/.well-known/oauth-authorization-server",
         resource: "urn:example:resource",
-        targetUrlsShouldStartWith: ["https://example.com/full/mcp/path"],
         applicableToApps: OauthRegistrationAppType.SpecificApp,
         targetAudience: OauthRegistrationTargetAudience.AnyTenant,
         includePersonalMicrosoftAccounts: false,
@@ -75,7 +70,6 @@ describe("DCR update planning (supplementary file-unit coverage)", () => {
       expect(result.isOk()).toBe(true);
       if (result.isOk()) {
         expect(result.value).toEqual(input);
-        expect(result.value.targetUrlsShouldStartWith).not.toBe(input.targetUrlsShouldStartWith);
       }
     });
 
@@ -89,12 +83,12 @@ describe("DCR update planning (supplementary file-unit coverage)", () => {
       });
     }
 
-    const invalidInputs: { title: string; input: Record<string, unknown>; error?: string }[] = [
+    const invalidInputs: { title: string; input: Record<string, unknown> }[] = [
       { title: "blank ID", input: { configurationId: " " } },
       { title: "non-string ID", input: { configurationId: 42 } },
       { title: "empty name", input: { name: "" } },
       { title: "non-string name", input: { name: 42 } },
-      { title: "overlong name", input: { name: "n".repeat(129) }, error: "DcrNameTooLong" },
+      { title: "overlong name", input: { name: "n".repeat(129) } },
       { title: "empty app ID", input: { appId: "" } },
       { title: "non-string app ID", input: { appId: 42 } },
       { title: "HTTP MCP endpoint", input: { mcpResourceUrl: "http://example.com/mcp" } },
@@ -102,7 +96,6 @@ describe("DCR update planning (supplementary file-unit coverage)", () => {
       {
         title: "invalid metadata URL",
         input: { wellKnownAuthorizationServer: "http://example.com/metadata" },
-        error: "DcrWellKnownInvalid",
       },
       { title: "relative resource", input: { resource: "/relative" } },
       { title: "resource fragment", input: { resource: "https://example.com/api#fragment" } },
@@ -114,6 +107,11 @@ describe("DCR update planning (supplementary file-unit coverage)", () => {
       { title: "HTTP target", input: { targetUrlsShouldStartWith: ["http://example.com"] } },
       { title: "string account option", input: { includePersonalMicrosoftAccounts: "true" } },
       { title: "numeric account option", input: { includePersonalMicrosoftAccounts: 1 } },
+      { title: "management policy", input: { manageableByUsers: ["user-id"] } },
+      { title: "PKCE setting", input: { isPKCEEnabled: true } },
+      { title: "wire app ID alias", input: { m365AppId: "new-app" } },
+      { title: "wire name alias", input: { clientName: "New name" } },
+      { title: "wire account option", input: { supportedAccountTypes: "Enterprise, Consumer" } },
       { title: "static client ID", input: { clientId: "static-client" } },
       { title: "static secret", input: { clientSecret: "not-a-real-secret" } },
       { title: "unknown setting", input: { unexpected: true } },
@@ -132,12 +130,29 @@ describe("DCR update planning (supplementary file-unit coverage)", () => {
       invalidInputs.push({ title: `null ${field}`, input: { [field]: null } });
     }
 
-    for (const { title, input, error } of invalidInputs) {
+    for (const { title, input } of invalidInputs) {
       it(`DCR-UPD-04: rejects ${title}`, () => {
         const result = validateUpdateDcrArgs({ configurationId, ...input });
         expect(result.isErr()).toBe(true);
         if (result.isErr()) {
-          expect(result.error.name).toBe(error ?? "InvalidActionInputError");
+          expect(result.error.name).toBe("InvalidActionInputError");
+        }
+      });
+    }
+
+    for (const { id, input } of [
+      { id: "DCR-UPD-08", input: { name: "Existing client" } },
+      { id: "DCR-UPD-08", input: { name: "New name" } },
+      { id: "DCR-UPD-10", input: { mcpResourceUrl: "https://example.com/mcp" } },
+      { id: "DCR-UPD-11", input: { wellKnownAuthorizationServer: "https://example.com/metadata" } },
+      { id: "DCR-UPD-13", input: { targetUrlsShouldStartWith: [] } },
+      { id: "DCR-UPD-13", input: { targetUrlsShouldStartWith: ["https://example.com/mcp"] } },
+    ]) {
+      it(`${id}: rejects immutable ${Object.keys(input)[0]} instead of planning an update or no-op`, () => {
+        const result = plan(input);
+        expect(result.isErr()).toBe(true);
+        if (result.isErr()) {
+          expect(result.error.name).toBe("InvalidActionInputError");
         }
       });
     }
@@ -165,7 +180,9 @@ describe("DCR update planning (supplementary file-unit coverage)", () => {
 
     it("DCR-UPD-18: omission does not apply the account-option cloud restriction", () => {
       vi.stubEnv(FeatureFlagName.SovereignCloudEnvironment, "GCC H");
-      expect(validateUpdateDcrArgs({ configurationId, name: "New name" }).isOk()).toBe(true);
+      expect(validateUpdateDcrArgs({ configurationId, resource: "urn:example:new" }).isOk()).toBe(
+        true
+      );
     });
   });
 
@@ -179,7 +196,6 @@ describe("DCR update planning (supplementary file-unit coverage)", () => {
         expect(result.value).toEqual({
           changes: { supportedAccountTypes: "Enterprise, Consumer" },
           clearAppBinding: false,
-          discoveryInputsChanged: false,
         });
       }
       expect(current).toEqual(before);
@@ -200,7 +216,7 @@ describe("DCR update planning (supplementary file-unit coverage)", () => {
 
     it("DCR-UPD-07: omission never writes account support, app binding or defaults", () => {
       const result = plan(
-        { name: "New name" },
+        { resource: "urn:example:new-resource" },
         currentConfiguration({
           applicableToApps: OauthRegistrationAppType.SpecificApp,
           m365AppId: "existing-app",
@@ -209,7 +225,7 @@ describe("DCR update planning (supplementary file-unit coverage)", () => {
       );
       expect(result.isOk()).toBe(true);
       if (result.isOk()) {
-        expect(result.value.changes).toEqual({ clientName: "New name" });
+        expect(result.value.changes).toEqual({ resource: "urn:example:new-resource" });
         expect(result.value.clearAppBinding).toBe(false);
       }
     });
@@ -221,7 +237,6 @@ describe("DCR update planning (supplementary file-unit coverage)", () => {
         expect(result.value).toEqual({
           changes: {},
           clearAppBinding: false,
-          discoveryInputsChanged: false,
         });
       }
     });
@@ -233,12 +248,8 @@ describe("DCR update planning (supplementary file-unit coverage)", () => {
       });
       const result = plan(
         {
-          name: current.clientName,
           appId: current.m365AppId,
-          mcpResourceUrl: current.mcpResourceUrl,
-          wellKnownAuthorizationServer: current.wellKnownAuthorizationServer,
           resource: current.resource,
-          targetUrlsShouldStartWith: current.targetUrlsShouldStartWith,
           applicableToApps: current.applicableToApps,
           targetAudience: current.targetAudience,
           includePersonalMicrosoftAccounts: false,
@@ -249,7 +260,6 @@ describe("DCR update planning (supplementary file-unit coverage)", () => {
       if (result.isOk()) {
         expect(result.value.changes).toEqual({});
         expect(result.value.clearAppBinding).toBe(false);
-        expect(result.value.discoveryInputsChanged).toBe(false);
       }
     });
 
@@ -273,34 +283,32 @@ describe("DCR update planning (supplementary file-unit coverage)", () => {
     });
   });
 
-  describe("discovery and target changes", () => {
-    for (const { id, field, value } of [
-      { id: "DCR-UPD-10", field: "mcpResourceUrl", value: "https://new.example.com/full/mcp/path" },
-      {
-        id: "DCR-UPD-11",
-        field: "wellKnownAuthorizationServer",
-        value: "https://new.example.com/.well-known/oauth-authorization-server",
-      },
-      { id: "DCR-UPD-12", field: "resource", value: "urn:example:new-resource" },
+  describe("resource changes", () => {
+    for (const resource of [
+      "https://new.example.com/api",
+      "api://new-resource",
+      "urn:example:new-resource",
     ]) {
-      it(`${id}: plans only the explicit ${field} change without inventing discovered values`, () => {
-        const result = plan({ [field]: value });
+      it(`DCR-UPD-12: plans only the explicit resource ${resource}`, () => {
+        const current = currentConfiguration();
+        const before = structuredClone(current);
+        const result = plan({ resource }, current);
         expect(result.isOk()).toBe(true);
         if (result.isOk()) {
-          expect(result.value.changes).toEqual({ [field]: value });
-          expect(result.value.discoveryInputsChanged).toBe(true);
+          expect(result.value.changes).toEqual({ resource });
         }
+        expect(current).toEqual(before);
       });
     }
 
-    it("DCR-UPD-12: discovery changes require an effective discovery source", () => {
+    it("DCR-UPD-12: resource changes do not require read-only discovery URLs", () => {
       const result = plan(
         { resource: "urn:example:new-resource" },
         currentConfiguration({ mcpResourceUrl: undefined, wellKnownAuthorizationServer: undefined })
       );
-      expect(result.isErr()).toBe(true);
-      if (result.isErr()) {
-        expect(result.error.name).toBe("InvalidActionInputError");
+      expect(result.isOk()).toBe(true);
+      if (result.isOk()) {
+        expect(result.value.changes).toEqual({ resource: "urn:example:new-resource" });
       }
     });
 
@@ -310,46 +318,6 @@ describe("DCR update planning (supplementary file-unit coverage)", () => {
         currentConfiguration({ mcpResourceUrl: undefined, wellKnownAuthorizationServer: undefined })
       );
       expect(result.isOk()).toBe(true);
-    });
-
-    for (const targetUrlsShouldStartWith of [
-      [],
-      ["https://new.example.com/mcp"],
-      ["https://one.example.com/mcp", "https://two.example.com/mcp"],
-    ]) {
-      it(`DCR-UPD-13: uses replacement semantics for ${targetUrlsShouldStartWith.length} target entries`, () => {
-        const result = plan({ targetUrlsShouldStartWith });
-        expect(result.isOk()).toBe(true);
-        if (result.isOk()) {
-          expect(result.value.changes).toEqual({ targetUrlsShouldStartWith });
-          expect(result.value.discoveryInputsChanged).toBe(false);
-        }
-      });
-    }
-
-    it("DCR-UPD-09: target ordering alone does not create a change or mutate arrays", () => {
-      const targets = ["https://one.example.com/mcp", "https://two.example.com/mcp"];
-      const current = currentConfiguration({ targetUrlsShouldStartWith: [...targets].reverse() });
-      const before = structuredClone(current);
-      const result = plan({ targetUrlsShouldStartWith: targets }, current);
-      expect(result.isOk()).toBe(true);
-      if (result.isOk()) {
-        expect(result.value.changes).toEqual({});
-      }
-      expect(current).toEqual(before);
-      expect(targets[0]).toBe("https://one.example.com/mcp");
-    });
-
-    it("DCR-UPD-13: the planned target array does not alias the caller's input", () => {
-      const targets = ["https://new.example.com/mcp"];
-      const result = plan({ targetUrlsShouldStartWith: targets });
-      targets.push("https://later.example.com/mcp");
-      expect(result.isOk()).toBe(true);
-      if (result.isOk()) {
-        expect(result.value.changes.targetUrlsShouldStartWith).toEqual([
-          "https://new.example.com/mcp",
-        ]);
-      }
     });
   });
 

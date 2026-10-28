@@ -8,7 +8,8 @@
 - **Scope revision:** The requester prioritized making the four cases executable
   on 2026-10-27. The positive case now updates a verified writable account
   policy. The original URL-transition requirement remains unsupported; the
-  historical URL runs below and immutable-URL negative regression are retained.
+  historical URL runs below are retained. The current action contract rejects
+  immutable name/URL inputs locally, with separate negative regression coverage.
 - **Current result:** Passed 236 steps, 0 errors in
   [run 40585000490](https://github.com/OfficeDev/microsoft-365-agents-toolkit/actions/runs/40585000490),
   workflow 1604, attempt 1 for this case. All four requested cases are green

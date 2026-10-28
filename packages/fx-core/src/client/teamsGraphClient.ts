@@ -12,7 +12,10 @@ import {
   ApiSecretRegistration,
   ApiSecretRegistrationUpdate,
 } from "../component/driver/teamsApp/interfaces/ApiSecretRegistration";
-import { DcrRegistration } from "../component/driver/teamsApp/interfaces/DcrRegistration";
+import {
+  DcrRegistration,
+  DcrRegistrationUpdate,
+} from "../component/driver/teamsApp/interfaces/DcrRegistration";
 import { OauthConfigurationId } from "../component/driver/teamsApp/interfaces/OauthConfigurationId";
 import { OauthRegistration } from "../component/driver/teamsApp/interfaces/OauthRegistration";
 import { TeamsGraphAPIFailedSystemError } from "../error/teamsGraph";
@@ -125,7 +128,7 @@ export class TeamsGraphClient {
   @hooks([ErrorContextMW({ source: "TeamsGraph", component: "TeamsGraphClient" })])
   async updateDcrRegistration(
     token: string,
-    changes: Partial<DcrRegistration>,
+    changes: DcrRegistrationUpdate,
     configurationId: string
   ): Promise<void> {
     const requester = this.createRequesterWithToken(token);

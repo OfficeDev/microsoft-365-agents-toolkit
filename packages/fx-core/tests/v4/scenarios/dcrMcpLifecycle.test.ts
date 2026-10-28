@@ -388,12 +388,12 @@ describe("DCR MCP auth lifecycle - L1 composition, not UI or live service covera
     expect(unchanged.result.isOk()).toBe(true);
     expect(unchanged.summaries.flat().join()).toContain("already matches");
     expect(http.history.patch).toHaveLength(1);
-    const beforeRename = structuredClone(currentState());
-    await fixture.writeUpdate({ name: "Renamed configuration" });
+    const beforePolicyChange = structuredClone(currentState());
+    await fixture.writeUpdate({ targetAudience: "AnyTenant" });
     expect((await fixture.executeAuthSlice()).result.isOk()).toBe(true);
-    expect(currentState()).toEqual({ ...beforeRename, clientName: "Renamed configuration" });
+    expect(currentState()).toEqual({ ...beforePolicyChange, targetAudience: "AnyTenant" });
     expect(requestObject(http.history.patch[1].data)).toEqual({
-      clientName: "Renamed configuration",
+      targetAudience: "AnyTenant",
     });
     expect(await fixture.references()).toEqual(references);
     expect(http.history.post).toHaveLength(1);
@@ -406,12 +406,21 @@ describe("DCR MCP auth lifecycle - L1 composition, not UI or live service covera
     const references = await fixture.references();
     vi.mocked(context.m365TokenProvider.getAccessToken).mockClear();
     http.resetHistory();
-    await fixture.writeUpdate({ configurationId: "", includePersonalMicrosoftAccounts: true });
-    const invalid = await new YamlParser().parse(fixture.yamlPath, true);
-    expect(invalid.isErr()).toBe(true);
-    expect(context.m365TokenProvider.getAccessToken).not.toHaveBeenCalled();
-    expect(http.history.get).toHaveLength(0);
-    expect(http.history.patch).toHaveLength(0);
+    for (const input of [
+      { configurationId: "", includePersonalMicrosoftAccounts: true },
+      { name: "Renamed configuration" },
+      { mcpResourceUrl: MCP_URL },
+      { wellKnownAuthorizationServer: "https://example.com/metadata" },
+      { targetUrlsShouldStartWith: [MCP_URL] },
+    ]) {
+      await fixture.writeUpdate(input);
+      const invalid = await new YamlParser().parse(fixture.yamlPath, true);
+      expect(invalid.isErr()).toBe(true);
+      expect(context.m365TokenProvider.getAccessToken).not.toHaveBeenCalled();
+      expect(http.history.get).toHaveLength(0);
+      expect(http.history.patch).toHaveLength(0);
+      expect(await fixture.references()).toEqual(references);
+    }
     await fixture.writeUpdate({ includePersonalMicrosoftAccounts: true });
     expect((await fixture.executeAuthSlice()).result.isOk()).toBe(true);
     expect(currentState().supportedAccountTypes).toBe("Enterprise, Consumer");

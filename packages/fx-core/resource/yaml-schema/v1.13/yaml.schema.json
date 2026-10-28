@@ -2048,7 +2048,7 @@
     "dcrUpdate": {
       "type": "object",
       "additionalProperties": false,
-      "description": "Update an existing Dynamic Client Registration (DCR) configuration without changing its configuration ID. Omitted settings remain unchanged.",
+      "description": "Update supported policy fields of an existing Dynamic Client Registration (DCR) configuration without changing its configuration ID. Omitted settings remain unchanged.",
       "required": ["uses", "with"],
       "properties": {
         "uses": {
@@ -2059,7 +2059,7 @@
         "with": {
           "type": "object",
           "additionalProperties": false,
-          "description": "DCR update parameters. Only configurationId is required; omitted settings are preserved without applying registration defaults.",
+          "description": "DCR update parameters. Only configurationId is required; omitted settings are preserved without applying registration defaults. Name, MCP endpoint, metadata URL, and target URLs cannot be updated.",
           "required": ["configurationId"],
           "properties": {
             "configurationId": {
@@ -2067,36 +2067,15 @@
               "minLength": 1,
               "description": "ID of the existing DCR authentication configuration to update. This is not an OAuth client ID."
             },
-            "name": {
-              "type": "string",
-              "minLength": 1,
-              "maxLength": 128,
-              "description": "Optional replacement DCR client name. This is not a lookup key and does not need to match the existing name. If omitted, the current name is preserved."
-            },
             "appId": {
               "type": "string",
               "minLength": 1,
               "description": "Microsoft 365 app ID used when the effective applicableToApps setting is SpecificApp. If omitted, the existing binding is preserved unless applicableToApps explicitly changes to AnyApp."
             },
-            "mcpResourceUrl": {
-              "type": "string",
-              "minLength": 1,
-              "description": "Replacement HTTPS URL of the actual MCP endpoint, including its path, for server-side protected resource metadata discovery. This is not the PRM document URL or an inferred OAuth resource indicator. If omitted, the existing endpoint is preserved. Does not implicitly change targetUrlsShouldStartWith."
-            },
-            "wellKnownAuthorizationServer": {
-              "type": "string",
-              "minLength": 1,
-              "description": "Replacement HTTPS URL of the authorization server's RFC 8414 metadata document. Has the same discovery precedence as dcr/register. If omitted, the existing value is preserved."
-            },
             "resource": {
               "type": "string",
               "minLength": 1,
               "description": "Replacement explicit OAuth resource indicator: an absolute URI without a fragment. Overrides the discovered resource, as in dcr/register. If omitted, the existing value is preserved; it is not inferred from another URL."
-            },
-            "targetUrlsShouldStartWith": {
-              "type": "array",
-              "description": "Replacement MCP target URL array. If omitted, the existing array is preserved. An explicit array replaces rather than appends; service target URL requirements still apply. Does not implicitly change mcpResourceUrl or the OAuth resource indicator.",
-              "items": { "type": "string" }
             },
             "applicableToApps": {
               "type": "string",

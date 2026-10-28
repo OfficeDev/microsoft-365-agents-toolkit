@@ -81,7 +81,6 @@ export class UpdateDcrDriver implements StepDriver {
     }
 
     const inputNames: Record<string, string> = {
-      clientName: "name",
       m365AppId: "appId",
       supportedAccountTypes: "includePersonalMicrosoftAccounts",
     };

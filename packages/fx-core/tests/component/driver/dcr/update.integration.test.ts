@@ -44,7 +44,7 @@ function snapshot() {
   };
 }
 
-describe("dcr/update HTTP-boundary integration (verified routes, provisional broad field set)", () => {
+describe("dcr/update HTTP-boundary integration (service-writable input subset)", () => {
   let http: MockAdapter;
   let context: DriverContext;
   let ui: MockedUserInteraction;
@@ -116,21 +116,10 @@ describe("dcr/update HTTP-boundary integration (verified routes, provisional bro
   });
 
   for (const { id, input, body } of [
-    { id: "DCR-UPD-07", input: { name: "Renamed" }, body: { clientName: "Renamed" } },
     {
-      id: "DCR-UPD-08",
-      input: { name: "Entirely new name" },
-      body: { clientName: "Entirely new name" },
-    },
-    {
-      id: "DCR-UPD-10",
-      input: { mcpResourceUrl: "https://new.example.com/full/mcp/path" },
-      body: { mcpResourceUrl: "https://new.example.com/full/mcp/path" },
-    },
-    {
-      id: "DCR-UPD-11",
-      input: { wellKnownAuthorizationServer: "https://new.example.com/metadata" },
-      body: { wellKnownAuthorizationServer: "https://new.example.com/metadata" },
+      id: "DCR-UPD-07",
+      input: { resource: "urn:example:new-resource" },
+      body: { resource: "urn:example:new-resource" },
     },
     {
       id: "DCR-UPD-12",
@@ -151,20 +140,55 @@ describe("dcr/update HTTP-boundary integration (verified routes, provisional bro
     });
   }
 
-  for (const targets of [
-    [],
-    ["https://new.example.com/mcp"],
-    ["https://one.example.com", "https://two.example.com"],
+  for (const { id, input } of [
+    { id: "DCR-UPD-08", input: { name: "Existing client" } },
+    { id: "DCR-UPD-08", input: { name: "Renamed" } },
+    { id: "DCR-UPD-10", input: { mcpResourceUrl: snapshot().mcpResourceUrl } },
+    { id: "DCR-UPD-10", input: { mcpResourceUrl: "https://new.example.com/mcp" } },
+    {
+      id: "DCR-UPD-11",
+      input: { wellKnownAuthorizationServer: snapshot().wellKnownAuthorizationServer },
+    },
+    {
+      id: "DCR-UPD-11",
+      input: { wellKnownAuthorizationServer: "https://new.example.com/metadata" },
+    },
+    { id: "DCR-UPD-13", input: { targetUrlsShouldStartWith: [] } },
+    {
+      id: "DCR-UPD-13",
+      input: { targetUrlsShouldStartWith: snapshot().targetUrlsShouldStartWith },
+    },
+    {
+      id: "DCR-UPD-13",
+      input: { targetUrlsShouldStartWith: ["https://one.example.com", "https://two.example.com"] },
+    },
   ]) {
-    it(`DCR-UPD-13: replaces targets with ${targets.length} entries`, async () => {
-      expect((await execute({ targetUrlsShouldStartWith: targets })).result.isOk()).toBe(true);
-      expectPatch({ targetUrlsShouldStartWith: targets });
+    it(`${id}: rejects immutable ${JSON.stringify(input)} before authentication or HTTP`, async () => {
+      const result = await execute(input);
+      expect(result.result.isErr()).toBe(true);
+      if (result.result.isErr()) {
+        expect(result.result.error.name).toBe("InvalidActionInputError");
+      }
+      expect(context.m365TokenProvider.getAccessToken).not.toHaveBeenCalled();
+      expect(http.history.get).toHaveLength(0);
+      expect(http.history.patch).toHaveLength(0);
+      expect(http.history.post).toHaveLength(0);
+      expect(result.summaries).toEqual([]);
     });
   }
 
+  it("DCR-UPD-12: changes resource without requiring read-only discovery URLs", async () => {
+    const current: Partial<ReturnType<typeof snapshot>> = snapshot();
+    delete current.mcpResourceUrl;
+    delete current.wellKnownAuthorizationServer;
+    http.onGet(resourcePath).reply(200, current);
+    expect((await execute({ resource: "urn:example:new-resource" })).result.isOk()).toBe(true);
+    expectPatch({ resource: "urn:example:new-resource" });
+  });
+
   for (const input of [
     {},
-    { name: "Existing client" },
+    { resource: snapshot().resource },
     { includePersonalMicrosoftAccounts: false },
   ]) {
     it(`DCR-UPD-09: skips confirmation and update for matching ${JSON.stringify(input)}`, async () => {
@@ -223,9 +247,16 @@ describe("dcr/update HTTP-boundary integration (verified routes, provisional bro
     { applicableToApps: "Other" },
     { includePersonalMicrosoftAccounts: "true" },
     { clientId: "static-client" },
+    { manageableByUsers: ["user-id"] },
+    { isPKCEEnabled: false },
+    { m365AppId: "new-app" },
+    { clientName: "Renamed" },
+    { supportedAccountTypes: "Enterprise, Consumer" },
+    { includePersonalMicrosoftAccounts: true, name: "Renamed" },
   ]) {
     it(`DCR-UPD-04: rejects invalid ${Object.keys(input)[0]} without HTTP`, async () => {
       expect((await execute(input)).result.isErr()).toBe(true);
+      expect(context.m365TokenProvider.getAccessToken).not.toHaveBeenCalled();
       expect(http.history.get).toHaveLength(0);
       expect(http.history.patch).toHaveLength(0);
     });
@@ -244,7 +275,7 @@ describe("dcr/update HTTP-boundary integration (verified routes, provisional bro
       http
         .onGet(resourcePath)
         .reply(status, { code: "ReadFailed" }, { "x-correlation-id": "read-correlation" });
-      const result = await execute({ name: "Renamed" });
+      const result = await execute({ resource: "urn:example:new-resource" });
       expect(result.result.isErr()).toBe(true);
       if (result.result.isErr()) {
         expect(result.result.error.message).toContain("teams_graph_get_dcr");
@@ -279,7 +310,7 @@ describe("dcr/update HTTP-boundary integration (verified routes, provisional bro
   ]) {
     it(`DCR-UPD-19: rejects invalid or non-Dynamic snapshot ${JSON.stringify(current)?.slice(0, 45)}`, async () => {
       http.onGet(resourcePath).reply(200, current);
-      expect((await execute({ name: "Renamed" })).result.isErr()).toBe(true);
+      expect((await execute({ resource: "urn:example:new-resource" })).result.isErr()).toBe(true);
       expect(http.history.patch).toHaveLength(0);
     });
   }
@@ -308,9 +339,9 @@ describe("dcr/update HTTP-boundary integration (verified routes, provisional bro
       context.platform = platform;
       context.nonInteractive = true;
       const log = vi.spyOn(context.logProvider, "info");
-      const result = await execute({ name: "Renamed" });
+      const result = await execute({ resource: "urn:example:new-resource" });
       expect(result.result.isOk()).toBe(true);
-      expectPatch({ clientName: "Renamed" });
+      expectPatch({ resource: "urn:example:new-resource" });
       expect(result.summaries.join()).toContain(configurationId);
       expect(JSON.stringify(log.mock.calls)).toContain(configurationId);
     });
@@ -320,9 +351,9 @@ describe("dcr/update HTTP-boundary integration (verified routes, provisional bro
     if (!context.ui) throw new Error("Expected the test UI");
     context.ui.confirm = undefined;
     const notification = vi.spyOn(ui, "showMessage");
-    const result = await execute({ name: "Renamed" });
+    const result = await execute({ resource: "urn:example:new-resource" });
     expect(result.result.isOk()).toBe(true);
-    expectPatch({ clientName: "Renamed" });
+    expectPatch({ resource: "urn:example:new-resource" });
     expect(notification).not.toHaveBeenCalled();
     expect(result.summaries.join()).toContain(configurationId);
   });
@@ -342,15 +373,15 @@ describe("dcr/update HTTP-boundary integration (verified routes, provisional bro
     expectPatch({ supportedAccountTypes: "Enterprise, Consumer" });
   });
 
-  it("DCR-UPD-20: applies devtunnel changes without confirmation or exposing URL query values", async () => {
+  it("DCR-UPD-20: changes resource without confirmation or exposing URI query values", async () => {
     const confirm = vi.spyOn(ui, "confirm");
     const log = vi.spyOn(context.logProvider, "info");
     const result = await execute({
-      mcpResourceUrl: "https://example.devtunnels.ms/mcp?key=test-only-query-value",
+      resource: "https://resource.example.com/api?key=test-only-query-value",
     });
     expect(result.result.isOk()).toBe(true);
     expect(confirm).not.toHaveBeenCalled();
-    expect(result.summaries.join()).toContain("mcpResourceUrl");
+    expect(result.summaries.join()).toContain("resource");
     expect(result.summaries.join()).not.toContain("test-only-query-value");
     expect(JSON.stringify(log.mock.calls)).not.toContain("test-only-query-value");
   });
@@ -358,7 +389,7 @@ describe("dcr/update HTTP-boundary integration (verified routes, provisional bro
   it("DCR-UPD-21: preserves authentication errors without HTTP", async () => {
     const error = new UserError("test", "TokenUnavailable", "Token unavailable");
     vi.spyOn(context.m365TokenProvider, "getAccessToken").mockResolvedValue(err(error));
-    const result = await execute({ name: "Renamed" });
+    const result = await execute({ resource: "urn:example:new-resource" });
     expect(result.result.isErr()).toBe(true);
     if (result.result.isErr()) expect(result.result.error).toBe(error);
     expect(http.history.get).toHaveLength(0);
@@ -368,7 +399,7 @@ describe("dcr/update HTTP-boundary integration (verified routes, provisional bro
     http
       .onPatch(resourcePath)
       .reply(400, { code: "UpdateFailed" }, { "x-correlation-id": "update-correlation" });
-    const result = await execute({ targetUrlsShouldStartWith: [] });
+    const result = await execute({ resource: "urn:example:new-resource" });
     expect(result.result.isErr()).toBe(true);
     if (result.result.isErr()) {
       expect(result.result.error.message).toContain("teams_graph_update_dcr");
@@ -382,7 +413,7 @@ describe("dcr/update HTTP-boundary integration (verified routes, provisional bro
     vi.spyOn(context.m365TokenProvider, "getAccessToken").mockRejectedValue(
       new Error("Authentication failed")
     );
-    expect((await execute({ name: "Renamed" })).result.isErr()).toBe(true);
+    expect((await execute({ resource: "urn:example:new-resource" })).result.isErr()).toBe(true);
     expect(http.history.patch).toHaveLength(0);
   });
 
@@ -390,43 +421,40 @@ describe("dcr/update HTTP-boundary integration (verified routes, provisional bro
     vi.spyOn(context.m365TokenProvider, "getAccessToken").mockRejectedValue(
       "Authentication unavailable"
     );
-    expect((await execute({ name: "Renamed" })).result.isErr()).toBe(true);
+    expect((await execute({ resource: "urn:example:new-resource" })).result.isErr()).toBe(true);
     expect(http.history.patch).toHaveLength(0);
   });
 
   it("DCR-UPD-27: notification cancellation cannot turn a committed update into failure", async () => {
     const error = new UserError("test", "NotificationFailed", "Notification failed");
     vi.spyOn(ui, "showMessage").mockResolvedValue(err(error));
-    const result = await execute({ name: "Renamed" });
+    const result = await execute({ resource: "urn:example:new-resource" });
     expect(result.result.isOk()).toBe(true);
-    expectPatch({ clientName: "Renamed" });
+    expectPatch({ resource: "urn:example:new-resource" });
     expect(result.summaries.join()).toContain(configurationId);
   });
 
-  it("DCR-UPD-21: preserves the real-service immutable-URL rejection without a success or replacement", async () => {
+  it("DCR-UPD-21: preserves ConfigUpdateError without a success or replacement", async () => {
     http.onPatch(resourcePath).reply(400, {
       error: {
         code: "BadRequest",
         innerError: { code: "ConfigUpdateError" },
-        message:
-          "The following fields cannot be updated for dynamic configurations: mcpResourceUrl",
+        message: "The requested resource update was rejected by the service.",
       },
     });
-    const result = await execute({ mcpResourceUrl: "https://new.example.com/mcp" });
+    const result = await execute({ resource: "urn:example:new-resource" });
     expect(result.result.isErr()).toBe(true);
     if (result.result.isErr()) {
       expect(result.result.error.message).toContain("ConfigUpdateError");
     }
     expect(result.summaries).toEqual([]);
-    expectPatch({ mcpResourceUrl: "https://new.example.com/mcp" });
+    expectPatch({ resource: "urn:example:new-resource" });
   });
 
   it("DCR-UPD-22: ignores service-managed response state rather than echoing it into the request", async () => {
     http.onPatch(resourcePath).reply(200, { ...snapshot(), scopes: ["rediscovered-scope"] });
-    expect((await execute({ mcpResourceUrl: "https://new.example.com/mcp" })).result.isOk()).toBe(
-      true
-    );
-    expectPatch({ mcpResourceUrl: "https://new.example.com/mcp" });
+    expect((await execute({ resource: "urn:example:new-resource" })).result.isOk()).toBe(true);
+    expectPatch({ resource: "urn:example:new-resource" });
     expect(http.history.get).toHaveLength(1);
   });
 
@@ -482,7 +510,9 @@ describe("dcr/update HTTP-boundary integration (verified routes, provisional bro
     const escaped = `/v1.0/oAuthConfigurations/${encodeURIComponent(id)}`;
     http.onGet(escaped).reply(200, { ...snapshot(), oAuthConfigId: id });
     http.onPatch(escaped).reply(204);
-    expect((await execute({ configurationId: id, name: "Renamed" })).result.isOk()).toBe(true);
+    expect(
+      (await execute({ configurationId: id, resource: "urn:example:new-resource" })).result.isOk()
+    ).toBe(true);
     expect(http.history.get[0].url).toBe(escaped);
     expect(http.history.patch[0].url).toBe(escaped);
   });

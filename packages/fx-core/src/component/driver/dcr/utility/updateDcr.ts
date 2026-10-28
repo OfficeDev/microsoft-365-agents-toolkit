@@ -9,36 +9,27 @@ import {
   mapPersonalMicrosoftAccountsOption,
   validateSupportedAccountTypesCloud,
 } from "../../oauth/utility/supportedAccountTypes";
-import { validateUrl } from "../../oauth/utility/utility";
-import { DcrRegistration } from "../../teamsApp/interfaces/DcrRegistration";
+import { DcrRegistration, DcrRegistrationUpdate } from "../../teamsApp/interfaces/DcrRegistration";
 import {
   OauthRegistrationAppType,
   OauthRegistrationTargetAudience,
 } from "../../teamsApp/interfaces/OauthRegistration";
-import { DcrNameTooLongError } from "../error/dcrNameTooLong";
-import { DcrWellKnownInvalidError } from "../error/dcrWellKnownInvalid";
 import { UpdateDcrArgs } from "../interface/updateDcrArgs";
 
 const actionName = "dcr/update";
-const discoveryFields: readonly ("mcpResourceUrl" | "wellKnownAuthorizationServer" | "resource")[] =
-  ["mcpResourceUrl", "wellKnownAuthorizationServer", "resource"];
-const stringFields: readonly (
-  "name" | "appId" | "mcpResourceUrl" | "wellKnownAuthorizationServer" | "resource"
-)[] = ["name", "appId", "mcpResourceUrl", "wellKnownAuthorizationServer", "resource"];
+const stringFields: readonly ("appId" | "resource")[] = ["appId", "resource"];
 const allowedFields: ReadonlySet<string> = new Set([
   "configurationId",
   ...stringFields,
-  "targetUrlsShouldStartWith",
   "applicableToApps",
   "targetAudience",
   "includePersonalMicrosoftAccounts",
 ]);
 
 export interface DcrUpdatePlan {
-  changes: Partial<DcrRegistration>;
+  changes: DcrRegistrationUpdate;
   // Binding removal is intent; its provisional wire representation belongs to the driver.
   clearAppBinding: boolean;
-  discoveryInputsChanged: boolean;
 }
 
 function isRecord(input: unknown): input is Record<string, unknown> {
@@ -70,18 +61,6 @@ export function validateUpdateDcrArgs(input: unknown): Result<UpdateDcrArgs, FxE
     }
   }
 
-  if (args.name !== undefined && args.name.length > 128) {
-    return err(new DcrNameTooLongError(actionName));
-  }
-  if (args.mcpResourceUrl !== undefined && !validateUrl(args.mcpResourceUrl)) {
-    return err(new InvalidActionInputError(actionName, ["mcpResourceUrl"]));
-  }
-  if (
-    args.wellKnownAuthorizationServer !== undefined &&
-    !validateUrl(args.wellKnownAuthorizationServer)
-  ) {
-    return err(new DcrWellKnownInvalidError(actionName));
-  }
   if (
     args.resource !== undefined &&
     (!URL.canParse(args.resource) || args.resource.includes("#"))
@@ -109,19 +88,6 @@ export function validateUpdateDcrArgs(input: unknown): Result<UpdateDcrArgs, FxE
       return err(new InvalidActionInputError(actionName, ["targetAudience"]));
     }
     args.targetAudience = tenantScope;
-  }
-
-  const targets = input.targetUrlsShouldStartWith;
-  if (targets !== undefined) {
-    if (
-      !Array.isArray(targets) ||
-      !targets.every(
-        (target: unknown): target is string => typeof target === "string" && validateUrl(target)
-      )
-    ) {
-      return err(new InvalidActionInputError(actionName, ["targetUrlsShouldStartWith"]));
-    }
-    args.targetUrlsShouldStartWith = [...targets];
   }
 
   const accountTypes = mapPersonalMicrosoftAccountsOption(
@@ -154,39 +120,11 @@ export function createDcrUpdatePlan(
     return err(accountTypes.error);
   }
 
-  const changes: Partial<DcrRegistration> = {};
-  let discoveryInputsChanged = false;
+  const changes: DcrRegistrationUpdate = {};
   let clearAppBinding = false;
 
-  if (args.name !== undefined && args.name !== current.clientName) {
-    changes.clientName = args.name;
-  }
-  for (const field of discoveryFields) {
-    const value = args[field];
-    if (value !== undefined && value !== current[field]) {
-      changes[field] = value;
-      discoveryInputsChanged = true;
-    }
-  }
-  if (
-    discoveryInputsChanged &&
-    !(args.mcpResourceUrl ?? current.mcpResourceUrl) &&
-    !(args.wellKnownAuthorizationServer ?? current.wellKnownAuthorizationServer)
-  ) {
-    return err(
-      new InvalidActionInputError(actionName, ["mcpResourceUrl", "wellKnownAuthorizationServer"])
-    );
-  }
-
-  if (args.targetUrlsShouldStartWith !== undefined) {
-    const requested = [...args.targetUrlsShouldStartWith].sort();
-    const existing = [...current.targetUrlsShouldStartWith].sort();
-    if (
-      requested.length !== existing.length ||
-      requested.some((target, index) => target !== existing[index])
-    ) {
-      changes.targetUrlsShouldStartWith = [...args.targetUrlsShouldStartWith];
-    }
+  if (args.resource !== undefined && args.resource !== current.resource) {
+    changes.resource = args.resource;
   }
 
   if (args.appId !== undefined || args.applicableToApps !== undefined) {
@@ -214,5 +152,5 @@ export function createDcrUpdatePlan(
     changes.supportedAccountTypes = accountTypes.value;
   }
 
-  return ok({ changes, clearAppBinding, discoveryInputsChanged });
+  return ok({ changes, clearAppBinding });
 }

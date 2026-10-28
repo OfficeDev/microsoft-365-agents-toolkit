@@ -11,11 +11,9 @@ Requires Node.js 20.19.0 or later in the 20.x series, or Node.js 22.12.0 or late
 The opt-in `dcr/update` lifecycle action updates an existing authentication
 configuration without producing a replacement configuration ID. See the
 [operation contract](../../docs/03-specs/operations/auth/update-dcr.md) for inputs,
-examples, automatic update behavior, and the provisional service contract.
-
-The service read/update routes and persistence semantics still require upstream
-confirmation and live validation before release. Local HTTP-boundary tests do
-not establish that support.
+examples, automatic update behavior, supported fields, and live-validation
+boundaries. Unsupported name and URL inputs are rejected locally rather than
+forwarded to the service.
 
 ## Data Collection.
 
