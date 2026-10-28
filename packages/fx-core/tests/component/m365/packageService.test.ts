@@ -510,7 +510,7 @@ describe("Package Service", () => {
     chai.assert.isDefined(builderRequest);
     chai.assert.deepEqual(builderRequest?.[2]?.params, {
       scope: AppScope.Tenant,
-      isRAIValidationAsync: true,
+      isRAIValidationAsync: false,
     });
     chai.assert.equal(builderRequest?.[2]?.headers?.Authorization, "Bearer test-token");
     chai.assert.isFalse(postStub.mock.calls.some(([url]) => url === "/dev/v1/users/packages"));
@@ -591,7 +591,12 @@ describe("Package Service", () => {
     chai.assert.equal(result[1], "test-app-id-created");
   });
 
-  it("always enables and waits for RAI validation after upload", async () => {
+  it("does not wait for RAI validation when the experiment enables it", async () => {
+    setTools({
+      expServiceProvider: {
+        getTreatmentVariableAsync: vi.fn().mockResolvedValue(true),
+      },
+    } as any);
     axiosPostResponses["/builder/v1/users/packages"] = {
       status: 200,
       data: { statusId: "test-status-id-builder-api" },
@@ -610,7 +615,11 @@ describe("Package Service", () => {
         if (statusCallCount === 2) {
           return Promise.resolve({
             status: 200,
-            data: { validationInfo: { status: "pending" } },
+            data: {
+              titleId: "test-title-id-builder-api",
+              appId: "test-app-id-builder-api",
+              validationInfo: { status: "pending" },
+            },
           });
         }
         return Promise.resolve({
@@ -638,21 +647,93 @@ describe("Package Service", () => {
     const result = await packageService.sideLoading("test-token", "test-path");
 
     chai.assert.deepEqual(result, ["test-title-id-builder-api", "test-app-id-builder-api", ""]);
-    chai.assert.equal(statusCallCount, 3);
+    chai.assert.equal(statusCallCount, 2);
     const uploadRequest = postStub.mock.calls.find(([url]) => url === "/builder/v1/users/packages");
     expect(uploadRequest?.[2]?.params).toEqual({
       scope: AppScope.Personal,
-      isRAIValidationAsync: true,
+      isRAIValidationAsync: false,
     });
     const statusRequest = getStub.mock.calls.find(
       ([url]) => url === "/builder/v1/users/packages/status/test-status-id-builder-api"
     );
-    expect(statusRequest?.[1]?.params).toEqual({ isRAIValidationAsync: true });
-    expect(vi.mocked(commonUtils.waitSeconds)).toHaveBeenCalledTimes(2);
+    expect(statusRequest?.[1]?.params).toEqual({ isRAIValidationAsync: false });
+    expect(vi.mocked(commonUtils.waitSeconds)).toHaveBeenCalledTimes(1);
     expect(vi.mocked(commonUtils.waitSeconds)).toHaveBeenCalledWith(7);
   });
 
-  it("surfaces RAI validation failure reasons", async () => {
+  it("keeps RAI validation disabled despite the environment enabling it", async () => {
+    process.env.TEAMSFX_RAI_VALIDATION_ENABLED = "true";
+    const getTreatmentVariableAsync = vi.fn();
+    setTools({ expServiceProvider: { getTreatmentVariableAsync } } as any);
+    axiosGetResponses["/config/v1/environment"] = {
+      data: { titlesServiceUrl: "https://test-url" },
+    };
+    axiosPostResponses["/builder/v1/users/packages"] = {
+      data: { statusId: "test-status-id-builder-api" },
+    };
+    axiosGetResponses["/builder/v1/users/packages/status/test-status-id-builder-api"] = {
+      status: 200,
+      data: {
+        titleId: "test-title-id-builder-api",
+        appId: "test-app-id-builder-api",
+        validationInfo: { status: "pending" },
+      },
+    };
+    const postStub = vi.spyOn(testAxiosInstance, "post");
+    const getStub = vi.spyOn(testAxiosInstance, "get");
+
+    const packageService = new PackageService("https://test-endpoint", logger);
+    await packageService.sideLoadingV2("test-token", "test-path", AppScope.Personal);
+
+    expect(getTreatmentVariableAsync).not.toHaveBeenCalled();
+    expect(
+      postStub.mock.calls.find(([url]) => url === "/builder/v1/users/packages")?.[2]?.params
+    ).toEqual({
+      scope: AppScope.Personal,
+      isRAIValidationAsync: false,
+    });
+    expect(
+      getStub.mock.calls.find(
+        ([url]) => url === "/builder/v1/users/packages/status/test-status-id-builder-api"
+      )?.[1]?.params
+    ).toEqual({ isRAIValidationAsync: false });
+  });
+
+  it("uses environment override to disable RAI validation", async () => {
+    process.env.TEAMSFX_RAI_VALIDATION_ENABLED = "false";
+    const getTreatmentVariableAsync = vi.fn().mockResolvedValue(true);
+    setTools({ expServiceProvider: { getTreatmentVariableAsync } } as any);
+    axiosGetResponses["/config/v1/environment"] = {
+      data: { titlesServiceUrl: "https://test-url" },
+    };
+    axiosPostResponses["/builder/v1/users/packages"] = {
+      data: { statusId: "test-status-id-builder-api" },
+    };
+    axiosGetResponses["/builder/v1/users/packages/status/test-status-id-builder-api"] = {
+      status: 200,
+      data: { titleId: "test-title-id-builder-api", appId: "test-app-id-builder-api" },
+    };
+    const postStub = vi.spyOn(testAxiosInstance, "post");
+    const getStub = vi.spyOn(testAxiosInstance, "get");
+
+    const packageService = new PackageService("https://test-endpoint", logger);
+    await packageService.sideLoadingV2("test-token", "test-path", AppScope.Personal);
+
+    expect(getTreatmentVariableAsync).not.toHaveBeenCalled();
+    expect(
+      postStub.mock.calls.find(([url]) => url === "/builder/v1/users/packages")?.[2]?.params
+    ).toEqual({
+      scope: AppScope.Personal,
+      isRAIValidationAsync: false,
+    });
+    expect(
+      getStub.mock.calls.find(
+        ([url]) => url === "/builder/v1/users/packages/status/test-status-id-builder-api"
+      )?.[1]?.params
+    ).toEqual({ isRAIValidationAsync: false });
+  });
+
+  it("ignores RAI validation failure reasons while validation is disabled", async () => {
     setTools({
       expServiceProvider: {
         getTreatmentVariableAsync: vi.fn().mockResolvedValue(true),
@@ -668,6 +749,8 @@ describe("Package Service", () => {
     axiosGetResponses["/builder/v1/users/packages/status/test-status-id-builder-api"] = {
       status: 200,
       data: {
+        titleId: "test-title-id-builder-api",
+        appId: "test-app-id-builder-api",
         validationInfo: {
           status: "failed",
           failureReasons: [
@@ -683,21 +766,12 @@ describe("Package Service", () => {
     const packageService = new PackageService("https://test-endpoint", logger);
     await expect(
       packageService.sideLoadingV2("test-token", "test-path", AppScope.Personal)
-    ).rejects.toMatchObject({
-      name: "PackageValidationFailed",
-      message: expect.stringContaining("RAIViolation"),
-      displayMessage: expect.stringContaining("Detected offensive content in agent description."),
-    });
-    expect(errorStub).toHaveBeenCalledWith(
-      expect.stringContaining("Resolve the following issues and try again")
-    );
-    expect(errorStub).toHaveBeenCalledWith(expect.stringContaining("RAIViolation"));
-    expect(errorStub).toHaveBeenCalledWith(
-      expect.stringContaining("Detected offensive content in agent description.")
-    );
+    ).resolves.toEqual(["test-title-id-builder-api", "test-app-id-builder-api"]);
+    expect(errorStub).not.toHaveBeenCalled();
   });
 
-  it("waits for missing RAI validation information", async () => {
+  it("waits for HTTP completion without RAI validation", async () => {
+    process.env.TEAMSFX_RAI_VALIDATION_ENABLED = "true";
     axiosPostResponses["/builder/v1/users/packages"] = {
       data: { statusId: "test-status-id-builder-api" },
     };
@@ -727,7 +801,7 @@ describe("Package Service", () => {
 
     chai.assert.deepEqual(result, ["test-title-id-builder-api", "test-app-id-builder-api"]);
     expect(vi.mocked(commonUtils.waitSeconds)).toHaveBeenCalledWith(7);
-    expect(infoStub).toHaveBeenCalledWith(
+    expect(infoStub).not.toHaveBeenCalledWith(
       "RAI validation is in progress. Waiting for completion..."
     );
   });
@@ -744,7 +818,8 @@ describe("Package Service", () => {
     ).rejects.toThrow("Missing statusId in package upload response.");
   });
 
-  it("throws for successful RAI validation without app IDs", async () => {
+  it("does not require RAI validation information on HTTP completion", async () => {
+    process.env.TEAMSFX_RAI_VALIDATION_ENABLED = "true";
     axiosGetResponses["/config/v1/environment"] = {
       data: { titlesServiceUrl: "https://test-url" },
     };
@@ -753,16 +828,17 @@ describe("Package Service", () => {
     };
     axiosGetResponses["/builder/v1/users/packages/status/test-status-id-builder-api"] = {
       status: 200,
-      data: { validationInfo: { status: "successful" } },
+      data: { titleId: "test-title-id-builder-api", appId: "test-app-id-builder-api" },
     };
 
     const packageService = new PackageService("https://test-endpoint", logger);
     await expect(
       packageService.sideLoadingV2("test-token", "test-path", AppScope.Personal)
-    ).rejects.toThrow("Missing titleId or appId in successful package status response.");
+    ).resolves.toEqual(["test-title-id-builder-api", "test-app-id-builder-api"]);
   });
 
-  it("throws for unexpected RAI validation status responses", async () => {
+  it("ignores unexpected RAI validation status on HTTP completion", async () => {
+    process.env.TEAMSFX_RAI_VALIDATION_ENABLED = "true";
     axiosGetResponses["/config/v1/environment"] = {
       data: { titlesServiceUrl: "https://test-url" },
     };
@@ -770,16 +846,18 @@ describe("Package Service", () => {
       data: { statusId: "test-status-id-builder-api" },
     };
     axiosGetResponses["/builder/v1/users/packages/status/test-status-id-builder-api"] = {
-      status: 202,
-      data: { validationInfo: { status: "successful" } },
+      status: 200,
+      data: {
+        titleId: "test-title-id-builder-api",
+        appId: "test-app-id-builder-api",
+        validationInfo: { status: "unknown" },
+      },
     };
 
     const packageService = new PackageService("https://test-endpoint", logger);
     await expect(
       packageService.sideLoadingV2("test-token", "test-path", AppScope.Personal)
-    ).rejects.toThrow(
-      "Unexpected package status response: HTTP 202, validation status successful."
-    );
+    ).resolves.toEqual(["test-title-id-builder-api", "test-app-id-builder-api"]);
   });
 
   it("sideloading throws error in get status", async () => {

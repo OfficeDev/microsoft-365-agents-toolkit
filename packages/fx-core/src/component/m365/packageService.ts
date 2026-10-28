@@ -276,6 +276,7 @@ export class PackageService {
       this.logger?.debug(`"Uploading package with sideLoading V2 in ${appScope} scope ..."`);
       const uploadHeaders = content.getHeaders();
       uploadHeaders["Authorization"] = `Bearer ${token}`;
+      const isRaiValidationEnabled = false;
       const upload = () =>
         this.axiosInstance.post("/builder/v1/users/packages", content, {
           baseURL: serviceUrl,
@@ -283,7 +284,7 @@ export class PackageService {
           ...(hasSkills && { maxRedirects: 0 }),
           params: {
             scope: appScope,
-            isRAIValidationAsync: true,
+            isRAIValidationAsync: false,
           },
         });
       const uploadResult = hasSkills
@@ -304,11 +305,24 @@ export class PackageService {
           {
             baseURL: serviceUrl,
             headers: { Authorization: `Bearer ${token}` },
-            params: { isRAIValidationAsync: true },
+            params: { isRAIValidationAsync: false },
           }
         );
         const resCode = statusResponse.status;
         this.logger?.debug(`Package status: ${resCode} ...`);
+
+        if (!isRaiValidationEnabled) {
+          if (resCode === 200) {
+            const titleId: string = statusResponse.data.titleId;
+            const appId: string = statusResponse.data.appId;
+            this.logger?.info(`TitleId: ${titleId}`);
+            this.logger?.info(`AppId: ${appId}`);
+            this.logger?.verbose("Sideloading done.");
+            return [titleId, appId];
+          }
+          await waitSeconds(7);
+          continue;
+        }
 
         const statusResult = statusResponse.data as BuilderPackageStatusResponse;
         const validationInfo = statusResult?.validationInfo;

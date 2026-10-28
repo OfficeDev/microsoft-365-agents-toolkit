@@ -260,7 +260,7 @@ class UploadHttpBoundary {
       return [204, undefined];
     }
     if (method === "POST" && path === "/builder/v1/users/packages") {
-      expect(config.params).toMatchObject({ isRAIValidationAsync: true });
+      expect(config.params).toMatchObject({ isRAIValidationAsync: false });
       this.submitted.push(multipartZip(config.data));
       if (this.finalStatus === 409) {
         return [409, { error: { code: "Conflict", message: "private conflict response" } }];
@@ -269,7 +269,7 @@ class UploadHttpBoundary {
       return [202, { statusId: "status", titlePreview: { titleId: "title" } }];
     }
     if (method === "GET" && path === "/builder/v1/users/packages/status/status") {
-      expect(config.params).toEqual({ isRAIValidationAsync: true });
+      expect(config.params).toEqual({ isRAIValidationAsync: false });
       return [
         200,
         {
