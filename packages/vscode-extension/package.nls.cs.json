@@ -192,7 +192,7 @@
   "teamstoolkit.commandsTreeViewProvider.regenerateActionDescription": "Znovu vygenerovat akci v deklarativním agentovi",
   "teamstoolkit.commandsTreeViewProvider.addPlugin.running": "Přidává se akce...",
   "teamstoolkit.commandsTreeViewProvider.addSkillTitle": "Přidat dovednost",
-  "teamstoolkit.commandsTreeViewProvider.addSkillFrontierTitle": "Add Skill (Frontier)",
+  "teamstoolkit.commandsTreeViewProvider.addSkillFrontierTitle": "Přidat dovednost (Frontier)",
   "teamstoolkit.commandsTreeViewProvider.addSkillDescription": "Přidat dovednost v deklarativním agentovi",
   "teamstoolkit.commandsTreeViewProvider.addSkill.running": "Přidává se dovednost...",
   "teamstoolkit.commandsTreeViewProvider.addSkill.blockTooltip": "Při přidávání dovednosti nelze spustit příkaz. Zkuste to znovu po dokončení přidávání.",

@@ -46,6 +46,7 @@ import AdmZip from "adm-zip";
 import { DotenvParseOutput } from "dotenv";
 import fs from "fs-extra";
 import * as jsonschema from "jsonschema";
+import yaml from "js-yaml";
 import * as os from "os";
 import * as path from "path";
 import "reflect-metadata";
@@ -82,6 +83,7 @@ import {
   ProjectTypeResult,
   projectTypeChecker,
 } from "../common/projectTypeChecker";
+import { isValidSkillName } from "../common/skillUtils";
 import { TelemetryEvent, TelemetryProperty, telemetryUtils } from "../common/telemetry";
 import templateConfig from "../common/templates-config.json";
 import { runForTypeSpecProject } from "../common/tools";
@@ -2327,17 +2329,22 @@ export class FxCore extends FxCoreOpenPluginPart {
     ConcurrentLockerMW,
   ])
   async addSkill(inputs: Inputs): Promise<Result<undefined | any, FxError>> {
-    if (!featureFlagManager.getBooleanValue(FeatureFlags.Frontier)) {
+    if (!inputs.projectPath) {
+      throw new Error("projectPath is undefined"); // should never happen
+    }
+
+    if (
+      !inputs[QuestionNames.SkillFrom] &&
+      !inputs[QuestionNames.SkillFromZipFile] &&
+      !isValidSkillName(inputs[QuestionNames.SkillName])
+    ) {
       return err(
         new UserError(
           "FxCore",
-          "AgentSkillsDisabled",
-          getLocalizedString("core.addSkill.featureFlagDisabled")
+          "InvalidSkillName",
+          getLocalizedString("core.addSkillQuestion.name.validation")
         )
       );
-    }
-    if (!inputs.projectPath) {
-      throw new Error("projectPath is undefined"); // should never happen
     }
 
     const context = createContext();
@@ -2429,13 +2436,12 @@ export class FxCore extends FxCoreOpenPluginPart {
 
         // Validate folder name format
         const folderName = path.basename(skillAbsPath);
-        const namePattern = /^[a-zA-Z][a-zA-Z0-9-]*$/;
-        if (!namePattern.test(folderName)) {
+        if (!isValidSkillName(folderName)) {
           return err(
             new UserError(
               "FxCore",
               "InvalidSkillFolderName",
-              `Skill folder name "${folderName}" is invalid. It must start with a letter and contain only letters, numbers, and hyphens.`
+              getLocalizedString("core.addSkillQuestion.name.validation")
             )
           );
         }
@@ -2480,7 +2486,7 @@ export class FxCore extends FxCoreOpenPluginPart {
 
       const skillMdContent = [
         "---",
-        `name: ${skillName}`,
+        `name: ${yaml.dump(skillName).trimEnd()}`,
         `description: ${skillDescription}`,
         "---",
         `# ${skillName}`,
@@ -2655,13 +2661,12 @@ export class FxCore extends FxCoreOpenPluginPart {
     }
 
     // Validate skill name format
-    const namePattern = /^[a-zA-Z][a-zA-Z0-9-]*$/;
-    if (!namePattern.test(derivedSkillName)) {
+    if (!isValidSkillName(derivedSkillName)) {
       return err(
         new UserError(
           "FxCore",
           "InvalidSkillFolderName",
-          `Skill name "${derivedSkillName}" is invalid. It must start with a letter and contain only letters, numbers, and hyphens.`
+          getLocalizedString("core.addSkillQuestion.name.validation")
         )
       );
     }

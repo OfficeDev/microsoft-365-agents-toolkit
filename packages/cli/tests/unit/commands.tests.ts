@@ -999,23 +999,29 @@ describe("CLI commands", () => {
   });
 
   describe("getAddCommand", async () => {
-    it("excludes Add Skill when Frontier is disabled", async () => {
-      vi.spyOn(featureFlagManager, "getBooleanValue").mockReturnValue(false);
-
-      const commands = addCommand();
-
-      assert.isTrue(commands.commands?.length === 3);
-      assert.notInclude(commands.commands, addSkillCommand);
-    });
-
-    it("includes Add Skill when Frontier is enabled", async () => {
+    it.each([true, false])("registers and runs Add Skill when Frontier is %s", async (enabled) => {
       vi.spyOn(featureFlagManager, "getBooleanValue").mockImplementation(
-        (flag) => flag === FeatureFlags.Frontier
+        (flag) => flag === FeatureFlags.Frontier && enabled
       );
 
       const commands = addCommand();
 
+      assert.lengthOf(commands.commands, 4);
       assert.include(commands.commands, addSkillCommand);
+
+      const addSkill = vi.spyOn(FxCore.prototype, "addSkill").mockResolvedValue(ok(undefined));
+      const ctx: CLIContext = {
+        command: { ...addSkillCommand, fullName: "add skill" },
+        optionValues: { folder: "./", skill: "my-skill", description: "A test skill" },
+        globalOptionValues: {},
+        argumentValues: [],
+        telemetryProperties: {},
+      };
+
+      const result = await addSkillCommand.handler!(ctx);
+
+      assert.isTrue(result.isOk());
+      assert.deepEqual(addSkill.mock.calls, [[ctx.optionValues]]);
     });
   });
 

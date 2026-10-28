@@ -192,7 +192,7 @@
   "teamstoolkit.commandsTreeViewProvider.regenerateActionDescription": "Повторное создание действия в декларативном агенте",
   "teamstoolkit.commandsTreeViewProvider.addPlugin.running": "Добавление действия...",
   "teamstoolkit.commandsTreeViewProvider.addSkillTitle": "Добавить навык",
-  "teamstoolkit.commandsTreeViewProvider.addSkillFrontierTitle": "Add Skill (Frontier)",
+  "teamstoolkit.commandsTreeViewProvider.addSkillFrontierTitle": "Добавить навык (Frontier)",
   "teamstoolkit.commandsTreeViewProvider.addSkillDescription": "Добавить навык в декларативный агент",
   "teamstoolkit.commandsTreeViewProvider.addSkill.running": "Добавление навыка...",
   "teamstoolkit.commandsTreeViewProvider.addSkill.blockTooltip": "Не удалось выполнить команду при добавлении навыка. Повторите попытку после добавления.",

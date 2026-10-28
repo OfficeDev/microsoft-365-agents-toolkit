@@ -22,6 +22,7 @@ import { getResourceServiceEndpoint, ResourceServiceType } from "../../common/co
 import { FeatureFlags, featureFlagManager } from "../../common/featureFlags";
 import { ErrorContextMW, TOOLS } from "../../common/globalVars";
 import { getDefaultString, getLocalizedString } from "../../common/localizeUtils";
+import { TreatmentVariables } from "../../common/treatmentVariables";
 import {
   Component,
   sendTelemetryErrorEvent,
@@ -276,6 +277,15 @@ export class PackageService {
       this.logger?.debug(`"Uploading package with sideLoading V2 in ${appScope} scope ..."`);
       const uploadHeaders = content.getHeaders();
       uploadHeaders["Authorization"] = `Bearer ${token}`;
+      const forceRaiValidationEnabled = process.env.TEAMSFX_RAI_VALIDATION_ENABLED;
+      const isRaiValidationEnabled =
+        forceRaiValidationEnabled === undefined
+          ? ((await TOOLS.expServiceProvider?.getTreatmentVariableAsync<boolean>(
+              TreatmentVariables.VSCodeConfig,
+              TreatmentVariables.RaiValidation,
+              true
+            )) ?? false)
+          : forceRaiValidationEnabled === "true" || forceRaiValidationEnabled === "1";
       const upload = () =>
         this.axiosInstance.post("/builder/v1/users/packages", content, {
           baseURL: serviceUrl,
@@ -283,7 +293,7 @@ export class PackageService {
           ...(hasSkills && { maxRedirects: 0 }),
           params: {
             scope: appScope,
-            isRAIValidationAsync: true,
+            ...(isRaiValidationEnabled && { isRAIValidationAsync: true }),
           },
         });
       const uploadResult = hasSkills
@@ -304,11 +314,24 @@ export class PackageService {
           {
             baseURL: serviceUrl,
             headers: { Authorization: `Bearer ${token}` },
-            params: { isRAIValidationAsync: true },
+            ...(isRaiValidationEnabled && { params: { isRAIValidationAsync: true } }),
           }
         );
         const resCode = statusResponse.status;
         this.logger?.debug(`Package status: ${resCode} ...`);
+
+        if (!isRaiValidationEnabled) {
+          if (resCode === 200) {
+            const titleId: string = statusResponse.data.titleId;
+            const appId: string = statusResponse.data.appId;
+            this.logger?.info(`TitleId: ${titleId}`);
+            this.logger?.info(`AppId: ${appId}`);
+            this.logger?.verbose("Sideloading done.");
+            return [titleId, appId];
+          }
+          await waitSeconds(7);
+          continue;
+        }
 
         const statusResult = statusResponse.data as BuilderPackageStatusResponse;
         const validationInfo = statusResult?.validationInfo;
@@ -890,10 +913,10 @@ export class PackageService {
     const tracingId = (error.response.headers?.traceresponse ?? "") as string;
     const originalMessage = error.message as string;
     const innerError = error.response.data?.error ||
-      error.response.data.Error || { code: "", message: "" };
-    const finalMessage = `${originalMessage} (tracingId: ${tracingId}) ${
-      innerError.Code as string
-    }: ${innerError.Message as string} `;
+      error.response.data?.Error || { code: "", message: "" };
+    const innerCode = innerError.Code ?? innerError.code ?? "";
+    const innerMessage = innerError.Message ?? innerError.message ?? "";
+    const finalMessage = `${originalMessage} (tracingId: ${tracingId}) ${innerCode}: ${innerMessage} `;
 
     error.message = finalMessage;
 
@@ -907,16 +930,18 @@ export class PackageService {
       });
     } else if (
       error.response.status === 403 &&
-      error.response.data.Error.Message ==
-        "User does not have access to upload advanced Copilot apps."
+      innerMessage === "User does not have access to upload advanced Copilot apps."
     ) {
       error = new UserError({
         name: "PackageServiceError",
         error,
         source: M365ErrorSource,
-        message: getDefaultString("error.m365.SharedScopeAdvancedDADisabled", advancedDASettingUrl),
+        message: getDefaultString(
+          "error.m365.AdvancedPackageUploadsDisabled",
+          advancedDASettingUrl
+        ),
         displayMessage: getLocalizedString(
-          "error.m365.SharedScopeAdvancedDADisabled",
+          "error.m365.AdvancedPackageUploadsDisabled",
           advancedDASettingUrl
         ),
       });

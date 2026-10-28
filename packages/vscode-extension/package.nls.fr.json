@@ -192,7 +192,7 @@
   "teamstoolkit.commandsTreeViewProvider.regenerateActionDescription": "Régénérer l’action dans l’agent déclaratif",
   "teamstoolkit.commandsTreeViewProvider.addPlugin.running": "Ajout de l’action...",
   "teamstoolkit.commandsTreeViewProvider.addSkillTitle": "Ajouter une compétence",
-  "teamstoolkit.commandsTreeViewProvider.addSkillFrontierTitle": "Add Skill (Frontier)",
+  "teamstoolkit.commandsTreeViewProvider.addSkillFrontierTitle": "Ajouter une compétence (Frontier)",
   "teamstoolkit.commandsTreeViewProvider.addSkillDescription": "Ajouter une compétence dans l’assistant déclaratif",
   "teamstoolkit.commandsTreeViewProvider.addSkill.running": "Ajout d’une compétence en cours... Merci de patienter.",
   "teamstoolkit.commandsTreeViewProvider.addSkill.blockTooltip": "Nous ne pouvons pas exécuter une commande lors de l’ajout d’une compétence. Réessayez après la fin de l’ajout.",

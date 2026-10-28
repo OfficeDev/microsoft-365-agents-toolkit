@@ -15,6 +15,7 @@ import yaml from "js-yaml";
 import { posix } from "path";
 import { TextDecoder } from "util";
 import { getDefaultString, getLocalizedString } from "../../../common/localizeUtils";
+import { isValidSkillName } from "../../../common/skillUtils";
 
 export interface SkillPackageFile {
   /** Confined, slash-separated path relative to the skill folder. */
@@ -437,9 +438,7 @@ function readLocalSkills(
     if (folders.has(folder)) continue;
     const name = folder.split("/").pop();
     if (
-      !name ||
-      name.length > 64 ||
-      !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(name) ||
+      !isValidSkillName(name) ||
       names.has(name) ||
       [...folders].some(
         (existing) =>

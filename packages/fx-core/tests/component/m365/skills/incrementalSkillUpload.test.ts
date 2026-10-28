@@ -296,6 +296,7 @@ describe("incremental skill upload PackageService scenarios", () => {
   beforeEach(() => {
     vi.stubEnv(FeatureFlagName.IncrementalSkillUpload, "true");
     vi.stubEnv("TEAMSFX_BUILDER_API", "true");
+    vi.stubEnv("TEAMSFX_RAI_VALIDATION_ENABLED", "true");
     bytes = packageBytes();
     provider = new MockedM365Provider();
     boundary = new UploadHttpBoundary();

@@ -192,7 +192,7 @@
   "teamstoolkit.commandsTreeViewProvider.regenerateActionDescription": "在宣告式代理程式中重新產生動作",
   "teamstoolkit.commandsTreeViewProvider.addPlugin.running": "新增動作...",
   "teamstoolkit.commandsTreeViewProvider.addSkillTitle": "新增技能",
-  "teamstoolkit.commandsTreeViewProvider.addSkillFrontierTitle": "Add Skill (Frontier)",
+  "teamstoolkit.commandsTreeViewProvider.addSkillFrontierTitle": "新增技能 (Frontier)",
   "teamstoolkit.commandsTreeViewProvider.addSkillDescription": "在宣告式 Agent 中新增技能",
   "teamstoolkit.commandsTreeViewProvider.addSkill.running": "正在新增技能...",
   "teamstoolkit.commandsTreeViewProvider.addSkill.blockTooltip": "新增技能時無法執行命令。在新增完成後，再試一次。",

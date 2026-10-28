@@ -3,13 +3,7 @@
 import * as vscode from "vscode";
 
 import { TreeCategory } from "@microsoft/teamsfx-api";
-import {
-  featureFlagManager,
-  FeatureFlagName,
-  FeatureFlags,
-  getFeatureFlaggedLabel,
-  manifestUtils,
-} from "@microsoft/teamsfx-core";
+import { featureFlagManager, FeatureFlags, manifestUtils } from "@microsoft/teamsfx-core";
 
 import { isDeclarativeCopilotApp, workspaceUri } from "../globalVariables";
 import * as commonUtils from "../utils/commonUtils";
@@ -241,13 +235,10 @@ class TreeViewManager {
             ),
           ]
         : []),
-      ...(isDeclarativeCopilotApp && featureFlagManager.getBooleanValue(FeatureFlags.Frontier)
+      ...(isDeclarativeCopilotApp
         ? [
             new TreeViewCommand(
-              getFeatureFlaggedLabel(
-                localize("teamstoolkit.commandsTreeViewProvider.addSkillTitle"),
-                FeatureFlagName.Frontier
-              ),
+              localize("teamstoolkit.commandsTreeViewProvider.addSkillTitle"),
               localize("teamstoolkit.commandsTreeViewProvider.addSkillDescription"),
               "fx-extension.addSkill",
               "addSkill",

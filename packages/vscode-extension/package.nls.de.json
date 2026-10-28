@@ -192,7 +192,7 @@
   "teamstoolkit.commandsTreeViewProvider.regenerateActionDescription": "Aktion im deklarativen Agenten neu generieren",
   "teamstoolkit.commandsTreeViewProvider.addPlugin.running": "Aktion wird hinzugefügt...",
   "teamstoolkit.commandsTreeViewProvider.addSkillTitle": "Qualifikation hinzufügen",
-  "teamstoolkit.commandsTreeViewProvider.addSkillFrontierTitle": "Add Skill (Frontier)",
+  "teamstoolkit.commandsTreeViewProvider.addSkillFrontierTitle": "Skill hinzufügen (Grenze)",
   "teamstoolkit.commandsTreeViewProvider.addSkillDescription": "Fähigkeit im deklarativen Agent hinzufügen",
   "teamstoolkit.commandsTreeViewProvider.addSkill.running": "Qualifikation wird hinzugefügt...",
   "teamstoolkit.commandsTreeViewProvider.addSkill.blockTooltip": "Der Befehl kann beim Hinzufügen einer Qualifikation nicht ausgeführt werden. Versuchen Sie es nach Abschluss des Hinzufügens noch mal.",

@@ -192,7 +192,7 @@
   "teamstoolkit.commandsTreeViewProvider.regenerateActionDescription": "Bildirim aracında eylemi yeniden oluştur",
   "teamstoolkit.commandsTreeViewProvider.addPlugin.running": "Eylem ekleniyor...",
   "teamstoolkit.commandsTreeViewProvider.addSkillTitle": "Beceri Ekle",
-  "teamstoolkit.commandsTreeViewProvider.addSkillFrontierTitle": "Add Skill (Frontier)",
+  "teamstoolkit.commandsTreeViewProvider.addSkillFrontierTitle": "Beceri Ekle (Frontier)",
   "teamstoolkit.commandsTreeViewProvider.addSkillDescription": "Deklaratif ajanda beceri ekle",
   "teamstoolkit.commandsTreeViewProvider.addSkill.running": "Beceri ekleniyor...",
   "teamstoolkit.commandsTreeViewProvider.addSkill.blockTooltip": "Bir beceri eklenirken komut çalıştırılamıyor. Eklenme tamamlandıktan sonra yeniden deneyin.",

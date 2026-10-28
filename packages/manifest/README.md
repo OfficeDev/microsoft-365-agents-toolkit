@@ -10,7 +10,7 @@ A collection of TypeScript definitions and converters for Microsoft 365 App mani
 
 - **Strongly‑typed interfaces** for three manifest types with all versions generated from Microsoft’s official [JSON schemas](https://developer.microsoft.com/json-schemas/), guaranteeing compile‑time type correctness:  
   - Teams Manifest: 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 1.10, 1.11, 1.12, 1.13, 1.14, 1.15, 1.16, 1.17, 1.19, 1.20, 1.21, 1.22, devPreview  
-  - Declarative Agent Manifest: v1.0, v1.2, v1.3, v1.4  
+  - Declarative Agent Manifest: v1.0, v1.2, v1.3, v1.4, v1.5, v1.6, v1.7, v1.8, v1.9
   - API Plugin Manifest: v2.1, v2.2
 
 - **Bi‑directional conversions** from JSON to manifest or from manifest to JSON(`jsonToManifest` and `manifestToJson`) with runtime type validation.
@@ -93,6 +93,10 @@ The converter runtime is maintained in `converter-runtime.txt`. `npm run convert
 that template for Teams, Declarative Agent, and API Plugin converters; do not edit the
 generated runtime helpers directly. This runtime performs type checks, not full JSON
 schema or service-side validation.
+
+Declarative Agent `v1.9` includes typed `agent_skills` entries referencing skill
+directories through `folder`. Its bundled schema permits up to eight skills.
+Earlier manifest versions and their converters remain available for compatibility.
 
 TypeScript generation applies the package's Prettier configuration so regenerated
 converters pass the same formatting checks as handwritten code.

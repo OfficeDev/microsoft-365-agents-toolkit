@@ -82,6 +82,7 @@
           { "$ref": "#/definitions/oauthRegister" },
           { "$ref": "#/definitions/oauthUpdate" },
           { "$ref": "#/definitions/dcrRegister" },
+          { "$ref": "#/definitions/dcrUpdate" },
           { "$ref": "#/definitions/devChannelCreate" },
           { "$ref": "#/definitions/devChannelInstallApp" },
           { "$ref": "#/definitions/typeSpecCompile" },
@@ -2039,6 +2040,56 @@
             "configurationId": {
               "description": "Required environment variable name receiving the returned configurationRegistrationId.oAuthConfigId. This is a configuration ID, not an OAuth client ID or resource indicator. An existing value causes this action to skip registration.",
               "$ref": "#/definitions/envVarName"
+            }
+          }
+        }
+      }
+    },
+    "dcrUpdate": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Update supported policy fields of an existing Dynamic Client Registration (DCR) configuration without changing its configuration ID. Omitted settings remain unchanged.",
+      "required": ["uses", "with"],
+      "properties": {
+        "uses": {
+          "type": "string",
+          "description": "Update an existing DCR configuration.",
+          "const": "dcr/update"
+        },
+        "with": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "DCR update parameters. Only configurationId is required; omitted settings are preserved without applying registration defaults. Name, MCP endpoint, metadata URL, and target URLs cannot be updated.",
+          "required": ["configurationId"],
+          "properties": {
+            "configurationId": {
+              "type": "string",
+              "minLength": 1,
+              "description": "ID of the existing DCR authentication configuration to update. This is not an OAuth client ID."
+            },
+            "appId": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Microsoft 365 app ID used when the effective applicableToApps setting is SpecificApp. If omitted, the existing binding is preserved unless applicableToApps explicitly changes to AnyApp."
+            },
+            "resource": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Replacement explicit OAuth resource indicator: an absolute URI without a fragment. Overrides the discovered resource, as in dcr/register. If omitted, the existing value is preserved; it is not inferred from another URL."
+            },
+            "applicableToApps": {
+              "type": "string",
+              "description": "Applications permitted to use the configuration: SpecificApp or AnyApp. If omitted, the existing mode is preserved. SpecificApp requires a supplied or existing appId.",
+              "enum": ["SpecificApp", "AnyApp"]
+            },
+            "targetAudience": {
+              "type": "string",
+              "description": "Tenants permitted to use the configuration: HomeTenant or AnyTenant. If omitted, the existing tenant scope is preserved. Independent of includePersonalMicrosoftAccounts.",
+              "enum": ["HomeTenant", "AnyTenant"]
+            },
+            "includePersonalMicrosoftAccounts": {
+              "type": "boolean",
+              "description": "Whether to allow personal Microsoft accounts in addition to work or school accounts. True enables personal accounts; false disables them while retaining work or school accounts. If omitted, existing account support remains unchanged."
             }
           }
         }

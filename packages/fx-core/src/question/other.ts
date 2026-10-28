@@ -26,6 +26,7 @@ import { AppStudioScopes, ConstantString, ListSensitivityLabelScope } from "../c
 import { FeatureFlags, featureFlagManager } from "../common/featureFlags";
 import { TOOLS } from "../common/globalVars";
 import { getLocalizedString } from "../common/localizeUtils";
+import { isValidSkillName } from "../common/skillUtils";
 import { manifestUtils } from "../component/driver/teamsApp/utils/ManifestUtils";
 import { envUtil } from "../component/utils/envUtil";
 import { environmentNameManager } from "../core/environmentName";
@@ -1808,8 +1809,7 @@ function skillNameQuestion(): TextInputQuestion {
     placeholder: getLocalizedString("core.addSkillQuestion.name.placeholder"),
     validation: {
       validFunc: (input: string, inputs?: Inputs): string | undefined => {
-        const pattern = /^[a-zA-Z][a-zA-Z0-9-]*$/;
-        if (!pattern.test(input)) {
+        if (!isValidSkillName(input)) {
           return getLocalizedString("core.addSkillQuestion.name.validation");
         }
         // Check for duplicate skill name

@@ -195,9 +195,22 @@ describe("TreeViewManager", () => {
     const addSkill = developmentTreeview
       .getCommands()
       .find((command) => command.commandId === "fx-extension.addSkill");
-    assert.equal(addSkill !== undefined, enabled);
-    if (enabled) {
-      assert.equal(addSkill.label, "Add Skill (Frontier)");
-    }
+    assert.isDefined(addSkill);
+    assert.equal(addSkill?.label, "Add Skill");
+  });
+
+  it("hides Add Skill outside declarative agent projects", () => {
+    mockValue(globalVariables, "isDeclarativeCopilotApp", false);
+    treeViewManager.registerTreeViews({
+      subscriptions: [],
+    } as unknown as vscode.ExtensionContext);
+
+    const developmentTreeview = treeViewManager.getTreeView(
+      "teamsfx-development"
+    ) as CommandsTreeViewProvider;
+    assert.notInclude(
+      developmentTreeview.getCommands().map((command) => command.commandId),
+      "fx-extension.addSkill"
+    );
   });
 });

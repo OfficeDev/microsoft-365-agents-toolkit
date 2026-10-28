@@ -89,7 +89,21 @@ export class CreateOauthDriver implements StepDriver {
 
       if (state && state.configurationId) {
         try {
-          await teamsGraphClient.getOauthRegistrationById(appStudioToken, state.configurationId);
+          const existing = await teamsGraphClient.getOauthRegistrationById(
+            appStudioToken,
+            state.configurationId
+          );
+          if (
+            args.identityProvider === "MicrosoftEntra" &&
+            (existing.identityProvider !== "MicrosoftEntra" ||
+              (args.clientId !== undefined && existing.clientId !== args.clientId))
+          ) {
+            throw new InvalidActionInputError(
+              actionName,
+              ["configurationId", "clientId"],
+              helpLink
+            );
+          }
           context.logProvider?.info(
             getLocalizedString(
               logMessageKeys.skipCreateOauth,
@@ -97,6 +111,9 @@ export class CreateOauthDriver implements StepDriver {
             )
           );
         } catch (error) {
+          if (args.identityProvider === "MicrosoftEntra") {
+            throw error;
+          }
           context.logProvider?.warning(
             getLocalizedString(
               logMessageKeys.oauthNotFound,

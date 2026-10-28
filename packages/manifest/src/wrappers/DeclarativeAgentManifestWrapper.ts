@@ -59,6 +59,7 @@ export const CapabilityName: { readonly [K in CapabilityNameValue]: K } = {
   Meetings: "Meetings",
   MeetingActions: "MeetingActions",
   ScenarioModels: "ScenarioModels",
+  Fabric: "Fabric",
 } as const;
 
 /**
@@ -524,7 +525,7 @@ export class DeclarativeAgentManifestWrapper extends BaseManifest<DeclarativeAge
 
   /**
    * Adds an agent skill to the declarative agent.
-   * Maximum 10 skills are allowed. Duplicate folder paths are ignored.
+   * Maximum 8 skills for v1.9, or 10 for earlier versions. Duplicate folder paths are ignored.
    * @param folder - Relative path to the skill directory.
    */
   addSkill(folder: string): this {
@@ -534,8 +535,9 @@ export class DeclarativeAgentManifestWrapper extends BaseManifest<DeclarativeAge
     }
 
     const skills = data.agent_skills as AgentSkillElement[];
-    if (skills.length >= MAX_AGENT_SKILLS) {
-      console.warn(`Maximum ${MAX_AGENT_SKILLS} agent skills allowed. Ignoring addition.`);
+    const maxSkills = this._data.version === "v1.9" ? 8 : MAX_AGENT_SKILLS;
+    if (skills.length >= maxSkills) {
+      console.warn(`Maximum ${maxSkills} agent skills allowed. Ignoring addition.`);
       return this;
     }
 

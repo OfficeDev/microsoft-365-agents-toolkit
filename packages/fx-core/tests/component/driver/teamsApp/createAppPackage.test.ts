@@ -18,7 +18,7 @@ import mockedEnv, { RestoreFn } from "mocked-env";
 import * as os from "os";
 import * as path from "path";
 import { chai, vi } from "vitest";
-import { featureFlagManager, FeatureFlagName } from "../../../../src/common/featureFlags";
+import { featureFlagManager } from "../../../../src/common/featureFlags";
 import { DriverContext } from "../../../../src/component/driver/interface/commonArgs";
 import { CreateAppPackageDriver } from "../../../../src/component/driver/teamsApp/createAppPackage";
 import { CreateAppPackageArgs } from "../../../../src/component/driver/teamsApp/interfaces/CreateAppPackageArgs";
@@ -2727,10 +2727,7 @@ describe("teamsApp/createAppPackage", async () => {
       }
       return resolved;
     });
-    vi.spyOn(featureFlagManager, "getBooleanValue").mockImplementation((flag: any) => {
-      if (flag.name === "ATK_FRONTIER") return true;
-      return false;
-    });
+    vi.spyOn(featureFlagManager, "getBooleanValue").mockReturnValue(false);
     const result = (await teamsAppDriver.execute(args, mockedDriverContext)).result;
     chai.assert(result.isErr());
     if (result.isErr()) {
@@ -3876,10 +3873,7 @@ describe("teamsApp/createAppPackage", async () => {
     };
 
     beforeEach(() => {
-      vi.spyOn(featureFlagManager, "getBooleanValue").mockImplementation((flag: any) => {
-        if (flag.name === FeatureFlagName.Frontier) return true;
-        return false;
-      });
+      vi.spyOn(featureFlagManager, "getBooleanValue").mockReturnValue(false);
     });
 
     function createTeamsManifest(): TeamsManifestV1D19.TeamsManifestV1D19 {
@@ -3896,35 +3890,39 @@ describe("teamsApp/createAppPackage", async () => {
       return manifest;
     }
 
-    it("should bundle skill directories when agent_skills is present", async () => {
-      const manifest = createTeamsManifest();
-      const declarativeAgentManifest = {
-        name: "TestAgent",
-        description: "Test agent with skills",
-        actions: [],
-        agent_skills: [{ folder: "skills/skill1" }],
-      } as any;
+    it.each(["agent_skills", "x-agent_skills"])(
+      "bundles %s with Frontier off",
+      async (property) => {
+        const manifest = createTeamsManifest();
+        const declarativeAgentManifest = {
+          name: "TestAgent",
+          description: "Test agent with skills",
+          actions: [],
+          [property]: [{ folder: "skills/skill1" }],
+        } as any;
 
-      vi.spyOn(manifestUtils, "getManifestV3").mockResolvedValue(ok(manifest));
-      vi.spyOn(fs, "chmod").mockImplementation(async () => {});
-      vi.spyOn(fs, "writeFile").mockImplementation(async () => {});
-      vi.spyOn(copilotGptManifestUtils, "getManifest").mockResolvedValue(
-        ok(declarativeAgentManifest)
-      );
-      vi.spyOn(fs, "pathExists").mockResolvedValue(true);
+        vi.spyOn(manifestUtils, "getManifestV3").mockResolvedValue(ok(manifest));
+        vi.spyOn(fs, "chmod").mockImplementation(async () => {});
+        vi.spyOn(fs, "writeFile").mockImplementation(async () => {});
+        vi.spyOn(copilotGptManifestUtils, "getManifest").mockResolvedValue(
+          ok(declarativeAgentManifest)
+        );
+        vi.spyOn(fs, "pathExists").mockResolvedValue(true);
 
-      const result = (await teamsAppDriver.execute(skillArgs, mockedDriverContext)).result;
-      chai.assert.isTrue(result.isOk());
+        const result = (await teamsAppDriver.execute(skillArgs, mockedDriverContext)).result;
+        chai.assert.isTrue(result.isOk());
 
-      if (await fs.pathExists(skillArgs.outputZipPath)) {
-        const zip = new AdmZip(skillArgs.outputZipPath);
-        const skillMdEntry = zip.getEntry("skills/skill1/SKILL.md");
-        chai.assert.exists(skillMdEntry, "SKILL.md should be bundled in zip");
-        const handlerEntry = zip.getEntry("skills/skill1/handler.js");
-        chai.assert.exists(handlerEntry, "handler.js should be bundled in zip");
-        await fs.remove(skillArgs.outputZipPath);
+        try {
+          const zip = new AdmZip(skillArgs.outputZipPath);
+          const skillMdEntry = zip.getEntry("skills/skill1/SKILL.md");
+          chai.assert.exists(skillMdEntry, "SKILL.md should be bundled in zip");
+          const handlerEntry = zip.getEntry("skills/skill1/handler.js");
+          chai.assert.exists(handlerEntry, "handler.js should be bundled in zip");
+        } finally {
+          await fs.remove(skillArgs.outputZipPath);
+        }
       }
-    });
+    );
 
     it("ZIP-AC-02: omits a nested skill link to an external directory", async () => {
       const root = await fs.mkdtemp(path.join(os.tmpdir(), "create-app-package-skill-link-"));
@@ -4295,10 +4293,7 @@ describe("teamsApp/createAppPackage", async () => {
         agent_skills: [{ folder: "skills/skill1" }],
       } as any;
 
-      vi.spyOn(featureFlagManager, "getBooleanValue").mockImplementation((flag: any) => {
-        if (flag.name === FeatureFlagName.Frontier) return true;
-        return false;
-      });
+      vi.spyOn(featureFlagManager, "getBooleanValue").mockReturnValue(false);
       vi.spyOn(manifestUtils, "getManifestV3").mockResolvedValue(ok(manifest));
       vi.spyOn(fs, "chmod").mockImplementation(async () => {});
       vi.spyOn(fs, "writeFile").mockImplementation(async () => {});

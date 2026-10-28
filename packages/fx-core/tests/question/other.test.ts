@@ -1119,27 +1119,32 @@ describe("addSkillQuestionNode", () => {
     assert.isTrue(conditionFn(inputsWithoutFrom));
   });
 
-  it("skillNameQuestion validates invalid pattern", () => {
+  it.each([
+    "",
+    "testSkill",
+    "Test-skill",
+    "my skill",
+    "my_skill",
+    "-skill",
+    "skill-",
+    "my--skill",
+    "a".repeat(65),
+  ])("rejects invalid skill name %j", (name) => {
     const node = addSkillQuestionNode();
     const nameChild = node.children![2];
     const question = nameChild.data as TextInputQuestion;
     const validFunc = (question.validation as FuncValidation<string>).validFunc;
-    // Invalid: starts with number
-    const result1 = validFunc("1abc", {} as Inputs);
-    assert.isDefined(result1);
-    // Invalid: contains spaces
-    const result2 = validFunc("my skill", {} as Inputs);
-    assert.isDefined(result2);
-    // Invalid: contains underscores
-    const result3 = validFunc("my_skill", {} as Inputs);
-    assert.isDefined(result3);
-    // Valid: starts with letter, alphanumeric + hyphens
-    const result4 = validFunc("my-skill", {} as Inputs);
-    assert.isUndefined(result4);
-    // Valid: single letter
-    const result5 = validFunc("a", {} as Inputs);
-    assert.isUndefined(result5);
+    assert.equal(validFunc(name), getLocalizedString("core.addSkillQuestion.name.validation"));
   });
+
+  it.each(["test-skill", "skill123", "1abc", "123", "a", "a".repeat(64)])(
+    "accepts valid skill name %j",
+    (name) => {
+      const question = addSkillQuestionNode().children![2].data as TextInputQuestion;
+      const validFunc = (question.validation as FuncValidation<string>).validFunc;
+      assert.isUndefined(validFunc(name));
+    }
+  );
 
   it("skillNameQuestion validates duplicate skill directory", () => {
     const node = addSkillQuestionNode();

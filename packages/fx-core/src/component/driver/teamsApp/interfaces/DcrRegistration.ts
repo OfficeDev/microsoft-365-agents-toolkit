@@ -25,3 +25,10 @@ export interface DcrRegistration {
   //   },
   // ],
 }
+
+export type DcrRegistrationUpdate = Partial<
+  Pick<
+    DcrRegistration,
+    "m365AppId" | "applicableToApps" | "targetAudience" | "resource" | "supportedAccountTypes"
+  >
+>;

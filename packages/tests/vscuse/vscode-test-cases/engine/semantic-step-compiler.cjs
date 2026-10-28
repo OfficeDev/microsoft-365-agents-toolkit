@@ -2,6 +2,8 @@ const { createHash } = require("node:crypto");
 const path = require("node:path");
 
 const { renderComponent } = require("./render-component.cjs");
+const { fixtureScript } = require("./mcp-auth-fixture.cjs");
+const { dcrUpdateScript } = require("./dcr-update-fixture.cjs");
 
 const componentRoot = path.join(__dirname, "..", "components");
 const appNameExpressionPattern =
@@ -462,6 +464,7 @@ const scaffoldQuestionAdapters = {
       "entra-sso": "Entra SSO",
       none: "None",
       oauth: "OAuth (with static registration)",
+      "oauth-dynamic": "OAuth (with dynamic registration)",
     },
     title: "Select Authentication Type",
     type: "singleSelect",
@@ -1250,6 +1253,7 @@ function createSemanticStepCompiler() {
     if (error) return error;
     state.template = definition.with.template;
     state.language = answerState.language;
+    state.mcpAuthType = answerState.authType;
     state.apiSpecLocation = answerState.apiSpecLocation;
     state.apiOperations = answerState.apiOperations;
     state.deferredLLMKey =
@@ -1909,6 +1913,50 @@ function createSemanticStepCompiler() {
     return { ok: true, value: output };
   }
 
+  function compileConfigureMcpAuth(state, definition) {
+    const inputs = definition.with;
+    const authTypes = {
+      "static-oauth": "oauth",
+      dcr: "oauth-dynamic",
+      "entra-sso": "entra-sso",
+    };
+    if (
+      state.template !== "da/mcp-server" ||
+      !isRecord(inputs) ||
+      !hasOnlyFields(inputs, new Set(["mode"])) ||
+      typeof inputs.mode !== "string" ||
+      !Object.hasOwn(authTypes, inputs.mode) ||
+      authTypes[inputs.mode] !== state.mcpAuthType ||
+      state.completed.has("mcp-auth-fixture")
+    ) {
+      return failure(
+        "VCB_MCP_AUTH_FIXTURE_INVALID",
+        "MCP authentication preparation requires one matching checked scaffold and mode.",
+      );
+    }
+    state.completed.add("mcp-auth-fixture");
+    state.requiresInitialFileCheck = false;
+    const output = [];
+    let error = append(
+      output,
+      render(state, "command-palette/execute-command.json.tpl", {
+        commandTitle: commandTitles.clearNotifications,
+      }),
+    );
+    if (error) return error;
+    error = append(
+      output,
+      render(state, "workspace/configure-mcp-auth.json.tpl", {
+        scriptBase64: Buffer.from(fixtureScript(inputs.mode), "utf8").toString(
+          "base64",
+        ),
+        authMode: inputs.mode,
+      }),
+    );
+    if (error) return error;
+    return { ok: true, value: output };
+  }
+
   function compileRemoveWorkspaceFile(state, definition) {
     const inputs = definition.with ?? {};
     if (
@@ -1922,9 +1970,55 @@ function createSemanticStepCompiler() {
         "The remove workspace file operation requires one project-relative path.",
       );
     }
+
     return render(state, "workspace/remove-file.json.tpl", {
       relativePath: inputs.path,
     });
+  }
+
+  function compileDcrUpdate(state, definition) {
+    const phase = definition.with?.phase;
+    const phases = ["prepare", "baseline", "apply", "verify", "noop"];
+    const index = phases.indexOf(phase);
+    const previous = state.dcrUpdatePhase ?? -1;
+    const requiredProvisions = [0, 1, 1, 2, 3];
+    if (
+      state.template !== "da/mcp-server" ||
+      state.mcpAuthType !== "oauth-dynamic" ||
+      !isRecord(definition.with) ||
+      !hasOnlyFields(definition.with, new Set(["phase"])) ||
+      index !== previous + 1 ||
+      index < 0 ||
+      (state.dcrUpdateProvisions ?? 0) !== requiredProvisions[index]
+    ) {
+      return failure(
+        "VCB_DCR_UPDATE_STAGE_INVALID",
+        "DCR update stages require an independent ordered Dynamic MCP workflow.",
+      );
+    }
+    state.dcrUpdatePhase = index;
+    if (phase === "prepare") {
+      state.completed.add("mcp-auth-fixture");
+      state.requiresInitialFileCheck = false;
+    }
+    const output = [];
+    let error = append(
+      output,
+      render(state, "command-palette/execute-command.json.tpl", {
+        commandTitle: commandTitles.clearNotifications,
+      }),
+    );
+    if (error) return error;
+    error = append(
+      output,
+      render(state, "workspace/dcr-update-stage.json.tpl", {
+        scriptBase64: Buffer.from(dcrUpdateScript(phase), "utf8").toString(
+          "base64",
+        ),
+        phase,
+      }),
+    );
+    return error ?? { ok: true, value: output };
   }
 
   function compileConfigureArmJsonTemplates(state, definition) {
@@ -3082,15 +3176,31 @@ function createSemanticStepCompiler() {
       error = append(output, render(state, component, confirmationValues));
       if (error) return error;
     }
-    error = append(
-      output,
-      render(state, "notifications/assert-contains.json.tpl", {
-        notificationText: recipe.successText,
-        retryTimeout: recipe.successTimeout,
-      }),
-    );
+    if (definition.type === "provision" && state.dcrUpdatePhase !== undefined) {
+      // The independent case adds one update to the generated six-action provision.
+      const count = state.dcrUpdatePhase < 2 ? 6 : 7;
+      error = append(
+        output,
+        render(state, "notifications/assert-lifecycle-completed.json.tpl", {
+          operationTitle: "Provision",
+          notificationText: `${count}/${count} actions in ${recipe.successText}`,
+          retryTimeout: recipe.successTimeout,
+        }),
+      );
+    } else {
+      error = append(
+        output,
+        render(state, "notifications/assert-contains.json.tpl", {
+          notificationText: recipe.successText,
+          retryTimeout: recipe.successTimeout,
+        }),
+      );
+    }
     if (error) return error;
     state.completed.add(definition.type);
+    if (definition.type === "provision" && state.dcrUpdatePhase !== undefined) {
+      state.dcrUpdateProvisions = (state.dcrUpdateProvisions ?? 0) + 1;
+    }
     return { ok: true, value: output };
   }
 
@@ -3545,6 +3655,18 @@ function createSemanticStepCompiler() {
         "The chat check has no compatible message adapter.",
       );
     }
+    if (
+      assertion.connectOAuth === true &&
+      (state.profile.host !== "copilot" ||
+        !state.completed.has("mcp-auth-fixture") ||
+        !["oauth", "oauth-dynamic"].includes(state.mcpAuthType) ||
+        assertion.allowAction === true)
+    ) {
+      return failure(
+        "VCB_CHAT_OAUTH_CONNECTION_UNKNOWN",
+        "OAuth connection requires a prepared static-OAuth or DCR MCP fixture in Copilot without a duplicate allowAction setting.",
+      );
+    }
 
     const output = [];
     let error = append(
@@ -3552,7 +3674,48 @@ function createSemanticStepCompiler() {
       render(state, sendComponent, { message: assertion.send }),
     );
     if (error) return error;
-    if (assertion.allowAction === true) {
+    if (assertion.connectOAuth === true) {
+      error = append(
+        output,
+        render(state, "browser/copilot/connect-oauth.json.tpl", {
+          appName: "${{var:app_name}}",
+        }),
+      );
+      if (error) return error;
+      if (state.mcpAuthType === "oauth-dynamic") {
+        error = append(
+          output,
+          render(state, "browser/mcp/authorize-client.json.tpl", {
+            mcpEndpoint: "${{env:MCP_AUTH_ENDPOINT}}",
+          }),
+        );
+        if (error) return error;
+        error = append(
+          output,
+          render(
+            state,
+            "authentication/browser/select-signed-in-account.json.tpl",
+            {
+              accountName: "${{env:M365_ACCOUNT_NAME}}",
+            },
+          ),
+        );
+        if (error) return error;
+      }
+      error = append(
+        output,
+        render(state, "browser/copilot/assert-oauth-return.json.tpl", {
+          appName: "${{var:app_name}}",
+        }),
+      );
+      if (error) return error;
+      error = append(
+        output,
+        render(state, sendComponent, { message: assertion.send }),
+      );
+      if (error) return error;
+    }
+    if (assertion.allowAction === true || assertion.connectOAuth === true) {
       if (state.profile.host !== "copilot") {
         return failure(
           "VCB_CHAT_ACTION_CONSENT_UNKNOWN",
@@ -3569,9 +3732,29 @@ function createSemanticStepCompiler() {
     if (
       expected.replied === true ||
       expected.contains !== undefined ||
-      expected.notContains !== undefined
+      expected.notContains !== undefined ||
+      expected.toolCalled !== undefined ||
+      expected.nonEmptyFields !== undefined
     ) {
       error = append(output, render(state, replyComponent));
+      if (error) return error;
+    }
+    if (expected.toolCalled !== undefined) {
+      error = append(
+        output,
+        render(state, "browser/chat/assert-tool-called.json.tpl", {
+          expectedTool: expected.toolCalled,
+        }),
+      );
+      if (error) return error;
+    }
+    for (const fieldName of expected.nonEmptyFields ?? []) {
+      error = append(
+        output,
+        render(state, "browser/chat/assert-non-empty-field.json.tpl", {
+          fieldName,
+        }),
+      );
       if (error) return error;
     }
     for (const expectedText of expected.contains ?? []) {
@@ -3669,7 +3852,7 @@ function createSemanticStepCompiler() {
         : assertion.type === "browser" || assertion.type === "page"
           ? new Set(["type", "expect"])
           : assertion.type === "chat"
-            ? new Set(["type", "send", "allowAction", "expect"])
+            ? new Set(["type", "send", "allowAction", "connectOAuth", "expect"])
             : assertion.type === "messageExtension"
               ? new Set(["type"])
               : undefined;
@@ -3702,7 +3885,13 @@ function createSemanticStepCompiler() {
           ? new Set(["role", "name", "namePrefix"])
           : assertion.type === "page"
             ? new Set(["contains"])
-            : new Set(["replied", "contains", "notContains"]);
+            : new Set([
+                "replied",
+                "contains",
+                "notContains",
+                "toolCalled",
+                "nonEmptyFields",
+              ]);
     if (!isRecord(expected) || !hasOnlyFields(expected, expectationFields)) {
       return failure(
         "VCB_CHECK_FIELD_UNKNOWN",
@@ -3735,7 +3924,22 @@ function createSemanticStepCompiler() {
       (expected.exists !== undefined && typeof expected.exists !== "boolean") ||
       (expected.replied !== undefined &&
         typeof expected.replied !== "boolean") ||
-      (assertion.allowAction !== undefined && assertion.allowAction !== true)
+      (expected.toolCalled !== undefined &&
+        (assertion.type !== "chat" ||
+          typeof expected.toolCalled !== "string" ||
+          !/^[A-Za-z_][A-Za-z0-9_.-]*$/.test(expected.toolCalled))) ||
+      (expected.nonEmptyFields !== undefined &&
+        (!Array.isArray(expected.nonEmptyFields) ||
+          expected.nonEmptyFields.length === 0 ||
+          new Set(expected.nonEmptyFields).size !==
+            expected.nonEmptyFields.length ||
+          expected.nonEmptyFields.some(
+            (name) =>
+              typeof name !== "string" ||
+              !/^[A-Za-z_][A-Za-z0-9_]*$/.test(name),
+          ))) ||
+      (assertion.allowAction !== undefined && assertion.allowAction !== true) ||
+      (assertion.connectOAuth !== undefined && assertion.connectOAuth !== true)
     ) {
       return failure(
         "VCB_CHECK_ASSERTION_INVALID",
@@ -3850,6 +4054,12 @@ function createSemanticStepCompiler() {
     if (
       definition.type !== "scaffold" &&
       definition.type !== "checks" &&
+      !(
+        (definition.type === "configureMcpAuth" ||
+          (definition.type === "dcrUpdate" &&
+            definition.with?.phase === "prepare")) &&
+        state.template === "da/mcp-server"
+      ) &&
       state.requiresInitialFileCheck
     ) {
       return failure(
@@ -3896,6 +4106,10 @@ function createSemanticStepCompiler() {
         return compileUserEnvironment(state, definition);
       case "projectEnvironment":
         return compileProjectEnvironment(state, definition);
+      case "configureMcpAuth":
+        return compileConfigureMcpAuth(state, definition);
+      case "dcrUpdate":
+        return compileDcrUpdate(state, definition);
       case "removeWorkspaceFile":
         return compileRemoveWorkspaceFile(state, definition);
       case "configureArmJsonTemplates":

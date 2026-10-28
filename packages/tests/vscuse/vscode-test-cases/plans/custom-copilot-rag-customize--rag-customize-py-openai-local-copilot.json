@@ -2129,7 +2129,7 @@
       "agent": "assertion",
       "tool": "",
       "parameters": {},
-      "description": "@assertion the Microsoft Sign in page is visible in Chrome with an email or username input that is focused and a Next button.",
+      "description": "@assertion the Microsoft Sign in page is visible in Chrome with an email or username input that is focused and a Next button; input focus is evidenced by a visible caret, an active underline, or Chrome's \"Use passkey from another device\" suggestion anchored below that input.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,

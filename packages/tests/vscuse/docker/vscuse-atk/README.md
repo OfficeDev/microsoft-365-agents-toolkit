@@ -35,6 +35,20 @@ docker build --build-arg NODE_VERSION=22 -t ghcr.io/<your-github-username>/vscus
 The same override is exposed as the `node_version` input on the
 `Build VscUse ATK Docker Image` workflow.
 
+### Selecting an npm registry for local builds
+
+`NPM_CONFIG_REGISTRY` is an optional build argument for npm installations during
+image creation. Its default is `https://registry.npmjs.org/`. For environments
+that require the Microsoft package proxy, pass it explicitly without disabling
+TLS verification:
+
+```bash
+docker build --build-arg NODE_VERSION=22 --build-arg NPM_CONFIG_REGISTRY=https://packagefeedproxy.microsoft.io/npm/ -t vscuse-atk-dev:local .
+```
+
+This build argument does not configure npm inside a later test container; use
+the run config's `docker.environment` for that.
+
 ## Extending from Base Image
 
 The Dockerfile and CI workflow default to the same immutable Linux AMD64 base:

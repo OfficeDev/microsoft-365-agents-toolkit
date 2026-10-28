@@ -192,7 +192,7 @@
   "teamstoolkit.commandsTreeViewProvider.regenerateActionDescription": "Regeneración de la acción en el agente declarativo",
   "teamstoolkit.commandsTreeViewProvider.addPlugin.running": "Agregando acción...",
   "teamstoolkit.commandsTreeViewProvider.addSkillTitle": "Agregar aptitud",
-  "teamstoolkit.commandsTreeViewProvider.addSkillFrontierTitle": "Add Skill (Frontier)",
+  "teamstoolkit.commandsTreeViewProvider.addSkillFrontierTitle": "Agregar aptitud (frontera)",
   "teamstoolkit.commandsTreeViewProvider.addSkillDescription": "Incorporación de una aptitud en un agente declarativo",
   "teamstoolkit.commandsTreeViewProvider.addSkill.running": "Agregando aptitud...",
   "teamstoolkit.commandsTreeViewProvider.addSkill.blockTooltip": "No se puede ejecutar el comando al agregar una aptitud. Inténtelo de nuevo una vez completada la adición.",

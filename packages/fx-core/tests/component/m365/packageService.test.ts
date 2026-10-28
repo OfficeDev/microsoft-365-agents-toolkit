@@ -66,6 +66,7 @@ describe("Package Service", () => {
 
   afterEach(() => {
     vi.restoreAllMocks();
+    delete process.env.TEAMSFX_RAI_VALIDATION_ENABLED;
     delete process.env.TEAMSFX_RAI_VALIDATION_FORCE_FAILED;
   });
 
@@ -488,11 +489,7 @@ describe("Package Service", () => {
     };
     axiosGetResponses["/builder/v1/users/packages/status/test-status-id-builder-api"] = {
       status: 200,
-      data: {
-        titleId: "test-title-id",
-        appId: "test-app-id",
-        validationInfo: { status: "successful" },
-      },
+      data: { titleId: "test-title-id", appId: "test-app-id" },
     };
 
     const postStub = vi.spyOn(testAxiosInstance, "post");
@@ -510,7 +507,6 @@ describe("Package Service", () => {
     chai.assert.isDefined(builderRequest);
     chai.assert.deepEqual(builderRequest?.[2]?.params, {
       scope: AppScope.Tenant,
-      isRAIValidationAsync: true,
     });
     chai.assert.equal(builderRequest?.[2]?.headers?.Authorization, "Bearer test-token");
     chai.assert.isFalse(postStub.mock.calls.some(([url]) => url === "/dev/v1/users/packages"));
@@ -528,11 +524,7 @@ describe("Package Service", () => {
     };
     axiosGetResponses["/builder/v1/users/packages/status/test-status-id-blocked"] = {
       status: 200,
-      data: {
-        titleId: "test-title-id-blocked",
-        appId: "test-app-id-blocked",
-        validationInfo: { status: "successful" },
-      },
+      data: { titleId: "test-title-id-blocked", appId: "test-app-id-blocked" },
     };
 
     const packageService = new PackageService("https://test-endpoint", logger);
@@ -568,11 +560,7 @@ describe("Package Service", () => {
     };
     axiosGetResponses["/builder/v1/users/packages/status/test-status-id-created"] = {
       status: 200,
-      data: {
-        titleId: "test-title-id-created",
-        appId: "test-app-id-created",
-        validationInfo: { status: "successful" },
-      },
+      data: { titleId: "test-title-id-created", appId: "test-app-id-created" },
     };
 
     const packageService = new PackageService("https://test-endpoint", logger);
@@ -591,13 +579,17 @@ describe("Package Service", () => {
     chai.assert.equal(result[1], "test-app-id-created");
   });
 
-  it("always enables and waits for RAI validation after upload", async () => {
+  it("waits for RAI validation after upload", async () => {
+    setTools({
+      expServiceProvider: {
+        getTreatmentVariableAsync: vi.fn().mockResolvedValue(true),
+      },
+    } as any);
     axiosPostResponses["/builder/v1/users/packages"] = {
       status: 200,
       data: { statusId: "test-status-id-builder-api" },
     };
     let statusCallCount = 0;
-    const postStub = vi.spyOn(testAxiosInstance, "post");
     const getStub = vi.spyOn(testAxiosInstance, "get").mockImplementation((url: string): any => {
       if (url === "/builder/v1/users/packages/status/test-status-id-builder-api") {
         statusCallCount++;
@@ -639,11 +631,6 @@ describe("Package Service", () => {
 
     chai.assert.deepEqual(result, ["test-title-id-builder-api", "test-app-id-builder-api", ""]);
     chai.assert.equal(statusCallCount, 3);
-    const uploadRequest = postStub.mock.calls.find(([url]) => url === "/builder/v1/users/packages");
-    expect(uploadRequest?.[2]?.params).toEqual({
-      scope: AppScope.Personal,
-      isRAIValidationAsync: true,
-    });
     const statusRequest = getStub.mock.calls.find(
       ([url]) => url === "/builder/v1/users/packages/status/test-status-id-builder-api"
     );
@@ -651,6 +638,90 @@ describe("Package Service", () => {
     expect(vi.mocked(commonUtils.waitSeconds)).toHaveBeenCalledTimes(2);
     expect(vi.mocked(commonUtils.waitSeconds)).toHaveBeenCalledWith(7);
   });
+
+  it.each(["true", "1"])("uses environment override %j to enable RAI validation", async (value) => {
+    process.env.TEAMSFX_RAI_VALIDATION_ENABLED = value;
+    const getTreatmentVariableAsync = vi.fn();
+    setTools({ expServiceProvider: { getTreatmentVariableAsync } } as any);
+    axiosGetResponses["/config/v1/environment"] = {
+      data: { titlesServiceUrl: "https://test-url" },
+    };
+    axiosPostResponses["/builder/v1/users/packages"] = {
+      data: { statusId: "test-status-id-builder-api" },
+    };
+    axiosGetResponses["/builder/v1/users/packages/status/test-status-id-builder-api"] = {
+      status: 200,
+      data: {
+        titleId: "test-title-id-builder-api",
+        appId: "test-app-id-builder-api",
+        validationInfo: { status: "successful" },
+      },
+    };
+    const postStub = vi.spyOn(testAxiosInstance, "post");
+    const getStub = vi.spyOn(testAxiosInstance, "get");
+
+    const packageService = new PackageService("https://test-endpoint", logger);
+    await packageService.sideLoadingV2("test-token", "test-path", AppScope.Personal);
+
+    expect(getTreatmentVariableAsync).not.toHaveBeenCalled();
+    expect(
+      postStub.mock.calls.find(([url]) => url === "/builder/v1/users/packages")?.[2]?.params
+    ).toEqual({
+      scope: AppScope.Personal,
+      isRAIValidationAsync: true,
+    });
+    expect(
+      getStub.mock.calls.find(
+        ([url]) => url === "/builder/v1/users/packages/status/test-status-id-builder-api"
+      )?.[1]?.params
+    ).toEqual({ isRAIValidationAsync: true });
+  });
+
+  it.each(["false", "0", ""])(
+    "uses environment override %j to disable RAI validation",
+    async (value) => {
+      process.env.TEAMSFX_RAI_VALIDATION_ENABLED = value;
+      const getTreatmentVariableAsync = vi.fn().mockResolvedValue(true);
+      setTools({ expServiceProvider: { getTreatmentVariableAsync } } as any);
+      axiosGetResponses["/config/v1/environment"] = {
+        data: { titlesServiceUrl: "https://test-url" },
+      };
+      axiosPostResponses["/builder/v1/users/packages"] = {
+        data: { statusId: "test-status-id-builder-api" },
+      };
+      const statusUrl = "/builder/v1/users/packages/status/test-status-id-builder-api";
+      axiosGetResponses[statusUrl] = { status: 202, data: {} };
+      vi.mocked(commonUtils.waitSeconds).mockImplementationOnce(async () => {
+        axiosGetResponses[statusUrl] = {
+          status: 200,
+          data: { titleId: "test-title-id-builder-api", appId: "test-app-id-builder-api" },
+        };
+      });
+      const postStub = vi.spyOn(testAxiosInstance, "post");
+      const getStub = vi.spyOn(testAxiosInstance, "get");
+
+      const packageService = new PackageService("https://test-endpoint", logger);
+      const result = await packageService.sideLoadingV2(
+        "test-token",
+        "test-path",
+        AppScope.Personal
+      );
+
+      expect(result).toEqual(["test-title-id-builder-api", "test-app-id-builder-api"]);
+      expect(getTreatmentVariableAsync).not.toHaveBeenCalled();
+      expect(
+        postStub.mock.calls.find(([url]) => url === "/builder/v1/users/packages")?.[2]?.params
+      ).toEqual({
+        scope: AppScope.Personal,
+      });
+      const statusRequests = getStub.mock.calls.filter(([url]) => url === statusUrl);
+      expect(statusRequests).toHaveLength(2);
+      for (const request of statusRequests) {
+        expect(request[1]?.params).toBeUndefined();
+      }
+      expect(commonUtils.waitSeconds).toHaveBeenCalledExactlyOnceWith(7);
+    }
+  );
 
   it("surfaces RAI validation failure reasons", async () => {
     setTools({
@@ -698,6 +769,7 @@ describe("Package Service", () => {
   });
 
   it("waits for missing RAI validation information", async () => {
+    process.env.TEAMSFX_RAI_VALIDATION_ENABLED = "true";
     axiosPostResponses["/builder/v1/users/packages"] = {
       data: { statusId: "test-status-id-builder-api" },
     };
@@ -745,6 +817,7 @@ describe("Package Service", () => {
   });
 
   it("throws for successful RAI validation without app IDs", async () => {
+    process.env.TEAMSFX_RAI_VALIDATION_ENABLED = "true";
     axiosGetResponses["/config/v1/environment"] = {
       data: { titlesServiceUrl: "https://test-url" },
     };
@@ -763,6 +836,7 @@ describe("Package Service", () => {
   });
 
   it("throws for unexpected RAI validation status responses", async () => {
+    process.env.TEAMSFX_RAI_VALIDATION_ENABLED = "true";
     axiosGetResponses["/config/v1/environment"] = {
       data: { titlesServiceUrl: "https://test-url" },
     };
@@ -1026,6 +1100,134 @@ describe("Package Service", () => {
     chai.assert.isTrue(actualError.message.includes(advancedDASettingUrl));
     chai.assert.isTrue(actualError instanceof UserError);
   });
+
+  for (const data of [
+    {
+      Error: {
+        Code: "AccessDenied",
+        Message: "User does not have access to upload advanced Copilot apps.",
+      },
+    },
+    {
+      error: {
+        code: "AccessDenied",
+        message: "User does not have access to upload advanced Copilot apps.",
+      },
+    },
+  ]) {
+    it(`AC-04: explains Advanced package uploads for ${Object.keys(data)[0]} policy errors`, async () => {
+      axiosGetResponses["/config/v1/environment"] = {
+        data: { titlesServiceUrl: "https://test-url" },
+      };
+      axiosPostResponses["/builder/v1/users/packages"] = Object.assign(new Error("Forbidden"), {
+        response: { status: 403, data, headers: { traceresponse: "policy-trace" } },
+      });
+      const packageService = new PackageService("https://test-endpoint", logger);
+      const error: unknown = await packageService
+        .publishAgent("test-token", "test-path", AppScope.Shared)
+        .catch((error: unknown) => error);
+      if (!(error instanceof UserError)) {
+        chai.assert.fail("Expected a user-fixable policy error");
+      }
+      for (const message of [error.message, error.displayMessage ?? ""]) {
+        chai.assert.include(message, "Advanced package uploads");
+        chai.assert.include(message, "All users");
+        chai.assert.include(message, "Specific users or groups");
+        chai.assert.include(message, "admin");
+        chai.assert.include(message, advancedDASettingUrl);
+      }
+    });
+  }
+
+  it("AC-05: a blocked shared upload never retries with a different scope or fetches a share link", async () => {
+    axiosGetResponses["/config/v1/environment"] = {
+      data: { titlesServiceUrl: "https://test-url" },
+    };
+    axiosPostResponses["/builder/v1/users/packages"] = Object.assign(new Error("Forbidden"), {
+      response: {
+        status: 403,
+        data: { Error: { Message: "User does not have access to upload advanced Copilot apps." } },
+        headers: {},
+      },
+    });
+    const post = vi.spyOn(testAxiosInstance, "post");
+    const packageService = new PackageService("https://test-endpoint", logger);
+    const shareLink = vi.spyOn(packageService, "getShareLink");
+    await expect(
+      packageService.publishAgent("test-token", "test-path", AppScope.Shared)
+    ).rejects.toBeInstanceOf(UserError);
+    expect(post).toHaveBeenCalledTimes(1);
+    expect(post).toHaveBeenCalledWith(
+      "/builder/v1/users/packages",
+      expect.anything(),
+      expect.objectContaining({ params: { scope: AppScope.Shared, isRAIValidationAsync: true } })
+    );
+    expect(shareLink).not.toHaveBeenCalled();
+  });
+
+  it("AC-04: unrelated lowercase 403 errors preserve the service failure", async () => {
+    axiosGetResponses["/config/v1/environment"] = {
+      data: { titlesServiceUrl: "https://test-url" },
+    };
+    axiosPostResponses["/builder/v1/users/packages"] = Object.assign(new Error("Forbidden"), {
+      response: {
+        status: 403,
+        data: { error: { code: "AccessDenied", message: "Unrelated denial" } },
+        headers: {},
+      },
+    });
+    const packageService = new PackageService("https://test-endpoint", logger);
+    await expect(
+      packageService.publishAgent("test-token", "test-path", AppScope.Shared)
+    ).rejects.toThrow("Unrelated denial");
+  });
+
+  for (const { description, data, expectedDetails } of [
+    {
+      description: "an uppercase envelope without a message",
+      data: { Error: { Code: "AccessDenied" } },
+      expectedDetails: "AccessDenied: ",
+    },
+    {
+      description: "a lowercase envelope without a message",
+      data: { error: { code: "AccessDenied" } },
+      expectedDetails: "AccessDenied: ",
+    },
+    {
+      description: "a missing response body",
+      data: undefined,
+      expectedDetails: ": ",
+    },
+  ]) {
+    it(`AC-04: preserves a 403 with ${description} without claiming an upload-policy denial`, async () => {
+      axiosGetResponses["/config/v1/environment"] = {
+        data: { titlesServiceUrl: "https://test-url" },
+      };
+      const serviceError = Object.assign(new Error("Forbidden"), {
+        response: { status: 403, data, headers: { traceresponse: "service-trace" } },
+      });
+      axiosPostResponses["/builder/v1/users/packages"] = serviceError;
+      const packageService = new PackageService("https://test-endpoint", logger);
+      const post = vi.spyOn(testAxiosInstance, "post");
+      const shareLink = vi.spyOn(packageService, "getShareLink");
+
+      const error: unknown = await packageService
+        .publishAgent("test-token", "test-path", AppScope.Shared)
+        .catch((error: unknown) => error);
+
+      if (!(error instanceof UnhandledError)) {
+        chai.assert.fail("Expected the original service failure, not an upload-policy error");
+      }
+      chai.assert.strictEqual(error.innerError, serviceError);
+      chai.assert.strictEqual(
+        serviceError.message,
+        `Forbidden (tracingId: service-trace) ${expectedDetails} `
+      );
+      chai.assert.notInclude(error.displayMessage ?? "", "Advanced package uploads");
+      expect(post).toHaveBeenCalledTimes(1);
+      expect(shareLink).not.toHaveBeenCalled();
+    });
+  }
 
   it("retrieveTitleId happy path", async () => {
     axiosGetResponses["/config/v1/environment"] = {
@@ -2080,11 +2282,7 @@ describe("Package Service", () => {
       }
       return Promise.resolve({
         status: 200,
-        data: {
-          titleId: "retry-title-id",
-          appId: "retry-app-id",
-          validationInfo: { status: "successful" },
-        },
+        data: { titleId: "retry-title-id", appId: "retry-app-id" },
       });
     });
     vi.spyOn(testAxiosInstance, "post").mockImplementation((url: string) => {
@@ -2133,11 +2331,7 @@ describe("Package Service", () => {
       if (url === "/builder/v1/users/packages/status/retry-builder-status-id") {
         return Promise.resolve({
           status: 200,
-          data: {
-            titleId: "retry-builder-title-id",
-            appId: "retry-builder-app-id",
-            validationInfo: { status: "successful" },
-          },
+          data: { titleId: "retry-builder-title-id", appId: "retry-builder-app-id" },
         });
       }
       return Promise.reject(new Error("unexpected get url"));
@@ -2241,11 +2435,7 @@ describe("Package Service", () => {
 
     axiosGetResponses["/builder/v1/users/packages/status/test-status-id-builder-api"] = {
       status: 200,
-      data: {
-        titleId: "test-title-id",
-        appId: "test-app-id",
-        validationInfo: { status: "successful" },
-      },
+      data: { titleId: "test-title-id", appId: "test-app-id" },
     };
 
     const packageService = new PackageService("https://test-endpoint", logger);
@@ -2255,7 +2445,7 @@ describe("Package Service", () => {
     chai.assert.equal(result[2], "");
   });
 
-  it("publishAgent with Shared scope should get shareLink", async () => {
+  it("AC-06: publishAgent with Shared scope should get shareLink", async () => {
     axiosGetResponses["/config/v1/environment"] = {
       data: {
         titlesServiceUrl: "https://test-url",
@@ -2267,11 +2457,7 @@ describe("Package Service", () => {
     };
     axiosGetResponses["/builder/v1/users/packages/status/test-status-id-builder-api"] = {
       status: 200,
-      data: {
-        titleId: "test-title-id",
-        appId: "test-app-id",
-        validationInfo: { status: "successful" },
-      },
+      data: { titleId: "test-title-id", appId: "test-app-id" },
     };
     axiosGetResponses["/marketplace/v1/users/titles/test-title-id/sharingInfo"] = {
       status: 200,
@@ -2300,11 +2486,7 @@ describe("Package Service", () => {
 
     axiosGetResponses["/builder/v1/users/packages/status/test-status-id-builder-api"] = {
       status: 200,
-      data: {
-        titleId: "test-title-id",
-        appId: "test-app-id",
-        validationInfo: { status: "successful" },
-      },
+      data: { titleId: "test-title-id", appId: "test-app-id" },
     };
 
     const packageService = new PackageService("https://test-endpoint", logger);
@@ -2314,7 +2496,7 @@ describe("Package Service", () => {
     chai.assert.equal(result[2], "");
   });
 
-  it("publishAgent defaults to Personal scope", async () => {
+  it("AC-03: publishAgent defaults to Personal scope", async () => {
     axiosGetResponses["/config/v1/environment"] = {
       data: {
         titlesServiceUrl: "https://test-url",
@@ -2327,17 +2509,19 @@ describe("Package Service", () => {
 
     axiosGetResponses["/builder/v1/users/packages/status/test-status-id-builder-api"] = {
       status: 200,
-      data: {
-        titleId: "test-title-id",
-        appId: "test-app-id",
-        validationInfo: { status: "successful" },
-      },
+      data: { titleId: "test-title-id", appId: "test-app-id" },
     };
 
     const packageService = new PackageService("https://test-endpoint", logger);
+    const post = vi.spyOn(testAxiosInstance, "post");
     const result = await packageService.publishAgent("test-token", "test-path");
     chai.assert.equal(result[0], "test-title-id");
     chai.assert.equal(result[1], "test-app-id");
     chai.assert.equal(result[2], "");
+    expect(post).toHaveBeenCalledWith(
+      "/builder/v1/users/packages",
+      expect.anything(),
+      expect.objectContaining({ params: { scope: AppScope.Personal, isRAIValidationAsync: true } })
+    );
   });
 });
