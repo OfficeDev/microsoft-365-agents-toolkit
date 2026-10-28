@@ -28,10 +28,7 @@ describe("addSkill", () => {
   beforeEach(() => {
     setTools(tools);
     vi.spyOn(validationUtils, "validateInputs").mockResolvedValue(undefined);
-    vi.spyOn(featureFlagManager, "getBooleanValue").mockImplementation((flag: any) => {
-      if (flag.name === FeatureFlagName.Frontier) return true;
-      return false;
-    });
+    vi.spyOn(featureFlagManager, "getBooleanValue").mockReturnValue(false);
   });
 
   afterEach(() => {
@@ -64,24 +61,10 @@ describe("addSkill", () => {
     };
   }
 
-  it("returns AgentSkillsDisabled error when ATK_FRONTIER is off", async () => {
-    vi.restoreAllMocks();
-    setTools(tools);
-    vi.spyOn(validationUtils, "validateInputs").mockResolvedValue(undefined);
-    vi.spyOn(featureFlagManager, "getBooleanValue").mockReturnValue(false);
-
-    const inputs = createBaseInputs();
-    const core = new FxCore(tools);
-    const result = await core.addSkill(inputs);
-
-    assert.isTrue(result.isErr());
-    if (result.isErr()) {
-      assert.instanceOf(result.error, UserError);
-      assert.equal(result.error.name, "AgentSkillsDisabled");
-    }
-  });
-
-  it("successfully creates a new skill directory with SKILL.md", async () => {
+  it.each([true, false])("creates SKILL.md when Frontier is %s", async (enabled) => {
+    vi.mocked(featureFlagManager.getBooleanValue).mockImplementation(
+      (flag) => flag.name === FeatureFlagName.Frontier && enabled
+    );
     const inputs = createBaseInputs();
     const manifest = createManifestWithDA();
 

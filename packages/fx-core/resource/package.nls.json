@@ -10,7 +10,6 @@
   "core.addKnowledge.continue": "Add",
   "core.addSkill.confirm": "Microsoft 365 Agents Toolkit will modify files in your \"%s\" folder to add the agent skill. To avoid losing unexpected changes, back up your files or use git for change tracking before proceeding.",
   "core.addSkill.continue": "Add",
-  "core.addSkill.featureFlagDisabled": "Agent skills are not enabled. Set the environment variable ATK_FRONTIER=true to enable this preview feature.",
   "core.featureFlaggedLabel.frontier": "%s (Frontier)",
   "core.setSensitivityLabel.confirm": "Teams Toolkit will modify the file \"%s\" based on the sensitivity label you provided. To avoid losing unexpected changes, back up your files or use git for change tracking before proceeding.",
   "core.setSensitivityLabel.continue": "Set",

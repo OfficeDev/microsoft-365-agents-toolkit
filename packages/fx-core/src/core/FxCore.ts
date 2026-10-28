@@ -2327,15 +2327,6 @@ export class FxCore extends FxCoreOpenPluginPart {
     ConcurrentLockerMW,
   ])
   async addSkill(inputs: Inputs): Promise<Result<undefined | any, FxError>> {
-    if (!featureFlagManager.getBooleanValue(FeatureFlags.Frontier)) {
-      return err(
-        new UserError(
-          "FxCore",
-          "AgentSkillsDisabled",
-          getLocalizedString("core.addSkill.featureFlagDisabled")
-        )
-      );
-    }
     if (!inputs.projectPath) {
       throw new Error("projectPath is undefined"); // should never happen
     }

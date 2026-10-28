@@ -991,7 +991,7 @@ describe("runCreateSelector (walk-create-selector)", () => {
     assert.notInclude(ui.selectNames, LANGUAGE_QUESTION);
   });
 
-  it("WCS-12: the skill daTemplate option is hidden unless ATK_FRONTIER is on", async () => {
+  it("WCS-12: offers GA skill without a Frontier suffix when ATK_FRONTIER is off", async () => {
     const ui = new ScriptedUI({
       projectType: "copilot-agent-type",
       daTemplate: "no-action",
@@ -1003,9 +1003,12 @@ describe("runCreateSelector (walk-create-selector)", () => {
 
     assert.isTrue(res.isOk());
     const offered = offeredIds(ui.configByName.get("daTemplate"));
-    // The question is reached (no-action is always offered) but skill is filtered out.
     assert.include(offered, "no-action");
-    assert.notInclude(offered, "skill");
+    assert.include(offered, "skill");
+    assert.equal(
+      offeredOption(ui.configByName.get("daTemplate"), "skill")?.label,
+      getLocalizedString("template.createProjectQuestion.addSkill.label")
+    );
   });
 
   it("WCS-22: DA add-action no longer offers the Office Add-in Action source", async () => {
@@ -1021,12 +1024,19 @@ describe("runCreateSelector (walk-create-selector)", () => {
     assert.notInclude(offered, "da-meta-os");
   });
 
-  it("WCS-13: copilot\u2192skill with ATK_FRONTIER on resolves the v4 route", async () => {
+  it.each([
+    ["vscode", true],
+    ["vscode", false],
+    ["cli", true],
+    ["cli", false],
+    ["vs", true],
+    ["vs", false],
+  ] as const)("WCS-13: skill resolves on %s with Frontier %s", async (surface, enabled) => {
     const picks = { projectType: "copilot-agent-type", daTemplate: "skill" };
     const ui = new ScriptedUI(picks);
 
-    const res = await runCreateSelector(buildFloor(), asUI(ui), "vscode", {
-      flagReader: flagsOn("ATK_FRONTIER"),
+    const res = await runCreateSelector(buildFloor(), asUI(ui), surface, {
+      flagReader: flagsOn(...(enabled ? ["ATK_FRONTIER"] : [])),
     });
 
     assert.isTrue(res.isOk());
@@ -1035,30 +1045,48 @@ describe("runCreateSelector (walk-create-selector)", () => {
       assert.equal(res.value.engine, "v4");
       assert.deepEqual(res.value.answers, picks);
     }
-    // The skill option is offered (its featureFlag condition holds) and ends the walk
-    // (no actionSource follow-up \u2014 that is add-action only).
     assert.include(offeredIds(ui.configByName.get("daTemplate")), "skill");
+    assert.equal(
+      offeredOption(ui.configByName.get("daTemplate"), "skill")?.label,
+      getLocalizedString("template.createProjectQuestion.addSkill.label")
+    );
     assert.deepEqual(ui.selectNames, ["projectType", "daTemplate"]);
   });
 
-  it("WCS-13b: adds Frontier suffix only to ATK_FRONTIER-controlled options", async () => {
-    const ui = new ScriptedUI({
-      projectType: "copilot-agent-type",
-      daTemplate: "no-action",
-    });
+  it.each([true, false])("WCS-13b: labels an option with Frontier condition %s", async (gated) => {
+    const ui = new ScriptedUI({ projectType: "minimal" });
+    const selectorBytes = Buffer.from(
+      JSON.stringify({
+        ...MINIMAL_SELECTOR,
+        questions: [
+          {
+            ...MINIMAL_SELECTOR.questions[0],
+            staticOptions: [
+              {
+                id: "minimal",
+                label: "Preview option",
+                ...(gated ? { condition: { featureFlag: "ATK_FRONTIER" } } : {}),
+              },
+              { id: "stable", label: "Stable option" },
+            ],
+          },
+        ],
+      })
+    );
 
-    const res = await runCreateSelector(buildFloor(), asUI(ui), "vscode", {
+    const res = await runCreateSelector(selectorBytes, asUI(ui), "vscode", {
+      selectorBytesKind: "json",
       flagReader: flagsOn("ATK_FRONTIER"),
     });
 
     assert.isTrue(res.isOk());
     assert.equal(
-      offeredOption(ui.configByName.get("daTemplate"), "skill")?.label,
-      `${getLocalizedString("template.createProjectQuestion.addSkill.label")} (Frontier)`
+      offeredOption(ui.configByName.get("projectType"), "minimal")?.label,
+      gated ? "Preview option (Frontier)" : "Preview option"
     );
     assert.equal(
-      offeredOption(ui.configByName.get("daTemplate"), "no-action")?.label,
-      getLocalizedString("template.createProjectQuestion.noPlugin.label")
+      offeredOption(ui.configByName.get("projectType"), "stable")?.label,
+      "Stable option"
     );
   });
 
