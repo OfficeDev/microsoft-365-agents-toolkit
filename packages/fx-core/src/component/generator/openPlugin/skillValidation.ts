@@ -3,11 +3,10 @@
 
 import fs from "fs-extra";
 import yaml from "js-yaml";
+import { isValidSkillName } from "../../../common/skillUtils";
 import { isRecord } from "./validation";
 
 const SKILL_FRONTMATTER_RE = /^---\r?\n([\s\S]*?)\r?\n---(?:\r?\n|$)/;
-const SKILL_NAME_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
-const SKILL_NAME_MAX_LENGTH = 64;
 const SKILL_DESCRIPTION_MAX_LENGTH = 1024;
 const SKILL_COMPATIBILITY_MAX_LENGTH = 500;
 
@@ -15,7 +14,7 @@ export async function getAgentSkillValidationError(
   skillName: string,
   skillMdPath: string
 ): Promise<string | undefined> {
-  if (skillName.length > SKILL_NAME_MAX_LENGTH || !SKILL_NAME_RE.test(skillName)) {
+  if (!isValidSkillName(skillName)) {
     return "folder name must contain only lowercase letters, numbers, and single hyphens";
   }
 
