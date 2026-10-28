@@ -9,7 +9,7 @@
       "precondition_retry_interval": 2,
       "step_retry_timeout": 0
     },
-    "total_steps": 66,
+    "total_steps": 65,
     "created_at": "2026-03-06T00:22:01.166936",
     "name": "DA No Action Web Search",
     "description": {
@@ -80,7 +80,6 @@
       "step_248a3a6b",
       "step_b6add8d7",
       "step_362802d6",
-      "step_d45e3711",
       "step_186e09b9",
       "step_4a6a24f1",
       "step_c667004d",
@@ -91,7 +90,7 @@
       "step_289c325d"
     ],
     "tags": [],
-    "updated_at": "2026-03-06T01:04:42.623521"
+    "updated_at": "2026-10-28T02:13:38.122000"
   },
   "steps": [
     {
@@ -1425,53 +1424,21 @@
     {
       "step_id": "step_362802d6",
       "agent": "interaction",
-      "tool": "click",
+      "tool": "keyboard_shortcut",
       "parameters": {
-        "button": "right",
-        "x": 647,
-        "y": 51
+        "keys": "ctrl+w"
       },
-      "description": "Right-click on the \"manifest.json\" file tab in the Visual Studio Code editor, within the MICROSOFT 365 AGENTS TOOLKIT workspace, to open the context menu for file-specific actions.",
+      "description": "Press Ctrl+W to close the saved manifest.json editor and return to declarativeAgent.json while keeping the Microsoft 365 Agents Toolkit view open.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [],
-      "preconditions": [
-        "dhash:647:51:16:5:2530395929183c83",
-        "dhash:647:51:96:5:0005225444aa4500",
-        "dhash:647:51:0:10:b3b1303030343035"
-      ],
+      "preconditions": [],
       "postconditions": [],
       "tags": [],
       "screenshot": "step_362802d6",
       "created_at": "2026-03-06T00:22:01.690152",
-      "plan_id": "plan_02154016"
-    },
-    {
-      "step_id": "step_d45e3711",
-      "agent": "interaction",
-      "tool": "click",
-      "parameters": {
-        "button": "left",
-        "x": 680,
-        "y": 71
-      },
-      "description": "Click the \"Close\" option in the context menu of a file tab within Visual Studio Code to close the currently active editor.",
-      "content_refs": [],
-      "timeout": 30,
-      "retry_count": 0,
-      "continue_on_error": "false",
-      "depends_on": [],
-      "preconditions": [
-        "dhash:680:71:16:5:a719352527b11844",
-        "dhash:680:71:96:5:01a463d8dcd99d82",
-        "dhash:680:71:0:10:bcb5303434343031"
-      ],
-      "postconditions": [],
-      "tags": [],
-      "screenshot": "step_d45e3711",
-      "created_at": "2026-03-06T00:22:01.699491",
       "plan_id": "plan_02154016"
     },
     {
