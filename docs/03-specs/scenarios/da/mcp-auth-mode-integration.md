@@ -425,9 +425,11 @@ inside the same pinned image:
   local SSO ID was configured. Local full UI execution was therefore not claimed.
   Correct public client IDs and the licensed account do match CI.
 
-The manual diagnostic workflow prints only status/error codes and consistency
-flags. It neither exports tokens/credential values nor changes registrations,
-AAD applications, grants or permissions. Do not repair these failures by
+The diagnostic run above printed only status/error codes and consistency
+flags. It neither exported tokens/credential values nor changed registrations,
+AAD applications, grants or permissions. The temporary workflow and helper
+were subsequently removed; the linked run remains historical evidence.
+Do not repair these failures by
 replacing a shared SSO record or rotating shared identities implicitly.
 
 ### Revalidation and updated credentials
