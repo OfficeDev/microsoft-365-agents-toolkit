@@ -34,7 +34,7 @@
       "parameters": {
         "button": "left",
         "x": 391,
-        "y": 69
+        "y": 81
       },
       "description": "Click the \"dev\" option in the \"Select an environment\" dropdown within the Microsoft 365 Agents extension panel in Visual Studio Code.",
       "content_refs": [],
@@ -42,11 +42,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [],
-      "preconditions": [
-        "dhash:391:69:16:5:0000000042004200",
-        "dhash:391:69:96:5:0000004200000000",
-        "dhash:391:69:0:10:d08822232303a421"
-      ],
+      "preconditions": [],
       "postconditions": [],
       "tags": [],
       "screenshot": "step_f3789fcd",
