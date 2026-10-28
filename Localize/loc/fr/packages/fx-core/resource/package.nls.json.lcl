@@ -10585,6 +10585,87 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";error.m365.skills.authorization" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Skill synchronization is not authorized. Verify the signed-in account, agent ownership, Graph permissions, and SharePoint Embedded onboarding before retrying.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[La synchronisation des compétences n’est pas autorisée. Vérifiez le compte connecté, la propriété de l’agent, les autorisations Graph et l’intégration de SharePoint Embedded avant de réessayer.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";error.m365.skills.conflict" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The skill upload conflicts with an existing version or another edit. Use a new package manifest version for updates and do not edit the agent concurrently. No rollback was performed.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Le chargement de la compétence est en conflit avec une version existante ou une autre modification. Utilisez une nouvelle version de manifeste de package pour les mises à jour et ne modifiez pas l’agent simultanément. Aucune restauration n’a été effectuée.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";error.m365.skills.copyNotSupported" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Microsoft 365 reported published-content copying for a skill draft. This preview supports only drafts created exclusively through the ATK skip-copy flow. Verify the draft's history and Microsoft 365 skip-copy support before another upload. No skill files were synchronized and the agent package was not submitted.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Microsoft 365 a signalé une copie de contenu publié pour un brouillon de compétence. Cet aperçu prend uniquement en charge les brouillons créés exclusivement via le flux ATK skip-copy. Vérifiez l’historique du brouillon et la prise en charge de skip-copy par Microsoft 365 avant d’effectuer un nouveau chargement. Aucun fichier de compétence n’a été synchronisé et le package de l’agent n’a pas été envoyé.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";error.m365.skills.directoryFailed" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The skill draft could not be prepared. The request was not replayed because its outcome may be uncertain. Verify Microsoft 365 skip-copy support and ensure no other upload is running before trying again.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Le brouillon de compétence n’a pas pu être préparé. La requête n’a pas été réexécutée, car son résultat peut être incertain. Vérifiez que Microsoft 365 prend en charge skip-copy et qu’aucun autre chargement n’est en cours avant de réessayer.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";error.m365.skills.invalidInventory" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The skill file inventory is invalid or contains conflicting paths. Check the skill files and try again.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[L’inventaire des fichiers de compétences est non valide ou contient des chemins en conflit. Vérifiez les fichiers de compétences, puis réessayez.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";error.m365.skills.invalidPackage" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The agent skill package is invalid. Check its manifests, skill paths, and SKILL.md metadata before retrying.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Le package de compétences de l’agent est non valide. Vérifiez ses manifestes, les chemins des compétences et les métadonnées de SKILL.md avant de réessayer.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";error.m365.skills.invalidResponse" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Microsoft 365 returned an unexpected response while preparing or synchronizing agent skills. The agent package was not submitted.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Microsoft 365 a renvoyé une réponse inattendue lors de la préparation ou de la synchronisation des compétences de l’agent. Le package de l’agent n’a pas été soumis.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";error.m365.skills.requestFailed" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[A skill upload request failed. Its outcome may be uncertain. No rollback was performed. Check the service state before another upload; if package submission was attempted, resolve its publication status first.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Échec de la requête de chargement de compétence. Son résultat peut être incertain. Aucune restauration n’a été effectuée. Vérifiez l’état du service avant d’effectuer un autre chargement. Si une soumission de package a été tentée, déterminez d’abord son état de publication.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";error.m365.skills.retryExhausted" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Skill synchronization could not complete within its retry budget. The draft is retained. Resolve the service issue before starting another upload through the ATK skip-copy flow.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[La synchronisation des compétences n’a pas pu se terminer dans la limite des nouvelles tentatives autorisées. Le brouillon est conservé. Résolvez le problème de service avant de lancer un autre chargement via le flux ATK skip-copy.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";error.readDeclarativeAgentManifest.failed" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Unable to read declarative agent manifest file. Error: %s]]></Val>
@@ -10950,6 +11031,42 @@
           <Val><![CDATA[RAI validation is in progress. Waiting for completion...]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[La validation DE LA VALIDATION est en cours. En attente d’achèvement...]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";info.m365.skills.preparing" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Preparing skill draft %s of %s without copying published content...]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Préparation du brouillon de compétence %s de %s sans copier le contenu publié...]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";info.m365.skills.preview" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Incremental skill upload preview supports only drafts created exclusively through the ATK skip-copy flow. Do not use drafts from older copy-enabled ATK flows or other clients, or run concurrent uploads. Microsoft 365 must support skip-copy. Fresh drafts upload all local skill files. Increment the package manifest version for each update.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[L’aperçu incrémentiel de chargement des compétences prend uniquement en charge les brouillons créés exclusivement via le flux ATK skip-copy. N’utilisez pas de brouillons provenant d’anciens flux ATK avec copie ou d’autres clients, et n’effectuez pas de chargements simultanés. Microsoft 365 doit prendre en charge skip-copy. Les nouveaux brouillons chargent tous les fichiers de compétence locaux. Incrémentez la version du manifeste du package pour chaque mise à jour.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";info.m365.skills.summary" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Skill synchronization completed: %s files uploaded, %s files unchanged, %s files or folders deleted.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Synchronisation des compétences terminée : %s fichiers chargés, fichiers %s inchangés %s fichiers ou dossiers supprimés.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";info.m365.skills.synchronizing" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Synchronizing skill %s of %s...]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Synchronisation de la compétence %s sur %s...]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
