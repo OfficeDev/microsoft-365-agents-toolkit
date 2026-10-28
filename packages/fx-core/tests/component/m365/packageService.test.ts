@@ -1028,8 +1028,18 @@ describe("Package Service", () => {
   });
 
   for (const data of [
-    { Error: { Message: "User does not have access to upload advanced Copilot apps." } },
-    { error: { message: "User does not have access to upload advanced Copilot apps." } },
+    {
+      Error: {
+        Code: "AccessDenied",
+        Message: "User does not have access to upload advanced Copilot apps.",
+      },
+    },
+    {
+      error: {
+        code: "AccessDenied",
+        message: "User does not have access to upload advanced Copilot apps.",
+      },
+    },
   ]) {
     it(`AC-04: explains Advanced package uploads for ${Object.keys(data)[0]} policy errors`, async () => {
       axiosGetResponses["/config/v1/environment"] = {
@@ -1097,6 +1107,53 @@ describe("Package Service", () => {
       packageService.publishAgent("test-token", "test-path", AppScope.Shared)
     ).rejects.toThrow("Unrelated denial");
   });
+
+  for (const { description, data, expectedDetails } of [
+    {
+      description: "an uppercase envelope without a message",
+      data: { Error: { Code: "AccessDenied" } },
+      expectedDetails: "AccessDenied: ",
+    },
+    {
+      description: "a lowercase envelope without a message",
+      data: { error: { code: "AccessDenied" } },
+      expectedDetails: "AccessDenied: ",
+    },
+    {
+      description: "a missing response body",
+      data: undefined,
+      expectedDetails: ": ",
+    },
+  ]) {
+    it(`AC-04: preserves a 403 with ${description} without claiming an upload-policy denial`, async () => {
+      axiosGetResponses["/config/v1/environment"] = {
+        data: { titlesServiceUrl: "https://test-url" },
+      };
+      const serviceError = Object.assign(new Error("Forbidden"), {
+        response: { status: 403, data, headers: { traceresponse: "service-trace" } },
+      });
+      axiosPostResponses["/builder/v1/users/packages"] = serviceError;
+      const packageService = new PackageService("https://test-endpoint", logger);
+      const post = vi.spyOn(testAxiosInstance, "post");
+      const shareLink = vi.spyOn(packageService, "getShareLink");
+
+      const error: unknown = await packageService
+        .publishAgent("test-token", "test-path", AppScope.Shared)
+        .catch((error: unknown) => error);
+
+      if (!(error instanceof UnhandledError)) {
+        chai.assert.fail("Expected the original service failure, not an upload-policy error");
+      }
+      chai.assert.strictEqual(error.innerError, serviceError);
+      chai.assert.strictEqual(
+        serviceError.message,
+        `Forbidden (tracingId: service-trace) ${expectedDetails} `
+      );
+      chai.assert.notInclude(error.displayMessage ?? "", "Advanced package uploads");
+      expect(post).toHaveBeenCalledTimes(1);
+      expect(shareLink).not.toHaveBeenCalled();
+    });
+  }
 
   it("retrieveTitleId happy path", async () => {
     axiosGetResponses["/config/v1/environment"] = {
