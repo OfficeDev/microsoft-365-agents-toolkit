@@ -639,8 +639,8 @@ describe("Package Service", () => {
     expect(vi.mocked(commonUtils.waitSeconds)).toHaveBeenCalledWith(7);
   });
 
-  it("uses environment override to enable RAI validation", async () => {
-    process.env.TEAMSFX_RAI_VALIDATION_ENABLED = "true";
+  it.each(["true", "1"])("uses environment override %j to enable RAI validation", async (value) => {
+    process.env.TEAMSFX_RAI_VALIDATION_ENABLED = value;
     const getTreatmentVariableAsync = vi.fn();
     setTools({ expServiceProvider: { getTreatmentVariableAsync } } as any);
     axiosGetResponses["/config/v1/environment"] = {
@@ -677,38 +677,51 @@ describe("Package Service", () => {
     ).toEqual({ isRAIValidationAsync: true });
   });
 
-  it("uses environment override to disable RAI validation", async () => {
-    process.env.TEAMSFX_RAI_VALIDATION_ENABLED = "false";
-    const getTreatmentVariableAsync = vi.fn().mockResolvedValue(true);
-    setTools({ expServiceProvider: { getTreatmentVariableAsync } } as any);
-    axiosGetResponses["/config/v1/environment"] = {
-      data: { titlesServiceUrl: "https://test-url" },
-    };
-    axiosPostResponses["/builder/v1/users/packages"] = {
-      data: { statusId: "test-status-id-builder-api" },
-    };
-    axiosGetResponses["/builder/v1/users/packages/status/test-status-id-builder-api"] = {
-      status: 200,
-      data: { titleId: "test-title-id-builder-api", appId: "test-app-id-builder-api" },
-    };
-    const postStub = vi.spyOn(testAxiosInstance, "post");
-    const getStub = vi.spyOn(testAxiosInstance, "get");
+  it.each(["false", "0", ""])(
+    "uses environment override %j to disable RAI validation",
+    async (value) => {
+      process.env.TEAMSFX_RAI_VALIDATION_ENABLED = value;
+      const getTreatmentVariableAsync = vi.fn().mockResolvedValue(true);
+      setTools({ expServiceProvider: { getTreatmentVariableAsync } } as any);
+      axiosGetResponses["/config/v1/environment"] = {
+        data: { titlesServiceUrl: "https://test-url" },
+      };
+      axiosPostResponses["/builder/v1/users/packages"] = {
+        data: { statusId: "test-status-id-builder-api" },
+      };
+      const statusUrl = "/builder/v1/users/packages/status/test-status-id-builder-api";
+      axiosGetResponses[statusUrl] = { status: 202, data: {} };
+      vi.mocked(commonUtils.waitSeconds).mockImplementationOnce(async () => {
+        axiosGetResponses[statusUrl] = {
+          status: 200,
+          data: { titleId: "test-title-id-builder-api", appId: "test-app-id-builder-api" },
+        };
+      });
+      const postStub = vi.spyOn(testAxiosInstance, "post");
+      const getStub = vi.spyOn(testAxiosInstance, "get");
 
-    const packageService = new PackageService("https://test-endpoint", logger);
-    await packageService.sideLoadingV2("test-token", "test-path", AppScope.Personal);
+      const packageService = new PackageService("https://test-endpoint", logger);
+      const result = await packageService.sideLoadingV2(
+        "test-token",
+        "test-path",
+        AppScope.Personal
+      );
 
-    expect(getTreatmentVariableAsync).not.toHaveBeenCalled();
-    expect(
-      postStub.mock.calls.find(([url]) => url === "/builder/v1/users/packages")?.[2]?.params
-    ).toEqual({
-      scope: AppScope.Personal,
-    });
-    expect(
-      getStub.mock.calls.find(
-        ([url]) => url === "/builder/v1/users/packages/status/test-status-id-builder-api"
-      )?.[1]?.params
-    ).toBeUndefined();
-  });
+      expect(result).toEqual(["test-title-id-builder-api", "test-app-id-builder-api"]);
+      expect(getTreatmentVariableAsync).not.toHaveBeenCalled();
+      expect(
+        postStub.mock.calls.find(([url]) => url === "/builder/v1/users/packages")?.[2]?.params
+      ).toEqual({
+        scope: AppScope.Personal,
+      });
+      const statusRequests = getStub.mock.calls.filter(([url]) => url === statusUrl);
+      expect(statusRequests).toHaveLength(2);
+      for (const request of statusRequests) {
+        expect(request[1]?.params).toBeUndefined();
+      }
+      expect(commonUtils.waitSeconds).toHaveBeenCalledExactlyOnceWith(7);
+    }
+  );
 
   it("surfaces RAI validation failure reasons", async () => {
     setTools({
