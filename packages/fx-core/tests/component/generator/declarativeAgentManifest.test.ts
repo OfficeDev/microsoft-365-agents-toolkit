@@ -16,7 +16,7 @@ const templates = globSync("{vsc,vs,v4}/**/{declarativeAgent,repairDeclarativeAg
   .sort();
 
 describe("Declarative agent manifest templates", () => {
-  it("SCN-CREATE-SKILL-08: covers legacy, v4, Visual Studio, and repair templates", () => {
+  it("DA-MANIFEST-01: covers legacy, v4, Visual Studio, and repair templates", () => {
     for (const prefix of ["vsc/", "vs/", "v4/"]) {
       assert.isTrue(
         templates.some((file) => file.startsWith(prefix)),
@@ -26,7 +26,7 @@ describe("Declarative agent manifest templates", () => {
     assert.isTrue(templates.some((file) => file.endsWith("/repairDeclarativeAgent.json.tpl")));
   });
 
-  it.each(templates)("SCN-CREATE-SKILL-08: %s renders a valid v1.9 manifest", async (file) => {
+  it.each(templates)("DA-MANIFEST-01: %s renders a valid v1.9 manifest", async (file) => {
     const source = await fs.readFile(path.join(templatesRoot, file), "utf8");
     const rendered = Mustache.render(source, { appName: "TestAgent" });
     const agent = DeclarativeAgentManifestConverter.jsonToManifest(rendered);

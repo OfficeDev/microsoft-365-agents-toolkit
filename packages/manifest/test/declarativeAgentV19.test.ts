@@ -25,7 +25,7 @@ function skillManifest(count: number) {
 }
 
 describe("Declarative agent v1.9", () => {
-  it("SCN-CREATE-SKILL-09: round-trips skills through the registered converter", async () => {
+  it("DA-MANIFEST-02: round-trips skills through the registered converter", async () => {
     const input = skillManifest(8);
     const manifest = DeclarativeAgentManifestConverter.jsonToManifest(JSON.stringify(input));
     const output = DeclarativeAgentManifestConverter.manifestToJson(manifest);
@@ -34,7 +34,7 @@ describe("Declarative agent v1.9", () => {
     assert.deepEqual(await AppManifestUtils.validateAgainstSchema(manifest), []);
   });
 
-  it("SCN-CREATE-SKILL-09: rejects malformed skill entries without unchecked fallback", () => {
+  it("DA-MANIFEST-02: rejects malformed skill entries without unchecked fallback", () => {
     for (const agentSkills of [{ folder: "skills/test" }, [{}], [{ folder: 42 }]]) {
       assert.throws(() =>
         DeclarativeAgentManifestConverter.jsonToManifest(
@@ -44,7 +44,7 @@ describe("Declarative agent v1.9", () => {
     }
   });
 
-  it("SCN-CREATE-SKILL-09: rejects a ninth skill during schema validation", async () => {
+  it("DA-MANIFEST-02: rejects a ninth skill during schema validation", async () => {
     const manifest = DeclarativeAgentManifestConverter.jsonToManifest(
       JSON.stringify(skillManifest(9))
     );
@@ -53,7 +53,7 @@ describe("Declarative agent v1.9", () => {
     assert.isTrue(errors.some((error) => error.includes("/agent_skills")));
   });
 
-  it("SCN-CREATE-SKILL-09: rejects an empty skill folder during schema validation", async () => {
+  it("DA-MANIFEST-02: rejects an empty skill folder during schema validation", async () => {
     const manifest = DeclarativeAgentManifestConverter.jsonToManifest(
       JSON.stringify({ ...skillManifest(1), agent_skills: [{ folder: "" }] })
     );
@@ -62,7 +62,7 @@ describe("Declarative agent v1.9", () => {
     assert.isTrue(errors.some((error) => error.includes("/agent_skills/0/folder")));
   });
 
-  it("SCN-CREATE-SKILL-10: the v1.9 wrapper round-trips skills", () => {
+  it("DA-MANIFEST-03: the v1.9 wrapper round-trips skills", () => {
     const agent = DeclarativeAgentManifestWrapper.fromJSON(JSON.stringify(skillManifest(1)));
     agent.addSkill("skills/another");
     const restored = DeclarativeAgentManifestWrapper.fromJSON(agent.toJSON());

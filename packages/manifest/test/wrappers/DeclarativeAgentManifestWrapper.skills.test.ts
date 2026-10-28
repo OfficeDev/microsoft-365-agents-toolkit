@@ -22,7 +22,7 @@ describe("DeclarativeAgentManifestWrapper - Agent Skills", () => {
   }
 
   describe("addSkill", () => {
-    it("SCN-CREATE-SKILL-10: limits v1.9 manifests to eight skills", () => {
+    it("DA-MANIFEST-03: limits v1.9 manifests to eight skills", () => {
       const warning = sandbox.stub(console, "warn");
       const agent = DeclarativeAgentManifestWrapper.fromJSON(
         JSON.stringify({

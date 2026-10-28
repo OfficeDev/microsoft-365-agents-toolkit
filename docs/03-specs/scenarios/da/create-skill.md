@@ -18,9 +18,19 @@ This is the vertical contract for the native v4 declarative-agent-with-skill cre
 | SCN-CREATE-SKILL-05 | L1   | empty target with `TEAMSFX_SENSITIVITY_LABEL` disabled | scaffold           | the only pipeline step run is `require-empty-target`; `da/set-sensitivity-label` is skipped, and the project yaml remains a no-action skeleton with no `oauth/register` and no `pluginManifestPath`                                                          |
 | SCN-CREATE-SKILL-06 | L1   | non-empty target                                       | scaffold           | `require-empty-target` fails first with **`UserError`** and writes nothing                                                                                                                                                                                   |
 | SCN-CREATE-SKILL-07 | L1   | identical inputs re-run                                | scaffold           | deterministic - identical `written` set and identical rendered `agent_skills` entry                                                                                                                                                                          |
-| SCN-CREATE-SKILL-08 | L1 | any active DA or repair-agent manifest template under `templates/vsc`, `templates/vs`, or `templates/v4` | render with default inputs | the manifest declares `v1.9` and its matching schema URL, passes the registered converter and bundled schema validation, and preserves its declared skills |
-| SCN-CREATE-SKILL-09 | L1 | the bundled DA `v1.9` schema and converters | parse, serialize, and validate a skill manifest | typed `agent_skills` round-trip; malformed skill entries are rejected; schema validation accepts 8 skills and rejects 9; older manifest converters remain registered |
-| SCN-CREATE-SKILL-10 | L1 | a DA `v1.9` manifest wrapper | add skills | the wrapper permits 8 skills and refuses a ninth using its existing notification mechanism; older versions retain their existing limit |
+
+## Manifest compatibility checks
+
+These shared checks cover more than the `da/skill` scaffold scenario. They run in
+the template compatibility and manifest package harnesses, not the v4 scenario
+parity harness. The scenario-tier contract remains SCN-CREATE-SKILL-01 through
+SCN-CREATE-SKILL-07 above.
+
+| ID | Runtime | Purpose | Gate | Contract | Harness |
+| --- | --- | --- | --- | --- | --- |
+| DA-MANIFEST-01 | L1 | compatibility | PR | Every active DA and repair-agent manifest template renders `v1.9` with its matching schema URL, passes converter and bundled schema validation, and preserves its declared skills. | [Template compatibility tests](../../../../packages/fx-core/tests/component/generator/declarativeAgentManifest.test.ts) |
+| DA-MANIFEST-02 | L1 | compatibility | PR | The registered `v1.9` converter round-trips typed skills and rejects malformed entries; schema validation accepts 8 skills and rejects 9 or empty folders; older converters remain registered. | [Manifest tests](../../../../packages/manifest/test/declarativeAgentV19.test.ts) and [converter parity tests](../../../../packages/manifest/test/converterMapParity.test.ts) |
+| DA-MANIFEST-03 | L1 | compatibility | PR | The `v1.9` wrapper round-trips skills and refuses a ninth using its existing notification mechanism; older versions retain their existing limit. | [Manifest tests](../../../../packages/manifest/test/declarativeAgentV19.test.ts) and [wrapper tests](../../../../packages/manifest/test/wrappers/DeclarativeAgentManifestWrapper.skills.test.ts) |
 
 ## Composed operations
 
