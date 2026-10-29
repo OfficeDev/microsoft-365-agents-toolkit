@@ -175,7 +175,7 @@ cases:
       [
         scaffold-rag-search-py-azure-openai,
         check-rag-search-py-azure-openai,
-        create-python-environment,
+        create-python-environment-verified,
         fill-dev-python-azure-search-credentials,
         login-azure,
         login-m365,
