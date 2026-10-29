@@ -37,6 +37,7 @@ const setup = fs.readFileSync(setupPath, "utf8");
 test("untrusted pull requests cannot run the credentialed skill evaluation", () => {
   assert.doesNotMatch(workflow, /\n  pull_request:\n/);
   assert.doesNotMatch(workflow, /pull_request_target/);
+  assert.doesNotMatch(evaluateJob, /environment:/);
   assert.doesNotMatch(evaluateJob, /github\.event\.pull_request\.(?:head|base)/);
   assert.doesNotMatch(evaluateJob, /Checkout PR skill|Overlay PR skill/);
   assert.match(validationWorkflow, /\n  pull_request:\n/);
