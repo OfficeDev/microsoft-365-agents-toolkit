@@ -15,8 +15,9 @@
   workflow 1604, attempt 1 for this case. All four requested cases are green
   after a single failed-job-only SSO rerun in attempt 2.
 - **Completion gate:** Initial Provision must finish 6/6 actions; subsequent
-  runs must finish 7/7 with no active Provision progress or failed/cancelled
-  operation. An old 6/6 notification cannot satisfy the updated workflow.
+  runs must increment the Teams app manifest patch version and finish 7/7 with
+  no active Provision progress or failed/cancelled operation. An old 6/6
+  notification cannot satisfy the updated workflow.
 - **Start:** A clean VS Code workspace and a licensed test M365 account.
 - **Infrastructure:** Only the existing real MCP endpoint is required.
   Scaffold and register at that endpoint with personal-account support explicitly
@@ -48,14 +49,14 @@ last configuration operation in the lifecycle.
 
 ## Acceptance Criteria
 
-| ID            | Runtime | Purpose               | Gate                    | Harness                                            | Then                                                                                                                                                                                                                            |
-| ------------- | ------- | --------------------- | ----------------------- | -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| DCR-UI-UPD-01 | L1      | compatibility         | required                | Real case compiler                                 | One new standalone manual case owns scaffold, registration, baseline, edit, second Provision, readback, repeat Provision and actual tool checks; no feature flag overrides or business-case dependencies.                       |
-| DCR-UI-UPD-02 | L1      | operation-integration | required                | Temporary workspace and read-only service boundary | Baseline requires project-owned fresh DCR metadata, a nonempty ID, the real endpoint and explicit Enterprise account policy; reserve baseline exclusively and persist no credentials.                                           |
-| DCR-UI-UPD-03 | L1      | operation-integration | required                | Real workspace mutation                            | Add exactly one sparse dcr/update with the original ID reference and includePersonalMicrosoftAccounts:true. Retain the original registration and all plugin/local MCP/environment bytes.                                        |
-| DCR-UI-UPD-04 | L1      | operation-integration | required                | Read-only service boundary and temporary project   | Require persisted Enterprise, Consumer account policy and unchanged ID, URLs, unrelated policy and references. Retry only bounded stale policy reads; reject failed, malformed, foreign or unrelated changed state immediately. |
-| DCR-UI-UPD-05 | L1      | operation-integration | required                | Real fixture entry point                           | Read/authentication errors fail explicitly before a ready marker; no mutation API or replacement registration fallback exists. No-op verification requires a prior successful update checkpoint.                                |
-| DCR-UI-UPD-06 | L3      | surface               | required-for-live-claim | Clean vscuse CLI with real TGS and Copilot         | Register the real endpoint, enable personal accounts through VS Code, read back persistence, repeat Provision and invoke real whoami, auth_flow_probe and add tools with the original configuration reference.                  |
+| ID            | Runtime | Purpose               | Gate                    | Harness                                            | Then                                                                                                                                                                                                                                                                                 |
+| ------------- | ------- | --------------------- | ----------------------- | -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| DCR-UI-UPD-01 | L1      | compatibility         | required                | Real case compiler                                 | One new standalone manual case owns scaffold, registration, baseline, edit, second Provision, readback, repeat Provision and actual tool checks; no feature flag overrides or business-case dependencies.                                                                            |
+| DCR-UI-UPD-02 | L1      | operation-integration | required                | Temporary workspace and read-only service boundary | Baseline requires project-owned fresh DCR metadata, a nonempty ID, the real endpoint and explicit Enterprise account policy; reserve baseline exclusively and persist no credentials.                                                                                                |
+| DCR-UI-UPD-03 | L1      | operation-integration | required                | Real workspace mutation                            | Add exactly one sparse dcr/update with the original ID reference and includePersonalMicrosoftAccounts:true. Retain the original registration and all plugin/local MCP/environment bytes. Increment the Teams app manifest patch version before each repeated shared-scope Provision. |
+| DCR-UI-UPD-04 | L1      | operation-integration | required                | Read-only service boundary and temporary project   | Require persisted Enterprise, Consumer account policy and unchanged ID, URLs, unrelated policy and references. Retry only bounded stale policy reads; reject failed, malformed, foreign or unrelated changed state immediately.                                                      |
+| DCR-UI-UPD-05 | L1      | operation-integration | required                | Real fixture entry point                           | Read/authentication errors fail explicitly before a ready marker; no mutation API or replacement registration fallback exists. No-op verification requires a prior successful update checkpoint.                                                                                     |
+| DCR-UI-UPD-06 | L3      | surface               | required-for-live-claim | Clean vscuse CLI with real TGS and Copilot         | Register the real endpoint, enable personal accounts through VS Code, read back persistence, repeat Provision and invoke real whoami, auth_flow_probe and add tools with the original configuration reference.                                                                       |
 
 ## Invariants
 
@@ -69,8 +70,10 @@ last configuration operation in the lifecycle.
 - Product registration discovers metadata from the real endpoint; do not
   substitute metadata or simulate a successful registration.
 - No initial-endpoint variable, workflow input, public mock service or tunnel.
-- Only supportedAccountTypes changes. URL/discovery inputs and unrelated policy
-  remain unchanged; URL-update rejection retains separate negative coverage.
+- Only supportedAccountTypes changes in the DCR policy. URL/discovery inputs and
+  unrelated policy remain unchanged; the Teams app manifest patch version
+  increments for each repeated shared-scope publication. URL-update rejection
+  retains separate negative coverage.
 - Tool-specific returned data is enough; debugger cards are not required.
 - Service-contract failures remain failures, not successful fallback coverage.
 
