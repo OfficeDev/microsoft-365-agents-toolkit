@@ -657,7 +657,7 @@
       "parameters": {
         "button": "left",
         "x": 626,
-        "y": 517
+        "y": 484
       },
       "description": "Click the \"Next\" button on the Microsoft sign-in page in Google Chrome after entering the account email address.",
       "content_refs": [],
@@ -665,15 +665,11 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [],
-      "preconditions": [
-        "dhash:626:517:16:5:9a9b8924126d0000",
-        "dhash:626:517:96:5:004a71714e000000",
-        "dhash:626:517:0:10:1b98f0d8c6e6dae4"
-      ],
+      "preconditions": [],
       "postconditions": [],
       "tags": [
         "delay: 5",
-        "force_run:true"
+        "ocr:true"
       ],
       "screenshot": "step_961d5765",
       "created_at": "2026-06-11T03:17:05.837502",
