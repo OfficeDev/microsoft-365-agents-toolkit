@@ -32,6 +32,10 @@ A typical ATK project includes:
 - `env/`: Environment files for ATK provisioning and deployment
 - Other files: User-generated source code
 
+Advanced Declarative Agent templates must follow the
+[environment scope contract](../docs/03-specs/scenarios/da/advanced-agent-scope.md),
+including its local-debug compatibility and remote share-link requirements.
+
 ## Step-by-Step Guide
 
 ### 1. Add Project Template
