@@ -16,7 +16,12 @@ provision:
     # Write the information of created resources into environment file for
     # the specified environment variable(s).
     writeToEnvironmentFile:
+      {{#NewDeveloperPortalApis}}
+      appId: APP_ID
+      {{/NewDeveloperPortalApis}}
+      {{^NewDeveloperPortalApis}}
       teamsAppId: TEAMS_APP_ID
+      {{/NewDeveloperPortalApis}}
 
   # Build app package with latest env value
   - uses: teamsApp/zipAppPackage
@@ -39,7 +44,7 @@ provision:
     with:
       # Relative path to this file. This is the path for built zip file.
       appPackagePath: ./appPackage/build/appPackage.${{TEAMSFX_ENV}}.zip
-      
+
   # Extend your app to Outlook and the Microsoft 365 app
   - uses: teamsApp/extendToM365
     with:

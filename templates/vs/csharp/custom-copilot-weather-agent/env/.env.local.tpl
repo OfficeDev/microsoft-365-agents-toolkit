@@ -6,5 +6,10 @@ APP_NAME_SUFFIX=local
 
 # Generated during provision, you can also add your own variables. 
 BOT_ID=
+{{#NewDeveloperPortalApis}}
+APP_ID=
+{{/NewDeveloperPortalApis}}
+{{^NewDeveloperPortalApis}}
 TEAMS_APP_ID=
+{{/NewDeveloperPortalApis}}
 BOT_DOMAIN=

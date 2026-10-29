@@ -15,7 +15,12 @@ provision:
     # Write the information of created resources into environment file for
     # the specified environment variable(s).
     writeToEnvironmentFile:
+      {{#NewDeveloperPortalApis}}
+      appId: APP_ID
+      {{/NewDeveloperPortalApis}}
+      {{^NewDeveloperPortalApis}}
       teamsAppId: TEAMS_APP_ID
+      {{/NewDeveloperPortalApis}}
 
 {{#ApiKey}}
   # Register API KEY
@@ -26,7 +31,12 @@ provision:
       # Value of the API Key
       primaryClientSecret: ${{SECRET_API_KEY}}
       # Teams app ID
+      {{#NewDeveloperPortalApis}}
+      appId: ${{APP_ID}}
+      {{/NewDeveloperPortalApis}}
+      {{^NewDeveloperPortalApis}}
       appId: ${{TEAMS_APP_ID}}
+      {{/NewDeveloperPortalApis}}
       # Path to OpenAPI description document
       apiSpecPath: {{{ApiSpecPath}}}
     # Write the registration information of API Key into environment file for
@@ -40,7 +50,12 @@ provision:
       name: {{ApiSpecAuthName}}
       flow: authorizationCode
       # Teams app ID
+      {{#NewDeveloperPortalApis}}
+      appId: ${{APP_ID}}
+      {{/NewDeveloperPortalApis}}
+      {{^NewDeveloperPortalApis}}
       appId: ${{TEAMS_APP_ID}}
+      {{/NewDeveloperPortalApis}}
       # Path to OpenAPI description document
       apiSpecPath: {{{ApiSpecPath}}}
       # Use below property to change token exchange behaviour, BasicAuthorizationHeader: token exchange is done via HTTP headers. PostRequestBody: token exchange is done via request body

@@ -18,6 +18,7 @@
   },
 
   "replaceMap": [
+    { "var": "NewDeveloperPortalApis", "when": "featureFlag('TEAMSFX_NEW_DP_APIS')", "value": "true" },
     { "var": "DeclarativeCopilot", "const": "true" },
     { "var": "CopilotConnector", "const": "true" },
     { "var": "SafeProjectNameLowerCase", "expr": "safeProjectNameLowerCase(appName)" },

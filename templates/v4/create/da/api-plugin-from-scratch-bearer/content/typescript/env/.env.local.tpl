@@ -1,0 +1,19 @@
+# This file includes environment variables that can be committed to git. It's gitignored by default because it represents your local development environment.
+
+# Built-in environment variables
+TEAMSFX_ENV=local
+APP_NAME_SUFFIX=local
+
+# Generated during provision, you can also add your own variables.
+{{#NewDeveloperPortalApis}}
+APP_ID=
+{{/NewDeveloperPortalApis}}
+{{^NewDeveloperPortalApis}}
+TEAMS_APP_ID=
+{{/NewDeveloperPortalApis}}
+TEAMS_APP_PACKAGE_PATH=
+FUNC_ENDPOINT=
+TEAMS_APP_TENANT_ID=
+
+# Generated during deploy, you can also add your own variables.
+FUNC_PATH=

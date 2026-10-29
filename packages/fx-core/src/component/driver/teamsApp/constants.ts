@@ -1,6 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
+export const teamsAppUpdateOutputNames = {
+  teamsAppUpdateTime: "TEAMS_APP_UPDATE_TIME",
+  teamsAppTenantId: "TEAMS_APP_TENANT_ID",
+};
+
 /**
  * @author Huajie Zhang <huajiezhang@microsoft.com>
  */

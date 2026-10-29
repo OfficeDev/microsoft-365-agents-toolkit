@@ -13,6 +13,7 @@ import { QuestionNames } from "../../question/constants";
 import { selectTargetEnvQuestion } from "../../question/other";
 import { traverse } from "../../ui/visitor";
 import { envUtil } from "../utils/envUtil";
+import { resolveProjectAppResourceId } from "../utils/appIdentity";
 
 /**
  *
@@ -80,6 +81,16 @@ const envLoaderMWImpl = async (
       return;
     }
     ctx.envVars = res.value;
+    if (res.value.APP_MANIFEST_ID !== undefined) {
+      const identity = await resolveProjectAppResourceId(projectPath, {
+        ...res.value,
+        TEAMSFX_ENV: inputs.env,
+      });
+      if (identity.isErr()) {
+        ctx.result = err(identity.error);
+        return;
+      }
+    }
   }
   await next();
 };

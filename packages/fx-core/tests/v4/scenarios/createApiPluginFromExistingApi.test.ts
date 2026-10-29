@@ -16,6 +16,7 @@ import * as kiotaClient from "../../../src/common/kiotaClient";
 import { REQUIRE_EMPTY_TARGET } from "../../../src/v4/pipeline/runScaffoldPipeline";
 import { openApiOperationsProvider } from "../../../src/v4/providers/createOptionsProviders";
 import { createInMemoryRuntime } from "../../../src/v4/runtime/inMemoryRuntime";
+import { parseReplaceMap } from "../../../src/v4/runtime/packageParse";
 import { ScaffoldRequest, scaffold } from "../../../src/v4/runtime/scaffold";
 import { assert } from "vitest";
 import {
@@ -93,7 +94,13 @@ describe("SCN-DA-CREATE-API-PLUGIN-FROM-EXISTING-API (v4, T3 InMemoryRuntime)", 
     const runtime = createInMemoryRuntime();
     const result = await scaffold(
       {
-        descriptor: { ...templatePackage.descriptor, minEngineVersion: "6.11.0", replaceMap: [] },
+        descriptor: {
+          ...templatePackage.descriptor,
+          minEngineVersion: "6.11.0",
+          replaceMap: parseReplaceMap(templatePackage.descriptor)
+            ._unsafeUnwrap()
+            .filter((entry) => /^(AppId|AppManifestId|LocalAppManifestId)/.test(entry.var)),
+        },
         pipeline: {
           pipeline: "default",
           steps: [

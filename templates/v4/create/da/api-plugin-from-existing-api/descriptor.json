@@ -19,6 +19,7 @@
     "additionalProperties": false
   },
   "replaceMap": [
+    { "var": "NewDeveloperPortalApis", "when": "featureFlag('TEAMSFX_NEW_DP_APIS')", "value": "true" },
     { "var": "OpenApiSpecLocation", "from": "derived.openapi.operations.apiSpecLocation" }
   ]
 }

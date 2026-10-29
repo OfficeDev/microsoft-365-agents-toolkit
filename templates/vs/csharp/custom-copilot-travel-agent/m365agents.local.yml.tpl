@@ -12,7 +12,12 @@ provision:
     # Write the information of created resources into environment file for
     # the specified environment variable(s).
     writeToEnvironmentFile:
+      {{#NewDeveloperPortalApis}}
+      appId: APP_ID
+      {{/NewDeveloperPortalApis}}
+      {{^NewDeveloperPortalApis}}
       teamsAppId: TEAMS_APP_ID
+      {{/NewDeveloperPortalApis}}
 
   # Create AAD app for OAuth connection
   - uses: aadApp/create
@@ -45,7 +50,7 @@ provision:
   #         parameters: ./infra/azure.parameters.local.json
   #         deploymentName: Create-resources-for-bot-local
   #     bicepCliVersion: v0.9.1
-  
+
   # Local debugging steps without enabling SSO
   - uses: botFramework/create
     with:
@@ -104,7 +109,7 @@ provision:
       manifestPath: ./appPackage/manifest.json
       outputZipPath: ./appPackage/build/appPackage.${{TEAMSFX_ENV}}.zip
       outputFolder: ./appPackage/build
- 
+
   # Validate app package using validation rules
   - uses: teamsApp/validateAppPackage
     with:

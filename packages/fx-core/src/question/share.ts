@@ -8,7 +8,7 @@ import {
   OptionItem,
   SingleSelectQuestion,
 } from "@microsoft/teamsfx-api";
-import { teamsDevPortalClient } from "../client/teamsDevPortalClientProvider";
+import { getAppUsers } from "../component/utils/appUsers";
 import { AppStudioScopes } from "../common/constants";
 import { TOOLS } from "../common/globalVars";
 import { getLocalizedString } from "../common/localizeUtils";
@@ -160,8 +160,14 @@ export function selectUsersToRemoveSharedAccess(): MultiSelectQuestion {
         throw configRes.error;
       }
       const teamsAppId = configRes.value.teamsappId;
-      const app = await teamsDevPortalClient.getApp(token, teamsAppId);
-      if (!app.userList || app.userList.length === 0) {
+      const userResult = await getAppUsers(
+        token,
+        teamsAppId,
+        TOOLS.tokenProvider.m365TokenProvider
+      );
+      if (userResult.isErr()) throw userResult.error;
+      const users = userResult.value;
+      if (!users || users.length === 0) {
         throw new Error("No owner found in the app");
       }
 
@@ -174,7 +180,7 @@ export function selectUsersToRemoveSharedAccess(): MultiSelectQuestion {
       const operatorId = currentUserInfoRes.value.aadId;
 
       const options: OptionItem[] = [];
-      for (const user of app.userList) {
+      for (const user of users) {
         if (user.aadId === operatorId) {
           continue;
         }

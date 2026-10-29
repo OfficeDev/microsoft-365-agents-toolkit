@@ -5,4 +5,4 @@ TEAMSFX_ENV=dev
 APP_NAME_SUFFIX=dev
 AGENT_SCOPE=shared
 # Generated during provision, you can also add your own variables.
-TEAMS_APP_ID=
+{{#NewDeveloperPortalApis}}APP_ID={{/NewDeveloperPortalApis}}{{^NewDeveloperPortalApis}}TEAMS_APP_ID={{/NewDeveloperPortalApis}}

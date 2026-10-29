@@ -839,6 +839,7 @@ describe("Collaborator APIs for V3", () => {
   describe("getTeamsAppIdAndAadObjectId v3", () => {
     afterEach(() => {
       vi.restoreAllMocks();
+      vi.unstubAllEnvs();
     });
 
     it("happy path vsc", async () => {
@@ -885,27 +886,33 @@ describe("Collaborator APIs for V3", () => {
       }
     });
 
-    it("happy path cli: get from dotenv", async () => {
-      const inputsCli: InputsWithProjectPath = {
-        platform: Platform.CLI,
-        projectPath: path.join(os.tmpdir(), randomAppName()),
-        dotEnvFilePath: "filePath",
-      };
-      vi.spyOn(CollaborationUtil, "loadDotEnvFile").mockResolvedValue(
-        ok({
-          [CollaborationConstants.TeamsAppIdEnv]: "teamsAppId",
-          [CollaborationConstants.AadObjectIdEnv]: "aadObjectId",
-        })
-      );
-      const result = await CollaborationUtil.getTeamsAppIdAndAadObjectId(inputsCli);
-      assert.isTrue(result.isOk());
-      console.log(result);
-      if (result.isOk()) {
-        const appId = result.value;
-        assert.equal(appId.teamsAppId, "teamsAppId");
-        assert.equal(appId.aadObjectId, "aadObjectId");
+    it.each(["false", "true"])(
+      "AC-09/AC-20: CLI dotenv ID selection honors flag %s",
+      async (flag) => {
+        vi.stubEnv("TEAMSFX_NEW_DP_APIS", flag);
+        const resourceId = "11111111-1111-4111-8111-111111111111";
+        const legacyId = "22222222-2222-4222-8222-222222222222";
+        const inputsCli: InputsWithProjectPath = {
+          platform: Platform.CLI,
+          projectPath: path.join(os.tmpdir(), randomAppName()),
+          dotEnvFilePath: "filePath",
+        };
+        vi.spyOn(CollaborationUtil, "loadDotEnvFile").mockResolvedValue(
+          ok({
+            APP_ID: resourceId,
+            TEAMS_APP_ID: legacyId,
+            [CollaborationConstants.AadObjectIdEnv]: "aadObjectId",
+          })
+        );
+        const result = await CollaborationUtil.getTeamsAppIdAndAadObjectId(inputsCli);
+        assert.isTrue(result.isOk());
+        if (result.isOk()) {
+          const appId = result.value;
+          assert.equal(appId.teamsAppId, flag === "true" ? resourceId : legacyId);
+          assert.equal(appId.aadObjectId, "aadObjectId");
+        }
       }
-    });
+    );
 
     it("happy path cli: get from env", async () => {
       const inputsCli: InputsWithProjectPath = {

@@ -6,20 +6,38 @@
  */
 
 import { Context, err, FxError, GeneratorResult, Inputs, ok, Result } from "@microsoft/teamsfx-api";
+import { featureFlagManager, FeatureFlags } from "../../../common/featureFlags";
+import { developerPortalScaffoldUtils } from "../../developerPortalScaffoldUtils";
 import { InputValidationError } from "../../../error";
 import { ProgrammingLanguage, QuestionNames } from "../../../question/constants";
-import { developerPortalScaffoldUtils } from "../../developerPortalScaffoldUtils";
 import { ActionContext } from "../../middleware/actionExecutionMW";
 import { DefaultTemplateGenerator } from "../defaultGenerator";
 import { Generator } from "../generator";
 import { TemplateInfo } from "../templates/templateInfo";
 import { TemplateNames } from "../templates/templateNames";
+import { getTemplateReplaceMap } from "../templates/templateReplaceMap";
 
 /**
  * TdpGenerator is used to generate code from TDP app definition.
  */
 export class TdpGenerator extends DefaultTemplateGenerator {
   componentName = "tdp-generator";
+
+  public override async post(
+    context: Context,
+    inputs: Inputs,
+    _destinationPath: string
+  ): Promise<Result<GeneratorResult, FxError>> {
+    if (!featureFlagManager.getBooleanValue(FeatureFlags.NewDeveloperPortalApis)) {
+      const result = await developerPortalScaffoldUtils.updateFilesForTdp(
+        context,
+        inputs.teamsAppFromTdp,
+        inputs
+      );
+      if (result.isErr()) return err(result.error);
+    }
+    return ok({});
+  }
 
   // Templates that must be handled by their own specialized generators.
   // TdpGenerator must not intercept these even in TDP flow.
@@ -81,27 +99,11 @@ export class TdpGenerator extends DefaultTemplateGenerator {
               inputs.targetFramework,
               inputs.placeProjectFileInSolutionDir === "true"
             ),
+            ...getTemplateReplaceMap(inputs),
             IsNet8Framework: isNet8 ? "true" : "",
           },
         },
       ])
     );
-  }
-
-  public override async post(
-    context: Context,
-    inputs: Inputs,
-    destinationPath: string,
-    actionContext?: ActionContext
-  ): Promise<Result<GeneratorResult, FxError>> {
-    const res = await developerPortalScaffoldUtils.updateFilesForTdp(
-      context,
-      inputs.teamsAppFromTdp,
-      inputs
-    );
-    if (res.isErr()) {
-      return err(res.error);
-    }
-    return ok({});
   }
 }

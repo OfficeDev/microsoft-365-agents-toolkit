@@ -12,7 +12,12 @@ provision:
     # Write the information of created resources into environment file for
     # the specified environment variable(s).
     writeToEnvironmentFile:
+      {{#NewDeveloperPortalApis}}
+      appId: APP_ID
+      {{/NewDeveloperPortalApis}}
+      {{^NewDeveloperPortalApis}}
       teamsAppId: TEAMS_APP_ID
+      {{/NewDeveloperPortalApis}}
 
   # Set required variables for local launch
   - uses: script
@@ -29,7 +34,12 @@ provision:
       # Value of the API Key
       primaryClientSecret: ${{SECRET_API_KEY}}
       # app ID
+      {{#NewDeveloperPortalApis}}
+      appId: ${{APP_ID}}
+      {{/NewDeveloperPortalApis}}
+      {{^NewDeveloperPortalApis}}
       appId: ${{TEAMS_APP_ID}}
+      {{/NewDeveloperPortalApis}}
       # Path to OpenAPI description document
       apiSpecPath: ./appPackage/apiSpecificationFile/repair.yml
     # Write the registration information of API Key into environment file for
@@ -43,7 +53,12 @@ provision:
       # Name of the API Key
       name: apiKey
       # app ID
+      {{#NewDeveloperPortalApis}}
+      appId: ${{APP_ID}}
+      {{/NewDeveloperPortalApis}}
+      {{^NewDeveloperPortalApis}}
       appId: ${{TEAMS_APP_ID}}
+      {{/NewDeveloperPortalApis}}
       # Path to OpenAPI description document
       apiSpecPath: ./appPackage/apiSpecificationFile/repair.yml
       registrationId: ${{APIKEY_REGISTRATION_ID}}

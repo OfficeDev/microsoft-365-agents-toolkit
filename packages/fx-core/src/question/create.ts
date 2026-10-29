@@ -39,8 +39,7 @@ import {
   getQuestionValidationErrorEventName,
   sendTelemetryErrorEvent,
 } from "../common/telemetry";
-import { AppDefinition } from "../component/driver/teamsApp/interfaces/appdefinitions/appDefinition";
-import { StaticTab } from "../component/driver/teamsApp/interfaces/appdefinitions/staticTab";
+import { getAppCapabilities, DevPortalAppResponse } from "../component/utils/appInfo";
 import { manifestUtils } from "../component/driver/teamsApp/utils/ManifestUtils";
 import { pluginManifestUtils } from "../component/driver/teamsApp/utils/PluginManifestUtils";
 import {
@@ -99,7 +98,7 @@ export const createQuestionDeps = {
 };
 
 export function getProjectTypeAndCapability(
-  teamsApp: AppDefinition
+  teamsApp: DevPortalAppResponse
 ): { projectType: string; templateId: string } | undefined {
   // bot
   if (isBot(teamsApp)) {
@@ -146,8 +145,9 @@ export function appNameQuestion(): TextInputQuestion {
     required: true,
     default: (inputs: Inputs) => {
       let defaultName = undefined;
-      if (inputs.teamsAppFromTdp?.appName) {
-        defaultName = convertToAlphanumericOnly(inputs.teamsAppFromTdp?.appName);
+      const portalAppName = getAppCapabilities(inputs.teamsAppFromTdp).appName;
+      if (portalAppName) {
+        defaultName = convertToAlphanumericOnly(portalAppName);
       }
       return Promise.resolve(defaultName);
     },
@@ -260,7 +260,12 @@ function sampleSelectQuestion(): SingleSelectQuestion {
 }
 
 const defaultTabLocalHostUrl = "https://localhost:53000/index.html#/tab";
-const tabContentUrlOptionItem = (tab: StaticTab): OptionItem => {
+type NamedTab = {
+  name: string;
+  contentUrl?: string | null;
+  websiteUrl?: string | null;
+};
+const tabContentUrlOptionItem = (tab: NamedTab): OptionItem => {
   return {
     id: tab.name,
     label: tab.name,
@@ -271,7 +276,7 @@ const tabContentUrlOptionItem = (tab: StaticTab): OptionItem => {
     ),
   };
 };
-const tabWebsiteUrlOptionItem = (tab: StaticTab): OptionItem => {
+const tabWebsiteUrlOptionItem = (tab: NamedTab): OptionItem => {
   return {
     id: tab.name,
     label: tab.name,
@@ -283,14 +288,14 @@ const tabWebsiteUrlOptionItem = (tab: StaticTab): OptionItem => {
   };
 };
 export function getTabWebsiteOptions(inputs: Inputs): OptionItem[] {
-  const appDefinition = inputs.teamsAppFromTdp as AppDefinition;
-  if (appDefinition?.staticTabs) {
-    const tabsWithWebsiteUrls = appDefinition.staticTabs.filter((o) => !!o.websiteUrl);
-    if (tabsWithWebsiteUrls.length > 0) {
-      return tabsWithWebsiteUrls.map((o) => tabWebsiteUrlOptionItem(o));
-    }
-  }
-  return [];
+  const appDefinition = getAppCapabilities(inputs.teamsAppFromTdp);
+  return (
+    appDefinition.staticTabs?.flatMap((tab) =>
+      typeof tab.name === "string" && tab.websiteUrl
+        ? [tabWebsiteUrlOptionItem({ name: tab.name, websiteUrl: tab.websiteUrl })]
+        : []
+    ) ?? []
+  );
 }
 
 export function selectTabWebsiteUrlQuestion(): MultiSelectQuestion {
@@ -307,14 +312,14 @@ export function selectTabWebsiteUrlQuestion(): MultiSelectQuestion {
 }
 
 function getTabContentUrlOptions(inputs: Inputs): OptionItem[] {
-  const appDefinition = inputs.teamsAppFromTdp as AppDefinition;
-  if (appDefinition?.staticTabs) {
-    const tabsWithContentUrls = appDefinition.staticTabs.filter((o) => !!o.contentUrl);
-    if (tabsWithContentUrls.length > 0) {
-      return tabsWithContentUrls.map((o) => tabContentUrlOptionItem(o));
-    }
-  }
-  return [];
+  const appDefinition = getAppCapabilities(inputs.teamsAppFromTdp);
+  return (
+    appDefinition.staticTabs?.flatMap((tab) =>
+      typeof tab.name === "string" && tab.contentUrl
+        ? [tabContentUrlOptionItem({ name: tab.name, contentUrl: tab.contentUrl })]
+        : []
+    ) ?? []
+  );
 }
 
 export const selectTabsContentUrlQuestion = (): MultiSelectQuestion => {
@@ -343,7 +348,8 @@ const botOptionItem = (isMessageExtension: boolean, botId: string): OptionItem =
   };
 };
 
-function getBotIdAndMeId(appDefinition: AppDefinition) {
+function getBotIdAndMeId(app: DevPortalAppResponse) {
+  const appDefinition = getAppCapabilities(app);
   const bots = appDefinition.bots;
   const messageExtensions = appDefinition.messagingExtensions;
   // can add only one bot. If existing, the length is 1.
@@ -355,7 +361,7 @@ function getBotIdAndMeId(appDefinition: AppDefinition) {
 }
 
 function getBotOptions(inputs: Inputs): OptionItem[] {
-  const appDefinition = inputs.teamsAppFromTdp as AppDefinition;
+  const appDefinition: DevPortalAppResponse | undefined = inputs.teamsAppFromTdp;
   if (!appDefinition) return [];
   const [botId, messageExtensionId] = getBotIdAndMeId(appDefinition);
   const options: OptionItem[] = [];

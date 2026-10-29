@@ -79,7 +79,7 @@ describe("TdpGenerator", function () {
       }
     });
   });
-  describe("post()", () => {
+  describe("run()", () => {
     it("update error", async () => {
       const inputs: Inputs = {
         platform: Platform.CLI,
@@ -91,7 +91,8 @@ describe("TdpGenerator", function () {
       );
       const context = createContext();
       const generator = new TdpGenerator();
-      const res = await generator.post(context, inputs, ".");
+      vi.spyOn(generator, "getTemplateInfos").mockResolvedValue(ok([]));
+      const res = await generator.run(context, inputs, ".");
       chai.assert.isTrue(res.isErr());
     });
     it("happy", async () => {
@@ -103,7 +104,8 @@ describe("TdpGenerator", function () {
       vi.spyOn(developerPortalScaffoldUtils, "updateFilesForTdp").mockResolvedValue(ok(undefined));
       const context = createContext();
       const generator = new TdpGenerator();
-      const res = await generator.post(context, inputs, ".");
+      vi.spyOn(generator, "getTemplateInfos").mockResolvedValue(ok([]));
+      const res = await generator.run(context, inputs, ".");
       chai.assert.isTrue(res.isOk());
     });
   });

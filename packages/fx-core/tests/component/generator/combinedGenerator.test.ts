@@ -74,8 +74,9 @@ describe("combined generator", async () => {
       assert.isTrue(res.isOk());
     });
 
-    it("post calls updateFilesForTdp when teamsAppFromTdp is set", async () => {
+    it("AC-13: run calls updateFilesForTdp when teamsAppFromTdp is set", async () => {
       const generator = new CombinedProjectGenerator();
+      vi.spyOn(generator, "getTemplateInfos").mockResolvedValue(ok([]));
       const context = createContext();
       const inputs: Inputs = {
         platform: Platform.VSCode,
@@ -89,12 +90,13 @@ describe("combined generator", async () => {
       vi.spyOn(fs, "removeSync").mockReturnValue();
       vi.spyOn(developerPortalScaffoldUtils, "updateFilesForTdp").mockResolvedValue(ok(undefined));
 
-      const res = await generator.post(context, inputs, "");
+      const res = await generator.run(context, inputs, "");
       assert.isTrue(res.isOk());
     });
 
-    it("post returns error when updateFilesForTdp fails in TDP flow", async () => {
+    it("AC-13: run returns error when updateFilesForTdp fails in TDP flow", async () => {
       const generator = new CombinedProjectGenerator();
+      vi.spyOn(generator, "getTemplateInfos").mockResolvedValue(ok([]));
       const context = createContext();
       const inputs: Inputs = {
         platform: Platform.VSCode,
@@ -110,7 +112,7 @@ describe("combined generator", async () => {
         err(new UserError("fakeSource", "fakeError", "fakeError"))
       );
 
-      const res = await generator.post(context, inputs, "");
+      const res = await generator.run(context, inputs, "");
       assert.isTrue(res.isErr() && res.error.name === "fakeError");
     });
   });

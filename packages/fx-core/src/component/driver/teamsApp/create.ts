@@ -17,6 +17,7 @@ import * as path from "path";
 import { Service } from "typedi";
 import { v4 } from "uuid";
 import isUUID from "validator/lib/isUUID";
+import { AppResponse } from "../../../client/devPortalModels";
 import {
   isUsingNewDeveloperPortalApis,
   teamsDevPortalClient,
@@ -30,7 +31,12 @@ import { AppDefinition } from "../../driver/teamsApp/interfaces/appdefinitions/a
 import { DriverContext } from "../interface/commonArgs";
 import { ExecutionResult, StepDriver } from "../interface/stepDriver";
 import { addStartAndEndTelemetry } from "../middleware/addStartAndEndTelemetry";
-import { loadStateFromEnv } from "../util/utils";
+import {
+  appIdentityError,
+  defaultAppIdEnvName,
+  getAppTenantId,
+  resolveAppResourceId,
+} from "../../utils/appIdentity";
 import { WrapDriverContext } from "../util/wrapUtil";
 import {
   COLOR_TEMPLATE,
@@ -44,10 +50,6 @@ import { CreateTeamsAppArgs } from "./interfaces/CreateTeamsAppArgs";
 import { AppStudioResultFactory } from "./results";
 
 const actionName = "teamsApp/create";
-
-const defaultOutputNames = {
-  teamsAppId: "TEAMS_APP_ID",
-};
 
 export const internalOutputNames = {
   teamsAppTenantId: "TEAMS_APP_TENANT_ID",
@@ -90,17 +92,34 @@ export class CreateTeamsAppDriver implements StepDriver {
       return err(result.error);
     }
 
-    if (!outputEnvVarNames) {
-      outputEnvVarNames = new Map(Object.entries(defaultOutputNames));
+    if (
+      outputEnvVarNames &&
+      outputEnvVarNames.has("appId") === outputEnvVarNames.has("teamsAppId")
+    ) {
+      return err(
+        new InvalidActionInputError(
+          actionName,
+          ["writeToEnvironmentFile.appId / teamsAppId"],
+          "https://aka.ms/teamsfx-actions/teamsapp-create"
+        )
+      );
     }
+    const appIdEnvName =
+      outputEnvVarNames?.get("appId") ??
+      outputEnvVarNames?.get("teamsAppId") ??
+      defaultAppIdEnvName();
     // Merge internal defaults as a fallback: any env var name the author
     // configured in writeToEnvironmentFile (e.g. teamsAppTenantId) must take
     // precedence over the internal default.
-    outputEnvVarNames = new Map([...Object.entries(internalOutputNames), ...outputEnvVarNames]);
-    const state = loadStateFromEnv(outputEnvVarNames);
+    outputEnvVarNames = new Map([
+      ...Object.entries(internalOutputNames),
+      ...(outputEnvVarNames ?? []),
+    ]);
+    const identity = resolveAppResourceId(process.env, appIdEnvName);
+    if (identity.isErr()) return err(identity.error);
 
     if (isSovereignHigh()) {
-      let teamsAppId = state.teamsAppId;
+      let teamsAppId = identity.value;
 
       if (teamsAppId && isUUID(teamsAppId)) {
         context.addSummary(
@@ -109,7 +128,7 @@ export class CreateTeamsAppDriver implements StepDriver {
       } else {
         teamsAppId = v4();
       }
-      return ok(new Map([[outputEnvVarNames.get("teamsAppId") as string, teamsAppId]]));
+      return ok(new Map([[appIdEnvName, teamsAppId]]));
     }
 
     let create = true;
@@ -121,8 +140,8 @@ export class CreateTeamsAppDriver implements StepDriver {
     }
     const appStudioToken = appStudioTokenRes.value;
 
-    let createdAppDefinition: AppDefinition;
-    const appId = state.teamsAppId;
+    let createdAppDefinition: AppDefinition | AppResponse | undefined;
+    const appId = identity.value;
     if (appId) {
       try {
         createdAppDefinition = await teamsDevPortalClient.getApp(appStudioToken, appId);
@@ -167,18 +186,6 @@ export class CreateTeamsAppDriver implements StepDriver {
             zip.toBuffer()
           );
         }
-        const message = getLocalizedString(
-          "plugins.appstudio.teamsAppCreatedNotice",
-          createdAppDefinition.teamsAppId!
-        );
-        context.logProvider.verbose(message);
-        context.addSummary(message);
-        return ok(
-          new Map([
-            [outputEnvVarNames.get("teamsAppId") as string, createdAppDefinition.teamsAppId!],
-            [outputEnvVarNames.get("teamsAppTenantId") as string, createdAppDefinition.tenantId!],
-          ])
-        );
       } catch (e: any) {
         if (e instanceof UserError || e instanceof SystemError) {
           if (e instanceof UserError && !e.helpLink) {
@@ -194,21 +201,51 @@ export class CreateTeamsAppDriver implements StepDriver {
           return err(error);
         }
       }
-    } else {
-      context.addSummary(
-        getLocalizedString("driver.teamsApp.summary.createTeamsAppAlreadyExists", appId)
-      );
-      context.logProvider.verbose(
-        getLocalizedString("driver.teamsApp.summary.createTeamsAppAlreadyExists", appId)
-      );
-      return ok(
-        new Map([
-          [outputEnvVarNames.get("teamsAppId") as string, createdAppDefinition!.teamsAppId!],
-
-          [outputEnvVarNames.get("teamsAppTenantId") as string, createdAppDefinition!.tenantId!],
-        ])
-      );
     }
+    if (!createdAppDefinition) return err(appIdentityError("app response"));
+    const resourceId =
+      "appProfile" in createdAppDefinition
+        ? createdAppDefinition.appId
+        : createdAppDefinition.teamsAppId;
+    if (
+      !resourceId ||
+      (isUsingNewDeveloperPortalApis() && (!isUUID(resourceId) || (appId && resourceId !== appId)))
+    ) {
+      return err(appIdentityError("appId"));
+    }
+    let tenantId: string | undefined;
+    if ("appProfile" in createdAppDefinition) {
+      const manifestId = createdAppDefinition.appProfile?.appDetails?.applicationManifest?.id;
+      if (manifestId && manifestId !== resourceId && !process.env.APP_MANIFEST_ID) {
+        return err(appIdentityError("APP_MANIFEST_ID"));
+      }
+      if (process.env.APP_MANIFEST_ID && manifestId !== process.env.APP_MANIFEST_ID) {
+        return err(appIdentityError("APP_MANIFEST_ID"));
+      }
+      const tenant = await getAppTenantId(context.m365TokenProvider);
+      if (tenant.isErr()) return err(tenant.error);
+      tenantId = tenant.value;
+    } else {
+      tenantId = createdAppDefinition.tenantId;
+    }
+    if (!tenantId) return err(appIdentityError("tenantId"));
+    const message = getLocalizedString(
+      create
+        ? "plugins.appstudio.teamsAppCreatedNotice"
+        : "driver.teamsApp.summary.createTeamsAppAlreadyExists",
+      resourceId
+    );
+    context.logProvider.verbose(message);
+    context.addSummary(message);
+    return ok(
+      new Map([
+        [appIdEnvName, resourceId],
+        [
+          outputEnvVarNames.get("teamsAppTenantId") ?? internalOutputNames.teamsAppTenantId,
+          tenantId,
+        ],
+      ])
+    );
   }
 
   private validateArgs(args: CreateTeamsAppArgs): Result<any, FxError> {

@@ -45,7 +45,12 @@ provision:
     # Write the information of created resources into environment file for
     # the specified environment variable(s).
     writeToEnvironmentFile:
+      {{#NewDeveloperPortalApis}}
+      appId: APP_ID
+      {{/NewDeveloperPortalApis}}
+      {{^NewDeveloperPortalApis}}
       teamsAppId: TEAMS_APP_ID
+      {{/NewDeveloperPortalApis}}
 
   # Set required variables for local launch
   - uses: script
@@ -59,7 +64,12 @@ provision:
 {{#MicrosoftEntra}}
       name: aadAuthCode
       flow: authorizationCode
+      {{#NewDeveloperPortalApis}}
+      appId: ${{APP_ID}}
+      {{/NewDeveloperPortalApis}}
+      {{^NewDeveloperPortalApis}}
       appId: ${{TEAMS_APP_ID}}
+      {{/NewDeveloperPortalApis}}
       clientId: ${{AAD_APP_CLIENT_ID}}
       # Path to OpenAPI description document
       apiSpecPath: ./appPackage/apiSpecificationFile/repair.yml
@@ -73,7 +83,12 @@ provision:
 {{^MicrosoftEntra}}
       name: oAuth2AuthCode
       flow: authorizationCode
+      {{#NewDeveloperPortalApis}}
+      appId: ${{APP_ID}}
+      {{/NewDeveloperPortalApis}}
+      {{^NewDeveloperPortalApis}}
       appId: ${{TEAMS_APP_ID}}
+      {{/NewDeveloperPortalApis}}
       clientId: ${{AAD_APP_CLIENT_ID}}
       clientSecret: ${{SECRET_AAD_APP_CLIENT_SECRET}}
       # Path to OpenAPI description document
@@ -88,7 +103,12 @@ provision:
     with:
 {{#MicrosoftEntra}}
       name: aadAuthCode
+      {{#NewDeveloperPortalApis}}
+      appId: ${{APP_ID}}
+      {{/NewDeveloperPortalApis}}
+      {{^NewDeveloperPortalApis}}
       appId: ${{TEAMS_APP_ID}}
+      {{/NewDeveloperPortalApis}}
       clientId: ${{AAD_APP_CLIENT_ID}}
       # Path to OpenAPI description document
       apiSpecPath: ./appPackage/apiSpecificationFile/repair.yml
@@ -96,7 +116,12 @@ provision:
 {{/MicrosoftEntra}}
 {{^MicrosoftEntra}}
       name: oAuth2AuthCode
+      {{#NewDeveloperPortalApis}}
+      appId: ${{APP_ID}}
+      {{/NewDeveloperPortalApis}}
+      {{^NewDeveloperPortalApis}}
       appId: ${{TEAMS_APP_ID}}
+      {{/NewDeveloperPortalApis}}
       clientId: ${{AAD_APP_CLIENT_ID}}
       # Path to OpenAPI description document
       apiSpecPath: ./appPackage/apiSpecificationFile/repair.yml

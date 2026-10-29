@@ -31,6 +31,7 @@ import { permissionsKeys } from "../driver/aad/utility/constants";
 import { addStartAndEndTelemetry } from "../driver/middleware/addStartAndEndTelemetry";
 import { Constants } from "../driver/teamsApp/constants";
 import { AppUser } from "../driver/teamsApp/interfaces/appdefinitions/appUser";
+import { getAppUsers } from "../utils/appUsers";
 
 const EventName = {
   grantPermission: "grant-permission",
@@ -184,13 +185,9 @@ export class TeamsCollaboration {
       });
       const appStudioToken = appStudioTokenRes.isOk() ? appStudioTokenRes.value : undefined;
 
-      const userLists = await teamsDevPortalClient.getUserList(
-        appStudioToken as string,
-        teamsAppId
-      );
-      if (!userLists) {
-        return ok([]);
-      }
+      const users = await getAppUsers(appStudioToken as string, teamsAppId, this.tokenProvider);
+      if (users.isErr()) return err(users.error);
+      const userLists = users.value;
 
       const teamsAppAdmin: TeamsAppAdmin[] = userLists
         .filter((userList) => {

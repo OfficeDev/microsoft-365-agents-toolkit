@@ -13,6 +13,8 @@ import { StepContext } from "../../../../src/v4/pipeline/runScaffoldPipeline";
 import { mcpAuthScaffoldDeps } from "../../../../src/v4/mcp/mcpAuthScaffold";
 import { createInMemoryRuntime } from "../../../../src/v4/runtime/inMemoryRuntime";
 import { afterEach, assert, beforeEach, vi } from "vitest";
+import { parseDocument } from "yaml";
+import { FeatureFlagName } from "../../../../src/common/featureFlags";
 
 /** A minimal in-memory `StepContext` whose read/write share one file map. */
 function makeCtx(initial: Record<string, string> = {}): {
@@ -81,9 +83,65 @@ describe("mcp-auth steps (v4)", () => {
 
   afterEach(() => {
     vi.restoreAllMocks();
+    vi.unstubAllEnvs();
   });
 
   describe(STEP_INJECT_YML_ACTION, () => {
+    it.each(["oauth", "entra-sso", "oauth-dynamic", "bearer-token"])(
+      "AC-09: %s preserves per-environment legacy and canonical resource mappings",
+      async (authType) => {
+        vi.stubEnv(FeatureFlagName.NewDeveloperPortalApis, "true");
+        const devYaml = PROVISION_YML.replace(
+          "teamsAppId: TEAMS_APP_ID",
+          "teamsAppId: LEGACY_RESOURCE_ID"
+        );
+        const localYaml = PROVISION_YML.replace("teamsAppId: TEAMS_APP_ID", "appId: APP_ID");
+        const initial = {
+          "m365agents.yml": devYaml,
+          "m365agents.local.yml": localYaml,
+          "env/.env.local": "APP_ID=resource-id\nAPP_MANIFEST_ID=distinct-manifest-id\n",
+        };
+        const { ctx, files } = makeCtx(initial);
+        const params = {
+          ymlPath: "m365agents.yml",
+          optionalYmlPaths: ["m365agents.local.yml"],
+          authType,
+          mcpServerUrl: SERVER_URL,
+        };
+        const result = await mcpAuthInjectYmlAction.apply(params, ctx);
+        assert.isTrue(result.isOk(), result.isErr() ? result.error.message : "expected ok");
+        for (const [file, variable] of [
+          ["m365agents.yml", "LEGACY_RESOURCE_ID"],
+          ["m365agents.local.yml", "APP_ID"],
+        ]) {
+          const document = parseDocument(text(files, file));
+          assert.strictEqual(
+            document.getIn(["provision", 1, "with", "appId"]),
+            `\${{${variable}}}`
+          );
+          const outputKey = file === "m365agents.yml" ? "teamsAppId" : "appId";
+          assert.strictEqual(
+            document.getIn(["provision", 0, "writeToEnvironmentFile", outputKey]),
+            variable
+          );
+          assert.isUndefined(
+            document.getIn([
+              "provision",
+              0,
+              "writeToEnvironmentFile",
+              outputKey === "appId" ? "teamsAppId" : "appId",
+            ])
+          );
+        }
+        assert.strictEqual(text(files, "env/.env.local"), initial["env/.env.local"]);
+        const firstDev = text(files, "m365agents.yml");
+        const firstLocal = text(files, "m365agents.local.yml");
+        assert.isTrue((await mcpAuthInjectYmlAction.apply(params, ctx)).isOk());
+        assert.strictEqual(text(files, "m365agents.yml"), firstDev);
+        assert.strictEqual(text(files, "m365agents.local.yml"), firstLocal);
+      }
+    );
+
     it("validateParams: passes when ymlPath/authType/mcpServerUrl are strings", () => {
       assert.isUndefined(
         mcpAuthInjectYmlAction.validateParams({

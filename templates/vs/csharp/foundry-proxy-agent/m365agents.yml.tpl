@@ -19,7 +19,12 @@ provision:
     # Write the information of created resources into environment file for
     # the specified environment variable(s).
     writeToEnvironmentFile:
+      {{#NewDeveloperPortalApis}}
+      appId: APP_ID
+      {{/NewDeveloperPortalApis}}
+      {{^NewDeveloperPortalApis}}
       teamsAppId: TEAMS_APP_ID
+      {{/NewDeveloperPortalApis}}
 
   # Deploy Azure infrastructure using azure.bicep
   # This deploys all 5 steps: Managed Identity, App Service, Bot Service, App Registration, OAuth Connection

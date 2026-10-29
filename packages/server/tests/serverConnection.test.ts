@@ -532,6 +532,32 @@ describe("serverConnections", () => {
     );
     assert.isTrue(res.isOk());
   });
+  for (const split of [false, true]) {
+    it(`AC-06/AC-13: sync uses native DP resource ID for ${split ? "split" : "equal"} identities`, async () => {
+      const connection = new ServerConnection(msgConn);
+      const sync = sandbox.stub(connection["core"], "syncManifest").resolves(ok(undefined));
+      const resourceId = "11111111-1111-4111-8111-111111111111";
+      const inputs: SyncManifestInputsForVS = {
+        platform: Platform.VS,
+        projectPath: "project",
+        teamsAppFromTdp: {
+          appId: resourceId,
+          appProfile: {
+            appDetails: {
+              applicationManifest: {
+                id: split ? "22222222-2222-4222-8222-222222222222" : resourceId,
+              },
+            },
+          },
+        },
+      };
+      const result = await connection.syncTeamsAppManifestRequest(inputs, CancellationToken.None);
+      assert.isTrue(result.isOk());
+      assert.equal(sync.firstCall.args[0][QuestionNames.TeamsAppId], resourceId);
+      assert.strictEqual(sync.firstCall.args[0].teamsAppFromTdp, inputs.teamsAppFromTdp);
+    });
+  }
+
   it("syncTeamsAppManifestRequest with teamsAppFromTdp but no teamsAppId", async () => {
     const connection = new ServerConnection(msgConn);
     sandbox

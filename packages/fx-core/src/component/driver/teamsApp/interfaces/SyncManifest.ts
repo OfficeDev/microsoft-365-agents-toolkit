@@ -2,7 +2,7 @@
 // Licensed under the MIT license.
 
 import { SyncManifestInputs } from "../../../../question";
-import { AppDefinition } from "./appdefinitions/appDefinition";
+import { DevPortalAppResponse } from "../../../utils/appInfo";
 
 export interface SyncManifestArgs {
   /**
@@ -20,5 +20,5 @@ export interface SyncManifestArgs {
 }
 
 export interface SyncManifestInputsForVS extends SyncManifestInputs {
-  teamsAppFromTdp: AppDefinition;
+  teamsAppFromTdp: DevPortalAppResponse;
 }

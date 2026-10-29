@@ -46,6 +46,8 @@ export class FeatureFlagName {
   // Global switch for the v4 architecture (currently routes scaffold template
   // resolution through the v4 distribution channel).
   static readonly V4Enabled = "TEAMSFX_V4_ENABLED";
+  // Also selects appId/APP_ID for new projects; existing YAML names remain supported.
+  // Split-ID DP handoffs require this flag and preserve APP_MANIFEST_ID separately.
   static readonly NewDeveloperPortalApis = "TEAMSFX_NEW_DP_APIS";
 }
 

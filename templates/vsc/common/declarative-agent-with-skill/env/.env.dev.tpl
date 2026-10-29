@@ -5,7 +5,12 @@ TEAMSFX_ENV=dev
 APP_NAME_SUFFIX=dev
 AGENT_SCOPE=shared
 # Generated during provision, you can also add your own variables.
+{{#NewDeveloperPortalApis}}
+APP_ID=
+{{/NewDeveloperPortalApis}}
+{{^NewDeveloperPortalApis}}
 TEAMS_APP_ID=
+{{/NewDeveloperPortalApis}}
 
 # Environment variables for Agent Evaluations
 AZURE_AI_OPENAI_ENDPOINT=

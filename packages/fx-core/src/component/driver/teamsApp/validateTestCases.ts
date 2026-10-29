@@ -28,6 +28,7 @@ import { waitSeconds } from "../../../common/utils";
 import { FileNotFoundError, InvalidActionInputError } from "../../../error/common";
 import { SummaryConstant } from "../../configManager/constant";
 import { metadataUtil } from "../../utils/metadataUtil";
+import { appIdentityError, resolveProjectAppResourceId } from "../../utils/appIdentity";
 import { DriverContext } from "../interface/commonArgs";
 import { ExecutionResult, StepDriver } from "../interface/stepDriver";
 import { addStartAndEndTelemetry } from "../middleware/addStartAndEndTelemetry";
@@ -93,6 +94,18 @@ export class ValidateWithTestCasesDriver implements StepDriver {
       const manifestTelemetries = manifestUtils.parseCommonTelemetryProperties(manifest as any);
       merge(context.telemetryProperties, manifestTelemetries);
 
+      const identity = await resolveProjectAppResourceId(
+        context.projectPath,
+        process.env,
+        manifest.id
+      );
+      if (identity.isErr()) return err(identity.error);
+      const appId = identity.value;
+      if (!appId) return err(appIdentityError("APP_ID"));
+      if (process.env.APP_MANIFEST_ID && manifest.id !== process.env.APP_MANIFEST_ID) {
+        return err(appIdentityError("APP_MANIFEST_ID / manifest.id"));
+      }
+
       const appStudioTokenRes = await context.m365TokenProvider.getAccessToken({
         scopes: AppStudioScopes(),
       });
@@ -103,7 +116,7 @@ export class ValidateWithTestCasesDriver implements StepDriver {
       // Check if the app has ongoing validation
       const existingValidationResponse = await teamsDevPortalClient.getAppValidationRequestList(
         appStudioToken,
-        manifest.id
+        appId
       );
       if (existingValidationResponse.appValidations) {
         for (const validation of existingValidationResponse.appValidations) {
@@ -119,7 +132,7 @@ export class ValidateWithTestCasesDriver implements StepDriver {
                 },
                 {
                   content: `${getResourceServiceEndpoint(ResourceServiceType.TDP)}/apps/${
-                    manifest.id
+                    appId
                   }/app-validation/${validation.id}`,
                   color: Colors.BRIGHT_CYAN,
                 },
@@ -129,7 +142,7 @@ export class ValidateWithTestCasesDriver implements StepDriver {
               const message = getLocalizedString(
                 "driver.teamsApp.progressBar.validateWithTestCases.conflict",
                 `${getResourceServiceEndpoint(ResourceServiceType.TDP)}/apps/${
-                  manifest.id
+                  appId
                 }/app-validation/${validation.id}`
               );
               context.logProvider.warning(message);
@@ -139,7 +152,7 @@ export class ValidateWithTestCasesDriver implements StepDriver {
         }
       }
       const response: AsyncAppValidationResponse =
-        await teamsDevPortalClient.submitAppValidationRequest(appStudioToken, manifest.id);
+        await teamsDevPortalClient.submitAppValidationRequest(appStudioToken, appId);
 
       if (context.platform === Platform.CLI) {
         const message: Array<{ content: string; color: Colors }> = [
@@ -149,7 +162,7 @@ export class ValidateWithTestCasesDriver implements StepDriver {
           },
           {
             content: `${getResourceServiceEndpoint(ResourceServiceType.TDP)}/apps/${
-              manifest.id
+              appId
             }/app-validation/${response.appValidationId}`,
             color: Colors.BRIGHT_CYAN,
           },
@@ -159,14 +172,12 @@ export class ValidateWithTestCasesDriver implements StepDriver {
         const message = getLocalizedString(
           "driver.teamsApp.progressBar.validateWithTestCases.step",
           response.status,
-          `${getResourceServiceEndpoint(ResourceServiceType.TDP)}/apps/${
-            manifest.id
-          }/app-validation`
+          `${getResourceServiceEndpoint(ResourceServiceType.TDP)}/apps/${appId}/app-validation`
         );
         context.logProvider.info(message);
 
         // Do not await the final validation result, return immediately
-        void this.runningBackgroundJob(args, context, appStudioToken, response, manifest.id);
+        void this.runningBackgroundJob(args, context, appStudioToken, response, appId);
       }
       return ok(new Map());
     } else {

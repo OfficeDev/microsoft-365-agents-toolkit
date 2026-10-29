@@ -27,7 +27,10 @@ export class ActionInjector {
   static getTeamsAppIdEnvName(provisionNode: any): string | undefined {
     for (const item of provisionNode.items) {
       if (item.get("uses") === "teamsApp/create") {
-        return item.get("writeToEnvironmentFile")?.get("teamsAppId") as string;
+        return (
+          item.get("writeToEnvironmentFile")?.get("appId") ??
+          item.get("writeToEnvironmentFile")?.get("teamsAppId")
+        );
       }
     }
 

@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
 import { hooks } from "@feathersjs/hooks/lib";
 import {
   err,
@@ -20,6 +23,8 @@ import { parseSetOutputCommand } from "../../src/component/driver/script/scriptD
 import { manifestUtils } from "../../src/component/driver/teamsApp/utils/ManifestUtils";
 import { EnvLoaderMW, EnvWriterMW } from "../../src/component/middleware/envMW";
 import { DotenvOutput, dotenvUtil, envUtil } from "../../src/component/utils/envUtil";
+import { Lifecycle } from "../../src/component/configManager/lifecycle";
+import { metadataUtil } from "../../src/component/utils/metadataUtil";
 import { pathUtils } from "../../src/component/utils/pathUtils";
 import { settingsUtil } from "../../src/component/utils/settingsUtil";
 import { LocalCrypto } from "../../src/core/crypto";
@@ -504,6 +509,85 @@ describe("envUtils", () => {
   });
 
   describe("EnvLoaderMW", () => {
+    for (const enabled of [true, false]) {
+      it(`AC-04/AC-15: guards custom split-ID mappings before lifecycle (flag ${enabled})`, async () => {
+        vi.stubEnv("TEAMSFX_NEW_DP_APIS", String(enabled));
+        vi.spyOn(envUtil, "readEnv").mockResolvedValue(
+          ok({
+            CUSTOM_ID: "11111111-1111-4111-8111-111111111111",
+            APP_MANIFEST_ID: "22222222-2222-4222-8222-222222222222",
+          })
+        );
+        vi.spyOn(pathUtils, "getYmlFilePath").mockReturnValue("m365agents.local.yml");
+        vi.spyOn(metadataUtil, "parse").mockResolvedValue(
+          ok({
+            version: "1.13",
+            provision: new Lifecycle(
+              "provision",
+              [
+                {
+                  uses: "teamsApp/create",
+                  with: { name: "test" },
+                  writeToEnvironmentFile: { appId: "CUSTOM_ID" },
+                },
+              ],
+              "1.13"
+            ),
+          })
+        );
+        let called = false;
+        class MyClass {
+          async myMethod(_inputs: Inputs): Promise<Result<undefined, FxError>> {
+            called = true;
+            return ok(undefined);
+          }
+        }
+        hooks(MyClass, { myMethod: [EnvLoaderMW(true)] });
+        try {
+          const result = await new MyClass().myMethod({
+            platform: Platform.VSCode,
+            projectPath: ".",
+            env: "local",
+          });
+          assert.equal(result.isOk(), enabled);
+          assert.equal(called, enabled);
+          if (result.isErr()) assert.include(result.error.message, "TEAMSFX_NEW_DP_APIS");
+        } finally {
+          vi.unstubAllEnvs();
+        }
+      });
+    }
+
+    it("AC-15: prevents lifecycle mutation for a split-ID project with the flag off", async () => {
+      vi.stubEnv("TEAMSFX_NEW_DP_APIS", "false");
+      vi.spyOn(envUtil, "readEnv").mockResolvedValue(
+        ok({
+          APP_ID: "11111111-1111-4111-8111-111111111111",
+          APP_MANIFEST_ID: "22222222-2222-4222-8222-222222222222",
+        })
+      );
+      let called = false;
+      class MyClass {
+        async myMethod(_inputs: Inputs): Promise<Result<undefined, FxError>> {
+          called = true;
+          return ok(undefined);
+        }
+      }
+      hooks(MyClass, { myMethod: [EnvLoaderMW(true)] });
+      try {
+        const result = await new MyClass().myMethod({
+          platform: Platform.VSCode,
+          projectPath: ".",
+          env: "local",
+        });
+        assert.isTrue(result.isErr());
+        assert.isFalse(called);
+        if (result.isErr()) assert.include(result.error.message, "TEAMSFX_NEW_DP_APIS");
+      } finally {
+        vi.unstubAllEnvs();
+      }
+    });
+
     it("Enables local env when manifest is Declarative Agent", async () => {
       vi.spyOn(manifestUtils, "readAppManifest").mockResolvedValue(
         ok({ copilotAgents: { declarativeAgents: [{}] } } as any)

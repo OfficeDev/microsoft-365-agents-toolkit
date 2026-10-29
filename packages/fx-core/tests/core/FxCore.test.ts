@@ -63,6 +63,7 @@ import { metadataUtil } from "../../src/component/utils/metadataUtil";
 import { pathUtils } from "../../src/component/utils/pathUtils";
 import * as collaborator from "../../src/core/collaborator";
 import { environmentManager } from "../../src/core/environment";
+import { FeatureFlagName } from "../../src/common/featureFlags";
 import { CoreHookContext } from "../../src/core/types";
 import {
   FileNotFoundError,
@@ -2312,45 +2313,51 @@ describe("getTeamsAppName", async () => {
 describe("getProjectInfo", async () => {
   afterEach(() => {
     vi.restoreAllMocks();
+    vi.unstubAllEnvs();
   });
-  it("happy path", async () => {
-    vi.spyOn(pathUtils, "getYmlFilePath").mockReturnValue("./m365agents.yml");
-    const mockProjectModel: any = {
-      projectId: "mock-project-id",
-      provision: {
-        name: "provision",
-        driverDefs: [
-          {
-            uses: "teamsApp/create",
-            with: {
-              name: "testappname-${{TEAMSFX_ENV}}",
-            },
-            writeToEnvironmentFile: {
-              teamsAppId: "TEAMS_APP_ID",
-            },
-          },
-        ],
-      },
-    };
-    vi.spyOn(metadataUtil, "parse").mockResolvedValue(ok(mockProjectModel));
-    vi.spyOn(envUtil, "readEnv").mockResolvedValue(
-      ok({
-        TEAMS_APP_ID: "mock-team-app-id",
-        TEAMS_APP_TENANT_ID: "mock-tenant-id",
-      })
-    );
-    const core = new FxCore(tools);
-    const res = await core.getProjectInfo(".", "dev");
-    assert.isTrue(res.isOk());
-    if (res.isOk()) {
-      assert.deepEqual(res.value, {
+  it.each(["false", "true"])(
+    "AC-20: project info uses canonical fallback only with flag %s",
+    async (flag) => {
+      vi.stubEnv(FeatureFlagName.NewDeveloperPortalApis, flag);
+      vi.spyOn(pathUtils, "getYmlFilePath").mockReturnValue("./m365agents.yml");
+      const mockProjectModel: any = {
         projectId: "mock-project-id",
-        teamsAppId: "mock-team-app-id",
-        m365TenantId: "mock-tenant-id",
-        teamsAppName: "testappname",
-      });
+        provision: {
+          name: "provision",
+          driverDefs: [
+            {
+              uses: "teamsApp/create",
+              with: {
+                name: "testappname-${{TEAMSFX_ENV}}",
+              },
+              writeToEnvironmentFile: {
+                teamsAppId: "TEAMS_APP_ID",
+              },
+            },
+          ],
+        },
+      };
+      vi.spyOn(metadataUtil, "parse").mockResolvedValue(ok(mockProjectModel));
+      vi.spyOn(envUtil, "readEnv").mockResolvedValue(
+        ok({
+          TEAMS_APP_ID: "",
+          APP_ID: "mock-team-app-id",
+          TEAMS_APP_TENANT_ID: "mock-tenant-id",
+        })
+      );
+      const core = new FxCore(tools);
+      const res = await core.getProjectInfo(".", "dev");
+      assert.isTrue(res.isOk());
+      if (res.isOk()) {
+        assert.deepEqual(res.value, {
+          projectId: "mock-project-id",
+          teamsAppId: flag === "true" ? "mock-team-app-id" : "",
+          m365TenantId: "mock-tenant-id",
+          teamsAppName: "testappname",
+        });
+      }
     }
-  });
+  );
   it("parse yml error", async () => {
     vi.spyOn(pathUtils, "getYmlFilePath").mockReturnValue("./m365agents.yml");
     vi.spyOn(metadataUtil, "parse").mockResolvedValue(err(new UserError({})));

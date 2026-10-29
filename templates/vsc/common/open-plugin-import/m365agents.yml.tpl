@@ -10,7 +10,12 @@ provision:
     with:
       name: {{appName}}${{APP_NAME_SUFFIX}}
     writeToEnvironmentFile:
+      {{#NewDeveloperPortalApis}}
+      appId: APP_ID
+      {{/NewDeveloperPortalApis}}
+      {{^NewDeveloperPortalApis}}
       teamsAppId: TEAMS_APP_ID
+      {{/NewDeveloperPortalApis}}
 
   - uses: teamsApp/zipAppPackage
     with:
