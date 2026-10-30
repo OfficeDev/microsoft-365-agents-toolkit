@@ -2,6 +2,9 @@
 // Licensed under the MIT license.
 
 import { Platform, err, ok } from "@microsoft/teamsfx-api";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { teamsappMgr } from "../../src/component/driver/teamsApp/teamsappMgr";
 import { PackageService } from "../../src/component/m365/packageService";
@@ -220,29 +223,130 @@ describe("FxCoreClient", () => {
     }
   });
 
-  it("publish_CompletedOperation_ReturnsPackagePath", async () => {
-    const publishSpy = vi.spyOn(FxCore.prototype, "publishTeamsAppCLIV3").mockResolvedValue(ok());
+  it("PUBLISH-CLIENT-02: publish forwards inputs and signal to the YAML lifecycle", async () => {
+    const publishSpy = vi.spyOn(FxCore.prototype, "publishApplication").mockResolvedValue(ok());
+    const legacyPublishSpy = vi.spyOn(FxCore.prototype, "publishTeamsAppCLIV3");
     const controller = new AbortController();
     const client = new FxCoreClient(new MockTools());
-
-    const result = await client.publish(
-      {
-        platform: Platform.CLI,
-        projectPath: "project",
-        env: "dev",
-        "package-file": "app.zip",
-      },
-      { signal: controller.signal }
-    );
+    const inputs = {
+      platform: Platform.CLI,
+      nonInteractive: true,
+      projectPath: "project",
+      env: "dev",
+    };
+    const result = await client.publish(inputs, { signal: controller.signal });
 
     expect(result.isOk()).toBe(true);
     if (result.isOk()) {
-      expect(result.value.packagePath).toBe("app.zip");
+      expect(result.value).toBeUndefined();
     }
-    expect(publishSpy).toHaveBeenCalledWith(
-      expect.objectContaining({ abortSignal: controller.signal })
-    );
+    expect(publishSpy).toHaveBeenCalledWith({ ...inputs, abortSignal: controller.signal });
+    expect(legacyPublishSpy).not.toHaveBeenCalled();
+    expect(inputs).not.toHaveProperty("abortSignal");
   });
+
+  it("PUBLISH-CLIENT-03: pre-cancelled publish never invokes the engine", async () => {
+    const publishSpy = vi.spyOn(FxCore.prototype, "publishApplication");
+    const legacyPublishSpy = vi.spyOn(FxCore.prototype, "publishTeamsAppCLIV3");
+    const controller = new AbortController();
+    controller.abort();
+    const client = new FxCoreClient(new MockTools());
+
+    const result = await client.publish(
+      { platform: Platform.CLI, projectPath: "project", env: "dev" },
+      { signal: controller.signal }
+    );
+
+    expect(result.isErr()).toBe(true);
+    if (result.isErr()) expect(result.error.name).toBe("UserCancel");
+    expect(publishSpy).not.toHaveBeenCalled();
+    expect(legacyPublishSpy).not.toHaveBeenCalled();
+  });
+
+  it("PUBLISH-CLIENT-03: cancellation during successful publishing returns UserCancel", async () => {
+    const controller = new AbortController();
+    vi.spyOn(FxCore.prototype, "publishApplication").mockImplementation(async () => {
+      controller.abort();
+      return ok(undefined);
+    });
+    const client = new FxCoreClient(new MockTools());
+
+    const result = await client.publish(
+      { platform: Platform.CLI, projectPath: "project", env: "dev" },
+      { signal: controller.signal }
+    );
+
+    expect(result.isErr()).toBe(true);
+    if (result.isErr()) expect(result.error.name).toBe("UserCancel");
+  });
+
+  it.each([false, true])(
+    "PUBLISH-CLIENT-04: lifecycle errors are preserved with cancellation=%s",
+    async (cancel) => {
+      const expectedError = new UserCancelError("test-publish");
+      const controller = new AbortController();
+      vi.spyOn(FxCore.prototype, "publishApplication").mockImplementation(async () => {
+        if (cancel) controller.abort();
+        return err(expectedError);
+      });
+      const client = new FxCoreClient(new MockTools());
+
+      const result = await client.publish(
+        { platform: Platform.CLI, projectPath: "project", env: "dev" },
+        { signal: controller.signal }
+      );
+
+      expect(result.isErr()).toBe(true);
+      if (result.isErr()) expect(result.error).toBe(expectedError);
+    }
+  );
+
+  it.each(["dev", "local"])(
+    "PUBLISH-CLIENT-01: publishing %s executes real YAML without tenant writes",
+    async (env) => {
+      const folder = mkdtempSync(join(tmpdir(), "fx-core-client-publish-"));
+      try {
+        mkdirSync(join(folder, "env"));
+        writeFileSync(join(folder, "env", `.env.${env}`), `TEAMSFX_ENV=${env}\n`);
+        writeFileSync(join(folder, "m365agents.yml"), "version: v1.12\n");
+        writeFileSync(
+          join(folder, env === "local" ? "m365agents.local.yml" : "m365agents.yml"),
+          [
+            "version: v1.12",
+            "environmentFolderPath: ./env",
+            "provision:",
+            "  - uses: file/createOrUpdateEnvironmentFile",
+            "    with:",
+            "      target: ./provision.env",
+            "      envs:",
+            '        PROVISION_EXECUTED: "true"',
+            "publish:",
+            "  - uses: file/createOrUpdateEnvironmentFile",
+            "    with:",
+            "      target: ./publish.env",
+            "      envs:",
+            `        PUBLISHED_ENV: "${env}"`,
+            "",
+          ].join("\n")
+        );
+        const client = new FxCoreClient(new MockTools());
+
+        const result = await client.publish({
+          platform: Platform.CLI,
+          nonInteractive: true,
+          projectPath: folder,
+          env,
+        });
+
+        expect(result.isOk()).toBe(true);
+        if (result.isOk()) expect(result.value).toBeUndefined();
+        expect(readFileSync(join(folder, "publish.env"), "utf8")).toContain(`PUBLISHED_ENV=${env}`);
+        expect(existsSync(join(folder, "provision.env"))).toBe(false);
+      } finally {
+        rmSync(folder, { recursive: true, force: true });
+      }
+    }
+  );
 
   it("validate_RejectedPackage_ReturnsSuccessfulDomainOutcome", async () => {
     vi.spyOn(teamsappMgr, "validateTeamsAppForClient").mockResolvedValue(
@@ -444,7 +548,7 @@ describe("FxCoreClient", () => {
     const expectedError = new UserCancelError("test");
     vi.spyOn(FxCore.prototype, "provisionResources").mockResolvedValue(err(expectedError));
     vi.spyOn(FxCore.prototype, "packageTeamsAppCLIV3").mockResolvedValue(err(expectedError));
-    vi.spyOn(FxCore.prototype, "publishTeamsAppCLIV3").mockResolvedValue(err(expectedError));
+    vi.spyOn(FxCore.prototype, "publishApplication").mockResolvedValue(err(expectedError));
     vi.spyOn(teamsappMgr, "validateTeamsAppForClient").mockResolvedValue(err(expectedError));
     vi.spyOn(FxCore.prototype, "uninstall").mockResolvedValue(err(expectedError));
     const client = new FxCoreClient(new MockTools());

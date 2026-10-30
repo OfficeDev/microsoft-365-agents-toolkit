@@ -6,6 +6,19 @@ The TeamsFx Core package implements shared capabilities for Microsoft 365 Agents
 
 Requires Node.js 20.19.0 or later in the 20.x series, or Node.js 22.12.0 or later, matching the OpenAPI parser dependency's runtime requirements.
 
+## Publishing through FxCoreClient
+
+`FxCoreClient.publish` runs the selected environment's YAML `publish:` lifecycle
+through `FxCore.publishApplication`. Provide `projectPath` and `env`; publishing
+actions and output mappings come from the project configuration.
+
+The success value is `undefined`, not a package path. Consumers of the former
+`packagePath` result must update; `FxCoreClient.package` still returns the ZIP path.
+The legacy `FxCore.publishTeamsAppCLIV3` API remains unchanged for callers that
+explicitly need Teams package submission. See the
+[client publishing contract](../../docs/03-specs/operations/lifecycle/publish-client.md)
+for cancellation and error semantics.
+
 ## Updating an existing DCR configuration
 
 The opt-in `dcr/update` lifecycle action updates an existing authentication
