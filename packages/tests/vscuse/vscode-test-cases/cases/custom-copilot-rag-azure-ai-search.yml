@@ -171,11 +171,12 @@ cases:
   - id: rag-azure-ai-search-py-azure-openai-remote-teams
     scenarioId: SCN-CREATE-RAG-AZURE-SEARCH-04
     workItemIds: [27454388]
+    # Notification readiness leaves the center covering terminal success markers.
     steps:
       [
         scaffold-rag-search-py-azure-openai,
         check-rag-search-py-azure-openai,
-        create-python-environment,
+        create-python-environment-verified,
         fill-dev-python-azure-search-credentials,
         login-azure,
         login-m365,

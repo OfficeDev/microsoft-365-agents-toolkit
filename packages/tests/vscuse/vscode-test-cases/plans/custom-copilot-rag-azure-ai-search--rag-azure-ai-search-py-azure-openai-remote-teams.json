@@ -8,7 +8,7 @@
       "precondition_wait_timeout": 30,
       "precondition_retry_interval": 1
     },
-    "total_steps": 223,
+    "total_steps": 218,
     "name": "rag-azure-ai-search-py-azure-openai-remote-teams",
     "description": {
       "owner": "",
@@ -96,12 +96,7 @@
       "step_pythonDependencies_selectAll_ce3d0110e_3_4",
       "step_pythonDependencies_restoreFocus_ce3d0110e_3_4",
       "step_pythonDependencies_confirm_ce3d0110e_3_4",
-      "step_executeCommand_open_ce3d0110e_3_5",
-      "step_executeCommand_assertPalette_ce3d0110e_3_5",
-      "step_executeCommand_filter_ce3d0110e_3_5",
-      "step_executeCommand_assertCommand_ce3d0110e_3_5",
-      "step_executeCommand_execute_ce3d0110e_3_5",
-      "step_assertNotificationContains_assert_ce3d0110e_3_6",
+      "step_verifyPythonRequirements_ce3d0110e_3_5",
       "step_setUserEnvironmentVariable_openTerminal_ce3d0110e_4_1",
       "step_setUserEnvironmentVariable_assertTerminal_ce3d0110e_4_1",
       "step_setUserEnvironmentVariable_typeCommand_ce3d0110e_4_1",
@@ -1990,13 +1985,13 @@
       ]
     },
     {
-      "step_id": "step_executeCommand_open_ce3d0110e_3_5",
-      "agent": "interaction",
-      "tool": "key_press",
+      "step_id": "step_verifyPythonRequirements_ce3d0110e_3_5",
+      "agent": "code",
+      "tool": "",
       "parameters": {
-        "key": "f1"
+        "sample": "=== Generated Script ===\nLanguage: bash\n\n```bash\nset -euo pipefail\nexport PROJECT_DIR=\"/home/vscode/AgentsToolkitProjects/${{var:app_name}}\"\nREQUIREMENTS_PATH=\"src/requirements.txt\" \"$PROJECT_DIR/.venv/bin/python\" - <<'PY'\nimport os\nimport sys\nfrom importlib.metadata import version\nfrom pathlib import Path\nfrom pip._vendor.packaging.requirements import Requirement\n\nproject = Path(os.environ[\"PROJECT_DIR\"]).resolve()\nif Path(sys.prefix).resolve() != project / \".venv\":\n    raise AssertionError(\"The project virtual environment is not active\")\nrequirements = (project / os.environ[\"REQUIREMENTS_PATH\"]).read_text(encoding=\"utf-8\")\nchecked = 0\nfor line in requirements.splitlines():\n    line = line.strip()\n    if not line or line.startswith(\"#\"):\n        continue\n    requirement = Requirement(line)\n    if requirement.marker and not requirement.marker.evaluate():\n        continue\n    installed = version(requirement.name)\n    if not requirement.specifier.contains(installed, prereleases=True):\n        raise AssertionError(f\"Installed version does not satisfy {requirement.name}\")\n    checked += 1\nif checked == 0:\n    raise AssertionError(\"No active Python requirements were verified\")\nprint(f\"Verified {checked} installed Python requirements\")\nPY\n\"$PROJECT_DIR/.venv/bin/python\" -m pip check\n```"
       },
-      "description": "Press the F1 key to open the Command Palette in Visual Studio Code.",
+      "description": "@code execute the supplied generated bash script exactly as authored; verify the project's Python virtual environment satisfies its declared requirements and has no broken dependencies, without installing packages or logging file contents.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -2007,115 +2002,9 @@
       "preconditions": [],
       "postconditions": [],
       "tags": [
-        "component:command-palette",
-        "action:execute-command"
-      ]
-    },
-    {
-      "step_id": "step_executeCommand_assertPalette_ce3d0110e_3_5",
-      "agent": "assertion",
-      "tool": "",
-      "parameters": {},
-      "description": "@assertion the Visual Studio Code Command Palette is visible with a > character in its input box and is ready to accept a command search.",
-      "content_refs": [],
-      "timeout": 30,
-      "retry_count": 0,
-      "continue_on_error": "false",
-      "depends_on": [
-        "step_executeCommand_open_ce3d0110e_3_5"
-      ],
-      "preconditions": [],
-      "postconditions": [],
-      "tags": [
-        "component:command-palette",
-        "action:execute-command",
-        "step_retry_timeout: 30"
-      ]
-    },
-    {
-      "step_id": "step_executeCommand_filter_ce3d0110e_3_5",
-      "agent": "interaction",
-      "tool": "type_text",
-      "parameters": {
-        "text": "Notifications: Show Notifications"
-      },
-      "description": "Type the resolved command title into the active Command Palette.",
-      "content_refs": [],
-      "timeout": 30,
-      "retry_count": 0,
-      "continue_on_error": "false",
-      "depends_on": [
-        "step_executeCommand_assertPalette_ce3d0110e_3_5"
-      ],
-      "preconditions": [],
-      "postconditions": [],
-      "tags": [
-        "component:command-palette",
-        "action:execute-command"
-      ]
-    },
-    {
-      "step_id": "step_executeCommand_assertCommand_ce3d0110e_3_5",
-      "agent": "assertion",
-      "tool": "",
-      "parameters": {},
-      "description": "@assertion the Command Palette input box reads >Notifications: Show Notifications and the highlighted command listed under it is titled Notifications: Show Notifications.",
-      "content_refs": [],
-      "timeout": 30,
-      "retry_count": 0,
-      "continue_on_error": "false",
-      "depends_on": [
-        "step_executeCommand_filter_ce3d0110e_3_5"
-      ],
-      "preconditions": [],
-      "postconditions": [],
-      "tags": [
-        "component:command-palette",
-        "action:execute-command",
-        "step_retry_timeout: 30"
-      ]
-    },
-    {
-      "step_id": "step_executeCommand_execute_ce3d0110e_3_5",
-      "agent": "interaction",
-      "tool": "key_press",
-      "parameters": {
-        "key": "enter"
-      },
-      "description": "Press Enter to execute the selected Command Palette command.",
-      "content_refs": [],
-      "timeout": 30,
-      "retry_count": 0,
-      "continue_on_error": "false",
-      "depends_on": [
-        "step_executeCommand_assertCommand_ce3d0110e_3_5"
-      ],
-      "preconditions": [],
-      "postconditions": [],
-      "tags": [
-        "component:command-palette",
-        "action:execute-command"
-      ]
-    },
-    {
-      "step_id": "step_assertNotificationContains_assert_ce3d0110e_3_6",
-      "agent": "assertion",
-      "tool": "",
-      "parameters": {},
-      "description": "@assertion a visible Visual Studio Code notification contains the literal text The following environment is selected:. A notification with different text, including an in-progress notification, does not satisfy this assertion.",
-      "content_refs": [],
-      "timeout": 30,
-      "retry_count": 0,
-      "continue_on_error": "false",
-      "depends_on": [
-        "step_executeCommand_execute_ce3d0110e_3_5"
-      ],
-      "preconditions": [],
-      "postconditions": [],
-      "tags": [
-        "component:notifications",
-        "action:assert-contains",
-        "step_retry_timeout: 300"
+        "component:checks",
+        "assertion:python-requirements",
+        "step_retry_timeout:300"
       ]
     },
     {
@@ -2131,7 +2020,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_assertNotificationContains_assert_ce3d0110e_3_6"
+        "step_verifyPythonRequirements_ce3d0110e_3_5"
       ],
       "preconditions": [],
       "postconditions": [],
