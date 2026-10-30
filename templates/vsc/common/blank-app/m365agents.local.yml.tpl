@@ -49,3 +49,34 @@ provision:
       titleId: M365_TITLE_ID
       appId: M365_APP_ID
       shareLink: SHARE_LINK
+
+publish:
+  # Build app package with latest env value
+  - uses: teamsApp/zipAppPackage
+    with:
+      # Path to manifest template
+      manifestPath: ./appPackage/manifest.json
+      outputZipPath: ./appPackage/build/appPackage.${{TEAMSFX_ENV}}.zip
+      outputFolder: ./appPackage/build
+  # Validate app package using validation rules
+  - uses: teamsApp/validateAppPackage
+    with:
+      # Relative path to this file. This is the path for built zip file.
+      appPackagePath: ./appPackage/build/appPackage.${{TEAMSFX_ENV}}.zip
+  # Apply the app manifest to an existing app in Developer Portal.
+  # Will use the app id in manifest file to determine which app to update.
+  - uses: teamsApp/update
+    with:
+      # Relative path to this file. This is the path for built zip file.
+      appPackagePath: ./appPackage/build/appPackage.${{TEAMSFX_ENV}}.zip
+  # Submit the app to the tenant catalog through the Microsoft 365 publishing service.
+  - uses: copilotAgent/publish
+    with:
+      # Relative path to this file. This is the path for built zip file.
+      appPackagePath: ./appPackage/build/appPackage.${{TEAMSFX_ENV}}.zip
+      scope: tenant
+    # Store tenant publication IDs separately from provisioning IDs.
+    # Tenant publishing does not generate a share link.
+    writeToEnvironmentFile:
+      titleId: M365_PUBLISHED_TITLE_ID
+      appId: M365_PUBLISHED_APP_ID

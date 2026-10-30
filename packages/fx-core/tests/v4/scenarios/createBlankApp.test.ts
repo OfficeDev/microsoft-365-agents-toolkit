@@ -3,6 +3,10 @@
 
 import { UserError } from "@microsoft/teamsfx-api";
 import { assert } from "vitest";
+import * as fs from "fs-extra";
+import * as path from "path";
+import mustache from "mustache";
+import * as yaml from "js-yaml";
 import { REQUIRE_EMPTY_TARGET } from "../../../src/v4/pipeline/runScaffoldPipeline";
 import { createInMemoryRuntime } from "../../../src/v4/runtime/inMemoryRuntime";
 import { scaffold } from "../../../src/v4/runtime/scaffold";
@@ -64,7 +68,7 @@ describe("SCN-TEAMS-CREATE-BLANK-APP (v4, T3 InMemoryRuntime)", () => {
     assert.include(yml, "uses: teamsApp/zipAppPackage");
     assert.include(yml, "uses: teamsApp/validateAppPackage");
     assert.include(yml, "uses: teamsApp/update");
-    assert.include(yml, "uses: teamsApp/publishAppPackage");
+    assert.notInclude(yml, "uses: teamsApp/publishAppPackage");
   });
 
   it("SCN-CREATE-BLANK-04: only require-empty-target runs", async () => {
@@ -98,5 +102,43 @@ describe("SCN-TEAMS-CREATE-BLANK-APP (v4, T3 InMemoryRuntime)", () => {
     const { files } = await run();
     assert.include(text(files, "env/.env.local"), "AGENT_SCOPE=shared");
     assert.include(text(files, "m365agents.local.yml"), "scope: ${{AGENT_SCOPE}}");
+  });
+
+  it("SCN-CREATE-BLANK-07: existing and v4 templates publish to the tenant with MOS outputs", async () => {
+    const { files } = await run();
+    for (const name of ["m365agents.yml", "m365agents.local.yml"]) {
+      const existing = mustache.render(
+        await fs.readFile(
+          path.resolve(__dirname, "../../../../../templates/vsc/common/blank-app", `${name}.tpl`),
+          "utf8"
+        ),
+        {
+          appName,
+          APP_NAME_SUFFIX: "{{APP_NAME_SUFFIX}}",
+          TEAMSFX_ENV: "{{TEAMSFX_ENV}}",
+          AGENT_SCOPE: "{{AGENT_SCOPE}}",
+        }
+      );
+      const rendered = text(files, name);
+      assert.deepStrictEqual(yaml.load(rendered), yaml.load(existing));
+      for (const content of [existing, rendered]) {
+        const [provision, publish] = content.split("\npublish:");
+        assert.include(publish, "uses: teamsApp/zipAppPackage");
+        assert.include(publish, "uses: teamsApp/validateAppPackage");
+        assert.include(publish, "uses: teamsApp/update");
+        assert.include(publish, "uses: copilotAgent/publish");
+        assert.include(publish, "scope: tenant");
+        assert.include(publish, "titleId: M365_PUBLISHED_TITLE_ID");
+        assert.include(publish, "appId: M365_PUBLISHED_APP_ID");
+        assert.notInclude(publish, "shareLink:");
+        assert.notInclude(publish, "titleId: M365_TITLE_ID");
+        assert.notInclude(publish, "appId: M365_APP_ID");
+        assert.notInclude(publish, "teamsApp/publishAppPackage");
+        assert.include(provision, "scope: ${{AGENT_SCOPE}}");
+        assert.include(provision, "titleId: M365_TITLE_ID");
+        assert.include(provision, "appId: M365_APP_ID");
+        assert.include(provision, "shareLink: SHARE_LINK");
+      }
+    }
   });
 });

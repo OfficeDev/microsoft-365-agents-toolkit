@@ -40,9 +40,8 @@ export interface FxCorePackageResult {
   packagePath: string;
 }
 
-export interface FxCorePublishResult {
-  packagePath: string;
-}
+/** Lifecycle outputs are persisted to the environment, not returned as a ZIP path. */
+export type FxCorePublishResult = undefined;
 
 export type FxCoreValidationSeverity = "error" | "warning" | "info";
 
@@ -69,6 +68,8 @@ export type FxCoreLaunchInfoInputs =
 export type FxCoreLaunchInfoResult = Record<string, unknown>;
 
 export type FxCoreProvisionInputs = InputsWithProjectPath & { env: string };
+
+export type FxCorePublishInputs = InputsWithProjectPath & { env: string };
 
 /** Inputs for adding an OpenAPI or MCP action to an existing project. */
 export type FxCoreAddPluginInputs = AddPluginInputs &
@@ -119,7 +120,7 @@ export interface IFxCoreClient {
     options?: FxCoreExecutionOptions
   ): Promise<Result<FxCorePackageResult, FxError>>;
   publish(
-    inputs: TeamsAppInputs,
+    inputs: FxCorePublishInputs,
     options?: FxCoreExecutionOptions
   ): Promise<Result<FxCorePublishResult, FxError>>;
   validate(
@@ -196,17 +197,17 @@ export class FxCoreClient implements IFxCoreClient {
   }
 
   public async publish(
-    inputs: TeamsAppInputs,
+    inputs: FxCorePublishInputs,
     options?: FxCoreExecutionOptions
   ): Promise<Result<FxCorePublishResult, FxError>> {
     const cancelled = this.cancelled<FxCorePublishResult>(options?.signal);
     if (cancelled) return cancelled;
     const clientInputs = this.withSignal(inputs, options?.signal);
-    const result = await this.core.publishTeamsAppCLIV3(clientInputs);
+    const result = await this.core.publishApplication(clientInputs);
     if (result.isErr()) return err(result.error);
     const afterOperation = this.cancelled<FxCorePublishResult>(options?.signal);
     if (afterOperation) return afterOperation;
-    return ok({ packagePath: clientInputs["package-file"] as string });
+    return ok(undefined);
   }
 
   public async validate(
