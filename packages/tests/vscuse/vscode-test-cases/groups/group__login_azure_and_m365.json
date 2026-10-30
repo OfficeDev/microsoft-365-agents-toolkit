@@ -8,7 +8,7 @@
       "precondition_wait_timeout": 60,
       "precondition_retry_interval": 2
     },
-    "total_steps": 30,
+    "total_steps": 31,
     "created_at": "2026-06-11T03:17:05.683269",
     "name": "group: login_azure_and_m365",
     "description": {
@@ -44,6 +44,7 @@
       "step_301225ad",
       "step_329b2533",
       "step_961d5765",
+      "step_m365_password_ready",
       "step_bc756061",
       "step_c1b49ad1",
       "step_af16cb6a",
@@ -653,30 +654,42 @@
     {
       "step_id": "step_961d5765",
       "agent": "interaction",
-      "tool": "click",
+      "tool": "key_press",
       "parameters": {
-        "button": "left",
-        "x": 626,
-        "y": 517
+        "key": "enter"
       },
-      "description": "Click the \"Next\" button on the Microsoft sign-in page in Google Chrome after entering the account email address.",
+      "description": "Press Enter in the Microsoft sign-in email field to submit ${{env:M365_ACCOUNT_NAME}} and continue to the password page.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [],
-      "preconditions": [
-        "dhash:626:517:16:5:9a9b8924126d0000",
-        "dhash:626:517:96:5:004a71714e000000",
-        "dhash:626:517:0:10:1b98f0d8c6e6dae4"
-      ],
+      "preconditions": [],
       "postconditions": [],
       "tags": [
-        "delay: 5",
-        "force_run:true"
+        "delay: 5"
       ],
       "screenshot": "step_961d5765",
       "created_at": "2026-06-11T03:17:05.837502",
+      "plan_id": "plan_r_0928_020230"
+    },
+    {
+      "step_id": "step_m365_password_ready",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion The Microsoft sign-in page for ${{env:M365_ACCOUNT_NAME}} shows the \"Enter password\" heading and an empty password input field, not the email-entry page.",
+      "content_refs": [],
+      "timeout": 60,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "step_retry_timeout: 60"
+      ],
+      "screenshot": null,
       "plan_id": "plan_r_0928_020230"
     },
     {
@@ -686,7 +699,7 @@
       "parameters": {
         "text": "${{secret:M365_ACCOUNT_PASSWORD}}"
       },
-      "description": "Type  ${{secret:M365_ACCOUNT_PASSWORD}} into the password input field on the Microsoft account login page for user ${{M365:AZURE_ACCOUNT_NAME}} in Google Chrome.",
+      "description": "Type ${{secret:M365_ACCOUNT_PASSWORD}} into the password input field on the Microsoft account login page for user ${{env:M365_ACCOUNT_NAME}} in Google Chrome.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -704,23 +717,17 @@
     {
       "step_id": "step_c1b49ad1",
       "agent": "interaction",
-      "tool": "click",
+      "tool": "key_press",
       "parameters": {
-        "button": "left",
-        "x": 635,
-        "y": 542
+        "key": "enter"
       },
-      "description": "Click the blue \"Sign in\" button on the Microsoft account password entry screen in Google Chrome.",
+      "description": "Press Enter in the Microsoft account password field to submit the credentials and sign in.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [],
-      "preconditions": [
-        "dhash:635:542:16:5:402699d45434544b",
-        "dhash:635:542:96:5:0000166961160000",
-        "dhash:635:542:0:10:1b18e0d8d9f6e6e4"
-      ],
+      "preconditions": [],
       "postconditions": [],
       "tags": [],
       "screenshot": "step_c1b49ad1",
