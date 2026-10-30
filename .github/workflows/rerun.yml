@@ -160,6 +160,9 @@ jobs:
         run: |
           npm run setup:e2e
 
+      - name: Verify cleanup retention
+        run: npm run test:clean
+
       - name: Set M365_ACCOUNT_NAME
         run: |
           echo "M365_ACCOUNT_NAME=${{ matrix.m365_user.value }}" >> $GITHUB_ENV
