@@ -122,7 +122,7 @@ cases:
     steps:
       [
         scaffold-basic-cea-js-azure-openai,
-        check-basic-cea-js,
+        check-basic-cea-js-editor,
         login-azure,
         login-m365,
         provision-arm,
@@ -510,6 +510,42 @@ steps:
         expect:
           exists: true
       - type: file
+        path: src/index.ts
+        expect:
+          exists: false
+
+  # CodeAgent workspace verification fails internally on this runner. Keep the
+  # same checks through the editor without changing sibling cases' adapters.
+  check-basic-cea-js-editor:
+    type: checks
+    with:
+      - type: file
+        verification: editor
+        path: m365agents.yml
+        expect:
+          contains: ["version: v1.12", "provision:", "deploy:"]
+      - type: file
+        verification: editor
+        path: src/index.js
+        expect:
+          exists: true
+      - type: file
+        verification: editor
+        path: src/agent.js
+        expect:
+          exists: true
+      - type: file
+        verification: editor
+        path: src/config.js
+        expect:
+          exists: true
+      - type: file
+        verification: editor
+        path: package.json
+        expect:
+          exists: true
+      - type: file
+        verification: editor
         path: src/index.ts
         expect:
           exists: false

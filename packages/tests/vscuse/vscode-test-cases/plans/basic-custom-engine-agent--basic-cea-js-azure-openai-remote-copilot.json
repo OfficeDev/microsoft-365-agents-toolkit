@@ -8,7 +8,7 @@
       "precondition_wait_timeout": 30,
       "precondition_retry_interval": 1
     },
-    "total_steps": 169,
+    "total_steps": 242,
     "name": "basic-cea-js-azure-openai-remote-copilot",
     "description": {
       "owner": "",
@@ -68,12 +68,85 @@
       "step_textInput_input_c0de2a626_1_14",
       "step_textInput_confirm_c0de2a626_1_14",
       "step_assertProjectWindowReady_assert_c0de2a626_1_15",
-      "step_checkWorkspaceFiles_verify_c0de2a626_2_1",
-      "step_checkWorkspaceFiles_verify_c0de2a626_2_2",
-      "step_checkWorkspaceFiles_verify_c0de2a626_2_3",
-      "step_checkWorkspaceFiles_verify_c0de2a626_2_4",
-      "step_checkWorkspaceFiles_verify_c0de2a626_2_5",
-      "step_checkWorkspaceFiles_verify_c0de2a626_2_6",
+      "step_editorFile_openPicker_c0de2a626_2_1",
+      "step_editorFile_assertPicker_c0de2a626_2_1",
+      "step_editorFile_selectQuery_c0de2a626_2_1",
+      "step_editorFile_typePath_c0de2a626_2_1",
+      "step_editorFile_assertResult_c0de2a626_2_1",
+      "step_editorFile_complete_c0de2a626_2_1",
+      "step_editorFile_assertReady_c0de2a626_2_1",
+      "step_editorFileFind_open_c0de2a626_2_2",
+      "step_editorFileFind_assertDefaults_c0de2a626_2_2",
+      "step_editorFileFind_enableCase_c0de2a626_2_2",
+      "step_editorFileFind_selectQuery_c0de2a626_2_2",
+      "step_editorFileFind_type_c0de2a626_2_2",
+      "step_editorFileFind_assertResult_c0de2a626_2_2",
+      "step_editorFileFind_restoreCase_c0de2a626_2_2",
+      "step_editorFileFind_assertRestored_c0de2a626_2_2",
+      "step_editorFileFind_close_c0de2a626_2_2",
+      "step_editorFileFind_open_c0de2a626_2_3",
+      "step_editorFileFind_assertDefaults_c0de2a626_2_3",
+      "step_editorFileFind_enableCase_c0de2a626_2_3",
+      "step_editorFileFind_selectQuery_c0de2a626_2_3",
+      "step_editorFileFind_type_c0de2a626_2_3",
+      "step_editorFileFind_assertResult_c0de2a626_2_3",
+      "step_editorFileFind_restoreCase_c0de2a626_2_3",
+      "step_editorFileFind_assertRestored_c0de2a626_2_3",
+      "step_editorFileFind_close_c0de2a626_2_3",
+      "step_editorFileFind_open_c0de2a626_2_4",
+      "step_editorFileFind_assertDefaults_c0de2a626_2_4",
+      "step_editorFileFind_enableCase_c0de2a626_2_4",
+      "step_editorFileFind_selectQuery_c0de2a626_2_4",
+      "step_editorFileFind_type_c0de2a626_2_4",
+      "step_editorFileFind_assertResult_c0de2a626_2_4",
+      "step_editorFileFind_restoreCase_c0de2a626_2_4",
+      "step_editorFileFind_assertRestored_c0de2a626_2_4",
+      "step_editorFileFind_close_c0de2a626_2_4",
+      "step_editorFile_close_c0de2a626_2_5",
+      "step_editorFile_assertClosed_c0de2a626_2_5",
+      "step_editorFile_openPicker_c0de2a626_2_6",
+      "step_editorFile_assertPicker_c0de2a626_2_6",
+      "step_editorFile_selectQuery_c0de2a626_2_6",
+      "step_editorFile_typePath_c0de2a626_2_6",
+      "step_editorFile_assertResult_c0de2a626_2_6",
+      "step_editorFile_complete_c0de2a626_2_6",
+      "step_editorFile_assertReady_c0de2a626_2_6",
+      "step_editorFile_close_c0de2a626_2_7",
+      "step_editorFile_assertClosed_c0de2a626_2_7",
+      "step_editorFile_openPicker_c0de2a626_2_8",
+      "step_editorFile_assertPicker_c0de2a626_2_8",
+      "step_editorFile_selectQuery_c0de2a626_2_8",
+      "step_editorFile_typePath_c0de2a626_2_8",
+      "step_editorFile_assertResult_c0de2a626_2_8",
+      "step_editorFile_complete_c0de2a626_2_8",
+      "step_editorFile_assertReady_c0de2a626_2_8",
+      "step_editorFile_close_c0de2a626_2_9",
+      "step_editorFile_assertClosed_c0de2a626_2_9",
+      "step_editorFile_openPicker_c0de2a626_2_10",
+      "step_editorFile_assertPicker_c0de2a626_2_10",
+      "step_editorFile_selectQuery_c0de2a626_2_10",
+      "step_editorFile_typePath_c0de2a626_2_10",
+      "step_editorFile_assertResult_c0de2a626_2_10",
+      "step_editorFile_complete_c0de2a626_2_10",
+      "step_editorFile_assertReady_c0de2a626_2_10",
+      "step_editorFile_close_c0de2a626_2_11",
+      "step_editorFile_assertClosed_c0de2a626_2_11",
+      "step_editorFile_openPicker_c0de2a626_2_12",
+      "step_editorFile_assertPicker_c0de2a626_2_12",
+      "step_editorFile_selectQuery_c0de2a626_2_12",
+      "step_editorFile_typePath_c0de2a626_2_12",
+      "step_editorFile_assertResult_c0de2a626_2_12",
+      "step_editorFile_complete_c0de2a626_2_12",
+      "step_editorFile_assertReady_c0de2a626_2_12",
+      "step_editorFile_close_c0de2a626_2_13",
+      "step_editorFile_assertClosed_c0de2a626_2_13",
+      "step_editorFile_openPicker_c0de2a626_2_14",
+      "step_editorFile_assertPicker_c0de2a626_2_14",
+      "step_editorFile_selectQuery_c0de2a626_2_14",
+      "step_editorFile_typePath_c0de2a626_2_14",
+      "step_editorFile_assertResult_c0de2a626_2_14",
+      "step_editorFile_complete_c0de2a626_2_14",
+      "step_editorFile_assertReady_c0de2a626_2_14",
       "step_executeCommand_open_c0de2a626_3_1",
       "step_executeCommand_assertPalette_c0de2a626_3_1",
       "step_executeCommand_filter_c0de2a626_3_1",
@@ -1323,13 +1396,13 @@
       ]
     },
     {
-      "step_id": "step_checkWorkspaceFiles_verify_c0de2a626_2_1",
-      "agent": "code",
-      "tool": "",
+      "step_id": "step_editorFile_openPicker_c0de2a626_2_1",
+      "agent": "interaction",
+      "tool": "keyboard_shortcut",
       "parameters": {
-        "sample": "=== Generated Script ===\nLanguage: bash\n\n```bash\nset -euo pipefail\nPROJECT_DIR=\"/home/vscode/AgentsToolkitProjects/${{var:app_name}}\" ASSERTIONS_B64=\"W3sicGF0aCI6Im0zNjVhZ2VudHMueW1sIiwiZXhpc3RzIjp0cnVlLCJjb250YWlucyI6WyJ2ZXJzaW9uOiB2MS4xMiIsInByb3Zpc2lvbjoiLCJkZXBsb3k6Il0sIm5vdENvbnRhaW5zIjpbXX1d\" python3 - <<'PY'\nimport base64\nimport json\nimport os\nfrom pathlib import Path\n\nproject = Path(os.environ[\"PROJECT_DIR\"]).resolve()\nassertions = json.loads(base64.b64decode(os.environ[\"ASSERTIONS_B64\"]).decode(\"utf-8\"))\nfor assertion in assertions:\n    target = (project / assertion[\"path\"]).resolve()\n    try:\n        target.relative_to(project)\n    except ValueError as error:\n        raise AssertionError(\"File assertion escaped the project directory\") from error\n    exists = target.is_file()\n    if exists != assertion[\"exists\"]:\n        raise AssertionError(f\"Unexpected file existence for {assertion['path']}\")\n    if not exists:\n        continue\n    content = target.read_text(encoding=\"utf-8\")\n    for expected in assertion.get(\"contains\", []):\n        expected = expected.replace(\"__VSCUSE_APP_NAME__\", project.name)\n        if expected not in content:\n            raise AssertionError(f\"Expected content is absent from {assertion['path']}\")\n    for unexpected in assertion.get(\"notContains\", []):\n        unexpected = unexpected.replace(\"__VSCUSE_APP_NAME__\", project.name)\n        if unexpected in content:\n            raise AssertionError(f\"Unexpected content is present in {assertion['path']}\")\nPY\n```"
+        "keys": "ctrl+p"
       },
-      "description": "@code execute the supplied generated bash script exactly as authored and read its exact PROJECT_DIR under /home/vscode/AgentsToolkitProjects/ from that script; verify its project-relative file assertions, project files are not VS Code .code-workspace files, do not use /workspace, and do not log file contents.",
+      "description": "Open VS Code Quick Open to verify a project file by its absolute path.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -1341,123 +1414,1700 @@
       "postconditions": [],
       "tags": [
         "component:checks",
-        "assertion:file",
-        "step_retry_timeout:120"
+        "verification:editor"
       ]
     },
     {
-      "step_id": "step_checkWorkspaceFiles_verify_c0de2a626_2_2",
-      "agent": "code",
+      "step_id": "step_editorFile_assertPicker_c0de2a626_2_1",
+      "agent": "assertion",
       "tool": "",
-      "parameters": {
-        "sample": "=== Generated Script ===\nLanguage: bash\n\n```bash\nset -euo pipefail\nPROJECT_DIR=\"/home/vscode/AgentsToolkitProjects/${{var:app_name}}\" ASSERTIONS_B64=\"W3sicGF0aCI6InNyYy9pbmRleC5qcyIsImV4aXN0cyI6dHJ1ZSwiY29udGFpbnMiOltdLCJub3RDb250YWlucyI6W119XQ==\" python3 - <<'PY'\nimport base64\nimport json\nimport os\nfrom pathlib import Path\n\nproject = Path(os.environ[\"PROJECT_DIR\"]).resolve()\nassertions = json.loads(base64.b64decode(os.environ[\"ASSERTIONS_B64\"]).decode(\"utf-8\"))\nfor assertion in assertions:\n    target = (project / assertion[\"path\"]).resolve()\n    try:\n        target.relative_to(project)\n    except ValueError as error:\n        raise AssertionError(\"File assertion escaped the project directory\") from error\n    exists = target.is_file()\n    if exists != assertion[\"exists\"]:\n        raise AssertionError(f\"Unexpected file existence for {assertion['path']}\")\n    if not exists:\n        continue\n    content = target.read_text(encoding=\"utf-8\")\n    for expected in assertion.get(\"contains\", []):\n        expected = expected.replace(\"__VSCUSE_APP_NAME__\", project.name)\n        if expected not in content:\n            raise AssertionError(f\"Expected content is absent from {assertion['path']}\")\n    for unexpected in assertion.get(\"notContains\", []):\n        unexpected = unexpected.replace(\"__VSCUSE_APP_NAME__\", project.name)\n        if unexpected in content:\n            raise AssertionError(f\"Unexpected content is present in {assertion['path']}\")\nPY\n```"
-      },
-      "description": "@code execute the supplied generated bash script exactly as authored and read its exact PROJECT_DIR under /home/vscode/AgentsToolkitProjects/ from that script; verify its project-relative file assertions, project files are not VS Code .code-workspace files, do not use /workspace, and do not log file contents.",
+      "parameters": {},
+      "description": "@assertion VS Code Quick Open is visible with its file-search input focused, not the Command Palette command input.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_checkWorkspaceFiles_verify_c0de2a626_2_1"
+        "step_editorFile_openPicker_c0de2a626_2_1"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:checks",
+        "verification:editor",
+        "step_retry_timeout: 30"
+      ]
+    },
+    {
+      "step_id": "step_editorFile_selectQuery_c0de2a626_2_1",
+      "agent": "interaction",
+      "tool": "keyboard_shortcut",
+      "parameters": {
+        "keys": "ctrl+a"
+      },
+      "description": "Select the previous Quick Open query so the absolute file path replaces it.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_editorFile_assertPicker_c0de2a626_2_1"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:checks",
+        "verification:editor"
+      ]
+    },
+    {
+      "step_id": "step_editorFile_typePath_c0de2a626_2_1",
+      "agent": "interaction",
+      "tool": "type_text",
+      "parameters": {
+        "text": "/home/vscode/AgentsToolkitProjects/${{var:app_name}}/m365agents.yml"
+      },
+      "description": "Type the exact generated-project path for m365agents.yml into Quick Open.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_editorFile_selectQuery_c0de2a626_2_1"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:checks",
+        "verification:editor"
+      ]
+    },
+    {
+      "step_id": "step_editorFile_assertResult_c0de2a626_2_1",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion Quick Open input reads /home/vscode/AgentsToolkitProjects/${{var:app_name}}/m365agents.yml, its search has finished, and its highlighted file result is the exact project-relative file m365agents.yml in project ${{var:app_name}}, not a similarly named file or No matching results.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_editorFile_typePath_c0de2a626_2_1"
       ],
       "preconditions": [],
       "postconditions": [],
       "tags": [
         "component:checks",
         "assertion:file",
-        "step_retry_timeout:120"
+        "verification:editor",
+        "step_retry_timeout: 120"
       ]
     },
     {
-      "step_id": "step_checkWorkspaceFiles_verify_c0de2a626_2_3",
-      "agent": "code",
-      "tool": "",
+      "step_id": "step_editorFile_complete_c0de2a626_2_1",
+      "agent": "interaction",
+      "tool": "key_press",
       "parameters": {
-        "sample": "=== Generated Script ===\nLanguage: bash\n\n```bash\nset -euo pipefail\nPROJECT_DIR=\"/home/vscode/AgentsToolkitProjects/${{var:app_name}}\" ASSERTIONS_B64=\"W3sicGF0aCI6InNyYy9hZ2VudC5qcyIsImV4aXN0cyI6dHJ1ZSwiY29udGFpbnMiOltdLCJub3RDb250YWlucyI6W119XQ==\" python3 - <<'PY'\nimport base64\nimport json\nimport os\nfrom pathlib import Path\n\nproject = Path(os.environ[\"PROJECT_DIR\"]).resolve()\nassertions = json.loads(base64.b64decode(os.environ[\"ASSERTIONS_B64\"]).decode(\"utf-8\"))\nfor assertion in assertions:\n    target = (project / assertion[\"path\"]).resolve()\n    try:\n        target.relative_to(project)\n    except ValueError as error:\n        raise AssertionError(\"File assertion escaped the project directory\") from error\n    exists = target.is_file()\n    if exists != assertion[\"exists\"]:\n        raise AssertionError(f\"Unexpected file existence for {assertion['path']}\")\n    if not exists:\n        continue\n    content = target.read_text(encoding=\"utf-8\")\n    for expected in assertion.get(\"contains\", []):\n        expected = expected.replace(\"__VSCUSE_APP_NAME__\", project.name)\n        if expected not in content:\n            raise AssertionError(f\"Expected content is absent from {assertion['path']}\")\n    for unexpected in assertion.get(\"notContains\", []):\n        unexpected = unexpected.replace(\"__VSCUSE_APP_NAME__\", project.name)\n        if unexpected in content:\n            raise AssertionError(f\"Unexpected content is present in {assertion['path']}\")\nPY\n```"
+        "key": "enter"
       },
-      "description": "@code execute the supplied generated bash script exactly as authored and read its exact PROJECT_DIR under /home/vscode/AgentsToolkitProjects/ from that script; verify its project-relative file assertions, project files are not VS Code .code-workspace files, do not use /workspace, and do not log file contents.",
+      "description": "Press Enter to open the verified existing project file m365agents.yml.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_checkWorkspaceFiles_verify_c0de2a626_2_2"
+        "step_editorFile_assertResult_c0de2a626_2_1"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:checks",
+        "verification:editor"
+      ]
+    },
+    {
+      "step_id": "step_editorFile_assertReady_c0de2a626_2_1",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the unmodified text editor for project-relative file m365agents.yml is active in project ${{var:app_name}}, its tab and breadcrumbs identify that exact file, Quick Open is closed, and there is no file-open or encoding error.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_editorFile_complete_c0de2a626_2_1"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:checks",
+        "verification:editor",
+        "step_retry_timeout: 30"
+      ]
+    },
+    {
+      "step_id": "step_editorFileFind_open_c0de2a626_2_2",
+      "agent": "interaction",
+      "tool": "keyboard_shortcut",
+      "parameters": {
+        "keys": "ctrl+f"
+      },
+      "description": "Open Find in the active project file.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_editorFile_assertReady_c0de2a626_2_1"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:checks",
+        "verification:editor"
+      ]
+    },
+    {
+      "step_id": "step_editorFileFind_assertDefaults_c0de2a626_2_2",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the editor Find input is focused, Match Case is disabled, Use Regular Expression is disabled, Match Whole Word is disabled, and Find in Selection is disabled.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_editorFileFind_open_c0de2a626_2_2"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:checks",
+        "verification:editor",
+        "step_retry_timeout: 30"
+      ]
+    },
+    {
+      "step_id": "step_editorFileFind_enableCase_c0de2a626_2_2",
+      "agent": "interaction",
+      "tool": "keyboard_shortcut",
+      "parameters": {
+        "keys": "alt+c"
+      },
+      "description": "Enable Match Case for literal, case-sensitive file-content verification.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_editorFileFind_assertDefaults_c0de2a626_2_2"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:checks",
+        "verification:editor"
+      ]
+    },
+    {
+      "step_id": "step_editorFileFind_selectQuery_c0de2a626_2_2",
+      "agent": "interaction",
+      "tool": "keyboard_shortcut",
+      "parameters": {
+        "keys": "ctrl+a"
+      },
+      "description": "Select the Find input text before replacing the search.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_editorFileFind_enableCase_c0de2a626_2_2"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:checks",
+        "verification:editor"
+      ]
+    },
+    {
+      "step_id": "step_editorFileFind_type_c0de2a626_2_2",
+      "agent": "interaction",
+      "tool": "type_text",
+      "parameters": {
+        "text": "version: v1.12"
+      },
+      "description": "Type the authored literal file-content expectation into Find.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_editorFileFind_selectQuery_c0de2a626_2_2"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:checks",
+        "verification:editor"
+      ]
+    },
+    {
+      "step_id": "step_editorFileFind_assertResult_c0de2a626_2_2",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the active editor is project-relative file m365agents.yml in project ${{var:app_name}}, the Find input reads \"version: v1.12\", Match Case is enabled, Use Regular Expression, Match Whole Word, and Find in Selection are disabled, and Find shows a nonzero match count for this exact literal.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_editorFileFind_type_c0de2a626_2_2"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:checks",
+        "assertion:file-content",
+        "verification:editor",
+        "step_retry_timeout: 120"
+      ]
+    },
+    {
+      "step_id": "step_editorFileFind_restoreCase_c0de2a626_2_2",
+      "agent": "interaction",
+      "tool": "keyboard_shortcut",
+      "parameters": {
+        "keys": "alt+c"
+      },
+      "description": "Restore Match Case to disabled after the verified search.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_editorFileFind_assertResult_c0de2a626_2_2"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:checks",
+        "verification:editor"
+      ]
+    },
+    {
+      "step_id": "step_editorFileFind_assertRestored_c0de2a626_2_2",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the editor Find widget has Match Case, Use Regular Expression, Match Whole Word, and Find in Selection disabled.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_editorFileFind_restoreCase_c0de2a626_2_2"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:checks",
+        "verification:editor",
+        "step_retry_timeout: 30"
+      ]
+    },
+    {
+      "step_id": "step_editorFileFind_close_c0de2a626_2_2",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "escape"
+      },
+      "description": "Close the verified editor Find widget.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_editorFileFind_assertRestored_c0de2a626_2_2"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:checks",
+        "verification:editor"
+      ]
+    },
+    {
+      "step_id": "step_editorFileFind_open_c0de2a626_2_3",
+      "agent": "interaction",
+      "tool": "keyboard_shortcut",
+      "parameters": {
+        "keys": "ctrl+f"
+      },
+      "description": "Open Find in the active project file.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_editorFileFind_close_c0de2a626_2_2"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:checks",
+        "verification:editor"
+      ]
+    },
+    {
+      "step_id": "step_editorFileFind_assertDefaults_c0de2a626_2_3",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the editor Find input is focused, Match Case is disabled, Use Regular Expression is disabled, Match Whole Word is disabled, and Find in Selection is disabled.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_editorFileFind_open_c0de2a626_2_3"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:checks",
+        "verification:editor",
+        "step_retry_timeout: 30"
+      ]
+    },
+    {
+      "step_id": "step_editorFileFind_enableCase_c0de2a626_2_3",
+      "agent": "interaction",
+      "tool": "keyboard_shortcut",
+      "parameters": {
+        "keys": "alt+c"
+      },
+      "description": "Enable Match Case for literal, case-sensitive file-content verification.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_editorFileFind_assertDefaults_c0de2a626_2_3"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:checks",
+        "verification:editor"
+      ]
+    },
+    {
+      "step_id": "step_editorFileFind_selectQuery_c0de2a626_2_3",
+      "agent": "interaction",
+      "tool": "keyboard_shortcut",
+      "parameters": {
+        "keys": "ctrl+a"
+      },
+      "description": "Select the Find input text before replacing the search.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_editorFileFind_enableCase_c0de2a626_2_3"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:checks",
+        "verification:editor"
+      ]
+    },
+    {
+      "step_id": "step_editorFileFind_type_c0de2a626_2_3",
+      "agent": "interaction",
+      "tool": "type_text",
+      "parameters": {
+        "text": "provision:"
+      },
+      "description": "Type the authored literal file-content expectation into Find.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_editorFileFind_selectQuery_c0de2a626_2_3"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:checks",
+        "verification:editor"
+      ]
+    },
+    {
+      "step_id": "step_editorFileFind_assertResult_c0de2a626_2_3",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the active editor is project-relative file m365agents.yml in project ${{var:app_name}}, the Find input reads \"provision:\", Match Case is enabled, Use Regular Expression, Match Whole Word, and Find in Selection are disabled, and Find shows a nonzero match count for this exact literal.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_editorFileFind_type_c0de2a626_2_3"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:checks",
+        "assertion:file-content",
+        "verification:editor",
+        "step_retry_timeout: 120"
+      ]
+    },
+    {
+      "step_id": "step_editorFileFind_restoreCase_c0de2a626_2_3",
+      "agent": "interaction",
+      "tool": "keyboard_shortcut",
+      "parameters": {
+        "keys": "alt+c"
+      },
+      "description": "Restore Match Case to disabled after the verified search.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_editorFileFind_assertResult_c0de2a626_2_3"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:checks",
+        "verification:editor"
+      ]
+    },
+    {
+      "step_id": "step_editorFileFind_assertRestored_c0de2a626_2_3",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the editor Find widget has Match Case, Use Regular Expression, Match Whole Word, and Find in Selection disabled.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_editorFileFind_restoreCase_c0de2a626_2_3"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:checks",
+        "verification:editor",
+        "step_retry_timeout: 30"
+      ]
+    },
+    {
+      "step_id": "step_editorFileFind_close_c0de2a626_2_3",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "escape"
+      },
+      "description": "Close the verified editor Find widget.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_editorFileFind_assertRestored_c0de2a626_2_3"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:checks",
+        "verification:editor"
+      ]
+    },
+    {
+      "step_id": "step_editorFileFind_open_c0de2a626_2_4",
+      "agent": "interaction",
+      "tool": "keyboard_shortcut",
+      "parameters": {
+        "keys": "ctrl+f"
+      },
+      "description": "Open Find in the active project file.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_editorFileFind_close_c0de2a626_2_3"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:checks",
+        "verification:editor"
+      ]
+    },
+    {
+      "step_id": "step_editorFileFind_assertDefaults_c0de2a626_2_4",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the editor Find input is focused, Match Case is disabled, Use Regular Expression is disabled, Match Whole Word is disabled, and Find in Selection is disabled.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_editorFileFind_open_c0de2a626_2_4"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:checks",
+        "verification:editor",
+        "step_retry_timeout: 30"
+      ]
+    },
+    {
+      "step_id": "step_editorFileFind_enableCase_c0de2a626_2_4",
+      "agent": "interaction",
+      "tool": "keyboard_shortcut",
+      "parameters": {
+        "keys": "alt+c"
+      },
+      "description": "Enable Match Case for literal, case-sensitive file-content verification.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_editorFileFind_assertDefaults_c0de2a626_2_4"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:checks",
+        "verification:editor"
+      ]
+    },
+    {
+      "step_id": "step_editorFileFind_selectQuery_c0de2a626_2_4",
+      "agent": "interaction",
+      "tool": "keyboard_shortcut",
+      "parameters": {
+        "keys": "ctrl+a"
+      },
+      "description": "Select the Find input text before replacing the search.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_editorFileFind_enableCase_c0de2a626_2_4"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:checks",
+        "verification:editor"
+      ]
+    },
+    {
+      "step_id": "step_editorFileFind_type_c0de2a626_2_4",
+      "agent": "interaction",
+      "tool": "type_text",
+      "parameters": {
+        "text": "deploy:"
+      },
+      "description": "Type the authored literal file-content expectation into Find.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_editorFileFind_selectQuery_c0de2a626_2_4"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:checks",
+        "verification:editor"
+      ]
+    },
+    {
+      "step_id": "step_editorFileFind_assertResult_c0de2a626_2_4",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the active editor is project-relative file m365agents.yml in project ${{var:app_name}}, the Find input reads \"deploy:\", Match Case is enabled, Use Regular Expression, Match Whole Word, and Find in Selection are disabled, and Find shows a nonzero match count for this exact literal.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_editorFileFind_type_c0de2a626_2_4"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:checks",
+        "assertion:file-content",
+        "verification:editor",
+        "step_retry_timeout: 120"
+      ]
+    },
+    {
+      "step_id": "step_editorFileFind_restoreCase_c0de2a626_2_4",
+      "agent": "interaction",
+      "tool": "keyboard_shortcut",
+      "parameters": {
+        "keys": "alt+c"
+      },
+      "description": "Restore Match Case to disabled after the verified search.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_editorFileFind_assertResult_c0de2a626_2_4"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:checks",
+        "verification:editor"
+      ]
+    },
+    {
+      "step_id": "step_editorFileFind_assertRestored_c0de2a626_2_4",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the editor Find widget has Match Case, Use Regular Expression, Match Whole Word, and Find in Selection disabled.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_editorFileFind_restoreCase_c0de2a626_2_4"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:checks",
+        "verification:editor",
+        "step_retry_timeout: 30"
+      ]
+    },
+    {
+      "step_id": "step_editorFileFind_close_c0de2a626_2_4",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "escape"
+      },
+      "description": "Close the verified editor Find widget.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_editorFileFind_assertRestored_c0de2a626_2_4"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:checks",
+        "verification:editor"
+      ]
+    },
+    {
+      "step_id": "step_editorFile_close_c0de2a626_2_5",
+      "agent": "interaction",
+      "tool": "keyboard_shortcut",
+      "parameters": {
+        "keys": "ctrl+w"
+      },
+      "description": "Close the verified project file m365agents.yml without modifying it.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_editorFileFind_close_c0de2a626_2_4"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:checks",
+        "verification:editor"
+      ]
+    },
+    {
+      "step_id": "step_editorFile_assertClosed_c0de2a626_2_5",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the temporary m365agents.yml text editor is closed, Quick Open and Find are no longer visible, and the VS Code workbench is ready with no save or file-creation dialog.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_editorFile_close_c0de2a626_2_5"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:checks",
+        "verification:editor",
+        "step_retry_timeout: 30"
+      ]
+    },
+    {
+      "step_id": "step_editorFile_openPicker_c0de2a626_2_6",
+      "agent": "interaction",
+      "tool": "keyboard_shortcut",
+      "parameters": {
+        "keys": "ctrl+p"
+      },
+      "description": "Open VS Code Quick Open to verify a project file by its absolute path.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_editorFile_assertClosed_c0de2a626_2_5"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:checks",
+        "verification:editor"
+      ]
+    },
+    {
+      "step_id": "step_editorFile_assertPicker_c0de2a626_2_6",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion VS Code Quick Open is visible with its file-search input focused, not the Command Palette command input.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_editorFile_openPicker_c0de2a626_2_6"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:checks",
+        "verification:editor",
+        "step_retry_timeout: 30"
+      ]
+    },
+    {
+      "step_id": "step_editorFile_selectQuery_c0de2a626_2_6",
+      "agent": "interaction",
+      "tool": "keyboard_shortcut",
+      "parameters": {
+        "keys": "ctrl+a"
+      },
+      "description": "Select the previous Quick Open query so the absolute file path replaces it.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_editorFile_assertPicker_c0de2a626_2_6"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:checks",
+        "verification:editor"
+      ]
+    },
+    {
+      "step_id": "step_editorFile_typePath_c0de2a626_2_6",
+      "agent": "interaction",
+      "tool": "type_text",
+      "parameters": {
+        "text": "/home/vscode/AgentsToolkitProjects/${{var:app_name}}/src/index.js"
+      },
+      "description": "Type the exact generated-project path for src/index.js into Quick Open.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_editorFile_selectQuery_c0de2a626_2_6"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:checks",
+        "verification:editor"
+      ]
+    },
+    {
+      "step_id": "step_editorFile_assertResult_c0de2a626_2_6",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion Quick Open input reads /home/vscode/AgentsToolkitProjects/${{var:app_name}}/src/index.js, its search has finished, and its highlighted file result is the exact project-relative file src/index.js in project ${{var:app_name}}, not a similarly named file or No matching results.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_editorFile_typePath_c0de2a626_2_6"
       ],
       "preconditions": [],
       "postconditions": [],
       "tags": [
         "component:checks",
         "assertion:file",
-        "step_retry_timeout:120"
+        "verification:editor",
+        "step_retry_timeout: 120"
       ]
     },
     {
-      "step_id": "step_checkWorkspaceFiles_verify_c0de2a626_2_4",
-      "agent": "code",
-      "tool": "",
+      "step_id": "step_editorFile_complete_c0de2a626_2_6",
+      "agent": "interaction",
+      "tool": "key_press",
       "parameters": {
-        "sample": "=== Generated Script ===\nLanguage: bash\n\n```bash\nset -euo pipefail\nPROJECT_DIR=\"/home/vscode/AgentsToolkitProjects/${{var:app_name}}\" ASSERTIONS_B64=\"W3sicGF0aCI6InNyYy9jb25maWcuanMiLCJleGlzdHMiOnRydWUsImNvbnRhaW5zIjpbXSwibm90Q29udGFpbnMiOltdfV0=\" python3 - <<'PY'\nimport base64\nimport json\nimport os\nfrom pathlib import Path\n\nproject = Path(os.environ[\"PROJECT_DIR\"]).resolve()\nassertions = json.loads(base64.b64decode(os.environ[\"ASSERTIONS_B64\"]).decode(\"utf-8\"))\nfor assertion in assertions:\n    target = (project / assertion[\"path\"]).resolve()\n    try:\n        target.relative_to(project)\n    except ValueError as error:\n        raise AssertionError(\"File assertion escaped the project directory\") from error\n    exists = target.is_file()\n    if exists != assertion[\"exists\"]:\n        raise AssertionError(f\"Unexpected file existence for {assertion['path']}\")\n    if not exists:\n        continue\n    content = target.read_text(encoding=\"utf-8\")\n    for expected in assertion.get(\"contains\", []):\n        expected = expected.replace(\"__VSCUSE_APP_NAME__\", project.name)\n        if expected not in content:\n            raise AssertionError(f\"Expected content is absent from {assertion['path']}\")\n    for unexpected in assertion.get(\"notContains\", []):\n        unexpected = unexpected.replace(\"__VSCUSE_APP_NAME__\", project.name)\n        if unexpected in content:\n            raise AssertionError(f\"Unexpected content is present in {assertion['path']}\")\nPY\n```"
+        "key": "enter"
       },
-      "description": "@code execute the supplied generated bash script exactly as authored and read its exact PROJECT_DIR under /home/vscode/AgentsToolkitProjects/ from that script; verify its project-relative file assertions, project files are not VS Code .code-workspace files, do not use /workspace, and do not log file contents.",
+      "description": "Press Enter to open the verified existing project file src/index.js.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_checkWorkspaceFiles_verify_c0de2a626_2_3"
+        "step_editorFile_assertResult_c0de2a626_2_6"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:checks",
+        "verification:editor"
+      ]
+    },
+    {
+      "step_id": "step_editorFile_assertReady_c0de2a626_2_6",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the unmodified text editor for project-relative file src/index.js is active in project ${{var:app_name}}, its tab and breadcrumbs identify that exact file, Quick Open is closed, and there is no file-open or encoding error.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_editorFile_complete_c0de2a626_2_6"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:checks",
+        "verification:editor",
+        "step_retry_timeout: 30"
+      ]
+    },
+    {
+      "step_id": "step_editorFile_close_c0de2a626_2_7",
+      "agent": "interaction",
+      "tool": "keyboard_shortcut",
+      "parameters": {
+        "keys": "ctrl+w"
+      },
+      "description": "Close the verified project file src/index.js without modifying it.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_editorFile_assertReady_c0de2a626_2_6"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:checks",
+        "verification:editor"
+      ]
+    },
+    {
+      "step_id": "step_editorFile_assertClosed_c0de2a626_2_7",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the temporary src/index.js text editor is closed, Quick Open and Find are no longer visible, and the VS Code workbench is ready with no save or file-creation dialog.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_editorFile_close_c0de2a626_2_7"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:checks",
+        "verification:editor",
+        "step_retry_timeout: 30"
+      ]
+    },
+    {
+      "step_id": "step_editorFile_openPicker_c0de2a626_2_8",
+      "agent": "interaction",
+      "tool": "keyboard_shortcut",
+      "parameters": {
+        "keys": "ctrl+p"
+      },
+      "description": "Open VS Code Quick Open to verify a project file by its absolute path.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_editorFile_assertClosed_c0de2a626_2_7"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:checks",
+        "verification:editor"
+      ]
+    },
+    {
+      "step_id": "step_editorFile_assertPicker_c0de2a626_2_8",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion VS Code Quick Open is visible with its file-search input focused, not the Command Palette command input.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_editorFile_openPicker_c0de2a626_2_8"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:checks",
+        "verification:editor",
+        "step_retry_timeout: 30"
+      ]
+    },
+    {
+      "step_id": "step_editorFile_selectQuery_c0de2a626_2_8",
+      "agent": "interaction",
+      "tool": "keyboard_shortcut",
+      "parameters": {
+        "keys": "ctrl+a"
+      },
+      "description": "Select the previous Quick Open query so the absolute file path replaces it.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_editorFile_assertPicker_c0de2a626_2_8"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:checks",
+        "verification:editor"
+      ]
+    },
+    {
+      "step_id": "step_editorFile_typePath_c0de2a626_2_8",
+      "agent": "interaction",
+      "tool": "type_text",
+      "parameters": {
+        "text": "/home/vscode/AgentsToolkitProjects/${{var:app_name}}/src/agent.js"
+      },
+      "description": "Type the exact generated-project path for src/agent.js into Quick Open.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_editorFile_selectQuery_c0de2a626_2_8"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:checks",
+        "verification:editor"
+      ]
+    },
+    {
+      "step_id": "step_editorFile_assertResult_c0de2a626_2_8",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion Quick Open input reads /home/vscode/AgentsToolkitProjects/${{var:app_name}}/src/agent.js, its search has finished, and its highlighted file result is the exact project-relative file src/agent.js in project ${{var:app_name}}, not a similarly named file or No matching results.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_editorFile_typePath_c0de2a626_2_8"
       ],
       "preconditions": [],
       "postconditions": [],
       "tags": [
         "component:checks",
         "assertion:file",
-        "step_retry_timeout:120"
+        "verification:editor",
+        "step_retry_timeout: 120"
       ]
     },
     {
-      "step_id": "step_checkWorkspaceFiles_verify_c0de2a626_2_5",
-      "agent": "code",
-      "tool": "",
+      "step_id": "step_editorFile_complete_c0de2a626_2_8",
+      "agent": "interaction",
+      "tool": "key_press",
       "parameters": {
-        "sample": "=== Generated Script ===\nLanguage: bash\n\n```bash\nset -euo pipefail\nPROJECT_DIR=\"/home/vscode/AgentsToolkitProjects/${{var:app_name}}\" ASSERTIONS_B64=\"W3sicGF0aCI6InBhY2thZ2UuanNvbiIsImV4aXN0cyI6dHJ1ZSwiY29udGFpbnMiOltdLCJub3RDb250YWlucyI6W119XQ==\" python3 - <<'PY'\nimport base64\nimport json\nimport os\nfrom pathlib import Path\n\nproject = Path(os.environ[\"PROJECT_DIR\"]).resolve()\nassertions = json.loads(base64.b64decode(os.environ[\"ASSERTIONS_B64\"]).decode(\"utf-8\"))\nfor assertion in assertions:\n    target = (project / assertion[\"path\"]).resolve()\n    try:\n        target.relative_to(project)\n    except ValueError as error:\n        raise AssertionError(\"File assertion escaped the project directory\") from error\n    exists = target.is_file()\n    if exists != assertion[\"exists\"]:\n        raise AssertionError(f\"Unexpected file existence for {assertion['path']}\")\n    if not exists:\n        continue\n    content = target.read_text(encoding=\"utf-8\")\n    for expected in assertion.get(\"contains\", []):\n        expected = expected.replace(\"__VSCUSE_APP_NAME__\", project.name)\n        if expected not in content:\n            raise AssertionError(f\"Expected content is absent from {assertion['path']}\")\n    for unexpected in assertion.get(\"notContains\", []):\n        unexpected = unexpected.replace(\"__VSCUSE_APP_NAME__\", project.name)\n        if unexpected in content:\n            raise AssertionError(f\"Unexpected content is present in {assertion['path']}\")\nPY\n```"
+        "key": "enter"
       },
-      "description": "@code execute the supplied generated bash script exactly as authored and read its exact PROJECT_DIR under /home/vscode/AgentsToolkitProjects/ from that script; verify its project-relative file assertions, project files are not VS Code .code-workspace files, do not use /workspace, and do not log file contents.",
+      "description": "Press Enter to open the verified existing project file src/agent.js.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_checkWorkspaceFiles_verify_c0de2a626_2_4"
+        "step_editorFile_assertResult_c0de2a626_2_8"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:checks",
+        "verification:editor"
+      ]
+    },
+    {
+      "step_id": "step_editorFile_assertReady_c0de2a626_2_8",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the unmodified text editor for project-relative file src/agent.js is active in project ${{var:app_name}}, its tab and breadcrumbs identify that exact file, Quick Open is closed, and there is no file-open or encoding error.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_editorFile_complete_c0de2a626_2_8"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:checks",
+        "verification:editor",
+        "step_retry_timeout: 30"
+      ]
+    },
+    {
+      "step_id": "step_editorFile_close_c0de2a626_2_9",
+      "agent": "interaction",
+      "tool": "keyboard_shortcut",
+      "parameters": {
+        "keys": "ctrl+w"
+      },
+      "description": "Close the verified project file src/agent.js without modifying it.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_editorFile_assertReady_c0de2a626_2_8"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:checks",
+        "verification:editor"
+      ]
+    },
+    {
+      "step_id": "step_editorFile_assertClosed_c0de2a626_2_9",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the temporary src/agent.js text editor is closed, Quick Open and Find are no longer visible, and the VS Code workbench is ready with no save or file-creation dialog.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_editorFile_close_c0de2a626_2_9"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:checks",
+        "verification:editor",
+        "step_retry_timeout: 30"
+      ]
+    },
+    {
+      "step_id": "step_editorFile_openPicker_c0de2a626_2_10",
+      "agent": "interaction",
+      "tool": "keyboard_shortcut",
+      "parameters": {
+        "keys": "ctrl+p"
+      },
+      "description": "Open VS Code Quick Open to verify a project file by its absolute path.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_editorFile_assertClosed_c0de2a626_2_9"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:checks",
+        "verification:editor"
+      ]
+    },
+    {
+      "step_id": "step_editorFile_assertPicker_c0de2a626_2_10",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion VS Code Quick Open is visible with its file-search input focused, not the Command Palette command input.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_editorFile_openPicker_c0de2a626_2_10"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:checks",
+        "verification:editor",
+        "step_retry_timeout: 30"
+      ]
+    },
+    {
+      "step_id": "step_editorFile_selectQuery_c0de2a626_2_10",
+      "agent": "interaction",
+      "tool": "keyboard_shortcut",
+      "parameters": {
+        "keys": "ctrl+a"
+      },
+      "description": "Select the previous Quick Open query so the absolute file path replaces it.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_editorFile_assertPicker_c0de2a626_2_10"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:checks",
+        "verification:editor"
+      ]
+    },
+    {
+      "step_id": "step_editorFile_typePath_c0de2a626_2_10",
+      "agent": "interaction",
+      "tool": "type_text",
+      "parameters": {
+        "text": "/home/vscode/AgentsToolkitProjects/${{var:app_name}}/src/config.js"
+      },
+      "description": "Type the exact generated-project path for src/config.js into Quick Open.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_editorFile_selectQuery_c0de2a626_2_10"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:checks",
+        "verification:editor"
+      ]
+    },
+    {
+      "step_id": "step_editorFile_assertResult_c0de2a626_2_10",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion Quick Open input reads /home/vscode/AgentsToolkitProjects/${{var:app_name}}/src/config.js, its search has finished, and its highlighted file result is the exact project-relative file src/config.js in project ${{var:app_name}}, not a similarly named file or No matching results.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_editorFile_typePath_c0de2a626_2_10"
       ],
       "preconditions": [],
       "postconditions": [],
       "tags": [
         "component:checks",
         "assertion:file",
-        "step_retry_timeout:120"
+        "verification:editor",
+        "step_retry_timeout: 120"
       ]
     },
     {
-      "step_id": "step_checkWorkspaceFiles_verify_c0de2a626_2_6",
-      "agent": "code",
-      "tool": "",
+      "step_id": "step_editorFile_complete_c0de2a626_2_10",
+      "agent": "interaction",
+      "tool": "key_press",
       "parameters": {
-        "sample": "=== Generated Script ===\nLanguage: bash\n\n```bash\nset -euo pipefail\nPROJECT_DIR=\"/home/vscode/AgentsToolkitProjects/${{var:app_name}}\" ASSERTIONS_B64=\"W3sicGF0aCI6InNyYy9pbmRleC50cyIsImV4aXN0cyI6ZmFsc2UsImNvbnRhaW5zIjpbXSwibm90Q29udGFpbnMiOltdfV0=\" python3 - <<'PY'\nimport base64\nimport json\nimport os\nfrom pathlib import Path\n\nproject = Path(os.environ[\"PROJECT_DIR\"]).resolve()\nassertions = json.loads(base64.b64decode(os.environ[\"ASSERTIONS_B64\"]).decode(\"utf-8\"))\nfor assertion in assertions:\n    target = (project / assertion[\"path\"]).resolve()\n    try:\n        target.relative_to(project)\n    except ValueError as error:\n        raise AssertionError(\"File assertion escaped the project directory\") from error\n    exists = target.is_file()\n    if exists != assertion[\"exists\"]:\n        raise AssertionError(f\"Unexpected file existence for {assertion['path']}\")\n    if not exists:\n        continue\n    content = target.read_text(encoding=\"utf-8\")\n    for expected in assertion.get(\"contains\", []):\n        expected = expected.replace(\"__VSCUSE_APP_NAME__\", project.name)\n        if expected not in content:\n            raise AssertionError(f\"Expected content is absent from {assertion['path']}\")\n    for unexpected in assertion.get(\"notContains\", []):\n        unexpected = unexpected.replace(\"__VSCUSE_APP_NAME__\", project.name)\n        if unexpected in content:\n            raise AssertionError(f\"Unexpected content is present in {assertion['path']}\")\nPY\n```"
+        "key": "enter"
       },
-      "description": "@code execute the supplied generated bash script exactly as authored and read its exact PROJECT_DIR under /home/vscode/AgentsToolkitProjects/ from that script; verify its project-relative file assertions, project files are not VS Code .code-workspace files, do not use /workspace, and do not log file contents.",
+      "description": "Press Enter to open the verified existing project file src/config.js.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_checkWorkspaceFiles_verify_c0de2a626_2_5"
+        "step_editorFile_assertResult_c0de2a626_2_10"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:checks",
+        "verification:editor"
+      ]
+    },
+    {
+      "step_id": "step_editorFile_assertReady_c0de2a626_2_10",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the unmodified text editor for project-relative file src/config.js is active in project ${{var:app_name}}, its tab and breadcrumbs identify that exact file, Quick Open is closed, and there is no file-open or encoding error.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_editorFile_complete_c0de2a626_2_10"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:checks",
+        "verification:editor",
+        "step_retry_timeout: 30"
+      ]
+    },
+    {
+      "step_id": "step_editorFile_close_c0de2a626_2_11",
+      "agent": "interaction",
+      "tool": "keyboard_shortcut",
+      "parameters": {
+        "keys": "ctrl+w"
+      },
+      "description": "Close the verified project file src/config.js without modifying it.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_editorFile_assertReady_c0de2a626_2_10"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:checks",
+        "verification:editor"
+      ]
+    },
+    {
+      "step_id": "step_editorFile_assertClosed_c0de2a626_2_11",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the temporary src/config.js text editor is closed, Quick Open and Find are no longer visible, and the VS Code workbench is ready with no save or file-creation dialog.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_editorFile_close_c0de2a626_2_11"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:checks",
+        "verification:editor",
+        "step_retry_timeout: 30"
+      ]
+    },
+    {
+      "step_id": "step_editorFile_openPicker_c0de2a626_2_12",
+      "agent": "interaction",
+      "tool": "keyboard_shortcut",
+      "parameters": {
+        "keys": "ctrl+p"
+      },
+      "description": "Open VS Code Quick Open to verify a project file by its absolute path.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_editorFile_assertClosed_c0de2a626_2_11"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:checks",
+        "verification:editor"
+      ]
+    },
+    {
+      "step_id": "step_editorFile_assertPicker_c0de2a626_2_12",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion VS Code Quick Open is visible with its file-search input focused, not the Command Palette command input.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_editorFile_openPicker_c0de2a626_2_12"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:checks",
+        "verification:editor",
+        "step_retry_timeout: 30"
+      ]
+    },
+    {
+      "step_id": "step_editorFile_selectQuery_c0de2a626_2_12",
+      "agent": "interaction",
+      "tool": "keyboard_shortcut",
+      "parameters": {
+        "keys": "ctrl+a"
+      },
+      "description": "Select the previous Quick Open query so the absolute file path replaces it.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_editorFile_assertPicker_c0de2a626_2_12"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:checks",
+        "verification:editor"
+      ]
+    },
+    {
+      "step_id": "step_editorFile_typePath_c0de2a626_2_12",
+      "agent": "interaction",
+      "tool": "type_text",
+      "parameters": {
+        "text": "/home/vscode/AgentsToolkitProjects/${{var:app_name}}/package.json"
+      },
+      "description": "Type the exact generated-project path for package.json into Quick Open.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_editorFile_selectQuery_c0de2a626_2_12"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:checks",
+        "verification:editor"
+      ]
+    },
+    {
+      "step_id": "step_editorFile_assertResult_c0de2a626_2_12",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion Quick Open input reads /home/vscode/AgentsToolkitProjects/${{var:app_name}}/package.json, its search has finished, and its highlighted file result is the exact project-relative file package.json in project ${{var:app_name}}, not a similarly named file or No matching results.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_editorFile_typePath_c0de2a626_2_12"
       ],
       "preconditions": [],
       "postconditions": [],
       "tags": [
         "component:checks",
         "assertion:file",
-        "step_retry_timeout:120"
+        "verification:editor",
+        "step_retry_timeout: 120"
+      ]
+    },
+    {
+      "step_id": "step_editorFile_complete_c0de2a626_2_12",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "enter"
+      },
+      "description": "Press Enter to open the verified existing project file package.json.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_editorFile_assertResult_c0de2a626_2_12"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:checks",
+        "verification:editor"
+      ]
+    },
+    {
+      "step_id": "step_editorFile_assertReady_c0de2a626_2_12",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the unmodified text editor for project-relative file package.json is active in project ${{var:app_name}}, its tab and breadcrumbs identify that exact file, Quick Open is closed, and there is no file-open or encoding error.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_editorFile_complete_c0de2a626_2_12"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:checks",
+        "verification:editor",
+        "step_retry_timeout: 30"
+      ]
+    },
+    {
+      "step_id": "step_editorFile_close_c0de2a626_2_13",
+      "agent": "interaction",
+      "tool": "keyboard_shortcut",
+      "parameters": {
+        "keys": "ctrl+w"
+      },
+      "description": "Close the verified project file package.json without modifying it.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_editorFile_assertReady_c0de2a626_2_12"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:checks",
+        "verification:editor"
+      ]
+    },
+    {
+      "step_id": "step_editorFile_assertClosed_c0de2a626_2_13",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the temporary package.json text editor is closed, Quick Open and Find are no longer visible, and the VS Code workbench is ready with no save or file-creation dialog.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_editorFile_close_c0de2a626_2_13"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:checks",
+        "verification:editor",
+        "step_retry_timeout: 30"
+      ]
+    },
+    {
+      "step_id": "step_editorFile_openPicker_c0de2a626_2_14",
+      "agent": "interaction",
+      "tool": "keyboard_shortcut",
+      "parameters": {
+        "keys": "ctrl+p"
+      },
+      "description": "Open VS Code Quick Open to verify a project file by its absolute path.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_editorFile_assertClosed_c0de2a626_2_13"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:checks",
+        "verification:editor"
+      ]
+    },
+    {
+      "step_id": "step_editorFile_assertPicker_c0de2a626_2_14",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion VS Code Quick Open is visible with its file-search input focused, not the Command Palette command input.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_editorFile_openPicker_c0de2a626_2_14"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:checks",
+        "verification:editor",
+        "step_retry_timeout: 30"
+      ]
+    },
+    {
+      "step_id": "step_editorFile_selectQuery_c0de2a626_2_14",
+      "agent": "interaction",
+      "tool": "keyboard_shortcut",
+      "parameters": {
+        "keys": "ctrl+a"
+      },
+      "description": "Select the previous Quick Open query so the absolute file path replaces it.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_editorFile_assertPicker_c0de2a626_2_14"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:checks",
+        "verification:editor"
+      ]
+    },
+    {
+      "step_id": "step_editorFile_typePath_c0de2a626_2_14",
+      "agent": "interaction",
+      "tool": "type_text",
+      "parameters": {
+        "text": "/home/vscode/AgentsToolkitProjects/${{var:app_name}}/src/index.ts"
+      },
+      "description": "Type the exact generated-project path for src/index.ts into Quick Open.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_editorFile_selectQuery_c0de2a626_2_14"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:checks",
+        "verification:editor"
+      ]
+    },
+    {
+      "step_id": "step_editorFile_assertResult_c0de2a626_2_14",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion Quick Open input reads /home/vscode/AgentsToolkitProjects/${{var:app_name}}/src/index.ts, its search has finished, and the result list shows No matching results with no selectable file result.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_editorFile_typePath_c0de2a626_2_14"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:checks",
+        "assertion:file",
+        "verification:editor",
+        "step_retry_timeout: 120"
+      ]
+    },
+    {
+      "step_id": "step_editorFile_complete_c0de2a626_2_14",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "escape"
+      },
+      "description": "Press Escape to dismiss the verified absence of src/index.ts without creating or opening a file.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_editorFile_assertResult_c0de2a626_2_14"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:checks",
+        "verification:editor"
+      ]
+    },
+    {
+      "step_id": "step_editorFile_assertReady_c0de2a626_2_14",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion Quick Open is closed and the VS Code workbench for project ${{var:app_name}} is ready with no file-creation, file-open, or save dialog.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_editorFile_complete_c0de2a626_2_14"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:checks",
+        "verification:editor",
+        "step_retry_timeout: 30"
       ]
     },
     {
@@ -1473,7 +3123,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_checkWorkspaceFiles_verify_c0de2a626_2_6"
+        "step_editorFile_assertReady_c0de2a626_2_14"
       ],
       "preconditions": [],
       "postconditions": [],
