@@ -3622,6 +3622,17 @@ function createSemanticStepCompiler() {
         "A workspace file assertion is invalid.",
       );
     }
+    const verification =
+      assertion.verification === undefined ? "code" : assertion.verification;
+    if (verification !== "code" && verification !== "editor") {
+      return failure(
+        "VCB_FILE_VERIFICATION_INVALID",
+        "File verification must be code or editor.",
+      );
+    }
+    if (verification === "editor") {
+      return compileEditorFileCheck(state, normalized);
+    }
     const assertionsBase64 = Buffer.from(
       JSON.stringify([normalized]),
       "utf8",
@@ -3629,6 +3640,66 @@ function createSemanticStepCompiler() {
     return render(state, "checks/workspace-file.json.tpl", {
       assertionsBase64,
     });
+  }
+
+  function compileEditorFileCheck(state, assertion) {
+    if (
+      [...assertion.contains, ...assertion.notContains].some(
+        (text) => text.length === 0 || /[\r\n]/.test(text),
+      )
+    ) {
+      return failure(
+        "VCB_FILE_EDITOR_EXPECTATION_INVALID",
+        "Editor file checks require non-empty single-line literal expectations.",
+      );
+    }
+    const output = [];
+    const filePath = `/home/vscode/AgentsToolkitProjects/\${{var:app_name}}/${assertion.path}`;
+    let error = append(
+      output,
+      render(state, "checks/workspace-file-editor.json.tpl", {
+        filePath: assertion.path,
+        resultAssertion: assertion.exists
+          ? `@assertion Quick Open input reads ${filePath}, its search has finished, and its highlighted file result is the exact project-relative file ${assertion.path} in project \${{var:app_name}}, not a similarly named file or No matching results.`
+          : `@assertion Quick Open input reads ${filePath}, its search has finished, and the result list shows No matching results with no selectable file result.`,
+        completionKey: assertion.exists ? "enter" : "escape",
+        completionDescription: assertion.exists
+          ? `Press Enter to open the verified existing project file ${assertion.path}.`
+          : `Press Escape to dismiss the verified absence of ${assertion.path} without creating or opening a file.`,
+        readyAssertion: assertion.exists
+          ? `@assertion the unmodified text editor for project-relative file ${assertion.path} is active in project \${{var:app_name}}, its tab and breadcrumbs identify that exact file, Quick Open is closed, and there is no file-open or encoding error.`
+          : "@assertion Quick Open is closed and the VS Code workbench for project ${{var:app_name}} is ready with no file-creation, file-open, or save dialog.",
+      }),
+    );
+    if (error) return error;
+    if (!assertion.exists) return { ok: true, value: output };
+    for (const expectation of ["contains", "notContains"]) {
+      for (const text of assertion[expectation]) {
+        const searchText = text.replaceAll(
+          "__VSCUSE_APP_NAME__",
+          "${{var:app_name}}",
+        );
+        error = append(
+          output,
+          render(state, "checks/workspace-file-editor-find.json.tpl", {
+            searchText,
+            resultAssertion: `@assertion the active editor is project-relative file ${assertion.path} in project \${{var:app_name}}, the Find input reads ${JSON.stringify(searchText)}, Match Case is enabled, Use Regular Expression, Match Whole Word, and Find in Selection are disabled, and Find shows ${
+              expectation === "contains"
+                ? "a nonzero match count for this exact literal"
+                : "No results for this exact literal"
+            }.`,
+          }),
+        );
+        if (error) return error;
+      }
+    }
+    error = append(
+      output,
+      render(state, "checks/workspace-file-editor-close.json.tpl", {
+        filePath: assertion.path,
+      }),
+    );
+    return error ?? { ok: true, value: output };
   }
 
   function compileChatCheck(state, assertion) {
@@ -3848,7 +3919,7 @@ function createSemanticStepCompiler() {
     }
     const assertionFields =
       assertion.type === "file"
-        ? new Set(["type", "path", "expect"])
+        ? new Set(["type", "path", "verification", "expect"])
         : assertion.type === "browser" || assertion.type === "page"
           ? new Set(["type", "expect"])
           : assertion.type === "chat"
