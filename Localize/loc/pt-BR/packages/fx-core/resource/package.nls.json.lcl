@@ -1702,18 +1702,6 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
-      <Item ItemId=";core.addSkill.featureFlagDisabled" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Agent skills are not enabled. Set the environment variable ATK_FRONTIER=true to enable this preview feature.]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[As habilidades do agente não estão habilitadas. Defina a variável de ambiente ATK_FRONTIER=true para habilitar esta versão prévia do recurso.]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Agent skills are not enabled. Set the environment variable TEAMSFX_AGENT_SKILLS=true to enable this preview feature.]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
       <Item ItemId=";core.addSkill.success" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Agent skill added to the project successfully. View agent manifest in "%s".]]></Val>
@@ -1851,10 +1839,13 @@
       </Item>
       <Item ItemId=";core.addSkillQuestion.name.placeholder" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Enter a name for your skill (letters, numbers, and hyphens only)]]></Val>
+          <Val><![CDATA[Enter a name for your skill (lowercase letters, numbers, and hyphens only)]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Insira um nome para sua habilidade (somente letras, números e hifens)]]></Val>
+            <Val><![CDATA[Insira um nome para sua habilidade (somente letras minúsculas, números e hifens)]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Enter a name for your skill (letters, numbers, and hyphens only)]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -1869,10 +1860,13 @@
       </Item>
       <Item ItemId=";core.addSkillQuestion.name.validation" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Skill name must start with a letter and contain only letters, numbers, and hyphens.]]></Val>
+          <Val><![CDATA[Skill name may only contain lowercase letters, numbers, and hyphens. Use 1-64 characters, without leading, trailing, or consecutive hyphens.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[O nome da habilidade deve começar com uma letra e conter apenas letras, números e hifens.]]></Val>
+            <Val><![CDATA[O nome da habilidade pode conter apenas letras minúsculas, números e hifens. Use de 1 a 64 caracteres, sem hifens à esquerda, à direita ou consecutivos.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Skill name must start with a letter and contain only letters, numbers, and hyphens.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -7501,6 +7495,21 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";driver.dcr.description.update" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Update an existing Dynamic Client Registration (DCR) configuration for MCP server authentication.]]></Val>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.dcr.error.invalidConfiguration" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The service did not return a valid Dynamic authentication configuration for this ID. Check the configuration ID and service compatibility.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[O serviço não retornou uma configuração de autenticação Dinâmica válida para esta ID. Verifique a ID de configuração e a compatibilidade do serviço.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";driver.dcr.error.nameTooLong" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[The DCR configuration name is too long. The maximum character length is 128.]]></Val>
@@ -7528,11 +7537,29 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";driver.dcr.log.skipUpdate" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[DCR configuration %s already matches the requested settings. No update is needed.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[A configuração DCR %s já corresponde às configurações solicitadas. Nenhuma atualização é necessária.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";driver.dcr.log.successCreateDcr" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[DCR configuration created successfully with id %s!]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[Configuração do DCR criada com sucesso com a ID %s!]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.dcr.log.successUpdate" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[DCR configuration %s updated successfully. Updated fields: %s.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[A configuração do DCR %s atualizada com êxito. Campos atualizados: %s.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -7543,6 +7570,12 @@
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[Criando a configuração de DCR...]]></Val>
           </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.dcr.title.update" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Updating DCR configuration...]]></Val>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -10507,6 +10540,15 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";error.m365.AdvancedPackageUploadsDisabled" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Upload blocked by your tenant's Advanced package uploads setting. Ask your Microsoft 365 admin to allow uploads for your account by selecting All users or including you in Specific users or groups. Learn more: [Manage Advanced package uploads]5D;(%s)]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Carregamento bloqueado pela configuração de carregamentos de pacotes avançados do locatário. Peça ao administrador do Microsoft 365 para permitir carregamentos para sua conta selecionando Todos os usuários ou incluindo você em Usuários ou grupos específicos. Saiba mais: [Manage Advanced package uploads]5D;(%s)]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";error.m365.M365TenantIdNotFoundInTokenError" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Unable to obtain Microsoft 365 tenant ID in token JSON object. Make sure your account is authorized to access the tenant and the token JSON object is valid.]]></Val>
@@ -10551,18 +10593,6 @@
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Unable to extend Teams app to Microsoft 365. Use 'teamsApp/extendToM365' action to extend your Teams app to Microsoft 365.]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";error.m365.SharedScopeAdvancedDADisabled" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Deployment blocked: Advanced declarative agent can't be deployed as 'shared' scope due to tenant permission settings. Get more info: [Known limitation of Advanced Declarative Agent]5D;(%s)]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Implantação bloqueada: agente declarativo avançado não pode ser implantado como escopo 'compartilhado' devido às configurações de permissão do locatário. Obter mais informações: [Limitação conhecida do Agente Declarativo Avançado]5D;(%s)]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Deployment blocked: Advanced declarative agent can't be deployed due to tenant permission settings. Get more info: [Manage agents for Microsoft 365 Copilot in the Microsoft 365 admin center - Microsoft 365 admin | Microsoft Learn]5D;(%s)]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />

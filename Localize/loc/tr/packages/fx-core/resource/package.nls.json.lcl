@@ -1702,18 +1702,6 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
-      <Item ItemId=";core.addSkill.featureFlagDisabled" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Agent skills are not enabled. Set the environment variable ATK_FRONTIER=true to enable this preview feature.]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Aracı becerileri etkin değil. Bu önizleme özelliğini etkinleştirmek için ortam değişkenini ATK_FRONTIER=true olarak ayarlayın.]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Agent skills are not enabled. Set the environment variable TEAMSFX_AGENT_SKILLS=true to enable this preview feature.]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
       <Item ItemId=";core.addSkill.success" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Agent skill added to the project successfully. View agent manifest in "%s".]]></Val>
@@ -1851,10 +1839,13 @@
       </Item>
       <Item ItemId=";core.addSkillQuestion.name.placeholder" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Enter a name for your skill (letters, numbers, and hyphens only)]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
+          <Val><![CDATA[Enter a name for your skill (lowercase letters, numbers, and hyphens only)]]></Val>
+          <Tgt Cat="Text" Stat="Update" Orig="New">
             <Val><![CDATA[Beceriniz için bir ad girin (yalnızca harfler, sayılar ve kısa çizgiler)]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Enter a name for your skill (letters, numbers, and hyphens only)]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -1869,10 +1860,13 @@
       </Item>
       <Item ItemId=";core.addSkillQuestion.name.validation" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Skill name must start with a letter and contain only letters, numbers, and hyphens.]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
+          <Val><![CDATA[Skill name may only contain lowercase letters, numbers, and hyphens. Use 1-64 characters, without leading, trailing, or consecutive hyphens.]]></Val>
+          <Tgt Cat="Text" Stat="Update" Orig="New">
             <Val><![CDATA[Yetenek adı bir harfle başlamalı ve yalnızca harf, sayı ve kısa çizgi içermelidir.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Skill name must start with a letter and contain only letters, numbers, and hyphens.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -7501,6 +7495,24 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";driver.dcr.description.update" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Update an existing Dynamic Client Registration (DCR) configuration for MCP server authentication.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[MCP sunucu kimlik doğrulaması için mevcut bir Dynamic Client Registration (DCR) yapılandırmasını güncelleştirin.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.dcr.error.invalidConfiguration" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The service did not return a valid Dynamic authentication configuration for this ID. Check the configuration ID and service compatibility.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Hizmet, bu kimlik için geçerli bir Dinamik kimlik doğrulaması yapılandırması döndürmedi. Yapılandırma kimliğini ve hizmet uyumluluğunu denetleyin.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";driver.dcr.error.nameTooLong" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[The DCR configuration name is too long. The maximum character length is 128.]]></Val>
@@ -7528,11 +7540,26 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";driver.dcr.log.skipUpdate" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[DCR configuration %s already matches the requested settings. No update is needed.]]></Val>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";driver.dcr.log.successCreateDcr" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[DCR configuration created successfully with id %s!]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[DCR yapılandırması, kimlik %s ile başarıyla oluşturuldu!]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.dcr.log.successUpdate" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[DCR configuration %s updated successfully. Updated fields: %s.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[DCR yapılandırması %s başarıyla güncelleştirildi. Güncelleştirilen alanlar: %s.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -7543,6 +7570,12 @@
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[DCR yapılandırması oluşturuluyor...]]></Val>
           </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.dcr.title.update" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Updating DCR configuration...]]></Val>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -10507,6 +10540,12 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";error.m365.AdvancedPackageUploadsDisabled" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Upload blocked by your tenant's Advanced package uploads setting. Ask your Microsoft 365 admin to allow uploads for your account by selecting All users or including you in Specific users or groups. Learn more: [Manage Advanced package uploads]5D;(%s)]]></Val>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";error.m365.M365TenantIdNotFoundInTokenError" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Unable to obtain Microsoft 365 tenant ID in token JSON object. Make sure your account is authorized to access the tenant and the token JSON object is valid.]]></Val>
@@ -10551,18 +10590,6 @@
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Unable to extend Teams app to Microsoft 365. Use 'teamsApp/extendToM365' action to extend your Teams app to Microsoft 365.]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";error.m365.SharedScopeAdvancedDADisabled" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Deployment blocked: Advanced declarative agent can't be deployed as 'shared' scope due to tenant permission settings. Get more info: [Known limitation of Advanced Declarative Agent]5D;(%s)]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Dağıtım engellendi: Kiracı izin ayarları nedeniyle gelişmiş bildirim temelli aracı 'paylaşılan' kapsam olarak dağıtılamıyor. Daha fazla bilgi edinin: [Gelişmiş Bildirim aracısının bilinen sınırlaması]5D;(%s)]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Deployment blocked: Advanced declarative agent can't be deployed due to tenant permission settings. Get more info: [Manage agents for Microsoft 365 Copilot in the Microsoft 365 admin center - Microsoft 365 admin | Microsoft Learn]5D;(%s)]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
