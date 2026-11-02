@@ -226,6 +226,12 @@ describe("FxCoreClient", () => {
   it("PUBLISH-CLIENT-02: publish forwards inputs and signal to the YAML lifecycle", async () => {
     const publishSpy = vi.spyOn(FxCore.prototype, "publishApplication").mockResolvedValue(ok());
     const legacyPublishSpy = vi.spyOn(FxCore.prototype, "publishTeamsAppCLIV3");
+    const outputs = {
+      M365_PUBLISHED_TITLE_ID: "published-title-id",
+      M365_PUBLISHED_APP_ID: "published-app-id",
+      CUSTOM_PUBLISH_OUTPUT: "custom-value",
+    };
+    const readEnvSpy = vi.spyOn(envUtil, "readEnv").mockResolvedValue(ok(outputs));
     const controller = new AbortController();
     const client = new FxCoreClient(new MockTools());
     const inputs = {
@@ -238,8 +244,9 @@ describe("FxCoreClient", () => {
 
     expect(result.isOk()).toBe(true);
     if (result.isOk()) {
-      expect(result.value).toBeUndefined();
+      expect(result.value).toEqual({ outputs });
     }
+    expect(readEnvSpy).toHaveBeenCalledWith("project", "dev", false, false);
     expect(publishSpy).toHaveBeenCalledWith({ ...inputs, abortSignal: controller.signal });
     expect(legacyPublishSpy).not.toHaveBeenCalled();
     expect(inputs).not.toHaveProperty("abortSignal");
@@ -301,6 +308,22 @@ describe("FxCoreClient", () => {
     }
   );
 
+  it("PUBLISH-CLIENT-05: environment read errors are preserved after publishing", async () => {
+    vi.spyOn(FxCore.prototype, "publishApplication").mockResolvedValue(ok());
+    const expectedError = new UserCancelError("test-read-env");
+    vi.spyOn(envUtil, "readEnv").mockResolvedValue(err(expectedError));
+    const client = new FxCoreClient(new MockTools());
+
+    const result = await client.publish({
+      platform: Platform.CLI,
+      projectPath: "project",
+      env: "dev",
+    });
+
+    expect(result.isErr()).toBe(true);
+    if (result.isErr()) expect(result.error).toBe(expectedError);
+  });
+
   it.each(["dev", "local"])(
     "PUBLISH-CLIENT-01: publishing %s executes real YAML without tenant writes",
     async (env) => {
@@ -323,9 +346,11 @@ describe("FxCoreClient", () => {
             "publish:",
             "  - uses: file/createOrUpdateEnvironmentFile",
             "    with:",
-            "      target: ./publish.env",
+            `      target: ./env/.env.${env}`,
             "      envs:",
             `        PUBLISHED_ENV: "${env}"`,
+            '        M365_PUBLISHED_TITLE_ID: "published-title-id"',
+            '        M365_PUBLISHED_APP_ID: "published-app-id"',
             "",
           ].join("\n")
         );
@@ -339,8 +364,19 @@ describe("FxCoreClient", () => {
         });
 
         expect(result.isOk()).toBe(true);
-        if (result.isOk()) expect(result.value).toBeUndefined();
-        expect(readFileSync(join(folder, "publish.env"), "utf8")).toContain(`PUBLISHED_ENV=${env}`);
+        if (result.isOk()) {
+          expect(result.value).toEqual({
+            outputs: {
+              TEAMSFX_ENV: env,
+              PUBLISHED_ENV: env,
+              M365_PUBLISHED_TITLE_ID: "published-title-id",
+              M365_PUBLISHED_APP_ID: "published-app-id",
+            },
+          });
+        }
+        expect(readFileSync(join(folder, "env", `.env.${env}`), "utf8")).toContain(
+          `PUBLISHED_ENV=${env}`
+        );
         expect(existsSync(join(folder, "provision.env"))).toBe(false);
       } finally {
         rmSync(folder, { recursive: true, force: true });
