@@ -6,7 +6,12 @@ APP_NAME_SUFFIX=local
 
 # Generated during provision, you can also add your own variables.
 BOT_ID=
+{{#NewDeveloperPortalApis}}
+APP_ID=
+{{/NewDeveloperPortalApis}}
+{{^NewDeveloperPortalApis}}
 TEAMS_APP_ID=
+{{/NewDeveloperPortalApis}}
 TEAMS_APP_TENANT_ID=
 
 M365_TITLE_ID=

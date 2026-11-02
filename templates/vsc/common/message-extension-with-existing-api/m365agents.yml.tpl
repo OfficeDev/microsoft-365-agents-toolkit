@@ -15,7 +15,12 @@ provision:
     # Write the information of created resources into environment file for
     # the specified environment variable(s).
     writeToEnvironmentFile:
+      {{#NewDeveloperPortalApis}}
+      appId: APP_ID
+      {{/NewDeveloperPortalApis}}
+      {{^NewDeveloperPortalApis}}
       teamsAppId: TEAMS_APP_ID
+      {{/NewDeveloperPortalApis}}
 
 {{#ApiKey}}
   # Register API KEY
@@ -24,7 +29,12 @@ provision:
       # Name of the API Key
       name: {{ApiSpecAuthName}}
       # app ID
+      {{#NewDeveloperPortalApis}}
+      appId: ${{APP_ID}}
+      {{/NewDeveloperPortalApis}}
+      {{^NewDeveloperPortalApis}}
       appId: ${{TEAMS_APP_ID}}
+      {{/NewDeveloperPortalApis}}
       # Path to OpenAPI description document
       apiSpecPath: {{{ApiSpecPath}}}
     # Write the registration information of API Key into environment file for
@@ -38,13 +48,18 @@ provision:
       name: {{ApiSpecAuthName}}
       flow: authorizationCode
       # app ID
+      {{#NewDeveloperPortalApis}}
+      appId: ${{APP_ID}}
+      {{/NewDeveloperPortalApis}}
+      {{^NewDeveloperPortalApis}}
       appId: ${{TEAMS_APP_ID}}
+      {{/NewDeveloperPortalApis}}
       # Path to OpenAPI description document
       apiSpecPath: {{{ApiSpecPath}}}
       # Use below property to change token exchange behaviour, BasicAuthorizationHeader: token exchange is done via HTTP headers. PostRequestBody: token exchange is done via request body
       # tokenExchangeMethodType: BasicAuthorizationHeader
       # Uncomment below property to use proof key for code exchange (PKCE)
-      # isPKCEEnabled: true      
+      # isPKCEEnabled: true
     writeToEnvironmentFile:
       configurationId: {{ApiSpecAuthRegistrationIdEnvName}}
 {{/OAuth}}

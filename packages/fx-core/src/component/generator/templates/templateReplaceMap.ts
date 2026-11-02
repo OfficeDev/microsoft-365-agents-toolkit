@@ -50,6 +50,9 @@ export function getTemplateReplaceMap(inputs: Inputs): { [key: string]: string }
   }
 
   return {
+    NewDeveloperPortalApis: featureFlagManager.getBooleanValue(FeatureFlags.NewDeveloperPortalApis)
+      ? "true"
+      : "",
     appName: appName,
     ProjectName: appName,
     SolutionName: solutionName,

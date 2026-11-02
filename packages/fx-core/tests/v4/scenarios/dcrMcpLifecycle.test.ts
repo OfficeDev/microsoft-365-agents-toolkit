@@ -77,6 +77,7 @@ describe("DCR MCP auth lifecycle - L1 composition, not UI or live service covera
     vi.stubEnv("TEAMSFX_SOVEREIGN_CLOUD_ENVIRONMENT", undefined);
     vi.stubEnv("TEAMSFX_ENV", "dev");
     vi.stubEnv("TEAMS_APP_ID", "test-m365-app");
+    vi.stubEnv("APP_ID", "test-m365-app");
     vi.spyOn(mcpAuthScaffoldDeps, "probeMCPServerAuth").mockRejectedValue(
       new Error("Dynamic scaffolding must not discover OAuth metadata")
     );

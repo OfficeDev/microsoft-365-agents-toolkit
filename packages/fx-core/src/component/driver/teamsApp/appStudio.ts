@@ -26,10 +26,7 @@ import { basename, extname } from "path";
 import { Container } from "typedi";
 import * as util from "util";
 import isUUID from "validator/lib/isUUID";
-import {
-  isUsingNewDeveloperPortalApis,
-  teamsDevPortalClient,
-} from "../../../client/teamsDevPortalClientProvider";
+import { teamsDevPortalClient } from "../../../client/teamsDevPortalClientProvider";
 import { AppStudioScopes } from "../../../common/constants";
 import { getDefaultString, getLocalizedString } from "../../../common/localizeUtils";
 import { FileNotFoundError, UserCancelError } from "../../../error/common";
@@ -49,6 +46,7 @@ import { AppPackage } from "./interfaces/appdefinitions/appPackage";
 import { AppStudioResultFactory } from "./results";
 import { manifestUtils } from "./utils/ManifestUtils";
 import { generateDriverContext } from "../../../common/utils";
+import { appIdentityError, resolveProjectAppResourceId } from "../../utils/appIdentity";
 
 export async function checkIfAppInDifferentAcountSameTenant(
   teamsAppId: string,
@@ -125,7 +123,10 @@ export async function updateManifestV3(
     }
   }
   const existingManifest = await fs.readJSON(manifestFileName);
-  const teamsAppId = manifest.id;
+  const identity = await resolveProjectAppResourceId(inputs.projectPath, process.env, manifest.id);
+  if (identity.isErr()) return err(identity.error);
+  const teamsAppId = identity.value;
+  if (!teamsAppId) return err(appIdentityError("APP_ID"));
   delete manifest.id;
   delete existingManifest.id;
   if (!_.isEqual(manifest, existingManifest)) {
@@ -159,8 +160,8 @@ export async function updateManifestV3(
   try {
     const localUpdateTime = process.env.TEAMS_APP_UPDATE_TIME;
     if (localUpdateTime) {
-      const app = await teamsDevPortalClient.getApp(appStudioToken, teamsAppId);
-      const devPortalUpdateTime = new Date(app.updatedAt!)?.getTime() ?? -1;
+      const updatedAt = await teamsDevPortalClient.getAppLastModified(appStudioToken, teamsAppId);
+      const devPortalUpdateTime = new Date(updatedAt).getTime();
       if (new Date(localUpdateTime).getTime() < devPortalUpdateTime) {
         const option = getLocalizedString("plugins.appstudio.overwriteAndUpdate");
         const res = await ctx.userInteraction.showMessage(
@@ -319,11 +320,7 @@ export async function getAppPackage(
 
     const appPackage: AppPackage = {};
 
-    const buffer = isUsingNewDeveloperPortalApis()
-      ? Buffer.isBuffer(data)
-        ? data
-        : Buffer.from(data)
-      : Buffer.from(data, "base64");
+    const buffer = Buffer.isBuffer(data) ? data : Buffer.from(data, "base64");
     const zip = new AdmZip(buffer);
     const zipEntries = zip.getEntries(); // an array of ZipEntry records
 

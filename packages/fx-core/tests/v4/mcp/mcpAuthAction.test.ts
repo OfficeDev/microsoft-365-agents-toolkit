@@ -2,7 +2,8 @@
 // Licensed under the MIT license.
 
 import { parse } from "yaml";
-import { assert } from "vitest";
+import { assert, vi } from "vitest";
+import { FeatureFlagName } from "../../../src/common/featureFlags";
 import { injectMcpAuthActionYaml } from "../../../src/v4/mcp/mcpAuthAction";
 
 const BASE_YML = [
@@ -24,6 +25,51 @@ function provisionActions(yaml: string): any[] {
 }
 
 describe("v4 MCP auth YAML action", () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+  });
+
+  for (const enabled of ["true", "false"]) {
+    for (const authType of ["oauth", "entra-sso", "oauth-dynamic", "bearer-token"]) {
+      it.each([
+        { key: "appId", variable: "APP_ID" },
+        { key: "teamsAppId", variable: "TEAMS_APP_ID" },
+        { key: "appId", variable: "CUSTOM_RESOURCE_ID" },
+        { key: "teamsAppId", variable: "LEGACY_CUSTOM_ID" },
+      ])(
+        `AC-09: ${authType} preserves $key: $variable with new API=${enabled}`,
+        ({ key, variable }) => {
+          vi.stubEnv(FeatureFlagName.NewDeveloperPortalApis, enabled);
+          const yaml = BASE_YML.replace("teamsAppId: TEAMS_APP_ID", `${key}: ${variable}`);
+          const args = { ...BASE_ARGS, authType, endpoints: {} };
+          const first = injectMcpAuthActionYaml(yaml, args)._unsafeUnwrap();
+          const actions = provisionActions(first.yaml);
+          assert.deepEqual(actions[0], provisionActions(yaml)[0]);
+          assert.strictEqual(actions[1].with.appId, `\${{${variable}}}`);
+          assert.notInclude(first.yaml, "APP_MANIFEST_ID");
+          const second = injectMcpAuthActionYaml(first.yaml, args)._unsafeUnwrap();
+          assert.strictEqual(second.yaml, first.yaml);
+        }
+      );
+    }
+  }
+
+  it.each([
+    "appId: APP_ID\n      teamsAppId: TEAMS_APP_ID",
+    "appId: null\n      teamsAppId: TEAMS_APP_ID",
+    "appId: 42",
+    'appId: ""',
+    'appId: "   "',
+  ])("AC-04: rejects ambiguous or invalid create output without fallback (%s)", (output) => {
+    const result = injectMcpAuthActionYaml(BASE_YML.replace("teamsAppId: TEAMS_APP_ID", output), {
+      ...BASE_ARGS,
+      authType: "oauth",
+      endpoints: {},
+    });
+    assert.isTrue(result.isErr());
+    assert.strictEqual(result._unsafeUnwrapErr().name, "McpAuthInjectFailed");
+  });
+
   it("SCN-CREATE-MCP-05: injects the complete Custom OAuth action", () => {
     const result = injectMcpAuthActionYaml(BASE_YML, {
       ...BASE_ARGS,

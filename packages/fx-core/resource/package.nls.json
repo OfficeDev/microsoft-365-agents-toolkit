@@ -1,4 +1,6 @@
 {
+  "error.dp.invalidIdentity": "The app identity is missing, invalid, or inconsistent (%s). Check the selected environment and the Developer Portal app.",
+  "error.dp.splitIdentityRequiresNewApi": "This imported app has different resource and manifest IDs. Enable TEAMSFX_NEW_DP_APIS to use this project. No app changes were made.",
   "core.addApi.confirm": "Microsoft 365 Agents Toolkit will modify files in your \"%s\" folder based on the new OpenAPI document you provided. To avoid losing unexpected changes, back up your files or use git for change tracking before proceeding.",
   "core.addApi.confirm.teamsYaml": "Microsoft 365 Agents Toolkit will modify files in your \"%s\" folder and \"%s\" based on the new OpenAPI document you provided. To avoid losing unexpected changes, back up your files or use git for change tracking before proceeding.",
   "core.addApi.confirm.localTeamsYaml": "Microsoft 365 Agents Toolkit will modify files in your \"%s\" folder, \"%s\" and \"%s\" based on the new OpenAPI document you provided. To avoid losing unexpected changes, back up your files or use git for change tracking before proceeding.",

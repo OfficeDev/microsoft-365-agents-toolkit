@@ -122,6 +122,12 @@ export { PackageService } from "./component/m365/packageService";
 export * from "./component/middleware/actionExecutionMW";
 export { outputScaffoldingWarningMessage } from "./component/utils/common";
 export { DotenvOutput, envUtil } from "./component/utils/envUtil";
+export { getAppResourceId } from "./component/utils/appInfo";
+export {
+  defaultAppIdEnvName,
+  getAppIdEnvName,
+  resolveAppResourceId,
+} from "./component/utils/appIdentity";
 export { MCP_AUTH_PLACEHOLDER_WARNING_TYPES } from "./component/utils/mcpAuthScaffolder";
 export {
   MCPAuthProbeResult,

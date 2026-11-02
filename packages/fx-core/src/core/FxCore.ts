@@ -305,7 +305,10 @@ export class FxCore extends FxCoreOpenPluginPart {
           [CoreTelemetryProperty.TdpTeamsAppFeatures]: getFeaturesFromAppDefinition(
             inputs.teamsAppFromTdp
           ).join(","),
-          [CoreTelemetryProperty.TdpTeamsAppId]: inputs.teamsAppFromTdp.teamsAppId,
+          [CoreTelemetryProperty.TdpTeamsAppId]:
+            "appProfile" in inputs.teamsAppFromTdp
+              ? inputs.teamsAppFromTdp.appId
+              : inputs.teamsAppFromTdp.teamsAppId,
         });
       }
     }
@@ -522,8 +525,16 @@ export class FxCore extends FxCoreOpenPluginPart {
     let m365TitleIdKeyName = "";
     for (const action of projectModel.provision?.driverDefs ?? []) {
       if (action.uses === "teamsApp/create") {
-        teamsAppIdKeyName = action.writeToEnvironmentFile?.teamsAppId || "TEAMS_APP_ID";
-        teamsAppId = process.env[teamsAppIdKeyName];
+        teamsAppIdKeyName =
+          action.writeToEnvironmentFile?.appId ??
+          action.writeToEnvironmentFile?.teamsAppId ??
+          (featureFlagManager.getBooleanValue(FeatureFlags.NewDeveloperPortalApis) &&
+          process.env.APP_ID
+            ? "APP_ID"
+            : "TEAMS_APP_ID");
+        teamsAppId = featureFlagManager.getBooleanValue(FeatureFlags.NewDeveloperPortalApis)
+          ? process.env[teamsAppIdKeyName] || process.env.APP_ID || process.env.TEAMS_APP_ID
+          : process.env[teamsAppIdKeyName];
       } else if (action.uses === "botFramework/create") {
         botIdKeyName = action.writeToEnvironmentFile?.botId || "BOT_ID";
         botId = process.env[botIdKeyName];
@@ -539,7 +550,13 @@ export class FxCore extends FxCoreOpenPluginPart {
     const botOption = uninstallOptions?.includes(QuestionNames.UninstallOptionBot);
 
     if ((teamsAppId || m365TitleId) && m356AppOption) {
-      const res = await this.uninstallM365App(m365TitleId, teamsAppId, this.getAbortSignal(inputs));
+      const res = await this.uninstallM365App(
+        m365TitleId,
+        featureFlagManager.getBooleanValue(FeatureFlags.NewDeveloperPortalApis)
+          ? process.env.APP_MANIFEST_ID || teamsAppId
+          : teamsAppId,
+        this.getAbortSignal(inputs)
+      );
       if (res.isErr()) {
         return err(res.error);
       }
@@ -1544,10 +1561,17 @@ export class FxCore extends FxCoreOpenPluginPart {
         (d) => d.uses === "teamsApp/create"
       );
       if (teamsAppCreate) {
-        const teamsAppIdEnvName = teamsAppCreate.writeToEnvironmentFile?.teamsAppId;
-        if (teamsAppIdEnvName) {
-          const teamsAppId = envObject[teamsAppIdEnvName];
-          res.teamsAppId = teamsAppId;
+        const teamsAppIdEnvName =
+          teamsAppCreate.writeToEnvironmentFile?.appId ??
+          teamsAppCreate.writeToEnvironmentFile?.teamsAppId;
+        if (featureFlagManager.getBooleanValue(FeatureFlags.NewDeveloperPortalApis)) {
+          res.teamsAppId =
+            (teamsAppIdEnvName ? envObject[teamsAppIdEnvName] : undefined) ||
+            envObject.APP_ID ||
+            envObject.TEAMS_APP_ID ||
+            "";
+        } else if (teamsAppIdEnvName) {
+          res.teamsAppId = envObject[teamsAppIdEnvName];
         }
         const name = (teamsAppCreate.with as any).name;
         if (name) {

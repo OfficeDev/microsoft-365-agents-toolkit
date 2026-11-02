@@ -20,13 +20,14 @@ import { MockTools } from "../core/utils";
 describe("teamsDevPortalClientProvider", () => {
   beforeEach(() => {
     setTools(new MockTools());
+    vi.stubEnv(FeatureFlagName.NewDeveloperPortalApis, "false");
     RetryHandler.RETRIES = 1;
   });
 
   afterEach(() => {
     vi.restoreAllMocks();
     RetryHandler.RETRIES = 6;
-    delete process.env[FeatureFlagName.NewDeveloperPortalApis];
+    vi.unstubAllEnvs();
     legacyTeamsDevPortalClient.regionEndpoint = undefined;
     devPortalClient.regionEndpoint = undefined;
   });

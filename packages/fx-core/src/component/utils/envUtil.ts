@@ -13,7 +13,7 @@ import { EOL } from "os";
 import { TelemetryEvent } from "../../common/telemetry";
 import { createHash } from "crypto";
 import { FileNotFoundError } from "../../error/common";
-import { internalOutputNames as UpdateTeamsAppOutputNames } from "../driver/teamsApp/configure";
+import { teamsAppUpdateOutputNames as UpdateTeamsAppOutputNames } from "../driver/teamsApp/constants";
 import { environmentNameManager } from "../../core/environmentName";
 
 export type DotenvOutput = {
@@ -29,6 +29,8 @@ const EligibleKeys: EligibleKeySettings = {
   AZURE_SUBSCRIPTION_ID: false,
   BOT_ID: false,
   TEAMS_APP_ID: false,
+  APP_ID: false,
+  APP_MANIFEST_ID: false,
   TAB_ENDPOINT: true,
   TEAMS_APP_TENANT_ID: false,
 };
