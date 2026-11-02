@@ -12,8 +12,10 @@ Requires Node.js 20.19.0 or later in the 20.x series, or Node.js 22.12.0 or late
 through `FxCore.publishApplication`. Provide `projectPath` and `env`; publishing
 actions and output mappings come from the project configuration.
 
-The success value is `undefined`, not a package path. Consumers of the former
-`packagePath` result must update; `FxCoreClient.package` still returns the ZIP path.
+The success value contains `outputs`, the selected environment's persisted
+snapshot after publishing, including IDs under the configured output variable
+names. Consumers of the former `packagePath` result must update;
+`FxCoreClient.package` still returns the ZIP path.
 The legacy `FxCore.publishTeamsAppCLIV3` API remains unchanged for callers that
 explicitly need Teams package submission. See the
 [client publishing contract](../../docs/03-specs/operations/lifecycle/publish-client.md)

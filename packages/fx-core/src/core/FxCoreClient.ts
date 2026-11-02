@@ -40,8 +40,9 @@ export interface FxCorePackageResult {
   packagePath: string;
 }
 
-/** Lifecycle outputs are persisted to the environment, not returned as a ZIP path. */
-export type FxCorePublishResult = undefined;
+export interface FxCorePublishResult {
+  outputs: Record<string, string>;
+}
 
 export type FxCoreValidationSeverity = "error" | "warning" | "info";
 
@@ -207,7 +208,9 @@ export class FxCoreClient implements IFxCoreClient {
     if (result.isErr()) return err(result.error);
     const afterOperation = this.cancelled<FxCorePublishResult>(options?.signal);
     if (afterOperation) return afterOperation;
-    return ok(undefined);
+    const envResult = await envUtil.readEnv(inputs.projectPath, inputs.env, false, false);
+    if (envResult.isErr()) return err(envResult.error);
+    return ok({ outputs: envResult.value });
   }
 
   public async validate(
