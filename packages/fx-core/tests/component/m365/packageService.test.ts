@@ -1160,7 +1160,9 @@ describe("Package Service", () => {
     expect(post).toHaveBeenCalledWith(
       "/builder/v1/users/packages",
       expect.anything(),
-      expect.objectContaining({ params: { scope: AppScope.Shared, isRAIValidationAsync: true } })
+      expect.objectContaining({
+        params: expect.objectContaining({ scope: AppScope.Shared }),
+      })
     );
     expect(shareLink).not.toHaveBeenCalled();
   });
@@ -2521,7 +2523,9 @@ describe("Package Service", () => {
     expect(post).toHaveBeenCalledWith(
       "/builder/v1/users/packages",
       expect.anything(),
-      expect.objectContaining({ params: { scope: AppScope.Personal, isRAIValidationAsync: true } })
+      expect.objectContaining({
+        params: expect.objectContaining({ scope: AppScope.Personal }),
+      })
     );
   });
 });

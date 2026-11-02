@@ -90,6 +90,18 @@ async function runDcrUpdateStage(phase, projectPath, options = {}) {
     { type: "OAuthPluginVault", reference_id: "${{" + key + "}}" },
     "Original configuration reference must be retained",
   );
+  const manifestPath = path.join(project, "appPackage", "manifest.json");
+  const manifest = await readJson(manifestPath);
+  assert.match(
+    manifest.version,
+    /^\d+\.\d+\.\d+$/,
+    "Teams app manifest version must use numeric major.minor.patch",
+  );
+  const incrementPatchVersion = (version, increment) => {
+    const parts = version.split(".").map(Number);
+    parts[2] += increment;
+    return parts.join(".");
+  };
   const localText = await fs.readFile(
     path.join(project, ".vscode", "mcp.json"),
     "utf8",
@@ -249,6 +261,7 @@ async function runDcrUpdateStage(phase, projectPath, options = {}) {
         environmentStateHash,
         publicEnvironment,
         auth: runtime.auth,
+        manifestVersion: manifest.version,
       }),
       { flag: "wx" },
     );
@@ -259,8 +272,29 @@ async function runDcrUpdateStage(phase, projectPath, options = {}) {
     baseline.configurationId === id &&
       baseline.runId === ownership.runId &&
       baseline.endpoint === endpoint &&
-      baseline.supportedAccountTypes === "Enterprise",
+      baseline.supportedAccountTypes === "Enterprise" &&
+      typeof baseline.manifestVersion === "string",
     "Baseline configuration identity mismatch",
+  );
+  const checkpoint = path.join(directory, "dcr-update-verified.json");
+  if (phase === "noop") {
+    assert.deepEqual(
+      await readJson(checkpoint),
+      { configurationId: id, runId: ownership.runId },
+      "Missing successful update checkpoint",
+    );
+  }
+  const expectedManifestVersion =
+    phase === "apply"
+      ? baseline.manifestVersion
+      : incrementPatchVersion(
+          baseline.manifestVersion,
+          phase === "verify" ? 1 : 2,
+        );
+  assert.equal(
+    manifest.version,
+    expectedManifestVersion,
+    "Unexpected Teams app manifest version before repeated Provision",
   );
   if (fileHashes.environment !== baseline.fileHashes.environment) {
     const changed = [
@@ -321,6 +355,8 @@ async function runDcrUpdateStage(phase, projectPath, options = {}) {
       },
     });
     await fs.writeFile(workflowPath, yaml.dump(workflow, { lineWidth: -1 }));
+    manifest.version = incrementPatchVersion(baseline.manifestVersion, 1);
+    await fs.writeFile(manifestPath, JSON.stringify(manifest, null, 4) + "\n");
     return ownership.runId;
   }
   const updates = workflow.provision.filter(
@@ -334,14 +370,6 @@ async function runDcrUpdateStage(phase, projectPath, options = {}) {
   const sleep =
     options.sleep ??
     ((ms) => new Promise((resolve) => setTimeout(resolve, ms)));
-  const checkpoint = path.join(directory, "dcr-update-verified.json");
-  if (phase === "noop") {
-    assert.deepEqual(
-      await readJson(checkpoint),
-      { configurationId: id, runId: ownership.runId },
-      "Missing successful update checkpoint",
-    );
-  }
   if (phase === "verify" || phase === "noop") {
     let consecutive = 0;
     for (let attempt = 0; attempt < 30; attempt++) {
@@ -369,6 +397,8 @@ async function runDcrUpdateStage(phase, projectPath, options = {}) {
       JSON.stringify({ configurationId: id, runId: ownership.runId }),
       { flag: "wx" },
     );
+    manifest.version = incrementPatchVersion(baseline.manifestVersion, 2);
+    await fs.writeFile(manifestPath, JSON.stringify(manifest, null, 4) + "\n");
   }
   return ownership.runId;
 }

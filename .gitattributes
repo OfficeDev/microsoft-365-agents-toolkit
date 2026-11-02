@@ -3,6 +3,7 @@
 *.cjs eol=lf
 *.mjs eol=lf
 *.json eol=lf
+*.patch eol=lf whitespace=-blank-at-eol
 *.md eol=lf
 *.ts eol=lf
 *.tsx eol=lf

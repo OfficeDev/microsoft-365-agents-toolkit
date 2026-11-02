@@ -74,6 +74,10 @@ async function fixture(context) {
     }),
   );
   await fs.writeFile(
+    path.join(project, "appPackage", "manifest.json"),
+    JSON.stringify({ version: "1.0.0" }),
+  );
+  await fs.writeFile(
     path.join(project, ".vscode", "mcp.json"),
     JSON.stringify({
       servers: { owned: { type: "http", url: endpoint } },
@@ -184,6 +188,41 @@ test("VCB-191 / DCR-UI-UPD-03: adds only the supported policy update without rew
   assert.equal(
     await fs.readFile(path.join(f.project, ".vscode", "mcp.json"), "utf8"),
     localBefore,
+  );
+  assert.equal(
+    JSON.parse(
+      await fs.readFile(
+        path.join(f.project, "appPackage", "manifest.json"),
+        "utf8",
+      ),
+    ).version,
+    "1.0.1",
+  );
+});
+
+test("VCB-201: repeated shared-scope provisions use increasing manifest versions", async (context) => {
+  const run = runtime();
+  const f = await fixture(context);
+  const manifestPath = path.join(f.project, "appPackage", "manifest.json");
+  await run("baseline", f.project, f.options);
+  await run("apply", f.project, f.options);
+  assert.equal(
+    JSON.parse(await fs.readFile(manifestPath, "utf8")).version,
+    "1.0.1",
+  );
+  f.setState({
+    ...f.state(),
+    supportedAccountTypes: "Enterprise, Consumer",
+  });
+  await run("verify", f.project, f.options);
+  assert.equal(
+    JSON.parse(await fs.readFile(manifestPath, "utf8")).version,
+    "1.0.2",
+  );
+  await run("noop", f.project, f.options);
+  assert.equal(
+    JSON.parse(await fs.readFile(manifestPath, "utf8")).version,
+    "1.0.2",
   );
 });
 
