@@ -69,13 +69,14 @@ publish:
     with:
       # Relative path to this file. This is the path for built zip file.
       appPackagePath: ./appPackage/build/appPackage.${{TEAMSFX_ENV}}.zip
-  # Publish the app to
-  # Teams Admin Center (https://admin.teams.microsoft.com/policies/manage-apps)
-  # for review and approval
-  - uses: teamsApp/publishAppPackage
+  # Submit the app to the tenant catalog through the Microsoft 365 publishing service.
+  - uses: copilotAgent/publish
     with:
+      # Relative path to this file. This is the path for built zip file.
       appPackagePath: ./appPackage/build/appPackage.${{TEAMSFX_ENV}}.zip
-    # Write the information of created resources into environment file for
-    # the specified environment variable(s).
+      scope: tenant
+    # Store tenant publication IDs separately from provisioning IDs.
+    # Tenant publishing does not generate a share link.
     writeToEnvironmentFile:
-      publishedAppId: TEAMS_APP_PUBLISHED_APP_ID
+      titleId: M365_PUBLISHED_TITLE_ID
+      appId: M365_PUBLISHED_APP_ID
