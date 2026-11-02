@@ -45,7 +45,7 @@
     "adaptive-expressions": "^4.20.0",
     "adaptivecards": "~2.10.0",
     "adaptivecards-templating": "^2.1.0",
-    "markdown-it": "^14.3.0",
+    "markdown-it": "^14.3.3",
     "react": "^17.0.2"
   },
   "overrides": {

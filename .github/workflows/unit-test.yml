@@ -48,6 +48,9 @@ jobs:
       - name: Check scenario artifacts
         run: pnpm --dir packages/fx-core run scenario:check
 
+      - name: Verify dependency security backports
+        run: pnpm run test:security-backports
+
       - name: Unit Test
         run: |
           xvfb-run -a pnpm -r --stream --workspace-concurrency=8 run test:unit
