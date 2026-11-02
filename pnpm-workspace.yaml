@@ -22,3 +22,5 @@ onlyBuiltDependencies:
 overrides:
   "hono@>=4.0.0 <4.12.27": "4.12.27"
   "ip-address@>=10.0.0 <10.1.1": "10.2.0"
+patchedDependencies:
+  node-forge@1.4.0: patches/node-forge@1.4.0.patch
