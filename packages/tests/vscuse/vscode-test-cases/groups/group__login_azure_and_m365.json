@@ -8,7 +8,7 @@
       "precondition_wait_timeout": 60,
       "precondition_retry_interval": 2
     },
-    "total_steps": 30,
+    "total_steps": 31,
     "created_at": "2026-06-11T03:17:05.683269",
     "name": "group: login_azure_and_m365",
     "description": {
@@ -44,6 +44,7 @@
       "step_301225ad",
       "step_329b2533",
       "step_961d5765",
+      "step_m365_password_page_ready",
       "step_bc756061",
       "step_c1b49ad1",
       "step_af16cb6a",
@@ -657,7 +658,7 @@
       "parameters": {
         "button": "left",
         "x": 626,
-        "y": 517
+        "y": 483
       },
       "description": "Click the \"Next\" button on the Microsoft sign-in page in Google Chrome after entering the account email address.",
       "content_refs": [],
@@ -665,18 +666,33 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [],
-      "preconditions": [
-        "dhash:626:517:16:5:9a9b8924126d0000",
-        "dhash:626:517:96:5:004a71714e000000",
-        "dhash:626:517:0:10:1b98f0d8c6e6dae4"
-      ],
+      "preconditions": [],
       "postconditions": [],
       "tags": [
         "delay: 5",
-        "force_run:true"
+        "ocr:true"
       ],
       "screenshot": "step_961d5765",
       "created_at": "2026-06-11T03:17:05.837502",
+      "plan_id": "plan_r_0928_020230"
+    },
+    {
+      "step_id": "step_m365_password_page_ready",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the Microsoft sign-in page shows \"Enter password\" and the account ${{env:M365_ACCOUNT_NAME}}.",
+      "content_refs": [],
+      "timeout": 60,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "step_retry_timeout: 60"
+      ],
+      "screenshot": null,
       "plan_id": "plan_r_0928_020230"
     },
     {
@@ -686,7 +702,7 @@
       "parameters": {
         "text": "${{secret:M365_ACCOUNT_PASSWORD}}"
       },
-      "description": "Type  ${{secret:M365_ACCOUNT_PASSWORD}} into the password input field on the Microsoft account login page for user ${{M365:AZURE_ACCOUNT_NAME}} in Google Chrome.",
+      "description": "Type ${{secret:M365_ACCOUNT_PASSWORD}} into the password input field on the Microsoft account login page for user ${{env:M365_ACCOUNT_NAME}} in Google Chrome.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
