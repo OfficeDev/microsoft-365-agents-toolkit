@@ -182,9 +182,7 @@ export async function clearCache(accountName: string) {
   try {
     await fs.remove(cachePath + accountName + cachePathEnd);
   } catch (err: any) {
-    VsCodeLogInstance.warning(
-      "Cannot remove token cache, clean up account cache. " + err.message
-    );
+    VsCodeLogInstance.warning("Cannot remove token cache, clean up account cache. " + err.message);
   }
 }
 

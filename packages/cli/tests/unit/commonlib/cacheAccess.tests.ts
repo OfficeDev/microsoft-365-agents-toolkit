@@ -92,8 +92,7 @@ describe("AccountCrypto Tests", function () {
     const accountCrypto = new AccountCrypto("test");
     (<any>accountCrypto).keytar = undefined;
     const plugin = new CryptoCachePlugin("test", accountCrypto);
-    const plaintextCache =
-      '{"Account":{},"AccessToken":{"token":{"secret":"fake-access-token"}}}';
+    const plaintextCache = '{"Account":{},"AccessToken":{"token":{"secret":"fake-access-token"}}}';
     const removeStub = vi.spyOn(fs, "remove").mockResolvedValue();
 
     vi.spyOn(fs, "ensureDir").mockResolvedValue();
@@ -113,8 +112,7 @@ describe("AccountCrypto Tests", function () {
     const accountCrypto = new AccountCrypto("test");
     (<any>accountCrypto).keytar = new MockKeytar();
     const plugin = new CryptoCachePlugin("test", accountCrypto);
-    const plaintextCache =
-      '{"Account":{},"AccessToken":{"token":{"secret":"fake-access-token"}}}';
+    const plaintextCache = '{"Account":{},"AccessToken":{"token":{"secret":"fake-access-token"}}}';
     const deserializeStub = vi.fn();
     const writeFileStub = vi.spyOn(fs, "writeFile").mockResolvedValue();
 
