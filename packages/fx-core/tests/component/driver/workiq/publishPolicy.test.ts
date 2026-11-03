@@ -18,7 +18,7 @@ import { mkdir, mkdtemp, readFile, rm, symlink, writeFile } from "fs/promises";
 import os from "os";
 import path from "path";
 import { Container } from "typedi";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, expectTypeOf, it, vi } from "vitest";
 import { Lifecycle } from "../../../../src/component/configManager/lifecycle";
 import { DriverContext } from "../../../../src/component/driver/interface/commonArgs";
 import { WorkIqPolicyClient, workIqPolicyClient } from "../../../../src/client/workIqPolicyClient";
@@ -29,6 +29,7 @@ import {
 } from "../../../../src/common/constants";
 import {
   PolicyPublicationOperation,
+  PublishPolicyArgs,
   WorkIqPolicyPublisher,
 } from "../../../../src/component/workiq/policyPublication";
 import { PublishPolicyDriver } from "../../../../src/component/driver/workiq/publishPolicy";
@@ -89,6 +90,12 @@ describe("workiq/publishPolicy Alpha", () => {
     vi.restoreAllMocks();
     vi.unstubAllEnvs();
     await rm(projectPath, { recursive: true, force: true });
+  });
+
+  it("uses PublishPolicyArgs at the driver boundary", () => {
+    expectTypeOf<
+      Parameters<PublishPolicyDriver["execute"]>[0]
+    >().toEqualTypeOf<PublishPolicyArgs>();
   });
 
   it("WIQ-POL-03: sends captured bytes in one create-only MOS request and identifies the Work IQ mock", async () => {

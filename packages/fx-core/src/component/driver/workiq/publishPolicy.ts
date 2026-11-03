@@ -16,6 +16,7 @@ import { PackageService } from "../../m365/packageService";
 import {
   PolicyPublicationOperation,
   PolicyPublicationReport,
+  PublishPolicyArgs,
   publishPolicyActionName,
   cancelPolicyPublication,
   createPolicyError,
@@ -33,7 +34,7 @@ export class PublishPolicyDriver implements StepDriver {
 
   @hooks([addStartAndEndTelemetry(publishPolicyActionName, publishPolicyActionName)])
   public async execute(
-    args: unknown,
+    args: PublishPolicyArgs,
     context: DriverContext,
     outputEnvVarNames?: Map<string, string>
   ): Promise<PolicyPublicationExecutionResult> {
