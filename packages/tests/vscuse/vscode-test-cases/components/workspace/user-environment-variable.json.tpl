@@ -126,6 +126,105 @@
       "tags": ["component:workspace", "operation:user-environment"]
     },
     {
+      "step_id": "step_setUserEnvironmentVariable_openClearNotifications_{{text:instanceSuffix}}",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "f1"
+      },
+      "description": "Press the F1 key to open the Command Palette in Visual Studio Code.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_setUserEnvironmentVariable_submitValue_{{text:instanceSuffix}}"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": ["component:workspace", "operation:user-environment"]
+    },
+    {
+      "step_id": "step_setUserEnvironmentVariable_assertClearNotificationsPalette_{{text:instanceSuffix}}",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the Visual Studio Code Command Palette is visible with a > character in its input box and is ready to accept a command search.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_setUserEnvironmentVariable_openClearNotifications_{{text:instanceSuffix}}"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:workspace",
+        "operation:user-environment",
+        "step_retry_timeout: 30"
+      ]
+    },
+    {
+      "step_id": "step_setUserEnvironmentVariable_filterClearNotifications_{{text:instanceSuffix}}",
+      "agent": "interaction",
+      "tool": "type_text",
+      "parameters": {
+        "text": "Notifications: Clear All Notifications"
+      },
+      "description": "Type Notifications: Clear All Notifications into the active Command Palette.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_setUserEnvironmentVariable_assertClearNotificationsPalette_{{text:instanceSuffix}}"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": ["component:workspace", "operation:user-environment"]
+    },
+    {
+      "step_id": "step_setUserEnvironmentVariable_assertClearNotificationsCommand_{{text:instanceSuffix}}",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the Command Palette input box reads >Notifications: Clear All Notifications and the highlighted command listed under it is titled Notifications: Clear All Notifications.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_setUserEnvironmentVariable_filterClearNotifications_{{text:instanceSuffix}}"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:workspace",
+        "operation:user-environment",
+        "step_retry_timeout: 30"
+      ]
+    },
+    {
+      "step_id": "step_setUserEnvironmentVariable_executeClearNotifications_{{text:instanceSuffix}}",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "enter"
+      },
+      "description": "Press Enter to clear all VS Code notifications before verifying the terminal completion marker.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_setUserEnvironmentVariable_assertClearNotificationsCommand_{{text:instanceSuffix}}"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": ["component:workspace", "operation:user-environment"]
+    },
+    {
       "step_id": "step_setUserEnvironmentVariable_assertUpdated_{{text:instanceSuffix}}",
       "agent": "assertion",
       "tool": "",
@@ -136,7 +235,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_setUserEnvironmentVariable_submitValue_{{text:instanceSuffix}}"
+        "step_setUserEnvironmentVariable_executeClearNotifications_{{text:instanceSuffix}}"
       ],
       "preconditions": [],
       "postconditions": [],
