@@ -33,7 +33,7 @@ cases:
         provision,
         f5-copilot-remote,
         open-agent,
-        check-github-issues,
+        check-github-issues-error-free,
       ]
 
 steps:
@@ -126,6 +126,16 @@ steps:
   # The query reads live public GitHub data, so exact issue titles and counts
   # are not stable assertions owned by this repository.
   check-github-issues:
+    type: checks
+    with:
+      - type: chat
+        send: get latest issues
+        allowAction: true
+        expect:
+          replied: true
+          validResponse: true
+
+  check-github-issues-error-free:
     type: checks
     with:
       - type: chat

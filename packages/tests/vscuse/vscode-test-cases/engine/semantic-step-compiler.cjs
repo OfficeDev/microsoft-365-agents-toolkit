@@ -3731,6 +3731,7 @@ function createSemanticStepCompiler() {
     const expected = assertion.expect ?? {};
     if (
       expected.replied === true ||
+      expected.validResponse === true ||
       expected.contains !== undefined ||
       expected.notContains !== undefined ||
       expected.toolCalled !== undefined ||
@@ -3772,6 +3773,13 @@ function createSemanticStepCompiler() {
         render(state, "browser/chat/assert-not-contains.json.tpl", {
           unexpectedText,
         }),
+      );
+      if (error) return error;
+    }
+    if (expected.validResponse === true) {
+      error = append(
+        output,
+        render(state, "browser/chat/assert-valid-response.json.tpl"),
       );
       if (error) return error;
     }
@@ -3887,6 +3895,7 @@ function createSemanticStepCompiler() {
             ? new Set(["contains"])
             : new Set([
                 "replied",
+                "validResponse",
                 "contains",
                 "notContains",
                 "toolCalled",
@@ -3924,6 +3933,8 @@ function createSemanticStepCompiler() {
       (expected.exists !== undefined && typeof expected.exists !== "boolean") ||
       (expected.replied !== undefined &&
         typeof expected.replied !== "boolean") ||
+      (expected.validResponse !== undefined &&
+        expected.validResponse !== true) ||
       (expected.toolCalled !== undefined &&
         (assertion.type !== "chat" ||
           typeof expected.toolCalled !== "string" ||

@@ -3596,6 +3596,61 @@ test("VCB-127: local user environment uses a verified terminal mutation", async 
   );
 });
 
+test("VCB-203: remote Python Search clears notifications before verifying user environment writes", async () => {
+  const result = await compileFixture(
+    "custom-copilot-rag-azure-ai-search.yml",
+    (sourceText) => sourceText,
+  );
+  assert.equal(result.ok, true, JSON.stringify(result.diagnostics));
+  const generated = result.value.find(
+    (candidate) =>
+      candidate.caseId === "rag-azure-ai-search-py-azure-openai-remote-teams",
+  );
+  const steps = generated.plan.steps;
+  const assertions = steps.filter((step) =>
+    step.step_id.startsWith("step_setUserEnvironmentVariable_assertUpdated_"),
+  );
+  assert.equal(assertions.length, 3);
+  for (const assertion of assertions) {
+    const index = steps.indexOf(assertion);
+    const clearing = steps.slice(index - 5, index);
+    assert.equal(
+      steps[index - 6].step_id.startsWith(
+        "step_setUserEnvironmentVariable_submitValue_",
+      ),
+      true,
+    );
+    assert.deepEqual(
+      clearing.map((step) => step.tool),
+      ["key_press", "", "type_text", "", "key_press"],
+    );
+    assert.equal(clearing[0].parameters.key, "f1");
+    assert.equal(
+      clearing[1].description.includes("Command Palette is visible"),
+      true,
+    );
+    assert.equal(
+      clearing[2].parameters.text,
+      "Notifications: Clear All Notifications",
+    );
+    assert.equal(clearing[3].description.includes("highlighted command"), true);
+    assert.equal(clearing[4].parameters.key, "enter");
+    assert.deepEqual(assertion.depends_on, [clearing[4].step_id]);
+    assert.equal(
+      assertion.description.includes(
+        "VSCUSE_USER_ENVIRONMENT_UPDATED on a standalone line",
+      ),
+      true,
+    );
+    assert.equal(
+      steps[index + 1].step_id.startsWith(
+        "step_setUserEnvironmentVariable_closeTerminal_",
+      ),
+      true,
+    );
+  }
+});
+
 test("VCB-155: user environment targets dev and playground with closed shell-safe inputs", async () => {
   const validBlock = `      target: dev
       variables:
@@ -3840,6 +3895,65 @@ steps:
     assert.equal(
       invalid.diagnostics[0].code,
       "VCB_TYPESPEC_ACTION_INPUT_INVALID",
+    );
+  }
+});
+
+test("VCB-202: TypeSpec remote preview requires a valid response without changing package coverage", async () => {
+  const result = await compileFixture(
+    "da-typespec-with-action.yml",
+    (sourceText) => sourceText,
+  );
+  assert.equal(result.ok, true, JSON.stringify(result.diagnostics));
+  for (const generated of result.value) {
+    const isPreview =
+      generated.caseId === "da-typespec-with-action-remote-preview";
+    assert.equal(
+      generated.plan.steps.at(-1).description,
+      isPreview
+        ? "@assertion agent has valid response."
+        : '@assertion the current assistant response does not contain "error".',
+    );
+    assert.equal(
+      generated.plan.steps.some((step) =>
+        step.step_id.startsWith("step_assertChatNotContains_"),
+      ),
+      !isPreview,
+    );
+    assert.equal(
+      generated.plan.steps.at(-2).step_id.startsWith("step_assertChatReplied_"),
+      true,
+    );
+  }
+});
+
+test("VCB-202: valid-response-only checks imply completion and reject non-true values", async () => {
+  const result = await compileFixture(
+    "da-typespec-with-action.yml",
+    (sourceText) =>
+      sourceText.replace(
+        "replied: true\n          validResponse: true",
+        "validResponse: true",
+      ),
+  );
+  assert.equal(result.ok, true, JSON.stringify(result.diagnostics));
+  assert.equal(
+    result.value[0].plan.steps
+      .at(-2)
+      .step_id.startsWith("step_assertChatReplied_"),
+    true,
+  );
+  for (const value of ["false", '"true"', "1", "null", "[]", "{}"]) {
+    const invalid = await compileFixture(
+      "da-typespec-with-action.yml",
+      (sourceText) =>
+        sourceText.replace("validResponse: true", `validResponse: ${value}`),
+    );
+    assert.equal(invalid.ok, false, value);
+    assert.equal(
+      invalid.diagnostics[0].code,
+      "VCB_CHECK_ASSERTION_INVALID",
+      value,
     );
   }
 });
