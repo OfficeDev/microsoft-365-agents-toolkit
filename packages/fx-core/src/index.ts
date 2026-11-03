@@ -100,6 +100,34 @@ export { AppDefinition } from "./component/driver/teamsApp/interfaces/appdefinit
 export { copilotGptManifestUtils } from "./component/driver/teamsApp/utils/CopilotGptManifestUtils";
 export { manifestUtils } from "./component/driver/teamsApp/utils/ManifestUtils";
 export { pluginManifestUtils } from "./component/driver/teamsApp/utils/PluginManifestUtils";
+export {
+  WorkIqPolicyClient,
+  WorkIqPolicyInspection,
+  WorkIqPolicyDeleteRequest,
+  workIqPolicyClient,
+} from "./client/workIqPolicyClient";
+export {
+  CapturedPolicy,
+  DestinationState,
+  MosPolicyPublicationRequest,
+  MosPolicyPublisher,
+  PolicyDestinationFailure,
+  PolicyDestinationReceipt,
+  PolicyDestinationReport,
+  PolicyDestinationResult,
+  PolicyPublicationContext,
+  PolicyPublicationError,
+  PolicyPublicationOperation,
+  PolicyPublicationReport,
+  PolicyPublicationOutcome,
+  PolicyPublicationNextAction,
+  PreparedPolicyPublication,
+  normalizeOutcome,
+  finalizePolicyPublicationReport,
+  PublishPolicyArgs,
+  WorkIqPolicyPublicationRequest,
+  WorkIqPolicyPublisher,
+} from "./component/workiq/policyPublication";
 export { DefaultTemplateGenerator } from "./component/generator/defaultGenerator";
 export { HelperMethods } from "./component/generator/officeAddin/helperMethods";
 export { generateScaffoldingSummary } from "./component/generator/openApiSpec/helper";

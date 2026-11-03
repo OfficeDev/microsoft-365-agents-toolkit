@@ -86,7 +86,8 @@
           { "$ref": "#/definitions/devChannelCreate" },
           { "$ref": "#/definitions/devChannelInstallApp" },
           { "$ref": "#/definitions/typeSpecCompile" },
-          { "$ref": "#/definitions/copilotAgentPublish" }
+          { "$ref": "#/definitions/copilotAgentPublish" },
+          { "$ref": "#/definitions/workIqPublishPolicy" }
         ]
       }
     },
@@ -2216,6 +2217,62 @@
             "typeSpecConfigPath": {
               "type": "string",
               "description": "Path to TypeSpec config file."
+            }
+          }
+        }
+      }
+    },
+    "workIqPublishPolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Publish MOS display policy and Work IQ runtime policy with independent authentication and ETags. An empty Work IQ endpoint remains explicitly mocked.",
+      "required": ["uses", "with"],
+      "properties": {
+        "name": { "type": "string" },
+        "env": {
+          "type": "object",
+          "additionalProperties": { "type": "string" }
+        },
+        "uses": { "const": "workiq/publishPolicy" },
+        "with": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["titleId", "policyPath", "callerId"],
+          "properties": {
+            "titleId": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Explicit MOS title ID."
+            },
+            "policyPath": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Policy JSON file inside the project. Its bytes are not substituted or rewritten."
+            },
+            "callerId": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Nonzero runtime App ID GUID, not maker or ATK identity."
+            },
+            "etag": {
+              "type": "string",
+              "pattern": "^\"[!#-~\\u0080-\\u00ff]*\"$",
+              "description": "Optional MOS strong ETag for explicit replacement. Omit for MOS creation."
+            },
+            "workIqEtag": {
+              "type": "string",
+              "pattern": "^\"[!#-~\\u0080-\\u00ff]*\"$",
+              "description": "Optional Work IQ strong ETag for complete replacement. Independent of the MOS ETag; omit for Work IQ creation."
+            }
+          }
+        },
+        "writeToEnvironmentFile": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "report": {
+              "$ref": "#/definitions/envVarName",
+              "description": "Optional JSON destination report. Work IQ mock acknowledgement is not real publication."
             }
           }
         }

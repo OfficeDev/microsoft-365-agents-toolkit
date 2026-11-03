@@ -14,11 +14,16 @@ import {
   UserError,
 } from "@microsoft/teamsfx-api";
 import AdmZip from "adm-zip";
+import axios from "axios";
 import FormData from "form-data";
 import fs from "fs-extra";
 import https from "https";
 import stripBom from "strip-bom";
-import { getResourceServiceEndpoint, ResourceServiceType } from "../../common/constants";
+import {
+  getResourceServiceEndpoint,
+  MosServiceScope,
+  ResourceServiceType,
+} from "../../common/constants";
 import { FeatureFlags, featureFlagManager } from "../../common/featureFlags";
 import { ErrorContextMW, TOOLS } from "../../common/globalVars";
 import { getDefaultString, getLocalizedString } from "../../common/localizeUtils";
@@ -32,9 +37,22 @@ import {
 } from "../../common/telemetry";
 import { waitSeconds } from "../../common/utils";
 import { WrappedAxiosClient } from "../../common/wrappedAxiosClient";
-import { assembleError } from "../../error/common";
+import {
+  assembleError,
+  InvalidActionInputError,
+  isUserCancelError,
+  UserCancelError,
+} from "../../error/common";
 import { ErrorCategory } from "../../error/types";
 import { AppUser } from "../driver/teamsApp/interfaces/appdefinitions/appUser";
+import {
+  createPolicyError,
+  isStrongPolicyEtag,
+  MosPolicyPublicationRequest,
+  PolicyDestinationResult,
+  PreparedPolicyPublication,
+  publishPolicyActionName,
+} from "../workiq/policyPublication";
 import { advancedDASettingUrl, M365HelpLink } from "./constants";
 import {
   NotExtendedToM365Error,
@@ -113,17 +131,184 @@ export class PackageService {
     this.logger = logger;
   }
 
-  private async withNetworkRetry<T>(fn: () => Promise<T>, retries = 3): Promise<T> {
+  public async publishWorkIqPolicy(
+    request: MosPolicyPublicationRequest
+  ): Promise<PolicyDestinationResult> {
+    const prepared = await this.prepareWorkIqPolicy(request);
+    if (prepared.isErr()) return err({ state: "not-started", error: prepared.error });
+    return prepared.value.publish();
+  }
+
+  public async prepareWorkIqPolicy(
+    input: MosPolicyPublicationRequest
+  ): Promise<Result<PreparedPolicyPublication, FxError>> {
+    const request = {
+      ...input,
+      policy: { ...input.policy, bytes: Buffer.from(input.policy.bytes) },
+    };
+    if (request.etag !== undefined && !isStrongPolicyEtag(request.etag)) {
+      return err(new InvalidActionInputError(publishPolicyActionName, ["etag"]));
+    }
+    if (request.signal?.aborted) {
+      return err(new UserCancelError(publishPolicyActionName));
+    }
+    const authenticationError = () =>
+      createPolicyError("POLICY_AUTH_REQUIRED", "driver.workiq.error.authentication");
+    let token: Result<string, FxError>;
+    try {
+      if (!this.m365TokenProvider) {
+        return err(authenticationError());
+      }
+      token = await this.m365TokenProvider.getAccessToken({ scopes: MosServiceScope() });
+    } catch (error) {
+      return err(
+        error instanceof Error && isUserCancelError(error)
+          ? new UserCancelError(publishPolicyActionName)
+          : authenticationError()
+      );
+    }
+    if (token.isErr()) {
+      return err(
+        isUserCancelError(token.error)
+          ? new UserCancelError(publishPolicyActionName)
+          : authenticationError()
+      );
+    }
+    if (!token.value.trim()) return err(authenticationError());
+    if (request.signal?.aborted) {
+      return err(new UserCancelError(publishPolicyActionName));
+    }
+    let serviceUrl: URL;
+    try {
+      serviceUrl = new URL(await this.getTitleServiceUrl(token.value, request.signal));
+      if (
+        serviceUrl.protocol !== "https:" ||
+        serviceUrl.username ||
+        serviceUrl.password ||
+        serviceUrl.href.includes("?") ||
+        serviceUrl.href.includes("#")
+      ) {
+        return err(
+          createPolicyError("MosDiscoveryError", "driver.workiq.error.serviceDiscovery", "system")
+        );
+      }
+    } catch (error) {
+      return err(
+        request.signal?.aborted || (error instanceof Error && isUserCancelError(error))
+          ? new UserCancelError(publishPolicyActionName)
+          : createPolicyError("MosDiscoveryError", "driver.workiq.error.serviceDiscovery", "system")
+      );
+    }
+    if (request.signal?.aborted) {
+      return err(new UserCancelError(publishPolicyActionName));
+    }
+    const accessToken = token.value;
+    return ok({
+      publish: () => this.publishPreparedWorkIqPolicy(request, accessToken, serviceUrl),
+    });
+  }
+
+  private async publishPreparedWorkIqPolicy(
+    request: MosPolicyPublicationRequest,
+    token: string,
+    serviceUrl: URL
+  ): Promise<PolicyDestinationResult> {
+    if (request.signal?.aborted) {
+      return err({ state: "not-started", error: new UserCancelError(publishPolicyActionName) });
+    }
+    try {
+      const response = await this.axiosInstance.put<unknown>(
+        `/builder/v1/tenants/titles/${encodeURIComponent(request.titleId)}/policies/workiq`,
+        request.policy.bytes,
+        {
+          baseURL: serviceUrl.href,
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+            ...(request.etag ? { "If-Match": request.etag } : { "If-None-Match": "*" }),
+          },
+          signal: request.signal,
+          timeout: 30000,
+          maxRedirects: 0,
+          validateStatus: () => true,
+        }
+      );
+      if ([200, 201, 204].includes(response.status)) {
+        const etag: unknown = response.headers.etag ?? response.headers.ETag;
+        if (etag !== undefined && (typeof etag !== "string" || !isStrongPolicyEtag(etag))) {
+          return err({
+            state: "unknown",
+            error: createPolicyError("MosAckError", "driver.workiq.error.outcomeUnknown", "system"),
+          });
+        }
+        return ok({ state: "confirmed", ...(typeof etag === "string" ? { etag } : {}) });
+      }
+      if (response.status === 409 || response.status === 412) {
+        return err({
+          state: "conflict",
+          error: createPolicyError("WorkIqMosPolicyConflict", "driver.workiq.error.conflict"),
+        });
+      }
+      if ([400, 401, 403, 404].includes(response.status)) {
+        return err({
+          state: "failed",
+          error: createPolicyError("MosPolicyRejected", "driver.workiq.error.rejected"),
+        });
+      }
+      return err({
+        state: "unknown",
+        error: createPolicyError(
+          "WorkIqMosOutcomeUnknown",
+          "driver.workiq.error.outcomeUnknown",
+          "system"
+        ),
+      });
+    } catch (error) {
+      // Axios errors retain authorization headers and response bodies; never attach them.
+      const code =
+        axios.isAxiosError(error) && error.code && /^[A-Z_]+$/.test(error.code)
+          ? error.code
+          : "REQUEST_INTERRUPTED";
+      return err({
+        state: "unknown",
+        error: createPolicyError(
+          "WorkIqMosOutcomeUnknown",
+          "driver.workiq.error.outcomeUnknown",
+          "system",
+          new Error(code)
+        ),
+      });
+    }
+  }
+
+  private async withNetworkRetry<T>(
+    fn: () => Promise<T>,
+    retries = 3,
+    signal?: AbortSignal
+  ): Promise<T> {
     for (let i = 0; i < retries; i++) {
       try {
         return await fn();
       } catch (e: any) {
         // Only retry on network/TLS errors (no HTTP response means transport-level failure)
-        if (e.response || i === retries - 1) {
+        if (signal?.aborted || e.response || i === retries - 1) {
           throw e;
         }
+        const networkCodes = [
+          "ECONNRESET",
+          "ECONNABORTED",
+          "ECONNREFUSED",
+          "ETIMEDOUT",
+          "ENOTFOUND",
+          "EAI_AGAIN",
+          "ERR_NETWORK",
+          "ERR_CANCELED",
+          "ERR_TLS_CERT_ALTNAME_INVALID",
+        ];
+        const code =
+          typeof e.code === "string" && networkCodes.includes(e.code) ? e.code : "NETWORK_ERROR";
         this.logger?.warning(
-          `Request failed with ${e.code ?? e.message}, retrying (${i + 1}/${retries})...`
+          getLocalizedString("info.m365.packageService.networkRetry", code, i + 1, retries)
         );
         await waitSeconds(1);
       }
@@ -132,7 +317,7 @@ export class PackageService {
   }
 
   @hooks([ErrorContextMW({ source: M365ErrorSource, component: M365ErrorComponent })])
-  public async getTitleServiceUrl(token: string): Promise<string> {
+  public async getTitleServiceUrl(token: string, signal?: AbortSignal): Promise<string> {
     try {
       try {
         new URL(this.initEndpoint);
@@ -140,19 +325,23 @@ export class PackageService {
         throw new Error("Invalid URL. Mis-configuration SIDELOADING_SERVICE_ENDPOINT.");
       }
 
-      const envInfo = await this.withNetworkRetry(() =>
-        this.axiosInstance.get("/config/v1/environment", {
-          baseURL: this.initEndpoint,
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        })
+      const envInfo = await this.withNetworkRetry(
+        () =>
+          this.axiosInstance.get("/config/v1/environment", {
+            baseURL: this.initEndpoint,
+            ...(signal ? { signal } : {}),
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }),
+        3,
+        signal
       );
-      this.logger?.debug(JSON.stringify(envInfo.data));
+      this.logger?.debug(getLocalizedString("info.m365.packageService.titleServiceResolved"));
       new URL(envInfo.data.titlesServiceUrl);
       return envInfo.data.titlesServiceUrl;
     } catch (error: any) {
-      this.logger?.error(`Get ServiceUrl failed. ${error.message as string}`);
+      this.logger?.error(getLocalizedString("error.m365.packageService.discoveryFailed"));
       throw error;
     }
   }

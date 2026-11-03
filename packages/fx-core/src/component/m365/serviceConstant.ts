@@ -27,6 +27,11 @@ export const MOS3ApiDefinitions: any = {
     method: "POST",
     path: /^\/builder\/v1\/users\/packages(\?|$)/,
   },
+  PutWorkIqPolicy: {
+    key: "put_workiq_policy",
+    method: "PUT",
+    path: /\/builder\/v1\/tenants\/titles\/[^/]+\/policies\/workiq$/,
+  },
   PostBuilderDirectory: {
     key: "create_skill_directory",
     method: "POST",
