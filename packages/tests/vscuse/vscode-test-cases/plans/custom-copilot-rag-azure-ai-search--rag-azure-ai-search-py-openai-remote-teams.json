@@ -8,7 +8,7 @@
       "precondition_wait_timeout": 30,
       "precondition_retry_interval": 1
     },
-    "total_steps": 215,
+    "total_steps": 217,
     "name": "rag-azure-ai-search-py-openai-remote-teams",
     "description": {
       "owner": "",
@@ -93,6 +93,8 @@
       "step_executeCommand_assertCommand_cc1031db7_4_5",
       "step_executeCommand_execute_cc1031db7_4_5",
       "step_assertNotificationContains_assert_cc1031db7_4_6",
+      "step_hideNotifications_hide_cc1031db7_4_7",
+      "step_hideNotifications_assertHidden_cc1031db7_4_7",
       "step_setUserEnvironmentVariable_openTerminal_cc1031db7_5_1",
       "step_setUserEnvironmentVariable_assertTerminal_cc1031db7_5_1",
       "step_setUserEnvironmentVariable_typeCommand_cc1031db7_5_1",
@@ -1912,6 +1914,49 @@
       ]
     },
     {
+      "step_id": "step_hideNotifications_hide_cc1031db7_4_7",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "escape"
+      },
+      "description": "Press Escape to hide the VS Code notification center without clearing its notifications.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_assertNotificationContains_assert_cc1031db7_4_6"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:notifications",
+        "action:hide"
+      ]
+    },
+    {
+      "step_id": "step_hideNotifications_assertHidden_cc1031db7_4_7",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the Visual Studio Code notification center is no longer visible and no notification popup obscures the workbench.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_hideNotifications_hide_cc1031db7_4_7"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:notifications",
+        "action:hide",
+        "step_retry_timeout: 30"
+      ]
+    },
+    {
       "step_id": "step_setUserEnvironmentVariable_openTerminal_cc1031db7_5_1",
       "agent": "interaction",
       "tool": "keyboard_shortcut",
@@ -1924,7 +1969,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_assertNotificationContains_assert_cc1031db7_4_6"
+        "step_hideNotifications_assertHidden_cc1031db7_4_7"
       ],
       "preconditions": [],
       "postconditions": [],
