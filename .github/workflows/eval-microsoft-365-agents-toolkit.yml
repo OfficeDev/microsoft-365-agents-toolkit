@@ -138,16 +138,10 @@ jobs:
           AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
         run: waza run -o evals/results/latest.json
 
-      - name: Record evaluation completion
-        if: always()
-        run: echo "Evaluation run $GITHUB_RUN_ID completed." > evals/results/evaluation-complete.txt
-
       - name: Upload raw evaluation results
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: skill-eval-raw
-          path: |
-            ./evals/results/latest.json
-            ./evals/results/evaluation-complete.txt
+          path: ./evals/results/latest.json
           retention-days: 30
