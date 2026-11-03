@@ -2,6 +2,7 @@
 // Licensed under the MIT license.
 import { find } from "lodash";
 import * as cp from "child_process";
+import crossSpawn from "cross-spawn";
 import * as vscode from "vscode";
 import * as globalVariables from "../../globalVariables";
 import { FxError, Result, Void, ok } from "@microsoft/teamsfx-api";
@@ -105,11 +106,17 @@ export class OfficeDevTerminal extends BaseTaskTerminal {
     this.writeEmitter.fire(`${cmdStr}\r\n`);
     const options: cp.SpawnOptions = {
       cwd: globalVariables.workspaceUri?.fsPath ?? "" + "/src",
-      shell: true,
+      shell: false,
       detached: false,
     };
 
-    const childProc = cp.spawn(cmd, args, options);
+    // Handle Windows npm/npx shims without interpreting manifest names as shell syntax.
+    const childProc = crossSpawn.spawn(cmd, [...args], options);
+    childProc.on("error", (error: Error) => {
+      this.writeEmitter.fire(`${error.message}\r\n`);
+      this.status = ProcessStatus.completed;
+      this.closeEmitter.fire(1);
+    });
     childProc.stdout?.setEncoding("utf-8");
     childProc.stdout?.on("data", (data: string | Buffer) => {
       const line = data.toString().replace(/\n/g, "\r\n");

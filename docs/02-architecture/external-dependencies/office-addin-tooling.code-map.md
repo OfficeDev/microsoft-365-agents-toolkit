@@ -19,3 +19,4 @@ location in source.
 | §1.3 Create-new template bundle helpers (no Yo Office) | `packages/fx-core/src/component/generator/officeAddin/generator.ts`, `packages/fx-core/src/component/generator/officeAddin/helperMethods.ts` |
 | §1.4 MetaOS DA `$schema` URL literal | `packages/fx-core/src/component/generator/officeAddin/metaOSHelper.ts` (DA `$schema` constant) |
 | §1.4 MetaOS Plugin `$schema` URL literal | `packages/fx-core/src/component/generator/officeAddin/metaOSHelper.ts` (Plugin `$schema` constant) |
+| §1.5 npm/npx terminal command execution and argument escaping | `packages/vscode-extension/src/debug/taskTerminal/officeDevTerminal.ts` (`OfficeDevTerminal.startChildProcess`) |
