@@ -8,7 +8,7 @@
       "precondition_wait_timeout": 30,
       "precondition_retry_interval": 1
     },
-    "total_steps": 86,
+    "total_steps": 88,
     "name": "simple-bot-py-playground",
     "description": {
       "owner": "",
@@ -87,6 +87,8 @@
       "step_executeCommand_assertCommand_cad53f154_3_5",
       "step_executeCommand_execute_cad53f154_3_5",
       "step_assertNotificationContains_assert_cad53f154_3_6",
+      "step_hideNotifications_hide_cad53f154_3_7",
+      "step_hideNotifications_assertHidden_cad53f154_3_7",
       "step_executeCommand_open_cad53f154_4_1",
       "step_executeCommand_assertPalette_cad53f154_4_1",
       "step_executeCommand_filter_cad53f154_4_1",
@@ -1657,6 +1659,49 @@
       ]
     },
     {
+      "step_id": "step_hideNotifications_hide_cad53f154_3_7",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "escape"
+      },
+      "description": "Press Escape to hide the VS Code notification center without clearing its notifications.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_assertNotificationContains_assert_cad53f154_3_6"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:notifications",
+        "action:hide"
+      ]
+    },
+    {
+      "step_id": "step_hideNotifications_assertHidden_cad53f154_3_7",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the Visual Studio Code notification center is no longer visible and no notification popup obscures the workbench.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_hideNotifications_hide_cad53f154_3_7"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:notifications",
+        "action:hide",
+        "step_retry_timeout: 30"
+      ]
+    },
+    {
       "step_id": "step_executeCommand_open_cad53f154_4_1",
       "agent": "interaction",
       "tool": "key_press",
@@ -1669,7 +1714,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_assertNotificationContains_assert_cad53f154_3_6"
+        "step_hideNotifications_assertHidden_cad53f154_3_7"
       ],
       "preconditions": [],
       "postconditions": [],

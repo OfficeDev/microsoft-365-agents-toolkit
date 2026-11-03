@@ -8,7 +8,7 @@
       "precondition_wait_timeout": 30,
       "precondition_retry_interval": 1
     },
-    "total_steps": 127,
+    "total_steps": 129,
     "name": "basic-cea-py-azure-openai-local-teams",
     "description": {
       "owner": "",
@@ -99,6 +99,8 @@
       "step_executeCommand_assertCommand_c834b2eb3_3_5",
       "step_executeCommand_execute_c834b2eb3_3_5",
       "step_assertNotificationContains_assert_c834b2eb3_3_6",
+      "step_hideNotifications_hide_c834b2eb3_3_7",
+      "step_hideNotifications_assertHidden_c834b2eb3_3_7",
       "step_executeCommand_open_c834b2eb3_4_1",
       "step_executeCommand_assertPalette_c834b2eb3_4_1",
       "step_executeCommand_filter_c834b2eb3_4_1",
@@ -1962,6 +1964,49 @@
       ]
     },
     {
+      "step_id": "step_hideNotifications_hide_c834b2eb3_3_7",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "escape"
+      },
+      "description": "Press Escape to hide the VS Code notification center without clearing its notifications.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_assertNotificationContains_assert_c834b2eb3_3_6"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:notifications",
+        "action:hide"
+      ]
+    },
+    {
+      "step_id": "step_hideNotifications_assertHidden_c834b2eb3_3_7",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the Visual Studio Code notification center is no longer visible and no notification popup obscures the workbench.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_hideNotifications_hide_c834b2eb3_3_7"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:notifications",
+        "action:hide",
+        "step_retry_timeout: 30"
+      ]
+    },
+    {
       "step_id": "step_executeCommand_open_c834b2eb3_4_1",
       "agent": "interaction",
       "tool": "key_press",
@@ -1974,7 +2019,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_assertNotificationContains_assert_c834b2eb3_3_6"
+        "step_hideNotifications_assertHidden_c834b2eb3_3_7"
       ],
       "preconditions": [],
       "postconditions": [],

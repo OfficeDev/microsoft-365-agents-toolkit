@@ -74,6 +74,24 @@ function render(relativePath, overrides = {}) {
   return component;
 }
 
+test("VCB-202: hiding the notification center uses Escape and verifies the result", () => {
+  const { steps } = render("notifications/hide.json.tpl");
+  assert.equal(steps.length, 2);
+  assert.equal(steps[0].agent, "interaction");
+  assert.equal(steps[0].tool, "key_press");
+  assert.deepEqual(steps[0].parameters, { key: "escape" });
+  assert.equal(steps[1].agent, "assertion");
+  assert.match(
+    steps[1].description,
+    /notification center is no longer visible/,
+  );
+  for (const step of steps) {
+    assert.deepEqual(step.preconditions, []);
+    assert.equal(step.parameters.x, undefined);
+    assert.equal(step.parameters.y, undefined);
+  }
+});
+
 test("initialization accepts a ready workbench without a specific editor", () => {
   const initialization = render(
     "initialization/close-welcome-overlay.json.tpl",

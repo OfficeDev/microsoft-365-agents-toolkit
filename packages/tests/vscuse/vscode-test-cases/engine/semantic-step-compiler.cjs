@@ -1673,6 +1673,8 @@ function createSemanticStepCompiler() {
       }),
     );
     if (error) return error;
+    error = append(output, render(state, "notifications/hide.json.tpl", {}));
+    if (error) return error;
     state.completed.add("pythonEnvironment");
     return { ok: true, value: output };
   }
