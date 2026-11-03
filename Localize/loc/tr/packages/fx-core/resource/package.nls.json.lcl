@@ -1840,8 +1840,8 @@
       <Item ItemId=";core.addSkillQuestion.name.placeholder" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Enter a name for your skill (lowercase letters, numbers, and hyphens only)]]></Val>
-          <Tgt Cat="Text" Stat="Update" Orig="New">
-            <Val><![CDATA[Beceriniz için bir ad girin (yalnızca harfler, sayılar ve kısa çizgiler)]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Beceriniz için bir ad girin (yalnızca küçük harfler, rakamlar ve kısa çizgiler kullanın)]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Enter a name for your skill (letters, numbers, and hyphens only)]]></Val>
@@ -1861,8 +1861,8 @@
       <Item ItemId=";core.addSkillQuestion.name.validation" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Skill name may only contain lowercase letters, numbers, and hyphens. Use 1-64 characters, without leading, trailing, or consecutive hyphens.]]></Val>
-          <Tgt Cat="Text" Stat="Update" Orig="New">
-            <Val><![CDATA[Yetenek adı bir harfle başlamalı ve yalnızca harf, sayı ve kısa çizgi içermelidir.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Beceri adı yalnızca küçük harf, rakam ve kısa çizgi içerebilir. 1 ile 64 karakter arasında olmalı ve başında, sonunda veya art arda kısa çizgi bulunmamalıdır.]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Skill name must start with a letter and contain only letters, numbers, and hyphens.]]></Val>
@@ -7543,6 +7543,9 @@
       <Item ItemId=";driver.dcr.log.skipUpdate" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[DCR configuration %s already matches the requested settings. No update is needed.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[DCR yapılandırması %s istenen ayarlarla zaten eşleşiyor. Güncelleştirme yapılması gerekmiyor.]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -7576,6 +7579,9 @@
       <Item ItemId=";driver.dcr.title.update" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Updating DCR configuration...]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[DCR yapılandırması güncelleştiriliyor...]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -10543,6 +10549,9 @@
       <Item ItemId=";error.m365.AdvancedPackageUploadsDisabled" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Upload blocked by your tenant's Advanced package uploads setting. Ask your Microsoft 365 admin to allow uploads for your account by selecting All users or including you in Specific users or groups. Learn more: [Manage Advanced package uploads]5D;(%s)]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Kiracınızın Gelişmiş paket yüklemeleri ayarı yüklemeyi engelledi. Microsoft 365 yöneticinizden, Tüm kullanıcılar seçeneğini belirleyerek veya Belirli kullanıcılar ya da gruplar seçeneğinde sizi belirterek hesabınız için yüklemelere izin vermesini isteyin. Daha fazla bilgi: [Gelişmiş paket yüklemelerini yönetme]5D;(%s)]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
