@@ -2,13 +2,13 @@
 // Licensed under the MIT license.
 
 import AdmZip from "adm-zip";
-import { exec } from "child_process";
+import { execFile } from "child_process";
 import { promisify } from "util";
 import { LocalMcpPrefix } from "../../../constants";
 import { ODRProvider } from "../../../utils/odrProvider";
 
 export const mcpCertDeps = {
-  exec,
+  execFile: promisify(execFile),
 };
 
 /**
@@ -67,20 +67,23 @@ export async function verifyLocalMCPPluginCerts(pluginFile: AdmZip.IZipEntry): P
  * Invalid certs include: Developer (self-signed).
  */
 export async function verifyPackageFamilyCertIsValid(packageName: string): Promise<boolean> {
-  const execAsync = promisify(mcpCertDeps.exec);
-  const command = `powershell.exe -Command "& Get-AppxPackage | where { $_.PackageFamilyName -eq '${packageName}' } | select { $_.SignatureKind }"`;
+  // Registry metadata must remain data, never part of the PowerShell script.
+  const command =
+    "Get-AppxPackage -ErrorAction Stop | " +
+    "Where-Object { $_.PackageFamilyName -eq $env:ATK_MCP_PACKAGE_FAMILY } | " +
+    "Select-Object -ExpandProperty SignatureKind";
 
   try {
-    const { stdout } = await execAsync(command);
-
-    if (!stdout) {
-      return false;
-    }
-
-    if (stdout.toLowerCase().includes("developer")) {
-      return false;
-    }
-    return true;
+    const { stdout } = await mcpCertDeps.execFile(
+      "powershell.exe",
+      ["-NoProfile", "-NonInteractive", "-Command", command],
+      {
+        shell: false,
+        encoding: "utf8",
+        env: { ...process.env, ATK_MCP_PACKAGE_FAMILY: packageName },
+      }
+    );
+    return ["Store", "System", "Enterprise"].includes(stdout.trim());
   } catch (error) {
     console.error("Unable to get cert info for package name", error);
     return false;
