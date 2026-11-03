@@ -413,7 +413,7 @@
         "keys": null,
         "text": null,
         "x": 134,
-        "y": 529
+        "y": 551
       },
       "description": "Click the \"Provision\" option under the \"LIFECYCLE\" section in the left sidebar of the Microsoft 365 Agents Toolkit extension within Visual Studio Code.",
       "content_refs": [],
@@ -421,11 +421,7 @@
       "retry_count": 0,
       "continue_on_error": "0",
       "depends_on": [],
-      "preconditions": [
-        "dhash:134:529:16:5:c8ac40525a525a2d",
-        "dhash:134:529:96:5:6a246564e18c4e11",
-        "dhash:134:529:0:10:b28c626323822431"
-      ],
+      "preconditions": [],
       "postconditions": [],
       "tags": [],
       "screenshot": "step_410b9795",
