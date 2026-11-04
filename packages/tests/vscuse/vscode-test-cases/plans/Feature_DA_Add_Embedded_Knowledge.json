@@ -1169,7 +1169,7 @@
       "parameters": {
         "button": "left",
         "x": 156,
-        "y": 637
+        "y": 626
       },
       "description": "Click the \"Zip App Package\" option in the UTILITY section of the MICROSOFT 365 AGENTS TOOLKIT panel within Visual Studio Code to build the app into a package for publishing.",
       "content_refs": [],
@@ -1177,11 +1177,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [],
-      "preconditions": [
-        "dhash:156:637:16:5:9212d2183994c239",
-        "dhash:156:637:96:5:804053642c272650",
-        "dhash:156:637:0:10:a26462238322842d"
-      ],
+      "preconditions": [],
       "postconditions": [],
       "tags": [],
       "screenshot": "step_dccedb8f",
