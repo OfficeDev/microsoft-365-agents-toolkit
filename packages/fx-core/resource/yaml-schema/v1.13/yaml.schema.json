@@ -2225,7 +2225,7 @@
     "workIqPublishPolicy": {
       "type": "object",
       "additionalProperties": false,
-      "description": "Publish MOS display policy and Work IQ runtime policy. Each service reads its own ETag before conditional creation or replacement; no ETag input is needed. An empty Work IQ endpoint remains explicitly mocked.",
+      "description": "Publish an existing agent's policy to MOS for display, then to Work IQ for runtime use. Both services are prepared before writing, and their ETags are read and managed internally. Requires MOS title write access and Work IQ tenant administrator authorization with WorkIQSettings.ReadWrite.All. Completion does not verify runtime enforcement.",
       "required": ["uses", "with"],
       "properties": {
         "name": { "type": "string" },
@@ -2242,17 +2242,17 @@
             "titleId": {
               "type": "string",
               "minLength": 1,
-              "description": "Explicit MOS title ID."
+              "description": "Existing MOS agent title ID. This action does not create the agent or title."
             },
             "policyPath": {
               "type": "string",
               "minLength": 1,
-              "description": "Policy JSON file inside the project. Its bytes are not substituted or rewritten."
+              "description": "Path to a UTF-8 JSON object inside the project, relative to the project root or absolute. The file is not expanded or rewritten. MOS receives its captured bytes; the Work IQ request adds appId from callerId."
             },
             "callerId": {
               "type": "string",
               "minLength": 1,
-              "description": "Nonzero runtime App ID GUID, not maker or ATK identity."
+              "description": "Nonzero runtime App ID GUID associated with titleId, not the signed-in user's object ID, tenant ID, or ATK client ID. Must match appId if the policy already contains it."
             }
           }
         },
@@ -2262,7 +2262,7 @@
           "properties": {
             "report": {
               "$ref": "#/definitions/envVarName",
-              "description": "Optional JSON destination report. Work IQ mock acknowledgement is not real publication."
+              "description": "Environment variable receiving the JSON publication report on successful action completion, including separate MOS and Work IQ outcomes and returned ETags. Simulation is not real publication. Failure reports are returned on the error, not written to this variable."
             }
           }
         }
