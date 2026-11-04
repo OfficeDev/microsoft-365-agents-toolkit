@@ -515,7 +515,7 @@
       "parameters": {
         "button": "left",
         "x": 404,
-        "y": 447
+        "y": 420
       },
       "description": "Click the \"Password\" input field on the Microsoft sign-in page in Google Chrome to focus the cursor for password entry.",
       "content_refs": [],
@@ -523,11 +523,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [],
-      "preconditions": [
-        "dhash:404:447:16:5:c0606060e0e04040",
-        "dhash:404:447:96:5:62af0092b00100ad",
-        "dhash:404:447:0:10:1b18e0d8d9f6e6e4"
-      ],
+      "preconditions": [],
       "postconditions": [],
       "tags": [],
       "screenshot": "step_ca87f99b",
@@ -561,7 +557,7 @@
       "parameters": {
         "button": "left",
         "x": 609,
-        "y": 538
+        "y": 517
       },
       "description": "Click the \"Sign in\" button on the Microsoft login page to submit the entered password for the account ${{env:M365_ACCOUNT_NAME}}.",
       "content_refs": [],
@@ -569,11 +565,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [],
-      "preconditions": [
-        "dhash:609:538:16:5:1003040b162b1516",
-        "dhash:609:538:96:5:2000043b3d240004",
-        "dhash:609:538:0:10:1b18e0d8d9f6e6e4"
-      ],
+      "preconditions": [],
       "postconditions": [],
       "tags": [],
       "screenshot": "step_a058f60e",
