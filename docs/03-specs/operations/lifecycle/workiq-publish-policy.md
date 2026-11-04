@@ -23,10 +23,11 @@ The user confirmed that MOS must reuse the existing service configuration and
 authentication, with no new environment-variable injection. Work IQ remains a
 separate, replaceable client. The supplied Agent Policy API Usage Guide defines
 its routes, conditions, app binding and administrator permissions. The guide
-does not supply a token audience. For initial integration, the user explicitly
-approved using the existing `MosServiceScope()` for both destinations through
-the same M365 token provider/cache. This is a temporary assumption, not proof
-that PPE accepts MOS-audience tokens. Work IQ uses the supplied endpoint with
+does not supply a token audience. The 2026-11-04 scope correction supersedes the
+temporary MOS-scope sharing: Work IQ GET and PUT use its resource-qualified
+`WorkIQSettings.ReadWrite.All` scope, while MOS retains `MosServiceScope()`.
+Both still use the same M365 provider and SDK cache, with separate resource
+token requests. Work IQ uses the supplied endpoint with
 its `/workiq-mcp-server` prefix. Authentication failures remain explicit; there
 is no automatic scope substitution, downgrade or mock fallback.
 
@@ -113,11 +114,10 @@ The exported Work IQ client is the code-level replacement seam, analogous to the
 Developer Portal client export, without a new environment toggle or proxy.
 An explicitly empty endpoint returns `mocked`. A configured
 endpoint requires explicit resource-qualified scopes and the caller's M365 token
-provider. The exported client temporarily requests the existing MOS `.default`
-scope. The usage guide's nominal Work IQ permissions are
+provider. The exported client requests its Work IQ management scope for both
+reads and writes. The usage guide's Work IQ permissions are
 `WorkIQSettings.ReadWrite.All` for writes and that permission or
-`WorkIQSettings.Read.All` for reads; whether the shared token satisfies them is a
-service-side integration check. Tenant-administrator authorization is enforced
+`WorkIQSettings.Read.All` for reads. Tenant-administrator authorization is enforced
 by Work IQ, not guessed from maker identity.
 Missing/unsafe configuration or auth fails during preflight before writes.
 Both destination ports prepare before MOS publication;
@@ -167,11 +167,19 @@ must name one explicit audience, not mixed MOS/Graph resources. The Admin API
 must be enabled and the caller must be a tenant administrator.
 The exported endpoint is
 `https://sdf-s01-106-nam-centralus.substrate.cosmic-ppe.office.net/workiq-mcp-server`.
-The exported instance temporarily uses `MosServiceScope()`, by explicit user
-decision, and the same M365 account/provider as MOS. Existing SDK caching owns
+The exported instance uses `WorkIqServiceScope()`:
+`fdcc1f02-fc51-4226-8753-f668596af7f7/WorkIQSettings.ReadWrite.All`.
+The user approved one management scope for Work IQ GET and PUT. The scope
+namespace comes from the Contract route's
+[OAuth protected-resource metadata](https://sdf-s01-106-nam-centralus.substrate.cosmic-ppe.office.net/workiq-mcp-server/.well-known/oauth-protected-resource/api/policies/contracts),
+which advertises `fdcc1f02-fc51-4226-8753-f668596af7f7/WorkIQAgent.Ask`.
+That metadata establishes the namespace but does not advertise or verify the
+management permission; tenant exposure, consent and live acceptance remain
+integration checks. Never substitute `WorkIQAgent.Ask` for management access.
+MOS remains on its own current-cloud `.default` scope. Existing SDK caching owns
 token reuse; no second token cache or authentication framework is introduced.
-The separate-scope constructor remains available if real integration requires
-Work IQ-specific authentication later. Standalone inspection/deletion/contract
+The constructor remains available for explicit target-environment configuration.
+Standalone inspection/deletion/contract
 discovery also require a valid token and never fabricate mock inspection results.
 
 ```typescript
@@ -269,9 +277,9 @@ The final Work IQ PUT continues to enforce service-side policy validation.
 - Only GET 404 selects creation. Read failures, 304, invalid envelopes and invalid
   ETags prevent all policy writes; there is no post-success read or write retry.
 - Reject lexical and symlink escapes outside the project before reading policy.
-- MOS cannot receive runtime caller identity. Work IQ uses its configured scope
-  and the caller's M365 provider; temporarily sharing MOS scope/token and SDK
-  caching is explicitly permitted for initial integration.
+- MOS cannot receive runtime caller identity. Work IQ GET and PUT use the same
+  Work IQ management scope, never the default MOS scope; the common M365 provider
+  and SDK cache do not imply sharing a token across different resources.
 - Preserve successful destinations if later publication fails or is cancelled.
 - A timeout, interrupted write, 5xx, or unrecognized acknowledgement is `unknown`,
   not proof that no remote write occurred.
@@ -308,7 +316,7 @@ The final Work IQ PUT continues to enforce service-side policy validation.
 | WIQ-POL-10 | L1      | operation-integration | required | Driver with HTTP mock                                    | Publication fails after an attempted write                                                                       | Return an error and destination summaries without leaking token, policy, or service response content.                                                               |
 | WIQ-POL-11 | L2      | surface               | deferred | Authorized CLI environment                               | Execute the same publish lifecycle with confirmed MOS settings                                                   | CLI displays the Alpha mock warning and destination outcomes.                                                                                                       |
 | WIQ-POL-12 | L3      | surface               | deferred | VS Code publish lifecycle                                | Execute the same configured action                                                                               | Extension uses the native driver and displays the same mock warning/outcomes.                                                                                       |
-| WIQ-POL-13 | L1      | operation-integration | required | Replaceable Work IQ client export                        | Use the empty endpoint or configure a live endpoint                                                              | Empty endpoint returns explicitly mocked; configured clients require explicit scopes/auth; the user-approved default temporarily shares MOS scope/provider.         |
+| WIQ-POL-13 | L1      | operation-integration | required | Replaceable Work IQ client export                        | Use the empty endpoint or configure a live endpoint                                                              | Empty endpoint returns explicitly mocked; configured clients require explicit scopes/auth; the default uses the Work IQ management scope.                           |
 | WIQ-POL-14 | L1      | operation-integration | required | Real operation, prepared MOS and Work IQ ports           | Either destination preflight fails, throws, or is cancelled                                                      | Neither destination writes; both receipts stay not-started; no raw prerequisite error escapes.                                                                      |
 | WIQ-POL-15 | L1      | file-unit             | required | Pure outcome/next-action matrix                          | Normalize confirmation, mock, partial, conflict, unknown and cancellation combinations                           | Published never includes mocked destinations; unknown requires reconcile even when cancelled; unchanged is not guessed.                                             |
 | WIQ-POL-16 | L1      | scenario              | required | Registered driver and shared publish lifecycle           | Cancel after MOS confirmation, during PUT, or after a successful driver returns                                  | Error, receipt and successful substeps survive to lifecycle callers; no later write or success output is produced.                                                  |
@@ -321,7 +329,7 @@ The final Work IQ PUT continues to enforce service-side policy validation.
 | WIQ-POL-23 | L1      | scenario              | required | Native lifecycle with independent MOS/Work IQ HTTP mocks | Publish with no user ETag fields; both destinations return different stored ETags                                | GET both before writing; each PUT uses only its GET ETag; preserve raw MOS bytes/appId-enriched Work IQ JSON and both committed receipts.                           |
 | WIQ-POL-24 | L1      | operation-integration | required | Exported PPE configuration and HTTP mock                 | Configure the supplied endpoint and test a scope-bound client                                                    | Preserve the service prefix; missing explicit configuration or credentials still fails before writes, without mock fallback.                                        |
 | WIQ-POL-25 | L1      | operation-integration | required | Work IQ Contract and publication HTTP mocks              | Prepare with a mocked/opaque Contract response or a Contract failure                                             | Order is Contract GET, Work IQ policy GET, MOS discovery/GET, MOS PUT, Work IQ PUT; reuse prepared tokens and stop on preflight failure.                            |
-| WIQ-POL-26 | L1      | operation-integration | required | Native workflow with shared-scope HTTP/token mocks       | Temporarily configure Work IQ with MosServiceScope and the same M365 provider                                    | Contract, MOS and Work IQ requests can use the same supplied token; ETags remain independent; missing credentials or service rejection still fails explicitly.      |
+| WIQ-POL-26 | L1      | operation-integration | required | Default client and native HTTP/token boundaries          | Inspect or publish with the default Work IQ configuration and the same M365 provider as MOS                      | All Work IQ GET/PUT calls use its ReadWrite management scope/token; MOS uses only MosServiceScope/token; auth failure never substitutes another scope.              |
 | WIQ-POL-27 | L1      | operation-integration | required | MOS/Work IQ policy GET HTTP mocks                        | GET returns 404, 200 with malformed/missing ETag/body, 304, rejection, timeout or cancellation                   | Only valid 200 permits replacement and only 404 permits creation; failures prevent both PUTs without raw service details or retries.                                |
 | WIQ-POL-28 | L1      | operation-integration | required | MOS committed acknowledgement HTTP mocks                 | PUT returns expected 201/200 with committed envelope and ETag, or a missing/malformed/unexpected acknowledgement | Only the complete expected acknowledgement confirms MOS; otherwise unknown, preserve receipt guidance and skip Work IQ PUT; no follow-up GET.                       |
 
@@ -340,8 +348,8 @@ publish:
 ```
 
 MOS uses the existing signed-in account and discovered service configuration.
-The exported client uses the configured PPE endpoint and the shared MOS default
-scope provisionally. PPE acceptance, tenant-admin authorization and route
+The exported client uses the configured PPE endpoint and Work IQ management
+scope. PPE scope exposure/acceptance, tenant-admin authorization and route
 availability still require live verification; a rejection stops the action
 instead of silently choosing another scope or falling back to a mock.
 Explicitly empty-endpoint test clients remain mocked. Real service validation

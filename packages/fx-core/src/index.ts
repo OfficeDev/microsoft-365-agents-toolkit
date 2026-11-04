@@ -34,6 +34,7 @@ export {
   GraphScopes,
   ListSensitivityLabelScope,
   MosServiceScope,
+  WorkIqServiceScope,
   SPFxScopes,
 } from "./common/constants";
 export { Correlator } from "./common/correlator";

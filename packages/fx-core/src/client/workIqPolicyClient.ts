@@ -3,7 +3,7 @@
 
 import { err, FxError, M365TokenProvider, ok, Result } from "@microsoft/teamsfx-api";
 import { AxiosInstance, AxiosResponse } from "axios";
-import { MosServiceScope } from "../common/constants";
+import { WorkIqServiceScope } from "../common/constants";
 import { WrappedAxiosClient } from "../common/wrappedAxiosClient";
 import {
   createPolicyError,
@@ -400,8 +400,7 @@ export class WorkIqPolicyClient implements WorkIqPolicyPublisher {
   }
 }
 
-// Temporarily share the existing MOS scope; adjust here if Work IQ requires its own resource.
 export const workIqPolicyClient = new WorkIqPolicyClient(
   "https://sdf-s01-106-nam-centralus.substrate.cosmic-ppe.office.net/workiq-mcp-server",
-  MosServiceScope()
+  WorkIqServiceScope()
 );

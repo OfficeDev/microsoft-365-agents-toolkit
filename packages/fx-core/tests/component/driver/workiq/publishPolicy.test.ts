@@ -1060,17 +1060,20 @@ describe("workiq/publishPolicy Alpha", () => {
     expect(calls).toEqual(["contract", "workiq-get", "mos-prepare", "mos-get", "mos", "workiq"]);
   });
 
-  it("WIQ-POL-26: shared MOS scopes and one provider token work across Contract, MOS and Work IQ requests", async () => {
+  it("WIQ-POL-26: Work IQ GET and PUT share its management scope while MOS keeps its own scope", async () => {
     const endpoint = "https://workiq.example/environment";
-    const sharedScopes = MosServiceScope();
-    const client = new WorkIqPolicyClient(endpoint, sharedScopes);
+    // eslint-disable-next-line no-secrets/no-secrets -- Public OAuth scope, not a secret.
+    const workIqScopes = ["fdcc1f02-fc51-4226-8753-f668596af7f7/WorkIQSettings.ReadWrite.All"];
+    const client = new WorkIqPolicyClient(endpoint, workIqScopes);
     vi.mocked(workIqPolicyClient.prepare).mockImplementation((request, provider) =>
       client.prepare(request, provider)
     );
     const ctx = context();
     const token = vi
       .spyOn(ctx.m365TokenProvider, "getAccessToken")
-      .mockResolvedValue(ok("shared-mos-token"));
+      .mockImplementation(async (request) =>
+        ok(request.scopes[0] === workIqScopes[0] ? "workiq-management-token" : "mos-token")
+      );
     adapter.onGet(`${endpoint}/api/policies/contracts`).reply(200, {});
     adapter.onGet(`${endpoint}/api/policies/agents/${encodeURIComponent(titleId)}`).reply(404);
     adapter.onPut(url).reply(201, mosEnvelope, { ETag: '"mos-shared"' });
@@ -1085,11 +1088,15 @@ describe("workiq/publishPolicy Alpha", () => {
       workIq: { state: "confirmed", etag: '"runtime-shared"' },
     });
     expect(token.mock.calls.map(([request]) => request.scopes)).toEqual([
-      sharedScopes,
-      sharedScopes,
+      workIqScopes,
+      MosServiceScope(),
     ]);
     for (const request of [...adapter.history.get, ...adapter.history.put]) {
-      expect(request.headers).toMatchObject({ Authorization: "Bearer shared-mos-token" });
+      expect(request.headers).toMatchObject({
+        Authorization: axios.getUri(request).includes("/api/policies/")
+          ? "Bearer workiq-management-token"
+          : "Bearer mos-token",
+      });
     }
   });
 

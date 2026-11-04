@@ -46,11 +46,25 @@ describe("Work IQ Agent Policy API", () => {
     );
   });
 
-  it("WIQ-POL-26: shared MOS default scopes are configured but a real token provider is still required", async () => {
+  it("WIQ-POL-26: the default management scope still requires a real token provider", async () => {
     const result = await workIqPolicyClient.prepare(request());
     expect(result.isErr()).toBe(true);
     if (result.isErr()) expect(result.error.name).toBe("WORKIQ_AUTH_REQUIRED");
     expect(provider.getAccessToken).not.toHaveBeenCalled();
+  });
+
+  it("WIQ-POL-26: default GET and PUT preparation request the same Work IQ management scope", async () => {
+    vi.mocked(provider.getAccessToken).mockResolvedValue(
+      err(new UserError({ source: "auth", name: "TestStop", message: "stop before HTTP" }))
+    );
+    expect((await workIqPolicyClient.prepare(request(), provider)).isErr()).toBe(true);
+    expect((await workIqPolicyClient.getPolicy(titleId, provider)).isErr()).toBe(true);
+    const expected = {
+      // eslint-disable-next-line no-secrets/no-secrets -- Public OAuth scope, not a secret.
+      scopes: ["fdcc1f02-fc51-4226-8753-f668596af7f7/WorkIQSettings.ReadWrite.All"],
+    };
+    expect(provider.getAccessToken).toHaveBeenCalledTimes(2);
+    expect(vi.mocked(provider.getAccessToken).mock.calls).toEqual([[expected], [expected]]);
   });
 
   it("WIQ-POL-24: configured PPE requests retain the /workiq-mcp-server API prefix", async () => {
