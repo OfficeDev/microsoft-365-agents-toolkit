@@ -326,7 +326,7 @@
         "keys": null,
         "text": null,
         "x": 122,
-        "y": 573
+        "y": 595
       },
       "description": "Click the \"Share\" option located in the \"LIFECYCLE\" section of the Microsoft 365 Agents Toolkit sidebar to open the shared scope configuration panel.",
       "content_refs": [],
@@ -334,11 +334,7 @@
       "retry_count": 0,
       "continue_on_error": "0",
       "depends_on": [],
-      "preconditions": [
-        "dhash:122:573:16:5:8060805050401060",
-        "dhash:122:573:96:5:92a4848accc6c718",
-        "dhash:122:573:0:10:b28c6a622b0c8c2d"
-      ],
+      "preconditions": [],
       "postconditions": [],
       "tags": [],
       "screenshot": "step_966acdd5",
@@ -549,7 +545,7 @@
       "parameters": {
         "button": "left",
         "x": 158,
-        "y": 571
+        "y": 595
       },
       "description": "Click the \"Share\" option under the \"LIFECYCLE\" section in the Microsoft 365 Agents Toolkit interface to change the shared scope of the agent.",
       "content_refs": [],
@@ -557,11 +553,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [],
-      "preconditions": [
-        "dhash:158:571:16:5:0000000000000008",
-        "dhash:158:571:96:5:90002000285656ac",
-        "dhash:158:571:0:10:328c636b2c0c8d2c"
-      ],
+      "preconditions": [],
       "postconditions": [],
       "tags": [],
       "screenshot": "step_37b35750",
@@ -724,7 +716,7 @@
         "keys": null,
         "text": null,
         "x": 129,
-        "y": 576
+        "y": 595
       },
       "description": "Click the \"Share\" button in the Lifecycle section of the Microsoft 365 Agents Toolkit sidebar to change the shared scope of the agent.",
       "content_refs": [],
@@ -732,11 +724,7 @@
       "retry_count": 0,
       "continue_on_error": "0",
       "depends_on": [],
-      "preconditions": [
-        "dhash:129:576:16:5:0000000000000000",
-        "dhash:129:576:96:5:f24ca04a84878b40",
-        "dhash:129:576:0:10:b28c222b2c2c2c2d"
-      ],
+      "preconditions": [],
       "postconditions": [],
       "tags": [],
       "screenshot": "step_75b841d0",
