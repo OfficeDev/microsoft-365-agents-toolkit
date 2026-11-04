@@ -34,6 +34,37 @@ they are error-free where the case has that check, without depending on service-
 wording. VCB-140 and VCB-142 define the dev behavior; the retained migrations align through VCB-145
 and VCB-156.
 
+## Resource-Group Reprovision Retirement
+
+- `Feature_Del_Resource_Group_And_Reprovision_For_Bot.json` - **Retired**, work item 10744682.
+- `Feature_Del_Resource_Group_And_Reprovision_For_Tab.json` - **Retired**, work item 10744678.
+
+VCB-207 retires these destructive L3 recordings as a test-scope decision, without generated
+replacements. They do not test recovery or successful recreation: both issue an unverified
+`az group delete` after Provision and then accept any visible error from another Provision.
+Authentication failures, a failed deletion, unrelated deployment failures, or stale notifications
+are not reliable proof of the intended missing-resource-group behavior.
+
+For a cached resource group, the shared
+[`ArmErrorHandle.handleArmDeploymentError`](../../../../fx-core/src/component/driver/arm/util/handleError.ts)
+maps Azure's `ResourceGroupNotFound` to `ResourceGroupNotExistError` for both templates.
+The existing
+[`handleArmDeploymentError case 1`](../../../../fx-core/tests/component/driver/arm/utils.test.ts)
+protects that exact mapping, rather than accepting an arbitrary error.
+[`provisionUtils.test.ts`](../../../../fx-core/tests/component/provisionUtils.test.ts) also covers
+the separate explicit-resource-group lookup path. Normal remote scaffold/Provision/Deploy
+coverage remains in [`default-bot.yml`](./default-bot.yml) and
+[`non-sso-tab.yml`](./non-sso-tab.yml).
+
+This is not full UI/deletion parity: the real Azure deletion sequence is intentionally no longer
+replayed, and no new cloud-deletion/cleanup operation is added to the case engine. No product
+behavior changes. Since no migration plan is introduced, CY261104 migration replay is not
+applicable and this retirement does not delete any real Azure resources.
+
+Verification on November 4, 2026: the two existing fx-core L1 test files above passed
+48/48 tests; VCB-207 and the retained generated remote cases passed their focused
+compiler checks. Regeneration reported no generated plan changes (201 plans).
+
 ## Manifest Feature Migration
 
 Both manifest features remain required and are not retirement candidates. Their source is
