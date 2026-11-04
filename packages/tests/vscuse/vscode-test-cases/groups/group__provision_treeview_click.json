@@ -8,7 +8,7 @@
       "precondition_wait_timeout": 60,
       "precondition_retry_interval": 2
     },
-    "total_steps": 1,
+    "total_steps": 4,
     "created_at": "2026-01-13T05:20:54.944402",
     "name": "group  provision treeview click",
     "description": {
@@ -18,7 +18,10 @@
     },
     "generated_at": "2026-01-13T05:20:54.943434",
     "execution_order": [
-      "step_b9576307"
+      "step_b9576307",
+      "step_filter_provision_command",
+      "step_assert_provision_command",
+      "step_execute_provision_command"
     ],
     "tags": [
       "group"
@@ -29,13 +32,11 @@
     {
       "step_id": "step_b9576307",
       "agent": "interaction",
-      "tool": "click",
+      "tool": "key_press",
       "parameters": {
-        "button": "left",
-        "x": 114,
-        "y": 550
+        "key": "f1"
       },
-      "description": "Click the \"Provision\" button in the LIFECYCLE section of the MICROSOFT 365 AGENTS TOOLKIT panel in Visual Studio Code to run the ‘provision’ lifecycle stage as described in the tooltip.",
+      "description": "Press F1 to open the Visual Studio Code command palette instead of relying on the position of Provision in the Lifecycle sidebar.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -46,6 +47,63 @@
       "tags": [],
       "screenshot": "step_b9576307",
       "created_at": "2026-01-13T05:21:42.938192",
+      "plan_id": "plan_f796d155"
+    },
+    {
+      "step_id": "step_filter_provision_command",
+      "agent": "interaction",
+      "tool": "type_text",
+      "parameters": {
+        "text": "Microsoft 365 Agents: Provision"
+      },
+      "description": "Type \"Microsoft 365 Agents: Provision\" into the command palette to filter to the Provision command.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": null,
+      "plan_id": "plan_f796d155"
+    },
+    {
+      "step_id": "step_assert_provision_command",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the Visual Studio Code command palette is open and the \"Microsoft 365 Agents: Provision\" command is visible and highlighted for selection.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "step_retry_timeout: 30"
+      ],
+      "screenshot": null,
+      "plan_id": "plan_f796d155"
+    },
+    {
+      "step_id": "step_execute_provision_command",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "enter"
+      },
+      "description": "Press Enter to execute the highlighted \"Microsoft 365 Agents: Provision\" command.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": null,
       "plan_id": "plan_f796d155"
     }
   ],
