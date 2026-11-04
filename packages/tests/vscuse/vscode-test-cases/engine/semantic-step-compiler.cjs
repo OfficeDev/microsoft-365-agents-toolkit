@@ -2054,6 +2054,124 @@ function createSemanticStepCompiler() {
     return result;
   }
 
+  function compileConfigurePluginManifest(state, definition) {
+    const inputs = definition.with;
+    if (
+      state.template !== "da/api-plugin-from-existing-api" ||
+      state.pluginManifestMode !== undefined ||
+      !isRecord(inputs) ||
+      !hasOnlyFields(inputs, new Set(["mode"])) ||
+      !["invalid-property", "file-reference"].includes(inputs.mode) ||
+      (inputs.mode === "file-reference" && state.completed.has("provision"))
+    ) {
+      return failure(
+        "VCB_CONFIGURE_PLUGIN_MANIFEST_INPUT_INVALID",
+        "The plugin manifest mutation input or checked scaffold entry state is not supported.",
+      );
+    }
+    const mutation =
+      inputs.mode === "invalid-property"
+        ? `assert "name_for_humanaaaa" not in plugin
+original = plugin.pop("name_for_human")
+plugin["name_for_humanaaaa"] = original
+plugin_path.write_text(json.dumps(plugin, indent=2) + "\\n", encoding="utf-8")
+saved = json.loads(plugin_path.read_text(encoding="utf-8"))
+assert saved["name_for_humanaaaa"] == original and "name_for_human" not in saved
+`
+        : `instruction = (package / "instruction.txt").read_text(encoding="utf-8")
+assert instruction.startswith("You are a declarative agent")
+manifest_path = package / "manifest.json"
+manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+reference = "$[file('./instruction.txt')]"
+manifest["description"]["full"] = reference
+plugin["description_for_human"] = reference
+manifest_path.write_text(json.dumps(manifest, indent=2) + "\\n", encoding="utf-8")
+plugin_path.write_text(json.dumps(plugin, indent=2) + "\\n", encoding="utf-8")
+assert json.loads(manifest_path.read_text(encoding="utf-8"))["description"]["full"] == reference
+assert json.loads(plugin_path.read_text(encoding="utf-8"))["description_for_human"] == reference
+`;
+    const script = `import json
+import os
+from pathlib import Path
+package = Path(os.environ["PROJECT_DIR"]) / "appPackage"
+plugin_path = package / "ai-plugin.json"
+plugin = json.loads(plugin_path.read_text(encoding="utf-8"))
+${mutation}`;
+    const result = render(
+      state,
+      "workspace/configure-plugin-manifest.json.tpl",
+      {
+        mutationScriptBase64: Buffer.from(script, "utf8").toString("base64"),
+      },
+    );
+    if (!result.ok) return result;
+    state.pluginManifestMode = inputs.mode;
+    state.pluginManifestConfiguredAfterProvision =
+      state.completed.has("provision");
+    return result;
+  }
+
+  function compileValidateManifest(state, definition) {
+    if (
+      definition.with !== undefined ||
+      state.template !== "da/api-plugin-from-existing-api" ||
+      state.pluginManifestMode !== "invalid-property" ||
+      !state.pluginManifestConfiguredAfterProvision ||
+      !state.completed.has("provision")
+    ) {
+      return failure(
+        "VCB_VALIDATE_MANIFEST_INPUT_INVALID",
+        "Manifest validation requires a provisioned existing-API agent followed by the invalid-property mutation and accepts no inputs.",
+      );
+    }
+    const output = [];
+    let error = append(
+      output,
+      render(state, "command-palette/execute-command.json.tpl", {
+        commandTitle: "Microsoft 365 Agents: Validate Application",
+      }),
+    );
+    if (error) return error;
+    for (const [questionTitle, optionLabel] of [
+      ["Select a validation method", "Validate app manifest schema"],
+      ["Select Teams manifest.json File", "manifest.json"],
+      ["Select an environment", "dev"],
+    ]) {
+      error = append(
+        output,
+        render(state, "quick-input/single-select.json.tpl", {
+          questionTitle,
+          optionLabel,
+        }),
+      );
+      if (error) return error;
+    }
+    for (const commandTitle of [
+      commandTitles.clearNotifications,
+      "Output: Show Output Channels...",
+    ]) {
+      error = append(
+        output,
+        render(state, "command-palette/execute-command.json.tpl", {
+          commandTitle,
+        }),
+      );
+      if (error) return error;
+    }
+    error = append(
+      output,
+      render(state, "quick-input/filter-option.json.tpl", {
+        optionLabel: "Microsoft 365 Agents Toolkit",
+      }),
+    );
+    if (error) return error;
+    error = append(
+      output,
+      render(state, "checks/invalid-plugin-property.json.tpl", {}),
+    );
+    return error ?? { ok: true, value: output };
+  }
+
   function compileShare(state, definition) {
     const inputs = definition.with ?? {};
     if (
@@ -4125,6 +4243,10 @@ function createSemanticStepCompiler() {
         return compileRemoveWorkspaceFile(state, definition);
       case "configureArmJsonTemplates":
         return compileConfigureArmJsonTemplates(state, definition);
+      case "configurePluginManifest":
+        return compileConfigurePluginManifest(state, definition);
+      case "validateManifest":
+        return compileValidateManifest(state, definition);
       case "workflowVersion":
         return compileWorkflowVersion(state, definition);
       case "configureTypeSpecAction":
