@@ -66,7 +66,7 @@
       "parameters": {
         "button": "left",
         "x": 25,
-        "y": 299
+        "y": 277
       },
       "description": "Click the \"Microsoft 365 Agents Toolkit\" icon in the Activity Bar of Visual Studio Code to open the extension panel.",
       "content_refs": [],
@@ -74,11 +74,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [],
-      "preconditions": [
-        "dhash:25:299:16:5:4d59694d2da2d6d6",
-        "dhash:25:299:96:5:e4694ce7e7c41948",
-        "dhash:25:299:0:10:326c622363636421"
-      ],
+      "preconditions": [],
       "postconditions": [],
       "tags": [],
       "screenshot": "step_92d4a98e",
