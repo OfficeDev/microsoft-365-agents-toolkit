@@ -243,7 +243,7 @@ export class PolicyPublicationOperation {
       );
     }
     const publications: ["mos" | "workIq", PreparedPolicyPublication][] = [
-      ["mos", mos.value],
+      // ["mos", mos.value],
       ["workIq", workIq.value],
     ];
     for (const [destination, prepared] of publications) {
