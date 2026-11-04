@@ -33,7 +33,7 @@ cases:
         provision,
         f5-copilot-remote,
         open-agent,
-        check-github-issues-error-free,
+        check-github-issues,
       ]
 
 steps:
@@ -134,13 +134,3 @@ steps:
         expect:
           replied: true
           validResponse: true
-
-  check-github-issues-error-free:
-    type: checks
-    with:
-      - type: chat
-        send: get latest issues
-        allowAction: true
-        expect:
-          replied: true
-          notContains: ["error"]

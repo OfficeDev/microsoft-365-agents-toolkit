@@ -3899,26 +3899,22 @@ steps:
   }
 });
 
-test("VCB-202: TypeSpec remote preview requires a valid response without changing package coverage", async () => {
+test("VCB-202: both TypeSpec action remote previews require a valid response", async () => {
   const result = await compileFixture(
     "da-typespec-with-action.yml",
     (sourceText) => sourceText,
   );
   assert.equal(result.ok, true, JSON.stringify(result.diagnostics));
   for (const generated of result.value) {
-    const isPreview =
-      generated.caseId === "da-typespec-with-action-remote-preview";
     assert.equal(
       generated.plan.steps.at(-1).description,
-      isPreview
-        ? "@assertion agent has valid response."
-        : '@assertion the current assistant response does not contain "error".',
+      "@assertion agent has valid response.",
     );
     assert.equal(
       generated.plan.steps.some((step) =>
         step.step_id.startsWith("step_assertChatNotContains_"),
       ),
-      !isPreview,
+      false,
     );
     assert.equal(
       generated.plan.steps.at(-2).step_id.startsWith("step_assertChatReplied_"),
