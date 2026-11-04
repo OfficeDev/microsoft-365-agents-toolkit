@@ -1589,18 +1589,43 @@ external-service reply is not required by this workflow.
 
 | ID      | Runtime | Purpose               | Gate | Harness                      | Given / When / Then                                                                                                                                                                                                                                                                                                                                                                                                                        |
 | ------- | ------- | --------------------- | ---- | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| VCB-207 | L1      | operation-integration | PR   | semantic compiler            | Given a checked MCP declarative agent and valid closed `addDaSkill` inputs, compilation accepts the new operation. Invalid names, descriptions, rejected-name fixtures, exposure choices, unknown fields, unsupported templates, repeated additions, and additions after lifecycle execution fail before output.                                                                                                                           |
-| VCB-208 | L1      | surface/compatibility | PR   | semantic compiler/components | The emitted flow preserves the recorded Development entry, guarded keyboard choices, rejected camelCase name and exact format error, valid skill creation, default agent-only scope, manifest selection, confirmation, and success assertion. The independent case verifies skill files and retained MCP registration, then signs in to M365, provisions, and previews the named agent without adding Azure or external-chat dependencies. |
-| VCB-209 | L1      | compatibility         | PR   | semantic compiler/filesystem | The YAML source deterministically produces manifest-owned `feature-da-add-skill-mcp.json`. Once its replacement coverage is validated, remove `Feature_DA_Add_Skill_MCP.json` and update the generated-to-legacy mapping and test index. Record the generated replacement's actual UI/CLI results separately from migration status; never substitute the old hand-recorded plan's passing result.                                          |
+| VCB-208 | L1      | operation-integration | PR   | semantic compiler            | Given a checked MCP declarative agent and valid closed `addDaSkill` inputs, compilation accepts the new operation. Invalid names, descriptions, rejected-name fixtures, exposure choices, unknown fields, unsupported templates, repeated additions, and additions after lifecycle execution fail before output.                                                                                                                           |
+| VCB-209 | L1      | surface/compatibility | PR   | semantic compiler/components | The emitted flow preserves the recorded Development entry, guarded keyboard choices, rejected camelCase name and exact format error, valid skill creation, default agent-only scope, manifest selection, confirmation, and success assertion. The independent case verifies skill files and retained MCP registration, then signs in to M365, provisions, and previews the named agent without adding Azure or external-chat dependencies. |
+| VCB-210 | L1      | compatibility         | PR   | semantic compiler/filesystem | The YAML source deterministically produces manifest-owned `feature-da-add-skill-mcp.json`. Once its replacement coverage is validated, remove `Feature_DA_Add_Skill_MCP.json` and update the generated-to-legacy mapping and test index. Record the generated replacement's actual UI/CLI results separately from migration status; never substitute the old hand-recorded plan's passing result.                                          |
 
 On November 4, 2026, the requester explicitly approved retiring the hand-recorded
 Add Skill plan after compiler/parity validation even though trustworthy fresh
-runtime replay is blocked by the external runner. For VCB-209, legacy-file removal
+runtime replay is blocked by the external runner. For VCB-210, legacy-file removal
 therefore does not depend on a passing generated UI/CLI replay. The migration
 mapping must use `Migrated` and retain the actual blocker: CodeAgent changed a
 valid generated assertion payload, the script exited with code 1, and the runner
 still reported success. Neither that success flag nor the old plan's passing run
 is evidence that the generated replacement passed.
+
+## Resource-Group Reprovision Legacy Retirement
+
+The legacy Bot and Tab resource-group-deletion plans do not verify recovery or successful
+resource recreation. They provision once, issue an unverified Azure CLI deletion, and accept
+any visible error from the next Provision. A failed login, failed deletion, unrelated deployment
+error, or stale notification can therefore satisfy their final assertion.
+
+The actual toolkit contract is shared, not template-specific: a cached resource-group name is
+passed to `arm/deploy`, and
+[`ArmErrorHandle.handleArmDeploymentError`](../../../../packages/fx-core/src/component/driver/arm/util/handleError.ts)
+maps Azure's `ResourceGroupNotFound` to `ResourceGroupNotExistError`. The existing
+[`handleArmDeploymentError case 1`](../../../../packages/fx-core/tests/component/driver/arm/utils.test.ts)
+checks that exact error type. Normal Bot and Tab scaffold/provision/deploy coverage remains in
+their existing generated remote cases.
+
+Retire these two destructive L3 recordings without generated replacements. This is an explicit
+test-scope decision, not a claim of full UI/deletion parity: the real Azure deletion sequence is
+no longer replayed, while the precise shared error-mapping coverage remains at L1. No product
+behavior or recovery guarantee changes, and no new cloud-deletion/cleanup capability is added
+to the case engine. Keep the two original work item IDs and the owning L1 coverage in the mapping.
+
+| ID      | Runtime | Purpose       | Gate | Harness                      | Given / When / Then                                                                                                                                                                                                                                                                                                                                                   |
+| ------- | ------- | ------------- | ---- | ---------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| VCB-207 | L1      | compatibility | PR   | semantic compiler/filesystem | The legacy Bot and Tab delete-resource-group/reprovision plans are absent and explicitly mapped as Retired with work items 10744682 and 10744678 and the shared ARM error-mapping test as retained coverage. Existing generated Bot and Tab remote Provision/Deploy cases remain unchanged; retirement neither emits replacement plans nor adds cloud-deletion steps. |
 
 ## Boundary
 
