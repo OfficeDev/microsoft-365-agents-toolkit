@@ -1840,8 +1840,8 @@
       <Item ItemId=";core.addSkillQuestion.name.placeholder" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Enter a name for your skill (lowercase letters, numbers, and hyphens only)]]></Val>
-          <Tgt Cat="Text" Stat="Update" Orig="New">
-            <Val><![CDATA[输入技能名称(仅限字母、数字和连字符)]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[输入技能名称(仅限小写字母、数字和连字符)]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Enter a name for your skill (letters, numbers, and hyphens only)]]></Val>
@@ -1861,8 +1861,8 @@
       <Item ItemId=";core.addSkillQuestion.name.validation" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Skill name may only contain lowercase letters, numbers, and hyphens. Use 1-64 characters, without leading, trailing, or consecutive hyphens.]]></Val>
-          <Tgt Cat="Text" Stat="Update" Orig="New">
-            <Val><![CDATA[技能名称必须以字母开头，并且只能包含字母、数字和连字符。]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[技能名称只能包含小写字母、数字和连字符。使用 1-64 个字符，不得以连字符开头、结尾或连续使用连字符。]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Skill name must start with a letter and contain only letters, numbers, and hyphens.]]></Val>
@@ -7498,6 +7498,9 @@
       <Item ItemId=";driver.dcr.description.update" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Update an existing Dynamic Client Registration (DCR) configuration for MCP server authentication.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[更新 MCP 服务器身份验证的现有动态客户端注册(DCR)配置。]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -7576,6 +7579,9 @@
       <Item ItemId=";driver.dcr.title.update" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Updating DCR configuration...]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[正在更新 DCR 配置...]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -10543,6 +10549,9 @@
       <Item ItemId=";error.m365.AdvancedPackageUploadsDisabled" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Upload blocked by your tenant's Advanced package uploads setting. Ask your Microsoft 365 admin to allow uploads for your account by selecting All users or including you in Specific users or groups. Learn more: [Manage Advanced package uploads]5D;(%s)]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[租户的高级包上传设置阻止上传。请让 Microsoft 365 管理员通过选择“所有用户”或将你添加到“特定用户或组”中来允许你的帐户上传。了解详细信息: [管理高级包上传]5D;(%s)]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>

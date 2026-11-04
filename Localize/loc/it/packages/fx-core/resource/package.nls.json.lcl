@@ -1861,8 +1861,8 @@
       <Item ItemId=";core.addSkillQuestion.name.validation" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Skill name may only contain lowercase letters, numbers, and hyphens. Use 1-64 characters, without leading, trailing, or consecutive hyphens.]]></Val>
-          <Tgt Cat="Text" Stat="Update" Orig="New">
-            <Val><![CDATA[Il nome della competenza deve iniziare con una lettera e può includere solo lettere, numeri e trattini.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Il nome della competenza può contenere solo lettere minuscole, numeri e trattini. Usare da 1 a 64 caratteri, senza trattini iniziali, finali o consecutivi.]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Skill name must start with a letter and contain only letters, numbers, and hyphens.]]></Val>
@@ -7498,6 +7498,9 @@
       <Item ItemId=";driver.dcr.description.update" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Update an existing Dynamic Client Registration (DCR) configuration for MCP server authentication.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Aggiornare una configurazione esistente di Dynamic Client Registration (DCR) per l'autenticazione del server MCP.]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -7576,6 +7579,9 @@
       <Item ItemId=";driver.dcr.title.update" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Updating DCR configuration...]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Aggiornamento della configurazione di DCR in corso...]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>

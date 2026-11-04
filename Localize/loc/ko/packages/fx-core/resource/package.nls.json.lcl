@@ -1840,8 +1840,8 @@
       <Item ItemId=";core.addSkillQuestion.name.placeholder" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Enter a name for your skill (lowercase letters, numbers, and hyphens only)]]></Val>
-          <Tgt Cat="Text" Stat="Update" Orig="New">
-            <Val><![CDATA[기술 이름을 입력하세요(문자, 숫자, 하이픈만 사용)]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[기술 이름 입력(소문자, 숫자 및 하이픈만)]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Enter a name for your skill (letters, numbers, and hyphens only)]]></Val>
@@ -1861,8 +1861,8 @@
       <Item ItemId=";core.addSkillQuestion.name.validation" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Skill name may only contain lowercase letters, numbers, and hyphens. Use 1-64 characters, without leading, trailing, or consecutive hyphens.]]></Val>
-          <Tgt Cat="Text" Stat="Update" Orig="New">
-            <Val><![CDATA[스킬 이름은 문자로 시작해야 하며 문자, 숫자, 하이픈만 포함할 수 있습니다.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[기술 이름에는 소문자, 숫자 및 하이픈만 포함될 수 있습니다. 선행, 후행 또는 연속된 하이픈 없이 1~64자를 사용하세요.]]></Val>
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Skill name must start with a letter and contain only letters, numbers, and hyphens.]]></Val>
@@ -7498,6 +7498,9 @@
       <Item ItemId=";driver.dcr.description.update" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Update an existing Dynamic Client Registration (DCR) configuration for MCP server authentication.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[MCP 서버 인증에 대한 기존 DCR(동적 클라이언트 등록) 구성을 업데이트하세요.]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -7540,6 +7543,9 @@
       <Item ItemId=";driver.dcr.log.skipUpdate" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[DCR configuration %s already matches the requested settings. No update is needed.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[DCR 구성 %s은(는) 이미 요청한 설정과 일치합니다. 업데이트할 필요가 없습니다.]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -7573,6 +7579,9 @@
       <Item ItemId=";driver.dcr.title.update" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Updating DCR configuration...]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[DCR 구성을 업데이트하는 중...]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>

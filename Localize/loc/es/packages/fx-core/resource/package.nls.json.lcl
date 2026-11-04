@@ -7498,6 +7498,9 @@
       <Item ItemId=";driver.dcr.description.update" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Update an existing Dynamic Client Registration (DCR) configuration for MCP server authentication.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Actualice una configuración existente de Registro dinámico de clientes (DCR) para la autenticación del servidor MCP.]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -7576,6 +7579,9 @@
       <Item ItemId=";driver.dcr.title.update" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Updating DCR configuration...]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Actualizando configuración de DCR...]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
