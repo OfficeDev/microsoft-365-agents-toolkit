@@ -36,6 +36,8 @@ const allowedStepTypes = new Set([
   "dcrUpdate",
   "removeWorkspaceFile",
   "configureArmJsonTemplates",
+  "configurePluginManifest",
+  "validateManifest",
   "workflowVersion",
   "configureTypeSpecAction",
   "addDaCapability",

@@ -55,6 +55,296 @@ function isWithin(filePath, directory) {
   );
 }
 
+function manifestFeatureSource(mode) {
+  const validation = mode === "invalid-property";
+  return `version: 1
+cases:
+  - id: feature-${mode}
+    scenarioId: VCB-204
+    workItemIds: [${validation ? 28041252 : 29307173}]
+    gate: manual
+    steps: [scaffold, check, login, ${validation ? "provision, configure, validate" : "configure, provision, check-built"}]
+steps:
+  scaffold:
+    type: scaffold
+    with:
+      template: da/api-plugin-from-existing-api
+      answers:
+        - question: projectType
+          value: copilot-agent-type
+        - question: daTemplate
+          value: add-action
+        - question: actionSource
+          value: openapi
+        - question: openApiSpecType
+          value: enter-url
+        - question: apiSpecLocation
+          type: text
+          value: https://raw.githubusercontent.com/Alive-Fish/example-openapi-spec/main/real-no-auth.yaml
+        - question: apiOperations
+          type: multiSelect
+          value: all
+        - question: workspaceFolder
+          value: default
+        - question: appName
+          type: text
+          value: "\${{var:app_name:vscuse_app_#####}}"
+  check:
+    type: checks
+    with:
+      - type: file
+        path: appPackage/ai-plugin.json
+        expect:
+          contains: ['"name_for_human"']
+  login:
+    type: login
+    with:
+      type: m365
+      account: "\${{env:M365_ACCOUNT_NAME}}"
+      password: "\${{secret:M365_ACCOUNT_PASSWORD}}"
+  provision:
+    type: provision
+  configure:
+    type: configurePluginManifest
+    with:
+      mode: ${mode}
+  validate:
+    type: validateManifest
+  check-built:
+    type: checks
+    with:
+      - type: file
+        path: appPackage/build/manifest.dev.json
+        expect:
+          contains: [You are a declarative agent]
+          notContains: ["$[file("]
+      - type: file
+        path: appPackage/build/ai-plugin.dev.json
+        expect:
+          contains: [You are a declarative agent]
+          notContains: ["$[file("]
+`;
+}
+
+test("VCB-204: independent manifest feature cases preserve structured mutations and M365-only coverage", async () => {
+  for (const mode of ["invalid-property", "file-reference"]) {
+    const result = compileInlineSource(manifestFeatureSource(mode));
+    assert.equal(result.ok, true, JSON.stringify(result.diagnostics));
+    const { plan } = result.value[0];
+    const serialized = JSON.stringify(plan);
+    assert.ok(!serialized.includes("AZURE_ACCOUNT"));
+    assert.ok(!serialized.includes("New resource group"));
+    const mutation = plan.steps.find(
+      (step) =>
+        step.tool === "type_text" &&
+        step.tags.includes("operation:configure-plugin-manifest"),
+    );
+    assert.ok(mutation);
+    const encoded = mutation.parameters.text.match(/b64decode\("([^"]+)"\)/)[1];
+    const script = Buffer.from(encoded, "base64").toString("utf8");
+    assert.ok(script.includes("json.loads"));
+    assert.ok(!script.includes("sed "));
+    assert.ok(!script.includes("vscuse_app_hdNtv"));
+    if (mode === "invalid-property") {
+      assert.ok(script.includes('plugin.pop("name_for_human")'));
+      assert.ok(script.includes('"name_for_humanaaaa"'));
+      assert.ok(serialized.includes("28041252"));
+    } else {
+      assert.ok(script.includes('manifest["description"]["full"]'));
+      assert.ok(script.includes('plugin["description_for_human"]'));
+      assert.ok(script.includes("$[file('./instruction.txt')]"));
+      assert.ok(serialized.includes("29307173"));
+      const checks = plan.steps.filter((step) =>
+        step.tags.includes("assertion:file"),
+      );
+      const assertions = checks.flatMap((step) => {
+        const encodedAssertions = step.parameters.sample.match(
+          /ASSERTIONS_B64="([^"]+)"/,
+        )[1];
+        return JSON.parse(Buffer.from(encodedAssertions, "base64").toString());
+      });
+      for (const file of ["manifest", "ai-plugin"]) {
+        const check = assertions.find(
+          (entry) => entry.path === `appPackage/build/${file}.dev.json`,
+        );
+        assert.deepEqual(check.contains, ["You are a declarative agent"]);
+        assert.deepEqual(check.notContains, ["$[file("]);
+      }
+    }
+    for (const [label, invalidSource] of [
+      [
+        "unknown mode",
+        manifestFeatureSource(mode).replace(`mode: ${mode}`, "mode: unknown"),
+      ],
+      [
+        "extra field",
+        manifestFeatureSource(mode).replace(
+          `mode: ${mode}`,
+          `mode: ${mode}\n      path: other.json`,
+        ),
+      ],
+      [
+        "missing mode",
+        manifestFeatureSource(mode).replace(`mode: ${mode}`, ""),
+      ],
+      [
+        "unchecked scaffold",
+        manifestFeatureSource(mode).replace(
+          "scaffold, check, login",
+          "scaffold, login",
+        ),
+      ],
+      [
+        "repeated mutation",
+        manifestFeatureSource(mode).replace(
+          "configure,",
+          "configure, configure,",
+        ),
+      ],
+      [
+        "wrong template",
+        manifestFeatureSource(mode).replace(
+          "template: da/api-plugin-from-existing-api",
+          "template: da/no-action",
+        ),
+      ],
+    ]) {
+      const invalid = compileInlineSource(invalidSource);
+      assert.equal(invalid.ok, false, `${mode}: ${label}`);
+    }
+  }
+  const checkedIn = await compileFixture(
+    "feature-plugin-manifest.yml",
+    (sourceText) => sourceText,
+  );
+  assert.equal(checkedIn.ok, true, JSON.stringify(checkedIn.diagnostics));
+  assert.deepEqual(
+    checkedIn.value.map(({ fileName }) => fileName),
+    [
+      "feature-validate-plugin-manifest.json",
+      "feature-da-manifest-file-function-manifest-plugin-support.json",
+    ],
+  );
+});
+
+test("VCB-206: generated manifest feature plans replace both legacy files independently of UI results", async () => {
+  const result = await compileFixture(
+    "feature-plugin-manifest.yml",
+    (sourceText) => sourceText,
+  );
+  assert.equal(result.ok, true, JSON.stringify(result.diagnostics));
+  const plansDirectory = path.join(__dirname, "..", "plans");
+  const owned = await fs.readFile(
+    path.join(plansDirectory, ".vscuse-generated-plans"),
+    "utf8",
+  );
+  for (const { fileName } of result.value) {
+    assert.ok(fsSync.existsSync(path.join(plansDirectory, fileName)), fileName);
+    assert.ok(owned.includes(fileName), fileName);
+  }
+  for (const fileName of [
+    "Feature_Validate_Plugin_Manifest.json",
+    "Feature_DA_Manifest_File_Function_Manifest_Plugin_Support.json",
+  ]) {
+    assert.equal(
+      fsSync.existsSync(path.join(plansDirectory, fileName)),
+      false,
+      fileName,
+    );
+  }
+});
+
+test("VCB-205: manifest validation requires provision and mutation and guards each keyboard choice", () => {
+  const source = manifestFeatureSource("invalid-property");
+  const result = compileInlineSource(source);
+  assert.equal(result.ok, true, JSON.stringify(result.diagnostics));
+  const { plan } = result.value[0];
+  for (const label of [
+    "Microsoft 365 Agents: Validate Application",
+    "Validate app manifest schema",
+    "manifest.json",
+    "dev",
+    "Notifications: Clear All Notifications",
+    "Output: Show Output Channels...",
+    "Microsoft 365 Agents Toolkit",
+  ]) {
+    assert.ok(
+      plan.steps.some(
+        (step) =>
+          step.agent === "assertion" && step.description.includes(label),
+      ),
+    );
+  }
+  const output = plan.steps.find((step) =>
+    step.tags.includes("assertion:invalid-plugin-property"),
+  );
+  assert.ok(output.description.includes("name_for_humanaaaa"));
+  assert.ok(output.description.includes("ai-plugin.json"));
+  assert.ok(output.description.includes("property name must be valid"));
+  const channelFilterIndex = plan.steps.findIndex(
+    (step) =>
+      step.tool === "type_text" &&
+      step.parameters.text === "Microsoft 365 Agents Toolkit",
+  );
+  assert.ok(channelFilterIndex > 0);
+  assert.ok(
+    plan.steps[channelFilterIndex + 1].description.includes(
+      "visible and selectable",
+    ),
+  );
+  assert.equal(plan.steps[channelFilterIndex + 2].parameters.key, "enter");
+  assert.ok(
+    !plan.steps.some(
+      (step) => step.parameters.text === "Output: Focus on Output View",
+    ),
+  );
+  assert.ok(
+    !plan.steps.some(
+      (step) =>
+        step.tags.includes("operation:validate-manifest") &&
+        step.tool === "click",
+    ),
+  );
+  for (const [label, invalidSource] of [
+    [
+      "missing provision",
+      source.replace("provision, configure, validate", "configure, validate"),
+    ],
+    [
+      "missing mutation",
+      source.replace("provision, configure, validate", "provision, validate"),
+    ],
+    [
+      "wrong order",
+      source.replace(
+        "provision, configure, validate",
+        "configure, provision, validate",
+      ),
+    ],
+    [
+      "extra input",
+      source.replace(
+        "type: validateManifest",
+        "type: validateManifest\n    with:\n      environment: dev",
+      ),
+    ],
+    [
+      "wrong mode",
+      source.replace("mode: invalid-property", "mode: file-reference"),
+    ],
+  ]) {
+    const invalid = compileInlineSource(invalidSource);
+    assert.equal(invalid.ok, false, label);
+    assert.equal(
+      invalid.diagnostics[0].code,
+      label === "wrong mode"
+        ? "VCB_CONFIGURE_PLUGIN_MANIFEST_INPUT_INVALID"
+        : "VCB_VALIDATE_MANIFEST_INPUT_INVALID",
+      label,
+    );
+  }
+});
+
 async function compileFixture(fileName, transform) {
   const sourceText = await fs.readFile(
     path.join(casesDirectory, fileName),
@@ -1050,7 +1340,7 @@ test("VCB-34: semantic compiler does not read external template contracts", asyn
   }
 });
 
-test("VCB-34: default setup compiles the checked-in YAML sources into 199 plans", async (context) => {
+test("VCB-34: default setup compiles the checked-in YAML sources into 201 plans", async (context) => {
   const plansDirectory = await fs.mkdtemp(
     path.join(os.tmpdir(), "vscuse-generated-"),
   );
@@ -1063,9 +1353,9 @@ test("VCB-34: default setup compiles the checked-in YAML sources into 199 plans"
   });
 
   assert.equal(first.ok, true);
-  assert.equal(first.value.files.length, 199);
+  assert.equal(first.value.files.length, 201);
   const generatedFiles = first.value.files;
-  assert.equal(generatedFiles.length, 199);
+  assert.equal(generatedFiles.length, 201);
   assert.equal(
     generatedFiles.includes(
       "da-api-plugin-from-existing-api--da-api-plugin-from-existing-api-no-auth.json",
