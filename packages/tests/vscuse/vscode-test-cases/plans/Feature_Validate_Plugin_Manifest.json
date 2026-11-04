@@ -235,7 +235,7 @@
       "agent": "code",
       "tool": "",
       "parameters": {
-        "sample": "=== Generated Script ===\nLanguage: bash\n\n```bash\n#!/bin/bash\n\n# File path\nFILE_PATH=\"/home/vscode/AgentsToolkitProjects/vscuse_app_hdNtv/appPackage/ai-plugin.json\"\n\n# Verify that the file exists\nif [[ -f \"${FILE_PATH}\" ]]; then\n    # Update the specified line of the file.\n    sed -i '4s/name_for_human/name_for_humanaaaa/' \"${FILE_PATH}\"\n    echo \"Renamed 'name_for_human' to 'name_for_humanaaaa' on line 4.\"\nelse\n    echo \"File not found: ${FILE_PATH}\"\n    exit 1\nfi\n```\n\n=== Execution Results ===\nExit Code: 0\n\n=== STDOUT ===\nRenamed 'name_for_human' to 'name_for_humanaaaa' on line 4.\n\n✓ Script executed successfully"
+        "sample": "=== Generated Script ===\nLanguage: bash\n\n```bash\n#!/bin/bash\n\n# File path\nFILE_PATH=\"/home/vscode/AgentsToolkitProjects/vscuse_app_hdNtv/appPackage/ai-plugin.json\"\n\n# Verify that the file exists\nif [[ -f \"${FILE_PATH}\" ]]; then\n    # Update the specified line of the file.\n    sed -i '4s/name_for_human/name_for_humanaaaa/' \"${FILE_PATH}\"\n    echo \"Renamed 'name_for_human' to 'name_for_humanaaaa' on line 4.\"\nelse\n    echo \"File not found: ${FILE_PATH}\"\n    exit 1\nfi\n```\n\n=== Execution Results ===\nExit Code: 0\n\n=== STDOUT ===\nRenamed 'name_for_human' to 'name_for_humanaaaa' on line 4.\n\n\u2713 Script executed successfully"
       },
       "description": "@code in file: \"/home/vscode/AgentsToolkitProjects/${{var:app_name}}/appPackage/ai-plugin.json\"\nrename in the line 4  'name_for_human'  to  'name_for_humanaaaa'\n",
       "content_refs": [],
