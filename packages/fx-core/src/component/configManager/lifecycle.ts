@@ -299,15 +299,19 @@ export class Lifecycle implements ILifecycle {
         this.version,
         driver.name
       );
-      if (ctx.signal?.aborted) {
-        return {
-          result: err({ kind: "Failure", error: new UserCancelError(this.name) }),
-          summaries,
-        };
-      }
-      const result = r.result;
+      let result = r.result;
       const summary = r.summaries.map((s) => `${SummaryConstant.Succeeded} ${s}`);
       summaries.push(summary);
+      if (ctx.signal?.aborted && result.isOk()) {
+        const cancellationError = r.onCancellation?.();
+        if (!cancellationError) {
+          return {
+            result: err({ kind: "Failure", error: new UserCancelError(this.name) }),
+            summaries,
+          };
+        }
+        result = err(cancellationError);
+      }
       if (result.isErr()) {
         const errorMessage = getDisplayMessage(result.error) ?? result.error.message;
         summary.push(`${SummaryConstant.Failed} ${errorMessage}`);

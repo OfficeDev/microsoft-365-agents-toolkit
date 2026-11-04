@@ -86,7 +86,8 @@
           { "$ref": "#/definitions/devChannelCreate" },
           { "$ref": "#/definitions/devChannelInstallApp" },
           { "$ref": "#/definitions/typeSpecCompile" },
-          { "$ref": "#/definitions/copilotAgentPublish" }
+          { "$ref": "#/definitions/copilotAgentPublish" },
+          { "$ref": "#/definitions/workIqPublishPolicy" }
         ]
       }
     },
@@ -2216,6 +2217,52 @@
             "typeSpecConfigPath": {
               "type": "string",
               "description": "Path to TypeSpec config file."
+            }
+          }
+        }
+      }
+    },
+    "workIqPublishPolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Publish an existing agent's policy to MOS for display, then to Work IQ for runtime use. Both services are prepared before writing, and their ETags are read and managed internally. Requires MOS title write access and Work IQ tenant administrator authorization with WorkIQSettings.ReadWrite.All. Completion does not verify runtime enforcement.",
+      "required": ["uses", "with"],
+      "properties": {
+        "name": { "type": "string" },
+        "env": {
+          "type": "object",
+          "additionalProperties": { "type": "string" }
+        },
+        "uses": { "const": "workiq/publishPolicy" },
+        "with": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["titleId", "policyPath", "callerId"],
+          "properties": {
+            "titleId": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Existing MOS agent title ID. This action does not create the agent or title."
+            },
+            "policyPath": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Path to a UTF-8 JSON object inside the project, relative to the project root or absolute. The file is not expanded or rewritten. MOS receives its captured bytes; the Work IQ request adds appId from callerId."
+            },
+            "callerId": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Nonzero runtime App ID GUID associated with titleId, not the signed-in user's object ID, tenant ID, or ATK client ID. Must match appId if the policy already contains it."
+            }
+          }
+        },
+        "writeToEnvironmentFile": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "report": {
+              "$ref": "#/definitions/envVarName",
+              "description": "Environment variable receiving the JSON publication report on successful action completion, including separate MOS and Work IQ outcomes and returned ETags. Simulation is not real publication. Failure reports are returned on the error, not written to this variable."
             }
           }
         }
