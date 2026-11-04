@@ -282,7 +282,7 @@ cases:
 
 V1 step types are `scaffold`, `login`, `provision`, `deploy`, `pythonEnvironment`,
 `localEnvironment`, `playgroundEnvironment`, `localUserEnvironment`, `removeWorkspaceFile`,
-`workflowVersion`, `configureTypeSpecAction`, `share`, `target`, `open`, and `checks`.
+`workflowVersion`, `configureTypeSpecAction`, `addDaSkill`, `share`, `target`, `open`, and `checks`.
 `scaffold` accepts `template` and `answers`; `login`, `provision`, and `target` accept their
 same-named operation input. `deploy` has no semantic input, although current validation ignores an
 authored `with` object. `pythonEnvironment` requires exactly one input, `with.interpreter`, the
@@ -1540,6 +1540,67 @@ The corresponding L3 VscUse replays validate the replacement coverage but do not
 legacy-file removal. Execute both generated replacements against the requested published
 image and record provenance and actual run outcomes in the legacy mapping; never report
 the migration status as proof that UI execution passed.
+
+### Add Skill feature migration
+
+The November 4, 2026 migration request preserves the approved Microsoft Learn MCP
+declarative-agent workflow and changes only its test authoring model. No product
+PRD, scenario behavior, or Frontier configuration changes are required.
+
+A checked `da/mcp-server` project may author `addDaSkill` before provision or
+launch, once per case:
+
+```yaml
+add-skill:
+  type: addDaSkill
+  with:
+    name: test-skill
+    description: A test skill for the MCP declarative agent.
+    rejectedName: testSkill
+    exposeToCopilot: false
+```
+
+The input mapping is closed. `name` is a literal skill name of 1–64 lowercase
+letters, digits, or single separating hyphens, matching the product validator.
+`description` is a non-empty, single-line literal of at most 1024 characters.
+`rejectedName` is a non-empty, single-line literal that fails the skill-name
+validator. Runner expressions are not accepted in these three fields.
+`exposeToCopilot` must be `false`: this increment covers the existing default
+agent-only scope, not skill import or exposure across Copilot surfaces.
+Unsupported inputs, templates, repeated additions, and additions after provision
+or launch fail compilation without emitting a partial plan.
+
+The adapter focuses the Toolkit view and uses the recorded Development > Add
+Skill entry. It guards each prompt, selects Create a new skill, submits the
+rejected name, asserts the exact format error while the Skill Name prompt remains
+open, clears the invalid input, and submits the valid name and description. It
+then selects No, chooses the current project's Teams manifest, confirms Add, and
+requires the success notification. Coordinates and visual preconditions come
+from the retained CY261104 recording; YAML contains only semantic intent.
+
+The independent `feature-da-add-skill-mcp` case retains the no-auth Microsoft
+Learn MCP scaffold, dynamic project name, work item 39611826, and the declared
+MCP dynamic-discovery flags without enabling Frontier. File checks prove the
+generated skill frontmatter, its `agent_skills` registration, the retained MCP
+action, and absence of an invalid-name skill file. M365-only sign-in and
+successful provision precede Preview in Copilot (Chrome); the final browser
+check identifies the generated agent by its dynamic name. A chat turn or an
+external-service reply is not required by this workflow.
+
+| ID      | Runtime | Purpose               | Gate | Harness                      | Given / When / Then                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| ------- | ------- | --------------------- | ---- | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| VCB-207 | L1      | operation-integration | PR   | semantic compiler            | Given a checked MCP declarative agent and valid closed `addDaSkill` inputs, compilation accepts the new operation. Invalid names, descriptions, rejected-name fixtures, exposure choices, unknown fields, unsupported templates, repeated additions, and additions after lifecycle execution fail before output.                                                                                                                           |
+| VCB-208 | L1      | surface/compatibility | PR   | semantic compiler/components | The emitted flow preserves the recorded Development entry, guarded keyboard choices, rejected camelCase name and exact format error, valid skill creation, default agent-only scope, manifest selection, confirmation, and success assertion. The independent case verifies skill files and retained MCP registration, then signs in to M365, provisions, and previews the named agent without adding Azure or external-chat dependencies. |
+| VCB-209 | L1      | compatibility         | PR   | semantic compiler/filesystem | The YAML source deterministically produces manifest-owned `feature-da-add-skill-mcp.json`. Once its replacement coverage is validated, remove `Feature_DA_Add_Skill_MCP.json` and update the generated-to-legacy mapping and test index. Record the generated replacement's actual UI/CLI results separately from migration status; never substitute the old hand-recorded plan's passing result.                                          |
+
+On November 4, 2026, the requester explicitly approved retiring the hand-recorded
+Add Skill plan after compiler/parity validation even though trustworthy fresh
+runtime replay is blocked by the external runner. For VCB-209, legacy-file removal
+therefore does not depend on a passing generated UI/CLI replay. The migration
+mapping must use `Migrated` and retain the actual blocker: CodeAgent changed a
+valid generated assertion payload, the script exited with code 1, and the runner
+still reported success. Neither that success flag nor the old plan's passing run
+is evidence that the generated replacement passed.
 
 ## Boundary
 

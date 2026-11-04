@@ -43,6 +43,11 @@ Compiled from the YAML cases under [`vscode-test-cases/cases/`](vscode-test-case
 | `da-mcp-server--da-mcp-remote-{none\|oauth\|entra}-preview`                                                         | Declarative Agent, remote MCP         |
 | `da-api-plugin-from-scratch--da-api-plugin-from-scratch-{ts\|js}`                                                   | API plugin from a new API             |
 | `da-api-plugin-from-existing-api--da-api-plugin-from-existing-api-{no-auth\|api-key\|bearer\|oauth}-remote-preview` | API plugin from an existing API       |
+| `feature-da-add-skill-mcp`                                                                                         | MCP DA Add Skill, name validation, agent-only skill, provision and Copilot preview |
+
+The [Add Skill case source](vscode-test-cases/cases/feature-da-add-skill-mcp.yml)
+owns this generated feature plan. Its replacement of the hand-recorded plan is
+tracked in the [migration mapping](vscode-test-cases/cases/legacy-case-mapping.md).
 
 ---
 

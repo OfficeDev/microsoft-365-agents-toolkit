@@ -159,6 +159,7 @@
     "feature-arm-json-multiple-templates.json",
     "feature-check-copilot-license-enabled.json",
     "feature-da-add-mcp-server.json",
+    "feature-da-add-skill-mcp.json",
     "feature-da-manifest-file-function-manifest-plugin-support.json",
     "feature-da-no-action-api-key-auth-provision.json",
     "feature-da-no-action-bearer-auth-provision.json",

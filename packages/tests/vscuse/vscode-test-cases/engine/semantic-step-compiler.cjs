@@ -2312,6 +2312,95 @@ ${mutation}`;
     return { ok: true, value: output };
   }
 
+  function compileAddDaSkill(state, definition) {
+    const inputs = definition.with;
+    const validName = (value) =>
+      typeof value === "string" &&
+      value.length <= 64 &&
+      /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(value);
+    const literalText = (value) =>
+      typeof value === "string" &&
+      value.trim().length > 0 &&
+      !/[\0\r\n]/.test(value) &&
+      !value.includes("${{");
+    if (
+      state.template !== "da/mcp-server" ||
+      state.completed.has("addDaSkill") ||
+      state.completed.has("provision") ||
+      state.completed.has("target") ||
+      !isRecord(inputs) ||
+      !hasOnlyFields(
+        inputs,
+        new Set(["name", "description", "rejectedName", "exposeToCopilot"]),
+      ) ||
+      !validName(inputs.name) ||
+      !literalText(inputs.description) ||
+      inputs.description.length > 1024 ||
+      !literalText(inputs.rejectedName) ||
+      validName(inputs.rejectedName) ||
+      inputs.exposeToCopilot !== false
+    ) {
+      return failure(
+        "VCB_ADD_DA_SKILL_INPUT_INVALID",
+        "The declarative-agent skill input or operation order is not supported.",
+      );
+    }
+    const output = [];
+    for (const [component, values] of [
+      [
+        "command-palette/execute-command.json.tpl",
+        { commandTitle: commandTitles.showToolkit },
+      ],
+      ["treeview/add-da-skill.json.tpl", {}],
+      [
+        "quick-input/single-select.json.tpl",
+        {
+          questionTitle: "How would you like to add a skill?",
+          optionLabel: "Create a new skill",
+        },
+      ],
+      [
+        "quick-input/rejected-skill-name.json.tpl",
+        { rejectedName: inputs.rejectedName },
+      ],
+      [
+        "quick-input/text.json.tpl",
+        { questionTitle: "Skill Name", inputValue: inputs.name },
+      ],
+      [
+        "quick-input/text.json.tpl",
+        { questionTitle: "Skill Description", inputValue: inputs.description },
+      ],
+      [
+        "quick-input/single-select.json.tpl",
+        {
+          questionTitle: "Do you want to expose this skill to Copilot?",
+          optionLabel: "No",
+        },
+      ],
+      [
+        "quick-input/single-select.json.tpl",
+        {
+          questionTitle: "Select Teams manifest.json File",
+          optionLabel: "manifest.json",
+        },
+      ],
+      ["dialog/add-da-skill-confirm.json.tpl", {}],
+      [
+        "notifications/assert-contains.json.tpl",
+        {
+          notificationText: "Agent skill added to the project successfully.",
+          retryTimeout: "60",
+        },
+      ],
+    ]) {
+      const error = append(output, render(state, component, values));
+      if (error) return error;
+    }
+    state.completed.add("addDaSkill");
+    return { ok: true, value: output };
+  }
+
   function compileAddDaCapability(state, definition) {
     const inputs = definition.with;
     let webSearchUrl;
@@ -4253,6 +4342,8 @@ ${mutation}`;
         return compileConfigureTypeSpecAction(state, definition);
       case "addDaCapability":
         return compileAddDaCapability(state, definition);
+      case "addDaSkill":
+        return compileAddDaSkill(state, definition);
       case "addDaAction":
         return compileAddDaAction(state, definition);
       case "addApiAuthConfiguration":
