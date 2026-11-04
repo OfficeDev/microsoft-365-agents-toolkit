@@ -168,7 +168,7 @@
       "agent": "code",
       "tool": "",
       "parameters": {
-        "sample": "=== Generated Script ===\nLanguage: bash\n\n```bash\nfile_path=\"/home/vscode/AgentsToolkitProjects/vscuse_app_eYfFg/appPackage/declarativeAgent.json\"\n\n# Check if the file exists\nif [ -e \"$file_path\" ]; then\n  # Update 'name' to 'names' in the file\n  sed -i 's/\"name\"/\"names\"/g' \"$file_path\"\n  echo \"Update complete.\"\nelse\n  echo \"File does not exist: $file_path\" >&2\n  exit 1\nfi\n```\n\n=== Execution Results ===\nExit Code: 0\n\n=== STDOUT ===\nUpdate complete.\n\n✓ Script executed successfully"
+        "sample": "=== Generated Script ===\nLanguage: bash\n\n```bash\nfile_path=\"/home/vscode/AgentsToolkitProjects/vscuse_app_eYfFg/appPackage/declarativeAgent.json\"\n\n# Check if the file exists\nif [ -e \"$file_path\" ]; then\n  # Update 'name' to 'names' in the file\n  sed -i 's/\"name\"/\"names\"/g' \"$file_path\"\n  echo \"Update complete.\"\nelse\n  echo \"File does not exist: $file_path\" >&2\n  exit 1\nfi\n```\n\n=== Execution Results ===\nExit Code: 0\n\n=== STDOUT ===\nUpdate complete.\n\n\u2713 Script executed successfully"
       },
       "description": "@code in file: \"/home/vscode/AgentsToolkitProjects/${{var:app_name}}/appPackage/declarativeAgent.json\"\nupdate 'name' to 'names'\n",
       "content_refs": [],
@@ -188,7 +188,7 @@
       "agent": "assertion",
       "tool": "",
       "parameters": {},
-      "description": "@assertion 'ManifestValidationFailed'  is exists or Invalid value for key is exists",
+      "description": "@assertion an error notification for \"declarativeAgent.json\" contains 'Missing required property \"name\". Expected string.'",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
