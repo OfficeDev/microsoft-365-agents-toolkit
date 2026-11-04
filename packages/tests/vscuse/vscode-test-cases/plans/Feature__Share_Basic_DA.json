@@ -53,7 +53,7 @@
       "step_ccf247b7"
     ],
     "tags": [],
-    "updated_at": "2026-11-04T06:40:24.070000"
+    "updated_at": "2026-11-04T06:55:24.346000"
   },
   "steps": [
     {
@@ -161,7 +161,7 @@
         "keys": null,
         "text": null,
         "x": 216,
-        "y": 528
+        "y": 550
       },
       "description": "Click the \"Provision\" option located under the \"LIFECYCLE\" section in the Microsoft 365 Agents Toolkit sidebar.",
       "content_refs": [],
@@ -169,11 +169,7 @@
       "retry_count": 0,
       "continue_on_error": "0",
       "depends_on": [],
-      "preconditions": [
-        "dhash:216:528:16:5:0000000000000000",
-        "dhash:216:528:96:5:40403000090c0e01",
-        "dhash:216:528:0:10:b28c6a632303a431"
-      ],
+      "preconditions": [],
       "postconditions": [],
       "tags": [],
       "screenshot": "step_3111acda",
