@@ -541,7 +541,7 @@
       "parameters": {
         "text": "${{secret:M365_ACCOUNT_PASSWORD}}"
       },
-      "description": "Type '${{secret:M365_ACCOUNT_PASSWORD}}' into the password field on the Microsoft login page for user “${{env:M365_ACCOUNT_NAME}}” in Google Chrome.",
+      "description": "Type '${{secret:M365_ACCOUNT_PASSWORD}}' into the password field on the Microsoft login page for user \u201c${{env:M365_ACCOUNT_NAME}}\u201d in Google Chrome.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
