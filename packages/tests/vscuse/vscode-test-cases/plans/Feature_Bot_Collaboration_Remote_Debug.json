@@ -85,7 +85,7 @@
         "x": 431,
         "y": 232
       },
-      "description": "Click the \"General Teams Agent\" option in the dropdown menu within the \"Teams Agent or App Using Microsoft Teams SDK\" dialog in Microsoft 365 Agents Toolkit on Visual Studio Code.",
+      "description": "Click the \"Other Teams Capabilities\" option in the dropdown menu within the \"Teams Agent or App Using Microsoft Teams SDK\" dialog in Microsoft 365 Agents Toolkit on Visual Studio Code to reach the Simple Bot template.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -111,7 +111,7 @@
         "x": 380,
         "y": 183
       },
-      "description": "Click the \"Simple Bot\" option in the \"Teams Capability\" dropdown within Visual Studio Code’s Microsoft 365 Agents Toolkit interface, selecting a template described as \"A simple implementation of an echo bot that's ready for customization.\"",
+      "description": "Click the \"Simple Bot\" option in the \"Teams Capability\" dropdown within Visual Studio Code\u2019s Microsoft 365 Agents Toolkit interface, selecting a template described as \"A simple implementation of an echo bot that's ready for customization.\"",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
