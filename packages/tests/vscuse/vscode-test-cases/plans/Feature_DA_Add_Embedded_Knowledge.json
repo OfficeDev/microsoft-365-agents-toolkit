@@ -441,7 +441,7 @@
       "parameters": {
         "button": "left",
         "x": 29,
-        "y": 301
+        "y": 278
       },
       "description": "Click the \"M365 Agents Toolkit\" icon in the left sidebar of Visual Studio Code to open the Microsoft 365 Agents Toolkit panel.",
       "content_refs": [],
@@ -449,11 +449,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [],
-      "preconditions": [
-        "dhash:29:301:16:5:662626a688da5a5a",
-        "dhash:29:301:96:5:c018c8e4e4c81808",
-        "dhash:29:301:0:10:2224226363626421"
-      ],
+      "preconditions": [],
       "postconditions": [],
       "tags": [],
       "screenshot": "step_46fdc2a9",
