@@ -746,6 +746,51 @@ describe("workiq/publishPolicy Alpha", () => {
     expect(adapter.history.put[0].data).toEqual(policyBytes);
   });
 
+  for (const replacement of [false, true]) {
+    it(`WIQ-POL-29: MOS ${replacement ? "replacement" : "creation"} requests identity encoding without changing captured bytes`, async () => {
+      const defaultEncoding = axios.defaults.headers.common["Accept-Encoding"];
+      adapter
+        .onGet(url)
+        .reply((config) =>
+          replacement
+            ? [
+                200,
+                mosEnvelope,
+                config.headers?.["Accept-Encoding"] === "identity" ? { ETag: '"stored"' } : {},
+              ]
+            : [404]
+        );
+      adapter
+        .onPut(url)
+        .reply((config) => [
+          replacement ? 200 : 201,
+          mosEnvelope,
+          config.headers?.["Accept-Encoding"] === "identity" ? mosHeaders : {},
+        ]);
+      const input = {
+        titleId,
+        policy: { bytes: Buffer.from(policyBytes), sha256: "captured-digest" },
+      };
+
+      const result = await mosService().publishWorkIqPolicy(input);
+
+      expect(result.isOk()).toBe(true);
+      if (result.isOk())
+        expect(result.value).toEqual({ state: "confirmed", etag: mosHeaders.ETag });
+      expect(adapter.history.get.map((read) => axios.getUri(read))).toEqual([discoveryUrl, url]);
+      expect(adapter.history.get[1].headers).toHaveProperty("Accept-Encoding", "identity");
+      expect(adapter.history.put).toHaveLength(1);
+      expect(adapter.history.put[0].headers).toMatchObject({
+        "Accept-Encoding": "identity",
+        "Content-Type": "application/json",
+        [replacement ? "If-Match" : "If-None-Match"]: replacement ? '"stored"' : "*",
+      });
+      expect(adapter.history.put[0].data).toEqual(policyBytes);
+      expect(input.policy.bytes).toEqual(policyBytes);
+      expect(axios.defaults.headers.common["Accept-Encoding"]).toBe(defaultEncoding);
+    });
+  }
+
   it("WIQ-POL-16: lifecycle cancellation preserves the MOS receipt and successful substep", async () => {
     const controller = new AbortController();
     const publish = vi

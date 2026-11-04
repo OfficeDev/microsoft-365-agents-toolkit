@@ -231,7 +231,10 @@ export class PackageService {
         `/builder/v1/tenants/titles/${encodeURIComponent(request.titleId)}/policies/workiq`,
         {
           baseURL: serviceUrl.href,
-          headers: { Authorization: `Bearer ${token}` },
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Accept-Encoding": "identity",
+          },
           signal: request.signal,
           timeout: 30000,
           maxRedirects: 0,
@@ -269,6 +272,7 @@ export class PackageService {
           baseURL: serviceUrl.href,
           headers: {
             Authorization: `Bearer ${token}`,
+            "Accept-Encoding": "identity",
             "Content-Type": "application/json",
             ...(request.etag ? { "If-Match": request.etag } : { "If-None-Match": "*" }),
           },

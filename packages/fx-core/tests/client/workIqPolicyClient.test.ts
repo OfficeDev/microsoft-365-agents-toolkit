@@ -172,6 +172,51 @@ describe("Work IQ Agent Policy API", () => {
     expect(provider.getAccessToken).toHaveBeenCalledOnce();
   });
 
+  for (const replacement of [false, true]) {
+    it(`WIQ-POL-29: ${replacement ? "replacement" : "creation"} requests identity encoding to preserve empty-policy ETags`, async () => {
+      const defaultEncoding = axios.defaults.headers.common["Accept-Encoding"];
+      adapter
+        .onGet(url)
+        .reply((config) =>
+          replacement
+            ? [
+                200,
+                { schemaVersion: 1, capabilities: [] },
+                config.headers?.["Accept-Encoding"] === "identity" ? { ETag: '"stored"' } : {},
+              ]
+            : [404]
+        );
+      adapter
+        .onPut(url)
+        .reply((config) => [
+          replacement ? 200 : 201,
+          { schemaVersion: 1, capabilities: [] },
+          config.headers?.["Accept-Encoding"] === "identity" ? { ETag: '"committed"' } : {},
+        ]);
+
+      const input = request();
+      const result = await client.publish(input, provider);
+
+      expect(result.isOk()).toBe(true);
+      if (result.isOk()) expect(result.value).toEqual({ state: "confirmed", etag: '"committed"' });
+      for (const config of [...adapter.history.get, ...adapter.history.put]) {
+        expect(config.headers).toHaveProperty("Accept-Encoding", "identity");
+      }
+      expect(adapter.history.put).toHaveLength(1);
+      expect(adapter.history.put[0].headers).toHaveProperty(
+        replacement ? "If-Match" : "If-None-Match",
+        replacement ? '"stored"' : "*"
+      );
+      expect(JSON.parse(adapter.history.put[0].data)).toEqual({
+        schemaVersion: 1,
+        capabilities: [],
+        appId: callerId,
+      });
+      expect(input.policy.bytes).toEqual(bytes);
+      expect(axios.defaults.headers.common["Accept-Encoding"]).toBe(defaultEncoding);
+    });
+  }
+
   for (const [status, body, headers] of [
     [200, {}, {}],
     [200, {}, { ETag: 'W/"weak"' }],
@@ -343,6 +388,7 @@ describe("Work IQ Agent Policy API", () => {
     expect(result.isOk()).toBe(true);
     expect(JSON.parse(adapter.history.delete[0].data)).toEqual({ appId: callerId });
     expect(adapter.history.delete[0].headers).toHaveProperty("If-Match", '"original"');
+    expect(adapter.history.delete[0].headers).toHaveProperty("Accept-Encoding", "identity");
   });
 
   it("WIQ-POL-22: DELETE 503 remains unknown and never replays automatically", async () => {

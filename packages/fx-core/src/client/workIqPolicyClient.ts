@@ -323,6 +323,7 @@ export class WorkIqPolicyClient implements WorkIqPolicyPublisher {
         data: write.body,
         headers: {
           Authorization: `Bearer ${context.token}`,
+          "Accept-Encoding": "identity",
           "Content-Type": "application/json",
           ...(write.etag !== undefined ? { "If-Match": write.etag } : { "If-None-Match": "*" }),
         },
@@ -372,7 +373,10 @@ export class WorkIqPolicyClient implements WorkIqPolicyPublisher {
   ): Promise<Result<AxiosResponse<unknown>, FxError>> {
     try {
       const response = await this.http.get<unknown>(`${context.baseUrl}${path}`, {
-        headers: { Authorization: `Bearer ${context.token}` },
+        headers: {
+          Authorization: `Bearer ${context.token}`,
+          "Accept-Encoding": "identity",
+        },
         signal,
         timeout: 30000,
         maxRedirects: 0,
