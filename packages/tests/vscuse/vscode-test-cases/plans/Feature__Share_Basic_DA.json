@@ -9,7 +9,7 @@
       "precondition_retry_interval": 2,
       "step_retry_count": 0
     },
-    "total_steps": 28,
+    "total_steps": 29,
     "created_at": "2026-06-10T08:11:17.479358",
     "name": "Feature: Share Basic DA",
     "description": {
@@ -34,6 +34,7 @@
       "step_966acdd5",
       "step_cb96ac5f",
       "step_0f078ca3",
+      "step_2e015c89",
       "step_47dc04af",
       "step_76a12bd8",
       "step_5cb083cd",
@@ -52,7 +53,7 @@
       "step_ccf247b7"
     ],
     "tags": [],
-    "updated_at": "2026-06-10T08:40:05.983439"
+    "updated_at": "2026-11-04T06:40:24.070000"
   },
   "steps": [
     {
@@ -194,11 +195,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [],
-      "preconditions": [
-        "dhash:408:76:16:5:0042000000000000",
-        "dhash:408:76:96:5:0000000000000000",
-        "dhash:408:76:0:10:d08822232308ac2d"
-      ],
+      "preconditions": [],
       "postconditions": [],
       "tags": [],
       "screenshot": "step_8d8f762e",
@@ -412,6 +409,28 @@
       "tags": [],
       "screenshot": "step_0f078ca3",
       "created_at": "2026-06-10T08:11:17.571036",
+      "plan_id": "plan_112b671d"
+    },
+    {
+      "step_id": "step_2e015c89",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 362,
+        "y": 48
+      },
+      "description": "Click the input field labeled \"Email addresses of users or groups for agent sharing\" to focus it before entering the email address.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "",
+      "created_at": "2026-11-04T06:40:24.070000",
       "plan_id": "plan_112b671d"
     },
     {
