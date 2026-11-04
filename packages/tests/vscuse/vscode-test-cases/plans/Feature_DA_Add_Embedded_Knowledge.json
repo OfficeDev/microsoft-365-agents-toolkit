@@ -9,7 +9,7 @@
       "precondition_retry_interval": 2,
       "step_retry_timeout": 0
     },
-    "total_steps": 51,
+    "total_steps": 54,
     "created_at": "2026-05-21T01:25:55.681715",
     "name": "Feature DA Add Embedded Knowledge",
     "description": {
@@ -37,6 +37,9 @@
       "plan_r_0928_014459",
       "step_46fdc2a9",
       "step_885af259",
+      "step_c6e4a101",
+      "step_c6e4a102",
+      "step_c6e4a103",
       "step_f3811e81",
       "step_221e8d7d",
       "step_1a6a18dc",
@@ -459,27 +462,78 @@
     {
       "step_id": "step_885af259",
       "agent": "interaction",
-      "tool": "click",
+      "tool": "keyboard_shortcut",
       "parameters": {
-        "button": "left",
-        "x": 140,
-        "y": 477
+        "keys": "ctrl+shift+P"
       },
-      "description": "Click the \"Add Capability\" option under the DEVELOPMENT section in the MICROSOFT 365 AGENTS TOOLKIT panel of Visual Studio Code.",
+      "description": "Open the Visual Studio Code Command Palette with Ctrl+Shift+P to invoke Add Capability without relying on the clipped Development tree row.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [],
-      "preconditions": [
-        "dhash:140:477:16:5:39cceda9adc63100",
-        "dhash:140:477:96:5:52961778644b88c0",
-        "dhash:140:477:0:10:a224622303222421"
-      ],
+      "preconditions": [],
       "postconditions": [],
       "tags": [],
       "screenshot": "step_885af259",
       "created_at": "2026-05-21T01:25:55.829038",
+      "plan_id": "plan_2753c1dc"
+    },
+    {
+      "step_id": "step_c6e4a101",
+      "agent": "interaction",
+      "tool": "type_text",
+      "parameters": {
+        "text": "Microsoft 365 Agents: Add Capability"
+      },
+      "description": "Type \"Microsoft 365 Agents: Add Capability\" into the Visual Studio Code Command Palette to filter to the exact command.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": null,
+      "plan_id": "plan_2753c1dc"
+    },
+    {
+      "step_id": "step_c6e4a102",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the Command Palette input box reads >Microsoft 365 Agents: Add Capability and the highlighted command listed under it is titled Microsoft 365 Agents: Add Capability.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "step_retry_timeout:30"
+      ],
+      "screenshot": null,
+      "plan_id": "plan_2753c1dc"
+    },
+    {
+      "step_id": "step_c6e4a103",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "enter"
+      },
+      "description": "Press Enter to execute the highlighted \"Microsoft 365 Agents: Add Capability\" command and open the capability selection dialog.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": null,
       "plan_id": "plan_2753c1dc"
     },
     {
