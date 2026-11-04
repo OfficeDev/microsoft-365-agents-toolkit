@@ -7579,6 +7579,51 @@ test("VCB-166: Web Search case sources independently cover URL and all-web repla
   );
 });
 
+test("VCB-207: destructive resource-group reprovision recordings are retired with shared L1 coverage retained", async () => {
+  const mapping = await fs.readFile(
+    path.join(casesDirectory, "legacy-case-mapping.md"),
+    "utf8",
+  );
+  for (const [fileName, workItem] of [
+    ["Feature_Del_Resource_Group_And_Reprovision_For_Bot.json", 10744682],
+    ["Feature_Del_Resource_Group_And_Reprovision_For_Tab.json", 10744678],
+  ]) {
+    assert.equal(
+      fsSync.existsSync(path.join(casesDirectory, "..", "plans", fileName)),
+      false,
+      fileName,
+    );
+    assert.match(
+      mapping,
+      new RegExp(
+        `\`${fileName.replaceAll(".", "\\.")}\`[^\\n]*Retired[^\\n]*${workItem}`,
+      ),
+      fileName,
+    );
+  }
+  assert.ok(mapping.includes("ResourceGroupNotFound"));
+  assert.ok(mapping.includes("ResourceGroupNotExistError"));
+  assert.ok(mapping.includes("tests/component/driver/arm/utils.test.ts"));
+  for (const [source, caseId] of [
+    ["default-bot.yml", "simple-bot-ts-remote-teams"],
+    ["non-sso-tab.yml", "tab-ts-remote-teams"],
+  ]) {
+    const result = await compileFixture(source, (sourceText) => sourceText);
+    assert.equal(result.ok, true, JSON.stringify(result.diagnostics));
+    const remoteCase = result.value.find((entry) => entry.caseId === caseId);
+    assert.ok(remoteCase, caseId);
+    for (const operation of ["Provision", "Deploy"]) {
+      assert.ok(
+        remoteCase.plan.steps.some(
+          (step) =>
+            step.parameters.text === `Microsoft 365 Agents: ${operation}`,
+        ),
+        `${caseId}: ${operation}`,
+      );
+    }
+  }
+});
+
 test("VCB-167: standalone README checks are retired while project readiness remains", async () => {
   for (const relativePath of [
     "cases/feature-readme-da.yml",
