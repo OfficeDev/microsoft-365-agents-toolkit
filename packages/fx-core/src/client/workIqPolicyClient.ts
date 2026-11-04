@@ -114,7 +114,6 @@ export class WorkIqPolicyClient implements WorkIqPolicyPublisher {
     if (!isAppId(request.callerId)) return err(appBindingError());
     const path = agentPath(request.titleId);
     if (path.isErr()) return err(path.error);
-    if (request.etag !== undefined && !isStrongPolicyEtag(request.etag)) return err(inputError());
     const policy = parsePolicyObject(request.policy.bytes);
     if (policy.isErr()) return err(policy.error);
     const appId = policy.value.appId;
@@ -128,8 +127,7 @@ export class WorkIqPolicyClient implements WorkIqPolicyPublisher {
       method: "PUT",
       path: path.value,
       body: JSON.stringify({ ...policy.value, appId: request.callerId }),
-      etag: request.etag,
-      expectedStatus: request.etag === undefined ? 201 : 200,
+      expectedStatus: 201,
       signal: request.signal,
     };
     if (!this.endpoint) {
@@ -150,6 +148,12 @@ export class WorkIqPolicyClient implements WorkIqPolicyPublisher {
       write.signal
     );
     if (contracts.isErr()) return err(contracts.error);
+    const inspection = await this.readPolicyPrepared(path.value, context.value, write.signal);
+    if (inspection.isErr()) return err(inspection.error);
+    if (inspection.value.state === "found") {
+      write.etag = inspection.value.etag;
+      write.expectedStatus = 200;
+    }
     if (write.signal?.aborted) return err(new UserCancelError(publishPolicyActionName));
     // TODO: Validate Capability versions, writability and configuration schemas once the response contract is confirmed.
     return ok({ publish: () => this.write(write, context.value) });
@@ -171,7 +175,17 @@ export class WorkIqPolicyClient implements WorkIqPolicyPublisher {
   ): Promise<Result<WorkIqPolicyInspection, FxError>> {
     const path = agentPath(titleId);
     if (path.isErr()) return err(path.error);
-    const response = await this.read(path.value, provider, signal, true);
+    const context = await this.authenticate("read", provider, signal);
+    if (context.isErr()) return err(context.error);
+    return this.readPolicyPrepared(path.value, context.value, signal);
+  }
+
+  private async readPolicyPrepared(
+    path: string,
+    context: WorkIqContext,
+    signal?: AbortSignal
+  ): Promise<Result<WorkIqPolicyInspection, FxError>> {
+    const response = await this.readPrepared(path, context, signal, true);
     if (response.isErr()) return err(response.error);
     if (response.value.status === 404) return ok({ state: "not-found" });
     const etag = responseEtag(response.value);

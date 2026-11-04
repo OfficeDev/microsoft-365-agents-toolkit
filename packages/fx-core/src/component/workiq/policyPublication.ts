@@ -21,8 +21,6 @@ export interface PublishPolicyArgs {
   titleId: string;
   policyPath: string;
   callerId: string;
-  etag?: string;
-  workIqEtag?: string;
 }
 
 export interface CapturedPolicy {
@@ -38,7 +36,6 @@ export interface PolicyPublicationContext {
 export interface MosPolicyPublicationRequest {
   titleId: string;
   policy: CapturedPolicy;
-  etag?: string;
   signal?: AbortSignal;
 }
 
@@ -46,7 +43,6 @@ export interface WorkIqPolicyPublicationRequest {
   titleId: string;
   callerId: string;
   policy: CapturedPolicy;
-  etag?: string;
   signal?: AbortSignal;
 }
 
@@ -103,28 +99,15 @@ function validateArgs(value: unknown): Result<PublishPolicyArgs, FxError> {
     );
   }
   const unexpected = Object.keys(value).filter(
-    (key) => !["titleId", "callerId", "policyPath", "etag", "workIqEtag"].includes(key)
+    (key) => !["titleId", "callerId", "policyPath"].includes(key)
   );
   if (unexpected.length) {
     return err(new InvalidActionInputError(publishPolicyActionName, unexpected));
-  }
-  const etag = "etag" in value ? value.etag : undefined;
-  if (etag !== undefined && (typeof etag !== "string" || !isStrongPolicyEtag(etag))) {
-    return err(new InvalidActionInputError(publishPolicyActionName, ["etag"]));
-  }
-  const workIqEtag = "workIqEtag" in value ? value.workIqEtag : undefined;
-  if (
-    workIqEtag !== undefined &&
-    (typeof workIqEtag !== "string" || !isStrongPolicyEtag(workIqEtag))
-  ) {
-    return err(new InvalidActionInputError(publishPolicyActionName, ["workIqEtag"]));
   }
   return ok({
     titleId: value.titleId,
     callerId: value.callerId,
     policyPath: value.policyPath,
-    etag,
-    workIqEtag,
   });
 }
 
@@ -242,7 +225,6 @@ export class PolicyPublicationOperation {
         titleId: args.value.titleId,
         callerId: args.value.callerId,
         policy,
-        etag: args.value.workIqEtag,
         signal: context.signal,
       });
       if (workIq.isErr()) return failure(workIq.error);
@@ -250,7 +232,6 @@ export class PolicyPublicationOperation {
       mos = await this.clients.mos.prepare({
         titleId: args.value.titleId,
         policy,
-        etag: args.value.etag,
         signal: context.signal,
       });
       if (mos.isErr()) return failure(mos.error);

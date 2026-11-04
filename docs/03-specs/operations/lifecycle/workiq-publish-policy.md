@@ -7,6 +7,13 @@ reusable fx-core operation. Existing CLI and VS Code publish lifecycles remain
 the surfaces: no new command, prompt, or identity-discovery UX is added.
 Packaging remains a separate increment.
 
+The 2026-11-04 approved chat update removes user-supplied publication ETags.
+Users maintain policy content; each destination reads and retains its own
+server ETag during preparation. The supplied
+[MOS API contract](https://microsoft-my.sharepoint-df.com/personal/davidlaro_microsoft_com/_layouts/15/Doc.aspx?sourcedoc=%7B25012ACE-8965-49DC-A014-C5D3F0B85779%7D&file=MOS-WorkIQ-Policy-API-Contracts.docx&action=default)
+confirms GET and committed PUT envelopes. This refines the existing Alpha
+operation, without adding commands or a new product interaction surface.
+
 MOS controls policy display; Work IQ controls runtime policy. They are separate
 destinations and can be verified independently. Neither confirms the other's
 state, and a MOS policy write does not synchronize Work IQ. Independent clients
@@ -27,13 +34,15 @@ is no automatic scope substitution, downgrade or mock fallback.
 
 Experimental YAML v1.13 inputs:
 
-| Input        | Meaning                                                                                                   |
-| ------------ | --------------------------------------------------------------------------------------------------------- |
-| `titleId`    | Explicit MOS title identifier.                                                                            |
-| `policyPath` | Policy JSON file within the project, relative to the project root or absolute.                            |
-| `callerId`   | Nonzero standard-format runtime App ID GUID, never inferred from maker or ATK identity.                   |
-| `etag`       | Optional strong ETag for replacement. Omission means create-only, never unconditional overwrite.          |
-| `workIqEtag` | Optional Work IQ ETag for complete replacement. Independent of the MOS `etag`; omit for Work IQ creation. |
+| Input        | Meaning                                                                                 |
+| ------------ | --------------------------------------------------------------------------------------- |
+| `titleId`    | Explicit MOS title identifier.                                                          |
+| `policyPath` | Policy JSON file within the project, relative to the project root or absolute.          |
+| `callerId`   | Nonzero standard-format runtime App ID GUID, never inferred from maker or ATK identity. |
+
+`etag` and `workIqEtag` are not publication inputs, including direct operation
+and client publication requests. Legacy YAML inputs are rejected, not ignored.
+ETags remain internal conditional-write state and independent report receipts.
 
 `writeToEnvironmentFile.report` optionally maps a JSON publication report to an
 environment variable. No output mapping is required.
@@ -75,8 +84,9 @@ without claiming remote Work IQ publication. MOS may still have been really writ
 
 ### Shared MOS service and replaceable Work IQ client
 
-`PackageService.prepareWorkIqPolicy` resolves MOS authentication and discovery
-before returning a prepared, non-writing handle. `publishWorkIqPolicy` remains a
+`PackageService.prepareWorkIqPolicy` resolves MOS authentication and discovery,
+then GETs the policy before returning a prepared, non-writing handle.
+`publishWorkIqPolicy` remains a
 convenience wrapper for direct callers. Both reuse the same
 current-cloud endpoint, `MosServiceScope`, delegated M365 token provider,
 `getTitleServiceUrl` discovery, and wrapped HTTP client as `copilotAgent/publish`.
@@ -85,11 +95,19 @@ variable. Discovery may return a different regional HTTPS origin; reject
 credentials, query, or fragment before forwarding the token to that service.
 Existing safe discovery retries remain unchanged; policy PUTs are not retried.
 
-The proposed request is `PUT {titlesServiceUrl}/builder/v1/tenants/titles/{titleId}/policies/workiq`
-with captured bytes as `application/json`, `If-None-Match: *` for creation or
-`If-Match: <strong-etag>` for replacement. Caller ID is not sent to MOS.
-Redirects are disabled. Only HTTP 200/201/204 confirms publication; HTTP 202 is
-not completion. Policy HTTP telemetry records metadata only, never payloads.
+MOS GET and PUT use
+`{titlesServiceUrl}/builder/v1/tenants/titles/{titleId}/policies/workiq`.
+An unconditional GET 200 must return `{ policyType: "workiq", policy: <JSON object> }`
+and a strong, opaque ETag. GET 404 selects creation; any other status, malformed
+envelope or missing/weak ETag fails preflight before either policy write.
+There is no `If-None-Match` on GET, so 304 is not a usable policy snapshot.
+PUT sends captured bytes as `application/json`, with `If-None-Match: *` after 404
+or `If-Match: <exact GET etag>` after 200. Caller ID is not sent to MOS.
+Redirects are disabled. Creation requires 201 and replacement requires 200,
+both with a committed policy envelope and strong ETag. This acknowledgement
+confirms MOS publication without a follow-up GET; 204, 202 or a malformed/missing
+acknowledgement is `unknown`. Explicit 428 is a failed precondition rejection.
+Policy GET/PUT HTTP telemetry records metadata only, never payloads.
 
 The exported Work IQ client is the code-level replacement seam, analogous to the
 Developer Portal client export, without a new environment toggle or proxy.
@@ -105,7 +123,7 @@ Missing/unsafe configuration or auth fails during preflight before writes.
 Both destination ports prepare before MOS publication;
 prepared handles retain their private auth context, so there is no second token
 acquisition between the writes.
-MOS preparation snapshots the validated title, conditional-write input, and policy
+MOS preparation snapshots the validated title, GET-derived conditional-write state, and policy
 bytes so later caller mutations cannot change the prepared publication.
 Shared discovery logs only fixed diagnostics and allowlisted transport codes;
 configuration-discovery telemetry is metadata-only as well as policy telemetry.
@@ -178,7 +196,7 @@ outside both service clients.
 | ----------------------------------------------------------------------------------- | ------------------- | -------------------------------------------------------------------------------------------------- |
 | Preparation, separate authentication, App ID/ETag validation, PUT and safe receipts | Yes                 | Required publication correctness, equivalent to MOS preparation and conditional PUT handling.      |
 | Direct `publish` convenience wrapper                                                | Not directly        | Single-client use without the dual-destination operation.                                          |
-| GET policy                                                                          | No                  | Optional independent inspection and ETag retrieval.                                                |
+| GET policy                                                                          | Yes                 | Read current policy/ETag during preparation; standalone inspection remains available.              |
 | DELETE policy                                                                       | No                  | Explicit lifecycle cleanup only; never rollback or reset by the publisher.                         |
 | Capability Contract discovery                                                       | List GET only       | Called before MOS with an opaque/mock response; per-version schema/writability validation is TODO. |
 
@@ -193,19 +211,27 @@ flowchart TD
   Capture --> Contract[Work IQ auth and GET contracts; status-only preflight]
   Contract --> ContractReady{Contract call succeeded?}
   ContractReady -->|No| PreflightFailure[Return safe error; no policy writes]
-  ContractReady -->|Yes| Preflight[Prepare MOS auth and service context]
+  ContractReady -->|Yes| WIQRead[Work IQ GET policy; retain ETag or create-only state]
+  WIQRead --> WIQReady{Valid 200 snapshot or 404?}
+  WIQReady -->|No| PreflightFailure
+  WIQReady -->|Yes| Preflight[Prepare MOS auth, discovery and GET policy snapshot]
   Preflight --> Ready{Both ready?}
   Ready -->|No| PreflightFailure
-  Ready -->|Yes| MOS[Conditionally PUT through existing MOS HTTP client]
+  Ready -->|Yes| MOS[PUT with MOS GET ETag or If-None-Match wildcard]
   MOS --> Confirmed{MOS confirmed?}
   Confirmed -->|No| Failure[Return error with destination report]
   Confirmed -->|Yes| Cancelled{Cancelled?}
   Cancelled -->|Yes| Failure
-  Cancelled -->|No| WIQ[Invoke injected Work IQ client with title, caller and captured bytes]
+  Cancelled -->|No| WIQ[PUT with Work IQ GET ETag or If-None-Match wildcard]
   WIQ --> Report[Normalize outcome and manual next action; keep all receipts]
 ```
 
 MOS-first is an Alpha implementation choice, not a general service guarantee.
+Both snapshots are acquired before the first write. Reads and writes reuse
+their destination's prepared authentication context. A 412 stops publication:
+never re-GET and retry with a newer ETag, and never turn a rejected create into
+an automatic replacement. This protects concurrent changes between GET and PUT;
+it does not retain an edit-time baseline or detect content equality.
 
 ### Temporary Contract validation TODO
 
@@ -229,7 +255,8 @@ The final Work IQ PUT continues to enforce service-side policy validation.
 - No invented policy-domain schema: validate strict UTF-8 JSON objects and reject
   duplicate decoded keys at every object depth; MOS owns domain validation until
   an authoritative local schema is supplied.
-- No automatic overwrite, rollback, policy-write retry, reconciliation, or ETag discovery.
+- No unconditional overwrite, rollback, policy-write retry, automatic reconciliation,
+  content-based upload deduplication, or client-generated ETags.
 - No durable report file; optional environment output is written by the existing
   lifecycle only on successful Alpha execution.
 
@@ -237,6 +264,10 @@ The final Work IQ PUT continues to enforce service-side policy validation.
 
 - Capture bytes once and do not substitute or mutate them. Only the Work IQ
   wire body is serialized to add its required `appId`.
+- Server ETags are opaque. Preserve each GET header unchanged, including quotes;
+  never derive an ETag from the captured hash or mix destination ETags.
+- Only GET 404 selects creation. Read failures, 304, invalid envelopes and invalid
+  ETags prevent all policy writes; there is no post-success read or write retry.
 - Reject lexical and symlink escapes outside the project before reading policy.
 - MOS cannot receive runtime caller identity. Work IQ uses its configured scope
   and the caller's M365 provider; temporarily sharing MOS scope/token and SDK
@@ -263,34 +294,36 @@ The final Work IQ PUT continues to enforce service-side policy validation.
 
 ## Acceptance Criteria
 
-| ID         | Runtime | Purpose               | Gate     | Harness                                                  | Given / When                                                                                               | Then                                                                                                                                                                              |
-| ---------- | ------- | --------------------- | -------- | -------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| WIQ-POL-01 | L1      | operation-integration | required | Current/versioned JSON schemas and driver registry       | Configure the action with explicit required inputs                                                         | Both schemas accept it and the shared driver resolves it.                                                                                                                         |
-| WIQ-POL-02 | L1      | operation-integration | required | Operation with temporary project                         | Inputs, strong ETag, JSON, encoding, or path are invalid                                                   | Return a user error without token acquisition or destination writes.                                                                                                              |
-| WIQ-POL-03 | L1      | operation-integration | required | Real operation and MOS HTTP mock                         | Publish a valid policy                                                                                     | One conditional MOS PUT uses the exact captured bytes, independently supplied delegated token, and encoded title path; report includes the byte digest.                           |
-| WIQ-POL-04 | L1      | operation-integration | required | Real operation and MOS HTTP mock                         | Replace with a strong ETag or receive a conflict                                                           | Send only the requested condition; conflicts are preserved and Work IQ does not run.                                                                                              |
-| WIQ-POL-05 | L1      | operation-integration | required | Real operation and client boundary                       | MOS rejects, times out, returns 202/5xx, or transport is interrupted                                       | Keep the appropriate failed/unknown MOS state, do not retry, and do not call Work IQ.                                                                                             |
-| WIQ-POL-06 | L1      | operation-integration | required | Real operation and injected Work IQ client               | MOS confirms and Work IQ fails or times out                                                                | Preserve MOS confirmation and Work IQ failed/unknown state on the returned error report.                                                                                          |
-| WIQ-POL-07 | L1      | operation-integration | required | AbortSignal and real operation                           | Cancel before publication, between destinations, or during a request                                       | Stop future calls, propagate signal, and preserve confirmed/unknown outcomes without claiming rollback.                                                                           |
-| WIQ-POL-08 | L1      | operation-integration | required | Shared PackageService, discovery and token boundary      | Publish without policy-specific environment configuration, or login/discovery fails                        | Reuse existing MOS scopes and service discovery; unsafe discovery/auth failures prevent PUT; policy writes are not redirected or retried.                                         |
-| WIQ-POL-09 | L1      | scenario              | required | Real publish lifecycle, temporary project, MOS HTTP mock | Resolve YAML environment inputs and publish through the registered action                                  | Persist the optional report, leave policy bytes unchanged, and clearly identify Work IQ as mocked, not remotely confirmed.                                                        |
-| WIQ-POL-10 | L1      | operation-integration | required | Driver with HTTP mock                                    | Publication fails after an attempted write                                                                 | Return an error and destination summaries without leaking token, policy, or service response content.                                                                             |
-| WIQ-POL-11 | L2      | surface               | deferred | Authorized CLI environment                               | Execute the same publish lifecycle with confirmed MOS settings                                             | CLI displays the Alpha mock warning and destination outcomes.                                                                                                                     |
-| WIQ-POL-12 | L3      | surface               | deferred | VS Code publish lifecycle                                | Execute the same configured action                                                                         | Extension uses the native driver and displays the same mock warning/outcomes.                                                                                                     |
-| WIQ-POL-13 | L1      | operation-integration | required | Replaceable Work IQ client export                        | Use the empty endpoint or configure a live endpoint                                                        | Empty endpoint returns explicitly mocked; configured clients require explicit scopes/auth; the user-approved default temporarily shares MOS scope/provider.                       |
-| WIQ-POL-14 | L1      | operation-integration | required | Real operation, prepared MOS and Work IQ ports           | Either destination preflight fails, throws, or is cancelled                                                | Neither destination writes; both receipts stay not-started; no raw prerequisite error escapes.                                                                                    |
-| WIQ-POL-15 | L1      | file-unit             | required | Pure outcome/next-action matrix                          | Normalize confirmation, mock, partial, conflict, unknown and cancellation combinations                     | Published never includes mocked destinations; unknown requires reconcile even when cancelled; unchanged is not guessed.                                                           |
-| WIQ-POL-16 | L1      | scenario              | required | Registered driver and shared publish lifecycle           | Cancel after MOS confirmation, during PUT, or after a successful driver returns                            | Error, receipt and successful substeps survive to lifecycle callers; no later write or success output is produced.                                                                |
-| WIQ-POL-17 | L1      | operation-integration | required | Captured JSON bytes                                      | Keys repeat, including escaped equivalents, nested objects and arrays                                      | Reject before auth/writes; distinct sibling object keys and valid Unicode JSON remain accepted without changing bytes.                                                            |
-| WIQ-POL-18 | L1      | operation-integration | required | Auth/client failures and receipt snapshots               | A provider returns sensitive details or reuses one error object                                            | Return new safe domain errors and independent report snapshots; leave the original error unchanged.                                                                               |
-| WIQ-POL-19 | L1      | operation-integration | required | Shared MOS prepared handle and HTTP mocks                | Preflight succeeds and a prepared write runs, or an unconfirmed 4xx is returned                            | Use one acquired token and one discovery; no policy retry; unknown classifications and receipts are preserved.                                                                    |
-| WIQ-POL-20 | L1      | operation-integration | required | Work IQ client with HTTP/token boundaries                | Publish directly with valid code-configured Work IQ endpoint, resource-qualified scopes and app ID         | Use only the Work IQ token, exact documented route, conditional header and top-level appId; preserve captured policy bytes/hash and require a strong response ETag.               |
-| WIQ-POL-21 | L1      | operation-integration | required | Independent Work IQ HTTP client                          | Inspect/delete policy or discover contracts                                                                | Use documented GET/DELETE routes without MOS; missing policy is explicit not-found; DELETE contains only appId and its own ETag.                                                  |
-| WIQ-POL-22 | L1      | operation-integration | required | Work IQ HTTP/auth failures                               | Receive rejection, binding conflict, ambiguous 429/503, malformed acknowledgement, timeout or cancellation | Preserve failed/conflict/unknown states without blind retries, raw service details, or inferred create/delete recovery.                                                           |
-| WIQ-POL-23 | L1      | scenario              | required | Native lifecycle with independent MOS/Work IQ HTTP mocks | Replace both destinations with different ETags                                                             | MOS receives only its ETag and original policy; Work IQ receives only workIqEtag and appId-enriched JSON; report preserves both receipts and only calls both confirmed published. |
-| WIQ-POL-24 | L1      | operation-integration | required | Exported PPE configuration and HTTP mock                 | Configure the supplied endpoint and test a scope-bound client                                              | Preserve the service prefix; missing explicit configuration or credentials still fails before writes, without mock fallback.                                                      |
-| WIQ-POL-25 | L1      | operation-integration | required | Work IQ Contract and publication HTTP mocks              | Prepare with a mocked/opaque Contract response or a Contract failure                                       | GET contracts uses the already acquired write token before MOS preparation; no schema-validation claim; failures stop both policy writes; order remains Contract, MOS, Work IQ.   |
-| WIQ-POL-26 | L1      | operation-integration | required | Native workflow with shared-scope HTTP/token mocks       | Temporarily configure Work IQ with MosServiceScope and the same M365 provider                              | Contract, MOS and Work IQ requests can use the same supplied token; ETags remain independent; missing credentials or service rejection still fails explicitly.                    |
+| ID         | Runtime | Purpose               | Gate     | Harness                                                  | Given / When                                                                                                     | Then                                                                                                                                                                |
+| ---------- | ------- | --------------------- | -------- | -------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| WIQ-POL-01 | L1      | operation-integration | required | Current/versioned JSON schemas and driver registry       | Configure the action with explicit required inputs                                                               | Both schemas accept it and the shared driver resolves it.                                                                                                           |
+| WIQ-POL-02 | L1      | operation-integration | required | Operation with temporary project                         | Inputs, legacy ETag fields, JSON, encoding, or path are invalid                                                  | Return a user error without token acquisition or destination writes.                                                                                                |
+| WIQ-POL-03 | L1      | operation-integration | required | Real operation and MOS HTTP mock                         | Publish a valid policy                                                                                           | One conditional MOS PUT uses the exact captured bytes, independently supplied delegated token, and encoded title path; report includes the byte digest.             |
+| WIQ-POL-04 | L1      | operation-integration | required | Real operation and MOS HTTP mock                         | GET an existing MOS policy or receive a write conflict                                                           | PUT with the exact GET ETag; conflicts are preserved without re-reading/retrying and Work IQ does not write.                                                        |
+| WIQ-POL-05 | L1      | operation-integration | required | Real operation and client boundary                       | MOS rejects, times out, returns 202/5xx, or transport is interrupted                                             | Keep the appropriate failed/unknown MOS state, do not retry, and do not call Work IQ.                                                                               |
+| WIQ-POL-06 | L1      | operation-integration | required | Real operation and injected Work IQ client               | MOS confirms and Work IQ fails or times out                                                                      | Preserve MOS confirmation and Work IQ failed/unknown state on the returned error report.                                                                            |
+| WIQ-POL-07 | L1      | operation-integration | required | AbortSignal and real operation                           | Cancel before publication, between destinations, or during a request                                             | Stop future calls, propagate signal, and preserve confirmed/unknown outcomes without claiming rollback.                                                             |
+| WIQ-POL-08 | L1      | operation-integration | required | Shared PackageService, discovery and token boundary      | Publish without policy-specific environment configuration, or login/discovery fails                              | Reuse existing MOS scopes and service discovery; unsafe discovery/auth failures prevent PUT; policy writes are not redirected or retried.                           |
+| WIQ-POL-09 | L1      | scenario              | required | Real publish lifecycle, temporary project, MOS HTTP mock | Resolve YAML environment inputs and publish through the registered action                                        | Persist the optional report, leave policy bytes unchanged, and clearly identify Work IQ as mocked, not remotely confirmed.                                          |
+| WIQ-POL-10 | L1      | operation-integration | required | Driver with HTTP mock                                    | Publication fails after an attempted write                                                                       | Return an error and destination summaries without leaking token, policy, or service response content.                                                               |
+| WIQ-POL-11 | L2      | surface               | deferred | Authorized CLI environment                               | Execute the same publish lifecycle with confirmed MOS settings                                                   | CLI displays the Alpha mock warning and destination outcomes.                                                                                                       |
+| WIQ-POL-12 | L3      | surface               | deferred | VS Code publish lifecycle                                | Execute the same configured action                                                                               | Extension uses the native driver and displays the same mock warning/outcomes.                                                                                       |
+| WIQ-POL-13 | L1      | operation-integration | required | Replaceable Work IQ client export                        | Use the empty endpoint or configure a live endpoint                                                              | Empty endpoint returns explicitly mocked; configured clients require explicit scopes/auth; the user-approved default temporarily shares MOS scope/provider.         |
+| WIQ-POL-14 | L1      | operation-integration | required | Real operation, prepared MOS and Work IQ ports           | Either destination preflight fails, throws, or is cancelled                                                      | Neither destination writes; both receipts stay not-started; no raw prerequisite error escapes.                                                                      |
+| WIQ-POL-15 | L1      | file-unit             | required | Pure outcome/next-action matrix                          | Normalize confirmation, mock, partial, conflict, unknown and cancellation combinations                           | Published never includes mocked destinations; unknown requires reconcile even when cancelled; unchanged is not guessed.                                             |
+| WIQ-POL-16 | L1      | scenario              | required | Registered driver and shared publish lifecycle           | Cancel after MOS confirmation, during PUT, or after a successful driver returns                                  | Error, receipt and successful substeps survive to lifecycle callers; no later write or success output is produced.                                                  |
+| WIQ-POL-17 | L1      | operation-integration | required | Captured JSON bytes                                      | Keys repeat, including escaped equivalents, nested objects and arrays                                            | Reject before auth/writes; distinct sibling object keys and valid Unicode JSON remain accepted without changing bytes.                                              |
+| WIQ-POL-18 | L1      | operation-integration | required | Auth/client failures and receipt snapshots               | A provider returns sensitive details or reuses one error object                                                  | Return new safe domain errors and independent report snapshots; leave the original error unchanged.                                                                 |
+| WIQ-POL-19 | L1      | operation-integration | required | Shared MOS prepared handle and HTTP mocks                | Preflight succeeds and a prepared write runs, or an unconfirmed 4xx is returned                                  | Use one acquired token, one discovery and one policy GET; retain bytes/ETag snapshot; no policy retry or post-success GET.                                          |
+| WIQ-POL-20 | L1      | operation-integration | required | Work IQ client with HTTP/token boundaries                | Publish directly with valid code-configured Work IQ endpoint, resource-qualified scopes and app ID               | Use only the Work IQ token, exact documented route, conditional header and top-level appId; preserve captured policy bytes/hash and require a strong response ETag. |
+| WIQ-POL-21 | L1      | operation-integration | required | Independent Work IQ HTTP client                          | Inspect/delete policy or discover contracts                                                                      | Use documented GET/DELETE routes without MOS; missing policy is explicit not-found; DELETE contains only appId and its own ETag.                                    |
+| WIQ-POL-22 | L1      | operation-integration | required | Work IQ HTTP/auth failures                               | Receive rejection, binding conflict, ambiguous 429/503, malformed acknowledgement, timeout or cancellation       | Preserve failed/conflict/unknown states without blind retries, raw service details, or inferred create/delete recovery.                                             |
+| WIQ-POL-23 | L1      | scenario              | required | Native lifecycle with independent MOS/Work IQ HTTP mocks | Publish with no user ETag fields; both destinations return different stored ETags                                | GET both before writing; each PUT uses only its GET ETag; preserve raw MOS bytes/appId-enriched Work IQ JSON and both committed receipts.                           |
+| WIQ-POL-24 | L1      | operation-integration | required | Exported PPE configuration and HTTP mock                 | Configure the supplied endpoint and test a scope-bound client                                                    | Preserve the service prefix; missing explicit configuration or credentials still fails before writes, without mock fallback.                                        |
+| WIQ-POL-25 | L1      | operation-integration | required | Work IQ Contract and publication HTTP mocks              | Prepare with a mocked/opaque Contract response or a Contract failure                                             | Order is Contract GET, Work IQ policy GET, MOS discovery/GET, MOS PUT, Work IQ PUT; reuse prepared tokens and stop on preflight failure.                            |
+| WIQ-POL-26 | L1      | operation-integration | required | Native workflow with shared-scope HTTP/token mocks       | Temporarily configure Work IQ with MosServiceScope and the same M365 provider                                    | Contract, MOS and Work IQ requests can use the same supplied token; ETags remain independent; missing credentials or service rejection still fails explicitly.      |
+| WIQ-POL-27 | L1      | operation-integration | required | MOS/Work IQ policy GET HTTP mocks                        | GET returns 404, 200 with malformed/missing ETag/body, 304, rejection, timeout or cancellation                   | Only valid 200 permits replacement and only 404 permits creation; failures prevent both PUTs without raw service details or retries.                                |
+| WIQ-POL-28 | L1      | operation-integration | required | MOS committed acknowledgement HTTP mocks                 | PUT returns expected 201/200 with committed envelope and ETag, or a missing/malformed/unexpected acknowledgement | Only the complete expected acknowledgement confirms MOS; otherwise unknown, preserve receipt guidance and skip Work IQ PUT; no follow-up GET.                       |
 
 ## Example
 
@@ -302,8 +335,6 @@ publish:
       titleId: ${{M365_TITLE_ID}}
       policyPath: ./policy.json
       callerId: ${{WORKIQ_CALLER_ID}}
-      # etag: '"previous-strong-etag"' # Explicit replacement only.
-      # workIqEtag: '"previous-workiq-etag"' # Never reuse the MOS ETag.
     writeToEnvironmentFile:
       report: WORKIQ_POLICY_PUBLICATION_REPORT
 ```

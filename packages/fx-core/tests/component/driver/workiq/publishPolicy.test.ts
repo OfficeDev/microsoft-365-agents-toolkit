@@ -49,6 +49,8 @@ const titleId = "title/with-special?characters";
 const callerId = "11111111-2222-4333-8444-555555555555";
 const url = `${baseUrl}/tenants/titles/${encodeURIComponent(titleId)}/policies/workiq`;
 const policyBytes = Buffer.from('{\r\n  "rule": "${{DO_NOT_EXPAND}}", "allow": []\r\n}\r\n');
+const mosEnvelope = { policyType: "workiq", policy: {} };
+const mosHeaders = { ETag: '"mos-committed"' };
 
 describe("workiq/publishPolicy Alpha", () => {
   let projectPath: string;
@@ -75,6 +77,7 @@ describe("workiq/publishPolicy Alpha", () => {
       request: { method: config.method?.toUpperCase() },
     });
     adapter.onGet(discoveryUrl).reply(200, { titlesServiceUrl: serviceOrigin });
+    adapter.onGet(url).reply(404);
     workIq = new WorkIqPolicyClient();
     vi.spyOn(workIqPolicyClient, "prepare").mockImplementation((request) =>
       workIq.prepare(request)
@@ -96,13 +99,14 @@ describe("workiq/publishPolicy Alpha", () => {
     expectTypeOf<
       Parameters<PublishPolicyDriver["execute"]>[0]
     >().toEqualTypeOf<PublishPolicyArgs>();
+    expectTypeOf<keyof PublishPolicyArgs>().toEqualTypeOf<"titleId" | "policyPath" | "callerId">();
   });
 
   it("WIQ-POL-03: sends captured bytes in one create-only MOS request and identifies the Work IQ mock", async () => {
     const publishWorkIq = vi.spyOn(workIq, "prepare");
     adapter.onPut(url).reply(async () => {
       await writeFile(path.join(projectPath, "policy.json"), '{"changed":true}');
-      return [201, {}, { ETag: '"mos-version-1"' }];
+      return [201, mosEnvelope, { ETag: '"mos-version-1"' }];
     });
 
     const result = await operation().execute(inputs(), { projectPath });
@@ -124,22 +128,116 @@ describe("workiq/publishPolicy Alpha", () => {
     expect(adapter.history.put[0].maxRedirects).toBe(0);
     expect(adapter.history.put[0].timeout).toBe(30000);
     expect(getToken).toHaveBeenCalledExactlyOnceWith({ scopes: MosServiceScope() });
-    expect(adapter.history.get).toHaveLength(1);
+    expect(adapter.history.get.map((read) => axios.getUri(read))).toEqual([discoveryUrl, url]);
     expect(publishWorkIq).toHaveBeenCalledOnce();
     const request = publishWorkIq.mock.calls[0][0];
     expect(request.titleId).toBe(titleId);
     expect(request.callerId).toBe(callerId);
     expect(request.policy.bytes).toEqual(policyBytes);
     expect(request).not.toHaveProperty("token");
-    expect(request.etag).toBeUndefined();
+    expect(request).not.toHaveProperty("etag");
   });
 
-  it("WIQ-POL-04: replaces only with the caller-supplied strong ETag", async () => {
-    adapter.onPut(url).reply(204);
-    const result = await operation().execute({ ...inputs(), etag: '"previous"' }, { projectPath });
+  it("WIQ-POL-04: replaces only with the GET-derived strong ETag", async () => {
+    adapter.onGet(url).reply(200, mosEnvelope, { ETag: '"previous"' });
+    adapter.onPut(url).reply(200, mosEnvelope, mosHeaders);
+    const result = await operation().execute(inputs(), { projectPath });
     expect(result.isOk()).toBe(true);
     expect(adapter.history.put[0].headers).toHaveProperty("If-Match", '"previous"');
     expect(adapter.history.put[0].headers).not.toHaveProperty("If-None-Match");
+    expect(adapter.history.get.map((read) => axios.getUri(read))).toEqual([discoveryUrl, url]);
+    expect(adapter.history.get[1].headers).not.toHaveProperty("If-None-Match");
+  });
+
+  for (const [status, body, headers] of [
+    [200, mosEnvelope, {}],
+    [200, mosEnvelope, { ETag: 'W/"weak"' }],
+    [200, { policyType: "other", policy: {} }, mosHeaders],
+    [200, { policyType: "workiq" }, mosHeaders],
+    [200, { policyType: "workiq", policy: [] }, mosHeaders],
+    [304, undefined, mosHeaders],
+    [403, { private: "private-read-error" }, {}],
+    [503, { private: "private-read-error" }, {}],
+  ] as const) {
+    it(`WIQ-POL-27: invalid MOS policy GET ${status} prevents both writes`, async () => {
+      adapter.onGet(url).reply(status, body, headers);
+      const result = await operation().execute(inputs(), { projectPath });
+      expect(result.isErr()).toBe(true);
+      if (result.isErr()) {
+        expect(result.error.report.mos.state).toBe("not-started");
+        expect(result.error.report.workIq.state).toBe("not-started");
+        expect(JSON.stringify(result.error)).not.toContain("private-read-error");
+      }
+      expect(adapter.history.put).toHaveLength(0);
+      expect(adapter.history.get.filter((read) => axios.getUri(read) === url)).toHaveLength(1);
+    });
+  }
+
+  it("WIQ-POL-27: MOS policy GET timeout prevents writes without retry", async () => {
+    adapter.onGet(url).timeout();
+    const result = await operation().execute(inputs(), { projectPath });
+    expect(result.isErr()).toBe(true);
+    if (result.isErr()) expect(result.error.report.mos.state).toBe("not-started");
+    expect(adapter.history.put).toHaveLength(0);
+    expect(adapter.history.get.filter((read) => axios.getUri(read) === url)).toHaveLength(1);
+  });
+
+  it("WIQ-POL-27: cancellation during MOS policy GET prevents both writes", async () => {
+    const controller = new AbortController();
+    adapter.onGet(url).reply(() => {
+      controller.abort();
+      return [200, mosEnvelope, mosHeaders];
+    });
+    const result = await operation().execute(inputs(), { projectPath, signal: controller.signal });
+    expect(result.isErr()).toBe(true);
+    if (result.isErr()) {
+      expect(result.error.report.outcome).toBe("cancelled");
+      expect(result.error.report.mos.state).toBe("not-started");
+    }
+    expect(adapter.history.put).toHaveLength(0);
+  });
+
+  for (const [status, body, headers] of [
+    [201, mosEnvelope, {}],
+    [201, mosEnvelope, { ETag: 'W/"weak"' }],
+    [201, {}, mosHeaders],
+    [201, { policyType: "other", policy: {} }, mosHeaders],
+    [201, { policyType: "workiq", policy: [] }, mosHeaders],
+    [204, undefined, mosHeaders],
+    [200, mosEnvelope, mosHeaders],
+  ] as const) {
+    it(`WIQ-POL-28: unconfirmed MOS acknowledgement ${status} remains unknown`, async () => {
+      adapter.onPut(url).reply(status, body, headers);
+      const result = await operation().execute(inputs(), { projectPath });
+      expect(result.isErr()).toBe(true);
+      if (result.isErr()) {
+        expect(result.error.report.mos.state).toBe("unknown");
+        expect(result.error.report.workIq.state).toBe("not-started");
+        expect(result.error.report.nextAction).toBe("reconcile");
+      }
+      expect(adapter.history.put).toHaveLength(1);
+      expect(adapter.history.get.filter((read) => axios.getUri(read) === url)).toHaveLength(1);
+    });
+  }
+
+  it("WIQ-POL-28: MOS replacement cannot accept a create acknowledgement", async () => {
+    adapter.onGet(url).reply(200, mosEnvelope, { ETag: '"old"' });
+    adapter.onPut(url).reply(201, mosEnvelope, mosHeaders);
+    const result = await operation().execute(inputs(), { projectPath });
+    expect(result.isErr()).toBe(true);
+    if (result.isErr()) expect(result.error.report.mos.state).toBe("unknown");
+    expect(adapter.history.put).toHaveLength(1);
+  });
+
+  it("WIQ-POL-04: stale MOS ETag stops without adopting the conflict response ETag", async () => {
+    adapter.onGet(url).reply(200, mosEnvelope, { ETag: '"old"' });
+    adapter.onPut(url).reply(412, {}, { ETag: '"newer"' });
+    const result = await operation().execute(inputs(), { projectPath });
+    expect(result.isErr()).toBe(true);
+    if (result.isErr()) expect(result.error.report.mos.state).toBe("conflict");
+    expect(adapter.history.put).toHaveLength(1);
+    expect(adapter.history.put[0].headers).toHaveProperty("If-Match", '"old"');
+    expect(adapter.history.get.filter((read) => axios.getUri(read) === url)).toHaveLength(1);
   });
 
   for (const value of [
@@ -150,6 +248,8 @@ describe("workiq/publishPolicy Alpha", () => {
     { ...inputs(), titleId: 123 },
     { ...inputs(), policyPath: "" },
     { ...inputs(), etag: "*" },
+    { ...inputs(), etag: '"legacy-mos"' },
+    { ...inputs(), workIqEtag: '"legacy-workiq"' },
     { ...inputs(), etag: 'W/"weak"' },
     { ...inputs(), etag: '"injected"\r\nX-Test: true' },
     { ...inputs(), etag: '"trailing-newline"\n' },
@@ -216,6 +316,7 @@ describe("workiq/publishPolicy Alpha", () => {
     [401, "failed"],
     [403, "failed"],
     [404, "failed"],
+    [428, "failed"],
     [408, "unknown"],
     [418, "unknown"],
     [429, "unknown"],
@@ -251,7 +352,7 @@ describe("workiq/publishPolicy Alpha", () => {
 
   for (const state of ["failed", "unknown"] as const) {
     it(`WIQ-POL-06: retains MOS confirmation when Work IQ is ${state}`, async () => {
-      adapter.onPut(url).reply(200, {}, { ETag: '"saved"' });
+      adapter.onPut(url).reply(201, mosEnvelope, { ETag: '"saved"' });
       const cause = new SystemError({ source: "workiq", name: "TestFailure", message: "test" });
       const result = await operation({
         prepare: async () => ok({ publish: async () => err({ state, error: cause }) }),
@@ -268,7 +369,7 @@ describe("workiq/publishPolicy Alpha", () => {
   }
 
   it("WIQ-POL-06: classifies an unexpected Work IQ transport exception as unknown", async () => {
-    adapter.onPut(url).reply(200);
+    adapter.onPut(url).reply(201, mosEnvelope, mosHeaders);
     const result = await operation({
       prepare: async () =>
         ok({
@@ -317,7 +418,7 @@ describe("workiq/publishPolicy Alpha", () => {
     const controller = new AbortController();
     const publishWorkIq = vi.spyOn(workIq, "prepare");
     const mos = mosService();
-    adapter.onPut(url).reply(200);
+    adapter.onPut(url).reply(201, mosEnvelope, mosHeaders);
     const result = await new PolicyPublicationOperation({
       mos: {
         prepare: async (request) => {
@@ -422,15 +523,15 @@ describe("workiq/publishPolicy Alpha", () => {
     expect(adapter.history.put).toHaveLength(0);
   });
 
-  it("WIQ-POL-04: PackageService cannot bypass strong-ETag validation", async () => {
+  it("WIQ-POL-27: PackageService cannot bypass GET strong-ETag validation", async () => {
+    adapter.onGet(url).reply(200, mosEnvelope, { ETag: "*" });
     const result = await mosService().publishWorkIqPolicy({
       titleId,
       policy: { bytes: policyBytes, sha256: "captured-digest" },
-      etag: "*",
     });
     expect(result.isErr()).toBe(true);
     if (result.isErr()) expect(result.error.state).toBe("not-started");
-    expect(getToken).not.toHaveBeenCalled();
+    expect(getToken).toHaveBeenCalledOnce();
     expect(adapter.history.put).toHaveLength(0);
   });
 
@@ -458,7 +559,7 @@ describe("workiq/publishPolicy Alpha", () => {
   });
 
   it("WIQ-POL-05: malformed MOS acknowledgement ETags cannot report confirmed publication", async () => {
-    adapter.onPut(url).reply(200, {}, { ETag: 'W/"weak"' });
+    adapter.onPut(url).reply(201, mosEnvelope, { ETag: 'W/"weak"' });
     const result = await operation().execute(inputs(), { projectPath });
     expect(result.isErr()).toBe(true);
     if (result.isErr()) expect(result.error.report.mos.state).toBe("unknown");
@@ -512,7 +613,7 @@ describe("workiq/publishPolicy Alpha", () => {
   });
 
   it("WIQ-POL-14: a known unsupported Work IQ endpoint prevents every destination write", async () => {
-    adapter.onPut(url).reply(201);
+    adapter.onPut(url).reply(201, mosEnvelope, mosHeaders);
     const result = await operation(new WorkIqPolicyClient("https://unimplemented.example")).execute(
       inputs(),
       { projectPath }
@@ -527,7 +628,7 @@ describe("workiq/publishPolicy Alpha", () => {
 
   it("WIQ-POL-17: duplicate decoded JSON keys fail before auth or publication", async () => {
     await writeFile(path.join(projectPath, "policy.json"), '{"rule":1,"\\u0072ule":2}');
-    adapter.onPut(url).reply(201);
+    adapter.onPut(url).reply(201, mosEnvelope, mosHeaders);
     const result = await operation().execute(inputs(), { projectPath });
     expect(result.isErr()).toBe(true);
     expect(getToken).not.toHaveBeenCalled();
@@ -555,7 +656,7 @@ describe("workiq/publishPolicy Alpha", () => {
   ]) {
     it("WIQ-POL-17: accepts distinct JSON keys and Unicode without changing bytes", async () => {
       await writeFile(path.join(projectPath, "policy.json"), content);
-      adapter.onPut(url).reply(201);
+      adapter.onPut(url).reply(201, mosEnvelope, mosHeaders);
       const result = await operation().execute(inputs(), { projectPath });
       expect(result.isOk()).toBe(true);
       expect(adapter.history.put[0].data).toEqual(Buffer.from(content));
@@ -593,7 +694,7 @@ describe("workiq/publishPolicy Alpha", () => {
   });
 
   it("WIQ-POL-16: a thrown cancellation during Work IQ submission remains unknown and requires reconciliation", async () => {
-    adapter.onPut(url).reply(201);
+    adapter.onPut(url).reply(201, mosEnvelope, mosHeaders);
     const result = await operation({
       prepare: async () =>
         ok({
@@ -611,7 +712,7 @@ describe("workiq/publishPolicy Alpha", () => {
   });
 
   it("WIQ-POL-19: prepared MOS publication retains auth and performs no write until invoked", async () => {
-    adapter.onPut(url).reply(201);
+    adapter.onPut(url).reply(201, mosEnvelope, mosHeaders);
     const prepared = await mosService().prepareWorkIqPolicy({
       titleId,
       policy: { bytes: policyBytes, sha256: "captured-digest" },
@@ -623,21 +724,21 @@ describe("workiq/publishPolicy Alpha", () => {
     );
     if (prepared.isOk()) expect((await prepared.value.publish()).isOk()).toBe(true);
     expect(getToken).toHaveBeenCalledOnce();
-    expect(adapter.history.get).toHaveLength(1);
+    expect(adapter.history.get.map((read) => axios.getUri(read))).toEqual([discoveryUrl, url]);
     expect(adapter.history.put).toHaveLength(1);
   });
 
   it("WIQ-POL-19: prepared MOS contexts snapshot the validated identity, condition and policy bytes", async () => {
     const request = {
       titleId,
-      etag: '"validated-etag"',
       policy: { bytes: Buffer.from(policyBytes), sha256: "captured-digest" },
     };
-    adapter.onPut(url).reply(201);
+    adapter.onGet(url).reply(200, mosEnvelope, { ETag: '"validated-etag"' });
+    adapter.onPut(url).reply(200, mosEnvelope, mosHeaders);
     const prepared = await mosService().prepareWorkIqPolicy(request);
     expect(prepared.isOk()).toBe(true);
     request.titleId = "different-title";
-    request.etag = "*";
+    adapter.onGet(url).reply(200, mosEnvelope, { ETag: '"changed-after-prepare"' });
     request.policy.bytes.fill(0);
     if (prepared.isOk()) expect((await prepared.value.publish()).isOk()).toBe(true);
     expect(adapter.history.put[0].url).toContain(encodeURIComponent(titleId));
@@ -675,7 +776,7 @@ describe("workiq/publishPolicy Alpha", () => {
   });
 
   it("WIQ-POL-16: cancellation after a successful driver return still carries its receipt", async () => {
-    adapter.onPut(url).reply(201);
+    adapter.onPut(url).reply(201, mosEnvelope, mosHeaders);
     const controller = new AbortController();
     const ctx = { ...context(), signal: controller.signal };
     vi.spyOn(ctx.m365TokenProvider, "getAccessToken").mockResolvedValue(ok("maker"));
@@ -700,7 +801,7 @@ describe("workiq/publishPolicy Alpha", () => {
           "reason.error.report",
           expect.objectContaining({
             outcome: "cancelled",
-            mos: { state: "confirmed" },
+            mos: { state: "confirmed", etag: mosHeaders.ETag },
             workIq: { state: "mocked" },
           })
         );
@@ -797,7 +898,7 @@ describe("workiq/publishPolicy Alpha", () => {
         .onPut(
           `${discovered}/builder/v1/tenants/titles/${encodeURIComponent(titleId)}/policies/workiq`
         )
-        .reply(201);
+        .reply(201, mosEnvelope, mosHeaders);
       const result = await new PublishPolicyDriver().execute(inputs(), ctx);
       expect(result.result.isOk()).toBe(true);
       expect(discovery).toHaveBeenCalledExactlyOnceWith("maker", undefined);
@@ -826,7 +927,7 @@ describe("workiq/publishPolicy Alpha", () => {
         .mockResolvedValue(ok("maker"));
       const warning = vi.spyOn(ctx.logProvider, "warning");
       const publishWorkIq = vi.mocked(workIqPolicyClient.prepare);
-      globalAdapter.onPut(url).reply(201);
+      globalAdapter.onPut(url).reply(201, mosEnvelope, mosHeaders);
       const lifecycle = new Lifecycle(
         "publish",
         [
@@ -901,6 +1002,10 @@ describe("workiq/publishPolicy Alpha", () => {
       calls.push("mos-prepare");
       return [200, { titlesServiceUrl: serviceOrigin }];
     });
+    adapter.onGet(url).reply(() => {
+      calls.push("mos-get");
+      return [200, mosEnvelope, { ETag: '"mos-old"' }];
+    });
     const liveClient = new WorkIqPolicyClient(workIqEndpoint, [workIqScope]);
     vi.mocked(workIqPolicyClient.prepare).mockImplementation((request, provider) =>
       liveClient.prepare(request, provider)
@@ -915,21 +1020,18 @@ describe("workiq/publishPolicy Alpha", () => {
     await writeFile(path.join(projectPath, "policy.json"), content);
     adapter.onPut(url).reply(() => {
       calls.push("mos");
-      return [200, {}, { ETag: '"mos-new"' }];
+      return [200, mosEnvelope, { ETag: '"mos-new"' }];
     });
     const workIqUrl = `${workIqEndpoint}/api/policies/agents/${encodeURIComponent(titleId)}`;
+    adapter.onGet(workIqUrl).reply(() => {
+      calls.push("workiq-get");
+      return [200, {}, { ETag: '"workiq-old"' }];
+    });
     adapter.onPut(workIqUrl).reply(() => {
       calls.push("workiq");
       return [200, {}, { ETag: '"workiq-new"' }];
     });
-    const result = await new PublishPolicyDriver().execute(
-      {
-        ...inputs(),
-        etag: '"mos-old"',
-        workIqEtag: '"workiq-old"',
-      },
-      ctx
-    );
+    const result = await new PublishPolicyDriver().execute(inputs(), ctx);
     expect(result.result.isOk()).toBe(true);
     expect(result.report).toMatchObject({
       outcome: "published",
@@ -955,7 +1057,7 @@ describe("workiq/publishPolicy Alpha", () => {
     });
     expect(await readFile(path.join(projectPath, "policy.json"))).toEqual(content);
     expect(token).toHaveBeenCalledTimes(2);
-    expect(calls).toEqual(["contract", "mos-prepare", "mos", "workiq"]);
+    expect(calls).toEqual(["contract", "workiq-get", "mos-prepare", "mos-get", "mos", "workiq"]);
   });
 
   it("WIQ-POL-26: shared MOS scopes and one provider token work across Contract, MOS and Work IQ requests", async () => {
@@ -970,7 +1072,8 @@ describe("workiq/publishPolicy Alpha", () => {
       .spyOn(ctx.m365TokenProvider, "getAccessToken")
       .mockResolvedValue(ok("shared-mos-token"));
     adapter.onGet(`${endpoint}/api/policies/contracts`).reply(200, {});
-    adapter.onPut(url).reply(201, {}, { ETag: '"mos-shared"' });
+    adapter.onGet(`${endpoint}/api/policies/agents/${encodeURIComponent(titleId)}`).reply(404);
+    adapter.onPut(url).reply(201, mosEnvelope, { ETag: '"mos-shared"' });
     adapter
       .onPut(`${endpoint}/api/policies/agents/${encodeURIComponent(titleId)}`)
       .reply(201, {}, { ETag: '"runtime-shared"' });
@@ -1016,12 +1119,36 @@ describe("workiq/publishPolicy Alpha", () => {
     expect(adapter.history.put).toHaveLength(0);
   });
 
+  it("WIQ-POL-27: Work IQ policy GET failure stops the native action before MOS preparation", async () => {
+    const endpoint = "https://workiq.example/environment";
+    const client = new WorkIqPolicyClient(endpoint, [scope]);
+    vi.mocked(workIqPolicyClient.prepare).mockImplementation((request, provider) =>
+      client.prepare(request, provider)
+    );
+    const ctx = context();
+    const token = vi.spyOn(ctx.m365TokenProvider, "getAccessToken").mockResolvedValue(ok("maker"));
+    adapter.onGet(`${endpoint}/api/policies/contracts`).reply(200, {});
+    adapter
+      .onGet(`${endpoint}/api/policies/agents/${encodeURIComponent(titleId)}`)
+      .reply(403, { detail: "private-read-error" });
+    const result = await new PublishPolicyDriver().execute(inputs(), ctx);
+    expect(result.result.isErr()).toBe(true);
+    expect(result.report).toMatchObject({
+      mos: { state: "not-started" },
+      workIq: { state: "not-started" },
+    });
+    expect(adapter.history.get).toHaveLength(2);
+    expect(token).toHaveBeenCalledOnce();
+    expect(adapter.history.put).toHaveLength(0);
+    expect(JSON.stringify(result)).not.toContain("private-read-error");
+  });
+
   it("WIQ-POL-01: the native action runs without an environment output mapping", async () => {
     const globalAdapter = adapter;
     try {
       const ctx = context();
       vi.spyOn(ctx.m365TokenProvider, "getAccessToken").mockResolvedValue(ok("maker"));
-      globalAdapter.onPut(url).reply(201);
+      globalAdapter.onPut(url).reply(201, mosEnvelope, mosHeaders);
       const result = await new PublishPolicyDriver().execute(inputs(), ctx);
       expect(result.result.isOk()).toBe(true);
       if (result.result.isOk()) expect(result.result.value.size).toBe(0);
@@ -1045,7 +1172,7 @@ describe("workiq/publishPolicy Alpha", () => {
             }),
         })
       );
-      globalAdapter.onPut(url).reply(201);
+      globalAdapter.onPut(url).reply(201, mosEnvelope, mosHeaders);
       const result = await new PublishPolicyDriver().execute(inputs(), ctx);
       expect(result.result.isErr()).toBe(true);
       expect(result.report?.mos.state).toBe("confirmed");

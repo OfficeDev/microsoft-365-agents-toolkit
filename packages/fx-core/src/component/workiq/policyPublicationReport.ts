@@ -150,8 +150,6 @@ export function createPolicyPublicationFailure(
       "titleId",
       "policyPath",
       "callerId",
-      "etag",
-      "workIqEtag",
     ]);
   } else {
     const messages: Record<string, string> = {

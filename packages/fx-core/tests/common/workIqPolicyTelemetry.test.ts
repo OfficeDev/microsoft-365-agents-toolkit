@@ -29,6 +29,43 @@ describe("Work IQ policy HTTP telemetry", () => {
     vi.restoreAllMocks();
   });
 
+  for (const status of [200, 404, 503]) {
+    it(`WIQ-POL-10: MOS policy GET ${status} telemetry excludes stored content and ETag`, async () => {
+      const send = vi.spyOn(mockTools.telemetryReporter, "sendTelemetryEvent");
+      const sendError = vi.spyOn(mockTools.telemetryReporter, "sendTelemetryErrorEvent");
+      const http = WrappedAxiosClient.create();
+      const adapter = new MockAdapter(http);
+      const url =
+        "https://regional.titles.example/private-region/builder/v1/tenants/titles/private-title/policies/workiq";
+      try {
+        adapter
+          .onGet(url)
+          .reply(
+            status,
+            { policyType: "workiq", policy: { value: "private-stored-content" } },
+            { ETag: '"private-etag"' }
+          );
+        await http.get(url, {
+          headers: { Authorization: "Bearer private-maker-token" },
+          validateStatus: () => true,
+        });
+        const telemetry = JSON.stringify([send.mock.calls, sendError.mock.calls]);
+        expect(telemetry).toContain("mos_get_workiq_policy");
+        for (const value of [
+          "private-title",
+          "private-region",
+          "private-maker-token",
+          "private-stored-content",
+          "private-etag",
+        ]) {
+          expect(telemetry).not.toContain(value);
+        }
+      } finally {
+        adapter.restore();
+      }
+    });
+  }
+
   for (const status of [201, 400]) {
     it(`WIQ-POL-10: HTTP ${status} telemetry does not capture policy, identity, token or response content`, async () => {
       const send = vi.spyOn(mockTools.telemetryReporter, "sendTelemetryEvent");
@@ -92,6 +129,11 @@ describe("Work IQ policy HTTP telemetry", () => {
             })
           : error;
       });
+      adapter
+        .onGet(
+          "https://regional.example/private-region/builder/v1/tenants/titles/title/policies/workiq"
+        )
+        .reply(404);
       try {
         const result = await new PackageService(origin, logger, provider).prepareWorkIqPolicy({
           titleId: "title",
@@ -130,6 +172,7 @@ describe("Work IQ policy HTTP telemetry", () => {
       adapter
         .onGet(`${endpoint}/api/policies/contracts`)
         .reply(200, { opaque: "private-contract-response" });
+      adapter.onGet(`${endpoint}/api/policies/agents/private-title`).reply(404);
       const provider = new MockedM365Provider();
       vi.spyOn(provider, "getAccessToken").mockResolvedValue(ok("private-runtime-token"));
       adapter
@@ -183,7 +226,16 @@ describe("Work IQ policy HTTP telemetry", () => {
           adapter.onGet(`${origin}/config/v1/environment`).reply(200, {
             titlesServiceUrl: serviceUrl,
           });
-          adapter.onPut(url).reply(status, { error: "private-service-response" });
+          adapter.onGet(url).reply(404);
+          adapter
+            .onPut(url)
+            .reply(
+              status,
+              status === 201
+                ? { policyType: "workiq", policy: { rule: "private-policy-content" } }
+                : { error: "private-service-response" },
+              { ETag: '"private-etag"' }
+            );
           const provider = new MockedM365Provider();
           vi.spyOn(provider, "getAccessToken").mockResolvedValue(ok("private-maker-token"));
           const result = await new PackageService(origin, undefined, provider).publishWorkIqPolicy({

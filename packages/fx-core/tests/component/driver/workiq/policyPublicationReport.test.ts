@@ -3,6 +3,7 @@
 
 import { SystemError, UserError } from "@microsoft/teamsfx-api";
 import { describe, expect, it } from "vitest";
+import { InvalidActionInputError } from "../../../../src/error/common";
 import {
   cancelPolicyPublication,
   createPolicyPublicationFailure,
@@ -156,6 +157,16 @@ describe("Policy publication normalization", () => {
     expect(result.name).toBe("POLICY_PREFLIGHT_FAILED");
     expect(result).toBeInstanceOf(UserError);
     expect(result.message).not.toContain("private-account");
+  });
+
+  it("WIQ-POL-18: invalid-input guidance does not request publication ETags", () => {
+    const original = new InvalidActionInputError("workiq/publishPolicy", ["etag"]);
+    const result = createPolicyPublicationFailure(original, report("not-started", "not-started"));
+    expect(result).toBeInstanceOf(InvalidActionInputError);
+    expect(result.message).toContain("titleId");
+    expect(result.message).toContain("policyPath");
+    expect(result.message).toContain("callerId");
+    expect(result.message).not.toMatch(/etag/i);
   });
 
   it("WIQ-POL-16: late cancellation snapshots retain ambiguous receipts and reconcile guidance", () => {

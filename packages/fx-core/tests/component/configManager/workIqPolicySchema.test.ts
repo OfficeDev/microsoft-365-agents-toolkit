@@ -38,10 +38,8 @@ for (const [name, schema] of [
       expect(validate(document(inputs))).toBe(true);
     });
 
-    it("WIQ-POL-01: accepts explicit replacement and an optional report mapping", () => {
-      expect(
-        validate(document({ ...inputs, etag: '"version-1"' }, { report: "POLICY_REPORT" }))
-      ).toBe(true);
+    it("WIQ-POL-01: accepts automatic publication and an optional report mapping", () => {
+      expect(validate(document(inputs, { report: "POLICY_REPORT" }))).toBe(true);
     });
 
     for (const key of ["titleId", "policyPath", "callerId"]) {
@@ -56,26 +54,15 @@ for (const [name, schema] of [
       });
     }
 
-    it("WIQ-POL-23: accepts different MOS and Work IQ ETags", () => {
-      expect(validate(document({ ...inputs, etag: '"mos"', workIqEtag: '"runtime"' }))).toBe(true);
-      expect(validate(document({ ...inputs, workIqEtag: "*" }))).toBe(false);
-    });
+    for (const key of ["etag", "workIqEtag"]) {
+      it(`WIQ-POL-02: rejects legacy user input ${key}`, () => {
+        expect(validate(document({ ...inputs, [key]: '"stored"' }))).toBe(false);
+      });
+    }
 
     it("WIQ-POL-02: rejects unrecognized inputs and output mappings", () => {
       expect(validate(document({ ...inputs, runtimeAppId: "guessed-id" }))).toBe(false);
       expect(validate(document(inputs, { success: "PUBLISHED" }))).toBe(false);
     });
-
-    for (const etag of [
-      'W/"weak"',
-      "*",
-      '"non-latin-\u0100"',
-      '"line\r\nbreak"',
-      '"trailing-newline"\n',
-    ]) {
-      it(`WIQ-POL-02: rejects a non-strong HTTP ETag ${JSON.stringify(etag)}`, () => {
-        expect(validate(document({ ...inputs, etag }))).toBe(false);
-      });
-    }
   });
 }

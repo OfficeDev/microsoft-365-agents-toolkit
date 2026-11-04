@@ -2225,7 +2225,7 @@
     "workIqPublishPolicy": {
       "type": "object",
       "additionalProperties": false,
-      "description": "Publish MOS display policy and Work IQ runtime policy with independent authentication and ETags. An empty Work IQ endpoint remains explicitly mocked.",
+      "description": "Publish MOS display policy and Work IQ runtime policy. Each service reads its own ETag before conditional creation or replacement; no ETag input is needed. An empty Work IQ endpoint remains explicitly mocked.",
       "required": ["uses", "with"],
       "properties": {
         "name": { "type": "string" },
@@ -2253,16 +2253,6 @@
               "type": "string",
               "minLength": 1,
               "description": "Nonzero runtime App ID GUID, not maker or ATK identity."
-            },
-            "etag": {
-              "type": "string",
-              "pattern": "^\"[!#-~\\u0080-\\u00ff]*\"$",
-              "description": "Optional MOS strong ETag for explicit replacement. Omit for MOS creation."
-            },
-            "workIqEtag": {
-              "type": "string",
-              "pattern": "^\"[!#-~\\u0080-\\u00ff]*\"$",
-              "description": "Optional Work IQ strong ETag for complete replacement. Independent of the MOS ETag; omit for Work IQ creation."
             }
           }
         },

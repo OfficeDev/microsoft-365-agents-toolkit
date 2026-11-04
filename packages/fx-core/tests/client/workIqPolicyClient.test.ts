@@ -29,6 +29,7 @@ describe("Work IQ Agent Policy API", () => {
     const http = axios.create();
     adapter = new MockAdapter(http);
     adapter.onGet(`${endpoint}/api/policies/contracts`).reply(200, {});
+    adapter.onGet(url).reply(404);
     client = new WorkIqPolicyClient(endpoint, [scope], http);
     provider = new MockedM365Provider();
     vi.spyOn(provider, "getAccessToken").mockResolvedValue(ok("workiq-only-token"));
@@ -62,6 +63,7 @@ describe("Work IQ Agent Policy API", () => {
     try {
       ppeAdapter.onPut(expectedUrl).reply(201, {}, { ETag: '"ppe"' });
       ppeAdapter.onGet(`${workIqPolicyClient.endpoint}/api/policies/contracts`).reply(200, {});
+      ppeAdapter.onGet(expectedUrl).reply(404);
       expect((await ppe.publish(request(), provider)).isOk()).toBe(true);
       expect(ppeAdapter.history.put).toHaveLength(1);
       expect(ppeAdapter.history.put[0].url).toBe(expectedUrl);
@@ -76,16 +78,20 @@ describe("Work IQ Agent Policy API", () => {
       calls.push("contract");
       return [200, "mocked-opaque-contract-response"];
     });
+    adapter.onGet(url).reply(() => {
+      calls.push("get-policy");
+      return [404];
+    });
     adapter.onPut(url).reply(() => {
       calls.push("put");
       return [201, {}, { ETag: '"published"' }];
     });
     const prepared = await client.prepare(request(), provider);
     expect(prepared.isOk()).toBe(true);
-    expect(calls).toEqual(["contract"]);
+    expect(calls).toEqual(["contract", "get-policy"]);
     expect(adapter.history.put).toHaveLength(0);
     if (prepared.isOk()) expect((await prepared.value.publish()).isOk()).toBe(true);
-    expect(calls).toEqual(["contract", "put"]);
+    expect(calls).toEqual(["contract", "get-policy", "put"]);
     expect(provider.getAccessToken).toHaveBeenCalledExactlyOnceWith({ scopes: [scope] });
   });
 
@@ -138,14 +144,68 @@ describe("Work IQ Agent Policy API", () => {
     expect(provider.getAccessToken).toHaveBeenCalledExactlyOnceWith({ scopes: [scope] });
   });
 
-  it("WIQ-POL-20: replacement requires its own supplied ETag and returns the new ETag", async () => {
+  it("WIQ-POL-20: replacement uses its GET ETag and returns the new ETag without a follow-up GET", async () => {
+    adapter.onGet(url).reply(200, {}, { ETag: '"workiq-old"' });
     adapter.onPut(url).reply(200, {}, { ETag: '"replacement"' });
-    const result = await client.publish({ ...request(), etag: '"workiq-old"' }, provider);
+    const result = await client.publish(request(), provider);
     expect(result.isOk()).toBe(true);
     expect(adapter.history.put[0].headers).toHaveProperty("If-Match", '"workiq-old"');
     expect(adapter.history.put[0].headers).not.toHaveProperty("If-None-Match");
+    expect(adapter.history.get.map((read) => read.url)).toEqual([
+      `${endpoint}/api/policies/contracts`,
+      url,
+    ]);
+    expect(provider.getAccessToken).toHaveBeenCalledOnce();
   });
 
+  for (const [status, body, headers] of [
+    [200, {}, {}],
+    [200, {}, { ETag: 'W/"weak"' }],
+    [200, [], { ETag: '"stored"' }],
+    [304, undefined, { ETag: '"stored"' }],
+    [401, { private: "read-error" }, {}],
+    [503, { private: "read-error" }, {}],
+  ] as const) {
+    it(`WIQ-POL-27: invalid policy GET ${status} stops preparation without writing`, async () => {
+      adapter.onGet(url).reply(status, body, headers);
+      const result = await client.prepare(request(), provider);
+      expect(result.isErr()).toBe(true);
+      if (result.isErr()) expect(JSON.stringify(result.error)).not.toContain("read-error");
+      expect(adapter.history.put).toHaveLength(0);
+      expect(adapter.history.get.filter((read) => read.url === url)).toHaveLength(1);
+    });
+  }
+
+  it("WIQ-POL-27: policy GET timeout stops preparation without retry or writing", async () => {
+    adapter.onGet(url).timeout();
+    const result = await client.prepare(request(), provider);
+    expect(result.isErr()).toBe(true);
+    expect(adapter.history.put).toHaveLength(0);
+    expect(adapter.history.get.filter((read) => read.url === url)).toHaveLength(1);
+  });
+
+  it("WIQ-POL-27: cancellation during policy GET prevents publication", async () => {
+    const controller = new AbortController();
+    adapter.onGet(url).reply(() => {
+      controller.abort();
+      return [200, {}, { ETag: '"stored"' }];
+    });
+    const result = await client.prepare({ ...request(), signal: controller.signal }, provider);
+    expect(result.isErr()).toBe(true);
+    if (result.isErr()) expect(result.error.name).toBe("UserCancel");
+    expect(adapter.history.put).toHaveLength(0);
+  });
+
+  it("WIQ-POL-22: stale GET ETag conflicts without re-reading or retrying", async () => {
+    adapter.onGet(url).reply(200, {}, { ETag: '"stored"' });
+    adapter.onPut(url).reply(412, {}, { ETag: '"newer"' });
+    const result = await client.publish(request(), provider);
+    expect(result.isErr()).toBe(true);
+    if (result.isErr()) expect(result.error.state).toBe("conflict");
+    expect(adapter.history.put).toHaveLength(1);
+    expect(adapter.history.get.filter((read) => read.url === url)).toHaveLength(1);
+    expect(adapter.history.put[0].headers).toHaveProperty("If-Match", '"stored"');
+  });
   for (const appId of ["", "not-a-guid", "00000000-0000-0000-0000-000000000000"]) {
     it(`WIQ-POL-20: invalid runtime app ID '${appId}' fails before auth or HTTP`, async () => {
       const result = await client.prepare({ ...request(), callerId: appId }, provider);
@@ -226,11 +286,9 @@ describe("Work IQ Agent Policy API", () => {
 
   for (const replacement of [false, true]) {
     it("WIQ-POL-22: a success status inconsistent with the request condition is unknown", async () => {
+      if (replacement) adapter.onGet(url).reply(200, {}, { ETag: '"previous"' });
       adapter.onPut(url).reply(replacement ? 201 : 200, {}, { ETag: '"unexpected-success"' });
-      const result = await client.publish(
-        { ...request(), ...(replacement ? { etag: '"previous"' } : {}) },
-        provider
-      );
+      const result = await client.publish(request(), provider);
       expect(result.isErr()).toBe(true);
       if (result.isErr()) expect(result.error.state).toBe("unknown");
       expect(adapter.history.put).toHaveLength(1);

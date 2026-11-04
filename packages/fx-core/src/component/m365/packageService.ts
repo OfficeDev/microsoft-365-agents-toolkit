@@ -14,7 +14,7 @@ import {
   UserError,
 } from "@microsoft/teamsfx-api";
 import AdmZip from "adm-zip";
-import axios from "axios";
+import axios, { AxiosResponse } from "axios";
 import FormData from "form-data";
 import fs from "fs-extra";
 import https from "https";
@@ -37,16 +37,12 @@ import {
 } from "../../common/telemetry";
 import { waitSeconds } from "../../common/utils";
 import { WrappedAxiosClient } from "../../common/wrappedAxiosClient";
-import {
-  assembleError,
-  InvalidActionInputError,
-  isUserCancelError,
-  UserCancelError,
-} from "../../error/common";
+import { assembleError, isUserCancelError, UserCancelError } from "../../error/common";
 import { ErrorCategory } from "../../error/types";
 import { AppUser } from "../driver/teamsApp/interfaces/appdefinitions/appUser";
 import {
   createPolicyError,
+  isPolicyObject,
   isStrongPolicyEtag,
   MosPolicyPublicationRequest,
   PolicyDestinationResult,
@@ -68,6 +64,20 @@ const M365ErrorComponent = "PackageService";
 
 // MOS/Titles API maximum upload size (10 MB)
 const MOS_MAX_PACKAGE_SIZE_BYTES = 10 * 1024 * 1024;
+
+interface MosPolicyEnvelope {
+  policyType: "workiq";
+  policy: Record<string, unknown>;
+}
+
+function isMosPolicyEnvelope(value: unknown): value is MosPolicyEnvelope {
+  return isPolicyObject(value) && value.policyType === "workiq" && isPolicyObject(value.policy);
+}
+
+function mosPolicyEtag(response: AxiosResponse<unknown>): string | undefined {
+  const value: unknown = response.headers.etag ?? response.headers.ETag;
+  return typeof value === "string" && isStrongPolicyEtag(value) ? value : undefined;
+}
 
 export enum AppScope {
   Personal = "Personal",
@@ -146,9 +156,6 @@ export class PackageService {
       ...input,
       policy: { ...input.policy, bytes: Buffer.from(input.policy.bytes) },
     };
-    if (request.etag !== undefined && !isStrongPolicyEtag(request.etag)) {
-      return err(new InvalidActionInputError(publishPolicyActionName, ["etag"]));
-    }
     if (request.signal?.aborted) {
       return err(new UserCancelError(publishPolicyActionName));
     }
@@ -203,13 +210,51 @@ export class PackageService {
       return err(new UserCancelError(publishPolicyActionName));
     }
     const accessToken = token.value;
+    const version = await this.readWorkIqPolicyEtag(request, accessToken, serviceUrl);
+    if (version.isErr()) return err(version.error);
+    if (request.signal?.aborted) return err(new UserCancelError(publishPolicyActionName));
+    const preparedRequest = { ...request, etag: version.value };
     return ok({
-      publish: () => this.publishPreparedWorkIqPolicy(request, accessToken, serviceUrl),
+      publish: () => this.publishPreparedWorkIqPolicy(preparedRequest, accessToken, serviceUrl),
     });
   }
 
-  private async publishPreparedWorkIqPolicy(
+  private async readWorkIqPolicyEtag(
     request: MosPolicyPublicationRequest,
+    token: string,
+    serviceUrl: URL
+  ): Promise<Result<string | undefined, FxError>> {
+    const readError = () =>
+      createPolicyError("POLICY_MOS_READ_FAILED", "driver.workiq.error.mosPolicyRead", "system");
+    try {
+      const response = await this.axiosInstance.get<unknown>(
+        `/builder/v1/tenants/titles/${encodeURIComponent(request.titleId)}/policies/workiq`,
+        {
+          baseURL: serviceUrl.href,
+          headers: { Authorization: `Bearer ${token}` },
+          signal: request.signal,
+          timeout: 30000,
+          maxRedirects: 0,
+          validateStatus: () => true,
+        }
+      );
+      if (response.status === 404) return ok(undefined);
+      const etag = mosPolicyEtag(response);
+      if (response.status === 200 && isMosPolicyEnvelope(response.data) && etag) return ok(etag);
+      return err(
+        response.status === 401 || response.status === 403
+          ? createPolicyError("POLICY_AUTH_REQUIRED", "driver.workiq.error.authentication")
+          : readError()
+      );
+    } catch {
+      return err(
+        request.signal?.aborted ? new UserCancelError(publishPolicyActionName) : readError()
+      );
+    }
+  }
+
+  private async publishPreparedWorkIqPolicy(
+    request: MosPolicyPublicationRequest & { etag?: string },
     token: string,
     serviceUrl: URL
   ): Promise<PolicyDestinationResult> {
@@ -234,14 +279,15 @@ export class PackageService {
         }
       );
       if ([200, 201, 204].includes(response.status)) {
-        const etag: unknown = response.headers.etag ?? response.headers.ETag;
-        if (etag !== undefined && (typeof etag !== "string" || !isStrongPolicyEtag(etag))) {
+        const etag = mosPolicyEtag(response);
+        const expectedStatus = request.etag === undefined ? 201 : 200;
+        if (response.status !== expectedStatus || !isMosPolicyEnvelope(response.data) || !etag) {
           return err({
             state: "unknown",
             error: createPolicyError("MosAckError", "driver.workiq.error.outcomeUnknown", "system"),
           });
         }
-        return ok({ state: "confirmed", ...(typeof etag === "string" ? { etag } : {}) });
+        return ok({ state: "confirmed", etag });
       }
       if (response.status === 409 || response.status === 412) {
         return err({
@@ -249,7 +295,7 @@ export class PackageService {
           error: createPolicyError("WorkIqMosPolicyConflict", "driver.workiq.error.conflict"),
         });
       }
-      if ([400, 401, 403, 404].includes(response.status)) {
+      if ([400, 401, 403, 404, 428].includes(response.status)) {
         return err({
           state: "failed",
           error: createPolicyError("MosPolicyRejected", "driver.workiq.error.rejected"),
