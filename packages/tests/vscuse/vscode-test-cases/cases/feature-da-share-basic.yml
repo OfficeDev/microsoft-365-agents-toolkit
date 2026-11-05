@@ -1,0 +1,83 @@
+version: 1
+
+cases:
+  - id: feature-da-share-basic
+    scenarioId: VCB-208
+    workItemIds: [31339288]
+    gate: manual
+    steps:
+      [
+        scaffold,
+        check-scaffold,
+        login-m365,
+        provision,
+        share-user,
+        revoke-user,
+        share-tenant,
+      ]
+
+steps:
+  scaffold:
+    type: scaffold
+    with:
+      template: da/no-action
+      answers:
+        - question: projectType
+          value: copilot-agent-type
+        - question: daTemplate
+          value: no-action
+        - question: workspaceFolder
+          value: default
+        - question: appName
+          type: text
+          value: "${{var:app_name:vscuse_app_#####}}"
+
+  check-scaffold:
+    type: checks
+    with:
+      - type: file
+        path: m365agents.yml
+        expect:
+          contains: ["version: v1.12", "copilotAgent/publish"]
+      - type: file
+        path: appPackage/manifest.json
+        expect:
+          contains: ['"declarativeAgents"']
+      - type: file
+        path: appPackage/declarativeAgent.json
+        expect:
+          contains: ['"instructions": "$[file(''instruction.txt'')]"']
+      - type: file
+        path: appPackage/ai-plugin.json
+        expect:
+          exists: false
+
+  login-m365:
+    type: login
+    with:
+      type: m365
+      account: "${{env:M365_ACCOUNT_NAME}}"
+      password: "${{secret:M365_ACCOUNT_PASSWORD}}"
+
+  provision:
+    type: provision
+
+  share-user:
+    type: share
+    with:
+      operation: grant
+      scope: users
+      email: "${{env:M365_ACCOUNT_ADMIN_ACCOUNT}}"
+
+  revoke-user:
+    type: share
+    with:
+      operation: revoke
+      scope: users
+      email: "${{env:M365_ACCOUNT_ADMIN_ACCOUNT}}"
+
+  share-tenant:
+    type: share
+    with:
+      operation: grant
+      scope: tenant
