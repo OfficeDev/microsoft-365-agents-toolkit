@@ -9,6 +9,9 @@ The 2026-11-04 scope reduction leaves uninstallation on its existing
 `FxCore`, `FxCoreClient` and CLI paths; it is not a standalone action.
 Existing product scenarios are unchanged; no PRD/scenario artifact change is
 needed. Structure follows [ADR-0029](../../../02-architecture/adr/ADR-0029-minimal-public-action-boundary.md).
+The approved 2026-11-05 clarification separates argument collection from login:
+action arguments must be supplied explicitly, but the injected token provider
+may perform interactive authentication when needed.
 
 ## Inputs and outputs
 
@@ -55,7 +58,7 @@ flowchart TD
   Input[Name, args and execution options] --> Validate[Snapshot and validate args]
   Validate --> Context[Validate absolute projectPath and cancellation capability]
   Context --> Load[Load exactly one allowlisted driver]
-  Load --> Execute[Execute with instance Tools, CLI context and silent token requests]
+  Load --> Execute[Execute with instance Tools and CLI context; provider owns login interaction]
   Execute --> Finish[Await completion and cleanup]
   Finish --> Result[Preserve error or return driver outputs and summaries]
 ```
@@ -87,8 +90,13 @@ Any invalid input exits before driver execution or authentication.
 - Validation and execution use the same snapshot, taken before the first await.
 - The driver receives the injected token and log providers. This API does not
   add a new isolation model for existing shared service dependencies.
-- UI is unavailable; M365 authentication requests set `showDialog: false`.
-  Providers unable to obtain a silent token return an error.
+- Action parameter UI is unavailable: keep `nonInteractive: true` and
+  `ui: undefined`, validate all supplied arguments, and never prompt for missing
+  values. This does not disable login interaction owned by the injected provider.
+- Reuse the original M365 token provider and preserve its authentication requests,
+  including `showDialog` when explicitly set. Do not force silent authentication
+  or add another login policy; provider errors and cancellation retain the native
+  driver's handling.
 - Metadata/validation do not load live drivers, authenticate, fetch schemas or
   read project files.
 - Acquisition does not support cancellation. A supplied signal is rejected before
@@ -111,12 +119,13 @@ Any invalid input exits before driver execution or authentication.
 | ACTION-02 | L1      | operation-integration | required | Pure catalogue                                | Validate raw inputs and mutate returned metadata                         | Required/type/enum/extra-field errors have safe paths/codes; caller input and internal schema remain unchanged.                 |
 | ACTION-03 | L1      | operation-integration | required | Isolated public import                        | Import metadata and validate without Tools                               | No live driver, authentication or project I/O is loaded or invoked.                                                             |
 | ACTION-04 | L1      | operation-integration | required | Real client and outer service fake            | Execute invalid args/context/name or unsupported cancellation            | Return an explicit error before service/authentication/driver execution.                                                        |
-| ACTION-05 | L1      | operation-integration | required | Real driver, temporary ZIP path, service fake | Install a package and mutate caller args immediately                     | Execute once with the snapshot, instance Tools, CLI/noninteractive context; return business outputs without environment writes. |
+| ACTION-05 | L1      | operation-integration | required | Real driver, temporary ZIP path, service fake | Install a package and mutate caller args immediately                     | Execute once with the snapshot, instance Tools and CLI context without parameter prompts; return business outputs without environment writes. |
 | ACTION-06 | L1      | compatibility         | required | Existing installation driver                  | Execute with an explicit output mapping                                  | Preserve mapped keys, scope behavior, missing-key errors and explicitly mapped empty share links.                               |
 | ACTION-07 | L1      | compatibility         | required | Real client and legacy boundary spy           | Request uninstall                                                        | Standalone execution rejects it; the existing uninstall method retains its original route.                                      |
 | ACTION-08 | L1      | operation-integration | required | Real client and driver/authentication spies   | Supply an active or aborted signal for acquisition                       | Return UnsupportedCancellation before starting work.                                                                            |
-| ACTION-09 | L1      | operation-integration | required | Two real clients and service fake             | Execute using different injected Tools                                   | Token/log dependencies do not cross between instances; silent authentication failures propagate without UI.                     |
+| ACTION-09 | L1      | operation-integration | required | Two real clients and service fake             | Execute using different injected Tools                                   | Token/log dependencies do not cross between instances; original provider requests and authentication failures are preserved.    |
 | ACTION-10 | L1      | compatibility         | required | Built package consumer                        | Import the public metadata subpath and execute through the public client | Runtime/type exports resolve while existing deep-import paths remain available.                                                 |
+| ACTION-11 | L1      | operation-integration | required | Real client/driver with injected login provider and service fake | Provider needs interactive login or returns cancellation               | Allow provider-owned login without prompting for action parameters; propagate cancellation and do not start service writes after auth failure. |
 
 No new CLI or VS Code workflow is shipped, so no additional L2/L3 gate is added.
 
@@ -129,6 +138,7 @@ No new CLI or VS Code workflow is shipped, so no additional L2/L3 gate is added.
 | POLICY-ACTION-03 | L1      | operation-integration | required | Real SDK/driver/operation with deferred service-port fakes | Select both; MOS confirms and Work IQ fails or cancellation follows MOS | Preserve confirmed receipts, incomplete/cancelled outcome and next action; never retry or roll back.                                   |
 | POLICY-ACTION-04 | L1      | operation-integration | required | Real SDK with driver/auth spies                            | Reject malformed args or receive an already-aborted valid request | Invalid args fail before the driver/auth; pre-aborted driver execution returns its native cancelled report without preparing services.      |
 | POLICY-ACTION-05 | L1      | operation-integration | required | Real SDK/driver/operation with service-port spies          | Leave publication target unset or explicitly select mos, workiq, or both | Respect the native target selection: default Work IQ only; do not prepare/write unselected destinations; retain target-aware native reports. |
+| POLICY-ACTION-06 | L1      | operation-integration | required | Real SDK/driver/operation with authentication port spies   | Work IQ preparation requests interactive or silent authentication | Receive the original injected provider and unchanged explicit showDialog value; return native receipts without action parameter prompts. |
 
 Publication target/environment defaults and API sequencing are owned by
 [workiq-publish-policy](workiq-publish-policy.md). The direct action executor

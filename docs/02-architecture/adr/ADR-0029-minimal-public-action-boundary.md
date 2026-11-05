@@ -16,7 +16,9 @@ shared context builders is outside that requirement.
 - Add a typed, allowlisted public execution entry and export the driver-owned
   args contracts. Keep runtime validation and metadata independent of live drivers.
 - Build the invocation context inside the new entry from the injected Tools and
-  explicit project path. Fix the platform to CLI and request noninteractive auth.
+  explicit project path. Fix the platform to CLI and do not prompt for action
+  arguments. The approved 2026-11-05 clarification permits interactive login:
+  reuse the injected M365 token provider without overriding authentication requests.
 - Reuse existing driver and service behavior. Do not change shared context
   builders, service constructors, telemetry routing or experiment-provider lookup.
   Their existing runtime semantics, including shared engine state, remain intact.

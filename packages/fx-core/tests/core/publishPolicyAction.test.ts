@@ -116,7 +116,7 @@ describe("public policy action", () => {
       workIq: { state: "confirmed", etag: '"workiq-committed"' },
     });
     if (execution.result.isOk()) expect(execution.result.value.size).toBe(0);
-    expect(token).toHaveBeenCalledWith({ scopes: WorkIqServiceScope(), showDialog: false });
+    expect(token).toHaveBeenCalledWith({ scopes: WorkIqServiceScope() });
     expect(driver).toHaveBeenCalledWith(
       args(),
       expect.objectContaining({ projectPath, signal, nonInteractive: true, ui: undefined })
@@ -141,6 +141,37 @@ describe("public policy action", () => {
     expect(await readdir(projectPath)).toEqual(["policy.json"]);
     expect(await readFile(join(projectPath, "policy.json"), "utf8")).toBe('{"edited":true}');
   });
+
+  for (const showDialog of [undefined, true, false]) {
+    it(`POLICY-ACTION-06: preserves the provider and showDialog=${showDialog} authentication request`, async () => {
+      vi.stubEnv("TEAMSFX_WORKIQ_PUBLISH_TARGET", "workiq");
+      const destinations = fakeDestinations();
+      const provider = tools.tokenProvider.m365TokenProvider;
+      const token = vi.spyOn(provider, "getAccessToken").mockResolvedValue(ok("provider-token"));
+      const request = {
+        scopes: WorkIqServiceScope(),
+        ...(showDialog !== undefined ? { showDialog } : {}),
+      };
+      destinations.workIqPrepare.mockImplementation(async (_request, tokenProvider) => {
+        if (!tokenProvider) throw new Error("Missing injected token provider");
+        const auth = await tokenProvider.getAccessToken(request);
+        if (auth.isErr()) return err(auth.error);
+        return ok({ publish: destinations.workIqPublish });
+      });
+
+      const execution = await client.executeAction(ActionNames.PublishPolicy, args(), {
+        projectPath,
+      });
+
+      expect(execution.result.isOk()).toBe(true);
+      expect(destinations.workIqPrepare.mock.calls[0][1]).toBe(provider);
+      expect(token).toHaveBeenCalledExactlyOnceWith(request);
+      expect(destinations.workIqPublish).toHaveBeenCalledOnce();
+      expect(destinations.mosPrepare).not.toHaveBeenCalled();
+      if (!("report" in execution)) throw new Error("Missing native policy report");
+      expect(execution.report).toMatchObject({ target: "workiq", outcome: "published" });
+    });
+  }
 
   it("POLICY-ACTION-03: preserves partial receipts and domain errors without retry", async () => {
     const destinations = fakeDestinations();

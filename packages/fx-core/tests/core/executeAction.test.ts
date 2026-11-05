@@ -21,9 +21,11 @@ import { FxCoreClient } from "../../src/core/FxCoreClient";
 import { FxCore } from "../../src/core/FxCore";
 import { MockTools } from "./utils";
 import { TelemetryEvent, TelemetryProperty } from "../../src/common/telemetry";
+import { MosServiceScope } from "../../src/common/constants";
 import { createContext } from "../../src/common/globalVars";
 import { generateDriverContext } from "../../src/common/utils";
 import { createDriverContext } from "../../src/component/driver/util/utils";
+import { UserCancelError } from "../../src/error/common";
 
 describe("standalone action execution", () => {
   let projectPath: string;
@@ -98,13 +100,14 @@ describe("standalone action execution", () => {
       join(projectPath, "app.zip"),
       undefined
     );
-    expect(token).toHaveBeenCalledWith(expect.objectContaining({ showDialog: false }));
+    expect(token).toHaveBeenCalledWith({ scopes: MosServiceScope() });
     expect(driver).toHaveBeenCalledWith(
       { appPackagePath: "app.zip" },
       expect.objectContaining({
         projectPath,
         platform: Platform.CLI,
         nonInteractive: true,
+        m365TokenProvider: tools.tokenProvider.m365TokenProvider,
         ui: undefined,
       })
     );
@@ -192,7 +195,7 @@ describe("standalone action execution", () => {
     }
   );
 
-  it("ACTION-09: isolates instance providers and propagates silent authentication failures", async () => {
+  it("ACTION-09: isolates instance providers and propagates authentication failures", async () => {
     expect(client.executeAction).toBeTypeOf("function");
     const secondTools = new MockTools();
     const second = new FxCore(secondTools);
@@ -211,12 +214,12 @@ describe("standalone action execution", () => {
     ]);
     expect(install).toHaveBeenCalledWith("first", join(projectPath, "app.zip"), undefined);
     expect(install).toHaveBeenCalledWith("second", join(projectPath, "app.zip"), undefined);
-    expect(firstToken).toHaveBeenCalledWith(expect.objectContaining({ showDialog: false }));
-    expect(secondToken).toHaveBeenCalledWith(expect.objectContaining({ showDialog: false }));
+    expect(firstToken).toHaveBeenCalledWith({ scopes: MosServiceScope() });
+    expect(secondToken).toHaveBeenCalledWith({ scopes: MosServiceScope() });
     const failure = new UserError({
       source: "test",
       name: "InteractionRequired",
-      message: "silent token unavailable",
+      message: "authentication unavailable",
     });
 
     firstToken.mockResolvedValue(err(failure));
@@ -228,6 +231,61 @@ describe("standalone action execution", () => {
     );
     expect(result.result.isErr()).toBe(true);
     if (result.result.isErr()) expect(result.result.error).toBe(failure);
+    expect(install).not.toHaveBeenCalled();
+  });
+
+  it("ACTION-11: permits provider-owned login while keeping action parameters noninteractive", async () => {
+    const provider = tools.tokenProvider.m365TokenProvider;
+    const token = vi.spyOn(provider, "getAccessToken").mockImplementation(async (request) =>
+      request.showDialog === false
+        ? err(
+            new UserError({
+              source: "auth",
+              name: "InteractionRequired",
+              message: "login required",
+            })
+          )
+        : ok("interactive-login-token")
+    );
+    const install = vi
+      .spyOn(PackageService.prototype, "sideLoading")
+      .mockResolvedValue(["U_title", "app-id", ""]);
+    const driver = vi.spyOn(M365TitleAcquireDriver.prototype, "execute");
+
+    const result = await client.executeAction(
+      ActionNames.Acquire,
+      { appPackagePath: "app.zip" },
+      { projectPath }
+    );
+
+    expect(result.result.isOk()).toBe(true);
+    expect(token).toHaveBeenCalledExactlyOnceWith({ scopes: MosServiceScope() });
+    expect(install).toHaveBeenCalledExactlyOnceWith(
+      "interactive-login-token",
+      join(projectPath, "app.zip"),
+      undefined
+    );
+    const context = driver.mock.calls[0][1];
+    expect(context.m365TokenProvider).toBe(provider);
+    expect(context.nonInteractive).toBe(true);
+    expect(context.ui).toBeUndefined();
+  });
+
+  it("ACTION-11: provider login cancellation propagates before any service write", async () => {
+    const cancellation = new UserCancelError();
+    vi.spyOn(tools.tokenProvider.m365TokenProvider, "getAccessToken").mockResolvedValue(
+      err(cancellation)
+    );
+    const install = vi.spyOn(PackageService.prototype, "sideLoading");
+
+    const result = await client.executeAction(
+      ActionNames.Acquire,
+      { appPackagePath: "app.zip" },
+      { projectPath }
+    );
+
+    expect(result.result.isErr()).toBe(true);
+    if (result.result.isErr()) expect(result.result.error).toBe(cancellation);
     expect(install).not.toHaveBeenCalled();
   });
 
