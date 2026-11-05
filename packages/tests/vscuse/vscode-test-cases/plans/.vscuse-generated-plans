@@ -165,6 +165,7 @@
     "feature-da-no-action-entra-auth-remote-preview.json",
     "feature-da-no-action-oauth-auth-remote-preview.json",
     "feature-da-no-action-pkce-oauth-auth-remote-preview.json",
+    "feature-da-share-basic.json",
     "feature-da-two-openapi-actions-personal-provision.json",
     "feature-da-typespec-package-action-remote-preview.json",
     "feature-da-web-search-replace-all.json",

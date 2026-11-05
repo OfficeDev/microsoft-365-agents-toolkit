@@ -130,6 +130,58 @@ Each directory below contains the archived `run.log` and `test_report.html`:
 - `.local/test-reports/20261104-124046-feature-validate-plugin-manifest/`
 - `.local/test-reports/20261104-130049-feature-da-manifest-file-function-manifest-plugin-support/`
 
+## Basic DA Share Migration
+
+[`feature-da-share-basic.yml`](./feature-da-share-basic.yml) replaces
+`Feature__Share_Basic_DA.json` under VCB-208 and VCB-209, retaining work item 31339288.
+This is positive coverage: after a checked no-action DA scaffold, M365-only login and
+Provision, it grants access to `${{env:M365_ACCOUNT_ADMIN_ACCOUNT}}`, revokes that same
+recipient, and grants access to all tenant users. Each transition requires its specific
+localized success notification; a generic failure is not accepted.
+
+| Legacy plan | Generated plan | Work item | Status |
+| ----------- | -------------- | --------- | ------ |
+| `Feature__Share_Basic_DA.json` | `feature-da-share-basic.json` | 31339288 | Migrated |
+
+The existing unsupported-workflow Share case remains separate and unchanged. It rejects
+workflow v1.9 before remote service access and does not replace these three successful
+sharing transitions. No Azure login is needed, and all sharing applies to the agent
+created by this case.
+
+Migration status records source replacement, not a claim that execution passed. The old
+recording is removed once the generated replacement exists, as authorized.
+
+Runtime evidence from November 4, 2026 uses
+`ghcr.io/officedev/vscuse-atk-vscode:CY261104`, revision
+`de123008bd558327d37494cb4f6d7efdd9c11251`, digest
+`sha256:9a30623687bffc2d2e9091b2ce620d77c15594cf2dde94523ef86ad4b5aeb580`,
+verified against [Docker build 41623364632](https://github.com/OfficeDev/microsoft-365-agents-toolkit/actions/runs/41623364632).
+Published template routing is used; no scenario feature flags are required.
+
+- Initial live workbench execution completed all three sharing operations. Clean CLI
+  `exec_20261104_160058` then stopped at 109 successful / 1 error because the test expected
+  a flattened email rather than the product's array-formatted message, which was also
+  ellipsized. This was **test plan drift**, not a product sharing failure.
+- After correcting the message and expanding notifications, clean CLI
+  `exec_20261104_163437` stopped at 154 successful / 1 error: the timed Toolkit survey
+  became the first notification. The focused-target guard correctly rejected it.
+  The replacement therefore selects messages by content, not notification index.
+- Genuine workbench recordings `r_1104_093000` and `r_1104_093603` captured the grant/revoke
+  message clicks and their visual hashes. Both complete recipient messages were verified
+  after expansion. A further live check retained other real notifications, confirmed a
+  different notification was focused, then focused and verified the complete revoke message.
+- Final native OCR validation is currently a **setup failure**: the configured endpoint
+  supports Vision Read 3.2, but the runner's `ImageAnalysisClient` request to
+  `/computervision/imageanalysis:analyze?api-version=2023-10-01&features=read` returns 404.
+  The runner can fall back to recorded coordinates after OCR failure; such a fallback is
+  not accepted as proof of the required position-independent selection. A working Image
+  Analysis endpoint is needed before claiming a final clean pass.
+
+Private evidence is retained under `.local/test-reports/` in
+`20261104-160045-feature-da-share-basic/`,
+`20261104-163424-feature-da-share-basic/`, and
+`20261104-170712-basic-share-recording-workbench/`.
+
 ## Backlog
 
 - Extend `da-typespec-oauth-with-reference-id` through provision and remote Copilot chat after the
