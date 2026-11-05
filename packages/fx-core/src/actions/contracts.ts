@@ -40,14 +40,18 @@ export interface ActionDefinition {
   supportsCancellation: boolean;
 }
 
-export function createActionError(
-  name: "UnsupportedAction" | "InvalidActionContext" | "UnsupportedCancellation"
-): FxError {
+const actionErrorKeys = {
+  UnsupportedAction: "core.actions.UnsupportedAction",
+  InvalidActionContext: "core.actions.InvalidActionContext",
+  UnsupportedCancellation: "core.actions.UnsupportedCancellation",
+};
+
+export function createActionError(name: keyof typeof actionErrorKeys): FxError {
   return new UserError({
     source: "executeAction",
     name,
-    message: getLocalizedString(`core.actions.${name}`),
-    displayMessage: getLocalizedString(`core.actions.${name}`),
+    message: getLocalizedString(actionErrorKeys[name]),
+    displayMessage: getLocalizedString(actionErrorKeys[name]),
   });
 }
 
