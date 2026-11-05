@@ -42,6 +42,7 @@ describe("public policy action", () => {
   let client: FxCoreClient;
 
   beforeEach(async () => {
+    vi.stubEnv("TEAMSFX_WORKIQ_PUBLISH_TARGET", "both");
     projectPath = await mkdtemp(join(tmpdir(), "atk-public-policy-"));
     await writeFile(join(projectPath, "policy.json"), policyBytes);
     tools = new MockTools();
@@ -50,6 +51,7 @@ describe("public policy action", () => {
 
   afterEach(async () => {
     vi.restoreAllMocks();
+    vi.unstubAllEnvs();
     await rm(projectPath, { recursive: true, force: true });
   });
 
@@ -58,6 +60,32 @@ describe("public policy action", () => {
     callerId,
     policyPath: join(projectPath, "policy.json"),
   });
+
+  for (const value of [undefined, "mos", "workiq", "both"]) {
+    it(`POLICY-ACTION-05: ${value ?? "unset"} preserves the native target selection`, async () => {
+      vi.stubEnv("TEAMSFX_WORKIQ_PUBLISH_TARGET", value);
+      const target = value ?? "workiq";
+      const destinations = fakeDestinations();
+
+      const execution = await client.executeAction(ActionNames.PublishPolicy, args(), {
+        projectPath,
+      });
+
+      expect(execution.result.isOk()).toBe(true);
+      if (!("report" in execution)) throw new Error("Missing native policy report");
+      expect(execution.report).toMatchObject({
+        target,
+        outcome: "published",
+        nextAction: "none",
+        mos: { state: target === "workiq" ? "not-started" : "confirmed" },
+        workIq: { state: target === "mos" ? "not-started" : "confirmed" },
+      });
+      expect(destinations.mosPrepare).toHaveBeenCalledTimes(target === "workiq" ? 0 : 1);
+      expect(destinations.mosPublish).toHaveBeenCalledTimes(target === "workiq" ? 0 : 1);
+      expect(destinations.workIqPrepare).toHaveBeenCalledTimes(target === "mos" ? 0 : 1);
+      expect(destinations.workIqPublish).toHaveBeenCalledTimes(target === "mos" ? 0 : 1);
+    });
+  }
 
   it("POLICY-ACTION-02: returns native receipts after one captured snapshot and MOS-first publication", async () => {
     const destinations = fakeDestinations();

@@ -15,9 +15,14 @@ import {
   PolicyPublicationReport,
 } from "../../../../src/component/workiq/policyPublicationReport";
 
-const report = (mos: DestinationState, workIq: DestinationState): PolicyPublicationReport => ({
+const report = (
+  mos: DestinationState,
+  workIq: DestinationState,
+  target?: "mos" | "workiq" | "both"
+): PolicyPublicationReport => ({
   reportVersion: 1,
   operationId: "operation",
+  ...(target ? { target } : {}),
   titleId: "title",
   enforcement: "not-verified",
   outcome: "failed",
@@ -30,6 +35,7 @@ const cases: {
   mos: DestinationState;
   workIq: DestinationState;
   cancelled?: boolean;
+  target?: "mos" | "workiq" | "both";
   outcome: PolicyPublicationOutcome;
   nextAction: PolicyPublicationNextAction;
 }[] = [
@@ -96,14 +102,53 @@ const cases: {
     outcome: "cancelled",
     nextAction: "review-error",
   },
+  {
+    mos: "confirmed",
+    workIq: "not-started",
+    target: "mos",
+    outcome: "published",
+    nextAction: "none",
+  },
+  {
+    mos: "not-started",
+    workIq: "confirmed",
+    target: "workiq",
+    outcome: "published",
+    nextAction: "none",
+  },
+  {
+    mos: "not-started",
+    workIq: "mocked",
+    target: "workiq",
+    outcome: "simulated",
+    nextAction: "verify-live-publication",
+  },
+  {
+    mos: "confirmed",
+    workIq: "not-started",
+    target: "mos",
+    cancelled: true,
+    outcome: "cancelled",
+    nextAction: "none",
+  },
+  {
+    mos: "not-started",
+    workIq: "unknown",
+    target: "workiq",
+    cancelled: true,
+    outcome: "cancelled",
+    nextAction: "reconcile",
+  },
 ];
 
 describe("Policy publication normalization", () => {
   for (const entry of cases) {
-    it(`WIQ-POL-15: ${entry.mos}/${entry.workIq}, cancelled=${!!entry.cancelled} gives ${entry.outcome}/${entry.nextAction}`, () => {
-      expect(normalizeOutcome(entry.mos, entry.workIq, entry.cancelled)).toBe(entry.outcome);
+    it(`WIQ-POL-15: ${entry.mos}/${entry.workIq}, target=${entry.target ?? "both"}, cancelled=${!!entry.cancelled} gives ${entry.outcome}/${entry.nextAction}`, () => {
+      expect(normalizeOutcome(entry.mos, entry.workIq, entry.cancelled, entry.target)).toBe(
+        entry.outcome
+      );
       const result = finalizePolicyPublicationReport(
-        report(entry.mos, entry.workIq),
+        report(entry.mos, entry.workIq, entry.target),
         entry.cancelled
       );
       expect(result.outcome).toBe(entry.outcome);

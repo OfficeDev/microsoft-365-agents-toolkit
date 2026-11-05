@@ -196,9 +196,12 @@ export class PolicyPublicationOperation {
     input: unknown,
     context: PolicyPublicationContext
   ): Promise<Result<PolicyPublicationReport, PolicyPublicationError>> {
+    const target = process.env.TEAMSFX_WORKIQ_PUBLISH_TARGET ?? "workiq";
+    const validTarget = target === "mos" || target === "workiq" || target === "both";
     const report: PolicyPublicationReport = {
       reportVersion: 1,
       operationId: randomUUID(),
+      target: validTarget ? target : "workiq",
       outcome: "failed",
       nextAction: "review-error",
       enforcement: "not-verified",
@@ -213,39 +216,61 @@ export class PolicyPublicationOperation {
     const args = validateArgs(input);
     if (args.isErr()) return failure(args.error);
     report.titleId = args.value.titleId;
+    if (!validTarget) {
+      return failure(
+        createPolicyError("POLICY_PUBLISH_TARGET_INVALID", "driver.workiq.error.publishTarget")
+      );
+    }
     const captured = await capturePolicy(args.value.policyPath, context);
     if (captured.isErr()) return failure(captured.error);
     const policy = captured.value;
     report.policySha256 = policy.sha256;
 
-    let mos: Result<PreparedPolicyPublication, FxError>;
-    let workIq: Result<PreparedPolicyPublication, FxError>;
-    try {
-      workIq = await this.clients.workIq.prepare({
-        titleId: args.value.titleId,
-        callerId: args.value.callerId,
-        policy,
-        signal: context.signal,
-      });
-      if (workIq.isErr()) return failure(workIq.error);
-      if (context.signal?.aborted) return failure(new UserCancelError(publishPolicyActionName));
-      mos = await this.clients.mos.prepare({
-        titleId: args.value.titleId,
-        policy,
-        signal: context.signal,
-      });
-      if (mos.isErr()) return failure(mos.error);
-    } catch (error) {
-      return failure(
-        error instanceof Error && isUserCancelError(error)
-          ? new UserCancelError(publishPolicyActionName)
-          : createPolicyError("POLICY_PREFLIGHT_FAILED", "driver.workiq.error.preflight", "system")
-      );
+    const publications: ["mos" | "workIq", PreparedPolicyPublication][] = [];
+    if (target !== "mos") {
+      try {
+        const workIq = await this.clients.workIq.prepare({
+          titleId: args.value.titleId,
+          callerId: args.value.callerId,
+          policy,
+          signal: context.signal,
+        });
+        if (workIq.isErr()) return failure(workIq.error);
+        if (context.signal?.aborted) return failure(new UserCancelError(publishPolicyActionName));
+        publications.push(["workIq", workIq.value]);
+      } catch (error) {
+        return failure(
+          error instanceof Error && isUserCancelError(error)
+            ? new UserCancelError(publishPolicyActionName)
+            : createPolicyError(
+                "POLICY_PREFLIGHT_FAILED",
+                "driver.workiq.error.preflight",
+                "system"
+              )
+        );
+      }
     }
-    const publications: ["mos" | "workIq", PreparedPolicyPublication][] = [
-      ["mos", mos.value],
-      ["workIq", workIq.value],
-    ];
+    if (target !== "workiq") {
+      try {
+        const mos = await this.clients.mos.prepare({
+          titleId: args.value.titleId,
+          policy,
+          signal: context.signal,
+        });
+        if (mos.isErr()) return failure(mos.error);
+        publications.unshift(["mos", mos.value]);
+      } catch (error) {
+        return failure(
+          error instanceof Error && isUserCancelError(error)
+            ? new UserCancelError(publishPolicyActionName)
+            : createPolicyError(
+                "POLICY_PREFLIGHT_FAILED",
+                "driver.workiq.error.preflight",
+                "system"
+              )
+        );
+      }
+    }
     for (const [destination, prepared] of publications) {
       if (context.signal?.aborted) {
         return failure(new UserCancelError(publishPolicyActionName));
@@ -254,16 +279,17 @@ export class PolicyPublicationOperation {
       try {
         result = await prepared.publish();
       } catch (error) {
-        report[destination] = { state: "unknown" };
-        return failure(
-          error instanceof Error && isUserCancelError(error)
-            ? new UserCancelError(publishPolicyActionName)
-            : createPolicyError(
-                "PolicyOutcomeUnknown",
-                "driver.workiq.error.outcomeUnknown",
-                "system"
-              )
-        );
+        result = err({
+          state: "unknown",
+          error:
+            error instanceof Error && isUserCancelError(error)
+              ? new UserCancelError(publishPolicyActionName)
+              : createPolicyError(
+                  "PolicyOutcomeUnknown",
+                  "driver.workiq.error.outcomeUnknown",
+                  "system"
+                ),
+        });
       }
       if (result.isErr()) {
         report[destination] = { state: result.error.state };

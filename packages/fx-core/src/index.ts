@@ -122,6 +122,7 @@ export {
   PolicyPublicationReport,
   PolicyPublicationOutcome,
   PolicyPublicationNextAction,
+  PolicyPublicationTarget,
   PreparedPolicyPublication,
   normalizeOutcome,
   finalizePolicyPublicationReport,

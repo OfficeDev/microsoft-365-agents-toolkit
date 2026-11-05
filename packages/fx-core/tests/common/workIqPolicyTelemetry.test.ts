@@ -19,6 +19,7 @@ describe("Work IQ policy HTTP telemetry", () => {
   let mockTools: MockTools;
 
   beforeEach(() => {
+    vi.stubEnv("TEAMSFX_WORKIQ_MOS_ENV", "prod");
     previousTools = TOOLS;
     mockTools = new MockTools();
     setTools(mockTools);
@@ -27,6 +28,7 @@ describe("Work IQ policy HTTP telemetry", () => {
   afterEach(() => {
     setTools(previousTools);
     vi.restoreAllMocks();
+    vi.unstubAllEnvs();
   });
 
   for (const status of [200, 404, 503]) {

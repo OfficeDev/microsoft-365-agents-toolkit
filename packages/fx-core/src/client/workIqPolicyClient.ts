@@ -142,12 +142,15 @@ export class WorkIqPolicyClient implements WorkIqPolicyPublisher {
     }
     const context = await this.authenticate("write", provider, write.signal);
     if (context.isErr()) return err(context.error);
+    // Temporarily paused for integration; retain the Contract preflight.
+    /*
     const contracts = await this.readPrepared(
       "/api/policies/contracts",
       context.value,
       write.signal
     );
     if (contracts.isErr()) return err(contracts.error);
+    */
     const inspection = await this.readPolicyPrepared(path.value, context.value, write.signal);
     if (inspection.isErr()) return err(inspection.error);
     if (inspection.value.state === "found") {

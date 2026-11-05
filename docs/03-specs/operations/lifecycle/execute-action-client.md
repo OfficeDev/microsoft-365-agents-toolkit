@@ -125,9 +125,15 @@ No new CLI or VS Code workflow is shipped, so no additional L2/L3 gate is added.
 | ID               | Runtime | Purpose               | Gate     | Harness                                                    | Given / When                                                      | Then                                                                                                                                        |
 | ---------------- | ------- | --------------------- | -------- | ---------------------------------------------------------- | ----------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
 | POLICY-ACTION-01 | L1      | operation-integration | required | Pure metadata and TypeScript compiler                      | Reference the exported policy name and args/result types          | Validate exactly three string inputs without live imports; infer native optional report; reject missing/extra fields and acquire-only args. |
-| POLICY-ACTION-02 | L1      | operation-integration | required | Real SDK/driver/operation with service-port fakes          | Publish an absolute project-contained policy path                 | Capture one byte snapshot/hash, prepare both services, publish MOS first, return the native report with no environment persistence.         |
-| POLICY-ACTION-03 | L1      | operation-integration | required | Real SDK/driver/operation with deferred service-port fakes | MOS confirms and Work IQ fails or cancellation follows MOS        | Preserve confirmed receipts, incomplete/cancelled outcome and next action; never retry or roll back.                                        |
+| POLICY-ACTION-02 | L1      | operation-integration | required | Real SDK/driver/operation with service-port fakes          | Select both and publish an absolute project-contained policy path | Capture one byte snapshot/hash, prepare both services, publish MOS first, return the native report with no environment persistence.         |
+| POLICY-ACTION-03 | L1      | operation-integration | required | Real SDK/driver/operation with deferred service-port fakes | Select both; MOS confirms and Work IQ fails or cancellation follows MOS | Preserve confirmed receipts, incomplete/cancelled outcome and next action; never retry or roll back.                                   |
 | POLICY-ACTION-04 | L1      | operation-integration | required | Real SDK with driver/auth spies                            | Reject malformed args or receive an already-aborted valid request | Invalid args fail before the driver/auth; pre-aborted driver execution returns its native cancelled report without preparing services.      |
+| POLICY-ACTION-05 | L1      | operation-integration | required | Real SDK/driver/operation with service-port spies          | Leave publication target unset or explicitly select mos, workiq, or both | Respect the native target selection: default Work IQ only; do not prepare/write unselected destinations; retain target-aware native reports. |
+
+Publication target/environment defaults and API sequencing are owned by
+[workiq-publish-policy](workiq-publish-policy.md). The direct action executor
+delegates these decisions to the native operation rather than adding its own
+selection or authentication logic.
 
 The configured policy action can make real MOS and Work IQ PPE requests.
 Registration does not change WIQD's mock caller. Automated tests use service fakes;
