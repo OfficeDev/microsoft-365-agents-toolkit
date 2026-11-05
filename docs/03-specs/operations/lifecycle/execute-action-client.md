@@ -2,7 +2,9 @@
 
 ## Requirement input
 
-The approved chat handoff requests an in-process SDK, not a CLI change.
+The original approved chat handoff requests an in-process SDK.
+The later [hidden CLI entry](execute-action-cli.md) consumes this API without
+changing its execution boundary.
 The current scope is ZIP acquisition and the native Work IQ policy publication
 driver merged from PR #16916.
 The 2026-11-04 scope reduction leaves uninstallation on its existing
@@ -131,12 +133,12 @@ No new CLI or VS Code workflow is shipped, so no additional L2/L3 gate is added.
 
 ### Policy action acceptance criteria
 
-| ID               | Runtime | Purpose               | Gate     | Harness                                                    | Given / When                                                      | Then                                                                                                                                        |
-| ---------------- | ------- | --------------------- | -------- | ---------------------------------------------------------- | ----------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
-| POLICY-ACTION-01 | L1      | operation-integration | required | Pure metadata and TypeScript compiler                      | Reference the exported policy name and args/result types          | Validate exactly three string inputs without live imports; infer native optional report; reject missing/extra fields and acquire-only args. |
-| POLICY-ACTION-02 | L1      | operation-integration | required | Real SDK/driver/operation with service-port fakes          | Select both and publish an absolute project-contained policy path | Capture one byte snapshot/hash, prepare both services, publish MOS first, return the native report with no environment persistence.         |
-| POLICY-ACTION-03 | L1      | operation-integration | required | Real SDK/driver/operation with deferred service-port fakes | Select both; MOS confirms and Work IQ fails or cancellation follows MOS | Preserve confirmed receipts, incomplete/cancelled outcome and next action; never retry or roll back.                                   |
-| POLICY-ACTION-04 | L1      | operation-integration | required | Real SDK with driver/auth spies                            | Reject malformed args or receive an already-aborted valid request | Invalid args fail before the driver/auth; pre-aborted driver execution returns its native cancelled report without preparing services.      |
+| ID               | Runtime | Purpose               | Gate     | Harness                                                    | Given / When                                                             | Then                                                                                                                                         |
+| ---------------- | ------- | --------------------- | -------- | ---------------------------------------------------------- | ------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| POLICY-ACTION-01 | L1      | operation-integration | required | Pure metadata and TypeScript compiler                      | Reference the exported policy name and args/result types                 | Validate exactly three string inputs without live imports; infer native optional report; reject missing/extra fields and acquire-only args.  |
+| POLICY-ACTION-02 | L1      | operation-integration | required | Real SDK/driver/operation with service-port fakes          | Select both and publish an absolute project-contained policy path        | Capture one byte snapshot/hash, prepare both services, publish MOS first, return the native report with no environment persistence.          |
+| POLICY-ACTION-03 | L1      | operation-integration | required | Real SDK/driver/operation with deferred service-port fakes | Select both; MOS confirms and Work IQ fails or cancellation follows MOS  | Preserve confirmed receipts, incomplete/cancelled outcome and next action; never retry or roll back.                                         |
+| POLICY-ACTION-04 | L1      | operation-integration | required | Real SDK with driver/auth spies                            | Reject malformed args or receive an already-aborted valid request        | Invalid args fail before the driver/auth; pre-aborted driver execution returns its native cancelled report without preparing services.       |
 | POLICY-ACTION-05 | L1      | operation-integration | required | Real SDK/driver/operation with service-port spies          | Leave publication target unset or explicitly select mos, workiq, or both | Respect the native target selection: default Work IQ only; do not prepare/write unselected destinations; retain target-aware native reports. |
 | POLICY-ACTION-06 | L1      | operation-integration | required | Real SDK/driver/operation with authentication port spies   | Work IQ preparation requests interactive or silent authentication | Receive the original injected provider and unchanged explicit showDialog value; return native receipts without action parameter prompts. |
 
