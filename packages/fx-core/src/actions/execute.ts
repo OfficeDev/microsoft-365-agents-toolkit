@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { Err, FxError, M365TokenProvider, Platform, Tools, err } from "@microsoft/teamsfx-api";
+import { Err, FxError, Platform, Tools, err } from "@microsoft/teamsfx-api";
 import path from "path";
 import type { DriverContext } from "../component/driver/interface/commonArgs";
 import type { ExecutionResult, StepDriver } from "../component/driver/interface/stepDriver";
@@ -47,20 +47,6 @@ export interface ActionExecutionFailure {
 export type ActionResult<K extends ActionName> =
   RegisteredActionResults[K] | ActionExecutionFailure;
 
-function silentProvider(provider: M365TokenProvider): M365TokenProvider {
-  return {
-    getAccessToken: (request) => provider.getAccessToken({ ...request, showDialog: false }),
-    getJsonObject: (request, tenantId) =>
-      provider.getJsonObject({ ...request, showDialog: false }, tenantId),
-    getStatus: (request) => provider.getStatus({ ...request, showDialog: false }),
-    signout: () => provider.signout(),
-    switchTenant: (tenantId) => provider.switchTenant(tenantId),
-    setStatusChangeMap: (name, request, callback, immediateCall) =>
-      provider.setStatusChangeMap(name, { ...request, showDialog: false }, callback, immediateCall),
-    removeStatusChangeMap: (name) => provider.removeStatusChangeMap(name),
-  };
-}
-
 export function executeAction<K extends ActionName>(
   tools: Tools,
   name: K,
@@ -94,7 +80,7 @@ export async function executeAction(
     platform: Platform.CLI,
     nonInteractive: true,
     signal,
-    m365TokenProvider: silentProvider(tools.tokenProvider.m365TokenProvider),
+    m365TokenProvider: tools.tokenProvider.m365TokenProvider,
     azureAccountProvider: tools.tokenProvider.azureAccountProvider,
     logProvider: tools.logProvider,
     telemetryReporter: tools.telemetryReporter,
