@@ -724,7 +724,7 @@
       "parameters": {
         "button": "left",
         "x": 635,
-        "y": 517
+        "y": 545
       },
       "description": "Click the blue \"Sign in\" button on the Microsoft account password entry screen in Google Chrome.",
       "content_refs": [],

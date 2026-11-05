@@ -9,7 +9,7 @@
       "precondition_retry_interval": 2,
       "step_retry_count": 0
     },
-    "total_steps": 28,
+    "total_steps": 30,
     "created_at": "2026-06-10T08:11:17.479358",
     "name": "Feature: Share Basic DA",
     "description": {
@@ -26,6 +26,8 @@
       "plan_r_0928_014459",
       "plan_r_0928_020230",
       "step_3111acda",
+      "step_filter_provision",
+      "step_execute_provision",
       "step_8d8f762e",
       "step_5f8da47d",
       "step_ba7ddada",
@@ -151,18 +153,18 @@
     {
       "step_id": "step_3111acda",
       "agent": "interaction",
-      "tool": "click",
+      "tool": "key_press",
       "parameters": {
-        "button": "left",
+        "button": null,
         "dx": null,
         "dy": null,
-        "key": null,
+        "key": "f1",
         "keys": null,
         "text": null,
-        "x": 216,
-        "y": 550
+        "x": null,
+        "y": null
       },
-      "description": "Click the \"Provision\" option located under the \"LIFECYCLE\" section in the Microsoft 365 Agents Toolkit sidebar.",
+      "description": "Press F1 to open the Visual Studio Code Command Palette for the Microsoft 365 Agents: Provision command instead of clicking the Lifecycle sidebar.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -173,6 +175,46 @@
       "tags": [],
       "screenshot": "step_3111acda",
       "created_at": "2026-06-10T08:11:17.515348",
+      "plan_id": "plan_112b671d"
+    },
+    {
+      "step_id": "step_filter_provision",
+      "agent": "interaction",
+      "tool": "type_text",
+      "parameters": {
+        "text": "Microsoft 365 Agents: Provision"
+      },
+      "description": "Type 'Microsoft 365 Agents: Provision' into the Command Palette to filter to the Provision command.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": null,
+      "created_at": "2026-11-05T01:40:22.139000",
+      "plan_id": "plan_112b671d"
+    },
+    {
+      "step_id": "step_execute_provision",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "enter"
+      },
+      "description": "Press Enter to execute the filtered 'Microsoft 365 Agents: Provision' command and open the environment selection.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": null,
+      "created_at": "2026-11-05T01:40:22.139000",
       "plan_id": "plan_112b671d"
     },
     {
