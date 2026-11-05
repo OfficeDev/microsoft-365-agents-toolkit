@@ -170,17 +170,28 @@ Published template routing is used; no scenario feature flags are required.
   message clicks and their visual hashes. Both complete recipient messages were verified
   after expansion. A further live check retained other real notifications, confirmed a
   different notification was focused, then focused and verified the complete revoke message.
-- Final native OCR validation is currently a **setup failure**: the configured endpoint
-  supports Vision Read 3.2, but the runner's `ImageAnalysisClient` request to
-  `/computervision/imageanalysis:analyze?api-version=2023-10-01&features=read` returns 404.
-  The runner can fall back to recorded coordinates after OCR failure; such a fallback is
-  not accepted as proof of the required position-independent selection. A working Image
-  Analysis endpoint is needed before claiming a final clean pass.
+- Native OCR validation on November 4 remained blocked by a **setup failure**: the configured endpoint
+  supported Vision Read 3.2, but the runner's `ImageAnalysisClient` request to
+  `/computervision/imageanalysis:analyze?api-version=2023-10-01&features=read` returned 404.
+  The runner could fall back to recorded coordinates after OCR failure; that fallback
+  was not accepted as proof of the required position-independent selection.
 
 Private evidence is retained under `.local/test-reports/` in
 `20261104-160045-feature-da-share-basic/`,
 `20261104-163424-feature-da-share-basic/`, and
 `20261104-170712-basic-share-recording-workbench/`.
+
+The Image Analysis endpoint was repaired on November 5. The runner-native READ probe
+recognized its non-sensitive test image, then the unchanged final plan passed a clean
+CY261104 CLI replay: `exec_20261105_135501`, **188/188 successful, 0 errors, exit 0**.
+All three sharing transitions and their exact success notifications passed.
+Both sharing notification targets have explicit native OCR resolution records (one each),
+and the complete run contains **zero OCR coordinate-resolution fallbacks**. This verifies
+the content-based selection rather than an accidental recorded-coordinate match.
+
+The passing `run.log` and `test_report.html` are archived in
+`.local/test-reports/20261105-135446-feature-da-share-basic/`.
+The November 4 failures remain historical evidence; the native-OCR validation blocker is resolved.
 
 ## Backlog
 
