@@ -22,6 +22,10 @@ import { envUtil } from "../component/utils/envUtil";
 import { UserCancelError, assembleError } from "../error";
 import { AddAuthActionInputs, AddPluginInputs, AddSkillInputs, UninstallInputs } from "../question";
 import { FxCore } from "./FxCore";
+import type { ActionArgs, ActionName, ActionResult } from "../actions";
+import type { ActionExecutionOptions } from "../actions/execute";
+
+export type { ActionExecutionOptions } from "../actions/execute";
 
 /** Execution controls shared by every first-class fx-core client operation. */
 export interface FxCoreExecutionOptions {
@@ -100,6 +104,11 @@ export type FxCoreAddAuthActionInputs = AddAuthActionInputs &
  * are successful domain outcomes from validate(), with valid set to false.
  */
 export interface IFxCoreClient {
+  executeAction<K extends ActionName>(
+    name: K,
+    args: ActionArgs<NoInfer<K>>,
+    options: ActionExecutionOptions
+  ): Promise<ActionResult<K>>;
   addPlugin(
     inputs: FxCoreAddPluginInputs,
     options?: FxCoreExecutionOptions
@@ -144,6 +153,14 @@ export class FxCoreClient implements IFxCoreClient {
 
   public constructor(private readonly tools: Tools) {
     this.core = new FxCore(tools);
+  }
+
+  public async executeAction<K extends ActionName>(
+    name: K,
+    args: ActionArgs<NoInfer<K>>,
+    options: ActionExecutionOptions
+  ): Promise<ActionResult<K>> {
+    return this.core.executeAction(name, args, options);
   }
 
   public async addPlugin(

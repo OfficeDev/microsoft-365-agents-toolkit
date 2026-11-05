@@ -173,6 +173,16 @@ export { environmentManager } from "./core/environment";
 export { environmentNameManager } from "./core/environmentName";
 export { FxCore } from "./core/FxCore";
 export * from "./core/FxCoreClient";
+export { ActionNames } from "./actions";
+export type {
+  AcquireArgs,
+  ActionArgs,
+  ActionDefinition,
+  ActionExecutionFailure,
+  ActionName,
+  ActionResult,
+} from "./actions";
+export type { ExecutionResult } from "./component/driver/interface/stepDriver";
 export { PreProvisionResForVS, VersionCheckRes } from "./core/types";
 export * from "./error/index";
 export * from "./question/constants";

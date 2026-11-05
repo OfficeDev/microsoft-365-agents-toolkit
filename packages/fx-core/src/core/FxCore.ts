@@ -194,6 +194,8 @@ import { createProjectFrontDoor as runCreateFrontDoor } from "./createProjectFro
 import { LocalCrypto } from "./crypto";
 import { environmentNameManager } from "./environmentName";
 import { FxCoreOpenPluginPart } from "./FxCore.openPlugin";
+import type { ActionArgs, ActionName, ActionResult } from "../actions";
+import { ActionExecutionOptions, executeAction } from "../actions/execute";
 import { generateConfigFiles } from "./generateConfigFiles";
 import { ConcurrentLockerMW } from "./middleware/concurrentLocker";
 import { ContextInjectorMW } from "./middleware/contextInjector";
@@ -228,9 +230,17 @@ export const getManifestPath = copilotGptManifestUtils.getManifestPath;
 export const readCopilotGptManifestFile = copilotGptManifestUtils.readCopilotGptManifestFile;
 
 export class FxCore extends FxCoreOpenPluginPart {
-  constructor(tools: Tools) {
+  constructor(private readonly tools: Tools) {
     super();
     setTools(tools);
+  }
+
+  public async executeAction<K extends ActionName>(
+    name: K,
+    args: ActionArgs<NoInfer<K>>,
+    options: ActionExecutionOptions
+  ): Promise<ActionResult<K>> {
+    return executeAction(this.tools, name, args, options);
   }
 
   private getAbortSignal(inputs: Inputs): AbortSignal | undefined {

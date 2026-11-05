@@ -16,6 +16,7 @@ const config = {
   },
 
   entry: {
+    actions: "./src/actions.ts",
     index: "./src/index.ts", // the entry point of this extension, 📖 -> https://webpack.js.org/configuration/entry-context/
   },
   output: {
@@ -23,7 +24,7 @@ const config = {
     // the bundle is stored in the 'dist' folder (check package.json), 📖 -> https://webpack.js.org/configuration/output/
     path: path.resolve(__dirname, "build"),
     libraryTarget: "umd",
-    sourceMapFilename: "index.d.ts",
+    sourceMapFilename: "[name].js.map",
     // devtoolModuleFilenameTemplate: "../[resource-path]",
     umdNamedDefine: true,
     globalObject: `(typeof self !== 'undefined' ? self : this)`,
