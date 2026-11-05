@@ -64,7 +64,7 @@ function compileSkillFeature(sourceText, transform = () => {}) {
   );
 }
 
-test("VCB-208: addDaSkill validates closed inputs and checked pre-lifecycle MCP state", async () => {
+test("VCB-210: addDaSkill validates closed inputs and checked pre-lifecycle MCP state", async () => {
   const source = await fs.readFile(
     path.join(casesDirectory, "feature-da-add-skill-mcp.yml"),
     "utf8",
@@ -169,7 +169,7 @@ test("VCB-208: addDaSkill validates closed inputs and checked pre-lifecycle MCP 
   }
 });
 
-test("VCB-209: generated skill flow preserves recorded entry, name rejection, files, and named Copilot preview", async () => {
+test("VCB-211: generated skill flow preserves recorded entry, name rejection, files, and named Copilot preview", async () => {
   const result = await compileFixture(
     "feature-da-add-skill-mcp.yml",
     (source) => source,
@@ -300,7 +300,7 @@ test("VCB-209: generated skill flow preserves recorded entry, name rejection, fi
   assert.ok(!plan.steps.some((step) => step.tags.includes("component:chat")));
 });
 
-test("VCB-210: semantic skill coverage owns its generated plan and records the retired hand plan", async () => {
+test("VCB-212: semantic skill coverage owns its generated plan and records the retired hand plan", async () => {
   const result = await compileFixture(
     "feature-da-add-skill-mcp.yml",
     (source) => source,
@@ -632,6 +632,258 @@ test("VCB-205: manifest validation requires provision and mutation and guards ea
       label,
     );
   }
+});
+
+async function compileBasicShareFeature(transform = (source) => source) {
+  return compileFixture("da-no-action.yml", (sourceText) => {
+    const yaml = require("yaml");
+    const source = yaml.parse(sourceText);
+    source.cases = [
+      {
+        id: "feature-da-share-basic",
+        scenarioId: "VCB-208",
+        workItemIds: [31339288],
+        gate: "manual",
+        steps: [
+          "scaffold-da-no-action",
+          "check-da-no-action",
+          "login-m365",
+          "provision",
+          "share-users",
+          "remove-user",
+          "share-tenant",
+        ],
+      },
+    ];
+    source.steps["share-users"] = {
+      type: "share",
+      with: {
+        operation: "grant",
+        scope: "users",
+        email: "${{env:M365_ACCOUNT_ADMIN_ACCOUNT}}",
+      },
+    };
+    source.steps["remove-user"] = {
+      type: "share",
+      with: {
+        operation: "revoke",
+        scope: "users",
+        email: "${{env:M365_ACCOUNT_ADMIN_ACCOUNT}}",
+      },
+    };
+    source.steps["share-tenant"] = {
+      type: "share",
+      with: { operation: "grant", scope: "tenant" },
+    };
+    return yaml.stringify(transform(source));
+  });
+}
+
+test("VCB-208: basic DA sharing grants, revokes the same user and grants the tenant with guarded success checks", async () => {
+  const result = await compileBasicShareFeature();
+  assert.equal(result.ok, true, JSON.stringify(result.diagnostics));
+  const { plan } = result.value[0];
+  const recipient = "${{env:M365_ACCOUNT_ADMIN_ACCOUNT}}";
+  const texts = plan.steps
+    .filter((step) => step.tool === "type_text")
+    .map((step) => step.parameters.text);
+  const answers = new Set([
+    "Share access",
+    "Remove access",
+    "Share to specified users(s) or user group",
+    "Share to all tenant users",
+    recipient,
+  ]);
+  assert.deepEqual(
+    texts.filter((text) => answers.has(text)),
+    [
+      "Share access",
+      "Share to specified users(s) or user group",
+      recipient,
+      "Remove access",
+      recipient,
+      "Share access",
+      "Share to all tenant users",
+    ],
+  );
+  assert.equal(
+    texts.filter((text) => text === "Microsoft 365 Agents: Share").length,
+    3,
+  );
+  assert.equal(
+    plan.steps.filter((step) =>
+      step.step_id.startsWith("step_executeSecondCommand_assertResults_"),
+    ).length,
+    1,
+  );
+  for (const notification of [
+    `Agent successfully shared with users: [ '${recipient}' ].`,
+    `Shared access successfully removed from users: [ '${recipient}' ].`,
+    "Agent successfully shared with tenant.",
+  ]) {
+    assert.ok(
+      plan.steps.some(
+        (step) =>
+          step.agent === "assertion" &&
+          step.description.includes(JSON.stringify(notification)),
+      ),
+      notification,
+    );
+  }
+  assert.equal(
+    plan.steps.filter((step) =>
+      step.step_id.startsWith("step_expandSharingNotification_expand_"),
+    ).length,
+    2,
+  );
+  assert.equal(
+    plan.steps.filter(
+      (step) =>
+        step.step_id.startsWith("step_expandSharingNotification_focus_") &&
+        step.description.includes("focused") &&
+        !step.description.includes("first notification"),
+    ).length,
+    2,
+  );
+  const notificationClicks = plan.steps.filter((step) =>
+    step.step_id.startsWith("step_expandSharingNotification_target_"),
+  );
+  assert.equal(notificationClicks.length, 2);
+  for (const step of notificationClicks) {
+    assert.equal(step.tool, "click");
+    assert.ok(step.tags.includes("ocr:true"));
+    assert.deepEqual(step.preconditions, []);
+  }
+  for (const fileName of [
+    "expand-granted-sharing-notification.json.tpl",
+    "expand-revoked-sharing-notification.json.tpl",
+  ]) {
+    const component = JSON.parse(
+      await fs.readFile(
+        path.join(componentsDirectory, "notifications", fileName),
+        "utf8",
+      ),
+    );
+    const click = component.steps[0];
+    assert.ok(Number.isInteger(click.parameters.x));
+    assert.ok(Number.isInteger(click.parameters.y));
+    assert.match(component.component.recording.recordingId, /^r_/);
+    assert.ok(component.component.recording.preconditions.length > 0);
+    for (const hash of component.component.recording.preconditions) {
+      assert.ok(
+        hash.startsWith(`dhash:${click.parameters.x}:${click.parameters.y}:`),
+      );
+    }
+  }
+  assert.ok(!JSON.stringify(plan).includes("AZURE_ACCOUNT"));
+  for (const [label, mutate] of [
+    [
+      "missing operation",
+      (source) => delete source.steps["share-users"].with.operation,
+    ],
+    [
+      "unknown operation",
+      (source) => (source.steps["share-users"].with.operation = "update"),
+    ],
+    [
+      "unknown scope",
+      (source) => (source.steps["share-users"].with.scope = "everyone"),
+    ],
+    [
+      "literal email",
+      (source) => (source.steps["share-users"].with.email = "user@example.com"),
+    ],
+    [
+      "secret email",
+      (source) =>
+        (source.steps["share-users"].with.email = "${{secret:RECIPIENT}}"),
+    ],
+    [
+      "tenant email",
+      (source) => (source.steps["share-tenant"].with.email = recipient),
+    ],
+    [
+      "different removal recipient",
+      (source) =>
+        (source.steps["remove-user"].with.email = "${{env:M365_ACCOUNT_NAME}}"),
+    ],
+    [
+      "unknown field",
+      (source) => (source.steps["share-users"].with.path = "other-project"),
+    ],
+    [
+      "unsupported template",
+      (source) =>
+        (source.steps["scaffold-da-no-action"].with.template = "default-bot"),
+    ],
+    ["removal before grant", (source) => source.cases[0].steps.splice(4, 1)],
+    ["missing login", (source) => source.cases[0].steps.splice(2, 1)],
+    ["missing provision", (source) => source.cases[0].steps.splice(3, 1)],
+    [
+      "tenant grant before revocation",
+      (source) => source.cases[0].steps.splice(5, 1),
+    ],
+    [
+      "downgraded workflow",
+      (source) => {
+        source.steps.downgrade = {
+          type: "workflowVersion",
+          with: { version: "v1.9" },
+        };
+        source.cases[0].steps.splice(4, 0, "downgrade");
+      },
+    ],
+  ]) {
+    const invalid = await compileBasicShareFeature((source) => {
+      mutate(source);
+      return source;
+    });
+    assert.equal(invalid.ok, false, label);
+  }
+});
+
+test("VCB-209: generated positive sharing replaces its legacy plan without changing negative Share coverage", async () => {
+  const positive = await compileFixture(
+    "feature-da-share-basic.yml",
+    (sourceText) => sourceText,
+  );
+  assert.equal(positive.ok, true, JSON.stringify(positive.diagnostics));
+  assert.equal(positive.value.length, 1);
+  assert.equal(positive.value[0].fileName, "feature-da-share-basic.json");
+  const serialized = JSON.stringify(positive.value[0].plan);
+  assert.ok(serialized.includes("31339288"));
+  assert.ok(!serialized.includes("AZURE_ACCOUNT"));
+  for (const notification of [
+    "Agent successfully shared with users: [ '${{env:M365_ACCOUNT_ADMIN_ACCOUNT}}' ].",
+    "Shared access successfully removed from users: [ '${{env:M365_ACCOUNT_ADMIN_ACCOUNT}}' ].",
+    "Agent successfully shared with tenant.",
+  ]) {
+    assert.ok(serialized.includes(notification), notification);
+  }
+  const plansDirectory = path.join(casesDirectory, "..", "plans");
+  assert.ok(
+    fsSync.existsSync(path.join(plansDirectory, "feature-da-share-basic.json")),
+  );
+  assert.equal(
+    fsSync.existsSync(
+      path.join(plansDirectory, "Feature__Share_Basic_DA.json"),
+    ),
+    false,
+  );
+  const negative = await compileFixture(
+    "feature-da-legacy-share-error.yml",
+    (sourceText) => sourceText,
+  );
+  assert.equal(negative.ok, true, JSON.stringify(negative.diagnostics));
+  assert.deepEqual(
+    negative.value[0].plan,
+    JSON.parse(
+      await fs.readFile(
+        path.join(plansDirectory, "da-no-action--da-legacy-share-error.json"),
+        "utf8",
+      ),
+    ),
+  );
 });
 
 async function compileFixture(fileName, transform) {
@@ -1629,7 +1881,7 @@ test("VCB-34: semantic compiler does not read external template contracts", asyn
   }
 });
 
-test("VCB-34: default setup compiles the checked-in YAML sources into 202 plans", async (context) => {
+test("VCB-34: default setup compiles the checked-in YAML sources into 203 plans", async (context) => {
   const plansDirectory = await fs.mkdtemp(
     path.join(os.tmpdir(), "vscuse-generated-"),
   );
@@ -1642,9 +1894,9 @@ test("VCB-34: default setup compiles the checked-in YAML sources into 202 plans"
   });
 
   assert.equal(first.ok, true);
-  assert.equal(first.value.files.length, 202);
+  assert.equal(first.value.files.length, 203);
   const generatedFiles = first.value.files;
-  assert.equal(generatedFiles.length, 202);
+  assert.equal(generatedFiles.length, 203);
   assert.equal(
     generatedFiles.includes(
       "da-api-plugin-from-existing-api--da-api-plugin-from-existing-api-no-auth.json",

@@ -1,6 +1,6 @@
 {
   "name": "@microsoft/teamsfx-core",
-  "version": "3.1.4",
+  "version": "3.1.5",
   "main": "build/index.js",
   "types": "build/index.d.ts",
   "license": "MIT",
@@ -16,6 +16,8 @@
     "test:unit": "vitest run --coverage --config vitest.config.ts --maxWorkers=75%",
     "test:unit:fast": "vitest run --config vitest.config.ts --maxWorkers=75% --reporter=dot",
     "test:unit:changed": "vitest run --config vitest.config.ts --maxWorkers=75% --changed",
+    "test:actions:types": "tsc -p tests/actions/tsconfig.json",
+    "test:actions:package": "node tests/actions/packageSmoke.cjs",
     "test:unit:log": "vitest run --coverage --config vitest.config.ts --maxWorkers=75% > unit-test.log 2>&1",
     "test:unit:vitest": "vitest run --config vitest.config.ts --maxWorkers=75%",
     "test:unit:vitest:watch": "vitest --config vitest.config.ts",
@@ -181,6 +183,8 @@
     "webpack-cli": "^6.0.1"
   },
   "files": [
+    "actions.js",
+    "actions.d.ts",
     "build/**/*",
     "resource/**/*",
     "templates/**/*"

@@ -1,5 +1,6 @@
 const { createHash } = require("node:crypto");
 const path = require("node:path");
+const { format } = require("node:util");
 
 const { renderComponent } = require("./render-component.cjs");
 const { fixtureScript } = require("./mcp-auth-fixture.cjs");
@@ -2174,27 +2175,48 @@ ${mutation}`;
 
   function compileShare(state, definition) {
     const inputs = definition.with ?? {};
+    const legacyError = inputs.expectError === "unsupportedWorkflowVersion";
+    const grant = inputs.operation === "grant";
+    const revoke = inputs.operation === "revoke";
+    const hasRecipient =
+      typeof inputs.email === "string" &&
+      environmentExpressionPattern.test(inputs.email);
+    const validPositive =
+      (grant &&
+        ((inputs.scope === "users" && hasRecipient) ||
+          (inputs.scope === "tenant" && inputs.email === undefined))) ||
+      (revoke && inputs.scope === "users" && hasRecipient);
     if (
       state.template !== "da/no-action" ||
       !isRecord(inputs) ||
-      !hasOnlyFields(inputs, new Set(["scope", "email", "expectError"])) ||
-      inputs.scope !== "users" ||
-      typeof inputs.email !== "string" ||
-      !environmentExpressionPattern.test(inputs.email) ||
-      inputs.expectError !== "unsupportedWorkflowVersion"
+      !hasOnlyFields(
+        inputs,
+        new Set(
+          legacyError
+            ? ["scope", "email", "expectError"]
+            : ["operation", "scope", "email"],
+        ),
+      ) ||
+      (legacyError ? inputs.scope !== "users" || !hasRecipient : !validPositive)
     ) {
       return failure(
         "VCB_SHARE_INPUT_INVALID",
-        "The Share operation requires the supported scope, environment-backed email, and error expectation.",
+        "The Share operation requires a supported scope, operation or legacy error expectation, and environment-backed recipient where applicable.",
       );
     }
     if (
       !state.completed.has("login:m365") ||
-      !state.completed.has("workflowVersion:v1.9")
+      (legacyError
+        ? !state.completed.has("workflowVersion:v1.9")
+        : !state.completed.has("provision") ||
+          state.completed.has("workflowVersion:v1.9")) ||
+      (!legacyError &&
+        ((revoke && state.sharedRecipient !== inputs.email) ||
+          (grant && state.sharedRecipient !== undefined)))
     ) {
       return failure(
         "VCB_SHARE_PREREQUISITE",
-        "The legacy Share error requires Microsoft 365 login and the supported workflow-version mutation.",
+        "Sharing requires Microsoft 365 login and a compatible workflow state; successful operations require Provision and removal of the previously granted recipient.",
       );
     }
 
@@ -2213,55 +2235,117 @@ ${mutation}`;
     }
     let error = append(
       output,
-      render(state, "command-palette/execute-second-command.json.tpl", {
-        firstCommandTitle:
-          "Microsoft 365 Agents: Remove access to the shared app",
-        commandTitle: commandTitles.share,
-      }),
+      !legacyError && state.completed.has("share:success")
+        ? render(state, "command-palette/execute-command.json.tpl", {
+            commandTitle: commandTitles.share,
+          })
+        : render(state, "command-palette/execute-second-command.json.tpl", {
+            firstCommandTitle:
+              "Microsoft 365 Agents: Remove access to the shared app",
+            commandTitle: commandTitles.share,
+          }),
     );
     if (error) return error;
-    for (const answer of [
+    const answers = [
       {
         component: "quick-input/single-select.json.tpl",
         values: {
           questionTitle: "Share the agent",
-          optionLabel: "Share access",
+          optionLabel: revoke ? "Remove access" : "Share access",
         },
       },
-      {
+    ];
+    if (!revoke) {
+      answers.push({
         component: "quick-input/single-select.json.tpl",
         values: {
           questionTitle: "Share the agent with users",
-          optionLabel: "Share to specified users(s) or user group",
+          optionLabel:
+            inputs.scope === "tenant"
+              ? "Share to all tenant users"
+              : "Share to specified users(s) or user group",
         },
-      },
-      {
+      });
+    }
+    if (inputs.scope === "users") {
+      answers.push({
         component: "quick-input/text.json.tpl",
         values: {
-          questionTitle: "Email addresses of users or groups for agent sharing",
+          questionTitle: revoke
+            ? "Email addresses of users or groups for agent access removal"
+            : "Email addresses of users or groups for agent sharing",
           inputValue: inputs.email,
         },
+      });
+    }
+    answers.push({
+      component: "quick-input/single-select.json.tpl",
+      values: {
+        questionTitle: "Select an environment",
+        optionLabel: "dev",
       },
-      {
-        component: "quick-input/single-select.json.tpl",
-        values: {
-          questionTitle: "Select an environment",
-          optionLabel: "dev",
-        },
-      },
-    ]) {
+    });
+    for (const answer of answers) {
       error = append(output, render(state, answer.component, answer.values));
+      if (error) return error;
+    }
+    const successText = revoke
+      ? format("Shared access successfully removed from users: %s.", [
+          inputs.email,
+        ])
+      : inputs.scope === "tenant"
+        ? "Agent successfully shared with tenant."
+        : format("Agent successfully shared with users: %s.", [inputs.email]);
+    if (!legacyError && inputs.scope === "users") {
+      const notificationPrefix = revoke
+        ? "Shared access successfully removed from users:"
+        : "Agent successfully shared with users:";
+      error = append(
+        output,
+        render(state, "notifications/assert-contains.json.tpl", {
+          notificationText: JSON.stringify(notificationPrefix),
+          retryTimeout: "120",
+        }),
+      );
+      if (error) return error;
+      error = append(
+        output,
+        render(state, "command-palette/execute-command.json.tpl", {
+          commandTitle: commandTitles.notifications,
+        }),
+      );
+      if (error) return error;
+      error = append(
+        output,
+        render(
+          state,
+          revoke
+            ? "notifications/expand-revoked-sharing-notification.json.tpl"
+            : "notifications/expand-granted-sharing-notification.json.tpl",
+          { notificationPrefix: JSON.stringify(notificationPrefix) },
+        ),
+      );
       if (error) return error;
     }
     error = append(
       output,
       render(state, "notifications/assert-contains.json.tpl", {
-        notificationText: unsupportedWorkflowVersionShareError,
-        retryTimeout: "60",
+        notificationText: legacyError
+          ? unsupportedWorkflowVersionShareError
+          : JSON.stringify(successText),
+        retryTimeout: legacyError ? "60" : "120",
       }),
     );
     if (error) return error;
     state.completed.add("share");
+    if (!legacyError) {
+      state.completed.add("share:success");
+      if (grant && inputs.scope === "users") {
+        state.sharedRecipient = inputs.email;
+      } else {
+        delete state.sharedRecipient;
+      }
+    }
     return { ok: true, value: output };
   }
 

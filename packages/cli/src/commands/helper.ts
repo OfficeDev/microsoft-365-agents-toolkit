@@ -208,7 +208,10 @@ class Helper {
     }
 
     // Global Options
-    let globalOptions = (rootCommand?.options || []).filter((o) => !o.hidden);
+    let globalOptions = (rootCommand?.options || []).filter(
+      (o) =>
+        !o.hidden && !command.options?.some((option) => option.name === o.name && option.hidden)
+    );
     if (command.defaultInteractiveOption !== undefined) {
       globalOptions = cloneDeep(globalOptions);
       globalOptions.forEach((o) => {

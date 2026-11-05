@@ -215,9 +215,10 @@ only duplicate information.
 | `page.expect.contains`                                  | Required non-empty list of literal visible substrings that must all occur on the page the current target opened.                                                                                                                                                                                                   |
 | `removeWorkspaceFile.with.path`                         | Required workspace-relative path to one generated file the operation deletes, so a later operation can be observed recreating it.                                                                                                                                                                                  |
 | `workflowVersion.with.version`                          | Required literal `v1.9`; the compiler-owned mutation replaces and verifies the top-level `version` in `m365agents.yml` so compatibility behavior can be tested without installing an old extension.                                                                                                                |
-| `share.with.scope`                                      | Required literal `users`; the V1 adapter selects Share access, then the specified-users scope.                                                                                                                                                                                                                     |
-| `share.with.email`                                      | Required `${{env:NAME}}` expression submitted to the specified-users prompt after a preceding Microsoft 365 login.                                                                                                                                                                                                 |
-| `share.with.expectError`                                | Required literal `unsupportedWorkflowVersion`; the adapter asserts the localized Share error for workflow versions below v1.10 and never calls the remote sharing service.                                                                                                                                         |
+| `share.with.operation`                                  | Required `grant` or `revoke` for successful sharing; omitted for the legacy unsupported-workflow error recipe.                                                                                                                                                                                                     |
+| `share.with.scope`                                      | `users` or `tenant` for a successful grant; `users` for revoke and legacy error coverage.                                                                                                                                                                                                                          |
+| `share.with.email`                                      | Required `${{env:NAME}}` expression for user sharing/removal; forbidden for tenant sharing.                                                                                                                                                                                                                        |
+| `share.with.expectError`                                | Optional literal `unsupportedWorkflowVersion` selects the existing negative recipe; otherwise the explicit operation must assert successful sharing.                                                                                                                                                               |
 
 Step definitions own all authored operation input. A case owns only case metadata and the ordered
 names of the definitions it executes. Definitions are atomic: they cannot reference other steps or
@@ -934,6 +935,52 @@ recorded debug groups that combine these concerns are evidence sources only and 
 wholesale as target adapters. A target that launches directly into a ready surface may reuse
 `browser/assert-ready.json.tpl`; otherwise the following authored `open` resolves a separate adapter.
 
+## Successful Basic Declarative-Agent Sharing
+
+The basic DA sharing migration preserves an existing product workflow, not a product behavior
+change. A checked `da/no-action` project must first sign in to Microsoft 365 and complete Provision.
+It then grants access to the environment-backed recipient, revokes that same recipient, and grants
+access to all tenant users. Azure login is not a prerequisite for this M365-only workflow.
+
+Positive `share` definitions require an explicit `operation: grant` or `operation: revoke`.
+Grants accept `scope: users` with one environment-backed `email`, or `scope: tenant` without
+`email`. Revocation accepts only `scope: users` and the same recipient previously granted in the
+case. Missing Provision/login, downgraded workflow state, unknown fields, unsupported templates,
+literal/secret-backed emails, invalid scopes/operations, and out-of-order removal fail compilation.
+The existing unsupported-workflow recipe remains unchanged and is not replacement coverage for
+these successful sharing transitions.
+
+Reuse guarded keyboard components for the Share command and each prompt. The first Share command
+owns the fresh-palette entry state already used by the legacy recipe; subsequent Share invocations
+own the highlighted MRU Share entry. Never use an unconditional row index or a runtime fallback.
+Before each operation, clear prior notifications and open the notification center. Require the exact
+localized success message, including the authored email for grant/revoke, rather than a generic
+notification or absence of errors.
+
+Grant/revoke messages receive an email array in the product's `util.format` call, so the expected
+single-recipient text includes `[ 'email' ]`, not a flattened email string. Quote the expected
+literal in the assertion to separate message punctuation from assertion prose. Long notifications
+may be collapsed and ellipsized: first wait for the operation-specific success prefix and show the
+notification center. Use an OCR-backed click on that message, assert that the matching notification
+is focused, and expand it with Right before checking the complete message and recipient. Never
+assume the target is the first notification: the timed Toolkit survey can appear above it.
+Grant/revoke components retain their genuine recorded click seeds and captured `dhash` values in
+`component.recording`; runtime visual preconditions are empty because notification positions vary,
+and `ocr:true` resolves the target from its message. The focused-target guard protects against an
+incorrect OCR/fallback click. Do not suppress the survey, accept a truncated email, or extend a
+timeout to conceal a mismatched message.
+
+The manual case retains work item 31339288 and uses `${{env:M365_ACCOUNT_ADMIN_ACCOUNT}}` as
+the recipient, as the original recording did. All sharing applies only to the project created by
+that case; the tenant-wide grant is intentional coverage, not an unrelated tenant policy change.
+Once the generated replacement exists, remove the legacy recording and report the actual
+CY261104 execution outcome separately from migration status.
+
+| ID      | Runtime | Purpose                | Gate | Harness                      | Given / When / Then                                                                                                                                                                                                                                                                                                                                                    |
+| ------- | ------- | ---------------------- | ---- | ---------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| VCB-208 | L1      | scenario/compatibility | PR   | semantic compiler            | A checked, M365-signed-in and provisioned no-action DA compiles the ordered user grant, same-user revoke and tenant grant with guarded keyboard prompts and exact success notifications. Unsupported inputs, missing prerequisites and invalid removal state fail before output; the first and subsequent Share commands preserve their distinct palette entry states. |
+| VCB-209 | L1      | compatibility          | PR   | semantic compiler/filesystem | The independent generated basic-share case preserves work item 31339288 and replaces Feature__Share_Basic_DA.json without Azure login. The checked-in unsupported-workflow Share plan remains byte-for-byte unchanged and retains its separate negative coverage.                                                                                                      |
+
 ## Legacy Share Compatibility Contract
 
 `workflowVersion` and `share` preserve the user-facing compatibility contract from
@@ -1589,13 +1636,13 @@ external-service reply is not required by this workflow.
 
 | ID      | Runtime | Purpose               | Gate | Harness                      | Given / When / Then                                                                                                                                                                                                                                                                                                                                                                                                                        |
 | ------- | ------- | --------------------- | ---- | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| VCB-208 | L1      | operation-integration | PR   | semantic compiler            | Given a checked MCP declarative agent and valid closed `addDaSkill` inputs, compilation accepts the new operation. Invalid names, descriptions, rejected-name fixtures, exposure choices, unknown fields, unsupported templates, repeated additions, and additions after lifecycle execution fail before output.                                                                                                                           |
-| VCB-209 | L1      | surface/compatibility | PR   | semantic compiler/components | The emitted flow preserves the recorded Development entry, guarded keyboard choices, rejected camelCase name and exact format error, valid skill creation, default agent-only scope, manifest selection, confirmation, and success assertion. The independent case verifies skill files and retained MCP registration, then signs in to M365, provisions, and previews the named agent without adding Azure or external-chat dependencies. |
-| VCB-210 | L1      | compatibility         | PR   | semantic compiler/filesystem | The YAML source deterministically produces manifest-owned `feature-da-add-skill-mcp.json`. Once its replacement coverage is validated, remove `Feature_DA_Add_Skill_MCP.json` and update the generated-to-legacy mapping and test index. Record the generated replacement's actual UI/CLI results separately from migration status; never substitute the old hand-recorded plan's passing result.                                          |
+| VCB-210 | L1      | operation-integration | PR   | semantic compiler            | Given a checked MCP declarative agent and valid closed `addDaSkill` inputs, compilation accepts the new operation. Invalid names, descriptions, rejected-name fixtures, exposure choices, unknown fields, unsupported templates, repeated additions, and additions after lifecycle execution fail before output.                                                                                                                           |
+| VCB-211 | L1      | surface/compatibility | PR   | semantic compiler/components | The emitted flow preserves the recorded Development entry, guarded keyboard choices, rejected camelCase name and exact format error, valid skill creation, default agent-only scope, manifest selection, confirmation, and success assertion. The independent case verifies skill files and retained MCP registration, then signs in to M365, provisions, and previews the named agent without adding Azure or external-chat dependencies. |
+| VCB-212 | L1      | compatibility         | PR   | semantic compiler/filesystem | The YAML source deterministically produces manifest-owned `feature-da-add-skill-mcp.json`. Once its replacement coverage is validated, remove `Feature_DA_Add_Skill_MCP.json` and update the generated-to-legacy mapping and test index. Record the generated replacement's actual UI/CLI results separately from migration status; never substitute the old hand-recorded plan's passing result.                                          |
 
 On November 4, 2026, the requester explicitly approved retiring the hand-recorded
 Add Skill plan after compiler/parity validation even though trustworthy fresh
-runtime replay is blocked by the external runner. For VCB-210, legacy-file removal
+runtime replay is blocked by the external runner. For VCB-212, legacy-file removal
 therefore does not depend on a passing generated UI/CLI replay. The migration
 mapping must use `Migrated` and retain the actual blocker: CodeAgent changed a
 valid generated assertion payload, the script exited with code 1, and the runner

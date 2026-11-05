@@ -34,6 +34,7 @@ export {
   GraphScopes,
   ListSensitivityLabelScope,
   MosServiceScope,
+  WorkIqServiceScope,
   SPFxScopes,
 } from "./common/constants";
 export { Correlator } from "./common/correlator";
@@ -68,6 +69,7 @@ export {
   loadingDefaultPlaceholder,
   loadingOptionsPlaceholder,
   maskSecret,
+  maskSecretFromEnv,
   MaskSecretOptions,
   parseFromResourceId,
 } from "./common/stringUtils";
@@ -100,6 +102,35 @@ export { AppDefinition } from "./component/driver/teamsApp/interfaces/appdefinit
 export { copilotGptManifestUtils } from "./component/driver/teamsApp/utils/CopilotGptManifestUtils";
 export { manifestUtils } from "./component/driver/teamsApp/utils/ManifestUtils";
 export { pluginManifestUtils } from "./component/driver/teamsApp/utils/PluginManifestUtils";
+export {
+  WorkIqPolicyClient,
+  WorkIqPolicyInspection,
+  WorkIqPolicyDeleteRequest,
+  workIqPolicyClient,
+} from "./client/workIqPolicyClient";
+export {
+  CapturedPolicy,
+  DestinationState,
+  MosPolicyPublicationRequest,
+  MosPolicyPublisher,
+  PolicyDestinationFailure,
+  PolicyDestinationReceipt,
+  PolicyDestinationReport,
+  PolicyDestinationResult,
+  PolicyPublicationContext,
+  PolicyPublicationError,
+  PolicyPublicationOperation,
+  PolicyPublicationReport,
+  PolicyPublicationOutcome,
+  PolicyPublicationNextAction,
+  PolicyPublicationTarget,
+  PreparedPolicyPublication,
+  normalizeOutcome,
+  finalizePolicyPublicationReport,
+  PublishPolicyArgs,
+  WorkIqPolicyPublicationRequest,
+  WorkIqPolicyPublisher,
+} from "./component/workiq/policyPublication";
 export { DefaultTemplateGenerator } from "./component/generator/defaultGenerator";
 export { HelperMethods } from "./component/generator/officeAddin/helperMethods";
 export { generateScaffoldingSummary } from "./component/generator/openApiSpec/helper";
@@ -144,6 +175,16 @@ export { environmentManager } from "./core/environment";
 export { environmentNameManager } from "./core/environmentName";
 export { FxCore } from "./core/FxCore";
 export * from "./core/FxCoreClient";
+export { ActionNames } from "./actions";
+export type {
+  AcquireArgs,
+  ActionArgs,
+  ActionDefinition,
+  ActionExecutionFailure,
+  ActionName,
+  ActionResult,
+} from "./actions";
+export type { ExecutionResult } from "./component/driver/interface/stepDriver";
 export { PreProvisionResForVS, VersionCheckRes } from "./core/types";
 export * from "./error/index";
 export * from "./question/constants";

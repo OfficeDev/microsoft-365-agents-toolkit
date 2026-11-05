@@ -74,7 +74,10 @@ export class WrappedAxiosClient {
   public static onResponse(response: AxiosResponse) {
     const fullPath = this.getRequestUrl(response.config);
     if (this.usesMetadataOnlyTelemetry(fullPath)) {
-      this.sendMetadataOnlyTelemetry(response.config, { success: true, status: response.status });
+      this.sendMetadataOnlyTelemetry(response.config, {
+        success: response.status >= 200 && response.status < 300,
+        status: response.status,
+      });
       return response;
     }
     const method = response.request.method;
@@ -225,7 +228,10 @@ export class WrappedAxiosClient {
     // Protect the entire route family so new/unrecognized operations cannot expose file data.
     return (
       path === undefined ||
+      /\/config\/v1\/environment$/.test(path) ||
       /^\/builder\/v1\/directories(?:\/|$)/.test(path) ||
+      /\/builder\/v1\/tenants\/titles\/[^/]+\/policies(?:\/|$)/.test(path) ||
+      /\/api\/policies\/(?:agents|contracts)(?:\/|$)/.test(path) ||
       /^\/(?:v1\.0|beta)\/drives(?:\/|$)/.test(path)
     );
   }
@@ -244,6 +250,7 @@ export class WrappedAxiosClient {
       if (method === "GET") return GRAPH_API_NAMES.LIST_DRIVE_ITEMS;
       if (method === "POST") return GRAPH_API_NAMES.CREATE_DRIVE_FOLDER;
     }
+
     if (method === "PUT") {
       if (/^\/v1\.0\/drives\/[^/]+\/items\/[^/:]+:\/[^/]+:\/content$/.test(path)) {
         return GRAPH_API_NAMES.UPLOAD_DRIVE_FILE;
@@ -255,6 +262,23 @@ export class WrappedAxiosClient {
     if (method === "DELETE" && /^\/v1\.0\/drives\/[^/]+\/items\/[^/:]+$/.test(path)) {
       return GRAPH_API_NAMES.DELETE_DRIVE_ITEM;
     }
+    return undefined;
+  }
+
+  private static getWorkIqPolicyApiName(
+    path: string | undefined,
+    method: string
+  ): string | undefined {
+    if (!path) return undefined;
+    if (/\/api\/policies\/agents\/[^/]+$/.test(path)) {
+      if (method === "PUT") return "workiq_put_agent_policy";
+      if (method === "GET") return "workiq_get_agent_policy";
+      if (method === "DELETE") return "workiq_delete_agent_policy";
+    }
+    if (method === "GET" && /\/api\/policies\/contracts$/.test(path))
+      return "workiq_get_capability_contracts";
+    if (method === "GET" && /\/api\/policies\/contracts\/[^/]+\/[^/]+$/.test(path))
+      return "workiq_get_capability_contract";
     return undefined;
   }
 
@@ -284,7 +308,9 @@ export class WrappedAxiosClient {
       const mosApi = path ? this.convertMethodUrlToApiDefForMOS(method, path) : undefined;
       return mosApi
         ? `mos_${mosApi.key}`
-        : (this.getGraphFileApiName(path, upperMethod) ?? "unclassified-api");
+        : (this.getWorkIqPolicyApiName(path, upperMethod) ??
+            this.getGraphFileApiName(path, upperMethod) ??
+            "unclassified-api");
     }
 
     if (this.isTDPApi(fullPath)) {

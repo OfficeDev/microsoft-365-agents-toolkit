@@ -149,6 +149,12 @@ export const MosServiceScope = () => {
   return [`${getResourceServiceEndpoint(ResourceServiceType.MOS3)}/.default`];
 };
 
+// Work IQ scope namespace advertised by the PPE protected-resource metadata.
+export const WorkIqServiceScope = () => {
+  // eslint-disable-next-line no-secrets/no-secrets -- Public OAuth scope, not a secret.
+  return ["fdcc1f02-fc51-4226-8753-f668596af7f7/WorkIQSettings.ReadWrite.All"];
+};
+
 // Graph
 export const GraphScopes = ["Application.ReadWrite.All", "TeamsAppInstallation.ReadForUser"];
 export const GroupSearchScopes = ["GroupMember.Read.All"];

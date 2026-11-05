@@ -8,6 +8,8 @@ export type ExecutionResult = {
   result: Result<Map<string, string>, FxError>;
   // summaries hold the successful logs even if the result is a FxError.
   summaries: string[];
+  // Preserve domain receipts after a late cancellation; never perform recovery here.
+  onCancellation?: () => FxError;
 };
 
 export interface StepDriver {
