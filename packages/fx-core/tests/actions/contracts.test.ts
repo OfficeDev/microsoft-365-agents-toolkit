@@ -125,4 +125,23 @@ describe("standalone action contracts", () => {
     expect(definition.isOk()).toBe(true);
     if (definition.isOk()) expect(definition.value.supportsCancellation).toBe(false);
   });
+
+  it("CLI-ACTION-07: describes all allowlisted actions and their fields without live dependencies", async () => {
+    const { ActionNames, getActionDefinition } = await import("../../src/actions");
+    for (const name of Object.values(ActionNames)) {
+      const definition = getActionDefinition(name);
+      expect(definition.isOk()).toBe(true);
+      if (definition.isErr()) continue;
+      const schema = definition.value.argsSchema;
+      expect(schema.description).toEqual(expect.any(String));
+      expect(schema.description).not.toBe("");
+      const properties = schema.properties;
+      expect(properties).toBeTypeOf("object");
+      if (typeof properties !== "object" || properties === null) continue;
+      for (const property of Object.values(properties)) {
+        expect(property).toHaveProperty("description", expect.any(String));
+        expect(property.description).not.toBe("");
+      }
+    }
+  });
 });

@@ -16,6 +16,7 @@ import { getCreateCommand } from "./create";
 import { deployCommand } from "./deploy";
 import { entraAppCommand } from "./entraAppUpdate";
 import { envCommand } from "./env";
+import { getExecuteCommand } from "./execute";
 import { initCommand } from "./init/init";
 import { listCommand } from "./list";
 import { m365LaunchInfoCommand } from "./m365LaunchInfo";
@@ -61,6 +62,7 @@ export const rootCommand: CLICommand = {
     shareCommand,
     previewCommand,
     envCommand,
+    getExecuteCommand(),
     permissionCommand,
     ...(featureFlagManager.getBooleanValue(FeatureFlags.GenerateConfigFiles) ? [initCommand] : []),
     listCommand,

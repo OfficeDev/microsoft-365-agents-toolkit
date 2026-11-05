@@ -69,6 +69,7 @@ export {
   loadingDefaultPlaceholder,
   loadingOptionsPlaceholder,
   maskSecret,
+  maskSecretFromEnv,
   MaskSecretOptions,
   parseFromResourceId,
 } from "./common/stringUtils";
