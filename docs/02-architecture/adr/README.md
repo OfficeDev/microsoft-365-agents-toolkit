@@ -45,6 +45,9 @@ decision. The format for a new ADR is defined inline below under
 | ADR-0024 | [Scaffold domain assets and expression ownership](ADR-0024-scaffold-domain-assets.md) | Accepted | Separate expression registration, externalize generation fragments, and replace comment-based OpenAPI YAML insertion. |
 | ADR-0025 | [Scaffolding extension ownership](ADR-0025-scaffold-extension-ownership.md) | Accepted | Inject DA services into domain steps, share pure capability declarations and selector presentation; refines ADR-0017's manifest injection boundary. |
 | ADR-0026 | [Scaffold I/O and provider contracts](ADR-0026-scaffold-io-and-provider-contracts.md) | Accepted | Repair file containment and collision handling, structured derived references, and OpenAPI listing/generation policy alignment. |
+| ADR-0027 | [Allowlisted standalone action execution](ADR-0027-standalone-action-client.md) | Superseded by ADR-0028 | Typed in-process ZIP installation and title-ID uninstallation without lifecycle execution. |
+| ADR-0028 | [Driver-owned args and shared execution context](ADR-0028-driver-owned-action-contracts.md) | Superseded by ADR-0029 | Drivers own pure contracts; services reuse the existing context without a separate telemetry tool. |
+| ADR-0029 | [Minimal public action boundary](ADR-0029-minimal-public-action-boundary.md) | Accepted | Expose direct action execution without refactoring existing service, telemetry or context infrastructure. |
 
 > **Reading order vs. numeric order.** The Index is in **numeric order** —
 > the immutable, reservation-ordered ADR id is the anchor for every forward

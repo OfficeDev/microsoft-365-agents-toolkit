@@ -20,11 +20,7 @@ import { logMessageKeys } from "../aad/utility/constants";
 import { DriverContext } from "../interface/commonArgs";
 import { ExecutionResult, StepDriver } from "../interface/stepDriver";
 import { addStartAndEndTelemetry } from "../middleware/addStartAndEndTelemetry";
-
-interface AcquireArgs {
-  appPackagePath?: string; // The path of the app package
-  scope?: AppScope;
-}
+import { acquireActionName, type AcquireArgs } from "./args";
 
 const createPackageService = (
   serviceEndpoint: string,
@@ -32,7 +28,7 @@ const createPackageService = (
   m365TokenProvider?: DriverContext["m365TokenProvider"]
 ) => new PackageService(serviceEndpoint, logProvider, m365TokenProvider);
 
-export const actionName = "teamsApp/extendToM365";
+export const actionName = acquireActionName;
 const helpLink = "https://aka.ms/teamsfx-actions/teamsapp-extendToM365";
 
 const outputKeys = {
@@ -65,7 +61,15 @@ export class M365TitleAcquireDriver implements StepDriver {
   ): Promise<ExecutionResult> {
     let summaries: string[] = [];
     const outputResult = await wrapRun(async () => {
-      const result = await this.handler(args, ctx, outputEnvVarNames);
+      const defaultOutputs = outputEnvVarNames === undefined;
+      const result = await this.handler(
+        args,
+        ctx,
+        outputEnvVarNames ?? new Map(Object.entries(outputKeys))
+      );
+      if (defaultOutputs && !result.output.get(outputKeys.shareLink)) {
+        result.output.delete(outputKeys.shareLink);
+      }
       summaries = result.summaries;
       return result.output;
     }, actionName);
@@ -86,7 +90,7 @@ export class M365TitleAcquireDriver implements StepDriver {
     try {
       this.validateArgs(args);
       this.validateOutputEnvVarNames(outputEnvVarNames);
-      const appPackagePath = getAbsolutePath(args.appPackagePath!, context.projectPath);
+      const appPackagePath = getAbsolutePath(args.appPackagePath, context.projectPath);
       if (!(await fs.pathExists(appPackagePath))) {
         throw new FileNotFoundError(actionName, appPackagePath, helpLink);
       }
@@ -109,7 +113,7 @@ export class M365TitleAcquireDriver implements StepDriver {
       const sideloadingRes = await packageService.sideLoading(
         sideloadingToken,
         appPackagePath,
-        args.scope
+        Object.values(AppScope).find((scope) => scope.toLowerCase() === args.scope?.toLowerCase())
       );
 
       const mapping = new Map<string, string>();
@@ -151,9 +155,8 @@ export class M365TitleAcquireDriver implements StepDriver {
 
     if (
       args.scope &&
-      !Object.values(AppScope)
-        .map((v) => v.toLowerCase())
-        .includes(args.scope)
+      (typeof args.scope !== "string" ||
+        !Object.values(AppScope).some((value) => value.toLowerCase() === args.scope?.toLowerCase()))
     ) {
       invalidParameters.push("scope");
     }
