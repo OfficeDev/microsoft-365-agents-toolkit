@@ -2225,7 +2225,7 @@
     "workIqPublishPolicy": {
       "type": "object",
       "additionalProperties": false,
-      "description": "Publish an existing agent's policy to MOS for display, then to Work IQ for runtime use. Both services are prepared before writing, and their ETags are read and managed internally. Requires MOS title write access and Work IQ tenant administrator authorization with WorkIQSettings.ReadWrite.All. Completion does not verify runtime enforcement.",
+      "description": "Publish an existing agent's policy to MOS for display and/or Work IQ for runtime use, selected by TEAMSFX_WORKIQ_PUBLISH_TARGET (mos, workiq, or both; default workiq). Only selected services are prepared; both mode writes MOS first. ETags are managed internally. MOS requires title write access; Work IQ requires tenant administrator authorization with WorkIQSettings.ReadWrite.All. Completion does not verify runtime enforcement.",
       "required": ["uses", "with"],
       "properties": {
         "name": { "type": "string" },

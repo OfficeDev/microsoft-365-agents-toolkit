@@ -50,9 +50,6 @@ export class PublishPolicyDriver implements StepDriver {
       context.logProvider.error(maskSecret(error.displayMessage ?? error.message));
       return { result: err(error), summaries: [] };
     }
-    if (!workIqPolicyClient.endpoint) {
-      context.logProvider.warning(getLocalizedString("driver.workiq.mockWarning"));
-    }
     const mos = new PackageService(
       getResourceServiceEndpoint(ResourceServiceType.MOS3),
       context.logProvider,
@@ -83,10 +80,14 @@ export class PublishPolicyDriver implements StepDriver {
               result.value
             );
     const report = failure ? failure.report : result.isOk() ? result.value : result.error.report;
+    if (report.workIq.state === "mocked") {
+      context.logProvider.warning(getLocalizedString("driver.workiq.mockWarning"));
+    }
     const onCancellation = () => cancelPolicyPublication(report);
     const summary = getLocalizedString(
       "driver.workiq.summary",
       report.operationId,
+      report.target ?? "both",
       report.outcome,
       report.mos.state,
       report.workIq.state,

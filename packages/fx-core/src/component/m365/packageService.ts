@@ -19,11 +19,7 @@ import FormData from "form-data";
 import fs from "fs-extra";
 import https from "https";
 import stripBom from "strip-bom";
-import {
-  getResourceServiceEndpoint,
-  MosServiceScope,
-  ResourceServiceType,
-} from "../../common/constants";
+import { getResourceServiceEndpoint, ResourceServiceType } from "../../common/constants";
 import { FeatureFlags, featureFlagManager } from "../../common/featureFlags";
 import { ErrorContextMW, TOOLS } from "../../common/globalVars";
 import { getDefaultString, getLocalizedString } from "../../common/localizeUtils";
@@ -159,6 +155,17 @@ export class PackageService {
     if (request.signal?.aborted) {
       return err(new UserCancelError(publishPolicyActionName));
     }
+    const endpoints: Record<string, string> = {
+      sdf: "https://titles.sdf.mos.microsoft.com",
+      msitcanary: "https://titles.msitprv.mos.microsoft.com",
+      msit: "https://titles.msit.mos.microsoft.com",
+      prod: "https://titles.prod.mos.microsoft.com",
+    };
+    const environment = process.env.TEAMSFX_WORKIQ_MOS_ENV ?? "prod";
+    if (!Object.hasOwn(endpoints, environment)) {
+      return err(createPolicyError("POLICY_MOS_ENV_INVALID", "driver.workiq.error.mosEnvironment"));
+    }
+    const endpoint = endpoints[environment];
     const authenticationError = () =>
       createPolicyError("POLICY_AUTH_REQUIRED", "driver.workiq.error.authentication");
     let token: Result<string, FxError>;
@@ -166,7 +173,7 @@ export class PackageService {
       if (!this.m365TokenProvider) {
         return err(authenticationError());
       }
-      token = await this.m365TokenProvider.getAccessToken({ scopes: MosServiceScope() });
+      token = await this.m365TokenProvider.getAccessToken({ scopes: [`${endpoint}/.default`] });
     } catch (error) {
       return err(
         error instanceof Error && isUserCancelError(error)
@@ -187,7 +194,7 @@ export class PackageService {
     }
     let serviceUrl: URL;
     try {
-      serviceUrl = new URL(await this.getTitleServiceUrl(token.value, request.signal));
+      serviceUrl = new URL(await this.getTitleServiceUrl(token.value, request.signal, endpoint));
       if (
         serviceUrl.protocol !== "https:" ||
         serviceUrl.username ||
@@ -249,9 +256,11 @@ export class PackageService {
           ? createPolicyError("POLICY_AUTH_REQUIRED", "driver.workiq.error.authentication")
           : readError()
       );
-    } catch {
+    } catch (error) {
       return err(
-        request.signal?.aborted ? new UserCancelError(publishPolicyActionName) : readError()
+        request.signal?.aborted || (error instanceof Error && isUserCancelError(error))
+          ? new UserCancelError(publishPolicyActionName)
+          : readError()
       );
     }
   }
@@ -314,6 +323,9 @@ export class PackageService {
         ),
       });
     } catch (error) {
+      if (error instanceof Error && isUserCancelError(error)) {
+        return err({ state: "unknown", error: new UserCancelError(publishPolicyActionName) });
+      }
       // Axios errors retain authorization headers and response bodies; never attach them.
       const code =
         axios.isAxiosError(error) && error.code && /^[A-Z_]+$/.test(error.code)
@@ -367,10 +379,14 @@ export class PackageService {
   }
 
   @hooks([ErrorContextMW({ source: M365ErrorSource, component: M365ErrorComponent })])
-  public async getTitleServiceUrl(token: string, signal?: AbortSignal): Promise<string> {
+  public async getTitleServiceUrl(
+    token: string,
+    signal?: AbortSignal,
+    endpoint = this.initEndpoint
+  ): Promise<string> {
     try {
       try {
-        new URL(this.initEndpoint);
+        new URL(endpoint);
       } catch (_) {
         throw new Error("Invalid URL. Mis-configuration SIDELOADING_SERVICE_ENDPOINT.");
       }
@@ -378,7 +394,7 @@ export class PackageService {
       const envInfo = await this.withNetworkRetry(
         () =>
           this.axiosInstance.get("/config/v1/environment", {
-            baseURL: this.initEndpoint,
+            baseURL: endpoint,
             ...(signal ? { signal } : {}),
             headers: {
               Authorization: `Bearer ${token}`,

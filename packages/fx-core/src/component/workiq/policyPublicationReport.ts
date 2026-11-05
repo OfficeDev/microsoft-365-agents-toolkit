@@ -7,6 +7,8 @@ import { InvalidActionInputError, isUserCancelError, UserCancelError } from "../
 
 export const publishPolicyActionName = "workiq/publishPolicy";
 
+export type PolicyPublicationTarget = "mos" | "workiq" | "both";
+
 export type DestinationState =
   "not-started" | "confirmed" | "mocked" | "failed" | "conflict" | "unknown";
 
@@ -37,6 +39,7 @@ export interface PolicyDestinationReport {
 export interface PolicyPublicationReport {
   reportVersion: 1;
   operationId: string;
+  target?: PolicyPublicationTarget;
   titleId?: string;
   policySha256?: string;
   outcome: PolicyPublicationOutcome;
@@ -70,19 +73,18 @@ export function createPolicyError(
 export function normalizeOutcome(
   mos: DestinationState,
   workIq: DestinationState,
-  cancelled = false
+  cancelled = false,
+  target: PolicyPublicationTarget = "both"
 ): PolicyPublicationOutcome {
+  const states = target === "mos" ? [mos] : target === "workiq" ? [workIq] : [mos, workIq];
   if (cancelled) return "cancelled";
-  if (mos === "unknown" || workIq === "unknown") return "unknown";
-  if (mos === "conflict" || workIq === "conflict") return "conflict";
-  if (mos === "confirmed" && workIq === "confirmed") return "published";
-  if (
-    (mos === "confirmed" || mos === "mocked") &&
-    (workIq === "confirmed" || workIq === "mocked")
-  ) {
+  if (states.includes("unknown")) return "unknown";
+  if (states.includes("conflict")) return "conflict";
+  if (states.every((state) => state === "confirmed")) return "published";
+  if (states.every((state) => state === "confirmed" || state === "mocked")) {
     return "simulated";
   }
-  if (mos === "confirmed" || workIq === "confirmed") return "incomplete";
+  if (states.includes("confirmed")) return "incomplete";
   return "failed";
 }
 
@@ -100,14 +102,13 @@ export function finalizePolicyPublicationReport(
 ): PolicyPublicationReport {
   const mos = snapshotDestination(report.mos);
   const workIq = snapshotDestination(report.workIq);
-  const receiptOutcome = normalizeOutcome(mos.state, workIq.state);
+  const receiptOutcome = normalizeOutcome(mos.state, workIq.state, false, report.target);
   const outcome = cancelled ? "cancelled" : receiptOutcome;
-  const partiallyConfirmed = (mos.state === "confirmed") !== (workIq.state === "confirmed");
   let nextAction: PolicyPublicationNextAction = "none";
-  if (mos.state === "unknown" || workIq.state === "unknown") nextAction = "reconcile";
-  else if (mos.state === "conflict" || workIq.state === "conflict") nextAction = "resolve-conflict";
+  if (receiptOutcome === "unknown") nextAction = "reconcile";
+  else if (receiptOutcome === "conflict") nextAction = "resolve-conflict";
   else if (receiptOutcome === "simulated") nextAction = "verify-live-publication";
-  else if (partiallyConfirmed) {
+  else if (receiptOutcome === "incomplete") {
     nextAction = "complete-publication";
   } else if (
     receiptOutcome === "failed" &&
@@ -123,23 +124,29 @@ export function createPolicyPublicationFailure(
   cancelled = false
 ): PolicyPublicationError {
   const snapshot = finalizePolicyPublicationReport(report, cancelled || isUserCancelError(error));
+  const receiptOutcome = normalizeOutcome(
+    snapshot.mos.state,
+    snapshot.workIq.state,
+    false,
+    snapshot.target
+  );
   let safeError: FxError;
   if (isUserCancelError(error)) {
     safeError = new UserCancelError(publishPolicyActionName);
-  } else if (snapshot.mos.state === "unknown" || snapshot.workIq.state === "unknown") {
+  } else if (receiptOutcome === "unknown") {
     safeError = createPolicyError(
       "POLICY_PUBLISH_UNKNOWN",
       "driver.workiq.error.outcomeUnknown",
       "system"
     );
-  } else if (snapshot.mos.state === "conflict" || snapshot.workIq.state === "conflict") {
+  } else if (receiptOutcome === "conflict") {
     safeError = createPolicyError(
       "POLICY_REVISION_CONFLICT",
       snapshot.mos.state === "conflict"
         ? "driver.workiq.error.conflict"
         : "driver.workiq.error.workIqConflict"
     );
-  } else if (normalizeOutcome(snapshot.mos.state, snapshot.workIq.state) === "incomplete") {
+  } else if (receiptOutcome === "incomplete") {
     safeError = createPolicyError(
       "POLICY_PUBLISH_INCOMPLETE",
       "driver.workiq.error.incomplete",
@@ -158,6 +165,8 @@ export function createPolicyPublicationFailure(
       PolicyPathError: "driver.workiq.error.outsideProject",
       MosDiscoveryError: "driver.workiq.error.serviceDiscovery",
       POLICY_AUTH_REQUIRED: "driver.workiq.error.authentication",
+      POLICY_MOS_ENV_INVALID: "driver.workiq.error.mosEnvironment",
+      POLICY_PUBLISH_TARGET_INVALID: "driver.workiq.error.publishTarget",
       MosPolicyRejected: "driver.workiq.error.rejected",
       WORKIQ_CONFIGURATION_INVALID: "driver.workiq.error.workIqConfiguration",
       WORKIQ_APP_BINDING_INVALID: "driver.workiq.error.appBinding",

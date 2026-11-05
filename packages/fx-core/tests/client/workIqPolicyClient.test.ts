@@ -86,11 +86,11 @@ describe("Work IQ Agent Policy API", () => {
     }
   });
 
-  it("WIQ-POL-25: Contract call precedes PUT, reuses the write token and does not validate its mocked body", async () => {
+  it("WIQ-POL-25: temporarily skips Contract discovery while retaining policy GET and the prepared token", async () => {
     const calls: string[] = [];
     adapter.onGet(`${endpoint}/api/policies/contracts`).reply(() => {
       calls.push("contract");
-      return [200, "mocked-opaque-contract-response"];
+      return [503, { detail: "private-contract-error" }];
     });
     adapter.onGet(url).reply(() => {
       calls.push("get-policy");
@@ -102,28 +102,31 @@ describe("Work IQ Agent Policy API", () => {
     });
     const prepared = await client.prepare(request(), provider);
     expect(prepared.isOk()).toBe(true);
-    expect(calls).toEqual(["contract", "get-policy"]);
+    expect(calls).toEqual(["get-policy"]);
     expect(adapter.history.put).toHaveLength(0);
     if (prepared.isOk()) expect((await prepared.value.publish()).isOk()).toBe(true);
-    expect(calls).toEqual(["contract", "get-policy", "put"]);
+    expect(calls).toEqual(["get-policy", "put"]);
     expect(provider.getAccessToken).toHaveBeenCalledExactlyOnceWith({ scopes: [scope] });
   });
 
   for (const status of [401, 503]) {
-    it(`WIQ-POL-25: Contract ${status} fails preflight without a policy write`, async () => {
+    it(`WIQ-POL-21: standalone Contract discovery still reports HTTP ${status}`, async () => {
       adapter
         .onGet(`${endpoint}/api/policies/contracts`)
         .reply(status, { error: "private-contract-error" });
-      const result = await client.prepare(request(), provider);
+      const result = await client.getCapabilityContracts(provider);
       expect(result.isErr()).toBe(true);
       if (result.isErr()) expect(result.error.message).not.toContain("private-contract-error");
+      expect(adapter.history.get.map((read) => read.url)).toEqual([
+        `${endpoint}/api/policies/contracts`,
+      ]);
       expect(adapter.history.put).toHaveLength(0);
     });
   }
 
-  it("WIQ-POL-25: Contract timeout is a preflight read error, not an ambiguous policy write", async () => {
+  it("WIQ-POL-21: standalone Contract timeout remains an explicit read error", async () => {
     adapter.onGet(`${endpoint}/api/policies/contracts`).timeout();
-    const result = await client.prepare(request(), provider);
+    const result = await client.getCapabilityContracts(provider);
     expect(result.isErr()).toBe(true);
     if (result.isErr()) expect(result.error.name).toBe("WORKIQ_READ_FAILED");
     expect(adapter.history.put).toHaveLength(0);
@@ -165,10 +168,7 @@ describe("Work IQ Agent Policy API", () => {
     expect(result.isOk()).toBe(true);
     expect(adapter.history.put[0].headers).toHaveProperty("If-Match", '"workiq-old"');
     expect(adapter.history.put[0].headers).not.toHaveProperty("If-None-Match");
-    expect(adapter.history.get.map((read) => read.url)).toEqual([
-      `${endpoint}/api/policies/contracts`,
-      url,
-    ]);
+    expect(adapter.history.get.map((read) => read.url)).toEqual([url]);
     expect(provider.getAccessToken).toHaveBeenCalledOnce();
   });
 
