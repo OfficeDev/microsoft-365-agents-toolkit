@@ -139,6 +139,11 @@ export function createPolicyPublicationFailure(
       "driver.workiq.error.outcomeUnknown",
       "system"
     );
+  } else if (receiptOutcome === "conflict" && error.name === "POLICY_MOS_POLICY_EXISTS") {
+    safeError = createPolicyError(
+      "POLICY_MOS_POLICY_EXISTS",
+      "driver.workiq.error.mosPolicyExists"
+    );
   } else if (receiptOutcome === "conflict") {
     safeError = createPolicyError(
       "POLICY_REVISION_CONFLICT",
@@ -165,6 +170,8 @@ export function createPolicyPublicationFailure(
       PolicyPathError: "driver.workiq.error.outsideProject",
       MosDiscoveryError: "driver.workiq.error.serviceDiscovery",
       POLICY_AUTH_REQUIRED: "driver.workiq.error.authentication",
+      POLICY_MOS_TOKEN_REJECTED: "driver.workiq.error.mosTokenRejected",
+      POLICY_MOS_ACCESS_DENIED: "driver.workiq.error.mosAccessDenied",
       POLICY_MOS_ENV_INVALID: "driver.workiq.error.mosEnvironment",
       POLICY_PUBLISH_TARGET_INVALID: "driver.workiq.error.publishTarget",
       MosPolicyRejected: "driver.workiq.error.rejected",

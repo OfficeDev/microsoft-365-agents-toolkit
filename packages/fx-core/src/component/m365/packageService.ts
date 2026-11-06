@@ -41,6 +41,7 @@ import {
   isPolicyObject,
   isStrongPolicyEtag,
   MosPolicyPublicationRequest,
+  parsePolicyObject,
   PolicyDestinationResult,
   PreparedPolicyPublication,
   publishPolicyActionName,
@@ -62,17 +63,28 @@ const M365ErrorComponent = "PackageService";
 const MOS_MAX_PACKAGE_SIZE_BYTES = 10 * 1024 * 1024;
 
 interface MosPolicyEnvelope {
-  policyType: "workiq";
-  policy: Record<string, unknown>;
+  policy: unknown;
 }
 
-function isMosPolicyEnvelope(value: unknown): value is MosPolicyEnvelope {
-  return isPolicyObject(value) && value.policyType === "workiq" && isPolicyObject(value.policy);
+function isMosPolicyEnvelope(value: unknown, createOnly: boolean): value is MosPolicyEnvelope {
+  return (
+    isPolicyObject(value) &&
+    Object.hasOwn(value, "policy") &&
+    value.policy !== undefined &&
+    (createOnly || (value.policyType === "workiq" && isPolicyObject(value.policy)))
+  );
 }
 
 function mosPolicyEtag(response: AxiosResponse<unknown>): string | undefined {
   const value: unknown = response.headers.etag ?? response.headers.ETag;
   return typeof value === "string" && isStrongPolicyEtag(value) ? value : undefined;
+}
+
+function mosPolicyAccessError(status: number): FxError | undefined {
+  if (status === 401)
+    return createPolicyError("POLICY_MOS_TOKEN_REJECTED", "driver.workiq.error.mosTokenRejected");
+  if (status === 403)
+    return createPolicyError("POLICY_MOS_ACCESS_DENIED", "driver.workiq.error.mosAccessDenied");
 }
 
 export enum AppScope {
@@ -141,7 +153,11 @@ export class PackageService {
     request: MosPolicyPublicationRequest
   ): Promise<PolicyDestinationResult> {
     const prepared = await this.prepareWorkIqPolicy(request);
-    if (prepared.isErr()) return err({ state: "not-started", error: prepared.error });
+    if (prepared.isErr())
+      return err({
+        state: prepared.error.name === "POLICY_MOS_POLICY_EXISTS" ? "conflict" : "not-started",
+        error: prepared.error,
+      });
     return prepared.value.publish();
   }
 
@@ -166,6 +182,14 @@ export class PackageService {
       return err(createPolicyError("POLICY_MOS_ENV_INVALID", "driver.workiq.error.mosEnvironment"));
     }
     const endpoint = endpoints[environment];
+    const createOnly = environment === "sdf";
+    let body: Buffer | string = request.policy.bytes;
+    if (createOnly) {
+      const policy = parsePolicyObject(request.policy.bytes);
+      if (policy.isErr()) return err(policy.error);
+      // Preserve exact numeric values instead of reserializing the parsed JSON.
+      body = `{"policy":${stripBom(request.policy.bytes.toString("utf8"))}}`;
+    }
     const authenticationError = () =>
       createPolicyError("POLICY_AUTH_REQUIRED", "driver.workiq.error.authentication");
     let token: Result<string, FxError>;
@@ -217,10 +241,15 @@ export class PackageService {
       return err(new UserCancelError(publishPolicyActionName));
     }
     const accessToken = token.value;
-    const version = await this.readWorkIqPolicyEtag(request, accessToken, serviceUrl);
+    const version = await this.readWorkIqPolicyEtag(request, accessToken, serviceUrl, createOnly);
     if (version.isErr()) return err(version.error);
     if (request.signal?.aborted) return err(new UserCancelError(publishPolicyActionName));
-    const preparedRequest = { ...request, etag: version.value };
+    if (createOnly && version.value !== undefined) {
+      return err(
+        createPolicyError("POLICY_MOS_POLICY_EXISTS", "driver.workiq.error.mosPolicyExists")
+      );
+    }
+    const preparedRequest = { ...request, etag: version.value, createOnly, body };
     return ok({
       publish: () => this.publishPreparedWorkIqPolicy(preparedRequest, accessToken, serviceUrl),
     });
@@ -229,7 +258,8 @@ export class PackageService {
   private async readWorkIqPolicyEtag(
     request: MosPolicyPublicationRequest,
     token: string,
-    serviceUrl: URL
+    serviceUrl: URL,
+    createOnly: boolean
   ): Promise<Result<string | undefined, FxError>> {
     const readError = () =>
       createPolicyError("POLICY_MOS_READ_FAILED", "driver.workiq.error.mosPolicyRead", "system");
@@ -250,12 +280,9 @@ export class PackageService {
       );
       if (response.status === 404) return ok(undefined);
       const etag = mosPolicyEtag(response);
-      if (response.status === 200 && isMosPolicyEnvelope(response.data) && etag) return ok(etag);
-      return err(
-        response.status === 401 || response.status === 403
-          ? createPolicyError("POLICY_AUTH_REQUIRED", "driver.workiq.error.authentication")
-          : readError()
-      );
+      if (response.status === 200 && isMosPolicyEnvelope(response.data, createOnly) && etag)
+        return ok(etag);
+      return err(mosPolicyAccessError(response.status) ?? readError());
     } catch (error) {
       return err(
         request.signal?.aborted || (error instanceof Error && isUserCancelError(error))
@@ -266,7 +293,11 @@ export class PackageService {
   }
 
   private async publishPreparedWorkIqPolicy(
-    request: MosPolicyPublicationRequest & { etag?: string },
+    request: MosPolicyPublicationRequest & {
+      etag?: string;
+      createOnly: boolean;
+      body: Buffer | string;
+    },
     token: string,
     serviceUrl: URL
   ): Promise<PolicyDestinationResult> {
@@ -276,14 +307,18 @@ export class PackageService {
     try {
       const response = await this.axiosInstance.put<unknown>(
         `/builder/v1/tenants/titles/${encodeURIComponent(request.titleId)}/policies/workiq`,
-        request.policy.bytes,
+        request.body,
         {
           baseURL: serviceUrl.href,
           headers: {
             Authorization: `Bearer ${token}`,
             "Accept-Encoding": "identity",
             "Content-Type": "application/json",
-            ...(request.etag ? { "If-Match": request.etag } : { "If-None-Match": "*" }),
+            ...(request.createOnly
+              ? {}
+              : request.etag
+                ? { "If-Match": request.etag }
+                : { "If-None-Match": "*" }),
           },
           signal: request.signal,
           timeout: 30000,
@@ -294,7 +329,11 @@ export class PackageService {
       if ([200, 201, 204].includes(response.status)) {
         const etag = mosPolicyEtag(response);
         const expectedStatus = request.etag === undefined ? 201 : 200;
-        if (response.status !== expectedStatus || !isMosPolicyEnvelope(response.data) || !etag) {
+        if (
+          response.status !== expectedStatus ||
+          !isMosPolicyEnvelope(response.data, request.createOnly) ||
+          !etag
+        ) {
           return err({
             state: "unknown",
             error: createPolicyError("MosAckError", "driver.workiq.error.outcomeUnknown", "system"),
@@ -308,10 +347,15 @@ export class PackageService {
           error: createPolicyError("WorkIqMosPolicyConflict", "driver.workiq.error.conflict"),
         });
       }
-      if ([400, 401, 403, 404, 428].includes(response.status)) {
+      if (
+        [400, 401, 403, 404, 428].includes(response.status) ||
+        (request.createOnly && response.status === 413)
+      ) {
         return err({
           state: "failed",
-          error: createPolicyError("MosPolicyRejected", "driver.workiq.error.rejected"),
+          error:
+            mosPolicyAccessError(response.status) ??
+            createPolicyError("MosPolicyRejected", "driver.workiq.error.rejected"),
         });
       }
       return err({
