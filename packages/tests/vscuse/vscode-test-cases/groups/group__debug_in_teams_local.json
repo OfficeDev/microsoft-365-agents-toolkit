@@ -8,7 +8,7 @@
       "precondition_wait_timeout": 60,
       "precondition_retry_interval": 2
     },
-    "total_steps": 13,
+    "total_steps": 14,
     "created_at": "2026-06-05T07:17:53.766103",
     "name": "group: debug_in_teams_local",
     "description": {
@@ -27,6 +27,7 @@
       "step_abda900e",
       "step_a527f679",
       "step_7f03643c",
+      "step_restore_local_app_deeplink",
       "step_afa29596",
       "step_31620d1e",
       "step_7f090e7d",
@@ -245,6 +246,25 @@
       "tags": [],
       "screenshot": "step_7f03643c",
       "created_at": "2026-06-05T09:07:45.979439",
+      "plan_id": "plan_r_0930_083113"
+    },
+    {
+      "step_id": "step_restore_local_app_deeplink",
+      "agent": "code",
+      "tool": "",
+      "parameters": {
+        "sample": "=== Generated Script ===\nLanguage: bash\n\n```bash\npython3 - <<'PY'\nimport json\nimport re\nfrom pathlib import Path\nfrom urllib.request import Request, urlopen\nfrom uuid import UUID\n\ncontent = Path('/home/vscode/AgentsToolkitProjects/${{var:app_name}}/env/.env.local').read_text(encoding='utf-8')\nmatch = re.search(r'^TEAMS_APP_ID=(.*)$', content, re.MULTILINE)\nif match is None:\n    raise RuntimeError('TEAMS_APP_ID is missing from .env.local')\napp_id = str(UUID(match.group(1).strip().strip('\\\"\\'')))\nurl = f'https://teams.microsoft.com/l/app/{app_id}?installAppPackage=true&webjoin=true'\nfor action, payload in [('keyboard_shortcut', {'keys': ['ctrl', 'l']}), ('type_text', {'text': url}), ('key_press', {'key': 'enter'})]:\n    request = Request(f'http://127.0.0.1:6081/api/v1/interaction/{action}', data=json.dumps(payload).encode('utf-8'), headers={'Content-Type': 'application/json'}, method='POST')\n    with urlopen(request, timeout=10) as response:\n        result = json.load(response)\n    if result.get('success') is not True:\n        raise RuntimeError(f'Failed to restore app installation link: {result}')\nprint('Reopened the current local app installation link in the signed-in Teams tab.')\nPY\n```"
+      },
+      "description": "@code Execute the supplied bash script exactly as authored to restore the current local app's installation deep link after Microsoft 365 sign-in redirects Teams to a previous chat. Read only TEAMS_APP_ID from the current project's env/.env.local, validate it, and navigate the existing signed-in browser tab using the VscUse interaction API. Do not open a new browser profile or log environment file contents. The following Add/Open assertion must still pass.",
+      "content_refs": [],
+      "timeout": 60,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": null,
       "plan_id": "plan_r_0930_083113"
     },
     {
