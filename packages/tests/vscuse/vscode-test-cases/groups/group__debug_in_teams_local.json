@@ -8,7 +8,7 @@
       "precondition_wait_timeout": 60,
       "precondition_retry_interval": 2
     },
-    "total_steps": 14,
+    "total_steps": 15,
     "created_at": "2026-06-05T07:17:53.766103",
     "name": "group: debug_in_teams_local",
     "description": {
@@ -27,6 +27,7 @@
       "step_abda900e",
       "step_a527f679",
       "step_7f03643c",
+      "step_wait_teams_signin_complete",
       "step_restore_local_app_deeplink",
       "step_afa29596",
       "step_31620d1e",
@@ -249,13 +250,32 @@
       "plan_id": "plan_r_0930_083113"
     },
     {
+      "step_id": "step_wait_teams_signin_complete",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion Microsoft Teams web has finished signing in: the browser is on teams.microsoft.com or teams.cloud.microsoft and shows the Teams navigation sidebar with Chat or an app installation dialog. The Microsoft password form, 'Stay signed in?' prompt, Authentication V2 page, and Teams loading splash are no longer displayed.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "step_retry_timeout: 180"
+      ],
+      "screenshot": null,
+      "plan_id": "plan_r_0930_083113"
+    },
+    {
       "step_id": "step_restore_local_app_deeplink",
       "agent": "code",
       "tool": "",
       "parameters": {
-        "sample": "=== Generated Script ===\nLanguage: bash\n\n```bash\npython3 - <<'PY'\nimport json\nimport re\nfrom pathlib import Path\nfrom urllib.request import Request, urlopen\nfrom uuid import UUID\n\ncontent = Path('/home/vscode/AgentsToolkitProjects/${{var:app_name}}/env/.env.local').read_text(encoding='utf-8')\nmatch = re.search(r'^TEAMS_APP_ID=(.*)$', content, re.MULTILINE)\nif match is None:\n    raise RuntimeError('TEAMS_APP_ID is missing from .env.local')\napp_id = str(UUID(match.group(1).strip().strip('\\\"\\'')))\nurl = f'https://teams.microsoft.com/l/app/{app_id}?installAppPackage=true&webjoin=true'\nfor action, payload in [('keyboard_shortcut', {'keys': ['ctrl', 'l']}), ('type_text', {'text': url}), ('key_press', {'key': 'enter'})]:\n    request = Request(f'http://127.0.0.1:6081/api/v1/interaction/{action}', data=json.dumps(payload).encode('utf-8'), headers={'Content-Type': 'application/json'}, method='POST')\n    with urlopen(request, timeout=10) as response:\n        result = json.load(response)\n    if result.get('success') is not True:\n        raise RuntimeError(f'Failed to restore app installation link: {result}')\nprint('Reopened the current local app installation link in the signed-in Teams tab.')\nPY\n```"
+        "sample": "```bash\npython3 - <<'PY'\nimport json\nimport re\nfrom pathlib import Path\nfrom urllib.parse import parse_qs, urlsplit\nfrom urllib.request import Request, urlopen\nfrom uuid import UUID\n\nlog_files = Path('/tmp').glob('vscode-userdata-*/logs/**/*Microsoft 365 Agents Toolkit*.log')\nlog_file = max(log_files, key=lambda path: path.stat().st_mtime, default=None)\nif log_file is None:\n    raise RuntimeError('The current Toolkit output log was not found')\nurls = re.findall(r'(?:teams web client|Web browser) is being launched for you to debug the app: (https://\\S+)\\.', log_file.read_text(encoding='utf-8'), re.IGNORECASE)\nif not urls:\n    raise RuntimeError('The current Toolkit output log contains no Teams launch URL')\nurl = urls[-1]\nparsed = urlsplit(url)\napp_path = re.fullmatch(r'/l/app/([0-9a-fA-F-]{36})', parsed.path)\nif parsed.scheme != 'https' or parsed.netloc not in ('teams.microsoft.com', 'teams.cloud.microsoft') or app_path is None:\n    raise RuntimeError('The recorded launch URL is not a Teams app installation link')\nUUID(app_path.group(1))\nif parse_qs(parsed.query).get('installAppPackage') != ['true']:\n    raise RuntimeError('The recorded launch URL does not request app installation')\nfor action, payload in [('keyboard_shortcut', {'keys': ['ctrl', 'l']}), ('type_text', {'text': url}), ('key_press', {'key': 'enter'})]:\n    request = Request(f'http://127.0.0.1:6081/api/v1/interaction/{action}', data=json.dumps(payload).encode('utf-8'), headers={'Content-Type': 'application/json'}, method='POST')\n    with urlopen(request, timeout=10) as response:\n        result = json.load(response)\n    if result.get('success') is not True:\n        raise RuntimeError(f'Browser navigation failed during {action}')\nprint('Reopened the recorded Teams app installation link in the signed-in tab.')\nPY\n```"
       },
-      "description": "@code Execute the supplied bash script exactly as authored to restore the current local app's installation deep link after Microsoft 365 sign-in redirects Teams to a previous chat. Read only TEAMS_APP_ID from the current project's env/.env.local, validate it, and navigate the existing signed-in browser tab using the VscUse interaction API. Do not open a new browser profile or log environment file contents. The following Add/Open assertion must still pass.",
+      "description": "@code Execute the supplied bash script exactly as authored after the Teams sign-in completion assertion. Replay the most recent Teams app installation URL from the newest Microsoft 365 Agents Toolkit output-channel log under /tmp/vscode-userdata-*/logs, the user-data directory created by this image's vscode-setup.sh. Preserve its app ID and all tenant/query parameters. Do not read .env files, guess project paths, reconstruct the URL, open another browser profile, or print log contents. Treat missing/invalid launch URLs and unsuccessful navigation responses as errors. The following Add/Open assertion must still pass.",
       "content_refs": [],
       "timeout": 60,
       "retry_count": 0,
