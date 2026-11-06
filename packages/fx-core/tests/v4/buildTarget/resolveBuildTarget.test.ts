@@ -353,7 +353,7 @@ describe("v4/buildTarget/resolveBuildTarget", () => {
     assert.strictEqual(res._unsafeUnwrapErr().name, "BuildTargetNoMatchingRoute");
   });
 
-  it("AC-14: selector dimensions must resolve to scalar strings", async () => {
+  it("AC-14 / INPUT-40: selector array prefills fail the shared answer-shape gate", async () => {
     const res = await resolveBuildTarget(
       createSelector(),
       { projectType: ["declarative-agent"] } as unknown as Record<string, string>,
@@ -362,7 +362,7 @@ describe("v4/buildTarget/resolveBuildTarget", () => {
     );
 
     assert.isTrue(res.isErr());
-    assert.strictEqual(res._unsafeUnwrapErr().name, "BuildTargetNonScalarAnswer");
+    assert.strictEqual(res._unsafeUnwrapErr().name, "InputValidationFailed");
   });
 
   it("AC-03c: backing out after the first selector prompt re-asks the previous dimension", async () => {

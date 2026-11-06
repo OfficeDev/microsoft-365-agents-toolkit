@@ -52,7 +52,7 @@ export interface ConditionalExpression {
 
 /** Structural check for the authored `ExpressionNode` union. */
 export function isExpressionNode(value: unknown): value is ExpressionNode {
-  if (!isRecord(value)) {
+  if (!isRecord(value) || Object.keys(value).length !== 1) {
     return false;
   }
   return (
@@ -60,9 +60,18 @@ export function isExpressionNode(value: unknown): value is ExpressionNode {
     typeof value.from === "string" ||
     typeof value.featureFlag === "string" ||
     typeof value.capability === "string" ||
-    isRecord(value.equals) ||
-    isRecord(value.enum) ||
-    Array.isArray(value.anyOf)
+    (isRecord(value.equals) &&
+      Object.keys(value.equals).length === 1 &&
+      Object.values(value.equals).every((item) => typeof item === "string")) ||
+    (isRecord(value.enum) &&
+      Object.keys(value.enum).length === 1 &&
+      Object.values(value.enum).every(
+        (items) =>
+          Array.isArray(items) &&
+          items.length > 0 &&
+          items.every((item) => typeof item === "string")
+      )) ||
+    (Array.isArray(value.anyOf) && value.anyOf.length > 0 && value.anyOf.every(isExpressionNode))
   );
 }
 
@@ -122,20 +131,28 @@ function parseExpressionNode(node: ExpressionNode): Ast {
     return { k: "ident", v: node.from };
   }
   if ("featureFlag" in node) {
-    return parse(tokenize(`featureFlag('${node.featureFlag}')`));
+    return { k: "call", name: "featureFlag", args: [{ k: "str", v: node.featureFlag }] };
   }
   if ("capability" in node) {
-    return parse(tokenize(`capability == '${node.capability}'`));
+    return equalityNode("capability", node.capability);
   }
   if ("equals" in node) {
     const [key, value] = Object.entries(node.equals)[0];
-    return parse(tokenize(`${key} == '${value}'`));
+    return equalityNode(key, value);
   }
   if ("enum" in node) {
     const [key, values] = Object.entries(node.enum)[0];
-    return parse(tokenize(values.map((value) => `${key} == '${value}'`).join(" || ")));
+    return disjunctionNode(values.map((value) => equalityNode(key, value)));
   }
-  const [first, ...rest] = node.anyOf.map(parseExpressionNode);
+  return disjunctionNode(node.anyOf.map(parseExpressionNode));
+}
+
+function equalityNode(key: string, value: string): Ast {
+  return { k: "eq", neg: false, left: parse(tokenize(key)), right: { k: "str", v: value } };
+}
+
+function disjunctionNode(nodes: Ast[]): Ast {
+  const [first, ...rest] = nodes;
   if (first === undefined) {
     throw new EvalError(EXPR_PARSE_ERROR, "unexpected end of expression");
   }

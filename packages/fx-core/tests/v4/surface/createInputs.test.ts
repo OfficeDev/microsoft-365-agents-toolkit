@@ -422,6 +422,62 @@ function optionId(option: string | SurfaceOptionItem): string {
 }
 
 describe("runCreateInputs (collect-create-inputs)", () => {
+  for (const fields of [
+    { staticOptions: {} },
+    { condition: { anyOf: [null] } },
+    { validation: {} },
+  ]) {
+    for (const fragment of [false, true]) {
+      it(`CCI-29: rejects ${JSON.stringify(fields)} before providers/UI (${fragment ? "fragment" : "inline"})`, async () => {
+        const zip = new AdmZip(buildLanguageFloor(["common"]));
+        const question = { name: "answer", type: "singleSelect", ...fields };
+        zip.updateFile(
+          `v4/create/${LANGUAGE_DA.templateId}/questions.json`,
+          Buffer.from(
+            JSON.stringify({
+              questions: [
+                { name: "first", type: "singleSelect", optionsFrom: "test.options" },
+                fragment ? { use: "test" } : question,
+              ],
+            })
+          )
+        );
+        if (fragment) {
+          zip.addFile(
+            "v4/_shared/questions/test.json",
+            Buffer.from(JSON.stringify({ questions: [question] }))
+          );
+        }
+        const fetch = vi.fn(() => ({ options: [{ id: "one" }] }));
+        const ui = new ScriptedUserInteraction({});
+        const result = await runCreateInputsWalk(zip.toBuffer(), LANGUAGE_DA, {}, asUI(ui), {
+          optionsProvider: { "create.languages": { fetch }, "test.options": { fetch } },
+        });
+
+        assert.isTrue(result.isErr());
+        assert.instanceOf(result._unsafeUnwrapErr(), SystemError);
+        assert.strictEqual(result._unsafeUnwrapErr().name, "PackageFileInvalid");
+        assert.deepEqual(ui.promptNames, []);
+        assert.strictEqual(fetch.mock.calls.length, 0);
+      });
+    }
+  }
+
+  it("INPUT-40: shipped MCP text question rejects array prefill through the create entry", async () => {
+    const ui = new ScriptedUserInteraction({});
+    const result = await runCreateInputs(
+      buildFloor(),
+      MCP_DA,
+      { mcpServerType: "remote", mcpServerUrl: ["not-a-url"], authType: "none" },
+      asUI(ui),
+      { flagReader: () => false }
+    );
+
+    assert.strictEqual(result._unsafeUnwrapErr().name, INPUT_VALIDATION_FAILED);
+    assert.include(result._unsafeUnwrapErr().message, "mcpServerUrl");
+    assert.deepEqual(ui.promptNames, []);
+  });
+
   it.each([LANGUAGE_DA, RAG_CUSTOM_API])(
     "API-02: rejects a newer engine requirement before prompts or provider fetch for $templateId",
     async (locator) => {
