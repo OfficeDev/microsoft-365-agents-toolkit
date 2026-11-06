@@ -55,6 +55,295 @@ function isWithin(filePath, directory) {
   );
 }
 
+function compileSkillFeature(sourceText, transform = () => {}) {
+  const bundle = require("yaml").parse(sourceText);
+  transform(bundle);
+  return compileInlineSource(
+    JSON.stringify(bundle),
+    "feature-da-add-skill-mcp.yml",
+  );
+}
+
+test("VCB-210: addDaSkill validates closed inputs and checked pre-lifecycle MCP state", async () => {
+  const source = await fs.readFile(
+    path.join(casesDirectory, "feature-da-add-skill-mcp.yml"),
+    "utf8",
+  );
+  const valid = compileSkillFeature(source);
+  assert.equal(valid.ok, true, JSON.stringify(valid.diagnostics));
+
+  const invalidInputs = [
+    ["empty name", { name: "" }],
+    ["non-string name", { name: 42 }],
+    ["uppercase name", { name: "testSkill" }],
+    ["overlong name", { name: "a".repeat(65) }],
+    ["leading hyphen", { name: "-test-skill" }],
+    ["trailing hyphen", { name: "test-skill-" }],
+    ["consecutive hyphens", { name: "test--skill" }],
+    ["path-like name", { name: "../test-skill" }],
+    ["empty description", { description: "" }],
+    ["non-string description", { description: false }],
+    ["overlong description", { description: "a".repeat(1025) }],
+    ["multiline description", { description: "first\nsecond" }],
+    ["expression description", { description: "${{env:SKILL_DESCRIPTION}}" }],
+    ["valid rejected name", { rejectedName: "another-skill" }],
+    ["empty rejected name", { rejectedName: "" }],
+    ["non-string rejected name", { rejectedName: {} }],
+    ["multiline rejected name", { rejectedName: "test\nSkill" }],
+    ["expression rejected name", { rejectedName: "${{env:INVALID_SKILL}}" }],
+    ["Copilot exposure", { exposeToCopilot: true }],
+    ["string exposure", { exposeToCopilot: "false" }],
+    ["unknown field", { path: "other/SKILL.md" }],
+  ];
+  for (const [label, input] of invalidInputs) {
+    const invalid = compileSkillFeature(source, (bundle) => {
+      Object.assign(bundle.steps["add-skill"].with, input);
+    });
+    assert.equal(invalid.ok, false, label);
+    assert.equal(
+      invalid.diagnostics[0].code,
+      "VCB_ADD_DA_SKILL_INPUT_INVALID",
+      label,
+    );
+  }
+  for (const field of [
+    "name",
+    "description",
+    "rejectedName",
+    "exposeToCopilot",
+  ]) {
+    const invalid = compileSkillFeature(source, (bundle) => {
+      delete bundle.steps["add-skill"].with[field];
+    });
+    assert.equal(invalid.ok, false, `missing ${field}`);
+  }
+  for (const [label, transform] of [
+    [
+      "unsupported template",
+      (bundle) => {
+        const scaffold = bundle.steps["scaffold-mcp"].with;
+        scaffold.template = "da/no-action";
+        scaffold.answers = scaffold.answers.filter(
+          (answer) =>
+            !["actionSource", "mcpServerUrl", "authType"].includes(
+              answer.question,
+            ),
+        );
+        scaffold.answers.find(
+          (answer) => answer.question === "daTemplate",
+        ).value = "no-action";
+      },
+    ],
+    [
+      "unchecked project",
+      (bundle) => {
+        bundle.cases[0].steps.splice(1, 1);
+      },
+    ],
+    [
+      "repeated addition",
+      (bundle) => {
+        bundle.cases[0].steps.splice(3, 0, "add-skill");
+      },
+    ],
+    ...["provision", "preview"].map((operation) => [
+      `after ${operation}`,
+      (bundle) => {
+        const order = bundle.cases[0].steps.filter(
+          (step) => step !== "add-skill",
+        );
+        order.splice(order.indexOf(operation) + 1, 0, "add-skill");
+        bundle.cases[0].steps = order;
+      },
+    ]),
+  ]) {
+    const invalid = compileSkillFeature(source, transform);
+    assert.equal(invalid.ok, false, label);
+    assert.equal(
+      invalid.diagnostics[0].code,
+      label === "unchecked project"
+        ? "VCB_OPERATION_ORDER"
+        : "VCB_ADD_DA_SKILL_INPUT_INVALID",
+      label,
+    );
+  }
+});
+
+test("VCB-211: generated skill flow preserves recorded entry, name rejection, files, and named Copilot preview", async () => {
+  const result = await compileFixture(
+    "feature-da-add-skill-mcp.yml",
+    (source) => source,
+  );
+  assert.equal(result.ok, true, JSON.stringify(result.diagnostics));
+  assert.equal(result.value.length, 1);
+  const { plan } = result.value[0];
+  assertRecordedClick(plan, 110, 490, [
+    "dhash:110:490:16:5:b2c3c644474d0ea9",
+    "dhash:110:490:96:5:6a4b676c6823ccd0",
+  ]);
+  assertRecordedClick(plan, 487, 98, [
+    "dhash:487:98:16:5:a74695a5a5555ca3",
+    "dhash:487:98:96:5:5824304c0dc24b93",
+  ]);
+  const rejected = plan.steps.findIndex(
+    (step) => step.parameters.text === "testSkill",
+  );
+  const accepted = plan.steps.findIndex(
+    (step) => step.parameters.text === "test-skill",
+  );
+  assert.ok(rejected >= 0 && accepted > rejected);
+  const rejection = plan.steps.slice(rejected, accepted);
+  assert.ok(
+    rejection.some(
+      (step) => step.tool === "key_press" && step.parameters.key === "enter",
+    ),
+  );
+  assert.ok(
+    rejection.some(
+      (step) =>
+        step.agent === "assertion" &&
+        step.description.includes("Skill Name") &&
+        step.description.includes(
+          "Skill name may only contain lowercase letters, numbers, and hyphens.",
+        ),
+    ),
+  );
+  assert.ok(
+    rejection.some(
+      (step) =>
+        step.tool === "keyboard_shortcut" && step.parameters.keys === "ctrl+a",
+    ),
+  );
+  assert.ok(
+    rejection.some(
+      (step) =>
+        step.tool === "key_press" && step.parameters.key === "backspace",
+    ),
+  );
+  for (const text of [
+    "Create a new skill",
+    "A test skill for the MCP declarative agent.",
+    "No",
+    "manifest.json",
+    "Preview in Copilot (Chrome)",
+  ]) {
+    assert.ok(
+      plan.steps.some((step) => step.parameters.text === text),
+      text,
+    );
+  }
+  const skillSteps = plan.steps.filter((step) =>
+    step.tags.includes("operation:add-da-skill"),
+  );
+  assert.ok(skillSteps.length > 0);
+  assert.ok(
+    skillSteps.every(
+      (step) => !step.tags.some((tag) => tag === "force_run:true"),
+    ),
+  );
+  const assertions = readFileAssertions(plan);
+  assert.ok(
+    assertions.some(
+      (entry) =>
+        entry.path === "appPackage/skills/test-skill/SKILL.md" &&
+        entry.contains.includes("name: test-skill") &&
+        entry.contains.includes(
+          "description: A test skill for the MCP declarative agent.",
+        ),
+    ),
+  );
+  assert.ok(
+    assertions.some(
+      (entry) =>
+        entry.path === "appPackage/skills/testSkill/SKILL.md" &&
+        entry.exists === false,
+    ),
+  );
+  assert.ok(
+    assertions.some(
+      (entry) =>
+        entry.path === "appPackage/declarativeAgent.json" &&
+        entry.contains.includes('"folder": "skills/test-skill"') &&
+        entry.contains.includes('"id": "action_1"') &&
+        entry.contains.includes('"file": "ai-plugin.json"'),
+    ),
+  );
+  assert.ok(
+    assertions.some(
+      (entry) =>
+        entry.path === "appPackage/manifest.json" &&
+        entry.notContains.includes('"agentSkills"'),
+    ),
+  );
+  const serialized = JSON.stringify(plan);
+  assert.ok(serialized.includes("39611826"));
+  assert.ok(
+    plan.plan_metadata.tags.includes("feature_flag:TEAMSFX_MCP_FOR_DA_DT=true"),
+  );
+  assert.ok(
+    plan.plan_metadata.tags.includes(
+      "feature_flag:TEAMSFX_MCP_FOR_DA_DCR=true",
+    ),
+  );
+  assert.ok(plan.plan_metadata.tags.includes("gate:scheduled"));
+  assert.ok(!serialized.includes("ATK_FRONTIER=true"));
+  assert.ok(!serialized.includes("AZURE_ACCOUNT"));
+  assert.ok(!serialized.includes("New resource group"));
+  assert.ok(!serialized.includes("Select an environment"));
+  assert.ok(
+    plan.steps.some((step) =>
+      step.description.includes("provision stage executed successfully"),
+    ),
+  );
+  assert.ok(plan.steps.at(-1).description.includes("${{var:app_name}}"));
+  assert.ok(plan.steps.at(-1).description.includes("heading"));
+  assert.ok(!plan.steps.some((step) => step.tags.includes("component:chat")));
+});
+
+test("VCB-212: semantic skill coverage owns its generated plan and records the retired hand plan", async () => {
+  const result = await compileFixture(
+    "feature-da-add-skill-mcp.yml",
+    (source) => source,
+  );
+  assert.equal(result.ok, true, JSON.stringify(result.diagnostics));
+  assert.deepEqual(
+    result.value.map(({ fileName }) => fileName),
+    ["feature-da-add-skill-mcp.json"],
+  );
+  const plansDirectory = path.join(__dirname, "..", "plans");
+  assert.equal(
+    fsSync.existsSync(
+      path.join(plansDirectory, "Feature_DA_Add_Skill_MCP.json"),
+    ),
+    false,
+  );
+  const owned = await fs.readFile(
+    path.join(plansDirectory, ".vscuse-generated-plans"),
+    "utf8",
+  );
+  assert.ok(JSON.parse(owned).files.includes("feature-da-add-skill-mcp.json"));
+  const generated = JSON.parse(
+    await fs.readFile(
+      path.join(plansDirectory, "feature-da-add-skill-mcp.json"),
+      "utf8",
+    ),
+  );
+  assert.deepEqual(generated, JSON.parse(JSON.stringify(result.value[0].plan)));
+  const mapping = await fs.readFile(
+    path.join(casesDirectory, "legacy-case-mapping.md"),
+    "utf8",
+  );
+  assert.match(
+    mapping,
+    /^\| `feature-da-add-skill-mcp\.yml`\s*\| `feature-da-add-skill-mcp`\s*\| `feature-da-add-skill-mcp\.json`\s*\| `Feature_DA_Add_Skill_MCP\.json`\s*\| Migrated\s*\|/m,
+  );
+  const index = await fs.readFile(
+    path.join(casesDirectory, "..", "..", "Index.md"),
+    "utf8",
+  );
+  assert.match(index, /^\| `feature-da-add-skill-mcp`\s*\|.*Add Skill/m);
+});
+
 function manifestFeatureSource(mode) {
   const validation = mode === "invalid-property";
   return `version: 1
@@ -1592,7 +1881,7 @@ test("VCB-34: semantic compiler does not read external template contracts", asyn
   }
 });
 
-test("VCB-34: default setup compiles the checked-in YAML sources into 202 plans", async (context) => {
+test("VCB-34: default setup compiles the checked-in YAML sources into 203 plans", async (context) => {
   const plansDirectory = await fs.mkdtemp(
     path.join(os.tmpdir(), "vscuse-generated-"),
   );
@@ -1605,9 +1894,9 @@ test("VCB-34: default setup compiles the checked-in YAML sources into 202 plans"
   });
 
   assert.equal(first.ok, true);
-  assert.equal(first.value.files.length, 202);
+  assert.equal(first.value.files.length, 203);
   const generatedFiles = first.value.files;
-  assert.equal(generatedFiles.length, 202);
+  assert.equal(generatedFiles.length, 203);
   assert.equal(
     generatedFiles.includes(
       "da-api-plugin-from-existing-api--da-api-plugin-from-existing-api-no-auth.json",

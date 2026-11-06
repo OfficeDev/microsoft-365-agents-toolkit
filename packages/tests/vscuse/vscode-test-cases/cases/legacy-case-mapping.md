@@ -130,6 +130,46 @@ Each directory below contains the archived `run.log` and `test_report.html`:
 - `.local/test-reports/20261104-124046-feature-validate-plugin-manifest/`
 - `.local/test-reports/20261104-130049-feature-da-manifest-file-function-manifest-plugin-support/`
 
+## Add Skill Feature Migration
+
+The November 4, 2026 requester-approved source migration replaces
+`Feature_DA_Add_Skill_MCP.json` with the independently executable
+[`feature-da-add-skill-mcp.yml`](./feature-da-add-skill-mcp.yml) source and
+manifest-owned `feature-da-add-skill-mcp.json`. It retains work item 39611826,
+Microsoft Learn MCP with None authentication, invalid `testSkill` rejection,
+valid `test-skill` creation, default agent-only exposure, generated-file checks,
+M365-only provision, and named-agent Copilot preview. VCB-210 through VCB-212 own
+the compiler and migration parity checks. No Frontier flag is enabled.
+
+The requester explicitly approved retiring the old plan based on compiler/parity
+checks while recording fresh runtime validation as **blocked**, not passed.
+`Migrated` describes the source replacement only.
+
+The real workbench attempt used
+`ghcr.io/officedev/vscuse-atk-vscode:CY261104`, digest
+`sha256:9a30623687bffc2d2e9091b2ce620d77c15594cf2dde94523ef86ad4b5aeb580`,
+revision `de123008bd558327d37494cb4f6d7efdd9c11251`. Initial CodeAgent tool calls
+were truncated by the configured service's 256-token default. With requester
+approval, the local vscuse 0.2.67 CodeAgent was configured to request 4096 tokens;
+an actual long-script preflight then succeeded.
+
+Fresh generated-plan validation remains blocked by a separate **runner defect**:
+CodeAgent changed the compiler's valid base64 assertion payload into invalid JSON,
+the file-check script exited with code 1, but vscuse returned `success: true`.
+The replay was stopped when that false positive was detected. Do not count the
+runner's success flag or later wizard interactions as a passing end-to-end run.
+The installed runner change is local-only and is not part of this repository
+migration.
+
+Private evidence is under `.local/vscuse-skill-migration/`: `ui.log` records the
+initial token-budget failure, `ui-budget-fixed.log` and
+`ui-budget-fixed-full.log` record the stopped follow-up, and
+`result-step_checkWorkspaceFiles_verify_c9a417a33_2_1.json` contains the nonzero
+script result alongside the incorrect success flag. Repair exact-script execution
+and nonzero-exit propagation in the runner before claiming a fresh generated UI
+or clean CLI pass. The former hand-recorded plan's 143/143 passing run is
+historical evidence, not a result for this generated replacement.
+
 ## Basic DA Share Migration
 
 [`feature-da-share-basic.yml`](./feature-da-share-basic.yml) replaces
@@ -250,6 +290,7 @@ The November 4 failures remain historical evidence; the native-OCR validation bl
 
 | YAML source                                        | New case ID                                              | Generated plan                                                                                 | Legacy plan                                                                 | Status | Coverage note                                                                                                                                                                                                                                                                                                                    |
 | -------------------------------------------------- | ---------------------------------------------------------- | ---------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- | ------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `feature-da-add-skill-mcp.yml` | `feature-da-add-skill-mcp` | `feature-da-add-skill-mcp.json` | `Feature_DA_Add_Skill_MCP.json` | Migrated | Recorded Add Skill entry, invalid-name rejection, agent-only skill and MCP file checks, M365 provision, and named Copilot preview. Requester-approved retirement is independent of the blocked generated replay; see Add Skill Feature Migration above. |
 | `weather-agent.yml`                                | `weather-ts-azure-openai-remote-teams`                   | `weather-agent--weather-ts-azure-openai-remote-teams.json`                                     | `Weather_Agent_ts_remote_debug.json`                                        | Full   | Weather Agent, Azure OpenAI, TypeScript, provision, deploy, Teams remote launch, and chat validation.                                                                                                                                                                                                                            |
 | `weather-agent.yml`                                | `weather-ts-azure-openai-local-teams`                    | `weather-agent--weather-ts-azure-openai-local-teams.json`                                      | `Weather_Agent_ts_Local_Debug.json`                                         | Full   | Weather Agent, Azure OpenAI, TypeScript, Microsoft 365 login, local Teams debug launch, and chat validation.                                                                                                                                                                                                                     |
 | `weather-agent.yml`                                | `weather-js-azure-openai-remote-teams`                   | `weather-agent--weather-js-azure-openai-remote-teams.json`                                     | `Weather_Agent_js_remote_debug.json`                                        | Full   | Weather Agent, Azure OpenAI, JavaScript, provision, deploy, Teams remote launch, and chat validation.                                                                                                                                                                                                                            |

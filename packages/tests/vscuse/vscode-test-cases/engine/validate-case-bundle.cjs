@@ -41,6 +41,7 @@ const allowedStepTypes = new Set([
   "workflowVersion",
   "configureTypeSpecAction",
   "addDaCapability",
+  "addDaSkill",
   "addDaAction",
   "addApiAuthConfiguration",
   "regenerateDaAction",

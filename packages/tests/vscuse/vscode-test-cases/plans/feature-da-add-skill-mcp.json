@@ -1,184 +1,183 @@
 {
   "plan_metadata": {
     "version": "1.1",
-    "plan_id": "plan_feature_da_add_skill_mcp",
+    "plan_id": "plan_519d508dbe3b",
     "execution_context": {
       "delay_between_steps": 1,
       "stop_on_error": true,
-      "precondition_wait_timeout": 60,
-      "precondition_retry_interval": 2
+      "precondition_wait_timeout": 30,
+      "precondition_retry_interval": 1
     },
-    "total_steps": 143,
-    "name": "Feature DA Add Skill MCP",
+    "total_steps": 149,
+    "name": "feature-da-add-skill-mcp",
     "description": {
       "owner": "",
       "workitem": "39611826",
-      "other": "Create a no-auth Microsoft Learn MCP declarative agent, use Development > Add Skill without enabling Frontier, reject testSkill, create agent-scoped test-skill, verify its files and manifest registration, provision, and preview the same agent in Copilot Chrome. UI interactions recorded on CY261104; common setup, account login, provision and preview steps reuse da-mcp-remote-none-preview. Container workspace cleanup is owned by vscuse; the provisioned test app remains in the configured M365 test tenant."
+      "other": ""
     },
     "execution_order": [
-      "step_closeWelcomeOverlay_assertVisible_cbe46eee0_1_1_da_add_skill_mcp",
-      "step_closeWelcomeOverlay_close_cbe46eee0_1_1_da_add_skill_mcp",
-      "step_closeWelcomeOverlay_assertReady_cbe46eee0_1_1_da_add_skill_mcp",
-      "step_executeCommand_open_cbe46eee0_1_2_da_add_skill_mcp",
-      "step_executeCommand_assertPalette_cbe46eee0_1_2_da_add_skill_mcp",
-      "step_executeCommand_filter_cbe46eee0_1_2_da_add_skill_mcp",
-      "step_executeCommand_assertCommand_cbe46eee0_1_2_da_add_skill_mcp",
-      "step_executeCommand_execute_cbe46eee0_1_2_da_add_skill_mcp",
-      "step_assertToolkitViewSettled_assert_cbe46eee0_1_3_da_add_skill_mcp",
-      "step_closeGetStartedEditor_assertActive_cbe46eee0_1_4_da_add_skill_mcp",
-      "step_closeGetStartedEditor_close_cbe46eee0_1_4_da_add_skill_mcp",
-      "step_closeGetStartedEditor_assertClosed_cbe46eee0_1_4_da_add_skill_mcp",
-      "step_executeCommand_open_cbe46eee0_1_5_da_add_skill_mcp",
-      "step_executeCommand_assertPalette_cbe46eee0_1_5_da_add_skill_mcp",
-      "step_executeCommand_filter_cbe46eee0_1_5_da_add_skill_mcp",
-      "step_executeCommand_assertCommand_cbe46eee0_1_5_da_add_skill_mcp",
-      "step_executeCommand_execute_cbe46eee0_1_5_da_add_skill_mcp",
-      "step_singleSelect_assertQuestion_cbe46eee0_1_6_da_add_skill_mcp",
-      "step_singleSelect_assertOptionsLoaded_cbe46eee0_1_6_da_add_skill_mcp",
-      "step_singleSelect_filter_cbe46eee0_1_6_da_add_skill_mcp",
-      "step_singleSelect_assertOption_cbe46eee0_1_6_da_add_skill_mcp",
-      "step_singleSelect_confirm_cbe46eee0_1_6_da_add_skill_mcp",
-      "step_singleSelect_assertQuestion_cbe46eee0_1_7_da_add_skill_mcp",
-      "step_singleSelect_assertOptionsLoaded_cbe46eee0_1_7_da_add_skill_mcp",
-      "step_singleSelect_filter_cbe46eee0_1_7_da_add_skill_mcp",
-      "step_singleSelect_assertOption_cbe46eee0_1_7_da_add_skill_mcp",
-      "step_singleSelect_confirm_cbe46eee0_1_7_da_add_skill_mcp",
-      "step_singleSelect_assertQuestion_cbe46eee0_1_8_da_add_skill_mcp",
-      "step_singleSelect_assertOptionsLoaded_cbe46eee0_1_8_da_add_skill_mcp",
-      "step_singleSelect_filter_cbe46eee0_1_8_da_add_skill_mcp",
-      "step_singleSelect_assertOption_cbe46eee0_1_8_da_add_skill_mcp",
-      "step_singleSelect_confirm_cbe46eee0_1_8_da_add_skill_mcp",
-      "step_textInput_assertQuestion_cbe46eee0_1_9_da_add_skill_mcp",
-      "step_textInput_input_cbe46eee0_1_9_da_add_skill_mcp",
-      "step_textInput_confirm_cbe46eee0_1_9_da_add_skill_mcp",
-      "step_singleSelect_assertQuestion_cbe46eee0_1_10_da_add_skill_mcp",
-      "step_singleSelect_assertOptionsLoaded_cbe46eee0_1_10_da_add_skill_mcp",
-      "step_singleSelect_filter_cbe46eee0_1_10_da_add_skill_mcp",
-      "step_singleSelect_assertOption_cbe46eee0_1_10_da_add_skill_mcp",
-      "step_singleSelect_confirm_cbe46eee0_1_10_da_add_skill_mcp",
-      "step_confirmOption_assertPrompt_cbe46eee0_1_11_da_add_skill_mcp",
-      "step_confirmOption_confirm_cbe46eee0_1_11_da_add_skill_mcp",
-      "step_textInput_assertQuestion_cbe46eee0_1_12_da_add_skill_mcp",
-      "step_textInput_input_cbe46eee0_1_12_da_add_skill_mcp",
-      "step_textInput_confirm_cbe46eee0_1_12_da_add_skill_mcp",
-      "step_assertProjectWindowReady_assert_cbe46eee0_1_13_da_add_skill_mcp",
-      "step_skill_mcp_project_da_add_skill_mcp",
-      "step_executeCommand_open_cbe46eee0_3_1_before_skill_da_add_skill_mcp",
-      "step_executeCommand_assertPalette_cbe46eee0_3_1_before_skill_da_add_skill_mcp",
-      "step_executeCommand_filter_cbe46eee0_3_1_before_skill_da_add_skill_mcp",
-      "step_executeCommand_assertCommand_cbe46eee0_3_1_before_skill_da_add_skill_mcp",
-      "step_executeCommand_execute_cbe46eee0_3_1_before_skill_da_add_skill_mcp",
-      "step_skill_menu_available_da_add_skill_mcp",
-      "step_skill_click_menu_da_add_skill_mcp",
-      "step_skill_source_ready_da_add_skill_mcp",
-      "step_skill_create_new_da_add_skill_mcp",
-      "step_skill_name_ready_da_add_skill_mcp",
-      "step_skill_invalid_name_da_add_skill_mcp",
-      "step_skill_reject_invalid_name_da_add_skill_mcp",
-      "step_skill_invalid_name_rejected_da_add_skill_mcp",
-      "step_skill_select_invalid_name_da_add_skill_mcp",
-      "step_skill_valid_name_da_add_skill_mcp",
-      "step_skill_valid_name_accepted_da_add_skill_mcp",
-      "step_skill_submit_name_da_add_skill_mcp",
-      "step_skill_description_ready_da_add_skill_mcp",
-      "step_skill_description_da_add_skill_mcp",
-      "step_skill_submit_description_da_add_skill_mcp",
-      "step_skill_exposure_ready_da_add_skill_mcp",
-      "step_skill_keep_agent_scope_da_add_skill_mcp",
-      "step_skill_manifest_ready_da_add_skill_mcp",
-      "step_skill_select_manifest_da_add_skill_mcp",
-      "step_skill_confirm_ready_da_add_skill_mcp",
-      "step_skill_confirm_add_da_add_skill_mcp",
-      "step_skill_added_da_add_skill_mcp",
-      "step_skill_file_open_da_add_skill_mcp",
-      "step_skill_file_picker_da_add_skill_mcp",
-      "step_skill_file_filter_da_add_skill_mcp",
-      "step_skill_file_selected_da_add_skill_mcp",
-      "step_skill_file_confirm_da_add_skill_mcp",
-      "step_skill_file_contents_da_add_skill_mcp",
-      "step_skill_manifest_open_da_add_skill_mcp",
-      "step_skill_manifest_picker_da_add_skill_mcp",
-      "step_skill_manifest_filter_da_add_skill_mcp",
-      "step_skill_manifest_selected_da_add_skill_mcp",
-      "step_skill_manifest_confirm_da_add_skill_mcp",
-      "step_skill_manifest_end_da_add_skill_mcp",
-      "step_skill_manifest_registration_da_add_skill_mcp",
-      "step_executeCommand_open_cbe46eee0_3_1_da_add_skill_mcp",
-      "step_executeCommand_assertPalette_cbe46eee0_3_1_da_add_skill_mcp",
-      "step_executeCommand_filter_cbe46eee0_3_1_da_add_skill_mcp",
-      "step_executeCommand_assertCommand_cbe46eee0_3_1_da_add_skill_mcp",
-      "step_executeCommand_execute_cbe46eee0_3_1_da_add_skill_mcp",
-      "step_signInM365_assertOption_cbe46eee0_3_2_da_add_skill_mcp",
-      "step_signInM365_selectOption_cbe46eee0_3_2_da_add_skill_mcp",
-      "step_signInM365_confirmSignIn_cbe46eee0_3_2_da_add_skill_mcp",
-      "step_signInM365_assertAccount_cbe46eee0_3_2_da_add_skill_mcp",
-      "step_signInM365_focusAccount_cbe46eee0_3_2_da_add_skill_mcp",
-      "step_signInM365_assertFocusedAccount_cbe46eee0_3_2_da_add_skill_mcp",
-      "step_signInM365_typeAccount_cbe46eee0_3_2_da_add_skill_mcp",
-      "step_signInM365_assertEnteredAccount_cbe46eee0_3_2_da_add_skill_mcp",
-      "step_signInM365_next_cbe46eee0_3_2_da_add_skill_mcp",
-      "step_signInM365_assertPassword_cbe46eee0_3_2_da_add_skill_mcp",
-      "step_signInM365_typePassword_cbe46eee0_3_2_da_add_skill_mcp",
-      "step_signInM365_submit_cbe46eee0_3_2_da_add_skill_mcp",
-      "step_signInM365_closeBrowser_cbe46eee0_3_2_da_add_skill_mcp",
-      "step_signInM365_assertReady_cbe46eee0_3_2_da_add_skill_mcp",
-      "step_executeCommand_open_cbe46eee0_4_1_da_add_skill_mcp",
-      "step_executeCommand_assertPalette_cbe46eee0_4_1_da_add_skill_mcp",
-      "step_executeCommand_filter_cbe46eee0_4_1_da_add_skill_mcp",
-      "step_executeCommand_assertCommand_cbe46eee0_4_1_da_add_skill_mcp",
-      "step_executeCommand_execute_cbe46eee0_4_1_da_add_skill_mcp",
-      "step_executeCommand_open_cbe46eee0_4_2_da_add_skill_mcp",
-      "step_executeCommand_assertPalette_cbe46eee0_4_2_da_add_skill_mcp",
-      "step_executeCommand_filter_cbe46eee0_4_2_da_add_skill_mcp",
-      "step_executeCommand_assertCommand_cbe46eee0_4_2_da_add_skill_mcp",
-      "step_executeCommand_execute_cbe46eee0_4_2_da_add_skill_mcp",
-      "step_executeCommand_open_cbe46eee0_4_3_da_add_skill_mcp",
-      "step_executeCommand_assertPalette_cbe46eee0_4_3_da_add_skill_mcp",
-      "step_executeCommand_filter_cbe46eee0_4_3_da_add_skill_mcp",
-      "step_executeCommand_assertCommand_cbe46eee0_4_3_da_add_skill_mcp",
-      "step_executeCommand_execute_cbe46eee0_4_3_da_add_skill_mcp",
-      "step_assertNotificationContains_assert_cbe46eee0_4_4_da_add_skill_mcp",
-      "step_executeCommand_open_cbe46eee0_5_1_da_add_skill_mcp",
-      "step_executeCommand_assertPalette_cbe46eee0_5_1_da_add_skill_mcp",
-      "step_executeCommand_filter_cbe46eee0_5_1_da_add_skill_mcp",
-      "step_executeCommand_assertCommand_cbe46eee0_5_1_da_add_skill_mcp",
-      "step_executeCommand_execute_cbe46eee0_5_1_da_add_skill_mcp",
-      "step_filterOption_filter_cbe46eee0_5_2_da_add_skill_mcp",
-      "step_filterOption_assertOption_cbe46eee0_5_2_da_add_skill_mcp",
-      "step_filterOption_confirm_cbe46eee0_5_2_da_add_skill_mcp",
-      "step_browserM365SignIn_assertPage_cbe46eee0_5_3_da_add_skill_mcp",
-      "step_browserM365SignIn_focusAccount_cbe46eee0_5_3_da_add_skill_mcp",
-      "step_browserM365SignIn_assertAccount_cbe46eee0_5_3_da_add_skill_mcp",
-      "step_browserM365SignIn_enterAccount_cbe46eee0_5_3_da_add_skill_mcp",
-      "step_browserM365SignIn_assertEnteredAccount_cbe46eee0_5_3_da_add_skill_mcp",
-      "step_browserM365SignIn_submitAccount_cbe46eee0_5_3_da_add_skill_mcp",
-      "step_browserM365SignIn_assertPassword_cbe46eee0_5_3_da_add_skill_mcp",
-      "step_browserM365SignIn_enterPassword_cbe46eee0_5_3_da_add_skill_mcp",
-      "step_browserM365SignIn_submitPassword_cbe46eee0_5_3_da_add_skill_mcp",
-      "step_browserM365SignIn_assertStaySignedIn_cbe46eee0_5_3_da_add_skill_mcp",
-      "step_browserM365SignIn_confirmStaySignedIn_cbe46eee0_5_3_da_add_skill_mcp",
-      "step_assertReady_assertReady_cbe46eee0_5_4_da_add_skill_mcp",
-      "step_skill_browser_agent_da_add_skill_mcp"
+      "step_closeWelcomeOverlay_assertVisible_c9a417a33_1_1",
+      "step_closeWelcomeOverlay_close_c9a417a33_1_1",
+      "step_closeWelcomeOverlay_assertReady_c9a417a33_1_1",
+      "step_executeCommand_open_c9a417a33_1_2",
+      "step_executeCommand_assertPalette_c9a417a33_1_2",
+      "step_executeCommand_filter_c9a417a33_1_2",
+      "step_executeCommand_assertCommand_c9a417a33_1_2",
+      "step_executeCommand_execute_c9a417a33_1_2",
+      "step_assertToolkitViewSettled_assert_c9a417a33_1_3",
+      "step_closeGetStartedEditor_assertActive_c9a417a33_1_4",
+      "step_closeGetStartedEditor_close_c9a417a33_1_4",
+      "step_closeGetStartedEditor_assertClosed_c9a417a33_1_4",
+      "step_executeCommand_open_c9a417a33_1_5",
+      "step_executeCommand_assertPalette_c9a417a33_1_5",
+      "step_executeCommand_filter_c9a417a33_1_5",
+      "step_executeCommand_assertCommand_c9a417a33_1_5",
+      "step_executeCommand_execute_c9a417a33_1_5",
+      "step_singleSelect_assertQuestion_c9a417a33_1_6",
+      "step_singleSelect_assertOptionsLoaded_c9a417a33_1_6",
+      "step_singleSelect_filter_c9a417a33_1_6",
+      "step_singleSelect_assertOption_c9a417a33_1_6",
+      "step_singleSelect_confirm_c9a417a33_1_6",
+      "step_singleSelect_assertQuestion_c9a417a33_1_7",
+      "step_singleSelect_assertOptionsLoaded_c9a417a33_1_7",
+      "step_singleSelect_filter_c9a417a33_1_7",
+      "step_singleSelect_assertOption_c9a417a33_1_7",
+      "step_singleSelect_confirm_c9a417a33_1_7",
+      "step_singleSelect_assertQuestion_c9a417a33_1_8",
+      "step_singleSelect_assertOptionsLoaded_c9a417a33_1_8",
+      "step_singleSelect_filter_c9a417a33_1_8",
+      "step_singleSelect_assertOption_c9a417a33_1_8",
+      "step_singleSelect_confirm_c9a417a33_1_8",
+      "step_textInput_assertQuestion_c9a417a33_1_9",
+      "step_textInput_input_c9a417a33_1_9",
+      "step_textInput_confirm_c9a417a33_1_9",
+      "step_singleSelect_assertQuestion_c9a417a33_1_10",
+      "step_singleSelect_assertOptionsLoaded_c9a417a33_1_10",
+      "step_singleSelect_filter_c9a417a33_1_10",
+      "step_singleSelect_assertOption_c9a417a33_1_10",
+      "step_singleSelect_confirm_c9a417a33_1_10",
+      "step_confirmOption_assertPrompt_c9a417a33_1_11",
+      "step_confirmOption_confirm_c9a417a33_1_11",
+      "step_textInput_assertQuestion_c9a417a33_1_12",
+      "step_textInput_input_c9a417a33_1_12",
+      "step_textInput_confirm_c9a417a33_1_12",
+      "step_assertProjectWindowReady_assert_c9a417a33_1_13",
+      "step_checkWorkspaceFiles_verify_c9a417a33_2_1",
+      "step_checkWorkspaceFiles_verify_c9a417a33_2_2",
+      "step_checkWorkspaceFiles_verify_c9a417a33_2_3",
+      "step_checkWorkspaceFiles_verify_c9a417a33_2_4",
+      "step_checkWorkspaceFiles_verify_c9a417a33_2_5",
+      "step_executeCommand_open_c9a417a33_3_1",
+      "step_executeCommand_assertPalette_c9a417a33_3_1",
+      "step_executeCommand_filter_c9a417a33_3_1",
+      "step_executeCommand_assertCommand_c9a417a33_3_1",
+      "step_executeCommand_execute_c9a417a33_3_1",
+      "step_addDaSkill_assertEntry_c9a417a33_3_2",
+      "step_addDaSkill_clickEntry_c9a417a33_3_2",
+      "step_singleSelect_assertQuestion_c9a417a33_3_3",
+      "step_singleSelect_assertOptionsLoaded_c9a417a33_3_3",
+      "step_singleSelect_filter_c9a417a33_3_3",
+      "step_singleSelect_assertOption_c9a417a33_3_3",
+      "step_singleSelect_confirm_c9a417a33_3_3",
+      "step_rejectedSkillName_assertPrompt_c9a417a33_3_4",
+      "step_rejectedSkillName_type_c9a417a33_3_4",
+      "step_rejectedSkillName_submit_c9a417a33_3_4",
+      "step_rejectedSkillName_assertError_c9a417a33_3_4",
+      "step_rejectedSkillName_select_c9a417a33_3_4",
+      "step_rejectedSkillName_clear_c9a417a33_3_4",
+      "step_textInput_assertQuestion_c9a417a33_3_5",
+      "step_textInput_input_c9a417a33_3_5",
+      "step_textInput_confirm_c9a417a33_3_5",
+      "step_textInput_assertQuestion_c9a417a33_3_6",
+      "step_textInput_input_c9a417a33_3_6",
+      "step_textInput_confirm_c9a417a33_3_6",
+      "step_singleSelect_assertQuestion_c9a417a33_3_7",
+      "step_singleSelect_assertOptionsLoaded_c9a417a33_3_7",
+      "step_singleSelect_filter_c9a417a33_3_7",
+      "step_singleSelect_assertOption_c9a417a33_3_7",
+      "step_singleSelect_confirm_c9a417a33_3_7",
+      "step_singleSelect_assertQuestion_c9a417a33_3_8",
+      "step_singleSelect_assertOptionsLoaded_c9a417a33_3_8",
+      "step_singleSelect_filter_c9a417a33_3_8",
+      "step_singleSelect_assertOption_c9a417a33_3_8",
+      "step_singleSelect_confirm_c9a417a33_3_8",
+      "step_confirmAddDaSkill_assertDialog_c9a417a33_3_9",
+      "step_confirmAddDaSkill_add_c9a417a33_3_9",
+      "step_assertNotificationContains_assert_c9a417a33_3_10",
+      "step_checkWorkspaceFiles_verify_c9a417a33_4_1",
+      "step_checkWorkspaceFiles_verify_c9a417a33_4_2",
+      "step_checkWorkspaceFiles_verify_c9a417a33_4_3",
+      "step_checkWorkspaceFiles_verify_c9a417a33_4_4",
+      "step_executeCommand_open_c9a417a33_5_1",
+      "step_executeCommand_assertPalette_c9a417a33_5_1",
+      "step_executeCommand_filter_c9a417a33_5_1",
+      "step_executeCommand_assertCommand_c9a417a33_5_1",
+      "step_executeCommand_execute_c9a417a33_5_1",
+      "step_signInM365_assertOption_c9a417a33_5_2",
+      "step_signInM365_selectOption_c9a417a33_5_2",
+      "step_signInM365_confirmSignIn_c9a417a33_5_2",
+      "step_signInM365_assertAccount_c9a417a33_5_2",
+      "step_signInM365_focusAccount_c9a417a33_5_2",
+      "step_signInM365_assertFocusedAccount_c9a417a33_5_2",
+      "step_signInM365_typeAccount_c9a417a33_5_2",
+      "step_signInM365_assertEnteredAccount_c9a417a33_5_2",
+      "step_signInM365_next_c9a417a33_5_2",
+      "step_signInM365_assertPassword_c9a417a33_5_2",
+      "step_signInM365_typePassword_c9a417a33_5_2",
+      "step_signInM365_submit_c9a417a33_5_2",
+      "step_signInM365_closeBrowser_c9a417a33_5_2",
+      "step_signInM365_assertReady_c9a417a33_5_2",
+      "step_executeCommand_open_c9a417a33_6_1",
+      "step_executeCommand_assertPalette_c9a417a33_6_1",
+      "step_executeCommand_filter_c9a417a33_6_1",
+      "step_executeCommand_assertCommand_c9a417a33_6_1",
+      "step_executeCommand_execute_c9a417a33_6_1",
+      "step_executeCommand_open_c9a417a33_6_2",
+      "step_executeCommand_assertPalette_c9a417a33_6_2",
+      "step_executeCommand_filter_c9a417a33_6_2",
+      "step_executeCommand_assertCommand_c9a417a33_6_2",
+      "step_executeCommand_execute_c9a417a33_6_2",
+      "step_executeCommand_open_c9a417a33_6_3",
+      "step_executeCommand_assertPalette_c9a417a33_6_3",
+      "step_executeCommand_filter_c9a417a33_6_3",
+      "step_executeCommand_assertCommand_c9a417a33_6_3",
+      "step_executeCommand_execute_c9a417a33_6_3",
+      "step_assertNotificationContains_assert_c9a417a33_6_4",
+      "step_executeCommand_open_c9a417a33_7_1",
+      "step_executeCommand_assertPalette_c9a417a33_7_1",
+      "step_executeCommand_filter_c9a417a33_7_1",
+      "step_executeCommand_assertCommand_c9a417a33_7_1",
+      "step_executeCommand_execute_c9a417a33_7_1",
+      "step_filterOption_filter_c9a417a33_7_2",
+      "step_filterOption_assertOption_c9a417a33_7_2",
+      "step_filterOption_confirm_c9a417a33_7_2",
+      "step_browserM365SignIn_assertPage_c9a417a33_7_3",
+      "step_browserM365SignIn_focusAccount_c9a417a33_7_3",
+      "step_browserM365SignIn_assertAccount_c9a417a33_7_3",
+      "step_browserM365SignIn_enterAccount_c9a417a33_7_3",
+      "step_browserM365SignIn_assertEnteredAccount_c9a417a33_7_3",
+      "step_browserM365SignIn_submitAccount_c9a417a33_7_3",
+      "step_browserM365SignIn_assertPassword_c9a417a33_7_3",
+      "step_browserM365SignIn_enterPassword_c9a417a33_7_3",
+      "step_browserM365SignIn_submitPassword_c9a417a33_7_3",
+      "step_browserM365SignIn_assertStaySignedIn_c9a417a33_7_3",
+      "step_browserM365SignIn_confirmStaySignedIn_c9a417a33_7_3",
+      "step_assertReady_assertReady_c9a417a33_7_4",
+      "step_zoomOut_zoomOut_c9a417a33_7_5",
+      "step_assertElementNamePrefix_assertVisible_c9a417a33_8_1"
     ],
     "tags": [
       "case_id:feature-da-add-skill-mcp",
       "scenario_id:SCN-DA-CREATE-WITH-MCP-SERVER",
       "template_id:da/mcp-server",
-      "feature:add-skill",
-      "auth:none",
-      "skill_scope:agent",
-      "account_profile:m365-copilot",
-      "automation:full-e2e",
       "gate:scheduled",
-      "recording:r_1104_061308",
-      "baseline_image:CY261104",
       "feature_flag:TEAMSFX_MCP_FOR_DA_DT=true",
       "feature_flag:TEAMSFX_MCP_FOR_DA_DCR=true"
     ]
   },
   "steps": [
     {
-      "step_id": "step_closeWelcomeOverlay_assertVisible_cbe46eee0_1_1_da_add_skill_mcp",
+      "step_id": "step_closeWelcomeOverlay_assertVisible_c9a417a33_1_1",
       "agent": "assertion",
       "tool": "",
       "parameters": {},
@@ -197,7 +196,7 @@
       ]
     },
     {
-      "step_id": "step_closeWelcomeOverlay_close_cbe46eee0_1_1_da_add_skill_mcp",
+      "step_id": "step_closeWelcomeOverlay_close_c9a417a33_1_1",
       "agent": "interaction",
       "tool": "click",
       "parameters": {
@@ -211,7 +210,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_closeWelcomeOverlay_assertVisible_cbe46eee0_1_1_da_add_skill_mcp"
+        "step_closeWelcomeOverlay_assertVisible_c9a417a33_1_1"
       ],
       "preconditions": [
         "dhash:952:128:16:5:255266345964665b",
@@ -226,7 +225,7 @@
       ]
     },
     {
-      "step_id": "step_closeWelcomeOverlay_assertReady_cbe46eee0_1_1_da_add_skill_mcp",
+      "step_id": "step_closeWelcomeOverlay_assertReady_c9a417a33_1_1",
       "agent": "assertion",
       "tool": "",
       "parameters": {},
@@ -236,7 +235,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_closeWelcomeOverlay_close_cbe46eee0_1_1_da_add_skill_mcp"
+        "step_closeWelcomeOverlay_close_c9a417a33_1_1"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -247,7 +246,7 @@
       ]
     },
     {
-      "step_id": "step_executeCommand_open_cbe46eee0_1_2_da_add_skill_mcp",
+      "step_id": "step_executeCommand_open_c9a417a33_1_2",
       "agent": "interaction",
       "tool": "key_press",
       "parameters": {
@@ -259,14 +258,17 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_closeWelcomeOverlay_assertReady_cbe46eee0_1_1_da_add_skill_mcp"
+        "step_closeWelcomeOverlay_assertReady_c9a417a33_1_1"
       ],
       "preconditions": [],
       "postconditions": [],
-      "tags": ["component:command-palette", "action:execute-command"]
+      "tags": [
+        "component:command-palette",
+        "action:execute-command"
+      ]
     },
     {
-      "step_id": "step_executeCommand_assertPalette_cbe46eee0_1_2_da_add_skill_mcp",
+      "step_id": "step_executeCommand_assertPalette_c9a417a33_1_2",
       "agent": "assertion",
       "tool": "",
       "parameters": {},
@@ -275,7 +277,9 @@
       "timeout": 30,
       "retry_count": 0,
       "continue_on_error": "false",
-      "depends_on": ["step_executeCommand_open_cbe46eee0_1_2_da_add_skill_mcp"],
+      "depends_on": [
+        "step_executeCommand_open_c9a417a33_1_2"
+      ],
       "preconditions": [],
       "postconditions": [],
       "tags": [
@@ -285,7 +289,7 @@
       ]
     },
     {
-      "step_id": "step_executeCommand_filter_cbe46eee0_1_2_da_add_skill_mcp",
+      "step_id": "step_executeCommand_filter_c9a417a33_1_2",
       "agent": "interaction",
       "tool": "type_text",
       "parameters": {
@@ -297,14 +301,17 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_executeCommand_assertPalette_cbe46eee0_1_2_da_add_skill_mcp"
+        "step_executeCommand_assertPalette_c9a417a33_1_2"
       ],
       "preconditions": [],
       "postconditions": [],
-      "tags": ["component:command-palette", "action:execute-command"]
+      "tags": [
+        "component:command-palette",
+        "action:execute-command"
+      ]
     },
     {
-      "step_id": "step_executeCommand_assertCommand_cbe46eee0_1_2_da_add_skill_mcp",
+      "step_id": "step_executeCommand_assertCommand_c9a417a33_1_2",
       "agent": "assertion",
       "tool": "",
       "parameters": {},
@@ -314,7 +321,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_executeCommand_filter_cbe46eee0_1_2_da_add_skill_mcp"
+        "step_executeCommand_filter_c9a417a33_1_2"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -325,7 +332,7 @@
       ]
     },
     {
-      "step_id": "step_executeCommand_execute_cbe46eee0_1_2_da_add_skill_mcp",
+      "step_id": "step_executeCommand_execute_c9a417a33_1_2",
       "agent": "interaction",
       "tool": "key_press",
       "parameters": {
@@ -337,14 +344,17 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_executeCommand_assertCommand_cbe46eee0_1_2_da_add_skill_mcp"
+        "step_executeCommand_assertCommand_c9a417a33_1_2"
       ],
       "preconditions": [],
       "postconditions": [],
-      "tags": ["component:command-palette", "action:execute-command"]
+      "tags": [
+        "component:command-palette",
+        "action:execute-command"
+      ]
     },
     {
-      "step_id": "step_assertToolkitViewSettled_assert_cbe46eee0_1_3_da_add_skill_mcp",
+      "step_id": "step_assertToolkitViewSettled_assert_c9a417a33_1_3",
       "agent": "assertion",
       "tool": "",
       "parameters": {},
@@ -354,7 +364,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_executeCommand_execute_cbe46eee0_1_2_da_add_skill_mcp"
+        "step_executeCommand_execute_c9a417a33_1_2"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -365,7 +375,7 @@
       ]
     },
     {
-      "step_id": "step_closeGetStartedEditor_assertActive_cbe46eee0_1_4_da_add_skill_mcp",
+      "step_id": "step_closeGetStartedEditor_assertActive_c9a417a33_1_4",
       "agent": "assertion",
       "tool": "",
       "parameters": {},
@@ -375,7 +385,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_assertToolkitViewSettled_assert_cbe46eee0_1_3_da_add_skill_mcp"
+        "step_assertToolkitViewSettled_assert_c9a417a33_1_3"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -386,7 +396,7 @@
       ]
     },
     {
-      "step_id": "step_closeGetStartedEditor_close_cbe46eee0_1_4_da_add_skill_mcp",
+      "step_id": "step_closeGetStartedEditor_close_c9a417a33_1_4",
       "agent": "interaction",
       "tool": "keyboard_shortcut",
       "parameters": {
@@ -398,7 +408,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_closeGetStartedEditor_assertActive_cbe46eee0_1_4_da_add_skill_mcp"
+        "step_closeGetStartedEditor_assertActive_c9a417a33_1_4"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -408,7 +418,7 @@
       ]
     },
     {
-      "step_id": "step_closeGetStartedEditor_assertClosed_cbe46eee0_1_4_da_add_skill_mcp",
+      "step_id": "step_closeGetStartedEditor_assertClosed_c9a417a33_1_4",
       "agent": "assertion",
       "tool": "",
       "parameters": {},
@@ -418,7 +428,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_closeGetStartedEditor_close_cbe46eee0_1_4_da_add_skill_mcp"
+        "step_closeGetStartedEditor_close_c9a417a33_1_4"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -429,7 +439,7 @@
       ]
     },
     {
-      "step_id": "step_executeCommand_open_cbe46eee0_1_5_da_add_skill_mcp",
+      "step_id": "step_executeCommand_open_c9a417a33_1_5",
       "agent": "interaction",
       "tool": "key_press",
       "parameters": {
@@ -441,14 +451,17 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_closeGetStartedEditor_assertClosed_cbe46eee0_1_4_da_add_skill_mcp"
+        "step_closeGetStartedEditor_assertClosed_c9a417a33_1_4"
       ],
       "preconditions": [],
       "postconditions": [],
-      "tags": ["component:command-palette", "action:execute-command"]
+      "tags": [
+        "component:command-palette",
+        "action:execute-command"
+      ]
     },
     {
-      "step_id": "step_executeCommand_assertPalette_cbe46eee0_1_5_da_add_skill_mcp",
+      "step_id": "step_executeCommand_assertPalette_c9a417a33_1_5",
       "agent": "assertion",
       "tool": "",
       "parameters": {},
@@ -457,7 +470,9 @@
       "timeout": 30,
       "retry_count": 0,
       "continue_on_error": "false",
-      "depends_on": ["step_executeCommand_open_cbe46eee0_1_5_da_add_skill_mcp"],
+      "depends_on": [
+        "step_executeCommand_open_c9a417a33_1_5"
+      ],
       "preconditions": [],
       "postconditions": [],
       "tags": [
@@ -467,7 +482,7 @@
       ]
     },
     {
-      "step_id": "step_executeCommand_filter_cbe46eee0_1_5_da_add_skill_mcp",
+      "step_id": "step_executeCommand_filter_c9a417a33_1_5",
       "agent": "interaction",
       "tool": "type_text",
       "parameters": {
@@ -479,14 +494,17 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_executeCommand_assertPalette_cbe46eee0_1_5_da_add_skill_mcp"
+        "step_executeCommand_assertPalette_c9a417a33_1_5"
       ],
       "preconditions": [],
       "postconditions": [],
-      "tags": ["component:command-palette", "action:execute-command"]
+      "tags": [
+        "component:command-palette",
+        "action:execute-command"
+      ]
     },
     {
-      "step_id": "step_executeCommand_assertCommand_cbe46eee0_1_5_da_add_skill_mcp",
+      "step_id": "step_executeCommand_assertCommand_c9a417a33_1_5",
       "agent": "assertion",
       "tool": "",
       "parameters": {},
@@ -496,7 +514,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_executeCommand_filter_cbe46eee0_1_5_da_add_skill_mcp"
+        "step_executeCommand_filter_c9a417a33_1_5"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -507,7 +525,7 @@
       ]
     },
     {
-      "step_id": "step_executeCommand_execute_cbe46eee0_1_5_da_add_skill_mcp",
+      "step_id": "step_executeCommand_execute_c9a417a33_1_5",
       "agent": "interaction",
       "tool": "key_press",
       "parameters": {
@@ -519,14 +537,17 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_executeCommand_assertCommand_cbe46eee0_1_5_da_add_skill_mcp"
+        "step_executeCommand_assertCommand_c9a417a33_1_5"
       ],
       "preconditions": [],
       "postconditions": [],
-      "tags": ["component:command-palette", "action:execute-command"]
+      "tags": [
+        "component:command-palette",
+        "action:execute-command"
+      ]
     },
     {
-      "step_id": "step_singleSelect_assertQuestion_cbe46eee0_1_6_da_add_skill_mcp",
+      "step_id": "step_singleSelect_assertQuestion_c9a417a33_1_6",
       "agent": "assertion",
       "tool": "",
       "parameters": {},
@@ -536,7 +557,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_executeCommand_execute_cbe46eee0_1_5_da_add_skill_mcp"
+        "step_executeCommand_execute_c9a417a33_1_5"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -547,7 +568,7 @@
       ]
     },
     {
-      "step_id": "step_singleSelect_assertOptionsLoaded_cbe46eee0_1_6_da_add_skill_mcp",
+      "step_id": "step_singleSelect_assertOptionsLoaded_c9a417a33_1_6",
       "agent": "assertion",
       "tool": "",
       "parameters": {},
@@ -557,7 +578,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_singleSelect_assertQuestion_cbe46eee0_1_6_da_add_skill_mcp"
+        "step_singleSelect_assertQuestion_c9a417a33_1_6"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -568,7 +589,7 @@
       ]
     },
     {
-      "step_id": "step_singleSelect_filter_cbe46eee0_1_6_da_add_skill_mcp",
+      "step_id": "step_singleSelect_filter_c9a417a33_1_6",
       "agent": "interaction",
       "tool": "type_text",
       "parameters": {
@@ -580,14 +601,17 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_singleSelect_assertOptionsLoaded_cbe46eee0_1_6_da_add_skill_mcp"
+        "step_singleSelect_assertOptionsLoaded_c9a417a33_1_6"
       ],
       "preconditions": [],
       "postconditions": [],
-      "tags": ["component:quick-input", "answer_type:singleSelect"]
+      "tags": [
+        "component:quick-input",
+        "answer_type:singleSelect"
+      ]
     },
     {
-      "step_id": "step_singleSelect_assertOption_cbe46eee0_1_6_da_add_skill_mcp",
+      "step_id": "step_singleSelect_assertOption_c9a417a33_1_6",
       "agent": "assertion",
       "tool": "",
       "parameters": {},
@@ -596,7 +620,9 @@
       "timeout": 30,
       "retry_count": 0,
       "continue_on_error": "false",
-      "depends_on": ["step_singleSelect_filter_cbe46eee0_1_6_da_add_skill_mcp"],
+      "depends_on": [
+        "step_singleSelect_filter_c9a417a33_1_6"
+      ],
       "preconditions": [],
       "postconditions": [],
       "tags": [
@@ -606,7 +632,7 @@
       ]
     },
     {
-      "step_id": "step_singleSelect_confirm_cbe46eee0_1_6_da_add_skill_mcp",
+      "step_id": "step_singleSelect_confirm_c9a417a33_1_6",
       "agent": "interaction",
       "tool": "key_press",
       "parameters": {
@@ -618,14 +644,17 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_singleSelect_assertOption_cbe46eee0_1_6_da_add_skill_mcp"
+        "step_singleSelect_assertOption_c9a417a33_1_6"
       ],
       "preconditions": [],
       "postconditions": [],
-      "tags": ["component:quick-input", "answer_type:singleSelect"]
+      "tags": [
+        "component:quick-input",
+        "answer_type:singleSelect"
+      ]
     },
     {
-      "step_id": "step_singleSelect_assertQuestion_cbe46eee0_1_7_da_add_skill_mcp",
+      "step_id": "step_singleSelect_assertQuestion_c9a417a33_1_7",
       "agent": "assertion",
       "tool": "",
       "parameters": {},
@@ -635,7 +664,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_singleSelect_confirm_cbe46eee0_1_6_da_add_skill_mcp"
+        "step_singleSelect_confirm_c9a417a33_1_6"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -646,7 +675,7 @@
       ]
     },
     {
-      "step_id": "step_singleSelect_assertOptionsLoaded_cbe46eee0_1_7_da_add_skill_mcp",
+      "step_id": "step_singleSelect_assertOptionsLoaded_c9a417a33_1_7",
       "agent": "assertion",
       "tool": "",
       "parameters": {},
@@ -656,7 +685,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_singleSelect_assertQuestion_cbe46eee0_1_7_da_add_skill_mcp"
+        "step_singleSelect_assertQuestion_c9a417a33_1_7"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -667,7 +696,7 @@
       ]
     },
     {
-      "step_id": "step_singleSelect_filter_cbe46eee0_1_7_da_add_skill_mcp",
+      "step_id": "step_singleSelect_filter_c9a417a33_1_7",
       "agent": "interaction",
       "tool": "type_text",
       "parameters": {
@@ -679,14 +708,17 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_singleSelect_assertOptionsLoaded_cbe46eee0_1_7_da_add_skill_mcp"
+        "step_singleSelect_assertOptionsLoaded_c9a417a33_1_7"
       ],
       "preconditions": [],
       "postconditions": [],
-      "tags": ["component:quick-input", "answer_type:singleSelect"]
+      "tags": [
+        "component:quick-input",
+        "answer_type:singleSelect"
+      ]
     },
     {
-      "step_id": "step_singleSelect_assertOption_cbe46eee0_1_7_da_add_skill_mcp",
+      "step_id": "step_singleSelect_assertOption_c9a417a33_1_7",
       "agent": "assertion",
       "tool": "",
       "parameters": {},
@@ -695,7 +727,9 @@
       "timeout": 30,
       "retry_count": 0,
       "continue_on_error": "false",
-      "depends_on": ["step_singleSelect_filter_cbe46eee0_1_7_da_add_skill_mcp"],
+      "depends_on": [
+        "step_singleSelect_filter_c9a417a33_1_7"
+      ],
       "preconditions": [],
       "postconditions": [],
       "tags": [
@@ -705,7 +739,7 @@
       ]
     },
     {
-      "step_id": "step_singleSelect_confirm_cbe46eee0_1_7_da_add_skill_mcp",
+      "step_id": "step_singleSelect_confirm_c9a417a33_1_7",
       "agent": "interaction",
       "tool": "key_press",
       "parameters": {
@@ -717,14 +751,17 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_singleSelect_assertOption_cbe46eee0_1_7_da_add_skill_mcp"
+        "step_singleSelect_assertOption_c9a417a33_1_7"
       ],
       "preconditions": [],
       "postconditions": [],
-      "tags": ["component:quick-input", "answer_type:singleSelect"]
+      "tags": [
+        "component:quick-input",
+        "answer_type:singleSelect"
+      ]
     },
     {
-      "step_id": "step_singleSelect_assertQuestion_cbe46eee0_1_8_da_add_skill_mcp",
+      "step_id": "step_singleSelect_assertQuestion_c9a417a33_1_8",
       "agent": "assertion",
       "tool": "",
       "parameters": {},
@@ -734,7 +771,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_singleSelect_confirm_cbe46eee0_1_7_da_add_skill_mcp"
+        "step_singleSelect_confirm_c9a417a33_1_7"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -745,7 +782,7 @@
       ]
     },
     {
-      "step_id": "step_singleSelect_assertOptionsLoaded_cbe46eee0_1_8_da_add_skill_mcp",
+      "step_id": "step_singleSelect_assertOptionsLoaded_c9a417a33_1_8",
       "agent": "assertion",
       "tool": "",
       "parameters": {},
@@ -755,7 +792,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_singleSelect_assertQuestion_cbe46eee0_1_8_da_add_skill_mcp"
+        "step_singleSelect_assertQuestion_c9a417a33_1_8"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -766,7 +803,7 @@
       ]
     },
     {
-      "step_id": "step_singleSelect_filter_cbe46eee0_1_8_da_add_skill_mcp",
+      "step_id": "step_singleSelect_filter_c9a417a33_1_8",
       "agent": "interaction",
       "tool": "type_text",
       "parameters": {
@@ -778,14 +815,17 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_singleSelect_assertOptionsLoaded_cbe46eee0_1_8_da_add_skill_mcp"
+        "step_singleSelect_assertOptionsLoaded_c9a417a33_1_8"
       ],
       "preconditions": [],
       "postconditions": [],
-      "tags": ["component:quick-input", "answer_type:singleSelect"]
+      "tags": [
+        "component:quick-input",
+        "answer_type:singleSelect"
+      ]
     },
     {
-      "step_id": "step_singleSelect_assertOption_cbe46eee0_1_8_da_add_skill_mcp",
+      "step_id": "step_singleSelect_assertOption_c9a417a33_1_8",
       "agent": "assertion",
       "tool": "",
       "parameters": {},
@@ -794,7 +834,9 @@
       "timeout": 30,
       "retry_count": 0,
       "continue_on_error": "false",
-      "depends_on": ["step_singleSelect_filter_cbe46eee0_1_8_da_add_skill_mcp"],
+      "depends_on": [
+        "step_singleSelect_filter_c9a417a33_1_8"
+      ],
       "preconditions": [],
       "postconditions": [],
       "tags": [
@@ -804,7 +846,7 @@
       ]
     },
     {
-      "step_id": "step_singleSelect_confirm_cbe46eee0_1_8_da_add_skill_mcp",
+      "step_id": "step_singleSelect_confirm_c9a417a33_1_8",
       "agent": "interaction",
       "tool": "key_press",
       "parameters": {
@@ -816,14 +858,17 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_singleSelect_assertOption_cbe46eee0_1_8_da_add_skill_mcp"
+        "step_singleSelect_assertOption_c9a417a33_1_8"
       ],
       "preconditions": [],
       "postconditions": [],
-      "tags": ["component:quick-input", "answer_type:singleSelect"]
+      "tags": [
+        "component:quick-input",
+        "answer_type:singleSelect"
+      ]
     },
     {
-      "step_id": "step_textInput_assertQuestion_cbe46eee0_1_9_da_add_skill_mcp",
+      "step_id": "step_textInput_assertQuestion_c9a417a33_1_9",
       "agent": "assertion",
       "tool": "",
       "parameters": {},
@@ -833,7 +878,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_singleSelect_confirm_cbe46eee0_1_8_da_add_skill_mcp"
+        "step_singleSelect_confirm_c9a417a33_1_8"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -844,7 +889,7 @@
       ]
     },
     {
-      "step_id": "step_textInput_input_cbe46eee0_1_9_da_add_skill_mcp",
+      "step_id": "step_textInput_input_c9a417a33_1_9",
       "agent": "interaction",
       "tool": "type_text",
       "parameters": {
@@ -856,14 +901,17 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_textInput_assertQuestion_cbe46eee0_1_9_da_add_skill_mcp"
+        "step_textInput_assertQuestion_c9a417a33_1_9"
       ],
       "preconditions": [],
       "postconditions": [],
-      "tags": ["component:quick-input", "answer_type:text"]
+      "tags": [
+        "component:quick-input",
+        "answer_type:text"
+      ]
     },
     {
-      "step_id": "step_textInput_confirm_cbe46eee0_1_9_da_add_skill_mcp",
+      "step_id": "step_textInput_confirm_c9a417a33_1_9",
       "agent": "interaction",
       "tool": "key_press",
       "parameters": {
@@ -874,13 +922,18 @@
       "timeout": 30,
       "retry_count": 0,
       "continue_on_error": "false",
-      "depends_on": ["step_textInput_input_cbe46eee0_1_9_da_add_skill_mcp"],
+      "depends_on": [
+        "step_textInput_input_c9a417a33_1_9"
+      ],
       "preconditions": [],
       "postconditions": [],
-      "tags": ["component:quick-input", "answer_type:text"]
+      "tags": [
+        "component:quick-input",
+        "answer_type:text"
+      ]
     },
     {
-      "step_id": "step_singleSelect_assertQuestion_cbe46eee0_1_10_da_add_skill_mcp",
+      "step_id": "step_singleSelect_assertQuestion_c9a417a33_1_10",
       "agent": "assertion",
       "tool": "",
       "parameters": {},
@@ -889,7 +942,9 @@
       "timeout": 30,
       "retry_count": 0,
       "continue_on_error": "false",
-      "depends_on": ["step_textInput_confirm_cbe46eee0_1_9_da_add_skill_mcp"],
+      "depends_on": [
+        "step_textInput_confirm_c9a417a33_1_9"
+      ],
       "preconditions": [],
       "postconditions": [],
       "tags": [
@@ -899,7 +954,7 @@
       ]
     },
     {
-      "step_id": "step_singleSelect_assertOptionsLoaded_cbe46eee0_1_10_da_add_skill_mcp",
+      "step_id": "step_singleSelect_assertOptionsLoaded_c9a417a33_1_10",
       "agent": "assertion",
       "tool": "",
       "parameters": {},
@@ -909,7 +964,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_singleSelect_assertQuestion_cbe46eee0_1_10_da_add_skill_mcp"
+        "step_singleSelect_assertQuestion_c9a417a33_1_10"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -920,7 +975,7 @@
       ]
     },
     {
-      "step_id": "step_singleSelect_filter_cbe46eee0_1_10_da_add_skill_mcp",
+      "step_id": "step_singleSelect_filter_c9a417a33_1_10",
       "agent": "interaction",
       "tool": "type_text",
       "parameters": {
@@ -932,14 +987,17 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_singleSelect_assertOptionsLoaded_cbe46eee0_1_10_da_add_skill_mcp"
+        "step_singleSelect_assertOptionsLoaded_c9a417a33_1_10"
       ],
       "preconditions": [],
       "postconditions": [],
-      "tags": ["component:quick-input", "answer_type:singleSelect"]
+      "tags": [
+        "component:quick-input",
+        "answer_type:singleSelect"
+      ]
     },
     {
-      "step_id": "step_singleSelect_assertOption_cbe46eee0_1_10_da_add_skill_mcp",
+      "step_id": "step_singleSelect_assertOption_c9a417a33_1_10",
       "agent": "assertion",
       "tool": "",
       "parameters": {},
@@ -949,7 +1007,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_singleSelect_filter_cbe46eee0_1_10_da_add_skill_mcp"
+        "step_singleSelect_filter_c9a417a33_1_10"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -960,7 +1018,7 @@
       ]
     },
     {
-      "step_id": "step_singleSelect_confirm_cbe46eee0_1_10_da_add_skill_mcp",
+      "step_id": "step_singleSelect_confirm_c9a417a33_1_10",
       "agent": "interaction",
       "tool": "key_press",
       "parameters": {
@@ -972,14 +1030,17 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_singleSelect_assertOption_cbe46eee0_1_10_da_add_skill_mcp"
+        "step_singleSelect_assertOption_c9a417a33_1_10"
       ],
       "preconditions": [],
       "postconditions": [],
-      "tags": ["component:quick-input", "answer_type:singleSelect"]
+      "tags": [
+        "component:quick-input",
+        "answer_type:singleSelect"
+      ]
     },
     {
-      "step_id": "step_confirmOption_assertPrompt_cbe46eee0_1_11_da_add_skill_mcp",
+      "step_id": "step_confirmOption_assertPrompt_c9a417a33_1_11",
       "agent": "assertion",
       "tool": "",
       "parameters": {},
@@ -989,7 +1050,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_singleSelect_confirm_cbe46eee0_1_10_da_add_skill_mcp"
+        "step_singleSelect_confirm_c9a417a33_1_10"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -1001,7 +1062,7 @@
       ]
     },
     {
-      "step_id": "step_confirmOption_confirm_cbe46eee0_1_11_da_add_skill_mcp",
+      "step_id": "step_confirmOption_confirm_c9a417a33_1_11",
       "agent": "interaction",
       "tool": "key_press",
       "parameters": {
@@ -1013,7 +1074,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_confirmOption_assertPrompt_cbe46eee0_1_11_da_add_skill_mcp"
+        "step_confirmOption_assertPrompt_c9a417a33_1_11"
       ],
       "preconditions": [
         "dhash:364:74:16:5:08056a9a5d5516b6",
@@ -1028,7 +1089,7 @@
       ]
     },
     {
-      "step_id": "step_textInput_assertQuestion_cbe46eee0_1_12_da_add_skill_mcp",
+      "step_id": "step_textInput_assertQuestion_c9a417a33_1_12",
       "agent": "assertion",
       "tool": "",
       "parameters": {},
@@ -1038,7 +1099,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_confirmOption_confirm_cbe46eee0_1_11_da_add_skill_mcp"
+        "step_confirmOption_confirm_c9a417a33_1_11"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -1049,7 +1110,7 @@
       ]
     },
     {
-      "step_id": "step_textInput_input_cbe46eee0_1_12_da_add_skill_mcp",
+      "step_id": "step_textInput_input_c9a417a33_1_12",
       "agent": "interaction",
       "tool": "type_text",
       "parameters": {
@@ -1061,14 +1122,17 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_textInput_assertQuestion_cbe46eee0_1_12_da_add_skill_mcp"
+        "step_textInput_assertQuestion_c9a417a33_1_12"
       ],
       "preconditions": [],
       "postconditions": [],
-      "tags": ["component:quick-input", "answer_type:text"]
+      "tags": [
+        "component:quick-input",
+        "answer_type:text"
+      ]
     },
     {
-      "step_id": "step_textInput_confirm_cbe46eee0_1_12_da_add_skill_mcp",
+      "step_id": "step_textInput_confirm_c9a417a33_1_12",
       "agent": "interaction",
       "tool": "key_press",
       "parameters": {
@@ -1079,13 +1143,18 @@
       "timeout": 30,
       "retry_count": 0,
       "continue_on_error": "false",
-      "depends_on": ["step_textInput_input_cbe46eee0_1_12_da_add_skill_mcp"],
+      "depends_on": [
+        "step_textInput_input_c9a417a33_1_12"
+      ],
       "preconditions": [],
       "postconditions": [],
-      "tags": ["component:quick-input", "answer_type:text"]
+      "tags": [
+        "component:quick-input",
+        "answer_type:text"
+      ]
     },
     {
-      "step_id": "step_assertProjectWindowReady_assert_cbe46eee0_1_13_da_add_skill_mcp",
+      "step_id": "step_assertProjectWindowReady_assert_c9a417a33_1_13",
       "agent": "assertion",
       "tool": "",
       "parameters": {},
@@ -1094,7 +1163,9 @@
       "timeout": 60,
       "retry_count": 0,
       "continue_on_error": "false",
-      "depends_on": ["step_textInput_confirm_cbe46eee0_1_12_da_add_skill_mcp"],
+      "depends_on": [
+        "step_textInput_confirm_c9a417a33_1_12"
+      ],
       "preconditions": [],
       "postconditions": [],
       "tags": [
@@ -1104,24 +1175,122 @@
       ]
     },
     {
-      "step_id": "step_skill_mcp_project_da_add_skill_mcp",
-      "agent": "assertion",
+      "step_id": "step_checkWorkspaceFiles_verify_c9a417a33_2_1",
+      "agent": "code",
       "tool": "",
-      "parameters": {},
-      "description": "@assertion the active ai-plugin.json editor shows an empty functions array, a RemoteMCPServer runtime with URL https://learn.microsoft.com/api/mcp, run_for_functions containing \"*\", and authentication type None.",
+      "parameters": {
+        "sample": "=== Generated Script ===\nLanguage: bash\n\n```bash\nset -euo pipefail\nPROJECT_DIR=\"/home/vscode/AgentsToolkitProjects/${{var:app_name}}\" ASSERTIONS_B64=\"W3sicGF0aCI6ImFwcFBhY2thZ2UvYWktcGx1Z2luLmpzb24iLCJleGlzdHMiOnRydWUsImNvbnRhaW5zIjpbIlwiZnVuY3Rpb25zXCI6IFtdIiwiXCJ0eXBlXCI6IFwiUmVtb3RlTUNQU2VydmVyXCIiLCJcInVybFwiOiBcImh0dHBzOi8vbGVhcm4ubWljcm9zb2Z0LmNvbS9hcGkvbWNwXCIiLCJcInJ1bl9mb3JfZnVuY3Rpb25zXCI6IFsiLCJcIipcIiIsIlwidHlwZVwiOiBcIk5vbmVcIiJdLCJub3RDb250YWlucyI6WyJtY3BfdG9vbF9kZXNjcmlwdGlvbiJdfV0=\" python3 - <<'PY'\nimport base64\nimport json\nimport os\nfrom pathlib import Path\n\nproject = Path(os.environ[\"PROJECT_DIR\"]).resolve()\nassertions = json.loads(base64.b64decode(os.environ[\"ASSERTIONS_B64\"]).decode(\"utf-8\"))\nfor assertion in assertions:\n    target = (project / assertion[\"path\"]).resolve()\n    try:\n        target.relative_to(project)\n    except ValueError as error:\n        raise AssertionError(\"File assertion escaped the project directory\") from error\n    exists = target.is_file()\n    if exists != assertion[\"exists\"]:\n        raise AssertionError(f\"Unexpected file existence for {assertion['path']}\")\n    if not exists:\n        continue\n    content = target.read_text(encoding=\"utf-8\")\n    for expected in assertion.get(\"contains\", []):\n        expected = expected.replace(\"__VSCUSE_APP_NAME__\", project.name)\n        if expected not in content:\n            raise AssertionError(f\"Expected content is absent from {assertion['path']}\")\n    for unexpected in assertion.get(\"notContains\", []):\n        unexpected = unexpected.replace(\"__VSCUSE_APP_NAME__\", project.name)\n        if unexpected in content:\n            raise AssertionError(f\"Unexpected content is present in {assertion['path']}\")\nPY\n```"
+      },
+      "description": "@code execute the supplied generated bash script exactly as authored and read its exact PROJECT_DIR under /home/vscode/AgentsToolkitProjects/ from that script; verify its project-relative file assertions, project files are not VS Code .code-workspace files, do not use /workspace, and do not log file contents.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_assertProjectWindowReady_assert_cbe46eee0_1_13_da_add_skill_mcp"
+        "step_assertProjectWindowReady_assert_c9a417a33_1_13"
       ],
       "preconditions": [],
       "postconditions": [],
-      "tags": ["feature:add-skill", "step_retry_timeout:30"]
+      "tags": [
+        "component:checks",
+        "assertion:file",
+        "step_retry_timeout:120"
+      ]
     },
     {
-      "step_id": "step_executeCommand_open_cbe46eee0_3_1_before_skill_da_add_skill_mcp",
+      "step_id": "step_checkWorkspaceFiles_verify_c9a417a33_2_2",
+      "agent": "code",
+      "tool": "",
+      "parameters": {
+        "sample": "=== Generated Script ===\nLanguage: bash\n\n```bash\nset -euo pipefail\nPROJECT_DIR=\"/home/vscode/AgentsToolkitProjects/${{var:app_name}}\" ASSERTIONS_B64=\"W3sicGF0aCI6ImFwcFBhY2thZ2UvZGVjbGFyYXRpdmVBZ2VudC5qc29uIiwiZXhpc3RzIjp0cnVlLCJjb250YWlucyI6WyJcImlkXCI6IFwiYWN0aW9uXzFcIiIsIlwiZmlsZVwiOiBcImFpLXBsdWdpbi5qc29uXCIiXSwibm90Q29udGFpbnMiOlsiXCJhZ2VudF9za2lsbHNcIiJdfV0=\" python3 - <<'PY'\nimport base64\nimport json\nimport os\nfrom pathlib import Path\n\nproject = Path(os.environ[\"PROJECT_DIR\"]).resolve()\nassertions = json.loads(base64.b64decode(os.environ[\"ASSERTIONS_B64\"]).decode(\"utf-8\"))\nfor assertion in assertions:\n    target = (project / assertion[\"path\"]).resolve()\n    try:\n        target.relative_to(project)\n    except ValueError as error:\n        raise AssertionError(\"File assertion escaped the project directory\") from error\n    exists = target.is_file()\n    if exists != assertion[\"exists\"]:\n        raise AssertionError(f\"Unexpected file existence for {assertion['path']}\")\n    if not exists:\n        continue\n    content = target.read_text(encoding=\"utf-8\")\n    for expected in assertion.get(\"contains\", []):\n        expected = expected.replace(\"__VSCUSE_APP_NAME__\", project.name)\n        if expected not in content:\n            raise AssertionError(f\"Expected content is absent from {assertion['path']}\")\n    for unexpected in assertion.get(\"notContains\", []):\n        unexpected = unexpected.replace(\"__VSCUSE_APP_NAME__\", project.name)\n        if unexpected in content:\n            raise AssertionError(f\"Unexpected content is present in {assertion['path']}\")\nPY\n```"
+      },
+      "description": "@code execute the supplied generated bash script exactly as authored and read its exact PROJECT_DIR under /home/vscode/AgentsToolkitProjects/ from that script; verify its project-relative file assertions, project files are not VS Code .code-workspace files, do not use /workspace, and do not log file contents.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_checkWorkspaceFiles_verify_c9a417a33_2_1"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:checks",
+        "assertion:file",
+        "step_retry_timeout:120"
+      ]
+    },
+    {
+      "step_id": "step_checkWorkspaceFiles_verify_c9a417a33_2_3",
+      "agent": "code",
+      "tool": "",
+      "parameters": {
+        "sample": "=== Generated Script ===\nLanguage: bash\n\n```bash\nset -euo pipefail\nPROJECT_DIR=\"/home/vscode/AgentsToolkitProjects/${{var:app_name}}\" ASSERTIONS_B64=\"W3sicGF0aCI6Ii52c2NvZGUvbWNwLmpzb24iLCJleGlzdHMiOnRydWUsImNvbnRhaW5zIjpbImh0dHBzOi8vbGVhcm4ubWljcm9zb2Z0LmNvbS9hcGkvbWNwIl0sIm5vdENvbnRhaW5zIjpbXX1d\" python3 - <<'PY'\nimport base64\nimport json\nimport os\nfrom pathlib import Path\n\nproject = Path(os.environ[\"PROJECT_DIR\"]).resolve()\nassertions = json.loads(base64.b64decode(os.environ[\"ASSERTIONS_B64\"]).decode(\"utf-8\"))\nfor assertion in assertions:\n    target = (project / assertion[\"path\"]).resolve()\n    try:\n        target.relative_to(project)\n    except ValueError as error:\n        raise AssertionError(\"File assertion escaped the project directory\") from error\n    exists = target.is_file()\n    if exists != assertion[\"exists\"]:\n        raise AssertionError(f\"Unexpected file existence for {assertion['path']}\")\n    if not exists:\n        continue\n    content = target.read_text(encoding=\"utf-8\")\n    for expected in assertion.get(\"contains\", []):\n        expected = expected.replace(\"__VSCUSE_APP_NAME__\", project.name)\n        if expected not in content:\n            raise AssertionError(f\"Expected content is absent from {assertion['path']}\")\n    for unexpected in assertion.get(\"notContains\", []):\n        unexpected = unexpected.replace(\"__VSCUSE_APP_NAME__\", project.name)\n        if unexpected in content:\n            raise AssertionError(f\"Unexpected content is present in {assertion['path']}\")\nPY\n```"
+      },
+      "description": "@code execute the supplied generated bash script exactly as authored and read its exact PROJECT_DIR under /home/vscode/AgentsToolkitProjects/ from that script; verify its project-relative file assertions, project files are not VS Code .code-workspace files, do not use /workspace, and do not log file contents.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_checkWorkspaceFiles_verify_c9a417a33_2_2"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:checks",
+        "assertion:file",
+        "step_retry_timeout:120"
+      ]
+    },
+    {
+      "step_id": "step_checkWorkspaceFiles_verify_c9a417a33_2_4",
+      "agent": "code",
+      "tool": "",
+      "parameters": {
+        "sample": "=== Generated Script ===\nLanguage: bash\n\n```bash\nset -euo pipefail\nPROJECT_DIR=\"/home/vscode/AgentsToolkitProjects/${{var:app_name}}\" ASSERTIONS_B64=\"W3sicGF0aCI6Im0zNjVhZ2VudHMueW1sIiwiZXhpc3RzIjp0cnVlLCJjb250YWlucyI6W10sIm5vdENvbnRhaW5zIjpbIm9hdXRoL3JlZ2lzdGVyIiwiZGNyL3JlZ2lzdGVyIl19XQ==\" python3 - <<'PY'\nimport base64\nimport json\nimport os\nfrom pathlib import Path\n\nproject = Path(os.environ[\"PROJECT_DIR\"]).resolve()\nassertions = json.loads(base64.b64decode(os.environ[\"ASSERTIONS_B64\"]).decode(\"utf-8\"))\nfor assertion in assertions:\n    target = (project / assertion[\"path\"]).resolve()\n    try:\n        target.relative_to(project)\n    except ValueError as error:\n        raise AssertionError(\"File assertion escaped the project directory\") from error\n    exists = target.is_file()\n    if exists != assertion[\"exists\"]:\n        raise AssertionError(f\"Unexpected file existence for {assertion['path']}\")\n    if not exists:\n        continue\n    content = target.read_text(encoding=\"utf-8\")\n    for expected in assertion.get(\"contains\", []):\n        expected = expected.replace(\"__VSCUSE_APP_NAME__\", project.name)\n        if expected not in content:\n            raise AssertionError(f\"Expected content is absent from {assertion['path']}\")\n    for unexpected in assertion.get(\"notContains\", []):\n        unexpected = unexpected.replace(\"__VSCUSE_APP_NAME__\", project.name)\n        if unexpected in content:\n            raise AssertionError(f\"Unexpected content is present in {assertion['path']}\")\nPY\n```"
+      },
+      "description": "@code execute the supplied generated bash script exactly as authored and read its exact PROJECT_DIR under /home/vscode/AgentsToolkitProjects/ from that script; verify its project-relative file assertions, project files are not VS Code .code-workspace files, do not use /workspace, and do not log file contents.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_checkWorkspaceFiles_verify_c9a417a33_2_3"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:checks",
+        "assertion:file",
+        "step_retry_timeout:120"
+      ]
+    },
+    {
+      "step_id": "step_checkWorkspaceFiles_verify_c9a417a33_2_5",
+      "agent": "code",
+      "tool": "",
+      "parameters": {
+        "sample": "=== Generated Script ===\nLanguage: bash\n\n```bash\nset -euo pipefail\nPROJECT_DIR=\"/home/vscode/AgentsToolkitProjects/${{var:app_name}}\" ASSERTIONS_B64=\"W3sicGF0aCI6ImFwcFBhY2thZ2UvbWNwLXRvb2xzLTEuanNvbiIsImV4aXN0cyI6ZmFsc2UsImNvbnRhaW5zIjpbXSwibm90Q29udGFpbnMiOltdfV0=\" python3 - <<'PY'\nimport base64\nimport json\nimport os\nfrom pathlib import Path\n\nproject = Path(os.environ[\"PROJECT_DIR\"]).resolve()\nassertions = json.loads(base64.b64decode(os.environ[\"ASSERTIONS_B64\"]).decode(\"utf-8\"))\nfor assertion in assertions:\n    target = (project / assertion[\"path\"]).resolve()\n    try:\n        target.relative_to(project)\n    except ValueError as error:\n        raise AssertionError(\"File assertion escaped the project directory\") from error\n    exists = target.is_file()\n    if exists != assertion[\"exists\"]:\n        raise AssertionError(f\"Unexpected file existence for {assertion['path']}\")\n    if not exists:\n        continue\n    content = target.read_text(encoding=\"utf-8\")\n    for expected in assertion.get(\"contains\", []):\n        expected = expected.replace(\"__VSCUSE_APP_NAME__\", project.name)\n        if expected not in content:\n            raise AssertionError(f\"Expected content is absent from {assertion['path']}\")\n    for unexpected in assertion.get(\"notContains\", []):\n        unexpected = unexpected.replace(\"__VSCUSE_APP_NAME__\", project.name)\n        if unexpected in content:\n            raise AssertionError(f\"Unexpected content is present in {assertion['path']}\")\nPY\n```"
+      },
+      "description": "@code execute the supplied generated bash script exactly as authored and read its exact PROJECT_DIR under /home/vscode/AgentsToolkitProjects/ from that script; verify its project-relative file assertions, project files are not VS Code .code-workspace files, do not use /workspace, and do not log file contents.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_checkWorkspaceFiles_verify_c9a417a33_2_4"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:checks",
+        "assertion:file",
+        "step_retry_timeout:120"
+      ]
+    },
+    {
+      "step_id": "step_executeCommand_open_c9a417a33_3_1",
       "agent": "interaction",
       "tool": "key_press",
       "parameters": {
@@ -1132,13 +1301,18 @@
       "timeout": 30,
       "retry_count": 0,
       "continue_on_error": "false",
-      "depends_on": ["step_skill_mcp_project_da_add_skill_mcp"],
+      "depends_on": [
+        "step_checkWorkspaceFiles_verify_c9a417a33_2_5"
+      ],
       "preconditions": [],
       "postconditions": [],
-      "tags": ["component:command-palette", "action:execute-command"]
+      "tags": [
+        "component:command-palette",
+        "action:execute-command"
+      ]
     },
     {
-      "step_id": "step_executeCommand_assertPalette_cbe46eee0_3_1_before_skill_da_add_skill_mcp",
+      "step_id": "step_executeCommand_assertPalette_c9a417a33_3_1",
       "agent": "assertion",
       "tool": "",
       "parameters": {},
@@ -1148,7 +1322,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_executeCommand_open_cbe46eee0_3_1_before_skill_da_add_skill_mcp"
+        "step_executeCommand_open_c9a417a33_3_1"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -1159,7 +1333,7 @@
       ]
     },
     {
-      "step_id": "step_executeCommand_filter_cbe46eee0_3_1_before_skill_da_add_skill_mcp",
+      "step_id": "step_executeCommand_filter_c9a417a33_3_1",
       "agent": "interaction",
       "tool": "type_text",
       "parameters": {
@@ -1171,14 +1345,17 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_executeCommand_assertPalette_cbe46eee0_3_1_before_skill_da_add_skill_mcp"
+        "step_executeCommand_assertPalette_c9a417a33_3_1"
       ],
       "preconditions": [],
       "postconditions": [],
-      "tags": ["component:command-palette", "action:execute-command"]
+      "tags": [
+        "component:command-palette",
+        "action:execute-command"
+      ]
     },
     {
-      "step_id": "step_executeCommand_assertCommand_cbe46eee0_3_1_before_skill_da_add_skill_mcp",
+      "step_id": "step_executeCommand_assertCommand_c9a417a33_3_1",
       "agent": "assertion",
       "tool": "",
       "parameters": {},
@@ -1188,7 +1365,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_executeCommand_filter_cbe46eee0_3_1_before_skill_da_add_skill_mcp"
+        "step_executeCommand_filter_c9a417a33_3_1"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -1199,7 +1376,7 @@
       ]
     },
     {
-      "step_id": "step_executeCommand_execute_cbe46eee0_3_1_before_skill_da_add_skill_mcp",
+      "step_id": "step_executeCommand_execute_c9a417a33_3_1",
       "agent": "interaction",
       "tool": "key_press",
       "parameters": {
@@ -1211,14 +1388,17 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_executeCommand_assertCommand_cbe46eee0_3_1_before_skill_da_add_skill_mcp"
+        "step_executeCommand_assertCommand_c9a417a33_3_1"
       ],
       "preconditions": [],
       "postconditions": [],
-      "tags": ["component:command-palette", "action:execute-command"]
+      "tags": [
+        "component:command-palette",
+        "action:execute-command"
+      ]
     },
     {
-      "step_id": "step_skill_menu_available_da_add_skill_mcp",
+      "step_id": "step_addDaSkill_assertEntry_c9a417a33_3_2",
       "agent": "assertion",
       "tool": "",
       "parameters": {},
@@ -1228,100 +1408,196 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_executeCommand_execute_cbe46eee0_3_1_before_skill_da_add_skill_mcp"
+        "step_executeCommand_execute_c9a417a33_3_1"
       ],
       "preconditions": [],
       "postconditions": [],
-      "tags": ["feature:add-skill", "step_retry_timeout:30"]
+      "tags": [
+        "component:treeview",
+        "operation:add-da-skill",
+        "step_retry_timeout:30"
+      ]
     },
     {
-      "step_id": "step_skill_click_menu_da_add_skill_mcp",
+      "step_id": "step_addDaSkill_clickEntry_c9a417a33_3_2",
       "agent": "interaction",
       "tool": "click",
       "parameters": {
+        "button": "left",
         "x": 110,
-        "y": 490,
-        "button": "left"
+        "y": 490
       },
       "description": "Click Add Skill under Development in the Microsoft 365 Agents Toolkit sidebar.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
       "continue_on_error": "false",
-      "depends_on": ["step_skill_menu_available_da_add_skill_mcp"],
+      "depends_on": [
+        "step_addDaSkill_assertEntry_c9a417a33_3_2"
+      ],
       "preconditions": [
         "dhash:110:490:16:5:b2c3c644474d0ea9",
         "dhash:110:490:96:5:6a4b676c6823ccd0"
       ],
       "postconditions": [],
-      "tags": ["feature:add-skill", "recording:r_1104_061308"]
+      "tags": [
+        "component:treeview",
+        "operation:add-da-skill",
+        "recording:r_1104_061308"
+      ]
     },
     {
-      "step_id": "step_skill_source_ready_da_add_skill_mcp",
+      "step_id": "step_singleSelect_assertQuestion_c9a417a33_3_3",
       "agent": "assertion",
       "tool": "",
       "parameters": {},
-      "description": "@assertion the prompt \"How would you like to add a skill?\" is visible with \"Create a new skill\" highlighted and its detail \"Start from scratch with a blank skill template\".",
+      "description": "@assertion the active prompt titled How would you like to add a skill? is visible.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
       "continue_on_error": "false",
-      "depends_on": ["step_skill_click_menu_da_add_skill_mcp"],
+      "depends_on": [
+        "step_addDaSkill_clickEntry_c9a417a33_3_2"
+      ],
       "preconditions": [],
       "postconditions": [],
-      "tags": ["feature:add-skill", "step_retry_timeout:30"]
+      "tags": [
+        "component:quick-input",
+        "answer_type:singleSelect",
+        "step_retry_timeout: 30"
+      ]
     },
     {
-      "step_id": "step_skill_create_new_da_add_skill_mcp",
+      "step_id": "step_singleSelect_assertOptionsLoaded_c9a417a33_3_3",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the prompt titled How would you like to add a skill? has finished loading and lists at least one selectable option.",
+      "content_refs": [],
+      "timeout": 120,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_singleSelect_assertQuestion_c9a417a33_3_3"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:quick-input",
+        "answer_type:singleSelect",
+        "step_retry_timeout: 120"
+      ]
+    },
+    {
+      "step_id": "step_singleSelect_filter_c9a417a33_3_3",
+      "agent": "interaction",
+      "tool": "type_text",
+      "parameters": {
+        "text": "Create a new skill"
+      },
+      "description": "Type the resolved option label Create a new skill into the active single-select prompt.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_singleSelect_assertOptionsLoaded_c9a417a33_3_3"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:quick-input",
+        "answer_type:singleSelect"
+      ]
+    },
+    {
+      "step_id": "step_singleSelect_assertOption_c9a417a33_3_3",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the option Create a new skill is visible and selectable in the filtered single-select prompt.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_singleSelect_filter_c9a417a33_3_3"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:quick-input",
+        "answer_type:singleSelect",
+        "step_retry_timeout: 30"
+      ]
+    },
+    {
+      "step_id": "step_singleSelect_confirm_c9a417a33_3_3",
       "agent": "interaction",
       "tool": "key_press",
       "parameters": {
         "key": "enter"
       },
-      "description": "Press Enter to select the highlighted Create a new skill option.",
+      "description": "Press Enter to confirm the filtered single-select option.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
       "continue_on_error": "false",
-      "depends_on": ["step_skill_source_ready_da_add_skill_mcp"],
+      "depends_on": [
+        "step_singleSelect_assertOption_c9a417a33_3_3"
+      ],
       "preconditions": [],
       "postconditions": [],
-      "tags": ["feature:add-skill", "recording:r_1104_061308"]
+      "tags": [
+        "component:quick-input",
+        "answer_type:singleSelect"
+      ]
     },
     {
-      "step_id": "step_skill_name_ready_da_add_skill_mcp",
+      "step_id": "step_rejectedSkillName_assertPrompt_c9a417a33_3_4",
       "agent": "assertion",
       "tool": "",
       "parameters": {},
-      "description": "@assertion the active text prompt is titled \"Skill Name\".",
+      "description": "@assertion the active text prompt is titled Skill Name.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
       "continue_on_error": "false",
-      "depends_on": ["step_skill_create_new_da_add_skill_mcp"],
+      "depends_on": [
+        "step_singleSelect_confirm_c9a417a33_3_3"
+      ],
       "preconditions": [],
       "postconditions": [],
-      "tags": ["feature:add-skill", "step_retry_timeout:30"]
+      "tags": [
+        "component:quick-input",
+        "operation:add-da-skill",
+        "step_retry_timeout:30"
+      ]
     },
     {
-      "step_id": "step_skill_invalid_name_da_add_skill_mcp",
+      "step_id": "step_rejectedSkillName_type_c9a417a33_3_4",
       "agent": "interaction",
       "tool": "type_text",
       "parameters": {
         "text": "testSkill"
       },
-      "description": "Enter the invalid camelCase skill name testSkill.",
+      "description": "Enter the invalid skill name testSkill.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
       "continue_on_error": "false",
-      "depends_on": ["step_skill_name_ready_da_add_skill_mcp"],
+      "depends_on": [
+        "step_rejectedSkillName_assertPrompt_c9a417a33_3_4"
+      ],
       "preconditions": [],
       "postconditions": [],
-      "tags": ["feature:add-skill", "recording:r_1104_061308"]
+      "tags": [
+        "component:quick-input",
+        "operation:add-da-skill"
+      ]
     },
     {
-      "step_id": "step_skill_reject_invalid_name_da_add_skill_mcp",
+      "step_id": "step_rejectedSkillName_submit_c9a417a33_3_4",
       "agent": "interaction",
       "tool": "key_press",
       "parameters": {
@@ -1332,13 +1608,18 @@
       "timeout": 30,
       "retry_count": 0,
       "continue_on_error": "false",
-      "depends_on": ["step_skill_invalid_name_da_add_skill_mcp"],
+      "depends_on": [
+        "step_rejectedSkillName_type_c9a417a33_3_4"
+      ],
       "preconditions": [],
       "postconditions": [],
-      "tags": ["feature:add-skill", "recording:r_1104_061308"]
+      "tags": [
+        "component:quick-input",
+        "operation:add-da-skill"
+      ]
     },
     {
-      "step_id": "step_skill_invalid_name_rejected_da_add_skill_mcp",
+      "step_id": "step_rejectedSkillName_assertError_c9a417a33_3_4",
       "agent": "assertion",
       "tool": "",
       "parameters": {},
@@ -1347,192 +1628,407 @@
       "timeout": 30,
       "retry_count": 0,
       "continue_on_error": "false",
-      "depends_on": ["step_skill_reject_invalid_name_da_add_skill_mcp"],
+      "depends_on": [
+        "step_rejectedSkillName_submit_c9a417a33_3_4"
+      ],
       "preconditions": [],
       "postconditions": [],
-      "tags": ["feature:add-skill", "step_retry_timeout:30"]
+      "tags": [
+        "component:quick-input",
+        "operation:add-da-skill",
+        "step_retry_timeout:30"
+      ]
     },
     {
-      "step_id": "step_skill_select_invalid_name_da_add_skill_mcp",
+      "step_id": "step_rejectedSkillName_select_c9a417a33_3_4",
       "agent": "interaction",
       "tool": "keyboard_shortcut",
       "parameters": {
         "keys": "ctrl+a"
       },
-      "description": "Select all text in the Skill Name input with Ctrl+A.",
+      "description": "Select all text in the rejected Skill Name input.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
       "continue_on_error": "false",
-      "depends_on": ["step_skill_invalid_name_rejected_da_add_skill_mcp"],
+      "depends_on": [
+        "step_rejectedSkillName_assertError_c9a417a33_3_4"
+      ],
       "preconditions": [],
       "postconditions": [],
-      "tags": ["feature:add-skill", "recording:r_1104_061308"]
+      "tags": [
+        "component:quick-input",
+        "operation:add-da-skill"
+      ]
     },
     {
-      "step_id": "step_skill_valid_name_da_add_skill_mcp",
+      "step_id": "step_rejectedSkillName_clear_c9a417a33_3_4",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "backspace"
+      },
+      "description": "Clear the selected invalid skill name before entering its valid replacement.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_rejectedSkillName_select_c9a417a33_3_4"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:quick-input",
+        "operation:add-da-skill"
+      ]
+    },
+    {
+      "step_id": "step_textInput_assertQuestion_c9a417a33_3_5",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the active prompt titled Skill Name is visible.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_rejectedSkillName_clear_c9a417a33_3_4"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:quick-input",
+        "answer_type:text",
+        "step_retry_timeout: 30"
+      ]
+    },
+    {
+      "step_id": "step_textInput_input_c9a417a33_3_5",
       "agent": "interaction",
       "tool": "type_text",
       "parameters": {
         "text": "test-skill"
       },
-      "description": "Replace the invalid name with the valid skill name test-skill.",
+      "description": "Type the authored value into the active text prompt.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
       "continue_on_error": "false",
-      "depends_on": ["step_skill_select_invalid_name_da_add_skill_mcp"],
+      "depends_on": [
+        "step_textInput_assertQuestion_c9a417a33_3_5"
+      ],
       "preconditions": [],
       "postconditions": [],
-      "tags": ["feature:add-skill", "recording:r_1104_061308"]
+      "tags": [
+        "component:quick-input",
+        "answer_type:text"
+      ]
     },
     {
-      "step_id": "step_skill_valid_name_accepted_da_add_skill_mcp",
-      "agent": "assertion",
-      "tool": "",
-      "parameters": {},
-      "description": "@assertion the Skill Name input contains test-skill and no skill-name format validation error is visible.",
-      "content_refs": [],
-      "timeout": 30,
-      "retry_count": 0,
-      "continue_on_error": "false",
-      "depends_on": ["step_skill_valid_name_da_add_skill_mcp"],
-      "preconditions": [],
-      "postconditions": [],
-      "tags": ["feature:add-skill", "step_retry_timeout:30"]
-    },
-    {
-      "step_id": "step_skill_submit_name_da_add_skill_mcp",
+      "step_id": "step_textInput_confirm_c9a417a33_3_5",
       "agent": "interaction",
       "tool": "key_press",
       "parameters": {
         "key": "enter"
       },
-      "description": "Press Enter to submit the valid skill name test-skill.",
+      "description": "Press Enter to submit the accepted text input.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
       "continue_on_error": "false",
-      "depends_on": ["step_skill_valid_name_accepted_da_add_skill_mcp"],
+      "depends_on": [
+        "step_textInput_input_c9a417a33_3_5"
+      ],
       "preconditions": [],
       "postconditions": [],
-      "tags": ["feature:add-skill", "recording:r_1104_061308"]
+      "tags": [
+        "component:quick-input",
+        "answer_type:text"
+      ]
     },
     {
-      "step_id": "step_skill_description_ready_da_add_skill_mcp",
+      "step_id": "step_textInput_assertQuestion_c9a417a33_3_6",
       "agent": "assertion",
       "tool": "",
       "parameters": {},
-      "description": "@assertion the active text prompt is titled \"Skill Description\".",
+      "description": "@assertion the active prompt titled Skill Description is visible.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
       "continue_on_error": "false",
-      "depends_on": ["step_skill_submit_name_da_add_skill_mcp"],
+      "depends_on": [
+        "step_textInput_confirm_c9a417a33_3_5"
+      ],
       "preconditions": [],
       "postconditions": [],
-      "tags": ["feature:add-skill", "step_retry_timeout:30"]
+      "tags": [
+        "component:quick-input",
+        "answer_type:text",
+        "step_retry_timeout: 30"
+      ]
     },
     {
-      "step_id": "step_skill_description_da_add_skill_mcp",
+      "step_id": "step_textInput_input_c9a417a33_3_6",
       "agent": "interaction",
       "tool": "type_text",
       "parameters": {
         "text": "A test skill for the MCP declarative agent."
       },
-      "description": "Enter the skill description A test skill for the MCP declarative agent.",
+      "description": "Type the authored value into the active text prompt.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
       "continue_on_error": "false",
-      "depends_on": ["step_skill_description_ready_da_add_skill_mcp"],
+      "depends_on": [
+        "step_textInput_assertQuestion_c9a417a33_3_6"
+      ],
       "preconditions": [],
       "postconditions": [],
-      "tags": ["feature:add-skill", "recording:r_1104_061308"]
+      "tags": [
+        "component:quick-input",
+        "answer_type:text"
+      ]
     },
     {
-      "step_id": "step_skill_submit_description_da_add_skill_mcp",
+      "step_id": "step_textInput_confirm_c9a417a33_3_6",
       "agent": "interaction",
       "tool": "key_press",
       "parameters": {
         "key": "enter"
       },
-      "description": "Press Enter to submit the skill description.",
+      "description": "Press Enter to submit the accepted text input.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
       "continue_on_error": "false",
-      "depends_on": ["step_skill_description_da_add_skill_mcp"],
+      "depends_on": [
+        "step_textInput_input_c9a417a33_3_6"
+      ],
       "preconditions": [],
       "postconditions": [],
-      "tags": ["feature:add-skill", "recording:r_1104_061308"]
+      "tags": [
+        "component:quick-input",
+        "answer_type:text"
+      ]
     },
     {
-      "step_id": "step_skill_exposure_ready_da_add_skill_mcp",
+      "step_id": "step_singleSelect_assertQuestion_c9a417a33_3_7",
       "agent": "assertion",
       "tool": "",
       "parameters": {},
-      "description": "@assertion the prompt \"Do you want to expose this skill to Copilot?\" is visible with No highlighted and the detail \"Keep the skill scoped to the declarative agent only\".",
+      "description": "@assertion the active prompt titled Do you want to expose this skill to Copilot? is visible.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
       "continue_on_error": "false",
-      "depends_on": ["step_skill_submit_description_da_add_skill_mcp"],
+      "depends_on": [
+        "step_textInput_confirm_c9a417a33_3_6"
+      ],
       "preconditions": [],
       "postconditions": [],
-      "tags": ["feature:add-skill", "step_retry_timeout:30"]
+      "tags": [
+        "component:quick-input",
+        "answer_type:singleSelect",
+        "step_retry_timeout: 30"
+      ]
     },
     {
-      "step_id": "step_skill_keep_agent_scope_da_add_skill_mcp",
-      "agent": "interaction",
-      "tool": "key_press",
-      "parameters": {
-        "key": "enter"
-      },
-      "description": "Press Enter to retain the default No option and keep the skill scoped to this declarative agent.",
-      "content_refs": [],
-      "timeout": 30,
-      "retry_count": 0,
-      "continue_on_error": "false",
-      "depends_on": ["step_skill_exposure_ready_da_add_skill_mcp"],
-      "preconditions": [],
-      "postconditions": [],
-      "tags": ["feature:add-skill", "recording:r_1104_061308"]
-    },
-    {
-      "step_id": "step_skill_manifest_ready_da_add_skill_mcp",
+      "step_id": "step_singleSelect_assertOptionsLoaded_c9a417a33_3_7",
       "agent": "assertion",
       "tool": "",
       "parameters": {},
-      "description": "@assertion the prompt \"Select Teams manifest.json File\" is visible with manifest.json highlighted in /home/vscode/AgentsToolkitProjects/${{var:app_name}}/appPackage.",
+      "description": "@assertion the prompt titled Do you want to expose this skill to Copilot? has finished loading and lists at least one selectable option.",
+      "content_refs": [],
+      "timeout": 120,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_singleSelect_assertQuestion_c9a417a33_3_7"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:quick-input",
+        "answer_type:singleSelect",
+        "step_retry_timeout: 120"
+      ]
+    },
+    {
+      "step_id": "step_singleSelect_filter_c9a417a33_3_7",
+      "agent": "interaction",
+      "tool": "type_text",
+      "parameters": {
+        "text": "No"
+      },
+      "description": "Type the resolved option label No into the active single-select prompt.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
       "continue_on_error": "false",
-      "depends_on": ["step_skill_keep_agent_scope_da_add_skill_mcp"],
+      "depends_on": [
+        "step_singleSelect_assertOptionsLoaded_c9a417a33_3_7"
+      ],
       "preconditions": [],
       "postconditions": [],
-      "tags": ["feature:add-skill", "step_retry_timeout:30"]
+      "tags": [
+        "component:quick-input",
+        "answer_type:singleSelect"
+      ]
     },
     {
-      "step_id": "step_skill_select_manifest_da_add_skill_mcp",
+      "step_id": "step_singleSelect_assertOption_c9a417a33_3_7",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the option No is visible and selectable in the filtered single-select prompt.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_singleSelect_filter_c9a417a33_3_7"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:quick-input",
+        "answer_type:singleSelect",
+        "step_retry_timeout: 30"
+      ]
+    },
+    {
+      "step_id": "step_singleSelect_confirm_c9a417a33_3_7",
       "agent": "interaction",
       "tool": "key_press",
       "parameters": {
         "key": "enter"
       },
-      "description": "Press Enter to select the current project's highlighted manifest.json.",
+      "description": "Press Enter to confirm the filtered single-select option.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
       "continue_on_error": "false",
-      "depends_on": ["step_skill_manifest_ready_da_add_skill_mcp"],
+      "depends_on": [
+        "step_singleSelect_assertOption_c9a417a33_3_7"
+      ],
       "preconditions": [],
       "postconditions": [],
-      "tags": ["feature:add-skill", "recording:r_1104_061308"]
+      "tags": [
+        "component:quick-input",
+        "answer_type:singleSelect"
+      ]
     },
     {
-      "step_id": "step_skill_confirm_ready_da_add_skill_mcp",
+      "step_id": "step_singleSelect_assertQuestion_c9a417a33_3_8",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the active prompt titled Select Teams manifest.json File is visible.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_singleSelect_confirm_c9a417a33_3_7"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:quick-input",
+        "answer_type:singleSelect",
+        "step_retry_timeout: 30"
+      ]
+    },
+    {
+      "step_id": "step_singleSelect_assertOptionsLoaded_c9a417a33_3_8",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the prompt titled Select Teams manifest.json File has finished loading and lists at least one selectable option.",
+      "content_refs": [],
+      "timeout": 120,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_singleSelect_assertQuestion_c9a417a33_3_8"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:quick-input",
+        "answer_type:singleSelect",
+        "step_retry_timeout: 120"
+      ]
+    },
+    {
+      "step_id": "step_singleSelect_filter_c9a417a33_3_8",
+      "agent": "interaction",
+      "tool": "type_text",
+      "parameters": {
+        "text": "manifest.json"
+      },
+      "description": "Type the resolved option label manifest.json into the active single-select prompt.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_singleSelect_assertOptionsLoaded_c9a417a33_3_8"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:quick-input",
+        "answer_type:singleSelect"
+      ]
+    },
+    {
+      "step_id": "step_singleSelect_assertOption_c9a417a33_3_8",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the option manifest.json is visible and selectable in the filtered single-select prompt.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_singleSelect_filter_c9a417a33_3_8"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:quick-input",
+        "answer_type:singleSelect",
+        "step_retry_timeout: 30"
+      ]
+    },
+    {
+      "step_id": "step_singleSelect_confirm_c9a417a33_3_8",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "enter"
+      },
+      "description": "Press Enter to confirm the filtered single-select option.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_singleSelect_assertOption_c9a417a33_3_8"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:quick-input",
+        "answer_type:singleSelect"
+      ]
+    },
+    {
+      "step_id": "step_confirmAddDaSkill_assertDialog_c9a417a33_3_9",
       "agent": "assertion",
       "tool": "",
       "parameters": {},
@@ -1541,259 +2037,160 @@
       "timeout": 30,
       "retry_count": 0,
       "continue_on_error": "false",
-      "depends_on": ["step_skill_select_manifest_da_add_skill_mcp"],
+      "depends_on": [
+        "step_singleSelect_confirm_c9a417a33_3_8"
+      ],
       "preconditions": [],
       "postconditions": [],
-      "tags": ["feature:add-skill", "step_retry_timeout:30"]
+      "tags": [
+        "component:dialog",
+        "operation:add-da-skill",
+        "step_retry_timeout:30"
+      ]
     },
     {
-      "step_id": "step_skill_confirm_add_da_add_skill_mcp",
+      "step_id": "step_confirmAddDaSkill_add_c9a417a33_3_9",
       "agent": "interaction",
       "tool": "click",
       "parameters": {
+        "button": "left",
         "x": 487,
-        "y": 98,
-        "button": "left"
+        "y": 98
       },
       "description": "Click Add in the confirmation dialog to create and register the skill.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
       "continue_on_error": "false",
-      "depends_on": ["step_skill_confirm_ready_da_add_skill_mcp"],
+      "depends_on": [
+        "step_confirmAddDaSkill_assertDialog_c9a417a33_3_9"
+      ],
       "preconditions": [
         "dhash:487:98:16:5:a74695a5a5555ca3",
         "dhash:487:98:96:5:5824304c0dc24b93"
       ],
       "postconditions": [],
-      "tags": ["feature:add-skill", "recording:r_1104_061308"]
+      "tags": [
+        "component:dialog",
+        "operation:add-da-skill",
+        "recording:r_1104_061308"
+      ]
     },
     {
-      "step_id": "step_skill_added_da_add_skill_mcp",
+      "step_id": "step_assertNotificationContains_assert_c9a417a33_3_10",
       "agent": "assertion",
       "tool": "",
       "parameters": {},
-      "description": "@assertion a VS Code notification contains \"Agent skill added to the project successfully.\"",
-      "content_refs": [],
-      "timeout": 60,
-      "retry_count": 0,
-      "continue_on_error": "false",
-      "depends_on": ["step_skill_confirm_add_da_add_skill_mcp"],
-      "preconditions": [],
-      "postconditions": [],
-      "tags": ["feature:add-skill", "step_retry_timeout:60"]
-    },
-    {
-      "step_id": "step_skill_file_open_da_add_skill_mcp",
-      "agent": "interaction",
-      "tool": "keyboard_shortcut",
-      "parameters": {
-        "keys": "ctrl+p"
-      },
-      "description": "Open VS Code Quick Open to inspect the generated project file.",
+      "description": "@assertion a visible Visual Studio Code notification contains the literal text Agent skill added to the project successfully.. A notification with different text, including an in-progress notification, does not satisfy this assertion.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
       "continue_on_error": "false",
-      "depends_on": ["step_skill_added_da_add_skill_mcp"],
+      "depends_on": [
+        "step_confirmAddDaSkill_add_c9a417a33_3_9"
+      ],
       "preconditions": [],
       "postconditions": [],
-      "tags": ["feature:add-skill"]
+      "tags": [
+        "component:notifications",
+        "action:assert-contains",
+        "step_retry_timeout: 60"
+      ]
     },
     {
-      "step_id": "step_skill_file_picker_da_add_skill_mcp",
-      "agent": "assertion",
+      "step_id": "step_checkWorkspaceFiles_verify_c9a417a33_4_1",
+      "agent": "code",
       "tool": "",
-      "parameters": {},
-      "description": "@assertion the VS Code Quick Open file picker is visible and ready to accept a file path.",
-      "content_refs": [],
-      "timeout": 30,
-      "retry_count": 0,
-      "continue_on_error": "false",
-      "depends_on": ["step_skill_file_open_da_add_skill_mcp"],
-      "preconditions": [],
-      "postconditions": [],
-      "tags": ["feature:add-skill", "step_retry_timeout:30"]
-    },
-    {
-      "step_id": "step_skill_file_filter_da_add_skill_mcp",
-      "agent": "interaction",
-      "tool": "type_text",
       "parameters": {
-        "text": "appPackage/skills/test-skill/SKILL.md"
+        "sample": "=== Generated Script ===\nLanguage: bash\n\n```bash\nset -euo pipefail\nPROJECT_DIR=\"/home/vscode/AgentsToolkitProjects/${{var:app_name}}\" ASSERTIONS_B64=\"W3sicGF0aCI6ImFwcFBhY2thZ2Uvc2tpbGxzL3Rlc3Qtc2tpbGwvU0tJTEwubWQiLCJleGlzdHMiOnRydWUsImNvbnRhaW5zIjpbIm5hbWU6IHRlc3Qtc2tpbGwiLCJkZXNjcmlwdGlvbjogQSB0ZXN0IHNraWxsIGZvciB0aGUgTUNQIGRlY2xhcmF0aXZlIGFnZW50LiIsIiMgdGVzdC1za2lsbCJdLCJub3RDb250YWlucyI6W119XQ==\" python3 - <<'PY'\nimport base64\nimport json\nimport os\nfrom pathlib import Path\n\nproject = Path(os.environ[\"PROJECT_DIR\"]).resolve()\nassertions = json.loads(base64.b64decode(os.environ[\"ASSERTIONS_B64\"]).decode(\"utf-8\"))\nfor assertion in assertions:\n    target = (project / assertion[\"path\"]).resolve()\n    try:\n        target.relative_to(project)\n    except ValueError as error:\n        raise AssertionError(\"File assertion escaped the project directory\") from error\n    exists = target.is_file()\n    if exists != assertion[\"exists\"]:\n        raise AssertionError(f\"Unexpected file existence for {assertion['path']}\")\n    if not exists:\n        continue\n    content = target.read_text(encoding=\"utf-8\")\n    for expected in assertion.get(\"contains\", []):\n        expected = expected.replace(\"__VSCUSE_APP_NAME__\", project.name)\n        if expected not in content:\n            raise AssertionError(f\"Expected content is absent from {assertion['path']}\")\n    for unexpected in assertion.get(\"notContains\", []):\n        unexpected = unexpected.replace(\"__VSCUSE_APP_NAME__\", project.name)\n        if unexpected in content:\n            raise AssertionError(f\"Unexpected content is present in {assertion['path']}\")\nPY\n```"
       },
-      "description": "Filter the generated project files by appPackage/skills/test-skill/SKILL.md.",
+      "description": "@code execute the supplied generated bash script exactly as authored and read its exact PROJECT_DIR under /home/vscode/AgentsToolkitProjects/ from that script; verify its project-relative file assertions, project files are not VS Code .code-workspace files, do not use /workspace, and do not log file contents.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
       "continue_on_error": "false",
-      "depends_on": ["step_skill_file_picker_da_add_skill_mcp"],
+      "depends_on": [
+        "step_assertNotificationContains_assert_c9a417a33_3_10"
+      ],
       "preconditions": [],
       "postconditions": [],
-      "tags": ["feature:add-skill"]
+      "tags": [
+        "component:checks",
+        "assertion:file",
+        "step_retry_timeout:120"
+      ]
     },
     {
-      "step_id": "step_skill_file_selected_da_add_skill_mcp",
-      "agent": "assertion",
+      "step_id": "step_checkWorkspaceFiles_verify_c9a417a33_4_2",
+      "agent": "code",
       "tool": "",
-      "parameters": {},
-      "description": "@assertion the highlighted Quick Open result is SKILL.md in appPackage/skills/test-skill.",
-      "content_refs": [],
-      "timeout": 30,
-      "retry_count": 0,
-      "continue_on_error": "false",
-      "depends_on": ["step_skill_file_filter_da_add_skill_mcp"],
-      "preconditions": [],
-      "postconditions": [],
-      "tags": ["feature:add-skill", "step_retry_timeout:30"]
-    },
-    {
-      "step_id": "step_skill_file_confirm_da_add_skill_mcp",
-      "agent": "interaction",
-      "tool": "key_press",
       "parameters": {
-        "key": "enter"
+        "sample": "=== Generated Script ===\nLanguage: bash\n\n```bash\nset -euo pipefail\nPROJECT_DIR=\"/home/vscode/AgentsToolkitProjects/${{var:app_name}}\" ASSERTIONS_B64=\"W3sicGF0aCI6ImFwcFBhY2thZ2Uvc2tpbGxzL3Rlc3RTa2lsbC9TS0lMTC5tZCIsImV4aXN0cyI6ZmFsc2UsImNvbnRhaW5zIjpbXSwibm90Q29udGFpbnMiOltdfV0=\" python3 - <<'PY'\nimport base64\nimport json\nimport os\nfrom pathlib import Path\n\nproject = Path(os.environ[\"PROJECT_DIR\"]).resolve()\nassertions = json.loads(base64.b64decode(os.environ[\"ASSERTIONS_B64\"]).decode(\"utf-8\"))\nfor assertion in assertions:\n    target = (project / assertion[\"path\"]).resolve()\n    try:\n        target.relative_to(project)\n    except ValueError as error:\n        raise AssertionError(\"File assertion escaped the project directory\") from error\n    exists = target.is_file()\n    if exists != assertion[\"exists\"]:\n        raise AssertionError(f\"Unexpected file existence for {assertion['path']}\")\n    if not exists:\n        continue\n    content = target.read_text(encoding=\"utf-8\")\n    for expected in assertion.get(\"contains\", []):\n        expected = expected.replace(\"__VSCUSE_APP_NAME__\", project.name)\n        if expected not in content:\n            raise AssertionError(f\"Expected content is absent from {assertion['path']}\")\n    for unexpected in assertion.get(\"notContains\", []):\n        unexpected = unexpected.replace(\"__VSCUSE_APP_NAME__\", project.name)\n        if unexpected in content:\n            raise AssertionError(f\"Unexpected content is present in {assertion['path']}\")\nPY\n```"
       },
-      "description": "Open the highlighted generated project file.",
+      "description": "@code execute the supplied generated bash script exactly as authored and read its exact PROJECT_DIR under /home/vscode/AgentsToolkitProjects/ from that script; verify its project-relative file assertions, project files are not VS Code .code-workspace files, do not use /workspace, and do not log file contents.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
       "continue_on_error": "false",
-      "depends_on": ["step_skill_file_selected_da_add_skill_mcp"],
+      "depends_on": [
+        "step_checkWorkspaceFiles_verify_c9a417a33_4_1"
+      ],
       "preconditions": [],
       "postconditions": [],
-      "tags": ["feature:add-skill"]
+      "tags": [
+        "component:checks",
+        "assertion:file",
+        "step_retry_timeout:120"
+      ]
     },
     {
-      "step_id": "step_skill_file_contents_da_add_skill_mcp",
-      "agent": "assertion",
+      "step_id": "step_checkWorkspaceFiles_verify_c9a417a33_4_3",
+      "agent": "code",
       "tool": "",
-      "parameters": {},
-      "description": "@assertion the active SKILL.md editor shows YAML frontmatter with \"name: test-skill\" and \"description: A test skill for the MCP declarative agent.\", followed by the heading \"# test-skill\".",
-      "content_refs": [],
-      "timeout": 30,
-      "retry_count": 0,
-      "continue_on_error": "false",
-      "depends_on": ["step_skill_file_confirm_da_add_skill_mcp"],
-      "preconditions": [],
-      "postconditions": [],
-      "tags": ["feature:add-skill", "step_retry_timeout:30"]
-    },
-    {
-      "step_id": "step_skill_manifest_open_da_add_skill_mcp",
-      "agent": "interaction",
-      "tool": "keyboard_shortcut",
       "parameters": {
-        "keys": "ctrl+p"
+        "sample": "=== Generated Script ===\nLanguage: bash\n\n```bash\nset -euo pipefail\nPROJECT_DIR=\"/home/vscode/AgentsToolkitProjects/${{var:app_name}}\" ASSERTIONS_B64=\"W3sicGF0aCI6ImFwcFBhY2thZ2UvZGVjbGFyYXRpdmVBZ2VudC5qc29uIiwiZXhpc3RzIjp0cnVlLCJjb250YWlucyI6WyJcImFnZW50X3NraWxsc1wiIiwiXCJmb2xkZXJcIjogXCJza2lsbHMvdGVzdC1za2lsbFwiIiwiXCJpZFwiOiBcImFjdGlvbl8xXCIiLCJcImZpbGVcIjogXCJhaS1wbHVnaW4uanNvblwiIl0sIm5vdENvbnRhaW5zIjpbXX1d\" python3 - <<'PY'\nimport base64\nimport json\nimport os\nfrom pathlib import Path\n\nproject = Path(os.environ[\"PROJECT_DIR\"]).resolve()\nassertions = json.loads(base64.b64decode(os.environ[\"ASSERTIONS_B64\"]).decode(\"utf-8\"))\nfor assertion in assertions:\n    target = (project / assertion[\"path\"]).resolve()\n    try:\n        target.relative_to(project)\n    except ValueError as error:\n        raise AssertionError(\"File assertion escaped the project directory\") from error\n    exists = target.is_file()\n    if exists != assertion[\"exists\"]:\n        raise AssertionError(f\"Unexpected file existence for {assertion['path']}\")\n    if not exists:\n        continue\n    content = target.read_text(encoding=\"utf-8\")\n    for expected in assertion.get(\"contains\", []):\n        expected = expected.replace(\"__VSCUSE_APP_NAME__\", project.name)\n        if expected not in content:\n            raise AssertionError(f\"Expected content is absent from {assertion['path']}\")\n    for unexpected in assertion.get(\"notContains\", []):\n        unexpected = unexpected.replace(\"__VSCUSE_APP_NAME__\", project.name)\n        if unexpected in content:\n            raise AssertionError(f\"Unexpected content is present in {assertion['path']}\")\nPY\n```"
       },
-      "description": "Open VS Code Quick Open to inspect the generated project file.",
+      "description": "@code execute the supplied generated bash script exactly as authored and read its exact PROJECT_DIR under /home/vscode/AgentsToolkitProjects/ from that script; verify its project-relative file assertions, project files are not VS Code .code-workspace files, do not use /workspace, and do not log file contents.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
       "continue_on_error": "false",
-      "depends_on": ["step_skill_file_contents_da_add_skill_mcp"],
+      "depends_on": [
+        "step_checkWorkspaceFiles_verify_c9a417a33_4_2"
+      ],
       "preconditions": [],
       "postconditions": [],
-      "tags": ["feature:add-skill"]
+      "tags": [
+        "component:checks",
+        "assertion:file",
+        "step_retry_timeout:120"
+      ]
     },
     {
-      "step_id": "step_skill_manifest_picker_da_add_skill_mcp",
-      "agent": "assertion",
+      "step_id": "step_checkWorkspaceFiles_verify_c9a417a33_4_4",
+      "agent": "code",
       "tool": "",
-      "parameters": {},
-      "description": "@assertion the VS Code Quick Open file picker is visible and ready to accept a file path.",
-      "content_refs": [],
-      "timeout": 30,
-      "retry_count": 0,
-      "continue_on_error": "false",
-      "depends_on": ["step_skill_manifest_open_da_add_skill_mcp"],
-      "preconditions": [],
-      "postconditions": [],
-      "tags": ["feature:add-skill", "step_retry_timeout:30"]
-    },
-    {
-      "step_id": "step_skill_manifest_filter_da_add_skill_mcp",
-      "agent": "interaction",
-      "tool": "type_text",
       "parameters": {
-        "text": "appPackage/declarativeAgent.json"
+        "sample": "=== Generated Script ===\nLanguage: bash\n\n```bash\nset -euo pipefail\nPROJECT_DIR=\"/home/vscode/AgentsToolkitProjects/${{var:app_name}}\" ASSERTIONS_B64=\"W3sicGF0aCI6ImFwcFBhY2thZ2UvbWFuaWZlc3QuanNvbiIsImV4aXN0cyI6dHJ1ZSwiY29udGFpbnMiOltdLCJub3RDb250YWlucyI6WyJcImFnZW50U2tpbGxzXCIiXX1d\" python3 - <<'PY'\nimport base64\nimport json\nimport os\nfrom pathlib import Path\n\nproject = Path(os.environ[\"PROJECT_DIR\"]).resolve()\nassertions = json.loads(base64.b64decode(os.environ[\"ASSERTIONS_B64\"]).decode(\"utf-8\"))\nfor assertion in assertions:\n    target = (project / assertion[\"path\"]).resolve()\n    try:\n        target.relative_to(project)\n    except ValueError as error:\n        raise AssertionError(\"File assertion escaped the project directory\") from error\n    exists = target.is_file()\n    if exists != assertion[\"exists\"]:\n        raise AssertionError(f\"Unexpected file existence for {assertion['path']}\")\n    if not exists:\n        continue\n    content = target.read_text(encoding=\"utf-8\")\n    for expected in assertion.get(\"contains\", []):\n        expected = expected.replace(\"__VSCUSE_APP_NAME__\", project.name)\n        if expected not in content:\n            raise AssertionError(f\"Expected content is absent from {assertion['path']}\")\n    for unexpected in assertion.get(\"notContains\", []):\n        unexpected = unexpected.replace(\"__VSCUSE_APP_NAME__\", project.name)\n        if unexpected in content:\n            raise AssertionError(f\"Unexpected content is present in {assertion['path']}\")\nPY\n```"
       },
-      "description": "Filter the generated project files by appPackage/declarativeAgent.json.",
+      "description": "@code execute the supplied generated bash script exactly as authored and read its exact PROJECT_DIR under /home/vscode/AgentsToolkitProjects/ from that script; verify its project-relative file assertions, project files are not VS Code .code-workspace files, do not use /workspace, and do not log file contents.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
       "continue_on_error": "false",
-      "depends_on": ["step_skill_manifest_picker_da_add_skill_mcp"],
+      "depends_on": [
+        "step_checkWorkspaceFiles_verify_c9a417a33_4_3"
+      ],
       "preconditions": [],
       "postconditions": [],
-      "tags": ["feature:add-skill"]
+      "tags": [
+        "component:checks",
+        "assertion:file",
+        "step_retry_timeout:120"
+      ]
     },
     {
-      "step_id": "step_skill_manifest_selected_da_add_skill_mcp",
-      "agent": "assertion",
-      "tool": "",
-      "parameters": {},
-      "description": "@assertion the highlighted Quick Open result is declarativeAgent.json in appPackage.",
-      "content_refs": [],
-      "timeout": 30,
-      "retry_count": 0,
-      "continue_on_error": "false",
-      "depends_on": ["step_skill_manifest_filter_da_add_skill_mcp"],
-      "preconditions": [],
-      "postconditions": [],
-      "tags": ["feature:add-skill", "step_retry_timeout:30"]
-    },
-    {
-      "step_id": "step_skill_manifest_confirm_da_add_skill_mcp",
-      "agent": "interaction",
-      "tool": "key_press",
-      "parameters": {
-        "key": "enter"
-      },
-      "description": "Open the highlighted generated project file.",
-      "content_refs": [],
-      "timeout": 30,
-      "retry_count": 0,
-      "continue_on_error": "false",
-      "depends_on": ["step_skill_manifest_selected_da_add_skill_mcp"],
-      "preconditions": [],
-      "postconditions": [],
-      "tags": ["feature:add-skill"]
-    },
-    {
-      "step_id": "step_skill_manifest_end_da_add_skill_mcp",
-      "agent": "interaction",
-      "tool": "keyboard_shortcut",
-      "parameters": {
-        "keys": "ctrl+end"
-      },
-      "description": "Scroll to the end of the generated declarative agent manifest.",
-      "content_refs": [],
-      "timeout": 30,
-      "retry_count": 0,
-      "continue_on_error": "false",
-      "depends_on": ["step_skill_manifest_confirm_da_add_skill_mcp"],
-      "preconditions": [],
-      "postconditions": [],
-      "tags": ["feature:add-skill"]
-    },
-    {
-      "step_id": "step_skill_manifest_registration_da_add_skill_mcp",
-      "agent": "assertion",
-      "tool": "",
-      "parameters": {},
-      "description": "@assertion the active declarativeAgent.json editor contains an agent_skills entry with folder \"skills/test-skill\", and the existing action with id \"action_1\" still references \"ai-plugin.json\".",
-      "content_refs": [],
-      "timeout": 30,
-      "retry_count": 0,
-      "continue_on_error": "false",
-      "depends_on": ["step_skill_manifest_end_da_add_skill_mcp"],
-      "preconditions": [],
-      "postconditions": [],
-      "tags": ["feature:add-skill", "step_retry_timeout:30"]
-    },
-    {
-      "step_id": "step_executeCommand_open_cbe46eee0_3_1_da_add_skill_mcp",
+      "step_id": "step_executeCommand_open_c9a417a33_5_1",
       "agent": "interaction",
       "tool": "key_press",
       "parameters": {
@@ -1804,13 +2201,18 @@
       "timeout": 30,
       "retry_count": 0,
       "continue_on_error": "false",
-      "depends_on": ["step_skill_manifest_registration_da_add_skill_mcp"],
+      "depends_on": [
+        "step_checkWorkspaceFiles_verify_c9a417a33_4_4"
+      ],
       "preconditions": [],
       "postconditions": [],
-      "tags": ["component:command-palette", "action:execute-command"]
+      "tags": [
+        "component:command-palette",
+        "action:execute-command"
+      ]
     },
     {
-      "step_id": "step_executeCommand_assertPalette_cbe46eee0_3_1_da_add_skill_mcp",
+      "step_id": "step_executeCommand_assertPalette_c9a417a33_5_1",
       "agent": "assertion",
       "tool": "",
       "parameters": {},
@@ -1819,7 +2221,9 @@
       "timeout": 30,
       "retry_count": 0,
       "continue_on_error": "false",
-      "depends_on": ["step_executeCommand_open_cbe46eee0_3_1_da_add_skill_mcp"],
+      "depends_on": [
+        "step_executeCommand_open_c9a417a33_5_1"
+      ],
       "preconditions": [],
       "postconditions": [],
       "tags": [
@@ -1829,7 +2233,7 @@
       ]
     },
     {
-      "step_id": "step_executeCommand_filter_cbe46eee0_3_1_da_add_skill_mcp",
+      "step_id": "step_executeCommand_filter_c9a417a33_5_1",
       "agent": "interaction",
       "tool": "type_text",
       "parameters": {
@@ -1841,14 +2245,17 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_executeCommand_assertPalette_cbe46eee0_3_1_da_add_skill_mcp"
+        "step_executeCommand_assertPalette_c9a417a33_5_1"
       ],
       "preconditions": [],
       "postconditions": [],
-      "tags": ["component:command-palette", "action:execute-command"]
+      "tags": [
+        "component:command-palette",
+        "action:execute-command"
+      ]
     },
     {
-      "step_id": "step_executeCommand_assertCommand_cbe46eee0_3_1_da_add_skill_mcp",
+      "step_id": "step_executeCommand_assertCommand_c9a417a33_5_1",
       "agent": "assertion",
       "tool": "",
       "parameters": {},
@@ -1858,7 +2265,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_executeCommand_filter_cbe46eee0_3_1_da_add_skill_mcp"
+        "step_executeCommand_filter_c9a417a33_5_1"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -1869,7 +2276,7 @@
       ]
     },
     {
-      "step_id": "step_executeCommand_execute_cbe46eee0_3_1_da_add_skill_mcp",
+      "step_id": "step_executeCommand_execute_c9a417a33_5_1",
       "agent": "interaction",
       "tool": "key_press",
       "parameters": {
@@ -1881,14 +2288,17 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_executeCommand_assertCommand_cbe46eee0_3_1_da_add_skill_mcp"
+        "step_executeCommand_assertCommand_c9a417a33_5_1"
       ],
       "preconditions": [],
       "postconditions": [],
-      "tags": ["component:command-palette", "action:execute-command"]
+      "tags": [
+        "component:command-palette",
+        "action:execute-command"
+      ]
     },
     {
-      "step_id": "step_signInM365_assertOption_cbe46eee0_3_2_da_add_skill_mcp",
+      "step_id": "step_signInM365_assertOption_c9a417a33_5_2",
       "agent": "assertion",
       "tool": "",
       "parameters": {},
@@ -1898,7 +2308,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_executeCommand_execute_cbe46eee0_3_1_da_add_skill_mcp"
+        "step_executeCommand_execute_c9a417a33_5_1"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -1910,7 +2320,7 @@
       ]
     },
     {
-      "step_id": "step_signInM365_selectOption_cbe46eee0_3_2_da_add_skill_mcp",
+      "step_id": "step_signInM365_selectOption_c9a417a33_5_2",
       "agent": "interaction",
       "tool": "click",
       "parameters": {
@@ -1924,7 +2334,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_signInM365_assertOption_cbe46eee0_3_2_da_add_skill_mcp"
+        "step_signInM365_assertOption_c9a417a33_5_2"
       ],
       "preconditions": [
         "dhash:213:102:16:5:9c63d67674d4c718",
@@ -1932,10 +2342,13 @@
         "dhash:213:102:0:10:92c86223a3622421"
       ],
       "postconditions": [],
-      "tags": ["component:authentication", "account:m365"]
+      "tags": [
+        "component:authentication",
+        "account:m365"
+      ]
     },
     {
-      "step_id": "step_signInM365_confirmSignIn_cbe46eee0_3_2_da_add_skill_mcp",
+      "step_id": "step_signInM365_confirmSignIn_c9a417a33_5_2",
       "agent": "interaction",
       "tool": "click",
       "parameters": {
@@ -1949,7 +2362,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_signInM365_selectOption_cbe46eee0_3_2_da_add_skill_mcp"
+        "step_signInM365_selectOption_c9a417a33_5_2"
       ],
       "preconditions": [
         "dhash:762:97:16:5:24b1a72ba9aba343",
@@ -1957,10 +2370,13 @@
         "dhash:762:97:0:10:9c68332223232421"
       ],
       "postconditions": [],
-      "tags": ["component:authentication", "account:m365"]
+      "tags": [
+        "component:authentication",
+        "account:m365"
+      ]
     },
     {
-      "step_id": "step_signInM365_assertAccount_cbe46eee0_3_2_da_add_skill_mcp",
+      "step_id": "step_signInM365_assertAccount_c9a417a33_5_2",
       "agent": "assertion",
       "tool": "",
       "parameters": {},
@@ -1970,7 +2386,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_signInM365_confirmSignIn_cbe46eee0_3_2_da_add_skill_mcp"
+        "step_signInM365_confirmSignIn_c9a417a33_5_2"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -1981,7 +2397,7 @@
       ]
     },
     {
-      "step_id": "step_signInM365_focusAccount_cbe46eee0_3_2_da_add_skill_mcp",
+      "step_id": "step_signInM365_focusAccount_c9a417a33_5_2",
       "agent": "interaction",
       "tool": "click",
       "parameters": {
@@ -1995,14 +2411,18 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_signInM365_assertAccount_cbe46eee0_3_2_da_add_skill_mcp"
+        "step_signInM365_assertAccount_c9a417a33_5_2"
       ],
       "preconditions": [],
       "postconditions": [],
-      "tags": ["component:authentication", "account:m365", "ocr:true"]
+      "tags": [
+        "component:authentication",
+        "account:m365",
+        "ocr:true"
+      ]
     },
     {
-      "step_id": "step_signInM365_assertFocusedAccount_cbe46eee0_3_2_da_add_skill_mcp",
+      "step_id": "step_signInM365_assertFocusedAccount_c9a417a33_5_2",
       "agent": "assertion",
       "tool": "",
       "parameters": {},
@@ -2012,7 +2432,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_signInM365_focusAccount_cbe46eee0_3_2_da_add_skill_mcp"
+        "step_signInM365_focusAccount_c9a417a33_5_2"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -2023,7 +2443,7 @@
       ]
     },
     {
-      "step_id": "step_signInM365_typeAccount_cbe46eee0_3_2_da_add_skill_mcp",
+      "step_id": "step_signInM365_typeAccount_c9a417a33_5_2",
       "agent": "interaction",
       "tool": "type_text",
       "parameters": {
@@ -2035,14 +2455,18 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_signInM365_assertFocusedAccount_cbe46eee0_3_2_da_add_skill_mcp"
+        "step_signInM365_assertFocusedAccount_c9a417a33_5_2"
       ],
       "preconditions": [],
       "postconditions": [],
-      "tags": ["component:authentication", "account:m365", "delay: 3"]
+      "tags": [
+        "component:authentication",
+        "account:m365",
+        "delay: 3"
+      ]
     },
     {
-      "step_id": "step_signInM365_assertEnteredAccount_cbe46eee0_3_2_da_add_skill_mcp",
+      "step_id": "step_signInM365_assertEnteredAccount_c9a417a33_5_2",
       "agent": "assertion",
       "tool": "",
       "parameters": {},
@@ -2052,7 +2476,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_signInM365_typeAccount_cbe46eee0_3_2_da_add_skill_mcp"
+        "step_signInM365_typeAccount_c9a417a33_5_2"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -2063,7 +2487,7 @@
       ]
     },
     {
-      "step_id": "step_signInM365_next_cbe46eee0_3_2_da_add_skill_mcp",
+      "step_id": "step_signInM365_next_c9a417a33_5_2",
       "agent": "interaction",
       "tool": "click",
       "parameters": {
@@ -2077,7 +2501,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_signInM365_assertEnteredAccount_cbe46eee0_3_2_da_add_skill_mcp"
+        "step_signInM365_assertEnteredAccount_c9a417a33_5_2"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -2089,7 +2513,7 @@
       ]
     },
     {
-      "step_id": "step_signInM365_assertPassword_cbe46eee0_3_2_da_add_skill_mcp",
+      "step_id": "step_signInM365_assertPassword_c9a417a33_5_2",
       "agent": "assertion",
       "tool": "",
       "parameters": {},
@@ -2098,7 +2522,9 @@
       "timeout": 30,
       "retry_count": 0,
       "continue_on_error": "false",
-      "depends_on": ["step_signInM365_next_cbe46eee0_3_2_da_add_skill_mcp"],
+      "depends_on": [
+        "step_signInM365_next_c9a417a33_5_2"
+      ],
       "preconditions": [],
       "postconditions": [],
       "tags": [
@@ -2108,7 +2534,7 @@
       ]
     },
     {
-      "step_id": "step_signInM365_typePassword_cbe46eee0_3_2_da_add_skill_mcp",
+      "step_id": "step_signInM365_typePassword_c9a417a33_5_2",
       "agent": "interaction",
       "tool": "type_text",
       "parameters": {
@@ -2120,14 +2546,18 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_signInM365_assertPassword_cbe46eee0_3_2_da_add_skill_mcp"
+        "step_signInM365_assertPassword_c9a417a33_5_2"
       ],
       "preconditions": [],
       "postconditions": [],
-      "tags": ["component:authentication", "account:m365", "delay: 3"]
+      "tags": [
+        "component:authentication",
+        "account:m365",
+        "delay: 3"
+      ]
     },
     {
-      "step_id": "step_signInM365_submit_cbe46eee0_3_2_da_add_skill_mcp",
+      "step_id": "step_signInM365_submit_c9a417a33_5_2",
       "agent": "interaction",
       "tool": "key_press",
       "parameters": {
@@ -2139,14 +2569,18 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_signInM365_typePassword_cbe46eee0_3_2_da_add_skill_mcp"
+        "step_signInM365_typePassword_c9a417a33_5_2"
       ],
       "preconditions": [],
       "postconditions": [],
-      "tags": ["component:authentication", "account:m365", "delay: 3"]
+      "tags": [
+        "component:authentication",
+        "account:m365",
+        "delay: 3"
+      ]
     },
     {
-      "step_id": "step_signInM365_closeBrowser_cbe46eee0_3_2_da_add_skill_mcp",
+      "step_id": "step_signInM365_closeBrowser_c9a417a33_5_2",
       "agent": "interaction",
       "tool": "click",
       "parameters": {
@@ -2159,17 +2593,23 @@
       "timeout": 30,
       "retry_count": 0,
       "continue_on_error": "false",
-      "depends_on": ["step_signInM365_submit_cbe46eee0_3_2_da_add_skill_mcp"],
+      "depends_on": [
+        "step_signInM365_submit_c9a417a33_5_2"
+      ],
       "preconditions": [
         "dhash:1004:19:16:5:aac833964c9633cc",
         "dhash:1004:19:96:5:d2232323c200e6e6",
         "dhash:1004:19:0:10:0b01410169414141"
       ],
       "postconditions": [],
-      "tags": ["component:authentication", "account:m365", "delay: 3"]
+      "tags": [
+        "component:authentication",
+        "account:m365",
+        "delay: 3"
+      ]
     },
     {
-      "step_id": "step_signInM365_assertReady_cbe46eee0_3_2_da_add_skill_mcp",
+      "step_id": "step_signInM365_assertReady_c9a417a33_5_2",
       "agent": "assertion",
       "tool": "",
       "parameters": {},
@@ -2179,7 +2619,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_signInM365_closeBrowser_cbe46eee0_3_2_da_add_skill_mcp"
+        "step_signInM365_closeBrowser_c9a417a33_5_2"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -2191,7 +2631,7 @@
       ]
     },
     {
-      "step_id": "step_executeCommand_open_cbe46eee0_4_1_da_add_skill_mcp",
+      "step_id": "step_executeCommand_open_c9a417a33_6_1",
       "agent": "interaction",
       "tool": "key_press",
       "parameters": {
@@ -2203,14 +2643,17 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_signInM365_assertReady_cbe46eee0_3_2_da_add_skill_mcp"
+        "step_signInM365_assertReady_c9a417a33_5_2"
       ],
       "preconditions": [],
       "postconditions": [],
-      "tags": ["component:command-palette", "action:execute-command"]
+      "tags": [
+        "component:command-palette",
+        "action:execute-command"
+      ]
     },
     {
-      "step_id": "step_executeCommand_assertPalette_cbe46eee0_4_1_da_add_skill_mcp",
+      "step_id": "step_executeCommand_assertPalette_c9a417a33_6_1",
       "agent": "assertion",
       "tool": "",
       "parameters": {},
@@ -2219,7 +2662,9 @@
       "timeout": 30,
       "retry_count": 0,
       "continue_on_error": "false",
-      "depends_on": ["step_executeCommand_open_cbe46eee0_4_1_da_add_skill_mcp"],
+      "depends_on": [
+        "step_executeCommand_open_c9a417a33_6_1"
+      ],
       "preconditions": [],
       "postconditions": [],
       "tags": [
@@ -2229,7 +2674,7 @@
       ]
     },
     {
-      "step_id": "step_executeCommand_filter_cbe46eee0_4_1_da_add_skill_mcp",
+      "step_id": "step_executeCommand_filter_c9a417a33_6_1",
       "agent": "interaction",
       "tool": "type_text",
       "parameters": {
@@ -2241,14 +2686,17 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_executeCommand_assertPalette_cbe46eee0_4_1_da_add_skill_mcp"
+        "step_executeCommand_assertPalette_c9a417a33_6_1"
       ],
       "preconditions": [],
       "postconditions": [],
-      "tags": ["component:command-palette", "action:execute-command"]
+      "tags": [
+        "component:command-palette",
+        "action:execute-command"
+      ]
     },
     {
-      "step_id": "step_executeCommand_assertCommand_cbe46eee0_4_1_da_add_skill_mcp",
+      "step_id": "step_executeCommand_assertCommand_c9a417a33_6_1",
       "agent": "assertion",
       "tool": "",
       "parameters": {},
@@ -2258,7 +2706,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_executeCommand_filter_cbe46eee0_4_1_da_add_skill_mcp"
+        "step_executeCommand_filter_c9a417a33_6_1"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -2269,7 +2717,7 @@
       ]
     },
     {
-      "step_id": "step_executeCommand_execute_cbe46eee0_4_1_da_add_skill_mcp",
+      "step_id": "step_executeCommand_execute_c9a417a33_6_1",
       "agent": "interaction",
       "tool": "key_press",
       "parameters": {
@@ -2281,14 +2729,17 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_executeCommand_assertCommand_cbe46eee0_4_1_da_add_skill_mcp"
+        "step_executeCommand_assertCommand_c9a417a33_6_1"
       ],
       "preconditions": [],
       "postconditions": [],
-      "tags": ["component:command-palette", "action:execute-command"]
+      "tags": [
+        "component:command-palette",
+        "action:execute-command"
+      ]
     },
     {
-      "step_id": "step_executeCommand_open_cbe46eee0_4_2_da_add_skill_mcp",
+      "step_id": "step_executeCommand_open_c9a417a33_6_2",
       "agent": "interaction",
       "tool": "key_press",
       "parameters": {
@@ -2300,14 +2751,17 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_executeCommand_execute_cbe46eee0_4_1_da_add_skill_mcp"
+        "step_executeCommand_execute_c9a417a33_6_1"
       ],
       "preconditions": [],
       "postconditions": [],
-      "tags": ["component:command-palette", "action:execute-command"]
+      "tags": [
+        "component:command-palette",
+        "action:execute-command"
+      ]
     },
     {
-      "step_id": "step_executeCommand_assertPalette_cbe46eee0_4_2_da_add_skill_mcp",
+      "step_id": "step_executeCommand_assertPalette_c9a417a33_6_2",
       "agent": "assertion",
       "tool": "",
       "parameters": {},
@@ -2316,7 +2770,9 @@
       "timeout": 30,
       "retry_count": 0,
       "continue_on_error": "false",
-      "depends_on": ["step_executeCommand_open_cbe46eee0_4_2_da_add_skill_mcp"],
+      "depends_on": [
+        "step_executeCommand_open_c9a417a33_6_2"
+      ],
       "preconditions": [],
       "postconditions": [],
       "tags": [
@@ -2326,7 +2782,7 @@
       ]
     },
     {
-      "step_id": "step_executeCommand_filter_cbe46eee0_4_2_da_add_skill_mcp",
+      "step_id": "step_executeCommand_filter_c9a417a33_6_2",
       "agent": "interaction",
       "tool": "type_text",
       "parameters": {
@@ -2338,14 +2794,17 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_executeCommand_assertPalette_cbe46eee0_4_2_da_add_skill_mcp"
+        "step_executeCommand_assertPalette_c9a417a33_6_2"
       ],
       "preconditions": [],
       "postconditions": [],
-      "tags": ["component:command-palette", "action:execute-command"]
+      "tags": [
+        "component:command-palette",
+        "action:execute-command"
+      ]
     },
     {
-      "step_id": "step_executeCommand_assertCommand_cbe46eee0_4_2_da_add_skill_mcp",
+      "step_id": "step_executeCommand_assertCommand_c9a417a33_6_2",
       "agent": "assertion",
       "tool": "",
       "parameters": {},
@@ -2355,7 +2814,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_executeCommand_filter_cbe46eee0_4_2_da_add_skill_mcp"
+        "step_executeCommand_filter_c9a417a33_6_2"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -2366,7 +2825,7 @@
       ]
     },
     {
-      "step_id": "step_executeCommand_execute_cbe46eee0_4_2_da_add_skill_mcp",
+      "step_id": "step_executeCommand_execute_c9a417a33_6_2",
       "agent": "interaction",
       "tool": "key_press",
       "parameters": {
@@ -2378,14 +2837,17 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_executeCommand_assertCommand_cbe46eee0_4_2_da_add_skill_mcp"
+        "step_executeCommand_assertCommand_c9a417a33_6_2"
       ],
       "preconditions": [],
       "postconditions": [],
-      "tags": ["component:command-palette", "action:execute-command"]
+      "tags": [
+        "component:command-palette",
+        "action:execute-command"
+      ]
     },
     {
-      "step_id": "step_executeCommand_open_cbe46eee0_4_3_da_add_skill_mcp",
+      "step_id": "step_executeCommand_open_c9a417a33_6_3",
       "agent": "interaction",
       "tool": "key_press",
       "parameters": {
@@ -2397,14 +2859,17 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_executeCommand_execute_cbe46eee0_4_2_da_add_skill_mcp"
+        "step_executeCommand_execute_c9a417a33_6_2"
       ],
       "preconditions": [],
       "postconditions": [],
-      "tags": ["component:command-palette", "action:execute-command"]
+      "tags": [
+        "component:command-palette",
+        "action:execute-command"
+      ]
     },
     {
-      "step_id": "step_executeCommand_assertPalette_cbe46eee0_4_3_da_add_skill_mcp",
+      "step_id": "step_executeCommand_assertPalette_c9a417a33_6_3",
       "agent": "assertion",
       "tool": "",
       "parameters": {},
@@ -2413,7 +2878,9 @@
       "timeout": 30,
       "retry_count": 0,
       "continue_on_error": "false",
-      "depends_on": ["step_executeCommand_open_cbe46eee0_4_3_da_add_skill_mcp"],
+      "depends_on": [
+        "step_executeCommand_open_c9a417a33_6_3"
+      ],
       "preconditions": [],
       "postconditions": [],
       "tags": [
@@ -2423,7 +2890,7 @@
       ]
     },
     {
-      "step_id": "step_executeCommand_filter_cbe46eee0_4_3_da_add_skill_mcp",
+      "step_id": "step_executeCommand_filter_c9a417a33_6_3",
       "agent": "interaction",
       "tool": "type_text",
       "parameters": {
@@ -2435,14 +2902,17 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_executeCommand_assertPalette_cbe46eee0_4_3_da_add_skill_mcp"
+        "step_executeCommand_assertPalette_c9a417a33_6_3"
       ],
       "preconditions": [],
       "postconditions": [],
-      "tags": ["component:command-palette", "action:execute-command"]
+      "tags": [
+        "component:command-palette",
+        "action:execute-command"
+      ]
     },
     {
-      "step_id": "step_executeCommand_assertCommand_cbe46eee0_4_3_da_add_skill_mcp",
+      "step_id": "step_executeCommand_assertCommand_c9a417a33_6_3",
       "agent": "assertion",
       "tool": "",
       "parameters": {},
@@ -2452,7 +2922,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_executeCommand_filter_cbe46eee0_4_3_da_add_skill_mcp"
+        "step_executeCommand_filter_c9a417a33_6_3"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -2463,7 +2933,7 @@
       ]
     },
     {
-      "step_id": "step_executeCommand_execute_cbe46eee0_4_3_da_add_skill_mcp",
+      "step_id": "step_executeCommand_execute_c9a417a33_6_3",
       "agent": "interaction",
       "tool": "key_press",
       "parameters": {
@@ -2475,14 +2945,17 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_executeCommand_assertCommand_cbe46eee0_4_3_da_add_skill_mcp"
+        "step_executeCommand_assertCommand_c9a417a33_6_3"
       ],
       "preconditions": [],
       "postconditions": [],
-      "tags": ["component:command-palette", "action:execute-command"]
+      "tags": [
+        "component:command-palette",
+        "action:execute-command"
+      ]
     },
     {
-      "step_id": "step_assertNotificationContains_assert_cbe46eee0_4_4_da_add_skill_mcp",
+      "step_id": "step_assertNotificationContains_assert_c9a417a33_6_4",
       "agent": "assertion",
       "tool": "",
       "parameters": {},
@@ -2492,7 +2965,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_executeCommand_execute_cbe46eee0_4_3_da_add_skill_mcp"
+        "step_executeCommand_execute_c9a417a33_6_3"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -2503,7 +2976,7 @@
       ]
     },
     {
-      "step_id": "step_executeCommand_open_cbe46eee0_5_1_da_add_skill_mcp",
+      "step_id": "step_executeCommand_open_c9a417a33_7_1",
       "agent": "interaction",
       "tool": "key_press",
       "parameters": {
@@ -2515,14 +2988,17 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_assertNotificationContains_assert_cbe46eee0_4_4_da_add_skill_mcp"
+        "step_assertNotificationContains_assert_c9a417a33_6_4"
       ],
       "preconditions": [],
       "postconditions": [],
-      "tags": ["component:command-palette", "action:execute-command"]
+      "tags": [
+        "component:command-palette",
+        "action:execute-command"
+      ]
     },
     {
-      "step_id": "step_executeCommand_assertPalette_cbe46eee0_5_1_da_add_skill_mcp",
+      "step_id": "step_executeCommand_assertPalette_c9a417a33_7_1",
       "agent": "assertion",
       "tool": "",
       "parameters": {},
@@ -2531,7 +3007,9 @@
       "timeout": 30,
       "retry_count": 0,
       "continue_on_error": "false",
-      "depends_on": ["step_executeCommand_open_cbe46eee0_5_1_da_add_skill_mcp"],
+      "depends_on": [
+        "step_executeCommand_open_c9a417a33_7_1"
+      ],
       "preconditions": [],
       "postconditions": [],
       "tags": [
@@ -2541,7 +3019,7 @@
       ]
     },
     {
-      "step_id": "step_executeCommand_filter_cbe46eee0_5_1_da_add_skill_mcp",
+      "step_id": "step_executeCommand_filter_c9a417a33_7_1",
       "agent": "interaction",
       "tool": "type_text",
       "parameters": {
@@ -2553,14 +3031,17 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_executeCommand_assertPalette_cbe46eee0_5_1_da_add_skill_mcp"
+        "step_executeCommand_assertPalette_c9a417a33_7_1"
       ],
       "preconditions": [],
       "postconditions": [],
-      "tags": ["component:command-palette", "action:execute-command"]
+      "tags": [
+        "component:command-palette",
+        "action:execute-command"
+      ]
     },
     {
-      "step_id": "step_executeCommand_assertCommand_cbe46eee0_5_1_da_add_skill_mcp",
+      "step_id": "step_executeCommand_assertCommand_c9a417a33_7_1",
       "agent": "assertion",
       "tool": "",
       "parameters": {},
@@ -2570,7 +3051,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_executeCommand_filter_cbe46eee0_5_1_da_add_skill_mcp"
+        "step_executeCommand_filter_c9a417a33_7_1"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -2581,7 +3062,7 @@
       ]
     },
     {
-      "step_id": "step_executeCommand_execute_cbe46eee0_5_1_da_add_skill_mcp",
+      "step_id": "step_executeCommand_execute_c9a417a33_7_1",
       "agent": "interaction",
       "tool": "key_press",
       "parameters": {
@@ -2593,14 +3074,17 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_executeCommand_assertCommand_cbe46eee0_5_1_da_add_skill_mcp"
+        "step_executeCommand_assertCommand_c9a417a33_7_1"
       ],
       "preconditions": [],
       "postconditions": [],
-      "tags": ["component:command-palette", "action:execute-command"]
+      "tags": [
+        "component:command-palette",
+        "action:execute-command"
+      ]
     },
     {
-      "step_id": "step_filterOption_filter_cbe46eee0_5_2_da_add_skill_mcp",
+      "step_id": "step_filterOption_filter_c9a417a33_7_2",
       "agent": "interaction",
       "tool": "type_text",
       "parameters": {
@@ -2612,14 +3096,17 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_executeCommand_execute_cbe46eee0_5_1_da_add_skill_mcp"
+        "step_executeCommand_execute_c9a417a33_7_1"
       ],
       "preconditions": [],
       "postconditions": [],
-      "tags": ["component:quick-input", "answer_type:singleSelect"]
+      "tags": [
+        "component:quick-input",
+        "answer_type:singleSelect"
+      ]
     },
     {
-      "step_id": "step_filterOption_assertOption_cbe46eee0_5_2_da_add_skill_mcp",
+      "step_id": "step_filterOption_assertOption_c9a417a33_7_2",
       "agent": "assertion",
       "tool": "",
       "parameters": {},
@@ -2628,7 +3115,9 @@
       "timeout": 30,
       "retry_count": 0,
       "continue_on_error": "false",
-      "depends_on": ["step_filterOption_filter_cbe46eee0_5_2_da_add_skill_mcp"],
+      "depends_on": [
+        "step_filterOption_filter_c9a417a33_7_2"
+      ],
       "preconditions": [],
       "postconditions": [],
       "tags": [
@@ -2638,7 +3127,7 @@
       ]
     },
     {
-      "step_id": "step_filterOption_confirm_cbe46eee0_5_2_da_add_skill_mcp",
+      "step_id": "step_filterOption_confirm_c9a417a33_7_2",
       "agent": "interaction",
       "tool": "key_press",
       "parameters": {
@@ -2650,14 +3139,17 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_filterOption_assertOption_cbe46eee0_5_2_da_add_skill_mcp"
+        "step_filterOption_assertOption_c9a417a33_7_2"
       ],
       "preconditions": [],
       "postconditions": [],
-      "tags": ["component:quick-input", "answer_type:singleSelect"]
+      "tags": [
+        "component:quick-input",
+        "answer_type:singleSelect"
+      ]
     },
     {
-      "step_id": "step_browserM365SignIn_assertPage_cbe46eee0_5_3_da_add_skill_mcp",
+      "step_id": "step_browserM365SignIn_assertPage_c9a417a33_7_3",
       "agent": "assertion",
       "tool": "",
       "parameters": {},
@@ -2667,7 +3159,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_filterOption_confirm_cbe46eee0_5_2_da_add_skill_mcp"
+        "step_filterOption_confirm_c9a417a33_7_2"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -2678,13 +3170,13 @@
       ]
     },
     {
-      "step_id": "step_browserM365SignIn_focusAccount_cbe46eee0_5_3_da_add_skill_mcp",
+      "step_id": "step_browserM365SignIn_focusAccount_c9a417a33_7_3",
       "agent": "interaction",
       "tool": "click",
       "parameters": {
-        "x": 468,
-        "y": 286,
-        "button": "left"
+        "button": "left",
+        "x": 512,
+        "y": 384
       },
       "description": "Click the \"Email, phone, or Skype\" input (also labelled \"Email or phone\") on the Microsoft sign-in page above Next, not the passkey suggestion.",
       "content_refs": [],
@@ -2692,22 +3184,18 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_browserM365SignIn_assertPage_cbe46eee0_5_3_da_add_skill_mcp"
+        "step_browserM365SignIn_assertPage_c9a417a33_7_3"
       ],
-      "preconditions": [
-        "dhash:468:286:16:5:8e800653dbd6dc9b",
-        "dhash:468:286:96:5:0008002c0cd000da"
-      ],
+      "preconditions": [],
       "postconditions": [],
       "tags": [
         "component:authentication",
         "surface:browser",
-        "ocr:true",
-        "recording:r_1104_062516"
+        "ocr:true"
       ]
     },
     {
-      "step_id": "step_browserM365SignIn_assertAccount_cbe46eee0_5_3_da_add_skill_mcp",
+      "step_id": "step_browserM365SignIn_assertAccount_c9a417a33_7_3",
       "agent": "assertion",
       "tool": "",
       "parameters": {},
@@ -2717,7 +3205,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_browserM365SignIn_focusAccount_cbe46eee0_5_3_da_add_skill_mcp"
+        "step_browserM365SignIn_focusAccount_c9a417a33_7_3"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -2728,7 +3216,7 @@
       ]
     },
     {
-      "step_id": "step_browserM365SignIn_enterAccount_cbe46eee0_5_3_da_add_skill_mcp",
+      "step_id": "step_browserM365SignIn_enterAccount_c9a417a33_7_3",
       "agent": "interaction",
       "tool": "type_text",
       "parameters": {
@@ -2740,14 +3228,17 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_browserM365SignIn_assertAccount_cbe46eee0_5_3_da_add_skill_mcp"
+        "step_browserM365SignIn_assertAccount_c9a417a33_7_3"
       ],
       "preconditions": [],
       "postconditions": [],
-      "tags": ["component:authentication", "surface:browser"]
+      "tags": [
+        "component:authentication",
+        "surface:browser"
+      ]
     },
     {
-      "step_id": "step_browserM365SignIn_assertEnteredAccount_cbe46eee0_5_3_da_add_skill_mcp",
+      "step_id": "step_browserM365SignIn_assertEnteredAccount_c9a417a33_7_3",
       "agent": "assertion",
       "tool": "",
       "parameters": {},
@@ -2757,7 +3248,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_browserM365SignIn_enterAccount_cbe46eee0_5_3_da_add_skill_mcp"
+        "step_browserM365SignIn_enterAccount_c9a417a33_7_3"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -2768,7 +3259,7 @@
       ]
     },
     {
-      "step_id": "step_browserM365SignIn_submitAccount_cbe46eee0_5_3_da_add_skill_mcp",
+      "step_id": "step_browserM365SignIn_submitAccount_c9a417a33_7_3",
       "agent": "interaction",
       "tool": "key_press",
       "parameters": {
@@ -2780,14 +3271,17 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_browserM365SignIn_assertEnteredAccount_cbe46eee0_5_3_da_add_skill_mcp"
+        "step_browserM365SignIn_assertEnteredAccount_c9a417a33_7_3"
       ],
       "preconditions": [],
       "postconditions": [],
-      "tags": ["component:authentication", "surface:browser"]
+      "tags": [
+        "component:authentication",
+        "surface:browser"
+      ]
     },
     {
-      "step_id": "step_browserM365SignIn_assertPassword_cbe46eee0_5_3_da_add_skill_mcp",
+      "step_id": "step_browserM365SignIn_assertPassword_c9a417a33_7_3",
       "agent": "assertion",
       "tool": "",
       "parameters": {},
@@ -2797,7 +3291,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_browserM365SignIn_submitAccount_cbe46eee0_5_3_da_add_skill_mcp"
+        "step_browserM365SignIn_submitAccount_c9a417a33_7_3"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -2808,7 +3302,7 @@
       ]
     },
     {
-      "step_id": "step_browserM365SignIn_enterPassword_cbe46eee0_5_3_da_add_skill_mcp",
+      "step_id": "step_browserM365SignIn_enterPassword_c9a417a33_7_3",
       "agent": "interaction",
       "tool": "type_text",
       "parameters": {
@@ -2820,14 +3314,17 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_browserM365SignIn_assertPassword_cbe46eee0_5_3_da_add_skill_mcp"
+        "step_browserM365SignIn_assertPassword_c9a417a33_7_3"
       ],
       "preconditions": [],
       "postconditions": [],
-      "tags": ["component:authentication", "surface:browser"]
+      "tags": [
+        "component:authentication",
+        "surface:browser"
+      ]
     },
     {
-      "step_id": "step_browserM365SignIn_submitPassword_cbe46eee0_5_3_da_add_skill_mcp",
+      "step_id": "step_browserM365SignIn_submitPassword_c9a417a33_7_3",
       "agent": "interaction",
       "tool": "key_press",
       "parameters": {
@@ -2839,14 +3336,17 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_browserM365SignIn_enterPassword_cbe46eee0_5_3_da_add_skill_mcp"
+        "step_browserM365SignIn_enterPassword_c9a417a33_7_3"
       ],
       "preconditions": [],
       "postconditions": [],
-      "tags": ["component:authentication", "surface:browser"]
+      "tags": [
+        "component:authentication",
+        "surface:browser"
+      ]
     },
     {
-      "step_id": "step_browserM365SignIn_assertStaySignedIn_cbe46eee0_5_3_da_add_skill_mcp",
+      "step_id": "step_browserM365SignIn_assertStaySignedIn_c9a417a33_7_3",
       "agent": "assertion",
       "tool": "",
       "parameters": {},
@@ -2856,7 +3356,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_browserM365SignIn_submitPassword_cbe46eee0_5_3_da_add_skill_mcp"
+        "step_browserM365SignIn_submitPassword_c9a417a33_7_3"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -2867,7 +3367,7 @@
       ]
     },
     {
-      "step_id": "step_browserM365SignIn_confirmStaySignedIn_cbe46eee0_5_3_da_add_skill_mcp",
+      "step_id": "step_browserM365SignIn_confirmStaySignedIn_c9a417a33_7_3",
       "agent": "interaction",
       "tool": "key_press",
       "parameters": {
@@ -2879,14 +3379,18 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_browserM365SignIn_assertStaySignedIn_cbe46eee0_5_3_da_add_skill_mcp"
+        "step_browserM365SignIn_assertStaySignedIn_c9a417a33_7_3"
       ],
       "preconditions": [],
       "postconditions": [],
-      "tags": ["component:authentication", "surface:browser", "delay: 30"]
+      "tags": [
+        "component:authentication",
+        "surface:browser",
+        "delay: 30"
+      ]
     },
     {
-      "step_id": "step_assertReady_assertReady_cbe46eee0_5_4_da_add_skill_mcp",
+      "step_id": "step_assertReady_assertReady_c9a417a33_7_4",
       "agent": "assertion",
       "tool": "",
       "parameters": {},
@@ -2896,7 +3400,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_browserM365SignIn_confirmStaySignedIn_cbe46eee0_5_3_da_add_skill_mcp"
+        "step_browserM365SignIn_confirmStaySignedIn_c9a417a33_7_3"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -2907,21 +3411,48 @@
       ]
     },
     {
-      "step_id": "step_skill_browser_agent_da_add_skill_mcp",
-      "agent": "assertion",
-      "tool": "",
-      "parameters": {},
-      "description": "@assertion Microsoft 365 Copilot in Chrome has the provisioned agent chat open for an agent whose name starts with ${{var:app_name}}, and its message input is visible. The generic Copilot home page or a sign-in page does not satisfy this assertion.",
+      "step_id": "step_zoomOut_zoomOut_c9a417a33_7_5",
+      "agent": "interaction",
+      "tool": "keyboard_shortcut",
+      "parameters": {
+        "keys": "ctrl+-"
+      },
+      "description": "Zoom the browser out once with Ctrl+- so the Microsoft 365 Copilot navigation rail stops covering the conversation column.",
       "content_refs": [],
-      "timeout": 120,
+      "timeout": 30,
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_assertReady_assertReady_cbe46eee0_5_4_da_add_skill_mcp"
+        "step_assertReady_assertReady_c9a417a33_7_4"
       ],
       "preconditions": [],
       "postconditions": [],
-      "tags": ["feature:add-skill", "step_retry_timeout:120"]
+      "tags": [
+        "component:browser",
+        "action:zoom-out"
+      ]
+    },
+    {
+      "step_id": "step_assertElementNamePrefix_assertVisible_c9a417a33_8_1",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion a visible browser element has role heading and an accessible name that starts with ${{var:app_name}}.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_zoomOut_zoomOut_c9a417a33_7_5"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:browser",
+        "action:assert-element-name-prefix",
+        "step_retry_timeout: 60"
+      ]
     }
-  ]
+  ],
+  "screenshots": {}
 }
