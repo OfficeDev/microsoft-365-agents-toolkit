@@ -40,10 +40,8 @@ describe("Work IQ Agent Policy API", () => {
     vi.restoreAllMocks();
   });
 
-  it("WIQ-POL-24: the exported PPE endpoint preserves its service prefix", () => {
-    expect(workIqPolicyClient.endpoint).toBe(
-      "https://sdf-s01-106-nam-centralus.substrate.cosmic-ppe.office.net/workiq-mcp-server"
-    );
+  it("WIQ-POL-24: the exported endpoint is the current Work IQ service origin", () => {
+    expect(workIqPolicyClient.endpoint).toBe("https://workiq.svc.cloud.microsoft");
   });
 
   it("WIQ-POL-26: the default management scope still requires a real token provider", async () => {
@@ -67,22 +65,59 @@ describe("Work IQ Agent Policy API", () => {
     expect(vi.mocked(provider.getAccessToken).mock.calls).toEqual([[expected], [expected]]);
   });
 
-  it("WIQ-POL-24: configured PPE requests retain the /workiq-mcp-server API prefix", async () => {
+  for (const replacement of [false, true]) {
+    it(`WIQ-POL-24: default ${replacement ? "replacement" : "creation"} uses the current agent route exactly once`, async () => {
+      const http = axios.create();
+      const defaultAdapter = new MockAdapter(http);
+      const configured = new WorkIqPolicyClient(workIqPolicyClient.endpoint, [scope], http);
+      const expectedUrl =
+        "https://workiq.svc.cloud.microsoft/api/policies/agents/" + encodeURIComponent(titleId);
+      try {
+        defaultAdapter
+          .onGet(expectedUrl)
+          .reply(replacement ? 200 : 404, {}, replacement ? { ETag: '"current-version"' } : {});
+        defaultAdapter.onPut(expectedUrl).reply(replacement ? 200 : 201, {}, { ETag: '"saved"' });
+
+        expect((await configured.publish(request(), provider)).isOk()).toBe(true);
+
+        expect(defaultAdapter.history.get.map((read) => read.url)).toEqual([expectedUrl]);
+        expect(defaultAdapter.history.put.map((write) => write.url)).toEqual([expectedUrl]);
+        expect(defaultAdapter.history.put[0].headers).toHaveProperty(
+          replacement ? "If-Match" : "If-None-Match",
+          replacement ? '"current-version"' : "*"
+        );
+        expect(provider.getAccessToken).toHaveBeenCalledExactlyOnceWith({ scopes: [scope] });
+      } finally {
+        defaultAdapter.restore();
+      }
+    });
+  }
+
+  it("WIQ-POL-24: standalone inspection and deletion use the current agent route exactly once", async () => {
     const http = axios.create();
-    const ppeAdapter = new MockAdapter(http);
-    const ppe = new WorkIqPolicyClient(workIqPolicyClient.endpoint, [scope], http);
+    const defaultAdapter = new MockAdapter(http);
+    const configured = new WorkIqPolicyClient(workIqPolicyClient.endpoint, [scope], http);
     const expectedUrl =
-      "https://sdf-s01-106-nam-centralus.substrate.cosmic-ppe.office.net/workiq-mcp-server/api/policies/agents/" +
-      encodeURIComponent(titleId);
+      "https://workiq.svc.cloud.microsoft/api/policies/agents/" + encodeURIComponent(titleId);
     try {
-      ppeAdapter.onPut(expectedUrl).reply(201, {}, { ETag: '"ppe"' });
-      ppeAdapter.onGet(`${workIqPolicyClient.endpoint}/api/policies/contracts`).reply(200, {});
-      ppeAdapter.onGet(expectedUrl).reply(404);
-      expect((await ppe.publish(request(), provider)).isOk()).toBe(true);
-      expect(ppeAdapter.history.put).toHaveLength(1);
-      expect(ppeAdapter.history.put[0].url).toBe(expectedUrl);
+      defaultAdapter.onGet(expectedUrl).reply(200, {}, { ETag: '"current-version"' });
+      defaultAdapter.onDelete(expectedUrl).reply(204);
+
+      expect((await configured.getPolicy(titleId, provider)).isOk()).toBe(true);
+      expect(
+        (
+          await configured.deletePolicy({ titleId, callerId, etag: '"current-version"' }, provider)
+        ).isOk()
+      ).toBe(true);
+
+      expect(defaultAdapter.history.get.map((read) => read.url)).toEqual([expectedUrl]);
+      expect(defaultAdapter.history.delete.map((write) => write.url)).toEqual([expectedUrl]);
+      expect(defaultAdapter.history.delete[0].headers).toHaveProperty(
+        "If-Match",
+        '"current-version"'
+      );
     } finally {
-      ppeAdapter.restore();
+      defaultAdapter.restore();
     }
   });
 

@@ -257,7 +257,10 @@ export class PolicyPublicationOperation {
           policy,
           signal: context.signal,
         });
-        if (mos.isErr()) return failure(mos.error);
+        if (mos.isErr()) {
+          if (mos.error.name === "POLICY_MOS_POLICY_EXISTS") report.mos = { state: "conflict" };
+          return failure(mos.error);
+        }
         publications.unshift(["mos", mos.value]);
       } catch (error) {
         return failure(

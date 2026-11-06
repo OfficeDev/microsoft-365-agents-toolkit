@@ -147,7 +147,7 @@ Publication target/environment defaults and API sequencing are owned by
 delegates these decisions to the native operation rather than adding its own
 selection or authentication logic.
 
-The configured policy action can make real MOS and Work IQ PPE requests.
+The configured policy action can make real MOS and Work IQ service requests.
 Registration does not change WIQD's mock caller. Automated tests use service fakes;
 no live policy write or production authorization is implied by these gates.
 

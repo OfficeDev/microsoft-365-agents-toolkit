@@ -408,6 +408,6 @@ export class WorkIqPolicyClient implements WorkIqPolicyPublisher {
 }
 
 export const workIqPolicyClient = new WorkIqPolicyClient(
-  "https://sdf-s01-106-nam-centralus.substrate.cosmic-ppe.office.net/workiq-mcp-server",
+  "https://workiq.svc.cloud.microsoft",
   WorkIqServiceScope()
 );
