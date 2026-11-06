@@ -178,7 +178,11 @@ function actionCommand<K extends ActionName>(name: K): CLICommand {
     ].join("\n\n"),
     defaultInteractiveOption: false,
     options: [
-      ...options.value,
+      ...options.value.map((option) =>
+        name === ActionNames.PublishPolicy && option.questionName === "policyPath"
+          ? { ...option, description: commands["execute.action"].policyPathResolution }
+          : option
+      ),
       { ...ProjectFolderOptionWithoutValidation, hidden: true },
       hiddenInteractiveOption,
     ],

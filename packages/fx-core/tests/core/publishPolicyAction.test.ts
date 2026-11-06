@@ -61,6 +61,23 @@ describe("public policy action", () => {
     policyPath: join(projectPath, "policy.json"),
   });
 
+  it("POLICY-ACTION-01: rejects the previous action spelling before driver execution or authentication", async () => {
+    const driver = vi.spyOn(PublishPolicyDriver.prototype, "execute").mockResolvedValue({
+      result: ok(new Map<string, string>()),
+      summaries: [],
+    });
+    const token = vi.spyOn(tools.tokenProvider.m365TokenProvider, "getAccessToken");
+    const execution: ExecutionResult = await Reflect.apply(client.executeAction, client, [
+      "workiq/publishPolicy",
+      args(),
+      { projectPath },
+    ]);
+    expect(execution.result.isErr()).toBe(true);
+    if (execution.result.isErr()) expect(execution.result.error.name).toBe("UnsupportedAction");
+    expect(driver).not.toHaveBeenCalled();
+    expect(token).not.toHaveBeenCalled();
+  });
+
   for (const value of [undefined, "mos", "workiq", "both"]) {
     it(`POLICY-ACTION-05: ${value ?? "unset"} preserves the native target selection`, async () => {
       vi.stubEnv("TEAMSFX_WORKIQ_PUBLISH_TARGET", value);

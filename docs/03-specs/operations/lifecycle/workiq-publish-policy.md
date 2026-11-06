@@ -2,7 +2,7 @@
 
 ## Requirement and scope
 
-The approved chat handoff requests a native `workiq/publishPolicy` action and a
+The approved chat handoff requests a native `copilotAgent/publishPolicy` action and a
 reusable fx-core operation. Existing CLI and VS Code publish lifecycles remain
 the surfaces: no new command, prompt, or identity-discovery UX is added.
 Packaging remains a separate increment.
@@ -35,6 +35,22 @@ is no automatic scope substitution, downgrade or mock fallback.
 
 ## Inputs and outputs
 
+The approved 2026-11-06 naming decision places policy publication in the agent
+capability namespace: `copilotAgent/publishPolicy`. `ActionNames.PublishPolicy`
+keeps its existing export key. The previous `workiq/publishPolicy` spelling is
+not an alias. This rename does not add policy types or change the current
+Work IQ implementation, parameters, reports or service targeting.
+
+The approved user-facing copy describes agent policy publication while explicitly
+limiting current support to Work IQ policies. YAML action and argument descriptions,
+SDK metadata, and driver progress use consistent wording. Publication does not
+verify runtime enforcement; destination selection, ETags, and authorization remain
+the technical contracts described in this operation.
+
+The 2026-11-06 PM review scope omits environment-output configuration from the
+YAML schema and examples. The native report and existing output-mapping code
+remain unchanged for internal compatibility.
+
 Experimental YAML v1.13 inputs:
 
 | Input        | Meaning                                                                                 |
@@ -46,9 +62,6 @@ Experimental YAML v1.13 inputs:
 `etag` and `workIqEtag` are not publication inputs, including direct operation
 and client publication requests. Legacy YAML inputs are rejected, not ignored.
 ETags remain internal conditional-write state and independent report receipts.
-
-`writeToEnvironmentFile.report` optionally maps a JSON publication report to an
-environment variable. No output mapping is required.
 
 The reusable operation returns `Result<PolicyPublicationReport,
 PolicyPublicationError>`. Failure retains the report on `error.report`.
@@ -325,8 +338,7 @@ does not resolve them, and HTTP-mocked regressions are not live acceptance evide
   an authoritative local schema is supplied.
 - No unconditional overwrite, rollback, policy-write retry, automatic reconciliation,
   content-based upload deduplication, or client-generated ETags.
-- No durable report file; optional environment output is written by the existing
-  lifecycle only on successful Alpha execution.
+- No durable report file.
 
 ## Invariants
 
@@ -377,7 +389,7 @@ different target or tests the unset-target default.
 
 | ID         | Runtime | Purpose               | Gate     | Harness                                                  | Given / When                                                                                                      | Then                                                                                                                                                                 |
 | ---------- | ------- | --------------------- | -------- | -------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| WIQ-POL-01 | L1      | operation-integration | required | Current/versioned JSON schemas and driver registry       | Configure the action with explicit required inputs                                                                | Both schemas accept it and the shared driver resolves it.                                                                                                            |
+| WIQ-POL-01 | L1      | operation-integration | required | Current/versioned JSON schemas and driver registry       | Configure the action with explicit required inputs                                                                | Both schemas accept the inputs without writeToEnvironmentFile and reject that YAML property; the shared driver resolves the action.                                    |
 | WIQ-POL-02 | L1      | operation-integration | required | Operation with temporary project                         | Inputs, legacy ETag fields, JSON, encoding, or path are invalid                                                   | Return a user error without token acquisition or destination writes.                                                                                                 |
 | WIQ-POL-03 | L1      | operation-integration | required | Real operation and MOS HTTP mock                         | Publish a valid policy                                                                                            | One conditional MOS PUT uses the exact captured bytes, independently supplied delegated token, and encoded title path; report includes the byte digest.              |
 | WIQ-POL-04 | L1      | operation-integration | required | Real operation and MOS HTTP mock                         | With default blocking, GET an existing MOS policy or receive a write conflict                                     | PUT with the exact GET ETag; conflicts are preserved without re-reading/retrying and Work IQ does not write.                                                         |
@@ -421,13 +433,11 @@ different target or tests the unset-target default.
 ```yaml
 version: v1.13
 publish:
-  - uses: workiq/publishPolicy
+  - uses: copilotAgent/publishPolicy
     with:
       titleId: ${{M365_TITLE_ID}}
       policyPath: ./policy.json
       callerId: ${{WORKIQ_CALLER_ID}}
-    writeToEnvironmentFile:
-      report: WORKIQ_POLICY_PUBLICATION_REPORT
 ```
 
 MOS uses the existing signed-in account and selected environment's discovery.
@@ -444,8 +454,6 @@ $env:TEAMSFX_WORKIQ_PUBLISH_TARGET = "workiq"
 
 In a launch configuration, use `"TEAMSFX_WORKIQ_PUBLISH_TARGET": "workiq"` in
 `env`. The former `TEAMSFX_WORKIQ_ALLOW_MOS_FAILURE` variable no longer applies.
-Single-target success persists its report normally; a selected-target failure
-still returns an error and does not persist success-only report outputs.
 The exported client uses the configured PPE endpoint and Work IQ management
 scope. PPE scope exposure/acceptance, tenant-admin authorization and route
 availability still require live verification; a rejection stops the action

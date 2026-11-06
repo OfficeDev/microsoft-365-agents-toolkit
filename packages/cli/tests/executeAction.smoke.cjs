@@ -38,30 +38,41 @@ assert.doesNotMatch(rootHelp, /^\s+execute(?:\s|$)/m);
 assert.match(rootHelp, /--interactive/);
 assert.doesNotMatch(run(["execute", "--help"]), /--interactive|(?:^|\s)-i(?:\s|$)/);
 const group = run(["execute", "action", "--help"]);
-assert.match(group, /workiq\/publishPolicy/);
+assert.match(group, /copilotAgent\/publishPolicy/);
 assert.match(group, /teamsApp\/extendToM365/);
 assert.doesNotMatch(group, /--interactive|(?:^|\s)-i(?:\s|$)/);
 assert.match(group, /sign-in\s+prompts/);
-const policy = run(["execute", "action", "workiq/publishPolicy", "--help"]);
+const policy = run(["execute", "action", "copilotAgent/publishPolicy", "--help"]);
+const policyCopy = policy.replace(/\s+/g, " ");
+assert.match(
+  policyCopy,
+  /Publish a policy for an existing agent\. Currently supports Work IQ policies only\./
+);
+assert.match(policyCopy, /Publication does not verify runtime enforcement\./);
 for (const flag of ["--title-id", "--policy-path", "--caller-id"]) {
   assert.ok(policy.includes(flag), policy);
 }
 assert.match(policy, /\[Required\]/);
-assert.match(policy, /Runtime App ID GUID/);
+assert.match(policyCopy, /Nonzero App ID GUID of the agent's runtime application/);
 assert.match(policy, /real external writes/);
 assert.doesNotMatch(policy, /--folder/);
 assert.doesNotMatch(policy, /--interactive|(?:^|\s)-i(?:\s|$)/);
 assert.match(policy, /current working directory/);
+assert.doesNotMatch(policy, /project root/);
 assert.match(policy, /sign-in\s+prompts/);
 assert.match(run(["execute", "action", "teamsApp/extendToM365", "--help"]), /--app-package-path/);
-assert.match(run(["execute", "action", "workiq/publishPolicy"], false), /missing required option/i);
+assert.match(
+  run(["execute", "action", "copilotAgent/publishPolicy"], false),
+  /missing required option/i
+);
+assert.match(run(["execute", "action", "workiq/publishPolicy"], false), /not recognized/);
 assert.match(run(["execute", "action", "arbitrary/module"], false), /not recognized/);
 assert.match(
   run(
     [
       "execute",
       "action",
-      "workiq/publishPolicy",
+      "copilotAgent/publishPolicy",
       "--title-id",
       "U_title",
       "--policy-path",
@@ -78,7 +89,7 @@ try {
   const validArgs = [
     "execute",
     "action",
-    "workiq/publishPolicy",
+    "copilotAgent/publishPolicy",
     "--title-id",
     "U_title",
     "--policy-path",

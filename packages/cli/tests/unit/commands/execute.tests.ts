@@ -126,10 +126,14 @@ describe("hidden action command", () => {
           name: "policy-path",
           questionName: "policyPath",
           required: true,
+          description: expect.stringContaining("current working directory"),
         }),
         expect.objectContaining({ name: "caller-id", questionName: "callerId", required: true }),
       ])
     );
+    expect(
+      leaf.options?.find((option) => option.questionName === "policyPath")?.description
+    ).not.toContain("project root");
     expect(leaf.description).toMatch(/writ/i);
     const acquire = contextFor([ActionNames.Acquire]).context.command;
     expect(helper.formatHelp(acquire, rootCommand)).not.toContain("--folder");

@@ -46,7 +46,7 @@ async function main() {
     const { FxCoreClient, ActionNames } = consume("@microsoft/teamsfx-core");
     assert.equal(ActionNames.Acquire, "teamsApp/extendToM365");
     assert.equal(esm.ActionNames.Acquire, ActionNames.Acquire);
-    assert.equal(esm.ActionNames.PublishPolicy, "workiq/publishPolicy");
+    assert.equal(esm.ActionNames.PublishPolicy, "copilotAgent/publishPolicy");
     assert(Object.isFrozen(ActionNames));
     const client = new FxCoreClient({
       tokenProvider: {

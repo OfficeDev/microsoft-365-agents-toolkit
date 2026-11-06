@@ -5,7 +5,7 @@ import { FxError, SystemError, UserError } from "@microsoft/teamsfx-api";
 import { getDefaultString, getLocalizedString } from "../../common/localizeUtils";
 import { InvalidActionInputError, isUserCancelError, UserCancelError } from "../../error/common";
 
-export const publishPolicyActionName = "workiq/publishPolicy";
+export const publishPolicyActionName = "copilotAgent/publishPolicy";
 
 export type PolicyPublicationTarget = "mos" | "workiq" | "both";
 

@@ -52,7 +52,7 @@ const policyBytes = Buffer.from('{\r\n  "rule": "${{DO_NOT_EXPAND}}", "allow": [
 const mosEnvelope = { policyType: "workiq", policy: {} };
 const mosHeaders = { ETag: '"mos-committed"' };
 
-describe("workiq/publishPolicy Alpha", () => {
+describe("copilotAgent/publishPolicy Alpha", () => {
   let projectPath: string;
   let adapter: MockAdapter;
   let workIq: WorkIqPolicyClient;
@@ -907,7 +907,7 @@ describe("workiq/publishPolicy Alpha", () => {
     const ctx = { ...context(), signal: controller.signal };
     const result = await new Lifecycle(
       "publish",
-      [{ uses: "workiq/publishPolicy", with: inputs() }],
+      [{ uses: "copilotAgent/publishPolicy", with: inputs() }],
       "v1.13"
     ).execute(ctx);
     expect(publish).toHaveBeenCalledOnce();
@@ -968,7 +968,7 @@ describe("workiq/publishPolicy Alpha", () => {
 
     const result = await new Lifecycle(
       "publish",
-      [{ uses: "workiq/publishPolicy", with: inputs() }],
+      [{ uses: "copilotAgent/publishPolicy", with: inputs() }],
       "v1.13"
     ).execute(ctx);
     expect(result.result.isErr()).toBe(true);
@@ -995,7 +995,7 @@ describe("workiq/publishPolicy Alpha", () => {
         "version: v1.13",
         "environmentFolderPath: ./env",
         "publish:",
-        "  - uses: workiq/publishPolicy",
+        "  - uses: copilotAgent/publishPolicy",
         "    with:",
         "      titleId: title-id",
         `      callerId: ${callerId}`,
@@ -1129,7 +1129,7 @@ describe("workiq/publishPolicy Alpha", () => {
         "publish",
         [
           {
-            uses: "workiq/publishPolicy",
+            uses: "copilotAgent/publishPolicy",
             with: {
               titleId: "${{M365_TITLE_ID}}",
               policyPath: "./policy.json",

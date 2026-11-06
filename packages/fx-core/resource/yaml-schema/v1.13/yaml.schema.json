@@ -87,7 +87,7 @@
           { "$ref": "#/definitions/devChannelInstallApp" },
           { "$ref": "#/definitions/typeSpecCompile" },
           { "$ref": "#/definitions/copilotAgentPublish" },
-          { "$ref": "#/definitions/workIqPublishPolicy" }
+          { "$ref": "#/definitions/copilotAgentPublishPolicy" }
         ]
       }
     },
@@ -2222,10 +2222,10 @@
         }
       }
     },
-    "workIqPublishPolicy": {
+    "copilotAgentPublishPolicy": {
       "type": "object",
       "additionalProperties": false,
-      "description": "Publish an existing agent's policy to MOS for display and/or Work IQ for runtime use, selected by TEAMSFX_WORKIQ_PUBLISH_TARGET (mos, workiq, or both; default workiq). Only selected services are prepared; both mode writes MOS first. ETags are managed internally. MOS requires title write access; Work IQ requires tenant administrator authorization with WorkIQSettings.ReadWrite.All. Completion does not verify runtime enforcement.",
+      "description": "Publish a policy for an existing agent. Currently supports Work IQ policies only. Publication does not verify runtime enforcement.",
       "required": ["uses", "with"],
       "properties": {
         "name": { "type": "string" },
@@ -2233,7 +2233,10 @@
           "type": "object",
           "additionalProperties": { "type": "string" }
         },
-        "uses": { "const": "workiq/publishPolicy" },
+        "uses": {
+          "const": "copilotAgent/publishPolicy",
+          "description": "Publish a policy for an existing agent. Currently supports Work IQ policies only. Publication does not verify runtime enforcement."
+        },
         "with": {
           "type": "object",
           "additionalProperties": false,
@@ -2242,27 +2245,17 @@
             "titleId": {
               "type": "string",
               "minLength": 1,
-              "description": "Existing MOS agent title ID. This action does not create the agent or title."
+              "description": "Title ID of the existing agent. This action does not create the agent or title."
             },
             "policyPath": {
               "type": "string",
               "minLength": 1,
-              "description": "Path to a UTF-8 JSON object inside the project, relative to the project root or absolute. The file is not expanded or rewritten. MOS receives its captured bytes; the Work IQ request adds appId from callerId."
+              "description": "Path to a UTF-8 Work IQ policy JSON file inside the project directory, either absolute or relative to the project root. File contents are not expanded or rewritten."
             },
             "callerId": {
               "type": "string",
               "minLength": 1,
-              "description": "Nonzero runtime App ID GUID associated with titleId, not the signed-in user's object ID, tenant ID, or ATK client ID. Must match appId if the policy already contains it."
-            }
-          }
-        },
-        "writeToEnvironmentFile": {
-          "type": "object",
-          "additionalProperties": false,
-          "properties": {
-            "report": {
-              "$ref": "#/definitions/envVarName",
-              "description": "Environment variable receiving the JSON publication report on successful action completion, including separate MOS and Work IQ outcomes and returned ETags. Simulation is not real publication. Failure reports are returned on the error, not written to this variable."
+              "description": "Nonzero App ID GUID of the agent's runtime application. Must match appId if the policy already contains it. Do not use a user object ID, tenant ID, or Toolkit client ID."
             }
           }
         }
