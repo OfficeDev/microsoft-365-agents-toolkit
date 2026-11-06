@@ -9,244 +9,42 @@
       "precondition_retry_interval": 2,
       "step_retry_timeout": 0.0
     },
-    "total_steps": 8,
+    "total_steps": 1,
     "created_at": "2026-06-10T05:41:42.017887",
     "name": "group sso login consent",
     "description": {
-      "other": "Generated from recording r_0610_054044",
+      "other": "Verify the signed-in profile after Teams completes consent automatically without a validation-code page.",
       "owner": "",
       "workitem": ""
     },
     "generated_at": "2026-06-10T05:41:42.017887",
     "execution_order": [
-      "step_7d5a2b74",
-      "step_c81942f0",
-      "step_3b2ad8bc",
-      "step_fd8e145b",
-      "step_8804ab85",
-      "step_1e4d3e35",
-      "step_87fd914e",
-      "step_7f107a19"
+      "step_7d5a2b74"
     ],
     "tags": [
       "group"
     ],
-    "updated_at": "2026-06-10T05:46:28.612807"
+    "updated_at": "2026-11-06T02:31:47.544000"
   },
   "steps": [
     {
       "step_id": "step_7d5a2b74",
-      "agent": "interaction",
-      "tool": "click",
-      "parameters": {
-        "button": "left",
-        "x": 87,
-        "y": 220
-      },
-      "description": "Click the \"Copy\" button below the validation code input on the Bot Connection Validation page to copy the displayed code.",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the Microsoft Teams bot chat contains a response beginning with \"You're logged in as\" and containing ${{env:M365_ACCOUNT_NAME}}.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [],
-      "preconditions": [
-        "dhash:87:220:16:5:aa544d5acd555156",
-        "dhash:87:220:96:5:1a04409c8d4c0000",
-        "dhash:87:220:0:10:63dcc00080808080"
-      ],
+      "preconditions": [],
       "postconditions": [],
-      "tags": [],
-      "screenshot": "step_7d5a2b74",
+      "tags": [
+        "step_retry_timeout: 60"
+      ],
+      "screenshot": null,
       "created_at": "2026-06-10T05:41:42.036175",
-      "plan_id": "plan_r_0610_054044"
-    },
-    {
-      "step_id": "step_c81942f0",
-      "agent": "interaction",
-      "tool": "click",
-      "parameters": {
-        "button": "left",
-        "x": 165,
-        "y": 26
-      },
-      "description": "Click the  browser tab at the top left to switch application context in the Chrome interface.",
-      "content_refs": [],
-      "timeout": 30,
-      "retry_count": 0,
-      "continue_on_error": "false",
-      "depends_on": [],
-      "preconditions": [
-        "dhash:165:26:16:5:5a5a6ee718000000",
-        "dhash:165:26:96:5:4209ad52215c2622",
-        "dhash:165:26:0:10:63dcc00080808080"
-      ],
-      "postconditions": [],
-      "tags": [
-        "delay: 5",
-        "force_run:true"
-      ],
-      "screenshot": "step_c81942f0",
-      "created_at": "2026-06-10T05:41:42.052652",
-      "plan_id": "plan_r_0610_054044"
-    },
-    {
-      "step_id": "step_3b2ad8bc",
-      "agent": "interaction",
-      "tool": "click",
-      "parameters": {
-        "button": "right",
-        "x": 216,
-        "y": 717
-      },
-      "description": "Right-click on the \"Type a message\" input box in the Microsoft Teams web app chat interface, indicated by a red crosshair at the lower center of the conversation window.",
-      "content_refs": [],
-      "timeout": 30,
-      "retry_count": 0,
-      "continue_on_error": "false",
-      "depends_on": [],
-      "preconditions": [
-        "dhash:216:717:16:5:25f6d2d2d2d30010",
-        "dhash:216:717:96:5:000000c4c0004000",
-        "dhash:216:717:0:10:18ecec8cac3cbda1"
-      ],
-      "postconditions": [],
-      "tags": [
-        "delay: 5",
-        "force_run:true"
-      ],
-      "screenshot": "step_3b2ad8bc",
-      "created_at": "2026-06-10T05:41:42.062163",
-      "plan_id": "plan_r_0610_054044"
-    },
-    {
-      "step_id": "step_fd8e145b",
-      "agent": "interaction",
-      "tool": "click",
-      "parameters": {
-        "button": "left",
-        "x": 268,
-        "y": 492
-      },
-      "description": "Click the \"Paste\" option in the context menu within the Microsoft Teams web chat interface, as indicated by the red crosshair at (268, 492).",
-      "content_refs": [],
-      "timeout": 30,
-      "retry_count": 0,
-      "continue_on_error": "false",
-      "depends_on": [],
-      "preconditions": [
-        "dhash:268:492:16:5:51664b5b5b679062",
-        "dhash:268:492:96:5:3818d02c1d281a01",
-        "dhash:268:492:0:10:18ececacecacb4a1"
-      ],
-      "postconditions": [],
-      "tags": [
-        "delay:3",
-        "force_run:true"
-      ],
-      "screenshot": "step_fd8e145b",
-      "created_at": "2026-06-10T05:41:42.070731",
-      "plan_id": "plan_r_0610_054044"
-    },
-    {
-      "step_id": "step_8804ab85",
-      "agent": "interaction",
-      "tool": "key_press",
-      "parameters": {
-        "key": "enter"
-      },
-      "description": "Press the Enter key to submit the code in the message input box of the chat within Microsoft Teams web application.",
-      "content_refs": [],
-      "timeout": 30,
-      "retry_count": 0,
-      "continue_on_error": "false",
-      "depends_on": [],
-      "preconditions": [
-        "dhash:512:384:0:20:18ecec8cac3cb4e1"
-      ],
-      "postconditions": [],
-      "tags": [
-        "delay:3"
-      ],
-      "screenshot": "step_8804ab85",
-      "created_at": "2026-06-10T05:41:42.079711",
-      "plan_id": "plan_r_0610_054044"
-    },
-    {
-      "step_id": "step_1e4d3e35",
-      "agent": "interaction",
-      "tool": "click",
-      "parameters": {
-        "button": "left",
-        "x": 885,
-        "y": 684
-      },
-      "description": "Click the \"View prompts\" button in the message input toolbar at the bottom right of the Microsoft Teams web chat interface to open prompt suggestions from sso-botdev.",
-      "content_refs": [],
-      "timeout": 30,
-      "retry_count": 0,
-      "continue_on_error": "false",
-      "depends_on": [],
-      "preconditions": [
-        "dhash:885:684:16:5:53d25252f5cc2844",
-        "dhash:885:684:96:5:8020c06909024848",
-        "dhash:885:684:0:10:18ececacacb4b1a1"
-      ],
-      "postconditions": [],
-      "tags": [
-        "force_run:true"
-      ],
-      "screenshot": "step_1e4d3e35",
-      "created_at": "2026-06-10T05:41:42.086736",
-      "plan_id": "plan_r_0610_054044"
-    },
-    {
-      "step_id": "step_87fd914e",
-      "agent": "interaction",
-      "tool": "click",
-      "parameters": {
-        "button": "left",
-        "x": 772,
-        "y": 611
-      },
-      "description": "Click the \"Show\" option in the Prompt Suggestions from dropdown to suggest showing the user profile using the Single Sign On feature in the Microsoft Teams web interface.",
-      "content_refs": [],
-      "timeout": 30,
-      "retry_count": 0,
-      "continue_on_error": "false",
-      "depends_on": [],
-      "preconditions": [
-        "dhash:772:611:16:5:2bd42b6b6a6a6a6a",
-        "dhash:772:611:96:5:d900528cad728400",
-        "dhash:772:611:0:10:18ececacacb2b3e1"
-      ],
-      "postconditions": [],
-      "tags": [],
-      "screenshot": "step_87fd914e",
-      "created_at": "2026-06-10T05:41:42.092734",
-      "plan_id": "plan_r_0610_054044"
-    },
-    {
-      "step_id": "step_7f107a19",
-      "agent": "interaction",
-      "tool": "key_press",
-      "parameters": {
-        "key": "enter"
-      },
-      "description": "Press the Enter key to submit the \"show\" command in the Microsoft Teams chat input box within the sso-botdev conversation.",
-      "content_refs": [],
-      "timeout": 30,
-      "retry_count": 0,
-      "continue_on_error": "false",
-      "depends_on": [],
-      "preconditions": [
-        "dhash:512:384:0:20:18ecec2cb4bcb0b1"
-      ],
-      "postconditions": [],
-      "tags": [
-        "delay:3"
-      ],
-      "screenshot": "step_7f107a19",
-      "created_at": "2026-06-10T05:41:42.102275",
       "plan_id": "plan_r_0610_054044"
     }
   ],
