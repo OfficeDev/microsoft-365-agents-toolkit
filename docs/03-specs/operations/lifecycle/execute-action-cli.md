@@ -34,6 +34,8 @@ The existing `--folder` / `-f` option is hidden from help but remains accepted.
 For policy publication, resolve `policyPath` against the invocation's current
 working directory, pass the resulting absolute path, and derive `projectPath`
 from its parent directory. An explicit `--folder` does not override either value.
+The `--policy-path` help uses these CLI-specific rules rather than the SDK's
+project-root-relative wording.
 Other actions retain their existing folder/default-path semantics.
 Project-version validation is skipped: a Toolkit project is not required.
 Only explicitly supplied schema properties enter action args; CLI-injected
@@ -111,13 +113,13 @@ From the repository root, use the built local CLI:
 
 ```powershell
 node .\packages\cli\cli.js execute action --help
-node .\packages\cli\cli.js execute action workiq/publishPolicy --help
+node .\packages\cli\cli.js execute action copilotAgent/publishPolicy --help
 ```
 
 For an explicitly authorized real invocation:
 
 ```powershell
-atk execute action workiq/publishPolicy --title-id "<title-id>" --policy-path policy.json --caller-id "<runtime-app-id>"
+atk execute action copilotAgent/publishPolicy --title-id "<title-id>" --policy-path policy.json --caller-id "<runtime-app-id>"
 ```
 
 ## Acceptance Criteria

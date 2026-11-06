@@ -25,7 +25,7 @@ describe("standalone action contracts", () => {
       await import("../../src/actions");
     expect(ActionNames).toEqual({
       Acquire: "teamsApp/extendToM365",
-      PublishPolicy: "workiq/publishPolicy",
+      PublishPolicy: "copilotAgent/publishPolicy",
     });
     expect(Object.isFrozen(ActionNames)).toBe(true);
     expect(getActionDefinition(ActionNames.Acquire).isOk()).toBe(true);
@@ -96,6 +96,8 @@ describe("standalone action contracts", () => {
       await import("../../src/actions");
     const definition = getActionDefinition(ActionNames.PublishPolicy);
     expect(definition.isOk()).toBe(true);
+    expect(getActionDefinition("copilotAgent/publishPolicy").isOk()).toBe(true);
+    expect(getActionDefinition("workiq/publishPolicy").isErr()).toBe(true);
     if (definition.isOk()) expect(definition.value.supportsCancellation).toBe(true);
     const valid = {
       titleId: "U_title",

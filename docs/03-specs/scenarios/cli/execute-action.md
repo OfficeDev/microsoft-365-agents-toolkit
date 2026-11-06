@@ -21,7 +21,7 @@ sequenceDiagram
   participant CLI
   participant SDK
   participant Policy
-  Caller->>CLI: execute action workiq/publishPolicy --help
+  Caller->>CLI: execute action copilotAgent/publishPolicy --help
   CLI-->>Caller: Required flags, CWD path semantics and real-write warning
   Caller->>CLI: Explicit policy args
   CLI->>SDK: executeAction with absolute policyPath and its parent as projectPath

@@ -27,6 +27,10 @@ export async function checkPolicyResultInference(
     callerId: "11111111-2222-4333-8444-555555555555",
   };
   const publicArgs: PublicPublishPolicyArgs = args;
+  const canonicalPolicyName: "copilotAgent/publishPolicy" = ActionNames.PublishPolicy;
+  void client.executeAction(canonicalPolicyName, publicArgs, options);
+  // @ts-expect-error The previous action spelling is no longer allowlisted.
+  void client.executeAction("workiq/publishPolicy", publicArgs, options);
   const fromCore: ActionResult<typeof ActionNames.PublishPolicy> = await core.executeAction(
     ActionNames.PublishPolicy,
     publicArgs,

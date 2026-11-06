@@ -205,7 +205,7 @@ describe("Policy publication normalization", () => {
   });
 
   it("WIQ-POL-18: invalid-input guidance does not request publication ETags", () => {
-    const original = new InvalidActionInputError("workiq/publishPolicy", ["etag"]);
+    const original = new InvalidActionInputError("copilotAgent/publishPolicy", ["etag"]);
     const result = createPolicyPublicationFailure(original, report("not-started", "not-started"));
     expect(result).toBeInstanceOf(InvalidActionInputError);
     expect(result.message).toContain("titleId");
