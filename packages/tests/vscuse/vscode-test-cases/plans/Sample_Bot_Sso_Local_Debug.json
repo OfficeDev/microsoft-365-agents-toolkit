@@ -69,7 +69,7 @@
         "x": 785,
         "y": 247
       },
-      "description": "Click the blue \"Create\" button for the \"Bot App with SSO Enabled\" sample in the Microsoft 365 Agents Toolkit Samples panel within Visual Studio Code.\nAnd input ${{var:app_name:sso-bot}} into the run time variable.",
+      "description": "Click the blue \"Create\" button for the \"Bot App with SSO Enabled\" sample in the Microsoft 365 Agents Toolkit Samples panel within Visual Studio Code.\nAnd input ${{var:app_name:bot-sso}} into the run time variable.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,

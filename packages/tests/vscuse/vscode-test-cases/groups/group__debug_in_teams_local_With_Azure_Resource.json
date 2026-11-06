@@ -8,7 +8,7 @@
       "precondition_wait_timeout": 60,
       "precondition_retry_interval": 2
     },
-    "total_steps": 17,
+    "total_steps": 22,
     "created_at": "2026-06-05T07:17:54.448300",
     "name": "group  debug in teams local With Azure Resource",
     "description": {
@@ -31,6 +31,11 @@
       "step_de5581d4",
       "step_a6a46045",
       "step_d9551a88",
+      "step_teams_local_signed_in",
+      "step_teams_local_app_url",
+      "step_teams_local_address",
+      "step_teams_local_url_type",
+      "step_teams_local_url_open",
       "step_575b9ce4",
       "step_d5498f6a",
       "step_f19fed3a",
@@ -349,6 +354,101 @@
       "tags": [],
       "screenshot": "step_d9551a88",
       "created_at": "2026-06-05T09:06:26.396360",
+      "plan_id": "plan_f0f86494"
+    },
+    {
+      "step_id": "step_teams_local_signed_in",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the Microsoft Teams web app has finished signing in and shows its left navigation rail with Chat or Apps visible.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "step_retry_timeout: 180"
+      ],
+      "screenshot": null,
+      "plan_id": "plan_f0f86494"
+    },
+    {
+      "step_id": "step_teams_local_app_url",
+      "agent": "code",
+      "tool": "",
+      "parameters": {},
+      "description": "@code Use Python pathlib and uuid to read only the TEAMS_APP_ID assignment from \"/home/vscode/AgentsToolkitProjects/${{var:app_name}}/env/.env.local\" without sourcing or executing the file. Require exactly one non-empty TEAMS_APP_ID and validate it with uuid.UUID; fail explicitly if the file or a valid ID is missing. Print only the URL https://teams.microsoft.com/l/app/<TEAMS_APP_ID>?installAppPackage=true&webjoin=true on one line, replacing <TEAMS_APP_ID> with the validated ID. Do not print other environment values or modify any files.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "store_fact:local_teams_app_url"
+      ],
+      "screenshot": null,
+      "plan_id": "plan_f0f86494"
+    },
+    {
+      "step_id": "step_teams_local_address",
+      "agent": "interaction",
+      "tool": "keyboard_shortcut",
+      "parameters": {
+        "keys": "ctrl+l"
+      },
+      "description": "Focus Chrome's address bar to reopen the current project's Teams app deep link after sign-in.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": null,
+      "plan_id": "plan_f0f86494"
+    },
+    {
+      "step_id": "step_teams_local_url_type",
+      "agent": "interaction",
+      "tool": "type_text",
+      "parameters": {
+        "text": "${{fact:local_teams_app_url}}"
+      },
+      "description": "Type ${{fact:local_teams_app_url}} into Chrome's address bar so Teams opens the locally provisioned app rather than a previously visited bot chat.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": null,
+      "plan_id": "plan_f0f86494"
+    },
+    {
+      "step_id": "step_teams_local_url_open",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "enter"
+      },
+      "description": "Navigate to the current project's Teams app deep link and let the following Add/Open assertion wait for its app details popup.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": null,
       "plan_id": "plan_f0f86494"
     },
     {
