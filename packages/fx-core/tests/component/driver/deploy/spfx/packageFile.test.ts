@@ -208,6 +208,45 @@ describe("SharePoint package inspection", () => {
     }
   });
 
+  it("SPFX-PREP-04: caps bytes read when a package grows after its initial size check", async () => {
+    const directory = await fs.mkdtemp(path.join(os.tmpdir(), "spfx-package-growth-"));
+    directories.push(directory);
+    const sourcePath = path.join(directory, "solution.sppkg");
+    const original = createSppkg();
+    const originalLimit = SHAREPOINT_PACKAGE_LIMITS.inputBytes;
+    const testLimit = 16 * 1024;
+    expect(original.length).toBeLessThan(testLimit);
+    SHAREPOINT_PACKAGE_LIMITS.inputBytes = testLimit;
+    await fs.writeFile(sourcePath, original);
+    const originalRead = fs.read.bind(fs);
+    let grew = false;
+    let bytesRead = 0;
+    const readSpy = vi
+      .spyOn(fs, "read")
+      .mockImplementation(async (fd, buffer, offset, length, position) => {
+        if (!grew) {
+          grew = true;
+          await fs.truncate(sourcePath, testLimit + 100);
+        }
+        const result = await originalRead(fd, buffer, offset, length, position);
+        bytesRead += result.bytesRead;
+        return result;
+      });
+
+    try {
+      const result = await readSharePointPackage(sourcePath);
+      expect(result.isErr()).toBe(true);
+      if (result.isErr()) {
+        expect(result.error.code).toBe("ArchiveTooLarge");
+      }
+      expect(bytesRead).toBe(testLimit + 1);
+      expect(readSpy).toHaveBeenCalled();
+    } finally {
+      readSpy.mockRestore();
+      SHAREPOINT_PACKAGE_LIMITS.inputBytes = originalLimit;
+    }
+  });
+
   it("SPFX-PREP-04: rejects traversal, duplicate paths, and oversized archives", () => {
     const traversal = new AdmZip();
     traversal.addFile("outside.txt", Buffer.from("outside"));

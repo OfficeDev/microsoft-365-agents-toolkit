@@ -16,6 +16,7 @@ import {
   updatePreparedPublication,
   PreparedPublicationError,
 } from "../../../../../src/component/driver/deploy/spfx/utility/preparedPublication";
+import { SHAREPOINT_PACKAGE_LIMITS } from "../../../../../src/component/driver/deploy/spfx/utility/packageFile";
 
 const appId = "aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee";
 const productId = "11111111-2222-4333-8444-555555555555";
@@ -225,6 +226,56 @@ describe("Prepared SharePoint publication preparation", () => {
       }
     } finally {
       readSpy.mockRestore();
+    }
+  });
+
+  it("SPFX-PREP-04: caps bytes read when an input grows after its initial size check", async () => {
+    const projectPath = await fs.mkdtemp(path.join(os.tmpdir(), "prepared-publication-growth-"));
+    directories.push(projectPath);
+    await fs.ensureDir(path.join(projectPath, "sharepoint"));
+    await fs.ensureDir(path.join(projectPath, "appPackage"));
+    const sourcePath = path.join(projectPath, "sharepoint", "solution.sppkg");
+    const original = createSppkg();
+    const originalLimit = SHAREPOINT_PACKAGE_LIMITS.inputBytes;
+    const testLimit = 16 * 1024;
+    expect(original.length).toBeLessThan(testLimit);
+    SHAREPOINT_PACKAGE_LIMITS.inputBytes = testLimit;
+    await fs.writeFile(sourcePath, original);
+    await fs.writeFile(path.join(projectPath, "appPackage", "application.zip"), createAppPackage());
+    const originalRead = fs.read.bind(fs);
+    let grew = false;
+    let bytesRead = 0;
+    const readSpy = vi
+      .spyOn(fs, "read")
+      .mockImplementation(async (fd, buffer, offset, length, position) => {
+        if (!grew) {
+          grew = true;
+          await fs.truncate(sourcePath, testLimit + 100);
+        }
+        const result = await originalRead(fd, buffer, offset, length, position);
+        bytesRead += result.bytesRead;
+        return result;
+      });
+
+    try {
+      const result = await preparePublication({
+        projectPath,
+        packagePath: "sharepoint/solution.sppkg",
+        appPackagePath: "appPackage/application.zip",
+        tenantContext,
+      });
+      expect(result.isErr()).toBe(true);
+      if (result.isErr()) {
+        expect(result.error.code).toBe("InputTooLarge");
+      }
+      expect(bytesRead).toBe(testLimit + 1);
+      expect(readSpy).toHaveBeenCalled();
+      expect(await fs.pathExists(path.join(projectPath, ".fx", "sharepoint-publications"))).toBe(
+        false
+      );
+    } finally {
+      readSpy.mockRestore();
+      SHAREPOINT_PACKAGE_LIMITS.inputBytes = originalLimit;
     }
   });
 
