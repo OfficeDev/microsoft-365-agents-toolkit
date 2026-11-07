@@ -1,0 +1,202 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
+import AdmZip from "adm-zip";
+import { createHash } from "crypto";
+import fs from "fs-extra";
+import os from "os";
+import path from "path";
+import { afterEach, describe, expect, it } from "vitest";
+import { readSharePointPackage } from "../../../../../src/sharepointPackage";
+import {
+  readBoundedArchive,
+  SHAREPOINT_PACKAGE_LIMITS,
+} from "../../../../../src/component/driver/deploy/spfx/utility/packageFile";
+
+const productId = "11111111-2222-4333-8444-555555555555";
+const agentPackageName = "ClientSideAssets/copilot-agent.zip";
+const componentManifestName =
+  "bbbbbbbb-cccc-4ddd-8eee-ffffffffffff/CopilotComponent_bbbbbbbb-cccc-4ddd-8eee-ffffffffffff.xml";
+
+function createAgentPackage(): Buffer {
+  const zip = new AdmZip();
+  zip.addFile(
+    "ai-plugin.json",
+    Buffer.from(
+      JSON.stringify({
+        schema_version: "v2.1",
+        name_for_human: "Component actions",
+        runtimes: [
+          {
+            type: "RemoteMCPServer",
+            spec: { url: "{{TENANT_MCP_URL}}" },
+          },
+        ],
+      })
+    )
+  );
+  zip.addFile("manifest.json", Buffer.from(JSON.stringify({ id: "agent-only-id" })));
+  zip.addFile(
+    "declarativeAgent.json",
+    Buffer.from(JSON.stringify({ instructions: "Do not import" }))
+  );
+  return zip.toBuffer();
+}
+
+function createSppkg(options: { agentPackages?: string[] } = {}): Buffer {
+  const nested = createAgentPackage();
+  const zip = new AdmZip();
+  zip.addFile(
+    "AppManifest.xml",
+    Buffer.from(
+      `<App ProductID="{${productId}}" Version="1.2.3.4" IsClientSideSolution="true" SkipFeatureDeployment="false" />`
+    )
+  );
+  zip.addFile(
+    "[Content_Types].xml",
+    Buffer.from(
+      `<?xml version="1.0" encoding="utf-8"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="xml" ContentType="text/xml" /><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml" /><Default Extension="zip" ContentType="application/octet-stream" /></Types>`
+    )
+  );
+  zip.addFile(
+    "_rels/.rels",
+    Buffer.from(
+      `<?xml version="1.0" encoding="utf-8"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Type="package-manifest" Target="/AppManifest.xml" Id="r0" /></Relationships>`
+    )
+  );
+  zip.addFile(
+    "_rels/AppManifest.xml.rels",
+    Buffer.from(
+      `<?xml version="1.0" encoding="utf-8"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Type="manifest-clientsideasset" Target="/ClientSideAssets.xml" Id="r1" /></Relationships>`
+    )
+  );
+  const packages = options.agentPackages ?? [agentPackageName];
+  const relationships = packages
+    .map(
+      (packageName, index) =>
+        `<Relationship Type="clientsideasset" Target="/${packageName}" Id="r${index + 2}" />`
+    )
+    .join("");
+  zip.addFile(
+    "_rels/ClientSideAssets.xml.rels",
+    Buffer.from(
+      `<?xml version="1.0" encoding="utf-8"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">${relationships}<Relationship Type="clientsideasset" Target="/ClientSideAssets/component.js" Id="script" /></Relationships>`
+    )
+  );
+  zip.addFile("ClientSideAssets.xml", Buffer.from("<ClientSideAssets />"));
+  zip.addFile(componentManifestName, Buffer.from("<Elements><ClientSideComponent /></Elements>"));
+  zip.addFile("ClientSideAssets/component.js", Buffer.from("component asset"));
+  for (const packageName of packages) {
+    zip.addFile(packageName, nested);
+  }
+  return zip.toBuffer();
+}
+
+describe("SharePoint package inspection", () => {
+  const directories: string[] = [];
+
+  afterEach(async () => {
+    await Promise.all(directories.splice(0).map((directory) => fs.remove(directory)));
+  });
+
+  it("SPFX-PREP-01: inspects the exact bounded package and extracts only its API plugin", async () => {
+    const directory = await fs.mkdtemp(path.join(os.tmpdir(), "spfx-package-"));
+    directories.push(directory);
+    const sourcePath = path.join(directory, "solution.sppkg");
+    const original = createSppkg();
+    await fs.writeFile(sourcePath, original);
+
+    const result = await readSharePointPackage(sourcePath);
+
+    expect(result.isOk()).toBe(true);
+    if (result.isErr()) return;
+    expect(result.value.productId).toBe(productId);
+    expect(result.value.version).toBe("1.2.3.4");
+    expect(result.value.skipFeatureDeployment).toBe(false);
+    expect(result.value.sourceSha256).toBe(createHash("sha256").update(original).digest("hex"));
+    expect(result.value.pluginManifest.toString("utf8")).toContain("TENANT_MCP_URL");
+    expect(result.value.deploymentBytes).not.toEqual(original);
+    expect(await fs.readFile(sourcePath)).toEqual(original);
+  });
+
+  it("SPFX-PREP-03: removes the embedded package and repairs OPC relationships", async () => {
+    const directory = await fs.mkdtemp(path.join(os.tmpdir(), "spfx-opc-"));
+    directories.push(directory);
+    const sourcePath = path.join(directory, "solution.sppkg");
+    await fs.writeFile(sourcePath, createSppkg());
+
+    const result = await readSharePointPackage(sourcePath);
+
+    expect(result.isOk()).toBe(true);
+    if (result.isErr()) return;
+    const deployment = new AdmZip(result.value.deploymentBytes);
+    const names = deployment.getEntries().map((entry) => entry.entryName);
+    expect(names).not.toContain(agentPackageName);
+    expect(names).toContain("ClientSideAssets/component.js");
+    expect(deployment.readAsText("_rels/ClientSideAssets.xml.rels").toLowerCase()).not.toContain(
+      "copilot-agent.zip"
+    );
+    expect(deployment.readAsText("[Content_Types].xml")).not.toContain('Extension="zip"');
+  });
+
+  it("SPFX-PREP-04: rejects ambiguous nested agent packages instead of selecting one", async () => {
+    const directory = await fs.mkdtemp(path.join(os.tmpdir(), "spfx-ambiguous-"));
+    directories.push(directory);
+    const sourcePath = path.join(directory, "solution.sppkg");
+    await fs.writeFile(
+      sourcePath,
+      createSppkg({
+        agentPackages: ["ClientSideAssets/copilot-agent.zip", "ClientSideAssets/second-agent.zip"],
+      })
+    );
+
+    const result = await readSharePointPackage(sourcePath);
+
+    expect(result.isErr()).toBe(true);
+  });
+
+  it("SPFX-PREP-01: rejects an SPPKG without a component manifest", async () => {
+    const directory = await fs.mkdtemp(path.join(os.tmpdir(), "spfx-no-component-"));
+    directories.push(directory);
+    const sourcePath = path.join(directory, "solution.sppkg");
+    const zip = new AdmZip(createSppkg());
+    zip.deleteFile(componentManifestName);
+    await fs.writeFile(sourcePath, zip.toBuffer());
+
+    const result = await readSharePointPackage(sourcePath);
+
+    expect(result.isErr()).toBe(true);
+  });
+
+  it("SPFX-PREP-04: rejects malformed package archives without extracting entries", async () => {
+    const directory = await fs.mkdtemp(path.join(os.tmpdir(), "spfx-invalid-"));
+    directories.push(directory);
+    const sourcePath = path.join(directory, "solution.sppkg");
+    await fs.writeFile(sourcePath, Buffer.from("not a ZIP package"));
+
+    const result = await readSharePointPackage(sourcePath);
+
+    expect(result.isErr()).toBe(true);
+  });
+
+  it("SPFX-PREP-04: rejects traversal, duplicate paths, and oversized archives", () => {
+    const traversal = new AdmZip();
+    traversal.addFile("outside.txt", Buffer.from("outside"));
+    const traversalEntry = traversal.getEntry("outside.txt");
+    expect(traversalEntry).toBeDefined();
+    if (traversalEntry) traversalEntry.entryName = "../outside.txt";
+    const traversalResult = readBoundedArchive(traversal.toBuffer());
+    expect(traversalResult.isErr()).toBe(true);
+
+    const duplicate = new AdmZip();
+    duplicate.addFile("content.xml", Buffer.from("first"));
+    duplicate.addFile("CONTENT.XML", Buffer.from("second"));
+    const duplicateResult = readBoundedArchive(duplicate.toBuffer());
+    expect(duplicateResult.isErr()).toBe(true);
+
+    const oversizedResult = readBoundedArchive(
+      Buffer.alloc(SHAREPOINT_PACKAGE_LIMITS.inputBytes + 1)
+    );
+    expect(oversizedResult.isErr()).toBe(true);
+  });
+});

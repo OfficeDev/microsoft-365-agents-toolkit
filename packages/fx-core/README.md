@@ -21,6 +21,19 @@ explicitly need Teams package submission. See the
 [client publishing contract](../../docs/03-specs/operations/lifecycle/publish-client.md)
 for cancellation and error semantics.
 
+## Publishing an SPFx-backed application
+
+Projects can opt in to a SharePoint-first publication lifecycle with
+`spfx/preparePublication`, followed by the prepared mode of `spfx/deploy` and
+`teamsApp/publishAppPackage`. Preparation freezes the deployment and
+application packages, records their hash lineage in a project-local journal,
+and does not modify either input. SharePoint deployment must be verified before
+the app package can be submitted. Ambiguous writes are not replayed
+automatically. See the
+[operation contract](../../docs/03-specs/operations/lifecycle/prepare-spfx-publication.md)
+and [ADR-0030](../../docs/02-architecture/adr/ADR-0030-prepared-sharepoint-publication.md)
+for action inputs, recovery behavior, and supported boundaries.
+
 ## Updating an existing DCR configuration
 
 The opt-in `dcr/update` lifecycle action updates an existing authentication
