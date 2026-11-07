@@ -196,7 +196,7 @@ describe("SharePoint package inspection", () => {
 
     const result = await readSharePointPackage(sourcePath);
 
-    expect(result.isOk()).toBe(true);
+    expect(result.isErr() ? result.error : undefined).toBeUndefined();
     if (result.isErr()) return;
     expect(result.value.productId).toBe(productId);
     expect(result.value.version).toBe("1.2.3.4");
@@ -215,7 +215,7 @@ describe("SharePoint package inspection", () => {
 
     const result = await readSharePointPackage(sourcePath);
 
-    expect(result.isOk()).toBe(true);
+    expect(result.isErr() ? result.error : undefined).toBeUndefined();
     if (result.isErr()) return;
     const deployment = new AdmZip(result.value.deploymentBytes);
     const names = deployment.getEntries().map((entry) => entry.entryName);
@@ -245,7 +245,7 @@ describe("SharePoint package inspection", () => {
           sharePointPackage: sourceSharePoint,
         });
 
-        expect(result.isOk()).toBe(true);
+        expect(result.isErr() ? result.error : undefined).toBeUndefined();
         if (result.isErr()) return;
         expect(result.value.sourceSharePointSha256).toBe(
           createHash("sha256").update(sourceSharePoint).digest("hex")
@@ -283,7 +283,7 @@ describe("SharePoint package inspection", () => {
           applicationPackage: result.value.packageBytes,
           sharePointPackage: sourceSharePoint,
         });
-        expect(repeated.isOk()).toBe(true);
+        expect(repeated.isErr() ? repeated.error : undefined).toBeUndefined();
         if (repeated.isOk()) {
           expect(repeated.value.packageBytes).toEqual(result.value.packageBytes);
         }
@@ -334,7 +334,7 @@ describe("SharePoint package inspection", () => {
       sharePointPackage: createSppkg(),
     });
 
-    expect(result.isOk()).toBe(true);
+    expect(result.isErr() ? result.error : undefined).toBeUndefined();
     if (result.isErr()) return;
     const manifestText = new AdmZip(result.value.packageBytes).readAsText("manifest.json");
     const typed = TeamsManifestConverter.jsonToManifest(manifestText);
@@ -381,7 +381,7 @@ describe("SharePoint package inspection", () => {
     async (kind) => {
       const sourceSharePoint = createSppkg();
       const inspected = await inspectSharePointPackage(sourceSharePoint);
-      expect(inspected.isOk()).toBe(true);
+      expect(inspected.isErr() ? inspected.error : undefined).toBeUndefined();
       if (inspected.isErr()) return;
       const legacy = await createLegacyMaterializedApplicationPackage(
         kind,
@@ -392,7 +392,7 @@ describe("SharePoint package inspection", () => {
         sharePointPackage: sourceSharePoint,
       });
 
-      expect(result.isOk()).toBe(true);
+      expect(result.isErr() ? result.error : undefined).toBeUndefined();
       if (result.isErr()) return;
       expect(legacy.legacyId).not.toBe(result.value.managedReference.id);
       const output = new AdmZip(result.value.packageBytes);
@@ -454,7 +454,7 @@ describe("SharePoint package inspection", () => {
   it("SPFX-PREP-13: persists root-manifest cleanup when migrating a legacy connector to an agent action", async () => {
     const sourceSharePoint = createSppkg();
     const inspected = await inspectSharePointPackage(sourceSharePoint);
-    expect(inspected.isOk()).toBe(true);
+    expect(inspected.isErr() ? inspected.error : undefined).toBeUndefined();
     if (inspected.isErr()) return;
     const legacy = await createLegacyMaterializedApplicationPackage(
       "connector",
@@ -486,7 +486,7 @@ describe("SharePoint package inspection", () => {
       sharePointPackage: sourceSharePoint,
     });
 
-    expect(result.isOk()).toBe(true);
+    expect(result.isErr() ? result.error : undefined).toBeUndefined();
     if (result.isErr()) return;
     const output = new AdmZip(result.value.packageBytes);
     const outputManifest = JSON.parse(output.readAsText("manifest.json"));
@@ -504,7 +504,7 @@ describe("SharePoint package inspection", () => {
     async (surface) => {
       const sourceSharePoint = createSppkg();
       const inspected = await inspectSharePointPackage(sourceSharePoint);
-      expect(inspected.isOk()).toBe(true);
+      expect(inspected.isErr() ? inspected.error : undefined).toBeUndefined();
       if (inspected.isErr()) return;
       const metadataLimit = SHAREPOINT_PACKAGE_LIMITS.metadataBytes;
       const application = new AdmZip(createApplicationPackage("agent"));
@@ -594,7 +594,7 @@ describe("SharePoint package inspection", () => {
   it("SPFX-PREP-14: rejects a conflicting managed plugin reference", async () => {
     const sourceSharePoint = createSppkg();
     const inspected = await inspectSharePointPackage(sourceSharePoint);
-    expect(inspected.isOk()).toBe(true);
+    expect(inspected.isErr() ? inspected.error : undefined).toBeUndefined();
     if (inspected.isErr()) return;
     const pluginHash = createHash("sha256").update(inspected.value.pluginManifest).digest("hex");
     const pluginId = `spfx-api-${pluginHash.slice(0, 16)}`;
@@ -617,7 +617,7 @@ describe("SharePoint package inspection", () => {
   it("SPFX-PREP-14: rejects conflicting content at the deterministic managed plugin path", async () => {
     const sourceSharePoint = createSppkg();
     const inspected = await inspectSharePointPackage(sourceSharePoint);
-    expect(inspected.isOk()).toBe(true);
+    expect(inspected.isErr() ? inspected.error : undefined).toBeUndefined();
     if (inspected.isErr()) return;
     const bindingHash = createHash("sha256").update(inspected.value.pluginManifest).digest("hex");
     const pluginId = `spfx-api-${bindingHash.slice(0, 16)}`;
@@ -705,6 +705,37 @@ describe("SharePoint package inspection", () => {
       }
     } finally {
       readSpy.mockRestore();
+    }
+  });
+
+  it("SPFX-PREP-04: tolerates metadata-only ctime drift but rejects same-size content rewrites", async () => {
+    const directory = await fs.mkdtemp(path.join(os.tmpdir(), "spfx-package-stat-"));
+    directories.push(directory);
+    const sourcePath = path.join(directory, "solution.sppkg");
+    await fs.writeFile(sourcePath, createSppkg());
+    const originalFstat = fs.fstat.bind(fs);
+    let calls = 0;
+    let drift: "ctimeMs" | "mtimeMs" = "ctimeMs";
+    const fstatSpy = vi.spyOn(fs, "fstat").mockImplementation(async (fd: number) => {
+      const stats = await originalFstat(fd);
+      calls += 1;
+      if (calls % 2 === 0) {
+        stats[drift] += 1;
+      }
+      return stats;
+    });
+
+    try {
+      const metadataOnly = await readSharePointPackage(sourcePath);
+      expect(metadataOnly.isErr() ? metadataOnly.error : undefined).toBeUndefined();
+      drift = "mtimeMs";
+      const rewritten = await readSharePointPackage(sourcePath);
+      expect(rewritten.isErr()).toBe(true);
+      if (rewritten.isErr()) {
+        expect(rewritten.error.code).toBe("PackageChangedDuringRead");
+      }
+    } finally {
+      fstatSpy.mockRestore();
     }
   });
 

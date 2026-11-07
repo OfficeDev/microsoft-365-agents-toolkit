@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import AdmZip from "adm-zip";
 import { Platform, ok } from "@microsoft/teamsfx-api";
 import axios from "axios";
 import MockAdapter from "axios-mock-adapter";
@@ -24,121 +23,16 @@ import { MockTools } from "../../../../core/utils";
 import { FxCoreClient } from "../../../../../src/core/FxCoreClient";
 import { Validator } from "../../../../../src/component/configManager/validator";
 
-const productId = "11111111-2222-4333-8444-555555555555";
-const appId = "aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee";
-const componentId = "bbbbbbbb-cccc-4ddd-8eee-ffffffffffff";
-const tenantUrl = "https://tenant.example.test";
-const tenantId = "cccccccc-dddd-4eee-8fff-000000000000";
-const publicationTenantContext = {
-  tenantId: "cccccccc-dddd-4eee-8fff-000000000000",
-  tenantUrl,
-  catalogUrl: `${tenantUrl}/sites/appcatalog`,
+import {
+  appId,
+  createAppPackage,
+  createSppkg,
+  mockTokenClaims,
   productId,
-};
-
-function createSppkg(version = "1.2.3.4", componentContent = "component"): Buffer {
-  const agent = new AdmZip();
-  agent.addFile(
-    "ai-plugin.json",
-    Buffer.from(
-      JSON.stringify({
-        schema_version: "v2.4",
-        namespace: "sample",
-        name_for_human: "Sample",
-        description_for_human: "Sample API plugin",
-        functions: [],
-        runtimes: [
-          {
-            type: "RemoteMCPServer",
-            auth: { type: "None" },
-            spec: { url: "{{TENANT_MCP_URL}}" },
-          },
-        ],
-      })
-    )
-  );
-  agent.addFile("manifest.json", Buffer.from("{}"));
-  agent.addFile("declarativeAgent.json", Buffer.from("{}"));
-
-  const packageZip = new AdmZip();
-  packageZip.addFile(
-    "AppManifest.xml",
-    Buffer.from(
-      `<App ProductID="{${productId}}" Version="${version}" IsClientSideSolution="true" SkipFeatureDeployment="false" />`
-    )
-  );
-  packageZip.addFile(
-    "[Content_Types].xml",
-    Buffer.from(
-      `<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="xml" ContentType="text/xml" /><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml" /><Default Extension="zip" ContentType="application/octet-stream" /></Types>`
-    )
-  );
-  packageZip.addFile(
-    "_rels/.rels",
-    Buffer.from(
-      `<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Type="manifest" Target="/AppManifest.xml" Id="r0" /></Relationships>`
-    )
-  );
-  packageZip.addFile(
-    "_rels/ClientSideAssets.xml.rels",
-    Buffer.from(
-      `<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Type="agent" Target="/ClientSideAssets/agent.zip" Id="agent" /><Relationship Type="component" Target="/ClientSideAssets/component.js" Id="component" /></Relationships>`
-    )
-  );
-  packageZip.addFile("ClientSideAssets.xml", Buffer.from("<Assets />"));
-  packageZip.addFile(
-    `${componentId}/CopilotComponent_${componentId}.xml`,
-    Buffer.from("<Elements><ClientSideComponent /></Elements>")
-  );
-  packageZip.addFile("ClientSideAssets/agent.zip", agent.toBuffer());
-  packageZip.addFile("ClientSideAssets/component.js", Buffer.from(componentContent));
-  return packageZip.toBuffer();
-}
-
-function createAppPackage(version = "2.3.4"): Buffer {
-  const zip = new AdmZip();
-  zip.addFile(
-    "manifest.json",
-    Buffer.from(
-      JSON.stringify({
-        manifestVersion: "1.30",
-        version,
-        id: appId,
-        $schema:
-          "https://developer.microsoft.com/json-schemas/teams/v1.30/MicrosoftTeams.schema.json",
-        developer: {
-          name: "Sample developer",
-          websiteUrl: "https://example.test",
-          privacyUrl: "https://example.test/privacy",
-          termsOfUseUrl: "https://example.test/terms",
-        },
-        name: { short: "Sample app", full: "Sample application" },
-        description: { short: "Sample app", full: "Sample application" },
-        icons: { color: "color.png", outline: "outline.png" },
-        accentColor: "#FFFFFF",
-        copilotAgents: {
-          declarativeAgents: [{ id: "agent", file: "declarativeAgent.json" }],
-        },
-      })
-    )
-  );
-  zip.addFile(
-    "declarativeAgent.json",
-    Buffer.from(
-      JSON.stringify({
-        version: "v1.9",
-        name: "Sample agent",
-        description: "Sample agent description",
-        instructions: "Keep these instructions",
-        actions: [],
-      })
-    )
-  );
-  zip.addFile("color.png", Buffer.from("icon"));
-  zip.addFile("outline.png", Buffer.from("icon"));
-  return zip.toBuffer();
-}
-
+  publicationTenantContext,
+  tenantId,
+  tenantUrl,
+} from "./preparedPublicationFixtures";
 describe("Prepared SharePoint publication integration", () => {
   let projectPath: string | undefined;
   let http: MockAdapter | undefined;
@@ -182,7 +76,7 @@ describe("Prepared SharePoint publication integration", () => {
         appPackagePath: "appPackage/application.zip",
         tenantContext: publicationTenantContext,
       });
-      expect(prepared.isOk()).toBe(true);
+      expect(prepared.isErr() ? prepared.error : undefined).toBeUndefined();
       if (prepared.isErr()) return;
 
       const requester = axios.create({ baseURL: tenantUrl });
@@ -203,6 +97,7 @@ describe("Prepared SharePoint publication integration", () => {
       vi.spyOn(SPFxDeployDriver.prototype, "getTenant").mockResolvedValue(tenantUrl);
       vi.spyOn(Tools, "getSPFxToken").mockResolvedValue("sharepoint-token");
       const tools = new MockTools();
+      mockTokenClaims(tools.tokenProvider.m365TokenProvider);
       vi.spyOn(tools.ui, "showMessage").mockImplementation(async () => ok("Confirm"));
       const context = {
         azureAccountProvider: tools.tokenProvider.azureAccountProvider,
@@ -228,13 +123,15 @@ describe("Prepared SharePoint publication integration", () => {
       const driver = new SPFxDeployDriver();
 
       const first = await driver.run(args, context);
-      expect(first.isErr()).toBe(true);
+      expect(first.isErr() ? first.error.message : undefined).toBe(
+        makeUncertain ? "SharePointUploadOutcomeUnknown" : "SharePointUploadRejected"
+      );
       const loaded = await loadPreparedPublication(
         projectPath,
         prepared.value.publicationId,
         prepared.value.preparedPublicationPath
       );
-      expect(loaded.isOk()).toBe(true);
+      expect(loaded.isErr() ? loaded.error : undefined).toBeUndefined();
       if (loaded.isErr()) return;
       expect(loaded.value.journal.state).toBe(outcome);
       expect(loaded.value.journal.sharePointArtifact.uploadState).toBe(outcome);
@@ -259,82 +156,91 @@ describe("Prepared SharePoint publication integration", () => {
       name: "same-version package with different bytes",
       version: "1.2.3.4",
       component: "different component",
+      code: "SharePointPackageVersionCollision",
     },
     {
       name: "package older than the app catalog version",
       version: "1.2.3.5",
       component: "component",
+      code: "SharePointPackageDowngrade",
     },
-  ])("SPFX-PREP-06: rejects $name before any SharePoint write", async ({ version, component }) => {
-    projectPath = await fs.mkdtemp(path.join(os.tmpdir(), "prepared-sharepoint-collision-"));
-    await fs.ensureDir(path.join(projectPath, "sharepoint"));
-    await fs.ensureDir(path.join(projectPath, "appPackage"));
-    await fs.writeFile(path.join(projectPath, "sharepoint", "solution.sppkg"), createSppkg());
-    await fs.writeFile(path.join(projectPath, "appPackage", "application.zip"), createAppPackage());
-    process.env.TENANT_MCP_URL = "https://tenant.example.test/mcp";
-    const prepared = await preparePublication({
-      projectPath,
-      packagePath: "sharepoint/solution.sppkg",
-      appPackagePath: "appPackage/application.zip",
-      tenantContext: publicationTenantContext,
-    });
-    expect(prepared.isOk()).toBe(true);
-    if (prepared.isErr()) return;
+  ])(
+    "SPFX-PREP-06: rejects $name before any SharePoint write",
+    async ({ version, component, code }) => {
+      projectPath = await fs.mkdtemp(path.join(os.tmpdir(), "prepared-sharepoint-collision-"));
+      await fs.ensureDir(path.join(projectPath, "sharepoint"));
+      await fs.ensureDir(path.join(projectPath, "appPackage"));
+      await fs.writeFile(path.join(projectPath, "sharepoint", "solution.sppkg"), createSppkg());
+      await fs.writeFile(
+        path.join(projectPath, "appPackage", "application.zip"),
+        createAppPackage()
+      );
+      process.env.TENANT_MCP_URL = "https://tenant.example.test/mcp";
+      const prepared = await preparePublication({
+        projectPath,
+        packagePath: "sharepoint/solution.sppkg",
+        appPackagePath: "appPackage/application.zip",
+        tenantContext: publicationTenantContext,
+      });
+      expect(prepared.isErr() ? prepared.error : undefined).toBeUndefined();
+      if (prepared.isErr()) return;
 
-    const existing = await inspectSharePointPackage(createSppkg(version, component));
-    expect(existing.isOk()).toBe(true);
-    if (existing.isErr()) return;
-    const requester = axios.create({ baseURL: tenantUrl });
-    http = new MockAdapter(requester, { onNoMatch: "throwException" });
-    vi.spyOn(axios, "create").mockReturnValue(requester);
-    http.onGet("/_api/SP_TenantSettings_Current").reply(200, {
-      CorporateCatalogUrl: `${tenantUrl}/sites/appcatalog`,
-    });
-    http.onGet(/lists\/getbytitle\('Apps for SharePoint'\)/).reply(200, {
-      value: [{ File: { ServerRelativeUrl: "/sites/appcatalog/solution.sppkg" } }],
-    });
-    http.onGet(/GetFileByServerRelativeUrl/).reply(200, existing.value.deploymentBytes);
-    http.onGet(/AvailableApps\/GetById/).reply(200, {
-      ID: productId,
-      AppCatalogVersion: version,
-      Deployed: true,
-      CurrentVersionDeployed: true,
-      IsPackageDefaultSkipFeatureDeployment: false,
-    });
+      const existing = await inspectSharePointPackage(createSppkg(version, component));
+      expect(existing.isErr() ? existing.error : undefined).toBeUndefined();
+      if (existing.isErr()) return;
+      const requester = axios.create({ baseURL: tenantUrl });
+      http = new MockAdapter(requester, { onNoMatch: "throwException" });
+      vi.spyOn(axios, "create").mockReturnValue(requester);
+      http.onGet("/_api/SP_TenantSettings_Current").reply(200, {
+        CorporateCatalogUrl: `${tenantUrl}/sites/appcatalog`,
+      });
+      http.onGet(/lists\/getbytitle\('Apps for SharePoint'\)/).reply(200, {
+        value: [{ File: { ServerRelativeUrl: "/sites/appcatalog/solution.sppkg" } }],
+      });
+      http.onGet(/GetFileByServerRelativeUrl/).reply(200, existing.value.deploymentBytes);
+      http.onGet(/AvailableApps\/GetById/).reply(200, {
+        ID: productId,
+        AppCatalogVersion: version,
+        Deployed: true,
+        CurrentVersionDeployed: true,
+        IsPackageDefaultSkipFeatureDeployment: false,
+      });
 
-    vi.spyOn(SPFxDeployDriver.prototype, "getTenant").mockResolvedValue(tenantUrl);
-    vi.spyOn(Tools, "getSPFxToken").mockResolvedValue("sharepoint-token");
-    const tools = new MockTools();
-    const approvalSpy = vi.spyOn(tools.ui, "showMessage");
-    const context = {
-      azureAccountProvider: tools.tokenProvider.azureAccountProvider,
-      m365TokenProvider: tools.tokenProvider.m365TokenProvider,
-      ui: tools.ui,
-      progressBar: undefined,
-      logProvider: tools.logProvider,
-      projectPath,
-      platform: Platform.VSCode,
-    };
-    const result = await new SPFxDeployDriver().run(
-      {
-        createAppCatalogIfNotExist: false,
-        packageSolutionPath: "sharepoint/config/package-solution.json",
-        preparedPublicationPath: prepared.value.preparedPublicationPath,
-        publicationId: prepared.value.publicationId,
-        preparedPackagePath: prepared.value.sharePointPackagePath,
-        sourcePackageSha256: prepared.value.sourcePackageSha256,
-        sourceAppPackageSha256: prepared.value.sourceAppPackageSha256,
-        pluginSha256: prepared.value.pluginSha256,
-        sharePointPackageSha256: prepared.value.sharePointPackageSha256,
-        appPackageSha256: prepared.value.appPackageSha256,
-      },
-      context
-    );
+      vi.spyOn(SPFxDeployDriver.prototype, "getTenant").mockResolvedValue(tenantUrl);
+      vi.spyOn(Tools, "getSPFxToken").mockResolvedValue("sharepoint-token");
+      const tools = new MockTools();
+      mockTokenClaims(tools.tokenProvider.m365TokenProvider);
+      const approvalSpy = vi.spyOn(tools.ui, "showMessage");
+      const context = {
+        azureAccountProvider: tools.tokenProvider.azureAccountProvider,
+        m365TokenProvider: tools.tokenProvider.m365TokenProvider,
+        ui: tools.ui,
+        progressBar: undefined,
+        logProvider: tools.logProvider,
+        projectPath,
+        platform: Platform.VSCode,
+      };
+      const result = await new SPFxDeployDriver().run(
+        {
+          createAppCatalogIfNotExist: false,
+          packageSolutionPath: "sharepoint/config/package-solution.json",
+          preparedPublicationPath: prepared.value.preparedPublicationPath,
+          publicationId: prepared.value.publicationId,
+          preparedPackagePath: prepared.value.sharePointPackagePath,
+          sourcePackageSha256: prepared.value.sourcePackageSha256,
+          sourceAppPackageSha256: prepared.value.sourceAppPackageSha256,
+          pluginSha256: prepared.value.pluginSha256,
+          sharePointPackageSha256: prepared.value.sharePointPackageSha256,
+          appPackageSha256: prepared.value.appPackageSha256,
+        },
+        context
+      );
 
-    expect(result.isErr()).toBe(true);
-    expect(approvalSpy).not.toHaveBeenCalled();
-    expect(http.history.post).toHaveLength(0);
-  });
+      expect(result.isErr() ? result.error.message : undefined).toBe(code);
+      expect(approvalSpy).not.toHaveBeenCalled();
+      expect(http.history.post).toHaveLength(0);
+    }
+  );
 
   it("SPFX-PREP-06: reuses identical current catalog content without another write", async () => {
     projectPath = await fs.mkdtemp(path.join(os.tmpdir(), "prepared-sharepoint-reuse-"));
@@ -349,7 +255,7 @@ describe("Prepared SharePoint publication integration", () => {
       appPackagePath: "appPackage/application.zip",
       tenantContext: publicationTenantContext,
     });
-    expect(prepared.isOk()).toBe(true);
+    expect(prepared.isErr() ? prepared.error : undefined).toBeUndefined();
     if (prepared.isErr()) return;
     const packageBytes = await fs.readFile(
       path.join(projectPath, prepared.value.sharePointPackagePath)
@@ -375,6 +281,7 @@ describe("Prepared SharePoint publication integration", () => {
     vi.spyOn(SPFxDeployDriver.prototype, "getTenant").mockResolvedValue(tenantUrl);
     vi.spyOn(Tools, "getSPFxToken").mockResolvedValue("sharepoint-token");
     const tools = new MockTools();
+    mockTokenClaims(tools.tokenProvider.m365TokenProvider);
     const approvalSpy = vi.spyOn(tools.ui, "showMessage");
     const context = {
       azureAccountProvider: tools.tokenProvider.azureAccountProvider,
@@ -412,7 +319,7 @@ describe("Prepared SharePoint publication integration", () => {
         ? `${result.error.name}: ${result.error.message}; data=${JSON.stringify(result.error.data)}`
         : ""
     ).toBe(true);
-    expect(journal.isOk()).toBe(true);
+    expect(journal.isErr() ? journal.error : undefined).toBeUndefined();
     if (journal.isOk()) {
       expect(journal.value.journal.state).toBe("sharePointVerified");
       expect(journal.value.journal.sharePointArtifact.uploadState).toBe("confirmed");
@@ -675,7 +582,7 @@ describe("Prepared SharePoint publication integration", () => {
       cancelledRecords[0].name,
       cancelledJournalPath
     );
-    expect(cancelledJournal.isOk()).toBe(true);
+    expect(cancelledJournal.isErr() ? cancelledJournal.error : undefined).toBeUndefined();
     if (cancelledJournal.isOk()) {
       expect(cancelledJournal.value.journal.state).toBe("prepared");
     }
@@ -697,7 +604,9 @@ describe("Prepared SharePoint publication integration", () => {
       cancelledRecords[0].name,
       cancelledJournalPath
     );
-    expect(cancelledBeforeUploadJournal.isOk()).toBe(true);
+    expect(
+      cancelledBeforeUploadJournal.isErr() ? cancelledBeforeUploadJournal.error : undefined
+    ).toBeUndefined();
     if (cancelledBeforeUploadJournal.isOk()) {
       expect(cancelledBeforeUploadJournal.value.journal.state).toBe("prepared");
       expect(cancelledBeforeUploadJournal.value.journal.sharePointArtifact.uploadState).toBe(
@@ -722,7 +631,9 @@ describe("Prepared SharePoint publication integration", () => {
       cancelledRecords[0].name,
       cancelledJournalPath
     );
-    expect(uploadedBeforeCancellation.isOk()).toBe(true);
+    expect(
+      uploadedBeforeCancellation.isErr() ? uploadedBeforeCancellation.error : undefined
+    ).toBeUndefined();
     if (uploadedBeforeCancellation.isOk()) {
       expect(uploadedBeforeCancellation.value.journal.state).toBe("sharePointUploaded");
       expect(uploadedBeforeCancellation.value.journal.sharePointArtifact.uploadState).toBe(
@@ -752,7 +663,7 @@ describe("Prepared SharePoint publication integration", () => {
       outputs["PREP_PUBLICATION_ID"] ?? "",
       outputs["PREP_PUBLICATION_PATH"] ?? ""
     );
-    expect(journal.isOk()).toBe(true);
+    expect(journal.isErr() ? journal.error : undefined).toBeUndefined();
     if (journal.isOk()) {
       expect(journal.value.journal.state).toBe("submitted");
       expect(journal.value.journal.sharePointArtifact.deployState).toBe("confirmed");

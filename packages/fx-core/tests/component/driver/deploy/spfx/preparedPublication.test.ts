@@ -230,6 +230,46 @@ describe("Prepared SharePoint publication preparation", () => {
     }
   });
 
+  it("SPFX-PREP-04: tolerates metadata-only ctime drift but rejects same-size input rewrites", async () => {
+    const projectPath = await fs.mkdtemp(path.join(os.tmpdir(), "prepared-publication-stat-"));
+    directories.push(projectPath);
+    await fs.ensureDir(path.join(projectPath, "sharepoint"));
+    await fs.ensureDir(path.join(projectPath, "appPackage"));
+    await fs.writeFile(path.join(projectPath, "sharepoint", "solution.sppkg"), createSppkg());
+    await fs.writeFile(path.join(projectPath, "appPackage", "application.zip"), createAppPackage());
+    const originalFstat = fs.fstat.bind(fs);
+    let calls = 0;
+    let drift: "ctimeMs" | "mtimeMs" = "ctimeMs";
+    const fstatSpy = vi.spyOn(fs, "fstat").mockImplementation(async (fd: number) => {
+      const stats = await originalFstat(fd);
+      calls += 1;
+      if (calls % 2 === 0) {
+        stats[drift] += 1;
+      }
+      return stats;
+    });
+    const options = {
+      projectPath,
+      packagePath: "sharepoint/solution.sppkg",
+      appPackagePath: "appPackage/application.zip",
+      tenantContext,
+    };
+
+    try {
+      const metadataOnly = await preparePublication(options);
+      expect(metadataOnly.isErr() ? metadataOnly.error : undefined).toBeUndefined();
+      drift = "mtimeMs";
+      calls = 0;
+      const rewritten = await preparePublication(options);
+      expect(rewritten.isErr()).toBe(true);
+      if (rewritten.isErr()) {
+        expect(rewritten.error.code).toBe("InputChangedDuringRead");
+      }
+    } finally {
+      fstatSpy.mockRestore();
+    }
+  });
+
   it("SPFX-PREP-04: caps bytes read when an input grows after its initial size check", async () => {
     const projectPath = await fs.mkdtemp(path.join(os.tmpdir(), "prepared-publication-growth-"));
     directories.push(projectPath);
@@ -293,14 +333,14 @@ describe("Prepared SharePoint publication preparation", () => {
       appPackagePath: "appPackage/application.zip",
       tenantContext,
     });
-    expect(prepared.isOk()).toBe(true);
+    expect(prepared.isErr() ? prepared.error : undefined).toBeUndefined();
     if (prepared.isErr()) return;
     const loaded = await loadPreparedPublication(
       projectPath,
       prepared.value.publicationId,
       prepared.value.preparedPublicationPath
     );
-    expect(loaded.isOk()).toBe(true);
+    expect(loaded.isErr() ? loaded.error : undefined).toBeUndefined();
     if (loaded.isErr()) return;
 
     const rejectedJournal: PreparedPublicationJournal = {
@@ -398,7 +438,7 @@ describe("Prepared SharePoint publication preparation", () => {
       result.value.publicationId,
       result.value.preparedPublicationPath
     );
-    expect(loaded.isOk()).toBe(true);
+    expect(loaded.isErr() ? loaded.error : undefined).toBeUndefined();
     if (loaded.isErr()) return;
     expect(loaded.value.journal.state).toBe("prepared");
     expect(loaded.value.journal.sourceSharePoint.productId).toBe(productId);
@@ -427,7 +467,7 @@ describe("Prepared SharePoint publication preparation", () => {
       result.value.preparedPublicationPath,
       (journal) => ({ ...journal, state: "unknown" })
     );
-    expect(markedUnknown.isOk()).toBe(true);
+    expect(markedUnknown.isErr() ? markedUnknown.error : undefined).toBeUndefined();
     if (markedUnknown.isOk()) {
       expect(isAmbiguousPublicationState(markedUnknown.value)).toBe(true);
     }
@@ -467,7 +507,7 @@ describe("Prepared SharePoint publication preparation", () => {
         applicationPackage: originalApplication,
         sharePointPackage: sourceSharePoint,
       });
-      expect(neutral.isOk()).toBe(true);
+      expect(neutral.isErr() ? neutral.error : undefined).toBeUndefined();
       if (neutral.isErr()) return;
 
       const sourcePath = path.join(projectPath, "sharepoint", "solution.sppkg");
@@ -482,7 +522,7 @@ describe("Prepared SharePoint publication preparation", () => {
         tenantContext,
       });
 
-      expect(prepared.isOk()).toBe(true);
+      expect(prepared.isErr() ? prepared.error : undefined).toBeUndefined();
       if (prepared.isErr()) return;
       const stagedApplication = new AdmZip(
         await fs.readFile(path.join(projectPath, prepared.value.appPackagePath))
@@ -633,7 +673,7 @@ describe("Prepared SharePoint publication preparation", () => {
         appPackagePath: "appPackage/application.zip",
         tenantContext,
       });
-      expect(second.isOk()).toBe(true);
+      expect(second.isErr() ? second.error : undefined).toBeUndefined();
       if (second.isErr()) return;
       const secondBytes = await fs.readFile(
         path.join(secondProjectPath, second.value.appPackagePath)
