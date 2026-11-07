@@ -8,7 +8,7 @@
       "precondition_wait_timeout": 60,
       "precondition_retry_interval": 2
     },
-    "total_steps": 13,
+    "total_steps": 18,
     "created_at": "2026-06-05T07:17:53.766103",
     "name": "group: debug_in_teams_local",
     "description": {
@@ -27,6 +27,11 @@
       "step_abda900e",
       "step_a527f679",
       "step_7f03643c",
+      "step_wait_teams_signin_complete",
+      "step_restore_local_app_deeplink",
+      "step_focus_teams_address_bar",
+      "step_type_teams_install_url",
+      "step_open_teams_install_url",
       "step_afa29596",
       "step_31620d1e",
       "step_7f090e7d",
@@ -245,6 +250,103 @@
       "tags": [],
       "screenshot": "step_7f03643c",
       "created_at": "2026-06-05T09:07:45.979439",
+      "plan_id": "plan_r_0930_083113"
+    },
+    {
+      "step_id": "step_wait_teams_signin_complete",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion Microsoft Teams web has finished signing in: the browser is on teams.microsoft.com or teams.cloud.microsoft and shows the Teams navigation sidebar with Chat or an app installation dialog. The Microsoft password form, 'Stay signed in?' prompt, Authentication V2 page, and Teams loading splash are no longer displayed.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "step_retry_timeout: 180"
+      ],
+      "screenshot": null,
+      "plan_id": "plan_r_0930_083113"
+    },
+    {
+      "step_id": "step_restore_local_app_deeplink",
+      "agent": "code",
+      "tool": "",
+      "parameters": {
+        "sample": "```python\nfrom pathlib import Path\nfrom urllib.parse import parse_qs, urlsplit\nfrom uuid import UUID\n\nlog_files = Path('/tmp').glob('vscode-userdata-*/logs/**/*Microsoft 365 Agents Toolkit*.log')\nlog_file = max(log_files, key=lambda path: path.stat().st_mtime, default=None)\nif log_file is None:\n    raise RuntimeError('The current Toolkit output log was not found')\nmarkers = ('teams web client is being launched for you to debug the app: ', 'web browser is being launched for you to debug the app: ')\nurls = []\nfor line in log_file.read_text(encoding='utf-8').splitlines():\n    for marker in markers:\n        position = line.lower().find(marker)\n        if position != -1:\n            urls.append(line[position + len(marker):].strip().removesuffix('.'))\nif not urls:\n    raise RuntimeError('The current Toolkit output log contains no Teams launch URL')\nurl = urls[-1]\nparsed = urlsplit(url)\nif parsed.scheme != 'https' or parsed.netloc not in ('teams.microsoft.com', 'teams.cloud.microsoft') or not parsed.path.startswith('/l/app/'):\n    raise RuntimeError('The recorded launch URL is not a Teams app installation link')\nUUID(parsed.path.removeprefix('/l/app/'))\nif parse_qs(parsed.query).get('installAppPackage') != ['true']:\n    raise RuntimeError('The recorded launch URL does not request app installation')\nprint(url)\n```"
+      },
+      "description": "@code Run the reference Python script to extract the latest Teams app installation URL from the newest Toolkit output log under /tmp/vscode-userdata-*/logs. This step is read-only: do not navigate the browser, call interaction or assertion APIs, or read .env files. Extract the entire remainder of the matching log line with string slicing and remove only the final logging period with removesuffix('.'); do not use a regular expression or split on periods, because the hostname and login_hint contain periods. Validate HTTPS, the Teams hostname, the /l/app/ UUID, and installAppPackage=true. Print ONLY the complete validated URL, preserving every query parameter, so teams_install_url stores the raw URL rather than a status message. Missing logs, missing URLs, and invalid URLs must raise an error.",
+      "content_refs": [],
+      "timeout": 60,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "store_fact:teams_install_url"
+      ],
+      "screenshot": null,
+      "plan_id": "plan_r_0930_083113"
+    },
+    {
+      "step_id": "step_focus_teams_address_bar",
+      "agent": "interaction",
+      "tool": "keyboard_shortcut",
+      "parameters": {
+        "keys": "ctrl+l"
+      },
+      "description": "Focus the address bar in the existing signed-in Teams browser tab.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": null,
+      "plan_id": "plan_r_0930_083113"
+    },
+    {
+      "step_id": "step_type_teams_install_url",
+      "agent": "interaction",
+      "tool": "type_text",
+      "parameters": {
+        "text": "${{fact:teams_install_url}}"
+      },
+      "description": "Type the complete recorded Teams app installation URL from ${{fact:teams_install_url}} into the browser address bar, replacing the unrelated chat URL.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": null,
+      "plan_id": "plan_r_0930_083113"
+    },
+    {
+      "step_id": "step_open_teams_install_url",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "enter"
+      },
+      "description": "Open the recorded installation URL in the signed-in Teams tab. The following assertion must find the app details dialog with its Add or Open button.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": null,
       "plan_id": "plan_r_0930_083113"
     },
     {
