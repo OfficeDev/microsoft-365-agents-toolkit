@@ -53,7 +53,13 @@ process interruption between a remote write and the next lifecycle action.
 7. Support either a declarative-agent action reference or the typed
    `AgentConnector.toolSource.plugin` representation. Preserve other
    application content and validate the final staged manifests against the
-   supported schema machinery before freezing deterministic artifacts. No
+   supported schema machinery before freezing deterministic artifacts. The
+   public lean package entry exposes an in-memory tenant-neutral assembly API
+   backed by this same transformer. It returns exact source and output hashes,
+   preserves tenant placeholders, performs local structural validation only,
+   and leaves persistence to the caller. Tenant-bound preparation recognizes
+   and replaces that deterministic managed contribution in place before final
+   schema validation; conflicting or ambiguous ownership fails closed. No
    `TENANT_ORIGIN` CSP path is qualified yet; do not perform broad string
    replacement.
 8. Do not change `FxCoreClient.publish`, route through the legacy Teams-only
@@ -72,6 +78,12 @@ process interruption between a remote write and the next lifecycle action.
   package content, collisions, and unresolved state fail closed.
 - The public inspector is a local file operation. It never prompts, reads
   credentials, or makes service requests.
+- The public in-memory assembler accepts application/SPPKG buffers through the
+  lean entry and returns a neutral application ZIP plus hash/identity
+  provenance. It does not initialize a lifecycle client, access the
+  filesystem, authenticate, or make network requests. Its structural checks
+  do not replace tenant-bound schema, identity, audience, catalog, approval,
+  or deployment verification.
 - The draft PR must retain the open package-format, service-verification,
   approval, and recovery questions for maintainer review before the decision
   is accepted.

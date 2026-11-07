@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import AdmZip from "adm-zip";
 import { createHash, randomUUID } from "crypto";
 import fs from "fs-extra";
 import path from "path";
@@ -21,9 +20,14 @@ import {
   SHAREPOINT_PACKAGE_LIMITS,
   SharePointPackageInspectionError,
 } from "./packageFile";
+import {
+  assembleApplicationPackage,
+  SharePointApplicationPackageError,
+} from "./applicationPackage";
 
 const journalVersion = 2;
-const transformationIdentity = "spfx-copilot-plugin-v2";
+const previousTransformationIdentity = "spfx-copilot-plugin-v2";
+const transformationIdentity = "spfx-copilot-plugin-v3";
 const publicationDirectory = path.join(".fx", "sharepoint-publications");
 export const preparedRequestSettlementTimeoutMs = 30_000;
 const tenantMcpUrlPlaceholder = /^\{\{\s*TENANT_MCP_URL\s*\}\}$/;
@@ -80,6 +84,7 @@ export interface PreparedPublicationJournal {
   };
   plugin: {
     sha256: string;
+    bindingSha256?: string;
   };
   sharePointArtifact: {
     path: string;
@@ -97,6 +102,10 @@ export interface PreparedPublicationJournal {
     submissionState: PreparedWriteState;
     submittedAppId?: string;
   };
+}
+
+function isSupportedTransformationIdentity(value: unknown): value is string {
+  return value === transformationIdentity || value === previousTransformationIdentity;
 }
 
 export class PreparedPublicationError extends Error {
@@ -706,201 +715,27 @@ function getAgentReference(manifest: Record<string, unknown>): Result<
 function prepareApplicationPackage(
   bytes: Buffer,
   pluginBytes: Buffer,
-  pluginHash: string
-): Result<{ bytes: Buffer; appId: string; version: string }, PreparedPublicationError> {
-  const entries = readBoundedArchive(bytes);
-  if (entries.isErr()) {
+  sourcePluginBytes: Buffer,
+  productId: string
+): Result<
+  { bytes: Buffer; appId: string; version: string; pluginBindingSha256: string },
+  PreparedPublicationError
+> {
+  const assembled = assembleApplicationPackage(bytes, pluginBytes, sourcePluginBytes, productId);
+  if (assembled.isErr()) {
+    const error: SharePointApplicationPackageError = assembled.error;
     return err(
-      new PreparedPublicationError(
-        "InvalidApplicationPackage",
-        "The application package is invalid.",
-        {
-          cause: entries.error,
-        }
-      )
+      new PreparedPublicationError(error.code, error.message, {
+        cause: error,
+      })
     );
   }
-  const byName = new Map(entries.value.map((entry) => [entry.name, entry.data]));
-  const manifestBytes = byName.get("manifest.json");
-  if (manifestBytes === undefined) {
-    return err(
-      new PreparedPublicationError(
-        "InvalidApplicationPackage",
-        "The application package is missing manifest.json."
-      )
-    );
-  }
-  const manifestResult = jsonObject(manifestBytes, "manifest.json");
-  if (manifestResult.isErr()) {
-    return err(manifestResult.error);
-  }
-  const manifest = manifestResult.value;
-  const appId = manifest["id"];
-  const version = manifest["version"];
-  if (
-    typeof appId !== "string" ||
-    !guidPattern.test(appId) ||
-    typeof version !== "string" ||
-    !/^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/.test(version)
-  ) {
-    return err(
-      new PreparedPublicationError(
-        "InvalidApplicationIdentity",
-        "The application identity or version is invalid."
-      )
-    );
-  }
-  const pluginManifestResult = jsonObject(pluginBytes, "prepared API plugin");
-  if (pluginManifestResult.isErr()) {
-    return err(pluginManifestResult.error);
-  }
-  const pluginNamespace = pluginManifestResult.value["namespace"];
-  const pluginName = pluginManifestResult.value["name_for_human"];
-  if (
-    typeof pluginNamespace !== "string" ||
-    !/^[A-Za-z0-9-]+$/.test(pluginNamespace) ||
-    typeof pluginName !== "string" ||
-    pluginName.trim().length === 0
-  ) {
-    return err(
-      new PreparedPublicationError(
-        "InvalidPluginIdentity",
-        "The extracted API plugin identity is invalid."
-      )
-    );
-  }
-  const agentReference = getAgentReference(manifest);
-  if (agentReference.isErr()) {
-    return err(agentReference.error);
-  }
-  const pluginFile = `plugins/spfx-api-${pluginHash.slice(0, 16)}.json`;
-  const pluginActionId = `spfx-api-${pluginHash.slice(0, 16)}`;
-  const existingPlugin = byName.get(pluginFile);
-  if (existingPlugin !== undefined && !existingPlugin.equals(pluginBytes)) {
-    return err(
-      new PreparedPublicationError(
-        "ApplicationPackageCollision",
-        "The application package contains conflicting plugin content."
-      )
-    );
-  }
-  const zip = new AdmZip(bytes);
-  if (agentReference.value) {
-    const agentFile = agentReference.value.reference["file"];
-    if (typeof agentFile !== "string" || path.posix.normalize(agentFile) !== agentFile) {
-      return err(
-        new PreparedPublicationError(
-          "InvalidAgentReference",
-          "The application agent reference is invalid."
-        )
-      );
-    }
-    const agentBytes = byName.get(agentFile);
-    if (agentBytes === undefined) {
-      return err(
-        new PreparedPublicationError(
-          "MissingAgentManifest",
-          "The application package is missing its declarative agent manifest."
-        )
-      );
-    }
-    const agentResult = jsonObject(agentBytes, agentFile);
-    if (agentResult.isErr()) {
-      return err(agentResult.error);
-    }
-    const agent = agentResult.value;
-    const actionsValue = agent["actions"];
-    if (actionsValue !== undefined && !Array.isArray(actionsValue)) {
-      return err(
-        new PreparedPublicationError(
-          "InvalidAgentActions",
-          "The declarative agent actions must be an array."
-        )
-      );
-    }
-    const actions = Array.isArray(actionsValue) ? actionsValue.filter(isRecord) : [];
-    if (
-      (actionsValue !== undefined && actions.length !== actionsValue.length) ||
-      actions.some(
-        (action) =>
-          action["file"] === pluginFile ||
-          (action["id"] === pluginActionId && action["file"] !== pluginFile)
-      )
-    ) {
-      return err(
-        new PreparedPublicationError(
-          "ApplicationPackageCollision",
-          "The application package contains an invalid or conflicting plugin action."
-        )
-      );
-    }
-    agent["actions"] = [...actions, { id: pluginActionId, file: pluginFile }];
-    zip.updateFile(agentFile, Buffer.from(JSON.stringify(agent, null, 2), "utf8"));
-  } else {
-    const existingConnectorsValue = manifest["agentConnectors"];
-    if (existingConnectorsValue !== undefined && !Array.isArray(existingConnectorsValue)) {
-      return err(
-        new PreparedPublicationError(
-          "InvalidAgentConnectors",
-          "The application agent connectors are invalid."
-        )
-      );
-    }
-    const connectors = Array.isArray(existingConnectorsValue)
-      ? existingConnectorsValue.filter(isRecord)
-      : [];
-    if (
-      (Array.isArray(existingConnectorsValue) &&
-        connectors.length !== existingConnectorsValue.length) ||
-      connectors.some((connector) => connector["id"] === pluginActionId)
-    ) {
-      return err(
-        new PreparedPublicationError(
-          "ApplicationPackageCollision",
-          "The application package contains an invalid or conflicting agent connector."
-        )
-      );
-    }
-    manifest["agentConnectors"] = [
-      ...connectors,
-      {
-        id: pluginActionId,
-        displayName: pluginName,
-        toolSource: {
-          plugin: {
-            id: pluginNamespace,
-            file: pluginFile,
-          },
-        },
-      },
-    ];
-    zip.updateFile("manifest.json", Buffer.from(JSON.stringify(manifest, null, 2), "utf8"));
-  }
-  if (existingPlugin === undefined) {
-    zip.addFile(pluginFile, pluginBytes);
-    const addedPlugin = zip.getEntry(pluginFile);
-    if (addedPlugin) {
-      addedPlugin.header.time = new Date("1980-01-01T00:00:00.000Z");
-    }
-  }
-  try {
-    const output = zip.toBuffer();
-    const outputEntries = readBoundedArchive(output);
-    if (outputEntries.isErr()) {
-      return err(outputEntries.error);
-    }
-    return ok({ bytes: output, appId, version });
-  } catch (error) {
-    return err(
-      new PreparedPublicationError(
-        "ApplicationPackagePrepareFailed",
-        "The application package could not be prepared.",
-        {
-          cause: error,
-        }
-      )
-    );
-  }
+  return ok({
+    bytes: assembled.value.bytes,
+    appId: assembled.value.appId,
+    version: assembled.value.appVersion,
+    pluginBindingSha256: assembled.value.pluginBindingSha256,
+  });
 }
 
 function getTeamsSchemaUrl(version: unknown): string | undefined {
@@ -1265,7 +1100,8 @@ export async function preparePublication(
   const appPackage = prepareApplicationPackage(
     sourceAppPackage.value.bytes,
     resolvedPlugin.value,
-    pluginSha256
+    sharePointPackage.value.pluginManifest,
+    sharePointPackage.value.productId
   );
   if (appPackage.isErr()) {
     return err(appPackage.error);
@@ -1413,7 +1249,10 @@ export async function preparePublication(
             appId: appPackage.value.appId,
             version: appPackage.value.version,
           },
-          plugin: { sha256: pluginSha256 },
+          plugin: {
+            sha256: pluginSha256,
+            bindingSha256: appPackage.value.pluginBindingSha256,
+          },
           sharePointArtifact: {
             path: projectRelative(root, sharePointArtifactPath),
             sha256: sharePointPackage.value.deploymentSha256,
@@ -1525,7 +1364,7 @@ function parseJournal(value: unknown): PreparedPublicationJournal | undefined {
     typeof value["identity"]["appId"] !== "string" ||
     typeof value["identity"]["productId"] !== "string" ||
     !isRecord(value["transformation"]) ||
-    value["transformation"]["id"] !== transformationIdentity ||
+    !isSupportedTransformationIdentity(value["transformation"]["id"]) ||
     !isArtifactRecord(value["sourceSharePoint"]) ||
     typeof value["sourceSharePoint"]["productId"] !== "string" ||
     typeof value["sourceSharePoint"]["version"] !== "string" ||
@@ -1536,6 +1375,9 @@ function parseJournal(value: unknown): PreparedPublicationJournal | undefined {
     !isRecord(value["plugin"]) ||
     typeof value["plugin"]["sha256"] !== "string" ||
     !/^[0-9a-f]{64}$/i.test(value["plugin"]["sha256"]) ||
+    (value["plugin"]["bindingSha256"] !== undefined &&
+      (typeof value["plugin"]["bindingSha256"] !== "string" ||
+        !/^[0-9a-f]{64}$/i.test(value["plugin"]["bindingSha256"]))) ||
     !isArtifactRecord(value["sharePointArtifact"]) ||
     !isWriteState(value["sharePointArtifact"]["uploadState"]) ||
     !isWriteState(value["sharePointArtifact"]["deployState"]) ||
@@ -1565,6 +1407,7 @@ function parseJournal(value: unknown): PreparedPublicationJournal | undefined {
   const sourceApplicationAppId = sourceApplication["appId"];
   const sourceApplicationVersion = sourceApplication["version"];
   const pluginSha256 = plugin["sha256"];
+  const pluginBindingSha256 = plugin["bindingSha256"];
   const sharePointArtifactSha256 = sharePointArtifact["sha256"];
   const sharePointUploadState = sharePointArtifact["uploadState"];
   const sharePointDeployState = sharePointArtifact["deployState"];
@@ -1591,6 +1434,7 @@ function parseJournal(value: unknown): PreparedPublicationJournal | undefined {
     typeof sourceApplicationAppId !== "string" ||
     typeof sourceApplicationVersion !== "string" ||
     typeof pluginSha256 !== "string" ||
+    (pluginBindingSha256 !== undefined && typeof pluginBindingSha256 !== "string") ||
     typeof sharePointArtifactSha256 !== "string" ||
     !isWriteState(sharePointUploadState) ||
     !isWriteState(sharePointDeployState) ||
@@ -1605,7 +1449,8 @@ function parseJournal(value: unknown): PreparedPublicationJournal | undefined {
     typeof transformationId !== "string" ||
     identityAppId.toLowerCase() !== sourceApplicationAppId.toLowerCase() ||
     identityProductId.toLowerCase() !== sourceSharePointProductId.toLowerCase() ||
-    transformationId !== transformationIdentity ||
+    (transformationId !== transformationIdentity &&
+      transformationId !== previousTransformationIdentity) ||
     !isPreparedCatalogUrl(catalogUrl, tenantOrigin) ||
     !isWriteState(applicationSubmissionState)
   ) {
@@ -1636,7 +1481,10 @@ function parseJournal(value: unknown): PreparedPublicationJournal | undefined {
       appId: sourceApplicationAppId,
       version: sourceApplicationVersion,
     },
-    plugin: { sha256: pluginSha256 },
+    plugin: {
+      sha256: pluginSha256,
+      ...(typeof pluginBindingSha256 === "string" ? { bindingSha256: pluginBindingSha256 } : {}),
+    },
     sharePointArtifact: {
       path: sharePointArtifactPath,
       sha256: sharePointArtifactSha256,
@@ -1905,7 +1753,9 @@ export function verifyPreparedApplicationPackage(
   if (agentReference.isErr()) {
     return err(agentReference.error);
   }
-  const pluginName = `plugins/spfx-api-${journal.plugin.sha256.slice(0, 16)}.json`;
+  const pluginBindingSha256 = journal.plugin.bindingSha256 ?? journal.plugin.sha256;
+  const pluginName = `plugins/spfx-api-${pluginBindingSha256.slice(0, 16)}.json`;
+  const pluginId = `spfx-api-${pluginBindingSha256.slice(0, 16)}`;
   const pluginEntry = byName.get(pluginName);
   let referenceCount = 0;
   if (agentReference.value) {
@@ -1941,7 +1791,7 @@ export function verifyPreparedApplicationPackage(
       );
     }
     referenceCount = actionsValue.filter(
-      (action) => isRecord(action) && action["file"] === pluginName
+      (action) => isRecord(action) && action["id"] === pluginId && action["file"] === pluginName
     ).length;
   } else {
     const connectors = manifest.value["agentConnectors"];
@@ -1956,6 +1806,7 @@ export function verifyPreparedApplicationPackage(
     referenceCount = connectors.filter(
       (connector) =>
         isRecord(connector) &&
+        connector["id"] === pluginId &&
         isRecord(connector["toolSource"]) &&
         isRecord(connector["toolSource"]["plugin"]) &&
         connector["toolSource"]["plugin"]["file"] === pluginName

@@ -17,6 +17,7 @@ import {
   PreparedPublicationError,
 } from "../../../../../src/component/driver/deploy/spfx/utility/preparedPublication";
 import { SHAREPOINT_PACKAGE_LIMITS } from "../../../../../src/component/driver/deploy/spfx/utility/packageFile";
+import { assembleSharePointApplicationPackage } from "../../../../../src/sharepointPackage";
 
 const appId = "aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee";
 const productId = "11111111-2222-4333-8444-555555555555";
@@ -452,6 +453,72 @@ describe("Prepared SharePoint publication preparation", () => {
     });
     expect(changedSourceRetry.isErr()).toBe(true);
   });
+
+  it.each([false, true])(
+    "SPFX-PREP-13: replaces a neutral managed contribution exactly once during tenant preparation (connector-only: %s)",
+    async (connectorOnly) => {
+      const projectPath = await fs.mkdtemp(path.join(os.tmpdir(), "prepared-publication-handoff-"));
+      directories.push(projectPath);
+      await fs.ensureDir(path.join(projectPath, "sharepoint"));
+      await fs.ensureDir(path.join(projectPath, "appPackage"));
+      const sourceSharePoint = createSppkg();
+      const originalApplication = createAppPackage(connectorOnly);
+      const neutral = await assembleSharePointApplicationPackage({
+        applicationPackage: originalApplication,
+        sharePointPackage: sourceSharePoint,
+      });
+      expect(neutral.isOk()).toBe(true);
+      if (neutral.isErr()) return;
+
+      const sourcePath = path.join(projectPath, "sharepoint", "solution.sppkg");
+      const neutralApplicationPath = path.join(projectPath, "appPackage", "neutral.zip");
+      await fs.writeFile(sourcePath, sourceSharePoint);
+      await fs.writeFile(neutralApplicationPath, neutral.value.packageBytes);
+
+      const prepared = await preparePublication({
+        projectPath,
+        packagePath: "sharepoint/solution.sppkg",
+        appPackagePath: "appPackage/neutral.zip",
+        tenantContext,
+      });
+
+      expect(prepared.isOk()).toBe(true);
+      if (prepared.isErr()) return;
+      const stagedApplication = new AdmZip(
+        await fs.readFile(path.join(projectPath, prepared.value.appPackagePath))
+      );
+      const pluginBytes = stagedApplication.readFile(neutral.value.managedReference.path);
+      expect(pluginBytes).not.toBeNull();
+      if (pluginBytes === null) return;
+      const plugin = JSON.parse(pluginBytes.toString("utf8"));
+      expect(plugin.runtimes[0].spec.url).toBe(
+        `https://tenant.example.test/_api/mcp/spfx?solutionId=${productId}`
+      );
+      expect(JSON.stringify(plugin)).not.toContain("{{TENANT_MCP_URL}}");
+
+      const manifest = JSON.parse(stagedApplication.readAsText("manifest.json"));
+      if (connectorOnly) {
+        expect(manifest.agentConnectors).toHaveLength(2);
+        expect(
+          manifest.agentConnectors.filter(
+            (connector: Record<string, unknown>) =>
+              connector["id"] === neutral.value.managedReference.id
+          )
+        ).toHaveLength(1);
+      } else {
+        const agent = JSON.parse(stagedApplication.readAsText("declarativeAgent.json"));
+        expect(
+          agent.actions.filter(
+            (action: Record<string, unknown>) =>
+              action["id"] === neutral.value.managedReference.id &&
+              action["file"] === neutral.value.managedReference.path
+          )
+        ).toHaveLength(1);
+        expect(agent.instructions).toBe("Keep these instructions");
+      }
+      expect(await fs.readFile(neutralApplicationPath)).toEqual(neutral.value.packageBytes);
+    }
+  );
 
   it("SPFX-PREP-02: supports connector-only apps without synthesizing an agent", async () => {
     const projectPath = await fs.mkdtemp(path.join(os.tmpdir(), "prepared-publication-connector-"));

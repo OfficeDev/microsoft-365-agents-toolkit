@@ -7,13 +7,19 @@ import fs from "fs-extra";
 import os from "os";
 import path from "path";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { readSharePointPackage } from "../../../../../src/sharepointPackage";
+import {
+  assembleSharePointApplicationPackage,
+  inspectSharePointPackage,
+  readSharePointPackage,
+} from "../../../../../src/sharepointPackage";
 import {
   readBoundedArchive,
   SHAREPOINT_PACKAGE_LIMITS,
 } from "../../../../../src/component/driver/deploy/spfx/utility/packageFile";
 
 const productId = "11111111-2222-4333-8444-555555555555";
+const appId = "aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee";
+const userPluginPath = "plugins/user-plugin.json";
 const agentPackageName = "ClientSideAssets/copilot-agent.zip";
 const componentManifestName =
   "bbbbbbbb-cccc-4ddd-8eee-ffffffffffff/CopilotComponent_bbbbbbbb-cccc-4ddd-8eee-ffffffffffff.xml";
@@ -25,6 +31,7 @@ function createAgentPackage(): Buffer {
     Buffer.from(
       JSON.stringify({
         schema_version: "v2.1",
+        namespace: "sample-plugin",
         name_for_human: "Component actions",
         runtimes: [
           {
@@ -78,7 +85,7 @@ function createSppkg(options: { agentPackages?: string[] } = {}): Buffer {
     )
     .join("");
   zip.addFile(
-    "_rels/ClientSideAssets.xml.rels",
+    "ClientSideAssets/_rels/ClientSideAssets.xml.rels",
     Buffer.from(
       `<?xml version="1.0" encoding="utf-8"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">${relationships}<Relationship Type="clientsideasset" Target="/ClientSideAssets/component.js" Id="script" /></Relationships>`
     )
@@ -89,6 +96,51 @@ function createSppkg(options: { agentPackages?: string[] } = {}): Buffer {
   for (const packageName of packages) {
     zip.addFile(packageName, nested);
   }
+  return zip.toBuffer();
+}
+
+function createApplicationPackage(kind: "agent" | "connector"): Buffer {
+  const zip = new AdmZip();
+  const manifest: Record<string, unknown> = {
+    manifestVersion: kind === "agent" ? "1.30" : "devPreview",
+    version: "2.3.4",
+    id: appId,
+    name: { short: "Sample", full: "Sample application" },
+    agentSkills: [{ folder: "skills/existing" }],
+    ...(kind === "agent"
+      ? {
+          copilotAgents: {
+            declarativeAgents: [{ id: "agent", file: "declarativeAgent.json" }],
+          },
+        }
+      : {
+          agentConnectors: [
+            {
+              id: "existing-connector",
+              displayName: "Existing connector",
+              toolSource: {
+                remoteMcpServer: { mcpServerUrl: "https://existing.example.test/mcp" },
+              },
+            },
+          ],
+        }),
+  };
+  zip.addFile("manifest.json", Buffer.from(JSON.stringify(manifest)));
+  if (kind === "agent") {
+    zip.addFile(
+      "declarativeAgent.json",
+      Buffer.from(
+        JSON.stringify({
+          version: "v1.9",
+          name: "Existing agent",
+          description: "Existing agent description",
+          instructions: "Keep these instructions",
+          actions: [{ id: "existing-action", file: userPluginPath }],
+        })
+      )
+    );
+  }
+  zip.addFile(userPluginPath, Buffer.from(JSON.stringify({ retained: true })));
   return zip.toBuffer();
 }
 
@@ -133,10 +185,134 @@ describe("SharePoint package inspection", () => {
     const names = deployment.getEntries().map((entry) => entry.entryName);
     expect(names).not.toContain(agentPackageName);
     expect(names).toContain("ClientSideAssets/component.js");
-    expect(deployment.readAsText("_rels/ClientSideAssets.xml.rels").toLowerCase()).not.toContain(
-      "copilot-agent.zip"
-    );
+    expect(
+      deployment.readAsText("ClientSideAssets/_rels/ClientSideAssets.xml.rels").toLowerCase()
+    ).not.toContain("copilot-agent.zip");
     expect(deployment.readAsText("[Content_Types].xml")).not.toContain('Extension="zip"');
+  });
+
+  it.each(["agent", "connector"] as const)(
+    "SPFX-PREP-12: assembles a tenant-neutral package while preserving %s content offline",
+    async (kind) => {
+      const sourceSharePoint = createSppkg();
+      const sourceApplication = createApplicationPackage(kind);
+      const originalSharePoint = Buffer.from(sourceSharePoint);
+      const originalApplication = Buffer.from(sourceApplication);
+      const openSpy = vi.spyOn(fs, "open");
+      const readSpy = vi.spyOn(fs, "read");
+      const writeSpy = vi.spyOn(fs, "writeFile");
+      const fetchSpy = vi.spyOn(globalThis, "fetch");
+
+      try {
+        const result = await assembleSharePointApplicationPackage({
+          applicationPackage: sourceApplication,
+          sharePointPackage: sourceSharePoint,
+        });
+
+        expect(result.isOk()).toBe(true);
+        if (result.isErr()) return;
+        expect(result.value.sourceSharePointSha256).toBe(
+          createHash("sha256").update(sourceSharePoint).digest("hex")
+        );
+        expect(result.value.sourceApplicationSha256).toBe(
+          createHash("sha256").update(sourceApplication).digest("hex")
+        );
+        expect(result.value.packageSha256).toBe(
+          createHash("sha256").update(result.value.packageBytes).digest("hex")
+        );
+        expect(result.value.productId).toBe(productId);
+        expect(result.value.appId).toBe(appId);
+        expect(result.value.managedReference.kind).toBe(
+          kind === "agent" ? "declarativeAgentAction" : "agentConnector"
+        );
+        const output = new AdmZip(result.value.packageBytes);
+        const manifest = JSON.parse(output.readAsText("manifest.json"));
+        expect(manifest.agentSkills).toEqual([{ folder: "skills/existing" }]);
+        expect(output.readAsText(userPluginPath)).toBe(JSON.stringify({ retained: true }));
+        const plugin = JSON.parse(output.readAsText(result.value.managedReference.path));
+        expect(plugin.runtimes[0].spec.url).toBe("{{TENANT_MCP_URL}}");
+        if (kind === "agent") {
+          const agent = JSON.parse(output.readAsText("declarativeAgent.json"));
+          expect(agent.instructions).toBe("Keep these instructions");
+          expect(agent.actions).toEqual([
+            { id: "existing-action", file: userPluginPath },
+            { id: result.value.managedReference.id, file: result.value.managedReference.path },
+          ]);
+        } else {
+          expect(manifest.agentConnectors).toHaveLength(2);
+          expect(manifest.agentConnectors[0].id).toBe("existing-connector");
+          expect(manifest.agentConnectors[1].id).toBe(result.value.managedReference.id);
+        }
+        const repeated = await assembleSharePointApplicationPackage({
+          applicationPackage: result.value.packageBytes,
+          sharePointPackage: sourceSharePoint,
+        });
+        expect(repeated.isOk()).toBe(true);
+        if (repeated.isOk()) {
+          expect(repeated.value.packageBytes).toEqual(result.value.packageBytes);
+        }
+        expect(sourceSharePoint).toEqual(originalSharePoint);
+        expect(sourceApplication).toEqual(originalApplication);
+        expect(openSpy).not.toHaveBeenCalled();
+        expect(readSpy).not.toHaveBeenCalled();
+        expect(writeSpy).not.toHaveBeenCalled();
+        expect(fetchSpy).not.toHaveBeenCalled();
+      } finally {
+        openSpy.mockRestore();
+        readSpy.mockRestore();
+        writeSpy.mockRestore();
+        fetchSpy.mockRestore();
+      }
+    }
+  );
+
+  it("SPFX-PREP-14: rejects malformed and oversized application inputs", async () => {
+    const malformed = await assembleSharePointApplicationPackage({
+      applicationPackage: Buffer.from("not a ZIP package"),
+      sharePointPackage: createSppkg(),
+    });
+    expect(malformed.isErr()).toBe(true);
+    if (malformed.isErr()) {
+      expect(malformed.error.code).toBe("InvalidArchive");
+    }
+
+    const originalLimit = SHAREPOINT_PACKAGE_LIMITS.inputBytes;
+    SHAREPOINT_PACKAGE_LIMITS.inputBytes = 1024;
+    try {
+      const oversized = await assembleSharePointApplicationPackage({
+        applicationPackage: createApplicationPackage("agent"),
+        sharePointPackage: createSppkg(),
+      });
+      expect(oversized.isErr()).toBe(true);
+      if (oversized.isErr()) {
+        expect(oversized.error.code).toBe("ArchiveTooLarge");
+      }
+    } finally {
+      SHAREPOINT_PACKAGE_LIMITS.inputBytes = originalLimit;
+    }
+  });
+
+  it("SPFX-PREP-14: rejects a conflicting managed plugin reference", async () => {
+    const sourceSharePoint = createSppkg();
+    const inspected = await inspectSharePointPackage(sourceSharePoint);
+    expect(inspected.isOk()).toBe(true);
+    if (inspected.isErr()) return;
+    const pluginHash = createHash("sha256").update(inspected.value.pluginManifest).digest("hex");
+    const pluginId = `spfx-api-${pluginHash.slice(0, 16)}`;
+    const application = new AdmZip(createApplicationPackage("agent"));
+    const agent = JSON.parse(application.readAsText("declarativeAgent.json"));
+    agent.actions.push({ id: pluginId, file: "plugins/conflicting.json" });
+    application.updateFile("declarativeAgent.json", Buffer.from(JSON.stringify(agent)));
+
+    const result = await assembleSharePointApplicationPackage({
+      applicationPackage: application.toBuffer(),
+      sharePointPackage: sourceSharePoint,
+    });
+
+    expect(result.isErr()).toBe(true);
+    if (result.isErr()) {
+      expect(result.error.code).toBe("ApplicationPackageCollision");
+    }
   });
 
   it("SPFX-PREP-04: rejects ambiguous nested agent packages instead of selecting one", async () => {
