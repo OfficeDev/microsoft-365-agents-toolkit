@@ -6,7 +6,11 @@ import { createHash } from "crypto";
 import { err, ok } from "neverthrow";
 import type { Result } from "neverthrow";
 import path from "path";
-import { readBoundedArchive, SharePointPackageInspectionError } from "./packageFile";
+import {
+  readBoundedArchive,
+  SHAREPOINT_PACKAGE_LIMITS,
+  SharePointPackageInspectionError,
+} from "./packageFile";
 
 const managedPluginPrefix = "spfx-api-";
 const managedPluginPathPrefix = "plugins/spfx-api-";
@@ -69,6 +73,9 @@ function parseJsonObject(
   bytes: Buffer,
   name: string
 ): Result<Record<string, unknown>, SharePointApplicationPackageError> {
+  if (bytes.length > SHAREPOINT_PACKAGE_LIMITS.metadataBytes) {
+    return err(packageError("MetadataTooLarge", `Package metadata "${name}" exceeds safe limits.`));
+  }
   try {
     const parsed: unknown = JSON.parse(bytes.toString("utf8").replace(/^\uFEFF/, ""));
     if (!isRecord(parsed)) {
@@ -216,15 +223,26 @@ function matchesSourcePlugin(
   candidateBytes: Buffer,
   sourcePlugin: Record<string, unknown>,
   productId: string
-): boolean {
+): Result<boolean, SharePointApplicationPackageError> {
   const candidate = parseJsonObject(candidateBytes, "managed API plugin");
   if (candidate.isErr()) {
-    return false;
+    return err(candidate.error);
   }
   normalizeManagedEndpoint(candidate.value, productId);
   const normalizedSource = structuredClone(sourcePlugin);
   normalizeManagedEndpoint(normalizedSource, productId);
-  return stableJson(candidate.value) === stableJson(normalizedSource);
+  return ok(stableJson(candidate.value) === stableJson(normalizedSource));
+}
+
+function serializeJsonObject(
+  value: Record<string, unknown>,
+  name: string
+): Result<Buffer, SharePointApplicationPackageError> {
+  const bytes = Buffer.from(JSON.stringify(value, null, 2), "utf8");
+  if (bytes.length > SHAREPOINT_PACKAGE_LIMITS.metadataBytes) {
+    return err(packageError("MetadataTooLarge", `Package metadata "${name}" exceeds safe limits.`));
+  }
+  return ok(bytes);
 }
 
 function validateSourcePluginEndpoint(
@@ -436,7 +454,8 @@ export function assembleApplicationPackage(
   if (referenceArrays.isErr()) {
     return err(referenceArrays.error);
   }
-  const { actions, connectors } = referenceArrays.value;
+  let { actions, connectors } = referenceArrays.value;
+  let connectorsChanged = false;
   const candidates = managedCandidates(actions, connectors);
   if (candidates.length > 1) {
     return err(
@@ -476,22 +495,42 @@ export function assembleApplicationPackage(
       candidate.id === pluginId &&
       candidate.path === pluginPath
     ) {
-      if (
-        !candidateBytes.equals(pluginBytes) &&
-        !matchesSourcePlugin(candidateBytes, sourcePluginManifest, productId)
-      ) {
+      if (!candidateBytes.equals(pluginBytes)) {
+        const sourcePluginMatch = matchesSourcePlugin(
+          candidateBytes,
+          sourcePluginManifest,
+          productId
+        );
+        if (sourcePluginMatch.isErr()) {
+          return err(sourcePluginMatch.error);
+        }
+        if (!sourcePluginMatch.value) {
+          return err(
+            packageError(
+              "ApplicationPackageCollision",
+              "The application package contains conflicting managed plugin content."
+            )
+          );
+        }
+      }
+      existingReference = true;
+    } else if (isLegacyManagedReference(candidate, candidateBytes)) {
+      const sourcePluginMatch = matchesSourcePlugin(
+        candidateBytes,
+        sourcePluginManifest,
+        productId
+      );
+      if (sourcePluginMatch.isErr()) {
+        return err(sourcePluginMatch.error);
+      }
+      if (!sourcePluginMatch.value) {
         return err(
           packageError(
             "ApplicationPackageCollision",
-            "The application package contains conflicting managed plugin content."
+            "The application package contains a conflicting or ambiguous managed plugin reference."
           )
         );
       }
-      existingReference = true;
-    } else if (
-      isLegacyManagedReference(candidate, candidateBytes) &&
-      matchesSourcePlugin(candidateBytes, sourcePluginManifest, productId)
-    ) {
       if (candidate.kind === "declarativeAgentAction") {
         if (!agentReference || !agentManifest) {
           return err(
@@ -501,13 +540,14 @@ export function assembleApplicationPackage(
             )
           );
         }
-        agentManifest["actions"] = actions.filter(
+        actions = actions.filter(
           (action) => action["id"] !== candidate.id || action["file"] !== candidate.path
         );
+        agentManifest["actions"] = actions;
       } else {
-        manifest["agentConnectors"] = connectors.filter(
-          (connector) => connector["id"] !== candidate.id
-        );
+        connectors = connectors.filter((connector) => connector["id"] !== candidate.id);
+        manifest["agentConnectors"] = connectors;
+        connectorsChanged = true;
       }
       zipEntriesToRemove.push(candidate.path);
     } else {
@@ -547,10 +587,18 @@ export function assembleApplicationPackage(
     } else {
       agentManifest["actions"] = [...actions, { id: pluginId, file: pluginPath }];
     }
-    zip.updateFile(
-      agentReference.file,
-      Buffer.from(JSON.stringify(agentManifest, null, 2), "utf8")
-    );
+    const serializedAgent = serializeJsonObject(agentManifest, agentReference.file);
+    if (serializedAgent.isErr()) {
+      return err(serializedAgent.error);
+    }
+    zip.updateFile(agentReference.file, serializedAgent.value);
+    if (connectorsChanged) {
+      const serializedManifest = serializeJsonObject(manifest, "manifest.json");
+      if (serializedManifest.isErr()) {
+        return err(serializedManifest.error);
+      }
+      zip.updateFile("manifest.json", serializedManifest.value);
+    }
   } else {
     if (!existingReference) {
       manifest["agentConnectors"] = [
@@ -567,7 +615,11 @@ export function assembleApplicationPackage(
         },
       ];
     }
-    zip.updateFile("manifest.json", Buffer.from(JSON.stringify(manifest, null, 2), "utf8"));
+    const serializedManifest = serializeJsonObject(manifest, "manifest.json");
+    if (serializedManifest.isErr()) {
+      return err(serializedManifest.error);
+    }
+    zip.updateFile("manifest.json", serializedManifest.value);
   }
   if (existingReference) {
     zip.updateFile(pluginPath, pluginBytes);

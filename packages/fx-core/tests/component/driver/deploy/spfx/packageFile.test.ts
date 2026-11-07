@@ -2,7 +2,7 @@
 // Licensed under the MIT license.
 
 import AdmZip from "adm-zip";
-import { createHash } from "crypto";
+import { createHash, randomBytes } from "crypto";
 import fs from "fs-extra";
 import os from "os";
 import path from "path";
@@ -23,6 +23,12 @@ const userPluginPath = "plugins/user-plugin.json";
 const agentPackageName = "ClientSideAssets/copilot-agent.zip";
 const componentManifestName =
   "bbbbbbbb-cccc-4ddd-8eee-ffffffffffff/CopilotComponent_bbbbbbbb-cccc-4ddd-8eee-ffffffffffff.xml";
+
+function incompressibleString(length: number): string {
+  return randomBytes(Math.ceil((length * 3) / 4))
+    .toString("base64")
+    .slice(0, length);
+}
 
 function createAgentPackage(): Buffer {
   const zip = new AdmZip();
@@ -142,6 +148,35 @@ function createApplicationPackage(kind: "agent" | "connector"): Buffer {
   }
   zip.addFile(userPluginPath, Buffer.from(JSON.stringify({ retained: true })));
   return zip.toBuffer();
+}
+
+async function createLegacyMaterializedApplicationPackage(
+  kind: "agent" | "connector",
+  sourcePlugin: Buffer
+): Promise<{ bytes: Buffer; legacyId: string; legacyPath: string }> {
+  const plugin = JSON.parse(sourcePlugin.toString("utf8"));
+  plugin.runtimes[0].spec.url = `https://tenant.example.test/_api/mcp/spfx?solutionId=${encodeURIComponent(productId)}`;
+  const materializedPlugin = Buffer.from(JSON.stringify(plugin));
+  const contentHash = createHash("sha256").update(materializedPlugin).digest("hex").slice(0, 16);
+  const legacyId = `spfx-api-${contentHash}`;
+  const legacyPath = `plugins/${legacyId}.json`;
+  const zip = new AdmZip(createApplicationPackage(kind));
+
+  if (kind === "agent") {
+    const agent = JSON.parse(zip.readAsText("declarativeAgent.json"));
+    agent.actions.push({ id: legacyId, file: legacyPath });
+    zip.updateFile("declarativeAgent.json", Buffer.from(JSON.stringify(agent)));
+  } else {
+    const manifest = JSON.parse(zip.readAsText("manifest.json"));
+    manifest.agentConnectors.push({
+      id: legacyId,
+      displayName: "Legacy SharePoint plugin",
+      toolSource: { plugin: { id: plugin.namespace, file: legacyPath } },
+    });
+    zip.updateFile("manifest.json", Buffer.from(JSON.stringify(manifest)));
+  }
+  zip.addFile(legacyPath, materializedPlugin);
+  return { bytes: zip.toBuffer(), legacyId, legacyPath };
 }
 
 describe("SharePoint package inspection", () => {
@@ -266,6 +301,195 @@ describe("SharePoint package inspection", () => {
     }
   );
 
+  it.each(["agent", "connector"] as const)(
+    "SPFX-PREP-13: migrates a legacy materialized %s plugin without dangling references",
+    async (kind) => {
+      const sourceSharePoint = createSppkg();
+      const inspected = await inspectSharePointPackage(sourceSharePoint);
+      expect(inspected.isOk()).toBe(true);
+      if (inspected.isErr()) return;
+      const legacy = await createLegacyMaterializedApplicationPackage(
+        kind,
+        inspected.value.pluginManifest
+      );
+      const result = await assembleSharePointApplicationPackage({
+        applicationPackage: legacy.bytes,
+        sharePointPackage: sourceSharePoint,
+      });
+
+      expect(result.isOk()).toBe(true);
+      if (result.isErr()) return;
+      expect(legacy.legacyId).not.toBe(result.value.managedReference.id);
+      const output = new AdmZip(result.value.packageBytes);
+      const outputEntries = new Set(output.getEntries().map((entry) => entry.entryName));
+      expect(outputEntries).not.toContain(legacy.legacyPath);
+      expect(outputEntries).toContain(result.value.managedReference.path);
+      expect(outputEntries).toContain(userPluginPath);
+      expect(output.readAsText(userPluginPath)).toBe(JSON.stringify({ retained: true }));
+
+      const manifest = JSON.parse(output.readAsText("manifest.json"));
+      expect(manifest.agentSkills).toEqual([{ folder: "skills/existing" }]);
+      const managedReferences =
+        kind === "agent"
+          ? JSON.parse(output.readAsText("declarativeAgent.json")).actions.filter(
+              (action: { id?: string; file?: string }) =>
+                action.id?.startsWith("spfx-api-") || action.file?.startsWith("plugins/spfx-api-")
+            )
+          : manifest.agentConnectors.filter(
+              (connector: { id?: string; toolSource?: { plugin?: { file?: string } } }) =>
+                connector.id?.startsWith("spfx-api-") ||
+                connector.toolSource?.plugin?.file?.startsWith("plugins/spfx-api-")
+            );
+      expect(managedReferences).toEqual([
+        kind === "agent"
+          ? {
+              id: result.value.managedReference.id,
+              file: result.value.managedReference.path,
+            }
+          : expect.objectContaining({
+              id: result.value.managedReference.id,
+              toolSource: expect.objectContaining({
+                plugin: expect.objectContaining({ file: result.value.managedReference.path }),
+              }),
+            }),
+      ]);
+
+      const referencedFiles =
+        kind === "agent"
+          ? JSON.parse(output.readAsText("declarativeAgent.json")).actions.map(
+              (action: { file: string }) => action.file
+            )
+          : manifest.agentConnectors.flatMap(
+              (connector: { toolSource?: { plugin?: { file?: string } } }) => {
+                const file = connector.toolSource?.plugin?.file;
+                return file ? [file] : [];
+              }
+            );
+      expect(referencedFiles.every((file: string) => outputEntries.has(file))).toBe(true);
+      if (kind === "agent") {
+        expect(JSON.parse(output.readAsText("declarativeAgent.json")).instructions).toBe(
+          "Keep these instructions"
+        );
+      } else {
+        expect(manifest.agentConnectors[0].id).toBe("existing-connector");
+      }
+    }
+  );
+
+  it("SPFX-PREP-13: persists root-manifest cleanup when migrating a legacy connector to an agent action", async () => {
+    const sourceSharePoint = createSppkg();
+    const inspected = await inspectSharePointPackage(sourceSharePoint);
+    expect(inspected.isOk()).toBe(true);
+    if (inspected.isErr()) return;
+    const legacy = await createLegacyMaterializedApplicationPackage(
+      "connector",
+      inspected.value.pluginManifest
+    );
+    const legacyZip = new AdmZip(legacy.bytes);
+    const legacyManifest = JSON.parse(legacyZip.readAsText("manifest.json"));
+    const legacyConnector = legacyManifest.agentConnectors.find(
+      (connector: { id: string }) => connector.id === legacy.legacyId
+    );
+    const legacyPlugin = legacyZip.readFile(legacy.legacyPath);
+    expect(legacyPlugin).not.toBeNull();
+    if (legacyPlugin === null) return;
+    const application = new AdmZip(createApplicationPackage("agent"));
+    const manifest = JSON.parse(application.readAsText("manifest.json"));
+    const unrelatedConnector = {
+      id: "existing-connector",
+      displayName: "Existing connector",
+      toolSource: {
+        remoteMcpServer: { mcpServerUrl: "https://existing.example.test/mcp" },
+      },
+    };
+    manifest.agentConnectors = [unrelatedConnector, legacyConnector];
+    application.updateFile("manifest.json", Buffer.from(JSON.stringify(manifest)));
+    application.addFile(legacy.legacyPath, legacyPlugin);
+
+    const result = await assembleSharePointApplicationPackage({
+      applicationPackage: application.toBuffer(),
+      sharePointPackage: sourceSharePoint,
+    });
+
+    expect(result.isOk()).toBe(true);
+    if (result.isErr()) return;
+    const output = new AdmZip(result.value.packageBytes);
+    const outputManifest = JSON.parse(output.readAsText("manifest.json"));
+    expect(outputManifest.agentConnectors).toEqual([unrelatedConnector]);
+    expect(output.getEntries().map((entry) => entry.entryName)).not.toContain(legacy.legacyPath);
+    const agent = JSON.parse(output.readAsText("declarativeAgent.json"));
+    expect(agent.actions).toContainEqual({
+      id: result.value.managedReference.id,
+      file: result.value.managedReference.path,
+    });
+  });
+
+  it.each(["application manifest", "declarative-agent manifest", "managed plugin"] as const)(
+    "SPFX-PREP-14: rejects oversized %s metadata with a bounded error",
+    async (surface) => {
+      const sourceSharePoint = createSppkg();
+      const inspected = await inspectSharePointPackage(sourceSharePoint);
+      expect(inspected.isOk()).toBe(true);
+      if (inspected.isErr()) return;
+      const metadataLimit = SHAREPOINT_PACKAGE_LIMITS.metadataBytes;
+      const application = new AdmZip(createApplicationPackage("agent"));
+
+      if (surface === "application manifest") {
+        const manifest = JSON.parse(application.readAsText("manifest.json"));
+        manifest.description = incompressibleString(metadataLimit);
+        application.updateFile("manifest.json", Buffer.from(JSON.stringify(manifest)));
+      } else if (surface === "declarative-agent manifest") {
+        const agent = JSON.parse(application.readAsText("declarativeAgent.json"));
+        agent.instructions = incompressibleString(metadataLimit);
+        application.updateFile("declarativeAgent.json", Buffer.from(JSON.stringify(agent)));
+      } else {
+        const materializedPlugin = JSON.parse(inspected.value.pluginManifest.toString("utf8"));
+        materializedPlugin.runtimes[0].spec.url = `https://tenant.example.test/_api/mcp/spfx?solutionId=${encodeURIComponent(productId)}`;
+        materializedPlugin.metadataPadding = incompressibleString(metadataLimit);
+        const pluginBytes = Buffer.from(JSON.stringify(materializedPlugin));
+        const contentHash = createHash("sha256").update(pluginBytes).digest("hex").slice(0, 16);
+        const legacyId = `spfx-api-${contentHash}`;
+        const legacyPath = `plugins/${legacyId}.json`;
+        const agent = JSON.parse(application.readAsText("declarativeAgent.json"));
+        agent.actions.push({ id: legacyId, file: legacyPath });
+        application.updateFile("declarativeAgent.json", Buffer.from(JSON.stringify(agent)));
+        application.addFile(legacyPath, pluginBytes);
+      }
+
+      const result = await assembleSharePointApplicationPackage({
+        applicationPackage: application.toBuffer(),
+        sharePointPackage: sourceSharePoint,
+      });
+
+      expect(result.isErr()).toBe(true);
+      if (result.isErr()) {
+        expect(result.error.code).toBe("MetadataTooLarge");
+      }
+    }
+  );
+
+  it("SPFX-PREP-14: rejects output metadata that exceeds the limit after adding the managed reference", async () => {
+    const sourceSharePoint = createSppkg();
+    const application = new AdmZip(createApplicationPackage("agent"));
+    const agent = JSON.parse(application.readAsText("declarativeAgent.json"));
+    const metadataLimit = SHAREPOINT_PACKAGE_LIMITS.metadataBytes;
+    const emptyLength = Buffer.byteLength(JSON.stringify(agent));
+    agent.instructions = incompressibleString(metadataLimit - emptyLength - 5);
+    const sourceAgentBytes = Buffer.from(JSON.stringify(agent));
+    expect(sourceAgentBytes.length).toBeLessThanOrEqual(metadataLimit);
+    application.updateFile("declarativeAgent.json", sourceAgentBytes);
+
+    const result = await assembleSharePointApplicationPackage({
+      applicationPackage: application.toBuffer(),
+      sharePointPackage: sourceSharePoint,
+    });
+
+    expect(result.isErr()).toBe(true);
+    if (result.isErr()) {
+      expect(result.error.code).toBe("MetadataTooLarge");
+    }
+  });
+
   it("SPFX-PREP-14: rejects malformed and oversized application inputs", async () => {
     const malformed = await assembleSharePointApplicationPackage({
       applicationPackage: Buffer.from("not a ZIP package"),
@@ -303,6 +527,31 @@ describe("SharePoint package inspection", () => {
     const agent = JSON.parse(application.readAsText("declarativeAgent.json"));
     agent.actions.push({ id: pluginId, file: "plugins/conflicting.json" });
     application.updateFile("declarativeAgent.json", Buffer.from(JSON.stringify(agent)));
+
+    const result = await assembleSharePointApplicationPackage({
+      applicationPackage: application.toBuffer(),
+      sharePointPackage: sourceSharePoint,
+    });
+
+    expect(result.isErr()).toBe(true);
+    if (result.isErr()) {
+      expect(result.error.code).toBe("ApplicationPackageCollision");
+    }
+  });
+
+  it("SPFX-PREP-14: rejects conflicting content at the deterministic managed plugin path", async () => {
+    const sourceSharePoint = createSppkg();
+    const inspected = await inspectSharePointPackage(sourceSharePoint);
+    expect(inspected.isOk()).toBe(true);
+    if (inspected.isErr()) return;
+    const bindingHash = createHash("sha256").update(inspected.value.pluginManifest).digest("hex");
+    const pluginId = `spfx-api-${bindingHash.slice(0, 16)}`;
+    const pluginPath = `plugins/${pluginId}.json`;
+    const application = new AdmZip(createApplicationPackage("agent"));
+    const agent = JSON.parse(application.readAsText("declarativeAgent.json"));
+    agent.actions.push({ id: pluginId, file: pluginPath });
+    application.updateFile("declarativeAgent.json", Buffer.from(JSON.stringify(agent)));
+    application.addFile(pluginPath, Buffer.from(JSON.stringify({ conflicting: true })));
 
     const result = await assembleSharePointApplicationPackage({
       applicationPackage: application.toBuffer(),
