@@ -36,7 +36,9 @@ only `remoteMcpServer`. A connector-only application on any other manifest
 version fails with `UnsupportedAgentConnectorManifestVersion` before any output
 is produced. The operation never rewrites the manifest version, never switches
 to `remoteMcpServer` (which would drop the API plugin's function and UI
-metadata), and never synthesizes a declarative agent. Staged outputs
+metadata), and never synthesizes a declarative agent. Connector-only support on
+GA manifest versions is an unresolved future capability outside this operation.
+Staged outputs
 and the versioned journal are confined to the project-local publication
 workspace. The journal contains no tokens or credentials.
 
