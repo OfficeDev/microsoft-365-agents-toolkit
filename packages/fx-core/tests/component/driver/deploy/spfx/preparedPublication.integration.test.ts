@@ -9,6 +9,7 @@ import { createHash } from "crypto";
 import fs from "fs-extra";
 import os from "os";
 import path from "path";
+import YAML from "yaml";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import * as Tools from "../../../../../src/common/tools";
@@ -21,11 +22,19 @@ import {
 } from "../../../../../src/component/driver/deploy/spfx/utility/preparedPublication";
 import { MockTools } from "../../../../core/utils";
 import { FxCoreClient } from "../../../../../src/core/FxCoreClient";
+import { Validator } from "../../../../../src/component/configManager/validator";
 
 const productId = "11111111-2222-4333-8444-555555555555";
 const appId = "aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee";
 const componentId = "bbbbbbbb-cccc-4ddd-8eee-ffffffffffff";
 const tenantUrl = "https://tenant.example.test";
+const tenantId = "cccccccc-dddd-4eee-8fff-000000000000";
+const publicationTenantContext = {
+  tenantId: "cccccccc-dddd-4eee-8fff-000000000000",
+  tenantUrl,
+  catalogUrl: `${tenantUrl}/sites/appcatalog`,
+  productId,
+};
 
 function createSppkg(version = "1.2.3.4", componentContent = "component"): Buffer {
   const agent = new AdmZip();
@@ -35,8 +44,16 @@ function createSppkg(version = "1.2.3.4", componentContent = "component"): Buffe
       JSON.stringify({
         schema_version: "v2.4",
         namespace: "sample",
+        name_for_human: "Sample",
+        description_for_human: "Sample API plugin",
         functions: [],
-        runtimes: [{ type: "RemoteMCPServer", spec: { url: "{{TENANT_MCP_URL}}" } }],
+        runtimes: [
+          {
+            type: "RemoteMCPServer",
+            auth: { type: "None" },
+            spec: { url: "{{TENANT_MCP_URL}}" },
+          },
+        ],
       })
     )
   );
@@ -87,6 +104,18 @@ function createAppPackage(version = "2.3.4"): Buffer {
         manifestVersion: "1.30",
         version,
         id: appId,
+        $schema:
+          "https://developer.microsoft.com/json-schemas/teams/v1.30/MicrosoftTeams.schema.json",
+        developer: {
+          name: "Sample developer",
+          websiteUrl: "https://example.test",
+          privacyUrl: "https://example.test/privacy",
+          termsOfUseUrl: "https://example.test/terms",
+        },
+        name: { short: "Sample app", full: "Sample application" },
+        description: { short: "Sample app", full: "Sample application" },
+        icons: { color: "color.png", outline: "outline.png" },
+        accentColor: "#FFFFFF",
         copilotAgents: {
           declarativeAgents: [{ id: "agent", file: "declarativeAgent.json" }],
         },
@@ -95,8 +124,18 @@ function createAppPackage(version = "2.3.4"): Buffer {
   );
   zip.addFile(
     "declarativeAgent.json",
-    Buffer.from(JSON.stringify({ instructions: "Keep these instructions", actions: [] }))
+    Buffer.from(
+      JSON.stringify({
+        version: "v1.9",
+        name: "Sample agent",
+        description: "Sample agent description",
+        instructions: "Keep these instructions",
+        actions: [],
+      })
+    )
   );
+  zip.addFile("color.png", Buffer.from("icon"));
+  zip.addFile("outline.png", Buffer.from("icon"));
   return zip.toBuffer();
 }
 
@@ -141,6 +180,7 @@ describe("Prepared SharePoint publication integration", () => {
         projectPath,
         packagePath: "sharepoint/solution.sppkg",
         appPackagePath: "appPackage/application.zip",
+        tenantContext: publicationTenantContext,
       });
       expect(prepared.isOk()).toBe(true);
       if (prepared.isErr()) return;
@@ -208,6 +248,7 @@ describe("Prepared SharePoint publication integration", () => {
         projectPath,
         packagePath: "sharepoint/solution.sppkg",
         appPackagePath: "appPackage/application.zip",
+        tenantContext: publicationTenantContext,
       });
       expect(freshPreparation.isErr()).toBe(true);
     }
@@ -235,6 +276,7 @@ describe("Prepared SharePoint publication integration", () => {
       projectPath,
       packagePath: "sharepoint/solution.sppkg",
       appPackagePath: "appPackage/application.zip",
+      tenantContext: publicationTenantContext,
     });
     expect(prepared.isOk()).toBe(true);
     if (prepared.isErr()) return;
@@ -305,6 +347,7 @@ describe("Prepared SharePoint publication integration", () => {
       projectPath,
       packagePath: "sharepoint/solution.sppkg",
       appPackagePath: "appPackage/application.zip",
+      tenantContext: publicationTenantContext,
     });
     expect(prepared.isOk()).toBe(true);
     if (prepared.isErr()) return;
@@ -363,7 +406,12 @@ describe("Prepared SharePoint publication integration", () => {
       prepared.value.preparedPublicationPath
     );
 
-    expect(result.isOk()).toBe(true);
+    expect(
+      result.isOk(),
+      result.isErr()
+        ? `${result.error.name}: ${result.error.message}; data=${JSON.stringify(result.error.data)}`
+        : ""
+    ).toBe(true);
     expect(journal.isOk()).toBe(true);
     if (journal.isOk()) {
       expect(journal.value.journal.state).toBe("sharePointVerified");
@@ -432,15 +480,36 @@ describe("Prepared SharePoint publication integration", () => {
         "",
       ].join("\n")
     );
+    const yamlContent = YAML.parse(
+      await fs.readFile(path.join(projectPath, "m365agents.yml"), "utf8")
+    );
+    const validator = new Validator().impl.get("v1.14")?.validator;
+    expect(validator?.(yamlContent), JSON.stringify(validator?.errors)).toBe(true);
 
     process.env.TENANT_MCP_URL = "https://tenant.example.test/mcp";
     const tools = new MockTools();
+    vi.spyOn(tools.tokenProvider.m365TokenProvider, "getJsonObject").mockImplementation(
+      async (tokenRequest) =>
+        ok({
+          tid: tenantId,
+          aud: tokenRequest.scopes.some((scope) => scope.includes("Sites.FullControl.All"))
+            ? tenantUrl
+            : "https://graph.microsoft.com",
+        })
+    );
     let cancelFirstApproval = true;
+    let abortAtNextApproval = false;
+    const approvalAbortSignal = new AbortController();
     vi.spyOn(tools.ui, "showMessage").mockImplementation(
-      async (_level, _message, _modal, ...items) => {
+      async (_level, _message, modal, ...items) => {
+        if (!modal) return ok("");
         if (cancelFirstApproval) {
           cancelFirstApproval = false;
           return ok("Cancel");
+        }
+        if (abortAtNextApproval) {
+          abortAtNextApproval = false;
+          approvalAbortSignal?.abort();
         }
         return ok(items[0]);
       }
@@ -454,7 +523,13 @@ describe("Prepared SharePoint publication integration", () => {
     let preparedCatalogVersion = "1.2.3.4";
     let graphAppCreated = false;
     const graphAppVersion = "2.3.4";
+    let abortNextSharePointUpload = false;
+    const uploadSignal = new AbortController();
+    let abortNextSharePointDeploy = false;
+    const deploySignal = new AbortController();
     let failNextGraphSubmission = false;
+    let abortNextGraphSubmission = false;
+    let submissionSignal: AbortController | undefined;
     let uploadedPackage: Buffer | undefined;
     let submittedPackage: Buffer | undefined;
     const writes: string[] = [];
@@ -495,6 +570,10 @@ describe("Prepared SharePoint publication integration", () => {
           ];
         }
         if (request.method === "post" && url.includes("tenantappcatalog/Add(")) {
+          if (abortNextSharePointUpload) {
+            abortNextSharePointUpload = false;
+            uploadSignal?.abort();
+          }
           uploaded = true;
           deployed = false;
           catalogVersion = preparedCatalogVersion;
@@ -509,6 +588,10 @@ describe("Prepared SharePoint publication integration", () => {
           url.includes("AvailableApps/GetById") &&
           url.includes("/Deploy")
         ) {
+          if (abortNextSharePointDeploy) {
+            abortNextSharePointDeploy = false;
+            deploySignal?.abort();
+          }
           deployed = true;
           writes.push("sharepoint-deploy");
           return [200, {}];
@@ -535,6 +618,10 @@ describe("Prepared SharePoint publication integration", () => {
             ? request.data
             : Buffer.from(String(request.data));
           writes.push("teams-app-submit");
+          if (abortNextGraphSubmission) {
+            abortNextGraphSubmission = false;
+            submissionSignal?.abort();
+          }
           if (failNextGraphSubmission) {
             failNextGraphSubmission = false;
             return [500, { message: "Submission outcome unknown" }];
@@ -548,6 +635,20 @@ describe("Prepared SharePoint publication integration", () => {
     });
 
     const client = new FxCoreClient(tools);
+    const alreadyAborted = new AbortController();
+    alreadyAborted.abort();
+    const cancelledBeforeStart = await client.publish(
+      {
+        platform: Platform.VSCode,
+        nonInteractive: true,
+        projectPath,
+        env: "dev",
+      },
+      { signal: alreadyAborted.signal }
+    );
+    expect(cancelledBeforeStart.isErr()).toBe(true);
+    expect(writes).toEqual([]);
+
     const cancelled = await client.publish({
       platform: Platform.VSCode,
       nonInteractive: true,
@@ -557,8 +658,14 @@ describe("Prepared SharePoint publication integration", () => {
     expect(cancelled.isErr()).toBe(true);
     expect(writes).toEqual([]);
     const publicationRoot = path.join(projectPath, ".fx", "sharepoint-publications");
-    const cancelledRecords = await fs.readdir(publicationRoot, { withFileTypes: true });
-    expect(cancelledRecords.filter((record) => record.isDirectory())).toHaveLength(1);
+    expect(
+      await fs.pathExists(publicationRoot),
+      cancelled.isErr() ? `${cancelled.error.name}: ${cancelled.error.message}` : ""
+    ).toBe(true);
+    const cancelledRecords = (await fs.readdir(publicationRoot, { withFileTypes: true })).filter(
+      (record) => record.isDirectory() && /^[0-9a-f-]{36}$/i.test(record.name)
+    );
+    expect(cancelledRecords).toHaveLength(1);
     const cancelledJournalPath = path
       .join(".fx", "sharepoint-publications", cancelledRecords[0].name, "journal.json")
       .split(path.sep)
@@ -573,6 +680,56 @@ describe("Prepared SharePoint publication integration", () => {
       expect(cancelledJournal.value.journal.state).toBe("prepared");
     }
 
+    abortAtNextApproval = true;
+    const cancelledBeforeUpload = await client.publish(
+      {
+        platform: Platform.VSCode,
+        nonInteractive: true,
+        projectPath,
+        env: "dev",
+      },
+      { signal: approvalAbortSignal.signal }
+    );
+    expect(cancelledBeforeUpload.isErr()).toBe(true);
+    expect(writes).toEqual([]);
+    const cancelledBeforeUploadJournal = await loadPreparedPublication(
+      projectPath,
+      cancelledRecords[0].name,
+      cancelledJournalPath
+    );
+    expect(cancelledBeforeUploadJournal.isOk()).toBe(true);
+    if (cancelledBeforeUploadJournal.isOk()) {
+      expect(cancelledBeforeUploadJournal.value.journal.state).toBe("prepared");
+      expect(cancelledBeforeUploadJournal.value.journal.sharePointArtifact.uploadState).toBe(
+        "notStarted"
+      );
+    }
+
+    abortNextSharePointUpload = true;
+    const cancelledDuringUpload = await client.publish(
+      {
+        platform: Platform.VSCode,
+        nonInteractive: true,
+        projectPath,
+        env: "dev",
+      },
+      { signal: uploadSignal.signal }
+    );
+    expect(cancelledDuringUpload.isErr()).toBe(true);
+    expect(writes).toEqual(["sharepoint-upload"]);
+    const uploadedBeforeCancellation = await loadPreparedPublication(
+      projectPath,
+      cancelledRecords[0].name,
+      cancelledJournalPath
+    );
+    expect(uploadedBeforeCancellation.isOk()).toBe(true);
+    if (uploadedBeforeCancellation.isOk()) {
+      expect(uploadedBeforeCancellation.value.journal.state).toBe("sharePointUploaded");
+      expect(uploadedBeforeCancellation.value.journal.sharePointArtifact.uploadState).toBe(
+        "confirmed"
+      );
+    }
+
     const result = await client.publish({
       platform: Platform.VSCode,
       nonInteractive: true,
@@ -580,7 +737,12 @@ describe("Prepared SharePoint publication integration", () => {
       env: "dev",
     });
 
-    expect(result.isOk()).toBe(true);
+    expect(
+      result.isOk(),
+      result.isErr()
+        ? `${result.error.name}: ${result.error.message}; data=${JSON.stringify(result.error.data)}`
+        : ""
+    ).toBe(true);
     expect(writes).toEqual(["sharepoint-upload", "sharepoint-deploy", "teams-app-submit"]);
     expect(uploadedPackage).toBeDefined();
     expect(submittedPackage).toBeDefined();
@@ -618,19 +780,125 @@ describe("Prepared SharePoint publication integration", () => {
       createAppPackage("2.3.5")
     );
     preparedCatalogVersion = "1.2.3.5";
-    failNextGraphSubmission = true;
-    const unknownOutcome = await client.publish({
+    abortNextSharePointDeploy = true;
+    const writesBeforeCancelledDeploy = writes.length;
+    const cancelledDuringDeploy = await client.publish(
+      {
+        platform: Platform.VSCode,
+        nonInteractive: true,
+        projectPath,
+        env: "dev",
+      },
+      { signal: deploySignal.signal }
+    );
+    expect(cancelledDuringDeploy.isErr()).toBe(true);
+    expect(writes.slice(writesBeforeCancelledDeploy)).toEqual([
+      "sharepoint-upload",
+      "sharepoint-deploy",
+    ]);
+    const writesBeforeDeployResume = writes.length;
+    const resumedAfterDeployCancellation = await client.publish({
       platform: Platform.VSCode,
       nonInteractive: true,
       projectPath,
       env: "dev",
     });
+    expect(
+      resumedAfterDeployCancellation.isOk(),
+      resumedAfterDeployCancellation.isErr()
+        ? `${resumedAfterDeployCancellation.error.name}: ${resumedAfterDeployCancellation.error.message}`
+        : ""
+    ).toBe(true);
+    expect(writes.slice(writesBeforeDeployResume)).toEqual(["teams-app-submit"]);
+
+    await fs.writeFile(
+      path.join(projectPath, "sharepoint", "solution.sppkg"),
+      createSppkg("1.2.3.6")
+    );
+    await fs.writeFile(
+      path.join(projectPath, "appPackage", "application.zip"),
+      createAppPackage("2.3.6")
+    );
+    preparedCatalogVersion = "1.2.3.6";
+    submissionSignal = new AbortController();
+    abortNextGraphSubmission = true;
+    const writesBeforeCancelledSubmission = writes.length;
+    const cancelledDuringSubmission = await client.publish(
+      {
+        platform: Platform.VSCode,
+        nonInteractive: true,
+        projectPath,
+        env: "dev",
+      },
+      { signal: submissionSignal.signal }
+    );
+    expect(cancelledDuringSubmission.isErr()).toBe(true);
+    expect(writes.slice(writesBeforeCancelledSubmission)).toEqual([
+      "sharepoint-upload",
+      "sharepoint-deploy",
+      "teams-app-submit",
+    ]);
+    const settledRecords = await fs.readdir(publicationRoot, { withFileTypes: true });
+    const settledSubmissionJournals: PreparedPublicationJournal[] = [];
+    for (const record of settledRecords.filter(
+      (entry) => entry.isDirectory() && /^[0-9a-f-]{36}$/i.test(entry.name)
+    )) {
+      const journalPath = path
+        .join(".fx", "sharepoint-publications", record.name, "journal.json")
+        .split(path.sep)
+        .join("/");
+      const loaded = await loadPreparedPublication(projectPath, record.name, journalPath);
+      if (loaded.isOk() && loaded.value.journal.sourceSharePoint.version === "1.2.3.6") {
+        settledSubmissionJournals.push(loaded.value.journal);
+      }
+    }
+    expect(settledSubmissionJournals).toHaveLength(1);
+    expect(settledSubmissionJournals[0].state).toBe("submitted");
+    expect(settledSubmissionJournals[0].applicationArtifact.submissionState).toBe("confirmed");
+
+    await fs.writeFile(
+      path.join(projectPath, "sharepoint", "solution.sppkg"),
+      createSppkg("1.2.3.7")
+    );
+    await fs.writeFile(
+      path.join(projectPath, "appPackage", "application.zip"),
+      createAppPackage("2.3.7")
+    );
+    preparedCatalogVersion = "1.2.3.7";
+    failNextGraphSubmission = true;
+    submissionSignal = new AbortController();
+    abortNextGraphSubmission = true;
+    const writesBeforeUnknownOutcome = writes.length;
+    const unknownOutcome = await client.publish(
+      {
+        platform: Platform.VSCode,
+        nonInteractive: true,
+        projectPath,
+        env: "dev",
+      },
+      { signal: submissionSignal.signal }
+    );
     expect(unknownOutcome.isErr()).toBe(true);
-    expect(writes.slice(3)).toEqual(["sharepoint-upload", "sharepoint-deploy", "teams-app-submit"]);
+    if (unknownOutcome.isErr()) {
+      expect(unknownOutcome.error.data).toMatchObject({
+        stage: "applicationSubmission",
+        lastDurableState: "unknown",
+        lastSharePointVerifiedState: "sharePointVerified",
+        httpStatus: 500,
+      });
+      expect(unknownOutcome.error.data).not.toHaveProperty("response");
+    }
+    expect(writes.slice(writesBeforeUnknownOutcome)).toEqual([
+      "sharepoint-upload",
+      "sharepoint-deploy",
+      "teams-app-submit",
+    ]);
 
     const records = await fs.readdir(publicationRoot, { withFileTypes: true });
     const unresolvedRecords: PreparedPublicationJournal[] = [];
-    for (const record of records.filter((entry) => entry.isDirectory())) {
+    for (const record of records.filter(
+      (entry) => entry.isDirectory() && /^[0-9a-f-]{36}$/i.test(entry.name)
+    )) {
       const journalPath = path
         .join(".fx", "sharepoint-publications", record.name, "journal.json")
         .split(path.sep)

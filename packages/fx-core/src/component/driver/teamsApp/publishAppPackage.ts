@@ -23,14 +23,18 @@ import {
   isAmbiguousPublicationState,
   loadPreparedPublication,
   PreparedPublicationError,
+  PreparedPublicationJournal,
   isPreparedCatalogUrl,
   updatePreparedPublication,
+  createPreparedPublicationErrorData,
+  PreparedPublicationErrorStage,
   verifyPreparedApplicationPackage,
   verifyPreparedArtifact,
   verifyPreparedSharePointPackage,
   verifyPreparedSources,
+  withPreparedPublicationIdentityLock,
 } from "../deploy/spfx/utility/preparedPublication";
-import { SPOClient } from "../deploy/spfx/utility/spoClient";
+import { PreparedSharePointRequestContext, SPOClient } from "../deploy/spfx/utility/spoClient";
 import { DriverContext } from "../interface/commonArgs";
 import { ExecutionResult, StepDriver } from "../interface/stepDriver";
 import { addStartAndEndTelemetry } from "../middleware/addStartAndEndTelemetry";
@@ -262,11 +266,18 @@ export class PublishAppPackageDriver implements StepDriver {
     );
   }
 
-  private preparedError(error: Error): FxError {
+  private preparedError(
+    error: Error,
+    journal?: PreparedPublicationJournal,
+    recoveryPath?: string,
+    stage: PreparedPublicationErrorStage = "preparedPublication"
+  ): FxError {
     const message = getLocalizedString("driver.teamsApp.prepared.error");
     const errorName =
       error instanceof PreparedPublicationError ? error.code : "PreparedPublicationFailed";
-    return AppStudioResultFactory.UserError(errorName, [message, message]);
+    const result = AppStudioResultFactory.UserError(errorName, [message, message]);
+    result.data = createPreparedPublicationErrorData(error, journal, recoveryPath, stage);
+    return result;
   }
 
   private isDefinitivePreparedRejection(error: unknown): boolean {
@@ -280,8 +291,11 @@ export class PublishAppPackageDriver implements StepDriver {
   private async publishPrepared(
     args: PublishAppPackageArgs,
     context: WrapDriverContext,
-    outputEnvVarNames?: Map<string, string>
+    outputEnvVarNames?: Map<string, string>,
+    identityLocked = false
   ): Promise<Result<Map<string, string>, FxError>> {
+    let journalForError: PreparedPublicationJournal | undefined;
+    let currentStage: PreparedPublicationErrorStage = "preparedPublication";
     try {
       const preparedOutputNames = outputEnvVarNames ?? new Map(Object.entries(defaultOutputNames));
       const publishedAppOutputName = preparedOutputNames.get("publishedAppId");
@@ -329,7 +343,16 @@ export class PublishAppPackageDriver implements StepDriver {
       if (loaded.isErr()) {
         throw loaded.error;
       }
+      currentStage = "sharePointVerification";
       const journal = loaded.value.journal;
+      journalForError = journal;
+      if (!identityLocked) {
+        return await withPreparedPublicationIdentityLock(
+          loaded.value.root,
+          loaded.value.journal,
+          () => this.publishPrepared(args, context, outputEnvVarNames, true)
+        );
+      }
       if (
         args.sourcePackageSha256 !== journal.sourceSharePoint.sha256 ||
         args.sourceAppPackageSha256 !== journal.sourceApplication.sha256 ||
@@ -406,8 +429,10 @@ export class PublishAppPackageDriver implements StepDriver {
           "The prepared SharePoint verification data is incomplete."
         );
       }
+      if (context.signal?.aborted) {
+        return err(new UserCancelError(actionName));
+      }
       const tenant = await getSPOTenant(context.m365TokenProvider);
-      SPOClient.setBaseUrl(tenant);
       const spoToken = await getSPFxToken(context.m365TokenProvider);
       if (!spoToken) {
         throw new PreparedPublicationError(
@@ -415,7 +440,11 @@ export class PublishAppPackageDriver implements StepDriver {
           "A SharePoint access token is unavailable."
         );
       }
-      const appCatalogSite = await SPOClient.getAppCatalogSite(spoToken);
+      const appCatalogSite = await SPOClient.getAppCatalogSiteForTenant(
+        spoToken,
+        new URL(tenant).origin,
+        context.signal
+      );
       if (
         !appCatalogSite ||
         !isPreparedCatalogUrl(appCatalogSite, tenant) ||
@@ -427,10 +456,14 @@ export class PublishAppPackageDriver implements StepDriver {
           "The current SharePoint app catalog does not match the prepared publication."
         );
       }
-      SPOClient.setBaseUrl(appCatalogSite);
+      const requestContext: PreparedSharePointRequestContext = {
+        catalogUrl: appCatalogSite,
+        signal: context.signal,
+      };
       const remotePackage = await SPOClient.readPreparedAppPackage(
         spoToken,
-        journal.sharePointArtifact.fileName
+        journal.sharePointArtifact.fileName,
+        requestContext
       );
       if (!remotePackage) {
         throw new PreparedPublicationError(
@@ -447,7 +480,8 @@ export class PublishAppPackageDriver implements StepDriver {
       }
       const remoteApp = await SPOClient.getPreparedAvailableApp(
         spoToken,
-        journal.sourceSharePoint.productId
+        journal.sourceSharePoint.productId,
+        requestContext
       );
       if (
         !remoteApp ||
@@ -469,9 +503,11 @@ export class PublishAppPackageDriver implements StepDriver {
         throw graphTokenRes.error;
       }
       const graphClient = new GraphClient(context.m365TokenProvider, context.logProvider);
+      currentStage = "applicationPreflight";
       const existingApp = await graphClient.getPreparedStagedApp(
         graphTokenRes.value,
-        journal.applicationArtifact.appId
+        journal.applicationArtifact.appId,
+        context.signal
       );
       if (existingApp) {
         if (
@@ -496,6 +532,7 @@ export class PublishAppPackageDriver implements StepDriver {
           "Prepared publication requires an interactive approval surface."
         );
       }
+      currentStage = "approval";
       const confirm = getLocalizedString("core.option.confirm");
       const approval = await context.ui.showMessage(
         "warn",
@@ -509,6 +546,9 @@ export class PublishAppPackageDriver implements StepDriver {
         confirm
       );
       if (!approval?.isOk() || approval.value !== confirm) {
+        return err(new UserCancelError(actionName));
+      }
+      if (context.signal?.aborted) {
         return err(new UserCancelError(actionName));
       }
       const inFlight = await updatePreparedPublication(
@@ -538,13 +578,45 @@ export class PublishAppPackageDriver implements StepDriver {
       if (inFlight.isErr()) {
         throw inFlight.error;
       }
+      if (context.signal?.aborted) {
+        const cancelled = await updatePreparedPublication(
+          loaded.value.root,
+          journal.publicationId,
+          args.preparedPublicationPath,
+          (current) => {
+            if (
+              current.state !== "appSubmissionInFlight" ||
+              current.applicationArtifact.submissionState !== "inFlight"
+            ) {
+              throw new PreparedPublicationError(
+                "ConcurrentTeamsAppSubmission",
+                "The prepared app submission state changed before cancellation settled."
+              );
+            }
+            return {
+              ...current,
+              state: "sharePointVerified",
+              applicationArtifact: {
+                ...current.applicationArtifact,
+                submissionState: "notStarted",
+              },
+            };
+          }
+        );
+        if (cancelled.isErr()) {
+          throw cancelled.error;
+        }
+        return err(new UserCancelError(actionName));
+      }
       let publishedAppId: string;
       try {
+        currentStage = "applicationSubmission";
         publishedAppId = await graphClient.publishPreparedTeamsApp(
           graphTokenRes.value,
           journal.applicationArtifact.appId,
           existingApp?.teamsAppId,
-          appArtifact.value
+          appArtifact.value,
+          context.signal
         );
       } catch (error) {
         const rejected = this.isDefinitivePreparedRejection(error);
@@ -579,7 +651,8 @@ export class PublishAppPackageDriver implements StepDriver {
           rejected ? "TeamsAppSubmissionRejected" : "TeamsAppSubmissionOutcomeUnknown",
           rejected
             ? "Graph rejected the prepared app package."
-            : "The app package submission outcome is unknown; it will not be replayed."
+            : "The app package submission outcome is unknown; it will not be replayed.",
+          { cause: error }
         );
       }
       const submitted = await updatePreparedPublication(
@@ -610,6 +683,9 @@ export class PublishAppPackageDriver implements StepDriver {
       if (submitted.isErr()) {
         throw submitted.error;
       }
+      if (context.signal?.aborted) {
+        return err(new UserCancelError(actionName));
+      }
       merge(context.telemetryProperties, {
         [TelemetryPropertyKey.updateExistingApp]: existingApp ? "true" : "false",
         [TelemetryPropertyKey.publishedAppId]: publishedAppId,
@@ -625,7 +701,31 @@ export class PublishAppPackageDriver implements StepDriver {
       if (error instanceof UserCancelError) {
         return err(error);
       }
-      return err(this.preparedError(error instanceof Error ? error : new Error()));
+      let latestJournal = journalForError;
+      if (
+        typeof args.publicationId === "string" &&
+        typeof args.preparedPublicationPath === "string"
+      ) {
+        const latest = await loadPreparedPublication(
+          context.projectPath,
+          args.publicationId,
+          args.preparedPublicationPath
+        );
+        if (latest.isOk()) {
+          latestJournal = latest.value.journal;
+        }
+      }
+      if (context.signal?.aborted && latestJournal && !isAmbiguousPublicationState(latestJournal)) {
+        return err(new UserCancelError(actionName));
+      }
+      return err(
+        this.preparedError(
+          error instanceof Error ? error : new Error(),
+          latestJournal,
+          args.preparedPublicationPath,
+          currentStage
+        )
+      );
     }
   }
 

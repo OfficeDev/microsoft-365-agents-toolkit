@@ -87,6 +87,21 @@ describe("Wrapped Axios Client Test", () => {
     await WrappedAxiosClient.onRejected(mockedError).catch(() => undefined);
   });
 
+  it("uses the configured method when an adapter omits the request object", () => {
+    const response = {
+      config: {
+        method: "post",
+        baseURL: getResourceServiceEndpoint(ResourceServiceType.TDP),
+        url: "/v1.0/apps/fakeId",
+        params: {},
+      },
+      status: 200,
+      data: {},
+    } as any;
+
+    expect(() => WrappedAxiosClient.onResponse(response)).not.toThrow();
+  });
+
   it("TOOLS not initialized", async () => {
     setTools(undefined as any);
 

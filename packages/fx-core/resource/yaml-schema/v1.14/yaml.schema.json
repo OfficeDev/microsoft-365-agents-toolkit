@@ -1011,23 +1011,23 @@
             },
             "sourcePackageSha256": {
               "type": "string",
-              "pattern": "^[0-9a-fA-F]{64}$"
+              "pattern": "^(?:[0-9a-fA-F]{64}|\\$\\{\\{[A-Za-z_][A-Za-z0-9_]*\\}\\})$"
             },
             "sourceAppPackageSha256": {
               "type": "string",
-              "pattern": "^[0-9a-fA-F]{64}$"
+              "pattern": "^(?:[0-9a-fA-F]{64}|\\$\\{\\{[A-Za-z_][A-Za-z0-9_]*\\}\\})$"
             },
             "pluginSha256": {
               "type": "string",
-              "pattern": "^[0-9a-fA-F]{64}$"
+              "pattern": "^(?:[0-9a-fA-F]{64}|\\$\\{\\{[A-Za-z_][A-Za-z0-9_]*\\}\\})$"
             },
             "sharePointPackageSha256": {
               "type": "string",
-              "pattern": "^[0-9a-fA-F]{64}$"
+              "pattern": "^(?:[0-9a-fA-F]{64}|\\$\\{\\{[A-Za-z_][A-Za-z0-9_]*\\}\\})$"
             },
             "appPackageSha256": {
               "type": "string",
-              "pattern": "^[0-9a-fA-F]{64}$"
+              "pattern": "^(?:[0-9a-fA-F]{64}|\\$\\{\\{[A-Za-z_][A-Za-z0-9_]*\\}\\})$"
             }
           }
         },
@@ -1590,23 +1590,23 @@
             },
             "sourcePackageSha256": {
               "type": "string",
-              "pattern": "^[0-9a-fA-F]{64}$"
+              "pattern": "^(?:[0-9a-fA-F]{64}|\\$\\{\\{[A-Za-z_][A-Za-z0-9_]*\\}\\})$"
             },
             "sourceAppPackageSha256": {
               "type": "string",
-              "pattern": "^[0-9a-fA-F]{64}$"
+              "pattern": "^(?:[0-9a-fA-F]{64}|\\$\\{\\{[A-Za-z_][A-Za-z0-9_]*\\}\\})$"
             },
             "pluginSha256": {
               "type": "string",
-              "pattern": "^[0-9a-fA-F]{64}$"
+              "pattern": "^(?:[0-9a-fA-F]{64}|\\$\\{\\{[A-Za-z_][A-Za-z0-9_]*\\}\\})$"
             },
             "sharePointPackageSha256": {
               "type": "string",
-              "pattern": "^[0-9a-fA-F]{64}$"
+              "pattern": "^(?:[0-9a-fA-F]{64}|\\$\\{\\{[A-Za-z_][A-Za-z0-9_]*\\}\\})$"
             },
             "appPackageSha256": {
               "type": "string",
-              "pattern": "^[0-9a-fA-F]{64}$"
+              "pattern": "^(?:[0-9a-fA-F]{64}|\\$\\{\\{[A-Za-z_][A-Za-z0-9_]*\\}\\})$"
             }
           }
         }

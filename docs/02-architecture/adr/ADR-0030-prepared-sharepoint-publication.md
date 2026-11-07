@@ -27,21 +27,36 @@ process interruption between a remote write and the next lifecycle action.
    entry point that does not initialize resources, authentication, or network
    clients. The YAML preparation action may perform read-only tenant discovery
    required to resolve tenant-bound plugin values.
-3. Extend the existing SharePoint deployment and application submission
+3. Bind tenant ID, verified catalog origin, app/product identity, source and
+   prepared hashes, and a versioned transformation identity in one token-free
+   journal. Identity-wide coordination spans preparation, deployment, and
+   submission; changing source bytes or version does not bypass unresolved
+   outcomes. Active legacy journals that lack tenant identity fail closed and
+   remain available for explicit reconciliation.
+4. Extend the existing SharePoint deployment and application submission
    actions with optional prepared-publication inputs. In that mode they verify
    the journal and exact bytes, persist stage transitions, require genuine
    approval before writes, and reject incompatible identity/version states.
    The ordinary action path is unchanged when prepared-publication inputs are
    absent.
-4. Record an in-flight state before each non-idempotent remote write. A
+5. Record an in-flight state before each non-idempotent remote write. A
    definitive rejection is distinct from an unknown outcome. Unknown outcomes
    and cancellation after a possible write remain durable and block automatic
-   replay; the engine does not infer rollback or success from cancellation.
-5. Verify the uploaded SharePoint package bytes and deployment state before
+   replay; the engine observes possible writes through a bounded settlement
+   window and does not infer rollback or success from cancellation.
+6. Use invocation-bound SharePoint catalog context for prepared requests,
+   rather than mutable module-global base URL state. Verify the uploaded
+   SharePoint package bytes and deployment state before
    allowing application submission. Submit the exact frozen application ZIP
    once; the prepared path does not use retry wrappers or create-to-update
    fallback.
-6. Do not change `FxCoreClient.publish`, route through the legacy Teams-only
+7. Support either a declarative-agent action reference or the typed
+   `AgentConnector.toolSource.plugin` representation. Preserve other
+   application content and validate the final staged manifests against the
+   supported schema machinery before freezing deterministic artifacts. No
+   `TENANT_ORIGIN` CSP path is qualified yet; do not perform broad string
+   replacement.
+8. Do not change `FxCoreClient.publish`, route through the legacy Teams-only
    API, add a CLI action, or extend the direct-action allowlist.
 
 ## Consequences

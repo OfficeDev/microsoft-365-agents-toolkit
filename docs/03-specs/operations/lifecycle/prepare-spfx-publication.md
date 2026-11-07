@@ -24,15 +24,19 @@ in-process publish client.
 
 Preparation reads the configured completed `.sppkg`, which must contain exactly
 one supported embedded agent and at least one valid Copilot component manifest;
-it does not run SPFx generation or mutate either source package. Staged outputs
+it does not run SPFx generation or mutate either source package. The application
+may register the extracted plugin through one declarative agent action or, when
+no declarative agent is present, through a typed `agentConnectors[].toolSource.plugin`
+binding. Staged outputs
 and the versioned journal are confined to the project-local publication
 workspace. The journal contains no tokens or credentials.
 
-The prepared record binds the original package hashes and identities to the
-extracted plugin, sanitized SharePoint package, and assembled application
-package. The application's ID, version, instructions, and unrelated content
-remain authoritative. Only the extracted API plugin and its required
-application-manifest reference are added to the staged application package.
+The prepared record binds the tenant, catalog origin, original package hashes
+and identities, transformation identity, extracted plugin, sanitized SharePoint
+package, and assembled application package. The application's ID, version,
+instructions, and unrelated content remain authoritative. Only the extracted
+API plugin and its typed application-manifest reference are added to the staged
+application package.
 
 The initial archive limits are 100 MiB per input archive, 10,000 entries,
 512 MiB total expanded data, a 100:1 maximum compression ratio, and a 1 MiB
@@ -46,7 +50,8 @@ flowchart TD
   Input[Project YAML publish lifecycle] --> Prepare[Inspect completed package and app package]
   Prepare --> Bounds{Valid, bounded, and unambiguous?}
   Bounds -->|No| Fail[Return localized error; no source mutation]
-  Bounds -->|Yes| Resolve[Resolve tenant-specific plugin values]
+  Bounds -->|Yes| Discover[Verify selected tenant and discover catalog]
+  Discover --> Resolve[Resolve registered tenant-specific plugin values]
   Resolve --> Stage[Freeze staged app ZIP and sanitized SPPKG]
   Stage --> Journal[Atomically persist hashes, identities, and prepared state]
   Journal --> Deploy[spfx/deploy: revalidate, approve, upload, deploy]
@@ -79,13 +84,22 @@ flowchart TD
   names, absolute paths, and unsupported compression methods.
 - Exactly one supported embedded agent/API-plugin contribution and at least
   one valid Copilot component manifest are required. Missing, malformed,
-  conflicting, or ambiguous content fails explicitly.
+  conflicting, or ambiguous content fails explicitly. The staged application
+  preserves all existing skills and connectors and registers the plugin either
+  through the single supported declarative-agent action or through a typed
+  `AgentConnector` plugin binding; no synthetic agent is created.
 - OPC transformation removes the complete embedded agent package and repairs
   all matching package relationships and content-type declarations. Required
   component assets and solution metadata remain intact.
-- Both staged artifacts are validated and hashed from the exact bytes later
+- Both staged artifacts and all referenced manifest files are validated against
+  the supported local schema machinery before they are hashed from the exact bytes later
   read by the corresponding deployment/submission action. Source packages are
   rechecked against their captured hashes before any remote write.
+- The final MCP endpoint is derived from the verified app-catalog HTTPS origin
+  and selected solution/product ID. The selected tenant and token audiences are
+  validated and recorded. Arbitrary environment URLs and unrelated text are
+  never substituted. No `TENANT_ORIGIN` CSP path is currently qualified; such
+  a token in a typed managed field blocks preparation.
 - The SharePoint action verifies product identity, version, deployment state,
   and remotely read-back content before transitioning to `sharePointVerified`.
   Same-version/different-content collisions and downgrades are rejected.
@@ -93,15 +107,25 @@ flowchart TD
   journal state and submits only the recorded application bytes. Prepared
   submissions use single-attempt requests and never convert a create conflict
   into an update.
-- Journal transitions are versioned, token-free, atomic, and protected against
-  conflicting concurrent actions. A possible write is durably marked in-flight
+- Journal transitions are versioned, token-free, atomic, and protected by a
+  tenant/application/product identity lock across all journals and lifecycle
+  transitions. Version-1 journals with uncertain or active state remain intact
+  and block new prepared work because they lack tenant-bound lineage. A possible write is durably marked in-flight
   before the request. Definitive rejection, known success, cancellation before
   mutation, and unknown outcome remain distinct.
-- Re-running preparation for the exact same source package hashes checks prior
-  journals and blocks when a remote write was rejected or has an uncertain
-  outcome. Unknown remote outcomes therefore cannot be bypassed by starting a
-  fresh YAML lifecycle. Cancellation does not roll back a completed external
-  write or erase known/unknown stage state.
+- Re-running preparation checks all active/rejected journals for the same
+  tenant/application/product identity, independent of changed source hashes or
+  versions. Unknown remote outcomes therefore cannot be bypassed by rebuilding
+  or starting a fresh YAML lifecycle. Cancellation does not roll back a
+  completed external write or erase known/unknown stage state.
+- Prepared SharePoint requests use invocation-bound catalog context rather
+  than shared mutable client state. Cancellation is checked at each mutation
+  boundary; after a possible write, the original request is observed for a
+  bounded 30-second settlement window and late success/error or timeout is
+  durably recorded before downstream actions can proceed.
+- Prepared errors preserve the last durable stage and bounded allowlisted
+  lineage/remote diagnostics in `FxError.data`; they never expose raw HTTP/SDK
+  objects, credentials, or request bodies.
 - Approval is explicit and invocation-scoped before each externally visible
   write. Missing or non-interactive approval fails before mutation.
 - `createAppCatalogIfNotExist` cannot create a catalog in prepared mode.
@@ -112,18 +136,19 @@ flowchart TD
 
 ## Acceptance Criteria
 
-| ID           | Runtime | Purpose               | Gate     | Harness                                                              | Given / When                                                                                                                                                                 | Then                                                                                                                                                                                        |
-| ------------ | ------- | --------------------- | -------- | -------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| SPFX-PREP-01 | L1      | operation-integration | required | Temporary package files and real preparation driver                  | A bounded SPPKG contains one supported embedded agent and at least one valid Copilot component manifest                                                                      | The driver validates package identity/version and component presence, extracts the generated API plugin, and preserves original bytes.                                                      |
-| SPFX-PREP-02 | L1      | operation-integration | required | Temporary app-package ZIP and local manifest wrapper                 | A supported application package has existing identity, instructions, actions, and plugin references                                                                          | The staged package adds only the extracted API plugin and its reference; existing application identity, version, instructions, and unrelated entries remain unchanged.                      |
-| SPFX-PREP-03 | L1      | operation-integration | required | OPC ZIP fixture with relationships and content types                 | The embedded agent ZIP is removed from the deployment copy                                                                                                                   | Every affected internal relationship/content-type reference is repaired, required component assets remain, and the original SPPKG is unchanged.                                             |
-| SPFX-PREP-04 | L1      | file-unit             | required | Bounded archive fixtures                                             | Inputs include traversal, duplicate paths, unsupported compression, malformed OPC/XML/JSON, ambiguous candidates, oversized parts, excessive expansion, or compression bombs | Preparation fails with a failure-specific localized error before writing outputs or making a service mutation.                                                                              |
-| SPFX-PREP-05 | L1      | operation-integration | required | Temporary project and mocked outer HTTP boundary                     | Preparation succeeds                                                                                                                                                         | Staged package paths, source/staged hashes, identities, tenant-resolved plugin values, and a token-free versioned journal are returned/persisted atomically.                                |
-| SPFX-PREP-06 | L1      | operation-integration | required | Real deploy driver and SharePoint HTTP fake                          | Prepared SharePoint bytes are deployed                                                                                                                                       | The driver requires approval, verifies identity/version/collision rules, sends only the hash-bound bytes once, reads back and verifies content/deployment, and persists the verified stage. |
-| SPFX-PREP-07 | L1      | operation-integration | required | Real app-publish driver and Graph HTTP fake                          | A matching journal has verified SharePoint state                                                                                                                             | The driver requires approval, verifies the staged app hash and identity/version, submits the exact ZIP once, and persists confirmed submission.                                             |
-| SPFX-PREP-08 | L1      | operation-integration | required | Real lifecycle actions with deferred HTTP outcomes                   | Either remote write is rejected, cancelled, or has an uncertain response                                                                                                     | Durable state preserves the last confirmed stage; unknown outcomes prevent automatic replay and application submission never follows an unverified SharePoint result.                       |
-| SPFX-PREP-09 | L1      | scenario              | required | Temporary project, real `FxCoreClient.publish`, outermost HTTP fakes | YAML `publish:` contains preparation, SharePoint deployment, then app submission                                                                                             | The lifecycle executes in that order, binds both staged artifacts to their hashes, and submits the app only after verified SharePoint deployment.                                           |
-| SPFX-PREP-10 | L1      | compatibility         | required | Existing deploy and submit driver tests without prepared inputs      | A project uses only the existing `spfx/deploy` and `teamsApp/publishAppPackage` inputs                                                                                       | Existing action contracts and behavior remain unchanged; prepared-only journaling, approval, and single-attempt semantics are not activated.                                                |
+| ID           | Runtime | Purpose               | Gate     | Harness                                                              | Given / When                                                                                                                                                                 | Then                                                                                                                                                                                                           |
+| ------------ | ------- | --------------------- | -------- | -------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| SPFX-PREP-01 | L1      | operation-integration | required | Temporary package files and real preparation driver                  | A bounded SPPKG contains one supported embedded agent and at least one valid Copilot component manifest                                                                      | The driver validates package identity/version and component presence, extracts the generated API plugin, and preserves original bytes.                                                                         |
+| SPFX-PREP-02 | L1      | operation-integration | required | Temporary app-package ZIP and local manifest wrapper                 | A supported application package has existing identity, instructions, skills, connectors, and plugin references, with or without a declarative agent                          | The staged package adds only the extracted API plugin and a typed agent-action or `AgentConnector` plugin reference; no synthetic agent is created and all existing content is preserved.                      |
+| SPFX-PREP-03 | L1      | operation-integration | required | OPC ZIP fixture with relationships and content types                 | The embedded agent ZIP is removed from the deployment copy                                                                                                                   | Every affected internal relationship/content-type reference is repaired, required component assets remain, and the original SPPKG is unchanged.                                                                |
+| SPFX-PREP-04 | L1      | file-unit             | required | Bounded archive fixtures                                             | Inputs include traversal, duplicate paths, unsupported compression, malformed OPC/XML/JSON, ambiguous candidates, oversized parts, excessive expansion, or compression bombs | Preparation fails with a failure-specific localized error before writing outputs or making a service mutation.                                                                                                 |
+| SPFX-PREP-05 | L1      | operation-integration | required | Temporary project and mocked outer HTTP boundary                     | Preparation has verified tenant/catalog context and succeeds                                                                                                                 | Only registered endpoint/CSP fields are resolved; final manifests validate before hashing; artifacts are deterministic and the token-free journal binds tenant, catalog, identity, and transformation version. |
+| SPFX-PREP-06 | L1      | operation-integration | required | Real deploy driver and SharePoint HTTP fake                          | Prepared SharePoint bytes are deployed                                                                                                                                       | The driver requires approval, verifies identity/version/collision rules, sends only the hash-bound bytes once, reads back and verifies content/deployment, and persists the verified stage.                    |
+| SPFX-PREP-07 | L1      | operation-integration | required | Real app-publish driver and Graph HTTP fake                          | A matching journal has verified SharePoint state                                                                                                                             | The driver requires approval, verifies the staged app hash and identity/version, submits the exact ZIP once, and persists confirmed submission.                                                                |
+| SPFX-PREP-08 | L1      | operation-integration | required | Real lifecycle actions with deferred HTTP outcomes                   | Either remote write is rejected, cancelled, or has an uncertain response, or a concurrent/changed-input lifecycle starts for the same tenant/app/product                     | Durable state preserves the last confirmed stage; cancellation settles possible writes; identity-wide guards prevent racing journals and changed-source replay; unknown outcomes block submission/replay.      |
+| SPFX-PREP-09 | L1      | scenario              | required | Temporary project, real `FxCoreClient.publish`, outermost HTTP fakes | YAML `publish:` contains preparation, SharePoint deployment, then app submission                                                                                             | The lifecycle executes in that order, binds both staged artifacts to their hashes, and submits the app only after verified SharePoint deployment.                                                              |
+| SPFX-PREP-10 | L1      | compatibility         | required | Existing deploy and submit driver tests without prepared inputs      | A project uses only the existing `spfx/deploy` and `teamsApp/publishAppPackage` inputs                                                                                       | Existing action contracts and behavior remain unchanged; prepared-only journaling, approval, and single-attempt semantics are not activated.                                                                   |
+| SPFX-PREP-11 | L1      | operation-integration | required | Real prepared actions and sanitized HTTP failures                    | SharePoint or Graph rejects a write or its outcome is unknown                                                                                                                | The error remains a failure and includes bounded stage, lineage, recovery, status, service code, and request ID data without raw SDK objects or sensitive response content.                                    |
 
 ## Open questions for draft review
 
@@ -137,3 +162,6 @@ flowchart TD
   interactive UI?
 - Should known definitive rejection be resumable from the same journal, or
   should every retry require a new explicit operator reconciliation step?
+- Which generated Copilot component schema, if any, defines approved
+  `{{TENANT_ORIGIN}}` UI CSP fields? No field path is qualified in this PR, so
+  unresolved tokens in managed fields are rejected rather than substituted.

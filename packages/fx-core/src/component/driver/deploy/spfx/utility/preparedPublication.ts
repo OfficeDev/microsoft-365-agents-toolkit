@@ -6,6 +6,12 @@ import { createHash, randomUUID } from "crypto";
 import fs from "fs-extra";
 import path from "path";
 import properLock from "proper-lockfile";
+import {
+  ApiPluginManifestConverter,
+  AppManifestUtils,
+  DeclarativeAgentManifestConverter,
+  TeamsManifestConverter,
+} from "@microsoft/teamsfx-api";
 import { err, ok } from "neverthrow";
 import type { Result } from "neverthrow";
 import {
@@ -16,9 +22,12 @@ import {
   SharePointPackageInspectionError,
 } from "./packageFile";
 
-const journalVersion = 1;
+const journalVersion = 2;
+const transformationIdentity = "spfx-copilot-plugin-v2";
 const publicationDirectory = path.join(".fx", "sharepoint-publications");
-const preparedPluginPlaceholder = /\{\{\s*([A-Z][A-Z0-9_]*)\s*\}\}/g;
+export const preparedRequestSettlementTimeoutMs = 30_000;
+const tenantMcpUrlPlaceholder = /^\{\{\s*TENANT_MCP_URL\s*\}\}$/;
+const placeholderPattern = /\{\{\s*([A-Z][A-Z0-9_]*)\s*\}\}/;
 const guidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 export type PreparedPublicationState =
@@ -33,11 +42,29 @@ export type PreparedPublicationState =
   | "unknown";
 
 export type PreparedWriteState = "notStarted" | "inFlight" | "confirmed" | "rejected" | "unknown";
+export type PreparedPublicationErrorStage =
+  | "preparedPublication"
+  | "sharePointUpload"
+  | "sharePointDeploy"
+  | "sharePointVerification"
+  | "applicationPreflight"
+  | "approval"
+  | "applicationSubmission";
 
 export interface PreparedPublicationJournal {
-  journalVersion: 1;
+  journalVersion: 2;
   publicationId: string;
   state: PreparedPublicationState;
+  identity: {
+    tenantId: string;
+    tenantOrigin: string;
+    catalogUrl: string;
+    appId: string;
+    productId: string;
+  };
+  transformation: {
+    id: string;
+  };
   sourceSharePoint: {
     path: string;
     sha256: string;
@@ -83,6 +110,11 @@ export class PreparedPublicationError extends Error {
   }
 }
 
+export function createPreparedRequestSignal(signal?: AbortSignal): AbortSignal {
+  const timeoutSignal = AbortSignal.timeout(preparedRequestSettlementTimeoutMs);
+  return signal ? AbortSignal.any([signal, timeoutSignal]) : timeoutSignal;
+}
+
 export function isPreparedCatalogUrl(value: string, tenantUrl: string): boolean {
   try {
     const catalog = new URL(value);
@@ -125,6 +157,15 @@ export interface PreparePublicationInput {
   projectPath: string;
   packagePath: string;
   appPackagePath: string;
+  tenantContext: PreparedPublicationTenantContext;
+  signal?: AbortSignal;
+}
+
+export interface PreparedPublicationTenantContext {
+  tenantId: string;
+  tenantUrl: string;
+  catalogUrl: string;
+  productId: string;
 }
 
 export interface PreparedPublicationOutput {
@@ -141,6 +182,63 @@ export interface PreparedPublicationOutput {
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+export function createPreparedPublicationErrorData(
+  error: unknown,
+  journal: PreparedPublicationJournal | undefined,
+  recoveryPath: string | undefined,
+  stage: PreparedPublicationErrorStage
+): Record<string, unknown> {
+  const errorRecord = isRecord(error) ? error : undefined;
+  const causeValue = errorRecord?.["cause"] ?? errorRecord?.["innerError"];
+  const cause = isRecord(causeValue) ? causeValue : errorRecord;
+  const responseValue = cause?.["response"];
+  const response = isRecord(responseValue) ? responseValue : undefined;
+  const responseDataValue = response?.["data"];
+  const responseData = isRecord(responseDataValue) ? responseDataValue : undefined;
+  const graphErrorValue = responseData?.["error"];
+  const graphError = isRecord(graphErrorValue) ? graphErrorValue : undefined;
+  const headersValue = response?.["headers"];
+  const headers = isRecord(headersValue) ? headersValue : undefined;
+  const serviceCode = graphError?.["code"] ?? responseData?.["code"];
+  const requestId = headers?.["request-id"] ?? headers?.["client-request-id"];
+  const errorType = errorRecord?.["name"];
+  return {
+    stage,
+    errorType:
+      typeof errorType === "string" && /^[A-Za-z][A-Za-z0-9]{0,63}$/.test(errorType)
+        ? errorType
+        : "Error",
+    publicationId: journal?.publicationId,
+    lastDurableState: journal?.state,
+    lastSharePointVerifiedState:
+      journal?.state === "sharePointVerified" ||
+      journal?.state === "appSubmissionInFlight" ||
+      journal?.state === "unknown" ||
+      journal?.state === "rejected" ||
+      journal?.state === "submitted"
+        ? "sharePointVerified"
+        : undefined,
+    tenantId: journal?.identity.tenantId,
+    appId: journal?.applicationArtifact.appId,
+    productId: journal?.sourceSharePoint.productId,
+    sourcePackageSha256: journal?.sourceSharePoint.sha256,
+    sourceAppPackageSha256: journal?.sourceApplication.sha256,
+    pluginSha256: journal?.plugin.sha256,
+    sharePointPackageSha256: journal?.sharePointArtifact.sha256,
+    appPackageSha256: journal?.applicationArtifact.sha256,
+    recoveryPath,
+    httpStatus: typeof response?.["status"] === "number" ? response["status"] : undefined,
+    serviceCode:
+      typeof serviceCode === "string" && /^[A-Za-z0-9._-]{1,100}$/.test(serviceCode)
+        ? serviceCode
+        : undefined,
+    requestId:
+      typeof requestId === "string" && /^[A-Za-z0-9._:-]{1,100}$/.test(requestId)
+        ? requestId
+        : undefined,
+  };
 }
 
 function sha256(bytes: Buffer): string {
@@ -266,9 +364,13 @@ async function readProjectInput(
 
 async function findUnresolvedPublication(
   root: string,
-  sourceSharePointSha256: string,
-  sourceApplicationSha256: string
-): Promise<Result<void, PreparedPublicationError>> {
+  identity: PreparedPublicationTenantContext & {
+    appId: string;
+    productId: string;
+    sourceSharePointSha256: string;
+    sourceApplicationSha256: string;
+  }
+): Promise<Result<PreparedPublicationJournal | undefined, PreparedPublicationError>> {
   const directory = path.resolve(root, publicationDirectory);
   let entries: fs.Dirent[];
   try {
@@ -298,6 +400,42 @@ async function findUnresolvedPublication(
   }
   for (const entry of publicationDirectories) {
     const journalPath = projectRelative(root, path.join(directory, entry.name, "journal.json"));
+    const journalBytes = await readFileBounded(
+      path.resolve(root, journalPath),
+      SHAREPOINT_PACKAGE_LIMITS.metadataBytes
+    );
+    if (journalBytes.isErr()) {
+      return err(
+        new PreparedPublicationError(
+          "PublicationRecoveryCheckFailed",
+          "An existing publication record could not be checked safely.",
+          { cause: journalBytes.error }
+        )
+      );
+    }
+    let raw: unknown;
+    try {
+      raw = JSON.parse(journalBytes.value.toString("utf8"));
+    } catch (error) {
+      return err(
+        new PreparedPublicationError(
+          "PublicationRecoveryCheckFailed",
+          "An existing publication record could not be checked safely.",
+          { cause: error }
+        )
+      );
+    }
+    if (isRecord(raw) && raw["journalVersion"] === 1 && raw["state"] !== "submitted") {
+      return err(
+        new PreparedPublicationError(
+          "LegacyPreparedPublicationRequiresReconciliation",
+          "An active legacy publication record lacks tenant-bound lineage and must be reconciled before new prepared work."
+        )
+      );
+    }
+    if (isRecord(raw) && raw["journalVersion"] === 1 && raw["state"] === "submitted") {
+      continue;
+    }
     const loaded = await loadPreparedPublication(root, entry.name, journalPath);
     if (loaded.isErr()) {
       return err(
@@ -310,14 +448,30 @@ async function findUnresolvedPublication(
     }
     const journal = loaded.value.journal;
     if (
-      journal.sourceSharePoint.sha256 === sourceSharePointSha256 &&
-      journal.sourceApplication.sha256 === sourceApplicationSha256 &&
-      (isAmbiguousPublicationState(journal) || journal.state === "rejected")
+      journal.identity.tenantId.toLowerCase() === identity.tenantId.toLowerCase() &&
+      journal.identity.appId.toLowerCase() === identity.appId.toLowerCase() &&
+      journal.identity.productId.toLowerCase() === identity.productId.toLowerCase() &&
+      journal.identity.tenantOrigin.toLowerCase() ===
+        new URL(identity.tenantUrl).origin.toLowerCase() &&
+      journal.identity.catalogUrl.toLowerCase() === identity.catalogUrl.toLowerCase()
     ) {
+      if (
+        ["prepared", "sharePointUploaded", "sharePointVerified", "submitted"].includes(
+          journal.state
+        ) &&
+        journal.transformation.id === transformationIdentity &&
+        journal.sourceSharePoint.sha256 === identity.sourceSharePointSha256 &&
+        journal.sourceApplication.sha256 === identity.sourceApplicationSha256
+      ) {
+        return ok(journal);
+      }
+      if (journal.state === "submitted") {
+        continue;
+      }
       return err(
         new PreparedPublicationError(
           "UnresolvedPreparedPublication",
-          "A previous publication of these exact source packages has a rejected or uncertain remote outcome and requires operator reconciliation before retry."
+          "A prepared publication for this tenant, application, and SharePoint solution is still active, rejected, or uncertain and requires reconciliation before a new lineage can be created."
         )
       );
     }
@@ -325,74 +479,116 @@ async function findUnresolvedPublication(
   return ok(undefined);
 }
 
-function replaceTenantValues(pluginBytes: Buffer): Result<Buffer, PreparedPublicationError> {
-  const source = pluginBytes.toString("utf8");
-  const placeholders = [...source.matchAll(preparedPluginPlaceholder)].map((match) => match[1]);
-  const distinct = [...new Set(placeholders)];
-  let output = source;
-  for (const placeholder of distinct) {
-    if (placeholder !== "TENANT_MCP_URL") {
-      return err(
-        new PreparedPublicationError(
-          "UnsupportedPluginPlaceholder",
-          `The embedded API plugin contains unsupported placeholder "${placeholder}".`
-        )
-      );
-    }
-    const value = process.env[placeholder];
-    if (!value) {
-      return err(
-        new PreparedPublicationError(
-          "MissingTenantPluginValue",
-          `The required environment variable "${placeholder}" is not set.`
-        )
-      );
-    }
-    let url: URL;
-    try {
-      url = new URL(value);
-    } catch (error) {
-      return err(
-        new PreparedPublicationError("InvalidTenantPluginValue", "The tenant API URL is invalid.", {
-          cause: error,
-        })
-      );
-    }
-    if (url.protocol !== "https:" || url.username || url.password || url.hash) {
-      return err(
-        new PreparedPublicationError(
-          "InvalidTenantPluginValue",
-          "The tenant API URL must be an HTTPS URL without embedded credentials or a fragment."
-        )
-      );
-    }
-    output = output.replace(
-      new RegExp(`\\{\\{\\s*${placeholder}\\s*\\}\\}`, "g"),
-      url.toString().replace(/\/$/, "")
-    );
-  }
-  if (/\{\{[^{}]+\}\}/.test(output)) {
-    return err(
-      new PreparedPublicationError(
-        "UnresolvedPluginPlaceholder",
-        "The embedded API plugin contains an unresolved placeholder."
-      )
-    );
-  }
+function replaceTenantValues(
+  pluginBytes: Buffer,
+  productId: string,
+  tenantContext: PreparedPublicationTenantContext
+): Result<Buffer, PreparedPublicationError> {
+  let tenantUrl: URL;
+  let catalogUrl: URL;
   try {
-    JSON.parse(output);
-    return ok(Buffer.from(output, "utf8"));
+    tenantUrl = new URL(tenantContext.tenantUrl);
+    catalogUrl = new URL(tenantContext.catalogUrl);
   } catch (error) {
     return err(
       new PreparedPublicationError(
-        "InvalidPluginManifest",
-        "The resolved API plugin is invalid JSON.",
-        {
-          cause: error,
-        }
+        "InvalidPreparedTenantContext",
+        "The selected tenant or app catalog URL is invalid.",
+        { cause: error }
       )
     );
   }
+  if (
+    !guidPattern.test(tenantContext.tenantId) ||
+    tenantUrl.protocol !== "https:" ||
+    tenantUrl.username ||
+    tenantUrl.password ||
+    tenantUrl.search ||
+    tenantUrl.hash ||
+    catalogUrl.protocol !== "https:" ||
+    catalogUrl.username ||
+    catalogUrl.password ||
+    catalogUrl.search ||
+    catalogUrl.hash ||
+    tenantUrl.origin !== catalogUrl.origin ||
+    productId.toLowerCase() !== tenantContext.productId.toLowerCase()
+  ) {
+    return err(
+      new PreparedPublicationError(
+        "InvalidPreparedTenantContext",
+        "The selected tenant, app catalog, and SharePoint solution identity do not match."
+      )
+    );
+  }
+  let plugin: Record<string, unknown>;
+  try {
+    const parsed: unknown = JSON.parse(pluginBytes.toString("utf8"));
+    if (!isRecord(parsed)) {
+      throw new Error("The API plugin root must be an object.");
+    }
+    plugin = parsed;
+  } catch (error) {
+    return err(
+      new PreparedPublicationError("InvalidPluginManifest", "The embedded API plugin is invalid.", {
+        cause: error,
+      })
+    );
+  }
+  const runtimes = plugin["runtimes"];
+  if (!Array.isArray(runtimes) || !runtimes.every(isRecord)) {
+    return err(
+      new PreparedPublicationError(
+        "InvalidPluginRuntimes",
+        "The embedded API plugin runtimes are invalid."
+      )
+    );
+  }
+  const endpoint = new URL("/_api/mcp/spfx", catalogUrl.origin);
+  endpoint.searchParams.set("solutionId", productId);
+  let resolvedEndpointCount = 0;
+  for (const runtime of runtimes) {
+    const spec = runtime["spec"];
+    if (runtime["type"] !== "RemoteMCPServer" || !isRecord(spec)) {
+      continue;
+    }
+    const url = spec["url"];
+    if (typeof url !== "string") {
+      continue;
+    }
+    if (tenantMcpUrlPlaceholder.test(url.trim())) {
+      spec["url"] = endpoint.toString();
+      resolvedEndpointCount += 1;
+    } else if (placeholderPattern.test(url)) {
+      return err(
+        new PreparedPublicationError(
+          "UnresolvedPluginPlaceholder",
+          "A registered API endpoint contains an unsupported tenant placeholder."
+        )
+      );
+    }
+    for (const [key, value] of Object.entries(spec)) {
+      if (
+        /csp|content.?security/i.test(key) &&
+        JSON.stringify(value).includes("{{TENANT_ORIGIN}}")
+      ) {
+        return err(
+          new PreparedPublicationError(
+            "UnqualifiedTenantOriginField",
+            "The tenant-origin CSP field is not qualified for this publication format."
+          )
+        );
+      }
+    }
+  }
+  if (resolvedEndpointCount !== 1) {
+    return err(
+      new PreparedPublicationError(
+        "AmbiguousPluginEndpoint",
+        "The embedded API plugin must register exactly one tenant-bound SharePoint endpoint."
+      )
+    );
+  }
+  return ok(Buffer.from(JSON.stringify(plugin, null, 2), "utf8"));
 }
 
 function jsonObject(
@@ -432,11 +628,12 @@ function jsonObject(
 }
 
 function getAgentReference(manifest: Record<string, unknown>): Result<
-  {
-    container: Record<string, unknown>;
-    property: "declarativeAgents" | "declarativeCopilots";
-    reference: Record<string, unknown>;
-  },
+  | {
+      container: Record<string, unknown>;
+      property: "declarativeAgents" | "declarativeCopilots";
+      reference: Record<string, unknown>;
+    }
+  | undefined,
   PreparedPublicationError
 > {
   const references: Array<{
@@ -470,11 +667,11 @@ function getAgentReference(manifest: Record<string, unknown>): Result<
       }
     }
   }
-  if (references.length !== 1) {
+  if (references.length > 1) {
     return err(
       new PreparedPublicationError(
         "UnsupportedApplicationPackage",
-        "The application package must reference exactly one declarative agent."
+        "The application package contains multiple declarative agent references."
       )
     );
   }
@@ -528,50 +725,28 @@ function prepareApplicationPackage(
       )
     );
   }
+  const pluginManifestResult = jsonObject(pluginBytes, "prepared API plugin");
+  if (pluginManifestResult.isErr()) {
+    return err(pluginManifestResult.error);
+  }
+  const pluginNamespace = pluginManifestResult.value["namespace"];
+  const pluginName = pluginManifestResult.value["name_for_human"];
+  if (
+    typeof pluginNamespace !== "string" ||
+    !/^[A-Za-z0-9-]+$/.test(pluginNamespace) ||
+    typeof pluginName !== "string" ||
+    pluginName.trim().length === 0
+  ) {
+    return err(
+      new PreparedPublicationError(
+        "InvalidPluginIdentity",
+        "The extracted API plugin identity is invalid."
+      )
+    );
+  }
   const agentReference = getAgentReference(manifest);
   if (agentReference.isErr()) {
     return err(agentReference.error);
-  }
-  const agentFile = agentReference.value.reference["file"];
-  if (typeof agentFile !== "string" || path.posix.normalize(agentFile) !== agentFile) {
-    return err(
-      new PreparedPublicationError(
-        "InvalidAgentReference",
-        "The application agent reference is invalid."
-      )
-    );
-  }
-  const agentBytes = byName.get(agentFile);
-  if (agentBytes === undefined) {
-    return err(
-      new PreparedPublicationError(
-        "MissingAgentManifest",
-        "The application package is missing its declarative agent manifest."
-      )
-    );
-  }
-  const agentResult = jsonObject(agentBytes, agentFile);
-  if (agentResult.isErr()) {
-    return err(agentResult.error);
-  }
-  const agent = agentResult.value;
-  const actionsValue = agent["actions"];
-  if (actionsValue !== undefined && !Array.isArray(actionsValue)) {
-    return err(
-      new PreparedPublicationError(
-        "InvalidAgentActions",
-        "The declarative agent actions must be an array."
-      )
-    );
-  }
-  const actions = Array.isArray(actionsValue) ? actionsValue.filter(isRecord) : [];
-  if (actionsValue !== undefined && actions.length !== actionsValue.length) {
-    return err(
-      new PreparedPublicationError(
-        "InvalidAgentActions",
-        "The declarative agent actions are invalid."
-      )
-    );
   }
   const pluginFile = `plugins/spfx-api-${pluginHash.slice(0, 16)}.json`;
   const pluginActionId = `spfx-api-${pluginHash.slice(0, 16)}`;
@@ -584,32 +759,104 @@ function prepareApplicationPackage(
       )
     );
   }
-  if (
-    actions.some(
-      (action) =>
-        action["file"] === pluginFile ||
-        (action["id"] === pluginActionId && action["file"] !== pluginFile)
-    )
-  ) {
-    return err(
-      new PreparedPublicationError(
-        "ApplicationPackageCollision",
-        "The application package already references this prepared plugin."
-      )
-    );
-  }
-  agent["actions"] = [
-    ...actions,
-    {
-      id: pluginActionId,
-      file: pluginFile,
-    },
-  ];
-
   const zip = new AdmZip(bytes);
-  zip.updateFile(agentFile, Buffer.from(JSON.stringify(agent, null, 2), "utf8"));
+  if (agentReference.value) {
+    const agentFile = agentReference.value.reference["file"];
+    if (typeof agentFile !== "string" || path.posix.normalize(agentFile) !== agentFile) {
+      return err(
+        new PreparedPublicationError(
+          "InvalidAgentReference",
+          "The application agent reference is invalid."
+        )
+      );
+    }
+    const agentBytes = byName.get(agentFile);
+    if (agentBytes === undefined) {
+      return err(
+        new PreparedPublicationError(
+          "MissingAgentManifest",
+          "The application package is missing its declarative agent manifest."
+        )
+      );
+    }
+    const agentResult = jsonObject(agentBytes, agentFile);
+    if (agentResult.isErr()) {
+      return err(agentResult.error);
+    }
+    const agent = agentResult.value;
+    const actionsValue = agent["actions"];
+    if (actionsValue !== undefined && !Array.isArray(actionsValue)) {
+      return err(
+        new PreparedPublicationError(
+          "InvalidAgentActions",
+          "The declarative agent actions must be an array."
+        )
+      );
+    }
+    const actions = Array.isArray(actionsValue) ? actionsValue.filter(isRecord) : [];
+    if (
+      (actionsValue !== undefined && actions.length !== actionsValue.length) ||
+      actions.some(
+        (action) =>
+          action["file"] === pluginFile ||
+          (action["id"] === pluginActionId && action["file"] !== pluginFile)
+      )
+    ) {
+      return err(
+        new PreparedPublicationError(
+          "ApplicationPackageCollision",
+          "The application package contains an invalid or conflicting plugin action."
+        )
+      );
+    }
+    agent["actions"] = [...actions, { id: pluginActionId, file: pluginFile }];
+    zip.updateFile(agentFile, Buffer.from(JSON.stringify(agent, null, 2), "utf8"));
+  } else {
+    const existingConnectorsValue = manifest["agentConnectors"];
+    if (existingConnectorsValue !== undefined && !Array.isArray(existingConnectorsValue)) {
+      return err(
+        new PreparedPublicationError(
+          "InvalidAgentConnectors",
+          "The application agent connectors are invalid."
+        )
+      );
+    }
+    const connectors = Array.isArray(existingConnectorsValue)
+      ? existingConnectorsValue.filter(isRecord)
+      : [];
+    if (
+      (Array.isArray(existingConnectorsValue) &&
+        connectors.length !== existingConnectorsValue.length) ||
+      connectors.some((connector) => connector["id"] === pluginActionId)
+    ) {
+      return err(
+        new PreparedPublicationError(
+          "ApplicationPackageCollision",
+          "The application package contains an invalid or conflicting agent connector."
+        )
+      );
+    }
+    manifest["agentConnectors"] = [
+      ...connectors,
+      {
+        id: pluginActionId,
+        displayName: pluginName,
+        toolSource: {
+          plugin: {
+            id: pluginNamespace,
+            file: pluginFile,
+          },
+        },
+      },
+    ];
+    zip.updateFile("manifest.json", Buffer.from(JSON.stringify(manifest, null, 2), "utf8"));
+  }
   if (existingPlugin === undefined) {
     zip.addFile(pluginFile, pluginBytes);
+    const addedPlugin = zip.getEntry(pluginFile);
+    if (addedPlugin) {
+      addedPlugin.header.time = new Date("1980-01-01T00:00:00.000Z");
+    }
   }
   try {
     const output = zip.toBuffer();
@@ -631,6 +878,206 @@ function prepareApplicationPackage(
   }
 }
 
+function getTeamsSchemaUrl(version: unknown): string | undefined {
+  if (typeof version !== "string") {
+    return undefined;
+  }
+  if (["devPreview", "m365DevPreview", "m365devpreview"].includes(version)) {
+    return "https://developer.microsoft.com/json-schemas/teams/vDevPreview/MicrosoftTeams.schema.json";
+  }
+  if (/^1\.(?:[0-9]|1[0-9]|2[0-9]|30)$/.test(version)) {
+    return `https://developer.microsoft.com/json-schemas/teams/v${version}/MicrosoftTeams.schema.json`;
+  }
+  return undefined;
+}
+
+function getPluginSchemaUrl(version: unknown): string | undefined {
+  if (typeof version !== "string" || !/^v2\.[1-4]$/.test(version)) {
+    return undefined;
+  }
+  return `https://developer.microsoft.com/json-schemas/copilot/plugin/${version}/schema.json`;
+}
+
+function getAgentSchemaUrl(version: unknown): string | undefined {
+  if (
+    typeof version !== "string" ||
+    !["v1.0", "v1.2", "v1.3", "v1.4", "v1.5", "v1.6", "v1.7", "v1.8", "v1.9"].includes(version)
+  ) {
+    return undefined;
+  }
+  return `https://developer.microsoft.com/json-schemas/copilot/declarative-agent/${version}/schema.json`;
+}
+
+async function validatePreparedApplicationPackage(
+  bytes: Buffer
+): Promise<Result<void, PreparedPublicationError>> {
+  const entries = readBoundedArchive(bytes);
+  if (entries.isErr()) {
+    return err(entries.error);
+  }
+  const byName = new Map(entries.value.map((entry) => [entry.name, entry.data]));
+  const manifestBytes = byName.get("manifest.json");
+  if (!manifestBytes) {
+    return err(
+      new PreparedPublicationError(
+        "ApplicationSchemaValidationFailed",
+        "The staged application manifest is missing."
+      )
+    );
+  }
+  const manifestResult = jsonObject(manifestBytes, "manifest.json");
+  if (manifestResult.isErr()) {
+    return err(manifestResult.error);
+  }
+  const manifest = manifestResult.value;
+  const teamsSchemaUrl = getTeamsSchemaUrl(manifest["manifestVersion"]);
+  if (!teamsSchemaUrl) {
+    return err(
+      new PreparedPublicationError(
+        "UnsupportedTeamsManifestVersion",
+        "The staged application manifest version is not supported."
+      )
+    );
+  }
+  try {
+    const schema = await AppManifestUtils.fetchSchema(teamsSchemaUrl);
+    const typedManifest = TeamsManifestConverter.jsonToManifest(manifestBytes.toString("utf8"));
+    const schemaErrors = await AppManifestUtils.validateAgainstSchema(typedManifest, schema);
+    if (schemaErrors.length > 0) {
+      return err(
+        new PreparedPublicationError(
+          "ApplicationSchemaValidationFailed",
+          "The staged application manifest does not satisfy its supported schema."
+        )
+      );
+    }
+
+    const validatePlugin = async (pluginPath: string): Promise<boolean> => {
+      if (!isSafeRelativePath(pluginPath)) {
+        return false;
+      }
+      const pluginBytes = byName.get(pluginPath);
+      if (!pluginBytes) {
+        return false;
+      }
+      const pluginObject = jsonObject(pluginBytes, pluginPath);
+      if (pluginObject.isErr()) {
+        return false;
+      }
+      const pluginSchemaUrl = getPluginSchemaUrl(pluginObject.value["schema_version"]);
+      if (!pluginSchemaUrl) {
+        return false;
+      }
+      const pluginSchema = await AppManifestUtils.fetchSchema(pluginSchemaUrl);
+      const typedPlugin = ApiPluginManifestConverter.jsonToManifest(pluginBytes.toString("utf8"));
+      return (await AppManifestUtils.validateAgainstSchema(typedPlugin, pluginSchema)).length === 0;
+    };
+
+    const agentReferences: string[] = [];
+    for (const containerName of ["copilotAgents", "copilotExtensions"]) {
+      const container = manifest[containerName];
+      if (!isRecord(container)) {
+        continue;
+      }
+      const references =
+        container[containerName === "copilotAgents" ? "declarativeAgents" : "declarativeCopilots"];
+      if (!Array.isArray(references)) {
+        continue;
+      }
+      for (const reference of references) {
+        if (isRecord(reference) && typeof reference["file"] === "string") {
+          agentReferences.push(reference["file"]);
+        }
+      }
+    }
+    const pluginReferences = new Set<string>();
+    for (const agentConnector of Array.isArray(manifest["agentConnectors"])
+      ? manifest["agentConnectors"]
+      : []) {
+      if (
+        isRecord(agentConnector) &&
+        isRecord(agentConnector["toolSource"]) &&
+        isRecord(agentConnector["toolSource"]["plugin"]) &&
+        typeof agentConnector["toolSource"]["plugin"]["file"] === "string"
+      ) {
+        pluginReferences.add(agentConnector["toolSource"]["plugin"]["file"]);
+      }
+    }
+    for (const agentPath of agentReferences) {
+      if (!isSafeRelativePath(agentPath)) {
+        return err(
+          new PreparedPublicationError(
+            "ApplicationSchemaValidationFailed",
+            "The staged application contains an invalid agent reference."
+          )
+        );
+      }
+      const agentBytes = byName.get(agentPath);
+      if (!agentBytes) {
+        return err(
+          new PreparedPublicationError(
+            "ApplicationSchemaValidationFailed",
+            "The staged application references a missing agent manifest."
+          )
+        );
+      }
+      const agentObject = jsonObject(agentBytes, agentPath);
+      if (agentObject.isErr()) {
+        return err(agentObject.error);
+      }
+      const agentSchemaUrl = getAgentSchemaUrl(agentObject.value["version"]);
+      if (!agentSchemaUrl) {
+        return err(
+          new PreparedPublicationError(
+            "UnsupportedAgentManifestVersion",
+            "The staged declarative agent version is not supported."
+          )
+        );
+      }
+      const agentSchema = await AppManifestUtils.fetchSchema(agentSchemaUrl);
+      const typedAgent = DeclarativeAgentManifestConverter.jsonToManifest(
+        agentBytes.toString("utf8")
+      );
+      if ((await AppManifestUtils.validateAgainstSchema(typedAgent, agentSchema)).length > 0) {
+        return err(
+          new PreparedPublicationError(
+            "ApplicationSchemaValidationFailed",
+            "A staged declarative agent does not satisfy its supported schema."
+          )
+        );
+      }
+      const actions = agentObject.value["actions"];
+      if (!Array.isArray(actions)) {
+        continue;
+      }
+      for (const action of actions) {
+        if (isRecord(action) && typeof action["file"] === "string") {
+          pluginReferences.add(action["file"]);
+        }
+      }
+    }
+    for (const pluginPath of pluginReferences) {
+      if (!(await validatePlugin(pluginPath))) {
+        return err(
+          new PreparedPublicationError(
+            "ApplicationSchemaValidationFailed",
+            "A staged API plugin reference is missing or does not satisfy its supported schema."
+          )
+        );
+      }
+    }
+    return ok(undefined);
+  } catch (error) {
+    return err(
+      new PreparedPublicationError(
+        "ApplicationSchemaValidationFailed",
+        "The staged application package could not be validated against its supported schemas.",
+        { cause: error }
+      )
+    );
+  }
+}
+
 async function atomicWrite(filePath: string, bytes: Buffer): Promise<void> {
   const tempPath = `${filePath}.${randomUUID()}.tmp`;
   try {
@@ -646,6 +1093,82 @@ async function atomicWrite(filePath: string, bytes: Buffer): Promise<void> {
       }
     );
   }
+}
+
+function getIdentityLockPath(
+  root: string,
+  identity: { tenantId: string; appId: string; productId: string }
+): string {
+  const key = sha256(
+    Buffer.from(
+      `${identity.tenantId.toLowerCase()}\n${identity.appId.toLowerCase()}\n${identity.productId.toLowerCase()}`,
+      "utf8"
+    )
+  );
+  return path.join(root, publicationDirectory, `_identity-${key}`);
+}
+
+async function withIdentityLock<T>(
+  root: string,
+  identity: { tenantId: string; appId: string; productId: string },
+  operation: () => Promise<T>
+): Promise<T> {
+  const lockDirectory = getIdentityLockPath(root, identity);
+  await fs.ensureDir(lockDirectory);
+  const release = await properLock.lock(lockDirectory, { retries: 0 });
+  try {
+    return await operation();
+  } finally {
+    await release();
+  }
+}
+
+export async function withPreparedPublicationIdentityLock<T>(
+  root: string,
+  journal: PreparedPublicationJournal,
+  operation: () => Promise<T>
+): Promise<T> {
+  if (journal.journalVersion !== journalVersion) {
+    throw new PreparedPublicationError(
+      "LegacyPreparedPublicationRequiresReconciliation",
+      "This publication journal does not contain the current tenant-bound lineage."
+    );
+  }
+  try {
+    return await withIdentityLock(root, journal.identity, operation);
+  } catch (error) {
+    throw error instanceof PreparedPublicationError
+      ? error
+      : new PreparedPublicationError(
+          "PublicationIdentityLockUnavailable",
+          "A conflicting publication for this tenant, application, or SharePoint solution is active.",
+          { cause: error }
+        );
+  }
+}
+
+export async function getPreparedSharePointProductId(
+  projectPath: string,
+  packagePath: string
+): Promise<Result<string, PreparedPublicationError | SharePointPackageInspectionError>> {
+  let root: string;
+  try {
+    root = await fs.realpath(projectPath);
+  } catch (error) {
+    return err(
+      new PreparedPublicationError(
+        "ProjectPathUnavailable",
+        "The project directory could not be resolved.",
+        { cause: error }
+      )
+    );
+  }
+  const sourcePackage = await readProjectInput(root, packagePath);
+  if (sourcePackage.isErr()) {
+    return err(sourcePackage.error);
+  }
+  const inspection = await inspectSharePointPackage(sourcePackage.value.bytes);
+  return inspection.isErr() ? err(inspection.error) : ok(inspection.value.productId);
 }
 
 export async function preparePublication(
@@ -683,19 +1206,33 @@ export async function preparePublication(
   if (sourceAppPackage.isErr()) {
     return err(sourceAppPackage.error);
   }
-  const recoveryCheck = await findUnresolvedPublication(
-    root,
-    sha256(sourcePackage.value.bytes),
-    sha256(sourceAppPackage.value.bytes)
-  );
-  if (recoveryCheck.isErr()) {
-    return err(recoveryCheck.error);
+  if (input.signal?.aborted) {
+    return err(
+      new PreparedPublicationError(
+        "PublicationCancelled",
+        "Prepared publication was cancelled before tenant discovery."
+      )
+    );
   }
   const sharePointPackage = await inspectSharePointPackage(sourcePackage.value.bytes);
   if (sharePointPackage.isErr()) {
     return err(sharePointPackage.error);
   }
-  const resolvedPlugin = replaceTenantValues(sharePointPackage.value.pluginManifest);
+  if (
+    sharePointPackage.value.productId.toLowerCase() !== input.tenantContext.productId.toLowerCase()
+  ) {
+    return err(
+      new PreparedPublicationError(
+        "SelectedProductMismatch",
+        "The selected tenant context does not match the inspected SharePoint solution."
+      )
+    );
+  }
+  const resolvedPlugin = replaceTenantValues(
+    sharePointPackage.value.pluginManifest,
+    sharePointPackage.value.productId,
+    input.tenantContext
+  );
   if (resolvedPlugin.isErr()) {
     return err(resolvedPlugin.error);
   }
@@ -708,85 +1245,197 @@ export async function preparePublication(
   if (appPackage.isErr()) {
     return err(appPackage.error);
   }
-
-  const publicationId = randomUUID();
-  const stagingDirectory = path.resolve(root, publicationDirectory, publicationId);
-  if (!isWithinProject(root, stagingDirectory)) {
+  const validatedApplication = await validatePreparedApplicationPackage(appPackage.value.bytes);
+  if (validatedApplication.isErr()) {
+    return err(validatedApplication.error);
+  }
+  let tenantUrl: URL;
+  try {
+    tenantUrl = new URL(input.tenantContext.tenantUrl);
+  } catch (error) {
     return err(
-      new PreparedPublicationError("InvalidStagingPath", "The publication staging path is invalid.")
+      new PreparedPublicationError(
+        "InvalidPreparedTenantContext",
+        "The selected tenant URL is invalid.",
+        { cause: error }
+      )
     );
   }
+  const identity = {
+    tenantId: input.tenantContext.tenantId,
+    tenantUrl: input.tenantContext.tenantUrl,
+    catalogUrl: input.tenantContext.catalogUrl,
+    appId: appPackage.value.appId,
+    productId: sharePointPackage.value.productId,
+  };
   try {
-    await fs.ensureDir(stagingDirectory);
-    const resolvedStagingDirectory = await fs.realpath(stagingDirectory);
-    if (!isWithinProject(root, resolvedStagingDirectory)) {
-      return err(
-        new PreparedPublicationError(
-          "InvalidStagingPath",
-          "The publication staging path is invalid."
-        )
-      );
-    }
-    const sharePointArtifactPath = path.join(resolvedStagingDirectory, "sharepoint.sppkg");
-    const applicationArtifactPath = path.join(resolvedStagingDirectory, "application.zip");
-    const journalPath = path.join(resolvedStagingDirectory, "journal.json");
-    await atomicWrite(sharePointArtifactPath, sharePointPackage.value.deploymentBytes);
-    await atomicWrite(applicationArtifactPath, appPackage.value.bytes);
-    const journal: PreparedPublicationJournal = {
-      journalVersion,
-      publicationId,
-      state: "prepared",
-      sourceSharePoint: {
-        path: sourcePackage.value.relativePath,
-        sha256: sha256(sourcePackage.value.bytes),
+    return await withIdentityLock(root, identity, async () => {
+      if (input.signal?.aborted) {
+        return err(
+          new PreparedPublicationError(
+            "PublicationCancelled",
+            "Prepared publication was cancelled before staging."
+          )
+        );
+      }
+      const recoveryCheck = await findUnresolvedPublication(root, {
+        ...input.tenantContext,
+        appId: appPackage.value.appId,
         productId: sharePointPackage.value.productId,
-        version: sharePointPackage.value.version,
-        skipFeatureDeployment: sharePointPackage.value.skipFeatureDeployment,
-      },
-      sourceApplication: {
-        path: sourceAppPackage.value.relativePath,
-        sha256: sha256(sourceAppPackage.value.bytes),
-        appId: appPackage.value.appId,
-        version: appPackage.value.version,
-      },
-      plugin: { sha256: pluginSha256 },
-      sharePointArtifact: {
-        path: projectRelative(root, sharePointArtifactPath),
-        sha256: sharePointPackage.value.deploymentSha256,
-        uploadState: "notStarted",
-        deployState: "notStarted",
-      },
-      applicationArtifact: {
-        path: projectRelative(root, applicationArtifactPath),
-        sha256: sha256(appPackage.value.bytes),
-        appId: appPackage.value.appId,
-        version: appPackage.value.version,
-        submissionState: "notStarted",
-      },
-    };
-    await atomicWrite(journalPath, Buffer.from(JSON.stringify(journal, null, 2), "utf8"));
-    return ok({
-      publicationId,
-      preparedPublicationPath: projectRelative(root, journalPath),
-      sourcePackageSha256: journal.sourceSharePoint.sha256,
-      sourceAppPackageSha256: journal.sourceApplication.sha256,
-      pluginSha256,
-      sharePointPackagePath: journal.sharePointArtifact.path,
-      sharePointPackageSha256: journal.sharePointArtifact.sha256,
-      appPackagePath: journal.applicationArtifact.path,
-      appPackageSha256: journal.applicationArtifact.sha256,
+        sourceSharePointSha256: sha256(sourcePackage.value.bytes),
+        sourceApplicationSha256: sha256(sourceAppPackage.value.bytes),
+      });
+      if (recoveryCheck.isErr()) {
+        return err(recoveryCheck.error);
+      }
+      if (recoveryCheck.value) {
+        const journal = recoveryCheck.value;
+        const sources = await verifyPreparedSources(root, journal);
+        if (sources.isErr()) {
+          return err(sources.error);
+        }
+        const sharePointArtifact = await verifyPreparedArtifact(root, journal.sharePointArtifact);
+        if (sharePointArtifact.isErr()) {
+          return err(sharePointArtifact.error);
+        }
+        const sharePointLineage = await verifyPreparedSharePointPackage(
+          journal,
+          sharePointArtifact.value
+        );
+        if (sharePointLineage.isErr()) {
+          return err(sharePointLineage.error);
+        }
+        const appArtifact = await verifyPreparedArtifact(root, journal.applicationArtifact);
+        if (appArtifact.isErr()) {
+          return err(appArtifact.error);
+        }
+        const appLineage = verifyPreparedApplicationPackage(journal, appArtifact.value);
+        if (appLineage.isErr()) {
+          return err(appLineage.error);
+        }
+        return ok({
+          publicationId: journal.publicationId,
+          preparedPublicationPath: projectRelative(
+            root,
+            path.join(root, publicationDirectory, journal.publicationId, "journal.json")
+          ),
+          sourcePackageSha256: journal.sourceSharePoint.sha256,
+          sourceAppPackageSha256: journal.sourceApplication.sha256,
+          pluginSha256: journal.plugin.sha256,
+          sharePointPackagePath: journal.sharePointArtifact.path,
+          sharePointPackageSha256: journal.sharePointArtifact.sha256,
+          appPackagePath: journal.applicationArtifact.path,
+          appPackageSha256: journal.applicationArtifact.sha256,
+        });
+      }
+      const publicationId = randomUUID();
+      const stagingDirectory = path.resolve(root, publicationDirectory, publicationId);
+      if (!isWithinProject(root, stagingDirectory)) {
+        return err(
+          new PreparedPublicationError(
+            "InvalidStagingPath",
+            "The publication staging path is invalid."
+          )
+        );
+      }
+      try {
+        await fs.ensureDir(stagingDirectory);
+        const resolvedStagingDirectory = await fs.realpath(stagingDirectory);
+        if (!isWithinProject(root, resolvedStagingDirectory)) {
+          return err(
+            new PreparedPublicationError(
+              "InvalidStagingPath",
+              "The publication staging path is invalid."
+            )
+          );
+        }
+        const sharePointArtifactPath = path.join(resolvedStagingDirectory, "sharepoint.sppkg");
+        const applicationArtifactPath = path.join(resolvedStagingDirectory, "application.zip");
+        const journalPath = path.join(resolvedStagingDirectory, "journal.json");
+        await atomicWrite(sharePointArtifactPath, sharePointPackage.value.deploymentBytes);
+        if (input.signal?.aborted) {
+          await fs.remove(stagingDirectory);
+          return err(
+            new PreparedPublicationError(
+              "PublicationCancelled",
+              "Prepared publication was cancelled before the journal was committed."
+            )
+          );
+        }
+        await atomicWrite(applicationArtifactPath, appPackage.value.bytes);
+        const journal: PreparedPublicationJournal = {
+          journalVersion,
+          publicationId,
+          state: "prepared",
+          identity: {
+            tenantId: input.tenantContext.tenantId,
+            tenantOrigin: tenantUrl.origin,
+            catalogUrl: input.tenantContext.catalogUrl,
+            appId: appPackage.value.appId,
+            productId: sharePointPackage.value.productId,
+          },
+          transformation: { id: transformationIdentity },
+          sourceSharePoint: {
+            path: sourcePackage.value.relativePath,
+            sha256: sha256(sourcePackage.value.bytes),
+            productId: sharePointPackage.value.productId,
+            version: sharePointPackage.value.version,
+            skipFeatureDeployment: sharePointPackage.value.skipFeatureDeployment,
+          },
+          sourceApplication: {
+            path: sourceAppPackage.value.relativePath,
+            sha256: sha256(sourceAppPackage.value.bytes),
+            appId: appPackage.value.appId,
+            version: appPackage.value.version,
+          },
+          plugin: { sha256: pluginSha256 },
+          sharePointArtifact: {
+            path: projectRelative(root, sharePointArtifactPath),
+            sha256: sharePointPackage.value.deploymentSha256,
+            uploadState: "notStarted",
+            deployState: "notStarted",
+          },
+          applicationArtifact: {
+            path: projectRelative(root, applicationArtifactPath),
+            sha256: sha256(appPackage.value.bytes),
+            appId: appPackage.value.appId,
+            version: appPackage.value.version,
+            submissionState: "notStarted",
+          },
+        };
+        await atomicWrite(journalPath, Buffer.from(JSON.stringify(journal, null, 2), "utf8"));
+        return ok({
+          publicationId,
+          preparedPublicationPath: projectRelative(root, journalPath),
+          sourcePackageSha256: journal.sourceSharePoint.sha256,
+          sourceAppPackageSha256: journal.sourceApplication.sha256,
+          pluginSha256,
+          sharePointPackagePath: journal.sharePointArtifact.path,
+          sharePointPackageSha256: journal.sharePointArtifact.sha256,
+          appPackagePath: journal.applicationArtifact.path,
+          appPackageSha256: journal.applicationArtifact.sha256,
+        });
+      } catch (error) {
+        await fs.remove(stagingDirectory);
+        return err(
+          error instanceof PreparedPublicationError
+            ? error
+            : new PreparedPublicationError(
+                "PublicationPrepareFailed",
+                "The publication artifacts could not be prepared.",
+                { cause: error }
+              )
+        );
+      }
     });
   } catch (error) {
-    await fs.remove(stagingDirectory);
     return err(
       error instanceof PreparedPublicationError
         ? error
         : new PreparedPublicationError(
-            "PublicationPrepareFailed",
-            "The publication artifacts could not be prepared.",
-            {
-              cause: error,
-            }
+            "PublicationIdentityLockUnavailable",
+            "A conflicting publication for this tenant, application, or SharePoint solution is active.",
+            { cause: error }
           )
     );
   }
@@ -843,6 +1492,15 @@ function parseJournal(value: unknown): PreparedPublicationJournal | undefined {
     typeof value["publicationId"] !== "string" ||
     !guidPattern.test(value["publicationId"]) ||
     !isPublicationState(value["state"]) ||
+    !isRecord(value["identity"]) ||
+    typeof value["identity"]["tenantId"] !== "string" ||
+    !guidPattern.test(value["identity"]["tenantId"]) ||
+    typeof value["identity"]["tenantOrigin"] !== "string" ||
+    typeof value["identity"]["catalogUrl"] !== "string" ||
+    typeof value["identity"]["appId"] !== "string" ||
+    typeof value["identity"]["productId"] !== "string" ||
+    !isRecord(value["transformation"]) ||
+    value["transformation"]["id"] !== transformationIdentity ||
     !isArtifactRecord(value["sourceSharePoint"]) ||
     typeof value["sourceSharePoint"]["productId"] !== "string" ||
     typeof value["sourceSharePoint"]["version"] !== "string" ||
@@ -865,6 +1523,8 @@ function parseJournal(value: unknown): PreparedPublicationJournal | undefined {
   }
   const sourceSharePoint = value["sourceSharePoint"];
   const sourceApplication = value["sourceApplication"];
+  const identity = value["identity"];
+  const transformation = value["transformation"];
   const plugin = value["plugin"];
   const sharePointArtifact = value["sharePointArtifact"];
   const applicationArtifact = value["applicationArtifact"];
@@ -887,6 +1547,12 @@ function parseJournal(value: unknown): PreparedPublicationJournal | undefined {
   const applicationArtifactAppId = applicationArtifact["appId"];
   const applicationArtifactVersion = applicationArtifact["version"];
   const applicationSubmissionState = applicationArtifact["submissionState"];
+  const tenantId = identity["tenantId"];
+  const tenantOrigin = identity["tenantOrigin"];
+  const catalogUrl = identity["catalogUrl"];
+  const identityAppId = identity["appId"];
+  const identityProductId = identity["productId"];
+  const transformationId = transformation["id"];
   if (
     typeof sourceSharePointPath !== "string" ||
     typeof sourceApplicationPath !== "string" ||
@@ -906,14 +1572,32 @@ function parseJournal(value: unknown): PreparedPublicationJournal | undefined {
     typeof applicationArtifactSha256 !== "string" ||
     typeof applicationArtifactAppId !== "string" ||
     typeof applicationArtifactVersion !== "string" ||
+    typeof tenantId !== "string" ||
+    typeof tenantOrigin !== "string" ||
+    typeof catalogUrl !== "string" ||
+    typeof identityAppId !== "string" ||
+    typeof identityProductId !== "string" ||
+    typeof transformationId !== "string" ||
+    identityAppId.toLowerCase() !== sourceApplicationAppId.toLowerCase() ||
+    identityProductId.toLowerCase() !== sourceSharePointProductId.toLowerCase() ||
+    transformationId !== transformationIdentity ||
+    !isPreparedCatalogUrl(catalogUrl, tenantOrigin) ||
     !isWriteState(applicationSubmissionState)
   ) {
     return undefined;
   }
   return {
-    journalVersion: 1,
+    journalVersion: 2,
     publicationId: value["publicationId"],
     state: value["state"],
+    identity: {
+      tenantId,
+      tenantOrigin,
+      catalogUrl,
+      appId: identityAppId,
+      productId: identityProductId,
+    },
+    transformation: { id: transformationId },
     sourceSharePoint: {
       path: sourceSharePointPath,
       sha256: sourceSharePointSha256,
@@ -1196,45 +1880,65 @@ export function verifyPreparedApplicationPackage(
   if (agentReference.isErr()) {
     return err(agentReference.error);
   }
-  const agentFile = agentReference.value.reference["file"];
-  if (typeof agentFile !== "string") {
-    return err(
-      new PreparedPublicationError(
-        "InvalidAgentReference",
-        "The application agent reference is invalid."
-      )
-    );
-  }
-  const agentBytes = byName.get(agentFile);
-  if (agentBytes === undefined) {
-    return err(
-      new PreparedPublicationError(
-        "MissingAgentManifest",
-        "The prepared application package is missing its declarative agent manifest."
-      )
-    );
-  }
-  const agent = jsonObject(agentBytes, agentFile);
-  if (agent.isErr()) {
-    return err(agent.error);
-  }
-  const actionsValue = agent.value["actions"];
-  if (!Array.isArray(actionsValue)) {
-    return err(
-      new PreparedPublicationError(
-        "InvalidAgentActions",
-        "The prepared declarative agent has no plugin actions."
-      )
-    );
-  }
   const pluginName = `plugins/spfx-api-${journal.plugin.sha256.slice(0, 16)}.json`;
   const pluginEntry = byName.get(pluginName);
-  const references = actionsValue.filter(
-    (action) => isRecord(action) && action["file"] === pluginName
-  );
+  let referenceCount = 0;
+  if (agentReference.value) {
+    const agentFile = agentReference.value.reference["file"];
+    if (typeof agentFile !== "string") {
+      return err(
+        new PreparedPublicationError(
+          "InvalidAgentReference",
+          "The application agent reference is invalid."
+        )
+      );
+    }
+    const agentBytes = byName.get(agentFile);
+    if (agentBytes === undefined) {
+      return err(
+        new PreparedPublicationError(
+          "MissingAgentManifest",
+          "The prepared application package is missing its declarative agent manifest."
+        )
+      );
+    }
+    const agent = jsonObject(agentBytes, agentFile);
+    if (agent.isErr()) {
+      return err(agent.error);
+    }
+    const actionsValue = agent.value["actions"];
+    if (!Array.isArray(actionsValue)) {
+      return err(
+        new PreparedPublicationError(
+          "InvalidAgentActions",
+          "The prepared declarative agent has no plugin actions."
+        )
+      );
+    }
+    referenceCount = actionsValue.filter(
+      (action) => isRecord(action) && action["file"] === pluginName
+    ).length;
+  } else {
+    const connectors = manifest.value["agentConnectors"];
+    if (!Array.isArray(connectors)) {
+      return err(
+        new PreparedPublicationError(
+          "MissingAgentConnector",
+          "The prepared application package is missing its API plugin connector."
+        )
+      );
+    }
+    referenceCount = connectors.filter(
+      (connector) =>
+        isRecord(connector) &&
+        isRecord(connector["toolSource"]) &&
+        isRecord(connector["toolSource"]["plugin"]) &&
+        connector["toolSource"]["plugin"]["file"] === pluginName
+    ).length;
+  }
   if (
     pluginEntry === undefined ||
-    references.length !== 1 ||
+    referenceCount !== 1 ||
     sha256(pluginEntry) !== journal.plugin.sha256
   ) {
     return err(

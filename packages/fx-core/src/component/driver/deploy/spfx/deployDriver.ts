@@ -39,13 +39,15 @@ import { UploadAppPackageFailedError } from "./error/uploadAppPackageFailedError
 import { DeploySPFxArgs } from "./interface/deployArgs";
 import { Constants, DeployProgressMessage } from "./utility/constants";
 import { sleep } from "./utility/sleep";
-import { SPOClient } from "./utility/spoClient";
+import { PreparedSharePointRequestContext, SPOClient } from "./utility/spoClient";
 import { inspectSharePointPackageIdentity } from "./utility/packageFile";
 import {
   isAmbiguousPublicationState,
   compareSharePointPackageVersions,
+  createPreparedPublicationErrorData,
   loadPreparedPublication,
   PreparedPublicationError,
+  PreparedPublicationErrorStage,
   PreparedPublicationJournal,
   isPreparedCatalogUrl,
   updatePreparedPublication,
@@ -53,6 +55,7 @@ import {
   verifyPreparedApplicationPackage,
   verifyPreparedSharePointPackage,
   verifyPreparedSources,
+  withPreparedPublicationIdentityLock,
 } from "./utility/preparedPublication";
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -115,7 +118,44 @@ export class SPFxDeployDriver implements StepDriver {
       args?.sharePointPackageSha256 !== undefined ||
       args?.appPackageSha256 !== undefined
     ) {
-      return this.deployPreparedPublication(args, context);
+      try {
+        return await this.deployPreparedPublication(args, context);
+      } catch (error) {
+        if (error instanceof UserCancelError) {
+          throw error;
+        }
+        let journal: PreparedPublicationJournal | undefined;
+        if (
+          typeof args.publicationId === "string" &&
+          typeof args.preparedPublicationPath === "string"
+        ) {
+          const loaded = await loadPreparedPublication(
+            context.projectPath,
+            args.publicationId,
+            args.preparedPublicationPath
+          );
+          if (loaded.isOk()) {
+            journal = loaded.value.journal;
+          }
+        }
+        if (context.signal?.aborted && journal && !isAmbiguousPublicationState(journal)) {
+          throw new UserCancelError(Constants.DeployDriverName);
+        }
+        const cause =
+          error instanceof UserError && error.innerError instanceof Error
+            ? error.innerError
+            : error instanceof Error
+              ? error
+              : new Error("Prepared SharePoint deployment failed.");
+        const stage = this.preparedErrorStage(cause);
+        throw this.toPreparedError(
+          cause,
+          Constants.DeployDriverName,
+          journal,
+          args.preparedPublicationPath,
+          stage
+        );
+      }
     }
     const deployArgs = this.asDeployArgs(args);
 
@@ -231,7 +271,13 @@ export class SPFxDeployDriver implements StepDriver {
     return this.EmptyMap;
   }
 
-  private toPreparedError(error: Error, source: string): UserError {
+  private toPreparedError(
+    error: Error,
+    source: string,
+    journal?: PreparedPublicationJournal,
+    recoveryPath?: string,
+    stage: PreparedPublicationErrorStage = this.preparedErrorStage(error)
+  ): UserError {
     const options: UserErrorOptions = {
       source,
       error,
@@ -239,12 +285,30 @@ export class SPFxDeployDriver implements StepDriver {
       displayMessage: getLocalizedString("driver.spfx.prepared.error"),
       categories: [ErrorCategory.External],
     };
-    return new UserError(options);
+    const result = new UserError(options);
+    result.data = createPreparedPublicationErrorData(error, journal, recoveryPath, stage);
+    return result;
+  }
+
+  private preparedErrorStage(error: Error): PreparedPublicationErrorStage {
+    if (error instanceof PreparedPublicationError) {
+      if (error.code.startsWith("SharePointUpload")) {
+        return "sharePointUpload";
+      }
+      if (error.code.startsWith("SharePointDeploy")) {
+        return "sharePointDeploy";
+      }
+      if (error.code.startsWith("SharePoint")) {
+        return "sharePointVerification";
+      }
+    }
+    return "preparedPublication";
   }
 
   private async deployPreparedPublication(
     args: DeploySPFxArgs,
-    context: WrapDriverContext
+    context: WrapDriverContext,
+    identityLocked = false
   ): Promise<Map<string, string>> {
     if (
       process.env[FeatureFlagName.SovereignCloudEnvironment] === SovereignCloudEnvironment.GCCH ||
@@ -279,6 +343,26 @@ export class SPFxDeployDriver implements StepDriver {
     );
     if (loaded.isErr()) {
       throw this.toPreparedError(loaded.error, Constants.DeployDriverName);
+    }
+    if (!identityLocked) {
+      try {
+        return await withPreparedPublicationIdentityLock(
+          loaded.value.root,
+          loaded.value.journal,
+          () => this.deployPreparedPublication(args, context, true)
+        );
+      } catch (error) {
+        throw this.toPreparedError(
+          error instanceof PreparedPublicationError
+            ? error
+            : new PreparedPublicationError(
+                "PublicationIdentityLockUnavailable",
+                "A conflicting publication is active for this identity.",
+                { cause: error }
+              ),
+          Constants.DeployDriverName
+        );
+      }
     }
     let journal = loaded.value.journal;
     if (
@@ -353,13 +437,19 @@ export class SPFxDeployDriver implements StepDriver {
       );
     }
 
+    if (context.signal?.aborted) {
+      throw new UserCancelError(Constants.DeployDriverName);
+    }
     const tenant = await this.getTenant(context.m365TokenProvider);
-    SPOClient.setBaseUrl(tenant);
     const spoToken = await getSPFxToken(context.m365TokenProvider);
     if (!spoToken) {
       throw new GetSPOTokenFailedError();
     }
-    const appCatalogSite = await SPOClient.getAppCatalogSite(spoToken);
+    const appCatalogSite = await SPOClient.getAppCatalogSiteForTenant(
+      spoToken,
+      new URL(tenant).origin,
+      context.signal
+    );
     if (!appCatalogSite || !isPreparedCatalogUrl(appCatalogSite, tenant)) {
       throw this.toPreparedError(
         new PreparedPublicationError(
@@ -369,7 +459,10 @@ export class SPFxDeployDriver implements StepDriver {
         Constants.DeployDriverName
       );
     }
-    SPOClient.setBaseUrl(appCatalogSite);
+    const requestContext: PreparedSharePointRequestContext = {
+      catalogUrl: appCatalogSite,
+      signal: context.signal,
+    };
 
     if (journal.state === "prepared") {
       if (journal.sharePointArtifact.uploadState !== "notStarted") {
@@ -382,10 +475,15 @@ export class SPFxDeployDriver implements StepDriver {
         );
       }
       const fileName = path.posix.basename(journal.sourceSharePoint.path);
-      const existingPackage = await SPOClient.readPreparedAppPackage(spoToken, fileName);
+      const existingPackage = await SPOClient.readPreparedAppPackage(
+        spoToken,
+        fileName,
+        requestContext
+      );
       const existing = await SPOClient.getPreparedAvailableApp(
         spoToken,
-        journal.sourceSharePoint.productId
+        journal.sourceSharePoint.productId,
+        requestContext
       );
       let overwrite = false;
       if (existingPackage) {
@@ -532,12 +630,45 @@ export class SPFxDeployDriver implements StepDriver {
           throw this.toPreparedError(prepared.error, Constants.DeployDriverName);
         }
         journal = prepared.value;
+        if (context.signal?.aborted) {
+          const cancelled = await updatePreparedPublication(
+            loaded.value.root,
+            journal.publicationId,
+            args.preparedPublicationPath,
+            (current) => {
+              if (
+                current.state !== "sharePointUploadInFlight" ||
+                current.sharePointArtifact.uploadState !== "inFlight"
+              ) {
+                throw new PreparedPublicationError(
+                  "ConcurrentPreparedUpload",
+                  "The prepared SharePoint upload state changed before cancellation settled."
+                );
+              }
+              return {
+                ...current,
+                state: "prepared",
+                sharePointArtifact: {
+                  ...current.sharePointArtifact,
+                  uploadState: "notStarted",
+                  catalogUrl: undefined,
+                  fileName: undefined,
+                },
+              };
+            }
+          );
+          if (cancelled.isErr()) {
+            throw this.toPreparedError(cancelled.error, Constants.DeployDriverName);
+          }
+          throw new UserCancelError(Constants.DeployDriverName);
+        }
         try {
           await SPOClient.uploadPreparedAppPackage(
             spoToken,
             fileName,
             localArtifact.value,
-            overwrite
+            overwrite,
+            requestContext
           );
         } catch (error) {
           const rejected = this.isDefinitiveRejection(error);
@@ -622,10 +753,16 @@ export class SPFxDeployDriver implements StepDriver {
         Constants.DeployDriverName
       );
     }
-    await this.waitForPreparedPackage(spoToken, journal.sharePointArtifact.fileName, journal);
+    await this.waitForPreparedPackage(
+      spoToken,
+      journal.sharePointArtifact.fileName,
+      journal,
+      requestContext
+    );
     const availableApp = await this.waitForPreparedAvailableApp(
       spoToken,
-      journal.sourceSharePoint.productId
+      journal.sourceSharePoint.productId,
+      requestContext
     );
     if (
       availableApp.id.toLowerCase() !== journal.sourceSharePoint.productId.toLowerCase() ||
@@ -678,11 +815,42 @@ export class SPFxDeployDriver implements StepDriver {
       if (inFlight.isErr()) {
         throw this.toPreparedError(inFlight.error, Constants.DeployDriverName);
       }
+      if (context.signal?.aborted) {
+        const cancelled = await updatePreparedPublication(
+          loaded.value.root,
+          journal.publicationId,
+          args.preparedPublicationPath,
+          (current) => {
+            if (
+              current.state !== "sharePointDeployInFlight" ||
+              current.sharePointArtifact.deployState !== "inFlight"
+            ) {
+              throw new PreparedPublicationError(
+                "ConcurrentPreparedDeploy",
+                "The prepared SharePoint deploy state changed before cancellation settled."
+              );
+            }
+            return {
+              ...current,
+              state: "sharePointUploaded",
+              sharePointArtifact: {
+                ...current.sharePointArtifact,
+                deployState: "notStarted",
+              },
+            };
+          }
+        );
+        if (cancelled.isErr()) {
+          throw this.toPreparedError(cancelled.error, Constants.DeployDriverName);
+        }
+        throw new UserCancelError(Constants.DeployDriverName);
+      }
       try {
         await SPOClient.deployPreparedAppPackage(
           spoToken,
           journal.sourceSharePoint.productId,
-          journal.sourceSharePoint.skipFeatureDeployment
+          journal.sourceSharePoint.skipFeatureDeployment,
+          requestContext
         );
       } catch (error) {
         const rejected = this.isDefinitiveRejection(error);
@@ -751,6 +919,9 @@ export class SPFxDeployDriver implements StepDriver {
         throw this.toPreparedError(confirmed.error, Constants.DeployDriverName);
       }
       journal = confirmed.value;
+      if (context.signal?.aborted) {
+        throw new UserCancelError(Constants.DeployDriverName);
+      }
     } else if (journal.sharePointArtifact.deployState !== "confirmed") {
       throw this.toPreparedError(
         new PreparedPublicationError(
@@ -761,7 +932,7 @@ export class SPFxDeployDriver implements StepDriver {
       );
     }
 
-    await this.verifyPreparedDeployment(spoToken, journal);
+    await this.verifyPreparedDeployment(spoToken, journal, requestContext);
     const verified = await updatePreparedPublication(
       loaded.value.root,
       journal.publicationId,
@@ -809,10 +980,14 @@ export class SPFxDeployDriver implements StepDriver {
   private async waitForPreparedPackage(
     token: string,
     fileName: string,
-    journal: PreparedPublicationJournal
+    journal: PreparedPublicationJournal,
+    requestContext: PreparedSharePointRequestContext
   ): Promise<Buffer> {
     for (let attempt = 0; attempt < Constants.APP_CATALOG_MAX_TIMES; attempt += 1) {
-      const bytes = await SPOClient.readPreparedAppPackage(token, fileName);
+      if (requestContext.signal?.aborted) {
+        throw new UserCancelError(Constants.DeployDriverName);
+      }
+      const bytes = await SPOClient.readPreparedAppPackage(token, fileName, requestContext);
       if (bytes) {
         const verified = await verifyPreparedSharePointPackage(journal, bytes);
         if (verified.isErr()) {
@@ -832,10 +1007,14 @@ export class SPFxDeployDriver implements StepDriver {
 
   private async waitForPreparedAvailableApp(
     token: string,
-    productId: string
+    productId: string,
+    requestContext: PreparedSharePointRequestContext
   ): Promise<NonNullable<Awaited<ReturnType<typeof SPOClient.getPreparedAvailableApp>>>> {
     for (let attempt = 0; attempt < Constants.APP_CATALOG_MAX_TIMES; attempt += 1) {
-      const app = await SPOClient.getPreparedAvailableApp(token, productId);
+      if (requestContext.signal?.aborted) {
+        throw new UserCancelError(Constants.DeployDriverName);
+      }
+      const app = await SPOClient.getPreparedAvailableApp(token, productId, requestContext);
       if (app) {
         return app;
       }
@@ -851,7 +1030,8 @@ export class SPFxDeployDriver implements StepDriver {
 
   private async verifyPreparedDeployment(
     token: string,
-    journal: PreparedPublicationJournal
+    journal: PreparedPublicationJournal,
+    requestContext: PreparedSharePointRequestContext
   ): Promise<void> {
     const fileName = journal.sharePointArtifact.fileName;
     if (typeof fileName !== "string") {
@@ -861,10 +1041,14 @@ export class SPFxDeployDriver implements StepDriver {
       );
     }
     for (let attempt = 0; attempt < Constants.APP_CATALOG_MAX_TIMES; attempt += 1) {
-      const bytes = await SPOClient.readPreparedAppPackage(token, fileName);
+      if (requestContext.signal?.aborted) {
+        throw new UserCancelError(Constants.DeployDriverName);
+      }
+      const bytes = await SPOClient.readPreparedAppPackage(token, fileName, requestContext);
       const app = await SPOClient.getPreparedAvailableApp(
         token,
-        journal.sourceSharePoint.productId
+        journal.sourceSharePoint.productId,
+        requestContext
       );
       if (bytes && app) {
         const verified = await verifyPreparedSharePointPackage(journal, bytes);

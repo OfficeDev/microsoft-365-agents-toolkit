@@ -46,6 +46,7 @@ import {
   IPublishingAppDenition,
   PublishingState,
 } from "../component/driver/teamsApp/interfaces/appdefinitions/IPublishingAppDefinition";
+import { createPreparedRequestSignal } from "../component/driver/deploy/spfx/utility/preparedPublication";
 
 const listSensitivityLabelAPIPath = "/me/informationProtection/sensitivityLabels";
 const errorSourceName = "GraphAPI";
@@ -458,12 +459,14 @@ export class GraphClient {
 
   public async getPreparedStagedApp(
     token: string,
-    teamsAppExternalId: string
+    teamsAppExternalId: string,
+    signal?: AbortSignal
   ): Promise<PreparedStagedTeamsApp | undefined> {
     const requester = this.createRequesterWithToken(token);
     const response = await RetryHandler.Retry(() =>
       requester.get(
-        `${teamsAppsPath}?$filter=externalId eq '${teamsAppExternalId}'&$expand=appDefinitions`
+        `${teamsAppsPath}?$filter=externalId eq '${teamsAppExternalId}'&$expand=appDefinitions`,
+        { signal: createPreparedRequestSignal(signal) }
       )
     );
     if (!response) {
@@ -526,14 +529,19 @@ export class GraphClient {
     token: string,
     teamsAppExternalId: string,
     teamsAppId: string | undefined,
-    file: Buffer
+    file: Buffer,
+    signal?: AbortSignal
   ): Promise<string> {
+    if (signal?.aborted) {
+      throw new Error("Prepared app submission was cancelled before the request started.");
+    }
     const requester = this.createRequesterWithToken(token);
     const endpoint = teamsAppId
       ? `${teamsAppsPath}/${teamsAppId}/appDefinitions?requiresReview=true`
       : `${teamsAppsPath}?requiresReview=true`;
     const response = await requester.post(endpoint, file, {
       headers: { "Content-Type": "application/zip" },
+      signal: createPreparedRequestSignal(),
     });
     if (teamsAppId) {
       return teamsAppId;
