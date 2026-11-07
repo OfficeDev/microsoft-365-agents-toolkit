@@ -285,17 +285,42 @@ async function readFileBounded(
         )
       );
     }
-    const bytes = await fs.readFile(descriptor);
-    await fs.close(descriptor);
-    descriptor = undefined;
-    if (bytes.length > maxBytes) {
+    const chunks: Buffer[] = [];
+    let bytesRead = 0;
+    while (bytesRead <= maxBytes) {
+      const remaining = maxBytes + 1 - bytesRead;
+      const chunk = Buffer.alloc(Math.min(64 * 1024, remaining));
+      const readResult = await fs.read(descriptor, chunk, 0, chunk.length, bytesRead);
+      if (readResult.bytesRead === 0) {
+        break;
+      }
+      chunks.push(chunk.subarray(0, readResult.bytesRead));
+      bytesRead += readResult.bytesRead;
+      if (bytesRead > maxBytes) {
+        return err(
+          new PreparedPublicationError(
+            "InputTooLarge",
+            "A publication input exceeds safe size limits."
+          )
+        );
+      }
+    }
+    const finalStats = await fs.fstat(descriptor);
+    if (
+      finalStats.size !== bytesRead ||
+      finalStats.mtimeMs !== stats.mtimeMs ||
+      finalStats.ctimeMs !== stats.ctimeMs
+    ) {
       return err(
         new PreparedPublicationError(
-          "InputTooLarge",
-          "A publication input exceeds safe size limits."
+          "InputChangedDuringRead",
+          "A publication input changed while it was read."
         )
       );
     }
+    const bytes = Buffer.concat(chunks, bytesRead);
+    await fs.close(descriptor);
+    descriptor = undefined;
     return ok(bytes);
   } catch (error) {
     return err(

@@ -575,10 +575,37 @@ export async function readSharePointPackage(
     if (stats.size > SHAREPOINT_PACKAGE_LIMITS.inputBytes) {
       return err(packageError("ArchiveTooLarge", "The package exceeds the supported input size."));
     }
-    const bytes = await fs.readFile(fileDescriptor);
-    if (bytes.length > SHAREPOINT_PACKAGE_LIMITS.inputBytes) {
-      return err(packageError("ArchiveTooLarge", "The package exceeds the supported input size."));
+    const chunks: Buffer[] = [];
+    let bytesRead = 0;
+    while (bytesRead <= SHAREPOINT_PACKAGE_LIMITS.inputBytes) {
+      const remaining = SHAREPOINT_PACKAGE_LIMITS.inputBytes + 1 - bytesRead;
+      const chunk = Buffer.alloc(Math.min(64 * 1024, remaining));
+      const readResult = await fs.read(fileDescriptor, chunk, 0, chunk.length, bytesRead);
+      if (readResult.bytesRead === 0) {
+        break;
+      }
+      chunks.push(chunk.subarray(0, readResult.bytesRead));
+      bytesRead += readResult.bytesRead;
+      if (bytesRead > SHAREPOINT_PACKAGE_LIMITS.inputBytes) {
+        return err(
+          packageError("ArchiveTooLarge", "The package exceeds the supported input size.")
+        );
+      }
     }
+    const finalStats = await fs.fstat(fileDescriptor);
+    if (
+      finalStats.size !== bytesRead ||
+      finalStats.mtimeMs !== stats.mtimeMs ||
+      finalStats.ctimeMs !== stats.ctimeMs
+    ) {
+      return err(
+        packageError(
+          "PackageChangedDuringRead",
+          "The SharePoint package changed while it was read."
+        )
+      );
+    }
+    const bytes = Buffer.concat(chunks, bytesRead);
     return await inspectSharePointPackage(bytes);
   } catch {
     return err(

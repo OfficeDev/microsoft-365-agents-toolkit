@@ -6,7 +6,7 @@ import { createHash } from "crypto";
 import fs from "fs-extra";
 import os from "os";
 import path from "path";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { readSharePointPackage } from "../../../../../src/sharepointPackage";
 import {
   readBoundedArchive,
@@ -177,6 +177,35 @@ describe("SharePoint package inspection", () => {
     const result = await readSharePointPackage(sourcePath);
 
     expect(result.isErr()).toBe(true);
+  });
+
+  it("SPFX-PREP-04: rejects a package that changes during its bounded read", async () => {
+    const directory = await fs.mkdtemp(path.join(os.tmpdir(), "spfx-package-race-"));
+    directories.push(directory);
+    const sourcePath = path.join(directory, "solution.sppkg");
+    await fs.writeFile(sourcePath, createSppkg());
+    const originalRead = fs.read.bind(fs);
+    let changed = false;
+    const readSpy = vi
+      .spyOn(fs, "read")
+      .mockImplementation(async (fd, buffer, offset, length, position) => {
+        const result = await originalRead(fd, buffer, offset, length, position);
+        if (!changed) {
+          changed = true;
+          await fs.appendFile(sourcePath, Buffer.from("changed during read"));
+        }
+        return result;
+      });
+
+    try {
+      const result = await readSharePointPackage(sourcePath);
+      expect(result.isErr()).toBe(true);
+      if (result.isErr()) {
+        expect(result.error.code).toBe("PackageChangedDuringRead");
+      }
+    } finally {
+      readSpy.mockRestore();
+    }
   });
 
   it("SPFX-PREP-04: rejects traversal, duplicate paths, and oversized archives", () => {

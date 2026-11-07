@@ -191,6 +191,43 @@ describe("Prepared SharePoint publication preparation", () => {
     expect(compareSharePointPackageVersions("1.2.3", "1.2.3.4")).toBeUndefined();
   });
 
+  it("SPFX-PREP-04: rejects a publication input that changes during its bounded read", async () => {
+    const projectPath = await fs.mkdtemp(path.join(os.tmpdir(), "prepared-publication-race-"));
+    directories.push(projectPath);
+    await fs.ensureDir(path.join(projectPath, "sharepoint"));
+    await fs.ensureDir(path.join(projectPath, "appPackage"));
+    const sourcePath = path.join(projectPath, "sharepoint", "solution.sppkg");
+    await fs.writeFile(sourcePath, createSppkg());
+    await fs.writeFile(path.join(projectPath, "appPackage", "application.zip"), createAppPackage());
+    const originalRead = fs.read.bind(fs);
+    let changed = false;
+    const readSpy = vi
+      .spyOn(fs, "read")
+      .mockImplementation(async (fd, buffer, offset, length, position) => {
+        const result = await originalRead(fd, buffer, offset, length, position);
+        if (!changed) {
+          changed = true;
+          await fs.appendFile(sourcePath, Buffer.from("changed during read"));
+        }
+        return result;
+      });
+
+    try {
+      const result = await preparePublication({
+        projectPath,
+        packagePath: "sharepoint/solution.sppkg",
+        appPackagePath: "appPackage/application.zip",
+        tenantContext,
+      });
+      expect(result.isErr()).toBe(true);
+      if (result.isErr()) {
+        expect(result.error.code).toBe("InputChangedDuringRead");
+      }
+    } finally {
+      readSpy.mockRestore();
+    }
+  });
+
   it("SPFX-PREP-11: projects rejected and unknown Graph failures without raw response data", async () => {
     const projectPath = await fs.mkdtemp(path.join(os.tmpdir(), "prepared-publication-errors-"));
     directories.push(projectPath);

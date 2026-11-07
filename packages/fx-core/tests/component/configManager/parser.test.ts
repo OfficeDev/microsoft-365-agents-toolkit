@@ -273,7 +273,7 @@ describe("v3 yaml parser", () => {
           it(`accepts ${JSON.stringify(input)}`, () => {
             assert.isTrue(
               validate({
-                version: schemaVersion || "v1.13",
+                version: schemaVersion || "v1.14",
                 provision: [
                   {
                     uses: "dcr/register",
@@ -309,6 +309,16 @@ describe("v3 yaml parser", () => {
             );
           });
         }
+        it("rejects a document version that does not match the schema", () => {
+          const schemaDocumentVersion = schemaVersion || "v1.14";
+          const mismatchedVersion = schemaDocumentVersion === "v1.13" ? "v1.14" : "v1.13";
+          assert.isFalse(
+            validate({
+              version: mismatchedVersion,
+              provision: [{ uses: "dcr/register", with: validInputs[0] }],
+            })
+          );
+        });
       });
     }
 
