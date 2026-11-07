@@ -2,7 +2,16 @@
 // Licensed under the MIT license.
 
 import { hooks } from "@feathersjs/hooks/lib";
-import { FxError, Platform, Result, TeamsAppManifest, err, ok } from "@microsoft/teamsfx-api";
+import {
+  FxError,
+  Platform,
+  Result,
+  SystemError,
+  TeamsAppManifest,
+  UserError,
+  err,
+  ok,
+} from "@microsoft/teamsfx-api";
 import AdmZip from "adm-zip";
 import axios from "axios";
 import fs from "fs-extra";
@@ -34,6 +43,7 @@ import {
   verifyPreparedSources,
   withPreparedPublicationIdentityLock,
 } from "../deploy/spfx/utility/preparedPublication";
+import { verifyPreparedJournalIdentity } from "../deploy/spfx/utility/tokenIdentity";
 import { PreparedSharePointRequestContext, SPOClient } from "../deploy/spfx/utility/spoClient";
 import { DriverContext } from "../interface/commonArgs";
 import { ExecutionResult, StepDriver } from "../interface/stepDriver";
@@ -456,6 +466,12 @@ export class PublishAppPackageDriver implements StepDriver {
           "The current SharePoint app catalog does not match the prepared publication."
         );
       }
+      await verifyPreparedJournalIdentity(
+        context.m365TokenProvider,
+        journal,
+        tenant,
+        appCatalogSite
+      );
       const requestContext: PreparedSharePointRequestContext = {
         catalogUrl: appCatalogSite,
         signal: context.signal,
@@ -717,6 +733,18 @@ export class PublishAppPackageDriver implements StepDriver {
       }
       if (context.signal?.aborted && latestJournal && !isAmbiguousPublicationState(latestJournal)) {
         return err(new UserCancelError(actionName));
+      }
+      if (
+        (error instanceof UserError || error instanceof SystemError) &&
+        error.data === undefined
+      ) {
+        error.data = createPreparedPublicationErrorData(
+          error,
+          latestJournal,
+          args.preparedPublicationPath,
+          currentStage
+        );
+        return err(error);
       }
       return err(
         this.preparedError(

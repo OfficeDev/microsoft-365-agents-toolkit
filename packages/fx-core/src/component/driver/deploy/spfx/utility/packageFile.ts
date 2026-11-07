@@ -593,11 +593,8 @@ export async function readSharePointPackage(
       }
     }
     const finalStats = await fs.fstat(fileDescriptor);
-    if (
-      finalStats.size !== bytesRead ||
-      finalStats.mtimeMs !== stats.mtimeMs ||
-      finalStats.ctimeMs !== stats.ctimeMs
-    ) {
+    // ctime is excluded: Windows updates it lazily after writes without any content change.
+    if (finalStats.size !== bytesRead || finalStats.mtimeMs !== stats.mtimeMs) {
       return err(
         packageError(
           "PackageChangedDuringRead",

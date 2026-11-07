@@ -37,6 +37,8 @@ process interruption between a remote write and the next lifecycle action.
    actions with optional prepared-publication inputs. In that mode they verify
    the journal and exact bytes, persist stage transitions, require genuine
    approval before writes, and reject incompatible identity/version states.
+   Each action re-verifies the signed-in token tenant/audiences and the
+   discovered catalog against the journal before any prompt, read, or write.
    The ordinary action path is unchanged when prepared-publication inputs are
    absent.
 5. Record an in-flight state before each non-idempotent remote write. A

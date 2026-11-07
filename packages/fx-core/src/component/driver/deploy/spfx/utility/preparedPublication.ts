@@ -315,11 +315,8 @@ async function readFileBounded(
       }
     }
     const finalStats = await fs.fstat(descriptor);
-    if (
-      finalStats.size !== bytesRead ||
-      finalStats.mtimeMs !== stats.mtimeMs ||
-      finalStats.ctimeMs !== stats.ctimeMs
-    ) {
+    // ctime is excluded: Windows updates it lazily after writes without any content change.
+    if (finalStats.size !== bytesRead || finalStats.mtimeMs !== stats.mtimeMs) {
       return err(
         new PreparedPublicationError(
           "InputChangedDuringRead",
@@ -973,14 +970,35 @@ async function withIdentityLock<T>(
   identity: { tenantId: string; appId: string; productId: string },
   operation: () => Promise<T>
 ): Promise<T> {
-  const lockDirectory = getIdentityLockPath(root, identity);
-  await fs.ensureDir(lockDirectory);
-  const release = await properLock.lock(lockDirectory, { retries: 0 });
+  let release: () => Promise<void>;
   try {
-    return await operation();
-  } finally {
-    await release();
+    const lockDirectory = getIdentityLockPath(root, identity);
+    await fs.ensureDir(lockDirectory);
+    release = await properLock.lock(lockDirectory, { retries: 0 });
+  } catch (error) {
+    throw new PreparedPublicationError(
+      "PublicationIdentityLockUnavailable",
+      "A conflicting publication for this tenant, application, or SharePoint solution is active.",
+      { cause: error }
+    );
   }
+  let result: T;
+  try {
+    result = await operation();
+  } catch (error) {
+    await release().catch(() => undefined);
+    throw error;
+  }
+  try {
+    await release();
+  } catch (error) {
+    throw new PreparedPublicationError(
+      "PublicationIdentityLockReleaseFailed",
+      "The publication identity lock could not be released.",
+      { cause: error }
+    );
+  }
+  return result;
 }
 
 export async function withPreparedPublicationIdentityLock<T>(
@@ -994,17 +1012,7 @@ export async function withPreparedPublicationIdentityLock<T>(
       "This publication journal does not contain the current tenant-bound lineage."
     );
   }
-  try {
-    return await withIdentityLock(root, journal.identity, operation);
-  } catch (error) {
-    throw error instanceof PreparedPublicationError
-      ? error
-      : new PreparedPublicationError(
-          "PublicationIdentityLockUnavailable",
-          "A conflicting publication for this tenant, application, or SharePoint solution is active.",
-          { cause: error }
-        );
-  }
+  return withIdentityLock(root, journal.identity, operation);
 }
 
 export async function getPreparedSharePointProductId(
@@ -1297,8 +1305,8 @@ export async function preparePublication(
       error instanceof PreparedPublicationError
         ? error
         : new PreparedPublicationError(
-            "PublicationIdentityLockUnavailable",
-            "A conflicting publication for this tenant, application, or SharePoint solution is active.",
+            "PublicationPrepareFailed",
+            "The publication artifacts could not be prepared.",
             { cause: error }
           )
     );

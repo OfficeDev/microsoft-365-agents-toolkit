@@ -167,6 +167,12 @@ flowchart LR
   validated and recorded. Arbitrary environment URLs and unrelated text are
   never substituted. No `TENANT_ORIGIN` CSP path is currently qualified; such
   a token in a typed managed field blocks preparation.
+- Prepared deployment and prepared submission re-verify the signed-in Graph
+  and SharePoint token tenant/audience and the discovered SharePoint origin and
+  catalog against the journal before any approval prompt, catalog read, or
+  write. A mismatch fails with `PreparedTenantMismatch`,
+  `GraphTokenIdentityMismatch`, or `SharePointTokenIdentityMismatch` and leaves
+  the journal stage unchanged.
 - The SharePoint action verifies product identity, version, deployment state,
   and remotely read-back content before transitioning to `sharePointVerified`.
   Same-version/different-content collisions and downgrades are rejected.
@@ -179,7 +185,14 @@ flowchart LR
   transitions. Version-1 journals with uncertain or active state remain intact
   and block new prepared work because they lack tenant-bound lineage. A possible write is durably marked in-flight
   before the request. Definitive rejection, known success, cancellation before
-  mutation, and unknown outcome remain distinct.
+  mutation, and unknown outcome remain distinct. Only failure to acquire the
+  identity lock is reported as `PublicationIdentityLockUnavailable`; failures
+  of the guarded operation keep their own codes, and a failed release is
+  reported as `PublicationIdentityLockReleaseFailed`.
+- Bounded file reads do not compare `ctime`: on some platforms it changes on
+  unmodified files. Each read uses one open descriptor and detects mutation
+  through final size and modification time; growth is bounded to the byte limit
+  plus one.
 - Re-running preparation checks all active/rejected journals for the same
   tenant/application/product identity, independent of changed source hashes or
   versions. Unknown remote outcomes therefore cannot be bypassed by rebuilding
@@ -192,7 +205,9 @@ flowchart LR
   durably recorded before downstream actions can proceed.
 - Prepared errors preserve the last durable stage and bounded allowlisted
   lineage/remote diagnostics in `FxError.data`; they never expose raw HTTP/SDK
-  objects, credentials, or request bodies.
+  objects, credentials, or request bodies. A typed `UserError`/`SystemError`
+  raised before a write (for example, an unavailable Graph token) keeps its
+  own error name and gains the same allowlisted recovery data.
 - Approval is explicit and invocation-scoped before each externally visible
   write. Missing or non-interactive approval fails before mutation.
 - `createAppCatalogIfNotExist` cannot create a catalog in prepared mode.

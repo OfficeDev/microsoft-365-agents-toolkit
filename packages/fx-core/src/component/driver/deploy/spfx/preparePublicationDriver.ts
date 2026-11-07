@@ -15,7 +15,6 @@ import { Service } from "typedi";
 import { getLocalizedString } from "../../../../common/localizeUtils";
 import { maskSecret } from "../../../../common/stringUtils";
 import { ErrorCategory } from "../../../../error/types";
-import { GraphScopes, SPFxScopes } from "../../../../common/constants";
 import { getSPFxToken } from "../../../../common/tools";
 import { DriverContext } from "../../interface/commonArgs";
 import { ExecutionResult, StepDriver } from "../../interface/stepDriver";
@@ -31,6 +30,7 @@ import {
   preparePublication,
 } from "./utility/preparedPublication";
 import { SharePointPackageInspectionError } from "./utility/packageFile";
+import { verifyPreparedTokenIdentity } from "./utility/tokenIdentity";
 
 export const preparePublicationActionName = "spfx/preparePublication";
 
@@ -79,27 +79,6 @@ function validateArgs(value: unknown): PreparePublicationArgs | undefined {
     : undefined;
 }
 
-function getClaims(value: Record<string, unknown>): Record<string, unknown> {
-  const nested = value["value"];
-  return isRecord(nested) ? nested : value;
-}
-
-function isGraphAudience(value: unknown): boolean {
-  return (
-    value === "https://graph.microsoft.com" || value === "00000003-0000-0000-c000-000000000000"
-  );
-}
-
-function isSharePointAudience(value: unknown, tenantUrl: string): boolean {
-  if (
-    value === "00000003-0000-0ff1-ce00-000000000000" ||
-    value === `${new URL(tenantUrl).origin}/`
-  ) {
-    return true;
-  }
-  return value === new URL(tenantUrl).origin;
-}
-
 async function discoverTenantContext(
   args: PreparePublicationArgs,
   context: DriverContext
@@ -129,55 +108,12 @@ async function discoverTenantContext(
       { cause: error }
     );
   }
-  const graphClaimsResult = await context.m365TokenProvider.getJsonObject({
-    scopes: GraphScopes,
-  });
-  if (graphClaimsResult.isErr()) {
-    throw new PreparedPublicationError(
-      "GraphTokenIdentityUnavailable",
-      "The Graph token identity could not be verified.",
-      { cause: graphClaimsResult.error }
-    );
-  }
-  const graphClaims = getClaims(graphClaimsResult.value);
-  const graphTenantId = graphClaims["tid"];
-  if (
-    typeof graphTenantId !== "string" ||
-    !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
-      graphTenantId
-    ) ||
-    !isGraphAudience(graphClaims["aud"])
-  ) {
-    throw new PreparedPublicationError(
-      "GraphTokenIdentityMismatch",
-      "The Graph token tenant or audience does not match the prepared publication."
-    );
-  }
+  const graphTenantId = await verifyPreparedTokenIdentity(context.m365TokenProvider, tenantOrigin);
   const sharePointToken = await getSPFxToken(context.m365TokenProvider);
   if (!sharePointToken) {
     throw new PreparedPublicationError(
       "SharePointAuthenticationUnavailable",
       "A SharePoint access token is unavailable."
-    );
-  }
-  const sharePointClaimsResult = await context.m365TokenProvider.getJsonObject({
-    scopes: SPFxScopes(tenantOrigin),
-  });
-  if (sharePointClaimsResult.isErr()) {
-    throw new PreparedPublicationError(
-      "SharePointTokenIdentityUnavailable",
-      "The SharePoint token identity could not be verified.",
-      { cause: sharePointClaimsResult.error }
-    );
-  }
-  const sharePointClaims = getClaims(sharePointClaimsResult.value);
-  if (
-    sharePointClaims["tid"] !== graphTenantId ||
-    !isSharePointAudience(sharePointClaims["aud"], tenantOrigin)
-  ) {
-    throw new PreparedPublicationError(
-      "SharePointTokenIdentityMismatch",
-      "The SharePoint token tenant or audience does not match the prepared publication."
     );
   }
   if (context.signal?.aborted) {

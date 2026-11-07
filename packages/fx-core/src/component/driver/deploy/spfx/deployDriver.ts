@@ -57,6 +57,7 @@ import {
   verifyPreparedSources,
   withPreparedPublicationIdentityLock,
 } from "./utility/preparedPublication";
+import { verifyPreparedJournalIdentity } from "./utility/tokenIdentity";
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -352,16 +353,10 @@ export class SPFxDeployDriver implements StepDriver {
           () => this.deployPreparedPublication(args, context, true)
         );
       } catch (error) {
-        throw this.toPreparedError(
-          error instanceof PreparedPublicationError
-            ? error
-            : new PreparedPublicationError(
-                "PublicationIdentityLockUnavailable",
-                "A conflicting publication is active for this identity.",
-                { cause: error }
-              ),
-          Constants.DeployDriverName
-        );
+        if (error instanceof PreparedPublicationError) {
+          throw this.toPreparedError(error, Constants.DeployDriverName);
+        }
+        throw error;
       }
     }
     let journal = loaded.value.journal;
@@ -458,6 +453,19 @@ export class SPFxDeployDriver implements StepDriver {
         ),
         Constants.DeployDriverName
       );
+    }
+    try {
+      await verifyPreparedJournalIdentity(
+        context.m365TokenProvider,
+        journal,
+        tenant,
+        appCatalogSite
+      );
+    } catch (error) {
+      if (error instanceof PreparedPublicationError) {
+        throw this.toPreparedError(error, Constants.DeployDriverName);
+      }
+      throw error;
     }
     const requestContext: PreparedSharePointRequestContext = {
       catalogUrl: appCatalogSite,
