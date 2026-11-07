@@ -8,7 +8,7 @@
       "precondition_wait_timeout": 30,
       "precondition_retry_interval": 1
     },
-    "total_steps": 44,
+    "total_steps": 49,
     "created_at": "2026-06-16T00:23:52.020366",
     "name": "Feature Bot Collaboration Remote Debug",
     "description": {
@@ -31,6 +31,7 @@
       "plan_r_0928_075846",
       "step_56666abb",
       "plan_r_0929_040401",
+      "step_hover_collaborators_add",
       "step_cf9409de",
       "step_dc9c0e38",
       "step_b282b7b8",
@@ -43,6 +44,7 @@
       "step_ca4bb122",
       "plan_r_0929_040401",
       "step_b0ed7791",
+      "step_hover_collaborators_list",
       "step_f78c1acb",
       "step_e17d6368",
       "step_2689b53a",
@@ -62,6 +64,9 @@
       "step_4e592564",
       "step_1358ff10",
       "step_3166bb77",
+      "step_cancel_admin_security_key",
+      "step_select_admin_password",
+      "step_assert_admin_password",
       "step_ed20a3e6",
       "step_ec0df1d1",
       "step_3d44cc95",
@@ -73,7 +78,7 @@
       "step_d01603d7"
     ],
     "tags": [],
-    "updated_at": "2026-06-16T00:59:51.207608"
+    "updated_at": "2026-11-06T02:28:30.000000"
   },
   "steps": [
     {
@@ -203,13 +208,34 @@
       "plan_id": "plan_52912e24"
     },
     {
+      "step_id": "step_hover_collaborators_add",
+      "agent": "interaction",
+      "tool": "hover",
+      "parameters": {
+        "x": 259,
+        "y": 298
+      },
+      "description": "Hover over the \"dev (Provisioned)\" environment row to reveal the \"Manage Microsoft 365 App (with Microsoft Entra app) Collaborators\" action before adding app owners.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": null,
+      "created_at": "2026-11-06T01:46:49.668000",
+      "plan_id": "plan_52912e24"
+    },
+    {
       "step_id": "step_cf9409de",
       "agent": "interaction",
       "tool": "click",
       "parameters": {
         "button": "left",
         "x": 259,
-        "y": 289
+        "y": 298
       },
       "description": "Click the \"Manage Microsoft 365 App (with Microsoft Entra app) Collaborators\" button for the \"dev (Provisioned)\" environment in the MICROSOFT 365 AGENTS TOOLKIT side panel of Visual Studio Code.",
       "content_refs": [],
@@ -218,9 +244,9 @@
       "continue_on_error": "false",
       "depends_on": [],
       "preconditions": [
-        "dhash:259:289:16:5:98696bd9d4d6d9b8",
-        "dhash:259:289:96:5:0b130b3131cb4b33",
-        "dhash:259:289:0:10:b2820303aa646021"
+        "dhash:259:298:16:5:d6d5f9c6f8018000",
+        "dhash:259:298:96:5:1b0b33314b0b0b0b",
+        "dhash:259:298:0:10:a4930303b06c6020"
       ],
       "postconditions": [],
       "tags": [],
@@ -467,13 +493,34 @@
       "plan_id": "plan_52912e24"
     },
     {
+      "step_id": "step_hover_collaborators_list",
+      "agent": "interaction",
+      "tool": "hover",
+      "parameters": {
+        "x": 263,
+        "y": 298
+      },
+      "description": "Hover over the \"dev (Provisioned)\" environment row to reveal the \"Manage Microsoft 365 App (with Microsoft Entra app) Collaborators\" action before listing app owners.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": null,
+      "created_at": "2026-11-06T01:46:49.668000",
+      "plan_id": "plan_52912e24"
+    },
+    {
       "step_id": "step_f78c1acb",
       "agent": "interaction",
       "tool": "click",
       "parameters": {
         "button": "left",
         "x": 263,
-        "y": 289
+        "y": 298
       },
       "description": "Click the \"Manage Microsoft 365 App (with Microsoft Entra app) Collaborators\" button for the \"dev (Provisioned)\" environment in the ENVIRONMENT panel of the Microsoft 365 Agents Toolkit extension within Visual Studio Code.",
       "content_refs": [],
@@ -482,9 +529,9 @@
       "continue_on_error": "false",
       "depends_on": [],
       "preconditions": [
-        "dhash:263:289:16:5:62642964d6d464e2",
-        "dhash:263:289:96:5:0a124ab232d3d322",
-        "dhash:263:289:0:10:b2820303aa7c3021"
+        "dhash:263:298:16:5:d654651cc0040001",
+        "dhash:263:298:96:5:220ab2324a020202",
+        "dhash:263:298:0:10:a4930303b06c6020"
       ],
       "postconditions": [],
       "tags": [
@@ -935,6 +982,74 @@
       "plan_id": "plan_52912e24"
     },
     {
+      "step_id": "step_cancel_admin_security_key",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 675,
+        "y": 346
+      },
+      "description": "Click \"Cancel\" in Chrome's \"Use your security key with login.microsoft.com\" dialog to return to \"Choose a way to sign in\" for the Microsoft 365 administrator account.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "delay:5"
+      ],
+      "screenshot": null,
+      "created_at": "2026-11-06T02:28:30.000000",
+      "plan_id": "plan_52912e24"
+    },
+    {
+      "step_id": "step_select_admin_password",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 461,
+        "y": 487
+      },
+      "description": "Click \"Use my password\" in Microsoft's \"Choose a way to sign in\" list, not \"Face, fingerprint, PIN or security key\".",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "delay:3"
+      ],
+      "screenshot": null,
+      "created_at": "2026-11-06T02:28:30.000000",
+      "plan_id": "plan_52912e24"
+    },
+    {
+      "step_id": "step_assert_admin_password",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the Microsoft sign-in page shows \"Enter password\" and a focused password input for ${{env:M365_ACCOUNT_ADMIN_ACCOUNT}}, with no security-key dialog covering it.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "step_retry_timeout:60"
+      ],
+      "screenshot": null,
+      "created_at": "2026-11-06T02:28:30.000000",
+      "plan_id": "plan_52912e24"
+    },
+    {
       "step_id": "step_ed20a3e6",
       "agent": "interaction",
       "tool": "type_text",
@@ -948,7 +1063,9 @@
       "continue_on_error": "false",
       "depends_on": [],
       "preconditions": [
-        "dhash:512:384:0:20:1b18e0d8d9f6e6e4"
+        "dhash:512:384:16:5:0000000000000000",
+        "dhash:512:384:96:5:93330032b4b00020",
+        "dhash:512:384:0:10:0309f0d9d9e6e6e4"
       ],
       "postconditions": [],
       "tags": [],
@@ -959,22 +1076,20 @@
     {
       "step_id": "step_ec0df1d1",
       "agent": "interaction",
-      "tool": "click",
+      "tool": "key_press",
       "parameters": {
-        "button": "left",
-        "x": 609,
-        "y": 548
+        "key": "enter"
       },
-      "description": "Click the \"Sign in\" button on the Microsoft login page in Google Chrome after entering the password for the account ${{env:M365_ACCOUNT_ADMIN_ACCOUNT}}.",
+      "description": "Press Enter in the password input on the Microsoft login page in Google Chrome to sign in as ${{env:M365_ACCOUNT_ADMIN_ACCOUNT}}.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [],
       "preconditions": [
-        "dhash:609:548:16:5:1b15160f28264905",
-        "dhash:609:548:96:5:00002a3d2d220000",
-        "dhash:609:548:0:10:1b18e0d8d9f6e6e4"
+        "dhash:512:384:16:5:0000000000000000",
+        "dhash:512:384:96:5:93330032b4b00020",
+        "dhash:512:384:0:10:0309f0d9d9e6e6e4"
       ],
       "postconditions": [],
       "tags": [],
