@@ -51,7 +51,12 @@ process interruption between a remote write and the next lifecycle action.
    once; the prepared path does not use retry wrappers or create-to-update
    fallback.
 7. Support either a declarative-agent action reference or the typed
-   `AgentConnector.toolSource.plugin` representation. Preserve other
+   `AgentConnector.toolSource.plugin` representation. The connector form is
+   emitted only when the application's manifest schema defines
+   `ToolSource.plugin` (currently `devPreview`); GA schemas through v1.30 are
+   closed to `remoteMcpServer`, so connector-only applications on those
+   versions are refused with a typed error rather than rewritten, converted to
+   `remoteMcpServer`, or given a synthetic agent. Preserve other
    application content and validate the final staged manifests against the
    supported schema machinery before freezing deterministic artifacts. The
    public lean package entry exposes an in-memory tenant-neutral assembly API

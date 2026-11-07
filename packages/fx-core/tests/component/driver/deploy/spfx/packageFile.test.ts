@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
+import { TeamsManifestConverter } from "@microsoft/teamsfx-api";
 import AdmZip from "adm-zip";
 import { createHash, randomBytes } from "crypto";
 import fs from "fs-extra";
@@ -298,6 +299,80 @@ describe("SharePoint package inspection", () => {
         writeSpy.mockRestore();
         fetchSpy.mockRestore();
       }
+    }
+  );
+
+  function completeConnectorManifest(manifestVersion: string): Record<string, unknown> {
+    const manifest = JSON.parse(
+      new AdmZip(createApplicationPackage("connector")).readAsText("manifest.json")
+    );
+    delete manifest.agentSkills;
+    return {
+      ...manifest,
+      manifestVersion,
+      developer: {
+        name: "Contoso",
+        websiteUrl: "https://contoso.example.test",
+        privacyUrl: "https://contoso.example.test/privacy",
+        termsOfUseUrl: "https://contoso.example.test/terms",
+      },
+      description: { short: "Sample", full: "Sample application" },
+      icons: { color: "color.png", outline: "outline.png" },
+      accentColor: "#FFFFFF",
+    };
+  }
+
+  function connectorApplication(manifest: Record<string, unknown>): Buffer {
+    const zip = new AdmZip(createApplicationPackage("connector"));
+    zip.updateFile("manifest.json", Buffer.from(JSON.stringify(manifest)));
+    return zip.toBuffer();
+  }
+
+  it("SPFX-PREP-12: emits a connector representation accepted by the genuine Teams manifest converter", async () => {
+    const result = await assembleSharePointApplicationPackage({
+      applicationPackage: connectorApplication(completeConnectorManifest("devPreview")),
+      sharePointPackage: createSppkg(),
+    });
+
+    expect(result.isOk()).toBe(true);
+    if (result.isErr()) return;
+    const manifestText = new AdmZip(result.value.packageBytes).readAsText("manifest.json");
+    const typed = TeamsManifestConverter.jsonToManifest(manifestText);
+    expect(typed.manifestVersion).toBe("devPreview");
+    expect(JSON.parse(manifestText).agentConnectors[1].toolSource.plugin).toEqual({
+      id: "sample-plugin",
+      file: result.value.managedReference.path,
+    });
+  });
+
+  it.each(["1.30", "1.28"])(
+    "SPFX-PREP-12: rejects connector-only assembly for manifest version %s without plugin tool sources",
+    async (manifestVersion) => {
+      const manifest = { ...completeConnectorManifest(manifestVersion), agentConnectors: [] };
+      expect(() => TeamsManifestConverter.jsonToManifest(JSON.stringify(manifest))).not.toThrow();
+      expect(() =>
+        TeamsManifestConverter.jsonToManifest(
+          JSON.stringify({
+            ...manifest,
+            agentConnectors: [
+              {
+                id: "plugin-connector",
+                displayName: "Plugin connector",
+                toolSource: { plugin: { id: "sample-plugin", file: "plugins/sample.json" } },
+              },
+            ],
+          })
+        )
+      ).toThrow(/toolSource\.plugin/);
+
+      const result = await assembleSharePointApplicationPackage({
+        applicationPackage: connectorApplication(manifest),
+        sharePointPackage: createSppkg(),
+      });
+
+      expect(result.isErr()).toBe(true);
+      if (result.isOk()) return;
+      expect(result.error.code).toBe("UnsupportedAgentConnectorManifestVersion");
     }
   );
 

@@ -423,6 +423,14 @@ export function assembleApplicationPackage(
     return err(agentReferenceResult.error);
   }
   const agentReference = agentReferenceResult.value;
+  if (!agentReference && manifest["manifestVersion"] !== "devPreview") {
+    return err(
+      packageError(
+        "UnsupportedAgentConnectorManifestVersion",
+        "Connector-only SharePoint plugin registration requires a Teams manifest version whose agent connectors support plugin tool sources (devPreview)."
+      )
+    );
+  }
   let agentManifest: Record<string, unknown> | undefined;
   if (agentReference) {
     if (!isSafeRelativePath(agentReference.file)) {

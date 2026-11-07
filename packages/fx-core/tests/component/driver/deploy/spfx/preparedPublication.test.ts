@@ -562,6 +562,34 @@ describe("Prepared SharePoint publication preparation", () => {
     expect(stagedApp.getEntry("declarativeAgent.json")).toBeNull();
   });
 
+  it("SPFX-PREP-02: refuses connector-only preparation when the manifest version lacks plugin tool sources", async () => {
+    const projectPath = await fs.mkdtemp(path.join(os.tmpdir(), "prepared-publication-ga-"));
+    directories.push(projectPath);
+    await fs.ensureDir(path.join(projectPath, "sharepoint"));
+    await fs.ensureDir(path.join(projectPath, "appPackage"));
+    const application = new AdmZip(createAppPackage(true));
+    const manifest = JSON.parse(application.readAsText("manifest.json"));
+    manifest.manifestVersion = "1.30";
+    application.updateFile("manifest.json", Buffer.from(JSON.stringify(manifest)));
+    const applicationBytes = application.toBuffer();
+    await fs.writeFile(path.join(projectPath, "sharepoint", "solution.sppkg"), createSppkg());
+    await fs.writeFile(path.join(projectPath, "appPackage", "application.zip"), applicationBytes);
+
+    const result = await preparePublication({
+      projectPath,
+      packagePath: "sharepoint/solution.sppkg",
+      appPackagePath: "appPackage/application.zip",
+      tenantContext,
+    });
+
+    expect(result.isErr()).toBe(true);
+    if (result.isOk()) return;
+    expect(result.error.code).toBe("UnsupportedAgentConnectorManifestVersion");
+    expect(await fs.readFile(path.join(projectPath, "appPackage", "application.zip"))).toEqual(
+      applicationBytes
+    );
+  });
+
   it("SPFX-PREP-05: produces identical application bytes when system time changes", async () => {
     const projectPath = await fs.mkdtemp(path.join(os.tmpdir(), "prepared-publication-stable-"));
     const secondProjectPath = await fs.mkdtemp(

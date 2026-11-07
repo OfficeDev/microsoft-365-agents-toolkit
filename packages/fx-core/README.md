@@ -40,7 +40,10 @@ For offline packaging, the lean
 It accepts package `Buffer`s and returns tenant-neutral application ZIP bytes
 with source and output hash/identity provenance. It performs bounded local
 structural validation only, preserves the literal `{{TENANT_MCP_URL}}` in the
-managed runtime URL, and does not replace unrelated text. It does not
+managed runtime URL, and does not replace unrelated text. Connector-only
+applications are supported only on manifest versions whose `ToolSource` defines
+`plugin` (currently `devPreview`); other versions return
+`UnsupportedAgentConnectorManifestVersion`. It does not
 authenticate, make network requests, initialize lifecycle services, write
 files, or create a journal. The caller owns persistence. Pass the returned ZIP
 to the YAML preparation action for verified tenant materialization and final
