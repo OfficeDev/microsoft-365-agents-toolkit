@@ -125,7 +125,7 @@
       "tags": ["component:workspace", "operation:project-environment"]
     },
     {
-      "step_id": "step_setProjectEnvironmentVariable_openClearNotifications_{{text:instanceSuffix}}",
+      "step_id": "step_setProjectEnvironmentVariable_openShowNotifications_{{text:instanceSuffix}}",
       "agent": "interaction",
       "tool": "key_press",
       "parameters": {
@@ -144,7 +144,7 @@
       "tags": ["component:workspace", "operation:project-environment"]
     },
     {
-      "step_id": "step_setProjectEnvironmentVariable_assertClearNotificationsPalette_{{text:instanceSuffix}}",
+      "step_id": "step_setProjectEnvironmentVariable_assertShowNotificationsPalette_{{text:instanceSuffix}}",
       "agent": "assertion",
       "tool": "",
       "parameters": {},
@@ -154,7 +154,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_setProjectEnvironmentVariable_openClearNotifications_{{text:instanceSuffix}}"
+        "step_setProjectEnvironmentVariable_openShowNotifications_{{text:instanceSuffix}}"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -165,36 +165,36 @@
       ]
     },
     {
-      "step_id": "step_setProjectEnvironmentVariable_filterClearNotifications_{{text:instanceSuffix}}",
+      "step_id": "step_setProjectEnvironmentVariable_filterShowNotifications_{{text:instanceSuffix}}",
       "agent": "interaction",
       "tool": "type_text",
       "parameters": {
-        "text": "Notifications: Clear All Notifications"
+        "text": "Notifications: Show Notifications"
       },
-      "description": "Type Notifications: Clear All Notifications into the active Command Palette.",
+      "description": "Type Notifications: Show Notifications into the active Command Palette.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_setProjectEnvironmentVariable_assertClearNotificationsPalette_{{text:instanceSuffix}}"
+        "step_setProjectEnvironmentVariable_assertShowNotificationsPalette_{{text:instanceSuffix}}"
       ],
       "preconditions": [],
       "postconditions": [],
       "tags": ["component:workspace", "operation:project-environment"]
     },
     {
-      "step_id": "step_setProjectEnvironmentVariable_assertClearNotificationsCommand_{{text:instanceSuffix}}",
+      "step_id": "step_setProjectEnvironmentVariable_assertShowNotificationsCommand_{{text:instanceSuffix}}",
       "agent": "assertion",
       "tool": "",
       "parameters": {},
-      "description": "@assertion the Command Palette input box reads >Notifications: Clear All Notifications and the highlighted command listed under it is titled Notifications: Clear All Notifications.",
+      "description": "@assertion the Command Palette input box reads >Notifications: Show Notifications and the highlighted command listed under it is titled Notifications: Show Notifications.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_setProjectEnvironmentVariable_filterClearNotifications_{{text:instanceSuffix}}"
+        "step_setProjectEnvironmentVariable_filterShowNotifications_{{text:instanceSuffix}}"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -205,23 +205,143 @@
       ]
     },
     {
-      "step_id": "step_setProjectEnvironmentVariable_executeClearNotifications_{{text:instanceSuffix}}",
+      "step_id": "step_setProjectEnvironmentVariable_executeShowNotifications_{{text:instanceSuffix}}",
       "agent": "interaction",
       "tool": "key_press",
       "parameters": {
         "key": "enter"
       },
-      "description": "Press Enter to clear all VS Code notifications before verifying the terminal completion marker.",
+      "description": "Press Enter to show Notification Center so the Hide Notifications command is available.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_setProjectEnvironmentVariable_assertClearNotificationsCommand_{{text:instanceSuffix}}"
+        "step_setProjectEnvironmentVariable_assertShowNotificationsCommand_{{text:instanceSuffix}}"
       ],
       "preconditions": [],
       "postconditions": [],
       "tags": ["component:workspace", "operation:project-environment"]
+    },
+    {
+      "step_id": "step_setProjectEnvironmentVariable_openHideNotifications_{{text:instanceSuffix}}",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "f1"
+      },
+      "description": "Press the F1 key to open the Command Palette in Visual Studio Code.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_setProjectEnvironmentVariable_executeShowNotifications_{{text:instanceSuffix}}"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": ["component:workspace", "operation:project-environment"]
+    },
+    {
+      "step_id": "step_setProjectEnvironmentVariable_assertHideNotificationsPalette_{{text:instanceSuffix}}",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the Visual Studio Code Command Palette is visible with a > character in its input box and is ready to accept a command search.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_setProjectEnvironmentVariable_openHideNotifications_{{text:instanceSuffix}}"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:workspace",
+        "operation:project-environment",
+        "step_retry_timeout: 30"
+      ]
+    },
+    {
+      "step_id": "step_setProjectEnvironmentVariable_filterHideNotifications_{{text:instanceSuffix}}",
+      "agent": "interaction",
+      "tool": "type_text",
+      "parameters": {
+        "text": "Notifications: Hide Notifications"
+      },
+      "description": "Type Notifications: Hide Notifications into the active Command Palette.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_setProjectEnvironmentVariable_assertHideNotificationsPalette_{{text:instanceSuffix}}"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": ["component:workspace", "operation:project-environment"]
+    },
+    {
+      "step_id": "step_setProjectEnvironmentVariable_assertHideNotificationsCommand_{{text:instanceSuffix}}",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the Command Palette input box reads >Notifications: Hide Notifications and the highlighted command listed under it is titled Notifications: Hide Notifications.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_setProjectEnvironmentVariable_filterHideNotifications_{{text:instanceSuffix}}"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:workspace",
+        "operation:project-environment",
+        "step_retry_timeout: 30"
+      ]
+    },
+    {
+      "step_id": "step_setProjectEnvironmentVariable_executeHideNotifications_{{text:instanceSuffix}}",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "enter"
+      },
+      "description": "Press Enter to hide Notification Center before verifying the terminal completion marker.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_setProjectEnvironmentVariable_assertHideNotificationsCommand_{{text:instanceSuffix}}"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": ["component:workspace", "operation:project-environment"]
+    },
+    {
+      "step_id": "step_setProjectEnvironmentVariable_assertNotificationsHidden_{{text:instanceSuffix}}",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the Visual Studio Code Notification Center and Command Palette are no longer visible and the integrated terminal output is unobscured.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_setProjectEnvironmentVariable_executeHideNotifications_{{text:instanceSuffix}}"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:workspace",
+        "operation:project-environment",
+        "step_retry_timeout: 30"
+      ]
     },
     {
       "step_id": "step_setProjectEnvironmentVariable_assertUpdated_{{text:instanceSuffix}}",
@@ -234,7 +354,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_setProjectEnvironmentVariable_executeClearNotifications_{{text:instanceSuffix}}"
+        "step_setProjectEnvironmentVariable_assertNotificationsHidden_{{text:instanceSuffix}}"
       ],
       "preconditions": [],
       "postconditions": [],
