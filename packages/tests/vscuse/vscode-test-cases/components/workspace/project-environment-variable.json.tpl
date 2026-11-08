@@ -11,6 +11,23 @@
   },
   "steps": [
     {
+      "step_id": "step_setProjectEnvironmentVariable_hideNotifications_{{text:instanceSuffix}}",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "esc"
+      },
+      "description": "Press Escape to hide Notification Center without clearing notifications before opening the integrated terminal.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": ["component:workspace", "operation:project-environment"]
+    },
+    {
       "step_id": "step_setProjectEnvironmentVariable_openTerminal_{{text:instanceSuffix}}",
       "agent": "interaction",
       "tool": "keyboard_shortcut",
@@ -22,7 +39,9 @@
       "timeout": 30,
       "retry_count": 0,
       "continue_on_error": "false",
-      "depends_on": [],
+      "depends_on": [
+        "step_setProjectEnvironmentVariable_hideNotifications_{{text:instanceSuffix}}"
+      ],
       "preconditions": [],
       "postconditions": [],
       "tags": ["component:workspace", "operation:project-environment"]
@@ -32,7 +51,7 @@
       "agent": "assertion",
       "tool": "",
       "parameters": {},
-      "description": "@assertion a new VS Code integrated terminal is visible and focused with a Bash shell prompt ready for input.",
+      "description": "@assertion a new VS Code integrated terminal is visible and focused with a Bash shell prompt ready for input, not obscured by Notification Center.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
