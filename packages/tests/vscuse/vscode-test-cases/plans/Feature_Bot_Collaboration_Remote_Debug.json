@@ -8,7 +8,7 @@
       "precondition_wait_timeout": 30,
       "precondition_retry_interval": 1
     },
-    "total_steps": 44,
+    "total_steps": 45,
     "created_at": "2026-06-16T00:23:52.020366",
     "name": "Feature Bot Collaboration Remote Debug",
     "description": {
@@ -31,6 +31,7 @@
       "plan_r_0928_075846",
       "step_56666abb",
       "plan_r_0929_040401",
+      "step_hover_dev_collaborators",
       "step_cf9409de",
       "step_dc9c0e38",
       "step_b282b7b8",
@@ -43,6 +44,7 @@
       "step_ca4bb122",
       "plan_r_0929_040401",
       "step_b0ed7791",
+      "step_hover_dev_collaborators",
       "step_f78c1acb",
       "step_e17d6368",
       "step_2689b53a",
@@ -203,13 +205,33 @@
       "plan_id": "plan_52912e24"
     },
     {
+      "step_id": "step_hover_dev_collaborators",
+      "agent": "interaction",
+      "tool": "hover",
+      "parameters": {
+        "x": 259,
+        "y": 298
+      },
+      "description": "Hover over the \"dev (Provisioned)\" environment row in the Microsoft 365 Agents Toolkit sidebar to expose the \"Manage Microsoft 365 App (with Microsoft Entra app) Collaborators\" inline action before clicking it.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": null,
+      "plan_id": "plan_52912e24"
+    },
+    {
       "step_id": "step_cf9409de",
       "agent": "interaction",
       "tool": "click",
       "parameters": {
         "button": "left",
         "x": 259,
-        "y": 289
+        "y": 298
       },
       "description": "Click the \"Manage Microsoft 365 App (with Microsoft Entra app) Collaborators\" button for the \"dev (Provisioned)\" environment in the MICROSOFT 365 AGENTS TOOLKIT side panel of Visual Studio Code.",
       "content_refs": [],
@@ -217,11 +239,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [],
-      "preconditions": [
-        "dhash:259:289:16:5:98696bd9d4d6d9b8",
-        "dhash:259:289:96:5:0b130b3131cb4b33",
-        "dhash:259:289:0:10:b2820303aa646021"
-      ],
+      "preconditions": [],
       "postconditions": [],
       "tags": [],
       "screenshot": "step_cf9409de",
@@ -473,7 +491,7 @@
       "parameters": {
         "button": "left",
         "x": 263,
-        "y": 289
+        "y": 298
       },
       "description": "Click the \"Manage Microsoft 365 App (with Microsoft Entra app) Collaborators\" button for the \"dev (Provisioned)\" environment in the ENVIRONMENT panel of the Microsoft 365 Agents Toolkit extension within Visual Studio Code.",
       "content_refs": [],
@@ -481,11 +499,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [],
-      "preconditions": [
-        "dhash:263:289:16:5:62642964d6d464e2",
-        "dhash:263:289:96:5:0a124ab232d3d322",
-        "dhash:263:289:0:10:b2820303aa7c3021"
-      ],
+      "preconditions": [],
       "postconditions": [],
       "tags": [
         "force_run:true"
