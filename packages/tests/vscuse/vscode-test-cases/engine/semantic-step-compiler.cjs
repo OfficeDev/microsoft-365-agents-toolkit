@@ -4037,6 +4037,12 @@ ${mutation}`;
         render(state, "browser/copilot/reveal-latest-response.json.tpl"),
       );
       if (error) return error;
+      // Consent completion inspects result data hidden behind the composer.
+      const [completion, reveal] = output.splice(-2);
+      reveal.depends_on = completion.depends_on;
+      completion.depends_on = [reveal.step_id];
+      output.push(reveal, completion);
+      state.lastStepId = completion.step_id;
     }
     const expected = assertion.expect ?? {};
     if (

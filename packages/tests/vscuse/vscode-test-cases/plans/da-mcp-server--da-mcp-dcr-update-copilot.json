@@ -228,8 +228,8 @@
       "step_sendCopilotMessage_send_caceeb9ea_13_6",
       "step_allowCopilotAction_assert_caceeb9ea_13_7",
       "step_allowCopilotAction_click_caceeb9ea_13_7",
-      "step_allowCopilotAction_assertDismissed_caceeb9ea_13_7",
       "step_revealLatestCopilotResponse_caceeb9ea_13_8",
+      "step_allowCopilotAction_assertDismissed_caceeb9ea_13_7",
       "step_assertChatReplied_assert_caceeb9ea_13_9",
       "step_assertToolCalled_caceeb9ea_13_10",
       "step_assertChatNonEmptyField_caceeb9ea_13_11",
@@ -4913,28 +4913,6 @@
       ]
     },
     {
-      "step_id": "step_allowCopilotAction_assertDismissed_caceeb9ea_13_7",
-      "agent": "assertion",
-      "tool": "",
-      "parameters": {},
-      "description": "@assertion the current assistant response is complete and contains returned result data for the requested remote tool after granting access. An Allow/Cancel card in an earlier turn may remain visible in chat history and is not evidence that the current turn is blocked. A pending consent request, sign-in prompt, refusal, loading state, or promise without a result does not satisfy this assertion.",
-      "content_refs": [],
-      "timeout": 30,
-      "retry_count": 0,
-      "continue_on_error": "false",
-      "depends_on": [
-        "step_allowCopilotAction_click_caceeb9ea_13_7"
-      ],
-      "preconditions": [],
-      "postconditions": [],
-      "tags": [
-        "component:browser",
-        "host_surface:copilot",
-        "exit_state:action-consent-completed",
-        "step_retry_timeout: 30"
-      ]
-    },
-    {
       "step_id": "step_revealLatestCopilotResponse_caceeb9ea_13_8",
       "agent": "interaction",
       "tool": "click",
@@ -4949,7 +4927,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_allowCopilotAction_assertDismissed_caceeb9ea_13_7"
+        "step_allowCopilotAction_click_caceeb9ea_13_7"
       ],
       "preconditions": [
         "dhash:627:591:16:5:2c2d2d0e6d29934e"
@@ -4963,6 +4941,28 @@
       ]
     },
     {
+      "step_id": "step_allowCopilotAction_assertDismissed_caceeb9ea_13_7",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the current assistant response is complete and contains returned result data for the requested remote tool after granting access. An Allow/Cancel card in an earlier turn may remain visible in chat history and is not evidence that the current turn is blocked. A pending consent request, sign-in prompt, refusal, loading state, or promise without a result does not satisfy this assertion.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_revealLatestCopilotResponse_caceeb9ea_13_8"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:browser",
+        "host_surface:copilot",
+        "exit_state:action-consent-completed",
+        "step_retry_timeout: 30"
+      ]
+    },
+    {
       "step_id": "step_assertChatReplied_assert_caceeb9ea_13_9",
       "agent": "assertion",
       "tool": "",
@@ -4973,7 +4973,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_revealLatestCopilotResponse_caceeb9ea_13_8"
+        "step_allowCopilotAction_assertDismissed_caceeb9ea_13_7"
       ],
       "preconditions": [],
       "postconditions": [],
