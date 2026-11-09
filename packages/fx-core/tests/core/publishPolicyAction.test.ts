@@ -81,7 +81,7 @@ describe("public policy action", () => {
   for (const value of [undefined, "mos", "workiq", "both"]) {
     it(`POLICY-ACTION-05: ${value ?? "unset"} preserves the native target selection`, async () => {
       vi.stubEnv("TEAMSFX_WORKIQ_PUBLISH_TARGET", value);
-      const target = value ?? "workiq";
+      const target = value ?? "both";
       const destinations = fakeDestinations();
 
       const execution = await client.executeAction(ActionNames.PublishPolicy, args(), {

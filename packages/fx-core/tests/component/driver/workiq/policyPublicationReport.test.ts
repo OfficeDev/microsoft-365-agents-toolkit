@@ -6,6 +6,7 @@ import { describe, expect, it } from "vitest";
 import { InvalidActionInputError } from "../../../../src/error/common";
 import {
   cancelPolicyPublication,
+  createPolicyError,
   createPolicyPublicationFailure,
   DestinationState,
   finalizePolicyPublicationReport,
@@ -13,6 +14,7 @@ import {
   PolicyPublicationNextAction,
   PolicyPublicationOutcome,
   PolicyPublicationReport,
+  withMosPolicyHttpDiagnostic,
 } from "../../../../src/component/workiq/policyPublicationReport";
 
 const report = (
@@ -242,5 +244,62 @@ describe("Policy publication normalization", () => {
     expect(result.name).toBe("POLICY_PUBLISH_FAILED");
     expect(result.report.outcome).toBe("failed");
     expect(result.message).not.toContain("private-service");
+  });
+
+  it("WIQ-POL-45: repeated normalization copies safe HTTP diagnostics without duplication or mutating the client error", () => {
+    const original = withMosPolicyHttpDiagnostic(
+      createPolicyError("MosPolicyRejected", "driver.workiq.error.rejected"),
+      400,
+      { Error: { Code: "BadRequest", Message: "Fix the policy capabilities." } },
+      [],
+      "synthetic-test-token"
+    );
+    const first = createPolicyPublicationFailure(original, report("failed", "not-started"));
+    const second = createPolicyPublicationFailure(first, first.report);
+
+    expect(first).not.toBe(original);
+    expect(second).not.toBe(first);
+    expect(original).not.toHaveProperty("report");
+    expect(first.message).toBe(original.message);
+    expect(second.message).toBe(first.message);
+    expect(second.message.match(/Service message:/g)).toHaveLength(1);
+    expect(second.displayMessage).toContain("Fix the policy capabilities.");
+  });
+
+  it("WIQ-POL-45: cancellation keeps reconciliation guidance without service diagnostics", () => {
+    const original = withMosPolicyHttpDiagnostic(
+      createPolicyError("WorkIqMosOutcomeUnknown", "driver.workiq.error.outcomeUnknown", "system"),
+      503,
+      { Error: { Code: "ServiceUnavailable", Message: "private-service-details" } },
+      [],
+      "synthetic-test-token"
+    );
+
+    const result = createPolicyPublicationFailure(original, report("unknown", "not-started"), true);
+
+    expect(result.report.outcome).toBe("cancelled");
+    expect(result.report.nextAction).toBe("reconcile");
+    expect(result.message).not.toMatch(/HTTP 503|ServiceUnavailable|private-service-details/);
+  });
+
+  it("WIQ-POL-45: client-supplied text properties cannot bypass HTTP diagnostic normalization", () => {
+    const original = Object.assign(
+      new UserError({
+        source: "client",
+        name: "MosPolicyRejected",
+        message: "private-client-details",
+      }),
+      {
+        mosHttpDiagnostic: {
+          message: "private-service-details",
+          displayMessage: "private-details",
+        },
+      }
+    );
+
+    const result = createPolicyPublicationFailure(original, report("failed", "not-started"));
+
+    expect(result.message).toContain("MOS rejected the policy publication");
+    expect(JSON.stringify(result)).not.toContain("private-");
   });
 });

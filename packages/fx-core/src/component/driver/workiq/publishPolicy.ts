@@ -21,6 +21,7 @@ import {
   cancelPolicyPublication,
   createPolicyError,
   createPolicyPublicationFailure,
+  maskPolicyPublicationError,
 } from "../../workiq/policyPublication";
 
 export type PolicyPublicationExecutionResult = ExecutionResult & {
@@ -95,7 +96,7 @@ export class PublishPolicyDriver implements StepDriver {
     );
     if (failure) {
       failure.displayMessage = `${failure.displayMessage ?? failure.message}\n${summary}`;
-      context.logProvider.error(maskSecret(failure.displayMessage));
+      context.logProvider.error(maskPolicyPublicationError(failure));
       context.logProvider.info(summary);
       const summaries =
         report.mos.state === "confirmed" ? [getLocalizedString("driver.workiq.mosConfirmed")] : [];

@@ -19,7 +19,11 @@ import FormData from "form-data";
 import fs from "fs-extra";
 import https from "https";
 import stripBom from "strip-bom";
-import { getResourceServiceEndpoint, ResourceServiceType } from "../../common/constants";
+import {
+  getResourceServiceEndpoint,
+  MosServiceScope,
+  ResourceServiceType,
+} from "../../common/constants";
 import { FeatureFlags, featureFlagManager } from "../../common/featureFlags";
 import { ErrorContextMW, TOOLS } from "../../common/globalVars";
 import { getDefaultString, getLocalizedString } from "../../common/localizeUtils";
@@ -41,9 +45,11 @@ import {
   isPolicyObject,
   isStrongPolicyEtag,
   MosPolicyPublicationRequest,
+  parsePolicyObject,
   PolicyDestinationResult,
   PreparedPolicyPublication,
   publishPolicyActionName,
+  withMosPolicyHttpDiagnostic,
 } from "../workiq/policyPublication";
 import { advancedDASettingUrl, M365HelpLink } from "./constants";
 import {
@@ -62,17 +68,41 @@ const M365ErrorComponent = "PackageService";
 const MOS_MAX_PACKAGE_SIZE_BYTES = 10 * 1024 * 1024;
 
 interface MosPolicyEnvelope {
-  policyType: "workiq";
   policy: Record<string, unknown>;
 }
 
 function isMosPolicyEnvelope(value: unknown): value is MosPolicyEnvelope {
-  return isPolicyObject(value) && value.policyType === "workiq" && isPolicyObject(value.policy);
+  return isPolicyObject(value) && Object.hasOwn(value, "policy") && isPolicyObject(value.policy);
 }
 
 function mosPolicyEtag(response: AxiosResponse<unknown>): string | undefined {
   const value: unknown = response.headers.etag ?? response.headers.ETag;
   return typeof value === "string" && isStrongPolicyEtag(value) ? value : undefined;
+}
+
+function mosPolicyAccessError(status: number): FxError | undefined {
+  if (status === 401)
+    return createPolicyError("POLICY_MOS_TOKEN_REJECTED", "driver.workiq.error.mosTokenRejected");
+  if (status === 403)
+    return createPolicyError("POLICY_MOS_ACCESS_DENIED", "driver.workiq.error.mosAccessDenied");
+}
+
+function mosPolicyHttpError(
+  response: AxiosResponse<unknown>,
+  error: FxError,
+  token: string
+): FxError {
+  return withMosPolicyHttpDiagnostic(
+    error,
+    response.status,
+    response.data,
+    [
+      response.headers["x-ms-request-id"],
+      response.headers["request-id"],
+      response.headers.traceresponse,
+    ],
+    token
+  );
 }
 
 export enum AppScope {
@@ -141,7 +171,11 @@ export class PackageService {
     request: MosPolicyPublicationRequest
   ): Promise<PolicyDestinationResult> {
     const prepared = await this.prepareWorkIqPolicy(request);
-    if (prepared.isErr()) return err({ state: "not-started", error: prepared.error });
+    if (prepared.isErr())
+      return err({
+        state: "not-started",
+        error: prepared.error,
+      });
     return prepared.value.publish();
   }
 
@@ -155,17 +189,10 @@ export class PackageService {
     if (request.signal?.aborted) {
       return err(new UserCancelError(publishPolicyActionName));
     }
-    const endpoints: Record<string, string> = {
-      sdf: "https://titles.sdf.mos.microsoft.com",
-      msitcanary: "https://titles.msitprv.mos.microsoft.com",
-      msit: "https://titles.msit.mos.microsoft.com",
-      prod: "https://titles.prod.mos.microsoft.com",
-    };
-    const environment = process.env.TEAMSFX_WORKIQ_MOS_ENV ?? "prod";
-    if (!Object.hasOwn(endpoints, environment)) {
-      return err(createPolicyError("POLICY_MOS_ENV_INVALID", "driver.workiq.error.mosEnvironment"));
-    }
-    const endpoint = endpoints[environment];
+    const policy = parsePolicyObject(request.policy.bytes);
+    if (policy.isErr()) return err(policy.error);
+    // Preserve exact numeric values instead of reserializing the parsed JSON.
+    const body = `{"policy":${stripBom(request.policy.bytes.toString("utf8"))}}`;
     const authenticationError = () =>
       createPolicyError("POLICY_AUTH_REQUIRED", "driver.workiq.error.authentication");
     let token: Result<string, FxError>;
@@ -173,7 +200,7 @@ export class PackageService {
       if (!this.m365TokenProvider) {
         return err(authenticationError());
       }
-      token = await this.m365TokenProvider.getAccessToken({ scopes: [`${endpoint}/.default`] });
+      token = await this.m365TokenProvider.getAccessToken({ scopes: MosServiceScope() });
     } catch (error) {
       return err(
         error instanceof Error && isUserCancelError(error)
@@ -194,7 +221,7 @@ export class PackageService {
     }
     let serviceUrl: URL;
     try {
-      serviceUrl = new URL(await this.getTitleServiceUrl(token.value, request.signal, endpoint));
+      serviceUrl = new URL(await this.getTitleServiceUrl(token.value, request.signal));
       if (
         serviceUrl.protocol !== "https:" ||
         serviceUrl.username ||
@@ -220,7 +247,7 @@ export class PackageService {
     const version = await this.readWorkIqPolicyEtag(request, accessToken, serviceUrl);
     if (version.isErr()) return err(version.error);
     if (request.signal?.aborted) return err(new UserCancelError(publishPolicyActionName));
-    const preparedRequest = { ...request, etag: version.value };
+    const preparedRequest = { ...request, etag: version.value, body };
     return ok({
       publish: () => this.publishPreparedWorkIqPolicy(preparedRequest, accessToken, serviceUrl),
     });
@@ -252,9 +279,7 @@ export class PackageService {
       const etag = mosPolicyEtag(response);
       if (response.status === 200 && isMosPolicyEnvelope(response.data) && etag) return ok(etag);
       return err(
-        response.status === 401 || response.status === 403
-          ? createPolicyError("POLICY_AUTH_REQUIRED", "driver.workiq.error.authentication")
-          : readError()
+        mosPolicyHttpError(response, mosPolicyAccessError(response.status) ?? readError(), token)
       );
     } catch (error) {
       return err(
@@ -266,7 +291,10 @@ export class PackageService {
   }
 
   private async publishPreparedWorkIqPolicy(
-    request: MosPolicyPublicationRequest & { etag?: string },
+    request: MosPolicyPublicationRequest & {
+      etag?: string;
+      body: string;
+    },
     token: string,
     serviceUrl: URL
   ): Promise<PolicyDestinationResult> {
@@ -276,7 +304,7 @@ export class PackageService {
     try {
       const response = await this.axiosInstance.put<unknown>(
         `/builder/v1/tenants/titles/${encodeURIComponent(request.titleId)}/policies/workiq`,
-        request.policy.bytes,
+        request.body,
         {
           baseURL: serviceUrl.href,
           headers: {
@@ -305,21 +333,34 @@ export class PackageService {
       if (response.status === 409 || response.status === 412) {
         return err({
           state: "conflict",
-          error: createPolicyError("WorkIqMosPolicyConflict", "driver.workiq.error.conflict"),
+          error: mosPolicyHttpError(
+            response,
+            createPolicyError("WorkIqMosPolicyConflict", "driver.workiq.error.conflict"),
+            token
+          ),
         });
       }
-      if ([400, 401, 403, 404, 428].includes(response.status)) {
+      if ([400, 401, 403, 404, 413, 428].includes(response.status)) {
         return err({
           state: "failed",
-          error: createPolicyError("MosPolicyRejected", "driver.workiq.error.rejected"),
+          error: mosPolicyHttpError(
+            response,
+            mosPolicyAccessError(response.status) ??
+              createPolicyError("MosPolicyRejected", "driver.workiq.error.rejected"),
+            token
+          ),
         });
       }
       return err({
         state: "unknown",
-        error: createPolicyError(
-          "WorkIqMosOutcomeUnknown",
-          "driver.workiq.error.outcomeUnknown",
-          "system"
+        error: mosPolicyHttpError(
+          response,
+          createPolicyError(
+            "WorkIqMosOutcomeUnknown",
+            "driver.workiq.error.outcomeUnknown",
+            "system"
+          ),
+          token
         ),
       });
     } catch (error) {
@@ -379,11 +420,8 @@ export class PackageService {
   }
 
   @hooks([ErrorContextMW({ source: M365ErrorSource, component: M365ErrorComponent })])
-  public async getTitleServiceUrl(
-    token: string,
-    signal?: AbortSignal,
-    endpoint = this.initEndpoint
-  ): Promise<string> {
+  public async getTitleServiceUrl(token: string, signal?: AbortSignal): Promise<string> {
+    const endpoint = this.initEndpoint;
     try {
       try {
         new URL(endpoint);
