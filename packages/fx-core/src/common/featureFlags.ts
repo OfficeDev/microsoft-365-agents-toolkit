@@ -12,6 +12,7 @@ export function isFeatureFlagEnabled(featureFlagName: string, defaultValue = fal
 }
 export class FeatureFlagName {
   static readonly CLIDotNet = "TEAMSFX_CLI_DOTNET";
+  static readonly CLIExecuteAction = "TEAMSFX_CLI_EXECUTE_ACTION";
   static readonly SampleConfigBranch = "TEAMSFX_SAMPLE_CONFIG_BRANCH";
   static readonly ChatParticipantUIEntries = "TEAMSFX_CHAT_PARTICIPANT_ENTRIES";
   static readonly HideGitHubCopilotPreviewTag = "TEAMSFX_HIDE_GITHUB_COPILOT_PREVIEW_TAG";
@@ -60,6 +61,10 @@ export interface FeatureFlag {
 export class FeatureFlags {
   // Testing feature flags - not for production use
   static readonly CLIDotNet = { name: FeatureFlagName.CLIDotNet, defaultValue: "false" };
+  static readonly CLIExecuteAction = {
+    name: FeatureFlagName.CLIExecuteAction,
+    defaultValue: "false",
+  };
   static readonly ChatParticipantUIEntries = {
     name: FeatureFlagName.ChatParticipantUIEntries,
     defaultValue: "false",

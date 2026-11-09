@@ -1,4 +1,4 @@
-# Operation - Hidden CLI Action Execution
+# Operation - Feature-Gated CLI Action Execution
 
 ## Requirement input
 
@@ -8,12 +8,18 @@ PRDs and product scenarios are unchanged; this hidden diagnostic entry has its
 own [scenario specification](../../scenarios/cli/execute-action.md).
 The SDK boundary remains governed by
 [ADR-0029](../../../02-architecture/adr/ADR-0029-minimal-public-action-boundary.md).
+The 2026-11-06 chat approval gates the entire CLI command tree behind a
+default-off feature flag; no public PRD or product scenario change is needed.
 
 ## Inputs and outputs
 
-`atk execute action <action-name>` exposes the SDK's `ActionNames` allowlist.
-Only `execute` is hidden from its parent's help. Explicit group and leaf help
-remain available, including canonical action names containing `/`.
+`TEAMSFX_CLI_EXECUTE_ACTION` defaults to `false`. When unset or disabled, the
+entire `execute` command tree is not registered: root help omits it and direct
+invocation returns the existing unknown-command error. Setting the flag to `true`
+(case-insensitive) or `1` enables the tree and lists `execute` in `atk --help`.
+When enabled, `atk execute action <action-name>` exposes the SDK's `ActionNames`
+allowlist. Group and leaf help remain available, including canonical action
+names containing `/`.
 
 The driver-owned draft-07 schema supplies action and property descriptions,
 string flags, required properties and string enum choices. Camel-case properties
@@ -60,7 +66,9 @@ use existing CLI error/exit handling.
 
 ```mermaid
 flowchart TD
-  Names[SDK allowlisted names and schemas] --> Model[Hidden CLI command tree]
+  Flag{CLI execute-action flag enabled?} -->|no| Disabled[Omit execute tree from registration and help]
+  Flag -->|yes| Names[SDK allowlisted names and schemas]
+  Names --> Model[Visible CLI command tree]
   Model --> Parse[Parse flags and resolve action paths]
   Parse --> Help{Help requested?}
   Help -->|yes| Show[Show schema-derived help without executing action]
@@ -83,10 +91,12 @@ flowchart TD
   policy, pure JSON output mode, or new signal/cancellation handling.
   Disallowing argument prompts does not prohibit provider-owned sign-in.
 - Real external writes occur only when an action is explicitly executed.
+- The flag gates only the CLI entry, not SDK or YAML action execution.
 
 ## Invariants
 
 - Action names and args metadata come from the public lightweight SDK entry.
+- Disabled means unregistered, not merely hidden or rejected by a leaf handler.
 - Every call is validated by the SDK; no new business validation is duplicated.
 - Help does not execute a driver or request an authentication token.
 - The parameter-interaction flag does not control provider-owned login.
@@ -112,6 +122,8 @@ authentication or destination preparation. It never publishes.
 From the repository root, use the built local CLI:
 
 ```powershell
+$env:TEAMSFX_CLI_EXECUTE_ACTION = "true"
+node .\packages\cli\cli.js --help
 node .\packages\cli\cli.js execute action --help
 node .\packages\cli\cli.js execute action copilotAgent/publishPolicy --help
 ```
@@ -126,7 +138,7 @@ atk execute action copilotAgent/publishPolicy --title-id "<title-id>" --policy-p
 
 | ID            | Runtime | Purpose               | Gate     | Harness                                  | Given / When                                                                            | Then                                                                                                                                                            |
 | ------------- | ------- | --------------------- | -------- | ---------------------------------------- | --------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| CLI-ACTION-01 | L1      | surface               | required | Real command tree and CLI engine         | Request root, group or leaf help                                                        | Root hides execute; group lists canonical SDK names; leaf shows schema-derived required flags, enums and descriptions without execution.                        |
+| CLI-ACTION-01 | L1      | surface               | required | Real command tree and CLI engine         | Enable the flag and request root, group or leaf help                                    | Root lists execute; group lists canonical SDK names; leaf shows schema-derived required flags, enums and descriptions without execution.                        |
 | CLI-ACTION-02 | L1      | operation-integration | required | Real CLI parser and SDK boundary         | Pass valid args with a relative/absolute policy path or another action's folder         | Policy uses CWD-relative absolute paths and its parent as projectPath regardless of folder; other actions keep folder semantics; no project-version check runs. |
 | CLI-ACTION-03 | L1      | operation-integration | required | CLI engine and execution spy             | Pass missing, unknown, blank or invalid enum inputs, or an unknown action               | Return an error before public execution or authentication.                                                                                                      |
 | CLI-ACTION-04 | L1      | operation-integration | required | CLI engine and execution spy             | Explicitly request interactive mode, including under CI                                 | Reject it without invoking the action or adding interactive recovery.                                                                                           |
@@ -135,3 +147,4 @@ atk execute action copilotAgent/publishPolicy --title-id "<title-id>" --policy-p
 | CLI-ACTION-07 | L1      | operation-integration | required | Pure SDK metadata import                 | Read each allowlisted action schema                                                     | Action and property descriptions are nonempty; existing args validation and lightweight-import boundaries remain compatible.                                    |
 | CLI-ACTION-08 | L2      | surface               | required | Built CLI subprocess without services    | Request help or invoke invalid/missing inputs                                           | Actual process help matches the command contract; errors exit nonzero without publication.                                                                      |
 | CLI-ACTION-09 | L1      | operation-integration | required | CLI handler and synthetic native results | Render opaque business metadata alongside credentials and registered secrets            | Output remains valid JSON; keys and business metadata survive; credential fields and explicit environment secrets remain redacted without mutating native data. |
+| CLI-ACTION-10 | L1      | surface               | required | Real command tree, parser and flag manager | Leave the flag unset, set false/0, or enable with true/1                                | Disabled: execute and descendants are unregistered, absent from help and rejected as unknown commands. Enabled: execute is listed and canonical action leaves resolve. Other commands remain available. |

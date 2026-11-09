@@ -12,6 +12,7 @@ const env = {
   ...process.env,
   TEMPLATE_VERSION: "local",
   CI_ENABLED: "false",
+  TEAMSFX_CLI_EXECUTE_ACTION: "true",
   TEAMSFX_WORKIQ_PUBLISH_TARGET: "workiq",
   FORCE_COLOR: "0",
 };
@@ -32,9 +33,33 @@ function run(args, success = true, environment = {}, cwd = process.cwd()) {
   return output;
 }
 
+// CLI-ACTION-10 / SCN-CLI-ACTION-03: disabled trees are unavailable, not just hidden.
+for (const value of [undefined, "false", "0"]) {
+  const environment = { TEAMSFX_CLI_EXECUTE_ACTION: value };
+  const help = run(["--help"], true, environment);
+  assert.doesNotMatch(help, /^\s+execute(?:\s|$)/m);
+  assert.match(help, /^\s+provision(?:\s|$)/m);
+  for (const args of [
+    ["execute"],
+    ["execute", "--help"],
+    ["execute", "action", "--help"],
+    ["execute", "action", "copilotAgent/publishPolicy", "--help"],
+  ]) {
+    assert.match(run(args, false, environment), /'execute' is misspelled or not recognized/);
+  }
+}
+for (const value of ["true", "1"]) {
+  const environment = { TEAMSFX_CLI_EXECUTE_ACTION: value };
+  assert.match(run(["--help"], true, environment), /^\s+execute(?:\s|$)/m);
+  assert.match(
+    run(["execute", "action", "--help"], true, environment),
+    /copilotAgent\/publishPolicy/
+  );
+}
+
 // CLI-ACTION-08 / SCN-CLI-ACTION-02: actual entrypoint help and error exits.
 const rootHelp = run(["--help"]);
-assert.doesNotMatch(rootHelp, /^\s+execute(?:\s|$)/m);
+assert.match(rootHelp, /^\s+execute(?:\s|$)/m);
 assert.match(rootHelp, /--interactive/);
 assert.doesNotMatch(run(["execute", "--help"]), /--interactive|(?:^|\s)-i(?:\s|$)/);
 const group = run(["execute", "action", "--help"]);
@@ -125,5 +150,5 @@ try {
   rmSync(folder, { recursive: true, force: true });
 }
 process.stdout.write(
-  "CLI-ACTION-08 / SCN-CLI-ACTION-02: built CLI help and error exits pass without publishing.\n"
+  "CLI-ACTION-08/10 / SCN-CLI-ACTION-02/03: built CLI feature flag, help and error exits pass without publishing.\n"
 );

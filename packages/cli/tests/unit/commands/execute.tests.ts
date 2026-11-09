@@ -20,7 +20,11 @@ import { rootCommand } from "../../../src/commands/models/root";
 import { logger } from "../../../src/commonlib/logger";
 import M365TokenProvider from "../../../src/commonlib/M365TokenProviderWrapper";
 
-describe("hidden action command", () => {
+vi.hoisted(() => {
+  vi.stubEnv("TEAMSFX_CLI_EXECUTE_ACTION", "true");
+});
+
+describe("action command", () => {
   let projectPath: string;
   const core = getFxCore();
   const report: PolicyPublicationReport = {
@@ -100,10 +104,11 @@ describe("hidden action command", () => {
       );
   }
 
-  it("CLI-ACTION-01: hides the entry while preserving group and schema-derived leaf help", async () => {
+  it("CLI-ACTION-01: lists the enabled entry and preserves group and schema-derived leaf help", async () => {
     const execute = rootCommand.commands?.find((command) => command.name === "execute");
-    expect(execute?.hidden).toBe(true);
-    expect(helper.formatHelp(rootCommand)).not.toMatch(/^\s+execute(?:\s|$)/m);
+    expect(execute).toBeDefined();
+    expect(execute?.hidden).not.toBe(true);
+    expect(helper.formatHelp(rootCommand)).toMatch(/^\s+execute(?:\s|$)/m);
     const group = await run(["--help"]);
     expect(group.result.isOk()).toBe(true);
     for (const name of Object.values(ActionNames)) {

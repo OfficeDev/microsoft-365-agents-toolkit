@@ -60,6 +60,14 @@ describe("FeatureFlagManager", () => {
     const stringRes = featureFlagManager.getStringValue(FeatureFlags.V4Enabled);
     chai.assert.equal(stringRes, "false");
   });
+  it("CLI-ACTION-10: CLI action execution is registered with a default-off flag", () => {
+    mockedEnvRestore = mockedEnv({ TEAMSFX_CLI_EXECUTE_ACTION: undefined });
+    chai.assert.deepInclude(featureFlagManager.list(), {
+      name: "TEAMSFX_CLI_EXECUTE_ACTION",
+      defaultValue: "false",
+    });
+    chai.assert.isFalse(featureFlagManager.getBooleanValueByName("TEAMSFX_CLI_EXECUTE_ACTION"));
+  });
   it("Frontier uses ATK_FRONTIER and defaults to false", async () => {
     mockedEnvRestore = mockedEnv({ ATK_FRONTIER: undefined });
     chai.assert.equal(FeatureFlags.Frontier.name, "ATK_FRONTIER");
