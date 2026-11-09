@@ -25,6 +25,22 @@ SPFx project creation/import and `atk add spfx-web-part` (including the legacy
 directly to create solutions and add web parts. Deployment and publishing of
 existing Toolkit SPFx projects remain unchanged.
 
+## Experimental action execution
+
+The `execute action` command is disabled by default. To enable it and include
+`execute` in `atk --help`, set the feature flag before starting the CLI:
+
+```powershell
+$env:TEAMSFX_CLI_EXECUTE_ACTION = "true"
+atk --help
+atk execute action --help
+```
+
+`1` also enables the flag. When unset or disabled, the entire `execute` command
+tree is unavailable. This flag does not affect SDK or YAML action execution.
+See the [action-execution contract](../../docs/03-specs/operations/lifecycle/execute-action-cli.md)
+for argument, authentication and real-write behavior.
+
 ## Feedback
 
 - Ask a question on [Stack Overflow](https://stackoverflow.com/questions/tagged/teams-toolkit)

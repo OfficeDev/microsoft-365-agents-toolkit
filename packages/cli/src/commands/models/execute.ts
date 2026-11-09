@@ -242,7 +242,6 @@ export function getExecuteCommand(): CLICommand {
   return {
     name: "execute",
     description: `${commands.execute.description} ${commands["execute.action"].argumentMode}`,
-    hidden: true,
     defaultInteractiveOption: false,
     options: [hiddenInteractiveOption],
     commands: [

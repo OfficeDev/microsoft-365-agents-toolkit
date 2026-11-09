@@ -62,7 +62,9 @@ export const rootCommand: CLICommand = {
     shareCommand,
     previewCommand,
     envCommand,
-    getExecuteCommand(),
+    ...(featureFlagManager.getBooleanValue(FeatureFlags.CLIExecuteAction)
+      ? [getExecuteCommand()]
+      : []),
     permissionCommand,
     ...(featureFlagManager.getBooleanValue(FeatureFlags.GenerateConfigFiles) ? [initCommand] : []),
     listCommand,
