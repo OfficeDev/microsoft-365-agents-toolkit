@@ -49,7 +49,7 @@ const titleId = "title/with-special?characters";
 const callerId = "11111111-2222-4333-8444-555555555555";
 const url = `${baseUrl}/tenants/titles/${encodeURIComponent(titleId)}/policies/workiq`;
 const policyBytes = Buffer.from('{\r\n  "rule": "${{DO_NOT_EXPAND}}", "allow": []\r\n}\r\n');
-const mosEnvelope = { policyType: "workiq", policy: {} };
+const mosEnvelope = { policy: {} };
 const mosHeaders = { ETag: '"mos-committed"' };
 
 describe("copilotAgent/publishPolicy Alpha", () => {
@@ -104,7 +104,7 @@ describe("copilotAgent/publishPolicy Alpha", () => {
     expectTypeOf<keyof PublishPolicyArgs>().toEqualTypeOf<"titleId" | "policyPath" | "callerId">();
   });
 
-  it("WIQ-POL-03: sends captured bytes in one create-only MOS request and identifies the Work IQ mock", async () => {
+  it("WIQ-POL-03: wraps captured JSON in one MOS creation request and identifies the Work IQ mock", async () => {
     const publishWorkIq = vi.spyOn(workIq, "prepare");
     adapter.onPut(url).reply(async () => {
       await writeFile(path.join(projectPath, "policy.json"), '{"changed":true}');
@@ -120,7 +120,7 @@ describe("copilotAgent/publishPolicy Alpha", () => {
     expect(result.value.mos).toEqual({ state: "confirmed", etag: '"mos-version-1"' });
     expect(result.value.workIq).toEqual({ state: "mocked" });
     expect(adapter.history.put).toHaveLength(1);
-    expect(adapter.history.put[0].data).toEqual(policyBytes);
+    expect(adapter.history.put[0].data).toBe(`{"policy":${policyBytes.toString("utf8")}}`);
     expect(adapter.history.put[0].headers).toMatchObject({
       Authorization: "Bearer delegated-maker-token",
       "Content-Type": "application/json",
@@ -154,7 +154,7 @@ describe("copilotAgent/publishPolicy Alpha", () => {
   for (const [status, body, headers] of [
     [200, mosEnvelope, {}],
     [200, mosEnvelope, { ETag: 'W/"weak"' }],
-    [200, { policyType: "other", policy: {} }, mosHeaders],
+    [200, { policy: null }, mosHeaders],
     [200, { policyType: "workiq" }, mosHeaders],
     [200, { policyType: "workiq", policy: [] }, mosHeaders],
     [304, undefined, mosHeaders],
@@ -203,7 +203,7 @@ describe("copilotAgent/publishPolicy Alpha", () => {
     [201, mosEnvelope, {}],
     [201, mosEnvelope, { ETag: 'W/"weak"' }],
     [201, {}, mosHeaders],
-    [201, { policyType: "other", policy: {} }, mosHeaders],
+    [201, { policy: null }, mosHeaders],
     [201, { policyType: "workiq", policy: [] }, mosHeaders],
     [204, undefined, mosHeaders],
     [200, mosEnvelope, mosHeaders],
@@ -661,7 +661,7 @@ describe("copilotAgent/publishPolicy Alpha", () => {
       adapter.onPut(url).reply(201, mosEnvelope, mosHeaders);
       const result = await operation().execute(inputs(), { projectPath });
       expect(result.isOk()).toBe(true);
-      expect(adapter.history.put[0].data).toEqual(Buffer.from(content));
+      expect(adapter.history.put[0].data).toBe(`{"policy":${content}}`);
     });
   }
 
@@ -745,7 +745,7 @@ describe("copilotAgent/publishPolicy Alpha", () => {
     if (prepared.isOk()) expect((await prepared.value.publish()).isOk()).toBe(true);
     expect(adapter.history.put[0].url).toContain(encodeURIComponent(titleId));
     expect(adapter.history.put[0].headers).toHaveProperty("If-Match", '"validated-etag"');
-    expect(adapter.history.put[0].data).toEqual(policyBytes);
+    expect(adapter.history.put[0].data).toBe(`{"policy":${policyBytes.toString("utf8")}}`);
   });
 
   for (const { environment, endpoint } of [
@@ -783,13 +783,12 @@ describe("copilotAgent/publishPolicy Alpha", () => {
       ]);
       expect(adapter.history.put).toHaveLength(1);
       expect(axios.getUri(adapter.history.put[0])).toBe(policyUrl);
+      expect(adapter.history.put[0].data).toBe(`{"policy":${policyBytes.toString("utf8")}}`);
       if (sdf) {
         expect(adapter.history.put[0].headers).not.toHaveProperty("If-Match");
         expect(adapter.history.put[0].headers).not.toHaveProperty("If-None-Match");
-        expect(adapter.history.put[0].data).toBe(`{"policy":${policyBytes.toString("utf8")}}`);
       } else {
         expect(adapter.history.put[0].headers).toHaveProperty("If-Match", '"selected-old"');
-        expect(adapter.history.put[0].data).toEqual(policyBytes);
       }
       expect(MosServiceScope()).toEqual([scope]);
       expect(getResourceServiceEndpoint(ResourceServiceType.MOS3)).toBe(origin);
@@ -800,6 +799,65 @@ describe("copilotAgent/publishPolicy Alpha", () => {
         "Authorization",
         "Bearer unrelated-mos-token"
       );
+    });
+
+    for (const bom of [false, true]) {
+      it(`WIQ-POL-39: ${environment ?? "unset"} MOS uses the shared envelope with BOM=${bom} and exact JSON numbers`, async () => {
+        vi.stubEnv("TEAMSFX_WORKIQ_MOS_ENV", environment);
+        vi.stubEnv("TEAMSFX_WORKIQ_PUBLISH_TARGET", "mos");
+        const selectedDiscovery = `${endpoint}/config/v1/environment`;
+        const content =
+          '{\r\n "schemaVersion":1, "capabilities":[], "large":9007199254740993, "decimal":1.2300, "exponent":1e+20, "zero":-0\r\n}\r\n';
+        const bytes = Buffer.from(`${bom ? "\uFEFF" : ""}${content}`);
+        const expectedBody = `{"policy":${content}}`;
+        await writeFile(path.join(projectPath, "policy.json"), bytes);
+        adapter.onGet(selectedDiscovery).reply(200, { titlesServiceUrl: serviceOrigin });
+        adapter.onGet(url).reply(404);
+        adapter
+          .onPut(url)
+          .reply((request) => [request.data === expectedBody ? 201 : 400, mosEnvelope, mosHeaders]);
+
+        const result = await operation().execute(inputs(), { projectPath });
+
+        expect(result.isOk()).toBe(true);
+        if (result.isOk()) {
+          expect(result.value).toMatchObject({
+            target: "mos",
+            outcome: "published",
+            policySha256: createHash("sha256").update(bytes).digest("hex"),
+            mos: { state: "confirmed", etag: mosHeaders.ETag },
+            workIq: { state: "not-started" },
+          });
+        }
+        expect(getToken).toHaveBeenCalledExactlyOnceWith({ scopes: [`${endpoint}/.default`] });
+        expect(adapter.history.get.map((read) => axios.getUri(read))).toEqual([
+          selectedDiscovery,
+          url,
+        ]);
+        expect(adapter.history.put).toHaveLength(1);
+        expect(adapter.history.put[0].data).toBe(expectedBody);
+        expect(adapter.history.put[0].headers).not.toHaveProperty("If-Match");
+        if (environment === "sdf") {
+          expect(adapter.history.put[0].headers).not.toHaveProperty("If-None-Match");
+        } else {
+          expect(adapter.history.put[0].headers).toHaveProperty("If-None-Match", "*");
+        }
+        expect(await readFile(path.join(projectPath, "policy.json"))).toEqual(bytes);
+      });
+    }
+
+    it(`WIQ-POL-39: ${environment ?? "unset"} MOS rejects invalid direct-client JSON before auth or HTTP`, async () => {
+      vi.stubEnv("TEAMSFX_WORKIQ_MOS_ENV", environment);
+
+      const result = await mosService().prepareWorkIqPolicy({
+        titleId,
+        policy: { bytes: Buffer.from("{"), sha256: "captured-digest" },
+      });
+
+      expect(result.isErr()).toBe(true);
+      expect(getToken).not.toHaveBeenCalled();
+      expect(adapter.history.get).toHaveLength(0);
+      expect(adapter.history.put).toHaveLength(0);
     });
   }
 
@@ -895,7 +953,7 @@ describe("copilotAgent/publishPolicy Alpha", () => {
         "Content-Type": "application/json",
         [replacement ? "If-Match" : "If-None-Match"]: replacement ? '"stored"' : "*",
       });
-      expect(adapter.history.put[0].data).toEqual(policyBytes);
+      expect(adapter.history.put[0].data).toBe(`{"policy":${policyBytes.toString("utf8")}}`);
       expect(input.policy.bytes).toEqual(policyBytes);
       expect(axios.defaults.headers.common["Accept-Encoding"]).toBe(defaultEncoding);
     });
@@ -1247,7 +1305,7 @@ describe("copilotAgent/publishPolicy Alpha", () => {
     });
     const mosWrite = adapter.history.put[0];
     const runtimeWrite = adapter.history.put[1];
-    expect(mosWrite.data).toEqual(content);
+    expect(mosWrite.data).toBe(`{"policy":${content.toString("utf8")}}`);
     expect(mosWrite.headers).toMatchObject({
       Authorization: "Bearer mos-only",
       "If-Match": '"mos-old"',

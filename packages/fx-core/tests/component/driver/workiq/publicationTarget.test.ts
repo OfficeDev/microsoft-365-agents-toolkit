@@ -95,7 +95,7 @@ describe("policy publication targets", () => {
   for (const value of [undefined, "mos", "workiq", "both"]) {
     it(`WIQ-POL-34/WIQ-POL-35/WIQ-POL-37: ${value ?? "unset"} contacts exactly its selected targets`, async () => {
       vi.stubEnv(flag, value);
-      const target = value ?? "workiq";
+      const target = value ?? "both";
       const result = await execute();
 
       expect(result.isOk()).toBe(true);
@@ -121,6 +121,56 @@ describe("policy publication targets", () => {
       ]);
     });
   }
+
+  it("WIQ-POL-33/WIQ-POL-37: native defaults to both with production MOS when both settings are unset", async () => {
+    vi.stubEnv(flag, undefined);
+    vi.stubEnv("TEAMSFX_WORKIQ_MOS_ENV", undefined);
+    const productionEndpoint = "https://titles.prod.mos.microsoft.com";
+    const calls: string[] = [];
+    adapter.onGet(workIqUrl).reply(() => {
+      calls.push("workiq-get");
+      return [404];
+    });
+    adapter.onGet(`${productionEndpoint}/config/v1/environment`).reply(() => {
+      calls.push("mos-discovery");
+      return [200, { titlesServiceUrl: mosServiceUrl }];
+    });
+    adapter.onGet(mosUrl).reply(() => {
+      calls.push("mos-get");
+      return [404];
+    });
+    adapter.onPut(mosUrl).reply(() => {
+      calls.push("mos-put");
+      return [201, { policy: {} }, { ETag: '"mos-saved"' }];
+    });
+    adapter.onPut(workIqUrl).reply(() => {
+      calls.push("workiq-put");
+      return [201, {}, { ETag: '"workiq-saved"' }];
+    });
+
+    const result = await new PublishPolicyDriver().execute(
+      inputs,
+      context(),
+      new Map([["report", "POLICY_REPORT"]])
+    );
+
+    expect(result.result.isOk()).toBe(true);
+    expect(result.report).toMatchObject({
+      target: "both",
+      outcome: "published",
+      nextAction: "none",
+      mos: { state: "confirmed", etag: '"mos-saved"' },
+      workIq: { state: "confirmed", etag: '"workiq-saved"' },
+    });
+    expect(getToken.mock.calls.map(([request]) => request.scopes)).toEqual([
+      [workIqScope],
+      [`${productionEndpoint}/.default`],
+    ]);
+    expect(calls).toEqual(["workiq-get", "mos-discovery", "mos-get", "mos-put", "workiq-put"]);
+    if (result.result.isOk()) {
+      expect(result.result.value.get("POLICY_REPORT")).toBe(JSON.stringify(result.report));
+    }
+  });
 
   it("WIQ-POL-34: MOS-only ignores unavailable Work IQ prerequisites", async () => {
     vi.stubEnv(flag, "mos");
@@ -221,7 +271,10 @@ describe("policy publication targets", () => {
       if (result.isErr()) {
         expect(result.error.name).toBe("POLICY_PUBLISH_TARGET_INVALID");
         expect(result.error.message).toContain(flag);
-        expect(result.error.message).toContain("Leave it unset to publish to Work IQ only.");
+        expect(result.error.message).toContain(
+          "Leave it unset to publish to both MOS and Work IQ."
+        );
+        expect(result.error.report.target).toBe("both");
       }
       expect(getToken).not.toHaveBeenCalled();
       expect(adapter.history.get).toHaveLength(0);
@@ -241,7 +294,7 @@ describe("policy publication targets", () => {
         expect(result.isErr()).toBe(true);
         if (result.isErr())
           expect(result.error.report).toMatchObject({
-            target: value ?? "workiq",
+            target: value ?? "both",
             outcome: stage === "pre-aborted" ? "cancelled" : "failed",
             mos: { state: "not-started" },
             workIq: { state: "not-started" },
@@ -264,7 +317,7 @@ describe("policy publication targets", () => {
   for (const value of [undefined, "mos", "workiq", "both"]) {
     it(`WIQ-POL-37: ${value ?? "unset"} selection is captured before authentication`, async () => {
       vi.stubEnv(flag, value);
-      const target = value ?? "workiq";
+      const target = value ?? "both";
       getToken.mockImplementation(async () => {
         vi.stubEnv(flag, target === "mos" ? "workiq" : "mos");
         return ok("token");
@@ -336,7 +389,7 @@ describe("policy publication targets", () => {
   for (const value of [undefined, "mos", "workiq", "both"]) {
     it(`WIQ-POL-38: native ${value ?? "unset"} success persists the target-aware report`, async () => {
       vi.stubEnv(flag, value);
-      const target = value ?? "workiq";
+      const target = value ?? "both";
       const result = await new PublishPolicyDriver().execute(
         inputs,
         context(),

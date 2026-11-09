@@ -196,12 +196,12 @@ export class PolicyPublicationOperation {
     input: unknown,
     context: PolicyPublicationContext
   ): Promise<Result<PolicyPublicationReport, PolicyPublicationError>> {
-    const target = process.env.TEAMSFX_WORKIQ_PUBLISH_TARGET ?? "workiq";
+    const target = process.env.TEAMSFX_WORKIQ_PUBLISH_TARGET ?? "both";
     const validTarget = target === "mos" || target === "workiq" || target === "both";
     const report: PolicyPublicationReport = {
       reportVersion: 1,
       operationId: randomUUID(),
-      target: validTarget ? target : "workiq",
+      target: validTarget ? target : "both",
       outcome: "failed",
       nextAction: "review-error",
       enforcement: "not-verified",

@@ -143,8 +143,11 @@ For temporary integration, `TEAMSFX_WORKIQ_PUBLISH_TARGET` replaces the former
 | Value | Behavior |
 | ----- | -------- |
 | `mos` | Prepare and publish MOS only; do not authenticate to or call Work IQ, including Contract discovery and App ID binding checks. |
-| `workiq` (default when unset) | Prepare and publish Work IQ only; do not read MOS environment settings, authenticate to MOS, discover MOS, or call MOS policy APIs. |
-| `both` | Prepare Work IQ, then MOS; publish MOS, then Work IQ. Any failure stops later calls. |
+| `workiq` | Prepare and publish Work IQ only; do not read MOS environment settings, authenticate to MOS, discover MOS, or call MOS policy APIs. |
+| `both` (default when unset) | Prepare Work IQ, then MOS; publish MOS, then Work IQ. Any failure stops later calls. |
+
+With both selection variables unset, publication defaults to `both` and MOS uses
+`prod`. Explicit target and MOS environment selections continue to override these defaults.
 
 Empty or unsupported values are explicit configuration errors before authentication
 or HTTP. The selection is captured once per operation. The old yes/no variable no
@@ -158,9 +161,14 @@ report outputs. There is no continue-on-error, write retry, or automatic rollbac
 
 MOS GET and PUT use
 `{titlesServiceUrl}/builder/v1/tenants/titles/{titleId}/policies/workiq`.
-The supplied Avalon Builder collection is the current **SDF-only** contract.
-Other MOS environments retain the earlier contract until independently confirmed.
-Select the contract once from `TEAMSFX_WORKIQ_MOS_ENV`, not from the discovered
+All MOS environments (`sdf`, `msitcanary`, `msit`, and `prod`) use the same PUT
+payload: `{ policy: <original policy object> }`. Validate the captured JSON before
+authentication and wrap it without reserializing its numeric representations,
+stripping only an optional leading UTF-8 BOM from the embedded JSON. The policy
+file and its original-byte digest do not change. No runtime App ID is added.
+The supplied Avalon Builder collection defines SDF's create-only and response
+rules; other environments retain their existing precondition and response rules.
+Select those rules once from `TEAMSFX_WORKIQ_MOS_ENV`, not from the discovered
 host, which may differ from the discovery entry.
 
 For SDF:
@@ -173,9 +181,6 @@ For SDF:
   deletes or automatic recovery occur.
 - GET 404 permits a creation attempt but does not prove that the Title exists:
   the service also uses 404 for absent Titles. PUT may explicitly reject that attempt.
-- PUT wraps the captured JSON as `{ policy: <original policy object> }`, stripping
-  only an optional leading UTF-8 BOM from the embedded JSON. The policy file and
-  its original-byte digest do not change. No runtime App ID is added.
 - Creation uses no conditional-write header; the service enforces create-only
   behavior and returns 409 if another policy already exists. Only 201 with a
   `{ policy: ... }` envelope and strong ETag confirms publication.
@@ -184,11 +189,16 @@ For SDF:
   while ambiguous acknowledgements and transport failures remain `unknown`.
 
 For non-SDF environments, an unconditional GET 200 must return
-`{ policyType: "workiq", policy: <JSON object> }`
+`{ policy: <JSON object> }`
 and a strong, opaque ETag. GET 404 selects creation; any other status, malformed
 envelope or missing/weak ETag fails preflight before either policy write.
+`policyType` validation is temporarily disabled for MOS GET and PUT responses in
+all environments, including when the field is present. The route already selects
+Work IQ policies. Revisit this check only after the current service contract is
+confirmed; policy-envelope, HTTP-status, strong-ETag and create/update protections
+remain unchanged.
 There is no `If-None-Match` on GET, so 304 is not a usable policy snapshot.
-PUT sends captured bytes as `application/json`, with `If-None-Match: *` after 404
+PUT sends the shared policy envelope as `application/json`, with `If-None-Match: *` after 404
 or `If-Match: <exact GET etag>` after 200. Caller ID is not sent to MOS.
 Redirects are disabled for all environments. Non-SDF creation requires 201 and replacement requires 200,
 both with a committed policy envelope and strong ETag. This acknowledgement
@@ -202,6 +212,30 @@ a token. These categories and localized HTTP-status guidance survive native
 driver/report normalization without exposing provider messages, tokens or
 service response bodies. Discovery failures retain their separate discovery
 error. No authentication or service rejection is bypassed or retried.
+
+MOS policy GET/PUT HTTP 4xx/5xx errors include their status and a valid structured
+`Error.Code`, without changing their existing receipt or error category. GET 404
+remains normal creation preflight and does not produce an error.
+For HTTP 4xx, append the structured `Error.Message` as service-provided diagnostic
+text, rather than matching individual validation messages. Require a valid
+service code and a nonempty string message. Remove terminal/control characters,
+collapse whitespace, mask the acquired access token and secrets with the shared
+masker, and limit the displayed service message to 1024 characters (including
+the truncation marker). Messages containing HTML, URLs, filesystem paths or
+stack traces retain the localized fallback instead of exposing internal details.
+For HTTP 5xx, retain the localized fallback; the MOS contract has not established
+that its internal-error messages are safe for user display.
+Include a valid `x-ms-request-id`, `request-id`, or W3C `traceresponse` when supplied.
+Validate identifiers before display; do not retain arbitrary headers or bodies.
+Missing/malformed diagnostic fields retain the localized fallback plus HTTP status.
+Safe diagnostics survive native report normalization, display messages and
+surface logging without copying the original client error or duplicating details.
+Validated public error codes and request identifiers bypass heuristic secret
+classification during diagnostic rendering and native logging, but explicit
+registered-secret masking still applies. Service-message text never receives that bypass.
+Cancellation overrides service diagnostics. In particular, PUT 5xx remains
+`unknown` with reconciliation guidance, not proof of a rejected/no-write result.
+This adds no local capability-count enforcement, write retry or recovery.
 
 The exported Work IQ client is the code-level replacement seam, analogous to the
 Developer Portal client export, without a new environment toggle or proxy.
@@ -238,8 +272,8 @@ The client independently supports:
 
 The runtime caller is a nonempty, standard-format GUID. The client adds it as
 top-level `appId` to the Work IQ JSON body; a conflicting existing `appId` is
-rejected before writes. MOS uses the environment-specific transport contract
-described above: SDF adds a `policy` envelope; non-SDF sends the captured bytes.
+rejected before writes. MOS uses the shared policy envelope described above in
+every environment.
 The original policy buffer/hash is unchanged; transport envelopes and Work IQ's
 required App ID metadata mean wire bodies need not be byte-identical.
 No tenant ID is added: the tenant comes from the authenticated Work IQ token.
@@ -383,8 +417,8 @@ does not resolve them, and HTTP-mocked regressions are not live acceptance evide
 
 ## Invariants
 
-- Capture bytes once and do not substitute or mutate them. MOS SDF wraps the
-  captured JSON in its required `policy` envelope; non-SDF MOS retains raw bytes.
+- Capture bytes once and do not substitute or mutate them. Every MOS environment
+  wraps the captured JSON in the same required `policy` envelope.
   Work IQ serializes its wire body to add the required `appId`. Neither transport
   representation changes the captured file/hash.
 - Server ETags are opaque. Preserve each GET header unchanged, including quotes;
@@ -429,15 +463,15 @@ does not resolve them, and HTTP-mocked regressions are not live acceptance evide
 
 Two-destination scenarios explicitly select `both`, unless a row specifies a
 different target or tests the unset-target default.
-Rows asserting raw MOS bytes or conditional replacement use non-SDF environments;
-WIQ-POL-39 through WIQ-POL-43 define the SDF-specific contract and its preflight
-existing-policy conflict exception.
+Rows asserting conditional replacement use non-SDF environments. WIQ-POL-39
+defines the shared MOS payload; WIQ-POL-40 through WIQ-POL-43 preserve the
+SDF-specific create-only contract and its preflight existing-policy conflict exception.
 
 | ID         | Runtime | Purpose               | Gate     | Harness                                                  | Given / When                                                                                                      | Then                                                                                                                                                                 |
 | ---------- | ------- | --------------------- | -------- | -------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | WIQ-POL-01 | L1      | operation-integration | required | Current/versioned JSON schemas and driver registry       | Configure the action with explicit required inputs                                                                | Both schemas accept the inputs without writeToEnvironmentFile and reject that YAML property; the shared driver resolves the action.                                    |
 | WIQ-POL-02 | L1      | operation-integration | required | Operation with temporary project                         | Inputs, legacy ETag fields, JSON, encoding, or path are invalid                                                   | Return a user error without token acquisition or destination writes.                                                                                                 |
-| WIQ-POL-03 | L1      | operation-integration | required | Real operation and MOS HTTP mock                         | Publish a valid policy                                                                                            | One conditional MOS PUT uses the exact captured bytes, independently supplied delegated token, and encoded title path; report includes the byte digest.              |
+| WIQ-POL-03 | L1      | operation-integration | required | Real operation and MOS HTTP mock                         | Publish a valid policy                                                                                            | One conditional MOS PUT wraps the exact captured JSON in a policy envelope, with an independently supplied delegated token and encoded title path; report includes the original-byte digest. |
 | WIQ-POL-04 | L1      | operation-integration | required | Real operation and MOS HTTP mock                         | With default blocking, GET an existing MOS policy or receive a write conflict                                     | PUT with the exact GET ETag; conflicts are preserved without re-reading/retrying and Work IQ does not write.                                                         |
 | WIQ-POL-05 | L1      | operation-integration | required | Real operation and client boundary                       | With default blocking, MOS rejects, times out, returns 202/5xx, or transport is interrupted                       | Keep the appropriate failed/unknown MOS state, do not retry, and do not call Work IQ.                                                                                |
 | WIQ-POL-06 | L1      | operation-integration | required | Real operation and injected Work IQ client               | MOS confirms and Work IQ fails or times out                                                                       | Preserve MOS confirmation and Work IQ failed/unknown state on the returned error report.                                                                             |
@@ -457,7 +491,7 @@ existing-policy conflict exception.
 | WIQ-POL-20 | L1      | operation-integration | required | Work IQ client with HTTP/token boundaries                | Publish directly with valid code-configured Work IQ endpoint, resource-qualified scopes and app ID                | Use only the Work IQ token, exact documented route, conditional header and top-level appId; preserve captured policy bytes/hash and require a strong response ETag.  |
 | WIQ-POL-21 | L1      | operation-integration | required | Independent Work IQ HTTP client                          | Inspect/delete policy or discover contracts                                                                       | Use documented GET/DELETE routes without MOS; missing policy is explicit not-found; DELETE contains only appId and its own ETag.                                     |
 | WIQ-POL-22 | L1      | operation-integration | required | Work IQ HTTP/auth failures                               | Receive rejection, binding conflict, ambiguous 429/503, malformed acknowledgement, timeout or cancellation        | Preserve failed/conflict/unknown states without blind retries, raw service details, or inferred create/delete recovery.                                              |
-| WIQ-POL-23 | L1      | scenario              | required | Native lifecycle with independent MOS/Work IQ HTTP mocks | Publish with no user ETag fields; both destinations return different stored ETags                                 | GET both before writing; each PUT uses only its GET ETag; preserve raw MOS bytes/appId-enriched Work IQ JSON and both committed receipts.                            |
+| WIQ-POL-23 | L1      | scenario              | required | Native lifecycle with independent MOS/Work IQ HTTP mocks | Publish with no user ETag fields; both destinations return different stored ETags                                 | GET both before writing; each PUT uses only its GET ETag; preserve the MOS policy envelope, appId-enriched Work IQ JSON, original file/hash and both committed receipts. |
 | WIQ-POL-24 | L1      | operation-integration | required | Exported default configuration and HTTP mock             | Use the current service origin or an explicitly configured endpoint                                               | Default GET/PUT/DELETE use https://workiq.svc.cloud.microsoft/api/policies/agents/{titleId} without duplicate prefixes; missing config/auth still fails before writes.   |
 | WIQ-POL-25 | L1      | operation-integration | required | Work IQ Contract and publication HTTP mocks              | Publish while Contract preflight is temporarily paused, including when its route would reject requests            | Do not call Contracts; in both mode order is Work IQ policy GET, MOS discovery/GET, MOS PUT, Work IQ PUT; retain auth/ETag gates and standalone Contract APIs.          |
 | WIQ-POL-26 | L1      | operation-integration | required | Default client and native HTTP/token boundaries          | Inspect or publish with the default Work IQ configuration and the same M365 provider as MOS                       | All Work IQ GET/PUT calls use its ReadWrite management scope/token; MOS policy uses the selected endpoint's /.default scope and its own token.                        |
@@ -467,18 +501,20 @@ existing-policy conflict exception.
 | WIQ-POL-30 | L1      | operation-integration | required | PackageService and MOS HTTP/token boundaries             | Select each supported policy environment, or leave it unset                                                       | Default to prod; use the selected endpoint's /.default scope, then GET/PUT the discovered URL; other service calls/global scopes stay unchanged.                       |
 | WIQ-POL-31 | L1      | operation-integration | required | Policy preparation with invalid configuration            | Set an empty or unsupported policy environment                                                                    | Return a localized user configuration error before MOS authentication/HTTP, with no fallback or policy writes.                                                       |
 | WIQ-POL-32 | L1      | operation-integration | required | Prepared MOS publication and mutable process environment | Change the environment during authentication or after preparation                                                 | Retain the originally selected endpoint, scope, discovered service and ETag throughout the prepared write.                                                           |
-| WIQ-POL-33 | L1      | scenario              | required | Native driver with independent Work IQ/MOS HTTP mocks    | Run with the policy environment unset or invalid                                                                  | Default native MOS calls to prod while Work IQ configuration stays unchanged; invalid environment guidance survives on the returned error.report.                    |
+| WIQ-POL-33 | L1      | scenario              | required | Native driver with independent Work IQ/MOS HTTP mocks    | Run with the policy environment and target unset, or an invalid environment                                       | Default to both with native MOS calls to prod; preserve Work IQ configuration, MOS-first publication and explicit overrides; invalid environment guidance survives on error.report. |
 | WIQ-POL-34 | L1      | operation-integration | required | Real operation and MOS HTTP/auth boundaries              | Select mos, including when Work IQ configuration/auth/Contract prerequisites are unavailable                       | Only MOS prepares and writes; success is published/none with target mos and Work IQ not-started; selected failures remain safe failures.                              |
 | WIQ-POL-35 | L1      | operation-integration | required | Real operation and Work IQ HTTP/auth boundaries          | Select workiq, including when MOS configuration/auth/discovery prerequisites are unavailable                        | Only Work IQ prepares and writes; success is published/none with target workiq and MOS not-started; auth, App ID and policy GET/ETag prerequisites still apply.         |
 | WIQ-POL-36 | L1      | operation-integration | required | Selected preparation/write and cancellation boundaries   | Select both, or cancel during a selected destination's preparation/write                                           | Both mode remains prepare-both/MOS-first and fail-fast; cancellation always stops later calls and preserves receipts and reconciliation guidance.                     |
-| WIQ-POL-37 | L1      | operation-integration | required | Operation configuration and mutable process environment  | Leave target unset, provide invalid values, cancel/fail before preparation, or mutate selection during async work   | Default to workiq; retain the valid target even on early returns; invalid target fails before auth/HTTP; former flag cannot enable continuation; capture target once.   |
+| WIQ-POL-37 | L1      | operation-integration | required | Operation configuration and mutable process environment  | Leave target unset, provide invalid values, cancel/fail before preparation, or mutate selection during async work   | Default to both; retain the valid target even on early returns; invalid target fails before auth/HTTP; former flag cannot enable continuation; capture target once.     |
 | WIQ-POL-38 | L1      | scenario              | required | Native driver with independent Work IQ/MOS HTTP mocks    | Execute each mode successfully, encounter a selected error, or use a selected Work IQ mock                          | Report, summaries and success-only outputs reflect selected targets; no warning for unselected Work IQ; errors retain report/receipts without success outputs.          |
-| WIQ-POL-39 | L1      | operation-integration | required | SDF MOS HTTP/token boundary and captured file             | GET 404 and create an SDF policy, including UTF-8 BOM or exact numeric JSON representations | Use selected-scope auth and discovery, wrap the original JSON only on the MOS wire, omit conditional headers, require 201/envelope/strong ETag, and preserve file/hash. |
+| WIQ-POL-39 | L1      | operation-integration | required | All MOS environments, HTTP/token boundary and captured file | GET 404 and create a policy in any MOS environment, including UTF-8 BOM or exact numeric JSON representations; supply invalid JSON directly | All environments wrap the original JSON once in the same policy envelope, retain selected-scope auth/discovery and environment-specific preconditions/acknowledgements, preserve file/hash, and reject invalid JSON before auth/HTTP. |
 | WIQ-POL-40 | L1      | scenario              | required | Real native driver/operation and SDF HTTP mocks           | GET an existing SDF policy, including null or opaque stored JSON | Return MOS create-only conflict with safe guidance and native report, no success outputs and no destination PUT/DELETE; direct MOS callers also retain conflict. |
 | WIQ-POL-41 | L1      | operation-integration | required | SDF GET/PUT HTTP mocks                                   | Receive malformed envelopes, missing/weak ETags, 409, 413 or ambiguous acknowledgements | Fail preflight or preserve conflict/failed/unknown receipts as appropriate; never overwrite, delete, retry or expose service contents. |
-| WIQ-POL-42 | L1      | compatibility         | required | SDF/non-SDF environment matrix and mutable environment    | Select another MOS environment or change env while SDF authentication/preparation runs | Keep non-SDF raw/conditional-replacement behavior; retain the captured SDF scope, discovered URL and create-only wire contract throughout a prepared publication. |
+| WIQ-POL-42 | L1      | compatibility         | required | SDF/non-SDF environment matrix and mutable environment    | Select another MOS environment or change env while SDF authentication/preparation runs | Keep the shared policy envelope and non-SDF conditional-replacement behavior; retain the captured scope, discovered URL and environment-specific preconditions throughout a prepared publication. |
 | WIQ-POL-43 | L1      | scenario              | required | Native both-target driver and independent HTTP mocks     | Publish an absent SDF policy and Work IQ policy, or fail/cancel on MOS | Preserve MOS-first ordering, independent envelope/appId formats and receipts; MOS failure/cancellation stops Work IQ writes and never triggers rollback. |
 | WIQ-POL-44 | L1      | scenario              | required | Native driver, token provider and MOS discovery/GET/PUT boundaries | Token acquisition fails, discovery fails, or policy GET/PUT returns 401/403 in SDF/non-SDF mode | Retain separate acquisition/discovery/API error categories and safe localized guidance; preserve no-write/failed receipts, stop later calls, and do not leak private diagnostics. |
+| WIQ-POL-45 | L1      | scenario              | required | Native driver and MOS/Work IQ HTTP mocks across environments | MOS GET/PUT returns structured 4xx/5xx errors, malformed diagnostics, secrets, controls, long messages, or cancellation | Show bounded and sanitized 4xx service messages without string matching, include safe HTTP/code/request identifiers for 4xx/5xx, keep 5xx internal details private and preserve outcome categories, reports and fail-fast ordering through normalization/logging. |
+| WIQ-POL-46 | L1      | scenario              | required | Native driver with non-SDF MOS HTTP mocks and existing SDF regressions | Policy GET/PUT envelopes omit policyType or carry another value during creation/replacement | Ignore policyType and confirm valid policy-only responses; preserve strong ETags, status/precondition rules, malformed-policy rejection and the SDF existing-policy conflict. |
 
 ## Example
 
@@ -496,8 +532,8 @@ MOS uses the existing signed-in account and selected environment's discovery.
 For local debugging, set `TEAMSFX_WORKIQ_MOS_ENV` in the process environment or
 the launch configuration's `env` object. It currently defaults to `prod`; set
 `sdf` explicitly to target SDF. No YAML input or runner flag is needed.
-Set `TEAMSFX_WORKIQ_PUBLISH_TARGET=mos` for MOS only, `workiq` for Work IQ only
-(the default), or `both` for both. For example, isolate Work IQ integration without
+Set `TEAMSFX_WORKIQ_PUBLISH_TARGET=mos` for MOS only, `workiq` for Work IQ only,
+or `both` for both (the default). For example, isolate Work IQ integration without
 any MOS calls by setting:
 
 ```powershell

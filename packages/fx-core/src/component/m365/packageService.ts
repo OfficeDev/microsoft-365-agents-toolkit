@@ -45,6 +45,7 @@ import {
   PolicyDestinationResult,
   PreparedPolicyPublication,
   publishPolicyActionName,
+  withMosPolicyHttpDiagnostic,
 } from "../workiq/policyPublication";
 import { advancedDASettingUrl, M365HelpLink } from "./constants";
 import {
@@ -71,7 +72,7 @@ function isMosPolicyEnvelope(value: unknown, createOnly: boolean): value is MosP
     isPolicyObject(value) &&
     Object.hasOwn(value, "policy") &&
     value.policy !== undefined &&
-    (createOnly || (value.policyType === "workiq" && isPolicyObject(value.policy)))
+    (createOnly || isPolicyObject(value.policy))
   );
 }
 
@@ -85,6 +86,24 @@ function mosPolicyAccessError(status: number): FxError | undefined {
     return createPolicyError("POLICY_MOS_TOKEN_REJECTED", "driver.workiq.error.mosTokenRejected");
   if (status === 403)
     return createPolicyError("POLICY_MOS_ACCESS_DENIED", "driver.workiq.error.mosAccessDenied");
+}
+
+function mosPolicyHttpError(
+  response: AxiosResponse<unknown>,
+  error: FxError,
+  token: string
+): FxError {
+  return withMosPolicyHttpDiagnostic(
+    error,
+    response.status,
+    response.data,
+    [
+      response.headers["x-ms-request-id"],
+      response.headers["request-id"],
+      response.headers.traceresponse,
+    ],
+    token
+  );
 }
 
 export enum AppScope {
@@ -183,13 +202,10 @@ export class PackageService {
     }
     const endpoint = endpoints[environment];
     const createOnly = environment === "sdf";
-    let body: Buffer | string = request.policy.bytes;
-    if (createOnly) {
-      const policy = parsePolicyObject(request.policy.bytes);
-      if (policy.isErr()) return err(policy.error);
-      // Preserve exact numeric values instead of reserializing the parsed JSON.
-      body = `{"policy":${stripBom(request.policy.bytes.toString("utf8"))}}`;
-    }
+    const policy = parsePolicyObject(request.policy.bytes);
+    if (policy.isErr()) return err(policy.error);
+    // Preserve exact numeric values instead of reserializing the parsed JSON.
+    const body = `{"policy":${stripBom(request.policy.bytes.toString("utf8"))}}`;
     const authenticationError = () =>
       createPolicyError("POLICY_AUTH_REQUIRED", "driver.workiq.error.authentication");
     let token: Result<string, FxError>;
@@ -282,7 +298,9 @@ export class PackageService {
       const etag = mosPolicyEtag(response);
       if (response.status === 200 && isMosPolicyEnvelope(response.data, createOnly) && etag)
         return ok(etag);
-      return err(mosPolicyAccessError(response.status) ?? readError());
+      return err(
+        mosPolicyHttpError(response, mosPolicyAccessError(response.status) ?? readError(), token)
+      );
     } catch (error) {
       return err(
         request.signal?.aborted || (error instanceof Error && isUserCancelError(error))
@@ -296,7 +314,7 @@ export class PackageService {
     request: MosPolicyPublicationRequest & {
       etag?: string;
       createOnly: boolean;
-      body: Buffer | string;
+      body: string;
     },
     token: string,
     serviceUrl: URL
@@ -344,7 +362,11 @@ export class PackageService {
       if (response.status === 409 || response.status === 412) {
         return err({
           state: "conflict",
-          error: createPolicyError("WorkIqMosPolicyConflict", "driver.workiq.error.conflict"),
+          error: mosPolicyHttpError(
+            response,
+            createPolicyError("WorkIqMosPolicyConflict", "driver.workiq.error.conflict"),
+            token
+          ),
         });
       }
       if (
@@ -353,17 +375,24 @@ export class PackageService {
       ) {
         return err({
           state: "failed",
-          error:
+          error: mosPolicyHttpError(
+            response,
             mosPolicyAccessError(response.status) ??
-            createPolicyError("MosPolicyRejected", "driver.workiq.error.rejected"),
+              createPolicyError("MosPolicyRejected", "driver.workiq.error.rejected"),
+            token
+          ),
         });
       }
       return err({
         state: "unknown",
-        error: createPolicyError(
-          "WorkIqMosOutcomeUnknown",
-          "driver.workiq.error.outcomeUnknown",
-          "system"
+        error: mosPolicyHttpError(
+          response,
+          createPolicyError(
+            "WorkIqMosOutcomeUnknown",
+            "driver.workiq.error.outcomeUnknown",
+            "system"
+          ),
+          token
         ),
       });
     } catch (error) {
