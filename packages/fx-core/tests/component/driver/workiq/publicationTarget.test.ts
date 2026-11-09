@@ -63,7 +63,6 @@ describe("policy publication targets", () => {
   beforeEach(async () => {
     vi.stubEnv(flag, "both");
     vi.stubEnv("TEAMSFX_WORKIQ_ALLOW_MOS_FAILURE", undefined);
-    vi.stubEnv("TEAMSFX_WORKIQ_MOS_ENV", "prod");
     projectPath = await mkdtemp(path.join(os.tmpdir(), "atk-workiq-target-"));
     await writeFile(path.join(projectPath, "policy.json"), '{"schemaVersion":1,"capabilities":[]}');
     adapter = new MockAdapter(axios);
@@ -122,9 +121,8 @@ describe("policy publication targets", () => {
     });
   }
 
-  it("WIQ-POL-33/WIQ-POL-37: native defaults to both with production MOS when both settings are unset", async () => {
+  it("WIQ-POL-33/WIQ-POL-37: native defaults to both with standard MOS discovery when target is unset", async () => {
     vi.stubEnv(flag, undefined);
-    vi.stubEnv("TEAMSFX_WORKIQ_MOS_ENV", undefined);
     const productionEndpoint = "https://titles.prod.mos.microsoft.com";
     const calls: string[] = [];
     adapter.onGet(workIqUrl).reply(() => {
@@ -183,9 +181,8 @@ describe("policy publication targets", () => {
     expect(writes(workIqUrl)).toHaveLength(0);
   });
 
-  it("WIQ-POL-35: Work IQ-only ignores invalid MOS configuration and unavailable preparation", async () => {
+  it("WIQ-POL-35: Work IQ-only ignores unavailable MOS preparation", async () => {
     vi.stubEnv(flag, "workiq");
-    vi.stubEnv("TEAMSFX_WORKIQ_MOS_ENV", "invalid");
     const prepare = vi
       .spyOn(PackageService.prototype, "prepareWorkIqPolicy")
       .mockRejectedValue(new Error("private-error"));

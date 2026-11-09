@@ -22,8 +22,6 @@
   "driver.workiq.error.workIqRejected": "Work IQ rejected the request. Check the title, App ID binding, policy Capability Contracts, request conditions, and size limits.",
   "driver.workiq.error.workIqRead": "Unable to inspect Work IQ policy or Capability Contracts. Check the target service, permissions, and connection.",
   "driver.workiq.error.mosPolicyRead": "Unable to read a valid MOS policy version. Check the target service, policy response, permissions, and connection before publishing.",
-  "driver.workiq.error.mosPolicyExists": "A MOS SDF policy already exists. This Builder API only creates absent policies; this action will not overwrite or delete the existing policy.",
-  "driver.workiq.error.mosEnvironment": "TEAMSFX_WORKIQ_MOS_ENV must be sdf, msitcanary, msit, or prod. Leave it unset to use prod.",
   "driver.workiq.error.publishTarget": "TEAMSFX_WORKIQ_PUBLISH_TARGET must be mos, workiq, or both. Leave it unset to publish to both MOS and Work IQ.",
   "driver.workiq.error.authentication": "Unable to acquire the delegated MOS token. Sign in with an authorized maker account and check MOS permissions.",
   "driver.workiq.error.mosTokenRejected": "The MOS policy API rejected the acquired token (HTTP 401). Check the discovered service endpoint, token resource, tenant, and sign-in.",

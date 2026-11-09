@@ -11,16 +11,21 @@ import os from "os";
 import path from "path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { WorkIqPolicyClient, workIqPolicyClient } from "../../../../src/client/workIqPolicyClient";
+import {
+  getResourceServiceEndpoint,
+  MosServiceScope,
+  ResourceServiceType,
+} from "../../../../src/common/constants";
 import { DriverContext } from "../../../../src/component/driver/interface/commonArgs";
 import { PublishPolicyDriver } from "../../../../src/component/driver/workiq/publishPolicy";
 import { PackageService } from "../../../../src/component/m365/packageService";
 import { MockedAzureAccountProvider, MockedM365Provider } from "../../../core/utils";
 import { MockedLogProvider } from "../../../plugins/solution/util";
 
-const endpoint = "https://titles.sdf.mos.microsoft.com";
+const endpoint = getResourceServiceEndpoint(ResourceServiceType.MOS3);
 const discoveryUrl = `${endpoint}/config/v1/environment`;
 const serviceUrl = "https://regional.titles.example/avalon";
-const titleId = "sdf-title/with-special?characters";
+const titleId = "title/with-special?characters";
 const callerId = "11111111-2222-4333-8444-555555555555";
 const mosUrl = `${serviceUrl}/builder/v1/tenants/titles/${encodeURIComponent(titleId)}/policies/workiq`;
 const workIqEndpoint = "https://workiq.example";
@@ -31,7 +36,7 @@ const policy = { schemaVersion: 1, capabilities: [] };
 const args = { titleId, callerId, policyPath: "./policy.json" };
 const capabilityCountMessage = "Supply between 1 and 11 capabilities.";
 
-describe("MOS SDF Builder policy contract", () => {
+describe("MOS Builder policy contract", () => {
   let projectPath: string;
   let adapter: MockAdapter;
   let provider: MockedM365Provider;
@@ -55,9 +60,8 @@ describe("MOS SDF Builder policy contract", () => {
   const service = () => new PackageService(endpoint, undefined, provider);
 
   beforeEach(async () => {
-    vi.stubEnv("TEAMSFX_WORKIQ_MOS_ENV", "sdf");
     vi.stubEnv("TEAMSFX_WORKIQ_PUBLISH_TARGET", "mos");
-    projectPath = await mkdtemp(path.join(os.tmpdir(), "atk-mos-sdf-policy-"));
+    projectPath = await mkdtemp(path.join(os.tmpdir(), "atk-mos-policy-"));
     await writeFile(path.join(projectPath, "policy.json"), source);
     adapter = new MockAdapter(axios);
     adapter.onGet(discoveryUrl).reply(200, { titlesServiceUrl: serviceUrl });
@@ -85,7 +89,7 @@ describe("MOS SDF Builder policy contract", () => {
   });
 
   for (const bom of [false, true]) {
-    it(`WIQ-POL-39: wraps SDF JSON with BOM=${bom} without changing file bytes or hash`, async () => {
+    it(`WIQ-POL-39: wraps MOS JSON with BOM=${bom} without changing file bytes or hash`, async () => {
       const bytes = Buffer.from(`${bom ? "\uFEFF" : ""}${source}`);
       await writeFile(path.join(projectPath, "policy.json"), bytes);
 
@@ -99,7 +103,7 @@ describe("MOS SDF Builder policy contract", () => {
         mos: { state: "confirmed", etag: '"sdf-created"' },
         workIq: { state: "not-started" },
       });
-      expect(getToken).toHaveBeenCalledExactlyOnceWith({ scopes: [`${endpoint}/.default`] });
+      expect(getToken).toHaveBeenCalledExactlyOnceWith({ scopes: MosServiceScope() });
       expect(adapter.history.get.map((request) => axios.getUri(request))).toEqual([
         discoveryUrl,
         mosUrl,
@@ -110,7 +114,7 @@ describe("MOS SDF Builder policy contract", () => {
       expect(JSON.parse(adapter.history.put[0].data)).toEqual({ policy });
       expect(adapter.history.put[0].headers).toHaveProperty("Accept-Encoding", "identity");
       expect(adapter.history.put[0].headers).not.toHaveProperty("If-Match");
-      expect(adapter.history.put[0].headers).not.toHaveProperty("If-None-Match");
+      expect(adapter.history.put[0].headers).toHaveProperty("If-None-Match", "*");
       expect(await readFile(path.join(projectPath, "policy.json"))).toEqual(bytes);
     });
   }
@@ -123,55 +127,43 @@ describe("MOS SDF Builder policy contract", () => {
     expect(adapter.history.put[0].data).toBe(`{"policy":${exact}}`);
   });
 
-  for (const [environment, entry] of [
-    ["msitcanary", "https://titles.msitprv.mos.microsoft.com"],
-    ["msit", "https://titles.msit.mos.microsoft.com"],
-    ["prod", "https://titles.prod.mos.microsoft.com"],
-  ]) {
-    for (const replacement of [false, true]) {
-      for (const policyType of [undefined, "other"]) {
-        it(`WIQ-POL-46: ${environment} ${replacement ? "replacement" : "creation"} ignores response policyType=${policyType}`, async () => {
-          vi.stubEnv("TEAMSFX_WORKIQ_MOS_ENV", environment);
-          const envelope = {
-            policy,
-            ...(policyType === undefined ? {} : { policyType }),
-          };
-          adapter.onGet(`${entry}/config/v1/environment`).reply(200, {
-            titlesServiceUrl: serviceUrl,
-          });
-          adapter
-            .onGet(mosUrl)
-            .reply(replacement ? 200 : 404, envelope, { ETag: '"stored-policy"' });
-          adapter
-            .onPut(mosUrl)
-            .reply(replacement ? 200 : 201, envelope, { ETag: '"committed-policy"' });
+  for (const replacement of [false, true]) {
+    for (const policyType of [undefined, "other"]) {
+      it(`WIQ-POL-46: MOS ${replacement ? "replacement" : "creation"} ignores response policyType=${policyType}`, async () => {
+        const envelope = {
+          policy,
+          ...(policyType === undefined ? {} : { policyType }),
+        };
+        adapter.onGet(mosUrl).reply(replacement ? 200 : 404, envelope, { ETag: '"stored-policy"' });
+        adapter
+          .onPut(mosUrl)
+          .reply(replacement ? 200 : 201, envelope, { ETag: '"committed-policy"' });
 
-          const result = await execute();
+        const result = await execute();
 
-          expect(result.result.isOk()).toBe(true);
-          expect(result.report).toMatchObject({
-            target: "mos",
-            outcome: "published",
-            nextAction: "none",
-            mos: { state: "confirmed", etag: '"committed-policy"' },
-            workIq: { state: "not-started" },
-          });
-          expect(getToken).toHaveBeenCalledExactlyOnceWith({ scopes: [`${entry}/.default`] });
-          expect(adapter.history.put).toHaveLength(1);
-          expect(adapter.history.put[0].headers).toHaveProperty(
-            replacement ? "If-Match" : "If-None-Match",
-            replacement ? '"stored-policy"' : "*"
-          );
-          if (result.result.isOk()) {
-            expect(result.result.value.get("POLICY_REPORT")).toContain('"outcome":"published"');
-          }
+        expect(result.result.isOk()).toBe(true);
+        expect(result.report).toMatchObject({
+          target: "mos",
+          outcome: "published",
+          nextAction: "none",
+          mos: { state: "confirmed", etag: '"committed-policy"' },
+          workIq: { state: "not-started" },
         });
-      }
+        expect(getToken).toHaveBeenCalledExactlyOnceWith({ scopes: MosServiceScope() });
+        expect(adapter.history.put).toHaveLength(1);
+        expect(adapter.history.put[0].headers).toHaveProperty(
+          replacement ? "If-Match" : "If-None-Match",
+          replacement ? '"stored-policy"' : "*"
+        );
+        if (result.result.isOk()) {
+          expect(result.result.value.get("POLICY_REPORT")).toContain('"outcome":"published"');
+        }
+      });
     }
   }
 
-  for (const stored of [null, {}, [], false, 0, "opaque"]) {
-    it(`WIQ-POL-40: stored ${JSON.stringify(stored)} is an existing-policy conflict, not a replacement`, async () => {
+  for (const stored of [null, [], false, 0, "opaque"]) {
+    it(`WIQ-POL-40: stored ${JSON.stringify(stored)} fails preflight and cannot select creation or replacement`, async () => {
       vi.stubEnv("TEAMSFX_WORKIQ_PUBLISH_TARGET", "both");
       adapter.onGet(mosUrl).reply(200, { policy: stored }, { ETag: '"existing"' });
 
@@ -180,14 +172,13 @@ describe("MOS SDF Builder policy contract", () => {
       expect(result.result.isErr()).toBe(true);
       expect(result.report).toMatchObject({
         target: "both",
-        outcome: "conflict",
-        nextAction: "resolve-conflict",
-        mos: { state: "conflict" },
+        outcome: "failed",
+        nextAction: "review-error",
+        mos: { state: "not-started" },
         workIq: { state: "not-started" },
       });
       if (result.result.isErr()) {
-        expect(result.result.error.name).toBe("POLICY_MOS_POLICY_EXISTS");
-        expect(result.result.error.message).toContain("already exists");
+        expect(result.result.error.name).toBe("POLICY_PREFLIGHT_FAILED");
       }
       expect(result.summaries).toEqual([]);
       expect(adapter.history.put).toHaveLength(0);
@@ -198,7 +189,7 @@ describe("MOS SDF Builder policy contract", () => {
         policy: { bytes: Buffer.from(source), sha256: "digest" },
       });
       expect(direct.isErr()).toBe(true);
-      if (direct.isErr()) expect(direct.error.state).toBe("conflict");
+      if (direct.isErr()) expect(direct.error.state).toBe("not-started");
       expect(adapter.history.put).toHaveLength(0);
     });
   }
@@ -226,7 +217,7 @@ describe("MOS SDF Builder policy contract", () => {
     { status: 413, state: "failed" },
     { status: 503, state: "unknown" },
   ]) {
-    it(`WIQ-POL-41/WIQ-POL-43: SDF PUT ${status} retains ${state} and stops Work IQ writes`, async () => {
+    it(`WIQ-POL-41/WIQ-POL-43: MOS PUT ${status} retains ${state} and stops Work IQ writes`, async () => {
       vi.stubEnv("TEAMSFX_WORKIQ_PUBLISH_TARGET", "both");
       adapter.onPut(mosUrl).reply(status, { Error: { Message: "private-service-content" } });
 
@@ -260,7 +251,7 @@ describe("MOS SDF Builder policy contract", () => {
     });
   }
 
-  it("WIQ-POL-42: SDF auth and wire contract remain captured after env and caller mutations", async () => {
+  it("WIQ-POL-42: standard MOS auth and wire contract remain captured after retired env and caller mutations", async () => {
     getToken.mockImplementationOnce(async () => {
       vi.stubEnv("TEAMSFX_WORKIQ_MOS_ENV", "prod");
       return ok("sdf-token");
@@ -276,11 +267,11 @@ describe("MOS SDF Builder policy contract", () => {
     if (prepared.isOk()) expect((await prepared.value.publish()).isOk()).toBe(true);
     expect(adapter.history.put[0].data).toBe(`{"policy":${source}}`);
     expect(adapter.history.put[0].headers).not.toHaveProperty("If-Match");
-    expect(adapter.history.put[0].headers).not.toHaveProperty("If-None-Match");
-    expect(getToken).toHaveBeenCalledExactlyOnceWith({ scopes: [`${endpoint}/.default`] });
+    expect(adapter.history.put[0].headers).toHaveProperty("If-None-Match", "*");
+    expect(getToken).toHaveBeenCalledExactlyOnceWith({ scopes: MosServiceScope() });
   });
 
-  it("WIQ-POL-39: invalid SDF JSON from a direct client fails before authentication", async () => {
+  it("WIQ-POL-39: invalid MOS JSON from a direct client fails before authentication", async () => {
     const result = await service().prepareWorkIqPolicy({
       titleId,
       policy: { bytes: Buffer.from("{"), sha256: "digest" },
@@ -290,7 +281,7 @@ describe("MOS SDF Builder policy contract", () => {
     expect(adapter.history.get).toHaveLength(0);
   });
 
-  it("WIQ-POL-43: both mode keeps SDF envelope, Work IQ App ID and source digest independent", async () => {
+  it("WIQ-POL-43: both mode keeps MOS envelope, Work IQ App ID and source digest independent", async () => {
     vi.stubEnv("TEAMSFX_WORKIQ_PUBLISH_TARGET", "both");
     const result = await execute();
     expect(result.result.isOk()).toBe(true);
@@ -308,7 +299,7 @@ describe("MOS SDF Builder policy contract", () => {
     expect(await readFile(path.join(projectPath, "policy.json"), "utf8")).toBe(source);
   });
 
-  it("WIQ-POL-43: cancellation during SDF PUT retains unknown receipt and stops Work IQ", async () => {
+  it("WIQ-POL-43: cancellation during MOS PUT retains unknown receipt and stops Work IQ", async () => {
     vi.stubEnv("TEAMSFX_WORKIQ_PUBLISH_TARGET", "both");
     const controller = new AbortController();
     adapter.onPut(mosUrl).reply(() => {
@@ -326,66 +317,55 @@ describe("MOS SDF Builder policy contract", () => {
     expect(adapter.history.put.map((request) => axios.getUri(request))).toEqual([mosUrl]);
   });
 
-  for (const [environment, entry] of [
-    ["sdf", endpoint],
-    ["msitcanary", "https://titles.msitprv.mos.microsoft.com"],
-    ["msit", "https://titles.msit.mos.microsoft.com"],
-    ["prod", "https://titles.prod.mos.microsoft.com"],
+  for (const message of [
+    capabilityCountMessage,
+    `${capabilityCountMessage} (Parameter 'input')`,
+    "The capability name is not supported.",
   ]) {
-    for (const message of [
-      capabilityCountMessage,
-      `${capabilityCountMessage} (Parameter 'input')`,
-      "The capability name is not supported.",
-    ]) {
-      it(`WIQ-POL-45: ${environment} structured service message reaches the native user error and log for ${message}`, async () => {
-        vi.stubEnv("TEAMSFX_WORKIQ_MOS_ENV", environment);
-        vi.stubEnv("TEAMSFX_WORKIQ_PUBLISH_TARGET", "both");
-        adapter.onGet(`${entry}/config/v1/environment`).reply(200, {
-          titlesServiceUrl: serviceUrl,
-        });
-        adapter.onPut(mosUrl).reply(400, {
-          Error: { Code: "BadRequest", Message: message },
-          privateDetails: "private-policy-details",
-        });
-        const ctx = context();
-        const logError = vi.spyOn(ctx.logProvider, "error");
-
-        const result = await new PublishPolicyDriver().execute(
-          args,
-          ctx,
-          new Map([["report", "POLICY_REPORT"]])
-        );
-
-        expect(result.result.isErr()).toBe(true);
-        if (result.result.isErr()) {
-          expect(result.result.error).toBeInstanceOf(UserError);
-          expect(result.result.error.name).toBe("MosPolicyRejected");
-          expect(result.result.error.message).toContain(message);
-          expect(result.result.error.message).toContain("HTTP 400");
-          expect(result.result.error.message).toContain("BadRequest");
-          expect(result.result.error).toHaveProperty(
-            "displayMessage",
-            expect.stringContaining(message)
-          );
-          expect(result.result.error).toHaveProperty("report", result.report);
-        }
-        expect(logError).toHaveBeenCalledWith(expect.stringContaining(message));
-        expect(logError).toHaveBeenCalledWith(
-          expect.stringContaining("Service error code: BadRequest")
-        );
-        expect(result.report).toMatchObject({
-          target: "both",
-          outcome: "failed",
-          nextAction: "review-error",
-          mos: { state: "failed" },
-          workIq: { state: "not-started" },
-        });
-        expect(result.summaries).toEqual([]);
-        expect(adapter.history.put.map((request) => axios.getUri(request))).toEqual([mosUrl]);
-        expect(adapter.history.delete).toHaveLength(0);
-        expect(JSON.stringify(result)).not.toMatch(/private-policy-details|sdf-token|workiq-token/);
+    it(`WIQ-POL-45: structured service message reaches the native user error and log for ${message}`, async () => {
+      vi.stubEnv("TEAMSFX_WORKIQ_PUBLISH_TARGET", "both");
+      adapter.onPut(mosUrl).reply(400, {
+        Error: { Code: "BadRequest", Message: message },
+        privateDetails: "private-policy-details",
       });
-    }
+      const ctx = context();
+      const logError = vi.spyOn(ctx.logProvider, "error");
+
+      const result = await new PublishPolicyDriver().execute(
+        args,
+        ctx,
+        new Map([["report", "POLICY_REPORT"]])
+      );
+
+      expect(result.result.isErr()).toBe(true);
+      if (result.result.isErr()) {
+        expect(result.result.error).toBeInstanceOf(UserError);
+        expect(result.result.error.name).toBe("MosPolicyRejected");
+        expect(result.result.error.message).toContain(message);
+        expect(result.result.error.message).toContain("HTTP 400");
+        expect(result.result.error.message).toContain("BadRequest");
+        expect(result.result.error).toHaveProperty(
+          "displayMessage",
+          expect.stringContaining(message)
+        );
+        expect(result.result.error).toHaveProperty("report", result.report);
+      }
+      expect(logError).toHaveBeenCalledWith(expect.stringContaining(message));
+      expect(logError).toHaveBeenCalledWith(
+        expect.stringContaining("Service error code: BadRequest")
+      );
+      expect(result.report).toMatchObject({
+        target: "both",
+        outcome: "failed",
+        nextAction: "review-error",
+        mos: { state: "failed" },
+        workIq: { state: "not-started" },
+      });
+      expect(result.summaries).toEqual([]);
+      expect(adapter.history.put.map((request) => axios.getUri(request))).toEqual([mosUrl]);
+      expect(adapter.history.delete).toHaveLength(0);
+      expect(JSON.stringify(result)).not.toMatch(/private-policy-details|sdf-token|workiq-token/);
+    });
   }
 
   for (const body of [
@@ -672,57 +652,51 @@ describe("MOS SDF Builder policy contract", () => {
     expect(adapter.history.put).toHaveLength(0);
   });
 
-  for (const environment of ["sdf", "prod"]) {
-    for (const method of ["get", "put"]) {
-      for (const { status, name, guidance } of [
-        { status: 401, name: "POLICY_MOS_TOKEN_REJECTED", guidance: "rejected the acquired token" },
-        { status: 403, name: "POLICY_MOS_ACCESS_DENIED", guidance: "denied access" },
-      ]) {
-        it(`WIQ-POL-44: ${environment} policy ${method} HTTP ${status} is not a token acquisition failure`, async () => {
-          vi.stubEnv("TEAMSFX_WORKIQ_MOS_ENV", environment);
-          vi.stubEnv("TEAMSFX_WORKIQ_PUBLISH_TARGET", "both");
-          const entry = environment === "sdf" ? endpoint : "https://titles.prod.mos.microsoft.com";
-          const discovery = `${entry}/config/v1/environment`;
-          adapter.onGet(discovery).reply(200, { titlesServiceUrl: serviceUrl });
-          if (method === "get")
-            adapter.onGet(mosUrl).reply(status, { Error: { Message: "private-api-details" } });
-          else adapter.onPut(mosUrl).reply(status, { Error: { Message: "private-api-details" } });
+  for (const method of ["get", "put"]) {
+    for (const { status, name, guidance } of [
+      { status: 401, name: "POLICY_MOS_TOKEN_REJECTED", guidance: "rejected the acquired token" },
+      { status: 403, name: "POLICY_MOS_ACCESS_DENIED", guidance: "denied access" },
+    ]) {
+      it(`WIQ-POL-44: MOS policy ${method} HTTP ${status} is not a token acquisition failure`, async () => {
+        vi.stubEnv("TEAMSFX_WORKIQ_PUBLISH_TARGET", "both");
+        if (method === "get")
+          adapter.onGet(mosUrl).reply(status, { Error: { Message: "private-api-details" } });
+        else adapter.onPut(mosUrl).reply(status, { Error: { Message: "private-api-details" } });
 
-          const result = await execute();
+        const result = await execute();
 
-          expect(result.result.isErr()).toBe(true);
-          if (result.result.isErr()) {
-            expect(result.result.error.name).toBe(name);
-            expect(result.result.error.message).toContain(guidance);
-            expect(result.result.error.message).toContain(`HTTP ${status}`);
-            expect(result.result.error).toHaveProperty(
-              "displayMessage",
-              expect.stringContaining(guidance)
-            );
-            expect(result.result.error.message).not.toContain("Unable to acquire");
-            expect(result.result.error).toHaveProperty("report", result.report);
-          }
-          expect(result.report).toMatchObject({
-            mos: { state: method === "get" ? "not-started" : "failed" },
-            workIq: { state: "not-started" },
-          });
-          expect(getToken.mock.calls.map(([request]) => request.scopes)).toEqual([
-            [workIqScope],
-            [`${entry}/.default`],
-          ]);
-          expect(adapter.history.get.map((request) => axios.getUri(request))).toEqual([
-            workIqUrl,
-            discovery,
-            mosUrl,
-          ]);
-          expect(adapter.history.put.map((request) => axios.getUri(request))).toEqual(
-            method === "get" ? [] : [mosUrl]
+        expect(result.result.isErr()).toBe(true);
+        if (result.result.isErr()) {
+          expect(result.result.error.name).toBe(name);
+          expect(result.result.error.message).toContain(guidance);
+          expect(result.result.error.message).toContain(`HTTP ${status}`);
+          expect(result.result.error).toHaveProperty(
+            "displayMessage",
+            expect.stringContaining(guidance)
           );
-          expect(JSON.stringify(result)).not.toMatch(
-            /private-api-details|sdf-token|workiq-token|regional\.titles\.example/
-          );
+          expect(result.result.error.message).not.toContain("Unable to acquire");
+          expect(result.result.error).toHaveProperty("report", result.report);
+        }
+        expect(result.report).toMatchObject({
+          mos: { state: method === "get" ? "not-started" : "failed" },
+          workIq: { state: "not-started" },
         });
-      }
+        expect(getToken.mock.calls.map(([request]) => request.scopes)).toEqual([
+          [workIqScope],
+          MosServiceScope(),
+        ]);
+        expect(adapter.history.get.map((request) => axios.getUri(request))).toEqual([
+          workIqUrl,
+          discoveryUrl,
+          mosUrl,
+        ]);
+        expect(adapter.history.put.map((request) => axios.getUri(request))).toEqual(
+          method === "get" ? [] : [mosUrl]
+        );
+        expect(JSON.stringify(result)).not.toMatch(
+          /private-api-details|sdf-token|workiq-token|regional\.titles\.example/
+        );
+      });
     }
   }
 });
