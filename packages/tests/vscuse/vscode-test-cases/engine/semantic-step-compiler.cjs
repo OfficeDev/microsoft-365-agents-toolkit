@@ -4028,6 +4028,16 @@ ${mutation}`;
       );
       if (error) return error;
     }
+    if (
+      assertion.connectOAuth === true &&
+      state.mcpAuthType === "oauth-dynamic"
+    ) {
+      error = append(
+        output,
+        render(state, "browser/copilot/reveal-latest-response.json.tpl"),
+      );
+      if (error) return error;
+    }
     const expected = assertion.expect ?? {};
     if (
       expected.replied === true ||
