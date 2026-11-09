@@ -31,7 +31,7 @@ cases:
         provision,
         preview-copilot,
         open-agent,
-        check-whoami-oauth,
+        check-whoami-dcr,
         check-probe,
         check-add,
       ]
@@ -177,6 +177,21 @@ steps:
       - type: chat
         send: Call the remote whoami tool. Show only tenant_id, auth_method, and client_id copied from its actual result as a short, pretty-printed JSON object. Do not infer or invent values.
         connectOAuth: true
+        expect:
+          replied: true
+          toolCalled: whoami
+          nonEmptyFields: [client_id]
+          contains:
+            - '"tenant_id": "16801f2e-7163-4bd5-8542-f083fa59993c"'
+            - '"auth_method": "entra_user"'
+
+  check-whoami-dcr:
+    type: checks
+    with:
+      - type: chat
+        send: Call the remote whoami tool. Show only tenant_id, auth_method, and client_id copied from its actual result as a short, pretty-printed JSON object. Do not infer or invent values.
+        connectOAuth: true
+        consentBeforeResend: true
         expect:
           replied: true
           toolCalled: whoami

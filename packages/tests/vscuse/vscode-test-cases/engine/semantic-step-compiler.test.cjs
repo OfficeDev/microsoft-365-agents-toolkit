@@ -1137,9 +1137,8 @@ test("VCB-184: every DCR update stage clears notifications before its terminal o
 });
 
 test("VCB-189: DCR sends a fresh tool request after OAuth instead of waiting on the stale turn", async () => {
-  const result = await compileFixture(
-    "da-mcp-auth-modes.yml",
-    (value) => value,
+  const result = await compileFixture("da-mcp-auth-modes.yml", (value) =>
+    value.replace("        consentBeforeResend: true\n", ""),
   );
   assert.equal(result.ok, true, JSON.stringify(result.diagnostics));
   const { plan } = result.value.find(
@@ -1165,6 +1164,93 @@ test("VCB-189: DCR sends a fresh tool request after OAuth instead of waiting on 
   );
   assert.ok(requests[0].index < returned && returned < requests[1].index);
   assert.ok(requests[1].index < consent);
+});
+
+test("VCB-213: standalone DCR accepts consent before resending without changing sibling flows", async () => {
+  const result = await compileFixture(
+    "da-mcp-auth-modes.yml",
+    (value) => value,
+  );
+  assert.equal(result.ok, true, JSON.stringify(result.diagnostics));
+  const { plan } = result.value.find(
+    (item) => item.caseId === "da-mcp-dcr-copilot",
+  );
+  const returned = plan.steps.findIndex((step) =>
+    step.step_id.startsWith("step_assertCopilotOAuthReturn_clearHover_"),
+  );
+  const consent = plan.steps.slice(returned + 1, returned + 4);
+  assert.deepEqual(
+    consent.map((step) => step.tags.includes("entry_state:action-consent")),
+    [true, true, false],
+  );
+  assert.ok(consent[2].tags.includes("exit_state:action-consent-dismissed"));
+  const requests = plan.steps
+    .map((step, index) => ({ step, index }))
+    .filter(
+      ({ step }) =>
+        step.tool === "type_text" &&
+        step.parameters.text.startsWith("Call the remote whoami tool."),
+    );
+  assert.equal(requests.length, 2);
+  assert.equal(
+    requests[0].step.parameters.text,
+    requests[1].step.parameters.text,
+  );
+  assert.ok(requests[0].index < returned);
+  assert.ok(requests[1].index > returned + consent.length);
+  assert.ok(
+    plan.steps[requests[1].index + 2].step_id.startsWith(
+      "step_assertChatReplied_assert_",
+    ),
+  );
+
+  const defaults = await compileFixture("da-mcp-auth-modes.yml", (value) =>
+    value.replace("        consentBeforeResend: true\n", ""),
+  );
+  assert.equal(defaults.ok, true, JSON.stringify(defaults.diagnostics));
+  for (const { caseId, plan: sibling } of result.value) {
+    if (caseId === "da-mcp-dcr-copilot") continue;
+    assert.deepEqual(
+      sibling,
+      defaults.value.find((item) => item.caseId === caseId).plan,
+      caseId,
+    );
+  }
+});
+
+test("VCB-213: consent-before-resend rejects invalid values and non-DCR connections", async () => {
+  const { parse, stringify } = require("yaml");
+  for (const value of [false, "true", null]) {
+    const result = await compileFixture("da-mcp-auth-modes.yml", (source) => {
+      const bundle = parse(source);
+      bundle.steps["check-whoami-dcr"].with[0].consentBeforeResend = value;
+      return stringify(bundle);
+    });
+    assert.equal(result.ok, false, JSON.stringify(value));
+    assert.equal(result.diagnostics[0].code, "VCB_CHECK_ASSERTION_INVALID");
+  }
+  for (const transform of [
+    (bundle) => {
+      delete bundle.steps["check-whoami-dcr"].with[0].connectOAuth;
+    },
+    (bundle) => {
+      bundle.steps["check-whoami-oauth"].with[0].consentBeforeResend = true;
+    },
+    (bundle) => {
+      bundle.steps["check-whoami"].with[0].consentBeforeResend = true;
+    },
+  ]) {
+    const result = await compileFixture("da-mcp-auth-modes.yml", (source) => {
+      const bundle = parse(source);
+      transform(bundle);
+      return stringify(bundle);
+    });
+    assert.equal(result.ok, false);
+    assert.equal(
+      result.diagnostics[0].code,
+      "VCB_CHAT_OAUTH_CONNECTION_UNKNOWN",
+    );
+  }
 });
 
 test("VCB-190: static OAuth resumes the original tool request after the verified return", async () => {
@@ -1646,7 +1732,7 @@ test("VCB-180: MCP client identity uses a non-empty result field, not a fixed JW
 test("VCB-180: field-only checks imply a completed reply and reject invalid field declarations", async () => {
   const replaceCheck = (source, type, expected) =>
     source.replace(
-      /  check-whoami-oauth:[\s\S]*?(?=\n  check-whoami:)/,
+      /  check-whoami-oauth:[\s\S]*?(?=\n  check-whoami-dcr:)/,
       `  check-whoami-oauth:\n    type: checks\n    with:\n      - type: ${type}\n${type === "chat" ? "        send: Identify the current caller.\n" : ""}        expect:\n${expected}\n`,
     );
   const valid = await compileFixture("da-mcp-auth-modes.yml", (source) =>

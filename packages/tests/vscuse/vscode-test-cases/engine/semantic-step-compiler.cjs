@@ -3947,6 +3947,15 @@ ${mutation}`;
       );
     }
     if (
+      assertion.consentBeforeResend === true &&
+      (assertion.connectOAuth !== true || state.mcpAuthType !== "oauth-dynamic")
+    ) {
+      return failure(
+        "VCB_CHAT_OAUTH_CONNECTION_UNKNOWN",
+        "Consent before resend requires a prepared DCR OAuth connection.",
+      );
+    }
+    if (
       assertion.connectOAuth === true &&
       (state.profile.host !== "copilot" ||
         !state.completed.has("mcp-auth-fixture") ||
@@ -4000,11 +4009,13 @@ ${mutation}`;
         }),
       );
       if (error) return error;
-      error = append(
-        output,
-        render(state, sendComponent, { message: assertion.send }),
-      );
-      if (error) return error;
+      if (assertion.consentBeforeResend !== true) {
+        error = append(
+          output,
+          render(state, sendComponent, { message: assertion.send }),
+        );
+        if (error) return error;
+      }
     }
     if (assertion.allowAction === true || assertion.connectOAuth === true) {
       if (state.profile.host !== "copilot") {
@@ -4016,6 +4027,13 @@ ${mutation}`;
       error = append(
         output,
         render(state, "browser/copilot/allow-action.json.tpl", {}),
+      );
+      if (error) return error;
+    }
+    if (assertion.consentBeforeResend === true) {
+      error = append(
+        output,
+        render(state, sendComponent, { message: assertion.send }),
       );
       if (error) return error;
     }
@@ -4151,7 +4169,14 @@ ${mutation}`;
         : assertion.type === "browser" || assertion.type === "page"
           ? new Set(["type", "expect"])
           : assertion.type === "chat"
-            ? new Set(["type", "send", "allowAction", "connectOAuth", "expect"])
+            ? new Set([
+                "type",
+                "send",
+                "allowAction",
+                "connectOAuth",
+                "consentBeforeResend",
+                "expect",
+              ])
             : assertion.type === "messageExtension"
               ? new Set(["type"])
               : undefined;
@@ -4241,7 +4266,10 @@ ${mutation}`;
               !/^[A-Za-z_][A-Za-z0-9_]*$/.test(name),
           ))) ||
       (assertion.allowAction !== undefined && assertion.allowAction !== true) ||
-      (assertion.connectOAuth !== undefined && assertion.connectOAuth !== true)
+      (assertion.connectOAuth !== undefined &&
+        assertion.connectOAuth !== true) ||
+      (assertion.consentBeforeResend !== undefined &&
+        assertion.consentBeforeResend !== true)
     ) {
       return failure(
         "VCB_CHECK_ASSERTION_INVALID",
