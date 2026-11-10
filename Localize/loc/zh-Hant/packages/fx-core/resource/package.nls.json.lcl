@@ -1186,6 +1186,105 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";core.actions.InvalidActionContext" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Provide an absolute project path and, if needed, a valid cancellation signal.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[提供絕對專案路徑，並視需要提供有效的取消訊號。]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.actions.UnsupportedAction" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[This action is not supported for standalone execution.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[此動作不支援獨立執行。]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.actions.UnsupportedCancellation" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[This action does not support cancellation.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[此動作不支援取消。]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.actions.acquire.appPackagePath" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Path to the app package ZIP file, relative to the project folder or absolute.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[應用程式套件 ZIP 檔案的路徑，與專案資料夾相對或絕對的路徑。]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.actions.acquire.scope" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Microsoft 365 installation scope. Omit to use the action's default scope.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Microsoft 365 安裝範圍。省略以使用動作的預設範圍。]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.actions.invalidArgs" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The action arguments are invalid.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[動作引數無效。]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.actions.invalidField" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The field is missing or has an invalid value.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[欄位遺失或具有無效的值。]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.actions.publishPolicy.callerId" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Nonzero App ID GUID of the agent's runtime application. Must match appId if the policy already contains it. Do not use a user object ID, tenant ID, or Toolkit client ID.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[代理程式執行階段應用程式的非零應用程式識別碼 GUID。如果原則已包含該值，則必須與 appId 相符。請勿使用使用者物件識別碼、租用戶識別碼或工具組用戶端識別碼。]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.actions.publishPolicy.policyPath" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Path to a UTF-8 Work IQ policy JSON file inside the project directory, either absolute or relative to the project root. File contents are not expanded or rewritten.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[專案目錄內 UTF-8 Work IQ 原則 JSON 檔案的路徑，與專案根目錄絕對或相對的路徑。檔案內容不會展開或重寫。]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.actions.publishPolicy.titleId" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Title ID of the existing agent. This action does not create the agent or title.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[現有代理程式的標題識別碼。此動作不會建立代理程式或標題。]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.actions.writesWarning" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[This action performs real external writes.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[此動作會執行實際外部寫入。]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";core.addApi.confirm" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Microsoft 365 Agents Toolkit will modify files in your "%s" folder based on the new OpenAPI document you provided. To avoid losing unexpected changes, back up your files or use git for change tracking before proceeding.]]></Val>
@@ -8938,6 +9037,240 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";driver.workiq.description" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Publish a policy for an existing agent. Currently supports Work IQ policies only. Publication does not verify runtime enforcement.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[發佈現有代理程式的原則。目前僅支援 Work IQ 原則。發佈不會驗證執行階段強制執行。]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.workiq.error.appBinding" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[callerId must be a nonzero App ID GUID and must match appId if the policy already contains it.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[callerId 必須是非零的應用程式識別碼 GUID，且必須符合 appId (如果原則已包含該值)。]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.workiq.error.authentication" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to acquire the delegated MOS token. Sign in with an authorized maker account and check MOS permissions.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[無法取得委派的 MOS 權杖。使用已獲授權的建立者帳戶登入，並檢查 MOS 權限。]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.workiq.error.conflict" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[MOS reported a policy version conflict. Inspect the current policy before publishing again; this action does not retry automatically.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[MOS 回報原則版本衝突。先檢查目前的原則，然後再次發佈; 此動作不會自動重試。]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.workiq.error.failed" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Policy publication did not complete. Review the destination receipts and diagnostics before taking further action.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[原則發佈未完成。在採取進一步動作之前，請先檢閱目的地收據和診斷。]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.workiq.error.incomplete" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Policy publication is incomplete. A confirmed destination write was preserved. Review the report before completing the missing destination; do not blindly repeat the entire publication.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[原則發佈未完成。已保留確認的目的地寫入。檢閱報告，再完成缺少的目的地; 不要盲目地重複整個發佈。]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.workiq.error.invalidPolicy" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The policy must be a UTF-8 JSON object without duplicate property names. Policy content is not expanded or rewritten.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[原則必須是 UTF-8 JSON 物件，且沒有重複的屬性名稱。原則內容不會展開或重寫。]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.workiq.error.mosEnvironment" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[TEAMSFX_WORKIQ_MOS_ENV must be sdf, msitcanary, msit, or prod. Leave it unset to use prod.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[TEAMSFX_WORKIQ_MOS_ENV 必須是 sdf、msitcanary、msit 或 prod。若要使用 prod，請將其保留為未設定。]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.workiq.error.mosPolicyRead" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to read a valid MOS policy version. Check the target service, policy response, permissions, and connection before publishing.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[無法讀取有效的 MOS 原則版本。請先檢查目標服務、原則回應、權限和連線再發佈。]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.workiq.error.outcomeUnknown" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Policy publication was not confirmed. A remote write may have occurred. Check the destination before retrying; completed writes were not rolled back.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[未確認原則發佈。可能發生遠端寫入。重試前請先檢查目的地;未復原已完成的寫入。]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.workiq.error.outsideProject" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The policy file must be inside the project directory, including after resolving symbolic links.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[原則檔案仍必須位於專案目錄內，包括解析符號連結後。]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.workiq.error.preflight" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Policy publication prerequisites could not be prepared. No new destination write was started. Check the service configuration and authentication.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[無法準備原則發佈的必要條件。尚未開始新的目的地寫入。檢查服務設定和驗證。]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.workiq.error.publishTarget" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[TEAMSFX_WORKIQ_PUBLISH_TARGET must be mos, workiq, or both. Leave it unset to publish to Work IQ only.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[TEAMSFX_WORKIQ_PUBLISH_TARGET 必須是 mos、workiq 或兩者。若要僅發佈至 Work IQ，請將其保留為未設定。]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.workiq.error.readFailed" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to read the policy file. Check policyPath and file permissions.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[無法讀取原則檔案。檢查 policyPath 和檔案權限。]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.workiq.error.rejected" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[MOS rejected the policy publication. Check title ownership, permissions, policy schema, and service configuration.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[MOS 拒絕原則發佈。檢查標題擁有權、權限、原則結構描述和服務設定。]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.workiq.error.serviceDiscovery" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to discover a valid HTTPS MOS titles service. Check the service response and network connection before publishing.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[無法探索有效的 HTTPS MOS 標題服務。先檢查服務回應和網路連線，之後再發佈。]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.workiq.error.workIqAuthentication" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to authenticate to Work IQ. Check the configured token resource, required API permissions, and tenant administrator authorization.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[無法向 Work IQ 驗證。檢查已設定的權杖資源、必要的 API 權限，以及租用戶管理員的授權。]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.workiq.error.workIqConfiguration" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Configure a trusted HTTPS Work IQ endpoint and one explicit resource-qualified scope set. Token settings are configured in the client, not inferred from the endpoint.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[設定受信任的 HTTPS Work IQ 端點，以及一組明確指定範圍的資源。權杖設定是在用戶端中設定，而不是從端點推斷。]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.workiq.error.workIqConflict" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Work IQ reported a policy version or App ID binding conflict. Inspect the current policy and App ID before publishing again; this action does not retry or reset automatically.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Work IQ 回報原則版本或應用程式識別碼繫結衝突。先檢查目前的原則和應用程式識別碼，然後再次發佈; 此動作不會自動重試或重設。]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.workiq.error.workIqInput" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Check the Work IQ title and contract name/version. Policy deletion requires the original strong Work IQ ETag.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[檢查 Work IQ 標題及合約名稱/版本。刪除原則需要原始的強式 Work IQ ETag。]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.workiq.error.workIqRead" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to inspect Work IQ policy or Capability Contracts. Check the target service, permissions, and connection.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[無法檢查 Work IQ 原則或容量合約。請檢查目標服務、權限和連線。]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.workiq.error.workIqRejected" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Work IQ rejected the request. Check the title, App ID binding, policy Capability Contracts, request conditions, and size limits.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Work IQ 已拒絕要求。檢查標題、應用程式識別碼繫結、原則功能合約、要求條件和大小限制。]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.workiq.mockWarning" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Alpha: Work IQ publication is mocked. No policy or caller binding will be written to Work IQ, even if MOS publication succeeds.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Alpha: Work IQ 發佈目前為模擬。即使 MOS 發佈成功，也不會將任何原則或呼叫者繫結寫入 Work IQ。]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.workiq.mosConfirmed" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[MOS policy publication was confirmed.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[已確認 MOS 原則發佈。]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.workiq.progress" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Publishing agent policy]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[發佈代理程式原則]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.workiq.summary" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Policy publication %s: target=%s; outcome=%s; MOS=%s; Work IQ=%s; nextAction=%s.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[原則發佈 %s:目標=%s; 結果=%s; MOS=%s; Work IQ=%s; nextAction=%s。]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";error.FailedToParseResourceIdError" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Unable to get '%s' from resource id: '%s']]></Val>
@@ -10363,6 +10696,24 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";error.dp.invalidIdentity" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The app identity is missing, invalid, or inconsistent (%s). Check the selected environment and the Developer Portal app.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[應用程式身分識別遺失、無效或不一致 (%s)。檢查選取的環境和開發人員入口網站應用程式。]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";error.dp.splitIdentityRequiresNewApi" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[This imported app has different resource and manifest IDs. Enable TEAMSFX_NEW_DP_APIS to use this project. No app changes were made.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[此匯入的應用程式具有不同的資源識別碼和資訊清單識別碼。啟用 TEAMSFX_NEW_DP_APIS 以使用此專案。未進行任何應用程式變更。]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";error.driver.outputEnvironmentVariableUndefined" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[The output environment variable name(s) are not defined.]]></Val>
@@ -10600,6 +10951,15 @@
           <Prev Cat="Text">
             <Val><![CDATA[Unable to extend Teams app to Microsoft 365. Use 'teamsApp/extendToM365' action to extend your Teams app to Microsoft 365.]]></Val>
           </Prev>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";error.m365.packageService.discoveryFailed" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to discover the MOS titles service. Check the connection and account permissions.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[無法探索 MOS 標題服務。請檢查連線和帳戶權限。]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -11062,11 +11422,29 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";info.m365.packageService.networkRetry" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Request failed with %s, retrying (%s/%s)...]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[要求失敗，出現 %s，正在重試 (%s/%s)...]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";info.m365.packageService.raiValidationInProgress" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[RAI validation is in progress. Waiting for completion...]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[RAI 驗證進行中。正在等待完成...]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";info.m365.packageService.titleServiceResolved" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[MOS titles service configuration resolved.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[MOS 標題服務設定已解析。]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />

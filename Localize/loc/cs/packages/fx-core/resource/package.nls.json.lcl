@@ -1186,6 +1186,105 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";core.actions.InvalidActionContext" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Provide an absolute project path and, if needed, a valid cancellation signal.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Zadejte absolutní cestu projektu a v případě potřeby platný signál zrušení.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.actions.UnsupportedAction" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[This action is not supported for standalone execution.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Tato akce není podporována pro samostatné spuštění.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.actions.UnsupportedCancellation" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[This action does not support cancellation.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Tato akce nepodporuje zrušení.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.actions.acquire.appPackagePath" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Path to the app package ZIP file, relative to the project folder or absolute.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Cesta k souboru ZIP balíčku aplikace relativní ke složce projektu nebo absolutnímu souboru.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.actions.acquire.scope" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Microsoft 365 installation scope. Omit to use the action's default scope.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Obor instalace Microsoft 365. Pokud chcete použít výchozí obor akce, vynechejte ho.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.actions.invalidArgs" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The action arguments are invalid.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Argumenty akce jsou neplatné.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.actions.invalidField" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The field is missing or has an invalid value.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Pole chybí nebo má neplatnou hodnotu.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.actions.publishPolicy.callerId" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Nonzero App ID GUID of the agent's runtime application. Must match appId if the policy already contains it. Do not use a user object ID, tenant ID, or Toolkit client ID.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Nenulový identifikátor GUID ID aplikace modulu runtime agenta. Musí odpovídat appId, pokud ho zásada už obsahuje. Nepoužívejte ID objektu uživatele, ID tenanta ani ID klienta sady nástrojů.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.actions.publishPolicy.policyPath" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Path to a UTF-8 Work IQ policy JSON file inside the project directory, either absolute or relative to the project root. File contents are not expanded or rewritten.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Cesta k souboru JSON se zásadou Work IQ v kódování UTF-8 uvnitř adresáře projektu, absolutní nebo relativní vůči kořenovému adresáři projektu. Obsah souboru není rozbalen ani přepsán.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.actions.publishPolicy.titleId" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Title ID of the existing agent. This action does not create the agent or title.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[ID názvu existujícího agenta. Tato akce nevytváří agenta ani název.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.actions.writesWarning" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[This action performs real external writes.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Tato akce provádí skutečné externí zápisy.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";core.addApi.confirm" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Microsoft 365 Agents Toolkit will modify files in your "%s" folder based on the new OpenAPI document you provided. To avoid losing unexpected changes, back up your files or use git for change tracking before proceeding.]]></Val>
@@ -8938,6 +9037,240 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";driver.workiq.description" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Publish a policy for an existing agent. Currently supports Work IQ policies only. Publication does not verify runtime enforcement.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Publikujte zásadu pro existujícího agenta. V současné době jsou podporovány pouze zásady Work IQ. Publikace neověřuje vynucení modulu runtime.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.workiq.error.appBinding" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[callerId must be a nonzero App ID GUID and must match appId if the policy already contains it.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[CallerId musí být nenulový identifikátor GUID ID aplikace a musí odpovídat appId, pokud ho zásada již obsahuje.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.workiq.error.authentication" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to acquire the delegated MOS token. Sign in with an authorized maker account and check MOS permissions.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Nelze získat delegovaný token MOS. Přihlaste se pomocí autorizovaného účtu tvůrce a zkontrolujte oprávnění MOS.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.workiq.error.conflict" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[MOS reported a policy version conflict. Inspect the current policy before publishing again; this action does not retry automatically.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Služba MOS oznámila konflikt verzí zásad. Před opětovnou publikováním zkontrolujte aktuální zásady. Tato akce se neopakuje automaticky.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.workiq.error.failed" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Policy publication did not complete. Review the destination receipts and diagnostics before taking further action.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Publikování zásad nebylo dokončeno. Než provedete další akci, zkontrolujte potvrzení o cíli a diagnostiku.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.workiq.error.incomplete" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Policy publication is incomplete. A confirmed destination write was preserved. Review the report before completing the missing destination; do not blindly repeat the entire publication.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Publikování zásad není úplné. Zachoval se potvrzený cílový zápis. Před dokončením chybějícího cíle zkontrolujte sestavu. Neopakujte slepě celou publikaci.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.workiq.error.invalidPolicy" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The policy must be a UTF-8 JSON object without duplicate property names. Policy content is not expanded or rewritten.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Zásada musí být objekt JSON UTF-8 bez duplicitních názvů vlastností. Obsah zásad není rozbalen ani přepsán.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.workiq.error.mosEnvironment" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[TEAMSFX_WORKIQ_MOS_ENV must be sdf, msitcanary, msit, or prod. Leave it unset to use prod.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Hodnota TEAMSFX_WORKIQ_MOS_ENV musí být sdf, msitcanary, msit nebo prod. Pokud chcete použít prod, nechte ji nenastavenou.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.workiq.error.mosPolicyRead" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to read a valid MOS policy version. Check the target service, policy response, permissions, and connection before publishing.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Nelze přečíst platnou verzi zásad MOS. Před publikováním zkontrolujte cílovou službu, odpověď zásad, oprávnění a připojení.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.workiq.error.outcomeUnknown" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Policy publication was not confirmed. A remote write may have occurred. Check the destination before retrying; completed writes were not rolled back.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Publikování zásad nebylo potvrzeno. Je možné, že došlo ke vzdálenému zápisu. Než to zkusíte znovu, zkontrolujte cíl. Dokončené zápisy nebyly vráceny zpět.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.workiq.error.outsideProject" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The policy file must be inside the project directory, including after resolving symbolic links.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Soubor zásad musí být uvnitř adresáře projektu, včetně překladu symbolických odkazů.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.workiq.error.preflight" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Policy publication prerequisites could not be prepared. No new destination write was started. Check the service configuration and authentication.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Požadavky na publikování zásad se nepovedlo připravit. Nezahájil se žádný nový cílový zápis. Zkontrolujte konfiguraci a ověřování služby.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.workiq.error.publishTarget" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[TEAMSFX_WORKIQ_PUBLISH_TARGET must be mos, workiq, or both. Leave it unset to publish to Work IQ only.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Hodnota TEAMSFX_WORKIQ_PUBLISH_TARGET musí být mos, workiq nebo both. Pokud chcete publikovat pouze do Work IQ, ponechte tuto proměnnou nenastavenou.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.workiq.error.readFailed" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to read the policy file. Check policyPath and file permissions.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Nepovedlo se přečíst soubor zásad. Zkontrolujte policyPath a oprávnění k souborům.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.workiq.error.rejected" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[MOS rejected the policy publication. Check title ownership, permissions, policy schema, and service configuration.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Služba MOS odmítla publikování zásad. Zkontrolujte vlastnictví názvu, oprávnění, schéma zásad a konfiguraci služby.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.workiq.error.serviceDiscovery" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to discover a valid HTTPS MOS titles service. Check the service response and network connection before publishing.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Nepovedlo se zjistit platnou službu názvů HTTPS MOS. Před publikováním zkontrolujte odpověď služby a síťové připojení.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.workiq.error.workIqAuthentication" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to authenticate to Work IQ. Check the configured token resource, required API permissions, and tenant administrator authorization.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Nepodařilo se ověřit v nástroji Work IQ. Zkontrolujte nakonfigurovaný prostředek tokenu, požadovaná oprávnění rozhraní API a autorizaci správce tenanta.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.workiq.error.workIqConfiguration" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Configure a trusted HTTPS Work IQ endpoint and one explicit resource-qualified scope set. Token settings are configured in the client, not inferred from the endpoint.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Nakonfigurujte důvěryhodný koncový bod Work IQ s protokolem HTTPS a jednu explicitní sadu oborů kvalifikovaných zdrojem. Nastavení tokenu se konfigurují v klientovi, neodvozují se z koncového bodu.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.workiq.error.workIqConflict" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Work IQ reported a policy version or App ID binding conflict. Inspect the current policy and App ID before publishing again; this action does not retry or reset automatically.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Work IQ oznámilo konflikt verze zásad nebo vazby ID aplikace. Před opětovným publikováním zkontrolujte aktuální zásadu a ID aplikace. Tato akce se neopakuje ani neresetuje automaticky.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.workiq.error.workIqInput" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Check the Work IQ title and contract name/version. Policy deletion requires the original strong Work IQ ETag.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Zkontrolujte název Work IQ a název a verzi smlouvy. Odstranění zásady vyžaduje původní silný ETag Work IQ.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.workiq.error.workIqRead" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to inspect Work IQ policy or Capability Contracts. Check the target service, permissions, and connection.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Nepodařilo se zkontrolovat zásadu Work IQ ani smlouvy o funkcích. Zkontrolujte cílovou službu, oprávnění a připojení.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.workiq.error.workIqRejected" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Work IQ rejected the request. Check the title, App ID binding, policy Capability Contracts, request conditions, and size limits.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Nástroj Work IQ žádost odmítl. Zkontrolujte název, vazbu ID aplikace, kontrakty schopností zásad, podmínky požadavků a limity velikosti.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.workiq.mockWarning" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Alpha: Work IQ publication is mocked. No policy or caller binding will be written to Work IQ, even if MOS publication succeeds.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Alpha: Publikace do Work IQ je simulovaná. Do Work IQ se nezapíše žádná zásada ani vazba volajícího, i když bude publikace do MOS úspěšná.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.workiq.mosConfirmed" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[MOS policy publication was confirmed.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Publikování zásad MOS bylo potvrzeno.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.workiq.progress" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Publishing agent policy]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Zásady agenta publikování]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.workiq.summary" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Policy publication %s: target=%s; outcome=%s; MOS=%s; Work IQ=%s; nextAction=%s.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Publikace zásad %s: target=%s; výsledek=%s; MOS=%s; Pracovní IQ=%s; nextAction=%s.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";error.FailedToParseResourceIdError" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Unable to get '%s' from resource id: '%s']]></Val>
@@ -10363,6 +10696,24 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";error.dp.invalidIdentity" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The app identity is missing, invalid, or inconsistent (%s). Check the selected environment and the Developer Portal app.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Identita aplikace chybí, je neplatná nebo nekonzistentní (%s). Zkontrolujte vybrané prostředí a aplikaci Portál pro vývojáře.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";error.dp.splitIdentityRequiresNewApi" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[This imported app has different resource and manifest IDs. Enable TEAMSFX_NEW_DP_APIS to use this project. No app changes were made.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Tato importovaná aplikace má různá ID prostředků a manifestů. Povolte TEAMSFX_NEW_DP_APIS používat tento projekt. Neprovedly se žádné změny aplikace.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";error.driver.outputEnvironmentVariableUndefined" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[The output environment variable name(s) are not defined.]]></Val>
@@ -10600,6 +10951,15 @@
           <Prev Cat="Text">
             <Val><![CDATA[Unable to extend Teams app to Microsoft 365. Use 'teamsApp/extendToM365' action to extend your Teams app to Microsoft 365.]]></Val>
           </Prev>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";error.m365.packageService.discoveryFailed" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to discover the MOS titles service. Check the connection and account permissions.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Nelze zjistit službu názvů MOS. Zkontrolujte připojení a oprávnění účtu.]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -11062,11 +11422,29 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";info.m365.packageService.networkRetry" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Request failed with %s, retrying (%s/%s)...]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Žádost se nezdařila s %s. Probíhá opakování (%s/%s)...]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";info.m365.packageService.raiValidationInProgress" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[RAI validation is in progress. Waiting for completion...]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[Probíhá ověřování RAI. Čeká se na dokončení...]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";info.m365.packageService.titleServiceResolved" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[MOS titles service configuration resolved.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Konfigurace služby názvů MOS byla vyřešena.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />

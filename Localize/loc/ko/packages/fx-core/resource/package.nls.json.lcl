@@ -1186,6 +1186,105 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";core.actions.InvalidActionContext" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Provide an absolute project path and, if needed, a valid cancellation signal.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[절대 프로젝트 경로를 제공하고 필요한 경우 유효한 취소 신호를 제공합니다.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.actions.UnsupportedAction" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[This action is not supported for standalone execution.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[이 작업은 독립 실행을 지원하지 않습니다.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.actions.UnsupportedCancellation" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[This action does not support cancellation.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[이 작업은 취소를 지원하지 않습니다.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.actions.acquire.appPackagePath" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Path to the app package ZIP file, relative to the project folder or absolute.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[프로젝트 폴더에 상대적이거나 절대 경로인 앱 패키지 ZIP 파일의 경로입니다.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.actions.acquire.scope" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Microsoft 365 installation scope. Omit to use the action's default scope.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Microsoft 365 설치 범위입니다. 작업의 기본 범위를 사용하려면 생략합니다.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.actions.invalidArgs" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The action arguments are invalid.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[작업 인수가 잘못되었습니다.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.actions.invalidField" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The field is missing or has an invalid value.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[필드가 없거나 잘못된 값이 있습니다.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.actions.publishPolicy.callerId" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Nonzero App ID GUID of the agent's runtime application. Must match appId if the policy already contains it. Do not use a user object ID, tenant ID, or Toolkit client ID.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[에이전트 런타임 애플리케이션의 0이 아닌 앱 ID GUID입니다. 정책에 이미 appId가 포함되어 있는 경우 appId와 일치해야 합니다. 사용자 개체 ID, 테넌트 ID 또는 도구 키트 클라이언트 ID를 사용하지 마세요.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.actions.publishPolicy.policyPath" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Path to a UTF-8 Work IQ policy JSON file inside the project directory, either absolute or relative to the project root. File contents are not expanded or rewritten.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[프로젝트 디렉터리 내에 있는 UTF-8 Work IQ 정책 JSON 파일의 경로(절대 경로 또는 프로젝트 루트 기준 상대 경로)입니다. 파일 내용은 확장되거나 다시 작성되지 않습니다.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.actions.publishPolicy.titleId" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Title ID of the existing agent. This action does not create the agent or title.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[기존 에이전트의 타이틀 ID입니다. 이 작업은 에이전트 또는 타이틀을 만들지 않습니다.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.actions.writesWarning" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[This action performs real external writes.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[이 작업은 실제 외부 쓰기를 수행합니다.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";core.addApi.confirm" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Microsoft 365 Agents Toolkit will modify files in your "%s" folder based on the new OpenAPI document you provided. To avoid losing unexpected changes, back up your files or use git for change tracking before proceeding.]]></Val>
@@ -8938,6 +9037,240 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";driver.workiq.description" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Publish a policy for an existing agent. Currently supports Work IQ policies only. Publication does not verify runtime enforcement.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[기존 에이전트에 대한 정책을 게시합니다. 현재 Work IQ 정책만 지원합니다. 게시해도 런타임 적용 여부는 확인되지 않습니다.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.workiq.error.appBinding" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[callerId must be a nonzero App ID GUID and must match appId if the policy already contains it.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[callerId는 0이 아닌 앱 ID GUID여야 하며 정책에 이미 appId가 포함되어 있으면 appId와 일치해야 합니다.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.workiq.error.authentication" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to acquire the delegated MOS token. Sign in with an authorized maker account and check MOS permissions.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[위임된 MOS 토큰을 가져올 수 없습니다. 승인된 제작자 계정으로 로그인하고 MOS 권한을 검사합니다.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.workiq.error.conflict" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[MOS reported a policy version conflict. Inspect the current policy before publishing again; this action does not retry automatically.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[MOS에서 정책 버전 충돌을 보고했습니다. 다시 게시하기 전에 현재 정책을 검사합니다. 이 작업은 자동으로 다시 시도되지 않습니다.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.workiq.error.failed" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Policy publication did not complete. Review the destination receipts and diagnostics before taking further action.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[정책 게시가 완료되지 않았습니다. 추가 작업을 수행하기 전에 대상 영수증 및 진단을 검토하세요.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.workiq.error.incomplete" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Policy publication is incomplete. A confirmed destination write was preserved. Review the report before completing the missing destination; do not blindly repeat the entire publication.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[정책 게시가 완료되지 않았습니다. 확인된 대상 쓰기가 유지되었습니다. 누락된 대상을 완료하기 전에 보고서를 검토하세요. 게시 작업 전체를 무작정 반복하지 마세요.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.workiq.error.invalidPolicy" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The policy must be a UTF-8 JSON object without duplicate property names. Policy content is not expanded or rewritten.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[정책은 중복된 속성 이름이 없는 UTF-8 JSON 개체여야 합니다. 정책 콘텐츠가 확장되거나 다시 작성되지 않습니다.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.workiq.error.mosEnvironment" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[TEAMSFX_WORKIQ_MOS_ENV must be sdf, msitcanary, msit, or prod. Leave it unset to use prod.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[TEAMSFX_WORKIQ_MOS_ENV는 sdf, msitcanary, msit 또는 prod여야 합니다. prod를 사용하려면 설정되지 않은 상태로 둡니다.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.workiq.error.mosPolicyRead" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to read a valid MOS policy version. Check the target service, policy response, permissions, and connection before publishing.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[유효한 MOS 정책 버전을 읽을 수 없습니다. 게시하기 전에 대상 서비스, 정책 응답, 권한 및 연결을 확인하세요.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.workiq.error.outcomeUnknown" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Policy publication was not confirmed. A remote write may have occurred. Check the destination before retrying; completed writes were not rolled back.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[정책 게시가 확인되지 않았습니다. 원격 쓰기가 발생했을 수 있습니다. 다시 시도하기 전에 대상을 확인합니다. 완료된 쓰기가 롤백되지 않았습니다.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.workiq.error.outsideProject" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The policy file must be inside the project directory, including after resolving symbolic links.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[정책 파일은 심볼릭 링크를 확인한 후에도 프로젝트 디렉터리 내에 있어야 합니다.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.workiq.error.preflight" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Policy publication prerequisites could not be prepared. No new destination write was started. Check the service configuration and authentication.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[정책 게시 필수 구성 요소를 준비할 수 없습니다. 새 대상 쓰기가 시작되지 않았습니다. 서비스 구성 및 인증을 확인하십시오.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.workiq.error.publishTarget" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[TEAMSFX_WORKIQ_PUBLISH_TARGET must be mos, workiq, or both. Leave it unset to publish to Work IQ only.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[TEAMSFX_WORKIQ_PUBLISH_TARGET는 mos, workiq 또는 both여야 합니다. Work IQ에만 게시하려면 설정하지 않은 상태로 두세요.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.workiq.error.readFailed" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to read the policy file. Check policyPath and file permissions.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[정책 파일을 읽을 수 없습니다. policyPath 및 파일 권한을 확인합니다.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.workiq.error.rejected" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[MOS rejected the policy publication. Check title ownership, permissions, policy schema, and service configuration.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[MOS에서 정책 게시를 거부했습니다. 타이틀 소유권, 사용 권한, 정책 스키마 및 서비스 구성을 확인합니다.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.workiq.error.serviceDiscovery" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to discover a valid HTTPS MOS titles service. Check the service response and network connection before publishing.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[유효한 HTTPS MOS 타이틀 서비스를 검색할 수 없습니다. 게시하기 전에 서비스 응답 및 네트워크 연결을 확인합니다.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.workiq.error.workIqAuthentication" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to authenticate to Work IQ. Check the configured token resource, required API permissions, and tenant administrator authorization.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Work IQ에 인증할 수 없습니다. 구성된 토큰 리소스, 필요한 API 권한 및 테넌트 관리자 권한 부여를 확인하세요.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.workiq.error.workIqConfiguration" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Configure a trusted HTTPS Work IQ endpoint and one explicit resource-qualified scope set. Token settings are configured in the client, not inferred from the endpoint.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[신뢰할 수 있는 HTTPS Work IQ 엔드포인트와 리소스가 명시된 하나의 범위 집합을 구성하세요. 토큰 설정은 엔드포인트에서 유추되지 않고 클라이언트에서 구성됩니다.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.workiq.error.workIqConflict" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Work IQ reported a policy version or App ID binding conflict. Inspect the current policy and App ID before publishing again; this action does not retry or reset automatically.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Work IQ에서 정책 버전 또는 앱 ID 바인딩 충돌을 보고했습니다. 다시 게시하기 전에 현재 정책 및 앱 ID를 검사합니다. 이 작업은 자동으로 다시 시도되거나 다시 설정되지 않습니다.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.workiq.error.workIqInput" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Check the Work IQ title and contract name/version. Policy deletion requires the original strong Work IQ ETag.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Work IQ 제목 및 계약 이름/버전을 확인합니다. 정책을 삭제하려면 원본의 강력한 Work IQ ETag가 필요합니다.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.workiq.error.workIqRead" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to inspect Work IQ policy or Capability Contracts. Check the target service, permissions, and connection.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Work IQ 정책 또는 기능 계약을 검사할 수 없습니다. 대상 서비스, 권한 및 연결을 확인하세요.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.workiq.error.workIqRejected" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Work IQ rejected the request. Check the title, App ID binding, policy Capability Contracts, request conditions, and size limits.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Work IQ가 요청을 거부했습니다. 제목, 앱 ID 바인딩, 정책 기능 계약, 요청 조건 및 크기 제한을 확인하세요.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.workiq.mockWarning" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Alpha: Work IQ publication is mocked. No policy or caller binding will be written to Work IQ, even if MOS publication succeeds.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[알파: Work IQ 게시는 모의 구현 상태입니다. MOS 게시가 성공하더라도 Work IQ에 정책이나 호출자 바인딩이 기록되지 않습니다.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.workiq.mosConfirmed" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[MOS policy publication was confirmed.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[MOS 정책 게시가 확인되었습니다.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.workiq.progress" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Publishing agent policy]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[에이전트 정책 게시]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.workiq.summary" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Policy publication %s: target=%s; outcome=%s; MOS=%s; Work IQ=%s; nextAction=%s.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[정책 게시 %s: target=%s; 결과=%s; MOS=%s; 작업 IQ=%s; nextAction=%s.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";error.FailedToParseResourceIdError" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Unable to get '%s' from resource id: '%s']]></Val>
@@ -10363,6 +10696,24 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";error.dp.invalidIdentity" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The app identity is missing, invalid, or inconsistent (%s). Check the selected environment and the Developer Portal app.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[앱 ID가 누락되었거나, 잘못되었거나, 일관성이 없습니다(%s). 선택한 환경 및 개발자 포털 앱을 확인합니다.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";error.dp.splitIdentityRequiresNewApi" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[This imported app has different resource and manifest IDs. Enable TEAMSFX_NEW_DP_APIS to use this project. No app changes were made.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[이 가져온 앱은 리소스 ID와 매니페스트 ID가 서로 다릅니다. 이 프로젝트를 사용하려면 TEAMSFX_NEW_DP_APIS를 사용하도록 설정합니다. 앱이 변경되지 않았습니다.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";error.driver.outputEnvironmentVariableUndefined" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[The output environment variable name(s) are not defined.]]></Val>
@@ -10600,6 +10951,15 @@
           <Prev Cat="Text">
             <Val><![CDATA[Unable to extend Teams app to Microsoft 365. Use 'teamsApp/extendToM365' action to extend your Teams app to Microsoft 365.]]></Val>
           </Prev>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";error.m365.packageService.discoveryFailed" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to discover the MOS titles service. Check the connection and account permissions.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[MOS 타이틀 서비스를 검색할 수 없습니다. 연결 및 계정 권한을 확인하세요.]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -11062,11 +11422,29 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";info.m365.packageService.networkRetry" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Request failed with %s, retrying (%s/%s)...]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[요청이 %s(으)로 인해 실패했습니다. 재시도 중입니다(%s/%s)...]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";info.m365.packageService.raiValidationInProgress" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[RAI validation is in progress. Waiting for completion...]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[RAI 유효성 검사가 진행 중입니다. 완료 대기 중...]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";info.m365.packageService.titleServiceResolved" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[MOS titles service configuration resolved.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[MOS 타이틀 서비스 구성이 해결되었습니다.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />

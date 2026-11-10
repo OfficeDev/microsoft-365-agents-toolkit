@@ -1186,6 +1186,105 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";core.actions.InvalidActionContext" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Provide an absolute project path and, if needed, a valid cancellation signal.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Forneça um caminho de projeto absoluto e, se necessário, um sinal de cancelamento válido.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.actions.UnsupportedAction" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[This action is not supported for standalone execution.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Esta ação não tem suporte para execução autônoma.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.actions.UnsupportedCancellation" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[This action does not support cancellation.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Esta ação não dá suporte ao cancelamento.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.actions.acquire.appPackagePath" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Path to the app package ZIP file, relative to the project folder or absolute.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Caminho para o arquivo ZIP do pacote do aplicativo, relativo à pasta do projeto ou absoluto.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.actions.acquire.scope" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Microsoft 365 installation scope. Omit to use the action's default scope.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Escopo de instalação do Microsoft 365. Omita para usar o escopo padrão da ação.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.actions.invalidArgs" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The action arguments are invalid.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Os argumentos da ação são inválidos.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.actions.invalidField" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The field is missing or has an invalid value.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[O campo está ausente ou tem um valor inválido.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.actions.publishPolicy.callerId" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Nonzero App ID GUID of the agent's runtime application. Must match appId if the policy already contains it. Do not use a user object ID, tenant ID, or Toolkit client ID.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[GUID da ID do Aplicativo diferente de zero do aplicativo de runtime do agente. Deve corresponder à appId se a política já a contiver. Não use uma ID de objeto de usuário, ID de locatário ou ID de cliente do Kit de ferramentas.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.actions.publishPolicy.policyPath" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Path to a UTF-8 Work IQ policy JSON file inside the project directory, either absolute or relative to the project root. File contents are not expanded or rewritten.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Caminho para um arquivo JSON de política do Work IQ em UTF-8 dentro do diretório do projeto, absoluto ou relativo à raiz do projeto. O conteúdo do arquivo não é expandido nem reescrito.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.actions.publishPolicy.titleId" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Title ID of the existing agent. This action does not create the agent or title.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[ID do título do agente existente. Esta ação não cria o agente ou o título.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.actions.writesWarning" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[This action performs real external writes.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Esta ação executa gravações externas reais.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";core.addApi.confirm" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Microsoft 365 Agents Toolkit will modify files in your "%s" folder based on the new OpenAPI document you provided. To avoid losing unexpected changes, back up your files or use git for change tracking before proceeding.]]></Val>
@@ -8938,6 +9037,240 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";driver.workiq.description" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Publish a policy for an existing agent. Currently supports Work IQ policies only. Publication does not verify runtime enforcement.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Publique uma política para um agente existente. Atualmente suporta apenas políticas de QI de Trabalho. A publicação não verifica a imposição de tempo de execução.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.workiq.error.appBinding" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[callerId must be a nonzero App ID GUID and must match appId if the policy already contains it.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[callerId deve ser um GUID de ID do Aplicativo diferente de zero e deve corresponder a appId se a política já o contiver.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.workiq.error.authentication" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to acquire the delegated MOS token. Sign in with an authorized maker account and check MOS permissions.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Não é possível adquirir o token MOS delegado. Entre com uma conta de criador autorizado e marque as permissões do MOS.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.workiq.error.conflict" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[MOS reported a policy version conflict. Inspect the current policy before publishing again; this action does not retry automatically.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[O MOS relatou um conflito de versão de política. Inspecione a política atual antes de publicar novamente; Esta ação não é repetida automaticamente.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.workiq.error.failed" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Policy publication did not complete. Review the destination receipts and diagnostics before taking further action.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[A publicação da política não foi concluída. Examine os recibos e os diagnósticos de destino antes de executar outras ações.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.workiq.error.incomplete" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Policy publication is incomplete. A confirmed destination write was preserved. Review the report before completing the missing destination; do not blindly repeat the entire publication.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[A publicação da política está incompleta. Uma gravação de destino confirmada foi preservada. Revise o relatório antes de concluir o destino ausente; Não repita cegamente toda a publicação.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.workiq.error.invalidPolicy" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The policy must be a UTF-8 JSON object without duplicate property names. Policy content is not expanded or rewritten.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[A política deve ser um objeto JSON UTF-8 sem nomes de propriedade duplicados. O conteúdo da política não é expandido ou reescrito.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.workiq.error.mosEnvironment" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[TEAMSFX_WORKIQ_MOS_ENV must be sdf, msitcanary, msit, or prod. Leave it unset to use prod.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[TEAMSFX_WORKIQ_MOS_ENV deve ser sdf, msitcanary, msit ou prod. Não a defina para usar prod.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.workiq.error.mosPolicyRead" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to read a valid MOS policy version. Check the target service, policy response, permissions, and connection before publishing.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Não é possível ler uma versão válida da política MOS. Verifique o serviço de destino, a resposta da política, as permissões e a conexão antes de publicar.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.workiq.error.outcomeUnknown" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Policy publication was not confirmed. A remote write may have occurred. Check the destination before retrying; completed writes were not rolled back.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[A publicação da política não foi confirmada. Pode ter ocorrido uma gravação remota. Verifique o destino antes de tentar novamente; As gravações concluídas não foram revertidas.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.workiq.error.outsideProject" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The policy file must be inside the project directory, including after resolving symbolic links.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[O arquivo de política deve estar dentro do diretório do projeto, inclusive após a resolução de links simbólicos.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.workiq.error.preflight" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Policy publication prerequisites could not be prepared. No new destination write was started. Check the service configuration and authentication.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Não foi possível preparar os pré-requisitos de publicação de política. Nenhuma nova gravação de destino foi iniciada. Verifique a configuração e a autenticação do serviço.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.workiq.error.publishTarget" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[TEAMSFX_WORKIQ_PUBLISH_TARGET must be mos, workiq, or both. Leave it unset to publish to Work IQ only.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[TEAMSFX_WORKIQ_PUBLISH_TARGET deve ser mos, workiq ou ambos. Não a defina para publicar somente no Work IQ.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.workiq.error.readFailed" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to read the policy file. Check policyPath and file permissions.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Não é possível ler o arquivo de política. Verifique policyPath e permissões de arquivo.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.workiq.error.rejected" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[MOS rejected the policy publication. Check title ownership, permissions, policy schema, and service configuration.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[O MOS rejeitou a publicação da política. Verifique a propriedade do título, as permissões, o esquema de política e a configuração do serviço.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.workiq.error.serviceDiscovery" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to discover a valid HTTPS MOS titles service. Check the service response and network connection before publishing.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Não é possível descobrir um serviço de títulos MOS HTTPS válido. Verifique a resposta do serviço e a conexão de rede antes de publicar.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.workiq.error.workIqAuthentication" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to authenticate to Work IQ. Check the configured token resource, required API permissions, and tenant administrator authorization.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Não foi possível autenticar no Work IQ. Verifique o recurso de token configurado, as permissões de API necessárias e a autorização do administrador do locatário.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.workiq.error.workIqConfiguration" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Configure a trusted HTTPS Work IQ endpoint and one explicit resource-qualified scope set. Token settings are configured in the client, not inferred from the endpoint.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Configure um ponto de extremidade de QI de Trabalho HTTPS confiável e um conjunto de escopo qualificado de recurso explícito. As configurações de token são definidas no cliente, não inferidas do ponto de extremidade.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.workiq.error.workIqConflict" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Work IQ reported a policy version or App ID binding conflict. Inspect the current policy and App ID before publishing again; this action does not retry or reset automatically.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[O Work IQ relatou um conflito de vinculação de versão de política ou ID do Aplicativo. Inspecione a política atual e a ID do Aplicativo antes de publicar novamente; Esta ação não é repetida nem redefinida automaticamente.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.workiq.error.workIqInput" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Check the Work IQ title and contract name/version. Policy deletion requires the original strong Work IQ ETag.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Verifique o título do Work IQ e o nome/versão do contrato. A exclusão da política requer a Etag forte original do Work IQ.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.workiq.error.workIqRead" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to inspect Work IQ policy or Capability Contracts. Check the target service, permissions, and connection.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Não foi possível inspecionar a política do Work IQ ou os Contratos de Capacidade. Verifique o serviço de destino, as permissões e a conexão.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.workiq.error.workIqRejected" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Work IQ rejected the request. Check the title, App ID binding, policy Capability Contracts, request conditions, and size limits.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[O Work IQ rejeitou a solicitação. Verifique o título, a associação da ID do Aplicativo, os Contratos de Capacidade da política, as condições de solicitação e os limites de tamanho.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.workiq.mockWarning" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Alpha: Work IQ publication is mocked. No policy or caller binding will be written to Work IQ, even if MOS publication succeeds.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Alfa: a publicação no Work IQ é simulada. Nenhuma política ou associação de chamador será gravada no Work IQ, mesmo que a publicação no MOS seja bem-sucedida.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.workiq.mosConfirmed" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[MOS policy publication was confirmed.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[A publicação da política no MOS foi confirmada.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.workiq.progress" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Publishing agent policy]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Publicando a política do agente]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.workiq.summary" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Policy publication %s: target=%s; outcome=%s; MOS=%s; Work IQ=%s; nextAction=%s.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Publicação de política %s: target=%s; outcome=%s; MOS=%s; Work IQ=%s; nextAction=%s.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";error.FailedToParseResourceIdError" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Unable to get '%s' from resource id: '%s']]></Val>
@@ -10363,6 +10696,24 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";error.dp.invalidIdentity" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The app identity is missing, invalid, or inconsistent (%s). Check the selected environment and the Developer Portal app.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[A identidade do aplicativo está ausente, inválida ou inconsistente (%s). Verifique o ambiente selecionado e o aplicativo Portal do Desenvolvedor.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";error.dp.splitIdentityRequiresNewApi" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[This imported app has different resource and manifest IDs. Enable TEAMSFX_NEW_DP_APIS to use this project. No app changes were made.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Este aplicativo importado tem IDs de recurso e manifesto diferentes. Habilite TEAMSFX_NEW_DP_APIS para usar este projeto. Nenhuma alteração de aplicativo foi feita.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";error.driver.outputEnvironmentVariableUndefined" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[The output environment variable name(s) are not defined.]]></Val>
@@ -10600,6 +10951,15 @@
           <Prev Cat="Text">
             <Val><![CDATA[Unable to extend Teams app to Microsoft 365. Use 'teamsApp/extendToM365' action to extend your Teams app to Microsoft 365.]]></Val>
           </Prev>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";error.m365.packageService.discoveryFailed" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to discover the MOS titles service. Check the connection and account permissions.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Não é possível descobrir o serviço de títulos MOS. Verifique as permissões da conexão e da conta.]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -11062,11 +11422,29 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";info.m365.packageService.networkRetry" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Request failed with %s, retrying (%s/%s)...]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[A solicitação falhou com %s, tentando novamente (%s/%s)...]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";info.m365.packageService.raiValidationInProgress" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[RAI validation is in progress. Waiting for completion...]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[A validação IAR está em andamento. Aguardando conclusão...]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";info.m365.packageService.titleServiceResolved" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[MOS titles service configuration resolved.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Configuração do serviço de títulos do MOS resolvida.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
