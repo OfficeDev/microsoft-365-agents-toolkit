@@ -13,7 +13,6 @@ import { OfficeAddinGeneratorNew } from "../../../src/component/generator/office
 import { CustomEngineAgentWithExistingApiSpecGenerator } from "../../../src/component/generator/openApiSpec/customEngineAgentGenerator";
 import { SsrTabGenerator } from "../../../src/component/generator/other/ssrTabGenerator";
 import { TdpGenerator } from "../../../src/component/generator/other/tdpGenerator";
-import { SPFxGeneratorNew } from "../../../src/component/generator/spfx/spfxGenerator";
 import { TemplateNames } from "../../../src/component/generator/templates/templateNames";
 import { pathUtils } from "../../../src/component/utils/pathUtils";
 import { FxCore } from "../../../src/core/FxCore";
@@ -26,7 +25,6 @@ import {
   QuestionNames,
   ScratchOptions,
 } from "../../../src/question/constants";
-import { TabCapabilityOptions } from "../../../src/question/scaffold/vsc/CapabilityOptions";
 import { ProjectTypeOptions } from "../../../src/question/scaffold/vsc/ProjectTypeOptions";
 import { validationUtils } from "../../../src/ui/validationUtils";
 import { MockTools, randomAppName } from "../../core/utils";
@@ -172,13 +170,13 @@ describe("coordinator create", () => {
         assert.isTrue(res.error instanceof InputValidationError);
       }
     });
-    it("fail to create SPFx project", async () => {
-      vi.spyOn(SPFxGeneratorNew.prototype, "run").mockResolvedValue(err(new UserError({})));
+    it("RET-SPFX-02: rejects creation of a retired SPFx project", async () => {
       const inputs: Inputs = {
         platform: Platform.VSCode,
         folder: ".",
         [QuestionNames.AppName]: randomAppName(),
-        [QuestionNames.Capabilities]: TabCapabilityOptions.SPFxTab().id,
+        [QuestionNames.Capabilities]: "tab-spfx",
+        [QuestionNames.TemplateName]: TemplateNames.TabSPFx,
         [QuestionNames.ProgrammingLanguage]: "javascript",
         [QuestionNames.SPFxSolution]: "new",
         [QuestionNames.SPFxFramework]: "none",
@@ -191,24 +189,21 @@ describe("coordinator create", () => {
 
     it("ensureTrackingId fails", async () => {
       vi.spyOn(fs, "pathExists").mockResolvedValue(true);
-      vi.spyOn(SPFxGeneratorNew.prototype, "run").mockResolvedValue(ok({}));
+      vi.spyOn(DefaultTemplateGenerator.prototype, "run").mockResolvedValue(ok({}));
       vi.spyOn(coordinator, "ensureTrackingId").mockResolvedValue(err(new UserError({})));
       const inputs: Inputs = {
         platform: Platform.VSCode,
         folder: ".",
         [QuestionNames.AppName]: randomAppName(),
-        [QuestionNames.Capabilities]: TabCapabilityOptions.SPFxTab().id,
+        [QuestionNames.TemplateName]: TemplateNames.Tab,
         [QuestionNames.ProgrammingLanguage]: "typescript",
-        [QuestionNames.SPFxSolution]: "new",
-        [QuestionNames.SPFxFramework]: "none",
-        [QuestionNames.SPFxWebpartName]: "test",
       };
       const context = createContext();
       const res = await coordinator.create(context, inputs);
       assert.isTrue(res.isErr());
     });
     it("success", async () => {
-      vi.spyOn(SPFxGeneratorNew.prototype, "run").mockResolvedValue(ok({}));
+      vi.spyOn(DefaultTemplateGenerator.prototype, "run").mockResolvedValue(ok({}));
       vi.spyOn(fs, "pathExists").mockResolvedValue(true);
       vi.spyOn(pathUtils, "getYmlFilePath").mockReturnValue("m365agents.yml");
       vi.spyOn(coordinator, "ensureTrackingId").mockResolvedValue(ok("mock-id"));
@@ -216,11 +211,8 @@ describe("coordinator create", () => {
         platform: Platform.VSCode,
         folder: ".",
         [QuestionNames.AppName]: randomAppName(),
-        [QuestionNames.Capabilities]: TabCapabilityOptions.SPFxTab().id,
+        [QuestionNames.TemplateName]: TemplateNames.Tab,
         [QuestionNames.ProgrammingLanguage]: "typescript",
-        [QuestionNames.SPFxSolution]: "new",
-        [QuestionNames.SPFxFramework]: "none",
-        [QuestionNames.SPFxWebpartName]: "test",
       };
       const context = createContext();
       const res = await coordinator.create(context, inputs);

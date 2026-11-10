@@ -133,4 +133,4 @@ steps:
         allowAction: true
         expect:
           replied: true
-          notContains: ["error"]
+          validResponse: true

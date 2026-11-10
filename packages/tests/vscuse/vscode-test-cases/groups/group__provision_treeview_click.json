@@ -33,7 +33,7 @@
       "parameters": {
         "button": "left",
         "x": 114,
-        "y": 530
+        "y": 550
       },
       "description": "Click the \"Provision\" button in the LIFECYCLE section of the MICROSOFT 365 AGENTS TOOLKIT panel in Visual Studio Code to run the ‘provision’ lifecycle stage as described in the tooltip.",
       "content_refs": [],
@@ -41,11 +41,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [],
-      "preconditions": [
-        "dhash:114:530:16:5:aeb6a6a7b2a6d922",
-        "dhash:114:530:96:5:5a899991f9c54cc6",
-        "dhash:114:530:0:10:b28c2223238224a1"
-      ],
+      "preconditions": [],
       "postconditions": [],
       "tags": [],
       "screenshot": "step_b9576307",

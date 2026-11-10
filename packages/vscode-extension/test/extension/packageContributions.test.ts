@@ -27,7 +27,7 @@ interface ExtensionManifest {
 }
 
 describe("package contributions", () => {
-  it("labels the Frontier-gated Add Skill command", () => {
+  it("exposes GA Add Skill without a Frontier label or enablement gate", () => {
     const manifest: ExtensionManifest = fs.readJsonSync(
       path.resolve(__dirname, "../../package.json")
     );
@@ -36,10 +36,10 @@ describe("package contributions", () => {
       manifest.contributes.commands.find((command) => command.command === "fx-extension.addSkill")
     ).toEqual({
       command: "fx-extension.addSkill",
-      title: "%teamstoolkit.commandsTreeViewProvider.addSkillFrontierTitle%",
+      title: "%teamstoolkit.commandsTreeViewProvider.addSkillTitle%",
       category: "Microsoft 365 Agents",
       enablement:
-        "fx-extension.isTeamsFx && isWorkspaceTrusted && !fx-extension.commandLocked && fx-extension.isDeclarativeCopilotApp && fx-extension.isAgentSkillsEnabled",
+        "fx-extension.isTeamsFx && isWorkspaceTrusted && !fx-extension.commandLocked && fx-extension.isDeclarativeCopilotApp",
     });
   });
 

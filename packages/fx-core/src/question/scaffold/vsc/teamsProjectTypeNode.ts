@@ -20,13 +20,6 @@ import {
   probeMCPServerAuth,
 } from "../../../component/utils/mcpToolFetcher";
 import { ODRProvider, ODRServer } from "../../../component/utils/odrProvider";
-import {
-  SPFxFrameworkQuestion,
-  SPFxImportFolderQuestion,
-  SPFxPackageSelectQuestion,
-  SPFxSolutionQuestion,
-  SPFxWebpartNameQuestion,
-} from "../../create";
 import { QuestionNames } from "../../questionNames";
 import { apiSpecNode } from "../commonNodes";
 import {
@@ -203,33 +196,10 @@ export function tabProjectTypeNode(platform: Platform = Platform.VSCode): IQTree
         TabCapabilityOptions.nonSsoTab(),
         TabCapabilityOptions.m365SsoLaunchPage(),
         TabCapabilityOptions.dashboardTab(),
-        TabCapabilityOptions.SPFxTab(),
       ],
       placeholder: getLocalizedString("template.createCapabilityQuestion.placeholder"),
       onDidSelection: setTemplateName,
     },
-    children: [
-      {
-        //SPFx sub-tree
-        condition: { equals: TabCapabilityOptions.SPFxTab().id },
-        data: SPFxSolutionQuestion(),
-        children: [
-          {
-            data: { type: "group" },
-            children: [
-              { data: SPFxPackageSelectQuestion() },
-              { data: SPFxFrameworkQuestion() },
-              { data: SPFxWebpartNameQuestion() },
-            ],
-            condition: { equals: "new" },
-          },
-          {
-            data: SPFxImportFolderQuestion(),
-            condition: { equals: "import" },
-          },
-        ],
-      },
-    ],
   };
 }
 

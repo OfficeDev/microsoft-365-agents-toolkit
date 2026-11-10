@@ -1,28 +1,25 @@
 ---
 name: microsoft-365-agents-toolkit
-description: "Builds, tests, and deploys Microsoft 365 apps and agents for Teams and Copilot. Uses WIQD for pure Declarative Agents and DAs backed by existing APIs, MCP servers, or Copilot Connector connections; uses ATK for Declarative Agents with project-owned backend code and deployment and for TypeSpec DA projects. Uses ATK for Custom Engine Agents, Teams bots, tabs, message extensions, Agents Playground, and Teams runtime testing. USE FOR: Declarative Agents, Custom Engine Agents, Teams apps, local testing, deployment, troubleshooting, and Slack-to-Teams migration. DO NOT USE FOR: general web development or non-Microsoft-365 projects."
+description: "Builds, tests, and deploys Microsoft 365 apps and agents for Teams and Copilot. Delegates all Declarative Agent workflows to the WIQD plugin except TypeSpec DA projects, which use ATK. Uses ATK for Custom Engine Agents, Teams bots, tabs, message extensions, Agents Playground, and Teams runtime testing. USE FOR: Declarative Agents, Custom Engine Agents, Teams apps, local testing, deployment, troubleshooting, and Slack-to-Teams migration. DO NOT USE FOR: general web development or non-Microsoft-365 projects."
 ---
 
 # Microsoft 365 Agents Toolkit Skill
 
-Build pure Declarative Agents and DAs that use existing APIs, MCP servers, or Copilot Connector connections with WIQD. Use ATK for DAs that own and deploy backend compute, including projects that build and deploy a new Copilot Connector backend, TypeSpec DA projects, non-DA Teams apps, code-based agents, and runtime testing.
+Delegate every Declarative Agent workflow to the `wiqd` plugin except TypeSpec DA projects. Use ATK for TypeSpec DAs, non-DA Teams apps, code-based agents, and runtime testing.
 
 ## Declarative Agent Routing
 
 Treat a request or project as a DA when the user explicitly says Declarative Agent, `appPackage/declarativeAgent.json` exists, or `appPackage/manifest.json` contains `copilotAgents.declarativeAgents`. The presence of `m365agents.yml` does not override these markers.
 
-Determine DA routing from project structure, not from which CLI created it. WIQD delegates scaffolding and lifecycle work to ATK/fx-core, so creator identity is not a reliable project-type signal.
+**Existing DA pre-delegation gate:** Before invoking any skill for an existing DA lifecycle request, inspect `m365agents.yml`, `m365agents.local.yml`, `tspconfig.yaml`, and `.tsp` sources for the TypeSpec markers below. If any marker is present, use ATK and never invoke WIQD. Invoke WIQD only after this inspection rules out a TypeSpec DA.
 
-For an existing DA lifecycle request, default to WIQD. Route it to ATK for backend ownership if and only if both of these conditions are true:
+Route a DA to ATK only when the request explicitly identifies the `declarative-agent-typespec` capability or the project contains a TypeSpec DA marker: a `typeSpec/compile` lifecycle action, a `tspconfig.yaml` entry for `@microsoft/typespec-m365-copilot`, or a `.tsp` source importing `@microsoft/typespec-m365-copilot`. Invoke the `wiqd` plugin for every other DA, including DAs that need a new Azure-hosted API backend, contain backend source or deployment actions, attach existing OpenAPI or remote MCP services, or use Copilot Connector capabilities. The presence of `src/functions`, `package.json`, `m365agents.yml`, infrastructure files, a DA action, or an API plugin does not select ATK.
 
-1. The project contains project-owned backend source code and its build configuration.
-2. Its lifecycle contains an action that provisions or deploys that backend.
+Once a DA is routed to WIQD, confirm that the `wiqd` skill is available in the current Copilot session. If it is missing, follow the installation preflight in [toolkit/declarative-agent-lifecycle.md](toolkit/declarative-agent-lifecycle.md); do not assume that the plugin is already installed or fall back to ATK.
 
-If the second condition is absent, use WIQD even when `src/functions`, `package.json`, `m365agents.yml`, a DA action, or an API plugin is present. A DA action that calls an existing OpenAPI service or remote MCP server does not meet the ATK condition.
+When the skill is available, invoke it and let that plugin own the complete workflow, including coordination with Azure and Entra skills for new backends, discovery, prerequisites, authentication, EULA handling, command selection, file-based fallback, validation, and error recovery. Do not run `wiqd` commands directly or duplicate WIQD operational guidance in this skill.
 
-Use ATK for a TypeSpec DA project or for a DA with project-owned backend source and corresponding backend deployment actions. Use WIQD for pure DAs and DAs that use existing OpenAPI, remote MCP, or Copilot Connector backends. Referencing an existing Copilot Connector connection does not select ATK; owning and deploying the connector implementation does. If the structure is incomplete or unusual, inspect the backend source and lifecycle deployment actions; ask whether the backend is owned and deployed by this project only when that cannot be determined. Do not switch tools as a runtime fallback. If WIQD is required but unavailable, provide its installation guidance and stop.
-
-Answer read-only DA schema, manifest, capability, example, and project-structure questions from local references without requiring WIQD installation or login.
+Answer read-only DA schema, manifest, capability, example, and project-structure questions from local references without invoking the WIQD plugin.
 
 ## AI Behavior Guidelines
 
@@ -102,9 +99,8 @@ Match user intent to the smallest valid workflow.
 
 | User Intent                                                                                    | Workflow (read in order)                                            |
 | ---------------------------------------------------------------------------------------------- | ------------------------------------------------------------------- |
-| Build a pure DA or attach an existing API/MCP/Copilot Connector backend                        | create-project (WIQD) → test-teams (M365 Copilot)                   |
-| Build a DA with project-owned backend source and deployment, including a new Connector backend | create-project (ATK) → provision-deploy → test-teams (M365 Copilot) |
-| Build a TypeSpec DA                                                                            | create-project (ATK) → follow generated ATK lifecycle               |
+| Build any non-TypeSpec DA, including one that needs a new backend | create-project (WIQD plugin) → test-teams (M365 Copilot) |
+| Build a TypeSpec DA                                               | create-project (ATK) → follow generated ATK lifecycle    |
 | Build a code-based agent or Teams app from scratch                                             | create-project → test-playground                                    |
 | Test existing project locally                                                                  | test-playground (recommended) or test-teams                         |
 | Deploy to Azure                                                                                | provision-deploy                                                    |

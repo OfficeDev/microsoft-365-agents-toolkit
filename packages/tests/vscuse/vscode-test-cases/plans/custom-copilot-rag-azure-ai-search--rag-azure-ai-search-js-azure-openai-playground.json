@@ -8,7 +8,7 @@
       "precondition_wait_timeout": 30,
       "precondition_retry_interval": 1
     },
-    "total_steps": 107,
+    "total_steps": 122,
     "name": "rag-azure-ai-search-js-azure-openai-playground",
     "description": {
       "owner": "",
@@ -83,6 +83,11 @@
       "step_setUserEnvironmentVariable_runCommand_c1120851f_3_1",
       "step_setUserEnvironmentVariable_typeValue_c1120851f_3_1",
       "step_setUserEnvironmentVariable_submitValue_c1120851f_3_1",
+      "step_setUserEnvironmentVariable_openClearNotifications_c1120851f_3_1",
+      "step_setUserEnvironmentVariable_assertClearNotificationsPalette_c1120851f_3_1",
+      "step_setUserEnvironmentVariable_filterClearNotifications_c1120851f_3_1",
+      "step_setUserEnvironmentVariable_assertClearNotificationsCommand_c1120851f_3_1",
+      "step_setUserEnvironmentVariable_executeClearNotifications_c1120851f_3_1",
       "step_setUserEnvironmentVariable_assertUpdated_c1120851f_3_1",
       "step_setUserEnvironmentVariable_closeTerminal_c1120851f_3_1",
       "step_setUserEnvironmentVariable_assertClosed_c1120851f_3_1",
@@ -92,6 +97,11 @@
       "step_setUserEnvironmentVariable_runCommand_c1120851f_3_2",
       "step_setUserEnvironmentVariable_typeValue_c1120851f_3_2",
       "step_setUserEnvironmentVariable_submitValue_c1120851f_3_2",
+      "step_setUserEnvironmentVariable_openClearNotifications_c1120851f_3_2",
+      "step_setUserEnvironmentVariable_assertClearNotificationsPalette_c1120851f_3_2",
+      "step_setUserEnvironmentVariable_filterClearNotifications_c1120851f_3_2",
+      "step_setUserEnvironmentVariable_assertClearNotificationsCommand_c1120851f_3_2",
+      "step_setUserEnvironmentVariable_executeClearNotifications_c1120851f_3_2",
       "step_setUserEnvironmentVariable_assertUpdated_c1120851f_3_2",
       "step_setUserEnvironmentVariable_closeTerminal_c1120851f_3_2",
       "step_setUserEnvironmentVariable_assertClosed_c1120851f_3_2",
@@ -101,6 +111,11 @@
       "step_setUserEnvironmentVariable_runCommand_c1120851f_3_3",
       "step_setUserEnvironmentVariable_typeValue_c1120851f_3_3",
       "step_setUserEnvironmentVariable_submitValue_c1120851f_3_3",
+      "step_setUserEnvironmentVariable_openClearNotifications_c1120851f_3_3",
+      "step_setUserEnvironmentVariable_assertClearNotificationsPalette_c1120851f_3_3",
+      "step_setUserEnvironmentVariable_filterClearNotifications_c1120851f_3_3",
+      "step_setUserEnvironmentVariable_assertClearNotificationsCommand_c1120851f_3_3",
+      "step_setUserEnvironmentVariable_executeClearNotifications_c1120851f_3_3",
       "step_setUserEnvironmentVariable_assertUpdated_c1120851f_3_3",
       "step_setUserEnvironmentVariable_closeTerminal_c1120851f_3_3",
       "step_setUserEnvironmentVariable_assertClosed_c1120851f_3_3",
@@ -1591,6 +1606,114 @@
       ]
     },
     {
+      "step_id": "step_setUserEnvironmentVariable_openClearNotifications_c1120851f_3_1",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "f1"
+      },
+      "description": "Press the F1 key to open the Command Palette in Visual Studio Code.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_setUserEnvironmentVariable_submitValue_c1120851f_3_1"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:workspace",
+        "operation:user-environment"
+      ]
+    },
+    {
+      "step_id": "step_setUserEnvironmentVariable_assertClearNotificationsPalette_c1120851f_3_1",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the Visual Studio Code Command Palette is visible with a > character in its input box and is ready to accept a command search.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_setUserEnvironmentVariable_openClearNotifications_c1120851f_3_1"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:workspace",
+        "operation:user-environment",
+        "step_retry_timeout: 30"
+      ]
+    },
+    {
+      "step_id": "step_setUserEnvironmentVariable_filterClearNotifications_c1120851f_3_1",
+      "agent": "interaction",
+      "tool": "type_text",
+      "parameters": {
+        "text": "Notifications: Clear All Notifications"
+      },
+      "description": "Type Notifications: Clear All Notifications into the active Command Palette.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_setUserEnvironmentVariable_assertClearNotificationsPalette_c1120851f_3_1"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:workspace",
+        "operation:user-environment"
+      ]
+    },
+    {
+      "step_id": "step_setUserEnvironmentVariable_assertClearNotificationsCommand_c1120851f_3_1",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the Command Palette input box reads >Notifications: Clear All Notifications and the highlighted command listed under it is titled Notifications: Clear All Notifications.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_setUserEnvironmentVariable_filterClearNotifications_c1120851f_3_1"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:workspace",
+        "operation:user-environment",
+        "step_retry_timeout: 30"
+      ]
+    },
+    {
+      "step_id": "step_setUserEnvironmentVariable_executeClearNotifications_c1120851f_3_1",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "enter"
+      },
+      "description": "Press Enter to clear all VS Code notifications before verifying the terminal completion marker.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_setUserEnvironmentVariable_assertClearNotificationsCommand_c1120851f_3_1"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:workspace",
+        "operation:user-environment"
+      ]
+    },
+    {
       "step_id": "step_setUserEnvironmentVariable_assertUpdated_c1120851f_3_1",
       "agent": "assertion",
       "tool": "",
@@ -1601,7 +1724,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_setUserEnvironmentVariable_submitValue_c1120851f_3_1"
+        "step_setUserEnvironmentVariable_executeClearNotifications_c1120851f_3_1"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -1786,6 +1909,114 @@
       ]
     },
     {
+      "step_id": "step_setUserEnvironmentVariable_openClearNotifications_c1120851f_3_2",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "f1"
+      },
+      "description": "Press the F1 key to open the Command Palette in Visual Studio Code.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_setUserEnvironmentVariable_submitValue_c1120851f_3_2"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:workspace",
+        "operation:user-environment"
+      ]
+    },
+    {
+      "step_id": "step_setUserEnvironmentVariable_assertClearNotificationsPalette_c1120851f_3_2",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the Visual Studio Code Command Palette is visible with a > character in its input box and is ready to accept a command search.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_setUserEnvironmentVariable_openClearNotifications_c1120851f_3_2"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:workspace",
+        "operation:user-environment",
+        "step_retry_timeout: 30"
+      ]
+    },
+    {
+      "step_id": "step_setUserEnvironmentVariable_filterClearNotifications_c1120851f_3_2",
+      "agent": "interaction",
+      "tool": "type_text",
+      "parameters": {
+        "text": "Notifications: Clear All Notifications"
+      },
+      "description": "Type Notifications: Clear All Notifications into the active Command Palette.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_setUserEnvironmentVariable_assertClearNotificationsPalette_c1120851f_3_2"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:workspace",
+        "operation:user-environment"
+      ]
+    },
+    {
+      "step_id": "step_setUserEnvironmentVariable_assertClearNotificationsCommand_c1120851f_3_2",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the Command Palette input box reads >Notifications: Clear All Notifications and the highlighted command listed under it is titled Notifications: Clear All Notifications.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_setUserEnvironmentVariable_filterClearNotifications_c1120851f_3_2"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:workspace",
+        "operation:user-environment",
+        "step_retry_timeout: 30"
+      ]
+    },
+    {
+      "step_id": "step_setUserEnvironmentVariable_executeClearNotifications_c1120851f_3_2",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "enter"
+      },
+      "description": "Press Enter to clear all VS Code notifications before verifying the terminal completion marker.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_setUserEnvironmentVariable_assertClearNotificationsCommand_c1120851f_3_2"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:workspace",
+        "operation:user-environment"
+      ]
+    },
+    {
       "step_id": "step_setUserEnvironmentVariable_assertUpdated_c1120851f_3_2",
       "agent": "assertion",
       "tool": "",
@@ -1796,7 +2027,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_setUserEnvironmentVariable_submitValue_c1120851f_3_2"
+        "step_setUserEnvironmentVariable_executeClearNotifications_c1120851f_3_2"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -1981,6 +2212,114 @@
       ]
     },
     {
+      "step_id": "step_setUserEnvironmentVariable_openClearNotifications_c1120851f_3_3",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "f1"
+      },
+      "description": "Press the F1 key to open the Command Palette in Visual Studio Code.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_setUserEnvironmentVariable_submitValue_c1120851f_3_3"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:workspace",
+        "operation:user-environment"
+      ]
+    },
+    {
+      "step_id": "step_setUserEnvironmentVariable_assertClearNotificationsPalette_c1120851f_3_3",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the Visual Studio Code Command Palette is visible with a > character in its input box and is ready to accept a command search.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_setUserEnvironmentVariable_openClearNotifications_c1120851f_3_3"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:workspace",
+        "operation:user-environment",
+        "step_retry_timeout: 30"
+      ]
+    },
+    {
+      "step_id": "step_setUserEnvironmentVariable_filterClearNotifications_c1120851f_3_3",
+      "agent": "interaction",
+      "tool": "type_text",
+      "parameters": {
+        "text": "Notifications: Clear All Notifications"
+      },
+      "description": "Type Notifications: Clear All Notifications into the active Command Palette.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_setUserEnvironmentVariable_assertClearNotificationsPalette_c1120851f_3_3"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:workspace",
+        "operation:user-environment"
+      ]
+    },
+    {
+      "step_id": "step_setUserEnvironmentVariable_assertClearNotificationsCommand_c1120851f_3_3",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the Command Palette input box reads >Notifications: Clear All Notifications and the highlighted command listed under it is titled Notifications: Clear All Notifications.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_setUserEnvironmentVariable_filterClearNotifications_c1120851f_3_3"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:workspace",
+        "operation:user-environment",
+        "step_retry_timeout: 30"
+      ]
+    },
+    {
+      "step_id": "step_setUserEnvironmentVariable_executeClearNotifications_c1120851f_3_3",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "enter"
+      },
+      "description": "Press Enter to clear all VS Code notifications before verifying the terminal completion marker.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_setUserEnvironmentVariable_assertClearNotificationsCommand_c1120851f_3_3"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:workspace",
+        "operation:user-environment"
+      ]
+    },
+    {
       "step_id": "step_setUserEnvironmentVariable_assertUpdated_c1120851f_3_3",
       "agent": "assertion",
       "tool": "",
@@ -1991,7 +2330,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_setUserEnvironmentVariable_submitValue_c1120851f_3_3"
+        "step_setUserEnvironmentVariable_executeClearNotifications_c1120851f_3_3"
       ],
       "preconditions": [],
       "postconditions": [],

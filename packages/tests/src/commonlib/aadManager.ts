@@ -9,6 +9,7 @@ import { M365TokenProvider } from "@microsoft/teamsfx-api";
 
 import MockM365TokenProvider from "@microsoft/m365agentstoolkit-cli/src/commonlib/m365LoginUserPassword";
 import { GraphScopes } from "@microsoft/teamsfx-core";
+import { skipMcpSharedIdentityCleanup } from "./mcpAuthTeardown";
 
 interface IAadAppInfo {
   displayName: string;
@@ -40,7 +41,7 @@ export class AadManager {
   }
 
   public static async init(
-    provider: M365TokenProvider = MockM365TokenProvider
+    provider: M365TokenProvider = MockM365TokenProvider,
   ): Promise<AadManager> {
     if (!AadManager.instance) {
       const res = await provider.getAccessToken({
@@ -56,41 +57,41 @@ export class AadManager {
 
   public async searchAliveAadApps(
     prefix: string,
-    offsetHour = 0
+    offsetHour = 0,
   ): Promise<IAadAppInfo[]> {
     const result = await this.axios!.get(
-      `applications?$filter=startswith(displayName, '${prefix}')&$count=true&$top=100&$orderby=displayName`
+      `applications?$filter=startswith(displayName, '${prefix}')&$count=true&$top=100&$orderby=displayName`,
     );
     const apps = result.data.value as IAadAppInfo[];
     return Promise.resolve(
       apps.filter(
         (app) =>
           Date.now() - new Date(app.createdDateTime).getTime() >
-          offsetHour * 3600 * 1000
-      )
+          offsetHour * 3600 * 1000,
+      ),
     );
   }
 
   public async searchDeletedAadApps(
     prefix: string,
-    offsetHour = 0
+    offsetHour = 0,
   ): Promise<IAadAppInfo[]> {
     const result = await this.axios!.get(
-      `directory/deleteditems/microsoft.graph.application?$filter=startswith(displayName, '${prefix}')&$count=true&$top=100&$orderby=displayName`
+      `directory/deleteditems/microsoft.graph.application?$filter=startswith(displayName, '${prefix}')&$count=true&$top=100&$orderby=displayName`,
     );
     const apps = result.data.value as IAadAppInfo[];
     return Promise.resolve(
       apps.filter(
         (app) =>
           Date.now() - new Date(app.createdDateTime).getTime() >
-          offsetHour * 3600 * 1000
-      )
+          offsetHour * 3600 * 1000,
+      ),
     );
   }
 
   public async searchAadApps(
     contain: string,
-    offsetHour = 0
+    offsetHour = 0,
   ): Promise<IAadAppInfo[]> {
     return new Promise<IAadAppInfo[]>(async (resolve) => {
       const [aliveAadApps, deletedAadApps] = await Promise.all([
@@ -102,11 +103,11 @@ export class AadManager {
   }
 
   public async searchAadAppsByClientId(
-    clientId: string
+    clientId: string,
   ): Promise<IAadAppInfo[]> {
     return new Promise<IAadAppInfo[]>(async (resolve) => {
       const result = await this.axios!.get(
-        `applications?$filter=appId eq '${clientId}'`
+        `applications?$filter=appId eq '${clientId}'`,
       );
       const apps = result.data.value as IAadAppInfo[];
       return resolve(apps);
@@ -114,6 +115,7 @@ export class AadManager {
   }
 
   public async deleteAadAppById(id: string, retryTimes = 5) {
+    if (skipMcpSharedIdentityCleanup()) return false;
     return new Promise<boolean>(async (resolve) => {
       try {
         await this.axios!.delete(`applications/${id}`);
@@ -126,7 +128,7 @@ export class AadManager {
             await delay(2000);
             if (i < retryTimes - 1) {
               console.warn(
-                `[Retry] failed to delete the Aad app with id: ${id}`
+                `[Retry] failed to delete the Aad app with id: ${id}`,
               );
             }
           }
@@ -137,50 +139,52 @@ export class AadManager {
   }
 
   public async deleteAadAppsByClientId(clientId: string, retryTimes = 5) {
+    if (skipMcpSharedIdentityCleanup()) return [];
     if (!clientId) {
       return [true];
     }
     const aadApps = await this.searchAadAppsByClientId(clientId);
     const promises = aadApps.map((app) =>
-      this.deleteAadAppById(app.id, retryTimes)
+      this.deleteAadAppById(app.id, retryTimes),
     );
     return Promise.all(promises).then((results) =>
       results.map((result, index) => {
         if (result) {
           console.log(
-            `[Success] delete the Aad app with id: ${aadApps[index].id}, appId: ${aadApps[index].appId}`
+            `[Success] delete the Aad app with id: ${aadApps[index].id}, appId: ${aadApps[index].appId}`,
           );
           return true;
         } else {
           console.log(
-            `[Failed] delete the Aad app with id: ${aadApps[index].id}, appId: ${aadApps[index].appId}`
+            `[Failed] delete the Aad app with id: ${aadApps[index].id}, appId: ${aadApps[index].appId}`,
           );
           return false;
         }
-      })
+      }),
     );
   }
 
   public async deleteAadApps(contain: string, offsetHour = 0, retryTimes = 5) {
+    if (skipMcpSharedIdentityCleanup()) return [];
     const aadApps = await this.searchAadApps(contain, offsetHour);
     console.log(
       `There are ${aadApps.length} Aad apps created ${offsetHour.toFixed(
-        2
-      )} hours ago. Deleting...`
+        2,
+      )} hours ago. Deleting...`,
     );
 
     const promises = aadApps.map((app) =>
-      this.deleteAadAppById(app.id, retryTimes)
+      this.deleteAadAppById(app.id, retryTimes),
     );
     const results = await Promise.all(promises);
     results.forEach((result, index) => {
       if (result) {
         console.log(
-          `[Success] delete the Aad app with id: ${aadApps[index].id}, appId: ${aadApps[index].appId}`
+          `[Success] delete the Aad app with id: ${aadApps[index].id}, appId: ${aadApps[index].appId}`,
         );
       } else {
         console.log(
-          `[Failed] delete the Aad app with id: ${aadApps[index].id}, appId: ${aadApps[index].appId}`
+          `[Failed] delete the Aad app with id: ${aadApps[index].id}, appId: ${aadApps[index].appId}`,
         );
       }
     });

@@ -1,15 +1,20 @@
 # ADR-0009 — SPFx scaffolding tooling path
 
-- **Status:** Proposed
+- **Status:** Withdrawn
 - **Date:** 2026-05-28
 - **Source:** [`../external-dependencies/spfx-tooling.md` §3](../external-dependencies/spfx-tooling.md#3-open-questions-candidates-for-adrs)
 
 ## Context
 
+SPFx creation, import, and add-web-part have been retired instead of
+replacing the toolchain. See the
+[retirement contract](../../03-specs/operations/product/retire-spfx-generation.md).
+The options below are retained as historical context, not pending work.
+
 The SPFx capability §2.2 in [`../scaffolding.md`](../scaffolding.md)
 requires producing a SharePoint-Framework-toolchain-recognized solution.
 
-Today the toolkit drives the Yeoman path: it installs `yo` and
+Before retirement the toolkit drove the Yeoman path: it installed `yo` and
 `@microsoft/generator-sharepoint` into a managed directory on first
 scaffold (under `packages/fx-core/src/component/generator/spfx/depsChecker/`),
 then spawns `yo` as a subprocess. This violates `../scaffolding.md`
@@ -48,13 +53,11 @@ plans must therefore make its own assumptions about timing.
 
 ## Decision
 
-(Pending.)
+Withdrawn: the unsupported generation feature is removed. No replacement
+SPFx scaffolding toolchain is introduced.
 
 ## Consequences
 
-(Pending. A or B will eliminate the on-demand install logic in
-`spfx/depsChecker/`, remove the `~/.fx/bin/{yo,spGenerator}` directory
-state, and let `../scaffolding.md` §3.2 hold for the SPFx capability,
-at the cost of binding to a pre-release upstream. C defers that cost
-and the cleanup. D leaves the current violations in place permanently
-and adds maintenance risk per fact-page constraint §2.5.)
+The generator and on-demand dependency installers are removed.
+Existing-project SPFx deployment and publishing remain independent of
+this retired capability.

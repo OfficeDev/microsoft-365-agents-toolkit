@@ -33,6 +33,7 @@ import {
   TestToolInstallOptions,
   assembleError,
   environmentNameManager,
+  getAppResourceId,
   getSideloadingStatus,
   listDevTunnels,
   teamsDevPortalClient,
@@ -199,7 +200,9 @@ export default class ServerConnection implements IServerConnection {
     token: CancellationToken
   ): Promise<Result<undefined, FxError>> {
     const corrId = inputs.correlationId ? inputs.correlationId : "";
-    const teamsAppId = inputs.teamsAppFromTdp?.teamsAppId;
+    const teamsAppId = inputs.teamsAppFromTdp
+      ? getAppResourceId(inputs.teamsAppFromTdp)
+      : undefined;
     const coreInputs: SyncManifestInputs = {
       ...inputs,
       [QuestionNames.TeamsAppId]: teamsAppId,

@@ -18,7 +18,7 @@ evals/microsoft-365-agents-toolkit/
 ├── setup.sh                  # Setup script for CI environment
 ├── scaffold-tasks/           # Project creation test tasks
 ├── debug-tasks/              # Local debugging test tasks
-├── deploy-tasks/             # Azure deployment test tasks
+├── deploy-tasks/             # Credentialed Azure deployment tasks excluded from the automatic suite
 ├── negative-tasks/           # Negative trigger test tasks
 └── fixtures/                 # Test project files
     └── simple-bot/           # Sample bot project used in tests
@@ -31,23 +31,22 @@ evals/microsoft-365-agents-toolkit/
 To run the evaluation locally, you need:
 1. Required environment variables (see setup.sh)
 2. Installed tooling: `waza` CLI
-3. For Declarative Agent execution tasks, WIQD installed with its EULA accepted interactively
-4. Proper authentication set up for tasks that access Microsoft 365 or Azure
+3. The WIQD plugin installed for Copilot CLI
+4. The official Azure skills plugin installed for Copilot CLI
+5. Proper authentication set up for tasks that access Microsoft 365 or Azure
 
-Confirm WIQD is installed and its EULA has been accepted before running Declarative Agent execution tasks:
+The Microsoft 365 Agents Toolkit skill delegates eligible Declarative Agent execution tasks to the WIQD plugin. The plugin owns its own prerequisites, authentication, EULA handling, command selection, and file-based fallback. Read-only DA schema tasks are answered by the Toolkit skill without invoking the plugin.
 
-```bash
-wiqd --version
-```
-
-For tasks that access Microsoft 365, also verify WIQD authentication:
+Install the orchestration dependencies before running the evaluation:
 
 ```bash
-wiqd auth status
-wiqd doctor
+copilot plugin marketplace add microsoft/wiqd
+copilot plugin install wiqd@wiqd
+copilot plugin marketplace add microsoft/azure-skills
+copilot plugin install azure@azure-skills
 ```
 
-If WIQD is missing or its EULA has not been accepted, `setup.sh` emits a warning. Non-DA tasks can continue, but DA execution tasks will not pass. Read-only DA schema tasks do not require WIQD.
+The setup hook copies the installed WIQD skill into `node_modules/.waza-skills/`, which is already ignored by the repository, so Waza can validate and expose it through `skill_directories`. Azure skills remain available through their installed Copilot plugin because the WIQD workflow selects the appropriate `azure-*` capability dynamically. WIQD CLI installation and EULA acceptance are not evaluation setup steps; when the CLI is unavailable, the plugin uses its documented file-based fallback.
 
 ```bash
 cd evals/microsoft-365-agents-toolkit
@@ -72,7 +71,9 @@ Required secrets in the repository:
 - `AZURE_TENANT_ID` - Azure tenant ID
 - `AZURE_SUBSCRIPTION_ID` - Azure subscription ID
 
-The schema-validation job runs on a fresh GitHub-hosted runner and does not require WIQD. Behavioral DA execution requires an environment where WIQD has already been initialized. WIQD does not currently provide a supported non-interactive EULA acceptance flow, so a fresh GitHub-hosted runner cannot bootstrap this prerequisite. Do not bypass or automate EULA acceptance; use a preconfigured runner when that becomes available and track the CI bootstrap dependency separately.
+Pull requests validate the changed evaluation schemas and run the PR skill against the evaluation harness from the base branch. Changes to evaluation task definitions run after they merge to `dev`, or when the workflow is manually dispatched. Any CLI or EULA prerequisite discovered after delegation is handled by the plugin rather than the Toolkit skill or evaluation setup.
+
+Tasks under `deploy-tasks/` are intentionally excluded from `eval.yaml`. They can create real Azure resources and must not run automatically or in parallel without deterministic resource naming and cleanup.
 
 ## Skill Location
 

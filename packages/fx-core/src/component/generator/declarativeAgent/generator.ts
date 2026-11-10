@@ -30,8 +30,8 @@ import {
   ProgrammingLanguage,
   QuestionNames,
 } from "../../../question";
-import { developerPortalScaffoldUtils } from "../../developerPortalScaffoldUtils";
 import { copilotGptManifestUtils } from "../../driver/teamsApp/utils/CopilotGptManifestUtils";
+import { developerPortalScaffoldUtils } from "../../developerPortalScaffoldUtils";
 import { ActionContext } from "../../middleware/actionExecutionMW";
 import { outputScaffoldingWarningMessage } from "../../utils/common";
 import { DefaultTemplateGenerator } from "../defaultGenerator";
@@ -199,15 +199,16 @@ export class DeclarativeAgentGenerator extends DefaultTemplateGenerator {
         return ok({ warnings: addPluginRes.value.warnings });
       }
     } else {
-      if (inputs.teamsAppFromTdp) {
-        const res = await developerPortalScaffoldUtils.updateFilesForTdp(
+      if (
+        inputs.teamsAppFromTdp &&
+        !featureFlagManager.getBooleanValue(FeatureFlags.NewDeveloperPortalApis)
+      ) {
+        const result = await developerPortalScaffoldUtils.updateFilesForTdp(
           context,
           inputs.teamsAppFromTdp,
           inputs
         );
-        if (res.isErr()) {
-          return err(res.error);
-        }
+        if (result.isErr()) return err(result.error);
       }
       return ok({});
     }

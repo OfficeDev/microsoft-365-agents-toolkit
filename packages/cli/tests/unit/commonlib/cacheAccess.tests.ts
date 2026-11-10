@@ -39,10 +39,26 @@ class MockKeytar {
   }
 }
 
+async function getRejectedError(promise: Promise<unknown>): Promise<Error> {
+  try {
+    await promise;
+  } catch (error) {
+    if (error instanceof Error) {
+      return error;
+    }
+    throw error;
+  }
+  throw new Error("Expected promise to reject.");
+}
+
 describe("AccountCrypto Tests", function () {
   // nothing to do with the test logic, but to avoid weird type error. (https://stackoverflow.com/questions/68051262/)
   const azureAccountManager = AzureAccountManager.getInstance();
   const cachePlugin = new CryptoCachePlugin("test");
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
 
   it("Encrypt/Decrypt Content", async () => {
     const accountCrypto = new AccountCrypto("test");
@@ -65,10 +81,54 @@ describe("AccountCrypto Tests", function () {
 
     const content =
       '{"clientId":"clientId","secret":"secret","tenantId":"3c8f28dd-b990-4925-96a6-3ea9495654b8"}';
-    const noEncrypted = await accountCrypto.encrypt(content);
-    expect(noEncrypted).to.be.eq(content);
-    const noDecrtpyed = await accountCrypto.decrypt(content);
-    expect(noDecrtpyed).to.be.eq(content);
+    const encryptError = await getRejectedError(accountCrypto.encrypt(content));
+    const decryptError = await getRejectedError(accountCrypto.decrypt(content));
+
+    expect(encryptError.message).to.equal("Secure credential storage is unavailable.");
+    expect(decryptError.message).to.equal("Secure credential storage is unavailable.");
+  });
+
+  it("removes a plaintext MSAL cache when secure storage is unavailable", async () => {
+    const accountCrypto = new AccountCrypto("test");
+    (<any>accountCrypto).keytar = undefined;
+    const plugin = new CryptoCachePlugin("test", accountCrypto);
+    const plaintextCache = '{"Account":{},"AccessToken":{"token":{"secret":"fake-access-token"}}}';
+    const removeStub = vi.spyOn(fs, "remove").mockResolvedValue();
+
+    vi.spyOn(fs, "ensureDir").mockResolvedValue();
+    vi.spyOn(fs, "pathExists").mockResolvedValue(true);
+    vi.spyOn(fs, "readFile").mockResolvedValue(plaintextCache as any);
+
+    await plugin.beforeCacheAccess({
+      tokenCache: {
+        deserialize: vi.fn(),
+      },
+    } as any);
+
+    expect(removeStub).toHaveBeenCalledOnce();
+  });
+
+  it("migrates a plaintext MSAL cache when secure storage is available", async () => {
+    const accountCrypto = new AccountCrypto("test");
+    (<any>accountCrypto).keytar = new MockKeytar();
+    const plugin = new CryptoCachePlugin("test", accountCrypto);
+    const plaintextCache = '{"Account":{},"AccessToken":{"token":{"secret":"fake-access-token"}}}';
+    const deserializeStub = vi.fn();
+    const writeFileStub = vi.spyOn(fs, "writeFile").mockResolvedValue();
+
+    vi.spyOn(fs, "ensureDir").mockResolvedValue();
+    vi.spyOn(fs, "pathExists").mockResolvedValue(true);
+    vi.spyOn(fs, "readFile").mockResolvedValue(plaintextCache as any);
+
+    await plugin.beforeCacheAccess({
+      tokenCache: {
+        deserialize: deserializeStub,
+      },
+    } as any);
+
+    expect(deserializeStub).toHaveBeenCalledWith(plaintextCache);
+    expect(writeFileStub).toHaveBeenCalledOnce();
+    expect(writeFileStub.mock.calls[0][1]).not.to.equal(plaintextCache);
   });
 });
 
@@ -119,6 +179,38 @@ describe("AccountCrypto Service principal Tests", function () {
     await AzureSpCrypto.clearAzureSP();
     await loadAccountId("abc");
     await clearCache("abc");
+  });
+
+  it("does not write a service principal secret when secure storage is unavailable", async () => {
+    (<any>AzureSpCrypto).accountCrypto.keytar = undefined;
+    (<any>AzureSpCrypto).accountCrypto.currentKey = undefined;
+    const writeFileStub = vi.mocked(fs.writeFile);
+    writeFileStub.mockClear();
+
+    await AzureSpCrypto.saveAzureSP("clientId", "secret", "tenantId");
+
+    expect(writeFileStub).not.toHaveBeenCalled();
+  });
+
+  it("migrates plaintext service principal credentials", async () => {
+    (<any>AzureSpCrypto).accountCrypto.keytar = new MockKeytar();
+    (<any>AzureSpCrypto).accountCrypto.currentKey = undefined;
+    const plaintext =
+      '{"clientId":"clientId","secret":"secret","tenantId":"3c8f28dd-b990-4925-96a6-3ea9495654b8"}';
+    const readFileStub = vi.mocked(fs.readFile);
+    const writeFileStub = vi.mocked(fs.writeFile);
+    readFileStub.mockResolvedValueOnce(Buffer.from(plaintext));
+    writeFileStub.mockClear();
+
+    const loaded = await AzureSpCrypto.loadAzureSP();
+
+    expect(loaded).to.deep.equal({
+      clientId: "clientId",
+      secret: "secret",
+      tenantId: "3c8f28dd-b990-4925-96a6-3ea9495654b8",
+    });
+    expect(writeFileStub).toHaveBeenCalledOnce();
+    expect(writeFileStub.mock.calls[0][1]).not.to.equal(plaintext);
   });
 });
 

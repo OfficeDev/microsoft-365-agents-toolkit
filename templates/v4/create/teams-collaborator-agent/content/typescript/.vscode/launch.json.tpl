@@ -22,7 +22,12 @@
             "name": "Launch Remote (Edge)",
             "type": "msedge",
             "request": "launch",
+            {{#NewDeveloperPortalApis}}
+            "url": "https://teams.microsoft.com/l/app/${{APP_ID}}?installAppPackage=true&webjoin=true&${account-hint}",
+            {{/NewDeveloperPortalApis}}
+            {{^NewDeveloperPortalApis}}
             "url": "https://teams.microsoft.com/l/app/${{TEAMS_APP_ID}}?installAppPackage=true&webjoin=true&${account-hint}",
+            {{/NewDeveloperPortalApis}}
             "presentation": {
                 "group": "3-remote",
                 "order": 1
@@ -33,7 +38,12 @@
             "name": "Launch Remote (Chrome)",
             "type": "chrome",
             "request": "launch",
+            {{#NewDeveloperPortalApis}}
+            "url": "https://teams.microsoft.com/l/app/${{APP_ID}}?installAppPackage=true&webjoin=true&${account-hint}",
+            {{/NewDeveloperPortalApis}}
+            {{^NewDeveloperPortalApis}}
             "url": "https://teams.microsoft.com/l/app/${{TEAMS_APP_ID}}?installAppPackage=true&webjoin=true&${account-hint}",
+            {{/NewDeveloperPortalApis}}
             "presentation": {
                 "group": "3-remote",
                 "order": 2
@@ -44,7 +54,12 @@
             "name": "Launch App (Edge)",
             "type": "msedge",
             "request": "launch",
+            {{#NewDeveloperPortalApis}}
+            "url": "https://teams.microsoft.com/l/app/${{local:APP_ID}}?installAppPackage=true&webjoin=true&${account-hint}",
+            {{/NewDeveloperPortalApis}}
+            {{^NewDeveloperPortalApis}}
             "url": "https://teams.microsoft.com/l/app/${{local:TEAMS_APP_ID}}?installAppPackage=true&webjoin=true&${account-hint}",
+            {{/NewDeveloperPortalApis}}
             "cascadeTerminateToConfigurations": [
                 "Attach to Local Service"
             ],
@@ -59,7 +74,12 @@
             "name": "Launch App (Chrome)",
             "type": "chrome",
             "request": "launch",
+            {{#NewDeveloperPortalApis}}
+            "url": "https://teams.microsoft.com/l/app/${{local:APP_ID}}?installAppPackage=true&webjoin=true&${account-hint}",
+            {{/NewDeveloperPortalApis}}
+            {{^NewDeveloperPortalApis}}
             "url": "https://teams.microsoft.com/l/app/${{local:TEAMS_APP_ID}}?installAppPackage=true&webjoin=true&${account-hint}",
+            {{/NewDeveloperPortalApis}}
             "cascadeTerminateToConfigurations": [
                 "Attach to Local Service"
             ],

@@ -1,8 +1,26 @@
 # Operation - Register OAuth Configuration
 
-- **Status:** Approved for implementation by the requester on 2026-10-09.
+- **Status:** Personal-account option approved on 2026-10-09; strict existing-SSO reuse requested on 2026-10-21.
 - **Action:** `oauth/register`.
 - **Scope decision:** fx-core action contract only. This change does not add a Toolkit UI, CLI option, feature flag, or scaffolding behavior.
+
+## Existing Microsoft Entra SSO Registration
+
+An explicitly mapped existing ID in a `MicrosoftEntra` registration is validated
+before reuse. The record must identify Microsoft Entra and match an explicitly
+supplied client ID. Read failures and incompatible records return an error rather
+than warning and reporting a successful skip. They never trigger replacement
+registration.
+
+Successful reuse skips the creation/configuration path and returns no new
+environment values, preserving pre-existing URI/reference settings. Legacy Custom
+registration reuse behavior is unchanged. The test-only
+`ENTRA_SSO_REGISTRATION_ID` setting is not read by this driver; only SSO case
+preparation maps it to that case's output variable.
+
+See [isolated MCP authentication mode validation](../../scenarios/da/mcp-auth-mode-integration.md)
+for the requester-approved 2026-10-21 contract, AC-owned tests, and the separate
+real Copilot/token requirements.
 
 ## Inputs
 

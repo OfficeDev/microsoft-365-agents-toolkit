@@ -2,6 +2,67 @@
 > Note: This changelog only includes the changes for the stable versions of Microsoft 365 Agents Toolkit (evolved from Teams Toolkit). For the changelog of pre-released versions, please refer to the [Microsoft 365 Agents Toolkit Pre-release Changelog](https://github.com/OfficeDev/TeamsFx/blob/dev/packages/vscode-extension/PRERELEASE.md).
 
 
+## 6.20.0 - November 3, 2026
+
+### New Features
+
+#### Register MCP authentication with resource-based configuration
+
+You can now register MCP authentication using resource-based Dynamic Client Registration, which aligns ATK with the latest Teams Graph Service contract. ATK supports the new `mcpResourceUrl` input and continues to support `wellKnownAuthorizationServer` for legacy or pinned authorization-server scenarios, while generated projects now rely on the service to discover OAuth metadata instead of creating local placeholders. This improves reliability for MCP auth setup in new and updated projects and reduces local configuration complexity. When you create or update agent projects through ATK in VS Code or ATK CLI, the generated registration flows now produce MCP-ready DCR actions with the newer contract.
+
+#### Support personal Microsoft accounts in OAuth registrations
+
+You can now choose to include personal Microsoft accounts when configuring OAuth registrations, in addition to work or school accounts. ATK adds a user-friendly `includePersonalMicrosoftAccounts` option to OAuth and DCR registration actions and maps it automatically to the service contract, so you don’t need to understand or set low-level account type values yourself. This makes it easier to build agents and connectors that serve both enterprise users and consumer Microsoft account users. You can use this in your YAML-based lifecycle definitions for `oauth/register`, `oauth/update`, and `dcr/register` in projects managed from VS Code or the CLI.
+
+#### Add Skill is now generally available
+
+Add Skill is now generally available and no longer requires the `ATK_FRONTIER` flag to be enabled. You can add skills through the normal ATK experience in VS Code, CLI flows, and supported scaffold surfaces without depending on experimental feature gating. This also ships with updated manifest support based on the official Declarative Agent manifest v1.9 schema, including validated templates and the official skill limits for newer wrappers. As a result, skill creation and packaging are more discoverable, more stable, and ready for mainstream use in production workflows.
+
+### Enhancement
+
+#### Use the updated Office.js CDN in generated templates
+
+Newly generated templates now use the latest Office.js CDN URL. This helps ensure that Office add-in projects created with ATK continue to load the Office JavaScript library from the supported location before the older CDN is retired. The change is automatic in generated templates, so you do not need to manually update the script source in new projects. If you maintain older projects, you may also want to update their Office.js reference to match the new CDN.
+
+#### Delegate declarative agent workflows to the WIQD plugin
+
+ATK now routes non-TypeSpec declarative agent workflows to the WIQD Copilot plugin, making WIQD the primary entry point for most declarative agent lifecycle experiences. TypeSpec declarative agent projects remain supported directly in ATK, including existing projects that ATK can detect using generated markers and TypeSpec configuration signals. This gives you a clearer product path: use ATK directly for TypeSpec-based DA workflows, while other DA create, validate, and package operations are handled through WIQD orchestration. In VS Code, this means many declarative agent actions now seamlessly hand off to the right plugin-backed experience instead of requiring manual WIQD CLI steps.
+
+#### Retire unsupported SPFx generation and add-web-part flows
+
+ATK removes unsupported SPFx creation, import, and add-web-part generation flows from the product. This eliminates a deprecated and unused path while preserving support for existing SPFx project deployment, publishing, and app package copy scenarios. If you try to use the legacy API, ATK now returns a clear unsupported-feature error instead of attempting the retired workflow. For users, this means fewer dead-end commands in VS Code and CLI, and a cleaner focus on supported project experiences.
+
+#### Add feature-gated incremental skill uploads
+
+ATK introduces a new incremental skill upload pipeline to reduce the risk of HTTP 429 throttling when publishing packages with many skill files. When enabled by feature flag, ATK uploads only missing or changed skill files, removes stale content, and then submits a transformed package that references uploaded content instead of sending everything in bulk. This improves scalability for large skill-based agent packages while keeping local files and the original ZIP unchanged. The feature currently applies to CLI installation, `teamsApp/extendToM365`, and `copilotAgent/publish`, and remains off by default for controlled rollout.
+
+#### Improve manifest converter diagnostics and preview schema support
+
+Manifest validation now provides clearer converter diagnostics, including more accurate nested property paths and expected type information without exposing manifest values. ATK also refreshes its full Teams devPreview schema snapshot and adds support for newer preview capabilities such as ConnectionVault authorization in OpenAPI connectors and remote or local MCP servers. This makes troubleshooting manifest issues easier and improves compatibility with the latest preview manifest contract. If you work with preview schemas in VS Code or through ATK build and validation flows, you should see more actionable feedback.
+
+#### Improve DCR lifecycle support for MCP authentication
+
+ATK now supports `dcr/update` for sparse, in-place updates to existing dynamic configurations by configuration ID. This makes it easier to evolve MCP authentication settings over time, including personal Microsoft account support, without recreating the entire registration or overwriting omitted settings. The release also adds stronger isolated MCP authentication test coverage across static Entra OAuth, facade DCR, and Entra SSO scenarios, which helps improve end-to-end reliability. If you manage auth lifecycles in YAML, you can now use `dcr/update` alongside registration actions for more flexible maintenance.
+
+#### Default remote advanced declarative agents to shared scope
+
+Remote advanced declarative agents now default to shared scope, aligning generated projects with the recommended publishing model. This reduces configuration friction and helps new remote agent projects work with the expected scope settings out of the box. The change is especially helpful when creating and publishing remote-backed declarative agents, since you no longer need to manually adjust scope in common scenarios. In practice, ATK-generated flows now guide these projects toward the shared-scope setup by default.
+
+### Bug Fix
+- Corrected message extension credential typing in templates, [PR #16767](https://github.com/OfficeDev/microsoft-365-agents-toolkit/pull/16767)
+- Declared `fs-extra` as a runtime dependency to prevent package loading failures in strict installs such as pnpm, [PR #16780](https://github.com/OfficeDev/microsoft-365-agents-toolkit/pull/16780)
+- Removed a duplicate Korean MCP endpoint localization resource that caused XLoc build issues, [PR #16793](https://github.com/OfficeDev/microsoft-365-agents-toolkit/pull/16793)
+- Fixed the webpack configuration in the Excel custom functions JavaScript-only runtime template, [PR #16796](https://github.com/OfficeDev/microsoft-365-agents-toolkit/pull/16796)
+- Fixed an invalid manifest in the Excel custom functions template that caused project validation failures, [PR #16784](https://github.com/OfficeDev/microsoft-365-agents-toolkit/pull/16784)
+- Restored target URL compatibility behavior for DCR configuration inputs, [PR #16820](https://github.com/OfficeDev/microsoft-365-agents-toolkit/pull/16820)
+- Updated local plugin publishing templates to use shared scope, [PR #16859](https://github.com/OfficeDev/microsoft-365-agents-toolkit/pull/16859)
+- Restored feature-gated behavior for RAI validation after the default-on change, [PR #16885](https://github.com/OfficeDev/microsoft-365-agents-toolkit/pull/16885)
+- Added upfront validation for skill names so invalid names are rejected before files are created or manifests are updated, [PR #16887](https://github.com/OfficeDev/microsoft-365-agents-toolkit/pull/16887)
+- Fixed client and blank-app templates to honor YAML publishing flows, [PR #16904](https://github.com/OfficeDev/microsoft-365-agents-toolkit/pull/16904)
+- Preserved final newlines in blank-app lifecycle templates, [PR #16917](https://github.com/OfficeDev/microsoft-365-agents-toolkit/pull/16917)
+- Fixed fx-core to return publishing environment outputs correctly, [PR #16904](https://github.com/OfficeDev/microsoft-365-agents-toolkit/pull/16904)
+
+
 ## 6.18.0 - October 9, 2026
 
 ### New Features

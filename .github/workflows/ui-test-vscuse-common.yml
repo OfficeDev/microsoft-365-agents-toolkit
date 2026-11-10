@@ -86,7 +86,7 @@ jobs:
       email-receiver: ${{ steps.set-email.outputs.email_receiver }}
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v5
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
 
       - name: Set email receiver
         id: set-email
@@ -183,15 +183,16 @@ jobs:
 
       AZURE_ACCOUNT_NAME: ${{ secrets.TEST_TENANT_AZURE_ACCOUNT_NAME }}
       AZURE_ACCOUNT_PASSWORD: ${{ secrets.TEST_TENANT_AZURE_ACCOUNT_PASSWORD }}
-      M365_TENANT_ID: ${{ secrets.TEST_CLEAN_TENANT_ID }}
+      M365_TENANT_ID: ${{ vars.M365_TENANT_ID }}
       # GITHUB test account
       GITHUB_ACCOUNT_NAME: ${{ secrets.GH_ACCOUNT_NAME }}
       GITHUB_ACCOUNT_PASSWORD: ${{ secrets.GH_ACCOUNT_PASSWORD }}
       GITHUB_MFA_SECRET: ${{ secrets.GH_MFA_SECRET }}
       #Additional value:
-      DA_MCP_ENTRA_SSO_CLIENTID: ${{ secrets.DA_MCP_ENTRA_SSO_CLIENTID }}
+      DA_MCP_ENTRA_SSO_CLIENTID: ${{ vars.DA_MCP_ENTRA_SSO_CLIENTID }}
       DA_MCP_OAUTH_CLIENT_SECRET: ${{ secrets.DA_MCP_OAUTH_CLIENT_SECRET }}
-      DA_MCP_OAUTH_CLIENTID: ${{ secrets.DA_MCP_OAUTH_CLIENTID }}
+      DA_MCP_OAUTH_CLIENTID: ${{ vars.DA_MCP_OAUTH_CLIENTID }}
+      MCP_AUTH_ENDPOINT: ${{ vars.MCP_AUTH_ENDPOINT }}
 
       # Credentials registered by the da/api-plugin-from-existing-api cases. The
       # cases only register them through apiKey/register and oauth/register; they
@@ -238,17 +239,17 @@ jobs:
 
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v5
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
         with:
           ref: ${{ github.ref_name }}
 
       - name: Set up Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
         with:
           python-version: "3.12"
 
       - name: Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
         with:
           node-version: 22
 
@@ -286,6 +287,7 @@ jobs:
           fi
 
       - name: Set m365 account randomly
+        if: ${{ !contains(fromJSON('["da-mcp-server--da-mcp-static-entra-copilot","da-mcp-server--da-mcp-dcr-copilot","da-mcp-server--da-mcp-entra-sso-copilot","da-mcp-server--da-mcp-dcr-update-copilot"]'), matrix.test_plan) }}
         run: |
           IFS=',' read -ra users <<< "$M365_USERNAMES"
           for i in "${!users[@]}"; do
@@ -297,7 +299,7 @@ jobs:
           echo "M365_ACCOUNT_NAME=${users[index]}" >> $GITHUB_ENV
 
       - name: Log in to Container Registry
-        uses: docker/login-action@v3
+        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3.7.0
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -338,6 +340,22 @@ jobs:
             echo "TEMPLATE_VERSION not provided; TEMPLATE_VERSION won't be added to config.yaml"
           fi
 
+      - name: Prepare isolated MCP authentication fixture
+        id: prepare-mcp-auth
+        if: ${{ contains(fromJSON('["da-mcp-server--da-mcp-static-entra-copilot","da-mcp-server--da-mcp-dcr-copilot","da-mcp-server--da-mcp-entra-sso-copilot","da-mcp-server--da-mcp-dcr-update-copilot"]'), matrix.test_plan) }}
+        working-directory: packages/tests/vscuse/vscode-test-cases
+        env:
+          TEST_PLAN: ${{ matrix.test_plan }}
+          M365_ACCOUNT_NAME: ${{ vars.M365_ACCOUNT_NAME_ENABLECOPILOTACCESS }}
+          M365_ACCOUNT_PASSWORD: ${{ secrets.M365_ACCOUNT_PASSWORD_ENABLECOPILOTACCESS }}
+          DA_MCP_OAUTH_CLIENT_SECRET: ${{ matrix.test_plan == 'da-mcp-server--da-mcp-static-entra-copilot' && secrets.DA_MCP_OAUTH_CLIENT_SECRET || '' }}
+          MCP_AUTH_SSO_ID: ${{ matrix.test_plan == 'da-mcp-server--da-mcp-entra-sso-copilot' && secrets.ENTRA_SSO_REGISTRATION_ID || '' }}
+          MCP_AUTH_AAD_MANIFEST_B64: ${{ matrix.test_plan == 'da-mcp-server--da-mcp-entra-sso-copilot' && secrets.MCP_AUTH_AAD_MANIFEST_B64 || '' }}
+          MCP_AUTH_AAD_APP_OBJECT_ID: ${{ matrix.test_plan == 'da-mcp-server--da-mcp-entra-sso-copilot' && vars.MCP_AUTH_AAD_APP_OBJECT_ID || '' }}
+          MCP_AUTH_AAD_ACCESS_AS_USER_PERMISSION_ID: ${{ matrix.test_plan == 'da-mcp-server--da-mcp-entra-sso-copilot' && vars.MCP_AUTH_AAD_ACCESS_AS_USER_PERMISSION_ID || '' }}
+          ENTRA_SSO_APPLICATION_ID_URI: ${{ matrix.test_plan == 'da-mcp-server--da-mcp-entra-sso-copilot' && vars.ENTRA_SSO_APPLICATION_ID_URI || '' }}
+        run: node ./engine/prepare-mcp-auth-run.cjs ./config.yaml "./plans/$TEST_PLAN.json" ./config.mcp.yaml
+
       - name: Validate no-subscription fixture contract
         if: ${{ matrix.test_plan == 'feature-sign-in-no-subscription' }}
         run: |
@@ -349,7 +367,7 @@ jobs:
 
       - name: Login to Azure for RC tests
         if: ${{ github.ref == 'refs/heads/qfai/vscuse-rc-full-templates' }}
-        uses: azure/login@v2
+        uses: azure/login@7184910d9eb2b1c5e48f7073824a90609bb9b6d6 # v2.3.1
         with:
           client-id: ${{secrets.DEVOPS_CLIENT_ID}}
           tenant-id: ${{secrets.DEVOPS_TENANT_ID}}
@@ -367,8 +385,13 @@ jobs:
           cd packages/tests/vscuse/vscode-test-cases
           python -m venv .venv
           source .venv/bin/activate
-          node ./engine/prepare-vscuse-config.cjs ./config.yaml "./plans/$TEST_PLAN.json" ./config.run.yaml
-          vscuse execute --config-file ./config.run.yaml --groups-dir groups "./plans/$TEST_PLAN.json" 2>&1 | tee run_result.txt
+          if [ "${{ steps.prepare-mcp-auth.outcome }}" = "success" ]; then
+            RUN_CONFIG=./config.mcp.yaml
+          else
+            node ./engine/prepare-vscuse-config.cjs ./config.yaml "./plans/$TEST_PLAN.json" ./config.run.yaml
+            RUN_CONFIG=./config.run.yaml
+          fi
+          vscuse execute --config-file "$RUN_CONFIG" --groups-dir groups "./plans/$TEST_PLAN.json" 2>&1 | tee run_result.txt
 
       - name: Extract errors from run result
         if: always()
@@ -423,7 +446,7 @@ jobs:
 
       - name: Upload error file
         if: always()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: error-file-${{ matrix.test_plan }}-${{ github.run_id }}
           path: error-${{ matrix.test_plan }}-${{ github.run_id }}.txt
@@ -465,7 +488,7 @@ jobs:
 
       - name: Upload encrypted test report
         if: always()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: test-report-${{ matrix.test_plan }}-${{ github.run_number }}
           path: packages/tests/vscuse/vscode-test-cases/test_report/${{ env.ZIP_FILE }}
@@ -474,7 +497,7 @@ jobs:
 
       - name: Login to Azure
         if: always()
-        uses: azure/login@v2
+        uses: azure/login@7184910d9eb2b1c5e48f7073824a90609bb9b6d6 # v2.3.1
         with:
           client-id: ${{secrets.DEVOPS_CLIENT_ID}}
           tenant-id: ${{secrets.DEVOPS_TENANT_ID}}
@@ -506,7 +529,7 @@ jobs:
 
       - name: Upload storage URL artifact
         if: always()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: storage-url-${{ matrix.test_plan }}-${{ github.run_id }}
           path: storage_url-${{ matrix.test_plan }}-${{ github.run_id }}.txt
@@ -566,9 +589,9 @@ jobs:
         working-directory: packages/tests/vscuse
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
 
-      - uses: azure/login@v2
+      - uses: azure/login@7184910d9eb2b1c5e48f7073824a90609bb9b6d6 # v2.3.1
         with:
           client-id: ${{secrets.DEVOPS_CLIENT_ID}}
           tenant-id: ${{secrets.DEVOPS_TENANT_ID}}
@@ -576,14 +599,14 @@ jobs:
           enable-AzPSSession: true
 
       - name: Download storage URLs
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
         with:
           pattern: storage-url-*
           path: /tmp/storage-urls
           merge-multiple: true
 
       - name: Download error files
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
         with:
           pattern: error-file-*
           path: /tmp/error-files

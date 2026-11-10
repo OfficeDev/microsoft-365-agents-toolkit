@@ -45,7 +45,7 @@
     "overrides": {
       "@hono/node-server@^1.19.0": "2.0.5",
       "ajv@8.17.1": "8.18.0",
-      "body-parser@2.2.2": "2.3.0",
+      "body-parser@2.2.2": "2.4.0",
       "brace-expansion@^1.0.0": "1.1.16",
       "brace-expansion@^2.0.0": "2.1.2",
       "brace-expansion@^5.0.0": "5.0.7",

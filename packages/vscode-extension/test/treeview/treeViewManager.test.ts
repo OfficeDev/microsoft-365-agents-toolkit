@@ -75,7 +75,7 @@ describe("TreeViewManager", () => {
     assert.equal(setStatusStub.callCount, 2);
   });
 
-  it("updateDevelopmentTreeView", () => {
+  it("RET-SPFX-01: SPFx projects no longer expose add web part in the development tree", () => {
     mockValue(globalVariables, "isSPFxProject", false);
     vi.spyOn(featureFlagManager, "getBooleanValue").mockReturnValue(false);
     treeViewManager.registerTreeViews({
@@ -92,7 +92,11 @@ describe("TreeViewManager", () => {
     mockValue(globalVariables, "isSPFxProject", true);
     treeViewManager.updateDevelopmentTreeView();
 
-    assert.equal(commands.length, 5);
+    assert.equal(commands.length, 4);
+    assert.notInclude(
+      commands.map((command) => command.commandId),
+      "fx-extension.addWebpart"
+    );
   });
 
   it("updateTreeViewsByContent if remove project related commands", async () => {
@@ -191,9 +195,22 @@ describe("TreeViewManager", () => {
     const addSkill = developmentTreeview
       .getCommands()
       .find((command) => command.commandId === "fx-extension.addSkill");
-    assert.equal(addSkill !== undefined, enabled);
-    if (enabled) {
-      assert.equal(addSkill.label, "Add Skill (Frontier)");
-    }
+    assert.isDefined(addSkill);
+    assert.equal(addSkill?.label, "Add Skill");
+  });
+
+  it("hides Add Skill outside declarative agent projects", () => {
+    mockValue(globalVariables, "isDeclarativeCopilotApp", false);
+    treeViewManager.registerTreeViews({
+      subscriptions: [],
+    } as unknown as vscode.ExtensionContext);
+
+    const developmentTreeview = treeViewManager.getTreeView(
+      "teamsfx-development"
+    ) as CommandsTreeViewProvider;
+    assert.notInclude(
+      developmentTreeview.getCommands().map((command) => command.commandId),
+      "fx-extension.addSkill"
+    );
   });
 });

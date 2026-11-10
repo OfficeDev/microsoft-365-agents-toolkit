@@ -48,6 +48,7 @@ export async function runV4Package(
 ): Promise<{
   files: Map<string, Buffer>;
   secrets: Map<string, string>;
+  secretsByEnvironment: Map<string, Map<string, string>>;
   warnings: Warning[];
   outcome: V4ScenarioOutcome;
 }> {
@@ -94,7 +95,9 @@ export function readJsonObject(
   filePath: string
 ): Record<string, unknown> {
   const parsed: unknown = JSON.parse(text(files, filePath));
-  assert.isTrue(isRecord(parsed));
+  if (!isRecord(parsed)) {
+    assert.fail(`expected '${filePath}' to contain a JSON object`);
+  }
   return parsed;
 }
 
@@ -111,7 +114,9 @@ export function recordProperty(
   key: string
 ): Record<string, unknown> {
   const property = value[key];
-  assert.isTrue(isRecord(property));
+  if (!isRecord(property)) {
+    assert.fail(`expected '${key}' to be an object`);
+  }
   return property;
 }
 
@@ -120,7 +125,9 @@ export function recordArrayProperty(
   key: string
 ): Record<string, unknown>[] {
   const property = value[key];
-  assert.isTrue(isRecordArray(property));
+  if (!isRecordArray(property)) {
+    assert.fail(`expected '${key}' to be an array of objects`);
+  }
   return property;
 }
 

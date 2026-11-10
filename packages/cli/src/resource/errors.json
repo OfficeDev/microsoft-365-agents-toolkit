@@ -1,5 +1,8 @@
 {
   "error.prefix": "(x) Error: ",
+  "error.UnsupportedActionSchema": "This action's argument schema is not supported by this CLI entry. Use the SDK to execute it.",
+  "error.ActionInteractiveUnsupported": "Action arguments must be supplied explicitly; '--interactive true' is not supported for parameter collection. Authentication, including sign-in prompts, is managed by the configured token provider.",
+  "error.InvalidActionOptionValue": "Option '%s' has a missing or ambiguous value. Provide a separate, nonempty value.",
   "error.MissingRequiredOptionError": "The command '%s' can not be executed for missing required option '%s'. Provide the option via '%s' and try again.",
   "error.MissingRequiredArgumentError": "The command '%s' can not be executed for missing required argument '%s'. Provide the argument and try again.",
   "error.ArgumentConflictError": "The command '%s' is designed to accept either argument '%s' or argument '%s', but not both simultaneously. Keep either of the two arguments and try again.",

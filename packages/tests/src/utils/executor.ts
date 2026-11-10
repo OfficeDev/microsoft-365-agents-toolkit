@@ -134,20 +134,6 @@ export class Executor {
     return this.execute(command, workspace);
   }
 
-  static async addSPFxWebPart(
-    workspace: string,
-    spfxFolder: string,
-    webpartName: string,
-    manifestPath: string,
-    localManifestPath: string,
-  ) {
-    const command =
-      `atk add spfx-web-part --spfx-webpart-name ${webpartName}` +
-      ` --spfx-folder ${spfxFolder} --manifest-file ${manifestPath}` +
-      ` --local-manifest-file ${localManifestPath} --interactive false `;
-    return this.execute(command, workspace);
-  }
-
   static async executeCmd(
     workspace: string,
     cmd: string,

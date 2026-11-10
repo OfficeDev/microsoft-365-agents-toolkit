@@ -225,9 +225,7 @@ describe("selectUsersToRemoveSharedAccess", () => {
     );
 
     // Mock teamsDevPortalClient instance
-    vi.spyOn(teamsDevPortalClientModule.teamsDevPortalClient, "getApp").mockResolvedValue({
-      userList: [],
-    } as any);
+    vi.spyOn(teamsDevPortalClientModule.teamsDevPortalClient, "getUserList").mockResolvedValue([]);
 
     try {
       await dynamicOptions({ projectPath: "path/to/project" } as unknown as Inputs);
@@ -253,9 +251,15 @@ describe("selectUsersToRemoveSharedAccess", () => {
     );
 
     // Mock teamsDevPortalClient instance
-    vi.spyOn(teamsDevPortalClientModule.teamsDevPortalClient, "getApp").mockResolvedValue({
-      userList: [{ aadId: "user1", displayName: "User 1", userPrincipalName: "user1@example.com" }],
-    } as any);
+    vi.spyOn(teamsDevPortalClientModule.teamsDevPortalClient, "getUserList").mockResolvedValue([
+      {
+        aadId: "user1",
+        displayName: "User 1",
+        userPrincipalName: "user1@example.com",
+        tenantId: "tenant",
+        isAdministrator: true,
+      },
+    ]);
 
     // Mock getCurrentUserInfo to return error
     vi.spyOn(collaborator.CollaborationUtil, "getCurrentUserInfo").mockResolvedValue(
@@ -296,9 +300,9 @@ describe("selectUsersToRemoveSharedAccess", () => {
     ];
 
     // Mock teamsDevPortalClient instance
-    vi.spyOn(teamsDevPortalClientModule.teamsDevPortalClient, "getApp").mockResolvedValue({
-      userList: mockUsers,
-    } as any);
+    vi.spyOn(teamsDevPortalClientModule.teamsDevPortalClient, "getUserList").mockResolvedValue(
+      mockUsers.map((user) => ({ ...user, tenantId: "tenant", isAdministrator: true }))
+    );
 
     // Mock getCurrentUserInfo to return current user
     vi.spyOn(collaborator.CollaborationUtil, "getCurrentUserInfo").mockResolvedValue(

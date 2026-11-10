@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
 import * as appDefinitionUtils from "../../src/utils/appDefinitionUtils";
 import * as globalVariables from "../../src/globalVariables";
 import { MockCore } from "../mocks/mockCore";
@@ -51,14 +54,14 @@ describe("AppDefinitionUtils", () => {
   });
 
   describe("getV3TeamsAppId", () => {
-    it("returns teamsAppId successfully", async () => {
+    it("AC-09: returns the canonical custom appId mapping", async () => {
       mockValue(globalVariables, "workspaceUri", Uri.file("test"));
       vi.spyOn(pathUtils, "getYmlFilePath").mockReturnValue("test.yml");
       vi.spyOn(metadataUtil, "parse").mockResolvedValue(
         ok({
           provision: {
             driverDefs: [
-              { uses: "teamsApp/create", writeToEnvironmentFile: { teamsAppId: "TeamsAppId" } },
+              { uses: "teamsApp/create", writeToEnvironmentFile: { appId: "TeamsAppId" } },
             ],
           },
         } as any)
@@ -67,6 +70,17 @@ describe("AppDefinitionUtils", () => {
 
       const result = await appDefinitionUtils.getV3TeamsAppId("testProjectPath", "test");
       expect(result).equals("testId");
+    });
+
+    it("AC-03: prefers APP_ID and falls back to TEAMS_APP_ID", async () => {
+      mockValue(globalVariables, "workspaceUri", Uri.file("test"));
+      vi.spyOn(pathUtils, "getYmlFilePath").mockReturnValue("test.yml");
+      vi.spyOn(metadataUtil, "parse").mockResolvedValue(err(new UserError({})));
+      const read = vi.spyOn(envUtil, "readEnv");
+      read.mockResolvedValueOnce(ok({ APP_ID: "canonical", TEAMS_APP_ID: "legacy" }));
+      expect(await appDefinitionUtils.getV3TeamsAppId("test", "dev")).toBe("canonical");
+      read.mockResolvedValueOnce(ok({ APP_ID: "", TEAMS_APP_ID: "legacy" }));
+      expect(await appDefinitionUtils.getV3TeamsAppId("test", "dev")).toBe("legacy");
     });
 
     it("readEnv throws error", async () => {

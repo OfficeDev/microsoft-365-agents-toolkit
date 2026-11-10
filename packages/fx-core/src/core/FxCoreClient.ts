@@ -22,6 +22,10 @@ import { envUtil } from "../component/utils/envUtil";
 import { UserCancelError, assembleError } from "../error";
 import { AddAuthActionInputs, AddPluginInputs, AddSkillInputs, UninstallInputs } from "../question";
 import { FxCore } from "./FxCore";
+import type { ActionArgs, ActionName, ActionResult } from "../actions";
+import type { ActionExecutionOptions } from "../actions/execute";
+
+export type { ActionExecutionOptions } from "../actions/execute";
 
 /** Execution controls shared by every first-class fx-core client operation. */
 export interface FxCoreExecutionOptions {
@@ -41,7 +45,7 @@ export interface FxCorePackageResult {
 }
 
 export interface FxCorePublishResult {
-  packagePath: string;
+  outputs: Record<string, string>;
 }
 
 export type FxCoreValidationSeverity = "error" | "warning" | "info";
@@ -69,6 +73,8 @@ export type FxCoreLaunchInfoInputs =
 export type FxCoreLaunchInfoResult = Record<string, unknown>;
 
 export type FxCoreProvisionInputs = InputsWithProjectPath & { env: string };
+
+export type FxCorePublishInputs = InputsWithProjectPath & { env: string };
 
 /** Inputs for adding an OpenAPI or MCP action to an existing project. */
 export type FxCoreAddPluginInputs = AddPluginInputs &
@@ -98,6 +104,11 @@ export type FxCoreAddAuthActionInputs = AddAuthActionInputs &
  * are successful domain outcomes from validate(), with valid set to false.
  */
 export interface IFxCoreClient {
+  executeAction<K extends ActionName>(
+    name: K,
+    args: ActionArgs<NoInfer<K>>,
+    options: ActionExecutionOptions
+  ): Promise<ActionResult<K>>;
   addPlugin(
     inputs: FxCoreAddPluginInputs,
     options?: FxCoreExecutionOptions
@@ -119,7 +130,7 @@ export interface IFxCoreClient {
     options?: FxCoreExecutionOptions
   ): Promise<Result<FxCorePackageResult, FxError>>;
   publish(
-    inputs: TeamsAppInputs,
+    inputs: FxCorePublishInputs,
     options?: FxCoreExecutionOptions
   ): Promise<Result<FxCorePublishResult, FxError>>;
   validate(
@@ -142,6 +153,14 @@ export class FxCoreClient implements IFxCoreClient {
 
   public constructor(private readonly tools: Tools) {
     this.core = new FxCore(tools);
+  }
+
+  public async executeAction<K extends ActionName>(
+    name: K,
+    args: ActionArgs<NoInfer<K>>,
+    options: ActionExecutionOptions
+  ): Promise<ActionResult<K>> {
+    return this.core.executeAction(name, args, options);
   }
 
   public async addPlugin(
@@ -196,17 +215,19 @@ export class FxCoreClient implements IFxCoreClient {
   }
 
   public async publish(
-    inputs: TeamsAppInputs,
+    inputs: FxCorePublishInputs,
     options?: FxCoreExecutionOptions
   ): Promise<Result<FxCorePublishResult, FxError>> {
     const cancelled = this.cancelled<FxCorePublishResult>(options?.signal);
     if (cancelled) return cancelled;
     const clientInputs = this.withSignal(inputs, options?.signal);
-    const result = await this.core.publishTeamsAppCLIV3(clientInputs);
+    const result = await this.core.publishApplication(clientInputs);
     if (result.isErr()) return err(result.error);
     const afterOperation = this.cancelled<FxCorePublishResult>(options?.signal);
     if (afterOperation) return afterOperation;
-    return ok({ packagePath: clientInputs["package-file"] as string });
+    const envResult = await envUtil.readEnv(inputs.projectPath, inputs.env, false, false);
+    if (envResult.isErr()) return err(envResult.error);
+    return ok({ outputs: envResult.value });
   }
 
   public async validate(

@@ -10,7 +10,7 @@ A collection of TypeScript definitions and converters for Microsoft 365 App mani
 
 - **Strongly‑typed interfaces** for three manifest types with all versions generated from Microsoft’s official [JSON schemas](https://developer.microsoft.com/json-schemas/), guaranteeing compile‑time type correctness:  
   - Teams Manifest: 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 1.10, 1.11, 1.12, 1.13, 1.14, 1.15, 1.16, 1.17, 1.19, 1.20, 1.21, 1.22, devPreview  
-  - Declarative Agent Manifest: v1.0, v1.2, v1.3, v1.4  
+  - Declarative Agent Manifest: v1.0, v1.2, v1.3, v1.4, v1.5, v1.6, v1.7, v1.8, v1.9
   - API Plugin Manifest: v2.1, v2.2
 
 - **Bi‑directional conversions** from JSON to manifest or from manifest to JSON(`jsonToManifest` and `manifestToJson`) with runtime type validation.
@@ -81,6 +81,37 @@ const pluginJsonString = ApiPluginManifestConverter.manifestToJson(pluginManifes
 ```
 
 Note that the converts to/from JSON will throw runtime type check failures.
+
+Converter errors identify the failing property, including array indexes (for example,
+`agentConnectors[0].toolSource.remoteMcpServer.authorization.type`), and describe the
+expected type or allowed enum values without dumping the input values. An unsupported
+property means that the local manifest model does not recognize it; it does not establish
+whether a preview feature is supported by the service. Invalid JSON still throws a
+`SyntaxError`.
+
+The converter runtime is maintained in `converter-runtime.txt`. `npm run convert` uses
+that template for Teams, Declarative Agent, and API Plugin converters; do not edit the
+generated runtime helpers directly. This runtime performs type checks, not full JSON
+schema or service-side validation.
+
+Declarative Agent `v1.9` includes typed `agent_skills` entries referencing skill
+directories through `folder`. Its bundled schema permits up to eight skills.
+Earlier manifest versions and their converters remain available for compatibility.
+
+TypeScript generation applies the package's Prettier configuration so regenerated
+converters pass the same formatting checks as handwritten code.
+
+The bundled Teams devPreview schema supports `openApiConnector` with
+`ConnectionVault` authorization, and `ConnectionVault` for remote and local MCP
+servers. Its `devPreview`, `m365DevPreview`, and `m365devpreview` version values all
+use the validating preview converter. The complete preview snapshot also includes
+local agent/tool references and other preview contract changes; stable schemas
+and `TeamsManifestLatest` are unchanged. Local support does not guarantee service
+availability.
+
+Use `AppManifestUtils.validateAgainstSchema` for JSON schema constraints such as
+the 128-character authorization `referenceId` limit and conditional required
+fields. Recognized Microsoft schema URLs resolve to the bundled schema first.
 
 ### Manifest utilities
 

@@ -30,7 +30,6 @@ import {
   addKnowledgeHandler,
   addPluginHandler,
   addSkillHandler,
-  addWebpartHandler,
   copilotPluginAddAPIHandler,
   createNewProjectHandler,
   deployHandler,
@@ -166,14 +165,6 @@ describe("Lifecycle handlers", () => {
     it("happy()", async () => {
       vi.spyOn(shared, "runCommand").mockResolvedValue(ok(undefined));
       const res = await shareHandler();
-      assert.isTrue(res.isOk());
-    });
-  });
-
-  describe("addWebpartHandler", function () {
-    it("happy()", async () => {
-      vi.spyOn(shared, "runCommand").mockResolvedValue(ok(undefined));
-      const res = await addWebpartHandler();
       assert.isTrue(res.isOk());
     });
   });

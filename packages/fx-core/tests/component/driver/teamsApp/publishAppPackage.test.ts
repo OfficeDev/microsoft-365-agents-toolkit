@@ -731,274 +731,150 @@ describe("teamsApp/publishAppPackage", async () => {
 
   // eslint-disable-next-line no-secrets/no-secrets
   describe("verifyPackageFamilyCertIsValid", () => {
-    let execStub: any;
-
-    beforeEach(() => {
-      execStub = vi.spyOn(McpCertVerification.mcpCertDeps, "exec");
-    });
-
     afterEach(() => {
       vi.restoreAllMocks();
     });
 
-    it("should return true when package has valid certificate (Store signature)", async () => {
-      execStub.mockImplementation(
-        (
-          command: string,
-          callback: (error: Error | null, result: { stdout: string; stderr: string }) => void
-        ) => {
-          callback(null, {
-            stdout: "$_.SignatureKind\n-----------------\nStore\n",
-            stderr: "",
-          });
-        }
-      );
+    for (const signature of ["Store", "System", "Enterprise"]) {
+      it(`accepts the ${signature} signature`, async () => {
+        vi.spyOn(McpCertVerification.mcpCertDeps, "execFile").mockResolvedValue({
+          stdout: ` \r\n${signature}\r\n `,
+          stderr: "",
+        });
 
-      const result = await McpCertVerification.verifyPackageFamilyCertIsValid("TestPackage_12345");
-      chai.assert.isTrue(result);
+        expect(await McpCertVerification.verifyPackageFamilyCertIsValid("TestPackage_12345")).toBe(
+          true
+        );
+      });
+    }
+
+    for (const stdout of [
+      "",
+      " \r\n ",
+      "Developer",
+      "DEVELOPER",
+      "None",
+      "Unknown",
+      "NotStore",
+      "Store\nDeveloper",
+      "Store\nStore",
+      "Get-AppxPackage : Access denied",
+    ]) {
+      it(`rejects missing or untrusted signature output ${JSON.stringify(stdout)}`, async () => {
+        vi.spyOn(McpCertVerification.mcpCertDeps, "execFile").mockResolvedValue({
+          stdout,
+          stderr: "",
+        });
+
+        expect(await McpCertVerification.verifyPackageFamilyCertIsValid("TestPackage_12345")).toBe(
+          false
+        );
+      });
+    }
+
+    it("passes registry metadata only as environment data, never as command text", async () => {
+      const execFileStub = vi
+        .spyOn(McpCertVerification.mcpCertDeps, "execFile")
+        .mockResolvedValue({ stdout: "", stderr: "" });
+      const packageNames = ["MyApp_abc123xyz", "Registry_'\";|&$()`\r\n_value"];
+
+      for (const packageName of packageNames) {
+        await McpCertVerification.verifyPackageFamilyCertIsValid(packageName);
+      }
+
+      expect(execFileStub).toHaveBeenCalledTimes(2);
+      const [file, args, options] = execFileStub.mock.calls[0];
+      expect(file).toBe("powershell.exe");
+      expect(args).toEqual([
+        "-NoProfile",
+        "-NonInteractive",
+        "-Command",
+        expect.stringContaining(
+          "Where-Object { $_.PackageFamilyName -eq $env:ATK_MCP_PACKAGE_FAMILY }"
+        ),
+      ]);
+      expect(args?.join(" ")).not.toContain(packageNames[0]);
+      expect(execFileStub.mock.calls[1][1]).toEqual(args);
+      expect(options).toMatchObject({
+        shell: false,
+        encoding: "utf8",
+        env: { ATK_MCP_PACKAGE_FAMILY: packageNames[0] },
+      });
+      expect(execFileStub.mock.calls[1][2]).toMatchObject({
+        env: { ATK_MCP_PACKAGE_FAMILY: packageNames[1] },
+      });
+      expect(args?.join(" ")).toContain("Get-AppxPackage -ErrorAction Stop");
+      expect(args?.join(" ")).toContain("Select-Object -ExpandProperty SignatureKind");
     });
 
-    it("should return true when package has System signature", async () => {
-      execStub.mockImplementation(
-        (
-          command: string,
-          callback: (error: Error | null, result: { stdout: string; stderr: string }) => void
-        ) => {
-          callback(null, {
-            stdout: "$_.SignatureKind\n-----------------\nSystem\n",
-            stderr: "",
-          });
-        }
-      );
+    it.skipIf(process.platform !== "win32")(
+      "treats registry metacharacters literally in the real PowerShell query",
+      async () => {
+        const packageFamily = "Registry_'\";|&$()`_value";
+        const servers = ODRProvider.parseODRListOutput({
+          servers: [
+            {
+              name: "test-server",
+              packages: [{ identifier: "test-server" }],
+              _meta: {
+                "io.modelcontextprotocol.registry/publisher-provided": {
+                  "com.microsoft.windows": {
+                    manifest: {
+                      _meta: { "com.microsoft.windows": { package_family_name: packageFamily } },
+                      server: { mcp_config: { command: "odr", args: [] } },
+                    },
+                  },
+                },
+              },
+            },
+          ],
+        });
+        vi.spyOn(ODRProvider, "listServers").mockResolvedValue(servers);
+        const zip = new AdmZip();
+        zip.addFile(
+          "plugin.json",
+          Buffer.from(
+            JSON.stringify({
+              runtimes: [{ type: "LocalPlugin", spec: { local_endpoint: "mcp://test-server" } }],
+            })
+          )
+        );
+        const plugin = zip.getEntry("plugin.json");
+        if (!plugin) throw new Error("Missing test plugin");
 
-      const result = await McpCertVerification.verifyPackageFamilyCertIsValid("TestPackage_12345");
-      chai.assert.isTrue(result);
-    });
+        const execFile = McpCertVerification.mcpCertDeps.execFile;
+        vi.spyOn(McpCertVerification.mcpCertDeps, "execFile").mockImplementation(
+          (file, args, options) => {
+            const script = args?.at(-1);
+            if (typeof script !== "string") throw new Error("Missing PowerShell script");
+            // Replace only the OS package source, retaining the production query and transport.
+            const packageSource =
+              "function Get-AppxPackage { " +
+              "[pscustomobject]@{ PackageFamilyName = $env:ATK_MCP_PACKAGE_FAMILY; SignatureKind = 'Store' }; " +
+              "[pscustomobject]@{ PackageFamilyName = 'UnrelatedPackage'; SignatureKind = 'Developer' } }; ";
+            return execFile(
+              file,
+              ["-NoProfile", "-NonInteractive", "-Command", packageSource + script],
+              options
+            );
+          }
+        );
 
-    it("should return false when package has Developer signature (self-signed)", async () => {
-      execStub.mockImplementation(
-        (
-          command: string,
-          callback: (error: Error | null, result: { stdout: string; stderr: string }) => void
-        ) => {
-          callback(null, {
-            stdout: "$_.SignatureKind\n-----------------\nDeveloper\n",
-            stderr: "",
-          });
-        }
-      );
+        expect(await McpCertVerification.verifyLocalMCPPluginCerts(plugin)).toBe(true);
+      }
+    );
 
-      const result = await McpCertVerification.verifyPackageFamilyCertIsValid("TestPackage_12345");
-      chai.assert.isFalse(result);
-    });
+    for (const message of ["PowerShell execution failed", "Command timed out", "Access denied"]) {
+      it(`fails closed and logs when querying fails: ${message}`, async () => {
+        const error = new Error(message);
+        vi.spyOn(McpCertVerification.mcpCertDeps, "execFile").mockRejectedValue(error);
+        const logStub = vi.spyOn(console, "error").mockImplementation(() => {});
 
-    it("should return false when package has developer in mixed case", async () => {
-      execStub.mockImplementation(
-        (
-          command: string,
-          callback: (error: Error | null, result: { stdout: string; stderr: string }) => void
-        ) => {
-          callback(null, {
-            stdout: "$_.SignatureKind\n-----------------\nDEVELOPER\n",
-            stderr: "",
-          });
-        }
-      );
-
-      const result = await McpCertVerification.verifyPackageFamilyCertIsValid("TestPackage_12345");
-      chai.assert.isFalse(result);
-    });
-
-    it("should return false when stdout is empty", async () => {
-      execStub.mockImplementation(
-        (
-          command: string,
-          callback: (error: Error | null, result: { stdout: string; stderr: string }) => void
-        ) => {
-          callback(null, {
-            stdout: "",
-            stderr: "",
-          });
-        }
-      );
-
-      const result = await McpCertVerification.verifyPackageFamilyCertIsValid("TestPackage_12345");
-      chai.assert.isFalse(result);
-    });
-
-    it("should return false when stdout is null", async () => {
-      execStub.mockImplementation(
-        (
-          command: string,
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          callback: (error: Error | null, result: { stdout: any; stderr: string }) => void
-        ) => {
-          callback(null, {
-            stdout: null,
-            stderr: "",
-          });
-        }
-      );
-
-      const result = await McpCertVerification.verifyPackageFamilyCertIsValid("TestPackage_12345");
-      chai.assert.isFalse(result);
-    });
-
-    it("should return false when stdout is undefined", async () => {
-      execStub.mockImplementation(
-        (
-          command: string,
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          callback: (error: Error | null, result: { stdout: any; stderr: string }) => void
-        ) => {
-          callback(null, {
-            stdout: undefined,
-            stderr: "",
-          });
-        }
-      );
-
-      const result = await McpCertVerification.verifyPackageFamilyCertIsValid("TestPackage_12345");
-      chai.assert.isFalse(result);
-    });
-
-    it("should return false when PowerShell command fails", async () => {
-      execStub.mockImplementation(
-        (
-          command: string,
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          callback: (error: Error | null, result: any) => void
-        ) => {
-          callback(new Error("PowerShell execution failed"), null);
-        }
-      );
-
-      const result = await McpCertVerification.verifyPackageFamilyCertIsValid("TestPackage_12345");
-      chai.assert.isFalse(result);
-    });
-
-    it("should return false when package not found", async () => {
-      execStub.mockImplementation(
-        (
-          command: string,
-          callback: (error: Error | null, result: { stdout: string; stderr: string }) => void
-        ) => {
-          callback(null, {
-            stdout: "",
-            stderr: "Get-AppxPackage : No packages were found",
-          });
-        }
-      );
-
-      const result = await McpCertVerification.verifyPackageFamilyCertIsValid(
-        "NonExistentPackage_99999"
-      );
-      chai.assert.isFalse(result);
-    });
-
-    it("should return true when package has Enterprise signature", async () => {
-      execStub.mockImplementation(
-        (
-          command: string,
-          callback: (error: Error | null, result: { stdout: string; stderr: string }) => void
-        ) => {
-          callback(null, {
-            stdout: "$_.SignatureKind\n-----------------\nEnterprise\n",
-            stderr: "",
-          });
-        }
-      );
-
-      const result = await McpCertVerification.verifyPackageFamilyCertIsValid("TestPackage_12345");
-      chai.assert.isTrue(result);
-    });
-
-    it("should handle stdout with extra whitespace", async () => {
-      execStub.mockImplementation(
-        (
-          command: string,
-          callback: (error: Error | null, result: { stdout: string; stderr: string }) => void
-        ) => {
-          callback(null, {
-            stdout: "  \n\n  Store  \n\n  ",
-            stderr: "",
-          });
-        }
-      );
-
-      const result = await McpCertVerification.verifyPackageFamilyCertIsValid("TestPackage_12345");
-      chai.assert.isTrue(result);
-    });
-
-    it("should correctly use the package name in PowerShell command", async () => {
-      const packageName = "MyApp_abc123xyz";
-      execStub.mockImplementation(
-        (
-          command: string,
-          callback: (error: Error | null, result: { stdout: string; stderr: string }) => void
-        ) => {
-          chai.assert.include(command, packageName);
-          callback(null, {
-            stdout: "Store",
-            stderr: "",
-          });
-        }
-      );
-
-      await McpCertVerification.verifyPackageFamilyCertIsValid(packageName);
-      chai.assert.isTrue(execStub.mock.calls.length === 1);
-    });
-
-    it("should handle timeout errors gracefully", async () => {
-      execStub.mockImplementation(
-        (
-          command: string,
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          callback: (error: NodeJS.ErrnoException | null, result: any) => void
-        ) => {
-          const timeoutError = new Error("Command timed out") as NodeJS.ErrnoException;
-          timeoutError.code = "ETIMEDOUT";
-          callback(timeoutError, null);
-        }
-      );
-
-      const result = await McpCertVerification.verifyPackageFamilyCertIsValid("TestPackage_12345");
-      chai.assert.isFalse(result);
-    });
-
-    it("should return false when stdout contains developer anywhere in text", async () => {
-      execStub.mockImplementation(
-        (
-          command: string,
-          callback: (error: Error | null, result: { stdout: string; stderr: string }) => void
-        ) => {
-          callback(null, {
-            stdout:
-              "SignatureKind: Developer (Self-signed certificate)\nPackageFullName: TestPackage",
-            stderr: "",
-          });
-        }
-      );
-
-      const result = await McpCertVerification.verifyPackageFamilyCertIsValid("TestPackage_12345");
-      chai.assert.isFalse(result);
-    });
-
-    it("should handle PowerShell access denied errors", async () => {
-      execStub.mockImplementation(
-        (
-          command: string,
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          callback: (error: NodeJS.ErrnoException | null, result: any) => void
-        ) => {
-          const accessError = new Error("Access denied") as NodeJS.ErrnoException;
-          accessError.code = "EACCES";
-          callback(accessError, null);
-        }
-      );
-
-      const result = await McpCertVerification.verifyPackageFamilyCertIsValid("TestPackage_12345");
-      chai.assert.isFalse(result);
-    });
+        expect(await McpCertVerification.verifyPackageFamilyCertIsValid("TestPackage_12345")).toBe(
+          false
+        );
+        expect(logStub).toHaveBeenCalledWith("Unable to get cert info for package name", error);
+      });
+    }
   });
 });

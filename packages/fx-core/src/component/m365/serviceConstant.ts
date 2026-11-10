@@ -27,6 +27,21 @@ export const MOS3ApiDefinitions: any = {
     method: "POST",
     path: /^\/builder\/v1\/users\/packages(\?|$)/,
   },
+  GetWorkIqPolicy: {
+    key: "get_workiq_policy",
+    method: "GET",
+    path: /\/builder\/v1\/tenants\/titles\/[^/]+\/policies\/workiq$/,
+  },
+  PutWorkIqPolicy: {
+    key: "put_workiq_policy",
+    method: "PUT",
+    path: /\/builder\/v1\/tenants\/titles\/[^/]+\/policies\/workiq$/,
+  },
+  PostBuilderDirectory: {
+    key: "create_skill_directory",
+    method: "POST",
+    path: /^\/builder\/v1\/directories(\?|$)/,
+  },
   GetBuilderStatus: {
     key: "get_builder_status",
     method: "GET",

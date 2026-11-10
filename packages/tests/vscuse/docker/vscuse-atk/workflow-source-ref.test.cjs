@@ -66,3 +66,23 @@ test("VCB-104: image metadata and verification use the checked-out source", () =
   assert.match(verifyStep.run, /vscuse-atk-entrypoint\.sh/);
   assert.match(verifyStep.run, /sync-vscode-feature-flags\.cjs/);
 });
+
+test("image builds share a pinned base and allow only explicit tag overrides", () => {
+  const workflow = parse(fs.readFileSync(workflowPath, "utf8"));
+  const dockerfile = fs.readFileSync(
+    path.join(__dirname, "Dockerfile"),
+    "utf8",
+  );
+  const base = /^ARG BASE_IMAGE=(.+)$/m.exec(dockerfile)?.[1];
+  const buildStep = workflow.jobs["build-and-push"].steps.find(
+    (step) => step.name === "Build and push Docker image",
+  );
+
+  assert.match(base, /^ghcr\.io\/microsoft\/vscuse-base@sha256:[a-f0-9]{64}$/);
+  assert.equal(workflow.env.PINNED_BASE_IMAGE, base);
+  assert.equal(workflow.on.workflow_dispatch.inputs.base_image_tag.default, "");
+  assert.equal(
+    buildStep.with["build-args"].trim().split("\n")[0],
+    "BASE_IMAGE=${{ github.event.inputs.base_image_tag && format('ghcr.io/microsoft/vscuse-base:{0}', github.event.inputs.base_image_tag) || env.PINNED_BASE_IMAGE }}",
+  );
+});

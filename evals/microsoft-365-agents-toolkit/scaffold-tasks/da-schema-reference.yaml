@@ -25,13 +25,18 @@ graders:
       reject_tools:
         - tool: shell
           command_pattern: '(?i)\b(atk|wiqd|npm)\b'
+  - type: skill_invocation
+    name: no_wiqd_plugin_for_read_only_reference
+    config:
+      forbidden_skills:
+        - wiqd
   - type: prompt
     name: quality_check
     config:
       prompt: |
         Review the agent's response. Check that it:
         1. Answers that `manifest.json` registers the file through `copilotAgents.declarativeAgents` entries containing `id` and `file`.
-        2. Does not require WIQD installation, authentication, or a lifecycle command for this read-only question.
+        2. Does not invoke the WIQD plugin or require installation, authentication, or a lifecycle command for this read-only question.
 
         If all criteria are met, call set_waza_grade_pass.
         Otherwise, call set_waza_grade_fail with your reasoning.

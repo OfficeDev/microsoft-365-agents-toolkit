@@ -71,7 +71,7 @@
         "x": 354,
         "y": 88
       },
-      "description": "Select the \"Declarative Agent – Agents for Microsoft 365 Copilot\" option in the \"New Project\" dropdown within Visual Studio Code.",
+      "description": "Select the \"Declarative Agent \u2013 Agents for Microsoft 365 Copilot\" option in the \"New Project\" dropdown within Visual Studio Code.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -170,7 +170,7 @@
         "x": null,
         "y": null
       },
-      "description": "Press the F1 key to open the command palette in Visual Studio Code – Insiders, shown while viewing the \"Overview of the Declarative Agent template\" README with the \"Provision\" step selected in the Microsoft 365 Agents Toolkit sidebar.",
+      "description": "Press the F1 key to open the command palette in Visual Studio Code \u2013 Insiders, shown while viewing the \"Overview of the Declarative Agent template\" README with the \"Provision\" step selected in the Microsoft 365 Agents Toolkit sidebar.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,

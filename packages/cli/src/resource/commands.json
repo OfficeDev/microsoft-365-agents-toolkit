@@ -16,6 +16,14 @@
       "command": "The command to get help for."
     }
   },
+  "execute": {
+    "description": "Execute a supported SDK operation without a lifecycle."
+  },
+  "execute.action": {
+    "description": "Execute one allowlisted action; actions may perform real external writes.",
+    "argumentMode": "Action arguments must be supplied explicitly. Authentication, including sign-in prompts, is managed by the configured token provider.",
+    "policyPathResolution": "Relative policy paths resolve from the current working directory. The policy file's parent directory is used as the execution project."
+  },
   "auth": {
     "description": "Manage Microsoft 365 and Azure accounts."
   },
@@ -64,9 +72,6 @@
   },
   "export.openplugin": {
     "description": "Export a Microsoft 365 Agents Toolkit project to an Agent Plugins v1.0.0 directory (agent-plugins.org). Round-trips losslessly with 'atk import agentplugin'. Alias: 'agentplugin'."
-  },
-  "add.spfx-web-part": {
-    "description": "Auto-hosted SPFx web part tightly integrated with Microsoft 365."
   },
   "add.action": {
     "description": "An action to extend Copilot using your APIs."

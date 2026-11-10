@@ -13,7 +13,7 @@ import { CopilotAgentPublishDriver } from "../../../../src/component/driver/copi
 import { Constants } from "../../../../src/component/driver/teamsApp/constants";
 import { AppStudioError } from "../../../../src/component/driver/teamsApp/errors";
 import * as McpCertVerification from "../../../../src/component/driver/teamsApp/utils/McpCertVerification";
-import { PackageService } from "../../../../src/component/m365/packageService";
+import { AppScope, PackageService } from "../../../../src/component/m365/packageService";
 import { UserCancelError } from "../../../../src/error/common";
 import { MockedM365Provider } from "../../../core/utils";
 import { MockedLogProvider, MockedUserInteraction } from "../../../plugins/solution/util";
@@ -115,7 +115,7 @@ describe("copilotAgent/publish", async () => {
     }
   });
 
-  it("happy path - default scope (Personal)", async () => {
+  it("AC-03: omitted scope stays Personal for existing projects and local debugging", async () => {
     const appPackagePath = await createPackage({
       [Constants.MANIFEST_FILE]: new TeamsAppManifest(),
       "color.png": Buffer.from(""),
@@ -132,9 +132,12 @@ describe("copilotAgent/publish", async () => {
     const titleId = uuid();
     const appId = uuid();
 
-    vi.spyOn(PackageService.prototype, "publishAgent").mockResolvedValue([titleId, appId, ""]);
+    const publish = vi
+      .spyOn(PackageService.prototype, "publishAgent")
+      .mockResolvedValue([titleId, appId, ""]);
 
     const result = await driver.execute(args, mockedDriverContext, outputEnvVarNames);
+    chai.assert.strictEqual(publish.mock.calls[0][2], AppScope.Personal);
     chai.assert.isTrue(result.result.isOk());
     if (result.result.isOk()) {
       chai.assert.equal(result.result.value.get("M365_TITLE_ID"), titleId);
@@ -142,7 +145,31 @@ describe("copilotAgent/publish", async () => {
     }
   });
 
-  it("happy path - tenant scope", async () => {
+  it("AC-03: explicit personal scope and the existing package stay unchanged", async () => {
+    const appPackagePath = await createPackage({
+      [Constants.MANIFEST_FILE]: new TeamsAppManifest(),
+    });
+    const originalPackage = await fs.readFile(appPackagePath);
+    const publish = vi
+      .spyOn(PackageService.prototype, "publishAgent")
+      .mockResolvedValue(["title-id", "app-id", ""]);
+    const outputEnvVarNames = new Map([
+      ["titleId", "M365_TITLE_ID"],
+      ["appId", "M365_APP_ID"],
+    ]);
+
+    const result = await driver.execute(
+      { appPackagePath, scope: "personal" },
+      mockedDriverContext,
+      outputEnvVarNames
+    );
+
+    chai.assert.isTrue(result.result.isOk());
+    chai.assert.strictEqual(publish.mock.calls[0][2], AppScope.Personal);
+    chai.assert.deepEqual(await fs.readFile(appPackagePath), originalPackage);
+  });
+
+  it("AC-03: explicit tenant scope is preserved", async () => {
     const appPackagePath = await createPackage({
       [Constants.MANIFEST_FILE]: new TeamsAppManifest(),
       "color.png": Buffer.from(""),
@@ -160,9 +187,12 @@ describe("copilotAgent/publish", async () => {
     const titleId = uuid();
     const appId = uuid();
 
-    vi.spyOn(PackageService.prototype, "publishAgent").mockResolvedValue([titleId, appId, ""]);
+    const publish = vi
+      .spyOn(PackageService.prototype, "publishAgent")
+      .mockResolvedValue([titleId, appId, ""]);
 
     const result = await driver.execute(args, mockedDriverContext, outputEnvVarNames);
+    chai.assert.strictEqual(publish.mock.calls[0][2], AppScope.Tenant);
     chai.assert.isTrue(result.result.isOk());
     if (result.result.isOk()) {
       chai.assert.equal(result.result.value.get("M365_PUBLISHED_TITLE_ID"), titleId);
@@ -170,7 +200,7 @@ describe("copilotAgent/publish", async () => {
     }
   });
 
-  it("happy path - shared scope", async () => {
+  it("AC-03: explicit shared scope is preserved", async () => {
     const appPackagePath = await createPackage({
       [Constants.MANIFEST_FILE]: new TeamsAppManifest(),
       "color.png": Buffer.from(""),
@@ -188,9 +218,12 @@ describe("copilotAgent/publish", async () => {
     const titleId = uuid();
     const appId = uuid();
 
-    vi.spyOn(PackageService.prototype, "publishAgent").mockResolvedValue([titleId, appId, ""]);
+    const publish = vi
+      .spyOn(PackageService.prototype, "publishAgent")
+      .mockResolvedValue([titleId, appId, ""]);
 
     const result = await driver.execute(args, mockedDriverContext, outputEnvVarNames);
+    chai.assert.strictEqual(publish.mock.calls[0][2], AppScope.Shared);
     chai.assert.isTrue(result.result.isOk());
     if (result.result.isOk()) {
       chai.assert.equal(result.result.value.get("M365_TITLE_ID"), titleId);
@@ -285,7 +318,7 @@ describe("copilotAgent/publish", async () => {
     }
   });
 
-  it("should return shareLink when published with shared scope", async () => {
+  it("AC-06: shared publishing persists SHARE_LINK alongside the title and app IDs", async () => {
     const appPackagePath = await createPackage({
       [Constants.MANIFEST_FILE]: new TeamsAppManifest(),
     });

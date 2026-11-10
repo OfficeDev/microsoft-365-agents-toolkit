@@ -25,7 +25,6 @@ import {
   accountLoginM365Command,
   accountUtils,
   addCommand,
-  addSPFxWebpartCommand,
   createSampleCommand,
   deployCommand,
   envAddCommand,
@@ -814,18 +813,15 @@ describe("CLI commands", () => {
     });
   });
 
-  describe("addSPFxWebpartCommand", async () => {
-    it("success", async () => {
-      vi.spyOn(FxCore.prototype, "addWebpart").mockResolvedValue(ok(undefined));
-      const ctx: CLIContext = {
-        command: { ...addSPFxWebpartCommand, fullName: "add spfx-web-part" },
-        optionValues: {},
-        globalOptionValues: {},
-        argumentValues: [],
-        telemetryProperties: {},
-      };
-      const res = await addSPFxWebpartCommand.handler!(ctx);
-      assert.isTrue(res.isOk());
+  describe("SPFx retirement", () => {
+    it("RET-SPFX-01: removes only the retired SPFx add command", () => {
+      const names = addCommand().commands?.map((command) => command.name) ?? [];
+      assert.notInclude(names, "spfx-web-part");
+      assert.includeMembers(names, [
+        addPluginCommand.name,
+        addAuthConfigCommand.name,
+        addCapabilityCommand.name,
+      ]);
     });
   });
 
@@ -1003,23 +999,29 @@ describe("CLI commands", () => {
   });
 
   describe("getAddCommand", async () => {
-    it("excludes Add Skill when Frontier is disabled", async () => {
-      vi.spyOn(featureFlagManager, "getBooleanValue").mockReturnValue(false);
-
-      const commands = addCommand();
-
-      assert.isTrue(commands.commands?.length === 4);
-      assert.notInclude(commands.commands, addSkillCommand);
-    });
-
-    it("includes Add Skill when Frontier is enabled", async () => {
+    it.each([true, false])("registers and runs Add Skill when Frontier is %s", async (enabled) => {
       vi.spyOn(featureFlagManager, "getBooleanValue").mockImplementation(
-        (flag) => flag === FeatureFlags.Frontier
+        (flag) => flag === FeatureFlags.Frontier && enabled
       );
 
       const commands = addCommand();
 
+      assert.lengthOf(commands.commands, 4);
       assert.include(commands.commands, addSkillCommand);
+
+      const addSkill = vi.spyOn(FxCore.prototype, "addSkill").mockResolvedValue(ok(undefined));
+      const ctx: CLIContext = {
+        command: { ...addSkillCommand, fullName: "add skill" },
+        optionValues: { folder: "./", skill: "my-skill", description: "A test skill" },
+        globalOptionValues: {},
+        argumentValues: [],
+        telemetryProperties: {},
+      };
+
+      const result = await addSkillCommand.handler!(ctx);
+
+      assert.isTrue(result.isOk());
+      assert.deepEqual(addSkill.mock.calls, [[ctx.optionValues]]);
     });
   });
 
@@ -1657,6 +1659,28 @@ describe("CLI commands", () => {
       const res = await m365SideloadingCommand.handler!(ctx);
       assert.isTrue(res.isOk());
     });
+    it.each([false, true])(
+      "SCN-ISU-07 AC-14: forwards the CLI provider with interactive=%s",
+      async (interactive) => {
+        vi.spyOn(m365utils, "getTokenAndUpn").mockResolvedValue(["token", "upn"]);
+        const upload = vi
+          .spyOn(PackageService.prototype, "sideLoading")
+          .mockImplementation(async function (this: PackageService) {
+            assert.strictEqual(Reflect.get(this, "m365TokenProvider"), M365TokenProvider);
+            return ["", "", ""];
+          });
+        const ctx: CLIContext = {
+          command: { ...m365SideloadingCommand, fullName: "teamsfx" },
+          optionValues: { "file-path": "./agent.zip", scope: "Personal" },
+          globalOptionValues: { interactive },
+          argumentValues: [],
+          telemetryProperties: {},
+        };
+        const result = await m365SideloadingCommand.handler!(ctx);
+        assert.isTrue(result.isOk());
+        assert.isTrue(upload.mock.calls.length === 1);
+      }
+    );
     it("should success with zip package with Personal scope", async () => {
       vi.spyOn(m365utils, "getTokenAndUpn").mockResolvedValue(["token", "upn"]);
       vi.spyOn(PackageService.prototype, "sideLoading").mockResolvedValue(["", "", ""]);

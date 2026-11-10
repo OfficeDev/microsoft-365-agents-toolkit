@@ -25,6 +25,7 @@
   },
 
   "replaceMap": [
+    { "var": "NewDeveloperPortalApis", "when": "featureFlag('TEAMSFX_NEW_DP_APIS')", "value": "true" },
     { "var": "SafeProjectNameLowerCase", "expr": "safeProjectNameLowerCase(appName)" },
     { "var": "SandBoxedTeam", "when": "featureFlag('TEAMSFX_SANDBOXED_TEAM')", "value": "true" },
     { "var": "CEAEnabled", "when": "featureFlag('TEAMSFX_CEA_ENABLED')", "value": "true" },

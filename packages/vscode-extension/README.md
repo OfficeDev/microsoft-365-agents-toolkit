@@ -31,6 +31,10 @@ Microsoft Teams platform provides [diverse extensible features](https://learn.mi
 You can build your custom [Office Add-ins](https://learn.microsoft.com/en-us/office/dev/add-ins/overview/office-add-ins) that extend and interact with content in Excel, Word, PowerPoint, OneNote and Outlook. You only need to build one solution and it can run in Office across all these apps.
 ## Getting started
 
+SPFx project creation/import and the Add Web Part command are no longer
+supported. Use the SharePoint Framework tooling directly for generation.
+Deployment and publishing of existing Toolkit SPFx projects remain unchanged.
+
 Open Microsoft 365 Agents Toolkit to create a new agent/app and start coding!
 <img width="1111" alt="image" src="https://github.com/user-attachments/assets/add124dc-44db-4c10-b84c-243af89aa0f3" />
 
@@ -69,7 +73,7 @@ Verify you have the right prerequisites for building apps and install some recom
 <table>
     <tr>
         <td><img src="https://raw.githubusercontent.com/OfficeDev/TeamsFx/main/packages/vscode-extension/img/landingPage_nodejs.png"></td>
-        <td><h3>Node.js</h3>As a fundamental runtime context for app, Node.js is required. If you develop SPFx Tab app, please install v22.x.</td>
+        <td><h3>Node.js</h3>As a fundamental runtime context for app, Node.js is required.</td>
     </tr>
     <tr>
         <td><img src="https://raw.githubusercontent.com/OfficeDev/TeamsFx/main/packages/vscode-extension/img/landingPage_m365.png"></td>

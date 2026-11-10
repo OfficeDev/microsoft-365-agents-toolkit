@@ -410,13 +410,13 @@ steps:
       - type: file
         path: m365agents.yml
         expect:
-          contains: ["version: v1.11", "provision:", "deploy:"]
+          contains: ["version: v1.12", "provision:", "deploy:"]
       - type: file
         path: src/index.ts
         expect:
           exists: true
       - type: file
-        path: src/app/app.ts
+        path: src/agent.ts
         expect:
           exists: true
       - type: file
@@ -492,13 +492,13 @@ steps:
       - type: file
         path: m365agents.yml
         expect:
-          contains: ["version: v1.11", "provision:", "deploy:"]
+          contains: ["version: v1.12", "provision:", "deploy:"]
       - type: file
         path: src/index.js
         expect:
           exists: true
       - type: file
-        path: src/app/app.js
+        path: src/agent.js
         expect:
           exists: true
       - type: file

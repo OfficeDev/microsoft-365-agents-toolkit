@@ -44,7 +44,7 @@ export enum TemplateNames {
   DashboardTab = "dashboard-tab",
   TabSSR = "non-sso-tab-ssr", // handled by SsrTabGenerator
   SsoTabSSR = "sso-tab-ssr", // handled by SsrTabGenerator
-  TabSPFx = "spfx-tab", // handled by SPFxGeneratorNew
+  TabSPFx = "spfx-tab", // Legacy project identifier; generation is retired.
 
   // bot
   DefaultBot = "default-bot",

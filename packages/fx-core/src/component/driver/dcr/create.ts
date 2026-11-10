@@ -100,7 +100,7 @@ export class CreateDcrDriver implements StepDriver {
             applicableToApps === OauthRegistrationAppType.SpecificApp ? (args.appId ?? "") : "",
           applicableToApps: applicableToApps,
           targetAudience: targetAudience,
-          targetUrlsShouldStartWith: args.targetUrlsShouldStartWith,
+          targetUrlsShouldStartWith: args.targetUrlsShouldStartWith ?? [],
           ...(args.mcpResourceUrl !== undefined ? { mcpResourceUrl: args.mcpResourceUrl } : {}),
           ...(args.wellKnownAuthorizationServer !== undefined
             ? { wellKnownAuthorizationServer: args.wellKnownAuthorizationServer }
@@ -222,10 +222,9 @@ export class CreateDcrDriver implements StepDriver {
     }
 
     if (
-      !Array.isArray(args.targetUrlsShouldStartWith) ||
-      args.targetUrlsShouldStartWith.length !== 1 ||
-      typeof args.targetUrlsShouldStartWith[0] !== "string" ||
-      !validateUrl(args.targetUrlsShouldStartWith[0])
+      args.targetUrlsShouldStartWith !== undefined &&
+      (!Array.isArray(args.targetUrlsShouldStartWith) ||
+        args.targetUrlsShouldStartWith.some((url) => typeof url !== "string" || !validateUrl(url)))
     ) {
       invalidParameters.push("targetUrlsShouldStartWith");
     }

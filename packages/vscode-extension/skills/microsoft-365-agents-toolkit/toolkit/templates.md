@@ -1,6 +1,6 @@
 # Agent Templates Reference
 
-Use WIQD for pure DAs and DAs that attach existing OpenAPI, remote MCP, or Copilot Connector backends. Use ATK templates when the project must scaffold and deploy its own backend source code; use ATK for the complete lifecycle of those projects.
+Delegate every DA to the WIQD plugin except an explicitly requested TypeSpec DA. The plugin coordinates Azure and Entra skills when the DA needs a new backend.
 
 ## Contents
 - CLI Capabilities (ATK-routed options)
@@ -13,7 +13,7 @@ Use WIQD for pure DAs and DAs that attach existing OpenAPI, remote MCP, or Copil
 
 ## CLI Capabilities (atk new -c)
 
-For entries routed to ATK, use `atk new -c <capability>`. The DA routing exceptions are described below.
+For entries routed to ATK, use `atk new -c <capability>`. Among DAs, only `declarative-agent-typespec` is routed to ATK; the other DA entries below are retained for legacy recognition, not direct selection.
 
 | Capability | Description |
 |------------|-------------|
@@ -45,23 +45,9 @@ For entries routed to ATK, use `atk new -c <capability>`. The DA routing excepti
 
 ### Creating a Declarative Agent
 
-For a pure DA or a DA that uses an existing OpenAPI, MCP, or Copilot Connector backend:
+Invoke the `wiqd` skill for every DA except TypeSpec and let the plugin own creation, actions, and the remaining lifecycle. This includes new Azure-hosted API backends, existing OpenAPI or MCP services, and Copilot Connector scenarios. The plugin coordinates Azure and Entra skills when external backend or identity work is required. Follow [declarative-agent-lifecycle.md](declarative-agent-lifecycle.md) for the routing boundary.
 
-```bash
-wiqd agent create --name <name> --output <parent-folder>
-```
-
-Add existing OpenAPI or MCP actions and continue the lifecycle with [declarative-agent-lifecycle.md](declarative-agent-lifecycle.md).
-
-For a DA with new project-owned backend source code and deployment:
-
-```bash
-atk new -c declarative-agent-action -l <typescript|javascript|csharp> -n <name> -f <parent-folder> -i false
-```
-
-Choose `declarative-agent-action-bearer` or `declarative-agent-action-oauth` for a new backend that requires that authentication model. Because these projects contain backend source and backend deployment actions, keep the generated DA manifest, backend, and all lifecycle operations on ATK. This structural classification does not depend on which wrapper invoked fx-core.
-
-Use `declarative-agent-with-graph-connector` for a DA that scaffolds and deploys a new Connector ingestion backend. Its project-owned backend deployment selects ATK. A DA that only references an existing Connector connection stays on WIQD.
+Use `atk new -c declarative-agent-typespec` only when the user explicitly requests a TypeSpec DA.
 
 ## Custom Engine Agents (M365 SDK-based)
 

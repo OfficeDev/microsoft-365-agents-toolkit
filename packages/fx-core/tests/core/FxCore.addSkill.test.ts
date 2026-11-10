@@ -11,10 +11,12 @@ import {
   UserError,
 } from "@microsoft/teamsfx-api";
 import fs from "fs-extra";
+import yaml from "js-yaml";
 import * as path from "path";
 import { assert, vi } from "vitest";
 import { featureFlagManager, FeatureFlagName } from "../../src/common/featureFlags";
 import { setTools } from "../../src/common/globalVars";
+import { getLocalizedString } from "../../src/common/localizeUtils";
 import { copilotGptManifestUtils } from "../../src/component/driver/teamsApp/utils/CopilotGptManifestUtils";
 import { manifestUtils } from "../../src/component/driver/teamsApp/utils/ManifestUtils";
 import { FxCore } from "../../src/core/FxCore";
@@ -28,10 +30,7 @@ describe("addSkill", () => {
   beforeEach(() => {
     setTools(tools);
     vi.spyOn(validationUtils, "validateInputs").mockResolvedValue(undefined);
-    vi.spyOn(featureFlagManager, "getBooleanValue").mockImplementation((flag: any) => {
-      if (flag.name === FeatureFlagName.Frontier) return true;
-      return false;
-    });
+    vi.spyOn(featureFlagManager, "getBooleanValue").mockReturnValue(false);
   });
 
   afterEach(() => {
@@ -56,7 +55,7 @@ describe("addSkill", () => {
       platform: Platform.VSCode,
       projectPath: path.resolve("test-project"),
       [QuestionNames.ManifestPath]: path.resolve("test-project", "appPackage", "manifest.json"),
-      [QuestionNames.SkillName]: "mySkill",
+      [QuestionNames.SkillName]: "my-skill",
       [QuestionNames.SkillDescription]: "A test skill",
       [QuestionNames.ExposeToCopilot]: "no",
       ignoreLockByUT: true,
@@ -64,25 +63,78 @@ describe("addSkill", () => {
     };
   }
 
-  it("returns AgentSkillsDisabled error when ATK_FRONTIER is off", async () => {
-    vi.restoreAllMocks();
-    setTools(tools);
-    vi.spyOn(validationUtils, "validateInputs").mockResolvedValue(undefined);
-    vi.spyOn(featureFlagManager, "getBooleanValue").mockReturnValue(false);
+  it.each([Platform.CLI, Platform.VSCode])(
+    "rejects a preset uppercase name through question validation on %s before mutations",
+    async (platform) => {
+      vi.mocked(validationUtils.validateInputs).mockRestore();
+      const inputs = createBaseInputs({
+        platform,
+        nonInteractive: true,
+        [QuestionNames.SkillName]: "testSkill",
+      });
+      const ensureDir = vi.spyOn(fs, "ensureDir").mockResolvedValue();
+      const writeFile = vi.spyOn(fs, "writeFile").mockResolvedValue();
+      const addSkill = vi.spyOn(copilotGptManifestUtils, "addSkill");
 
-    const inputs = createBaseInputs();
-    const core = new FxCore(tools);
-    const result = await core.addSkill(inputs);
+      const result = await new FxCore(tools).addSkill(inputs);
 
-    assert.isTrue(result.isErr());
-    if (result.isErr()) {
-      assert.instanceOf(result.error, UserError);
-      assert.equal(result.error.name, "AgentSkillsDisabled");
+      assert.isTrue(result.isErr());
+      if (result.isErr()) {
+        assert.include(
+          result.error.message,
+          getLocalizedString("core.addSkillQuestion.name.validation")
+        );
+      }
+      assert.equal(ensureDir.mock.calls.length, 0);
+      assert.equal(writeFile.mock.calls.length, 0);
+      assert.equal(addSkill.mock.calls.length, 0);
     }
-  });
+  );
 
-  it("successfully creates a new skill directory with SKILL.md", async () => {
-    const inputs = createBaseInputs();
+  it.each([undefined, 123, "testSkill", "skill_name", "../outside", "my--skill", "a".repeat(65)])(
+    "rejects invalid new name %j before mutations even when question validation is skipped",
+    async (name) => {
+      const inputs = createBaseInputs({ nonInteractive: true, [QuestionNames.SkillName]: name });
+      vi.spyOn(manifestUtils, "_readAppManifest").mockResolvedValue(ok(createManifestWithDA()));
+      vi.spyOn(copilotGptManifestUtils, "getManifestPath").mockResolvedValue(
+        ok(path.resolve("test-project", "appPackage", "declarativeAgent.json"))
+      );
+      vi.spyOn(MockUserInteraction.prototype, "showMessage").mockResolvedValue(ok("Add"));
+      const ensureDir = vi.spyOn(fs, "ensureDir").mockResolvedValue();
+      const writeFile = vi.spyOn(fs, "writeFile").mockResolvedValue();
+      const addSkill = vi
+        .spyOn(copilotGptManifestUtils, "addSkill")
+        .mockResolvedValue(ok({ name: "test-agent", description: "Test agent" }));
+
+      const result = await new FxCore(tools).addSkill(inputs);
+
+      assert.isTrue(result.isErr());
+      if (result.isErr()) {
+        assert.equal(result.error.name, "InvalidSkillName");
+        assert.equal(
+          result.error.message,
+          getLocalizedString("core.addSkillQuestion.name.validation")
+        );
+      }
+      assert.equal(ensureDir.mock.calls.length, 0);
+      assert.equal(writeFile.mock.calls.length, 0);
+      assert.equal(addSkill.mock.calls.length, 0);
+    }
+  );
+
+  it.each([
+    { enabled: true, name: "my-skill" },
+    { enabled: false, name: "my-skill" },
+    { enabled: false, name: "1skill" },
+    { enabled: false, name: "123" },
+    { enabled: false, name: "true" },
+    { enabled: false, name: "null" },
+    { enabled: false, name: "a".repeat(64) },
+  ])("creates SKILL.md for $name when Frontier is $enabled", async ({ enabled, name }) => {
+    vi.mocked(featureFlagManager.getBooleanValue).mockImplementation(
+      (flag) => flag.name === FeatureFlagName.Frontier && enabled
+    );
+    const inputs = createBaseInputs({ [QuestionNames.SkillName]: name });
     const manifest = createManifestWithDA();
 
     vi.spyOn(manifestUtils, "_readAppManifest").mockResolvedValue(ok(manifest));
@@ -111,7 +163,8 @@ describe("addSkill", () => {
 
     // Verify SKILL.md content
     const writtenContent = writeFileStub.mock.calls[0][1] as string;
-    assert.include(writtenContent, "name: mySkill");
+    const frontmatter = writtenContent.split("---")[1];
+    assert.deepEqual(yaml.load(frontmatter), { name, description: "A test skill" });
     assert.include(writtenContent, "description: A test skill");
     assert.include(writtenContent, "---");
   });
@@ -119,7 +172,7 @@ describe("addSkill", () => {
   it("successfully adds an existing skill from within appPackage", async () => {
     const appPackageFolder = path.resolve("test-project", "appPackage");
     const inputs = createBaseInputs({
-      [QuestionNames.SkillFrom]: "skills/existingSkill",
+      [QuestionNames.SkillFrom]: "skills/existing-skill",
     });
     const manifest = createManifestWithDA();
 
@@ -131,7 +184,7 @@ describe("addSkill", () => {
     vi.spyOn(MockUserInteraction.prototype, "showMessage").mockResolvedValue(ok("Add"));
     vi.spyOn(fs, "pathExists").mockResolvedValue(true);
     vi.spyOn(fs, "readFile").mockResolvedValue(
-      "---\nname: existingSkill\ndescription: A skill\n---\n# existingSkill\n" as any
+      "---\nname: existing-skill\ndescription: A skill\n---\n# existing-skill\n" as any
     );
 
     const addSkillStub = vi.spyOn(copilotGptManifestUtils, "addSkill").mockResolvedValue(
@@ -148,32 +201,37 @@ describe("addSkill", () => {
     assert.equal(addSkillStub.mock.calls.length, 1);
   });
 
-  it("existing skill: errors when folder name has invalid characters", async () => {
-    const appPackageFolder = path.resolve("test-project", "appPackage");
-    const inputs = createBaseInputs({
-      [QuestionNames.SkillFrom]: "skills/my.skill",
-    });
-    const manifest = createManifestWithDA();
+  it.each(["my.skill", "testSkill", "my--skill"])(
+    "existing skill: rejects invalid folder name %j before updating manifests",
+    async (folderName) => {
+      const appPackageFolder = path.resolve("test-project", "appPackage");
+      const inputs = createBaseInputs({
+        [QuestionNames.SkillFrom]: `skills/${folderName}`,
+      });
+      const manifest = createManifestWithDA();
 
-    vi.spyOn(manifestUtils, "_readAppManifest").mockResolvedValue(ok(manifest));
-    vi.spyOn(copilotGptManifestUtils, "getManifestPath").mockResolvedValue(
-      ok(path.resolve(appPackageFolder, "declarativeAgent.json"))
-    );
-    vi.spyOn(MockUserInteraction.prototype, "showMessage").mockResolvedValue(ok("Add"));
+      vi.spyOn(manifestUtils, "_readAppManifest").mockResolvedValue(ok(manifest));
+      vi.spyOn(copilotGptManifestUtils, "getManifestPath").mockResolvedValue(
+        ok(path.resolve(appPackageFolder, "declarativeAgent.json"))
+      );
+      vi.spyOn(MockUserInteraction.prototype, "showMessage").mockResolvedValue(ok("Add"));
+      const addSkill = vi.spyOn(copilotGptManifestUtils, "addSkill");
 
-    const core = new FxCore(tools);
-    const result = await core.addSkill(inputs);
+      const core = new FxCore(tools);
+      const result = await core.addSkill(inputs);
 
-    assert.isTrue(result.isErr());
-    if (result.isErr()) {
-      assert.equal(result.error.name, "InvalidSkillFolderName");
+      assert.isTrue(result.isErr());
+      if (result.isErr()) {
+        assert.equal(result.error.name, "InvalidSkillFolderName");
+      }
+      assert.equal(addSkill.mock.calls.length, 0);
     }
-  });
+  );
 
   it("existing skill: errors when SKILL.md name doesn't match folder name", async () => {
     const appPackageFolder = path.resolve("test-project", "appPackage");
     const inputs = createBaseInputs({
-      [QuestionNames.SkillFrom]: "skills/mySkill",
+      [QuestionNames.SkillFrom]: "skills/my-skill",
     });
     const manifest = createManifestWithDA();
 
@@ -223,7 +281,7 @@ describe("addSkill", () => {
     assert.equal(addSkillStub.mock.calls.length, 1);
     // Verify the folder argument passed to addSkill
     const folderArg = addSkillStub.mock.calls[0][1] as string;
-    assert.include(folderArg, "skills/mySkill");
+    assert.include(folderArg, "skills/my-skill");
   });
 
   it("errors when project has no DA manifest", async () => {
@@ -242,7 +300,7 @@ describe("addSkill", () => {
   it("existing skill: errors when SKILL.md doesn't exist", async () => {
     const appPackageFolder = path.resolve("test-project", "appPackage");
     const inputs = createBaseInputs({
-      [QuestionNames.SkillFrom]: "skills/noSkillMd",
+      [QuestionNames.SkillFrom]: "skills/no-skill-md",
     });
     const manifest = createManifestWithDA();
 
@@ -421,7 +479,7 @@ describe("addSkill", () => {
   it("existing skill: succeeds when SKILL.md has no name frontmatter", async () => {
     const appPackageFolder = path.resolve("test-project", "appPackage");
     const inputs = createBaseInputs({
-      [QuestionNames.SkillFrom]: "skills/mySkill",
+      [QuestionNames.SkillFrom]: "skills/my-skill",
     });
     const manifest = createManifestWithDA();
 
@@ -597,7 +655,7 @@ describe("addSkill", () => {
     const writtenManifest = JSON.parse(teamsManifestWriteCall![1] as string);
     assert.isArray(writtenManifest.agentSkills);
     assert.equal(writtenManifest.agentSkills.length, 1);
-    assert.include(writtenManifest.agentSkills[0].folder, "skills/mySkill");
+    assert.include(writtenManifest.agentSkills[0].folder, "skills/my-skill");
   });
 
   it("expose-to-copilot: writes agentSkills when enabled with boolean true", async () => {
@@ -634,7 +692,7 @@ describe("addSkill", () => {
     const writtenManifest = JSON.parse(teamsManifestWriteCall![1] as string);
     assert.isArray(writtenManifest.agentSkills);
     assert.equal(writtenManifest.agentSkills.length, 1);
-    assert.include(writtenManifest.agentSkills[0].folder, "skills/mySkill");
+    assert.include(writtenManifest.agentSkills[0].folder, "skills/my-skill");
   });
 
   it("expose-to-copilot: does not duplicate existing agentSkills entries", async () => {
@@ -642,7 +700,7 @@ describe("addSkill", () => {
       [QuestionNames.ExposeToCopilot]: "yes",
     });
     const manifest = createManifestWithDA();
-    manifest.agentSkills = [{ folder: "skills/mySkill" }];
+    manifest.agentSkills = [{ folder: "skills/my-skill" }];
 
     vi.spyOn(manifestUtils, "_readAppManifest").mockResolvedValue(ok(manifest));
     vi.spyOn(copilotGptManifestUtils, "getManifestPath").mockResolvedValue(
@@ -672,7 +730,7 @@ describe("addSkill", () => {
     const writtenManifest = JSON.parse(teamsManifestWriteCall![1] as string);
     assert.isArray(writtenManifest.agentSkills);
     assert.equal(writtenManifest.agentSkills.length, 1);
-    assert.equal(writtenManifest.agentSkills[0].folder, "skills/mySkill");
+    assert.equal(writtenManifest.agentSkills[0].folder, "skills/my-skill");
   });
 
   it("expose-to-copilot: does NOT write agentSkills when disabled", async () => {
@@ -757,8 +815,8 @@ describe("addSkill", () => {
 
     it("successfully imports skill from single-folder zip via --from", async () => {
       const skillMd =
-        "---\nname: myImportedSkill\ndescription: An imported skill\n---\n# myImportedSkill\n";
-      const zipBuffer = createZipWithSingleFolder("myImportedSkill", skillMd);
+        "---\nname: my-imported-skill\ndescription: An imported skill\n---\n# my-imported-skill\n";
+      const zipBuffer = createZipWithSingleFolder("my-imported-skill", skillMd);
       const zipPath = path.resolve("test-skill.zip");
       const appPackageFolder = path.resolve("test-project", "appPackage");
 
@@ -775,7 +833,7 @@ describe("addSkill", () => {
       const pathExistsStub = vi.spyOn(fs, "pathExists");
       pathExistsStub.mockImplementation(async (p: string) => {
         if (p === zipPath) return true;
-        if (p.includes("myImportedSkill") && p.includes("skills")) return false;
+        if (p.includes("my-imported-skill") && p.includes("skills")) return false;
         if (p.includes("SKILL.md")) return true;
         return false;
       });
@@ -788,7 +846,7 @@ describe("addSkill", () => {
         ...args: unknown[]
       ) {
         // Return a successful result mimicking the zip import
-        return ok("skills/myImportedSkill");
+        return ok("skills/my-imported-skill");
       });
 
       vi.spyOn(copilotGptManifestUtils, "addSkill").mockResolvedValue(
@@ -820,7 +878,7 @@ describe("addSkill", () => {
       vi.spyOn(MockUserInteraction.prototype, "showMessage").mockResolvedValue(ok("Add"));
 
       vi.spyOn(FxCore.prototype as any, "importSkillFromZip").mockImplementation(async function () {
-        return ok("skills/myImportedSkill");
+        return ok("skills/my-imported-skill");
       });
 
       vi.spyOn(copilotGptManifestUtils, "addSkill").mockResolvedValue(
@@ -934,10 +992,10 @@ describe("addSkill", () => {
     });
 
     it("errors when target skill folder already exists", async () => {
-      const skillMd = "---\nname: existingSkill\ndescription: A skill\n---\n# existingSkill\n";
+      const skillMd = "---\nname: existing-skill\ndescription: A skill\n---\n# existing-skill\n";
       const AdmZip = require("adm-zip");
       const zip = new AdmZip();
-      zip.addFile("existingSkill/SKILL.md", Buffer.from(skillMd, "utf-8"));
+      zip.addFile("existing-skill/SKILL.md", Buffer.from(skillMd, "utf-8"));
       const tempZipPath = path.join(require("os").tmpdir(), `test-existing-${Date.now()}.zip`);
       zip.writeZip(tempZipPath);
 
@@ -956,8 +1014,8 @@ describe("addSkill", () => {
       vi.spyOn(fs, "pathExists").mockImplementation(async (p: string) => {
         if (p === tempZipPath) return true;
         if (
-          p === path.join(appPackageFolder, "skills", "existingSkill") ||
-          p.endsWith(path.join("skills", "existingSkill"))
+          p === path.join(appPackageFolder, "skills", "existing-skill") ||
+          p.endsWith(path.join("skills", "existing-skill"))
         ) {
           return true;
         }
@@ -976,11 +1034,11 @@ describe("addSkill", () => {
     });
 
     it("successfully imports single-folder zip end-to-end", async () => {
-      const skillMd = "---\nname: myNewSkill\ndescription: A new skill\n---\n# myNewSkill\n";
+      const skillMd = "---\nname: my-new-skill\ndescription: A new skill\n---\n# my-new-skill\n";
       const AdmZip = require("adm-zip");
       const zip = new AdmZip();
-      zip.addFile("myNewSkill/SKILL.md", Buffer.from(skillMd, "utf-8"));
-      zip.addFile("myNewSkill/extra.txt", Buffer.from("extra content", "utf-8"));
+      zip.addFile("my-new-skill/SKILL.md", Buffer.from(skillMd, "utf-8"));
+      zip.addFile("my-new-skill/extra.txt", Buffer.from("extra content", "utf-8"));
 
       const tempZipPath = path.join(require("os").tmpdir(), `test-e2e-${Date.now()}.zip`);
       zip.writeZip(tempZipPath);
@@ -996,12 +1054,12 @@ describe("addSkill", () => {
       vi.spyOn(MockUserInteraction.prototype, "showMessage").mockResolvedValue(ok("Add"));
 
       // Mock fs for the target side but allow temp operations
-      const targetSkillDir = path.join(appPackageFolder, "skills", "myNewSkill");
+      const targetSkillDir = path.join(appPackageFolder, "skills", "my-new-skill");
 
       const origPathExists = fs.pathExists.bind(fs);
       vi.spyOn(fs, "pathExists").mockImplementation(async (p: string) => {
         if (p === tempZipPath) return true;
-        if (typeof p === "string" && p.includes("myNewSkill") && p.includes(appPackageFolder)) {
+        if (typeof p === "string" && p.includes("my-new-skill") && p.includes(appPackageFolder)) {
           return false;
         }
         if (typeof p === "string" && p.includes("SKILL.md") && !p.includes(appPackageFolder)) {
@@ -1031,34 +1089,50 @@ describe("addSkill", () => {
       assert.isTrue(result.isOk());
     });
 
-    it("errors when zip has invalid skill name format", async () => {
-      const skillMd = "---\nname: 123invalid\ndescription: Bad name\n---\n# 123invalid\n";
-      const AdmZip = require("adm-zip");
-      const zip = new AdmZip();
-      zip.addFile("SKILL.md", Buffer.from(skillMd, "utf-8"));
+    it.each(["root", "folder"])(
+      "rejects uppercase skill names in %s ZIP layouts before extraction",
+      async (layout) => {
+        const skillMd = "---\nname: testSkill\ndescription: Bad name\n---\n# testSkill\n";
+        const AdmZip = require("adm-zip");
+        const zip = new AdmZip();
+        zip.addFile(
+          layout === "root" ? "SKILL.md" : "testSkill/SKILL.md",
+          Buffer.from(skillMd, "utf-8")
+        );
 
-      const tempZipPath = path.join(require("os").tmpdir(), `test-badname-${Date.now()}.zip`);
-      zip.writeZip(tempZipPath);
+        const tempZipPath = path.join(require("os").tmpdir(), `test-badname-${Date.now()}.zip`);
+        zip.writeZip(tempZipPath);
 
-      const inputs = createZipInputs(tempZipPath);
-      const manifest = createManifestWithDA();
-      const appPackageFolder = path.resolve("test-project", "appPackage");
+        const inputs = createZipInputs(tempZipPath);
+        const manifest = createManifestWithDA();
+        const appPackageFolder = path.resolve("test-project", "appPackage");
 
-      vi.spyOn(manifestUtils, "_readAppManifest").mockResolvedValue(ok(manifest));
-      vi.spyOn(copilotGptManifestUtils, "getManifestPath").mockResolvedValue(
-        ok(path.resolve(appPackageFolder, "declarativeAgent.json"))
-      );
-      vi.spyOn(MockUserInteraction.prototype, "showMessage").mockResolvedValue(ok("Add"));
+        vi.spyOn(manifestUtils, "_readAppManifest").mockResolvedValue(ok(manifest));
+        vi.spyOn(copilotGptManifestUtils, "getManifestPath").mockResolvedValue(
+          ok(path.resolve(appPackageFolder, "declarativeAgent.json"))
+        );
+        vi.spyOn(MockUserInteraction.prototype, "showMessage").mockResolvedValue(ok("Add"));
+        const mkdtemp = vi.spyOn(fs, "mkdtemp");
+        const addSkill = vi
+          .spyOn(copilotGptManifestUtils, "addSkill")
+          .mockResolvedValue(ok({ name: "test-agent", description: "Test agent" }));
 
-      const core = new FxCore(tools);
-      const result = await core.addSkill(inputs);
-
-      await fs.remove(tempZipPath).catch(() => {});
-
-      assert.isTrue(result.isErr());
-      if (result.isErr()) {
-        assert.equal(result.error.name, "InvalidSkillFolderName");
+        try {
+          const result = await new FxCore(tools).addSkill(inputs);
+          assert.isTrue(result.isErr());
+          if (result.isErr()) {
+            assert.equal(result.error.name, "InvalidSkillFolderName");
+            assert.equal(
+              result.error.message,
+              getLocalizedString("core.addSkillQuestion.name.validation")
+            );
+          }
+          assert.equal(mkdtemp.mock.calls.length, 0);
+          assert.equal(addSkill.mock.calls.length, 0);
+        } finally {
+          await fs.remove(tempZipPath);
+        }
       }
-    });
+    );
   });
 });

@@ -725,7 +725,7 @@
         },
         "uses": {
           "type": "string",
-          "description": "This action will create a new app for you if TEAMS_APP_ID environment variable is empty or the app with TEAMS_APP_ID is not found from Developer Portal. Refer to https://aka.ms/teamsfx-actions/teamsapp-create for more details",
+          "description": "Creates or reuses an app using the configured ID variable, APP_ID, or TEAMS_APP_ID. Map exactly one output key: appId or teamsAppId. Refer to https://aka.ms/teamsfx-actions/teamsapp-create for more details",
           "const": "teamsApp/create"
         },
         "with": {
@@ -744,8 +744,11 @@
           "type": "object",
           "additionalProperties": false,
           "description": "Write environment variables to environment file",
-          "required": ["teamsAppId"],
+          "oneOf": [{ "required": ["appId"] }, { "required": ["teamsAppId"] }],
           "properties": {
+            "appId": {
+              "$ref": "#/definitions/envVarName"
+            },
             "teamsAppId": {
               "$ref": "#/definitions/envVarName"
             },

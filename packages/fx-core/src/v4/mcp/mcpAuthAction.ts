@@ -80,11 +80,11 @@ function teamsAppId(item: unknown): string | undefined {
     return undefined;
   }
   const output = item.get("writeToEnvironmentFile", true);
-  if (!isMap(output)) {
+  if (!isMap(output) || (output.has("appId") && output.has("teamsAppId"))) {
     return undefined;
   }
-  const value = output.get("teamsAppId");
-  return typeof value === "string" ? value : undefined;
+  const value = output.has("appId") ? output.get("appId") : output.get("teamsAppId");
+  return typeof value === "string" && value.trim().length > 0 ? value : undefined;
 }
 
 function ensureMinimumVersion(current: unknown, minimum: string): string | undefined {

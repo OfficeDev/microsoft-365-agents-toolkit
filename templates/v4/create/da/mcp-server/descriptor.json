@@ -48,6 +48,7 @@
   },
 
   "replaceMap": [
+    { "var": "NewDeveloperPortalApis", "when": "featureFlag('TEAMSFX_NEW_DP_APIS')", "value": "true" },
     { "var": "MCPForDAServerUrl", "from": "mcpServerUrl" },
     { "var": "OAuthClientId", "from": "oauthClientId" },
     { "var": "OAuthClientSecret", "from": "oauthClientSecret" },

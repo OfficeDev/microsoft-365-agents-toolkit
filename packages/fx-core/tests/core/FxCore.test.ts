@@ -45,11 +45,11 @@ import {
 import { YamlParser } from "../../src/component/configManager/parser";
 import { coordinator } from "../../src/component/coordinator";
 import { UpdateAadAppDriver } from "../../src/component/driver/aad/update";
-import { AddWebPartDriver } from "../../src/component/driver/add/addWebPart";
 import { InstallAppToChannelDriver } from "../../src/component/driver/devChannel/installApp";
 import { DriverContext } from "../../src/component/driver/interface/commonArgs";
 import * as shareUtils from "../../src/component/driver/share/utils";
 import { CreateAppPackageDriver } from "../../src/component/driver/teamsApp/createAppPackage";
+import { AppStudioError } from "../../src/component/driver/teamsApp/errors";
 import { copilotGptManifestUtils } from "../../src/component/driver/teamsApp/utils/CopilotGptManifestUtils";
 import { manifestUtils } from "../../src/component/driver/teamsApp/utils/ManifestUtils";
 import { ValidateManifestDriver } from "../../src/component/driver/teamsApp/validate";
@@ -63,6 +63,7 @@ import { metadataUtil } from "../../src/component/utils/metadataUtil";
 import { pathUtils } from "../../src/component/utils/pathUtils";
 import * as collaborator from "../../src/core/collaborator";
 import { environmentManager } from "../../src/core/environment";
+import { FeatureFlagName } from "../../src/common/featureFlags";
 import { CoreHookContext } from "../../src/core/types";
 import {
   FileNotFoundError,
@@ -168,115 +169,6 @@ describe("Core basic APIs", () => {
       runSpy.mock.calls[0][0].manifestPath,
       path.join(os.tmpdir(), appName, "aad.manifest.json")
     );
-    runSpy; // vi.restoreAllMocks() called in afterEach
-  });
-
-  it("add web part to SPFx", async () => {
-    const core = new FxCore(tools);
-    const appName = await mockV3Project();
-    const appPath = path.join(os.tmpdir(), appName);
-    const inputs: Inputs = {
-      platform: Platform.VSCode,
-      [QuestionNames.Folder]: os.tmpdir(),
-      "spfx-folder": ".\\src",
-      "manifest-path": path.join(appPath, "appPackage\\manifest.json"),
-      "local-manifest-path": path.join(appPath, "appPackage\\manifest.local.json"),
-      "spfx-webpart-name": "helloworld",
-      "spfx-install-latest-package": "true",
-      "spfx-load-package-version": "loaded",
-      stage: Stage.addWebpart,
-      projectPath: appPath,
-    };
-
-    const runSpy = vi.spyOn(AddWebPartDriver.prototype, "run");
-    await core.addWebpart(inputs);
-    chai.expect(runSpy.mock.calls).lengthOf(1);
-    runSpy; // vi.restoreAllMocks() called in afterEach
-  });
-
-  it("add web part to SPFx - CLI help", async () => {
-    const core = new FxCore(tools);
-    const appName = await mockV3Project();
-    const appPath = path.join(os.tmpdir(), appName);
-    const inputs: Inputs = {
-      platform: Platform.CLI_HELP,
-      [QuestionNames.Folder]: os.tmpdir(),
-      "spfx-folder": ".\\src",
-      "manifest-path": path.join(appPath, "appPackage\\manifest.json"),
-      "local-manifest-path": path.join(appPath, "appPackage\\manifest.local.json"),
-      "spfx-webpart-name": "helloworld",
-      "spfx-install-latest-package": "true",
-      "spfx-load-package-version": "loaded",
-      stage: Stage.addWebpart,
-      projectPath: appPath,
-    };
-
-    const runSpy = vi.spyOn(AddWebPartDriver.prototype, "run");
-    await core.addWebpart(inputs);
-    chai.expect(runSpy.mock.calls).lengthOf(1);
-    runSpy; // vi.restoreAllMocks() called in afterEach
-  });
-
-  it("add web part to SPFx with empty .yo-rc.json", async () => {
-    const core = new FxCore(tools);
-    const appName = await mockV3Project();
-    const appPath = path.join(os.tmpdir(), appName);
-    const inputs: Inputs = {
-      platform: Platform.VSCode,
-      [QuestionNames.Folder]: os.tmpdir(),
-      "spfx-folder": ".\\src",
-      "manifest-path": path.join(appPath, "appPackage\\manifest.json"),
-      "local-manifest-path": path.join(appPath, "appPackage\\manifest.local.json"),
-      "spfx-webpart-name": "helloworld",
-      "spfx-install-latest-package": "true",
-      "spfx-load-package-version": "loaded",
-      stage: Stage.addWebpart,
-      projectPath: appPath,
-    };
-    vi.spyOn(fs, "pathExists").mockImplementation(async (directory: string) => {
-      if (directory.includes(path.join("webparts", "helloworld"))) {
-        return false;
-      }
-      return true;
-    });
-    vi.spyOn(fs, "readJson").mockResolvedValue({});
-    const runSpy = vi.spyOn(AddWebPartDriver.prototype, "run");
-    await core.addWebpart(inputs);
-    chai.expect(runSpy.mock.calls).lengthOf(1);
-    runSpy; // vi.restoreAllMocks() called in afterEach
-  });
-
-  it("add web part to SPFx with framework", async () => {
-    const core = new FxCore(tools);
-    const appName = await mockV3Project();
-    const appPath = path.join(os.tmpdir(), appName);
-    const inputs: Inputs = {
-      platform: Platform.VSCode,
-      [QuestionNames.Folder]: os.tmpdir(),
-      "spfx-folder": ".\\src",
-      "manifest-path": path.join(appPath, "appPackage\\manifest.json"),
-      "local-manifest-path": path.join(appPath, "appPackage\\manifest.local.json"),
-      "spfx-webpart-name": "helloworld",
-      "spfx-install-latest-package": "true",
-      "spfx-load-package-version": "loaded",
-      stage: Stage.addWebpart,
-      projectPath: appPath,
-    };
-
-    vi.spyOn(fs, "pathExists").mockImplementation(async (directory: string) => {
-      if (directory.includes(path.join("webparts", "helloworld"))) {
-        return false;
-      }
-      return true;
-    });
-    vi.spyOn(fs, "readJson").mockResolvedValue({
-      "@microsoft/generator-sharepoint": {
-        template: "react",
-      },
-    });
-    const runSpy = vi.spyOn(AddWebPartDriver.prototype, "run");
-    await core.addWebpart(inputs);
-    chai.expect(runSpy.mock.calls).lengthOf(1);
     runSpy; // vi.restoreAllMocks() called in afterEach
   });
 
@@ -2185,6 +2077,7 @@ describe("Teams app APIs", async () => {
 describe("previewWithManifest", () => {
   const tools = new MockTools();
   const core = new FxCore(tools);
+  const validTeamsAppId = "00000000-0000-4000-8000-000000000000";
 
   afterEach(() => {
     vi.restoreAllMocks();
@@ -2212,7 +2105,9 @@ describe("previewWithManifest", () => {
 
   it("getLaunchUrl error", async () => {
     const appName = await mockV3Project();
-    vi.spyOn(manifestUtils, "getManifestV3").mockResolvedValue(ok({} as TeamsManifest));
+    vi.spyOn(manifestUtils, "getManifestV3").mockResolvedValue(
+      ok({ id: validTeamsAppId } as TeamsManifest)
+    );
     vi.spyOn(LaunchHelper.prototype, "getLaunchUrl").mockResolvedValue(err({ foo: "bar" } as any));
     const inputs: Inputs = {
       [QuestionNames.M365Host]: HubOptions.teams().id,
@@ -2233,7 +2128,9 @@ describe("previewWithManifest", () => {
 
   it("happy path", async () => {
     const appName = await mockV3Project();
-    vi.spyOn(manifestUtils, "getManifestV3").mockResolvedValue(ok({} as TeamsManifest));
+    vi.spyOn(manifestUtils, "getManifestV3").mockResolvedValue(
+      ok({ id: validTeamsAppId } as TeamsManifest)
+    );
     vi.spyOn(LaunchHelper.prototype, "getLaunchUrl").mockResolvedValue(ok("test-url"));
     const inputs: Inputs = {
       [QuestionNames.M365Host]: HubOptions.teams().id,
@@ -2250,6 +2147,34 @@ describe("previewWithManifest", () => {
     const result = await core.previewWithManifest(inputs);
     assert.isTrue(result.isOk());
     assert.deepEqual((result as any).value, "test-url");
+  });
+
+  it("rejects an invalid Teams app id before constructing the launch URL", async () => {
+    const appName = await mockV3Project();
+    vi.spyOn(manifestUtils, "getManifestV3").mockResolvedValue(
+      ok({ id: "x&calc&" } as TeamsManifest)
+    );
+    const getLaunchUrlStub = vi.spyOn(LaunchHelper.prototype, "getLaunchUrl");
+    const inputs: Inputs = {
+      [QuestionNames.M365Host]: HubOptions.teams().id,
+      [QuestionNames.TeamsAppManifestFilePath]: path.join(
+        os.tmpdir(),
+        appName,
+        "appPackage",
+        "manifest.template.json"
+      ),
+      env: "dev",
+      platform: Platform.VSCode,
+      projectPath: path.join(os.tmpdir(), appName),
+    };
+
+    const result = await core.previewWithManifest(inputs);
+
+    assert.isTrue(result.isErr());
+    if (result.isErr()) {
+      assert.equal(result.error.name, AppStudioError.InvalidTeamsAppIdError.name);
+    }
+    assert.isFalse(getLaunchUrlStub.mock.calls.length > 0);
   });
 });
 
@@ -2388,45 +2313,51 @@ describe("getTeamsAppName", async () => {
 describe("getProjectInfo", async () => {
   afterEach(() => {
     vi.restoreAllMocks();
+    vi.unstubAllEnvs();
   });
-  it("happy path", async () => {
-    vi.spyOn(pathUtils, "getYmlFilePath").mockReturnValue("./m365agents.yml");
-    const mockProjectModel: any = {
-      projectId: "mock-project-id",
-      provision: {
-        name: "provision",
-        driverDefs: [
-          {
-            uses: "teamsApp/create",
-            with: {
-              name: "testappname-${{TEAMSFX_ENV}}",
-            },
-            writeToEnvironmentFile: {
-              teamsAppId: "TEAMS_APP_ID",
-            },
-          },
-        ],
-      },
-    };
-    vi.spyOn(metadataUtil, "parse").mockResolvedValue(ok(mockProjectModel));
-    vi.spyOn(envUtil, "readEnv").mockResolvedValue(
-      ok({
-        TEAMS_APP_ID: "mock-team-app-id",
-        TEAMS_APP_TENANT_ID: "mock-tenant-id",
-      })
-    );
-    const core = new FxCore(tools);
-    const res = await core.getProjectInfo(".", "dev");
-    assert.isTrue(res.isOk());
-    if (res.isOk()) {
-      assert.deepEqual(res.value, {
+  it.each(["false", "true"])(
+    "AC-20: project info uses canonical fallback only with flag %s",
+    async (flag) => {
+      vi.stubEnv(FeatureFlagName.NewDeveloperPortalApis, flag);
+      vi.spyOn(pathUtils, "getYmlFilePath").mockReturnValue("./m365agents.yml");
+      const mockProjectModel: any = {
         projectId: "mock-project-id",
-        teamsAppId: "mock-team-app-id",
-        m365TenantId: "mock-tenant-id",
-        teamsAppName: "testappname",
-      });
+        provision: {
+          name: "provision",
+          driverDefs: [
+            {
+              uses: "teamsApp/create",
+              with: {
+                name: "testappname-${{TEAMSFX_ENV}}",
+              },
+              writeToEnvironmentFile: {
+                teamsAppId: "TEAMS_APP_ID",
+              },
+            },
+          ],
+        },
+      };
+      vi.spyOn(metadataUtil, "parse").mockResolvedValue(ok(mockProjectModel));
+      vi.spyOn(envUtil, "readEnv").mockResolvedValue(
+        ok({
+          TEAMS_APP_ID: "",
+          APP_ID: "mock-team-app-id",
+          TEAMS_APP_TENANT_ID: "mock-tenant-id",
+        })
+      );
+      const core = new FxCore(tools);
+      const res = await core.getProjectInfo(".", "dev");
+      assert.isTrue(res.isOk());
+      if (res.isOk()) {
+        assert.deepEqual(res.value, {
+          projectId: "mock-project-id",
+          teamsAppId: flag === "true" ? "mock-team-app-id" : "",
+          m365TenantId: "mock-tenant-id",
+          teamsAppName: "testappname",
+        });
+      }
     }
-  });
+  );
   it("parse yml error", async () => {
     vi.spyOn(pathUtils, "getYmlFilePath").mockReturnValue("./m365agents.yml");
     vi.spyOn(metadataUtil, "parse").mockResolvedValue(err(new UserError({})));

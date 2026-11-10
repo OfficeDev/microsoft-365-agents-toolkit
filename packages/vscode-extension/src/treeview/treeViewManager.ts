@@ -3,15 +3,9 @@
 import * as vscode from "vscode";
 
 import { TreeCategory } from "@microsoft/teamsfx-api";
-import {
-  featureFlagManager,
-  FeatureFlagName,
-  FeatureFlags,
-  getFeatureFlaggedLabel,
-  manifestUtils,
-} from "@microsoft/teamsfx-core";
+import { featureFlagManager, FeatureFlags, manifestUtils } from "@microsoft/teamsfx-core";
 
-import { isDeclarativeCopilotApp, isSPFxProject, workspaceUri } from "../globalVariables";
+import { isDeclarativeCopilotApp, workspaceUri } from "../globalVariables";
 import * as commonUtils from "../utils/commonUtils";
 import { localize } from "../utils/localizeUtils";
 import accountTreeViewProviderInstance from "./account/accountTreeViewProvider";
@@ -219,17 +213,6 @@ class TreeViewManager {
         { name: "library", custom: false },
         TreeCategory.GettingStarted
       ),
-      ...(isSPFxProject
-        ? [
-            new TreeViewCommand(
-              localize("teamstoolkit.commandsTreeViewProvider.addWebpartTitle"),
-              localize("teamstoolkit.commmands.addWebpart.description"),
-              "fx-extension.addWebpart",
-              "addWebpart",
-              { name: "teamsfx-add-feature", custom: false }
-            ),
-          ]
-        : []),
       ...(isDeclarativeCopilotApp
         ? [
             new TreeViewCommand(
@@ -252,13 +235,10 @@ class TreeViewManager {
             ),
           ]
         : []),
-      ...(isDeclarativeCopilotApp && featureFlagManager.getBooleanValue(FeatureFlags.Frontier)
+      ...(isDeclarativeCopilotApp
         ? [
             new TreeViewCommand(
-              getFeatureFlaggedLabel(
-                localize("teamstoolkit.commandsTreeViewProvider.addSkillTitle"),
-                FeatureFlagName.Frontier
-              ),
+              localize("teamstoolkit.commandsTreeViewProvider.addSkillTitle"),
               localize("teamstoolkit.commandsTreeViewProvider.addSkillDescription"),
               "fx-extension.addSkill",
               "addSkill",

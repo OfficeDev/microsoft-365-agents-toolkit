@@ -44,13 +44,33 @@ describe("launch openTeamsDesktopClient", () => {
 
   it("happy path windows", async () => {
     Object.defineProperty(process, "platform", { value: "win32", configurable: true });
-    await openTeamsDesktopClient("http://test-url", "username", Browser.default);
+    const openBrowserStub = vi.spyOn(commonUtils, "openBrowser").mockResolvedValue();
+    await openTeamsDesktopClient(
+      "https://teams.microsoft.com/l/app/x&calc&",
+      "username",
+      Browser.default
+    );
+    expect(openBrowserStub).to.have.been.calledWith(
+      Browser.default,
+      "msteams://teams.microsoft.com/l/app/x&calc&"
+    );
+    expect(cp.exec).not.to.have.been.called;
     expect(telemetries.length).to.deep.equals(0);
   });
 
   it("happy path mac", async () => {
     Object.defineProperty(process, "platform", { value: "darwin", configurable: true });
-    await openTeamsDesktopClient("http://test-url", "username", Browser.default);
+    const openBrowserStub = vi.spyOn(commonUtils, "openBrowser").mockResolvedValue();
+    await openTeamsDesktopClient(
+      "https://teams.microsoft.com/l/app/x|open$IFS-a$IFSCalculator|",
+      "username",
+      Browser.default
+    );
+    expect(openBrowserStub).to.have.been.calledWith(
+      Browser.default,
+      "msteams://teams.microsoft.com/l/app/x|open$IFS-a$IFSCalculator|"
+    );
+    expect(cp.exec).not.to.have.been.called;
     expect(telemetries.length).to.deep.equals(0);
   });
 

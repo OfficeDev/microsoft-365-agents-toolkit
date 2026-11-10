@@ -432,9 +432,6 @@ async function batchGenerate() {
   await generateCliOptions(questionNodes.createSampleProject(), "CreateSampleProject");
   await generateInputs(questionNodes.createSampleProject(), "CreateSampleProject");
 
-  await generateCliOptions(questionNodes.addWebpart(), "SPFxAddWebpart");
-  await generateInputs(questionNodes.addWebpart(), "SPFxAddWebpart");
-
   await generateCliOptions(questionNodes.createNewEnv(), "CreateEnv");
   await generateInputs(questionNodes.createNewEnv(), "CreateEnv");
 

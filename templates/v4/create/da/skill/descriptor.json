@@ -13,5 +13,7 @@
     "additionalProperties": false
   },
 
-  "replaceMap": [{ "var": "CopilotConnector", "const": "" }]
+  "replaceMap": [
+    { "var": "NewDeveloperPortalApis", "when": "featureFlag('TEAMSFX_NEW_DP_APIS')", "value": "true" },
+    { "var": "CopilotConnector", "const": "" }]
 }

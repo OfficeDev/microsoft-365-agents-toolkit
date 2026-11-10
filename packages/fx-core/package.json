@@ -1,9 +1,12 @@
 {
   "name": "@microsoft/teamsfx-core",
-  "version": "3.1.4",
+  "version": "3.1.5",
   "main": "build/index.js",
   "types": "build/index.d.ts",
   "license": "MIT",
+  "engines": {
+    "node": "^20.19.0 || >=22.12.0"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/OfficeDev/microsoft-365-agents-toolkit.git"
@@ -13,6 +16,8 @@
     "test:unit": "vitest run --coverage --config vitest.config.ts --maxWorkers=75%",
     "test:unit:fast": "vitest run --config vitest.config.ts --maxWorkers=75% --reporter=dot",
     "test:unit:changed": "vitest run --config vitest.config.ts --maxWorkers=75% --changed",
+    "test:actions:types": "tsc -p tests/actions/tsconfig.json",
+    "test:actions:package": "node tests/actions/packageSmoke.cjs",
     "test:unit:log": "vitest run --coverage --config vitest.config.ts --maxWorkers=75% > unit-test.log 2>&1",
     "test:unit:vitest": "vitest run --config vitest.config.ts --maxWorkers=75%",
     "test:unit:vitest:watch": "vitest --config vitest.config.ts",
@@ -40,7 +45,7 @@
     "scenario:accept": "tsx ./scripts/scenario-tooling/scenarioCli.ts accept"
   },
   "dependencies": {
-    "@apidevtools/swagger-parser": "^10.1.0",
+    "@apidevtools/swagger-parser": "~13.0.0",
     "@azure/arm-appservice": "^13.0.0",
     "@azure/arm-resources": "~5.0.1",
     "@azure/arm-storage": "^17.2.1",
@@ -178,6 +183,8 @@
     "webpack-cli": "^6.0.1"
   },
   "files": [
+    "actions.js",
+    "actions.d.ts",
     "build/**/*",
     "resource/**/*",
     "templates/**/*"

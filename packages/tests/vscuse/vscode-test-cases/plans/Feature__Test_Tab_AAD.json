@@ -89,7 +89,7 @@
       "agent": "code",
       "tool": "",
       "parameters": {
-        "sample": "=== Generated Script ===\nLanguage: bash\n\n```bash\nFILE=\"/home/vscode/AgentsToolkitProjects/hello-world-tab-with-backend/aad.manifest.json\"\nLINE_NUM=67\nOLD_CONTENT=\"503\"\nNEW_CONTENT=\"504\"\n\nif [ ! -f \"$FILE\" ]; then\n  echo \"File not found: $FILE\" >&2\n  exit 1\nfi\n\ntmpfile=$(mktemp)\nawk -v n=$LINE_NUM -v old=\"$OLD_CONTENT\" -v new=\"$NEW_CONTENT\" '{\n    if (NR == n) {\n        gsub(old, new)\n    }\n    print\n}' \"$FILE\" > \"$tmpfile\" && mv \"$tmpfile\" \"$FILE\"\n\nexit 0\n```\n\n=== Execution Results ===\nExit Code: 0\n\n✓ Script executed successfully"
+        "sample": "=== Generated Script ===\nLanguage: bash\n\n```bash\nFILE=\"/home/vscode/AgentsToolkitProjects/hello-world-tab-with-backend/aad.manifest.json\"\nLINE_NUM=67\nOLD_CONTENT=\"503\"\nNEW_CONTENT=\"504\"\n\nif [ ! -f \"$FILE\" ]; then\n  echo \"File not found: $FILE\" >&2\n  exit 1\nfi\n\ntmpfile=$(mktemp)\nawk -v n=$LINE_NUM -v old=\"$OLD_CONTENT\" -v new=\"$NEW_CONTENT\" '{\n    if (NR == n) {\n        gsub(old, new)\n    }\n    print\n}' \"$FILE\" > \"$tmpfile\" && mv \"$tmpfile\" \"$FILE\"\n\nexit 0\n```\n\n=== Execution Results ===\nExit Code: 0\n\n\u2713 Script executed successfully"
       },
       "description": "@code in file \"/home/vscode/AgentsToolkitProjects/${{var:app_name}}/aad.manifest.json\", replace part of content \"503\" to \"504\" in line 67.",
       "content_refs": [],
@@ -199,7 +199,7 @@
       "parameters": {
         "key": "enter"
       },
-      "description": "Press the Enter key to select \"Debug in Teams (Chrome)\" from the debug configuration dropdown in Visual Studio Code’s command palette.",
+      "description": "Press the Enter key to select \"Debug in Teams (Chrome)\" from the debug configuration dropdown in Visual Studio Code\u2019s command palette.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,

@@ -46,11 +46,13 @@ import AdmZip from "adm-zip";
 import { DotenvParseOutput } from "dotenv";
 import fs from "fs-extra";
 import * as jsonschema from "jsonschema";
+import yaml from "js-yaml";
 import * as os from "os";
 import * as path from "path";
 import "reflect-metadata";
 import { Container } from "typedi";
 import { pathToFileURL } from "url";
+import isUUID from "validator/lib/isUUID";
 import { teamsDevPortalClient } from "../client/teamsDevPortalClientProvider";
 import { ApiKeyParameters, AuthParameters } from "../common/authInterface";
 import { throwIfAborted } from "../common/cancellation";
@@ -82,6 +84,7 @@ import {
   ProjectTypeResult,
   projectTypeChecker,
 } from "../common/projectTypeChecker";
+import { isValidSkillName } from "../common/skillUtils";
 import { TelemetryEvent, TelemetryProperty, telemetryUtils } from "../common/telemetry";
 import templateConfig from "../common/templates-config.json";
 import { runForTypeSpecProject } from "../common/tools";
@@ -101,8 +104,6 @@ import { UpdateAadAppArgs } from "../component/driver/aad/interface/updateAadApp
 import { UpdateAadAppDriver } from "../component/driver/aad/update";
 import { AadManifestHelper } from "../component/driver/aad/utility/aadManifestHelper";
 import { buildAadManifest as buildAadManifestInternal } from "../component/driver/aad/utility/buildAadManifest";
-import { AddWebPartDriver } from "../component/driver/add/addWebPart";
-import { AddWebPartArgs } from "../component/driver/add/interface/AddWebPartArgs";
 import { InstallAppToChannelDriver } from "../component/driver/devChannel/installApp";
 import { InstallAppArgs } from "../component/driver/devChannel/interfaces/InstallAppArgs";
 import "../component/driver/index";
@@ -178,7 +179,6 @@ import {
   KnowledgeSourceOptions,
   MAX_EMAIL_NUMBER,
   QuestionNames,
-  SPFxVersionOptionIds,
   ScratchOptions,
   TeamsAppValidationOptions,
 } from "../question/constants";
@@ -194,6 +194,8 @@ import { createProjectFrontDoor as runCreateFrontDoor } from "./createProjectFro
 import { LocalCrypto } from "./crypto";
 import { environmentNameManager } from "./environmentName";
 import { FxCoreOpenPluginPart } from "./FxCore.openPlugin";
+import type { ActionArgs, ActionName, ActionResult } from "../actions";
+import { ActionExecutionOptions, executeAction } from "../actions/execute";
 import { generateConfigFiles } from "./generateConfigFiles";
 import { ConcurrentLockerMW } from "./middleware/concurrentLocker";
 import { ContextInjectorMW } from "./middleware/contextInjector";
@@ -228,9 +230,17 @@ export const getManifestPath = copilotGptManifestUtils.getManifestPath;
 export const readCopilotGptManifestFile = copilotGptManifestUtils.readCopilotGptManifestFile;
 
 export class FxCore extends FxCoreOpenPluginPart {
-  constructor(tools: Tools) {
+  constructor(private readonly tools: Tools) {
     super();
     setTools(tools);
+  }
+
+  public async executeAction<K extends ActionName>(
+    name: K,
+    args: ActionArgs<NoInfer<K>>,
+    options: ActionExecutionOptions
+  ): Promise<ActionResult<K>> {
+    return executeAction(this.tools, name, args, options);
   }
 
   private getAbortSignal(inputs: Inputs): AbortSignal | undefined {
@@ -305,7 +315,10 @@ export class FxCore extends FxCoreOpenPluginPart {
           [CoreTelemetryProperty.TdpTeamsAppFeatures]: getFeaturesFromAppDefinition(
             inputs.teamsAppFromTdp
           ).join(","),
-          [CoreTelemetryProperty.TdpTeamsAppId]: inputs.teamsAppFromTdp.teamsAppId,
+          [CoreTelemetryProperty.TdpTeamsAppId]:
+            "appProfile" in inputs.teamsAppFromTdp
+              ? inputs.teamsAppFromTdp.appId
+              : inputs.teamsAppFromTdp.teamsAppId,
         });
       }
     }
@@ -522,8 +535,16 @@ export class FxCore extends FxCoreOpenPluginPart {
     let m365TitleIdKeyName = "";
     for (const action of projectModel.provision?.driverDefs ?? []) {
       if (action.uses === "teamsApp/create") {
-        teamsAppIdKeyName = action.writeToEnvironmentFile?.teamsAppId || "TEAMS_APP_ID";
-        teamsAppId = process.env[teamsAppIdKeyName];
+        teamsAppIdKeyName =
+          action.writeToEnvironmentFile?.appId ??
+          action.writeToEnvironmentFile?.teamsAppId ??
+          (featureFlagManager.getBooleanValue(FeatureFlags.NewDeveloperPortalApis) &&
+          process.env.APP_ID
+            ? "APP_ID"
+            : "TEAMS_APP_ID");
+        teamsAppId = featureFlagManager.getBooleanValue(FeatureFlags.NewDeveloperPortalApis)
+          ? process.env[teamsAppIdKeyName] || process.env.APP_ID || process.env.TEAMS_APP_ID
+          : process.env[teamsAppIdKeyName];
       } else if (action.uses === "botFramework/create") {
         botIdKeyName = action.writeToEnvironmentFile?.botId || "BOT_ID";
         botId = process.env[botIdKeyName];
@@ -539,7 +560,13 @@ export class FxCore extends FxCoreOpenPluginPart {
     const botOption = uninstallOptions?.includes(QuestionNames.UninstallOptionBot);
 
     if ((teamsAppId || m365TitleId) && m356AppOption) {
-      const res = await this.uninstallM365App(m365TitleId, teamsAppId, this.getAbortSignal(inputs));
+      const res = await this.uninstallM365App(
+        m365TitleId,
+        featureFlagManager.getBooleanValue(FeatureFlags.NewDeveloperPortalApis)
+          ? process.env.APP_MANIFEST_ID || teamsAppId
+          : teamsAppId,
+        this.getAbortSignal(inputs)
+      );
       if (res.isErr()) {
         return err(res.error);
       }
@@ -874,32 +901,21 @@ export class FxCore extends FxCoreOpenPluginPart {
     }
     return ok(undefined);
   }
-  /**
-   * none lifecycle command, v3 only
-   */
+  /** @deprecated SPFx generation is retired; retained only to reject legacy callers. */
   @hooks([
     ErrorContextMW({ component: "FxCore", stage: "addWebpart", reset: true }),
     ErrorHandlerMW,
-    QuestionMW("addWebpart"),
-    ConcurrentLockerMW,
   ])
-  async addWebpart(inputs: Inputs): Promise<Result<undefined, FxError>> {
-    setErrorContext({ component: "spfxAdd", method: "run" });
-    const driver: AddWebPartDriver = Container.get<AddWebPartDriver>("spfx/add");
-    const args: AddWebPartArgs = {
-      manifestPath: inputs[QuestionNames.ManifestPath],
-      localManifestPath: inputs[QuestionNames.LocalTeamsAppManifestFilePath],
-      spfxFolder: inputs[QuestionNames.SPFxFolder],
-      webpartName: inputs[QuestionNames.SPFxWebpartName],
-      framework: inputs[QuestionNames.SPFxFramework],
-      spfxPackage: SPFxVersionOptionIds.installLocally,
-    };
-    const Context: DriverContext = createDriverContext(inputs);
-    const res = await driver.run(args, Context);
-    if (res.isErr()) {
-      return err(res.error);
-    }
-    return ok(undefined);
+  addWebpart(_inputs: Inputs): Promise<Result<undefined, FxError>> {
+    return Promise.resolve(
+      err(
+        new UserError({
+          source: "FxCore",
+          name: "SPFxGenerationNotSupported",
+          message: getLocalizedString("core.spfxGenerationNotSupported"),
+        })
+      )
+    );
   }
   /**
    * lifecycle command: publish
@@ -1398,6 +1414,14 @@ export class FxCore extends FxCoreOpenPluginPart {
     }
 
     const teamsAppId = manifestRes.value.id;
+    if (!isUUID(teamsAppId)) {
+      return err(
+        AppStudioResultFactory.UserError(
+          AppStudioError.InvalidTeamsAppIdError.name,
+          AppStudioError.InvalidTeamsAppIdError.message(teamsAppId)
+        )
+      );
+    }
     const properties = manifestUtils.parseCommonProperties(manifestRes.value as TeamsAppManifest);
 
     const launchHelper = new LaunchHelper(TOOLS.tokenProvider.m365TokenProvider, TOOLS.logProvider);
@@ -1547,10 +1571,17 @@ export class FxCore extends FxCoreOpenPluginPart {
         (d) => d.uses === "teamsApp/create"
       );
       if (teamsAppCreate) {
-        const teamsAppIdEnvName = teamsAppCreate.writeToEnvironmentFile?.teamsAppId;
-        if (teamsAppIdEnvName) {
-          const teamsAppId = envObject[teamsAppIdEnvName];
-          res.teamsAppId = teamsAppId;
+        const teamsAppIdEnvName =
+          teamsAppCreate.writeToEnvironmentFile?.appId ??
+          teamsAppCreate.writeToEnvironmentFile?.teamsAppId;
+        if (featureFlagManager.getBooleanValue(FeatureFlags.NewDeveloperPortalApis)) {
+          res.teamsAppId =
+            (teamsAppIdEnvName ? envObject[teamsAppIdEnvName] : undefined) ||
+            envObject.APP_ID ||
+            envObject.TEAMS_APP_ID ||
+            "";
+        } else if (teamsAppIdEnvName) {
+          res.teamsAppId = envObject[teamsAppIdEnvName];
         }
         const name = (teamsAppCreate.with as any).name;
         if (name) {
@@ -2341,17 +2372,22 @@ export class FxCore extends FxCoreOpenPluginPart {
     ConcurrentLockerMW,
   ])
   async addSkill(inputs: Inputs): Promise<Result<undefined | any, FxError>> {
-    if (!featureFlagManager.getBooleanValue(FeatureFlags.Frontier)) {
+    if (!inputs.projectPath) {
+      throw new Error("projectPath is undefined"); // should never happen
+    }
+
+    if (
+      !inputs[QuestionNames.SkillFrom] &&
+      !inputs[QuestionNames.SkillFromZipFile] &&
+      !isValidSkillName(inputs[QuestionNames.SkillName])
+    ) {
       return err(
         new UserError(
           "FxCore",
-          "AgentSkillsDisabled",
-          getLocalizedString("core.addSkill.featureFlagDisabled")
+          "InvalidSkillName",
+          getLocalizedString("core.addSkillQuestion.name.validation")
         )
       );
-    }
-    if (!inputs.projectPath) {
-      throw new Error("projectPath is undefined"); // should never happen
     }
 
     const context = createContext();
@@ -2443,13 +2479,12 @@ export class FxCore extends FxCoreOpenPluginPart {
 
         // Validate folder name format
         const folderName = path.basename(skillAbsPath);
-        const namePattern = /^[a-zA-Z][a-zA-Z0-9-]*$/;
-        if (!namePattern.test(folderName)) {
+        if (!isValidSkillName(folderName)) {
           return err(
             new UserError(
               "FxCore",
               "InvalidSkillFolderName",
-              `Skill folder name "${folderName}" is invalid. It must start with a letter and contain only letters, numbers, and hyphens.`
+              getLocalizedString("core.addSkillQuestion.name.validation")
             )
           );
         }
@@ -2494,7 +2529,7 @@ export class FxCore extends FxCoreOpenPluginPart {
 
       const skillMdContent = [
         "---",
-        `name: ${skillName}`,
+        `name: ${yaml.dump(skillName).trimEnd()}`,
         `description: ${skillDescription}`,
         "---",
         `# ${skillName}`,
@@ -2669,13 +2704,12 @@ export class FxCore extends FxCoreOpenPluginPart {
     }
 
     // Validate skill name format
-    const namePattern = /^[a-zA-Z][a-zA-Z0-9-]*$/;
-    if (!namePattern.test(derivedSkillName)) {
+    if (!isValidSkillName(derivedSkillName)) {
       return err(
         new UserError(
           "FxCore",
           "InvalidSkillFolderName",
-          `Skill name "${derivedSkillName}" is invalid. It must start with a letter and contain only letters, numbers, and hyphens.`
+          getLocalizedString("core.addSkillQuestion.name.validation")
         )
       );
     }

@@ -114,12 +114,18 @@ describe("openPlugin.importOpenPlugin", () => {
       ".vscode/settings.json",
       ".vscode/extensions.json",
       "env/.env.dev",
+      "env/.env.local",
+      "m365agents.local.yml",
       "m365agents.yml",
       "README.md",
     ];
     for (const rel of expected) {
       chai.expect(await fs.pathExists(path.join(outDir, rel)), `missing ${rel}`).to.equal(true);
     }
+    const localEnv = await fs.readFile(path.join(outDir, "env", ".env.local"), "utf8");
+    chai.expect(localEnv).to.include("AGENT_SCOPE=shared");
+    const localLifecycle = await fs.readFile(path.join(outDir, "m365agents.local.yml"), "utf8");
+    chai.expect(localLifecycle).to.include("scope: ${{AGENT_SCOPE}}");
     const manifest = await fs.readJSON(path.join(outDir, "appPackage", "manifest.json"));
     chai
       .expect(manifest.agentConnectors[0].toolSource.remoteMcpServer.authorization.type)

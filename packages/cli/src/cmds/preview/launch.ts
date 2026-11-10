@@ -11,7 +11,6 @@ import * as commonUtils from "./commonUtils";
 import * as constants from "./constants";
 import { OpeningBrowserFailed, OpeningTeamsDesktopClientFailed } from "./errors";
 import { localTelemetryReporter } from "./localTelemetryReporter";
-import cp from "child_process";
 import cliLogger from "../../commonlib/log";
 
 export async function openHubWebClientNew(
@@ -113,10 +112,11 @@ async function _openTeamsDesktopClient(
   await previewBar.start(constants.previewTeamsDesktopClientMessage);
   await previewBar.next(constants.previewTeamsDesktopClientMessage);
   try {
-    if (process.platform === "win32") {
-      cp.exec(`start msteams://${url.replace("https://", "")}`);
-    } else if (process.platform === "darwin") {
-      cp.exec(`open msteams://${url.replace("https://", "")}`);
+    if (process.platform === "win32" || process.platform === "darwin") {
+      await commonUtils.openBrowser(
+        constants.Browser.default,
+        `msteams://${url.replace("https://", "")}`
+      );
     } else {
       await commonUtils.openBrowser(browser, url, browserArguments);
     }

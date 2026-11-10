@@ -81,6 +81,11 @@ export class Generator {
     }
 
     return {
+      NewDeveloperPortalApis: featureFlagManager.getBooleanValue(
+        FeatureFlags.NewDeveloperPortalApis
+      )
+        ? "true"
+        : "",
       appName: appName,
       ProjectName: appName,
       TargetFramework: targetFramework ?? "net8.0",

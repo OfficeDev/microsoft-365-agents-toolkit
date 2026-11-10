@@ -2,7 +2,7 @@
 
 ## purpose
 
-Publishing workflow for non-DA M365 apps and DAs routed to ATK by the [structural routing gate](declarative-agent-lifecycle.md#structural-routing-gate). For DAs routed to WIQD, follow that lifecycle reference instead.
+Publishing workflow for non-DA M365 apps and TypeSpec DAs selected by the [DA routing rule](declarative-agent-lifecycle.md#da-routing). For every other DA, invoke the `wiqd` skill and let the plugin own publishing.
 
 ## rules
 

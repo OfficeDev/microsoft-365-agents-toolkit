@@ -7,34 +7,28 @@ fi
 
 export CI_ENABLED="${CI_ENABLED:-true}"
 
-if command -v wiqd >/dev/null 2>&1 && wiqd --version >/dev/null 2>&1; then
-	echo "WIQD is available for Declarative Agent execution tasks."
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+skill_dependencies_dir="$repo_root/node_modules/.waza-skills"
+wiqd_live_skill_dir="$HOME/.wiqd/marketplace/wiqd/skills/wiqd"
+wiqd_installed_skill_dir="$HOME/.copilot/installed-plugins/wiqd/wiqd/skills/wiqd"
+azure_skills_dir="$HOME/.copilot/installed-plugins/azure-skills/azure/skills"
+
+if [ -d "$wiqd_live_skill_dir" ]; then
+	wiqd_skill_dir="$wiqd_live_skill_dir"
+elif [ -d "$wiqd_installed_skill_dir" ]; then
+	wiqd_skill_dir="$wiqd_installed_skill_dir"
 else
-	cat >&2 <<'EOF'
-WIQD is unavailable or its EULA has not been accepted. Declarative Agent
-execution tasks require WIQD to be installed and initialized interactively;
-they will not pass in this environment. Other evaluation tasks can continue.
-EOF
+	echo "Missing WIQD plugin skill directory." >&2
+	exit 1
 fi
 
-# Values are injected by CI (for GitHub Actions, use repository secrets).
-required_vars=(
-	M365_ACCOUNT_NAME
-	M365_ACCOUNT_PASSWORD
-	M365_TENANT_ID
-	AZURE_ACCOUNT_NAME
-	AZURE_ACCOUNT_OBJECT_ID
-	AZURE_ACCOUNT_PASSWORD
-	AZURE_TENANT_ID
-	AZURE_SUBSCRIPTION_ID
-)
+if [ ! -d "$azure_skills_dir" ]; then
+	echo "Missing Azure plugin skills directory: $azure_skills_dir" >&2
+	exit 1
+fi
 
-for var_name in "${required_vars[@]}"; do
-	if [ -z "${!var_name:-}" ]; then
-		echo "Missing required environment variable: ${var_name}" >&2
-		exit 1
-	fi
-done
+rm -rf "$skill_dependencies_dir"
+mkdir -p "$skill_dependencies_dir"
+cp -R "$wiqd_skill_dir" "$skill_dependencies_dir/"
 
 npm install -g @microsoft/m365agentstoolkit-cli@beta
-# az login -u "$AZURE_ACCOUNT_NAME" -p "$AZURE_ACCOUNT_PASSWORD" --tenant "$AZURE_TENANT_ID"

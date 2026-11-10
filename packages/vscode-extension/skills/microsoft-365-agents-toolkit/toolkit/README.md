@@ -10,7 +10,7 @@ edit copies downstream; open a PR upstream instead.
 
 Reference material for the **toolchain** itself: the `atk` CLI, the `m365agents.yml` lifecycle, environment files, project templates, manifests, the Agents Playground, and publishing. Use [declarative-agent-lifecycle.md](declarative-agent-lifecycle.md) as the single source of truth for DA routing.
 
-ATK lifecycle content applies to non-DA projects and DAs selected by that routing gate. Read-only manifest reference content can also answer DA schema questions without requiring WIQD setup.
+ATK lifecycle content applies to non-DA projects and TypeSpec DAs. Delegate every other DA workflow to the WIQD plugin. Read-only manifest reference content can answer DA schema questions without invoking the plugin.
 
 For SDK code patterns (handlers, AI prompts, Adaptive Cards, MCP, OAuth, etc.), see the sibling [../experts/](../experts/) folder. For Slack-vs-Teams platform comparison, see [../docs/](../docs/).
 
@@ -18,7 +18,7 @@ For SDK code patterns (handlers, AI prompts, Adaptive Cards, MCP, OAuth, etc.), 
 
 | File | Scope |
 |---|---|
-| [declarative-agent-lifecycle.md](declarative-agent-lifecycle.md) | Structural routing for all DAs and WIQD lifecycle commands for DAs without project-owned backend deployment |
+| [declarative-agent-lifecycle.md](declarative-agent-lifecycle.md) | TypeSpec-only ATK exception and WIQD plugin delegation for every other DA |
 | [templates.md](templates.md) | Full `atk new -c` capability catalog: declarative agents (8 variants), Copilot connectors, Office add-ins, Teams bots/tabs/message extensions, custom engine agents, RAG agents |
 | [commands.md](commands.md) | `atk` CLI reference outside the lifecycle: `add action`, `add auth-config`, `regenerate action`, `share`, `collaborator`, `env`, `install/uninstall`, `upgrade`, `doctor` |
 | [lifecycle-cli.md](lifecycle-cli.md) | Lifecycle CLI commands (`provision`, `deploy`, `package`, `validate`, `preview`) and the full `m365agents.yml` action catalog |
@@ -31,8 +31,8 @@ For SDK code patterns (handlers, AI prompts, Adaptive Cards, MCP, OAuth, etc.), 
 
 | Capability | Templates | What applies from this folder |
 |---|---|---|
-| **Declarative agents** | `declarative-agent` for legacy recognition; `declarative-agent-action*` and `declarative-agent-with-graph-connector` for project-owned backend scaffolds | `declarative-agent-lifecycle.md` for structural routing; `manifest-and-yaml.md` for read-only manifest questions. DAs run in M365 Copilot, not Playground. |
-| **API plugins** | `declarative-agent-action*`, `declarative-agent-action-from-existing-api`, `add action` | Use ATK for a project-owned backend scaffold and the project's full lifecycle. Use WIQD when the DA attaches an existing OpenAPI API or remote MCP server. |
+| **Declarative agents** | `declarative-agent-typespec` is the only ATK-routed DA capability; other DA templates are retained for legacy recognition | Delegate every non-TypeSpec DA to the WIQD plugin; use `manifest-and-yaml.md` for read-only manifest questions. DAs run in M365 Copilot, not Playground. |
+| **API plugins** | `declarative-agent-action*`, `declarative-agent-action-from-existing-api`, `add action` | Delegate the DA workflow to the WIQD plugin, including coordination with Azure and Entra skills for new backends. |
 | **Standalone Copilot connector backend** | `copilot-connector` | ATK `templates.md`, `commands.md`, `lifecycle-cli.md`, and `environments.md`. A DA that only references an existing Connector connection follows `declarative-agent-lifecycle.md`. |
 | **Custom engine agents** | `basic-custom-engine-agent`, `weather-agent`, `foundry-agent-to-m365`, `coffee-agent`, `data-analyst-agent-v2` | All. Compute deploy via `lifecycle-cli.md` (`arm/deploy` + `azureAppService/zipDeploy`). |
 | **Teams bots / tabs / message extensions** | `bot`, `tab`, `message-extension`, `teams-agent*`, `teams-collaborator-agent`, `bot-sso` | All. Pair with [../experts/teams/](../experts/teams/) for SDK code patterns. |

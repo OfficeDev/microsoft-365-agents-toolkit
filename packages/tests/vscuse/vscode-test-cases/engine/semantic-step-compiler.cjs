@@ -1,7 +1,10 @@
 const { createHash } = require("node:crypto");
 const path = require("node:path");
+const { format } = require("node:util");
 
 const { renderComponent } = require("./render-component.cjs");
+const { fixtureScript } = require("./mcp-auth-fixture.cjs");
+const { dcrUpdateScript } = require("./dcr-update-fixture.cjs");
 
 const componentRoot = path.join(__dirname, "..", "components");
 const appNameExpressionPattern =
@@ -462,6 +465,7 @@ const scaffoldQuestionAdapters = {
       "entra-sso": "Entra SSO",
       none: "None",
       oauth: "OAuth (with static registration)",
+      "oauth-dynamic": "OAuth (with dynamic registration)",
     },
     title: "Select Authentication Type",
     type: "singleSelect",
@@ -1250,6 +1254,7 @@ function createSemanticStepCompiler() {
     if (error) return error;
     state.template = definition.with.template;
     state.language = answerState.language;
+    state.mcpAuthType = answerState.authType;
     state.apiSpecLocation = answerState.apiSpecLocation;
     state.apiOperations = answerState.apiOperations;
     state.deferredLLMKey =
@@ -1909,6 +1914,50 @@ function createSemanticStepCompiler() {
     return { ok: true, value: output };
   }
 
+  function compileConfigureMcpAuth(state, definition) {
+    const inputs = definition.with;
+    const authTypes = {
+      "static-oauth": "oauth",
+      dcr: "oauth-dynamic",
+      "entra-sso": "entra-sso",
+    };
+    if (
+      state.template !== "da/mcp-server" ||
+      !isRecord(inputs) ||
+      !hasOnlyFields(inputs, new Set(["mode"])) ||
+      typeof inputs.mode !== "string" ||
+      !Object.hasOwn(authTypes, inputs.mode) ||
+      authTypes[inputs.mode] !== state.mcpAuthType ||
+      state.completed.has("mcp-auth-fixture")
+    ) {
+      return failure(
+        "VCB_MCP_AUTH_FIXTURE_INVALID",
+        "MCP authentication preparation requires one matching checked scaffold and mode.",
+      );
+    }
+    state.completed.add("mcp-auth-fixture");
+    state.requiresInitialFileCheck = false;
+    const output = [];
+    let error = append(
+      output,
+      render(state, "command-palette/execute-command.json.tpl", {
+        commandTitle: commandTitles.clearNotifications,
+      }),
+    );
+    if (error) return error;
+    error = append(
+      output,
+      render(state, "workspace/configure-mcp-auth.json.tpl", {
+        scriptBase64: Buffer.from(fixtureScript(inputs.mode), "utf8").toString(
+          "base64",
+        ),
+        authMode: inputs.mode,
+      }),
+    );
+    if (error) return error;
+    return { ok: true, value: output };
+  }
+
   function compileRemoveWorkspaceFile(state, definition) {
     const inputs = definition.with ?? {};
     if (
@@ -1922,9 +1971,55 @@ function createSemanticStepCompiler() {
         "The remove workspace file operation requires one project-relative path.",
       );
     }
+
     return render(state, "workspace/remove-file.json.tpl", {
       relativePath: inputs.path,
     });
+  }
+
+  function compileDcrUpdate(state, definition) {
+    const phase = definition.with?.phase;
+    const phases = ["prepare", "baseline", "apply", "verify", "noop"];
+    const index = phases.indexOf(phase);
+    const previous = state.dcrUpdatePhase ?? -1;
+    const requiredProvisions = [0, 1, 1, 2, 3];
+    if (
+      state.template !== "da/mcp-server" ||
+      state.mcpAuthType !== "oauth-dynamic" ||
+      !isRecord(definition.with) ||
+      !hasOnlyFields(definition.with, new Set(["phase"])) ||
+      index !== previous + 1 ||
+      index < 0 ||
+      (state.dcrUpdateProvisions ?? 0) !== requiredProvisions[index]
+    ) {
+      return failure(
+        "VCB_DCR_UPDATE_STAGE_INVALID",
+        "DCR update stages require an independent ordered Dynamic MCP workflow.",
+      );
+    }
+    state.dcrUpdatePhase = index;
+    if (phase === "prepare") {
+      state.completed.add("mcp-auth-fixture");
+      state.requiresInitialFileCheck = false;
+    }
+    const output = [];
+    let error = append(
+      output,
+      render(state, "command-palette/execute-command.json.tpl", {
+        commandTitle: commandTitles.clearNotifications,
+      }),
+    );
+    if (error) return error;
+    error = append(
+      output,
+      render(state, "workspace/dcr-update-stage.json.tpl", {
+        scriptBase64: Buffer.from(dcrUpdateScript(phase), "utf8").toString(
+          "base64",
+        ),
+        phase,
+      }),
+    );
+    return error ?? { ok: true, value: output };
   }
 
   function compileConfigureArmJsonTemplates(state, definition) {
@@ -1960,29 +2055,168 @@ function createSemanticStepCompiler() {
     return result;
   }
 
+  function compileConfigurePluginManifest(state, definition) {
+    const inputs = definition.with;
+    if (
+      state.template !== "da/api-plugin-from-existing-api" ||
+      state.pluginManifestMode !== undefined ||
+      !isRecord(inputs) ||
+      !hasOnlyFields(inputs, new Set(["mode"])) ||
+      !["invalid-property", "file-reference"].includes(inputs.mode) ||
+      (inputs.mode === "file-reference" && state.completed.has("provision"))
+    ) {
+      return failure(
+        "VCB_CONFIGURE_PLUGIN_MANIFEST_INPUT_INVALID",
+        "The plugin manifest mutation input or checked scaffold entry state is not supported.",
+      );
+    }
+    const mutation =
+      inputs.mode === "invalid-property"
+        ? `assert "name_for_humanaaaa" not in plugin
+original = plugin.pop("name_for_human")
+plugin["name_for_humanaaaa"] = original
+plugin_path.write_text(json.dumps(plugin, indent=2) + "\\n", encoding="utf-8")
+saved = json.loads(plugin_path.read_text(encoding="utf-8"))
+assert saved["name_for_humanaaaa"] == original and "name_for_human" not in saved
+`
+        : `instruction = (package / "instruction.txt").read_text(encoding="utf-8")
+assert instruction.startswith("You are a declarative agent")
+manifest_path = package / "manifest.json"
+manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+reference = "$[file('./instruction.txt')]"
+manifest["description"]["full"] = reference
+plugin["description_for_human"] = reference
+manifest_path.write_text(json.dumps(manifest, indent=2) + "\\n", encoding="utf-8")
+plugin_path.write_text(json.dumps(plugin, indent=2) + "\\n", encoding="utf-8")
+assert json.loads(manifest_path.read_text(encoding="utf-8"))["description"]["full"] == reference
+assert json.loads(plugin_path.read_text(encoding="utf-8"))["description_for_human"] == reference
+`;
+    const script = `import json
+import os
+from pathlib import Path
+package = Path(os.environ["PROJECT_DIR"]) / "appPackage"
+plugin_path = package / "ai-plugin.json"
+plugin = json.loads(plugin_path.read_text(encoding="utf-8"))
+${mutation}`;
+    const result = render(
+      state,
+      "workspace/configure-plugin-manifest.json.tpl",
+      {
+        mutationScriptBase64: Buffer.from(script, "utf8").toString("base64"),
+      },
+    );
+    if (!result.ok) return result;
+    state.pluginManifestMode = inputs.mode;
+    state.pluginManifestConfiguredAfterProvision =
+      state.completed.has("provision");
+    return result;
+  }
+
+  function compileValidateManifest(state, definition) {
+    if (
+      definition.with !== undefined ||
+      state.template !== "da/api-plugin-from-existing-api" ||
+      state.pluginManifestMode !== "invalid-property" ||
+      !state.pluginManifestConfiguredAfterProvision ||
+      !state.completed.has("provision")
+    ) {
+      return failure(
+        "VCB_VALIDATE_MANIFEST_INPUT_INVALID",
+        "Manifest validation requires a provisioned existing-API agent followed by the invalid-property mutation and accepts no inputs.",
+      );
+    }
+    const output = [];
+    let error = append(
+      output,
+      render(state, "command-palette/execute-command.json.tpl", {
+        commandTitle: "Microsoft 365 Agents: Validate Application",
+      }),
+    );
+    if (error) return error;
+    for (const [questionTitle, optionLabel] of [
+      ["Select a validation method", "Validate app manifest schema"],
+      ["Select Teams manifest.json File", "manifest.json"],
+      ["Select an environment", "dev"],
+    ]) {
+      error = append(
+        output,
+        render(state, "quick-input/single-select.json.tpl", {
+          questionTitle,
+          optionLabel,
+        }),
+      );
+      if (error) return error;
+    }
+    for (const commandTitle of [
+      commandTitles.clearNotifications,
+      "Output: Show Output Channels...",
+    ]) {
+      error = append(
+        output,
+        render(state, "command-palette/execute-command.json.tpl", {
+          commandTitle,
+        }),
+      );
+      if (error) return error;
+    }
+    error = append(
+      output,
+      render(state, "quick-input/filter-option.json.tpl", {
+        optionLabel: "Microsoft 365 Agents Toolkit",
+      }),
+    );
+    if (error) return error;
+    error = append(
+      output,
+      render(state, "checks/invalid-plugin-property.json.tpl", {}),
+    );
+    return error ?? { ok: true, value: output };
+  }
+
   function compileShare(state, definition) {
     const inputs = definition.with ?? {};
+    const legacyError = inputs.expectError === "unsupportedWorkflowVersion";
+    const grant = inputs.operation === "grant";
+    const revoke = inputs.operation === "revoke";
+    const hasRecipient =
+      typeof inputs.email === "string" &&
+      environmentExpressionPattern.test(inputs.email);
+    const validPositive =
+      (grant &&
+        ((inputs.scope === "users" && hasRecipient) ||
+          (inputs.scope === "tenant" && inputs.email === undefined))) ||
+      (revoke && inputs.scope === "users" && hasRecipient);
     if (
       state.template !== "da/no-action" ||
       !isRecord(inputs) ||
-      !hasOnlyFields(inputs, new Set(["scope", "email", "expectError"])) ||
-      inputs.scope !== "users" ||
-      typeof inputs.email !== "string" ||
-      !environmentExpressionPattern.test(inputs.email) ||
-      inputs.expectError !== "unsupportedWorkflowVersion"
+      !hasOnlyFields(
+        inputs,
+        new Set(
+          legacyError
+            ? ["scope", "email", "expectError"]
+            : ["operation", "scope", "email"],
+        ),
+      ) ||
+      (legacyError ? inputs.scope !== "users" || !hasRecipient : !validPositive)
     ) {
       return failure(
         "VCB_SHARE_INPUT_INVALID",
-        "The Share operation requires the supported scope, environment-backed email, and error expectation.",
+        "The Share operation requires a supported scope, operation or legacy error expectation, and environment-backed recipient where applicable.",
       );
     }
     if (
       !state.completed.has("login:m365") ||
-      !state.completed.has("workflowVersion:v1.9")
+      (legacyError
+        ? !state.completed.has("workflowVersion:v1.9")
+        : !state.completed.has("provision") ||
+          state.completed.has("workflowVersion:v1.9")) ||
+      (!legacyError &&
+        ((revoke && state.sharedRecipient !== inputs.email) ||
+          (grant && state.sharedRecipient !== undefined)))
     ) {
       return failure(
         "VCB_SHARE_PREREQUISITE",
-        "The legacy Share error requires Microsoft 365 login and the supported workflow-version mutation.",
+        "Sharing requires Microsoft 365 login and a compatible workflow state; successful operations require Provision and removal of the previously granted recipient.",
       );
     }
 
@@ -2001,55 +2235,117 @@ function createSemanticStepCompiler() {
     }
     let error = append(
       output,
-      render(state, "command-palette/execute-second-command.json.tpl", {
-        firstCommandTitle:
-          "Microsoft 365 Agents: Remove access to the shared app",
-        commandTitle: commandTitles.share,
-      }),
+      !legacyError && state.completed.has("share:success")
+        ? render(state, "command-palette/execute-command.json.tpl", {
+            commandTitle: commandTitles.share,
+          })
+        : render(state, "command-palette/execute-second-command.json.tpl", {
+            firstCommandTitle:
+              "Microsoft 365 Agents: Remove access to the shared app",
+            commandTitle: commandTitles.share,
+          }),
     );
     if (error) return error;
-    for (const answer of [
+    const answers = [
       {
         component: "quick-input/single-select.json.tpl",
         values: {
           questionTitle: "Share the agent",
-          optionLabel: "Share access",
+          optionLabel: revoke ? "Remove access" : "Share access",
         },
       },
-      {
+    ];
+    if (!revoke) {
+      answers.push({
         component: "quick-input/single-select.json.tpl",
         values: {
           questionTitle: "Share the agent with users",
-          optionLabel: "Share to specified users(s) or user group",
+          optionLabel:
+            inputs.scope === "tenant"
+              ? "Share to all tenant users"
+              : "Share to specified users(s) or user group",
         },
-      },
-      {
+      });
+    }
+    if (inputs.scope === "users") {
+      answers.push({
         component: "quick-input/text.json.tpl",
         values: {
-          questionTitle: "Email addresses of users or groups for agent sharing",
+          questionTitle: revoke
+            ? "Email addresses of users or groups for agent access removal"
+            : "Email addresses of users or groups for agent sharing",
           inputValue: inputs.email,
         },
+      });
+    }
+    answers.push({
+      component: "quick-input/single-select.json.tpl",
+      values: {
+        questionTitle: "Select an environment",
+        optionLabel: "dev",
       },
-      {
-        component: "quick-input/single-select.json.tpl",
-        values: {
-          questionTitle: "Select an environment",
-          optionLabel: "dev",
-        },
-      },
-    ]) {
+    });
+    for (const answer of answers) {
       error = append(output, render(state, answer.component, answer.values));
+      if (error) return error;
+    }
+    const successText = revoke
+      ? format("Shared access successfully removed from users: %s.", [
+          inputs.email,
+        ])
+      : inputs.scope === "tenant"
+        ? "Agent successfully shared with tenant."
+        : format("Agent successfully shared with users: %s.", [inputs.email]);
+    if (!legacyError && inputs.scope === "users") {
+      const notificationPrefix = revoke
+        ? "Shared access successfully removed from users:"
+        : "Agent successfully shared with users:";
+      error = append(
+        output,
+        render(state, "notifications/assert-contains.json.tpl", {
+          notificationText: JSON.stringify(notificationPrefix),
+          retryTimeout: "120",
+        }),
+      );
+      if (error) return error;
+      error = append(
+        output,
+        render(state, "command-palette/execute-command.json.tpl", {
+          commandTitle: commandTitles.notifications,
+        }),
+      );
+      if (error) return error;
+      error = append(
+        output,
+        render(
+          state,
+          revoke
+            ? "notifications/expand-revoked-sharing-notification.json.tpl"
+            : "notifications/expand-granted-sharing-notification.json.tpl",
+          { notificationPrefix: JSON.stringify(notificationPrefix) },
+        ),
+      );
       if (error) return error;
     }
     error = append(
       output,
       render(state, "notifications/assert-contains.json.tpl", {
-        notificationText: unsupportedWorkflowVersionShareError,
-        retryTimeout: "60",
+        notificationText: legacyError
+          ? unsupportedWorkflowVersionShareError
+          : JSON.stringify(successText),
+        retryTimeout: legacyError ? "60" : "120",
       }),
     );
     if (error) return error;
     state.completed.add("share");
+    if (!legacyError) {
+      state.completed.add("share:success");
+      if (grant && inputs.scope === "users") {
+        state.sharedRecipient = inputs.email;
+      } else {
+        delete state.sharedRecipient;
+      }
+    }
     return { ok: true, value: output };
   }
 
@@ -2100,8 +2396,117 @@ function createSemanticStepCompiler() {
     return { ok: true, value: output };
   }
 
+  function compileAddDaSkill(state, definition) {
+    const inputs = definition.with;
+    const validName = (value) =>
+      typeof value === "string" &&
+      value.length <= 64 &&
+      /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(value);
+    const literalText = (value) =>
+      typeof value === "string" &&
+      value.trim().length > 0 &&
+      !/[\0\r\n]/.test(value) &&
+      !value.includes("${{");
+    if (
+      state.template !== "da/mcp-server" ||
+      state.completed.has("addDaSkill") ||
+      state.completed.has("provision") ||
+      state.completed.has("target") ||
+      !isRecord(inputs) ||
+      !hasOnlyFields(
+        inputs,
+        new Set(["name", "description", "rejectedName", "exposeToCopilot"]),
+      ) ||
+      !validName(inputs.name) ||
+      !literalText(inputs.description) ||
+      inputs.description.length > 1024 ||
+      !literalText(inputs.rejectedName) ||
+      validName(inputs.rejectedName) ||
+      inputs.exposeToCopilot !== false
+    ) {
+      return failure(
+        "VCB_ADD_DA_SKILL_INPUT_INVALID",
+        "The declarative-agent skill input or operation order is not supported.",
+      );
+    }
+    const output = [];
+    for (const [component, values] of [
+      [
+        "command-palette/execute-command.json.tpl",
+        { commandTitle: commandTitles.showToolkit },
+      ],
+      ["treeview/add-da-skill.json.tpl", {}],
+      [
+        "quick-input/single-select.json.tpl",
+        {
+          questionTitle: "How would you like to add a skill?",
+          optionLabel: "Create a new skill",
+        },
+      ],
+      [
+        "quick-input/rejected-skill-name.json.tpl",
+        { rejectedName: inputs.rejectedName },
+      ],
+      [
+        "quick-input/text.json.tpl",
+        { questionTitle: "Skill Name", inputValue: inputs.name },
+      ],
+      [
+        "quick-input/text.json.tpl",
+        { questionTitle: "Skill Description", inputValue: inputs.description },
+      ],
+      [
+        "quick-input/single-select.json.tpl",
+        {
+          questionTitle: "Do you want to expose this skill to Copilot?",
+          optionLabel: "No",
+        },
+      ],
+      [
+        "quick-input/single-select.json.tpl",
+        {
+          questionTitle: "Select Teams manifest.json File",
+          optionLabel: "manifest.json",
+        },
+      ],
+      ["dialog/add-da-skill-confirm.json.tpl", {}],
+      [
+        "notifications/assert-contains.json.tpl",
+        {
+          notificationText: "Agent skill added to the project successfully.",
+          retryTimeout: "60",
+        },
+      ],
+    ]) {
+      const error = append(output, render(state, component, values));
+      if (error) return error;
+    }
+    state.completed.add("addDaSkill");
+    return { ok: true, value: output };
+  }
+
   function compileAddDaCapability(state, definition) {
     const inputs = definition.with;
+    let webSearchUrl;
+    if (typeof inputs?.url === "string" && !/\s/.test(inputs.url)) {
+      try {
+        webSearchUrl = new URL(inputs.url);
+      } catch {}
+    }
+    const isUrlWebSearch =
+      isRecord(inputs) &&
+      hasOnlyFields(inputs, new Set(["capability", "searchType", "url"])) &&
+      inputs.capability === "webSearch" &&
+      inputs.searchType === "url" &&
+      webSearchUrl?.protocol === "https:" &&
+      webSearchUrl.username === "" &&
+      webSearchUrl.password === "";
+    const isAllWebSearch =
+      isRecord(inputs) &&
+      hasOnlyFields(inputs, new Set(["capability", "searchType"])) &&
+      inputs.capability === "webSearch" &&
+      inputs.searchType === "all";
+    const isWebSearch = isUrlWebSearch || isAllWebSearch;
     const isCopilotConnector =
       isRecord(inputs) &&
       hasOnlyFields(inputs, new Set(["capability", "connectionId"])) &&
@@ -2114,7 +2519,7 @@ function createSemanticStepCompiler() {
       inputs.capability === "embeddedKnowledge";
     if (
       state.template !== "da/no-action" ||
-      (!isCopilotConnector && !isEmbeddedKnowledge)
+      (!isCopilotConnector && !isEmbeddedKnowledge && !isWebSearch)
     ) {
       return failure(
         "VCB_ADD_DA_CAPABILITY_INPUT_INVALID",
@@ -2122,6 +2527,71 @@ function createSemanticStepCompiler() {
       );
     }
     const output = [];
+    if (isWebSearch) {
+      let error = append(
+        output,
+        render(state, "command-palette/execute-command.json.tpl", {
+          commandTitle: commandTitles.addDaCapability,
+        }),
+      );
+      if (error) return error;
+      for (const selection of [
+        { optionLabel: "Web Search", questionTitle: "Add Capability" },
+        {
+          optionLabel: isUrlWebSearch
+            ? "Search by URL"
+            : "Search all content on the web",
+          questionTitle: "Select Search Type",
+        },
+      ]) {
+        error = append(
+          output,
+          render(state, "quick-input/single-select.json.tpl", selection),
+        );
+        if (error) return error;
+      }
+      if (isUrlWebSearch) {
+        error = append(
+          output,
+          render(state, "quick-input/text.json.tpl", {
+            inputValue: inputs.url,
+            questionTitle: "Web Content",
+          }),
+        );
+        if (error) return error;
+      }
+      error = append(
+        output,
+        render(state, "quick-input/single-select.json.tpl", {
+          optionLabel: "manifest.json",
+          questionTitle: "Select Teams manifest.json File",
+        }),
+      );
+      if (error) return error;
+      error = append(
+        output,
+        render(state, "dialog/click-primary-action.json.tpl", {
+          actionLabel: "Add",
+          dialogTitle:
+            "the Microsoft 365 Agents Toolkit capability confirmation",
+        }),
+      );
+      if (error) return error;
+      if (state.completed.has("addDaCapability:webSearch")) {
+        error = append(
+          output,
+          render(state, "dialog/click-primary-action.json.tpl", {
+            actionLabel: "Add",
+            dialogTitle:
+              "the warning that adding new content overwrites the existing manifest file",
+          }),
+        );
+        if (error) return error;
+      }
+      state.completed.add("addDaCapability");
+      state.completed.add("addDaCapability:webSearch");
+      return { ok: true, value: output };
+    }
     if (isEmbeddedKnowledge) {
       let error = append(
         output,
@@ -2997,15 +3467,31 @@ function createSemanticStepCompiler() {
       error = append(output, render(state, component, confirmationValues));
       if (error) return error;
     }
-    error = append(
-      output,
-      render(state, "notifications/assert-contains.json.tpl", {
-        notificationText: recipe.successText,
-        retryTimeout: recipe.successTimeout,
-      }),
-    );
+    if (definition.type === "provision" && state.dcrUpdatePhase !== undefined) {
+      // The independent case adds one update to the generated six-action provision.
+      const count = state.dcrUpdatePhase < 2 ? 6 : 7;
+      error = append(
+        output,
+        render(state, "notifications/assert-lifecycle-completed.json.tpl", {
+          operationTitle: "Provision",
+          notificationText: `${count}/${count} actions in ${recipe.successText}`,
+          retryTimeout: recipe.successTimeout,
+        }),
+      );
+    } else {
+      error = append(
+        output,
+        render(state, "notifications/assert-contains.json.tpl", {
+          notificationText: recipe.successText,
+          retryTimeout: recipe.successTimeout,
+        }),
+      );
+    }
     if (error) return error;
     state.completed.add(definition.type);
+    if (definition.type === "provision" && state.dcrUpdatePhase !== undefined) {
+      state.dcrUpdateProvisions = (state.dcrUpdateProvisions ?? 0) + 1;
+    }
     return { ok: true, value: output };
   }
 
@@ -3460,6 +3946,18 @@ function createSemanticStepCompiler() {
         "The chat check has no compatible message adapter.",
       );
     }
+    if (
+      assertion.connectOAuth === true &&
+      (state.profile.host !== "copilot" ||
+        !state.completed.has("mcp-auth-fixture") ||
+        !["oauth", "oauth-dynamic"].includes(state.mcpAuthType) ||
+        assertion.allowAction === true)
+    ) {
+      return failure(
+        "VCB_CHAT_OAUTH_CONNECTION_UNKNOWN",
+        "OAuth connection requires a prepared static-OAuth or DCR MCP fixture in Copilot without a duplicate allowAction setting.",
+      );
+    }
 
     const output = [];
     let error = append(
@@ -3467,7 +3965,48 @@ function createSemanticStepCompiler() {
       render(state, sendComponent, { message: assertion.send }),
     );
     if (error) return error;
-    if (assertion.allowAction === true) {
+    if (assertion.connectOAuth === true) {
+      error = append(
+        output,
+        render(state, "browser/copilot/connect-oauth.json.tpl", {
+          appName: "${{var:app_name}}",
+        }),
+      );
+      if (error) return error;
+      if (state.mcpAuthType === "oauth-dynamic") {
+        error = append(
+          output,
+          render(state, "browser/mcp/authorize-client.json.tpl", {
+            mcpEndpoint: "${{env:MCP_AUTH_ENDPOINT}}",
+          }),
+        );
+        if (error) return error;
+        error = append(
+          output,
+          render(
+            state,
+            "authentication/browser/select-signed-in-account.json.tpl",
+            {
+              accountName: "${{env:M365_ACCOUNT_NAME}}",
+            },
+          ),
+        );
+        if (error) return error;
+      }
+      error = append(
+        output,
+        render(state, "browser/copilot/assert-oauth-return.json.tpl", {
+          appName: "${{var:app_name}}",
+        }),
+      );
+      if (error) return error;
+      error = append(
+        output,
+        render(state, sendComponent, { message: assertion.send }),
+      );
+      if (error) return error;
+    }
+    if (assertion.allowAction === true || assertion.connectOAuth === true) {
       if (state.profile.host !== "copilot") {
         return failure(
           "VCB_CHAT_ACTION_CONSENT_UNKNOWN",
@@ -3483,10 +4022,31 @@ function createSemanticStepCompiler() {
     const expected = assertion.expect ?? {};
     if (
       expected.replied === true ||
+      expected.validResponse === true ||
       expected.contains !== undefined ||
-      expected.notContains !== undefined
+      expected.notContains !== undefined ||
+      expected.toolCalled !== undefined ||
+      expected.nonEmptyFields !== undefined
     ) {
       error = append(output, render(state, replyComponent));
+      if (error) return error;
+    }
+    if (expected.toolCalled !== undefined) {
+      error = append(
+        output,
+        render(state, "browser/chat/assert-tool-called.json.tpl", {
+          expectedTool: expected.toolCalled,
+        }),
+      );
+      if (error) return error;
+    }
+    for (const fieldName of expected.nonEmptyFields ?? []) {
+      error = append(
+        output,
+        render(state, "browser/chat/assert-non-empty-field.json.tpl", {
+          fieldName,
+        }),
+      );
       if (error) return error;
     }
     for (const expectedText of expected.contains ?? []) {
@@ -3504,6 +4064,13 @@ function createSemanticStepCompiler() {
         render(state, "browser/chat/assert-not-contains.json.tpl", {
           unexpectedText,
         }),
+      );
+      if (error) return error;
+    }
+    if (expected.validResponse === true) {
+      error = append(
+        output,
+        render(state, "browser/chat/assert-valid-response.json.tpl"),
       );
       if (error) return error;
     }
@@ -3584,7 +4151,7 @@ function createSemanticStepCompiler() {
         : assertion.type === "browser" || assertion.type === "page"
           ? new Set(["type", "expect"])
           : assertion.type === "chat"
-            ? new Set(["type", "send", "allowAction", "expect"])
+            ? new Set(["type", "send", "allowAction", "connectOAuth", "expect"])
             : assertion.type === "messageExtension"
               ? new Set(["type"])
               : undefined;
@@ -3617,7 +4184,14 @@ function createSemanticStepCompiler() {
           ? new Set(["role", "name", "namePrefix"])
           : assertion.type === "page"
             ? new Set(["contains"])
-            : new Set(["replied", "contains", "notContains"]);
+            : new Set([
+                "replied",
+                "validResponse",
+                "contains",
+                "notContains",
+                "toolCalled",
+                "nonEmptyFields",
+              ]);
     if (!isRecord(expected) || !hasOnlyFields(expected, expectationFields)) {
       return failure(
         "VCB_CHECK_FIELD_UNKNOWN",
@@ -3650,7 +4224,24 @@ function createSemanticStepCompiler() {
       (expected.exists !== undefined && typeof expected.exists !== "boolean") ||
       (expected.replied !== undefined &&
         typeof expected.replied !== "boolean") ||
-      (assertion.allowAction !== undefined && assertion.allowAction !== true)
+      (expected.validResponse !== undefined &&
+        expected.validResponse !== true) ||
+      (expected.toolCalled !== undefined &&
+        (assertion.type !== "chat" ||
+          typeof expected.toolCalled !== "string" ||
+          !/^[A-Za-z_][A-Za-z0-9_.-]*$/.test(expected.toolCalled))) ||
+      (expected.nonEmptyFields !== undefined &&
+        (!Array.isArray(expected.nonEmptyFields) ||
+          expected.nonEmptyFields.length === 0 ||
+          new Set(expected.nonEmptyFields).size !==
+            expected.nonEmptyFields.length ||
+          expected.nonEmptyFields.some(
+            (name) =>
+              typeof name !== "string" ||
+              !/^[A-Za-z_][A-Za-z0-9_]*$/.test(name),
+          ))) ||
+      (assertion.allowAction !== undefined && assertion.allowAction !== true) ||
+      (assertion.connectOAuth !== undefined && assertion.connectOAuth !== true)
     ) {
       return failure(
         "VCB_CHECK_ASSERTION_INVALID",
@@ -3765,6 +4356,12 @@ function createSemanticStepCompiler() {
     if (
       definition.type !== "scaffold" &&
       definition.type !== "checks" &&
+      !(
+        (definition.type === "configureMcpAuth" ||
+          (definition.type === "dcrUpdate" &&
+            definition.with?.phase === "prepare")) &&
+        state.template === "da/mcp-server"
+      ) &&
       state.requiresInitialFileCheck
     ) {
       return failure(
@@ -3811,16 +4408,26 @@ function createSemanticStepCompiler() {
         return compileUserEnvironment(state, definition);
       case "projectEnvironment":
         return compileProjectEnvironment(state, definition);
+      case "configureMcpAuth":
+        return compileConfigureMcpAuth(state, definition);
+      case "dcrUpdate":
+        return compileDcrUpdate(state, definition);
       case "removeWorkspaceFile":
         return compileRemoveWorkspaceFile(state, definition);
       case "configureArmJsonTemplates":
         return compileConfigureArmJsonTemplates(state, definition);
+      case "configurePluginManifest":
+        return compileConfigurePluginManifest(state, definition);
+      case "validateManifest":
+        return compileValidateManifest(state, definition);
       case "workflowVersion":
         return compileWorkflowVersion(state, definition);
       case "configureTypeSpecAction":
         return compileConfigureTypeSpecAction(state, definition);
       case "addDaCapability":
         return compileAddDaCapability(state, definition);
+      case "addDaSkill":
+        return compileAddDaSkill(state, definition);
       case "addDaAction":
         return compileAddDaAction(state, definition);
       case "addApiAuthConfiguration":

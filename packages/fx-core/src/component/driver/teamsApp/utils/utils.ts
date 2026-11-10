@@ -2,8 +2,7 @@
 // Licensed under the MIT license.
 import { includes } from "lodash";
 import Mustache from "mustache";
-import { AppDefinition } from "../interfaces/appdefinitions/appDefinition";
-import { ConfigurableTab } from "../interfaces/appdefinitions/configurableTab";
+import { getAppCapabilities, DevPortalAppResponse } from "../../../utils/appInfo";
 import { getEnvironmentVariables } from "../../../utils/common";
 import { WrapDriverContext } from "../../util/wrapUtil";
 import { FxError, Result } from "@microsoft/teamsfx-api";
@@ -40,7 +39,8 @@ export function renderTemplate(manifestString: string, view: any): string {
   return manifestString;
 }
 
-export function isPersonalApp(appDefinition: AppDefinition): boolean {
+export function isPersonalApp(app: DevPortalAppResponse): boolean {
+  const appDefinition = getAppCapabilities(app);
   const restrictedEntityIds: Array<string> = [
     "conversations",
     "recent",
@@ -50,15 +50,16 @@ export function isPersonalApp(appDefinition: AppDefinition): boolean {
   ];
   if (!!appDefinition.staticTabs && appDefinition.staticTabs.length > 0) {
     return (
-      appDefinition.staticTabs.filter((tab) => !restrictedEntityIds.includes(tab.entityId)).length >
-      0
+      appDefinition.staticTabs.filter((tab) => !restrictedEntityIds.includes(tab.entityId ?? ""))
+        .length > 0
     );
   }
 
   return false;
 }
 
-export function isGroupApp(appDefinition: AppDefinition): boolean {
+export function isGroupApp(app: DevPortalAppResponse): boolean {
+  const appDefinition = getAppCapabilities(app);
   return (
     !!appDefinition.configurableTabs &&
     appDefinition.configurableTabs.length > 0 &&
@@ -66,46 +67,54 @@ export function isGroupApp(appDefinition: AppDefinition): boolean {
   );
 }
 
-export function needTabAndBotCode(appDefinition: AppDefinition): boolean {
+export function needTabAndBotCode(appDefinition: DevPortalAppResponse): boolean {
   return needTabCode(appDefinition) && needBotCode(appDefinition);
 }
 
-export function needTabCode(appDefinition: AppDefinition): boolean {
+export function needTabCode(appDefinition: DevPortalAppResponse): boolean {
   return (isPersonalApp(appDefinition) || isGroupApp(appDefinition)) && !needBotCode(appDefinition);
 }
 
-export function isBot(appDefinition: AppDefinition): boolean {
+export function isBot(app: DevPortalAppResponse): boolean {
+  const appDefinition = getAppCapabilities(app);
   return !!appDefinition.bots && appDefinition.bots.length > 0;
 }
 
-export function containsBotBasedMessageExtension(appDefinition: AppDefinition): boolean {
+export function containsBotBasedMessageExtension(app: DevPortalAppResponse): boolean {
+  const appDefinition = getAppCapabilities(app);
   return (
     !!appDefinition.messagingExtensions &&
     appDefinition.messagingExtensions.length > 0 &&
     !!appDefinition.messagingExtensions[0].botId
   );
 }
-export function isBotBasedMessageExtension(appDefinition: AppDefinition): boolean {
+export function isBotBasedMessageExtension(appDefinition: DevPortalAppResponse): boolean {
   return containsBotBasedMessageExtension(appDefinition) && !isBot(appDefinition);
 }
 
-export function isBotAndBotBasedMessageExtension(appDefinition: AppDefinition): boolean {
+export function isBotAndBotBasedMessageExtension(appDefinition: DevPortalAppResponse): boolean {
   return isBot(appDefinition) && isBotBasedMessageExtension(appDefinition);
 }
 
-export function needBotCode(appDefinition: AppDefinition): boolean {
+export function needBotCode(appDefinition: DevPortalAppResponse): boolean {
   return isBot(appDefinition) || isBotBasedMessageExtension(appDefinition);
 }
 
-function isApiBasedMessageExtension(appDefinition: AppDefinition): boolean {
-  return (
-    !!appDefinition.messagingExtensions &&
-    appDefinition.messagingExtensions.length > 0 &&
-    appDefinition.messagingExtensions[0].messagingExtensionServiceType?.toLowerCase() === "apibased"
-  );
+function isApiBasedMessageExtension(app: DevPortalAppResponse): boolean {
+  const appDefinition = getAppCapabilities(app);
+  const extension = appDefinition.messagingExtensions?.[0];
+  if (!extension) return false;
+  const serviceType =
+    "composeExtensionType" in extension
+      ? extension.composeExtensionType
+      : "messagingExtensionServiceType" in extension
+        ? extension.messagingExtensionServiceType
+        : undefined;
+  return typeof serviceType === "string" && serviceType.toLowerCase() === "apibased";
 }
 
-export function containsUnsupportedFeature(appDefinition: AppDefinition): boolean {
+export function containsUnsupportedFeature(app: DevPortalAppResponse): boolean {
+  const appDefinition = getAppCapabilities(app);
   const hasScene = appDefinition?.meetingExtensionDefinition?.scenes?.length;
   const hasConnector = !!appDefinition?.connectors?.length;
   const hasActivies = appDefinition?.activities?.activityTypes?.length;
@@ -114,12 +123,12 @@ export function containsUnsupportedFeature(appDefinition: AppDefinition): boolea
     !!hasScene ||
     !!hasConnector ||
     !!hasActivies ||
-    hasMeetingExtension(appDefinition) ||
-    isApiBasedMessageExtension(appDefinition)
+    hasMeetingExtension(app) ||
+    isApiBasedMessageExtension(app)
   );
 }
 
-export function getFeaturesFromAppDefinition(appDefinition: AppDefinition): string[] {
+export function getFeaturesFromAppDefinition(appDefinition: DevPortalAppResponse): string[] {
   const features = [];
   const personalTab = "personal-tab";
   const groupTab = "group-tab";
@@ -145,7 +154,8 @@ export function getFeaturesFromAppDefinition(appDefinition: AppDefinition): stri
   return features;
 }
 
-export function hasMeetingExtension(appDefinition: AppDefinition): boolean {
+export function hasMeetingExtension(app: DevPortalAppResponse): boolean {
+  const appDefinition = getAppCapabilities(app);
   return (
     !!appDefinition.configurableTabs &&
     appDefinition.configurableTabs.length > 0 &&
@@ -153,7 +163,9 @@ export function hasMeetingExtension(appDefinition: AppDefinition): boolean {
   );
 }
 
-const groupAppConfigured = (tab: ConfigurableTab) => {
+type TabContext = { context?: string[] | null; scopes?: string[] | null };
+
+const groupAppConfigured = (tab: TabContext) => {
   const validGroupAppContext =
     includes(tab.context, MeetingsContext.ChannelTab) ||
     includes(tab.context, MeetingsContext.PrivateChatTab);
@@ -164,7 +176,7 @@ const groupAppConfigured = (tab: ConfigurableTab) => {
   return validGroupAppScope && validGroupAppContext;
 };
 
-const meetingExtensionConfigured = (tab: ConfigurableTab) => {
+const meetingExtensionConfigured = (tab: TabContext) => {
   const validMeetingContext =
     includes(tab.context, MeetingsContext.SidePanel) ||
     includes(tab.context, MeetingsContext.DetailsTab) ||
@@ -175,12 +187,12 @@ const meetingExtensionConfigured = (tab: ConfigurableTab) => {
   return validMeetingScope && validMeetingContext;
 };
 
-const includeTeamScope = (scopes: string[]): boolean => {
-  return !!scopes.find((scope) => scope.toLowerCase() === CommandScope.Team.toLowerCase());
+const includeTeamScope = (scopes?: string[] | null): boolean => {
+  return !!scopes?.find((scope) => scope.toLowerCase() === CommandScope.Team.toLowerCase());
 };
 
-const includeGroupChatScope = (scopes: string[]): boolean => {
-  return !!scopes.find((scope) => scope.toLowerCase() === CommandScope.GroupChat.toLowerCase());
+const includeGroupChatScope = (scopes?: string[] | null): boolean => {
+  return !!scopes?.find((scope) => scope.toLowerCase() === CommandScope.GroupChat.toLowerCase());
 };
 
 export enum CommandScope {

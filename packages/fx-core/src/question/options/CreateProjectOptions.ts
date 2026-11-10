@@ -35,7 +35,6 @@ export const CreateProjectOptions: CLICommandOption[] = [
       "tab-non-sso",
       "sso-launch-page",
       "dashboard-tab",
-      "tab-spfx",
       "search-app",
       "collect-form-message-extension",
       "search-message-extension",

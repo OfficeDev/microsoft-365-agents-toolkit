@@ -18,7 +18,6 @@ export * from "./removeSharedAccessInputs";
 export * from "./SelectTeamsManifestInputs";
 export * from "./SetSensitivityLabelInputs";
 export * from "./ShareInputs";
-export * from "./SPFxAddWebpartInputs";
 export * from "./SyncManifestInputs";
 export * from "./UninstallInputs";
 export * from "./ValidateTeamsAppInputs";

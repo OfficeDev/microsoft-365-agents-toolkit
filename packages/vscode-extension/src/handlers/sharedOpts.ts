@@ -28,19 +28,6 @@ import { localize } from "../utils/localizeUtils";
 import { getSystemInputs } from "../utils/systemEnvUtils";
 import { getTeamsAppTelemetryInfoByEnv } from "../utils/telemetryUtils";
 
-type FxCoreWithAddWebpart = {
-  addWebpart(inputs: Inputs): Promise<Result<undefined, FxError>>;
-};
-
-function hasAddWebpart(
-  coreInstance: typeof core
-): coreInstance is typeof core & FxCoreWithAddWebpart {
-  return (
-    "addWebpart" in coreInstance &&
-    typeof (coreInstance as FxCoreWithAddWebpart).addWebpart === "function"
-  );
-}
-
 export async function runCommand(
   stage: Stage,
   defaultInputs?: Inputs,
@@ -161,18 +148,6 @@ export async function runCommand(
       }
       case Stage.publishInDeveloperPortal: {
         result = await core.publishInDeveloperPortal(inputs);
-        break;
-      }
-      case Stage.addWebpart: {
-        if (hasAddWebpart(core)) {
-          result = await core.addWebpart(inputs);
-          break;
-        }
-        throw new SystemError(
-          ExtensionSource,
-          ExtensionErrors.UnsupportedOperation,
-          util.format(localize("teamstoolkit.handlers.operationNotSupport"), stage)
-        );
         break;
       }
       case Stage.validateApplication: {

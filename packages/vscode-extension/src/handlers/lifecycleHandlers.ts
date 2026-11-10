@@ -112,11 +112,6 @@ export async function shareRemoveHandler(...args: unknown[]): Promise<Result<nul
   return await runCommand(Stage.shareRemove);
 }
 
-export async function addWebpartHandler(...args: unknown[]) {
-  ExtTelemetry.sendTelemetryEvent(TelemetryEvent.AddWebpartStart, getTriggerFromProperty(args));
-  return await runCommand(Stage.addWebpart);
-}
-
 export async function regeneratePluginHandler(...args: unknown[]) {
   ExtTelemetry.sendTelemetryEvent(
     TelemetryEvent.RegenerateActionStart,

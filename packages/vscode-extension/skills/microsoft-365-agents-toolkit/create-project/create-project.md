@@ -6,16 +6,16 @@ Scaffold a new Microsoft 365 agent or Teams app from an ATK template.
 
 ### Declarative Agents
 
-| User Wants | Lifecycle Route | Capability or Command |
+| User Wants | Lifecycle Route | Capability |
 | --- | --- | --- |
-| Extend M365 Copilot with custom instructions | WIQD | `wiqd agent create` |
-| Declarative Agent with new API backend source code | ATK | `declarative-agent-action` |
-| Declarative Agent with new API backend and Bearer Token | ATK | `declarative-agent-action-bearer` |
-| Declarative Agent with new API backend and OAuth | ATK | `declarative-agent-action-oauth` |
-| Declarative Agent with existing OpenAPI spec | WIQD | `wiqd agent create` then `wiqd agent add action` |
-| Connect existing MCP Server to Copilot | WIQD | `wiqd agent create` then `wiqd agent add action` |
-| Declarative Agent using an existing Copilot Connector connection | WIQD | `wiqd agent create` |
-| Declarative Agent with a new project-owned Copilot Connector backend | ATK | `declarative-agent-with-graph-connector` |
+| Extend M365 Copilot with custom instructions | WIQD plugin | Delegate to `wiqd` |
+| Declarative Agent with new API backend source code | WIQD plugin | Delegate to `wiqd` |
+| Declarative Agent with new API backend and Bearer token | WIQD plugin | Delegate to `wiqd` |
+| Declarative Agent with new API backend and OAuth | WIQD plugin | Delegate to `wiqd` |
+| Declarative Agent with existing OpenAPI spec | WIQD plugin | Delegate to `wiqd` |
+| Connect existing MCP Server to Copilot | WIQD plugin | Delegate to `wiqd` |
+| Declarative Agent using an existing Copilot Connector connection | WIQD plugin | Delegate to `wiqd` |
+| Declarative Agent with a new project-owned Copilot Connector backend | WIQD plugin | Delegate to `wiqd` |
 | Declarative Agent from TypeSpec | ATK | `declarative-agent-typespec` |
 
 ### Other Agents and Apps
@@ -43,27 +43,9 @@ See [../toolkit/templates.md](../toolkit/templates.md) for the complete template
 
 ## Creating Projects
 
-For a pure Declarative Agent or a DA that uses an existing OpenAPI, MCP, or Copilot Connector backend, use WIQD and then follow [declarative-agent-lifecycle.md](../toolkit/declarative-agent-lifecycle.md) for actions and lifecycle operations:
+For every Declarative Agent except TypeSpec, invoke the `wiqd` skill. Pass control to the plugin with the user's full creation intent and relevant project paths; do not run WIQD CLI commands directly or duplicate the plugin's workflow. This includes requests for a new Azure-hosted API backend or Copilot Connector backend. The WIQD plugin coordinates the appropriate Azure and Entra skills for new backend resources. See [declarative-agent-lifecycle.md](../toolkit/declarative-agent-lifecycle.md) for the routing boundary.
 
-```bash
-wiqd --version
-```
-
-If WIQD is unavailable, stop and direct the user to the [official WIQD installation guide](https://microsoft.github.io/wiqd/getting-started/installation/) before continuing. Do not use ATK as a fallback.
-
-```bash
-wiqd agent create --name <project-name> --output <parent-folder>
-```
-
-For a DA that needs project-owned API backend source code and deployment, use the ATK from-scratch template. The resulting project uses ATK for its complete lifecycle:
-
-```bash
-atk new -c declarative-agent-action -l <typescript|javascript|csharp> -n <project-name> -f <parent-folder> -i false
-```
-
-Use `declarative-agent-action-bearer` or `declarative-agent-action-oauth` when the new backend requires that authentication model. Select ATK from the local backend source plus backend deployment actions, not from whether the user invoked WIQD or ATK. Do not switch this project to WIQD lifecycle commands.
-
-Use `declarative-agent-with-graph-connector` when the project must scaffold and deploy a new Copilot Connector ingestion backend. That project-owned deployment selects ATK; merely referencing an existing Connector connection does not.
+Use the ATK `declarative-agent-typespec` capability only when the user explicitly requests a TypeSpec DA.
 
 For all other ATK entries, create templates in the current directory with this flow:
 
@@ -150,8 +132,8 @@ List all samples with `atk list samples`.
 ## After Scaffolding
 
 Once the project is created:
-- For a DA without project-owned backend deployment → continue with [declarative-agent-lifecycle.md](../toolkit/declarative-agent-lifecycle.md)
-- For a DA with project-owned backend source and deployment → keep its complete lifecycle on ATK; use [../provision-deploy/provision-deploy.md](../provision-deploy/provision-deploy.md)
+- For any non-TypeSpec DA → continue with the WIQD plugin through [declarative-agent-lifecycle.md](../toolkit/declarative-agent-lifecycle.md)
+- For a TypeSpec DA → follow the generated ATK lifecycle and use [../provision-deploy/provision-deploy.md](../provision-deploy/provision-deploy.md)
 - For other projects, to test locally → see [../test-playground/test-playground.md](../test-playground/test-playground.md)
 - To understand project files → see [../toolkit/manifest-and-yaml.md](../toolkit/manifest-and-yaml.md)
 
@@ -159,7 +141,7 @@ Once the project is created:
 
 > **Applies to: code-based Teams bots/agents only** (templates: `bot`, `teams-agent*`, `basic-custom-engine-agent`, `weather-agent`, `coffee-agent`, `bot-sso`, `msgext-*`, `tab*`).
 >
-> Does **not** apply to pure DAs, existing-API/MCP actions, DAs that only reference existing Copilot Connector connections, or other templates without application source code. DA projects with project-owned backend source and deployment actions keep their complete lifecycle on ATK and follow the generated project instructions.
+> Does **not** apply to non-TypeSpec DAs, including DAs that need new backend source or deployment. Delegate those workflows to the WIQD plugin.
 
 For deeper guidance on what `atk new` produces and how to extend it, consult the Teams expert micro-files:
 

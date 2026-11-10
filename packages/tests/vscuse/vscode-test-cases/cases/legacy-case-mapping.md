@@ -2,7 +2,7 @@
 
 This mapping relates each YAML-authored case to its generated plan and the legacy VScUse plan it
 replaced. It is the migration record for plans that are gone: the legacy plan column names a file
-that no longer exists wherever the status is **Full**.
+that no longer exists wherever the status is **Full** or **Migrated**.
 
 ## Status
 
@@ -16,6 +16,9 @@ that no longer exists wherever the status is **Full**.
 - **Retired**: the legacy-specific behavior is intentionally no longer tested because it is not a
   required product contract or duplicates coverage elsewhere; the legacy plan is removed without a
   generated replacement.
+- **Migrated**: the generated replacement preserves the legacy intent and the legacy plan is
+  removed with requester approval. UI results are recorded separately and may still fail or be
+  blocked; this status alone does not claim a passing replay.
 
 A generated case is still **Full** when it sends the legacy prompt and asserts an error-free reply
 where the legacy plan asserted reply wording. The wording is the model's, so asserting it would tie
@@ -30,6 +33,205 @@ hardcoded models are changed to `gpt-4o-mini`. Chat assertions expect successful
 they are error-free where the case has that check, without depending on service-owned response
 wording. VCB-140 and VCB-142 define the dev behavior; the retained migrations align through VCB-145
 and VCB-156.
+
+## Resource-Group Reprovision Retirement
+
+- `Feature_Del_Resource_Group_And_Reprovision_For_Bot.json` - **Retired**, work item 10744682.
+- `Feature_Del_Resource_Group_And_Reprovision_For_Tab.json` - **Retired**, work item 10744678.
+
+VCB-207 retires these destructive L3 recordings as a test-scope decision, without generated
+replacements. They do not test recovery or successful recreation: both issue an unverified
+`az group delete` after Provision and then accept any visible error from another Provision.
+Authentication failures, a failed deletion, unrelated deployment failures, or stale notifications
+are not reliable proof of the intended missing-resource-group behavior.
+
+For a cached resource group, the shared
+[`ArmErrorHandle.handleArmDeploymentError`](../../../../fx-core/src/component/driver/arm/util/handleError.ts)
+maps Azure's `ResourceGroupNotFound` to `ResourceGroupNotExistError` for both templates.
+The existing
+[`handleArmDeploymentError case 1`](../../../../fx-core/tests/component/driver/arm/utils.test.ts)
+protects that exact mapping, rather than accepting an arbitrary error.
+[`provisionUtils.test.ts`](../../../../fx-core/tests/component/provisionUtils.test.ts) also covers
+the separate explicit-resource-group lookup path. Normal remote scaffold/Provision/Deploy
+coverage remains in [`default-bot.yml`](./default-bot.yml) and
+[`non-sso-tab.yml`](./non-sso-tab.yml).
+
+This is not full UI/deletion parity: the real Azure deletion sequence is intentionally no longer
+replayed, and no new cloud-deletion/cleanup operation is added to the case engine. No product
+behavior changes. Since no migration plan is introduced, CY261104 migration replay is not
+applicable and this retirement does not delete any real Azure resources.
+
+Verification on November 4, 2026: the two existing fx-core L1 test files above passed
+48/48 tests; VCB-207 and the retained generated remote cases passed their focused
+compiler checks. Regeneration reported no generated plan changes (201 plans).
+
+## Manifest Feature Migration
+
+Both manifest features remain required and are not retirement candidates. Their source is
+[`feature-plugin-manifest.yml`](./feature-plugin-manifest.yml), governed by VCB-204 through VCB-206.
+The invalid-property case uses an existing no-auth API instead of creating an Azure-hosted API:
+the backend is irrelevant to schema validation, so only M365 login and Provision are needed.
+The file-reference case preserves Provision and checks both resolved artifacts, not just scaffold
+output. Both cases use structured JSON mutation and retain their original work item IDs.
+
+| Legacy plan                                                      | Generated plan                                                   | Work item | Status   |
+| ---------------------------------------------------------------- | ---------------------------------------------------------------- | --------- | -------- |
+| `Feature_Validate_Plugin_Manifest.json`                          | `feature-validate-plugin-manifest.json`                          | 28041252  | Migrated |
+| `Feature_DA_Manifest_File_Function_Manifest_Plugin_Support.json` | `feature-da-manifest-file-function-manifest-plugin-support.json` | 29307173  | Migrated |
+
+On November 4, 2026, the requester explicitly approved removing the old plans once their
+generated replacements exist, even if UI execution has not passed. Both old files are removed;
+the actual UI outcomes below remain independent of that migration decision.
+
+The November 4, 2026 validation attempt used
+`ghcr.io/officedev/vscuse-atk-vscode:CY261104`, digest
+`sha256:9a30623687bffc2d2e9091b2ce620d77c15594cf2dde94523ef86ad4b5aeb580`.
+Its OCI revision `de123008bd558327d37494cb4f6d7efdd9c11251` matches successful
+[Docker build 41623364632](https://github.com/OfficeDev/microsoft-365-agents-toolkit/actions/runs/41623364632).
+Published template routing was used; no scenario feature flags are required.
+
+### Historical setup failures
+
+Executions `exec_20261104_114520` (invalid property) and `exec_20261104_115328`
+(file reference) each started the real container but stopped at the first
+startup assertion (0 successful, 1 error each): the configured Azure OpenAI service returned HTTP 401.
+Independent authorization probes also returned 401 for Azure Vision, and the configured service
+principal could not authenticate. This is a **setup failure**, not a product failure or passing
+migration. Follow-up checks ruled out swapped OpenAI/Vision keys and the already-configured
+Foundry endpoint (all returned 401). Cached Azure user contexts require interactive MFA;
+the existing service principal is blocked by conditional access in that tenant. No cloud
+resources, access policies, or stored credentials were changed. Private evidence is in
+`.local/test-reports/20261104-114504-feature-validate-plugin-manifest/` and
+`.local/test-reports/20261104-115317-feature-da-manifest-file-function-manifest-plugin-support/`
+(`run.log` and `test_report.html` in each directory). Both literal mutation scripts also passed
+isolated field-preservation checks inside CY261104, but that is not a substitute for UI replay.
+The requester subsequently refreshed the local service credentials. OpenAI authorization and
+the Vision Read API then succeeded; the earlier 401 reports remain historical setup evidence,
+not the result of the refreshed-credential replay.
+
+### Verified refreshed-credential results
+
+The real noVNC/workbench flow reached schema validation, but the initial adapter focused
+the default Tasks output channel and left notifications covering the output. This was
+**test plan drift**, not a product bug. VCB-205 now clears notifications and uses the
+guarded Show Output Channels picker to explicitly select Microsoft 365 Agents Toolkit.
+The unchanged exact invalid-property assertion passed in the retained live container.
+Workbench evidence is in `.local/test-reports/20261104-121134-manifest-workbench/ui.log`.
+
+Both generated plans then passed independent clean CLI runs on the same CY261104 image:
+
+| Coverage                                           | Execution ID           | Successful | Errors | CLI exit |
+| -------------------------------------------------- | ---------------------- | ---------- | ------ | -------- |
+| Invalid plugin property                            | `exec_20261104_124059` | 134/134    | 0      | 0        |
+| Teams and plugin manifest file-reference expansion | `exec_20261104_130057` | 102/102    | 0      | 0        |
+
+Each directory below contains the archived `run.log` and `test_report.html`:
+
+- `.local/test-reports/20261104-124046-feature-validate-plugin-manifest/`
+- `.local/test-reports/20261104-130049-feature-da-manifest-file-function-manifest-plugin-support/`
+
+## Add Skill Feature Migration
+
+The November 4, 2026 requester-approved source migration replaces
+`Feature_DA_Add_Skill_MCP.json` with the independently executable
+[`feature-da-add-skill-mcp.yml`](./feature-da-add-skill-mcp.yml) source and
+manifest-owned `feature-da-add-skill-mcp.json`. It retains work item 39611826,
+Microsoft Learn MCP with None authentication, invalid `testSkill` rejection,
+valid `test-skill` creation, default agent-only exposure, generated-file checks,
+M365-only provision, and named-agent Copilot preview. VCB-210 through VCB-212 own
+the compiler and migration parity checks. No Frontier flag is enabled.
+
+The requester explicitly approved retiring the old plan based on compiler/parity
+checks while recording fresh runtime validation as **blocked**, not passed.
+`Migrated` describes the source replacement only.
+
+The real workbench attempt used
+`ghcr.io/officedev/vscuse-atk-vscode:CY261104`, digest
+`sha256:9a30623687bffc2d2e9091b2ce620d77c15594cf2dde94523ef86ad4b5aeb580`,
+revision `de123008bd558327d37494cb4f6d7efdd9c11251`. Initial CodeAgent tool calls
+were truncated by the configured service's 256-token default. With requester
+approval, the local vscuse 0.2.67 CodeAgent was configured to request 4096 tokens;
+an actual long-script preflight then succeeded.
+
+Fresh generated-plan validation remains blocked by a separate **runner defect**:
+CodeAgent changed the compiler's valid base64 assertion payload into invalid JSON,
+the file-check script exited with code 1, but vscuse returned `success: true`.
+The replay was stopped when that false positive was detected. Do not count the
+runner's success flag or later wizard interactions as a passing end-to-end run.
+The installed runner change is local-only and is not part of this repository
+migration.
+
+Private evidence is under `.local/vscuse-skill-migration/`: `ui.log` records the
+initial token-budget failure, `ui-budget-fixed.log` and
+`ui-budget-fixed-full.log` record the stopped follow-up, and
+`result-step_checkWorkspaceFiles_verify_c9a417a33_2_1.json` contains the nonzero
+script result alongside the incorrect success flag. Repair exact-script execution
+and nonzero-exit propagation in the runner before claiming a fresh generated UI
+or clean CLI pass. The former hand-recorded plan's 143/143 passing run is
+historical evidence, not a result for this generated replacement.
+
+## Basic DA Share Migration
+
+[`feature-da-share-basic.yml`](./feature-da-share-basic.yml) replaces
+`Feature__Share_Basic_DA.json` under VCB-208 and VCB-209, retaining work item 31339288.
+This is positive coverage: after a checked no-action DA scaffold, M365-only login and
+Provision, it grants access to `${{env:M365_ACCOUNT_ADMIN_ACCOUNT}}`, revokes that same
+recipient, and grants access to all tenant users. Each transition requires its specific
+localized success notification; a generic failure is not accepted.
+
+| Legacy plan | Generated plan | Work item | Status |
+| ----------- | -------------- | --------- | ------ |
+| `Feature__Share_Basic_DA.json` | `feature-da-share-basic.json` | 31339288 | Migrated |
+
+The existing unsupported-workflow Share case remains separate and unchanged. It rejects
+workflow v1.9 before remote service access and does not replace these three successful
+sharing transitions. No Azure login is needed, and all sharing applies to the agent
+created by this case.
+
+Migration status records source replacement, not a claim that execution passed. The old
+recording is removed once the generated replacement exists, as authorized.
+
+Runtime evidence from November 4, 2026 uses
+`ghcr.io/officedev/vscuse-atk-vscode:CY261104`, revision
+`de123008bd558327d37494cb4f6d7efdd9c11251`, digest
+`sha256:9a30623687bffc2d2e9091b2ce620d77c15594cf2dde94523ef86ad4b5aeb580`,
+verified against [Docker build 41623364632](https://github.com/OfficeDev/microsoft-365-agents-toolkit/actions/runs/41623364632).
+Published template routing is used; no scenario feature flags are required.
+
+- Initial live workbench execution completed all three sharing operations. Clean CLI
+  `exec_20261104_160058` then stopped at 109 successful / 1 error because the test expected
+  a flattened email rather than the product's array-formatted message, which was also
+  ellipsized. This was **test plan drift**, not a product sharing failure.
+- After correcting the message and expanding notifications, clean CLI
+  `exec_20261104_163437` stopped at 154 successful / 1 error: the timed Toolkit survey
+  became the first notification. The focused-target guard correctly rejected it.
+  The replacement therefore selects messages by content, not notification index.
+- Genuine workbench recordings `r_1104_093000` and `r_1104_093603` captured the grant/revoke
+  message clicks and their visual hashes. Both complete recipient messages were verified
+  after expansion. A further live check retained other real notifications, confirmed a
+  different notification was focused, then focused and verified the complete revoke message.
+- Native OCR validation on November 4 remained blocked by a **setup failure**: the configured endpoint
+  supported Vision Read 3.2, but the runner's `ImageAnalysisClient` request to
+  `/computervision/imageanalysis:analyze?api-version=2023-10-01&features=read` returned 404.
+  The runner could fall back to recorded coordinates after OCR failure; that fallback
+  was not accepted as proof of the required position-independent selection.
+
+Private evidence is retained under `.local/test-reports/` in
+`20261104-160045-feature-da-share-basic/`,
+`20261104-163424-feature-da-share-basic/`, and
+`20261104-170712-basic-share-recording-workbench/`.
+
+The Image Analysis endpoint was repaired on November 5. The runner-native READ probe
+recognized its non-sensitive test image, then the unchanged final plan passed a clean
+CY261104 CLI replay: `exec_20261105_135501`, **188/188 successful, 0 errors, exit 0**.
+All three sharing transitions and their exact success notifications passed.
+Both sharing notification targets have explicit native OCR resolution records (one each),
+and the complete run contains **zero OCR coordinate-resolution fallbacks**. This verifies
+the content-based selection rather than an accidental recorded-coordinate match.
+
+The passing `run.log` and `test_report.html` are archived in
+`.local/test-reports/20261105-135446-feature-da-share-basic/`.
+The November 4 failures remain historical evidence; the native-OCR validation blocker is resolved.
 
 ## Backlog
 
@@ -87,7 +289,8 @@ and VCB-156.
 ## Mapping
 
 | YAML source                                        | New case ID                                              | Generated plan                                                                                 | Legacy plan                                                                 | Status | Coverage note                                                                                                                                                                                                                                                                                                                    |
-| -------------------------------------------------- | -------------------------------------------------------- | ---------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------- | ------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| -------------------------------------------------- | ---------------------------------------------------------- | ---------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- | ------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `feature-da-add-skill-mcp.yml` | `feature-da-add-skill-mcp` | `feature-da-add-skill-mcp.json` | `Feature_DA_Add_Skill_MCP.json` | Migrated | Recorded Add Skill entry, invalid-name rejection, agent-only skill and MCP file checks, M365 provision, and named Copilot preview. Requester-approved retirement is independent of the blocked generated replay; see Add Skill Feature Migration above. |
 | `weather-agent.yml`                                | `weather-ts-azure-openai-remote-teams`                   | `weather-agent--weather-ts-azure-openai-remote-teams.json`                                     | `Weather_Agent_ts_remote_debug.json`                                        | Full   | Weather Agent, Azure OpenAI, TypeScript, provision, deploy, Teams remote launch, and chat validation.                                                                                                                                                                                                                            |
 | `weather-agent.yml`                                | `weather-ts-azure-openai-local-teams`                    | `weather-agent--weather-ts-azure-openai-local-teams.json`                                      | `Weather_Agent_ts_Local_Debug.json`                                         | Full   | Weather Agent, Azure OpenAI, TypeScript, Microsoft 365 login, local Teams debug launch, and chat validation.                                                                                                                                                                                                                     |
 | `weather-agent.yml`                                | `weather-js-azure-openai-remote-teams`                   | `weather-agent--weather-js-azure-openai-remote-teams.json`                                     | `Weather_Agent_js_remote_debug.json`                                        | Full   | Weather Agent, Azure OpenAI, JavaScript, provision, deploy, Teams remote launch, and chat validation.                                                                                                                                                                                                                            |
@@ -255,8 +458,8 @@ and VCB-156.
 | `custom-copilot-rag-custom-api.yml`                | `rag-custom-api-js-azure-openai-playground`              | `custom-copilot-rag-custom-api--rag-custom-api-js-azure-openai-playground.json`                | `Teams_Agent_With_Data_Custom_API_Azure_OpenAI_js_PlayGround.json`          | Full   | Custom API data source from an OpenAPI document, Azure OpenAI, JavaScript, Agents Playground launch without account login, and the recorded repairs prompt with a reply check in place of the pre-chat welcome assertion; see VCB-145.                                                                                           |
 | `custom-copilot-rag-custom-api.yml`                | `rag-custom-api-py-azure-openai-playground`              | `custom-copilot-rag-custom-api--rag-custom-api-py-azure-openai-playground.json`                | `Teams_Agent_With_Data_Custom_API_Azure_OpenAI_py_PlayGround.json`          | Full   | Custom API data source from an OpenAPI document, Azure OpenAI, Python, virtual environment creation, Agents Playground launch without account login, and the legacy repairs prompt with a reply check.                                                                                                                           |
 | `da-typespec-no-action.yml`                        | `da-typespec-no-action-remote-preview`                   | `da-typespec--da-typespec-no-action-remote-preview.json`                                       | `DA_Typespec_No_Action.json`                                                | Full   | TypeSpec no-action scaffold/file validation, single-environment provision, remote Copilot preview, and the legacy reply-only prompt.                                                                                                                                                                                             |
-| `da-typespec-with-action.yml`                      | `da-typespec-with-action-remote-preview`                 | `da-typespec--da-typespec-with-action-remote-preview.json`                                     | `DA_Typespec_With_Action.json`                                              | Full   | TypeSpec declarative agent, GitHub Issues action mutation, single-environment provision, remote Copilot preview, legacy prompt, action approval, and an error-free reply check; see VCB-123, VCB-124, and VCB-129.                                                                                                               |
-| `da-typespec-with-action.yml`                      | `feature-da-typespec-package-action-remote-preview`      | `feature-da-typespec-package-action-remote-preview.json`                                       | `Feature_DA_Package_TypeSpec_Template_With_Action.json`                     | Full   | TypeSpec declarative agent with the GitHub Issues action, `dev` package build before login and provision, remote Copilot preview, action approval, and a stable error-free reply check; see VCB-165 and VCB-169.                                                                                                                 |
+| `da-typespec-with-action.yml`                      | `da-typespec-with-action-remote-preview`                 | `da-typespec--da-typespec-with-action-remote-preview.json`                                     | `DA_Typespec_With_Action.json`                                              | Full   | TypeSpec declarative agent, GitHub Issues action mutation, single-environment provision, remote Copilot preview, legacy prompt, action approval, and a valid response check; see VCB-123, VCB-124, VCB-129, and VCB-202. |
+| `da-typespec-with-action.yml`                      | `feature-da-typespec-package-action-remote-preview`      | `feature-da-typespec-package-action-remote-preview.json`                                       | `Feature_DA_Package_TypeSpec_Template_With_Action.json`                     | Full   | TypeSpec declarative agent with the GitHub Issues action, `dev` package build before login and provision, remote Copilot preview, action approval, and a valid response check; see VCB-165, VCB-169, and VCB-202. |
 | `da-typespec-oauth.yml`                            | `da-typespec-oauth-with-reference-id`                    | `da-typespec--da-typespec-oauth-with-reference-id.json`                                        | `DA_Typespec_Oauth_With_Reference_Id.json`                                  | Full   | TypeSpec OAuth fixture with compiler-owned reference insertion, source verification, package-only all-zero UUID substitution, and `dev` package build. Provision and chat await stable tenant configuration; see VCB-174, VCB-177, and VCB-178.                                                                                  |
 | `da-typespec-oauth.yml`                            | `da-typespec-oauth-without-reference-id`                 | `da-typespec--da-typespec-oauth-without-reference-id.json`                                     | `DA_Typespec_Oauth_Without_Reference_Id.json`                               | Full   | TypeSpec declarative agent replaced from the immutable GitHub OAuth fixture without an authentication reference, source verification, Microsoft 365 login, environment/secret-backed OAuth provision, remote Copilot launch, retained repository prompt, action approval, and GitHub sign-in assertion; see VCB-175 and VCB-177. |
 | `feature-basic-tab-local-debug.yml`                | `tab-ts-local-name-validation`                           | `non-sso-tab--tab-ts-local-name-validation.json`                                               | `Basic_Tab_Local_Debug.json`                                                | Full   | Full local Tab flow plus the recorded invalid-character and thirty-three-character app-name rejection/correction sequence; see VCB-148 and VCB-154.                                                                                                                                                                              |
@@ -298,11 +501,17 @@ Weather Agent cases cover OpenAI on Teams and Playground and Copilot with Azure 
 | ------------------------------------------ | ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `Feature_Prompt_Use_Run_From_Package.json` | Retired | The plan only asserted the slow zip-deploy recommendation link after a timing-dependent Azure deployment. The threshold and link are covered by the fx-core unit test, while Azure E2E tests verify `WEBSITE_RUN_FROM_PACKAGE=1`. |
 
-## Retained Legacy Plans Not Mapped
+## Retired Legacy README Plans
+
+| Legacy plan | Status | Reason |
+| ---------------------------------------------- | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Template_And_Sample_Readme_Verification.json` | Retired | Explicit scope decision: standalone README-rendering E2E checks are no longer required. This is not a claim of replacement coverage. Existing scaffold tests retain the README-preview project-window readiness guard; see VCB-167. |
+
+## Retained Legacy Plans With Coverage Gaps
 
 | Legacy plan                    | Status     | Blocker                                                                                                                                        |
-| ------------------------------ | ---------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-| `DA_No_Action_Web_Search.json` | Not Mapped | The first branch records `https://example.com`, but the ambiguous second branch omits its URL; an `all websites` value must not be fabricated. |
+| ------------------------------ | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `DA_No_Action_Web_Search.json` | Partial | `feature-da-web-search.yml` independently covers the recorded `https://example.com` branch and the explicitly re-recorded all-web replacement, including removal of `sites`; see VCB-166. The old publish, app-version-update, and reprovision sequence is not yet migrated, so the legacy plan is retained. |
 
 ## Retired Legacy DA Plans
 

@@ -137,7 +137,11 @@ export class CopilotAgentPublishDriver implements StepDriver {
       // Get MOS service settings
       const sideloadingServiceEndpoint = getResourceServiceEndpoint(ResourceServiceType.MOS3);
 
-      const packageService = new PackageService(sideloadingServiceEndpoint, context.logProvider);
+      const packageService = new PackageService(
+        sideloadingServiceEndpoint,
+        context.logProvider,
+        context.m365TokenProvider
+      );
       const sideloadingTokenRes = await context.m365TokenProvider.getAccessToken({
         scopes: MosServiceScope(),
       });

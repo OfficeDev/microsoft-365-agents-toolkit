@@ -2,6 +2,34 @@
 
 The TeamsFx Core package implements shared capabilities for Microsoft 365 Agents Toolkit IDE Extensions and the CLI through API contracts defined in the [api](/packages/api).
 
+## Requirements
+
+Requires Node.js 20.19.0 or later in the 20.x series, or Node.js 22.12.0 or later, matching the OpenAPI parser dependency's runtime requirements.
+
+## Publishing through FxCoreClient
+
+`FxCoreClient.publish` runs the selected environment's YAML `publish:` lifecycle
+through `FxCore.publishApplication`. Provide `projectPath` and `env`; publishing
+actions and output mappings come from the project configuration.
+
+The success value contains `outputs`, the selected environment's persisted
+snapshot after publishing, including IDs under the configured output variable
+names. Consumers of the former `packagePath` result must update;
+`FxCoreClient.package` still returns the ZIP path.
+The legacy `FxCore.publishTeamsAppCLIV3` API remains unchanged for callers that
+explicitly need Teams package submission. See the
+[client publishing contract](../../docs/03-specs/operations/lifecycle/publish-client.md)
+for cancellation and error semantics.
+
+## Updating an existing DCR configuration
+
+The opt-in `dcr/update` lifecycle action updates an existing authentication
+configuration without producing a replacement configuration ID. See the
+[operation contract](../../docs/03-specs/operations/auth/update-dcr.md) for inputs,
+examples, automatic update behavior, supported fields, and live-validation
+boundaries. Unsupported name and URL inputs are rejected locally rather than
+forwarded to the service.
+
 ## Data Collection.
 
 The software may collect information about you and your use of the software and send it to Microsoft. Microsoft may use this information to provide services and improve our products and services. You may turn off the telemetry as described in the repository. There are also some features in the software that may enable you and Microsoft to collect data from users of your applications. If you use these features, you must comply with applicable law, including providing appropriate notices to users of your applications together with a copy of Microsoft's privacy statement. Our privacy statement is located at https://go.microsoft.com/fwlink/?LinkID=824704. You can learn more about data collection and use in the help documentation and our privacy statement. Your use of the software operates as your consent to these practices.

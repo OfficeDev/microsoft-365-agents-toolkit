@@ -27,6 +27,7 @@ import {
   sampleDefaultRetryLimits,
   templateFileExt,
 } from "./constant";
+import { TemplateOutputPathError } from "./templateOutputPathError";
 
 const packageJson = require("../../../package.json");
 
@@ -178,6 +179,21 @@ export async function fetchZipFromUrl(
   return zip;
 }
 
+function resolveTemplateOutputPath(destination: string, entryName: string): string {
+  const base = path.resolve(destination);
+  const outputPath = path.resolve(base, entryName);
+  const relative = path.relative(base, outputPath);
+  if (
+    relative === "" ||
+    relative === ".." ||
+    relative.startsWith(`..${path.sep}`) ||
+    path.isAbsolute(relative)
+  ) {
+    throw new TemplateOutputPathError(entryName);
+  }
+  return outputPath;
+}
+
 /* The unzip used for scaffold which would drop the attr of the files and dirs. */
 export async function unzip(
   zip: AdmZip,
@@ -200,7 +216,7 @@ export async function unzip(
     const entryData: string | Buffer = dataReplaceFn
       ? dataReplaceFn(entry.name, rawEntryData)
       : rawEntryData;
-    const filePath: string = path.join(dstPath, entryName);
+    const filePath = resolveTemplateOutputPath(dstPath, entryName);
     const dirPath: string = path.dirname(filePath);
     await fs.ensureDir(dirPath);
     await fs.writeFile(filePath, entryData);

@@ -1,7 +1,12 @@
 {
   "$schema": "https://developer.microsoft.com/en-us/json-schemas/teams/v1.30/MicrosoftTeams.schema.json",
   "manifestVersion": "1.30",
+  {{#NewDeveloperPortalApis}}
+  "id": "${{APP_ID}}",
+  {{/NewDeveloperPortalApis}}
+  {{^NewDeveloperPortalApis}}
   "id": "${{TEAMS_APP_ID}}",
+  {{/NewDeveloperPortalApis}}
   "version": "1.0.0",
   "developer": {
     "name": "My App, Inc.",

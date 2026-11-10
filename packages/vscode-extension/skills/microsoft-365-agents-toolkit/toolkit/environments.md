@@ -1,6 +1,6 @@
 # Environments and `.localConfigs`
 
-> **Declarative Agents:** Apply the [structural routing gate](declarative-agent-lifecycle.md#structural-routing-gate). The ATK guidance below applies only when that gate selects ATK.
+> **Declarative Agents:** Apply the [DA routing rule](declarative-agent-lifecycle.md#da-routing). The ATK guidance below applies only to TypeSpec DA projects.
 
 ## purpose
 

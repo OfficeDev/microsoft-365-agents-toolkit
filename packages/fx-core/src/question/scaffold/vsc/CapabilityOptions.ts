@@ -2,8 +2,8 @@
 // Licensed under the MIT license.
 
 import { Inputs, OptionItem } from "@microsoft/teamsfx-api";
-import { featureFlagManager, FeatureFlagName, FeatureFlags } from "../../../common/featureFlags";
-import { getFeatureFlaggedLabel, getLocalizedString } from "../../../common/localizeUtils";
+import { featureFlagManager, FeatureFlags } from "../../../common/featureFlags";
+import { getLocalizedString } from "../../../common/localizeUtils";
 import { TemplateNames } from "../../../component/generator/templates/templateNames";
 import {
   HostType,
@@ -73,18 +73,6 @@ export class TabCapabilityOptions {
           command: "fx-extension.openTutorial",
         },
       ],
-    };
-  }
-
-  // TODO: need further sub-options to decide template name
-  static SPFxTab(): OptionItem {
-    return {
-      id: "tab-spfx",
-      label: getLocalizedString("core.TabSPFxOption.labelNew"),
-      description: getLocalizedString(
-        "core.createProjectQuestion.option.description.worksInOutlookM365"
-      ),
-      detail: getLocalizedString("core.TabSPFxOption.detailNew"),
     };
   }
 }
@@ -561,12 +549,7 @@ export class DACapabilityOptions {
       DACapabilityOptions.noPlugin(),
       DACapabilityOptions.withPlugin(),
       DACapabilityOptions.withGC(),
-      ...(featureFlagManager.getBooleanValue(FeatureFlags.Frontier)
-        ? [DACapabilityOptions.withSkill()].map((option) => ({
-            ...option,
-            label: getFeatureFlaggedLabel(option.label, FeatureFlagName.Frontier),
-          }))
-        : []),
+      DACapabilityOptions.withSkill(),
       DACapabilityOptions.typeSpec(),
     ];
     return items;

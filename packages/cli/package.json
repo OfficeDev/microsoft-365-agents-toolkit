@@ -1,11 +1,11 @@
 {
   "name": "@microsoft/m365agentstoolkit-cli",
-  "version": "1.1.18",
+  "version": "1.1.19",
   "author": "Microsoft Corporation",
   "description": "Microsoft 365 Agents Toolkit CLI",
   "license": "MIT",
   "engines": {
-    "node": ">=12"
+    "node": "^20.19.0 || >=22.12.0"
   },
   "repository": {
     "type": "git",
@@ -24,6 +24,7 @@
     "test:coverage:changed": "node scripts/run-changed-coverage.js",
     "test:helper": "vitest run tests/unit/helper.tests.ts --config vitest.config.ts",
     "test:engine": "vitest run tests/unit/engine.tests.ts --config vitest.config.ts",
+    "test:actions:cli": "node tests/executeAction.smoke.cjs",
     "test:cmds": "vitest run tests/unit/cmds/**/*.tests.ts --config vitest.config.ts",
     "test:commands": "vitest run tests/unit/commands.tests.ts tests/unit/commands/**/*.tests.ts --config vitest.config.ts",
     "test:telemetry": "vitest run tests/unit/telemetry.tests.ts tests/unit/telemetry/**/*.tests.ts --config vitest.config.ts",

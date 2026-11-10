@@ -19,6 +19,7 @@ const azureSPPath = os.homedir() + `/.${ConfigFolderName}/account/azure.sp`;
 
 // the friendly service name to store secret in keytar
 const serviceName = "Microsoft 365 Agents Toolkit";
+const secureStorageUnavailableMessage = "Secure credential storage is unavailable.";
 
 export const UTF8 = "utf8";
 
@@ -40,67 +41,57 @@ export class AccountCrypto {
 
   public async encrypt(content: string): Promise<string> {
     const key = await this.getKey();
-    if (key) {
-      const iv = crypto.randomBytes(16);
-      const cipher = crypto.createCipheriv(this.algorithm, key, iv);
-      const encrypted = Buffer.concat([cipher.update(content, UTF8), cipher.final()]);
-      const tag = cipher.getAuthTag();
-      return JSON.stringify({
-        i: iv.toString("hex"),
-        c: encrypted.toString("hex"),
-        t: tag.toString("hex"),
-      });
-    } else {
-      // no key, return plain text
-      return content;
-    }
+    const iv = crypto.randomBytes(16);
+    const cipher = crypto.createCipheriv(this.algorithm, key, iv);
+    const encrypted = Buffer.concat([cipher.update(content, UTF8), cipher.final()]);
+    const tag = cipher.getAuthTag();
+    return JSON.stringify({
+      i: iv.toString("hex"),
+      c: encrypted.toString("hex"),
+      t: tag.toString("hex"),
+    });
   }
 
   public async decrypt(content: string): Promise<string> {
     const key = await this.getKey();
-    if (key) {
-      const object = JSON.parse(content);
-      const decipher = crypto.createDecipheriv(this.algorithm, key, Buffer.from(object.i, "hex"));
-      decipher.setAuthTag(Buffer.from(object.t, "hex"));
-      const decrpyted = Buffer.concat([
-        decipher.update(Buffer.from(object.c, "hex")),
-        decipher.final(),
-      ]);
-      return decrpyted.toString(UTF8);
-    } else {
-      // no key, return plain text
-      return content;
-    }
+    const object = JSON.parse(content);
+    const decipher = crypto.createDecipheriv(this.algorithm, key, Buffer.from(object.i, "hex"));
+    decipher.setAuthTag(Buffer.from(object.t, "hex"));
+    const decrpyted = Buffer.concat([
+      decipher.update(Buffer.from(object.c, "hex")),
+      decipher.final(),
+    ]);
+    return decrpyted.toString(UTF8);
   }
 
-  private async getKey(): Promise<string | undefined> {
+  private async getKey(): Promise<string> {
     if (this.currentKey) {
-      // only return valid key
-      return this.currentKey.length === 32 ? this.currentKey : undefined;
-    } else {
-      try {
-        if (this.keytar) {
-          let key = await this.keytar.getPassword(serviceName, this.accountName);
-          if (!key || key.length !== 32) {
-            key = crypto.randomBytes(256).toString("hex").slice(0, 32);
-            await this.keytar.setPassword(serviceName, this.accountName, key);
-
-            // validate key again
-            const savedKey = await this.keytar.getPassword(serviceName, this.accountName);
-            if (savedKey === key) {
-              this.currentKey = key;
-            }
-          } else {
-            this.currentKey = key;
-          }
-        }
-      } catch {
-        // ignore keytar error and assign an invalid value
-        this.currentKey = "Unknown";
+      if (this.currentKey.length === 32) {
+        return this.currentKey;
       }
+      throw new Error(secureStorageUnavailableMessage);
     }
 
-    return this.currentKey?.length === 32 ? this.currentKey : undefined;
+    if (!this.keytar) {
+      throw new Error(secureStorageUnavailableMessage);
+    }
+
+    try {
+      let key = await this.keytar.getPassword(serviceName, this.accountName);
+      if (!key || key.length !== 32) {
+        key = crypto.randomBytes(32).toString("hex").slice(0, 32);
+        await this.keytar.setPassword(serviceName, this.accountName, key);
+
+        const savedKey = await this.keytar.getPassword(serviceName, this.accountName);
+        if (savedKey !== key) {
+          throw new Error(secureStorageUnavailableMessage);
+        }
+      }
+      this.currentKey = key;
+      return key;
+    } catch {
+      throw new Error(secureStorageUnavailableMessage);
+    }
   }
 }
 
@@ -108,9 +99,9 @@ export class CryptoCachePlugin {
   private readonly accountName: string;
   private readonly accountCrypto: AccountCrypto;
 
-  constructor(accountName: string) {
+  constructor(accountName: string, accountCrypto?: AccountCrypto) {
     this.accountName = accountName;
-    this.accountCrypto = new AccountCrypto(accountName);
+    this.accountCrypto = accountCrypto ?? new AccountCrypto(accountName);
   }
 
   public async beforeCacheAccess(cacheContext: TokenCacheContext): Promise<void> {
@@ -121,42 +112,28 @@ export class CryptoCachePlugin {
         const text = await fs.readFile(fileCachePath, UTF8);
         if (text && text.length > 0) {
           try {
-            const data = await this.accountCrypto.decrypt(text);
+            let data: string;
+            try {
+              data = await this.accountCrypto.decrypt(text);
+            } catch (error) {
+              const oldObj = JSON.parse(text);
+              if (!isMsalCache(oldObj)) {
+                throw error;
+              }
+              data = text;
+              const encrypted = await this.accountCrypto.encrypt(data);
+              await fs.writeFile(fileCachePath, encrypted, { encoding: UTF8, mode: 0o600 });
+            }
             JSON.parse(data);
             cacheContext.tokenCache.deserialize(data);
           } catch (error) {
-            // throw error if the plain text is not token cache
-            let needThrow = true;
-            try {
-              const oldObj = JSON.parse(text);
-              if (oldObj.Account) {
-                needThrow = false;
-              }
-            } catch {
-              // plain text format error
-            }
-
-            if (needThrow) {
-              await fs.writeFile(fileCachePath, "", UTF8);
-              throw error;
-            } else {
-              cacheContext.tokenCache.deserialize(text);
-            }
+            await fs.remove(fileCachePath);
+            throw error;
           }
         }
       } catch (err: any) {
         VsCodeLogInstance.warning(
           "Cannot read token from cache, clean up account cache. " + err.message
-        );
-      }
-    } else {
-      try {
-        const data = cacheContext.tokenCache.serialize();
-        const text = await this.accountCrypto.encrypt(data);
-        await fs.writeFile(fileCachePath, text, UTF8);
-      } catch (err: any) {
-        VsCodeLogInstance.warning(
-          "Cannot write token to cache, clean up account cache. " + err.message
         );
       }
     }
@@ -169,8 +146,9 @@ export class CryptoCachePlugin {
       try {
         const data = cacheContext.tokenCache.serialize();
         const text = await this.accountCrypto.encrypt(data);
-        await fs.writeFile(fileCachePath, text, UTF8);
+        await fs.writeFile(fileCachePath, text, { encoding: UTF8, mode: 0o600 });
       } catch (err: any) {
+        await fs.remove(fileCachePath);
         VsCodeLogInstance.warning(
           "Cannot save token to cache, clean up account cache. " + err.message
         );
@@ -202,11 +180,9 @@ export async function saveAccountId(accountName: string, accountId?: string) {
 export async function clearCache(accountName: string) {
   await fs.ensureDir(cacheDir);
   try {
-    await fs.writeFile(cachePath + accountName + cachePathEnd, "");
+    await fs.remove(cachePath + accountName + cachePathEnd);
   } catch (err: any) {
-    VsCodeLogInstance.warning(
-      "Cannot write token to cache, clean up account cache. " + err.message
-    );
+    VsCodeLogInstance.warning("Cannot remove token cache, clean up account cache. " + err.message);
   }
 }
 
@@ -262,16 +238,20 @@ export class AzureSpCrypto {
     tenantId: string
   ): Promise<void> {
     await fs.ensureDir(cacheDir);
-    const data: AzureSPConfig = {
-      clientId: clientId,
-      secret: secret,
-      tenantId: tenantId,
-    };
-    await fs.writeFile(
-      azureSPPath,
-      await AzureSpCrypto.accountCrypto.encrypt(JSON.stringify(data)),
-      UTF8
-    );
+    try {
+      const data: AzureSPConfig = {
+        clientId: clientId,
+        secret: secret,
+        tenantId: tenantId,
+      };
+      const encrypted = await AzureSpCrypto.accountCrypto.encrypt(JSON.stringify(data));
+      await fs.writeFile(azureSPPath, encrypted, { encoding: UTF8, mode: 0o600 });
+    } catch (err: any) {
+      await fs.remove(azureSPPath);
+      VsCodeLogInstance.warning(
+        "Cannot save Azure service principal credentials securely. " + err.message
+      );
+    }
   }
 
   public static async clearAzureSP(): Promise<void> {
@@ -282,26 +262,60 @@ export class AzureSpCrypto {
   public static async loadAzureSP(): Promise<AzureSPConfig | undefined> {
     await fs.ensureDir(cacheDir);
     if (await fs.pathExists(azureSPPath)) {
-      const data = await AzureSpCrypto.accountCrypto.decrypt(await fs.readFile(azureSPPath, UTF8));
-      return JSON.parse(data);
+      try {
+        const text = await fs.readFile(azureSPPath, UTF8);
+        const parsed = JSON.parse(text);
+        if (isAzureSPConfig(parsed)) {
+          const encrypted = await AzureSpCrypto.accountCrypto.encrypt(text);
+          await fs.writeFile(azureSPPath, encrypted, { encoding: UTF8, mode: 0o600 });
+          return parsed;
+        }
+
+        const data = JSON.parse(await AzureSpCrypto.accountCrypto.decrypt(text));
+        if (isAzureSPConfig(data)) {
+          return data;
+        }
+      } catch (err: any) {
+        await fs.remove(azureSPPath);
+        VsCodeLogInstance.warning(
+          "Cannot load Azure service principal credentials securely. " + err.message
+        );
+      }
     }
 
     return undefined;
   }
 
   public static checkAzureSPFile(): boolean {
-    if (fs.existsSync(azureSPPath)) {
-      const data = fs.readFileSync(azureSPPath, UTF8);
-      const dataJson = JSON.parse(data);
-      if (Object.keys(dataJson).length > 0) {
-        return true;
-      } else {
-        return false;
-      }
-    } else {
+    try {
+      return fs.existsSync(azureSPPath) && fs.readFileSync(azureSPPath, UTF8).length > 0;
+    } catch {
       return false;
     }
   }
+}
+
+function isMsalCache(value: unknown): value is { Account: object } {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    "Account" in value &&
+    typeof value.Account === "object" &&
+    value.Account !== null
+  );
+}
+
+function isAzureSPConfig(value: unknown): value is AzureSPConfig {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    "clientId" in value &&
+    typeof value.clientId === "string" &&
+    "secret" in value &&
+    typeof value.secret === "string" &&
+    "tenantId" in value &&
+    typeof value.tenantId === "string"
+  );
 }
 
 export type AzureSPConfig = {

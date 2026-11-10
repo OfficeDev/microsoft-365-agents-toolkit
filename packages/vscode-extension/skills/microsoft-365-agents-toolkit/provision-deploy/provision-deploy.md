@@ -2,7 +2,7 @@
 
 Provision Azure and M365 resources, then deploy your agent to the cloud.
 
-For a Declarative Agent, apply the [structural routing gate](../toolkit/declarative-agent-lifecycle.md#structural-routing-gate). This ATK workflow applies only when the project has project-owned backend source and corresponding backend deployment actions or is a TypeSpec DA project.
+For a Declarative Agent, apply the [DA routing rule](../toolkit/declarative-agent-lifecycle.md#da-routing). This ATK workflow applies only to TypeSpec DA projects; delegate every other DA deployment to the WIQD plugin.
 
 ## Local Provisioning (for Teams testing)
 
@@ -84,9 +84,9 @@ For custom engine agents using Azure OpenAI, add env vars to the YAML and set th
 
 ## Expert Deep Dives
 
-> **Applies to non-DA ATK projects and DAs routed to ATK by the [structural routing gate](../toolkit/declarative-agent-lifecycle.md#structural-routing-gate)** — the lifecycle/environments/publish experts cover the YAML-driven `atk provision/deploy/publish` flow.
+> **Applies to non-DA ATK projects and TypeSpec DAs selected by the [DA routing rule](../toolkit/declarative-agent-lifecycle.md#da-routing)** — the lifecycle/environments/publish experts cover the YAML-driven `atk provision/deploy/publish` flow.
 >
-> The **azure-bot-deploy** expert applies only to projects that deploy code to Azure (Teams bots, custom engine agents, RAG agents, message extensions, or a DA with project-owned backend compute). Pure declarative agents and DAs backed by existing external APIs don't deploy compute and can ignore it.
+> The **azure-bot-deploy** expert applies only to non-DA ATK projects that deploy code to Azure, such as Teams bots, custom engine agents, RAG agents, and message extensions. The WIQD plugin coordinates Azure skills for non-TypeSpec DA backends.
 
 | Topic | Expert |
 |---|---|

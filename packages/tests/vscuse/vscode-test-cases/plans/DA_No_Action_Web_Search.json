@@ -635,7 +635,7 @@
         "x": 410,
         "y": 52
       },
-      "description": "Click the “Notifications: Clear All Notifications” command in the Visual Studio Code command palette dropdown.",
+      "description": "Click the \u201cNotifications: Clear All Notifications\u201d command in the Visual Studio Code command palette dropdown.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,

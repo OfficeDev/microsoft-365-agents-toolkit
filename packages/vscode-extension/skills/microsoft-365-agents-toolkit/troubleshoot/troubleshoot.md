@@ -2,7 +2,7 @@
 
 Consolidated troubleshooting for ATK projects — provisioning, runtime, Playground, and Teams issues.
 
-For Declarative Agent lifecycle failures on the WIQD route, use `wiqd doctor`, `wiqd auth status`, and [declarative-agent-lifecycle.md](../toolkit/declarative-agent-lifecycle.md); do not fall back to ATK. DAs with project-owned backend deployment and TypeSpec projects remain on ATK. Schema questions do not require WIQD.
+For non-TypeSpec Declarative Agent lifecycle failures, invoke the `wiqd` skill and let the plugin diagnose and recover its workflow; do not run WIQD CLI commands directly or fall back to ATK. TypeSpec DA projects remain on ATK. Answer read-only schema questions locally without invoking the plugin.
 
 ## Error Code Quick Reference
 
