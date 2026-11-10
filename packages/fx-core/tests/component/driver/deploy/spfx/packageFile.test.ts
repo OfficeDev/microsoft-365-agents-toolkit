@@ -639,6 +639,322 @@ describe("SharePoint package inspection", () => {
     }
   });
 
+  it.each([
+    {
+      name: "missing manifest",
+      part: "manifest.json",
+      value: undefined,
+      code: "InvalidApplicationPackage",
+    },
+    {
+      name: "non-object manifest",
+      part: "manifest.json",
+      value: "[]",
+      code: "InvalidPackageMetadata",
+    },
+    {
+      name: "malformed manifest",
+      part: "manifest.json",
+      value: "{",
+      code: "InvalidPackageMetadata",
+    },
+    {
+      name: "non-object agent",
+      part: "declarativeAgent.json",
+      value: "null",
+      code: "InvalidPackageMetadata",
+    },
+    {
+      name: "malformed agent",
+      part: "declarativeAgent.json",
+      value: "{",
+      code: "InvalidPackageMetadata",
+    },
+    {
+      name: "missing agent",
+      part: "declarativeAgent.json",
+      value: undefined,
+      code: "MissingAgentManifest",
+    },
+  ])("SPFX-PREP-14: refuses $name through the public buffer API", async ({ part, value, code }) => {
+    const application = new AdmZip(createApplicationPackage("agent"));
+    if (value === undefined) application.deleteFile(part);
+    else application.updateFile(part, Buffer.from(value));
+    const bytes = application.toBuffer();
+    const original = Buffer.from(bytes);
+    const result = await assembleSharePointApplicationPackage({
+      applicationPackage: bytes,
+      sharePointPackage: createSppkg(),
+    });
+    expect(result.isErr()).toBe(true);
+    if (result.isErr()) expect(result.error.code).toBe(code);
+    expect(bytes).toEqual(original);
+  });
+
+  it.each([
+    { name: "invalid app ID", field: "id", value: "not-an-id", code: "InvalidApplicationIdentity" },
+    {
+      name: "invalid app version",
+      field: "version",
+      value: "1.2",
+      code: "InvalidApplicationIdentity",
+    },
+    {
+      name: "invalid agent container",
+      field: "copilotAgents",
+      value: "agent",
+      code: "InvalidApplicationPackage",
+    },
+    {
+      name: "non-array agent references",
+      field: "copilotAgents",
+      value: { declarativeAgents: {} },
+      code: "InvalidApplicationPackage",
+    },
+    {
+      name: "non-object agent reference",
+      field: "copilotAgents",
+      value: { declarativeAgents: [null] },
+      code: "InvalidApplicationPackage",
+    },
+    {
+      name: "missing agent path",
+      field: "copilotAgents",
+      value: { declarativeAgents: [{ id: "agent" }] },
+      code: "InvalidAgentReference",
+    },
+    {
+      name: "absolute agent path",
+      field: "copilotAgents",
+      value: { declarativeAgents: [{ id: "agent", file: "/declarativeAgent.json" }] },
+      code: "InvalidAgentReference",
+    },
+    {
+      name: "multiple agent references",
+      field: "copilotAgents",
+      value: { declarativeAgents: [{ file: "declarativeAgent.json" }, { file: "another.json" }] },
+      code: "UnsupportedApplicationPackage",
+    },
+    {
+      name: "non-array connectors",
+      field: "agentConnectors",
+      value: {},
+      code: "InvalidAgentConnectors",
+    },
+    {
+      name: "non-object connector",
+      field: "agentConnectors",
+      value: [null],
+      code: "InvalidAgentConnectors",
+    },
+  ])(
+    "SPFX-PREP-14: rejects $name without altering caller input",
+    async ({ field, value, code }) => {
+      const application = new AdmZip(createApplicationPackage("agent"));
+      const manifest = JSON.parse(application.readAsText("manifest.json"));
+      manifest[field] = value;
+      application.updateFile("manifest.json", Buffer.from(JSON.stringify(manifest)));
+      const result = await assembleSharePointApplicationPackage({
+        applicationPackage: application.toBuffer(),
+        sharePointPackage: createSppkg(),
+      });
+      expect(result.isErr()).toBe(true);
+      if (result.isErr()) expect(result.error.code).toBe(code);
+    }
+  );
+
+  it.each([{}, [null]])("SPFX-PREP-14: rejects malformed action arrays (%j)", async (actions) => {
+    const application = new AdmZip(createApplicationPackage("agent"));
+    const agent = JSON.parse(application.readAsText("declarativeAgent.json"));
+    agent.actions = actions;
+    application.updateFile("declarativeAgent.json", Buffer.from(JSON.stringify(agent)));
+    const result = await assembleSharePointApplicationPackage({
+      applicationPackage: application.toBuffer(),
+      sharePointPackage: createSppkg(),
+    });
+    expect(result.isErr()).toBe(true);
+    if (result.isErr()) expect(result.error.code).toBe("InvalidAgentActions");
+  });
+
+  it("SPFX-PREP-12: supports the legacy agent container and an omitted actions array", async () => {
+    const application = new AdmZip(createApplicationPackage("agent"));
+    const manifest = JSON.parse(application.readAsText("manifest.json"));
+    manifest.copilotExtensions = { declarativeCopilots: manifest.copilotAgents.declarativeAgents };
+    manifest.copilotAgents = {};
+    const agent = JSON.parse(application.readAsText("declarativeAgent.json"));
+    delete agent.actions;
+    application.updateFile("manifest.json", Buffer.from(JSON.stringify(manifest)));
+    application.updateFile("declarativeAgent.json", Buffer.from(JSON.stringify(agent)));
+    const result = await assembleSharePointApplicationPackage({
+      applicationPackage: application.toBuffer(),
+      sharePointPackage: createSppkg(),
+    });
+    expect(result.isErr() ? result.error : undefined).toBeUndefined();
+    if (result.isErr()) return;
+    const output = new AdmZip(result.value.packageBytes);
+    expect(JSON.parse(output.readAsText("manifest.json"))).toEqual(manifest);
+    expect(JSON.parse(output.readAsText("declarativeAgent.json")).actions).toEqual([
+      { id: result.value.managedReference.id, file: result.value.managedReference.path },
+    ]);
+  });
+
+  it.each([
+    {
+      name: "missing runtime spec",
+      field: "runtimes",
+      value: [{ type: "RemoteMCPServer" }],
+      code: "InvalidTenantNeutralPlugin",
+    },
+    {
+      name: "non-string endpoint",
+      field: "runtimes",
+      value: [{ type: "RemoteMCPServer", spec: { url: 123 } }],
+      code: "InvalidTenantNeutralPlugin",
+    },
+    {
+      name: "already resolved source endpoint",
+      field: "runtimes",
+      value: [{ type: "RemoteMCPServer", spec: { url: "https://foreign.example.test/mcp" } }],
+      code: "InvalidTenantNeutralPlugin",
+    },
+    {
+      name: "invalid namespace",
+      field: "namespace",
+      value: "namespace with spaces",
+      code: "InvalidPluginIdentity",
+    },
+    {
+      name: "empty display name",
+      field: "name_for_human",
+      value: "",
+      code: "InvalidPluginIdentity",
+    },
+  ])("SPFX-PREP-14: refuses $name in the source contribution", async ({ field, value, code }) => {
+    const source = new AdmZip(createSppkg());
+    const nestedBytes = source.readFile(agentPackageName);
+    if (!nestedBytes) throw new Error("Missing fixture agent package.");
+    const nested = new AdmZip(nestedBytes);
+    const plugin = JSON.parse(nested.readAsText("ai-plugin.json"));
+    plugin[field] = value;
+    nested.updateFile("ai-plugin.json", Buffer.from(JSON.stringify(plugin)));
+    source.updateFile(agentPackageName, nested.toBuffer());
+    const result = await assembleSharePointApplicationPackage({
+      applicationPackage: createApplicationPackage("agent"),
+      sharePointPackage: source.toBuffer(),
+    });
+    expect(result.isErr()).toBe(true);
+    if (result.isErr()) expect(result.error.code).toBe(code);
+  });
+
+  it.each([
+    {
+      name: "ambiguous managed references",
+      reference: [
+        { id: "spfx-api-first", file: userPluginPath },
+        { id: "spfx-api-second", file: userPluginPath },
+      ],
+      code: "AmbiguousManagedPluginReference",
+    },
+    {
+      name: "unsafe managed path",
+      reference: [{ id: "spfx-api-first", file: "/unsafe.json" }],
+      code: "AmbiguousManagedPluginReference",
+    },
+    {
+      name: "missing managed path",
+      reference: [{ id: "spfx-api-first" }],
+      code: "AmbiguousManagedPluginReference",
+    },
+    {
+      name: "unbacked unknown managed path",
+      reference: [{ id: "spfx-api-first", file: "plugins/unknown.json" }],
+      code: "AmbiguousManagedPluginReference",
+    },
+    {
+      name: "nonmatching ownership",
+      reference: [{ id: "spfx-api-first", file: userPluginPath }],
+      code: "ApplicationPackageCollision",
+    },
+  ])("SPFX-PREP-14: rejects $name rather than guessing ownership", async ({ reference, code }) => {
+    const application = new AdmZip(createApplicationPackage("agent"));
+    const agent = JSON.parse(application.readAsText("declarativeAgent.json"));
+    agent.actions.push(...reference);
+    application.updateFile("declarativeAgent.json", Buffer.from(JSON.stringify(agent)));
+    const result = await assembleSharePointApplicationPackage({
+      applicationPackage: application.toBuffer(),
+      sharePointPackage: createSppkg(),
+    });
+    expect(result.isErr()).toBe(true);
+    if (result.isErr()) expect(result.error.code).toBe(code);
+  });
+
+  it.each([
+    "{",
+    "null",
+    '{"runtimes":[null]}',
+    '{"runtimes":[{"type":"RemoteMCPServer","spec":{}}]}',
+    '{"runtimes":[{"type":"RemoteMCPServer","spec":{"url":"not a URL"}}]}',
+  ])(
+    "SPFX-PREP-14: refuses invalid or unrelated content at an owned managed path (%s)",
+    async (content) => {
+      const sharePointPackage = createSppkg();
+      const first = await assembleSharePointApplicationPackage({
+        applicationPackage: createApplicationPackage("agent"),
+        sharePointPackage,
+      });
+      if (first.isErr()) throw first.error;
+      const application = new AdmZip(first.value.packageBytes);
+      application.updateFile(first.value.managedReference.path, Buffer.from(content));
+      const result = await assembleSharePointApplicationPackage({
+        applicationPackage: application.toBuffer(),
+        sharePointPackage,
+      });
+      expect(result.isErr()).toBe(true);
+      if (result.isErr()) {
+        expect(result.error.code).toBe(
+          content === "{" || content === "null"
+            ? "InvalidPackageMetadata"
+            : "ApplicationPackageCollision"
+        );
+      }
+    }
+  );
+
+  it("SPFX-PREP-14: does not overwrite an unreferenced file at the deterministic plugin path", async () => {
+    const sharePointPackage = createSppkg();
+    const first = await assembleSharePointApplicationPackage({
+      applicationPackage: createApplicationPackage("agent"),
+      sharePointPackage,
+    });
+    if (first.isErr()) throw first.error;
+    const application = new AdmZip(createApplicationPackage("agent"));
+    application.addFile(first.value.managedReference.path, Buffer.from("user-owned file"));
+    const result = await assembleSharePointApplicationPackage({
+      applicationPackage: application.toBuffer(),
+      sharePointPackage,
+    });
+    expect(result.isErr()).toBe(true);
+    if (result.isErr()) expect(result.error.code).toBe("ApplicationPackageCollision");
+  });
+
+  it("SPFX-PREP-14: refuses a legacy content-hash contribution belonging to another plugin", async () => {
+    const sharePointPackage = createSppkg();
+    const application = new AdmZip(createApplicationPackage("agent"));
+    const unrelated = Buffer.from(JSON.stringify({ namespace: "unrelated", functions: [] }));
+    const id = `spfx-api-${createHash("sha256").update(unrelated).digest("hex").slice(0, 16)}`;
+    const file = `plugins/${id}.json`;
+    const agent = JSON.parse(application.readAsText("declarativeAgent.json"));
+    agent.actions.push({ id, file });
+    application.updateFile("declarativeAgent.json", Buffer.from(JSON.stringify(agent)));
+    application.addFile(file, unrelated);
+    const result = await assembleSharePointApplicationPackage({
+      applicationPackage: application.toBuffer(),
+      sharePointPackage,
+    });
+    expect(result.isErr()).toBe(true);
+    if (result.isErr()) expect(result.error.code).toBe("ApplicationPackageCollision");
+  });
+
   it("SPFX-PREP-04: rejects ambiguous nested agent packages instead of selecting one", async () => {
     const directory = await fs.mkdtemp(path.join(os.tmpdir(), "spfx-ambiguous-"));
     directories.push(directory);

@@ -22,6 +22,7 @@ import { SPFxDeployDriver } from "../../../../../src/component/driver/deploy/spf
 import {
   loadPreparedPublication,
   preparePublication,
+  PreparedPublicationJournal,
   PreparedPublicationOutput,
   verifyPreparedApplicationPackage,
   verifyPreparedArtifact,
@@ -473,6 +474,75 @@ describe("Prepared SharePoint publication contracts", () => {
       expect(errorCode(result.result)).toBe("PublicationCancelled");
       expect(requests).toHaveLength(0);
       expect(await preparedDirectoryExists()).toBe(false);
+    });
+
+    it.each(["Graph", "SharePoint"])(
+      "SPFX-PREP-05: refuses preparation when %s token claims cannot be obtained",
+      async (resource) => {
+        await writeInputs();
+        const { context } = createContext();
+        const unavailable: Result<Record<string, unknown>, FxError> = err(
+          new UserError({
+            source: "fixture",
+            name: "TokenUnavailable",
+            message: "Claims unavailable.",
+          })
+        );
+        const claims = vi.mocked(context.m365TokenProvider.getJsonObject);
+        if (resource === "SharePoint") {
+          claims.mockResolvedValueOnce(ok({ tid: tenantId, aud: "https://graph.microsoft.com" }));
+        }
+        claims.mockResolvedValueOnce(unavailable);
+        const result = await new PreparePublicationDriver().execute(args, context, outputNames);
+        expect(errorCode(result.result)).toBe(`${resource}TokenIdentityUnavailable`);
+        expect(requests).toHaveLength(0);
+        expect(await preparedDirectoryExists()).toBe(false);
+      }
+    );
+
+    it("SPFX-PREP-05: accepts claims envelopes and resource application-ID audiences", async () => {
+      await writeInputs();
+      const { context } = createContext();
+      vi.mocked(context.m365TokenProvider.getJsonObject)
+        .mockResolvedValueOnce(
+          ok({ value: { tid: tenantId, aud: "00000003-0000-0000-c000-000000000000" } })
+        )
+        .mockResolvedValueOnce(
+          ok({ value: { tid: tenantId, aud: "00000003-0000-0ff1-ce00-000000000000" } })
+        );
+      route = catalogRoute({ deployed: false });
+      const result = await new PreparePublicationDriver().execute(args, context, outputNames);
+      expect(result.result.isErr() ? result.result.error : undefined).toBeUndefined();
+      expect(posts()).toHaveLength(0);
+    });
+
+    it.each(["missing input", "invalid project"])(
+      "SPFX-PREP-05: preserves the %s error at the preparation driver boundary",
+      async (condition) => {
+        await writeInputs();
+        const { context } = createContext();
+        if (condition === "invalid project")
+          context.projectPath = path.join(projectPath ?? "", "missing");
+        else await fs.remove(path.join(projectPath ?? "", args.packagePath));
+        const result = await new PreparePublicationDriver().execute(args, context, outputNames);
+        expect(errorCode(result.result)).toBe(
+          condition === "invalid project" ? "ProjectPathUnavailable" : "InputReadFailed"
+        );
+        expect(requests).toHaveLength(0);
+      }
+    );
+
+    it("SPFX-PREP-08: cancellation while obtaining the SharePoint token prevents catalog discovery", async () => {
+      await writeInputs();
+      const controller = new AbortController();
+      const { context } = createContext({}, controller.signal);
+      vi.mocked(Tools.getSPFxToken).mockImplementation(async () => {
+        controller.abort();
+        return "token";
+      });
+      const result = await new PreparePublicationDriver().execute(args, context, outputNames);
+      expect(errorCode(result.result)).toBe("PublicationCancelled");
+      expect(requests).toHaveLength(0);
     });
   });
 
@@ -1692,6 +1762,300 @@ describe("Prepared SharePoint publication contracts", () => {
 
       expect(result.isErr() && result.error.code).toBe(code);
     });
+  });
+
+  describe("durable mutation boundaries", () => {
+    async function externalUpdate(
+      prepared: PreparedPublicationOutput,
+      change: (journal: PreparedPublicationJournal) => void
+    ): Promise<void> {
+      const journal = await journalOf(prepared);
+      change(journal);
+      await fs.writeJson(path.join(projectPath ?? "", prepared.preparedPublicationPath), journal);
+    }
+
+    describe.each(["deployment", "submission"])("%s preflight", (operation) => {
+      it.each([
+        ["missing journal", "JournalReadFailed"],
+        ["changed source", "SourceHashMismatch"],
+        ["SharePoint identity", "SharePointArtifactIdentityMismatch"],
+        ["application identity", "ApplicationArtifactIdentityMismatch"],
+      ])("SPFX-PREP-06: refuses %s before approval or network writes", async (failure, code) => {
+        const { root, prepared } = await prepareProject();
+        const catalog: FakeCatalog = { deployed: false };
+        if (operation === "submission") await verifySharePoint(prepared, catalog);
+        if (failure === "missing journal") {
+          await fs.remove(path.join(root, prepared.preparedPublicationPath));
+        } else if (failure === "changed source") {
+          await fs.appendFile(path.join(root, "sharepoint", "solution.sppkg"), "changed");
+        } else {
+          await externalUpdate(prepared, (journal) => {
+            if (failure === "SharePoint identity") journal.sourceSharePoint.version = "9.9.9.9";
+            else journal.applicationArtifact.version = "9.9.9";
+          });
+        }
+        route = catalogRoute(catalog);
+        const { context, approvals } = createContext();
+        const result =
+          operation === "submission"
+            ? (await new PublishAppPackageDriver().execute(publishArgs(prepared), context)).result
+            : await new SPFxDeployDriver().run(deployArgs(prepared), context);
+        expect(
+          result.isErr()
+            ? operation === "submission"
+              ? result.error.name
+              : result.error.message
+            : undefined
+        ).toBe(code);
+        expect(approvals()).toBe(0);
+        expect(requests).toHaveLength(0);
+      });
+    });
+
+    it("SPFX-PREP-06: deployment refuses validly formatted but unbound YAML hashes", async () => {
+      const { prepared } = await prepareProject();
+      const { context, approvals } = createContext();
+      const result = await new SPFxDeployDriver().run(
+        {
+          ...deployArgs(prepared),
+          sourcePackageSha256: "0".repeat(64),
+        },
+        context
+      );
+      expect(errorCode(result)).toBe("PreparedPublicationHashBindingMismatch");
+      expect(approvals()).toBe(0);
+      expect(requests).toHaveLength(0);
+    });
+
+    it("SPFX-PREP-08: a prepared journal cannot replay a previously confirmed upload", async () => {
+      const { prepared } = await prepareProject();
+      await externalUpdate(prepared, (journal) => {
+        journal.sharePointArtifact.uploadState = "confirmed";
+      });
+      route = catalogRoute({ deployed: false });
+      const { context, approvals } = createContext();
+      const result = await new SPFxDeployDriver().run(deployArgs(prepared), context);
+      expect(errorCode(result)).toBe("InvalidPreparedUploadState");
+      expect(approvals()).toBe(0);
+      expect(posts()).toHaveLength(0);
+    });
+
+    const verificationFields: ("catalogUrl" | "fileName")[] = ["catalogUrl", "fileName"];
+    it.each(verificationFields)(
+      "SPFX-PREP-07: submission refuses missing SharePoint %s evidence without any request",
+      async (field) => {
+        const { prepared } = await prepareProject();
+        await verifySharePoint(prepared, { deployed: false });
+        await externalUpdate(prepared, (journal) => {
+          delete journal.sharePointArtifact[field];
+        });
+        const { context, approvals } = createContext();
+        const result = await new PublishAppPackageDriver().execute(publishArgs(prepared), context);
+        expect(result.result.isErr() ? result.result.error.name : undefined).toBe(
+          "MissingSharePointVerificationData"
+        );
+        expect(approvals()).toBe(0);
+        expect(requests).toHaveLength(0);
+        expect((await journalOf(prepared)).state).toBe("sharePointVerified");
+      }
+    );
+
+    it.each(["upload", "deployment", "submission"])(
+      "SPFX-PREP-08: cancellation immediately after the %s intent is committed restores only the known pre-write state",
+      async (stage) => {
+        const { prepared } = await prepareProject();
+        const catalog: FakeCatalog = { deployed: false };
+        if (stage === "submission") await verifySharePoint(prepared, catalog);
+        const controller = new AbortController();
+        const rename = fs.rename.bind(fs);
+        const targetState =
+          stage === "upload"
+            ? "sharePointUploadInFlight"
+            : stage === "deployment"
+              ? "sharePointDeployInFlight"
+              : "appSubmissionInFlight";
+        vi.spyOn(fs, "rename").mockImplementation(async (from, to) => {
+          await rename(from, to);
+          if (path.basename(String(to)) === "journal.json") {
+            const journal = await journalOf(prepared);
+            if (journal.state === targetState) controller.abort();
+          }
+        });
+        route = graphAndCatalogRoute(catalog, {
+          submit: async () => {
+            throw new Error("Submission must not start.");
+          },
+        });
+        const { context } = createContext({}, controller.signal);
+        const result =
+          stage === "submission"
+            ? (await new PublishAppPackageDriver().execute(publishArgs(prepared), context)).result
+            : await new SPFxDeployDriver().run(deployArgs(prepared), context);
+        expect(result.isErr() ? result.error : undefined).toBeInstanceOf(UserCancelError);
+        const journal = await journalOf(prepared);
+        expect(journal.state).toBe(
+          stage === "upload"
+            ? "prepared"
+            : stage === "deployment"
+              ? "sharePointUploaded"
+              : "sharePointVerified"
+        );
+        expect(journal.sharePointArtifact.uploadState).toBe(
+          stage === "upload" ? "notStarted" : "confirmed"
+        );
+        expect(journal.applicationArtifact.submissionState).toBe("notStarted");
+        expect(posts()).toHaveLength(stage === "deployment" ? 1 : 0);
+      }
+    );
+
+    it.each([
+      { stage: "upload approval", boundary: "approval", mutation: "upload", failure: false },
+      { stage: "upload response", boundary: "response", mutation: "upload", failure: false },
+      { stage: "upload failure", boundary: "response", mutation: "upload", failure: true },
+      {
+        stage: "deployment approval",
+        boundary: "approval",
+        mutation: "deployment",
+        failure: false,
+      },
+      {
+        stage: "deployment response",
+        boundary: "response",
+        mutation: "deployment",
+        failure: false,
+      },
+      { stage: "deployment failure", boundary: "response", mutation: "deployment", failure: true },
+      {
+        stage: "final verification",
+        boundary: "verification",
+        mutation: "deployment",
+        failure: false,
+      },
+    ])(
+      "SPFX-PREP-08: an external state change at $stage is not overwritten or followed by another write",
+      async ({ boundary, mutation, failure }) => {
+        const { prepared } = await prepareProject();
+        const catalog: FakeCatalog = { deployed: false };
+        const serve = catalogRoute(catalog);
+        let changed = false;
+        const change = async () => {
+          changed = true;
+          await externalUpdate(prepared, (journal) => {
+            journal.state = "unknown";
+          });
+        };
+        route = async (config) => {
+          const matches =
+            config.method === "post" &&
+            (mutation === "upload"
+              ? config.url?.includes("tenantappcatalog/Add(")
+              : config.url?.endsWith("/Deploy"));
+          if (boundary === "response" && matches) {
+            await change();
+            if (failure) return reply(config, 400, { error: { code: "Rejected" } });
+          }
+          const result = await serve(config);
+          if (
+            boundary === "verification" &&
+            !changed &&
+            catalog.deployed &&
+            config.url?.includes("AvailableApps")
+          ) {
+            await change();
+          }
+          return result;
+        };
+        const { context } = createContext();
+        if (!context.ui) throw new Error("Missing fixture UI.");
+        let approvals = 0;
+        vi.mocked(context.ui.showMessage).mockImplementation(async (_level, _message, modal) => {
+          if (modal) {
+            approvals += 1;
+            if (boundary === "approval" && approvals === (mutation === "upload" ? 1 : 2))
+              await change();
+          }
+          return ok("Confirm");
+        });
+        const result = await new SPFxDeployDriver().run(deployArgs(prepared), context);
+        expect(changed).toBe(true);
+        expect(errorCode(result)).toBe("JournalUpdateFailed");
+        expect((await journalOf(prepared)).state).toBe("unknown");
+        const expectedPosts =
+          mutation === "upload"
+            ? boundary === "approval"
+              ? 0
+              : 1
+            : boundary === "approval"
+              ? 1
+              : 2;
+        expect(posts()).toHaveLength(expectedPosts);
+        expect(graphPosts()).toHaveLength(0);
+      }
+    );
+
+    it.each(["approval", "success", "rejection"])(
+      "SPFX-PREP-08: an external submission-state change at %s cannot be overwritten",
+      async (boundary) => {
+        const { prepared } = await prepareProject();
+        const catalog: FakeCatalog = { deployed: false };
+        await verifySharePoint(prepared, catalog);
+        const change = async () =>
+          externalUpdate(prepared, (journal) => {
+            journal.applicationArtifact.submissionState = "unknown";
+          });
+        route = graphAndCatalogRoute(catalog, {
+          submit: async (config) => {
+            await change();
+            return reply(config, boundary === "rejection" ? 400 : 201, {
+              id: "catalog-id",
+              externalId: appId,
+            });
+          },
+        });
+        const { context } = createContext();
+        if (!context.ui) throw new Error("Missing fixture UI.");
+        if (boundary === "approval") {
+          vi.mocked(context.ui.showMessage).mockImplementation(async () => {
+            await change();
+            return ok("Confirm");
+          });
+        }
+        const result = await new PublishAppPackageDriver().execute(publishArgs(prepared), context);
+        expect(result.result.isErr() ? result.result.error.name : undefined).toBe(
+          "JournalUpdateFailed"
+        );
+        expect((await journalOf(prepared)).applicationArtifact.submissionState).toBe("unknown");
+        expect(graphPosts()).toHaveLength(boundary === "approval" ? 0 : 1);
+      }
+    );
+
+    it.each([
+      { state: "sharePointUploadInFlight", expected: "prepared", writes: 0 },
+      { state: "sharePointUploaded", expected: "sharePointUploadInFlight", writes: 1 },
+      { state: "sharePointDeployInFlight", expected: "sharePointUploaded", writes: 1 },
+      { state: "sharePointVerified", expected: "sharePointUploaded", writes: 2 },
+    ])(
+      "SPFX-PREP-08: failure to persist $state retains $expected and stops subsequent writes",
+      async ({ state, expected, writes }) => {
+        const { prepared } = await prepareProject();
+        const rename = fs.rename.bind(fs);
+        vi.spyOn(fs, "rename").mockImplementation(async (from, to) => {
+          if (path.basename(String(to)) === "journal.json") {
+            const pending = await fs.readJson(String(from));
+            if (pending.state === state) throw new Error("Journal storage unavailable.");
+          }
+          await rename(from, to);
+        });
+        route = catalogRoute({ deployed: false });
+        const result = await new SPFxDeployDriver().run(
+          deployArgs(prepared),
+          createContext().context
+        );
+        expect(errorCode(result)).toBe("JournalUpdateFailed");
+        expect((await journalOf(prepared)).state).toBe(expected);
+        expect(posts()).toHaveLength(writes);
+      }
+    );
   });
 
   it("keeps the fixture tenant identifier aligned with the publication context", () => {
