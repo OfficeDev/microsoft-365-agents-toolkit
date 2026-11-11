@@ -682,6 +682,29 @@ describe("Prepared SharePoint publication integration", () => {
       );
     }
 
+    const writesAfterSuccessfulPublication = writes.length;
+    const successfulReplay = await client.publish({
+      platform: Platform.VSCode,
+      nonInteractive: true,
+      projectPath,
+      env: "dev",
+    });
+    expect(
+      successfulReplay.isOk(),
+      successfulReplay.isErr()
+        ? `${successfulReplay.error.name}: ${successfulReplay.error.message}; data=${JSON.stringify(successfulReplay.error.data)}`
+        : ""
+    ).toBe(true);
+    expect(writes).toHaveLength(writesAfterSuccessfulPublication);
+    if (successfulReplay.isOk() && result.isOk()) {
+      expect(successfulReplay.value.outputs["PREP_PUBLICATION_ID"]).toBe(
+        result.value.outputs["PREP_PUBLICATION_ID"]
+      );
+      expect(successfulReplay.value.outputs["M365_PUBLISHED_APP_ID"]).toBe(
+        "published-teams-app-id"
+      );
+    }
+
     await fs.writeFile(
       path.join(projectPath, "sharepoint", "solution.sppkg"),
       createSppkg("1.2.3.5")

@@ -63,12 +63,17 @@ interface FakeCatalog {
   ignoreDeploy?: boolean;
 }
 
-function reply(config: InternalAxiosRequestConfig, status: number, data?: unknown): AxiosResponse {
+function reply(
+  config: InternalAxiosRequestConfig,
+  status: number,
+  data?: unknown,
+  responseHeaders?: Record<string, string>
+): AxiosResponse {
   const response: AxiosResponse = {
     data,
     status,
     statusText: String(status),
-    headers: new AxiosHeaders(),
+    headers: new AxiosHeaders(responseHeaders),
     config,
     request: {},
   };
@@ -1839,6 +1844,46 @@ describe("Prepared SharePoint publication contracts", () => {
       expect(approvals()).toBe(0);
       expect(posts()).toHaveLength(0);
     });
+
+    it.each(["upload", "deployment"])(
+      "SPFX-PREP-11: preserves allowlisted SharePoint %s rejection diagnostics",
+      async (stage) => {
+        const { prepared } = await prepareProject();
+        const serve = catalogRoute({ deployed: false });
+        route = async (config) => {
+          const matches =
+            config.method === "post" &&
+            (stage === "upload"
+              ? config.url?.includes("tenantappcatalog/Add(")
+              : config.url?.endsWith("/Deploy"));
+          return matches
+            ? reply(
+                config,
+                403,
+                { error: { code: "AccessDenied", message: "do not expose this response" } },
+                { "request-id": `sp-${stage}-request` }
+              )
+            : serve(config);
+        };
+        const { context } = createContext();
+        const result = await new SPFxDeployDriver().run(deployArgs(prepared), context);
+        expect(errorCode(result)).toBe(
+          stage === "upload" ? "SharePointUploadRejected" : "SharePointDeployRejected"
+        );
+        if (result.isErr()) {
+          expect(result.error.data).toMatchObject({
+            stage: stage === "upload" ? "sharePointUpload" : "sharePointDeploy",
+            lastDurableState: "rejected",
+            httpStatus: 403,
+            serviceCode: "AccessDenied",
+            requestId: `sp-${stage}-request`,
+          });
+          expect(result.error.data.lastSharePointVerifiedState).toBeUndefined();
+          expect(JSON.stringify(result.error.data)).not.toContain("do not expose this response");
+          expect(result.error.data).not.toHaveProperty("response");
+        }
+      }
+    );
 
     const verificationFields: ("catalogUrl" | "fileName")[] = ["catalogUrl", "fileName"];
     it.each(verificationFields)(

@@ -348,6 +348,7 @@ describe("Prepared SharePoint publication preparation", () => {
       state: "rejected",
       sharePointArtifact: {
         ...loaded.value.journal.sharePointArtifact,
+        uploadState: "confirmed",
         deployState: "confirmed",
       },
     };
@@ -527,7 +528,7 @@ describe("Prepared SharePoint publication preparation", () => {
       const stagedApplication = new AdmZip(
         await fs.readFile(path.join(projectPath, prepared.value.appPackagePath))
       );
-      const pluginBytes = stagedApplication.readFile(neutral.value.managedReference.path);
+      const pluginBytes = stagedApplication.readFile(neutral.value.managedReference.entryPath);
       expect(pluginBytes).not.toBeNull();
       if (pluginBytes === null) return;
       const plugin = JSON.parse(pluginBytes.toString("utf8"));

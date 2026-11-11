@@ -22,12 +22,13 @@ import {
 } from "./packageFile";
 import {
   assembleApplicationPackage,
+  resolvePackageReference,
   SharePointApplicationPackageError,
 } from "./applicationPackage";
 
 const journalVersion = 2;
-const previousTransformationIdentity = "spfx-copilot-plugin-v2";
-const transformationIdentity = "spfx-copilot-plugin-v3";
+const previousTransformationIdentities = ["spfx-copilot-plugin-v2", "spfx-copilot-plugin-v3"];
+const transformationIdentity = "spfx-copilot-plugin-v4";
 const publicationDirectory = path.join(".fx", "sharepoint-publications");
 export const preparedRequestSettlementTimeoutMs = 30_000;
 const tenantMcpUrlPlaceholder = /^\{\{\s*TENANT_MCP_URL\s*\}\}$/;
@@ -105,7 +106,10 @@ export interface PreparedPublicationJournal {
 }
 
 function isSupportedTransformationIdentity(value: unknown): value is string {
-  return value === transformationIdentity || value === previousTransformationIdentity;
+  return (
+    value === transformationIdentity ||
+    (typeof value === "string" && previousTransformationIdentities.includes(value))
+  );
 }
 
 export class PreparedPublicationError extends Error {
@@ -222,11 +226,8 @@ export function createPreparedPublicationErrorData(
     publicationId: journal?.publicationId,
     lastDurableState: journal?.state,
     lastSharePointVerifiedState:
-      journal?.state === "sharePointVerified" ||
-      journal?.state === "appSubmissionInFlight" ||
-      journal?.state === "unknown" ||
-      journal?.state === "rejected" ||
-      journal?.state === "submitted"
+      journal?.sharePointArtifact.uploadState === "confirmed" &&
+      journal.sharePointArtifact.deployState === "confirmed"
         ? "sharePointVerified"
         : undefined,
     tenantId: journal?.identity.tenantId,
@@ -487,9 +488,14 @@ async function findUnresolvedPublication(
       journal.identity.catalogUrl.toLowerCase() === identity.catalogUrl.toLowerCase()
     ) {
       if (
-        ["prepared", "sharePointUploaded", "sharePointVerified", "submitted"].includes(
-          journal.state
-        ) &&
+        journal.state === "submitted" &&
+        journal.sourceSharePoint.sha256 === identity.sourceSharePointSha256 &&
+        journal.sourceApplication.sha256 === identity.sourceApplicationSha256
+      ) {
+        return ok(journal);
+      }
+      if (
+        ["prepared", "sharePointUploaded", "sharePointVerified"].includes(journal.state) &&
         journal.transformation.id === transformationIdentity &&
         journal.sourceSharePoint.sha256 === identity.sourceSharePointSha256 &&
         journal.sourceApplication.sha256 === identity.sourceApplicationSha256
@@ -843,7 +849,16 @@ async function validatePreparedApplicationPackage(
       }
       for (const reference of references) {
         if (isRecord(reference) && typeof reference["file"] === "string") {
-          agentReferences.push(reference["file"]);
+          const agentPath = resolvePackageReference("manifest.json", reference["file"]);
+          if (!agentPath) {
+            return err(
+              new PreparedPublicationError(
+                "ApplicationSchemaValidationFailed",
+                "The staged application contains an invalid agent reference."
+              )
+            );
+          }
+          agentReferences.push(agentPath);
         }
       }
     }
@@ -857,18 +872,22 @@ async function validatePreparedApplicationPackage(
         isRecord(agentConnector["toolSource"]["plugin"]) &&
         typeof agentConnector["toolSource"]["plugin"]["file"] === "string"
       ) {
-        pluginReferences.add(agentConnector["toolSource"]["plugin"]["file"]);
+        const pluginPath = resolvePackageReference(
+          "manifest.json",
+          agentConnector["toolSource"]["plugin"]["file"]
+        );
+        if (!pluginPath) {
+          return err(
+            new PreparedPublicationError(
+              "ApplicationSchemaValidationFailed",
+              "The staged application contains an invalid API plugin reference."
+            )
+          );
+        }
+        pluginReferences.add(pluginPath);
       }
     }
     for (const agentPath of agentReferences) {
-      if (!isSafeRelativePath(agentPath)) {
-        return err(
-          new PreparedPublicationError(
-            "ApplicationSchemaValidationFailed",
-            "The staged application contains an invalid agent reference."
-          )
-        );
-      }
       const agentBytes = byName.get(agentPath);
       if (!agentBytes) {
         return err(
@@ -904,12 +923,20 @@ async function validatePreparedApplicationPackage(
         );
       }
       const actions = agentObject.value["actions"];
-      if (!Array.isArray(actions)) {
-        continue;
-      }
-      for (const action of actions) {
-        if (isRecord(action) && typeof action["file"] === "string") {
-          pluginReferences.add(action["file"]);
+      if (Array.isArray(actions)) {
+        for (const action of actions) {
+          if (isRecord(action) && typeof action["file"] === "string") {
+            const pluginPath = resolvePackageReference(agentPath, action["file"]);
+            if (!pluginPath) {
+              return err(
+                new PreparedPublicationError(
+                  "ApplicationSchemaValidationFailed",
+                  "The staged application contains an invalid API plugin reference."
+                )
+              );
+            }
+            pluginReferences.add(pluginPath);
+          }
         }
       }
     }
@@ -1457,8 +1484,7 @@ function parseJournal(value: unknown): PreparedPublicationJournal | undefined {
     typeof transformationId !== "string" ||
     identityAppId.toLowerCase() !== sourceApplicationAppId.toLowerCase() ||
     identityProductId.toLowerCase() !== sourceSharePointProductId.toLowerCase() ||
-    (transformationId !== transformationIdentity &&
-      transformationId !== previousTransformationIdentity) ||
+    !isSupportedTransformationIdentity(transformationId) ||
     !isPreparedCatalogUrl(catalogUrl, tenantOrigin) ||
     !isWriteState(applicationSubmissionState)
   ) {
@@ -1799,7 +1825,13 @@ export function verifyPreparedApplicationPackage(
       );
     }
     referenceCount = actionsValue.filter(
-      (action) => isRecord(action) && action["id"] === pluginId && action["file"] === pluginName
+      (action) =>
+        isRecord(action) &&
+        action["id"] === pluginId &&
+        typeof action["file"] === "string" &&
+        (journal.transformation.id === transformationIdentity
+          ? resolvePackageReference(agentFile, action["file"]) === pluginName
+          : action["file"] === pluginName)
     ).length;
   } else {
     const connectors = manifest.value["agentConnectors"];
@@ -1817,7 +1849,11 @@ export function verifyPreparedApplicationPackage(
         connector["id"] === pluginId &&
         isRecord(connector["toolSource"]) &&
         isRecord(connector["toolSource"]["plugin"]) &&
-        connector["toolSource"]["plugin"]["file"] === pluginName
+        typeof connector["toolSource"]["plugin"]["file"] === "string" &&
+        (journal.transformation.id === transformationIdentity
+          ? resolvePackageReference("manifest.json", connector["toolSource"]["plugin"]["file"]) ===
+            pluginName
+          : connector["toolSource"]["plugin"]["file"] === pluginName)
     ).length;
   }
   if (

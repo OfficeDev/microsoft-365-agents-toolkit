@@ -410,6 +410,16 @@ export class SPFxDeployDriver implements StepDriver {
     if (applicationLineage.isErr()) {
       throw this.toPreparedError(applicationLineage.error, Constants.DeployDriverName);
     }
+    if (
+      journal.state === "submitted" &&
+      journal.sharePointArtifact.uploadState === "confirmed" &&
+      journal.sharePointArtifact.deployState === "confirmed" &&
+      journal.applicationArtifact.submissionState === "confirmed" &&
+      typeof journal.applicationArtifact.submittedAppId === "string" &&
+      journal.applicationArtifact.submittedAppId.length > 0
+    ) {
+      return this.EmptyMap;
+    }
     if (journal.state === "sharePointVerified") {
       return this.EmptyMap;
     }
@@ -712,7 +722,8 @@ export class SPFxDeployDriver implements StepDriver {
               rejected ? "SharePointUploadRejected" : "SharePointUploadOutcomeUnknown",
               rejected
                 ? "SharePoint rejected the prepared package upload."
-                : "The SharePoint package upload outcome is unknown; it will not be replayed."
+                : "The SharePoint package upload outcome is unknown; it will not be replayed.",
+              { cause: error }
             ),
             Constants.DeployDriverName
           );
@@ -894,7 +905,8 @@ export class SPFxDeployDriver implements StepDriver {
             rejected ? "SharePointDeployRejected" : "SharePointDeployOutcomeUnknown",
             rejected
               ? "SharePoint rejected the prepared package deployment."
-              : "The SharePoint deployment outcome is unknown; it will not be replayed."
+              : "The SharePoint deployment outcome is unknown; it will not be replayed.",
+            { cause: error }
           ),
           Constants.DeployDriverName
         );

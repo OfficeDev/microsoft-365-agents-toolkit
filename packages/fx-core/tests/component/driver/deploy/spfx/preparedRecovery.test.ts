@@ -530,6 +530,31 @@ describe("Prepared publication validation and durable recovery", () => {
     expect(await fs.readJson(current.path)).toEqual(current.journal);
   });
 
+  it("SPFX-PREP-08: reuses a completed v3 lineage without creating another publication", async () => {
+    const current = await prepared();
+    current.journal.transformation.id = "spfx-copilot-plugin-v3";
+    current.journal.state = "submitted";
+    current.journal.sharePointArtifact.uploadState = "confirmed";
+    current.journal.sharePointArtifact.deployState = "confirmed";
+    current.journal.applicationArtifact.submissionState = "confirmed";
+    current.journal.applicationArtifact.submittedAppId = "published-app";
+    await fs.writeJson(current.path, current.journal);
+
+    const replay = await preparePublication(input());
+
+    expect(replay.isErr() ? replay.error : undefined).toBeUndefined();
+    if (replay.isOk()) {
+      expect(replay.value.publicationId).toBe(current.output.publicationId);
+      expect(replay.value.appPackageSha256).toBe(current.output.appPackageSha256);
+    }
+    expect(await fs.readJson(current.path)).toEqual(current.journal);
+    expect(
+      (await fs.readdir(path.dirname(current.path), { withFileTypes: true })).filter(
+        (entry) => entry.isDirectory() && /^[0-9a-f-]{36}$/i.test(entry.name)
+      )
+    ).toHaveLength(0);
+  });
+
   it("SPFX-PREP-08: refuses a journal that becomes unreadable between lock acquisition and update", async () => {
     const current = await prepared();
     const acquire = properLock.lock.bind(properLock);
@@ -719,6 +744,72 @@ describe("Prepared publication validation and durable recovery", () => {
     const current = await prepared();
     const bytes = await fs.readFile(path.join(root, current.journal.applicationArtifact.path));
     expect(verifyPreparedApplicationPackage(current.journal, bytes).isOk()).toBe(true);
+  });
+
+  it("SPFX-PREP-12/13: resolves prepared plugin actions from a nested agent manifest directory", async () => {
+    const application = new AdmZip(await fs.readFile(path.join(root, input().appPackagePath)));
+    const manifest = JSON.parse(application.readAsText("manifest.json"));
+    manifest.copilotAgents.declarativeAgents[0].file = "agents/agent.json";
+    application.updateFile("manifest.json", Buffer.from(JSON.stringify(manifest)));
+    application.addFile(
+      "agents/agent.json",
+      application.readFile("declarativeAgent.json") ?? Buffer.alloc(0)
+    );
+    application.deleteFile("declarativeAgent.json");
+    await fs.writeFile(path.join(root, input().appPackagePath), application.toBuffer());
+
+    const current = await prepared();
+    const bytes = await fs.readFile(path.join(root, current.journal.applicationArtifact.path));
+    const output = new AdmZip(bytes);
+    const agent = JSON.parse(output.readAsText("agents/agent.json"));
+    const reference = agent.actions.find((action: { id: string }) =>
+      action.id.startsWith("spfx-api-")
+    );
+    expect(reference).toBeDefined();
+    if (reference) {
+      const resolvedEntry = path.posix.normalize(
+        path.posix.join(path.posix.dirname("agents/agent.json"), reference.file)
+      );
+      expect(reference.file).toBe(`../plugins/${reference.id}.json`);
+      expect(output.getEntry(resolvedEntry)).not.toBeNull();
+    }
+    expect(verifyPreparedApplicationPackage(current.journal, bytes).isOk()).toBe(true);
+  });
+
+  it("SPFX-PREP-11: reports SharePoint verification only when upload and deployment are confirmed", async () => {
+    const current = await prepared();
+    for (const [state, uploadState, deployState] of [
+      ["unknown", "unknown", "notStarted"],
+      ["rejected", "rejected", "notStarted"],
+      ["unknown", "confirmed", "unknown"],
+      ["rejected", "confirmed", "rejected"],
+    ] as const) {
+      const journal = structuredClone(current.journal);
+      journal.state = state;
+      journal.sharePointArtifact.uploadState = uploadState;
+      journal.sharePointArtifact.deployState = deployState;
+      expect(
+        createPreparedPublicationErrorData(
+          new Error("failed"),
+          journal,
+          current.output.preparedPublicationPath,
+          state === "unknown" ? "sharePointUpload" : "sharePointDeploy"
+        ).lastSharePointVerifiedState
+      ).toBeUndefined();
+    }
+
+    const verifiedJournal = structuredClone(current.journal);
+    verifiedJournal.state = "unknown";
+    verifiedJournal.sharePointArtifact.uploadState = "confirmed";
+    verifiedJournal.sharePointArtifact.deployState = "confirmed";
+    expect(
+      createPreparedPublicationErrorData(
+        new Error("submission uncertain"),
+        verifiedJournal,
+        current.output.preparedPublicationPath,
+        "applicationSubmission"
+      ).lastSharePointVerifiedState
+    ).toBe("sharePointVerified");
   });
 
   it("SPFX-PREP-11: excludes untrusted error names and non-error values from recovery diagnostics", () => {

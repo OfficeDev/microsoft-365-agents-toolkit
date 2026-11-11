@@ -265,7 +265,7 @@ describe("SharePoint package inspection", () => {
         const manifest = JSON.parse(output.readAsText("manifest.json"));
         expect(manifest.agentSkills).toEqual([{ folder: "skills/existing" }]);
         expect(output.readAsText(userPluginPath)).toBe(JSON.stringify({ retained: true }));
-        const plugin = JSON.parse(output.readAsText(result.value.managedReference.path));
+        const plugin = JSON.parse(output.readAsText(result.value.managedReference.entryPath));
         expect(plugin.runtimes[0].spec.url).toBe("{{TENANT_MCP_URL}}");
         if (kind === "agent") {
           const agent = JSON.parse(output.readAsText("declarativeAgent.json"));
@@ -398,7 +398,7 @@ describe("SharePoint package inspection", () => {
       const output = new AdmZip(result.value.packageBytes);
       const outputEntries = new Set(output.getEntries().map((entry) => entry.entryName));
       expect(outputEntries).not.toContain(legacy.legacyPath);
-      expect(outputEntries).toContain(result.value.managedReference.path);
+      expect(outputEntries).toContain(result.value.managedReference.entryPath);
       expect(outputEntries).toContain(userPluginPath);
       expect(output.readAsText(userPluginPath)).toBe(JSON.stringify({ retained: true }));
 
@@ -798,6 +798,37 @@ describe("SharePoint package inspection", () => {
     ]);
   });
 
+  it("SPFX-PREP-12/13: resolves the managed plugin relative to a nested agent manifest", async () => {
+    const application = new AdmZip(createApplicationPackage("agent"));
+    const manifest = JSON.parse(application.readAsText("manifest.json"));
+    manifest.copilotAgents.declarativeAgents[0].file = "agents/agent.json";
+    application.updateFile("manifest.json", Buffer.from(JSON.stringify(manifest)));
+    application.addFile(
+      "agents/agent.json",
+      application.readFile("declarativeAgent.json") ?? Buffer.alloc(0)
+    );
+    application.deleteFile("declarativeAgent.json");
+    const result = await assembleSharePointApplicationPackage({
+      applicationPackage: application.toBuffer(),
+      sharePointPackage: createSppkg(),
+    });
+    expect(result.isErr() ? result.error : undefined).toBeUndefined();
+    if (result.isErr()) return;
+    const output = new AdmZip(result.value.packageBytes);
+    const agent = JSON.parse(output.readAsText("agents/agent.json"));
+    const reference = agent.actions.find(
+      (action: { id: string }) => action.id === result.value.managedReference.id
+    );
+    expect(reference).toBeDefined();
+    if (!reference) return;
+    const resolvedEntry = path.posix.normalize(
+      path.posix.join(path.posix.dirname("agents/agent.json"), reference.file)
+    );
+    expect(reference.file).toBe(`../${result.value.managedReference.entryPath}`);
+    expect(output.getEntry(resolvedEntry)).not.toBeNull();
+    expect(result.value.managedReference.entryPath).toBeDefined();
+  });
+
   it.each([
     {
       name: "missing runtime spec",
@@ -904,7 +935,7 @@ describe("SharePoint package inspection", () => {
       });
       if (first.isErr()) throw first.error;
       const application = new AdmZip(first.value.packageBytes);
-      application.updateFile(first.value.managedReference.path, Buffer.from(content));
+      application.updateFile(first.value.managedReference.entryPath, Buffer.from(content));
       const result = await assembleSharePointApplicationPackage({
         applicationPackage: application.toBuffer(),
         sharePointPackage,
@@ -928,7 +959,7 @@ describe("SharePoint package inspection", () => {
     });
     if (first.isErr()) throw first.error;
     const application = new AdmZip(createApplicationPackage("agent"));
-    application.addFile(first.value.managedReference.path, Buffer.from("user-owned file"));
+    application.addFile(first.value.managedReference.entryPath, Buffer.from("user-owned file"));
     const result = await assembleSharePointApplicationPackage({
       applicationPackage: application.toBuffer(),
       sharePointPackage,

@@ -28,7 +28,10 @@ export interface SharePointApplicationPackage {
   managedReference: {
     kind: "declarativeAgentAction" | "agentConnector";
     id: string;
+    /** Path stored in the manifest reference, relative to its containing manifest. */
     path: string;
+    /** ZIP entry path containing the managed plugin bytes. */
+    entryPath: string;
   };
   validation: {
     level: "local-structural";

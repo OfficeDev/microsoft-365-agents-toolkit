@@ -37,6 +37,7 @@ export interface AssembledApplicationPackage {
     kind: "declarativeAgentAction" | "agentConnector";
     id: string;
     path: string;
+    entryPath: string;
   };
 }
 
@@ -51,6 +52,7 @@ interface ManagedReferenceCandidate {
   kind: "declarativeAgentAction" | "agentConnector";
   id: unknown;
   path: unknown;
+  entryPath?: string;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -168,6 +170,31 @@ function isSafeRelativePath(value: unknown): value is string {
   );
 }
 
+export function resolvePackageReference(
+  manifestPath: string,
+  referencePath: string
+): string | undefined {
+  if (!isSafeRelativePath(manifestPath) || !isSafeRelativePath(referencePath)) {
+    return undefined;
+  }
+  const resolved = path.posix.normalize(
+    path.posix.join(path.posix.dirname(manifestPath), referencePath)
+  );
+  if (
+    resolved === "." ||
+    resolved === ".." ||
+    resolved.startsWith("../") ||
+    resolved.startsWith("/")
+  ) {
+    return undefined;
+  }
+  return resolved;
+}
+
+function packageReferencePath(manifestPath: string, entryPath: string): string {
+  return path.posix.relative(path.posix.dirname(manifestPath), entryPath);
+}
+
 function stableJson(value: unknown): string {
   if (Array.isArray(value)) {
     return `[${value.map(stableJson).join(",")}]`;
@@ -277,17 +304,22 @@ function validateSourcePluginEndpoint(
 
 function managedCandidates(
   actions: Record<string, unknown>[],
-  connectors: Record<string, unknown>[]
+  connectors: Record<string, unknown>[],
+  agentManifestPath: string | undefined
 ): ManagedReferenceCandidate[] {
   const candidates: ManagedReferenceCandidate[] = [];
   for (const action of actions) {
     const id = action["id"];
     const file = action["file"];
+    const entryPath =
+      typeof file === "string" && agentManifestPath
+        ? resolvePackageReference(agentManifestPath, file)
+        : undefined;
     if (
       (typeof id === "string" && id.startsWith(managedPluginPrefix)) ||
-      (typeof file === "string" && file.startsWith(managedPluginPathPrefix))
+      (typeof entryPath === "string" && entryPath.startsWith(managedPluginPathPrefix))
     ) {
-      candidates.push({ kind: "declarativeAgentAction", id, path: file });
+      candidates.push({ kind: "declarativeAgentAction", id, path: file, entryPath });
     }
   }
   for (const connector of connectors) {
@@ -295,11 +327,13 @@ function managedCandidates(
     const toolSource = connector["toolSource"];
     const plugin = isRecord(toolSource) ? toolSource["plugin"] : undefined;
     const file = isRecord(plugin) ? plugin["file"] : undefined;
+    const entryPath =
+      typeof file === "string" ? resolvePackageReference("manifest.json", file) : undefined;
     if (
       (typeof id === "string" && id.startsWith(managedPluginPrefix)) ||
-      (typeof file === "string" && file.startsWith(managedPluginPathPrefix))
+      (typeof entryPath === "string" && entryPath.startsWith(managedPluginPathPrefix))
     ) {
-      candidates.push({ kind: "agentConnector", id, path: file });
+      candidates.push({ kind: "agentConnector", id, path: file, entryPath });
     }
   }
   return candidates;
@@ -309,7 +343,7 @@ function isLegacyManagedReference(candidate: ManagedReferenceCandidate, bytes: B
   const contentHash = sha256(bytes).slice(0, 16);
   return (
     candidate.id === `${managedPluginPrefix}${contentHash}` &&
-    candidate.path === `${managedPluginPathPrefix}${contentHash}.json`
+    candidate.entryPath === `${managedPluginPathPrefix}${contentHash}.json`
   );
 }
 
@@ -432,13 +466,16 @@ export function assembleApplicationPackage(
     );
   }
   let agentManifest: Record<string, unknown> | undefined;
+  let agentEntryPath = "manifest.json";
   if (agentReference) {
-    if (!isSafeRelativePath(agentReference.file)) {
+    const resolvedAgentEntryPath = resolvePackageReference("manifest.json", agentReference.file);
+    if (!resolvedAgentEntryPath) {
       return err(
         packageError("InvalidAgentReference", "The application agent reference path is invalid.")
       );
     }
-    const agentBytes = byName.get(agentReference.file);
+    agentEntryPath = resolvedAgentEntryPath;
+    const agentBytes = byName.get(agentEntryPath);
     if (agentBytes === undefined) {
       return err(
         packageError(
@@ -447,7 +484,7 @@ export function assembleApplicationPackage(
         )
       );
     }
-    const agentResult = parseJsonObject(agentBytes, agentReference.file);
+    const agentResult = parseJsonObject(agentBytes, agentEntryPath);
     if (agentResult.isErr()) {
       return err(agentResult.error);
     }
@@ -458,13 +495,16 @@ export function assembleApplicationPackage(
   const pluginSha256 = sha256(pluginBytes);
   const pluginPath = `${managedPluginPathPrefix}${bindingSha256.slice(0, 16)}.json`;
   const pluginId = `${managedPluginPrefix}${bindingSha256.slice(0, 16)}`;
+  const pluginReferencePath = agentReference
+    ? packageReferencePath(agentReference.file, pluginPath)
+    : pluginPath;
   const referenceArrays = readReferenceArrays(manifest, agentManifest);
   if (referenceArrays.isErr()) {
     return err(referenceArrays.error);
   }
   let { actions, connectors } = referenceArrays.value;
   let connectorsChanged = false;
-  const candidates = managedCandidates(actions, connectors);
+  const candidates = managedCandidates(actions, connectors, agentReference?.file);
   if (candidates.length > 1) {
     return err(
       packageError(
@@ -487,7 +527,15 @@ export function assembleApplicationPackage(
         )
       );
     }
-    const candidateBytes = byName.get(candidate.path);
+    if (!candidate.entryPath) {
+      return err(
+        packageError(
+          "AmbiguousManagedPluginReference",
+          "The managed plugin reference does not resolve to a package entry."
+        )
+      );
+    }
+    const candidateBytes = byName.get(candidate.entryPath);
     if (candidateBytes === undefined) {
       return err(
         packageError(
@@ -501,7 +549,7 @@ export function assembleApplicationPackage(
     if (
       candidate.kind === referenceKind &&
       candidate.id === pluginId &&
-      candidate.path === pluginPath
+      candidate.entryPath === pluginPath
     ) {
       if (!candidateBytes.equals(pluginBytes)) {
         const sourcePluginMatch = matchesSourcePlugin(
@@ -557,7 +605,7 @@ export function assembleApplicationPackage(
         manifest["agentConnectors"] = connectors;
         connectorsChanged = true;
       }
-      zipEntriesToRemove.push(candidate.path);
+      zipEntriesToRemove.push(candidate.entryPath);
     } else {
       return err(
         packageError(
@@ -588,18 +636,19 @@ export function assembleApplicationPackage(
     }
     if (existingReference) {
       agentManifest["actions"] = actions.map((action) =>
-        action["id"] === pluginId && action["file"] === pluginPath
-          ? { ...action, id: pluginId, file: pluginPath }
+        action["id"] === pluginId &&
+        resolvePackageReference(agentReference.file, String(action["file"])) === pluginPath
+          ? { ...action, id: pluginId, file: pluginReferencePath }
           : action
       );
     } else {
-      agentManifest["actions"] = [...actions, { id: pluginId, file: pluginPath }];
+      agentManifest["actions"] = [...actions, { id: pluginId, file: pluginReferencePath }];
     }
-    const serializedAgent = serializeJsonObject(agentManifest, agentReference.file);
+    const serializedAgent = serializeJsonObject(agentManifest, agentEntryPath);
     if (serializedAgent.isErr()) {
       return err(serializedAgent.error);
     }
-    zip.updateFile(agentReference.file, serializedAgent.value);
+    zip.updateFile(agentEntryPath, serializedAgent.value);
     if (connectorsChanged) {
       const serializedManifest = serializeJsonObject(manifest, "manifest.json");
       if (serializedManifest.isErr()) {
@@ -650,7 +699,12 @@ export function assembleApplicationPackage(
       appVersion,
       pluginSha256,
       pluginBindingSha256: bindingSha256,
-      managedReference: { kind: referenceKind, id: pluginId, path: pluginPath },
+      managedReference: {
+        kind: referenceKind,
+        id: pluginId,
+        path: pluginReferencePath,
+        entryPath: pluginPath,
+      },
     });
   } catch (error) {
     return err(
