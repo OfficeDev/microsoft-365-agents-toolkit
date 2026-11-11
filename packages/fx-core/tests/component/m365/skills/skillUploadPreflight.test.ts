@@ -82,7 +82,7 @@ describe("incremental upload preflight", () => {
     expect(result.isErr() && result.error).toBe(failure);
     expect(token).toHaveBeenCalledTimes(1);
     expect(token).toHaveBeenCalledWith({
-      scopes: ["https://graph.microsoft.com/Files.ReadWrite"],
+      scopes: ["https://graph.microsoft.com/FileStorageContainer.Selected"],
     });
     expect(network).not.toHaveBeenCalled();
   });
