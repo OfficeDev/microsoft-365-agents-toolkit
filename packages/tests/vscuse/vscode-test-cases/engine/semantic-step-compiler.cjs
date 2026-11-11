@@ -4013,9 +4013,16 @@ ${mutation}`;
           "Action consent is not supported by the current chat adapter.",
         );
       }
+      const completesDcrUpdate =
+        assertion.connectOAuth === true && state.dcrUpdatePhase !== undefined;
       error = append(
         output,
-        render(state, "browser/copilot/allow-action.json.tpl", {}),
+        render(state, "browser/copilot/allow-action.json.tpl", {
+          convergedSubject: completesDcrUpdate
+            ? "the latest assistant turn after the most recent user request is complete and contains a non-empty response with returned remote-tool result data. An Allow card retained on an earlier turn may remain visible and does not indicate pending consent for this request. A consent-only response, pending Sign in or Allow request on the latest turn, loading state, refusal, or error is not completion"
+            : "the Copilot action-consent Allow button is no longer visible",
+          retryTimeout: completesDcrUpdate ? "120" : "30",
+        }),
       );
       if (error) return error;
     }
