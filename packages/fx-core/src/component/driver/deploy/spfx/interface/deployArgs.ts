@@ -13,4 +13,22 @@ export interface DeploySPFxArgs {
    * will use it to get the bundled zipped file path.
    */
   packageSolutionPath: string;
+
+  /**
+   * Prepared publication journal path. When supplied with publicationId,
+   * deploys only the immutable package recorded in that journal.
+   */
+  preparedPublicationPath?: string;
+
+  /**
+   * Prepared publication identifier emitted by spfx/preparePublication.
+   */
+  publicationId?: string;
+
+  preparedPackagePath?: string;
+  sourcePackageSha256?: string;
+  sourceAppPackageSha256?: string;
+  pluginSha256?: string;
+  sharePointPackageSha256?: string;
+  appPackageSha256?: string;
 }
