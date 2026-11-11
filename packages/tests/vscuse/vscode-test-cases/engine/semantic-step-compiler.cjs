@@ -3959,6 +3959,8 @@ ${mutation}`;
       );
     }
 
+    const completesDcrUpdate =
+      assertion.connectOAuth === true && state.dcrUpdatePhase !== undefined;
     const output = [];
     let error = append(
       output,
@@ -4000,11 +4002,13 @@ ${mutation}`;
         }),
       );
       if (error) return error;
-      error = append(
-        output,
-        render(state, sendComponent, { message: assertion.send }),
-      );
-      if (error) return error;
+      if (!completesDcrUpdate) {
+        error = append(
+          output,
+          render(state, sendComponent, { message: assertion.send }),
+        );
+        if (error) return error;
+      }
     }
     if (assertion.allowAction === true || assertion.connectOAuth === true) {
       if (state.profile.host !== "copilot") {
@@ -4013,16 +4017,27 @@ ${mutation}`;
           "Action consent is not supported by the current chat adapter.",
         );
       }
-      const completesDcrUpdate =
-        assertion.connectOAuth === true && state.dcrUpdatePhase !== undefined;
       error = append(
         output,
-        render(state, "browser/copilot/allow-action.json.tpl", {
-          convergedSubject: completesDcrUpdate
-            ? "the latest assistant turn after the most recent user request is complete and contains a non-empty response with returned remote-tool result data. An Allow card retained on an earlier turn may remain visible and does not indicate pending consent for this request. A consent-only response, pending Sign in or Allow request on the latest turn, loading state, refusal, or error is not completion"
-            : "the Copilot action-consent Allow button is no longer visible",
-          retryTimeout: completesDcrUpdate ? "120" : "30",
-        }),
+        render(
+          state,
+          completesDcrUpdate
+            ? "browser/copilot/allow-connected-action.json.tpl"
+            : "browser/copilot/allow-action.json.tpl",
+          completesDcrUpdate ? { appName: "${{var:app_name}}" } : {},
+        ),
+      );
+      if (error) return error;
+    }
+    if (completesDcrUpdate) {
+      error = append(
+        output,
+        render(state, sendComponent, { message: assertion.send }),
+      );
+      if (error) return error;
+      error = append(
+        output,
+        render(state, "browser/copilot/assert-connected-tool-response.json.tpl"),
       );
       if (error) return error;
     }

@@ -4,7 +4,7 @@
     "uiSurface": "browser",
     "hostSurface": "copilot",
     "id": "allowCopilotAction",
-    "parameters": ["instanceSuffix", "convergedSubject", "retryTimeout"]
+    "parameters": ["instanceSuffix"]
   },
   "steps": [
     {
@@ -57,7 +57,7 @@
       "agent": "assertion",
       "tool": "",
       "parameters": {},
-      "description": "@assertion {{text:convergedSubject}}.",
+      "description": "@assertion the Copilot action-consent Allow button is no longer visible.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -69,7 +69,7 @@
         "component:browser",
         "host_surface:copilot",
         "exit_state:action-consent-dismissed",
-        "step_retry_timeout: {{text:retryTimeout}}"
+        "step_retry_timeout: 30"
       ]
     }
   ]
