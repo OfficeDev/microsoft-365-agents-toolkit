@@ -70,6 +70,63 @@ class FakePort implements ExpressionRuntimePort {
 }
 
 describe("evaluateExpression (v4)", () => {
+  for (const key of [
+    "derived.catalog.context",
+    "derived.catalog.remote.context",
+    "ordinary.field",
+    "app-name",
+    "safeUpper('text')",
+  ]) {
+    it(`INPUT-39: structured from resolves the exact key ${key} without parsing`, () => {
+      const port = new FakePort();
+      assert.equal(
+        evaluateExpression({ from: key }, { [key]: "exact value" }, port)._unsafeUnwrap(),
+        "exact value"
+      );
+      assert.deepEqual(port.calls, []);
+    });
+  }
+
+  it("INPUT-39: structured missing keys retain identifier errors and NULL_VALUE renders empty", () => {
+    const key = "ordinary.field";
+    const missing = evaluateExpression({ from: key }, {}, new FakePort())._unsafeUnwrapErr();
+    assert.equal(missing.name, EXPR_UNDECLARED_IDENTIFIER);
+    assert.include(missing.message, key);
+    assert.equal(
+      evaluateExpression({ from: key }, { [key]: NULL_VALUE }, new FakePort())._unsafeUnwrap(),
+      ""
+    );
+  });
+
+  it("INPUT-39: raw expressions still reject dotted identifiers", () => {
+    const result = evaluateExpression(
+      { expr: "derived.catalog.remote.context" },
+      { "derived.catalog.remote.context": "value" },
+      new FakePort()
+    );
+    assert.equal(result._unsafeUnwrapErr().name, EXPR_PARSE_ERROR);
+  });
+
+  it("INPUT-39: nested from and feature-flag scanning preserve exact references", () => {
+    const node = {
+      anyOf: [
+        { featureFlag: "ENABLED" },
+        { anyOf: [{ from: "ordinary.field" }, { from: "featureFlag('NOT_A_FLAG')" }] },
+      ],
+    };
+    assert.deepEqual([...collectFeatureFlagReferences(node)._unsafeUnwrap()], ["ENABLED"]);
+    assert.isTrue(
+      evaluateExpression(node, {}, new FakePort({ flags: { ENABLED: true } }))._unsafeUnwrap()
+    );
+    const missing = evaluateExpression(
+      { anyOf: [{ from: "ordinary.field" }, { featureFlag: "ENABLED" }] },
+      {},
+      new FakePort()
+    )._unsafeUnwrapErr();
+    assert.equal(missing.name, EXPR_UNDECLARED_IDENTIFIER);
+    assert.include(missing.message, "ordinary.field");
+  });
+
   it("EVAL-01: an identifier compared to a string literal resolves from scope", () => {
     const res = evaluateExpression(
       { expr: "mcpServerType == 'remote'" },

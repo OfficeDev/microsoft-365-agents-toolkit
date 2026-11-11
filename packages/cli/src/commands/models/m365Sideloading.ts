@@ -108,7 +108,8 @@ export const m365SideloadingCommand: CLICommand = {
 
     const packageService = new PackageService(
       getResourceServiceEndpoint(ResourceServiceType.MOS3),
-      logger
+      logger,
+      M365TokenProvider
     );
     const manifestPath = zipAppPackagePath ?? xmlPath;
     const tokenAndUpn = await m365utils.getTokenAndUpn();

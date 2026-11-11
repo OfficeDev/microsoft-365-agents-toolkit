@@ -456,8 +456,9 @@ describe("copilotExtension", async () => {
       assert.isTrue(res.isOk());
     });
 
-    it("post calls updateFilesForTdp when teamsAppFromTdp is set", async () => {
+    it("AC-13: run calls updateFilesForTdp when teamsAppFromTdp is set", async () => {
       const generator = new DeclarativeAgentGenerator();
+      vi.spyOn(generator, "getTemplateInfos").mockResolvedValue(ok([]));
       const context = createContext();
       const inputs: Inputs = {
         platform: Platform.VSCode,
@@ -473,12 +474,13 @@ describe("copilotExtension", async () => {
       );
       vi.spyOn(developerPortalScaffoldUtils, "updateFilesForTdp").mockResolvedValue(ok(undefined));
 
-      const res = await generator.post(context, inputs, "");
+      const res = await generator.run(context, inputs, "");
       assert.isTrue(res.isOk());
     });
 
-    it("post returns error when updateFilesForTdp fails in TDP flow", async () => {
+    it("AC-13: run returns error when updateFilesForTdp fails in TDP flow", async () => {
       const generator = new DeclarativeAgentGenerator();
+      vi.spyOn(generator, "getTemplateInfos").mockResolvedValue(ok([]));
       const context = createContext();
       const inputs: Inputs = {
         platform: Platform.VSCode,
@@ -496,7 +498,7 @@ describe("copilotExtension", async () => {
         err(new UserError("fakeSource", "fakeError", "fakeError"))
       );
 
-      const res = await generator.post(context, inputs, "");
+      const res = await generator.run(context, inputs, "");
       assert.isTrue(res.isErr() && res.error.name === "fakeError");
     });
   });
@@ -2259,7 +2261,7 @@ describe("helper", async () => {
       }
     });
 
-    it("DT auth: DCR well-known placeholder used adds warning", async () => {
+    it("DCR-07: V3 creation emits endpoint-based DCR without a placeholder warning", async () => {
       vi.spyOn(featureFlagManager, "getBooleanValue").mockReturnValue(true);
       vi.spyOn(fs, "pathExists").mockResolvedValue(true);
       vi.spyOn(fs, "readJSON").mockResolvedValue({
@@ -2271,12 +2273,10 @@ describe("helper", async () => {
       vi.spyOn(fs, "readFile").mockResolvedValue(
         "provision:\n  - uses: teamsApp/create\n    writeToEnvironmentFile:\n      teamsAppId: TEAMS_APP_ID\n" as any
       );
-      vi.spyOn(fs, "writeFile").mockResolvedValue();
+      const writeStub = vi.spyOn(fs, "writeFile").mockResolvedValue();
       vi.spyOn(fs, "pathExistsSync").mockReturnValue(true);
 
       const mcpToolFetcherModule = await import("../../../src/component/utils/mcpToolFetcher");
-      // No wellKnownUrl in the resolved metadata -> oauth-dynamic injection
-      // falls back to the placeholder and the caller emits a warning.
       vi.spyOn(mcpToolFetcherModule, "resolveMCPOAuthMetadata").mockResolvedValue({
         authorizationUrl: "https://auth.example.com/authorize",
         tokenUrl: "https://auth.example.com/token",
@@ -2295,10 +2295,15 @@ describe("helper", async () => {
 
       assert.isTrue(res.isOk());
       if (res.isOk()) {
-        assert.isTrue(
+        assert.isFalse(
           res.value.warnings!.some((w) => w.type === "mcpAuthDcrWellKnownUrlPlaceholder")
         );
       }
+      assert.isTrue(
+        writeStub.mock.calls.some((call) =>
+          String(call[1]).includes("mcpResourceUrl: https://secure.example.com/mcp")
+        )
+      );
     });
 
     it("DT auth: oauth url placeholders used adds warning", async () => {

@@ -11,9 +11,10 @@ import {
 } from "../../../../src/v4/runtime/steps/mcpAuth";
 import { StepContext } from "../../../../src/v4/pipeline/runScaffoldPipeline";
 import { mcpAuthScaffoldDeps } from "../../../../src/v4/mcp/mcpAuthScaffold";
-import { NOOP_MANIFEST_WRAPPER } from "../../../../src/v4/runtime/runtimeRegistry";
 import { createInMemoryRuntime } from "../../../../src/v4/runtime/inMemoryRuntime";
 import { afterEach, assert, beforeEach, vi } from "vitest";
+import { parseDocument } from "yaml";
+import { FeatureFlagName } from "../../../../src/common/featureFlags";
 
 /** A minimal in-memory `StepContext` whose read/write share one file map. */
 function makeCtx(initial: Record<string, string> = {}): {
@@ -32,7 +33,6 @@ function makeCtx(initial: Record<string, string> = {}): {
       read: runtime.port.read,
       write: runtime.port.write,
       writeEnvironment: runtime.port.writeEnvironment,
-      manifestWrapper: () => NOOP_MANIFEST_WRAPPER,
     },
     { warn: (warning: Warning) => warnings.push(warning) }
   );
@@ -83,9 +83,65 @@ describe("mcp-auth steps (v4)", () => {
 
   afterEach(() => {
     vi.restoreAllMocks();
+    vi.unstubAllEnvs();
   });
 
   describe(STEP_INJECT_YML_ACTION, () => {
+    it.each(["oauth", "entra-sso", "oauth-dynamic", "bearer-token"])(
+      "AC-09: %s preserves per-environment legacy and canonical resource mappings",
+      async (authType) => {
+        vi.stubEnv(FeatureFlagName.NewDeveloperPortalApis, "true");
+        const devYaml = PROVISION_YML.replace(
+          "teamsAppId: TEAMS_APP_ID",
+          "teamsAppId: LEGACY_RESOURCE_ID"
+        );
+        const localYaml = PROVISION_YML.replace("teamsAppId: TEAMS_APP_ID", "appId: APP_ID");
+        const initial = {
+          "m365agents.yml": devYaml,
+          "m365agents.local.yml": localYaml,
+          "env/.env.local": "APP_ID=resource-id\nAPP_MANIFEST_ID=distinct-manifest-id\n",
+        };
+        const { ctx, files } = makeCtx(initial);
+        const params = {
+          ymlPath: "m365agents.yml",
+          optionalYmlPaths: ["m365agents.local.yml"],
+          authType,
+          mcpServerUrl: SERVER_URL,
+        };
+        const result = await mcpAuthInjectYmlAction.apply(params, ctx);
+        assert.isTrue(result.isOk(), result.isErr() ? result.error.message : "expected ok");
+        for (const [file, variable] of [
+          ["m365agents.yml", "LEGACY_RESOURCE_ID"],
+          ["m365agents.local.yml", "APP_ID"],
+        ]) {
+          const document = parseDocument(text(files, file));
+          assert.strictEqual(
+            document.getIn(["provision", 1, "with", "appId"]),
+            `\${{${variable}}}`
+          );
+          const outputKey = file === "m365agents.yml" ? "teamsAppId" : "appId";
+          assert.strictEqual(
+            document.getIn(["provision", 0, "writeToEnvironmentFile", outputKey]),
+            variable
+          );
+          assert.isUndefined(
+            document.getIn([
+              "provision",
+              0,
+              "writeToEnvironmentFile",
+              outputKey === "appId" ? "teamsAppId" : "appId",
+            ])
+          );
+        }
+        assert.strictEqual(text(files, "env/.env.local"), initial["env/.env.local"]);
+        const firstDev = text(files, "m365agents.yml");
+        const firstLocal = text(files, "m365agents.local.yml");
+        assert.isTrue((await mcpAuthInjectYmlAction.apply(params, ctx)).isOk());
+        assert.strictEqual(text(files, "m365agents.yml"), firstDev);
+        assert.strictEqual(text(files, "m365agents.local.yml"), firstLocal);
+      }
+    );
+
     it("validateParams: passes when ymlPath/authType/mcpServerUrl are strings", () => {
       assert.isUndefined(
         mcpAuthInjectYmlAction.validateParams({
@@ -110,6 +166,14 @@ describe("mcp-auth steps (v4)", () => {
       );
       assert.isString(
         mcpAuthInjectYmlAction.validateParams({ ymlPath: "m365agents.yml", authType: "oauth" })
+      );
+      assert.isString(
+        mcpAuthInjectYmlAction.validateParams({
+          ymlPath: "m365agents.yml",
+          authType: "oauth",
+          mcpServerUrl: SERVER_URL,
+          optionalYmlPaths: "m365agents.local.yml",
+        })
       );
     });
 
@@ -197,11 +261,11 @@ describe("mcp-auth steps (v4)", () => {
       assert.include(warnings[1].content, "tokenUrl");
     });
 
-    it("warns when oauth-dynamic requires manual replacement of the well-known URL", async () => {
+    it("DCR-07: leaves dynamic OAuth discovery to TGS without placeholder warnings", async () => {
       vi.mocked(mcpAuthScaffoldDeps.probeMCPServerAuth).mockRejectedValue(
         new Error("metadata unavailable")
       );
-      const { ctx, warnings } = makeCtx({ "m365agents.yml": PROVISION_YML });
+      const { ctx, files, warnings } = makeCtx({ "m365agents.yml": PROVISION_YML });
 
       const res = await mcpAuthInjectYmlAction.apply(
         { ymlPath: "m365agents.yml", authType: "oauth-dynamic", mcpServerUrl: SERVER_URL },
@@ -209,10 +273,10 @@ describe("mcp-auth steps (v4)", () => {
       );
 
       assert.isTrue(res.isOk(), res.isErr() ? res.error.message : "expected ok");
-      assert.lengthOf(warnings, 2);
-      assert.include(warnings[0].content, "metadata unavailable");
-      assert.strictEqual(warnings[1].type, "mcpAuthDcrWellKnownUrlPlaceholder");
-      assert.include(warnings[1].content, "wellKnownAuthorizationServer");
+      assert.isEmpty(warnings);
+      assert.include(text(files, "m365agents.yml"), `mcpResourceUrl: ${SERVER_URL}`);
+      assert.notInclude(text(files, "m365agents.yml"), "wellKnownAuthorizationServer:");
+      assert.strictEqual(vi.mocked(mcpAuthScaffoldDeps.probeMCPServerAuth).mock.calls.length, 0);
     });
 
     it("warns when the server URL answered like something that is not an MCP endpoint", async () => {
@@ -256,6 +320,23 @@ describe("mcp-auth steps (v4)", () => {
       assert.isTrue(res.isErr());
       assert.instanceOf(res._unsafeUnwrapErr(), SystemError);
     });
+
+    it("SCN-ADD-MCP-15: skips a missing optional local yml", async () => {
+      const { ctx, files } = makeCtx({ "m365agents.yml": PROVISION_YML });
+      const res = await mcpAuthInjectYmlAction.apply(
+        {
+          ymlPath: "m365agents.yml",
+          authType: "bearer-token",
+          mcpServerUrl: SERVER_URL,
+          optionalYmlPaths: ["m365agents.local.yml"],
+        },
+        ctx
+      );
+
+      assert.isTrue(res.isOk(), res.isErr() ? res.error.message : "expected ok");
+      assert.include(text(files, "m365agents.yml"), "uses: apiKey/register");
+      assert.isFalse(files.has("m365agents.local.yml"));
+    });
   });
 
   describe(STEP_PERSIST_CREDENTIAL_ENV, () => {
@@ -296,6 +377,46 @@ describe("mcp-auth steps (v4)", () => {
         secretEnvironmentVariables.get("dev")?.get(CLIENT_SECRET_ENV_VAR),
         "client-secret"
       );
+    });
+
+    it("SCN-ADD-MCP-16: persists a bearer token as a secret", async () => {
+      const { ctx, files, secretEnvironmentVariables } = makeCtx({
+        "env/.env.dev": "TEAMSFX_ENV=dev\n",
+        "env/.env.local": "TEAMSFX_ENV=local\n",
+      });
+
+      const result = await mcpAuthPersistCredentialEnv.apply(
+        {
+          authType: "bearer-token",
+          mcpServerUrl: SERVER_URL,
+          apiKey: "  the-bearer-token  ",
+        },
+        ctx
+      );
+
+      assert.isTrue(result.isOk());
+      assert.notInclude(text(files, "env/.env.dev"), "the-bearer-token");
+      assert.equal(
+        secretEnvironmentVariables.get("dev")?.get("SECRET_MCP_DA_API_KEY_APIGITHUBC"),
+        "the-bearer-token"
+      );
+      assert.equal(
+        secretEnvironmentVariables.get("local")?.get("SECRET_MCP_DA_API_KEY_APIGITHUBC"),
+        "the-bearer-token"
+      );
+
+      const devOnly = makeCtx({ "env/.env.dev": "TEAMSFX_ENV=dev\n" });
+      const devOnlyResult = await mcpAuthPersistCredentialEnv.apply(
+        {
+          authType: "bearer-token",
+          mcpServerUrl: SERVER_URL,
+          apiKey: "the-bearer-token",
+        },
+        devOnly.ctx
+      );
+      assert.isTrue(devOnlyResult.isOk());
+      assert.isFalse(devOnly.files.has("env/.env.local"));
+      assert.isFalse(devOnly.secretEnvironmentVariables.has("local"));
     });
 
     it("is idempotent — a re-run does not duplicate the variable", async () => {

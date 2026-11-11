@@ -1,21 +1,26 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
+import metaOsAssets from "./assets/metaOs.json";
+import { renderFragment } from "../renderFragment";
 import { randomUUID } from "crypto";
 import { FxError, SystemError, TeamsManifestWrapper, UserError } from "@microsoft/teamsfx-api";
 import * as fs from "fs-extra";
 import * as path from "path";
 import { Result, err, ok } from "neverthrow";
-import { RegisteredStep, StepContext, StepParams } from "../../pipeline/runScaffoldPipeline";
+import { capabilityDeclarations } from "../../capabilities/declarations";
+import { RegisteredStep, StepContext } from "../../pipeline/runScaffoldPipeline";
+import { defineStep } from "../../pipeline/defineStep";
+import { stringParam } from "../../pipeline/stepParams";
 
 /** MetaOS post-render steps. */
 
 const SOURCE = "Scaffold";
 
 /** Engine step name `metaos/unify-project-id`. */
-export const STEP_UNIFY_PROJECT_ID = "metaos/unify-project-id";
+export const STEP_UNIFY_PROJECT_ID = capabilityDeclarations.step.unifyProjectId.id;
 /** Engine step name `metaos/upgrade-existing-project`. */
-export const STEP_UPGRADE_EXISTING_PROJECT = "metaos/upgrade-existing-project";
+export const STEP_UPGRADE_EXISTING_PROJECT = capabilityDeclarations.step.upgradeExistingProject.id;
 
 const APP_PACKAGE_FOLDER = "appPackage";
 const MANIFEST_PATH = "appPackage/manifest.json";
@@ -39,11 +44,6 @@ const EXCLUDED_FOLDERS = new Set(["node_modules", "env"]);
 
 function systemError(name: string, message: string): SystemError {
   return new SystemError({ source: SOURCE, name, message });
-}
-
-function stringParam(params: StepParams, key: string): string | undefined {
-  const value = params[key];
-  return typeof value === "string" ? value : undefined;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -245,171 +245,25 @@ function updateManifestForDa(ctx: StepContext, daFilename: string): Result<Comma
 }
 
 function daManifest(appName: string, actionFilename: string): Record<string, unknown> {
-  return {
-    $schema:
-      "https://developer.microsoft.com/json-schemas/copilot/declarative-agent/v1.4/schema.json",
-    version: "v1.4",
-    name: `Add-in Skill + Agent for ${appName}`,
-    description:
-      "You are an agent for working with add-in. You can work with any cells, not only well formatted table.",
-    instructions:
-      "You are an agent for working with add-in. You can work with any cells, not only well formatted table.",
-    conversation_starters: [
-      {
-        title: "Change cell color (for excel)",
-        text: "Change the cell below A2 to the color of grass. Tell me how long it took in seconds.",
-      },
-      {
-        title: "Add footer (for word)",
-        text: "Add a footer with message 'Hello Agent!'. Tell me how long it took in seconds.",
-      },
-      {
-        title: "Add text to slide (for powerpoint)",
-        text: "Please add text 'Hello PPT!' to the slide. Tell me how long it took in seconds.",
-      },
-    ],
-    actions: [{ id: "alchemyPlugin", file: actionFilename }],
-  };
-}
-
-function functionDefinition(
-  name: string,
-  description: string,
-  properties: Record<string, unknown>,
-  required: string[]
-): Record<string, unknown> {
-  return {
-    name,
-    description,
-    parameters: { type: "object", properties, required },
-    states: {
-      reasoning: { description: "", instructions: "" },
-      responding: { description: "", instructions: "reply" },
-    },
-  };
+  const agent = structuredClone(metaOsAssets.agent);
+  agent.name = renderFragment([agent.name], { appName });
+  for (const action of agent.actions) action.file = actionFilename;
+  return agent;
 }
 
 function actionManifest(appName: string, commandNames: CommandNames): Record<string, unknown> {
-  return {
-    $schema: "https://developer.microsoft.com/json-schemas/copilot/plugin/v2.3/schema.json",
-    schema_version: "v2.3",
-    name_for_human: `Add-in Skill + Agent for ${appName}`,
-    description_for_human: "Get answer for user's question related to Microsoft 365 products",
-    namespace: "AddInFunctions",
-    functions: [
-      functionDefinition(
-        commandNames.word,
-        "Action addfooter: take in arg a JSON object, with a footer message in the field 'Footer'.",
-        {
-          Footer: {
-            type: "string",
-            description: "example message to be added to footer",
-            default: "Declarative Agent Footer",
-          },
-        },
-        ["Footer"]
-      ),
-      functionDefinition(
-        commandNames.excel,
-        "Action fillcolor: take in arg a JSON object, a cell location and a color in hex. Cell location is a single cell.",
-        {
-          Cell: { type: "string", description: "example cell location", default: "B7" },
-          Color: { type: "string", description: "example color in hex", default: "#30d5c8" },
-        },
-        ["Cell", "Color"]
-      ),
-      functionDefinition(
-        commandNames.powerpoint,
-        "Action addtexttoslide: take in arg a JSON object, a text to be added to a slide.",
-        {
-          Text: {
-            type: "string",
-            description: "example text to be added to a slide",
-            default: "hello declarative agent",
-          },
-        },
-        ["Text"]
-      ),
-    ],
-    runtimes: [
-      {
-        type: "LocalPlugin",
-        spec: { local_endpoint: "Microsoft.Office.Addin" },
-        run_for_functions: [commandNames.word, commandNames.excel, commandNames.powerpoint],
-      },
-    ],
-  };
+  const plugin = structuredClone(metaOsAssets.plugin);
+  plugin.name_for_human = renderFragment([plugin.name_for_human], { appName });
+  const names = [commandNames.word, commandNames.excel, commandNames.powerpoint];
+  plugin.functions.forEach((definition, index) => {
+    definition.name = names[index];
+  });
+  for (const runtime of plugin.runtimes) runtime.run_for_functions = names;
+  return plugin;
 }
 
 function commandHandlerCode(commandNames: CommandNames): string {
-  return `
-/* global Office */
-/* global Word, Excel, PowerPoint, performance, console */
-
-async function addFooter(message) {
-  await Word.run(async (context) => {
-    context.document.sections
-      .getFirst()
-      .getFooter(Word.HeaderFooterType.primary)
-      .insertParagraph(\`From Agent: \${message}\`, "End");
-
-    await context.sync();
-  });
-}
-
-async function fillColor(cell, color) {
-  await Excel.run(async (context) => {
-    context.workbook.worksheets.getActiveWorksheet().getRange(cell).format.fill.color = color;
-    await context.sync();
-  });
-}
-
-async function addTextToSlide(text) {
-  await PowerPoint.run(async (context) => {
-    context.presentation.slides.getItemAt(0).shapes.addTextBox(text, {
-      left: Math.random() * 200,
-      top: Math.random() * 200,
-      height: 150,
-      width: 150,
-    });
-    await context.sync();
-  });
-}
-
-Office.onReady((info) => {
-  if (info.host === Office.HostType.Word) {
-    Office.actions.associate("${commandNames.word}", async (message) => {
-      const start = performance.now();
-      const { Footer: footer } = JSON.parse(message);
-      await addFooter(footer);
-      const duration = performance.now() - start;
-      const result = \`Demo add-in: Footer added! completed in \${duration.toFixed(0)} ms.\`;
-      console.log(\`Returning result: "\${result}"\`);
-      return result;
-    });
-  } else if (info.host === Office.HostType.Excel) {
-    Office.actions.associate("${commandNames.excel}", async (message) => {
-      const start = performance.now();
-      const { Cell: cell, Color: color } = JSON.parse(message);
-      await fillColor(cell, color);
-      const duration = performance.now() - start;
-      const result = \`Demo add-in: Action completed! completed in \${duration.toFixed(0)} ms.\`;
-      console.log(\`Returning result: "\${result}"\`);
-      return result;
-    });
-  } else if (info.host === Office.HostType.PowerPoint) {
-    Office.actions.associate("${commandNames.powerpoint}", async (message) => {
-      const start = performance.now();
-      const { Text: text } = JSON.parse(message);
-      await addTextToSlide(text);
-      const duration = performance.now() - start;
-      const result = \`Demo add-in: text added to slide! completed in \${duration.toFixed(0)} ms.\`;
-      console.log(\`Returning result: "\${result}"\`);
-      return result;
-    });
-  }
-});
-`;
+  return renderFragment(metaOsAssets.commandHandlerCode, commandNames);
 }
 
 function appendCommandHandlers(
@@ -470,45 +324,40 @@ function extendToDeclarativeAgent(ctx: StepContext, appName: string): Result<voi
 }
 
 /** Registered step for mirroring v3 MetaOSHelper.unifyProjectID. */
-export const metaOsUnifyProjectId: RegisteredStep = {
-  validateParams(resolved: StepParams): string | undefined {
-    if (stringParam(resolved, "manifestPath") === undefined) {
-      return "missing string parameter 'manifestPath'";
-    }
-    if (stringParam(resolved, "envPath") === undefined) {
-      return "missing string parameter 'envPath'";
-    }
-    return undefined;
-  },
-  apply(resolved: StepParams, ctx: StepContext): Result<void, FxError> {
+export const metaOsUnifyProjectId: RegisteredStep = defineStep({
+  parse(resolved): Result<{ manifestPath: string; envPath: string }, string> {
     const manifestPath = stringParam(resolved, "manifestPath");
-    const envPath = stringParam(resolved, "envPath");
-    if (manifestPath === undefined || envPath === undefined) {
-      return err(systemError("MetaOsUnifyParams", "resolved parameters are not all strings"));
+    if (manifestPath === undefined) {
+      return err("missing string parameter 'manifestPath'");
     }
-
+    const envPath = stringParam(resolved, "envPath");
+    if (envPath === undefined) {
+      return err("missing string parameter 'envPath'");
+    }
+    return ok({ manifestPath, envPath });
+  },
+  invalidParams: () => systemError("MetaOsUnifyParams", "resolved parameters are not all strings"),
+  apply({ manifestPath, envPath }, ctx): Result<void, FxError> {
     return unifyProjectId(ctx, manifestPath, envPath);
   },
-};
+});
 
 /** Registered step for mirroring v3 MetaOSHelper copy + extend + unify for upgrade. */
-export const metaOsUpgradeExistingProject: RegisteredStep = {
-  validateParams(resolved: StepParams): string | undefined {
-    if (stringParam(resolved, "sourceFolder") === undefined) {
-      return "missing string parameter 'sourceFolder'";
-    }
-    if (stringParam(resolved, "appName") === undefined) {
-      return "missing string parameter 'appName'";
-    }
-    return undefined;
-  },
-  apply(resolved: StepParams, ctx: StepContext): Result<void, FxError> {
+export const metaOsUpgradeExistingProject: RegisteredStep = defineStep({
+  parse(resolved): Result<{ sourceFolder: string; appName: string }, string> {
     const sourceFolder = stringParam(resolved, "sourceFolder");
-    const appName = stringParam(resolved, "appName");
-    if (sourceFolder === undefined || appName === undefined) {
-      return err(systemError("MetaOsUpgradeParams", "resolved parameters are not all strings"));
+    if (sourceFolder === undefined) {
+      return err("missing string parameter 'sourceFolder'");
     }
-
+    const appName = stringParam(resolved, "appName");
+    if (appName === undefined) {
+      return err("missing string parameter 'appName'");
+    }
+    return ok({ sourceFolder, appName });
+  },
+  invalidParams: () =>
+    systemError("MetaOsUpgradeParams", "resolved parameters are not all strings"),
+  apply({ sourceFolder, appName }, ctx): Result<void, FxError> {
     const copied = copySourceFiles(sourceFolder, ctx);
     if (copied.isErr()) {
       return err(copied.error);
@@ -519,4 +368,4 @@ export const metaOsUpgradeExistingProject: RegisteredStep = {
     }
     return unifyProjectId(ctx, MANIFEST_PATH, ENV_PATH);
   },
-};
+});

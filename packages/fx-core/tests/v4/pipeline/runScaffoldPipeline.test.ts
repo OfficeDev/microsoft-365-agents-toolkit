@@ -10,9 +10,14 @@ import {
   evaluateExpression,
 } from "../../../src/v4/expression/evaluateExpression";
 import { RenderVars, TemplateFileEntry } from "../../../src/v4/model/dataModel";
-import { assert } from "vitest";
+import { assert, expect } from "vitest";
+import { defineStep } from "../../../src/v4/pipeline/defineStep";
+import { PACKAGE_PARSE_ERROR, prepareTemplate } from "../../../src/v4/runtime/packageParse";
+import { scaffold, scaffoldPrepared } from "../../../src/v4/runtime/scaffold";
+import { createInMemoryRuntime } from "../../../src/v4/runtime/inMemoryRuntime";
+import { DaManifestService } from "../../../src/v4/runtime/services/daManifestService";
+import { createDaActionRegisterPluginManifestStep } from "../../../src/v4/runtime/steps/daAction";
 import {
-  ManifestWrapper,
   PIPELINE_CROSS_STEP_REFERENCE,
   PIPELINE_PARAMS_VIOLATION,
   PIPELINE_UNKNOWN_PIPELINE,
@@ -73,14 +78,18 @@ function renderMustache(template: string, vars: RenderVars): Result<string, FxEr
   return ok(out);
 }
 
-/** Records every manifest mutation as the wrapper's action shape (AC-12 observability). */
-class RecordingWrapper implements ManifestWrapper {
+/** Records every manifest mutation at the domain service (AC-12 observability). */
+class RecordingDaManifestService implements DaManifestService {
   registrations: Array<{ teamsManifestPath: string; pluginManifestPath: string }> = [];
   registerDeclarativeAgentAction(
+    _io: Pick<StepContext, "read" | "write">,
     teamsManifestPath: string,
     pluginManifestPath: string
   ): Result<void, FxError> {
     this.registrations.push({ teamsManifestPath, pluginManifestPath });
+    return ok(undefined);
+  }
+  setSensitivityLabel(): Result<void, FxError> {
     return ok(undefined);
   }
 }
@@ -110,13 +119,11 @@ function makePort(opts: { pipelines?: string[]; steps?: Record<string, Registere
   port: PipelineRuntimePort;
   writes: Map<string, Buffer>;
   environmentWrites: Array<{ environment: string; values: Record<string, string> }>;
-  wrapper: RecordingWrapper;
   warnings: string[];
 } {
   const writes = new Map<string, Buffer>();
   const environmentWrites: Array<{ environment: string; values: Record<string, string> }> = [];
   const warnings: string[] = [];
-  const wrapper = new RecordingWrapper();
   const pipelines = new Set(
     opts.pipelines ?? ["default", "openapi", "typespec", "officeAddin", "spfx"]
   );
@@ -136,8 +143,12 @@ function makePort(opts: { pipelines?: string[]; steps?: Record<string, Registere
       return r.isErr() ? err(r.error) : ok(r.value === true);
     },
     render: (mustache, vars) => renderMustache(mustache, vars),
-    manifestWrapper: () => wrapper,
     warn: (warning) => warnings.push(warning.content),
+    writeNew: (path, data) => {
+      if (writes.has(path)) return false;
+      writes.set(path, data);
+      return true;
+    },
     write: (path, data) => {
       writes.set(path, data);
     },
@@ -147,7 +158,7 @@ function makePort(opts: { pipelines?: string[]; steps?: Record<string, Registere
       return Promise.resolve(ok(undefined));
     },
   };
-  return { port, writes, environmentWrites, wrapper, warnings };
+  return { port, writes, environmentWrites, warnings };
 }
 
 function entry(path: string, body: string): TemplateFileEntry {
@@ -159,6 +170,185 @@ function target(existing: string[] = []): TargetDir {
 }
 
 describe("runScaffoldPipeline (v4)", () => {
+  it("IO-02: the in-memory sink preserves distinct case-sensitive keys", async () => {
+    const runtime = createInMemoryRuntime();
+    const outcome = (
+      await runScaffoldPipeline(
+        { pipeline: "default", steps: [] },
+        [entry("CONFIG.json", "upper"), entry("config.json.tpl", "lower")],
+        {},
+        target(),
+        runtime.port
+      )
+    )._unsafeUnwrap();
+    assert.equal(runtime.files.get("CONFIG.json")?.toString(), "upper");
+    assert.equal(runtime.files.get("config.json")?.toString(), "lower");
+    assert.deepEqual(outcome.written, ["CONFIG.json", "config.json"]);
+    assert.isEmpty(outcome.skipped);
+  });
+
+  it.each([false, true])(
+    "IO-02: preserves first output bytes and allows a named step rewrite=%s",
+    async (rewrite) => {
+      const step = new FakeStep({
+        run: (_params, ctx) => {
+          assert.equal(ctx.read("same.txt")?.toString(), "first");
+          assert.notProperty(ctx, "writeNew");
+          ctx.write("same.txt", Buffer.from("step"));
+          return ok(undefined);
+        },
+      });
+      const runtime = createInMemoryRuntime(undefined, new Map([["rewrite", step]]));
+      const outcome = (
+        await runScaffoldPipeline(
+          { pipeline: "default", steps: rewrite ? [{ step: "rewrite" }] : [] },
+          [entry("same.txt", "first"), entry("same.txt.tpl", "second"), entry("same.txt", "third")],
+          {},
+          target(),
+          runtime.port
+        )
+      )._unsafeUnwrap();
+      assert.equal(runtime.files.get("same.txt")?.toString(), rewrite ? "step" : "first");
+      assert.deepEqual(outcome.written, ["same.txt"]);
+      assert.deepEqual(
+        outcome.skipped.map((file) => file.path),
+        ["same.txt", "same.txt"]
+      );
+      assert.deepEqual(
+        runtime.warnings.map((warning) => warning.content),
+        outcome.skipped.map((file) => file.warning)
+      );
+      assert.deepEqual(outcome.stepsRun, rewrite ? ["rewrite"] : []);
+    }
+  );
+
+  it.each(["file.txt", "file.txt.tpl"])(
+    "IO-01: propagates unexpected writeNew errors for %s",
+    async (entryPath) => {
+      const runtime = createInMemoryRuntime();
+      const failure = new Error("exclusive create failed");
+      runtime.port.writeNew = () => {
+        throw failure;
+      };
+      await expect(
+        runScaffoldPipeline(
+          { pipeline: "default", steps: [] },
+          [entry(entryPath, "bytes")],
+          {},
+          target(),
+          runtime.port
+        )
+      ).rejects.toBe(failure);
+    }
+  );
+
+  for (const when of [false, true, 0, null, [], {}]) {
+    it(`AC-28: rejects malformed step guard ${JSON.stringify(when)} before any side effects`, async () => {
+      const step = new FakeStep();
+      const { port, writes } = makePort({ steps: { synthetic: step } });
+      const result = await scaffold(
+        {
+          descriptor: {},
+          pipeline: { pipeline: "default", steps: [{ step: "synthetic", when }] },
+          content: [entry("render.txt", "must not be written")],
+          answers: {},
+          callerFloor: {},
+          targetDir: target(),
+        },
+        { exprPort: new ExprPort(), port }
+      );
+      assert.isTrue(result.isErr());
+      assert.equal(result._unsafeUnwrapErr().name, PACKAGE_PARSE_ERROR);
+      assert.equal(writes.size, 0);
+      assert.isEmpty(step.applied);
+    });
+  }
+
+  it("AC-28: prepared execution uses its typed snapshot without revisiting raw JSON", async () => {
+    const raw = {
+      descriptor: { replaceMap: [{ var: "Title", from: "title" }] },
+      pipeline: { pipeline: "default", steps: [] },
+      content: [entry("title.txt.tpl", "{{Title}}")],
+    };
+    const template = prepareTemplate(raw)._unsafeUnwrap();
+    raw.descriptor.replaceMap[0].from = "missing";
+    raw.pipeline.pipeline = "missing";
+    const { port, writes } = makePort();
+    const result = await scaffoldPrepared(
+      template,
+      {
+        answers: { title: "typed" },
+        callerFloor: {},
+        targetDir: target(),
+      },
+      { exprPort: new ExprPort(), port }
+    );
+    assert.isTrue(result.isOk());
+    assert.equal(writes.get("title.txt")?.toString(), "typed");
+  });
+
+  it("AC-29: typed steps parse once, preserve typed values, reject invalid and skip inactive params", async () => {
+    let parses = 0;
+    const parsedValues: Array<{ count: number }> = [];
+    const appliedValues: Array<{ count: number }> = [];
+    const typed = defineStep({
+      parse(params) {
+        parses++;
+        if (typeof params.count !== "string" || !/^\d+$/.test(params.count))
+          return err("count must be numeric");
+        const value = { count: Number(params.count) };
+        parsedValues.push(value);
+        return ok(value);
+      },
+      apply(value, ctx) {
+        assert.equal(ctx.read("render.txt")?.toString(), "rendered");
+        appliedValues.push(value);
+        return ok(undefined);
+      },
+      invalidParams: () =>
+        new SystemError({ source: "Test", name: "InvalidCount", message: "Invalid count" }),
+    });
+    const legacy = new FakeStep();
+    const { port } = makePort({ steps: { typed, legacy } });
+    const result = await runScaffoldPipeline(
+      {
+        pipeline: "default",
+        steps: [
+          { step: "typed", with: { count: "{{count}}" } },
+          { step: "typed", with: { count: false }, when: "featureFlag('TEST_OFF')" },
+          { step: "legacy" },
+          { step: "typed", with: { count: "9" } },
+        ],
+      },
+      [entry("render.txt", "rendered")],
+      { count: "7" },
+      target(),
+      port
+    );
+    assert.isTrue(result.isOk());
+    assert.equal(parses, 2);
+    assert.deepEqual(appliedValues, [{ count: 7 }, { count: 9 }]);
+    assert.strictEqual(appliedValues[0], parsedValues[0]);
+    assert.strictEqual(appliedValues[1], parsedValues[1]);
+    assert.lengthOf(legacy.applied, 1);
+    const invalid = await runScaffoldPipeline(
+      { pipeline: "default", steps: [{ step: "typed", with: { count: false } }] },
+      [],
+      {},
+      target(),
+      port
+    );
+    assert.equal(invalid._unsafeUnwrapErr().name, PIPELINE_PARAMS_VIOLATION);
+    assert.lengthOf(appliedValues, 2);
+    assert.equal(typed.validateParams({ count: false }), "count must be numeric");
+    assert.equal(
+      (await typed.apply({ count: false }, port))._unsafeUnwrapErr().name,
+      "InvalidCount"
+    );
+    assert.isUndefined(typed.validateParams({ count: "2" }));
+    assert.isTrue((await typed.apply({ count: "2" }, port)).isOk());
+  });
+
   it("AC-01: a known pipeline selects its orchestration; render then steps execute", async () => {
     const s1 = new FakeStep();
     const pipeline: Pipeline = { pipeline: "default", steps: [{ step: "s1" }] };
@@ -544,25 +734,22 @@ describe("runScaffoldPipeline (v4)", () => {
     assert.instanceOf(resC._unsafeUnwrapErr(), SystemError);
   });
 
-  it("AC-12: a manifest mutation is applied through the injected wrapper, never raw JSON", async () => {
-    const register = new FakeStep({
-      run: (r, ctx) => {
-        const file = typeof r.pluginManifestPath === "string" ? r.pluginManifestPath : "";
-        return ctx
-          .manifestWrapper("declarativeAgent")
-          .registerDeclarativeAgentAction("appPackage/manifest.json", file);
-      },
-    });
+  it("AC-12: a manifest mutation is applied through the injected service, never raw JSON", async () => {
+    const manifests = new RecordingDaManifestService();
+    const register = createDaActionRegisterPluginManifestStep(manifests);
     const pipeline: Pipeline = {
       pipeline: "default",
       steps: [
         {
           step: "da-action/register-plugin-manifest",
-          with: { pluginManifestPath: "appPackage/ai-plugin-{{MCPNamespace}}.json" },
+          with: {
+            teamsManifestPath: "appPackage/manifest.json",
+            pluginManifestPath: "appPackage/ai-plugin-{{MCPNamespace}}.json",
+          },
         },
       ],
     };
-    const { port, wrapper } = makePort({
+    const { port } = makePort({
       steps: { "da-action/register-plugin-manifest": register },
     });
     const res = await runScaffoldPipeline(
@@ -573,7 +760,7 @@ describe("runScaffoldPipeline (v4)", () => {
       port
     );
     assert.isTrue(res.isOk());
-    assert.deepStrictEqual(wrapper.registrations, [
+    assert.deepStrictEqual(manifests.registrations, [
       {
         teamsManifestPath: "appPackage/manifest.json",
         pluginManifestPath: "appPackage/ai-plugin-apigithubc.json",
@@ -658,14 +845,8 @@ describe("runScaffoldPipeline (v4)", () => {
   });
 
   it("AC-15: the modify pipeline — three steps run in order; render writes only absent files", async () => {
-    const register = new FakeStep({
-      run: (r, ctx) => {
-        const file = typeof r.pluginManifestPath === "string" ? r.pluginManifestPath : "";
-        return ctx
-          .manifestWrapper("declarativeAgent")
-          .registerDeclarativeAgentAction("appPackage/manifest.json", file);
-      },
-    });
+    const manifests = new RecordingDaManifestService();
+    const register = createDaActionRegisterPluginManifestStep(manifests);
     const inject = new FakeStep();
     const persist = new FakeStep();
     const pipeline: Pipeline = {
@@ -690,7 +871,7 @@ describe("runScaffoldPipeline (v4)", () => {
         },
       ],
     };
-    const { port, writes, wrapper } = makePort({
+    const { port, writes } = makePort({
       steps: {
         "da-action/register-plugin-manifest": register,
         "mcp-auth/inject-yml-action": inject,
@@ -717,7 +898,7 @@ describe("runScaffoldPipeline (v4)", () => {
     ]);
     assert.deepStrictEqual(outcome.written, ["appPackage/ai-plugin-apigithubc.json"]);
     assert.isTrue(writes.has("appPackage/ai-plugin-apigithubc.json"));
-    assert.deepStrictEqual(wrapper.registrations, [
+    assert.deepStrictEqual(manifests.registrations, [
       {
         teamsManifestPath: "appPackage/manifest.json",
         pluginManifestPath: "appPackage/ai-plugin-apigithubc.json",

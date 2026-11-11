@@ -1,0 +1,48 @@
+{
+  "launchConfigurations": [
+    [
+      "{",
+      "  \"name\": \"{{label}} Desktop Host\",",
+      "  \"type\": \"node-terminal\",",
+      "  \"request\": \"launch\",",
+      "  \"command\": \"npm run start:desktop:{{host}}\",",
+      "  \"cwd\": \"${workspaceFolder}\",",
+      "  \"preLaunchTask\": \"Install\",",
+      "  \"postDebugTask\": \"Stop Debug\",",
+      "  \"presentation\": {",
+      "    \"hidden\": true",
+      "  }",
+      "}"
+    ],
+    [
+      "{",
+      "  \"name\": \"{{label}} Desktop Attach (Edge Chromium)\",",
+      "  \"type\": \"msedge\",",
+      "  \"request\": \"attach\",",
+      "  \"port\": 9229,",
+      "  \"timeout\": 600000,",
+      "  \"webRoot\": \"${workspaceRoot}\",",
+      "  \"presentation\": {",
+      "    \"hidden\": true",
+      "  }",
+      "}"
+    ]
+  ],
+  "launchCompounds": [
+    [
+      "{",
+      "  \"name\": \"{{label}} Desktop (Edge Chromium)\",",
+      "  \"configurations\": [",
+      "    \"{{label}} Desktop Host\",",
+      "    \"{{label}} Desktop Attach (Edge Chromium)\"",
+      "  ],",
+      "  \"stopAll\": true",
+      "}"
+    ]
+  ],
+  "debugScripts": [
+    [
+      "    \"start:desktop:{{host}}\": \"office-addin-debugging start appPackage/manifest.json desktop --app {{host}}\","
+    ]
+  ]
+}

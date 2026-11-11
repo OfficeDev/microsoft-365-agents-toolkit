@@ -6,7 +6,7 @@
     {
       "step": "openapi/generate-plugin-files",
       "with": {
-        "apiSpecLocation": "{{apiSpecLocation}}",
+        "apiSpecLocation": "{{OpenApiSpecLocation}}",
         "apiOperations": "{{apiOperations}}"
       }
     },

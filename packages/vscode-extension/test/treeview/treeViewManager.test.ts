@@ -1,5 +1,5 @@
 import { TeamsAppManifest, ok } from "@microsoft/teamsfx-api";
-import { featureFlagManager, manifestUtils } from "@microsoft/teamsfx-core";
+import { featureFlagManager, FeatureFlags, manifestUtils } from "@microsoft/teamsfx-core";
 import { assert, vi } from "vitest";
 import * as vscode from "vscode";
 import * as globalVariables from "../../src/globalVariables";
@@ -75,7 +75,7 @@ describe("TreeViewManager", () => {
     assert.equal(setStatusStub.callCount, 2);
   });
 
-  it("updateDevelopmentTreeView", () => {
+  it("RET-SPFX-01: SPFx projects no longer expose add web part in the development tree", () => {
     mockValue(globalVariables, "isSPFxProject", false);
     vi.spyOn(featureFlagManager, "getBooleanValue").mockReturnValue(false);
     treeViewManager.registerTreeViews({
@@ -92,7 +92,11 @@ describe("TreeViewManager", () => {
     mockValue(globalVariables, "isSPFxProject", true);
     treeViewManager.updateDevelopmentTreeView();
 
-    assert.equal(commands.length, 5);
+    assert.equal(commands.length, 4);
+    assert.notInclude(
+      commands.map((command) => command.commandId),
+      "fx-extension.addWebpart"
+    );
   });
 
   it("updateTreeViewsByContent if remove project related commands", async () => {
@@ -173,5 +177,40 @@ describe("TreeViewManager", () => {
     const developmentTreeview = treeViewManager.getTreeView("teamsfx-development");
     assert.isDefined(developmentTreeview);
     assert.equal((developmentTreeview as any).commands.length, 9);
+  });
+
+  it.each([true, false])("shows Add Skill when Frontier is %s", (enabled) => {
+    vi.spyOn(featureFlagManager, "getBooleanValue").mockImplementation(
+      (flag) => flag === FeatureFlags.Frontier && enabled
+    );
+    mockValue(globalVariables, "isDeclarativeCopilotApp", true);
+
+    treeViewManager.registerTreeViews({
+      subscriptions: [],
+    } as unknown as vscode.ExtensionContext);
+
+    const developmentTreeview = treeViewManager.getTreeView(
+      "teamsfx-development"
+    ) as CommandsTreeViewProvider;
+    const addSkill = developmentTreeview
+      .getCommands()
+      .find((command) => command.commandId === "fx-extension.addSkill");
+    assert.isDefined(addSkill);
+    assert.equal(addSkill?.label, "Add Skill");
+  });
+
+  it("hides Add Skill outside declarative agent projects", () => {
+    mockValue(globalVariables, "isDeclarativeCopilotApp", false);
+    treeViewManager.registerTreeViews({
+      subscriptions: [],
+    } as unknown as vscode.ExtensionContext);
+
+    const developmentTreeview = treeViewManager.getTreeView(
+      "teamsfx-development"
+    ) as CommandsTreeViewProvider;
+    assert.notInclude(
+      developmentTreeview.getCommands().map((command) => command.commandId),
+      "fx-extension.addSkill"
+    );
   });
 });

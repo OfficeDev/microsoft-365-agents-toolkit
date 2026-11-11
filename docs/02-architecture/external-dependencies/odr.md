@@ -162,6 +162,11 @@ Rules a refactor must honor; each is a direct consequence of §1.
 7. **No assumed `odr` version.** The toolkit must not gate behavior on an
    ODR version string; the contract above is the only versioned surface
    it relies on.
+8. **Package family metadata is data, not executable code.** Publish-time
+   Local MCP signature checks pass `package_family_name` to a fixed PowerShell
+   script through a child-process environment variable, with shell execution
+   disabled. Only an exact `Store`, `System`, or `Enterprise` signature result
+   is accepted; missing, unknown, or multiple results fail validation.
 
 ## 3. Open questions (candidates for ADRs)
 

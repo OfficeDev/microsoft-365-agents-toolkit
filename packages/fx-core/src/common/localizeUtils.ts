@@ -8,6 +8,7 @@ import * as path from "path";
 import * as util from "util";
 import { useLocalTemplate } from "../component/generator/templateHelper";
 import { getResourceFolder } from "../folder";
+import { FeatureFlagName } from "./featureFlags";
 import { Locale } from "./globalVars";
 
 const LocaleStringMap = new Map<string, any>();
@@ -69,6 +70,15 @@ export function getLocalizedString(key: string, ...params: any[]): string {
     return getDefaultString(key, ...params);
   }
   return value || "";
+}
+
+export function getFeatureFlaggedLabel(label: string, featureFlagName: string): string {
+  switch (featureFlagName) {
+    case FeatureFlagName.Frontier:
+      return getLocalizedString("core.featureFlaggedLabel.frontier", label);
+    default:
+      return label;
+  }
 }
 
 export function getDefaultString(key: string, ...params: any[]): string {

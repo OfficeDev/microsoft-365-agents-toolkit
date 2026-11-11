@@ -1,0 +1,7 @@
+{
+  "name": "da-routing-fixture-backend",
+  "private": true,
+  "scripts": {
+    "build": "tsc"
+  }
+}

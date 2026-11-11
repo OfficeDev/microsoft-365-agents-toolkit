@@ -19,6 +19,37 @@ describe("ActionInjector", () => {
 
     return count;
   }
+
+  describe("generateAuthAction for API key", () => {
+    it("SCN-ADD-OPENAPI-KEY-02: includes the supplied secret reference", () => {
+      const result = ActionInjector.generateAuthAction(
+        "apiKey/register",
+        "apiKey",
+        "TEAMS_APP_ID",
+        "./appPackage/apiSpecification/openapi.yaml",
+        "APIKEY_REGISTRATION_ID",
+        undefined,
+        undefined,
+        undefined,
+        "SECRET_APIKEY_API_KEY"
+      );
+
+      assert.equal(result.with.primaryClientSecret, "${{SECRET_APIKEY_API_KEY}}");
+    });
+
+    it("SCN-ADD-OPENAPI-KEY-03: omits the secret reference when no value is supplied", () => {
+      const result = ActionInjector.generateAuthAction(
+        "apiKey/register",
+        "apiKey",
+        "TEAMS_APP_ID",
+        "./appPackage/apiSpecification/openapi.yaml",
+        "APIKEY_REGISTRATION_ID"
+      );
+
+      assert.notProperty(result.with, "primaryClientSecret");
+    });
+  });
+
   describe("injectCreateOAuthAction", () => {
     const sampleAuthAction = {
       uses: "oauth/register",
@@ -109,6 +140,21 @@ describe("ActionInjector", () => {
           configurationId: envName,
         },
       });
+    });
+
+    it("SCN-ADD-OPENAPI-OAUTH-02: omits PKCE configuration when disabled", () => {
+      const result = ActionInjector.generateAuthAction(
+        "oauth/register",
+        "testAuth",
+        "TEAMS_APP_ID",
+        "path/to/spec",
+        "TEST_AUTH_CONFIGURATION_ID",
+        "authorizationCode",
+        false,
+        false
+      );
+
+      assert.notProperty(result.with, "isPKCEEnabled");
     });
 
     it("should inject OAuth action successfully if no existing env names for configuration id exists", async () => {
@@ -205,6 +251,80 @@ describe("ActionInjector", () => {
       });
       assert.isTrue(writeStub.mock.calls[0][1].includes("oauth/register"));
       assert.isTrue(writeStub.mock.calls[0][1].includes("oauthName"));
+    });
+
+    it("SCN-ADD-OPENAPI-OAUTH-03: suffixes OAuth credential references with registration identity", async () => {
+      const ymlContent = `
+        provision:
+          - uses: teamsApp/create
+            writeToEnvironmentFile:
+              teamsAppId: TEAMS_APP_ID
+          - uses: oauth/register
+            writeToEnvironmentFile:
+              configurationId: REPAIR_AUTH_REGISTRATION_ID
+      `;
+      vi.spyOn(fs, "readFile").mockResolvedValue(ymlContent as any);
+      vi.spyOn(ActionInjector, "getTeamsAppIdEnvName").mockReturnValue("TEAMS_APP_ID");
+
+      const result = await ActionInjector.injectCreateOAuthAction(
+        "path/to/yml",
+        "repair-auth",
+        "path/to/spec",
+        true,
+        false,
+        false,
+        undefined,
+        {
+          clientId: "REPAIR_AUTH_CLIENT_ID",
+          clientSecret: "SECRET_REPAIR_AUTH_CLIENT_SECRET",
+          scope: "REPAIR_AUTH_SCOPE",
+        }
+      );
+
+      assert.deepEqual(result, {
+        defaultRegistrationIdEnvName: "REPAIR_AUTH_REGISTRATION_ID",
+        registrationIdEnvName: "REPAIR_AUTH_REGISTRATION_ID1",
+        clientIdEnvName: "REPAIR_AUTH_CLIENT_ID1",
+        clientSecretEnvName: "SECRET_REPAIR_AUTH_CLIENT_SECRET1",
+        scopeEnvName: "REPAIR_AUTH_SCOPE1",
+      });
+      assert.include(writeStub.mock.calls[0][1], "clientId: ${{REPAIR_AUTH_CLIENT_ID1}}");
+      assert.include(
+        writeStub.mock.calls[0][1],
+        "clientSecret: ${{SECRET_REPAIR_AUTH_CLIENT_SECRET1}}"
+      );
+      assert.include(writeStub.mock.calls[0][1], "scope: ${{REPAIR_AUTH_SCOPE1}}");
+    });
+
+    it("uses an unsuffixed client ID reference for a custom registration identity", async () => {
+      const ymlContent = `
+        provision:
+          - uses: teamsApp/create
+            writeToEnvironmentFile:
+              teamsAppId: TEAMS_APP_ID
+      `;
+      vi.spyOn(fs, "readFile").mockResolvedValue(ymlContent as any);
+      vi.spyOn(ActionInjector, "getTeamsAppIdEnvName").mockReturnValue("TEAMS_APP_ID");
+
+      const result = await ActionInjector.injectCreateOAuthAction(
+        "path/to/yml",
+        "repair-auth",
+        "path/to/spec",
+        true,
+        true,
+        undefined,
+        "CUSTOM_REGISTRATION_ID",
+        { clientId: "REPAIR_AUTH_CLIENT_ID" }
+      );
+
+      assert.deepEqual(result, {
+        defaultRegistrationIdEnvName: "REPAIR_AUTH_REGISTRATION_ID",
+        registrationIdEnvName: "CUSTOM_REGISTRATION_ID",
+        clientIdEnvName: "REPAIR_AUTH_CLIENT_ID",
+      });
+      assert.include(writeStub.mock.calls[0][1], "clientId: ${{REPAIR_AUTH_CLIENT_ID}}");
+      assert.notInclude(writeStub.mock.calls[0][1], "clientSecret:");
+      assert.notInclude(writeStub.mock.calls[0][1], "scope:");
     });
 
     it("should inject OAuth action successfully if no existing env names for configuration id exists with pkce enabled", async () => {
@@ -626,7 +746,7 @@ describe("ActionInjector", () => {
       }
     });
 
-    it("should handle existing OAuth action if env names for configuration id exists", async () => {
+    it("SCN-ADD-OPENAPI-KEY-05: suffixes the secret name with the unique registration suffix", async () => {
       const ymlPath = "path/to/yml";
       const authName = "testAuth";
       const specRelativePath = "path/to/spec";
@@ -654,20 +774,27 @@ describe("ActionInjector", () => {
       vi.spyOn(fs, "readFile").mockResolvedValue(ymlContent as any);
       vi.spyOn(Utils, "getSafeRegistrationIdEnvName").mockReturnValue("BEARERAUTH_REGISTRATION_ID");
       vi.spyOn(ActionInjector, "getTeamsAppIdEnvName").mockReturnValue("TEAMS_APP_ID");
+      vi.mocked(ActionInjector.generateAuthAction).mockRestore();
 
       const result = await ActionInjector.injectCreateAPIKeyAction(
         ymlPath,
         authName,
         specRelativePath,
-        forceToAddNew
+        forceToAddNew,
+        undefined,
+        "SECRET_BEARERAUTH_API_KEY"
       );
 
       assert.deepEqual(result, {
         defaultRegistrationIdEnvName: "BEARERAUTH_REGISTRATION_ID",
         registrationIdEnvName: "BEARERAUTH_REGISTRATION_ID1",
+        primaryClientSecretEnvName: "SECRET_BEARERAUTH_API_KEY1",
       });
-
       assert.equal(countOccurrences(writeStub.mock.calls[0][1], "apiKey/register"), 2);
+      assert.include(
+        writeStub.mock.calls[0][1],
+        "primaryClientSecret: ${{SECRET_BEARERAUTH_API_KEY1}}"
+      );
     });
 
     it("should check for authName and specPath in existing OAuth actions", async () => {
@@ -1154,6 +1281,100 @@ describe("ActionInjector", () => {
     });
   });
 
+  describe("injectCreateAPIKeyActionForMCP", () => {
+    afterEach(() => {
+      vi.restoreAllMocks();
+    });
+
+    it("throws if the provision node is missing", async () => {
+      vi.spyOn(fs, "readFile").mockResolvedValue("version: 1.0.0" as any);
+
+      try {
+        await ActionInjector.injectCreateAPIKeyActionForMCP(
+          "m365agents.yml",
+          "examplecom",
+          "MCP_DA_AUTH_ID_EXAMPLECOM",
+          "https://example.com/mcp"
+        );
+        assert.fail("Expected InjectAPIKeyActionFailedError to be thrown");
+      } catch (error) {
+        assert.instanceOf(error, InjectAPIKeyActionFailedError);
+      }
+    });
+
+    it("returns without writing if the registration ID already exists", async () => {
+      const ymlContent = `
+        provision:
+          - uses: apiKey/register
+            writeToEnvironmentFile:
+              registrationId: MCP_DA_AUTH_ID_EXAMPLECOM
+      `;
+      vi.spyOn(fs, "readFile").mockResolvedValue(ymlContent as any);
+      const writeStub = vi.spyOn(fs, "writeFile").mockResolvedValue();
+
+      const result = await ActionInjector.injectCreateAPIKeyActionForMCP(
+        "m365agents.yml",
+        "examplecom",
+        "MCP_DA_AUTH_ID_EXAMPLECOM",
+        "https://example.com/mcp"
+      );
+
+      assert.isUndefined(result);
+      assert.isFalse(writeStub.mock.calls.length > 0);
+    });
+
+    it("throws if the Teams app ID output is missing", async () => {
+      const ymlContent = `
+        provision:
+          - uses: teamsApp/create
+      `;
+      vi.spyOn(fs, "readFile").mockResolvedValue(ymlContent as any);
+
+      try {
+        await ActionInjector.injectCreateAPIKeyActionForMCP(
+          "m365agents.yml",
+          "examplecom",
+          "MCP_DA_AUTH_ID_EXAMPLECOM",
+          "https://example.com/mcp"
+        );
+        assert.fail("Expected InjectAPIKeyActionFailedError to be thrown");
+      } catch (error) {
+        assert.instanceOf(error, InjectAPIKeyActionFailedError);
+      }
+    });
+
+    it("SCN-ADD-MCP-15: injects idempotent API-key registration using the MCP base URL", async () => {
+      const ymlContent = `
+        provision:
+          - uses: teamsApp/create
+            writeToEnvironmentFile:
+              teamsAppId: TEAMS_APP_ID
+      `;
+      vi.spyOn(fs, "readFile").mockResolvedValue(ymlContent as any);
+      const writeStub = vi.spyOn(fs, "writeFile").mockResolvedValue();
+
+      const result = await ActionInjector.injectCreateAPIKeyActionForMCP(
+        "m365agents.yml",
+        "examplecom",
+        "MCP_DA_AUTH_ID_EXAMPLECOM",
+        "https://example.com/mcp"
+      );
+
+      assert.deepEqual(result, {
+        defaultRegistrationIdEnvName: "MCP_DA_AUTH_ID_EXAMPLECOM",
+        registrationIdEnvName: "MCP_DA_AUTH_ID_EXAMPLECOM",
+      });
+      const written = String(writeStub.mock.calls[0][1]);
+      assert.include(written, "uses: apiKey/register");
+      assert.include(written, "name: examplecom");
+      assert.include(written, "appId: ${{TEAMS_APP_ID}}");
+      assert.include(written, "baseUrl: https://example.com/mcp");
+      assert.include(written, "registrationId: MCP_DA_AUTH_ID_EXAMPLECOM");
+      assert.notInclude(written, "apiSpecPath:");
+      assert.notInclude(written, "primaryClientSecret:");
+    });
+  });
+
   describe("injectCreateDcrActionForMCP", () => {
     let writeStub: any;
 
@@ -1165,7 +1386,7 @@ describe("ActionInjector", () => {
       vi.restoreAllMocks();
     });
 
-    it("should inject dcr/register action successfully", async () => {
+    it("DCR-07: injects the MCP endpoint without pinning the authorization server", async () => {
       const ymlPath = "path/to/yml";
       const authName = "testDcrAuth";
       const registrationId = "MCP_DA_AUTH_ID_APIGITHUBC";
@@ -1202,7 +1423,9 @@ describe("ActionInjector", () => {
       assert.isTrue(writtenContent.includes(authName));
       assert.isTrue(writtenContent.includes(registrationId));
       assert.isTrue(writtenContent.includes(mcpServerUrl));
-      assert.isTrue(writtenContent.includes(wellKnownUrl));
+      assert.include(writtenContent, `mcpResourceUrl: ${mcpServerUrl}`);
+      assert.notInclude(writtenContent, "wellKnownAuthorizationServer:");
+      assert.notInclude(writtenContent, "resource:");
       assert.isTrue(writtenContent.includes("applicableToApps: AnyApp"));
       assert.isTrue(writtenContent.includes("targetAudience: HomeTenant"));
     });

@@ -13,6 +13,8 @@
     <PackageReference Include="Microsoft.Azure.Functions.Extensions" Version="1.1.0" />
     <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.Http" Version="3.0.2" />
     <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="3.0.11" />
+    <!-- Override the ASP.NET Core 2.2 transitive dependency to fix CVE-2021-26701. -->
+    <PackageReference Include="System.Text.Encodings.Web" Version="4.5.1" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\src\Microsoft.Azure.WebJobs.Extensions.TeamsFx.csproj" />

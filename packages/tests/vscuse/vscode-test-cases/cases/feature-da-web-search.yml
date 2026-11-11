@@ -1,0 +1,72 @@
+version: 1
+
+cases:
+  - id: feature-da-web-search-url
+    scenarioId: SCN-DA-CREATE-NO-ACTION
+    workItemIds: [31662789]
+    steps: [scaffold, check-initial, add-url, check-url]
+
+  - id: feature-da-web-search-replace-all
+    scenarioId: SCN-DA-CREATE-NO-ACTION
+    workItemIds: [31662789]
+    steps: [scaffold, check-initial, add-url, check-url, add-all, check-all]
+
+steps:
+  scaffold:
+    type: scaffold
+    with:
+      template: da/no-action
+      answers:
+        - question: projectType
+          value: copilot-agent-type
+        - question: daTemplate
+          value: no-action
+        - question: workspaceFolder
+          value: default
+        - question: appName
+          type: text
+          value: "${{var:app_name:vscuse_app_#####}}"
+
+  check-initial:
+    type: checks
+    with:
+      - type: file
+        path: appPackage/declarativeAgent.json
+        expect:
+          exists: true
+          notContains: ['"capabilities"']
+      - type: file
+        path: README.md
+        expect:
+          exists: true
+
+  add-url:
+    type: addDaCapability
+    with:
+      capability: webSearch
+      searchType: url
+      url: https://example.com
+
+  check-url:
+    type: checks
+    with:
+      - type: file
+        path: appPackage/declarativeAgent.json
+        expect:
+          contains:
+            ['"name": "WebSearch"', '"sites"', '"url": "https://example.com"']
+
+  add-all:
+    type: addDaCapability
+    with:
+      capability: webSearch
+      searchType: all
+
+  check-all:
+    type: checks
+    with:
+      - type: file
+        path: appPackage/declarativeAgent.json
+        expect:
+          contains: ['"name": "WebSearch"']
+          notContains: ['"sites"', "https://example.com"]

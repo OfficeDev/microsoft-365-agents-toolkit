@@ -161,12 +161,14 @@ describe("SharedOpts", () => {
       await runCommand(Stage.deployTeams);
       expect(deployTeamsManifest).toHaveBeenCalledTimes(1);
     });
-    it("addWebpart", async () => {
+    it("RET-SPFX-02: rejects the retired addWebpart stage without dispatching", async () => {
       mockValue(globalVariables, "core", new MockCore());
       const addWebpart = vi.spyOn(globalVariables.core, "addWebpart");
 
-      await runCommand(Stage.addWebpart);
-      expect(addWebpart).toHaveBeenCalledTimes(1);
+      const result = await runCommand(Stage.addWebpart);
+      expect(result.isErr()).toBe(true);
+      if (result.isErr()) expect(result.error.name).toBe("UnsupportedOperation");
+      expect(addWebpart).not.toHaveBeenCalled();
     });
     it("createAppPackage", async () => {
       mockValue(globalVariables, "core", new MockCore());

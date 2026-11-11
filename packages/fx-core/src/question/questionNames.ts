@@ -50,6 +50,11 @@ export enum QuestionNames {
   OauthClientSecret = "oauth-client-secret",
   OauthClientId = "oauth-client-id",
   OauthConfirm = "oauth-confirm",
+  OpenApiAuthIdentityProvider = "openapi-auth-identity-provider",
+  OpenApiAuthClientId = "openapi-auth-client-id",
+  OpenApiAuthClientSecret = "openapi-auth-client-secret",
+  OpenApiAuthScopes = "openapi-auth-scopes",
+  OpenApiAuthPKCE = "openapi-auth-pkce",
 
   CustomCopilotRag = "custom-copilot-rag",
   CustomCopilotAssistant = "custom-copilot-agent",
@@ -163,6 +168,7 @@ export enum QuestionNames {
   MCPForDAAuthType = "mcp-da-auth-type",
   MCPForDAClientId = "mcp-da-client-id",
   MCPForDAClientSecret = "mcp-da-client-secret",
+  MCPForDAApiKey = "mcp-da-api-key",
   MCPForDAScopes = "mcp-da-scopes",
   MCPToolsFilePath = "mcp-tools-file-path",
 

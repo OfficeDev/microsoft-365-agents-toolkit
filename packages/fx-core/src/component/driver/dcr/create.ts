@@ -24,6 +24,10 @@ import { CreateDcrArgs } from "./interface/createDcrArgs";
 import { CreateDcrOutputs, OutputKeys } from "./interface/createDcrOutputs";
 import { logMessageKeys } from "./utility/constants";
 import { validateUrl } from "../oauth/utility/utility";
+import {
+  mapPersonalMicrosoftAccountsOption,
+  validateSupportedAccountTypesCloud,
+} from "../oauth/utility/supportedAccountTypes";
 
 const actionName = "dcr/register"; // DO NOT MODIFY the name
 
@@ -46,6 +50,19 @@ export class CreateDcrDriver implements StepDriver {
 
       if (!outputEnvVarNames) {
         throw new OutputEnvironmentVariableUndefinedError(actionName);
+      }
+
+      const supportedAccountTypesResult = mapPersonalMicrosoftAccountsOption(
+        args.includePersonalMicrosoftAccounts,
+        actionName
+      );
+      if (supportedAccountTypesResult.isErr()) {
+        throw supportedAccountTypesResult.error;
+      }
+      const supportedAccountTypes = supportedAccountTypesResult.value;
+      const cloudValidation = validateSupportedAccountTypesCloud(supportedAccountTypes, actionName);
+      if (cloudValidation.isErr()) {
+        throw cloudValidation.error;
       }
 
       const state = loadStateFromEnv(outputEnvVarNames) as CreateDcrOutputs;
@@ -80,11 +97,16 @@ export class CreateDcrDriver implements StepDriver {
         const dcrRegistration: DcrRegistration = {
           clientName: args.name,
           m365AppId:
-            applicableToApps === OauthRegistrationAppType.SpecificApp ? args.appId ?? "" : "",
+            applicableToApps === OauthRegistrationAppType.SpecificApp ? (args.appId ?? "") : "",
           applicableToApps: applicableToApps,
           targetAudience: targetAudience,
           targetUrlsShouldStartWith: args.targetUrlsShouldStartWith ?? [],
-          wellKnownAuthorizationServer: args.wellKnownAuthorizationServer,
+          ...(args.mcpResourceUrl !== undefined ? { mcpResourceUrl: args.mcpResourceUrl } : {}),
+          ...(args.wellKnownAuthorizationServer !== undefined
+            ? { wellKnownAuthorizationServer: args.wellKnownAuthorizationServer }
+            : {}),
+          ...(args.resource !== undefined ? { resource: args.resource } : {}),
+          ...(supportedAccountTypes !== undefined ? { supportedAccountTypes } : {}),
         };
 
         const oauthRegistrationRes = await teamsGraphClient.createDcrRegistration(
@@ -147,13 +169,40 @@ export class CreateDcrDriver implements StepDriver {
       invalidParameters.push("appId");
     }
 
+    if (args.mcpResourceUrl === undefined && args.wellKnownAuthorizationServer === undefined) {
+      invalidParameters.push("mcpResourceUrl", "wellKnownAuthorizationServer");
+    }
+
     if (
-      typeof args.wellKnownAuthorizationServer !== "string" ||
-      !args.wellKnownAuthorizationServer
+      args.mcpResourceUrl !== undefined &&
+      (typeof args.mcpResourceUrl !== "string" || !validateUrl(args.mcpResourceUrl))
     ) {
-      invalidParameters.push("wellKnownAuthorizationServer");
-    } else if (!validateUrl(args.wellKnownAuthorizationServer)) {
-      throw new DcrWellKnownInvalidError(actionName);
+      invalidParameters.push("mcpResourceUrl");
+    }
+
+    if (args.wellKnownAuthorizationServer !== undefined) {
+      if (
+        typeof args.wellKnownAuthorizationServer !== "string" ||
+        !args.wellKnownAuthorizationServer
+      ) {
+        invalidParameters.push("wellKnownAuthorizationServer");
+      } else if (!validateUrl(args.wellKnownAuthorizationServer)) {
+        throw new DcrWellKnownInvalidError(actionName);
+      }
+    }
+
+    if (args.resource !== undefined) {
+      try {
+        if (
+          typeof args.resource !== "string" ||
+          args.resource.includes("#") ||
+          !new URL(args.resource).protocol
+        ) {
+          invalidParameters.push("resource");
+        }
+      } catch {
+        invalidParameters.push("resource");
+      }
     }
 
     if (
@@ -172,13 +221,12 @@ export class CreateDcrDriver implements StepDriver {
       invalidParameters.push("targetAudience");
     }
 
-    if (args.targetUrlsShouldStartWith) {
-      for (const url of args.targetUrlsShouldStartWith) {
-        if (typeof url !== "string" || !validateUrl(url)) {
-          invalidParameters.push("targetUrlsShouldStartWith");
-          break;
-        }
-      }
+    if (
+      args.targetUrlsShouldStartWith !== undefined &&
+      (!Array.isArray(args.targetUrlsShouldStartWith) ||
+        args.targetUrlsShouldStartWith.some((url) => typeof url !== "string" || !validateUrl(url)))
+    ) {
+      invalidParameters.push("targetUrlsShouldStartWith");
     }
 
     if (invalidParameters.length > 0) {

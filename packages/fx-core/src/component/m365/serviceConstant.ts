@@ -17,11 +17,6 @@ export const MOS3ApiDefinitions: any = {
     method: "POST",
     path: /^\/dev\/v1\/users\/packages\/addins$/,
   },
-  PostDevPackage: {
-    key: "post_dev_package",
-    method: "POST",
-    path: /^\/dev\/v1\/users\/packages$/,
-  },
   GetDevStatus: {
     key: "get_dev_status",
     method: "GET",
@@ -32,15 +27,25 @@ export const MOS3ApiDefinitions: any = {
     method: "POST",
     path: /^\/builder\/v1\/users\/packages(\?|$)/,
   },
+  GetWorkIqPolicy: {
+    key: "get_workiq_policy",
+    method: "GET",
+    path: /\/builder\/v1\/tenants\/titles\/[^/]+\/policies\/workiq$/,
+  },
+  PutWorkIqPolicy: {
+    key: "put_workiq_policy",
+    method: "PUT",
+    path: /\/builder\/v1\/tenants\/titles\/[^/]+\/policies\/workiq$/,
+  },
+  PostBuilderDirectory: {
+    key: "create_skill_directory",
+    method: "POST",
+    path: /^\/builder\/v1\/directories(\?|$)/,
+  },
   GetBuilderStatus: {
     key: "get_builder_status",
     method: "GET",
     path: /^\/builder\/v1\/users\/packages\/status\/[^\/]+/,
-  },
-  PostDevPackageAcquisitions: {
-    key: "post_dev_package_acquire",
-    method: "POST",
-    path: /^\/dev\/v1\/users\/packages\/acquisitions/,
   },
   GetShareInfo: {
     key: "get_share_info",

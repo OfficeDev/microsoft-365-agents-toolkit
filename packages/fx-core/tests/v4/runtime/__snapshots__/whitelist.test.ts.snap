@@ -1,0 +1,1159 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`v4 runtime — whitelist functions + ExpressionRuntimePort > office add-in debug launch surface > AC-30: preserves Office fragment bytes for every host subset 1`] = `
+[
+  {
+    "compounds": "{
+      "name": "Word Desktop (Edge Chromium)",
+      "configurations": [
+        "Word Desktop Host",
+        "Word Desktop Attach (Edge Chromium)"
+      ],
+      "stopAll": true
+    }",
+    "configurations": "{
+      "name": "Word Desktop Host",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "npm run start:desktop:word",
+      "cwd": "\${workspaceFolder}",
+      "preLaunchTask": "Install",
+      "postDebugTask": "Stop Debug",
+      "presentation": {
+        "hidden": true
+      }
+    },
+    {
+      "name": "Word Desktop Attach (Edge Chromium)",
+      "type": "msedge",
+      "request": "attach",
+      "port": 9229,
+      "timeout": 600000,
+      "webRoot": "\${workspaceRoot}",
+      "presentation": {
+        "hidden": true
+      }
+    }",
+    "debugApp": "word",
+    "scopes": ""document"",
+    "scripts": ""start:desktop:word": "office-addin-debugging start appPackage/manifest.json desktop --app word",",
+    "selected": "",
+  },
+  {
+    "compounds": "{
+      "name": "Word Desktop (Edge Chromium)",
+      "configurations": [
+        "Word Desktop Host",
+        "Word Desktop Attach (Edge Chromium)"
+      ],
+      "stopAll": true
+    }",
+    "configurations": "{
+      "name": "Word Desktop Host",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "npm run start:desktop:word",
+      "cwd": "\${workspaceFolder}",
+      "preLaunchTask": "Install",
+      "postDebugTask": "Stop Debug",
+      "presentation": {
+        "hidden": true
+      }
+    },
+    {
+      "name": "Word Desktop Attach (Edge Chromium)",
+      "type": "msedge",
+      "request": "attach",
+      "port": 9229,
+      "timeout": 600000,
+      "webRoot": "\${workspaceRoot}",
+      "presentation": {
+        "hidden": true
+      }
+    }",
+    "debugApp": "word",
+    "scopes": ""document"",
+    "scripts": ""start:desktop:word": "office-addin-debugging start appPackage/manifest.json desktop --app word",",
+    "selected": "word",
+  },
+  {
+    "compounds": "{
+      "name": "Excel Desktop (Edge Chromium)",
+      "configurations": [
+        "Excel Desktop Host",
+        "Excel Desktop Attach (Edge Chromium)"
+      ],
+      "stopAll": true
+    }",
+    "configurations": "{
+      "name": "Excel Desktop Host",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "npm run start:desktop:excel",
+      "cwd": "\${workspaceFolder}",
+      "preLaunchTask": "Install",
+      "postDebugTask": "Stop Debug",
+      "presentation": {
+        "hidden": true
+      }
+    },
+    {
+      "name": "Excel Desktop Attach (Edge Chromium)",
+      "type": "msedge",
+      "request": "attach",
+      "port": 9229,
+      "timeout": 600000,
+      "webRoot": "\${workspaceRoot}",
+      "presentation": {
+        "hidden": true
+      }
+    }",
+    "debugApp": "excel",
+    "scopes": ""workbook"",
+    "scripts": ""start:desktop:excel": "office-addin-debugging start appPackage/manifest.json desktop --app excel",",
+    "selected": "excel",
+  },
+  {
+    "compounds": "{
+      "name": "Word Desktop (Edge Chromium)",
+      "configurations": [
+        "Word Desktop Host",
+        "Word Desktop Attach (Edge Chromium)"
+      ],
+      "stopAll": true
+    },
+    {
+      "name": "Excel Desktop (Edge Chromium)",
+      "configurations": [
+        "Excel Desktop Host",
+        "Excel Desktop Attach (Edge Chromium)"
+      ],
+      "stopAll": true
+    }",
+    "configurations": "{
+      "name": "Word Desktop Host",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "npm run start:desktop:word",
+      "cwd": "\${workspaceFolder}",
+      "preLaunchTask": "Install",
+      "postDebugTask": "Stop Debug",
+      "presentation": {
+        "hidden": true
+      }
+    },
+    {
+      "name": "Word Desktop Attach (Edge Chromium)",
+      "type": "msedge",
+      "request": "attach",
+      "port": 9229,
+      "timeout": 600000,
+      "webRoot": "\${workspaceRoot}",
+      "presentation": {
+        "hidden": true
+      }
+    },
+    {
+      "name": "Excel Desktop Host",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "npm run start:desktop:excel",
+      "cwd": "\${workspaceFolder}",
+      "preLaunchTask": "Install",
+      "postDebugTask": "Stop Debug",
+      "presentation": {
+        "hidden": true
+      }
+    },
+    {
+      "name": "Excel Desktop Attach (Edge Chromium)",
+      "type": "msedge",
+      "request": "attach",
+      "port": 9229,
+      "timeout": 600000,
+      "webRoot": "\${workspaceRoot}",
+      "presentation": {
+        "hidden": true
+      }
+    }",
+    "debugApp": "word",
+    "scopes": ""workbook",
+                    "document"",
+    "scripts": ""start:desktop:word": "office-addin-debugging start appPackage/manifest.json desktop --app word",
+    "start:desktop:excel": "office-addin-debugging start appPackage/manifest.json desktop --app excel",",
+    "selected": "word,excel",
+  },
+  {
+    "compounds": "{
+      "name": "PowerPoint Desktop (Edge Chromium)",
+      "configurations": [
+        "PowerPoint Desktop Host",
+        "PowerPoint Desktop Attach (Edge Chromium)"
+      ],
+      "stopAll": true
+    }",
+    "configurations": "{
+      "name": "PowerPoint Desktop Host",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "npm run start:desktop:powerpoint",
+      "cwd": "\${workspaceFolder}",
+      "preLaunchTask": "Install",
+      "postDebugTask": "Stop Debug",
+      "presentation": {
+        "hidden": true
+      }
+    },
+    {
+      "name": "PowerPoint Desktop Attach (Edge Chromium)",
+      "type": "msedge",
+      "request": "attach",
+      "port": 9229,
+      "timeout": 600000,
+      "webRoot": "\${workspaceRoot}",
+      "presentation": {
+        "hidden": true
+      }
+    }",
+    "debugApp": "powerpoint",
+    "scopes": ""presentation"",
+    "scripts": ""start:desktop:powerpoint": "office-addin-debugging start appPackage/manifest.json desktop --app powerpoint",",
+    "selected": "powerpoint",
+  },
+  {
+    "compounds": "{
+      "name": "Word Desktop (Edge Chromium)",
+      "configurations": [
+        "Word Desktop Host",
+        "Word Desktop Attach (Edge Chromium)"
+      ],
+      "stopAll": true
+    },
+    {
+      "name": "PowerPoint Desktop (Edge Chromium)",
+      "configurations": [
+        "PowerPoint Desktop Host",
+        "PowerPoint Desktop Attach (Edge Chromium)"
+      ],
+      "stopAll": true
+    }",
+    "configurations": "{
+      "name": "Word Desktop Host",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "npm run start:desktop:word",
+      "cwd": "\${workspaceFolder}",
+      "preLaunchTask": "Install",
+      "postDebugTask": "Stop Debug",
+      "presentation": {
+        "hidden": true
+      }
+    },
+    {
+      "name": "Word Desktop Attach (Edge Chromium)",
+      "type": "msedge",
+      "request": "attach",
+      "port": 9229,
+      "timeout": 600000,
+      "webRoot": "\${workspaceRoot}",
+      "presentation": {
+        "hidden": true
+      }
+    },
+    {
+      "name": "PowerPoint Desktop Host",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "npm run start:desktop:powerpoint",
+      "cwd": "\${workspaceFolder}",
+      "preLaunchTask": "Install",
+      "postDebugTask": "Stop Debug",
+      "presentation": {
+        "hidden": true
+      }
+    },
+    {
+      "name": "PowerPoint Desktop Attach (Edge Chromium)",
+      "type": "msedge",
+      "request": "attach",
+      "port": 9229,
+      "timeout": 600000,
+      "webRoot": "\${workspaceRoot}",
+      "presentation": {
+        "hidden": true
+      }
+    }",
+    "debugApp": "word",
+    "scopes": ""document",
+                    "presentation"",
+    "scripts": ""start:desktop:word": "office-addin-debugging start appPackage/manifest.json desktop --app word",
+    "start:desktop:powerpoint": "office-addin-debugging start appPackage/manifest.json desktop --app powerpoint",",
+    "selected": "word,powerpoint",
+  },
+  {
+    "compounds": "{
+      "name": "Excel Desktop (Edge Chromium)",
+      "configurations": [
+        "Excel Desktop Host",
+        "Excel Desktop Attach (Edge Chromium)"
+      ],
+      "stopAll": true
+    },
+    {
+      "name": "PowerPoint Desktop (Edge Chromium)",
+      "configurations": [
+        "PowerPoint Desktop Host",
+        "PowerPoint Desktop Attach (Edge Chromium)"
+      ],
+      "stopAll": true
+    }",
+    "configurations": "{
+      "name": "Excel Desktop Host",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "npm run start:desktop:excel",
+      "cwd": "\${workspaceFolder}",
+      "preLaunchTask": "Install",
+      "postDebugTask": "Stop Debug",
+      "presentation": {
+        "hidden": true
+      }
+    },
+    {
+      "name": "Excel Desktop Attach (Edge Chromium)",
+      "type": "msedge",
+      "request": "attach",
+      "port": 9229,
+      "timeout": 600000,
+      "webRoot": "\${workspaceRoot}",
+      "presentation": {
+        "hidden": true
+      }
+    },
+    {
+      "name": "PowerPoint Desktop Host",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "npm run start:desktop:powerpoint",
+      "cwd": "\${workspaceFolder}",
+      "preLaunchTask": "Install",
+      "postDebugTask": "Stop Debug",
+      "presentation": {
+        "hidden": true
+      }
+    },
+    {
+      "name": "PowerPoint Desktop Attach (Edge Chromium)",
+      "type": "msedge",
+      "request": "attach",
+      "port": 9229,
+      "timeout": 600000,
+      "webRoot": "\${workspaceRoot}",
+      "presentation": {
+        "hidden": true
+      }
+    }",
+    "debugApp": "excel",
+    "scopes": ""workbook",
+                    "presentation"",
+    "scripts": ""start:desktop:excel": "office-addin-debugging start appPackage/manifest.json desktop --app excel",
+    "start:desktop:powerpoint": "office-addin-debugging start appPackage/manifest.json desktop --app powerpoint",",
+    "selected": "excel,powerpoint",
+  },
+  {
+    "compounds": "{
+      "name": "Word Desktop (Edge Chromium)",
+      "configurations": [
+        "Word Desktop Host",
+        "Word Desktop Attach (Edge Chromium)"
+      ],
+      "stopAll": true
+    },
+    {
+      "name": "Excel Desktop (Edge Chromium)",
+      "configurations": [
+        "Excel Desktop Host",
+        "Excel Desktop Attach (Edge Chromium)"
+      ],
+      "stopAll": true
+    },
+    {
+      "name": "PowerPoint Desktop (Edge Chromium)",
+      "configurations": [
+        "PowerPoint Desktop Host",
+        "PowerPoint Desktop Attach (Edge Chromium)"
+      ],
+      "stopAll": true
+    }",
+    "configurations": "{
+      "name": "Word Desktop Host",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "npm run start:desktop:word",
+      "cwd": "\${workspaceFolder}",
+      "preLaunchTask": "Install",
+      "postDebugTask": "Stop Debug",
+      "presentation": {
+        "hidden": true
+      }
+    },
+    {
+      "name": "Word Desktop Attach (Edge Chromium)",
+      "type": "msedge",
+      "request": "attach",
+      "port": 9229,
+      "timeout": 600000,
+      "webRoot": "\${workspaceRoot}",
+      "presentation": {
+        "hidden": true
+      }
+    },
+    {
+      "name": "Excel Desktop Host",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "npm run start:desktop:excel",
+      "cwd": "\${workspaceFolder}",
+      "preLaunchTask": "Install",
+      "postDebugTask": "Stop Debug",
+      "presentation": {
+        "hidden": true
+      }
+    },
+    {
+      "name": "Excel Desktop Attach (Edge Chromium)",
+      "type": "msedge",
+      "request": "attach",
+      "port": 9229,
+      "timeout": 600000,
+      "webRoot": "\${workspaceRoot}",
+      "presentation": {
+        "hidden": true
+      }
+    },
+    {
+      "name": "PowerPoint Desktop Host",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "npm run start:desktop:powerpoint",
+      "cwd": "\${workspaceFolder}",
+      "preLaunchTask": "Install",
+      "postDebugTask": "Stop Debug",
+      "presentation": {
+        "hidden": true
+      }
+    },
+    {
+      "name": "PowerPoint Desktop Attach (Edge Chromium)",
+      "type": "msedge",
+      "request": "attach",
+      "port": 9229,
+      "timeout": 600000,
+      "webRoot": "\${workspaceRoot}",
+      "presentation": {
+        "hidden": true
+      }
+    }",
+    "debugApp": "word",
+    "scopes": ""workbook",
+                    "document",
+                    "presentation"",
+    "scripts": ""start:desktop:word": "office-addin-debugging start appPackage/manifest.json desktop --app word",
+    "start:desktop:excel": "office-addin-debugging start appPackage/manifest.json desktop --app excel",
+    "start:desktop:powerpoint": "office-addin-debugging start appPackage/manifest.json desktop --app powerpoint",",
+    "selected": "word,excel,powerpoint",
+  },
+  {
+    "compounds": "{
+      "name": "Outlook Desktop (Edge Chromium)",
+      "configurations": [
+        "Outlook Desktop Host",
+        "Outlook Desktop Attach (Edge Chromium)"
+      ],
+      "stopAll": true
+    }",
+    "configurations": "{
+      "name": "Outlook Desktop Host",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "npm run start:desktop:outlook",
+      "cwd": "\${workspaceFolder}",
+      "preLaunchTask": "Install",
+      "postDebugTask": "Stop Debug",
+      "presentation": {
+        "hidden": true
+      }
+    },
+    {
+      "name": "Outlook Desktop Attach (Edge Chromium)",
+      "type": "msedge",
+      "request": "attach",
+      "port": 9229,
+      "timeout": 600000,
+      "webRoot": "\${workspaceRoot}",
+      "presentation": {
+        "hidden": true
+      }
+    }",
+    "debugApp": "outlook",
+    "scopes": ""mail"",
+    "scripts": ""start:desktop:outlook": "office-addin-debugging start appPackage/manifest.json desktop --app outlook",",
+    "selected": "outlook",
+  },
+  {
+    "compounds": "{
+      "name": "Word Desktop (Edge Chromium)",
+      "configurations": [
+        "Word Desktop Host",
+        "Word Desktop Attach (Edge Chromium)"
+      ],
+      "stopAll": true
+    },
+    {
+      "name": "Outlook Desktop (Edge Chromium)",
+      "configurations": [
+        "Outlook Desktop Host",
+        "Outlook Desktop Attach (Edge Chromium)"
+      ],
+      "stopAll": true
+    }",
+    "configurations": "{
+      "name": "Word Desktop Host",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "npm run start:desktop:word",
+      "cwd": "\${workspaceFolder}",
+      "preLaunchTask": "Install",
+      "postDebugTask": "Stop Debug",
+      "presentation": {
+        "hidden": true
+      }
+    },
+    {
+      "name": "Word Desktop Attach (Edge Chromium)",
+      "type": "msedge",
+      "request": "attach",
+      "port": 9229,
+      "timeout": 600000,
+      "webRoot": "\${workspaceRoot}",
+      "presentation": {
+        "hidden": true
+      }
+    },
+    {
+      "name": "Outlook Desktop Host",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "npm run start:desktop:outlook",
+      "cwd": "\${workspaceFolder}",
+      "preLaunchTask": "Install",
+      "postDebugTask": "Stop Debug",
+      "presentation": {
+        "hidden": true
+      }
+    },
+    {
+      "name": "Outlook Desktop Attach (Edge Chromium)",
+      "type": "msedge",
+      "request": "attach",
+      "port": 9229,
+      "timeout": 600000,
+      "webRoot": "\${workspaceRoot}",
+      "presentation": {
+        "hidden": true
+      }
+    }",
+    "debugApp": "word",
+    "scopes": ""mail",
+                    "document"",
+    "scripts": ""start:desktop:word": "office-addin-debugging start appPackage/manifest.json desktop --app word",
+    "start:desktop:outlook": "office-addin-debugging start appPackage/manifest.json desktop --app outlook",",
+    "selected": "word,outlook",
+  },
+  {
+    "compounds": "{
+      "name": "Excel Desktop (Edge Chromium)",
+      "configurations": [
+        "Excel Desktop Host",
+        "Excel Desktop Attach (Edge Chromium)"
+      ],
+      "stopAll": true
+    },
+    {
+      "name": "Outlook Desktop (Edge Chromium)",
+      "configurations": [
+        "Outlook Desktop Host",
+        "Outlook Desktop Attach (Edge Chromium)"
+      ],
+      "stopAll": true
+    }",
+    "configurations": "{
+      "name": "Excel Desktop Host",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "npm run start:desktop:excel",
+      "cwd": "\${workspaceFolder}",
+      "preLaunchTask": "Install",
+      "postDebugTask": "Stop Debug",
+      "presentation": {
+        "hidden": true
+      }
+    },
+    {
+      "name": "Excel Desktop Attach (Edge Chromium)",
+      "type": "msedge",
+      "request": "attach",
+      "port": 9229,
+      "timeout": 600000,
+      "webRoot": "\${workspaceRoot}",
+      "presentation": {
+        "hidden": true
+      }
+    },
+    {
+      "name": "Outlook Desktop Host",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "npm run start:desktop:outlook",
+      "cwd": "\${workspaceFolder}",
+      "preLaunchTask": "Install",
+      "postDebugTask": "Stop Debug",
+      "presentation": {
+        "hidden": true
+      }
+    },
+    {
+      "name": "Outlook Desktop Attach (Edge Chromium)",
+      "type": "msedge",
+      "request": "attach",
+      "port": 9229,
+      "timeout": 600000,
+      "webRoot": "\${workspaceRoot}",
+      "presentation": {
+        "hidden": true
+      }
+    }",
+    "debugApp": "excel",
+    "scopes": ""mail",
+                    "workbook"",
+    "scripts": ""start:desktop:excel": "office-addin-debugging start appPackage/manifest.json desktop --app excel",
+    "start:desktop:outlook": "office-addin-debugging start appPackage/manifest.json desktop --app outlook",",
+    "selected": "excel,outlook",
+  },
+  {
+    "compounds": "{
+      "name": "Word Desktop (Edge Chromium)",
+      "configurations": [
+        "Word Desktop Host",
+        "Word Desktop Attach (Edge Chromium)"
+      ],
+      "stopAll": true
+    },
+    {
+      "name": "Excel Desktop (Edge Chromium)",
+      "configurations": [
+        "Excel Desktop Host",
+        "Excel Desktop Attach (Edge Chromium)"
+      ],
+      "stopAll": true
+    },
+    {
+      "name": "Outlook Desktop (Edge Chromium)",
+      "configurations": [
+        "Outlook Desktop Host",
+        "Outlook Desktop Attach (Edge Chromium)"
+      ],
+      "stopAll": true
+    }",
+    "configurations": "{
+      "name": "Word Desktop Host",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "npm run start:desktop:word",
+      "cwd": "\${workspaceFolder}",
+      "preLaunchTask": "Install",
+      "postDebugTask": "Stop Debug",
+      "presentation": {
+        "hidden": true
+      }
+    },
+    {
+      "name": "Word Desktop Attach (Edge Chromium)",
+      "type": "msedge",
+      "request": "attach",
+      "port": 9229,
+      "timeout": 600000,
+      "webRoot": "\${workspaceRoot}",
+      "presentation": {
+        "hidden": true
+      }
+    },
+    {
+      "name": "Excel Desktop Host",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "npm run start:desktop:excel",
+      "cwd": "\${workspaceFolder}",
+      "preLaunchTask": "Install",
+      "postDebugTask": "Stop Debug",
+      "presentation": {
+        "hidden": true
+      }
+    },
+    {
+      "name": "Excel Desktop Attach (Edge Chromium)",
+      "type": "msedge",
+      "request": "attach",
+      "port": 9229,
+      "timeout": 600000,
+      "webRoot": "\${workspaceRoot}",
+      "presentation": {
+        "hidden": true
+      }
+    },
+    {
+      "name": "Outlook Desktop Host",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "npm run start:desktop:outlook",
+      "cwd": "\${workspaceFolder}",
+      "preLaunchTask": "Install",
+      "postDebugTask": "Stop Debug",
+      "presentation": {
+        "hidden": true
+      }
+    },
+    {
+      "name": "Outlook Desktop Attach (Edge Chromium)",
+      "type": "msedge",
+      "request": "attach",
+      "port": 9229,
+      "timeout": 600000,
+      "webRoot": "\${workspaceRoot}",
+      "presentation": {
+        "hidden": true
+      }
+    }",
+    "debugApp": "word",
+    "scopes": ""mail",
+                    "workbook",
+                    "document"",
+    "scripts": ""start:desktop:word": "office-addin-debugging start appPackage/manifest.json desktop --app word",
+    "start:desktop:excel": "office-addin-debugging start appPackage/manifest.json desktop --app excel",
+    "start:desktop:outlook": "office-addin-debugging start appPackage/manifest.json desktop --app outlook",",
+    "selected": "word,excel,outlook",
+  },
+  {
+    "compounds": "{
+      "name": "PowerPoint Desktop (Edge Chromium)",
+      "configurations": [
+        "PowerPoint Desktop Host",
+        "PowerPoint Desktop Attach (Edge Chromium)"
+      ],
+      "stopAll": true
+    },
+    {
+      "name": "Outlook Desktop (Edge Chromium)",
+      "configurations": [
+        "Outlook Desktop Host",
+        "Outlook Desktop Attach (Edge Chromium)"
+      ],
+      "stopAll": true
+    }",
+    "configurations": "{
+      "name": "PowerPoint Desktop Host",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "npm run start:desktop:powerpoint",
+      "cwd": "\${workspaceFolder}",
+      "preLaunchTask": "Install",
+      "postDebugTask": "Stop Debug",
+      "presentation": {
+        "hidden": true
+      }
+    },
+    {
+      "name": "PowerPoint Desktop Attach (Edge Chromium)",
+      "type": "msedge",
+      "request": "attach",
+      "port": 9229,
+      "timeout": 600000,
+      "webRoot": "\${workspaceRoot}",
+      "presentation": {
+        "hidden": true
+      }
+    },
+    {
+      "name": "Outlook Desktop Host",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "npm run start:desktop:outlook",
+      "cwd": "\${workspaceFolder}",
+      "preLaunchTask": "Install",
+      "postDebugTask": "Stop Debug",
+      "presentation": {
+        "hidden": true
+      }
+    },
+    {
+      "name": "Outlook Desktop Attach (Edge Chromium)",
+      "type": "msedge",
+      "request": "attach",
+      "port": 9229,
+      "timeout": 600000,
+      "webRoot": "\${workspaceRoot}",
+      "presentation": {
+        "hidden": true
+      }
+    }",
+    "debugApp": "powerpoint",
+    "scopes": ""mail",
+                    "presentation"",
+    "scripts": ""start:desktop:powerpoint": "office-addin-debugging start appPackage/manifest.json desktop --app powerpoint",
+    "start:desktop:outlook": "office-addin-debugging start appPackage/manifest.json desktop --app outlook",",
+    "selected": "powerpoint,outlook",
+  },
+  {
+    "compounds": "{
+      "name": "Word Desktop (Edge Chromium)",
+      "configurations": [
+        "Word Desktop Host",
+        "Word Desktop Attach (Edge Chromium)"
+      ],
+      "stopAll": true
+    },
+    {
+      "name": "PowerPoint Desktop (Edge Chromium)",
+      "configurations": [
+        "PowerPoint Desktop Host",
+        "PowerPoint Desktop Attach (Edge Chromium)"
+      ],
+      "stopAll": true
+    },
+    {
+      "name": "Outlook Desktop (Edge Chromium)",
+      "configurations": [
+        "Outlook Desktop Host",
+        "Outlook Desktop Attach (Edge Chromium)"
+      ],
+      "stopAll": true
+    }",
+    "configurations": "{
+      "name": "Word Desktop Host",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "npm run start:desktop:word",
+      "cwd": "\${workspaceFolder}",
+      "preLaunchTask": "Install",
+      "postDebugTask": "Stop Debug",
+      "presentation": {
+        "hidden": true
+      }
+    },
+    {
+      "name": "Word Desktop Attach (Edge Chromium)",
+      "type": "msedge",
+      "request": "attach",
+      "port": 9229,
+      "timeout": 600000,
+      "webRoot": "\${workspaceRoot}",
+      "presentation": {
+        "hidden": true
+      }
+    },
+    {
+      "name": "PowerPoint Desktop Host",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "npm run start:desktop:powerpoint",
+      "cwd": "\${workspaceFolder}",
+      "preLaunchTask": "Install",
+      "postDebugTask": "Stop Debug",
+      "presentation": {
+        "hidden": true
+      }
+    },
+    {
+      "name": "PowerPoint Desktop Attach (Edge Chromium)",
+      "type": "msedge",
+      "request": "attach",
+      "port": 9229,
+      "timeout": 600000,
+      "webRoot": "\${workspaceRoot}",
+      "presentation": {
+        "hidden": true
+      }
+    },
+    {
+      "name": "Outlook Desktop Host",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "npm run start:desktop:outlook",
+      "cwd": "\${workspaceFolder}",
+      "preLaunchTask": "Install",
+      "postDebugTask": "Stop Debug",
+      "presentation": {
+        "hidden": true
+      }
+    },
+    {
+      "name": "Outlook Desktop Attach (Edge Chromium)",
+      "type": "msedge",
+      "request": "attach",
+      "port": 9229,
+      "timeout": 600000,
+      "webRoot": "\${workspaceRoot}",
+      "presentation": {
+        "hidden": true
+      }
+    }",
+    "debugApp": "word",
+    "scopes": ""mail",
+                    "document",
+                    "presentation"",
+    "scripts": ""start:desktop:word": "office-addin-debugging start appPackage/manifest.json desktop --app word",
+    "start:desktop:powerpoint": "office-addin-debugging start appPackage/manifest.json desktop --app powerpoint",
+    "start:desktop:outlook": "office-addin-debugging start appPackage/manifest.json desktop --app outlook",",
+    "selected": "word,powerpoint,outlook",
+  },
+  {
+    "compounds": "{
+      "name": "Excel Desktop (Edge Chromium)",
+      "configurations": [
+        "Excel Desktop Host",
+        "Excel Desktop Attach (Edge Chromium)"
+      ],
+      "stopAll": true
+    },
+    {
+      "name": "PowerPoint Desktop (Edge Chromium)",
+      "configurations": [
+        "PowerPoint Desktop Host",
+        "PowerPoint Desktop Attach (Edge Chromium)"
+      ],
+      "stopAll": true
+    },
+    {
+      "name": "Outlook Desktop (Edge Chromium)",
+      "configurations": [
+        "Outlook Desktop Host",
+        "Outlook Desktop Attach (Edge Chromium)"
+      ],
+      "stopAll": true
+    }",
+    "configurations": "{
+      "name": "Excel Desktop Host",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "npm run start:desktop:excel",
+      "cwd": "\${workspaceFolder}",
+      "preLaunchTask": "Install",
+      "postDebugTask": "Stop Debug",
+      "presentation": {
+        "hidden": true
+      }
+    },
+    {
+      "name": "Excel Desktop Attach (Edge Chromium)",
+      "type": "msedge",
+      "request": "attach",
+      "port": 9229,
+      "timeout": 600000,
+      "webRoot": "\${workspaceRoot}",
+      "presentation": {
+        "hidden": true
+      }
+    },
+    {
+      "name": "PowerPoint Desktop Host",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "npm run start:desktop:powerpoint",
+      "cwd": "\${workspaceFolder}",
+      "preLaunchTask": "Install",
+      "postDebugTask": "Stop Debug",
+      "presentation": {
+        "hidden": true
+      }
+    },
+    {
+      "name": "PowerPoint Desktop Attach (Edge Chromium)",
+      "type": "msedge",
+      "request": "attach",
+      "port": 9229,
+      "timeout": 600000,
+      "webRoot": "\${workspaceRoot}",
+      "presentation": {
+        "hidden": true
+      }
+    },
+    {
+      "name": "Outlook Desktop Host",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "npm run start:desktop:outlook",
+      "cwd": "\${workspaceFolder}",
+      "preLaunchTask": "Install",
+      "postDebugTask": "Stop Debug",
+      "presentation": {
+        "hidden": true
+      }
+    },
+    {
+      "name": "Outlook Desktop Attach (Edge Chromium)",
+      "type": "msedge",
+      "request": "attach",
+      "port": 9229,
+      "timeout": 600000,
+      "webRoot": "\${workspaceRoot}",
+      "presentation": {
+        "hidden": true
+      }
+    }",
+    "debugApp": "excel",
+    "scopes": ""mail",
+                    "workbook",
+                    "presentation"",
+    "scripts": ""start:desktop:excel": "office-addin-debugging start appPackage/manifest.json desktop --app excel",
+    "start:desktop:powerpoint": "office-addin-debugging start appPackage/manifest.json desktop --app powerpoint",
+    "start:desktop:outlook": "office-addin-debugging start appPackage/manifest.json desktop --app outlook",",
+    "selected": "excel,powerpoint,outlook",
+  },
+  {
+    "compounds": "{
+      "name": "Word Desktop (Edge Chromium)",
+      "configurations": [
+        "Word Desktop Host",
+        "Word Desktop Attach (Edge Chromium)"
+      ],
+      "stopAll": true
+    },
+    {
+      "name": "Excel Desktop (Edge Chromium)",
+      "configurations": [
+        "Excel Desktop Host",
+        "Excel Desktop Attach (Edge Chromium)"
+      ],
+      "stopAll": true
+    },
+    {
+      "name": "PowerPoint Desktop (Edge Chromium)",
+      "configurations": [
+        "PowerPoint Desktop Host",
+        "PowerPoint Desktop Attach (Edge Chromium)"
+      ],
+      "stopAll": true
+    },
+    {
+      "name": "Outlook Desktop (Edge Chromium)",
+      "configurations": [
+        "Outlook Desktop Host",
+        "Outlook Desktop Attach (Edge Chromium)"
+      ],
+      "stopAll": true
+    }",
+    "configurations": "{
+      "name": "Word Desktop Host",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "npm run start:desktop:word",
+      "cwd": "\${workspaceFolder}",
+      "preLaunchTask": "Install",
+      "postDebugTask": "Stop Debug",
+      "presentation": {
+        "hidden": true
+      }
+    },
+    {
+      "name": "Word Desktop Attach (Edge Chromium)",
+      "type": "msedge",
+      "request": "attach",
+      "port": 9229,
+      "timeout": 600000,
+      "webRoot": "\${workspaceRoot}",
+      "presentation": {
+        "hidden": true
+      }
+    },
+    {
+      "name": "Excel Desktop Host",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "npm run start:desktop:excel",
+      "cwd": "\${workspaceFolder}",
+      "preLaunchTask": "Install",
+      "postDebugTask": "Stop Debug",
+      "presentation": {
+        "hidden": true
+      }
+    },
+    {
+      "name": "Excel Desktop Attach (Edge Chromium)",
+      "type": "msedge",
+      "request": "attach",
+      "port": 9229,
+      "timeout": 600000,
+      "webRoot": "\${workspaceRoot}",
+      "presentation": {
+        "hidden": true
+      }
+    },
+    {
+      "name": "PowerPoint Desktop Host",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "npm run start:desktop:powerpoint",
+      "cwd": "\${workspaceFolder}",
+      "preLaunchTask": "Install",
+      "postDebugTask": "Stop Debug",
+      "presentation": {
+        "hidden": true
+      }
+    },
+    {
+      "name": "PowerPoint Desktop Attach (Edge Chromium)",
+      "type": "msedge",
+      "request": "attach",
+      "port": 9229,
+      "timeout": 600000,
+      "webRoot": "\${workspaceRoot}",
+      "presentation": {
+        "hidden": true
+      }
+    },
+    {
+      "name": "Outlook Desktop Host",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "npm run start:desktop:outlook",
+      "cwd": "\${workspaceFolder}",
+      "preLaunchTask": "Install",
+      "postDebugTask": "Stop Debug",
+      "presentation": {
+        "hidden": true
+      }
+    },
+    {
+      "name": "Outlook Desktop Attach (Edge Chromium)",
+      "type": "msedge",
+      "request": "attach",
+      "port": 9229,
+      "timeout": 600000,
+      "webRoot": "\${workspaceRoot}",
+      "presentation": {
+        "hidden": true
+      }
+    }",
+    "debugApp": "word",
+    "scopes": ""mail",
+                    "workbook",
+                    "document",
+                    "presentation"",
+    "scripts": ""start:desktop:word": "office-addin-debugging start appPackage/manifest.json desktop --app word",
+    "start:desktop:excel": "office-addin-debugging start appPackage/manifest.json desktop --app excel",
+    "start:desktop:powerpoint": "office-addin-debugging start appPackage/manifest.json desktop --app powerpoint",
+    "start:desktop:outlook": "office-addin-debugging start appPackage/manifest.json desktop --app outlook",",
+    "selected": "word,excel,powerpoint,outlook",
+  },
+]
+`;

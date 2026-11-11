@@ -19,13 +19,14 @@ import { pathUtils } from "./pathUtils";
 class SettingsUtils {
   async readSettings(
     projectPath: string,
-    ensureTrackingId = true
+    ensureTrackingId = true,
+    validatePath?: (filePath: string) => void
   ): Promise<Result<Settings, FxError>> {
     let projectYamlPath: string | undefined;
     if (featureFlagManager.getBooleanValue(FeatureFlags.GenerateConfigFiles)) {
-      projectYamlPath = pathUtils.getAvailableYmlFilePath(projectPath);
+      projectYamlPath = pathUtils.getAvailableYmlFilePath(projectPath, validatePath);
     } else {
-      projectYamlPath = pathUtils.getYmlFilePath(projectPath, "dev");
+      projectYamlPath = pathUtils.getYmlFilePath(projectPath, "dev", false, validatePath);
     }
 
     if (!projectYamlPath || !(await fs.pathExists(projectYamlPath))) {

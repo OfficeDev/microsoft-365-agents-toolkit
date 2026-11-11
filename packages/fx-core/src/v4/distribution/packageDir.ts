@@ -6,6 +6,7 @@ import * as fs from "fs-extra";
 import * as path from "path";
 import { Result, err, ok } from "neverthrow";
 import { TemplateFileEntry } from "../model/dataModel";
+import { PreparedTemplate, prepareTemplate } from "../runtime/packageParse";
 
 /** Load a declarative package from an authored directory. See open-template-package spec. */
 
@@ -19,6 +20,14 @@ export interface LoadedPackage {
   pipeline: unknown;
   /** The opened `content/**` entries (raw bytes, `.tpl` suffix intact, sorted); empty for pipeline-only packages. */
   content: TemplateFileEntry[];
+}
+
+export interface PreparedLoadedPackage extends LoadedPackage {
+  template: PreparedTemplate;
+}
+
+export function prepareLoadedPackage(raw: LoadedPackage): Result<PreparedLoadedPackage, FxError> {
+  return prepareTemplate(raw).map((template) => ({ ...raw, template }));
 }
 
 /** Read + parse one top-level package JSON file (EAFP: read, don't stat first). */
@@ -97,7 +106,7 @@ function isMissingContentRoot(error: unknown, contentRoot: string): boolean {
 }
 
 /** Load a declarative template package from its authored directory. */
-export function loadPackageDir(dir: string): Result<LoadedPackage, FxError> {
+export function loadPackageDir(dir: string): Result<PreparedLoadedPackage, FxError> {
   const descriptor = readPackageJson(dir, "descriptor.json");
   if (descriptor.isErr()) {
     return err(descriptor.error);
@@ -110,7 +119,7 @@ export function loadPackageDir(dir: string): Result<LoadedPackage, FxError> {
   if (content.isErr()) {
     return err(content.error);
   }
-  return ok({
+  return prepareLoadedPackage({
     descriptor: descriptor.value,
     pipeline: pipeline.value,
     content: content.value,

@@ -27,7 +27,7 @@ decision. The format for a new ADR is defined inline below under
 | ADR-0006 | [Template distribution channel for project skeletons](ADR-0006-template-distribution-channel.md) | Accepted | [`scaffolding.md` §2.1](../scaffolding.md#2-essential-capabilities) |
 | ADR-0007 | [When to resolve OneDrive / SharePoint URLs to stable IDs](ADR-0007-driveitem-resolution-timing.md) | Proposed | [`graph-driveitem-resolution.md` §3](../external-dependencies/graph-driveitem-resolution.md#3-open-questions-candidates-for-adrs) |
 | ADR-0008 | [Boundary of user-supplied OpenAPI spec ingestion](ADR-0008-openapi-spec-ingestion-boundary.md) | Proposed | [`openapi-spec-parser.md` §3](../external-dependencies/openapi-spec-parser.md#3-open-questions-candidates-for-adrs) |
-| ADR-0009 | [SPFx scaffolding tooling path](ADR-0009-spfx-scaffolding-tooling-path.md) | Proposed | [`spfx-tooling.md` §3](../external-dependencies/spfx-tooling.md#3-open-questions-candidates-for-adrs) |
+| ADR-0009 | [SPFx scaffolding tooling path](ADR-0009-spfx-scaffolding-tooling-path.md) | Withdrawn | [SPFx generation retirement](../../03-specs/operations/product/retire-spfx-generation.md) |
 | ADR-0010 | [TypeSpec → agent-artifact compile chain shape](ADR-0010-typespec-compile-chain-shape.md) | Proposed | [`typespec-compiler.md` §3](../external-dependencies/typespec-compiler.md#3-open-questions-candidates-for-adrs) |
 | ADR-0011 | [Kiota binary acquisition timing](ADR-0011-kiota-binary-acquisition-timing.md) | Proposed | [`kiota.md` §3](../external-dependencies/kiota.md#3-open-questions-candidates-for-adrs) |
 | ADR-0012 | [Office Add-in import flow placement](ADR-0012-office-addin-import-flow-placement.md) | Proposed | [`office-addin-tooling.md` §3](../external-dependencies/office-addin-tooling.md#3-open-questions-candidates-for-adrs) |
@@ -39,6 +39,15 @@ decision. The format for a new ADR is defined inline below under
 | ADR-0018 | [`ScaffoldRuntime` + T1/T2/T3 test pyramid + design-first `descriptor.spec` gate (application of ADR-0013, not a competing tiering)](ADR-0018-scaffold-runtime-test-pyramid.md) | Accepted | [`scaffolding.create.proposal.md` §14](../scaffolding.create.proposal.md#14-adrs-this-proposal-will-be-decomposed-into) |
 | ADR-0019 | [Dual-stream scaffold telemetry (v3 verbatim + parallel `scaffold-v4-*` family)](ADR-0019-dual-stream-scaffold-telemetry.md) | Accepted | [`scaffolding.create.proposal.md` §14](../scaffolding.create.proposal.md#14-adrs-this-proposal-will-be-decomposed-into) |
 | ADR-0020 | [MCP server URL validity: when to check, and whether to block](ADR-0020-mcp-server-url-validity.md) | Accepted | [`mcp-remote-servers.md` §3](../external-dependencies/mcp-remote-servers.md#3-open-questions) |
+| ADR-0021 | [Parent window for the WAM broker sign-in dialog](ADR-0021-wam-broker-dialog-parent-window.md) | Proposed | [gim-home/wiqd#1884](https://github.com/gim-home/wiqd/issues/1884) |
+| ADR-0022 | [Ownership of host-agnostic manifest-template resolution](ADR-0022-manifest-template-resolution-ownership.md) | Accepted | Internal concern — cross-host `file()`/`${{ENV}}` resolver reuse in PR #16525 |
+| ADR-0023 | [Create input policy ownership](ADR-0023-create-input-policy-ownership.md) | Accepted | Keep template presentation and capability-specific derivation out of the generic create engine; partially supersedes ADR-0016. |
+| ADR-0024 | [Scaffold domain assets and expression ownership](ADR-0024-scaffold-domain-assets.md) | Accepted | Separate expression registration, externalize generation fragments, and replace comment-based OpenAPI YAML insertion. |
+| ADR-0025 | [Scaffolding extension ownership](ADR-0025-scaffold-extension-ownership.md) | Accepted | Inject DA services into domain steps, share pure capability declarations and selector presentation; refines ADR-0017's manifest injection boundary. |
+| ADR-0026 | [Scaffold I/O and provider contracts](ADR-0026-scaffold-io-and-provider-contracts.md) | Accepted | Repair file containment and collision handling, structured derived references, and OpenAPI listing/generation policy alignment. |
+| ADR-0027 | [Allowlisted standalone action execution](ADR-0027-standalone-action-client.md) | Superseded by ADR-0028 | Typed in-process ZIP installation and title-ID uninstallation without lifecycle execution. |
+| ADR-0028 | [Driver-owned args and shared execution context](ADR-0028-driver-owned-action-contracts.md) | Superseded by ADR-0029 | Drivers own pure contracts; services reuse the existing context without a separate telemetry tool. |
+| ADR-0029 | [Minimal public action boundary](ADR-0029-minimal-public-action-boundary.md) | Accepted | Expose direct action execution without refactoring existing service, telemetry or context infrastructure. |
 
 > **Reading order vs. numeric order.** The Index is in **numeric order** —
 > the immutable, reservation-ordered ADR id is the anchor for every forward

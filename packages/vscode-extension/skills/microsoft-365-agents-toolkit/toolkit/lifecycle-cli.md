@@ -4,6 +4,8 @@
 
 M365 Agents Toolkit lifecycle configuration (`m365agents.yml`) and full `atk` CLI command reference for provisioning, deploying, and managing M365 agents (declarative agents, custom engine agents, Teams bots/tabs/message extensions, Copilot connectors, Office add-ins).
 
+For a Declarative Agent, use the [DA routing rule](declarative-agent-lifecycle.md#da-routing). This reference applies to the complete lifecycle only for TypeSpec DA projects.
+
 ## rules
 
 1. **m365agents.yml is the lifecycle manifest.** Every Agents Toolkit project has an `m365agents.yml` at the project root for dev/cloud deployment, and typically an `m365agents.local.yml` for local development. They define the `provision`, `deploy`, and `publish` lifecycle stages — each stage is an ordered list of actions. `atk provision --env local` runs `m365agents.local.yml`; `atk provision --env dev` runs `m365agents.yml`.

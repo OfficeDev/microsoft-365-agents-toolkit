@@ -13,6 +13,7 @@ import {
 import {
   ApiOperation,
   AppPackageFolderName,
+  AuthCredentialSource,
   BuildFolderName,
   ConfigFolderName,
   Context,
@@ -45,13 +46,16 @@ import AdmZip from "adm-zip";
 import { DotenvParseOutput } from "dotenv";
 import fs from "fs-extra";
 import * as jsonschema from "jsonschema";
+import yaml from "js-yaml";
 import * as os from "os";
 import * as path from "path";
 import "reflect-metadata";
 import { Container } from "typedi";
 import { pathToFileURL } from "url";
-import { teamsDevPortalClient } from "../client/teamsDevPortalClient";
+import isUUID from "validator/lib/isUUID";
+import { teamsDevPortalClient } from "../client/teamsDevPortalClientProvider";
 import { ApiKeyParameters, AuthParameters } from "../common/authInterface";
+import { throwIfAborted } from "../common/cancellation";
 import {
   AppStudioScopes,
   MosServiceScope,
@@ -80,6 +84,7 @@ import {
   ProjectTypeResult,
   projectTypeChecker,
 } from "../common/projectTypeChecker";
+import { isValidSkillName } from "../common/skillUtils";
 import { TelemetryEvent, TelemetryProperty, telemetryUtils } from "../common/telemetry";
 import templateConfig from "../common/templates-config.json";
 import { runForTypeSpecProject } from "../common/tools";
@@ -99,8 +104,6 @@ import { UpdateAadAppArgs } from "../component/driver/aad/interface/updateAadApp
 import { UpdateAadAppDriver } from "../component/driver/aad/update";
 import { AadManifestHelper } from "../component/driver/aad/utility/aadManifestHelper";
 import { buildAadManifest as buildAadManifestInternal } from "../component/driver/aad/utility/buildAadManifest";
-import { AddWebPartDriver } from "../component/driver/add/addWebPart";
-import { AddWebPartArgs } from "../component/driver/add/interface/AddWebPartArgs";
 import { InstallAppToChannelDriver } from "../component/driver/devChannel/installApp";
 import { InstallAppArgs } from "../component/driver/devChannel/interfaces/InstallAppArgs";
 import "../component/driver/index";
@@ -155,6 +158,7 @@ import { pathUtils } from "../component/utils/pathUtils";
 import { settingsUtil } from "../component/utils/settingsUtil";
 import {
   FileNotFoundError,
+  InapplicableOpenApiAuthCredentialError,
   InputValidationError,
   InvalidProjectError,
   MissingRequiredInputError,
@@ -175,7 +179,6 @@ import {
   KnowledgeSourceOptions,
   MAX_EMAIL_NUMBER,
   QuestionNames,
-  SPFxVersionOptionIds,
   ScratchOptions,
   TeamsAppValidationOptions,
 } from "../question/constants";
@@ -191,12 +194,14 @@ import { createProjectFrontDoor as runCreateFrontDoor } from "./createProjectFro
 import { LocalCrypto } from "./crypto";
 import { environmentNameManager } from "./environmentName";
 import { FxCoreOpenPluginPart } from "./FxCore.openPlugin";
+import type { ActionArgs, ActionName, ActionResult } from "../actions";
+import { ActionExecutionOptions, executeAction } from "../actions/execute";
 import { generateConfigFiles } from "./generateConfigFiles";
-import { resolveV4TemplateArtifactSnapshot } from "./v4ArtifactSnapshot";
 import { ConcurrentLockerMW } from "./middleware/concurrentLocker";
 import { ContextInjectorMW } from "./middleware/contextInjector";
 import { ErrorHandlerMW } from "./middleware/errorHandler";
 import { withFileLock } from "./middleware/fileLocker";
+import { resolveV4TemplateArtifactSnapshot } from "./v4ArtifactSnapshot";
 
 import { runWithRetry } from "./middleware/retry";
 import * as v3MigrationUtils from "./middleware/utils/v3MigrationUtils";
@@ -225,9 +230,21 @@ export const getManifestPath = copilotGptManifestUtils.getManifestPath;
 export const readCopilotGptManifestFile = copilotGptManifestUtils.readCopilotGptManifestFile;
 
 export class FxCore extends FxCoreOpenPluginPart {
-  constructor(tools: Tools) {
+  constructor(private readonly tools: Tools) {
     super();
     setTools(tools);
+  }
+
+  public async executeAction<K extends ActionName>(
+    name: K,
+    args: ActionArgs<NoInfer<K>>,
+    options: ActionExecutionOptions
+  ): Promise<ActionResult<K>> {
+    return executeAction(this.tools, name, args, options);
+  }
+
+  private getAbortSignal(inputs: Inputs): AbortSignal | undefined {
+    return inputs.abortSignal;
   }
 
   /**
@@ -294,11 +311,14 @@ export class FxCore extends FxCoreOpenPluginPart {
       if (containsUnsupportedFeature(inputs.teamsAppFromTdp)) {
         return err(new InputValidationError("manifest.json", "App contains unsupported features"));
       } else {
-        context.telemetryReporter.sendTelemetryEvent(CoreTelemetryEvent.CreateFromTdpStart, {
+        context.telemetryReporter?.sendTelemetryEvent(CoreTelemetryEvent.CreateFromTdpStart, {
           [CoreTelemetryProperty.TdpTeamsAppFeatures]: getFeaturesFromAppDefinition(
             inputs.teamsAppFromTdp
           ).join(","),
-          [CoreTelemetryProperty.TdpTeamsAppId]: inputs.teamsAppFromTdp.teamsAppId,
+          [CoreTelemetryProperty.TdpTeamsAppId]:
+            "appProfile" in inputs.teamsAppFromTdp
+              ? inputs.teamsAppFromTdp.appId
+              : inputs.teamsAppFromTdp.teamsAppId,
         });
       }
     }
@@ -423,6 +443,9 @@ export class FxCore extends FxCoreOpenPluginPart {
     QuestionMW("uninstall"),
   ])
   async uninstall(inputs: UninstallInputs): Promise<Result<undefined, FxError>> {
+    if (this.getAbortSignal(inputs)?.aborted) {
+      return err(new UserCancelError("FxCore"));
+    }
     switch (inputs[QuestionNames.UninstallMode as string]) {
       case QuestionNames.UninstallModeManifestId:
         return await this.uninstallByManifestId(inputs);
@@ -453,20 +476,24 @@ export class FxCore extends FxCoreOpenPluginPart {
     const botOption = uninstallOptions?.includes(QuestionNames.UninstallOptionBot);
 
     if (m356AppOption) {
-      const res = await this.uninstallM365App(undefined, manifestId);
+      const res = await this.uninstallM365App(undefined, manifestId, this.getAbortSignal(inputs));
       if (res.isErr()) {
         return err(res.error);
       }
     }
     if (botOption) {
-      const res = await this.uninstallBotFrameworRegistration(undefined, manifestId);
+      const res = await this.uninstallBotFrameworRegistration(
+        undefined,
+        manifestId,
+        this.getAbortSignal(inputs)
+      );
       if (res.isErr()) {
         return err(res.error);
       }
     }
     // App registraion should be the last to remove, because we might need to query some metadata from TDP.
     if (tdpOption) {
-      const res = await this.uninstallAppRegistration(manifestId);
+      const res = await this.uninstallAppRegistration(manifestId, this.getAbortSignal(inputs));
       if (res.isErr()) {
         return err(res.error);
       }
@@ -508,8 +535,16 @@ export class FxCore extends FxCoreOpenPluginPart {
     let m365TitleIdKeyName = "";
     for (const action of projectModel.provision?.driverDefs ?? []) {
       if (action.uses === "teamsApp/create") {
-        teamsAppIdKeyName = action.writeToEnvironmentFile?.teamsAppId || "TEAMS_APP_ID";
-        teamsAppId = process.env[teamsAppIdKeyName];
+        teamsAppIdKeyName =
+          action.writeToEnvironmentFile?.appId ??
+          action.writeToEnvironmentFile?.teamsAppId ??
+          (featureFlagManager.getBooleanValue(FeatureFlags.NewDeveloperPortalApis) &&
+          process.env.APP_ID
+            ? "APP_ID"
+            : "TEAMS_APP_ID");
+        teamsAppId = featureFlagManager.getBooleanValue(FeatureFlags.NewDeveloperPortalApis)
+          ? process.env[teamsAppIdKeyName] || process.env.APP_ID || process.env.TEAMS_APP_ID
+          : process.env[teamsAppIdKeyName];
       } else if (action.uses === "botFramework/create") {
         botIdKeyName = action.writeToEnvironmentFile?.botId || "BOT_ID";
         botId = process.env[botIdKeyName];
@@ -525,7 +560,13 @@ export class FxCore extends FxCoreOpenPluginPart {
     const botOption = uninstallOptions?.includes(QuestionNames.UninstallOptionBot);
 
     if ((teamsAppId || m365TitleId) && m356AppOption) {
-      const res = await this.uninstallM365App(m365TitleId, teamsAppId);
+      const res = await this.uninstallM365App(
+        m365TitleId,
+        featureFlagManager.getBooleanValue(FeatureFlags.NewDeveloperPortalApis)
+          ? process.env.APP_MANIFEST_ID || teamsAppId
+          : teamsAppId,
+        this.getAbortSignal(inputs)
+      );
       if (res.isErr()) {
         return err(res.error);
       }
@@ -533,7 +574,11 @@ export class FxCore extends FxCoreOpenPluginPart {
       this.resetEnvVar(m365TitleIdKeyName, ctx);
     }
     if (botId && botOption) {
-      const res = await this.uninstallBotFrameworRegistration(botId);
+      const res = await this.uninstallBotFrameworRegistration(
+        botId,
+        undefined,
+        this.getAbortSignal(inputs)
+      );
       if (res.isErr()) {
         return err(res.error);
       }
@@ -541,7 +586,7 @@ export class FxCore extends FxCoreOpenPluginPart {
     }
     // App registraion should be the last to remove, because we might need to query some metadata from TDP.
     if (teamsAppId && tdpOption) {
-      const res = await this.uninstallAppRegistration(teamsAppId);
+      const res = await this.uninstallAppRegistration(teamsAppId, this.getAbortSignal(inputs));
       if (res.isErr()) {
         return err(res.error);
       }
@@ -574,7 +619,7 @@ export class FxCore extends FxCoreOpenPluginPart {
     if (!titleId) {
       return err(new MissingRequiredInputError("title-id", "FxCore"));
     }
-    const res = await this.uninstallM365App(titleId);
+    const res = await this.uninstallM365App(titleId, undefined, this.getAbortSignal(inputs));
     if (res.isErr()) {
       return err(res.error);
     }
@@ -590,8 +635,12 @@ export class FxCore extends FxCoreOpenPluginPart {
   ])
   async uninstallM365App(
     titleId?: string,
-    manifestId?: string
+    manifestId?: string,
+    signal?: AbortSignal
   ): Promise<Result<undefined, FxError>> {
+    if (signal?.aborted) {
+      return err(new UserCancelError("Uninstall M365 App"));
+    }
     if (titleId === undefined && manifestId === undefined) {
       return err(new MissingRequiredInputError("title id or manifest id", "FxCore"));
     }
@@ -605,7 +654,11 @@ export class FxCore extends FxCoreOpenPluginPart {
     const packageService = new PackageService(sideloadingServiceEndpoint, TOOLS.logProvider);
     if (titleId === undefined) {
       try {
-        titleId = await packageService.retrieveTitleId(sideloadingTokenRes.value, manifestId ?? "");
+        titleId = await packageService.retrieveTitleId(
+          sideloadingTokenRes.value,
+          manifestId ?? "",
+          signal
+        );
       } catch (err: any) {
         await TOOLS.ui.showMessage(
           "info",
@@ -621,7 +674,10 @@ export class FxCore extends FxCoreOpenPluginPart {
       default: true,
     });
     if (confirmRes?.isOk() && confirmRes.value.result === true) {
-      await packageService.unacquire(sideloadingTokenRes.value, titleId);
+      if (signal?.aborted) {
+        return err(new UserCancelError("Uninstall M365 App"));
+      }
+      await packageService.unacquire(sideloadingTokenRes.value, titleId, signal);
       await TOOLS.ui.showMessage(
         "info",
         getLocalizedString("core.uninstall.success.m365App", titleId),
@@ -650,7 +706,13 @@ export class FxCore extends FxCoreOpenPluginPart {
     ErrorContextMW({ component: "FxCore", stage: "uninstallAppRegistration", reset: true }),
     ErrorHandlerMW,
   ])
-  async uninstallAppRegistration(manifestId: string): Promise<Result<undefined, FxError>> {
+  async uninstallAppRegistration(
+    manifestId: string,
+    signal?: AbortSignal
+  ): Promise<Result<undefined, FxError>> {
+    if (signal?.aborted) {
+      return err(new UserCancelError("Uninstall App Registration"));
+    }
     const appStudioTokenRes = await TOOLS.tokenProvider.m365TokenProvider.getAccessToken({
       scopes: AppStudioScopes(),
     });
@@ -663,8 +725,14 @@ export class FxCore extends FxCoreOpenPluginPart {
       default: true,
     });
     if (confirmRes?.isOk() && confirmRes.value.result === true) {
+      if (signal?.aborted) {
+        return err(new UserCancelError("Uninstall App Registration"));
+      }
       const token = appStudioTokenRes.value;
       await teamsDevPortalClient.deleteApp(token, manifestId);
+      if (signal?.aborted) {
+        return err(new UserCancelError("Uninstall App Registration"));
+      }
       await TOOLS.ui.showMessage(
         "info",
         getLocalizedString("core.uninstall.success.tdp", manifestId),
@@ -690,8 +758,12 @@ export class FxCore extends FxCoreOpenPluginPart {
   ])
   async uninstallBotFrameworRegistration(
     botId?: string,
-    manifestId?: string
+    manifestId?: string,
+    signal?: AbortSignal
   ): Promise<Result<undefined, FxError>> {
+    if (signal?.aborted) {
+      return err(new UserCancelError("Uninstall Bot Framework Registration"));
+    }
     if (!botId && !manifestId) {
       return err(new MissingRequiredInputError("bot id or manifest id", "FxCore"));
     }
@@ -716,7 +788,13 @@ export class FxCore extends FxCoreOpenPluginPart {
       default: true,
     });
     if (confirmRes?.isOk() && confirmRes.value.result === true) {
+      if (signal?.aborted) {
+        return err(new UserCancelError("Uninstall Bot Framework Registration"));
+      }
       await teamsDevPortalClient.deleteBot(token, botId);
+      if (signal?.aborted) {
+        return err(new UserCancelError("Uninstall Bot Framework Registration"));
+      }
       await TOOLS.ui.showMessage(
         "info",
         getLocalizedString("core.uninstall.success.bot", botId),
@@ -823,32 +901,21 @@ export class FxCore extends FxCoreOpenPluginPart {
     }
     return ok(undefined);
   }
-  /**
-   * none lifecycle command, v3 only
-   */
+  /** @deprecated SPFx generation is retired; retained only to reject legacy callers. */
   @hooks([
     ErrorContextMW({ component: "FxCore", stage: "addWebpart", reset: true }),
     ErrorHandlerMW,
-    QuestionMW("addWebpart"),
-    ConcurrentLockerMW,
   ])
-  async addWebpart(inputs: Inputs): Promise<Result<undefined, FxError>> {
-    setErrorContext({ component: "spfxAdd", method: "run" });
-    const driver: AddWebPartDriver = Container.get<AddWebPartDriver>("spfx/add");
-    const args: AddWebPartArgs = {
-      manifestPath: inputs[QuestionNames.ManifestPath],
-      localManifestPath: inputs[QuestionNames.LocalTeamsAppManifestFilePath],
-      spfxFolder: inputs[QuestionNames.SPFxFolder],
-      webpartName: inputs[QuestionNames.SPFxWebpartName],
-      framework: inputs[QuestionNames.SPFxFramework],
-      spfxPackage: SPFxVersionOptionIds.installLocally,
-    };
-    const Context: DriverContext = createDriverContext(inputs);
-    const res = await driver.run(args, Context);
-    if (res.isErr()) {
-      return err(res.error);
-    }
-    return ok(undefined);
+  addWebpart(_inputs: Inputs): Promise<Result<undefined, FxError>> {
+    return Promise.resolve(
+      err(
+        new UserError({
+          source: "FxCore",
+          name: "SPFxGenerationNotSupported",
+          message: getLocalizedString("core.spfxGenerationNotSupported"),
+        })
+      )
+    );
   }
   /**
    * lifecycle command: publish
@@ -900,7 +967,10 @@ export class FxCore extends FxCoreOpenPluginPart {
     if (!emails || emails.length === 0) {
       return err(new MissingRequiredInputError("emails", "FxCore"));
     }
-    const parseRes = await shareUtils.parseShareAppActionYamlConfig(inputs.projectPath!);
+    const parseRes = await shareUtils.parseShareAppActionYamlConfig(
+      inputs.projectPath!,
+      inputs.env
+    );
     if (parseRes.isErr()) {
       return err(parseRes.error);
     }
@@ -997,7 +1067,10 @@ export class FxCore extends FxCoreOpenPluginPart {
         return err(new InputValidationError("emails", "Too many emails"));
       }
     }
-    const parseRes = await shareUtils.parseShareAppActionYamlConfig(inputs.projectPath!);
+    const parseRes = await shareUtils.parseShareAppActionYamlConfig(
+      inputs.projectPath!,
+      inputs.env
+    );
     if (parseRes.isErr()) {
       return err(parseRes.error);
     }
@@ -1341,6 +1414,14 @@ export class FxCore extends FxCoreOpenPluginPart {
     }
 
     const teamsAppId = manifestRes.value.id;
+    if (!isUUID(teamsAppId)) {
+      return err(
+        AppStudioResultFactory.UserError(
+          AppStudioError.InvalidTeamsAppIdError.name,
+          AppStudioError.InvalidTeamsAppIdError.message(teamsAppId)
+        )
+      );
+    }
     const properties = manifestUtils.parseCommonProperties(manifestRes.value as TeamsAppManifest);
 
     const launchHelper = new LaunchHelper(TOOLS.tokenProvider.m365TokenProvider, TOOLS.logProvider);
@@ -1490,10 +1571,17 @@ export class FxCore extends FxCoreOpenPluginPart {
         (d) => d.uses === "teamsApp/create"
       );
       if (teamsAppCreate) {
-        const teamsAppIdEnvName = teamsAppCreate.writeToEnvironmentFile?.teamsAppId;
-        if (teamsAppIdEnvName) {
-          const teamsAppId = envObject[teamsAppIdEnvName];
-          res.teamsAppId = teamsAppId;
+        const teamsAppIdEnvName =
+          teamsAppCreate.writeToEnvironmentFile?.appId ??
+          teamsAppCreate.writeToEnvironmentFile?.teamsAppId;
+        if (featureFlagManager.getBooleanValue(FeatureFlags.NewDeveloperPortalApis)) {
+          res.teamsAppId =
+            (teamsAppIdEnvName ? envObject[teamsAppIdEnvName] : undefined) ||
+            envObject.APP_ID ||
+            envObject.TEAMS_APP_ID ||
+            "";
+        } else if (teamsAppIdEnvName) {
+          res.teamsAppId = envObject[teamsAppIdEnvName];
         }
         const name = (teamsAppCreate.with as any).name;
         if (name) {
@@ -1723,9 +1811,10 @@ export class FxCore extends FxCoreOpenPluginPart {
       ui: TOOLS.ui,
       progressBar: undefined,
       logProvider: TOOLS.logProvider,
-      telemetryReporter: TOOLS.telemetryReporter!,
+      telemetryReporter: TOOLS.telemetryReporter,
       projectPath: projectPath,
       platform: inputs.platform,
+      nonInteractive: inputs.nonInteractive,
     };
     const lifecycle = projectModel[lifecycleName_];
     if (lifecycle) {
@@ -2158,7 +2247,7 @@ export class FxCore extends FxCoreOpenPluginPart {
         .showMessage("info", successMessage, false, viewPluginManifest)
         .then((userRes) => {
           if (userRes.isOk() && userRes.value === viewPluginManifest) {
-            context.telemetryReporter.sendTelemetryEvent(
+            context.telemetryReporter?.sendTelemetryEvent(
               TelemetryEvent.ViewPluginManifestAfterAdded
             );
             void TOOLS?.ui?.openFile?.(destinationPluginManifestPath);
@@ -2265,7 +2354,7 @@ export class FxCore extends FxCoreOpenPluginPart {
         return err(new UserCancelError());
       }
       await context.userInteraction.showMessage("warn", result.error.message, true);
-      return ok(undefined);
+      return err(result.error);
     }
 
     this.showAddKnowledgeSuccessMessage(context, inputs, agentManifestPath, knowledgeSource);
@@ -2283,17 +2372,22 @@ export class FxCore extends FxCoreOpenPluginPart {
     ConcurrentLockerMW,
   ])
   async addSkill(inputs: Inputs): Promise<Result<undefined | any, FxError>> {
-    if (!featureFlagManager.getBooleanValue(FeatureFlags.AgentSkillsManifest)) {
+    if (!inputs.projectPath) {
+      throw new Error("projectPath is undefined"); // should never happen
+    }
+
+    if (
+      !inputs[QuestionNames.SkillFrom] &&
+      !inputs[QuestionNames.SkillFromZipFile] &&
+      !isValidSkillName(inputs[QuestionNames.SkillName])
+    ) {
       return err(
         new UserError(
           "FxCore",
-          "AgentSkillsDisabled",
-          getLocalizedString("core.addSkill.featureFlagDisabled")
+          "InvalidSkillName",
+          getLocalizedString("core.addSkillQuestion.name.validation")
         )
       );
-    }
-    if (!inputs.projectPath) {
-      throw new Error("projectPath is undefined"); // should never happen
     }
 
     const context = createContext();
@@ -2340,6 +2434,7 @@ export class FxCore extends FxCoreOpenPluginPart {
       true,
       getLocalizedString("core.addSkill.continue")
     );
+    throwIfAborted(inputs);
     if (confirmRes.isErr()) {
       return err(confirmRes.error);
     } else if (confirmRes.value !== getLocalizedString("core.addSkill.continue")) {
@@ -2384,13 +2479,12 @@ export class FxCore extends FxCoreOpenPluginPart {
 
         // Validate folder name format
         const folderName = path.basename(skillAbsPath);
-        const namePattern = /^[a-zA-Z][a-zA-Z0-9-]*$/;
-        if (!namePattern.test(folderName)) {
+        if (!isValidSkillName(folderName)) {
           return err(
             new UserError(
               "FxCore",
               "InvalidSkillFolderName",
-              `Skill folder name "${folderName}" is invalid. It must start with a letter and contain only letters, numbers, and hyphens.`
+              getLocalizedString("core.addSkillQuestion.name.validation")
             )
           );
         }
@@ -2435,7 +2529,7 @@ export class FxCore extends FxCoreOpenPluginPart {
 
       const skillMdContent = [
         "---",
-        `name: ${skillName}`,
+        `name: ${yaml.dump(skillName).trimEnd()}`,
         `description: ${skillDescription}`,
         "---",
         `# ${skillName}`,
@@ -2610,13 +2704,12 @@ export class FxCore extends FxCoreOpenPluginPart {
     }
 
     // Validate skill name format
-    const namePattern = /^[a-zA-Z][a-zA-Z0-9-]*$/;
-    if (!namePattern.test(derivedSkillName)) {
+    if (!isValidSkillName(derivedSkillName)) {
       return err(
         new UserError(
           "FxCore",
           "InvalidSkillFolderName",
-          `Skill name "${derivedSkillName}" is invalid. It must start with a letter and contain only letters, numbers, and hyphens.`
+          getLocalizedString("core.addSkillQuestion.name.validation")
         )
       );
     }
@@ -2870,10 +2963,15 @@ export class FxCore extends FxCoreOpenPluginPart {
         path.join(path.dirname(pluginManifestPath), apiSpecRelativePath)
       );
       const authType = inputs[QuestionNames.ApiAuth] as string;
+      const authCredentialSourceRes = this.resolveAuthConfigCredentialSource(authType, inputs);
+      if (authCredentialSourceRes.isErr()) {
+        return err(authCredentialSourceRes.error);
+      }
 
       let authParameters: AuthParameters = {
         apis: apiOperation,
       };
+      let oauthRegistrationScopes: string | undefined;
       if (authType === AddAuthActionAuthTypeOptions.oauth().id) {
         const oauthAuthorizationUrl = inputs[QuestionNames.OAuthAuthorizationUrl] as string;
         const oauthTokenUrl = inputs[QuestionNames.OAuthTokenUrl] as string;
@@ -2881,6 +2979,7 @@ export class FxCore extends FxCoreOpenPluginPart {
         const oauthScopes = inputs[QuestionNames.OAuthScope] as string;
         const enablePKCEStr = inputs[QuestionNames.OauthPKCE];
         const scopeArr = this.parseScope(oauthScopes);
+        oauthRegistrationScopes = Object.keys(scopeArr).join(" ");
 
         authParameters = {
           ...authParameters,
@@ -2913,6 +3012,7 @@ export class FxCore extends FxCoreOpenPluginPart {
 
       // Update openapi spec
       const specParser = new SpecParser(apiSpecPath, getParserOptions(ProjectType.Copilot, true));
+      throwIfAborted(inputs);
       await specParser.addAuthScheme(authName, authType, authParameters);
 
       let authTypeScheme;
@@ -2937,7 +3037,15 @@ export class FxCore extends FxCoreOpenPluginPart {
         apiSpecPath,
         true,
         authTypeScheme,
-        "enablePKCE" in authParameters ? authParameters.enablePKCE : undefined
+        "enablePKCE" in authParameters ? authParameters.enablePKCE : undefined,
+        undefined,
+        authTypeScheme === APIKeyAuthType ? inputs[QuestionNames.ApiSpecApiKey] : undefined,
+        authCredentialSourceRes.value,
+        authTypeScheme === OAuthAuthType || authTypeScheme === MicrosoftEntraAuthType
+          ? inputs[QuestionNames.OauthClientId]
+          : undefined,
+        authTypeScheme === OAuthAuthType ? inputs[QuestionNames.OauthClientSecret] : undefined,
+        authTypeScheme === OAuthAuthType ? oauthRegistrationScopes : undefined
       );
 
       if (addAuthActionRes?.registrationIdEnvName) {
@@ -2985,12 +3093,12 @@ export class FxCore extends FxCoreOpenPluginPart {
         );
       }
 
-      context.telemetryReporter.sendTelemetryEvent(TelemetryEvent.AddAuthAction, {
+      context.telemetryReporter?.sendTelemetryEvent(TelemetryEvent.AddAuthAction, {
         [TelemetryProperty.AddAuthType]: authType,
       });
     } catch (e: any) {
       const error = assembleError(e);
-      context.telemetryReporter.sendTelemetryErrorEvent(TelemetryEvent.AddAuthAction, {
+      context.telemetryReporter?.sendTelemetryErrorEvent(TelemetryEvent.AddAuthAction, {
         [TelemetryProperty.ErrorCode]: error.name,
         [TelemetryProperty.ErrorMessage]: error.message,
       });
@@ -3252,7 +3360,14 @@ export class FxCore extends FxCoreOpenPluginPart {
     projectPath: string,
     apSpecPath: string,
     pluginManifestPath: string,
-    forceToAddNew = true
+    forceToAddNew = true,
+    apiKey?: string,
+    authCredentialSource: AuthCredentialSource = "provision",
+    oauthClientId?: string,
+    oauthClientSecret?: string,
+    oauthScopes?: string,
+    enablePKCE?: boolean,
+    identityProvider?: string
   ): Promise<void> {
     if (authName && authScheme) {
       const authInjectRes = await openApiSpecHelper.injectAuthAction(
@@ -3260,7 +3375,17 @@ export class FxCore extends FxCoreOpenPluginPart {
         authName,
         authScheme,
         apSpecPath,
-        forceToAddNew
+        forceToAddNew,
+        identityProvider === AddAuthActionAuthTypeOptions.microsoftEntra().id
+          ? MicrosoftEntraAuthType
+          : undefined,
+        enablePKCE,
+        undefined,
+        apiKey,
+        authCredentialSource,
+        oauthClientId,
+        oauthClientSecret,
+        oauthScopes
       );
       if (
         authInjectRes?.defaultRegistrationIdEnvName &&
@@ -3315,6 +3440,43 @@ export class FxCore extends FxCoreOpenPluginPart {
       }
     });
     return scopeArr;
+  }
+
+  private resolveAuthConfigCredentialSource(
+    authType: string,
+    inputs: Inputs
+  ): Result<AuthCredentialSource, FxError> {
+    const hasValue = (name: QuestionNames): boolean => {
+      const value = inputs[name];
+      return typeof value === "string" && value.trim().length > 0;
+    };
+    const hasInput = (name: QuestionNames): boolean => inputs[name] !== undefined;
+    const hasApiKey = hasValue(QuestionNames.ApiSpecApiKey);
+    const hasClientId = hasValue(QuestionNames.OauthClientId);
+    const hasClientSecret = hasValue(QuestionNames.OauthClientSecret);
+    const hasApiKeyInput = hasInput(QuestionNames.ApiSpecApiKey);
+    const hasClientIdInput = hasInput(QuestionNames.OauthClientId);
+    const hasClientSecretInput = hasInput(QuestionNames.OauthClientSecret);
+    const enablePKCE = inputs[QuestionNames.OauthPKCE] === "true";
+    const isApiKey = authType === AddAuthActionAuthTypeOptions.apiKey().id;
+    const isBearer = authType === AddAuthActionAuthTypeOptions.bearerToken().id;
+    const isOAuth = authType === AddAuthActionAuthTypeOptions.oauth().id;
+    const isMicrosoftEntra = authType === AddAuthActionAuthTypeOptions.microsoftEntra().id;
+
+    if (
+      ((isApiKey || isBearer) && (hasClientIdInput || hasClientSecretInput)) ||
+      ((isOAuth || isMicrosoftEntra) && hasApiKeyInput) ||
+      (isMicrosoftEntra && hasClientSecretInput) ||
+      (isOAuth && enablePKCE && hasClientSecretInput)
+    ) {
+      return err(new InapplicableOpenApiAuthCredentialError());
+    }
+
+    const hasCredential = hasApiKey || hasClientId || hasClientSecret;
+    if (inputs.authCredentialSource === "provision" && hasCredential) {
+      return err(new InapplicableOpenApiAuthCredentialError());
+    }
+    return ok(inputs.authCredentialSource ?? (hasCredential ? "environment" : "provision"));
   }
 
   async isDelcarativeAgentApp(inputs: Inputs): Promise<Result<any, FxError>> {
@@ -3458,7 +3620,7 @@ export class FxCore extends FxCoreOpenPluginPart {
         .showMessage("info", successMessage, false, viewAgentManifest)
         .then((userRes) => {
           if (userRes.isOk() && userRes.value === viewAgentManifest) {
-            context.telemetryReporter.sendTelemetryEvent(
+            context.telemetryReporter?.sendTelemetryEvent(
               TelemetryEvent.ViewAgentManifestAfterAdded
             );
             void TOOLS?.ui?.openFile?.(agentManifestPath);

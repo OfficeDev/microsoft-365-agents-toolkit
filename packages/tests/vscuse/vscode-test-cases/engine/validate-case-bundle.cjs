@@ -3,6 +3,7 @@ const { createDiagnostic } = require("./diagnostics.cjs");
 const allowedCaseFields = new Set([
   "id",
   "scenarioId",
+  "workItemIds",
   "featureFlags",
   "steps",
   "gate",
@@ -17,12 +18,37 @@ const allowedRootFields = new Set([
 const allowedStepFields = new Set(["type", "with"]);
 const allowedStepTypes = new Set([
   "scaffold",
+  "checkCopilotLicense",
   "login",
+  "switchM365Account",
   "provision",
+  "provisionWithoutAccount",
   "deploy",
   "pythonEnvironment",
   "localEnvironment",
+  "playgroundEnvironment",
+  "remoteEnvironment",
+  "openAIModel",
   "localUserEnvironment",
+  "userEnvironment",
+  "projectEnvironment",
+  "configureMcpAuth",
+  "dcrUpdate",
+  "removeWorkspaceFile",
+  "configureArmJsonTemplates",
+  "configurePluginManifest",
+  "validateManifest",
+  "workflowVersion",
+  "configureTypeSpecAction",
+  "addDaCapability",
+  "addDaSkill",
+  "addDaAction",
+  "addApiAuthConfiguration",
+  "regenerateDaAction",
+  "packageApp",
+  "closeDebugBrowser",
+  "publishDeveloperPortal",
+  "share",
   "target",
   "open",
   "checks",
@@ -204,6 +230,24 @@ function validateCaseBundle({ bundle, sourcePath }) {
             sourcePath,
             `${yamlPath}.scenarioId`,
             "Each case must have a non-empty scenario ID.",
+          ),
+        );
+      }
+      if (
+        !Array.isArray(caseDefinition.workItemIds) ||
+        caseDefinition.workItemIds.length === 0 ||
+        caseDefinition.workItemIds.some(
+          (workItemId) => !Number.isSafeInteger(workItemId) || workItemId <= 0,
+        ) ||
+        new Set(caseDefinition.workItemIds).size !==
+          caseDefinition.workItemIds.length
+      ) {
+        diagnostics.push(
+          createDiagnostic(
+            "VCB_WORK_ITEM_IDS_INVALID",
+            sourcePath,
+            `${yamlPath}.workItemIds`,
+            "Each case must have unique positive integer work item IDs.",
           ),
         );
       }

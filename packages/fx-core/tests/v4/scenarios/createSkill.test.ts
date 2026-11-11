@@ -43,7 +43,11 @@ describe("SCN-DA-CREATE-SKILL (v4, T3 InMemoryRuntime)", () => {
   it("SCN-CREATE-SKILL-02: declarativeAgent.json renders the local agent skill", async () => {
     const { files } = await run();
     const agent = readJsonObject(files, "appPackage/declarativeAgent.json");
-    assert.strictEqual(agent.version, "v1.8");
+    assert.strictEqual(agent.version, "v1.9");
+    assert.strictEqual(
+      agent.$schema,
+      "https://developer.microsoft.com/json-schemas/copilot/declarative-agent/v1.9/schema.json"
+    );
     assert.strictEqual(agent.name, "Skill Agent${{APP_NAME_SUFFIX}}");
     assert.strictEqual(agent.instructions, "$[file('instruction.txt')]");
     assert.isTrue(isRecordArray(agent.agent_skills));
@@ -57,7 +61,7 @@ describe("SCN-DA-CREATE-SKILL (v4, T3 InMemoryRuntime)", () => {
     const manifest = readJsonObject(files, "appPackage/manifest.json");
     const name = recordProperty(manifest, "name");
     const copilotAgents = recordProperty(manifest, "copilotAgents");
-    assert.strictEqual(manifest.manifestVersion, "1.29");
+    assert.strictEqual(manifest.manifestVersion, "1.30");
     assert.strictEqual(manifest.id, "${{TEAMS_APP_ID}}");
     assert.strictEqual(name.short, "Skill Agent${{APP_NAME_SUFFIX}}");
     assert.isTrue(isRecordArray(copilotAgents.declarativeAgents));

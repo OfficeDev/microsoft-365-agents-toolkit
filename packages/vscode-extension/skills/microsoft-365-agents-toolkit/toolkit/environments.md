@@ -1,5 +1,7 @@
 # Environments and `.localConfigs`
 
+> **Declarative Agents:** Apply the [DA routing rule](declarative-agent-lifecycle.md#da-routing). The ATK guidance below applies only to TypeSpec DA projects.
+
 ## purpose
 
 Multi-environment management with environment files, `${{VAR}}` variable resolution, the `SECRET_` prefix convention, and the `.localConfigs` runtime-config flow for Agents Toolkit projects.

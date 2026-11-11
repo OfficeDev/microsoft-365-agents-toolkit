@@ -13,7 +13,7 @@ import { EOL } from "os";
 import { TelemetryEvent } from "../../common/telemetry";
 import { createHash } from "crypto";
 import { FileNotFoundError } from "../../error/common";
-import { internalOutputNames as UpdateTeamsAppOutputNames } from "../driver/teamsApp/configure";
+import { teamsAppUpdateOutputNames as UpdateTeamsAppOutputNames } from "../driver/teamsApp/constants";
 import { environmentNameManager } from "../../core/environmentName";
 
 export type DotenvOutput = {
@@ -29,6 +29,8 @@ const EligibleKeys: EligibleKeySettings = {
   AZURE_SUBSCRIPTION_ID: false,
   BOT_ID: false,
   TEAMS_APP_ID: false,
+  APP_ID: false,
+  APP_MANIFEST_ID: false,
   TAB_ENDPOINT: true,
   TEAMS_APP_TENANT_ID: false,
 };
@@ -163,11 +165,19 @@ class EnvUtil {
   async writeEnv(
     projectPath: string,
     env: string,
-    envs: DotenvOutput
+    envs: DotenvOutput,
+    validatePath?: (filePath: string) => void
   ): Promise<Result<undefined, FxError>> {
+    if (validatePath) {
+      const envPath = await pathUtils.getEnvFilePath(projectPath, env, validatePath);
+      if (envPath.isErr()) return err(envPath.error);
+      const filePath = envPath.value || path.resolve(projectPath, "env", `.env.${env || "dev"}`);
+      validatePath(filePath);
+      validatePath(filePath + ".user");
+    }
     envs.TEAMSFX_ENV = env;
     //encrypt
-    const settingsRes = await settingsUtil.readSettings(projectPath);
+    const settingsRes = await settingsUtil.readSettings(projectPath, true, validatePath);
     if (settingsRes.isErr()) {
       return err(settingsRes.error);
     }
@@ -177,11 +187,12 @@ class EnvUtil {
     const secretEnv: DotenvOutput = {};
     for (const key of Object.keys(envs)) {
       let value = envs[key];
-      if (value && key.startsWith("SECRET_")) {
-        const res = cryptoProvider.encrypt(value);
-        if (res.isErr()) return err(res.error);
-        value = res.value;
-        // envs[key] = value;
+      if (key.startsWith("SECRET_")) {
+        if (value) {
+          const res = cryptoProvider.encrypt(value);
+          if (res.isErr()) return err(res.error);
+          value = res.value;
+        }
         secretEnv[key] = value;
       } else if (key === UpdateTeamsAppOutputNames.teamsAppUpdateTime) {
         // Corner case: Avoid TEAMS_APP_UPDATE_TIME to be committed and cause merge conflict

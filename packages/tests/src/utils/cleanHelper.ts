@@ -8,6 +8,7 @@ import * as fs from "fs-extra";
 import * as path from "path";
 import { Env } from "./env";
 import { dotenvUtil } from "./envUtil";
+import { skipMcpSharedIdentityCleanup } from "../commonlib/mcpAuthTeardown";
 import { TestFilePath } from "./constants";
 import {
   TunnelManagementHttpClient,
@@ -238,6 +239,7 @@ export class GraphApiCleanHelper extends CleanHelper {
   }
 
   public async deleteAad(objectId: string): Promise<void> {
+    if (skipMcpSharedIdentityCleanup()) return;
     await this.execute("delete", `/applications/${objectId}`, undefined);
     await this.execute(
       "delete",
@@ -285,6 +287,7 @@ export class GraphApiCleanHelper extends CleanHelper {
   }
 
   public async deleteEnterpriseApplication(id: string): Promise<void> {
+    if (skipMcpSharedIdentityCleanup()) return;
     await this.execute("delete", `/servicePrincipals/${id}`, undefined);
     await this.execute("delete", `/directory/deletedItems/${id}`, undefined);
   }
@@ -311,6 +314,7 @@ export class GraphApiCleanHelper extends CleanHelper {
   }
 
   public async deleteDeletedItem(id: string): Promise<void> {
+    if (skipMcpSharedIdentityCleanup()) return;
     await this.execute("delete", `/directory/deletedItems/${id}`, undefined);
   }
 

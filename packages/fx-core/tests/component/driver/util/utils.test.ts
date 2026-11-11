@@ -1,13 +1,39 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
+import { Platform } from "@microsoft/teamsfx-api";
 import fs from "fs-extra";
 import mockedEnv, { RestoreFn } from "mocked-env";
 import { chai, vi } from "vitest";
+import { setTools } from "../../../../src/common/globalVars";
 import {
+  createDriverContext,
   loadStateFromEnv,
   mapStateToEnv,
   updateVersionForTeamsAppYamlFile,
 } from "../../../../src/component/driver/util/utils";
+import { MockedAzureAccountProvider, MockedM365Provider } from "../../../core/utils";
+import { MockedLogProvider, MockedUserInteraction } from "../../../plugins/solution/util";
+
+describe("createDriverContext", () => {
+  it("propagates non-interactive mode to lifecycle drivers", () => {
+    setTools({
+      ui: new MockedUserInteraction(),
+      logProvider: new MockedLogProvider(),
+      tokenProvider: {
+        azureAccountProvider: new MockedAzureAccountProvider(),
+        m365TokenProvider: new MockedM365Provider(),
+      },
+    });
+
+    const context = createDriverContext({
+      platform: Platform.CLI,
+      projectPath: "test-project",
+      nonInteractive: true,
+    });
+
+    chai.expect(context.nonInteractive).to.be.true;
+  });
+});
 
 describe("loadStateFromEnv", () => {
   let envRestore: RestoreFn | undefined;

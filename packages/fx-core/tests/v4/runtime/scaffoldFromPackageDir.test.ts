@@ -110,7 +110,10 @@ describe("scaffoldFromPackageDir (v4 product front-door)", () => {
 
   it("ORCH-05: loadPackageDir treats a missing content directory as pipeline-only content", () => {
     fs.writeFileSync(path.join(tempDir, "descriptor.json"), "{}");
-    fs.writeFileSync(path.join(tempDir, "pipeline.json"), "{}");
+    fs.writeFileSync(
+      path.join(tempDir, "pipeline.json"),
+      JSON.stringify({ pipeline: "default", steps: [] })
+    );
     const result = loadPackageDir(tempDir); // descriptor + pipeline ok, no content/
     assert.isTrue(result.isOk(), result.isErr() ? result.error.message : "expected ok");
     assert.deepEqual(result._unsafeUnwrap().content, []);

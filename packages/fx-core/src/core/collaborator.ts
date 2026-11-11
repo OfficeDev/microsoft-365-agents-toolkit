@@ -30,10 +30,13 @@ import {
   AadOwner,
   AgentOwner,
   AppIds,
+  Collaborator,
+  CollaboratorType,
   CollaborationState,
   ListCollaboratorResult,
   PermissionsResult,
   ResourcePermission,
+  TeamsAppAdmin,
 } from "../common/permissionInterface";
 import { SolutionError, SolutionSource, SolutionTelemetryProperty } from "../component/constants";
 import { parseShareAppActionYamlConfig } from "../component/driver/share/utils";
@@ -45,6 +48,8 @@ import {
 } from "../component/feature/collaboration";
 import { FailedToLoadManifestId, FileNotFoundError } from "../error/common";
 import { QuestionNames } from "../question/constants";
+import { resolveAppResourceId, resolveProjectAppResourceId } from "../component/utils/appIdentity";
+import { featureFlagManager, FeatureFlags } from "../common/featureFlags";
 
 export class CollaborationConstants {
   // Collaboartion CLI parameters
@@ -62,6 +67,10 @@ export class CollaborationConstants {
   static readonly TeamsAppQuestionId = "teamsApp";
   static readonly AadAppQuestionId = "aadApp";
   static readonly AgentOptionId = "agent";
+
+  // listCollaborator() output options. Opt-in and defaults to false/undefined
+  // so existing callers keep getting the exact same result shape as before.
+  static readonly IncludeCollaborators = "includeCollaborators";
 
   static readonly placeholderRegex = /\$\{\{ *[a-zA-Z0-9_.-]* *\}\}/g;
 }
@@ -195,7 +204,9 @@ export class CollaborationUtil {
         }
 
         const dotEnv = loadDotEnvFileResult.value;
-        teamsAppId = teamsAppId ?? dotEnv[CollaborationConstants.TeamsAppIdEnv] ?? undefined;
+        const identity = resolveAppResourceId(dotEnv);
+        if (identity.isErr()) return err(identity.error);
+        teamsAppId = teamsAppId ?? identity.value;
         aadObjectId = aadObjectId ?? dotEnv[CollaborationConstants.AadObjectIdEnv] ?? undefined;
         // Return if getting two app ids
         if (teamsAppId && aadObjectId) {
@@ -208,6 +219,16 @@ export class CollaborationUtil {
     }
 
     // 3. load from env
+    if (
+      inputs.projectPath &&
+      !teamsAppId &&
+      (featureFlagManager.getBooleanValue(FeatureFlags.NewDeveloperPortalApis) ||
+        process.env.APP_MANIFEST_ID !== undefined)
+    ) {
+      const identity = await resolveProjectAppResourceId(inputs.projectPath, process.env);
+      if (identity.isErr()) return err(identity.error);
+      teamsAppId = identity.value;
+    }
     const teamsAppManifestFilePath = inputs?.[QuestionNames.TeamsAppManifestFilePath] as string;
     const aadAppManifestFilePath = inputs?.[QuestionNames.AadAppManifestFilePath] as string;
 
@@ -314,7 +335,7 @@ export async function listCollaborator(
     inputs[QuestionNames.collaborationAppType] &&
     inputs[QuestionNames.collaborationAppType].indexOf(CollaborationConstants.AgentOptionId) > -1
   ) {
-    const parseRes = await parseShareAppActionYamlConfig(inputs.projectPath);
+    const parseRes = await parseShareAppActionYamlConfig(inputs.projectPath, inputs.env);
     if (parseRes.isErr()) {
       return err(parseRes.error);
     }
@@ -468,9 +489,48 @@ export async function listCollaborator(
     telemetryProps[SolutionTelemetryProperty.CollaboratorCount] = teamsOwnerCount.toString();
     telemetryProps[SolutionTelemetryProperty.AadOwnerCount] = aadOwnerCount.toString();
   }
+  if (inputs[CollaborationConstants.IncludeCollaborators] === true) {
+    return ok({
+      state: CollaborationState.OK,
+      collaborators: mergeCollaborators(teamsAppOwners, aadOwners, agentOwners),
+    });
+  }
   return ok({
     state: CollaborationState.OK,
   });
+}
+
+function mergeCollaborators(
+  teamsAppOwners: TeamsAppAdmin[],
+  aadOwners: AadOwner[],
+  agentOwners: AgentOwner[]
+): Collaborator[] {
+  const collaborators: Collaborator[] = [];
+  for (const teamsOwner of teamsAppOwners) {
+    collaborators.push({
+      userPrincipalName: teamsOwner.userPrincipalName,
+      userObjectId: teamsOwner.userObjectId,
+      collaboratorType: CollaboratorType.TeamsApp,
+      collaboratorResourceId: teamsOwner.resourceId,
+    });
+  }
+  for (const aadOwner of aadOwners) {
+    collaborators.push({
+      userPrincipalName: aadOwner.userPrincipalName,
+      userObjectId: aadOwner.userObjectId,
+      collaboratorType: CollaboratorType.AadApp,
+      collaboratorResourceId: aadOwner.resourceId,
+    });
+  }
+  for (const agentOwner of agentOwners) {
+    collaborators.push({
+      userPrincipalName: agentOwner.userPrincipalName,
+      userObjectId: agentOwner.userObjectId,
+      collaboratorType: CollaboratorType.Agent,
+      collaboratorResourceId: agentOwner.resourceId,
+    });
+  }
+  return collaborators;
 }
 
 export async function checkPermission(
@@ -632,7 +692,7 @@ export async function grantPermission(
       inputs[QuestionNames.collaborationAppType] &&
       inputs[QuestionNames.collaborationAppType].indexOf(CollaborationConstants.AgentOptionId) > -1
     ) {
-      const parseRes = await parseShareAppActionYamlConfig(inputs.projectPath);
+      const parseRes = await parseShareAppActionYamlConfig(inputs.projectPath, inputs.env);
       if (parseRes.isErr()) {
         return err(parseRes.error);
       }

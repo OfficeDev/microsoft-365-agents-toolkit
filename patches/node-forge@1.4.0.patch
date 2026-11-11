@@ -1,0 +1,378 @@
+diff --git a/lib/pbe.js b/lib/pbe.js
+index f3cfa70dd15cb5ba2e334eff081d2ac453e7c093..9154a050eb672fdf5d2500e631502e7a22fb346c 100644
+--- a/lib/pbe.js
++++ b/lib/pbe.js
+@@ -642,6 +642,12 @@ pki.decryptRsaPrivateKey = function(pem, password) {
+ pki.pbe.generatePkcs12Key = function(password, salt, id, iter, n, md) {
+   var j, l;
+ 
++  // RFC 7292 B.2: with fewer than 1 iteration no hashing is done and the
++  // derived key would be a constant that does not depend on the password
++  if(!(iter >= 1)) {
++    throw new Error('PKCS#12 key derivation iteration count must be >= 1.');
++  }
++
+   if(typeof md === 'undefined' || md === null) {
+     if(!('sha1' in forge.md)) {
+       throw new Error('"sha1" hash algorithm unavailable.');
+diff --git a/lib/pem.js b/lib/pem.js
+index 1992bc77b5265b0a65328fd08981e9ee7aabb3ad..b4ad7c55fc0504854ea8022796c5ac54dee45211 100644
+--- a/lib/pem.js
++++ b/lib/pem.js
+@@ -96,12 +96,14 @@ pem.decode = function(str) {
+   var rval = [];
+ 
+   // split string into PEM messages (be lenient w/EOF on BEGIN line)
+-  var rMessage = /\s*-----BEGIN ([A-Z0-9- ]+)-----\r?\n?([\x21-\x7e\s]+?(?:\r?\n\r?\n))?([:A-Za-z0-9+\/=\s]+?)-----END \1-----/g;
+-  var rHeader = /([\x21-\x7e]+):\s*([\x21-\x7e\s^:]+)/;
++  var messages = _pemMessageScanner(str);
++  // the name must start at the beginning of a run of printable chars, which
++  // gives the same match as an unanchored search without quadratic retries
++  var rHeader = /(?:^|[^\x21-\x7e])([\x21-\x7e]+):\s*([\x21-\x7e\s^:]+)/;
+   var rCRLF = /\r?\n/;
+   var match;
+   while(true) {
+-    match = rMessage.exec(str);
++    match = messages.next();
+     if(!match) {
+       break;
+     }
+@@ -133,7 +135,7 @@ pem.decode = function(str) {
+     var li = 0;
+     while(match && li < lines.length) {
+       // get line, trim any rhs whitespace
+-      var line = lines[li].replace(/\s+$/, '');
++      var line = rtrim(lines[li]);
+ 
+       // RFC2822 unfold any following folded lines
+       for(var nl = li + 1; nl < lines.length; ++nl) {
+@@ -235,3 +237,174 @@ function foldHeader(header) {
+ function ltrim(str) {
+   return str.replace(/^\s+/, '');
+ }
++
++// a loop, since /\s+$/ is quadratic on whitespace followed by non-whitespace
++function rtrim(str) {
++  var end = str.length;
++  while(end > 0 && /\s/.test(str.charAt(end - 1))) {
++    --end;
++  }
++  return str.substring(0, end);
++}
++
++/**
++ * Creates a scanner for the PEM messages in a string. It finds the same
++ * matches as this regular expression, except that only the shortest label
++ * followed by '-----' is tried (RFC 7468 labels can't contain '--'):
++ *
++ * /\s*-----BEGIN ([A-Z0-9- ]+)-----\r?\n?([\x21-\x7e\s]+?(?:\r?\n\r?\n))?
++ *   ([:A-Za-z0-9+\/=\s]+?)-----END \1-----/g
++ *
++ * The regular expression takes polynomial time on input without a matching
++ * END line. The scanner indexes the END lines once instead, so each BEGIN
++ * line is matched without rescanning the input.
++ *
++ * @param str the string to scan.
++ *
++ * @return an object whose next() returns the next match as
++ *   [match, label, headers, body] (headers may be undefined), or null.
++ */
++function _pemMessageScanner(str) {
++  var rBody = /[:A-Za-z0-9+\/=\s]/;
++  var rNotBody = /[^:A-Za-z0-9+\/=\s]/g;
++  var rNotHeader = /[^\x21-\x7e\s]/g;
++  var rLabel = /[A-Z0-9- ]/;
++
++  // index of the first char at or after i matched by a global regex
++  function indexOfRegex(regex, i) {
++    regex.lastIndex = i;
++    var match = regex.exec(str);
++    return match ? match.index : str.length;
++  }
++
++  // shortest label at i followed by '-----', or null
++  function labelAt(i) {
++    for(var j = i; j < str.length && rLabel.test(str.charAt(j)); ++j) {
++      if(j > i && str.substr(j, 5) === '-----') {
++        return str.substring(i, j);
++      }
++    }
++    return null;
++  }
++
++  // end of a blank line (\r?\n\r?\n) starting at i, or -1
++  function blankLineEnd(i) {
++    if(str.charAt(i) === '\r') {
++      ++i;
++    }
++    if(str.charAt(i) !== '\n') {
++      return -1;
++    }
++    if(str.charAt(++i) === '\r') {
++      ++i;
++    }
++    return str.charAt(i) === '\n' ? i + 1 : -1;
++  }
++
++  // first i in [start, end) where a blank line ends before end, or -1
++  function firstBlankLine(start, end) {
++    for(var i = start; i < end; ++i) {
++      var v = blankLineEnd(i);
++      if(v !== -1 && v < end) {
++        return i;
++      }
++    }
++    return -1;
++  }
++
++  // the headers group ends at a blank line inside the run of body chars
++  // before an END line; index END lines by label, with the first such
++  // blank line
++  var ends = {};
++  for(var end = str.indexOf('-----END '); end !== -1;
++    end = str.indexOf('-----END ', end + 1)) {
++    var endLabel = labelAt(end + 9);
++    var start = end;
++    while(start > 0 && rBody.test(str.charAt(start - 1))) {
++      --start;
++    }
++    var blank = firstBlankLine(start, end);
++    if(endLabel !== null && blank !== -1) {
++      var key = '$' + endLabel;
++      (ends[key] = ends[key] || []).push({end: end, blank: blank});
++    }
++  }
++
++  var pos = 0;
++  var headerEnd = -1;
++  return {
++    next: function() {
++      var begin;
++      while((begin = str.indexOf('-----BEGIN ', pos)) !== -1) {
++        pos = begin + 1;
++        var label = labelAt(begin + 11);
++        if(label === null) {
++          continue;
++        }
++        var q = begin + 16 + label.length;
++
++        // the body is the run of body chars that ends at a matching END line
++        var bodyEnd = indexOfRegex(rNotBody, q);
++        var bodyEndOk = str.substr(bodyEnd, 9) === '-----END ' &&
++          labelAt(bodyEnd + 9) === label;
++        // headers chars end here (q never decreases between BEGIN lines)
++        if(q > headerEnd) {
++          headerEnd = indexOfRegex(rNotHeader, q);
++        }
++        // first later matching END line with a blank line before it
++        var later = null;
++        var list = ends['$' + label];
++        if(list) {
++          var lo = 0;
++          var hi = list.length;
++          while(lo < hi) {
++            var mid = (lo + hi) >> 1;
++            if(list[mid].end > bodyEnd) {
++              hi = mid;
++            } else {
++              lo = mid + 1;
++            }
++          }
++          later = list[lo] || null;
++        }
++
++        // \r?\n? tries to consume as much as possible first
++        var starts = [];
++        if(str.charAt(q) === '\r') {
++          if(str.charAt(q + 1) === '\n') {
++            starts.push(q + 2);
++          }
++          starts.push(q + 1);
++        } else if(str.charAt(q) === '\n') {
++          starts.push(q + 1);
++        }
++        starts.push(q);
++
++        for(var i = 0; i < starts.length; ++i) {
++          var t = starts[i];
++          // optional headers: up to the first blank line that a non-empty
++          // body and the END line follow
++          var blank = bodyEndOk ? firstBlankLine(t + 1, bodyEnd) : -1;
++          var end = bodyEnd;
++          if(blank === -1 && later) {
++            blank = later.blank;
++            end = later.end;
++          }
++          if(blank !== -1 && blank <= headerEnd) {
++            var v = blankLineEnd(blank);
++            pos = end + 14 + label.length;
++            return [str.substring(begin, pos), label,
++              str.substring(t, v), str.substring(v, end)];
++          }
++          // no headers
++          if(bodyEndOk && t < bodyEnd) {
++            pos = bodyEnd + 14 + label.length;
++            return [str.substring(begin, pos), label,
++              undefined, str.substring(t, bodyEnd)];
++          }
++        }
++      }
++      return null;
++    }
++  };
++}
+diff --git a/lib/pkcs12.js b/lib/pkcs12.js
+index c184229a90be2a23c18f92079131e266038446ae..47f7749fd508a8f68b1099a69a21df9bb85457ed 100644
+--- a/lib/pkcs12.js
++++ b/lib/pkcs12.js
+@@ -466,6 +466,9 @@ p12.pkcs12FromAsn1 = function(obj, strict, password) {
+     var macSalt = new forge.util.ByteBuffer(capture.macSalt);
+     var macIterations = (('macIterations' in capture) ?
+       parseInt(forge.util.bytesToHex(capture.macIterations), 16) : 1);
++    if(!(macIterations >= 1)) {
++      throw new Error('PKCS#12 MAC iteration count must be >= 1.');
++    }
+     var macKey = p12.generateKey(
+       password, macSalt, 3, macIterations, macKeyBytes, md);
+     var mac = forge.hmac.create();
+diff --git a/lib/rsa.js b/lib/rsa.js
+index a4264822b4dcd6dca44ca3e59e410c982eed7183..43090545115be1b1ffc484a2a27ecf31f840437e 100644
+--- a/lib/rsa.js
++++ b/lib/rsa.js
+@@ -1168,11 +1168,16 @@ pki.setRsaPublicKey = pki.rsa.setPublicKey = function(n, e) {
+             parseAllBytes: options._parseAllDigestBytes
+           });
+ 
+-          // validate DigestInfo structure and element count
++          // validate DigestInfo structure and element counts (outer DigestInfo
++          // and nested DigestAlgorithm). asn1.validate ignores extra children,
++          // so length must be checked explicitly at each nesting level to
++          // prevent low-exponent PKCS#1 v1.5 signature forgery (CVE-2026-85393).
+           var capture = {};
+           var errors = [];
+           if(!asn1.validate(obj, digestInfoValidator, capture, errors) ||
+-            obj.value.length !== 2) {
++            obj.value.length !== 2 ||
++            obj.value[0].value.length !==
++              (('parameters' in capture) ? 2 : 1)) {
+             var error = new Error(
+               'ASN.1 object does not contain a valid RSASSA-PKCS1-v1_5 ' +
+               'DigestInfo value.');
+diff --git a/lib/tls.js b/lib/tls.js
+index 00d45089bc8b2fd401ec07f655b9c37d37845274..4078e0974ca3ba3765515d873ec2dea0cb1b4296 100644
+--- a/lib/tls.js
++++ b/lib/tls.js
+@@ -3917,6 +3917,8 @@ tls.createConnection = function(options) {
+                   tls.Alert.Description.unexpected_message
+               }
+             });
++            // fatal error closed and reset the connection (no record)
++            return rval;
+           }
+         }
+ 
+@@ -4018,23 +4020,23 @@ tls.createConnection = function(options) {
+     }
+   };
+ 
++  // true while c.process() is handling records
++  var _processing = false;
++  // true when c.process() was called again while handling a record
++  var _processNext = false;
++
+   /**
+-   * Called when TLS protocol data has been received from somewhere and should
+-   * be processed by the TLS engine.
++   * Reads the next record and, once it is complete, passes it to its
++   * handler. Handlers call c.process() to continue with the next record.
+    *
+-   * @param data the TLS protocol data, as a string, to process.
++   * @param c the TLS connection.
+    *
+-   * @return 0 if the data could be processed, otherwise the number of bytes
+-   *         required for data to be processed.
++   * @return 0 if the input data could be processed, otherwise the
++   *         number of bytes required for data to be processed.
+    */
+-  c.process = function(data) {
++  var _processRecord = function(c) {
+     var rval = 0;
+ 
+-    // buffer input data
+-    if(data) {
+-      c.input.putBytes(data);
+-    }
+-
+     // process next record if no failure, process will be called after
+     // each record is handled (since handling can be asynchronous)
+     if(!c.fail) {
+@@ -4063,6 +4065,54 @@ tls.createConnection = function(options) {
+     return rval;
+   };
+ 
++  /**
++   * Called when TLS protocol data has been received from somewhere and should
++   * be processed by the TLS engine.
++   *
++   * @param data the TLS protocol data, as a string, to process.
++   *
++   * @return 0 if the data could be processed, otherwise the number of bytes
++   *         required for data to be processed.
++   */
++  c.process = function(data) {
++    var rval = 0;
++
++    // buffer input data
++    if(data) {
++      c.input.putBytes(data);
++    }
++
++    // record handlers call c.process() without data to continue with the
++    // next record; while records are being processed, only flag that the
++    // loop below should continue instead of recursing, which could exhaust
++    // the call stack
++    if(_processing && typeof(data) === 'undefined') {
++      _processNext = true;
++      return rval;
++    }
++
++    // new data is processed right away, as before, even in a nested call
++    // (e.g., from a tlsDataReady handler that passes data synchronously
++    // between two connections)
++    var processing = _processing;
++    var processNext = _processNext;
++    _processing = true;
++    _processNext = false;
++    try {
++      // return value is based on the first record, as before
++      rval = _processRecord(c);
++      while(_processNext) {
++        _processNext = false;
++        _processRecord(c);
++      }
++    } finally {
++      _processing = processing;
++      _processNext = processNext;
++    }
++
++    return rval;
++  };
++
+   /**
+    * Requests that application data be packaged into a TLS record. The
+    * tlsDataReady handler will be called when the TLS record(s) have been
+diff --git a/lib/x509.js b/lib/x509.js
+index b4a4f6d7a4c57bea6d986a733f360a299bd15f5f..3a1e78b9b05c39113eb5a60ed4ee47d938b22e54 100644
+--- a/lib/x509.js
++++ b/lib/x509.js
+@@ -3149,7 +3149,9 @@ pki.verifyCertificateChain = function(caStore, chain, options) {
+     if(error === null &&
+       (!first || (chain.length === 0 && (!parent || selfSigned)))) {
+       // first check keyUsage extension and then basic constraints
+-      var bcExt = cert.getExtension('basicConstraints');
++      // (by id: deprecated OIDs are also named 'basicConstraints', but only
++      // id-ce-basicConstraints 2.5.29.19 is valid, RFC 5280 4.2.1.9)
++      var bcExt = cert.getExtension({id: '2.5.29.19'});
+       var keyUsageExt = cert.getExtension('keyUsage');
+       if(keyUsageExt !== null) {
+         // keyCertSign must be true and there must be a basic

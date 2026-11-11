@@ -33,6 +33,10 @@ export class ConfigManager {
       ConfigurationKey.EnableCEA,
       false
     ).toString();
+    process.env[FeatureFlags.Frontier.name] = this.getConfiguration(
+      ConfigurationKey.EnableFrontier,
+      false
+    ).toString();
     process.env[FeatureFlags.CFShortcutMetaOS.name] = this.getConfiguration(
       ConfigurationKey.EnableCFShortcutMetaOS,
       false

@@ -9,7 +9,7 @@
       "precondition_retry_interval": 2,
       "step_retry_timeout": 0
     },
-    "total_steps": 51,
+    "total_steps": 54,
     "created_at": "2026-05-21T01:25:55.681715",
     "name": "Feature DA Add Embedded Knowledge",
     "description": {
@@ -37,6 +37,9 @@
       "plan_r_0928_014459",
       "step_46fdc2a9",
       "step_885af259",
+      "step_c6e4a101",
+      "step_c6e4a102",
+      "step_c6e4a103",
       "step_f3811e81",
       "step_221e8d7d",
       "step_1a6a18dc",
@@ -289,7 +292,7 @@
       "parameters": {
         "button": "left",
         "x": 27,
-        "y": 298
+        "y": 278
       },
       "description": "Click the \"M365 Agents Toolkit\" icon in the left sidebar of the Visual Studio Code interface to open the Microsoft 365 Agents Toolkit panel.",
       "content_refs": [],
@@ -298,9 +301,9 @@
       "continue_on_error": "false",
       "depends_on": [],
       "preconditions": [
-        "dhash:27:298:16:5:9693939353d36c2d",
-        "dhash:27:298:96:5:c4c848c4e4c01888",
-        "dhash:27:298:0:10:22646263e3626421"
+        "dhash:27:278:16:5:49496daded92d6d6",
+        "dhash:27:278:96:5:e44048e4e4400808",
+        "dhash:27:278:0:10:2661626363e26421"
       ],
       "postconditions": [],
       "tags": [],
@@ -445,7 +448,7 @@
       "parameters": {
         "button": "left",
         "x": 29,
-        "y": 301
+        "y": 278
       },
       "description": "Click the \"M365 Agents Toolkit\" icon in the left sidebar of Visual Studio Code to open the Microsoft 365 Agents Toolkit panel.",
       "content_refs": [],
@@ -454,9 +457,9 @@
       "continue_on_error": "false",
       "depends_on": [],
       "preconditions": [
-        "dhash:29:301:16:5:662626a688da5a5a",
-        "dhash:29:301:96:5:c018c8e4e4c81808",
-        "dhash:29:301:0:10:2224226363626421"
+        "dhash:29:278:16:5:93939353d3652d2c",
+        "dhash:29:278:96:5:e3434be3e4401808",
+        "dhash:29:278:0:10:2621226363e26421"
       ],
       "postconditions": [],
       "tags": [],
@@ -467,27 +470,82 @@
     {
       "step_id": "step_885af259",
       "agent": "interaction",
-      "tool": "click",
+      "tool": "keyboard_shortcut",
       "parameters": {
-        "button": "left",
-        "x": 140,
-        "y": 477
+        "keys": "ctrl+shift+P"
       },
-      "description": "Click the \"Add Capability\" option under the DEVELOPMENT section in the MICROSOFT 365 AGENTS TOOLKIT panel of Visual Studio Code.",
+      "description": "Open the Visual Studio Code Command Palette with Ctrl+Shift+P to invoke Add Capability without relying on the clipped Development tree row.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [],
       "preconditions": [
-        "dhash:140:477:16:5:39cceda9adc63100",
-        "dhash:140:477:96:5:52961778644b88c0",
-        "dhash:140:477:0:10:a224622303222421"
+        "dhash:512:384:16:5:0000000000000000",
+        "dhash:512:384:96:5:0000000000000404",
+        "dhash:512:384:0:10:262122a3a3222421"
       ],
       "postconditions": [],
       "tags": [],
       "screenshot": "step_885af259",
       "created_at": "2026-05-21T01:25:55.829038",
+      "plan_id": "plan_2753c1dc"
+    },
+    {
+      "step_id": "step_c6e4a101",
+      "agent": "interaction",
+      "tool": "type_text",
+      "parameters": {
+        "text": "Microsoft 365 Agents: Add Capability"
+      },
+      "description": "Type \"Microsoft 365 Agents: Add Capability\" into the Visual Studio Code Command Palette to filter to the exact command.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": null,
+      "plan_id": "plan_2753c1dc"
+    },
+    {
+      "step_id": "step_c6e4a102",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the Command Palette input box reads >Microsoft 365 Agents: Add Capability and the highlighted command listed under it is titled Microsoft 365 Agents: Add Capability.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "step_retry_timeout:30"
+      ],
+      "screenshot": null,
+      "plan_id": "plan_2753c1dc"
+    },
+    {
+      "step_id": "step_c6e4a103",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "enter"
+      },
+      "description": "Press Enter to execute the highlighted \"Microsoft 365 Agents: Add Capability\" command and open the capability selection dialog.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": null,
       "plan_id": "plan_2753c1dc"
     },
     {
@@ -603,7 +661,7 @@
         "x": 260,
         "y": 109
       },
-      "description": "Click on the \"addtional-files\" folder entry in the file picker dialog under the \"Home\" directory, within the application’s open file interface.",
+      "description": "Click on the \"addtional-files\" folder entry in the file picker dialog under the \"Home\" directory, within the application\u2019s open file interface.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -671,11 +729,13 @@
     {
       "step_id": "step_08dc097f",
       "agent": "interaction",
-      "tool": "key_press",
+      "tool": "click",
       "parameters": {
-        "key": "enter"
+        "button": "left",
+        "x": 974,
+        "y": 745
       },
-      "description": "Press the Enter key to open the selected file \"azure.json\" in the Linux file chooser dialog.",
+      "description": "Click the \"Open\" button in the bottom-right corner of the Linux file chooser dialog to confirm opening the selected file \"azure.json\".",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -723,7 +783,7 @@
       "parameters": {
         "button": "left",
         "x": 154,
-        "y": 672
+        "y": 699
       },
       "description": "Click the \"Zip App Package\" option in the UTILITY section of the MICROSOFT 365 AGENTS TOOLKIT panel in Visual Studio Code.",
       "content_refs": [],
@@ -732,9 +792,9 @@
       "continue_on_error": "false",
       "depends_on": [],
       "preconditions": [
-        "dhash:154:672:16:5:a969cb9ccc699448",
-        "dhash:154:672:96:5:802053242c223450",
-        "dhash:154:672:0:10:a2246223a3222421"
+        "dhash:154:699:16:5:99639dd153598c72",
+        "dhash:154:699:96:5:c02001a8b43bb24d",
+        "dhash:154:699:0:10:262122a3a322242d"
       ],
       "postconditions": [],
       "tags": [],
@@ -777,7 +837,7 @@
         "x": 331,
         "y": 78
       },
-      "description": "Click the “dev” environment option in the “Select an environment” dropdown within the Microsoft Visual Studio Code interface, targeting the Microsoft 365 Agents extension.",
+      "description": "Click the \u201cdev\u201d environment option in the \u201cSelect an environment\u201d dropdown within the Microsoft Visual Studio Code interface, targeting the Microsoft 365 Agents extension.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -1058,9 +1118,9 @@
       "continue_on_error": "false",
       "depends_on": [],
       "preconditions": [
-        "dhash:275:105:16:5:d1aa323aa8a2b399",
-        "dhash:275:105:96:5:00606a9919040000",
-        "dhash:275:105:0:10:300080c0c0c0c0c0"
+        "dhash:275:105:16:5:1671adc5555d5c4e",
+        "dhash:275:105:96:5:00909126e6000000",
+        "dhash:275:105:0:10:30a1c0c0c0c0c0c0"
       ],
       "postconditions": [],
       "tags": [],
@@ -1071,11 +1131,13 @@
     {
       "step_id": "step_ec67a74c",
       "agent": "interaction",
-      "tool": "key_press",
+      "tool": "click",
       "parameters": {
-        "key": "enter"
+        "button": "left",
+        "x": 974,
+        "y": 745
       },
-      "description": "Press the Enter key to select and open the highlighted file \"azure.parameters.test.json\" in the Linux file picker dialog within a vscode workspace directory.",
+      "description": "Click the \"Open\" button in the bottom-right corner of the Linux file chooser dialog to confirm opening the selected file \"azure.parameters.test.json\".",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -1123,7 +1185,7 @@
       "parameters": {
         "button": "left",
         "x": 156,
-        "y": 637
+        "y": 626
       },
       "description": "Click the \"Zip App Package\" option in the UTILITY section of the MICROSOFT 365 AGENTS TOOLKIT panel within Visual Studio Code to build the app into a package for publishing.",
       "content_refs": [],
@@ -1132,9 +1194,9 @@
       "continue_on_error": "false",
       "depends_on": [],
       "preconditions": [
-        "dhash:156:637:16:5:9212d2183994c239",
-        "dhash:156:637:96:5:804053642c272650",
-        "dhash:156:637:0:10:a26462238322842d"
+        "dhash:156:626:16:5:36c632a2a7b218c5",
+        "dhash:156:626:96:5:80201328ac2ab219",
+        "dhash:156:626:0:10:262122232322842d"
       ],
       "postconditions": [],
       "tags": [],

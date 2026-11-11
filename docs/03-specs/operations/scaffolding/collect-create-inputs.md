@@ -140,21 +140,71 @@ in-memory provider while production uses the default registry.
 | CCI-27  | L1   | a `skipSingleOption` singleSelect with a single option, a fake `UserInteraction` whose `selectOption` returns `{ type: "skip" }`                                                       | `createUiPromptUI(ui).ask(q, options)`                                      | the host skip is projected to `ok({ kind: "skip", value })` so the shared walk records the answer without a back-stop (collect-inputs INPUT-24)                                                                                                                                                                                                                                                                      |
 | CCI-28  | L1   | the real `da/mcp-server` (remote-only `mcp.serverTypes`, so `mcpServerType` auto-skips), a caller `baseStep` + `backable`, and a `back` at the first _visible_ prompt (`mcpServerUrl`) | `runCreateInputsWalk`                                                       | the auto-skipped `mcpServerType` leaves no history, so the `back` returns `{ kind:"back" }` to the front door (re-enters Q1) instead of re-asking the skipped question, and `mcpServerUrl` is shown at `baseStep + 1`                                                                                                                                                                                                |
 
+### Clean engine ownership (ADR-0023)
+
+[ADR-0023](../../../02-architecture/adr/ADR-0023-create-input-policy-ownership.md)
+places language presentation in optional `descriptor.languageOptions` and C#
+availability/default labels in the registered `create.languages` provider. The
+common floor consumes resolved options and retains its existing cardinality,
+prefill, and Back semantics. Raw presentation strings can be existing NLS keys.
+
+The OpenAPI operations provider declares the source it parsed as
+`derived.openapi.operations.apiSpecLocation`. New DA OpenAPI metadata binds this
+value to its pipeline. Search question names remain unchanged; the post-walk
+top-level `apiSpecLocation` alias is no longer synthesized by the surface.
+The output itself has a `6.12.0` introduction floor, checked when a template
+consumes it. A named runtime compatibility adapter preserves pre-6.12 DA search
+render bindings without mutating answers or overriding an explicit source.
+
+| ID | Runtime | Purpose | Gate | Harness | Given / When | Then |
+| --- | --- | --- | --- | --- | --- | --- |
+| CLEAN-01 | L1 | operation-integration | required | synthetic metadata + UI | Arbitrary template ID declares presentation | Metadata controls labels/descriptions; a known ID without metadata receives no special presentation. |
+| CLEAN-02 | L1 | operation-integration | required | package validation | Duplicate, undeclared, or malformed presentation overrides | Reject before prompting; the overrides cannot expand descriptor languages. |
+| CLEAN-03 | L1 | operation-integration | required | language provider | Surface and .NET flag combinations | Preserve CCI-14..16 availability and order, with default labels and ID fallback. |
+| CLEAN-04 | L1 | compatibility | required | common floor + UI | Common, singleton, multiple, prefilled, and Back paths | Preserve existing floor cardinality, defaults, question order, and Back behavior. |
+| CLEAN-05 | L1 | operation-integration | required | OpenAPI provider | Successful operation listing | Return the actual source in the declared derived output; catalog parity holds. |
+| CLEAN-06 | L1 | compatibility | required | input walk + scaffold | Search and select operations | Preserve question/CLI names and generated artifacts using the provider-derived source, without a surface repair; legacy bindings generate byte-identical files and leave answers unchanged. |
+| CLEAN-07 | L1 | compatibility | required | metadata loading | New metadata and packages without overrides | Enforce the 6.12.0 floor for new presentation and consumption of the new derived source, without raising the old operation-listing floor; default old presentation and migrated template localization are explicit. |
+
+### OpenAPI parser policy (ADR-0026)
+
+Template metadata chooses a domain provider: `openapi.operations` preserves
+Copilot listing, while `openapi.teamsAiOperations` uses the same parser options as
+`openapi/generate-teams-ai-custom-api-files`. Both share a domain-owned listing
+implementation. A provider-specific derived source uses that provider's full
+namespace. The new provider and Custom API descriptor require engine `6.13.0`;
+old engine builds must reject the newer package before prompting or rendering.
+No generic surface or walker branches on a template ID.
+
+| ID | Runtime | Purpose | Gate | Harness | Given / When | Then |
+| --- | --- | --- | --- | --- | --- | --- |
+| API-01 | L1 | operation-integration | required | local OpenAPI documents and real parsers | HTTP and HTTPS documents are listed through both provider bindings | Teams AI listing rejects documents its generation parser rejects, accepts a valid HTTPS operation, and Copilot behavior remains unchanged. |
+| API-02 | L1 | compatibility | required | literal declarations, package validation and actual create walk | The new provider is referenced by an old-floor package or loaded by a 6.12.0 engine; a current create walk opens a newer-floor package | Reject through the existing version gate before prompts or provider calls; accept at 6.13.0; existing provider IDs, floors and output contracts remain unchanged. |
+| API-03 | L1 | operation-integration | required | Custom API questions with default registry | The shipped Custom API question selects its operations | It uses the Teams AI provider without engine/template-ID special cases; returned source metadata uses the declared namespace. |
+
 ## Flow
 
 ```mermaid
 flowchart TD
-  start(["runCreateInputs(package bytes, locator, entryParams, ui, deps)"]) --> q["openCreateQuestions(package bytes, locator)"]
-  start --> d["openDeclarativePackage(package bytes, locator) → descriptor"]
-  d --> os["optionsSchema + languages (parsed from descriptor)"]
-  q --> compose["compose input questions\ndescriptor language + template questions + common floor"]
-  os --> compose
+  start(["runCreateInputs(package bytes, locator, entryParams, ui, deps)"]) --> metadata["openDeclarativePackageMetadata: parse descriptor + questions"]
+  metadata --> version{"create input entry: minimum engine version supported?"}
+  version -->|no| upgrade["upgrade error before prompts or provider calls"]
+  version -->|yes| q["parsed questions"]
+  version -->|yes| d["parsed descriptor"]
+  d --> os["optionsSchema (parsed from descriptor)"]
+  d --> languages["create.languages resolves presentation + availability"]
+  q --> compose["compose input questions\ntemplate questions + resolved language options + common floor"]
+  languages --> compose
   compose --> port
   os --> port["build CollectInputsPort\n(createUiPromptUI(ui) + provider registry + validator registry + evaluate)"]
   port --> ci["collectInputs(combined questions, optionsSchema, entryParams, port)"]
   ci --> wb["write floor subset back to Inputs\n(folder, app-name, language)"]
   wb --> out(["ok(Answers) | UserError | SystemError"])
 ```
+
+The execution-version check belongs to the create-input entry, not the metadata
+reader: static catalog inspection may read newer-floor packages without running
+their prompts or providers.
 
 ## Invariants
 

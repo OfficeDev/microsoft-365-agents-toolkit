@@ -16,6 +16,7 @@ import * as DeclarativeAgentManifestV1D5 from "./copilot/declarative-agent/Decla
 import * as DeclarativeAgentManifestV1D6 from "./copilot/declarative-agent/DeclarativeAgentManifestV1D6";
 import * as DeclarativeAgentManifestV1D7 from "./copilot/declarative-agent/DeclarativeAgentManifestV1D7";
 import * as DeclarativeAgentManifestV1D8 from "./copilot/declarative-agent/DeclarativeAgentManifestV1D8";
+import * as DeclarativeAgentManifestV1D9 from "./copilot/declarative-agent/DeclarativeAgentManifestV1D9";
 import * as APIPluginManifestV2D1 from "./copilot/plugin/ApiPluginManifestV2D1";
 import * as APIPluginManifestV2D2 from "./copilot/plugin/ApiPluginManifestV2D2";
 import * as APIPluginManifestV2D3 from "./copilot/plugin/ApiPluginManifestV2D3";
@@ -41,7 +42,9 @@ import * as TeamsManifestV1D25 from "./teams/TeamsManifestV1D25";
 import * as TeamsManifestV1D26 from "./teams/TeamsManifestV1D26";
 import * as TeamsManifestV1D27 from "./teams/TeamsManifestV1D27";
 import * as TeamsManifestV1D28 from "./teams/TeamsManifestV1D28";
+import * as TeamsManifestV1D29 from "./teams/TeamsManifestV1D29";
 import * as TeamsManifestV1D3 from "./teams/TeamsManifestV1D3";
+import * as TeamsManifestV1D30 from "./teams/TeamsManifestV1D30";
 import * as TeamsManifestV1D4 from "./teams/TeamsManifestV1D4";
 import * as TeamsManifestV1D5 from "./teams/TeamsManifestV1D5";
 import * as TeamsManifestV1D6 from "./teams/TeamsManifestV1D6";
@@ -62,6 +65,7 @@ export {
   DeclarativeAgentManifestV1D6,
   DeclarativeAgentManifestV1D7,
   DeclarativeAgentManifestV1D8,
+  DeclarativeAgentManifestV1D9,
   TeamsManifestV1D0,
   TeamsManifestV1D1,
   TeamsManifestV1D10,
@@ -83,7 +87,9 @@ export {
   TeamsManifestV1D26,
   TeamsManifestV1D27,
   TeamsManifestV1D28,
+  TeamsManifestV1D29,
   TeamsManifestV1D3,
+  TeamsManifestV1D30,
   TeamsManifestV1D4,
   TeamsManifestV1D5,
   TeamsManifestV1D6,
@@ -123,25 +129,16 @@ export type TeamsManifest =
   | TeamsManifestV1D26.TeamsManifestV1D26
   | TeamsManifestV1D27.TeamsManifestV1D27
   | TeamsManifestV1D28.TeamsManifestV1D28
+  | TeamsManifestV1D29.TeamsManifestV1D29
+  | TeamsManifestV1D30.TeamsManifestV1D30
   | TeamsManifestVDevPreview.TeamsManifestVDevPreview;
 
-export type TeamsManifestLatest = TeamsManifestV1D28.TeamsManifestV1D28;
+export type TeamsManifestLatest = TeamsManifestV1D30.TeamsManifestV1D30;
 
 export { SensitivityLabel } from "./copilot/declarative-agent/DeclarativeAgentManifestV1D7";
 export { AgentSkill } from "./teams/TeamsManifestVDevPreview";
 
-/**
- * Identifies an agent skill directory to bundle with the declarative agent.
- *
- * NOTE: `agent_skills` is a preview feature that is not yet part of a published declarative
- * agent schema version. This helper type is provided so consumers that need it (for example
- * the manifest wrapper) can add `agent_skills` as an optional property only where required.
- * It is intentionally not merged into the declarative agent manifest types.
- */
-export interface AgentSkillElement {
-  folder: string;
-  [property: string]: any;
-}
+export { AgentSkillElement } from "./copilot/declarative-agent/DeclarativeAgentManifestV1D9";
 
 export type DeclarativeAgentManifest =
   | DeclarativeAgentManifestV1D0.DeclarativeAgentManifestV1D0
@@ -151,10 +148,11 @@ export type DeclarativeAgentManifest =
   | DeclarativeAgentManifestV1D5.DeclarativeAgentManifestV1D5
   | DeclarativeAgentManifestV1D6.DeclarativeAgentManifestV1D6
   | DeclarativeAgentManifestV1D7.DeclarativeAgentManifestV1D7
-  | DeclarativeAgentManifestV1D8.DeclarativeAgentManifestV1D8;
+  | DeclarativeAgentManifestV1D8.DeclarativeAgentManifestV1D8
+  | DeclarativeAgentManifestV1D9.DeclarativeAgentManifestV1D9;
 
 export type DeclarativeAgentManifestLatest =
-  DeclarativeAgentManifestV1D8.DeclarativeAgentManifestV1D8;
+  DeclarativeAgentManifestV1D9.DeclarativeAgentManifestV1D9;
 
 export type APIPluginManifest =
   | APIPluginManifestV2D1.APIPluginManifestV2D1
@@ -277,7 +275,23 @@ const TeamsManifestConverterMap: Converters = {
     TeamsManifestV1D28.Convert.toTeamsManifestV1D28,
     TeamsManifestV1D28.Convert.teamsManifestV1D28ToJson,
   ],
+  "1.29": [
+    TeamsManifestV1D29.Convert.toTeamsManifestV1D29,
+    TeamsManifestV1D29.Convert.teamsManifestV1D29ToJson,
+  ],
+  "1.30": [
+    TeamsManifestV1D30.Convert.toTeamsManifestV1D30,
+    TeamsManifestV1D30.Convert.teamsManifestV1D30ToJson,
+  ],
   devPreview: [
+    TeamsManifestVDevPreview.Convert.toTeamsManifestVDevPreview,
+    TeamsManifestVDevPreview.Convert.teamsManifestVDevPreviewToJson,
+  ],
+  m365DevPreview: [
+    TeamsManifestVDevPreview.Convert.toTeamsManifestVDevPreview,
+    TeamsManifestVDevPreview.Convert.teamsManifestVDevPreviewToJson,
+  ],
+  m365devpreview: [
     TeamsManifestVDevPreview.Convert.toTeamsManifestVDevPreview,
     TeamsManifestVDevPreview.Convert.teamsManifestVDevPreviewToJson,
   ],
@@ -314,6 +328,10 @@ const daConverterMap: Converters = {
   "v1.8": [
     DeclarativeAgentManifestV1D8.Convert.toDeclarativeAgentManifestV1D8,
     DeclarativeAgentManifestV1D8.Convert.declarativeAgentManifestV1D8ToJson,
+  ],
+  "v1.9": [
+    DeclarativeAgentManifestV1D9.Convert.toDeclarativeAgentManifestV1D9,
+    DeclarativeAgentManifestV1D9.Convert.declarativeAgentManifestV1D9ToJson,
   ],
 };
 const ApiPluginConverterMap: Converters = {

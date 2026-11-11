@@ -691,7 +691,7 @@ describe("CreateOauthDriver", () => {
     }
   });
 
-  it("provision handoff: missing Custom OAuth credentials are prompted and consumed", async () => {
+  it("provision handoff: interactive Custom OAuth prompts for a missing scope", async () => {
     envRestore = mockedEnv({
       [QuestionNames.OauthClientId]: undefined,
       [QuestionNames.OauthClientSecret]: undefined,
@@ -734,7 +734,123 @@ describe("CreateOauthDriver", () => {
       QuestionNames.OauthClientSecret,
       QuestionNames.OAuthScope,
     ]);
-    expect(confirm).toHaveBeenCalledOnce();
+    expect(confirm.mock.calls).to.have.length(1);
+  });
+
+  it("provision handoff: non-interactive Custom OAuth preserves an omitted scope", async () => {
+    envRestore = mockedEnv({
+      [QuestionNames.OauthClientId]: undefined,
+      [QuestionNames.OauthClientSecret]: undefined,
+      [QuestionNames.OAuthScope]: undefined,
+      [outputKeys.configurationId]: undefined,
+    });
+    const { promptNames, confirm } = setProvisionQuestionAnswers({});
+    vi.spyOn(teamsGraphClient, "createOauthRegistration").mockImplementation(
+      async (_token, oauthRegistration) => {
+        expect(oauthRegistration.clientId).to.equal("suppliedClientId");
+        expect(oauthRegistration.clientSecret).to.equal("suppliedClientSecret");
+        expect(oauthRegistration.scopes).to.be.empty;
+        return {
+          configurationRegistrationId: { oAuthConfigId: "mockedRegistrationId" },
+          resourceIdentifierUri: "mockedResourceIdentifierUri",
+        };
+      }
+    );
+
+    const args: CreateOauthArgs = {
+      name: "test",
+      appId: "mockedAppId",
+      clientId: "suppliedClientId",
+      clientSecret: "suppliedClientSecret",
+      flow: "authorizationCode",
+      identityProvider: "Custom",
+      isPKCEEnabled: false,
+      baseUrl: "https://test",
+      authorizationUrl: "https://auth.example.com/authorize",
+      tokenUrl: "https://auth.example.com/token",
+    };
+    const result = await createOauthDriver.execute(
+      args,
+      { ...mockedDriverContext, nonInteractive: true },
+      outputEnvVarNames
+    );
+
+    expect(result.result.isOk()).to.be.true;
+    expect(promptNames).to.be.empty;
+    expect(confirm.mock.calls).to.be.empty;
+  });
+
+  it("provision handoff: non-interactive Custom OAuth preserves an explicit scope", async () => {
+    envRestore = mockedEnv({
+      [QuestionNames.OauthClientId]: undefined,
+      [QuestionNames.OauthClientSecret]: undefined,
+      [QuestionNames.OAuthScope]: undefined,
+      [outputKeys.configurationId]: undefined,
+    });
+    const { promptNames, confirm } = setProvisionQuestionAnswers({});
+    vi.spyOn(teamsGraphClient, "createOauthRegistration").mockImplementation(
+      async (_token, oauthRegistration) => {
+        expect(oauthRegistration.scopes).to.deep.equal(["scope.read"]);
+        return {
+          configurationRegistrationId: { oAuthConfigId: "mockedRegistrationId" },
+          resourceIdentifierUri: "mockedResourceIdentifierUri",
+        };
+      }
+    );
+
+    const args: CreateOauthArgs = {
+      name: "test",
+      appId: "mockedAppId",
+      clientId: "suppliedClientId",
+      clientSecret: "suppliedClientSecret",
+      scope: "scope.read",
+      flow: "authorizationCode",
+      identityProvider: "Custom",
+      isPKCEEnabled: false,
+      baseUrl: "https://test",
+      authorizationUrl: "https://auth.example.com/authorize",
+      tokenUrl: "https://auth.example.com/token",
+    };
+    const result = await createOauthDriver.execute(
+      args,
+      { ...mockedDriverContext, nonInteractive: true },
+      outputEnvVarNames
+    );
+
+    expect(result.result.isOk()).to.be.true;
+    expect(promptNames).to.be.empty;
+    expect(confirm.mock.calls).to.be.empty;
+  });
+
+  it("provision handoff: non-interactive Custom OAuth does not prompt for a missing client id", async () => {
+    envRestore = mockedEnv({
+      [QuestionNames.OauthClientId]: undefined,
+      [QuestionNames.OauthClientSecret]: undefined,
+      [QuestionNames.OAuthScope]: undefined,
+      [outputKeys.configurationId]: undefined,
+    });
+    const { promptNames, confirm } = setProvisionQuestionAnswers({});
+
+    const args: CreateOauthArgs = {
+      name: "test",
+      appId: "mockedAppId",
+      clientSecret: "suppliedClientSecret",
+      flow: "authorizationCode",
+      identityProvider: "Custom",
+      isPKCEEnabled: false,
+      baseUrl: "https://test",
+      authorizationUrl: "https://auth.example.com/authorize",
+      tokenUrl: "https://auth.example.com/token",
+    };
+    const result = await createOauthDriver.execute(
+      args,
+      { ...mockedDriverContext, nonInteractive: true },
+      outputEnvVarNames
+    );
+
+    expect(result.result.isErr()).to.be.true;
+    expect(promptNames).to.be.empty;
+    expect(confirm.mock.calls).to.be.empty;
   });
 
   it("provision handoff: missing Entra client id is the only prompted credential", async () => {
@@ -771,7 +887,7 @@ describe("CreateOauthDriver", () => {
 
     expect(result.result.isOk()).to.be.true;
     expect(promptNames).to.deep.equal([QuestionNames.OauthClientId]);
-    expect(confirm).not.toHaveBeenCalled();
+    expect(confirm.mock.calls).to.be.empty;
   });
 
   it("happy path: read clientSecret from input and refreshurl from spec", async () => {
@@ -1708,5 +1824,132 @@ describe("CreateOauthDriver", () => {
       expect(result.result.error.name).to.equal("InvalidActionInputError");
       expect(result.result.error.message.includes("flow")).to.be.true;
     }
+  });
+
+  for (const testCase of [
+    { id: "OAUTH-MSA-01", input: undefined, expected: undefined },
+    { id: "OAUTH-MSA-02", input: false, expected: "Enterprise" },
+    { id: "OAUTH-MSA-02", input: true, expected: "Enterprise, Consumer" },
+  ]) {
+    it(`${testCase.id}: maps the personal account option to the create payload`, async () => {
+      const createStub = vi.spyOn(teamsGraphClient, "createOauthRegistration").mockResolvedValue({
+        configurationRegistrationId: { oAuthConfigId: "mockedRegistrationId" },
+        resourceIdentifierUri: "mockedResourceIdentifierUri",
+      });
+      const args: CreateOauthArgs = {
+        name: "test",
+        appId: "mockedAppId",
+        flow: "authorizationCode",
+        clientId: "mockedClientId",
+        clientSecret: "mockedClientSecret",
+        baseUrl: "https://api.example.com",
+        authorizationUrl: "https://auth.example.com/authorize",
+        tokenUrl: "https://auth.example.com/token",
+        ...(testCase.input === undefined
+          ? {}
+          : { includePersonalMicrosoftAccounts: testCase.input }),
+      };
+
+      const result = await createOauthDriver.execute(args, mockedDriverContext, outputEnvVarNames);
+
+      expect(result.result.isOk()).to.be.true;
+      expect(createStub).toHaveBeenCalledOnce();
+      if (testCase.expected === undefined) {
+        expect(createStub.mock.calls[0][1]).not.to.have.property("supportedAccountTypes");
+      } else {
+        expect(createStub.mock.calls[0][1].supportedAccountTypes).to.equal(testCase.expected);
+      }
+    });
+  }
+
+  it("OAUTH-MSA-04: rejects the parameter for Microsoft Entra before POST", async () => {
+    const createStub = vi.spyOn(teamsGraphClient, "createOauthRegistration");
+    const result = await createOauthDriver.execute(
+      {
+        name: "test",
+        appId: "mockedAppId",
+        flow: "authorizationCode",
+        clientId: "mockedClientId",
+        baseUrl: "https://api.example.com",
+        identityProvider: "MicrosoftEntra",
+        includePersonalMicrosoftAccounts: true,
+      },
+      mockedDriverContext,
+      outputEnvVarNames
+    );
+
+    expect(result.result.isErr()).to.be.true;
+    expect(createStub).not.toHaveBeenCalled();
+  });
+
+  it("OAUTH-MSA-04: rejects the option outside Public cloud before POST", async () => {
+    envRestore = mockedEnv({
+      TEAMSFX_SOVEREIGN_CLOUD_ENVIRONMENT: "GCC H",
+    });
+    const createStub = vi.spyOn(teamsGraphClient, "createOauthRegistration");
+    const getStub = vi.spyOn(teamsGraphClient, "getOauthRegistrationById");
+
+    const result = await createOauthDriver.execute(
+      {
+        name: "test",
+        appId: "mockedAppId",
+        flow: "authorizationCode",
+        clientId: "mockedClientId",
+        clientSecret: "mockedClientSecret",
+        baseUrl: "https://api.example.com",
+        authorizationUrl: "https://auth.example.com/authorize",
+        tokenUrl: "https://auth.example.com/token",
+        includePersonalMicrosoftAccounts: true,
+      },
+      mockedDriverContext,
+      outputEnvVarNames
+    );
+
+    expect(result.result.isErr()).to.be.true;
+    if (result.result.isErr()) {
+      expect(result.result.error.name).to.equal("OauthSupportedAccountTypesUnsupportedCloud");
+    }
+    expect(getStub).not.toHaveBeenCalled();
+    expect(createStub).not.toHaveBeenCalled();
+  });
+
+  it("OAUTH-MSA-03: rejects a non-boolean personal account option before POST", async () => {
+    const createStub = vi.spyOn(teamsGraphClient, "createOauthRegistration");
+    const result = await createOauthDriver.execute(
+      {
+        name: "test",
+        appId: "mockedAppId",
+        flow: "authorizationCode",
+        clientId: "mockedClientId",
+        clientSecret: "mockedClientSecret",
+        baseUrl: "https://api.example.com",
+        authorizationUrl: "https://auth.example.com/authorize",
+        tokenUrl: "https://auth.example.com/token",
+        includePersonalMicrosoftAccounts: "true",
+      },
+      mockedDriverContext,
+      outputEnvVarNames
+    );
+
+    expect(result.result.isErr()).to.be.true;
+    expect(createStub).not.toHaveBeenCalled();
+  });
+
+  it("OAUTH-MSA-03: validates the personal account option before an idempotent GET", async () => {
+    envRestore = mockedEnv({
+      [outputKeys.configurationId]: "existing-id",
+    });
+    const getStub = vi.spyOn(teamsGraphClient, "getOauthRegistrationById");
+    const args: any = {
+      name: "test",
+      appId: "mockedAppId",
+      flow: "authorizationCode",
+      includePersonalMicrosoftAccounts: "true",
+    };
+
+    const result = await createOauthDriver.execute(args, mockedDriverContext, outputEnvVarNames);
+
+    expect(result.result.isErr()).to.be.true;
+    expect(getStub).not.toHaveBeenCalled();
   });
 });

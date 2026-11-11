@@ -10,7 +10,7 @@
     "environmentFolderPath": {
       "type": "string",
       "description": "The folder path of .env files used for variables and different environments."
-      },
+    },
     "version": {
       "type": "string",
       "description": "The version of the yaml file schema",
@@ -22,7 +22,7 @@
       "additionalProperties": true,
       "properties": {
         "sampleTag": {
-          "type": ["number","string","boolean","object","array", "null", "integer"],
+          "type": ["number", "string", "boolean", "object", "array", "null", "integer"],
           "description": "A tag for the sample app used to track telemetry events sent by Microsoft 365 Agents Toolkit associated with that sample. Pattern: <sample-repo>:<sample-name>"
         }
       }
@@ -76,16 +76,18 @@
           { "$ref": "#/definitions/spfxDeploy" },
           { "$ref": "#/definitions/teamsAppCopyAppPackageToSPFx" },
           { "$ref": "#/definitions/script" },
-          { "$ref": "#/definitions/apiKeyRegister"},
-          { "$ref": "#/definitions/azureStaticWebAppGetDeploymentKey"},
-          { "$ref": "#/definitions/apiKeyUpdate"},
-          { "$ref": "#/definitions/oauthRegister"},
-          { "$ref": "#/definitions/oauthUpdate"},
-          { "$ref": "#/definitions/dcrRegister"},
-          { "$ref": "#/definitions/devChannelCreate"},
-          { "$ref": "#/definitions/devChannelInstallApp"},
-          { "$ref": "#/definitions/typeSpecCompile"},
-          { "$ref": "#/definitions/copilotAgentPublish"}
+          { "$ref": "#/definitions/apiKeyRegister" },
+          { "$ref": "#/definitions/azureStaticWebAppGetDeploymentKey" },
+          { "$ref": "#/definitions/apiKeyUpdate" },
+          { "$ref": "#/definitions/oauthRegister" },
+          { "$ref": "#/definitions/oauthUpdate" },
+          { "$ref": "#/definitions/dcrRegister" },
+          { "$ref": "#/definitions/dcrUpdate" },
+          { "$ref": "#/definitions/devChannelCreate" },
+          { "$ref": "#/definitions/devChannelInstallApp" },
+          { "$ref": "#/definitions/typeSpecCompile" },
+          { "$ref": "#/definitions/copilotAgentPublish" },
+          { "$ref": "#/definitions/copilotAgentPublishPolicy" }
         ]
       }
     },
@@ -115,7 +117,7 @@
     "aadAppCreateWithSecret": {
       "type": "object",
       "additionalProperties": false,
-      "allOf": [ { "$ref": "#/definitions/aadAppCreateBase" } ],
+      "allOf": [{ "$ref": "#/definitions/aadAppCreateBase" }],
       "required": ["with", "writeToEnvironmentFile"],
       "properties": {
         "name": {},
@@ -144,7 +146,12 @@
             "signInAudience": {
               "type": "string",
               "description": "Specifies what Microsoft accounts are supported for the current application.",
-              "enum": ["AzureADMyOrg", "AzureADMultipleOrgs", "AzureADandPersonalMicrosoftAccount", "PersonalMicrosoftAccount"]
+              "enum": [
+                "AzureADMyOrg",
+                "AzureADMultipleOrgs",
+                "AzureADandPersonalMicrosoftAccount",
+                "PersonalMicrosoftAccount"
+              ]
             },
             "serviceManagementReference": {
               "type": "string",
@@ -197,7 +204,7 @@
     },
     "aadAppCreateWithoutSecret": {
       "type": "object",
-      "allOf": [ { "$ref": "#/definitions/aadAppCreateBase" } ],
+      "allOf": [{ "$ref": "#/definitions/aadAppCreateBase" }],
       "required": ["with", "writeToEnvironmentFile"],
       "additionalProperties": false,
       "properties": {
@@ -227,7 +234,12 @@
             "signInAudience": {
               "type": "string",
               "description": "Specifies what Microsoft accounts are supported for the current application.",
-              "enum": ["AzureADMyOrg", "AzureADMultipleOrgs", "AzureADandPersonalMicrosoftAccount", "PersonalMicrosoftAccount"]
+              "enum": [
+                "AzureADMyOrg",
+                "AzureADMultipleOrgs",
+                "AzureADandPersonalMicrosoftAccount",
+                "PersonalMicrosoftAccount"
+              ]
             },
             "serviceManagementReference": {
               "type": "string",
@@ -726,7 +738,7 @@
         },
         "uses": {
           "type": "string",
-          "description": "This action will create a new app for you if TEAMS_APP_ID environment variable is empty or the app with TEAMS_APP_ID is not found from Developer Portal. Refer to https://aka.ms/teamsfx-actions/teamsapp-create for more details",
+          "description": "Creates or reuses an app using the configured ID variable, APP_ID, or TEAMS_APP_ID. Map exactly one output key: appId or teamsAppId. Refer to https://aka.ms/teamsfx-actions/teamsapp-create for more details",
           "const": "teamsApp/create"
         },
         "with": {
@@ -745,8 +757,11 @@
           "type": "object",
           "additionalProperties": false,
           "description": "Write environment variables to environment file",
-          "required": ["teamsAppId"],
+          "oneOf": [{ "required": ["appId"] }, { "required": ["teamsAppId"] }],
           "properties": {
+            "appId": {
+              "$ref": "#/definitions/envVarName"
+            },
             "teamsAppId": {
               "$ref": "#/definitions/envVarName"
             },
@@ -1049,7 +1064,7 @@
               "$ref": "#/definitions/secretEnvVarName"
             }
           }
-        }        
+        }
       }
     },
     "botframeworkCreate": {
@@ -1104,7 +1119,10 @@
               "type": "array",
               "description": "the channel(s) to be enabled of the bot",
               "items": {
-                "oneOf": [{ "$ref": "#/definitions/MsTeamsChannel" }, { "$ref": "#/definitions/M365ExtensionsChannel" }]
+                "oneOf": [
+                  { "$ref": "#/definitions/MsTeamsChannel" },
+                  { "$ref": "#/definitions/M365ExtensionsChannel" }
+                ]
               }
             }
           }
@@ -1281,9 +1299,7 @@
               "type": "object",
               "description": "Install Azure Functions Core Tools. This will output environment variable specified by `funcPath` to current environment's .env file.",
               "additionalProperties": false,
-              "required": [
-                "version"
-              ],
+              "required": ["version"],
               "properties": {
                 "version": {
                   "oneOf": [
@@ -1402,7 +1418,7 @@
             },
             "scope": {
               "type": "string",
-              "description": "The scope of the app (only works for declarative agent). personal is only visible to the owners. shared can be visible to other users in the tenant. Default is personal"
+              "description": "The scope of the app. personal is only visible to the owners. shared can be visible to other users in the tenant. Default is personal"
             }
           }
         },
@@ -1557,7 +1573,7 @@
               "description": "redirect stdout and stderr to a file"
             }
           }
-        }        
+        }
       }
     },
     "relativePath": {
@@ -1841,6 +1857,10 @@
               "type": "string",
               "description": "Token exchange method type, can be BasicAuthorizationHeader or PostRequestBody. BasicAuthorizationHeader: token exchange via HTTP headers, PostRequestBody: token exchange via request body. Default is BasicAuthorizationHeader.",
               "enum": ["BasicAuthorizationHeader", "PostRequestBody"]
+            },
+            "includePersonalMicrosoftAccounts": {
+              "type": "boolean",
+              "description": "Whether to allow personal Microsoft accounts in addition to work or school accounts. If omitted when registering, only work or school accounts are allowed."
             }
           }
         },
@@ -1941,6 +1961,10 @@
               "type": "string",
               "description": "Token exchange method type, can be BasicAuthorizationHeader or PostRequestBody. BasicAuthorizationHeader: token exchange via HTTP headers, PostRequestBody: token exchange via request body. Default is BasicAuthorizationHeader.",
               "enum": ["BasicAuthorizationHeader", "PostRequestBody"]
+            },
+            "includePersonalMicrosoftAccounts": {
+              "type": "boolean",
+              "description": "Whether to allow personal Microsoft accounts in addition to work or school accounts. If omitted during an update, the existing account support remains unchanged."
             }
           }
         }
@@ -1949,46 +1973,65 @@
     "dcrRegister": {
       "type": "object",
       "additionalProperties": false,
-      "description": "Create a Dynamic Client Registration (DCR) configuration.",
+      "description": "Create a Dynamic Client Registration (DCR) configuration through Teams Graph Service (TGS). Registration is skipped when the mapped configurationId environment variable already has a value.",
       "required": ["uses", "with", "writeToEnvironmentFile"],
       "properties": {
         "uses": {
           "type": "string",
-          "description": "Register a DCR configuration.",
+          "description": "Register an OAuth configuration using server-side Dynamic Client Registration.",
           "const": "dcr/register"
         },
         "with": {
           "type": "object",
           "additionalProperties": false,
-          "description": "Parameters for this action",
-          "required": ["name", "wellKnownAuthorizationServer"],
+          "description": "DCR registration parameters. Supply mcpResourceUrl for protected resource metadata discovery, wellKnownAuthorizationServer to pin authorization-server metadata, or both.",
+          "required": ["name"],
+          "anyOf": [
+            { "required": ["mcpResourceUrl"] },
+            { "required": ["wellKnownAuthorizationServer"] }
+          ],
           "properties": {
             "name": {
               "type": "string",
-              "description": "The display name of the DCR configuration. Becomes the clientName sent during RFC 7591 registration. Max 128 characters."
+              "description": "Required client name sent to TGS as clientName for dynamic registration. Maximum 128 characters."
             },
             "appId": {
               "type": "string",
-              "description": "The Teams app id associated with this configuration. Only takes effect when applicableToApps is SpecificApp."
+              "description": "Microsoft 365 app ID. Required when applicableToApps is SpecificApp; ignored when applicableToApps is AnyApp."
+            },
+            "mcpResourceUrl": {
+              "type": "string",
+              "minLength": 1,
+              "description": "HTTPS URL of the actual MCP endpoint, including its path. Recommended for new configurations. TGS probes this endpoint and RFC 9728 well-known locations for protected resource metadata (PRM) to discover resource and scopes_supported. Unless wellKnownAuthorizationServer is supplied, TGS uses PRM's first authorization_servers entry. This is not the PRM document URL; the OAuth resource indicator comes from PRM's resource, not directly from this endpoint URL. Optional when wellKnownAuthorizationServer is supplied."
             },
             "wellKnownAuthorizationServer": {
               "type": "string",
-              "description": "URL to the authorization server's RFC 8414 metadata document. TGS fetches this to discover the registration_endpoint and performs the RFC 7591 exchange server-side."
+              "minLength": 1,
+              "description": "HTTPS URL of the authorization server's RFC 8414 metadata document, supported for existing configurations and explicit authorization-server selection. Optional when mcpResourceUrl is supplied. When present, this URL takes precedence for authorization-server metadata resolution. An authorization server can serve multiple resources, so this metadata alone cannot identify the intended OAuth resource. Without mcpResourceUrl, supply resource explicitly if the service requires it. If mcpResourceUrl is also supplied, TGS attempts best-effort PRM discovery for resource and scopes; failure of that enrichment does not fail registration."
+            },
+            "resource": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Optional explicit OAuth resource indicator: an absolute URI without a fragment. Overrides PRM's resource value. Omit this field when mcpResourceUrl enables PRM discovery of the intended resource; otherwise supply it explicitly if the service requires a resource indicator. It is not inferred from authorization-server metadata or copied from the MCP endpoint or target URL. If neither an explicit value nor PRM supplies a resource, no resource indicator is sent. TGS sends the selected resource in authorization, token and refresh-token requests."
             },
             "targetUrlsShouldStartWith": {
               "type": "array",
-              "description": "Outbound URL allowlist. TGS only allows this configuration to authorize calls whose destination URL starts with one of these prefixes.",
+              "description": "Required MCP target URL array. TGS requires exactly one valid HTTPS URL; omission, a string, an empty array or multiple entries is rejected. New configurations use the actual MCP endpoint. This field does not set the OAuth resource indicator.",
               "items": { "type": "string" }
             },
             "applicableToApps": {
               "type": "string",
-              "description": "Which app can use this DCR configuration. Default is \"AnyApp\".",
+              "description": "Applications permitted to use this configuration: AnyApp (default), or SpecificApp, which requires appId.",
               "enum": ["SpecificApp", "AnyApp"]
             },
             "targetAudience": {
               "type": "string",
-              "description": "Which tenant can use this DCR configuration. Default is \"HomeTenant\".",
+              "description": "Tenants permitted to use this configuration: HomeTenant (default) or AnyTenant.",
               "enum": ["HomeTenant", "AnyTenant"]
+            },
+            "includePersonalMicrosoftAccounts": {
+              "type": "boolean",
+              "description": "Whether to allow personal Microsoft accounts in addition to work or school accounts. If omitted when registering, only work or school accounts are allowed."
             }
           }
         },
@@ -1999,8 +2042,58 @@
           "required": ["configurationId"],
           "properties": {
             "configurationId": {
-              "description": "Required. The configuration id of the created DCR registration.",
+              "description": "Required environment variable name receiving the returned configurationRegistrationId.oAuthConfigId. This is a configuration ID, not an OAuth client ID or resource indicator. An existing value causes this action to skip registration.",
               "$ref": "#/definitions/envVarName"
+            }
+          }
+        }
+      }
+    },
+    "dcrUpdate": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Update supported policy fields of an existing Dynamic Client Registration (DCR) configuration without changing its configuration ID. Omitted settings remain unchanged.",
+      "required": ["uses", "with"],
+      "properties": {
+        "uses": {
+          "type": "string",
+          "description": "Update an existing DCR configuration.",
+          "const": "dcr/update"
+        },
+        "with": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "DCR update parameters. Only configurationId is required; omitted settings are preserved without applying registration defaults. Name, MCP endpoint, metadata URL, and target URLs cannot be updated.",
+          "required": ["configurationId"],
+          "properties": {
+            "configurationId": {
+              "type": "string",
+              "minLength": 1,
+              "description": "ID of the existing DCR authentication configuration to update. This is not an OAuth client ID."
+            },
+            "appId": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Microsoft 365 app ID used when the effective applicableToApps setting is SpecificApp. If omitted, the existing binding is preserved unless applicableToApps explicitly changes to AnyApp."
+            },
+            "resource": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Replacement explicit OAuth resource indicator: an absolute URI without a fragment. Overrides the discovered resource, as in dcr/register. If omitted, the existing value is preserved; it is not inferred from another URL."
+            },
+            "applicableToApps": {
+              "type": "string",
+              "description": "Applications permitted to use the configuration: SpecificApp or AnyApp. If omitted, the existing mode is preserved. SpecificApp requires a supplied or existing appId.",
+              "enum": ["SpecificApp", "AnyApp"]
+            },
+            "targetAudience": {
+              "type": "string",
+              "description": "Tenants permitted to use the configuration: HomeTenant or AnyTenant. If omitted, the existing tenant scope is preserved. Independent of includePersonalMicrosoftAccounts.",
+              "enum": ["HomeTenant", "AnyTenant"]
+            },
+            "includePersonalMicrosoftAccounts": {
+              "type": "boolean",
+              "description": "Whether to allow personal Microsoft accounts in addition to work or school accounts. True enables personal accounts; false disables them while retaining work or school accounts. If omitted, existing account support remains unchanged."
             }
           }
         }
@@ -2124,6 +2217,45 @@
             "typeSpecConfigPath": {
               "type": "string",
               "description": "Path to TypeSpec config file."
+            }
+          }
+        }
+      }
+    },
+    "copilotAgentPublishPolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Publish a policy for an existing agent. Currently supports Work IQ policies only. Publication does not verify runtime enforcement.",
+      "required": ["uses", "with"],
+      "properties": {
+        "name": { "type": "string" },
+        "env": {
+          "type": "object",
+          "additionalProperties": { "type": "string" }
+        },
+        "uses": {
+          "const": "copilotAgent/publishPolicy",
+          "description": "Publish a policy for an existing agent. Currently supports Work IQ policies only. Publication does not verify runtime enforcement."
+        },
+        "with": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["titleId", "policyPath", "callerId"],
+          "properties": {
+            "titleId": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Title ID of the existing agent. This action does not create the agent or title."
+            },
+            "policyPath": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Path to a UTF-8 Work IQ policy JSON file inside the project directory, either absolute or relative to the project root. File contents are not expanded or rewritten."
+            },
+            "callerId": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Nonzero App ID GUID of the agent's runtime application. Must match appId if the policy already contains it. Do not use a user object ID, tenant ID, or Toolkit client ID."
             }
           }
         }

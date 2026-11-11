@@ -7,7 +7,8 @@ import Ajv from "ajv";
 import type { AnySchema, ValidateFunction } from "ajv";
 import { err, ok } from "neverthrow";
 import type { Result } from "neverthrow";
-import type { LoadedPackage } from "../distribution/packageDir";
+import type { PreparedLoadedPackage } from "../distribution/packageDir";
+import { prepareTemplate } from "./packageParse";
 import type { DeclarativeLocator, TemplateFileEntry } from "../model/dataModel";
 import { VALIDATE_SCHEMA, validateTemplatePackage } from "./validateTemplatePackage";
 import type {
@@ -321,7 +322,7 @@ function validateOpenedPackage(
   mode: ValidateMode,
   engineVersion: string,
   errors: TemplateArchiveErrorFactory
-): Result<LoadedPackage, FxError> {
+): Result<PreparedLoadedPackage, FxError> {
   const root = `v4/${locator.kind}/${locator.templateId}/`;
   const descriptor = parseOptionalJson(archive, `${root}descriptor.json`, errors);
   if (descriptor.isErr()) {
@@ -366,11 +367,15 @@ function validateOpenedPackage(
     return err(validation.error);
   }
 
-  return ok({
+  const raw = {
     descriptor: validation.value.descriptor,
     pipeline: pipeline.value,
     content: content.value.raw,
-  });
+  };
+  return prepareTemplate(raw, (name, message) => errors.system(name, message)).map((template) => ({
+    ...raw,
+    template,
+  }));
 }
 
 /** Validate and open one declarative package from final channel archive bytes. */
@@ -380,7 +385,7 @@ export function validateDeclarativePackageArchive(
   mode: ValidateMode,
   engineVersion: string,
   errors: TemplateArchiveErrorFactory
-): Result<LoadedPackage, FxError> {
+): Result<PreparedLoadedPackage, FxError> {
   const archive = openArchive(bytes, errors);
   if (archive.isErr()) {
     return err(archive.error);

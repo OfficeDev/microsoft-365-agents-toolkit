@@ -9,6 +9,7 @@ import {
   AdaptiveCardGenerator,
   ErrorResult,
   ErrorType,
+  ProjectType,
   SpecParser,
   Utils,
   ValidationStatus,
@@ -41,6 +42,7 @@ import { createContext, setTools } from "../../../../src/common/globalVars";
 import { getLocalizedString } from "../../../../src/common/localizeUtils";
 import * as commonUtils from "../../../../src/common/utils";
 import { ActionInjector } from "../../../../src/component/configManager/actionInjector";
+import { MicrosoftEntraAuthType } from "../../../../src/component/configManager/constant";
 import { manifestUtils } from "../../../../src/component/driver/teamsApp/utils/ManifestUtils";
 import { PluginManifestUtils } from "../../../../src/component/driver/teamsApp/utils/PluginManifestUtils";
 import * as openApiSpecHelper from "../../../../src/component/generator/openApiSpec/helper";
@@ -51,6 +53,7 @@ import {
   injectAuthAction,
   listPluginExistingOperations,
 } from "../../../../src/component/generator/openApiSpec/helper";
+import { envUtil } from "../../../../src/component/utils/envUtil";
 import { pathUtils } from "../../../../src/component/utils/pathUtils";
 import { DeclarativeAgentApiSpecOptionId, QuestionNames } from "../../../../src/question";
 import { MockTools } from "../../../core/utils";
@@ -651,6 +654,460 @@ describe("injectAuthAction", async () => {
 
     assert.isUndefined(res);
     assert.isTrue(injectStub.mock.calls.length === 1);
+  });
+
+  it("SCN-ADD-OPENAPI-KEY-02: references and persists a supplied API key", async () => {
+    vi.spyOn(fs, "pathExists").mockResolvedValue(true);
+    vi.spyOn(Utils, "isBearerTokenAuth").mockReturnValue(true);
+    const injectStub = vi.spyOn(ActionInjector, "injectCreateAPIKeyAction").mockResolvedValue({
+      defaultRegistrationIdEnvName: "APIKEY_REGISTRATION_ID",
+      registrationIdEnvName: "APIKEY_REGISTRATION_ID1",
+      primaryClientSecretEnvName: "SECRET_APIKEY_API_KEY1",
+    });
+    vi.spyOn(envUtil, "listEnv").mockResolvedValue(ok([]));
+    const writeStub = vi.spyOn(envUtil, "writeEnv").mockResolvedValue(ok(undefined));
+
+    await injectAuthAction(
+      "/project",
+      "apiKey",
+      { type: "apiKey", in: "header", name: "X-API-KEY" },
+      "/project/appPackage/apiSpecification/openapi.yaml",
+      true,
+      undefined,
+      undefined,
+      undefined,
+      "  supplied-secret  "
+    );
+
+    expect(injectStub).toHaveBeenCalledWith(
+      "m365agents.yml",
+      "apiKey",
+      "./appPackage/apiSpecification/openapi.yaml",
+      true,
+      undefined,
+      "SECRET_APIKEY_API_KEY"
+    );
+    expect(injectStub).toHaveBeenNthCalledWith(
+      2,
+      "m365agents.yml",
+      "apiKey",
+      "./appPackage/apiSpecification/openapi.yaml",
+      true,
+      "APIKEY_REGISTRATION_ID1",
+      "SECRET_APIKEY_API_KEY"
+    );
+    expect(writeStub).toHaveBeenCalledExactlyOnceWith("/project", "dev", {
+      SECRET_APIKEY_API_KEY1: "supplied-secret",
+    });
+  });
+
+  it("SCN-ADD-OPENAPI-OAUTH-03: references and persists confidential OAuth credentials", async () => {
+    vi.spyOn(fs, "pathExists").mockResolvedValue(true);
+    vi.spyOn(Utils, "isOAuthWithAuthCodeFlow").mockReturnValue(true);
+    const injectStub = vi.spyOn(ActionInjector, "injectCreateOAuthAction").mockResolvedValue({
+      defaultRegistrationIdEnvName: "REPAIR_AUTH_REGISTRATION_ID",
+      registrationIdEnvName: "REPAIR_AUTH_REGISTRATION_ID1",
+      clientIdEnvName: "REPAIR_AUTH_CLIENT_ID1",
+      clientSecretEnvName: "SECRET_REPAIR_AUTH_CLIENT_SECRET1",
+      scopeEnvName: "REPAIR_AUTH_SCOPE1",
+    });
+    vi.spyOn(envUtil, "listEnv").mockResolvedValue(ok(["dev", "local"]));
+    const writeStub = vi.spyOn(envUtil, "writeEnv").mockResolvedValue(ok(undefined));
+
+    await injectAuthAction(
+      "/project",
+      "repair-auth",
+      { type: "oauth2", flows: {} },
+      "/project/appPackage/apiSpecification/openapi.yaml",
+      true,
+      undefined,
+      false,
+      undefined,
+      undefined,
+      "environment",
+      " client-id ",
+      " client-secret ",
+      " scope.read "
+    );
+
+    expect(injectStub).toHaveBeenNthCalledWith(
+      1,
+      "m365agents.yml",
+      "repair-auth",
+      "./appPackage/apiSpecification/openapi.yaml",
+      true,
+      false,
+      false,
+      undefined,
+      {
+        clientId: "REPAIR_AUTH_CLIENT_ID",
+        clientSecret: "SECRET_REPAIR_AUTH_CLIENT_SECRET",
+        scope: "REPAIR_AUTH_SCOPE",
+      }
+    );
+    expect(injectStub).toHaveBeenNthCalledWith(
+      2,
+      "m365agents.yml",
+      "repair-auth",
+      "./appPackage/apiSpecification/openapi.yaml",
+      true,
+      false,
+      false,
+      "REPAIR_AUTH_REGISTRATION_ID1",
+      {
+        clientId: "REPAIR_AUTH_CLIENT_ID",
+        clientSecret: "SECRET_REPAIR_AUTH_CLIENT_SECRET",
+        scope: "REPAIR_AUTH_SCOPE",
+      }
+    );
+    const expectedCredentials = {
+      REPAIR_AUTH_CLIENT_ID1: "client-id",
+      SECRET_REPAIR_AUTH_CLIENT_SECRET1: "client-secret",
+      REPAIR_AUTH_SCOPE1: "scope.read",
+    };
+    expect(writeStub).toHaveBeenNthCalledWith(1, "/project", "dev", expectedCredentials);
+    expect(writeStub).toHaveBeenNthCalledWith(2, "/project", "local", expectedCredentials);
+  });
+
+  it("SCN-ADD-OPENAPI-OAUTH-05: explicit environment source persists empty OAuth placeholders", async () => {
+    vi.spyOn(fs, "pathExists").mockResolvedValue(false);
+    vi.spyOn(Utils, "isOAuthWithAuthCodeFlow").mockReturnValue(true);
+    const injectStub = vi.spyOn(ActionInjector, "injectCreateOAuthAction").mockResolvedValue({
+      defaultRegistrationIdEnvName: "REPAIR_AUTH_REGISTRATION_ID",
+      registrationIdEnvName: "REPAIR_AUTH_REGISTRATION_ID",
+      clientIdEnvName: "REPAIR_AUTH_CLIENT_ID",
+      clientSecretEnvName: "SECRET_REPAIR_AUTH_CLIENT_SECRET",
+      scopeEnvName: "REPAIR_AUTH_SCOPE",
+    });
+    vi.spyOn(envUtil, "listEnv").mockResolvedValue(ok(["dev", "local"]));
+    const writeStub = vi.spyOn(envUtil, "writeEnv").mockResolvedValue(ok(undefined));
+
+    await injectAuthAction(
+      "/project",
+      "repair-auth",
+      { type: "oauth2", flows: {} },
+      "/project/openapi.yaml",
+      true,
+      undefined,
+      false,
+      undefined,
+      undefined,
+      "environment",
+      undefined,
+      undefined,
+      "scope.read"
+    );
+
+    expect(injectStub).toHaveBeenCalledWith(
+      "m365agents.yml",
+      "repair-auth",
+      "./openapi.yaml",
+      true,
+      false,
+      false,
+      undefined,
+      {
+        clientId: "REPAIR_AUTH_CLIENT_ID",
+        clientSecret: "SECRET_REPAIR_AUTH_CLIENT_SECRET",
+        scope: "REPAIR_AUTH_SCOPE",
+      }
+    );
+    const expectedCredentials = {
+      REPAIR_AUTH_CLIENT_ID: "",
+      SECRET_REPAIR_AUTH_CLIENT_SECRET: "",
+      REPAIR_AUTH_SCOPE: "scope.read",
+    };
+    expect(writeStub).toHaveBeenNthCalledWith(1, "/project", "dev", expectedCredentials);
+    expect(writeStub).toHaveBeenNthCalledWith(2, "/project", "local", expectedCredentials);
+  });
+
+  it("SCN-ADD-OPENAPI-OAUTH-04: PKCE omits the client-secret reference and placeholder", async () => {
+    vi.spyOn(fs, "pathExists").mockResolvedValue(false);
+    vi.spyOn(Utils, "isOAuthWithAuthCodeFlow").mockReturnValue(true);
+    const injectStub = vi.spyOn(ActionInjector, "injectCreateOAuthAction").mockResolvedValue({
+      defaultRegistrationIdEnvName: "REPAIR_AUTH_REGISTRATION_ID",
+      registrationIdEnvName: "REPAIR_AUTH_REGISTRATION_ID",
+      clientIdEnvName: "REPAIR_AUTH_CLIENT_ID",
+    });
+    vi.spyOn(envUtil, "listEnv").mockResolvedValue(ok(["dev"]));
+    const writeStub = vi.spyOn(envUtil, "writeEnv").mockResolvedValue(ok(undefined));
+
+    await injectAuthAction(
+      "/project",
+      "repair-auth",
+      { type: "oauth2", flows: {} },
+      "/project/openapi.yaml",
+      true,
+      undefined,
+      true,
+      undefined,
+      undefined,
+      "environment",
+      "client-id",
+      "must-be-ignored"
+    );
+
+    expect(injectStub).toHaveBeenCalledWith(
+      "m365agents.yml",
+      "repair-auth",
+      "./openapi.yaml",
+      true,
+      false,
+      true,
+      undefined,
+      { clientId: "REPAIR_AUTH_CLIENT_ID" }
+    );
+    expect(writeStub).toHaveBeenCalledExactlyOnceWith("/project", "dev", {
+      REPAIR_AUTH_CLIENT_ID: "client-id",
+    });
+  });
+
+  it("SCN-ADD-OPENAPI-OAUTH-14: injects Microsoft Entra without custom OAuth fields", async () => {
+    vi.spyOn(fs, "pathExists").mockResolvedValue(false);
+    vi.spyOn(Utils, "isOAuthWithAuthCodeFlow").mockReturnValue(true);
+    const injectStub = vi.spyOn(ActionInjector, "injectCreateOAuthAction").mockResolvedValue({
+      defaultRegistrationIdEnvName: "REPAIR_AUTH_REGISTRATION_ID",
+      registrationIdEnvName: "REPAIR_AUTH_REGISTRATION_ID",
+      clientIdEnvName: "REPAIR_AUTH_CLIENT_ID",
+    });
+    vi.spyOn(envUtil, "listEnv").mockResolvedValue(ok(["dev", "local"]));
+    const writeStub = vi.spyOn(envUtil, "writeEnv").mockResolvedValue(ok(undefined));
+
+    await injectAuthAction(
+      "/project",
+      "repair-auth",
+      { type: "oauth2", flows: {} },
+      "/project/openapi.yaml",
+      true,
+      MicrosoftEntraAuthType,
+      true,
+      undefined,
+      undefined,
+      "environment",
+      "entra-client-id",
+      "ignored-secret",
+      "ignored.scope"
+    );
+
+    expect(injectStub).toHaveBeenCalledWith(
+      "m365agents.yml",
+      "repair-auth",
+      "./openapi.yaml",
+      true,
+      true,
+      undefined,
+      undefined,
+      { clientId: "REPAIR_AUTH_CLIENT_ID" }
+    );
+    expect(writeStub).toHaveBeenNthCalledWith(1, "/project", "dev", {
+      REPAIR_AUTH_CLIENT_ID: "entra-client-id",
+    });
+    expect(writeStub).toHaveBeenNthCalledWith(2, "/project", "local", {
+      REPAIR_AUTH_CLIENT_ID: "entra-client-id",
+    });
+  });
+
+  it("SCN-ADD-OPENAPI-OAUTH-03: propagates environment listing failures", async () => {
+    vi.spyOn(fs, "pathExists").mockResolvedValue(false);
+    vi.spyOn(Utils, "isOAuthWithAuthCodeFlow").mockReturnValue(true);
+    vi.spyOn(ActionInjector, "injectCreateOAuthAction").mockResolvedValue({
+      clientIdEnvName: "REPAIR_AUTH_CLIENT_ID",
+      defaultRegistrationIdEnvName: "REPAIR_AUTH_REGISTRATION_ID",
+      registrationIdEnvName: "REPAIR_AUTH_REGISTRATION_ID",
+    });
+    const listError = new SystemError("test", "ListEnvironmentFailed", "", "");
+    vi.spyOn(envUtil, "listEnv").mockResolvedValue(err(listError));
+
+    await expect(
+      injectAuthAction(
+        "/project",
+        "repair-auth",
+        { type: "oauth2", flows: {} },
+        "/project/openapi.yaml",
+        true,
+        undefined,
+        false,
+        undefined,
+        undefined,
+        "environment"
+      )
+    ).rejects.toBe(listError);
+  });
+
+  it("SCN-ADD-OPENAPI-OAUTH-03: propagates environment write failures", async () => {
+    vi.spyOn(fs, "pathExists").mockResolvedValue(false);
+    vi.spyOn(Utils, "isOAuthWithAuthCodeFlow").mockReturnValue(true);
+    vi.spyOn(ActionInjector, "injectCreateOAuthAction").mockResolvedValue({
+      clientIdEnvName: "REPAIR_AUTH_CLIENT_ID",
+      defaultRegistrationIdEnvName: "REPAIR_AUTH_REGISTRATION_ID",
+      registrationIdEnvName: "REPAIR_AUTH_REGISTRATION_ID",
+    });
+    vi.spyOn(envUtil, "listEnv").mockResolvedValue(ok(["dev"]));
+    const writeError = new SystemError("test", "WriteEnvironmentFailed", "", "");
+    vi.spyOn(envUtil, "writeEnv").mockResolvedValue(err(writeError));
+
+    await expect(
+      injectAuthAction(
+        "/project",
+        "repair-auth",
+        { type: "oauth2", flows: {} },
+        "/project/openapi.yaml",
+        true,
+        undefined,
+        false,
+        undefined,
+        undefined,
+        "environment"
+      )
+    ).rejects.toBe(writeError);
+  });
+
+  it("SCN-ADD-OPENAPI-KEY-15: explicit environment source persists an empty key placeholder", async () => {
+    vi.spyOn(fs, "pathExists").mockResolvedValue(false);
+    vi.spyOn(Utils, "isBearerTokenAuth").mockReturnValue(true);
+    const injectStub = vi.spyOn(ActionInjector, "injectCreateAPIKeyAction").mockResolvedValue({
+      defaultRegistrationIdEnvName: "APIKEY_REGISTRATION_ID",
+      registrationIdEnvName: "APIKEY_REGISTRATION_ID",
+      primaryClientSecretEnvName: "SECRET_APIKEY_API_KEY",
+    });
+    vi.spyOn(envUtil, "listEnv").mockResolvedValue(ok(["dev"]));
+    const writeStub = vi.spyOn(envUtil, "writeEnv").mockResolvedValue(ok(undefined));
+
+    await injectAuthAction(
+      "/project",
+      "apiKey",
+      { type: "apiKey", in: "header", name: "X-API-KEY" },
+      "/project/openapi.yaml",
+      true,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      "environment"
+    );
+
+    expect(injectStub).toHaveBeenCalledWith(
+      "m365agents.yml",
+      "apiKey",
+      "./openapi.yaml",
+      true,
+      undefined,
+      "SECRET_APIKEY_API_KEY"
+    );
+    expect(writeStub).toHaveBeenCalledExactlyOnceWith("/project", "dev", {
+      SECRET_APIKEY_API_KEY: "",
+    });
+  });
+
+  it("SCN-ADD-OPENAPI-KEY-02: propagates environment listing failures", async () => {
+    vi.spyOn(fs, "pathExists").mockResolvedValue(false);
+    vi.spyOn(Utils, "isBearerTokenAuth").mockReturnValue(true);
+    vi.spyOn(ActionInjector, "injectCreateAPIKeyAction").mockResolvedValue({
+      primaryClientSecretEnvName: "SECRET_APIKEY_API_KEY",
+    });
+    const listError = new SystemError("test", "ListEnvironmentFailed", "", "");
+    vi.spyOn(envUtil, "listEnv").mockResolvedValue(err(listError));
+
+    await expect(
+      injectAuthAction(
+        "/project",
+        "apiKey",
+        { type: "apiKey", in: "header", name: "X-API-KEY" },
+        "/project/appPackage/apiSpecification/openapi.yaml",
+        true,
+        undefined,
+        undefined,
+        undefined,
+        "supplied-secret"
+      )
+    ).rejects.toBe(listError);
+  });
+
+  it("SCN-ADD-OPENAPI-KEY-02: propagates encrypted secret write failures", async () => {
+    vi.spyOn(fs, "pathExists").mockResolvedValue(false);
+    vi.spyOn(Utils, "isBearerTokenAuth").mockReturnValue(true);
+    vi.spyOn(ActionInjector, "injectCreateAPIKeyAction").mockResolvedValue({
+      primaryClientSecretEnvName: "SECRET_APIKEY_API_KEY",
+    });
+    vi.spyOn(envUtil, "listEnv").mockResolvedValue(ok(["dev"]));
+    const writeError = new SystemError("test", "WriteEnvironmentFailed", "", "");
+    vi.spyOn(envUtil, "writeEnv").mockResolvedValue(err(writeError));
+
+    await expect(
+      injectAuthAction(
+        "/project",
+        "apiKey",
+        { type: "apiKey", in: "header", name: "X-API-KEY" },
+        "/project/appPackage/apiSpecification/openapi.yaml",
+        true,
+        undefined,
+        undefined,
+        undefined,
+        "supplied-secret"
+      )
+    ).rejects.toBe(writeError);
+  });
+
+  it("SCN-ADD-OPENAPI-KEY-08: treats a whitespace-only API key as omitted", async () => {
+    vi.spyOn(fs, "pathExists").mockResolvedValue(false);
+    vi.spyOn(Utils, "isBearerTokenAuth").mockReturnValue(true);
+    const injectStub = vi
+      .spyOn(ActionInjector, "injectCreateAPIKeyAction")
+      .mockResolvedValue(undefined);
+    const listStub = vi.spyOn(envUtil, "listEnv");
+    const writeStub = vi.spyOn(envUtil, "writeEnv");
+
+    await injectAuthAction(
+      "/project",
+      "apiKey",
+      { type: "apiKey", in: "header", name: "X-API-KEY" },
+      "/project/appPackage/apiSpecification/openapi.yaml",
+      true,
+      undefined,
+      undefined,
+      undefined,
+      "   "
+    );
+
+    expect(injectStub).toHaveBeenCalledWith(
+      "m365agents.yml",
+      "apiKey",
+      "./appPackage/apiSpecification/openapi.yaml",
+      true,
+      undefined,
+      undefined
+    );
+    expect(listStub).not.toHaveBeenCalled();
+    expect(writeStub).not.toHaveBeenCalled();
+  });
+
+  it("SCN-ADD-OPENAPI-KEY-03: omission preserves the existing provision flow", async () => {
+    vi.spyOn(fs, "pathExists").mockResolvedValue(false);
+    vi.spyOn(Utils, "isBearerTokenAuth").mockReturnValue(true);
+    const injectStub = vi
+      .spyOn(ActionInjector, "injectCreateAPIKeyAction")
+      .mockResolvedValue(undefined);
+    const listStub = vi.spyOn(envUtil, "listEnv");
+    const writeStub = vi.spyOn(envUtil, "writeEnv");
+
+    await injectAuthAction(
+      "/project",
+      "apiKey",
+      { type: "apiKey", in: "header", name: "X-API-KEY" },
+      "/project/appPackage/apiSpecification/openapi.yaml",
+      true
+    );
+
+    expect(injectStub).toHaveBeenCalledWith(
+      "m365agents.yml",
+      "apiKey",
+      "./appPackage/apiSpecification/openapi.yaml",
+      true,
+      undefined,
+      undefined
+    );
+    expect(listStub).not.toHaveBeenCalled();
+    expect(writeStub).not.toHaveBeenCalled();
   });
 
   it("oauth auth", async () => {
@@ -1924,6 +2381,83 @@ describe("listOperations", async () => {
 
     const res = await openApiSpecHelper.listOperations(context, "", inputs, true, false, "");
     chai.expect(res.isOk()).to.be.true;
+  });
+
+  it("listOperations succeeds without a telemetry reporter", async () => {
+    const context = createContext();
+    context.telemetryReporter = undefined;
+    const inputs = {
+      "custom-copilot-rag": "custom-copilot-rag-customApi",
+      platform: Platform.VSCode,
+    };
+    vi.spyOn(openApiSpecHelper, "formatValidationErrors").mockResolvedValue([]);
+    vi.spyOn(openApiSpecHelper, "logValidationResults").mockResolvedValue();
+    vi.spyOn(SpecParser.prototype, "validate").mockResolvedValue({
+      status: ValidationStatus.Valid,
+      warnings: [],
+      errors: [],
+      specHash: "xxx",
+    });
+    vi.spyOn(SpecParser.prototype, "list").mockResolvedValue({
+      APIs: [],
+      allAPICount: 1,
+      validAPICount: 0,
+    });
+
+    const res = await openApiSpecHelper.listOperations(context, "", inputs, true, false, "");
+
+    chai.expect(res.isOk()).to.be.true;
+  });
+
+  it("generateFromApiSpec succeeds without a telemetry reporter", async () => {
+    const context = createContext();
+    context.telemetryReporter = undefined;
+    const specParser = {
+      validate: vi.fn().mockResolvedValue({
+        status: ValidationStatus.Valid,
+        warnings: [],
+        errors: [],
+        specHash: "hash",
+      }),
+      generate: vi.fn().mockResolvedValue({
+        allSuccess: true,
+        warnings: [],
+      }),
+    } as unknown as SpecParser;
+
+    const res = await openApiSpecHelper.generateFromApiSpec(
+      specParser,
+      "manifest.json",
+      {
+        platform: Platform.CLI,
+        [QuestionNames.ApiOperation]: ["getPet"],
+      },
+      context,
+      "test",
+      ProjectType.SME,
+      {
+        destinationApiSpecFilePath: "openapi.yaml",
+        responseTemplateFolder: "responseTemplates",
+      },
+      "openapi.yaml"
+    );
+
+    chai.expect(res.isOk()).to.be.true;
+  });
+
+  it("logValidationResults succeeds without a telemetry reporter", () => {
+    const context = createContext();
+    context.telemetryReporter = undefined;
+
+    openApiSpecHelper.logValidationResults(
+      ProjectType.Copilot,
+      [],
+      [],
+      context,
+      false,
+      false,
+      "hash"
+    );
   });
 
   it("will show invalid api reasons", async () => {

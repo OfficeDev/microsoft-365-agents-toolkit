@@ -14,11 +14,14 @@ import { ensureDir, writeFile, writeJson } from "fs-extra";
 import { FeatureFlags, featureFlagManager } from "../../../src/common/featureFlags";
 import * as kiotaClient from "../../../src/common/kiotaClient";
 import { REQUIRE_EMPTY_TARGET } from "../../../src/v4/pipeline/runScaffoldPipeline";
+import { openApiOperationsProvider } from "../../../src/v4/providers/createOptionsProviders";
 import { createInMemoryRuntime } from "../../../src/v4/runtime/inMemoryRuntime";
+import { parseReplaceMap } from "../../../src/v4/runtime/packageParse";
 import { ScaffoldRequest, scaffold } from "../../../src/v4/runtime/scaffold";
 import { assert } from "vitest";
 import {
   loadV4Package,
+  isRecord,
   readJsonObject,
   recordArrayProperty,
   recordProperty,
@@ -64,13 +67,93 @@ async function run(
   options: { existing?: string[]; specPath?: string } = {}
 ): Promise<{ files: Map<string, Buffer>; outcome: V4ScenarioOutcome; warnings: Warning[] }> {
   return runV4Package(templatePackage, {
-    answers: { apiSpecLocation: options.specPath ?? SPEC_PATH, apiOperations: ["GET /repairs"] },
+    answers: openApiAnswers(options.specPath),
     callerFloor: { appName: "MyAgent", language: "common" },
     existing: options.existing,
   });
 }
 
+function openApiAnswers(specPath = SPEC_PATH) {
+  return {
+    apiSpecLocation: specPath,
+    "derived.openapi.operations.apiSpecLocation": specPath,
+    apiOperations: ["GET /repairs"],
+  };
+}
+
 describe("SCN-DA-CREATE-API-PLUGIN-FROM-EXISTING-API (v4, T3 InMemoryRuntime)", () => {
+  it("CLEAN-06: legacy search bindings remain compatible without modifying collected answers", async () => {
+    if (!isRecord(templatePackage.descriptor)) {
+      assert.fail("expected descriptor");
+    }
+    const answers = {
+      selectOpenApiSpec: SPEC_PATH,
+      "derived.openapi.operations.apiSpecLocation": SPEC_PATH,
+      apiOperations: ["GET /repairs"],
+    };
+    const runtime = createInMemoryRuntime();
+    const result = await scaffold(
+      {
+        descriptor: {
+          ...templatePackage.descriptor,
+          minEngineVersion: "6.11.0",
+          replaceMap: parseReplaceMap(templatePackage.descriptor)
+            ._unsafeUnwrap()
+            .filter((entry) => /^(AppId|AppManifestId|LocalAppManifestId)/.test(entry.var)),
+        },
+        pipeline: {
+          pipeline: "default",
+          steps: [
+            { step: "require-empty-target" },
+            {
+              step: "openapi/generate-plugin-files",
+              with: { apiSpecLocation: "{{apiSpecLocation}}", apiOperations: "{{apiOperations}}" },
+            },
+          ],
+        },
+        content: templatePackage.content,
+        answers,
+        callerFloor: { appName: "MyAgent", language: "common" },
+        targetDir: { path: "/out", existing: [] },
+      },
+      runtime
+    );
+    assert.isTrue(result.isOk(), result.isErr() ? result.error.message : "");
+    assert.isTrue(runtime.files.has("appPackage/ai-plugin.json"));
+    assert.notProperty(answers, "apiSpecLocation");
+    const current = await run();
+    assert.deepEqual([...runtime.files.keys()].sort(), [...current.files.keys()].sort());
+    for (const [file, content] of current.files) {
+      assert.deepEqual(runtime.files.get(file), content, file);
+    }
+  });
+
+  it("CLEAN-06: a provider-derived search source generates the expected OpenAPI artifacts", async () => {
+    const listed = await openApiOperationsProvider.fetch({ apiSpecLocation: SPEC_PATH });
+    const derivedSource = listed.derived?.apiSpecLocation;
+    assert.isDefined(derivedSource);
+    if (derivedSource === undefined) {
+      return;
+    }
+    const { files } = await runV4Package(templatePackage, {
+      answers: {
+        selectOpenApiSpec: SPEC_PATH,
+        apiOperations: ["GET /repairs"],
+        "derived.openapi.operations.apiSpecLocation": derivedSource,
+      },
+      callerFloor: { appName: "MyAgent", language: "common" },
+    });
+    assert.isTrue(files.has("appPackage/ai-plugin.json"));
+    assert.include(
+      text(files, "appPackage/apiSpecificationFile/openapi.yaml.original"),
+      "title: Repairs API"
+    );
+    assert.deepEqual(
+      recordArrayProperty(readJsonObject(files, "appPackage/declarativeAgent.json"), "actions"),
+      [{ id: "action_1", file: "ai-plugin.json" }]
+    );
+  });
+
   beforeEach(() => {
     // The shared generator's Kiota branch spawns an external binary; T3 runs the spec-parser branch.
     vi.spyOn(featureFlagManager, "getBooleanValue").mockReturnValue(false);
@@ -128,7 +211,7 @@ describe("SCN-DA-CREATE-API-PLUGIN-FROM-EXISTING-API (v4, T3 InMemoryRuntime)", 
     const manifest = readJsonObject(files, "appPackage/manifest.json");
     const copilotAgents = recordProperty(manifest, "copilotAgents");
     const agents = recordArrayProperty(copilotAgents, "declarativeAgents");
-    assert.strictEqual(manifest.manifestVersion, "1.29");
+    assert.strictEqual(manifest.manifestVersion, "1.30");
     assert.strictEqual(manifest.id, "${{TEAMS_APP_ID}}");
     assert.deepStrictEqual(agents[0], {
       id: "declarativeAgent",
@@ -151,7 +234,7 @@ describe("SCN-DA-CREATE-API-PLUGIN-FROM-EXISTING-API (v4, T3 InMemoryRuntime)", 
       descriptor: templatePackage.descriptor,
       pipeline: templatePackage.pipeline,
       content: templatePackage.content,
-      answers: { apiSpecLocation: SPEC_PATH, apiOperations: ["GET /repairs"] },
+      answers: openApiAnswers(),
       callerFloor: { appName: "MyAgent", language: "common" },
       targetDir: { path: "/out", existing: ["appPackage/manifest.json"] },
     };
@@ -256,7 +339,7 @@ describe("SCN-DA-CREATE-API-PLUGIN-FROM-EXISTING-API (v4, T3 InMemoryRuntime)", 
         descriptor: templatePackage.descriptor,
         pipeline: templatePackage.pipeline,
         content: templatePackage.content,
-        answers: { apiSpecLocation: SPEC_PATH, apiOperations: ["GET /repairs"] },
+        answers: openApiAnswers(),
         callerFloor: { appName: "MyAgent", language: "common" },
         targetDir: { path: "/out", existing: [] },
       };
@@ -310,7 +393,7 @@ describe("SCN-DA-CREATE-API-PLUGIN-FROM-EXISTING-API (v4, T3 InMemoryRuntime)", 
         descriptor: templatePackage.descriptor,
         pipeline: templatePackage.pipeline,
         content: templatePackage.content,
-        answers: { apiSpecLocation: SPEC_PATH, apiOperations: ["GET /repairs"] },
+        answers: openApiAnswers(),
         callerFloor: { appName: "MyAgent", language: "common" },
         targetDir: { path: "/out", existing: [] },
       };

@@ -1,0 +1,58 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/microsoft/waza/main/schemas/task.schema.json
+
+id: existing-da-typespec-compile-lifecycle
+name: Route Existing TypeSpec Compile Declarative Agent to ATK
+description: Existing Declarative Agent contains a typeSpec/compile lifecycle marker
+tags:
+  - declarative-agent
+  - routing
+  - typespec
+inputs:
+  prompt: "Validate and package this existing Declarative Agent project."
+  files:
+    - path: declarative-agent/appPackage/manifest.json
+    - path: declarative-agent/appPackage/declarativeAgent.json
+    - path: declarative-agent/appPackage/color.png
+    - path: declarative-agent/appPackage/outline.png
+    - path: declarative-agent/m365agents.yml
+    - path: declarative-agent/m365agents.local.yml
+expected:
+  should_trigger: true
+graders:
+  - type: behavior
+    name: efficiency_check
+    config:
+      max_tool_calls: 30
+      max_duration_ms: 120000
+      forbidden_tools:
+        - rm
+        - sudo
+  - type: tool_constraint
+    name: atk_typespec_lifecycle_commands
+    config:
+      expect_tools:
+        - tool: shell
+          command_pattern: '(?i)\batk\s+validate\b'
+        - tool: shell
+          command_pattern: '(?i)\batk\s+package\b'
+      reject_tools:
+        - tool: shell
+          command_pattern: '(?i)\bwiqd\s+agent\b'
+  - type: skill_invocation
+    name: no_wiqd_plugin_for_existing_typespec
+    config:
+      forbidden_skills:
+        - wiqd
+  - type: prompt
+    name: quality_check
+    config:
+      prompt: |
+        Review the agent's response. Check that it:
+        1. Recognizes the `typeSpec/compile` lifecycle action as an existing TypeSpec DA marker.
+        2. Uses ATK to validate and package the existing TypeSpec DA.
+        3. Does not invoke the WIQD plugin.
+
+        If all criteria are met, call set_waza_grade_pass.
+        Otherwise, call set_waza_grade_fail with your reasoning.
+      model: "gpt-5.4"
+      continue_session: true

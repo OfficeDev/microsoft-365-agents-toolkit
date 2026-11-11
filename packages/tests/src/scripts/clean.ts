@@ -25,6 +25,15 @@ const adminMicrosoftEntraAppName = [
   "Test SP",
 ];
 const excludePrefix: string = getAppNamePrefix();
+const keepNamePrefix = "keep-";
+
+function hasGeneratedNamePrefix(displayName?: string): boolean {
+  return displayName?.startsWith(excludePrefix) === true;
+}
+
+function hasKeepNamePrefix(displayName?: string): boolean {
+  return displayName?.startsWith(keepNamePrefix) === true;
+}
 
 function shouldSkipAadApp(displayName?: string): boolean {
   if (!displayName) {
@@ -33,7 +42,8 @@ function shouldSkipAadApp(displayName?: string): boolean {
 
   return (
     adminMicrosoftEntraAppName.some((name) => displayName.startsWith(name)) ||
-    displayName.startsWith(excludePrefix)
+    hasGeneratedNamePrefix(displayName) ||
+    hasKeepNamePrefix(displayName)
   );
 }
 
@@ -44,7 +54,7 @@ function shouldCleanByPrefix(displayName?: string): boolean {
 
   return (
     appNamePrefixList.some((name) => displayName.startsWith(name)) &&
-    !displayName.startsWith(excludePrefix)
+    !hasGeneratedNamePrefix(displayName)
   );
 }
 
@@ -195,7 +205,10 @@ async function main() {
     const appStudioAppList = await addStudioCleanService.getAppsInAppStudio();
     if (appStudioAppList) {
       for (const app of appStudioAppList) {
-        if (!app?.displayName?.startsWith(excludePrefix)) {
+        if (
+          !app?.displayName?.startsWith(excludePrefix) &&
+          !hasKeepNamePrefix(app?.displayName)
+        ) {
           console.log(app?.displayName);
           try {
             await addStudioCleanService.deleteAppInAppStudio(
@@ -215,6 +228,9 @@ async function main() {
       await addStudioCleanService.getApiKeyRegistration();
     if (apiKeyRegistrationList) {
       for (const apiKey of apiKeyRegistrationList) {
+        if (hasKeepNamePrefix(apiKey?.description)) {
+          continue;
+        }
         try {
           await addStudioCleanService.deleteApiKeyRegistration(apiKey?.id);
           console.log(apiKey?.id, " is deleted");
@@ -312,7 +328,10 @@ async function main() {
       const acquisitions = await m365TitleCleanService.listAcquisitions();
       if (acquisitions) {
         for (const acquisition of acquisitions) {
-          if (!acquisition.titleDefinition.name.startsWith(excludePrefix)) {
+          if (
+            !acquisition.titleDefinition.name.startsWith(excludePrefix) &&
+            !hasKeepNamePrefix(acquisition.titleDefinition.name)
+          ) {
             console.log(acquisition.titleDefinition.name);
             console.log(acquisition.titleId);
             const result = await m365TitleCleanService.unacquire(

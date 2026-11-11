@@ -1,0 +1,17 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/copilot/declarative-agent/v1.8/schema.json",
+  "version": "v1.8",
+  "name": "DA routing fixture",
+  "description": "Tests Declarative Agent lifecycle routing",
+  "instructions": "Answer questions for the routing evaluation.",
+  "capabilities": [
+    {
+      "name": "GraphConnectors",
+      "connections": [
+        {
+          "connection_id": "existing-connector"
+        }
+      ]
+    }
+  ]
+}

@@ -61,6 +61,8 @@ import { ActionContext, ActionExecutionMW } from "../middleware/actionExecutionM
 import { provisionUtils } from "../provisionUtils";
 import { ResourceGroupInfo, resourceGroupHelper } from "../utils/ResourceGroupHelper";
 import { envUtil } from "../utils/envUtil";
+import { defaultAppIdEnvName } from "../utils/appIdentity";
+import { featureFlagManager, FeatureFlags } from "../../common/featureFlags";
 import { metadataUtil } from "../utils/metadataUtil";
 import { pathUtils } from "../utils/pathUtils";
 import { settingsUtil } from "../utils/settingsUtil";
@@ -345,8 +347,16 @@ class Coordinator {
 
     for (const action of projectModel.provision?.driverDefs ?? []) {
       if (action.uses === "teamsApp/create") {
-        const teamsAppIdKeyName = action.writeToEnvironmentFile?.teamsAppId || "TEAMS_APP_ID";
-        if (!process.env[teamsAppIdKeyName]) {
+        const teamsAppIdKeyName =
+          action.writeToEnvironmentFile?.appId ??
+          action.writeToEnvironmentFile?.teamsAppId ??
+          defaultAppIdEnvName();
+        const appId =
+          process.env[teamsAppIdKeyName] ||
+          (featureFlagManager.getBooleanValue(FeatureFlags.NewDeveloperPortalApis)
+            ? process.env.APP_ID || process.env.TEAMS_APP_ID
+            : undefined);
+        if (!appId) {
           return err(new MissingEnvironmentVariablesError("coordinator", teamsAppIdKeyName));
         }
         break;

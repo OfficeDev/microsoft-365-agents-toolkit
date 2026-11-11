@@ -1,7 +1,7 @@
-# yaml-language-server: $schema=https://aka.ms/m365-agents-toolkits/v1.11/yaml.schema.json
+# yaml-language-server: $schema=https://aka.ms/m365-agents-toolkits/v1.12/yaml.schema.json
 # Visit https://aka.ms/teamsfx-v5.0-guide for details on this file
 # Visit https://aka.ms/teamsfx-actions for details on actions
-version: v1.11
+version: v1.12
 
 environmentFolderPath: ./env
 
@@ -14,7 +14,12 @@ provision:
     # Write the information of created resources into environment file for
     # the specified environment variable(s).
     writeToEnvironmentFile:
+      {{#NewDeveloperPortalApis}}
+      appId: APP_ID
+      {{/NewDeveloperPortalApis}}
+      {{^NewDeveloperPortalApis}}
       teamsAppId: TEAMS_APP_ID
+      {{/NewDeveloperPortalApis}}
 
   - uses: arm/deploy # Deploy given ARM templates parallelly.
     with:
@@ -39,7 +44,7 @@ provision:
       # Microsoft 365 Agents Toolkit will download this bicep CLI version from github for you,
       # will use bicep CLI in PATH if you remove this config.
       bicepCliVersion: v0.9.1
-  
+
   # Grant the bot managed identity access to your Foundry Project.
   # This avoids manual IAM steps when launching the deployed bot in Teams.
   - uses: script
@@ -137,6 +142,7 @@ provision:
 
   - uses: teamsApp/extendToM365
     with:
+      scope: ${{AGENT_SCOPE}}
       # Relative path to the build app package.
       appPackagePath: ./appPackage/build/appPackage.${{TEAMSFX_ENV}}.zip
     # Write the information of created resources into environment file for

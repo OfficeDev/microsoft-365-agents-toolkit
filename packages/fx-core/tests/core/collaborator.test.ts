@@ -15,7 +15,7 @@ import mockedEnv from "mocked-env";
 import os from "os";
 import * as path from "path";
 import { assert, beforeEach, describe, it, vi } from "vitest";
-import { CollaborationState } from "../../src/common/permissionInterface";
+import { CollaboratorType, CollaborationState } from "../../src/common/permissionInterface";
 import { SolutionError } from "../../src/component/constants";
 import * as shareUtils from "../../src/component/driver/share/utils";
 import {
@@ -139,8 +139,168 @@ describe("Collaborator APIs for V3", () => {
           },
         ])
       );
+      vi.spyOn(CollaborationUtil, "getTeamsAppIdAndAadObjectId").mockResolvedValue(
+        ok({
+          teamsAppId: "teamsAppId",
+          aadObjectId: "aadObjectId",
+        })
+      );
+      inputs[CollaborationConstants.IncludeCollaborators] = true;
       const result = await listCollaborator(ctx, inputs, tokenProvider);
       assert.isTrue(result.isOk());
+      assert.deepEqual(result._unsafeUnwrap().collaborators, [
+        {
+          userObjectId: "fake-aad-user-object-id",
+          userPrincipalName: "fake-user-principal-name",
+          collaboratorType: CollaboratorType.TeamsApp,
+          collaboratorResourceId: "fake-resource-id",
+        },
+        {
+          userObjectId: "fake-aad-user-object-id",
+          userPrincipalName: "fake-user-principal-name",
+          collaboratorType: CollaboratorType.AadApp,
+          collaboratorResourceId: "fake-resource-id",
+        },
+      ]);
+    });
+
+    it("should not include collaborators when includeCollaborators flag is not set", async () => {
+      vi.spyOn(tokenProvider.m365TokenProvider, "getJsonObject").mockResolvedValue(
+        ok({
+          tid: "mock_project_tenant_id",
+          oid: "fake_oid",
+          unique_name: "fake_unique_name",
+          name: "fake_name",
+        })
+      );
+      vi.spyOn(TeamsCollaboration.prototype, "listCollaborator").mockResolvedValue(
+        ok([
+          {
+            userObjectId: "fake-aad-user-object-id",
+            resourceId: "fake-resource-id",
+            displayName: "fake-display-name",
+            userPrincipalName: "fake-user-principal-name",
+          },
+        ])
+      );
+      vi.spyOn(AadCollaboration.prototype, "listCollaborator").mockResolvedValue(
+        ok([
+          {
+            userObjectId: "fake-aad-user-object-id",
+            resourceId: "fake-resource-id",
+            displayName: "fake-display-name",
+            userPrincipalName: "fake-user-principal-name",
+          },
+        ])
+      );
+      const result = await listCollaborator(ctx, inputs, tokenProvider);
+      assert.isTrue(result.isOk());
+      assert.deepEqual(result._unsafeUnwrap(), { state: CollaborationState.OK });
+    });
+
+    it("should preserve collaborators for each resource relationship", async () => {
+      vi.spyOn(tokenProvider.m365TokenProvider, "getJsonObject").mockResolvedValue(
+        ok({
+          tid: "mock_project_tenant_id",
+          oid: "fake_oid",
+          unique_name: "fake_unique_name",
+          name: "fake_name",
+        })
+      );
+      vi.spyOn(TeamsCollaboration.prototype, "listCollaborator").mockResolvedValue(
+        ok([
+          {
+            userObjectId: "teams-only-user-object-id",
+            resourceId: "fake-teams-resource-id",
+            displayName: "teams-only-display-name",
+            userPrincipalName: "teams-only-user-principal-name",
+          },
+        ])
+      );
+      vi.spyOn(AadCollaboration.prototype, "listCollaborator").mockResolvedValue(
+        ok([
+          {
+            userObjectId: "teams-only-user-object-id",
+            resourceId: "fake-aad-resource-id",
+            displayName: "teams-only-display-name",
+            userPrincipalName: "teams-only-user-principal-name",
+          },
+          {
+            userObjectId: "aad-only-user-object-id",
+            resourceId: "fake-aad-only-resource-id",
+            displayName: "aad-only-display-name",
+            userPrincipalName: "aad-only-user-principal-name",
+          },
+        ])
+      );
+      vi.spyOn(CollaborationUtil, "getTeamsAppIdAndAadObjectId").mockResolvedValue(
+        ok({
+          teamsAppId: "teamsAppId",
+          aadObjectId: "aadObjectId",
+        })
+      );
+      inputs[CollaborationConstants.IncludeCollaborators] = true;
+      const result = await listCollaborator(ctx, inputs, tokenProvider);
+      assert.isTrue(result.isOk());
+      assert.deepEqual(result._unsafeUnwrap().collaborators, [
+        {
+          userObjectId: "teams-only-user-object-id",
+          userPrincipalName: "teams-only-user-principal-name",
+          collaboratorType: CollaboratorType.TeamsApp,
+          collaboratorResourceId: "fake-teams-resource-id",
+        },
+        {
+          userObjectId: "teams-only-user-object-id",
+          userPrincipalName: "teams-only-user-principal-name",
+          collaboratorType: CollaboratorType.AadApp,
+          collaboratorResourceId: "fake-aad-resource-id",
+        },
+        {
+          userObjectId: "aad-only-user-object-id",
+          userPrincipalName: "aad-only-user-principal-name",
+          collaboratorType: CollaboratorType.AadApp,
+          collaboratorResourceId: "fake-aad-only-resource-id",
+        },
+      ]);
+    });
+
+    it("should merge agent owners into collaborators list", async () => {
+      vi.spyOn(tokenProvider.m365TokenProvider, "getJsonObject").mockResolvedValue(
+        ok({
+          tid: "mock_project_tenant_id",
+          oid: "fake_oid",
+          unique_name: "fake_unique_name",
+          name: "fake_name",
+        })
+      );
+      const expectedTitleId = "test-agent-title";
+      const parseShareConfigSpy = vi
+        .spyOn(shareUtils, "parseShareAppActionYamlConfig")
+        .mockResolvedValueOnce(ok({ titleId: expectedTitleId, teamsappId: "", appId: "" }));
+      vi.spyOn(AgentCollaboration.prototype, "listCollaborator").mockResolvedValue(
+        ok([
+          {
+            userObjectId: "agent-only-user-object-id",
+            resourceId: expectedTitleId,
+            displayName: "agent-only-display-name",
+            userPrincipalName: "agent-only-user-principal-name",
+          },
+        ])
+      );
+      inputs.env = "prod";
+      inputs[QuestionNames.collaborationAppType] = [CollaborationConstants.AgentOptionId];
+      inputs[CollaborationConstants.IncludeCollaborators] = true;
+      const result = await listCollaborator(ctx, inputs, tokenProvider);
+      assert.isTrue(result.isOk());
+      assert.deepEqual(parseShareConfigSpy.mock.calls[0], [inputs.projectPath, "prod"]);
+      assert.deepEqual(result._unsafeUnwrap().collaborators, [
+        {
+          userObjectId: "agent-only-user-object-id",
+          userPrincipalName: "agent-only-user-principal-name",
+          collaboratorType: CollaboratorType.Agent,
+          collaboratorResourceId: expectedTitleId,
+        },
+      ]);
     });
 
     it("happy path without aad", async () => {
@@ -578,11 +738,12 @@ describe("Collaborator APIs for V3", () => {
       const expectedTitleId = "test-agent-title";
       inputs.email = "your_collaborator@yourcompany.com";
       inputs.platform = Platform.CLI;
+      inputs.env = "prod";
       inputs[QuestionNames.collaborationAppType] = [CollaborationConstants.AgentOptionId];
 
-      vi.spyOn(shareUtils, "parseShareAppActionYamlConfig").mockResolvedValueOnce(
-        ok({ titleId: expectedTitleId, teamsappId: "", appId: "" })
-      );
+      const parseShareConfigSpy = vi
+        .spyOn(shareUtils, "parseShareAppActionYamlConfig")
+        .mockResolvedValueOnce(ok({ titleId: expectedTitleId, teamsappId: "", appId: "" }));
       vi.spyOn(AgentCollaboration.prototype, "grantPermission").mockResolvedValue(
         ok([
           {
@@ -596,6 +757,7 @@ describe("Collaborator APIs for V3", () => {
 
       const result = await grantPermission(ctx, inputs, tokenProvider);
       assert.isTrue(result.isOk());
+      assert.deepEqual(parseShareConfigSpy.mock.calls[0], [inputs.projectPath, "prod"]);
       if (result.isOk()) {
         const agentPermission = result.value.permissions?.find((p) => p.name === "agent_app");
         assert.isDefined(agentPermission);
@@ -677,6 +839,7 @@ describe("Collaborator APIs for V3", () => {
   describe("getTeamsAppIdAndAadObjectId v3", () => {
     afterEach(() => {
       vi.restoreAllMocks();
+      vi.unstubAllEnvs();
     });
 
     it("happy path vsc", async () => {
@@ -723,27 +886,33 @@ describe("Collaborator APIs for V3", () => {
       }
     });
 
-    it("happy path cli: get from dotenv", async () => {
-      const inputsCli: InputsWithProjectPath = {
-        platform: Platform.CLI,
-        projectPath: path.join(os.tmpdir(), randomAppName()),
-        dotEnvFilePath: "filePath",
-      };
-      vi.spyOn(CollaborationUtil, "loadDotEnvFile").mockResolvedValue(
-        ok({
-          [CollaborationConstants.TeamsAppIdEnv]: "teamsAppId",
-          [CollaborationConstants.AadObjectIdEnv]: "aadObjectId",
-        })
-      );
-      const result = await CollaborationUtil.getTeamsAppIdAndAadObjectId(inputsCli);
-      assert.isTrue(result.isOk());
-      console.log(result);
-      if (result.isOk()) {
-        const appId = result.value;
-        assert.equal(appId.teamsAppId, "teamsAppId");
-        assert.equal(appId.aadObjectId, "aadObjectId");
+    it.each(["false", "true"])(
+      "AC-09/AC-20: CLI dotenv ID selection honors flag %s",
+      async (flag) => {
+        vi.stubEnv("TEAMSFX_NEW_DP_APIS", flag);
+        const resourceId = "11111111-1111-4111-8111-111111111111";
+        const legacyId = "22222222-2222-4222-8222-222222222222";
+        const inputsCli: InputsWithProjectPath = {
+          platform: Platform.CLI,
+          projectPath: path.join(os.tmpdir(), randomAppName()),
+          dotEnvFilePath: "filePath",
+        };
+        vi.spyOn(CollaborationUtil, "loadDotEnvFile").mockResolvedValue(
+          ok({
+            APP_ID: resourceId,
+            TEAMS_APP_ID: legacyId,
+            [CollaborationConstants.AadObjectIdEnv]: "aadObjectId",
+          })
+        );
+        const result = await CollaborationUtil.getTeamsAppIdAndAadObjectId(inputsCli);
+        assert.isTrue(result.isOk());
+        if (result.isOk()) {
+          const appId = result.value;
+          assert.equal(appId.teamsAppId, flag === "true" ? resourceId : legacyId);
+          assert.equal(appId.aadObjectId, "aadObjectId");
+        }
       }
-    });
+    );
 
     it("happy path cli: get from env", async () => {
       const inputsCli: InputsWithProjectPath = {

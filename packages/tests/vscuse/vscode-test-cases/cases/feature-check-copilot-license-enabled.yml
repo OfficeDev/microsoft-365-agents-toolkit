@@ -1,0 +1,12 @@
+version: 1
+cases:
+  - id: feature-check-copilot-license-enabled
+    scenarioId: SCN-CHECK-COPILOT-LICENSE-ENABLED
+    workItemIds: [28202384]
+    steps: [check-license]
+steps:
+  check-license:
+    type: checkCopilotLicense
+    with:
+      account: "${{env:M365_ACCOUNT_NAME_EnableCopilotAccess}}"
+      password: "${{secret:M365_ACCOUNT_PASSWORD_EnableCopilotAccess}}"

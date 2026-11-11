@@ -6,6 +6,8 @@ import { errorSource } from "./constant";
 import axios from "axios";
 import { simplifyAxiosError } from "./utils";
 
+export { TemplateOutputPathError } from "./templateOutputPathError";
+
 export class CancelDownloading extends Error {}
 
 export class SampleNotFoundError extends BaseComponentInnerError {
@@ -53,18 +55,6 @@ export class UnzipError extends BaseComponentInnerError {
     super(errorSource, "SystemError", "UnzipError", "error.generator.UnzipError", undefined, [
       "plugins.frontend.checkFsPermissionsTip",
     ]);
-  }
-}
-
-export class TemplateOutputPathError extends BaseComponentInnerError {
-  constructor(entryName: string) {
-    super(
-      errorSource,
-      "SystemError",
-      "TemplateOutputPathError",
-      "error.generator.TemplateOutputPathError",
-      [entryName]
-    );
   }
 }
 

@@ -39,8 +39,7 @@ import {
   getQuestionValidationErrorEventName,
   sendTelemetryErrorEvent,
 } from "../common/telemetry";
-import { AppDefinition } from "../component/driver/teamsApp/interfaces/appdefinitions/appDefinition";
-import { StaticTab } from "../component/driver/teamsApp/interfaces/appdefinitions/staticTab";
+import { getAppCapabilities, DevPortalAppResponse } from "../component/utils/appInfo";
 import { manifestUtils } from "../component/driver/teamsApp/utils/ManifestUtils";
 import { pluginManifestUtils } from "../component/driver/teamsApp/utils/PluginManifestUtils";
 import {
@@ -55,9 +54,6 @@ import {
   validateSourcePluginManifest,
 } from "../component/generator/declarativeAgent/helper";
 import { listOperations as listOperationsInternal } from "../component/generator/openApiSpec/helper";
-import { DevEnvironmentSetupError } from "../component/generator/spfx/error";
-import { Constants } from "../component/generator/spfx/utils/constants";
-import { Utils } from "../component/generator/spfx/utils/utils";
 import { TemplateNames } from "../component/generator/templates/templateNames";
 import {
   ActionNotFoundError,
@@ -83,7 +79,6 @@ import {
   MeArchitectureOptions,
   ProgrammingLanguage,
   QuestionNames,
-  SPFxVersionOptionIds,
 } from "./constants";
 import {
   BotCapabilityOptions,
@@ -103,7 +98,7 @@ export const createQuestionDeps = {
 };
 
 export function getProjectTypeAndCapability(
-  teamsApp: AppDefinition
+  teamsApp: DevPortalAppResponse
 ): { projectType: string; templateId: string } | undefined {
   // bot
   if (isBot(teamsApp)) {
@@ -121,178 +116,6 @@ export function getProjectTypeAndCapability(
   }
 
   return undefined;
-}
-
-export function SPFxSolutionQuestion(): SingleSelectQuestion {
-  return {
-    type: "singleSelect",
-    name: QuestionNames.SPFxSolution,
-    title: getLocalizedString("plugins.spfx.questions.spfxSolution.title"),
-    cliDescription: "Create a new or import an existing SharePoint Framework solution.",
-    cliShortName: "s",
-    staticOptions: [
-      {
-        id: "new",
-        label: getLocalizedString("plugins.spfx.questions.spfxSolution.createNew"),
-        detail: getLocalizedString("plugins.spfx.questions.spfxSolution.createNew.detail"),
-      },
-      {
-        id: "import",
-        label: getLocalizedString("plugins.spfx.questions.spfxSolution.importExisting"),
-        detail: getLocalizedString("plugins.spfx.questions.spfxSolution.importExisting.detail"),
-      },
-    ],
-    default: "new",
-  };
-}
-export function SPFxPackageSelectQuestion(): SingleSelectQuestion {
-  return {
-    type: "singleSelect",
-    name: QuestionNames.SPFxInstallPackage,
-    title: getLocalizedString("plugins.spfx.questions.packageSelect.title"),
-    cliDescription: "Install the latest version of SharePoint Framework.",
-    staticOptions: [],
-    placeholder: getLocalizedString("plugins.spfx.questions.packageSelect.placeholder"),
-    dynamicOptions: async (inputs: Inputs): Promise<OptionItem[]> => {
-      const versions = await Promise.all([
-        Utils.findGloballyInstalledVersion(undefined, Constants.GeneratorPackageName, 0, false),
-        Utils.findLatestVersion(undefined, Constants.GeneratorPackageName, 5),
-        Utils.findGloballyInstalledVersion(undefined, Constants.YeomanPackageName, 0, false),
-      ]);
-
-      inputs.globalSpfxPackageVersion = versions[0];
-      inputs.latestSpfxPackageVersion = versions[1];
-      inputs.globalYeomanPackageVersion = versions[2];
-
-      return [
-        {
-          id: SPFxVersionOptionIds.installLocally,
-
-          label:
-            versions[1] !== undefined
-              ? getLocalizedString(
-                  "plugins.spfx.questions.packageSelect.installLocally.withVersion.label",
-                  "v" + versions[1]
-                )
-              : getLocalizedString(
-                  "plugins.spfx.questions.packageSelect.installLocally.noVersion.label"
-                ),
-        },
-        {
-          id: SPFxVersionOptionIds.globalPackage,
-          label:
-            versions[0] !== undefined
-              ? getLocalizedString(
-                  "plugins.spfx.questions.packageSelect.useGlobalPackage.withVersion.label",
-                  "v" + versions[0]
-                )
-              : getLocalizedString(
-                  "plugins.spfx.questions.packageSelect.useGlobalPackage.noVersion.label"
-                ),
-          description: getLocalizedString(
-            "plugins.spfx.questions.packageSelect.useGlobalPackage.detail",
-            Constants.RecommendedLowestSpfxVersion
-          ),
-        },
-      ];
-    },
-    default: SPFxVersionOptionIds.installLocally,
-    validation: {
-      validFunc: (input: string, previousInputs?: Inputs): Promise<string | undefined> => {
-        if (input === SPFxVersionOptionIds.globalPackage) {
-          const hasPackagesInstalled =
-            !!previousInputs &&
-            !!previousInputs.globalSpfxPackageVersion &&
-            !!previousInputs.globalYeomanPackageVersion;
-          if (!hasPackagesInstalled) {
-            return Promise.reject(DevEnvironmentSetupError());
-          }
-        }
-        return Promise.resolve(undefined);
-      },
-    },
-    isBoolean: true,
-  };
-}
-
-export function SPFxFrameworkQuestion(): SingleSelectQuestion {
-  return {
-    type: "singleSelect",
-    name: QuestionNames.SPFxFramework,
-    cliShortName: "k",
-    cliDescription: "Framework.",
-    title: getLocalizedString("plugins.spfx.questions.framework.title"),
-    staticOptions: [
-      { id: "react", label: "React" },
-      { id: "minimal", label: "Minimal" },
-      { id: "none", label: "None" },
-    ],
-    placeholder: "Select an option",
-    default: "react",
-  };
-}
-
-export function SPFxWebpartNameQuestion(): TextInputQuestion {
-  return {
-    type: "text",
-    name: QuestionNames.SPFxWebpartName,
-    cliShortName: "w",
-    cliDescription: "Name for SharePoint Framework Web Part.",
-    title: getLocalizedString("plugins.spfx.questions.webpartName"),
-    default: Constants.DEFAULT_WEBPART_NAME,
-    validation: {
-      validFunc: async (input: string, previousInputs?: Inputs): Promise<string | undefined> => {
-        const schema = {
-          pattern: "^[a-zA-Z_][a-zA-Z0-9_]*$",
-        };
-        const validateRes = jsonschema.validate(input, schema);
-        if (validateRes.errors && validateRes.errors.length > 0) {
-          return getLocalizedString(
-            "plugins.spfx.questions.webpartName.error.notMatch",
-            input,
-            schema.pattern
-          );
-        }
-
-        if (
-          previousInputs &&
-          ((previousInputs.stage === Stage.addWebpart &&
-            previousInputs[QuestionNames.SPFxFolder]) ||
-            (previousInputs?.stage === Stage.addFeature && previousInputs?.projectPath))
-        ) {
-          const webpartFolder = path.join(
-            previousInputs[QuestionNames.SPFxFolder],
-            "src",
-            "webparts",
-            input
-          );
-          if (await fs.pathExists(webpartFolder)) {
-            return getLocalizedString(
-              "plugins.spfx.questions.webpartName.error.duplicate",
-              webpartFolder
-            );
-          }
-        }
-        return undefined;
-      },
-    },
-  };
-}
-
-export function SPFxImportFolderQuestion(hasDefaultFunc = false): FolderQuestion {
-  return {
-    type: "folder",
-    name: QuestionNames.SPFxFolder,
-    title: getLocalizedString("core.spfxFolder.title"),
-    cliDescription: "Directory or Path that contains the existing SharePoint Framework solution.",
-    placeholder: getLocalizedString("core.spfxFolder.placeholder"),
-    default: hasDefaultFunc
-      ? (inputs: Inputs) => {
-          if (inputs.projectPath) return path.join(inputs.projectPath, "src");
-          return undefined;
-        }
-      : undefined,
-  };
 }
 
 export function folderQuestion(): FolderQuestion {
@@ -313,19 +136,6 @@ export function folderQuestion(): FolderQuestion {
   };
 }
 
-export async function getSolutionName(spfxFolder: string): Promise<string | undefined> {
-  const yoInfoPath = path.join(spfxFolder, Constants.YO_RC_FILE);
-  if (await fs.pathExists(yoInfoPath)) {
-    const yoInfo = await fs.readJson(yoInfoPath);
-    if (yoInfo["@microsoft/generator-sharepoint"]) {
-      return yoInfo["@microsoft/generator-sharepoint"][Constants.YO_RC_SOLUTION_NAME];
-    } else {
-      return undefined;
-    }
-  } else {
-    throw new FileNotFoundError(Constants.PLUGIN_NAME, yoInfoPath, Constants.IMPORT_HELP_LINK);
-  }
-}
 export function appNameQuestion(): TextInputQuestion {
   const question: TextInputQuestion = {
     type: "text",
@@ -333,14 +143,13 @@ export function appNameQuestion(): TextInputQuestion {
     cliShortName: "n",
     title: getLocalizedString("core.question.appName.title"),
     required: true,
-    default: async (inputs: Inputs) => {
+    default: (inputs: Inputs) => {
       let defaultName = undefined;
-      if (inputs.teamsAppFromTdp?.appName) {
-        defaultName = convertToAlphanumericOnly(inputs.teamsAppFromTdp?.appName);
-      } else if (inputs[QuestionNames.SPFxSolution] == "import") {
-        defaultName = await getSolutionName(inputs[QuestionNames.SPFxFolder]);
+      const portalAppName = getAppCapabilities(inputs.teamsAppFromTdp).appName;
+      if (portalAppName) {
+        defaultName = convertToAlphanumericOnly(portalAppName);
       }
-      return defaultName;
+      return Promise.resolve(defaultName);
     },
     validation: {
       validFunc: async (input: string, previousInputs?: Inputs): Promise<string | undefined> => {
@@ -451,7 +260,12 @@ function sampleSelectQuestion(): SingleSelectQuestion {
 }
 
 const defaultTabLocalHostUrl = "https://localhost:53000/index.html#/tab";
-const tabContentUrlOptionItem = (tab: StaticTab): OptionItem => {
+type NamedTab = {
+  name: string;
+  contentUrl?: string | null;
+  websiteUrl?: string | null;
+};
+const tabContentUrlOptionItem = (tab: NamedTab): OptionItem => {
   return {
     id: tab.name,
     label: tab.name,
@@ -462,7 +276,7 @@ const tabContentUrlOptionItem = (tab: StaticTab): OptionItem => {
     ),
   };
 };
-const tabWebsiteUrlOptionItem = (tab: StaticTab): OptionItem => {
+const tabWebsiteUrlOptionItem = (tab: NamedTab): OptionItem => {
   return {
     id: tab.name,
     label: tab.name,
@@ -474,14 +288,14 @@ const tabWebsiteUrlOptionItem = (tab: StaticTab): OptionItem => {
   };
 };
 export function getTabWebsiteOptions(inputs: Inputs): OptionItem[] {
-  const appDefinition = inputs.teamsAppFromTdp as AppDefinition;
-  if (appDefinition?.staticTabs) {
-    const tabsWithWebsiteUrls = appDefinition.staticTabs.filter((o) => !!o.websiteUrl);
-    if (tabsWithWebsiteUrls.length > 0) {
-      return tabsWithWebsiteUrls.map((o) => tabWebsiteUrlOptionItem(o));
-    }
-  }
-  return [];
+  const appDefinition = getAppCapabilities(inputs.teamsAppFromTdp);
+  return (
+    appDefinition.staticTabs?.flatMap((tab) =>
+      typeof tab.name === "string" && tab.websiteUrl
+        ? [tabWebsiteUrlOptionItem({ name: tab.name, websiteUrl: tab.websiteUrl })]
+        : []
+    ) ?? []
+  );
 }
 
 export function selectTabWebsiteUrlQuestion(): MultiSelectQuestion {
@@ -498,14 +312,14 @@ export function selectTabWebsiteUrlQuestion(): MultiSelectQuestion {
 }
 
 function getTabContentUrlOptions(inputs: Inputs): OptionItem[] {
-  const appDefinition = inputs.teamsAppFromTdp as AppDefinition;
-  if (appDefinition?.staticTabs) {
-    const tabsWithContentUrls = appDefinition.staticTabs.filter((o) => !!o.contentUrl);
-    if (tabsWithContentUrls.length > 0) {
-      return tabsWithContentUrls.map((o) => tabContentUrlOptionItem(o));
-    }
-  }
-  return [];
+  const appDefinition = getAppCapabilities(inputs.teamsAppFromTdp);
+  return (
+    appDefinition.staticTabs?.flatMap((tab) =>
+      typeof tab.name === "string" && tab.contentUrl
+        ? [tabContentUrlOptionItem({ name: tab.name, contentUrl: tab.contentUrl })]
+        : []
+    ) ?? []
+  );
 }
 
 export const selectTabsContentUrlQuestion = (): MultiSelectQuestion => {
@@ -534,7 +348,8 @@ const botOptionItem = (isMessageExtension: boolean, botId: string): OptionItem =
   };
 };
 
-function getBotIdAndMeId(appDefinition: AppDefinition) {
+function getBotIdAndMeId(app: DevPortalAppResponse) {
+  const appDefinition = getAppCapabilities(app);
   const bots = appDefinition.bots;
   const messageExtensions = appDefinition.messagingExtensions;
   // can add only one bot. If existing, the length is 1.
@@ -546,7 +361,7 @@ function getBotIdAndMeId(appDefinition: AppDefinition) {
 }
 
 function getBotOptions(inputs: Inputs): OptionItem[] {
-  const appDefinition = inputs.teamsAppFromTdp as AppDefinition;
+  const appDefinition: DevPortalAppResponse | undefined = inputs.teamsAppFromTdp;
   if (!appDefinition) return [];
   const [botId, messageExtensionId] = getBotIdAndMeId(appDefinition);
   const options: OptionItem[] = [];

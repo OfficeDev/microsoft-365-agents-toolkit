@@ -4,6 +4,7 @@
 import * as fs from "fs-extra";
 import { chai, vi } from "vitest";
 import { M365TitleAcquireDriver } from "../../../../src/component/driver/m365/acquire";
+import type { ExecutionResult } from "../../../../src/component/driver/interface/stepDriver";
 import { PackageService } from "../../../../src/component/m365/packageService";
 import {
   FileNotFoundError,
@@ -29,17 +30,24 @@ describe("teamsApp/extendToM365", async () => {
     vi.clearAllMocks();
   });
 
-  it("run: happy path", async () => {
+  it("ACTION-06: preserves legacy run failure without an environment mapping", async () => {
     const args = {
       appPackagePath: "fakePath",
     };
 
+    const install = vi
+      .spyOn(PackageService.prototype, "sideLoading")
+      .mockResolvedValue(["title", "app", ""]);
+    const token = vi.spyOn(mockedDriverContext.m365TokenProvider, "getAccessToken");
+    vi.mocked(fs.pathExists).mockResolvedValue(true);
     const result = await acquireDriver.run(args, mockedDriverContext);
     chai.assert.isTrue(result.isErr());
     if (result.isErr()) {
       chai.assert.isTrue(result.error instanceof InvalidActionInputError);
-      chai.assert.isTrue(result.error.message.includes("writeToEnvironmentFile"));
+      chai.assert.include(result.error.message, "writeToEnvironmentFile");
     }
+    chai.assert.isTrue(install.mock.calls.length === 0);
+    chai.assert.isTrue(token.mock.calls.length === 0);
   });
 
   it("execute: invalid param error", async () => {
@@ -59,18 +67,31 @@ describe("teamsApp/extendToM365", async () => {
     }
   });
 
-  it("execute: writeToEnvironmentFile undefined", async () => {
-    const args = {
-      appPackagePath: "fakePath",
-    };
+  it.each(["link", ""])(
+    "ACTION-05: execute returns business outputs with default share link %j",
+    async (shareLink) => {
+      const args = {
+        appPackagePath: "fakePath",
+      };
 
-    const result = await acquireDriver.execute(args, mockedDriverContext, undefined);
-    chai.assert(result.result.isErr());
-    if (result.result.isErr()) {
-      chai.assert.isTrue(result.result.error instanceof InvalidActionInputError);
-      chai.assert.isTrue(result.result.error.message.includes("writeToEnvironmentFile"));
+      vi.spyOn(PackageService.prototype, "sideLoading").mockResolvedValue([
+        "title",
+        "app",
+        shareLink,
+      ]);
+      vi.mocked(fs.pathExists).mockResolvedValue(true);
+      const result = await acquireDriver.execute(args, mockedDriverContext, undefined);
+      chai.assert.isTrue(result.result.isOk());
+      if (result.result.isOk()) {
+        chai.assert.deepEqual(
+          Object.fromEntries(result.result.value),
+          shareLink
+            ? { titleId: "title", appId: "app", shareLink }
+            : { titleId: "title", appId: "app" }
+        );
+      }
     }
-  });
+  );
 
   it("execute: missing titleId", async () => {
     const args = {
@@ -101,6 +122,7 @@ describe("teamsApp/extendToM365", async () => {
   });
 
   it("execute: should throw error if file not exists", async () => {
+    vi.mocked(fs.pathExists).mockResolvedValue(false);
     const args = {
       appPackagePath: "fakePath",
     };
@@ -196,6 +218,21 @@ describe("teamsApp/extendToM365", async () => {
     if (result.result.isErr()) {
       chai.assert.isTrue(result.result.error instanceof InvalidActionInputError);
       chai.assert.isTrue(result.result.error.message.includes("scope"));
+    }
+  });
+
+  it("ACTION-06: preserves invalid-input errors for non-string legacy scope values", async () => {
+    const result: ExecutionResult = await Reflect.apply(acquireDriver.execute, acquireDriver, [
+      { appPackagePath: "fakePath", scope: 123 },
+      mockedDriverContext,
+      new Map([
+        ["titleId", "TITLE"],
+        ["appId", "APP"],
+      ]),
+    ]);
+    chai.assert.isTrue(result.result.isErr());
+    if (result.result.isErr()) {
+      chai.assert.isTrue(result.result.error instanceof InvalidActionInputError);
     }
   });
 

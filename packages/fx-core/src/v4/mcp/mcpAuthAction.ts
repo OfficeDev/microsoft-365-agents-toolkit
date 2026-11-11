@@ -7,10 +7,13 @@ import { isMap, isSeq, parseDocument } from "yaml";
 
 const SOURCE = "Scaffold";
 const MIN_DCR_YAML_VERSION = "v1.13";
-const SUPPORTED_AUTH_TYPES = new Set(["none", "oauth", "entra-sso", "oauth-dynamic"]);
-
-export const MCP_DCR_WELL_KNOWN_URL_PLACEHOLDER =
-  "<PLEASE_FILL_IN_WELL_KNOWN_AUTHORIZATION_SERVER_URL>";
+const SUPPORTED_AUTH_TYPES = new Set([
+  "none",
+  "oauth",
+  "entra-sso",
+  "oauth-dynamic",
+  "bearer-token",
+]);
 
 /**
  * Placeholders for a static `oauth` action whose authorization / token URLs could not be
@@ -34,9 +37,10 @@ export interface MCPAuthActionArgs {
   mcpServerUrl: string;
   endpoints: ResolvedMCPAuthEndpoints;
   credentialEnvNames?: {
-    clientId: string;
+    clientId?: string;
     clientSecret?: string;
     scope?: string;
+    apiKey?: string;
   };
 }
 
@@ -58,7 +62,8 @@ function registrationId(item: unknown): string | undefined {
   if (!isMap(output)) {
     return undefined;
   }
-  const value = output.get("configurationId");
+  const outputName = uses(item) === "apiKey/register" ? "registrationId" : "configurationId";
+  const value = output.get(outputName);
   return typeof value === "string" ? value : undefined;
 }
 
@@ -75,11 +80,11 @@ function teamsAppId(item: unknown): string | undefined {
     return undefined;
   }
   const output = item.get("writeToEnvironmentFile", true);
-  if (!isMap(output)) {
+  if (!isMap(output) || (output.has("appId") && output.has("teamsAppId"))) {
     return undefined;
   }
-  const value = output.get("teamsAppId");
-  return typeof value === "string" ? value : undefined;
+  const value = output.has("appId") ? output.get("appId") : output.get("teamsAppId");
+  return typeof value === "string" && value.trim().length > 0 ? value : undefined;
 }
 
 function ensureMinimumVersion(current: unknown, minimum: string): string | undefined {
@@ -129,7 +134,7 @@ function oauthAction(args: MCPAuthActionArgs, appIdEnvName: string): Record<stri
         ? { ...endpointFields, identityProvider: "Custom" }
         : { identityProvider: "MicrosoftEntra" }),
       baseUrl: args.mcpServerUrl,
-      ...(args.credentialEnvNames
+      ...(args.credentialEnvNames?.clientId
         ? {
             clientId: `\${{${args.credentialEnvNames.clientId}}}`,
             ...(args.credentialEnvNames.clientSecret
@@ -145,11 +150,7 @@ function oauthAction(args: MCPAuthActionArgs, appIdEnvName: string): Record<stri
   };
 }
 
-function dcrAction(
-  args: MCPAuthActionArgs,
-  appIdEnvName: string,
-  wellKnownUrl: string
-): Record<string, unknown> {
+function dcrAction(args: MCPAuthActionArgs, appIdEnvName: string): Record<string, unknown> {
   return {
     uses: "dcr/register",
     with: {
@@ -157,10 +158,25 @@ function dcrAction(
       appId: `\${{${appIdEnvName}}}`,
       applicableToApps: "AnyApp",
       targetAudience: "HomeTenant",
-      wellKnownAuthorizationServer: wellKnownUrl,
+      mcpResourceUrl: args.mcpServerUrl,
       targetUrlsShouldStartWith: [args.mcpServerUrl],
     },
     writeToEnvironmentFile: { configurationId: args.registrationId },
+  };
+}
+
+function apiKeyAction(args: MCPAuthActionArgs, appIdEnvName: string): Record<string, unknown> {
+  return {
+    uses: "apiKey/register",
+    with: {
+      name: args.authName,
+      appId: `\${{${appIdEnvName}}}`,
+      baseUrl: args.mcpServerUrl,
+      ...(args.credentialEnvNames?.apiKey
+        ? { primaryClientSecret: `\${{${args.credentialEnvNames.apiKey}}}` }
+        : {}),
+    },
+    writeToEnvironmentFile: { registrationId: args.registrationId },
   };
 }
 
@@ -185,7 +201,12 @@ export function injectMcpAuthActionYaml(
     return failure("The rendered m365agents.yml does not declare a provision sequence.");
   }
 
-  const actionUses = args.authType === "oauth-dynamic" ? "dcr/register" : "oauth/register";
+  const actionUses =
+    args.authType === "oauth-dynamic"
+      ? "dcr/register"
+      : args.authType === "bearer-token"
+        ? "apiKey/register"
+        : "oauth/register";
   const alreadyRegistered = provision.items.some(
     (item) => uses(item) === actionUses && registrationId(item) === args.registrationId
   );
@@ -204,17 +225,14 @@ export function injectMcpAuthActionYaml(
     return failure("The rendered m365agents.yml does not expose a Teams app id.");
   }
 
-  const placeholderUsed = args.authType === "oauth-dynamic" && !args.endpoints.wellKnownUrl;
   const oauthUrlPlaceholderUsed =
     args.authType === "oauth" && (!args.endpoints.authorizationUrl || !args.endpoints.tokenUrl);
   const action =
     args.authType === "oauth-dynamic"
-      ? dcrAction(
-          args,
-          appIdEnvName,
-          args.endpoints.wellKnownUrl ?? MCP_DCR_WELL_KNOWN_URL_PLACEHOLDER
-        )
-      : oauthAction(args, appIdEnvName);
+      ? dcrAction(args, appIdEnvName)
+      : args.authType === "bearer-token"
+        ? apiKeyAction(args, appIdEnvName)
+        : oauthAction(args, appIdEnvName);
   provision.items.splice(teamsAppIndex + 1, 0, document.createNode(action));
 
   if (args.authType === "oauth-dynamic") {
@@ -226,7 +244,7 @@ export function injectMcpAuthActionYaml(
 
   return ok({
     yaml: document.toString(),
-    wellKnownUrlPlaceholderUsed: placeholderUsed,
+    wellKnownUrlPlaceholderUsed: false,
     oauthUrlPlaceholderUsed,
   });
 }

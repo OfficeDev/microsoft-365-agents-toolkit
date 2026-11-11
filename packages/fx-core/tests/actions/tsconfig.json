@@ -1,0 +1,10 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "incremental": false,
+    "rootDir": "../.."
+  },
+  "include": ["executeAction.types.ts"],
+  "exclude": ["../../node_modules"]
+}

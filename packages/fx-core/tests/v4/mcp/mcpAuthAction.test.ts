@@ -2,7 +2,8 @@
 // Licensed under the MIT license.
 
 import { parse } from "yaml";
-import { assert } from "vitest";
+import { assert, vi } from "vitest";
+import { FeatureFlagName } from "../../../src/common/featureFlags";
 import { injectMcpAuthActionYaml } from "../../../src/v4/mcp/mcpAuthAction";
 
 const BASE_YML = [
@@ -24,6 +25,51 @@ function provisionActions(yaml: string): any[] {
 }
 
 describe("v4 MCP auth YAML action", () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+  });
+
+  for (const enabled of ["true", "false"]) {
+    for (const authType of ["oauth", "entra-sso", "oauth-dynamic", "bearer-token"]) {
+      it.each([
+        { key: "appId", variable: "APP_ID" },
+        { key: "teamsAppId", variable: "TEAMS_APP_ID" },
+        { key: "appId", variable: "CUSTOM_RESOURCE_ID" },
+        { key: "teamsAppId", variable: "LEGACY_CUSTOM_ID" },
+      ])(
+        `AC-09: ${authType} preserves $key: $variable with new API=${enabled}`,
+        ({ key, variable }) => {
+          vi.stubEnv(FeatureFlagName.NewDeveloperPortalApis, enabled);
+          const yaml = BASE_YML.replace("teamsAppId: TEAMS_APP_ID", `${key}: ${variable}`);
+          const args = { ...BASE_ARGS, authType, endpoints: {} };
+          const first = injectMcpAuthActionYaml(yaml, args)._unsafeUnwrap();
+          const actions = provisionActions(first.yaml);
+          assert.deepEqual(actions[0], provisionActions(yaml)[0]);
+          assert.strictEqual(actions[1].with.appId, `\${{${variable}}}`);
+          assert.notInclude(first.yaml, "APP_MANIFEST_ID");
+          const second = injectMcpAuthActionYaml(first.yaml, args)._unsafeUnwrap();
+          assert.strictEqual(second.yaml, first.yaml);
+        }
+      );
+    }
+  }
+
+  it.each([
+    "appId: APP_ID\n      teamsAppId: TEAMS_APP_ID",
+    "appId: null\n      teamsAppId: TEAMS_APP_ID",
+    "appId: 42",
+    'appId: ""',
+    'appId: "   "',
+  ])("AC-04: rejects ambiguous or invalid create output without fallback (%s)", (output) => {
+    const result = injectMcpAuthActionYaml(BASE_YML.replace("teamsAppId: TEAMS_APP_ID", output), {
+      ...BASE_ARGS,
+      authType: "oauth",
+      endpoints: {},
+    });
+    assert.isTrue(result.isErr());
+    assert.strictEqual(result._unsafeUnwrapErr().name, "McpAuthInjectFailed");
+  });
+
   it("SCN-CREATE-MCP-05: injects the complete Custom OAuth action", () => {
     const result = injectMcpAuthActionYaml(BASE_YML, {
       ...BASE_ARGS,
@@ -100,7 +146,7 @@ describe("v4 MCP auth YAML action", () => {
     });
   });
 
-  it("SCN-CREATE-MCP-17: injects DCR and raises the schema floor", () => {
+  it("DCR-07: injects endpoint-based DCR and raises the schema floor", () => {
     const result = injectMcpAuthActionYaml(BASE_YML, {
       ...BASE_ARGS,
       authType: "oauth-dynamic",
@@ -119,12 +165,34 @@ describe("v4 MCP auth YAML action", () => {
         appId: "${{TEAMS_APP_ID}}",
         applicableToApps: "AnyApp",
         targetAudience: "HomeTenant",
-        wellKnownAuthorizationServer:
-          "https://auth.example.com/.well-known/oauth-authorization-server",
+        mcpResourceUrl: "https://api.github.com/mcp",
         targetUrlsShouldStartWith: ["https://api.github.com/mcp"],
       },
       writeToEnvironmentFile: { configurationId: "MCP_DA_AUTH_ID_APIGITHUBC" },
     });
+  });
+
+  it("SCN-ADD-MCP-15: injects API-key registration for bearer-token", () => {
+    const result = injectMcpAuthActionYaml(BASE_YML, {
+      ...BASE_ARGS,
+      authType: "bearer-token",
+      endpoints: {},
+      credentialEnvNames: { apiKey: "SECRET_MCP_DA_API_KEY_APIGITHUBC" },
+    });
+
+    assert.isTrue(result.isOk(), result.isErr() ? result.error.message : "expected ok");
+    assert.deepEqual(provisionActions(result._unsafeUnwrap().yaml)[1], {
+      uses: "apiKey/register",
+      with: {
+        name: "apigithubc",
+        appId: "${{TEAMS_APP_ID}}",
+        baseUrl: "https://api.github.com/mcp",
+        primaryClientSecret: "${{SECRET_MCP_DA_API_KEY_APIGITHUBC}}",
+      },
+      writeToEnvironmentFile: { registrationId: "MCP_DA_AUTH_ID_APIGITHUBC" },
+    });
+    assert.isFalse(result._unsafeUnwrap().oauthUrlPlaceholderUsed);
+    assert.isFalse(result._unsafeUnwrap().wellKnownUrlPlaceholderUsed);
   });
 
   it("rejects an unknown auth type", () => {
@@ -203,7 +271,10 @@ describe("v4 MCP auth YAML action", () => {
 
       const output = parse(result._unsafeUnwrap().yaml);
       assert.strictEqual(output.version, version);
-      assert.isTrue(result._unsafeUnwrap().wellKnownUrlPlaceholderUsed);
+      assert.isFalse(result._unsafeUnwrap().wellKnownUrlPlaceholderUsed);
+      assert.strictEqual(output.provision[1].with.mcpResourceUrl, BASE_ARGS.mcpServerUrl);
+      assert.notProperty(output.provision[1].with, "wellKnownAuthorizationServer");
+      assert.notProperty(output.provision[1].with, "resource");
     }
   );
 
@@ -238,11 +309,19 @@ describe("v4 MCP auth YAML action", () => {
 
     const output = parse(result._unsafeUnwrap().yaml);
     assert.isUndefined(output.version);
-    assert.isTrue(result._unsafeUnwrap().wellKnownUrlPlaceholderUsed);
+    assert.isFalse(result._unsafeUnwrap().wellKnownUrlPlaceholderUsed);
   });
 
   it("SCN-CREATE-MCP-05: is idempotent by registration id", () => {
     const args = { ...BASE_ARGS, authType: "oauth", endpoints: {} };
+    const first = injectMcpAuthActionYaml(BASE_YML, args)._unsafeUnwrap();
+    const second = injectMcpAuthActionYaml(first.yaml, args)._unsafeUnwrap();
+
+    assert.lengthOf(provisionActions(second.yaml), 2);
+  });
+
+  it("SCN-ADD-MCP-05: bearer-token is idempotent by registration id", () => {
+    const args = { ...BASE_ARGS, authType: "bearer-token", endpoints: {} };
     const first = injectMcpAuthActionYaml(BASE_YML, args)._unsafeUnwrap();
     const second = injectMcpAuthActionYaml(first.yaml, args)._unsafeUnwrap();
 

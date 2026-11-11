@@ -28,6 +28,7 @@ import {
   DownloadSampleApiLimitError,
   DownloadSampleNetworkError,
   FetchSampleInfoError,
+  TemplateOutputPathError,
 } from "../../../src/component/generator/error";
 import { Generator } from "../../../src/component/generator/generator";
 import {
@@ -265,6 +266,22 @@ describe("Generator utils", () => {
     await generatorUtils.unzip(new AdmZip(path.join(tmpDir, "test.zip")), outputDir);
     const content = await fs.readFile(path.join(outputDir, "test.txt"), "utf8");
     assert.equal(content, fileData);
+  });
+
+  it("rejects an entry whose rendered path escapes the destination", async () => {
+    const outputDir = path.join(tmpDir, "output");
+    const escapedFile = path.join(tmpDir, "escaped.txt");
+    const zip = new AdmZip();
+    zip.addFile("template/file.txt", Buffer.from("malicious"));
+
+    try {
+      await generatorUtils.unzip(zip, outputDir, () => "../escaped.txt");
+      assert.fail("Should not reach here.");
+    } catch (error) {
+      assert.instanceOf(error, TemplateOutputPathError);
+    }
+
+    assert.isFalse(await fs.pathExists(escapedFile));
   });
 
   it("unzip with relative path", async () => {

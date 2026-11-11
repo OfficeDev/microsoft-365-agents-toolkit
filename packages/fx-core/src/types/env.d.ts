@@ -4,8 +4,12 @@ declare global {
   namespace NodeJS {
     interface ProcessEnv {
       APP_NAME_SUFFIX?: string;
+      APP_ID?: string;
+      APP_MANIFEST_ID?: string;
+      TEAMS_APP_ID?: string;
       RESOURCE_SUFFIX?: string;
       TEAMSFX_ENV?: string;
+      TEAMSFX_WORKIQ_PUBLISH_TARGET?: string;
 
       AZURE_SUBSCRIPTION_ID?: string;
       AZURE_RESOURCE_GROUP_NAME?: string;

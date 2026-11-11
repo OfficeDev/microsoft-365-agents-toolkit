@@ -16,7 +16,7 @@ import { Readable } from "stream";
 import { chai, expect, vi } from "vitest";
 import * as tools from "../../../../../src/common/utils";
 import { HttpStatusCode } from "../../../../../src/component/constant/commonConstant";
-import { DeployStatus } from "../../../../../src/component/constant/deployConstant";
+import { DeployConstant, DeployStatus } from "../../../../../src/component/constant/deployConstant";
 import { AzureDeployImpl } from "../../../../../src/component/driver/deploy/azure/impl/azureDeployImpl";
 import { AzureZipDeployImpl } from "../../../../../src/component/driver/deploy/azure/impl/AzureZipDeployImpl";
 import {
@@ -72,27 +72,48 @@ describe("AzureDeployImpl zip deploy acceleration", () => {
     vi.restoreAllMocks();
   });
 
-  it("zip deploy need acceleration", async () => {
-    const args = {
-      workingDirectory: "./",
-      artifactFolder: `./tmp`,
-      ignoreFile: "./ignore",
-      resourceId:
-        "/subscriptions/e24d88be-bbbb-1234-ba25-aa11aaaa1aa1/resourceGroups/hoho-rg/providers/Microsoft.Web/sites/some-server-farm",
-    } as DeployArgs;
-    const context = {
-      azureAccountProvider: new MockedAzureAccountProvider(),
-      logProvider: new TestLogProvider(),
-      ui: new MockUserInteraction(),
-    } as any;
-    context.logProvider.info = async (msg: string | Array<any>) => {
-      console.log(msg);
-      return Promise.resolve(true);
-    };
-    const deploy = new AzureZipDeployImpl(args, context, "", "", [], []);
-    vi.spyOn(deploy, "zipDeploy").mockResolvedValue(5_000_000);
-    await deploy.run();
-  });
+  it.each([
+    {
+      cost: DeployConstant.DEPLOY_OVER_TIME + 1,
+      expected: true,
+      scenario: "exceeds the slow-deploy threshold",
+    },
+    {
+      cost: DeployConstant.DEPLOY_OVER_TIME,
+      expected: false,
+      scenario: "equals the slow-deploy threshold",
+    },
+  ])(
+    "logs the run-from-package recommendation when deployment $scenario",
+    async ({ cost, expected }) => {
+      const args = {
+        workingDirectory: "./",
+        artifactFolder: `./tmp`,
+        ignoreFile: "./ignore",
+        resourceId:
+          "/subscriptions/e24d88be-bbbb-1234-ba25-aa11aaaa1aa1/resourceGroups/hoho-rg/providers/Microsoft.Web/sites/some-server-farm",
+      } as DeployArgs;
+      const logProvider = new TestLogProvider();
+      const infoSpy = vi.spyOn(logProvider, "info");
+      const context = {
+        azureAccountProvider: new MockedAzureAccountProvider(),
+        logProvider,
+        ui: new MockUserInteraction(),
+      } as any;
+      const deploy = new AzureZipDeployImpl(args, context, "", "", [], []);
+      vi.spyOn(deploy, "zipDeploy").mockResolvedValue(cost);
+      await deploy.azureDeploy({}, zipDeployResource, new MyTokenCredential());
+
+      const recommendation = expect.stringContaining(
+        "https://aka.ms/teamsfx-config-run-from-package"
+      );
+      if (expected) {
+        expect(infoSpy).toHaveBeenCalledWith(recommendation);
+      } else {
+        expect(infoSpy).not.toHaveBeenCalledWith(recommendation);
+      }
+    }
+  );
 
   it("Get zip deploy endpoint", async () => {
     const ar = {
@@ -511,7 +532,7 @@ describe("AzureDeployImpl zip deploy acceleration", () => {
     const context = {
       logProvider: new TestLogProvider(),
       ui: new MockUserInteraction(),
-      telemetryReporter: new MockTelemetryReporter(),
+      telemetryReporter: undefined,
     } as any;
     const impl = new AzureZipDeployImpl(
       args,
@@ -535,9 +556,7 @@ describe("AzureDeployImpl zip deploy acceleration", () => {
       return mockWebSiteManagementClient;
     } as any);
     const token = new MyTokenCredential();
-    vi.spyOn(token, "getToken").mockImplementation(() => {
-      throw new Error("test message");
-    });
+    vi.spyOn(token, "getToken").mockResolvedValue(null);
     await expect(
       impl.createAzureDeployConfig(
         {
@@ -548,6 +567,29 @@ describe("AzureDeployImpl zip deploy acceleration", () => {
         token
       )
     ).rejects.toThrow(GetPublishingCredentialsError);
+  });
+
+  it("zip deploy succeeds without a telemetry reporter", async () => {
+    const args = {
+      workingDirectory: "/",
+      artifactFolder: "/",
+      resourceId: "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Web/sites/app",
+    } as DeployArgs;
+    const context = {
+      logProvider: new TestLogProvider(),
+      ui: new MockUserInteraction(),
+      telemetryReporter: undefined,
+    } as any;
+    const impl = new AzureZipDeployImpl(args, context, "Azure App Service", "help", [], []);
+    vi.spyOn(impl as any, "packageToZip").mockResolvedValue(Readable.from("test"));
+    vi.spyOn(impl, "createAzureDeployConfig").mockResolvedValue(zipDeployConfig);
+    vi.spyOn(AzureZipDeployImpl, "getZipDeployEndpoint").mockResolvedValue("endpoint");
+    vi.spyOn(impl, "zipDeployPackage").mockResolvedValue("location");
+    vi.spyOn(impl, "checkDeployStatus").mockResolvedValue({ status: 4 } as any);
+
+    const cost = await impl.zipDeploy({}, zipDeployResource, new MyTokenCredential());
+
+    expect(cost).toBeGreaterThanOrEqual(0);
   });
 
   it("zipDeployPackage DeployZipPackageError throw 500", async () => {

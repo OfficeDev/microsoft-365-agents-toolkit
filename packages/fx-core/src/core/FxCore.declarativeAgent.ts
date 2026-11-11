@@ -5,6 +5,7 @@ import { hooks } from "@feathersjs/hooks";
 import { AuthType, ListAPIResult, ProjectType, SpecParser } from "@microsoft/m365-spec-parser";
 import {
   AppPackageFolderName,
+  AuthCredentialSource,
   DefaultApiSpecFolderName,
   FxError,
   Inputs,
@@ -21,6 +22,7 @@ import {
 import fs from "fs-extra";
 import * as path from "path";
 import { listAPIInfo } from "../common/daSpecParser";
+import { getAbortSignal, throwIfAborted } from "../common/cancellation";
 import { FeatureFlags, featureFlagManager } from "../common/featureFlags";
 import { ErrorContextMW, TOOLS, createContext } from "../common/globalVars";
 import { getDefaultString, getLocalizedString } from "../common/localizeUtils";
@@ -58,8 +60,18 @@ import {
   resolveMCPAuthEndpoints,
 } from "../component/utils/mcpAuthScaffolder";
 import { pathUtils } from "../component/utils/pathUtils";
-import { UserCancelError, assembleError } from "../error/common";
-import { ActionStartOptions, QuestionNames } from "../question/constants";
+import {
+  AmbiguousOpenApiAuthCredentialError,
+  InapplicableOpenApiAuthCredentialError,
+  IncompleteOpenApiOAuthCredentialError,
+  UserCancelError,
+  assembleError,
+} from "../error/common";
+import {
+  ActionStartOptions,
+  AddAuthActionAuthTypeOptions,
+  QuestionNames,
+} from "../question/constants";
 import { CreateNewPluginManifestSentinel } from "../question/scaffold/vsc/teamsProjectTypeNode";
 import { ConcurrentLockerMW } from "./middleware/concurrentLocker";
 import { ErrorHandlerMW } from "./middleware/errorHandler";
@@ -74,7 +86,60 @@ export interface ScaffoldAddMcpServerFromV4Options {
   appName: string;
   mcpServerUrl: string;
   authType: string;
+  apiKey?: string;
+  oauthClientId?: string;
+  oauthClientSecret?: string;
+  oauthScopes?: string;
+  entraClientId?: string;
   resolvedPackage?: ResolvedV4ChannelPackage;
+}
+
+export function resolveOpenApiAuthCredentialSource(
+  authTypes: ("apiKey" | "oauth2")[],
+  inputs: Inputs
+): Result<AuthCredentialSource, FxError> {
+  const hasValue = (name: QuestionNames): boolean => {
+    const value = inputs[name];
+    return typeof value === "string" && value.trim().length > 0;
+  };
+  const hasApiKey = hasValue(QuestionNames.ApiSpecApiKey);
+  const hasOAuthClientId = hasValue(QuestionNames.OpenApiAuthClientId);
+  const hasOAuthDependentValue = [
+    QuestionNames.OpenApiAuthClientSecret,
+    QuestionNames.OpenApiAuthScopes,
+  ].some(hasValue);
+  const hasPKCE = inputs[QuestionNames.OpenApiAuthPKCE] === true;
+  const hasClientSecretInput = inputs[QuestionNames.OpenApiAuthClientSecret] !== undefined;
+  const hasScopesInput = inputs[QuestionNames.OpenApiAuthScopes] !== undefined;
+  const hasPKCEInput = inputs[QuestionNames.OpenApiAuthPKCE] !== undefined;
+  const isMicrosoftEntra =
+    inputs[QuestionNames.OpenApiAuthIdentityProvider] ===
+    AddAuthActionAuthTypeOptions.microsoftEntra().id;
+  const hasOAuthCredential = hasOAuthClientId || hasOAuthDependentValue || hasPKCE;
+  const hasScalarCredential = hasApiKey || hasOAuthCredential;
+  if (hasScalarCredential && authTypes.length !== 1) {
+    return err(new AmbiguousOpenApiAuthCredentialError());
+  }
+  if (
+    (hasApiKey && authTypes[0] !== "apiKey") ||
+    (hasOAuthCredential && authTypes[0] !== "oauth2")
+  ) {
+    return err(new InapplicableOpenApiAuthCredentialError());
+  }
+  if (
+    (isMicrosoftEntra && (hasClientSecretInput || hasScopesInput || hasPKCEInput)) ||
+    (hasPKCE && hasClientSecretInput)
+  ) {
+    return err(new InapplicableOpenApiAuthCredentialError());
+  }
+  if (
+    inputs.authCredentialSource === undefined &&
+    !hasOAuthClientId &&
+    (hasOAuthDependentValue || hasPKCE)
+  ) {
+    return err(new IncompleteOpenApiOAuthCredentialError());
+  }
+  return ok(inputs.authCredentialSource ?? (hasScalarCredential ? "environment" : "provision"));
 }
 
 function targetRelativePath(projectPath: string, filePath: string): string {
@@ -94,14 +159,23 @@ async function scaffoldAddMcpServerFromV4(
     onActionError: templateDefaultOnActionError,
   };
   try {
+    const teamsManifestPath = targetRelativePath(options.projectPath, options.teamsManifestPath);
+    const answers: Record<string, string | string[]> = {
+      mcpServerUrl: options.mcpServerUrl,
+      teamsManifestPath,
+      authType: String(options.authType),
+      ...(options.apiKey === undefined ? {} : { apiKey: options.apiKey }),
+      ...(options.oauthClientId === undefined ? {} : { oauthClientId: options.oauthClientId }),
+      ...(options.oauthClientSecret === undefined
+        ? {}
+        : { oauthClientSecret: options.oauthClientSecret }),
+      ...(options.oauthScopes === undefined ? {} : { oauthScopes: options.oauthScopes }),
+      ...(options.entraClientId === undefined ? {} : { entraClientId: options.entraClientId }),
+    };
     const source = await scaffoldDeclarativeFromV4Channel(
       context,
       { kind: "modify", templateId: options.templateId },
-      {
-        mcpServerUrl: options.mcpServerUrl,
-        teamsManifestPath: targetRelativePath(options.projectPath, options.teamsManifestPath),
-        authType: options.authType,
-      },
+      answers,
       { appName: options.appName, language: "common" },
       undefined,
       undefined,
@@ -420,7 +494,14 @@ export class FxCoreDeclarativeAgentPart {
     _projectPath: string,
     _apSpecPath: string,
     _pluginManifestPath: string,
-    _forceToAddNew?: boolean
+    _forceToAddNew?: boolean,
+    _apiKey?: string,
+    _authCredentialSource?: AuthCredentialSource,
+    _oauthClientId?: string,
+    _oauthClientSecret?: string,
+    _oauthScopes?: string,
+    _enablePKCE?: boolean,
+    _identityProvider?: string
   ): Promise<void> {
     throw new Error("Method not implemented.");
   }
@@ -508,6 +589,26 @@ export class FxCoreDeclarativeAgentPart {
       if (typeof authType === "string") {
         entryParams.authType = authType;
       }
+      const apiKey = inputs[QuestionNames.MCPForDAApiKey];
+      if (typeof apiKey === "string") {
+        entryParams.apiKey = apiKey;
+      }
+      const clientId = inputs[QuestionNames.MCPForDAClientId];
+      if (typeof clientId === "string") {
+        if (authType === "oauth") {
+          entryParams.oauthClientId = clientId;
+        } else if (authType === "entra-sso") {
+          entryParams.entraClientId = clientId;
+        }
+      }
+      const clientSecret = inputs[QuestionNames.MCPForDAClientSecret];
+      if (typeof clientSecret === "string") {
+        entryParams.oauthClientSecret = clientSecret;
+      }
+      const scopes = inputs[QuestionNames.MCPForDAScopes];
+      if (typeof scopes === "string") {
+        entryParams.oauthScopes = scopes;
+      }
       const appName = teamsManifest.name.short.replace("${{APP_NAME_SUFFIX}}", "");
 
       return await fxCoreDeclarativeAgentDeps.modifyProjectFrontDoor(
@@ -520,6 +621,11 @@ export class FxCoreDeclarativeAgentPart {
             const resolvedMcpServerUrl = answers.mcpServerUrl;
             const resolvedTeamsManifestPath = answers.teamsManifestPath;
             const resolvedAuthType = answers.authType;
+            const resolvedApiKey = answers.apiKey;
+            const resolvedOauthClientId = answers.oauthClientId;
+            const resolvedOauthClientSecret = answers.oauthClientSecret;
+            const resolvedOauthScopes = answers.oauthScopes;
+            const resolvedEntraClientId = answers.entraClientId;
             if (
               typeof resolvedMcpServerUrl !== "string" ||
               typeof resolvedTeamsManifestPath !== "string" ||
@@ -541,6 +647,19 @@ export class FxCoreDeclarativeAgentPart {
               appName,
               mcpServerUrl: resolvedMcpServerUrl,
               authType: resolvedAuthType,
+              ...(typeof resolvedApiKey === "string" ? { apiKey: resolvedApiKey } : {}),
+              ...(typeof resolvedOauthClientId === "string"
+                ? { oauthClientId: resolvedOauthClientId }
+                : {}),
+              ...(typeof resolvedOauthClientSecret === "string"
+                ? { oauthClientSecret: resolvedOauthClientSecret }
+                : {}),
+              ...(typeof resolvedOauthScopes === "string"
+                ? { oauthScopes: resolvedOauthScopes }
+                : {}),
+              ...(typeof resolvedEntraClientId === "string"
+                ? { entraClientId: resolvedEntraClientId }
+                : {}),
               resolvedPackage,
             });
           },
@@ -585,6 +704,22 @@ export class FxCoreDeclarativeAgentPart {
       );
       const listResult = await listAPIInfo(inputs[QuestionNames.ApiSpecLocation].trim());
       authNameAndSchemes = this.parseAuthNameAndScheme(listResult, inputs);
+      const credentialAuthTypes: ("apiKey" | "oauth2")[] = [];
+      for (const { authScheme } of authNameAndSchemes) {
+        if (
+          authScheme.type === "apiKey" ||
+          (authScheme.type === "http" && authScheme.scheme.toLowerCase() === "bearer")
+        ) {
+          credentialAuthTypes.push("apiKey");
+        } else if (authScheme.type === "oauth2") {
+          credentialAuthTypes.push("oauth2");
+        }
+      }
+      const credentialSourceRes = resolveOpenApiAuthCredentialSource(credentialAuthTypes, inputs);
+      if (credentialSourceRes.isErr()) {
+        return err(credentialSourceRes.error);
+      }
+      inputs.authCredentialSource = credentialSourceRes.value;
 
       if (authNameAndSchemes.length > 0) {
         const doesLocalYamlPathExists = await fs.pathExists(
@@ -649,6 +784,7 @@ export class FxCoreDeclarativeAgentPart {
         path.join(appPackageFolder, DefaultApiSpecFolderName)
       );
 
+      throwIfAborted(inputs);
       const generateRes = await openApiSpecHelperModule.generateFromApiSpec(
         specParser,
         teamsManifestPath,
@@ -693,7 +829,15 @@ export class FxCoreDeclarativeAgentPart {
           authNameAndScheme.authScheme,
           inputs.projectPath,
           destinationApiSpecPath,
-          destinationPluginManifestPath
+          destinationPluginManifestPath,
+          undefined,
+          inputs[QuestionNames.ApiSpecApiKey],
+          inputs.authCredentialSource,
+          inputs[QuestionNames.OpenApiAuthClientId],
+          inputs[QuestionNames.OpenApiAuthClientSecret],
+          inputs[QuestionNames.OpenApiAuthScopes],
+          inputs[QuestionNames.OpenApiAuthPKCE],
+          inputs[QuestionNames.OpenApiAuthIdentityProvider]
         );
       }
     } else if (isGenerateFromMCP) {
@@ -771,7 +915,7 @@ export class FxCoreDeclarativeAgentPart {
           if (needsMetadataProbe && !inputs[QuestionNames.MCPForDAAuthMetadataUrl]) {
             try {
               const { probeMCPServerAuth } = await import("../component/utils/mcpToolFetcher");
-              const authProbe = await probeMCPServerAuth(mcpServerUrl);
+              const authProbe = await probeMCPServerAuth(mcpServerUrl, getAbortSignal(inputs));
               if (authProbe.authMetadataUrl) {
                 inputs[QuestionNames.MCPForDAAuthMetadataUrl] = authProbe.authMetadataUrl;
               }
@@ -809,11 +953,13 @@ export class FxCoreDeclarativeAgentPart {
               ),
             });
           }
+          // Everything below updates project files. Once this gate passes, finish the
+          // mutation sequence so cancellation cannot leave half-written auth configuration.
+          throwIfAborted(inputs);
           try {
             const ymlPath = pathUtils.getYmlFilePath(inputs.projectPath);
             if (ymlPath) {
-              const injectResult = await injectMCPAuthActionToYml({
-                ymlPath,
+              const injectArgs = {
                 authType,
                 authName: namespace,
                 registrationId,
@@ -822,7 +968,13 @@ export class FxCoreDeclarativeAgentPart {
                 persistCredentialEnvRefs: true,
                 serverName,
                 scopes: inputs[QuestionNames.MCPForDAScopes],
-              });
+                apiKey: inputs[QuestionNames.MCPForDAApiKey],
+              };
+              const injectResult = await injectMCPAuthActionToYml({ ...injectArgs, ymlPath });
+              const localYmlPath = pathUtils.getYmlFilePath(inputs.projectPath, "local", true);
+              if (localYmlPath && localYmlPath !== ymlPath && (await fs.pathExists(localYmlPath))) {
+                await injectMCPAuthActionToYml({ ...injectArgs, ymlPath: localYmlPath });
+              }
               if (injectResult.wellKnownUrlPlaceholderUsed) {
                 mcpWarnings.push({
                   type: "mcpAuthDcrWellKnownUrlPlaceholder",
@@ -856,6 +1008,7 @@ export class FxCoreDeclarativeAgentPart {
               clientId: inputs[QuestionNames.MCPForDAClientId],
               clientSecret: inputs[QuestionNames.MCPForDAClientSecret],
               scopes: inputs[QuestionNames.MCPForDAScopes],
+              apiKey: inputs[QuestionNames.MCPForDAApiKey],
             });
           } catch (error: any) {
             mcpWarnings.push({
@@ -914,7 +1067,7 @@ export class FxCoreDeclarativeAgentPart {
         ) {
           try {
             const { probeMCPServerAuth } = await import("../component/utils/mcpToolFetcher");
-            const authProbe = await probeMCPServerAuth(mcpServerUrl);
+            const authProbe = await probeMCPServerAuth(mcpServerUrl, getAbortSignal(inputs));
             if (authProbe.requiresAuth) {
               inputs[QuestionNames.MCPForDAAuth] = "OAuthPluginVault";
               if (authProbe.authMetadataUrl) {
@@ -931,7 +1084,7 @@ export class FxCoreDeclarativeAgentPart {
         if ((!currentTools || currentTools.length === 0) && mcpServerUrl) {
           try {
             const { fetchMCPTools } = await import("../component/utils/mcpToolFetcher");
-            const result = await fetchMCPTools(mcpServerUrl);
+            const result = await fetchMCPTools(mcpServerUrl, getAbortSignal(inputs));
             if (!result.requiresAuth && result.tools.length > 0) {
               inputs[QuestionNames.MCPForDAAvailableTools] = result.tools;
               if (!inputs[QuestionNames.MCPForDAPreFetchTools]) {
@@ -972,6 +1125,8 @@ export class FxCoreDeclarativeAgentPart {
             });
           }
         }
+
+        throwIfAborted(inputs);
 
         // If no tools available (auth required or fetch failed), skip creating plugin - just warn
         const mcpTools = inputs[QuestionNames.MCPForDAAvailableTools];
@@ -1056,14 +1211,22 @@ export class FxCoreDeclarativeAgentPart {
               const endpoints = await resolveMCPAuthEndpoints(authType, inputs);
               const ymlPath = pathUtils.getYmlFilePath(inputs.projectPath);
               if (ymlPath) {
-                const injectResult = await injectMCPAuthActionToYml({
-                  ymlPath,
+                const injectArgs = {
                   authType,
                   authName: actionId,
                   registrationId,
                   mcpServerUrl,
                   endpoints,
-                });
+                };
+                const injectResult = await injectMCPAuthActionToYml({ ...injectArgs, ymlPath });
+                const localYmlPath = pathUtils.getYmlFilePath(inputs.projectPath, "local", true);
+                if (
+                  localYmlPath &&
+                  localYmlPath !== ymlPath &&
+                  (await fs.pathExists(localYmlPath))
+                ) {
+                  await injectMCPAuthActionToYml({ ...injectArgs, ymlPath: localYmlPath });
+                }
                 if (injectResult.wellKnownUrlPlaceholderUsed) {
                   mcpWarnings.push({
                     type: "mcpAuthDcrWellKnownUrlPlaceholder",
@@ -1153,7 +1316,7 @@ export class FxCoreDeclarativeAgentPart {
         .showMessage("info", successMessage, false, viewPluginManifest)
         .then((userRes) => {
           if (userRes.isOk() && userRes.value === viewPluginManifest) {
-            context.telemetryReporter.sendTelemetryEvent(
+            context.telemetryReporter?.sendTelemetryEvent(
               TelemetryEvent.ViewPluginManifestAfterAdded
             );
             void TOOLS?.ui?.openFile?.(destinationPluginManifestPath);
@@ -1219,7 +1382,6 @@ export class FxCoreDeclarativeAgentPart {
         mcpConfig = { servers: {} };
       }
     }
-
     // Ensure unique server entry name to avoid overwriting an existing one.
     let uniqueName = serverName;
     let suffix = 1;
@@ -1231,6 +1393,7 @@ export class FxCoreDeclarativeAgentPart {
       url: mcpServerUrl,
     };
 
+    throwIfAborted(inputs);
     await fs.ensureDir(mcpConfigDir);
     await fs.writeJSON(mcpConfigPath, mcpConfig, { spaces: 2 });
 

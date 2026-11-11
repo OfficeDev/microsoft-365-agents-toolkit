@@ -1,7 +1,9 @@
 # Agent Templates Reference
 
+Delegate every DA to the WIQD plugin except an explicitly requested TypeSpec DA. The plugin coordinates Azure and Entra skills when the DA needs a new backend.
+
 ## Contents
-- CLI Capabilities (all atk new -c options)
+- CLI Capabilities (ATK-routed options)
 - Declarative Agents (creating, options)
 - Custom Engine Agents (creating, languages)
 - Teams Agents (creating, languages)
@@ -11,19 +13,14 @@
 
 ## CLI Capabilities (atk new -c)
 
-Use `atk new -c <capability>` to create projects. Available capabilities:
+For entries routed to ATK, use `atk new -c <capability>`. Among DAs, only `declarative-agent-typespec` is routed to ATK; the other DA entries below are retained for legacy recognition, not direct selection.
 
 | Capability | Description |
 |------------|-------------|
-| `declarative-agent` | Declarative Agent |
-| `declarative-agent-action` | Declarative Agent with Action from Scratch |
-| `declarative-agent-action-bearer` | Declarative Agent with Action from Scratch (Bearer Token) |
-| `declarative-agent-action-oauth` | Declarative Agent with Action from Scratch (OAuth) |
-| `declarative-agent-action-from-existing-api` | Declarative Agent with Action from Existing API |
-| `declarative-agent-with-action-from-mcp` | Declarative Agent with Action from MCP Server |
-| `declarative-agent-with-graph-connector` | Declarative Agent with Copilot Connector |
-| `declarative-agent-meta-os-new-project` | Declarative Agent for MetaOS (New Project) |
-| `declarative-agent-meta-os-upgrade-project` | Declarative Agent for MetaOS (Upgrade Project) |
+| `declarative-agent-action` | Declarative Agent with project-owned Action from Scratch |
+| `declarative-agent-action-bearer` | Declarative Agent with project-owned Action from Scratch (Bearer Token) |
+| `declarative-agent-action-oauth` | Declarative Agent with project-owned Action from Scratch (OAuth) |
+| `declarative-agent-with-graph-connector` | DA with a new project-owned Copilot Connector backend |
 | `declarative-agent-typespec` | Declarative Agent from TypeSpec |
 | `basic-custom-engine-agent` | Basic Custom Engine Agent |
 | `weather-agent` | Weather Agent |
@@ -48,33 +45,9 @@ Use `atk new -c <capability>` to create projects. Available capabilities:
 
 ### Creating a Declarative Agent
 
-```bash
-# Basic declarative agent (no backend service needed)
-atk new -c declarative-agent -n myagent -i false
+Invoke the `wiqd` skill for every DA except TypeSpec and let the plugin own creation, actions, and the remaining lifecycle. This includes new Azure-hosted API backends, existing OpenAPI or MCP services, and Copilot Connector scenarios. The plugin coordinates Azure and Entra skills when external backend or identity work is required. Follow [declarative-agent-lifecycle.md](declarative-agent-lifecycle.md) for the routing boundary.
 
-# Declarative agent with new API plugin (creates backend)
-atk new -c declarative-agent-action -l typescript -n myagent -i false
-
-# Declarative agent with existing OpenAPI spec (requires -a and -o with operation IDs)
-# First inspect the OpenAPI spec to find operation IDs, then pass them:
-atk new -c declarative-agent-action-from-existing-api -n myagent -a <openapi-spec-url-or-path> -o "GET /repairs" -o "POST /repairs" -i false
-
-# Declarative agent with MCP Server
-atk new -c declarative-agent-with-action-from-mcp -n myagent -i false
-```
-
-**Important Notes:**
-- Basic declarative agents (`declarative-agent`) do NOT require a programming language
-- `declarative-agent-action`: Use `-l typescript/javascript/csharp` (creates new backend API)
-- `declarative-agent-action-from-existing-api`: Requires `-a` (OpenAPI spec) and `-o` (operation IDs from the spec, e.g., `"GET /repairs"`)
-
-### Declarative Agent Options
-
-| Option | Values | Description |
-|--------|--------|-------------|
-| `--openapi-spec-location -a` | file path or URL | **Required for existing API**: OpenAPI spec location |
-| `--api-operation -o` | operation IDs (e.g., `"GET /path"`) | **Required for existing API**: Actual operation IDs from OpenAPI spec. Use multiple `-o` for multiple operations |
-| `--api-auth` | `none`, `api-key`, `bearer-token`, `oauth` | API authentication type |
+Use `atk new -c declarative-agent-typespec` only when the user explicitly requests a TypeSpec DA.
 
 ## Custom Engine Agents (M365 SDK-based)
 
@@ -178,7 +151,6 @@ atk new -c office-addin-sso-naa -l typescript -n myaddin -i false
 1. **Use non-interactive mode** - Always use `-i false` for scripted creation
 
 2. **Match language to capability**:
-   - Basic declarative agents (`declarative-agent`): NO language flag needed
    - API plugin agents (`declarative-agent-action`): `-l typescript/javascript/csharp`
    - Custom Engine agents: `-l typescript/javascript/python`
    - Teams agents: `-l typescript/javascript/csharp/python`

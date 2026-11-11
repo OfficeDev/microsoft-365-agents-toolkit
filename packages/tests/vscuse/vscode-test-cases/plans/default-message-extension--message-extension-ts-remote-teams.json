@@ -8,11 +8,11 @@
       "precondition_wait_timeout": 30,
       "precondition_retry_interval": 1
     },
-    "total_steps": 149,
+    "total_steps": 163,
     "name": "message-extension-ts-remote-teams",
     "description": {
       "owner": "",
-      "workitem": "SCN-CREATE-MESSAGE-EXTENSION-01",
+      "workitem": "35692309",
       "other": ""
     },
     "execution_order": [
@@ -89,9 +89,13 @@
       "step_signInM365FromPicker_assertOption_c62609d07_4_2",
       "step_signInM365FromPicker_selectOption_c62609d07_4_2",
       "step_signInM365FromPicker_confirmSignIn_c62609d07_4_2",
+      "step_signInM365FromPicker_assertAccountPicker_c62609d07_4_2",
       "step_signInM365FromPicker_useAnotherAccount_c62609d07_4_2",
+      "step_signInM365FromPicker_assertFocusedAccount_c62609d07_4_2",
       "step_signInM365FromPicker_typeAccount_c62609d07_4_2",
+      "step_signInM365FromPicker_assertEnteredAccount_c62609d07_4_2",
       "step_signInM365FromPicker_next_c62609d07_4_2",
+      "step_signInM365FromPicker_assertPassword_c62609d07_4_2",
       "step_signInM365FromPicker_typePassword_c62609d07_4_2",
       "step_signInM365FromPicker_submit_c62609d07_4_2",
       "step_signInM365FromPicker_closeBrowser_c62609d07_4_2",
@@ -164,7 +168,17 @@
       "step_addAndOpenApp_add_c62609d07_8_1",
       "step_addAndOpenApp_assertAdded_c62609d07_8_1",
       "step_addAndOpenApp_open_c62609d07_8_1",
-      "step_addAndOpenApp_assertReady_c62609d07_8_1"
+      "step_addAndOpenApp_assertReady_c62609d07_8_1",
+      "step_validateMessageExtensionTeamsTypeScript_01_c62609d07_9_1",
+      "step_validateMessageExtensionTeamsTypeScript_02_c62609d07_9_1",
+      "step_validateMessageExtensionTeamsTypeScript_03_c62609d07_9_1",
+      "step_validateMessageExtensionTeamsTypeScript_04_c62609d07_9_1",
+      "step_validateMessageExtensionTeamsTypeScript_05_c62609d07_9_1",
+      "step_validateMessageExtensionTeamsTypeScript_06_c62609d07_9_1",
+      "step_validateMessageExtensionTeamsTypeScript_07_c62609d07_9_1",
+      "step_validateMessageExtensionTeamsTypeScript_08_c62609d07_9_1",
+      "step_validateMessageExtensionTeamsTypeScript_09_c62609d07_9_1",
+      "step_validateMessageExtensionTeamsTypeScript_10_c62609d07_9_1"
     ],
     "tags": [
       "case_id:message-extension-ts-remote-teams",
@@ -1114,7 +1128,7 @@
       "parameters": {
         "sample": "=== Generated Script ===\nLanguage: bash\n\n```bash\nset -euo pipefail\nPROJECT_DIR=\"/home/vscode/AgentsToolkitProjects/${{var:app_name}}\" ASSERTIONS_B64=\"W3sicGF0aCI6Im0zNjVhZ2VudHMueW1sIiwiZXhpc3RzIjp0cnVlLCJjb250YWlucyI6WyJ2ZXJzaW9uOiB2MS4xMSIsInByb3Zpc2lvbjoiLCJkZXBsb3k6Il0sIm5vdENvbnRhaW5zIjpbXX1d\" python3 - <<'PY'\nimport base64\nimport json\nimport os\nfrom pathlib import Path\n\nproject = Path(os.environ[\"PROJECT_DIR\"]).resolve()\nassertions = json.loads(base64.b64decode(os.environ[\"ASSERTIONS_B64\"]).decode(\"utf-8\"))\nfor assertion in assertions:\n    target = (project / assertion[\"path\"]).resolve()\n    try:\n        target.relative_to(project)\n    except ValueError as error:\n        raise AssertionError(\"File assertion escaped the project directory\") from error\n    exists = target.is_file()\n    if exists != assertion[\"exists\"]:\n        raise AssertionError(f\"Unexpected file existence for {assertion['path']}\")\n    if not exists:\n        continue\n    content = target.read_text(encoding=\"utf-8\")\n    for expected in assertion.get(\"contains\", []):\n        expected = expected.replace(\"__VSCUSE_APP_NAME__\", project.name)\n        if expected not in content:\n            raise AssertionError(f\"Expected content is absent from {assertion['path']}\")\n    for unexpected in assertion.get(\"notContains\", []):\n        unexpected = unexpected.replace(\"__VSCUSE_APP_NAME__\", project.name)\n        if unexpected in content:\n            raise AssertionError(f\"Unexpected content is present in {assertion['path']}\")\nPY\n```"
       },
-      "description": "@code verify the authored workspace file existence and content assertions without logging file contents.",
+      "description": "@code execute the supplied generated bash script exactly as authored and read its exact PROJECT_DIR under /home/vscode/AgentsToolkitProjects/ from that script; verify its project-relative file assertions, project files are not VS Code .code-workspace files, do not use /workspace, and do not log file contents.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -1137,7 +1151,7 @@
       "parameters": {
         "sample": "=== Generated Script ===\nLanguage: bash\n\n```bash\nset -euo pipefail\nPROJECT_DIR=\"/home/vscode/AgentsToolkitProjects/${{var:app_name}}\" ASSERTIONS_B64=\"W3sicGF0aCI6InNyYy9pbmRleC50cyIsImV4aXN0cyI6dHJ1ZSwiY29udGFpbnMiOlsiYXBwLm9uKFwibWVzc2FnZS5leHQucXVlcnlcIiJdLCJub3RDb250YWlucyI6W119XQ==\" python3 - <<'PY'\nimport base64\nimport json\nimport os\nfrom pathlib import Path\n\nproject = Path(os.environ[\"PROJECT_DIR\"]).resolve()\nassertions = json.loads(base64.b64decode(os.environ[\"ASSERTIONS_B64\"]).decode(\"utf-8\"))\nfor assertion in assertions:\n    target = (project / assertion[\"path\"]).resolve()\n    try:\n        target.relative_to(project)\n    except ValueError as error:\n        raise AssertionError(\"File assertion escaped the project directory\") from error\n    exists = target.is_file()\n    if exists != assertion[\"exists\"]:\n        raise AssertionError(f\"Unexpected file existence for {assertion['path']}\")\n    if not exists:\n        continue\n    content = target.read_text(encoding=\"utf-8\")\n    for expected in assertion.get(\"contains\", []):\n        expected = expected.replace(\"__VSCUSE_APP_NAME__\", project.name)\n        if expected not in content:\n            raise AssertionError(f\"Expected content is absent from {assertion['path']}\")\n    for unexpected in assertion.get(\"notContains\", []):\n        unexpected = unexpected.replace(\"__VSCUSE_APP_NAME__\", project.name)\n        if unexpected in content:\n            raise AssertionError(f\"Unexpected content is present in {assertion['path']}\")\nPY\n```"
       },
-      "description": "@code verify the authored workspace file existence and content assertions without logging file contents.",
+      "description": "@code execute the supplied generated bash script exactly as authored and read its exact PROJECT_DIR under /home/vscode/AgentsToolkitProjects/ from that script; verify its project-relative file assertions, project files are not VS Code .code-workspace files, do not use /workspace, and do not log file contents.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -1160,7 +1174,7 @@
       "parameters": {
         "sample": "=== Generated Script ===\nLanguage: bash\n\n```bash\nset -euo pipefail\nPROJECT_DIR=\"/home/vscode/AgentsToolkitProjects/${{var:app_name}}\" ASSERTIONS_B64=\"W3sicGF0aCI6InNyYy9jYXJkLnRzIiwiZXhpc3RzIjp0cnVlLCJjb250YWlucyI6W10sIm5vdENvbnRhaW5zIjpbXX1d\" python3 - <<'PY'\nimport base64\nimport json\nimport os\nfrom pathlib import Path\n\nproject = Path(os.environ[\"PROJECT_DIR\"]).resolve()\nassertions = json.loads(base64.b64decode(os.environ[\"ASSERTIONS_B64\"]).decode(\"utf-8\"))\nfor assertion in assertions:\n    target = (project / assertion[\"path\"]).resolve()\n    try:\n        target.relative_to(project)\n    except ValueError as error:\n        raise AssertionError(\"File assertion escaped the project directory\") from error\n    exists = target.is_file()\n    if exists != assertion[\"exists\"]:\n        raise AssertionError(f\"Unexpected file existence for {assertion['path']}\")\n    if not exists:\n        continue\n    content = target.read_text(encoding=\"utf-8\")\n    for expected in assertion.get(\"contains\", []):\n        expected = expected.replace(\"__VSCUSE_APP_NAME__\", project.name)\n        if expected not in content:\n            raise AssertionError(f\"Expected content is absent from {assertion['path']}\")\n    for unexpected in assertion.get(\"notContains\", []):\n        unexpected = unexpected.replace(\"__VSCUSE_APP_NAME__\", project.name)\n        if unexpected in content:\n            raise AssertionError(f\"Unexpected content is present in {assertion['path']}\")\nPY\n```"
       },
-      "description": "@code verify the authored workspace file existence and content assertions without logging file contents.",
+      "description": "@code execute the supplied generated bash script exactly as authored and read its exact PROJECT_DIR under /home/vscode/AgentsToolkitProjects/ from that script; verify its project-relative file assertions, project files are not VS Code .code-workspace files, do not use /workspace, and do not log file contents.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -1183,7 +1197,7 @@
       "parameters": {
         "sample": "=== Generated Script ===\nLanguage: bash\n\n```bash\nset -euo pipefail\nPROJECT_DIR=\"/home/vscode/AgentsToolkitProjects/${{var:app_name}}\" ASSERTIONS_B64=\"W3sicGF0aCI6InBhY2thZ2UuanNvbiIsImV4aXN0cyI6dHJ1ZSwiY29udGFpbnMiOltdLCJub3RDb250YWlucyI6W119XQ==\" python3 - <<'PY'\nimport base64\nimport json\nimport os\nfrom pathlib import Path\n\nproject = Path(os.environ[\"PROJECT_DIR\"]).resolve()\nassertions = json.loads(base64.b64decode(os.environ[\"ASSERTIONS_B64\"]).decode(\"utf-8\"))\nfor assertion in assertions:\n    target = (project / assertion[\"path\"]).resolve()\n    try:\n        target.relative_to(project)\n    except ValueError as error:\n        raise AssertionError(\"File assertion escaped the project directory\") from error\n    exists = target.is_file()\n    if exists != assertion[\"exists\"]:\n        raise AssertionError(f\"Unexpected file existence for {assertion['path']}\")\n    if not exists:\n        continue\n    content = target.read_text(encoding=\"utf-8\")\n    for expected in assertion.get(\"contains\", []):\n        expected = expected.replace(\"__VSCUSE_APP_NAME__\", project.name)\n        if expected not in content:\n            raise AssertionError(f\"Expected content is absent from {assertion['path']}\")\n    for unexpected in assertion.get(\"notContains\", []):\n        unexpected = unexpected.replace(\"__VSCUSE_APP_NAME__\", project.name)\n        if unexpected in content:\n            raise AssertionError(f\"Unexpected content is present in {assertion['path']}\")\nPY\n```"
       },
-      "description": "@code verify the authored workspace file existence and content assertions without logging file contents.",
+      "description": "@code execute the supplied generated bash script exactly as authored and read its exact PROJECT_DIR under /home/vscode/AgentsToolkitProjects/ from that script; verify its project-relative file assertions, project files are not VS Code .code-workspace files, do not use /workspace, and do not log file contents.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -1206,7 +1220,7 @@
       "parameters": {
         "sample": "=== Generated Script ===\nLanguage: bash\n\n```bash\nset -euo pipefail\nPROJECT_DIR=\"/home/vscode/AgentsToolkitProjects/${{var:app_name}}\" ASSERTIONS_B64=\"W3sicGF0aCI6ImluZnJhL2F6dXJlLmJpY2VwIiwiZXhpc3RzIjp0cnVlLCJjb250YWlucyI6W10sIm5vdENvbnRhaW5zIjpbXX1d\" python3 - <<'PY'\nimport base64\nimport json\nimport os\nfrom pathlib import Path\n\nproject = Path(os.environ[\"PROJECT_DIR\"]).resolve()\nassertions = json.loads(base64.b64decode(os.environ[\"ASSERTIONS_B64\"]).decode(\"utf-8\"))\nfor assertion in assertions:\n    target = (project / assertion[\"path\"]).resolve()\n    try:\n        target.relative_to(project)\n    except ValueError as error:\n        raise AssertionError(\"File assertion escaped the project directory\") from error\n    exists = target.is_file()\n    if exists != assertion[\"exists\"]:\n        raise AssertionError(f\"Unexpected file existence for {assertion['path']}\")\n    if not exists:\n        continue\n    content = target.read_text(encoding=\"utf-8\")\n    for expected in assertion.get(\"contains\", []):\n        expected = expected.replace(\"__VSCUSE_APP_NAME__\", project.name)\n        if expected not in content:\n            raise AssertionError(f\"Expected content is absent from {assertion['path']}\")\n    for unexpected in assertion.get(\"notContains\", []):\n        unexpected = unexpected.replace(\"__VSCUSE_APP_NAME__\", project.name)\n        if unexpected in content:\n            raise AssertionError(f\"Unexpected content is present in {assertion['path']}\")\nPY\n```"
       },
-      "description": "@code verify the authored workspace file existence and content assertions without logging file contents.",
+      "description": "@code execute the supplied generated bash script exactly as authored and read its exact PROJECT_DIR under /home/vscode/AgentsToolkitProjects/ from that script; verify its project-relative file assertions, project files are not VS Code .code-workspace files, do not use /workspace, and do not log file contents.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -1227,9 +1241,9 @@
       "agent": "code",
       "tool": "",
       "parameters": {
-        "sample": "=== Generated Script ===\nLanguage: bash\n\n```bash\nset -euo pipefail\nPROJECT_DIR=\"/home/vscode/AgentsToolkitProjects/${{var:app_name}}\" ASSERTIONS_B64=\"W3sicGF0aCI6ImFwcFBhY2thZ2UvbWFuaWZlc3QuanNvbiIsImV4aXN0cyI6dHJ1ZSwiY29udGFpbnMiOlsiXCJtYW5pZmVzdFZlcnNpb25cIjogXCIxLjI5XCIiLCJcImNvbXBvc2VFeHRlbnNpb25zXCI6IFsiXSwibm90Q29udGFpbnMiOltdfV0=\" python3 - <<'PY'\nimport base64\nimport json\nimport os\nfrom pathlib import Path\n\nproject = Path(os.environ[\"PROJECT_DIR\"]).resolve()\nassertions = json.loads(base64.b64decode(os.environ[\"ASSERTIONS_B64\"]).decode(\"utf-8\"))\nfor assertion in assertions:\n    target = (project / assertion[\"path\"]).resolve()\n    try:\n        target.relative_to(project)\n    except ValueError as error:\n        raise AssertionError(\"File assertion escaped the project directory\") from error\n    exists = target.is_file()\n    if exists != assertion[\"exists\"]:\n        raise AssertionError(f\"Unexpected file existence for {assertion['path']}\")\n    if not exists:\n        continue\n    content = target.read_text(encoding=\"utf-8\")\n    for expected in assertion.get(\"contains\", []):\n        expected = expected.replace(\"__VSCUSE_APP_NAME__\", project.name)\n        if expected not in content:\n            raise AssertionError(f\"Expected content is absent from {assertion['path']}\")\n    for unexpected in assertion.get(\"notContains\", []):\n        unexpected = unexpected.replace(\"__VSCUSE_APP_NAME__\", project.name)\n        if unexpected in content:\n            raise AssertionError(f\"Unexpected content is present in {assertion['path']}\")\nPY\n```"
+        "sample": "=== Generated Script ===\nLanguage: bash\n\n```bash\nset -euo pipefail\nPROJECT_DIR=\"/home/vscode/AgentsToolkitProjects/${{var:app_name}}\" ASSERTIONS_B64=\"W3sicGF0aCI6ImFwcFBhY2thZ2UvbWFuaWZlc3QuanNvbiIsImV4aXN0cyI6dHJ1ZSwiY29udGFpbnMiOlsiXCJtYW5pZmVzdFZlcnNpb25cIjogXCIxLjMwXCIiLCJcImNvbXBvc2VFeHRlbnNpb25zXCI6IFsiXSwibm90Q29udGFpbnMiOltdfV0=\" python3 - <<'PY'\nimport base64\nimport json\nimport os\nfrom pathlib import Path\n\nproject = Path(os.environ[\"PROJECT_DIR\"]).resolve()\nassertions = json.loads(base64.b64decode(os.environ[\"ASSERTIONS_B64\"]).decode(\"utf-8\"))\nfor assertion in assertions:\n    target = (project / assertion[\"path\"]).resolve()\n    try:\n        target.relative_to(project)\n    except ValueError as error:\n        raise AssertionError(\"File assertion escaped the project directory\") from error\n    exists = target.is_file()\n    if exists != assertion[\"exists\"]:\n        raise AssertionError(f\"Unexpected file existence for {assertion['path']}\")\n    if not exists:\n        continue\n    content = target.read_text(encoding=\"utf-8\")\n    for expected in assertion.get(\"contains\", []):\n        expected = expected.replace(\"__VSCUSE_APP_NAME__\", project.name)\n        if expected not in content:\n            raise AssertionError(f\"Expected content is absent from {assertion['path']}\")\n    for unexpected in assertion.get(\"notContains\", []):\n        unexpected = unexpected.replace(\"__VSCUSE_APP_NAME__\", project.name)\n        if unexpected in content:\n            raise AssertionError(f\"Unexpected content is present in {assertion['path']}\")\nPY\n```"
       },
-      "description": "@code verify the authored workspace file existence and content assertions without logging file contents.",
+      "description": "@code execute the supplied generated bash script exactly as authored and read its exact PROJECT_DIR under /home/vscode/AgentsToolkitProjects/ from that script; verify its project-relative file assertions, project files are not VS Code .code-workspace files, do not use /workspace, and do not log file contents.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -1831,6 +1845,27 @@
       ]
     },
     {
+      "step_id": "step_signInM365FromPicker_assertAccountPicker_c62609d07_4_2",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the Microsoft Pick an account page is visible in Chrome with a Use another account option.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_signInM365FromPicker_confirmSignIn_c62609d07_4_2"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:authentication",
+        "account:m365",
+        "step_retry_timeout: 60"
+      ]
+    },
+    {
       "step_id": "step_signInM365FromPicker_useAnotherAccount_c62609d07_4_2",
       "agent": "interaction",
       "tool": "click",
@@ -1845,18 +1880,35 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_signInM365FromPicker_confirmSignIn_c62609d07_4_2"
+        "step_signInM365FromPicker_assertAccountPicker_c62609d07_4_2"
       ],
-      "preconditions": [
-        "dhash:447:487:16:5:ac534b4aaaaa6a15",
-        "dhash:447:487:96:5:0100228d15a20000",
-        "dhash:447:487:0:10:1312e8d89ed6e6e4"
-      ],
+      "preconditions": [],
       "postconditions": [],
       "tags": [
         "component:authentication",
         "account:m365",
-        "precondition_wait_timeout: 60"
+        "ocr:true"
+      ]
+    },
+    {
+      "step_id": "step_signInM365FromPicker_assertFocusedAccount_c62609d07_4_2",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the Microsoft Sign in page is visible in Chrome with an email or username input that is focused and a Next button.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_signInM365FromPicker_useAnotherAccount_c62609d07_4_2"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:authentication",
+        "account:m365",
+        "step_retry_timeout: 60"
       ]
     },
     {
@@ -1872,16 +1924,35 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_signInM365FromPicker_useAnotherAccount_c62609d07_4_2"
+        "step_signInM365FromPicker_assertFocusedAccount_c62609d07_4_2"
       ],
-      "preconditions": [
-        "dhash:512:384:0:20:1392f8d8c6e6dae4"
-      ],
+      "preconditions": [],
       "postconditions": [],
       "tags": [
         "component:authentication",
         "account:m365",
         "delay: 3"
+      ]
+    },
+    {
+      "step_id": "step_signInM365FromPicker_assertEnteredAccount_c62609d07_4_2",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the Microsoft Sign in page in Chrome shows ${{env:M365_ACCOUNT_NAME}} in the account input and a Next button.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_signInM365FromPicker_typeAccount_c62609d07_4_2"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:authentication",
+        "account:m365",
+        "step_retry_timeout: 60"
       ]
     },
     {
@@ -1893,24 +1964,42 @@
         "x": 655,
         "y": 505
       },
-      "description": "Click the blue \"Next\" button on the Microsoft sign-in page, confirming the entered email address for login.",
+      "description": "Click the blue Next button on the Microsoft Sign in page in Chrome to continue with the entered account.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_signInM365FromPicker_typeAccount_c62609d07_4_2"
+        "step_signInM365FromPicker_assertEnteredAccount_c62609d07_4_2"
       ],
-      "preconditions": [
-        "dhash:655:505:16:5:0000000080400020",
-        "dhash:655:505:96:5:0000408bcb4b0000",
-        "dhash:655:505:0:10:1392f8d8c7e6dae4"
-      ],
+      "preconditions": [],
       "postconditions": [],
       "tags": [
         "component:authentication",
         "account:m365",
-        "delay:3"
+        "delay:3",
+        "ocr:true"
+      ]
+    },
+    {
+      "step_id": "step_signInM365FromPicker_assertPassword_c62609d07_4_2",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the Microsoft Sign in page in Chrome shows ${{env:M365_ACCOUNT_NAME}} and a password input that is visible and focused.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_signInM365FromPicker_next_c62609d07_4_2"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:authentication",
+        "account:m365",
+        "step_retry_timeout: 120"
       ]
     },
     {
@@ -1926,11 +2015,9 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_signInM365FromPicker_next_c62609d07_4_2"
+        "step_signInM365FromPicker_assertPassword_c62609d07_4_2"
       ],
-      "preconditions": [
-        "dhash:512:384:0:20:1392e8d8d9f6e6e4"
-      ],
+      "preconditions": [],
       "postconditions": [],
       "tags": [
         "component:authentication",
@@ -1953,9 +2040,7 @@
       "depends_on": [
         "step_signInM365FromPicker_typePassword_c62609d07_4_2"
       ],
-      "preconditions": [
-        "dhash:512:384:0:20:1392e8d8d9f6e6e4"
-      ],
+      "preconditions": [],
       "postconditions": [],
       "tags": [
         "component:authentication",
@@ -2665,7 +2750,7 @@
       "agent": "assertion",
       "tool": "",
       "parameters": {},
-      "description": "@assertion a visible Visual Studio Code notification contains provision stage executed successfully.",
+      "description": "@assertion a visible Visual Studio Code notification contains the literal text provision stage executed successfully. A notification with different text, including an in-progress notification, does not satisfy this assertion.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -3053,7 +3138,7 @@
       "agent": "assertion",
       "tool": "",
       "parameters": {},
-      "description": "@assertion a visible Visual Studio Code notification contains actions in deploy stage executed successfully.",
+      "description": "@assertion a visible Visual Studio Code notification contains the literal text actions in deploy stage executed successfully. A notification with different text, including an in-progress notification, does not satisfy this assertion.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -3512,6 +3597,289 @@
         "host_surface:teams",
         "readiness:chat-ready",
         "step_retry_timeout: 180"
+      ]
+    },
+    {
+      "step_id": "step_validateMessageExtensionTeamsTypeScript_01_c62609d07_9_1",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 877,
+        "y": 724
+      },
+      "description": "Click the \"Actions and apps\" button (+ icon) in the message input area toolbar of the Microsoft Teams web chat interface.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "0",
+      "depends_on": [
+        "step_addAndOpenApp_assertReady_c62609d07_8_1"
+      ],
+      "preconditions": [
+        "dhash:877:724:16:5:0404200404010000",
+        "dhash:877:724:96:5:5644202424910000",
+        "dhash:877:724:0:10:20b4b08080ac2da1"
+      ],
+      "postconditions": [],
+      "tags": [
+        "component:browser",
+        "host_surface:teams",
+        "recording_language:typescript",
+        "entry_state:chat-ready",
+        "check:message-extension"
+      ]
+    },
+    {
+      "step_id": "step_validateMessageExtensionTeamsTypeScript_02_c62609d07_9_1",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 780,
+        "y": 386
+      },
+      "description": "Click the search box labeled \"Search for apps\" within the Apps panel of the Microsoft Teams web interface.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "0",
+      "depends_on": [
+        "step_validateMessageExtensionTeamsTypeScript_01_c62609d07_9_1"
+      ],
+      "preconditions": [
+        "dhash:780:386:16:5:ec315b4a5a32cc92",
+        "dhash:780:386:96:5:000014cbcb1400b7",
+        "dhash:780:386:0:10:20b4b08083a32da1"
+      ],
+      "postconditions": [],
+      "tags": [
+        "component:browser",
+        "host_surface:teams",
+        "recording_language:typescript",
+        "entry_state:chat-ready",
+        "check:message-extension"
+      ]
+    },
+    {
+      "step_id": "step_validateMessageExtensionTeamsTypeScript_03_c62609d07_9_1",
+      "agent": "interaction",
+      "tool": "type_text",
+      "parameters": {
+        "text": "${{var:app_name}}"
+      },
+      "description": "Type text ${{var:app_name}} into the search bar within the Microsoft Teams web interface to find and select the app ${{var:app_name}} from search results.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "0",
+      "depends_on": [
+        "step_validateMessageExtensionTeamsTypeScript_02_c62609d07_9_1"
+      ],
+      "preconditions": [
+        "dhash:512:384:0:20:20b4b08083a32da1"
+      ],
+      "postconditions": [],
+      "tags": [
+        "component:browser",
+        "host_surface:teams",
+        "recording_language:typescript",
+        "entry_state:chat-ready",
+        "check:message-extension"
+      ]
+    },
+    {
+      "step_id": "step_validateMessageExtensionTeamsTypeScript_04_c62609d07_9_1",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion there's ${{var:app_name}}dev in search result list.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_validateMessageExtensionTeamsTypeScript_03_c62609d07_9_1"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:browser",
+        "host_surface:teams",
+        "recording_language:typescript",
+        "entry_state:chat-ready",
+        "check:message-extension",
+        "step_retry_timeout: 30"
+      ]
+    },
+    {
+      "step_id": "step_validateMessageExtensionTeamsTypeScript_05_c62609d07_9_1",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 972,
+        "y": 511
+      },
+      "description": "Click the \"${{var:app_name}}dev\" search result in the app search dropdown within the Microsoft Teams app.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "0",
+      "depends_on": [
+        "step_validateMessageExtensionTeamsTypeScript_04_c62609d07_9_1"
+      ],
+      "preconditions": [
+        "dhash:972:511:16:5:0000000000000000",
+        "dhash:972:511:96:5:0101050d05050101",
+        "dhash:972:511:0:10:30b8b08381a92ca1"
+      ],
+      "postconditions": [],
+      "tags": [
+        "component:browser",
+        "host_surface:teams",
+        "recording_language:typescript",
+        "entry_state:chat-ready",
+        "check:message-extension",
+        "precondition_wait_timeout: 60"
+      ]
+    },
+    {
+      "step_id": "step_validateMessageExtensionTeamsTypeScript_06_c62609d07_9_1",
+      "agent": "interaction",
+      "tool": "type_text",
+      "parameters": {
+        "text": "test"
+      },
+      "description": "Type 'test' into the command input box of the extension within the Microsoft Teams web application.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "0",
+      "depends_on": [
+        "step_validateMessageExtensionTeamsTypeScript_05_c62609d07_9_1"
+      ],
+      "preconditions": [
+        "dhash:512:384:0:20:30b8b08383ac2ca1"
+      ],
+      "postconditions": [],
+      "tags": [
+        "component:browser",
+        "host_surface:teams",
+        "recording_language:typescript",
+        "entry_state:chat-ready",
+        "check:message-extension"
+      ]
+    },
+    {
+      "step_id": "step_validateMessageExtensionTeamsTypeScript_07_c62609d07_9_1",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion there's \"Item 1\" exist.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_validateMessageExtensionTeamsTypeScript_06_c62609d07_9_1"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:browser",
+        "host_surface:teams",
+        "recording_language:typescript",
+        "entry_state:chat-ready",
+        "check:message-extension",
+        "step_retry_timeout: 30"
+      ]
+    },
+    {
+      "step_id": "step_validateMessageExtensionTeamsTypeScript_08_c62609d07_9_1",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 862,
+        "y": 511
+      },
+      "description": "Click the \"Item 1\" result in the message extension search panel within the Microsoft Teams web app, directly on the line displaying \"This is the first item and this is your search query: test\".",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "0",
+      "depends_on": [
+        "step_validateMessageExtensionTeamsTypeScript_07_c62609d07_9_1"
+      ],
+      "preconditions": [
+        "dhash:862:511:16:5:aa6aaa9b6a800000",
+        "dhash:862:511:96:5:0001c49b008c9d58",
+        "dhash:862:511:0:10:30b8b08383b22aa1"
+      ],
+      "postconditions": [],
+      "tags": [
+        "component:browser",
+        "host_surface:teams",
+        "recording_language:typescript",
+        "entry_state:chat-ready",
+        "check:message-extension",
+        "precondition_wait_timeout:60"
+      ]
+    },
+    {
+      "step_id": "step_validateMessageExtensionTeamsTypeScript_09_c62609d07_9_1",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 926,
+        "y": 717
+      },
+      "description": "Click the \"Send\" button (paper plane icon) in the message input area of a Microsoft Teams chat window to submit a message.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "0",
+      "depends_on": [
+        "step_validateMessageExtensionTeamsTypeScript_08_c62609d07_9_1"
+      ],
+      "preconditions": [
+        "dhash:926:717:16:5:ccf37c0f030f7cf2",
+        "dhash:926:717:96:5:59d932cb8a368600",
+        "dhash:926:717:0:10:30b8b480acacb4a9"
+      ],
+      "postconditions": [],
+      "tags": [
+        "component:browser",
+        "host_surface:teams",
+        "recording_language:typescript",
+        "entry_state:chat-ready",
+        "check:message-extension",
+        "delay: 3"
+      ]
+    },
+    {
+      "step_id": "step_validateMessageExtensionTeamsTypeScript_10_c62609d07_9_1",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion there's \"This is the first item and this is your search query: test\" exist.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "0",
+      "depends_on": [
+        "step_validateMessageExtensionTeamsTypeScript_09_c62609d07_9_1"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:browser",
+        "host_surface:teams",
+        "recording_language:typescript",
+        "entry_state:chat-ready",
+        "check:message-extension"
       ]
     }
   ],

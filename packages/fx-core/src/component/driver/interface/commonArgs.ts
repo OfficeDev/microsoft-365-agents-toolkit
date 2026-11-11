@@ -14,12 +14,14 @@ import {
 export interface DriverContext {
   azureAccountProvider: AzureAccountProvider;
   m365TokenProvider: M365TokenProvider;
+  signal?: AbortSignal;
   ui: UserInteraction | undefined;
   progressBar: IProgressHandler | undefined;
   logProvider: LogProvider;
-  telemetryReporter: TelemetryReporter;
+  telemetryReporter?: TelemetryReporter;
   projectPath: string;
   platform: Platform;
+  nonInteractive?: boolean;
 }
 
 export type AzureResourceInfo = {

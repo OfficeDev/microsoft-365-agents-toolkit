@@ -386,6 +386,58 @@ describe("v4TemplateBridge.scaffoldDeclarativeFromV4Channel", () => {
     assert.strictEqual(telemetryProps[TelemetryProperty.TemplatePackageVersion], "6.10.1");
   });
 
+  it.each(["empty", "cycle"])(
+    "IO-04: records a %s directory link without traversing it",
+    async (kind) => {
+      const outside = await fs.mkdtemp(path.join(os.tmpdir(), "v4bridge-link-"));
+      const link = path.join(tmpDir, "linked");
+      await fs.symlink(kind === "cycle" ? tmpDir : outside, link, "junction");
+      const ctx = makeContext("da-mcp", tmpDir, {});
+      const readdir = vi.spyOn(fs, "readdir");
+      try {
+        await expect(
+          scaffoldDeclarativeFromV4Channel(
+            ctx,
+            locator,
+            {
+              mcpServerType: "remote",
+              mcpServerUrl: "https://api.github.com/mcp",
+              authType: "none",
+            },
+            { appName: "MyMcpAgent", language: "common" },
+            undefined,
+            undefined,
+            { source, bytes: channelBytes() }
+          )
+        ).rejects.toMatchObject({ name: "RequireEmptyTarget" });
+        assert.equal(readdir.mock.calls.length, 1);
+        assert.deepEqual(await fs.readdir(tmpDir), ["linked"]);
+      } finally {
+        await fs.remove(link);
+        await fs.remove(outside);
+      }
+    }
+  );
+
+  it("IO-04: propagates an unreadable target directory instead of treating it as empty", async () => {
+    const failure = Object.assign(new Error("permission denied"), { code: "EACCES" });
+    const ctx = makeContext("da-mcp", tmpDir, {});
+    const bytes = channelBytes();
+    vi.spyOn(fs, "readdir").mockRejectedValueOnce(failure);
+    await expect(
+      scaffoldDeclarativeFromV4Channel(
+        ctx,
+        locator,
+        { mcpServerType: "remote", mcpServerUrl: "https://api.github.com/mcp", authType: "none" },
+        { appName: "MyMcpAgent", language: "common" },
+        undefined,
+        undefined,
+        { source, bytes }
+      )
+    ).rejects.toBe(failure);
+    assert.deepEqual(await fs.readdir(tmpDir), []);
+  });
+
   it("forwards a bound step registry into the on-disk runtime", async () => {
     const ctx = makeContext("da-mcp", tmpDir, {});
     vi.spyOn(v4TemplateBridgeDeps, "resolveLocalTemplateSource").mockReturnValue(source);

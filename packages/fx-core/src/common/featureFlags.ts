@@ -12,6 +12,7 @@ export function isFeatureFlagEnabled(featureFlagName: string, defaultValue = fal
 }
 export class FeatureFlagName {
   static readonly CLIDotNet = "TEAMSFX_CLI_DOTNET";
+  static readonly CLIExecuteAction = "TEAMSFX_CLI_EXECUTE_ACTION";
   static readonly SampleConfigBranch = "TEAMSFX_SAMPLE_CONFIG_BRANCH";
   static readonly ChatParticipantUIEntries = "TEAMSFX_CHAT_PARTICIPANT_ENTRIES";
   static readonly HideGitHubCopilotPreviewTag = "TEAMSFX_HIDE_GITHUB_COPILOT_PREVIEW_TAG";
@@ -20,13 +21,14 @@ export class FeatureFlagName {
   static readonly TelemetryTest = "TEAMSFX_TELEMETRY_TEST";
   static readonly DevTunnelTest = "TEAMSFX_DEV_TUNNEL_TEST";
   static readonly SyncManifest = "TEAMSFX_SYNC_MANIFEST";
+  static readonly IncrementalSkillUpload = "TEAMSFX_INCREMENTAL_SKILL_UPLOAD";
   static readonly KiotaNPMIntegration = "TEAMSFX_KIOTA_NPM_INTEGRATION";
   static readonly CEAEnabled = "TEAMSFX_CEA_ENABLED";
   static readonly SandBoxedTeam = "TEAMSFX_SANDBOXED_TEAM";
   static readonly SensitivityLabelEnabled = "TEAMSFX_SENSITIVITY_LABEL";
   static readonly CFShortcutMetaOS = "TEAMSFX_CF_SHORTCUT_METAOS";
   static readonly OpenPluginImportExport = "TEAMSFX_OPENPLUGIN_IMPORT_EXPORT";
-  static readonly AgentSkillsManifest = "TEAMSFX_AGENT_SKILLS";
+  static readonly Frontier = "ATK_FRONTIER";
   static readonly BrokerAuth = "TEAMSFX_BROKER_AUTH";
   // Dynamic Tool Discovery for MCP-backed Declarative Agents: drops static MCP tool fetching at
   // scaffold time, absorbs the fetch-mcp-tools CodeLens flow into the create/add-action flows,
@@ -45,6 +47,9 @@ export class FeatureFlagName {
   // Global switch for the v4 architecture (currently routes scaffold template
   // resolution through the v4 distribution channel).
   static readonly V4Enabled = "TEAMSFX_V4_ENABLED";
+  // Also selects appId/APP_ID for new projects; existing YAML names remain supported.
+  // Split-ID DP handoffs require this flag and preserve APP_MANIFEST_ID separately.
+  static readonly NewDeveloperPortalApis = "TEAMSFX_NEW_DP_APIS";
 }
 
 export interface FeatureFlag {
@@ -56,6 +61,10 @@ export interface FeatureFlag {
 export class FeatureFlags {
   // Testing feature flags - not for production use
   static readonly CLIDotNet = { name: FeatureFlagName.CLIDotNet, defaultValue: "false" };
+  static readonly CLIExecuteAction = {
+    name: FeatureFlagName.CLIExecuteAction,
+    defaultValue: "false",
+  };
   static readonly ChatParticipantUIEntries = {
     name: FeatureFlagName.ChatParticipantUIEntries,
     defaultValue: "false",
@@ -79,6 +88,10 @@ export class FeatureFlags {
   };
   static readonly SyncManifest = {
     name: FeatureFlagName.SyncManifest,
+    defaultValue: "false",
+  };
+  static readonly IncrementalSkillUpload = {
+    name: FeatureFlagName.IncrementalSkillUpload,
     defaultValue: "false",
   };
 
@@ -106,8 +119,8 @@ export class FeatureFlags {
     name: FeatureFlagName.OpenPluginImportExport,
     defaultValue: "true",
   };
-  static readonly AgentSkillsManifest = {
-    name: FeatureFlagName.AgentSkillsManifest,
+  static readonly Frontier = {
+    name: FeatureFlagName.Frontier,
     defaultValue: "false",
   };
   static readonly BrokerAuth = {
@@ -116,6 +129,10 @@ export class FeatureFlags {
   };
   static readonly V4Enabled = {
     name: FeatureFlagName.V4Enabled,
+    defaultValue: "false",
+  };
+  static readonly NewDeveloperPortalApis = {
+    name: FeatureFlagName.NewDeveloperPortalApis,
     defaultValue: "false",
   };
   static readonly MCPForDADT = {

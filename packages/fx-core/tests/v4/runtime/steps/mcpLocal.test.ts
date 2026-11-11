@@ -5,7 +5,6 @@ import { SystemError } from "@microsoft/teamsfx-api";
 import { ok } from "neverthrow";
 import { assert } from "vitest";
 import { StepContext } from "../../../../src/v4/pipeline/runScaffoldPipeline";
-import { NOOP_MANIFEST_WRAPPER } from "../../../../src/v4/runtime/runtimeRegistry";
 import {
   STEP_MATERIALIZE_LOCAL_SERVERS,
   mcpLocalMaterializeServers,
@@ -21,7 +20,6 @@ function makeCtx(): { ctx: StepContext; files: Map<string, Buffer> } {
         files.set(filePath, data);
       },
       writeEnvironment: () => Promise.resolve(ok(undefined)),
-      manifestWrapper: () => NOOP_MANIFEST_WRAPPER,
     },
   };
 }

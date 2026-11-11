@@ -7,18 +7,11 @@
     "ado": {
       "type": "stdio",
       "command": "npx",
-      "args": ["-y", "@azure-devops/mcp", "${input:ado_org}"]
+      "args": ["-y", "@azure-devops/mcp", "devdiv"]
     },
     "github": {
       "url": "https://api.githubcopilot.com/mcp/",
       "type": "http"
     }
-  },
-  "inputs": [
-    {
-      "id": "ado_org",
-      "type": "promptString",
-      "description": "Azure DevOps organization name  (e.g. 'contoso')"
-    }
-  ]
+  }
 }

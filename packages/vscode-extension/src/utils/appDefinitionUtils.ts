@@ -26,8 +26,11 @@ export async function getV3TeamsAppId(projectPath: string, env: string): Promise
     throw result.error;
   }
 
-  const teamsAppIdKey = (await getTeamsAppKeyName(env)) || "TEAMS_APP_ID";
-  const teamsAppId = result.value[teamsAppIdKey];
+  const teamsAppIdKey = await getTeamsAppKeyName(env);
+  const teamsAppId =
+    (teamsAppIdKey ? result.value[teamsAppIdKey] : undefined) ||
+    result.value.APP_ID ||
+    result.value.TEAMS_APP_ID;
   if (teamsAppId === undefined) {
     throw new UserError(
       ExtensionSource,
@@ -49,7 +52,7 @@ export async function getTeamsAppKeyName(env?: string): Promise<string | undefin
   if (projectModel.provision?.driverDefs && projectModel.provision.driverDefs.length > 0) {
     for (const driver of projectModel.provision.driverDefs) {
       if (driver.uses === "teamsApp/create") {
-        return driver.writeToEnvironmentFile?.teamsAppId;
+        return driver.writeToEnvironmentFile?.appId ?? driver.writeToEnvironmentFile?.teamsAppId;
       }
     }
   }

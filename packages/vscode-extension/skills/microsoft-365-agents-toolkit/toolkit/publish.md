@@ -2,7 +2,7 @@
 
 ## purpose
 
-Publishing workflow for M365 agents — from local sideloading through org catalog distribution to public Teams Store / Microsoft AppSource submission. Applies to Teams apps, declarative agents, message extensions, and Copilot connectors; the org-catalog and Store stages are the same for all of them.
+Publishing workflow for non-DA M365 apps and TypeSpec DAs selected by the [DA routing rule](declarative-agent-lifecycle.md#da-routing). For every other DA, invoke the `wiqd` skill and let the plugin own publishing.
 
 ## rules
 

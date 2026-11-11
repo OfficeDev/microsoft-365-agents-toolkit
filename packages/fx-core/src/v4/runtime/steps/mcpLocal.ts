@@ -3,32 +3,21 @@
 
 import { FxError, SystemError } from "@microsoft/teamsfx-api";
 import { Result, err, ok } from "neverthrow";
-import { RegisteredStep, StepContext, StepParams } from "../../pipeline/runScaffoldPipeline";
+import { capabilityDeclarations } from "../../capabilities/declarations";
+import { RegisteredStep } from "../../pipeline/runScaffoldPipeline";
+import { defineStep } from "../../pipeline/defineStep";
+import { stringParam, stringArrayParam } from "../../pipeline/stepParams";
 
 /** Materialize local MCP stdio servers. See create-mcp-server scenario spec. */
 
 const SOURCE = "Scaffold";
 
 /** Engine step name `mcp-local/materialize-servers`. */
-export const STEP_MATERIALIZE_LOCAL_SERVERS = "mcp-local/materialize-servers";
+export const STEP_MATERIALIZE_LOCAL_SERVERS =
+  capabilityDeclarations.step.materializeLocalServers.id;
 
 function systemError(name: string, message: string): SystemError {
   return new SystemError({ source: SOURCE, name, message });
-}
-
-/** Read a `with` value as a string, or `undefined` if it is absent / non-string. */
-function stringParam(params: StepParams, key: string): string | undefined {
-  const value = params[key];
-  return typeof value === "string" ? value : undefined;
-}
-
-/** Read a `with` value as the multiSelect `string[]`, or `undefined`. */
-function stringArrayParam(params: StepParams, key: string): string[] | undefined {
-  const value = params[key];
-  if (!Array.isArray(value) || !value.every((item) => typeof item === "string")) {
-    return undefined;
-  }
-  return value;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -72,28 +61,25 @@ function toLocalServer(id: string, entry: unknown): Result<LocalServer, FxError>
 }
 
 /** Registered step for writing `.vscode/mcp.json` in the local branch. */
-export const mcpLocalMaterializeServers: RegisteredStep = {
-  validateParams(resolved: StepParams): string | undefined {
-    if (stringParam(resolved, "target") === undefined) {
-      return "missing string parameter 'target'";
-    }
-    if (stringArrayParam(resolved, "selected") === undefined) {
-      return "missing string[] parameter 'selected'";
-    }
-    if (stringParam(resolved, "catalog") === undefined) {
-      return "missing string parameter 'catalog'";
-    }
-    return undefined;
-  },
-  apply(resolved: StepParams, ctx: StepContext): Result<void, FxError> {
+export const mcpLocalMaterializeServers: RegisteredStep = defineStep({
+  parse(resolved): Result<{ target: string; selected: string[]; catalogRaw: string }, string> {
     const target = stringParam(resolved, "target");
-    const selected = stringArrayParam(resolved, "selected");
-    const catalogRaw = stringParam(resolved, "catalog");
-    if (target === undefined || selected === undefined || catalogRaw === undefined) {
-      return err(
-        systemError("McpLocalParams", "resolved parameters are not all of the expected type")
-      );
+    if (target === undefined) {
+      return err("missing string parameter 'target'");
     }
+    const selected = stringArrayParam(resolved, "selected");
+    if (selected === undefined) {
+      return err("missing string[] parameter 'selected'");
+    }
+    const catalogRaw = stringParam(resolved, "catalog");
+    if (catalogRaw === undefined) {
+      return err("missing string parameter 'catalog'");
+    }
+    return ok({ target, selected, catalogRaw });
+  },
+  invalidParams: () =>
+    systemError("McpLocalParams", "resolved parameters are not all of the expected type"),
+  apply({ target, selected, catalogRaw }, ctx): Result<void, FxError> {
     let parsed: unknown;
     try {
       parsed = JSON.parse(catalogRaw);
@@ -119,4 +105,4 @@ export const mcpLocalMaterializeServers: RegisteredStep = {
     ctx.write(target, Buffer.from(JSON.stringify({ servers }, null, 2) + "\n", "utf8"));
     return ok(undefined);
   },
-};
+});

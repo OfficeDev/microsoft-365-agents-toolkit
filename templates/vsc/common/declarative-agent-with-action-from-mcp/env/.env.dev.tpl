@@ -3,9 +3,15 @@
 # Built-in environment variables
 TEAMSFX_ENV=dev
 APP_NAME_SUFFIX=dev
+AGENT_SCOPE=shared
 
 # Generated during provision, you can also add your own variables.
+{{#NewDeveloperPortalApis}}
+APP_ID=
+{{/NewDeveloperPortalApis}}
+{{^NewDeveloperPortalApis}}
 TEAMS_APP_ID=
+{{/NewDeveloperPortalApis}}
 
 {{#McpAuth}}
 MCP_DA_AUTH_ID=

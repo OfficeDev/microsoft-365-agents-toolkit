@@ -3,6 +3,7 @@
 
 import {
   AccountInfo,
+  AuthorizationUrlRequest,
   Configuration,
   PublicClientApplication,
   SilentFlowRequest,
@@ -40,6 +41,7 @@ import { azureLoginMessage, env, m365LoginMessage, sendFileTimeout } from "./com
 import { getAccountByHomeId } from "./common/tokenCacheUtils";
 import { decodeClaimsChallenge } from "./common/utils";
 import CliCodeLogInstance from "./log";
+import { getParentWindowHandle } from "./windowHandle";
 
 export class ErrorMessage {
   static readonly loginFailureTitle = "LoginFail";
@@ -161,6 +163,7 @@ export class CodeFlowLogin {
 
     // try get an unused port
     const app = express();
+    app.use(express.urlencoded({ extended: false }));
     const server = app.listen(serverPort);
     serverPort = (server.address() as AddressInfo).port;
     let lastSocketKey = 0;
@@ -177,11 +180,12 @@ export class CodeFlowLogin {
     });
 
     const authority = tenantId ? env.activeDirectoryEndpointUrl + tenantId : undefined;
-    const authCodeUrlParameters = {
+    const authCodeUrlParameters: AuthorizationUrlRequest = {
       scopes: scopes,
       codeChallenge: codeChallenge,
       codeChallengeMethod: "S256",
       redirectUri: `http://localhost:${serverPort}`,
+      responseMode: "form_post",
       prompt: "select_account",
       authority: authority,
       claims: claim,
@@ -192,9 +196,9 @@ export class CodeFlowLogin {
       (resolve, reject) => (deferredRedirect = { resolve, reject })
     );
 
-    app.get("/", (req: express.Request, res: express.Response) => {
+    app.post("/", (req: express.Request, res: express.Response) => {
       const tokenRequest = {
-        code: req.query.code as string,
+        code: req.body.code as string,
         scopes: scopes,
         redirectUri: `http://localhost:${serverPort}`,
         codeVerifier: codeVerifier,
@@ -325,6 +329,9 @@ export class CodeFlowLogin {
       authority: authority,
       prompt: "select_account",
       claims: claim,
+      // Parents the native WAM dialog. Without it MSAL passes a NULL owner and the dialog can
+      // be created behind the terminal with no way for the user to reach it.
+      windowHandle: this.isBrokerAvailable ? getParentWindowHandle() : undefined,
       openBrowser: async (url: string) => {
         url += "#";
         if (this.accountName == "azure") {

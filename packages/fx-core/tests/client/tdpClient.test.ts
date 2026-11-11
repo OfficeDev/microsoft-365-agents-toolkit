@@ -1,15 +1,14 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { TeamsAppManifest, err, ok } from "@microsoft/teamsfx-api";
 import axios, { AxiosResponse } from "axios";
 import mockedEnv from "mocked-env";
 import { v4 as uuid } from "uuid";
 import { chai, vi } from "vitest";
-import { teamsDevPortalClient } from "../../src/client/teamsDevPortalClient";
-import { HelpLinks } from "../../src/common/constants";
+import { teamsDevPortalClient } from "../../src/client/teamsDevPortalClientProvider";
+import { AppResponse } from "../../src/client/devPortalModels";
 import { setTools } from "../../src/common/globalVars";
-import { getDefaultString } from "../../src/common/localizeUtils";
+import { FeatureFlagName } from "../../src/common/featureFlags";
 import { RetryHandler } from "../../src/common/retryHandler";
 import * as telemetry from "../../src/common/telemetry";
 import { SignInAudienceNotAllowedError } from "../../src/component/driver/aad/error/signInAudienceNotAllowedError";
@@ -31,14 +30,9 @@ import {
 import { PublishingState } from "../../src/component/driver/teamsApp/interfaces/appdefinitions/IPublishingAppDefinition";
 import { AppDefinition } from "../../src/component/driver/teamsApp/interfaces/appdefinitions/appDefinition";
 import { AppUser } from "../../src/component/driver/teamsApp/interfaces/appdefinitions/appUser";
-import { AppStudioResultFactory } from "../../src/component/driver/teamsApp/results";
-import { manifestUtils } from "../../src/component/driver/teamsApp/utils/ManifestUtils";
 import { IBotRegistration } from "../../src/component/resource/botService/appStudio/interfaces/IBotRegistration";
 import { ErrorNames } from "../../src/component/resource/botService/constants";
-import {
-  DeveloperPortalAPIFailedSystemError,
-  DeveloperPortalAPIFailedUserError,
-} from "../../src/error/teamsApp";
+import { DeveloperPortalAPIFailedSystemError } from "../../src/error/teamsApp";
 import { Messages } from "../component/resource/botService/messages";
 import { MockTools } from "../core/utils";
 
@@ -52,6 +46,22 @@ describe("TeamsDevPortalClient Test", () => {
     teamsAppId: uuid(),
     userList: [],
   };
+  const nativeApp: AppResponse = {
+    appId: appDef.teamsAppId!,
+    appProfile: { appAccessControl: { appUsers: [] } },
+  };
+  const nativeAppWithUsers = (users: AppUser[]): AppResponse => ({
+    ...nativeApp,
+    appProfile: {
+      appAccessControl: {
+        appUsers: users.map((user) => ({
+          aadId: user.aadId,
+          tenantId: user.tenantId,
+          role: user.isAdministrator ? "Owner" : "Member",
+        })),
+      },
+    },
+  });
   const aadAppDef: AADApplication = {
     appId: "00000000-0000-0000-0000-000000000000",
     displayName: "fake",
@@ -115,11 +125,13 @@ describe("TeamsDevPortalClient Test", () => {
   };
   beforeEach(() => {
     RetryHandler.RETRIES = 1;
+    process.env[FeatureFlagName.NewDeveloperPortalApis] = "true";
   });
 
   afterEach(() => {
     vi.restoreAllMocks();
     RetryHandler.RETRIES = 6;
+    delete process.env[FeatureFlagName.NewDeveloperPortalApis];
   });
 
   describe("setRegionEndpointByToken", () => {
@@ -128,13 +140,49 @@ describe("TeamsDevPortalClient Test", () => {
         status: 200,
         data: {
           regionGtms: {
-            teamsDevPortal: "https://xxx.xxx.xxx",
+            teamsDevPortal: "https://legacy.example.com",
+            teamsDeveloperPortal: "https://new.example.com",
           },
         },
       });
       await teamsDevPortalClient.setRegionEndpointByToken("https://xxx.xxx.xxx");
-      chai.assert.equal(teamsDevPortalClient.regionEndpoint, "https://xxx.xxx.xxx");
+      chai.assert.equal(teamsDevPortalClient.regionEndpoint, "https://new.example.com");
     });
+
+    it.each([
+      ["apac", "https://dev.teams.microsoft.com/cosmicprodapac"],
+      ["amer", "https://dev.teams.microsoft.com/cosmicprodamer"],
+      ["emea", "https://dev.teams.microsoft.com/cosmicprodemea"],
+    ])("derives the new %s endpoint when AuthSvc returns NA", async (region, expectedEndpoint) => {
+      vi.spyOn(RetryHandler, "Retry").mockResolvedValue({
+        status: 200,
+        data: {
+          regionGtms: {
+            teamsDevPortal: `https://dev.teams.microsoft.com/${region}`,
+            teamsDeveloperPortal: "NA",
+          },
+        },
+      });
+
+      await teamsDevPortalClient.setRegionEndpointByToken("https://xxx.xxx.xxx");
+
+      chai.assert.equal(teamsDevPortalClient.regionEndpoint, expectedEndpoint);
+    });
+
+    it("uses the amer endpoint when AuthSvc does not return a usable region", async () => {
+      vi.spyOn(RetryHandler, "Retry").mockResolvedValue({
+        status: 200,
+        data: { regionGtms: { teamsDeveloperPortal: "NA" } },
+      });
+
+      await teamsDevPortalClient.setRegionEndpointByToken("https://xxx.xxx.xxx");
+
+      chai.assert.equal(
+        teamsDevPortalClient.regionEndpoint,
+        "https://dev.teams.microsoft.com/cosmicprodamer"
+      );
+    });
+
     it("Not set region for int endpoint", async () => {
       teamsDevPortalClient.regionEndpoint = undefined;
       const restore = mockedEnv({
@@ -355,225 +403,106 @@ describe("TeamsDevPortalClient Test", () => {
     });
   });
 
-  describe("import Teams app", () => {
-    it("Happy path", async () => {
+  describe("create Teams app", () => {
+    it("creates an app whose resource and manifest IDs are the same", async () => {
       const fakeAxiosInstance = axios.create();
       vi.spyOn(axios, "create").mockReturnValue(fakeAxiosInstance);
-
-      const response = {
-        data: appDef,
-      };
-      vi.spyOn(fakeAxiosInstance, "post").mockResolvedValue(response);
-
-      teamsDevPortalClient.regionEndpoint = "https://dev.teams.microsoft.com/amer";
-
-      const res = await teamsDevPortalClient.importApp(token, Buffer.from(""));
-      chai.assert.equal(res, appDef);
-    });
-
-    it("Happy path - with wrong region", async () => {
-      const fakeAxiosInstance = axios.create();
-      vi.spyOn(axios, "create").mockReturnValue(fakeAxiosInstance);
-
-      const response = {
-        data: appDef,
-      };
-      vi.spyOn(fakeAxiosInstance, "post").mockResolvedValue(response);
-      teamsDevPortalClient.regionEndpoint = "https://dev.teams.microsoft.com";
-      const res = await teamsDevPortalClient.importApp(token, Buffer.from(""));
-      chai.assert.equal(res, appDef);
-    });
-
-    it("409 conflict", async () => {
-      const fakeAxiosInstance = axios.create();
-      vi.spyOn(axios, "create").mockReturnValue(fakeAxiosInstance);
-
-      const error = {
-        response: {
-          status: 409,
-        },
-      };
-      vi.spyOn(fakeAxiosInstance, "post").mockImplementation(() => {
-        throw error;
-      });
-
-      try {
-        await teamsDevPortalClient.importApp(token, Buffer.from(""));
-      } catch (error) {
-        chai.assert.equal(error.name, DeveloperPortalAPIFailedUserError.name);
-        chai.assert.isTrue(error.message.includes(AppStudioError.TeamsAppCreateConflictError.name));
-        chai.assert.equal(error.helpLink, HelpLinks.SwitchTenant);
-      }
-    });
-
-    it("422 conflict", async () => {
-      const fakeAxiosInstance = axios.create();
-      vi.spyOn(axios, "create").mockReturnValue(fakeAxiosInstance);
-
-      const error = {
-        response: {
-          status: 422,
-          data: "Unable import, App already exists and published. publishStatus: 'LobStore'",
-        },
-      };
-      vi.spyOn(fakeAxiosInstance, "post").mockImplementation(() => {
-        throw error;
-      });
-
-      try {
-        await teamsDevPortalClient.importApp(token, Buffer.from(""));
-      } catch (error) {
-        chai.assert.equal(error.name, DeveloperPortalAPIFailedUserError.name);
-        chai.assert.isTrue(
-          error.message.includes(AppStudioError.TeamsAppCreateConflictWithPublishedAppError.name)
-        );
-      }
-    });
-
-    it("422 conflict with unknown data", async () => {
-      const fakeAxiosInstance = axios.create();
-      vi.spyOn(axios, "create").mockReturnValue(fakeAxiosInstance);
-
-      const error = {
-        response: {
-          status: 422,
-          data: "Unknown",
-        },
-      };
-      vi.spyOn(fakeAxiosInstance, "post").mockImplementation(() => {
-        throw error;
-      });
-
-      try {
-        await teamsDevPortalClient.importApp(token, Buffer.from(""));
-      } catch (error) {
-        chai.assert.equal(error.name, DeveloperPortalAPIFailedSystemError.name);
-        chai.assert.isFalse(
-          error.message.includes(AppStudioError.TeamsAppCreateConflictWithPublishedAppError.name)
-        );
-        chai.assert.isTrue(
-          error.message.includes(getDefaultString("error.appstudio.apiFailed.name.common"))
-        );
-      }
-    });
-
-    it("422 other error", async () => {
-      const fakeAxiosInstance = axios.create();
-      vi.spyOn(axios, "create").mockReturnValue(fakeAxiosInstance);
-
-      const error = {
-        response: {
-          status: 422,
-          data: "fake error message",
-          headers: {
-            "x-correlation-id": uuid(),
+      const appId = uuid();
+      const tenantId = uuid();
+      const postStub = vi.spyOn(fakeAxiosInstance, "post").mockResolvedValue({
+        data: {
+          appId,
+          appProfile: {
+            appAccessControl: {
+              appUsers: [{ aadId: "owner", tenantId, role: "Administrator" }],
+            },
+            appMetadata: { ownerAadId: "owner" },
+            appDetails: { applicationManifest: { id: appId, name: { short: "test app" } } },
           },
         },
-      };
-      vi.spyOn(fakeAxiosInstance, "post").mockImplementation(() => {
-        throw error;
       });
 
-      try {
-        await teamsDevPortalClient.importApp(token, Buffer.from(""));
-      } catch (error) {
-        chai.assert.equal(error.name, DeveloperPortalAPIFailedSystemError.name);
-      }
-    });
+      const app = await teamsDevPortalClient.createApp(token, "test app");
 
-    it("invalid Teams app id", async () => {
-      const fakeAxiosInstance = axios.create();
-      vi.spyOn(axios, "create").mockReturnValue(fakeAxiosInstance);
-      vi.spyOn(manifestUtils, "extractManifestFromArchivedFile").mockReturnValue(
-        ok(new TeamsAppManifest())
-      );
-
-      const error = {
-        response: {
-          status: 400,
-          data: "App Id must be a GUID",
-        },
-      };
-      vi.spyOn(fakeAxiosInstance, "post").mockImplementation(() => {
-        throw error;
-      });
-
-      try {
-        await teamsDevPortalClient.importApp(token, Buffer.from(""));
-      } catch (error) {
-        chai.assert.equal(error.name, DeveloperPortalAPIFailedUserError.name);
-        chai.assert.isTrue(error.message.includes(AppStudioError.InvalidTeamsAppIdError.name));
-      }
-    });
-
-    it("extract manifet failed", async () => {
-      const fakeAxiosInstance = axios.create();
-      vi.spyOn(axios, "create").mockReturnValue(fakeAxiosInstance);
-      const fileNotFoundError = AppStudioResultFactory.UserError(
-        AppStudioError.FileNotFoundError.name,
-        AppStudioError.FileNotFoundError.message(Constants.MANIFEST_FILE)
-      );
-      vi.spyOn(manifestUtils, "extractManifestFromArchivedFile").mockReturnValue(
-        err(fileNotFoundError)
-      );
-
-      const error = {
-        response: {
-          status: 400,
-          data: "App Id must be a GUID",
-        },
-      };
-      vi.spyOn(fakeAxiosInstance, "post").mockImplementation(() => {
-        throw error;
-      });
-
-      try {
-        await teamsDevPortalClient.importApp(token, Buffer.from(""));
-      } catch (error) {
-        chai.assert.equal(error.name, AppStudioError.FileNotFoundError.name);
-      }
-    });
-
-    it("400 bad reqeust", async () => {
-      const fakeAxiosInstance = axios.create();
-      vi.spyOn(axios, "create").mockReturnValue(fakeAxiosInstance);
-
-      const error = {
-        response: {
-          staus: 400,
-          data: "BadRequest",
-          headers: {
-            "x-correlation-id": uuid(),
+      chai.assert.equal(postStub.mock.calls[0][0], "/v1.0/apps");
+      chai.assert.deepEqual(postStub.mock.calls[0][1], {
+        appDetails: {
+          applicationManifest: {
+            manifestVersion: "1.15",
+            name: { short: "test app" },
+            icons: {
+              color: "default-app-icons/images/color.png",
+              outline: "default-app-icons/images/outline.png",
+            },
           },
         },
-        message: "fake message",
-      };
-      vi.spyOn(fakeAxiosInstance, "post").mockImplementation(() => {
-        throw error;
       });
-
-      try {
-        await teamsDevPortalClient.importApp(token, Buffer.from(""));
-      } catch (error) {
-        chai.assert.equal(error.name, DeveloperPortalAPIFailedSystemError.name);
-      }
+      chai.assert.equal(app.appId, appId);
+      chai.assert.equal(app.appProfile?.appDetails?.applicationManifest?.id, appId);
+      chai.assert.equal(app.appProfile?.appAccessControl?.appUsers?.[0].tenantId, tenantId);
     });
+  });
 
-    it("return error when no response data", async () => {
+  describe("update Teams app", () => {
+    it("uses the same app ID returned by create", async () => {
       const fakeAxiosInstance = axios.create();
       vi.spyOn(axios, "create").mockReturnValue(fakeAxiosInstance);
-
-      const res = {
-        response: {
-          staus: 200,
+      const appId = uuid();
+      const response = {
+        appId,
+        appProfile: {
+          appDetails: { applicationManifest: { id: appId } },
         },
       };
-      vi.spyOn(fakeAxiosInstance, "post").mockResolvedValue(res);
+      vi.spyOn(fakeAxiosInstance, "post").mockResolvedValue({ data: response });
+      const putStub = vi.spyOn(fakeAxiosInstance, "put").mockResolvedValue({ data: response });
 
-      try {
-        await teamsDevPortalClient.importApp(token, Buffer.from(""));
-      } catch (error) {
-        chai.assert.equal(error.name, DeveloperPortalAPIFailedSystemError.name);
+      const createdApp = await teamsDevPortalClient.createApp(token, "test app");
+
+      const result = await teamsDevPortalClient.updateApp(
+        token,
+        createdApp.appId!,
+        Buffer.from("")
+      );
+
+      chai.assert.equal(result.appProfile?.appDetails?.applicationManifest?.id, appId);
+      chai.assert.equal(result.appId, appId);
+      chai.assert.equal(putStub.mock.calls[0][0], `/v1.0/apps/${appId}/apppackage`);
+    });
+
+    it("uses a legacy app ID directly", async () => {
+      const fakeAxiosInstance = axios.create();
+      vi.spyOn(axios, "create").mockReturnValue(fakeAxiosInstance);
+      const appId = uuid();
+      const response = {
+        appId,
+        appProfile: { appDetails: { applicationManifest: { id: appId } } },
+      };
+      const putStub = vi.spyOn(fakeAxiosInstance, "put").mockResolvedValue({ data: response });
+
+      await teamsDevPortalClient.updateApp(token, appId, Buffer.from(""));
+
+      chai.assert.equal(putStub.mock.calls[0][0], `/v1.0/apps/${appId}/apppackage`);
+    });
+
+    it("returns the resource ID for an imported app with a different manifest ID", async () => {
+      const fakeAxiosInstance = axios.create();
+      vi.spyOn(axios, "create").mockReturnValue(fakeAxiosInstance);
+      const externalId = uuid();
+      const appId = uuid();
+      teamsDevPortalClient.regionEndpoint = undefined;
+      vi.spyOn(fakeAxiosInstance, "get").mockResolvedValueOnce({
+        data: {
+          appId,
+          appProfile: { appDetails: { applicationManifest: { id: externalId } } },
+        },
+      });
+      const app = await teamsDevPortalClient.getApp(token, appId);
+
+      chai.assert.equal(app.appId, appId);
+      chai.assert.isTrue("appProfile" in app);
+      if ("appProfile" in app) {
+        chai.assert.equal(app.appProfile?.appDetails?.applicationManifest?.id, externalId);
       }
     });
   });
@@ -584,12 +513,35 @@ describe("TeamsDevPortalClient Test", () => {
       vi.spyOn(axios, "create").mockReturnValue(fakeAxiosInstance);
 
       const response = {
-        data: appDef,
+        data: nativeApp,
       };
       vi.spyOn(fakeAxiosInstance, "get").mockResolvedValue(response);
 
       const res = await teamsDevPortalClient.getApp(token, appDef.teamsAppId!);
-      chai.assert.equal(res, appDef);
+      chai.assert.equal(res, nativeApp);
+    });
+
+    it("accepts a Developer Portal resource ID and returns the manifest app ID", async () => {
+      const fakeAxiosInstance = axios.create();
+      vi.spyOn(axios, "create").mockReturnValue(fakeAxiosInstance);
+      const teamsAppId = uuid();
+      const appId = uuid();
+      vi.spyOn(fakeAxiosInstance, "get").mockResolvedValue({
+        data: {
+          appId,
+          appProfile: {
+            appDetails: { applicationManifest: { id: teamsAppId } },
+          },
+        },
+      });
+
+      const app = await teamsDevPortalClient.getApp(token, appId);
+
+      chai.assert.isTrue("appProfile" in app);
+      if ("appProfile" in app) {
+        chai.assert.equal(app.appProfile?.appDetails?.applicationManifest?.id, teamsAppId);
+      }
+      chai.assert.equal(app.appId, appId);
     });
 
     it("404 not found", async () => {
@@ -635,6 +587,22 @@ describe("TeamsDevPortalClient Test", () => {
       } finally {
         teamsDevPortalClient.setRegionEndpoint(undefined as unknown as string);
       }
+    });
+
+    it("does not list apps when direct lookup fails with a non-404 response", async () => {
+      const fakeAxiosInstance = axios.create();
+      vi.spyOn(axios, "create").mockReturnValue(fakeAxiosInstance);
+      vi.spyOn(fakeAxiosInstance, "get").mockRejectedValue({ response: { status: 403 } });
+      const listAppsSpy = vi.spyOn(teamsDevPortalClient, "listApps");
+
+      try {
+        await teamsDevPortalClient.getApp(token, appDef.teamsAppId!);
+        chai.assert.fail("should throw error");
+      } catch (error) {
+        chai.assert.equal(error.name, DeveloperPortalAPIFailedSystemError.name);
+      }
+
+      expect(listAppsSpy).not.toHaveBeenCalled();
     });
 
     it("app id not match", async () => {
@@ -765,6 +733,47 @@ describe("TeamsDevPortalClient Test", () => {
       chai.assert.equal(res, response.data);
     });
 
+    it("AC-16: does not resolve a manifest ID after package download fails", async () => {
+      const fakeAxiosInstance = axios.create();
+      vi.spyOn(axios, "create").mockReturnValue(fakeAxiosInstance);
+      const externalId = uuid();
+      const getSpy = vi
+        .spyOn(fakeAxiosInstance, "get")
+        .mockRejectedValueOnce({ response: { status: 404 } });
+
+      await expect(teamsDevPortalClient.getAppPackage(token, externalId)).rejects.toBeDefined();
+
+      expect(getSpy.mock.calls.map((call) => call[0])).toEqual([
+        `/v1.0/apps/${externalId}/appPackage`,
+      ]);
+    });
+
+    it("creates a fresh multipart body for each retry", async () => {
+      const fakeAxiosInstance = axios.create();
+      vi.spyOn(axios, "create").mockReturnValue(fakeAxiosInstance);
+      const postStub = vi.spyOn(fakeAxiosInstance, "post").mockResolvedValue({ data: {} });
+      vi.spyOn(RetryHandler, "Retry").mockImplementation(async (fn) => {
+        await fn();
+        return await fn();
+      });
+
+      await teamsDevPortalClient.partnerCenterAppPackageValidation(
+        token,
+        Buffer.from("app package")
+      );
+
+      chai.assert.equal(postStub.mock.calls.length, 2);
+      chai.assert.notEqual(postStub.mock.calls[0][1], postStub.mock.calls[1][1]);
+      chai.assert.match(
+        postStub.mock.calls[0][2]?.headers?.["content-type"] as string,
+        /^multipart\/form-data; boundary=/
+      );
+      chai.assert.match(
+        postStub.mock.calls[1][2]?.headers?.["content-type"] as string,
+        /^multipart\/form-data; boundary=/
+      );
+    });
+
     it("422", async () => {
       const fakeAxiosInstance = axios.create();
       vi.spyOn(axios, "create").mockReturnValue(fakeAxiosInstance);
@@ -791,7 +800,7 @@ describe("TeamsDevPortalClient Test", () => {
       vi.spyOn(axios, "create").mockReturnValue(fakeAxiosInstance);
 
       const response = {
-        data: true,
+        data: nativeApp,
       };
       vi.spyOn(fakeAxiosInstance, "get").mockResolvedValue(response);
 
@@ -1023,6 +1032,9 @@ describe("TeamsDevPortalClient Test", () => {
   });
 
   describe("grantPermission", () => {
+    beforeEach(() => {
+      process.env[FeatureFlagName.NewDeveloperPortalApis] = "false";
+    });
     it("no need to grant", async () => {
       vi.spyOn(teamsDevPortalClient, "getApp").mockResolvedValue(appDef);
       vi.spyOn(teamsDevPortalClient, "checkUser").mockReturnValue(true);
@@ -1139,10 +1151,7 @@ describe("TeamsDevPortalClient Test", () => {
 
       // Mock getApp response
       const getAppResponse = {
-        data: {
-          ...appDef,
-          userList: [userToRemove],
-        },
+        data: nativeAppWithUsers([userToRemove]),
       };
 
       // Mock post response for removing permission
@@ -1160,10 +1169,7 @@ describe("TeamsDevPortalClient Test", () => {
 
       chai.assert.isTrue(getStub.mock.calls.length === 1);
       chai.assert.isTrue(postStub.mock.calls.length === 1);
-      chai.assert.equal(
-        postStub.mock.calls[0][0],
-        `/api/appdefinitions/${appDef.teamsAppId!}/owner`
-      );
+      chai.assert.equal(postStub.mock.calls[0][0], `/v1.0/apps/${appDef.teamsAppId!}/owners`);
     });
 
     it("User not exists", async () => {
@@ -1180,10 +1186,7 @@ describe("TeamsDevPortalClient Test", () => {
 
       // Mock getApp response with empty user list
       const getAppResponse = {
-        data: {
-          ...appDef,
-          userList: [],
-        },
+        data: nativeAppWithUsers([]),
       };
 
       vi.spyOn(fakeAxiosInstance, "get").mockResolvedValue(getAppResponse);
@@ -1209,10 +1212,7 @@ describe("TeamsDevPortalClient Test", () => {
 
       // Mock getApp response
       const getAppResponse = {
-        data: {
-          ...appDef,
-          userList: [userToRemove],
-        },
+        data: nativeAppWithUsers([userToRemove]),
       };
 
       vi.spyOn(fakeAxiosInstance, "get").mockResolvedValue(getAppResponse);
@@ -1237,7 +1237,7 @@ describe("TeamsDevPortalClient Test", () => {
       }
     });
 
-    it("Empty response data", async () => {
+    it("accepts an empty response body", async () => {
       const fakeAxiosInstance = axios.create();
       vi.spyOn(axios, "create").mockReturnValue(fakeAxiosInstance);
 
@@ -1251,10 +1251,7 @@ describe("TeamsDevPortalClient Test", () => {
 
       // Mock getApp response
       const getAppResponse = {
-        data: {
-          ...appDef,
-          userList: [userToRemove],
-        },
+        data: nativeAppWithUsers([userToRemove]),
       };
 
       vi.spyOn(fakeAxiosInstance, "get").mockResolvedValue(getAppResponse);
@@ -1263,12 +1260,7 @@ describe("TeamsDevPortalClient Test", () => {
       const postResponse = {};
       vi.spyOn(fakeAxiosInstance, "post").mockResolvedValue(postResponse);
 
-      try {
-        await teamsDevPortalClient.removePermission(token, appDef.teamsAppId!, userToRemove);
-        chai.assert.fail("Should throw error");
-      } catch (e) {
-        chai.assert.equal(e.name, DeveloperPortalAPIFailedSystemError.name);
-      }
+      await teamsDevPortalClient.removePermission(token, appDef.teamsAppId!, userToRemove);
     });
 
     it("undefined response", async () => {
@@ -1285,10 +1277,7 @@ describe("TeamsDevPortalClient Test", () => {
 
       // Mock getApp response
       const getAppResponse = {
-        data: {
-          ...appDef,
-          userList: [userToRemove],
-        },
+        data: nativeAppWithUsers([userToRemove]),
       };
 
       vi.spyOn(fakeAxiosInstance, "get").mockResolvedValue(getAppResponse);
@@ -1305,7 +1294,7 @@ describe("TeamsDevPortalClient Test", () => {
       }
     });
 
-    it("User not removed after API call", async () => {
+    it("does not inspect a legacy response body", async () => {
       const fakeAxiosInstance = axios.create();
       vi.spyOn(axios, "create").mockReturnValue(fakeAxiosInstance);
 
@@ -1319,10 +1308,7 @@ describe("TeamsDevPortalClient Test", () => {
 
       // Mock getApp response
       const getAppResponse = {
-        data: {
-          ...appDef,
-          userList: [userToRemove],
-        },
+        data: nativeAppWithUsers([userToRemove]),
       };
 
       // Mock post response where user still exists
@@ -1336,16 +1322,14 @@ describe("TeamsDevPortalClient Test", () => {
       vi.spyOn(fakeAxiosInstance, "get").mockResolvedValue(getAppResponse);
       vi.spyOn(fakeAxiosInstance, "post").mockResolvedValue(postResponse);
 
-      try {
-        await teamsDevPortalClient.removePermission(token, appDef.teamsAppId!, userToRemove);
-        chai.assert.fail("Should throw error");
-      } catch (e) {
-        chai.assert.equal(e.name, DeveloperPortalAPIFailedSystemError.name);
-      }
+      await teamsDevPortalClient.removePermission(token, appDef.teamsAppId!, userToRemove);
     });
   });
 
   describe("getUserList", () => {
+    beforeEach(() => {
+      process.env[FeatureFlagName.NewDeveloperPortalApis] = "false";
+    });
     it("happy path", async () => {
       vi.spyOn(teamsDevPortalClient, "getApp").mockResolvedValue({
         userList: [
@@ -1364,6 +1348,9 @@ describe("TeamsDevPortalClient Test", () => {
   });
 
   describe("checkPermission", () => {
+    beforeEach(() => {
+      process.env[FeatureFlagName.NewDeveloperPortalApis] = "false";
+    });
     it("getUserList error", async () => {
       vi.spyOn(teamsDevPortalClient, "getUserList").mockRejectedValue(new Error());
       const res = await teamsDevPortalClient.checkPermission(
@@ -1659,28 +1646,28 @@ describe("TeamsDevPortalClient Test", () => {
       vi.spyOn(axios, "create").mockReturnValue(fakeAxiosInstance);
 
       const response = {
-        data: [appDef],
+        data: {
+          items: [{ appId: appDef.teamsAppId, appName: appDef.appName }],
+        },
       };
       vi.spyOn(fakeAxiosInstance, "get").mockResolvedValue(response);
       teamsDevPortalClient.setRegionEndpoint("https://dev.teams.microsoft.com/amer");
       const res = await teamsDevPortalClient.listApps(token);
-      chai.assert.deepEqual(res, [appDef]);
+      chai.assert.deepEqual(res, response.data.items);
     });
-    it("Error - no region", async () => {
+    it("uses the default endpoint when no region is set", async () => {
       const fakeAxiosInstance = axios.create();
       vi.spyOn(axios, "create").mockReturnValue(fakeAxiosInstance);
 
       const response = {
-        data: [appDef],
+        data: { items: [] },
       };
       vi.spyOn(fakeAxiosInstance, "get").mockResolvedValue(response);
       teamsDevPortalClient.setRegionEndpoint("");
-      try {
-        await teamsDevPortalClient.listApps(token);
-        chai.assert.fail("should throw error");
-      } catch (e) {
-        chai.assert.isTrue(e instanceof Error);
-      }
+
+      const apps = await teamsDevPortalClient.listApps(token);
+
+      chai.assert.deepEqual(apps, []);
     });
     it("Error - api failure", async () => {
       const fakeAxiosInstance = axios.create();
@@ -1707,11 +1694,8 @@ describe("TeamsDevPortalClient Test", () => {
         await teamsDevPortalClient.listApps(token);
         chai.assert.fail("should throw error");
       } catch (e) {
-        chai.assert.isTrue(
-          e.message.includes(
-            "Unable to make API call to Developer Portal: API failed, cannot get the app definitions, API name: list-app, X-Correlation-ID: undefined. This may be due to a temporary service error. Try again after a few minutes."
-          )
-        );
+        chai.assert.isTrue(e instanceof DeveloperPortalAPIFailedSystemError);
+        chai.assert.include(e.message, "Cannot get the app definitions");
       }
     });
   });
@@ -1721,28 +1705,40 @@ describe("TeamsDevPortalClient Test", () => {
       const fakeAxiosInstance = axios.create();
       vi.spyOn(axios, "create").mockReturnValue(fakeAxiosInstance);
       const response = {
-        data: true,
+        status: 204,
       };
       vi.spyOn(fakeAxiosInstance, "delete").mockResolvedValue(response);
       teamsDevPortalClient.setRegionEndpoint("https://dev.teams.microsoft.com/amer");
       const res = await teamsDevPortalClient.deleteApp(token, "testid");
       chai.assert.isTrue(res);
     });
-    it("Error - no region", async () => {
+    it("uses the default endpoint when no region is set", async () => {
       const fakeAxiosInstance = axios.create();
       vi.spyOn(axios, "create").mockReturnValue(fakeAxiosInstance);
 
       const response = {
-        data: [appDef],
+        status: 204,
       };
       vi.spyOn(fakeAxiosInstance, "delete").mockResolvedValue(response);
       teamsDevPortalClient.setRegionEndpoint("");
-      try {
-        await teamsDevPortalClient.deleteApp(token, "testid");
-        chai.assert.fail("should throw error");
-      } catch (e) {
-        chai.assert.isTrue(e instanceof Error);
-      }
+
+      const result = await teamsDevPortalClient.deleteApp(token, "testid");
+
+      chai.assert.isTrue(result);
+    });
+    it("AC-16: does not resolve a manifest ID after delete fails", async () => {
+      const fakeAxiosInstance = axios.create();
+      vi.spyOn(axios, "create").mockReturnValue(fakeAxiosInstance);
+      const externalId = uuid();
+      const deleteSpy = vi
+        .spyOn(fakeAxiosInstance, "delete")
+        .mockRejectedValueOnce({ response: { status: 404 } });
+      const getSpy = vi.spyOn(fakeAxiosInstance, "get");
+
+      await expect(teamsDevPortalClient.deleteApp(token, externalId)).rejects.toBeDefined();
+
+      expect(getSpy).not.toHaveBeenCalled();
+      expect(deleteSpy.mock.calls.map((call) => call[0])).toEqual([`/v1.0/apps/${externalId}`]);
     });
     it("Error - api failure", async () => {
       const fakeAxiosInstance = axios.create();
@@ -1788,6 +1784,24 @@ describe("TeamsDevPortalClient Test", () => {
       const res = await teamsDevPortalClient.submitAppValidationRequest(token, "fakeId");
       chai.assert.equal(res.appValidationId, response.data.appValidationId);
     });
+
+    it("AC-16: does not resolve a manifest ID after validation submission fails", async () => {
+      const fakeAxiosInstance = axios.create();
+      vi.spyOn(axios, "create").mockReturnValue(fakeAxiosInstance);
+      const externalId = uuid();
+      const postSpy = vi
+        .spyOn(fakeAxiosInstance, "post")
+        .mockRejectedValueOnce({ response: { status: 404 } });
+      const getSpy = vi.spyOn(fakeAxiosInstance, "get");
+
+      await expect(
+        teamsDevPortalClient.submitAppValidationRequest(token, externalId)
+      ).rejects.toBeDefined();
+
+      expect(getSpy).not.toHaveBeenCalled();
+      expect(postSpy).toHaveBeenCalledTimes(1);
+      expect(postSpy.mock.calls[0][1]).toMatchObject({ appId: externalId });
+    });
   });
 
   describe("Get async app validation request list", () => {
@@ -1797,12 +1811,29 @@ describe("TeamsDevPortalClient Test", () => {
       const response = {
         data: {
           continuationToken: "",
-          appValidations: [],
+          items: [],
         },
       };
       vi.spyOn(fakeAxiosInstance, "get").mockResolvedValue(response);
       const res = await teamsDevPortalClient.getAppValidationRequestList(token, "fakeId");
       chai.assert.equal(res.appValidations!.length, 0);
+    });
+
+    it("AC-16: does not resolve a manifest ID after validation history fails", async () => {
+      const fakeAxiosInstance = axios.create();
+      vi.spyOn(axios, "create").mockReturnValue(fakeAxiosInstance);
+      const externalId = uuid();
+      const getSpy = vi
+        .spyOn(fakeAxiosInstance, "get")
+        .mockRejectedValueOnce({ response: { status: 404 } });
+
+      await expect(
+        teamsDevPortalClient.getAppValidationRequestList(token, externalId)
+      ).rejects.toBeDefined();
+
+      expect(getSpy.mock.calls.map((call) => call[0])).toEqual([
+        `/v1.0/appValidations/apps/${externalId}`,
+      ]);
     });
 
     it("404 not found", async () => {
@@ -2087,7 +2118,7 @@ describe("TeamsDevPortalClient Test", () => {
     it("Bot registration should be updated successfully", async () => {
       // Arrange
       const mockAxiosInstance = axios.create();
-      vi.spyOn(mockAxiosInstance, "post").mockResolvedValue({
+      vi.spyOn(mockAxiosInstance, "put").mockResolvedValue({
         status: 200,
         data: sampleBot,
       });
@@ -2104,7 +2135,7 @@ describe("TeamsDevPortalClient Test", () => {
     it("BotFrameworkNotAllowedToAcquireToken error should be throwed out (401)", async () => {
       // Arrange
       const mockAxiosInstance = axios.create();
-      vi.spyOn(mockAxiosInstance, "post").mockRejectedValue({
+      vi.spyOn(mockAxiosInstance, "put").mockRejectedValue({
         response: {
           status: 401,
         },
@@ -2123,7 +2154,7 @@ describe("TeamsDevPortalClient Test", () => {
     it("BotFrameworkForbiddenResult error should be throwed out (403)", async () => {
       // Arrange
       const mockAxiosInstance = axios.create();
-      vi.spyOn(mockAxiosInstance, "post").mockRejectedValue({
+      vi.spyOn(mockAxiosInstance, "put").mockRejectedValue({
         response: {
           status: 403,
         },
@@ -2142,7 +2173,7 @@ describe("TeamsDevPortalClient Test", () => {
     it("BotFrameworkConflictResult error should be throwed out (429)", async () => {
       // Arrange
       const mockAxiosInstance = axios.create();
-      vi.spyOn(mockAxiosInstance, "post").mockRejectedValue({
+      vi.spyOn(mockAxiosInstance, "put").mockRejectedValue({
         response: {
           status: 429,
         },
@@ -2375,6 +2406,9 @@ describe("TeamsDevPortalClient Test", () => {
     });
   });
   describe("getBotId", () => {
+    beforeEach(() => {
+      process.env[FeatureFlagName.NewDeveloperPortalApis] = "false";
+    });
     afterEach(() => {
       vi.restoreAllMocks();
     });
@@ -2514,6 +2548,117 @@ describe("TeamsDevPortalClient Test", () => {
       } catch (error) {
         chai.assert.exists(error);
       }
+    });
+  });
+
+  describe("legacy Developer Portal APIs", () => {
+    beforeEach(() => {
+      process.env[FeatureFlagName.NewDeveloperPortalApis] = "false";
+    });
+
+    it("uses legacy app definition routes", async () => {
+      const requester = axios.create();
+      vi.spyOn(teamsDevPortalClient, "createRequesterWithToken").mockReturnValue(requester);
+      const getSpy = vi
+        .spyOn(requester, "get")
+        .mockResolvedValueOnce({ data: [appDef] })
+        .mockResolvedValueOnce({ data: appDef })
+        .mockResolvedValueOnce({ data: "base64-package" })
+        .mockResolvedValueOnce({ data: true });
+      const deleteSpy = vi.spyOn(requester, "delete").mockResolvedValue({ data: true });
+      teamsDevPortalClient.setRegionEndpoint("https://dev.teams.microsoft.com/amer");
+
+      await teamsDevPortalClient.listApps(token);
+      await teamsDevPortalClient.getApp(token, appDef.teamsAppId!);
+      await teamsDevPortalClient.getAppPackage(token, appDef.teamsAppId!);
+      await teamsDevPortalClient.checkExistsInTenant(token, appDef.teamsAppId!);
+      await teamsDevPortalClient.deleteApp(token, appDef.teamsAppId!);
+
+      expect(getSpy.mock.calls.map((call) => call[0])).toEqual([
+        "/api/appdefinitions",
+        `/api/appdefinitions/${appDef.teamsAppId}`,
+        `/api/appdefinitions/${appDef.teamsAppId}/manifest`,
+        `/api/appdefinitions/manifest/${appDef.teamsAppId}`,
+      ]);
+      expect(deleteSpy).toHaveBeenCalledWith(`/api/appdefinitions/${appDef.teamsAppId}`);
+    });
+
+    it("uses the legacy owner route", async () => {
+      const requester = axios.create();
+      vi.spyOn(teamsDevPortalClient, "createRequesterWithToken").mockReturnValue(requester);
+      const userToRemove: AppUser = {
+        tenantId: "tenant-id",
+        aadId: "user-id",
+        displayName: "User",
+        userPrincipalName: "user@example.com",
+        isAdministrator: true,
+      };
+      vi.spyOn(teamsDevPortalClient, "getApp").mockResolvedValue({
+        ...appDef,
+        userList: [userToRemove],
+      });
+      const postSpy = vi.spyOn(requester, "post").mockResolvedValue({
+        data: { ...appDef, userList: [] },
+      });
+
+      await teamsDevPortalClient.removePermission(token, appDef.teamsAppId!, userToRemove);
+
+      expect(postSpy).toHaveBeenCalledWith(
+        `/api/appdefinitions/${appDef.teamsAppId}/owner`,
+        expect.objectContaining({ userList: [] })
+      );
+    });
+
+    it("uses legacy validation routes and payloads", async () => {
+      const requester = axios.create();
+      vi.spyOn(teamsDevPortalClient, "createRequesterWithToken").mockReturnValue(requester);
+      const postSpy = vi.spyOn(requester, "post").mockResolvedValue({ data: {} });
+      const getSpy = vi.spyOn(requester, "get").mockResolvedValue({
+        data: { appValidations: [] },
+      });
+
+      await teamsDevPortalClient.partnerCenterAppPackageValidation(token, Buffer.from("package"));
+      await teamsDevPortalClient.submitAppValidationRequest(token, appDef.teamsAppId!);
+      await teamsDevPortalClient.getAppValidationRequestList(token, appDef.teamsAppId!);
+      await teamsDevPortalClient.getAppValidationById(token, "validation-id");
+
+      expect(postSpy.mock.calls[0][0]).toBe(
+        "/api/appdefinitions/partnerCenterAppPackageValidation"
+      );
+      expect(postSpy.mock.calls[1]).toEqual([
+        "/api/v1.0/appvalidations/appdefinition/validate",
+        { AppEnvironmentId: null, appDefinitionId: appDef.teamsAppId },
+      ]);
+      expect(getSpy.mock.calls.map((call) => call[0])).toEqual([
+        `/api/v1.0/appvalidations/appdefinitions/${appDef.teamsAppId}`,
+        "/api/v1.0/appvalidations/validation-id",
+      ]);
+    });
+
+    it("uses legacy bot framework methods and routes", async () => {
+      const requester = axios.create();
+      vi.spyOn(teamsDevPortalClient, "createRequesterWithToken").mockReturnValue(requester);
+      const getSpy = vi.spyOn(requester, "get").mockResolvedValue({ status: 200, data: sampleBot });
+      const postSpy = vi
+        .spyOn(requester, "post")
+        .mockResolvedValue({ status: 200, data: sampleBot });
+      const deleteSpy = vi.spyOn(requester, "delete").mockResolvedValue({ status: 200 });
+
+      await teamsDevPortalClient.getBotRegistration(token, sampleBot.botId!);
+      await teamsDevPortalClient.listBots(token);
+      await teamsDevPortalClient.createBotRegistration(token, sampleBot, false);
+      await teamsDevPortalClient.updateBotRegistration(token, sampleBot);
+      await teamsDevPortalClient.deleteBot(token, sampleBot.botId!);
+
+      expect(getSpy.mock.calls.map((call) => call[0])).toEqual([
+        `/api/botframework/${sampleBot.botId}`,
+        "/api/botframework",
+      ]);
+      expect(postSpy.mock.calls.map((call) => call[0])).toEqual([
+        "/api/botframework",
+        `/api/botframework/${sampleBot.botId}`,
+      ]);
+      expect(deleteSpy).toHaveBeenCalledWith(`/api/botframework/${sampleBot.botId}`);
     });
   });
 });

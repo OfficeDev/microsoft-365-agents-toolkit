@@ -56,6 +56,15 @@ toolkit-wide "latest version" tracked in `manifest-schemas.md` §1.4 — they
 reflect the highest versions the Office Add-in MetaOS flow has been
 validated against.
 
+### 1.5 Office Add-in terminal commands
+
+The VS Code Office Add-in terminal invokes `npx` for manifest validation,
+GUID generation, and stopping debugging, and `npm` for dependency installation.
+These commands use `cross-spawn` with `shell: false`, preserving manifest
+filenames as individual arguments. On Windows, `cross-spawn` handles `.cmd`
+shims with platform-specific argument escaping; on POSIX it spawns directly.
+The terminal must not opt into Node's unescaped `shell: true` argument joining.
+
 ## 2. Constraints derived from these facts
 
 Rules a refactor must honor; each is a direct consequence of §1.

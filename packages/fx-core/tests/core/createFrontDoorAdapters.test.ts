@@ -121,9 +121,7 @@ describe("createFrontDoorAdapters", () => {
         {
           read: (): Buffer | undefined => undefined,
           write: (): void => undefined,
-          manifestWrapper: () => ({
-            registerDeclarativeAgentAction: () => ok(undefined),
-          }),
+          writeEnvironment: () => Promise.resolve(ok(undefined)),
         }
       );
       assert.isTrue(applyResult.isOk());

@@ -45,7 +45,7 @@ provision:
           CONNECTOR_REPOS: ${{CONNECTOR_REPOS}}
           # Uncomment this line to use GitHub Personal Access Token for authentication
           # CONNECTOR_ACCESS_TOKEN: ${{SECRET_CONNECTOR_ACCESS_TOKEN}}
-          
+
 {{#DeclarativeCopilot}}
 
 # Triggered when 'teamsapp deploy' is executed
@@ -58,7 +58,12 @@ deploy:
     # Write the information of created resources into environment file for
     # the specified environment variable(s).
     writeToEnvironmentFile:
+      {{#NewDeveloperPortalApis}}
+      appId: APP_ID
+      {{/NewDeveloperPortalApis}}
+      {{^NewDeveloperPortalApis}}
       teamsAppId: TEAMS_APP_ID
+      {{/NewDeveloperPortalApis}}
 
   # Build Teams app package with latest env value
   - uses: teamsApp/zipAppPackage

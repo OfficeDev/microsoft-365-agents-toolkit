@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
+import { capabilityDeclarations } from "../capabilities/declarations";
 import { Validator } from "../collectInputs/collectInputs";
 import { getLocalizedString } from "../../common/localizeUtils";
 import { isValidHttpUrl } from "../../common/stringUtils";
@@ -70,13 +71,17 @@ export const graphConnectorConnectionIdValidator: Validator = (
 
 export function createDefaultCreateInputValidators(): Record<string, Validator> {
   return {
-    uri: uriValidator,
-    openapiUrl: openApiUrlValidator,
-    graphConnectorName: graphConnectorNameValidator,
-    graphConnectorConnectionId: graphConnectorConnectionIdValidator,
-    "mcp.oauthClientIdRequired": mcpOauthClientIdRequiredValidator,
-    "mcp.oauthClientSecretRequired": mcpOauthClientSecretRequiredValidator,
-    "mcp.entraClientIdRequired": mcpEntraClientIdRequiredValidator,
-    "mcp.serverUrl": mcpServerUrlValidator,
+    [capabilityDeclarations.validator.uri.id]: uriValidator,
+    [capabilityDeclarations.validator.openApiUrl.id]: openApiUrlValidator,
+    [capabilityDeclarations.validator.graphConnectorName.id]: graphConnectorNameValidator,
+    [capabilityDeclarations.validator.graphConnectorConnectionId.id]:
+      graphConnectorConnectionIdValidator,
+    [capabilityDeclarations.validator.mcpOauthClientIdRequired.id]:
+      mcpOauthClientIdRequiredValidator,
+    [capabilityDeclarations.validator.mcpOauthClientSecretRequired.id]:
+      mcpOauthClientSecretRequiredValidator,
+    [capabilityDeclarations.validator.mcpEntraClientIdRequired.id]:
+      mcpEntraClientIdRequiredValidator,
+    [capabilityDeclarations.validator.mcpServerUrl.id]: mcpServerUrlValidator,
   };
 }

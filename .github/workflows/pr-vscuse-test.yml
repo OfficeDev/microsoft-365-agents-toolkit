@@ -1,7 +1,8 @@
 ﻿name: PR VscUse Test Plan Selector
 
-# Triggered automatically on every PR open/sync/reopen/ready_for_review,
-# OR manually via workflow_dispatch with a pr_number input.
+# Triggered automatically on same-repository PR open/sync/reopen/ready_for_review,
+# OR manually via workflow_dispatch with a pr_number input. Automatic fork PR
+# events are skipped because pull_request tokens are read-only.
 #
 # IMPORTANT: this workflow is INFORMATIONAL ONLY — it must NEVER block merge.
 #   * The job always exits with success, regardless of UI test outcome.
@@ -13,7 +14,7 @@
 #   1. Resolves PR context (works for both automatic and manual triggers)
 #   2. Gets the diff between the PR branch and the target branch
 #   3. Selects test plans — a changed test plan file is run as an "impacted" case;
-#      for product-code changes GitHub Copilot CLI (Claude Sonnet 4.6) picks relevant plans
+#      for product-code changes GitHub Copilot CLI (GPT-5.6-sol) picks relevant plans
 #      (the final list is capped at 256 entries — GitHub Actions' hard limit on the number
 #      of configurations a single job's `strategy.matrix` can expand to; see
 #      MAX_MATRIX_PLANS / cap_plans_json in the "Select test plans via AI" step)
@@ -27,7 +28,7 @@ on:
   workflow_dispatch:
     inputs:
       pr_number:
-        description: 'PR number to analyze and run tests for'
+        description: "PR number to analyze and run tests for"
         required: true
         type: number
 
@@ -44,17 +45,19 @@ permissions:
 
 jobs:
   select-plans-and-run:
-    # Run for: automatic PR events (skip drafts) or manual dispatch.
+    # Automatic fork runs cannot post comments or dispatch workflows with their read-only token.
     if: >-
       github.event_name == 'workflow_dispatch' ||
-      (github.event_name == 'pull_request' && github.event.pull_request.draft == false)
+      (github.event_name == 'pull_request' &&
+       github.event.pull_request.draft == false &&
+       github.event.pull_request.head.repo.full_name == github.repository)
     runs-on: ubuntu-latest
 
     steps:
       # ── 0. Resolve PR context (supports both pull_request and workflow_dispatch) ──
       - name: Resolve PR context
         id: pr-context
-        uses: actions/github-script@v6
+        uses: actions/github-script@d7906e4ad0b1822421a7e6a35d5ca353c962f410 # v6.4.1
         with:
           script: |
             let prNumber, headRef, baseRef, prTitle, prBody;
@@ -87,7 +90,7 @@ jobs:
       # ── 0b. Fetch most recent user-supplied AI hint (posted by pr-vscuse-test-comment-trigger.yml) ──
       - name: Fetch latest user hint from PR comments
         id: user-hint
-        uses: actions/github-script@v6
+        uses: actions/github-script@d7906e4ad0b1822421a7e6a35d5ca353c962f410 # v6.4.1
         env:
           PR_NUMBER: ${{ steps.pr-context.outputs.pr_number }}
         with:
@@ -120,9 +123,9 @@ jobs:
 
       # ── 1. Checkout plans dir + full git history for diff ─────────────
       - name: Checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
-          ref: ${{ steps.pr-context.outputs.head_ref }}
+          ref: refs/pull/${{ steps.pr-context.outputs.pr_number }}/head
           fetch-depth: 0
           sparse-checkout: |
             packages/tests/vscuse/vscode-test-cases/plans
@@ -132,7 +135,7 @@ jobs:
       # ── 2. Get changed files via API (PR file list) ────────────────────
       - name: Get PR changed files
         id: changed-files
-        uses: actions/github-script@v6
+        uses: actions/github-script@d7906e4ad0b1822421a7e6a35d5ca353c962f410 # v6.4.1
         env:
           PR_NUMBER: ${{ steps.pr-context.outputs.pr_number }}
         with:
@@ -150,7 +153,7 @@ jobs:
       # ── 2b. Check if PR is non-code-only (test/doc/ci) — skip dispatch ──
       - name: Check if non-code-only PR
         id: code-check
-        uses: actions/github-script@v6
+        uses: actions/github-script@d7906e4ad0b1822421a7e6a35d5ca353c962f410 # v6.4.1
         env:
           PR_NUMBER: ${{ steps.pr-context.outputs.pr_number }}
           USER_HINT: ${{ steps.user-hint.outputs.hint }}
@@ -236,11 +239,11 @@ jobs:
       # ── 2c. Post skip comment when non-code-only ───────────────────────
       - name: Post skip comment (non-code-only PR)
         if: steps.code-check.outputs.skip_dispatch == 'true'
-        uses: actions/github-script@v6
+        uses: actions/github-script@d7906e4ad0b1822421a7e6a35d5ca353c962f410 # v6.4.1
         env:
           PR_NUMBER: ${{ steps.pr-context.outputs.pr_number }}
-          HEAD_REF:  ${{ steps.pr-context.outputs.head_ref }}
-          BASE_REF:  ${{ steps.pr-context.outputs.base_ref }}
+          HEAD_REF: ${{ steps.pr-context.outputs.head_ref }}
+          BASE_REF: ${{ steps.pr-context.outputs.base_ref }}
         with:
           script: |
             const prNumber = parseInt(process.env.PR_NUMBER);
@@ -265,21 +268,19 @@ jobs:
         if: steps.code-check.outputs.skip_dispatch != 'true' && steps.code-check.outputs.has_code_files == 'true'
         env:
           BASE_REF: ${{ steps.pr-context.outputs.base_ref }}
-          HEAD_REF: ${{ steps.pr-context.outputs.head_ref }}
         run: |
           git fetch origin "$BASE_REF" --depth=50 2>/dev/null || true
-          git fetch origin "$HEAD_REF" --depth=50 2>/dev/null || true
-          DIFF_STAT=$(git diff "origin/${BASE_REF}...origin/${HEAD_REF}" --stat --no-color 2>/dev/null \
+          DIFF_STAT=$(git diff "origin/${BASE_REF}...HEAD" --stat --no-color 2>/dev/null \
             | tail -5 || echo "(diff unavailable)")
           echo "diff_stat<<EOF" >> "$GITHUB_OUTPUT"
           echo "$DIFF_STAT"     >> "$GITHUB_OUTPUT"
           echo "EOF"            >> "$GITHUB_OUTPUT"
 
       # ── 3b. Install Copilot CLI ───────────────────────────────────────
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         if: steps.code-check.outputs.skip_dispatch != 'true' && steps.code-check.outputs.has_code_files == 'true'
         with:
-          node-version: '22'
+          node-version: "22"
 
       - name: Install Copilot CLI
         if: steps.code-check.outputs.skip_dispatch != 'true' && steps.code-check.outputs.has_code_files == 'true'
@@ -292,16 +293,16 @@ jobs:
         if: steps.code-check.outputs.skip_dispatch != 'true'
         env:
           COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_CLI_RUNNER_TOKEN }}
-          PR_TITLE:             ${{ steps.pr-context.outputs.pr_title }}
-          PR_BODY:              ${{ steps.pr-context.outputs.pr_body }}
-          CHANGED_FILES:        ${{ steps.changed-files.outputs.files }}
-          DIFF_STAT:            ${{ steps.diff-summary.outputs.diff_stat }}
-          BASE_BRANCH:          ${{ steps.pr-context.outputs.base_ref }}
-          HEAD_BRANCH:          ${{ steps.pr-context.outputs.head_ref }}
-          USER_HINT:            ${{ steps.user-hint.outputs.hint }}
-          CHANGED_PLANS_JSON:   ${{ steps.code-check.outputs.changed_plans_json }}
-          CHANGED_GROUPS_JSON:  ${{ steps.code-check.outputs.changed_groups_json }}
-          HAS_CODE_FILES:       ${{ steps.code-check.outputs.has_code_files }}
+          PR_TITLE: ${{ steps.pr-context.outputs.pr_title }}
+          PR_BODY: ${{ steps.pr-context.outputs.pr_body }}
+          CHANGED_FILES: ${{ steps.changed-files.outputs.files }}
+          DIFF_STAT: ${{ steps.diff-summary.outputs.diff_stat }}
+          BASE_BRANCH: ${{ steps.pr-context.outputs.base_ref }}
+          HEAD_BRANCH: ${{ steps.pr-context.outputs.head_ref }}
+          USER_HINT: ${{ steps.user-hint.outputs.hint }}
+          CHANGED_PLANS_JSON: ${{ steps.code-check.outputs.changed_plans_json }}
+          CHANGED_GROUPS_JSON: ${{ steps.code-check.outputs.changed_groups_json }}
+          HAS_CODE_FILES: ${{ steps.code-check.outputs.has_code_files }}
         run: |
           set -euo pipefail
 
@@ -428,6 +429,8 @@ jobs:
 
           SYSTEM_PROMPT='You are a test plan selector for the Microsoft 365 Agents Toolkit (ATK) VS Code extension. Select the most relevant VscUse UI test plans for a given PR based on the changed files and PR description. IMPORTANT: If a USER HINT is provided below, treat it as AUTHORITATIVE guidance from a human reviewer — it overrides your own heuristics. The hint may name specific plans to include or exclude, or describe which feature area to focus on; honour it as long as the requested plans actually exist in the available list. IMPORTANT CONTEXT: VscUse tests only test the VS Code extension. The plan files are all for VS Code templates. There are NO C# plan files. FILE PATH MAPPING (apply in order, stop at first match): 1) templates/vs/** (Visual Studio C# templates, NOT VS Code) -> These have no VscUse test plans; return only 1-2 smoke plans (Basic_Custom_Engine_Azure_OpenAI_ts_Copilot_Remote_Debug or General_Teams_Agent_OpenAI_py_Remote_Debug) as a basic sanity check. 2) templates/vscode/ts/custom-copilot-** -> Basic_Custom_Engine_*_ts_* Remote_Debug plans only. 3) templates/vscode/js/** -> *_js_* Remote_Debug plans only. 4) templates/vscode/py/** -> *_py_* Remote_Debug plans only. 5) templates/vscode/**declarative** or **da-** -> DA_*. 6) templates/vscode/**message-extension** -> Message_Extension_*. 7) templates/vscode/**tab** -> Basic_Tab_*. 8) templates/vscode/**bot** -> Simple_Bot_*. 9) packages/vscode-extension/src/treeview/** -> Feature_TreeView_*. 10) packages/vscode-extension/** -> Feature_*. 11) trivial/infra changes (remove pkg, typo, readme, CI yml) -> 1-2 smoke plans only. LANGUAGE RULES (for vscode templates only): _ts_=TypeScript plans; _js_=JavaScript plans; _py_=Python plans. ALL plans have a language suffix (_ts_, _js_, or _py_) - never invent a plan name without one. PLAN PREFIXES: DA_*=Declarative Agent; Basic_Custom_Engine_*=Custom Engine AI bot; General_Teams_Agent_*=Teams agent; Teams_Agent_With_Data_*=AI Search/RAG; Weather_Agent_*=Weather bot; Simple_Bot_*=Simple bot; Message_Extension_*=Message extension; Basic_Tab_*=Tab app; Feature_*=VS Code UI features. Keep total 1-5 plans (or whatever the user hint asks for). Output ONLY a JSON object: {"plans": ["PlanName1"], "reason": "one sentence (mention if a user hint was applied)"}'
 
+          SYSTEM_PROMPT="${SYSTEM_PROMPT} GENERATED FEATURE PLAN RULE (overrides conflicting legacy naming guidance above): feature-* plans are valid generated feature regression plans. In particular, feature-da-* plans cover Declarative Agent behavior and must be considered for relevant Declarative Agent changes. Select these plans whenever their described behavior is relevant; they do not require uppercase Feature_ or DA_ prefixes, or _ts, _js, or _py language suffixes. Never reject a listed feature-* plan solely because of its prefix or lack of a language suffix."
+
           if [ -n "${USER_HINT:-}" ]; then
             HINT_BLOCK=$(printf 'USER HINT (authoritative — overrides heuristics):\n%s\n\n' "$USER_HINT")
           else
@@ -442,7 +445,7 @@ jobs:
 
           AI_SOURCE="smoke-fallback"
           echo "Running Copilot CLI for test plan selection..."
-          copilot --yolo --model claude-sonnet-4.6 --reasoning-effort high -p "$USER_PROMPT" > /tmp/copilot_output.txt 2>&1 || true
+          copilot --yolo --model gpt-5.6-sol --reasoning-effort high -p "$USER_PROMPT" > /tmp/copilot_output.txt 2>&1 || true
           echo "--- Copilot output ---"
           cat /tmp/copilot_output.txt || true
 
@@ -518,15 +521,15 @@ jobs:
       - name: Post PR comment with selected test plans
         id: post-comment
         if: steps.code-check.outputs.skip_dispatch != 'true'
-        uses: actions/github-script@v6
+        uses: actions/github-script@d7906e4ad0b1822421a7e6a35d5ca353c962f410 # v6.4.1
         env:
-          TEST_PLANS:   ${{ steps.ai-select.outputs.test_plans }}
-          REASON:       ${{ steps.ai-select.outputs.reason }}
-          AI_SOURCE:    ${{ steps.ai-select.outputs.ai_source }}
-          IS_FALLBACK:  ${{ steps.ai-select.outputs.is_fallback }}
-          PR_NUMBER:    ${{ steps.pr-context.outputs.pr_number }}
-          HEAD_REF:     ${{ steps.pr-context.outputs.head_ref }}
-          BASE_REF:     ${{ steps.pr-context.outputs.base_ref }}
+          TEST_PLANS: ${{ steps.ai-select.outputs.test_plans }}
+          REASON: ${{ steps.ai-select.outputs.reason }}
+          AI_SOURCE: ${{ steps.ai-select.outputs.ai_source }}
+          IS_FALLBACK: ${{ steps.ai-select.outputs.is_fallback }}
+          PR_NUMBER: ${{ steps.pr-context.outputs.pr_number }}
+          HEAD_REF: ${{ steps.pr-context.outputs.head_ref }}
+          BASE_REF: ${{ steps.pr-context.outputs.base_ref }}
         with:
           script: |
             const plans    = process.env.TEST_PLANS.split(',').filter(Boolean);
@@ -576,9 +579,9 @@ jobs:
       - name: Dispatch dev-smoke-test-pipeline.yml
         id: dispatch
         if: steps.code-check.outputs.skip_dispatch != 'true'
-        uses: actions/github-script@v6
+        uses: actions/github-script@d7906e4ad0b1822421a7e6a35d5ca353c962f410 # v6.4.1
         env:
-          TEST_PLANS:  ${{ steps.ai-select.outputs.test_plans }}
+          TEST_PLANS: ${{ steps.ai-select.outputs.test_plans }}
           HEAD_BRANCH: ${{ steps.pr-context.outputs.head_ref }}
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -645,15 +648,15 @@ jobs:
       # Update comment: pipeline now running
       - name: Update PR comment — pipeline dispatched
         if: steps.code-check.outputs.skip_dispatch != 'true'
-        uses: actions/github-script@v6
+        uses: actions/github-script@d7906e4ad0b1822421a7e6a35d5ca353c962f410 # v6.4.1
         env:
           COMMENT_ID: ${{ steps.post-comment.outputs.comment_id }}
           TEST_PLANS: ${{ steps.ai-select.outputs.test_plans }}
-          REASON:     ${{ steps.ai-select.outputs.reason }}
-          RUN_URL:    ${{ steps.dispatch.outputs.smoke_run_url }}
-          PR_NUMBER:  ${{ steps.pr-context.outputs.pr_number }}
-          HEAD_REF:   ${{ steps.pr-context.outputs.head_ref }}
-          BASE_REF:   ${{ steps.pr-context.outputs.base_ref }}
+          REASON: ${{ steps.ai-select.outputs.reason }}
+          RUN_URL: ${{ steps.dispatch.outputs.smoke_run_url }}
+          PR_NUMBER: ${{ steps.pr-context.outputs.pr_number }}
+          HEAD_REF: ${{ steps.pr-context.outputs.head_ref }}
+          BASE_REF: ${{ steps.pr-context.outputs.base_ref }}
         with:
           script: |
             const commentId = parseInt(process.env.COMMENT_ID);
@@ -695,7 +698,7 @@ jobs:
       - name: Wait for smoke pipeline to complete
         id: wait-smoke
         if: steps.code-check.outputs.skip_dispatch != 'true'
-        uses: actions/github-script@v6
+        uses: actions/github-script@d7906e4ad0b1822421a7e6a35d5ca353c962f410 # v6.4.1
         env:
           SMOKE_RUN_ID: ${{ steps.dispatch.outputs.smoke_run_id }}
         with:
@@ -842,21 +845,21 @@ jobs:
       # ── 8. Resolve PR comment with final result ────────────────────────
       - name: Resolve PR comment with test results
         if: always() && steps.code-check.outputs.skip_dispatch != 'true'
-        uses: actions/github-script@v6
+        uses: actions/github-script@d7906e4ad0b1822421a7e6a35d5ca353c962f410 # v6.4.1
         env:
-          COMMENT_ID:  ${{ steps.post-comment.outputs.comment_id }}
-          TEST_PLANS:  ${{ steps.ai-select.outputs.test_plans }}
-          REASON:      ${{ steps.ai-select.outputs.reason }}
-          CONCLUSION:  ${{ steps.wait-smoke.outputs.conclusion }}
-          SMOKE_URL:   ${{ steps.wait-smoke.outputs.run_url }}
+          COMMENT_ID: ${{ steps.post-comment.outputs.comment_id }}
+          TEST_PLANS: ${{ steps.ai-select.outputs.test_plans }}
+          REASON: ${{ steps.ai-select.outputs.reason }}
+          CONCLUSION: ${{ steps.wait-smoke.outputs.conclusion }}
+          SMOKE_URL: ${{ steps.wait-smoke.outputs.run_url }}
           UI_TEST_URL: ${{ steps.wait-smoke.outputs.ui_test_url }}
-          REPORT_URL:  ${{ steps.wait-smoke.outputs.report_url }}
+          REPORT_URL: ${{ steps.wait-smoke.outputs.report_url }}
           PASSED_COUNT: ${{ steps.wait-smoke.outputs.passed_count }}
           FAILED_COUNT: ${{ steps.wait-smoke.outputs.failed_count }}
-          TOTAL_COUNT:  ${{ steps.wait-smoke.outputs.total_count }}
-          PR_NUMBER:   ${{ steps.pr-context.outputs.pr_number }}
-          HEAD_REF:    ${{ steps.pr-context.outputs.head_ref }}
-          BASE_REF:    ${{ steps.pr-context.outputs.base_ref }}
+          TOTAL_COUNT: ${{ steps.wait-smoke.outputs.total_count }}
+          PR_NUMBER: ${{ steps.pr-context.outputs.pr_number }}
+          HEAD_REF: ${{ steps.pr-context.outputs.head_ref }}
+          BASE_REF: ${{ steps.pr-context.outputs.base_ref }}
         with:
           script: |
             const commentId  = parseInt(process.env.COMMENT_ID);
@@ -913,7 +916,7 @@ jobs:
               '<details>',
               '<summary>ℹ️ How were these tests selected?</summary>',
               '',
-              'GitHub Copilot (Claude Sonnet 4.6, high reasoning) analysed the PR title, description, and the diff between',
+              'GitHub Copilot (GPT-5.6-sol, high reasoning) analysed the PR title, description, and the diff between',
               `\`${headRef}\` and \`${baseRef}\``,
               `to pick the most relevant test plans from [\`packages/tests/vscuse/Index.md\`](../blob/${baseRef}/packages/tests/vscuse/Index.md).`,
               '',

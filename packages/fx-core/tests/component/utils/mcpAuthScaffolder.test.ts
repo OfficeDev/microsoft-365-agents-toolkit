@@ -10,7 +10,6 @@ import {
   deriveMCPManifestOAuth,
   injectMCPAuthActionToYml,
   isMCPScaffoldWarning,
-  MCP_DCR_WELL_KNOWN_URL_PLACEHOLDER,
   MCP_OAUTH_AUTHORIZATION_URL_PLACEHOLDER,
   MCP_OAUTH_TOKEN_URL_PLACEHOLDER,
   mcpAuthScaffolderDeps,
@@ -45,6 +44,11 @@ describe("mcpAuthScaffolder", () => {
       assert.deepEqual(result, { type: "OAuthPluginVault", reference_id: "${{ID2}}" });
     });
 
+    it("SCN-ADD-MCP-15: returns ApiKeyPluginVault for bearer-token", () => {
+      const result = deriveMCPManifestOAuth("bearer-token", "ID3");
+      assert.deepEqual(result, { type: "ApiKeyPluginVault", reference_id: "${{ID3}}" });
+    });
+
     it("returns undefined for none auth type", () => {
       assert.isUndefined(deriveMCPManifestOAuth("none", "ID3"));
     });
@@ -71,6 +75,13 @@ describe("mcpAuthScaffolder", () => {
     it("returns empty for none", async () => {
       const stub = vi.spyOn(mcpAuthScaffolderDeps, "resolveMCPOAuthMetadata");
       const result = await resolveMCPAuthEndpoints("none", baseInputs);
+      assert.deepEqual(result, {});
+      assert.isTrue(stub.mock.calls.length === 0);
+    });
+
+    it("SCN-ADD-MCP-16: does not resolve OAuth endpoints for bearer-token", async () => {
+      const stub = vi.spyOn(mcpAuthScaffolderDeps, "resolveMCPOAuthMetadata");
+      const result = await resolveMCPAuthEndpoints("bearer-token", baseInputs);
       assert.deepEqual(result, {});
       assert.isTrue(stub.mock.calls.length === 0);
     });
@@ -109,7 +120,7 @@ describe("mcpAuthScaffolder", () => {
       );
     });
 
-    it("resolves endpoints for oauth-dynamic via well-known url", async () => {
+    it("DCR-07: delegates dynamic OAuth metadata discovery to TGS", async () => {
       const stub = vi.spyOn(mcpAuthScaffolderDeps, "resolveMCPOAuthMetadata").mockResolvedValue({
         authorizationUrl: "https://auth/authorize",
         tokenUrl: "https://auth/token",
@@ -122,12 +133,8 @@ describe("mcpAuthScaffolder", () => {
           "https://auth/.well-known/oauth-authorization-server",
       };
       const result = await resolveMCPAuthEndpoints("oauth-dynamic", inputs);
-      assert.equal(result.wellKnownUrl, "https://auth/.well-known/oauth-authorization-server");
-      expect(stub).toHaveBeenCalledExactlyOnceWith(
-        undefined,
-        "https://auth/.well-known/oauth-authorization-server",
-        undefined
-      );
+      assert.deepEqual(result, {});
+      expect(stub).not.toHaveBeenCalled();
     });
   });
 
@@ -154,7 +161,7 @@ describe("mcpAuthScaffolder", () => {
       assert.isTrue(oauthStub.mock.calls.length === 0);
     });
 
-    it("injects DCR action with resolved well-known url", async () => {
+    it("DCR-07: injects DCR using the MCP endpoint even when metadata is available", async () => {
       const dcrStub = vi.spyOn(ActionInjector, "injectCreateDcrActionForMCP").mockResolvedValue();
       const result = await injectMCPAuthActionToYml({
         ...baseArgs,
@@ -166,20 +173,95 @@ describe("mcpAuthScaffolder", () => {
         baseArgs.ymlPath,
         baseArgs.authName,
         baseArgs.registrationId,
-        baseArgs.mcpServerUrl,
-        "https://auth/.well-known/oauth-authorization-server"
+        baseArgs.mcpServerUrl
       );
     });
 
-    it("injects DCR action with placeholder when well-known url is missing", async () => {
+    it("SCN-ADD-MCP-15: injects API-key registration for bearer-token", async () => {
+      const apiKeyStub = vi
+        .spyOn(ActionInjector, "injectCreateAPIKeyActionForMCP")
+        .mockResolvedValue();
+      const oauthStub = vi
+        .spyOn(ActionInjector, "injectCreateOAuthActionForMCP")
+        .mockResolvedValue();
+      const result = await injectMCPAuthActionToYml({
+        ...baseArgs,
+        authType: "bearer-token",
+        endpoints: {},
+        persistCredentialEnvRefs: true,
+        serverName: "SERVER1",
+        apiKey: "the-api-key",
+      });
+      assert.deepEqual(result, {});
+      expect(apiKeyStub).toHaveBeenCalledExactlyOnceWith(
+        baseArgs.ymlPath,
+        baseArgs.authName,
+        baseArgs.registrationId,
+        baseArgs.mcpServerUrl,
+        "SECRET_MCP_DA_API_KEY_SERVER1"
+      );
+      assert.isTrue(oauthStub.mock.calls.length === 0);
+    });
+
+    it("SCN-ADD-MCP-19: injects the API-key reference when no bearer token is supplied", async () => {
+      const apiKeyStub = vi
+        .spyOn(ActionInjector, "injectCreateAPIKeyActionForMCP")
+        .mockResolvedValue();
+
+      await injectMCPAuthActionToYml({
+        ...baseArgs,
+        authType: "bearer-token",
+        endpoints: {},
+        persistCredentialEnvRefs: true,
+        serverName: "SERVER1",
+      });
+
+      expect(apiKeyStub).toHaveBeenCalledExactlyOnceWith(
+        baseArgs.ymlPath,
+        baseArgs.authName,
+        baseArgs.registrationId,
+        baseArgs.mcpServerUrl,
+        "SECRET_MCP_DA_API_KEY_SERVER1"
+      );
+    });
+
+    it("uses the API-key reference for a whitespace-only bearer token", async () => {
+      const apiKeyStub = vi
+        .spyOn(ActionInjector, "injectCreateAPIKeyActionForMCP")
+        .mockResolvedValue();
+
+      await injectMCPAuthActionToYml({
+        ...baseArgs,
+        authType: "bearer-token",
+        endpoints: {},
+        persistCredentialEnvRefs: true,
+        serverName: "SERVER1",
+        apiKey: "   ",
+      });
+
+      expect(apiKeyStub).toHaveBeenCalledExactlyOnceWith(
+        baseArgs.ymlPath,
+        baseArgs.authName,
+        baseArgs.registrationId,
+        baseArgs.mcpServerUrl,
+        "SECRET_MCP_DA_API_KEY_SERVER1"
+      );
+    });
+
+    it("DCR-07: injects DCR without placeholders when metadata is missing", async () => {
       const dcrStub = vi.spyOn(ActionInjector, "injectCreateDcrActionForMCP").mockResolvedValue();
       const result = await injectMCPAuthActionToYml({
         ...baseArgs,
         authType: "oauth-dynamic",
         endpoints: {},
       });
-      assert.deepEqual(result, { wellKnownUrlPlaceholderUsed: true });
-      assert.equal(dcrStub.mock.calls[0][4], MCP_DCR_WELL_KNOWN_URL_PLACEHOLDER);
+      assert.deepEqual(result, {});
+      expect(dcrStub).toHaveBeenCalledExactlyOnceWith(
+        baseArgs.ymlPath,
+        baseArgs.authName,
+        baseArgs.registrationId,
+        baseArgs.mcpServerUrl
+      );
     });
 
     it("injects OAuth action with placeholders when the endpoints are missing", async () => {
@@ -349,14 +431,23 @@ describe("mcpAuthScaffolder", () => {
       assert.isTrue(listStub.mock.calls.length === 0);
     });
 
-    it("returns before listing envs when no credentials provided", async () => {
-      const listStub = vi.spyOn(envUtil, "listEnv");
+    it("SCN-ADD-MCP-18: writes empty OAuth placeholders in environment mode", async () => {
+      vi.spyOn(envUtil, "listEnv").mockResolvedValue(ok(["dev", "local"]));
+      const writeStub = vi.spyOn(envUtil, "writeEnv").mockResolvedValue(ok(undefined));
       await persistMCPAuthCredentialEnvVars({
         projectPath: "/proj",
         authType: "oauth",
         serverName: "S1",
       });
-      assert.isTrue(listStub.mock.calls.length === 0);
+      expect(writeStub).toHaveBeenCalledTimes(2);
+      expect(writeStub).toHaveBeenNthCalledWith(1, "/proj", "dev", {
+        MCP_DA_OAUTH_CLIENT_ID_S1: "",
+        SECRET_MCP_DA_OAUTH_CLIENT_SECRET_S1: "",
+      });
+      expect(writeStub).toHaveBeenNthCalledWith(2, "/proj", "local", {
+        MCP_DA_OAUTH_CLIENT_ID_S1: "",
+        SECRET_MCP_DA_OAUTH_CLIENT_SECRET_S1: "",
+      });
     });
 
     it("writes client id, secret and scopes for oauth across all envs", async () => {
@@ -393,6 +484,40 @@ describe("mcpAuthScaffolder", () => {
       });
       assert.deepEqual(writeStub.mock.calls[0][2], {
         MCP_DA_OAUTH_CLIENT_ID_S1: "the-id",
+      });
+    });
+
+    it("SCN-ADD-MCP-16: writes bearer token through a SECRET environment name", async () => {
+      vi.spyOn(envUtil, "listEnv").mockResolvedValue(ok(["dev"]));
+      const writeStub = vi.spyOn(envUtil, "writeEnv").mockResolvedValue(ok(undefined));
+
+      await persistMCPAuthCredentialEnvVars({
+        projectPath: "/proj",
+        authType: "bearer-token",
+        serverName: "S1",
+        apiKey: "  the-api-key  ",
+      });
+
+      expect(writeStub).toHaveBeenCalledExactlyOnceWith("/proj", "dev", {
+        SECRET_MCP_DA_API_KEY_S1: "the-api-key",
+      });
+    });
+
+    it("SCN-ADD-MCP-19: persists an empty placeholder for an omitted bearer token", async () => {
+      vi.spyOn(envUtil, "listEnv").mockResolvedValue(ok(["dev", "local"]));
+      const writeStub = vi.spyOn(envUtil, "writeEnv").mockResolvedValue(ok(undefined));
+
+      await persistMCPAuthCredentialEnvVars({
+        projectPath: "/proj",
+        authType: "bearer-token",
+        serverName: "S1",
+      });
+
+      expect(writeStub).toHaveBeenNthCalledWith(1, "/proj", "dev", {
+        SECRET_MCP_DA_API_KEY_S1: "",
+      });
+      expect(writeStub).toHaveBeenNthCalledWith(2, "/proj", "local", {
+        SECRET_MCP_DA_API_KEY_S1: "",
       });
     });
 

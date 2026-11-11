@@ -9,7 +9,6 @@ import {
   addKnowledgeQuestionNode,
   addPluginQuestionNode,
   addSkillQuestionNode,
-  addWebPartQuestionNode,
   apiSpecApiKeyQuestion,
   convertAadToNewSchemaQuestionNode,
   copilotPluginAddAPIQuestionNode,
@@ -45,9 +44,6 @@ export class QuestionNodes {
   }
   createSampleProject(): IQTreeNode {
     return createSampleProjectQuestionNode();
-  }
-  addWebpart(): IQTreeNode {
-    return addWebPartQuestionNode();
   }
   selectTeamsAppManifest(): IQTreeNode {
     return selectTeamsAppManifestQuestionNode();

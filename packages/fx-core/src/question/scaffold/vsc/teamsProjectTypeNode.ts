@@ -20,13 +20,6 @@ import {
   probeMCPServerAuth,
 } from "../../../component/utils/mcpToolFetcher";
 import { ODRProvider, ODRServer } from "../../../component/utils/odrProvider";
-import {
-  SPFxFrameworkQuestion,
-  SPFxImportFolderQuestion,
-  SPFxPackageSelectQuestion,
-  SPFxSolutionQuestion,
-  SPFxWebpartNameQuestion,
-} from "../../create";
 import { QuestionNames } from "../../questionNames";
 import { apiSpecNode } from "../commonNodes";
 import {
@@ -203,33 +196,10 @@ export function tabProjectTypeNode(platform: Platform = Platform.VSCode): IQTree
         TabCapabilityOptions.nonSsoTab(),
         TabCapabilityOptions.m365SsoLaunchPage(),
         TabCapabilityOptions.dashboardTab(),
-        TabCapabilityOptions.SPFxTab(),
       ],
       placeholder: getLocalizedString("template.createCapabilityQuestion.placeholder"),
       onDidSelection: setTemplateName,
     },
-    children: [
-      {
-        //SPFx sub-tree
-        condition: { equals: TabCapabilityOptions.SPFxTab().id },
-        data: SPFxSolutionQuestion(),
-        children: [
-          {
-            data: { type: "group" },
-            children: [
-              { data: SPFxPackageSelectQuestion() },
-              { data: SPFxFrameworkQuestion() },
-              { data: SPFxWebpartNameQuestion() },
-            ],
-            condition: { equals: "new" },
-          },
-          {
-            data: SPFxImportFolderQuestion(),
-            condition: { equals: "import" },
-          },
-        ],
-      },
-    ],
   };
 }
 
@@ -518,6 +488,15 @@ export function MCPForDAAuthTypeStaticOptions(): OptionItem[] {
   return options;
 }
 
+export function MCPForDAAddAuthTypeStaticOptions(): OptionItem[] {
+  const options = MCPForDAAuthTypeStaticOptions();
+  options.splice(options.length - 1, 0, {
+    ...ApiAuthOptions.bearerToken(),
+    detail: getLocalizedString("core.createProjectQuestion.mcpForDa.Auth.BearerToken.Detail"),
+  });
+  return options;
+}
+
 export function MCPForDAFetchAuthTypeStaticOptions(): OptionItem[] {
   const options: OptionItem[] = [];
   if (featureFlagManager.getBooleanValue(FeatureFlags.MCPForDADCR)) {
@@ -614,7 +593,28 @@ export function MCPForDAAuthCredentialNodes(): IQTreeNode[] {
       required: false,
     },
   };
-  return [clientIdNode, clientSecretNode, scopesNode];
+  return [clientIdNode, clientSecretNode, scopesNode, MCPForDAApiKeyNode()];
+}
+
+export function MCPForDAApiKeyNode(): IQTreeNode {
+  return {
+    condition: (inputs: Inputs) => inputs[QuestionNames.MCPForDAAuthType] === "bearer-token",
+    data: {
+      name: QuestionNames.MCPForDAApiKey,
+      type: "text",
+      password: true,
+      title: getLocalizedString("core.createProjectQuestion.mcpForDa.ApiKey.title"),
+      placeholder: getLocalizedString("core.createProjectQuestion.mcpForDa.ApiKey.placeholder"),
+      validation: {
+        validFunc: (value: string): string | undefined => {
+          if (!value || value.trim().length === 0) {
+            return getLocalizedString("core.createProjectQuestion.mcpForDa.ApiKey.required");
+          }
+          return undefined;
+        },
+      },
+    },
+  };
 }
 
 /**

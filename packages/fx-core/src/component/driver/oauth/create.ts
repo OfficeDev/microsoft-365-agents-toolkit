@@ -17,6 +17,7 @@ import { addStartAndEndTelemetry } from "../middleware/addStartAndEndTelemetry";
 import {
   OauthRegistration,
   OauthRegistrationAppType,
+  OauthRegistrationSupportedAccountTypes,
   OauthRegistrationTargetAudience,
   TokenExchangeMethodType,
 } from "../teamsApp/interfaces/OauthRegistration";
@@ -27,6 +28,10 @@ import { CreateOauthOutputs, OutputKeys } from "./interface/createOauthOutputs";
 import { defaultRedirectUri, logMessageKeys } from "./utility/constants";
 import { OauthInfo, getAuthInfo, validateSecret, validateUrl } from "./utility/utility";
 import { OauthIdentityProviderInvalid } from "./error/oauthIdentityProviderInvalid";
+import {
+  mapPersonalMicrosoftAccountsOption,
+  validateSupportedAccountTypesCloud,
+} from "./utility/supportedAccountTypes";
 
 const actionName = "oauth/register"; // DO NOT MODIFY the name
 const helpLink = "https://aka.ms/teamsfx-actions/oauth-register";
@@ -53,6 +58,26 @@ export class CreateOauthDriver implements StepDriver {
         throw new OutputEnvironmentVariableUndefinedError(actionName);
       }
 
+      const supportedAccountTypesResult = mapPersonalMicrosoftAccountsOption(
+        args.includePersonalMicrosoftAccounts,
+        actionName
+      );
+      if (supportedAccountTypesResult.isErr()) {
+        throw supportedAccountTypesResult.error;
+      }
+      const supportedAccountTypes = supportedAccountTypesResult.value;
+      const cloudValidation = validateSupportedAccountTypesCloud(supportedAccountTypes, actionName);
+      if (cloudValidation.isErr()) {
+        throw cloudValidation.error;
+      }
+      if (args.identityProvider === "MicrosoftEntra" && supportedAccountTypes !== undefined) {
+        throw new InvalidActionInputError(
+          actionName,
+          ["includePersonalMicrosoftAccounts"],
+          helpLink
+        );
+      }
+
       const state = loadStateFromEnv(outputEnvVarNames) as CreateOauthOutputs;
       const appStudioTokenRes = await context.m365TokenProvider.getAccessToken({
         scopes: TeamsGraphScopes(),
@@ -64,7 +89,21 @@ export class CreateOauthDriver implements StepDriver {
 
       if (state && state.configurationId) {
         try {
-          await teamsGraphClient.getOauthRegistrationById(appStudioToken, state.configurationId);
+          const existing = await teamsGraphClient.getOauthRegistrationById(
+            appStudioToken,
+            state.configurationId
+          );
+          if (
+            args.identityProvider === "MicrosoftEntra" &&
+            (existing.identityProvider !== "MicrosoftEntra" ||
+              (args.clientId !== undefined && existing.clientId !== args.clientId))
+          ) {
+            throw new InvalidActionInputError(
+              actionName,
+              ["configurationId", "clientId"],
+              helpLink
+            );
+          }
           context.logProvider?.info(
             getLocalizedString(
               logMessageKeys.skipCreateOauth,
@@ -72,6 +111,9 @@ export class CreateOauthDriver implements StepDriver {
             )
           );
         } catch (error) {
+          if (args.identityProvider === "MicrosoftEntra") {
+            throw error;
+          }
           context.logProvider?.warning(
             getLocalizedString(
               logMessageKeys.oauthNotFound,
@@ -110,7 +152,8 @@ export class CreateOauthDriver implements StepDriver {
         const oauthRegistration = await this.mapArgsToOauthRegistration(
           context.m365TokenProvider,
           args,
-          authInfo
+          authInfo,
+          supportedAccountTypes
         );
 
         const oauthRegistrationRes = await teamsGraphClient.createOauthRegistration(
@@ -297,7 +340,8 @@ export class CreateOauthDriver implements StepDriver {
   private async mapArgsToOauthRegistration(
     tokenProvider: M365TokenProvider,
     args: CreateOauthArgs,
-    authInfo: OauthInfo
+    authInfo: OauthInfo,
+    supportedAccountTypes: OauthRegistrationSupportedAccountTypes | undefined
   ): Promise<OauthRegistration> {
     const currentUserRes = await tokenProvider.getJsonObject({ scopes: GraphScopes });
     if (currentUserRes.isErr()) {
@@ -346,6 +390,7 @@ export class CreateOauthDriver implements StepDriver {
       scopes: authInfo.scopes || [],
       identityProvider: "Custom",
       tokenExchangeMethodType: tokenExchangeMethodType,
+      ...(supportedAccountTypes !== undefined ? { supportedAccountTypes } : {}),
       // TODO: add this part back after TDP update
       // manageableByUsers: [
       //   {

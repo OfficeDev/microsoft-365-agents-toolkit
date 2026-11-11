@@ -15,7 +15,12 @@ provision:
     # Write the information of created resources into environment file for
     # the specified environment variable(s).
     writeToEnvironmentFile:
+      {{#NewDeveloperPortalApis}}
+      appId: APP_ID
+      {{/NewDeveloperPortalApis}}
+      {{^NewDeveloperPortalApis}}
       teamsAppId: TEAMS_APP_ID
+      {{/NewDeveloperPortalApis}}
 
   - uses: arm/deploy  # Deploy given ARM templates parallelly.
     with:
@@ -54,7 +59,7 @@ provision:
   - uses: teamsApp/validateAppPackage
     with:
       # Relative path to this file. This is the path for built zip file.
-      appPackagePath: ./appPackage/build/appPackage.${{TEAMSFX_ENV}}.zip     
+      appPackagePath: ./appPackage/build/appPackage.${{TEAMSFX_ENV}}.zip
 
   # Apply the Teams app manifest to an existing Teams app in
   # Developer Portal.
@@ -69,11 +74,13 @@ provision:
     with:
       # Relative path to the build app package.
       appPackagePath: ./appPackage/build/appPackage.${{TEAMSFX_ENV}}.zip
+      scope: ${{AGENT_SCOPE}}
     # Write the information of created resources into environment file for
     # the specified environment variable(s).
     writeToEnvironmentFile:
       titleId: M365_TITLE_ID
       appId: M365_APP_ID
+      shareLink: SHARE_LINK
 
 # Triggered when 'teamsapp deploy' is executed
 deploy:

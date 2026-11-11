@@ -15,7 +15,12 @@ provision:
     # Write the information of created resources into environment file for
     # the specified environment variable(s).
     writeToEnvironmentFile:
+      {{#NewDeveloperPortalApis}}
+      appId: APP_ID
+      {{/NewDeveloperPortalApis}}
+      {{^NewDeveloperPortalApis}}
       teamsAppId: TEAMS_APP_ID
+      {{/NewDeveloperPortalApis}}
 
   - uses: arm/deploy  # Deploy given ARM templates parallelly.
     with:
@@ -71,6 +76,7 @@ provision:
 {{#CEAEnabled}}
   - uses: teamsApp/extendToM365
     with:
+      scope: ${{AGENT_SCOPE}}
       # Relative path to the build app package.
       appPackagePath: ./appPackage/build/appPackage.${{TEAMSFX_ENV}}.zip
     # Write the information of created resources into environment file for

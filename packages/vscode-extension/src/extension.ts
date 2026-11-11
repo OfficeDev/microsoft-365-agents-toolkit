@@ -115,7 +115,6 @@ import {
   addKnowledgeHandler,
   addPluginHandler,
   addSkillHandler,
-  addWebpartHandler,
   copilotPluginAddAPIHandler,
   createNewProjectHandler,
   deployHandler,
@@ -229,6 +228,9 @@ export async function activate(context: vscode.ExtensionContext) {
     activateOfficeDevRegistration(context);
   }
 
+  // Initialize ExP before constructing FX Core so its provider is injected into Tools.
+  await exp.initialize(context);
+
   // Call activate function of toolkit core.
   activateHandlers();
 
@@ -292,13 +294,6 @@ export async function activate(context: vscode.ExtensionContext) {
     "setContext",
     "fx-extension.isKiotaNPMIntegrationEnabled",
     isKiotaNPMIntegrationEnabled
-  );
-
-  const isAgentSkillsEnabled = featureFlagManager.getBooleanValue(FeatureFlags.AgentSkillsManifest);
-  await vscode.commands.executeCommand(
-    "setContext",
-    "fx-extension.isAgentSkillsEnabled",
-    isAgentSkillsEnabled
   );
 
   void VsCodeLogInstance.info("Microsoft 365 Agents Toolkit extension is now active!");
@@ -591,8 +586,6 @@ function registerInternalCommands(context: vscode.ExtensionContext) {
 function registerTreeViewCommandsInDevelopment(context: vscode.ExtensionContext) {
   // Open adaptive card
   registerInCommandController(context, "fx-extension.OpenAdaptiveCardExt", installAdaptiveCardExt);
-
-  registerInCommandController(context, "fx-extension.addWebpart", addWebpartHandler, "addWebpart");
 
   registerInCommandController(context, "fx-extension.addPlugin", addPluginHandler, "addPlugin");
 

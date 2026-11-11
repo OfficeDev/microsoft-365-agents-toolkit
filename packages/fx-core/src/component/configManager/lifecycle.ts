@@ -5,27 +5,27 @@
  * @author yefuwang@microsoft.com
  */
 
-import { ok, err, FxError, Result, LogProvider } from "@microsoft/teamsfx-api";
+import { err, FxError, LogProvider, ok, Result } from "@microsoft/teamsfx-api";
 import _, { camelCase } from "lodash";
 import { Container } from "typedi";
+import { setErrorContext } from "../../common/globalVars";
+import { MissingEnvironmentVariablesError, UserCancelError } from "../../error";
 import { InvalidYmlActionNameError } from "../../error/yml";
+import { AzureEnvironmentVariables, OpenAIEnvironmentVariables } from "../constants";
 import { DriverContext } from "../driver/interface/commonArgs";
 import { StepDriver } from "../driver/interface/stepDriver";
+import { envUtil } from "../utils/envUtil";
 import { TeamsFxTelemetryReporter } from "../utils/teamsFxTelemetryReporter";
 import { component, lifecycleExecutionEvent, SummaryConstant, TelemetryProperty } from "./constant";
 import {
   DriverDefinition,
-  LifecycleName,
-  ILifecycle,
   DriverInstance,
-  UnresolvedPlaceholders,
-  ResolvedPlaceholders,
   ExecutionResult,
+  ILifecycle,
+  LifecycleName,
+  ResolvedPlaceholders,
+  UnresolvedPlaceholders,
 } from "./interface";
-import { MissingEnvironmentVariablesError } from "../../error";
-import { setErrorContext } from "../../common/globalVars";
-import { AzureEnvironmentVariables, OpenAIEnvironmentVariables } from "../constants";
-import { envUtil } from "../utils/envUtil";
 
 function resolveDriverDef(
   def: DriverDefinition,
@@ -43,6 +43,12 @@ function resolveDriverDef(
       def.env[k] = resolveString(val, resolved, unresolved);
     }
   }
+}
+
+function getDisplayMessage(error: FxError): string | undefined {
+  return "displayMessage" in error && typeof error.displayMessage === "string"
+    ? error.displayMessage
+    : undefined;
 }
 
 // Replace placeholders in the driver definitions' `with` field inplace
@@ -157,10 +163,12 @@ export class Lifecycle implements ILifecycle {
     const actions = JSON.stringify(
       this.driverDefs.map((def) => camelCase(this.stringifyDriverDef(def)))
     );
-    const telemetryReporter = new TeamsFxTelemetryReporter(ctx.telemetryReporter, {
-      componentName: component,
-    });
-    telemetryReporter.sendStartEvent({
+    const telemetryReporter = ctx.telemetryReporter
+      ? new TeamsFxTelemetryReporter(ctx.telemetryReporter, {
+          componentName: component,
+        })
+      : undefined;
+    telemetryReporter?.sendStartEvent({
       eventName: lifecycleExecutionEvent,
       properties: {
         [TelemetryProperty.Lifecycle]: this.name,
@@ -209,7 +217,7 @@ export class Lifecycle implements ILifecycle {
       }
     }
 
-    telemetryReporter.sendEndEvent(
+    telemetryReporter?.sendEndEvent(
       {
         eventName: lifecycleExecutionEvent,
         properties: {
@@ -239,6 +247,12 @@ export class Lifecycle implements ILifecycle {
     const envOutput = new Map<string, string>();
     const summaries: string[][] = [];
     for (const driver of drivers) {
+      if (ctx.signal?.aborted) {
+        return {
+          result: err({ kind: "Failure", error: new UserCancelError(this.name) }),
+          summaries,
+        };
+      }
       ctx.logProvider.verbose(
         `Executing action ${this.stringifyDriverDef(driver)} in lifecycle ${this.name}`
       );
@@ -285,11 +299,22 @@ export class Lifecycle implements ILifecycle {
         this.version,
         driver.name
       );
-      const result = r.result;
+      let result = r.result;
       const summary = r.summaries.map((s) => `${SummaryConstant.Succeeded} ${s}`);
       summaries.push(summary);
+      if (ctx.signal?.aborted && result.isOk()) {
+        const cancellationError = r.onCancellation?.();
+        if (!cancellationError) {
+          return {
+            result: err({ kind: "Failure", error: new UserCancelError(this.name) }),
+            summaries,
+          };
+        }
+        result = err(cancellationError);
+      }
       if (result.isErr()) {
-        summary.push(`${SummaryConstant.Failed} ${result.error.message}`);
+        const errorMessage = getDisplayMessage(result.error) ?? result.error.message;
+        summary.push(`${SummaryConstant.Failed} ${errorMessage}`);
         return {
           result: err({
             kind: "PartialSuccess",

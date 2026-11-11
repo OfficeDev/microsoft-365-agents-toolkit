@@ -59,6 +59,15 @@ describe("mcpToolFetcher", () => {
   });
 
   describe("fetchMCPTools", () => {
+    it("should forward the abort signal to the initial request", async () => {
+      const getStub = vi.spyOn(axios, "get").mockResolvedValue({ status: 200 });
+      const controller = new AbortController();
+
+      await fetchMCPTools("https://example.com/mcp", controller.signal);
+
+      assert.strictEqual(getStub.mock.calls[0][1]?.signal, controller.signal);
+    });
+
     it("should return requiresAuth=true when server returns 401", async () => {
       vi.spyOn(axios, "get").mockRejectedValue({
         response: {
@@ -275,6 +284,18 @@ describe("mcpToolFetcher", () => {
   });
 
   describe("probeMCPServerAuth", () => {
+    it("should forward the abort signal to the initialize request", async () => {
+      const postStub = vi.spyOn(axios, "post").mockResolvedValue({
+        status: 200,
+        data: { jsonrpc: "2.0", id: 1, result: {} },
+      });
+      const controller = new AbortController();
+
+      await probeMCPServerAuth("https://example.com/mcp", controller.signal);
+
+      assert.strictEqual(postStub.mock.calls[0][2]?.signal, controller.signal);
+    });
+
     it("should confirm the endpoint when a 200 carries a JSON-RPC envelope", async () => {
       vi.spyOn(axios, "post").mockResolvedValue({
         status: 200,
@@ -532,6 +553,27 @@ describe("mcpToolFetcher", () => {
       assert.isUndefined(result.refreshUrl);
       // Should only call once — skip resource metadata
       assert.isTrue(getStub.mock.calls.length === 1);
+    });
+
+    it("should bound every OAuth metadata request with a timeout", async () => {
+      const getStub = vi.spyOn(axios, "get");
+      getStub.mockResolvedValueOnce({
+        status: 200,
+        data: { authorization_servers: ["https://auth.example.com/oauth"] },
+      });
+      getStub.mockResolvedValueOnce({
+        data: {
+          authorization_endpoint: "https://auth.example.com/authorize",
+          token_endpoint: "https://auth.example.com/token",
+        },
+      });
+
+      await resolveMCPOAuthMetadata("https://example.com/.well-known/oauth-protected-resource");
+
+      assert.equal(getStub.mock.calls.length, 2);
+      for (const call of getStub.mock.calls) {
+        assert.deepEqual(call[1], { timeout: 10000 });
+      }
     });
 
     it("should throw when both authMetadataUrl and wellKnownUrl are undefined", async () => {

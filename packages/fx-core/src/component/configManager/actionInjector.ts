@@ -27,7 +27,10 @@ export class ActionInjector {
   static getTeamsAppIdEnvName(provisionNode: any): string | undefined {
     for (const item of provisionNode.items) {
       if (item.get("uses") === "teamsApp/create") {
-        return item.get("writeToEnvironmentFile")?.get("teamsAppId") as string;
+        return (
+          item.get("writeToEnvironmentFile")?.get("appId") ??
+          item.get("writeToEnvironmentFile")?.get("teamsAppId")
+        );
       }
     }
 
@@ -42,7 +45,9 @@ export class ActionInjector {
     envName: string,
     flow?: string,
     isMicrosoftEntra?: boolean,
-    enablePKCE?: boolean
+    enablePKCE?: boolean,
+    primaryClientSecret?: string,
+    oauthCredentialEnvNames?: OAuthCredentialEnvNames
   ): any {
     const result: any = {
       uses: actionName,
@@ -68,6 +73,20 @@ export class ActionInjector {
       result.with.isPKCEEnabled = true;
     }
 
+    if (primaryClientSecret) {
+      result.with.primaryClientSecret = `\${{${primaryClientSecret}}}`;
+    }
+
+    if (oauthCredentialEnvNames) {
+      result.with.clientId = `\${{${oauthCredentialEnvNames.clientId}}}`;
+      if (oauthCredentialEnvNames.clientSecret) {
+        result.with.clientSecret = `\${{${oauthCredentialEnvNames.clientSecret}}}`;
+      }
+      if (oauthCredentialEnvNames.scope) {
+        result.with.scope = `\${{${oauthCredentialEnvNames.scope}}}`;
+      }
+    }
+
     if (isMicrosoftEntra) {
       result.with.identityProvider = MicrosoftEntraAuthType;
       result.writeToEnvironmentFile.applicationIdUri = Utils.getSafeRegistrationIdEnvName(
@@ -85,7 +104,8 @@ export class ActionInjector {
     forceToAddNew: boolean, // If it from add plugin, then we will add another CreateOAuthAction
     isMicrosoftEntra: boolean,
     enablePKCE?: boolean,
-    registrationId?: string
+    registrationId?: string,
+    oauthCredentialEnvNames?: OAuthCredentialEnvNames
   ): Promise<AuthActionInjectResult | undefined> {
     const ymlContent = await fs.readFile(ymlPath, "utf-8");
     const actionName = "oauth/register";
@@ -128,6 +148,22 @@ export class ActionInjector {
         const registrationIdEnvName =
           registrationId ??
           this.findNextAvailableEnvName(defaultEnvName, existingConfigurationIdEnvNames);
+        const registrationIdSuffix = registrationIdEnvName.startsWith(defaultEnvName)
+          ? registrationIdEnvName.slice(defaultEnvName.length)
+          : "";
+        const resolvedOAuthCredentialEnvNames = oauthCredentialEnvNames
+          ? {
+              clientId: `${oauthCredentialEnvNames.clientId}${registrationIdSuffix}`,
+              ...(oauthCredentialEnvNames.clientSecret
+                ? {
+                    clientSecret: `${oauthCredentialEnvNames.clientSecret}${registrationIdSuffix}`,
+                  }
+                : {}),
+              ...(oauthCredentialEnvNames.scope
+                ? { scope: `${oauthCredentialEnvNames.scope}${registrationIdSuffix}` }
+                : {}),
+            }
+          : undefined;
         const teamsAppIdEnvName = ActionInjector.getTeamsAppIdEnvName(provisionNode);
         if (teamsAppIdEnvName) {
           const index: number = provisionNode.items.findIndex(
@@ -143,7 +179,9 @@ export class ActionInjector {
             registrationIdEnvName,
             flow,
             isMicrosoftEntra,
-            enablePKCE
+            enablePKCE,
+            undefined,
+            resolvedOAuthCredentialEnvNames
           );
           provisionNode.items.splice(index + 1, 0, action);
         } else {
@@ -154,6 +192,17 @@ export class ActionInjector {
         return {
           defaultRegistrationIdEnvName: defaultEnvName,
           registrationIdEnvName: registrationIdEnvName,
+          ...(resolvedOAuthCredentialEnvNames
+            ? {
+                clientIdEnvName: resolvedOAuthCredentialEnvNames.clientId,
+                ...(resolvedOAuthCredentialEnvNames.clientSecret
+                  ? { clientSecretEnvName: resolvedOAuthCredentialEnvNames.clientSecret }
+                  : {}),
+                ...(resolvedOAuthCredentialEnvNames.scope
+                  ? { scopeEnvName: resolvedOAuthCredentialEnvNames.scope }
+                  : {}),
+              }
+            : {}),
         };
       }
     } else {
@@ -168,7 +217,8 @@ export class ActionInjector {
     authName: string,
     specRelativePath: string,
     forceToAddNew: boolean, // If it from add plugin, then we will add another CreateApiKeyAction
-    registrationId?: string
+    registrationId?: string,
+    primaryClientSecret?: string
   ): Promise<AuthActionInjectResult | undefined> {
     const ymlContent = await fs.readFile(ymlPath, "utf-8");
     const actionName = "apiKey/register";
@@ -214,6 +264,12 @@ export class ActionInjector {
         const registrationIdEnvName =
           registrationId ??
           this.findNextAvailableEnvName(defaultEnvName, existingRegistrationIdEnvNames);
+        const registrationIdSuffix = registrationIdEnvName.startsWith(defaultEnvName)
+          ? registrationIdEnvName.slice(defaultEnvName.length)
+          : "";
+        const primaryClientSecretEnvName = primaryClientSecret
+          ? `${primaryClientSecret}${registrationIdSuffix}`
+          : undefined;
         if (teamsAppIdEnvName) {
           const index: number = provisionNode.items.findIndex(
             (item: any) => item.get("uses") === "teamsApp/create"
@@ -223,7 +279,11 @@ export class ActionInjector {
             authName,
             teamsAppIdEnvName,
             specRelativePath,
-            registrationIdEnvName
+            registrationIdEnvName,
+            undefined,
+            undefined,
+            undefined,
+            primaryClientSecretEnvName
           );
           provisionNode.items.splice(index + 1, 0, action);
         } else {
@@ -234,6 +294,7 @@ export class ActionInjector {
         return {
           defaultRegistrationIdEnvName: defaultEnvName,
           registrationIdEnvName: registrationIdEnvName,
+          ...(primaryClientSecretEnvName ? { primaryClientSecretEnvName } : {}),
         };
       }
     } else {
@@ -341,6 +402,58 @@ export class ActionInjector {
     }
   }
 
+  static async injectCreateAPIKeyActionForMCP(
+    ymlPath: string,
+    authName: string,
+    registrationId: string,
+    mcpServerUrl: string,
+    apiKeyEnvName?: string
+  ): Promise<AuthActionInjectResult | undefined> {
+    const ymlContent = await fs.readFile(ymlPath, "utf-8");
+    const document = parseDocument(ymlContent);
+    const provisionNode = document.get("provision") as any;
+    if (!provisionNode) {
+      throw new InjectAPIKeyActionFailedError();
+    }
+
+    const alreadyRegistered = provisionNode.items.some(
+      (item: any) =>
+        item.get("uses") === "apiKey/register" &&
+        !!item.get("writeToEnvironmentFile") &&
+        item.get("writeToEnvironmentFile").get("registrationId") === registrationId
+    );
+    if (alreadyRegistered) {
+      return undefined;
+    }
+
+    provisionNode.items = provisionNode.items.filter((item: any) => item.get("uses"));
+    const teamsAppIdEnvName = ActionInjector.getTeamsAppIdEnvName(provisionNode);
+    if (!teamsAppIdEnvName) {
+      throw new InjectAPIKeyActionFailedError();
+    }
+
+    const teamsAppIndex = provisionNode.items.findIndex(
+      (item: any) => item.get("uses") === "teamsApp/create"
+    );
+    provisionNode.items.splice(teamsAppIndex + 1, 0, {
+      uses: "apiKey/register",
+      with: {
+        name: authName,
+        appId: `\${{${teamsAppIdEnvName}}}`,
+        baseUrl: mcpServerUrl,
+        ...(apiKeyEnvName ? { primaryClientSecret: `\${{${apiKeyEnvName}}}` } : {}),
+      },
+      writeToEnvironmentFile: {
+        registrationId,
+      },
+    });
+    await fs.writeFile(ymlPath, document.toString(), "utf8");
+    return {
+      defaultRegistrationIdEnvName: registrationId,
+      registrationIdEnvName: registrationId,
+    };
+  }
+
   /**
    * Inject a `dcr/register` action for MCP `oauth-dynamic` flow. Idempotent on
    * (action name + configurationId). Writes a single configurationId env var.
@@ -350,7 +463,7 @@ export class ActionInjector {
     authName: string,
     registrationId: string,
     mcpServerUrl: string,
-    wellKnownAuthorizationServer: string
+    _wellKnownAuthorizationServer?: string
   ): Promise<AuthActionInjectResult | undefined> {
     const ymlContent = await fs.readFile(ymlPath, "utf-8");
 
@@ -386,7 +499,7 @@ export class ActionInjector {
             appId: `\${{${teamsAppIdEnvName}}}`,
             applicableToApps: "AnyApp",
             targetAudience: "HomeTenant",
-            wellKnownAuthorizationServer: wellKnownAuthorizationServer,
+            mcpResourceUrl: mcpServerUrl,
             targetUrlsShouldStartWith: [mcpServerUrl],
           },
           writeToEnvironmentFile: {
@@ -453,4 +566,14 @@ export class ActionInjector {
 export interface AuthActionInjectResult {
   defaultRegistrationIdEnvName: string | undefined; // The default registration id env name without suffix
   registrationIdEnvName: string | undefined; // The real env name of registration id we write in the yaml file
+  primaryClientSecretEnvName?: string;
+  clientIdEnvName?: string;
+  clientSecretEnvName?: string;
+  scopeEnvName?: string;
+}
+
+export interface OAuthCredentialEnvNames {
+  clientId: string;
+  clientSecret?: string;
+  scope?: string;
 }

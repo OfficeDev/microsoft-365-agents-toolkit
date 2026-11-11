@@ -2,6 +2,8 @@
 
 Consolidated troubleshooting for ATK projects — provisioning, runtime, Playground, and Teams issues.
 
+For non-TypeSpec Declarative Agent lifecycle failures, invoke the `wiqd` skill and let the plugin diagnose and recover its workflow; do not run WIQD CLI commands directly or fall back to ATK. TypeSpec DA projects remain on ATK. Answer read-only schema questions locally without invoking the plugin.
+
 ## Error Code Quick Reference
 
 | Error Code | Section |

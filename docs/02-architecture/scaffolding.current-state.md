@@ -281,9 +281,6 @@ Evidence:
 
 Evidence:
 
-- `dynamicOptions(inputs)` on SPFx-related questions writes back into
-  `inputs` as a side channel (e.g. `inputs.globalSpfxPackageVersion`)
-  while ostensibly returning the option list ([`packages/fx-core/src/question/create.ts`](../../packages/fx-core/src/question/create.ts)).
 - `onDidSelection` on capability options has the side effect of *setting*
   `inputs[QuestionNames.TemplateName]`, so what looks like a UI handler
   is actually the canonical writer of the dispatch key ([`packages/fx-core/src/question/scaffold/constructNode.ts`](../../packages/fx-core/src/question/scaffold/constructNode.ts)).

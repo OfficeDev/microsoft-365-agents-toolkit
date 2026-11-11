@@ -37,30 +37,57 @@ describe("commands/common MCP-for-DA gating", () => {
   }
 
   describe("gateMCPDAAuthTypeChoices", () => {
+    for (const v4Enabled of [false, true]) {
+      it(`SCN-ADD-MCP-14: accepts bearer-token when v4 is ${v4Enabled ? "on" : "off"}`, () => {
+        stubEnabledFlags(v4Enabled ? [FeatureFlags.V4Enabled] : []);
+        const options = [authTypeOption()];
+        gateMCPDAAuthTypeChoices(options, true);
+        assert.include(authTypeChoices(options), "bearer-token");
+      });
+    }
+
+    it("excludes bearer-token when the caller is atk new", () => {
+      stubEnabledFlags([]);
+      const options = [authTypeOption()];
+      gateMCPDAAuthTypeChoices(options, false);
+      assert.notInclude(authTypeChoices(options), "bearer-token");
+    });
+
     it("includes oauth-dynamic only when both DT and DCR flags are on", () => {
       stubEnabledFlags([FeatureFlags.MCPForDADT, FeatureFlags.MCPForDADCR]);
       const options = [authTypeOption()];
-      gateMCPDAAuthTypeChoices(options);
-      assert.deepEqual(authTypeChoices(options), ["oauth", "oauth-dynamic", "entra-sso", "none"]);
+      gateMCPDAAuthTypeChoices(options, true);
+      assert.deepEqual(authTypeChoices(options), [
+        "oauth",
+        "oauth-dynamic",
+        "entra-sso",
+        "bearer-token",
+        "none",
+      ]);
     });
 
     it("excludes oauth-dynamic when only DT flag is on", () => {
       stubEnabledFlags([FeatureFlags.MCPForDADT]);
       const options = [authTypeOption()];
-      gateMCPDAAuthTypeChoices(options);
-      assert.deepEqual(authTypeChoices(options), ["oauth", "entra-sso", "none"]);
+      gateMCPDAAuthTypeChoices(options, true);
+      assert.deepEqual(authTypeChoices(options), ["oauth", "entra-sso", "bearer-token", "none"]);
     });
 
     it("excludes oauth-dynamic when both flags are off", () => {
       stubEnabledFlags([]);
       const options = [authTypeOption()];
-      gateMCPDAAuthTypeChoices(options);
-      assert.deepEqual(authTypeChoices(options), ["oauth", "entra-sso", "none"]);
+      gateMCPDAAuthTypeChoices(options, true);
+      assert.deepEqual(authTypeChoices(options), ["oauth", "entra-sso", "bearer-token", "none"]);
     });
   });
 
   describe("gateMCPDACredentialOptions", () => {
-    const credentialNames = ["mcp-da-client-id", "mcp-da-client-secret", "mcp-da-scopes"];
+    const credentialNames = [
+      "mcp-da-client-id",
+      "mcp-da-client-secret",
+      "mcp-da-scopes",
+      "mcp-da-api-key",
+    ];
 
     function baseOptions(): CLICommandOption[] {
       return [authTypeOption()];

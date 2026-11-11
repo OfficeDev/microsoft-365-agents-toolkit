@@ -17,7 +17,11 @@ import { Bot } from "../../src/component/driver/teamsApp/interfaces/appdefinitio
 import { MessagingExtension } from "../../src/component/driver/teamsApp/interfaces/appdefinitions/messagingExtension";
 import { StaticTab } from "../../src/component/driver/teamsApp/interfaces/appdefinitions/staticTab";
 import { TemplateNames } from "../../src/component/generator/templates/templateNames";
-import { ProgrammingLanguage, QuestionNames } from "../../src/question/constants";
+import {
+  AddAuthActionAuthTypeOptions,
+  ProgrammingLanguage,
+  QuestionNames,
+} from "../../src/question/constants";
 import { foundryAgentIdQuestion, foundryEndpointQuestion } from "../../src/question/create";
 import {
   apiSpecNode,
@@ -30,10 +34,10 @@ import {
   ActionStartOptions,
   BotCapabilityOptions,
   CustomCopilotRagOptions,
+  DACapabilityOptions,
   MeArchitectureOptions,
   MeCapabilityOptions,
   NotificationBotOptions,
-  TabCapabilityOptions,
   TeamsAgentCapabilityOptions,
 } from "../../src/question/scaffold/vsc/CapabilityOptions";
 import { ProjectTypeOptions } from "../../src/question/scaffold/vsc/ProjectTypeOptions";
@@ -48,6 +52,12 @@ import {
 } from "../../src/question/scaffold/vsc/createRootNode";
 import { daProjectTypeNode } from "../../src/question/scaffold/vsc/daProjectTypeNode";
 import * as templateHelper from "../../src/component/generator/templateHelper";
+import {
+  addPluginQuestionNode,
+  openApiApiKeyNode,
+  openApiOAuthCredentialNodes,
+} from "../../src/question/other";
+import { AddPluginOptions } from "../../src/question/options/AddPluginOptions";
 import {
   getRootProjectTypeNode,
   getTdpProjectTypeNode,
@@ -72,6 +82,7 @@ import {
   teamsProjectTypeDeps,
   TeamsProjectTypeOptions,
   updateActionWithMCP,
+  MCPForDAAddAuthTypeStaticOptions,
   MCPForDAAuthTypeStaticOptions,
   MCPForDAAuthCredentialNodes,
   MCPServerTypeNode,
@@ -395,14 +406,86 @@ describe("MCPForDAAuthTypeStaticOptions", () => {
   });
 });
 
-describe("MCPForDAAuthCredentialNodes", () => {
-  const [clientIdNode, clientSecretNode, scopesNode] = MCPForDAAuthCredentialNodes();
+describe("MCPForDAAddAuthTypeStaticOptions", () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
 
-  it("returns three credential nodes", () => {
+  for (const v4Enabled of [false, true]) {
+    it(`SCN-ADD-MCP-13: offers bearer-token auth when v4 is ${v4Enabled ? "on" : "off"}`, () => {
+      vi.spyOn(featureFlagManager, "getBooleanValue").mockImplementation((flag) => {
+        return flag === FeatureFlags.V4Enabled ? v4Enabled : false;
+      });
+
+      const options = MCPForDAAddAuthTypeStaticOptions();
+
+      assert.sameMembers(
+        options.map((option) => option.id),
+        ["oauth", "entra-sso", "bearer-token", "none"]
+      );
+      assert.isNotEmpty(options.find((option) => option.id === "bearer-token")?.detail);
+    });
+  }
+});
+
+describe("MCPForDAAuthCredentialNodes", () => {
+  const [clientIdNode, clientSecretNode, scopesNode, apiKeyNode] = MCPForDAAuthCredentialNodes();
+
+  it("returns OAuth and API-key credential nodes", () => {
     assert.equal((clientIdNode.data as any).name, QuestionNames.MCPForDAClientId);
     assert.equal((clientSecretNode.data as any).name, QuestionNames.MCPForDAClientSecret);
     assert.equal((scopesNode.data as any).name, QuestionNames.MCPForDAScopes);
+    assert.equal((apiKeyNode.data as any).name, QuestionNames.MCPForDAApiKey);
   });
+
+  it("SCN-ADD-MCP-12: API key is required interactively for bearer-token on CLI and VS Code", async () => {
+    const condition = apiKeyNode.condition as ConditionFunc;
+    assert.isTrue(
+      condition({
+        platform: Platform.CLI,
+        [QuestionNames.MCPForDAAuthType]: "bearer-token",
+      } as Inputs)
+    );
+    assert.isTrue(
+      condition({
+        platform: Platform.VSCode,
+        [QuestionNames.MCPForDAAuthType]: "bearer-token",
+      } as Inputs)
+    );
+    assert.isFalse(
+      condition({
+        platform: Platform.CLI,
+        [QuestionNames.MCPForDAAuthType]: "oauth",
+      } as Inputs)
+    );
+    assert.isTrue((apiKeyNode.data as any).password);
+    const validFunc = (apiKeyNode.data as any).validation.validFunc;
+    assert.isString(await validFunc(""));
+    assert.isUndefined(await validFunc("token"));
+  });
+
+  for (const v4Enabled of [false, true]) {
+    it(`SCN-ADD-MCP-12: composes the same credential questions when v4 is ${v4Enabled ? "on" : "off"}`, () => {
+      vi.spyOn(featureFlagManager, "getBooleanValue").mockImplementation((flag) => {
+        return flag === FeatureFlags.MCPForDADT || (flag === FeatureFlags.V4Enabled && v4Enabled);
+      });
+      const root = addPluginQuestionNode();
+      const serverUrlNode = root.children?.find(
+        (node) => (node.data as any).name === QuestionNames.MCPForDAServerUrl
+      );
+      const authTypeNode = serverUrlNode?.children?.find(
+        (node) => (node.data as any).name === QuestionNames.MCPForDAAuthType
+      );
+      const credentialNames = authTypeNode?.children?.map((node) => (node.data as any).name);
+
+      assert.includeMembers(credentialNames ?? [], [
+        QuestionNames.MCPForDAClientId,
+        QuestionNames.MCPForDAClientSecret,
+        QuestionNames.MCPForDAScopes,
+        QuestionNames.MCPForDAApiKey,
+      ]);
+    });
+  }
 
   it("client id node is shown for oauth and entra-sso only", () => {
     const cond = clientIdNode.condition as ConditionFunc;
@@ -485,6 +568,147 @@ describe("MCPForDAAuthCredentialNodes", () => {
       cond({ platform: Platform.VSCode, [QuestionNames.MCPForDAAuthType]: "entra-sso" } as Inputs)
     );
     assert.isFalse((scopesNode.data as any).required);
+  });
+});
+
+describe("openApiApiKeyNode", () => {
+  it("SCN-ADD-OPENAPI-KEY-01: is optional and shown only for CLI API-key operations", () => {
+    const node = openApiApiKeyNode();
+    const condition = node.condition as ConditionFunc;
+
+    assert.isTrue(
+      condition({
+        platform: Platform.CLI,
+        [QuestionNames.ActionType]: ActionStartOptions.apiSpec().id,
+        apiAuthData: [{ serverUrl: "https://example.com", authType: "apiKey" }],
+      } as Inputs)
+    );
+    assert.isFalse(
+      condition({
+        platform: Platform.VSCode,
+        [QuestionNames.ActionType]: ActionStartOptions.apiSpec().id,
+        apiAuthData: [{ serverUrl: "https://example.com", authType: "apiKey" }],
+      } as Inputs)
+    );
+    assert.isFalse(
+      condition({
+        platform: Platform.CLI,
+        [QuestionNames.ActionType]: ActionStartOptions.apiSpec().id,
+        apiAuthData: [{ serverUrl: "https://example.com", authType: "oauth2" }],
+      } as Inputs)
+    );
+    assert.equal((node.data as any).name, QuestionNames.ApiSpecApiKey);
+    assert.equal((node.data as any).title, "API Key (optional)");
+    assert.isTrue((node.data as any).password);
+    assert.isFalse((node.data as any).required);
+  });
+
+  it("SCN-ADD-OPENAPI-KEY-13: hides the scalar API-key question for multiple registrations", () => {
+    const condition = openApiApiKeyNode().condition as ConditionFunc;
+
+    assert.isFalse(
+      condition({
+        platform: Platform.CLI,
+        [QuestionNames.ActionType]: ActionStartOptions.apiSpec().id,
+        apiAuthData: [
+          { serverUrl: "https://example.com", authName: "repairKey", authType: "apiKey" },
+          { serverUrl: "https://example.com", authName: "inventoryKey", authType: "apiKey" },
+        ],
+      } as Inputs)
+    );
+  });
+});
+
+describe("openApiOAuthCredentialNodes", () => {
+  it("SCN-ADD-OPENAPI-OAUTH-13: asks only for client ID when Microsoft Entra is selected", () => {
+    const nodes = openApiOAuthCredentialNodes();
+    const inputs = {
+      platform: Platform.CLI,
+      [QuestionNames.ActionType]: ActionStartOptions.apiSpec().id,
+      apiAuthData: [{ serverUrl: "https://example.com", authType: "oauth2" }],
+    } as Inputs;
+
+    assert.deepEqual(
+      nodes.map((node) => (node.data as any).name),
+      [
+        "openapi-auth-identity-provider",
+        "openapi-auth-client-id",
+        "openapi-auth-pkce",
+        "openapi-auth-client-secret",
+        "openapi-auth-scopes",
+      ]
+    );
+    assert.isTrue((nodes[0].condition as ConditionFunc)(inputs));
+    assert.equal((nodes[0].data as any).default, AddAuthActionAuthTypeOptions.oauth().id);
+    for (const node of nodes) {
+      assert.isFalse(
+        (node.condition as ConditionFunc)({ ...inputs, platform: Platform.VSCode } as Inputs)
+      );
+    }
+    for (const node of nodes.slice(2)) {
+      assert.isFalse((node.condition as ConditionFunc)(inputs));
+    }
+    const credentialInputs = {
+      ...inputs,
+      [QuestionNames.OpenApiAuthIdentityProvider]: AddAuthActionAuthTypeOptions.oauth().id,
+      [QuestionNames.OpenApiAuthClientId]: "client-id",
+    } as Inputs;
+    for (const node of nodes) {
+      assert.isTrue((node.condition as ConditionFunc)(credentialInputs));
+    }
+    assert.isTrue((nodes[2].data as any).isBoolean);
+    assert.isFalse((nodes[2].data as any).required);
+    assert.isTrue((nodes[3].data as any).password);
+    assert.isFalse(
+      (nodes[3].condition as ConditionFunc)({
+        ...credentialInputs,
+        [QuestionNames.OpenApiAuthPKCE]: true,
+      } as Inputs)
+    );
+    const entraInputs = {
+      ...inputs,
+      [QuestionNames.OpenApiAuthIdentityProvider]: AddAuthActionAuthTypeOptions.microsoftEntra().id,
+      [QuestionNames.OpenApiAuthClientId]: "entra-client-id",
+    } as Inputs;
+    assert.isTrue((nodes[0].condition as ConditionFunc)(entraInputs));
+    assert.isTrue((nodes[1].condition as ConditionFunc)(entraInputs));
+    for (const node of nodes.slice(2)) {
+      assert.isFalse((node.condition as ConditionFunc)(entraInputs));
+    }
+    assert.isFalse(
+      (nodes[0].condition as ConditionFunc)({
+        ...inputs,
+        apiAuthData: [
+          { serverUrl: "https://example.com", authType: "oauth2" },
+          { serverUrl: "https://other.example.com", authType: "oauth2" },
+        ],
+      } as Inputs)
+    );
+    const pkceOption = AddPluginOptions.find((option) => option.name === "openapi-auth-pkce");
+    assert.equal(pkceOption?.type, "boolean");
+    assert.notProperty(pkceOption, "default");
+    const providerOption = AddPluginOptions.find(
+      (option) => option.name === "openapi-auth-identity-provider"
+    );
+    assert.deepEqual(providerOption?.choices, ["oauth", "microsoft-entra"]);
+    assert.equal(providerOption?.default, "oauth");
+    assert.isFalse(providerOption?.required);
+  });
+
+  it("hides scalar credential questions for mixed auth registrations", () => {
+    const inputs = {
+      platform: Platform.CLI,
+      [QuestionNames.ActionType]: ActionStartOptions.apiSpec().id,
+      apiAuthData: [
+        { serverUrl: "https://example.com", authType: "apiKey" },
+        { serverUrl: "https://example.com", authType: "oauth2" },
+      ],
+    } as Inputs;
+
+    assert.isFalse((openApiApiKeyNode().condition as ConditionFunc)(inputs));
+    for (const node of openApiOAuthCredentialNodes()) {
+      assert.isFalse((node.condition as ConditionFunc)(inputs));
+    }
   });
 });
 
@@ -715,35 +939,17 @@ describe("botProjectTypeNode", () => {
 });
 
 describe("tabProjectTypeNode", () => {
-  it("has correct condition and 4 staticOptions", () => {
+  it("RET-SPFX-03: preserves the three supported tab options and condition", () => {
     const node = tabProjectTypeNode();
     const condition = node.condition as { equals: string };
     assert.equal(condition.equals, TeamsProjectTypeOptions.tabOptionId);
     const data = node.data as SingleSelectQuestion;
-    assert.equal((data.staticOptions as OptionItem[]).length, 4);
+    assert.equal((data.staticOptions as OptionItem[]).length, 3);
     assert.equal(data.name, QuestionNames.Capabilities);
   });
-  it("has SPFx sub-tree child with SPFxTab condition", () => {
+  it("RET-SPFX-01: has no SPFx sub-tree", () => {
     const node = tabProjectTypeNode();
-    assert.equal(node.children?.length, 1);
-    const spfxChild = node.children![0];
-    const cond = spfxChild.condition as { equals: string };
-    assert.equal(cond.equals, TabCapabilityOptions.SPFxTab().id);
-  });
-  it("SPFx sub-tree contains new and import branches", () => {
-    const node = tabProjectTypeNode();
-    const spfxChild = node.children![0];
-    assert.isDefined(spfxChild.children);
-    const newBranch = spfxChild.children!.find(
-      (c) => (c.condition as { equals?: string })?.equals === "new"
-    );
-    assert.isDefined(newBranch);
-    const importBranch = spfxChild.children!.find(
-      (c) => (c.condition as { equals?: string })?.equals === "import"
-    );
-    assert.isDefined(importBranch);
-    // new branch should have 3 children (package, framework, webpart name)
-    assert.equal(newBranch!.children?.length, 3);
+    assert.isUndefined(node.children);
   });
 });
 
@@ -1269,6 +1475,25 @@ describe("ActionStartOptions", () => {
   });
 });
 
+describe("DACapabilityOptions", () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it.each([true, false])("includes skill when Frontier is %s", (enabled) => {
+    vi.spyOn(featureFlagManager, "getBooleanValue").mockImplementation(
+      (flag) => flag === FeatureFlags.Frontier && enabled
+    );
+
+    const options = DACapabilityOptions.all();
+    const optionIds = options.map((option) => option.id);
+
+    assert.include(optionIds, DACapabilityOptions.withSkill().id);
+    const skill = options.find((option) => option.id === DACapabilityOptions.withSkill().id);
+    assert.equal(skill?.label, getLocalizedString("template.createProjectQuestion.addSkill.label"));
+  });
+});
+
 describe("constructNode", () => {
   it("should return foundryNode when node is foundryNode", () => {
     const json = JSON.stringify({
@@ -1750,7 +1975,7 @@ describe("constructNode", () => {
   });
 
   it("should exclude a false-default feature-flagged option when env var is unset", () => {
-    delete process.env[FeatureFlagName.AgentSkillsManifest];
+    delete process.env[FeatureFlagName.Frontier];
     const json = JSON.stringify({
       data: {
         title: "test.title",
@@ -1758,7 +1983,7 @@ describe("constructNode", () => {
         type: "singleSelect",
         options: [
           { id: "always-visible", label: "Always" },
-          { id: "flagged", label: "Flagged", featureFlag: FeatureFlagName.AgentSkillsManifest },
+          { id: "flagged", label: "Flagged", featureFlag: FeatureFlagName.Frontier },
         ],
       },
     });
@@ -1800,7 +2025,7 @@ describe("constructNode", () => {
   });
 
   it("should let an explicit env override win for a false-default flag", () => {
-    process.env[FeatureFlagName.AgentSkillsManifest] = "true";
+    process.env[FeatureFlagName.Frontier] = "true";
     try {
       const json = JSON.stringify({
         data: {
@@ -1809,7 +2034,7 @@ describe("constructNode", () => {
           type: "singleSelect",
           options: [
             { id: "always-visible", label: "Always" },
-            { id: "flagged", label: "Flagged", featureFlag: FeatureFlagName.AgentSkillsManifest },
+            { id: "flagged", label: "Flagged", featureFlag: FeatureFlagName.Frontier },
           ],
         },
       });
@@ -1820,7 +2045,7 @@ describe("constructNode", () => {
       assert.equal(options.length, 2);
       assert.isTrue(options.some((o) => o.id === "flagged"));
     } finally {
-      delete process.env[FeatureFlagName.AgentSkillsManifest];
+      delete process.env[FeatureFlagName.Frontier];
     }
   });
 

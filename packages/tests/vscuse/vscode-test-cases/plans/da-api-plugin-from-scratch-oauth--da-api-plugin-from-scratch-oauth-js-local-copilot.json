@@ -8,11 +8,11 @@
       "precondition_wait_timeout": 30,
       "precondition_retry_interval": 1
     },
-    "total_steps": 97,
+    "total_steps": 103,
     "name": "da-api-plugin-from-scratch-oauth-js-local-copilot",
     "description": {
       "owner": "",
-      "workitem": "SCN-DA-CREATE-API-PLUGIN-FROM-SCRATCH",
+      "workitem": "34628898",
       "other": ""
     },
     "execution_order": [
@@ -79,9 +79,13 @@
       "step_signInM365_assertOption_c35252163_3_2",
       "step_signInM365_selectOption_c35252163_3_2",
       "step_signInM365_confirmSignIn_c35252163_3_2",
+      "step_signInM365_assertAccount_c35252163_3_2",
       "step_signInM365_focusAccount_c35252163_3_2",
+      "step_signInM365_assertFocusedAccount_c35252163_3_2",
       "step_signInM365_typeAccount_c35252163_3_2",
+      "step_signInM365_assertEnteredAccount_c35252163_3_2",
       "step_signInM365_next_c35252163_3_2",
+      "step_signInM365_assertPassword_c35252163_3_2",
       "step_signInM365_typePassword_c35252163_3_2",
       "step_signInM365_submit_c35252163_3_2",
       "step_signInM365_closeBrowser_c35252163_3_2",
@@ -94,9 +98,11 @@
       "step_filterOption_filter_c35252163_4_2",
       "step_filterOption_assertOption_c35252163_4_2",
       "step_filterOption_confirm_c35252163_4_2",
-      "step_browserM365SignIn_assertAccount_c35252163_4_3",
+      "step_browserM365SignIn_assertPage_c35252163_4_3",
       "step_browserM365SignIn_focusAccount_c35252163_4_3",
+      "step_browserM365SignIn_assertAccount_c35252163_4_3",
       "step_browserM365SignIn_enterAccount_c35252163_4_3",
+      "step_browserM365SignIn_assertEnteredAccount_c35252163_4_3",
       "step_browserM365SignIn_submitAccount_c35252163_4_3",
       "step_browserM365SignIn_assertPassword_c35252163_4_3",
       "step_browserM365SignIn_enterPassword_c35252163_4_3",
@@ -112,7 +118,7 @@
       "step_allowCopilotAction_assert_c35252163_6_2",
       "step_allowCopilotAction_click_c35252163_6_2",
       "step_allowCopilotAction_assertDismissed_c35252163_6_2",
-      "step_assertElement_assertVisible_c35252163_6_3"
+      "step_assertElementNamePrefix_assertVisible_c35252163_6_3"
     ],
     "tags": [
       "case_id:da-api-plugin-from-scratch-oauth-js-local-copilot",
@@ -1169,7 +1175,7 @@
       "parameters": {
         "sample": "=== Generated Script ===\nLanguage: bash\n\n```bash\nset -euo pipefail\nPROJECT_DIR=\"/home/vscode/AgentsToolkitProjects/${{var:app_name}}\" ASSERTIONS_B64=\"W3sicGF0aCI6ImFwcFBhY2thZ2UvYWktcGx1Z2luLmpzb24iLCJleGlzdHMiOnRydWUsImNvbnRhaW5zIjpbIlwibmFtZXNwYWNlXCI6IFwicmVwYWlyc1wiIiwiXCJ0eXBlXCI6IFwiT3BlbkFwaVwiIiwiXCJ0eXBlXCI6IFwiT0F1dGhQbHVnaW5WYXVsdFwiIiwiXCJyZWZlcmVuY2VfaWRcIjogXCIke3tPQVVUSDJBVVRIQ09ERV9DT05GSUdVUkFUSU9OX0lEfX1cIiIsIlwidXJsXCI6IFwiYXBpU3BlY2lmaWNhdGlvbkZpbGUvcmVwYWlyLnltbFwiIl0sIm5vdENvbnRhaW5zIjpbIlwicmVmZXJlbmNlX2lkXCI6IFwiJHt7QUFEQVVUSENPREVfQ09ORklHVVJBVElPTl9JRH19XCIiXX1d\" python3 - <<'PY'\nimport base64\nimport json\nimport os\nfrom pathlib import Path\n\nproject = Path(os.environ[\"PROJECT_DIR\"]).resolve()\nassertions = json.loads(base64.b64decode(os.environ[\"ASSERTIONS_B64\"]).decode(\"utf-8\"))\nfor assertion in assertions:\n    target = (project / assertion[\"path\"]).resolve()\n    try:\n        target.relative_to(project)\n    except ValueError as error:\n        raise AssertionError(\"File assertion escaped the project directory\") from error\n    exists = target.is_file()\n    if exists != assertion[\"exists\"]:\n        raise AssertionError(f\"Unexpected file existence for {assertion['path']}\")\n    if not exists:\n        continue\n    content = target.read_text(encoding=\"utf-8\")\n    for expected in assertion.get(\"contains\", []):\n        expected = expected.replace(\"__VSCUSE_APP_NAME__\", project.name)\n        if expected not in content:\n            raise AssertionError(f\"Expected content is absent from {assertion['path']}\")\n    for unexpected in assertion.get(\"notContains\", []):\n        unexpected = unexpected.replace(\"__VSCUSE_APP_NAME__\", project.name)\n        if unexpected in content:\n            raise AssertionError(f\"Unexpected content is present in {assertion['path']}\")\nPY\n```"
       },
-      "description": "@code verify the authored workspace file existence and content assertions without logging file contents.",
+      "description": "@code execute the supplied generated bash script exactly as authored and read its exact PROJECT_DIR under /home/vscode/AgentsToolkitProjects/ from that script; verify its project-relative file assertions, project files are not VS Code .code-workspace files, do not use /workspace, and do not log file contents.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -1192,7 +1198,7 @@
       "parameters": {
         "sample": "=== Generated Script ===\nLanguage: bash\n\n```bash\nset -euo pipefail\nPROJECT_DIR=\"/home/vscode/AgentsToolkitProjects/${{var:app_name}}\" ASSERTIONS_B64=\"W3sicGF0aCI6Im0zNjVhZ2VudHMubG9jYWwueW1sIiwiZXhpc3RzIjp0cnVlLCJjb250YWlucyI6WyJ1c2VzOiBhYWRBcHAvY3JlYXRlIiwiZ2VuZXJhdGVDbGllbnRTZWNyZXQ6IHRydWUiLCJjbGllbnRTZWNyZXQ6IFNFQ1JFVF9BQURfQVBQX0NMSUVOVF9TRUNSRVQiLCJ1c2VzOiBvYXV0aC9yZWdpc3RlciIsImNsaWVudFNlY3JldDogJHt7U0VDUkVUX0FBRF9BUFBfQ0xJRU5UX1NFQ1JFVH19IiwiY29uZmlndXJhdGlvbklkOiBPQVVUSDJBVVRIQ09ERV9DT05GSUdVUkFUSU9OX0lEIl0sIm5vdENvbnRhaW5zIjpbImlkZW50aXR5UHJvdmlkZXI6IE1pY3Jvc29mdEVudHJhIl19XQ==\" python3 - <<'PY'\nimport base64\nimport json\nimport os\nfrom pathlib import Path\n\nproject = Path(os.environ[\"PROJECT_DIR\"]).resolve()\nassertions = json.loads(base64.b64decode(os.environ[\"ASSERTIONS_B64\"]).decode(\"utf-8\"))\nfor assertion in assertions:\n    target = (project / assertion[\"path\"]).resolve()\n    try:\n        target.relative_to(project)\n    except ValueError as error:\n        raise AssertionError(\"File assertion escaped the project directory\") from error\n    exists = target.is_file()\n    if exists != assertion[\"exists\"]:\n        raise AssertionError(f\"Unexpected file existence for {assertion['path']}\")\n    if not exists:\n        continue\n    content = target.read_text(encoding=\"utf-8\")\n    for expected in assertion.get(\"contains\", []):\n        expected = expected.replace(\"__VSCUSE_APP_NAME__\", project.name)\n        if expected not in content:\n            raise AssertionError(f\"Expected content is absent from {assertion['path']}\")\n    for unexpected in assertion.get(\"notContains\", []):\n        unexpected = unexpected.replace(\"__VSCUSE_APP_NAME__\", project.name)\n        if unexpected in content:\n            raise AssertionError(f\"Unexpected content is present in {assertion['path']}\")\nPY\n```"
       },
-      "description": "@code verify the authored workspace file existence and content assertions without logging file contents.",
+      "description": "@code execute the supplied generated bash script exactly as authored and read its exact PROJECT_DIR under /home/vscode/AgentsToolkitProjects/ from that script; verify its project-relative file assertions, project files are not VS Code .code-workspace files, do not use /workspace, and do not log file contents.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -1215,7 +1221,7 @@
       "parameters": {
         "sample": "=== Generated Script ===\nLanguage: bash\n\n```bash\nset -euo pipefail\nPROJECT_DIR=\"/home/vscode/AgentsToolkitProjects/${{var:app_name}}\" ASSERTIONS_B64=\"W3sicGF0aCI6Im0zNjVhZ2VudHMueW1sIiwiZXhpc3RzIjp0cnVlLCJjb250YWlucyI6WyJ1c2VzOiBhYWRBcHAvY3JlYXRlIiwiZ2VuZXJhdGVDbGllbnRTZWNyZXQ6IHRydWUiLCJjbGllbnRTZWNyZXQ6IFNFQ1JFVF9BQURfQVBQX0NMSUVOVF9TRUNSRVQiLCJ1c2VzOiBvYXV0aC9yZWdpc3RlciIsImNsaWVudFNlY3JldDogJHt7U0VDUkVUX0FBRF9BUFBfQ0xJRU5UX1NFQ1JFVH19IiwiY29uZmlndXJhdGlvbklkOiBPQVVUSDJBVVRIQ09ERV9DT05GSUdVUkFUSU9OX0lEIl0sIm5vdENvbnRhaW5zIjpbImlkZW50aXR5UHJvdmlkZXI6IE1pY3Jvc29mdEVudHJhIl19XQ==\" python3 - <<'PY'\nimport base64\nimport json\nimport os\nfrom pathlib import Path\n\nproject = Path(os.environ[\"PROJECT_DIR\"]).resolve()\nassertions = json.loads(base64.b64decode(os.environ[\"ASSERTIONS_B64\"]).decode(\"utf-8\"))\nfor assertion in assertions:\n    target = (project / assertion[\"path\"]).resolve()\n    try:\n        target.relative_to(project)\n    except ValueError as error:\n        raise AssertionError(\"File assertion escaped the project directory\") from error\n    exists = target.is_file()\n    if exists != assertion[\"exists\"]:\n        raise AssertionError(f\"Unexpected file existence for {assertion['path']}\")\n    if not exists:\n        continue\n    content = target.read_text(encoding=\"utf-8\")\n    for expected in assertion.get(\"contains\", []):\n        expected = expected.replace(\"__VSCUSE_APP_NAME__\", project.name)\n        if expected not in content:\n            raise AssertionError(f\"Expected content is absent from {assertion['path']}\")\n    for unexpected in assertion.get(\"notContains\", []):\n        unexpected = unexpected.replace(\"__VSCUSE_APP_NAME__\", project.name)\n        if unexpected in content:\n            raise AssertionError(f\"Unexpected content is present in {assertion['path']}\")\nPY\n```"
       },
-      "description": "@code verify the authored workspace file existence and content assertions without logging file contents.",
+      "description": "@code execute the supplied generated bash script exactly as authored and read its exact PROJECT_DIR under /home/vscode/AgentsToolkitProjects/ from that script; verify its project-relative file assertions, project files are not VS Code .code-workspace files, do not use /workspace, and do not log file contents.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -1238,7 +1244,7 @@
       "parameters": {
         "sample": "=== Generated Script ===\nLanguage: bash\n\n```bash\nset -euo pipefail\nPROJECT_DIR=\"/home/vscode/AgentsToolkitProjects/${{var:app_name}}\" ASSERTIONS_B64=\"W3sicGF0aCI6ImFhZC5tYW5pZmVzdC5qc29uIiwiZXhpc3RzIjp0cnVlLCJjb250YWlucyI6W10sIm5vdENvbnRhaW5zIjpbXX1d\" python3 - <<'PY'\nimport base64\nimport json\nimport os\nfrom pathlib import Path\n\nproject = Path(os.environ[\"PROJECT_DIR\"]).resolve()\nassertions = json.loads(base64.b64decode(os.environ[\"ASSERTIONS_B64\"]).decode(\"utf-8\"))\nfor assertion in assertions:\n    target = (project / assertion[\"path\"]).resolve()\n    try:\n        target.relative_to(project)\n    except ValueError as error:\n        raise AssertionError(\"File assertion escaped the project directory\") from error\n    exists = target.is_file()\n    if exists != assertion[\"exists\"]:\n        raise AssertionError(f\"Unexpected file existence for {assertion['path']}\")\n    if not exists:\n        continue\n    content = target.read_text(encoding=\"utf-8\")\n    for expected in assertion.get(\"contains\", []):\n        expected = expected.replace(\"__VSCUSE_APP_NAME__\", project.name)\n        if expected not in content:\n            raise AssertionError(f\"Expected content is absent from {assertion['path']}\")\n    for unexpected in assertion.get(\"notContains\", []):\n        unexpected = unexpected.replace(\"__VSCUSE_APP_NAME__\", project.name)\n        if unexpected in content:\n            raise AssertionError(f\"Unexpected content is present in {assertion['path']}\")\nPY\n```"
       },
-      "description": "@code verify the authored workspace file existence and content assertions without logging file contents.",
+      "description": "@code execute the supplied generated bash script exactly as authored and read its exact PROJECT_DIR under /home/vscode/AgentsToolkitProjects/ from that script; verify its project-relative file assertions, project files are not VS Code .code-workspace files, do not use /workspace, and do not log file contents.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -1261,7 +1267,7 @@
       "parameters": {
         "sample": "=== Generated Script ===\nLanguage: bash\n\n```bash\nset -euo pipefail\nPROJECT_DIR=\"/home/vscode/AgentsToolkitProjects/${{var:app_name}}\" ASSERTIONS_B64=\"W3sicGF0aCI6InNyYy9mdW5jdGlvbnMvcmVwYWlycy5qcyIsImV4aXN0cyI6dHJ1ZSwiY29udGFpbnMiOltdLCJub3RDb250YWlucyI6W119XQ==\" python3 - <<'PY'\nimport base64\nimport json\nimport os\nfrom pathlib import Path\n\nproject = Path(os.environ[\"PROJECT_DIR\"]).resolve()\nassertions = json.loads(base64.b64decode(os.environ[\"ASSERTIONS_B64\"]).decode(\"utf-8\"))\nfor assertion in assertions:\n    target = (project / assertion[\"path\"]).resolve()\n    try:\n        target.relative_to(project)\n    except ValueError as error:\n        raise AssertionError(\"File assertion escaped the project directory\") from error\n    exists = target.is_file()\n    if exists != assertion[\"exists\"]:\n        raise AssertionError(f\"Unexpected file existence for {assertion['path']}\")\n    if not exists:\n        continue\n    content = target.read_text(encoding=\"utf-8\")\n    for expected in assertion.get(\"contains\", []):\n        expected = expected.replace(\"__VSCUSE_APP_NAME__\", project.name)\n        if expected not in content:\n            raise AssertionError(f\"Expected content is absent from {assertion['path']}\")\n    for unexpected in assertion.get(\"notContains\", []):\n        unexpected = unexpected.replace(\"__VSCUSE_APP_NAME__\", project.name)\n        if unexpected in content:\n            raise AssertionError(f\"Unexpected content is present in {assertion['path']}\")\nPY\n```"
       },
-      "description": "@code verify the authored workspace file existence and content assertions without logging file contents.",
+      "description": "@code execute the supplied generated bash script exactly as authored and read its exact PROJECT_DIR under /home/vscode/AgentsToolkitProjects/ from that script; verify its project-relative file assertions, project files are not VS Code .code-workspace files, do not use /workspace, and do not log file contents.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -1284,7 +1290,7 @@
       "parameters": {
         "sample": "=== Generated Script ===\nLanguage: bash\n\n```bash\nset -euo pipefail\nPROJECT_DIR=\"/home/vscode/AgentsToolkitProjects/${{var:app_name}}\" ASSERTIONS_B64=\"W3sicGF0aCI6InNyYy9mdW5jdGlvbnMvcmVwYWlycy50cyIsImV4aXN0cyI6ZmFsc2UsImNvbnRhaW5zIjpbXSwibm90Q29udGFpbnMiOltdfV0=\" python3 - <<'PY'\nimport base64\nimport json\nimport os\nfrom pathlib import Path\n\nproject = Path(os.environ[\"PROJECT_DIR\"]).resolve()\nassertions = json.loads(base64.b64decode(os.environ[\"ASSERTIONS_B64\"]).decode(\"utf-8\"))\nfor assertion in assertions:\n    target = (project / assertion[\"path\"]).resolve()\n    try:\n        target.relative_to(project)\n    except ValueError as error:\n        raise AssertionError(\"File assertion escaped the project directory\") from error\n    exists = target.is_file()\n    if exists != assertion[\"exists\"]:\n        raise AssertionError(f\"Unexpected file existence for {assertion['path']}\")\n    if not exists:\n        continue\n    content = target.read_text(encoding=\"utf-8\")\n    for expected in assertion.get(\"contains\", []):\n        expected = expected.replace(\"__VSCUSE_APP_NAME__\", project.name)\n        if expected not in content:\n            raise AssertionError(f\"Expected content is absent from {assertion['path']}\")\n    for unexpected in assertion.get(\"notContains\", []):\n        unexpected = unexpected.replace(\"__VSCUSE_APP_NAME__\", project.name)\n        if unexpected in content:\n            raise AssertionError(f\"Unexpected content is present in {assertion['path']}\")\nPY\n```"
       },
-      "description": "@code verify the authored workspace file existence and content assertions without logging file contents.",
+      "description": "@code execute the supplied generated bash script exactly as authored and read its exact PROJECT_DIR under /home/vscode/AgentsToolkitProjects/ from that script; verify its project-relative file assertions, project files are not VS Code .code-workspace files, do not use /workspace, and do not log file contents.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -1307,7 +1313,7 @@
       "parameters": {
         "sample": "=== Generated Script ===\nLanguage: bash\n\n```bash\nset -euo pipefail\nPROJECT_DIR=\"/home/vscode/AgentsToolkitProjects/${{var:app_name}}\" ASSERTIONS_B64=\"W3sicGF0aCI6InRzY29uZmlnLmpzb24iLCJleGlzdHMiOmZhbHNlLCJjb250YWlucyI6W10sIm5vdENvbnRhaW5zIjpbXX1d\" python3 - <<'PY'\nimport base64\nimport json\nimport os\nfrom pathlib import Path\n\nproject = Path(os.environ[\"PROJECT_DIR\"]).resolve()\nassertions = json.loads(base64.b64decode(os.environ[\"ASSERTIONS_B64\"]).decode(\"utf-8\"))\nfor assertion in assertions:\n    target = (project / assertion[\"path\"]).resolve()\n    try:\n        target.relative_to(project)\n    except ValueError as error:\n        raise AssertionError(\"File assertion escaped the project directory\") from error\n    exists = target.is_file()\n    if exists != assertion[\"exists\"]:\n        raise AssertionError(f\"Unexpected file existence for {assertion['path']}\")\n    if not exists:\n        continue\n    content = target.read_text(encoding=\"utf-8\")\n    for expected in assertion.get(\"contains\", []):\n        expected = expected.replace(\"__VSCUSE_APP_NAME__\", project.name)\n        if expected not in content:\n            raise AssertionError(f\"Expected content is absent from {assertion['path']}\")\n    for unexpected in assertion.get(\"notContains\", []):\n        unexpected = unexpected.replace(\"__VSCUSE_APP_NAME__\", project.name)\n        if unexpected in content:\n            raise AssertionError(f\"Unexpected content is present in {assertion['path']}\")\nPY\n```"
       },
-      "description": "@code verify the authored workspace file existence and content assertions without logging file contents.",
+      "description": "@code execute the supplied generated bash script exactly as authored and read its exact PROJECT_DIR under /home/vscode/AgentsToolkitProjects/ from that script; verify its project-relative file assertions, project files are not VS Code .code-workspace files, do not use /workspace, and do not log file contents.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -1510,6 +1516,27 @@
       ]
     },
     {
+      "step_id": "step_signInM365_assertAccount_c35252163_3_2",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the Microsoft Sign in page is visible in Chrome with an email or username input and a Next button.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_signInM365_confirmSignIn_c35252163_3_2"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:authentication",
+        "account:m365",
+        "step_retry_timeout: 60"
+      ]
+    },
+    {
       "step_id": "step_signInM365_focusAccount_c35252163_3_2",
       "agent": "interaction",
       "tool": "click",
@@ -1518,24 +1545,41 @@
         "x": 369,
         "y": 350
       },
-      "description": "Click on the \"Email or phone\" input field in the Microsoft Sign-in form on the login.microsoftonline.com webpage to focus the cursor for credential entry.",
+      "description": "Click the email or username input above the Next button on the Microsoft Sign in page in Chrome, not the Use passkey from another device suggestion.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_signInM365_confirmSignIn_c35252163_3_2"
+        "step_signInM365_assertAccount_c35252163_3_2"
       ],
-      "preconditions": [
-        "dhash:369:350:16:5:2113d25252525221",
-        "dhash:369:350:96:5:0919006d19220812",
-        "dhash:369:350:0:10:1b88d0d1e5e6dae4"
-      ],
+      "preconditions": [],
       "postconditions": [],
       "tags": [
         "component:authentication",
         "account:m365",
-        "precondition_wait_timeout: 60"
+        "ocr:true"
+      ]
+    },
+    {
+      "step_id": "step_signInM365_assertFocusedAccount_c35252163_3_2",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the Microsoft Sign in page is visible in Chrome with an email or username input that is focused and a Next button; input focus is evidenced by a visible caret, an active underline, or Chrome's \"Use passkey from another device\" suggestion anchored below that input.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_signInM365_focusAccount_c35252163_3_2"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:authentication",
+        "account:m365",
+        "step_retry_timeout: 60"
       ]
     },
     {
@@ -1551,16 +1595,35 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_signInM365_focusAccount_c35252163_3_2"
+        "step_signInM365_assertFocusedAccount_c35252163_3_2"
       ],
-      "preconditions": [
-        "dhash:512:384:0:20:1b28f0d9e7e6dae4"
-      ],
+      "preconditions": [],
       "postconditions": [],
       "tags": [
         "component:authentication",
         "account:m365",
         "delay: 3"
+      ]
+    },
+    {
+      "step_id": "step_signInM365_assertEnteredAccount_c35252163_3_2",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the Microsoft Sign in page in Chrome shows ${{env:M365_ACCOUNT_NAME}} in the account input and a Next button.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_signInM365_typeAccount_c35252163_3_2"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:authentication",
+        "account:m365",
+        "step_retry_timeout: 60"
       ]
     },
     {
@@ -1572,24 +1635,42 @@
         "x": 629,
         "y": 484
       },
-      "description": "Click the blue \"Next\" button on the Microsoft sign-in page, confirming the entered email address for login.",
+      "description": "Click the blue Next button on the Microsoft Sign in page in Chrome to continue with the entered account.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_signInM365_typeAccount_c35252163_3_2"
+        "step_signInM365_assertEnteredAccount_c35252163_3_2"
       ],
-      "preconditions": [
-        "dhash:629:484:16:5:23248c4b6c24d32c",
-        "dhash:629:484:96:5:00004eb131860000",
-        "dhash:629:484:0:10:1b28f0d9e7e6dae4"
-      ],
+      "preconditions": [],
       "postconditions": [],
       "tags": [
         "component:authentication",
         "account:m365",
-        "delay:3"
+        "delay:3",
+        "ocr:true"
+      ]
+    },
+    {
+      "step_id": "step_signInM365_assertPassword_c35252163_3_2",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the Microsoft Sign in page in Chrome shows ${{env:M365_ACCOUNT_NAME}} and a password input that is visible and focused.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_signInM365_next_c35252163_3_2"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:authentication",
+        "account:m365",
+        "step_retry_timeout: 120"
       ]
     },
     {
@@ -1605,11 +1686,9 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_signInM365_next_c35252163_3_2"
+        "step_signInM365_assertPassword_c35252163_3_2"
       ],
-      "preconditions": [
-        "dhash:512:384:0:20:1b08f0d9d1e6e6e4"
-      ],
+      "preconditions": [],
       "postconditions": [],
       "tags": [
         "component:authentication",
@@ -1632,9 +1711,7 @@
       "depends_on": [
         "step_signInM365_typePassword_c35252163_3_2"
       ],
-      "preconditions": [
-        "dhash:512:384:0:20:1b08f0d9d1e6e6e4"
-      ],
+      "preconditions": [],
       "postconditions": [],
       "tags": [
         "component:authentication",
@@ -1867,11 +1944,11 @@
       ]
     },
     {
-      "step_id": "step_browserM365SignIn_assertAccount_c35252163_4_3",
+      "step_id": "step_browserM365SignIn_assertPage_c35252163_4_3",
       "agent": "assertion",
       "tool": "",
       "parameters": {},
-      "description": "@assertion the Microsoft sign-in page is visible in Chrome with an email or username input.",
+      "description": "@assertion the Microsoft sign-in page is visible in Chrome with an email or username input and a Next button.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -1893,22 +1970,44 @@
       "tool": "click",
       "parameters": {
         "button": "left",
-        "x": 429,
-        "y": 347
+        "x": 512,
+        "y": 384
       },
-      "description": "Click the email or username input on the Microsoft sign-in page.",
+      "description": "Click the \"Email, phone, or Skype\" input (also labelled \"Email or phone\") on the Microsoft sign-in page above Next, not the passkey suggestion.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_browserM365SignIn_assertAccount_c35252163_4_3"
+        "step_browserM365SignIn_assertPage_c35252163_4_3"
       ],
       "preconditions": [],
       "postconditions": [],
       "tags": [
         "component:authentication",
-        "surface:browser"
+        "surface:browser",
+        "ocr:true"
+      ]
+    },
+    {
+      "step_id": "step_browserM365SignIn_assertAccount_c35252163_4_3",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the Microsoft sign-in page is visible in Chrome with an email or username input that is focused.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_browserM365SignIn_focusAccount_c35252163_4_3"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:authentication",
+        "surface:browser",
+        "step_retry_timeout: 180"
       ]
     },
     {
@@ -1924,13 +2023,34 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_browserM365SignIn_focusAccount_c35252163_4_3"
+        "step_browserM365SignIn_assertAccount_c35252163_4_3"
       ],
       "preconditions": [],
       "postconditions": [],
       "tags": [
         "component:authentication",
         "surface:browser"
+      ]
+    },
+    {
+      "step_id": "step_browserM365SignIn_assertEnteredAccount_c35252163_4_3",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the Microsoft sign-in page in Chrome shows ${{env:M365_ACCOUNT_NAME}} in the email or username input.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_browserM365SignIn_enterAccount_c35252163_4_3"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:authentication",
+        "surface:browser",
+        "step_retry_timeout: 60"
       ]
     },
     {
@@ -1946,7 +2066,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_browserM365SignIn_enterAccount_c35252163_4_3"
+        "step_browserM365SignIn_assertEnteredAccount_c35252163_4_3"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -2069,7 +2189,7 @@
       "agent": "assertion",
       "tool": "",
       "parameters": {},
-      "description": "@assertion an agent whose name starts with ${{var:app_name}} is displayed in the main section of Microsoft 365 Copilot.",
+      "description": "@assertion Microsoft 365 Copilot shows an agent's chat open in the main section with a visible message input.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -2112,7 +2232,7 @@
       "agent": "assertion",
       "tool": "",
       "parameters": {},
-      "description": "@assertion the Microsoft 365 Copilot message input is visible on a page for an agent whose name starts with ${{var:app_name}}.",
+      "description": "@assertion the Microsoft 365 Copilot message input is visible in the open agent chat.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -2233,8 +2353,8 @@
       "tool": "click",
       "parameters": {
         "button": "left",
-        "x": 340,
-        "y": 354
+        "x": 333,
+        "y": 327
       },
       "description": "Click the \"Allow\" button in the Microsoft 365 Copilot chat interface to grant the agent access.",
       "content_refs": [],
@@ -2277,11 +2397,11 @@
       ]
     },
     {
-      "step_id": "step_assertElement_assertVisible_c35252163_6_3",
+      "step_id": "step_assertElementNamePrefix_assertVisible_c35252163_6_3",
       "agent": "assertion",
       "tool": "",
       "parameters": {},
-      "description": "@assertion a visible browser element has role button and accessible name Sign in to Repair Service.",
+      "description": "@assertion a visible browser element has role button and an accessible name that starts with Sign in to.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -2293,7 +2413,7 @@
       "postconditions": [],
       "tags": [
         "component:browser",
-        "action:assert-element",
+        "action:assert-element-name-prefix",
         "step_retry_timeout: 60"
       ]
     }

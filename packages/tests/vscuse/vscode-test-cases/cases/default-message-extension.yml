@@ -1,11 +1,9 @@
 version: 1
 
-# The generated engine currently owns scaffold, lifecycle, and launch adapters.
-# Invoking the message extension itself remains on the recorded legacy group
-# until a dedicated semantic component is captured from the live Teams UI.
 cases:
   - id: message-extension-ts-remote-teams
     scenarioId: SCN-CREATE-MESSAGE-EXTENSION-01
+    workItemIds: [35692309]
     steps:
       [
         scaffold-message-extension-ts,
@@ -16,10 +14,12 @@ cases:
         deploy,
         f5-teams-remote-ts,
         open-app,
+        check-message-extension,
       ]
 
   - id: message-extension-ts-local-teams
     scenarioId: SCN-CREATE-MESSAGE-EXTENSION-01
+    workItemIds: [34869342]
     steps:
       [
         scaffold-message-extension-ts,
@@ -27,15 +27,24 @@ cases:
         login-m365,
         f5-teams-local,
         open-app,
+        check-message-extension,
       ]
 
   - id: message-extension-ts-playground
     scenarioId: SCN-CREATE-MESSAGE-EXTENSION-01
+    workItemIds: [27548742]
     steps:
-      [scaffold-message-extension-ts, check-message-extension-ts, f5-playground]
+      [
+        scaffold-message-extension-ts,
+        check-message-extension-ts,
+        f5-playground,
+        open-app,
+        check-message-extension,
+      ]
 
   - id: message-extension-py-remote-teams
     scenarioId: SCN-CREATE-MESSAGE-EXTENSION-03
+    workItemIds: [35636525]
     steps:
       [
         scaffold-message-extension-py,
@@ -47,10 +56,12 @@ cases:
         deploy,
         f5-teams-remote,
         open-app,
+        check-message-extension,
       ]
 
   - id: message-extension-py-local-teams
     scenarioId: SCN-CREATE-MESSAGE-EXTENSION-03
+    workItemIds: [35732768]
     steps:
       [
         scaffold-message-extension-py,
@@ -59,16 +70,20 @@ cases:
         login-m365,
         f5-teams-local,
         open-app,
+        check-message-extension,
       ]
 
   - id: message-extension-py-playground
     scenarioId: SCN-CREATE-MESSAGE-EXTENSION-03
+    workItemIds: [35732768]
     steps:
       [
         scaffold-message-extension-py,
         check-message-extension-py,
         create-python-environment,
         f5-playground,
+        open-app,
+        check-message-extension,
       ]
 
 steps:
@@ -118,7 +133,7 @@ steps:
       - type: file
         path: appPackage/manifest.json
         expect:
-          contains: ['"manifestVersion": "1.29"', '"composeExtensions": [']
+          contains: ['"manifestVersion": "1.30"', '"composeExtensions": [']
 
   scaffold-message-extension-py:
     type: scaffold
@@ -231,3 +246,8 @@ steps:
     with:
       kind: app
       destination: chat
+
+  check-message-extension:
+    type: checks
+    with:
+      - type: messageExtension

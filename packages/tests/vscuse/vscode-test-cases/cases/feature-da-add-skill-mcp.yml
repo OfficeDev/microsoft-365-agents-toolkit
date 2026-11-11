@@ -1,0 +1,138 @@
+version: 1
+
+featureFlags:
+  - TEAMSFX_MCP_FOR_DA_DT=true
+  - TEAMSFX_MCP_FOR_DA_DCR=true
+
+cases:
+  - id: feature-da-add-skill-mcp
+    scenarioId: SCN-DA-CREATE-WITH-MCP-SERVER
+    workItemIds: [39611826]
+    gate: scheduled
+    steps:
+      [
+        scaffold-mcp,
+        check-mcp-project,
+        add-skill,
+        check-skill,
+        login-m365,
+        provision,
+        preview,
+        check-preview,
+      ]
+
+steps:
+  scaffold-mcp:
+    type: scaffold
+    with:
+      template: da/mcp-server
+      answers:
+        - question: projectType
+          value: copilot-agent-type
+        - question: daTemplate
+          value: add-action
+        - question: actionSource
+          value: mcp
+        - question: mcpServerUrl
+          type: text
+          value: https://learn.microsoft.com/api/mcp
+        - question: authType
+          value: none
+        - question: workspaceFolder
+          value: default
+        - question: appName
+          type: text
+          value: "${{var:app_name:vscuse_app_#####}}"
+
+  check-mcp-project:
+    type: checks
+    with:
+      - type: file
+        path: appPackage/ai-plugin.json
+        expect:
+          contains:
+            - '"functions": []'
+            - '"type": "RemoteMCPServer"'
+            - '"url": "https://learn.microsoft.com/api/mcp"'
+            - '"run_for_functions": ['
+            - '"*"'
+            - '"type": "None"'
+          notContains: ["mcp_tool_description"]
+      - type: file
+        path: appPackage/declarativeAgent.json
+        expect:
+          contains: ['"id": "action_1"', '"file": "ai-plugin.json"']
+          notContains: ['"agent_skills"']
+      - type: file
+        path: .vscode/mcp.json
+        expect:
+          contains: ["https://learn.microsoft.com/api/mcp"]
+      - type: file
+        path: m365agents.yml
+        expect:
+          notContains: ["oauth/register", "dcr/register"]
+      - type: file
+        path: appPackage/mcp-tools-1.json
+        expect:
+          exists: false
+
+  add-skill:
+    type: addDaSkill
+    with:
+      name: test-skill
+      description: A test skill for the MCP declarative agent.
+      rejectedName: testSkill
+      exposeToCopilot: false
+
+  check-skill:
+    type: checks
+    with:
+      - type: file
+        path: appPackage/skills/test-skill/SKILL.md
+        expect:
+          contains:
+            - "name: test-skill"
+            - "description: A test skill for the MCP declarative agent."
+            - "# test-skill"
+      - type: file
+        path: appPackage/skills/testSkill/SKILL.md
+        expect:
+          exists: false
+      - type: file
+        path: appPackage/declarativeAgent.json
+        expect:
+          contains:
+            - '"agent_skills"'
+            - '"folder": "skills/test-skill"'
+            - '"id": "action_1"'
+            - '"file": "ai-plugin.json"'
+      - type: file
+        path: appPackage/manifest.json
+        expect:
+          notContains: ['"agentSkills"']
+
+  login-m365:
+    type: login
+    with:
+      type: m365
+      account: "${{env:M365_ACCOUNT_NAME}}"
+      password: "${{secret:M365_ACCOUNT_PASSWORD}}"
+
+  provision:
+    type: provision
+    with:
+      environment: none
+
+  preview:
+    type: target
+    with:
+      profile: "Preview in Copilot (Chrome)"
+      profileSelection: first
+
+  check-preview:
+    type: checks
+    with:
+      - type: browser
+        expect:
+          role: heading
+          namePrefix: "${{var:app_name}}"

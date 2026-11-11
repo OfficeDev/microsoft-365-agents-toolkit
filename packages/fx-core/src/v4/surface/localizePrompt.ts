@@ -23,6 +23,21 @@ export function localizeText(text: string | undefined): string | undefined {
 export function localizePrefixedText(
   keyPrefix: string | undefined,
   suffix: string,
+  fallback: string
+): string;
+export function localizePrefixedText(
+  keyPrefix: string | undefined,
+  suffix: string,
+  fallback: undefined
+): string | undefined;
+export function localizePrefixedText(
+  keyPrefix: string | undefined,
+  suffix: string,
+  fallback: string | undefined
+): string | undefined;
+export function localizePrefixedText(
+  keyPrefix: string | undefined,
+  suffix: string,
   fallback: string | undefined
 ): string | undefined {
   if (keyPrefix !== undefined) {

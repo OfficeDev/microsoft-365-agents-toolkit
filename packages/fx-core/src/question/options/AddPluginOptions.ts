@@ -48,6 +48,45 @@ export const AddPluginOptions: CLICommandOption[] = [
     description: "Select OpenAPI Document",
   },
   {
+    name: "api-key",
+    type: "string",
+    shortName: "k",
+    description: "API Key (optional)",
+    required: false,
+  },
+  {
+    name: "openapi-auth-identity-provider",
+    type: "string",
+    description: "Identity provider for OpenAPI OAuth (optional; defaults to OAuth).",
+    required: false,
+    default: "oauth",
+    choices: ["oauth", "microsoft-entra"],
+  },
+  {
+    name: "openapi-auth-client-id",
+    type: "string",
+    description: "OpenAPI OAuth client ID (optional)",
+    required: false,
+  },
+  {
+    name: "openapi-auth-pkce",
+    type: "boolean",
+    description: "Enable PKCE for OpenAPI OAuth?",
+    required: false,
+  },
+  {
+    name: "openapi-auth-client-secret",
+    type: "string",
+    description: "OpenAPI OAuth client secret (optional)",
+    required: false,
+  },
+  {
+    name: "openapi-auth-scopes",
+    type: "string",
+    description: "OpenAPI OAuth scopes (optional)",
+    required: false,
+  },
+  {
     name: "mcp-da-server-url",
     type: "string",
     description: "MCP Server URL",
@@ -62,7 +101,7 @@ export const AddPluginOptions: CLICommandOption[] = [
     type: "string",
     description: "Select Authentication Type",
     default: "oauth",
-    choices: ["oauth", "oauth-dynamic", "entra-sso", "none"],
+    choices: ["oauth", "oauth-dynamic", "entra-sso", "bearer-token", "none"],
   },
   {
     name: "mcp-da-client-id",
@@ -79,6 +118,11 @@ export const AddPluginOptions: CLICommandOption[] = [
     type: "string",
     description: "OAuth Scopes (optional)",
     required: false,
+  },
+  {
+    name: "mcp-da-api-key",
+    type: "string",
+    description: "API Key",
   },
   {
     name: "manifest-file",

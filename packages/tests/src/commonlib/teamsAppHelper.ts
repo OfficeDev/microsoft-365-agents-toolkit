@@ -5,6 +5,10 @@ import { M365TokenProvider } from "@microsoft/teamsfx-api";
 import { AppStudioScopes } from "@microsoft/teamsfx-core";
 import axios, { AxiosInstance } from "axios";
 import MockM365TokenProvider from "@microsoft/m365agentstoolkit-cli/src/commonlib/m365LoginUserPassword";
+import {
+  getBotRegistrationApiPath,
+  getTeamsAppApiPath,
+} from "./developerPortalApi";
 
 function delay(ms: number) {
   // tslint:disable-next-line no-string-based-set-timeout
@@ -18,7 +22,7 @@ export class TeamsAppHelper {
 
   private constructor(access: string) {
     this.axios = axios.create({
-      baseURL: "https://dev.teams.microsoft.com/api/",
+      baseURL: "https://dev.teams.microsoft.com",
       headers: {
         authorization: `Bearer ${access}`,
         ConsistencyLevel: "eventual",
@@ -28,7 +32,7 @@ export class TeamsAppHelper {
   }
 
   public static async init(
-    provider: M365TokenProvider = MockM365TokenProvider
+    provider: M365TokenProvider = MockM365TokenProvider,
   ): Promise<TeamsAppHelper> {
     if (!TeamsAppHelper.instance) {
       const res = await provider.getAccessToken({
@@ -49,7 +53,8 @@ export class TeamsAppHelper {
     return new Promise<boolean>(async (resolve) => {
       for (let i = 0; i < retryTimes; ++i) {
         try {
-          await this.axios.delete(`appdefinitions/${id}`);
+          const path = await getTeamsAppApiPath(this.axios, id);
+          await this.axios.delete(path);
           console.info(`[Success] delete the Teams app with id: ${id}`);
           return resolve(true);
         } catch {
@@ -68,14 +73,14 @@ export class TeamsAppHelper {
     return new Promise<boolean>(async (resolve) => {
       for (let i = 0; i < retryTimes; ++i) {
         try {
-          const response = await this.axios.get(`/publishing/${id}`);
+          const response = await this.axios.get(`/api/publishing/${id}`);
           const results = response?.data?.value as any[];
           if (results && results.length > 0) {
             const publishedAppId = results[0].id;
             const appDefinitionId = results[0].appDefinitions[0]?.id;
             if (publishedAppId && appDefinitionId) {
               await this.axios.delete(
-                `/publishing/${publishedAppId}/appdefinitions/${appDefinitionId}`
+                `/api/publishing/${publishedAppId}/appdefinitions/${appDefinitionId}`,
               );
               console.info(`[Success] stagged app ${id} has been cacelled.`);
               return resolve(true);
@@ -97,9 +102,9 @@ export class TeamsAppHelper {
     return new Promise<boolean>(async (resolve) => {
       for (let i = 0; i < retryTimes; ++i) {
         try {
-          await this.axios.delete(`botframework/${id}`);
+          await this.axios.delete(getBotRegistrationApiPath(id));
           console.info(
-            `[Success] delete the Bot on bot framework with id: ${id}`
+            `[Success] delete the Bot on bot framework with id: ${id}`,
           );
           return resolve(true);
         } catch {

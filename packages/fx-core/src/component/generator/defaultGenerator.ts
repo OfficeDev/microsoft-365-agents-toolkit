@@ -19,6 +19,7 @@ import { featureFlagManager, FeatureFlags } from "../../common/featureFlags";
 import { TelemetryEvent, TelemetryProperty } from "../../common/telemetry";
 import { MetadataV3, MetadataV4 } from "../../common/versionMetadata";
 import { ProgrammingLanguage, QuestionNames } from "../../question/constants";
+import { developerPortalScaffoldUtils } from "../developerPortalScaffoldUtils";
 import { ProgressMessages, ProgressTitles } from "../messages";
 import { ActionContext, ActionExecutionMW } from "../middleware/actionExecutionMW";
 import { commonTemplateName, componentName } from "./constant";
@@ -71,6 +72,18 @@ export class DefaultTemplateGenerator implements IGenerator {
     }
 
     const postRes = await this.post(context, inputs, destinationPath, actionContext);
+    if (postRes.isErr()) return postRes;
+    if (
+      inputs.teamsAppFromTdp &&
+      featureFlagManager.getBooleanValue(FeatureFlags.NewDeveloperPortalApis)
+    ) {
+      const handoffRes = await developerPortalScaffoldUtils.updateFilesForTdp(
+        context,
+        inputs.teamsAppFromTdp,
+        { ...inputs, projectPath: destinationPath }
+      );
+      if (handoffRes.isErr()) return err(handoffRes.error);
+    }
     return postRes;
   }
 
@@ -114,6 +127,7 @@ export class DefaultTemplateGenerator implements IGenerator {
         `${MetadataV3.sandboxConfigFile}.tpl`,
         `${MetadataV4.sandboxConfigFile}.tpl`,
         ".env.sandbox",
+        ".env.sandbox.tpl",
         ".env.sandbox.user.tpl",
       ];
       const parts = fileName.split("/");
@@ -134,7 +148,7 @@ export class DefaultTemplateGenerator implements IGenerator {
     const folderName =
       templateMetadata?.language === "common" || templateMetadata?.language === "none"
         ? templateMetadata.id
-        : templateMetadata?.id.substring(0, templateMetadata.id.lastIndexOf("-")) ?? "";
+        : (templateMetadata?.id.substring(0, templateMetadata.id.lastIndexOf("-")) ?? "");
 
     const generatorContext: GeneratorContext = {
       name: folderName,

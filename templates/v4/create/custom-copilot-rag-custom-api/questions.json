@@ -27,7 +27,7 @@
       "type": "multiSelect",
       "title": "Select Operation(s) Teams Can Interact with",
       "keyPrefix": "core.createProjectQuestion.apiSpec.operation",
-      "optionsFrom": "openapi.operations",
+      "optionsFrom": "openapi.teamsAiOperations",
       "optionsFromParams": {
         "apiSpecLocation": { "expr": "apiSpecLocation" }
       },

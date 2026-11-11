@@ -17,7 +17,13 @@ import { installGlobalProxyInterceptor } from "./common/httpProxy";
 installGlobalProxyInterceptor();
 
 export { GraphClient } from "./client/graphClient";
-export { teamsDevPortalClient } from "./client/teamsDevPortalClient";
+export { teamsDevPortalClient } from "./client/teamsDevPortalClientProvider";
+export {
+  getDefaultAuthorityUrl,
+  getEntraEndpoint,
+  getTenantedAuthorityUrl,
+  isSovereignHigh,
+} from "./common/accountUtils";
 export { askSubscription } from "./common/azureUtils";
 export {
   AppStudioScopes,
@@ -27,8 +33,9 @@ export {
   GraphReadUserScopes,
   GraphScopes,
   ListSensitivityLabelScope,
-  SPFxScopes,
   MosServiceScope,
+  WorkIqServiceScope,
+  SPFxScopes,
 } from "./common/constants";
 export { Correlator } from "./common/correlator";
 export {
@@ -37,15 +44,13 @@ export {
   FeatureFlags,
   isFeatureFlagEnabled,
 } from "./common/featureFlags";
-export {
-  getEntraEndpoint,
-  getDefaultAuthorityUrl,
-  getTenantedAuthorityUrl,
-  isSovereignHigh,
-} from "./common/accountUtils";
 export { globalStateGet, globalStateUpdate } from "./common/globalState";
 export { AadSet } from "./common/globalVars";
-export { getDefaultString, getLocalizedString } from "./common/localizeUtils";
+export {
+  getDefaultString,
+  getFeatureFlaggedLabel,
+  getLocalizedString,
+} from "./common/localizeUtils";
 export * from "./common/permissionInterface";
 export * from "./common/projectSettingsHelper";
 export {
@@ -64,6 +69,7 @@ export {
   loadingDefaultPlaceholder,
   loadingOptionsPlaceholder,
   maskSecret,
+  maskSecretFromEnv,
   MaskSecretOptions,
   parseFromResourceId,
 } from "./common/stringUtils";
@@ -96,6 +102,35 @@ export { AppDefinition } from "./component/driver/teamsApp/interfaces/appdefinit
 export { copilotGptManifestUtils } from "./component/driver/teamsApp/utils/CopilotGptManifestUtils";
 export { manifestUtils } from "./component/driver/teamsApp/utils/ManifestUtils";
 export { pluginManifestUtils } from "./component/driver/teamsApp/utils/PluginManifestUtils";
+export {
+  WorkIqPolicyClient,
+  WorkIqPolicyInspection,
+  WorkIqPolicyDeleteRequest,
+  workIqPolicyClient,
+} from "./client/workIqPolicyClient";
+export {
+  CapturedPolicy,
+  DestinationState,
+  MosPolicyPublicationRequest,
+  MosPolicyPublisher,
+  PolicyDestinationFailure,
+  PolicyDestinationReceipt,
+  PolicyDestinationReport,
+  PolicyDestinationResult,
+  PolicyPublicationContext,
+  PolicyPublicationError,
+  PolicyPublicationOperation,
+  PolicyPublicationReport,
+  PolicyPublicationOutcome,
+  PolicyPublicationNextAction,
+  PolicyPublicationTarget,
+  PreparedPolicyPublication,
+  normalizeOutcome,
+  finalizePolicyPublicationReport,
+  PublishPolicyArgs,
+  WorkIqPolicyPublicationRequest,
+  WorkIqPolicyPublisher,
+} from "./component/workiq/policyPublication";
 export { DefaultTemplateGenerator } from "./component/generator/defaultGenerator";
 export { HelperMethods } from "./component/generator/officeAddin/helperMethods";
 export { generateScaffoldingSummary } from "./component/generator/openApiSpec/helper";
@@ -118,14 +153,20 @@ export { PackageService } from "./component/m365/packageService";
 export * from "./component/middleware/actionExecutionMW";
 export { outputScaffoldingWarningMessage } from "./component/utils/common";
 export { DotenvOutput, envUtil } from "./component/utils/envUtil";
-export { metadataUtil } from "./component/utils/metadataUtil";
+export { getAppResourceId } from "./component/utils/appInfo";
+export {
+  defaultAppIdEnvName,
+  getAppIdEnvName,
+  resolveAppResourceId,
+} from "./component/utils/appIdentity";
+export { MCP_AUTH_PLACEHOLDER_WARNING_TYPES } from "./component/utils/mcpAuthScaffolder";
 export {
   MCPAuthProbeResult,
   MCPEndpointStatus,
   probeMCPServerAuth,
 } from "./component/utils/mcpToolFetcher";
-export { MCP_AUTH_PLACEHOLDER_WARNING_TYPES } from "./component/utils/mcpAuthScaffolder";
-export { ODRTool, ODRServer, ODRProvider } from "./component/utils/odrProvider";
+export { metadataUtil } from "./component/utils/metadataUtil";
+export { ODRProvider, ODRServer, ODRTool } from "./component/utils/odrProvider";
 export { pathUtils } from "./component/utils/pathUtils";
 export { newResourceGroupOption, resourceGroupHelper } from "./component/utils/ResourceGroupHelper";
 export { CoreCallbackFunc } from "./core/callback";
@@ -133,6 +174,17 @@ export { CollaborationConstants } from "./core/collaborator";
 export { environmentManager } from "./core/environment";
 export { environmentNameManager } from "./core/environmentName";
 export { FxCore } from "./core/FxCore";
+export * from "./core/FxCoreClient";
+export { ActionNames } from "./actions";
+export type {
+  AcquireArgs,
+  ActionArgs,
+  ActionDefinition,
+  ActionExecutionFailure,
+  ActionName,
+  ActionResult,
+} from "./actions";
+export type { ExecutionResult } from "./component/driver/interface/stepDriver";
 export { PreProvisionResForVS, VersionCheckRes } from "./core/types";
 export * from "./error/index";
 export * from "./question/constants";

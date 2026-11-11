@@ -40,7 +40,12 @@ You can extend declarative agents using plugins to retrieve data and execute tas
       name: {{ApiSpecAuthName}}
       flow: authorizationCode
       # app ID
+      {{#NewDeveloperPortalApis}}
+      appId: ${{APP_ID}}
+      {{/NewDeveloperPortalApis}}
+      {{^NewDeveloperPortalApis}}
       appId: ${{TEAMS_APP_ID}}
+      {{/NewDeveloperPortalApis}}
       # Path to OpenAPI description document
       apiSpecPath: {{{ApiSpecPath}}}
       # Uncomment below property to use proof key for code exchange (PKCE)

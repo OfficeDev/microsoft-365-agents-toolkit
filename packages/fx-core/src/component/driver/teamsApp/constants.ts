@@ -1,6 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
+export const teamsAppUpdateOutputNames = {
+  teamsAppUpdateTime: "TEAMS_APP_UPDATE_TIME",
+  teamsAppTenantId: "TEAMS_APP_TENANT_ID",
+};
+
 /**
  * @author Huajie Zhang <huajiezhang@microsoft.com>
  */
@@ -322,6 +327,7 @@ export class ErrorMessages {
 
 export class APP_STUDIO_API_NAMES {
   public static readonly CREATE_APP = "create-app";
+  public static readonly UPDATE_APP = "update-app";
   public static readonly CREATE_AAD_APP = "create-aad-app";
   public static readonly GET_APP = "get-app";
   public static readonly LIST_APPS = "list-app";
@@ -354,6 +360,11 @@ export class GRAPH_API_NAMES {
   public static readonly PUBLISH_APP = "graph-publish-app";
   public static readonly GET_PUBLISHED_APP = "graph-get-published-app";
   public static readonly UPDATE_PUBLISHED_APP = "graph-update-published-app";
+  public static readonly LIST_DRIVE_ITEMS = "graph-list-drive-items";
+  public static readonly CREATE_DRIVE_FOLDER = "graph-create-drive-folder";
+  public static readonly UPLOAD_DRIVE_FILE = "graph-upload-drive-file";
+  public static readonly UPDATE_DRIVE_FILE = "graph-update-drive-file";
+  public static readonly DELETE_DRIVE_ITEM = "graph-delete-drive-item";
 }
 
 /**

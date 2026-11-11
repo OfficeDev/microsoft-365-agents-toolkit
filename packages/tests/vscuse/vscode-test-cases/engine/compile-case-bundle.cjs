@@ -26,6 +26,7 @@ function composeCase({ compileStep, expandedCase, sourcePath }) {
       caseId: expandedCase.caseId,
       definition: step.definition,
       featureFlags: expandedCase.featureFlags,
+      isLastStep: step === expandedCase.steps.at(-1),
       occurrence: step.occurrence,
       stepName: step.stepName,
     });
@@ -61,7 +62,7 @@ function composeCase({ compileStep, expandedCase, sourcePath }) {
           name: expandedCase.caseId,
           description: {
             owner: "",
-            workitem: expandedCase.scenarioId,
+            workitem: expandedCase.workItemIds.join(","),
             other: "",
           },
           execution_order: steps.map(({ step_id }) => step_id),

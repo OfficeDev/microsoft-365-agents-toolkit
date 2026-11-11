@@ -573,10 +573,13 @@
       </Item>
       <Item ItemId=";core.MCPForDA.authUrlNotFound" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Unable to find the authentication URL(s) from response of Authorization Server Metadata of the MCP server.]]></Val>
+          <Val><![CDATA[Unable to find the authentication URL(s) from response of Authorization Server Metadata of the MCP server. Attempted: %s]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Não foi possível localizar as URLs de autenticação da resposta dos Metadados do Servidor de Autorização do servidor MCP.]]></Val>
+            <Val><![CDATA[Não foi possível localizar as URLs de autenticação na resposta dos Metadados do Servidor de Autorização do servidor MCP. Tentativa: %s]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Unable to find the authentication URL(s) from response of Authorization Server Metadata of the MCP server.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -594,10 +597,13 @@
       </Item>
       <Item ItemId=";core.MCPForDA.mcpAuthDcrPlaceholderWarning" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Unable to discover the OAuth well-known authorization server URL for MCP server '%s'. The 'dcr/register' action was added to m365agents.yml with a placeholder — replace '<PLEASE_FILL_IN_WELL_KNOWN_AUTHORIZATION_SERVER_URL>' with the correct URL before provisioning.]]></Val>
+          <Val><![CDATA[Scaffolding succeeded, but the OAuth endpoints couldn't be discovered automatically. Your MCP server is reachable, but it doesn't advertise its OAuth endpoints — ATK checks the server's OAuth metadata ('.well-known/oauth-authorization-server') and found 'none'. Replace the 'wellKnownAuthorizationServer' placeholder in 'm365agents.yml' with the right value before provisioning.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Não foi possível descobrir a URL conhecida do servidor de autorização OAuth para o servidor MCP '%s'. A ação 'dcr/register' foi adicionada ao m365agents.yml com um espaço reservado — substitua '<PLEASE_FILL_IN_WELL_KNOWN_AUTHORIZATION_SERVER_URL>' pela URL correta antes do provisionamento.]]></Val>
+            <Val><![CDATA[O scaffolding foi concluído com êxito, mas não foi possível descobrir automaticamente os pontos de extremidade OAuth. Seu servidor MCP está acessível, mas não anuncia seus pontos de extremidade OAuth — o ATK verifica os metadados OAuth do servidor ('.well-known/oauth-authorization-server') e encontrou 'none'. Substitua o espaço reservado 'wellKnownAuthorizationServer' em 'm365agents.yml' pelo valor correto antes do provisionamento.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Unable to discover the OAuth well-known authorization server URL for MCP server '%s'. The 'dcr/register' action was added to m365agents.yml with a placeholder — replace '<PLEASE_FILL_IN_WELL_KNOWN_AUTHORIZATION_SERVER_URL>' with the correct URL before provisioning.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -619,11 +625,32 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";core.MCPForDA.mcpAuthOAuthPlaceholderWarning" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Scaffolding succeeded, but the OAuth endpoints couldn't be discovered automatically. Your MCP server is reachable, but it doesn't advertise its OAuth endpoints — ATK checks the server's OAuth metadata ('.well-known/oauth-authorization-server') and found 'none'. Replace the 'authorizationUrl' and 'tokenUrl' placeholders in 'm365agents.yml' with the right values before provisioning.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[O scaffolding foi concluído com êxito, mas não foi possível descobrir automaticamente os pontos de extremidade OAuth. Seu servidor MCP está acessível, mas não anuncia seus pontos de extremidade OAuth — o ATK verifica os metadados OAuth do servidor ('.well-known/oauth-authorization-server') e encontrou 'none'. Substitua os espaços reservados 'authorizationUrl' e 'tokenUrl' em 'm365agents.yml' pelos valores corretos antes do provisionamento.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";core.MCPForDA.mcpServerMetadataUrlNotFound" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Unable to find the server metadata from property "authorization_servers" from repsonse of the Protected Resource Metadata of the MCP server.]]></Val>
+          <Val><![CDATA[Unable to find the server metadata from property "authorization_servers" from response of the Protected Resource Metadata of the MCP server.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Não foi possível encontrar os metadados do servidor na propriedade "authorization_servers" na resposta dos Metadados de Recurso Protegido do servidor MCP.]]></Val>
+            <Val><![CDATA[Não foi possível localizar os metadados do servidor na propriedade "authorization_servers" da resposta dos Metadados de Recurso Protegido do servidor MCP.]]></Val>
+          </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Unable to find the server metadata from property "authorization_servers" from repsonse of the Protected Resource Metadata of the MCP server.]]></Val>
+          </Prev>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.MCPForDA.mcpServerUrlNotAnEndpoint" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[%s answered an MCP initialize request with HTTP %s, so it may not be an MCP server URL. Verify the URL before provisioning.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[%s respondeu a uma solicitação de inicialização do MCP com HTTP %s, portanto talvez não seja uma URL de servidor MCP. Verifique a URL antes do provisionamento.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -658,6 +685,15 @@
           <Prev Cat="Text">
             <Val><![CDATA[No tools were discovered from the MCP server at %s. To add tools later, run:]A;  atk add action --api-plugin-type mcp --mcp-da-server-url <server-url> --mcp-tools-file-path <path-to-tools-json> --interactive false]]></Val>
           </Prev>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.MCPForDA.openYmlFile" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Open m365agents.yml]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Abra m365agents.yml]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -1102,30 +1138,6 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
-      <Item ItemId=";core.TabSPFxOption.detailNew" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Build UI with SharePoint Framework]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Compilar interface do usuário com Estrutura do SharePoint]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[SPFx components hosted in Microsoft 365 and embeded in Microsoft Teams]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.TabSPFxOption.labelNew" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[SPFx]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[SPFx]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[SPFx tab]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
       <Item ItemId=";core.WorkflowOption.detail" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Interact with multi-step processes in Teams chats]]></Val>
@@ -1558,6 +1570,69 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";core.addOpenApiActionQuestion.ApiKey.title" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[API Key (optional)]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Chave de API (opcional)]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.addOpenApiActionQuestion.IdentityProvider.description" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Identity provider for OpenAPI OAuth (optional; defaults to OAuth).]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Provedor de identidade para OAuth do OpenAPI (opcional; o padrão é OAuth).]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.addOpenApiActionQuestion.IdentityProvider.title" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Select the identity provider for OpenAPI OAuth]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Selecione o provedor de identidade para OAuth do OpenAPI]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.addOpenApiActionQuestion.OAuthClientId.title" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[OpenAPI OAuth client ID (optional)]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[ID do cliente OAuth do OpenAPI (opcional)]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.addOpenApiActionQuestion.OAuthClientSecret.title" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[OpenAPI OAuth client secret (optional)]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Segredo do cliente OAuth do OpenAPI (opcional)]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.addOpenApiActionQuestion.OAuthPKCE.title" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Enable PKCE for OpenAPI OAuth?]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Habilitar PKCE para OAuth do OpenAPI?]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.addOpenApiActionQuestion.OAuthScopes.title" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[OpenAPI OAuth scopes (optional)]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Escopos OAuth do OpenAPI (opcional)]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";core.addPlugin.success" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[API plugin "%s" added to the project successfully. View plugin manifest in "%s".]]></Val>
@@ -1623,15 +1698,6 @@
           <Val><![CDATA[Add]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[Adicionar]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.addSkill.featureFlagDisabled" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Agent skills are not enabled. Set the environment variable TEAMSFX_AGENT_SKILLS=true to enable this preview feature.]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[As habilidades do agente não estão habilitadas. Defina a variável de ambiente TEAMSFX_AGENT_SKILLS=true para habilitar esta versão prévia do recurso.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -1773,10 +1839,13 @@
       </Item>
       <Item ItemId=";core.addSkillQuestion.name.placeholder" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Enter a name for your skill (letters, numbers, and hyphens only)]]></Val>
+          <Val><![CDATA[Enter a name for your skill (lowercase letters, numbers, and hyphens only)]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Insira um nome para sua habilidade (somente letras, números e hifens)]]></Val>
+            <Val><![CDATA[Insira um nome para sua habilidade (somente letras minúsculas, números e hifens)]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Enter a name for your skill (letters, numbers, and hyphens only)]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -1791,10 +1860,13 @@
       </Item>
       <Item ItemId=";core.addSkillQuestion.name.validation" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Skill name must start with a letter and contain only letters, numbers, and hyphens.]]></Val>
+          <Val><![CDATA[Skill name may only contain lowercase letters, numbers, and hyphens. Use 1-64 characters, without leading, trailing, or consecutive hyphens.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[O nome da habilidade deve começar com uma letra e conter apenas letras, números e hifens.]]></Val>
+            <Val><![CDATA[O nome da habilidade pode conter apenas letras minúsculas, números e hifens. Use de 1 a 64 caracteres, sem hifens à esquerda, à direita ou consecutivos.]]></Val>
           </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[Skill name must start with a letter and contain only letters, numbers, and hyphens.]]></Val>
+          </Prev>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -3970,6 +4042,42 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";core.createProjectQuestion.mcpForDa.ApiKey.placeholder" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Enter the API key sent as a bearer token]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Insira a chave de API enviada como um token de portador]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.mcpForDa.ApiKey.required" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[API key is required.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[A chave de API é necessária.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.mcpForDa.ApiKey.title" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[API Key]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Chave de API]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.mcpForDa.Auth.BearerToken.Detail" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Send an API key as an HTTP Bearer token.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Envie uma chave de API como um token de Portador HTTP.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";core.createProjectQuestion.mcpForDa.Auth.EntraSSO" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Entra SSO]]></Val>
@@ -4218,6 +4326,24 @@
           <Val><![CDATA[OAuth Scopes (optional)]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[Escopos de OAuth (opcional)]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.mcpForDa.ServerUrl.invalidUrl" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Enter an absolute URL that starts with https:// or http://.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Insira uma URL absoluta que comece com https:// ou http://.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.createProjectQuestion.mcpForDa.ServerUrl.notAnMcpEndpoint" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Couldn't reach an MCP server at this URL (returned 404 to the MCP 'initialize' request). Verify the URL, or confirm the server is running.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Não foi possível acessar um servidor MCP nesta URL (retornou 404 para a solicitação 'initialize' do MCP). Verifique a URL ou confirme que o servidor está em execução.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4567,6 +4693,33 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";core.envFunc.fileReferenceOutsideManifestDirectory.errorLog.local" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The file reference resolves outside the manifest directory.]A;Reference: %s]A;Resolved path: %s]A;Manifest directory: %s]A;Move the file into the manifest directory, then update the file reference in %s.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[A referência de arquivo é resolvida fora do diretório de manifesto.]A;Referência: %s]A;Caminho resolvido: %s]A;Diretório de manifesto: %s]A;Mova o arquivo para o diretório de manifesto e atualize a referência de arquivo no %s.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.envFunc.fileReferenceOutsideManifestDirectory.errorMessage" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The file reference must point to a file inside the manifest directory.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[A referência de arquivo deve apontar para um arquivo dentro do diretório de manifesto.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.envFunc.fileReferenceOutsideManifestDirectory.errorMessage.local" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The file reference "%s" resolves to "%s", outside the manifest directory "%s". Move the file into the manifest directory, then update the reference in %s.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[O "%s" de referência de arquivo é resolvido para "%s", fora do diretório de manifesto "%s". Mova o arquivo para o diretório de manifesto e atualize a referência em %s.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";core.envFunc.invalidFunctionParameter.errorLog" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[The parameter "%s" of function "%s" is invalid. Please provide a valid file path wrapped by '' or an environment variable name in "${{}}" format.]]></Val>
@@ -4644,6 +4797,15 @@
           <Val><![CDATA[Check [Output panel]5D;(command:fx-extension.showOutputChannel) for details.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[Verifique [Output panel]5D;(command:fx-extension.showOutputChannel) para obter detalhes.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.featureFlaggedLabel.frontier" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[%s (Frontier)]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[%s (Frontier)]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -4878,6 +5040,186 @@
           <Val><![CDATA[Content Add-in]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[Suplemento de Conteúdo]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.openPluginExport.failed" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Failed to export the Agent Plugin.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Falha ao exportar o Plug-in do Agente.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.openPluginExport.invalidAgentPluginManifest" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The project cannot be exported as an Agent Plugins 1.0.0 manifest.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[O projeto não pode ser exportado como um manifesto do Agent Plugins 1.0.0.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.openPluginExport.invalidManifest" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The project manifest is invalid.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[O manifesto do projeto é inválido.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.openPluginExport.invalidMcpServerUrl" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The project contains an MCP server URL that cannot be exported.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[O projeto contém uma URL de servidor MCP que não pode ser exportada.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.openPluginExport.invalidOutputPath" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The output path must not be a symbolic link or junction.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[O caminho de saída não deve ser um link simbólico ou uma junção.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.openPluginExport.invalidProjectPath" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The project path is invalid.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[O caminho do projeto é inválido.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.openPluginExport.invalidProjectStructure" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The project structure is invalid.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[A estrutura do projeto é inválida.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.openPluginExport.manifestNotFound" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[appPackage/manifest.json was not found in the project.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[appPackage/manifest.json não foi encontrado no projeto.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.openPluginExport.missingProjectPath" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The --path option is required.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[A opção --path é necessária.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.openPluginExport.outputDirectoryNotEmpty" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The output directory is not empty. Choose a different --output path or empty the directory.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[O diretório de saída não está vazio. Escolha um caminho --output diferente ou esvazie o diretório.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.openPluginImport.authFallback" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[OAuth metadata could not be resolved for MCP server '%s' after it confirmed authentication is required. Auto fell back to OAuthPluginVault. Verify the authentication type and register the generated reference ID before use.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Não foi possível resolver os metadados OAuth para o servidor MCP '%s' depois que ele confirmou que a autenticação é necessária. Fallback automático para OAuthPluginVault. Verifique o tipo de autenticação e registre a ID de referência gerada antes de usar.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.openPluginImport.autoAuthNone" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Auto inferred authentication type None for MCP server '%s'. Verify this choice if individual tools require authentication or use an API key.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[O tipo de autenticação None foi inferido automaticamente para o servidor MCP "%s". Verifique essa opção se as ferramentas individuais exigem autenticação ou usam uma chave de API.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.openPluginImport.autoAuthOAuth" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Auto inferred OAuthPluginVault for MCP server '%s'. The generated reference ID is a placeholder and must be registered before use.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[OAuthPluginVault inferido automaticamente para o servidor MCP '%s'. A ID de referência gerada é um espaço reservado e deve ser registrada antes do uso.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.openPluginImport.failed" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Failed to import the Agent Plugin.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Falha ao importar o Plug-in do Agente.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.openPluginImport.invalidManifest" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The mapped Teams manifest is invalid: %s]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[O manifesto mapeado do Teams é inválido: %s]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.openPluginImport.invalidOutputPath" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The output path must not be a symbolic link or junction: %s.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[O caminho de saída não deve ser um link simbólico ou uma junção: %s.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.openPluginImport.invalidPlugin" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The Agent Plugin is invalid: %s]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[O Plug-in do Agente é inválido: %s]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.openPluginImport.missingPluginPath" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The --path option is required.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[A opção --path é necessária.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.openPluginImport.outputDirectoryNotEmpty" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The output directory is not empty: %s. Choose a different --output path or empty the directory.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[O diretório de saída não está vazio: %s. Escolha um caminho --output diferente ou esvazie o diretório.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.openPluginImport.unresolvedMcpAuth" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Unable to resolve authentication for MCP server '%s' while --default-auth-type is Auto. Specify None, OAuthPluginVault, or ApiKeyPluginVault explicitly.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Não é possível resolver a autenticação para o servidor MCP "%s" enquanto --default-auth-type estiver definido como Auto. Especifique explicitamente None, OAuthPluginVault ou ApiKeyPluginVault.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -5551,23 +5893,11 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
-      <Item ItemId=";core.spfxFolder.placeholder" ItemType="0" PsrId="306" Leaf="true">
+      <Item ItemId=";core.spfxGenerationNotSupported" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[Select the folder containing your SPFx solution]]></Val>
+          <Val><![CDATA[Creating or importing SharePoint Framework projects and adding web parts are no longer supported by Microsoft 365 Agents Toolkit. Use the SharePoint Framework tooling directly.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Selecione a pasta que contém sua solução SPFx]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Select the folder that contains your SPFx solution]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";core.spfxFolder.title" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[SPFx solution folder]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Pasta da solução SPFx]]></Val>
+            <Val><![CDATA[Não há mais suporte para a criação ou importação de projetos da Estrutura do SharePoint e para a adição de Web Parts no Microsoft 365 Agents Toolkit. Use as ferramentas da Estrutura do SharePoint diretamente.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -6174,6 +6504,42 @@
           <Val><![CDATA['%s' exists and was not overwritten. Delete or rename it to rebuild the file.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[''%s'' existe e não foi substituído. Exclua-o ou renomeie-o para recriar o arquivo.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.v4.scaffold.languageOptionsFailed" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Failed to load language choices from the template package.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Falha ao carregar as opções de idioma do pacote de modelos.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.v4.scaffold.languageOptionsInvalid" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The template package contains invalid language presentation metadata.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[O pacote de modelo contém metadados de apresentação de idioma inválidos.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.v4.scaffold.openApiAuthYamlInvalid" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Cannot add OpenAPI authentication actions. The project YAML must be valid and contain a provision action list.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Não é possível adicionar ações de autenticação OpenAPI. O YAML do projeto deve ser válido e conter uma lista de ações de provisionamento.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";core.v4.scaffoldMetadataSourceReadFailed" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The scaffold metadata source could not be read.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[A origem dos metadados do scaffold não pôde ser lida.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -7129,6 +7495,24 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";driver.dcr.description.update" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Update an existing Dynamic Client Registration (DCR) configuration for MCP server authentication.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Atualizar uma configuração existente de Registro Dinâmico de Cliente (DCR) para autenticação do servidor MCP.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.dcr.error.invalidConfiguration" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The service did not return a valid Dynamic authentication configuration for this ID. Check the configuration ID and service compatibility.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[O serviço não retornou uma configuração de autenticação Dinâmica válida para esta ID. Verifique a ID de configuração e a compatibilidade do serviço.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";driver.dcr.error.nameTooLong" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[The DCR configuration name is too long. The maximum character length is 128.]]></Val>
@@ -7156,6 +7540,15 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";driver.dcr.log.skipUpdate" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[DCR configuration %s already matches the requested settings. No update is needed.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[A configuração DCR %s já corresponde às configurações solicitadas. Nenhuma atualização é necessária.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";driver.dcr.log.successCreateDcr" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[DCR configuration created successfully with id %s!]]></Val>
@@ -7165,11 +7558,29 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";driver.dcr.log.successUpdate" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[DCR configuration %s updated successfully. Updated fields: %s.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[A configuração do DCR %s atualizada com êxito. Campos atualizados: %s.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";driver.dcr.title.create" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Creating DCR configuration...]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[Criando a configuração de DCR...]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";driver.dcr.title.update" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Updating DCR configuration...]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Atualizando a configuração de DCR...]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -7648,6 +8059,15 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";driver.oauth.error.supportedAccountTypesUnsupportedCloud" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The includePersonalMicrosoftAccounts option is supported only in the Microsoft 365 commercial cloud environment.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[A opção includePersonalMicrosoftAccounts só tem suporte no ambiente de nuvem comercial do Microsoft 365.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";driver.oauth.info.update" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[OAuth registration updated successfully! The following parameters have been updated:]A;%s]]></Val>
@@ -7902,45 +8322,6 @@
           </Tgt>
           <Prev Cat="Text">
             <Val><![CDATA[Successful execution of the `%s` command at `%s`.]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";driver.spfx.add.description" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[add additional web part to SPFx project]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[acrescente a web part adicional ao projeto do SPFx]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";driver.spfx.add.progress.scaffoldWebpart" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Generate SPFx web part using Yeoman CLI]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Gerar a web part do SPFx usando a CLI do Yeoman]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";driver.spfx.add.progress.title" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Scaffolding web part]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Web Part do Scaffolding]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";driver.spfx.add.successNotice" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Web part %s was successfully added to the project.]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[A web part %s foi adicionada ao projeto com sucesso.]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Web part %s was successfully added to project.]]></Val>
           </Prev>
         </Str>
         <Disp Icon="Str" />
@@ -9403,6 +9784,15 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";error.common.AmbiguousOpenApiAuthCredentialError" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[OpenAPI credentials cannot be mapped because the selected operations use multiple authentication registrations. Omit the scalar credentials or select operations that use one registration.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[As credenciais OpenAPI não podem ser mapeadas porque as operações selecionadas usam vários registros de autenticação. Omita as credenciais escalares ou selecione operações que usam um registro.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";error.common.ConcurrentError" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Previous task is still running. Wait until your previous task is finished and try again.]]></Val>
@@ -9457,6 +9847,24 @@
           <Prev Cat="Text">
             <Val><![CDATA[A http server error happened while performing the %s task. Please try again later. The error response is: %s]]></Val>
           </Prev>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";error.common.InapplicableOpenApiAuthCredentialError" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The supplied OpenAPI credentials do not apply to the authentication type used by the selected operations. Omit the credentials or supply credentials for the discovered authentication type.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[As credenciais OpenAPI fornecidas não se aplicam ao tipo de autenticação usado pelas operações selecionadas. Omita as credenciais ou forneça credenciais para o tipo de autenticação descoberto.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";error.common.IncompleteOpenApiOAuthCredentialError" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[OpenAPI OAuth client secret, scopes, and PKCE require --openapi-auth-client-id. Supply a client ID or omit the OAuth credential options to configure credentials during provision.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[O segredo do cliente OAuth OpenAPI, os escopos e o PKCE exigem --openapi-auth-client-id. Forneça uma ID do cliente ou omita as opções de credencial OAuth para configurar as credenciais durante o provisionamento.]]></Val>
+          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>
@@ -10138,6 +10546,15 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";error.m365.AdvancedPackageUploadsDisabled" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Upload blocked by your tenant's Advanced package uploads setting. Ask your Microsoft 365 admin to allow uploads for your account by selecting All users or including you in Specific users or groups. Learn more: [Manage Advanced package uploads]5D;(%s)]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Carregamento bloqueado pela configuração de carregamentos de pacotes avançados do locatário. Peça ao administrador do Microsoft 365 para permitir carregamentos para sua conta selecionando Todos os usuários ou incluindo você em Usuários ou grupos específicos. Saiba mais: [Manage Advanced package uploads]5D;(%s)]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";error.m365.M365TenantIdNotFoundInTokenError" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Unable to obtain Microsoft 365 tenant ID in token JSON object. Make sure your account is authorized to access the tenant and the token JSON object is valid.]]></Val>
@@ -10186,23 +10603,101 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
-      <Item ItemId=";error.m365.SharedScopeAdvancedDADisabled" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Deployment blocked: Advanced declarative agent can't be deployed as 'shared' scope due to tenant permission settings. Get more info: [Known limitation of Advanced Declarative Agent]5D;(%s)]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Implantação bloqueada: agente declarativo avançado não pode ser implantado como escopo 'compartilhado' devido às configurações de permissão do locatário. Obter mais informações: [Limitação conhecida do Agente Declarativo Avançado]5D;(%s)]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Deployment blocked: Advanced declarative agent can't be deployed due to tenant permission settings. Get more info: [Manage agents for Microsoft 365 Copilot in the Microsoft 365 admin center - Microsoft 365 admin | Microsoft Learn]5D;(%s)]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
       <Item ItemId=";error.m365.packageService.packageSizeExceeded" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[The app package (%s MB) exceeds the maximum supported size (%s MB). Reduce the package contents before uploading.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[O pacote do aplicativo (%s MB) excede o tamanho máximo com suporte (%s MB). Reduza o conteúdo do pacote antes de carregar.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";error.m365.packageService.validationFailed" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The app package failed RAI validation. Resolve the following issues and try again:]A;%s]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[O pacote do aplicativo falhou na validação de RAI. Resolva os seguintes problemas e tente novamente:]A;%s]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";error.m365.skills.authorization" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Skill synchronization is not authorized. Verify the signed-in account, agent ownership, Graph permissions, and SharePoint Embedded onboarding before retrying.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[A sincronização de habilidades não está autorizada. Verifique a conta conectada, a propriedade do agente, as permissões do Graph e a integração do SharePoint Embedded antes de tentar novamente.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";error.m365.skills.conflict" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The skill upload conflicts with an existing version or another edit. Use a new package manifest version for updates and do not edit the agent concurrently. No rollback was performed.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[O upload da habilidade está em conflito com uma versão existente ou outra edição. Use uma nova versão do manifesto do pacote para atualizações e não edite o agente simultaneamente. Nenhuma reversão foi executada.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";error.m365.skills.copyNotSupported" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Microsoft 365 reported published-content copying for a skill draft. This preview supports only drafts created exclusively through the ATK skip-copy flow. Verify the draft's history and Microsoft 365 skip-copy support before another upload. No skill files were synchronized and the agent package was not submitted.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[O Microsoft 365 informou que houve cópia de conteúdo publicado para um rascunho de habilidade. Esta prévia só é compatível com rascunhos criados exclusivamente pelo fluxo do ATK para ignorar a cópia. Verifique o histórico do rascunho e se o Microsoft 365 é compatível com esse recurso antes de fazer outro upload. Nenhum arquivo de habilidade foi sincronizado e o pacote do agente não foi enviado.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";error.m365.skills.directoryFailed" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The skill draft could not be prepared. The request was not replayed because its outcome may be uncertain. Verify Microsoft 365 skip-copy support and ensure no other upload is running before trying again.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Não foi possível preparar o rascunho da habilidade. A solicitação não foi repetida porque seu resultado pode ser incerto. Verifique se o Microsoft 365 dá suporte à opção de ignorar cópia e certifique-se de que nenhum outro upload esteja em andamento antes de tentar novamente.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";error.m365.skills.invalidInventory" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The skill file inventory is invalid or contains conflicting paths. Check the skill files and try again.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[O inventário do arquivo de habilidade é inválido ou contém caminhos conflitantes. Verifique os arquivos de habilidade e tente novamente.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";error.m365.skills.invalidPackage" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The agent skill package is invalid. Check its manifests, skill paths, and SKILL.md metadata before retrying.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[O pacote de habilidades do agente é inválido. Verifique os manifestos, caminhos de habilidades e metadados do SKILL.md antes de tentar novamente.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";error.m365.skills.invalidResponse" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Microsoft 365 returned an unexpected response while preparing or synchronizing agent skills. The agent package was not submitted.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[O Microsoft 365 retornou uma resposta inesperada ao preparar ou sincronizar as habilidades do agente. O pacote do agente não foi enviado.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";error.m365.skills.requestFailed" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[A skill upload request failed. Its outcome may be uncertain. No rollback was performed. Check the service state before another upload; if package submission was attempted, resolve its publication status first.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Falha em uma solicitação de upload de habilidade. Seu resultado pode ser incerto. Nenhuma reversão foi executada. Verifique o estado do serviço antes de outro upload; Se houve uma tentativa de envio do pacote, resolva seu status de publicação primeiro.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";error.m365.skills.retryExhausted" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Skill synchronization could not complete within its retry budget. The draft is retained. Resolve the service issue before starting another upload through the ATK skip-copy flow.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Não foi possível concluir a sincronização de habilidades dentro do orçamento de novas tentativas. O rascunho é mantido. Resolva o problema do serviço antes de iniciar outro upload por meio do fluxo de ignorar-copiar ATK.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -10378,11 +10873,41 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
+      <Item ItemId=";error.teamsApp.createAppPackage.fileSystemError.display" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The app package file operation failed for '%s'. File system error: %s.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Falha na operação do arquivo do pacote do aplicativo para '%s'. Erro do sistema de arquivos: %s.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";error.teamsApp.createAppPackage.fileSystemError.telemetry" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The app package file operation failed. File system error: %s.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Falha na operação do arquivo do pacote do aplicativo. Erro do sistema de arquivos: %s.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
       <Item ItemId=";error.teamsApp.createAppPackage.invalidFile" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
-          <Val><![CDATA[%s is invalid, it should be in the same directory as manifest.json or a subdirectory of it.]]></Val>
+          <Val><![CDATA[A referenced file is invalid. It must be in the same directory as manifest.json or a subdirectory of it.]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[%s é inválido, ele deve estar no mesmo diretório que manifest.json ou um subdiretório dele.]]></Val>
+            <Val><![CDATA[Um arquivo referenciado é inválido. Ele deve estar no mesmo diretório que manifest.json ou em um subdiretório dele.]]></Val>
+          </Tgt>
+          <Prev Cat="Text">
+            <Val><![CDATA[%s is invalid, it should be in the same directory as manifest.json or a subdirectory of it.]]></Val>
+          </Prev>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";error.teamsApp.createAppPackage.invalidFile.local" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[The file reference "%s" resolves to "%s", outside the manifest directory "%s". Move the file into the manifest directory, then update this reference in the manifest that contains it.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[O "%s" de referência de arquivo é resolvido para "%s", fora do diretório de manifesto "%s". Mova o arquivo para o diretório do manifesto e atualize essa referência no manifesto que o contém.]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -10533,6 +11058,51 @@
           <Val><![CDATA[Field '%s' should have %s type, yaml file: %s]]></Val>
           <Tgt Cat="Text" Stat="Loc" Orig="New">
             <Val><![CDATA[O campo '%s' deve ter o tipo %s, arquivo yaml: %s]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";info.m365.packageService.raiValidationInProgress" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[RAI validation is in progress. Waiting for completion...]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[A validação IAR está em andamento. Aguardando conclusão...]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";info.m365.skills.preparing" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Preparing skill draft %s of %s without copying published content...]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Preparando o rascunho da habilidade %s de %s sem copiar o conteúdo publicado...]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";info.m365.skills.preview" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Incremental skill upload preview supports only drafts created exclusively through the ATK skip-copy flow. Do not use drafts from older copy-enabled ATK flows or other clients, or run concurrent uploads. Microsoft 365 must support skip-copy. Fresh drafts upload all local skill files. Increment the package manifest version for each update.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[A prévia de upload incremental de habilidades só é compatível com rascunhos criados exclusivamente pelo fluxo do ATK para ignorar a cópia. Não use rascunhos de fluxos do ATK mais antigos com a função de cópia habilitada ou de outros clientes, nem execute uploads simultâneos. O Microsoft 365 precisa ser compatível com a função de ignorar a cópia. Rascunhos novos carregam todos os arquivos de habilidades locais. Incremente a versão do manifesto do pacote a cada atualização.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";info.m365.skills.summary" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Skill synchronization completed: %s files uploaded, %s files unchanged, %s files or folders deleted.]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Sincronização de habilidades concluída: %s arquivos carregados, %s arquivos inalterados %s arquivos ou pastas excluídos.]]></Val>
+          </Tgt>
+        </Str>
+        <Disp Icon="Str" />
+      </Item>
+      <Item ItemId=";info.m365.skills.synchronizing" ItemType="0" PsrId="306" Leaf="true">
+        <Str Cat="Text">
+          <Val><![CDATA[Synchronizing skill %s of %s...]]></Val>
+          <Tgt Cat="Text" Stat="Loc" Orig="New">
+            <Val><![CDATA[Sincronizando a habilidade %s de %s...]]></Val>
           </Tgt>
         </Str>
         <Disp Icon="Str" />
@@ -11194,120 +11764,6 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
-      <Item ItemId=";plugins.spfx.addWebPart.cannotFindSolutionVersion" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Unable to find SPFx version in your solution in %s]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Não é possível localizar a versão do SPFx em sua solução %s]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";plugins.spfx.addWebPart.confirmInstall" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[SPFx %s version in your solution isn't installed on your machine. Do you want to install it in Microsoft 365 Agents Toolkit directory to continue adding web parts?]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[A versão do SPFx %s em sua solução não está instalada em seu computador. Você deseja instalá-lo no diretório do Microsoft 365 Agents Toolkit para continuar adicionando Web Parts?]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[SPFx %s version in your solution isn't installed on your machine. Do you want to install it in Teams Toolkit directory to continue adding web parts?]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";plugins.spfx.addWebPart.confirmUpgrade" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Microsoft 365 Agents Toolkit is using SPFx version %s and your solution has SPFx version %s. Do you want to upgrade it to version %s in Microsoft 365 Agents Toolkit directory and add web parts?]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[O Microsoft 365 Agents Toolkit está usando a versão %s do SPFx e sua solução tem a versão %s do SPFx. Deseja atualizá-lo para a versão %s no diretório do Microsoft 365 Agents Toolkit e adicionar Web Parts?]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Teams Toolkit is using SPFx version %s and your solution has SPFx version %s. Do you want to upgrade it to version %s in Teams Toolkit directory and add web parts?]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";plugins.spfx.addWebPart.install" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Install]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Instalar]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";plugins.spfx.addWebPart.upgrade" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Upgrade]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Fazer upgrade]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";plugins.spfx.addWebPart.versionMismatch.continue" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Continue]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Continuar]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";plugins.spfx.addWebPart.versionMismatch.continueConfirm" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[SPFx version %s in your solution isn't installed on this machine. Microsoft 365 Agents Toolkit uses the SPFx installed in its directory by default (%s). The version mismatch may cause unexpected error. Do you still want to continue?]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[A versão %s do SPFx em sua solução não está instalada neste computador. O Microsoft 365 Agents Toolkit usa o SPFx instalado em seu diretório por padrão (%s). A incompatibilidade de versão pode causar um erro inesperado. Você ainda deseja continuar?]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[SPFx version %s in your solution isn't installed on this machine. Teams Toolkit uses the SPFx installed in its directory by default (%s). The version mismatch may cause unexpected error. Do you still want to continue?]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";plugins.spfx.addWebPart.versionMismatch.help" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Help]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Ajuda]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";plugins.spfx.addWebPart.versionMismatch.localOnly.output" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[SPFx version in your solution is %s. You've installed  %s in Microsoft 365 Agents Toolkit directory, which is used as default in Microsoft 365 Agents Toolkit (%s). The version mismatch may cause unexpected error. Find possible solutions in %s.]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[A versão do SPFx em sua solução é %s. Você instalou %s no diretório do Microsoft 365 Agents Toolkit, que é usado como padrão no Microsoft 365 Agents Toolkit (%s). A incompatibilidade de versão pode causar um erro inesperado. Encontre possíveis soluções em %s.]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[SPFx version in your solution is %s. You've installed  %s in Teams Toolkit directory, which is used as default in Teams Toolkit (%s). The version mismatch may cause unexpected error. Find possible solutions in %s.]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";plugins.spfx.addWebPart.versionMismatch.output" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[SPFx version in your solution is %s. You've installed %s globally and %s in Microsoft 365 Agents Toolkit directory, which is used as default (%s) by Microsoft 365 Agents Toolkit. The version mismatch may cause unexpected error. Find possible solutions in %s.]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[A versão do SPFx em sua solução é %s. Você instalou %s globalmente e %s no diretório do Microsoft 365 Agents Toolkit, que é usado como padrão (%s) pelo Microsoft 365 Agents Toolkit. A incompatibilidade de versão pode causar um erro inesperado. Encontre possíveis soluções em %s.]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[SPFx version in your solution is %s. You've installed %s globally and %s in Teams Toolkit directory, which is used as default (%s) by Teams Toolkit. The version mismatch may cause unexpected error. Find possible solutions in %s.]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";plugins.spfx.buildSharepointPackage" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Building SharePoint package]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Compilando o pacote do SharePoint]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
       <Item ItemId=";plugins.spfx.cannotFindPackage" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[Unable to find SharePoint package %s]]></Val>
@@ -11380,195 +11836,6 @@
         </Str>
         <Disp Icon="Str" />
       </Item>
-      <Item ItemId=";plugins.spfx.error.devEnvironmentNotSetup" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Your SPFx development environment is not set up correctly. Click "Get Help" to set up the right environment.]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[O ambiente de desenvolvimento SPFx não foi configurado corretamente. Clique em "Obter Ajuda" para configurar o ambiente correto.]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[SPFx development environment has not been set up correctly. You can click "Get Help" to follow the guide to set up right environment.]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";plugins.spfx.error.import.common" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Unable to import existing SPFx solution to Microsoft 365 Agents Toolkit: %s]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Não é possível importar a solução SPFx existente para o Microsoft 365 Agents Toolkit: %s]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Unable to import existing SPFx solution to Teams Toolkit: %s]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";plugins.spfx.error.import.copySPFxSolution" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Unable to copy existing SPFx solution: %s]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Não foi possível copiar a solução SPFx existente: %s]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Failed to copy existing SPFx solution: %s]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";plugins.spfx.error.import.retrieveSolutionInfo" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Unable to get existing SPFx solution information. Ensure your SPFx solution is valid.]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Não é possível obter as informações de solução SPFx existente. Verifique se a solução SPFx é válida.]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Failed to retrieve existing SPFx solution information. Please make sure your SPFx solution is valid.]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";plugins.spfx.error.import.updateSPFxTemplate" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Unable to update project templates with existing SPFx solution: %s]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Não é possível atualizar modelos de projeto com solução SPFx existente: %s]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Failed to update project templates with existing SPFx solution: %s]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";plugins.spfx.error.installDependencyError" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[It looks like you're facing problem setting up SPFx environment in %s folder. Follow %s to install %s for global SPFx environment setup.]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Parece que você está enfrentando um problema ao configurar o ambiente SPFx %s pasta. Siga %s para instalar o %s configuração global do ambiente SPFx.]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";plugins.spfx.error.installLatestDependencyError" ItemType="0" PsrId="306" InstFlg="true" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Unable to set up SPFx environment in %s folder. To set up global SPFx environment, follow [Set up your SharePoint Framework development environment | Microsoft Learn]5D;(%s).]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Não é possível configurar o ambiente SPFx %s pasta. Para configurar o ambiente SPFx global, siga [Configure seu ambiente de desenvolvimento Estrutura do SharePoint | Microsoft Learn]5D;(%s).]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Encountered unknown issues when setting up SPFx environment in %s folder. You could follow [Set up your SharePoint Framework development environment | Microsoft Learn]5D;(%s) to set up global SPFx environment.]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";plugins.spfx.error.invalidDependency" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Unable to validate package %s]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[ValidarFalha ao validar o pacote %s]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Failed to validate package %s]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";plugins.spfx.error.noConfiguration" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[There's no .yo-rc.json file in your SPFx project, add the configuration file and try again.]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Não há arquivo .yo-rc.json em seu projeto SPFx. Adicione o arquivo de configuração e tente novamente.]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[There's no .yo-rc.json file in your SPFx project, please add the configuration file and try again.]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";plugins.spfx.error.scaffoldError" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Project creation is unsuccessful, which may be due to Yeoman SharePoint Generator. Check [Output panel]5D;(%s) for details.]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[A criação do projeto não foi bem-sucedida, o que pode ser devido ao Gerador do SharePoint do Yeoman. Verifique [Output panel]5D;(%s) para obter detalhes.]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Project creation failed. A possible reason could be from Yeoman SharePoint Generator. Check [Output panel]5D;(%s) for details.]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";plugins.spfx.import.copyExistingSPFxSolution" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Copying existing SPFx solution...]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Copiando a solução SPFx existente...]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";plugins.spfx.import.generateSPFxTemplates" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Generating templates based on solution info...]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Gerando modelos com base nas informações da solução...]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";plugins.spfx.import.log.fail" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Microsoft 365 Agents Toolkit is unable to import your SPFx solution. Find complete log of important details in %s.]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[O Microsoft 365 Agents Toolkit não consegue importar sua solução SPFx. Encontre o log completo de detalhes importantes em %s.]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Teams Toolkit is unable to import your SPFx solution. Find complete log of important details in %s.]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";plugins.spfx.import.log.success" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Microsoft 365 Agents Toolkit has successfully imported your SPFx solution. Find complete log of import details in %s.]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[O Microsoft 365 Agents Toolkit importou sua solução SPFx com sucesso. Encontre o log completo dos detalhes de importação em %s.]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Teams Toolkit has successfully imported your SPFx solution. Find complete log of import details in %s.]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";plugins.spfx.import.success" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Your SPFx solution is successfully imported to %s.]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Sua solução SPFx foi importada com êxito para %s.]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Your SPFx solution has been successfully imported to %s.]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";plugins.spfx.import.title" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Importing SPFx solution]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Importando a solução SPFx]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";plugins.spfx.import.updateTemplates" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Updating templates...]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Atualizando modelos...]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
       <Item ItemId=";plugins.spfx.insufficientPermission" ItemType="0" PsrId="306" Leaf="true">
         <Str Cat="Text">
           <Val><![CDATA[To upload and deploy package to App Catalog %s, you need org's Microsoft 365 tenant admin permissions. Get free Microsoft 365 tenant from [Microsoft 365 developer program]5D;(%s) for testing.]]></Val>
@@ -11578,228 +11845,6 @@
           <Prev Cat="Text">
             <Val><![CDATA[Unable to upload and deploy package to App Catalog %s. You need your org's Microsoft 365 tenant admin permissions. You can get free Microsoft 365 tenant from [Microsoft 365 developer program]5D;(%s) for testing purpose.]]></Val>
           </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";plugins.spfx.questions.framework.title" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Framework]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Estrutura]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";plugins.spfx.questions.packageSelect.installLocally.noVersion.label" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Install the latest SPFx locally in Microsoft 365 Agents Toolkit directory ]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Instale o SPFx mais recente localmente no diretório do Microsoft 365 Agents Toolkit ]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Install the latest SPFx locally in Teams Toolkit directory ]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";plugins.spfx.questions.packageSelect.installLocally.withVersion.label" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Install the latest SPFx (%s) locally in Microsoft 365 Agents Toolkit directory ]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Instale o SPFx (%s) mais recente localmente no diretório do Microsoft 365 Agents Toolkit ]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Install the latest SPFx (%s) locally in Teams Toolkit directory ]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";plugins.spfx.questions.packageSelect.placeholder" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Select option for scaffolding]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Selecione uma opção para realizar scaffold]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Select an option for scaffolding]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";plugins.spfx.questions.packageSelect.title" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[SharePoint Framework]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Estrutura do SharePoint]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";plugins.spfx.questions.packageSelect.useGlobalPackage.detail" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[SPFx %s or later]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[SPFx %s ou posterior]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Recommend SPFx %s or later]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";plugins.spfx.questions.packageSelect.useGlobalPackage.noVersion.label" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Use globally installed SPFx]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Use o SPFx instalado globalmente]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Use globally installed SharePoint Framework]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";plugins.spfx.questions.packageSelect.useGlobalPackage.withVersion.label" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Use globally installed SPFx (%s)]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Use o SPFx instalado globalmente (%s)]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Use globally installed SharePoint Framework (%s)]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";plugins.spfx.questions.spfxSolution.createNew" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Create New SPFx Solution]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Criar uma solução SPFx]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Create a New SPFx Solution]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";plugins.spfx.questions.spfxSolution.createNew.detail" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Create Teams Tab application using SPFx web parts]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Criar um aplicativo de Guia do Teams usando Web Parts SPFx]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Create a Teams Tab application using SPFx web parts]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";plugins.spfx.questions.spfxSolution.importExisting" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Import Existing SPFx Solution]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Importar solução SPFx existente]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Import an Existing SPFx Solution]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";plugins.spfx.questions.spfxSolution.importExisting.detail" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Expose SPFx client-side web part as Microsoft Teams tab or personal app]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Expor a Web Part do lado do cliente SPFx como guia do Microsoft Teams ou aplicativo pessoal]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";plugins.spfx.questions.spfxSolution.title" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[SharePoint Solution]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Solução do SharePoint]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";plugins.spfx.questions.webpartName" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Name for SharePoint Framework Web Part]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Nome da Web Part da Estrutura do SharePoint]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";plugins.spfx.questions.webpartName.error.duplicate" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[The folder %s already exists. Choose a different name for your component.]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[A pasta %s já existe. Escolha um nome diferente para o componente.]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[The foler %s already exists. Please choose a different name for your component.]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";plugins.spfx.questions.webpartName.error.notMatch" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[%s doesn't match pattern: %s]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[%s não corresponde ao padrão: %s]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";plugins.spfx.scaffold.dependencyCheck" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Checking dependencies...]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Verificando dependências...]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";plugins.spfx.scaffold.dependencyInstall" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Installing dependencies. This may take more than 5 minutes.]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Instalando dependências. Isso pode demorar mais de 5 minutos.]]></Val>
-          </Tgt>
-          <Prev Cat="Text">
-            <Val><![CDATA[Installing dependencies. This may take more than 5 minutes to finish.]]></Val>
-          </Prev>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";plugins.spfx.scaffold.scaffoldProject" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Generate SPFx project using Yeoman CLI]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Gerar o projeto SPFx usando a CLI do Yeoman]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";plugins.spfx.scaffold.title" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Scaffolding project]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Projeto de scaffolding]]></Val>
-          </Tgt>
-        </Str>
-        <Disp Icon="Str" />
-      </Item>
-      <Item ItemId=";plugins.spfx.scaffold.updateManifest" ItemType="0" PsrId="306" Leaf="true">
-        <Str Cat="Text">
-          <Val><![CDATA[Update webpart manifest]]></Val>
-          <Tgt Cat="Text" Stat="Loc" Orig="New">
-            <Val><![CDATA[Atualizar o manifesto da Web part]]></Val>
-          </Tgt>
         </Str>
         <Disp Icon="Str" />
       </Item>

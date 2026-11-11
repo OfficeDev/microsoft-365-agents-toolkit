@@ -8,6 +8,7 @@ import { SyncManifestDriver } from "../../../../src/component/driver/teamsApp/sy
 import { manifestUtils } from "../../../../src/component/driver/teamsApp/utils/ManifestUtils";
 import { DotenvOutput, envUtil } from "../../../../src/component/utils/envUtil";
 import { metadataUtil } from "../../../../src/component/utils/metadataUtil";
+import { Lifecycle } from "../../../../src/component/configManager/lifecycle";
 import { pathUtils } from "../../../../src/component/utils/pathUtils";
 import { MockedM365Provider } from "../../../core/utils";
 import { MockedLogProvider } from "../../../plugins/solution/util";
@@ -24,7 +25,61 @@ describe("teamsApp/syncManifest", async () => {
   afterEach(() => {
     vi.restoreAllMocks();
     vi.clearAllMocks();
+    vi.unstubAllEnvs();
   });
+
+  for (const matchesIdentity of [true, false]) {
+    it(`AC-14: split-ID sync preserves identity (matching package: ${matchesIdentity})`, async () => {
+      vi.stubEnv("TEAMSFX_NEW_DP_APIS", "true");
+      const resourceId = "11111111-1111-4111-8111-111111111111";
+      const manifestId = "22222222-2222-4222-8222-222222222222";
+      const manifest = new TeamsAppManifest();
+      manifest.id = "${{APP_MANIFEST_ID}}";
+      vi.spyOn(pathUtils, "getYmlFilePath").mockReturnValue("m365agents.yml");
+      vi.spyOn(metadataUtil, "parse").mockResolvedValue(
+        ok({
+          version: "1.13",
+          provision: new Lifecycle(
+            "provision",
+            [
+              {
+                uses: "teamsApp/create",
+                with: { name: "test" },
+                writeToEnvironmentFile: { appId: "CUSTOM_ID" },
+              },
+            ],
+            "1.13"
+          ),
+        })
+      );
+      vi.spyOn(envUtil, "readEnv").mockResolvedValue(
+        ok({ CUSTOM_ID: resourceId, APP_MANIFEST_ID: manifestId })
+      );
+      const writeEnv = vi.spyOn(envUtil, "writeEnv").mockResolvedValue(ok(undefined));
+      const writeFile = vi.spyOn(fs, "writeFile").mockResolvedValue();
+      vi.spyOn(fs, "mkdir").mockResolvedValue();
+      vi.spyOn(manifestUtils, "_readAppManifest").mockResolvedValue(ok(manifest));
+      vi.mocked(appStudio.getAppPackage).mockResolvedValue(
+        ok({
+          manifest: Buffer.from(
+            JSON.stringify({ ...manifest, id: matchesIdentity ? manifestId : resourceId })
+          ),
+        })
+      );
+
+      const result = await syncManifestDriver.sync(
+        { projectPath: "fakePath", env: "dev", teamsAppId: resourceId },
+        mockedDriverContext
+      );
+
+      chai.assert.equal(result.isOk(), matchesIdentity);
+      chai.assert.equal(vi.mocked(appStudio.getAppPackage).mock.calls[0][0], resourceId);
+      chai.assert.isFalse(writeEnv.mock.calls.length > 0);
+      if (!matchesIdentity) {
+        chai.assert.isFalse(writeFile.mock.calls.length > 0);
+      }
+    });
+  }
 
   it("projectPath or env is empty", async () => {
     const emptyMap = new Map<string, string>();
@@ -926,3 +981,5 @@ describe("teamsApp/syncManifest", async () => {
     }
   });
 });
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.

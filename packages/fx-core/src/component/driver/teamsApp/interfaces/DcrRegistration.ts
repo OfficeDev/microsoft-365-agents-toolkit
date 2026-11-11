@@ -1,7 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { OauthRegistrationAppType, OauthRegistrationTargetAudience } from "./OauthRegistration";
+import {
+  OauthRegistrationAppType,
+  OauthRegistrationSupportedAccountTypes,
+  OauthRegistrationTargetAudience,
+} from "./OauthRegistration";
 
 export interface DcrRegistration {
   m365AppId: string;
@@ -9,7 +13,10 @@ export interface DcrRegistration {
   applicableToApps: OauthRegistrationAppType;
   targetAudience: OauthRegistrationTargetAudience;
   targetUrlsShouldStartWith: string[];
-  wellKnownAuthorizationServer: string;
+  mcpResourceUrl?: string;
+  wellKnownAuthorizationServer?: string;
+  resource?: string;
+  supportedAccountTypes?: OauthRegistrationSupportedAccountTypes;
   // TODO: add this part back after TDP update
   // manageableByUsers: [
   //   {
@@ -18,3 +25,10 @@ export interface DcrRegistration {
   //   },
   // ],
 }
+
+export type DcrRegistrationUpdate = Partial<
+  Pick<
+    DcrRegistration,
+    "m365AppId" | "applicableToApps" | "targetAudience" | "resource" | "supportedAccountTypes"
+  >
+>;

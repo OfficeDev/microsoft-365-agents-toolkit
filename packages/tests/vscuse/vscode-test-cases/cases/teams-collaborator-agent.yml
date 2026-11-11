@@ -1,0 +1,151 @@
+version: 1
+
+# The Teams Collaborator Agent template ships TypeScript only and reads Azure
+# OpenAI settings directly, so the retained bundle authors one scaffold and
+# varies only the local Teams and Agents Playground launch surfaces.
+cases:
+  - id: collaborator-ts-azure-openai-local-teams
+    scenarioId: SCN-CREATE-COLLABORATOR-01
+    workItemIds: [35527255]
+    steps:
+      [
+        scaffold-collaborator-ts,
+        check-collaborator-ts,
+        login-m365,
+        f5-teams-local,
+        open-app,
+        check-collaborator-chat,
+      ]
+
+  - id: collaborator-ts-azure-openai-playground
+    scenarioId: SCN-CREATE-COLLABORATOR-01
+    workItemIds: [36048495]
+    steps:
+      [
+        scaffold-collaborator-ts,
+        check-collaborator-ts,
+        f5-playground,
+        open-app,
+        check-collaborator-playground-chat,
+      ]
+
+steps:
+  scaffold-collaborator-ts:
+    type: scaffold
+    with:
+      template: teams-collaborator-agent
+      answers:
+        - question: projectType
+          value: teams-agent-and-app-type
+        - question: teamsAppType
+          value: teams-collaborator-agent
+        - question: azureOpenAIKey
+          type: text
+          value: "${{secret:AZURE_OPENAI_API_KEY}}"
+        - question: azureOpenAIEndpoint
+          type: text
+          value: "${{env:AZURE_OPENAI_ENDPOINT}}"
+        - question: azureOpenAIDeploymentName
+          type: text
+          value: "${{env:AZURE_OPENAI_MODEL}}"
+        - question: workspaceFolder
+          value: default
+        - question: appName
+          type: text
+          value: "${{var:app_name:vscuse_app_#####}}"
+
+  check-collaborator-ts:
+    type: checks
+    with:
+      - type: file
+        path: m365agents.yml
+        expect:
+          contains: ["version: v1.11", "provision:", "deploy:", "arm/deploy"]
+      - type: file
+        path: package.json
+        expect:
+          exists: true
+      - type: file
+        path: src/index.ts
+        expect:
+          exists: true
+      - type: file
+        path: src/agent/manager.ts
+        expect:
+          exists: true
+      - type: file
+        path: src/capabilities/registry.ts
+        expect:
+          contains:
+            [
+              SUMMARIZER_CAPABILITY_DEFINITION,
+              ACTION_ITEMS_CAPABILITY_DEFINITION,
+              SEARCH_CAPABILITY_DEFINITION,
+            ]
+      - type: file
+        path: src/utils/config.ts
+        expect:
+          contains: [AOAI_API_KEY, AOAI_ENDPOINT, RUNNING_ON_AZURE]
+      - type: file
+        path: infra/azure.bicep
+        expect:
+          contains: ["Microsoft.Sql/servers", "SQL_CONNECTION_STRING"]
+      - type: file
+        path: .vscode/launch.json
+        expect:
+          contains:
+            [
+              "Launch Remote (Chrome)",
+              "Debug in Teams (Chrome)",
+              "Debug in Microsoft 365 Agents Playground",
+            ]
+          notContains:
+            ["Launch Remote in Teams (Chrome)", "Debug in Copilot (Chrome)"]
+      - type: file
+        path: appPackage/manifest.json
+        expect:
+          contains: ['"manifestVersion": "1.30"']
+
+  login-m365:
+    type: login
+    with:
+      type: m365
+      account: "${{env:M365_ACCOUNT_NAME}}"
+      password: "${{secret:M365_ACCOUNT_PASSWORD}}"
+
+  f5-teams-local:
+    type: target
+    with:
+      profile: "Debug in Teams (Chrome)"
+      profileSelection: first
+
+  f5-playground:
+    type: target
+    with:
+      profile: "Debug in Microsoft 365 Agents Playground"
+      profileSelection: first
+
+  open-app:
+    type: open
+    with:
+      kind: app
+      destination: chat
+
+  # The agent always answers in a personal conversation, so the message needs no
+  # at-mention. Only the reply itself is asserted: the routed capability answer
+  # is produced by Azure OpenAI, which this repository does not control.
+  check-collaborator-chat:
+    type: checks
+    with:
+      - type: chat
+        send: Create a task to review the proposal by Friday
+        expect:
+          replied: true
+
+  check-collaborator-playground-chat:
+    type: checks
+    with:
+      - type: chat
+        send: "@Collaborator create a task to review the proposal by Friday"
+        expect:
+          replied: true

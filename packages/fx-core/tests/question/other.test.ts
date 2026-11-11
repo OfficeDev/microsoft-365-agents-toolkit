@@ -23,7 +23,7 @@ import { GraphClient } from "../../src/client/graphClient";
 import { setTools, TOOLS } from "../../src/common/globalVars";
 import { getLocalizedString } from "../../src/common/localizeUtils";
 import { environmentNameManager } from "../../src/core/environmentName";
-import { QuestionNames } from "../../src/question/constants";
+import { ActionStartOptions, QuestionNames } from "../../src/question/constants";
 import {
   addAuthActionQuestion,
   addSkillQuestionNode,
@@ -36,10 +36,85 @@ import {
   oauthScopeCustomQuestion,
   oauthScopeQuestion,
   oauthTokenUrlQuestion,
+  openApiApiKeyNode,
+  openApiOAuthCredentialNodes,
   selectDeclarativeAgentManifestQuestion,
   selectTargetEnvQuestion,
   setSensitivityLabelNode,
 } from "../../src/question/other";
+
+describe("OpenAPI action credential questions", () => {
+  const apiSpecInputs: Inputs = {
+    platform: Platform.CLI,
+    [QuestionNames.ActionType]: ActionStartOptions.apiSpec().id,
+    apiAuthData: [{ serverUrl: "https://example.com", authType: "oauth2" }],
+  };
+
+  it("shows the API key question only for one CLI API-key registration", async () => {
+    const condition = openApiApiKeyNode().condition;
+    if (typeof condition !== "function") {
+      assert.fail("API key condition is missing");
+    }
+
+    assert.isTrue(
+      await condition({
+        ...apiSpecInputs,
+        apiAuthData: [{ serverUrl: "https://example.com", authType: "apiKey" }],
+      })
+    );
+    assert.isFalse(await condition({ ...apiSpecInputs, platform: Platform.VSCode }));
+    assert.isFalse(await condition({ ...apiSpecInputs, apiAuthData: [] }));
+    assert.isFalse(await condition(apiSpecInputs));
+  });
+
+  it("shows OAuth follow-ups only for applicable CLI OAuth inputs", async () => {
+    const nodes = openApiOAuthCredentialNodes();
+    const identityProviderCondition = nodes[0].condition;
+    const pkceCondition = nodes[2].condition;
+    const clientSecretCondition = nodes[3].condition;
+    const scopesCondition = nodes[4].condition;
+    if (
+      typeof identityProviderCondition !== "function" ||
+      typeof pkceCondition !== "function" ||
+      typeof clientSecretCondition !== "function" ||
+      typeof scopesCondition !== "function"
+    ) {
+      assert.fail("OAuth credential condition is missing");
+    }
+
+    assert.isTrue(await identityProviderCondition(apiSpecInputs));
+    assert.isFalse(
+      await identityProviderCondition({ ...apiSpecInputs, platform: Platform.VSCode })
+    );
+    assert.isFalse(await identityProviderCondition({ ...apiSpecInputs, apiAuthData: [] }));
+
+    const confidentialInputs: Inputs = {
+      ...apiSpecInputs,
+      [QuestionNames.OpenApiAuthClientId]: "client-id",
+    };
+    assert.isTrue(await pkceCondition(confidentialInputs));
+    assert.isTrue(await clientSecretCondition(confidentialInputs));
+    assert.isTrue(await scopesCondition(confidentialInputs));
+    assert.isFalse(
+      await pkceCondition({
+        ...confidentialInputs,
+        [QuestionNames.OpenApiAuthIdentityProvider]: "microsoft-entra",
+      })
+    );
+    assert.isFalse(
+      await clientSecretCondition({
+        ...confidentialInputs,
+        [QuestionNames.OpenApiAuthPKCE]: true,
+      })
+    );
+    assert.isFalse(
+      await scopesCondition({
+        ...confidentialInputs,
+        [QuestionNames.OpenApiAuthClientId]: " ",
+      })
+    );
+  });
+});
 
 describe("env question", () => {
   it("should not show testtool env", async () => {
@@ -83,6 +158,133 @@ describe("addAuthActionQuestion", () => {
 
   afterEach(() => {
     vi.restoreAllMocks();
+  });
+
+  it("SCN-ADD-AUTH-CONFIG-01: offers an optional API key only in CLI auth-config", async () => {
+    const apiKeyNode = addAuthActionQuestion().children?.find(
+      (child) => child.data.name === QuestionNames.ApiSpecApiKey
+    );
+
+    assert.isDefined(apiKeyNode);
+    assert.equal(apiKeyNode.data.type, "text");
+    assert.isTrue(apiKeyNode.data.password);
+    assert.isFalse(apiKeyNode.data.required);
+    assert.equal(apiKeyNode.data.cliShortName, "k");
+    assert.isDefined(apiKeyNode.condition);
+    assert.isDefined(apiKeyNode.data.validation);
+
+    const cliResult = await apiKeyNode.condition({
+      platform: Platform.CLI,
+      [QuestionNames.ApiAuth]: "api-key",
+    });
+    const vscodeResult = await apiKeyNode.condition({
+      platform: Platform.VSCode,
+      [QuestionNames.ApiAuth]: "api-key",
+    });
+    const blankValidationResult = await apiKeyNode.data.validation.validFunc("   ");
+    const shortValidationResult = await apiKeyNode.data.validation.validFunc("short");
+    const longValidationResult = await apiKeyNode.data.validation.validFunc("a".repeat(513));
+    const validValidationResult = await apiKeyNode.data.validation.validFunc("a".repeat(10));
+
+    assert.isTrue(cliResult);
+    assert.isFalse(vscodeResult);
+    assert.isUndefined(blankValidationResult);
+    assert.isDefined(shortValidationResult);
+    assert.equal(longValidationResult, shortValidationResult);
+    assert.isUndefined(validValidationResult);
+  });
+
+  it("SCN-ADD-AUTH-CONFIG-01: offers an optional secret for CLI bearer-token auth-config", async () => {
+    const apiKeyNode = addAuthActionQuestion().children?.find(
+      (child) => child.data.name === QuestionNames.ApiSpecApiKey
+    );
+
+    assert.isDefined(apiKeyNode?.condition);
+    assert.isTrue(
+      await apiKeyNode.condition({
+        platform: Platform.CLI,
+        [QuestionNames.ApiAuth]: "bearer-token",
+      })
+    );
+    assert.isFalse(
+      await apiKeyNode.condition({
+        platform: Platform.VSCode,
+        [QuestionNames.ApiAuth]: "bearer-token",
+      })
+    );
+  });
+
+  it("SCN-ADD-AUTH-CONFIG-02: offers optional OAuth credentials only in CLI auth-config", async () => {
+    const children = addAuthActionQuestion().children ?? [];
+    const clientIdNode = children.find((child) => child.data.name === QuestionNames.OauthClientId);
+    const clientSecretNode = children.find(
+      (child) => child.data.name === QuestionNames.OauthClientSecret
+    );
+
+    if (
+      !clientIdNode ||
+      clientIdNode.data.type !== "text" ||
+      typeof clientIdNode.condition !== "function"
+    ) {
+      assert.fail("OAuth client ID question is missing");
+    }
+    if (
+      !clientSecretNode ||
+      clientSecretNode.data.type !== "text" ||
+      typeof clientSecretNode.condition !== "function"
+    ) {
+      assert.fail("OAuth client secret question is missing");
+    }
+    assert.isFalse(clientIdNode.data.required);
+    assert.isFalse(clientSecretNode.data.required);
+    assert.isTrue(clientSecretNode.data.password);
+    assert.isTrue(
+      await clientIdNode.condition({
+        platform: Platform.CLI,
+        [QuestionNames.ApiAuth]: "oauth",
+      })
+    );
+    assert.isTrue(
+      await clientSecretNode.condition({
+        platform: Platform.CLI,
+        [QuestionNames.ApiAuth]: "oauth",
+        [QuestionNames.OauthPKCE]: "false",
+      })
+    );
+    assert.isFalse(
+      await clientSecretNode.condition({
+        platform: Platform.CLI,
+        [QuestionNames.ApiAuth]: "oauth",
+        [QuestionNames.OauthPKCE]: "true",
+      })
+    );
+    assert.isFalse(
+      await clientIdNode.condition({
+        platform: Platform.VSCode,
+        [QuestionNames.ApiAuth]: "oauth",
+      })
+    );
+  });
+
+  it("SCN-ADD-AUTH-CONFIG-03: offers only an optional client ID for Entra", async () => {
+    const children = addAuthActionQuestion().children ?? [];
+    const clientIdNode = children.find((child) => child.data.name === QuestionNames.OauthClientId);
+    const clientSecretNode = children.find(
+      (child) => child.data.name === QuestionNames.OauthClientSecret
+    );
+    const inputs: Inputs = {
+      platform: Platform.CLI,
+      [QuestionNames.ApiAuth]: "microsoft-entra",
+    };
+
+    if (!clientIdNode || typeof clientIdNode.condition !== "function") {
+      assert.fail("OAuth client ID question is missing");
+    }
+    if (!clientSecretNode || typeof clientSecretNode.condition !== "function") {
+      assert.fail("OAuth client secret question is missing");
+    }
+    assert.isTrue(await clientIdNode.condition(inputs));
+    assert.isFalse(await clientSecretNode.condition(inputs));
   });
 
   it("apiSpecFromPluginManifestQuestion", async () => {
@@ -322,6 +524,62 @@ describe("addAuthActionQuestion", () => {
       const res = await (condition as ConditionFunc)(inputs);
       assert.isTrue(res);
     }
+  });
+
+  it("apiFromPluginManifestQuestion condition: should require selection for multiple APIs", async () => {
+    const inputs: Inputs = {
+      platform: Platform.CLI,
+      nonInteractive: true,
+      [QuestionNames.PluginManifestFilePath]: "test",
+    };
+    vi.spyOn(fs, "readJson").mockResolvedValue({
+      schema_version: "1.0",
+      name_for_human: "test",
+      description_for_human: "test",
+      runtimes: [
+        {
+          type: "OpenApi",
+          auth: { type: "None" },
+          spec: { url: "spec.yaml" },
+          run_for_functions: ["function1"],
+        },
+        {
+          type: "OpenApi",
+          auth: { type: "None" },
+          spec: { url: "spec.yaml" },
+          run_for_functions: ["function2", "function1"],
+        },
+      ],
+    });
+
+    const questions = addAuthActionQuestion();
+    const apiSpecCondition = questions.children![0].condition as ConditionFunc;
+    const apiOperationCondition = questions.children![1].condition as ConditionFunc;
+    const apiSpecResult = await apiSpecCondition(inputs);
+    const apiOperationResult = await apiOperationCondition(inputs);
+
+    assert.isFalse(apiSpecResult);
+    assert.equal(inputs[QuestionNames.ApiSpecLocation], "spec.yaml");
+    assert.isTrue(apiOperationResult);
+    assert.isUndefined(inputs[QuestionNames.ApiOperation]);
+  });
+
+  it("apiFromPluginManifestQuestion condition: should preserve explicit APIs", async () => {
+    const inputs: Inputs = {
+      platform: Platform.CLI,
+      nonInteractive: true,
+      [QuestionNames.PluginManifestFilePath]: "test",
+      [QuestionNames.ApiSpecLocation]: "spec.yaml",
+      [QuestionNames.ApiOperation]: ["function2"],
+    };
+    const readJsonSpy = vi.spyOn(fs, "readJson");
+
+    const condition = addAuthActionQuestion().children![1].condition as ConditionFunc;
+    const res = await condition(inputs);
+
+    assert.isFalse(res);
+    assert.deepEqual(inputs[QuestionNames.ApiOperation], ["function2"]);
+    expect(readJsonSpy).not.toHaveBeenCalled();
   });
 
   it("apiFromPluginManifestQuestion condition: should skip", async () => {
@@ -861,27 +1119,32 @@ describe("addSkillQuestionNode", () => {
     assert.isTrue(conditionFn(inputsWithoutFrom));
   });
 
-  it("skillNameQuestion validates invalid pattern", () => {
+  it.each([
+    "",
+    "testSkill",
+    "Test-skill",
+    "my skill",
+    "my_skill",
+    "-skill",
+    "skill-",
+    "my--skill",
+    "a".repeat(65),
+  ])("rejects invalid skill name %j", (name) => {
     const node = addSkillQuestionNode();
     const nameChild = node.children![2];
     const question = nameChild.data as TextInputQuestion;
     const validFunc = (question.validation as FuncValidation<string>).validFunc;
-    // Invalid: starts with number
-    const result1 = validFunc("1abc", {} as Inputs);
-    assert.isDefined(result1);
-    // Invalid: contains spaces
-    const result2 = validFunc("my skill", {} as Inputs);
-    assert.isDefined(result2);
-    // Invalid: contains underscores
-    const result3 = validFunc("my_skill", {} as Inputs);
-    assert.isDefined(result3);
-    // Valid: starts with letter, alphanumeric + hyphens
-    const result4 = validFunc("my-skill", {} as Inputs);
-    assert.isUndefined(result4);
-    // Valid: single letter
-    const result5 = validFunc("a", {} as Inputs);
-    assert.isUndefined(result5);
+    assert.equal(validFunc(name), getLocalizedString("core.addSkillQuestion.name.validation"));
   });
+
+  it.each(["test-skill", "skill123", "1abc", "123", "a", "a".repeat(64)])(
+    "accepts valid skill name %j",
+    (name) => {
+      const question = addSkillQuestionNode().children![2].data as TextInputQuestion;
+      const validFunc = (question.validation as FuncValidation<string>).validFunc;
+      assert.isUndefined(validFunc(name));
+    }
+  );
 
   it("skillNameQuestion validates duplicate skill directory", () => {
     const node = addSkillQuestionNode();

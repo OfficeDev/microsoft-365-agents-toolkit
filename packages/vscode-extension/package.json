@@ -2,7 +2,7 @@
   "name": "ms-teams-vscode-extension",
   "displayName": "Microsoft 365 Agents Toolkit",
   "description": "Create, debug, and deploy agents with Microsoft 365 Agents Toolkit",
-  "version": "6.12.1",
+  "version": "6.20.0",
   "publisher": "TeamsDevApp",
   "author": "Microsoft Corporation",
   "private": true,
@@ -532,6 +532,10 @@
           "when": "false"
         },
         {
+          "command": "fx-extension.share",
+          "when": "fx-extension.isDeclarativeCopilotApp"
+        },
+        {
           "command": "fx-extension.selectAndDebug",
           "when": "false"
         },
@@ -701,6 +705,12 @@
         "command": "fx-extension.publish",
         "title": "%teamstoolkit.commands.publish.title%",
         "enablement": "fx-extension.isTeamsFx && isWorkspaceTrusted && !fx-extension.commandLocked",
+        "category": "Microsoft 365 Agents"
+      },
+      {
+        "command": "fx-extension.share",
+        "title": "%teamstoolkit.commands.share.title%",
+        "enablement": "fx-extension.isTeamsFx && fx-extension.isDeclarativeCopilotApp && isWorkspaceTrusted && !fx-extension.commandLocked",
         "category": "Microsoft 365 Agents"
       },
       {
@@ -882,12 +892,6 @@
         "icon": "$(sign-out)"
       },
       {
-        "command": "fx-extension.addWebpart",
-        "title": "%teamstoolkit.commmands.addWebpart.title%",
-        "enablement": "fx-extension.isTeamsFx && isWorkspaceTrusted && !fx-extension.commandLocked && fx-extension.isSPFx",
-        "category": "Microsoft 365 Agents"
-      },
-      {
         "command": "fx-extension.addPlugin",
         "title": "%teamstoolkit.commandsTreeViewProvider.addPluginTitle%",
         "enablement": "fx-extension.isTeamsFx && isWorkspaceTrusted && !fx-extension.commandLocked && fx-extension.isDeclarativeCopilotApp",
@@ -902,7 +906,7 @@
       {
         "command": "fx-extension.addSkill",
         "title": "%teamstoolkit.commandsTreeViewProvider.addSkillTitle%",
-        "enablement": "fx-extension.isTeamsFx && isWorkspaceTrusted && !fx-extension.commandLocked && fx-extension.isDeclarativeCopilotApp && fx-extension.isAgentSkillsEnabled",
+        "enablement": "fx-extension.isTeamsFx && isWorkspaceTrusted && !fx-extension.commandLocked && fx-extension.isDeclarativeCopilotApp",
         "category": "Microsoft 365 Agents"
       },
       {
@@ -1507,6 +1511,11 @@
           "default": false,
           "markdownDescription": "Enable launch Agent for Teams in Microsoft 365 Copilot. For more information please refer to [this documentation](https://aka.ms/cea-feature-flag)."
         },
+        "M365AgentsToolkit.enableFrontier": {
+          "type": "boolean",
+          "default": false,
+          "markdownDescription": "Enable Frontier features in Microsoft 365 Agents Toolkit. Reload VS Code after changing this setting for it to take effect."
+        },
         "M365AgentsToolkit.enableCustomFunctionShortcutInOfficeAddIn": {
           "type": "boolean",
           "default": true,
@@ -1573,8 +1582,8 @@
     "@azure/ms-rest-azure-env": "^2.0.0",
     "@fluentui/react-components": "^9.74.1",
     "@fluentui/react-icons": "^2.0.328",
-    "@vitest/coverage-istanbul": "^4.1.8",
     "@types/chrome-remote-interface": "^0.31.14",
+    "@types/cross-spawn": "^6.0.6",
     "@types/express": "^5.0.0",
     "@types/fs-extra": "^9.0.5",
     "@types/jscodeshift": "^0.11.2",
@@ -1593,6 +1602,7 @@
     "@types/validator": "^13.1.1",
     "@types/vscode": "^1.104.0",
     "@vitejs/plugin-react": "^4.3.1",
+    "@vitest/coverage-istanbul": "^4.1.8",
     "@vscode/codicons": "0.0.33",
     "ast-types": "^0.14.2",
     "dompurify": "^3.0.6",
@@ -1625,16 +1635,16 @@
     "typemoq": "^1.3.1",
     "typescript": "~5.9.0",
     "typescript-eslint": "^8.56.0",
-    "vitest": "^4.1.8",
     "uuid": "^11.1.1",
     "vite": "^6.4.1",
-    "vite-plugin-svgr": "^4.2.0"
+    "vite-plugin-svgr": "^4.2.0",
+    "vitest": "^4.1.8"
   },
   "dependencies": {
     "@azure/arm-resources-subscriptions": "^2.1.0",
     "@azure/identity": "^4.1.0",
     "@azure/ms-rest-azure-env": "^2.0.0",
-    "@azure/msal-node": "^5.4.0",
+    "@azure/msal-node": "^6.0.1",
     "@azure/msal-node-extensions": "^1.5.25",
     "@microsoft/dev-tunnels-connections": "1.1.45",
     "@microsoft/dev-tunnels-contracts": "1.1.45",
@@ -1654,6 +1664,7 @@
     "async-mutex": "^0.3.1",
     "axios": "^1.8.3",
     "chrome-remote-interface": "^0.33.2",
+    "cross-spawn": "^7.0.6",
     "detect-port": "^1.3.0",
     "devtools-protocol": "^0.0.1387316",
     "dotenv": "^8.2.0",

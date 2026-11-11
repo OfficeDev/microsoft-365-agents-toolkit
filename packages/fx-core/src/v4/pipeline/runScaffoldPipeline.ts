@@ -3,16 +3,18 @@
 
 import { FxError, SystemError, UserError, Warning } from "@microsoft/teamsfx-api";
 import { Result, err, ok } from "neverthrow";
+import { capabilityDeclarations } from "../capabilities/declarations";
 import { ConditionalExpression, evaluateConditionalWhen } from "../expression/evaluateExpression";
 import { RenderVars, TemplateFileEntry } from "../model/dataModel";
 import { getLocalizedString } from "../../common/localizeUtils";
+import { prepareStep } from "./defineStep";
 
 /** v4 scaffold pipeline executor. See the run-scaffold-pipeline spec and ADR-0017. */
 
 const SOURCE = "Scaffold";
 
 /** Built-in guard that must run before rendering so a violation writes nothing. */
-const STEP_REQUIRE_EMPTY_TARGET = "require-empty-target";
+const STEP_REQUIRE_EMPTY_TARGET = capabilityDeclarations.step.requireEmptyTarget.id;
 
 const TPL_SUFFIX = ".tpl";
 
@@ -80,15 +82,6 @@ export interface Orchestration {
   name: string;
 }
 
-/** Minimal manifest wrapper face needed by registered steps. */
-export interface ManifestWrapper {
-  registerDeclarativeAgentAction(
-    teamsManifestPath: string,
-    pluginManifestPath: string
-  ): Result<void, FxError>;
-  setSensitivityLabel?(path: string, id: string): Result<void, FxError>;
-}
-
 /** The capabilities the executor hands each registered step's `apply`. */
 export interface StepContext {
   write(path: string, data: Buffer): void;
@@ -97,7 +90,6 @@ export interface StepContext {
     environment: string,
     values: Record<string, string>
   ): Promise<Result<void, FxError>>;
-  manifestWrapper(kind: string): ManifestWrapper;
   /** Read current bytes at a target path, or `undefined` when absent. */
   read(path: string): Buffer | undefined;
   /**
@@ -109,7 +101,12 @@ export interface StepContext {
 }
 
 /** An engine-registered, whitelist-dispatched post-render step. */
+export type PreparedStep = (
+  ctx: StepContext
+) => Result<void, FxError> | Promise<Result<void, FxError>>;
+
 export interface RegisteredStep {
+  prepare?(resolved: StepParams): Result<PreparedStep, string>;
   validateParams(resolved: StepParams): string | undefined;
   apply(
     resolved: StepParams,
@@ -123,8 +120,8 @@ export interface PipelineRuntimePort {
   stepRegistry(stepName: string): RegisteredStep | undefined;
   evalWhen(expr: string, renderVars: RenderVars): Result<boolean, FxError>;
   render(mustache: string, renderVars: RenderVars): Result<string, FxError>;
-  manifestWrapper(kind: string): ManifestWrapper;
   warn?(warning: Warning): void;
+  writeNew(path: string, data: Buffer): boolean;
   write(path: string, data: Buffer): void;
   writeEnvironment(
     environment: string,
@@ -278,6 +275,11 @@ export async function runScaffoldPipeline(
   const written: string[] = [];
   const filtered: string[] = [];
   const skipped: SkippedFile[] = [];
+  const recordSkipped = (writePath: string): void => {
+    const warning = skipWarning(writePath);
+    skipped.push({ path: writePath, warning });
+    port.warn?.({ type: EXISTING_FILE_SKIPPED_WARNING, content: warning });
+  };
   for (const entry of content) {
     if (entry.path.endsWith(TPL_SUFFIX)) {
       const renderedPath = port.render(entry.path.slice(0, -TPL_SUFFIX.length), renderVars);
@@ -294,17 +296,18 @@ export async function runScaffoldPipeline(
         continue;
       }
       if (targetDir.existing.includes(writePath)) {
-        const warning = skipWarning(writePath);
-        skipped.push({ path: writePath, warning });
-        port.warn?.({ type: EXISTING_FILE_SKIPPED_WARNING, content: warning });
+        recordSkipped(writePath);
         continue;
       }
       const renderedBody = port.render(entry.data.toString("utf8"), renderVars); // AC-18
       if (renderedBody.isErr()) {
         return err(renderedBody.error);
       }
-      port.write(writePath, Buffer.from(renderedBody.value, "utf8"));
-      written.push(writePath);
+      if (port.writeNew(writePath, Buffer.from(renderedBody.value, "utf8"))) {
+        written.push(writePath);
+      } else {
+        recordSkipped(writePath);
+      }
     } else {
       const writePath = normalizedPath(entry.path);
       const omitted = matchesActiveFilter(writePath, pipeline.render?.filters, renderVars, port);
@@ -316,13 +319,14 @@ export async function runScaffoldPipeline(
         continue;
       }
       if (targetDir.existing.includes(writePath)) {
-        const warning = skipWarning(writePath);
-        skipped.push({ path: writePath, warning });
-        port.warn?.({ type: EXISTING_FILE_SKIPPED_WARNING, content: warning });
+        recordSkipped(writePath);
         continue;
       }
-      port.write(writePath, entry.data);
-      written.push(writePath);
+      if (port.writeNew(writePath, entry.data)) {
+        written.push(writePath);
+      } else {
+        recordSkipped(writePath);
+      }
     }
   }
 
@@ -330,7 +334,6 @@ export async function runScaffoldPipeline(
   const ctx: StepContext = {
     write: (path, data) => port.write(path, data),
     writeEnvironment: (environment, values) => port.writeEnvironment(environment, values),
-    manifestWrapper: (kind) => port.manifestWrapper(kind),
     read: (path) => port.read(path),
     warn: port.warn,
   };
@@ -368,17 +371,17 @@ export async function runScaffoldPipeline(
       return err(resolved.error);
     }
 
-    const violation = registered.validateParams(resolved.value);
-    if (violation !== undefined) {
+    const prepared = prepareStep(registered, resolved.value);
+    if (prepared.isErr()) {
       return err(
         systemError(
           PIPELINE_PARAMS_VIOLATION,
-          `Step '${step.step}' resolved parameters violate its schema: ${violation}. The build-time typed-context check (ADR-0016) should have caught this.`
+          `Step '${step.step}' resolved parameters violate its schema: ${prepared.error}. The build-time typed-context check (ADR-0016) should have caught this.`
         )
       );
     }
 
-    const applied = await registered.apply(resolved.value, ctx);
+    const applied = await prepared.value(ctx);
     if (applied.isErr()) {
       return err(applied.error);
     }

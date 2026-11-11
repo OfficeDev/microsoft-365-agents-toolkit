@@ -1,15 +1,29 @@
 ---
 name: microsoft-365-agents-toolkit
-description: "Builds, tests, and deploys Microsoft 365 apps and agents for Teams and Copilot. Includes sub-skills for project creation, local testing, cloud deployment, troubleshooting, and Slack-to-Teams migration. USE FOR: Teams agent, bot, tab, message extension, Declarative Agents, Custom Engine Agents, local testing, Agents Playground, Azure resource provision, remote deployment, Slack to Teams migration, cross-platform bot development, Block Kit to Adaptive Cards conversion. DO NOT USE FOR: general web development, non-bot/non-Teams projects."
+description: "Builds, tests, and deploys Microsoft 365 apps and agents for Teams and Copilot. Delegates all Declarative Agent workflows to the WIQD plugin except TypeSpec DA projects, which use ATK. Uses ATK for Custom Engine Agents, Teams bots, tabs, message extensions, Agents Playground, and Teams runtime testing. USE FOR: Declarative Agents, Custom Engine Agents, Teams apps, local testing, deployment, troubleshooting, and Slack-to-Teams migration. DO NOT USE FOR: general web development or non-Microsoft-365 projects."
 ---
 
 # Microsoft 365 Agents Toolkit Skill
 
-Build Microsoft 365 agents and Teams apps using the ATK CLI.
+Delegate every Declarative Agent workflow to the `wiqd` plugin except TypeSpec DA projects. Use ATK for TypeSpec DAs, non-DA Teams apps, code-based agents, and runtime testing.
+
+## Declarative Agent Routing
+
+Treat a request or project as a DA when the user explicitly says Declarative Agent, `appPackage/declarativeAgent.json` exists, or `appPackage/manifest.json` contains `copilotAgents.declarativeAgents`. The presence of `m365agents.yml` does not override these markers.
+
+**Existing DA pre-delegation gate:** Before invoking any skill for an existing DA lifecycle request, inspect `m365agents.yml`, `m365agents.local.yml`, `tspconfig.yaml`, and `.tsp` sources for the TypeSpec markers below. If any marker is present, use ATK and never invoke WIQD. Invoke WIQD only after this inspection rules out a TypeSpec DA.
+
+Route a DA to ATK only when the request explicitly identifies the `declarative-agent-typespec` capability or the project contains a TypeSpec DA marker: a `typeSpec/compile` lifecycle action, a `tspconfig.yaml` entry for `@microsoft/typespec-m365-copilot`, or a `.tsp` source importing `@microsoft/typespec-m365-copilot`. Invoke the `wiqd` plugin for every other DA, including DAs that need a new Azure-hosted API backend, contain backend source or deployment actions, attach existing OpenAPI or remote MCP services, or use Copilot Connector capabilities. The presence of `src/functions`, `package.json`, `m365agents.yml`, infrastructure files, a DA action, or an API plugin does not select ATK.
+
+Once a DA is routed to WIQD, confirm that the `wiqd` skill is available in the current Copilot session. If it is missing, follow the installation preflight in [toolkit/declarative-agent-lifecycle.md](toolkit/declarative-agent-lifecycle.md); do not assume that the plugin is already installed or fall back to ATK.
+
+When the skill is available, invoke it and let that plugin own the complete workflow, including coordination with Azure and Entra skills for new backends, discovery, prerequisites, authentication, EULA handling, command selection, file-based fallback, validation, and error recovery. Do not run `wiqd` commands directly or duplicate WIQD operational guidance in this skill.
+
+Answer read-only DA schema, manifest, capability, example, and project-structure questions from local references without invoking the WIQD plugin.
 
 ## AI Behavior Guidelines
 
-1. **Testing Strategy:** Recommend Agents Playground first (faster, no M365 needed). Use Teams workflow only if user explicitly requests it.
+1. **Testing Strategy:** Test Declarative Agents in Microsoft 365 Copilot. For code-based agents and Teams apps, recommend Agents Playground first (faster, no M365 needed) and use the Teams workflow only if the user explicitly requests it.
 
 2. **Environment Variables:** NEVER hardcode secrets or make up placeholder values. Always ask users for real values.
 
@@ -45,28 +59,29 @@ atk --version  # Must be > 1.1.5-beta
 ```
 
 If ATK is not found or version is too old:
+
 ```bash
 npm i -g @microsoft/m365agentstoolkit-cli@beta
 ```
 
 ## CLI Global Options
 
-| Option | Meaning | Recommendation |
-| --- | --- | --- |
-| `-i` | Interactive mode | Always use `-i false` in automation to avoid hanging |
-| `-f` | Project folder | Default to be current directory, used when specifying a custom folder. When scaffolding a new project, this is the parent folder where the project folder will be created under. |
-| `-h` | Command help | Use `atk <command> -h` for quick syntax checks |
+| Option | Meaning          | Recommendation                                                                                                                                                                   |
+| ------ | ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `-i`   | Interactive mode | Always use `-i false` in automation to avoid hanging                                                                                                                             |
+| `-f`   | Project folder   | Default to be current directory, used when specifying a custom folder. When scaffolding a new project, this is the parent folder where the project folder will be created under. |
+| `-h`   | Command help     | Use `atk <command> -h` for quick syntax checks                                                                                                                                   |
 
 ## Sub-Skills
 
-| Sub-Skill | When to Use | Reference |
-|-----------|-------------|-----------|
-| **create-project** | Scaffold new project from template, choose template, `atk new` | [create-project/create-project.md](create-project/create-project.md) |
-| **test-playground** | Test locally with Agents Playground, `agentsplayground`, quick testing | [test-playground/test-playground.md](test-playground/test-playground.md) |
-| **test-teams** | Run on Teams, devtunnel, sideload, Teams testing, test in Copilot | [test-teams/test-teams.md](test-teams/test-teams.md) |
-| **provision-deploy** | Provision Azure resources, deploy to cloud, `atk provision`, `atk deploy` | [provision-deploy/provision-deploy.md](provision-deploy/provision-deploy.md) |
-| **troubleshoot** | Fix errors, 401, port conflicts, YAML errors, stale bots | [troubleshoot/troubleshoot.md](troubleshoot/troubleshoot.md) |
-| **slack-to-teams** | Migrate Slack bot to Teams, cross-platform bridging, Block Kit to Adaptive Cards | [slack-to-teams/SKILL.md](slack-to-teams/SKILL.md) |
+| Sub-Skill            | When to Use                                                                      | Reference                                                                    |
+| -------------------- | -------------------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
+| **create-project**   | Scaffold new project from template, choose template, `atk new`                   | [create-project/create-project.md](create-project/create-project.md)         |
+| **test-playground**  | Test locally with Agents Playground, `agentsplayground`, quick testing           | [test-playground/test-playground.md](test-playground/test-playground.md)     |
+| **test-teams**       | Run on Teams, devtunnel, sideload, Teams testing, test in Copilot                | [test-teams/test-teams.md](test-teams/test-teams.md)                         |
+| **provision-deploy** | Provision Azure resources, deploy to cloud, `atk provision`, `atk deploy`        | [provision-deploy/provision-deploy.md](provision-deploy/provision-deploy.md) |
+| **troubleshoot**     | Fix errors, 401, port conflicts, YAML errors, stale bots                         | [troubleshoot/troubleshoot.md](troubleshoot/troubleshoot.md)                 |
+| **slack-to-teams**   | Migrate Slack bot to Teams, cross-platform bridging, Block Kit to Adaptive Cards | [slack-to-teams/SKILL.md](slack-to-teams/SKILL.md)                           |
 
 > **MANDATORY:** Before executing any workflow, read the corresponding sub-skill document.
 
@@ -82,13 +97,15 @@ npm i -g @microsoft/m365agentstoolkit-cli@beta
 
 Match user intent to the smallest valid workflow.
 
-| User Intent | Workflow (read in order) |
-|---|---|
-| Build new app from scratch | create-project → test-playground |
-| Test existing project locally | test-playground (recommended) or test-teams |
-| Deploy to Azure | provision-deploy |
-| Fix broken bot | troubleshoot → re-test |
-| Migrate Slack bot to Teams | slack-to-teams |
+| User Intent                                                                                    | Workflow (read in order)                                            |
+| ---------------------------------------------------------------------------------------------- | ------------------------------------------------------------------- |
+| Build any non-TypeSpec DA, including one that needs a new backend | create-project (WIQD plugin) → test-teams (M365 Copilot) |
+| Build a TypeSpec DA                                               | create-project (ATK) → follow generated ATK lifecycle    |
+| Build a code-based agent or Teams app from scratch                                             | create-project → test-playground                                    |
+| Test existing project locally                                                                  | test-playground (recommended) or test-teams                         |
+| Deploy to Azure                                                                                | provision-deploy                                                    |
+| Fix broken bot                                                                                 | troubleshoot → re-test                                              |
+| Migrate Slack bot to Teams                                                                     | slack-to-teams                                                      |
 
 > **MANDATORY:** Before executing any slack-to-teams workflow, read [slack-to-teams/SKILL.md](slack-to-teams/SKILL.md) first. The sub-skill contains a routed expert system with 100+ micro-expert files for cross-platform bot development.
 
@@ -98,11 +115,11 @@ Resolve config values only when missing. If a value is already known in the sess
 
 ### Step 1: Detect ATK Project
 
-If `m365agentstoolkit*.yml` exists in the current folder, treat it as an ATK project and parse configuration.
+Check the Declarative Agent markers above first. If none match and `m365agents*.yml` exists in the current folder, treat it as an ATK project and parse configuration.
 
 ### Step 2: Resolve Common Configuration
 
-Resolve variables referenced in `m365agentstoolkit*.yml`. Common variables:
+Resolve variables referenced in `m365agents*.yml`. Common variables:
 AZURE_OPENAI_API_KEY
 AZURE_OPENAI_ENDPOINT
 AZURE_OPENAI_DEPLOYMENT_NAME

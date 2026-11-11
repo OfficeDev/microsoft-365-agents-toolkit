@@ -1,0 +1,56 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/microsoft/waza/main/schemas/task.schema.json
+
+id: da-marker-precedence
+name: Non-TypeSpec DA with Backend Files Uses WIQD
+description: Existing non-TypeSpec DA routes to WIQD regardless of backend source or lifecycle files
+tags:
+  - declarative-agent
+  - routing
+inputs:
+  prompt: "Validate and package this existing Declarative Agent project."
+  files:
+    - path: declarative-agent/appPackage/manifest.json
+    - path: declarative-agent/appPackage/declarativeAgent.json
+    - path: declarative-agent/appPackage/color.png
+    - path: declarative-agent/appPackage/outline.png
+    - path: declarative-agent/m365agents.yml
+    - path: declarative-agent/package.json
+    - path: declarative-agent/src/functions/repairs.ts
+expected:
+  should_trigger: true
+graders:
+  - type: behavior
+    name: efficiency_check
+    config:
+      max_tool_calls: 35
+      max_duration_ms: 120000
+      forbidden_tools:
+        - rm
+        - sudo
+  - type: skill_invocation
+    name: wiqd_plugin_delegation
+    config:
+      mode: in_order
+      required_skills:
+        - wiqd
+      allow_extra: true
+  - type: tool_constraint
+    name: no_atk_da_commands
+    config:
+      reject_tools:
+        - tool: shell
+          command_pattern: '(?i)\batk\s+(?:validate|package|provision|deploy|publish|uninstall)\b'
+  - type: prompt
+    name: quality_check
+    config:
+      prompt: |
+        Review the agent's response. Check that it:
+        1. Selects WIQD because this is a non-TypeSpec DA.
+        2. Delegates validation and packaging to the `wiqd` plugin even though backend source and `m365agents.yml` exist.
+        3. Does not treat backend source, infrastructure, or lifecycle deployment actions as an ATK routing signal.
+        4. Does not prescribe WIQD CLI commands outside the WIQD plugin.
+
+        If all criteria are met, call set_waza_grade_pass.
+        Otherwise, call set_waza_grade_fail with your reasoning.
+      model: "gpt-5.4"
+      continue_session: true

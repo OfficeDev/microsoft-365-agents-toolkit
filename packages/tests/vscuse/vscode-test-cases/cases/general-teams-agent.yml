@@ -2,12 +2,13 @@ version: 1
 
 # Teams remote and local launches cover the complete LLM x language matrix,
 # because those dimensions change the rendered package and lifecycle. Azure
-# OpenAI covers Playground in every language, while one TypeScript combination
-# samples Copilot remote and local without recreating the legacy Cartesian
-# product across equivalent launch profiles.
+# OpenAI covers Playground in every language, while Azure OpenAI covers Copilot
+# remote and local in every language so retained legacy scenarios each have a
+# one-to-one generated replacement.
 cases:
   - id: general-teams-ts-azure-openai-remote-teams
     scenarioId: SCN-CREATE-CUSTOM-COPILOT-BASIC-01
+    workItemIds: [27042830]
     steps:
       [
         scaffold-general-ts-azure-openai,
@@ -23,6 +24,7 @@ cases:
 
   - id: general-teams-ts-azure-openai-local-teams
     scenarioId: SCN-CREATE-CUSTOM-COPILOT-BASIC-01
+    workItemIds: [27042450]
     steps:
       [
         scaffold-general-ts-azure-openai,
@@ -35,6 +37,7 @@ cases:
 
   - id: general-teams-ts-azure-openai-playground
     scenarioId: SCN-CREATE-CUSTOM-COPILOT-BASIC-01
+    workItemIds: [36229816]
     steps:
       [
         scaffold-general-ts-azure-openai,
@@ -46,6 +49,7 @@ cases:
 
   - id: general-teams-ts-azure-openai-remote-copilot
     scenarioId: SCN-CREATE-CUSTOM-COPILOT-BASIC-01
+    workItemIds: [36033075]
     # The run workflow injects this before VS Code starts so scaffold renders
     # the Copilot profiles without mutating user settings or reloading.
     featureFlags:
@@ -65,6 +69,7 @@ cases:
 
   - id: general-teams-ts-azure-openai-local-copilot
     scenarioId: SCN-CREATE-CUSTOM-COPILOT-BASIC-01
+    workItemIds: [36033050]
     featureFlags:
       - TEAMSFX_CEA_ENABLED=true
     steps:
@@ -79,6 +84,7 @@ cases:
 
   - id: general-teams-js-azure-openai-remote-teams
     scenarioId: SCN-CREATE-CUSTOM-COPILOT-BASIC-03
+    workItemIds: [27042828]
     steps:
       [
         scaffold-general-js-azure-openai,
@@ -94,6 +100,7 @@ cases:
 
   - id: general-teams-js-azure-openai-local-teams
     scenarioId: SCN-CREATE-CUSTOM-COPILOT-BASIC-03
+    workItemIds: [27042416]
     steps:
       [
         scaffold-general-js-azure-openai,
@@ -106,6 +113,7 @@ cases:
 
   - id: general-teams-js-azure-openai-playground
     scenarioId: SCN-CREATE-CUSTOM-COPILOT-BASIC-03
+    workItemIds: [36217287]
     steps:
       [
         scaffold-general-js-azure-openai,
@@ -115,8 +123,42 @@ cases:
         check-general-chat,
       ]
 
+  - id: general-teams-js-azure-openai-remote-copilot
+    scenarioId: SCN-CREATE-CUSTOM-COPILOT-BASIC-03
+    workItemIds: [36033116]
+    featureFlags:
+      - TEAMSFX_CEA_ENABLED=true
+    steps:
+      [
+        scaffold-general-js-azure-openai,
+        check-general-js-azure-openai,
+        login-azure,
+        login-m365,
+        provision-arm,
+        deploy,
+        f5-copilot-remote,
+        open-agent,
+        check-general-chat,
+      ]
+
+  - id: general-teams-js-azure-openai-local-copilot
+    scenarioId: SCN-CREATE-CUSTOM-COPILOT-BASIC-03
+    workItemIds: [36031468]
+    featureFlags:
+      - TEAMSFX_CEA_ENABLED=true
+    steps:
+      [
+        scaffold-general-js-azure-openai,
+        check-general-js-azure-openai,
+        login-m365,
+        f5-copilot-local,
+        open-agent,
+        check-general-chat,
+      ]
+
   - id: general-teams-py-azure-openai-remote-teams
     scenarioId: SCN-CREATE-CUSTOM-COPILOT-BASIC-04
+    workItemIds: [27551399]
     steps:
       [
         scaffold-general-py-azure-openai,
@@ -133,6 +175,7 @@ cases:
 
   - id: general-teams-py-azure-openai-local-teams
     scenarioId: SCN-CREATE-CUSTOM-COPILOT-BASIC-04
+    workItemIds: [27178027]
     steps:
       [
         scaffold-general-py-azure-openai,
@@ -146,6 +189,7 @@ cases:
 
   - id: general-teams-py-azure-openai-playground
     scenarioId: SCN-CREATE-CUSTOM-COPILOT-BASIC-04
+    workItemIds: [36229811]
     steps:
       [
         scaffold-general-py-azure-openai,
@@ -156,90 +200,140 @@ cases:
         check-general-chat,
       ]
 
-  # OpenAI remote cases stop after launch. The generated remote infrastructure
-  # carries only the key, while local cases can redirect the OpenAI client to an
-  # Azure OpenAI v1 endpoint and assert a real completion.
+  - id: general-teams-py-azure-openai-remote-copilot
+    scenarioId: SCN-CREATE-CUSTOM-COPILOT-BASIC-04
+    workItemIds: [36033322]
+    featureFlags:
+      - TEAMSFX_CEA_ENABLED=true
+    steps:
+      [
+        scaffold-general-py-azure-openai,
+        check-general-py-azure-openai,
+        create-python-environment,
+        login-azure,
+        login-m365,
+        provision-arm,
+        deploy,
+        f5-copilot-remote,
+        open-agent,
+        check-general-chat,
+      ]
+
+  - id: general-teams-py-azure-openai-local-copilot
+    scenarioId: SCN-CREATE-CUSTOM-COPILOT-BASIC-04
+    workItemIds: [36033211]
+    featureFlags:
+      - TEAMSFX_CEA_ENABLED=true
+    steps:
+      [
+        scaffold-general-py-azure-openai,
+        check-general-py-azure-openai,
+        create-python-environment,
+        login-m365,
+        f5-copilot-local,
+        open-agent,
+        check-general-chat,
+      ]
+
   - id: general-teams-ts-openai-remote-teams
     scenarioId: SCN-CREATE-CUSTOM-COPILOT-BASIC-01
+    workItemIds: [27042831]
     steps:
       [
         scaffold-general-ts-openai,
         check-general-ts-openai,
+        use-gpt-4o-mini-ts,
+        redirect-openai-base-url-remote,
         login-azure,
         login-m365,
         provision-arm,
         deploy,
         f5-teams-remote-node,
         open-app,
+        check-general-chat-openai,
       ]
 
   - id: general-teams-ts-openai-local-teams
     scenarioId: SCN-CREATE-CUSTOM-COPILOT-BASIC-01
+    workItemIds: [27042451]
     steps:
       [
         scaffold-general-ts-openai,
         check-general-ts-openai,
+        use-gpt-4o-mini-ts,
         redirect-openai-base-url,
         login-m365,
         f5-teams-local,
         open-app,
-        check-general-chat,
+        check-general-chat-openai,
       ]
 
   - id: general-teams-js-openai-remote-teams
     scenarioId: SCN-CREATE-CUSTOM-COPILOT-BASIC-03
+    workItemIds: [27042829]
     steps:
       [
         scaffold-general-js-openai,
         check-general-js-openai,
+        use-gpt-4o-mini-js,
+        redirect-openai-base-url-remote,
         login-azure,
         login-m365,
         provision-arm,
         deploy,
         f5-teams-remote-node,
         open-app,
+        check-general-chat-openai,
       ]
 
   - id: general-teams-js-openai-local-teams
     scenarioId: SCN-CREATE-CUSTOM-COPILOT-BASIC-03
+    workItemIds: [27042433]
     steps:
       [
         scaffold-general-js-openai,
         check-general-js-openai,
+        use-gpt-4o-mini-js,
         redirect-openai-base-url,
         login-m365,
         f5-teams-local,
         open-app,
-        check-general-chat,
+        check-general-chat-openai,
       ]
 
   - id: general-teams-py-openai-remote-teams
     scenarioId: SCN-CREATE-CUSTOM-COPILOT-BASIC-04
+    workItemIds: [27551403]
     steps:
       [
         scaffold-general-py-openai,
         check-general-py-openai,
+        use-gpt-4o-mini-py,
         create-python-environment,
+        redirect-openai-base-url-remote,
         login-azure,
         login-m365,
         provision-arm,
         deploy,
         f5-teams-remote-python,
         open-app,
+        check-general-chat-openai,
       ]
 
   - id: general-teams-py-openai-local-teams
     scenarioId: SCN-CREATE-CUSTOM-COPILOT-BASIC-04
+    workItemIds: [27178071]
     steps:
       [
         scaffold-general-py-openai,
         check-general-py-openai,
+        use-gpt-4o-mini-py,
         create-python-environment,
         redirect-openai-base-url,
         login-m365,
         f5-teams-local,
         open-app,
-        check-general-chat,
+        check-general-chat-openai,
       ]
 
 steps:
@@ -315,7 +409,7 @@ steps:
       - type: file
         path: appPackage/manifest.json
         expect:
-          contains: ['"manifestVersion": "1.29"']
+          contains: ['"manifestVersion": "1.30"']
 
   scaffold-general-js-azure-openai:
     type: scaffold
@@ -615,6 +709,24 @@ steps:
         expect:
           exists: false
 
+  use-gpt-4o-mini-ts:
+    type: openAIModel
+    with:
+      path: src/config.ts
+      current: gpt-3.5-turbo
+
+  use-gpt-4o-mini-js:
+    type: openAIModel
+    with:
+      path: src/config.js
+      current: gpt-3.5-turbo
+
+  use-gpt-4o-mini-py:
+    type: openAIModel
+    with:
+      path: src/config.py
+      current: gpt-3.5-turbo
+
   create-python-environment:
     type: pythonEnvironment
     with:
@@ -622,6 +734,11 @@ steps:
 
   redirect-openai-base-url:
     type: localEnvironment
+    with:
+      OPENAI_BASE_URL: "${{env:AZURE_OPENAI_ENDPOINT}}/openai/v1"
+
+  redirect-openai-base-url-remote:
+    type: remoteEnvironment
     with:
       OPENAI_BASE_URL: "${{env:AZURE_OPENAI_ENDPOINT}}/openai/v1"
 
@@ -708,3 +825,12 @@ steps:
         send: How to develop agent for Teams?
         expect:
           replied: true
+
+  check-general-chat-openai:
+    type: checks
+    with:
+      - type: chat
+        send: How to develop agent for Teams?
+        expect:
+          replied: true
+          notContains: ["error"]

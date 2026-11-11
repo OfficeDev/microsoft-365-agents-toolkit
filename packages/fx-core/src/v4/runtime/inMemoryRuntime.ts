@@ -35,6 +35,13 @@ export function createInMemoryRuntime(
   const warnings: Warning[] = [];
   const exprPort = createExpressionPort(flagReader);
   const sink: FileSink = {
+    writeNew: (path: string, data: Buffer): boolean => {
+      if (files.has(path)) {
+        return false;
+      }
+      files.set(path, data);
+      return true;
+    },
     write: (path: string, data: Buffer): void => {
       files.set(path, data);
     },

@@ -27,6 +27,7 @@ import {
 import {
   ApiOperation,
   AppPackageFolderName,
+  AuthCredentialSource,
   Context,
   err,
   FxError,
@@ -74,6 +75,7 @@ import { pluginManifestUtils } from "../../driver/teamsApp/utils/PluginManifestU
 import { generatePlugin, listAPIInfo, validateOpenAPISpec } from "../../../common/daSpecParser";
 import { isMCPScaffoldWarning } from "../../utils/mcpAuthScaffolder";
 import { pathUtils } from "../../utils/pathUtils";
+import { envUtil } from "../../utils/envUtil";
 
 const enum telemetryProperties {
   validationStatus = "validation-status",
@@ -211,7 +213,7 @@ export async function listOperations(
     );
 
     let operations = listResult.APIs.filter((value) => value.isValid);
-    context.telemetryReporter.sendTelemetryEvent(telemetryEvents.listApis, {
+    context.telemetryReporter?.sendTelemetryEvent(telemetryEvents.listApis, {
       [telemetryProperties.generateType]: projectType.toString(),
       [telemetryProperties.validApisCount]: listResult.validAPICount.toString(),
       [telemetryProperties.allApisCount]: listResult.allAPICount.toString(),
@@ -504,7 +506,7 @@ export async function generateFromApiSpec(
           );
 
     // Send SpecParser.generate() warnings
-    context.telemetryReporter.sendTelemetryEvent(specParserGenerateResultTelemetryEvent, {
+    context.telemetryReporter?.sendTelemetryEvent(specParserGenerateResultTelemetryEvent, {
       [telemetryProperties.generateType]: projectType.toString(),
       [specParserGenerateResultAllSuccessTelemetryProperty]: generateResult.allSuccess.toString(),
       [specParserGenerateResultWarningsTelemetryProperty]: generateResult.warnings
@@ -575,7 +577,7 @@ export function logValidationResults(
     if (existingCorrelationId) {
       properties["correlation-id"] = existingCorrelationId;
     }
-    context.telemetryReporter.sendTelemetryEvent(telemetryEvents.validateApiSpec, properties);
+    context.telemetryReporter?.sendTelemetryEvent(telemetryEvents.validateApiSpec, properties);
   }
 
   if (errors.length === 0 && (warnings.length === 0 || !shouldLogWarning)) {
@@ -631,7 +633,12 @@ export async function injectAuthAction(
   forceToAddNew: boolean,
   authType?: string,
   enablePKCE?: boolean,
-  registrationId?: string
+  registrationId?: string,
+  apiKey?: string,
+  authCredentialSource: AuthCredentialSource = "provision",
+  oauthClientId?: string,
+  oauthClientSecret?: string,
+  oauthScopes?: string
 ): Promise<AuthActionInjectResult | undefined> {
   const ymlPath = pathUtils.getYmlFilePath(projectPath) as string;
   const localYamlPath = pathUtils.getYmlFilePath(projectPath, "local", true) as string;
@@ -643,12 +650,18 @@ export async function injectAuthAction(
       (Utils.isBearerTokenAuth(authScheme) || Utils.isAPIKeyAuthButNotInCookie(authScheme))) ||
     authType === APIKeyAuthType
   ) {
+    const normalizedApiKey = apiKey?.trim();
+    const apiKeyEnvName =
+      normalizedApiKey || authCredentialSource === "environment"
+        ? `SECRET_${Utils.getSafeRegistrationIdEnvName(`${authName}_API_KEY`)}`
+        : undefined;
     const res = await ActionInjector.injectCreateAPIKeyAction(
       ymlPath,
       authName,
       relativeSpecPath,
       forceToAddNew,
-      registrationId
+      registrationId,
+      apiKeyEnvName
     );
 
     if (!!localYamlPath && (await fs.pathExists(localYamlPath))) {
@@ -657,8 +670,28 @@ export async function injectAuthAction(
         authName,
         relativeSpecPath,
         forceToAddNew,
-        registrationId
+        res?.registrationIdEnvName,
+        apiKeyEnvName
       );
+    }
+
+    if (
+      res?.primaryClientSecretEnvName &&
+      (authCredentialSource === "environment" || normalizedApiKey)
+    ) {
+      const envListRes = await envUtil.listEnv(projectPath);
+      if (envListRes.isErr()) {
+        throw envListRes.error;
+      }
+      const environments = envListRes.value.length > 0 ? envListRes.value : ["dev"];
+      for (const environment of environments) {
+        const writeEnvRes = await envUtil.writeEnv(projectPath, environment, {
+          [res.primaryClientSecretEnvName]: normalizedApiKey ?? "",
+        });
+        if (writeEnvRes.isErr()) {
+          throw writeEnvRes.error;
+        }
+      }
     }
     return res;
   } else if (
@@ -666,14 +699,35 @@ export async function injectAuthAction(
     authType === OAuthAuthType ||
     authType === MicrosoftEntraAuthType
   ) {
+    const normalizedClientId = oauthClientId?.trim() ?? "";
+    const normalizedClientSecret = oauthClientSecret?.trim() ?? "";
+    const normalizedScopes = oauthScopes?.trim() ?? "";
+    const isMicrosoftEntra = authType === MicrosoftEntraAuthType;
+    const oauthCredentialEnvNames =
+      authCredentialSource === "environment"
+        ? {
+            clientId: Utils.getSafeRegistrationIdEnvName(`${authName}_CLIENT_ID`),
+            ...(!isMicrosoftEntra && !enablePKCE
+              ? {
+                  clientSecret: `SECRET_${Utils.getSafeRegistrationIdEnvName(
+                    `${authName}_CLIENT_SECRET`
+                  )}`,
+                }
+              : {}),
+            ...(!isMicrosoftEntra && normalizedScopes
+              ? { scope: Utils.getSafeRegistrationIdEnvName(`${authName}_SCOPE`) }
+              : {}),
+          }
+        : undefined;
     const res = await ActionInjector.injectCreateOAuthAction(
       ymlPath,
       authName,
       relativeSpecPath,
       forceToAddNew,
-      authType === MicrosoftEntraAuthType,
-      enablePKCE,
-      registrationId
+      isMicrosoftEntra,
+      isMicrosoftEntra ? undefined : enablePKCE,
+      registrationId,
+      oauthCredentialEnvNames
     );
 
     if (!!localYamlPath && (await fs.pathExists(localYamlPath))) {
@@ -682,10 +736,33 @@ export async function injectAuthAction(
         authName,
         relativeSpecPath,
         forceToAddNew,
-        authType === MicrosoftEntraAuthType,
-        enablePKCE,
-        registrationId
+        isMicrosoftEntra,
+        isMicrosoftEntra ? undefined : enablePKCE,
+        res?.registrationIdEnvName,
+        oauthCredentialEnvNames
       );
+    }
+    if (res?.clientIdEnvName) {
+      const envs: Record<string, string> = {
+        [res.clientIdEnvName]: normalizedClientId,
+      };
+      if (res.clientSecretEnvName) {
+        envs[res.clientSecretEnvName] = normalizedClientSecret;
+      }
+      if (res.scopeEnvName) {
+        envs[res.scopeEnvName] = normalizedScopes;
+      }
+      const envListRes = await envUtil.listEnv(projectPath);
+      if (envListRes.isErr()) {
+        throw envListRes.error;
+      }
+      const environments = envListRes.value.length > 0 ? envListRes.value : ["dev"];
+      for (const environment of environments) {
+        const writeEnvRes = await envUtil.writeEnv(projectPath, environment, envs);
+        if (writeEnvRes.isErr()) {
+          throw writeEnvRes.error;
+        }
+      }
     }
     return res;
   }

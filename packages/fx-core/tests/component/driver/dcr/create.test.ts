@@ -12,9 +12,7 @@ import {
 } from "../../../../src/component/driver/teamsApp/interfaces/OauthRegistration";
 import { MockedLogProvider, MockedUserInteraction } from "../../../plugins/solution/util";
 import { MockedAzureAccountProvider, MockedM365Provider } from "../../../core/utils";
-import { chai, expect, vi } from "vitest";
-
-const expect = chai.expect;
+import { expect, vi } from "vitest";
 
 const outputKeys = {
   configurationId: "DCR_REGISTRATION_ID",
@@ -60,7 +58,7 @@ describe("CreateDcrDriver", () => {
   });
 
   // Test #1 — Happy path
-  it("happy path: should call createDcrRegistration with expected body and return oAuthConfigId", async () => {
+  it("DCR-01: preserves the legacy request body and returns oAuthConfigId", async () => {
     const stub = vi
       .spyOn(teamsGraphClient, "createDcrRegistration")
       .mockImplementation(async (token, dcrRegistration) => {
@@ -97,7 +95,7 @@ describe("CreateDcrDriver", () => {
   });
 
   // Test #2 — Idempotency: env var already set => no POST, empty outputs
-  it("idempotency: should skip POST when configurationId already exists in env", async () => {
+  it("DCR-06: skips POST when configurationId already exists in env", async () => {
     const stub = vi
       .spyOn(teamsGraphClient, "createDcrRegistration")
       .mockResolvedValue(fakeCreateDcrResponse);
@@ -124,6 +122,166 @@ describe("CreateDcrDriver", () => {
     // The stub must NOT have been called
     expect(stub.mock.calls.length > 0).to.be.false;
   });
+
+  it("DCR-MSA-03: validates the personal account option before an idempotent skip", async () => {
+    envRestore = mockedEnv({
+      [outputKeys.configurationId]: "existing-id",
+    });
+    const args: any = {
+      name: "cloudflare-radar-dcr",
+      mcpResourceUrl: "https://mcp.example.com/mcp",
+      targetUrlsShouldStartWith: ["https://mcp.example.com/mcp"],
+      includePersonalMicrosoftAccounts: "true",
+    };
+
+    const result = await createDcrDriver.execute(args, mockedDriverContext, outputEnvVarNames);
+
+    expect(result.result.isErr()).to.be.true;
+  });
+
+  for (const discovery of [
+    { id: "DCR-02", fields: { mcpResourceUrl: "https://mcp.example.com/mcp" } },
+    {
+      id: "DCR-03",
+      fields: {
+        mcpResourceUrl: "https://mcp.example.com/mcp",
+        wellKnownAuthorizationServer:
+          "https://auth.example.com/.well-known/oauth-authorization-server",
+      },
+    },
+    {
+      id: "DCR-04",
+      fields: {
+        mcpResourceUrl: "https://mcp.example.com/mcp",
+        resource: "https://resource.example.com/audience/",
+      },
+    },
+    {
+      id: "DCR-04",
+      fields: {
+        wellKnownAuthorizationServer:
+          "https://auth.example.com/.well-known/oauth-authorization-server",
+        resource: "https://resource.example.com/audience/",
+      },
+    },
+  ]) {
+    it(`${discovery.id}: forwards discovery inputs without synthesizing a resource`, async () => {
+      const stub = vi
+        .spyOn(teamsGraphClient, "createDcrRegistration")
+        .mockResolvedValue(fakeCreateDcrResponse);
+      const args = {
+        name: "mcp-resource-test",
+        targetUrlsShouldStartWith: ["https://mcp.example.com/mcp"],
+        ...discovery.fields,
+      };
+
+      const result = await createDcrDriver.execute(args, mockedDriverContext, outputEnvVarNames);
+
+      expect(result.result.isOk()).to.be.true;
+      expect(stub).toHaveBeenCalledOnce();
+      expect(stub.mock.calls[0][1]).to.deep.equal({
+        clientName: args.name,
+        m365AppId: "",
+        applicableToApps: "AnyApp",
+        targetAudience: "HomeTenant",
+        targetUrlsShouldStartWith: args.targetUrlsShouldStartWith,
+        ...discovery.fields,
+      });
+      if (result.result.isOk()) {
+        expect(result.result.value.get(outputKeys.configurationId)).to.equal(fakeOauthConfigId);
+      }
+    });
+  }
+
+  for (const discovery of [
+    {
+      name: "legacy",
+      fields: {
+        wellKnownAuthorizationServer:
+          "https://auth.example.com/.well-known/oauth-authorization-server",
+      },
+    },
+    { name: "endpoint", fields: { mcpResourceUrl: "https://mcp.example.com/mcp" } },
+  ]) {
+    for (const target of [
+      { name: "omitted", fields: {} },
+      { name: "empty", fields: { targetUrlsShouldStartWith: [] } },
+      {
+        name: "single",
+        fields: { targetUrlsShouldStartWith: ["https://mcp.example.com/mcp"] },
+      },
+      {
+        name: "multiple",
+        fields: {
+          targetUrlsShouldStartWith: ["https://one.example.com", "https://two.example.com"],
+        },
+      },
+    ]) {
+      it(`DCR-09: preserves ${target.name} targets with ${discovery.name} discovery`, async () => {
+        const stub = vi
+          .spyOn(teamsGraphClient, "createDcrRegistration")
+          .mockResolvedValue(fakeCreateDcrResponse);
+        const args = { name: "mcp-resource-test", ...discovery.fields, ...target.fields };
+
+        const result = await createDcrDriver.execute(args, mockedDriverContext, outputEnvVarNames);
+
+        expect(result.result.isOk()).to.be.true;
+        expect(stub).toHaveBeenCalledOnce();
+        expect(stub.mock.calls[0][1]).to.deep.equal({
+          clientName: args.name,
+          m365AppId: "",
+          applicableToApps: "AnyApp",
+          targetAudience: "HomeTenant",
+          ...discovery.fields,
+          targetUrlsShouldStartWith: target.fields.targetUrlsShouldStartWith ?? [],
+        });
+      });
+    }
+  }
+
+  const invalidInputs: { field: string; value: unknown }[] = [
+    { field: "targetUrlsShouldStartWith", value: "https://mcp.example.com/mcp" },
+    {
+      field: "targetUrlsShouldStartWith",
+      value: ["https://one.example.com", "http://two.example.com"],
+    },
+    { field: "targetUrlsShouldStartWith", value: [123] },
+    { field: "targetUrlsShouldStartWith", value: [""] },
+    { field: "targetUrlsShouldStartWith", value: ["http://mcp.example.com/mcp"] },
+    { field: "mcpResourceUrl", value: "not-a-url" },
+    { field: "mcpResourceUrl", value: "http://mcp.example.com/mcp" },
+    { field: "mcpResourceUrl", value: "" },
+    { field: "mcpResourceUrl", value: 123 },
+    { field: "resource", value: "" },
+    { field: "resource", value: "relative/path" },
+    { field: "resource", value: "https://resource.example.com/#fragment" },
+    { field: "resource", value: 123 },
+  ];
+  for (const invalid of invalidInputs) {
+    it(`DCR-05: rejects ${invalid.field}=${JSON.stringify(invalid.value)} before POST`, async () => {
+      const stub = vi
+        .spyOn(teamsGraphClient, "createDcrRegistration")
+        .mockResolvedValue(fakeCreateDcrResponse);
+      const args = Object.assign(
+        {
+          name: "mcp-resource-test",
+          wellKnownAuthorizationServer:
+            "https://auth.example.com/.well-known/oauth-authorization-server",
+          targetUrlsShouldStartWith: ["https://mcp.example.com/mcp"],
+        },
+        { [invalid.field]: invalid.value }
+      );
+
+      const result = await createDcrDriver.execute(args, mockedDriverContext, outputEnvVarNames);
+
+      expect(result.result.isErr()).to.be.true;
+      if (result.result.isErr()) {
+        expect(result.result.error.name).to.equal("InvalidActionInputError");
+        expect(result.result.error.message).to.include(invalid.field);
+      }
+      expect(stub).not.toHaveBeenCalled();
+    });
+  }
 
   // Test #3 — Missing `name`
   it("should return InvalidActionInputError when name is missing", async () => {
@@ -399,5 +557,71 @@ describe("CreateDcrDriver", () => {
       expect(result.result.error.name).to.equal("InvalidActionInputError");
       expect(result.result.error.message).to.include("targetUrlsShouldStartWith");
     }
+  });
+
+  for (const testCase of [
+    { id: "DCR-MSA-01", input: undefined, expected: undefined },
+    { id: "DCR-MSA-02", input: false, expected: "Enterprise" },
+    { id: "DCR-MSA-02", input: true, expected: "Enterprise, Consumer" },
+  ]) {
+    it(`${testCase.id}: maps the personal account option to the DCR payload`, async () => {
+      const createStub = vi
+        .spyOn(teamsGraphClient, "createDcrRegistration")
+        .mockResolvedValue(fakeCreateDcrResponse);
+      const args = {
+        name: "mcp-resource-test",
+        mcpResourceUrl: "https://mcp.example.com/mcp",
+        targetUrlsShouldStartWith: ["https://mcp.example.com/mcp"],
+        ...(testCase.input === undefined
+          ? {}
+          : { includePersonalMicrosoftAccounts: testCase.input }),
+      };
+
+      const result = await createDcrDriver.execute(args, mockedDriverContext, outputEnvVarNames);
+
+      expect(result.result.isOk()).to.be.true;
+      expect(createStub).toHaveBeenCalledOnce();
+      if (testCase.expected === undefined) {
+        expect(createStub.mock.calls[0][1]).not.to.have.property("supportedAccountTypes");
+      } else {
+        expect(createStub.mock.calls[0][1].supportedAccountTypes).to.equal(testCase.expected);
+      }
+    });
+  }
+
+  it("DCR-MSA-03: rejects a non-boolean personal account option before POST", async () => {
+    const createStub = vi.spyOn(teamsGraphClient, "createDcrRegistration");
+    const args: any = {
+      name: "mcp-resource-test",
+      mcpResourceUrl: "https://mcp.example.com/mcp",
+      targetUrlsShouldStartWith: ["https://mcp.example.com/mcp"],
+      includePersonalMicrosoftAccounts: "true",
+    };
+
+    const result = await createDcrDriver.execute(args, mockedDriverContext, outputEnvVarNames);
+
+    expect(result.result.isErr()).to.be.true;
+    expect(createStub).not.toHaveBeenCalled();
+  });
+
+  it("DCR-MSA-03: rejects the parameter outside Public cloud before POST", async () => {
+    envRestore = mockedEnv({
+      TEAMSFX_SOVEREIGN_CLOUD_ENVIRONMENT: "GCC H",
+    });
+    const createStub = vi.spyOn(teamsGraphClient, "createDcrRegistration");
+
+    const result = await createDcrDriver.execute(
+      {
+        name: "mcp-resource-test",
+        mcpResourceUrl: "https://mcp.example.com/mcp",
+        targetUrlsShouldStartWith: ["https://mcp.example.com/mcp"],
+        includePersonalMicrosoftAccounts: true,
+      },
+      mockedDriverContext,
+      outputEnvVarNames
+    );
+
+    expect(result.result.isErr()).to.be.true;
+    expect(createStub).not.toHaveBeenCalled();
   });
 });

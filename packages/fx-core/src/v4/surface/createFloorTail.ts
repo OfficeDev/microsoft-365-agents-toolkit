@@ -3,30 +3,10 @@
 
 import { FuncValidation, FxError, Inputs } from "@microsoft/teamsfx-api";
 import { Result, err, ok } from "neverthrow";
-import { getLocalizedString } from "../../common/localizeUtils";
 import { InputValidationError, MissingRequiredInputError } from "../../error/common";
 import { QuestionNames, appNameQuestion, folderQuestion } from "../../question";
-import { QuestionSpec, Validator } from "../collectInputs/collectInputs";
+import { OptionItem, QuestionSpec, Validator } from "../collectInputs/collectInputs";
 import { Answers } from "../model/dataModel";
-
-const LANGUAGE_LABELS: Record<string, string> = {
-  javascript: "JavaScript",
-  typescript: "TypeScript",
-  csharp: "C#",
-  python: "Python",
-};
-const PYTHON_LANGUAGE = "python";
-
-function languageOption(language: string, showPythonPreview: boolean) {
-  return {
-    id: language,
-    label: LANGUAGE_LABELS[language] ?? language,
-    description:
-      showPythonPreview && language === PYTHON_LANGUAGE
-        ? getLocalizedString("core.createProjectQuestion.option.description.preview")
-        : undefined,
-  };
-}
 
 export interface CreateFloorTail {
   questions: QuestionSpec[];
@@ -58,8 +38,7 @@ async function resolveStringValue(
 
 export async function createFloorTail(
   inputs: Inputs | undefined,
-  languages: string[],
-  showPythonPreview = false
+  languages: OptionItem[]
 ): Promise<Result<CreateFloorTail, FxError>> {
   const questions: QuestionSpec[] = [];
   const answers: Answers = {};
@@ -69,11 +48,11 @@ export async function createFloorTail(
       name: "language",
       type: "singleSelect",
       title: "Programming Language",
-      default: languages[0],
-      staticOptions: languages.map((language) => languageOption(language, showPythonPreview)),
+      default: languages[0].id,
+      staticOptions: languages,
     });
-  } else if (languages.length === 1 && languages[0] !== "common") {
-    answers.language = languages[0];
+  } else if (languages.length === 1 && languages[0].id !== "common") {
+    answers.language = languages[0].id;
   }
 
   if (inputs === undefined) {

@@ -6,6 +6,8 @@ Microsoft 365 Agents Toolkit CLI is a text-based command line interface that can
 
 ## Getting Started
 
+Requires Node.js 20.19.0 or later in the 20.x series, or Node.js 22.12.0 or later, matching the core engine's runtime requirements.
+
 Let's start by installing `@microsoft/m365agentstoolkit-cli` from NPM and run `atk -h` to check all available commands:
 
 ```powershell
@@ -15,6 +17,29 @@ $ atk -h
 
 > [!NOTE]
 > Please refer to [Microsoft 365 Agents Toolkit CLI Documentation](https://aka.ms/teamsfx-toolkit-cli) for in-depth instructions.
+
+## SharePoint Framework projects
+
+SPFx project creation/import and `atk add spfx-web-part` (including the legacy
+`teamsapp` alias) are no longer supported. Use the SharePoint Framework tooling
+directly to create solutions and add web parts. Deployment and publishing of
+existing Toolkit SPFx projects remain unchanged.
+
+## Experimental action execution
+
+The `execute action` command is disabled by default. To enable it and include
+`execute` in `atk --help`, set the feature flag before starting the CLI:
+
+```powershell
+$env:TEAMSFX_CLI_EXECUTE_ACTION = "true"
+atk --help
+atk execute action --help
+```
+
+`1` also enables the flag. When unset or disabled, the entire `execute` command
+tree is unavailable. This flag does not affect SDK or YAML action execution.
+See the [action-execution contract](../../docs/03-specs/operations/lifecycle/execute-action-cli.md)
+for argument, authentication and real-write behavior.
 
 ## Feedback
 

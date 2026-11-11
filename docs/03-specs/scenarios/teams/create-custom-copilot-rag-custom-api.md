@@ -14,6 +14,8 @@
 | SCN-CREATE-RAG-CUSTOM-API-06 | L1      | operation-integration | per-PR | StepContext     | Adaptive-card or mock-data generation returns a recoverable warning for a selected operation. | The OpenAPI step completes and emits the warning through the pipeline warning sink instead of silently discarding it.                                                                                                                                                                                                                                                                                        |
 | SCN-CREATE-RAG-CUSTOM-API-06 | L1      | scenario              | per-PR | InMemoryRuntime | Scaffold into a target that already contains a file.                                          | The scaffold fails with `REQUIRE_EMPTY_TARGET` before writing files.                                                                                                                                                                                                                                                                                                                                         |
 
+| SCN-CREATE-RAG-CUSTOM-API-07 | L1 | scenario | per-PR | Local OpenAPI file, shipped questions, default providers and InMemoryRuntime | Collect a valid HTTPS operation and scaffold it; also try a document supported by Copilot but rejected by Teams AI. | The valid selected operation generates successfully with the same parser policy; the incompatible document fails during input collection before any output is rendered. No network or CLI/VS Code host is needed. |
+
 ## Flow
 
 ```mermaid
