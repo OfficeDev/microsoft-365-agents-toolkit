@@ -21,6 +21,10 @@ something the current MOS response allows ATK to verify.
 ## Invariants
 
 - Default-off opt-in; unchanged legacy path when disabled or without local skills.
+- Skill synchronization requests delegated `FileStorageContainer.Selected` on the
+  configured Graph resource, not `Files.ReadWrite`. SPE access also requires the
+  applicable delegated container-type `readContent`/`writeContent` grants and user
+  access; requesting the OAuth scope does not provision or approve those grants.
 - Root `manifest.json.agentSkills` and referenced DA `agent_skills` /
   `x-agent_skills` share the same feature flag and synchronization pipeline.
   Root-only packages need no DA. Normalize local folders and synchronize each
@@ -218,7 +222,7 @@ diagnostic and preflight requirements remain owned by AC-12/16.
 | AC-07 | L1 | operation-integration | required | directory HTTP | Reported copies stop preparation; no monitor polling, file writes, draft reset or package submission. |
 | AC-08 | L1 | operation-integration | required | fake clock/request counter | One active Graph operation; honor Retry-After; at most six attempts. |
 | AC-09 | L1 | scenario | required | failure boundary | Retain partial draft on synchronization failure; no final submission or automatic reset afterward. No automatic directory/final-package replay. |
-| AC-10 | L1 | operation-integration | required | token boundary | Provider/auth/ownership errors explicit; no bulk fallback or auth retry storm. |
+| AC-10 | L1 | operation-integration | required | token boundary | Request only the configured Graph resource's FileStorageContainer.Selected scope for skill synchronization. Provider/auth/ownership errors explicit; no bulk fallback or auth retry storm. |
 | AC-11 | L1 | compatibility | required | ZIP/filesystem spies | In-memory transport preserves unrelated entries; zero artifact disk writes. |
 | AC-12 | L1 | operation-integration | required | ZIP fixtures | Invalid local paths/names/metadata structure/collisions fail before directory requests. Remote GUID associations are checked before Graph file mutations. |
 | AC-13 | L1 | operation-integration | required | pagination boundary | Complete nested inventory; unsafe links rejected; download URLs never followed. |
