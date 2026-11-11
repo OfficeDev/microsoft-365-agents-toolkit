@@ -154,15 +154,15 @@ jobs:
       AZURE_OPENAI_API_VERSION: ${{ vars.TEST_TENANT_AZURE_OPENAI_API_VERSION }}
 
       # --- Azure OpenAI + Vision used by VSCUSE ITSELF ---------------------------
-      # Entra ID (AAD) auth only - no API keys. The token comes from the
-      # "Login to Azure" step below (DEVOPS_* federated credentials).
-      VSCUSE_AZURE_OPENAI_ENDPOINT: ${{ vars.VSCUSE_AZURE_OPENAI_ENDPOINT }}
-      VSCUSE_AZURE_OPENAI_MODEL: ${{ vars.VSCUSE_AZURE_OPENAI_MODEL }}
-      VSCUSE_AZURE_OPENAI_API_VERSION: ${{ vars.VSCUSE_AZURE_OPENAI_API_VERSION }}
-      VSCUSE_AZURE_VISION_ENDPOINT: ${{ vars.VSCUSE_AZURE_VISION_ENDPOINT }}
+      # Entra ID (AAD) auth only - no API keys. DefaultAzureCredential can use the
+      # "Login to Azure" session below (DEVOPS_* federated credentials).
+      # Reuse existing resources; only the driver's authentication differs.
+      VSCUSE_AZURE_OPENAI_ENDPOINT: ${{ vars.TEST_TENANT_AZURE_OPENAI_ENDPOINT }}
+      VSCUSE_AZURE_OPENAI_MODEL: ${{ vars.TEST_TENANT_AZURE_OPENAI_MODEL }}
+      VSCUSE_AZURE_OPENAI_API_VERSION: ${{ vars.TEST_TENANT_AZURE_OPENAI_API_VERSION }}
+      VSCUSE_AZURE_VISION_ENDPOINT: ${{ vars.AZURE_VISION_ENDPOINT }}
 
-      # Vision service is now AAD-only for vscuse (see VSCUSE_AZURE_VISION_ENDPOINT above);
-      # AZURE_VISION_ENDPOINT / AZURE_VISION_KEY are no longer needed.
+      # The driver uses AAD for Vision; no Vision API key is forwarded.
 
       # AZURE AI search
       AZURE_OPENAI_EMBEDDING_DEPLOYMENT_NAME: "text-embedding-ada-002"
@@ -257,7 +257,7 @@ jobs:
       # logged in BEFORE "Run test". The service principal needs "Cognitive Services OpenAI
       # User" on the vscuse AOAI resource and "Cognitive Services User" on the Vision one.
       - name: Login to Azure
-        uses: azure/login@v2
+        uses: azure/login@7184910d9eb2b1c5e48f7073824a90609bb9b6d6 # v2.3.1
         with:
           client-id: ${{secrets.DEVOPS_CLIENT_ID}}
           tenant-id: ${{secrets.DEVOPS_TENANT_ID}}

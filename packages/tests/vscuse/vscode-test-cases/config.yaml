@@ -1,20 +1,18 @@
 ## Azure OpenAI / Vision used by VSCUSE ITSELF.
-## Entra ID (AAD) auth only - no API keys (team policy). The token comes from the
-## "Login to Azure" step in the workflow (azure/login@v2 with DEVOPS_* credentials).
-## Note this is a DIFFERENT endpoint from the key-based one the test cases use; the
-## latter is passed into the container through docker.environment below.
+## Entra ID (AAD) auth only - no API keys (team policy). DefaultAzureCredential
+## can use the workflow's "Login to Azure" session with DEVOPS_* credentials.
+## The driver and test cases reuse the same OpenAI resource with different auth;
+## test-case API-key settings are passed through docker.environment below.
 azure_openai:
   endpoint: "${VSCUSE_AZURE_OPENAI_ENDPOINT}" # Required: Set via environment variable
   api_version: "${VSCUSE_AZURE_OPENAI_API_VERSION}" # Default: "2025-04-01-preview"
   model: "${VSCUSE_AZURE_OPENAI_MODEL}" # Default: "gpt-4.1"
   timeout: 60 # Default: 60 (seconds)
   use_azure_credential: true # Authenticate with Entra ID instead of an API key
-  credential_type: "cli" # Reuse the azure/login session (avoids the slow IMDS probe)
 
 azure_vision:
   endpoint: "${VSCUSE_AZURE_VISION_ENDPOINT}" # Required: Set via environment variable
   use_azure_credential: true # Authenticate with Entra ID instead of an API key
-  credential_type: "cli"
 
 azure_service_principal:
   client_id: "${AZURE_CLIENT_ID}" # Required: Set via environment variable
@@ -37,9 +35,8 @@ docker:
     TEAMSFX_TELEMETRY_TEST: "true" # Default: false (set to true to use VS Code Insider)
     NPM_CONFIG_REGISTRY: "${NPM_CONFIG_REGISTRY:https://registry.npmjs.org/}"
 
-    # Azure OpenAI for the TEST CASES (scaffolded projects). vscuse itself uses a
-    # different, AAD-only endpoint, so it no longer injects these automatically -
-    # they have to be declared explicitly here.
+    # Azure OpenAI for the TEST CASES (scaffolded projects). Explicit forwarding
+    # preserves API-key auth for the apps while vscuse itself authenticates with AAD.
     AZURE_OPENAI_ENDPOINT: "${AZURE_OPENAI_ENDPOINT}"
     AZURE_OPENAI_API_KEY: "${AZURE_OPENAI_API_KEY}"
     AZURE_OPENAI_MODEL: "${AZURE_OPENAI_MODEL}"
