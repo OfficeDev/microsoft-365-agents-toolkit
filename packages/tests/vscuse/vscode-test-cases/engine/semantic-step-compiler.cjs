@@ -4038,6 +4038,13 @@ ${mutation}`;
     ) {
       error = append(output, render(state, replyComponent));
       if (error) return error;
+      if (isDcrUpdateConnection) {
+        error = append(
+          output,
+          render(state, "browser/copilot/reveal-latest-response.json.tpl"),
+        );
+        if (error) return error;
+      }
     }
     if (expected.toolCalled !== undefined) {
       error = append(
