@@ -8,7 +8,7 @@
       "precondition_wait_timeout": 30,
       "precondition_retry_interval": 1
     },
-    "total_steps": 179,
+    "total_steps": 181,
     "name": "feature-da-no-action-pkce-oauth-auth-remote-preview",
     "description": {
       "owner": "",
@@ -193,6 +193,8 @@
       "step_sendCopilotMessage_send_cd3dfa26e_12_1",
       "step_allowCopilotAction_assert_cd3dfa26e_12_2",
       "step_allowCopilotAction_click_cd3dfa26e_12_2",
+      "step_allowCopilotAction_focusReply_cd3dfa26e_12_2",
+      "step_allowCopilotAction_scrollReply_cd3dfa26e_12_2",
       "step_allowCopilotAction_assertDismissed_cd3dfa26e_12_2",
       "step_assertElementNamePrefix_assertVisible_cd3dfa26e_12_3"
     ],
@@ -4132,17 +4134,65 @@
       ]
     },
     {
-      "step_id": "step_allowCopilotAction_assertDismissed_cd3dfa26e_12_2",
-      "agent": "assertion",
-      "tool": "",
-      "parameters": {},
-      "description": "@assertion the Copilot action-consent Allow button is no longer visible.",
+      "step_id": "step_allowCopilotAction_focusReply_cd3dfa26e_12_2",
+      "agent": "interaction",
+      "tool": "keyboard_shortcut",
+      "parameters": {
+        "keys": "shift+tab"
+      },
+      "description": "Move keyboard focus from the Copilot composer into the preceding conversation reply.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
         "step_allowCopilotAction_click_cd3dfa26e_12_2"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:browser",
+        "host_surface:copilot",
+        "action:reveal-consent-result",
+        "recording:r_1111_045640"
+      ]
+    },
+    {
+      "step_id": "step_allowCopilotAction_scrollReply_cd3dfa26e_12_2",
+      "agent": "interaction",
+      "tool": "keyboard_shortcut",
+      "parameters": {
+        "keys": "ctrl+end"
+      },
+      "description": "Scroll the focused Copilot conversation to the latest reply so its result is visible above the composer.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_allowCopilotAction_focusReply_cd3dfa26e_12_2"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:browser",
+        "host_surface:copilot",
+        "action:reveal-consent-result",
+        "recording:r_1111_045640"
+      ]
+    },
+    {
+      "step_id": "step_allowCopilotAction_assertDismissed_cd3dfa26e_12_2",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion Copilot has continued after the Allow action-consent card with a subsequent assistant reply or a service sign-in request. The original Allow card may remain in chat history; its presence alone is not failure. An unchanged consent card without subsequent assistant activity does not satisfy this assertion.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_allowCopilotAction_scrollReply_cd3dfa26e_12_2"
       ],
       "preconditions": [],
       "postconditions": [],

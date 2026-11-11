@@ -159,6 +159,44 @@ test("VCB-63: Copilot conversation clicks resolve their target by OCR", () => {
   }
 });
 
+test("VCB-213: Copilot consent requires continuation, not removal of its historical card", () => {
+  const consent = render("browser/copilot/allow-action.json.tpl");
+  const completion = consent.steps.at(-1);
+
+  assert.equal(completion.agent, "assertion");
+  assert.match(completion.description, /subsequent assistant reply/);
+  assert.match(completion.description, /service sign-in request/);
+  assert.match(
+    completion.description,
+    /original Allow card may remain in chat history/,
+  );
+  assert.match(
+    completion.description,
+    /unchanged consent card without subsequent assistant activity does not satisfy/,
+  );
+  assert.doesNotMatch(
+    completion.description,
+    /Allow button is no longer visible/,
+  );
+});
+
+test("VCB-214: Copilot consent reveals the reply using recorded keyboard navigation", () => {
+  const consent = render("browser/copilot/allow-action.json.tpl");
+
+  assert.deepEqual(
+    consent.steps.map((step) => step.tool),
+    ["", "click", "keyboard_shortcut", "keyboard_shortcut", ""],
+  );
+  assert.deepEqual(
+    consent.steps.slice(2, 4).map((step) => step.parameters.keys),
+    ["shift+tab", "ctrl+end"],
+  );
+  for (const step of consent.steps.slice(2, 4)) {
+    assert.equal(step.tags.includes("recording:r_1111_045640"), true);
+    assert.deepEqual(step.preconditions, []);
+  }
+});
+
 test("VCB-49: Ctrl+W is gated on the Welcome tab being the active editor", () => {
   const close = render("initialization/close-get-started-editor.json.tpl");
   const [assertActive, closeEditor, assertClosed] = close.steps;

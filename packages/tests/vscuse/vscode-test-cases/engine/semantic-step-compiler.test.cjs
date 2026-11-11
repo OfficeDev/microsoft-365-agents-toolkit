@@ -2393,7 +2393,7 @@ test("VCB-34: DA API plugin from scratch compiles complete remote branches in au
       'Click the "Message" input box in the Microsoft 365 Copilot web application.',
       "@assertion the Copilot action-consent Allow button is visible.",
       'Click the "Allow" button in the Microsoft 365 Copilot chat interface to grant the agent access.',
-      "@assertion the Copilot action-consent Allow button is no longer visible.",
+      "@assertion Copilot has continued after the Allow action-consent card with a subsequent assistant reply or a service sign-in request. The original Allow card may remain in chat history; its presence alone is not failure. An unchanged consent card without subsequent assistant activity does not satisfy this assertion.",
       '@assertion the current assistant response contains "Oil change".',
     ];
     const runtimeIndexes = runtimeFlow.map((description) =>
@@ -2645,7 +2645,7 @@ test("VCB-87: a Teams target never zooms the viewport out", async () => {
   }
 });
 
-test("VCB-89: action consent closes on the Allow button, not on the prompt", async () => {
+test("VCB-89: action consent verifies continuation after the OCR-backed Allow click", async () => {
   const result = await compileFixture(
     "da-api-plugin-from-existing-api.yml",
     (sourceText) => sourceText,
@@ -2666,7 +2666,7 @@ test("VCB-89: action consent closes on the Allow button, not on the prompt", asy
   assert.equal(click.tags.includes("ocr:true"), true);
   assert.equal(
     dismissed.description,
-    "@assertion the Copilot action-consent Allow button is no longer visible.",
+    "@assertion Copilot has continued after the Allow action-consent card with a subsequent assistant reply or a service sign-in request. The original Allow card may remain in chat history; its presence alone is not failure. An unchanged consent card without subsequent assistant activity does not satisfy this assertion.",
   );
   assert.equal(
     dismissed.tags.includes("exit_state:action-consent-dismissed"),
@@ -2678,6 +2678,75 @@ test("VCB-89: action consent closes on the Allow button, not on the prompt", asy
     ),
     false,
   );
+});
+
+test("VCB-213: retained Copilot consent cards do not replace MCP reply and tool checks", async () => {
+  const result = await compileFixture(
+    "da-mcp-dcr-update.yml",
+    (sourceText) => sourceText,
+  );
+
+  assert.equal(result.ok, true);
+  const steps = result.value[0].plan.steps;
+  const completionIndex = steps.findIndex((step) =>
+    step.step_id.includes("allowCopilotAction_assertDismissed"),
+  );
+  assert.ok(completionIndex >= 0);
+  assert.match(
+    steps[completionIndex].description,
+    /original Allow card may remain in chat history/,
+  );
+  assert.match(
+    steps[completionIndex].description,
+    /unchanged consent card without subsequent assistant activity does not satisfy/,
+  );
+  assert.ok(
+    steps
+      .slice(completionIndex + 1)
+      .some(
+        (step) =>
+          step.step_id.startsWith("step_assertToolCalled") &&
+          step.description.includes("whoami"),
+      ),
+  );
+  assert.ok(
+    steps
+      .slice(completionIndex + 1)
+      .some(
+        (step) =>
+          step.step_id.startsWith("step_assertChatContains") &&
+          step.description.includes("tenant_id"),
+      ),
+  );
+});
+
+test("VCB-214: Copilot Allow reveals the latest reply before result checks", async () => {
+  const result = await compileFixture(
+    "da-mcp-dcr-update.yml",
+    (sourceText) => sourceText,
+  );
+
+  assert.equal(result.ok, true);
+  const steps = result.value[0].plan.steps;
+  const clickIndex = steps.findIndex((step) =>
+    step.step_id.includes("allowCopilotAction_click"),
+  );
+  assert.ok(clickIndex >= 0);
+  assert.deepEqual(
+    steps.slice(clickIndex + 1, clickIndex + 3).map((step) => ({
+      tool: step.tool,
+      keys: step.parameters.keys,
+    })),
+    [
+      { tool: "keyboard_shortcut", keys: "shift+tab" },
+      { tool: "keyboard_shortcut", keys: "ctrl+end" },
+    ],
+  );
+  assert.match(
+    steps[clickIndex + 3].step_id,
+    /allowCopilotAction_assertDismissed/,
+  );
+  assert.match(steps[clickIndex + 4].step_id, /assertChatReplied/);
 });
 
 test("existing API remote previews reach the Copilot action consent", async () => {
