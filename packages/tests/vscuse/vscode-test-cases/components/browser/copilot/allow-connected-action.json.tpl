@@ -12,7 +12,7 @@
       "agent": "assertion",
       "tool": "",
       "parameters": {},
-      "description": "@assertion the latest assistant turn after the OAuth sign-in request shows an enabled Allow button alongside Cancel for connecting to {{text:appName}}. This is capability consent in Copilot, not the facade's Allow this client page.",
+      "description": "@assertion the authenticated service connection card in the owned Copilot chat shows an enabled Allow button alongside Cancel for connecting to {{text:appName}} for this and future requests. This is capability consent in Copilot, not the facade's Allow this client page.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -36,7 +36,7 @@
         "x": 333,
         "y": 327
       },
-      "description": "Click the \"Allow\" button in the Microsoft 365 Copilot chat interface to grant the agent access.",
+      "description": "Click the \"Allow\" button alongside Cancel in the Microsoft 365 Copilot connection card for {{text:appName}} to grant access for this and future requests, not the facade's \"Allow this client\" button.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -50,26 +50,6 @@
         "entry_state:action-consent",
         "action:allow",
         "ocr:true"
-      ]
-    },
-    {
-      "step_id": "step_allowCopilotAction_assertReady_{{text:instanceSuffix}}",
-      "agent": "assertion",
-      "tool": "",
-      "parameters": {},
-      "description": "@assertion the owned Copilot chat is ready for another message: its message composer is visible and enabled, no response is loading or being generated, and no active Sign in request is pending. A retained Allow card from the preceding turn may remain visible; it is not tool-result evidence.",
-      "content_refs": [],
-      "timeout": 30,
-      "retry_count": 0,
-      "continue_on_error": "false",
-      "depends_on": ["step_allowCopilotAction_click_{{text:instanceSuffix}}"],
-      "preconditions": [],
-      "postconditions": [],
-      "tags": [
-        "component:browser",
-        "host_surface:copilot",
-        "exit_state:connected-chat-ready",
-        "step_retry_timeout: 120"
       ]
     }
   ]

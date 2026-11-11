@@ -3959,7 +3959,7 @@ ${mutation}`;
       );
     }
 
-    const completesDcrUpdate =
+    const isDcrUpdateConnection =
       assertion.connectOAuth === true && state.dcrUpdatePhase !== undefined;
     const output = [];
     let error = append(
@@ -4002,13 +4002,11 @@ ${mutation}`;
         }),
       );
       if (error) return error;
-      if (!completesDcrUpdate) {
-        error = append(
-          output,
-          render(state, sendComponent, { message: assertion.send }),
-        );
-        if (error) return error;
-      }
+      error = append(
+        output,
+        render(state, sendComponent, { message: assertion.send }),
+      );
+      if (error) return error;
     }
     if (assertion.allowAction === true || assertion.connectOAuth === true) {
       if (state.profile.host !== "copilot") {
@@ -4021,23 +4019,11 @@ ${mutation}`;
         output,
         render(
           state,
-          completesDcrUpdate
+          isDcrUpdateConnection
             ? "browser/copilot/allow-connected-action.json.tpl"
             : "browser/copilot/allow-action.json.tpl",
-          completesDcrUpdate ? { appName: "${{var:app_name}}" } : {},
+          isDcrUpdateConnection ? { appName: "${{var:app_name}}" } : {},
         ),
-      );
-      if (error) return error;
-    }
-    if (completesDcrUpdate) {
-      error = append(
-        output,
-        render(state, sendComponent, { message: assertion.send }),
-      );
-      if (error) return error;
-      error = append(
-        output,
-        render(state, "browser/copilot/assert-connected-tool-response.json.tpl"),
       );
       if (error) return error;
     }
