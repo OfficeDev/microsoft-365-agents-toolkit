@@ -138,6 +138,11 @@ adding product flows or a second navigation engine.
 | INPUT-37 | L1 | operation-integration | required | real evaluator and synthetic providers | A downstream provider reads an already accepted dotted-ID provider's derived output through `from` | The exact value reaches the consumer; undotted IDs also work; future, unknown and missing outputs are rejected. |
 | INPUT-38 | L1 | operation-integration | required | scripted shared walk | Back crosses provider questions, changes upstream answers or conditionally omits a former producer | Downstream derived values and availability are discarded; valid recomputation uses the new inputs and no discarded output is exposed. |
 | INPUT-39 | L1 | compatibility | required | shared walk resume and expression/render tests | A completed walk resumes at a consumer of an earlier provider | Earlier accepted outputs remain available; Back still invalidates them correctly. Scalar and list render bindings and the closed raw-expression grammar remain unchanged. |
+| INPUT-40 | L1 | operation-integration | required | shared walk with synthetic questions and validators | A scalar question receives an array through prefill or a non-interactive default, including a unique prefilled question whose condition skips prompting | Return InputValidationFailed before invoking the scalar validator or accepting the answer. All non-multiSelect kinds require strings; multiSelect retains string[]; inactive duplicate-name branches do not impose another declaration's shape. |
+
+Q1 selector prefills use the same INPUT-40 gate. An invalid array prefill now
+returns InputValidationFailed rather than reaching the later selector-only
+BuildTargetNonScalarAnswer check; valid routing behavior is unchanged.
 
 ## Flow
 

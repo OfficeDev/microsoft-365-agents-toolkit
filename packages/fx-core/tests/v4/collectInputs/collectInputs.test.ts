@@ -244,6 +244,109 @@ function makePort(opts: {
 }
 
 describe("collectInputs (v4)", () => {
+  it("INPUT-37: comparison shortcuts cannot consume forged dotted derived prefills", async () => {
+    const references: ConditionNode[] = [
+      { equals: { "derived.future.context": "forged" } },
+      { enum: { "derived.future.context": ["forged"] } },
+    ];
+    for (const reference of references) {
+      const provider = new FakeProvider({ options: [{ id: "one" }] });
+      const result = await collectInputs(
+        [
+          {
+            name: "consumer",
+            type: "singleSelect",
+            optionsFrom: "consumer",
+            optionsFromParams: { source: reference },
+          },
+        ],
+        {},
+        { "derived.future.context": "forged", consumer: "one" },
+        makePort({ ui: new ScriptedUI({}), providers: { consumer: provider } })
+      );
+
+      assert.strictEqual(result._unsafeUnwrapErr().name, "ExprParseError");
+      assert.strictEqual(provider.fetchCount, 0);
+    }
+  });
+
+  const scalarKinds: QuestionSpec["type"][] = [
+    "text",
+    "singleFile",
+    "folder",
+    "singleFileOrText",
+    "confirm",
+    "singleSelect",
+  ];
+  for (const type of scalarKinds) {
+    for (const value of [[], ["invalid"]]) {
+      for (const source of ["prefill", "default"]) {
+        it(`INPUT-40: ${type} rejects ${JSON.stringify(value)} from ${source}`, async () => {
+          const ui = new ScriptedUI({});
+          let validationCalls = 0;
+          const result = await collectInputs(
+            [
+              {
+                name: "answer",
+                type,
+                validation: "scalar",
+                ...(source === "default" ? { default: value } : {}),
+              },
+            ],
+            { properties: { answer: {} } },
+            source === "prefill" ? { answer: value } : { nonInteractive: "true" },
+            makePort({
+              ui,
+              validators: {
+                scalar: () => {
+                  validationCalls++;
+                  return undefined;
+                },
+              },
+            })
+          );
+
+          assert.isTrue(result.isErr());
+          assert.instanceOf(result._unsafeUnwrapErr(), UserError);
+          assert.strictEqual(result._unsafeUnwrapErr().name, INPUT_VALIDATION_FAILED);
+          assert.include(result._unsafeUnwrapErr().message, "answer");
+          assert.strictEqual(validationCalls, 0);
+          assert.deepEqual(ui.asked, []);
+        });
+      }
+    }
+  }
+
+  it("INPUT-40: condition-based prompt skipping does not accept an array for a scalar", async () => {
+    const result = await collectInputs(
+      [{ name: "answer", type: "text", condition: { equals: { mode: "remote" } } }],
+      { properties: { answer: {}, mode: {} } },
+      { mode: "local", answer: [] },
+      makePort({ ui: new ScriptedUI({}) })
+    );
+
+    assert.strictEqual(result._unsafeUnwrapErr().name, INPUT_VALIDATION_FAILED);
+  });
+
+  it("INPUT-40: inactive duplicate scalar branches preserve a multi-select answer", async () => {
+    const result = await collectInputs(
+      [
+        { name: "answer", type: "text", condition: { equals: { mode: "scalar" } } },
+        {
+          name: "answer",
+          type: "multiSelect",
+          staticOptions: [{ id: "one" }],
+          condition: { equals: { mode: "list" } },
+        },
+      ],
+      { properties: { answer: {}, mode: {} } },
+      { mode: "list", answer: ["one"] },
+      makePort({ ui: new ScriptedUI({}) })
+    );
+
+    assert.deepEqual(result._unsafeUnwrap().answer, ["one"]);
+  });
+
   for (const providerId of ["catalog", "catalog.remote"]) {
     it(`INPUT-37: structured references consume accepted ${providerId} outputs`, async () => {
       const producer = new FakeProvider(

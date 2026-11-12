@@ -23,6 +23,69 @@ function names(res: ReturnType<typeof resolveQuestions>): string[] {
 }
 
 describe("resolveQuestions (question fragments)", () => {
+  const malformedFields: Record<string, unknown>[] = [
+    { staticOptions: {} },
+    { staticOptions: [null] },
+    { staticOptions: [{ id: 1 }] },
+    { staticOptions: [{ id: "one", label: [] }] },
+    { staticOptions: [{ id: "one", condition: { anyOf: [null] } }] },
+    { condition: null },
+    { condition: { equals: { mode: [] } } },
+    { condition: { equals: {} } },
+    { condition: { enum: { mode: "one" } } },
+    { condition: { enum: { mode: [] } } },
+    { condition: { anyOf: [] } },
+    { condition: { expr: "mode", from: "mode" } },
+    { optionsFrom: [] },
+    { optionsFromParams: { source: null } },
+    { validation: null },
+    { validation: {} },
+    { validation: { use: "uri", params: [] } },
+    { default: {} },
+    { default: [1] },
+    { optional: "false" },
+    { title: [] },
+    { filters: { spec: "json" } },
+    { inputOptionItem: { label: "input" } },
+    { inputBoxConfig: {} },
+    { inputBoxConfig: { name: "input", validation: { use: 1 } } },
+    { inputBoxConfig: { name: "input", step: "2" } },
+  ];
+  for (const fields of malformedFields) {
+    for (const fragment of [false, true]) {
+      it(`CCI-29: rejects ${JSON.stringify(fields)} in ${fragment ? "fragment" : "question"}`, () => {
+        const question = { name: "answer", type: "text", ...fields };
+        const result = resolveQuestions(
+          { questions: fragment ? [{ use: "test" }] : [question] },
+          "q.json",
+          reader({ test: { questions: [question] } })
+        );
+
+        assert.isTrue(result.isErr());
+        assert.strictEqual(result._unsafeUnwrapErr().name, "PackageFileInvalid");
+        assert.include(result._unsafeUnwrapErr().message, fragment ? "test.json" : "q.json");
+      });
+    }
+  }
+
+  it("CCI-29: preserves typed nested metadata and unknown extension fields", () => {
+    const question = {
+      name: "answer",
+      type: "singleFileOrText",
+      default: "path",
+      optional: false,
+      futurePresentation: { style: "compact" },
+      filters: { spec: ["json", "yaml"] },
+      inputOptionItem: { id: "input", label: "Enter URL" },
+      inputBoxConfig: { name: "url", step: 2, validation: { use: "uri", params: {} } },
+      condition: { anyOf: [{ equals: { mode: "remote" } }, { enum: { mode: ["file"] } }] },
+      optionsFromParams: { source: { from: "derived.catalog.source" } },
+    };
+    const result = resolveQuestions({ questions: [question] }, "q.json", reader({}));
+
+    assert.deepEqual(result._unsafeUnwrap(), [question]);
+  });
+
   it("splices a { use } fragment's questions in place", () => {
     const fragments = {
       llm: {
