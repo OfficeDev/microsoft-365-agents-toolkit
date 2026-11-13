@@ -2749,9 +2749,9 @@
       "parameters": {
         "button": "left",
         "x": 640,
-        "y": 567
+        "y": 536
       },
-      "description": "Click the recorded Sign in button.",
+      "description": "Click the blue Sign in button on the Microsoft password page to continue to Developer Portal.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -2759,15 +2759,12 @@
       "depends_on": [
         "step_developerPortalSignIn_password_c63929ef2_7_6"
       ],
-      "preconditions": [
-        "dhash:640:567:16:5:8ea2a2a667509040",
-        "dhash:640:567:96:5:000016e868140000",
-        "dhash:640:567:0:10:1b18e0d8d9f6e6e4"
-      ],
+      "preconditions": [],
       "postconditions": [],
       "tags": [
         "component:authentication",
-        "provider:m365"
+        "provider:m365",
+        "ocr:true"
       ]
     },
     {
