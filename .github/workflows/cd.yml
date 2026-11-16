@@ -67,7 +67,7 @@ concurrency:
 
 jobs:
   cd:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     outputs:
       markdown-check-result: ${{ steps.markdown-check.outcome }}
       markdown-check-samples-result: ${{ steps.markdown-check-samples.outcome }}
@@ -222,10 +222,12 @@ jobs:
         run: |
           sudo dpkg --add-architecture i386
           sudo mkdir -pm755 /etc/apt/keyrings
-          sudo wget -O /etc/apt/keyrings/winehq-archive.key https://dl.winehq.org/wine-builds/winehq.key
-          sudo wget -NP /etc/apt/sources.list.d/ https://dl.winehq.org/wine-builds/ubuntu/dists/jammy/winehq-jammy.sources
-          sudo apt update
-          sudo apt install --install-recommends winehq-stable -y
+          # Match the Ubuntu 24.04 runner; APT requires .asc for armored signing keys.
+          sudo wget -O /etc/apt/keyrings/winehq-archive.asc https://dl.winehq.org/wine-builds/winehq.key
+          sudo wget -NP /etc/apt/sources.list.d/ https://dl.winehq.org/wine-builds/ubuntu/dists/noble/winehq-noble.sources
+          sudo sed -i 's|^Signed-By:.*|Signed-By: /etc/apt/keyrings/winehq-archive.asc|' /etc/apt/sources.list.d/winehq-noble.sources
+          sudo apt-get update
+          sudo apt-get install --install-recommends winehq-stable -y
           sudo ln -s /usr/bin/wine /usr/bin/wine64
           wine --version
           wine64 --version
