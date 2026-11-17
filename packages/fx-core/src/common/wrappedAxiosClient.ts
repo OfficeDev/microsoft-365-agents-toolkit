@@ -504,6 +504,12 @@ export class WrappedAxiosClient {
         return `mos_unclassified_${relativePath.replace(/\//g, "_")}`;
       }
     } else if (this.isTeamsGraphApi(fullPath)) {
+      if (
+        upperMethod === HttpMethod.POST &&
+        /\/v1\.0\/dynamicConfigurations(?:\?|$)/.test(fullPath)
+      ) {
+        return TEAMS_GRAPH_API_NAMES.CREATE_DCR;
+      }
       if (fullPath.match(new RegExp("/v1\\.0/apiSecretRegistrations/.*"))) {
         if (method.toUpperCase() === HttpMethod.GET) {
           return TEAMS_GRAPH_API_NAMES.GET_API_KEY;

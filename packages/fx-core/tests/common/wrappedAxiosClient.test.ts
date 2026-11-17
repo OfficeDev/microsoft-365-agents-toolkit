@@ -978,6 +978,80 @@ describe("Wrapped Axios Client Test", () => {
     chai.assert.equal(apiName, TEAMS_GRAPH_API_NAMES.UPDATE_OAUTH);
   });
 
+  describe("DCR registration API mapping", () => {
+    it.each([
+      "https://teams.microsoft.com/api/platform",
+      "https://teams.microsoft.com/gcc/api/platform",
+      "https://gov.teams.microsoft.us/api/platform",
+      "https://dod.teams.microsoft.us/api/platform",
+    ])("maps DCR registration on %s", (endpoint) => {
+      for (const method of ["POST", "post"]) {
+        for (const query of ["", "?api-version=1"]) {
+          expect(
+            WrappedAxiosClient.convertUrlToApiName(
+              `${endpoint}/v1.0/dynamicConfigurations${query}`,
+              method
+            )
+          ).toBe(TEAMS_GRAPH_API_NAMES.CREATE_DCR);
+        }
+      }
+    });
+
+    it.each(["GET", "PATCH", "DELETE"])("does not map %s as DCR registration", (method) => {
+      expect(
+        WrappedAxiosClient.convertUrlToApiName(
+          `${getResourceServiceEndpoint(ResourceServiceType.TeamsGraph)}/v1.0/dynamicConfigurations`,
+          method
+        )
+      ).not.toBe(TEAMS_GRAPH_API_NAMES.CREATE_DCR);
+    });
+
+    it.each([
+      "/v1.0/dynamicConfigurationsExtra",
+      "/v1.0/dynamicConfigurations/id",
+      "/v1x0/dynamicConfigurations",
+    ])("does not map a different route %s as DCR registration", (path) => {
+      expect(
+        WrappedAxiosClient.convertUrlToApiName(
+          `${getResourceServiceEndpoint(ResourceServiceType.TeamsGraph)}${path}`,
+          "POST"
+        )
+      ).not.toBe(TEAMS_GRAPH_API_NAMES.CREATE_DCR);
+    });
+  });
+
+  describe("policy publication API mappings", () => {
+    it.each([
+      ["GET", "/builder/v1/tenants/titles/title/policies/workiq", "mos_get_workiq_policy"],
+      ["PUT", "/builder/v1/tenants/titles/title/policies/workiq", "mos_put_workiq_policy"],
+      ["GET", "/api/policies/agents/title", "workiq_get_agent_policy"],
+      ["PUT", "/api/policies/agents/title", "workiq_put_agent_policy"],
+      ["DELETE", "/api/policies/agents/title", "workiq_delete_agent_policy"],
+      ["GET", "/api/policies/contracts", "workiq_get_capability_contracts"],
+      ["GET", "/api/policies/contracts/name/version", "workiq_get_capability_contract"],
+    ])("maps %s %s to %s", (method, path, apiName) => {
+      for (const prefix of ["", "/private-region"]) {
+        for (const query of ["", "?trace=private-value"]) {
+          expect(
+            WrappedAxiosClient.convertUrlToApiName(
+              `https://regional.example${prefix}${path}${query}`,
+              method.toLowerCase()
+            )
+          ).toBe(apiName);
+        }
+      }
+    });
+
+    it.each([
+      "/builder/v1/tenants/titles/private-title/policies/unknown",
+      "/api/policies/agents/private-title/unknown",
+    ])("redacts an unrecognized policy route %s", (path) => {
+      expect(WrappedAxiosClient.convertUrlToApiName(`https://regional.example${path}`, "PUT")).toBe(
+        "unclassified-api"
+      );
+    });
+  });
+
   it("Convert API Definition for MOS API", async () => {
     const fakeId = uuid();
 
