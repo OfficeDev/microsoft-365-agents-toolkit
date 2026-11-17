@@ -3051,6 +3051,18 @@ ${mutation}`;
         ),
       );
       if (error) return error;
+      error = append(
+        output,
+        render(state, "command-palette/execute-command.json.tpl", {
+          commandTitle: commandTitles.clearNotifications,
+        }),
+      );
+      if (error) return error;
+      error = append(
+        output,
+        render(state, "notifications/assert-hidden.json.tpl"),
+      );
+      if (error) return error;
     }
     if (isOAuthConfiguration || isPkceOAuthConfiguration) {
       for (const [questionTitle, inputValue] of [
