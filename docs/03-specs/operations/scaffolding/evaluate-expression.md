@@ -85,15 +85,27 @@ context) or a `string` (value context):
 | EVAL-17 | L1 | `expr = "mcpServerUrl == null"` (a shipped modify `questions.json` `condition`); `mcpServerUrl` seeded `NULL_VALUE` (declared, unanswered) then a real URL | evaluate | `ok(true)` then `ok(false)` — `null` is a reserved literal and an unanswered declared id is a presence test; a truly undeclared id is still `EXPR_UNDECLARED_IDENTIFIER` (the `collect-inputs` `entry.params` skip) |
 | EVAL-18 | L1 | `expr = "!featureFlag('TEAMSFX_MCP_FOR_DA_DT')"` (the shipped modify `selector.json` fallback route `when`), the flag off then on | evaluate | `ok(true)` then `ok(false)` — unary `!` is the route-predicate negation that gates the non-DT fallback route; `!` binds tighter than `==` / `&&`, so it applies to the `featureFlag(...)` call alone |
 
+### Structured literal preservation
+
+Structured shortcuts lower directly to the shared AST. Their string values are
+literal data, never raw expression source. This preserves punctuation without
+adding syntax to raw `expr` or a second evaluator.
+Comparison left operands retain the existing raw-expression identifier grammar
+and reserved `null` semantics; exact dotted references remain the `from` form.
+
+| ID | Runtime | Purpose | Gate | Harness | Given / When | Then |
+| --- | --- | --- | --- | --- | --- | --- |
+| EVAL-19 | L1 | operation-integration | required | real evaluator and flag reference collector | equals, enum, capability or featureFlag contains quotes, backslashes or expression-looking text | Preserve the exact literal, compare only actual values and read only the exact flag name. Raw expr parsing and boolean short-circuiting remain unchanged. |
+
 ## Flow
 
 ```mermaid
 flowchart TD
   start([evaluate-expression]) --> sugar{sugar form?}
-  sugar -->|yes| desugar[desugar to expr at load]
-  sugar -->|no| parse
-  desugar --> parse[parse expr]
-  parse --> ids{all identifiers ∈ scope?}
+  sugar -->|yes| desugar[lower structured nodes to shared AST]
+  sugar -->|no| parse[parse raw expr to shared AST]
+  desugar --> ids{all identifiers ∈ scope?}
+  parse --> ids
   ids -->|no| errId([SystemError: undeclared identifier])
   ids -->|yes| fns{all calls ∈ whitelist?}
   fns -->|no| errFn([SystemError: non-whitelisted function])
