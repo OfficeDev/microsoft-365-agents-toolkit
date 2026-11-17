@@ -33,17 +33,22 @@
     {
       "step_id": "step_assertNotifications_hide_{{text:instanceSuffix}}",
       "agent": "interaction",
-      "tool": "key_press",
+      "tool": "click",
       "parameters": {
-        "key": "esc"
+        "button": "left",
+        "x": 998,
+        "y": 343
       },
-      "description": "Press Escape to hide the verified Notification Center without opening the Command Palette.",
+      "description": "Click the Hide Notifications downward chevron at the far right of the Notification Center header, not a notification's Close button or the Clear All Notifications control.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": ["step_assertNotifications_assert_{{text:instanceSuffix}}"],
-      "preconditions": [],
+      "preconditions": [
+        "dhash:998:343:16:5:685596cc69339474",
+        "dhash:998:343:96:5:0048b2484836c8c8"
+      ],
       "postconditions": [],
       "tags": ["component:notifications", "action:hide"]
     },
