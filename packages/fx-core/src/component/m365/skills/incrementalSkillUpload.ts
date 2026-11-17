@@ -51,7 +51,7 @@ export async function prepareIncrementalSkillUpload(
   }
   const graphEndpoint = getResourceServiceEndpoint(ResourceServiceType.Graph);
   const graphToken = await tokenProvider.getAccessToken({
-    scopes: [`${graphEndpoint}/Files.ReadWrite`],
+    scopes: [`${graphEndpoint}/FileStorageContainer.Selected`],
   });
   if (graphToken.isErr()) return err(graphToken.error);
 

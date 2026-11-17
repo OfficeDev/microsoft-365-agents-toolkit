@@ -878,7 +878,7 @@ describe("incremental skill upload PackageService scenarios", () => {
         expect(result.result.value.get("M365_APP_ID")).toBe(agentId);
       }
       expect(token).toHaveBeenCalledWith({
-        scopes: ["https://graph.microsoft.com/Files.ReadWrite"],
+        scopes: ["https://graph.microsoft.com/FileStorageContainer.Selected"],
       });
       expect(boundary.uploads).toHaveLength(3);
       expect(boundary.submitted).toHaveLength(1);
