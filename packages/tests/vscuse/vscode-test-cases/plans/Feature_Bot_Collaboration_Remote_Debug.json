@@ -8,7 +8,7 @@
       "precondition_wait_timeout": 30,
       "precondition_retry_interval": 1
     },
-    "total_steps": 44,
+    "total_steps": 45,
     "created_at": "2026-06-16T00:23:52.020366",
     "name": "Feature Bot Collaboration Remote Debug",
     "description": {
@@ -31,6 +31,7 @@
       "plan_r_0928_075846",
       "step_56666abb",
       "plan_r_0929_040401",
+      "step_hover_collaborators",
       "step_cf9409de",
       "step_dc9c0e38",
       "step_b282b7b8",
@@ -43,6 +44,7 @@
       "step_ca4bb122",
       "plan_r_0929_040401",
       "step_b0ed7791",
+      "step_hover_collaborators",
       "step_f78c1acb",
       "step_e17d6368",
       "step_2689b53a",
@@ -203,6 +205,27 @@
       "plan_id": "plan_52912e24"
     },
     {
+      "step_id": "step_hover_collaborators",
+      "agent": "interaction",
+      "tool": "hover",
+      "parameters": {
+        "x": 259,
+        "y": 289
+      },
+      "description": "Hover over the \"dev (Provisioned)\" environment row in the Microsoft 365 Agents Toolkit sidebar to expose the \"Manage Microsoft 365 App (with Microsoft Entra app) Collaborators\" inline action before clicking it.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [],
+      "screenshot": "",
+      "created_at": "2026-11-17T01:44:16.019000",
+      "plan_id": "plan_52912e24"
+    },
+    {
       "step_id": "step_cf9409de",
       "agent": "interaction",
       "tool": "click",
@@ -217,11 +240,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [],
-      "preconditions": [
-        "dhash:259:289:16:5:98696bd9d4d6d9b8",
-        "dhash:259:289:96:5:0b130b3131cb4b33",
-        "dhash:259:289:0:10:b2820303aa646021"
-      ],
+      "preconditions": [],
       "postconditions": [],
       "tags": [],
       "screenshot": "step_cf9409de",
