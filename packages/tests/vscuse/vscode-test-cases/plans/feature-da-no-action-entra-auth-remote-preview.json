@@ -8,7 +8,7 @@
       "precondition_wait_timeout": 30,
       "precondition_retry_interval": 1
     },
-    "total_steps": 177,
+    "total_steps": 179,
     "name": "feature-da-no-action-entra-auth-remote-preview",
     "description": {
       "owner": "",
@@ -81,12 +81,14 @@
       "step_checkWorkspaceFiles_verify_ccf982c7f_4_3",
       "step_setProjectEnvironmentVariable_openTerminal_ccf982c7f_5_1",
       "step_setProjectEnvironmentVariable_assertTerminal_ccf982c7f_5_1",
+      "step_setProjectEnvironmentVariable_hideSideBar_ccf982c7f_5_1",
       "step_setProjectEnvironmentVariable_typeCommand_ccf982c7f_5_1",
       "step_setProjectEnvironmentVariable_runCommand_ccf982c7f_5_1",
       "step_setProjectEnvironmentVariable_typeValue_ccf982c7f_5_1",
       "step_setProjectEnvironmentVariable_submitValue_ccf982c7f_5_1",
       "step_setProjectEnvironmentVariable_assertUpdated_ccf982c7f_5_1",
       "step_setProjectEnvironmentVariable_closeTerminal_ccf982c7f_5_1",
+      "step_setProjectEnvironmentVariable_restoreSideBar_ccf982c7f_5_1",
       "step_setProjectEnvironmentVariable_assertClosed_ccf982c7f_5_1",
       "step_executeCommand_open_ccf982c7f_6_1",
       "step_executeCommand_assertPalette_ccf982c7f_6_1",
@@ -1627,7 +1629,7 @@
       "agent": "assertion",
       "tool": "",
       "parameters": {},
-      "description": "@assertion a new VS Code integrated terminal is visible and focused with a Bash shell prompt ready for input.",
+      "description": "@assertion a new VS Code integrated terminal is visible and focused with a Bash shell prompt ready for input, and the primary side bar is visible.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -1644,6 +1646,28 @@
       ]
     },
     {
+      "step_id": "step_setProjectEnvironmentVariable_hideSideBar_ccf982c7f_5_1",
+      "agent": "interaction",
+      "tool": "keyboard_shortcut",
+      "parameters": {
+        "keys": "ctrl+b"
+      },
+      "description": "Hide the visible primary side bar with Ctrl+B while keeping the terminal focused, so its success marker fits to the left of Notification Center.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_setProjectEnvironmentVariable_assertTerminal_ccf982c7f_5_1"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:workspace",
+        "operation:project-environment"
+      ]
+    },
+    {
       "step_id": "step_setProjectEnvironmentVariable_typeCommand_ccf982c7f_5_1",
       "agent": "interaction",
       "tool": "type_text",
@@ -1656,7 +1680,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_setProjectEnvironmentVariable_assertTerminal_ccf982c7f_5_1"
+        "step_setProjectEnvironmentVariable_hideSideBar_ccf982c7f_5_1"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -1775,17 +1799,39 @@
       ]
     },
     {
-      "step_id": "step_setProjectEnvironmentVariable_assertClosed_ccf982c7f_5_1",
-      "agent": "assertion",
-      "tool": "",
-      "parameters": {},
-      "description": "@assertion the integrated terminal panel is no longer visible and the Visual Studio Code workbench is ready.",
+      "step_id": "step_setProjectEnvironmentVariable_restoreSideBar_ccf982c7f_5_1",
+      "agent": "interaction",
+      "tool": "keyboard_shortcut",
+      "parameters": {
+        "keys": "ctrl+b"
+      },
+      "description": "Restore the primary side bar with Ctrl+B after closing the verified terminal.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
         "step_setProjectEnvironmentVariable_closeTerminal_ccf982c7f_5_1"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:workspace",
+        "operation:project-environment"
+      ]
+    },
+    {
+      "step_id": "step_setProjectEnvironmentVariable_assertClosed_ccf982c7f_5_1",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the integrated terminal panel is no longer visible, the primary side bar is visible, and the Visual Studio Code workbench is ready.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_setProjectEnvironmentVariable_restoreSideBar_ccf982c7f_5_1"
       ],
       "preconditions": [],
       "postconditions": [],
