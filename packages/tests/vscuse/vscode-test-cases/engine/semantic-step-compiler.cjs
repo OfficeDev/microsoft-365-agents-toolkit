@@ -282,7 +282,6 @@ const commandTitles = {
   // the other window.
   focusToolkitView:
     "Microsoft 365 Agents Toolkit: Focus on Microsoft 365 Agents Toolkit View",
-  hideNotifications: "Notifications: Hide Notifications",
   notifications: "Notifications: Show Notifications",
   packageApp: "Microsoft 365 Agents: Zip App Package",
   publishDeveloperPortal:
@@ -3050,13 +3049,6 @@ ${mutation}`;
             retryTimeout: "60",
           },
         ),
-      );
-      if (error) return error;
-      error = append(
-        output,
-        render(state, "command-palette/execute-command.json.tpl", {
-          commandTitle: commandTitles.hideNotifications,
-        }),
       );
       if (error) return error;
     }

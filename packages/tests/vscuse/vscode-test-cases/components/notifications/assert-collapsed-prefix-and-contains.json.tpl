@@ -29,6 +29,42 @@
         "action:assert-collapsed-prefix-and-contains",
         "step_retry_timeout: {{text:retryTimeout}}"
       ]
+    },
+    {
+      "step_id": "step_assertNotifications_hide_{{text:instanceSuffix}}",
+      "agent": "interaction",
+      "tool": "key_press",
+      "parameters": {
+        "key": "esc"
+      },
+      "description": "Press Escape to hide the verified Notification Center without opening the Command Palette.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": ["step_assertNotifications_assert_{{text:instanceSuffix}}"],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": ["component:notifications", "action:hide"]
+    },
+    {
+      "step_id": "step_assertNotifications_assertHidden_{{text:instanceSuffix}}",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the Visual Studio Code Notification Center is no longer visible and no notification overlays the workbench.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": ["step_assertNotifications_hide_{{text:instanceSuffix}}"],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:notifications",
+        "action:assert-hidden",
+        "step_retry_timeout: 30"
+      ]
     }
   ]
 }
