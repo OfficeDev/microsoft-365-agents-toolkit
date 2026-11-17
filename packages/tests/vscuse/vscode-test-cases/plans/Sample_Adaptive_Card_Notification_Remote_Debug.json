@@ -73,11 +73,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [],
-      "preconditions": [
-        "dhash:784:336:16:5:151488639b4d35d9",
-        "dhash:784:336:96:5:f1c816c8f1c4c871",
-        "dhash:784:336:0:10:64a4a4b4b4747469"
-      ],
+      "preconditions": [],
       "postconditions": [],
       "tags": [],
       "screenshot": "step_3c31cb9d",
