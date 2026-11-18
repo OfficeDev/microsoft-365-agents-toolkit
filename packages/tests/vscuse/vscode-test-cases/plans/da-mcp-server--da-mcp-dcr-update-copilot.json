@@ -228,29 +228,29 @@
       "step_sendCopilotMessage_send_caceeb9ea_13_6",
       "step_allowCopilotAction_assert_caceeb9ea_13_7",
       "step_allowCopilotAction_click_caceeb9ea_13_7",
-      "step_allowCopilotAction_assertDismissed_caceeb9ea_13_7",
       "step_assertChatReplied_assert_caceeb9ea_13_8",
-      "step_assertToolCalled_caceeb9ea_13_9",
-      "step_assertChatNonEmptyField_caceeb9ea_13_10",
-      "step_assertChatContains_assert_caceeb9ea_13_11",
+      "step_revealLatestCopilotResponse_click_caceeb9ea_13_9",
+      "step_assertToolCalled_caceeb9ea_13_10",
+      "step_assertChatNonEmptyField_caceeb9ea_13_11",
       "step_assertChatContains_assert_caceeb9ea_13_12",
-      "step_sendCopilotMessage_assertInput_caceeb9ea_13_13",
-      "step_sendCopilotMessage_focusInput_caceeb9ea_13_13",
-      "step_sendCopilotMessage_type_caceeb9ea_13_13",
-      "step_sendCopilotMessage_send_caceeb9ea_13_13",
-      "step_assertChatReplied_assert_caceeb9ea_13_14",
-      "step_assertToolCalled_caceeb9ea_13_15",
-      "step_assertChatContains_assert_caceeb9ea_13_16",
+      "step_assertChatContains_assert_caceeb9ea_13_13",
+      "step_sendCopilotMessage_assertInput_caceeb9ea_13_14",
+      "step_sendCopilotMessage_focusInput_caceeb9ea_13_14",
+      "step_sendCopilotMessage_type_caceeb9ea_13_14",
+      "step_sendCopilotMessage_send_caceeb9ea_13_14",
+      "step_assertChatReplied_assert_caceeb9ea_13_15",
+      "step_assertToolCalled_caceeb9ea_13_16",
       "step_assertChatContains_assert_caceeb9ea_13_17",
       "step_assertChatContains_assert_caceeb9ea_13_18",
       "step_assertChatContains_assert_caceeb9ea_13_19",
-      "step_sendCopilotMessage_assertInput_caceeb9ea_13_20",
-      "step_sendCopilotMessage_focusInput_caceeb9ea_13_20",
-      "step_sendCopilotMessage_type_caceeb9ea_13_20",
-      "step_sendCopilotMessage_send_caceeb9ea_13_20",
-      "step_assertChatReplied_assert_caceeb9ea_13_21",
-      "step_assertToolCalled_caceeb9ea_13_22",
-      "step_assertChatContains_assert_caceeb9ea_13_23"
+      "step_assertChatContains_assert_caceeb9ea_13_20",
+      "step_sendCopilotMessage_assertInput_caceeb9ea_13_21",
+      "step_sendCopilotMessage_focusInput_caceeb9ea_13_21",
+      "step_sendCopilotMessage_type_caceeb9ea_13_21",
+      "step_sendCopilotMessage_send_caceeb9ea_13_21",
+      "step_assertChatReplied_assert_caceeb9ea_13_22",
+      "step_assertToolCalled_caceeb9ea_13_23",
+      "step_assertChatContains_assert_caceeb9ea_13_24"
     ],
     "tags": [
       "case_id:da-mcp-dcr-update-copilot",
@@ -4867,7 +4867,7 @@
       "agent": "assertion",
       "tool": "",
       "parameters": {},
-      "description": "@assertion the Copilot action-consent Allow button is visible.",
+      "description": "@assertion the authenticated service connection card in the owned Copilot chat shows an enabled Allow button alongside Cancel for connecting to ${{var:app_name}} for this and future requests. This is capability consent in Copilot, not the facade's Allow this client page.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -4893,7 +4893,7 @@
         "x": 333,
         "y": 327
       },
-      "description": "Click the \"Allow\" button in the Microsoft 365 Copilot chat interface to grant the agent access.",
+      "description": "Click the \"Allow\" button alongside Cancel in the Microsoft 365 Copilot connection card for ${{var:app_name}} to grant access for this and future requests, not the facade's \"Allow this client\" button.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -4912,11 +4912,11 @@
       ]
     },
     {
-      "step_id": "step_allowCopilotAction_assertDismissed_caceeb9ea_13_7",
+      "step_id": "step_assertChatReplied_assert_caceeb9ea_13_8",
       "agent": "assertion",
       "tool": "",
       "parameters": {},
-      "description": "@assertion the Copilot action-consent Allow button is no longer visible.",
+      "description": "@assertion the current assistant turn is complete and contains a non-empty response.",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -4928,35 +4928,41 @@
       "postconditions": [],
       "tags": [
         "component:browser",
-        "host_surface:copilot",
-        "exit_state:action-consent-dismissed",
-        "step_retry_timeout: 30"
-      ]
-    },
-    {
-      "step_id": "step_assertChatReplied_assert_caceeb9ea_13_8",
-      "agent": "assertion",
-      "tool": "",
-      "parameters": {},
-      "description": "@assertion the current assistant turn is complete and contains a non-empty response.",
-      "content_refs": [],
-      "timeout": 30,
-      "retry_count": 0,
-      "continue_on_error": "false",
-      "depends_on": [
-        "step_allowCopilotAction_assertDismissed_caceeb9ea_13_7"
-      ],
-      "preconditions": [],
-      "postconditions": [],
-      "tags": [
-        "component:browser",
         "action:assert-chat-response",
         "expectation:replied",
         "step_retry_timeout: 120"
       ]
     },
     {
-      "step_id": "step_assertToolCalled_caceeb9ea_13_9",
+      "step_id": "step_revealLatestCopilotResponse_click_caceeb9ea_13_9",
+      "agent": "interaction",
+      "tool": "click",
+      "parameters": {
+        "button": "left",
+        "x": 627,
+        "y": 595
+      },
+      "description": "Click the conversation's circular down-arrow Scroll to bottom button above the message composer in Microsoft 365 Copilot to reveal the latest completed assistant response, not the browser scrollbar, sidebar, or an earlier Allow card.",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_assertChatReplied_assert_caceeb9ea_13_8"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:browser",
+        "host_surface:copilot",
+        "entry_state:completed-reply",
+        "action:reveal-latest-response",
+        "ocr:true",
+        "source_screenshot:screenshot_20261111_100130_644.jpg"
+      ]
+    },
+    {
+      "step_id": "step_assertToolCalled_caceeb9ea_13_10",
       "agent": "assertion",
       "tool": "",
       "parameters": {},
@@ -4966,7 +4972,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_assertChatReplied_assert_caceeb9ea_13_8"
+        "step_revealLatestCopilotResponse_click_caceeb9ea_13_9"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -4977,7 +4983,7 @@
       ]
     },
     {
-      "step_id": "step_assertChatNonEmptyField_caceeb9ea_13_10",
+      "step_id": "step_assertChatNonEmptyField_caceeb9ea_13_11",
       "agent": "assertion",
       "tool": "",
       "parameters": {},
@@ -4987,7 +4993,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_assertToolCalled_caceeb9ea_13_9"
+        "step_assertToolCalled_caceeb9ea_13_10"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -4999,7 +5005,7 @@
       ]
     },
     {
-      "step_id": "step_assertChatContains_assert_caceeb9ea_13_11",
+      "step_id": "step_assertChatContains_assert_caceeb9ea_13_12",
       "agent": "assertion",
       "tool": "",
       "parameters": {},
@@ -5009,7 +5015,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_assertChatNonEmptyField_caceeb9ea_13_10"
+        "step_assertChatNonEmptyField_caceeb9ea_13_11"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -5021,7 +5027,7 @@
       ]
     },
     {
-      "step_id": "step_assertChatContains_assert_caceeb9ea_13_12",
+      "step_id": "step_assertChatContains_assert_caceeb9ea_13_13",
       "agent": "assertion",
       "tool": "",
       "parameters": {},
@@ -5031,7 +5037,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_assertChatContains_assert_caceeb9ea_13_11"
+        "step_assertChatContains_assert_caceeb9ea_13_12"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -5043,7 +5049,7 @@
       ]
     },
     {
-      "step_id": "step_sendCopilotMessage_assertInput_caceeb9ea_13_13",
+      "step_id": "step_sendCopilotMessage_assertInput_caceeb9ea_13_14",
       "agent": "assertion",
       "tool": "",
       "parameters": {},
@@ -5053,7 +5059,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_assertChatContains_assert_caceeb9ea_13_12"
+        "step_assertChatContains_assert_caceeb9ea_13_13"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -5066,7 +5072,7 @@
       ]
     },
     {
-      "step_id": "step_sendCopilotMessage_focusInput_caceeb9ea_13_13",
+      "step_id": "step_sendCopilotMessage_focusInput_caceeb9ea_13_14",
       "agent": "interaction",
       "tool": "click",
       "parameters": {
@@ -5080,7 +5086,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_sendCopilotMessage_assertInput_caceeb9ea_13_13"
+        "step_sendCopilotMessage_assertInput_caceeb9ea_13_14"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -5093,7 +5099,7 @@
       ]
     },
     {
-      "step_id": "step_sendCopilotMessage_type_caceeb9ea_13_13",
+      "step_id": "step_sendCopilotMessage_type_caceeb9ea_13_14",
       "agent": "interaction",
       "tool": "type_text",
       "parameters": {
@@ -5105,7 +5111,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_sendCopilotMessage_focusInput_caceeb9ea_13_13"
+        "step_sendCopilotMessage_focusInput_caceeb9ea_13_14"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -5117,7 +5123,7 @@
       ]
     },
     {
-      "step_id": "step_sendCopilotMessage_send_caceeb9ea_13_13",
+      "step_id": "step_sendCopilotMessage_send_caceeb9ea_13_14",
       "agent": "interaction",
       "tool": "key_press",
       "parameters": {
@@ -5129,7 +5135,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_sendCopilotMessage_type_caceeb9ea_13_13"
+        "step_sendCopilotMessage_type_caceeb9ea_13_14"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -5141,7 +5147,7 @@
       ]
     },
     {
-      "step_id": "step_assertChatReplied_assert_caceeb9ea_13_14",
+      "step_id": "step_assertChatReplied_assert_caceeb9ea_13_15",
       "agent": "assertion",
       "tool": "",
       "parameters": {},
@@ -5151,7 +5157,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_sendCopilotMessage_send_caceeb9ea_13_13"
+        "step_sendCopilotMessage_send_caceeb9ea_13_14"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -5163,7 +5169,7 @@
       ]
     },
     {
-      "step_id": "step_assertToolCalled_caceeb9ea_13_15",
+      "step_id": "step_assertToolCalled_caceeb9ea_13_16",
       "agent": "assertion",
       "tool": "",
       "parameters": {},
@@ -5173,7 +5179,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_assertChatReplied_assert_caceeb9ea_13_14"
+        "step_assertChatReplied_assert_caceeb9ea_13_15"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -5184,7 +5190,7 @@
       ]
     },
     {
-      "step_id": "step_assertChatContains_assert_caceeb9ea_13_16",
+      "step_id": "step_assertChatContains_assert_caceeb9ea_13_17",
       "agent": "assertion",
       "tool": "",
       "parameters": {},
@@ -5194,29 +5200,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_assertToolCalled_caceeb9ea_13_15"
-      ],
-      "preconditions": [],
-      "postconditions": [],
-      "tags": [
-        "component:browser",
-        "action:assert-chat-response",
-        "expectation:contains",
-        "step_retry_timeout: 120"
-      ]
-    },
-    {
-      "step_id": "step_assertChatContains_assert_caceeb9ea_13_17",
-      "agent": "assertion",
-      "tool": "",
-      "parameters": {},
-      "description": "@assertion the current assistant response contains \"\"auth_flow\": \"${{env:MCP_AUTH_EXPECTED_FLOW}}\"\".",
-      "content_refs": [],
-      "timeout": 30,
-      "retry_count": 0,
-      "continue_on_error": "false",
-      "depends_on": [
-        "step_assertChatContains_assert_caceeb9ea_13_16"
+        "step_assertToolCalled_caceeb9ea_13_16"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -5232,7 +5216,7 @@
       "agent": "assertion",
       "tool": "",
       "parameters": {},
-      "description": "@assertion the current assistant response contains \"\"probe_id\":\".",
+      "description": "@assertion the current assistant response contains \"\"auth_flow\": \"${{env:MCP_AUTH_EXPECTED_FLOW}}\"\".",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -5254,7 +5238,7 @@
       "agent": "assertion",
       "tool": "",
       "parameters": {},
-      "description": "@assertion the current assistant response contains \"\"server_time\":\".",
+      "description": "@assertion the current assistant response contains \"\"probe_id\":\".",
       "content_refs": [],
       "timeout": 30,
       "retry_count": 0,
@@ -5272,7 +5256,29 @@
       ]
     },
     {
-      "step_id": "step_sendCopilotMessage_assertInput_caceeb9ea_13_20",
+      "step_id": "step_assertChatContains_assert_caceeb9ea_13_20",
+      "agent": "assertion",
+      "tool": "",
+      "parameters": {},
+      "description": "@assertion the current assistant response contains \"\"server_time\":\".",
+      "content_refs": [],
+      "timeout": 30,
+      "retry_count": 0,
+      "continue_on_error": "false",
+      "depends_on": [
+        "step_assertChatContains_assert_caceeb9ea_13_19"
+      ],
+      "preconditions": [],
+      "postconditions": [],
+      "tags": [
+        "component:browser",
+        "action:assert-chat-response",
+        "expectation:contains",
+        "step_retry_timeout: 120"
+      ]
+    },
+    {
+      "step_id": "step_sendCopilotMessage_assertInput_caceeb9ea_13_21",
       "agent": "assertion",
       "tool": "",
       "parameters": {},
@@ -5282,7 +5288,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_assertChatContains_assert_caceeb9ea_13_19"
+        "step_assertChatContains_assert_caceeb9ea_13_20"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -5295,7 +5301,7 @@
       ]
     },
     {
-      "step_id": "step_sendCopilotMessage_focusInput_caceeb9ea_13_20",
+      "step_id": "step_sendCopilotMessage_focusInput_caceeb9ea_13_21",
       "agent": "interaction",
       "tool": "click",
       "parameters": {
@@ -5309,7 +5315,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_sendCopilotMessage_assertInput_caceeb9ea_13_20"
+        "step_sendCopilotMessage_assertInput_caceeb9ea_13_21"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -5322,7 +5328,7 @@
       ]
     },
     {
-      "step_id": "step_sendCopilotMessage_type_caceeb9ea_13_20",
+      "step_id": "step_sendCopilotMessage_type_caceeb9ea_13_21",
       "agent": "interaction",
       "tool": "type_text",
       "parameters": {
@@ -5334,7 +5340,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_sendCopilotMessage_focusInput_caceeb9ea_13_20"
+        "step_sendCopilotMessage_focusInput_caceeb9ea_13_21"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -5346,7 +5352,7 @@
       ]
     },
     {
-      "step_id": "step_sendCopilotMessage_send_caceeb9ea_13_20",
+      "step_id": "step_sendCopilotMessage_send_caceeb9ea_13_21",
       "agent": "interaction",
       "tool": "key_press",
       "parameters": {
@@ -5358,7 +5364,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_sendCopilotMessage_type_caceeb9ea_13_20"
+        "step_sendCopilotMessage_type_caceeb9ea_13_21"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -5370,7 +5376,7 @@
       ]
     },
     {
-      "step_id": "step_assertChatReplied_assert_caceeb9ea_13_21",
+      "step_id": "step_assertChatReplied_assert_caceeb9ea_13_22",
       "agent": "assertion",
       "tool": "",
       "parameters": {},
@@ -5380,7 +5386,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_sendCopilotMessage_send_caceeb9ea_13_20"
+        "step_sendCopilotMessage_send_caceeb9ea_13_21"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -5392,7 +5398,7 @@
       ]
     },
     {
-      "step_id": "step_assertToolCalled_caceeb9ea_13_22",
+      "step_id": "step_assertToolCalled_caceeb9ea_13_23",
       "agent": "assertion",
       "tool": "",
       "parameters": {},
@@ -5402,7 +5408,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_assertChatReplied_assert_caceeb9ea_13_21"
+        "step_assertChatReplied_assert_caceeb9ea_13_22"
       ],
       "preconditions": [],
       "postconditions": [],
@@ -5413,7 +5419,7 @@
       ]
     },
     {
-      "step_id": "step_assertChatContains_assert_caceeb9ea_13_23",
+      "step_id": "step_assertChatContains_assert_caceeb9ea_13_24",
       "agent": "assertion",
       "tool": "",
       "parameters": {},
@@ -5423,7 +5429,7 @@
       "retry_count": 0,
       "continue_on_error": "false",
       "depends_on": [
-        "step_assertToolCalled_caceeb9ea_13_22"
+        "step_assertToolCalled_caceeb9ea_13_23"
       ],
       "preconditions": [],
       "postconditions": [],
