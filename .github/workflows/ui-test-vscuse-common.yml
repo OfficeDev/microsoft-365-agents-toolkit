@@ -94,7 +94,7 @@ jobs:
           INPUT_EMAIL_RECEIVER: ${{ inputs.email_receiver }}
         run: |
           if [ "${{ github.event_name }}" == "schedule" ] || [ "${{ inputs.schedule_trigger }}" == "true" ]; then
-            echo "email_receiver=zhenjiao@microsoft.com;M365AgentsToolkitEngineerTeam@microsoft.com;teamsfxqa@microsoft.com" >> $GITHUB_OUTPUT
+            echo "email_receiver=M365AgentsToolkitEngineerTeam@microsoft.com" >> $GITHUB_OUTPUT
             echo "Schedule trigger: Using default email receivers"
           elif [ -n "$INPUT_EMAIL_RECEIVER" ]; then
             echo "email_receiver=$INPUT_EMAIL_RECEIVER" >> $GITHUB_OUTPUT
