@@ -2,6 +2,24 @@
 // Licensed under the MIT license.
 
 import axios, { AxiosInstance } from "axios";
+import { createPreparedRequestSignal } from "./preparedPublication";
+
+export interface PreparedSharePointAppState {
+  id: string;
+  version: string;
+  deployed: boolean;
+  currentVersionDeployed: boolean;
+  skipFeatureDeployment: boolean;
+}
+
+export interface PreparedSharePointRequestContext {
+  catalogUrl: string;
+  signal?: AbortSignal;
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace SPOClient {
@@ -16,14 +34,21 @@ export namespace SPOClient {
    * @param {string}  spoToken
    * @returns {AxiosInstance}
    */
-  function createRequesterWithToken(spoToken: string): AxiosInstance {
+  function createRequesterWithToken(
+    spoToken: string,
+    requestBaseUrl = baseUrl,
+    signal?: AbortSignal
+  ): AxiosInstance {
     const instance = axios.create({
-      baseURL: baseUrl,
+      baseURL: requestBaseUrl,
     });
     instance.defaults.headers.common["Authorization"] = `Bearer ${spoToken}`;
     instance.defaults.headers.common["Client-Source"] = "teamstoolkit";
     instance.interceptors.request.use(function (config) {
       config.params = { teamstoolkit: true, ...config.params };
+      if (signal) {
+        config.signal = signal;
+      }
       return config;
     });
     return instance;
@@ -42,6 +67,20 @@ export namespace SPOClient {
     } else {
       return undefined;
     }
+  }
+
+  export async function getAppCatalogSiteForTenant(
+    spoToken: string,
+    tenantUrl: string,
+    signal?: AbortSignal
+  ): Promise<string | undefined> {
+    const requester = createRequesterWithToken(
+      spoToken,
+      tenantUrl,
+      createPreparedRequestSignal(signal)
+    );
+    const res = await requester.get("/_api/SP_TenantSettings_Current");
+    return res?.data?.CorporateCatalogUrl;
   }
 
   /**
@@ -79,6 +118,132 @@ export namespace SPOClient {
       `/_api/web/tenantappcatalog/AvailableApps/GetById('${appId}')/Deploy`,
       deploySetting
     );
+  }
+
+  export async function getPreparedAvailableApp(
+    spoToken: string,
+    appId: string,
+    context: PreparedSharePointRequestContext
+  ): Promise<PreparedSharePointAppState | undefined> {
+    const requester = createRequesterWithToken(
+      spoToken,
+      context.catalogUrl,
+      createPreparedRequestSignal(context.signal)
+    );
+    try {
+      const response = await requester.get(
+        `/_api/web/tenantappcatalog/AvailableApps/GetById('${appId}')`
+      );
+      const data: unknown = response.data;
+      if (
+        !isRecord(data) ||
+        typeof data["ID"] !== "string" ||
+        typeof data["AppCatalogVersion"] !== "string" ||
+        !/^\d+\.\d+\.\d+\.\d+$/.test(data["AppCatalogVersion"]) ||
+        typeof data["Deployed"] !== "boolean" ||
+        typeof data["CurrentVersionDeployed"] !== "boolean" ||
+        typeof data["IsPackageDefaultSkipFeatureDeployment"] !== "boolean"
+      ) {
+        throw new Error("SharePoint returned incomplete app catalog metadata.");
+      }
+      return {
+        id: data["ID"],
+        version: data["AppCatalogVersion"],
+        deployed: data["Deployed"],
+        currentVersionDeployed: data["CurrentVersionDeployed"],
+        skipFeatureDeployment: data["IsPackageDefaultSkipFeatureDeployment"],
+      };
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response?.status === 404) {
+        return undefined;
+      }
+      throw error;
+    }
+  }
+
+  export async function uploadPreparedAppPackage(
+    spoToken: string,
+    fileName: string,
+    file: Buffer,
+    overwrite: boolean,
+    context: PreparedSharePointRequestContext
+  ): Promise<void> {
+    if (!/^[a-zA-Z0-9._-]+\.sppkg$/i.test(fileName)) {
+      throw new Error("The prepared SharePoint package file name is invalid.");
+    }
+    const requester = createRequesterWithToken(
+      spoToken,
+      context.catalogUrl,
+      createPreparedRequestSignal()
+    );
+    await requester.post(
+      `/_api/web/tenantappcatalog/Add(overwrite=${overwrite}, url='${fileName}')`,
+      file,
+      {
+        headers: { "Content-Type": "application/octet-stream" },
+        maxBodyLength: file.length,
+      }
+    );
+  }
+
+  export async function readPreparedAppPackage(
+    spoToken: string,
+    fileName: string,
+    context: PreparedSharePointRequestContext
+  ): Promise<Buffer | undefined> {
+    if (!/^[a-zA-Z0-9._-]+\.sppkg$/i.test(fileName)) {
+      throw new Error("The prepared SharePoint package file name is invalid.");
+    }
+    const requester = createRequesterWithToken(
+      spoToken,
+      context.catalogUrl,
+      createPreparedRequestSignal(context.signal)
+    );
+    const listResponse = await requester.get(
+      `/_api/web/lists/getbytitle('Apps for SharePoint')/items?$select=File/ServerRelativeUrl&$expand=File&$filter=FileLeafRef eq '${fileName}'&$top=2`
+    );
+    const listData: unknown = listResponse.data;
+    if (!isRecord(listData) || !Array.isArray(listData["value"])) {
+      throw new Error("SharePoint returned an invalid app catalog file listing.");
+    }
+    const files = listData["value"].filter(isRecord);
+    if (files.length === 0) {
+      return undefined;
+    }
+    if (files.length !== 1 || !isRecord(files[0]["File"])) {
+      throw new Error("SharePoint returned an ambiguous app catalog package file.");
+    }
+    const serverRelativeUrl = files[0]["File"]["ServerRelativeUrl"];
+    if (
+      typeof serverRelativeUrl !== "string" ||
+      !serverRelativeUrl.startsWith("/") ||
+      serverRelativeUrl.includes("\\") ||
+      /[\r\n]/.test(serverRelativeUrl)
+    ) {
+      throw new Error("SharePoint returned an invalid app catalog package URL.");
+    }
+    const escapedUrl = serverRelativeUrl.replace(/'/g, "''");
+    const fileResponse = await requester.get(
+      `/_api/web/GetFileByServerRelativeUrl('${escapedUrl}')/$value`,
+      { responseType: "arraybuffer", maxContentLength: 100 * 1024 * 1024 }
+    );
+    return Buffer.from(fileResponse.data);
+  }
+
+  export async function deployPreparedAppPackage(
+    spoToken: string,
+    appId: string,
+    skipFeatureDeployment: boolean,
+    context: PreparedSharePointRequestContext
+  ): Promise<void> {
+    const requester = createRequesterWithToken(
+      spoToken,
+      context.catalogUrl,
+      createPreparedRequestSignal()
+    );
+    await requester.post(`/_api/web/tenantappcatalog/AvailableApps/GetById('${appId}')/Deploy`, {
+      skipFeatureDeployment,
+    });
   }
 
   export async function createAppCatalog(spoToken: string): Promise<any> {

@@ -248,6 +248,7 @@ describe("v3 yaml parser", () => {
         const ajv = new Ajv({ allowUnionTypes: true });
         ajv.addKeyword("deprecationMessage");
         const validate = ajv.compile(schema);
+        const documentVersion = schemaVersion || "v1.14";
         const base = {
           name: "test-dcr",
           targetUrlsShouldStartWith: ["${{MCP_SERVER_URL}}"],
@@ -273,7 +274,7 @@ describe("v3 yaml parser", () => {
           it(`accepts ${JSON.stringify(input)}`, () => {
             assert.isTrue(
               validate({
-                version: schemaVersion || "v1.13",
+                version: documentVersion,
                 provision: [
                   {
                     uses: "dcr/register",
@@ -297,7 +298,7 @@ describe("v3 yaml parser", () => {
           it(`rejects unsupported shape ${index + 1}`, () => {
             assert.isFalse(
               validate({
-                version: schemaVersion || "v1.13",
+                version: documentVersion,
                 provision: [
                   {
                     uses: "dcr/register",
@@ -307,8 +308,23 @@ describe("v3 yaml parser", () => {
                 ],
               })
             );
+            assert.isNotEmpty(validate.errors);
+            assert.isFalse(
+              validate.errors?.some(
+                (validationError) => validationError.instancePath === "/version"
+              )
+            );
           });
         }
+        it("rejects a document version that does not match the schema", () => {
+          const mismatchedVersion = documentVersion === "v1.13" ? "v1.14" : "v1.13";
+          assert.isFalse(
+            validate({
+              version: mismatchedVersion,
+              provision: [{ uses: "dcr/register", with: validInputs[0] }],
+            })
+          );
+        });
       });
     }
 

@@ -46,12 +46,23 @@ import {
   IPublishingAppDenition,
   PublishingState,
 } from "../component/driver/teamsApp/interfaces/appdefinitions/IPublishingAppDefinition";
+import { createPreparedRequestSignal } from "../component/driver/deploy/spfx/utility/preparedPublication";
 
 const listSensitivityLabelAPIPath = "/me/informationProtection/sensitivityLabels";
 const errorSourceName = "GraphAPI";
 const GeneralLabelDisplayName = "General";
 const listSensitivityLabelCacheKeyPrefix = "listSensitivityLabelCacheKey";
 const teamsAppsPath = `/appCatalogs/teamsApps`;
+
+export interface PreparedStagedTeamsApp {
+  teamsAppId: string;
+  displayName: string;
+  definitions: Array<{ version: string; publishingState: string }>;
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
 
 export class GraphClient {
   private readonly baseUrl: string =
@@ -300,6 +311,7 @@ export class GraphClient {
           `${teamsAppsPath}?$filter=externalId eq '${teamsAppExternalId}'&$expand=appDefinitions`
         )
       );
+
       if (!response?.data?.value || response.data.value.length === 0) {
         return undefined;
       }
@@ -443,6 +455,107 @@ export class GraphClient {
         )
       );
     }
+  }
+
+  public async getPreparedStagedApp(
+    token: string,
+    teamsAppExternalId: string,
+    signal?: AbortSignal
+  ): Promise<PreparedStagedTeamsApp | undefined> {
+    const requester = this.createRequesterWithToken(token);
+    const response = await RetryHandler.Retry(() =>
+      requester.get(
+        `${teamsAppsPath}?$filter=externalId eq '${teamsAppExternalId}'&$expand=appDefinitions`,
+        { signal: createPreparedRequestSignal(signal) }
+      )
+    );
+    if (!response) {
+      throw new Error("Graph did not return a Teams app catalog response.");
+    }
+    const data: unknown = response.data;
+    if (!isRecord(data) || !Array.isArray(data["value"])) {
+      throw new Error("Graph returned an invalid Teams app catalog response.");
+    }
+    if (
+      data["value"].some((value) => !isRecord(value)) ||
+      typeof data["@odata.nextLink"] === "string"
+    ) {
+      throw new Error("Graph returned an incomplete Teams app catalog result.");
+    }
+    const apps = data["value"].filter(isRecord);
+    if (apps.length === 0) {
+      return undefined;
+    }
+    if (apps.length !== 1) {
+      throw new Error("Graph returned multiple Teams apps for the same external ID.");
+    }
+    const app = apps[0];
+    if (
+      typeof app["externalId"] !== "string" ||
+      app["externalId"].toLowerCase() !== teamsAppExternalId.toLowerCase() ||
+      typeof app["id"] !== "string" ||
+      typeof app["displayName"] !== "string" ||
+      !Array.isArray(app["appDefinitions"]) ||
+      typeof app["appDefinitions@odata.nextLink"] === "string" ||
+      app["appDefinitions"].some((definition) => !isRecord(definition))
+    ) {
+      throw new Error("Graph returned an incomplete Teams app catalog entry.");
+    }
+    const definitions: PreparedStagedTeamsApp["definitions"] = [];
+    for (const definition of app["appDefinitions"]) {
+      if (
+        !isRecord(definition) ||
+        typeof definition["version"] !== "string" ||
+        typeof definition["publishingState"] !== "string"
+      ) {
+        throw new Error("Graph returned an incomplete Teams app definition.");
+      }
+      definitions.push({
+        version: definition["version"],
+        publishingState: definition["publishingState"],
+      });
+    }
+    if (definitions.length === 0) {
+      throw new Error("Graph returned a Teams app without definitions.");
+    }
+    return {
+      teamsAppId: app["id"],
+      displayName: app["displayName"],
+      definitions,
+    };
+  }
+
+  public async publishPreparedTeamsApp(
+    token: string,
+    teamsAppExternalId: string,
+    teamsAppId: string | undefined,
+    file: Buffer,
+    signal?: AbortSignal
+  ): Promise<string> {
+    if (signal?.aborted) {
+      throw new Error("Prepared app submission was cancelled before the request started.");
+    }
+    const requester = this.createRequesterWithToken(token);
+    const endpoint = teamsAppId
+      ? `${teamsAppsPath}/${teamsAppId}/appDefinitions?requiresReview=true`
+      : `${teamsAppsPath}?requiresReview=true`;
+    const response = await requester.post(endpoint, file, {
+      headers: { "Content-Type": "application/zip" },
+      signal: createPreparedRequestSignal(),
+    });
+    if (teamsAppId) {
+      return teamsAppId;
+    }
+    const data: unknown = response.data;
+    if (
+      isRecord(data) &&
+      typeof data["externalId"] === "string" &&
+      data["externalId"].toLowerCase() === teamsAppExternalId.toLowerCase() &&
+      typeof data["id"] === "string"
+    ) {
+      return data["id"];
+    }
+    throw new Error("Graph accepted the Teams app package without returning its app ID.");
   }
 
   private getGraphErrorMessage(error: any): string {

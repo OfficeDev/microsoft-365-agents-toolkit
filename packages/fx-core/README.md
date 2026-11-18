@@ -21,6 +21,35 @@ explicitly need Teams package submission. See the
 [client publishing contract](../../docs/03-specs/operations/lifecycle/publish-client.md)
 for cancellation and error semantics.
 
+## Publishing an SPFx-backed application
+
+Projects can opt in to a SharePoint-first publication lifecycle with
+`spfx/preparePublication`, followed by the prepared mode of `spfx/deploy` and
+`teamsApp/publishAppPackage`. Preparation freezes the deployment and
+application packages, records their hash lineage in a project-local journal,
+and does not modify either input. SharePoint deployment must be verified before
+the app package can be submitted. Ambiguous writes are not replayed
+automatically. See the
+[operation contract](../../docs/03-specs/operations/lifecycle/prepare-spfx-publication.md)
+and [ADR-0030](../../docs/02-architecture/adr/ADR-0030-prepared-sharepoint-publication.md)
+for action inputs, recovery behavior, and supported boundaries.
+
+For offline packaging, the lean
+`@microsoft/teamsfx-core/build/sharepointPackage` entry exports
+`assembleSharePointApplicationPackage({ applicationPackage, sharePointPackage })`.
+It accepts package `Buffer`s and returns tenant-neutral application ZIP bytes
+with source and output hash/identity provenance. It performs bounded local
+structural validation only, preserves the literal `{{TENANT_MCP_URL}}` in the
+managed runtime URL, and does not replace unrelated text. Connector-only
+applications are supported only on manifest versions whose `ToolSource` defines
+`plugin` (currently `devPreview`); other versions return
+`UnsupportedAgentConnectorManifestVersion`. It does not
+authenticate, make network requests, initialize lifecycle services, write
+files, or create a journal. The caller owns persistence. Pass the returned ZIP
+to the YAML preparation action for verified tenant materialization and final
+publication validation; see the linked operation contract for the boundary
+between offline assembly and tenant-bound publication checks.
+
 ## Updating an existing DCR configuration
 
 The opt-in `dcr/update` lifecycle action updates an existing authentication

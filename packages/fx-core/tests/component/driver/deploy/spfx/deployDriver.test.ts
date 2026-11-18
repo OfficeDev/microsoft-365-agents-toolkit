@@ -70,7 +70,7 @@ describe("SPFx Deploy Driver", async () => {
     await fs.remove(tempDir);
   });
 
-  it("should successfully deploy if app catelog exists - VSCode", async () => {
+  it("SPFX-PREP-10: preserves ordinary SharePoint deployment without prepared inputs", async () => {
     const packagePath = await createPackageFile();
 
     vi.spyOn(SPFxDeployDriver.prototype, "getTenant").mockResolvedValue("fakeTenant");
@@ -81,9 +81,13 @@ describe("SPFx Deploy Driver", async () => {
     vi.spyOn(SPOClient, "getAppCatalogSite").mockResolvedValue("fakeAppCatelogSite");
     vi.spyOn(SPOClient, "uploadAppPackage").mockResolvedValue(undefined as any);
     vi.spyOn(SPOClient, "deployAppPackage").mockResolvedValue(undefined as any);
+    const preparedUploadSpy = vi.spyOn(SPOClient, "uploadPreparedAppPackage");
+    const preparedDeploySpy = vi.spyOn(SPOClient, "deployPreparedAppPackage");
 
     const result = await deployDriver.run(args, mockedDriverContext);
     expect(result.isOk()).to.be.true;
+    expect(preparedUploadSpy.mock.calls.length).to.equal(0);
+    expect(preparedDeploySpy.mock.calls.length).to.equal(0);
   });
 
   it("should successfully deploy if app catelog exists - VSCode - execute", async () => {

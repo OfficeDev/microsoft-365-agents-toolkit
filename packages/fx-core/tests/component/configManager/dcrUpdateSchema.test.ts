@@ -141,16 +141,16 @@ it("DCR-UPD-01: keeps both definitions identical and exposes exactly the support
   expect(currentSchema.definitions.dcrUpdate.properties.with.required).toEqual(["configurationId"]);
 });
 
-for (const { title, schema } of [
-  { title: "current", schema: currentSchema },
-  { title: "v1.13", schema: versionedSchema },
+for (const { title, schema, version } of [
+  { title: "current", schema: currentSchema, version: "v1.14" },
+  { title: "v1.13", schema: versionedSchema, version: "v1.13" },
 ]) {
   describe(`dcr/update ${title} schema`, () => {
     const ajv = new Ajv({ allowUnionTypes: true });
     ajv.addKeyword("deprecationMessage");
     const validate = ajv.compile(schema);
     const document = (input: Record<string, unknown>) => ({
-      version: "v1.13",
+      version,
       provision: [{ uses: "dcr/update", with: input }],
     });
 
@@ -166,10 +166,17 @@ for (const { title, schema } of [
       });
     }
 
+    it("DCR-UPD-02: rejects a document version that does not match the schema", () => {
+      const mismatchedVersion = version === "v1.13" ? "v1.14" : "v1.13";
+      expect(validate({ ...document({ configurationId }), version: mismatchedVersion })).toBe(
+        false
+      );
+    });
+
     it("DCR-UPD-02: rejects an environment output mapping", () => {
       expect(
         validate({
-          version: "v1.13",
+          version,
           provision: [
             {
               uses: "dcr/update",
@@ -184,7 +191,7 @@ for (const { title, schema } of [
     it("DCR-UPD-24: keeps existing register and OAuth update YAML valid", () => {
       expect(
         validate({
-          version: "v1.13",
+          version,
           provision: [
             {
               uses: "dcr/register",

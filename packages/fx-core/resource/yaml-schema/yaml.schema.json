@@ -14,7 +14,7 @@
     "version": {
       "type": "string",
       "description": "The version of the yaml file schema",
-      "const": "v1.13"
+      "const": "v1.14"
     },
     "additionalMetadata": {
       "type": "object",
@@ -74,6 +74,7 @@
           { "$ref": "#/definitions/devToolInstall" },
           { "$ref": "#/definitions/teamsAppExtendToM365" },
           { "$ref": "#/definitions/spfxDeploy" },
+          { "$ref": "#/definitions/spfxPreparePublication" },
           { "$ref": "#/definitions/teamsAppCopyAppPackageToSPFx" },
           { "$ref": "#/definitions/script" },
           { "$ref": "#/definitions/apiKeyRegister" },
@@ -999,6 +1000,34 @@
             "appPackagePath": {
               "type": "string",
               "description": "Path to app package to be published."
+            },
+            "preparedPublicationPath": {
+              "type": "string",
+              "description": "Prepared publication journal path emitted by spfx/preparePublication."
+            },
+            "publicationId": {
+              "type": "string",
+              "description": "Prepared publication identifier emitted by spfx/preparePublication."
+            },
+            "sourcePackageSha256": {
+              "type": "string",
+              "pattern": "^(?:[0-9a-fA-F]{64}|\\$\\{\\{[A-Za-z_][A-Za-z0-9_]*\\}\\})$"
+            },
+            "sourceAppPackageSha256": {
+              "type": "string",
+              "pattern": "^(?:[0-9a-fA-F]{64}|\\$\\{\\{[A-Za-z_][A-Za-z0-9_]*\\}\\})$"
+            },
+            "pluginSha256": {
+              "type": "string",
+              "pattern": "^(?:[0-9a-fA-F]{64}|\\$\\{\\{[A-Za-z_][A-Za-z0-9_]*\\}\\})$"
+            },
+            "sharePointPackageSha256": {
+              "type": "string",
+              "pattern": "^(?:[0-9a-fA-F]{64}|\\$\\{\\{[A-Za-z_][A-Za-z0-9_]*\\}\\})$"
+            },
+            "appPackageSha256": {
+              "type": "string",
+              "pattern": "^(?:[0-9a-fA-F]{64}|\\$\\{\\{[A-Za-z_][A-Za-z0-9_]*\\}\\})$"
             }
           }
         },
@@ -1444,6 +1473,73 @@
         }
       }
     },
+    "spfxPreparePublication": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Prepare immutable SharePoint and application packages for ordered publication.",
+      "required": ["uses", "with", "writeToEnvironmentFile"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "An optional name of this action."
+        },
+        "env": {
+          "type": "object",
+          "description": "Define environment variables for this action.",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "uses": {
+          "type": "string",
+          "description": "Prepare immutable SharePoint and application packages for ordered publication.",
+          "const": "spfx/preparePublication"
+        },
+        "with": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Parameters for this action",
+          "required": ["packagePath", "appPackagePath"],
+          "properties": {
+            "packagePath": {
+              "type": "string",
+              "description": "Path to the completed SharePoint package (.sppkg), relative to the project root."
+            },
+            "appPackagePath": {
+              "type": "string",
+              "description": "Path to the authoritative application package (.zip), relative to the project root."
+            }
+          }
+        },
+        "writeToEnvironmentFile": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Write prepared publication paths and hashes to environment variables.",
+          "required": [
+            "publicationId",
+            "preparedPublicationPath",
+            "sourcePackageSha256",
+            "sourceAppPackageSha256",
+            "pluginSha256",
+            "sharePointPackagePath",
+            "sharePointPackageSha256",
+            "appPackagePath",
+            "appPackageSha256"
+          ],
+          "properties": {
+            "publicationId": { "$ref": "#/definitions/envVarName" },
+            "preparedPublicationPath": { "$ref": "#/definitions/envVarName" },
+            "sourcePackageSha256": { "$ref": "#/definitions/envVarName" },
+            "sourceAppPackageSha256": { "$ref": "#/definitions/envVarName" },
+            "pluginSha256": { "$ref": "#/definitions/envVarName" },
+            "sharePointPackagePath": { "$ref": "#/definitions/envVarName" },
+            "sharePointPackageSha256": { "$ref": "#/definitions/envVarName" },
+            "appPackagePath": { "$ref": "#/definitions/envVarName" },
+            "appPackageSha256": { "$ref": "#/definitions/envVarName" }
+          }
+        }
+      }
+    },
     "spfxDeploy": {
       "type": "object",
       "additionalProperties": false,
@@ -1479,6 +1575,38 @@
             "packageSolutionPath": {
               "type": "string",
               "description": "The path to package-solution.json in SPFx project"
+            },
+            "preparedPackagePath": {
+              "type": "string",
+              "description": "Prepared SharePoint package path emitted by spfx/preparePublication."
+            },
+            "preparedPublicationPath": {
+              "type": "string",
+              "description": "Prepared publication journal path emitted by spfx/preparePublication."
+            },
+            "publicationId": {
+              "type": "string",
+              "description": "Prepared publication identifier emitted by spfx/preparePublication."
+            },
+            "sourcePackageSha256": {
+              "type": "string",
+              "pattern": "^(?:[0-9a-fA-F]{64}|\\$\\{\\{[A-Za-z_][A-Za-z0-9_]*\\}\\})$"
+            },
+            "sourceAppPackageSha256": {
+              "type": "string",
+              "pattern": "^(?:[0-9a-fA-F]{64}|\\$\\{\\{[A-Za-z_][A-Za-z0-9_]*\\}\\})$"
+            },
+            "pluginSha256": {
+              "type": "string",
+              "pattern": "^(?:[0-9a-fA-F]{64}|\\$\\{\\{[A-Za-z_][A-Za-z0-9_]*\\}\\})$"
+            },
+            "sharePointPackageSha256": {
+              "type": "string",
+              "pattern": "^(?:[0-9a-fA-F]{64}|\\$\\{\\{[A-Za-z_][A-Za-z0-9_]*\\}\\})$"
+            },
+            "appPackageSha256": {
+              "type": "string",
+              "pattern": "^(?:[0-9a-fA-F]{64}|\\$\\{\\{[A-Za-z_][A-Za-z0-9_]*\\}\\})$"
             }
           }
         }

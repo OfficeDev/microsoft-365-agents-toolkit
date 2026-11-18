@@ -104,7 +104,7 @@ describe("teamsApp/publishAppPackage", async () => {
     }
   });
 
-  it("happy path", async () => {
+  it("SPFX-PREP-10: preserves ordinary Teams app submission without prepared inputs", async () => {
     const args: PublishAppPackageArgs = {
       appPackagePath: "fakepath",
     };
@@ -121,9 +121,11 @@ describe("teamsApp/publishAppPackage", async () => {
     });
     vi.spyOn(GraphClient.prototype, "getStagedApp").mockResolvedValue(undefined);
     vi.spyOn(GraphClient.prototype, "publishTeamsApp").mockResolvedValue(uuid());
+    const preparedPublishSpy = vi.spyOn(GraphClient.prototype, "publishPreparedTeamsApp");
 
     const result = await teamsAppDriver.execute(args, mockedDriverContext);
     chai.assert.isTrue(result.result.isOk());
+    expect(preparedPublishSpy).not.toHaveBeenCalled();
   });
 
   it("should return token error when getAccessToken fails", async () => {
