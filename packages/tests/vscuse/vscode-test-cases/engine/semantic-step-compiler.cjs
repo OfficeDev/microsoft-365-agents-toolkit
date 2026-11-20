@@ -4015,9 +4015,34 @@ ${mutation}`;
       }
       error = append(
         output,
-        render(state, "browser/copilot/allow-action.json.tpl", {}),
+        render(state, "browser/copilot/allow-action.json.tpl", {
+          completionAssertion:
+            assertion.connectOAuth === true
+              ? "@assertion the current assistant response is complete and contains returned result data for the requested remote tool after granting access. An Allow/Cancel card in an earlier turn may remain visible in chat history and is not evidence that the current turn is blocked. A pending consent request, sign-in prompt, refusal, loading state, or promise without a result does not satisfy this assertion."
+              : "@assertion the Copilot action-consent Allow button is no longer visible.",
+          completionState:
+            assertion.connectOAuth === true
+              ? "action-consent-completed"
+              : "action-consent-dismissed",
+        }),
       );
       if (error) return error;
+    }
+    if (
+      assertion.connectOAuth === true &&
+      state.mcpAuthType === "oauth-dynamic"
+    ) {
+      error = append(
+        output,
+        render(state, "browser/copilot/reveal-latest-response.json.tpl"),
+      );
+      if (error) return error;
+      // Consent completion inspects result data hidden behind the composer.
+      const [completion, reveal] = output.splice(-2);
+      reveal.depends_on = completion.depends_on;
+      completion.depends_on = [reveal.step_id];
+      output.push(reveal, completion);
+      state.lastStepId = completion.step_id;
     }
     const expected = assertion.expect ?? {};
     if (
