@@ -20,21 +20,18 @@ jobs:
         env:
           CLEAN_CLIENT_ID: ${{ inputs.probe_client_id }}
           CLEAN_TENANT_ID: ${{ vars.TEST_TENANT_CLEAN_TENANT_ID }}
-          M365_USERNAMES: ${{ vars.M365_USERNAMES }}
           M365_ACCOUNT_PASSWORD: ${{ secrets.TEST_TENANT_M365_ACCOUNT_ADMIN_PASSWORD }}
         run: |
           node --input-type=module <<'JS'
           const {
             CLEAN_CLIENT_ID: clientId,
             CLEAN_TENANT_ID: tenantId,
-            M365_USERNAMES: users,
             M365_ACCOUNT_PASSWORD: password,
           } = process.env;
-          const username = users?.split(",").find((user) => user.trim())?.trim();
+          const username = "test001@atktesting08.onmicrosoft.com";
           const uuid = /^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i;
-          if (!uuid.test(clientId ?? "") || !uuid.test(tenantId ?? "") ||
-              !/^test001@atktesting08\.onmicrosoft\.com$/i.test(username ?? "") || !password) {
-            throw new Error("Missing probe inputs or unexpected test account.");
+          if (!uuid.test(clientId ?? "") || tenantId !== "16801f2e-7163-4bd5-8542-f083fa59993c" || !password) {
+            throw new Error("Missing probe inputs or unexpected tenant.");
           }
           const token = await fetch(`https://login.microsoftonline.com/${tenantId}/oauth2/v2.0/token`, {
             method: "POST",
