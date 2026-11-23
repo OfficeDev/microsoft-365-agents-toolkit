@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import * as cp from "child_process";
 import * as vscode from "vscode";
 import * as util from "util";
 import { err, FxError, ok, Result, UserError, Void } from "@microsoft/teamsfx-api";
@@ -20,7 +19,7 @@ import { getLocalDebugSession } from "../common/localDebugSession";
 import { TelemetryEvent, TelemetryProperty } from "../../telemetry/extTelemetryEvents";
 import { ExtensionErrors, ExtensionSource } from "../../error/error";
 import { getDefaultString, localize } from "../../utils/localizeUtils";
-import { openTerminalDisplayMessage, openTerminalMessage } from "../common/debugConstants";
+import { Host, openTerminalDisplayMessage, openTerminalMessage } from "../common/debugConstants";
 import { getSystemInputs } from "../../utils/systemEnvUtils";
 import { core, tools } from "../../globalVariables";
 import path from "path";
@@ -29,16 +28,15 @@ import * as fs from "fs";
 
 const showDebugDesktopClientWizard = "SHOW_DEBUG_DESKTOP_CLIENT_WIZARD";
 
-interface LaunchDesktopClientArgs {
-  url: string;
-}
-
 export class LaunchDesktopClientTerminal extends BaseTaskTerminal {
-  private readonly args: LaunchDesktopClientArgs;
+  private readonly url?: string;
 
   constructor(taskDefinition: vscode.TaskDefinition) {
     super(taskDefinition);
-    this.args = taskDefinition.args as LaunchDesktopClientArgs;
+    const args: unknown = taskDefinition.args;
+    if (args && typeof args === "object" && "url" in args && typeof args.url === "string") {
+      this.url = args.url;
+    }
   }
 
   do(): Promise<Result<Void, FxError>> {
@@ -48,7 +46,7 @@ export class LaunchDesktopClientTerminal extends BaseTaskTerminal {
         {
           [TelemetryProperty.DebugTaskId]: this.taskTerminalId,
           [TelemetryProperty.DebugTaskArgs]: JSON.stringify({
-            env: maskValue(this.args.url),
+            env: maskValue(this.url),
           }),
         },
         () => this._do()
@@ -57,6 +55,22 @@ export class LaunchDesktopClientTerminal extends BaseTaskTerminal {
   }
 
   private async _do(): Promise<Result<Void, FxError>> {
+    if (!vscode.workspace.isTrusted) {
+      return err(
+        new UserError(
+          ExtensionSource,
+          ExtensionErrors.UntrustedWorkspaceError,
+          getDefaultString("teamstoolkit.localDebug.untrustedWorkspaceError"),
+          localize("teamstoolkit.localDebug.untrustedWorkspaceError")
+        )
+      );
+    }
+
+    let url = this.url;
+    if (!url?.trim()) {
+      return err(BaseTaskTerminal.taskDefinitionError("args.url"));
+    }
+
     const inputs = getSystemInputs();
     const configPath = inputs.projectPath! + "/.localConfigs";
     if (!fs.existsSync(configPath)) {
@@ -118,7 +132,6 @@ export class LaunchDesktopClientTerminal extends BaseTaskTerminal {
       }
     }
 
-    let url: string = this.args.url;
     let env: string | undefined = undefined;
 
     // match ${{xxx:yyy}}
@@ -161,78 +174,47 @@ export class LaunchDesktopClientTerminal extends BaseTaskTerminal {
       url = url.replace(matchResult[0], envRes.value[key]);
     }
 
-    return await this.openDesktopUrl(url);
+    let target: URL;
+    try {
+      target = new URL(`https://${url}`);
+    } catch {
+      return err(BaseTaskTerminal.taskDefinitionError("args.url"));
+    }
+
+    // Require a bare authority, including when URL parsing would normalize it.
+    const authority = url.split(/[/?#]/, 1)[0].toLowerCase();
+    if (authority !== Host.teams || target.hostname !== Host.teams) {
+      return err(BaseTaskTerminal.taskDefinitionError("args.url"));
+    }
+
+    const scheme =
+      process.platform === "win32" || process.platform === "darwin" ? "msteams" : "https";
+    return await this.openDesktopUrl(vscode.Uri.parse(target.href).with({ scheme }));
   }
 
-  private openDesktopUrl(url: string): Promise<Result<Void, FxError>> {
-    return new Promise<Result<Void, FxError>>((resolve) => {
-      let childProc;
-      if (process.platform === "win32") {
-        childProc = cp.exec(`start msteams://${url}`);
-        this.writeEmitter.fire(`start msteams://${url}\r\n`);
-      } else if (process.platform === "darwin") {
-        childProc = cp.exec(`open msteams://${url}`);
-        this.writeEmitter.fire(`open msteams://${url}\r\n`);
-      } else {
-        void vscode.env.openExternal(vscode.Uri.parse("https://" + url));
-        childProc = cp.exec(`echo https://${url}`);
+  private async openDesktopUrl(uri: vscode.Uri): Promise<Result<Void, FxError>> {
+    try {
+      if (await vscode.env.openExternal(uri)) {
+        return ok(Void);
       }
+    } catch {
+      // Opener errors can include the full URI. Report a localized error without it.
+    }
 
-      childProc.stdout?.setEncoding("utf-8");
-      childProc.stdout?.on("data", (data: string | Buffer) => {
-        const line = data.toString().replace(/\n/g, "\r\n");
-        this.writeEmitter.fire(line);
-      });
-
-      childProc.stderr?.setEncoding("utf-8");
-      childProc.stderr?.on("data", (data: string | Buffer) => {
-        const line = data.toString().replace(/\n/g, "\r\n");
-        this.writeEmitter.fire(line);
-      });
-
-      childProc.on("error", (error) => {
-        resolve(
-          err(
-            new UserError(
-              ExtensionSource,
-              ExtensionErrors.LaunchTeamsDesktopClientError,
-              `${getDefaultString("teamstoolkit.localDebug.launchTeamsDesktopClientError")} ${
-                error?.message ?? ""
-              }  ${openTerminalDisplayMessage()}`,
-              `${localize("teamstoolkit.localDebug.launchTeamsDesktopClientError")} ${
-                error?.message ?? ""
-              }  ${openTerminalDisplayMessage()}`
-            )
-          )
-        );
-      });
-
-      childProc.on("close", (code: number) => {
-        if (code === 0) {
-          resolve(ok(Void));
-        } else {
-          resolve(
-            err(
-              new UserError(
-                ExtensionSource,
-                ExtensionErrors.LaunchTeamsWebClientError,
-                util.format(
-                  getDefaultString("teamstoolkit.localDebug.launchTeamsDesktopClientStoppedError"),
-                  code
-                ) +
-                  " " +
-                  openTerminalMessage(),
-                util.format(
-                  localize("teamstoolkit.localDebug.launchTeamsDesktopClientStoppedError"),
-                  code
-                ) +
-                  " " +
-                  openTerminalDisplayMessage()
-              )
-            )
-          );
-        }
-      });
-    });
+    const isDesktop = uri.scheme === "msteams";
+    const name = isDesktop
+      ? ExtensionErrors.LaunchTeamsDesktopClientError
+      : ExtensionErrors.LaunchTeamsWebClientError;
+    const key = isDesktop
+      ? "teamstoolkit.localDebug.launchTeamsDesktopClientError"
+      : "teamstoolkit.localDebug.launchTeamsWebClientError";
+    return err(
+      new UserError(
+        ExtensionSource,
+        name,
+        `${getDefaultString(key)} ${openTerminalMessage()}`,
+        `${localize(key)} ${openTerminalDisplayMessage()}`
+      )
+    );
   }
 }
