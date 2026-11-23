@@ -1,7 +1,7 @@
 ## Azure OpenAI / Vision used by VSCUSE ITSELF.
 ## Entra ID (AAD) auth only - no API keys (team policy). DefaultAzureCredential
 ## can use the workflow's "Login to Azure" session with DEVOPS_* credentials.
-## The driver and test cases reuse the same OpenAI resource with different auth;
+## The driver settings are independent of the test-app APIM settings in CI;
 ## test-case API-key settings are passed through docker.environment below.
 azure_openai:
   endpoint: "${VSCUSE_AZURE_OPENAI_ENDPOINT}" # Required: Set via environment variable

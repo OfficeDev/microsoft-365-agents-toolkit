@@ -146,17 +146,19 @@ jobs:
       GH_APP_ID: ${{ secrets.GH_APP_ID }}
       GH_APP_PRIVATE_KEY: ${{ secrets.GH_APP_PRIVATE_KEY }}
       # --- Azure OpenAI used by the TEST CASES (scaffolded projects) -------------
-      # Key-based endpoint; consumed via ${{env:...}} / ${{secret:...}} placeholders in
-      # the plans and forwarded into the container through docker.environment.
-      AZURE_OPENAI_ENDPOINT: ${{ vars.TEST_TENANT_AZURE_OPENAI_ENDPOINT }}
-      AZURE_OPENAI_API_KEY: ${{ secrets.TEST_TENANT_AZURE_OPENAI_KEY }}
-      AZURE_OPENAI_MODEL: ${{ vars.TEST_TENANT_AZURE_OPENAI_MODEL }}
-      AZURE_OPENAI_API_VERSION: ${{ vars.TEST_TENANT_AZURE_OPENAI_API_VERSION }}
+      # Dedicated APIM settings in the engineering environment; keep the existing
+      # TEST_TENANT_* settings unchanged for the driver and other UI tests.
+      # Plans consume the runtime names below via env/secret placeholders, and
+      # docker.environment forwards them into the container for scaffolded apps.
+      AZURE_OPENAI_ENDPOINT: ${{ vars.VSCUSE_TEST_APIM_AZURE_OPENAI_ENDPOINT }}
+      AZURE_OPENAI_API_KEY: ${{ secrets.VSCUSE_TEST_APIM_AZURE_OPENAI_KEY }}
+      AZURE_OPENAI_MODEL: ${{ vars.VSCUSE_TEST_APIM_AZURE_OPENAI_MODEL }}
+      AZURE_OPENAI_API_VERSION: ${{ vars.VSCUSE_TEST_APIM_AZURE_OPENAI_API_VERSION }}
 
       # --- Azure OpenAI + Vision used by VSCUSE ITSELF ---------------------------
       # Entra ID (AAD) auth only - no API keys. DefaultAzureCredential can use the
       # "Login to Azure" session below (DEVOPS_* federated credentials).
-      # Reuse existing resources; only the driver's authentication differs.
+      # Keep the driver's existing resource independent of the test-app APIM settings.
       VSCUSE_AZURE_OPENAI_ENDPOINT: ${{ vars.TEST_TENANT_AZURE_OPENAI_ENDPOINT }}
       VSCUSE_AZURE_OPENAI_MODEL: ${{ vars.TEST_TENANT_AZURE_OPENAI_MODEL }}
       VSCUSE_AZURE_OPENAI_API_VERSION: ${{ vars.TEST_TENANT_AZURE_OPENAI_API_VERSION }}
