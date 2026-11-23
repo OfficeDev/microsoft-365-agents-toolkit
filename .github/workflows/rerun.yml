@@ -1,25 +1,25 @@
-name: Scheduled cleanup permission probe
+name: Single-account cleanup probe
 
 on:
   workflow_dispatch:
     inputs:
-      probe_client_id:
-        description: Client ID of the isolated cleanup test application
+      run_disposable_cleanup:
+        description: Delete only disposable fixtures created by this run
         required: true
-        type: string
+        type: boolean
 
 permissions: {}
 
 jobs:
-  verify-permissions:
-    if: github.ref == 'refs/heads/qfai/rerun-auth-probe'
+  verify-cleanup:
+    if: github.ref == 'refs/heads/qfai/rerun-auth-probe' && inputs.run_disposable_cleanup
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - name: Check scheduled cleanup API access without deleting resources
+      - name: Check API access and clean only newly created Graph fixtures
         env:
-          CLEAN_CLIENT_ID: ${{ inputs.probe_client_id }}
-          CLEAN_TENANT_ID: ${{ vars.TEST_TENANT_CLEAN_TENANT_ID }}
+          CLEAN_CLIENT_ID: d76c7524-1d8d-4b6b-8579-8ae566a2e6ff
+          CLEAN_TENANT_ID: 16801f2e-7163-4bd5-8542-f083fa59993c
           M365_ACCOUNT_PASSWORD: ${{ secrets.TEST_TENANT_M365_ACCOUNT_ADMIN_PASSWORD }}
         run: |
           node --input-type=module <<'JS'
@@ -34,6 +34,7 @@ jobs:
             throw new Error("Missing probe inputs or unexpected tenant.");
           }
           const graphUrl = "https://graph.microsoft.com";
+          const graph = `${graphUrl}/v1.0`;
           const sharePointUrl = "https://atktesting08.sharepoint.com";
           const requestOptions = () => ({ redirect: "error", signal: AbortSignal.timeout(30000) });
           let failures = 0;
@@ -72,11 +73,87 @@ jobs:
             if (!response.ok) failures += 1;
             return response;
           }
+          async function graphRequest(method, path, accessToken, data) {
+            return fetch(`${graph}${path}`, {
+              ...requestOptions(),
+              method,
+              headers: {
+                Authorization: `Bearer ${accessToken}`,
+                ...(data ? { "Content-Type": "application/json" } : {}),
+              },
+              ...(data ? { body: JSON.stringify(data) } : {}),
+            });
+          }
+          async function requireStatus(method, path, accessToken, expected, data) {
+            const response = await graphRequest(method, path, accessToken, data);
+            if (response.status !== expected) {
+              const details = await response.json().catch(() => undefined);
+              const code = details?.error?.code;
+              const safeCode = /^[a-z0-9_]+$/i.test(code ?? "") ? ` (${code})` : "";
+              throw new Error(`Graph ${method} ${path}: expected HTTP ${expected}, got ${response.status}${safeCode}`);
+            }
+            return response;
+          }
+          async function waitForStatus(path, accessToken, status) {
+            for (let attempt = 0; attempt < 8; attempt++) {
+              const response = await graphRequest("GET", path, accessToken);
+              if (response.status === status) return response;
+              if (response.status !== 200 && response.status !== 404) {
+                throw new Error(`Graph GET ${path}: unexpected HTTP ${response.status}`);
+              }
+              await new Promise((resolve) => setTimeout(resolve, 1500));
+            }
+            throw new Error(`Graph GET ${path}: HTTP ${status} not observed`);
+          }
+          async function cleanFixture(type, fixture, name, accessToken) {
+            const { id } = fixture;
+            if (!uuid.test(id ?? "") || fixture.displayName !== name) {
+              throw new Error("Unverified fixture identity; refusing deletion.");
+            }
+            const path = `/${type}/${id}`;
+            const target = await (await requireStatus("GET", path, accessToken, 200)).json();
+            if (target.id !== id || target.appId !== fixture.appId || target.displayName !== name) {
+              throw new Error("Fixture identity changed; refusing deletion.");
+            }
+            await requireStatus("DELETE", path, accessToken, 204);
+            await waitForStatus(path, accessToken, 404);
+            const deletedPath = `/directory/deletedItems/${id}`;
+            const deleted = await (await waitForStatus(deletedPath, accessToken, 200)).json();
+            if (deleted.id !== id || deleted.appId !== fixture.appId || deleted.displayName !== name) {
+              throw new Error("Unverified deleted fixture; refusing permanent deletion.");
+            }
+            await requireStatus("DELETE", deletedPath, accessToken, 204);
+            await waitForStatus(deletedPath, accessToken, 404);
+            console.log(`Graph ${type} fixture ${id}: deleted and verified absent from the recycle bin.`);
+          }
+          async function verifyGraphCleanup(accessToken) {
+            const name = `keep-atk-cleanup-probe-${crypto.randomUUID()}`;
+            const app = await (await requireStatus("POST", "/applications", accessToken, 201, {
+              displayName: name,
+              signInAudience: "AzureADMyOrg",
+            })).json();
+            if (!uuid.test(app.id ?? "") || !uuid.test(app.appId ?? "") || app.displayName !== name) {
+              throw new Error("Unexpected app creation response; no deletion attempted.");
+            }
+            console.log(`Created disposable Graph application ${app.id}.`);
+            try {
+              const sp = await (await requireStatus("POST", "/servicePrincipals", accessToken, 201, {
+                appId: app.appId,
+              })).json();
+              if (sp.appId !== app.appId || sp.appOwnerOrganizationId !== tenantId) {
+                throw new Error("Unexpected service principal creation response.");
+              }
+              console.log(`Created disposable Graph service principal ${sp.id}.`);
+              await cleanFixture("servicePrincipals", sp, name, accessToken);
+            } finally {
+              await cleanFixture("applications", app, name, accessToken);
+            }
+          }
           const graphToken = await getToken("Graph", `${graphUrl}/.default`);
           if (graphToken) {
-            const graph = `${graphUrl}/v1.0`;
-            const me = await checkRead("Graph /me", `${graph}/me?$select=id`, graphToken);
-            const userId = me.ok ? (await me.json()).id : undefined;
+            const me = await checkRead("Graph /me", `${graph}/me?$select=id,userPrincipalName`, graphToken);
+            const account = me.ok ? await me.json() : undefined;
+            const userId = account?.userPrincipalName?.toLowerCase() === username ? account.id : undefined;
             const probes = [
               ["Graph /users", "/users?$top=1&$select=id"],
               ["Graph /applications", "/applications?$top=1&$select=id"],
@@ -91,6 +168,14 @@ jobs:
               console.log("Graph Teams installed apps: skipped (no validated test user ID)");
             }
             await Promise.all(probes.map(([label, path]) => checkRead(label, `${graph}${path}`, graphToken)));
+            if (uuid.test(userId ?? "")) {
+              try {
+                await verifyGraphCleanup(graphToken);
+              } catch (error) {
+                failures += 1;
+                console.log(`Graph fixture cleanup failed: ${error.message}`);
+              }
+            }
           }
           const spToken = await getToken("SharePoint AllSites.FullControl", `${sharePointUrl}/AllSites.FullControl`);
           if (spToken) {
