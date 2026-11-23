@@ -1,4 +1,4 @@
-name: Scheduled cleanup authentication probe
+name: Scheduled cleanup permission probe
 
 on:
   workflow_dispatch:
@@ -11,12 +11,12 @@ on:
 permissions: {}
 
 jobs:
-  authenticate:
+  verify-permissions:
     if: github.ref == 'refs/heads/qfai/rerun-auth-probe'
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - name: Verify scheduled cleanup authentication without deleting resources
+      - name: Check scheduled cleanup API access without deleting resources
         env:
           CLEAN_CLIENT_ID: ${{ inputs.probe_client_id }}
           CLEAN_TENANT_ID: ${{ vars.TEST_TENANT_CLEAN_TENANT_ID }}
@@ -33,34 +33,69 @@ jobs:
           if (!uuid.test(clientId ?? "") || tenantId !== "16801f2e-7163-4bd5-8542-f083fa59993c" || !password) {
             throw new Error("Missing probe inputs or unexpected tenant.");
           }
-          const token = await fetch(`https://login.microsoftonline.com/${tenantId}/oauth2/v2.0/token`, {
-            method: "POST",
-            redirect: "error",
-            body: new URLSearchParams({
-              client_id: clientId,
-              grant_type: "password",
-              scope: "https://graph.microsoft.com/.default",
-              username,
-              // Match the password encoding in GraphApiCleanHelper.
-              password: encodeURIComponent(password),
-            }),
-            signal: AbortSignal.timeout(30000),
-          });
-          const result = await token.json();
-          if (!token.ok || typeof result.access_token !== "string") {
-            const codes = Array.isArray(result.error_codes)
-              ? result.error_codes.filter(Number.isInteger).map((code) => `AADSTS${code}`).join(", ")
-              : "";
-            const correlation = uuid.test(result.correlation_id ?? "") ? result.correlation_id : "unavailable";
-            throw new Error(`Entra token request failed (HTTP ${token.status}, ${codes || "no error code"}; correlation ID ${correlation}).`);
+          const graphUrl = "https://graph.microsoft.com";
+          const sharePointUrl = "https://atktesting08.sharepoint.com";
+          const requestOptions = () => ({ redirect: "error", signal: AbortSignal.timeout(30000) });
+          let failures = 0;
+          async function getToken(label, scope) {
+            const response = await fetch(`https://login.microsoftonline.com/${tenantId}/oauth2/v2.0/token`, {
+              ...requestOptions(),
+              method: "POST",
+              body: new URLSearchParams({
+                client_id: clientId,
+                grant_type: "password",
+                scope,
+                username,
+                // Match the password encoding in GraphApiCleanHelper.
+                password: encodeURIComponent(password),
+              }),
+            });
+            const result = await response.json();
+            if (!response.ok || typeof result.access_token !== "string") {
+              const codes = Array.isArray(result.error_codes)
+                ? result.error_codes.filter(Number.isInteger).map((code) => `AADSTS${code}`).join(", ")
+                : "";
+              console.log(`${label}: token request HTTP ${response.status}${codes ? ` (${codes})` : ""}`);
+              failures += 1;
+              return undefined;
+            }
+            console.log(`${label}: token issued`);
+            return result.access_token;
           }
-          const graph = await fetch("https://graph.microsoft.com/v1.0/me?$select=id", {
-            headers: { Authorization: `Bearer ${result.access_token}` },
-            redirect: "error",
-            signal: AbortSignal.timeout(30000),
-          });
-          if (!graph.ok || !uuid.test((await graph.json()).id ?? "")) {
-            throw new Error(`Read-only Graph /me probe failed (HTTP ${graph.status}).`);
+          async function checkRead(label, url, accessToken) {
+            const response = await fetch(url, {
+              ...requestOptions(),
+              method: "GET",
+              headers: { Authorization: `Bearer ${accessToken}` },
+            });
+            console.log(`${label}: HTTP ${response.status}`);
+            if (!response.ok) failures += 1;
+            return response;
           }
-          console.log("Delegated Graph token acquired; read-only /me request succeeded.");
+          const graphToken = await getToken("Graph", `${graphUrl}/.default`);
+          if (graphToken) {
+            const graph = `${graphUrl}/v1.0`;
+            const me = await checkRead("Graph /me", `${graph}/me?$select=id`, graphToken);
+            const userId = me.ok ? (await me.json()).id : undefined;
+            const probes = [
+              ["Graph /users", "/users?$top=1&$select=id"],
+              ["Graph /applications", "/applications?$top=1&$select=id"],
+              ["Graph /servicePrincipals", "/servicePrincipals?$top=1&$select=id"],
+              ["Graph deleted applications", "/directory/deletedItems/microsoft.graph.application?$top=1&$select=id"],
+              ["Graph deleted service principals", "/directory/deletedItems/microsoft.graph.servicePrincipal?$top=1&$select=id"],
+            ];
+            if (uuid.test(userId ?? "")) {
+              probes.push(["Graph Teams installed apps", `/users/${userId}/teamwork/installedApps?$expand=teamsAppDefinition`]);
+            } else {
+              failures += 1;
+              console.log("Graph Teams installed apps: skipped (no validated test user ID)");
+            }
+            await Promise.all(probes.map(([label, path]) => checkRead(label, `${graph}${path}`, graphToken)));
+          }
+          const spToken = await getToken("SharePoint AllSites.FullControl", `${sharePointUrl}/AllSites.FullControl`);
+          if (spToken) {
+            await checkRead("SharePoint app catalog", `${sharePointUrl}/sites/appcatalog/_api/web/tenantappcatalog/AvailableApps`,
+              spToken);
+          }
+          if (failures) throw new Error(`Permission probe reported ${failures} failed or blocked checks.`);
           JS
