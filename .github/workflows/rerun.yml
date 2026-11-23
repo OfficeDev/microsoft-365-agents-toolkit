@@ -1,215 +1,97 @@
-name: Single-account cleanup probe
+name: Scheduled cleanup matrix authentication probe
 
 on:
   workflow_dispatch:
     inputs:
-      run_disposable_cleanup:
-        description: Delete only disposable fixtures created by this run
+      verify_scheduled_auth:
+        description: Verify scheduled account authentication without running cleanup
         required: true
         type: boolean
 
 permissions: {}
 
 jobs:
-  verify-cleanup:
-    if: github.ref == 'refs/heads/qfai/rerun-auth-probe'
+  verify-matrix-auth:
+    if: github.ref == 'refs/heads/qfai/rerun-auth-probe' && inputs.verify_scheduled_auth
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 8
     steps:
-      - name: Check API access and clean only newly created Graph fixtures
+      - name: Verify the configured replacement identity for each scheduled account
         env:
-          CLEAN_CLIENT_ID: d76c7524-1d8d-4b6b-8579-8ae566a2e6ff
-          CLEAN_TENANT_ID: 16801f2e-7163-4bd5-8542-f083fa59993c
+          CLEAN_CLIENT_ID: ${{ vars.TEST_TENANT_CLEAN_CLIENT_ID }}
+          CLEAN_TENANT_ID: ${{ vars.TEST_TENANT_CLEAN_TENANT_ID }}
+          M365_USERNAMES: ${{ vars.M365_USERNAMES }}
           M365_ACCOUNT_PASSWORD: ${{ secrets.TEST_TENANT_M365_ACCOUNT_ADMIN_PASSWORD }}
-          RUN_DISPOSABLE_CLEANUP: ${{ inputs.run_disposable_cleanup }}
         run: |
           node --input-type=module <<'JS'
           const {
             CLEAN_CLIENT_ID: clientId,
             CLEAN_TENANT_ID: tenantId,
+            M365_USERNAMES: users,
             M365_ACCOUNT_PASSWORD: password,
-            RUN_DISPOSABLE_CLEANUP: runCleanup,
           } = process.env;
-          const username = "test001@atktesting08.onmicrosoft.com";
-          const uuid = /^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i;
-          if (!uuid.test(clientId ?? "") || tenantId !== "16801f2e-7163-4bd5-8542-f083fa59993c" || !password) {
-            throw new Error("Missing probe inputs or unexpected tenant.");
+          const names = (users ?? "").split(",").map((name) => name.trim().toLowerCase()).filter(Boolean);
+          if (clientId !== "d76c7524-1d8d-4b6b-8579-8ae566a2e6ff" ||
+              tenantId !== "16801f2e-7163-4bd5-8542-f083fa59993c" ||
+              !password || !names.length || names.length > 50 || new Set(names).size !== names.length ||
+              names.some((name) => !/^test\d{3}@atktesting08\.onmicrosoft\.com$/.test(name))) {
+            throw new Error("Missing or unexpected scheduled configuration.");
           }
           const graphUrl = "https://graph.microsoft.com";
-          const graph = `${graphUrl}/v1.0`;
-          const sharePointUrl = "https://atktesting08.sharepoint.com";
-          const requestOptions = () => ({ redirect: "error", signal: AbortSignal.timeout(30000) });
-          let failures = 0;
-          async function getToken(label, scope) {
+          const options = () => ({ redirect: "error", signal: AbortSignal.timeout(30000) });
+          async function getToken(appId, scope, username) {
             const response = await fetch(`https://login.microsoftonline.com/${tenantId}/oauth2/v2.0/token`, {
-              ...requestOptions(),
+              ...options(),
               method: "POST",
               body: new URLSearchParams({
-                client_id: clientId,
-                grant_type: "password",
-                scope,
-                username,
-                // Match the password encoding in GraphApiCleanHelper.
+                client_id: appId, scope, grant_type: "password", username,
+                // Match the scheduled MSAL call's password encoding.
                 password: encodeURIComponent(password),
               }),
             });
-            const result = await response.json();
-            if (!response.ok || typeof result.access_token !== "string") {
-              const codes = Array.isArray(result.error_codes)
-                ? result.error_codes.filter(Number.isInteger).map((code) => `AADSTS${code}`).join(", ")
+            const body = await response.json();
+            if (!response.ok || typeof body.access_token !== "string") {
+              const codes = Array.isArray(body.error_codes)
+                ? body.error_codes.filter(Number.isInteger).map((code) => `AADSTS${code}`).join(",")
                 : "";
-              console.log(`${label}: token request HTTP ${response.status}${codes ? ` (${codes})` : ""}`);
-              failures += 1;
-              return undefined;
+              throw new Error(`token HTTP ${response.status}${codes ? ` ${codes}` : ""}`);
             }
-            console.log(`${label}: token issued`);
-            return result.access_token;
+            return body.access_token;
           }
-          async function checkRead(label, url, accessToken) {
-            const response = await fetch(url, {
-              ...requestOptions(),
-              method: "GET",
-              headers: {
-                Authorization: `Bearer ${accessToken}`,
-                Accept: "application/json;odata=nometadata",
-              },
-            });
-            console.log(`${label}: HTTP ${response.status}`);
-            if (!response.ok) failures += 1;
-            return response;
+          async function verifyGraph(username) {
+            const token = await getToken(clientId, `${graphUrl}/.default`, username);
+            const headers = { Authorization: `Bearer ${token}` };
+            const me = await fetch(`${graphUrl}/v1.0/me?$select=userPrincipalName`, { ...options(), headers });
+            if (!me.ok) throw new Error(`/me HTTP ${me.status}`);
+            if ((await me.json()).userPrincipalName?.toLowerCase() !== username) {
+              throw new Error("/me authenticated an unexpected account");
+            }
+            const apps = await fetch(`${graphUrl}/v1.0/applications?$top=1&$select=id`, { ...options(), headers });
+            if (!apps.ok) throw new Error(`/applications HTTP ${apps.status}`);
           }
-          async function graphRequest(method, path, accessToken, data) {
-            return fetch(`${graph}${path}`, {
-              ...requestOptions(),
-              method,
-              headers: {
-                Authorization: `Bearer ${accessToken}`,
-                ...(data ? { "Content-Type": "application/json" } : {}),
-              },
-              ...(data ? { body: JSON.stringify(data) } : {}),
-            });
-          }
-          async function requireStatus(method, path, accessToken, expected, data) {
-            const response = await graphRequest(method, path, accessToken, data);
-            if (response.status !== expected) {
-              const details = await response.json().catch(() => undefined);
-              const code = details?.error?.code;
-              const safeCode = /^[a-z0-9_]+$/i.test(code ?? "") ? ` (${code})` : "";
-              throw new Error(`Graph ${method} ${path}: expected HTTP ${expected}, got ${response.status}${safeCode}`);
-            }
-            return response;
-          }
-          async function waitForStatus(path, accessToken, status) {
-            for (let attempt = 0; attempt < 8; attempt++) {
-              const response = await graphRequest("GET", path, accessToken);
-              if (response.status === status) return response;
-              if (response.status !== 200 && response.status !== 404) {
-                throw new Error(`Graph GET ${path}: unexpected HTTP ${response.status}`);
-              }
-              await new Promise((resolve) => setTimeout(resolve, 1500));
-            }
-            throw new Error(`Graph GET ${path}: HTTP ${status} not observed`);
-          }
-          async function cleanFixture(type, fixture, name, accessToken) {
-            const { id } = fixture;
-            if (!uuid.test(id ?? "") || fixture.displayName !== name) {
-              throw new Error("Unverified fixture identity; refusing deletion.");
-            }
-            const path = `/${type}/${id}`;
-            const target = await (await requireStatus("GET", path, accessToken, 200)).json();
-            if (target.id !== id || target.appId !== fixture.appId || target.displayName !== name) {
-              throw new Error("Fixture identity changed; refusing deletion.");
-            }
-            await requireStatus("DELETE", path, accessToken, 204);
-            await waitForStatus(path, accessToken, 404);
-            const deletedPath = `/directory/deletedItems/${id}`;
-            const deleted = await (await waitForStatus(deletedPath, accessToken, 200)).json();
-            if (deleted.id !== id || deleted.appId !== fixture.appId || deleted.displayName !== name) {
-              throw new Error("Unverified deleted fixture; refusing permanent deletion.");
-            }
-            await requireStatus("DELETE", deletedPath, accessToken, 204);
-            await waitForStatus(deletedPath, accessToken, 404);
-            console.log(`Graph ${type} fixture ${id}: deleted and verified absent from the recycle bin.`);
-          }
-          async function verifyGraphCleanup(accessToken) {
-            const name = `keep-atk-cleanup-probe-${crypto.randomUUID()}`;
-            const app = await (await requireStatus("POST", "/applications", accessToken, 201, {
-              displayName: name,
-              signInAudience: "AzureADMyOrg",
-            })).json();
-            if (!uuid.test(app.id ?? "") || !uuid.test(app.appId ?? "") || app.displayName !== name) {
-              throw new Error("Unexpected app creation response; no deletion attempted.");
-            }
-            console.log(`Created disposable Graph application ${app.id}.`);
-            try {
-              const sp = await (await requireStatus("POST", "/servicePrincipals", accessToken, 201, {
-                appId: app.appId,
-              })).json();
-              if (sp.appId !== app.appId || sp.appOwnerOrganizationId !== tenantId) {
-                throw new Error("Unexpected service principal creation response.");
-              }
-              console.log(`Created disposable Graph service principal ${sp.id}.`);
-              await cleanFixture("servicePrincipals", sp, name, accessToken);
-            } finally {
-              await cleanFixture("applications", app, name, accessToken);
-            }
-          }
-          const graphToken = await getToken("Graph", `${graphUrl}/.default`);
-          if (graphToken) {
-            const me = await checkRead("Graph /me", `${graph}/me?$select=id,userPrincipalName`, graphToken);
-            const account = me.ok ? await me.json() : undefined;
-            const userId = account?.userPrincipalName?.toLowerCase() === username ? account.id : undefined;
-            const probes = [
-              ["Graph /users", "/users?$top=1&$select=id"],
-              ["Graph /applications", "/applications?$top=1&$select=id"],
-              ["Graph /servicePrincipals", "/servicePrincipals?$top=1&$select=id"],
-              ["Graph deleted applications", "/directory/deletedItems/microsoft.graph.application?$top=1&$select=id"],
-              ["Graph deleted service principals", "/directory/deletedItems/microsoft.graph.servicePrincipal?$top=1&$select=id"],
-            ];
-            if (uuid.test(userId ?? "")) {
-              probes.push(["Graph Teams installed apps", `/users/${userId}/teamwork/installedApps?$expand=teamsAppDefinition`]);
-            } else {
-              failures += 1;
-              console.log("Graph Teams installed apps: skipped (no validated test user ID)");
-            }
-            await Promise.all(probes.map(([label, path]) => checkRead(label, `${graph}${path}`, graphToken)));
-            if (runCleanup === "true" && uuid.test(userId ?? "")) {
-              try {
-                await verifyGraphCleanup(graphToken);
-              } catch (error) {
-                failures += 1;
-                console.log(`Graph fixture cleanup failed: ${error.message}`);
-              }
-            }
-          }
-          const spToken = await getToken("SharePoint AllSites.FullControl", `${sharePointUrl}/AllSites.FullControl`);
-          if (spToken) {
-            const catalogPath = "/_api/web/tenantappcatalog/AvailableApps";
-            const guessedSite = `${sharePointUrl}/sites/appcatalog`;
-            const catalog = await checkRead("SharePoint app catalog as used by clean.ts", `${guessedSite}${catalogPath}`, spToken);
-            if (!catalog.ok) {
-              await checkRead("SharePoint hard-coded catalog site", `${guessedSite}/_api/web?$select=Id`, spToken);
-              await checkRead("SharePoint root site", `${sharePointUrl}/_api/web?$select=Id`, spToken);
-              const settings = await checkRead("SharePoint tenant catalog settings", `${sharePointUrl}/_api/SP_TenantSettings_Current`, spToken);
-              if (settings.ok) {
-                const data = await settings.json();
-                const configured = data.CorporateCatalogUrl ?? data.d?.CorporateCatalogUrl;
-                if (!configured) {
-                  console.log("SharePoint tenant catalog: CorporateCatalogUrl is empty.");
-                } else {
-                  const configuredSite = new URL(configured, sharePointUrl);
-                  if (configuredSite.origin !== sharePointUrl) {
-                    console.log("SharePoint tenant catalog: configured on a different host; not followed.");
-                  } else {
-                    const catalogSite = configuredSite.origin + configuredSite.pathname.replace(/\/$/, "");
-                    console.log(`SharePoint tenant catalog: configured site ${catalogSite === guessedSite ? "matches" : "differs from"} the hard-coded URL.`);
-                    if (catalogSite !== guessedSite) {
-                      await checkRead("SharePoint configured app catalog", `${catalogSite}${catalogPath}`, spToken);
-                    }
-                  }
+          const checks = [
+            ["Graph", verifyGraph],
+            ["SharePoint token", (username) => getToken(clientId, "https://atktesting08.sharepoint.com/AllSites.FullControl", username)],
+            ["M365 Titles token", (username) => getToken("7ea7c24c-b1f6-4a20-9d11-9ae12e9e7ac0", "https://titles.prod.mos.microsoft.com/.default", username)],
+          ];
+          const passes = new Map(checks.map(([label]) => [label, 0]));
+          let index = 0;
+          async function worker() {
+            while (index < names.length) {
+              const slot = index++;
+              for (const [label, check] of checks) {
+                try {
+                  await check(names[slot]);
+                  passes.set(label, passes.get(label) + 1);
+                } catch (error) {
+                  console.log(`Matrix slot ${slot + 1} ${label} failed: ${error.message}`);
                 }
               }
             }
           }
-          if (failures) throw new Error(`Permission probe reported ${failures} failed or blocked checks.`);
+          await Promise.all(Array.from({ length: Math.min(3, names.length) }, worker));
+          for (const [label, count] of passes) console.log(`${label}: ${count}/${names.length} passed`);
+          if ([...passes.values()].some((count) => count < names.length)) {
+            throw new Error("At least one scheduled account check failed.");
+          }
           JS
