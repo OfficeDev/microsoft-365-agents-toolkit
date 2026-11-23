@@ -1,169 +1,69 @@
-name: rerun failed jobs
+name: Scheduled cleanup authentication probe
 
 on:
   workflow_dispatch:
     inputs:
-      run_id:
-        description: "run id"
+      probe_client_id:
+        description: Client ID of the isolated cleanup test application
         required: true
         type: string
-      max_attempts:
-        description: "max attempts, default is 3"
-        required: false
-        default: "3"
-        type: string
-      clean_up:
-        description: "if true, clean up resources"
-        required: false
-        default: 'false'
-        type: choice
-        options:
-          - 'true'
-          - 'false'
 
-  schedule:
-    - cron: "30 10 * * *"  # UTC+8 18:30 before any auto pipeline run, to clear all the resources
-    - cron: "0 1 * * *"  # UTC+8 09:00 after the uitest done, to clear all the resources
-
-permissions:
-  actions: read
+permissions: {}
 
 jobs:
-  rerun:
-    permissions:
-      actions: write
-    if: ${{ github.event_name == 'workflow_dispatch' }}
+  authenticate:
+    if: github.ref == 'refs/heads/qfai/rerun-auth-probe'
     runs-on: ubuntu-latest
-    env:
-      DEVTUNNEL_CLIENT_ID: ${{ secrets.TEST_CLEAN_CLIENT_ID }}
-      DEVTUNNEL_CLIENT_SECRET: ${{ secrets.TEST_CLEAN_CLIENT_SECRET }}
-      DEVTUNNEL_TENANT_ID: ${{ secrets.TEST_CLEAN_TENANT_ID }}
+    timeout-minutes: 5
     steps:
-      - name: wait for 60s
-        run: |
-          sleep 60
-          echo "wait for 60s"
-
-      - name: clean devtunnel
-        run: |
-          wget https://tunnelsassetsprod.blob.core.windows.net/cli/1.0.1249+67b1cd300c/linux-x64-devtunnel -O ./devtunnel
-          chmod 777 ./devtunnel
-          ./devtunnel user login --sp-tenant-id ${{env.DEVTUNNEL_TENANT_ID}} --sp-client-id ${{env.DEVTUNNEL_CLIENT_ID}} --sp-secret ${{env.DEVTUNNEL_CLIENT_SECRET}}
-          ./devtunnel delete-all -f
-
-      - name: re-run failed jobs
-        run: |
-          run=`curl \
-            -H "Accept: application/vnd.github+json" \
-            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}"\
-            -H "X-GitHub-Api-Version: 2022-11-28" \
-            https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.event.inputs.run_id }}`
-          status=`jq -r '.conclusion' <<< "$run"`
-          run_attempt=`jq -r '.run_attempt' <<< "$run"`
-          echo "status: $status"
-          echo "run_attempt: $run_attempt"
-
-          if [[ "$status" == "failure" && "$run_attempt" -lt ${{ github.event.inputs.max_attempts }} ]]; then
-            echo "[start] rerun failed jobs ${{ github.event.inputs.run_id }} $status $run_attempt..."
-            curl \
-              -X POST \
-              -H "Accept: application/vnd.github+json" \
-              -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}"\
-              -H "X-GitHub-Api-Version: 2022-11-28" \
-              https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.event.inputs.run_id }}/rerun-failed-jobs
-            echo "[finish] rerun failed jobs ${{ github.event.inputs.run_id }}"
-          fi
-
-          sleep 60
-          run=`curl \
-            -H "Accept: application/vnd.github+json" \
-            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}"\
-            -H "X-GitHub-Api-Version: 2022-11-28" \
-            https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.event.inputs.run_id }}`
-          runningStatus=`jq -r '.status' <<< "$run"`
-          echo "runningStatus: $runningStatus"
-          if [[ "$runningStatus" != "queued" && "$runningStatus" != "in_progress" && "$run_attempt" -lt ${{ github.event.inputs.max_attempts }} ]]; then
-            echo "[start] rerun check..."
-            curl \
-              -X POST \
-              -H "Accept: application/vnd.github+json" \
-              -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}"\
-              -H "X-GitHub-Api-Version: 2022-11-28" \
-              https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.event.inputs.run_id }}/rerun-failed-jobs
-            echo "[finish] rerun again..."
-          fi
-  build-clean-matrix:
-    name: Build clean matrix
-    runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.clean_up == 'true') }}
-    outputs:
-      matrix: ${{ steps.build-matrix.outputs.matrix }}
-    steps:
-      - name: Build matrix from M365_USERNAMES variable
-        id: build-matrix
+      - name: Verify scheduled cleanup authentication without deleting resources
         env:
+          CLEAN_CLIENT_ID: ${{ inputs.probe_client_id }}
+          CLEAN_TENANT_ID: ${{ vars.TEST_TENANT_CLEAN_TENANT_ID }}
           M365_USERNAMES: ${{ vars.M365_USERNAMES }}
+          M365_ACCOUNT_PASSWORD: ${{ secrets.TEST_TENANT_M365_ACCOUNT_ADMIN_PASSWORD }}
         run: |
-          # Build matrix JSON from comma-separated M365_USERNAMES
-          matrix="[]"
-          # Add regular M365 usernames
-          index=1
-          IFS=',' read -ra users <<< "$M365_USERNAMES"
-          for user in "${users[@]}"; do
-            user=$(echo "$user" | xargs)
-            if [ -n "$user" ]; then
-              matrix=$(echo "$matrix" | jq -c --arg name "M365_USERNAME_$index" --arg value "$user" '. + [{name: $name, value: $value}]')
-              index=$((index+1))
-            fi
-          done
-          matrix_json="{\"m365_user\": $matrix}"
-          echo "matrix=$matrix_json" >> $GITHUB_OUTPUT
-  clean:
-    name: Clean resource
-    needs: build-clean-matrix
-    runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.clean_up == 'true') }}
-    defaults:
-      run:
-        working-directory: packages/tests
-    env:
-      CLEAN_CLIENT_ID: ${{ vars.TEST_TENANT_CLEAN_CLIENT_ID }}
-      CLEAN_CLIENT_SECRET: ${{ secrets.TEST_TENANT_CLEAN_CLIENT_SECRET }}
-      CLEAN_TENANT_ID: ${{ vars.TEST_TENANT_CLEAN_TENANT_ID }}
-      AZURE_TENANT_ID: ${{ secrets.TEST_TENANT_TENANT_ID }}
-      AZURE_SUBSCRIPTION_ID: ${{ secrets.TEST_TENANT_SUBSCRIPTION_ID }}
-      AZURE_ACCOUNT_NAME: ${{ secrets.TEST_TENANT_AZURE_ACCOUNT_NAME }}
-      AZURE_ACCOUNT_PASSWORD: ${{ secrets.TEST_TENANT_AZURE_ACCOUNT_PASSWORD }}
-      # M365_ACCOUNT_NAME is overwritten per matrix leg with test001..test020
-      # (vars.M365_USERNAMES), so this password must be valid for those accounts.
-      M365_ACCOUNT_PASSWORD: ${{ secrets.TEST_TENANT_M365_ACCOUNT_ADMIN_PASSWORD }}
-      M365_DISPLAY_NAME: "test"
-      MAIL_API_KEY: ${{ secrets.MAIL_API_KEY }}
-    strategy:
-      fail-fast: false
-      matrix: ${{ fromJson(needs.build-clean-matrix.outputs.matrix) }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
-        with:
-          ref: ${{ github.ref_name }}
-
-      - name: Setup node
-        uses: actions/setup-node@3235b876344d2a9aa001b8d1453c930bba69e610 # v3.9.1
-        with:
-          node-version: 22
-
-      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4.3.0
-
-      - name: Setup project
-        working-directory: ./
-        run: |
-          npm run setup:e2e
-
-      - name: Set M365_ACCOUNT_NAME
-        run: |
-          echo "M365_ACCOUNT_NAME=${{ matrix.m365_user.value }}" >> $GITHUB_ENV
-
-      - name: Clean resource with ${{ matrix.m365_user.name }}
-        run: |
-          npx ts-node src/scripts/clean.ts
+          node --input-type=module <<'JS'
+          const {
+            CLEAN_CLIENT_ID: clientId,
+            CLEAN_TENANT_ID: tenantId,
+            M365_USERNAMES: users,
+            M365_ACCOUNT_PASSWORD: password,
+          } = process.env;
+          const username = users?.split(",").find((user) => user.trim())?.trim();
+          const uuid = /^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i;
+          if (!uuid.test(clientId ?? "") || !uuid.test(tenantId ?? "") ||
+              !/^test001@atktesting08\.onmicrosoft\.com$/i.test(username ?? "") || !password) {
+            throw new Error("Missing probe inputs or unexpected test account.");
+          }
+          const token = await fetch(`https://login.microsoftonline.com/${tenantId}/oauth2/v2.0/token`, {
+            method: "POST",
+            redirect: "error",
+            body: new URLSearchParams({
+              client_id: clientId,
+              grant_type: "password",
+              scope: "https://graph.microsoft.com/.default",
+              username,
+              // Match the password encoding in GraphApiCleanHelper.
+              password: encodeURIComponent(password),
+            }),
+            signal: AbortSignal.timeout(30000),
+          });
+          const result = await token.json();
+          if (!token.ok || typeof result.access_token !== "string") {
+            const codes = Array.isArray(result.error_codes)
+              ? result.error_codes.filter(Number.isInteger).map((code) => `AADSTS${code}`).join(", ")
+              : "";
+            const correlation = uuid.test(result.correlation_id ?? "") ? result.correlation_id : "unavailable";
+            throw new Error(`Entra token request failed (HTTP ${token.status}, ${codes || "no error code"}; correlation ID ${correlation}).`);
+          }
+          const graph = await fetch("https://graph.microsoft.com/v1.0/me?$select=id", {
+            headers: { Authorization: `Bearer ${result.access_token}` },
+            redirect: "error",
+            signal: AbortSignal.timeout(30000),
+          });
+          if (!graph.ok || !uuid.test((await graph.json()).id ?? "")) {
+            throw new Error(`Read-only Graph /me probe failed (HTTP ${graph.status}).`);
+          }
+          console.log("Delegated Graph token acquired; read-only /me request succeeded.");
+          JS
