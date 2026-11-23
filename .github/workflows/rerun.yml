@@ -12,7 +12,7 @@ permissions: {}
 
 jobs:
   verify-cleanup:
-    if: github.ref == 'refs/heads/qfai/rerun-auth-probe' && inputs.run_disposable_cleanup
+    if: github.ref == 'refs/heads/qfai/rerun-auth-probe'
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -21,12 +21,14 @@ jobs:
           CLEAN_CLIENT_ID: d76c7524-1d8d-4b6b-8579-8ae566a2e6ff
           CLEAN_TENANT_ID: 16801f2e-7163-4bd5-8542-f083fa59993c
           M365_ACCOUNT_PASSWORD: ${{ secrets.TEST_TENANT_M365_ACCOUNT_ADMIN_PASSWORD }}
+          RUN_DISPOSABLE_CLEANUP: ${{ inputs.run_disposable_cleanup }}
         run: |
           node --input-type=module <<'JS'
           const {
             CLEAN_CLIENT_ID: clientId,
             CLEAN_TENANT_ID: tenantId,
             M365_ACCOUNT_PASSWORD: password,
+            RUN_DISPOSABLE_CLEANUP: runCleanup,
           } = process.env;
           const username = "test001@atktesting08.onmicrosoft.com";
           const uuid = /^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i;
@@ -67,7 +69,10 @@ jobs:
             const response = await fetch(url, {
               ...requestOptions(),
               method: "GET",
-              headers: { Authorization: `Bearer ${accessToken}` },
+              headers: {
+                Authorization: `Bearer ${accessToken}`,
+                Accept: "application/json;odata=nometadata",
+              },
             });
             console.log(`${label}: HTTP ${response.status}`);
             if (!response.ok) failures += 1;
@@ -168,7 +173,7 @@ jobs:
               console.log("Graph Teams installed apps: skipped (no validated test user ID)");
             }
             await Promise.all(probes.map(([label, path]) => checkRead(label, `${graph}${path}`, graphToken)));
-            if (uuid.test(userId ?? "")) {
+            if (runCleanup === "true" && uuid.test(userId ?? "")) {
               try {
                 await verifyGraphCleanup(graphToken);
               } catch (error) {
@@ -179,8 +184,32 @@ jobs:
           }
           const spToken = await getToken("SharePoint AllSites.FullControl", `${sharePointUrl}/AllSites.FullControl`);
           if (spToken) {
-            await checkRead("SharePoint app catalog", `${sharePointUrl}/sites/appcatalog/_api/web/tenantappcatalog/AvailableApps`,
-              spToken);
+            const catalogPath = "/_api/web/tenantappcatalog/AvailableApps";
+            const guessedSite = `${sharePointUrl}/sites/appcatalog`;
+            const catalog = await checkRead("SharePoint app catalog as used by clean.ts", `${guessedSite}${catalogPath}`, spToken);
+            if (!catalog.ok) {
+              await checkRead("SharePoint hard-coded catalog site", `${guessedSite}/_api/web?$select=Id`, spToken);
+              await checkRead("SharePoint root site", `${sharePointUrl}/_api/web?$select=Id`, spToken);
+              const settings = await checkRead("SharePoint tenant catalog settings", `${sharePointUrl}/_api/SP_TenantSettings_Current`, spToken);
+              if (settings.ok) {
+                const data = await settings.json();
+                const configured = data.CorporateCatalogUrl ?? data.d?.CorporateCatalogUrl;
+                if (!configured) {
+                  console.log("SharePoint tenant catalog: CorporateCatalogUrl is empty.");
+                } else {
+                  const configuredSite = new URL(configured, sharePointUrl);
+                  if (configuredSite.origin !== sharePointUrl) {
+                    console.log("SharePoint tenant catalog: configured on a different host; not followed.");
+                  } else {
+                    const catalogSite = configuredSite.origin + configuredSite.pathname.replace(/\/$/, "");
+                    console.log(`SharePoint tenant catalog: configured site ${catalogSite === guessedSite ? "matches" : "differs from"} the hard-coded URL.`);
+                    if (catalogSite !== guessedSite) {
+                      await checkRead("SharePoint configured app catalog", `${catalogSite}${catalogPath}`, spToken);
+                    }
+                  }
+                }
+              }
+            }
           }
           if (failures) throw new Error(`Permission probe reported ${failures} failed or blocked checks.`);
           JS
