@@ -8,8 +8,8 @@ import { assert } from "vitest";
 
 const REPO_ROOT = path.resolve(__dirname, "../../../../..");
 const TEMPLATES_V4_ROOT = path.join(REPO_ROOT, "templates/v4");
-const TEAMS_MANIFEST_1_30_SCHEMA =
-  "https://developer.microsoft.com/json-schemas/teams/v1.30/MicrosoftTeams.schema.json";
+const TEAMS_MANIFEST_1_31_SCHEMA =
+  "https://developer.microsoft.com/json-schemas/teams/v1.31/MicrosoftTeams.schema.json";
 const TEAMS_MANIFEST_DEV_PREVIEW_SCHEMA =
   "https://developer.microsoft.com/json-schemas/teams/vDevPreview/MicrosoftTeams.schema.json";
 const DEV_PREVIEW_MANIFESTS = new Set([
@@ -95,7 +95,32 @@ describe("v4 schema references", () => {
     }
   });
 
-  it("every stable Teams manifest template uses schema and manifest version 1.30", () => {
+  describe("v3 schema references", () => {
+    it("every current stable Teams manifest template uses version 1.31 without contentBotId", () => {
+      const manifestFiles = ["templates/vsc", "templates/vs"].flatMap((root) =>
+        listFiles(path.join(REPO_ROOT, root), (name) => name === "manifest.json.tpl")
+      );
+
+      for (const filePath of manifestFiles) {
+        const relativePath = path.relative(REPO_ROOT, filePath).replace(/\\/g, "/");
+        if (
+          relativePath === "templates/vsc/common/blank-app/appPackage/manifest.json.tpl" ||
+          requiredField(filePath, "manifestVersion") === "devPreview"
+        ) {
+          continue;
+        }
+        assert.strictEqual(requiredField(filePath, "manifestVersion"), "1.31", relativePath);
+        assert.match(
+          requiredField(filePath, "\\$schema"),
+          /^https:\/\/developer\.microsoft\.com\/(?:en-us\/)?json-schemas\/teams\/v1\.31\/MicrosoftTeams\.schema\.json$/,
+          relativePath
+        );
+        assert.notInclude(fs.readFileSync(filePath, "utf8"), "contentBotId", relativePath);
+      }
+    });
+  });
+
+  it("every stable Teams manifest template uses schema and manifest version 1.31", () => {
     const manifestFiles = listFiles(TEMPLATES_V4_ROOT, (name) => name === "manifest.json.tpl");
 
     for (const filePath of manifestFiles) {
@@ -103,10 +128,10 @@ describe("v4 schema references", () => {
       if (DEV_PREVIEW_MANIFESTS.has(relativePath)) {
         continue;
       }
-      assert.strictEqual(requiredField(filePath, "manifestVersion"), "1.30", relativePath);
+      assert.strictEqual(requiredField(filePath, "manifestVersion"), "1.31", relativePath);
       assert.strictEqual(
         requiredField(filePath, "\\$schema"),
-        TEAMS_MANIFEST_1_30_SCHEMA,
+        TEAMS_MANIFEST_1_31_SCHEMA,
         relativePath
       );
     }
