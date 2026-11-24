@@ -31,7 +31,9 @@ and does not modify either input. SharePoint deployment must be verified before
 the app package is uploaded to the Microsoft 365 app service (MOS3).
 `copilotAgent/publish` accepts the prepared inputs as optional `with:` values
 and returns the title and app IDs through `writeToEnvironmentFile`; without
-them it behaves as before. Ambiguous writes are not replayed
+them it behaves as before. Each externally visible write asks for approval
+through the host's `UserInteraction`; a host that provides none gets
+`ApprovalUnavailable`. Ambiguous writes are not replayed
 automatically. See the
 [operation contract](../../docs/03-specs/operations/lifecycle/prepare-spfx-publication.md)
 and [ADR-0030](../../docs/02-architecture/adr/ADR-0030-prepared-sharepoint-publication.md)

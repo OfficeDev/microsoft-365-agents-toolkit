@@ -269,7 +269,12 @@ flowchart LR
   raised before a write (for example, an unavailable MOS3 token) keeps its
   own error name and gains the same allowlisted recovery data.
 - Approval is explicit and invocation-scoped before each externally visible
-  write. Missing or non-interactive approval fails before mutation.
+  write. It is the positive answer to a modal `UserInteraction.showMessage`
+  prompt that the host provides; a host without a `UserInteraction` fails with
+  `ApprovalUnavailable` before mutation. The toolkit cannot tell a person's
+  answer from an auto-confirming implementation, so the host owns that
+  guarantee: the ATK CLI `UserInteraction` confirms without asking when the
+  command runs non-interactively or `CI_ENABLED=true`.
 - `createAppCatalogIfNotExist` cannot create a catalog in prepared mode.
 - Without prepared-publication inputs, the existing deployment, `copilotAgent/publish`
   upload, and `teamsApp/publishAppPackage` behavior remains unchanged.
@@ -315,7 +320,15 @@ flowchart LR
   cloud, or should unsupported clouds remain explicitly blocked?
 - Is the proposed confirmation boundary and operator recovery procedure for
   unknown outcomes sufficient for host integrations that may not provide
-  interactive UI?
+  interactive UI? Because approval is whatever the host's `UserInteraction`
+  answers, should the actions also refuse `nonInteractive` runs unless the host
+  opts in, given that some hosts pass `nonInteractive: true` and still provide
+  a real approval prompt?
+- Should the ATK CLI run the YAML `publish:` lifecycle? `atk publish` maps to
+  `teamsapp publish` (`publishTeamsAppCLIV3`), which submits through the
+  Microsoft Graph Teams catalog and never runs the prepared actions. This PR
+  leaves the CLI unchanged, so the lifecycle is reached through
+  `FxCoreClient.publish`.
 - Should known definitive rejection be resumable from the same journal, or
   should every retry require a new explicit operator reconciliation step?
 - Which generated Copilot component schema, if any, defines approved

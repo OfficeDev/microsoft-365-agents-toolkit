@@ -38,8 +38,10 @@ process interruption between a remote write and the next lifecycle action.
    remain available for explicit reconciliation.
 4. Extend the existing SharePoint deployment and `copilotAgent/publish` actions
    with optional prepared-publication inputs. In that mode they verify
-   the journal and exact bytes, persist stage transitions, require genuine
+   the journal and exact bytes, persist stage transitions, require explicit
    approval before writes, and reject incompatible identity/version states.
+   Approval is the positive answer to a modal prompt on the host's
+   `UserInteraction`; a host that provides none fails with `ApprovalUnavailable`.
    Each action re-verifies the signed-in token tenant (and, for Graph and
    SharePoint, audience) and the discovered catalog against the journal before
    any prompt, read, or write. Submission needs no Graph token: it binds the
@@ -92,6 +94,11 @@ process interruption between a remote write and the next lifecycle action.
 - The post-publish completion link of the in-process coordinator follows the
   action: a lifecycle containing `copilotAgent/publish` opens the Microsoft 365
   admin center.
+- Approval is only as strong as the host's `UserInteraction`: the toolkit cannot
+  verify that a person answered, and the ATK CLI confirms without asking when
+  it runs non-interactively. `atk publish` runs `teamsapp publish` rather than
+  the YAML `publish:` lifecycle, so the CLI is unchanged and in-process hosts
+  that call `FxCoreClient.publish` own the approval surface.
 - The implementation supports only the qualified package shape and catalog
   operations it can verify. Unsupported clouds, malformed packages, ambiguous
   package content, collisions, and unresolved state fail closed.
