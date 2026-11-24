@@ -4,7 +4,7 @@ const { execSync } = require("child_process");
 
 const REPO_ROOT = path.resolve(__dirname, "..", "..");
 
-// Each manifest template the toolkit ships, mapped to the microsoft/json-schemas
+// A representative template for each manifest family, mapped to the microsoft/json-schemas
 // folder that publishes its canonical schema. `versionField` is the JSON key that
 // carries the schema version inside the template (values may be "1.29" or "v1.8").
 const MANIFESTS = [
@@ -209,7 +209,8 @@ function summarizeWithCopilot(row) {
     `You are auditing a Microsoft 365 Agents Toolkit manifest template against the canonical schema published in microsoft/json-schemas.`,
     ``,
     `Manifest: ${row.name}`,
-    `Toolkit template (already checked out in this repo): ${templatePath}`,
+    `Representative toolkit template (already checked out in this repo): ${templatePath}`,
+    `Upgrade scope: all templates using this manifest family in v3 (templates/vsc and templates/vs) and v4 (templates/v4), not just the representative template.`,
     `Template schema version in use: v${row.templateVersion}`,
     `Latest published schema version: v${row.latestVersion}`,
     `Template schema URL:  ${row.templateSchemaUrl}`,
@@ -268,7 +269,7 @@ function buildIssue(row) {
     "|---|---|---|---|",
     `| ${row.name} | v${row.templateVersion} | v${row.latestVersion} | ${row.updateType} |`,
     "",
-    `Template file: \`${row.templatePath}\``,
+    `Representative template file: \`${row.templatePath}\` (used for drift detection, not the full upgrade scope)`,
     `Latest schema version: v${row.latestVersion}`,
     `Latest schema commit: [\`${(row.latestCommitSha || "").slice(0, 10)}\`](https://github.com/microsoft/json-schemas/commit/${row.latestCommitSha})`,
     "",
@@ -280,7 +281,9 @@ function buildIssue(row) {
     "",
     "## Recommended Follow-up",
     "",
-    `- Update \`${row.templatePath}\` to schema version v${row.latestVersion} (bump the \`$schema\` URL and the version field).`,
+    `- Update all applicable \`${row.name}\` templates to schema version v${row.latestVersion} across both v3 (\`templates/vsc/\`, \`templates/vs/\`) and v4 (\`templates/v4/\`), not just \`${row.templatePath}\`. Bump the \`$schema\` URL and the version field together.`,
+    "- Include shared/common templates such as the Teams blank app (`templates/vsc/common/blank-app/appPackage/manifest.json.tpl`) when they use this manifest family; do not exclude them from upgrade coverage.",
+    "- Preserve intentional devPreview templates and historical schema snapshots; update related regression tests, fixtures, and documentation for the upgraded templates.",
     "- Pay special attention to any property marked BREAKING.",
     "",
     "## Notes",
