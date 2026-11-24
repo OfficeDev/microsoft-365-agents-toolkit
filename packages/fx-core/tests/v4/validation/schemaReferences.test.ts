@@ -95,6 +95,31 @@ describe("v4 schema references", () => {
     }
   });
 
+  describe("v3 schema references", () => {
+    it("every current stable Teams manifest template uses version 1.31 without contentBotId", () => {
+      const manifestFiles = ["templates/vsc", "templates/vs"].flatMap((root) =>
+        listFiles(path.join(REPO_ROOT, root), (name) => name === "manifest.json.tpl")
+      );
+
+      for (const filePath of manifestFiles) {
+        const relativePath = path.relative(REPO_ROOT, filePath).replace(/\\/g, "/");
+        if (
+          relativePath === "templates/vsc/common/blank-app/appPackage/manifest.json.tpl" ||
+          requiredField(filePath, "manifestVersion") === "devPreview"
+        ) {
+          continue;
+        }
+        assert.strictEqual(requiredField(filePath, "manifestVersion"), "1.31", relativePath);
+        assert.match(
+          requiredField(filePath, "\\$schema"),
+          /^https:\/\/developer\.microsoft\.com\/(?:en-us\/)?json-schemas\/teams\/v1\.31\/MicrosoftTeams\.schema\.json$/,
+          relativePath
+        );
+        assert.notInclude(fs.readFileSync(filePath, "utf8"), "contentBotId", relativePath);
+      }
+    });
+  });
+
   it("every stable Teams manifest template uses schema and manifest version 1.31", () => {
     const manifestFiles = listFiles(TEMPLATES_V4_ROOT, (name) => name === "manifest.json.tpl");
 

@@ -3,12 +3,19 @@
 
 import { assert } from "chai";
 import "mocha";
-import { AppManifestUtils, TeamsManifestConverter, TeamsManifestWrapper } from "../src";
+import sinon from "sinon";
+import {
+  AppManifestUtils,
+  TeamsManifestConverter,
+  TeamsManifestLatest,
+  TeamsManifestWrapper,
+} from "../src";
+import * as fetchHelper from "../src/fetchHelper";
 
 const schemaUrl =
   "https://developer.microsoft.com/json-schemas/teams/v1.31/MicrosoftTeams.schema.json";
 
-function teamsManifest() {
+function teamsManifest(): TeamsManifestLatest {
   return {
     $schema: schemaUrl,
     manifestVersion: "1.31",
@@ -70,6 +77,16 @@ async function validationErrors(input: unknown): Promise<string[]> {
 }
 
 describe("Teams app manifest v1.31", () => {
+  it("validates with the packaged schema without a network request", async () => {
+    const fetchStub = sinon.stub(fetchHelper, "default").rejects(new Error("Unexpected fetch"));
+    try {
+      assert.deepEqual(await validationErrors(teamsManifest()), []);
+      sinon.assert.notCalled(fetchStub);
+    } finally {
+      fetchStub.restore();
+    }
+  });
+
   it("round-trips new fields through the registered converter and wrapper", async () => {
     const input = {
       ...activityManifest("New task"),

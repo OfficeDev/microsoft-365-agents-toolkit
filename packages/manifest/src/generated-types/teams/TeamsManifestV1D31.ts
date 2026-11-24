@@ -591,10 +591,7 @@ export interface HostFunctionality {
  * The name of the functionality.
  */
 export type HostMustSupportFunctionalityName =
-  | "dialogUrl"
-  | "dialogUrlBot"
-  | "dialogAdaptiveCard"
-  | "dialogAdaptiveCardBot";
+  "dialogUrl" | "dialogUrlBot" | "dialogAdaptiveCard" | "dialogAdaptiveCardBot";
 
 export interface ComposeExtension {
   /**
