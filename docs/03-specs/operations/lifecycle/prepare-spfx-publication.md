@@ -105,8 +105,11 @@ package and does not change when an identical package is rebuilt;
 
 This API uses the same bounded package inspection and application-package
 assembler as YAML preparation. It preserves the exact `{{TENANT_MCP_URL}}`
-placeholder in the managed Remote MCP runtime URL; it does not scan or replace
-matching text in unrelated fields. It performs local structural checks only;
+placeholder in the managed Remote MCP runtime URL and every other placeholder
+the plugin carries (for example `{{TENANT_ORIGIN}}`); it neither resolves nor
+refuses them, because only tenant-bound preparation knows the tenant. It does
+not scan or replace matching text in unrelated fields. It performs local
+structural checks only;
 it does not fetch remote schemas, resolve a tenant endpoint, authenticate,
 discover a catalog, initialize a lifecycle client, write files, or create a
 recovery journal. Structural success
@@ -122,7 +125,9 @@ write.
 The returned package is a supported input to `spfx/preparePublication`.
 Preparation recognizes the exact deterministic managed contribution, replaces
 its neutral plugin bytes with the tenant-materialized bytes in place, and
-rejects conflicting or ambiguous ownership. The final staged application must
+rejects conflicting or ambiguous ownership. A package that already holds that
+contribution resolved for another tenant is recognized the same way and is
+prepared again for the new tenant. The final staged application must
 contain one managed reference and no unresolved managed endpoint placeholders;
 unrelated user actions, connectors, plugins, and source packages remain
 unchanged.
@@ -136,7 +141,9 @@ flowchart TD
   Bounds -->|No| Fail[Return localized error; no source mutation]
   Bounds -->|Yes| Discover[Verify selected tenant and discover catalog]
   Discover --> Resolve[Resolve registered tenant-specific plugin values]
-  Resolve --> Stage[Freeze staged app ZIP and sanitized SPPKG]
+  Resolve --> Residual{Unresolved placeholder or excessive nesting left?}
+  Residual -->|Yes| Fail
+  Residual -->|No| Stage[Freeze staged app ZIP and sanitized SPPKG]
   Stage --> Journal[Atomically persist hashes, identities, and prepared state]
   Journal --> Deploy[spfx/deploy: revalidate, approve, upload, deploy]
   Deploy --> Verify{Exact bytes and deployment verified?}
@@ -174,6 +181,8 @@ flowchart LR
   fallback, and no fabricated recovery success.
 - No adoption of identity, instructions, or application metadata from the
   embedded standalone agent package.
+- No registration of API-plugin authentication: the managed authentication
+  reference placeholder is not resolved, so a plugin that carries it is refused.
 - No claim that submission implies approval, installation, or rendered
   availability.
 - The in-memory assembly API does not write an application ZIP, deployment
@@ -211,8 +220,26 @@ flowchart LR
 - The final MCP endpoint is derived from the verified app-catalog HTTPS origin
   and selected solution/product ID. The selected tenant and token audiences are
   validated and recorded. Arbitrary environment URLs and unrelated text are
-  never substituted. No `TENANT_ORIGIN` CSP path is currently qualified; such
-  a token in a typed managed field blocks preparation.
+  never substituted.
+- Tenant-bound preparation resolves two generated values in the Remote MCP
+  runtime, both from the verified catalog origin and only in the staged copy:
+  `{{TENANT_MCP_URL}}` in `spec.url`, and `{{TENANT_ORIGIN}}` when it is an
+  entire entry of the `frameDomains` or `resourceDomains` list of a tool's
+  `_meta["ui/csp"]` under `spec.mcp_tool_description.tools[]`. Every other string
+  in the resolved plugin that is entirely one placeholder is refused before
+  anything is staged: `UnqualifiedTenantOriginField` for `{{TENANT_ORIGIN}}`
+  in any other field, `UnresolvedPluginPlaceholder` for any other token (for
+  example the managed authentication reference
+  `{{MCP_DA_AUTH_REFERENCE_ID}}`) and for an unknown token in a registered
+  list. A placeholder inside longer text is preserved. A plugin nested more than
+  128 levels deep is refused with `InvalidPluginManifest` instead of being
+  serialized.
+- A lineage records the identity of the transformation that staged it. Only a
+  lineage staged by the current transformation resumes: an unsubmitted lineage
+  staged by an earlier one blocks new preparation with
+  `UnresolvedPreparedPublication` until it is reconciled, because it may hold
+  values that the current transformation would resolve or refuse. A submitted
+  lineage still replays under any identity.
 - Prepared deployment re-verifies the signed-in Graph and SharePoint token
   tenant/audience, and prepared submission re-verifies the SharePoint and MOS3
   token tenant, together with the discovered SharePoint origin and catalog,
@@ -322,7 +349,7 @@ flowchart LR
 | SPFX-PREP-02 | L1      | operation-integration | required | Temporary app-package ZIP and local manifest wrapper                 | A supported application package has existing identity, instructions, skills, connectors, and plugin references, with or without a declarative agent                          | The staged package adds only the extracted API plugin and a typed agent-action or `AgentConnector` plugin reference; no synthetic agent is created and all existing content is preserved. A connector-only app whose manifest version lacks `ToolSource.plugin` (for example v1.30) fails with `UnsupportedAgentConnectorManifestVersion`.                          |
 | SPFX-PREP-03 | L1      | operation-integration | required | OPC ZIP fixture with relationships and content types                 | The embedded agent ZIP is removed from the deployment copy                                                                                                                   | Every affected internal relationship/content-type reference is repaired, required component assets remain, and the original SPPKG is unchanged.                                                                                                                                                                                                                     |
 | SPFX-PREP-04 | L1      | file-unit             | required | Bounded archive fixtures                                             | Inputs include traversal, duplicate paths, unsupported compression, malformed OPC/XML/JSON, ambiguous candidates, oversized parts, excessive expansion, or compression bombs | Preparation fails with a failure-specific localized error before writing outputs or making a service mutation.                                                                                                                                                                                                                                                      |
-| SPFX-PREP-05 | L1      | operation-integration | required | Temporary project and mocked outer HTTP boundary                     | Preparation has verified tenant/catalog context and succeeds                                                                                                                 | Only registered endpoint/CSP fields are resolved; final manifests validate before hashing; artifacts are deterministic and the token-free journal binds tenant, catalog, identity, and transformation version.                                                                                                                                                      |
+| SPFX-PREP-05 | L1      | operation-integration | required | Temporary project and mocked outer HTTP boundary                     | Preparation has verified tenant/catalog context and succeeds                                                                                                                 | Only registered endpoint/CSP fields are resolved; final manifests validate before hashing; artifacts are deterministic and the token-free journal binds tenant, catalog, identity, and transformation version. `SPFX-PREP-24` covers the resolved field set and the refusals.                                                                                       |
 | SPFX-PREP-06 | L1      | operation-integration | required | Real deploy driver and SharePoint HTTP fake                          | Prepared SharePoint bytes are deployed                                                                                                                                       | The driver requires approval, verifies identity/version/collision rules, sends only the hash-bound bytes once, reads back and verifies content/deployment, and persists the verified stage.                                                                                                                                                                         |
 | SPFX-PREP-07 | L1      | operation-integration | required | Real `copilotAgent/publish` driver and MOS3 HTTP fake                | A matching journal has verified SharePoint state and the SharePoint and MOS3 tokens belong to the journal tenant                                                             | The driver re-reads SharePoint state, requires approval, verifies the staged app hash and identity/version, uploads the exact ZIP once in the requested scope, polls a bounded status, persists confirmed title/app IDs, and returns the mapped outputs.                                                                                                            |
 | SPFX-PREP-08 | L1      | operation-integration | required | Real lifecycle actions with deferred HTTP outcomes                   | Either remote write is rejected, cancelled, or has an uncertain response, or a concurrent/changed-input lifecycle starts for the same tenant/app/product                     | Durable state preserves the last confirmed stage; cancellation settles possible writes; identity-wide guards prevent racing journals and changed-source replay; unknown outcomes block submission/replay.                                                                                                                                                           |
@@ -341,6 +368,7 @@ flowchart LR
 | SPFX-PREP-21 | L1      | operation-integration | required | Real preparation, deploy and publish drivers, rebuilt app ZIP        | The developer application package is rebuilt with the same entries but other timestamps and entry order, or with a changed entry, before a resume or a replay                | An identical rebuild keeps the source digest: preparation resumes the lineage, and deployment and publication verify the sources and replay without a new request or approval. A changed entry, or a file that is not an archive, fails verification with `SourceHashMismatch` and keeps blocking preparation with `UnresolvedPreparedPublication`.                 |
 | SPFX-PREP-22 | L1      | operation-integration | required | Real preparation and publish drivers, MOS3 HTTP fake, journal        | The lifecycle runs again after `submitted` with an identical rebuild of the application package, or with changed application content                                         | An identical rebuild reuses the submitted lineage and returns the recorded title and app IDs with no second MOS3 request or approval; changed content starts a new lineage and leaves the earlier journal unchanged.                                                                                                                                                |
 | SPFX-PREP-23 | L1      | file-unit             | required | Bounded in-memory ZIP fixtures and the public lean entry             | The same entries are stored in another order or with other timestamps, compression, or directory entries; or an entry is renamed, added, removed, or changed                 | The content digest is identical for the former and different for the latter, an entry name cannot be confused with the start of its content, and the public assembler reports the digest that preparation records.                                                                                                                                                  |
+| SPFX-PREP-24 | L1      | operation-integration | required | Real preparation driver and plugin fixtures; module file-unit cases  | A plugin carries `{{TENANT_ORIGIN}}` in the approved UI lists, another whole-value token, text around a token, or deep nesting; or an older unsubmitted lineage exists       | Approved entries resolve to the verified origin in the staged copy only; any other whole-value token is refused before staging (`UnqualifiedTenantOriginField`, `UnresolvedPluginPlaceholder`), deep nesting with `InvalidPluginManifest`; surrounding text is kept; an unsubmitted lineage of an earlier transformation fails with `UnresolvedPreparedPublication` |
 
 ## Open questions for draft review
 
@@ -362,9 +390,17 @@ flowchart LR
   `FxCoreClient.publish`.
 - Should known definitive rejection be resumable from the same journal, or
   should every retry require a new explicit operator reconciliation step?
-- Which generated Copilot component schema, if any, defines approved
-  `{{TENANT_ORIGIN}}` UI CSP fields? No field path is qualified in this PR, so
-  unresolved tokens in managed fields are rejected rather than substituted.
+- Which UI content security policy fields of a generated tool are approved for
+  `{{TENANT_ORIGIN}}`, and are their names stable across SPFx generator
+  versions? This PR qualifies only the `frameDomains` and `resourceDomains`
+  lists under `_meta["ui/csp"]`, the only place observed generated plugins
+  carry the token. The token in `connectDomains`, `baseUriDomains`, or a nested
+  `ui.csp` object is refused rather than substituted.
+- How should the managed authentication reference
+  `{{MCP_DA_AUTH_REFERENCE_ID}}` be provisioned? This operation does not
+  register authentication, so a plugin that carries it is refused with
+  `UnresolvedPluginPlaceholder` instead of being published with the literal
+  token.
 - Which `copilotAgent/publish` scope should a Copilot Component use (`tenant`
   is the scope of the existing publish templates)? The YAML author chooses it;
   this operation passes it through and records it, and does not qualify a

@@ -36,7 +36,11 @@ process interruption between a remote write and the next lifecycle action.
    entry names and bytes rather than by its ZIP bytes, because the YAML
    lifecycle rebuilds that ZIP (with a new timestamp) on every run; the
    `.sppkg` source and both staged artifacts stay bound by the SHA-256 of their
-   exact bytes. Identity-wide coordination spans preparation, deployment, and
+   exact bytes. Only a lineage staged under the current transformation identity
+   resumes: an unsubmitted lineage staged under an earlier one blocks new
+   preparation until it is reconciled, because its bytes may differ from what
+   the current transformation would stage, while a submitted lineage still
+   replays. Identity-wide coordination spans preparation, deployment, and
    submission; changing source content or version does not bypass unresolved
    outcomes. Active legacy journals that lack tenant identity fail closed and
    remain available for explicit reconciliation.
@@ -80,9 +84,14 @@ process interruption between a remote write and the next lifecycle action.
    local structural validation only, and leaves persistence to the caller.
    Tenant-bound preparation recognizes
    and replaces that deterministic managed contribution in place before final
-   schema validation; conflicting or ambiguous ownership fails closed. No
-   `TENANT_ORIGIN` CSP path is qualified yet; do not perform broad string
-   replacement.
+   schema validation; conflicting or ambiguous ownership fails closed. Resolve
+   only the managed endpoint and the `{{TENANT_ORIGIN}}` entries of the
+   `frameDomains` and `resourceDomains` lists in a tool's `_meta["ui/csp"]`,
+   both from the verified catalog origin. Refuse, instead of publishing
+   literally, any other string that is entirely a placeholder, including the
+   managed authentication reference that this operation does not provision, and
+   any plugin nested too deeply to serialize safely. A placeholder inside longer
+   text stays as it is, and no broad string replacement is performed.
 8. Do not change `FxCoreClient.publish`, route through the legacy Teams-only
    API, change `teamsApp/publishAppPackage` or the Graph catalog client, add a
    CLI action, or extend the direct-action allowlist.

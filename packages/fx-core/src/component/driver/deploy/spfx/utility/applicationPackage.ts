@@ -6,6 +6,7 @@ import { createHash } from "crypto";
 import { err, ok } from "neverthrow";
 import type { Result } from "neverthrow";
 import path from "path";
+import { restoreTenantOrigin } from "./pluginTenantValues";
 import {
   archiveContentSha256,
   readBoundedArchive,
@@ -242,6 +243,7 @@ function normalizeManagedEndpoint(plugin: Record<string, unknown>, productId: st
         [...url.searchParams.keys()].length === 1
       ) {
         spec["url"] = "{{TENANT_MCP_URL}}";
+        restoreTenantOrigin(runtime, url.origin);
       }
     } catch {
       return;

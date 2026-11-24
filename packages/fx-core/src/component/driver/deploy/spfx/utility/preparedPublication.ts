@@ -26,10 +26,17 @@ import {
   resolvePackageReference,
   SharePointApplicationPackageError,
 } from "./applicationPackage";
+import { findUnresolvedTenantValue, resolveTenantOrigin } from "./pluginTenantValues";
 
 const journalVersion = 2;
-const previousTransformationIdentities = ["spfx-copilot-plugin-v2", "spfx-copilot-plugin-v3"];
-const transformationIdentity = "spfx-copilot-plugin-v4";
+// Lineages prepared under these identities reference the plugin by its exact path; later ones
+// resolve the reference relative to the manifest that holds it.
+const exactReferenceTransformationIdentities = ["spfx-copilot-plugin-v2", "spfx-copilot-plugin-v3"];
+const previousTransformationIdentities = [
+  ...exactReferenceTransformationIdentities,
+  "spfx-copilot-plugin-v4",
+];
+const transformationIdentity = "spfx-copilot-plugin-v5";
 const publicationDirectory = path.join(".fx", "sharepoint-publications");
 export const preparedRequestSettlementTimeoutMs = 30_000;
 const tenantMcpUrlPlaceholder = /^\{\{\s*TENANT_MCP_URL\s*\}\}$/;
@@ -633,18 +640,13 @@ function replaceTenantValues(
         )
       );
     }
-    for (const [key, value] of Object.entries(spec)) {
-      if (
-        /csp|content.?security/i.test(key) &&
-        JSON.stringify(value).includes("{{TENANT_ORIGIN}}")
-      ) {
-        return err(
-          new PreparedPublicationError(
-            "UnqualifiedTenantOriginField",
-            "The tenant-origin CSP field is not qualified for this publication format."
-          )
-        );
-      }
+    if (!resolveTenantOrigin(runtime, catalogUrl.origin)) {
+      return err(
+        new PreparedPublicationError(
+          "UnresolvedPluginPlaceholder",
+          "A registered content security policy entry contains an unsupported tenant placeholder."
+        )
+      );
     }
   }
   if (resolvedEndpointCount !== 1) {
@@ -652,6 +654,32 @@ function replaceTenantValues(
       new PreparedPublicationError(
         "AmbiguousPluginEndpoint",
         "The embedded API plugin must register exactly one tenant-bound SharePoint endpoint."
+      )
+    );
+  }
+  const unresolved = findUnresolvedTenantValue(plugin);
+  if (unresolved?.kind === "tooDeep") {
+    return err(
+      new PreparedPublicationError(
+        "InvalidPluginManifest",
+        "The embedded API plugin is nested too deeply."
+      )
+    );
+  }
+  if (unresolved !== undefined) {
+    if (unresolved.token === "TENANT_ORIGIN") {
+      return err(
+        new PreparedPublicationError(
+          "UnqualifiedTenantOriginField",
+          "The tenant-origin CSP field is not qualified for this publication format."
+        )
+      );
+    }
+    const name = unresolved.token.slice(0, 64);
+    return err(
+      new PreparedPublicationError(
+        "UnresolvedPluginPlaceholder",
+        `The embedded API plugin contains the unresolved placeholder "${name}".`
       )
     );
   }
@@ -1868,9 +1896,9 @@ export function verifyPreparedApplicationPackage(
         isRecord(action) &&
         action["id"] === pluginId &&
         typeof action["file"] === "string" &&
-        (journal.transformation.id === transformationIdentity
-          ? resolvePackageReference(agentFile, action["file"]) === pluginName
-          : action["file"] === pluginName)
+        (exactReferenceTransformationIdentities.includes(journal.transformation.id)
+          ? action["file"] === pluginName
+          : resolvePackageReference(agentFile, action["file"]) === pluginName)
     ).length;
   } else {
     const connectors = manifest.value["agentConnectors"];
@@ -1889,10 +1917,10 @@ export function verifyPreparedApplicationPackage(
         isRecord(connector["toolSource"]) &&
         isRecord(connector["toolSource"]["plugin"]) &&
         typeof connector["toolSource"]["plugin"]["file"] === "string" &&
-        (journal.transformation.id === transformationIdentity
-          ? resolvePackageReference("manifest.json", connector["toolSource"]["plugin"]["file"]) ===
-            pluginName
-          : connector["toolSource"]["plugin"]["file"] === pluginName)
+        (exactReferenceTransformationIdentities.includes(journal.transformation.id)
+          ? connector["toolSource"]["plugin"]["file"] === pluginName
+          : resolvePackageReference("manifest.json", connector["toolSource"]["plugin"]["file"]) ===
+            pluginName)
     ).length;
   }
   if (

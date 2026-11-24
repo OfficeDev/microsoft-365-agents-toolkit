@@ -1307,11 +1307,11 @@ describe("Prepared SharePoint publication contracts", () => {
     expect(upload.headers.get("Authorization")).toBe("Bearer fakeToken");
     expect(
       Buffer.compare(
-        multipartPart(upload.data, "package"),
+        multipartPart(upload.data, "package") ?? Buffer.alloc(0),
         await fs.readFile(path.join(projectPath ?? "", prepared.appPackagePath))
       )
     ).toBe(0);
-    expect(JSON.parse(multipartPart(upload.data, "info").toString("utf8"))).toEqual({
+    expect(JSON.parse(multipartPart(upload.data, "info")?.toString("utf8") ?? "null")).toEqual({
       builderName: "TeamsToolKit",
     });
     const journal = await journalOf(prepared);
@@ -2646,7 +2646,7 @@ describe("Prepared SharePoint publication contracts", () => {
             serviceCode: "AccessDenied",
             requestId: `sp-${stage}-request`,
           });
-          expect(result.error.data.lastSharePointVerifiedState).toBeUndefined();
+          expect(result.error.data?.lastSharePointVerifiedState).toBeUndefined();
           expect(JSON.stringify(result.error.data)).not.toContain("do not expose this response");
           expect(result.error.data).not.toHaveProperty("response");
         }

@@ -750,7 +750,7 @@ describe("Prepared SharePoint publication integration", () => {
           .join(".fx", "sharepoint-publications", record.name, "journal.json")
           .split(path.sep)
           .join("/");
-        const loaded = await loadPreparedPublication(projectPath, record.name, journalPath);
+        const loaded = await loadPreparedPublication(projectPath ?? "", record.name, journalPath);
         if (loaded.isOk()) {
           journals.push(loaded.value.journal);
         }

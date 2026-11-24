@@ -276,6 +276,213 @@ describe("Prepared publication validation and durable recovery", () => {
     }
   );
 
+  describe("SPFX-PREP-24: tenant values in generated plugin fields", () => {
+    const tenantOrigin = "https://tenant.example.test";
+    const sha256 = (bytes: Buffer) => createHash("sha256").update(bytes).digest("hex");
+    const uiTool = (name: string, frameDomains: string[], resourceDomains: string[]) => ({
+      name,
+      _meta: { "ui/csp": { frameDomains, resourceDomains } },
+    });
+    const runtimeWith = (tools: unknown[], auth: unknown = { type: "None" }) => ({
+      type: "RemoteMCPServer",
+      auth,
+      spec: { url: "{{TENANT_MCP_URL}}", mcp_tool_description: { tools } },
+    });
+
+    async function withTools(tools: unknown[], auth?: unknown): Promise<void> {
+      await changePlugin((plugin) => {
+        plugin.runtimes = [runtimeWith(tools, auth)];
+      });
+    }
+
+    async function changePluginText(change: (text: string) => string): Promise<void> {
+      const sppkgPath = path.join(root, "sharepoint/solution.sppkg");
+      const zip = new AdmZip(await fs.readFile(sppkgPath));
+      const embedded = zip.readFile("ClientSideAssets/agent.zip");
+      if (!embedded) {
+        throw new Error("Missing fixture embedded package.");
+      }
+      const nested = new AdmZip(embedded);
+      nested.updateFile(
+        "ai-plugin.json",
+        Buffer.from(change(nested.readAsText("ai-plugin.json")), "utf8")
+      );
+      zip.updateFile("ClientSideAssets/agent.zip", nested.toBuffer());
+      await fs.writeFile(sppkgPath, zip.toBuffer());
+    }
+
+    async function stagedPlugin(appPackagePath: string) {
+      const zip = new AdmZip(await fs.readFile(path.join(root, appPackagePath)));
+      const entry = zip
+        .getEntries()
+        .find((candidate) => /^plugins\/spfx-api-[0-9a-f]{16}\.json$/.test(candidate.entryName));
+      if (!entry) {
+        throw new Error("Missing staged plugin.");
+      }
+      const bytes = entry.getData();
+      return { bytes, plugin: JSON.parse(bytes.toString("utf8")) };
+    }
+
+    it("resolves approved UI origins to the verified tenant origin and nothing else", async () => {
+      await withTools([
+        uiTool("first", ["{{TENANT_ORIGIN}}"], ["{{ TENANT_ORIGIN }}", "https://cdn.example.test"]),
+        uiTool(
+          "second",
+          ["https://static.example.test", "{{TENANT_ORIGIN}}"],
+          ["{{TENANT_ORIGIN}}"]
+        ),
+      ]);
+      const sourceBefore = await fs.readFile(path.join(root, "sharepoint/solution.sppkg"));
+
+      const current = await prepared();
+      const staged = await stagedPlugin(current.output.appPackagePath);
+
+      const [first, second] = staged.plugin.runtimes[0].spec.mcp_tool_description.tools;
+      expect(first._meta["ui/csp"]).toEqual({
+        frameDomains: [tenantOrigin],
+        resourceDomains: [tenantOrigin, "https://cdn.example.test"],
+      });
+      expect(second._meta["ui/csp"]).toEqual({
+        frameDomains: ["https://static.example.test", tenantOrigin],
+        resourceDomains: [tenantOrigin],
+      });
+      expect(staged.plugin.runtimes[0].spec.url).toBe(
+        `${tenantOrigin}/_api/mcp/spfx?solutionId=${publicationTenantContext.productId}`
+      );
+      expect(staged.bytes.toString("utf8")).not.toContain("{{");
+      expect(sha256(staged.bytes)).toBe(current.journal.plugin.sha256);
+      const sourceAfter = await fs.readFile(path.join(root, "sharepoint/solution.sppkg"));
+      expect(sourceAfter.equals(sourceBefore)).toBe(true);
+    });
+
+    it("preserves partial tokens inside free text", async () => {
+      const description = "Documentation mentions {{TENANT_ORIGIN}} and {{OTHER_VALUE}} literally.";
+      await withTools([{ name: "t", description }]);
+
+      const current = await prepared();
+      const staged = await stagedPlugin(current.output.appPackagePath);
+
+      expect(staged.plugin.runtimes[0].spec.mcp_tool_description.tools[0].description).toBe(
+        description
+      );
+    });
+
+    it.each([
+      {
+        name: "connectDomains",
+        tool: { name: "t", _meta: { "ui/csp": { connectDomains: ["{{TENANT_ORIGIN}}"] } } },
+      },
+      {
+        name: "a nested ui.csp object",
+        tool: { name: "t", _meta: { ui: { csp: { frameDomains: ["{{TENANT_ORIGIN}}"] } } } },
+      },
+      { name: "a tool description", tool: { name: "t", description: "{{TENANT_ORIGIN}}" } },
+      { name: "an unregistered array", tool: { name: "t", tags: ["{{TENANT_ORIGIN}}"] } },
+    ])("refuses the tenant origin token in $name before staging", async ({ tool }) => {
+      await withTools([tool]);
+
+      expectError(await preparePublication(input()), "UnqualifiedTenantOriginField");
+      expect(await fs.pathExists(path.join(root, ".fx"))).toBe(false);
+    });
+
+    it("refuses the unresolved managed auth reference before staging", async () => {
+      await withTools([{ name: "t" }], {
+        type: "OAuthPluginVault",
+        reference_id: "{{MCP_DA_AUTH_REFERENCE_ID}}",
+      });
+
+      expectError(await preparePublication(input()), "UnresolvedPluginPlaceholder");
+      expect(await fs.pathExists(path.join(root, ".fx"))).toBe(false);
+    });
+
+    it.each([
+      {
+        name: "an unregistered whole-value string",
+        tool: { name: "t", description: "{{OTHER_VALUE}}" },
+      },
+      {
+        name: "an unregistered whole-value array element",
+        tool: { name: "t", tags: ["{{OTHER_VALUE}}"] },
+      },
+      {
+        name: "an unknown token in an approved UI field",
+        tool: uiTool("t", ["{{OTHER_VALUE}}"], []),
+      },
+      {
+        name: "a token embedded in an approved UI value",
+        tool: uiTool("t", ["https://{{TENANT_ORIGIN}}"], []),
+      },
+    ])("refuses $name before staging", async ({ tool }) => {
+      await withTools([tool]);
+
+      expectError(await preparePublication(input()), "UnresolvedPluginPlaceholder");
+      expect(await fs.pathExists(path.join(root, ".fx"))).toBe(false);
+    });
+
+    it("refuses an excessively nested plugin with a typed error", async () => {
+      const depth = 10_000;
+      await changePluginText((text) => {
+        const body = text.trimEnd();
+        // Distinct keys keep the entry under the archive compression-ratio guard.
+        let opening = "";
+        for (let level = 0; level < depth; level++) {
+          opening += `{"k${level}":`;
+        }
+        return `${body.slice(0, -1)},"extra":${opening}1${"}".repeat(depth)}}`;
+      });
+
+      expectError(await preparePublication(input()), "InvalidPluginManifest");
+      expect(await fs.pathExists(path.join(root, ".fx"))).toBe(false);
+    });
+
+    it("journals new preparations with the tenant-value transformation identity", async () => {
+      const current = await prepared();
+
+      expect(current.journal.transformation.id).toBe("spfx-copilot-plugin-v5");
+    });
+
+    it("refuses to resume an unsubmitted lineage prepared before tenant values were resolved", async () => {
+      const current = await prepared();
+      await fs.writeJson(current.path, {
+        ...current.journal,
+        transformation: { id: "spfx-copilot-plugin-v4" },
+      });
+
+      expectError(await preparePublication(input()), "UnresolvedPreparedPublication");
+      expect(await lineageIds(current.path)).toHaveLength(1);
+    });
+
+    it("re-prepares an already prepared application package for another tenant", async () => {
+      await withTools([uiTool("t", ["{{TENANT_ORIGIN}}"], ["{{TENANT_ORIGIN}}"])]);
+      const first = await prepared();
+      const stagedBytes = await fs.readFile(path.join(root, first.output.appPackagePath));
+      await fs.outputFile(path.join(root, "appPackage/application.zip"), stagedBytes);
+      const otherOrigin = "https://other.example.test";
+
+      const second = await preparePublication({
+        ...input(),
+        tenantContext: {
+          tenantId: "dddddddd-eeee-4fff-8000-111111111111",
+          tenantUrl: otherOrigin,
+          catalogUrl: `${otherOrigin}/sites/appcatalog`,
+          productId: publicationTenantContext.productId,
+        },
+      });
+
+      expect(second.isOk()).toBe(true);
+      if (second.isErr()) {
+        return;
+      }
+      const staged = await stagedPlugin(second.value.appPackagePath);
+      const [tool] = staged.plugin.runtimes[0].spec.mcp_tool_description.tools;
+      expect(tool._meta["ui/csp"]).toEqual({
+        frameDomains: [otherOrigin],
+        resourceDomains: [otherOrigin],
+      });
+      expect(staged.bytes.toString("utf8")).not.toContain(tenantOrigin);
+    });
+  });
+
   it.each([undefined, 30, "1.99"])(
     "SPFX-PREP-05: refuses an unsupported Teams schema version (%s) before staging",
     async (manifestVersion) => {
@@ -566,30 +773,33 @@ describe("Prepared publication validation and durable recovery", () => {
     expect(await fs.readJson(current.path)).toEqual(current.journal);
   });
 
-  it("SPFX-PREP-08: reuses a completed v3 lineage without creating another publication", async () => {
-    const current = await prepared();
-    current.journal.transformation.id = "spfx-copilot-plugin-v3";
-    current.journal.state = "submitted";
-    current.journal.sharePointArtifact.uploadState = "confirmed";
-    current.journal.sharePointArtifact.deployState = "confirmed";
-    current.journal.applicationArtifact.submissionState = "confirmed";
-    current.journal.applicationArtifact.submission = {
-      scope: "Tenant",
-      titleId: "published-title",
-      appId: "published-app",
-    };
-    await fs.writeJson(current.path, current.journal);
+  it.each(["spfx-copilot-plugin-v3", "spfx-copilot-plugin-v4"])(
+    "SPFX-PREP-08: reuses a completed %s lineage without creating another publication",
+    async (transformationId) => {
+      const current = await prepared();
+      current.journal.transformation.id = transformationId;
+      current.journal.state = "submitted";
+      current.journal.sharePointArtifact.uploadState = "confirmed";
+      current.journal.sharePointArtifact.deployState = "confirmed";
+      current.journal.applicationArtifact.submissionState = "confirmed";
+      current.journal.applicationArtifact.submission = {
+        scope: "Tenant",
+        titleId: "published-title",
+        appId: "published-app",
+      };
+      await fs.writeJson(current.path, current.journal);
 
-    const replay = await preparePublication(input());
+      const replay = await preparePublication(input());
 
-    expect(replay.isErr() ? replay.error : undefined).toBeUndefined();
-    if (replay.isOk()) {
-      expect(replay.value.publicationId).toBe(current.output.publicationId);
-      expect(replay.value.appPackageSha256).toBe(current.output.appPackageSha256);
+      expect(replay.isErr() ? replay.error : undefined).toBeUndefined();
+      if (replay.isOk()) {
+        expect(replay.value.publicationId).toBe(current.output.publicationId);
+        expect(replay.value.appPackageSha256).toBe(current.output.appPackageSha256);
+      }
+      expect(await fs.readJson(current.path)).toEqual(current.journal);
+      expect(await lineageIds(current.path)).toEqual([current.output.publicationId]);
     }
-    expect(await fs.readJson(current.path)).toEqual(current.journal);
-    expect(await lineageIds(current.path)).toEqual([current.output.publicationId]);
-  });
+  );
 
   describe("source application identity", () => {
     const rebuild = { entryTime: new Date(2021, 5, 15, 12, 30, 40), reverseOrder: true };
@@ -935,35 +1145,44 @@ describe("Prepared publication validation and durable recovery", () => {
     expect(verifyPreparedApplicationPackage(current.journal, bytes).isOk()).toBe(true);
   });
 
-  it("SPFX-PREP-12/13: resolves prepared plugin actions from a nested agent manifest directory", async () => {
-    const application = new AdmZip(await fs.readFile(path.join(root, input().appPackagePath)));
-    const manifest = JSON.parse(application.readAsText("manifest.json"));
-    manifest.copilotAgents.declarativeAgents[0].file = "agents/agent.json";
-    application.updateFile("manifest.json", Buffer.from(JSON.stringify(manifest)));
-    application.addFile(
-      "agents/agent.json",
-      application.readFile("declarativeAgent.json") ?? Buffer.alloc(0)
-    );
-    application.deleteFile("declarativeAgent.json");
-    await fs.writeFile(path.join(root, input().appPackagePath), application.toBuffer());
-
-    const current = await prepared();
-    const bytes = await fs.readFile(path.join(root, current.journal.applicationArtifact.path));
-    const output = new AdmZip(bytes);
-    const agent = JSON.parse(output.readAsText("agents/agent.json"));
-    const reference = agent.actions.find((action: { id: string }) =>
-      action.id.startsWith("spfx-api-")
-    );
-    expect(reference).toBeDefined();
-    if (reference) {
-      const resolvedEntry = path.posix.normalize(
-        path.posix.join(path.posix.dirname("agents/agent.json"), reference.file)
+  it.each([
+    { name: "current", transformationId: undefined },
+    { name: "previous v4", transformationId: "spfx-copilot-plugin-v4" },
+  ])(
+    "SPFX-PREP-12/13: resolves prepared plugin actions from a nested agent manifest directory ($name lineage)",
+    async ({ transformationId }) => {
+      const application = new AdmZip(await fs.readFile(path.join(root, input().appPackagePath)));
+      const manifest = JSON.parse(application.readAsText("manifest.json"));
+      manifest.copilotAgents.declarativeAgents[0].file = "agents/agent.json";
+      application.updateFile("manifest.json", Buffer.from(JSON.stringify(manifest)));
+      application.addFile(
+        "agents/agent.json",
+        application.readFile("declarativeAgent.json") ?? Buffer.alloc(0)
       );
-      expect(reference.file).toBe(`../plugins/${reference.id}.json`);
-      expect(output.getEntry(resolvedEntry)).not.toBeNull();
+      application.deleteFile("declarativeAgent.json");
+      await fs.writeFile(path.join(root, input().appPackagePath), application.toBuffer());
+
+      const current = await prepared();
+      const bytes = await fs.readFile(path.join(root, current.journal.applicationArtifact.path));
+      const output = new AdmZip(bytes);
+      const agent = JSON.parse(output.readAsText("agents/agent.json"));
+      const reference = agent.actions.find((action: { id: string }) =>
+        action.id.startsWith("spfx-api-")
+      );
+      expect(reference).toBeDefined();
+      if (reference) {
+        const resolvedEntry = path.posix.normalize(
+          path.posix.join(path.posix.dirname("agents/agent.json"), reference.file)
+        );
+        expect(reference.file).toBe(`../plugins/${reference.id}.json`);
+        expect(output.getEntry(resolvedEntry)).not.toBeNull();
+      }
+      if (transformationId) {
+        current.journal.transformation.id = transformationId;
+      }
+      expect(verifyPreparedApplicationPackage(current.journal, bytes).isOk()).toBe(true);
     }
-    expect(verifyPreparedApplicationPackage(current.journal, bytes).isOk()).toBe(true);
-  });
+  );
 
   it("SPFX-PREP-11: reports SharePoint verification only when upload and deployment are confirmed", async () => {
     const current = await prepared();
