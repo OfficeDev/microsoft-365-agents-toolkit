@@ -7,8 +7,8 @@ on:
         description: "Ignore version comparison and treat every manifest as drifted (forces the Copilot summary + issue path for testing)"
         type: boolean
         default: false
-  # schedule:
-  #   - cron: "17 23 * * *"
+  schedule:
+    - cron: "17 23 * * *"
 
 permissions:
   contents: read
