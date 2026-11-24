@@ -64,6 +64,25 @@ instructions, and unrelated content remain authoritative. Only the extracted
 API plugin and its typed application-manifest reference are added to the staged
 application package.
 
+The two source packages are identified differently because they have different
+producers. `sourcePackageSha256` is the SHA-256 of the completed `.sppkg` bytes.
+`sourceAppPackageSha256` is a canonical content digest of the application
+package, not a hash of its ZIP bytes: a SHA-256 over a versioned prefix and, for
+each file entry in byte order of its normalized name, the length-prefixed name
+and the SHA-256 of the entry's bytes. Entry order, timestamps, compression,
+comments, and directory entries do not affect it. A `publish:` lifecycle that
+runs `teamsApp/zipAppPackage` first rebuilds the ZIP with a new `manifest.json`
+timestamp on every run; identifying the source by content keeps the same
+lineage, so an unfinished publication resumes and a submitted one replays
+without another upload or MOS3 submission, while any changed entry name or
+content is a different source. The staged `sharepoint.sppkg` and
+`application.zip` are the artifacts that are deployed and submitted, so they
+stay bound by the SHA-256 of their exact bytes. Journals are not migrated: one
+whose recorded digest differs from the digest of the current sources belongs to
+a different source (new preparation is blocked by `UnresolvedPreparedPublication`
+while it is unresolved, and deployment or submission with its identifiers fails
+with `SourceHashMismatch`).
+
 The initial archive limits are 100 MiB per input archive, 10,000 entries,
 512 MiB total expanded data, a 100:1 maximum compression ratio, and a 1 MiB
 limit for each manifest or OPC metadata part. These are conservative proposed
@@ -79,6 +98,10 @@ containing the assembled `packageBytes`, `packageSha256`,
 `sourceApplicationSha256`, `sourceSharePointSha256`, `pluginSha256`,
 app/product identity, and the managed plugin reference (`kind`, `id`, and
 `path`). Callers own any persistence or export of the returned bytes.
+`sourceApplicationSha256` is the content digest described above, so it equals
+the `sourceAppPackageSha256` that `spfx/preparePublication` reports for the same
+package and does not change when an identical package is rebuilt;
+`packageSha256` and `sourceSharePointSha256` are SHA-256 values of exact bytes.
 
 This API uses the same bounded package inspection and application-package
 assembler as YAML preparation. It preserves the exact `{{TENANT_MCP_URL}}`
@@ -179,7 +202,12 @@ flowchart LR
 - Both staged artifacts and all referenced manifest files are validated against
   the supported local schema machinery before they are hashed from the exact bytes later
   read by the corresponding deployment/submission action. Source packages are
-  rechecked against their captured hashes before any remote write.
+  rechecked against their captured hashes (the application package by content
+  digest, the `.sppkg` by bytes) before any remote write.
+- The source application package is identified by its content, never by its ZIP
+  bytes: rebuilding it with identical entries (other timestamps, entry order, or
+  compression) resumes the same unresolved lineage and replays a submitted one,
+  while a changed entry name or content is a different source.
 - The final MCP endpoint is derived from the verified app-catalog HTTPS origin
   and selected solution/product ID. The selected tenant and token audiences are
   validated and recorded. Arbitrary environment URLs and unrelated text are
@@ -310,6 +338,9 @@ flowchart LR
 | SPFX-PREP-18 | L1      | operation-integration | required | Real driver with partial and complete prepared inputs                | Some but not all prepared inputs are present or well-formed, a required output mapping is missing, or the cloud is GCC High or DoD                                           | The driver fails with `InvalidPreparedPublishArguments` or `UnsupportedCloud` before any token, file, or network access and never falls back to the unprepared upload.                                                                                                                                                                                              |
 | SPFX-PREP-19 | L1      | operation-integration | required | Real driver, MOS3 HTTP fake, and abort signal                        | The caller cancels before the upload, while the upload is outstanding, or while the status poll runs                                                                         | Before the upload the journal returns to `sharePointVerified` with no request; once the upload may have been accepted the request settles within its window and the submission is persisted as `confirmed` or `unknown`. A user-cancel error is returned when the record is unchanged or confirmed, `MosSubmissionOutcomeUnknown` when it is `unknown`.             |
 | SPFX-PREP-20 | L1      | compatibility         | required | YAML schema validation of the lifecycle definition                   | A `publish:` definition passes the seven prepared inputs to `copilotAgent/publish` or to `teamsApp/publishAppPackage`                                                        | The schema accepts them on `copilotAgent/publish` (hash values may be environment references) and rejects them on `teamsApp/publishAppPackage`.                                                                                                                                                                                                                     |
+| SPFX-PREP-21 | L1      | operation-integration | required | Real preparation, deploy and publish drivers, rebuilt app ZIP        | The developer application package is rebuilt with the same entries but other timestamps and entry order, or with a changed entry, before a resume or a replay                | An identical rebuild keeps the source digest: preparation resumes the lineage, and deployment and publication verify the sources and replay without a new request or approval. A changed entry, or a file that is not an archive, fails verification with `SourceHashMismatch` and keeps blocking preparation with `UnresolvedPreparedPublication`.                 |
+| SPFX-PREP-22 | L1      | operation-integration | required | Real preparation and publish drivers, MOS3 HTTP fake, journal        | The lifecycle runs again after `submitted` with an identical rebuild of the application package, or with changed application content                                         | An identical rebuild reuses the submitted lineage and returns the recorded title and app IDs with no second MOS3 request or approval; changed content starts a new lineage and leaves the earlier journal unchanged.                                                                                                                                                |
+| SPFX-PREP-23 | L1      | file-unit             | required | Bounded in-memory ZIP fixtures and the public lean entry             | The same entries are stored in another order or with other timestamps, compression, or directory entries; or an entry is renamed, added, removed, or changed                 | The content digest is identical for the former and different for the latter, an entry name cannot be confused with the start of its content, and the public assembler reports the digest that preparation records.                                                                                                                                                  |
 
 ## Open questions for draft review
 

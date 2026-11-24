@@ -171,6 +171,30 @@ export function readBoundedArchive(
   return ok(entries);
 }
 
+const archiveContentDigestPrefix = "atk-archive-content-v1\0";
+
+/**
+ * Digest of what an archive contains rather than of how it was written: each entry's name and
+ * data, ignoring entry order, timestamps, compression, comments and directory entries. Rebuilding
+ * an unchanged package (for example with teamsApp/zipAppPackage) therefore keeps its digest.
+ * Callers pass the entries of readBoundedArchive, which are normalized and free of duplicates.
+ */
+export function archiveContentSha256(entries: readonly ArchiveEntry[]): string {
+  const records = entries
+    .map((entry) => ({
+      name: Buffer.from(entry.name, "utf8"),
+      digest: createHash("sha256").update(entry.data).digest(),
+    }))
+    .sort((left, right) => Buffer.compare(left.name, right.name));
+  const hash = createHash("sha256").update(archiveContentDigestPrefix);
+  for (const record of records) {
+    const nameLength = Buffer.alloc(4);
+    nameLength.writeUInt32BE(record.name.length);
+    hash.update(nameLength).update(record.name).update(record.digest);
+  }
+  return hash.digest("hex");
+}
+
 async function parseXml(
   bytes: Buffer,
   name: string

@@ -882,6 +882,7 @@ describe("Prepared SharePoint publication contracts", () => {
       name: "the developer app package changed",
       file: "appPackage/application.zip",
       code: "SourceHashMismatch",
+      replacement: () => createAppPackage("2.3.5"),
     },
     {
       name: "the staged SharePoint copy changed",
@@ -891,7 +892,7 @@ describe("Prepared SharePoint publication contracts", () => {
     { name: "the staged app package changed", file: "application", code: "ArtifactHashMismatch" },
   ])(
     "SPFX-PREP-06: refuses prepared deployment when $name after preparation",
-    async ({ file, code }) => {
+    async ({ file, code, replacement }) => {
       const { root, prepared } = await prepareProject();
       const target =
         file === "sharePoint"
@@ -899,7 +900,11 @@ describe("Prepared SharePoint publication contracts", () => {
           : file === "application"
             ? prepared.appPackagePath
             : file;
-      await fs.appendFile(path.join(root, target), Buffer.from("tampered"));
+      if (replacement) {
+        await fs.writeFile(path.join(root, target), replacement());
+      } else {
+        await fs.appendFile(path.join(root, target), Buffer.from("tampered"));
+      }
       route = catalogRoute({ deployed: false });
       const { context, approvals } = createContext();
 
@@ -910,6 +915,26 @@ describe("Prepared SharePoint publication contracts", () => {
       expect(requests).toHaveLength(0);
     }
   );
+
+  it("SPFX-PREP-21: a verified publication replays deployment after the developer app package is rebuilt with identical content", async () => {
+    const { root, prepared } = await prepareProject();
+    await verifySharePoint(prepared, { deployed: false });
+    const applicationPath = path.join(root, "appPackage", "application.zip");
+    const rebuilt = createAppPackage("2.3.4", {
+      entryTime: new Date(2021, 5, 15, 12, 30, 40),
+      reverseOrder: true,
+    });
+    expect(rebuilt.equals(await fs.readFile(applicationPath))).toBe(false);
+    await fs.writeFile(applicationPath, rebuilt);
+    route = catalogRoute({ deployed: true });
+    const { context, approvals } = createContext();
+
+    const result = await new SPFxDeployDriver().run(deployArgs(prepared), context);
+
+    expect(result.isErr() ? result.error : undefined).toBeUndefined();
+    expect(approvals()).toBe(0);
+    expect(requests).toHaveLength(0);
+  });
 
   it("SPFX-PREP-06: a verified publication replays deployment without remote calls", async () => {
     const { prepared } = await prepareProject();
@@ -1297,6 +1322,31 @@ describe("Prepared SharePoint publication contracts", () => {
       titleId: mosTitleId,
       appId: mosAppId,
     });
+  });
+
+  it("SPFX-PREP-22: a confirmed submission replays without a second MOS3 request after the developer app package is rebuilt with identical content", async () => {
+    const { root, prepared } = await prepareProject();
+    const catalog: FakeCatalog = { deployed: false };
+    await verifySharePoint(prepared, catalog);
+    route = mosAndCatalogRoute(catalog);
+    const { context, approvals } = createContext();
+    const published = await publish(prepared, context);
+    const applicationPath = path.join(root, "appPackage", "application.zip");
+    const rebuilt = createAppPackage("2.3.4", {
+      entryTime: new Date(2021, 5, 15, 12, 30, 40),
+      reverseOrder: true,
+    });
+    expect(rebuilt.equals(await fs.readFile(applicationPath))).toBe(false);
+    await fs.writeFile(applicationPath, rebuilt);
+
+    const replayed = await publish(prepared, context);
+
+    expect(published.result.isErr() ? published.result.error : undefined).toBeUndefined();
+    expect(replayed.result.isErr() ? replayed.result.error : undefined).toBeUndefined();
+    expect(outputsOf(replayed.result)).toEqual(outputsOf(published.result));
+    expect(approvals()).toBe(1);
+    expect(mosPosts()).toHaveLength(1);
+    expect((await journalOf(prepared)).state).toBe("submitted");
   });
 
   it.each([

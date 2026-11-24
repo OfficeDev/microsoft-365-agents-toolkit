@@ -19,6 +19,11 @@ export interface AssembleSharePointApplicationPackageInput {
 export interface SharePointApplicationPackage {
   packageBytes: Buffer;
   packageSha256: string;
+  /**
+   * Content digest of the application package's entries (names and bytes), not a hash of its ZIP
+   * bytes. It equals the sourceAppPackageSha256 that spfx/preparePublication reports and stays
+   * the same when an unchanged package is rebuilt.
+   */
   sourceApplicationSha256: string;
   sourceSharePointSha256: string;
   pluginSha256: string;
@@ -62,7 +67,7 @@ export async function assembleSharePointApplicationPackage(
   return ok({
     packageBytes: assembled.value.bytes,
     packageSha256: sha256(assembled.value.bytes),
-    sourceApplicationSha256: sha256(input.applicationPackage),
+    sourceApplicationSha256: assembled.value.sourceContentSha256,
     sourceSharePointSha256: inspection.value.sourceSha256,
     pluginSha256: assembled.value.pluginSha256,
     appId: assembled.value.appId,

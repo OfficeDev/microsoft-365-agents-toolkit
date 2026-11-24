@@ -14,6 +14,7 @@ import {
 import { err, ok } from "neverthrow";
 import type { Result } from "neverthrow";
 import {
+  archiveContentSha256,
   inspectSharePointPackage,
   inspectSharePointPackageIdentity,
   readBoundedArchive,
@@ -750,7 +751,13 @@ function prepareApplicationPackage(
   sourcePluginBytes: Buffer,
   productId: string
 ): Result<
-  { bytes: Buffer; appId: string; version: string; pluginBindingSha256: string },
+  {
+    bytes: Buffer;
+    sourceContentSha256: string;
+    appId: string;
+    version: string;
+    pluginBindingSha256: string;
+  },
   PreparedPublicationError
 > {
   const assembled = assembleApplicationPackage(bytes, pluginBytes, sourcePluginBytes, productId);
@@ -764,6 +771,7 @@ function prepareApplicationPackage(
   }
   return ok({
     bytes: assembled.value.bytes,
+    sourceContentSha256: assembled.value.sourceContentSha256,
     appId: assembled.value.appId,
     version: assembled.value.appVersion,
     pluginBindingSha256: assembled.value.pluginBindingSha256,
@@ -1208,7 +1216,7 @@ export async function preparePublication(
         appId: appPackage.value.appId,
         productId: sharePointPackage.value.productId,
         sourceSharePointSha256: sha256(sourcePackage.value.bytes),
-        sourceApplicationSha256: sha256(sourceAppPackage.value.bytes),
+        sourceApplicationSha256: appPackage.value.sourceContentSha256,
       });
       if (recoveryCheck.isErr()) {
         return err(recoveryCheck.error);
@@ -1309,7 +1317,7 @@ export async function preparePublication(
           },
           sourceApplication: {
             path: sourceAppPackage.value.relativePath,
-            sha256: sha256(sourceAppPackage.value.bytes),
+            sha256: appPackage.value.sourceContentSha256,
             appId: appPackage.value.appId,
             version: appPackage.value.version,
           },
@@ -1902,12 +1910,29 @@ export function verifyPreparedApplicationPackage(
   return ok(undefined);
 }
 
+// The SharePoint package is a pre-built developer artifact, so its bytes identify it. The
+// application package may be rebuilt by the lifecycle on every run, so its content identifies it.
+function sourceDigest(
+  kind: "sharePoint" | "application",
+  bytes: Buffer
+): Result<string, SharePointPackageInspectionError> {
+  return kind === "application"
+    ? readBoundedArchive(bytes).map(archiveContentSha256)
+    : ok(sha256(bytes));
+}
+
 export async function verifyPreparedSources(
   root: string,
   journal: PreparedPublicationJournal
 ): Promise<Result<void, PreparedPublicationError>> {
-  const sources = [journal.sourceSharePoint, journal.sourceApplication];
-  for (const source of sources) {
+  const sources: {
+    kind: "sharePoint" | "application";
+    source: { path: string; sha256: string };
+  }[] = [
+    { kind: "sharePoint", source: journal.sourceSharePoint },
+    { kind: "application", source: journal.sourceApplication },
+  ];
+  for (const { kind, source } of sources) {
     const fullPath = path.resolve(root, ...source.path.split("/"));
     if (!isWithinProject(root, fullPath)) {
       return err(
@@ -1935,11 +1960,13 @@ export async function verifyPreparedSources(
     if (read.isErr()) {
       return err(read.error);
     }
-    if (sha256(read.value) !== source.sha256) {
+    const digest = sourceDigest(kind, read.value);
+    if (digest.isErr() || digest.value !== source.sha256) {
       return err(
         new PreparedPublicationError(
           "SourceHashMismatch",
-          "A publication source changed after preparation."
+          "A publication source changed after preparation.",
+          digest.isErr() ? { cause: digest.error } : undefined
         )
       );
     }

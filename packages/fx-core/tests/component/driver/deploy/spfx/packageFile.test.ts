@@ -14,6 +14,7 @@ import {
   readSharePointPackage,
 } from "../../../../../src/sharepointPackage";
 import {
+  archiveContentSha256,
   readBoundedArchive,
   SHAREPOINT_PACKAGE_LIMITS,
 } from "../../../../../src/component/driver/deploy/spfx/utility/packageFile";
@@ -24,6 +25,12 @@ const userPluginPath = "plugins/user-plugin.json";
 const agentPackageName = "ClientSideAssets/copilot-agent.zip";
 const componentManifestName =
   "bbbbbbbb-cccc-4ddd-8eee-ffffffffffff/CopilotComponent_bbbbbbbb-cccc-4ddd-8eee-ffffffffffff.xml";
+
+function contentSha256(bytes: Buffer): string {
+  const entries = readBoundedArchive(bytes);
+  if (entries.isErr()) throw entries.error;
+  return archiveContentSha256(entries.value);
+}
 
 function incompressibleString(length: number): string {
   return randomBytes(Math.ceil((length * 3) / 4))
@@ -250,7 +257,8 @@ describe("SharePoint package inspection", () => {
         expect(result.value.sourceSharePointSha256).toBe(
           createHash("sha256").update(sourceSharePoint).digest("hex")
         );
-        expect(result.value.sourceApplicationSha256).toBe(
+        expect(result.value.sourceApplicationSha256).toBe(contentSha256(sourceApplication));
+        expect(result.value.sourceApplicationSha256).not.toBe(
           createHash("sha256").update(sourceApplication).digest("hex")
         );
         expect(result.value.packageSha256).toBe(
@@ -301,6 +309,81 @@ describe("SharePoint package inspection", () => {
       }
     }
   );
+
+  it("SPFX-PREP-23: reports an unchanged source application digest for a rebuilt package", async () => {
+    const original = createApplicationPackage("agent");
+    const restamped = new AdmZip(original);
+    for (const entry of restamped.getEntries())
+      entry.header.time = new Date(2021, 5, 15, 12, 30, 40);
+    const rebuilt = restamped.toBuffer();
+    expect(rebuilt.equals(original)).toBe(false);
+
+    const first = await assembleSharePointApplicationPackage({
+      applicationPackage: original,
+      sharePointPackage: createSppkg(),
+    });
+    const second = await assembleSharePointApplicationPackage({
+      applicationPackage: rebuilt,
+      sharePointPackage: createSppkg(),
+    });
+
+    expect(first.isErr() ? first.error : undefined).toBeUndefined();
+    expect(second.isErr() ? second.error : undefined).toBeUndefined();
+    if (first.isOk() && second.isOk()) {
+      expect(second.value.sourceApplicationSha256).toBe(first.value.sourceApplicationSha256);
+    }
+  });
+
+  describe("archive content digest", () => {
+    const files: [string, string][] = [
+      ["manifest.json", "{}"],
+      ["color.png", "icon"],
+      ["nested/file.txt", "content"],
+    ];
+
+    function archive(
+      entries: [string, string][],
+      options: { time?: Date; directory?: string } = {}
+    ): Buffer {
+      const zip = new AdmZip();
+      if (options.directory) zip.addFile(`${options.directory}/`, Buffer.alloc(0));
+      for (const [name, content] of entries) {
+        zip.addFile(name, Buffer.from(content));
+        const entry = zip.getEntry(name);
+        if (entry && options.time) entry.header.time = options.time;
+      }
+      return zip.toBuffer();
+    }
+
+    it("SPFX-PREP-23: ignores entry order, timestamps and directory entries", () => {
+      const original = archive(files);
+      const rebuilt = archive([...files].reverse(), {
+        time: new Date(2021, 5, 15, 12, 30, 40),
+        directory: "nested",
+      });
+
+      expect(rebuilt.equals(original)).toBe(false);
+      expect(contentSha256(rebuilt)).toBe(contentSha256(original));
+    });
+
+    it.each([
+      { name: "changed content", changed: [["manifest.json", "{ }"], ...files.slice(1)] },
+      { name: "a renamed entry", changed: [["manifest2.json", "{}"], ...files.slice(1)] },
+      { name: "an added entry", changed: [...files, ["extra.txt", "extra"]] },
+      { name: "a removed entry", changed: files.slice(1) },
+    ] as { name: string; changed: [string, string][] }[])(
+      "SPFX-PREP-23: detects $name",
+      ({ changed }) => {
+        expect(contentSha256(archive(changed))).not.toBe(contentSha256(archive(files)));
+      }
+    );
+
+    it("SPFX-PREP-23: keeps an entry name distinct from the start of its content", () => {
+      expect(archiveContentSha256([{ name: "a", data: Buffer.from("bc") }])).not.toBe(
+        archiveContentSha256([{ name: "ab", data: Buffer.from("c") }])
+      );
+    });
+  });
 
   function completeConnectorManifest(manifestVersion: string): Record<string, unknown> {
     const manifest = JSON.parse(

@@ -25,6 +25,7 @@ import {
   withPreparedPublicationIdentityLock,
 } from "../../../../../src/component/driver/deploy/spfx/utility/preparedPublication";
 import { SHAREPOINT_PACKAGE_LIMITS } from "../../../../../src/component/driver/deploy/spfx/utility/packageFile";
+import { assembleSharePointApplicationPackage } from "../../../../../src/sharepointPackage";
 import {
   createAppPackage,
   createSppkg,
@@ -71,6 +72,12 @@ describe("Prepared publication validation and durable recovery", () => {
     );
     if (loaded.isErr()) throw loaded.error;
     return { output: result.value, ...loaded.value };
+  }
+
+  async function lineageIds(journalPath: string): Promise<string[]> {
+    return (await fs.readdir(path.dirname(path.dirname(journalPath)), { withFileTypes: true }))
+      .filter((entry) => entry.isDirectory() && /^[0-9a-f-]{36}$/i.test(entry.name))
+      .map((entry) => entry.name);
   }
 
   async function changeJson(
@@ -581,11 +588,121 @@ describe("Prepared publication validation and durable recovery", () => {
       expect(replay.value.appPackageSha256).toBe(current.output.appPackageSha256);
     }
     expect(await fs.readJson(current.path)).toEqual(current.journal);
-    expect(
-      (await fs.readdir(path.dirname(current.path), { withFileTypes: true })).filter(
-        (entry) => entry.isDirectory() && /^[0-9a-f-]{36}$/i.test(entry.name)
-      )
-    ).toHaveLength(0);
+    expect(await lineageIds(current.path)).toEqual([current.output.publicationId]);
+  });
+
+  describe("source application identity", () => {
+    const rebuild = { entryTime: new Date(2021, 5, 15, 12, 30, 40), reverseOrder: true };
+    const applicationPath = () => path.join(root, input().appPackagePath);
+    const rawSha256 = (bytes: Buffer) => createHash("sha256").update(bytes).digest("hex");
+
+    async function writeRebuiltApplication(version = "2.3.4"): Promise<void> {
+      const rebuilt = createAppPackage(version, rebuild);
+      if (version === "2.3.4") {
+        expect(rawSha256(rebuilt)).not.toBe(rawSha256(await fs.readFile(applicationPath())));
+      }
+      await fs.writeFile(applicationPath(), rebuilt);
+    }
+
+    async function submitted() {
+      const current = await prepared();
+      current.journal.state = "submitted";
+      current.journal.sharePointArtifact.uploadState = "confirmed";
+      current.journal.sharePointArtifact.deployState = "confirmed";
+      current.journal.applicationArtifact.submissionState = "confirmed";
+      current.journal.applicationArtifact.submission = {
+        scope: "Tenant",
+        titleId: "published-title",
+        appId: "published-app",
+      };
+      await fs.writeJson(current.path, current.journal);
+      return current;
+    }
+
+    it("SPFX-PREP-21: resumes the same lineage after the application package is rebuilt with identical content", async () => {
+      const current = await prepared();
+      await writeRebuiltApplication();
+
+      const resumed = await preparePublication(input());
+
+      expect(resumed.isErr() ? resumed.error : undefined).toBeUndefined();
+      if (resumed.isOk()) {
+        expect(resumed.value.publicationId).toBe(current.output.publicationId);
+        expect(resumed.value.sourceAppPackageSha256).toBe(current.output.sourceAppPackageSha256);
+        expect(resumed.value.appPackageSha256).toBe(current.output.appPackageSha256);
+      }
+      expect(await fs.readJson(current.path)).toEqual(current.journal);
+      expect(await lineageIds(current.path)).toEqual([current.output.publicationId]);
+    });
+
+    it("SPFX-PREP-21: keeps blocking an unresolved lineage when the application content changed", async () => {
+      const current = await prepared();
+      await writeRebuiltApplication("2.3.5");
+
+      expectError(await preparePublication(input()), "UnresolvedPreparedPublication");
+      expect(await fs.readJson(current.path)).toEqual(current.journal);
+      expect(await lineageIds(current.path)).toEqual([current.output.publicationId]);
+    });
+
+    it("SPFX-PREP-23: reports the same source application digest as the offline assembler", async () => {
+      const current = await prepared();
+      const offline = await assembleSharePointApplicationPackage({
+        applicationPackage: await fs.readFile(applicationPath()),
+        sharePointPackage: await fs.readFile(path.join(root, input().packagePath)),
+      });
+
+      expect(offline.isErr() ? offline.error : undefined).toBeUndefined();
+      if (offline.isOk()) {
+        expect(offline.value.sourceApplicationSha256).toBe(current.output.sourceAppPackageSha256);
+      }
+      expect(current.output.sourceAppPackageSha256).not.toBe(
+        rawSha256(await fs.readFile(applicationPath()))
+      );
+    });
+
+    it("SPFX-PREP-21: verifies the application source by content and refuses changed or invalid sources", async () => {
+      const current = await prepared();
+
+      await writeRebuiltApplication();
+      const rebuilt = await verifyPreparedSources(root, current.journal);
+      expect(rebuilt.isErr() ? rebuilt.error : undefined).toBeUndefined();
+
+      await writeRebuiltApplication("2.3.5");
+      expectError(await verifyPreparedSources(root, current.journal), "SourceHashMismatch");
+
+      await fs.writeFile(applicationPath(), Buffer.from("not an archive"));
+      expectError(await verifyPreparedSources(root, current.journal), "SourceHashMismatch");
+    });
+
+    it("SPFX-PREP-22: reuses a submitted lineage after the application package is rebuilt with identical content", async () => {
+      const current = await submitted();
+      await writeRebuiltApplication();
+
+      const replay = await preparePublication(input());
+
+      expect(replay.isErr() ? replay.error : undefined).toBeUndefined();
+      if (replay.isOk()) {
+        expect(replay.value.publicationId).toBe(current.output.publicationId);
+        expect(replay.value.sourceAppPackageSha256).toBe(current.output.sourceAppPackageSha256);
+      }
+      expect(await fs.readJson(current.path)).toEqual(current.journal);
+      expect(await lineageIds(current.path)).toEqual([current.output.publicationId]);
+    });
+
+    it("SPFX-PREP-22: starts a new lineage when the application content changed after a submission", async () => {
+      const current = await submitted();
+      await writeRebuiltApplication("2.3.5");
+
+      const next = await preparePublication(input());
+
+      expect(next.isErr() ? next.error : undefined).toBeUndefined();
+      if (next.isOk()) {
+        expect(next.value.publicationId).not.toBe(current.output.publicationId);
+        expect(next.value.sourceAppPackageSha256).not.toBe(current.output.sourceAppPackageSha256);
+      }
+      expect(await fs.readJson(current.path)).toEqual(current.journal);
+      expect(await lineageIds(current.path)).toHaveLength(2);
+    });
   });
 
   it.each([

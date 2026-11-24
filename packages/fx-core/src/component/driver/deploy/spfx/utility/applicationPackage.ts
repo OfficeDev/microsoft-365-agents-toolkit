@@ -7,6 +7,7 @@ import { err, ok } from "neverthrow";
 import type { Result } from "neverthrow";
 import path from "path";
 import {
+  archiveContentSha256,
   readBoundedArchive,
   SHAREPOINT_PACKAGE_LIMITS,
   SharePointPackageInspectionError,
@@ -29,6 +30,8 @@ export class SharePointApplicationPackageError extends Error {
 
 export interface AssembledApplicationPackage {
   bytes: Buffer;
+  /** Content digest of the source package's entries, stable across rebuilds of identical content. */
+  sourceContentSha256: string;
   appId: string;
   appVersion: string;
   pluginSha256: string;
@@ -695,6 +698,7 @@ export function assembleApplicationPackage(
     }
     return ok({
       bytes: output,
+      sourceContentSha256: archiveContentSha256(entries.value),
       appId,
       appVersion,
       pluginSha256,

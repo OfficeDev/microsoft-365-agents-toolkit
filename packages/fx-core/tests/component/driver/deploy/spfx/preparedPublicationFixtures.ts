@@ -78,47 +78,62 @@ export function createSppkg(version = "1.2.3.4", componentContent = "component")
   return packageZip.toBuffer();
 }
 
-export function createAppPackage(version = "2.3.4"): Buffer {
+/** Zip-level differences that a rebuild of an unchanged application package can introduce. */
+export interface AppPackageRebuild {
+  /** Modification time stamped on every entry, as a rebuild at another time would. */
+  entryTime?: Date;
+  reverseOrder?: boolean;
+}
+
+export function createAppPackage(version = "2.3.4", rebuild: AppPackageRebuild = {}): Buffer {
+  const entries: [string, Buffer][] = [
+    [
+      "manifest.json",
+      Buffer.from(
+        JSON.stringify({
+          manifestVersion: "1.30",
+          version,
+          id: appId,
+          $schema:
+            "https://developer.microsoft.com/json-schemas/teams/v1.30/MicrosoftTeams.schema.json",
+          developer: {
+            name: "Sample developer",
+            websiteUrl: "https://example.test",
+            privacyUrl: "https://example.test/privacy",
+            termsOfUseUrl: "https://example.test/terms",
+          },
+          name: { short: "Sample app", full: "Sample application" },
+          description: { short: "Sample app", full: "Sample application" },
+          icons: { color: "color.png", outline: "outline.png" },
+          accentColor: "#FFFFFF",
+          copilotAgents: {
+            declarativeAgents: [{ id: "agent", file: "declarativeAgent.json" }],
+          },
+        })
+      ),
+    ],
+    [
+      "declarativeAgent.json",
+      Buffer.from(
+        JSON.stringify({
+          version: "v1.9",
+          name: "Sample agent",
+          description: "Sample agent description",
+          instructions: "Keep these instructions",
+          actions: [],
+        })
+      ),
+    ],
+    ["color.png", Buffer.from("icon")],
+    ["outline.png", Buffer.from("icon")],
+  ];
+  if (rebuild.reverseOrder) entries.reverse();
   const zip = new AdmZip();
-  zip.addFile(
-    "manifest.json",
-    Buffer.from(
-      JSON.stringify({
-        manifestVersion: "1.30",
-        version,
-        id: appId,
-        $schema:
-          "https://developer.microsoft.com/json-schemas/teams/v1.30/MicrosoftTeams.schema.json",
-        developer: {
-          name: "Sample developer",
-          websiteUrl: "https://example.test",
-          privacyUrl: "https://example.test/privacy",
-          termsOfUseUrl: "https://example.test/terms",
-        },
-        name: { short: "Sample app", full: "Sample application" },
-        description: { short: "Sample app", full: "Sample application" },
-        icons: { color: "color.png", outline: "outline.png" },
-        accentColor: "#FFFFFF",
-        copilotAgents: {
-          declarativeAgents: [{ id: "agent", file: "declarativeAgent.json" }],
-        },
-      })
-    )
-  );
-  zip.addFile(
-    "declarativeAgent.json",
-    Buffer.from(
-      JSON.stringify({
-        version: "v1.9",
-        name: "Sample agent",
-        description: "Sample agent description",
-        instructions: "Keep these instructions",
-        actions: [],
-      })
-    )
-  );
-  zip.addFile("color.png", Buffer.from("icon"));
-  zip.addFile("outline.png", Buffer.from("icon"));
+  for (const [name, content] of entries) {
+    zip.addFile(name, content);
+    const entry = zip.getEntry(name);
+    if (entry && rebuild.entryTime) entry.header.time = rebuild.entryTime;
+  }
   return zip.toBuffer();
 }
 

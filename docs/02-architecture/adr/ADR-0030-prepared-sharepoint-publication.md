@@ -32,8 +32,12 @@ process interruption between a remote write and the next lifecycle action.
    required to resolve tenant-bound plugin values.
 3. Bind tenant ID, verified catalog origin, app/product identity, source and
    prepared hashes, and a versioned transformation identity in one token-free
-   journal. Identity-wide coordination spans preparation, deployment, and
-   submission; changing source bytes or version does not bypass unresolved
+   journal. Identify the source application package by a canonical digest of its
+   entry names and bytes rather than by its ZIP bytes, because the YAML
+   lifecycle rebuilds that ZIP (with a new timestamp) on every run; the
+   `.sppkg` source and both staged artifacts stay bound by the SHA-256 of their
+   exact bytes. Identity-wide coordination spans preparation, deployment, and
+   submission; changing source content or version does not bypass unresolved
    outcomes. Active legacy journals that lack tenant identity fail closed and
    remain available for explicit reconciliation.
 4. Extend the existing SharePoint deployment and `copilotAgent/publish` actions
@@ -71,9 +75,10 @@ process interruption between a remote write and the next lifecycle action.
    application content and validate the final staged manifests against the
    supported schema machinery before freezing deterministic artifacts. The
    public lean package entry exposes an in-memory tenant-neutral assembly API
-   backed by this same transformer. It returns exact source and output hashes,
-   preserves tenant placeholders, performs local structural validation only,
-   and leaves persistence to the caller. Tenant-bound preparation recognizes
+   backed by this same transformer. It returns the output hash and the source
+   identities that preparation records, preserves tenant placeholders, performs
+   local structural validation only, and leaves persistence to the caller.
+   Tenant-bound preparation recognizes
    and replaces that deterministic managed contribution in place before final
    schema validation; conflicting or ambiguous ownership fails closed. No
    `TENANT_ORIGIN` CSP path is qualified yet; do not perform broad string
