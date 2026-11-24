@@ -10,11 +10,14 @@ The in-process publish client executes the project's configured YAML
 `publish:` lifecycle. A SharePoint-backed app publication needs to derive two
 immutable artifacts from a completed SPFx package and submit them in a strict
 order: deploy and verify the SharePoint package, then submit the application
-package. The existing `spfx/deploy` and `teamsApp/publishAppPackage` actions
-must remain compatible for ordinary projects.
+package. The existing `spfx/deploy` and `copilotAgent/publish` actions must
+remain compatible for ordinary projects.
 
-The flow crosses local package parsing, SharePoint catalog writes and Graph
-submission. Environment outputs alone are not durable enough to reconcile a
+The flow crosses local package parsing, SharePoint catalog writes and a
+Microsoft 365 Titles service (MOS3 Builder API) submission. Agent and connector
+applications are published to MOS3, not to the Microsoft Graph Teams catalog,
+so submission uses `copilotAgent/publish` and leaves `teamsApp/publishAppPackage`
+untouched. Environment outputs alone are not durable enough to reconcile a
 process interruption between a remote write and the next lifecycle action.
 
 ## Decision
@@ -33,14 +36,16 @@ process interruption between a remote write and the next lifecycle action.
    submission; changing source bytes or version does not bypass unresolved
    outcomes. Active legacy journals that lack tenant identity fail closed and
    remain available for explicit reconciliation.
-4. Extend the existing SharePoint deployment and application submission
-   actions with optional prepared-publication inputs. In that mode they verify
+4. Extend the existing SharePoint deployment and `copilotAgent/publish` actions
+   with optional prepared-publication inputs. In that mode they verify
    the journal and exact bytes, persist stage transitions, require genuine
    approval before writes, and reject incompatible identity/version states.
-   Each action re-verifies the signed-in token tenant/audiences and the
-   discovered catalog against the journal before any prompt, read, or write.
-   The ordinary action path is unchanged when prepared-publication inputs are
-   absent.
+   Each action re-verifies the signed-in token tenant (and, for Graph and
+   SharePoint, audience) and the discovered catalog against the journal before
+   any prompt, read, or write. Submission needs no Graph token: it binds the
+   SharePoint and MOS3 tokens to the journal tenant. The ordinary action path is
+   unchanged when prepared-publication inputs are absent, and
+   `teamsApp/publishAppPackage` is not extended.
 5. Record an in-flight state before each non-idempotent remote write. A
    definitive rejection is distinct from an unknown outcome. Unknown outcomes
    and cancellation after a possible write remain durable and block automatic
@@ -50,8 +55,10 @@ process interruption between a remote write and the next lifecycle action.
    rather than mutable module-global base URL state. Verify the uploaded
    SharePoint package bytes and deployment state before
    allowing application submission. Submit the exact frozen application ZIP
-   once; the prepared path does not use retry wrappers or create-to-update
-   fallback.
+   once to MOS3 and poll its status within a bounded window; the prepared path
+   does not use retry wrappers, create-to-update fallback, or incremental skill
+   rewriting, so the hash-bound bytes are what the service receives. A
+   confirmed upload is persisted before any read-only share-link lookup.
 7. Support either a declarative-agent action reference or the typed
    `AgentConnector.toolSource.plugin` representation. The connector form is
    emitted only when the application's manifest schema defines
@@ -70,7 +77,8 @@ process interruption between a remote write and the next lifecycle action.
    `TENANT_ORIGIN` CSP path is qualified yet; do not perform broad string
    replacement.
 8. Do not change `FxCoreClient.publish`, route through the legacy Teams-only
-   API, add a CLI action, or extend the direct-action allowlist.
+   API, change `teamsApp/publishAppPackage` or the Graph catalog client, add a
+   CLI action, or extend the direct-action allowlist.
 
 ## Consequences
 
@@ -79,7 +87,11 @@ process interruption between a remote write and the next lifecycle action.
 - The journal, rather than a second publisher or client callback, owns
   cross-action recovery state. Persisted lifecycle outputs expose the staged
   paths and hashes to later YAML actions but are not the recovery source of
-  truth.
+  truth. The MOS3 title and app IDs and the scope are recorded in the journal
+  when the submission is confirmed.
+- The post-publish completion link of the in-process coordinator follows the
+  action: a lifecycle containing `copilotAgent/publish` opens the Microsoft 365
+  admin center.
 - The implementation supports only the qualified package shape and catalog
   operations it can verify. Unsupported clouds, malformed packages, ambiguous
   package content, collisions, and unresolved state fail closed.

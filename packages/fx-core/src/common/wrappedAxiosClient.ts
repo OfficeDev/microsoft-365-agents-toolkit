@@ -80,7 +80,7 @@ export class WrappedAxiosClient {
       });
       return response;
     }
-    const method = response.config.method ?? response.request?.method ?? "get";
+    const method = response.request.method;
     const apiName = this.convertUrlToApiName(fullPath, method);
 
     const properties: { [key: string]: string } = {

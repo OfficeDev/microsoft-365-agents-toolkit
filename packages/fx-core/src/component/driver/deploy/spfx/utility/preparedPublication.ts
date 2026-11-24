@@ -101,7 +101,36 @@ export interface PreparedPublicationJournal {
     appId: string;
     version: string;
     submissionState: PreparedWriteState;
-    submittedAppId?: string;
+    submission?: PreparedSubmission;
+  };
+}
+
+/**
+ * The Microsoft 365 app catalog (MOS3) submission of the staged application package. The scope
+ * is recorded before the upload; the identifiers only once MOS3 confirms the upload.
+ */
+export interface PreparedSubmission {
+  scope: string;
+  titleId?: string;
+  appId?: string;
+}
+
+function parseSubmission(value: unknown): PreparedSubmission | undefined {
+  if (!isRecord(value) || typeof value["scope"] !== "string" || value["scope"].length === 0) {
+    return undefined;
+  }
+  const titleId = value["titleId"];
+  const appId = value["appId"];
+  if (
+    (titleId !== undefined && (typeof titleId !== "string" || titleId.length === 0)) ||
+    (appId !== undefined && (typeof appId !== "string" || appId.length === 0))
+  ) {
+    return undefined;
+  }
+  return {
+    scope: value["scope"],
+    ...(typeof titleId === "string" ? { titleId } : {}),
+    ...(typeof appId === "string" ? { appId } : {}),
   };
 }
 
@@ -1450,6 +1479,7 @@ function parseJournal(value: unknown): PreparedPublicationJournal | undefined {
   const applicationArtifactAppId = applicationArtifact["appId"];
   const applicationArtifactVersion = applicationArtifact["version"];
   const applicationSubmissionState = applicationArtifact["submissionState"];
+  const applicationSubmission = parseSubmission(applicationArtifact["submission"]);
   const tenantId = identity["tenantId"];
   const tenantOrigin = identity["tenantOrigin"];
   const catalogUrl = identity["catalogUrl"];
@@ -1486,7 +1516,10 @@ function parseJournal(value: unknown): PreparedPublicationJournal | undefined {
     identityProductId.toLowerCase() !== sourceSharePointProductId.toLowerCase() ||
     !isSupportedTransformationIdentity(transformationId) ||
     !isPreparedCatalogUrl(catalogUrl, tenantOrigin) ||
-    !isWriteState(applicationSubmissionState)
+    !isWriteState(applicationSubmissionState) ||
+    (applicationArtifact["submission"] !== undefined && applicationSubmission === undefined) ||
+    (applicationSubmissionState === "confirmed" &&
+      (applicationSubmission?.titleId === undefined || applicationSubmission.appId === undefined))
   ) {
     return undefined;
   }
@@ -1537,9 +1570,7 @@ function parseJournal(value: unknown): PreparedPublicationJournal | undefined {
       appId: applicationArtifactAppId,
       version: applicationArtifactVersion,
       submissionState: applicationSubmissionState,
-      ...(typeof applicationArtifact["submittedAppId"] === "string"
-        ? { submittedAppId: applicationArtifact["submittedAppId"] }
-        : {}),
+      ...(applicationSubmission !== undefined ? { submission: applicationSubmission } : {}),
     },
   };
 }

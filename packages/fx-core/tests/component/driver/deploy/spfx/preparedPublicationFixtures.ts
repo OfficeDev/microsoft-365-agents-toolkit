@@ -2,8 +2,11 @@
 // Licensed under the MIT license.
 
 import AdmZip from "adm-zip";
-import { M365TokenProvider, ok } from "@microsoft/teamsfx-api";
+import FormData from "form-data";
+import { err, FxError, M365TokenProvider, ok, Result, SystemError } from "@microsoft/teamsfx-api";
 import { vi } from "vitest";
+import { MosServiceScope } from "../../../../../src/common/constants";
+
 export const productId = "11111111-2222-4333-8444-555555555555";
 export const appId = "aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee";
 export const componentId = "bbbbbbbb-cccc-4ddd-8eee-ffffffffffff";
@@ -124,24 +127,70 @@ export interface TokenClaimsOverride {
   graphAudience?: string;
   sharePointTenantId?: string;
   sharePointAudience?: string;
+  mosTenantId?: string;
+  mosAudience?: string;
+  /** Makes the SharePoint claims unreadable, as when the signed-in token cannot be decoded. */
+  sharePointClaimsUnavailable?: boolean;
+  /** Makes the MOS3 claims unreadable, as when the signed-in token cannot be decoded. */
+  mosClaimsUnavailable?: boolean;
 }
 
-/** Returns signed-in Graph and SharePoint claims for the fixture tenant unless overridden. */
+function claimsUnavailable(): Result<Record<string, unknown>, FxError> {
+  return err(
+    new SystemError({
+      source: "test",
+      name: "ClaimsUnavailable",
+      message: "The signed-in token claims are unavailable.",
+    })
+  );
+}
+
+/**
+ * Returns signed-in Graph, SharePoint and MOS3 claims for the fixture tenant unless overridden.
+ * The MOS3 claims are independent of the Graph claims because a prepared submission never
+ * requests a Graph token.
+ */
 export function mockTokenClaims(
   provider: M365TokenProvider,
   override: TokenClaimsOverride = {}
 ): void {
-  vi.spyOn(provider, "getJsonObject").mockImplementation(async (tokenRequest) =>
-    ok(
-      tokenRequest.scopes.some((scope) => scope.includes("Sites.FullControl.All"))
-        ? {
-            tid: override.sharePointTenantId ?? override.graphTenantId ?? tenantId,
-            aud: override.sharePointAudience ?? tenantUrl,
-          }
-        : {
-            tid: override.graphTenantId ?? tenantId,
-            aud: override.graphAudience ?? "https://graph.microsoft.com",
-          }
-    )
-  );
+  vi.spyOn(provider, "getJsonObject").mockImplementation(async (tokenRequest) => {
+    if (tokenRequest.scopes.some((scope) => scope.includes("Sites.FullControl.All"))) {
+      if (override.sharePointClaimsUnavailable) {
+        return claimsUnavailable();
+      }
+      return ok({
+        tid: override.sharePointTenantId ?? override.graphTenantId ?? tenantId,
+        aud: override.sharePointAudience ?? tenantUrl,
+      });
+    }
+    if (tokenRequest.scopes.some((scope) => MosServiceScope().includes(scope))) {
+      if (override.mosClaimsUnavailable) {
+        return claimsUnavailable();
+      }
+      return ok({
+        tid: override.mosTenantId ?? tenantId,
+        aud: override.mosAudience ?? "https://titles.example.test",
+      });
+    }
+    return ok({
+      tid: override.graphTenantId ?? tenantId,
+      aud: override.graphAudience ?? "https://graph.microsoft.com",
+    });
+  });
+}
+
+/** Returns the exact bytes of one named part of a form-data request body. */
+export function multipartPart(body: unknown, name: string): Buffer | undefined {
+  if (!(body instanceof FormData)) {
+    return undefined;
+  }
+  const raw = body.getBuffer();
+  const header = raw.indexOf(`Content-Disposition: form-data; name="${name}"`);
+  if (header < 0) {
+    return undefined;
+  }
+  const start = raw.indexOf("\r\n\r\n", header) + 4;
+  const end = raw.indexOf(`\r\n--${body.getBoundary()}`, start);
+  return raw.subarray(start, end);
 }

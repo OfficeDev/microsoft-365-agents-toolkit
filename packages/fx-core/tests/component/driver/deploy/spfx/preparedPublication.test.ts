@@ -320,7 +320,7 @@ describe("Prepared SharePoint publication preparation", () => {
     }
   });
 
-  it("SPFX-PREP-11: projects rejected and unknown Graph failures without raw response data", async () => {
+  it("SPFX-PREP-11: projects rejected and unknown MOS3 failures without raw response data", async () => {
     const projectPath = await fs.mkdtemp(path.join(os.tmpdir(), "prepared-publication-errors-"));
     directories.push(projectPath);
     await fs.ensureDir(path.join(projectPath, "sharepoint"));
@@ -361,7 +361,7 @@ describe("Prepared SharePoint publication preparation", () => {
       response: rejectedResponse,
     });
     const rejected = createPreparedPublicationErrorData(
-      new PreparedPublicationError("TeamsAppSubmissionRejected", "Rejected", {
+      new PreparedPublicationError("MosSubmissionRejected", "Rejected", {
         cause: rejectedCause,
       }),
       rejectedJournal,
@@ -388,7 +388,7 @@ describe("Prepared SharePoint publication preparation", () => {
       },
     };
     const unknown = createPreparedPublicationErrorData(
-      new PreparedPublicationError("TeamsAppSubmissionOutcomeUnknown", "Unknown", {
+      new PreparedPublicationError("MosSubmissionOutcomeUnknown", "Unknown", {
         cause: Object.assign(new Error("raw service response"), {
           response: { status: 500, data: { message: "do not expose response text" } },
         }),

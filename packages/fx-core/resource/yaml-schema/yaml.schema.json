@@ -1000,34 +1000,6 @@
             "appPackagePath": {
               "type": "string",
               "description": "Path to app package to be published."
-            },
-            "preparedPublicationPath": {
-              "type": "string",
-              "description": "Prepared publication journal path emitted by spfx/preparePublication."
-            },
-            "publicationId": {
-              "type": "string",
-              "description": "Prepared publication identifier emitted by spfx/preparePublication."
-            },
-            "sourcePackageSha256": {
-              "type": "string",
-              "pattern": "^(?:[0-9a-fA-F]{64}|\\$\\{\\{[A-Za-z_][A-Za-z0-9_]*\\}\\})$"
-            },
-            "sourceAppPackageSha256": {
-              "type": "string",
-              "pattern": "^(?:[0-9a-fA-F]{64}|\\$\\{\\{[A-Za-z_][A-Za-z0-9_]*\\}\\})$"
-            },
-            "pluginSha256": {
-              "type": "string",
-              "pattern": "^(?:[0-9a-fA-F]{64}|\\$\\{\\{[A-Za-z_][A-Za-z0-9_]*\\}\\})$"
-            },
-            "sharePointPackageSha256": {
-              "type": "string",
-              "pattern": "^(?:[0-9a-fA-F]{64}|\\$\\{\\{[A-Za-z_][A-Za-z0-9_]*\\}\\})$"
-            },
-            "appPackageSha256": {
-              "type": "string",
-              "pattern": "^(?:[0-9a-fA-F]{64}|\\$\\{\\{[A-Za-z_][A-Za-z0-9_]*\\}\\})$"
             }
           }
         },
@@ -2424,6 +2396,34 @@
             "scope": {
               "type": "string",
               "description": "Scope of the agent. 'personal' is only visible to the owners. 'shared' can be visible to other users in the tenant. 'tenant' is visible to all users in the tenant. Default is 'personal'."
+            },
+            "preparedPublicationPath": {
+              "type": "string",
+              "description": "Prepared publication journal path emitted by spfx/preparePublication. Setting any prepared publication input selects the prepared mode, which then requires all of them."
+            },
+            "publicationId": {
+              "type": "string",
+              "description": "Prepared publication identifier emitted by spfx/preparePublication."
+            },
+            "sourcePackageSha256": {
+              "type": "string",
+              "pattern": "^(?:[0-9a-fA-F]{64}|\\$\\{\\{[A-Za-z_][A-Za-z0-9_]*\\}\\})$"
+            },
+            "sourceAppPackageSha256": {
+              "type": "string",
+              "pattern": "^(?:[0-9a-fA-F]{64}|\\$\\{\\{[A-Za-z_][A-Za-z0-9_]*\\}\\})$"
+            },
+            "pluginSha256": {
+              "type": "string",
+              "pattern": "^(?:[0-9a-fA-F]{64}|\\$\\{\\{[A-Za-z_][A-Za-z0-9_]*\\}\\})$"
+            },
+            "sharePointPackageSha256": {
+              "type": "string",
+              "pattern": "^(?:[0-9a-fA-F]{64}|\\$\\{\\{[A-Za-z_][A-Za-z0-9_]*\\}\\})$"
+            },
+            "appPackageSha256": {
+              "type": "string",
+              "pattern": "^(?:[0-9a-fA-F]{64}|\\$\\{\\{[A-Za-z_][A-Za-z0-9_]*\\}\\})$"
             }
           }
         },

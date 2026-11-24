@@ -25,10 +25,13 @@ for cancellation and error semantics.
 
 Projects can opt in to a SharePoint-first publication lifecycle with
 `spfx/preparePublication`, followed by the prepared mode of `spfx/deploy` and
-`teamsApp/publishAppPackage`. Preparation freezes the deployment and
+`copilotAgent/publish`. Preparation freezes the deployment and
 application packages, records their hash lineage in a project-local journal,
 and does not modify either input. SharePoint deployment must be verified before
-the app package can be submitted. Ambiguous writes are not replayed
+the app package is uploaded to the Microsoft 365 app service (MOS3).
+`copilotAgent/publish` accepts the prepared inputs as optional `with:` values
+and returns the title and app IDs through `writeToEnvironmentFile`; without
+them it behaves as before. Ambiguous writes are not replayed
 automatically. See the
 [operation contract](../../docs/03-specs/operations/lifecycle/prepare-spfx-publication.md)
 and [ADR-0030](../../docs/02-architecture/adr/ADR-0030-prepared-sharepoint-publication.md)

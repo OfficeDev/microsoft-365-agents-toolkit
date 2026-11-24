@@ -17,6 +17,7 @@ import os from "os";
 import path from "path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+import * as commonUtils from "../../../../../src/common/utils";
 import * as Tools from "../../../../../src/common/tools";
 import { SPFxDeployDriver } from "../../../../../src/component/driver/deploy/spfx/deployDriver";
 import {
@@ -32,14 +33,14 @@ import {
 } from "../../../../../src/component/driver/deploy/spfx/utility/preparedPublication";
 import { sleep } from "../../../../../src/component/driver/deploy/spfx/utility/sleep";
 import { PreparePublicationDriver } from "../../../../../src/component/driver/deploy/spfx/preparePublicationDriver";
-import { PublishAppPackageDriver } from "../../../../../src/component/driver/teamsApp/publishAppPackage";
+import { CopilotAgentPublishDriver } from "../../../../../src/component/driver/copilotAgent/publish";
 import { UserCancelError } from "../../../../../src/error/common";
 import { MockTools } from "../../../../core/utils";
 import {
   createAppPackage,
   createSppkg,
   mockTokenClaims,
-  appId,
+  multipartPart,
   productId,
   publicationTenantContext,
   tenantId,
@@ -75,7 +76,7 @@ function reply(
     statusText: String(status),
     headers: new AxiosHeaders(responseHeaders),
     config,
-    request: {},
+    request: { method: config.method?.toUpperCase() },
   };
   if (status >= 400) {
     throw new AxiosError(
@@ -165,6 +166,7 @@ describe("Prepared SharePoint publication contracts", () => {
   afterEach(async () => {
     axios.defaults.adapter = originalAdapter;
     vi.restoreAllMocks();
+    vi.unstubAllEnvs();
     if (projectPath !== undefined) {
       await fs.remove(projectPath);
       projectPath = undefined;
@@ -198,6 +200,8 @@ describe("Prepared SharePoint publication contracts", () => {
   ): { context: DriverContext; approvals: () => number } {
     vi.spyOn(SPFxDeployDriver.prototype, "getTenant").mockResolvedValue(tenantUrl);
     vi.spyOn(Tools, "getSPFxToken").mockResolvedValue("sharepoint-token");
+    vi.spyOn(commonUtils, "waitSeconds").mockResolvedValue();
+    vi.stubEnv("TEAMSFX_RAI_VALIDATION_ENABLED", "false");
     const tools = new MockTools();
     mockTokenClaims(tools.tokenProvider.m365TokenProvider, claims);
     let approvalCount = 0;
@@ -237,9 +241,10 @@ describe("Prepared SharePoint publication contracts", () => {
     };
   }
 
-  function publishArgs(prepared: PreparedPublicationOutput) {
+  function publishArgs(prepared: PreparedPublicationOutput, scope = "tenant") {
     return {
       appPackagePath: prepared.appPackagePath,
+      scope,
       preparedPublicationPath: prepared.preparedPublicationPath,
       publicationId: prepared.publicationId,
       sourcePackageSha256: prepared.sourcePackageSha256,
@@ -248,6 +253,21 @@ describe("Prepared SharePoint publication contracts", () => {
       sharePointPackageSha256: prepared.sharePointPackageSha256,
       appPackageSha256: prepared.appPackageSha256,
     };
+  }
+
+  const publishOutputNames = new Map([
+    ["titleId", "M365_TITLE_ID"],
+    ["appId", "M365_APP_ID"],
+    ["shareLink", "M365_SHARE_LINK"],
+  ]);
+
+  function publish(
+    prepared: PreparedPublicationOutput,
+    context: DriverContext,
+    scope?: string,
+    outputs: Map<string, string> = publishOutputNames
+  ) {
+    return new CopilotAgentPublishDriver().execute(publishArgs(prepared, scope), context, outputs);
   }
 
   async function journalOf(prepared: PreparedPublicationOutput) {
@@ -579,12 +599,12 @@ describe("Prepared SharePoint publication contracts", () => {
     expect(deployed.isErr() ? deployed.error : undefined).toBeUndefined();
     requests.length = 0;
     vi.restoreAllMocks();
-    const { context, approvals } = createContext({ graphTenantId: otherTenantId });
+    const { context, approvals } = createContext({ sharePointTenantId: otherTenantId });
 
-    const published = await new PublishAppPackageDriver().execute(publishArgs(prepared), context);
+    const published = await publish(prepared, context);
 
     expect(published.result.isErr() ? published.result.error.name : undefined).toBe(
-      "PreparedTenantMismatch"
+      "SharePointTokenIdentityMismatch"
     );
     expect(approvals()).toBe(0);
     expect(requests.map((request) => request.url)).toEqual(["/_api/SP_TenantSettings_Current"]);
@@ -612,7 +632,7 @@ describe("Prepared SharePoint publication contracts", () => {
     });
     const { context, approvals } = createContext();
     const deployment = await new SPFxDeployDriver().run(deployArgs(prepared), context);
-    const submission = await new PublishAppPackageDriver().execute(publishArgs(prepared), context);
+    const submission = await publish(prepared, context);
     releaseLock();
     await holder;
 
@@ -1175,31 +1195,40 @@ describe("Prepared SharePoint publication contracts", () => {
     expect(errorCode(result)).toBe("SharePointCatalogIdentityMismatch");
     expect(posts().some((request) => request.url?.endsWith("/Deploy"))).toBe(false);
   });
-  interface FakeGraph {
-    existing?: { id: string; definitions: { version: string; publishingState: string }[] };
-    submit: (config: InternalAxiosRequestConfig) => Promise<AxiosResponse>;
+
+  const mosTitleId = "T_fixture-title";
+  const mosAppId = "fixture-mos-app";
+  const mosShareLink = "https://share.example.test/apps/fixture";
+
+  interface FakeMos {
+    environment?: Route;
+    upload?: Route;
+    status?: Route;
+    sharingInfo?: Route;
   }
 
-  function graphAndCatalogRoute(catalog: FakeCatalog, graph: FakeGraph): Route {
+  /** Serves the MOS3 Builder API used by prepared submission next to the SharePoint catalog. */
+  function mosAndCatalogRoute(catalog: FakeCatalog, mos: FakeMos = {}): Route {
     const serveCatalog = catalogRoute(catalog);
     return async (config) => {
       const url = config.url ?? "";
-      if (url.startsWith("/appCatalogs/teamsApps") && config.method === "get") {
-        return reply(config, 200, {
-          value: graph.existing
-            ? [
-                {
-                  id: graph.existing.id,
-                  externalId: appId,
-                  displayName: "Fixture",
-                  appDefinitions: graph.existing.definitions,
-                },
-              ]
-            : [],
-        });
+      if (config.method === "get" && url === "/config/v1/environment") {
+        return mos.environment
+          ? mos.environment(config)
+          : reply(config, 200, { titlesServiceUrl: "https://titles.example.test" });
       }
-      if (url.startsWith("/appCatalogs/teamsApps") && config.method === "post") {
-        return graph.submit(config);
+      if (config.method === "post" && url === "/builder/v1/users/packages") {
+        return mos.upload ? mos.upload(config) : reply(config, 202, { statusId: "status-1" });
+      }
+      if (config.method === "get" && url.startsWith("/builder/v1/users/packages/status/")) {
+        return mos.status
+          ? mos.status(config)
+          : reply(config, 200, { titleId: mosTitleId, appId: mosAppId });
+      }
+      if (config.method === "get" && url.startsWith("/marketplace/v1/users/titles/")) {
+        return mos.sharingInfo
+          ? mos.sharingInfo(config)
+          : reply(config, 200, { unifiedStoreLink: mosShareLink });
       }
       return serveCatalog(config);
     };
@@ -1216,50 +1245,66 @@ describe("Prepared SharePoint publication contracts", () => {
     vi.restoreAllMocks();
   }
 
-  function graphPosts(): InternalAxiosRequestConfig[] {
-    return posts().filter((request) => request.url?.startsWith("/appCatalogs/teamsApps"));
+  function mosPosts(): InternalAxiosRequestConfig[] {
+    return posts().filter((request) => request.url === "/builder/v1/users/packages");
+  }
+
+  function mosRequests(): InternalAxiosRequestConfig[] {
+    return requests.filter((request) =>
+      ["/config/", "/builder/", "/marketplace/"].some((prefix) => request.url?.startsWith(prefix))
+    );
+  }
+
+  function outputsOf(result: Result<Map<string, string>, FxError>): Record<string, string> {
+    return result.isOk() ? Object.fromEntries(result.value) : {};
   }
 
   it("SPFX-PREP-07: submits the exact prepared app package once after SharePoint verification and replays the confirmed result", async () => {
     const { prepared } = await prepareProject();
     const catalog: FakeCatalog = { deployed: false };
     await verifySharePoint(prepared, catalog);
-    route = graphAndCatalogRoute(catalog, {
-      submit: async (config) => reply(config, 201, { id: "teams-app-id", externalId: appId }),
-    });
+    route = mosAndCatalogRoute(catalog);
     const { context, approvals } = createContext();
 
-    const published = await new PublishAppPackageDriver().execute(publishArgs(prepared), context);
-    const replayed = await new PublishAppPackageDriver().execute(publishArgs(prepared), context);
+    const published = await publish(prepared, context);
+    const replayed = await publish(prepared, context);
 
     expect(published.result.isErr() ? published.result.error : undefined).toBeUndefined();
-    expect(published.result.isOk() ? [...published.result.value.values()] : []).toEqual([
-      "teams-app-id",
-    ]);
-    expect(replayed.result.isOk() ? [...replayed.result.value.values()] : []).toEqual([
-      "teams-app-id",
-    ]);
+    expect(outputsOf(published.result)).toEqual({
+      M365_TITLE_ID: mosTitleId,
+      M365_APP_ID: mosAppId,
+    });
+    expect(outputsOf(replayed.result)).toEqual(outputsOf(published.result));
     expect(approvals()).toBe(1);
-    expect(graphPosts()).toHaveLength(1);
-    expect(graphPosts()[0].url).toBe("/appCatalogs/teamsApps?requiresReview=true");
-    const submittedBytes = graphPosts()[0].data;
-    expect(Buffer.isBuffer(submittedBytes)).toBe(true);
+    expect(mosPosts()).toHaveLength(1);
+    const [upload] = mosPosts();
+    expect(upload.params).toEqual({ scope: "Tenant" });
+    expect(upload.headers.get("Authorization")).toBe("Bearer fakeToken");
     expect(
       Buffer.compare(
-        Buffer.isBuffer(submittedBytes) ? submittedBytes : Buffer.alloc(0),
+        multipartPart(upload.data, "package"),
         await fs.readFile(path.join(projectPath ?? "", prepared.appPackagePath))
       )
     ).toBe(0);
+    expect(JSON.parse(multipartPart(upload.data, "info").toString("utf8"))).toEqual({
+      builderName: "TeamsToolKit",
+    });
     const journal = await journalOf(prepared);
     expect(journal.state).toBe("submitted");
-    expect(journal.applicationArtifact.submittedAppId).toBe("teams-app-id");
+    expect(journal.applicationArtifact.submissionState).toBe("confirmed");
+    expect(journal.applicationArtifact.submission).toEqual({
+      scope: "Tenant",
+      titleId: mosTitleId,
+      appId: mosAppId,
+    });
   });
 
   it.each([
     {
       outcome: "a definitive rejection",
-      fail: (config: InternalAxiosRequestConfig) => reply(config, 400, { error: {} }),
-      code: "TeamsAppSubmissionRejected",
+      fail: (config: InternalAxiosRequestConfig) =>
+        reply(config, 400, { error: { code: "InvalidPackage" } }),
+      code: "MosSubmissionRejected",
       state: "rejected",
       httpStatus: 400,
     },
@@ -1267,7 +1312,7 @@ describe("Prepared SharePoint publication contracts", () => {
       outcome: "an uncertain network failure",
       fail: (config: InternalAxiosRequestConfig) =>
         Promise.reject(new AxiosError("socket hang up", AxiosError.ERR_NETWORK, config)),
-      code: "TeamsAppSubmissionOutcomeUnknown",
+      code: "MosSubmissionOutcomeUnknown",
       state: "unknown",
       httpStatus: undefined,
     },
@@ -1277,11 +1322,11 @@ describe("Prepared SharePoint publication contracts", () => {
       const { prepared } = await prepareProject();
       const catalog: FakeCatalog = { deployed: false };
       await verifySharePoint(prepared, catalog);
-      route = graphAndCatalogRoute(catalog, { submit: async (config) => fail(config) });
+      route = mosAndCatalogRoute(catalog, { upload: async (config) => fail(config) });
       const { context } = createContext();
 
-      const published = await new PublishAppPackageDriver().execute(publishArgs(prepared), context);
-      const again = await new PublishAppPackageDriver().execute(publishArgs(prepared), context);
+      const published = await publish(prepared, context);
+      const again = await publish(prepared, context);
 
       expect(published.result.isErr() ? published.result.error.name : undefined).toBe(code);
       const error = published.result.isErr() ? published.result.error : undefined;
@@ -1297,95 +1342,45 @@ describe("Prepared SharePoint publication contracts", () => {
       expect(again.result.isErr() ? again.result.error.name : undefined).toBe(
         "PreparedPublicationNotVerified"
       );
-      expect(graphPosts()).toHaveLength(1);
+      expect(mosPosts()).toHaveLength(1);
       const journal = await journalOf(prepared);
       expect(journal.state).toBe(state);
       expect(journal.sharePointArtifact.deployState).toBe("confirmed");
     }
   );
 
-  it.each([
-    {
-      name: "an existing app already at or above the prepared version",
-      graph: { definitions: [{ version: "2.3.4", publishingState: "published" }] },
-      deployed: true,
-      code: "TeamsAppVersionCollision",
-    },
-    {
-      name: "an existing app with only a pending definition",
-      graph: { definitions: [{ version: "1.0.0", publishingState: "submitted" }] },
-      deployed: true,
-      code: "TeamsAppVersionCollision",
-    },
-    {
-      name: "SharePoint no longer reporting the deployment",
-      graph: undefined,
-      deployed: false,
-      code: "SharePointDeploymentNoLongerVerified",
-    },
-  ])(
-    "SPFX-PREP-07: refuses app submission with $name before approval or write",
-    async ({ graph, deployed, code }) => {
-      const { prepared } = await prepareProject();
-      const catalog: FakeCatalog = { deployed: false };
-      await verifySharePoint(prepared, catalog);
-      catalog.deployed = deployed;
-      route = graphAndCatalogRoute(catalog, {
-        existing: graph ? { id: "teams-app-id", definitions: graph.definitions } : undefined,
-        submit: async (config) => reply(config, 500),
-      });
-      const { context, approvals } = createContext();
-
-      const published = await new PublishAppPackageDriver().execute(publishArgs(prepared), context);
-
-      expect(published.result.isErr() ? published.result.error.name : undefined).toBe(code);
-      expect(approvals()).toBe(0);
-      expect(posts()).toHaveLength(0);
-      expect((await journalOf(prepared)).state).toBe("sharePointVerified");
-    }
-  );
-
-  it("SPFX-PREP-07: updates an existing published app through a new definition", async () => {
+  it("SPFX-PREP-07: refuses app submission when SharePoint no longer reports the deployment, before approval or write", async () => {
     const { prepared } = await prepareProject();
     const catalog: FakeCatalog = { deployed: false };
     await verifySharePoint(prepared, catalog);
-    route = graphAndCatalogRoute(catalog, {
-      existing: {
-        id: "existing-app-id",
-        definitions: [{ version: "1.0.0", publishingState: "published" }],
-      },
-      submit: async (config) => reply(config, 201, {}),
-    });
+    catalog.deployed = false;
+    route = mosAndCatalogRoute(catalog);
+    const { context, approvals } = createContext();
 
-    const published = await new PublishAppPackageDriver().execute(
-      publishArgs(prepared),
-      createContext().context
+    const published = await publish(prepared, context);
+
+    expect(published.result.isErr() ? published.result.error.name : undefined).toBe(
+      "SharePointDeploymentNoLongerVerified"
     );
-
-    expect(published.result.isOk() ? [...published.result.value.values()] : []).toEqual([
-      "existing-app-id",
-    ]);
-    expect(graphPosts().map((request) => request.url)).toEqual([
-      "/appCatalogs/teamsApps/existing-app-id/appDefinitions?requiresReview=true",
-    ]);
+    expect(approvals()).toBe(0);
+    expect(mosRequests()).toHaveLength(0);
+    expect((await journalOf(prepared)).state).toBe("sharePointVerified");
   });
 
-  it("SPFX-PREP-08: cancellation after submission approval restores the verified stage without a Graph write", async () => {
+  it("SPFX-PREP-19: cancellation after submission approval restores the verified stage without a MOS3 request", async () => {
     const { prepared } = await prepareProject();
     const catalog: FakeCatalog = { deployed: false };
     await verifySharePoint(prepared, catalog);
     const controller = new AbortController();
-    route = graphAndCatalogRoute(catalog, {
-      submit: async (config) => reply(config, 201, { id: "teams-app-id", externalId: appId }),
-    });
+    route = mosAndCatalogRoute(catalog);
     const { context } = createContext({}, controller.signal, () => controller.abort());
 
-    const published = await new PublishAppPackageDriver().execute(publishArgs(prepared), context);
+    const published = await publish(prepared, context);
 
     expect(published.result.isErr() ? published.result.error : undefined).toBeInstanceOf(
       UserCancelError
     );
-    expect(graphPosts()).toHaveLength(0);
+    expect(mosRequests()).toHaveLength(0);
     const journal = await journalOf(prepared);
     expect(journal.state).toBe("sharePointVerified");
     expect(journal.applicationArtifact.submissionState).toBe("notStarted");
@@ -1395,16 +1390,15 @@ describe("Prepared SharePoint publication contracts", () => {
     const { prepared } = await prepareProject();
     route = catalogRoute({ deployed: false });
     const { context } = createContext();
+    const execute = (args: ReturnType<typeof publishArgs>) =>
+      new CopilotAgentPublishDriver().execute(args, context, publishOutputNames);
 
-    const mismatched = await new PublishAppPackageDriver().execute(
-      { ...publishArgs(prepared), appPackageSha256: "0".repeat(64) },
-      context
-    );
-    const incomplete = await new PublishAppPackageDriver().execute(
-      { ...publishArgs(prepared), pluginSha256: "not-a-hash" },
-      context
-    );
-    const unverified = await new PublishAppPackageDriver().execute(publishArgs(prepared), context);
+    const mismatched = await execute({
+      ...publishArgs(prepared),
+      appPackageSha256: "0".repeat(64),
+    });
+    const incomplete = await execute({ ...publishArgs(prepared), pluginSha256: "not-a-hash" });
+    const unverified = await execute(publishArgs(prepared));
 
     expect(mismatched.result.isErr() ? mismatched.result.error.name : undefined).toBe(
       "PreparedPublicationNotVerified"
@@ -1417,9 +1411,9 @@ describe("Prepared SharePoint publication contracts", () => {
     );
     expect(requests).toHaveLength(0);
   });
-  function noSubmission(): FakeGraph {
+  function noSubmission(): FakeMos {
     return {
-      submit: async () => {
+      upload: async () => {
         throw new Error("No application submission is expected.");
       },
     };
@@ -1431,7 +1425,7 @@ describe("Prepared SharePoint publication contracts", () => {
     code: string
   ): Promise<void> {
     expect(result.isErr() ? result.error.name : undefined).toBe(code);
-    expect(graphPosts()).toHaveLength(0);
+    expect(mosPosts()).toHaveLength(0);
     const journal = await journalOf(prepared);
     expect(journal.state).toBe("sharePointVerified");
     expect(journal.applicationArtifact.submissionState).toBe("notStarted");
@@ -1453,10 +1447,10 @@ describe("Prepared SharePoint publication contracts", () => {
         ),
         Buffer.from("tampered")
       );
-      route = graphAndCatalogRoute(catalog, noSubmission());
+      route = mosAndCatalogRoute(catalog, noSubmission());
       const { context } = createContext();
 
-      const published = await new PublishAppPackageDriver().execute(publishArgs(prepared), context);
+      const published = await publish(prepared, context);
 
       await expectNoSubmission(prepared, published.result, "ArtifactHashMismatch");
       expect(requests).toHaveLength(0);
@@ -1467,14 +1461,14 @@ describe("Prepared SharePoint publication contracts", () => {
     const { prepared } = await prepareProject();
     const catalog: FakeCatalog = { deployed: false };
     await verifySharePoint(prepared, catalog);
-    const serve = graphAndCatalogRoute(catalog, noSubmission());
+    const serve = mosAndCatalogRoute(catalog, noSubmission());
     route = async (config) =>
       config.url === "/_api/SP_TenantSettings_Current"
         ? reply(config, 200, { CorporateCatalogUrl: `${tenantUrl}/sites/othercatalog` })
         : serve(config);
     const { context } = createContext();
 
-    const published = await new PublishAppPackageDriver().execute(publishArgs(prepared), context);
+    const published = await publish(prepared, context);
 
     await expectNoSubmission(prepared, published.result, "SharePointCatalogChanged");
   });
@@ -1491,10 +1485,10 @@ describe("Prepared SharePoint publication contracts", () => {
     const catalog: FakeCatalog = { deployed: false };
     await verifySharePoint(prepared, catalog);
     catalog.packageBytes = bytes();
-    route = graphAndCatalogRoute(catalog, noSubmission());
+    route = mosAndCatalogRoute(catalog, noSubmission());
     const { context } = createContext();
 
-    const published = await new PublishAppPackageDriver().execute(publishArgs(prepared), context);
+    const published = await publish(prepared, context);
 
     await expectNoSubmission(prepared, published.result, code);
   });
@@ -1503,44 +1497,41 @@ describe("Prepared SharePoint publication contracts", () => {
     const { prepared } = await prepareProject();
     const catalog: FakeCatalog = { deployed: false };
     await verifySharePoint(prepared, catalog);
-    route = graphAndCatalogRoute(catalog, noSubmission());
+    route = mosAndCatalogRoute(catalog, noSubmission());
     const { context } = createContext();
 
-    const published = await new PublishAppPackageDriver().execute(publishArgs(prepared), {
-      ...context,
-      ui: undefined,
-    });
+    const published = await publish(prepared, { ...context, ui: undefined });
 
     await expectNoSubmission(prepared, published.result, "ApprovalUnavailable");
   });
 
-  it("SPFX-PREP-07: a declined submission approval sends no Graph write", async () => {
+  it("SPFX-PREP-07: a declined submission approval sends no MOS3 request", async () => {
     const { prepared } = await prepareProject();
     const catalog: FakeCatalog = { deployed: false };
     await verifySharePoint(prepared, catalog);
-    route = graphAndCatalogRoute(catalog, noSubmission());
+    route = mosAndCatalogRoute(catalog, noSubmission());
     const { context } = createContext();
     vi.mocked(context.ui!.showMessage).mockResolvedValue(ok("Cancel"));
 
-    const published = await new PublishAppPackageDriver().execute(publishArgs(prepared), context);
+    const published = await publish(prepared, context);
 
     expect(published.result.isErr() ? published.result.error : undefined).toBeInstanceOf(
       UserCancelError
     );
-    expect(graphPosts()).toHaveLength(0);
+    expect(mosRequests()).toHaveLength(0);
     expect((await journalOf(prepared)).state).toBe("sharePointVerified");
   });
 
-  it("SPFX-PREP-08: an already cancelled submission makes no remote call", async () => {
+  it("SPFX-PREP-19: an already cancelled submission makes no remote call", async () => {
     const { prepared } = await prepareProject();
     const catalog: FakeCatalog = { deployed: false };
     await verifySharePoint(prepared, catalog);
-    route = graphAndCatalogRoute(catalog, noSubmission());
+    route = mosAndCatalogRoute(catalog, noSubmission());
     const controller = new AbortController();
     controller.abort();
     const { context } = createContext({}, controller.signal);
 
-    const published = await new PublishAppPackageDriver().execute(publishArgs(prepared), context);
+    const published = await publish(prepared, context);
 
     expect(published.result.isErr() ? published.result.error : undefined).toBeInstanceOf(
       UserCancelError
@@ -1549,16 +1540,16 @@ describe("Prepared SharePoint publication contracts", () => {
   });
 
   it.each([
-    { name: "SharePoint", code: "SharePointAuthenticationUnavailable" },
-    { name: "Graph", code: "GraphTokenUnavailable" },
+    { name: "SharePoint", code: "SharePointAuthenticationUnavailable", approvals: 0 },
+    { name: "MOS3", code: "MosTokenUnavailable", approvals: 1 },
   ])(
     "SPFX-PREP-07: refuses submission when the $name token is unavailable",
-    async ({ name, code }) => {
+    async ({ name, code, approvals: expectedApprovals }) => {
       const { prepared } = await prepareProject();
       const catalog: FakeCatalog = { deployed: false };
       await verifySharePoint(prepared, catalog);
-      route = graphAndCatalogRoute(catalog, noSubmission());
-      const { context } = createContext();
+      route = mosAndCatalogRoute(catalog, noSubmission());
+      const { context, approvals } = createContext();
       if (name === "SharePoint") {
         vi.mocked(Tools.getSPFxToken).mockResolvedValue(undefined);
       } else {
@@ -1567,14 +1558,15 @@ describe("Prepared SharePoint publication contracts", () => {
         );
       }
 
-      const published = await new PublishAppPackageDriver().execute(publishArgs(prepared), context);
+      const published = await publish(prepared, context);
 
       await expectNoSubmission(prepared, published.result, code);
-      if (name === "Graph") {
+      expect(approvals()).toBe(expectedApprovals);
+      if (name === "MOS3") {
         const error = published.result.isErr() ? published.result.error : undefined;
         expect(error).toBeInstanceOf(UserError);
         expect(error && "data" in error ? error.data : undefined).toMatchObject({
-          stage: "sharePointVerification",
+          stage: "applicationPreflight",
           lastSharePointVerifiedState: "sharePointVerified",
           publicationId: prepared.publicationId,
         });
@@ -1582,13 +1574,13 @@ describe("Prepared SharePoint publication contracts", () => {
     }
   );
 
-  it("SPFX-PREP-07: refuses prepared submission in a sovereign cloud before any remote call", async () => {
+  it("SPFX-PREP-18: refuses prepared submission in a sovereign cloud before any remote call", async () => {
     const { prepared } = await prepareProject();
     route = catalogRoute({ deployed: false });
     const { context } = createContext();
     vi.stubEnv("TEAMSFX_SOVEREIGN_CLOUD_ENVIRONMENT", "DoD");
 
-    const published = await new PublishAppPackageDriver().execute(publishArgs(prepared), context);
+    const published = await publish(prepared, context);
     vi.unstubAllEnvs();
 
     expect(published.result.isErr() ? published.result.error.name : undefined).toBe(
@@ -1596,6 +1588,732 @@ describe("Prepared SharePoint publication contracts", () => {
     );
     expect(requests).toHaveLength(0);
   });
+
+  describe("prepared MOS3 submission contracts", () => {
+    const statusRequests = () =>
+      requests.filter((request) => request.url?.startsWith("/builder/v1/users/packages/status/"));
+
+    function dataOf(result: Result<unknown, FxError>): unknown {
+      const error = result.isErr() ? result.error : undefined;
+      return error && "data" in error ? error.data : undefined;
+    }
+
+    interface SubmitOptions {
+      claims?: TokenClaimsOverride;
+      scope?: string;
+      outputs?: Map<string, string>;
+      signal?: AbortSignal;
+      onApproval?: () => void;
+      rai?: boolean;
+    }
+
+    /** Verifies the SharePoint stage, then runs one prepared submission against the given MOS3 fake. */
+    async function submit(mos: FakeMos, options: SubmitOptions = {}) {
+      const { prepared } = await prepareProject();
+      const catalog: FakeCatalog = { deployed: false };
+      await verifySharePoint(prepared, catalog);
+      route = mosAndCatalogRoute(catalog, mos);
+      const { context, approvals } = createContext(
+        options.claims,
+        options.signal,
+        options.onApproval
+      );
+      if (options.rai) {
+        vi.stubEnv("TEAMSFX_RAI_VALIDATION_ENABLED", "true");
+      }
+      const published = await publish(prepared, context, options.scope, options.outputs);
+      return { prepared, catalog, context, approvals, published };
+    }
+
+    it.each([
+      {
+        name: "SharePoint token audience is not the prepared tenant",
+        claims: { sharePointAudience: "https://other.example.test" },
+        code: "SharePointTokenIdentityMismatch",
+      },
+      {
+        name: "SharePoint token claims are unreadable",
+        claims: { sharePointClaimsUnavailable: true },
+        code: "SharePointTokenIdentityUnavailable",
+      },
+      {
+        name: "MOS3 token belongs to another tenant",
+        claims: { mosTenantId: otherTenantId },
+        code: "MosTokenIdentityMismatch",
+      },
+      {
+        name: "MOS3 token claims are unreadable",
+        claims: { mosClaimsUnavailable: true },
+        code: "MosTokenIdentityUnavailable",
+      },
+    ])(
+      "SPFX-PREP-15: refuses submission before approval when the $name",
+      async ({ claims, code }) => {
+        const { prepared, approvals, published } = await submit(noSubmission(), { claims });
+
+        await expectNoSubmission(prepared, published.result, code);
+        expect(approvals()).toBe(0);
+        expect(requests.map((request) => request.url)).toEqual(["/_api/SP_TenantSettings_Current"]);
+        expect(dataOf(published.result)).toMatchObject({ stage: "sharePointVerification" });
+      }
+    );
+
+    it.each([
+      { name: "a non-error rejection", reason: "token service said: secret-detail" },
+      { name: "an unclassified error", reason: new Error("token service said: secret-detail") },
+    ])(
+      "SPFX-PREP-11: $name after approval is reported as PreparedPublicationFailed with allowlisted diagnostics only",
+      async ({ reason }) => {
+        const { prepared } = await prepareProject();
+        const catalog: FakeCatalog = { deployed: false };
+        await verifySharePoint(prepared, catalog);
+        route = mosAndCatalogRoute(catalog, noSubmission());
+        const { context, approvals } = createContext();
+        vi.spyOn(context.m365TokenProvider, "getAccessToken").mockRejectedValue(reason);
+
+        const published = await publish(prepared, context);
+
+        await expectNoSubmission(prepared, published.result, "PreparedPublicationFailed");
+        const error = published.result.isErr() ? published.result.error : undefined;
+        expect(error).toBeInstanceOf(UserError);
+        expect(dataOf(published.result)).toMatchObject({
+          stage: "applicationPreflight",
+          lastDurableState: "sharePointVerified",
+          appPackageSha256: prepared.appPackageSha256,
+        });
+        expect(
+          JSON.stringify({ message: error?.message, data: dataOf(published.result) })
+        ).not.toContain("secret-detail");
+        expect(approvals()).toBe(1);
+        expect(mosRequests()).toHaveLength(0);
+      }
+    );
+
+    it.each([
+      {
+        name: "the upload fails with a server error",
+        mos: { upload: async (config: InternalAxiosRequestConfig) => reply(config, 500) },
+        polls: 0,
+        httpStatus: 500,
+      },
+      {
+        name: "the upload times out upstream",
+        mos: { upload: async (config: InternalAxiosRequestConfig) => reply(config, 408) },
+        polls: 0,
+        httpStatus: 408,
+      },
+      {
+        name: "the upload is throttled",
+        mos: { upload: async (config: InternalAxiosRequestConfig) => reply(config, 429) },
+        polls: 0,
+        httpStatus: 429,
+      },
+      {
+        name: "the upload is accepted without a status identifier",
+        mos: { upload: async (config: InternalAxiosRequestConfig) => reply(config, 202, {}) },
+        polls: 0,
+      },
+      {
+        name: "the upload returns an unsafe status identifier",
+        mos: {
+          upload: async (config: InternalAxiosRequestConfig) =>
+            reply(config, 202, { statusId: "../escape" }),
+        },
+        polls: 0,
+      },
+      {
+        name: "the status poll fails with a server error",
+        mos: { status: async (config: InternalAxiosRequestConfig) => reply(config, 500) },
+        polls: 1,
+        httpStatus: 500,
+      },
+      {
+        name: "the status reports malformed identifiers",
+        mos: {
+          status: async (config: InternalAxiosRequestConfig) =>
+            reply(config, 200, { titleId: "not valid!", appId: mosAppId }),
+        },
+        polls: 1,
+      },
+      {
+        name: "asynchronous validation reports an unrecognized status",
+        mos: {
+          status: async (config: InternalAxiosRequestConfig) =>
+            reply(config, 200, { validationInfo: { status: "unrecognized" } }),
+        },
+        rai: true,
+        polls: 1,
+      },
+    ])(
+      "SPFX-PREP-16: submits once and records an unknown outcome when $name",
+      async ({ mos, rai, httpStatus, polls }) => {
+        const { prepared, context, published } = await submit(mos, { rai });
+
+        expect(published.result.isErr() ? published.result.error.name : undefined).toBe(
+          "MosSubmissionOutcomeUnknown"
+        );
+        expect(mosPosts()).toHaveLength(1);
+        expect(statusRequests()).toHaveLength(polls);
+        const data = dataOf(published.result);
+        expect(data).toMatchObject({ stage: "applicationSubmission", lastDurableState: "unknown" });
+        if (httpStatus !== undefined) {
+          expect(data).toMatchObject({ httpStatus });
+        }
+        expect(JSON.stringify(data)).not.toContain("escape");
+        const journal = await journalOf(prepared);
+        expect(journal.state).toBe("unknown");
+        expect(journal.applicationArtifact.submissionState).toBe("unknown");
+        const again = await publish(prepared, context);
+        expect(again.result.isErr() ? again.result.error.name : undefined).toBe(
+          "PreparedPublicationNotVerified"
+        );
+        expect(mosPosts()).toHaveLength(1);
+      }
+    );
+
+    it("SPFX-PREP-16: records an unknown outcome once the bounded status poll is exhausted", async () => {
+      const { prepared, published } = await submit({
+        status: async (config) => reply(config, 202, {}),
+      });
+
+      expect(published.result.isErr() ? published.result.error.name : undefined).toBe(
+        "MosSubmissionOutcomeUnknown"
+      );
+      expect(mosPosts()).toHaveLength(1);
+      expect(statusRequests()).toHaveLength(90);
+      const waits = vi.mocked(commonUtils.waitSeconds).mock.calls;
+      expect(waits).toHaveLength(89);
+      expect(waits.every(([seconds]) => seconds === 7)).toBe(true);
+      expect((await journalOf(prepared)).state).toBe("unknown");
+    });
+
+    it("SPFX-PREP-16: waits for asynchronous validation and confirms the submission once it succeeds", async () => {
+      let polls = 0;
+      const { prepared, published } = await submit(
+        {
+          status: async (config) => {
+            polls += 1;
+            return polls < 3
+              ? reply(config, 200, { validationInfo: { status: "pending" } })
+              : reply(config, 200, {
+                  validationInfo: { status: "successful" },
+                  titleId: mosTitleId,
+                  appId: mosAppId,
+                });
+          },
+        },
+        { rai: true }
+      );
+
+      expect(published.result.isErr() ? published.result.error : undefined).toBeUndefined();
+      expect(outputsOf(published.result)).toEqual({
+        M365_TITLE_ID: mosTitleId,
+        M365_APP_ID: mosAppId,
+      });
+      expect(mosPosts()).toHaveLength(1);
+      expect(mosPosts()[0].params).toEqual({ scope: "Tenant", isRAIValidationAsync: true });
+      expect(statusRequests()).toHaveLength(3);
+      expect(
+        statusRequests().every((request) => request.params?.isRAIValidationAsync === true)
+      ).toBe(true);
+      expect(vi.mocked(commonUtils.waitSeconds)).toHaveBeenCalledTimes(2);
+      expect((await journalOf(prepared)).state).toBe("submitted");
+    });
+
+    it("SPFX-PREP-16: records a definitive rejection without leaking failure details when asynchronous validation fails", async () => {
+      const { prepared, context, published } = await submit(
+        {
+          status: async (config) =>
+            reply(config, 200, {
+              validationInfo: {
+                status: "failed",
+                failureReasons: [{ errorCode: "RaiBlocked", errorDetail: "confidential detail" }],
+              },
+            }),
+        },
+        { rai: true }
+      );
+
+      expect(published.result.isErr() ? published.result.error.name : undefined).toBe(
+        "MosSubmissionRejected"
+      );
+      expect(JSON.stringify(dataOf(published.result))).not.toContain("confidential");
+      expect(mosPosts()).toHaveLength(1);
+      const journal = await journalOf(prepared);
+      expect(journal.state).toBe("rejected");
+      expect(journal.applicationArtifact.submissionState).toBe("rejected");
+      const again = await publish(prepared, context);
+      expect(again.result.isErr() ? again.result.error.name : undefined).toBe(
+        "PreparedPublicationNotVerified"
+      );
+      expect(mosPosts()).toHaveLength(1);
+    });
+
+    it.each([
+      { name: "is not https", body: { titlesServiceUrl: "http://titles.example.test" } },
+      {
+        name: "embeds credentials",
+        body: { titlesServiceUrl: "https://user:secret@titles.example.test" },
+      },
+      {
+        name: "carries a query string",
+        body: { titlesServiceUrl: "https://titles.example.test/?next=1" },
+      },
+      {
+        name: "carries a fragment",
+        body: { titlesServiceUrl: "https://titles.example.test/#fragment" },
+      },
+      { name: "is missing", body: {} },
+    ])(
+      "SPFX-PREP-16: refuses submission before any upload when the discovered title service URL $name",
+      async ({ body }) => {
+        const { prepared, approvals, published } = await submit({
+          ...noSubmission(),
+          environment: async (config) => reply(config, 200, body),
+        });
+
+        await expectNoSubmission(prepared, published.result, "MosEndpointUnavailable");
+        expect(approvals()).toBe(1);
+        expect(mosRequests().map((request) => request.url)).toEqual(["/config/v1/environment"]);
+        expect(dataOf(published.result)).toMatchObject({ stage: "applicationPreflight" });
+        expect(JSON.stringify(dataOf(published.result))).not.toContain("secret");
+      }
+    );
+
+    it("SPFX-PREP-16: refuses submission when MOS3 environment discovery returns an HTTP error without retrying it", async () => {
+      const { prepared, approvals, published } = await submit({
+        ...noSubmission(),
+        environment: async (config) => reply(config, 503),
+      });
+
+      await expectNoSubmission(prepared, published.result, "MosEndpointUnavailable");
+      expect(approvals()).toBe(1);
+      expect(mosRequests()).toHaveLength(1);
+      expect(vi.mocked(commonUtils.waitSeconds)).not.toHaveBeenCalled();
+    });
+
+    it("SPFX-PREP-16: retries a transport failure of MOS3 environment discovery within its bound before refusing submission", async () => {
+      const { prepared, published } = await submit({
+        ...noSubmission(),
+        environment: async (config) =>
+          Promise.reject(new AxiosError("socket hang up", AxiosError.ERR_NETWORK, config)),
+      });
+
+      await expectNoSubmission(prepared, published.result, "MosEndpointUnavailable");
+      expect(mosRequests()).toHaveLength(3);
+      expect(vi.mocked(commonUtils.waitSeconds).mock.calls).toEqual([[1], [1]]);
+    });
+
+    const shareLinkLookupUrl = `/marketplace/v1/users/titles/${encodeURIComponent(
+      mosTitleId
+    )}/sharingInfo`;
+    const sharedSubmissionOutputs = {
+      M365_TITLE_ID: mosTitleId,
+      M365_APP_ID: mosAppId,
+      M365_SHARE_LINK: mosShareLink,
+    };
+
+    it("SPFX-PREP-17: refuses to replay a confirmed submission under a different scope", async () => {
+      const { prepared, context, approvals, published } = await submit({});
+      expect(published.result.isOk()).toBe(true);
+      const recorded = mosRequests().length;
+
+      const replay = await publish(prepared, context, "personal");
+
+      expect(replay.result.isErr() ? replay.result.error.name : undefined).toBe(
+        "PreparedSubmissionScopeMismatch"
+      );
+      expect(mosRequests()).toHaveLength(recorded);
+      expect(mosPosts()).toHaveLength(1);
+      expect(approvals()).toBe(1);
+      const journal = await journalOf(prepared);
+      expect(journal.state).toBe("submitted");
+      expect(journal.applicationArtifact.submission).toMatchObject({ scope: "Tenant" });
+    });
+
+    it("SPFX-PREP-07: an omitted scope submits to the personal scope and the replay stays bound to it", async () => {
+      const { prepared } = await prepareProject();
+      const catalog: FakeCatalog = { deployed: false };
+      await verifySharePoint(prepared, catalog);
+      route = mosAndCatalogRoute(catalog, {});
+      const { context, approvals } = createContext();
+      const args = publishArgs(prepared);
+      Reflect.deleteProperty(args, "scope");
+      const driver = new CopilotAgentPublishDriver();
+
+      const published = await driver.execute(args, context, publishOutputNames);
+      const replay = await driver.execute(args, context, publishOutputNames);
+      const differentScope = await publish(prepared, context, "tenant");
+
+      expect(outputsOf(published.result)).toEqual({
+        M365_TITLE_ID: mosTitleId,
+        M365_APP_ID: mosAppId,
+      });
+      expect(outputsOf(replay.result)).toEqual(outputsOf(published.result));
+      expect(differentScope.result.isErr() ? differentScope.result.error.name : undefined).toBe(
+        "PreparedSubmissionScopeMismatch"
+      );
+      expect(mosPosts()).toHaveLength(1);
+      expect(mosPosts()[0].params).toEqual({ scope: "Personal" });
+      expect(approvals()).toBe(1);
+      expect((await journalOf(prepared)).applicationArtifact.submission).toEqual({
+        scope: "Personal",
+        titleId: mosTitleId,
+        appId: mosAppId,
+      });
+    });
+
+    it("SPFX-PREP-17: a shared replay returns the recorded identifiers and re-reads only the share link", async () => {
+      const { prepared, context, approvals, published } = await submit({}, { scope: "shared" });
+      expect(outputsOf(published.result)).toEqual(sharedSubmissionOutputs);
+      expect(mosPosts()[0].params).toEqual({ scope: "Shared" });
+      const recorded = mosRequests().length;
+
+      const replay = await publish(prepared, context, "shared");
+
+      expect(outputsOf(replay.result)).toEqual(sharedSubmissionOutputs);
+      expect(mosPosts()).toHaveLength(1);
+      expect(approvals()).toBe(1);
+      expect(
+        mosRequests()
+          .slice(recorded)
+          .map((request) => request.url)
+      ).toEqual(["/config/v1/environment", shareLinkLookupUrl]);
+    });
+
+    it("SPFX-PREP-17: a shared replay verifies the signed-in MOS3 tenant before reading the share link", async () => {
+      const first = await submit({}, { scope: "shared" });
+      expect(first.published.result.isOk()).toBe(true);
+      const recorded = mosRequests().length;
+      vi.restoreAllMocks();
+      const { context } = createContext({ mosTenantId: otherTenantId });
+
+      const replay = await publish(first.prepared, context, "shared");
+
+      expect(replay.result.isErr() ? replay.result.error.name : undefined).toBe(
+        "MosTokenIdentityMismatch"
+      );
+      expect(mosRequests()).toHaveLength(recorded);
+    });
+
+    it.each([
+      {
+        name: "a server error",
+        serve: async (config: InternalAxiosRequestConfig) => reply(config, 500),
+      },
+      {
+        name: "a link that is not https",
+        serve: async (config: InternalAxiosRequestConfig) =>
+          reply(config, 200, { unifiedStoreLink: "http://share.example.test/apps/fixture" }),
+      },
+      {
+        name: "a link with whitespace",
+        serve: async (config: InternalAxiosRequestConfig) =>
+          reply(config, 200, { unifiedStoreLink: "https://share.example.test/apps/fix ture" }),
+      },
+      {
+        name: "a response without a link",
+        serve: async (config: InternalAxiosRequestConfig) => reply(config, 200, {}),
+      },
+    ])(
+      "SPFX-PREP-17: $name while reading the share link keeps the submission confirmed and a rerun retries only the lookup",
+      async ({ serve }) => {
+        const first = await submit({ sharingInfo: serve }, { scope: "shared" });
+
+        expect(first.published.result.isErr() ? first.published.result.error.name : undefined).toBe(
+          "MosShareLinkUnavailable"
+        );
+        expect(mosPosts()).toHaveLength(1);
+        const journal = await journalOf(first.prepared);
+        expect(journal.state).toBe("submitted");
+        expect(journal.applicationArtifact.submissionState).toBe("confirmed");
+        expect(journal.applicationArtifact.submission).toMatchObject({
+          scope: "Shared",
+          titleId: mosTitleId,
+          appId: mosAppId,
+        });
+
+        route = mosAndCatalogRoute(first.catalog, {});
+        const rerun = await publish(first.prepared, first.context, "shared");
+
+        expect(outputsOf(rerun.result)).toEqual(sharedSubmissionOutputs);
+        expect(mosPosts()).toHaveLength(1);
+        expect(first.approvals()).toBe(1);
+      }
+    );
+
+    it("SPFX-PREP-17: a shared submission without a share link output never reads the link", async () => {
+      const outputs = new Map([
+        ["titleId", "M365_TITLE_ID"],
+        ["appId", "M365_APP_ID"],
+      ]);
+
+      const { prepared, context, published } = await submit({}, { scope: "shared", outputs });
+      const replay = await publish(prepared, context, "shared", outputs);
+
+      expect(outputsOf(published.result)).toEqual({
+        M365_TITLE_ID: mosTitleId,
+        M365_APP_ID: mosAppId,
+      });
+      expect(outputsOf(replay.result)).toEqual(outputsOf(published.result));
+      expect(requests.some((request) => request.url?.startsWith("/marketplace/"))).toBe(false);
+      expect(mosRequests()).toHaveLength(3);
+    });
+
+    it.each<{ name: string; override: Record<string, unknown> }>([
+      { name: "a missing hash", override: { sharePointPackageSha256: undefined } },
+      { name: "a non-hexadecimal hash", override: { appPackageSha256: "z".repeat(64) } },
+      { name: "a missing publication id", override: { publicationId: undefined } },
+      {
+        name: "a missing prepared publication path",
+        override: { preparedPublicationPath: undefined },
+      },
+      { name: "an empty application package path", override: { appPackagePath: "" } },
+      { name: "an unknown scope", override: { scope: "everyone" } },
+      { name: "a non-string scope", override: { scope: 7 } },
+    ])(
+      "SPFX-PREP-18: refuses $name before any approval or remote request",
+      async ({ override }) => {
+        const { prepared } = await prepareProject();
+        route = catalogRoute({ deployed: false });
+        const { context, approvals } = createContext();
+
+        const { result } = await new CopilotAgentPublishDriver().execute(
+          { ...publishArgs(prepared), ...override },
+          context,
+          publishOutputNames
+        );
+
+        expect(result.isErr() ? result.error.name : undefined).toBe(
+          "InvalidPreparedPublishArguments"
+        );
+        expect(approvals()).toBe(0);
+        expect(requests).toHaveLength(0);
+      }
+    );
+
+    it("SPFX-PREP-18: partial prepared inputs never fall back to the unprepared upload", async () => {
+      const { prepared } = await prepareProject();
+      route = catalogRoute({ deployed: false });
+      const { context, approvals } = createContext();
+      const { appPackagePath, scope, preparedPublicationPath } = publishArgs(prepared);
+
+      const { result } = await new CopilotAgentPublishDriver().execute(
+        { appPackagePath, scope, preparedPublicationPath },
+        context,
+        publishOutputNames
+      );
+
+      expect(result.isErr() ? result.error.name : undefined).toBe(
+        "InvalidPreparedPublishArguments"
+      );
+      expect(approvals()).toBe(0);
+      expect(requests).toHaveLength(0);
+    });
+
+    it("SPFX-PREP-18: a missing required output mapping is refused before any remote request", async () => {
+      const { prepared } = await prepareProject();
+      route = catalogRoute({ deployed: false });
+      const { context, approvals } = createContext();
+      const driver = new CopilotAgentPublishDriver();
+
+      const withoutAppId = await driver.execute(
+        publishArgs(prepared),
+        context,
+        new Map([["titleId", "M365_TITLE_ID"]])
+      );
+      const withoutOutputs = await driver.run(publishArgs(prepared), context);
+
+      expect(withoutAppId.result.isErr() ? withoutAppId.result.error.name : undefined).toBe(
+        "InvalidPreparedPublishArguments"
+      );
+      expect(withoutOutputs.isErr() ? withoutOutputs.error.name : undefined).toBe(
+        "InvalidPreparedPublishArguments"
+      );
+      expect(approvals()).toBe(0);
+      expect(requests).toHaveLength(0);
+    });
+
+    it("SPFX-PREP-18: refuses an application package other than the staged artifact before any approval", async () => {
+      const { prepared } = await prepareProject();
+      route = catalogRoute({ deployed: false });
+      const { context, approvals } = createContext();
+
+      const { result } = await new CopilotAgentPublishDriver().execute(
+        { ...publishArgs(prepared), appPackagePath: "sharepoint/solution.sppkg" },
+        context,
+        publishOutputNames
+      );
+
+      expect(result.isErr() ? result.error.name : undefined).toBe(
+        "ApplicationArtifactPathMismatch"
+      );
+      expect(approvals()).toBe(0);
+      expect(requests).toHaveLength(0);
+    });
+
+    it("SPFX-PREP-18: refuses an application package path that does not exist with a typed error", async () => {
+      const { prepared } = await prepareProject();
+      route = catalogRoute({ deployed: false });
+      const { context, approvals } = createContext();
+
+      const { result } = await new CopilotAgentPublishDriver().execute(
+        { ...publishArgs(prepared), appPackagePath: "build/appPackage/missing.zip" },
+        context,
+        publishOutputNames
+      );
+
+      expect(result.isErr() ? result.error.name : undefined).toBe(
+        "ApplicationArtifactPathMismatch"
+      );
+      expect(approvals()).toBe(0);
+      expect(requests).toHaveLength(0);
+    });
+
+    it("SPFX-PREP-18: refuses GCC High before any approval or remote request", async () => {
+      const { prepared } = await prepareProject();
+      route = catalogRoute({ deployed: false });
+      const { context, approvals } = createContext();
+      vi.stubEnv("TEAMSFX_SOVEREIGN_CLOUD_ENVIRONMENT", "GCC H");
+
+      const { result } = await publish(prepared, context);
+
+      expect(result.isErr() ? result.error.name : undefined).toBe("UnsupportedCloud");
+      expect(approvals()).toBe(0);
+      expect(requests).toHaveLength(0);
+    });
+
+    it("SPFX-PREP-08: simultaneous submissions of one prepared publication upload exactly once", async () => {
+      const { prepared } = await prepareProject();
+      const catalog: FakeCatalog = { deployed: false };
+      await verifySharePoint(prepared, catalog);
+      route = mosAndCatalogRoute(catalog, {});
+      const { context, approvals } = createContext();
+
+      const results = await Promise.all([publish(prepared, context), publish(prepared, context)]);
+
+      const failures = results.flatMap(({ result }) => (result.isErr() ? [result.error.name] : []));
+      expect(failures.length).toBeLessThan(2);
+      expect(failures.every((name) => name === "PublicationIdentityLockUnavailable")).toBe(true);
+      expect(mosPosts()).toHaveLength(1);
+      expect(approvals()).toBe(1);
+      expect((await journalOf(prepared)).state).toBe("submitted");
+    });
+
+    it("SPFX-PREP-19: an upload that never settles ends at the 30 second bound as an unknown outcome", async () => {
+      const timeouts: { ms: number; controller: AbortController }[] = [];
+
+      const { prepared, published } = await submit(
+        {
+          upload: async (config) => {
+            const pending = hangUntilAborted(config);
+            timeouts.find((entry) => entry.controller.signal === config.signal)?.controller.abort();
+            return pending;
+          },
+        },
+        {
+          onApproval: () => {
+            vi.spyOn(AbortSignal, "timeout").mockImplementation((ms) => {
+              const controller = new AbortController();
+              timeouts.push({ ms, controller });
+              return controller.signal;
+            });
+          },
+        }
+      );
+
+      expect(published.result.isErr() ? published.result.error.name : undefined).toBe(
+        "MosSubmissionOutcomeUnknown"
+      );
+      expect(timeouts.length).toBeGreaterThan(0);
+      expect(timeouts.every((entry) => entry.ms === 30_000)).toBe(true);
+      expect(mosPosts()).toHaveLength(1);
+      const journal = await journalOf(prepared);
+      expect(journal.state).toBe("unknown");
+      expect(journal.applicationArtifact.submissionState).toBe("unknown");
+    });
+
+    it("SPFX-PREP-19: cancelling while the upload is outstanding persists an unknown outcome and never polls", async () => {
+      const controller = new AbortController();
+
+      const { prepared, published } = await submit(
+        {
+          upload: async (config) => {
+            controller.abort();
+            return reply(config, 202, { statusId: "status-1" });
+          },
+        },
+        { signal: controller.signal }
+      );
+
+      expect(published.result.isErr() ? published.result.error.name : undefined).toBe(
+        "MosSubmissionOutcomeUnknown"
+      );
+      expect(dataOf(published.result)).toMatchObject({
+        stage: "applicationSubmission",
+        lastDurableState: "unknown",
+      });
+      expect(mosPosts()).toHaveLength(1);
+      expect(statusRequests()).toHaveLength(0);
+      const journal = await journalOf(prepared);
+      expect(journal.state).toBe("unknown");
+      expect(journal.applicationArtifact.submissionState).toBe("unknown");
+    });
+
+    it("SPFX-PREP-19: cancelling during the status poll persists an unknown outcome", async () => {
+      const controller = new AbortController();
+
+      const { prepared, published } = await submit(
+        {
+          status: async (config) => {
+            controller.abort();
+            return reply(config, 202, {});
+          },
+        },
+        { signal: controller.signal }
+      );
+
+      expect(published.result.isErr() ? published.result.error.name : undefined).toBe(
+        "MosSubmissionOutcomeUnknown"
+      );
+      expect(mosPosts()).toHaveLength(1);
+      expect(statusRequests()).toHaveLength(1);
+      const journal = await journalOf(prepared);
+      expect(journal.state).toBe("unknown");
+      expect(journal.applicationArtifact.submissionState).toBe("unknown");
+    });
+
+    it("SPFX-PREP-19: cancelling while the share link is read keeps the confirmed submission and a rerun completes it", async () => {
+      const controller = new AbortController();
+
+      const first = await submit(
+        {
+          sharingInfo: async (config) => {
+            controller.abort();
+            return reply(config, 200, { unifiedStoreLink: mosShareLink });
+          },
+        },
+        { scope: "shared", signal: controller.signal }
+      );
+
+      expect(
+        first.published.result.isErr() ? first.published.result.error : undefined
+      ).toBeInstanceOf(UserCancelError);
+      expect(mosPosts()).toHaveLength(1);
+      const journal = await journalOf(first.prepared);
+      expect(journal.state).toBe("submitted");
+      expect(journal.applicationArtifact.submissionState).toBe("confirmed");
+
+      vi.restoreAllMocks();
+      route = mosAndCatalogRoute(first.catalog, {});
+      const { context } = createContext();
+      const rerun = await publish(first.prepared, context, "shared");
+
+      expect(outputsOf(rerun.result)).toEqual(sharedSubmissionOutputs);
+      expect(mosPosts()).toHaveLength(1);
+    });
+  });
+
   describe("prepared artifact integrity", () => {
     const hash = (bytes: Buffer) => createHash("sha256").update(bytes).digest("hex");
 
@@ -1803,7 +2521,7 @@ describe("Prepared SharePoint publication contracts", () => {
         const { context, approvals } = createContext();
         const result =
           operation === "submission"
-            ? (await new PublishAppPackageDriver().execute(publishArgs(prepared), context)).result
+            ? (await publish(prepared, context)).result
             : await new SPFxDeployDriver().run(deployArgs(prepared), context);
         expect(
           result.isErr()
@@ -1895,12 +2613,44 @@ describe("Prepared SharePoint publication contracts", () => {
           delete journal.sharePointArtifact[field];
         });
         const { context, approvals } = createContext();
-        const result = await new PublishAppPackageDriver().execute(publishArgs(prepared), context);
+        const result = await publish(prepared, context);
         expect(result.result.isErr() ? result.result.error.name : undefined).toBe(
           "MissingSharePointVerificationData"
         );
         expect(approvals()).toBe(0);
         expect(requests).toHaveLength(0);
+        expect((await journalOf(prepared)).state).toBe("sharePointVerified");
+      }
+    );
+
+    it.each([
+      { name: "not a URL", value: "not a url" },
+      { name: "not https", value: "http://tenant.example.test/sites/appcatalog" },
+      { name: "carrying a query", value: `${catalogUrl}?source=journal` },
+      { name: "carrying a fragment", value: `${catalogUrl}#journal` },
+      {
+        name: "carrying credentials",
+        value: "https://user:password@tenant.example.test/sites/appcatalog",
+      },
+    ])(
+      "SPFX-PREP-07: submission refuses a recorded SharePoint catalog URL that is $name before approval or write",
+      async ({ value }) => {
+        const { prepared } = await prepareProject();
+        const catalog: FakeCatalog = { deployed: false };
+        await verifySharePoint(prepared, catalog);
+        await externalUpdate(prepared, (journal) => {
+          journal.sharePointArtifact.catalogUrl = value;
+        });
+        route = mosAndCatalogRoute(catalog, noSubmission());
+        const { context, approvals } = createContext();
+
+        const result = await publish(prepared, context);
+
+        expect(result.result.isErr() ? result.result.error.name : undefined).toBe(
+          "InvalidCatalogUrl"
+        );
+        expect(approvals()).toBe(0);
+        expect(mosRequests()).toHaveLength(0);
         expect((await journalOf(prepared)).state).toBe("sharePointVerified");
       }
     );
@@ -1926,15 +2676,11 @@ describe("Prepared SharePoint publication contracts", () => {
             if (journal.state === targetState) controller.abort();
           }
         });
-        route = graphAndCatalogRoute(catalog, {
-          submit: async () => {
-            throw new Error("Submission must not start.");
-          },
-        });
+        route = mosAndCatalogRoute(catalog, noSubmission());
         const { context } = createContext({}, controller.signal);
         const result =
           stage === "submission"
-            ? (await new PublishAppPackageDriver().execute(publishArgs(prepared), context)).result
+            ? (await publish(prepared, context)).result
             : await new SPFxDeployDriver().run(deployArgs(prepared), context);
         expect(result.isErr() ? result.error : undefined).toBeInstanceOf(UserCancelError);
         const journal = await journalOf(prepared);
@@ -2034,7 +2780,7 @@ describe("Prepared SharePoint publication contracts", () => {
               ? 1
               : 2;
         expect(posts()).toHaveLength(expectedPosts);
-        expect(graphPosts()).toHaveLength(0);
+        expect(mosRequests()).toHaveLength(0);
       }
     );
 
@@ -2048,13 +2794,12 @@ describe("Prepared SharePoint publication contracts", () => {
           externalUpdate(prepared, (journal) => {
             journal.applicationArtifact.submissionState = "unknown";
           });
-        route = graphAndCatalogRoute(catalog, {
-          submit: async (config) => {
+        route = mosAndCatalogRoute(catalog, {
+          upload: async (config) => {
             await change();
-            return reply(config, boundary === "rejection" ? 400 : 201, {
-              id: "catalog-id",
-              externalId: appId,
-            });
+            return boundary === "rejection"
+              ? reply(config, 400, { error: { code: "InvalidPackage" } })
+              : reply(config, 202, { statusId: "status-1" });
           },
         });
         const { context } = createContext();
@@ -2065,12 +2810,12 @@ describe("Prepared SharePoint publication contracts", () => {
             return ok("Confirm");
           });
         }
-        const result = await new PublishAppPackageDriver().execute(publishArgs(prepared), context);
+        const result = await publish(prepared, context);
         expect(result.result.isErr() ? result.result.error.name : undefined).toBe(
           "JournalUpdateFailed"
         );
         expect((await journalOf(prepared)).applicationArtifact.submissionState).toBe("unknown");
-        expect(graphPosts()).toHaveLength(boundary === "approval" ? 0 : 1);
+        expect(mosPosts()).toHaveLength(boundary === "approval" ? 0 : 1);
       }
     );
 

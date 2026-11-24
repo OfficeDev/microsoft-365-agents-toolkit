@@ -22,6 +22,7 @@ import { DriverContext } from "../interface/commonArgs";
 import { ExecutionResult, StepDriver } from "../interface/stepDriver";
 import { addStartAndEndTelemetry } from "../middleware/addStartAndEndTelemetry";
 import { CopilotAgentPublishArgs } from "./interfaces/PublishArgs";
+import { hasPreparedPublishArguments, publishPreparedAgent } from "./preparedPublish";
 import { Constants } from "../teamsApp/constants";
 import { verifyLocalMCPPluginCerts } from "../teamsApp/utils/McpCertVerification";
 import { AppStudioError } from "../teamsApp/errors";
@@ -79,6 +80,10 @@ export class CopilotAgentPublishDriver implements StepDriver {
     summaries: string[];
   }> {
     try {
+      if (hasPreparedPublishArguments(args)) {
+        return await publishPreparedAgent({ args, context, outputEnvVarNames, actionName });
+      }
+
       this.validateArgs(args);
       this.validateOutputEnvVarNames(outputEnvVarNames);
 

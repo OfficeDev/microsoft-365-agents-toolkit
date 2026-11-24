@@ -28,7 +28,6 @@ import { SHAREPOINT_PACKAGE_LIMITS } from "../../../../../src/component/driver/d
 import {
   createAppPackage,
   createSppkg,
-  productId,
   publicationTenantContext,
 } from "./preparedPublicationFixtures";
 
@@ -496,6 +495,36 @@ describe("Prepared publication validation and durable recovery", () => {
       key: "submissionState",
       value: "invalid",
     },
+    {
+      name: "non-record submission",
+      section: "applicationArtifact",
+      key: "submission",
+      value: "x",
+    },
+    {
+      name: "submission without a scope",
+      section: "applicationArtifact",
+      key: "submission",
+      value: { titleId: "title", appId: "app" },
+    },
+    {
+      name: "submission with an empty scope",
+      section: "applicationArtifact",
+      key: "submission",
+      value: { scope: "" },
+    },
+    {
+      name: "submission with an empty title identifier",
+      section: "applicationArtifact",
+      key: "submission",
+      value: { scope: "Tenant", titleId: "" },
+    },
+    {
+      name: "submission with a non-string app identifier",
+      section: "applicationArtifact",
+      key: "submission",
+      value: { scope: "Tenant", appId: 7 },
+    },
   ])(
     "SPFX-PREP-08: refuses a journal with $name without rewriting it",
     async ({ section, key, value }) => {
@@ -537,7 +566,11 @@ describe("Prepared publication validation and durable recovery", () => {
     current.journal.sharePointArtifact.uploadState = "confirmed";
     current.journal.sharePointArtifact.deployState = "confirmed";
     current.journal.applicationArtifact.submissionState = "confirmed";
-    current.journal.applicationArtifact.submittedAppId = "published-app";
+    current.journal.applicationArtifact.submission = {
+      scope: "Tenant",
+      titleId: "published-title",
+      appId: "published-app",
+    };
     await fs.writeJson(current.path, current.journal);
 
     const replay = await preparePublication(input());
@@ -554,6 +587,45 @@ describe("Prepared publication validation and durable recovery", () => {
       )
     ).toHaveLength(0);
   });
+
+  it.each([
+    { name: "no submission record", submission: undefined },
+    { name: "a scope-only submission record", submission: { scope: "Tenant" } },
+    {
+      name: "a submission record without the app identifier",
+      submission: { scope: "Tenant", titleId: "t" },
+    },
+    {
+      name: "a submission record without the title identifier",
+      submission: { scope: "Tenant", appId: "a" },
+    },
+  ])(
+    "SPFX-PREP-08: refuses a confirmed submission with $name and keeps the journal unchanged",
+    async ({ submission }) => {
+      const current = await prepared();
+      const raw = await fs.readJson(current.path);
+      raw.state = "submitted";
+      raw.applicationArtifact.submissionState = "confirmed";
+      raw.applicationArtifact.submittedAppId = "published-by-the-graph-draft";
+      if (submission === undefined) {
+        delete raw.applicationArtifact.submission;
+      } else {
+        raw.applicationArtifact.submission = submission;
+      }
+      await fs.writeJson(current.path, raw);
+
+      expectError(
+        await loadPreparedPublication(
+          root,
+          current.output.publicationId,
+          current.output.preparedPublicationPath
+        ),
+        "InvalidJournal"
+      );
+      expectError(await preparePublication(input()), "PublicationRecoveryCheckFailed");
+      expect(await fs.readJson(current.path)).toEqual(raw);
+    }
+  );
 
   it("SPFX-PREP-08: refuses a journal that becomes unreadable between lock acquisition and update", async () => {
     const current = await prepared();

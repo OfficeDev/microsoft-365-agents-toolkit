@@ -2,7 +2,7 @@
 // Licensed under the MIT license.
 
 import { M365TokenProvider } from "@microsoft/teamsfx-api";
-import { GraphScopes, SPFxScopes } from "../../../../../common/constants";
+import { GraphScopes, MosServiceScope, SPFxScopes } from "../../../../../common/constants";
 import { PreparedPublicationError, PreparedPublicationJournal } from "./preparedPublication";
 
 const tenantIdPattern =
@@ -101,15 +101,11 @@ function normalizeCatalogUrl(value: string): string | undefined {
   }
 }
 
-/**
- * Binds a prepared write to the tenant, origin and app catalog recorded during preparation.
- */
-export async function verifyPreparedJournalIdentity(
-  tokenProvider: M365TokenProvider,
+function verifyPreparedTenantBinding(
   journal: PreparedPublicationJournal,
   tenantUrl: string,
   catalogUrl: string
-): Promise<void> {
+): string {
   let tenantOrigin: string;
   try {
     tenantOrigin = new URL(tenantUrl).origin;
@@ -131,5 +127,84 @@ export async function verifyPreparedJournalIdentity(
       "The signed-in tenant does not match the prepared publication."
     );
   }
+  return tenantOrigin;
+}
+
+function isExpectedTenantClaim(value: unknown, expectedTenantId: string): boolean {
+  return (
+    typeof value === "string" &&
+    tenantIdPattern.test(value) &&
+    value.toLowerCase() === expectedTenantId.toLowerCase()
+  );
+}
+
+/**
+ * Binds a prepared write to the tenant, origin and app catalog recorded during preparation.
+ */
+export async function verifyPreparedJournalIdentity(
+  tokenProvider: M365TokenProvider,
+  journal: PreparedPublicationJournal,
+  tenantUrl: string,
+  catalogUrl: string
+): Promise<void> {
+  const tenantOrigin = verifyPreparedTenantBinding(journal, tenantUrl, catalogUrl);
   await verifyPreparedTokenIdentity(tokenProvider, tenantOrigin, journal.identity.tenantId);
+}
+
+/**
+ * Verifies that the signed-in Microsoft 365 app catalog (MOS3) token belongs to the prepared
+ * tenant. Only the tenant claim is asserted: the token audience is not yet qualified.
+ */
+export async function verifyPreparedMosTokenIdentity(
+  tokenProvider: M365TokenProvider,
+  expectedTenantId: string
+): Promise<void> {
+  const claimsResult = await tokenProvider.getJsonObject({ scopes: MosServiceScope() });
+  if (claimsResult.isErr()) {
+    throw new PreparedPublicationError(
+      "MosTokenIdentityUnavailable",
+      "The Microsoft 365 app catalog token identity could not be verified.",
+      { cause: claimsResult.error }
+    );
+  }
+  if (!isExpectedTenantClaim(getClaims(claimsResult.value)["tid"], expectedTenantId)) {
+    throw new PreparedPublicationError(
+      "MosTokenIdentityMismatch",
+      "The Microsoft 365 app catalog token tenant does not match the prepared publication."
+    );
+  }
+}
+
+/**
+ * Binds a prepared app submission to the tenant, origin and app catalog recorded during
+ * preparation and verifies the SharePoint and MOS3 token tenants. The Graph token is not used.
+ */
+export async function verifyPreparedSubmissionIdentity(
+  tokenProvider: M365TokenProvider,
+  journal: PreparedPublicationJournal,
+  tenantUrl: string,
+  catalogUrl: string
+): Promise<void> {
+  const tenantOrigin = verifyPreparedTenantBinding(journal, tenantUrl, catalogUrl);
+  const sharePointClaimsResult = await tokenProvider.getJsonObject({
+    scopes: SPFxScopes(tenantOrigin),
+  });
+  if (sharePointClaimsResult.isErr()) {
+    throw new PreparedPublicationError(
+      "SharePointTokenIdentityUnavailable",
+      "The SharePoint token identity could not be verified.",
+      { cause: sharePointClaimsResult.error }
+    );
+  }
+  const sharePointClaims = getClaims(sharePointClaimsResult.value);
+  if (
+    !isExpectedTenantClaim(sharePointClaims["tid"], journal.identity.tenantId) ||
+    !isSharePointAudience(sharePointClaims["aud"], tenantOrigin)
+  ) {
+    throw new PreparedPublicationError(
+      "SharePointTokenIdentityMismatch",
+      "The SharePoint token tenant or audience does not match the prepared publication."
+    );
+  }
+  await verifyPreparedMosTokenIdentity(tokenProvider, journal.identity.tenantId);
 }

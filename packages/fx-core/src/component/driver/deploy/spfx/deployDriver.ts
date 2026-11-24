@@ -414,9 +414,7 @@ export class SPFxDeployDriver implements StepDriver {
       journal.state === "submitted" &&
       journal.sharePointArtifact.uploadState === "confirmed" &&
       journal.sharePointArtifact.deployState === "confirmed" &&
-      journal.applicationArtifact.submissionState === "confirmed" &&
-      typeof journal.applicationArtifact.submittedAppId === "string" &&
-      journal.applicationArtifact.submittedAppId.length > 0
+      journal.applicationArtifact.submissionState === "confirmed"
     ) {
       return this.EmptyMap;
     }

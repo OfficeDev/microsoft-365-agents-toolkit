@@ -231,6 +231,40 @@ describe("copilotAgent/publish", async () => {
     }
   });
 
+  it("SPFX-PREP-10: unprepared publication keeps the existing upload and activates no prepared behavior", async () => {
+    const appPackagePath = await createPackage({
+      [Constants.MANIFEST_FILE]: new TeamsAppManifest(),
+    });
+    const projectPath = path.join(tempDir, "project");
+    await fs.ensureDir(projectPath);
+    const context = { ...mockedDriverContext, projectPath };
+    const publishAgent = vi
+      .spyOn(PackageService.prototype, "publishAgent")
+      .mockResolvedValue(["title-id", "app-id", ""]);
+    const publishPrepared = vi.spyOn(PackageService.prototype, "publishPreparedPackage");
+    const showMessage = vi.spyOn(context.ui, "showMessage");
+
+    const result = await driver.execute(
+      { appPackagePath, scope: "tenant" },
+      context,
+      new Map([
+        ["titleId", "M365_TITLE_ID"],
+        ["appId", "M365_APP_ID"],
+      ])
+    );
+
+    chai.assert.isTrue(result.result.isOk());
+    if (result.result.isOk()) {
+      chai.assert.equal(result.result.value.get("M365_TITLE_ID"), "title-id");
+      chai.assert.equal(result.result.value.get("M365_APP_ID"), "app-id");
+    }
+    chai.assert.strictEqual(publishAgent.mock.calls.length, 1);
+    chai.assert.strictEqual(publishAgent.mock.calls[0][2], AppScope.Tenant);
+    chai.assert.strictEqual(publishPrepared.mock.calls.length, 0);
+    chai.assert.strictEqual(showMessage.mock.calls.length, 0);
+    chai.assert.isFalse(await fs.pathExists(path.join(projectPath, ".fx")));
+  });
+
   it("should return token error when getAccessToken fails", async () => {
     const manifest = new TeamsAppManifest();
     manifest.id = uuid();
