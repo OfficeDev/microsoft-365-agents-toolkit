@@ -103,10 +103,7 @@ describe("v4 schema references", () => {
 
       for (const filePath of manifestFiles) {
         const relativePath = path.relative(REPO_ROOT, filePath).replace(/\\/g, "/");
-        if (
-          relativePath === "templates/vsc/common/blank-app/appPackage/manifest.json.tpl" ||
-          requiredField(filePath, "manifestVersion") === "devPreview"
-        ) {
+        if (requiredField(filePath, "manifestVersion") === "devPreview") {
           continue;
         }
         assert.strictEqual(requiredField(filePath, "manifestVersion"), "1.31", relativePath);

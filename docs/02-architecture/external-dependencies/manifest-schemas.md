@@ -67,7 +67,8 @@ platform; the toolkit cannot mint new version numbers.
 Gaps in the sequence (Teams `1.18` absent, Declarative Agent `v1.1` absent)
 are platform-side — those version numbers were never published.
 
-The v4 scaffold templates target Teams manifest `1.31`. The local
+The stable v3 and v4 scaffold templates, including the blank app, target Teams
+manifest `1.31`. The local
 `packages/manifest` schema and generated-type snapshot covers through `1.31`,
 so `TeamsManifestLatest` is the `1.31` shape. The two still move
 independently: the package snapshot may lead or lag the template output
