@@ -310,7 +310,7 @@ describe("SharePoint package inspection", () => {
     }
   );
 
-  it("SPFX-PREP-23: reports an unchanged source application digest for a rebuilt package", async () => {
+  it("SPFX-PREP-12: reports an unchanged source application digest for a rebuilt package", async () => {
     const original = createApplicationPackage("agent");
     const restamped = new AdmZip(original);
     for (const entry of restamped.getEntries())
@@ -355,7 +355,7 @@ describe("SharePoint package inspection", () => {
       return zip.toBuffer();
     }
 
-    it("SPFX-PREP-23: ignores entry order, timestamps and directory entries", () => {
+    it("SPFX-PREP-12: ignores entry order, timestamps and directory entries", () => {
       const original = archive(files);
       const rebuilt = archive([...files].reverse(), {
         time: new Date(2021, 5, 15, 12, 30, 40),
@@ -372,13 +372,13 @@ describe("SharePoint package inspection", () => {
       { name: "an added entry", changed: [...files, ["extra.txt", "extra"]] },
       { name: "a removed entry", changed: files.slice(1) },
     ] as { name: string; changed: [string, string][] }[])(
-      "SPFX-PREP-23: detects $name",
+      "SPFX-PREP-12: detects $name",
       ({ changed }) => {
         expect(contentSha256(archive(changed))).not.toBe(contentSha256(archive(files)));
       }
     );
 
-    it("SPFX-PREP-23: keeps an entry name distinct from the start of its content", () => {
+    it("SPFX-PREP-12: keeps an entry name distinct from the start of its content", () => {
       expect(archiveContentSha256([{ name: "a", data: Buffer.from("bc") }])).not.toBe(
         archiveContentSha256([{ name: "ab", data: Buffer.from("c") }])
       );
@@ -460,7 +460,7 @@ describe("SharePoint package inspection", () => {
   );
 
   it.each(["agent", "connector"] as const)(
-    "SPFX-PREP-13: migrates a legacy materialized %s plugin without dangling references",
+    "SPFX-PREP-02: migrates a legacy materialized %s plugin without dangling references",
     async (kind) => {
       const sourceSharePoint = createSppkg();
       const inspected = await inspectSharePointPackage(sourceSharePoint);
@@ -534,7 +534,7 @@ describe("SharePoint package inspection", () => {
     }
   );
 
-  it("SPFX-PREP-13: persists root-manifest cleanup when migrating a legacy connector to an agent action", async () => {
+  it("SPFX-PREP-02: persists root-manifest cleanup when migrating a legacy connector to an agent action", async () => {
     const sourceSharePoint = createSppkg();
     const inspected = await inspectSharePointPackage(sourceSharePoint);
     expect(inspected.isErr() ? inspected.error : undefined).toBeUndefined();

@@ -23,27 +23,6 @@ export interface PackageValidationFailureReason {
   errorDetail: string;
 }
 
-/**
- * A sanitized MOS3 request failure of a prepared publication. It never carries the underlying
- * HTTP client error, which retains authorization headers and response bodies; only the HTTP
- * status is exposed. `definitive` is true only when MOS3 refused the request and did not accept it.
- */
-export class PreparedPackageRequestError extends Error {
-  public readonly response?: { status: number };
-
-  constructor(
-    public readonly code: string,
-    public readonly definitive: boolean,
-    status?: number
-  ) {
-    super(code);
-    this.name = "PreparedPackageRequestError";
-    if (status !== undefined) {
-      this.response = { status };
-    }
-  }
-}
-
 export class PackageValidationFailedError extends UserError {
   constructor(source: string, failureReasons: PackageValidationFailureReason[]) {
     const reasons = failureReasons

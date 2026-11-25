@@ -15,20 +15,17 @@ import { Service } from "typedi";
 import { getLocalizedString } from "../../../../common/localizeUtils";
 import { maskSecret } from "../../../../common/stringUtils";
 import { ErrorCategory } from "../../../../error/types";
-import { getSPFxToken } from "../../../../common/tools";
 import { DriverContext } from "../../interface/commonArgs";
 import { ExecutionResult, StepDriver } from "../../interface/stepDriver";
 import { addStartAndEndTelemetry } from "../../middleware/addStartAndEndTelemetry";
 import { getSPOTenant } from "./deployDriver";
-import { SPOClient } from "./utility/spoClient";
 import {
   getPreparedSharePointProductId,
   PreparedPublicationError,
   PreparedPublicationOutput,
-  PreparedPublicationTenantContext,
-  isPreparedCatalogUrl,
   preparePublication,
-} from "./utility/preparedPublication";
+  PreparedPublicationTenantContext,
+} from "./utility/publicationArtifacts";
 import { SharePointPackageInspectionError } from "./utility/packageFile";
 import { verifyPreparedTokenIdentity } from "./utility/tokenIdentity";
 
@@ -36,17 +33,7 @@ export const preparePublicationActionName = "spfx/preparePublication";
 
 type OutputKey = keyof PreparedPublicationOutput;
 
-const outputKeys: OutputKey[] = [
-  "publicationId",
-  "preparedPublicationPath",
-  "sourcePackageSha256",
-  "sourceAppPackageSha256",
-  "pluginSha256",
-  "sharePointPackagePath",
-  "sharePointPackageSha256",
-  "appPackagePath",
-  "appPackageSha256",
-];
+const outputKeys: OutputKey[] = ["sharePointPackagePath", "appPackagePath"];
 
 function isOutputKey(value: string): value is OutputKey {
   return outputKeys.some((key) => key === value);
@@ -109,34 +96,9 @@ async function discoverTenantContext(
     );
   }
   const graphTenantId = await verifyPreparedTokenIdentity(context.m365TokenProvider, tenantOrigin);
-  const sharePointToken = await getSPFxToken(context.m365TokenProvider);
-  if (!sharePointToken) {
-    throw new PreparedPublicationError(
-      "SharePointAuthenticationUnavailable",
-      "A SharePoint access token is unavailable."
-    );
-  }
-  if (context.signal?.aborted) {
-    throw new PreparedPublicationError(
-      "PublicationCancelled",
-      "Prepared publication was cancelled before catalog discovery."
-    );
-  }
-  const catalogUrl = await SPOClient.getAppCatalogSiteForTenant(
-    sharePointToken,
-    tenantOrigin,
-    context.signal
-  );
-  if (!catalogUrl || !isPreparedCatalogUrl(catalogUrl, tenantOrigin)) {
-    throw new PreparedPublicationError(
-      "TenantAppCatalogUnavailable",
-      "A supported tenant app catalog could not be discovered."
-    );
-  }
   return {
     tenantId: graphTenantId,
     tenantUrl: tenantOrigin,
-    catalogUrl,
     productId: productId.value,
   };
 }
@@ -145,8 +107,7 @@ function toFxError(error: PreparedPublicationError | SharePointPackageInspection
   const message = getLocalizedString("driver.spfx.prepared.error", error.message);
   if (
     error instanceof PreparedPublicationError &&
-    (error.code.startsWith("Journal") ||
-      error.code.startsWith("PublicationWrite") ||
+    (error.code.startsWith("PublicationWrite") ||
       error.code.startsWith("PublicationPrepare") ||
       error.code.startsWith("ProjectPath"))
   ) {

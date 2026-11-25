@@ -241,7 +241,6 @@ describe("copilotAgent/publish", async () => {
     const publishAgent = vi
       .spyOn(PackageService.prototype, "publishAgent")
       .mockResolvedValue(["title-id", "app-id", ""]);
-    const publishPrepared = vi.spyOn(PackageService.prototype, "publishPreparedPackage");
     const showMessage = vi.spyOn(context.ui, "showMessage");
 
     const result = await driver.execute(
@@ -259,8 +258,8 @@ describe("copilotAgent/publish", async () => {
       chai.assert.equal(result.result.value.get("M365_APP_ID"), "app-id");
     }
     chai.assert.strictEqual(publishAgent.mock.calls.length, 1);
+    chai.assert.strictEqual(publishAgent.mock.calls[0][1], appPackagePath);
     chai.assert.strictEqual(publishAgent.mock.calls[0][2], AppScope.Tenant);
-    chai.assert.strictEqual(publishPrepared.mock.calls.length, 0);
     chai.assert.strictEqual(showMessage.mock.calls.length, 0);
     chai.assert.isFalse(await fs.pathExists(path.join(projectPath, ".fx")));
   });

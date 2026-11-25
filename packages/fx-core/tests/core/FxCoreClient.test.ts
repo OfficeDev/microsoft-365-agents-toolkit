@@ -2,6 +2,7 @@
 // Licensed under the MIT license.
 
 import { Platform, err, ok } from "@microsoft/teamsfx-api";
+import axios, { AxiosAdapter } from "axios";
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -12,10 +13,26 @@ import { envUtil } from "../../src/component/utils/envUtil";
 import { FxCore } from "../../src/core/FxCore";
 import { FxCoreClient } from "../../src/core/FxCoreClient";
 import { UserCancelError } from "../../src/error";
+import {
+  createAppPackage,
+  createSppkg,
+  productId,
+  tenantId,
+  tenantUrl,
+} from "../component/driver/deploy/spfx/preparedPublicationFixtures";
 import { MockTools } from "./utils";
 
 describe("FxCoreClient", () => {
+  const originalAdapter = axios.defaults.adapter;
+  const originalRaiValidationEnabled = process.env.TEAMSFX_RAI_VALIDATION_ENABLED;
+
   afterEach(() => {
+    axios.defaults.adapter = originalAdapter;
+    if (originalRaiValidationEnabled === undefined) {
+      delete process.env.TEAMSFX_RAI_VALIDATION_ENABLED;
+    } else {
+      process.env.TEAMSFX_RAI_VALIDATION_ENABLED = originalRaiValidationEnabled;
+    }
     vi.restoreAllMocks();
   });
 
@@ -378,6 +395,154 @@ describe("FxCoreClient", () => {
           `PUBLISHED_ENV=${env}`
         );
         expect(existsSync(join(folder, "provision.env"))).toBe(false);
+      } finally {
+        rmSync(folder, { recursive: true, force: true });
+      }
+    }
+  );
+
+  it.each([false, true])(
+    "SPFX-PREP-07: runs staged SharePoint deployment before app submission (fail deploy=%s)",
+    async (failDeploy) => {
+      const folder = mkdtempSync(join(tmpdir(), "fx-core-prepared-publish-"));
+      const appPackage = createAppPackage();
+      const sppkg = createSppkg();
+      const requestOrder: string[] = [];
+      let uploadedSharePointPackage: Buffer | undefined;
+      let submittedPackage: Buffer | undefined;
+
+      try {
+        mkdirSync(join(folder, "env"));
+        mkdirSync(join(folder, "sharepoint", "config"), { recursive: true });
+        mkdirSync(join(folder, "appPackage", "build"), { recursive: true });
+        writeFileSync(join(folder, "env", ".env.dev"), "TEAMSFX_ENV=dev\n");
+        writeFileSync(join(folder, "sharepoint", "solution.sppkg"), sppkg);
+        writeFileSync(join(folder, "appPackage", "build", "appPackage.dev.zip"), appPackage);
+        writeFileSync(
+          join(folder, "sharepoint", "config", "package-solution.json"),
+          JSON.stringify({
+            paths: { zippedPackage: "../solution.sppkg" },
+            solution: { id: productId },
+          })
+        );
+        writeFileSync(
+          join(folder, "m365agents.yml"),
+          [
+            "version: v1.14",
+            "environmentFolderPath: ./env",
+            "publish:",
+            "  - uses: spfx/preparePublication",
+            "    with:",
+            "      packagePath: ./sharepoint/solution.sppkg",
+            "      appPackagePath: ./appPackage/build/appPackage.dev.zip",
+            "    writeToEnvironmentFile:",
+            "      sharePointPackagePath: STAGED_SPPKG",
+            "      appPackagePath: STAGED_APP_PACKAGE",
+            "  - uses: spfx/deploy",
+            "    with:",
+            "      packageSolutionPath: ./sharepoint/config/package-solution.json",
+            "      createAppCatalogIfNotExist: true",
+            "      packagePath: ${{STAGED_SPPKG}}",
+            "  - uses: copilotAgent/publish",
+            "    with:",
+            "      appPackagePath: ${{STAGED_APP_PACKAGE}}",
+            "    writeToEnvironmentFile:",
+            "      titleId: M365_PUBLISHED_TITLE_ID",
+            "      appId: M365_PUBLISHED_APP_ID",
+            "",
+          ].join("\n")
+        );
+
+        const respond = (config: Parameters<AxiosAdapter>[0], data: unknown) => ({
+          config,
+          data,
+          headers: {},
+          request: { method: config.method },
+          status: 200,
+          statusText: "OK",
+        });
+        axios.defaults.adapter = async (config) => {
+          const url = `${config.baseURL ?? ""}${config.url ?? ""}`;
+          if (url.includes("graph.microsoft.com") && url.includes("/sites/root")) {
+            return respond(config, { webUrl: tenantUrl });
+          }
+          if (url.includes("/_api/SP_TenantSettings_Current")) {
+            return respond(config, { CorporateCatalogUrl: `${tenantUrl}/appcatalog` });
+          }
+          if (url.includes("/Add(overwrite=true")) {
+            requestOrder.push("sharepoint-upload");
+            if (Buffer.isBuffer(config.data)) uploadedSharePointPackage = config.data;
+            return respond(config, {});
+          }
+          if (url.includes("/tenantappcatalog/AvailableApps/GetById(")) {
+            requestOrder.push("sharepoint-deploy");
+            if (failDeploy) throw new Error("simulated SharePoint deployment failure");
+            return respond(config, {});
+          }
+          if (url.includes("/config/v1/environment")) {
+            return respond(config, { titlesServiceUrl: "https://titles.example.test" });
+          }
+          if (url.includes("/builder/v1/users/packages/status/")) {
+            return respond(config, {
+              titleId: "published-title-id",
+              appId: "published-app-id",
+            });
+          }
+          if (url.includes("/builder/v1/users/packages")) {
+            requestOrder.push("app-submit");
+            const data: unknown = config.data;
+            if (
+              typeof data === "object" &&
+              data !== null &&
+              "getBuffer" in data &&
+              typeof data.getBuffer === "function"
+            ) {
+              submittedPackage = data.getBuffer();
+            }
+            return respond(config, { statusId: "upload-status" });
+          }
+          throw new Error(`Unexpected publish test request: ${url}`);
+        };
+
+        const tools = new MockTools();
+        vi.spyOn(tools.tokenProvider.m365TokenProvider, "getJsonObject").mockResolvedValue(
+          ok({ tid: tenantId, aud: "https://graph.microsoft.com" })
+        );
+        process.env.TEAMSFX_RAI_VALIDATION_ENABLED = "false";
+
+        const result = await new FxCoreClient(tools).publish({
+          platform: Platform.CLI,
+          nonInteractive: true,
+          projectPath: folder,
+          env: "dev",
+        });
+
+        if (failDeploy) {
+          expect(result.isErr()).toBe(true);
+          expect(requestOrder).toEqual(["sharepoint-upload", "sharepoint-deploy"]);
+          expect(submittedPackage).toBeUndefined();
+        } else {
+          expect(result.isErr() ? `${result.error.name}: ${result.error.message}` : undefined).toBe(
+            undefined
+          );
+          if (result.isErr()) throw result.error;
+          expect(requestOrder).toEqual(["sharepoint-upload", "sharepoint-deploy", "app-submit"]);
+          expect(result.value.outputs["STAGED_SPPKG"]).toBeDefined();
+          expect(result.value.outputs["STAGED_APP_PACKAGE"]).toBeDefined();
+          expect(uploadedSharePointPackage).toEqual(
+            readFileSync(join(folder, result.value.outputs["STAGED_SPPKG"]))
+          );
+          expect(submittedPackage).toBeDefined();
+          expect(
+            submittedPackage?.includes(
+              readFileSync(join(folder, result.value.outputs["STAGED_APP_PACKAGE"]))
+            )
+          ).toBe(true);
+          expect(result.value.outputs).toMatchObject({
+            M365_PUBLISHED_TITLE_ID: "published-title-id",
+            M365_PUBLISHED_APP_ID: "published-app-id",
+          });
+        }
       } finally {
         rmSync(folder, { recursive: true, force: true });
       }

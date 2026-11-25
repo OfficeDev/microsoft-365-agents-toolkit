@@ -70,7 +70,7 @@ describe("SPFx Deploy Driver", async () => {
     await fs.remove(tempDir);
   });
 
-  it("SPFX-PREP-10: preserves ordinary SharePoint deployment without prepared inputs", async () => {
+  it("SPFX-PREP-08: preserves ordinary SharePoint deployment without a package override", async () => {
     const packagePath = await createPackageFile();
 
     vi.spyOn(SPFxDeployDriver.prototype, "getTenant").mockResolvedValue("fakeTenant");
@@ -81,13 +81,37 @@ describe("SPFx Deploy Driver", async () => {
     vi.spyOn(SPOClient, "getAppCatalogSite").mockResolvedValue("fakeAppCatelogSite");
     vi.spyOn(SPOClient, "uploadAppPackage").mockResolvedValue(undefined as any);
     vi.spyOn(SPOClient, "deployAppPackage").mockResolvedValue(undefined as any);
-    const preparedUploadSpy = vi.spyOn(SPOClient, "uploadPreparedAppPackage");
-    const preparedDeploySpy = vi.spyOn(SPOClient, "deployPreparedAppPackage");
-
     const result = await deployDriver.run(args, mockedDriverContext);
     expect(result.isOk()).to.be.true;
-    expect(preparedUploadSpy.mock.calls.length).to.equal(0);
-    expect(preparedDeploySpy.mock.calls.length).to.equal(0);
+  });
+
+  it("SPFX-PREP-06: uploads the package override while retaining solution identity", async () => {
+    const stagedPackagePath = await createPackageFile();
+    const stagedPackage = await fs.readFile(stagedPackagePath);
+
+    vi.spyOn(SPFxDeployDriver.prototype, "getTenant").mockResolvedValue("fakeTenant");
+    const getPackagePathSpy = vi.spyOn(SPFxDeployDriver.prototype, "getPackagePath");
+    const getAppIDSpy = vi
+      .spyOn(SPFxDeployDriver.prototype, "getAppID")
+      .mockResolvedValue("configuredSolutionId");
+
+    vi.spyOn(Tools, "getSPFxToken").mockResolvedValue("fakeSPFxToken");
+    vi.spyOn(SPOClient, "getAppCatalogSite").mockResolvedValue("fakeAppCatelogSite");
+    const uploadSpy = vi.spyOn(SPOClient, "uploadAppPackage").mockResolvedValue(undefined as any);
+    vi.spyOn(SPOClient, "deployAppPackage").mockResolvedValue(undefined as any);
+
+    const result = await deployDriver.run(
+      { ...args, packagePath: stagedPackagePath },
+      mockedDriverContext
+    );
+
+    expect(result.isOk()).to.be.true;
+    expect(getPackagePathSpy).not.toHaveBeenCalled();
+    expect(getAppIDSpy).toHaveBeenCalledWith(
+      path.join(mockedDriverContext.projectPath, args.packageSolutionPath)
+    );
+    expect(uploadSpy.mock.calls[0][1]).to.equal(path.basename(stagedPackagePath));
+    expect(uploadSpy.mock.calls[0][2]).to.deep.equal(stagedPackage);
   });
 
   it("should successfully deploy if app catelog exists - VSCode - execute", async () => {

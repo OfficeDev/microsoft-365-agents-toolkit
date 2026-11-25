@@ -15,20 +15,8 @@ export interface DeploySPFxArgs {
   packageSolutionPath: string;
 
   /**
-   * Prepared publication journal path. When supplied with publicationId,
-   * deploys only the immutable package recorded in that journal.
+   * Optional package path override. Used to deploy a staged package instead
+   * of the package configured by package-solution.json.
    */
-  preparedPublicationPath?: string;
-
-  /**
-   * Prepared publication identifier emitted by spfx/preparePublication.
-   */
-  publicationId?: string;
-
-  preparedPackagePath?: string;
-  sourcePackageSha256?: string;
-  sourceAppPackageSha256?: string;
-  pluginSha256?: string;
-  sharePointPackageSha256?: string;
-  appPackageSha256?: string;
+  packagePath?: string;
 }

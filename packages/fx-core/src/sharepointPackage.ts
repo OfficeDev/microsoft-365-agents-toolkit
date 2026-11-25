@@ -19,11 +19,7 @@ export interface AssembleSharePointApplicationPackageInput {
 export interface SharePointApplicationPackage {
   packageBytes: Buffer;
   packageSha256: string;
-  /**
-   * Content digest of the application package's entries (names and bytes), not a hash of its ZIP
-   * bytes. It equals the sourceAppPackageSha256 that spfx/preparePublication reports and stays
-   * the same when an unchanged package is rebuilt.
-   */
+  /** Content digest of the source application's entries (names and bytes), not its ZIP bytes. */
   sourceApplicationSha256: string;
   sourceSharePointSha256: string;
   pluginSha256: string;

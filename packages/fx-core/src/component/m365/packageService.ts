@@ -35,7 +35,6 @@ import { waitSeconds } from "../../common/utils";
 import { WrappedAxiosClient } from "../../common/wrappedAxiosClient";
 import { assembleError, isUserCancelError, UserCancelError } from "../../error/common";
 import { ErrorCategory } from "../../error/types";
-import { createPreparedRequestSignal } from "../driver/deploy/spfx/utility/preparedPublication";
 import { AppUser } from "../driver/teamsApp/interfaces/appdefinitions/appUser";
 import {
   createPolicyError,
@@ -51,7 +50,6 @@ import {
   NotExtendedToM365Error,
   PackageValidationFailedError,
   PackageValidationFailureReason,
-  PreparedPackageRequestError,
 } from "./errors";
 import { M365AppDefinition, M365AppEntity } from "./interface";
 import { prepareIncrementalSkillUpload } from "./skills/incrementalSkillUpload";
@@ -62,12 +60,6 @@ const M365ErrorComponent = "PackageService";
 
 // MOS/Titles API maximum upload size (10 MB)
 const MOS_MAX_PACKAGE_SIZE_BYTES = 10 * 1024 * 1024;
-
-// A prepared package is uploaded once; its status is read at most this many times, 7 s apart.
-const MOS_PREPARED_STATUS_POLL_ATTEMPTS = 90;
-const MOS_PREPARED_STATUS_POLL_INTERVAL_SECONDS = 7;
-// Identifiers returned by MOS3 end up in URLs, the journal and the environment file.
-const MOS_IDENTIFIER_PATTERN = /^[A-Za-z0-9][A-Za-z0-9_.:-]{0,255}$/;
 
 interface MosPolicyEnvelope {
   policyType: "workiq";
@@ -113,20 +105,6 @@ interface BuilderPackageStatusResponse {
     failureReasons?: PackageValidationFailureReason[];
     status: BuilderValidationStatus;
   };
-}
-
-/** Where and how a prepared package is uploaded; resolved read-only before the upload. */
-export interface PreparedMosEndpoint {
-  serviceUrl: string;
-  raiValidation: boolean;
-}
-
-function isHttpsUrl(value: string): boolean {
-  try {
-    return new URL(value).protocol === "https:";
-  } catch {
-    return false;
-  }
 }
 
 // Call m365 service for package CRUD
@@ -694,140 +672,6 @@ export class PackageService {
     }
   }
 
-  /**
-   * Resolves, read-only, where and how a prepared package is uploaded, so a failure here leaves
-   * nothing behind in MOS3.
-   */
-  @hooks([ErrorContextMW({ source: M365ErrorSource, component: M365ErrorComponent })])
-  public async resolvePreparedEndpoint(
-    token: string,
-    signal?: AbortSignal
-  ): Promise<PreparedMosEndpoint> {
-    try {
-      const serviceUrl = new URL(
-        await this.getTitleServiceUrl(token, createPreparedRequestSignal(signal))
-      );
-      if (
-        serviceUrl.protocol !== "https:" ||
-        serviceUrl.username ||
-        serviceUrl.password ||
-        serviceUrl.href.includes("?") ||
-        serviceUrl.href.includes("#")
-      ) {
-        throw new PreparedPackageRequestError("INVALID_TITLE_SERVICE_URL", false);
-      }
-      return { serviceUrl: serviceUrl.href, raiValidation: await this.isRaiValidationEnabled() };
-    } catch (error) {
-      throw this.toPreparedRequestError(error);
-    }
-  }
-
-  /**
-   * Uploads a prepared package exactly once and reads its status a bounded number of times until
-   * MOS3 reports the identifiers. The upload is neither retried nor aborted by cancellation, so a
-   * request that may have reached MOS3 is always settled by its own timeout. Only a
-   * PackageValidationFailedError or a definitive PreparedPackageRequestError proves MOS3 refused the
-   * package; every other failure leaves the outcome unknown.
-   */
-  @hooks([ErrorContextMW({ source: M365ErrorSource, component: M365ErrorComponent })])
-  public async publishPreparedPackage(
-    token: string,
-    endpoint: PreparedMosEndpoint,
-    packageBytes: Buffer,
-    appScope: AppScope,
-    signal?: AbortSignal
-  ): Promise<[string, string]> {
-    const content = new FormData();
-    content.append("package", packageBytes);
-    content.append("info", JSON.stringify({ builderName: "TeamsToolKit" }));
-    const uploadHeaders = content.getHeaders();
-    uploadHeaders["Authorization"] = `Bearer ${token}`;
-    this.logger?.debug(`Uploading prepared package in ${appScope} scope ...`);
-    let uploadResponse: AxiosResponse;
-    try {
-      uploadResponse = await this.axiosInstance.post("/builder/v1/users/packages", content, {
-        baseURL: endpoint.serviceUrl,
-        headers: uploadHeaders,
-        maxRedirects: 0,
-        params: {
-          scope: appScope,
-          ...(endpoint.raiValidation && { isRAIValidationAsync: true }),
-        },
-        signal: createPreparedRequestSignal(),
-      });
-    } catch (error) {
-      throw this.toPreparedRequestError(error, true);
-    }
-    const uploadData: BuilderPackageUploadResponse | undefined = uploadResponse.data;
-    const statusId = uploadData?.statusId;
-    if (typeof statusId !== "string" || !MOS_IDENTIFIER_PATTERN.test(statusId)) {
-      throw new PreparedPackageRequestError("MISSING_STATUS_ID", false, uploadResponse.status);
-    }
-    this.logger?.debug(`Acquiring prepared package with statusId: ${statusId} ...`);
-
-    for (let attempt = 0; attempt < MOS_PREPARED_STATUS_POLL_ATTEMPTS; attempt++) {
-      if (attempt > 0) {
-        await waitSeconds(MOS_PREPARED_STATUS_POLL_INTERVAL_SECONDS);
-      }
-      if (signal?.aborted) {
-        throw new PreparedPackageRequestError("ERR_CANCELED", false);
-      }
-      let statusResponse: AxiosResponse;
-      try {
-        statusResponse = await this.axiosInstance.get(
-          `/builder/v1/users/packages/status/${encodeURIComponent(statusId)}`,
-          {
-            baseURL: endpoint.serviceUrl,
-            headers: { Authorization: `Bearer ${token}` },
-            maxRedirects: 0,
-            signal: createPreparedRequestSignal(signal),
-            ...(endpoint.raiValidation && { params: { isRAIValidationAsync: true } }),
-          }
-        );
-      } catch (error) {
-        throw this.toPreparedRequestError(error);
-      }
-      const identifiers = this.readPreparedStatus(statusResponse, endpoint.raiValidation);
-      if (identifiers) {
-        sendTelemetryEvent(Component.core, TelemetryEvent.MosSideloadEnd, {
-          [TelemetryProperty.MosTitleId]: identifiers[0],
-          [TelemetryProperty.MosAppId]: identifiers[1],
-        });
-        return identifiers;
-      }
-    }
-    throw new PreparedPackageRequestError("PACKAGE_STATUS_TIMEOUT", false);
-  }
-
-  /** Reads the share link of an already published prepared package. */
-  @hooks([ErrorContextMW({ source: M365ErrorSource, component: M365ErrorComponent })])
-  public async getPreparedShareLink(
-    token: string,
-    endpoint: PreparedMosEndpoint,
-    titleId: string,
-    signal?: AbortSignal
-  ): Promise<string> {
-    let response: AxiosResponse;
-    try {
-      response = await this.axiosInstance.get(
-        `/marketplace/v1/users/titles/${encodeURIComponent(titleId)}/sharingInfo`,
-        {
-          baseURL: endpoint.serviceUrl,
-          headers: { Authorization: `Bearer ${token}` },
-          maxRedirects: 0,
-          signal: createPreparedRequestSignal(signal),
-        }
-      );
-    } catch (error) {
-      throw this.toPreparedRequestError(error);
-    }
-    const link: unknown = response.data?.unifiedStoreLink;
-    if (typeof link !== "string" || !/^[\x21-\x7e]+$/.test(link) || !isHttpsUrl(link)) {
-      throw new PreparedPackageRequestError("INVALID_SHARE_LINK", false, response.status);
-    }
-    return link;
-  }
-
   @hooks([ErrorContextMW({ source: M365ErrorSource, component: M365ErrorComponent })])
   public async getLaunchInfoByManifestId(
     token: string,
@@ -1390,74 +1234,6 @@ export class PackageService {
           true
         )) ?? false)
       : forceRaiValidationEnabled === "true" || forceRaiValidationEnabled === "1";
-  }
-
-  // Axios errors retain authorization headers and response bodies; only a code and the HTTP status survive.
-  // MOS3 refused an upload only with a client error other than a timeout or throttling response.
-  private toPreparedRequestError(error: unknown, isUpload = false): PreparedPackageRequestError {
-    if (error instanceof PreparedPackageRequestError) {
-      return error;
-    }
-    const axiosError = axios.isAxiosError(error) ? error : undefined;
-    const status = axiosError?.response?.status;
-    const code =
-      axiosError?.code && /^[A-Z_]+$/.test(axiosError.code)
-        ? axiosError.code
-        : "REQUEST_INTERRUPTED";
-    const refused =
-      status !== undefined && status >= 400 && status < 500 && status !== 408 && status !== 429;
-    return new PreparedPackageRequestError(code, isUpload && refused, status);
-  }
-
-  // Returns the identifiers once MOS3 accepted the package, or undefined while it is still processing it.
-  private readPreparedStatus(
-    response: AxiosResponse,
-    raiValidation: boolean
-  ): [string, string] | undefined {
-    const status: BuilderPackageStatusResponse | undefined = response.data;
-    if (!raiValidation) {
-      return response.status === 200 ? this.readPreparedIdentifiers(status) : undefined;
-    }
-    const validationInfo = status?.validationInfo;
-    if (
-      !validationInfo ||
-      (validationInfo.status === BuilderValidationStatus.Pending &&
-        (response.status === 202 || response.status === 200))
-    ) {
-      this.logger?.info(getLocalizedString("info.m365.packageService.raiValidationInProgress"));
-      return undefined;
-    }
-    if (response.status === 200 && validationInfo.status === BuilderValidationStatus.Successful) {
-      return this.readPreparedIdentifiers(status);
-    }
-    if (response.status === 200 && validationInfo.status === BuilderValidationStatus.Failed) {
-      const validationError = new PackageValidationFailedError(
-        M365ErrorSource,
-        validationInfo.failureReasons ?? []
-      );
-      this.logger?.error(validationError.displayMessage ?? validationError.message);
-      throw validationError;
-    }
-    throw new PreparedPackageRequestError("UNEXPECTED_PACKAGE_STATUS", false, response.status);
-  }
-
-  private readPreparedIdentifiers(
-    status: BuilderPackageStatusResponse | undefined
-  ): [string, string] {
-    const titleId = status?.titleId;
-    const appId = status?.appId;
-    if (
-      typeof titleId !== "string" ||
-      typeof appId !== "string" ||
-      !MOS_IDENTIFIER_PATTERN.test(titleId) ||
-      !MOS_IDENTIFIER_PATTERN.test(appId)
-    ) {
-      throw new PreparedPackageRequestError("INVALID_PACKAGE_IDENTIFIERS", false, 200);
-    }
-    this.logger?.info(`TitleId: ${titleId}`);
-    this.logger?.info(`AppId: ${appId}`);
-    this.logger?.verbose("Sideloading done.");
-    return [titleId, appId];
   }
 
   private getManifestFromZip(path: string): TeamsAppManifest | undefined {

@@ -41,7 +41,7 @@ const malformedRuntimes: { name: string; runtime: Record<string, unknown> }[] = 
   },
 ];
 
-describe("SPFX-PREP-24: plugin tenant values", () => {
+describe("SPFX-PREP-15: plugin tenant values", () => {
   describe("resolveTenantOrigin", () => {
     it("resolves whole-value tokens only in the qualified lists and keeps every other entry", () => {
       const runtime = runtimeWithPolicy({

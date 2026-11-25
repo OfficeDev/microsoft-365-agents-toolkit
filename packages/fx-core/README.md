@@ -24,20 +24,18 @@ for cancellation and error semantics.
 ## Publishing an SPFx-backed application
 
 Projects can opt in to a SharePoint-first publication lifecycle with
-`spfx/preparePublication`, followed by the prepared mode of `spfx/deploy` and
-`copilotAgent/publish`. Preparation freezes the deployment and
-application packages, records their hash lineage in a project-local journal,
-and does not modify either input. SharePoint deployment must be verified before
-the app package is uploaded to the Microsoft 365 app service (MOS3).
-`copilotAgent/publish` accepts the prepared inputs as optional `with:` values
-and returns the title and app IDs through `writeToEnvironmentFile`; without
-them it behaves as before. Each externally visible write asks for approval
-through the host's `UserInteraction`; a host that provides none gets
-`ApprovalUnavailable`. Ambiguous writes are not replayed
-automatically. See the
+`spfx/preparePublication`, the existing `spfx/deploy`, and the existing
+`copilotAgent/publish`. Preparation creates separate staged deployment and
+application packages and returns their paths without modifying either input.
+Pass the staged SPPKG path to the optional `spfx/deploy.packagePath` input and
+the staged application ZIP to the ordinary `copilotAgent/publish.appPackagePath`
+input. YAML ordering ensures a failed SharePoint deployment prevents the later
+app submission. The existing actions retain their normal catalog, retry, and
+polling behavior; this flow does not add a journal, hash-bound writes, or
+special recovery semantics. See the
 [operation contract](../../docs/03-specs/operations/lifecycle/prepare-spfx-publication.md)
 and [ADR-0030](../../docs/02-architecture/adr/ADR-0030-prepared-sharepoint-publication.md)
-for action inputs, recovery behavior, and supported boundaries.
+for action inputs and supported boundaries.
 
 For offline packaging, the lean
 `@microsoft/teamsfx-core/build/sharepointPackage` entry exports
@@ -52,10 +50,9 @@ applications are supported only on manifest versions whose `ToolSource` defines
 `plugin` (currently `devPreview`); other versions return
 `UnsupportedAgentConnectorManifestVersion`. It does not
 authenticate, make network requests, initialize lifecycle services, write
-files, or create a journal. The caller owns persistence. Pass the returned ZIP
-to the YAML preparation action for verified tenant materialization and final
-publication validation; see the linked operation contract for the boundary
-between offline assembly and tenant-bound publication checks.
+files, or create a journal. The caller owns persistence. Pass the returned ZIP to the YAML preparation action for tenant materialization
+and final publication validation; see the linked operation contract for the
+boundary between offline assembly and tenant-bound preparation.
 
 ## Updating an existing DCR configuration
 
