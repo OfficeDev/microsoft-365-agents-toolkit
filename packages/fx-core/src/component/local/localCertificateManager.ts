@@ -9,8 +9,17 @@ import {
   UserError,
   UserInteraction,
 } from "@microsoft/teamsfx-api";
+import "reflect-metadata";
+import {
+  BasicConstraintsExtension,
+  ExtendedKeyUsage,
+  ExtendedKeyUsageExtension,
+  SubjectAlternativeNameExtension,
+  X509Certificate,
+  X509CertificateGenerator,
+} from "@peculiar/x509";
+import { createHash, createPrivateKey, createPublicKey, webcrypto } from "crypto";
 import * as fs from "fs-extra";
-import { asn1, md, pki } from "node-forge";
 import * as os from "os";
 import * as path from "path";
 import { v4 as uuidv4 } from "uuid";
@@ -155,56 +164,43 @@ export class LocalCertificateManager {
     expiry.setFullYear(expiry.getFullYear() + 1);
 
     const serialNumber = uuidv4().replace(/-/g, "");
-    const attrs = [
+    const keys = await webcrypto.subtle.generateKey(
       {
-        name: "commonName",
-        value: "localhost",
+        name: "RSASSA-PKCS1-v1_5",
+        modulusLength: 4096,
+        publicExponent: new Uint8Array([1, 0, 1]),
+        hash: "SHA-256",
       },
-    ];
-    const exts = [
+      true,
+      ["sign", "verify"]
+    );
+    const cert = await X509CertificateGenerator.createSelfSigned(
       {
-        name: "basicConstraints",
-        cA: false,
-      },
-      {
-        name: "extKeyUsage",
-        serverAuth: true,
-      },
-      {
-        name: "subjectAltName",
-        altNames: [
-          {
-            type: 2, // DNS
-            value: "localhost",
-          },
+        serialNumber,
+        name: "CN=localhost",
+        notBefore: now,
+        notAfter: expiry,
+        keys,
+        extensions: [
+          new BasicConstraintsExtension(false),
+          new ExtendedKeyUsageExtension([ExtendedKeyUsage.serverAuth]),
+          new SubjectAlternativeNameExtension([{ type: "dns", value: "localhost" }]),
         ],
       },
-    ];
+      globalThis.crypto
+    );
 
-    // generate key and cert
-    const keys = pki.rsa.generateKeyPair({
-      bits: 4096,
-      algorithm: "sha256",
-    });
-    const cert = pki.createCertificate();
-    cert.publicKey = keys.publicKey;
-    cert.serialNumber = serialNumber;
-    cert.validity.notBefore = now;
-    cert.validity.notAfter = expiry;
-    cert.setSubject(attrs);
-    cert.setIssuer(attrs);
-    cert.setExtensions(exts);
-    cert.sign(keys.privateKey, md.sha256.create());
-
-    // get thumbprint
-    const der = asn1.toDer(pki.certificateToAsn1(cert)).getBytes();
-    const m = md.sha1.create();
-    m.update(der);
-    const thumbprint = m.digest().toHex();
+    // SHA-1 identifies certificates in OS trust stores; it is not used for signing.
+    const thumbprint = createHash("sha1").update(Buffer.from(cert.rawData)).digest("hex");
 
     // output
-    const certContent = pki.certificateToPem(cert);
-    const keyContent = pki.privateKeyToPem(keys.privateKey);
+    const certContent = cert.toString("pem");
+    const privateKey = createPrivateKey({
+      key: Buffer.from(await webcrypto.subtle.exportKey("pkcs8", keys.privateKey)),
+      format: "der",
+      type: "pkcs8",
+    });
+    const keyContent = privateKey.export({ format: "pem", type: "pkcs1" }).toString();
     await localCertificateManagerDeps.writeFile(certFile, certContent, { encoding: "utf8" });
     await localCertificateManagerDeps.writeFile(keyFile, keyContent, { encoding: "utf8" });
 
@@ -214,29 +210,28 @@ export class LocalCertificateManager {
   verifyCertificateContent(certContent: string, keyContent: string): [string | undefined, boolean] {
     const thumbprint: string | undefined = undefined;
     try {
-      const cert = pki.certificateFromPem(certContent);
-      const privateKey = pki.privateKeyFromPem(keyContent);
+      const cert = new X509Certificate(certContent);
+      const privateKey = createPrivateKey(keyContent);
 
       // get thumbprint
-      const der = asn1.toDer(pki.certificateToAsn1(cert)).getBytes();
-      const m = md.sha1.create();
-      m.update(der);
-      const thumbprint = m.digest().toHex();
+      const thumbprint = createHash("sha1").update(Buffer.from(cert.rawData)).digest("hex");
 
       // verify key pair
-      const expectedPublicKey = pki.rsa.setPublicKey(privateKey.n, privateKey.e);
-      if (pki.publicKeyToPem(expectedPublicKey) !== pki.publicKeyToPem(cert.publicKey)) {
+      if (
+        privateKey.asymmetricKeyType !== "rsa" ||
+        !createPublicKey(privateKey)
+          .export({ format: "der", type: "spki" })
+          .equals(Buffer.from(cert.publicKey.rawData))
+      ) {
         return [thumbprint, false];
       }
 
       // verify subject and issuer
-      const subject = cert.subject.getField("CN");
-      if ("localhost" !== subject.value) {
+      if (cert.subjectName.getField("CN")[0] !== "localhost") {
         return [thumbprint, false];
       }
 
-      const issuer = cert.issuer.getField("CN");
-      if ("localhost" !== issuer.value) {
+      if (cert.issuerName.getField("CN")[0] !== "localhost") {
         return [thumbprint, false];
       }
 
@@ -244,45 +239,28 @@ export class LocalCertificateManager {
       const now = new Date();
       const tomorrow = new Date();
       tomorrow.setDate(tomorrow.getDate() + 1);
-      const notBefore = cert.validity.notBefore;
-      const notAfter = cert.validity.notAfter;
+      const notBefore = cert.notBefore;
+      const notAfter = cert.notAfter;
       if (notBefore > now || notAfter < tomorrow) {
         return [thumbprint, false];
       }
 
       // verify extension
-      const basicConstraints = cert.getExtension("basicConstraints") as {
-        cA?: boolean;
-      };
-      if (
-        basicConstraints === undefined ||
-        basicConstraints.cA === undefined ||
-        basicConstraints.cA
-      ) {
+      const basicConstraints = cert.getExtension(BasicConstraintsExtension);
+      if (!basicConstraints || basicConstraints.ca) {
         return [thumbprint, false];
       }
 
-      const extKeyUsage = cert.getExtension("extKeyUsage") as {
-        serverAuth?: boolean;
-      };
-      if (
-        extKeyUsage === undefined ||
-        extKeyUsage.serverAuth === undefined ||
-        !extKeyUsage.serverAuth
-      ) {
+      const extKeyUsage = cert.getExtension(ExtendedKeyUsageExtension);
+      if (!extKeyUsage?.usages.includes(ExtendedKeyUsage.serverAuth)) {
         return [thumbprint, false];
       }
 
-      const subjectAltName = cert.getExtension("subjectAltName") as {
-        altNames?: {
-          type: number;
-          value: string;
-        }[];
-      };
+      const subjectAltName = cert.getExtension(SubjectAlternativeNameExtension);
       if (
-        subjectAltName === undefined ||
-        subjectAltName.altNames === undefined ||
-        !subjectAltName.altNames.some((a) => a.type === 2 && a.value === "localhost")
+        !subjectAltName?.names.items.some(
+          (name) => name.type === "dns" && name.value === "localhost"
+        )
       ) {
         return [thumbprint, false];
       }
