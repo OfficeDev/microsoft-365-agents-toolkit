@@ -12,7 +12,8 @@ import { advancedDASettingUrl } from "../../../src/component/m365/constants";
 import { NotExtendedToM365Error } from "../../../src/component/m365/errors";
 import { AppScope, PackageService } from "../../../src/component/m365/packageService";
 import { UnhandledError } from "../../../src/error/common";
-import { MockLogProvider } from "../../core/utils";
+import { TelemetryEvent, TelemetryProperty } from "../../../src/common/telemetry";
+import { MockLogProvider, MockTools } from "../../core/utils";
 
 describe("Package Service", () => {
   const sandbox = vi;
@@ -2424,7 +2425,7 @@ describe("Package Service", () => {
     chai.assert.equal((actualError as UserError).name, "AppPackageSizeExceeded");
   });
 
-  it("publishAgent happy path with Personal scope", async () => {
+  it("AC-MOS-02: publishAgent retains original MOS IDs and emits matching aliases", async () => {
     axiosGetResponses["/config/v1/environment"] = {
       data: {
         titlesServiceUrl: "https://test-url",
@@ -2440,11 +2441,24 @@ describe("Package Service", () => {
       data: { titleId: "test-title-id", appId: "test-app-id" },
     };
 
+    const tools = new MockTools();
+    setTools(tools);
+    const telemetry = vi.spyOn(tools.telemetryReporter, "sendTelemetryEvent");
     const packageService = new PackageService("https://test-endpoint", logger);
     const result = await packageService.publishAgent("test-token", "test-path", AppScope.Personal);
     chai.assert.equal(result[0], "test-title-id");
     chai.assert.equal(result[1], "test-app-id");
     chai.assert.equal(result[2], "");
+    expect(telemetry).toHaveBeenCalledWith(
+      TelemetryEvent.MosSideloadEnd,
+      expect.objectContaining({
+        [TelemetryProperty.MosTitleId]: "test-title-id",
+        [TelemetryProperty.MosAppId]: "test-app-id",
+        "mos-title-identifier": "test-title-id",
+        "mos-app-identifier": "test-app-id",
+      }),
+      undefined
+    );
   });
 
   it("AC-06: publishAgent with Shared scope should get shareLink", async () => {
