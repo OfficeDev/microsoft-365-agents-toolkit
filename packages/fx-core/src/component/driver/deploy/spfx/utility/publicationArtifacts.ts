@@ -631,6 +631,7 @@ export async function preparePublication(
 
   const stagingRoot = path.resolve(root, ".fx", "sharepoint-publications");
   const stagingDirectory = path.join(stagingRoot, randomUUID());
+  let stagingCreated = false;
   try {
     await fs.ensureDir(stagingRoot);
     const resolvedRoot = await fs.realpath(stagingRoot);
@@ -638,6 +639,7 @@ export async function preparePublication(
       throw new PreparedPublicationError("InvalidStagingPath", "The staging path is invalid.");
     }
     await fs.mkdir(stagingDirectory);
+    stagingCreated = true;
     const resolvedDirectory = await fs.realpath(stagingDirectory);
     if (!isWithinProject(root, resolvedDirectory)) {
       throw new PreparedPublicationError("InvalidStagingPath", "The staging path is invalid.");
@@ -657,7 +659,8 @@ export async function preparePublication(
       appPackagePath: projectRelative(root, applicationPath),
     });
   } catch (error) {
-    await fs.remove(stagingDirectory);
+    // Removing a path that was never created can fail on POSIX when a parent is not a directory.
+    if (stagingCreated) await fs.remove(stagingDirectory);
     return err(
       error instanceof PreparedPublicationError
         ? error
