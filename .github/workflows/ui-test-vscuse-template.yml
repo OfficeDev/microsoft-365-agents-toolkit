@@ -12,11 +12,6 @@ on:
         description: "Docker image tag to use (e.g., 'latest', 'CY251212stable')"
         required: true
         default: "latest"
-      vscuse_version:
-        description: "VSCUSE Python package version to use (e.g., 'latest', 'v0.2.47')"
-        required: false
-        type: string
-        default: "latest"
       template_version:
         description: "Template version to inject into VSCUSE config.yaml. Version of the template used in the image, e.g. 0.0.0-rc."
         required: false
@@ -32,10 +27,6 @@ on:
         default: 7
       schedule_trigger:
         description: "Whether the build is triggered by schedule"
-        type: boolean
-        default: false
-      use_apim:
-        description: "Use APIM for vscuse Foundry, Vision, and reports (requires the three APIM secrets)"
         type: boolean
         default: false
 
@@ -62,12 +53,10 @@ jobs:
     with:
       test_plan: ${{ github.event.inputs.test_plan }}
       image_tag: ${{ github.event.inputs.image_tag }}
-      vscuse_version: ${{ github.event.inputs.vscuse_version }}
       template_version: ${{ github.event.inputs.template_version }}
       email_receiver: ${{ github.event.inputs.email-receiver }}
       max_retries: ${{ fromJson(github.event.inputs.max_retries || '7') }}
       schedule_trigger: ${{ github.event.inputs.schedule_trigger == 'true' }}
-      use_apim: ${{ inputs.use_apim }}
       # Pipeline-specific knobs
       plan_find_args: '-name "*.json" ! -name "Feature_*" ! -name "feature-*" ! -name "Sample_*" ! -name "Regular_*"'
       main_timeout_minutes: 50
@@ -91,5 +80,4 @@ jobs:
             --repo ${{ github.repository }} \
             --ref ${{ github.ref }} \
             -f image_tag=${{ github.event.inputs.image_tag || 'latest' }} \
-            -f vscuse_version=${{ github.event.inputs.vscuse_version || 'latest' }} \
             -f schedule_trigger=${{ github.event.inputs.schedule_trigger || 'false' }}

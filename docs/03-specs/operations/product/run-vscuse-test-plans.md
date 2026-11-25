@@ -16,10 +16,10 @@ Requirement source:
 | VTR-01 | Template runs select plans that do not start with `Feature_`, `Sample_`, or `Regular_`.                                                                                                                     | L1      | scenario              | required | workflow YAML                       |
 | VTR-02 | Regular runs can be dispatched manually and are scheduled once per week.                                                                                                                                    | L1      | scenario              | required | workflow YAML                       |
 | VTR-03 | Regular runs select only top-level `Regular_*.json` plans through the shared VscUse workflow.                                                                                                               | L1      | scenario              | required | workflow YAML                       |
-| VTR-07 | Template dispatch can opt into APIM report uploads for both jobs. Without opt-in, callers retain the existing Azure CLI upload path.                                                                        | L1      | compatibility         | required | workflow YAML                       |
+| VTR-07 | All callers of the shared workflow upload case and summary reports through APIM without a dispatch option, reusable workflow input, or environment flag.                                                    | L1      | compatibility         | required | workflow YAML                       |
 | VTR-08 | APIM mode uploads the case report and its assets, and the summary as `index.html`, using one keyed binary `PUT` per file. Existing report links are published only after all required uploads return `201`. | L1      | operation-integration | required | local HTTP server and workflow YAML |
 | VTR-09 | APIM mode fails without a report key, a usable `index.html`, a response of `201`, or when a file exceeds the 100 MiB limit. It does not fall back to Azure CLI.                                             | L1      | operation-integration | required | local HTTP server                   |
-| VTR-10 | Opted-in template dispatches load a verified key-capable runner, route its Foundry and Vision clients to APIM, and reference separate keys without changing the test-case Docker environment.               | L1      | compatibility         | required | workflow YAML and config execution  |
+| VTR-10 | The shared workflow downloads the pinned key-capable runner, routes Foundry and Vision to APIM, and references separate keys without changing the test-case Docker environment.                             | L1      | compatibility         | required | workflow YAML and config execution  |
 | VTR-11 | APIM report generation and upload can finish without Azure DevOps enrichment when its login fails. The login failure remains visible and still fails the job.                                               | L1      | operation-integration | required | workflow YAML                       |
 
 ## Flow
@@ -55,11 +55,11 @@ flowchart TD
 
 ## APIM integration
 
-Only the template workflow exposes the `use_apim` dispatch input, which
-defaults to `false`. Opted-in dispatches use vscuse `v0.2.67`, which supports
-key authentication for both runner clients. The default Entra configuration and
-runner version remain available for all other dispatches. Configure these
-GitHub Actions secrets before opting in:
+The shared workflow always uses APIM for Foundry, Vision, and report uploads
+across Template, Features, Samples, and Regular runs. There is no APIM switch.
+The shared workflow pins vscuse to `v0.2.67`, which supports key authentication
+for both runner clients. The runner version is not a dispatch input. Runs
+require these GitHub Actions secrets:
 
 | APIM subscription  | Actions secret                      |
 | ------------------ | ----------------------------------- |
@@ -76,7 +76,7 @@ for writes and keeps the existing report proxy links for reads. Other Azure
 logins, the GitHub report artifacts, and the summary job's scheduling conditions
 do not change.
 
-For live acceptance, dispatch a focused template plan with APIM uploads enabled
-and a report email receiver so the summary job runs. Verify Foundry JSON and
+For live acceptance, dispatch a focused template plan with a report email
+receiver so the summary job runs. Verify Foundry JSON and
 SSE, native OCR (not coordinate fallback), and both report links with an
 authorized reader.

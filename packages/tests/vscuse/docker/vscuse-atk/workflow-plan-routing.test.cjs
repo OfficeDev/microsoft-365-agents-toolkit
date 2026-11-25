@@ -101,23 +101,23 @@ test("VTR-03: regular workflow selects Regular plans through the shared workflow
   assert.equal(workflow.jobs.run.with.email_subject_suffix, "[Regular]");
 });
 
-test("VTR-07: only template dispatch can opt into APIM report uploads", () => {
-  const template = readWorkflow("ui-test-vscuse-template.yml");
+test("VTR-07: all vscuse callers use APIM reporting without an authentication switch", () => {
   const shared = readWorkflow("ui-test-vscuse-common.yml");
-  assert.equal(template.on.workflow_dispatch.inputs.use_apim.default, false);
-  assert.equal(template.jobs.run.with.use_apim, "${{ inputs.use_apim }}");
-  assert.equal(shared.on.workflow_call.inputs.use_apim.default, false);
-  for (const group of ["features", "regular", "samples"]) {
+  for (const group of ["template", "features", "regular", "samples"]) {
+    const caller = readWorkflow(`ui-test-vscuse-${group}.yml`);
     assert.equal(
-      readWorkflow(`ui-test-vscuse-${group}.yml`).jobs.run.with.use_apim,
-      undefined,
+      caller.jobs.run.uses,
+      "./.github/workflows/ui-test-vscuse-common.yml",
     );
+    assert.doesNotMatch(JSON.stringify(caller), /\buse_apim\b/i);
   }
-  const [testLogin, uploadLogin] = shared.jobs.main.steps.filter(
-    (step) => step.name === "Login to Azure",
+  assert.doesNotMatch(JSON.stringify(shared), /\buse_apim\b/i);
+  assert.doesNotMatch(JSON.stringify(shared), /az storage blob upload/);
+  assert.ok(
+    shared.jobs.main.steps.every(
+      (step) => !step.uses?.startsWith("azure/login@"),
+    ),
   );
-  assert.equal(testLogin.if, "${{ !inputs.use_apim }}");
-  assert.match(uploadLogin.if, /!inputs\.use_apim/);
   assert.ok(
     shared.jobs.report.steps.some((step) =>
       step.uses?.startsWith("azure/login@"),
@@ -125,7 +125,7 @@ test("VTR-07: only template dispatch can opt into APIM report uploads", () => {
   );
 });
 
-test("VTR-10: APIM mode uses distinct runner keys and preserves test-case config", (context) => {
+test("VTR-10: APIM uses a pinned runner with distinct keys and preserves test-case config", (context) => {
   const workflow = readWorkflow("ui-test-vscuse-common.yml");
   const steps = workflow.jobs.main.steps;
   const download = steps.find((step) => step.name === "Run download script");
@@ -134,15 +134,20 @@ test("VTR-10: APIM mode uses distinct runner keys and preserves test-case config
   );
   const run = steps.find((step) => step.name === "Run test");
 
-  assert.match(download.run, /vscuse_version=v0\.2\.67/);
-  assert.equal(configure.if, "${{ inputs.use_apim }}");
-  assert.match(
+  assert.match(download.run, /node download-vscuse-python\.js v0\.2\.67\s/);
+  assert.equal(workflow.on.workflow_call.inputs.vscuse_version, undefined);
+  for (const group of ["template", "features", "regular", "samples"]) {
+    const caller = readWorkflow(`ui-test-vscuse-${group}.yml`);
+    assert.doesNotMatch(JSON.stringify(caller), /\bvscuse_version\b/i);
+  }
+  assert.equal(configure.if, undefined);
+  assert.equal(
     workflow.jobs.main.env.VSCUSE_AZURE_OPENAI_ENDPOINT,
-    /https:\/\/apim-ai-atktest1022\.azure-api\.net'/,
+    "https://apim-ai-atktest1022.azure-api.net",
   );
-  assert.match(
+  assert.equal(
     workflow.jobs.main.env.VSCUSE_AZURE_VISION_ENDPOINT,
-    /https:\/\/apim-ai-atktest1022\.azure-api\.net\/vscuse-vision'/,
+    "https://apim-ai-atktest1022.azure-api.net/vscuse-vision",
   );
   assert.match(
     run.env.VSCUSE_FOUNDRY_KEY,
@@ -197,10 +202,7 @@ test("VTR-11: failed Azure DevOps login remains a failure without blocking APIM 
     steps.findIndex((step) => step.name === "Download storage URLs") <
       steps.indexOf(login),
   );
-  assert.match(
-    listJobs.if,
-    /inputs\.use_apim && steps\.report-azure-login\.outcome == 'failure'/,
-  );
+  assert.match(listJobs.if, /steps\.report-azure-login\.outcome == 'failure'/);
   assert.match(listJobs.run, /Skipped Azure DevOps bug enrichment/);
   assert.match(upload.if, /steps\.list-jobs\.outcome == 'success'/);
 });
