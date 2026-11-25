@@ -34,6 +34,10 @@ on:
         description: "Whether the build is triggered by schedule"
         type: boolean
         default: false
+      use_apim:
+        description: "Use APIM for vscuse Foundry, Vision, and reports (requires the three APIM secrets)"
+        type: boolean
+        default: false
 
 permissions:
   actions: read
@@ -63,6 +67,7 @@ jobs:
       email_receiver: ${{ github.event.inputs.email-receiver }}
       max_retries: ${{ fromJson(github.event.inputs.max_retries || '7') }}
       schedule_trigger: ${{ github.event.inputs.schedule_trigger == 'true' }}
+      use_apim: ${{ inputs.use_apim }}
       # Pipeline-specific knobs
       plan_find_args: '-name "*.json" ! -name "Feature_*" ! -name "feature-*" ! -name "Sample_*" ! -name "Regular_*"'
       main_timeout_minutes: 50

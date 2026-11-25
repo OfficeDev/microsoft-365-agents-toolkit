@@ -46,6 +46,10 @@ on:
         required: false
         type: boolean
         default: false
+      use_apim:
+        required: false
+        type: boolean
+        default: false
 
       # Pipeline-specific knobs
       plan_find_args:
@@ -154,15 +158,11 @@ jobs:
       AZURE_OPENAI_API_VERSION: ${{ vars.TEST_TENANT_AZURE_OPENAI_API_VERSION }}
 
       # --- Azure OpenAI + Vision used by VSCUSE ITSELF ---------------------------
-      # Entra ID (AAD) auth only - no API keys. DefaultAzureCredential can use the
-      # "Login to Azure" session below (DEVOPS_* federated credentials).
-      # Reuse existing resources; only the driver's authentication differs.
-      VSCUSE_AZURE_OPENAI_ENDPOINT: ${{ vars.TEST_TENANT_AZURE_OPENAI_ENDPOINT }}
-      VSCUSE_AZURE_OPENAI_MODEL: ${{ vars.TEST_TENANT_AZURE_OPENAI_MODEL }}
-      VSCUSE_AZURE_OPENAI_API_VERSION: ${{ vars.TEST_TENANT_AZURE_OPENAI_API_VERSION }}
-      VSCUSE_AZURE_VISION_ENDPOINT: ${{ vars.AZURE_VISION_ENDPOINT }}
-
-      # The driver uses AAD for Vision; no Vision API key is forwarded.
+      # Use Entra ID by default; APIM keys are scoped to runner steps below.
+      VSCUSE_AZURE_OPENAI_ENDPOINT: ${{ inputs.use_apim && 'https://apim-ai-atktest1022.azure-api.net' || vars.TEST_TENANT_AZURE_OPENAI_ENDPOINT }}
+      VSCUSE_AZURE_OPENAI_MODEL: ${{ inputs.use_apim && (vars.VSCUSE_TEST_APIM_AZURE_OPENAI_MODEL || 'gpt-4.1') || vars.TEST_TENANT_AZURE_OPENAI_MODEL }}
+      VSCUSE_AZURE_OPENAI_API_VERSION: ${{ inputs.use_apim && (vars.VSCUSE_TEST_APIM_AZURE_OPENAI_API_VERSION || '2025-04-01-preview') || vars.TEST_TENANT_AZURE_OPENAI_API_VERSION }}
+      VSCUSE_AZURE_VISION_ENDPOINT: ${{ inputs.use_apim && 'https://apim-ai-atktest1022.azure-api.net/vscuse-vision' || vars.AZURE_VISION_ENDPOINT }}
 
       # AZURE AI search
       AZURE_OPENAI_EMBEDDING_DEPLOYMENT_NAME: "text-embedding-ada-002"
@@ -253,10 +253,9 @@ jobs:
         with:
           ref: ${{ github.ref_name }}
 
-      # vscuse's own Azure OpenAI / Vision calls authenticate with Entra ID, so we must be
-      # logged in BEFORE "Run test". The service principal needs "Cognitive Services OpenAI
-      # User" on the vscuse AOAI resource and "Cognitive Services User" on the Vision one.
+      # The host Azure CLI session authenticates the default runner's AI clients.
       - name: Login to Azure
+        if: ${{ !inputs.use_apim }}
         uses: azure/login@7184910d9eb2b1c5e48f7073824a90609bb9b6d6 # v2.3.1
         with:
           client-id: ${{secrets.DEVOPS_CLIENT_ID}}
@@ -279,23 +278,52 @@ jobs:
         shell: bash
 
       - name: Run download script
-        run: node download-vscuse-python.js "${{ inputs.vscuse_version }}" "${{ github.workspace }}/packages/tests/vscuse/vscode-test-cases"
+        env:
+          USE_APIM: ${{ inputs.use_apim }}
+          VSCUSE_VERSION: ${{ inputs.vscuse_version }}
+        run: |
+          vscuse_version="${VSCUSE_VERSION:-latest}"
+          if [ "$USE_APIM" = "true" ]; then
+            case "$vscuse_version" in
+              latest|v0.2.67) vscuse_version=v0.2.67 ;;
+              *) echo "::error::APIM mode requires vscuse v0.2.67"; exit 1 ;;
+            esac
+          fi
+          node download-vscuse-python.js "$vscuse_version" "$GITHUB_WORKSPACE/packages/tests/vscuse/vscode-test-cases"
         shell: bash
         working-directory: .github/actions/setup-vscuse-environment
 
       - name: Set up Python virtual environment and install wheel
+        env:
+          USE_APIM: ${{ inputs.use_apim }}
         run: |
           cd packages/tests/vscuse/vscode-test-cases
           python -m venv .venv
           source .venv/bin/activate
           WHEEL_FILE=$(ls *.whl | head -n 1)
-          pip install "./$WHEEL_FILE"
+          dependencies=("./$WHEEL_FILE")
+          if [ "$USE_APIM" = "true" ]; then
+            dependencies+=("azure-ai-vision-imageanalysis==1.0.0")
+          fi
+          pip install "${dependencies[@]}"
         shell: bash
 
       - name: Verify Azure Configuration
+        env:
+          USE_APIM: ${{ inputs.use_apim }}
+          VSCUSE_FOUNDRY_KEY: ${{ inputs.use_apim && secrets.VSCUSE_TEST_APIM_AZURE_OPENAI_KEY || '' }}
+          VSCUSE_VISION_KEY: ${{ inputs.use_apim && secrets.VSCUSE_VISION_APIM_KEY || '' }}
+          VSCUSE_REPORT_APIM_KEY: ${{ inputs.use_apim && secrets.VSCUSE_REPORT_APIM_KEY || '' }}
         run: |
           echo "Verifying Azure configuration..."
-          # vscuse itself: Entra ID auth, endpoint only (no key).
+          if [ "$USE_APIM" = "true" ]; then
+            if [ -z "$VSCUSE_FOUNDRY_KEY" ] || [ -z "$VSCUSE_VISION_KEY" ] || [ -z "$VSCUSE_REPORT_APIM_KEY" ]; then
+              echo "::error::APIM mode requires VSCUSE_TEST_APIM_AZURE_OPENAI_KEY, VSCUSE_VISION_APIM_KEY, and VSCUSE_REPORT_APIM_KEY"
+              exit 1
+            fi
+            echo "✅ vscuse APIM Foundry, Vision, and report keys configured"
+          fi
+
           if [ -z "$VSCUSE_AZURE_OPENAI_ENDPOINT" ]; then
             echo "❌ VSCUSE_AZURE_OPENAI_ENDPOINT is not set"
             exit 1
@@ -304,11 +332,10 @@ jobs:
             echo "❌ VSCUSE_AZURE_VISION_ENDPOINT is not set"
             exit 1
           fi
-          if ! az account show > /dev/null 2>&1; then
-            echo "❌ Not logged in to Azure - Entra ID auth for vscuse will fail"
+          if [ "$USE_APIM" != "true" ] && ! az account show > /dev/null 2>&1; then
+            echo "❌ Not logged in to Azure"
             exit 1
           fi
-          echo "✅ vscuse Azure OpenAI + Vision configured (Entra ID auth)"
 
           # Test cases: key-based Azure OpenAI endpoint.
           if [ -z "$AZURE_OPENAI_ENDPOINT" ] || [ -z "$AZURE_OPENAI_API_KEY" ]; then
@@ -378,6 +405,28 @@ jobs:
             echo "TEMPLATE_VERSION not provided; TEMPLATE_VERSION won't be added to config.yaml"
           fi
 
+      - name: Configure vscuse APIM clients
+        if: ${{ inputs.use_apim }}
+        working-directory: packages/tests/vscuse/vscode-test-cases
+        run: |
+          node <<'NODE'
+          const fs = require("node:fs");
+          const { parseDocument } = require("yaml");
+          const configPath = "config.yaml";
+          const config = parseDocument(fs.readFileSync(configPath, "utf8"));
+          if (config.errors.length) {
+            throw new Error(`Invalid vscuse config: ${config.errors[0].message}`);
+          }
+          for (const [section, apiKey] of [
+            ["azure_openai", "${VSCUSE_FOUNDRY_KEY}"],
+            ["azure_vision", "${VSCUSE_VISION_KEY}"],
+          ]) {
+            config.setIn([section, "use_azure_credential"], false);
+            config.setIn([section, "api_key"], apiKey);
+          }
+          fs.writeFileSync(configPath, config.toString());
+          NODE
+
       - name: Prepare isolated MCP authentication fixture
         id: prepare-mcp-auth
         if: ${{ contains(fromJSON('["da-mcp-server--da-mcp-static-entra-copilot","da-mcp-server--da-mcp-dcr-copilot","da-mcp-server--da-mcp-entra-sso-copilot","da-mcp-server--da-mcp-dcr-update-copilot"]'), matrix.test_plan) }}
@@ -406,6 +455,8 @@ jobs:
       - name: Run test
         env:
           TEST_PLAN: ${{ matrix.test_plan }}
+          VSCUSE_FOUNDRY_KEY: ${{ inputs.use_apim && secrets.VSCUSE_TEST_APIM_AZURE_OPENAI_KEY || '' }}
+          VSCUSE_VISION_KEY: ${{ inputs.use_apim && secrets.VSCUSE_VISION_APIM_KEY || '' }}
         run: |
           echo "🚀 Running test plan: $TEST_PLAN"
           echo "Using image tag: ${{ inputs.image_tag }}"
@@ -526,7 +577,7 @@ jobs:
           if-no-files-found: ignore
 
       - name: Login to Azure
-        if: always()
+        if: ${{ always() && !inputs.use_apim }}
         uses: azure/login@7184910d9eb2b1c5e48f7073824a90609bb9b6d6 # v2.3.1
         with:
           client-id: ${{secrets.DEVOPS_CLIENT_ID}}
@@ -544,18 +595,26 @@ jobs:
           $destination = "`content/$guid"
           $storageUrl = "https://storproxy-app-voazuxhhvtgiq.azurewebsites.net/$guid/index.html"
 
+          if ($env:USE_APIM -eq "true") {
+            node "$env:GITHUB_WORKSPACE/.github/scripts/upload-vscuse-report.cjs" "$sourcePath" "$guid"
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          } else {
+            az storage blob upload-batch `
+              --account-name $account `
+              --auth-mode login `
+              --destination $destination `
+              --source "$sourcePath" `
+              --overwrite
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          }
+
           Write-Host "🌐Here is the report: $storageUrl"
 
           echo "$storageUrl" > "storage_url-${{ matrix.test_plan }}-${{ github.run_id }}.txt"
-
-          az storage blob upload-batch `
-            --account-name $account `
-            --auth-mode login `
-            --destination $destination `
-            --source "$sourcePath" `
-            --overwrite
         env:
           AZURE_STORAGE_ACCOUNT: storproxystvoazuxhhvtgiq
+          USE_APIM: ${{ inputs.use_apim }}
+          VSCUSE_REPORT_APIM_KEY: ${{ inputs.use_apim && secrets.VSCUSE_REPORT_APIM_KEY || '' }}
 
       - name: Upload storage URL artifact
         if: always()
@@ -1029,33 +1088,39 @@ jobs:
       # shareable report URL. Printed marker "Report Summary URL: <url>" is parsed by
       # pr-vscuse-test.yml to render the link in its PR comment.
       - name: Upload aggregated report to Azure Blob Storage
-        if: always()
+        if: ${{ always() && (!inputs.use_apim || steps.list-jobs.outcome == 'success') }}
         shell: pwsh
         working-directory: packages/tests/vscuse
         run: |
-          if (-not (Test-Path "email-body.html")) {
-            Write-Host "email-body.html not found; skipping aggregate upload."
-            exit 0
-          }
-
           $guid = [guid]::NewGuid().ToString()
           $account = $env:AZURE_STORAGE_ACCOUNT
           $summaryUrl = "https://storproxy-app-voazuxhhvtgiq.azurewebsites.net/$guid/index.html"
 
-          Copy-Item "email-body.html" "index.html" -Force
-
-          az storage blob upload `
-            --account-name $account `
-            --auth-mode login `
-            --container-name 'content' `
-            --name "$guid/index.html" `
-            --file "index.html" `
-            --content-type "text/html" `
-            --overwrite
+          if ($env:USE_APIM -eq "true") {
+            node "$env:GITHUB_WORKSPACE/.github/scripts/upload-vscuse-report.cjs" "email-body.html" "$guid"
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          } else {
+            if (-not (Test-Path "email-body.html")) {
+              Write-Host "email-body.html not found; skipping aggregate upload."
+              exit 0
+            }
+            Copy-Item "email-body.html" "index.html" -Force
+            az storage blob upload `
+              --account-name $account `
+              --auth-mode login `
+              --container-name 'content' `
+              --name "$guid/index.html" `
+              --file "index.html" `
+              --content-type "text/html" `
+              --overwrite
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          }
 
           Write-Host "Report Summary URL: $summaryUrl"
         env:
           AZURE_STORAGE_ACCOUNT: storproxystvoazuxhhvtgiq
+          USE_APIM: ${{ inputs.use_apim }}
+          VSCUSE_REPORT_APIM_KEY: ${{ inputs.use_apim && secrets.VSCUSE_REPORT_APIM_KEY || '' }}
 
       - name: Send E-mail
         uses: ./.github/actions/send-email-report-vscuse
