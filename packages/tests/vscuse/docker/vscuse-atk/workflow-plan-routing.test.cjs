@@ -132,6 +132,9 @@ test("VTR-10: APIM uses a pinned runner with distinct keys and preserves test-ca
   const configure = steps.find(
     (step) => step.name === "Configure vscuse APIM clients",
   );
+  const verify = steps.find(
+    (step) => step.name === "Verify Azure Configuration",
+  );
   const run = steps.find((step) => step.name === "Run test");
 
   assert.match(download.run, /node download-vscuse-python\.js v0\.2\.67\s/);
@@ -149,11 +152,14 @@ test("VTR-10: APIM uses a pinned runner with distinct keys and preserves test-ca
     workflow.jobs.main.env.VSCUSE_AZURE_VISION_ENDPOINT,
     "https://apim-ai-atktest1022.azure-api.net/vscuse-vision",
   );
-  assert.match(
-    run.env.VSCUSE_FOUNDRY_KEY,
-    /secrets\.VSCUSE_TEST_APIM_AZURE_OPENAI_KEY/,
-  );
-  assert.match(run.env.VSCUSE_VISION_KEY, /secrets\.VSCUSE_VISION_APIM_KEY/);
+  const runnerKeys = {
+    VSCUSE_FOUNDRY_APIM_KEY: "${{ secrets.VSCUSE_TEST_APIM_AZURE_OPENAI_KEY }}",
+    VSCUSE_VISION_APIM_KEY: "${{ secrets.VSCUSE_VISION_APIM_KEY }}",
+  };
+  for (const [name, secret] of Object.entries(runnerKeys)) {
+    assert.equal(verify.env[name], secret);
+    assert.equal(run.env[name], secret);
+  }
 
   const directory = reportFixture(context);
   const source = path.resolve(
@@ -181,12 +187,12 @@ test("VTR-10: APIM uses a pinned runner with distinct keys and preserves test-ca
   assert.deepEqual(after.azure_openai, {
     ...before.azure_openai,
     use_azure_credential: false,
-    api_key: "${VSCUSE_FOUNDRY_KEY}",
+    api_key: "${VSCUSE_FOUNDRY_APIM_KEY}",
   });
   assert.deepEqual(after.azure_vision, {
     ...before.azure_vision,
     use_azure_credential: false,
-    api_key: "${VSCUSE_VISION_KEY}",
+    api_key: "${VSCUSE_VISION_APIM_KEY}",
   });
 });
 

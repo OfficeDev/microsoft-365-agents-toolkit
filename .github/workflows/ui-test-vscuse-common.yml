@@ -274,12 +274,12 @@ jobs:
 
       - name: Verify Azure Configuration
         env:
-          VSCUSE_FOUNDRY_KEY: ${{ secrets.VSCUSE_TEST_APIM_AZURE_OPENAI_KEY }}
-          VSCUSE_VISION_KEY: ${{ secrets.VSCUSE_VISION_APIM_KEY }}
+          VSCUSE_FOUNDRY_APIM_KEY: ${{ secrets.VSCUSE_TEST_APIM_AZURE_OPENAI_KEY }}
+          VSCUSE_VISION_APIM_KEY: ${{ secrets.VSCUSE_VISION_APIM_KEY }}
           VSCUSE_REPORT_APIM_KEY: ${{ secrets.VSCUSE_REPORT_APIM_KEY }}
         run: |
           echo "Verifying Azure configuration..."
-          if [ -z "$VSCUSE_FOUNDRY_KEY" ] || [ -z "$VSCUSE_VISION_KEY" ] || [ -z "$VSCUSE_REPORT_APIM_KEY" ]; then
+          if [ -z "$VSCUSE_FOUNDRY_APIM_KEY" ] || [ -z "$VSCUSE_VISION_APIM_KEY" ] || [ -z "$VSCUSE_REPORT_APIM_KEY" ]; then
             echo "::error::APIM requires VSCUSE_TEST_APIM_AZURE_OPENAI_KEY, VSCUSE_VISION_APIM_KEY, and VSCUSE_REPORT_APIM_KEY"
             exit 1
           fi
@@ -365,8 +365,8 @@ jobs:
             throw new Error(`Invalid vscuse config: ${config.errors[0].message}`);
           }
           for (const [section, apiKey] of [
-            ["azure_openai", "${VSCUSE_FOUNDRY_KEY}"],
-            ["azure_vision", "${VSCUSE_VISION_KEY}"],
+            ["azure_openai", "${VSCUSE_FOUNDRY_APIM_KEY}"],
+            ["azure_vision", "${VSCUSE_VISION_APIM_KEY}"],
           ]) {
             config.setIn([section, "use_azure_credential"], false);
             config.setIn([section, "api_key"], apiKey);
@@ -402,8 +402,8 @@ jobs:
       - name: Run test
         env:
           TEST_PLAN: ${{ matrix.test_plan }}
-          VSCUSE_FOUNDRY_KEY: ${{ secrets.VSCUSE_TEST_APIM_AZURE_OPENAI_KEY }}
-          VSCUSE_VISION_KEY: ${{ secrets.VSCUSE_VISION_APIM_KEY }}
+          VSCUSE_FOUNDRY_APIM_KEY: ${{ secrets.VSCUSE_TEST_APIM_AZURE_OPENAI_KEY }}
+          VSCUSE_VISION_APIM_KEY: ${{ secrets.VSCUSE_VISION_APIM_KEY }}
         run: |
           echo "🚀 Running test plan: $TEST_PLAN"
           echo "Using image tag: ${{ inputs.image_tag }}"

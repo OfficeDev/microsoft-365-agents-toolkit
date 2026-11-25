@@ -61,16 +61,17 @@ The shared workflow pins vscuse to `v0.2.67`, which supports key authentication
 for both runner clients. The runner version is not a dispatch input. Runs
 require these GitHub Actions secrets:
 
-| APIM subscription  | Actions secret                      |
-| ------------------ | ----------------------------------- |
-| `azure-sdk-test`   | `VSCUSE_TEST_APIM_AZURE_OPENAI_KEY` |
-| `vscuse-vision-ci` | `VSCUSE_VISION_APIM_KEY`            |
-| `vscuse-report-ci` | `VSCUSE_REPORT_APIM_KEY`            |
+| APIM subscription  | Actions secret                      | Step environment variable |
+| ------------------ | ----------------------------------- | ------------------------- |
+| `azure-sdk-test`   | `VSCUSE_TEST_APIM_AZURE_OPENAI_KEY` | `VSCUSE_FOUNDRY_APIM_KEY` |
+| `vscuse-vision-ci` | `VSCUSE_VISION_APIM_KEY`            | `VSCUSE_VISION_APIM_KEY`  |
+| `vscuse-report-ci` | `VSCUSE_REPORT_APIM_KEY`            | `VSCUSE_REPORT_APIM_KEY`  |
 
 The runner uses the APIM root as its Azure OpenAI endpoint and `/vscuse-vision`
 as its Vision base URL. The generated run config references the keys through
-environment variables; the keys are not passed into the test-case Docker
-environment. The workflow uses
+dedicated APIM environment variables; the keys are not passed into the
+test-case Docker environment or substituted for its `AZURE_OPENAI_API_KEY`.
+The workflow uses
 `https://apim-ai-atktest1022.azure-api.net/vscuse-report-upload/<guid>/<path>`
 for writes and keeps the existing report proxy links for reads. Other Azure
 logins, the GitHub report artifacts, and the summary job's scheduling conditions
