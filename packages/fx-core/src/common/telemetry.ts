@@ -98,6 +98,8 @@ export enum TelemetryProperty {
 
   MosTitleId = "mos-title-id",
   MosAppId = "mos-app-id",
+  MosTitleIdentifier = "mos-title-identifier",
+  MosAppIdentifier = "mos-app-identifier",
   IsDeclarativeAgent = "is-declarative-agent",
 
   SkipCreation = "skip-creation",

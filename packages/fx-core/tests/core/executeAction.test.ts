@@ -327,7 +327,7 @@ describe("standalone action execution", () => {
     expect(result).toBe(native);
   });
 
-  it("ACTION-09: reuses existing service configuration when installing a real ZIP through fake HTTP", async () => {
+  it("ACTION-09 / AC-MOS-01: reuses service configuration and emits MOS ID aliases through fake HTTP", async () => {
     vi.stubEnv("TEAMSFX_RAI_VALIDATION_ENABLED", undefined);
     vi.stubEnv("TEAMSFX_INCREMENTAL_SKILL_UPLOAD", "false");
     const zip = new AdmZip();
@@ -371,7 +371,12 @@ describe("standalone action execution", () => {
     expect(ownExperiments.getTreatmentVariableAsync).toHaveBeenCalled();
     expect(ownTelemetry).toHaveBeenCalledWith(
       TelemetryEvent.MosSideloadEnd,
-      expect.objectContaining({ [TelemetryProperty.MosTitleId]: "U_title" }),
+      expect.objectContaining({
+        [TelemetryProperty.MosTitleId]: "U_title",
+        [TelemetryProperty.MosAppId]: "app-id",
+        "mos-title-identifier": "U_title",
+        "mos-app-identifier": "app-id",
+      }),
       undefined
     );
   });

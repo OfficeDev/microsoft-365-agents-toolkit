@@ -535,6 +535,8 @@ export class PackageService {
     sendTelemetryEvent(Component.core, TelemetryEvent.MosSideloadEnd, {
       [TelemetryProperty.MosTitleId]: res[0],
       [TelemetryProperty.MosAppId]: res[1],
+      [TelemetryProperty.MosTitleIdentifier]: res[0],
+      [TelemetryProperty.MosAppIdentifier]: res[1],
     });
     return [res[0], res[1], shareLink];
   }
@@ -692,6 +694,8 @@ export class PackageService {
     sendTelemetryEvent(Component.core, TelemetryEvent.MosSideloadEnd, {
       [TelemetryProperty.MosTitleId]: res[0],
       [TelemetryProperty.MosAppId]: res[1],
+      [TelemetryProperty.MosTitleIdentifier]: res[0],
+      [TelemetryProperty.MosAppIdentifier]: res[1],
     });
     return [res[0], res[1], shareLink];
   }
