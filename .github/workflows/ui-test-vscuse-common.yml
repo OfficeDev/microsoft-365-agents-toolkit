@@ -680,13 +680,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
 
-      - uses: azure/login@7184910d9eb2b1c5e48f7073824a90609bb9b6d6 # v2.3.1
-        with:
-          client-id: ${{secrets.DEVOPS_CLIENT_ID}}
-          tenant-id: ${{secrets.DEVOPS_TENANT_ID}}
-          subscription-id: ${{secrets.DEVOPS_SUB_ID}}
-          enable-AzPSSession: true
-
       - name: Download storage URLs
         uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
         with:
@@ -786,16 +779,32 @@ jobs:
         run: |
           sudo apt install dateutils
 
+      - name: Login to Azure for Azure DevOps metadata
+        id: report-azure-login
+        uses: azure/login@7184910d9eb2b1c5e48f7073824a90609bb9b6d6 # v2.3.1
+        with:
+          client-id: ${{secrets.DEVOPS_CLIENT_ID}}
+          tenant-id: ${{secrets.DEVOPS_TENANT_ID}}
+          subscription-id: ${{secrets.DEVOPS_SUB_ID}}
+          enable-AzPSSession: true
+
       - name: list jobs
         id: list-jobs
+        if: ${{ !cancelled() && (success() || (inputs.use_apim && steps.report-azure-login.outcome == 'failure')) }}
         working-directory: packages/tests/vscuse
         env:
+          ADO_LOGIN_OUTCOME: ${{ steps.report-azure-login.outcome }}
           AZURE_DEVOPS_ORG: "msazure"
           AZURE_DEVOPS_PROJECT: "Microsoft%20Teams%20Extensibility"
           EMAIL_SUBJECT_SUFFIX: ${{ inputs.email_subject_suffix }}
           FILTER_NO_ERRORS_FOUND: ${{ inputs.filter_no_errors_found }}
         run: |
-          AZURE_DEVOPS_PAT=$(az account get-access-token --resource https://app.vssps.visualstudio.com --query accessToken -o tsv)
+          AZURE_DEVOPS_PAT=""
+          if [ "$ADO_LOGIN_OUTCOME" = "success" ]; then
+            AZURE_DEVOPS_PAT=$(az account get-access-token --resource https://app.vssps.visualstudio.com --query accessToken -o tsv)
+          else
+            echo "::warning::Skipped Azure DevOps bug enrichment because its Azure login failed."
+          fi
           page=1
           jobs="[]"
           echo "Initial jobs: $jobs"

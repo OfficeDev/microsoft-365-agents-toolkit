@@ -185,6 +185,26 @@ test("VTR-10: APIM mode uses distinct runner keys and preserves test-case config
   });
 });
 
+test("VTR-11: failed Azure DevOps login remains a failure without blocking APIM summary upload", () => {
+  const steps = readWorkflow("ui-test-vscuse-common.yml").jobs.report.steps;
+  const login = steps.find((step) => step.id === "report-azure-login");
+  const listJobs = steps.find((step) => step.id === "list-jobs");
+  const upload = steps.find(
+    (step) => step.name === "Upload aggregated report to Azure Blob Storage",
+  );
+  assert.equal(login["continue-on-error"], undefined);
+  assert.ok(
+    steps.findIndex((step) => step.name === "Download storage URLs") <
+      steps.indexOf(login),
+  );
+  assert.match(
+    listJobs.if,
+    /inputs\.use_apim && steps\.report-azure-login\.outcome == 'failure'/,
+  );
+  assert.match(listJobs.run, /Skipped Azure DevOps bug enrichment/);
+  assert.match(upload.if, /steps\.list-jobs\.outcome == 'success'/);
+});
+
 async function captureUploads(context, status = 201) {
   const uploads = [];
   const server = createServer(async (request, response) => {

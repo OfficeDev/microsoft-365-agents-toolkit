@@ -20,6 +20,7 @@ Requirement source:
 | VTR-08 | APIM mode uploads the case report and its assets, and the summary as `index.html`, using one keyed binary `PUT` per file. Existing report links are published only after all required uploads return `201`. | L1      | operation-integration | required | local HTTP server and workflow YAML |
 | VTR-09 | APIM mode fails without a report key, a usable `index.html`, a response of `201`, or when a file exceeds the 100 MiB limit. It does not fall back to Azure CLI.                                             | L1      | operation-integration | required | local HTTP server                   |
 | VTR-10 | Opted-in template dispatches load a verified key-capable runner, route its Foundry and Vision clients to APIM, and reference separate keys without changing the test-case Docker environment.               | L1      | compatibility         | required | workflow YAML and config execution  |
+| VTR-11 | APIM report generation and upload can finish without Azure DevOps enrichment when its login fails. The login failure remains visible and still fails the job.                                               | L1      | operation-integration | required | workflow YAML                       |
 
 ## Flow
 
