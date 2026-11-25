@@ -582,19 +582,42 @@ function certificateExtensions(): Extension[] {
 
 describe("local certificate compatibility", () => {
   afterEach(() => {
-    vi.useRealTimers();
     vi.restoreAllMocks();
   });
 
-  it("reuses a legacy Forge certificate without regenerating or trusting it again", async () => {
-    vi.useFakeTimers();
-    vi.setSystemTime(new Date("2026-11-25T00:00:00Z"));
+  it("reads and verifies the public certificate produced by Forge", async () => {
+    const cert = new X509Certificate(legacyCertPem);
+    const nativeCert = new NodeCertificate(legacyCertPem);
+
+    chai.assert.isTrue(
+      await cert.verify({ date: new Date("2026-11-25T00:00:00Z") }, globalThis.crypto)
+    );
+    chai.assert.isTrue(nativeCert.verify(nativeCert.publicKey));
+    chai.assert.deepEqual(cert.subjectName.getField("CN"), ["localhost"]);
+    chai.assert.deepEqual(cert.issuerName.getField("CN"), ["localhost"]);
+    chai.assert.isFalse(cert.getExtension(BasicConstraintsExtension)?.ca);
+    chai.assert.include(
+      cert.getExtension(ExtendedKeyUsageExtension)?.usages,
+      ExtendedKeyUsage.serverAuth
+    );
+    chai.assert.isTrue(
+      cert
+        .getExtension(SubjectAlternativeNameExtension)
+        ?.names.items.some((name) => name.type === "dns" && name.value === "localhost")
+    );
+    chai.assert.equal(
+      Buffer.from(await cert.getThumbprint(globalThis.crypto)).toString("hex"),
+      nativeCert.fingerprint.replace(/:/g, "").toLowerCase()
+    );
+  });
+
+  it("reuses an existing RSA PEM pair without regenerating or trusting it again", async () => {
+    const { certPem, keyPem, thumbprint } = lightweightCertPair;
     vi.spyOn(localCertificateManagerDeps, "ensureDir").mockResolvedValue();
     vi.spyOn(localCertificateManagerDeps, "pathExists").mockResolvedValue(true);
     vi.spyOn(localCertificateManagerDeps, "readFile")
-      .mockResolvedValueOnce(legacyCertPem)
-      .mockResolvedValueOnce(legacyKeyPem);
-    const thumbprint = getCertThumbprint(legacyCertPem);
+      .mockResolvedValueOnce(certPem)
+      .mockResolvedValueOnce(keyPem);
     const generate = vi.spyOn(LocalCertificateManager.prototype, "generateCertificate");
     const write = vi.spyOn(localCertificateManagerDeps, "writeFile").mockResolvedValue();
     const trustCommand = vi.spyOn(localCertificateManagerDeps, "execPowerShell");
@@ -603,10 +626,7 @@ describe("local certificate compatibility", () => {
       .mockResolvedValue(true);
     const manager = new LocalCertificateManager();
 
-    chai.assert.deepEqual(manager.verifyCertificateContent(legacyCertPem, legacyKeyPem), [
-      thumbprint,
-      true,
-    ]);
+    chai.assert.deepEqual(manager.verifyCertificateContent(certPem, keyPem), [thumbprint, true]);
     const result = await manager.setupCertificate(true);
     chai.assert.isTrue(result.found);
     chai.assert.isTrue(result.alreadyTrusted);
@@ -617,10 +637,11 @@ describe("local certificate compatibility", () => {
     chai.assert.isFalse(trustCommand.mock.calls.length > 0);
   });
 
-  it("rejects a different RSA private key and malformed PEM", () => {
+  it("rejects a different RSA private key and malformed PEM", async () => {
+    const differentPair = await createLightweightCertPair();
     const manager = new LocalCertificateManager();
     chai.assert.isFalse(
-      manager.verifyCertificateContent(lightweightCertPair.certPem, legacyKeyPem)[1]
+      manager.verifyCertificateContent(lightweightCertPair.certPem, differentPair.keyPem)[1]
     );
     chai.assert.deepEqual(manager.verifyCertificateContent("invalid", "invalid"), [
       undefined,
@@ -700,19 +721,3 @@ DQEBCwUAA4GBABKq3k8bIkTQW8G52lV2CIxDbknNRKyJ7WWcSdy6CKR3Pjc798rL
 gwYoyoJxG/o+TU4P3XyZMitierPB2bCUCSFH74qywDISbyR+FMlG9Qx3be+qzvf2
 ah6B73mFKKEvCToNgrJVtVTJhCX0TJW/9Y4lEj8Un6xm3p/xvyLhrTD9
 -----END CERTIFICATE-----`;
-
-const legacyKeyPem = `-----BEGIN RSA PRIVATE KEY-----
-MIICWwIBAAKBgQCiJUe5kTgAyMM2cu/QFCF3LsBFHCuAbaDRCdN0oWCuPWJgbCaz
-dveYYce8F1bzjH6hYkinSSn6D+wBpSMpN2XQRlxAH3XXF+YXX3t7qwEogpmKrGGt
-KlkQa7d/kZovEiPt0KqqzYrSmkM7bbly8vUixJdV8QS3I9/Niro1Qjk3cQIDAQAB
-AoGAZmnJncm9Z7Fmq5N5KSIt6QtcYcpjJ6EWvDHKn5X2bNdUtbZZ02zHAjZwY7sS
-Lo6ExQZBAXhSzSEVXgyh4ryczyibmDhOdDaLecOanmyGP0I1kg5DPSz6GLAh+d5I
-K5e6ZVjTwBL6R13WAp5GHKm4xJ0K83yRZ2a5xDISmfu9GakCQQDVbbmaYAS9YSr2
-fOfI5py1Shtu8nHk4fde2hsCSiGflXXk09o7SNoL8bMtLjMNruVJjVbd3j6NysxJ
-4HII315DAkEAwnzmNOSqD9AQGahdsBRc677A3RjgAw+VkSWEH67JexQriRQlkPHE
-wQwglhVBpyxmPMnyXM1EM/bhfanueeKqOwJAHl/aTVUi94zPn3rRRe9EGCzu0JBi
-ky9xlCc4NtA0DtEnkSRxZ4SLu61vUZvEmkrsyNX7qeHKR0W4Yz81G3wmnwJAC08+
-B8dgSEkeFo/e2tVkTeUqy/CdXjAyz1zyIPGGD90tZuw//vzAJ0WwQ2n7BmCjlVdc
-+56IH8l0dV1DW90dbwJAH/YKsXMUul8IydIslK3mxUA0OAelg0xrH31Ku0lYNFs6
-xxeqrVklH/GIEfhIyip2uOdigxjyci2oYPQ6qgt64A==
------END RSA PRIVATE KEY-----`;
