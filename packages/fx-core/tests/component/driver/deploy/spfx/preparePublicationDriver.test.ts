@@ -229,6 +229,14 @@ describe("SPFX-PREP-05/09: SharePoint publication preparation driver", () => {
     });
   });
 
+  it("SPFX-PREP-04: reports a preparation failure after verified tenant discovery", async () => {
+    const projectPath = await createProject();
+
+    await expectDriverError(projectPath, "InputReadFailed", UserError, {
+      args: { ...validArgs, appPackagePath: "appPackage/missing.zip" },
+    });
+  });
+
   it("SPFX-PREP-04: reports an unavailable project as a system error", async () => {
     const projectPath = await createProject();
     const missingProjectPath = path.join(projectPath, "missing");
