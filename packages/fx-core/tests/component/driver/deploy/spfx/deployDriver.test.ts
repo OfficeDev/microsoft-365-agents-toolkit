@@ -1,6 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
-import { M365TokenProvider, ok, Platform } from "@microsoft/teamsfx-api";
+import { err, M365TokenProvider, ok, Platform, SystemError } from "@microsoft/teamsfx-api";
 import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
 import faker from "faker";
 import fs from "fs-extra";
@@ -323,6 +323,39 @@ describe("SPFx Deploy Driver", async () => {
       },
     } as any);
     await assertRejected(deployDriver.getTenant(mockM365TokenProvider()), GetTenantFailedError);
+  });
+
+  it("SPFX-PREP-08: reports the signed-in user when the tenant lookup rejects with a non-error", async () => {
+    const mockedM365TokenProvider = mockM365TokenProvider();
+    mockedM365TokenProvider.getJsonObject = vi
+      .fn()
+      .mockResolvedValue(ok({ value: { unique_name: "user@example.test" } }));
+    vi.spyOn(axios, "create").mockReturnValue({
+      defaults: { headers: { common: {} } },
+      get: () => Promise.reject("unavailable"),
+    } as any);
+
+    const promise = deployDriver.getTenant(mockedM365TokenProvider);
+
+    await assertRejected(promise, GetTenantFailedError);
+    await promise.catch((error: GetTenantFailedError) =>
+      expect(error.message).to.contain("user@example.test")
+    );
+  });
+
+  it("SPFX-PREP-08: still looks up the tenant when token claims are unavailable", async () => {
+    const mockedM365TokenProvider = mockM365TokenProvider();
+    mockedM365TokenProvider.getJsonObject = vi
+      .fn()
+      .mockResolvedValue(err(new SystemError("Test", "ClaimsUnavailable", "unavailable")));
+    vi.spyOn(axios, "create").mockReturnValue({
+      defaults: { headers: { common: {} } },
+      get: () => Promise.resolve({ data: { webUrl: "https://tenant.example.test" } }),
+    } as any);
+
+    expect(await deployDriver.getTenant(mockedM365TokenProvider)).to.equal(
+      "https://tenant.example.test"
+    );
   });
 
   it("get package path from solutionConfigPath", async () => {

@@ -15,27 +15,36 @@ export const publicationTenantContext = {
   productId,
 };
 
-export function createSppkg(version = "1.2.3.4", componentContent = "component"): Buffer {
+export interface AppPackageOverrides {
+  manifest?: Record<string, unknown>;
+  agent?: Record<string, unknown>;
+  files?: Record<string, string>;
+}
+
+export function createPluginManifest(): Record<string, unknown> {
+  return {
+    schema_version: "v2.4",
+    namespace: "sample",
+    name_for_human: "Sample",
+    description_for_human: "Sample API plugin",
+    functions: [],
+    runtimes: [
+      {
+        type: "RemoteMCPServer",
+        auth: { type: "None" },
+        spec: { url: "{{TENANT_MCP_URL}}" },
+      },
+    ],
+  };
+}
+
+export function createSppkg(
+  version = "1.2.3.4",
+  componentContent = "component",
+  plugin: Record<string, unknown> = createPluginManifest()
+): Buffer {
   const agent = new AdmZip();
-  agent.addFile(
-    "ai-plugin.json",
-    Buffer.from(
-      JSON.stringify({
-        schema_version: "v2.4",
-        namespace: "sample",
-        name_for_human: "Sample",
-        description_for_human: "Sample API plugin",
-        functions: [],
-        runtimes: [
-          {
-            type: "RemoteMCPServer",
-            auth: { type: "None" },
-            spec: { url: "{{TENANT_MCP_URL}}" },
-          },
-        ],
-      })
-    )
-  );
+  agent.addFile("ai-plugin.json", Buffer.from(JSON.stringify(plugin)));
   agent.addFile("manifest.json", Buffer.from("{}"));
   agent.addFile("declarativeAgent.json", Buffer.from("{}"));
 
@@ -74,7 +83,7 @@ export function createSppkg(version = "1.2.3.4", componentContent = "component")
   return packageZip.toBuffer();
 }
 
-export function createAppPackage(version = "2.3.4"): Buffer {
+export function createAppPackage(version = "2.3.4", overrides: AppPackageOverrides = {}): Buffer {
   const zip = new AdmZip();
   zip.addFile(
     "manifest.json",
@@ -98,6 +107,7 @@ export function createAppPackage(version = "2.3.4"): Buffer {
         copilotAgents: {
           declarativeAgents: [{ id: "agent", file: "declarativeAgent.json" }],
         },
+        ...overrides.manifest,
       })
     )
   );
@@ -110,10 +120,14 @@ export function createAppPackage(version = "2.3.4"): Buffer {
         description: "Sample agent description",
         instructions: "Keep these instructions",
         actions: [],
+        ...overrides.agent,
       })
     )
   );
   zip.addFile("color.png", Buffer.from("icon"));
   zip.addFile("outline.png", Buffer.from("icon"));
+  for (const [name, content] of Object.entries(overrides.files ?? {})) {
+    zip.addFile(name, Buffer.from(content));
+  }
   return zip.toBuffer();
 }
